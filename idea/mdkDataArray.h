@@ -1,14 +1,14 @@
 #ifndef __mdkDataArray_h
 #define __mdkDataArray_h
 
-#include "mdkDataObject.h"
+#include "mdkAbstractDataArray.h"
 
 namespace mdk
 {
 
 // Element = [Component0, Component1, Component2, ...]
-// ElementLength: number of components in an element
-// all the Elements in DataArray have the same ElementLength
+// ScalarNumberInElement: number of components in an element
+// all the Elements in DataArray have the same ScalarNumberInElement
 //
 // DataArray = [Element0, Element1, Element2, ElementX, ElementY0, ElementY1...]
 // [Element0, ..., ElementX] are effective elements
@@ -16,30 +16,28 @@ namespace mdk
 
 // From mdkDataArray, wen can derive mdkMatrix(2D), mdkImage (3D+t)
  
-template<typename ScalarType>	
-class mdkDataArray : public mdkDataObject
+	
+class mdkDataArray : public mdkAbstractDataArray
 {
 
-protected:
-
-	void* m_ScalarPointer;
-
-	uint64 m_ElementLength;
-
-	uint64 m_ElementNumber;
-
-	uint64 m_EffectiveElementNumber;
-
-	uint64 m_ExpantionNumber;
-
 private:
-	ScalarType m_ScalarTypeData;
+	mdkAbstractDataArray* m_DataArray;
+
+	mdkScalarTypeEnum m_ScalarType;
+
+	mdkScalarTypeEnum m_ScalarType_Input;
+
+	uint64 m_ScalarNumberInElement_Input;
+
+	uint64 m_ElementNumber_Input;
 
 public:		
 	mdkDataArray();
 	~mdkDataArray();
 
-	bool SetElementLength(uint64 Length);
+	bool SetScalarType(mdkScalarTypeEnum ScalarType);
+
+	bool SetScalarNumberInElement(uint64 Length);
 
 	bool SetElementNumber(uint64 Number);
 
@@ -48,7 +46,7 @@ public:
 	bool Allocate();
 
 	bool CopyData(void* SourceData, mdkScalarTypeEnum SourceDataType,
-		          uint64 ElementLength, uint64 ElementNumber);
+		          uint64 ScalarNumberInElement, uint64 ElementNumber);
 
 	bool SetElement(uint64 ElementIndex, const double* Element);
 
@@ -62,7 +60,7 @@ public:
 
 	bool GetElement(uint64 ElementIndex, double* Element);
 
-	uint64 GetElementLength();
+	uint64 GetScalarNumberInElement();
 
 	uint64 GetElementNumber();
 
@@ -75,13 +73,14 @@ public:
 	void Clear();
 
 private:
+	bool Initialize();
+
+private:
 	mdkDataArray(const mdkDataArray&);          // Not implemented.
 	void operator= (const mdkDataArray&);  // Not implemented.
 
 };
 
 }//end namespace mdk
-
-#include "mdkDataArray.hpp"
 
 #endif

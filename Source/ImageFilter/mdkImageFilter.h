@@ -16,24 +16,29 @@ class mdkImageFilter : public mdkAlgorithmObject
 private:
 	//-------------- input ----------------------
 
-	//port 0: 
-	mdkImage* m_InputImage;
+	// inputport 0: 
+	mdkImage*   m_InputImage;
+	
 	//port 1:
-	double*  m_InputImageRegion;  // compute values at the points in the set
-    //port 2:
+	mdkMatrix*  m_InterestRegion;  // compute values at the points in the region
+	
+	//port 2:
+	mdkMatrix*  m_InterestPositionList;  // compute values at the points in the list
+    
+	//port 3:
 	mdkImageFilterMask* m_InputMask;
 
 	//---------------output ---------------------
 
-	//port 0:
+	// outputport 0:
 	mdkImage* m_OutputImage;
-	//port 1:
-	mdkDataArrayTemplate<double>* m_OutputData;
+
+	// outputport 1:
+	mdkMatrix* m_OutputData;
 
 	// ------------- internal data -----------------
-	bool  m_AutoClearInputAfterUpdate;
 
-	int m_NumberOfThread;
+	int m_ThreadNumber;
 
 public:		
 	mdkImageFilter();

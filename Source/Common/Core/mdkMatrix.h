@@ -1,27 +1,50 @@
 #ifndef __mdkMatrix_h
 #define __mdkMatrix_h
 
-#include "mdkDataArray.h"
+#include "mdkStructuredDataArray.h"
 
 namespace mdk
 {
 
-template<typename ScalarType>
-class mdkMatrix : public mdkDataArray<ScalarType>
+// 2D Matrix Class, each entry is a scalar
+// column major, i.e., a column is an element in mdkStructuredDataArray
+// RowNumber  =  ElementSize[0]
+// ColumNumber = ElementNumberInArray
+// a matrix can dynamicly expand in column direction: via member function InsertColumn implemented in this class
+//
+// linear algebra library Eigen works better with column major matrix
+// If heavy linear algebra is required, then convert mdkMatrix to Eigen matrix, do something, and convert back
+//
+class mdkMatrix : mdkStructuredDataArray
 {
 
+private:
+
+	uint64 m_RowNumber;
+	
+	uint64 m_ColumnNumber;
+
 public:		
-	//uint64 RowNumber = ElementLength
-	//uint64 ColumNumber = ElementNumber
-	//store: column major, i.e., a column is an element in mdkDataArray
+	
 	mdkMatrix();
 	~mdkMatrix();
 
-	bool Initialize(uint64 RowNumber, uint64 ColumnNumber);
+	bool Initialize(mdkScalarTypeEnum ScalarType, uint64 RowNumber, uint64 ColumnNumber);
+
+
+	mdkMatrix operator+(mdkMatrix& SourceMatrix);
+
+	mdkMatrix operator-(mdkMatrix& SourceMatrix);
+
+	mdkMatrix operator*(mdkMatrix& SourceMatrix);
+
+	mdkMatrix operator/(mdkMatrix& SourceMatrix);
+
+	mdkMatrix& operator*=(mdkMatrix& SourceMatrix);
+
+	mdkMatrix& operator-=(mdkMatrix& SourceMatrix);
 };
 
 }//end namespace mdk
-
-#include "mdkMatrix.hpp"
 
 #endif

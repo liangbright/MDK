@@ -25,33 +25,29 @@ FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 set(Core_FILES 
 ${Core_DIR}/mdkType.h
 
+${Debug_DIR}/mdkDebug.h
+
 ${Core_DIR}/mdkObject.h
 ${Core_DIR}/mdkObject.cpp
 
-${Core_DIR}/mdkDataObject.h
-${Core_DIR}/mdkDataObject.cpp
+${Core_DIR}/mdkAbstractStructuredDataArrayTemplate.h
+${Core_DIR}/mdkAbstractStructuredDataArrayTemplate.cpp
 
-${Core_DIR}/mdkAlgorithmObject.h
-${Core_DIR}/mdkAlgorithmObject.cpp
+${Core_DIR}/mdkStructuredDataArrayTemplate.h
+${Core_DIR}/mdkStructuredDataArrayTemplate.hpp
 
-${Core_DIR}/mdkDataArray.h
-${Core_DIR}/mdkDataArray.hpp
-
-#${Core_DIR}/mdkPointSet.h
-#${Core_DIR}/mdkPointSet.cpp
-
+${Core_DIR}/mdkStructuredDataArray.h
+${Core_DIR}/mdkStructuredDataArray.cpp
 
 ${Core_DIR}/mdkMatrix.h
-${Core_DIR}/mdkMatrix.hpp
+${Core_DIR}/mdkMatrix.cpp
 
 ${Core_DIR}/mdkImage.h
 ${Core_DIR}/mdkImage.cpp
 
-#${Core_DIR}/mdkImageRegion.h
-#${Core_DIR}/mdkImageRegion.cpp
+${Core_DIR}/mdkImageRegionProperty.h
+${Core_DIR}/mdkImageRegionProperty.cpp
 
-
-${Debug_DIR}/mdkDebug.h
 )
 
 

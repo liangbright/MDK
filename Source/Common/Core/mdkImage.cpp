@@ -5,14 +5,13 @@
 namespace mdk
 {
 
-template<typename ScalarType>
-mdkImage<ScalarType>::mdkImage()
+mdkImage::mdkImage()
 {
 
 }
 
-template<typename ScalarType>
-mdkImage<ScalarType>::~mdkImage()
+
+mdkImage::~mdkImage()
 {
 
 }
