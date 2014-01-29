@@ -15,6 +15,15 @@ mdkObject::~mdkObject()
 {
 }
 
+mdkObject::mdkObject(const mdkObject&)
+{
+
+}
+
+void mdkObject::operator=(const mdkObject&)
+{
+
+}
 
 void mdkObject::SetMaximumInputNumber(uint64 Number)
 {

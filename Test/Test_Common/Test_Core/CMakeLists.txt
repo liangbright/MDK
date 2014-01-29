@@ -30,23 +30,14 @@ ${Debug_DIR}/mdkDebug.h
 ${Core_DIR}/mdkObject.h
 ${Core_DIR}/mdkObject.cpp
 
-${Core_DIR}/mdkAbstractStructuredDataArrayTemplate.h
-${Core_DIR}/mdkAbstractStructuredDataArrayTemplate.cpp
-
-${Core_DIR}/mdkStructuredDataArrayTemplate.h
-${Core_DIR}/mdkStructuredDataArrayTemplate.hpp
-
-${Core_DIR}/mdkStructuredDataArray.h
-${Core_DIR}/mdkStructuredDataArray.cpp
-
 ${Core_DIR}/mdkMatrix.h
-${Core_DIR}/mdkMatrix.cpp
+${Core_DIR}/mdkMatrix.hpp
 
-${Core_DIR}/mdkImage.h
-${Core_DIR}/mdkImage.cpp
+#${Core_DIR}/mdkImage.h
+#${Core_DIR}/mdkImage.cpp
 
-${Core_DIR}/mdkImageRegionProperty.h
-${Core_DIR}/mdkImageRegionProperty.cpp
+#${Core_DIR}/mdkImageRegionProperty.h
+#${Core_DIR}/mdkImageRegionProperty.cpp
 
 )
 

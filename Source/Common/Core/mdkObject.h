@@ -55,9 +55,9 @@ protected:
 
 	void ClearInputAndOutputList();
 
-private:
-	mdkObject(const mdkObject&);       // Not implemented.
-	void operator=(const mdkObject&);  // Not implemented.
+protected:
+	mdkObject(const mdkObject&);       // Empty function
+	void operator=(const mdkObject&);  // Empty function
 };
 
 }//end namespace mdk

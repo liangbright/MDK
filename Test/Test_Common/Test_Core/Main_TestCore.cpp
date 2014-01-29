@@ -1,14 +1,18 @@
 #include <iostream>
 #include "mdkType.h"
-#include "mdkDataArray.h"
+#include "mdkMatrix.h"
 
-#include "TestDataArray.h"
+#include "TestMatrix.h"
 
 using namespace mdk;
 
 int main(int argc, char** argv)
 {
-	TestDataArray();
+//	TestMatrix_std_vector();
+
+	TestMatrix_Mutiplication();
+
+	TestMatrix_CopyOnWrite();
 
 
 }

@@ -7,6 +7,8 @@ namespace mdk
 
 //#define  mdkDebug 
 
-#define  mdkWarning    std::cout
+#define  mdkWarning    std::cout << "Warning: "
+
+#define  mdkError      std::cout << "Error: "
 
 }//end namespace mdk
