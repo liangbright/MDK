@@ -488,15 +488,15 @@ template<typename ScalarType>
 inline
 ScalarType& mdkMatrix<ScalarType>::operator()(uint64 LinearIndex)
 {
-	this->CopyOnWrite();
-
-	auto RawPointer = m_ScalarData->data();
-
 	if (LinearIndex >= m_RowNumber*m_ColNumber)
 	{
 		mdkError << "LinearIndex >= m_RowNumber*m_ColNumber @ mdkMatrix operator(i)" <<'\n';
 		return m_EmptyScalar;
 	}
+
+	this->CopyOnWrite();
+
+	auto RawPointer = m_ScalarData->data();
 
 	return RawPointer[LinearIndex];
 }
@@ -506,13 +506,13 @@ template<typename ScalarType>
 inline
 const ScalarType& mdkMatrix<ScalarType>::operator()(uint64 LinearIndex) const
 {
-	auto RawPointer = m_ScalarData->data();
-
 	if (LinearIndex >= m_RowNumber*m_ColNumber)
 	{
 		mdkError << "LinearIndex >= m_RowNumber*m_ColNumber @ mdkMatrix operator(i)" << endl;
 		return m_EmptyScalar;
 	}
+
+	auto RawPointer = m_ScalarData->data();
 
 	return RawPointer[LinearIndex];
 }
@@ -522,10 +522,6 @@ template<typename ScalarType>
 inline
 ScalarType& mdkMatrix<ScalarType>::operator()(uint64 RowIndex, uint64 ColIndex)
 {
-	this->CopyOnWrite();
-
-	auto RawPointer = m_ScalarData->data();
-
 	auto LinearIndex = ColIndex*m_RowNumber + RowIndex;
 
 	if (LinearIndex >= m_RowNumber*m_ColNumber)
@@ -533,6 +529,10 @@ ScalarType& mdkMatrix<ScalarType>::operator()(uint64 RowIndex, uint64 ColIndex)
 		mdkError << "LinearIndex >= m_RowNumber*m_ColNumber @ mdkMatrix operator(i,j)" << '\n';
 		return m_EmptyScalar;
 	}
+
+	this->CopyOnWrite();
+
+	auto RawPointer = m_ScalarData->data();
 
 	return RawPointer[LinearIndex];
 }
@@ -542,8 +542,6 @@ template<typename ScalarType>
 inline
 const ScalarType& mdkMatrix<ScalarType>::operator()(uint64 RowIndex, uint64 ColIndex) const
 {
-	auto RawPointer = m_ScalarData->data();
-
 	auto LinearIndex = ColIndex*m_RowNumber + RowIndex;
 
 	if (LinearIndex >= m_RowNumber*m_ColNumber)
@@ -551,6 +549,8 @@ const ScalarType& mdkMatrix<ScalarType>::operator()(uint64 RowIndex, uint64 ColI
 		mdkError << "LinearIndex >= m_RowNumber*m_ColNumber @ mdkMatrix operator(i,j)" << endl;
 		return m_EmptyScalar;
 	}
+
+	auto RawPointer = m_ScalarData->data();
 
 	return RawPointer[LinearIndex];
 }
@@ -1072,29 +1072,40 @@ mdkMatrix<ScalarType> mdkMatrix<ScalarType>::operator*(mdkMatrix<ScalarType_targ
 
 	auto tempSharedPointer = tempMatrix.GetScalarDataSharedPointer();
 
-	//RawPointer_target = targetMatrix.GetScalarDataRawPointer();
+	auto RawPointer_target = targetMatrix.GetScalarDataRawPointer();
 
-	//RawPointer = m_ScalarData->data();
+	auto RawPointer = m_ScalarData->data();
 
 	uint64 tempIndex = 0;
+
+	uint64 Index = 0;
+
+	uint64 Index_target = 0;
 
 	ScalarType sum = 0;
 
 	for (uint64 j = 0; j < ColNumber_target; ++j)
 	{
-		tempIndex = j*m_RowNumber;
-		
 		for (uint64 i = 0; i < m_RowNumber; ++i)
 		{
 			sum = 0;
 
+			Index = 0;
+
 			for (uint64 k = 0; k < m_ColNumber; ++k)
 			{
-				sum += (*this)(i,k) * ScalarType(targetMatrix(k,j));
+				//sum += (*this)(i,k) * ScalarType(targetMatrix(k,j));
+				sum += RawPointer[Index + i] * ScalarType(RawPointer_target[Index_target + k]);
+
+				Index += m_RowNumber;
 			}
 
 			tempSharedPointer->operator[](tempIndex + i) = sum;
 		}
+
+		tempIndex += m_RowNumber;
+
+		Index_target += RowNumber_target;
 	}
 
 	return tempMatrix;
