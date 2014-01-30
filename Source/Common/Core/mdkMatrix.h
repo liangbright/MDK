@@ -17,6 +17,7 @@ namespace mdk
 // If heavy linear algebra is required, then convert mdkMatrix to Armadillo matrix, do something, and convert back
 // Armadillo is a linear algebra library, and it uses column major matrix
 //
+// The functions that are not supported in Armadillo, are provided in mdkLinearAlgebra.h/cpp
 
 //forward-declare the template class
 template<typename ScalarType>
@@ -38,16 +39,6 @@ struct mdkMatrixSVDResult
 	mdkMatrix<ScalarType> V;  // matrix
 };
 
-
-template<typename ScalarType>
-struct mdkMatrixPCAResult
-{
-// Matrix = M+U*S*U';
-
-	mdkMatrix<ScalarType> M; // mean
-	mdkMatrix<ScalarType> U; // eigenvector
-	mdkMatrix<ScalarType> S;  // matrix  : change to vector?
-};
 
 // ----------------------- Matrix {+ - * /}  Matrix ------------------------------------------------//
 
@@ -102,6 +93,8 @@ private:
 	uint64 m_RowNumber;
 	
 	uint64 m_ColNumber;
+
+	uint64 m_ScalarNumber;  // total number of scalars
 
 	std::shared_ptr<std::vector<ScalarType>> m_ScalarData;
 
@@ -188,8 +181,6 @@ public:
 
 	//---------------------- Get Matrix(i_s to i_e, j_s to j_e) ----------------------------------------//
 
-	inline mdkMatrix operator()(uint64 RowIndex_s, uint64 RowIndex_e, uint64 ColIndex_s, uint64 ColIndex_e);
-
 	inline mdkMatrix SubMatrix(uint64 RowIndex_s, uint64 RowIndex_e, uint64 ColIndex_s, uint64 ColIndex_e);
 
 	//---------------------- Get/Set a column ----------------------------------------//
@@ -205,16 +196,18 @@ public:
 
 	inline bool SetCol(uint64 ColIndex, const ScalarType* ColData);
 
-	inline bool SetCol(uint64 ColIndex, const std::vector<ScalarType>& ColData);
+	template<typename ScalarType_input>
+	inline bool SetCol(uint64 ColIndex, const std::vector<ScalarType_input>& ColData);
 
 	template<typename ScalarType_input>
 	inline bool AppendCol(const mdkMatrix<ScalarType_input>& ColData);
 
 	inline bool AppendCol(const ScalarType* ColData);
+	
+	template<typename ScalarType_input>
+	inline bool AppendCol(const std::vector<ScalarType_input>& ColData);
 
-	inline bool AppendCol(const std::vector<ScalarType>& ColData);
-
-	//---------------------- Get/Set a row or column ----------------------------------------//
+	//---------------------- Get/Set a row  ----------------------------------------//
 	
 	inline mdkMatrix GetRow(uint64 RowIndex);
 
@@ -227,14 +220,16 @@ public:
 
 	inline bool SetRow(uint64 RowIndex, const ScalarType* RowData);
 
-	inline bool SetRow(uint64 RowIndex, const std::vector<ScalarType>& RowData);
+	template<typename ScalarType_input>
+	inline bool SetRow(uint64 RowIndex, const std::vector<ScalarType_input>& RowData);
 
 	template<typename ScalarType_input>
 	inline bool AppendRow(mdkMatrix<ScalarType_input>& RowData);
 
 	inline bool AppendRow(const ScalarType* RowData);
 
-	inline bool AppendRow(const std::vector<ScalarType>& RowData);
+	template<typename ScalarType_input>
+	inline bool AppendRow(const std::vector<ScalarType_input>& RowData);
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 
@@ -251,7 +246,8 @@ public:
 
 	inline bool SetDiangonal(const ScalarType* DiangonalData);
 
-	inline bool SetDiangonal(const std::vector<ScalarType>& DiangonalData);
+	template<typename ScalarType_input>
+	inline bool SetDiangonal(const std::vector<ScalarType_input>& DiangonalData);
 
 	//---------------------- Matrix {+= -= *= /=} Matrix ----------------------------------------//
 
@@ -335,20 +331,7 @@ public:
 
 	//----------------------------------- SVD -----------------------------------------//
 
-	inline mdkMatrixSVDResult<ScalarType> SVD();
-
-	//----------------------------------- PCA -----------------------------------------//
-
-	inline mdkMatrixPCAResult<ScalarType> PCA();
-
-	//----------------------------------- Convolution -----------------------------------------//
-
-	template<typename ScalarType_target>
-	inline mdkMatrix GetConvolution(mdkMatrix<ScalarType_target> MaskMatrix);
-
-	//----------------------------------- LinearCombine -----------------------------------------//
-
-	inline static mdkMatrix LinearCombine(std::vector<double> AlphaList, std::vector<mdkMatrix<ScalarType>*> MatrixList);
+	inline mdkMatrixSVDResult<ScalarType> SVD();	
 
 	//---------------------------- private functions ---------------------------------------//
 

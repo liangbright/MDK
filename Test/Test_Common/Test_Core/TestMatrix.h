@@ -2,10 +2,7 @@
 #define __TestMatrix_h
 
 #include "mdkMatrix.h"
-
-#define ElementLength_in 10
-
-#define ElementNumber_in 10
+#include "mdkLinearAlgebra.h"
 
 namespace mdk
 {
@@ -512,7 +509,7 @@ void TestMatrix_LinearCombine()
 
 	std::vector<mdkMatrix<double>*> MatrixList = { &A, &B, &C, &D };
 
-	auto SumMatrix = mdkMatrix<double>::LinearCombine(AlphaList, MatrixList);
+	auto SumMatrix = mdk::LinearCombine(AlphaList, MatrixList);
 
 	std::cout << "1A+2B+3C+4D = " << '\n';
 
@@ -549,32 +546,84 @@ void TestMatrix_Arma()
 		std::cout << '\n';
 	}
 
-	auto B = A.Inv();
+	auto invA = A.Inv();
 	std::cout << "A.Inv() = " << '\n';
 
 	for (uint64 i = 0; i < 3; ++i)
 	{
 		for (uint64 j = 0; j < 3; ++j)
 		{
-			std::cout << B(i, j) << ' ';
+			std::cout << invA(i, j) << ' ';
 		}
 
 		std::cout << '\n';
 	}
 
-	auto C = A*B;
-	std::cout << "A*A.Inv() = " << '\n';
+	auto AinvA = A*invA;
+	std::cout << "A*invA = " << '\n';
 
 	for (uint64 i = 0; i < 3; ++i)
 	{
 		for (uint64 j = 0; j < 3; ++j)
 		{
-			std::cout << C(i, j) << ' ';
+			std::cout << AinvA(i, j) << ' ';
 		}
 
 		std::cout << '\n';
 	}
 
+	auto ASVD = A.SVD();
+
+	std::cout << "ASVD.U = " << '\n';
+
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		for (uint64 j = 0; j < 3; ++j)
+		{
+			std::cout << ASVD.U(i, j) << ' ';
+		}
+
+		std::cout << '\n';
+	}
+
+	std::cout << "ASVD.S = " << '\n';
+
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		for (uint64 j = 0; j < 3; ++j)
+		{
+			std::cout << ASVD.S(i, j) << ' ';
+		}
+
+		std::cout << '\n';
+	}
+
+
+	std::cout << "ASVD.V = " << '\n';
+
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		for (uint64 j = 0; j < 3; ++j)
+		{
+			std::cout << ASVD.V(i, j) << ' ';
+		}
+
+		std::cout << '\n';
+	}
+
+	auto tempA = ASVD.U*ASVD.S*ASVD.V.GetTranspose();
+
+	std::cout << "ASVD.U*ASVD.S*ASVD.V' = " << '\n';
+
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		for (uint64 j = 0; j < 3; ++j)
+		{
+			std::cout << tempA(i, j) << ' ';
+		}
+
+		std::cout << '\n';
+	}
 }
 
 

@@ -1,26 +1,24 @@
-#ifndef __mdkImage_h
-#define __mdkImage_h
+#ifndef __mdk3DImage_h
+#define __mdk3DImage_h
 
-#include "mdkStructuredDataArray.h"
+#include "mdkObject.h"
 
 namespace mdk
 {
 
-// 3D+t Image Class
-// Voxel = Element in mdkStructuredDataArray
-// Voxel is the space occupied by element 
+// 3D Image Class
+// Voxel = a vector of scalars
 // Lx: image length in x-direction
 // Ly: image length in y-direction
 // Lz: image length in z-direction
-// Lt: image length in t-direction
 
-class mdkImage : public mdkStructuredDataArray
+class mdk3DImage : public mdkStructuredDataArray
 {
 
 private:
 	// VoxelPhysicalSize (unit: mm), e.g., 0.5mm x 0.5mm x 0.5mm,  same resolution in x, y, z directions 
 	// same resolution => image filters do not need to be re-sampled with different voxel shape
-	// reslicethe input image using itk/vtk, then feed it into this class.
+	// reslice the input image using itk/vtk, then feed it into this class.
 	//
 	// ok to store image with nonisotropic voxels
 	// but such image is not good for analsyis
@@ -28,7 +26,7 @@ private:
 	//
 	// itk can register images with nonisotropic voxels
 
-	double ElementPhysicalSize[3];
+	double VoxelPhysicalSize[3];
 
 	// time interval between frames (unit: second)
 	// zero if Lt = 0
@@ -45,9 +43,9 @@ private:
 
 public:		
 	
-	mdkImage();
+	mdk3DImage();
 
-	~mdkImage();
+	~mdk3DImage();
 
 	bool Initialize(mdkScalarTypeEnum ScalarType, 
 		            uint64 Lx, uint64 Ly, uint64 Lz, uint64 Lt,
@@ -62,8 +60,8 @@ public:
 					double TimeIntervalList[]);
 
 private:
-	mdkImage(const mdkImage&);        // Not implemented.
-	void operator=(const mdkImage&);  // Not implemented.
+	mdk3DImage(const mdk3DImage&);        // Not implemented.
+	void operator=(const mdk3DImage&);  // Not implemented.
 };
 
 }//end namespace mdk

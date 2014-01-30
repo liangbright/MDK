@@ -19,17 +19,20 @@ set(Debug_DIR "C:/Research/MDK/Code/Source/Common/Debug")
 set(Core_DIR "C:/Research/MDK/Code/Source/Common/Core")
 
 set(Arma_DIR "C:/Research/MDK/Code/Source")
+
+set(Lapack_Blas_DIR "C:/Research/MDK/LinearALgebraLib_win64")
  
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${Core_DIR} ${Debug_DIR} ${Arma_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${Core_DIR} ${Debug_DIR} ${Arma_DIR} ${Lapack_Blas_DIR})
 
 FILE(GLOB Arma_FILES "C:/Research/MDK/Code/Source/armadillo_bits/*.hpp")
 
 FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
 set(Core_FILES 
-${Core_DIR}/mdkType.h
 
 ${Debug_DIR}/mdkDebug.h
+
+${Core_DIR}/mdkType.h
 
 ${Core_DIR}/mdkObject.h
 ${Core_DIR}/mdkObject.cpp
@@ -37,12 +40,14 @@ ${Core_DIR}/mdkObject.cpp
 ${Core_DIR}/mdkMatrix.h
 ${Core_DIR}/mdkMatrix.hpp
 
-#${Core_DIR}/mdkImage.h
-#${Core_DIR}/mdkImage.cpp
+${Core_DIR}/mdkLinearAlgebra.h
+${Core_DIR}/mdkLinearAlgebra.hpp
+
+${Core_DIR}/mdk3DImage.h
+${Core_DIR}/mdk3DImage.hpp
 
 #${Core_DIR}/mdkImageRegionProperty.h
 #${Core_DIR}/mdkImageRegionProperty.cpp
-
 )
 
 set(LinearALgebraLib_win64 C:/Research/MDK/LinearALgebraLib_win64/lapack_win64_MT.lib  C:/Research/MDK/LinearALgebraLib_win64/blas_win64_MT.lib)
