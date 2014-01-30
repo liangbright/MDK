@@ -17,9 +17,13 @@ find_package(Qt5Widgets REQUIRED QUIET)
 set(Debug_DIR "C:/Research/MDK/Code/Source/Common/Debug")
 
 set(Core_DIR "C:/Research/MDK/Code/Source/Common/Core")
+
+set(Arma_DIR "C:/Research/MDK/Code/Source")
  
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${Core_DIR} ${Debug_DIR})
-  
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${Core_DIR} ${Debug_DIR} ${Arma_DIR})
+
+FILE(GLOB Arma_FILES "C:/Research/MDK/Code/Source/armadillo_bits/*.hpp")
+
 FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
 set(Core_FILES 
@@ -41,15 +45,16 @@ ${Core_DIR}/mdkMatrix.hpp
 
 )
 
-
-message(STATUS Show_FILES)
+set(LinearALgebraLib_win64 C:/Research/MDK/LinearALgebraLib_win64/lapack_win64_MT.lib  C:/Research/MDK/LinearALgebraLib_win64/blas_win64_MT.lib)
 
 message(STATUS ${Test_FILES})
 
 message(STATUS ${Core_FILES})
 
-add_executable(MDK_Test_Core ${Test_FILES} ${Core_FILES})
+message(STATUS ${Arma_FILES})
+
+add_executable(MDK_Test_Core ${Test_FILES} ${Core_FILES} ${Arma_FILES})
 
 qt5_use_modules(MDK_Test_Core Core GUI)
 
-target_link_libraries(MDK_Test_Core ${VTK_LIBRARIES}) 
+target_link_libraries(MDK_Test_Core ${VTK_LIBRARIES} ${LinearALgebraLib_win64}) 

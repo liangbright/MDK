@@ -14,5 +14,14 @@ int main(int argc, char** argv)
 
 	TestMatrix_CopyOnWrite();
 
+	TestMatrix_ElementOperation();
+
+	TestMatrix_Transpose();
+
+	TestMatrix_Sum_Mean_Max_Min();
+
+	TestMatrix_LinearCombine();
+
+	TestMatrix_Arma();
 
 }

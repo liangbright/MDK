@@ -43,6 +43,8 @@ namespace mdk
 
 		MDK_UNKNOWN,
 	} mdkScalarTypeEnum;
+
+
 }//end namespace mdk
 
 #endif
