@@ -35,28 +35,22 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::SetInputImage(mdk3DIma
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::SetInputPointSet(std::vector<uint64>* Input)
+void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::SetInputPointSet(mdkMatrix<uint32>* Input)
 {
 	m_InputPointSet = Input;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::SetMaskFunction(std::function<std::vector<std::vector<uint64>>(uint64, uint64, uint64, mdk3DImageSize, uint64)> Input)
+void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::SetFilterFunction(std::function<VoxelType_Output(uint64, uint64, uint64, mdk3DImage<VoxelType_Input>*)>* Input)
 {
-	m_MaskFunction = Input;
+	m_FilterFunction = Input;
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::SetComputeFunction(std::function<VoxelType_Output(std::vector<std::vector<uint64>>&, mdk3DImage<VoxelType_Input>*)> Input)
-{
-	m_ComputeFunction = Input;
-}
-
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::SetOutputImage(mdk3DImage<VoxelType_Input>* Output)
+void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::SetOutputImage(mdk3DImage<VoxelType_Output>* Output)
 {
 	m_OutputImage = Output;
 }
@@ -70,7 +64,14 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::SetOutputArray(std::ve
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::mdk3DImageFilter::Run()
+void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::SetMaxThreadNumber(uint32 MaxNumber)
+{
+	m_MaxThreadNumber = MaxNumber;
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
+void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
 {
 	if (m_InputPointSet == nullptr)
 	{
@@ -84,15 +85,17 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::mdk3DImageFilter::Run(
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::mdk3DImageFilter::Run_OutputImage()
+void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run_OutputImage()
 {
 	// multi-thread
-	if (m_ThreadNumber > 1)
+	if (m_MaxThreadNumber > 1)
 	{
 		// divide the output image into regions
 		// so that one thread outputs one region
 
-		m_VoxelNumber / m_ThreadNumber;
+		auto Size = m_InputImage->GetImageSize();
+
+		Size.Lz / m_MaxThreadNumber;
 
 		
 		std::vector<uint64> Index_s(ThreadNumber);
@@ -114,12 +117,13 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::mdk3DImageFilter::Run_
 	}
 	else//single-thread
 	{
-		this->RunFilter_OutputImage(m_InputImageRegion);
+		this->Run_OutputImage_in_a_Thread(0, Size.Lz-1);
 	}
 }
 
 
-void mdk3DImageFilter::Run_OutputMatrix()
+template<typename VoxelType_Input, typename VoxelType_Output>
+void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run_OutputArray()
 {
 }
 

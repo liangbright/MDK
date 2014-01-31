@@ -13,7 +13,6 @@ mdk3DImage<VoxelType>::mdk3DImage()
 template<typename VoxelType>
 mdk3DImage<VoxelType>::~mdk3DImage()
 {
-	m_ScalarData.reset();
 }
 
 
@@ -28,7 +27,7 @@ bool mdk3DImage<VoxelType>::Initialize(uint64 Lx, uint64 Ly, uint64 Lz,
 {
 	if (m_VoxelNumber > 0)
 	{
-		mdkWarning << "re-call Initialize @ mdk3DImage" << '\n';
+		mdkWarning << "re-call Initialize @ mdk3DImage::Initialize" << '\n';
 		this->Clear();
 	}
 
@@ -48,10 +47,7 @@ bool mdk3DImage<VoxelType>::Initialize(uint64 Lx, uint64 Ly, uint64 Lz,
 	m_VoxelPhysicalSize[1] = VoxelPhysicalSize_y;
 	m_VoxelPhysicalSize[2] = VoxelPhysicalSize_z;
 
-	if (m_VoxelNumber > 0)
-	{
-		m_ScalarData->resize(m_VoxelNumber);
-	}
+	m_ScalarData->resize(m_VoxelNumber);
 
 	return true;
 }
@@ -99,6 +95,8 @@ void mdk3DImage<VoxelType>::Copy(mdk3DImage<VoxelType> targetImage)
 {
 	if (targetImage.IsEmpty() == true)
 	{
+		mdkWarning << "targetImage is empty @ mdk3DImage::Copy" << '\n';
+		this->Clear();
 		return;
 	}
 
@@ -233,7 +231,21 @@ VoxelType& mdk3DImage<VoxelType>::operator()(uint64 LinearIndex)
 {
 	if (LinearIndex >= m_VoxelNumber)
 	{
-		mdkError << "LinearIndex >= m_VoxelNumber operator(LinearIndex)" << '\n';
+		mdkError << "LinearIndex >= m_VoxelNumber @ mkd3DImage::operator(LinearIndex)" << '\n';
+		return m_EmptyVoxel;
+	}
+
+	return m_VoxelData->operator[](LinearIndex);
+}
+
+
+template<typename VoxelType>
+inline
+const VoxelType& mdk3DImage<VoxelType>::operator()(uint64 LinearIndex) const
+{
+	if (LinearIndex >= m_VoxelNumber)
+	{
+		mdkError << "LinearIndex >= m_VoxelNumber @ mkd3DImage::operator(LinearIndex)" << '\n';
 		return m_EmptyVoxel;
 	}
 
@@ -245,11 +257,11 @@ template<typename VoxelType>
 inline
 VoxelType& mdk3DImage<VoxelType>::operator()(uint64 xIndex, uint64 yIndex, uint64 zIndex)
 {
-	LinearIndex = zIndex*m_VoxelNumberPerZSlice + yIndex*m_ImageSize[0] + xIndex;
+	auto LinearIndex = zIndex*m_VoxelNumberPerZSlice + yIndex*m_ImageSize[0] + xIndex;
 
 	if (LinearIndex >= m_VoxelNumber)
 	{
-		mdkError << "LinearIndex >= m_VoxelNumber operator(xIndex, yIndex, zIndex)" << '\n';
+		mdkError << "LinearIndex >= m_VoxelNumber @ mkd3DImage::operator(xIndex, yIndex, zIndex)" << '\n';
 		return m_EmptyVoxel;
 	}
 
@@ -259,17 +271,47 @@ VoxelType& mdk3DImage<VoxelType>::operator()(uint64 xIndex, uint64 yIndex, uint6
 
 template<typename VoxelType>
 inline
-VoxelType& mdk3DImage<VoxelType>::Voxel(uint64 LinearIndex)
+const VoxelType& mdk3DImage<VoxelType>::operator()(uint64 xIndex, uint64 yIndex, uint64 zIndex) const
 {
-	return (*this)(LinearIndex);
+	auto LinearIndex = zIndex*m_VoxelNumberPerZSlice + yIndex*m_ImageSize[0] + xIndex;
+
+	if (LinearIndex >= m_VoxelNumber)
+	{
+		mdkError << "LinearIndex >= m_VoxelNumber @ mkd3DImage::operator(xIndex, yIndex, zIndex)" << '\n';
+		return m_EmptyVoxel;
+	}
+
+	return m_VoxelData->operator[](LinearIndex);
 }
 
 
 template<typename VoxelType>
 inline
-VoxelType& mdk3DImage<VoxelType>::Voxel(uint64 xIndex, uint64 yIndex, uint64 zIndex)
+const VoxelType& mdk3DImage<VoxelType>::Voxel(uint64 LinearIndex)
 {
-	return (*this)(xIndex, yIndex, zIndex);
+	if (LinearIndex >= m_VoxelNumber)
+	{
+		mdkError << "LinearIndex >= m_VoxelNumber @ mkd3DImage::Voxel(LinearIndex)" << '\n';
+		return m_EmptyVoxel;
+	}
+
+	return m_VoxelData->operator[](LinearIndex);
+}
+
+
+template<typename VoxelType>
+inline
+const VoxelType& mdk3DImage<VoxelType>::Voxel(uint64 xIndex, uint64 yIndex, uint64 zIndex)
+{
+	auto LinearIndex = zIndex*m_VoxelNumberPerZSlice + yIndex*m_ImageSize[0] + xIndex;
+
+	if (LinearIndex >= m_VoxelNumber)
+	{
+		mdkError << "LinearIndex >= m_VoxelNumber @ mkd3DImage::Voxel(xIndex, yIndex, zIndex)" << '\n';
+		return m_EmptyVoxel;
+	}
+
+	return m_VoxelData->operator[](LinearIndex);
 }
 
 

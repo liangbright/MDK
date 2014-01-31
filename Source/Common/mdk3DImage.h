@@ -40,7 +40,7 @@ class mdk3DImage : public mdkObject
 
 private:
 
-	std::shared_ptr<std::vector<VoxelType>> m_VoxelData;
+	std::unique_ptr<std::vector<VoxelType>> m_VoxelData;
 
 	uint64 m_ImageSize[3]; // {Lx, Ly, Lz} number of voxels in each direction
 
@@ -48,7 +48,7 @@ private:
 
 	uint64 m_VoxelNumberPerZSlice; // total number of voxels in each z-slice  = m_ImageSize[2]*m_ImageSize[1]
 
-	double m_PhysicalOrigin[3];    // {x0, y0, z0} in world coordinate system (unit: mm)
+	double m_PhysicalOrigin[3];    // {x0, y0, z0} in world coordinate system (x,y,z) (unit: mm)
 
 	double m_VoxelPhysicalSize[3];
 
@@ -92,19 +92,15 @@ public:
 
 	inline VoxelType& operator()(uint64 LinearIndex);
 
-	//const VoxelType& operator()(uint64 LinearIndex) const;
-
-	inline VoxelType& Voxel(uint64 LinearIndex);
-
-	//const VoxelType& Voxel(uint64 LinearIndex) const;
+	inline const VoxelType& operator()(uint64 LinearIndex) const;
 
 	inline VoxelType& operator()(uint64 xIndex, uint64 yIndex, uint64 zIndex);
 
-	//const VoxelType& operator()(uint64 xIndex, uint64 yIndex, uint64 zIndex) const;
+	inline const VoxelType& operator()(uint64 xIndex, uint64 yIndex, uint64 zIndex) const;
 
-	inline VoxelType& Voxel(uint64 xIndex, uint64 yIndex, uint64 zIndex);
+	inline const VoxelType& Voxel(uint64 LinearIndex);
 
-	//const VoxelType& Voxel(uint64 xIndex, uint64 yIndex, uint64 zIndex) const;
+	inline const VoxelType& Voxel(uint64 xIndex, uint64 yIndex, uint64 zIndex);
 
 	//-------------------------- Get SubImage -------------------------------//
 
@@ -122,9 +118,9 @@ public:
 
 	//-------------------------- Interpolation -------------------------------//
 
-	inline VoxelType& operator()(double x, double y, double z);
+	inline VoxelType operator()(double x, double y, double z);
 
-	inline VoxelType& Voxel(double x, double y, double z);
+	inline VoxelType Voxel(double x, double y, double z);
 
 private:
 	mdk3DImage(const mdk3DImage&);        // Not implemented.

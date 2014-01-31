@@ -169,9 +169,7 @@ public:
 
 	//inline const ScalarType& operator[](uint64 LinearIndex) const;
 
-	inline ScalarType& Element(uint64 LinearIndex);
-
-	inline const ScalarType& Element(uint64 LinearIndex) const;
+	inline ScalarType Element(uint64 LinearIndex);
 
 	//---------------------- Get/Set Matrix(i,j) ----------------------------------------//
 
@@ -179,9 +177,7 @@ public:
 
 	inline const ScalarType& operator()(uint64 RowIndex, uint64 ColIndex) const;
 
-	inline ScalarType& Element(uint64 RowIndex, uint64 ColIndex);
-
-	inline const ScalarType& Element(uint64 RowIndex, uint64 ColIndex) const;
+	inline ScalarType Element(uint64 RowIndex, uint64 ColIndex);
 
 	//---------------------- Get Matrix(i_s to i_e, j_s to j_e) ----------------------------------------//
 

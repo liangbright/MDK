@@ -42,7 +42,6 @@ template<typename ScalarType>
 inline
 mdkMatrix<ScalarType>::~mdkMatrix()
 {
-	m_ScalarData.reset();
 }
 
 
@@ -436,15 +435,20 @@ template<typename ScalarType_target>
 inline
 bool mdkMatrix<ScalarType>::Copy(mdkMatrix<ScalarType_target>& targetMatrix)
 {
+	if (targetMatrix.IsEmpty() == true)
+	{
+		mdkWarning << "targetMatrix is empty @ mdkMatrix::Copy" << '\n';
+		this->Clear();
+		return true;
+	}
+
 	m_ScalarData.reset(new std::vector<ScalarType>);
 
 	auto Size = targetMatrix.GetSize();
 
 	auto targetRawPointer = targetMatrix.GetScalarDataRawPointer();
 
-	this->Copy(targetRawPointer, Size.RowNumber, Size.ColNumber);
-
-	return true;
+	return this->Copy(targetRawPointer, Size.RowNumber, Size.ColNumber);
 }
 
 
@@ -455,8 +459,9 @@ bool mdkMatrix<ScalarType>::Copy(ScalarType_target* ScalarPointer, uint64 RowNum
 {
 	if (ScalarPointer == nullptr)
 	{
-		mdkError << "input is empty @ mdkMatrix::Copy(ScalarType_target* ScalarPointer, uint64 RowNumber, uint64 ColNumber)" << '\n';
-		return false;
+		mdkWarning << "ScalarPointer is nullptr @ mdkMatrix::Copy" << '\n';
+		this->Clear();
+		return true;
 	}
 
 	ScalarType_target tempScalar = 0;
@@ -584,27 +589,11 @@ const ScalarType& mdkMatrix<ScalarType>::operator[](uint64 LinearIndex) const
 
 template<typename ScalarType>
 inline
-ScalarType& mdkMatrix<ScalarType>::Element(uint64 LinearIndex)
+ScalarType mdkMatrix<ScalarType>::Element(uint64 LinearIndex)
 {
 	if (LinearIndex >= m_ScalarNumber)
 	{
 		mdkError << "Invalid input @ mdkMatrix::Element(i)" << '\n';
-		return m_EmptyScalar;
-	}
-
-	this->CopyOnWrite();
-
-	return m_ScalarData->operator[](LinearIndex);
-}
-
-
-template<typename ScalarType>
-inline
-const ScalarType& mdkMatrix<ScalarType>::Element(uint64 LinearIndex) const
-{
-	if (LinearIndex >= m_ScalarNumber)
-	{
-		mdkError << "Invalid input @ mdkMatrix::Element(i)" << endl;
 		return m_EmptyScalar;
 	}
 
@@ -648,31 +637,13 @@ const ScalarType& mdkMatrix<ScalarType>::operator()(uint64 RowIndex, uint64 ColI
 
 template<typename ScalarType>
 inline
-ScalarType& mdkMatrix<ScalarType>::Element(uint64 RowIndex, uint64 ColIndex)
+ScalarType mdkMatrix<ScalarType>::Element(uint64 RowIndex, uint64 ColIndex)
 {
 	auto LinearIndex = ColIndex*m_RowNumber + RowIndex;
 
 	if (LinearIndex >= m_ScalarNumber)
 	{
 		mdkError << "Invalid input @ mdkMatrix::Element(i,j)" << '\n';
-		return m_EmptyScalar;
-	}
-
-	this->CopyOnWrite();
-
-	return m_ScalarData->operator[](LinearIndex);
-}
-
-
-template<typename ScalarType>
-inline
-const ScalarType& mdkMatrix<ScalarType>::Element(uint64 RowIndex, uint64 ColIndex) const
-{
-	auto LinearIndex = ColIndex*m_RowNumber + RowIndex;
-
-	if (LinearIndex >= m_ScalarNumber)
-	{
-		mdkError << "Invalid input @ mdkMatrix::Element(i,j) const" << '\n';
 		return m_EmptyScalar;
 	}
 
