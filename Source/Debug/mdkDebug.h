@@ -9,6 +9,6 @@ namespace mdk
 
 #define  mdkWarning    std::cout << "Warning: "
 
-#define  mdkError      std::cout << "Error: "
+#define  mdkError      std::cout << '\a' << "ERROR !~!~!~!~!~!~!~!~!~!~!~!~!~!: " << '\n'
 
 }//end namespace mdk

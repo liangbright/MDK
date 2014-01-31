@@ -524,6 +524,161 @@ void TestMatrix_LinearCombine()
 	}
 }
 
+void TestMatrix_Set_Get_Append_Col()
+{
+	std::cout << "TestMatrix_Set_Get_Append_Col " << '\n';
+
+	mdkMatrix<double> A;
+
+	A.SetSize(3, 0);
+
+	std::vector<double> Col;
+
+	Col = { 1, 2, 3 };
+	A.AppendCol(Col);
+
+	Col = { 4, 5, 6 };
+	A.AppendCol(Col);
+
+	Col = { 7, 8, 9 };
+	A.AppendCol(Col);
+
+	std::cout << "A = " << '\n';
+
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		for (uint64 j = 0; j < 3; ++j)
+		{
+			std::cout << A(i, j) << ' ';
+		}
+
+		std::cout << '\n';
+	}
+
+
+	Col = { 10, 20, 30 };
+	A.SetCol(1, Col);
+
+	Col = { 101, 201, 301 };
+	A.SetCol(2, Col);
+
+	std::cout << "A = " << '\n';
+
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		for (uint64 j = 0; j < 3; ++j)
+		{
+			std::cout << A(i, j) << ' ';
+		}
+
+		std::cout << '\n';
+	}
+
+
+	auto Col_output = A.Col(0);
+	std::cout << "A.Col(0)" << '\n';
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		std::cout << Col_output(i) << '\n';
+	}
+
+	Col_output = A.Col(1);
+	std::cout << "A.Col(1)" << '\n';
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		std::cout << Col_output(i) << '\n';
+	}
+
+	Col_output = A.Col(2);
+	std::cout << "A.Col(2)" << '\n';
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		std::cout << Col_output(i) << '\n';
+	}
+
+	Col_output = A.Col(3);
+}
+
+
+void TestMatrix_Set_Get_Append_Row()
+{
+	std::cout << "TestMatrix_Set_Get_Append_Row " << '\n';
+
+	mdkMatrix<double> A;
+
+	A.SetSize(0, 3);
+
+	std::vector<double> Row;
+
+	Row = { 1, 2, 3 };
+	A.AppendRow(Row);
+
+	Row = { 4, 5, 6 };
+	A.AppendRow(Row);
+
+	Row = { 7, 8, 9 };
+	A.AppendRow(Row);
+
+	std::cout << "A = " << '\n';
+
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		for (uint64 j = 0; j < 3; ++j)
+		{
+			std::cout << A(i, j) << ' ';
+		}
+
+		std::cout << '\n';
+	}
+
+
+	Row = { 11, 21, 31 };
+	A.SetRow(1, Row);
+
+	Row = { 111, 211, 311 };
+	A.SetRow(2, Row);
+
+	std::cout << "A = " << '\n';
+
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		for (uint64 j = 0; j < 3; ++j)
+		{
+			std::cout << A(i, j) << ' ';
+		}
+
+		std::cout << '\n';
+	}
+
+
+	auto Row_output = A.Row(0);
+	std::cout << "A.Row(0)" << '\n';
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		std::cout << Row_output(i) << ' ';
+	}
+	std::cout << '\n';
+
+
+	Row_output = A.Row(1);
+	std::cout << "A.Row(1)" << '\n';
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		std::cout << Row_output(i) << ' ';
+	}
+	std::cout << '\n';
+
+
+
+	Row_output = A.Row(2);
+	std::cout << "A.Row(2)" << '\n';
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		std::cout << Row_output(i) << ' ';
+	}
+	std::cout << '\n';
+}
+
 
 void TestMatrix_Arma()
 {

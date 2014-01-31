@@ -6,7 +6,7 @@ endif()
  
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ Kits/8.1/Lib/winv6.3/um/x64")
 
-PROJECT(MDK_Test_Core)
+PROJECT(MDK_Test)
 
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
@@ -14,37 +14,46 @@ set(VTKLIB_DIR "C:/Programs/VTK/VTK_6_VC_Build/lib")
  
 find_package(Qt5Widgets REQUIRED QUIET)
 
-set(Debug_DIR "C:/Research/MDK/Code/Source/Common/Debug")
+set(Debug_DIR "C:/Research/MDK/Code/Source/Debug")
 
-set(Core_DIR "C:/Research/MDK/Code/Source/Common/Core")
+set(Common_DIR "C:/Research/MDK/Code/Source/Common")
+
+set(ImageFilter_DIR "C:/Research/MDK/Code/Source/ImageFilter")
 
 set(Arma_DIR "C:/Research/MDK/Code/Source")
 
 set(Lapack_Blas_DIR "C:/Research/MDK/LinearALgebraLib_win64")
  
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${Core_DIR} ${Debug_DIR} ${Arma_DIR} ${Lapack_Blas_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${Common_DIR} ${Debug_DIR} ${Arma_DIR} ${Lapack_Blas_DIR} ${ImageFilter_DIR})
 
 FILE(GLOB Arma_FILES "C:/Research/MDK/Code/Source/armadillo_bits/*.hpp")
 
 FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
-set(Core_FILES 
+set(Source_FILES 
 
 ${Debug_DIR}/mdkDebug.h
 
-${Core_DIR}/mdkType.h
+${Common_DIR}/mdkType.h
 
-${Core_DIR}/mdkObject.h
-${Core_DIR}/mdkObject.cpp
+${Common_DIR}/mdkObject.h
+${Common_DIR}/mdkObject.cpp
 
-${Core_DIR}/mdkMatrix.h
-${Core_DIR}/mdkMatrix.hpp
+${Common_DIR}/mdkMatrix.h
+${Common_DIR}/mdkMatrix.hpp
 
-${Core_DIR}/mdkLinearAlgebra.h
-${Core_DIR}/mdkLinearAlgebra.hpp
+${Common_DIR}/mdkLinearAlgebra.h
+${Common_DIR}/mdkLinearAlgebra.hpp
 
-${Core_DIR}/mdk3DImage.h
-${Core_DIR}/mdk3DImage.hpp
+${Common_DIR}/mdk3DImage.h
+${Common_DIR}/mdk3DImage.hpp
+
+${ImageFilter_DIR}/mdk3DImageFilter.h
+${ImageFilter_DIR}/mdk3DImageFilter.cpp
+
+#${ImageFilter_DIR}/mdk3DImageFilterFunction.h
+#${ImageFilter_DIR}/mdk3DImageFilterFunction.cpp
+
 
 #${Core_DIR}/mdkImageRegionProperty.h
 #${Core_DIR}/mdkImageRegionProperty.cpp
@@ -58,8 +67,8 @@ message(STATUS ${Core_FILES})
 
 message(STATUS ${Arma_FILES})
 
-add_executable(MDK_Test_Core ${Test_FILES} ${Core_FILES} ${Arma_FILES})
+add_executable(MDK_Test ${Test_FILES} ${Source_FILES} ${Arma_FILES})
 
-qt5_use_modules(MDK_Test_Core Core GUI)
+qt5_use_modules(MDK_Test Core GUI)
 
-target_link_libraries(MDK_Test_Core ${VTK_LIBRARIES} ${LinearALgebraLib_win64}) 
+target_link_libraries(MDK_Test ${VTK_LIBRARIES} ${LinearALgebraLib_win64}) 

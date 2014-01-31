@@ -9,19 +9,7 @@
 namespace mdk
 {
 
-typedef VoxelType_Scalar_double double
-
-typedef VoxelType_Scalar_float float
-
-typedef VoxelType_Scalar_int32 int32
-
-typedef VoxelType_Array_double std::vector<double>
-
-typedef VoxelType_Array_float std::vector<float>
-
-typedef VoxelType_Array_int32 std::vector<int32>
-
-struct Image3DSize
+struct mdk3DImageSize
 {
 	uint64 Lx;
 	uint64 Ly;
@@ -51,8 +39,8 @@ class mdk3DImage : public mdkObject
 {
 
 private:
-	
-	double m_VoxelPhysicalSize[3];
+
+	std::shared_ptr<std::vector<VoxelType>> m_VoxelData;
 
 	uint64 m_ImageSize[3]; // {Lx, Ly, Lz} number of voxels in each direction
 
@@ -62,7 +50,7 @@ private:
 
 	double m_PhysicalOrigin[3];    // {x0, y0, z0} in world coordinate system (unit: mm)
 
-	std::shared_ptr<std::vector<VoxelType>> m_VoxelData;
+	double m_VoxelPhysicalSize[3];
 
 	VoxelType m_EmptyVoxel;
 
@@ -92,7 +80,7 @@ public:
 
 	VoxelType* GetVoxelRawPointer();
 
-	Image3DSize GetImageSize();
+	mdk3DImageSize GetImageSize();
 
 	void GetImageSize(uint64* Lx, uint64* Ly, uint64* Lz);
 
@@ -121,6 +109,16 @@ public:
 	//-------------------------- Get SubImage -------------------------------//
 
 	mdk3DImage SubImage(uint64 xIndex_s, uint64 xIndex_e, uint64 yIndex_s, uint64 yIndex_e, uint64 zIndex_s, uint64 zIndex_e);
+
+	//-------------------------- Sum, Mean, Max, Min -------------------------------//
+
+	VoxelType Sum();
+
+	VoxelType Mean();
+
+	VoxelType Max();
+
+	VoxelType Min();
 
 	//-------------------------- Interpolation -------------------------------//
 

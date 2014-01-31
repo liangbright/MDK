@@ -6,7 +6,7 @@ namespace mdk
 template<typename VoxelType>
 mdk3DImage<VoxelType>::mdk3DImage()
 {
-
+	this->Clear();
 }
 
 
@@ -117,6 +117,11 @@ void mdk3DImage<VoxelType>::Copy(mdk3DImage<VoxelType> targetImage)
 template<typename VoxelType>
 void mdk3DImage<VoxelType>::Copy(VoxelType* VoxelPointer, uint64 Lx, uint64 Ly, uint64 Lz)
 {
+	if (VoxelPointer == nullptr)
+	{
+		return;
+	}
+
 	this->Clear();
 
 	m_ImageSize[0] = Lx;
@@ -183,9 +188,9 @@ VoxelType* mdk3DImage<VoxelType>::GetVoxelRawPointer()
 
 
 template<typename VoxelType>
-Image3DSize mdk3DImage<VoxelType>::GetImageSize()
+mdk3DImageSize mdk3DImage<VoxelType>::GetImageSize()
 {
-	Image3DSize Size;
+	mdk3DImageSize Size;
 
 	Size.Lx = m_ImageSize[0];
 	Size.Ly = m_ImageSize[1];

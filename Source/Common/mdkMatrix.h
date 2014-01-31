@@ -165,6 +165,10 @@ public:
 
 	inline const ScalarType& operator()(uint64 LinearIndex) const;
 
+	//inline ScalarType& operator[](uint64 LinearIndex);
+
+	//inline const ScalarType& operator[](uint64 LinearIndex) const;
+
 	inline ScalarType& Element(uint64 LinearIndex);
 
 	inline const ScalarType& Element(uint64 LinearIndex) const;
@@ -185,7 +189,7 @@ public:
 
 	//---------------------- Get/Set a column ----------------------------------------//
 	
-	inline mdkMatrix GetCol(uint64 ColIndex);
+	inline mdkMatrix Col(uint64 ColIndex);
 
 	inline bool GetCol(uint64 ColIndex, ScalarType* ColData);
 
@@ -194,7 +198,8 @@ public:
 	template<typename ScalarType_input>
 	inline bool SetCol(uint64 ColIndex, mdkMatrix<ScalarType_input>& ColData);
 
-	inline bool SetCol(uint64 ColIndex, const ScalarType* ColData);
+	template<typename ScalarType_input>
+	inline bool SetCol(uint64 ColIndex, const ScalarType_input* ColData);
 
 	template<typename ScalarType_input>
 	inline bool SetCol(uint64 ColIndex, const std::vector<ScalarType_input>& ColData);
@@ -202,14 +207,15 @@ public:
 	template<typename ScalarType_input>
 	inline bool AppendCol(const mdkMatrix<ScalarType_input>& ColData);
 
-	inline bool AppendCol(const ScalarType* ColData);
+	template<typename ScalarType_input>
+	inline bool AppendCol(const ScalarType_input* ColData);
 	
 	template<typename ScalarType_input>
 	inline bool AppendCol(const std::vector<ScalarType_input>& ColData);
 
 	//---------------------- Get/Set a row  ----------------------------------------//
 	
-	inline mdkMatrix GetRow(uint64 RowIndex);
+	inline mdkMatrix Row(uint64 RowIndex);
 
 	inline bool GetRow(uint64 ColIndex, ScalarType* RowData);
 
@@ -218,7 +224,8 @@ public:
 	template<typename ScalarType_input>
 	inline bool SetRow(uint64 ColIndex, mdkMatrix<ScalarType_input>& RowData);
 
-	inline bool SetRow(uint64 RowIndex, const ScalarType* RowData);
+	template<typename ScalarType_input>
+	inline bool SetRow(uint64 RowIndex, const ScalarType_input* RowData);
 
 	template<typename ScalarType_input>
 	inline bool SetRow(uint64 RowIndex, const std::vector<ScalarType_input>& RowData);
@@ -226,14 +233,15 @@ public:
 	template<typename ScalarType_input>
 	inline bool AppendRow(mdkMatrix<ScalarType_input>& RowData);
 
-	inline bool AppendRow(const ScalarType* RowData);
+	template<typename ScalarType_input>
+	inline bool AppendRow(const ScalarType_input* RowData);
 
 	template<typename ScalarType_input>
 	inline bool AppendRow(const std::vector<ScalarType_input>& RowData);
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 
-	inline mdkMatrix GetDiangonal();
+	inline mdkMatrix Diangonal();
 
 	inline bool GetDiangonal(ScalarType* DiangonalData);
 
@@ -244,7 +252,8 @@ public:
 	template<typename ScalarType_input>
 	inline bool SetDiangonal(mdkMatrix<ScalarType_input>& DiangonalData);
 
-	inline bool SetDiangonal(const ScalarType* DiangonalData);
+	template<typename ScalarType_input>
+	inline bool SetDiangonal(const ScalarType_input* DiangonalData);
 
 	template<typename ScalarType_input>
 	inline bool SetDiangonal(const std::vector<ScalarType_input>& DiangonalData);
@@ -339,7 +348,7 @@ private:
 	template<typename ScalarType_target>
 	inline mdkScalarTypeEnum FindScalarType(ScalarType_target Scalar);
 
-	inline bool CopyOnWrite();
+	inline void CopyOnWrite();
 
 	template<typename ScalarType_target>
 	inline uint64 ByteNumberOfScalar(ScalarType_target Scalar);

@@ -24,4 +24,8 @@ int main(int argc, char** argv)
 
 	TestMatrix_Arma();
 
+	TestMatrix_Set_Get_Append_Col();
+
+	TestMatrix_Set_Get_Append_Row();
+
 }
