@@ -15,7 +15,7 @@ mdkMatrix<ScalarType> LinearCombine(std::vector<double> AlphaList, std::vector<m
 
 	tempMatrix.SetSize(Size.RowNumber, Size.ColNumber);
 
-	auto tempRawPointer = tempMatrix.GetScalarDataRawPointer();
+	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
 	for (uint64 i = 0; i < Size.ColNumber*Size.RowNumber; ++i)
 	{

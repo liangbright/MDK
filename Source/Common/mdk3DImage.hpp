@@ -1,3 +1,8 @@
+#ifndef __mdk3DImage_hpp
+#define __mdk3DImage_hpp
+
+#include <cstdlib>
+
 #include "mdk3DImage.h"
 
 namespace mdk
@@ -102,7 +107,7 @@ void mdk3DImage<VoxelType>::Copy(mdk3DImage<VoxelType> targetImage)
 
 	auto targetSize = targetImage.GetImageSize();
 
-	auto targetRawPtr = GetVoxelRawPointer();
+	auto targetRawPtr = GetVoxelDataRawPointer();
 
 	this->Copy(targetRawPtr, targetSize.Lx, targetSize.Ly, targetSize.Lz);
 
@@ -179,7 +184,14 @@ bool mdk3DImage<VoxelType>::Fill(VoxelType Voxel)
 
 
 template<typename VoxelType>
-VoxelType* mdk3DImage<VoxelType>::GetVoxelRawPointer()
+std::vector<VoxelType>* mdk3DImage<VoxelType>::GetVoxelDataArrayPointer()
+{
+	return m_VoxelData.get();
+}
+
+
+template<typename VoxelType>
+VoxelType* mdk3DImage<VoxelType>::GetVoxelDataRawPointer()
 {
 	return m_VoxelData->data();
 }
@@ -222,6 +234,49 @@ void mdk3DImage<VoxelType>::GetPhysicalOrigin(uint64* PhysicalOrigin_x, uint64* 
 	PhysicalOrigin_x[0] = m_PhysicalOrigin[0];
 	PhysicalOrigin_y[0] = m_PhysicalOrigin[1];
 	PhysicalOrigin_z[0] = m_PhysicalOrigin[2];
+}
+
+
+template<typename VoxelType>
+inline
+bool mdk3DImage<VoxelType>::GetLinearIndexBy3DIndex(uint64 xIndex, uint64 yIndex, uint64 zIndex, uint64* LinearIndex)
+{
+	auto temp = zIndex*m_VoxelNumberPerZSlice + yIndex*m_ImageSize[0] + xIndex;
+
+	if (temp >= m_VoxelNumber)
+	{
+		return false;
+	}
+
+	LinearIndex[0] = temp;
+
+	return true;
+}
+
+
+template<typename VoxelType>
+inline
+bool mdk3DImage<VoxelType>::Get3DIndexByLinearIndex(uint64 LinearIndex, uint64* xIndex, uint64* yIndex, uint64* zIndex)
+{
+	if (LinearIndex >= m_VoxelNumber)
+	{
+		return false;
+	}
+
+	std::lldiv_t divresult;
+	divresult.rem = LinearIndex;
+
+	divresult = div(divresult.rem, m_VoxelNumberPerZSlice);
+
+	zIndex[0] = divresult.quot;
+
+	divresult = div(divresult.rem, Size.Lx);
+
+	yIndex[0] = divresult.quot;
+
+	xIndex[0] = divresult.rem;
+
+	return true;
 }
 
 
@@ -335,7 +390,7 @@ mdk3DImage<VoxelType> mdk3DImage<VoxelType>::SubImage(uint64 xIndex_s, uint64 xI
   		                 m_PhysicalOrigin[0], m_PhysicalOrigin[1], m_PhysicalOrigin[2],
 		                 m_VoxelPhysicalSize[0], m_VoxelPhysicalSize[1], m_VoxelPhysicalSize[2]);
 
-	tempRawPtr = SubImage.GetVoxelRawPointer();
+	tempRawPtr = SubImage.GetVoxelDataRawPointer();
 
 	RawPtr = m_VoxelData->data();
 
@@ -368,3 +423,5 @@ mdk3DImage<VoxelType> mdk3DImage<VoxelType>::SubImage(uint64 xIndex_s, uint64 xI
 }
 
 }//end namespace mdk
+
+#endif

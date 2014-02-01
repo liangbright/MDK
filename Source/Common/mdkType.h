@@ -44,6 +44,7 @@ namespace mdk
 		MDK_UNKNOWN,
 	} mdkScalarTypeEnum;
 
+	typedef mdkScalarTypeEnum mdkMatrixElementTypeEnum;
 
 }//end namespace mdk
 

@@ -54,6 +54,8 @@ private:
 
 	VoxelType m_EmptyVoxel;
 
+	VoxelType m_EmptyVoxel_output;
+
 public:		
 	
 	mdk3DImage();
@@ -78,7 +80,9 @@ public:
 
 	bool Fill(VoxelType Voxel);
 
-	VoxelType* GetVoxelRawPointer();
+	std::vector<VoxelType>* GetVoxelDataArrayPointer();
+
+	VoxelType* GetVoxelDataRawPointer();
 
 	mdk3DImageSize GetImageSize();
 
@@ -88,7 +92,15 @@ public:
 
 	void GetPhysicalOrigin(uint64* PhysicalOrigin_x, uint64* PhysicalOrigin_y, uint64* PhysicalOrigin_z);
 
-	//--------------------------- Get/Set Voxel ------------------------------//
+	inline bool GetLinearIndexBy3DIndex(uint64 xIndex, uint64 yIndex, uint64 zIndex, uint64* LinearIndex);
+
+	inline bool Get3DIndexByLinearIndex(uint64 LinearIndex, uint64* xIndex, uint64* yIndex, uint64* zIndex);
+
+	//--------------------------- Get EmptyVoxel (e.g., 0) ------------------------------//
+
+	inline const VoxelType& GetEmptyVoxel();
+
+	//--------------------------- Get/Set Voxel      ------------------------------//
 
 	inline VoxelType& operator()(uint64 LinearIndex);
 

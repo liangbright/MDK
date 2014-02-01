@@ -781,6 +781,27 @@ void TestMatrix_Arma()
 	}
 }
 
+void TestMatrix_CopyOnWrite_And_Operator()
+{
+	std::cout << "TestMatrix_LinearCombine " << '\n';
+
+	mdkMatrix<double> A(3, 3);
+	A = { 1, 2, 3,
+		0, 5, 0,
+		0, 0, 9 };
+
+	std::cout << "A = " << '\n';
+
+	for (uint64 i = 0; i < 3; ++i)
+	{
+		for (uint64 j = 0; j < 3; ++j)
+		{
+			std::cout << A(i, j) << ' ';
+		}
+
+		std::cout << '\n';
+	}
+}
 
 }//end of namespace
 

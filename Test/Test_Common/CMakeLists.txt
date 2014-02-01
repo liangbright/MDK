@@ -20,13 +20,23 @@ set(Common_DIR "C:/Research/MDK/Code/Source/Common")
 
 set(ImageFilter_DIR "C:/Research/MDK/Code/Source/ImageFilter")
 
-set(Arma_DIR "C:/Research/MDK/Code/Source")
+set(Arma_DIR "C:/Research/MDK/armadillo_4.000.2")
+
+set(Arma_Source_DIR "C:/Research/MDK/armadillo_4.000.2/armadillo_bits")
 
 set(Lapack_Blas_DIR "C:/Research/MDK/LinearALgebraLib_win64")
- 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${Common_DIR} ${Debug_DIR} ${Arma_DIR} ${Lapack_Blas_DIR} ${ImageFilter_DIR})
 
-FILE(GLOB Arma_FILES "C:/Research/MDK/Code/Source/armadillo_bits/*.hpp")
+include_directories(
+${CMAKE_CURRENT_SOURCE_DIR} 
+${Common_DIR} ${Debug_DIR} ${ImageFilter_DIR} 
+${Arma_DIR} ${Arma_Source_DIR} ${Lapack_Blas_DIR}
+)
+
+#FILE(GLOB Arma_FILES ${Arma_Source_DIR}/*.hpp)
+
+FILE(GLOB Arma_FILES C:/Research/MDK/armadillo_4.000.2/armadillo_bits/*.hpp)
+
+set(Arma_FILES ${Arma_FILES} C:/Research/MDK/armadillo_4.000.2/armadillo.h)
 
 FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
@@ -49,10 +59,10 @@ ${Common_DIR}/mdk3DImage.h
 ${Common_DIR}/mdk3DImage.hpp
 
 ${ImageFilter_DIR}/mdk3DImageFilter.h
-${ImageFilter_DIR}/mdk3DImageFilter.cpp
+${ImageFilter_DIR}/mdk3DImageFilter.hpp
 
-#${ImageFilter_DIR}/mdk3DImageFilterFunction.h
-#${ImageFilter_DIR}/mdk3DImageFilterFunction.cpp
+${ImageFilter_DIR}/mdk3DImageFilterFunction.h
+${ImageFilter_DIR}/mdk3DImageFilterFunction.hpp
 
 
 #${Core_DIR}/mdkImageRegionProperty.h
@@ -63,7 +73,7 @@ set(LinearALgebraLib_win64 C:/Research/MDK/LinearALgebraLib_win64/lapack_win64_M
 
 message(STATUS ${Test_FILES})
 
-message(STATUS ${Core_FILES})
+message(STATUS ${MDK_FILES})
 
 message(STATUS ${Arma_FILES})
 

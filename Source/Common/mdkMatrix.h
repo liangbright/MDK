@@ -11,7 +11,7 @@
 namespace mdk
 {
 
-// 2D Matrix Class Template, each entry is a scalar
+// 2D Matrix Class Template, each entry/element is a scalar
 // column major
 //
 // If heavy linear algebra is required, then convert mdkMatrix to Armadillo matrix, do something, and convert back
@@ -20,7 +20,7 @@ namespace mdk
 // The functions that are not supported in Armadillo, are provided in mdkLinearAlgebra.h/cpp
 
 //forward-declare the template class
-template<typename ScalarType>
+template<typename ElementType>
 class mdkMatrix;
 
 struct MatrixSize
@@ -30,61 +30,61 @@ struct MatrixSize
 };
 
 
-template<typename ScalarType>
+template<typename ElementType>
 struct mdkMatrixSVDResult
 {
 // Matrix = U*S*V;
-	mdkMatrix<ScalarType> U;  // matrix
-	mdkMatrix<ScalarType> S;  // matrix  : change to vector?
-	mdkMatrix<ScalarType> V;  // matrix
+	mdkMatrix<ElementType> U;  // matrix
+	mdkMatrix<ElementType> S;  // matrix  : change to vector?
+	mdkMatrix<ElementType> V;  // matrix
 };
 
 
 // ----------------------- Matrix {+ - * /}  Matrix ------------------------------------------------//
 
-template<typename ScalarType>
-inline mdkMatrix<ScalarType> operator+(mdkMatrix<ScalarType>& MatrixA, mdkMatrix<ScalarType>& MatrixB);
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator+(mdkMatrix<ElementType>& MatrixA, mdkMatrix<ElementType>& MatrixB);
 
-template<typename ScalarType>
-inline mdkMatrix<ScalarType> operator-(mdkMatrix<ScalarType>& MatrixA, mdkMatrix<ScalarType>& MatrixB);
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator-(mdkMatrix<ElementType>& MatrixA, mdkMatrix<ElementType>& MatrixB);
 
-template<typename ScalarType>
-inline mdkMatrix<ScalarType> operator*(mdkMatrix<ScalarType>& MatrixA, mdkMatrix<ScalarType>& MatrixB);
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator*(mdkMatrix<ElementType>& MatrixA, mdkMatrix<ElementType>& MatrixB);
 
-template<typename ScalarType>
-inline mdkMatrix<ScalarType> operator/(mdkMatrix<ScalarType>& MatrixA, mdkMatrix<ScalarType>& MatrixB);
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator/(mdkMatrix<ElementType>& MatrixA, mdkMatrix<ElementType>& MatrixB);
 
-// ----------------------- Scalar {+ - * /} Matrix ------------------------------------------------//
+// ----------------------- Element {+ - * /} Matrix ------------------------------------------------//
 
-template<typename ScalarType>
-inline mdkMatrix<ScalarType> operator+(ScalarType Scalar, mdkMatrix<ScalarType>& Matrix);
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator+(ElementType Element, mdkMatrix<ElementType>& Matrix);
 
-template<typename ScalarType>
-inline mdkMatrix<ScalarType> operator-(ScalarType Scalar, mdkMatrix<ScalarType>& Matrix);
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator-(ElementType Element, mdkMatrix<ElementType>& Matrix);
 
-template<typename ScalarType>
-inline mdkMatrix<ScalarType> operator*(ScalarType Scalar, mdkMatrix<ScalarType>& Matrix);
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator*(ElementType Element, mdkMatrix<ElementType>& Matrix);
 
-template<typename ScalarType>
-inline mdkMatrix<ScalarType> operator/(ScalarType Scalar, mdkMatrix<ScalarType>& Matrix);
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator/(ElementType Element, mdkMatrix<ElementType>& Matrix);
 
-// ----------------------- Matrix {+ - * /}  Scalar ------------------------------------------------//
+// ----------------------- Matrix {+ - * /}  Element ------------------------------------------------//
 
-template<typename ScalarType>
-inline mdkMatrix<ScalarType> operator+(mdkMatrix<ScalarType>& Matrix, ScalarType Scalar);
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator+(mdkMatrix<ElementType>& Matrix, ElementType Element);
 
-template<typename ScalarType>
-inline mdkMatrix<ScalarType> operator-(mdkMatrix<ScalarType>& Matrix, ScalarType Scalar);
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator-(mdkMatrix<ElementType>& Matrix, ElementType Element);
 
-template<typename ScalarType>
-inline mdkMatrix<ScalarType> operator*(mdkMatrix<ScalarType>& Matrix, ScalarType Scalar);
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator*(mdkMatrix<ElementType>& Matrix, ElementType Element);
 
-template<typename ScalarType>
-inline mdkMatrix<ScalarType> operator/(mdkMatrix<ScalarType>& Matrix, ScalarType Scalar);
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator/(mdkMatrix<ElementType>& Matrix, ElementType Element);
 //--------------------------------------------------------------------------------------------------//
 
 
-template<typename ScalarType>
+template<typename ElementType>
 class mdkMatrix : public mdkObject
 {
 
@@ -94,25 +94,25 @@ private:
 	
 	uint64 m_ColNumber;
 
-	uint64 m_ScalarNumber;  // total number of scalars
+	uint64 m_ElementNumber;  // total number of Elements
 
-	std::shared_ptr<std::vector<ScalarType>> m_ScalarData;
+	std::shared_ptr<std::vector<ElementType>> m_ElementData;
 
 	bool m_IsSizeFixed;
 
-	mdkScalarTypeEnum m_ScalarType;
+	mdkMatrixElementTypeEnum m_ElementType;
 
 	uint64 m_ColExpansionStep;
 
 	uint64 m_RowExpansionStep;
 
-	ScalarType  m_EmptyScalar;
+	ElementType  m_EmptyElement;
 
 public:		
 	
 	inline mdkMatrix();
 
-	inline mdkMatrix(mdkMatrix<ScalarType>& sourceMatrix);
+	inline mdkMatrix(mdkMatrix<ElementType>& sourceMatrix);
 
 	inline mdkMatrix(uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = false);
 
@@ -120,11 +120,11 @@ public:
 
 	inline void Clear();
 
-	inline std::shared_ptr<std::vector<ScalarType>> GetScalarDataSharedPointer();
+	inline std::shared_ptr<std::vector<ElementType>> GetElementDataSharedPointer();
 
-	inline ScalarType* GetScalarDataRawPointer();
+	inline ElementType* GetElementDataRawPointer();
 
-	inline mdkScalarTypeEnum GetScalarType();
+	inline mdkMatrixElementTypeEnum GetElementType();
 
 	//---------------------- Matrix Size ----------------------------------------//
 
@@ -144,40 +144,40 @@ public:
 
 	//---------------------- Initilize Matrix ----------------------------------------//
 
-	template<typename ScalarType_target>
-	inline void operator=(mdkMatrix<ScalarType_target>& targetMatrix);
+	template<typename ElementType_target>
+	inline void operator=(mdkMatrix<ElementType_target>& targetMatrix);
 
-	inline void operator=(ScalarType Scalar);
+	inline void operator=(ElementType Element);
 
-	inline void operator=(const std::initializer_list<ScalarType>& list);
+	inline void operator=(const std::initializer_list<ElementType>& list);
 
-	template<typename ScalarType_target>
-	inline bool Copy(mdkMatrix<ScalarType_target>& targetMatrix);
+	template<typename ElementType_target>
+	inline bool Copy(mdkMatrix<ElementType_target>& targetMatrix);
 
-	template<typename ScalarType_target>
-	inline bool Copy(ScalarType_target* ScalarPointer, uint64 RowNumber, uint64 ColNumber);
+	template<typename ElementType_target>
+	inline bool Copy(ElementType_target* ElementPointer, uint64 RowNumber, uint64 ColNumber);
 
-	inline bool Fill(ScalarType Scalar);
+	inline bool Fill(ElementType Element);
 
 	//---------------------- Get/Set Matrix(LinearIndex) ----------------------------------------//
 
-	inline ScalarType& operator()(uint64 LinearIndex);
+	inline ElementType& operator()(uint64 LinearIndex);
 
-	inline const ScalarType& operator()(uint64 LinearIndex) const;
+	inline const ElementType& operator()(uint64 LinearIndex) const;
 
-	//inline ScalarType& operator[](uint64 LinearIndex);
+	inline ElementType& operator[](uint64 LinearIndex);
 
-	//inline const ScalarType& operator[](uint64 LinearIndex) const;
+	inline const ElementType& operator[](uint64 LinearIndex) const;
 
-	inline ScalarType Element(uint64 LinearIndex);
+	inline const ElementType& Element(uint64 LinearIndex);
 
 	//---------------------- Get/Set Matrix(i,j) ----------------------------------------//
 
-	inline ScalarType& operator()(uint64 RowIndex, uint64 ColIndex);
+	inline ElementType& operator()(uint64 RowIndex, uint64 ColIndex);
 
-	inline const ScalarType& operator()(uint64 RowIndex, uint64 ColIndex) const;
+	inline const ElementType& operator()(uint64 RowIndex, uint64 ColIndex) const;
 
-	inline ScalarType Element(uint64 RowIndex, uint64 ColIndex);
+	inline const ElementType& Element(uint64 RowIndex, uint64 ColIndex);
 
 	//---------------------- Get Matrix(i_s to i_e, j_s to j_e) ----------------------------------------//
 
@@ -187,134 +187,141 @@ public:
 	
 	inline mdkMatrix Col(uint64 ColIndex);
 
-	inline bool GetCol(uint64 ColIndex, ScalarType* ColData);
+	inline bool GetCol(uint64 ColIndex, ElementType* ColData);
 
-	inline bool GetCol(uint64 ColIndex, std::vector<ScalarType>& ColData);
+	inline bool GetCol(uint64 ColIndex, std::vector<ElementType>& ColData);
 
-	template<typename ScalarType_input>
-	inline bool SetCol(uint64 ColIndex, mdkMatrix<ScalarType_input>& ColData);
+	template<typename ElementType_input>
+	inline bool SetCol(uint64 ColIndex, mdkMatrix<ElementType_input>& ColData);
 
-	template<typename ScalarType_input>
-	inline bool SetCol(uint64 ColIndex, const ScalarType_input* ColData);
+	template<typename ElementType_input>
+	inline bool SetCol(uint64 ColIndex, const ElementType_input* ColData);
 
-	template<typename ScalarType_input>
-	inline bool SetCol(uint64 ColIndex, const std::vector<ScalarType_input>& ColData);
+	template<typename ElementType_input>
+	inline bool SetCol(uint64 ColIndex, const std::vector<ElementType_input>& ColData);
 
-	template<typename ScalarType_input>
-	inline bool AppendCol(const mdkMatrix<ScalarType_input>& ColData);
+	template<typename ElementType_input>
+	inline bool AppendCol(const mdkMatrix<ElementType_input>& ColData);
 
-	template<typename ScalarType_input>
-	inline bool AppendCol(const ScalarType_input* ColData);
+	template<typename ElementType_input>
+	inline bool AppendCol(const ElementType_input* ColData);
 	
-	template<typename ScalarType_input>
-	inline bool AppendCol(const std::vector<ScalarType_input>& ColData);
+	template<typename ElementType_input>
+	inline bool AppendCol(const std::vector<ElementType_input>& ColData);
 
 	//---------------------- Get/Set a row  ----------------------------------------//
 	
 	inline mdkMatrix Row(uint64 RowIndex);
 
-	inline bool GetRow(uint64 ColIndex, ScalarType* RowData);
+	inline bool GetRow(uint64 ColIndex, ElementType* RowData);
 
-	inline bool GetRow(uint64 RowIndex, std::vector<ScalarType>& RowData);
+	inline bool GetRow(uint64 RowIndex, std::vector<ElementType>& RowData);
 
-	template<typename ScalarType_input>
-	inline bool SetRow(uint64 ColIndex, mdkMatrix<ScalarType_input>& RowData);
+	template<typename ElementType_input>
+	inline bool SetRow(uint64 ColIndex, mdkMatrix<ElementType_input>& RowData);
 
-	template<typename ScalarType_input>
-	inline bool SetRow(uint64 RowIndex, const ScalarType_input* RowData);
+	template<typename ElementType_input>
+	inline bool SetRow(uint64 RowIndex, const ElementType_input* RowData);
 
-	template<typename ScalarType_input>
-	inline bool SetRow(uint64 RowIndex, const std::vector<ScalarType_input>& RowData);
+	template<typename ElementType_input>
+	inline bool SetRow(uint64 RowIndex, const std::vector<ElementType_input>& RowData);
 
-	template<typename ScalarType_input>
-	inline bool AppendRow(mdkMatrix<ScalarType_input>& RowData);
+	template<typename ElementType_input>
+	inline bool AppendRow(mdkMatrix<ElementType_input>& RowData);
 
-	template<typename ScalarType_input>
-	inline bool AppendRow(const ScalarType_input* RowData);
+	template<typename ElementType_input>
+	inline bool AppendRow(const ElementType_input* RowData);
 
-	template<typename ScalarType_input>
-	inline bool AppendRow(const std::vector<ScalarType_input>& RowData);
+	template<typename ElementType_input>
+	inline bool AppendRow(const std::vector<ElementType_input>& RowData);
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 
 	inline mdkMatrix Diangonal();
 
-	inline bool GetDiangonal(ScalarType* DiangonalData);
+	inline bool GetDiangonal(ElementType* DiangonalData);
 
-	inline bool GetDiangonal(std::vector<ScalarType>& DiangonalData);
+	inline bool GetDiangonal(std::vector<ElementType>& DiangonalData);
 
-	inline bool SetDiangonal(ScalarType Scalar);
+	inline bool SetDiangonal(ElementType Element);
 
-	template<typename ScalarType_input>
-	inline bool SetDiangonal(mdkMatrix<ScalarType_input>& DiangonalData);
+	template<typename ElementType_input>
+	inline bool SetDiangonal(mdkMatrix<ElementType_input>& DiangonalData);
 
-	template<typename ScalarType_input>
-	inline bool SetDiangonal(const ScalarType_input* DiangonalData);
+	template<typename ElementType_input>
+	inline bool SetDiangonal(const ElementType_input* DiangonalData);
 
-	template<typename ScalarType_input>
-	inline bool SetDiangonal(const std::vector<ScalarType_input>& DiangonalData);
+	template<typename ElementType_input>
+	inline bool SetDiangonal(const std::vector<ElementType_input>& DiangonalData);
 
 	//---------------------- Matrix {+= -= *= /=} Matrix ----------------------------------------//
 
-	inline void operator+=(mdkMatrix<ScalarType>& targetMatrix);
+	inline void operator+=(mdkMatrix<ElementType>& targetMatrix);
 
-	inline void operator-=(mdkMatrix<ScalarType>& targetMatrix);
+	inline void operator-=(mdkMatrix<ElementType>& targetMatrix);
 
-	inline void operator*=(mdkMatrix<ScalarType>& targetMatrix);
+	inline void operator*=(mdkMatrix<ElementType>& targetMatrix);
 
-	inline void operator/=(mdkMatrix<ScalarType>& targetMatrix);
+	inline void operator/=(mdkMatrix<ElementType>& targetMatrix);
 
-    //---------------------- Matrix {+= -= *= /=} Scalar ----------------------------------------//
+    //---------------------- Matrix {+= -= *= /=} Element ----------------------------------------//
 
 	// error:
-	//template<typename ScalarType_target>
-	//inline void operator+(ScalarType_target Scalar);
+	//template<typename ElementType_target>
+	//inline void operator+(ElementType_target Element);
 
-	inline void operator+=(ScalarType Scalar);
+	inline void operator+=(ElementType Element);
 
-	inline void operator-=(ScalarType Scalar);
+	inline void operator-=(ElementType Element);
 
-	inline void operator*=(ScalarType Scalar);
+	inline void operator*=(ElementType Element);
 
-	inline void operator/=(ScalarType Scalar);
+	inline void operator/=(ElementType Element);
 
 	//-------------------- element operation  ------------------------------------------//
 
+	inline mdkMatrix ElementOperation(const char* FunctorName);
+
 	inline mdkMatrix ElementOperation(std::string FunctorName);
 
-	inline mdkMatrix ElementOperation(std::function<ScalarType(ScalarType)> Functor);
+	inline mdkMatrix ElementOperation(std::function<ElementType(ElementType)> Functor);
 
-	template<typename ScalarType_target>
-	inline mdkMatrix ElementOperation(std::string FunctorName, mdkMatrix<ScalarType_target>& targetMatrix);
+	template<typename ElementType_target>
+	inline mdkMatrix ElementOperation(const char* FunctorName, mdkMatrix<ElementType_target>& targetMatrix);
 
-	template<typename ScalarType_target>
-	inline mdkMatrix ElementOperation(std::function<ScalarType(ScalarType, ScalarType)> Functor, mdkMatrix<ScalarType_target>& targetMatrix);
+	template<typename ElementType_target>
+	inline mdkMatrix ElementOperation(std::string FunctorName, mdkMatrix<ElementType_target>& targetMatrix);
 
-	inline mdkMatrix ElementOperation(std::string FunctorName, ScalarType Scalar);
+	template<typename ElementType_target>
+	inline mdkMatrix ElementOperation(std::function<ElementType(ElementType, ElementType)> Functor, mdkMatrix<ElementType_target>& targetMatrix);
 
-	inline mdkMatrix ElementOperation(std::function<ScalarType(ScalarType, ScalarType)> Functor, ScalarType Scalar);
+	inline mdkMatrix ElementOperation(const char* FunctorName, ElementType Element);
+
+	inline mdkMatrix ElementOperation(std::string FunctorName, ElementType Element);
+
+	inline mdkMatrix ElementOperation(std::function<ElementType(ElementType, ElementType)> Functor, ElementType Element);
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 
-	inline ScalarType Mean();
+	inline ElementType Mean();
 
 	inline mdkMatrix MeanAlongRow();
 
 	inline mdkMatrix MeanAlongCol();
 
-	inline ScalarType Sum();
+	inline ElementType Sum();
 
 	inline mdkMatrix SumAlongRow();
 
 	inline mdkMatrix SumAlongCol();
 
-	inline ScalarType Max();
+	inline ElementType Max();
 
 	inline mdkMatrix MaxAlongRow();
 
 	inline mdkMatrix MaxAlongCol();
 
-	inline ScalarType Min();
+	inline ElementType Min();
 
 	inline mdkMatrix MinAlongRow();
 
@@ -336,18 +343,18 @@ public:
 
 	//----------------------------------- SVD -----------------------------------------//
 
-	inline mdkMatrixSVDResult<ScalarType> SVD();	
+	inline mdkMatrixSVDResult<ElementType> SVD();	
 
 	//---------------------------- private functions ---------------------------------------//
 
 private:
-	template<typename ScalarType_target>
-	inline mdkScalarTypeEnum FindScalarType(ScalarType_target Scalar);
+	template<typename ElementType_target>
+	inline mdkMatrixElementTypeEnum FindElementType(ElementType_target Element);
 
 	inline void CopyOnWrite();
 
-	template<typename ScalarType_target>
-	inline uint64 ByteNumberOfScalar(ScalarType_target Scalar);
+	template<typename ElementType_target>
+	inline uint64 ByteNumberOfElement(ElementType_target Element);
 };
 
 }//end namespace mdk

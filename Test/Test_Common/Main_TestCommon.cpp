@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include "mdkType.h"
 #include "mdkMatrix.h"
 
@@ -9,6 +10,8 @@ using namespace mdk;
 int main(int argc, char** argv)
 {
 //	TestMatrix_std_vector();
+
+	TestMatrix_CopyOnWrite_And_Operator();
 
 	TestMatrix_Mutiplication();
 
