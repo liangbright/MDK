@@ -96,7 +96,7 @@ private:
 
 	uint64 m_ElementNumber;  // total number of Elements
 
-	std::shared_ptr<std::vector<ElementType>> m_ElementData;
+	std::unique_ptr<std::vector<ElementType>> m_ElementData;
 
 	bool m_IsSizeFixed;
 
@@ -107,6 +107,8 @@ private:
 	uint64 m_RowExpansionStep;
 
 	ElementType  m_EmptyElement;
+
+	bool m_IsTemporaryMatrix;
 
 public:		
 	
@@ -120,11 +122,17 @@ public:
 
 	inline void Clear();
 
-	inline std::shared_ptr<std::vector<ElementType>> GetElementDataSharedPointer();
+	inline std::vector<ElementType>* ReleaseElementDataArrayOwnership();
+
+	inline ElementType* ReleaseElementDataOwnership();
 
 	inline ElementType* GetElementDataRawPointer();
 
 	inline mdkMatrixElementTypeEnum GetElementType();
+
+	inline void SetTobeTemporaryMatrix();
+
+	inline bool IsTemporaryMatrix();
 
 	//---------------------- Matrix Size ----------------------------------------//
 
@@ -169,7 +177,9 @@ public:
 
 	inline const ElementType& operator[](uint64 LinearIndex) const;
 
-	inline const ElementType& Element(uint64 LinearIndex);
+	inline ElementType& at(uint64 LinearIndex);
+
+	inline const ElementType& at(uint64 LinearIndex) const;
 
 	//---------------------- Get/Set Matrix(i,j) ----------------------------------------//
 
@@ -177,7 +187,9 @@ public:
 
 	inline const ElementType& operator()(uint64 RowIndex, uint64 ColIndex) const;
 
-	inline const ElementType& Element(uint64 RowIndex, uint64 ColIndex);
+	inline ElementType& at(uint64 RowIndex, uint64 ColIndex);
+
+	inline const ElementType& at(uint64 RowIndex, uint64 ColIndex) const;
 
 	//---------------------- Get Matrix(i_s to i_e, j_s to j_e) ----------------------------------------//
 
@@ -350,8 +362,6 @@ public:
 private:
 	template<typename ElementType_target>
 	inline mdkMatrixElementTypeEnum FindElementType(ElementType_target Element);
-
-	inline void CopyOnWrite();
 
 	template<typename ElementType_target>
 	inline uint64 ByteNumberOfElement(ElementType_target Element);

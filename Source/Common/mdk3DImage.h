@@ -56,11 +56,17 @@ private:
 
 	VoxelType m_EmptyVoxel_output;
 
+	bool m_IsTemporaryImage;
+
 public:		
 	
 	mdk3DImage();
 
 	~mdk3DImage();
+
+	inline mdk3DImage(mdk3DImage<VoxelType>&);
+
+	inline void operator=(mdk3DImage<VoxelType>&);
 
 	bool Initialize(uint64 Lx, uint64 Ly, uint64 Lz,
              		double PhysicalOrigin_x,    double PhysicalOrigin_y,    double PhysicalOrigin_z,
@@ -84,6 +90,10 @@ public:
 
 	VoxelType* GetVoxelDataRawPointer();
 
+	std::vector<VoxelType>* ReleaseVoxelDataArrayOwnership();
+
+	VoxelType* ReleaseVoxelDataOwnership();
+
 	mdk3DImageSize GetImageSize();
 
 	void GetImageSize(uint64* Lx, uint64* Ly, uint64* Lz);
@@ -92,9 +102,9 @@ public:
 
 	void GetPhysicalOrigin(uint64* PhysicalOrigin_x, uint64* PhysicalOrigin_y, uint64* PhysicalOrigin_z);
 
-	inline bool GetLinearIndexBy3DIndex(uint64 xIndex, uint64 yIndex, uint64 zIndex, uint64* LinearIndex);
+	inline void GetLinearIndexBy3DIndex(uint64 xIndex, uint64 yIndex, uint64 zIndex, uint64* LinearIndex);
 
-	inline bool Get3DIndexByLinearIndex(uint64 LinearIndex, uint64* xIndex, uint64* yIndex, uint64* zIndex);
+	inline void Get3DIndexByLinearIndex(uint64 LinearIndex, uint64* xIndex, uint64* yIndex, uint64* zIndex);
 
 	//--------------------------- Get EmptyVoxel (e.g., 0) ------------------------------//
 
@@ -110,9 +120,13 @@ public:
 
 	inline const VoxelType& operator()(uint64 xIndex, uint64 yIndex, uint64 zIndex) const;
 
-	inline const VoxelType& Voxel(uint64 LinearIndex);
+	inline VoxelType& at(uint64 LinearIndex);
 
-	inline const VoxelType& Voxel(uint64 xIndex, uint64 yIndex, uint64 zIndex);
+	inline const VoxelType& at(uint64 LinearIndex) const;
+
+	inline VoxelType& at(uint64 xIndex, uint64 yIndex, uint64 zIndex);
+
+	inline const VoxelType& at(uint64 xIndex, uint64 yIndex, uint64 zIndex) const;
 
 	//-------------------------- Get SubImage -------------------------------//
 
@@ -132,11 +146,11 @@ public:
 
 	inline VoxelType operator()(double x, double y, double z);
 
-	inline VoxelType Voxel(double x, double y, double z);
+	inline VoxelType at(double x, double y, double z);
 
 private:
-	mdk3DImage(const mdk3DImage&);        // Not implemented.
-	void operator=(const mdk3DImage&);    // Not implemented.
+	mdk3DImage(const mdk3DImage&);     
+	void operator=(const mdk3DImage&);
 };
 
 }//end namespace mdk

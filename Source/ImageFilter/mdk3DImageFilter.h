@@ -14,25 +14,25 @@ namespace mdk
 template<typename VoxelType_Input, typename VoxelType_Output>
 class mdk3DImageFilter : public mdkObject
 {
-private:
+protected:
 	//-------------- input ----------------------
 
 	// input_0: 
 	mdk3DImage<VoxelType_Input>*  m_InputImage;
-		
+
 	// input_1:
-	mdkMatrix<uint64>*  m_InputPointSet;  // compute values at the points in the set  (xIndex, yIndex, zIndex)
-    
+	mdkMatrix<uint64>*  m_InputRegion;  // size of m_InputRegion = size of m_OutputImage
+	                                    // col 0: [x0, y0, z0]
+	                                    // col 1: [Lx, Ly, Lz]
+
 	// input_2:
-	std::vector<mdkMatirx<uint64>>* m_Mask;
+	std::vector<uint64>*  m_InputVoxelLinearIndex;  // compute values at the points in the region
+	                                               
+
+	// input_2:
+	std::function<VoxelType_Output(uint64, uint64, uint64, mdk3DImage*)> m_FilterFunction;
 
 	// input_3:
-	std::function<VoxelType_Output(const std::vector<std::vector<VoxelType_Input>*>&)> m_FilterFunction;
-
-	// input_4:
-	bool m_Flag_Check3DIndexIfOutofImage;
-
-	// input_5:
 	uint64 m_MaxThreadNumber;
 
 	//--------------- output ---------------------
@@ -73,13 +73,12 @@ public:
 		       std::vector< VoxelType_Output>* m_OutputArray, 
 			   uint64 MaxThreadNumber);
 
+	virtual VoxelType_Output FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex);
+
 private:
-	void DivideInputData(Index_min, Index_max, std::vector<uint64>& IndexList_s, std::vector<uint64>& IndexList_e);
+	void DivideInputData(Index_min, Index_max, std::vector<uint64>& IndexList_start, std::vector<uint64>& IndexList_end);
 
-	void Run_in_a_Thread(uint64 VoxelIndex_s, uint64 VoxelIndex_e, bool Flag_OutputIsImage);
-
-	inline void Check3DIndexAndModifyIfOutofImage(const uint64& xIndex, const uint64& yIndex, const uint64& zIndex,
-		                                          const mdk3DImageSize& InputImageSize);
+	void Run_in_a_Thread(uint64 VoxelIndex_start, uint64 VoxelIndex_end, bool Flag_OutputArray, bool Flag_OutputImageInSameSize);
 
 private:
 	mdk3DImageFilter(const mdk3DImageFilter&); // Not implemented.
