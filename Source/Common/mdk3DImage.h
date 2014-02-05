@@ -69,8 +69,12 @@ public:
 	inline void operator=(mdk3DImage<VoxelType>&);
 
 	bool Initialize(uint64 Lx, uint64 Ly, uint64 Lz,
-             		double PhysicalOrigin_x,    double PhysicalOrigin_y,    double PhysicalOrigin_z,
-					double VoxelPhysicalSize_x, double VoxelPhysicalSize_y, double VoxelPhysicalSize_z);
+		            double PhysicalOrigin_x = 0.0,
+		            double PhysicalOrigin_y = 0.0,
+		            double PhysicalOrigin_z = 0.0,
+		            double VoxelPhysicalSize_x = 1.0,
+		            double VoxelPhysicalSize_y = 1.0,
+		            double VoxelPhysicalSize_z = 1.0);
 
 	void Clear();
 
@@ -94,13 +98,21 @@ public:
 
 	VoxelType* ReleaseVoxelDataOwnership();
 
-	mdk3DImageSize GetImageSize();
+	inline mdk3DImageSize GetImageSize();
 
-	void GetImageSize(uint64* Lx, uint64* Ly, uint64* Lz);
+	inline void GetImageSize(uint64* Lx, uint64* Ly, uint64* Lz);
 
-	void GetVoxelPhysicalSize(uint64* VoxelPhysicalSize_x, uint64* VoxelPhysicalSize_y, uint64* VoxelPhysicalSize_z);
+	inline void GetImageSize(uint64* ImageSize);
 
-	void GetPhysicalOrigin(uint64* PhysicalOrigin_x, uint64* PhysicalOrigin_y, uint64* PhysicalOrigin_z);
+	template<typename ScalarType>
+	inline void GetImageSize(ScalarType* Lx, ScalarType* Ly, ScalarType* Lz);
+
+	template<typename ScalarType>
+	inline void GetImageSize(ScalarType* ImageSize);
+
+	inline void GetVoxelPhysicalSize(uint64* VoxelPhysicalSize_x, uint64* VoxelPhysicalSize_y, uint64* VoxelPhysicalSize_z);
+
+	inline void GetPhysicalOrigin(uint64* PhysicalOrigin_x, uint64* PhysicalOrigin_y, uint64* PhysicalOrigin_z);
 
 	inline void GetLinearIndexBy3DIndex(uint64 xIndex, uint64 yIndex, uint64 zIndex, uint64* LinearIndex);
 
@@ -148,9 +160,6 @@ public:
 
 	inline VoxelType at(double x, double y, double z);
 
-private:
-	mdk3DImage(const mdk3DImage&);     
-	void operator=(const mdk3DImage&);
 };
 
 }//end namespace mdk

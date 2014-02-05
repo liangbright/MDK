@@ -8,12 +8,6 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ K
 
 PROJECT(MDK_Test)
 
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
-set(VTKLIB_DIR "C:/Programs/VTK/VTK_6.1_VC_Build/lib")
- 
-find_package(Qt5Widgets REQUIRED QUIET)
-
 set(Debug_DIR "C:/Research/MDK/Code/Source/Debug")
 
 set(Common_DIR "C:/Research/MDK/Code/Source/Common")
@@ -52,33 +46,21 @@ ${Common_DIR}/mdkObject.cpp
 ${Common_DIR}/mdkMatrix.h
 ${Common_DIR}/mdkMatrix.hpp
 
-#${Common_DIR}/mdkLinearAlgebra.h
-#${Common_DIR}/mdkLinearAlgebra.hpp
-
 ${Common_DIR}/mdk3DImage.h
 ${Common_DIR}/mdk3DImage.hpp
 
 ${ImageFilter_DIR}/mdk3DImageFilter.h
 ${ImageFilter_DIR}/mdk3DImageFilter.hpp
-
-#${ImageFilter_DIR}/mdk3DImageFilterFunction.h
-#${ImageFilter_DIR}/mdk3DImageFilterFunction.hpp
-
-
-#${Core_DIR}/mdkImageRegionProperty.h
-#${Core_DIR}/mdkImageRegionProperty.cpp
 )
 
 set(LinearALgebraLib_win64 C:/Research/MDK/LinearALgebraLib_win64/lapack_win64_MT.lib  C:/Research/MDK/LinearALgebraLib_win64/blas_win64_MT.lib)
 
 message(STATUS ${Test_FILES})
 
-message(STATUS ${MDK_FILES})
+message(STATUS ${Source_FILES})
 
 message(STATUS ${Arma_FILES})
 
 add_executable(MDK_Test ${Test_FILES} ${Source_FILES} ${Arma_FILES})
 
-qt5_use_modules(MDK_Test Core GUI)
-
-target_link_libraries(MDK_Test ${VTK_LIBRARIES} ${LinearALgebraLib_win64}) 
+target_link_libraries(MDK_Test ${LinearALgebraLib_win64}) 

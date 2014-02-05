@@ -96,7 +96,7 @@ private:
 
 	uint64 m_ElementNumber;  // total number of Elements
 
-	std::unique_ptr<std::vector<ElementType>> m_ElementData;
+	std::shared_ptr<std::vector<ElementType>> m_ElementData;
 
 	bool m_IsSizeFixed;
 
@@ -112,27 +112,33 @@ private:
 
 public:		
 	
+	//------------------- constructor and destructor ------------------------------------//
+
 	inline mdkMatrix();
 
-	inline mdkMatrix(mdkMatrix<ElementType>& sourceMatrix);
+	inline mdkMatrix(const mdkMatrix<ElementType>& targetMatrix);
 
-	inline mdkMatrix(uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = false);
+	inline void operator=(const mdk::mdkMatrix<double>& targetMatrix);
+
+	inline mdkMatrix(uint64 RowNumber, uint64 ColNumber = 1, bool IsSizeFixed = false);
 
 	inline ~mdkMatrix();
 
+	//-----------------------------------------------------------------------------------//
+
 	inline void Clear();
 
-	inline std::vector<ElementType>* ReleaseElementDataArrayOwnership();
-
-	inline ElementType* ReleaseElementDataOwnership();
+	inline std::shared_ptr<std::vector<ElementType>> GetElementDataSharedPointer() const;
 
 	inline ElementType* GetElementDataRawPointer();
 
-	inline mdkMatrixElementTypeEnum GetElementType();
+	inline const ElementType* GetElementDataRawPointer() const;
+
+	inline mdkMatrixElementTypeEnum GetElementType() const;
 
 	inline void SetTobeTemporaryMatrix();
 
-	inline bool IsTemporaryMatrix();
+	inline bool IsTemporaryMatrix() const;
 
 	//---------------------- Matrix Size ----------------------------------------//
 
@@ -142,28 +148,29 @@ public:
 
 	inline bool ReSize(uint64 RowNumber, uint64 ColNumber);
 
-	inline void GetSize(uint64* RowNumber, uint64* ColNumber);
+	inline void GetSize(uint64* RowNumber, uint64* ColNumber) const;
 
-	inline MatrixSize GetSize();
+	inline MatrixSize GetSize() const;
 
-	inline bool IsSizeFixed();
+	inline uint64 GetColNumber() const;
 
-	inline bool IsEmpty();
+	inline uint64 GetRowNumber() const;
+
+	inline bool IsSizeFixed() const;
+
+	inline bool IsEmpty() const;
 
 	//---------------------- Initilize Matrix ----------------------------------------//
-
-	template<typename ElementType_target>
-	inline void operator=(mdkMatrix<ElementType_target>& targetMatrix);
 
 	inline void operator=(ElementType Element);
 
 	inline void operator=(const std::initializer_list<ElementType>& list);
 
 	template<typename ElementType_target>
-	inline bool Copy(mdkMatrix<ElementType_target>& targetMatrix);
+	inline bool Copy(const mdkMatrix<ElementType_target>& targetMatrix);
 
 	template<typename ElementType_target>
-	inline bool Copy(ElementType_target* ElementPointer, uint64 RowNumber, uint64 ColNumber);
+	inline bool Copy(const ElementType_target* ElementPointer, uint64 RowNumber, uint64 ColNumber);
 
 	inline bool Fill(ElementType Element);
 
@@ -292,26 +299,26 @@ public:
 
 	//-------------------- element operation  ------------------------------------------//
 
-	inline mdkMatrix ElementOperation(const char* FunctorName);
+	inline mdkMatrix ElementOperation(const char* FunctionName);
 
-	inline mdkMatrix ElementOperation(std::string FunctorName);
+	inline mdkMatrix ElementOperation(std::string FunctionName);
 
-	inline mdkMatrix ElementOperation(std::function<ElementType(ElementType)> Functor);
-
-	template<typename ElementType_target>
-	inline mdkMatrix ElementOperation(const char* FunctorName, mdkMatrix<ElementType_target>& targetMatrix);
+	inline mdkMatrix ElementOperation(std::function<ElementType(ElementType)> Function);
 
 	template<typename ElementType_target>
-	inline mdkMatrix ElementOperation(std::string FunctorName, mdkMatrix<ElementType_target>& targetMatrix);
+	inline mdkMatrix ElementOperation(const char* FunctionName, mdkMatrix<ElementType_target>& targetMatrix);
 
 	template<typename ElementType_target>
-	inline mdkMatrix ElementOperation(std::function<ElementType(ElementType, ElementType)> Functor, mdkMatrix<ElementType_target>& targetMatrix);
+	inline mdkMatrix ElementOperation(std::string FunctionName, mdkMatrix<ElementType_target>& targetMatrix);
 
-	inline mdkMatrix ElementOperation(const char* FunctorName, ElementType Element);
+	template<typename ElementType_target>
+	inline mdkMatrix ElementOperation(std::function<ElementType(ElementType, ElementType)> Function, mdkMatrix<ElementType_target>& targetMatrix);
 
-	inline mdkMatrix ElementOperation(std::string FunctorName, ElementType Element);
+	inline mdkMatrix ElementOperation(const char* FunctionName, ElementType Element);
 
-	inline mdkMatrix ElementOperation(std::function<ElementType(ElementType, ElementType)> Functor, ElementType Element);
+	inline mdkMatrix ElementOperation(std::string FunctionName, ElementType Element);
+
+	inline mdkMatrix ElementOperation(std::function<ElementType(ElementType, ElementType)> Function, ElementType Element);
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 
