@@ -25,10 +25,9 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType>::mdkMatrix(const mdkMatrix<ElementType>& targetMatrix)
 {
-	this->Clear();
-
 	(*this) = targetMatrix;
 }
+
 
 template<typename ElementType>
 inline 
@@ -68,8 +67,6 @@ void mdkMatrix<ElementType>::operator=(const mdk::mdkMatrix<double>& targetMatri
 	{
 		this->Copy(targetMatrix);
 	}
-
-	return;
 }
 
 
@@ -380,6 +377,59 @@ inline
 const ElementType* mdkMatrix<ElementType>::GetElementDataRawPointer() const
 {
 	return m_ElementData->data();
+}
+
+
+template<typename ElementType>
+template<typename ElementType_target>
+inline
+void mdkMatrix<ElementType>::operator=(const mdkMatrix<ElementType_target>& targetMatrix)
+{
+	// MatrixA = MatrixA
+	if (this == &targetMatrix)
+	{
+		return;
+	}
+
+	uint64 RowNumber_target;
+	uint64 ColNumber_target;
+	targetMatrix.GetSize(&RowNumber_target, &ColNumber_target);
+
+	if (m_IsSizeFixed == true)
+	{
+		if (RowNumber_target != m_RowNumber || ColNumber_target != m_ColNumber)
+		{
+			mdkError << "Matrix size can not be changed @ mdkMatrix::operator=(mdkMatrix)" << '\n';
+			return;
+		}
+	}
+
+	if (targetMatrix.IsTemporaryMatrix() == true)
+	{
+		auto mdkElementType_target = targetMatrix.GetElementType();
+
+		if (m_ElementType == mdkElementType_target)
+		{
+			m_ElementData.reset();
+
+			m_ElementData.swap(targetMatrix.GetElementDataSharedPointer());
+
+			m_RowNumber = RowNumber_target;
+			m_ColNumber = ColNumber_target;
+
+			m_ElementNumber = m_RowNumber*m_ColNumber;
+		}
+		else
+		{
+			this->Copy(targetMatrix);
+		}
+	}
+	else
+	{
+		this->Copy(targetMatrix);
+	}
+
+	return;
 }
 
 
@@ -2700,6 +2750,8 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinAlongRow()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
+	tempMatrix.SetTobeTemporaryMatrix();
+
 	if (m_ElementNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix Mean" << '\n';
@@ -2737,6 +2789,8 @@ template<typename ElementType>
 inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinAlongCol()
 {
 	mdkMatrix<ElementType> tempMatrix;
+
+	tempMatrix.SetTobeTemporaryMatrix();
 
 	if (m_ElementNumber == 0)
 	{
@@ -2801,8 +2855,8 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetTranspose()
 		Index = 0;
 
 		for (uint64 j = 0; j < m_ColNumber; ++j)
-		{
-			tempRawPointer[0] = RawPointer[Index + i];
+		{	
+		    tempRawPointer[0] = RawPointer[Index + i];
 
 			Index += m_RowNumber;
 
@@ -2818,9 +2872,9 @@ template<typename ElementType>
 inline
 uint64 mdkMatrix<ElementType>::Rank()
 {
-	auto RawPointer = m_ElementData->data();
+	// call Armadillo 
 
-	arma::Mat<ElementType> tempMat(RawPointer, m_RowNumber, m_ColNumber);
+	arma::Mat<ElementType> tempMat(m_ElementData->data(), m_RowNumber, m_ColNumber, false);
 
 	uint64 value = arma::rank(tempMat);
 
@@ -2832,19 +2886,19 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> mdkMatrix<ElementType>::Inv()
 {
-	// call Armadillo 
-
-	auto RawPointer = m_ElementData->data();
-
-	arma::Mat<ElementType> tempMat(RawPointer, arma::uword(m_RowNumber), arma::uword(m_ColNumber));
-
-	arma::Mat<ElementType> tempInv = arma::inv(tempMat);
-
 	mdkMatrix<ElementType> tempMatrix;
 
 	tempMatrix.SetTobeTemporaryMatrix();
 
-	tempMatrix.Copy(tempInv.memptr(), tempInv.n_rows, tempInv.n_cols);
+	tempMatrix.SetSize(m_RowNumber, m_ColNumber);
+
+	// call Armadillo 
+
+	arma::Mat<ElementType> tempMat(m_ElementData->data(), arma::uword(m_RowNumber), arma::uword(m_ColNumber), false);
+
+	arma::Mat<ElementType> tempInv(tempMatrix.GetElementDataRawPointer(), arma::uword(m_RowNumber), arma::uword(m_ColNumber), false);
+	
+	tempInv = arma::inv(tempMat);
 
 	return tempMatrix;
 }
@@ -2864,27 +2918,27 @@ template<typename ElementType>
 inline
 mdkMatrixSVDResult<ElementType> mdkMatrix<ElementType>::SVD()
 {
+	mdkMatrixSVDResult<ElementType> Result;
+
+	Result.U.SetTobeTemporaryMatrix();
+	Result.S.SetTobeTemporaryMatrix();
+	Result.V.SetTobeTemporaryMatrix();
+
+	Result.U.SetSize(m_RowNumber, m_ColNumber);
+	Result.S.SetSize(m_RowNumber, m_ColNumber);
+	Result.V.SetSize(m_RowNumber, m_ColNumber);
+
 	// call Armadillo 
 
-	auto RawPointer = m_ElementData->data();
-
-	arma::Mat<ElementType> X(RawPointer, arma::uword(m_RowNumber), arma::uword(m_ColNumber));
+	arma::Mat<ElementType> X(m_ElementData->data(), arma::uword(m_RowNumber), arma::uword(m_ColNumber), false);
 	
-	arma::Mat<ElementType> U;
+	arma::Mat<ElementType> U(Result.U.GetElementDataRawPointer(), arma::uword(m_RowNumber), arma::uword(m_ColNumber), false);
 	arma::Col<ElementType> S;
-	arma::Mat<ElementType> V;
+	arma::Mat<ElementType> V(Result.V.GetElementDataRawPointer(), arma::uword(m_RowNumber), arma::uword(m_ColNumber), false);
 
 	arma::svd(U, S, V, X);
 
-	mdkMatrixSVDResult<ElementType> Result;
-
-	Result.U.Copy(U.memptr(), U.n_rows, U.n_cols);
-
-	Result.S.SetSize(X.n_rows, X.n_cols);
-
 	Result.S.SetDiangonal(S.memptr());
-
-	Result.V.Copy(V.memptr(), V.n_rows, V.n_cols);
 
 	return Result;
 }

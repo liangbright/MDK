@@ -33,7 +33,7 @@ public:
 
 	bool SetMask(const mdkMatrix<double>& Mask);
 
-	void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& OutputVoxel);
+	inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& OutputVoxel);
 
 private:
 	mdk3DImageConvolutionFilter(const mdk3DImageConvolutionFilter&); // Not implemented.
@@ -61,7 +61,7 @@ public:
 
 	bool SetMask(const mdkMatrix<double>& Mask);
 
-	void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType& OutputVoxel);
+	inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType& OutputVoxel);
 
 private:
 	mdk3DImageConvolutionFilter(const mdk3DImageConvolutionFilter&); // Not implemented.
@@ -89,7 +89,7 @@ public:
 
 	bool SetMask(const mdkMatrix<double>& Mask);
 
-	void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, std::vector<VoxelType>& OutputVoxel);
+	inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, std::vector<VoxelType>& OutputVoxel);
 
 private:
 	mdk3DImageConvolutionFilter(const mdk3DImageConvolutionFilter&); // Not implemented.

@@ -162,6 +162,9 @@ public:
 
 	//---------------------- Initilize Matrix ----------------------------------------//
 
+	template<typename ElementType_target>
+	inline void operator=(const mdkMatrix<ElementType_target>& targetMatrix);
+
 	inline void operator=(ElementType Element);
 
 	inline void operator=(const std::initializer_list<ElementType>& list);

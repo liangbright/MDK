@@ -11,9 +11,11 @@ using namespace mdk;
 
 int main(int argc, char** argv)
 {
+	Test_FunctionPointer();
+
 	//Test_MultiThread();
 
 	//Test_ConvolutionFilter_ScalarOutput();
 
-	Test_ConvolutionFilter_VectorOutput();
+	//Test_ConvolutionFilter_VectorOutput();
 }

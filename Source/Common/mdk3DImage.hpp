@@ -22,6 +22,45 @@ mdk3DImage<VoxelType>::~mdk3DImage()
 
 
 template<typename VoxelType>
+mdk3DImage<VoxelType>::mdk3DImage(const mdk3DImage<VoxelType>& targetImage)
+{
+	(*this) = targetImage;
+}
+
+
+template<typename VoxelType>
+void mdk3DImage<VoxelType>::operator=(const mdk3DImage<VoxelType>& targetImage)
+{
+	// Image = Image
+	if (this == &targetImage)
+	{
+		return;
+	}
+
+	if (targetMatrix.IsTemporaryImage() == true)
+	{
+		m_VoxelData.reset();
+
+		m_VoxelData.swap(targetImage.GetVoxelDataSharedPointer());
+
+		targetImage.GetImageSize(&m_ImageSize[0], &m_ImageSize[1], &m_ImageSize[2]);
+
+		m_VoxelNumber = m_ImageSize[0] * m_ImageSize[1] * m_ImageSize[2];
+
+		m_VoxelNumberPerZSlice = m_ImageSize[0] * m_ImageSize[1];
+
+		targetImage.GetVoxelPhysicalSize(&m_VoxelPhysicalSize[0], &m_VoxelPhysicalSize[1], &m_VoxelPhysicalSize[2]);
+
+		targetImage.GetPhysicalOrigin(&m_PhysicalOrigin[0], &m_PhysicalOrigin[1], &m_PhysicalOrigin[2]);
+	}
+	else
+	{
+		this->Copy(targetImage);
+	}
+}
+
+
+template<typename VoxelType>
 bool mdk3DImage<VoxelType>::Initialize(uint64 Lx, uint64 Ly, uint64 Lz,
 	                                   double PhysicalOrigin_x = 0.0,    
 									   double PhysicalOrigin_y = 0.0, 
@@ -84,7 +123,7 @@ void mdk3DImage<VoxelType>::Clear()
 
 
 template<typename VoxelType>
-bool mdk3DImage<VoxelType>::IsEmpty()
+bool mdk3DImage<VoxelType>::IsEmpty() const
 {
 	if (m_VoxelNumber == 0)
 	{
@@ -96,7 +135,7 @@ bool mdk3DImage<VoxelType>::IsEmpty()
 
 
 template<typename VoxelType>
-void mdk3DImage<VoxelType>::Copy(mdk3DImage<VoxelType> targetImage)
+void mdk3DImage<VoxelType>::Copy(const mdk3DImage<VoxelType>& targetImage)
 {
 	if (targetImage.IsEmpty() == true)
 	{
@@ -118,7 +157,7 @@ void mdk3DImage<VoxelType>::Copy(mdk3DImage<VoxelType> targetImage)
 
 
 template<typename VoxelType>
-void mdk3DImage<VoxelType>::Copy(VoxelType* VoxelPointer, uint64 Lx, uint64 Ly, uint64 Lz)
+void mdk3DImage<VoxelType>::Copy(const VoxelType* VoxelPointer, uint64 Lx, uint64 Ly, uint64 Lz)
 {
 	if (VoxelPointer == nullptr)
 	{
@@ -219,22 +258,22 @@ VoxelType* mdk3DImage<VoxelType>::GetVoxelDataRawPointer()
 
 
 template<typename VoxelType>
-std::vector<VoxelType>* mdk3DImage<VoxelType>::ReleaseVoxelDataArrayOwnership()
+const VoxelType* mdk3DImage<VoxelType>::GetVoxelDataRawPointer() const
 {
-	return m_VoxelData.release();
+	return m_VoxelData->data();
 }
 
 
 template<typename VoxelType>
-VoxelType* mdk3DImage<VoxelType>::ReleaseVoxelDataOwnership()
+std::shared_ptr<std::vector<VoxelType>> mdk3DImage<VoxelType>::GetVoxelDataSharedPointer()
 {
-	return m_VoxelData.release().data();
+	return m_VoxelData;
 }
 
 
 template<typename VoxelType>
 inline
-mdk3DImageSize mdk3DImage<VoxelType>::GetImageSize()
+mdk3DImageSize mdk3DImage<VoxelType>::GetImageSize() const
 {
 	mdk3DImageSize Size;
 
@@ -248,7 +287,7 @@ mdk3DImageSize mdk3DImage<VoxelType>::GetImageSize()
 
 template<typename VoxelType>
 inline
-void mdk3DImage<VoxelType>::GetImageSize(uint64* Lx, uint64* Ly, uint64* Lz)
+void mdk3DImage<VoxelType>::GetImageSize(uint64* Lx, uint64* Ly, uint64* Lz) const
 {
 	Lx[0] = m_ImageSize[0];
 	Ly[0] = m_ImageSize[1];
@@ -258,7 +297,7 @@ void mdk3DImage<VoxelType>::GetImageSize(uint64* Lx, uint64* Ly, uint64* Lz)
 
 template<typename VoxelType>
 inline
-void mdk3DImage<VoxelType>::GetImageSize(uint64* ImageSize)
+void mdk3DImage<VoxelType>::GetImageSize(uint64* ImageSize) const
 {
 	ImageSize[0] = m_ImageSize[0];
 	ImageSize[1] = m_ImageSize[1];
@@ -269,7 +308,7 @@ void mdk3DImage<VoxelType>::GetImageSize(uint64* ImageSize)
 template<typename VoxelType>
 template<typename ScalarType>
 inline
-void mdk3DImage<VoxelType>::GetImageSize(ScalarType* Lx, ScalarType* Ly, ScalarType* Lz)
+void mdk3DImage<VoxelType>::GetImageSize(ScalarType* Lx, ScalarType* Ly, ScalarType* Lz) const
 {
 	Lx[0] = ScalarType(m_ImageSize[0]);
 	Ly[0] = ScalarType(m_ImageSize[1]);
@@ -280,7 +319,7 @@ void mdk3DImage<VoxelType>::GetImageSize(ScalarType* Lx, ScalarType* Ly, ScalarT
 template<typename VoxelType>
 template<typename ScalarType>
 inline
-void mdk3DImage<VoxelType>::GetImageSize(ScalarType* ImageSize)
+void mdk3DImage<VoxelType>::GetImageSize(ScalarType* ImageSize) const
 {
 	ImageSize[0] = ScalarType(m_ImageSize[0]);
 	ImageSize[1] = ScalarType(m_ImageSize[1]);
@@ -290,7 +329,7 @@ void mdk3DImage<VoxelType>::GetImageSize(ScalarType* ImageSize)
 
 template<typename VoxelType>
 inline
-void mdk3DImage<VoxelType>::GetVoxelPhysicalSize(uint64* VoxelPhysicalSize_x, uint64* VoxelPhysicalSize_y, uint64* VoxelPhysicalSize_z)
+void mdk3DImage<VoxelType>::GetVoxelPhysicalSize(uint64* VoxelPhysicalSize_x, uint64* VoxelPhysicalSize_y, uint64* VoxelPhysicalSize_z) const
 {
 	VoxelPhysicalSize_x[0] = m_VoxelPhysicalSize[0];
 	VoxelPhysicalSize_y[0] = m_VoxelPhysicalSize[1];
@@ -300,7 +339,7 @@ void mdk3DImage<VoxelType>::GetVoxelPhysicalSize(uint64* VoxelPhysicalSize_x, ui
 
 template<typename VoxelType>
 inline
-void mdk3DImage<VoxelType>::GetPhysicalOrigin(uint64* PhysicalOrigin_x, uint64* PhysicalOrigin_y, uint64* PhysicalOrigin_z)
+void mdk3DImage<VoxelType>::GetPhysicalOrigin(uint64* PhysicalOrigin_x, uint64* PhysicalOrigin_y, uint64* PhysicalOrigin_z) const
 {
 	PhysicalOrigin_x[0] = m_PhysicalOrigin[0];
 	PhysicalOrigin_y[0] = m_PhysicalOrigin[1];
@@ -310,7 +349,7 @@ void mdk3DImage<VoxelType>::GetPhysicalOrigin(uint64* PhysicalOrigin_x, uint64* 
 
 template<typename VoxelType>
 inline
-void mdk3DImage<VoxelType>::GetLinearIndexBy3DIndex(uint64 xIndex, uint64 yIndex, uint64 zIndex, uint64* LinearIndex)
+void mdk3DImage<VoxelType>::GetLinearIndexBy3DIndex(uint64 xIndex, uint64 yIndex, uint64 zIndex, uint64* LinearIndex) const
 {
 	LinearIndex[0] = zIndex*m_VoxelNumberPerZSlice + yIndex*m_ImageSize[0] + xIndex;
 }
@@ -318,7 +357,7 @@ void mdk3DImage<VoxelType>::GetLinearIndexBy3DIndex(uint64 xIndex, uint64 yIndex
 
 template<typename VoxelType>
 inline
-void mdk3DImage<VoxelType>::Get3DIndexByLinearIndex(uint64 LinearIndex, uint64* xIndex, uint64* yIndex, uint64* zIndex)
+void mdk3DImage<VoxelType>::Get3DIndexByLinearIndex(uint64 LinearIndex, uint64* xIndex, uint64* yIndex, uint64* zIndex) const
 {
 	std::lldiv_t divresult;
 	divresult.rem = LinearIndex;
@@ -369,7 +408,7 @@ VoxelType& mdk3DImage<VoxelType>::operator()(uint64 xIndex, uint64 yIndex, uint6
 {
 	if (xIndex >= m_ImageSize[0] || yIndex >= m_ImageSize[1] || zIndex >= m_ImageSize[2])
 	{
-		mdkError << "LinearIndex >= m_VoxelNumber @ mkd3DImage::operator(xIndex, yIndex, zIndex)" << '\n';
+		mdkError << "xIndex >= m_ImageSize[0] || yIndex >= m_ImageSize[1] || zIndex >= m_ImageSize[2] @ mkd3DImage::operator(xIndex, yIndex, zIndex)" << '\n';
 		return m_EmptyVoxel;
 	}
 
@@ -459,6 +498,8 @@ template<typename VoxelType>
 mdk3DImage<VoxelType> mdk3DImage<VoxelType>::SubImage(uint64 xIndex_s, uint64 xIndex_e, uint64 yIndex_s, uint64 yIndex_e, uint64 zIndex_s, uint64 zIndex_e)
 {
 	mdk3DImage<ScalarType> tempImage; // empty image
+
+	tempImage.SetTobeTemporaryImage();
 
 	if (xIndex_s >= ImageSize[0] || xIndex_e >= ImageSize[0] || xIndex_s > xIndex_e
 		|| yIndex_s >= ImageSize[1] || yIndex_e >= ImageSize[1] || yIndex_s > yIndex_e

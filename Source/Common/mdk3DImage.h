@@ -40,7 +40,7 @@ class mdk3DImage : public mdkObject
 
 private:
 
-	std::unique_ptr<std::vector<VoxelType>> m_VoxelData;
+	std::shared_ptr<std::vector<VoxelType>> m_VoxelData;
 
 	uint64 m_ImageSize[3]; // {Lx, Ly, Lz} number of voxels in each direction
 
@@ -62,11 +62,11 @@ public:
 	
 	mdk3DImage();
 
+	mdk3DImage(const mdk3DImage<VoxelType>& targetImage);
+
+	void operator=(const mdk3DImage<VoxelType>& targetImage);
+
 	~mdk3DImage();
-
-	inline mdk3DImage(mdk3DImage<VoxelType>&);
-
-	inline void operator=(mdk3DImage<VoxelType>&);
 
 	bool Initialize(uint64 Lx, uint64 Ly, uint64 Lz,
 		            double PhysicalOrigin_x = 0.0,
@@ -78,11 +78,11 @@ public:
 
 	void Clear();
 
-	bool IsEmpty();
+	bool IsEmpty() const;
 
-	void Copy(mdk3DImage<VoxelType> targetImage);
+	void Copy(const mdk3DImage<VoxelType>& targetImage);
 
-	void Copy(VoxelType* VoxelPointer, uint64 Lx, uint64 Ly, uint64 Lz);
+	void Copy(const VoxelType* VoxelPointer, uint64 Lx, uint64 Ly, uint64 Lz);
 
 	void SetPhysicalOrigin(double PhysicalOrigin_x, double PhysicalOrigin_y, double PhysicalOrigin_z);
 
@@ -90,33 +90,35 @@ public:
 
 	bool Fill(VoxelType Voxel);
 
+	void SetTobeTemporaryImage();
+
 	std::vector<VoxelType>* GetVoxelDataArrayPointer();
 
 	VoxelType* GetVoxelDataRawPointer();
 
-	std::vector<VoxelType>* ReleaseVoxelDataArrayOwnership();
+	const VoxelType* GetVoxelDataRawPointer() const;
 
-	VoxelType* ReleaseVoxelDataOwnership();
+	std::shared_ptr<std::vector<VoxelType>> GetVoxelDataSharedPointer();
 
-	inline mdk3DImageSize GetImageSize();
+	inline mdk3DImageSize GetImageSize() const;
 
-	inline void GetImageSize(uint64* Lx, uint64* Ly, uint64* Lz);
+	inline void GetImageSize(uint64* Lx, uint64* Ly, uint64* Lz) const;
 
-	inline void GetImageSize(uint64* ImageSize);
-
-	template<typename ScalarType>
-	inline void GetImageSize(ScalarType* Lx, ScalarType* Ly, ScalarType* Lz);
+	inline void GetImageSize(uint64* ImageSize) const;
 
 	template<typename ScalarType>
-	inline void GetImageSize(ScalarType* ImageSize);
+	inline void GetImageSize(ScalarType* Lx, ScalarType* Ly, ScalarType* Lz) const;
 
-	inline void GetVoxelPhysicalSize(uint64* VoxelPhysicalSize_x, uint64* VoxelPhysicalSize_y, uint64* VoxelPhysicalSize_z);
+	template<typename ScalarType>
+	inline void GetImageSize(ScalarType* ImageSize) const;
 
-	inline void GetPhysicalOrigin(uint64* PhysicalOrigin_x, uint64* PhysicalOrigin_y, uint64* PhysicalOrigin_z);
+	inline void GetVoxelPhysicalSize(uint64* VoxelPhysicalSize_x, uint64* VoxelPhysicalSize_y, uint64* VoxelPhysicalSize_z) const;
 
-	inline void GetLinearIndexBy3DIndex(uint64 xIndex, uint64 yIndex, uint64 zIndex, uint64* LinearIndex);
+	inline void GetPhysicalOrigin(uint64* PhysicalOrigin_x, uint64* PhysicalOrigin_y, uint64* PhysicalOrigin_z) const;
 
-	inline void Get3DIndexByLinearIndex(uint64 LinearIndex, uint64* xIndex, uint64* yIndex, uint64* zIndex);
+	inline void GetLinearIndexBy3DIndex(uint64 xIndex, uint64 yIndex, uint64 zIndex, uint64* LinearIndex) const;
+
+	inline void Get3DIndexByLinearIndex(uint64 LinearIndex, uint64* xIndex, uint64* yIndex, uint64* zIndex) const;
 
 	//--------------------------- Get EmptyVoxel (e.g., 0) ------------------------------//
 
@@ -156,9 +158,9 @@ public:
 
 	//-------------------------- Interpolation -------------------------------//
 
-	inline VoxelType operator()(double x, double y, double z);
+	//inline VoxelType& operator()(double x, double y, double z);
 
-	inline VoxelType at(double x, double y, double z);
+	//inline VoxelType& at(double x, double y, double z);
 
 };
 

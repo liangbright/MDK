@@ -64,15 +64,35 @@ bool mdk3DImageConvolutionFilter<VoxelType, VoxelType>::SetMask(const mdkMatrix<
 
 
 template<typename VoxelType>
+inline
 void
 mdk3DImageConvolutionFilter<VoxelType, VoxelType>::
 FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType& OutputVoxel)
 {
-	auto InputImageSize = m_InputImage->GetImageSize();
+	//OutputVoxel = 0;
+
+	//return;
+
+	OutputVoxel = 0;
+
+	double N = 100;
+
+	for (double i = 0; i < N; ++i)
+	{
+		OutputVoxel += i * (*m_InputImage)(xIndex, yIndex, zIndex);
+	}
+
+	return;
 
 	auto x = double(xIndex);
 	auto y = double(yIndex);
 	auto z = double(zIndex);
+
+	double Lx = 0;
+	double Ly = 0;
+	double Lz = 0;
+
+	m_InputImage->GetImageSize(&Lx, &Ly, &Lz);
 
 	auto tempVoxelNumber = m_MaskList[0].GetColNumber();
 
@@ -80,28 +100,40 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType& OutputVox
 
 	OutputVoxel = 0;
 	
-	for (uint64 k = 0; k < tempVoxelNumber; ++k)
+	if (m_IsBoundCheckEnabled == true) // time_check = 2 * time_no_check
 	{
-		// fast (time_fast = 0.5 * time_slow)
-		//auto temp_x = uint64(RawPointer[k*4] + x);
-		//auto temp_y = uint64(RawPointer[k*4+1] + y);
-		//auto temp_z = uint64(RawPointer[k*4+2] + z);
 
-		// slow
-		//auto temp_x = uint64(m_MaskList[0](0, k) + x);
-		//auto temp_y = uint64(m_MaskList[0](1, k) + y);
-		//auto temp_z = uint64(m_MaskList[0](2, k) + z);
+		for (uint64 k = 0; k < tempVoxelNumber; ++k)
+		{
+			auto tempk = k * 4;
+			
+			auto temp_x = std::min(std::max(RawPointer[tempk] + x, 0.0), Lx - 1);
 
-		auto temp_x = uint64(std::max(RawPointer[k*4] + x, 0.0));
-		temp_x = std::min(temp_x, InputImageSize.Lx - 1);
+			auto temp_y = std::min(std::max(RawPointer[tempk+1] + y, 0.0), Ly - 1);
 
-		auto temp_y = uint64(std::max(RawPointer[k*4+1] + y, 0.0));
-		temp_y = std::min(temp_y, InputImageSize.Ly - 1);
+			auto temp_z = std::min(std::max(RawPointer[tempk+2] + z, 0.0), Lz - 1);
+			
+			OutputVoxel += RawPointer[tempk + 3] * (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z));
+		}
+	}
+	else
+	{
+		for (uint64 k = 0; k < tempVoxelNumber; ++k)
+		{
+			// slow
+			//auto temp_x = m_MaskList[0](0, k) + x;
+			//auto temp_y = m_MaskList[0](1, k) + y;
+			//auto temp_z = m_MaskList[0](2, k) + z;
 
-		auto temp_z = uint64(std::max(RawPointer[k*4+2] + z, 0.0));
-		temp_z = std::min(temp_z, InputImageSize.Lz - 1);
-		
-		OutputVoxel += RawPointer[k*4+3] * (*m_InputImage)(temp_x, temp_y, temp_z);
+			auto tempk = k * 4;
+
+			// fast (time_fast = 0.5 * time_slow)
+			auto temp_x = RawPointer[tempk] + x;
+			auto temp_y = RawPointer[tempk + 1] + y;
+			auto temp_z = RawPointer[tempk + 2] + z;
+
+			OutputVoxel += RawPointer[tempk + 3] * (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z));
+		}
 	}
 }
 
@@ -160,38 +192,67 @@ bool mdk3DImageConvolutionFilter<VoxelType, std::vector<VoxelType>>::SetMask(con
 
 
 template<typename VoxelType>
+inline
 void
 mdk3DImageConvolutionFilter<VoxelType, std::vector<VoxelType>>::
 FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, std::vector<VoxelType>& OutputVoxel)
 {
-	auto InputImageSize = m_InputImage->GetImageSize();
-
 	auto x = double(xIndex);
 	auto y = double(yIndex);
 	auto z = double(zIndex);
 
+	double Lx = 0;
+	double Ly = 0;
+	double Lz = 0;
+
+	m_InputImage->GetImageSize(&Lx, &Ly, &Lz);
+
 	uint64 MaskListLength = m_MaskList.size();
 
-	for (uint64 i = 0; i < MaskListLength; ++i)
+	if (m_IsBoundCheckEnabled == true)
 	{
-		auto tempVoxelNumber = m_MaskList[i].GetColNumber();
-
-		auto RawPointer = m_MaskList[i].GetElementDataRawPointer();
-
-		OutputVoxel[i] = 0;
-
-		for (uint64 k = 0; k < tempVoxelNumber; ++k)
+		for (uint64 i = 0; i < MaskListLength; ++i)
 		{
-			auto temp_x = uint64(std::max(RawPointer[k * 4] + x, 0.0));
-			temp_x = std::min(temp_x, InputImageSize.Lx - 1);
+			auto tempVoxelNumber = m_MaskList[i].GetColNumber();
 
-			auto temp_y = uint64(std::max(RawPointer[k * 4 + 1] + y, 0.0));
-			temp_y = std::min(temp_y, InputImageSize.Ly - 1);
+			auto RawPointer = m_MaskList[i].GetElementDataRawPointer();
 
-			auto temp_z = uint64(std::max(RawPointer[k * 4 + 2] + z, 0.0));
-			temp_z = std::min(temp_z, InputImageSize.Lz - 1);
+			OutputVoxel[i] = 0;
 
-			OutputVoxel[i] += RawPointer[k * 4 + 3] * (*m_InputImage)(temp_x, temp_y, temp_z);
+			for (uint64 k = 0; k < tempVoxelNumber; ++k)
+			{
+				auto tempk = k * 4;
+
+				auto temp_x = std::min(std::max(RawPointer[tempk] + x, 0.0), Lx - 1);
+
+				auto temp_y = std::min(std::max(RawPointer[tempk + 1] + y, 0.0), Ly - 1);
+
+				auto temp_z = std::min(std::max(RawPointer[tempk + 2] + z, 0.0), Lz - 1);
+
+				OutputVoxel[i] += RawPointer[tempk + 3] * (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z));
+			}
+		}
+	}
+	else
+	{
+		for (uint64 i = 0; i < MaskListLength; ++i)
+		{
+			auto tempVoxelNumber = m_MaskList[i].GetColNumber();
+
+			auto RawPointer = m_MaskList[i].GetElementDataRawPointer();
+
+			OutputVoxel[i] = 0;
+
+			for (uint64 k = 0; k < tempVoxelNumber; ++k)
+			{
+				auto tempk = k * 4;
+
+				auto temp_x = RawPointer[tempk] + x;
+				auto temp_y = RawPointer[tempk + 1] + y;
+				auto temp_z = RawPointer[tempk + 2] + z;
+
+				OutputVoxel[i] += RawPointer[tempk + 3] * (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z));
+			}
 		}
 	}
 }
