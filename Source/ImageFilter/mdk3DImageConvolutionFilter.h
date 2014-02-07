@@ -25,6 +25,8 @@ public:
 	mdk3DImageConvolutionFilter();
 	~mdk3DImageConvolutionFilter();
   
+	bool CheckInput();
+
 	bool LoadMask(std::string FilePathAndName);
 
 	bool SaveMask(std::string FilePathAndName);
@@ -53,6 +55,8 @@ public:
 	mdk3DImageConvolutionFilter();
 	~mdk3DImageConvolutionFilter();
 
+	bool CheckInput();
+
 	bool LoadMask(std::string FilePathAndName);
 
 	bool SaveMask(std::string FilePathAndName);
@@ -66,6 +70,7 @@ public:
 private:
 	mdk3DImageConvolutionFilter(const mdk3DImageConvolutionFilter&); // Not implemented.
 	void operator=(const mdk3DImageConvolutionFilter&);              // Not implemented.
+
 };
 
 
@@ -80,6 +85,8 @@ protected:
 public:
 	mdk3DImageConvolutionFilter();
 	~mdk3DImageConvolutionFilter();
+
+	bool CheckInput();
 
 	bool LoadMask(std::string FilePathAndName);
 

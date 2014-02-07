@@ -13,6 +13,8 @@ int main(int argc, char** argv)
 {
 	//test();
 
+	//Test_FilterFunction();
+
 	//Test_FunctionPointer();
 
 	//Test_MultiThread();

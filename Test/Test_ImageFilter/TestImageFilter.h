@@ -47,10 +47,16 @@ void Templatefunction(T a)
 void Tempfunction(double& a, int N)
 {
 	a = 0;
+
+	double b = 0;
+
 	for (double i = 0; i < N; ++i)
 	{
-		a += i;
+		b += i;
+		//a += i;
 	}
+
+	a = b;
 }
 
 inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, const mdk3DImage<double>& InputImage, double& Output)
@@ -65,18 +71,56 @@ inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, const md
 	//auto y = double(yIndex);
 	//auto z = double(zIndex);
 
+	double Value = 0;
+
 	for (double i = 0; i < N; ++i)
 	{
-		Output += i * InputImage(xIndex, yIndex, zIndex);
-		//Output += i * InputImage(uint64(x), uint64(y), uint64(z));
+		Value += i * InputImage(xIndex, yIndex, zIndex);
 
-		//Output += i*(i+1);
+		 //Output += i * InputImage(xIndex, yIndex, zIndex);
+
+		//Output += i * InputImage(uint64(x), uint64(y), uint64(z));
 	}
+
+	Output = Value;
 }
+
+void Test_FilterFunction()
+{
+	uint64 Lx = 512;
+	uint64 Ly = 512;
+	uint64 Lz = 512;
+
+	mdk3DImage<double> InputImage;
+
+	InputImage.Initialize(Lx, Ly, Lz);
+
+	InputImage.Fill(1);
+
+	std::cout << "FilterFunction function " << '\n';
+
+	auto t0 = std::time(0);
+
+	double Output = 0;
+
+	for (uint64 i = 0; i < Lx*Ly*Lz; ++i)
+	{
+		FilterFunction(0, 0, 0, InputImage, Output);
+	}
+
+	std::cout << "Output " << Output << '\n';
+
+	auto t1 = std::time(0);
+
+	std::cout << "time " << t1 - t0 << '\n';
+
+	std::system("pause");
+}
+
 
 void Test_FunctionPointer()
 {
-	int N = 3000;
+	int N = 8000;
 
 	double Value = 0;
 	auto t0 = std::time(0);
@@ -137,7 +181,7 @@ void Test_FunctionTemplate_InputFilterFunction()
 
 	imfilter.SetMaxThreadNumber(1);
 
-	imfilter.SetFilterFunction(FilterFunction);
+	imfilter.SetInputFilterFunction(FilterFunction);
 
 	std::time_t t0 = std::time(0);
 
@@ -198,11 +242,15 @@ void Test_MultiThread()
 
 	imfilter.SetInputImage(&InputImage);
 
+	imfilter.SetInputZeroVoxel(0);
+
 	imfilter.SetOutputImage(&OutputImage);
+
+	imfilter.SetOutputZeroVoxel(0);
 
 	imfilter.SetMaxThreadNumber(1);
 
-	imfilter.SetFilterFunction(FilterFunction);
+	imfilter.SetInputFilterFunction(FilterFunction);
 
 	std::time_t t0 = std::time(0);
 
@@ -302,11 +350,15 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	imfilter.SetInputImage(&InputImage);
 
+	imfilter.SetInputZeroVoxel(0);
+
 	imfilter.SetOutputImage(&OutputImage);
+
+	imfilter.SetOutputZeroVoxel(0);
 
 	imfilter.SetMaxThreadNumber(1);
 
-	imfilter.SetFilterFunction(FilterFunction);
+	imfilter.SetInputFilterFunction(FilterFunction);
 
 	std::time_t t0 = std::time(0);
 
@@ -321,9 +373,11 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	imconvfilter.SetInputImage(&InputImage);
 
+	imconvfilter.SetInputZeroVoxel(0);
+
 	imconvfilter.SetOutputImage(&OutputImage);
 
-	imconvfilter.SetFilterFunction(FilterFunction);
+	imconvfilter.SetInputFilterFunction(FilterFunction);
 
 	imconvfilter.SetMaxThreadNumber(1);
 
@@ -386,9 +440,11 @@ void Test_ConvolutionFilter_ScalarOutput()
 
 	imfilter.SetInputImage(&InputImage);
 
+	imfilter.SetInputZeroVoxel(0.0);
+
 	imfilter.SetOutputImage(&OutputImage);
 
-	imfilter.SetFilterFunction(FilterFunction);
+	imfilter.SetOutputZeroVoxel(0.0);
 
 	imfilter.SetMaxThreadNumber(8);
 
@@ -482,13 +538,13 @@ void Test_ConvolutionFilter_VectorOutput()
 
 	OutputImage.Initialize(Lx, Ly, Lz);
 
-	std::array<double, 2> TempVoxel = { 0, 0};
+	std::array<double, 2> OutputZeroVoxel = { 0, 0 };
 
-	OutputImage.SetEmptyVoxel(TempVoxel);
+	OutputImage.SetEmptyVoxel(OutputZeroVoxel);
 
 	std::time_t t01 = std::time(0);
 
-	OutputImage.Fill(TempVoxel);
+	OutputImage.Fill(OutputZeroVoxel);
 
 	std::time_t t02 = std::time(0);
 
@@ -502,7 +558,11 @@ void Test_ConvolutionFilter_VectorOutput()
 	
 	imfilter.SetInputImage(&InputImage);
 
+	imfilter.SetInputZeroVoxel(0.0);
+
 	imfilter.SetOutputImage(&OutputImage);
+
+	imfilter.SetOutputZeroVoxel(OutputZeroVoxel);
 
 	imfilter.SetMaxThreadNumber(4);
 	

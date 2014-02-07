@@ -28,15 +28,22 @@ protected:
 
 	// input_2:
 	std::vector<uint64>*  m_InputVoxelSet;  // LinearIndex:  compute values at these points
-	                                               
-
-	// input_2:
+	                        
 	std::function<void(uint64, uint64, uint64, const mdk3DImage<VoxelType_Input>&, VoxelType_Output&)> m_InputFilterFunction;
 
-	// input_3:
 	uint32 m_MaxThreadNumber;
 
 	bool m_IsBoundCheckEnabled;
+
+	VoxelType_Input  m_InputZeroVoxel;
+
+	VoxelType_Output  m_OutputZeroVoxel;
+
+	bool m_IsInputZeroVoxelObtained;
+
+	bool m_IsOutputZeroVoxelObtained;
+
+	bool m_IsInputFilterFunctionObtained;
 
 	//--------------- output ---------------------
 
@@ -50,21 +57,25 @@ public:
 	mdk3DImageFilter();
 	~mdk3DImageFilter();
   
-	void SetInputImage(mdk3DImage<VoxelType_Input>* Input);
+	void SetInputImage(mdk3DImage<VoxelType_Input>* InputImage);
 
-	void SetInputVoxelSet(std::vector<uint64>* Input);
+	void SetInputZeroVoxel(VoxelType_Input InputZeroVoxel);
 
-	void SetFilterFunction(std::function<void(uint64, uint64, uint64, const mdk3DImage<VoxelType_Input>&, VoxelType_Output&)> Input);
+	void SetInputVoxelSet(std::vector<uint64>* InputVoxelSet);
 
-	void SetOutputImage(mdk3DImage<VoxelType_Output>* Output);
+	void SetInputFilterFunction(std::function<void(uint64, uint64, uint64, const mdk3DImage<VoxelType_Input>&, VoxelType_Output&)> Input);
 
-	void SetOutputArray(std::vector<VoxelType_Output>* Output);
+	void SetOutputImage(mdk3DImage<VoxelType_Output>* OutputImage);
+
+	void SetOutputZeroVoxel(VoxelType_Output OutputZeroVoxel);
+
+	void SetOutputArray(std::vector<VoxelType_Output>* OutputArray);
 
 	void SetMaxThreadNumber(uint32 MaxNumber);
 
 	void EnableBoundCheck(bool On_Off);
 
-	bool CheckInput(bool& Flag_OutputArray, bool& Flag_OutputImageInSameSize, uint64& TotalInputVoxelNumber);
+	bool virtual CheckInput();
 
 	void Run();
 	
@@ -78,14 +89,19 @@ public:
 	template<typename FilterFunctionType>
 	void Run_in_a_Thread(uint64 VoxelIndex_start, uint64 VoxelIndex_end, bool Flag_OutputArray, bool Flag_OutputImageInSameSize, FilterFunctionType InputFilterFunction);
 
+	template<typename FilterFunctionType>
 	void Apply(mdk3DImage<VoxelType_Input>* InputImage,
-		std::vector<uint64>* m_InputPointSet,
-		std::function<void(uint64, uint64, uint64, const mdk3DImage<VoxelType_Input>*, VoxelType_Output&)> FilterFunction,
-		std::vector< VoxelType_Output>* m_OutputArray,
-		uint32 MaxThreadNumber);
+		       VoxelType_Input InputZeroVoxel,
+		       std::vector<uint64>* m_InputPointSet,
+		       std::vector< VoxelType_Output>* m_OutputArray,
+			   VoxelType_Output OutputZeroVoxel,
+		       uint32 MaxThreadNumber,
+			   FilterFunctionType InputFilterFunction);
 
 private:
 	void DivideInputData(uint64 Index_min, uint64 Index_max, std::vector<uint64>& IndexList_start, std::vector<uint64>& IndexList_end);
+
+	bool CheckInputData(bool& Flag_OutputArray, bool& Flag_OutputImageInSameSize, uint64& TotalInputVoxelNumber);
 
 private:
 	mdk3DImageFilter(const mdk3DImageFilter&); // Not implemented.

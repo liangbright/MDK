@@ -25,6 +25,12 @@ mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::mdk3DImageFilter()
 	m_MaxThreadNumber = 1;
 
 	m_IsBoundCheckEnabled = true;
+
+	m_IsInputZeroVoxelObtained = false;
+
+	m_IsOutputZeroVoxelObtained = false;
+
+	m_IsInputFilterFunctionObtained = false;
 }
 
 
@@ -47,45 +53,69 @@ EnableBoundCheck(bool On_Off)
 template<typename VoxelType_Input, typename VoxelType_Output>
 void 
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInputImage(mdk3DImage<VoxelType_Input>* Input)
+SetInputImage(mdk3DImage<VoxelType_Input>* InputImage)
 {
-	m_InputImage = Input;
+	m_InputImage = InputImage;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
 void
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInputVoxelSet(std::vector<uint64>* Input)
+SetInputZeroVoxel(VoxelType_Input InputZeroVoxel)
 {
-	m_InputVoxelSet = Input;
+	m_InputZeroVoxel = InputZeroVoxel;
+
+	m_IsInputZeroVoxelObtained = true;
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
+void
+mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
+SetInputVoxelSet(std::vector<uint64>* InputVoxelSet)
+{
+	m_InputVoxelSet = InputVoxelSet;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
 void 
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-SetFilterFunction(std::function<void(uint64, uint64, uint64, const mdk3DImage<VoxelType_Input>&, VoxelType_Output&)> Input)
+SetInputFilterFunction(std::function<void(uint64, uint64, uint64, const mdk3DImage<VoxelType_Input>&, VoxelType_Output&)> InputFilterFunction)
 {
-	m_InputFilterFunction = Input;
+	m_InputFilterFunction = InputFilterFunction;
+
+	m_IsInputFilterFunctionObtained = true;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
 void 
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-SetOutputImage(mdk3DImage<VoxelType_Output>* Output)
+SetOutputImage(mdk3DImage<VoxelType_Output>* OutputImage)
 {
-	m_OutputImage = Output;
+	m_OutputImage = OutputImage;
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
+void
+mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
+SetOutputZeroVoxel(VoxelType_Output OutputZeroVoxel)
+{
+	m_OutputZeroVoxel = OutputZeroVoxel;
+
+	m_IsOutputZeroVoxelObtained = true;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
 void 
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-SetOutputArray(std::vector<VoxelType_Output>* Output)
+SetOutputArray(std::vector<VoxelType_Output>* OutputArray)
 {
-	m_OutputArray = Output;
+	m_OutputArray = OutputArray;
 }
 
 
@@ -99,7 +129,14 @@ SetMaxThreadNumber(uint32 MaxNumber)
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput(bool& Flag_OutputArray, bool& Flag_OutputImageInSameSize, uint64& TotalInputVoxelNumber)
+bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
+{
+	return true;
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
+bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInputData(bool& Flag_OutputArray, bool& Flag_OutputImageInSameSize, uint64& TotalInputVoxelNumber)
 {
 	if (m_InputImage == nullptr)
 	{
@@ -111,6 +148,19 @@ bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput(bool& Flag_
 	if (m_InputImage->IsEmpty() == true)
 	{
 		mdkError << "Empty input image @ mdk3DImageFilter::Run" << '\n';
+		return false;
+	}
+
+	if (m_IsInputZeroVoxelObtained == false)
+	{
+		mdkWarning << "zero-voxel of input image is not obtained @ mdk3DImageFilter::Run" << '\n';
+		return false;
+	}
+
+
+	if (m_IsOutputZeroVoxelObtained == false)
+	{
+		mdkWarning << "zero-voxel of output image is not obtained @ mdk3DImageFilter::Run" << '\n';
 		return false;
 	}
 
@@ -169,20 +219,28 @@ bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput(bool& Flag_
 template<typename VoxelType_Input, typename VoxelType_Output>
 void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
 {
+	auto IsGood = this->CheckInput();
+
+	if (IsGood == false)
+	{
+		return;
+	}
+
+	//-------------------------------------------------------------------------------
 	bool Flag_OutputArray = false;
 
 	bool Flag_OutputImageInSameSize = false;
 
 	uint64 VoxelNumber = 0;
 
-	auto IsOK = this->CheckInput(Flag_OutputArray, Flag_OutputImageInSameSize, VoxelNumber);
+	auto IsOK = this->CheckInputData(Flag_OutputArray, Flag_OutputImageInSameSize, VoxelNumber);
 
 	if (IsOK == false)
 	{
 		return;
 	}
 
-	// multi-thread
+	// multi-thread -----------------------------------------------------------------
 	if (m_MaxThreadNumber > 1 && VoxelNumber > 1000)
 	{
 		// divide the output image into groups
@@ -341,7 +399,11 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& Ou
 	}
 	*/
 
-    return m_InputFilterFunction(xIndex, yIndex, zIndex, *m_InputImage, OutputVoxel);
+	if (m_IsInputFilterFunctionObtained == true)
+	{
+		m_InputFilterFunction(xIndex, yIndex, zIndex, *m_InputImage, OutputVoxel);
+	}
+
 }
 
 
@@ -349,20 +411,28 @@ template<typename VoxelType_Input, typename VoxelType_Output>
 template<typename FilterFunctionType>
 void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run(FilterFunctionType InputFilterFunction)
 {
+	auto IsGood = this->CheckInput();
+
+	if (IsGood == false)
+	{
+		return;
+	}
+
+	//--------------------------------------------------------------------------------
 	bool Flag_OutputArray = false;
 
 	bool Flag_OutputImageInSameSize = false;
 
 	uint64 VoxelNumber = 0;
 
-	auto IsOK = this->CheckInput(Flag_OutputArray, Flag_OutputImageInSameSize, VoxelNumber);
+	auto IsOK = this->CheckInputData(Flag_OutputArray, Flag_OutputImageInSameSize, VoxelNumber);
 
 	if (IsOK == false)
 	{
 		return;
 	}
 
-	// multi-thread
+	// multi-thread ----------------------------------------------------------------------
 	if (m_MaxThreadNumber > 1 && VoxelNumber > 1000)
 	{
 		// divide the output image into groups

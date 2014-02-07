@@ -24,6 +24,25 @@ mdk3DImageConvolutionFilter<VoxelType, VoxelType, 1>::~mdk3DImageConvolutionFilt
 
 
 template<typename VoxelType>
+bool mdk3DImageConvolutionFilter<VoxelType, VoxelType, 1>::CheckInput()
+{
+	if (m_IsInputZeroVoxelObtained == false)
+	{
+		mdkError << "zero-voxel of input image is not obtained @ mdk3DImageConvolutionFilter::CheckInput" << '\n';
+		return false;
+	}
+
+	if (m_IsOutputZeroVoxelObtained == false)
+	{
+		mdkError << "zero-voxel of output image is not obtained @ mdk3DImageConvolutionFilter::CheckInput" << '\n';
+		return false;
+	}
+
+	return true;
+}
+
+
+template<typename VoxelType>
 bool mdk3DImageConvolutionFilter<VoxelType, VoxelType, 1>::SetMask(const std::vector<mdkMatrix<double>>& MaskList)
 {
 	auto Length = MaskList.size();
@@ -100,7 +119,7 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType& OutputVox
 
 	auto RawPointer = m_MaskList[0].GetElementDataRawPointer();
 
-	OutputVoxel = 0;
+	VoxelType tempVoxel = m_InputZeroVoxel;
 	
 	if (m_IsBoundCheckEnabled == true) // time_check = 2 * time_no_check
 	{
@@ -112,14 +131,14 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType& OutputVox
 
 			auto temp_z = std::min(std::max(Ptr[2] + z, 0.0), Lz - 1);
 
-			OutputVoxel += (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z)) * Ptr[3];
+			tempVoxel += (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z)) * Ptr[3];
 		}
 	}
 	else
 	{
 		for (auto Ptr = RawPointer; Ptr < RawPointer + tempVoxelNumber; Ptr += 4)
 		{
-			OutputVoxel += (*m_InputImage)(uint64(x + Ptr[0]), uint64(y + Ptr[1]), uint64(z + Ptr[2])) * Ptr[3];
+			tempVoxel += (*m_InputImage)(uint64(x + Ptr[0]), uint64(y + Ptr[1]), uint64(z + Ptr[2])) * Ptr[3];
 		}
 
 		//for (uint64 k = 0; k < tempVoxelNumber; ++k)
@@ -147,6 +166,8 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType& OutputVox
 			*/
 		//}
 	}
+
+	OutputVoxel = tempVoxel;
 }
 
 
@@ -160,6 +181,26 @@ template<typename VoxelType, uint64 VectorVoxelLength_Output>
 mdk3DImageConvolutionFilter<VoxelType, std::array<VoxelType, VectorVoxelLength_Output>, VectorVoxelLength_Output>::~mdk3DImageConvolutionFilter()
 {
 	// do nothing
+}
+
+
+template<typename VoxelType, uint64 VectorVoxelLength_Output>
+bool mdk3DImageConvolutionFilter<VoxelType, std::array<VoxelType, VectorVoxelLength_Output>, VectorVoxelLength_Output>::
+CheckInput()
+{
+	if (m_IsInputZeroVoxelObtained == false)
+	{
+		mdkError << "zero-voxel of input image is not obtained @ mdk3DImageConvolutionFilter::CheckInput" << '\n';
+		return false;
+	}
+
+	if (m_IsOutputZeroVoxelObtained == false)
+	{
+		mdkError << "zero-voxel of output image is not obtained @ mdk3DImageConvolutionFilter::CheckInput" << '\n';
+		return false;
+	}
+
+	return true;
 }
 
 
@@ -231,7 +272,7 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, std::array<VoxelType
 
 			auto RawPointer = m_MaskList[i].GetElementDataRawPointer();
 
-			OutputVoxel[i] = 0;
+			VoxelType tempVoxel = m_InputZeroVoxel;
 
 			for (auto Ptr = RawPointer; Ptr < RawPointer + tempVoxelNumber; Ptr += 4)
 			{
@@ -241,8 +282,10 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, std::array<VoxelType
 
 				auto temp_z = std::min(std::max(Ptr[2] + z, 0.0), Lz - 1);
 
-				OutputVoxel[i] += (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z)) * Ptr[3];
+				tempVoxel += (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z)) * Ptr[3];
 			}
+
+			OutputVoxel[i] = tempVoxel;
 		}
 	}
 	else
@@ -253,12 +296,14 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, std::array<VoxelType
 
 			auto RawPointer = m_MaskList[i].GetElementDataRawPointer();
 
-			OutputVoxel[i] = 0;
+			VoxelType tempVoxel = m_InputZeroVoxel;
 
 			for (auto Ptr = RawPointer; Ptr < RawPointer + tempVoxelNumber; Ptr += 4)
 			{
-				OutputVoxel[i] += (*m_InputImage)(uint64(x + Ptr[0]), uint64(y + Ptr[1]), uint64(z + Ptr[2])) * Ptr[3];
+				tempVoxel += (*m_InputImage)(uint64(x + Ptr[0]), uint64(y + Ptr[1]), uint64(z + Ptr[2])) * Ptr[3];
 			}
+
+			OutputVoxel[i] = tempVoxel;
 		}
 	}
 }
