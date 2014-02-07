@@ -88,6 +88,14 @@ mdkMatrix<ElementType>::~mdkMatrix()
 
 
 template<typename ElementType>
+inline 
+void mdkMatrix<ElementType>::SetEmptyElement(ElementType EmptyElement)
+{
+	m_EmptyElement = EmptyElement;
+}
+
+
+template<typename ElementType>
 template<typename ElementType_target>
 inline
 mdkMatrixElementTypeEnum mdkMatrix<ElementType>::FindElementType(ElementType_target Element)
@@ -213,15 +221,11 @@ void mdkMatrix<ElementType>::Clear()
 
 	m_IsSizeFixed = false;
 
-	ElementType Element = 0;
-
-	m_ElementType = this->FindElementType(Element);
+	m_ElementType = this->FindElementType(m_EmptyElement);
 
 	m_ColExpansionStep = 100;
 
 	m_RowExpansionStep = 100;
-
-	m_EmptyElement = 0;
 
 	m_IsTemporaryMatrix = false;
 }
@@ -441,8 +445,6 @@ void mdkMatrix<ElementType>::operator=(ElementType Element)
 	{
 		if (1 != m_RowNumber || 1 != m_ColNumber)
 		{
-			mdkError << "Matrix size can not be changed @ mdkMatrix::operator=(mdkMatrix)" << '\n';
-
 			mdkError << "Can not change matrix size @ mdkMatrix::operator=(Element)" << '\n';
 			return;
 		}
@@ -450,11 +452,13 @@ void mdkMatrix<ElementType>::operator=(ElementType Element)
 
 	m_ElementData.reset(new std::vector<ElementType>);
 
+	m_ElementData->resize(1);
+
+	m_ElementData->operator[](0) = Element;
+
 	m_RowNumber = 1;
 	m_ColNumber = 1;
 	m_ElementNumber = 1;
-
-	m_ElementData->push_back(Element);
 
 	return;
 }
@@ -558,20 +562,6 @@ bool mdkMatrix<ElementType>::Copy(const ElementType_target* ElementPointer, uint
 
 	auto RawPointer = m_ElementData->data();
 
-	/*
-	if (tempElementType == m_ElementType)
-	{
-		memcpy(RawPointer, ElementPointer, this->ByteNumberOfElement(tempElement)*m_ElementNumber);
-	}
-	else
-	{
-		for (uint64 i = 0; i < m_ElementNumber; ++i)
-		{
-			RawPointer[i] = ElementType(ElementPointer[i]);
-		}
-	}
-	*/
-
 	for (uint64 i = 0; i < m_ElementNumber; ++i)
 	{
 		RawPointer[i] = ElementType(ElementPointer[i]);
@@ -609,7 +599,6 @@ ElementType& mdkMatrix<ElementType>::operator()(uint64 LinearIndex)
 	if (LinearIndex >= m_ElementNumber)
 	{
 		mdkError << "Invalid input @ mdkMatrix::operator(LinearIndex)" <<'\n';
-		m_EmptyElement = 0;
 		return m_EmptyElement;
 	}
 
@@ -638,7 +627,6 @@ ElementType& mdkMatrix<ElementType>::operator[](uint64 LinearIndex)
 	if (LinearIndex >= m_ElementNumber)
 	{
 		mdkError << "LinearIndex >= m_ElementNumber @ mdkMatrix::operator[LinearIndex]" << '\n';
-		m_EmptyElement = 0;
 		return m_EmptyElement;
 	}
 
@@ -1708,6 +1696,58 @@ mdkMatrix<ElementType> operator/(mdkMatrix<ElementType>& MatrixA, mdkMatrix<Elem
 }
 
 
+//element-wise multiplication
+template<typename ElementType>
+inline
+mdkMatrix<ElementType> operator%(mdkMatrix<ElementType>& MatrixA, mdkMatrix<ElementType>& MatrixB)
+{
+	auto SizeA = MatrixA.GetSize();
+
+	auto SizeB = MatrixA.GetSize();
+
+	if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+	{
+		return MatrixA(0, 0) * MatrixB;
+	}
+
+	if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+	{
+		return MatrixA * MatrixB(0, 0);
+	}
+
+	mdkMatrix<ElementType> tempMatrix;
+
+	tempMatrix.SetTobeTemporaryMatrix();
+
+	if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+	{
+		mdkError << "Size does not match @ mdkMatrix operator/(MatrixA, MatrixB)" << '\n';
+		return  tempMatrix;
+	}
+
+	if (SizeA.RowNumber == 0 || SizeA.ColNumber == 0)
+	{
+		mdkWarning << "MatrixA and MatrixB are empty @ mdkMatrix operator/(MatrixA, MatrixB)" << '\n';
+		return  tempMatrix;
+	}
+
+	tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+
+	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
+
+	auto RawPointerA = MatrixA.GetElementDataRawPointer();
+
+	auto RawPointerB = MatrixB.GetElementDataRawPointer();
+
+	for (uint64 i = 0; i < SizeA.RowNumber*SizeA.ColNumber; ++i)
+	{
+		tempRawPointer[i] = RawPointerA[i] * RawPointerB[i];
+	}
+
+	return  tempMatrix;
+}
+
+
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator+(ElementType Element, mdkMatrix<ElementType>& Matrix)
 {
@@ -2023,11 +2063,11 @@ void mdkMatrix<ElementType>::operator+=(ElementType Element)
 		return;
 	}
 
-	auto RawPointer = m_ElementData->data();
+	auto BeginPointer = m_ElementData->data();
 
-	for (uint64 i = 0; i < m_ElementNumber; ++i)
+	for (auto Ptr = BeginPointer; Ptr < BeginPointer + m_ElementNumber; ++Ptr)
 	{
-		RawPointer[i] += Element;
+		Ptr[0] += Element;
 	}
 
 	return;
@@ -2044,11 +2084,11 @@ void mdkMatrix<ElementType>::operator-=(ElementType Element)
 		return;
 	}
 
-	auto RawPointer = m_ElementData->data();
+	auto BeginPointer = m_ElementData->data();
 
-	for (uint64 i = 0; i < m_ElementNumber; ++i)
+	for (auto Ptr = BeginPointer; Ptr < BeginPointer + m_ElementNumber; ++Ptr)
 	{
-		RawPointer[i] -= Element;
+		Ptr[0] -= Element;
 	}
 
 	return;
@@ -2065,11 +2105,11 @@ void mdkMatrix<ElementType>::operator*=(ElementType Element)
 		return;
 	}
 
-	auto RawPointer = m_ElementData->data();
+	auto BeginPointer = m_ElementData->data();
 
-	for (uint64 i = 0; i < m_ElementNumber; ++i)
+	for (auto Ptr = BeginPointer; Ptr < BeginPointer + m_ElementNumber; ++Ptr)
 	{
-		RawPointer[i] *= Element;
+		Ptr[0] *= Element;
 	}
 
 	return;
@@ -2091,11 +2131,11 @@ void mdkMatrix<ElementType>::operator/=(ElementType Element)
 		mdkWarning << " abs(Element) < 0.0000000001 @ mdkMatrix::operator/=(Element)" << '\n';
 	}
 
-	auto RawPointer = m_ElementData->data();
+	auto BeginPointer = m_ElementData->data();
 
-	for (uint64 i = 0; i < m_ElementNumber; ++i)
+	for (auto Ptr = BeginPointer; Ptr < BeginPointer + m_ElementNumber; ++Ptr)
 	{
-		RawPointer[i] /= Element;
+		Ptr[0] /= Element;
 	}
 
 	return;
@@ -2149,8 +2189,9 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(std::string Func
 
 
 template<typename ElementType>
+template<typename FunctionType>
 inline 
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(std::function<ElementType(ElementType)> Function)
+mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(FunctionType Function)
 {
 	mdkMatrix<ElementType> tempMatrix;
 
@@ -2227,9 +2268,9 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(std::string Func
 
 
 template<typename ElementType>
-template<typename ElementType_target>
+template<typename FunctionType, typename ElementType_target>
 inline 
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(std::function<ElementType(ElementType, ElementType)> Function, mdkMatrix<ElementType_target>& targetMatrix)
+mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(FunctionType Function, mdkMatrix<ElementType_target>& targetMatrix)
 {
 	mdkMatrix<ElementType> tempMatrix;
 
@@ -2374,8 +2415,9 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(std::string Func
 
 
 template<typename ElementType>
+template<typename FunctionType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(std::function<ElementType(ElementType, ElementType)> Function, ElementType Element)
+mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(FunctionType Function, ElementType Element)
 {
 	mdkMatrix<ElementType> tempMatrix;
 

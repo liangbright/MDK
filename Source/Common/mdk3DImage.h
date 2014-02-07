@@ -8,14 +8,6 @@
 
 namespace mdk
 {
-
-struct mdk3DImageSize
-{
-	uint64 Lx;
-	uint64 Ly;
-	uint64 Lz;
-};
-
 //-------------------------------------------------------------------------------------------------------//
 // 3D Image Class
 // Voxel = an array of scalars
@@ -32,7 +24,17 @@ struct mdk3DImageSize
 // if the size is 0.5/0.5/6, then it is realy bad and useless for 3D analysis
 //
 // itk can register images with nonisotropic voxels
+//
+// note: 
+// use std::array as VoxelType if voxel is a vector with known length, and do not use std::vector
 // --------------------------------------------------------------------------------------------------------//
+
+struct mdk3DImageSize
+{
+	uint64 Lx;
+	uint64 Ly;
+	uint64 Lz;
+};
 
 template<typename VoxelType>
 class mdk3DImage : public mdkObject
@@ -54,7 +56,7 @@ private:
 
 	VoxelType m_EmptyVoxel;
 
-	VoxelType m_EmptyVoxel_output;
+	VoxelType m_EmptyVoxel_temp;
 
 	bool m_IsTemporaryImage;
 
@@ -68,7 +70,7 @@ public:
 
 	~mdk3DImage();
 
-	bool Initialize(uint64 Lx, uint64 Ly, uint64 Lz,
+	bool Initialize(uint64 Lx, uint64 Ly, uint64 Lz = 1,
 		            double PhysicalOrigin_x = 0.0,
 		            double PhysicalOrigin_y = 0.0,
 		            double PhysicalOrigin_z = 0.0,
@@ -78,49 +80,44 @@ public:
 
 	void Clear();
 
-	bool IsEmpty() const;
+	inline bool IsEmpty() const;
 
 	void Copy(const mdk3DImage<VoxelType>& targetImage);
 
-	void Copy(const VoxelType* VoxelPointer, uint64 Lx, uint64 Ly, uint64 Lz);
+	void Copy(const VoxelType* VoxelPointer, uint64 Lx, uint64 Ly, uint64 Lz = 1);
 
-	void SetPhysicalOrigin(double PhysicalOrigin_x, double PhysicalOrigin_y, double PhysicalOrigin_z);
+	void SetPhysicalOrigin(double PhysicalOrigin_x, double PhysicalOrigin_y, double PhysicalOrigin_z = 0.0);
 
-	void SetVoxelPhysicalSize(double VoxelPhysicalSize_x, double VoxelPhysicalSize_y, double VoxelPhysicalSize_z);
+	void SetVoxelPhysicalSize(double VoxelPhysicalSize_x, double VoxelPhysicalSize_y, double VoxelPhysicalSize_z = 1.0);
 
 	bool Fill(VoxelType Voxel);
 
-	void SetTobeTemporaryImage();
+	inline void SetTobeTemporaryImage();
 
-	std::vector<VoxelType>* GetVoxelDataArrayPointer();
+	inline std::vector<VoxelType>* GetVoxelDataArrayPointer();
 
-	VoxelType* GetVoxelDataRawPointer();
+	inline VoxelType* GetVoxelDataRawPointer();
 
-	const VoxelType* GetVoxelDataRawPointer() const;
+	inline const VoxelType* GetVoxelDataRawPointer() const;
 
-	std::shared_ptr<std::vector<VoxelType>> GetVoxelDataSharedPointer();
+	inline std::shared_ptr<std::vector<VoxelType>> GetVoxelDataSharedPointer();
 
 	inline mdk3DImageSize GetImageSize() const;
 
-	inline void GetImageSize(uint64* Lx, uint64* Ly, uint64* Lz) const;
-
-	inline void GetImageSize(uint64* ImageSize) const;
-
 	template<typename ScalarType>
-	inline void GetImageSize(ScalarType* Lx, ScalarType* Ly, ScalarType* Lz) const;
+	inline void GetImageSize(ScalarType* Lx, ScalarType* Ly, ScalarType* Lz = nullptr) const;
 
-	template<typename ScalarType>
-	inline void GetImageSize(ScalarType* ImageSize) const;
+	inline void GetVoxelPhysicalSize(double* VoxelPhysicalSize_x, double* VoxelPhysicalSize_y, double* VoxelPhysicalSize_z = nullptr) const;
 
-	inline void GetVoxelPhysicalSize(uint64* VoxelPhysicalSize_x, uint64* VoxelPhysicalSize_y, uint64* VoxelPhysicalSize_z) const;
+	inline void GetPhysicalOrigin(double* PhysicalOrigin_x, double* PhysicalOrigin_y, double* PhysicalOrigin_z = nullptr) const;
 
-	inline void GetPhysicalOrigin(uint64* PhysicalOrigin_x, uint64* PhysicalOrigin_y, uint64* PhysicalOrigin_z) const;
+	inline void GetLinearIndexBy3DIndex(uint64* LinearIndex, uint64 xIndex, uint64 yIndex, uint64 zIndex = 0) const;
 
-	inline void GetLinearIndexBy3DIndex(uint64 xIndex, uint64 yIndex, uint64 zIndex, uint64* LinearIndex) const;
+	inline void Get3DIndexByLinearIndex(uint64 LinearIndex, uint64* xIndex, uint64* yIndex, uint64* zIndex = nullptr) const;
 
-	inline void Get3DIndexByLinearIndex(uint64 LinearIndex, uint64* xIndex, uint64* yIndex, uint64* zIndex) const;
+	//--------------------------- Get/Set EmptyVoxel (e.g., 0) ------------------------------//
 
-	//--------------------------- Get EmptyVoxel (e.g., 0) ------------------------------//
+	inline void SetEmptyVoxel(VoxelType EmptyVoxel);
 
 	inline const VoxelType& GetEmptyVoxel();
 
@@ -130,21 +127,21 @@ public:
 
 	inline const VoxelType& operator()(uint64 LinearIndex) const;
 
-	inline VoxelType& operator()(uint64 xIndex, uint64 yIndex, uint64 zIndex);
+	inline VoxelType& operator()(uint64 xIndex, uint64 yIndex, uint64 zIndex = 0);
 
-	inline const VoxelType& operator()(uint64 xIndex, uint64 yIndex, uint64 zIndex) const;
+	inline const VoxelType& operator()(uint64 xIndex, uint64 yIndex, uint64 zIndex = 0) const;
 
 	inline VoxelType& at(uint64 LinearIndex);
 
 	inline const VoxelType& at(uint64 LinearIndex) const;
 
-	inline VoxelType& at(uint64 xIndex, uint64 yIndex, uint64 zIndex);
+	inline VoxelType& at(uint64 xIndex, uint64 yIndex, uint64 zIndex = 0);
 
-	inline const VoxelType& at(uint64 xIndex, uint64 yIndex, uint64 zIndex) const;
+	inline const VoxelType& at(uint64 xIndex, uint64 yIndex, uint64 zIndex =0) const;
 
 	//-------------------------- Get SubImage -------------------------------//
 
-	mdk3DImage SubImage(uint64 xIndex_s, uint64 xIndex_e, uint64 yIndex_s, uint64 yIndex_e, uint64 zIndex_s, uint64 zIndex_e);
+	mdk3DImage SubImage(uint64 xIndex_s, uint64 xIndex_e, uint64 yIndex_s, uint64 yIndex_e, uint64 zIndex_s = 0, uint64 zIndex_e = 0);
 
 	//-------------------------- Sum, Mean, Max, Min -------------------------------//
 
@@ -161,6 +158,21 @@ public:
 	//inline VoxelType& operator()(double x, double y, double z);
 
 	//inline VoxelType& at(double x, double y, double z);
+
+
+	//-------------------------- Pad, UnPad -------------------------------//
+
+	mdk3DImage  Pad(const char* Option, uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0);
+
+	mdk3DImage  Pad(VoxelType Voxel, uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0);
+
+	mdk3DImage  UnPad(uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0);
+
+	//------------------------- Get LinearIndex In Region -------------------//
+
+	std::vector<uint64> GetLinearIndexArrayOfRegion(uint64 xIndex_s,     uint64 Region_Lx, 
+		                                            uint64 yIndex_s,     uint64 Region_Ly,
+													uint64 zIndex_s = 0, uint64 Region_Lz = 0);
 
 };
 

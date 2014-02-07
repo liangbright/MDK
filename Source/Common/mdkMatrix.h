@@ -40,7 +40,7 @@ struct mdkMatrixSVDResult
 };
 
 
-// ----------------------- Matrix {+ - * /}  Matrix ------------------------------------------------//
+// ----------------------- Matrix {+ - * / %}  Matrix ------------------------------------------------//
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator+(mdkMatrix<ElementType>& MatrixA, mdkMatrix<ElementType>& MatrixB);
@@ -53,6 +53,10 @@ inline mdkMatrix<ElementType> operator*(mdkMatrix<ElementType>& MatrixA, mdkMatr
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator/(mdkMatrix<ElementType>& MatrixA, mdkMatrix<ElementType>& MatrixB);
+
+//element-wise multiplication
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator%(mdkMatrix<ElementType>& MatrixA, mdkMatrix<ElementType>& MatrixB);
 
 // ----------------------- Element {+ - * /} Matrix ------------------------------------------------//
 
@@ -124,6 +128,7 @@ public:
 
 	inline ~mdkMatrix();
 
+	inline void SetEmptyElement(ElementType EmptyElement);
 	//-----------------------------------------------------------------------------------//
 
 	inline void Clear();
@@ -306,7 +311,8 @@ public:
 
 	inline mdkMatrix ElementOperation(std::string FunctionName);
 
-	inline mdkMatrix ElementOperation(std::function<ElementType(ElementType)> Function);
+	template<typename FunctionType>
+	inline mdkMatrix ElementOperation(FunctionType Function);
 
 	template<typename ElementType_target>
 	inline mdkMatrix ElementOperation(const char* FunctionName, mdkMatrix<ElementType_target>& targetMatrix);
@@ -314,14 +320,15 @@ public:
 	template<typename ElementType_target>
 	inline mdkMatrix ElementOperation(std::string FunctionName, mdkMatrix<ElementType_target>& targetMatrix);
 
-	template<typename ElementType_target>
-	inline mdkMatrix ElementOperation(std::function<ElementType(ElementType, ElementType)> Function, mdkMatrix<ElementType_target>& targetMatrix);
+	template<typename FunctionType, typename ElementType_target>
+	inline mdkMatrix ElementOperation(FunctionType Function, mdkMatrix<ElementType_target>& targetMatrix);
 
 	inline mdkMatrix ElementOperation(const char* FunctionName, ElementType Element);
 
 	inline mdkMatrix ElementOperation(std::string FunctionName, ElementType Element);
 
-	inline mdkMatrix ElementOperation(std::function<ElementType(ElementType, ElementType)> Function, ElementType Element);
+	template<typename FunctionType>
+	inline mdkMatrix ElementOperation(FunctionType Function, ElementType Element);
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 
