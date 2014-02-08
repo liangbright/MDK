@@ -8,40 +8,40 @@
 namespace mdk
 {
 
-// use std::array<double, Length>  as vector voxel
+// use std::array<double/float/etc, uint64 Length>  as a vector voxel
 
 template<typename ElementType, uint64 Length>
-inline std::array<ElementType, Length> operator+(std::array<ElementType, Length>& VoxelA, std::array<ElementType, Length>& VoxelB);
+inline std::array<ElementType, Length> operator+(const std::array<ElementType, Length>& VoxelA, const std::array<ElementType, Length>& VoxelB);
 
 template<typename ElementType, uint64 Length>
-inline std::array<ElementType, Length> operator-(std::array<ElementType, Length>& VoxelA, std::array<ElementType, Length>& VoxelB);
+inline std::array<ElementType, Length> operator-(const std::array<ElementType, Length>& VoxelA, const std::array<ElementType, Length>& VoxelB);
 
 //---------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType, uint64 Length>
-inline std::array<ElementType, Length> operator+(std::array<ElementType, Length>& Voxel, ElementType& Element);
+inline std::array<ElementType, Length> operator+(const std::array<ElementType, Length>& Voxel, const ElementType& Element);
 
 template<typename ElementType, uint64 Length>
-inline std::array<ElementType, Length> operator-(std::array<ElementType, Length>& Voxel, ElementType& Element);
+inline std::array<ElementType, Length> operator-(const std::array<ElementType, Length>& Voxel, const ElementType& Element);
 
 template<typename ElementType, uint64 Length>
-inline std::array<ElementType, Length> operator*(std::array<ElementType, Length>& Voxel, ElementType& Element);
+inline std::array<ElementType, Length> operator*(const std::array<ElementType, Length>& Voxel, const ElementType& Element);
 
 template<typename ElementType, uint64 Length>
-inline std::array<ElementType, Length> operator/(std::array<ElementType, Length>& Voxel, ElementType& Element);
+inline std::array<ElementType, Length> operator/(const std::array<ElementType, Length>& Voxel, const ElementType& Element);
 
 //---------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType, uint64 Length>
-inline std::array<ElementType, Length> operator+(ElementType& Element, std::array<ElementType, Length>& Voxel, );
+inline std::array<ElementType, Length> operator+(const ElementType& Element, const std::array<ElementType, Length>& Voxel, );
 
 template<typename ElementType, uint64 Length>
-inline std::array<ElementType, Length> operator-(ElementType& Element, std::array<ElementType, Length>& Voxel);
+inline std::array<ElementType, Length> operator-(const ElementType& Element, const std::array<ElementType, Length>& Voxel);
 
 template<typename ElementType, uint64 Length>
-inline std::array<ElementType, Length> operator*(ElementType& Element, std::array<ElementType, Length>& Voxel);
+inline std::array<ElementType, Length> operator*(const ElementType& Element, const std::array<ElementType, Length>& Voxel);
 
 template<typename ElementType, uint64 Length>
-inline std::array<ElementType, Length> operator/(ElementType& Element, std::array<ElementType, Length>& Voxel);
+inline std::array<ElementType, Length> operator/(const ElementType& Element, const std::array<ElementType, Length>& Voxel);
 
 }

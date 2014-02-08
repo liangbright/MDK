@@ -420,9 +420,9 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 void Test_ConvolutionFilter_ScalarOutput()
 {
-	uint64 Lx = 512;
-	uint64 Ly = 512;
-	uint64 Lz = 512;
+	uint64 Lx = 100;
+	uint64 Ly = 100;
+	uint64 Lz = 100;
 
 	mdk3DImage<double> InputImage;
 
@@ -450,7 +450,7 @@ void Test_ConvolutionFilter_ScalarOutput()
 
 	imfilter.EnableBoundCheck(false);
 
-	mdkMatrix<double> Mask(4, 1000);
+	mdkMatrix<double> Mask(4, 1000*36*36/2);
 
 	Mask.Fill(0);
 
