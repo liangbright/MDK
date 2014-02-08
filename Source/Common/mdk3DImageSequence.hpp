@@ -1,17 +1,15 @@
-#include <vtkImageData.h>
-
-#include "mdkImage.h"
+#include "mdk3DImageSequence.h"
 
 namespace mdk
 {
 
-mdkImage::mdkImage()
+mdk3DImageSequence::mdk3DImageSequence()
 {
 
 }
 
 
-mdkImage::~mdkImage()
+mdk3DImageSequence::~mdk3DImageSequence()
 {
 
 }

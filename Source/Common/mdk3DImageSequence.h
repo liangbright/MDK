@@ -1,7 +1,10 @@
-#ifndef __mdk3DImage_h
-#define __mdk3DImage_h
+#ifndef __mdk3DImageSequence_h
+#define __mdk3DImageSequence_h
+
+#include <vector>
 
 #include "mdkObject.h"
+#include "mdk3DImage.h"
 
 namespace mdk
 {
@@ -12,30 +15,18 @@ namespace mdk
 // Ly: image length in y-direction
 // Lz: image length in z-direction
 
-class mdk3DImage : public mdkStructuredDataArray
+class mdk3DImageSequence : public mdkObject
 {
 
 private:
-	// VoxelPhysicalSize (unit: mm), e.g., 0.5mm x 0.5mm x 0.5mm,  same resolution in x, y, z directions 
-	// same resolution => image filters do not need to be re-sampled with different voxel shape
-	// reslice the input image using itk/vtk, then feed it into this class.
-	//
-	// ok to store image with nonisotropic voxels
-	// but such image is not good for analsyis
-	// if the size is 0.5/0.5/6, then it is realy bad and useless for 3D analysis
-	//
-	// itk can register images with nonisotropic voxels
+
+	std::vector<mdk3DImage> m_ImageData;
 
 	double VoxelPhysicalSize[3];
 
 	// time interval between frames (unit: second)
 	// zero if Lt = 0
-	double m_TimeInterval;
-
-	// time intervals between frames (unit: second)
-	// if time intervals are not equal to each other
-	// nullptr if Lt=0 or equal intervals
-	double* m_TimeIntervalList;
+	std::vector<double> m_TimeInterval;
 
 	uint64 m_ImageSize[4]; // {Lx, Ly, Lz, Lt}  element/voxel number in each direction
 
@@ -43,25 +34,17 @@ private:
 
 public:		
 	
-	mdk3DImage();
+	mdk3DImageSequence();
 
-	~mdk3DImage();
+	~mdk3DImageSequence();
 
-	bool Initialize(mdkScalarTypeEnum ScalarType, 
-		            uint64 Lx, uint64 Ly, uint64 Lz, uint64 Lt,
-					uint64 ElementDimension, double ElementSize[],
-					double ElementPhysicalSize_x, double ElementPhysicalSize_y, double ElementPhysicalSize_z,
+	bool Initialize(uint64 Lx, uint64 Ly, uint64 Lz, uint64 Lt,
+		            double VoxelPhysicalSize_x, double VoxelPhysicalSize_y, double VoxelPhysicalSize_z,
 					double TimeInterval);
 
-	bool Initialize(mdkScalarTypeEnum ScalarType, 
-		            uint64 Lx, uint64 Ly, uint64 Lz, uint64 Lt,
-					uint64 ElementDimension, double ElementSize[],
-					double ElementPhysicalSize_x, double ElementPhysicalSize_y, double ElementPhysicalSize_z,
-					double TimeIntervalList[]);
-
 private:
-	mdk3DImage(const mdk3DImage&);        // Not implemented.
-	void operator=(const mdk3DImage&);  // Not implemented.
+	mdk3DImageSequence(const mdk3DImageSequence&);        // Not implemented.
+	void operator=(const mdk3DImageSequence&);  // Not implemented.
 };
 
 }//end namespace mdk
