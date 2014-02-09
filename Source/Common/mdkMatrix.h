@@ -1,4 +1,4 @@
-#ifndef __mdkMatrix_h
+﻿#ifndef __mdkMatrix_h
 #define __mdkMatrix_h
 
 #include <vector>
@@ -6,7 +6,6 @@
 #include <initializer_list>
 
 #include "mdkObject.h"
-#include "mdkDebug.h"
 
 namespace mdk
 {
@@ -123,7 +122,7 @@ public:
 
 	inline mdkMatrix(const mdkMatrix<ElementType>& targetMatrix);
 
-	inline void operator=(const mdk::mdkMatrix<double>& targetMatrix);
+	inline void operator=(const mdkMatrix<double>& targetMatrix);
 
 	inline mdkMatrix(uint64 RowNumber, uint64 ColNumber = 1, bool IsSizeFixed = false);
 

@@ -8,7 +8,7 @@
 #include "armadillo.h"
 
 #include "mdkMatrix.h"
-#include "mdkDebug.h"
+#include "mdkDebugConfig.h"
 
 namespace mdk
 {

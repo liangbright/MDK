@@ -5,76 +5,103 @@
 #include <algorithm>
 
 #include "mdk3DImageConvolutionFilter.h"
-#include "mdkDebug.h"
+#include "mdkDebugConfig.h"
 
 namespace mdk
 {
 
-template<typename VoxelType>
-mdk3DImageConvolutionFilter<VoxelType, VoxelType, 1>::mdk3DImageConvolutionFilter()
+template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
+mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::mdk3DImageConvolutionFilter()
 {
 }
 
 
-template<typename VoxelType>
-mdk3DImageConvolutionFilter<VoxelType, VoxelType, 1>::~mdk3DImageConvolutionFilter()
+template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
+mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::~mdk3DImageConvolutionFilter()
 {
-	// do nothing
 }
 
 
-template<typename VoxelType>
-bool mdk3DImageConvolutionFilter<VoxelType, VoxelType, 1>::CheckInput()
-{
-	return true;
-}
-
-
-template<typename VoxelType>
-bool mdk3DImageConvolutionFilter<VoxelType, VoxelType, 1>::SetMask(const std::vector<mdkMatrix<double>>& MaskList)
-{
-	auto Length = MaskList.size();
-
-	if (Length == 0)
-	{
-		return false;
-	}
-
-	for (uint64 i = 0; i < Length; ++i)
-	{
-		if (MaskList[i].IsEmpty() == true)
-		{
-			return false;
-		}
-	}
-
-	m_MaskList = MaskList;
-
-	return true;
-}
-
-
-template<typename VoxelType>
-bool mdk3DImageConvolutionFilter<VoxelType, VoxelType, 1>::SetMask(const mdkMatrix<double>& Mask)
-{
-	if (Mask.IsEmpty() == true)
-	{
-		return false;
-	}
-
-	m_MaskList.resize(1);
-
-	m_MaskList[0] = Mask;
-
-	return true;
-}
-
-
-template<typename VoxelType>
+template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
 inline
 void
-mdk3DImageConvolutionFilter<VoxelType, VoxelType, 1>::
-FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType& OutputVoxel)
+mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
+FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& OutputVoxel)
+{
+	auto x = double(xIndex);
+	auto y = double(yIndex);
+	auto z = double(zIndex);
+
+	double Lx = 0;
+	double Ly = 0;
+	double Lz = 0;
+
+	m_InputImage->GetImageSize(&Lx, &Ly, &Lz);
+
+	uint64 VectorVoxelLength = m_MaskList.size();
+
+	if (m_IsBoundCheckEnabled == true)
+	{
+		for (uint64 i = 0; i < VectorVoxelLength; ++i)
+		{
+			auto tempVoxelNumber = m_MaskList[i].GetColNumber();
+
+			auto RawPointer = m_MaskList[i].GetElementDataRawPointer();
+
+			auto tempVoxel = m_InputZeroVoxel;
+
+			for (auto Ptr = RawPointer; Ptr < RawPointer + tempVoxelNumber; Ptr += 4)
+			{
+				auto temp_x = std::min(std::max(Ptr[0] + x, 0.0), Lx - 1);
+
+				auto temp_y = std::min(std::max(Ptr[1] + y, 0.0), Ly - 1);
+
+				auto temp_z = std::min(std::max(Ptr[2] + z, 0.0), Lz - 1);
+
+				tempVoxel += (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z)) * Ptr[3];
+			}
+
+			OutputVoxel[i] = tempVoxel;
+		}
+	}
+	else
+	{
+		for (uint64 i = 0; i < VectorVoxelLength; ++i)
+		{
+			auto tempVoxelNumber = m_MaskList[i].GetColNumber();
+
+			auto RawPointer = m_MaskList[i].GetElementDataRawPointer();
+
+			auto tempVoxel = m_InputZeroVoxel;
+
+			for (auto Ptr = RawPointer; Ptr < RawPointer + tempVoxelNumber; Ptr += 4)
+			{
+				tempVoxel += (*m_InputImage)(uint64(x + Ptr[0]), uint64(y + Ptr[1]), uint64(z + Ptr[2])) * Ptr[3];
+			}
+
+			OutputVoxel[i] = tempVoxel;
+		}
+	}
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
+mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::mdk3DImageConvolutionFilter()
+{
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
+mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::~mdk3DImageConvolutionFilter()
+{
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
+inline
+void
+mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::
+FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& OutputVoxel)
 {
 	//OutputVoxel = 0;
 
@@ -107,7 +134,7 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType& OutputVox
 
 	auto RawPointer = m_MaskList[0].GetElementDataRawPointer();
 
-	VoxelType tempVoxel = m_InputZeroVoxel;
+	auto tempVoxel = m_InputZeroVoxel;
 	
 	if (m_IsBoundCheckEnabled == true) // time_check = 2 * time_no_check
 	{
@@ -159,131 +186,6 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType& OutputVox
 }
 
 
-template<typename VoxelType, uint64 VectorVoxelLength_Output = 1>
-mdk3DImageConvolutionFilter<VoxelType, std::array<VoxelType, VectorVoxelLength_Output>, VectorVoxelLength_Output>::mdk3DImageConvolutionFilter()
-{
-}
-
-
-template<typename VoxelType, uint64 VectorVoxelLength_Output>
-mdk3DImageConvolutionFilter<VoxelType, std::array<VoxelType, VectorVoxelLength_Output>, VectorVoxelLength_Output>::~mdk3DImageConvolutionFilter()
-{
-	// do nothing
-}
-
-
-template<typename VoxelType, uint64 VectorVoxelLength_Output>
-bool mdk3DImageConvolutionFilter<VoxelType, std::array<VoxelType, VectorVoxelLength_Output>, VectorVoxelLength_Output>::
-CheckInput()
-{
-
-	return true;
-}
-
-
-template<typename VoxelType, uint64 VectorVoxelLength_Output>
-bool mdk3DImageConvolutionFilter<VoxelType, std::array<VoxelType, VectorVoxelLength_Output>, VectorVoxelLength_Output>::
-SetMask(const std::vector<mdkMatrix<double>>& MaskList)
-{
-	auto Length = MaskList.size();
-
-	if (Length == 0)
-	{
-		return false;
-	}
-
-	for (uint64 i = 0; i < Length; ++i)
-	{
-		if (MaskList[i].IsEmpty() == true)
-		{
-			return false;
-		}
-	}
-
-	m_MaskList = MaskList;
-
-	return true;
-}
-
-
-template<typename VoxelType, uint64 VectorVoxelLength_Output>
-bool mdk3DImageConvolutionFilter<VoxelType, std::array<VoxelType, VectorVoxelLength_Output>, VectorVoxelLength_Output>::
-SetMask(const mdkMatrix<double>& Mask)
-{
-	if (Mask.IsEmpty() == true)
-	{
-		return false;
-	}
-
-	m_MaskList.resize(1);
-
-	m_MaskList[0] = Mask;
-
-	return true;
-}
-
-
-template<typename VoxelType, uint64 VectorVoxelLength_Output>
-inline
-void
-mdk3DImageConvolutionFilter<VoxelType, std::array<VoxelType, VectorVoxelLength_Output>, VectorVoxelLength_Output>::
-FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, std::array<VoxelType, VectorVoxelLength_Output>& OutputVoxel)
-{
-	auto x = double(xIndex);
-	auto y = double(yIndex);
-	auto z = double(zIndex);
-
-	double Lx = 0;
-	double Ly = 0;
-	double Lz = 0;
-
-	m_InputImage->GetImageSize(&Lx, &Ly, &Lz);
-
-	uint64 VectorVoxelLength = m_MaskList.size();
-
-	if (m_IsBoundCheckEnabled == true)
-	{
-		for (uint64 i = 0; i < VectorVoxelLength; ++i)
-		{
-			auto tempVoxelNumber = m_MaskList[i].GetColNumber();
-
-			auto RawPointer = m_MaskList[i].GetElementDataRawPointer();
-
-			VoxelType tempVoxel = m_InputZeroVoxel;
-
-			for (auto Ptr = RawPointer; Ptr < RawPointer + tempVoxelNumber; Ptr += 4)
-			{
-				auto temp_x = std::min(std::max(Ptr[0] + x, 0.0), Lx - 1);
-
-				auto temp_y = std::min(std::max(Ptr[1] + y, 0.0), Ly - 1);
-
-				auto temp_z = std::min(std::max(Ptr[2] + z, 0.0), Lz - 1);
-
-				tempVoxel += (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z)) * Ptr[3];
-			}
-
-			OutputVoxel[i] = tempVoxel;
-		}
-	}
-	else
-	{
-		for (uint64 i = 0; i < VectorVoxelLength; ++i)
-		{
-			auto tempVoxelNumber = m_MaskList[i].GetColNumber();
-
-			auto RawPointer = m_MaskList[i].GetElementDataRawPointer();
-
-			VoxelType tempVoxel = m_InputZeroVoxel;
-
-			for (auto Ptr = RawPointer; Ptr < RawPointer + tempVoxelNumber; Ptr += 4)
-			{
-				tempVoxel += (*m_InputImage)(uint64(x + Ptr[0]), uint64(y + Ptr[1]), uint64(z + Ptr[2])) * Ptr[3];
-			}
-
-			OutputVoxel[i] = tempVoxel;
-		}
-	}
-}
 
 }//end namespace mdk
 

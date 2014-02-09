@@ -36,7 +36,7 @@ FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
 set(Source_FILES 
 
-${Debug_DIR}/mdkDebug.h
+${Debug_DIR}/mdkDebugConfig.h
 
 ${Common_DIR}/mdkType.h
 
@@ -46,14 +46,20 @@ ${Common_DIR}/mdkObject.cpp
 ${Common_DIR}/mdkMatrix.h
 ${Common_DIR}/mdkMatrix.hpp
 
-${Common_DIR}/mdk3DImage.h
-${Common_DIR}/mdk3DImage.hpp
-
 ${Common_DIR}/mdk3DImageVoxel.h
 ${Common_DIR}/mdk3DImageVoxel.hpp
 
+${Common_DIR}/mdk3DImage.h
+${Common_DIR}/mdk3DImage.hpp
+
 ${ImageFilter_DIR}/mdk3DImageFilter.h
 ${ImageFilter_DIR}/mdk3DImageFilter.hpp
+
+${ImageFilter_DIR}/mdk3DImageConvolutionFilterBase.h
+${ImageFilter_DIR}/mdk3DImageConvolutionFilterBase.cpp
+
+${ImageFilter_DIR}/mdk3DImageConvolutionFilter.h
+${ImageFilter_DIR}/mdk3DImageConvolutionFilter.hpp
 )
 
 set(LinearALgebraLib_win64 C:/Research/MDK/LinearALgebraLib_win64/lapack_win64_MT.lib  C:/Research/MDK/LinearALgebraLib_win64/blas_win64_MT.lib)

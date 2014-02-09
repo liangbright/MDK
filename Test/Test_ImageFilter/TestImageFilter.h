@@ -1,4 +1,4 @@
-#ifndef __TestImageFilter_h
+﻿#ifndef __TestImageFilter_h
 #define __TestImageFilter_h
 
 #include <ctime>
@@ -10,8 +10,7 @@
 #include "mdk3DImageFilter.h"
 #include "mdk3DImageConvolutionFilter.h"
 
-namespace mdk
-{
+using namespace mdk;
 
 template<typename T>
 class TestClass
@@ -59,6 +58,7 @@ void Tempfunction(double& a, int N)
 	a = b;
 }
 
+
 inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, const mdk3DImage<double>& InputImage, double& Output)
 {
 	//std::cout << "FilterFuntion " << '\n';
@@ -84,6 +84,7 @@ inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, const md
 
 	Output = Value;
 }
+
 
 void Test_FilterFunction()
 {
@@ -565,9 +566,6 @@ void Test_ConvolutionFilter_VectorOutput()
 
 	std::system("pause");
 }
-
-
-}//end of namespace
 
 
 #endif

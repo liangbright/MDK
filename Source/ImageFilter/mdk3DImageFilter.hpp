@@ -4,7 +4,7 @@
 #include <thread>
 
 #include "mdk3DImageFilter.h"
-#include "mdkDebug.h"
+#include "mdkDebugConfig.h"
 
 namespace mdk
 {

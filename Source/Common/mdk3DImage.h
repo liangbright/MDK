@@ -112,7 +112,7 @@ public:
 
 	void SetVoxelPhysicalSize(double VoxelPhysicalSize_x, double VoxelPhysicalSize_y, double VoxelPhysicalSize_z = 1.0);
 
-	bool Fill(VoxelType Voxel);
+	inline bool Fill(const VoxelType& Voxel);
 
 	inline void SetTobeTemporaryImage();
 
