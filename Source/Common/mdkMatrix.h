@@ -132,7 +132,7 @@ public:
 
     inline void Clear();
 
-	inline void SetEmptyElement(ElementType EmptyElement);
+	inline void SetEmptyElement(const ElementType& EmptyElement);
 	
 	inline std::shared_ptr<std::vector<ElementType>> GetElementDataSharedPointer() const;
 
@@ -173,7 +173,7 @@ public:
 	template<typename ElementType_target>
 	inline void operator=(const mdkMatrix<ElementType_target>& targetMatrix);
 
-	inline void operator=(ElementType Element);
+	inline void operator=(const ElementType& Element);
 
 	inline void operator=(const std::initializer_list<ElementType>& list);
 
@@ -185,7 +185,7 @@ public:
 	template<typename ElementType_target>
 	inline bool Copy(const ElementType_target* ElementPointer, uint64 RowNumber, uint64 ColNumber);
 
-	inline bool Fill(ElementType Element);
+	inline bool Fill(const ElementType& Element);
 
 	//---------------------- Get/Set Matrix(LinearIndex) ----------------------------------------//
 

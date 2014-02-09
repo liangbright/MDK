@@ -149,6 +149,10 @@ public:
 
 	//--------------------------- Get/Set Voxel      ------------------------------//
 
+    inline VoxelType& operator[](uint64 LinearIndex);
+
+    inline const VoxelType& operator[](uint64 LinearIndex) const;
+
 	inline VoxelType& operator()(uint64 LinearIndex);
 
 	inline const VoxelType& operator()(uint64 LinearIndex) const;

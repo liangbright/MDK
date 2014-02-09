@@ -29,6 +29,13 @@ mdkMatrix<ElementType>::mdkMatrix(const mdkMatrix<ElementType>& targetMatrix)
 }
 
 
+// Attention : operator=(const mdk::mdkMatrix<double>& targetMatrix) 
+// if targetMatrix is a Temporary Matrix (usually it is returned by a function)
+// then this Matrix gets the data of targetMatrix, and clear targetMatrix
+// I have to add const in operator=(), and use shared_ptr instead of unique_ptr
+// because std::vector<mdkMatrix> A = std::vector<mdkMatrix> B  requires operator=(const ...) of mdkMatrix
+// and there is no way to tell the difference between operator=(const ...) and operator=(...)
+// 
 template<typename ElementType>
 inline 
 void mdkMatrix<ElementType>::operator=(const mdk::mdkMatrix<double>& targetMatrix)
@@ -89,7 +96,7 @@ mdkMatrix<ElementType>::~mdkMatrix()
 
 template<typename ElementType>
 inline 
-void mdkMatrix<ElementType>::SetEmptyElement(ElementType EmptyElement)
+void mdkMatrix<ElementType>::SetEmptyElement(const ElementType& EmptyElement)
 {
 	m_EmptyElement = EmptyElement;
 }
@@ -217,8 +224,8 @@ void mdkMatrix<ElementType>::Clear()
 
 	m_ElementNumber = 0;
 
-	m_ElementData.reset(new std::vector<ElementType>);
-
+    m_ElementData.reset();
+    
 	m_IsSizeFixed = false;
 
 	m_ElementType = this->FindElementType(m_EmptyElement);
@@ -249,7 +256,7 @@ template<typename ElementType>
 inline
 bool mdkMatrix<ElementType>::SetSize(uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = false)
 {
-	if (m_ElementData->size() > 0)
+	if (m_ElementData) // if (m_ElementData != nullptr)
 	{
 		mdkError << "must call Clear before SetSize if the matrix is not empty @ mdkMatrix::SetSize" << '\n';
 		return false;
@@ -261,7 +268,7 @@ bool mdkMatrix<ElementType>::SetSize(uint64 RowNumber, uint64 ColNumber, bool Is
 
 	m_ElementNumber = RowNumber*ColNumber;
 
-	m_ElementData->resize(m_ElementNumber);
+    m_ElementData = std::make_shared<std::vector<ElementType>>(m_ElementNumber);
 
 	m_IsSizeFixed = IsSizeFixed;
 
@@ -329,6 +336,25 @@ template<typename ElementType>
 inline
 bool mdkMatrix<ElementType>::Reshape(uint64 RowNumber, uint64 ColNumber)
 {
+    if (m_ElementData == nullptr)
+    {
+        if (RowNumber == 0 || ColNumber == 0)
+        {
+            m_RowNumber = RowNumber;
+
+            m_ColNumber = ColNumber;
+
+            m_ElementNumber = 0;
+
+            return true;
+        }
+        else
+        {
+            mdkError << "Self is empty and Size does not match @ mdkMatrix::Reshape" << '\n';
+            return false;
+        }
+    }
+
     if (RowNumber*ColNumber != uint64(m_ElementData->size()))
 	{
 		mdkError << "Size does not match @ mdkMatrix::Reshape" << '\n';
@@ -378,7 +404,14 @@ template<typename ElementType>
 inline 
 ElementType* mdkMatrix<ElementType>::GetElementDataRawPointer()
 {
-	return m_ElementData->data();
+    if (m_ElementData) // if (m_ElementData != nullptr)
+    {
+        return m_ElementData->data();
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 
@@ -386,7 +419,14 @@ template<typename ElementType>
 inline
 const ElementType* mdkMatrix<ElementType>::GetElementDataRawPointer() const
 {
-	return m_ElementData->data();
+    if (m_ElementData) // if (m_ElementData != nullptr)
+    {
+        return m_ElementData->data();
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 
@@ -445,7 +485,7 @@ void mdkMatrix<ElementType>::operator=(const mdkMatrix<ElementType_target>& targ
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator=(ElementType Element)
+void mdkMatrix<ElementType>::operator=(const ElementType& Element)
 {
 	if (m_IsSizeFixed == true)
 	{
@@ -456,11 +496,9 @@ void mdkMatrix<ElementType>::operator=(ElementType Element)
 		}
 	}
 
-	m_ElementData.reset(new std::vector<ElementType>);
+    m_ElementData = std::make_shared<std::vector<ElementType>>(1);
 
-	m_ElementData->resize(1);
-
-	m_ElementData->operator[](0) = Element;
+	(*m_ElementData)[0] = Element;
 
 	m_RowNumber = 1;
 	m_ColNumber = 1;
@@ -527,7 +565,7 @@ void mdkMatrix<ElementType>::operator=(const std::vector<ElementType>& ColVector
         return;
     }
 
-    m_ElementData->operator=(ColVector);
+    (*m_ElementData) = ColVector;
 
     m_RowNumber = m_ElementData->size();
 
@@ -550,8 +588,6 @@ bool mdkMatrix<ElementType>::Copy(const mdkMatrix<ElementType_target>& targetMat
 
 		return true;
 	}
-
-	m_ElementData.reset(new std::vector<ElementType>);
 
 	auto Size = targetMatrix.GetSize();
 
@@ -583,15 +619,13 @@ bool mdkMatrix<ElementType>::Copy(const ElementType_target* ElementPointer, uint
 		return false;
 	}
 
-	m_ElementData.reset(new std::vector<ElementType>);
-
 	m_RowNumber = RowNumber;
 
 	m_ColNumber = ColNumber;
 
 	m_ElementNumber = m_RowNumber*m_ColNumber;
 
-	m_ElementData->resize(m_ElementNumber);
+    m_ElementData = std::make_shared<std::vector<ElementType>>(m_ElementNumber);
 
 	auto RawPointer = m_ElementData->data();
 
@@ -606,7 +640,7 @@ bool mdkMatrix<ElementType>::Copy(const ElementType_target* ElementPointer, uint
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::Fill(ElementType Element)
+bool mdkMatrix<ElementType>::Fill(const ElementType& Element)
 {
 	if (m_ElementNumber == 0)
 	{
@@ -639,7 +673,7 @@ ElementType& mdkMatrix<ElementType>::operator()(uint64 LinearIndex)
 
 #endif
 
-	return m_ElementData->operator[](LinearIndex);
+	return (*m_ElementData)[LinearIndex];
 }
 
 
@@ -657,7 +691,7 @@ const ElementType& mdkMatrix<ElementType>::operator()(uint64 LinearIndex) const
 
 #endif
 
-	return m_ElementData->operator[](LinearIndex);
+	return (*m_ElementData)[LinearIndex];
 }
 
 
@@ -675,7 +709,7 @@ ElementType& mdkMatrix<ElementType>::operator[](uint64 LinearIndex)
 
 #endif
 
-	return m_ElementData->operator[](LinearIndex);
+	return (*m_ElementData)[LinearIndex];
 }
 
 
@@ -693,7 +727,7 @@ const ElementType& mdkMatrix<ElementType>::operator[](uint64 LinearIndex) const
 
 #endif
 
-	return m_ElementData->operator[](LinearIndex);
+	return (*m_ElementData)[LinearIndex];
 }
 
 
@@ -707,7 +741,7 @@ ElementType& mdkMatrix<ElementType>::at(uint64 LinearIndex)
 		return m_EmptyElement;
 	}
 
-	return m_ElementData->operator[](LinearIndex);
+	return (*m_ElementData)[LinearIndex];
 }
 
 
@@ -721,7 +755,7 @@ const ElementType& mdkMatrix<ElementType>::at(uint64 LinearIndex) const
 		return m_EmptyElement;
 	}
 
-	return m_ElementData->operator[](LinearIndex);
+	return (*m_ElementData)[LinearIndex];
 }
 
 
@@ -741,7 +775,7 @@ ElementType& mdkMatrix<ElementType>::operator()(uint64 RowIndex, uint64 ColIndex
 
     auto LinearIndex = ColIndex*m_RowNumber + RowIndex;
 
-	return m_ElementData->operator[](LinearIndex);
+    return (*m_ElementData)[LinearIndex];
 }
 
 
@@ -761,7 +795,7 @@ const ElementType& mdkMatrix<ElementType>::operator()(uint64 RowIndex, uint64 Co
 
     auto LinearIndex = ColIndex*m_RowNumber + RowIndex;
 
-	return m_ElementData->operator[](LinearIndex);
+    return (*m_ElementData)[LinearIndex];
 }
 
 
@@ -777,7 +811,7 @@ ElementType& mdkMatrix<ElementType>::at(uint64 RowIndex, uint64 ColIndex)
 
     auto LinearIndex = ColIndex*m_RowNumber + RowIndex;
 
-	return m_ElementData->operator[](LinearIndex);
+    return (*m_ElementData)[LinearIndex];
 }
 
 
@@ -793,7 +827,7 @@ const ElementType& mdkMatrix<ElementType>::at(uint64 RowIndex, uint64 ColIndex) 
 
     auto LinearIndex = ColIndex*m_RowNumber + RowIndex;
 
-	return m_ElementData->operator[](LinearIndex);
+    return (*m_ElementData)[LinearIndex];
 }
 
 
@@ -961,8 +995,6 @@ bool mdkMatrix<ElementType>::SetCol(uint64 ColIndex, const ElementType_input* Co
 		mdkError << "Invalid input @ mdkMatrix::SetCol(ColIndex, const ElementType_input* ColData)" << '\n';
 		return false;
 	}
-
-	this->CopyOnWrite();
 
 	auto RawPointer = m_ElementData->data();
 

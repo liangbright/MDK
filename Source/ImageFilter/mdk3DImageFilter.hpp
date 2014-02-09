@@ -45,6 +45,18 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Clear()
     m_InputZeroVoxel -= m_InputZeroVoxel;
 
     m_OutputZeroVoxel -= m_OutputZeroVoxel;
+
+    m_IsInputZeroVoxelObtained = false;
+
+    m_IsOutputZeroVoxelObtained = false;
+
+    m_Flag_OutputArray = false;
+
+    m_Flag_OutputArray = false;
+
+    m_Flag_OutputToOtherPlace = false;
+
+    m_TotalOutputVoxelNumber = 0;
 }
 
 
@@ -63,6 +75,17 @@ mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
 SetInputImage(const mdk3DImage<VoxelType_Input>* InputImage)
 {
 	m_InputImage = InputImage;
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
+void
+mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
+SetInputZeroVoxel(const VoxelType_Input& InputZeroVoxel)
+{
+    m_InputZeroVoxel = InputZeroVoxel;
+
+    m_IsInputZeroVoxelObtained = true;
 }
 
 
@@ -105,9 +128,20 @@ SetOutputImage(mdk3DImage<VoxelType_Output>* OutputImage)
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
+void
+mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
+SetOutputZeroVoxel(const VoxelType_Output& OutputZeroVoxel)
+{
+    m_OutputZeroVoxel = OutputZeroVoxel;
+
+    m_IsOutputZeroVoxelObtained = true;
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
 void 
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-SetOutputArray(std::vector<VoxelType_Output>* OutputArray)
+SetOutputArray(mdkMatrix<VoxelType_Output>* OutputArray)
 {
 	m_OutputArray = OutputArray;
 }
@@ -130,7 +164,7 @@ bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInputData(bool& Flag_OutputArray, bool& Flag_OutputImageInSameSize, uint64& TotalInputVoxelNumber)
+bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInputData()
 {
 	if (m_InputImage == nullptr)
 	{
@@ -138,62 +172,62 @@ bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInputData(bool& F
 		return false;
 	}
 
-
 	if (m_InputImage->IsEmpty() == true)
 	{
 		mdkError << "Empty input image @ mdk3DImageFilter::CheckInputData" << '\n';
 		return false;
 	}
 
-	TotalInputVoxelNumber = 0;
+	//---------------------------------
+    m_Flag_OutputToOtherPlace = false;
 
-	Flag_OutputArray = false;
-
-	Flag_OutputImageInSameSize = false;
-
-    if (m_OutputImage != nullptr && m_OutputArray == nullptr)
-	{
-		Flag_OutputArray = false;
-
-		if (m_InputRegion == nullptr)
-		{
-			Flag_OutputImageInSameSize = true;
-
-			auto Size = m_InputImage->GetImageSize();
-
-			TotalInputVoxelNumber = Size.Lx*Size.Ly*Size.Lz;
-		}
-		else
-		{
-			Flag_OutputImageInSameSize = false;
-
-			auto Size = m_OutputImage->GetImageSize();
-
-			if ((*m_InputRegion)(0, 1) != Size.Lx || (*m_InputRegion)(1, 1) != Size.Ly || (*m_InputRegion)(2, 1) != Size.Lz)
-			{
-				mdkError << "Invalid input: m_InputRegion does not match m_OutputImage @ mdk3DImageFilter::Run" << '\n';
-				return false;
-			}
-
-			TotalInputVoxelNumber = Size.Lx*Size.Ly*Size.Lz;
-
-		}
-	}
+    if (m_OutputImage != nullptr && m_OutputArray != nullptr)
+    {
+        m_Flag_OutputImage = true;
+        m_Flag_OutputArray = false;
+    }
     else if (m_OutputImage == nullptr && m_OutputArray != nullptr)
-	{
-		Flag_OutputArray = true;
+    {
+        m_Flag_OutputImage = false;
+        m_Flag_OutputArray = true;
+    }
+    else
+    {
+        m_Flag_OutputToOtherPlace = true;
+    }
+        
+    //---------------------------------
+    m_TotalOutputVoxelNumber = 0;
 
-        TotalInputVoxelNumber = m_InputVoxelSet->GetElementNumber();
-	}
-	else
-	{
-		mdkError << "Invalid input @ mdk3DImageFilter::Run" << '\n';
+    if (m_InputRegion != nullptr && m_InputVoxelSet == nullptr)
+    {
+        if (m_OutputImage != nullptr)
+        {
+            auto Size = m_OutputImage->GetImageSize();
 
-		return false;
-	}
+            if ((*m_InputRegion)(0, 1) != Size.Lx || (*m_InputRegion)(1, 1) != Size.Ly || (*m_InputRegion)(2, 1) != Size.Lz)
+            {
+                mdkError << "Invalid input: m_InputRegion does not match m_OutputImage @ mdk3DImageFilter::Run" << '\n';
+                return false;
+            }            
+        }
+
+        m_TotalOutputVoxelNumber = (*m_InputRegion)(0, 1)*(*m_InputRegion)(0, 2)*(*m_InputRegion)(0, 3);
+    }
+    else if (m_InputRegion == nullptr && m_InputVoxelSet != nullptr)
+    {
+        m_TotalOutputVoxelNumber = m_InputVoxelSet->GetElementNumber();
+    }
+    else
+    {
+        auto Size = m_InputImage->GetImageSize();
+
+        m_TotalOutputVoxelNumber = Size.Lx*Size.Ly*Size.Lz;
+    }
+
+    //------------------------------
 
 	return true;
-
 }
 
 
@@ -208,13 +242,7 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
 	}
 
 	//-------------------------------------------------------------------------------
-	auto Flag_OutputArray = false;
-
-	auto Flag_OutputImageInSameSize = false;
-
-	uint64 VoxelNumber = 0;
-
-	auto IsOK = this->CheckInputData(Flag_OutputArray, Flag_OutputImageInSameSize, VoxelNumber);
+	auto IsOK = this->CheckInputData();
 
 	if (IsOK == false)
 	{
@@ -222,14 +250,14 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
 	}
 
 	// multi-thread -----------------------------------------------------------------
-	if (m_MaxThreadNumber > 1 && VoxelNumber > 1000)
+    if (m_MaxThreadNumber > 1 && m_TotalOutputVoxelNumber > 1000)
 	{
 		// divide the output image into groups
 
 		std::vector<uint64> IndexList_start;
 		std::vector<uint64> IndexList_end;
 
-		this->DivideInputData(0, VoxelNumber - 1, IndexList_start, IndexList_end);
+        this->DivideData(0, m_TotalOutputVoxelNumber - 1, IndexList_start, IndexList_end);
 
 		uint64 ThreadNumber = IndexList_start.size();
 		
@@ -238,7 +266,7 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
 
         for (uint64 i = 0; i < ThreadNumber; ++i)
 		{
-			FilterThread[i] = std::thread([&]{this->Run_in_a_Thread(IndexList_start[i], IndexList_end[i], Flag_OutputArray, Flag_OutputImageInSameSize); });
+			FilterThread[i] = std::thread([&]{this->Run_in_a_Thread(IndexList_start[i], IndexList_end[i]); });
 		}
 
 		//wait for all the threads
@@ -249,7 +277,7 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
 	}
 	else//single-thread
 	{
-		this->Run_in_a_Thread(0, VoxelNumber - 1, Flag_OutputArray, Flag_OutputImageInSameSize);
+        this->Run_in_a_Thread(0, m_TotalOutputVoxelNumber - 1);
 	}
 }
 
@@ -257,12 +285,10 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
 template<typename VoxelType_Input, typename VoxelType_Output>
 void
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-Run_in_a_Thread(uint64 VoxelIndex_start, uint64 VoxelIndex_end, bool Flag_OutputArray, bool Flag_OutputImageInSameSize)
+Run_in_a_Thread(uint64 OutputVoxelIndex_start, uint64 OutputVoxelIndex_end)
 {
-	std::cout << "VoxelIndex_start " << VoxelIndex_start << '\n';
-	std::cout << "VoxelIndex_end   " << VoxelIndex_end << '\n';
-
-	auto InputImageSize = m_InputImage->GetImageSize();
+    std::cout << "VoxelIndex_start " << OutputVoxelIndex_start << '\n';
+    std::cout << "VoxelIndex_end   " << OutputVoxelIndex_end << '\n';
 
 	uint64 RegionOrigin[3] = { 0, 0, 0 }; // [x0, y0, z0]
 
@@ -275,51 +301,125 @@ Run_in_a_Thread(uint64 VoxelIndex_start, uint64 VoxelIndex_end, bool Flag_Output
 
 	uint64 FilterCenter[3] = {0,0,0};     // [xc, yc, zc]
 
-	uint64 xIndex = 0;
-	uint64 yIndex = 0;
-	uint64 zIndex = 0;
+    if (m_Flag_OutputToOtherPlace == false)
+    {
+        if (m_InputRegion == nullptr && m_InputVoxelSet == nullptr)
+        {
+            for (uint64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+            {
+                m_InputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
 
-	if (Flag_OutputArray == false)
-	{
-		if (Flag_OutputImageInSameSize == true)
-		{
-			for (uint64 VoxelIndex = VoxelIndex_start; VoxelIndex <= VoxelIndex_end; ++VoxelIndex)
-			{
-				m_InputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
+                this->FilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], (*m_OutputImage)(VoxelIndex));
+            }
+        }
+        else if (m_InputRegion != nullptr && m_InputVoxelSet == nullptr)
+        {
+            if (m_Flag_OutputImage == true)
+            {
+                for (uint64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+                {
+                    m_OutputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
 
-				this->FilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], (*m_OutputImage)(VoxelIndex));
-			}
-		}
-		else
-		{
-			for (uint64 VoxelIndex = VoxelIndex_start; VoxelIndex <= VoxelIndex_end; ++VoxelIndex)
-			{
-				m_OutputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
+                    FilterCenter[0] += RegionOrigin[0];
+                    FilterCenter[1] += RegionOrigin[1];
+                    FilterCenter[2] += RegionOrigin[2];
 
-				FilterCenter[0] += RegionOrigin[0];
-				FilterCenter[1] += RegionOrigin[1];
-				FilterCenter[2] += RegionOrigin[2];
+                    this->FilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], (*m_OutputImage)(VoxelIndex));
+                }
+            }
+            else
+            {
+                for (uint64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+                {
+                    m_OutputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
 
-				this->FilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], (*m_OutputImage)(VoxelIndex));
-			}
-		}
-	}
-	else
-	{
-		for (uint64 VoxelIndex = VoxelIndex_start; VoxelIndex <= VoxelIndex_end; ++VoxelIndex)
-		{
-			m_InputImage->Get3DIndexByLinearIndex((*m_InputVoxelSet)[VoxelIndex], &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
+                    FilterCenter[0] += RegionOrigin[0];
+                    FilterCenter[1] += RegionOrigin[1];
+                    FilterCenter[2] += RegionOrigin[2];
 
-			this->FilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], (*m_OutputArray)[VoxelIndex]);
-		}
-	}
+                    this->FilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], (*m_OutputArray)[VoxelIndex]);
+                }
+            }
+        }
+        else if (m_InputRegion == nullptr && m_InputVoxelSet != nullptr)
+        {
+            if (m_Flag_OutputArray == true)
+            {
+                for (uint64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+                {
+                    m_InputImage->Get3DIndexByLinearIndex((*m_InputVoxelSet)[VoxelIndex], &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
+
+                    this->FilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], (*m_OutputArray)[VoxelIndex]);
+                }
+            }
+            else
+            {
+                for (uint64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+                {
+                    m_InputImage->Get3DIndexByLinearIndex((*m_InputVoxelSet)[VoxelIndex], &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
+
+                    this->FilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], (*m_OutputImage)(VoxelIndex));
+                }
+            }
+        }
+        else
+        {
+            mdkError << "Invalid Input @ mdk3DImageFilter::Run_in_a_Thread" << '\n';
+        }
+    }
+    else
+    {
+        auto tempOutputVoxel = m_OutputZeroVoxel;
+
+        if (m_InputRegion == nullptr && m_InputVoxelSet == nullptr)
+        {
+            for (uint64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+            {
+                m_InputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
+
+                this->FilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], tempOutputVoxel);
+
+                this->OutputFunction(VoxelIndex, tempOutputVoxel);
+            }
+        }
+        else if (m_InputRegion != nullptr && m_InputVoxelSet == nullptr)
+        {
+            for (uint64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+            {
+                m_OutputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
+
+                FilterCenter[0] += RegionOrigin[0];
+                FilterCenter[1] += RegionOrigin[1];
+                FilterCenter[2] += RegionOrigin[2];
+
+                this->FilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], tempOutputVoxel);
+
+                this->OutputFunction(VoxelIndex, tempOutputVoxel);
+            }
+        }
+        else if (m_InputRegion == nullptr && m_InputVoxelSet != nullptr)
+        {
+            for (uint64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+            {
+                m_InputImage->Get3DIndexByLinearIndex((*m_InputVoxelSet)[VoxelIndex], &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
+
+                this->FilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], tempOutputVoxel);
+
+                this->OutputFunction(VoxelIndex, tempOutputVoxel);
+            }
+        }
+        else
+        {
+            mdkError << "Invalid Input @ mdk3DImageFilter::Run_in_a_Thread" << '\n';
+        }
+    }
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
 void
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-DivideInputData(uint64 Index_min, uint64 Index_max, std::vector<uint64>& IndexList_start, std::vector<uint64>& IndexList_end)
+DivideData(uint64 Index_min, uint64 Index_max, std::vector<uint64>& IndexList_start, std::vector<uint64>& IndexList_end)
 {
 	auto TotalVoxelNumber = Index_max - Index_min + 1;
 
@@ -348,7 +448,7 @@ DivideInputData(uint64 Index_min, uint64 Index_max, std::vector<uint64>& IndexLi
 		return;
 	}
 
-	uint64 tempNumber = 0;
+    uint64 tempNumber = Index_min;
 
 	for (uint64 i = 0; i < m_MaxThreadNumber; ++i)
 	{
@@ -366,7 +466,7 @@ template<typename VoxelType_Input, typename VoxelType_Output>
 inline
 void
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& OutputVoxel)
+FilterFunction(uint64 xIndex_center, uint64 yIndex_center, uint64 zIndex_center, VoxelType_Output& OutputVoxel)
 {
 	/*
 	VoxelType_Input Output = 0;
@@ -375,15 +475,36 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& Ou
 
 	for (double i = 0; i < N; ++i)
 	{
-		Output += i * (*m_InputImage)(xIndex, yIndex, zIndex);
+		Output += i * (*m_InputImage)(xIndex_center, yIndex_center, zIndex_center);
 	}
 	*/
 
 	if (m_IsInputFilterFunctionObtained == true)
 	{
-		m_InputFilterFunction(xIndex, yIndex, zIndex, *m_InputImage, OutputVoxel);
+        m_InputFilterFunction(xIndex_center, yIndex_center, zIndex_center, *m_InputImage, OutputVoxel);
 	}
 
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
+inline
+void
+mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
+OutputFunction(uint64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel)
+{
+    if (m_Flag_OutputImage == true)
+    {
+        (*m_OutputImage)(OutputVoxelIndex) = OutputVoxel;
+    }
+    else if (m_Flag_OutputArray == true)
+    {
+        (*m_OutputArray)[OutputVoxelIndex] = OutputVoxel;
+    }
+    else
+    {
+        mdkWarning << "OutputFunction is empty @ mdk3DImageFilter::OutputFunction" << '\n';
+    }
 }
 
 
@@ -399,13 +520,8 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run(FilterFunctionType
 	}
 
 	//--------------------------------------------------------------------------------
-	bool Flag_OutputArray = false;
 
-	bool Flag_OutputImageInSameSize = false;
-
-	uint64 VoxelNumber = 0;
-
-	auto IsOK = this->CheckInputData(Flag_OutputArray, Flag_OutputImageInSameSize, VoxelNumber);
+	auto IsOK = this->CheckInputData();
 
 	if (IsOK == false)
 	{
@@ -413,14 +529,14 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run(FilterFunctionType
 	}
 
 	// multi-thread ----------------------------------------------------------------------
-	if (m_MaxThreadNumber > 1 && VoxelNumber > 1000)
+    if (m_MaxThreadNumber > 1 && m_TotalOutputVoxelNumber > 1000)
 	{
 		// divide the output image into groups
 
 		std::vector<uint64> IndexList_start;
 		std::vector<uint64> IndexList_end;
 
-		this->DivideInputData(0, VoxelNumber - 1, IndexList_start, IndexList_end);
+        this->DivideData(0, m_TotalOutputVoxelNumber - 1, IndexList_start, IndexList_end);
 
 		uint64 ThreadNumber = IndexList_start.size();
 
@@ -429,7 +545,7 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run(FilterFunctionType
 
 		for (int i = 0; i < ThreadNumber; ++i)
 		{
-			FilterThread[i] = std::thread([&]{this->Run_in_a_Thread(IndexList_start[i], IndexList_end[i], Flag_OutputArray, Flag_OutputImageInSameSize, InputFilterFunction); });
+			FilterThread[i] = std::thread([&]{this->Run_in_a_Thread(IndexList_start[i], IndexList_end[i], InputFilterFunction); });
 		}
 
 		//wait for all the threads
@@ -440,7 +556,7 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run(FilterFunctionType
 	}
 	else//single-thread
 	{
-		this->Run_in_a_Thread(0, VoxelNumber - 1, Flag_OutputArray, Flag_OutputImageInSameSize, InputFilterFunction);
+        this->Run_in_a_Thread(0, m_TotalOutputVoxelNumber - 1, InputFilterFunction);
 	}
 }
 
@@ -449,12 +565,10 @@ template<typename VoxelType_Input, typename VoxelType_Output>
 template<typename FilterFunctionType>
 void
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-Run_in_a_Thread(uint64 VoxelIndex_start, uint64 VoxelIndex_end, bool Flag_OutputArray, bool Flag_OutputImageInSameSize, FilterFunctionType InputFilterFunction)
+Run_in_a_Thread(uint64 OutputVoxelIndex_start, uint64 OutputVoxelIndex_end, FilterFunctionType InputFilterFunction)
 {
-	std::cout << "VoxelIndex_start " << VoxelIndex_start << '\n';
-	std::cout << "VoxelIndex_end   " << VoxelIndex_end << '\n';
-
-	auto InputImageSize = m_InputImage->GetImageSize();
+    std::cout << "VoxelIndex_start " << OutputVoxelIndex_start << '\n';
+    std::cout << "VoxelIndex_end   " << OutputVoxelIndex_end << '\n';
 
 	uint64 RegionOrigin[3] = { 0, 0, 0 }; // [x0, y0, z0]
 
@@ -467,44 +581,49 @@ Run_in_a_Thread(uint64 VoxelIndex_start, uint64 VoxelIndex_end, bool Flag_Output
 
 	uint64 FilterCenter[3] = { 0, 0, 0 };     // [xc, yc, zc]
 
-	uint64 xIndex = 0;
-	uint64 yIndex = 0;
-	uint64 zIndex = 0;
+    VoxelType_Output tempOutputVoxel;
 
-	if (Flag_OutputArray == false)
-	{
-		if (Flag_OutputImageInSameSize == true)
-		{
-			for (uint64 VoxelIndex = VoxelIndex_start; VoxelIndex <= VoxelIndex_end; ++VoxelIndex)
-			{
-				m_InputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
+    if (m_InputRegion == nullptr && m_InputVoxelSet == nullptr)
+    {
+        for (uint64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+        {
+            m_InputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
 
-				InputFilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], *m_InputImage, (*m_OutputImage)(VoxelIndex));
-			}
-		}
-		else
-		{
-			for (uint64 VoxelIndex = VoxelIndex_start; VoxelIndex <= VoxelIndex_end; ++VoxelIndex)
-			{
-				m_OutputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
+            InputFilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], *m_InputImage, tempOutputVoxel);
 
-				FilterCenter[0] += RegionOrigin[0];
-				FilterCenter[1] += RegionOrigin[1];
-				FilterCenter[2] += RegionOrigin[2];
+            this->OutputFunction(VoxelIndex, tempOutputVoxel);
+        }
+    }
+    else if (m_InputRegion != nullptr && m_InputVoxelSet == nullptr)
+    {
+        for (uint64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+        {
+            m_OutputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
 
-				InputFilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], *m_InputImage, (*m_OutputImage)(VoxelIndex));
-			}
-		}
-	}
-	else
-	{
-		for (uint64 VoxelIndex = VoxelIndex_start; VoxelIndex <= VoxelIndex_end; ++VoxelIndex)
-		{
-			m_InputImage->Get3DIndexByLinearIndex((*m_InputVoxelSet)[VoxelIndex], &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
+            FilterCenter[0] += RegionOrigin[0];
+            FilterCenter[1] += RegionOrigin[1];
+            FilterCenter[2] += RegionOrigin[2];
 
-			InputFilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], *m_InputImage, (*m_OutputArray)[VoxelIndex]);
-		}
-	}
+            InputFilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], *m_InputImage, tempOutputVoxel);
+
+            this->OutputFunction(VoxelIndex, tempOutputVoxel);
+        }
+    }
+    else if (m_InputRegion == nullptr && m_InputVoxelSet != nullptr)
+    {
+        for (uint64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+        {
+            m_InputImage->Get3DIndexByLinearIndex((*m_InputVoxelSet)[VoxelIndex], &FilterCenter[0], &FilterCenter[1], &FilterCenter[2]);
+
+            InputFilterFunction(FilterCenter[0], FilterCenter[1], FilterCenter[2], *m_InputImage, tempOutputVoxel);
+
+            this->OutputFunction(VoxelIndex, tempOutputVoxel);
+        }
+    }
+    else
+    {
+        mdkError << "Invalid Input @ mdk3DImageFilter::Run_in_a_Thread" << '\n';
+    }
 }
 
 }//end namespace mdk

@@ -11,6 +11,13 @@ using namespace mdk;
 
 int main(int argc, char** argv)
 {
+    double a[2];
+
+    //
+    // attention !
+    // this code can run!
+    a[1, 1] = 1;
+
 	//test();
 
 	//Test_FilterFunction();

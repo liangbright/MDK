@@ -16,11 +16,19 @@ namespace mdk
 template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output = 1>
 class mdk3DImageConvolutionFilter : public mdk3DImageFilter<VoxelType_Input, VoxelType_Output>, public mdk3DImageConvolutionFilterBase
 {
+private:
+    mdkMatrix<VoxelType_Input>* m_OutputVoxelMatrix;
+
 public:		
 	mdk3DImageConvolutionFilter();
 	~mdk3DImageConvolutionFilter();
   
+    void SetOutputVoxelMatrix(const mdkMatrix<uint64>* VoxelMatrix);
+
 	inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& OutputVoxel);
+
+    inline void OutputFunction(uint64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
+
 
 private:
 	mdk3DImageConvolutionFilter(const mdk3DImageConvolutionFilter&); // Not implemented.

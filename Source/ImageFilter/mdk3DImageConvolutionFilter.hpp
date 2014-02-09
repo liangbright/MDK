@@ -26,6 +26,16 @@ template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxel
 inline
 void
 mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
+SetOutputVoxelMatrix(const mdkMatrix<uint64>* VoxelMatrix)
+{
+    m_OutputVoxelMatrix = VoxelMatrix;
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
+inline
+void
+mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
 FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& OutputVoxel)
 {
 	auto x = double(xIndex);
@@ -85,6 +95,19 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& Ou
 }
 
 
+template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
+inline
+void
+mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
+OutputFunction(uint64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel)
+{
+    for (uint64 i = 0; i < VectorVoxelLength_Output; ++i)
+    {
+        (*m_OutputVoxelMatrix)(i, OutputVoxelIndex) = OutputVoxel[i];
+    }
+}
+
+
 template<typename VoxelType_Input, typename VoxelType_Output>
 mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::mdk3DImageConvolutionFilter()
 {
@@ -134,7 +157,7 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& Ou
 
 	auto RawPointer = m_MaskList[0].GetElementDataRawPointer();
 
-	auto tempVoxel = m_InputZeroVoxel;
+	auto tempVoxel = m_OutputZeroVoxel;
 	
 	if (m_IsBoundCheckEnabled == true) // time_check = 2 * time_no_check
 	{
@@ -184,7 +207,6 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& Ou
 
 	OutputVoxel = tempVoxel;
 }
-
 
 
 }//end namespace mdk

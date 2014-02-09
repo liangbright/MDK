@@ -101,7 +101,8 @@ bool mdk3DImage<VoxelType>::Initialize(uint64 Lx, uint64 Ly, uint64 Lz = 1,
 template<typename VoxelType>
 void mdk3DImage<VoxelType>::Clear()
 {
-	m_VoxelData.reset(new std::vector<VoxelType>);
+    //m_VoxelData.reset(new std::vector<VoxelType>);
+    m_VoxelData = std::make_shared<std::vector<VoxelType>>();
 
 	m_ImageSize[0] = 0;
 	m_ImageSize[1] = 0;
@@ -316,7 +317,7 @@ template<typename VoxelType>
 inline
 VoxelType* mdk3DImage<VoxelType>::GetVoxelDataRawPointer()
 {
-	return m_VoxelData->data();
+    return m_VoxelData->data();
 }
 
 
@@ -324,7 +325,7 @@ template<typename VoxelType>
 inline
 const VoxelType* mdk3DImage<VoxelType>::GetVoxelDataRawPointer() const
 {
-	return m_VoxelData->data();
+    return m_VoxelData->data();
 }
 
 
@@ -465,6 +466,43 @@ void mdk3DImage<VoxelType>::Get3DIndexByLinearIndex(uint64 LinearIndex, uint64* 
 	yIndex[0] = divresult.quot;
 
 	xIndex[0] = divresult.rem;
+}
+
+
+template<typename VoxelType>
+inline
+VoxelType& mdk3DImage<VoxelType>::operator[](uint64 LinearIndex)
+{
+#if defined(MDK_3DImage_Operator_CheckBound)
+
+    if (LinearIndex >= m_VoxelNumber)
+    {
+        mdkError << "LinearIndex >= m_VoxelNumber @ mkd3DImage::operator(LinearIndex)" << '\n';
+        m_EmptyVoxel_temp = m_EmptyVoxel;
+        return m_EmptyVoxel_temp;
+    }
+
+#endif
+
+    return m_VoxelData->operator[](LinearIndex);
+}
+
+
+template<typename VoxelType>
+inline
+const VoxelType& mdk3DImage<VoxelType>::operator[](uint64 LinearIndex) const
+{
+#if defined(MDK_3DImage_Operator_CheckBound)
+
+    if (LinearIndex >= m_VoxelNumber)
+    {
+        mdkError << "LinearIndex >= m_VoxelNumber @ mkd3DImage::operator(LinearIndex)" << '\n';
+        return m_EmptyVoxel;
+    }
+
+#endif
+
+    return m_VoxelData->operator[](LinearIndex);
 }
 
 
