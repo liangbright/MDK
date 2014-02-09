@@ -12,25 +12,7 @@ namespace mdk
 template<typename VoxelType_Input, typename VoxelType_Output>
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::mdk3DImageFilter()
 {
-	m_InputImage = nullptr;
-
-	m_InputRegion = nullptr;
-
-	m_InputVoxelSet = nullptr;
-
-	m_OutputImage = nullptr;
-
-	m_OutputArray = nullptr;
-
-	m_MaxThreadNumber = 1;
-
-	m_IsBoundCheckEnabled = true;
-
-	m_IsInputZeroVoxelObtained = false;
-
-	m_IsOutputZeroVoxelObtained = false;
-
-	m_IsInputFilterFunctionObtained = false;
+    this->Clear();
 }
 
 
@@ -38,6 +20,31 @@ template<typename VoxelType_Input, typename VoxelType_Output>
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::~mdk3DImageFilter()
 {
 	// do nothing
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
+void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Clear()
+{
+    m_InputImage = nullptr;
+
+    m_InputRegion = nullptr;
+
+    m_InputVoxelSet = nullptr;
+
+    m_OutputImage = nullptr;
+
+    m_OutputArray = nullptr;
+
+    m_MaxThreadNumber = 1;
+
+    m_IsBoundCheckEnabled = true;
+
+    m_IsInputFilterFunctionObtained = false;
+
+    m_InputZeroVoxel -= m_InputZeroVoxel;
+
+    m_OutputZeroVoxel -= m_OutputZeroVoxel;
 }
 
 
@@ -53,7 +60,7 @@ EnableBoundCheck(bool On_Off)
 template<typename VoxelType_Input, typename VoxelType_Output>
 void 
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInputImage(mdk3DImage<VoxelType_Input>* InputImage)
+SetInputImage(const mdk3DImage<VoxelType_Input>* InputImage)
 {
 	m_InputImage = InputImage;
 }
@@ -62,18 +69,16 @@ SetInputImage(mdk3DImage<VoxelType_Input>* InputImage)
 template<typename VoxelType_Input, typename VoxelType_Output>
 void
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInputZeroVoxel(VoxelType_Input InputZeroVoxel)
+SetInputRegion(const mdkMatrix<uint64>* InputRegion)
 {
-	m_InputZeroVoxel = InputZeroVoxel;
-
-	m_IsInputZeroVoxelObtained = true;
+    m_IInputRegion = InputRegion;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
 void
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInputVoxelSet(std::vector<uint64>* InputVoxelSet)
+SetInputVoxelSet(const mdkMatrix<uint64>* InputVoxelSet)
 {
 	m_InputVoxelSet = InputVoxelSet;
 }
@@ -100,17 +105,6 @@ SetOutputImage(mdk3DImage<VoxelType_Output>* OutputImage)
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void
-mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-SetOutputZeroVoxel(VoxelType_Output OutputZeroVoxel)
-{
-	m_OutputZeroVoxel = OutputZeroVoxel;
-
-	m_IsOutputZeroVoxelObtained = true;
-}
-
-
-template<typename VoxelType_Input, typename VoxelType_Output>
 void 
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
 SetOutputArray(std::vector<VoxelType_Output>* OutputArray)
@@ -122,7 +116,7 @@ SetOutputArray(std::vector<VoxelType_Output>* OutputArray)
 template<typename VoxelType_Input, typename VoxelType_Output>
 void 
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-SetMaxThreadNumber(uint32 MaxNumber)
+SetMaxThreadNumber(uint64 MaxNumber)
 {
 	m_MaxThreadNumber = MaxNumber;
 }
@@ -140,27 +134,14 @@ bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInputData(bool& F
 {
 	if (m_InputImage == nullptr)
 	{
-		mdkError << "Invalid input @ mdk3DImageFilter::Run" << '\n';
+		mdkError << "Invalid input @ mdk3DImageFilter::CheckInputData" << '\n';
 		return false;
 	}
 
 
 	if (m_InputImage->IsEmpty() == true)
 	{
-		mdkError << "Empty input image @ mdk3DImageFilter::Run" << '\n';
-		return false;
-	}
-
-	if (m_IsInputZeroVoxelObtained == false)
-	{
-		mdkWarning << "zero-voxel of input image is not obtained @ mdk3DImageFilter::Run" << '\n';
-		return false;
-	}
-
-
-	if (m_IsOutputZeroVoxelObtained == false)
-	{
-		mdkWarning << "zero-voxel of output image is not obtained @ mdk3DImageFilter::Run" << '\n';
+		mdkError << "Empty input image @ mdk3DImageFilter::CheckInputData" << '\n';
 		return false;
 	}
 
@@ -170,7 +151,7 @@ bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInputData(bool& F
 
 	Flag_OutputImageInSameSize = false;
 
-	if (m_OutputImage != nullptr && m_OutputArray == nullptr)
+    if (m_OutputImage != nullptr && m_OutputArray == nullptr)
 	{
 		Flag_OutputArray = false;
 
@@ -198,11 +179,11 @@ bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInputData(bool& F
 
 		}
 	}
-	else if (m_OutputImage == nullptr && m_OutputArray != nullptr)
+    else if (m_OutputImage == nullptr && m_OutputArray != nullptr)
 	{
 		Flag_OutputArray = true;
 
-		TotalInputVoxelNumber = m_InputVoxelSet->size();
+        TotalInputVoxelNumber = m_InputVoxelSet->GetElementNumber();
 	}
 	else
 	{
@@ -227,9 +208,9 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
 	}
 
 	//-------------------------------------------------------------------------------
-	bool Flag_OutputArray = false;
+	auto Flag_OutputArray = false;
 
-	bool Flag_OutputImageInSameSize = false;
+	auto Flag_OutputImageInSameSize = false;
 
 	uint64 VoxelNumber = 0;
 
@@ -255,16 +236,15 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
 		// create and start the threads
 		std::vector<std::thread> FilterThread(ThreadNumber);
 
-		for (int i = 0; i < ThreadNumber; ++i)
+        for (uint64 i = 0; i < ThreadNumber; ++i)
 		{
-			//FilterThread.at(i) = std::thread(&mdk3DImageFilter::Run_in_a_Thread, this, IndexList_start[i], IndexList_end[i], Flag_OutputArray, Flag_OutputImageInSameSize);
-			FilterThread.at(i) = std::thread([&]{this->Run_in_a_Thread(IndexList_start[i], IndexList_end[i], Flag_OutputArray, Flag_OutputImageInSameSize); });
+			FilterThread[i] = std::thread([&]{this->Run_in_a_Thread(IndexList_start[i], IndexList_end[i], Flag_OutputArray, Flag_OutputImageInSameSize); });
 		}
 
 		//wait for all the threads
-		for (int i = 0; i < ThreadNumber; ++i)
+        for (uint64 i = 0; i < ThreadNumber; ++i)
 		{
-			FilterThread.at(i).join();
+			FilterThread[i].join();
 		}
 	}
 	else//single-thread
@@ -449,13 +429,13 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run(FilterFunctionType
 
 		for (int i = 0; i < ThreadNumber; ++i)
 		{
-			FilterThread.at(i) = std::thread([&]{this->Run_in_a_Thread(IndexList_start[i], IndexList_end[i], Flag_OutputArray, Flag_OutputImageInSameSize, InputFilterFunction); });
+			FilterThread[i] = std::thread([&]{this->Run_in_a_Thread(IndexList_start[i], IndexList_end[i], Flag_OutputArray, Flag_OutputImageInSameSize, InputFilterFunction); });
 		}
 
 		//wait for all the threads
 		for (int i = 0; i < ThreadNumber; ++i)
 		{
-			FilterThread.at(i).join();
+			FilterThread[i].join();
 		}
 	}
 	else//single-thread

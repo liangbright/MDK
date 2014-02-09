@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "mdkObject.h"
+#include "mdkMatrix.h"
 
 namespace mdk
 {
@@ -35,6 +36,23 @@ struct mdk3DImageSize
 	uint64 Ly;
 	uint64 Lz;
 };
+
+
+struct mdk3DImagePhysicalOrigin
+{
+    double x;
+    double y;
+    double z;
+};
+
+
+struct mdk3DImageVoxelPhysicalSize
+{
+    double Vx;
+    double Vy;
+    double Vz;
+};
+
 
 template<typename VoxelType>
 class mdk3DImage : public mdkObject
@@ -86,6 +104,10 @@ public:
 
 	void Copy(const VoxelType* VoxelPointer, uint64 Lx, uint64 Ly, uint64 Lz = 1);
 
+    void Swap(mdk3DImage<VoxelType>& targetImage);
+
+    bool Reshape(uint64 Lx, uint64 Ly, uint64 Lz = 1);
+
 	void SetPhysicalOrigin(double PhysicalOrigin_x, double PhysicalOrigin_y, double PhysicalOrigin_z = 0.0);
 
 	void SetVoxelPhysicalSize(double VoxelPhysicalSize_x, double VoxelPhysicalSize_y, double VoxelPhysicalSize_z = 1.0);
@@ -107,7 +129,11 @@ public:
 	template<typename ScalarType>
 	inline void GetImageSize(ScalarType* Lx, ScalarType* Ly, ScalarType* Lz = nullptr) const;
 
+    inline mdk3DImageVoxelPhysicalSize GetVoxelPhysicalSize() const;
+
 	inline void GetVoxelPhysicalSize(double* VoxelPhysicalSize_x, double* VoxelPhysicalSize_y, double* VoxelPhysicalSize_z = nullptr) const;
+
+    inline mdk3DImagePhysicalOrigin GetPhysicalOrigin() const;
 
 	inline void GetPhysicalOrigin(double* PhysicalOrigin_x, double* PhysicalOrigin_y, double* PhysicalOrigin_z = nullptr) const;
 
@@ -170,9 +196,9 @@ public:
 
 	//------------------------- Get LinearIndex In Region -------------------//
 
-	std::vector<uint64> GetLinearIndexArrayOfRegion(uint64 xIndex_s,     uint64 Region_Lx, 
-		                                            uint64 yIndex_s,     uint64 Region_Ly,
-													uint64 zIndex_s = 0, uint64 Region_Lz = 0);
+    mdkMatrix<uint64> GetLinearIndexArrayOfRegion(uint64 xIndex_s,     uint64 Region_Lx,
+		                                          uint64 yIndex_s,     uint64 Region_Ly,
+						  					      uint64 zIndex_s = 0, uint64 Region_Lz = 0);
 
 };
 

@@ -4,6 +4,7 @@
 #include <cstdlib>
 
 #include "mdk3DImage.h"
+#include "mdk3DImageVoxel.h"
 
 namespace mdk
 {
@@ -118,6 +119,10 @@ void mdk3DImage<VoxelType>::Clear()
 
 	m_VoxelNumberPerZSlice = 0;
 
+    m_EmptyVoxel -= m_EmptyVoxel;
+
+    m_EmptyVoxel_temp = m_EmptyVoxel;
+
 	m_IsTemporaryImage = false;
 }
 
@@ -141,7 +146,7 @@ void mdk3DImage<VoxelType>::Copy(const mdk3DImage<VoxelType>& targetImage)
 	if (targetImage.IsEmpty() == true)
 	{
 		mdkWarning << "targetImage is empty @ mdk3DImage::Copy" << '\n';
-		this->Clear();
+        this->Clear();
 		return;
 	}
 
@@ -183,6 +188,63 @@ void mdk3DImage<VoxelType>::Copy(const VoxelType* VoxelPointer, uint64 Lx, uint6
 	{
 		RawPtr[i] = VoxelPointer[i];
 	}
+}
+
+
+template<typename VoxelType>
+void mdk3DImage<VoxelType>::Swap(mdk3DImage<VoxelType>& targetImage)
+{
+    auto ImageSize = this->GetImageSize();
+
+    auto PhysicalOrigin = this->GetPhysicalOrigin();
+
+    auto VoxelPhysicalSize = this->GetVoxelPhysicalSize();
+
+    auto targetImageSize = targetImage->GetImageSize();
+
+    auto targetPhysicalOrigin = targetImage->GetPhysicalOrigin();
+
+    auto targetVoxelPhysicalSize = targetImage->GetVoxelPhysicalSize();
+
+    //
+
+    m_VoxelData.swap(targetImage.GetVoxelDataSharedPointer());
+
+    //
+
+    this->Reshape(targetImageSize.Lx, targetImageSize.Ly, targetImageSize.Lz);
+
+    this->SetPhysicalOrigin(targetPhysicalOrigin.x, targetPhysicalOrigin.y, targetPhysicalOrigin.z);
+
+    this->SetVoxelPhysicalSize(targetVoxelPhysicalSize.Vx, targetVoxelPhysicalSize.Vy, targetVoxelPhysicalSize.Vz);
+
+    //
+
+    targetImage->Reshape(ImageSize.Lx, ImageSize.Ly, ImageSize.Lz);
+
+    targetImage->SetPhysicalOrigin(PhysicalOrigin.x, PhysicalOrigin.y, PhysicalOrigin.z);
+
+    targetImage->SetVoxelPhysicalSize(VoxelPhysicalSize.Vx, VoxelPhysicalSize.Vy, VoxelPhysicalSize.Vz);
+}
+
+
+template<typename VoxelType>
+bool mdk3DImage<VoxelType>::Reshape(uint64 Lx, uint64 Ly, uint64 Lz = 1)
+{
+    if (Lx*Ly*Lz != uint64(m_VoxelData->size()))
+    {
+        return false;
+    }
+
+    m_ImageSize[0] = Lx;
+    m_ImageSize[1] = Ly;
+    m_ImageSize[2] = Lz;
+
+    m_VoxelNumber = Lx*Ly*Lz;
+
+    m_VoxelNumberPerZSlice = Lx*Ly;
+
+    return true;
 }
 
 
@@ -325,6 +387,20 @@ void mdk3DImage<VoxelType>::GetImageSize(ScalarType* Lx, ScalarType* Ly, ScalarT
 
 template<typename VoxelType>
 inline
+mdk3DImageVoxelPhysicalSize mdk3DImage<VoxelType>::GetVoxelPhysicalSize() const
+{
+    mdk3DImageVoxelPhysicalSize Size;
+
+    Size.Vx = m_VoxelPhysicalSize[0];
+    Size.Vy = m_VoxelPhysicalSize[1];
+    Size.Vz = m_VoxelPhysicalSize[2];
+
+    return Size;
+}
+
+
+template<typename VoxelType>
+inline
 void mdk3DImage<VoxelType>::GetVoxelPhysicalSize(double* VoxelPhysicalSize_x, double* VoxelPhysicalSize_y, double* VoxelPhysicalSize_z = nullptr) const
 {
 	VoxelPhysicalSize_x[0] = m_VoxelPhysicalSize[0];
@@ -334,6 +410,20 @@ void mdk3DImage<VoxelType>::GetVoxelPhysicalSize(double* VoxelPhysicalSize_x, do
 	{
 		VoxelPhysicalSize_z[0] = m_VoxelPhysicalSize[2];
 	}
+}
+
+
+template<typename VoxelType>
+inline
+mdk3DImagePhysicalOrigin mdk3DImage<VoxelType>::GetPhysicalOrigin() const
+{
+    mdk3DImagePhysicalOrigin Origin;
+
+    Origin.x = m_PhysicalOrigin[0];
+    Origin.y = m_PhysicalOrigin[1];
+    Origin.z = m_PhysicalOrigin[2];
+
+    return Origin;
 }
 
 
@@ -728,13 +818,15 @@ UnPad(uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0)
 
 
 template<typename VoxelType>
-std::vector<uint64> 
+mdkMatrix<uint64>
 mdk3DImage<VoxelType>::
 GetLinearIndexArrayOfRegion(uint64 xIndex_s,     uint64 Region_Lx,
                             uint64 yIndex_s,     uint64 Region_Ly,
                             uint64 zIndex_s = 0, uint64 Region_Lz = 0)
 {
-	std::vector<uint64>  List;
+    mdkMatrix<uint64>  List;
+
+    List.SetTobeTemporaryMatrix();
 
 	if (xIndex_s >= m_ImageSize[0] || yIndex_s >= m_ImageSize[1] || zIndex_s >= m_ImageSize[2] 
 		|| Region_Lx > m_ImageSize[0] - xIndex_s 
@@ -751,7 +843,7 @@ GetLinearIndexArrayOfRegion(uint64 xIndex_s,     uint64 Region_Lx,
 		return List;
 	}
 
-	List.resize(Region_Lx*Region_Ly*Region_Lz);
+    List.SetSize(Region_Lx*Region_Ly*Region_Lz, 1);
 
 	uint64 Counter = 0;
 

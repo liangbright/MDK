@@ -1,12 +1,12 @@
-#ifndef __mdk3DImageConvolutionFilter_h
+﻿#ifndef __mdk3DImageConvolutionFilter_h
 #define __mdk3DImageConvolutionFilter_h
 
 #include <vector>
 #include <array>
 
 #include "mdkObject.h"
-#include "mdk3DImage.h"
 #include "mdkMatrix.h"
+#include "mdk3DImage.h"
 #include "mdk3DImageFilter.h"
 
 
@@ -27,9 +27,9 @@ public:
   
 	bool CheckInput();
 
-	bool LoadMask(std::string FilePathAndName);
+	bool LoadMask(const std::string& FilePathAndName);
 
-	bool SaveMask(std::string FilePathAndName);
+	bool SaveMask(const std::string& FilePathAndName);
 
 	bool SetMask(const std::vector<mdkMatrix<double>>& MaskList);
 
@@ -57,9 +57,9 @@ public:
 
 	bool CheckInput();
 
-	bool LoadMask(std::string FilePathAndName);
+	bool LoadMask(const std::string& FilePathAndName);
 
-	bool SaveMask(std::string FilePathAndName);
+	bool SaveMask(const std::string& FilePathAndName);
 
 	bool SetMask(const std::vector<mdkMatrix<double>>& MaskList);
 
@@ -88,9 +88,9 @@ public:
 
 	bool CheckInput();
 
-	bool LoadMask(std::string FilePathAndName);
+	bool LoadMask(const std::string& FilePathAndName);
 
-	bool SaveMask(std::string FilePathAndName);
+	bool SaveMask(const std::string& FilePathAndName);
 
 	bool SetMask(const std::vector<mdkMatrix<double>>& MaskList);
 

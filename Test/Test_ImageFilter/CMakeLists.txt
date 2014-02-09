@@ -49,6 +49,9 @@ ${Common_DIR}/mdkMatrix.hpp
 ${Common_DIR}/mdk3DImage.h
 ${Common_DIR}/mdk3DImage.hpp
 
+${Common_DIR}/mdk3DImageVoxel.h
+${Common_DIR}/mdk3DImageVoxel.hpp
+
 ${ImageFilter_DIR}/mdk3DImageFilter.h
 ${ImageFilter_DIR}/mdk3DImageFilter.hpp
 )

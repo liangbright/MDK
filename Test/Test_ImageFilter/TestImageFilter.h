@@ -242,11 +242,7 @@ void Test_MultiThread()
 
 	imfilter.SetInputImage(&InputImage);
 
-	imfilter.SetInputZeroVoxel(0);
-
 	imfilter.SetOutputImage(&OutputImage);
-
-	imfilter.SetOutputZeroVoxel(0);
 
 	imfilter.SetMaxThreadNumber(1);
 
@@ -350,11 +346,7 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	imfilter.SetInputImage(&InputImage);
 
-	imfilter.SetInputZeroVoxel(0);
-
 	imfilter.SetOutputImage(&OutputImage);
-
-	imfilter.SetOutputZeroVoxel(0);
 
 	imfilter.SetMaxThreadNumber(1);
 
@@ -372,8 +364,6 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 	mdk3DImageConvolutionFilter<double, double>  imconvfilter;
 
 	imconvfilter.SetInputImage(&InputImage);
-
-	imconvfilter.SetInputZeroVoxel(0);
 
 	imconvfilter.SetOutputImage(&OutputImage);
 
@@ -440,13 +430,9 @@ void Test_ConvolutionFilter_ScalarOutput()
 
 	imfilter.SetInputImage(&InputImage);
 
-	imfilter.SetInputZeroVoxel(0.0);
-
 	imfilter.SetOutputImage(&OutputImage);
 
-	imfilter.SetOutputZeroVoxel(0.0);
-
-	imfilter.SetMaxThreadNumber(8);
+	imfilter.SetMaxThreadNumber(1);
 
 	imfilter.EnableBoundCheck(false);
 
@@ -530,8 +516,6 @@ void Test_ConvolutionFilter_VectorOutput()
 
 	InputImage.Initialize(Lx, Ly, Lz);
 
-	InputImage.SetEmptyVoxel(0.0);
-
 	InputImage.Fill(1.0);
 
 	mdk3DImage<std::array<double, 2>> OutputImage;
@@ -539,8 +523,6 @@ void Test_ConvolutionFilter_VectorOutput()
 	OutputImage.Initialize(Lx, Ly, Lz);
 
 	std::array<double, 2> OutputZeroVoxel = { 0, 0 };
-
-	OutputImage.SetEmptyVoxel(OutputZeroVoxel);
 
 	std::time_t t01 = std::time(0);
 
@@ -558,13 +540,9 @@ void Test_ConvolutionFilter_VectorOutput()
 	
 	imfilter.SetInputImage(&InputImage);
 
-	imfilter.SetInputZeroVoxel(0.0);
-
 	imfilter.SetOutputImage(&OutputImage);
 
-	imfilter.SetOutputZeroVoxel(OutputZeroVoxel);
-
-	imfilter.SetMaxThreadNumber(4);
+	imfilter.SetMaxThreadNumber(1);
 	
 	std::vector<mdkMatrix<double>> MaskList;
 	MaskList.resize(OuputVoxelDimension);

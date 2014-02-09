@@ -26,18 +26,6 @@ mdk3DImageConvolutionFilter<VoxelType, VoxelType, 1>::~mdk3DImageConvolutionFilt
 template<typename VoxelType>
 bool mdk3DImageConvolutionFilter<VoxelType, VoxelType, 1>::CheckInput()
 {
-	if (m_IsInputZeroVoxelObtained == false)
-	{
-		mdkError << "zero-voxel of input image is not obtained @ mdk3DImageConvolutionFilter::CheckInput" << '\n';
-		return false;
-	}
-
-	if (m_IsOutputZeroVoxelObtained == false)
-	{
-		mdkError << "zero-voxel of output image is not obtained @ mdk3DImageConvolutionFilter::CheckInput" << '\n';
-		return false;
-	}
-
 	return true;
 }
 
@@ -188,17 +176,6 @@ template<typename VoxelType, uint64 VectorVoxelLength_Output>
 bool mdk3DImageConvolutionFilter<VoxelType, std::array<VoxelType, VectorVoxelLength_Output>, VectorVoxelLength_Output>::
 CheckInput()
 {
-	if (m_IsInputZeroVoxelObtained == false)
-	{
-		mdkError << "zero-voxel of input image is not obtained @ mdk3DImageConvolutionFilter::CheckInput" << '\n';
-		return false;
-	}
-
-	if (m_IsOutputZeroVoxelObtained == false)
-	{
-		mdkError << "zero-voxel of output image is not obtained @ mdk3DImageConvolutionFilter::CheckInput" << '\n';
-		return false;
-	}
 
 	return true;
 }

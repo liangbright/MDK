@@ -1,14 +1,12 @@
 #ifndef __mdkType_h
 #define __mdkType_h
 
-//include "mdkOSPlatform.h"
+#include "mdkOSPlatformConfig.h"
 
 namespace mdk
 {
 
-//#define OS_Windows
-
-//#ifdef OS_Windows
+#if defined(OS_Windows_x64)
 
     typedef signed char int8;
 
@@ -26,25 +24,25 @@ namespace mdk
 
 	typedef unsigned long long uint64;
 
-//#endif
+#endif
 
-	typedef enum
-	{
-		MDK_DOUBLE64,
-		MDK_FLOAT32,
-		MDK_INT8,
-		MDK_INT16,
-		MDK_INT32,
-		MDK_INT64,
-		MDK_UINT8,
-		MDK_UINT16,
-		MDK_UINT32,
-		MDK_UINT64,
+typedef enum
+{
+	MDK_DOUBLE64,
+	MDK_FLOAT32,
+	MDK_INT8,
+	MDK_INT16,
+	MDK_INT32,
+	MDK_INT64,
+	MDK_UINT8,
+	MDK_UINT16,
+	MDK_UINT32,
+	MDK_UINT64,
 
-		MDK_UNKNOWN,
-	} mdkScalarTypeEnum;
+	MDK_UNKNOWN,
+} mdkScalarTypeEnum;
 
-	typedef mdkScalarTypeEnum mdkMatrixElementTypeEnum;
+typedef mdkScalarTypeEnum mdkMatrixElementTypeEnum;
 
 }//end namespace mdk
 

@@ -4,9 +4,9 @@
 #include <vector>
 #include <memory>
 #include <initializer_list>
-#include <functional>
 
 #include "mdkObject.h"
+#include "mdkDebug.h"
 
 namespace mdk
 {
@@ -87,6 +87,11 @@ template<typename ElementType>
 inline mdkMatrix<ElementType> operator/(mdkMatrix<ElementType>& Matrix, ElementType Element);
 //--------------------------------------------------------------------------------------------------//
 
+#define MDK_Matrix_ColExpansionStep  100
+
+#define MDK_Matrix_RowExpansionStep  100
+
+//--------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
 class mdkMatrix : public mdkObject
@@ -106,10 +111,6 @@ private:
 
 	mdkMatrixElementTypeEnum m_ElementType;
 
-	uint64 m_ColExpansionStep;
-
-	uint64 m_RowExpansionStep;
-
 	ElementType  m_EmptyElement; // may not be ZeroElement, but ZeroElement = m_EmptyElement - m_EmptyElement;
 
 	bool m_IsTemporaryMatrix;
@@ -128,11 +129,12 @@ public:
 
 	inline ~mdkMatrix();
 
+    //-----------------------------------------------------------------------------------//
+
+    inline void Clear();
+
 	inline void SetEmptyElement(ElementType EmptyElement);
-	//-----------------------------------------------------------------------------------//
-
-	inline void Clear();
-
+	
 	inline std::shared_ptr<std::vector<ElementType>> GetElementDataSharedPointer() const;
 
 	inline ElementType* GetElementDataRawPointer();
@@ -151,11 +153,13 @@ public:
 
 	inline void FixSize(bool Fix);
 
-	inline bool ReSize(uint64 RowNumber, uint64 ColNumber);
+	inline bool Reshape(uint64 RowNumber, uint64 ColNumber);
 
 	inline void GetSize(uint64* RowNumber, uint64* ColNumber) const;
 
 	inline mdkMatrixSize GetSize() const;
+
+    inline uint64 GetElementNumber() const;
 
 	inline uint64 GetColNumber() const;
 
@@ -173,6 +177,8 @@ public:
 	inline void operator=(ElementType Element);
 
 	inline void operator=(const std::initializer_list<ElementType>& list);
+
+    inline void operator=(const std::vector<ElementType>& ColVector);
 
 	template<typename ElementType_target>
 	inline bool Copy(const mdkMatrix<ElementType_target>& targetMatrix);

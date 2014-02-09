@@ -1,4 +1,4 @@
-#include "mdkObject.h"
+﻿#include "mdkObject.h"
 
 namespace mdk
 {

@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 
 #include "mdkType.h"
 #include "mdkMatrix.h"
@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 
 	//Test_FunctionTemplate_InputFilterFunction();
 
-	Test_ConvolutionFilter_ScalarOutput();
+	//Test_ConvolutionFilter_ScalarOutput();
 
-	//Test_ConvolutionFilter_VectorOutput();
+	Test_ConvolutionFilter_VectorOutput();
 }
