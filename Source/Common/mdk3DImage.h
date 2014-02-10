@@ -108,6 +108,8 @@ public:
 
     bool Reshape(uint64 Lx, uint64 Ly, uint64 Lz = 1);
 
+    bool SetImageSize(uint64 Lx, uint64 Ly, uint64 Lz = 1);
+
 	void SetPhysicalOrigin(double PhysicalOrigin_x, double PhysicalOrigin_y, double PhysicalOrigin_z = 0.0);
 
 	void SetVoxelPhysicalSize(double VoxelPhysicalSize_x, double VoxelPhysicalSize_y, double VoxelPhysicalSize_z = 1.0);
@@ -116,13 +118,17 @@ public:
 
 	inline void SetTobeTemporaryImage();
 
+    inline bool IsTemporaryImage() const;
+
 	inline std::vector<VoxelType>* GetVoxelDataArrayPointer();
 
 	inline VoxelType* GetVoxelDataRawPointer();
 
 	inline const VoxelType* GetVoxelDataRawPointer() const;
 
-	inline std::shared_ptr<std::vector<VoxelType>> GetVoxelDataSharedPointer();
+    inline std::shared_ptr<std::vector<VoxelType>>& GetVoxelDataSharedPointer();
+
+	inline const std::shared_ptr<std::vector<VoxelType>>& GetVoxelDataSharedPointer() const;
 
 	inline mdk3DImageSize GetImageSize() const;
 

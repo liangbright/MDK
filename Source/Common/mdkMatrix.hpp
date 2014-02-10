@@ -25,6 +25,8 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType>::mdkMatrix(const mdkMatrix<ElementType>& targetMatrix)
 {
+    this->Clear();
+
 	(*this) = targetMatrix;
 }
 
@@ -61,9 +63,7 @@ void mdkMatrix<ElementType>::operator=(const mdk::mdkMatrix<double>& targetMatri
 
 	if (targetMatrix.IsTemporaryMatrix() == true)
 	{
-		m_ElementData.reset();
-
-		m_ElementData.swap(targetMatrix.GetElementDataSharedPointer());
+		m_ElementData = targetMatrix.GetElementDataSharedPointer();
 
 		m_RowNumber = RowNumber_target;
 		m_ColNumber = ColNumber_target;
@@ -394,7 +394,23 @@ bool mdkMatrix<ElementType>::IsEmpty() const
 
 template<typename ElementType>
 inline
-std::shared_ptr<std::vector<ElementType>> mdkMatrix<ElementType>::GetElementDataSharedPointer() const
+std::vector<ElementType>* mdkMatrix<ElementType>::GetElementDataArrayPointer()
+{
+    return m_ElementData.get();
+}
+
+
+template<typename ElementType>
+inline
+std::shared_ptr<std::vector<ElementType>>& mdkMatrix<ElementType>::GetElementDataSharedPointer()
+{
+    return m_ElementData;
+}
+
+
+template<typename ElementType>
+inline
+const std::shared_ptr<std::vector<ElementType>>& mdkMatrix<ElementType>::GetElementDataSharedPointer() const
 {
 	return m_ElementData;
 }

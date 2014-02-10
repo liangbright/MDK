@@ -8,11 +8,19 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ K
 
 PROJECT(MDK_Test)
 
+set(VTK_DIR C:/Programs/VTK/VTK_6.1_VC2013_Build)
+find_package(VTK REQUIRED)
+include(${VTK_USE_FILE})
+
+find_package(Qt5Widgets)
+
 set(Debug_DIR "C:/Research/MDK/Code/Source/Debug")
 
 set(Common_DIR "C:/Research/MDK/Code/Source/Common")
 
 set(ImageFilter_DIR "C:/Research/MDK/Code/Source/ImageFilter")
+
+set(FileIO_DIR "C:/Research/MDK/Code/Source/FileIO")
 
 set(Arma_DIR "C:/Research/MDK/armadillo_4.000.2")
 
@@ -22,7 +30,7 @@ set(Lapack_Blas_DIR "C:/Research/MDK/LinearALgebraLib_win64")
 
 include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR} 
-${Common_DIR} ${Debug_DIR} ${ImageFilter_DIR} 
+${Common_DIR} ${Debug_DIR} ${ImageFilter_DIR} ${FileIO_DIR}
 ${Arma_DIR} ${Arma_Source_DIR} ${Lapack_Blas_DIR}
 )
 
@@ -60,6 +68,9 @@ ${ImageFilter_DIR}/mdk3DImageConvolutionFilterBase.cpp
 
 ${ImageFilter_DIR}/mdk3DImageConvolutionFilter.h
 ${ImageFilter_DIR}/mdk3DImageConvolutionFilter.hpp
+
+${FileIO_DIR}/mdkFileIO.h
+${FileIO_DIR}/mdkFileIO.cpp
 )
 
 set(LinearALgebraLib_win64 C:/Research/MDK/LinearALgebraLib_win64/lapack_win64_MT.lib  C:/Research/MDK/LinearALgebraLib_win64/blas_win64_MT.lib)
@@ -72,4 +83,4 @@ message(STATUS ${Arma_FILES})
 
 add_executable(MDK_Test ${Test_FILES} ${Source_FILES} ${Arma_FILES})
 
-target_link_libraries(MDK_Test ${LinearALgebraLib_win64}) 
+target_link_libraries(MDK_Test ${LinearALgebraLib_win64} ${VTK_LIBRARIES}) 

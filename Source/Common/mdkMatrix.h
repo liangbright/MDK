@@ -133,8 +133,12 @@ public:
     inline void Clear();
 
 	inline void SetEmptyElement(const ElementType& EmptyElement);
-	
-	inline std::shared_ptr<std::vector<ElementType>> GetElementDataSharedPointer() const;
+
+    inline std::vector<ElementType>* GetElementDataArrayPointer();
+
+    inline std::shared_ptr<std::vector<ElementType>>& GetElementDataSharedPointer();
+
+	inline const std::shared_ptr<std::vector<ElementType>>& GetElementDataSharedPointer() const;
 
 	inline ElementType* GetElementDataRawPointer();
 

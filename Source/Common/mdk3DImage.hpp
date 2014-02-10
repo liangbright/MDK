@@ -25,6 +25,8 @@ mdk3DImage<VoxelType>::~mdk3DImage()
 template<typename VoxelType>
 mdk3DImage<VoxelType>::mdk3DImage(const mdk3DImage<VoxelType>& targetImage)
 {
+    this->Clear();
+
 	(*this) = targetImage;
 }
 
@@ -38,11 +40,9 @@ void mdk3DImage<VoxelType>::operator=(const mdk3DImage<VoxelType>& targetImage)
 		return;
 	}
 
-	if (targetMatrix.IsTemporaryImage() == true)
+    if (targetImage.IsTemporaryImage() == true)
 	{
-		m_VoxelData.reset();
-
-		m_VoxelData.swap(targetImage.GetVoxelDataSharedPointer());
+        m_VoxelData = targetImage.GetVoxelDataSharedPointer();
 
 		targetImage.GetImageSize(&m_ImageSize[0], &m_ImageSize[1], &m_ImageSize[2]);
 
@@ -58,6 +58,22 @@ void mdk3DImage<VoxelType>::operator=(const mdk3DImage<VoxelType>& targetImage)
 	{
 		this->Copy(targetImage);
 	}
+}
+
+
+template<typename VoxelType>
+inline 
+void  mdk3DImage<VoxelType>::SetTobeTemporaryImage()
+{
+    m_IsTemporaryImage = true;
+}
+
+
+template<typename VoxelType>
+inline 
+bool mdk3DImage<VoxelType>::IsTemporaryImage() const
+{
+    return m_IsTemporaryImage;
 }
 
 
@@ -250,6 +266,29 @@ bool mdk3DImage<VoxelType>::Reshape(uint64 Lx, uint64 Ly, uint64 Lz = 1)
 
 
 template<typename VoxelType>
+bool mdk3DImage<VoxelType>::SetImageSize(uint64 Lx, uint64 Ly, uint64 Lz = 1)
+{
+    if (m_VoxelNumber > 0)
+    {
+        mdkError << "This is not an empty image, call Clear and then change size @ mdk3DImage::SetImageSize" << '\n';
+        return false;
+    }
+
+    m_ImageSize[0] = Lx;
+    m_ImageSize[1] = Ly;
+    m_ImageSize[2] = Lz;
+
+    m_VoxelNumber = Lx*Ly*Lz;
+
+    m_VoxelNumberPerZSlice = Ly*Lx;
+
+    m_VoxelData->resize(m_VoxelNumber);
+
+    return true;
+}
+
+
+template<typename VoxelType>
 void mdk3DImage<VoxelType>::SetPhysicalOrigin(double PhysicalOrigin_x, double PhysicalOrigin_y, double PhysicalOrigin_z = 0.0)
 {
 	m_PhysicalOrigin[0] = PhysicalOrigin_x;
@@ -331,7 +370,15 @@ const VoxelType* mdk3DImage<VoxelType>::GetVoxelDataRawPointer() const
 
 template<typename VoxelType>
 inline
-std::shared_ptr<std::vector<VoxelType>> mdk3DImage<VoxelType>::GetVoxelDataSharedPointer()
+std::shared_ptr<std::vector<VoxelType>>& mdk3DImage<VoxelType>::GetVoxelDataSharedPointer()
+{
+    return m_VoxelData;
+}
+
+
+template<typename VoxelType>
+inline
+const std::shared_ptr<std::vector<VoxelType>>& mdk3DImage<VoxelType>::GetVoxelDataSharedPointer() const
 {
 	return m_VoxelData;
 }
