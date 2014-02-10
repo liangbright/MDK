@@ -26,7 +26,7 @@ set(Arma_DIR "C:/Research/MDK/armadillo_4.000.2")
 
 set(Arma_Source_DIR "C:/Research/MDK/armadillo_4.000.2/armadillo_bits")
 
-set(Lapack_Blas_DIR "C:/Research/MDK/LinearALgebraLib_win64")
+set(Lapack_Blas_DIR "C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release")
 
 include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR} 
@@ -73,7 +73,7 @@ ${FileIO_DIR}/mdkFileIO.h
 ${FileIO_DIR}/mdkFileIO.cpp
 )
 
-set(LinearALgebraLib_win64 C:/Research/MDK/LinearALgebraLib_win64/lapack_win64_MT.lib  C:/Research/MDK/LinearALgebraLib_win64/blas_win64_MT.lib)
+set(LinearALgebraLib_win64 C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/lapack_win64_MT.lib  C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/blas_win64_MT.lib)
 
 message(STATUS ${Test_FILES})
 

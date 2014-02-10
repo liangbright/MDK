@@ -568,4 +568,56 @@ void Test_ConvolutionFilter_VectorOutput()
 }
 
 
+void test_Valve_Filter()
+{
+    std::string FilePath("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0");
+
+    auto InputImage = ReadGrayScale3DImageFromDICOMFile(FilePath);
+
+    std::string OutputFilePathAndName("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0_OutputImage");
+
+    auto InputSize = InputImage.GetImageSize();
+
+
+    mdk3DImage<double> OutputImage;
+
+    OutputImage.Initialize(InputSize.Lx, InputSize.Ly, InputSize.Lz);
+
+    OutputImage.Fill(0);
+
+    mdk3DImageConvolutionFilter<double, double>  imfilter;
+
+    imfilter.SetInputImage(&InputImage);
+
+    imfilter.SetOutputImage(&OutputImage);
+
+    imfilter.SetMaxThreadNumber(4);
+
+    imfilter.EnableBoundCheck(true);
+
+    mdkMatrix<double> Mask(4, 7);
+
+    Mask = { -1,  0,   0,    0,   1,   1,   1,
+             -1, -1,   0,    0,   0,   1,   1,
+             -1, -1,   -1,   0,   0,   0,   1,
+             0.1, 0.1, 0.1, -0.6, 0.1, 0.1, 0.1 };
+
+    imfilter.SetMask(Mask);
+
+    std::cout << "start: " << '\n';
+
+    std::time_t t0 = std::time(0);
+
+    imfilter.Run();
+
+    std::time_t t1 = std::time(0);
+
+    std::cout << "time " << t1 - t0 << '\n';
+
+
+    SaveGrayScale3DImageAsBinaryFile(OutputFilePathAndName, OutputImage);
+
+    std::system("pause");
+}
+
 #endif

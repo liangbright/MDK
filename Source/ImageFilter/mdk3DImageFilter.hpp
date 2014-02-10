@@ -181,7 +181,7 @@ bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInputData()
 	//---------------------------------
     m_Flag_OutputToOtherPlace = false;
 
-    if (m_OutputImage != nullptr && m_OutputArray != nullptr)
+    if (m_OutputImage != nullptr && m_OutputArray == nullptr)
     {
         m_Flag_OutputImage = true;
         m_Flag_OutputArray = false;
@@ -190,6 +190,11 @@ bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInputData()
     {
         m_Flag_OutputImage = false;
         m_Flag_OutputArray = true;
+    }
+    else if (m_OutputImage != nullptr && m_OutputArray != nullptr)
+    {
+        mdkError << "Can not output image and array at the same time @ mdk3DImageFilter::CheckInputData" << '\n';
+        return false;
     }
     else
     {

@@ -54,13 +54,13 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& Ou
 	{
 		for (uint64 i = 0; i < VectorVoxelLength; ++i)
 		{
-			auto tempVoxelNumber = m_MaskList[i].GetColNumber();
+            auto tempElementNumber = m_MaskList[i].GetElementNumber();
 
 			auto RawPointer = m_MaskList[i].GetElementDataRawPointer();
 
 			auto tempVoxel = m_InputZeroVoxel;
 
-			for (auto Ptr = RawPointer; Ptr < RawPointer + tempVoxelNumber; Ptr += 4)
+            for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
 			{
 				auto temp_x = std::min(std::max(Ptr[0] + x, 0.0), Lx - 1);
 
@@ -78,13 +78,13 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& Ou
 	{
 		for (uint64 i = 0; i < VectorVoxelLength; ++i)
 		{
-			auto tempVoxelNumber = m_MaskList[i].GetColNumber();
+            auto tempElementNumber = m_MaskList[i].GetElementNumber();
 
 			auto RawPointer = m_MaskList[i].GetElementDataRawPointer();
 
 			auto tempVoxel = m_InputZeroVoxel;
 
-			for (auto Ptr = RawPointer; Ptr < RawPointer + tempVoxelNumber; Ptr += 4)
+            for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
 			{
 				tempVoxel += (*m_InputImage)(uint64(x + Ptr[0]), uint64(y + Ptr[1]), uint64(z + Ptr[2])) * Ptr[3];
 			}
@@ -153,7 +153,7 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& Ou
 
 	m_InputImage->GetImageSize(&Lx, &Ly, &Lz);
 
-	auto tempVoxelNumber = m_MaskList[0].GetColNumber();
+    auto tempElementNumber = m_MaskList[0].GetElementNumber();
 
 	auto RawPointer = m_MaskList[0].GetElementDataRawPointer();
 
@@ -161,7 +161,7 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& Ou
 	
 	if (m_IsBoundCheckEnabled == true) // time_check = 2 * time_no_check
 	{
-		for (auto Ptr = RawPointer; Ptr < RawPointer + tempVoxelNumber; Ptr += 4)
+        for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
 		{
 			auto temp_x = std::min(std::max(Ptr[0] + x, 0.0), Lx - 1);
 
@@ -174,7 +174,7 @@ FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& Ou
 	}
 	else
 	{
-		for (auto Ptr = RawPointer; Ptr < RawPointer + tempVoxelNumber; Ptr += 4)
+        for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
 		{
 			tempVoxel += (*m_InputImage)(uint64(x + Ptr[0]), uint64(y + Ptr[1]), uint64(z + Ptr[2])) * Ptr[3];
 		}
