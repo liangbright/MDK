@@ -92,15 +92,17 @@ public:
 
 	void EnableBoundCheck(bool On_Off);
 
-	bool virtual CheckInput();
+    virtual bool Preprocess();
+
+    virtual bool Postprocess();
 
     inline virtual void FilterFunction(uint64 xIndex_center, uint64 yIndex_center, uint64 zIndex_center, VoxelType_Output& OutputVoxel);
 
     inline virtual void OutputFunction(uint64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
 
-    void Run();
+    bool Run();
 	
-    void Apply(const mdk3DImage<VoxelType_Input>* InputImage,
+    bool Apply(const mdk3DImage<VoxelType_Input>* InputImage,
                const mdkMatrix<uint64>*  m_InputRegion,
                const mdkMatrix<uint64>* m_InputVoxelSet,
                mdk3DImage<VoxelType_Output>* OutputImage,
@@ -108,10 +110,10 @@ public:
                uint32 MaxThreadNumber);
 
 	template<typename FilterFunctionType>
-	void Run(FilterFunctionType InputFilterFunction);
+	bool Run(FilterFunctionType InputFilterFunction);
 
 	template<typename FilterFunctionType>
-    void Apply(const mdk3DImage<VoxelType_Input>* InputImage,
+    bool Apply(const mdk3DImage<VoxelType_Input>* InputImage,
                const mdkMatrix<uint64>*  m_InputRegion,
                const mdkMatrix<uint64>* m_InputVoxelSet,
                mdk3DImage<VoxelType_Output>* OutputImage,

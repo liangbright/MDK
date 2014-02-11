@@ -343,27 +343,27 @@ public:
 
 	inline ElementType Mean();
 
-	inline mdkMatrix MeanAlongRow();
+	inline mdkMatrix MeanToRow();
 
-	inline mdkMatrix MeanAlongCol();
+    inline mdkMatrix MeanToCol();
 
 	inline ElementType Sum();
 
-	inline mdkMatrix SumAlongRow();
+    inline mdkMatrix SumToRow();
 
-	inline mdkMatrix SumAlongCol();
+    inline mdkMatrix SumToCol();
 
 	inline ElementType Max();
 
-	inline mdkMatrix MaxAlongRow();
+    inline mdkMatrix MaxToRow();
 
-	inline mdkMatrix MaxAlongCol();
+    inline mdkMatrix MaxToCol();
 
 	inline ElementType Min();
 
-	inline mdkMatrix MinAlongRow();
+    inline mdkMatrix MinToRow();
 
-	inline mdkMatrix MinAlongCol();
+    inline mdkMatrix MinToCol();
 
 	//----------------------------------- transpose -----------------------------------------//
 

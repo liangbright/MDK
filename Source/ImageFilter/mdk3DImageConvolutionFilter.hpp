@@ -33,25 +33,60 @@ SetOutputVoxelMatrix(const mdkMatrix<uint64>* VoxelMatrix)
 
 
 template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
+bool mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::Preprocess()
+{
+    uint64 ImageSize[3];
+
+    m_InputImage->GetImageSize(&ImageSize[0], &ImageSize[1], &ImageSize[2]);
+
+    this->ComputeRegionOfNOBoundCheck(ImageSize);
+
+    return true;
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
 inline
 void
 mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
 FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& OutputVoxel)
 {
-	auto x = double(xIndex);
-	auto y = double(yIndex);
-	auto z = double(zIndex);
+    //-----------------------------------------
 
-	double Lx = 0;
-	double Ly = 0;
-	double Lz = 0;
+    bool EnableBoundCheckForThisPosition = false;
 
-	m_InputImage->GetImageSize(&Lx, &Ly, &Lz);
+    if (m_IsBoundCheckEnabled == true)
+    {
+        if (m_RegionOfNOBoundCheck.IsEmpty == true)
+        {
+            EnableBoundCheckForThisPosition = true;
+        }
+        else
+        {
+            if (xIndex < m_RegionOfNOBoundCheck.x0 || xIndex > m_RegionOfNOBoundCheck.x1
+                || yIndex < m_RegionOfNOBoundCheck.y0 || yIndex > m_RegionOfNOBoundCheck.y1
+                || zIndex < m_RegionOfNOBoundCheck.z0 || zIndex > m_RegionOfNOBoundCheck.z1)
+            {
+                EnableBoundCheckForThisPosition = true;
+            }
+        }
+    }
+    //-----------------------------------------
 
-	uint64 VectorVoxelLength = m_MaskList.size();
+    auto x = double(xIndex);
+    auto y = double(yIndex);
+    auto z = double(zIndex);
 
-	if (m_IsBoundCheckEnabled == true)
+    uint64 VectorVoxelLength = m_MaskList.size();
+
+    if (EnableBoundCheckForThisPosition == true)
 	{
+        double Lx = 0;
+        double Ly = 0;
+        double Lz = 0;
+
+        m_InputImage->GetImageSize(&Lx, &Ly, &Lz);
+
 		for (uint64 i = 0; i < VectorVoxelLength; ++i)
 		{
             auto tempElementNumber = m_MaskList[i].GetElementNumber();
@@ -121,46 +156,75 @@ mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::~mdk3DImageCo
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
+bool mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::Preprocess()
+{
+    uint64 ImageSize[3];
+
+    m_InputImage->GetImageSize(&ImageSize[0], &ImageSize[1], &ImageSize[2]);
+
+    this->ComputeRegionOfNOBoundCheck(ImageSize);
+
+    return true;
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
 inline
 void
 mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::
 FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& OutputVoxel)
 {
 	//OutputVoxel = 0;
-
 	//return;
-
 	/*
 	OutputVoxel = 0;
-
 	double N = 1000;
-
 	for (double i = 0; i < N; ++i)
 	{
 		OutputVoxel += i * (*m_InputImage)(xIndex, yIndex, zIndex);
 	}
-
 	return;
 	*/
+	
+    //-----------------------------------------
+    bool EnableBoundCheckForThisPosition = false;
+    
+    if (m_IsBoundCheckEnabled == true)
+    {
+        if (m_RegionOfNOBoundCheck.IsEmpty == true)
+        {
+            EnableBoundCheckForThisPosition = true;
+        }
+        else
+        {
+            if (xIndex < m_RegionOfNOBoundCheck.x0 || xIndex > m_RegionOfNOBoundCheck.x1
+                || yIndex < m_RegionOfNOBoundCheck.y0 || yIndex > m_RegionOfNOBoundCheck.y1
+                || zIndex < m_RegionOfNOBoundCheck.z0 || zIndex > m_RegionOfNOBoundCheck.z1)
+            {
+                EnableBoundCheckForThisPosition = true;
+            }
+        }
+    }
+    //-----------------------------------------
 
-	auto x = double(xIndex);
-	auto y = double(yIndex);
-	auto z = double(zIndex);
-
-	double Lx = 0;
-	double Ly = 0;
-	double Lz = 0;
-
-	m_InputImage->GetImageSize(&Lx, &Ly, &Lz);
+    auto x = double(xIndex);
+    auto y = double(yIndex);
+    auto z = double(zIndex);
 
     auto tempElementNumber = m_MaskList[0].GetElementNumber();
 
-	auto RawPointer = m_MaskList[0].GetElementDataRawPointer();
+    auto RawPointer = m_MaskList[0].GetElementDataRawPointer();
 
-	auto tempVoxel = m_OutputZeroVoxel;
-	
-	if (m_IsBoundCheckEnabled == true) // time_check = 2 * time_no_check
-	{
+    auto tempVoxel = m_OutputZeroVoxel;
+
+    if (EnableBoundCheckForThisPosition == true) // time_check = 2 * time_no_check
+    {
+        double Lx = 0;
+        double Ly = 0;
+        double Lz = 0;
+
+        m_InputImage->GetImageSize(&Lx, &Ly, &Lz);
+
         for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
 		{
 			auto temp_x = std::min(std::max(Ptr[0] + x, 0.0), Lx - 1);

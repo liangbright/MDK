@@ -435,9 +435,9 @@ void Test_ConvolutionFilter_ScalarOutput()
 
 	imfilter.SetMaxThreadNumber(1);
 
-	imfilter.EnableBoundCheck(false);
+	//imfilter.EnableBoundCheck(false);
 
-	mdkMatrix<double> Mask(4, 1000*36*36/2);
+	mdkMatrix<double> Mask(4, 1000*3);
 
 	Mask.Fill(0);
 
@@ -593,11 +593,11 @@ void test_Valve_Filter()
 
     imfilter.SetMaxThreadNumber(4);
 
-    imfilter.EnableBoundCheck(true);
+    //imfilter.EnableBoundCheck(true);
 
     mdkMatrix<double> Mask(4, 7);
 
-    Mask = { -1,  0,   0,    0,   1,   1,   1,
+    Mask = { -100,  0,   0,    0,   1,   1,   10,
              -1, -1,   0,    0,   0,   1,   1,
              -1, -1,   -1,   0,   0,   0,   1,
              0.1, 0.1, 0.1, -0.6, 0.1, 0.1, 0.1 };

@@ -157,9 +157,16 @@ SetMaxThreadNumber(uint64 MaxNumber)
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
+bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Preprocess()
 {
 	return true;
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
+bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Postprocess()
+{
+    return true;
 }
 
 
@@ -237,21 +244,23 @@ bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInputData()
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
+bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
 {
-	auto IsGood = this->CheckInput();
+    //-------------------------------------------------------------------------------
+    auto IsOK = this->CheckInputData();
+
+    if (IsOK == false)
+    {
+        return false;
+    }
+
+    //-------------------------------------------------------------------------------
+
+    auto IsGood = this->Preprocess();
 
 	if (IsGood == false)
 	{
-		return;
-	}
-
-	//-------------------------------------------------------------------------------
-	auto IsOK = this->CheckInputData();
-
-	if (IsOK == false)
-	{
-		return;
+		return false;
 	}
 
 	// multi-thread -----------------------------------------------------------------
@@ -284,6 +293,10 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
 	{
         this->Run_in_a_Thread(0, m_TotalOutputVoxelNumber - 1);
 	}
+
+    //-------------------------------------------------------------------------------
+
+    return this->Postprocess();
 }
 
 
@@ -515,22 +528,22 @@ OutputFunction(uint64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel)
 
 template<typename VoxelType_Input, typename VoxelType_Output>
 template<typename FilterFunctionType>
-void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run(FilterFunctionType InputFilterFunction)
+bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run(FilterFunctionType InputFilterFunction)
 {
-	auto IsGood = this->CheckInput();
+    auto IsOK = this->CheckInputData();
+
+    if (IsOK == false)
+    {
+        return false;
+    }
+
+    //--------------------------------------------------------------------------------
+
+	auto IsGood = this->Preprocess();
 
 	if (IsGood == false)
 	{
-		return;
-	}
-
-	//--------------------------------------------------------------------------------
-
-	auto IsOK = this->CheckInputData();
-
-	if (IsOK == false)
-	{
-		return;
+		return false;
 	}
 
 	// multi-thread ----------------------------------------------------------------------
@@ -563,6 +576,10 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run(FilterFunctionType
 	{
         this->Run_in_a_Thread(0, m_TotalOutputVoxelNumber - 1, InputFilterFunction);
 	}
+
+    //-------------------------------------------------------------------------------
+
+    return this->Postprocess();
 }
 
 

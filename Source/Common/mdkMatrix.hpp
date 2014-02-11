@@ -2565,9 +2565,9 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(FunctionType Fun
 template<typename ElementType>
 inline ElementType mdkMatrix<ElementType>::Mean()
 {
-	if (m_RowNumber == 0 || m_ColNumber == 0)
+    if (m_ElementNumber == 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix Mean" << '\n';
+		mdkError << "self is empty Matrix @ mdkMatrix::Mean" << '\n';
 		return m_EmptyElement;
 	}
 
@@ -2587,7 +2587,7 @@ inline ElementType mdkMatrix<ElementType>::Mean()
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanAlongRow()
+inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanToRow()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
@@ -2595,7 +2595,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanAlongRow()
 
 	if (m_ElementNumber == 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix Mean" << '\n';
+		mdkError << "self is empty Matrix @ mdkMatrix::MeanToRow" << '\n';
 		return tempMatrix;
 	}
 
@@ -2605,7 +2605,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanAlongRow()
 
 	auto RawPointer = m_ElementData->data();
 
-	ElementType value = RawPointer[0] - RawPointer[0];
+    ElementType value;
 
 	uint64 Index = 0;
 
@@ -2629,7 +2629,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanAlongRow()
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanAlongCol()
+inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanToCol()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
@@ -2637,7 +2637,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanAlongCol()
 
 	if (m_ElementNumber == 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix Mean" << '\n';
+		mdkError << "self is empty Matrix @ mdkMatrix::MeanToCol" << '\n';
 		return tempMatrix;
 	}
 
@@ -2647,7 +2647,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanAlongCol()
 
 	auto RawPointer = m_ElementData->data();
 
-	ElementType value = RawPointer[0] - RawPointer[0];
+    ElementType value;
 
 	uint64 Index = 0;
 
@@ -2678,7 +2678,7 @@ inline ElementType mdkMatrix<ElementType>::Sum()
 {
 	if (m_ElementNumber == 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix Mean" << '\n';
+		mdkError << "self is empty Matrix @ mdkMatrix::Sum" << '\n';
 		return 0;
 	}
 
@@ -2696,7 +2696,7 @@ inline ElementType mdkMatrix<ElementType>::Sum()
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumAlongRow()
+inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumToRow()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
@@ -2704,7 +2704,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumAlongRow()
 
 	if (m_ElementNumber == 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix Mean" << '\n';
+		mdkError << "self is empty Matrix @ mdkMatrix::SumToRow" << '\n';
 		return tempMatrix;
 	}
 
@@ -2714,7 +2714,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumAlongRow()
 
 	auto RawPointer = m_ElementData->data();
 
-	ElementType value = RawPointer[0] - RawPointer[0];
+    ElementType value;
 
 	uint64 Index = 0;
 
@@ -2736,7 +2736,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumAlongRow()
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumAlongCol()
+inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumToCol()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
@@ -2744,7 +2744,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumAlongCol()
 
 	if (m_ElementNumber == 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix Mean" << '\n';
+		mdkError << "self is empty Matrix @ mdkMatrix::SumToCol" << '\n';
 		return tempMatrix;
 	}
 
@@ -2754,7 +2754,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumAlongCol()
 
 	auto RawPointer = m_ElementData->data();
 
-	ElementType value = RawPointer[0] - RawPointer[0];
+    ElementType value;
 
 	uint64 Index = 0;
 
@@ -2783,7 +2783,7 @@ inline ElementType mdkMatrix<ElementType>::Max()
 {
 	if (m_ElementNumber == 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix Mean" << '\n';
+		mdkError << "self is empty Matrix @ mdkMatrix::Max" << '\n';
 		return 0;
 	}
 
@@ -2801,7 +2801,7 @@ inline ElementType mdkMatrix<ElementType>::Max()
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxAlongRow()
+inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxToRow()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
@@ -2809,7 +2809,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxAlongRow()
 
 	if (m_ElementNumber == 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix Mean" << '\n';
+		mdkError << "self is empty Matrix @ mdkMatrix::MaxToRow" << '\n';
 		return tempMatrix;
 	}
 
@@ -2819,13 +2819,11 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxAlongRow()
 
 	auto RawPointer = m_ElementData->data();
 
-	ElementType value = RawPointer[0] - RawPointer[0];
-
 	uint64 Index = 0;
 
 	for (uint64 j = 0; j < m_ColNumber; ++j)
 	{
-		value = RawPointer[Index];
+		auto value = RawPointer[Index];
 
 		for (uint64 i = 0; i < m_RowNumber; ++i)
 		{
@@ -2841,7 +2839,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxAlongRow()
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxAlongCol()
+inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxToCol()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
@@ -2849,7 +2847,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxAlongCol()
 
 	if (m_ElementNumber == 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix Mean" << '\n';
+		mdkError << "self is empty Matrix @ mdkMatrix::MaxToCol" << '\n';
 		return tempMatrix;
 	}
 
@@ -2859,15 +2857,13 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxAlongCol()
 
 	auto RawPointer = m_ElementData->data();
 
-	ElementType value = RawPointer[0] - RawPointer[0];
-
 	uint64 Index = 0;
 
 	for (uint64 i = 0; i < m_RowNumber; ++i)
 	{
 		Index = 0;
 
-		value = RawPointer[Index + i];
+		auto value = RawPointer[Index + i];
 
 		for (uint64 j = 0; j < m_ColNumber; ++j)
 		{
@@ -2888,7 +2884,7 @@ inline ElementType mdkMatrix<ElementType>::Min()
 {
 	if (m_ElementNumber == 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix Mean" << '\n';
+		mdkError << "self is empty Matrix @ mdkMatrix::Min" << '\n';
 		return 0;
 	}
 
@@ -2906,7 +2902,7 @@ inline ElementType mdkMatrix<ElementType>::Min()
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinAlongRow()
+inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinToRow()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
@@ -2914,7 +2910,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinAlongRow()
 
 	if (m_ElementNumber == 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix Mean" << '\n';
+		mdkError << "self is empty Matrix @ mdkMatrix::MinToRow" << '\n';
 		return tempMatrix;
 	}
 
@@ -2924,13 +2920,11 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinAlongRow()
 
 	auto RawPointer = m_ElementData->data();
 
-	ElementType value = RawPointer[0] - RawPointer[0];
-
 	uint64 Index = 0;
 
 	for (uint64 j = 0; j < m_ColNumber; ++j)
 	{
-		value = RawPointer[Index];
+		auto value = RawPointer[Index];
 
 		for (uint64 i = 0; i < m_RowNumber; ++i)
 		{
@@ -2946,7 +2940,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinAlongRow()
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinAlongCol()
+inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinToCol()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
@@ -2954,7 +2948,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinAlongCol()
 
 	if (m_ElementNumber == 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix Mean" << '\n';
+		mdkError << "self is empty Matrix @ mdkMatrix::MinToCol" << '\n';
 		return tempMatrix;
 	}
 
@@ -2964,15 +2958,13 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinAlongCol()
 
 	auto RawPointer = m_ElementData->data();
 
-	ElementType value = RawPointer[0] - RawPointer[0];
-
 	uint64 Index = 0;
 
 	for (uint64 i = 0; i < m_RowNumber; ++i)
 	{
 		Index = 0;
 
-		value = RawPointer[Index+i];
+		auto value = RawPointer[Index+i];
 
 		for (uint64 j = 0; j < m_ColNumber; ++j)
 		{
@@ -2998,7 +2990,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetTranspose()
 
 	if (m_ElementNumber == 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix GetTranspose" << '\n';
+		mdkError << "self is empty Matrix @ mdkMatrix::GetTranspose" << '\n';
 		return tempMatrix;
 	}
 
@@ -3032,8 +3024,14 @@ template<typename ElementType>
 inline
 uint64 mdkMatrix<ElementType>::Rank()
 {
-	// call Armadillo 
+    if (m_ElementNumber == 0)
+    {
+        mdkError << "Self is empty matrix @ mdkMatrix::Rank" << '\n';
+        return 0;
+    }
 
+	// call Armadillo 
+    
     arma::Mat<ElementType> tempMat(m_ElementData->data(), arma::uword(m_RowNumber), arma::uword(m_ColNumber), false);
 
 	uint64 value = arma::rank(tempMat);
@@ -3049,6 +3047,12 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::Inv()
 	mdkMatrix<ElementType> tempMatrix;
 
 	tempMatrix.SetTobeTemporaryMatrix();
+
+    if (m_ElementNumber == 0)
+    {
+        mdkError << "Self is empty matrix @ mdkMatrix::Inv" << '\n';
+        return tempMatrix;
+    }
 
 	tempMatrix.SetSize(m_RowNumber, m_ColNumber);
 
@@ -3083,6 +3087,12 @@ mdkMatrixSVDResult<ElementType> mdkMatrix<ElementType>::SVD()
 	Result.U.SetTobeTemporaryMatrix();
 	Result.S.SetTobeTemporaryMatrix();
 	Result.V.SetTobeTemporaryMatrix();
+
+    if (m_ElementNumber == 0)
+    {
+        mdkError << "Self is empty matrix @ mdkMatrix::SVD" << '\n';
+        return Result;
+    }
 
 	Result.U.SetSize(m_RowNumber, m_ColNumber);
 	Result.S.SetSize(m_RowNumber, m_ColNumber);

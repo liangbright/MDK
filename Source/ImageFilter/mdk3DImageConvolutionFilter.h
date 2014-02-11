@@ -25,6 +25,8 @@ public:
   
     void SetOutputVoxelMatrix(const mdkMatrix<uint64>* VoxelMatrix);
 
+    bool Preprocess();
+
 	inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& OutputVoxel);
 
     inline void OutputFunction(uint64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
@@ -42,6 +44,8 @@ class mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1> : public
 public:
 	mdk3DImageConvolutionFilter();
 	~mdk3DImageConvolutionFilter();
+
+    bool Preprocess();
 
     inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& OutputVoxel);
 

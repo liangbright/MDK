@@ -619,8 +619,8 @@ const VoxelType& mdk3DImage<VoxelType>::operator()(uint64 xIndex, uint64 yIndex,
 
 	if (xIndex >= m_ImageSize[0] || yIndex >= m_ImageSize[1] || zIndex >= m_ImageSize[2])
 	{
-		mdkError << "LinearIndex >= m_VoxelNumber @ mkd3DImage::operator(xIndex, yIndex, zIndex)" << '\n';
-		return m_EmptyVoxel;
+        mdkError << "xIndex >= m_ImageSize[0] || yIndex >= m_ImageSize[1] || zIndex >= m_ImageSize[2] @ mkd3DImage::operator(xIndex, yIndex, zIndex)" << '\n';
+        return m_EmptyVoxel;
 	}
 
 #endif
