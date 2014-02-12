@@ -22,19 +22,19 @@ mdk3DImage<double> ReadGrayScale3DImageFromDICOMFile(const std::string& FilePath
 
     reader->Update();
 
-    auto Image = reader->GetOutput();
+    auto vtkImage = reader->GetOutput();
 
     int dims[3];
 
-    Image->GetDimensions(dims);
+    vtkImage->GetDimensions(dims);
 
     double Origin[3];
 
-    Image->GetOrigin(Origin);
+    vtkImage->GetOrigin(Origin);
 
     double Spacing[3];
 
-    Image->GetSpacing(Spacing);
+    vtkImage->GetSpacing(Spacing);
 
     tempImage.Initialize(dims[0],    dims[1],    dims[2],
                          Origin[0],  Origin[1],  Origin[2],
@@ -46,7 +46,7 @@ mdk3DImage<double> ReadGrayScale3DImageFromDICOMFile(const std::string& FilePath
         {
             for (int x = 0; x < dims[0]; ++x)
             {
-                tempImage(x, y, z) = Image->GetScalarComponentAsDouble(x, y, z, 0);
+                tempImage(x, y, z) = vtkImage->GetScalarComponentAsDouble(x, y, z, 0);
             }
         }
     }
@@ -120,11 +120,13 @@ void SaveGrayScale3DImageAsBinaryFile(const std::string& FilePathAndName, const 
 
 bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, const QString& FilePathAndName)
 {    
+    QFile::remove(FilePathAndName + "~temp~.json");
+
     QFile JsonFile(FilePathAndName + "~temp~.json");
 
     if (!JsonFile.open(QIODevice::WriteOnly))
     {
-        qWarning("Couldn't open file to save result");
+        mdkError << "Couldn't open file to save result @ WritePairListAsJsonFile" << '\n';
         return false;
     }
 

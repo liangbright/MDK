@@ -33,7 +33,7 @@ protected:
 	// each coloum is [dx; dy; dz; w]
 	// w is the coefficient at (dx, dy, dz)
 
-    RegionOfNOBoundCheck_mdk3DImageConvolutionFilter m_RegionOfNOBoundCheck;
+    std::vector<RegionOfNOBoundCheck_mdk3DImageConvolutionFilter> m_NOBoundCheckRegionList;
 
 public:		
 	mdk3DImageConvolutionFilterBase();
