@@ -56,7 +56,7 @@ mdk3DImage<double> ReadGrayScale3DImageFromDICOMFile(const std::string& FilePath
 }
 
 
-void SaveGrayScale3DImageAsBinaryFile(const std::string& FilePathAndName, const mdk3DImage<double>& Image)
+void SaveGrayScale3DImageAsRawDataFile(const std::string& FilePathAndName, const mdk3DImage<double>& Image)
 {
     std::vector<NameValueQStringPair> PairList(10);
 
@@ -64,6 +64,8 @@ void SaveGrayScale3DImageAsBinaryFile(const std::string& FilePathAndName, const 
 
     PairList[0].Name = "DataFileName";
     PairList[0].Value = QString(FilePathAndName.c_str()) + ".data";
+
+    //QFile::remove(PairList[0].Value);
 
     PairList[1].Name = "ImageSize_x";
     PairList[1].Value = QString::number(Size.Lx);
@@ -120,7 +122,7 @@ void SaveGrayScale3DImageAsBinaryFile(const std::string& FilePathAndName, const 
 
 bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, const QString& FilePathAndName)
 {    
-    QFile::remove(FilePathAndName + "~temp~.json");
+    //QFile::remove(FilePathAndName + "~temp~.json");
 
     QFile JsonFile(FilePathAndName + "~temp~.json");
 

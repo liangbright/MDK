@@ -50,13 +50,15 @@ void mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Clear()
 
     m_IsOutputZeroVoxelObtained = false;
 
-    m_Flag_OutputArray = false;
+    m_Flag_OutputImage = false;
 
     m_Flag_OutputArray = false;
 
     m_Flag_OutputToOtherPlace = false;
 
     m_TotalOutputVoxelNumber = 0;
+
+    m_MinVoxelNumberPerThread = 100;
 }
 
 
@@ -264,7 +266,7 @@ bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
 	}
 
 	// multi-thread -----------------------------------------------------------------
-    if (m_MaxThreadNumber > 1 && m_TotalOutputVoxelNumber > 1000)
+    if (m_MaxThreadNumber > 1 && m_TotalOutputVoxelNumber > m_MinVoxelNumberPerThread)
 	{
 		// divide the output image into groups
 
@@ -445,13 +447,11 @@ DivideData(uint64 Index_min, uint64 Index_max, std::vector<uint64>& IndexList_st
 
 	uint64 VoxelNumberPerThread = 0;
 
-	uint64 MinVoxelNumberPerThread = 100;
-
 	for (uint64 i = m_MaxThreadNumber; i > 0; --i)
 	{
 		VoxelNumberPerThread = TotalVoxelNumber / i;
 
-		if (VoxelNumberPerThread >= MinVoxelNumberPerThread)
+        if (VoxelNumberPerThread >= m_MinVoxelNumberPerThread)
 		{
 			ThreadNumber = i;
 			break;

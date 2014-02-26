@@ -18,7 +18,7 @@ struct NameValueQStringPair
 
 mdk3DImage<double> ReadGrayScale3DImageFromDICOMFile(const std::string& FilePath);
 
-void SaveGrayScale3DImageAsBinaryFile(const std::string& FilePathAndName, const mdk3DImage<double>& Image);
+void SaveGrayScale3DImageAsRawDataFile(const std::string& FilePathAndName, const mdk3DImage<double>& Image);
 
 bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, const QString& FilePathAndName);
 }
