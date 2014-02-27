@@ -3,13 +3,13 @@
 namespace mdk
 {
 
-template<typename ScalarType>
+template<typename ElementType>
 inline 
-mdkMatrix<ScalarType> LinearCombine(const std::vector<double>& AlphaList, const std::vector<mdkMatrix<ScalarType>*>& MatrixList)
+mdkMatrix<ElementType> LinearCombine(const std::vector<double>& AlphaList, const std::vector<mdkMatrix<ElementType>*>& MatrixList)
 {
-	mdkMatrix<ScalarType> tempMatrix;
+	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporaryMatrix();
+	tempMatrix.SetTobeTemporary();
 
 	auto MatrixNumber = MatrixList.size();
 
@@ -25,7 +25,7 @@ mdkMatrix<ScalarType> LinearCombine(const std::vector<double>& AlphaList, const 
 
 		for (uint64 k = 0; k < MatrixNumber; ++k)
 		{
-			tempRawPointer[i] += AlphaList[k] * MatrixList[k]->Element(i);
+			tempRawPointer[i] += AlphaList[k] * MatrixList[k]->at(i);
 		}
 	}
 
@@ -33,11 +33,11 @@ mdkMatrix<ScalarType> LinearCombine(const std::vector<double>& AlphaList, const 
 }
 
 
-template<typename ScalarType, uint64 Length>
+template<typename ElementType, uint64 Length>
 inline
-std::array<ScalarType, Length> LinearCombine(const std::vector<double>& CoefList, const std::vector<std::array<ScalarType, Length>*>& ArrayList)
+std::array<ElementType, Length> LinearCombine(const std::vector<double>& CoefList, const std::vector<std::array<ElementType, Length>*>& ArrayList)
 {
-	std::array<ScalarType, Length> tempArray;
+	std::array<ElementType, Length> tempArray;
 
 	uint64 ArrayNumber = ArrayList.size();
 
@@ -55,11 +55,11 @@ std::array<ScalarType, Length> LinearCombine(const std::vector<double>& CoefList
 }
 
 
-template<typename ScalarType>
+template<typename ElementType>
 inline
-std::vector<ScalarType> LinearCombine(const std::vector<double>& CoefList, const std::vector<std::vector<ScalarType>*>& ArrayList)
+std::vector<ElementType> LinearCombine(const std::vector<double>& CoefList, const std::vector<std::vector<ElementType>*>& ArrayList)
 {
-	std::vector<ScalarType> tempArray;
+	std::vector<ElementType> tempArray;
 
 	uint64 ArrayNumber = ArrayList.size();
 

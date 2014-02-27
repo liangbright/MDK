@@ -6,6 +6,8 @@
 #include <initializer_list>
 
 #include "mdkObject.h"
+//#include "mdkShadowMatrix.h"
+
 
 namespace mdk
 {
@@ -18,9 +20,14 @@ namespace mdk
 //
 // The functions that are not supported in Armadillo, are provided in mdkLinearAlgebra.h/cpp
 
-//forward-declare the template class
+//forward-declare ----------------//
 template<typename ElementType>
 class mdkMatrix;
+
+template<typename ElementType>
+class mdkShadowMatrix;
+
+// end of  forward-declare  //
 
 struct mdkMatrixSize
 {
@@ -112,7 +119,7 @@ private:
 
 	ElementType  m_EmptyElement; // may not be ZeroElement, but ZeroElement = m_EmptyElement - m_EmptyElement;
 
-	bool m_IsTemporaryMatrix;
+	bool m_IsTemporary; // a Matrix returned from a function is a temporary matrix
 
 public:		
 	
@@ -122,9 +129,11 @@ public:
 
 	inline mdkMatrix(const mdkMatrix<ElementType>& targetMatrix);
 
-	inline void operator=(const mdkMatrix<double>& targetMatrix);
+    inline mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
 	inline mdkMatrix(uint64 RowNumber, uint64 ColNumber = 1, bool IsSizeFixed = false);
+
+    inline mdkMatrix(ElementType* ElementPointer, uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = true);
 
 	inline ~mdkMatrix();
 
@@ -132,7 +141,7 @@ public:
 
     inline void Clear();
 
-	inline void SetEmptyElement(const ElementType& EmptyElement);
+    inline ElementType GetEmptyElement();
 
     inline std::vector<ElementType>* GetElementDataArrayPointer();
 
@@ -146,15 +155,15 @@ public:
 
 	inline mdkMatrixElementTypeEnum GetElementType() const;
 
-	inline void SetTobeTemporaryMatrix();
+	inline void SetTobeTemporary();
 
-	inline bool IsTemporaryMatrix() const;
+	inline bool IsTemporary() const;
 
 	//---------------------- Matrix Size ----------------------------------------//
 
 	inline bool SetSize(uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = false);
 
-	inline void FixSize(bool Fix);
+    inline void FixSize(bool Fix = true);
 
 	inline bool Reshape(uint64 RowNumber, uint64 ColNumber);
 
@@ -182,6 +191,8 @@ public:
 	inline void operator=(const std::initializer_list<ElementType>& list);
 
     inline void operator=(const std::vector<ElementType>& ColVector);
+
+    inline void operator=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
 	template<typename ElementType_target>
 	inline bool Copy(const mdkMatrix<ElementType_target>& targetMatrix);
@@ -215,13 +226,35 @@ public:
 
 	inline const ElementType& at(uint64 RowIndex, uint64 ColIndex) const;
 
-	//---------------------- Get Matrix(i_s to i_e, j_s to j_e) ----------------------------------------//
+    //---------------------- Get/Set SubMatrix by using ShadowMatrix -----------------------------//
 
-	inline mdkMatrix SubMatrix(uint64 RowIndex_s, uint64 RowIndex_e, uint64 ColIndex_s, uint64 ColIndex_e);
+    inline mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& RowIndexList,
+                                                   const std::vector<uint64>& ColIndexList);
+
+    inline mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& LinearIndexList);
+
+	//---------------------- Get SubMatrix -------------------------------------------------//
+
+    inline mdkShadowMatrix<ElementType> SubMatrix(uint64 RowIndex_start, uint64 RowIndex_end, uint64 ColIndex_start, uint64 ColIndex_end);
+
+    inline mdkShadowMatrix<ElementType> SubMatrix(const std::vector<uint64>& RowIndexList,
+                                                  const std::vector<uint64>& ColIndexList);
+
+    inline mdkShadowMatrix<ElementType> SubMatrix(const std::vector<uint64>& LinearIndexList);
+
+	inline mdkMatrix GetSubMatrix(uint64 RowIndex_start, uint64 RowIndex_end, uint64 ColIndex_start, uint64 ColIndex_end);
+
+    inline mdkMatrix GetSubMatrix(const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList);
+
+    inline mdkMatrix GetSubMatrix(const std::vector<uint64>& LinearIndexList);
 
 	//---------------------- Get/Set a column ----------------------------------------//
 	
-	inline mdkMatrix Col(uint64 ColIndex);
+    inline mdkShadowMatrix<ElementType> Col(uint64 ColIndex);
+
+    inline mdkShadowMatrix<ElementType> Col(const std::vector<uint64>& ColIndexList);
+
+    inline mdkMatrix GetCol(uint64 ColIndex);
 
 	inline bool GetCol(uint64 ColIndex, ElementType* ColData);
 
@@ -247,7 +280,11 @@ public:
 
 	//---------------------- Get/Set a row  ----------------------------------------//
 	
-	inline mdkMatrix Row(uint64 RowIndex);
+    inline mdkShadowMatrix<ElementType> Row(uint64 RowIndex);
+
+    inline mdkShadowMatrix<ElementType> Row(const std::vector<uint64>& RowIndexList);
+
+    inline mdkMatrix GetRow(uint64 RowIndex);
 
 	inline bool GetRow(uint64 ColIndex, ElementType* RowData);
 
@@ -273,7 +310,9 @@ public:
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 
-	inline mdkMatrix Diangonal();
+    inline mdkShadowMatrix<ElementType> Diangonal();
+
+    inline mdkMatrix GetDiangonal();
 
 	inline bool GetDiangonal(ElementType* DiangonalData);
 
@@ -369,6 +408,8 @@ public:
 
 	inline mdkMatrix GetTranspose();
 
+    inline mdkMatrix Tran();
+
 	//----------------------------------- Rank -----------------------------------------//
 
 	inline uint64 Rank();
@@ -389,8 +430,6 @@ private:
 	template<typename ElementType_target>
 	inline mdkMatrixElementTypeEnum FindElementType(ElementType_target Element);
 
-	template<typename ElementType_target>
-	inline uint64 ByteNumberOfElement(ElementType_target Element);
 };
 
 }//end namespace mdk

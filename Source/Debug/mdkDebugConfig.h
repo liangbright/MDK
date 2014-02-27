@@ -14,6 +14,8 @@ namespace mdk
 //------------------------------ mdkMatrix -----------------------------------------------//
 #define MDK_Matrix_Operator_CheckBound
 
+#define MDK_ShadowMatrix_Operator_CheckBound
+
 //-------------------------------mdk3DImage---------------------------------------------------------//
 #define MDK_3DImage_Operator_CheckBound
 

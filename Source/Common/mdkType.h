@@ -44,6 +44,17 @@ typedef enum
 
 typedef mdkScalarTypeEnum mdkMatrixElementTypeEnum;
 
+//-------------------------------------------------------------//
+template<typename ScalarType>
+inline
+mdkScalarTypeEnum FindScalarType(ScalarType Scalar);
+
+template<typename ScalarType>
+inline
+uint64 CalByteNumberOfScalar(ScalarType Scalar);
+
 }//end namespace mdk
+
+#include "mdkType.hpp"
 
 #endif
