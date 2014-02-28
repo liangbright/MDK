@@ -38,6 +38,7 @@ int main()
 
     //Test_ConvolutionFilter_VectorOutput();
 
-    test_Valve_Filter();
+    //test_Valve_Filter();
 
+    test_GaussianFilter();
 }

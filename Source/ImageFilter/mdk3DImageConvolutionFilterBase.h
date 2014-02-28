@@ -13,27 +13,54 @@
 namespace mdk
 {
 
-struct RegionOfNOBoundCheck_mdk3DImageConvolutionFilter
+struct RegionOfNOBoundCheck_3DIndex
 {
     bool IsEmpty;
 
-    uint64 x0;
-    uint64 y0;
-    uint64 z0;
+    uint64 x0_Index;
+    uint64 y0_Index;
+    uint64 z0_Index;
 
-    uint64 x1;
-    uint64 y1;
-    uint64 z1;
+    uint64 x1_Index;
+    uint64 y1_Index;
+    uint64 z1_Index;
+};
+
+struct RegionOfNOBoundCheck_3DPosition
+{
+    bool IsEmpty;
+
+    double x0;
+    double y0;
+    double z0;
+
+    double x1;
+    double y1;
+    double z1;
 };
 
 class mdk3DImageConvolutionFilterBase : public mdkObject
 {
 protected:
-    std::vector<mdkMatrix<double>> m_MaskList;
-	// each coloum is [dx; dy; dz; w]
-	// w is the coefficient at (dx, dy, dz)
+    std::vector<mdkMatrix<double>> m_MaskList_3DIndex;
+	// each coloum is [dx_Index; dy_Index; dz_Index; w]
+	// w is the coefficient at (dx_Index, dy_Index, dz_Index)
 
-    std::vector<RegionOfNOBoundCheck_mdk3DImageConvolutionFilter> m_NOBoundCheckRegionList;
+    std::vector<mdkMatrix<double>> m_MaskList_3DPosition;
+    // each coloum is [dx; dy; dz; w]
+    // w is the coefficient at (dx, dy, dz)
+
+    std::vector<RegionOfNOBoundCheck_3DIndex> m_NOBoundCheckRegionList_3DIndex;
+
+    std::vector<RegionOfNOBoundCheck_3DPosition> m_NOBoundCheckRegionList_3DPosition;
+
+    uint64 m_InputImageDimension[3];
+
+    double m_InputImagePhysicalSize[3];
+
+    double m_InputImagePhysicalOrigin[3];
+
+    double m_InputVoxelPhysicalSize[3];
 
 public:		
 	mdk3DImageConvolutionFilterBase();
@@ -43,11 +70,21 @@ public:
 
 	bool SaveMask(const std::string& FilePathAndName);
 
-	bool SetMask(const std::vector<mdkMatrix<double>>& MaskList);
+    bool SetMaskOf3DIndex(const std::vector<mdkMatrix<double>>& MaskList);
 
-	bool SetMask(const mdkMatrix<double>& Mask);
+    bool SetMaskOf3DPosition(const std::vector<mdkMatrix<double>>& MaskList);
 
-    void ComputeRegionOfNOBoundCheck(const uint64 ImageSize[3]);
+    bool SetMaskOf3DIndex(const mdkMatrix<double>& Mask);
+
+    bool SetMaskOf3DPosition(const mdkMatrix<double>& Mask);
+
+    void ComputeRegionOfNOBoundCheck_3DIndex();
+
+    void ComputeRegionOfNOBoundCheck_3DPosition();
+
+    bool IsMaskOf3DIndexEmpty();
+
+    bool IsMaskOf3DPositionEmpty();
 
 private:
 	mdk3DImageConvolutionFilterBase(const mdk3DImageConvolutionFilterBase&); // Not implemented.

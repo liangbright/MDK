@@ -9,6 +9,7 @@
 #include "mdk3DImage.h"
 #include "mdk3DImageFilter.h"
 #include "mdk3DImageConvolutionFilter.h"
+#include "mdk3DImageGaussianFilter.h"
 
 using namespace mdk;
 
@@ -182,7 +183,7 @@ void Test_FunctionTemplate_InputFilterFunction()
 
 	imfilter.SetMaxThreadNumber(1);
 
-	imfilter.SetInputFilterFunction(FilterFunction);
+	imfilter.SetInputFilterFunctionAt3DIndex(FilterFunction);
 
 	std::time_t t0 = std::time(0);
 
@@ -194,7 +195,7 @@ void Test_FunctionTemplate_InputFilterFunction()
 
 	t0 = std::time(0);
 
-	imfilter.Run(FilterFunction);
+//	imfilter.Run(FilterFunction);
 
 	t1 = std::time(0);
 
@@ -247,7 +248,7 @@ void Test_MultiThread()
 
 	imfilter.SetMaxThreadNumber(1);
 
-	imfilter.SetInputFilterFunction(FilterFunction);
+    imfilter.SetInputFilterFunctionAt3DIndex(FilterFunction);
 
 	std::time_t t0 = std::time(0);
 
@@ -351,7 +352,7 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	imfilter.SetMaxThreadNumber(1);
 
-	imfilter.SetInputFilterFunction(FilterFunction);
+    imfilter.SetInputFilterFunctionAt3DIndex(FilterFunction);
 
 	std::time_t t0 = std::time(0);
 
@@ -361,14 +362,13 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	std::cout << "imfilter time " << t1 - t0 << '\n';
 
-
 	mdk3DImageConvolutionFilter<double, double>  imconvfilter;
 
 	imconvfilter.SetInputImage(&InputImage);
 
 	imconvfilter.SetOutputImage(&OutputImage);
 
-	imconvfilter.SetInputFilterFunction(FilterFunction);
+    imconvfilter.SetInputFilterFunctionAt3DIndex(FilterFunction);
 
 	imconvfilter.SetMaxThreadNumber(1);
 
@@ -378,7 +378,7 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	Mask.Fill(0);
 
-	imconvfilter.SetMask(Mask);
+	imconvfilter.SetMaskOf3DIndex(Mask);
 
 	t0 = std::time(0);
 
@@ -441,7 +441,7 @@ void Test_ConvolutionFilter_ScalarOutput()
 
 	Mask.Fill(0);
 
-	imfilter.SetMask(Mask);
+    imfilter.SetMaskOf3DIndex(Mask);
 
 	std::time_t t0 = std::time(0);
 
@@ -554,7 +554,7 @@ void Test_ConvolutionFilter_VectorOutput()
 		MaskList[i].Fill(0);
 	}
 
-	imfilter.SetMask(MaskList);
+    imfilter.SetMaskOf3DIndex(MaskList);
 	
 	std::time_t t0 = std::time(0);
 
@@ -576,12 +576,12 @@ void test_Valve_Filter()
 
     std::string OutputFilePathAndName("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0_OutputImage");
 
-    auto InputSize = InputImage.GetImageSize();
+    auto InputDimension = InputImage.GetImageDimension();
 
 
     mdk3DImage<double> OutputImage;
 
-    OutputImage.Initialize(InputSize.Lx, InputSize.Ly, InputSize.Lz);
+    OutputImage.Initialize(InputDimension.Lx, InputDimension.Ly, InputDimension.Lz);
 
     OutputImage.Fill(0);
 
@@ -602,7 +602,7 @@ void test_Valve_Filter()
              -1, -1,   -1,   0,   0,   0,   1,
              0.1, 0.1, 0.1, -0.6, 0.1, 0.1, 0.1 };
 
-    imfilter.SetMask(Mask);
+    imfilter.SetMaskOf3DIndex(Mask);
 
     std::cout << "start: " << '\n';
 
@@ -615,7 +615,51 @@ void test_Valve_Filter()
     std::cout << "time " << t1 - t0 << '\n';
 
 
-    SaveGrayScale3DImageAsBinaryFile(OutputFilePathAndName, OutputImage);
+    SaveGrayScale3DImageAsRawDataFile(OutputFilePathAndName, OutputImage);
+
+    std::system("pause");
+}
+
+void test_GaussianFilter()
+{
+    std::string FilePath("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0");
+
+    auto InputImage = ReadGrayScale3DImageFromDICOMFile(FilePath);
+
+    std::string OutputFilePathAndName("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0_OutputImage");
+
+    auto InputDimension = InputImage.GetImageDimension();
+
+    mdk3DImage<double> OutputImage;
+
+    OutputImage.Initialize(InputDimension.Lx, InputDimension.Ly, InputDimension.Lz);
+
+    OutputImage.Fill(0);
+
+    mdk3DImageGaussianFilter<double, double>  imfilter;
+
+    imfilter.SetInputImage(&InputImage);
+
+    imfilter.SetOutputImage(&OutputImage);
+
+    imfilter.SetMaxThreadNumber(4);
+
+    imfilter.SetSigmaList(3, 4, 5);
+
+    imfilter.SetCutOffRatio(2);
+
+    std::cout << "start: " << '\n';
+
+    std::time_t t0 = std::time(0);
+
+    imfilter.Run();
+
+    std::time_t t1 = std::time(0);
+
+    std::cout << "time " << t1 - t0 << '\n';
+
+
+    SaveGrayScale3DImageAsRawDataFile(OutputFilePathAndName, OutputImage);
 
     std::system("pause");
 }

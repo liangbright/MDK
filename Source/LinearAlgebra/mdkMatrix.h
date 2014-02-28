@@ -111,8 +111,6 @@ inline mdkMatrix<ElementType> operator/(mdkMatrix<ElementType>& Matrix, const El
 
 #define MDK_Matrix_ColExpansionStep  100
 
-#define MDK_Matrix_RowExpansionStep  100
-
 //--------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
@@ -133,7 +131,7 @@ private:
 
 	mdkMatrixElementTypeEnum m_ElementType;
 
-	ElementType  m_EmptyElement; // may not be ZeroElement, but ZeroElement = m_EmptyElement - m_EmptyElement;
+	ElementType  m_NaNElement; // may not be ZeroElement, but ZeroElement != m_NaNElement - m_NaNElement;
 
 	bool m_IsTemporary; // a Matrix returned from a function is a temporary matrix
 
@@ -159,7 +157,7 @@ public:
 
     inline void Clear();
 
-    inline ElementType GetEmptyElement();
+    inline ElementType GetNaNElement() const;
 
     inline std::vector<ElementType>* GetElementDataArrayPointer();
 
@@ -289,6 +287,8 @@ public:
 	template<typename ElementType_input>
 	inline bool SetCol(uint64 ColIndex, const std::vector<ElementType_input>& ColData);
 
+    inline bool AppendCol(const std::initializer_list<ElementType>& ColData);
+
 	template<typename ElementType_input>
 	inline bool AppendCol(const mdkMatrix<ElementType_input>& ColData);
 
@@ -338,7 +338,9 @@ public:
 
 	inline bool GetDiangonal(std::vector<ElementType>& DiangonalData);
 
-	inline bool SetDiangonal(ElementType Element);
+    inline bool SetDiangonal(const std::initializer_list<ElementType>& DiangonalData);
+
+    inline bool SetDiangonal(ElementType Element);
 
 	template<typename ElementType_input>
 	inline bool SetDiangonal(const mdkMatrix<ElementType_input>& DiangonalData);

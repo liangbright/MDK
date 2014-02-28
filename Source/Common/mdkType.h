@@ -28,18 +28,18 @@ namespace mdk
 
 typedef enum
 {
-	MDK_DOUBLE64,
-	MDK_FLOAT32,
-	MDK_INT8,
-	MDK_INT16,
-	MDK_INT32,
-	MDK_INT64,
-	MDK_UINT8,
-	MDK_UINT16,
-	MDK_UINT32,
-	MDK_UINT64,
+	DOUBLE64,
+	FLOAT32,
+	INT8,
+	INT16,
+	INT32,
+	INT64,
+	UINT8,
+	UINT16,
+	UINT32,
+	UINT64,
 
-	MDK_UNKNOWN,
+	UNKNOWN,
 } mdkScalarTypeEnum;
 
 typedef mdkScalarTypeEnum mdkMatrixElementTypeEnum;

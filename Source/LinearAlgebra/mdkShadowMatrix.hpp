@@ -109,8 +109,6 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
     m_ColNumber = m_ColIndexList_source.size();
 
     m_ElementNumber = m_RowNumber*m_ColNumber;
-
-    m_EmptyElement = sourceMatrix.GetEmptyElement();
 }
 
 

@@ -10,7 +10,7 @@ template<typename ElementType, uint64 Length>
 inline 
 std::array<ElementType, Length> operator+(const std::array<ElementType, Length>& VoxelA, const std::array<ElementType, Length>& VoxelB)
 {
-	std::array<ElementType, Length> tempVoxel(Length);
+	std::array<ElementType, Length> tempVoxel;
 
 	for (uint64 i = 0; i < Length; ++i)
 	{
@@ -25,7 +25,7 @@ template<typename ElementType, uint64 Length>
 inline
 std::array<ElementType, Length> operator-(const std::array<ElementType, Length>& VoxelA, const std::array<ElementType, Length>& VoxelB)
 {
-	std::array<ElementType, Length> tempVoxel(Length);
+	std::array<ElementType, Length> tempVoxel;
 
 	for (uint64 i = 0; i < Length; ++i)
 	{

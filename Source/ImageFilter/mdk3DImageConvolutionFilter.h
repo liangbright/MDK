@@ -27,7 +27,13 @@ public:
 
     bool Preprocess();
 
-	inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& OutputVoxel);
+    virtual void BuildMaskOf3DIndex();
+
+    virtual void BuildMaskOf3DPosition();
+
+    inline void FilterFunctionAt3DIndex(uint64 x_Index, uint64 y_Index, uint64 z_Index, VoxelType_Output& OutputVoxel);
+
+	inline void FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& OutputVoxel);
 
     inline void OutputFunction(uint64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
 
@@ -47,7 +53,13 @@ public:
 
     bool Preprocess();
 
-    inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, VoxelType_Output& OutputVoxel);
+    virtual void BuildMaskOf3DIndex();
+
+    virtual void BuildMaskOf3DPosition();
+
+    inline void FilterFunctionAt3DIndex(uint64 x_Index, uint64 y_Index, uint64 z_Index, VoxelType_Output& OutputVoxel);
+
+	inline void FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& OutputVoxel);
 
 private:
 	mdk3DImageConvolutionFilter(const mdk3DImageConvolutionFilter&); // Not implemented.

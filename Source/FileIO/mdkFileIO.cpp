@@ -14,7 +14,7 @@ mdk3DImage<double> ReadGrayScale3DImageFromDICOMFile(const std::string& FilePath
 {
     mdk3DImage<double> tempImage;
 
-    tempImage.SetTobeTemporaryImage();
+    tempImage.SetTobeTemporary();
 
     auto reader = vtkSmartPointer<vtkDICOMImageReader>::New();
 
@@ -60,21 +60,21 @@ void SaveGrayScale3DImageAsRawDataFile(const std::string& FilePathAndName, const
 {
     std::vector<NameValueQStringPair> PairList(10);
 
-    auto Size = Image.GetImageSize();
+    auto Dimension = Image.GetImageDimension();
 
     PairList[0].Name = "DataFileName";
     PairList[0].Value = QString(FilePathAndName.c_str()) + ".data";
 
     //QFile::remove(PairList[0].Value);
 
-    PairList[1].Name = "ImageSize_x";
-    PairList[1].Value = QString::number(Size.Lx);
+    PairList[1].Name = "ImageDimension_x";
+    PairList[1].Value = QString::number(Dimension.Lx);
 
-    PairList[2].Name = "ImageSize_y";
-    PairList[2].Value = QString::number(Size.Ly);
+    PairList[2].Name = "ImageDimension_y";
+    PairList[2].Value = QString::number(Dimension.Ly);
 
-    PairList[3].Name = "ImageSize_z";
-    PairList[3].Value = QString::number(Size.Lz);
+    PairList[3].Name = "ImageDimension_z";
+    PairList[3].Value = QString::number(Dimension.Lz);
 
     auto Origin = Image.GetPhysicalOrigin();
 
@@ -110,7 +110,7 @@ void SaveGrayScale3DImageAsRawDataFile(const std::string& FilePathAndName, const
         return;
     }
 
-    uint64 L = Size.Lx * Size.Ly * Size.Lz;
+    uint64 L = Dimension.Lx * Dimension.Ly * Dimension.Lz;
 
     auto RawPointer = (char*) Image.GetVoxelDataRawPointer();
 

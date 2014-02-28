@@ -15,47 +15,48 @@ mdkScalarTypeEnum FindScalarType(ScalarType Scalar)
 
     if (TypeName == "double")
     {
-        return mdkScalarTypeEnum::MDK_DOUBLE64;
+        return mdkScalarTypeEnum::DOUBLE64;
     }
     else if (TypeName == "float")
     {
-        return mdkScalarTypeEnum::MDK_FLOAT32;
+        return mdkScalarTypeEnum::FLOAT32;
     }
     else if (TypeName == "signed char")
     {
-        return mdkScalarTypeEnum::MDK_INT8;
+        return mdkScalarTypeEnum::INT8;
     }
     else if (TypeName == "short")
     {
-        return mdkScalarTypeEnum::MDK_INT16;
+        return mdkScalarTypeEnum::INT16;
     }
     else if (TypeName == "int")
     {
-        return mdkScalarTypeEnum::MDK_INT32;
+        return mdkScalarTypeEnum::INT32;
     }
     else if (TypeName == "__int64") // OS is Windows
     {
-        return mdkScalarTypeEnum::MDK_INT64;
+        return mdkScalarTypeEnum::INT64;
     }
     else if (TypeName == "unsigned char")
     {
-        return mdkScalarTypeEnum::MDK_UINT8;
+        return mdkScalarTypeEnum::UINT8;
     }
     else if (TypeName == "unsigned short")
     {
-        return mdkScalarTypeEnum::MDK_UINT16;
+        return mdkScalarTypeEnum::UINT16;
     }
     else if (TypeName == "unsigned int")
     {
-        return mdkScalarTypeEnum::MDK_UINT32;
+        return mdkScalarTypeEnum::UINT32;
     }
     else if (TypeName == "unsigned __int64") // OS is Windows
     {
-        return mdkScalarTypeEnum::MDK_UINT64;
+        return mdkScalarTypeEnum::UINT64;
     }
 
-    return mdkScalarTypeEnum::MDK_UNKNOWN;
+    return mdkScalarTypeEnum::UNKNOWN;
 }
+
 
 template<typename ScalarType>
 inline

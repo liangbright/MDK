@@ -30,13 +30,19 @@ namespace mdk
 // use std::array as VoxelType if voxel is a vector with known length, and do not use std::vector
 // --------------------------------------------------------------------------------------------------------//
 
-struct mdk3DImageSize
+struct mdk3DImageDimension
 {
 	uint64 Lx;
 	uint64 Ly;
 	uint64 Lz;
 };
 
+struct mdk3DImagePhysicalSize
+{
+    double Sx;
+    double Sy;
+    double Sz;
+};
 
 struct mdk3DImagePhysicalOrigin
 {
@@ -45,13 +51,18 @@ struct mdk3DImagePhysicalOrigin
     double z;
 };
 
-
 struct mdk3DImageVoxelPhysicalSize
 {
     double Vx;
     double Vy;
     double Vz;
 };
+
+typedef enum
+{
+    NearestNeighbor,
+    CubicLinear,
+} mdk3DImageInterpolationMethodEnum;
 
 
 template<typename VoxelType>
@@ -62,7 +73,7 @@ private:
 
 	std::shared_ptr<std::vector<VoxelType>> m_VoxelData;
 
-	uint64 m_ImageSize[3]; // {Lx, Ly, Lz} number of voxels in each direction
+    uint64 m_ImageDimension[3]; // {Lx, Ly, Lz} number of voxels in each direction
 
 	uint64 m_VoxelNumber;  // total number of voxels
 
@@ -76,7 +87,7 @@ private:
 
 	VoxelType m_EmptyVoxel_temp;
 
-	bool m_IsTemporaryImage;
+	bool m_IsTemporary;
 
 public:		
 	
@@ -84,9 +95,9 @@ public:
 
 	mdk3DImage(const mdk3DImage<VoxelType>& targetImage);
 
-	void operator=(const mdk3DImage<VoxelType>& targetImage);
-
 	~mdk3DImage();
+
+    void operator=(const mdk3DImage<VoxelType>& targetImage);
 
 	bool Initialize(uint64 Lx, uint64 Ly, uint64 Lz = 1,
 		            double PhysicalOrigin_x = 0.0,
@@ -100,6 +111,22 @@ public:
 
 	inline bool IsEmpty() const;
 
+    inline bool Fill(const VoxelType& Voxel);
+
+    inline void SetTobeTemporary();
+
+    inline bool IsTemporary() const;
+
+    inline std::vector<VoxelType>* GetVoxelDataArrayPointer();
+
+    inline VoxelType* GetVoxelDataRawPointer();
+
+    inline const VoxelType* GetVoxelDataRawPointer() const;
+
+    inline std::shared_ptr<std::vector<VoxelType>>& GetVoxelDataSharedPointer();
+
+    inline const std::shared_ptr<std::vector<VoxelType>>& GetVoxelDataSharedPointer() const;
+
 	void Copy(const mdk3DImage<VoxelType>& targetImage);
 
 	void Copy(const VoxelType* VoxelPointer, uint64 Lx, uint64 Ly, uint64 Lz = 1);
@@ -108,50 +135,45 @@ public:
 
     bool Reshape(uint64 Lx, uint64 Ly, uint64 Lz = 1);
 
-    bool SetImageSize(uint64 Lx, uint64 Ly, uint64 Lz = 1);
+    // ------------------------ Get/Set ImageInfo ------------------------------------------------------------------------//
+
+    bool SetImageDimension(uint64 Lx, uint64 Ly, uint64 Lz = 1);
+
+    inline mdk3DImageDimension GetImageDimension() const;
+
+    inline void GetImageDimension(uint64* Lx, uint64* Ly, uint64* Lz = nullptr) const;
+
+    inline mdk3DImagePhysicalSize GetImagePhysicalSize() const;
+
+    inline void GetImagePhysicalSize(double* PhysicalSize_x, double* PhysicalSize_y, double* PhysicalSize_z = nullptr) const;
 
 	void SetPhysicalOrigin(double PhysicalOrigin_x, double PhysicalOrigin_y, double PhysicalOrigin_z = 0.0);
 
+    inline mdk3DImagePhysicalOrigin GetPhysicalOrigin() const;
+
+    inline void GetPhysicalOrigin(double* PhysicalOrigin_x, double* PhysicalOrigin_y, double* PhysicalOrigin_z = nullptr) const;
+
 	void SetVoxelPhysicalSize(double VoxelPhysicalSize_x, double VoxelPhysicalSize_y, double VoxelPhysicalSize_z = 1.0);
-
-	inline bool Fill(const VoxelType& Voxel);
-
-	inline void SetTobeTemporaryImage();
-
-    inline bool IsTemporaryImage() const;
-
-	inline std::vector<VoxelType>* GetVoxelDataArrayPointer();
-
-	inline VoxelType* GetVoxelDataRawPointer();
-
-	inline const VoxelType* GetVoxelDataRawPointer() const;
-
-    inline std::shared_ptr<std::vector<VoxelType>>& GetVoxelDataSharedPointer();
-
-	inline const std::shared_ptr<std::vector<VoxelType>>& GetVoxelDataSharedPointer() const;
-
-	inline mdk3DImageSize GetImageSize() const;
-
-	template<typename ScalarType>
-	inline void GetImageSize(ScalarType* Lx, ScalarType* Ly, ScalarType* Lz = nullptr) const;
 
     inline mdk3DImageVoxelPhysicalSize GetVoxelPhysicalSize() const;
 
-	inline void GetVoxelPhysicalSize(double* VoxelPhysicalSize_x, double* VoxelPhysicalSize_y, double* VoxelPhysicalSize_z = nullptr) const;
+    inline void GetVoxelPhysicalSize(double* VoxelPhysicalSize_x, double* VoxelPhysicalSize_y, double* VoxelPhysicalSize_z = nullptr) const;
 
-    inline mdk3DImagePhysicalOrigin GetPhysicalOrigin() const;
-
-	inline void GetPhysicalOrigin(double* PhysicalOrigin_x, double* PhysicalOrigin_y, double* PhysicalOrigin_z = nullptr) const;
+    // ------------------------ Index and Position ------------------------------------------------------------------------//
 
 	inline void GetLinearIndexBy3DIndex(uint64* LinearIndex, uint64 xIndex, uint64 yIndex, uint64 zIndex = 0) const;
 
 	inline void Get3DIndexByLinearIndex(uint64 LinearIndex, uint64* xIndex, uint64* yIndex, uint64* zIndex = nullptr) const;
 
+    inline void Get3DPositionByLinearIndex(uint64 LinearIndex, double* x, double* y, double* z = nullptr) const;
+
+    inline void Get3DPositionBy3DIndex(uint64 xIndex, uint64 yIndex, uint64 zIndex, double* x, double* y, double* z = nullptr) const;
+
 	//--------------------------- Get/Set EmptyVoxel (e.g., 0) ------------------------------//
 
 	inline void SetEmptyVoxel(VoxelType EmptyVoxel);
 
-	inline const VoxelType& GetEmptyVoxel();
+    inline const VoxelType& GetEmptyVoxel() const;
 
 	//--------------------------- Get/Set Voxel      ------------------------------//
 
@@ -177,38 +199,42 @@ public:
 
 	//-------------------------- Get SubImage -------------------------------//
 
-	mdk3DImage SubImage(uint64 xIndex_s, uint64 xIndex_e, uint64 yIndex_s, uint64 yIndex_e, uint64 zIndex_s = 0, uint64 zIndex_e = 0);
-
-	//-------------------------- Sum, Mean, Max, Min -------------------------------//
-
-	VoxelType Sum();
-
-	VoxelType Mean();
-
-	VoxelType Max();
-
-	VoxelType Min();
-
-	//-------------------------- Interpolation -------------------------------//
-
-	//inline VoxelType& operator()(double x, double y, double z);
-
-	//inline VoxelType& at(double x, double y, double z);
-
+    mdk3DImage GetSubImage(uint64 xIndex_s, uint64 xIndex_e, uint64 yIndex_s, uint64 yIndex_e, uint64 zIndex_s = 0, uint64 zIndex_e = 0) const;
 
 	//-------------------------- Pad, UnPad -------------------------------//
 
-	mdk3DImage  Pad(const char* Option, uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0);
+    mdk3DImage  Pad(const char* Option, uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0) const;
 
-	mdk3DImage  Pad(VoxelType Voxel, uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0);
+    mdk3DImage  Pad(VoxelType Voxel, uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0) const;
 
-	mdk3DImage  UnPad(uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0);
+    mdk3DImage  UnPad(uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0) const;
 
 	//------------------------- Get LinearIndex In Region -------------------//
 
     mdkMatrix<uint64> GetLinearIndexArrayOfRegion(uint64 xIndex_s,     uint64 Region_Lx,
 		                                          uint64 yIndex_s,     uint64 Region_Ly,
-						  					      uint64 zIndex_s = 0, uint64 Region_Lz = 0);
+                                                  uint64 zIndex_s = 0, uint64 Region_Lz = 0) const;
+
+    //-------------------------- Sum, Mean, Max, Min -------------------------------//
+
+    VoxelType Sum() const;
+
+    VoxelType Mean() const;
+
+    VoxelType Max() const;
+
+    VoxelType Min() const;
+
+    //-------------------------- Interpolation -------------------------------//
+
+    inline VoxelType operator()(double x, double y, double z, 
+                                mdk3DImageInterpolationMethodEnum Method = mdk3DImageInterpolationMethodEnum::NearestNeighbor) const;
+
+    inline VoxelType At3DIndex(double x, double y, double z, 
+                               mdk3DImageInterpolationMethodEnum Method = mdk3DImageInterpolationMethodEnum::NearestNeighbor) const;
+
+    inline VoxelType At3DPosition(double x, double y, double z, 
+                                  mdk3DImageInterpolationMethodEnum Method = mdk3DImageInterpolationMethodEnum::NearestNeighbor) const;
 
 };
 

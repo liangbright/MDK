@@ -22,22 +22,26 @@ protected:
     const mdk3DImage<VoxelType_Input>*  m_InputImage;
 
 	// input_1:
-	const mdkMatrix<uint64>*  m_InputRegion;  // size of m_InputRegion = size of m_OutputImage
-	                                          // col 0: [x0; y0; z0]
+	const mdkMatrix<uint64>*  m_InputRegion;  // size of m_InputRegion = size of m_OutputImage or m_OutputArray
+	                                          // col 0: [x0_Index; y0_Index; z0_Index]
 	                                          // col 1: [Lx; Ly; Lz]
 
 	// input_2:
-    const mdkMatrix<uint64>*  m_InputVoxelSet;  // LinearIndex:  compute values at these positions
+    const mdkMatrix<uint64>*  m_InputVoxelLinearIndexList;  // compute values at these center positions
 	                
-    // input_3:
-	std::function<void(uint64, uint64, uint64, const mdk3DImage<VoxelType_Input>&, VoxelType_Output&)> m_InputFilterFunction;
-
-    bool m_IsInputFilterFunctionObtained;
+	// input_3:
+	const mdkMatrix<float>*  m_Input3DPositionList;  // compute values at these center positions (float precision is enough)
 
     // input_4:
+	std::function<void(double, double, double, const mdk3DImage<VoxelType_Input>&, VoxelType_Output&)> m_InputFilterFunction_At3DPosition;
+
+	// input_5:
+	std::function<void(uint64, uint64, uint64, const mdk3DImage<VoxelType_Input>&, VoxelType_Output&)> m_InputFilterFunction_At3DIndex;
+
+    // input_6:
     uint64 m_MaxThreadNumber;
 
-    // input_5:
+    // input_7:
 	bool m_IsBoundCheckEnabled;
 
 	//--------------- input and output ---------------------
@@ -50,13 +54,13 @@ protected:
 
     //------------ internal variable --------------
 
-    VoxelType_Input   m_InputZeroVoxel;
+    VoxelType_Input   m_ZeroVoxelOfInputImage;
 
-    VoxelType_Output  m_OutputZeroVoxel;
+    VoxelType_Output  m_ZeroVoxelOfOutputImage;
 
-    bool m_IsInputZeroVoxelObtained;
+    bool m_IsInputFilterFunctionAt3DPositionObtained;
 
-    bool m_IsOutputZeroVoxelObtained;
+    bool m_IsInputFilterFunctionAt3DIndexObtained;
 
     bool m_Flag_OutputImage;
 
@@ -76,17 +80,17 @@ public:
 
 	void SetInputImage(const mdk3DImage<VoxelType_Input>* InputImage);
 
-    void SetInputZeroVoxel(const VoxelType_Input& InputZeroVoxel);
-
     void SetInputRegion(const mdkMatrix<uint64>* InputRegion);
 
-    void SetInputVoxelSet(const mdkMatrix<uint64>* InputVoxelSet);
+	void SetInputVoxelLinearIndexList(const mdkMatrix<uint64>* InputVoxelLinearIndexList);
 
-	void SetInputFilterFunction(std::function<void(uint64, uint64, uint64, const mdk3DImage<VoxelType_Input>&, VoxelType_Output&)> Input);
+	void SetInput3DPositionList(const mdkMatrix<float>* Input3DPositionList);
+
+	void SetInputFilterFunctionAt3DIndex(std::function<void(uint64, uint64, uint64, const mdk3DImage<VoxelType_Input>&, VoxelType_Output&)> Input);
+
+	void SetInputFilterFunctionAt3DPosition(std::function<void(double, double, double, const mdk3DImage<VoxelType_Input>&, VoxelType_Output&)> Input);
 
 	void SetOutputImage(mdk3DImage<VoxelType_Output>* OutputImage);
-
-    void SetOutputZeroVoxel(const VoxelType_Output& OutputZeroVoxel);
 
     void SetOutputArray(mdkMatrix<VoxelType_Output>* OutputArray);
 
@@ -98,7 +102,9 @@ public:
 
     virtual bool Postprocess();
 
-    inline virtual void FilterFunction(uint64 xIndex_center, uint64 yIndex_center, uint64 zIndex_center, VoxelType_Output& OutputVoxel);
+    inline virtual void FilterFunctionAt3DIndex(uint64 x_Index, uint64 y_Index, uint64 z_Index, VoxelType_Output& OutputVoxel);
+
+    inline virtual void FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& OutputVoxel);
 
     inline virtual void OutputFunction(uint64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
 
@@ -111,27 +117,12 @@ public:
                       std::vector< VoxelType_Output>* m_OutputArray,                       
                       uint32 MaxThreadNumber);
 
-	template<typename FilterFunctionType>
-	bool Run(FilterFunctionType InputFilterFunction);
-
-	template<typename FilterFunctionType>
-    static bool Apply(const mdk3DImage<VoxelType_Input>* InputImage,
-                      const mdkMatrix<uint64>*  m_InputRegion,
-                      const mdkMatrix<uint64>* m_InputVoxelSet,
-                      mdk3DImage<VoxelType_Output>* OutputImage,
-                      std::vector< VoxelType_Output>* m_OutputArray,
-                      uint32 MaxThreadNumber,
-			          FilterFunctionType InputFilterFunction);
-
 private:
     bool CheckInputData();
 
 	void DivideData(uint64 Index_min, uint64 Index_max, std::vector<uint64>& IndexList_start, std::vector<uint64>& IndexList_end);
 
     void Run_in_a_Thread(uint64 OutputVoxelIndex_start, uint64 OutputVoxelIndex_end);
-
-    template<typename FilterFunctionType>
-    void Run_in_a_Thread(uint64 OutputVoxelIndex_start, uint64 OutputVoxelIndex_end, FilterFunctionType InputFilterFunction);
 
 private:
 	mdk3DImageFilter(const mdk3DImageFilter&); // Not implemented.

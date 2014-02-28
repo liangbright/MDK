@@ -91,9 +91,9 @@ mdkMatrix<ElementType>::~mdkMatrix()
 
 template<typename ElementType>
 inline 
-ElementType mdkMatrix<ElementType>::GetEmptyElement()
+ElementType mdkMatrix<ElementType>::GetNaNElement()  const
 {
-    return m_EmptyElement;
+    return m_NaNElement;
 }
 
 
@@ -127,20 +127,20 @@ void mdkMatrix<ElementType>::Clear()
     
 	m_IsSizeFixed = false;
 
-	m_ElementType = this->FindElementType(m_EmptyElement);
+	m_ElementType = this->FindElementType(m_NaNElement);
 
     switch (m_ElementType)
     {
-    case mdkMatrixElementTypeEnum::MDK_DOUBLE64 :
-        m_EmptyElement = std::nan(nullptr);
+    case mdkMatrixElementTypeEnum::DOUBLE64 :
+        m_NaNElement = std::nan(nullptr);
         break;
 
-    case mdkMatrixElementTypeEnum::MDK_FLOAT32 :
-        m_EmptyElement = std::nanf(nullptr);
+    case mdkMatrixElementTypeEnum::FLOAT32 :
+        m_NaNElement = std::nanf(nullptr);
         break;
 
     default:
-        m_EmptyElement -= m_EmptyElement;
+        m_NaNElement = m_NaNElement - m_NaNElement;
     }    
 
 	m_IsTemporary = false;
@@ -613,7 +613,7 @@ ElementType& mdkMatrix<ElementType>::operator()(uint64 LinearIndex)
 	if (LinearIndex >= m_ElementNumber)
 	{
 		mdkError << "Invalid input @ mdkMatrix::operator(LinearIndex)" <<'\n';
-		return m_EmptyElement;
+		return m_NaNElement;
 	}
 
 #endif
@@ -631,7 +631,7 @@ const ElementType& mdkMatrix<ElementType>::operator()(uint64 LinearIndex) const
 	if (LinearIndex >= m_ElementNumber)
 	{
 		mdkError << "Invalid input @ mdkMatrix::operator(LinearIndex) const" << '\n';
-		return m_EmptyElement;
+		return m_NaNElement;
 	}
 
 #endif
@@ -649,7 +649,7 @@ ElementType& mdkMatrix<ElementType>::operator[](uint64 LinearIndex)
 	if (LinearIndex >= m_ElementNumber)
 	{
 		mdkError << "LinearIndex >= m_ElementNumber @ mdkMatrix::operator[LinearIndex]" << '\n';
-		return m_EmptyElement;
+		return m_NaNElement;
 	}
 
 #endif
@@ -667,7 +667,7 @@ const ElementType& mdkMatrix<ElementType>::operator[](uint64 LinearIndex) const
 	if (LinearIndex >= m_ElementNumber)
 	{
 		mdkError << "LinearIndex >= m_ElementNumber @ mdkMatrix::operator[LinearIndex] const" << '\n';
-		return m_EmptyElement;
+		return m_NaNElement;
 	}
 
 #endif
@@ -683,7 +683,7 @@ ElementType& mdkMatrix<ElementType>::at(uint64 LinearIndex)
 	if (LinearIndex >= m_ElementNumber)
 	{
 		mdkError << "Invalid input @ mdkMatrix::at(i)" << '\n';
-		return m_EmptyElement;
+		return m_NaNElement;
 	}
 
 	return (*m_ElementData)[LinearIndex];
@@ -697,7 +697,7 @@ const ElementType& mdkMatrix<ElementType>::at(uint64 LinearIndex) const
 	if (LinearIndex >= m_ElementNumber)
 	{
 		mdkError << "Invalid input @ mdkMatrix::at(i) const" << '\n';
-		return m_EmptyElement;
+		return m_NaNElement;
 	}
 
 	return (*m_ElementData)[LinearIndex];
@@ -713,7 +713,7 @@ ElementType& mdkMatrix<ElementType>::operator()(uint64 RowIndex, uint64 ColIndex
     if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
 	{
 		mdkError << "Invalid input @ mdkMatrix::operator(i,j)" << '\n';
-		return m_EmptyElement;
+		return m_NaNElement;
 	}
 
 #endif
@@ -733,7 +733,7 @@ const ElementType& mdkMatrix<ElementType>::operator()(uint64 RowIndex, uint64 Co
     if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
     {
         mdkError << "Invalid input @ mdkMatrix::operator(i,j) const" << '\n';
-        return m_EmptyElement;
+        return m_NaNElement;
     }
 
 #endif
@@ -751,7 +751,7 @@ ElementType& mdkMatrix<ElementType>::at(uint64 RowIndex, uint64 ColIndex)
     if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
     {
         mdkError << "Invalid input @ mdkMatrix::at(i,j)" << '\n';
-        return m_EmptyElement;
+        return m_NaNElement;
     }
 
     auto LinearIndex = ColIndex*m_RowNumber + RowIndex;
@@ -767,7 +767,7 @@ const ElementType& mdkMatrix<ElementType>::at(uint64 RowIndex, uint64 ColIndex) 
     if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
     {
         mdkError << "Invalid input @ mdkMatrix::at(i,j) const" << '\n';
-        return m_EmptyElement;
+        return m_NaNElement;
     }
 
     auto LinearIndex = ColIndex*m_RowNumber + RowIndex;
@@ -1238,6 +1238,45 @@ bool mdkMatrix<ElementType>::SetCol(uint64 ColIndex, const std::vector<ElementTy
 	return this->SetCol(ColIndex, ColData.data());
 }
 
+template<typename ElementType>
+inline 
+bool mdkMatrix<ElementType>::AppendCol(const std::initializer_list<ElementType>& ColData)
+{
+    if (m_RowNumber == 0)
+    {
+        mdkError << "Self Size is 0 x ? @ mdkMatrix::AppendCol(mdkMatrix)" << '\n';
+        return false;
+    }
+
+    if (ColData.size() != m_RowNumber)
+    {
+        mdkError << "Invalid input @ mdkMatrix::AppendCol(mdkMatrix)" << '\n';
+        return false;
+    }
+
+    if (m_ElementData->capacity() - m_ElementNumber < m_RowNumber)
+    {
+        m_ElementData->reserve((m_ColNumber + MDK_Matrix_ColExpansionStep)*m_RowNumber);
+    }
+
+    m_ElementData->resize((m_ColNumber + 1)*m_RowNumber);
+
+    auto RawPointer = m_ElementData->data();
+
+    uint64 Index = m_ElementNumber;
+
+    for (uint64 i = 0; i < m_RowNumber; ++i)
+    {
+        RawPointer[Index + i] = ColData.begin()[i];
+    }
+
+    m_ColNumber += 1;
+
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    return true;
+}
+
 
 template<typename ElementType>
 template<typename ElementType_input>
@@ -1285,7 +1324,10 @@ bool  mdkMatrix<ElementType>::AppendCol(const ElementType_input* ColData)
 		return false;
 	}
 
-	m_ElementData->resize((m_ColNumber + MDK_Matrix_ColExpansionStep)*m_RowNumber);
+    if (m_ElementData->size() - m_ElementNumber < m_RowNumber)
+    {
+        m_ElementData->resize((m_ColNumber + MDK_Matrix_ColExpansionStep)*m_RowNumber);
+    }
 
 	auto RawPointer = m_ElementData->data();
 
@@ -1567,11 +1609,9 @@ bool mdkMatrix<ElementType>::AppendRow(const ElementType_input* RowData)
 		return false;
 	}
 
-	auto tempData = new std::vector<ElementType>;
+    auto tempElementData = std::make_shared<std::vector<ElementType>>((m_RowNumber + 1)*m_ColNumber);
 
-	tempData->resize((m_RowNumber + MDK_Matrix_RowExpansionStep)*m_ColNumber);
-
-	auto tempRawPointer = tempData->data();
+    auto tempRawPointer = tempElementData->data();
 
 	auto RawPointer = m_ElementData->data();
 
@@ -1595,7 +1635,7 @@ bool mdkMatrix<ElementType>::AppendRow(const ElementType_input* RowData)
 
     m_ElementNumber = m_RowNumber*m_ColNumber;
 
-	m_ElementData.reset(tempData);
+    m_ElementData = tempElementData;
 
 	return true;
 }
@@ -1739,7 +1779,39 @@ bool mdkMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData)
 
 
 template<typename ElementType>
-inline bool mdkMatrix<ElementType>::SetDiangonal(ElementType Element)
+inline 
+bool mdkMatrix<ElementType>::SetDiangonal(const std::initializer_list<ElementType>& DiangonalData)
+{
+    if (m_ElementNumber == 0 || m_RowNumber != m_ColNumber)
+    {
+        mdkError << "Invalid input @ mdkMatrix::SetDiangonal(initializer_list)" << '\n';
+        return false;
+    }
+
+    if (DiangonalData.size() != m_RowNumber)
+    {
+        mdkError << "Invalid input @ mdkMatrix::SetDiangonal(initializer_list)" << '\n';
+        return false;
+    }
+
+    auto RawPointer = m_ElementData->data();
+
+    uint64 Index = 0;
+
+    for (uint64 j = 0; j < m_ColNumber; ++j)
+    {
+        RawPointer[Index + j] = DiangonalData.begin()[j];
+
+        Index += m_RowNumber;
+    }
+
+    return true;
+}
+
+
+template<typename ElementType>
+inline 
+bool mdkMatrix<ElementType>::SetDiangonal(ElementType Element)
 {
 	if (m_ElementNumber == 0 || m_RowNumber != m_ColNumber)
 	{
@@ -1984,9 +2056,9 @@ mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const md
 
 	uint64 IndexB = 0;
 
-	ElementType ZeroElement;
+    ElementType ZeroElement = MatrixA(0);
 
-    ZeroElement -= ZeroElement;
+    ZeroElement = ZeroElement - ZeroElement;
 
 	for (uint64 j = 0; j < SizeB.ColNumber; ++j)
 	{
@@ -2864,7 +2936,7 @@ inline ElementType mdkMatrix<ElementType>::Mean()
     if (m_ElementNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::Mean" << '\n';
-		return m_EmptyElement;
+		return m_NaNElement;
 	}
 
 	auto RawPointer = m_ElementData->data();
@@ -3044,7 +3116,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumToCol()
 		return tempMatrix;
 	}
 
-	tempMatrix.SetSize(m_ColNumber, 1);
+	tempMatrix.SetSize(m_RowNumber, 1);
 
 	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
