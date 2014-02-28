@@ -56,16 +56,16 @@ inline mdkMatrix<ElementType> operator/(ElementType Element, const mdkShadowMatr
 // ----------------------- ShadowMatrix {+ - * /}  Element ------------------------------------------------//
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator+(mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element);
+inline mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator-(mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element);
+inline mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator*(mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element);
+inline mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element);
+inline mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element);
 //--------------------------------------------------------------------------------------------------//
 
 // ----------------------- ShadowMatrix {+ - * / %}  Matrix ------------------------------------------------//
@@ -121,8 +121,6 @@ private:
 
     ElementType m_EmptyElement;
 
-    bool m_IsTemporary;
-
     bool m_IsLinearIndexListOnly;
 
 	// info from the source Matrix -----------------------------------------------//
@@ -151,7 +149,7 @@ public:
 
     inline mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatrix, const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList);
 
-    inline mdkShadowMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+    inline mdkShadowMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix); // copy the ShadowMatrix returned from a function
 
 	inline ~mdkShadowMatrix();
 
@@ -207,10 +205,6 @@ public:
 
     inline void Clear();
 
-    inline bool IsTemporary() const;
-
-    inline void SetTobeTemporary();
-
     inline bool IsLinearIndexListOnly() const;
 
 	inline uint64 GetRowNumber() const;
@@ -227,13 +221,13 @@ public:
 
     inline uint64 GetElementNumberOfSource() const;
 
-    inline std::vector<uint64> GetRowIndexListOfSource() const;
+    inline const std::vector<uint64>& GetRowIndexListOfSource() const;
 
-    inline std::vector<uint64> GetColIndexListOfSource() const;
+    inline const std::vector<uint64>& GetColIndexListOfSource() const;
 
-    inline std::vector<uint64> GetLinearIndexListOfSource() const;
+    inline const std::vector<uint64>& GetLinearIndexListOfSource() const;
 
-    inline std::shared_ptr<std::vector<ElementType>> GetElementDataSharedPointerOfSource() const;
+    inline const std::shared_ptr<std::vector<ElementType>>& GetElementDataSharedPointerOfSource() const;
 
 	inline mdkMatrix<ElementType> CreateMatrix() const;
 	

@@ -9,6 +9,7 @@ using namespace mdk;
 
 int main()
 {
-    Test_ShadowMatrix();
+    //Test_ShadowMatrix();
     
+    Test_GlueMatrix();
 }

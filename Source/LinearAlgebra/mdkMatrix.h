@@ -6,6 +6,7 @@
 #include <initializer_list>
 
 #include "mdkObject.h"
+#include "mdkLinearAlgebraConfig.h"
 //#include "mdkShadowMatrix.h"
 
 
@@ -26,6 +27,9 @@ class mdkMatrix;
 
 template<typename ElementType>
 class mdkShadowMatrix;
+
+template<typename ElementType>
+class mdkGlueMatrix;
 
 // end of  forward-declare  //
 
@@ -48,11 +52,15 @@ struct mdkMatrixSVDResult
 
 // ----------------------- Matrix {+ - * / %}  Matrix ------------------------------------------------//
 
+#if !defined MDK_ENABLE_GlueMatrix
+
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+
+#endif // !defined MDK_ENABLE_GlueMatrix
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
@@ -66,31 +74,39 @@ inline mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, c
 
 // ----------------------- Element {+ - * /} Matrix ------------------------------------------------//
 
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator+(ElementType Element, const mdkMatrix<ElementType>& Matrix);
+#if !defined MDK_ENABLE_GlueMatrix
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator-(ElementType Element, const mdkMatrix<ElementType>& Matrix);
+inline mdkMatrix<ElementType> operator+(const ElementType& Element, const mdkMatrix<ElementType>& Matrix);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator*(ElementType Element, const mdkMatrix<ElementType>& Matrix);
+inline mdkMatrix<ElementType> operator-(const ElementType& Element, const mdkMatrix<ElementType>& Matrix);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(ElementType Element, const mdkMatrix<ElementType>& Matrix);
+inline mdkMatrix<ElementType> operator*(const ElementType& Element, const mdkMatrix<ElementType>& Matrix);
+
+#endif // !defined MDK_ENABLE_GlueMatrix
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator/(const ElementType& Element, const mdkMatrix<ElementType>& Matrix);
 
 // ----------------------- Matrix {+ - * /}  Element ------------------------------------------------//
 
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator+(mdkMatrix<ElementType>& Matrix, ElementType Element);
+#if !defined MDK_ENABLE_GlueMatrix
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator-(mdkMatrix<ElementType>& Matrix, ElementType Element);
+inline mdkMatrix<ElementType> operator+(mdkMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator*(mdkMatrix<ElementType>& Matrix, ElementType Element);
+inline mdkMatrix<ElementType> operator-(mdkMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(mdkMatrix<ElementType>& Matrix, ElementType Element);
+inline mdkMatrix<ElementType> operator*(mdkMatrix<ElementType>& Matrix, const ElementType& Element);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator/(mdkMatrix<ElementType>& Matrix, const ElementType& Element);
+
+#endif // !defined MDK_ENABLE_GlueMatrix
 //--------------------------------------------------------------------------------------------------//
 
 #define MDK_Matrix_ColExpansionStep  100
@@ -130,6 +146,8 @@ public:
 	inline mdkMatrix(const mdkMatrix<ElementType>& targetMatrix);
 
     inline mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+
+    inline mdkMatrix(const mdkGlueMatrix<ElementType>& GlueMatrix);
 
 	inline mdkMatrix(uint64 RowNumber, uint64 ColNumber = 1, bool IsSizeFixed = false);
 
@@ -193,6 +211,8 @@ public:
     inline void operator=(const std::vector<ElementType>& ColVector);
 
     inline void operator=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+
+    inline void operator=(const mdkGlueMatrix<ElementType>& GlueMatrix);
 
 	template<typename ElementType_target>
 	inline bool Copy(const mdkMatrix<ElementType_target>& targetMatrix);
@@ -355,28 +375,28 @@ public:
 
 	//-------------------- element operation  ------------------------------------------//
 
-	inline mdkMatrix ElementOperation(const char* FunctionName);
+    inline mdkMatrix ElementOperation(const char* FunctionName) const;
 
-	inline mdkMatrix ElementOperation(const std::string& FunctionName);
+    inline mdkMatrix ElementOperation(const std::string& FunctionName) const;
 
 	template<typename FunctionType>
-	inline mdkMatrix ElementOperation(FunctionType Function);
+    inline mdkMatrix ElementOperation(FunctionType Function) const;
 
 	template<typename ElementType_target>
-	inline mdkMatrix ElementOperation(const char* FunctionName, const mdkMatrix<ElementType_target>& targetMatrix);
+    inline mdkMatrix ElementOperation(const char* FunctionName, const mdkMatrix<ElementType_target>& targetMatrix) const;
 
 	template<typename ElementType_target>
-	inline mdkMatrix ElementOperation(const std::string& FunctionName, const mdkMatrix<ElementType_target>& targetMatrix);
+    inline mdkMatrix ElementOperation(const std::string& FunctionName, const mdkMatrix<ElementType_target>& targetMatrix) const;
 
 	template<typename FunctionType, typename ElementType_target>
-	inline mdkMatrix ElementOperation(FunctionType Function, const mdkMatrix<ElementType_target>& targetMatrix);
+    inline mdkMatrix ElementOperation(FunctionType Function, const mdkMatrix<ElementType_target>& targetMatrix) const;
 
-	inline mdkMatrix ElementOperation(const char* FunctionName, ElementType Element);
+	inline mdkMatrix ElementOperation(const char* FunctionName, ElementType Element) const;
 
-	inline mdkMatrix ElementOperation(const std::string& FunctionName, ElementType Element);
+    inline mdkMatrix ElementOperation(const std::string& FunctionName, ElementType Element) const;
 
 	template<typename FunctionType>
-	inline mdkMatrix ElementOperation(FunctionType Function, ElementType Element);
+    inline mdkMatrix ElementOperation(FunctionType Function, ElementType Element) const;
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 

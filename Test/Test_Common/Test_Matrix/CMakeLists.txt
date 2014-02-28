@@ -69,6 +69,9 @@ ${LinearAlgebra_DIR}/mdkMatrix.hpp
 ${LinearAlgebra_DIR}/mdkShadowMatrix.h
 ${LinearAlgebra_DIR}/mdkShadowMatrix.hpp
 
+${LinearAlgebra_DIR}/mdkGlueMatrix.h
+${LinearAlgebra_DIR}/mdkGlueMatrix.hpp
+
 ${LinearAlgebra_DIR}/mdkLinearAlgebra.h
 ${LinearAlgebra_DIR}/mdkLinearAlgebra.hpp
 

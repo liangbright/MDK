@@ -1,8 +1,11 @@
 #ifndef __Test_h
 #define __Test_h
 
+#include <ctime>
+
 #include "mdkMatrix.h"
 #include "mdkShadowMatrix.h"
+#include "mdkGlueMatrix.h"
 #include "mdkLinearAlgebra.h"
 
 using namespace mdk;
@@ -821,5 +824,124 @@ void Test_ShadowMatrix()
     mdkMatrix<double> subA6 = A.Row({0, 1}) * A.Col({0, 1});
 }
 
+
+void Test_GlueMatrix()
+{
+    mdkMatrix<double> A(3, 3);
+    A = { 1, 2, 0,
+          1, 2, 0,
+          3, 3, 3};
+
+
+    mdkMatrix<double> B(2, 3);
+    B = { 1, 2, 3,
+          1, 2, 3};
+
+
+    mdkMatrix<double> C(2, 3);
+    C = { 0, 2, 1,
+          0, 2, 1};
+
+    mdkMatrix<double> C1(2, 3);
+    C1 = { 1, 0, 1,
+           1, 0, 1 };
+
+    mdkMatrix<double> D = 1.0*A({0, 1}, {}) + 2.0*B - 3.0*C + 4.0*C1;
+
+    std::cout << "D= " << '\n';
+
+    for (uint64 i = 0; i < 2; ++i)
+    {
+        for (uint64 j = 0; j < 3; ++j)
+        {
+            std::cout << D(i, j) << ' ';
+        }
+
+        std::cout << '\n';
+    }
+
+    auto E = Add(mdkMatrix<double>(A.Row({ 0, 1 })), C);
+}
+
+void Test_GlueMatrix_Speed1()
+{
+
+    mdkMatrix<double> A(512, 512);
+
+    mdkMatrix<double> B(512, 512);
+
+    mdkMatrix<double> C(512, 512);
+
+    auto t0 = std::time(0);
+
+    mdkMatrix<double> D(512, 512);
+    
+    for (uint64 i = 0; i < 10000; ++i)
+    {
+        D += 1.0*A + 2.0*B - 3.0 * C;
+    }
+
+    std::cout << "D(0,0) " << D(0,0) << '\n';
+
+    auto t1 = std::time(0);
+
+    std::cout << "time " << t1 - t0 << '\n';
+
+    std::system("pause");
+
+    // time : 23s GlueMatrix
+    // time : 45s No GlueMatrix
+}
+
+void Test_GlueMatrix_Speed2()
+{
+
+    mdkMatrix<double> A(512, 512);
+
+    A.Fill(1.0);
+
+    mdkMatrix<double> B(512, 512);
+
+    B.Fill(2.0);
+
+    mdkMatrix<double> C(512, 512);
+
+    C.Fill(3.0);
+
+    mdkMatrix<double> C2(512, 512);
+
+    C2.Fill(3.0);
+
+    auto t0 = std::time(0);
+
+    mdkMatrix<double> D(512, 512);
+
+    D.Fill(0.0);
+
+    for (uint64 i = 0; i < 10000; ++i)
+    {
+        D += A + B + C + C2;
+    }
+
+    std::cout << "D(0,0) " << D(0, 0) << '\n';
+
+    auto t1 = std::time(0);
+
+    std::cout << "time " << t1 - t0 << '\n';
+
+    std::system("pause");
+
+    //  D += A + B;
+    // time : 19s GlueMatrix
+    // time : 11s No GlueMatrix
+
+    //  D += A + B + C;
+    // time : 23s GlueMatrix
+    // time : 21s No GlueMatrix
+
+    //  D += A + B + C + C2;
+    // time : 27s GlueMatrix
+    // time : 30s No GlueMatrix
+}
 
 #endif

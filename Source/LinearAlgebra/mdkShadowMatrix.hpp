@@ -51,8 +51,6 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
     m_ColNumber = 1;
 
     m_EmptyElement = sourceMatrix.GetEmptyElement();
-
-    m_IsTemporary = false;
 }
 
 
@@ -113,8 +111,6 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
     m_ElementNumber = m_RowNumber*m_ColNumber;
 
     m_EmptyElement = sourceMatrix.GetEmptyElement();
-
-    m_IsTemporary = false;
 }
 
 
@@ -122,7 +118,38 @@ template<typename ElementType>
 inline 
 mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
-    (*this) = ShadowMatrix;
+    m_RowNumber_source = ShadowMatrix.GetRowNumberOfSource();
+
+    m_ColNumber_source = ShadowMatrix.GetColNumberOfSource();
+
+    m_ElementNumber_source = ShadowMatrix.GetElementNumberOfSource();
+
+    m_ElementData_source = ShadowMatrix.GetElementDataSharedPointerOfSource();
+
+    m_RowIndexList_source = ShadowMatrix.GetRowIndexListOfSource();
+
+    m_ColIndexList_source = ShadowMatrix.GetColIndexListOfSource();
+
+    m_LinearIndexList_source = ShadowMatrix.GetLinearIndexListOfSource();
+
+    m_IsLinearIndexListOnly = ShadowMatrix.IsLinearIndexListOnly();
+
+    if (m_IsLinearIndexListOnly == true)
+    {
+        m_ElementNumber = m_LinearIndexList_source.size();
+        m_RowNumber = m_ElementNumber;
+        m_ColNumber = 1;
+    }
+    else
+    {
+        m_RowNumber = m_RowIndexList_source.size();
+
+        m_ColNumber = m_ColIndexList_source.size();
+
+        m_ElementNumber = m_RowNumber*m_ColNumber;
+    }
+
+    m_EmptyElement -= m_EmptyElement;
 }
 
 
@@ -159,22 +186,6 @@ inline void mdkShadowMatrix<ElementType>::Clear()
     m_ColNumber = 0;
 
     m_EmptyElement -= m_EmptyElement;
-
-    m_IsTemporary = false;
-}
-
-
-template<typename ElementType>
-inline bool mdkShadowMatrix<ElementType>::IsTemporary() const
-{
-    return m_IsTemporary;
-}
-
-
-template<typename ElementType>
-inline void mdkShadowMatrix<ElementType>::SetTobeTemporary()
-{
-    m_IsTemporary = true;
 }
 
 
@@ -223,7 +234,8 @@ mdkMatrixSize mdkShadowMatrix<ElementType>::GetSize() const
 
 
 template<typename ElementType>
-inline uint64 mdkShadowMatrix<ElementType>::GetRowNumberOfSource() const
+inline 
+uint64 mdkShadowMatrix<ElementType>::GetRowNumberOfSource() const
 {
     return m_RowNumber_source;
 }
@@ -237,42 +249,48 @@ inline uint64 mdkShadowMatrix<ElementType>::GetColNumberOfSource() const
 
 
 template<typename ElementType>
-inline uint64 mdkShadowMatrix<ElementType>::GetElementNumberOfSource() const
+inline 
+uint64 mdkShadowMatrix<ElementType>::GetElementNumberOfSource() const
 {
     return m_ElementNumber_source;
 }
 
 
 template<typename ElementType>
-inline std::vector<uint64> mdkShadowMatrix<ElementType>::GetRowIndexListOfSource() const
+inline 
+const std::vector<uint64>& mdkShadowMatrix<ElementType>::GetRowIndexListOfSource() const
 {
     return m_RowIndexList_source;
 }
 
 
 template<typename ElementType>
-inline std::vector<uint64> mdkShadowMatrix<ElementType>::GetColIndexListOfSource() const
+inline 
+const std::vector<uint64>& mdkShadowMatrix<ElementType>::GetColIndexListOfSource() const
 {
     return m_ColIndexList_source;
 }
 
 
 template<typename ElementType>
-inline std::vector<uint64> mdkShadowMatrix<ElementType>::GetLinearIndexListOfSource() const
+inline 
+const std::vector<uint64>& mdkShadowMatrix<ElementType>::GetLinearIndexListOfSource() const
 {
     return m_LinearIndexList_source;
 }
 
 
 template<typename ElementType>
-inline std::shared_ptr<std::vector<ElementType>> mdkShadowMatrix<ElementType>::GetElementDataSharedPointerOfSource() const
+inline 
+const std::shared_ptr<std::vector<ElementType>>& mdkShadowMatrix<ElementType>::GetElementDataSharedPointerOfSource() const
 {
     return m_ElementData_source;
 }
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkShadowMatrix<ElementType>::CreateMatrix() const
+inline 
+mdkMatrix<ElementType> mdkShadowMatrix<ElementType>::CreateMatrix() const
 {
     mdkMatrix<ElementType> tempMatrix;
 
@@ -326,41 +344,6 @@ void mdkShadowMatrix<ElementType>::operator=(const mdkShadowMatrix<ElementType>&
     {
         return;
     }
-
-    if (ShadowMatrix.IsTemporary() == true)
-    {
-        m_RowNumber_source = ShadowMatrix.GetRowNumberOfSource();
-
-        m_ColNumber_source = ShadowMatrix.GetColNumberOfSource();
-
-        m_ElementNumber_source = ShadowMatrix.GetElementNumberOfSource();
-
-        m_ElementData_source = ShadowMatrix.GetElementDataSharedPointerOfSource();
-
-        m_RowIndexList_source = ShadowMatrix.GetRowIndexListOfSource();
-
-        m_ColIndexList_source = ShadowMatrix.GetColIndexListOfSource();
-
-        m_LinearIndexList_source = ShadowMatrix.GetLinearIndexListOfSource();
-
-        m_IsLinearIndexListOnly = ShadowMatrix.IsLinearIndexListOnly();
-
-        m_IsTemporary = false;
-
-        m_ElementNumber = m_LinearIndexList_source.size();
-
-        m_RowNumber = m_RowIndexList_source.size();
-
-        m_ColNumber = m_ColIndexList_source.size();
-
-        m_ElementNumber = std::max(m_ElementNumber, m_RowNumber*m_ColNumber);
-
-        m_EmptyElement -= m_EmptyElement;
-
-        return;
-    }
-
-    //----------------------------- ShadowMatrix is not Temporary --------------------------//
 
     if (ShadowMatrix.IsLinearIndexListOnly() != m_IsLinearIndexListOnly)
     {
