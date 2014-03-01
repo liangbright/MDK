@@ -140,7 +140,7 @@ void mdkMatrix<ElementType>::Clear()
         break;
 
     default:
-        m_NaNElement = m_NaNElement - m_NaNElement;
+        m_NaNElement -= m_NaNElement;
     }    
 
 	m_IsTemporary = false;

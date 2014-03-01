@@ -1,7 +1,7 @@
-#ifndef __mdk3DImageVoxel_hpp
-#define __mdk3DImageVoxel_hpp
+#ifndef __mdk3DImageVectorVoxelWithFixedLength_hpp
+#define __mdk3DImageVectorVoxelWithFixedLength_hpp
 
-#include "mdk3DImageVoxel.h"
+#include "mdk3DImageVectorVoxel_std_array.h"
 
 namespace mdk
 {
@@ -208,6 +208,7 @@ void operator/=(std::array<ElementType, Length>& Voxel, const ElementType& Eleme
         Voxel[i] /= Element;
     }
 }
+
 
 }// namespace mkd
 

@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <array>
 
+#include "mdkFileIO.h"
 #include "mdkMatrix.h"
 #include "mdk3DImage.h"
 #include "mdk3DImageFilter.h"
@@ -508,6 +509,8 @@ void Test_ConvolutionFilter_VectorOutput()
 	std::cout << "sizeof(tempdata)" << sizeof(*tempdataptr)*tempdataptr->size() << '\n';
 	*/
 
+    /*
+
 	uint64 OuputVoxelDimension = 2;
 
 	mdk3DImage<double> InputImage;
@@ -566,6 +569,7 @@ void Test_ConvolutionFilter_VectorOutput()
 	std::cout << "imfilter time " << t1 - t0 << '\n';
 
 	std::system("pause");
+    */
 }
 
 
@@ -578,7 +582,6 @@ void test_Valve_Filter()
     std::string OutputFilePathAndName("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0_OutputImage");
 
     auto InputDimension = InputImage.GetImageDimension();
-
 
     mdk3DImage<double> OutputImage;
 
@@ -593,8 +596,6 @@ void test_Valve_Filter()
     imfilter.SetOutputImage(&OutputImage);
 
     imfilter.SetMaxThreadNumber(4);
-
-    //imfilter.EnableBoundCheck(true);
 
     mdkMatrix<double> Mask(4, 7);
 
@@ -704,5 +705,6 @@ void test_IntegralImageBuider()
 
     std::system("pause");
 }
+
 
 #endif

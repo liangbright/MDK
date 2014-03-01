@@ -7,9 +7,9 @@
 namespace mdk
 {
 
-template<typename ScalarType>
+template<typename ObjectType>
 inline
-mdkScalarTypeEnum FindScalarType(ScalarType Scalar)
+mdkScalarTypeEnum FindScalarType(ObjectType Scalar)
 {
     std::string TypeName(typeid(Scalar).name());
 

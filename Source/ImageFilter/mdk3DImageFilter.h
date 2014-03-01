@@ -118,12 +118,12 @@ protected:
 
     virtual bool Postprocess();
 
+    //output: IndexList_start and IndexList_end
     void DivideData(uint64 Index_min, uint64 Index_max, uint64 MinDataNumberPerThread,
                     std::vector<uint64>& IndexList_start, std::vector<uint64>& IndexList_end);
 
     inline virtual void OutputFunction(uint64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
 
-private:
     void Run_in_a_Thread(uint64 OutputVoxelIndex_start, uint64 OutputVoxelIndex_end);
 
 private:

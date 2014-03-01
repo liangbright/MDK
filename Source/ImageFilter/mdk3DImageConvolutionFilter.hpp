@@ -25,7 +25,7 @@ template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxel
 inline
 void
 mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
-SetOutputVoxelMatrix(const mdkMatrix<uint64>* VoxelMatrix)
+SetOutputVoxelMatrix(const mdkMatrix<VoxelType_Input>* VoxelMatrix)
 {
     m_OutputVoxelMatrix = VoxelMatrix;
 }
@@ -64,6 +64,7 @@ template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxel
 void mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::BuildMaskOf3DPosition()
 {
 }
+
 
 template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
 inline

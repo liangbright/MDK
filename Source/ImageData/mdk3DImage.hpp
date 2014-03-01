@@ -117,7 +117,6 @@ bool mdk3DImage<VoxelType>::Initialize(uint64 Lx, uint64 Ly, uint64 Lz = 1,
 template<typename VoxelType>
 void mdk3DImage<VoxelType>::Clear()
 {
-    //m_VoxelData.reset(new std::vector<VoxelType>);
     m_VoxelData = std::make_shared<std::vector<VoxelType>>();
 
 	m_ImageDimension[0] = 0;
@@ -136,7 +135,7 @@ void mdk3DImage<VoxelType>::Clear()
 
 	m_VoxelNumberPerZSlice = 0;
 
-    m_EmptyVoxel = m_EmptyVoxel - m_EmptyVoxel;
+    m_EmptyVoxel -= m_EmptyVoxel;
 
     m_EmptyVoxel_temp = m_EmptyVoxel;
 
@@ -326,6 +325,12 @@ bool mdk3DImage<VoxelType>::Fill(const VoxelType& Voxel)
 
 
 // specialize a member function of a class template (use inline to prevent error LNK2005)
+//
+// note: if Clear is a virtual function in mdkObject
+// then, this specialized function must co-exist with Clear
+// and  m_EmptyVoxel -= m_EmptyVoxel may cause compiler error 
+// when VoxelType is std::vector becuase -= is not defined for std::vector 
+//
 bool mdk3DImage<std::vector<double>>::Fill(const std::vector<double>& Voxel)
 {
 	if (m_VoxelNumber == 0)
@@ -768,7 +773,7 @@ const VoxelType& mdk3DImage<VoxelType>::at(uint64 xIndex, uint64 yIndex, uint64 
 template<typename VoxelType>
 mdk3DImage<VoxelType> mdk3DImage<VoxelType>::GetSubImage(uint64 xIndex_s, uint64 xIndex_e, uint64 yIndex_s, uint64 yIndex_e, uint64 zIndex_s = 0, uint64 zIndex_e = 0) const
 {
-	mdk3DImage<ScalarType> tempImage; // empty image
+    mdk3DImage<VoxelType> tempImage; // empty image
 
 	tempImage.SetTobeTemporary();
 
@@ -825,7 +830,7 @@ mdk3DImage<VoxelType>
 mdk3DImage<VoxelType>::
 Pad(const char* Option, uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0) const
 {
-	mdk3DImage<ScalarType> tempImage; // empty image
+    mdk3DImage<VoxelType> tempImage; // empty image
 
 	tempImage.SetTobeTemporary();
 
@@ -902,7 +907,7 @@ mdk3DImage<VoxelType>
 mdk3DImage<VoxelType>::
 Pad(VoxelType Voxel, uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0) const
 {
-	mdk3DImage<ScalarType> tempImage; // empty image
+    mdk3DImage<VoxelType> tempImage; // empty image
 
 	tempImage.SetTobeTemporary();
 
@@ -957,7 +962,7 @@ mdk3DImage<VoxelType>
 mdk3DImage<VoxelType>::
 UnPad(uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0) const
 {
-	mdk3DImage<ScalarType> tempImage; // empty image
+    mdk3DImage<VoxelType> tempImage; // empty image
 
 	tempImage.SetTobeTemporary();
 

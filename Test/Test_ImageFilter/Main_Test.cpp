@@ -1,11 +1,5 @@
 ﻿#include <iostream>
 
-#include "mdkType.h"
-#include "mdkMatrix.h"
-#include "mdk3DImage.h"
-#include "mdk3DImageFilter.h"
-#include "mdkFileIO.h"
-
 #include "TestImageFilter.h"
 
 using namespace mdk;
@@ -42,5 +36,6 @@ int main()
 
     //test_GaussianFilter();
 
-    test_IntegralImageBuider();
+    //test_IntegralImageBuider();
+
 }

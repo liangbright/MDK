@@ -107,7 +107,7 @@ public:
 		            double VoxelPhysicalSize_y = 1.0,
 		            double VoxelPhysicalSize_z = 1.0);
 
-	void Clear();
+    void Clear();
 
 	inline bool IsEmpty() const;
 
