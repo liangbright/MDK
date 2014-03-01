@@ -23,10 +23,4 @@ void mdkObject::operator=(const mdkObject&)
 }
 
 
-void mdkObject::Clear()
-{
-
-}
-
-
 }//end namespace mdk

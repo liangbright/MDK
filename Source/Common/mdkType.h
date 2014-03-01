@@ -26,7 +26,7 @@ namespace mdk
 
 #endif
 
-typedef enum
+enum struct mdkScalarTypeEnum
 {
 	DOUBLE64,
 	FLOAT32,
@@ -40,9 +40,7 @@ typedef enum
 	UINT64,
 
 	UNKNOWN,
-} mdkScalarTypeEnum;
-
-typedef mdkScalarTypeEnum mdkMatrixElementTypeEnum;
+};
 
 //-------------------------------------------------------------//
 template<typename ScalarType>

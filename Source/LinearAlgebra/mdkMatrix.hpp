@@ -20,6 +20,10 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType>::mdkMatrix()
 {
+    m_ElementType = FindMatrixElementType(m_NaNElement);
+
+    this->SetNaNElement(m_ElementType);
+
 	this->Clear();
 }
 
@@ -28,6 +32,10 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType>::mdkMatrix(const mdkMatrix<ElementType>& targetMatrix)
 {
+    m_ElementType = FindMatrixElementType(m_NaNElement);
+
+    this->SetNaNElement(m_ElementType);
+
     this->Clear();
 
 	(*this) = targetMatrix;
@@ -98,11 +106,47 @@ ElementType mdkMatrix<ElementType>::GetNaNElement()  const
 
 
 template<typename ElementType>
-template<typename ElementType_target>
 inline
-mdkMatrixElementTypeEnum mdkMatrix<ElementType>::FindElementType(ElementType_target Element)
+void mdkMatrix<ElementType>::SetNaNElement(mdkMatrixElementTypeEnum ElementType)
 {
-    return mdk::FindScalarType(Element);
+    switch (ElementType)
+    {
+    case mdkMatrixElementTypeEnum::Scalar_DOUBLE64:
+        m_NaNElement = std::nan(nullptr);
+        break;
+
+    case mdkMatrixElementTypeEnum::Scalar_FLOAT32:
+        m_NaNElement = std::nanf(nullptr);
+        break;
+
+    case mdkMatrixElementTypeEnum::StdVector_DOUBLE64:
+        m_NaNElement += std::nan(nullptr);
+        break;
+
+    case mdkMatrixElementTypeEnum::StdVector_FLOAT32:
+        m_NaNElement += std::nanf(nullptr);
+        break;
+
+    case mdkMatrixElementTypeEnum::StdArray_DOUBLE64:
+        m_NaNElement += std::nan(nullptr);
+        break;
+
+    case mdkMatrixElementTypeEnum::StdArray_FLOAT32:
+        m_NaNElement += std::nanf(nullptr);
+        break;
+
+    default:
+        mdkWarning << "ElementType is not float/double, so m_NaNElement is zero @ mdkMatrix::SetNaNElement(ElementType)" << '\n';
+        m_NaNElement -= m_NaNElement;
+    }
+}
+
+
+template<typename ElementType>
+inline
+void mdkMatrix<ElementType>::SetNaNElement(ElementType NaNElement)
+{
+    m_NaNElement = NaNElement;
 }
 
 
@@ -127,23 +171,11 @@ void mdkMatrix<ElementType>::Clear()
     
 	m_IsSizeFixed = false;
 
-	m_ElementType = this->FindElementType(m_NaNElement);
-
-    switch (m_ElementType)
-    {
-    case mdkMatrixElementTypeEnum::DOUBLE64 :
-        m_NaNElement = std::nan(nullptr);
-        break;
-
-    case mdkMatrixElementTypeEnum::FLOAT32 :
-        m_NaNElement = std::nanf(nullptr);
-        break;
-
-    default:
-        m_NaNElement -= m_NaNElement;
-    }    
-
 	m_IsTemporary = false;
+
+    m_ElementType = FindMatrixElementType(m_NaNElement);
+
+    this->SetNaNElement(m_ElementType);
 }
 
 
@@ -1238,9 +1270,11 @@ bool mdkMatrix<ElementType>::SetCol(uint64 ColIndex, const std::vector<ElementTy
 	return this->SetCol(ColIndex, ColData.data());
 }
 
+
 template<typename ElementType>
+template<typename ElementType_input>
 inline 
-bool mdkMatrix<ElementType>::AppendCol(const std::initializer_list<ElementType>& ColData)
+bool mdkMatrix<ElementType>::AppendCol(const std::initializer_list<ElementType_input>& ColData)
 {
     if (m_RowNumber == 0)
     {
@@ -1267,7 +1301,7 @@ bool mdkMatrix<ElementType>::AppendCol(const std::initializer_list<ElementType>&
 
     for (uint64 i = 0; i < m_RowNumber; ++i)
     {
-        RawPointer[Index + i] = ColData.begin()[i];
+        RawPointer[Index + i] = ElementType(ColData.begin()[i]);
     }
 
     m_ColNumber += 1;
@@ -1275,6 +1309,21 @@ bool mdkMatrix<ElementType>::AppendCol(const std::initializer_list<ElementType>&
     m_ElementNumber = m_RowNumber*m_ColNumber;
 
     return true;
+}
+
+
+template<typename ElementType>
+template<typename ElementType_Input>
+inline
+bool  mdkMatrix<ElementType>::AppendCol(const std::vector<ElementType_Input>& ColData)
+{
+    if (m_RowNumber == 0 || ColData.size() != m_RowNumber)
+    {
+        mdkError << "Self Size is 0 x ? or Invalid input @ mdkMatrix::AppendCol(const std::vector<ElementType_Input>& ColData)" << '\n';
+        return false;
+    }
+
+    return this->AppendCol(ColData.data());
 }
 
 
@@ -1343,21 +1392,6 @@ bool  mdkMatrix<ElementType>::AppendCol(const ElementType_input* ColData)
     m_ElementNumber = m_RowNumber*m_ColNumber;
 
 	return true;
-}
-
-
-template<typename ElementType>
-template<typename ElementType_Input>
-inline 
-bool  mdkMatrix<ElementType>::AppendCol(const std::vector<ElementType_Input>& ColData)
-{
-	if (m_RowNumber == 0 || ColData.size() != m_RowNumber)
-	{
-		mdkError << "Self Size is 0 x ? or Invalid input @ mdkMatrix::AppendCol(const std::vector<ElementType_Input>& ColData)" << '\n';
-		return false;
-	}
-
-	return this->AppendCol(ColData.data());
 }
 
 
@@ -1779,8 +1813,9 @@ bool mdkMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData)
 
 
 template<typename ElementType>
+template<typename ElementType_input>
 inline 
-bool mdkMatrix<ElementType>::SetDiangonal(const std::initializer_list<ElementType>& DiangonalData)
+bool mdkMatrix<ElementType>::SetDiangonal(const std::initializer_list<ElementType_input>& DiangonalData)
 {
     if (m_ElementNumber == 0 || m_RowNumber != m_ColNumber)
     {
@@ -1800,7 +1835,7 @@ bool mdkMatrix<ElementType>::SetDiangonal(const std::initializer_list<ElementTyp
 
     for (uint64 j = 0; j < m_ColNumber; ++j)
     {
-        RawPointer[Index + j] = DiangonalData.begin()[j];
+        RawPointer[Index + j] = ElementType(DiangonalData.begin()[j]);
 
         Index += m_RowNumber;
     }
@@ -1811,7 +1846,7 @@ bool mdkMatrix<ElementType>::SetDiangonal(const std::initializer_list<ElementTyp
 
 template<typename ElementType>
 inline 
-bool mdkMatrix<ElementType>::SetDiangonal(ElementType Element)
+bool mdkMatrix<ElementType>::FillDiangonal(const ElementType& Element)
 {
 	if (m_ElementNumber == 0 || m_RowNumber != m_ColNumber)
 	{
@@ -1824,7 +1859,7 @@ bool mdkMatrix<ElementType>::SetDiangonal(ElementType Element)
 
 	for (uint64 j = 0; j < m_ColNumber; ++j)
 	{
-		RawPointer[Index + j] = Element;
+        RawPointer[Index + j] = Element;
 
 		Index += m_RowNumber;
 	}

@@ -13,8 +13,7 @@ public:
 	mdkObject();
 	~mdkObject();
 
-    // re-initialize the object, e.g., to be an empty object
-    virtual void Clear();
+    // do not use any virtual function (such as virtual void Clear)
 
 protected:
 	mdkObject(const mdkObject&);       // Empty function

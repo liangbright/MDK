@@ -7,6 +7,7 @@
 
 #include "mdkObject.h"
 #include "mdkLinearAlgebraConfig.h"
+#include "mdkMatrixElement.h"
 //#include "mdkShadowMatrix.h"
 
 
@@ -159,6 +160,10 @@ public:
 
     inline ElementType GetNaNElement() const;
 
+    inline void SetNaNElement(mdkMatrixElementTypeEnum ElementType);
+
+    inline void SetNaNElement(ElementType NaNElement);
+
     inline std::vector<ElementType>* GetElementDataArrayPointer();
 
     inline std::shared_ptr<std::vector<ElementType>>& GetElementDataSharedPointer();
@@ -244,21 +249,30 @@ public:
 
 	inline const ElementType& at(uint64 RowIndex, uint64 ColIndex) const;
 
-    //---------------------- Get/Set SubMatrix by using ShadowMatrix -----------------------------//
+    //---------------------- Get/Set SubMatrix ------------------------------------------------------//
+
+    inline mdkShadowMatrix<ElementType> operator()(const std::initializer_list<uint64>& LinearIndexList);
+
+    inline mdkShadowMatrix<ElementType> operator()(const std::initializer_list<uint64>& RowIndexList,
+                                                   const std::initializer_list<uint64>& ColIndexList);
+
+    inline mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& LinearIndexList);
 
     inline mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& RowIndexList,
                                                    const std::vector<uint64>& ColIndexList);
 
-    inline mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& LinearIndexList);
+    inline mdkShadowMatrix<ElementType> SubMatrix(uint64 RowIndex_start, uint64 RowIndex_end, 
+                                                  uint64 ColIndex_start, uint64 ColIndex_end);
 
-	//---------------------- Get SubMatrix -------------------------------------------------//
+    inline mdkShadowMatrix<ElementType> SubMatrix(const std::initializer_list<uint64>& LinearIndexList);
 
-    inline mdkShadowMatrix<ElementType> SubMatrix(uint64 RowIndex_start, uint64 RowIndex_end, uint64 ColIndex_start, uint64 ColIndex_end);
+    inline mdkShadowMatrix<ElementType> SubMatrix(const std::initializer_list<uint64>& RowIndexList,
+                                                  const std::initializer_list<uint64>& ColIndexList);
+
+    inline mdkShadowMatrix<ElementType> SubMatrix(const std::vector<uint64>& LinearIndexList);
 
     inline mdkShadowMatrix<ElementType> SubMatrix(const std::vector<uint64>& RowIndexList,
                                                   const std::vector<uint64>& ColIndexList);
-
-    inline mdkShadowMatrix<ElementType> SubMatrix(const std::vector<uint64>& LinearIndexList);
 
 	inline mdkMatrix GetSubMatrix(uint64 RowIndex_start, uint64 RowIndex_end, uint64 ColIndex_start, uint64 ColIndex_end);
 
@@ -270,24 +284,35 @@ public:
 	
     inline mdkShadowMatrix<ElementType> Col(uint64 ColIndex);
 
+    inline mdkShadowMatrix<ElementType> Col(const std::initializer_list<uint64>& ColIndexList);
+
     inline mdkShadowMatrix<ElementType> Col(const std::vector<uint64>& ColIndexList);
 
     inline mdkMatrix GetCol(uint64 ColIndex);
 
+    inline bool GetCol(uint64 ColIndex, std::vector<ElementType>& ColData);
+
 	inline bool GetCol(uint64 ColIndex, ElementType* ColData);
 
-	inline bool GetCol(uint64 ColIndex, std::vector<ElementType>& ColData);
+    template<typename ElementType_input>
+    inline bool SetCol(uint64 ColIndex, const std::initializer_list<ElementType_input>& ColData);
+
+    template<typename ElementType_input>
+    inline bool SetCol(uint64 ColIndex, const std::vector<ElementType_input>& ColData);
 
 	template<typename ElementType_input>
 	inline bool SetCol(uint64 ColIndex, const mdkMatrix<ElementType_input>& ColData);
 
 	template<typename ElementType_input>
 	inline bool SetCol(uint64 ColIndex, const ElementType_input* ColData);
+	
+    inline bool FillCol(uint64 ColIndex, const ElementType& Element);
 
-	template<typename ElementType_input>
-	inline bool SetCol(uint64 ColIndex, const std::vector<ElementType_input>& ColData);
+    template<typename ElementType_input>
+    inline bool AppendCol(const std::initializer_list<ElementType_input>& ColData);
 
-    inline bool AppendCol(const std::initializer_list<ElementType>& ColData);
+    template<typename ElementType_input>
+    inline bool AppendCol(const std::vector<ElementType_input>& ColData);
 
 	template<typename ElementType_input>
 	inline bool AppendCol(const mdkMatrix<ElementType_input>& ColData);
@@ -295,29 +320,39 @@ public:
 	template<typename ElementType_input>
 	inline bool AppendCol(const ElementType_input* ColData);
 	
-	template<typename ElementType_input>
-	inline bool AppendCol(const std::vector<ElementType_input>& ColData);
-
 	//---------------------- Get/Set a row  ----------------------------------------//
 	
     inline mdkShadowMatrix<ElementType> Row(uint64 RowIndex);
+
+    inline mdkShadowMatrix<ElementType> Row(const std::initializer_list<uint64>& RowIndexList);
 
     inline mdkShadowMatrix<ElementType> Row(const std::vector<uint64>& RowIndexList);
 
     inline mdkMatrix GetRow(uint64 RowIndex);
 
+    inline bool GetRow(uint64 RowIndex, std::vector<ElementType>& RowData);
+
 	inline bool GetRow(uint64 ColIndex, ElementType* RowData);
 
-	inline bool GetRow(uint64 RowIndex, std::vector<ElementType>& RowData);
+    template<typename ElementType_input>
+    inline bool SetRow(uint64 RowIndex, const std::initializer_list<ElementType_input>& RowData);
 
-	template<typename ElementType_input>
+    template<typename ElementType_input>
+    inline bool SetRow(uint64 RowIndex, const std::vector<ElementType_input>& RowData);
+
+    template<typename ElementType_input>
 	inline bool SetRow(uint64 ColIndex, const mdkMatrix<ElementType_input>& RowData);
 
 	template<typename ElementType_input>
 	inline bool SetRow(uint64 RowIndex, const ElementType_input* RowData);
 
-	template<typename ElementType_input>
-	inline bool SetRow(uint64 RowIndex, const std::vector<ElementType_input>& RowData);
+    inline bool FillRow(uint64 RowIndex, const ElementType& Element);
+
+    template<typename ElementType_input>
+    inline bool AppendRow(const std::initializer_list<ElementType_input>& RowData);
+
+    template<typename ElementType_input>
+    inline bool AppendRow(const std::vector<ElementType_input>& RowData);
 
 	template<typename ElementType_input>
 	inline bool AppendRow(const mdkMatrix<ElementType_input>& RowData);
@@ -325,22 +360,21 @@ public:
 	template<typename ElementType_input>
 	inline bool AppendRow(const ElementType_input* RowData);
 
-	template<typename ElementType_input>
-	inline bool AppendRow(const std::vector<ElementType_input>& RowData);
-
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 
     inline mdkShadowMatrix<ElementType> Diangonal();
 
     inline mdkMatrix GetDiangonal();
 
-	inline bool GetDiangonal(ElementType* DiangonalData);
-
 	inline bool GetDiangonal(std::vector<ElementType>& DiangonalData);
 
-    inline bool SetDiangonal(const std::initializer_list<ElementType>& DiangonalData);
+    inline bool GetDiangonal(ElementType* DiangonalData);
 
-    inline bool SetDiangonal(ElementType Element);
+    template<typename ElementType_input>
+    inline bool SetDiangonal(const std::initializer_list<ElementType_input>& DiangonalData);
+
+    template<typename ElementType_input>
+    inline bool SetDiangonal(const std::vector<ElementType_input>& DiangonalData);
 
 	template<typename ElementType_input>
 	inline bool SetDiangonal(const mdkMatrix<ElementType_input>& DiangonalData);
@@ -348,9 +382,7 @@ public:
 	template<typename ElementType_input>
 	inline bool SetDiangonal(const ElementType_input* DiangonalData);
 
-	template<typename ElementType_input>
-	inline bool SetDiangonal(const std::vector<ElementType_input>& DiangonalData);
-
+    inline bool FillDiangonal(const ElementType& Element);
 	//---------------------- Matrix {+= -= *= /=} Matrix ----------------------------------------//
 
 	inline void operator+=(const mdkMatrix<ElementType>& targetMatrix);
@@ -375,7 +407,7 @@ public:
 
 	inline void operator/=(ElementType Element);
 
-	//-------------------- element operation  ------------------------------------------//
+	//-------------------- element operation : output a new matrix ------------------------------------------//
 
     inline mdkMatrix ElementOperation(const char* FunctionName) const;
 
@@ -399,6 +431,31 @@ public:
 
 	template<typename FunctionType>
     inline mdkMatrix ElementOperation(FunctionType Function, ElementType Element) const;
+
+    //-------------------- element operation on self ------------------------------------------------------//
+
+    inline bool ElementOperationOnSelf(const char* FunctionName);
+
+    inline bool ElementOperationOnSelf(const std::string& FunctionName);
+
+    template<typename FunctionType>
+    inline bool ElementOperationOnSelf(FunctionType Function);
+
+    template<typename ElementType_target>
+    inline bool ElementOperationOnSelf(const char* FunctionName, const mdkMatrix<ElementType_target>& targetMatrix);
+
+    template<typename ElementType_target>
+    inline bool ElementOperationOnSelf(const std::string& FunctionName, const mdkMatrix<ElementType_target>& targetMatrix);
+
+    template<typename FunctionType, typename ElementType_target>
+    inline bool ElementOperationOnSelf(FunctionType Function, const mdkMatrix<ElementType_target>& targetMatrix);
+
+    inline bool ElementOperationOnSelf(const char* FunctionName, ElementType Element);
+
+    inline bool ElementOperationOnSelf(const std::string& FunctionName, ElementType Element);
+
+    template<typename FunctionType>
+    inline bool ElementOperationOnSelf(FunctionType Function, ElementType Element);
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 
@@ -446,11 +503,10 @@ public:
 
 	inline mdkMatrixSVDResult<ElementType> SVD();	
 
+
 	//---------------------------- private functions ---------------------------------------//
 
 private:
-	template<typename ElementType_target>
-	inline mdkMatrixElementTypeEnum FindElementType(ElementType_target Element);
 
 };
 
