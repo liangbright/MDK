@@ -93,6 +93,8 @@ ${ImageFilter_DIR}/mdk3DImageConvolutionFilter.hpp
 ${ImageFilter_DIR}/mdk3DImageGaussianFilter.h
 ${ImageFilter_DIR}/mdk3DImageGaussianFilter.hpp
 
+${ImageFilter_DIR}/mdk3DIntegralImageBuilder.h
+${ImageFilter_DIR}/mdk3DIntegralImageBuilder.hpp
 
 ${FileIO_DIR}/mdkFileIO.h
 ${FileIO_DIR}/mdkFileIO.cpp

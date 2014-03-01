@@ -10,6 +10,7 @@
 #include "mdk3DImageFilter.h"
 #include "mdk3DImageConvolutionFilter.h"
 #include "mdk3DImageGaussianFilter.h"
+#include "mdk3DIntegralImageBuilder.h"
 
 using namespace mdk;
 
@@ -658,6 +659,46 @@ void test_GaussianFilter()
 
     std::cout << "time " << t1 - t0 << '\n';
 
+
+    SaveGrayScale3DImageAsRawDataFile(OutputFilePathAndName, OutputImage);
+
+    std::system("pause");
+}
+
+
+void test_IntegralImageBuider()
+{
+    std::string FilePath("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0");
+
+    auto InputImage = ReadGrayScale3DImageFromDICOMFile(FilePath);
+
+    std::string OutputFilePathAndName("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0_OutputImage");
+
+    auto InputDimension = InputImage.GetImageDimension();
+
+    mdk3DImage<double> OutputImage;
+
+    OutputImage.Initialize(InputDimension.Lx, InputDimension.Ly, InputDimension.Lz);
+
+    OutputImage.Fill(0);
+
+    mdk3DIntegralImageBuilder<double, double>  imbuilder;
+
+    imbuilder.SetInputImage(&InputImage);
+
+    imbuilder.SetOutputImage(&OutputImage);
+
+    imbuilder.SetMaxThreadNumber(4);
+
+    std::cout << "start: " << '\n';
+
+    std::time_t t0 = std::time(0);
+
+    imbuilder.Run();
+
+    std::time_t t1 = std::time(0);
+
+    std::cout << "time " << t1 - t0 << '\n';
 
     SaveGrayScale3DImageAsRawDataFile(OutputFilePathAndName, OutputImage);
 

@@ -67,13 +67,13 @@ void SaveGrayScale3DImageAsRawDataFile(const std::string& FilePathAndName, const
 
     //QFile::remove(PairList[0].Value);
 
-    PairList[1].Name = "ImageDimension_x";
+    PairList[1].Name = "Dimension_x";
     PairList[1].Value = QString::number(Dimension.Lx);
 
-    PairList[2].Name = "ImageDimension_y";
+    PairList[2].Name = "Dimension_y";
     PairList[2].Value = QString::number(Dimension.Ly);
 
-    PairList[3].Name = "ImageDimension_z";
+    PairList[3].Name = "Dimension_z";
     PairList[3].Value = QString::number(Dimension.Lz);
 
     auto Origin = Image.GetPhysicalOrigin();

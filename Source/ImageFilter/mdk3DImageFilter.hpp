@@ -179,7 +179,7 @@ bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Postprocess()
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInputData()
+bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
 {
 	if (m_InputImage == nullptr)
 	{
@@ -264,7 +264,7 @@ template<typename VoxelType_Input, typename VoxelType_Output>
 bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
 {
     //-------------------------------------------------------------------------------
-    auto IsOK = this->CheckInputData();
+    auto IsOK = this->CheckInput();
 
     if (IsOK == false)
     {
@@ -281,29 +281,30 @@ bool mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::Run()
 	}
 
 	// multi-thread -----------------------------------------------------------------
-    if (m_MaxThreadNumber > 1 && m_TotalOutputVoxelNumber > m_MinVoxelNumberPerThread)
-	{
-		// divide the output image into groups
+   
+    // divide the output image into groups
 
-		std::vector<uint64> IndexList_start;
-		std::vector<uint64> IndexList_end;
+	std::vector<uint64> IndexList_start;
+	std::vector<uint64> IndexList_end;
 
-        this->DivideData(0, m_TotalOutputVoxelNumber - 1, IndexList_start, IndexList_end);
+    this->DivideData(0, m_TotalOutputVoxelNumber - 1, m_MinVoxelNumberPerThread, IndexList_start, IndexList_end);
 
-		uint64 ThreadNumber = IndexList_start.size();
-		
+	uint64 ThreadNumber = IndexList_start.size();
+	
+    if (ThreadNumber > 1)
+    {
 		// create and start the threads
-		std::vector<std::thread> FilterThread(ThreadNumber);
+		std::vector<std::thread> ThreadList(ThreadNumber);
 
         for (uint64 i = 0; i < ThreadNumber; ++i)
 		{
-			FilterThread[i] = std::thread([&]{this->Run_in_a_Thread(IndexList_start[i], IndexList_end[i]); });
+            ThreadList[i] = std::thread([&]{this->Run_in_a_Thread(IndexList_start[i], IndexList_end[i]); });
 		}
 
 		//wait for all the threads
         for (uint64 i = 0; i < ThreadNumber; ++i)
 		{
-			FilterThread[i].join();
+            ThreadList[i].join();
 		}
 	}
 	else//single-thread
@@ -511,19 +512,27 @@ Run_in_a_Thread(uint64 OutputVoxelIndex_start, uint64 OutputVoxelIndex_end)
 template<typename VoxelType_Input, typename VoxelType_Output>
 void
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::
-DivideData(uint64 Index_min, uint64 Index_max, std::vector<uint64>& IndexList_start, std::vector<uint64>& IndexList_end)
+DivideData(uint64 Index_min, uint64 Index_max, uint64 MinDataNumberPerThread,
+           std::vector<uint64>& IndexList_start, std::vector<uint64>& IndexList_end)
 {
-	auto TotalVoxelNumber = Index_max - Index_min + 1;
+    if (m_MaxThreadNumber == 1)
+    {
+        IndexList_start.push_back(Index_min);
+        IndexList_end.push_back(Index_max);
+        return;
+    }
+
+	auto TotalDataNumber = Index_max - Index_min + 1;
 
 	uint64 ThreadNumber = 1;
 
-	uint64 VoxelNumberPerThread = 0;
+	uint64 DataNumberPerThread = 0;
 
 	for (uint64 i = m_MaxThreadNumber; i > 0; --i)
 	{
-		VoxelNumberPerThread = TotalVoxelNumber / i;
+        DataNumberPerThread = TotalDataNumber / i;
 
-        if (VoxelNumberPerThread >= m_MinVoxelNumberPerThread)
+        if (DataNumberPerThread >= MinDataNumberPerThread)
 		{
 			ThreadNumber = i;
 			break;
@@ -538,17 +547,17 @@ DivideData(uint64 Index_min, uint64 Index_max, std::vector<uint64>& IndexList_st
 		return;
 	}
 
-    uint64 tempNumber = Index_min;
+    uint64 tempIndex = Index_min;
 
-	for (uint64 i = 0; i < m_MaxThreadNumber; ++i)
+    for (uint64 i = 0; i < ThreadNumber; ++i)
 	{
-		IndexList_start.push_back(tempNumber);
-		IndexList_end.push_back(tempNumber + VoxelNumberPerThread - 1);
+        IndexList_start.push_back(tempIndex);
+        IndexList_end.push_back(tempIndex + DataNumberPerThread - 1);
 
-		tempNumber += VoxelNumberPerThread;
+        tempIndex += DataNumberPerThread;
 	}
 
-	IndexList_end[m_MaxThreadNumber - 1] = Index_max;
+    IndexList_end[ThreadNumber - 1] = Index_max;
 }
 
 

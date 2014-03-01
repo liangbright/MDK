@@ -19,3 +19,18 @@ for z= -16:16
         end
     end
 end
+%%
+Lx=512;
+Ly=512;
+Lz=233;
+
+Origin=[0, 0, 0]; % x0, y0, z0
+Spacing=[1, 1, 1];
+
+FilePathAndName='E:\HeartData\P1943091-im_6-phase10-close-leaflet\im_6\phase0_OutputImage.data';
+%
+ImageData=ReadImageDataFromRawDataFile(FilePathAndName, 'double', Lx, Ly, Lz);
+%%
+implay(ImageData)
+%%
+imtool(ImageData(:,:,100))

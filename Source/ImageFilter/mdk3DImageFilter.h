@@ -96,19 +96,13 @@ public:
 
     void SetMaxThreadNumber(uint64 MaxNumber);
 
-	void EnableBoundCheck(bool On_Off);
-
-    virtual bool Preprocess();
-
-    virtual bool Postprocess();
+	void EnableBoundCheck(bool On_Off = true);
 
     inline virtual void FilterFunctionAt3DIndex(uint64 x_Index, uint64 y_Index, uint64 z_Index, VoxelType_Output& OutputVoxel);
 
     inline virtual void FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& OutputVoxel);
 
-    inline virtual void OutputFunction(uint64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
-
-    bool Run();
+    virtual bool Run();
 	
     static bool Apply(const mdk3DImage<VoxelType_Input>* InputImage,
                       const mdkMatrix<uint64>*  m_InputRegion,
@@ -117,11 +111,19 @@ public:
                       std::vector< VoxelType_Output>* m_OutputArray,                       
                       uint32 MaxThreadNumber);
 
+protected:
+    bool CheckInput();
+
+    virtual bool Preprocess();
+
+    virtual bool Postprocess();
+
+    void DivideData(uint64 Index_min, uint64 Index_max, uint64 MinDataNumberPerThread,
+                    std::vector<uint64>& IndexList_start, std::vector<uint64>& IndexList_end);
+
+    inline virtual void OutputFunction(uint64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
+
 private:
-    bool CheckInputData();
-
-	void DivideData(uint64 Index_min, uint64 Index_max, std::vector<uint64>& IndexList_start, std::vector<uint64>& IndexList_end);
-
     void Run_in_a_Thread(uint64 OutputVoxelIndex_start, uint64 OutputVoxelIndex_end);
 
 private:
