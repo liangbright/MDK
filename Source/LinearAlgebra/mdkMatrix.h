@@ -281,7 +281,11 @@ public:
 	
     inline mdkShadowMatrix<ElementType> Col(uint64 ColIndex);
 
-    inline mdkShadowMatrix<ElementType> Col(const std::initializer_list<uint64>& ColIndexList);
+    // do not use Col(const std::initializer_list<uint64>& ColIndexList); 
+    // it leads to ambiguous call (vs2013), 
+    // e.g., Col({0})  it can initialize Col(uint64) or Col(std::vector);
+    //
+    inline mdkShadowMatrix<ElementType> Col(std::initializer_list<uint64>& ColIndexList);
 
     inline mdkShadowMatrix<ElementType> Col(const std::vector<uint64>& ColIndexList);
 
@@ -319,13 +323,18 @@ public:
 	
     inline bool DeleteCol(uint64 ColIndex);
 
+    // no const before std::initializer_list
+    inline bool DeleteCol(std::initializer_list<uint64>& ColIndexList);
+
     inline bool DeleteCol(const std::vector<uint64>& ColIndexList);
+
+    inline bool DeleteCol(const uint64* ColIndexPtr, uint64 Length);
 
 	//---------------------- Get/Set/Fill/Append/Delete Row  ----------------------------------------//
 	
     inline mdkShadowMatrix<ElementType> Row(uint64 RowIndex);
 
-    inline mdkShadowMatrix<ElementType> Row(const std::initializer_list<uint64>& RowIndexList);
+    inline mdkShadowMatrix<ElementType> Row(std::initializer_list<uint64>& RowIndexList);
 
     inline mdkShadowMatrix<ElementType> Row(const std::vector<uint64>& RowIndexList);
 
@@ -363,7 +372,12 @@ public:
 
     inline bool DeleteRow(uint64 RowIndex);
 
+    // no const before std::initializer_list
+    inline bool DeleteRow(std::initializer_list<uint64>& RowIndexList);
+
     inline bool DeleteRow(const std::vector<uint64>& RowIndexList);
+
+    inline bool DeleteRow(const uint64* RowIndexPtr, uint64 Length);
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 

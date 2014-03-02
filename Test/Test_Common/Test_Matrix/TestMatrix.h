@@ -2,6 +2,7 @@
 #define __Test_h
 
 #include <ctime>
+#include <iomanip>
 
 #include "mdkMatrix.h"
 #include "mdkShadowMatrix.h"
@@ -9,6 +10,20 @@
 #include "mdkLinearAlgebra.h"
 
 using namespace mdk;
+
+template<typename T>
+void DisplayMatrix(const mdkMatrix<T>& Matrix, int precision = 0)
+{
+    for (uint64 i = 0; i < Matrix.GetRowNumber(); ++i)
+    {
+        for (uint64 j = 0; j < Matrix.GetColNumber(); ++j)
+        {
+            std::cout << std::fixed << std::setprecision(precision) << Matrix(i, j) << ' ';
+        }
+        std::cout << '\n';
+    }
+}
+
 
 void Test_ConstPointer_function(const double* p)
 {
@@ -786,42 +801,144 @@ void Test_Arma()
 	}
 }
 
-void Test_ShadowMatrix()
+
+void Test_Matrix_ChangeSize()
 {
-    mdkMatrix<double> A(3, 3);
-    A = { 1, 2, 3,
-          0, 5, 0,
-          0, 0, 9 };
+    mdkMatrix<double> A(6, 9);
+
+    A = { 1, 2, 3, 4, 5, 6, 7, 8, 9,
+          2, 5, 0, 2, 1, 2, 1, 2, 1,
+          3, 0, 9, 3, 5, 3, 5, 3, 5,
+          4, 0, 8, 4, 5, 4, 5, 4, 5,
+          5, 0, 7, 5, 5, 5, 5, 5, 5,
+          6, 0, 6, 6, 5, 6, 5, 6, 5 };
 
     std::cout << "A = " << '\n';
 
-    for (uint64 i = 0; i < 3; ++i)
-    {
-        for (uint64 j = 0; j < 3; ++j)
-        {
-            std::cout << A(i, j) << ' ';
-        }
+    DisplayMatrix(A);
 
-        std::cout << '\n';
-    }
+    A.DeleteCol({0});
 
+    std::cout << "A.DeleteCol({0}) = " << '\n';
+
+    DisplayMatrix(A);
+
+
+    A.DeleteCol({1, 7});
+
+    std::cout << "A.DeleteCol({1, 7}) = " << '\n';
+
+    DisplayMatrix(A);
+
+
+    A.DeleteRow({1, 5});
+
+    std::cout << "A.DeleteRow({1, 5}) = " << '\n';
+
+    DisplayMatrix(A);
+}
+
+
+void Test_ShadowMatrix_SubMatrix()
+{
+    mdkMatrix<double> A(6, 9);
+
+    A = { 1, 2, 3, 4, 5, 6, 7, 8, 9,
+        2, 5, 0, 2, 1, 2, 1, 2, 1,
+        3, 0, 9, 3, 5, 3, 5, 3, 5,
+        4, 0, 8, 4, 5, 4, 5, 4, 5,
+        5, 0, 7, 5, 5, 5, 5, 5, 5,
+        6, 0, 6, 6, 5, 6, 5, 6, 5 };
+
+    std::cout << "A = " << '\n';
+
+    DisplayMatrix(A);
+
+    mdkMatrix<double> subA1 = A.SubMatrix({ 0 }, { 1 });
+
+    std::cout << "subA1 = A.SubMatrix({ 0 }, { 1 }) " << '\n';
+
+    DisplayMatrix(subA1);
+
+    mdkMatrix<double> subA2 = A.SubMatrix({ 1, 0 }, { 2, 1 });
+
+    std::cout << "subA2 = A.SubMatrix({ 1, 0 }, { 2, 1 }) " << '\n';
+
+    DisplayMatrix(subA2);
+}
+
+
+void Test_ShadowMatrix_Col_Row()
+{
+    mdkMatrix<double> A(6, 9);
+
+    A = { 1, 2, 3, 4, 5, 6, 7, 8.001, 9.00000001,
+        2, 5, 0, 2, 1, 2, 1, 2, 1,
+        3, 0, 9, 3, 5, 3, 5, 3, 5,
+        4, 0, 8, 4, 5, 4, 5, 4, 5,
+        5, 0, 7, 5, 5, 5, 5, 5, 5,
+        6, 0, 6, 6, 5, 6, 5, 6, 5 };
+
+    std::cout << "A = " << '\n';
+
+    DisplayMatrix(A);
+
+    mdkMatrix<double> subA1 = A.Col({0, 1});
+
+    std::cout << "subA1 = A.Col({0, 1}) " << '\n';
+
+    DisplayMatrix(subA1);
+
+    mdkMatrix<double> subA2 = A.Row({ 0, 1 });
+
+    std::cout << "subA2 = A.Row({0, 1}) " << '\n';
+
+    DisplayMatrix(subA2);
+}
+
+void Test_ShadowMatrix_Operator()
+{
+    mdkMatrix<double> A(5, 5);
+    A = { 1, 2, 3, 4, 5,
+          0, 5, 0, 2, 1,
+          0, 0, 9, 1, 0,
+          0, 1, 0, 1, 0,
+          1, 0, 1, 0, 1};
+
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
 
     auto subA1 = A({0, 1}, {});
 
     mdkMatrix<double> subA2 = subA1;
 
+    std::cout << "subA2 = " << '\n';
+    DisplayMatrix(subA2);
+
     mdkMatrix<double> subA3 = A({0, 1}, {}) * 10.0;
 
-    auto subA4 = A.SubMatrix({}, { 0, 1 });
+    std::cout << "subA3 = " << '\n';
+    DisplayMatrix(subA3);
+
+    mdkMatrix<double> subA4 = A({}, { 0, 1 });
+
+    std::cout << "sub4 = " << '\n';
+    DisplayMatrix(subA4);
 
     std::vector<double> v = {};
 
     mdkMatrix<double> subA5 = A({0, 1}, {0, 1, 2}) * A({0, 1, 2}, {0, 1});
 
+    std::cout << "subA5 = " << '\n';
+    DisplayMatrix(subA5);
+
     // compiler internal error  C1001
     //mdkMatrix<double> subA5a = A({ 0, 1 }, { 0, 1, 2 }) * A({}, { 0, 1 });
 
     mdkMatrix<double> subA6 = A.Row({0, 1}) * A.Col({0, 1});
+
+    std::cout << "subA6 = " << '\n';
+    DisplayMatrix(subA6);
 }
 
 
@@ -850,15 +967,7 @@ void Test_GlueMatrix()
 
     std::cout << "D= " << '\n';
 
-    for (uint64 i = 0; i < 2; ++i)
-    {
-        for (uint64 j = 0; j < 3; ++j)
-        {
-            std::cout << D(i, j) << ' ';
-        }
-
-        std::cout << '\n';
-    }
+    DisplayMatrix(D);
 
     auto E = MatrixAdd(mdkMatrix<double>(A.Row({ 0, 1 })), C);
 }

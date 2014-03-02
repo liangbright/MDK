@@ -11,5 +11,13 @@ int main()
 {
     //Test_ShadowMatrix();
     
-    Test_GlueMatrix();
+   // Test_GlueMatrix();
+
+    Test_ShadowMatrix_Operator();
+
+    Test_Matrix_ChangeSize();
+
+    Test_ShadowMatrix_SubMatrix();
+
+    Test_ShadowMatrix_Col_Row();
 }

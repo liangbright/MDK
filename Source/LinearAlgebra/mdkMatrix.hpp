@@ -1317,7 +1317,7 @@ mdkMatrix<ElementType>::Col(uint64 ColIndex)
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::Col(const std::initializer_list<uint64>& ColIndexList)
+mdkMatrix<ElementType>::Col(std::initializer_list<uint64>& ColIndexList)
 {
     for (auto it = ColIndexList.begin(); it != ColIndexList.end(); ++it)
     {
@@ -1639,6 +1639,14 @@ bool mdkMatrix<ElementType>::DeleteCol(uint64 ColIndex)
 
 template<typename ElementType>
 inline
+bool mdkMatrix<ElementType>::DeleteCol(std::initializer_list<uint64>& ColIndexList)
+{
+    return this->DeleteCol(ColIndexList.begin(), ColIndexList.size());
+}
+
+
+template<typename ElementType>
+inline
 bool mdkMatrix<ElementType>::DeleteCol(const std::vector<uint64>& ColIndexList)
 {
     if (ColIndexList.size() == 0)
@@ -1656,32 +1664,58 @@ bool mdkMatrix<ElementType>::DeleteCol(const std::vector<uint64>& ColIndexList)
         }
     }
 
-    std::vector<uint64> ColIndexList_max_to_min = ColIndexList;
-    
-    std::sort(ColIndexList_max_to_min.begin(), ColIndexList_max_to_min.end(), [](uint64 a, uint64 b) { return a > b; });
+    return this->DeleteCol(ColIndexList.data(), ColIndexList.size());
+}
 
-    uint64 Index_prev = ColIndexList_max_to_min[0] + 1;
 
-    for (uint64 i = 0; i < ColIndexList_max_to_min.size(); ++i)
+template<typename ElementType>
+inline
+bool mdkMatrix<ElementType>::DeleteCol(const uint64* ColIndexPtr, uint64 Length)
+{
+    if (ColIndexPtr == nullptr || Length == 0)
     {
-        auto Index_i = ColIndexList_max_to_min[i];
-
-        if (Index_i == Index_prev)
-        {
-            mdkWarning << "duplicate input @ mdkMatrix::DeleteCol(std::vector ColIndexList)" << '\n';
-        }
-        else
-        {
-            m_ElementData->erase(ColIndexList_max_to_min->begin() + Index_i * m_RowNumber,
-                                 ColIndexList_max_to_min->begin() + (Index_i + 1)* m_RowNumber);
-
-            Index_prev = Index_i;
-
-            m_ColNumber -= 1;
-        }
+        mdkError << "Empty input @ mdkMatrix::DeleteRow(const uint64* ColIndexPtr, uint64 Length)" << '\n';
+        return false;
     }
 
-    return true;
+    if (Length == 1)
+    {
+        return this->DeleteCol(ColIndexPtr[0]);
+    }
+    else
+    {
+        std::vector<uint64> ColIndexList_max_to_min(Length);
+
+        for (uint64 i = 0; i < Length; ++i)
+        {
+            ColIndexList_max_to_min[i] = ColIndexPtr[i];
+        }
+
+        std::sort(ColIndexList_max_to_min.begin(), ColIndexList_max_to_min.end(), [](uint64 a, uint64 b) { return a > b; });
+
+        uint64 Index_prev = ColIndexList_max_to_min[0] + 1;
+
+        for (uint64 i = 0; i < ColIndexList_max_to_min.size(); ++i)
+        {
+            auto Index_i = ColIndexList_max_to_min[i];
+
+            if (Index_i == Index_prev)
+            {
+                mdkWarning << "duplicate input @ mdkMatrix::DeleteCol(const uint64* ColIndexPtr, uint64 Length)" << '\n';
+            }
+            else
+            {
+                m_ElementData->erase(m_ElementData->begin() + Index_i * m_RowNumber,
+                    m_ElementData->begin() + (Index_i + 1)* m_RowNumber);
+
+                Index_prev = Index_i;
+
+                m_ColNumber -= 1;
+            }
+        }
+
+        return true;
+    }
 }
 
 
@@ -1707,7 +1741,7 @@ mdkMatrix<ElementType>::Row(uint64 RowIndex)
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::Row(const std::initializer_list<uint64>& RowIndexList)
+mdkMatrix<ElementType>::Row(std::initializer_list<uint64>& RowIndexList)
 {
     for (auto it = RowIndexList.begin(); it != RowIndexList.end(); ++it)
     {
@@ -2032,7 +2066,15 @@ template<typename ElementType>
 inline
 bool mdkMatrix<ElementType>::DeleteRow(uint64 RowIndex)
 {
-    return this->DeleteRow({ RowIndex });
+    if (RowIndex >= m_RowNumber)
+    {
+        mdkError << "Invalid input @ mdkMatrix::DeleteRow(uint64 RowIndex)" << '\n';
+        return false;
+    }
+
+    uint64 tempRowIndex = RowIndex;
+
+    return this->DeleteRow(&tempRowIndex, 1);
 }
 
 
@@ -2046,6 +2088,20 @@ bool mdkMatrix<ElementType>::DeleteRow(const std::vector<uint64>& RowIndexList)
         return false;
     }
 
+    return this->DeleteRow(RowIndexList.data(), RowIndexList.size());
+}
+
+
+template<typename ElementType>
+inline
+bool mdkMatrix<ElementType>::DeleteRow(const uint64* RowIndexPtr, uint64 Length)
+{
+    if (RowIndexPtr == nullptr || Length == 0)
+    {
+        mdkError << "Invalid input @ mdkMatrix::DeleteRow(const uint64* RowIndexPtr, uint64 Length)" << '\n';
+        return false;
+    }
+
     std::vector<uint64> CounterList(m_RowNumber);
     
     for (uint64 i = 0; i < m_RowNumber; ++i)
@@ -2053,9 +2109,9 @@ bool mdkMatrix<ElementType>::DeleteRow(const std::vector<uint64>& RowIndexList)
         CounterList[i] = 0;
     }
 
-    for (uint64 i = 0; i < RowIndexList.size(); ++i)
+    for (uint64 i = 0; i < Length; ++i)
     {
-        CounterList[RowIndexList[i]] += 1;
+        CounterList[RowIndexPtr[i]] += 1;
     }
 
     std::vector<uint64> RowIndexList_other;
