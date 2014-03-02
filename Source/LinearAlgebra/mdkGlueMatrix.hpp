@@ -49,13 +49,30 @@ inline void mdkGlueMatrix<ElementType>::Clear()
 
     m_ColNumber = 0;
 
-    m_MatrixElementDataSharedPointerList.reserve(MDK_GlueMatrix_ReservedNumber);
+    m_MatrixElementDataSharedPointerList.resize(0);
 
-    m_ElementList_Coef.reserve(MDK_GlueMatrix_ReservedNumber);
+    m_MatrixElementDataSharedPointerList.reserve(MDK_GlueMatrix_ReservedCapacity);
+
+    m_ElementList_Coef.resize(0);
+
+    m_ElementList_Coef.reserve(MDK_GlueMatrix_ReservedCapacity);
 
     m_IndependentElement -= m_IndependentElement;
 }
 
+
+template<typename ElementType>
+inline uint64 mdkGlueMatrix<ElementType>::GetRowNumber() const
+{
+    return m_RowNumber;
+}
+
+
+template<typename ElementType>
+inline uint64 mdkGlueMatrix<ElementType>::GetColNumber() const
+{
+    return m_ColNumber;
+}
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> mdkGlueMatrix<ElementType>::CreateMatrix() const

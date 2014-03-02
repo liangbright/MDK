@@ -6,12 +6,20 @@ using namespace mdk;
 
 int main()
 {
-    double a[2];
+   
+    // initializer_list sytax can be used for this!
+    //double a;
+    //a = { 1 };
+
+    //error
+    //std::vector<double> a;
+    //std::initializer_list<double> b=a;
 
     //
     // attention !
     // this code can run!
-    a[1, 1] = 1;
+    //double a[2];
+    //a[1, 1] = 1;
 
 
     //test();

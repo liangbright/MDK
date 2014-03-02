@@ -131,13 +131,7 @@ private:
 
 	std::vector<uint64> m_LinearIndexList_source;
 
-	uint64 m_RowNumber_source;
-
-	uint64 m_ColNumber_source;
-
-	uint64 m_ElementNumber_source;  // total number of Elements in the source Matrix
-
-	std::shared_ptr<std::vector<ElementType>> m_ElementData_source;
+    mdkMatrix<ElementType> m_SourceMatrixSharedCopy;
 
 public:		
 	
@@ -215,19 +209,13 @@ public:
 
 	inline mdkMatrixSize GetSize() const;
 
-    inline uint64 GetRowNumberOfSource() const;
-
-    inline uint64 GetColNumberOfSource() const;
-
-    inline uint64 GetElementNumberOfSource() const;
-
     inline const std::vector<uint64>& GetRowIndexListOfSource() const;
 
     inline const std::vector<uint64>& GetColIndexListOfSource() const;
 
     inline const std::vector<uint64>& GetLinearIndexListOfSource() const;
 
-    inline const std::shared_ptr<std::vector<ElementType>>& GetElementDataSharedPointerOfSource() const;
+    inline const mdkMatrix<ElementType>& GetSourceMatrixSharedCopy() const;
 
 	inline mdkMatrix<ElementType> CreateMatrix() const;
 	

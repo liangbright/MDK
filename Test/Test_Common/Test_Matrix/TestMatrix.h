@@ -860,7 +860,7 @@ void Test_GlueMatrix()
         std::cout << '\n';
     }
 
-    auto E = Add(mdkMatrix<double>(A.Row({ 0, 1 })), C);
+    auto E = MatrixAdd(mdkMatrix<double>(A.Row({ 0, 1 })), C);
 }
 
 void Test_GlueMatrix_Speed1()

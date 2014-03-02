@@ -5,7 +5,7 @@ namespace mdk
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> Add(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
+mdkMatrix<ElementType> MatrixAdd(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     auto SizeA = MatrixA.GetSize();
 
@@ -13,12 +13,12 @@ mdkMatrix<ElementType> Add(const mdkMatrix<ElementType>& MatrixA, const mdkMatri
 
     if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
     {
-        return Add(MatrixA(0), MatrixB);
+        return MatrixAdd(MatrixA(0), MatrixB);
     }
 
     if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
     {
-        return Add(MatrixA, MatrixB(0));
+        return MatrixAdd(MatrixA, MatrixB(0));
     }
 
     mdkMatrix<ElementType> tempMatrix;
@@ -57,7 +57,7 @@ mdkMatrix<ElementType> Add(const mdkMatrix<ElementType>& MatrixA, const mdkMatri
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> Diff(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
+mdkMatrix<ElementType> MatrixDiff(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     auto SizeA = MatrixA.GetSize();
 
@@ -109,7 +109,7 @@ mdkMatrix<ElementType> Diff(const mdkMatrix<ElementType>& MatrixA, const mdkMatr
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> Multiply(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
+mdkMatrix<ElementType> MatrixMultiply(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     return MatrixA*MatrixB;
 }
@@ -117,7 +117,7 @@ mdkMatrix<ElementType> Multiply(const mdkMatrix<ElementType>& MatrixA, const mdk
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> Add(const ElementType& Element, const mdkMatrix<ElementType>& Matrix)
+mdkMatrix<ElementType> MatrixAdd(const ElementType& Element, const mdkMatrix<ElementType>& Matrix)
 {
     mdkMatrix<ElementType> tempMatrix;
 
@@ -148,7 +148,7 @@ mdkMatrix<ElementType> Add(const ElementType& Element, const mdkMatrix<ElementTy
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> Diff(const ElementType& Element, const mdkMatrix<ElementType>& Matrix)
+mdkMatrix<ElementType> MatrixDiff(const ElementType& Element, const mdkMatrix<ElementType>& Matrix)
 {
     mdkMatrix<ElementType> tempMatrix;
 
@@ -179,7 +179,7 @@ mdkMatrix<ElementType> Diff(const ElementType& Element, const mdkMatrix<ElementT
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> Multiply(const ElementType& Element, const mdkMatrix<ElementType>& Matrix)
+mdkMatrix<ElementType> MatrixMultiply(const ElementType& Element, const mdkMatrix<ElementType>& Matrix)
 {
     mdkMatrix<ElementType> tempMatrix;
 
@@ -210,15 +210,15 @@ mdkMatrix<ElementType> Multiply(const ElementType& Element, const mdkMatrix<Elem
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> Add(const mdkMatrix<ElementType>& Matrix, const ElementType& Element)
+mdkMatrix<ElementType> MatrixAdd(const mdkMatrix<ElementType>& Matrix, const ElementType& Element)
 {
-    return Add(Element, Matrix);
+    return MatrixAdd(Element, Matrix);
 }
 
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> Diff(const mdkMatrix<ElementType>& Matrix, const ElementType& Element)
+mdkMatrix<ElementType> MatrixDiff(const mdkMatrix<ElementType>& Matrix, const ElementType& Element)
 {
     mdkMatrix<ElementType> tempMatrix;
 
@@ -248,15 +248,15 @@ mdkMatrix<ElementType> Diff(const mdkMatrix<ElementType>& Matrix, const ElementT
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> Multiply(const mdkMatrix<ElementType>& Matrix, const ElementType& Element)
+inline mdkMatrix<ElementType> MatrixMultiply(const mdkMatrix<ElementType>& Matrix, const ElementType& Element)
 {
-    return Multiply(Element, Matrix);
+    return MatrixMultiply(Element, Matrix);
 }
 
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> LinearCombine(const std::vector<double>& AlphaList, const std::vector<mdkMatrix<ElementType>*>& MatrixList)
+mdkMatrix<ElementType> MatrixLinearCombine(const std::vector<double>& AlphaList, const std::vector<mdkMatrix<ElementType>*>& MatrixList)
 {
 	mdkMatrix<ElementType> tempMatrix;
 
@@ -286,7 +286,7 @@ mdkMatrix<ElementType> LinearCombine(const std::vector<double>& AlphaList, const
 
 template<typename ElementType, uint64 Length>
 inline
-std::array<ElementType, Length> LinearCombine(const std::vector<double>& CoefList, const std::vector<std::array<ElementType, Length>*>& ArrayList)
+std::array<ElementType, Length> MatrixLinearCombine(const std::vector<double>& CoefList, const std::vector<std::array<ElementType, Length>*>& ArrayList)
 {
 	std::array<ElementType, Length> tempArray;
 
@@ -308,7 +308,7 @@ std::array<ElementType, Length> LinearCombine(const std::vector<double>& CoefLis
 
 template<typename ElementType>
 inline
-std::vector<ElementType> LinearCombine(const std::vector<double>& CoefList, const std::vector<std::vector<ElementType>*>& ArrayList)
+std::vector<ElementType> MatrixLinearCombine(const std::vector<double>& CoefList, const std::vector<std::vector<ElementType>*>& ArrayList)
 {
 	std::vector<ElementType> tempArray;
 

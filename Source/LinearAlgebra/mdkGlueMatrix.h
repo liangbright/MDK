@@ -94,7 +94,7 @@ template<typename ElementType>
 inline mdkGlueMatrix<ElementType>& operator/(mdkGlueMatrix<ElementType>& GlueMatrix, const ElementType& Element);
 //--------------------------------------------------------------------------------------------------//
 
-#define MDK_GlueMatrix_ReservedNumber  10
+#define MDK_GlueMatrix_ReservedCapacity  20
 //--------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
@@ -126,6 +126,10 @@ public:
 	//---------------------- Other ----------------------------------------//
 
     inline void Clear();
+
+    inline uint64 GetRowNumber() const;
+
+    inline uint64 GetColNumber() const;
 
     inline mdkMatrix<ElementType> CreateMatrix() const;
 	
