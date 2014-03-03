@@ -1151,6 +1151,8 @@ void Test_GlueMatrix_Speed2()
 
     //----------
 
+    D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
+
     //-------------------------------------------------------------------------------------------
     double ElementList_Coef[] = { 1, 2, 3, 4, 5, 6 };
 
@@ -1235,7 +1237,23 @@ void Test_GlueMatrix_Speed2()
 
     std::cout << "D(0,0) " << D(0, 0) << '\n';
 
-    std::cout << "time " << t1 - t0 << '\n';
+    std::cout << "D += 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D : time  " << t1 - t0 << '\n';
+
+    //---------------------------------------------------------------------------------------------
+
+    t0 = std::time(0);
+
+    for (uint64 i = 0; i < 10000; ++i)
+    {
+        D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
+    }
+
+    t1 = std::time(0);
+
+    std::cout << "D(0,0) " << D(0, 0) << '\n';
+
+    std::cout << "D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D : time  " << t1 - t0 << '\n';
+
 
     std::system("pause");
 
@@ -1267,11 +1285,37 @@ void Test_GlueMatrix_Speed2()
 
     t1 = std::time(0);
 
-    std::cout << "arma time " << t1 - t0 << '\n';
+    std::cout << "arma Dm += 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m +5.0*Dm + 6.0*Dm time " << t1 - t0 << '\n';
 
-    
+    //-----------------------------------------------------------------------------------
+    t0 = std::time(0);
+
+    for (uint64 i = 0; i < 10000; ++i)
+    {
+        Dm = Dm + 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m + 5.0*Dm + 6.0*Dm;
+    }
+
+    t1 = std::time(0);
+
+    std::cout << "arma Dm = Dm + 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m +5.0*Dm + 6.0*Dm time " << t1 - t0 << '\n';
+
+    //--------------------------------------------------------------------------------------
 
     std::system("pause");
+
+    /*
+    raw time 7
+    MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList) time 8
+    MatrixLinearCombine(AlphaList, MatrixList) time 14
+    D+=MatrixLinearCombine(AlphaList, MatrixList) time 17
+    D(0,0) -1.#QNAN
+    D += 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D : time  18
+    D(0,0) -1.#QNAN
+    D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D : time  9
+    Press any key to continue . . .
+    arma Dm += 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m +5.0*Dm + 6.0*Dm time 21
+    arma Dm = Dm + 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m +5.0*Dm + 6.0*Dm time 23
+    */
 }
 
 

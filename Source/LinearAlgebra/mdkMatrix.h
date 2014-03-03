@@ -231,11 +231,9 @@ public:
 
     inline void operator=(const std::initializer_list<ElementType>& list);
 
-    template<typename ElementType_target>
-    inline void operator=(const mdkShadowMatrix<ElementType_target>& ShadowMatrix);
+    inline void operator=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
-    template<typename ElementType_target>
-    inline void operator=(const mdkGlueMatrix<ElementType_target>& GlueMatrix);
+    inline void operator=(const mdkGlueMatrix<ElementType>& GlueMatrix);
 
 	template<typename ElementType_target>
 	inline bool Copy(const mdkMatrix<ElementType_target>& targetMatrix);

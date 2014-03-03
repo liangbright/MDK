@@ -191,10 +191,40 @@ void mdkGlueMatrix<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMatr
                                            + m_ElementList_Coef[5] * MatrixElementDataRawPtrList[5][LinearIndex];
         }
     }
+    else if (MatrixNumber == 7)
+    {
+        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        {
+            OutputRawPointer[LinearIndex] = m_IndependentElement
+                                            + m_ElementList_Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                                            + m_ElementList_Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex]
+                                            + m_ElementList_Coef[2] * MatrixElementDataRawPtrList[2][LinearIndex]
+                                            + m_ElementList_Coef[3] * MatrixElementDataRawPtrList[3][LinearIndex]
+                                            + m_ElementList_Coef[4] * MatrixElementDataRawPtrList[4][LinearIndex]
+                                            + m_ElementList_Coef[5] * MatrixElementDataRawPtrList[5][LinearIndex]
+                                            + m_ElementList_Coef[6] * MatrixElementDataRawPtrList[6][LinearIndex];
+        }
+    }
+    else if (MatrixNumber == 8)
+    {
+        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        {
+            OutputRawPointer[LinearIndex] = m_IndependentElement
+                                            + m_ElementList_Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                                            + m_ElementList_Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex]
+                                            + m_ElementList_Coef[2] * MatrixElementDataRawPtrList[2][LinearIndex]
+                                            + m_ElementList_Coef[3] * MatrixElementDataRawPtrList[3][LinearIndex]
+                                            + m_ElementList_Coef[4] * MatrixElementDataRawPtrList[4][LinearIndex]
+                                            + m_ElementList_Coef[5] * MatrixElementDataRawPtrList[5][LinearIndex]
+                                            + m_ElementList_Coef[6] * MatrixElementDataRawPtrList[6][LinearIndex]
+                                            + m_ElementList_Coef[7] * MatrixElementDataRawPtrList[7][LinearIndex];
+        }
+    }
     else
     {
         for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
         {
+            // must use a temp variable
             auto tempElement = m_IndependentElement;
 
             for (uint64 k = 0; k < MatrixNumber; ++k)

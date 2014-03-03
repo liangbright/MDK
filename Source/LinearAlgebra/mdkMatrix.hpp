@@ -513,9 +513,8 @@ void mdkMatrix<ElementType>::operator=(const mdkMatrix<ElementType>& targetMatri
 
 
 template<typename ElementType>
-template<typename ElementType_target>
 inline
-void mdkMatrix<ElementType>::operator=(const mdkShadowMatrix<ElementType_target>& ShadowMatrix)
+void mdkMatrix<ElementType>::operator=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
     if (ShadowMatrix.IsEmpty() == true)
     {
@@ -548,9 +547,8 @@ void mdkMatrix<ElementType>::operator=(const mdkShadowMatrix<ElementType_target>
 
 
 template<typename ElementType>
-template<typename ElementType_target>
 inline
-void mdkMatrix<ElementType>::operator=(const mdkGlueMatrix<ElementType_target>& GlueMatrix)
+void mdkMatrix<ElementType>::operator=(const mdkGlueMatrix<ElementType>& GlueMatrix)
 {
     if (GlueMatrix.IsEmpty() == true)
     {
