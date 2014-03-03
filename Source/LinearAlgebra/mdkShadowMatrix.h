@@ -18,6 +18,8 @@ class mdkShadowMatrix;
 template<typename ElementType>
 class mdkMatrix;
 
+class ALL_Symbol_For_mdkMatrix_Operator;
+
 struct mdkMatrixSize;
 // end of forward-declare //
 
@@ -119,7 +121,7 @@ private:
 
 	uint64 m_ElementNumber;
 
-    ElementType m_EmptyElement;
+    ElementType m_NaNElement;
 
     bool m_IsLinearIndexListOnly;
 
@@ -142,6 +144,10 @@ public:
     inline mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatrix, const std::vector<uint64>& LinearIndexList);
 
     inline mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatrix, const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList);
+
+    inline mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatrix, const std::vector<uint64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+
+    inline mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<uint64>& ColIndexList);
 
     inline mdkShadowMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix); // copy the ShadowMatrix returned from a function
 
@@ -207,6 +213,8 @@ public:
 
 	inline uint64 GetElementNumber() const;
 
+    inline bool IsEmpty() const;
+    
 	inline mdkMatrixSize GetSize() const;
 
     inline const std::vector<uint64>& GetRowIndexListOfSource() const;
@@ -218,7 +226,6 @@ public:
     inline const mdkMatrix<ElementType>& GetSourceMatrixSharedCopy() const;
 
 	inline mdkMatrix<ElementType> CreateMatrix() const;
-	
 };
 
 }//end namespace mdk

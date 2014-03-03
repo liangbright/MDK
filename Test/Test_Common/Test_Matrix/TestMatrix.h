@@ -3,6 +3,7 @@
 
 #include <ctime>
 #include <iomanip>
+#include <initializer_list>
 
 #include "mdkMatrix.h"
 #include "mdkShadowMatrix.h"
@@ -90,6 +91,102 @@ void Test_std_vector()
 
 	std::cout << vec3[20] << '\n';
 }
+
+
+void Test_Constructor()
+{
+    mdkMatrix<double> A(2, 4);
+
+    A = { 1, 2, 3, 4,
+          5, 6, 7, 8 };
+
+    DisplayMatrix(A);
+
+ 
+    mdkMatrix<double> B(A.GetElementDataRawPointer(), 2, 4);
+    
+    DisplayMatrix(B);
+
+    mdkMatrix<double> C;
+
+    C.SharedCopy(A);
+
+    A.Copy(A);
+
+    A.Copy(C);
+
+    C.Copy(A);
+}
+
+
+
+void Test_Matrix_Operator()
+{
+
+    double temp = {};
+
+    mdkMatrix<double> A(2, 4);
+
+    A = { 1, 2, 3, 4,
+          5, 6, 7, 8 };
+
+    std::cout << "A" << '\n';
+
+    DisplayMatrix(A);
+
+    auto a = A(0, 0);
+
+    auto b = A({ 0 }, ALL);
+
+    // good: this can not be compiled
+    //auto b1 = A(0, ALL);
+
+    mdkMatrix<double> B;
+    
+    B = A({ 0 }, ALL);
+
+    // attention !!!: this is compiled: {} is {0}
+    auto B1 = A({ 1 }, { });
+
+    // this is compiled as (uint64, uint64)
+    auto B2 = A({0 }, {0});
+
+    A({ 0 }, { 0 }) = 0;
+
+    auto C1 = A({ 0 });
+
+    auto C2 = A({ 0, 1});
+
+    auto C3 = A({ 0, 1 }, {0});
+
+    auto C4 = A({ 0 }, { 0 })*A({ 0, 1 }, { 0 });
+
+    // good: this can not be compiled
+    //auto C5 = A({ 0, 1 }, {});
+
+    std::cout << "A" << '\n';
+
+    DisplayMatrix(A);
+
+    std::cout << "C4" << '\n';
+
+    DisplayMatrix(C4);
+
+    // operator []
+
+    auto d = A[0];
+
+    auto D1 = A[{ 0 }];
+
+    auto D2 = A[{ 0, 1 }];
+
+    A[{ 0, 1 }] = 1;
+
+    std::cout << "A" << '\n';
+
+    DisplayMatrix(A);
+}
+
 
 void Test_Mutiplication()
 {
@@ -854,7 +951,11 @@ void Test_ShadowMatrix_SubMatrix()
 
     DisplayMatrix(A);
 
-    mdkMatrix<double> subA1 = A.SubMatrix({ 0 }, { 1 });
+    auto A1 = A({ 0 }, { 1 });
+
+    mdkMatrix<double> subA1;
+    
+    subA1 = A.SubMatrix({ 0 }, { 1 });
 
     std::cout << "subA1 = A.SubMatrix({ 0 }, { 1 }) " << '\n';
 
@@ -865,6 +966,17 @@ void Test_ShadowMatrix_SubMatrix()
     std::cout << "subA2 = A.SubMatrix({ 1, 0 }, { 2, 1 }) " << '\n';
 
     DisplayMatrix(subA2);
+
+    // good this can not be compiled
+    mdkMatrix<double> subA3;    
+    //subA3 = A.SubMatrix({ 1, 0 }, {});
+    //subA3 = A.SubMatrix({}, { 1, 0 });
+
+    mdkMatrix<double> subA4 = A.SubMatrix({ 1, 0 }, ALL);
+
+    std::cout << "subA4 = A.SubMatrix({ 1, 0 }, ALL) " << '\n';
+
+    DisplayMatrix(subA4);
 }
 
 
@@ -908,19 +1020,19 @@ void Test_ShadowMatrix_Operator()
     std::cout << "A = " << '\n';
     DisplayMatrix(A);
 
-    auto subA1 = A({0, 1}, {});
+    auto subA1 = A({0, 1}, ALL);
 
     mdkMatrix<double> subA2 = subA1;
 
     std::cout << "subA2 = " << '\n';
     DisplayMatrix(subA2);
 
-    mdkMatrix<double> subA3 = A({0, 1}, {}) * 10.0;
+    mdkMatrix<double> subA3 = A({ 0, 1 }, ALL) * 10.0;
 
     std::cout << "subA3 = " << '\n';
     DisplayMatrix(subA3);
 
-    mdkMatrix<double> subA4 = A({}, { 0, 1 });
+    mdkMatrix<double> subA4 = A(ALL, { 0, 1 });
 
     std::cout << "sub4 = " << '\n';
     DisplayMatrix(subA4);
@@ -963,13 +1075,21 @@ void Test_GlueMatrix()
     C1 = { 1, 0, 1,
            1, 0, 1 };
 
-    mdkMatrix<double> D = 1.0*A({0, 1}, {}) + 2.0*B - 3.0*C + 4.0*C1;
+    mdkMatrix<double> D = 1.0*A({ 0, 1 }, ALL) + 2.0*B - 3.0*C + 4.0*C1;
 
     std::cout << "D= " << '\n';
 
     DisplayMatrix(D);
 
     auto E = MatrixAdd(mdkMatrix<double>(A.Row({ 0, 1 })), C);
+
+
+    mdkMatrix<double> All = A(ALL, { 0, 1 })*(B + 1.0 + C - 3.0*C + 4.0*C1);
+
+    std::cout << "All= " << '\n';
+
+    DisplayMatrix(All);
+
 }
 
 void Test_GlueMatrix_Speed1()
@@ -1020,21 +1140,100 @@ void Test_GlueMatrix_Speed2()
     mdkMatrix<double> C2(512, 512);
 
     C2.Fill(3.0);
-
-    auto t0 = std::time(0);
-
+   
     mdkMatrix<double> D(512, 512);
 
     D.Fill(0.0);
 
+    //--------------
+
+    D += A + B;
+
+    //----------
+
+    //-------------------------------------------------------------------------------------------
+    double ElementList_Coef[] = { 1, 2, 3, 4, 5, 6 };
+
+    double* MatrixElementDataRawPtrList[] = { A.GetElementDataRawPointer(),
+                                              B.GetElementDataRawPointer(),
+                                              C.GetElementDataRawPointer(),
+                                              C2.GetElementDataRawPointer(),
+                                              D.GetElementDataRawPointer(),
+                                              D.GetElementDataRawPointer() };
+
+    auto ElementNumber = 512 * 512;
+
+    auto tempRawPointer = D.GetElementDataRawPointer();
+
+    auto t0 = std::time(0);
+
     for (uint64 i = 0; i < 10000; ++i)
     {
-        D += A + B + C + C2;
+        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        {
+            tempRawPointer[LinearIndex] += 0.0
+                + ElementList_Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                + ElementList_Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex]
+                + ElementList_Coef[2] * MatrixElementDataRawPtrList[2][LinearIndex]
+                + ElementList_Coef[3] * MatrixElementDataRawPtrList[3][LinearIndex]
+                + ElementList_Coef[4] * MatrixElementDataRawPtrList[4][LinearIndex]
+                + ElementList_Coef[5] * MatrixElementDataRawPtrList[5][LinearIndex];
+        }
+    }
+    auto t1 = std::time(0);
+
+    std::cout << "raw time " << t1 - t0 << '\n';
+    //---------------------------------------------------------------------------------------------
+
+    t0 = std::time(0);
+
+    for (uint64 i = 0; i < 10000; ++i)
+    {
+        MatrixLinearCombine<double>(D, { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D });
     }
 
-    std::cout << "D(0,0) " << D(0, 0) << '\n';
+    t1 = std::time(0);
 
-    auto t1 = std::time(0);
+    std::cout << "MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList) time " << t1 - t0 << '\n';
+
+    //---------------------------------------------------------------------------------------------
+
+    t0 = std::time(0);
+
+    for (uint64 i = 0; i < 10000; ++i)
+    {
+        MatrixLinearCombine<double>({ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D });
+    }
+
+    t1 = std::time(0);
+
+    std::cout << "MatrixLinearCombine(AlphaList, MatrixList) time " << t1 - t0 << '\n';
+
+    //---------------------------------------------------------------------------------------------
+
+    t0 = std::time(0);
+
+    for (uint64 i = 0; i < 10000; ++i)
+    {
+        D+= MatrixLinearCombine<double>({ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D });
+    }
+
+    t1 = std::time(0);
+
+    std::cout << "D+=MatrixLinearCombine(AlphaList, MatrixList) time " << t1 - t0 << '\n';
+    
+    //---------------------------------------------------------------------------------------------
+
+    t0 = std::time(0);
+
+    for (uint64 i = 0; i < 10000; ++i)
+    {
+        D += 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
+    }
+
+    t1 = std::time(0);
+
+    std::cout << "D(0,0) " << D(0, 0) << '\n';
 
     std::cout << "time " << t1 - t0 << '\n';
 
@@ -1051,6 +1250,58 @@ void Test_GlueMatrix_Speed2()
     //  D += A + B + C + C2;
     // time : 27s GlueMatrix
     // time : 30s No GlueMatrix
+
+
+    arma::Mat<double> Am(A.GetElementDataRawPointer(), arma::uword(A.GetRowNumber()), arma::uword(A.GetColNumber()), false);
+    arma::Mat<double> Bm(A.GetElementDataRawPointer(), arma::uword(B.GetRowNumber()), arma::uword(B.GetColNumber()), false);
+    arma::Mat<double> Cm(A.GetElementDataRawPointer(), arma::uword(C.GetRowNumber()), arma::uword(C.GetColNumber()), false);
+    arma::Mat<double> C2m(A.GetElementDataRawPointer(), arma::uword(C2.GetRowNumber()), arma::uword(C2.GetColNumber()), false);
+    arma::Mat<double> Dm(A.GetElementDataRawPointer(), arma::uword(D.GetRowNumber()), arma::uword(D.GetColNumber()), false);
+
+    t0 = std::time(0);
+
+    for (uint64 i = 0; i < 10000; ++i)
+    {
+        Dm += 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m +5.0*Dm + 6.0*Dm;
+    }
+
+    t1 = std::time(0);
+
+    std::cout << "arma time " << t1 - t0 << '\n';
+
+    
+
+    std::system("pause");
+}
+
+
+void Test_GlueMatrix_Create()
+{
+
+    mdkMatrix<double> A(512, 512);
+
+    A.Fill(1.0);
+
+    mdkMatrix<double> B(512, 512);
+
+    B.Fill(2.0);
+
+    mdkMatrix<double> C(512, 512);
+
+    C.Fill(3.0);
+
+    //--------------
+
+    // use operator =, not copy constructor
+    C = A;
+
+    // use operator =, not copy constructor
+    C = A+B;
+
+
+
+
+    C.Fill(3.0);
 }
 
 #endif

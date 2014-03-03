@@ -256,31 +256,198 @@ inline mdkMatrix<ElementType> MatrixMultiply(const mdkMatrix<ElementType>& Matri
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> MatrixLinearCombine(const std::vector<double>& AlphaList, const std::vector<mdkMatrix<ElementType>*>& MatrixList)
+void MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix, const std::vector<ElementType>& CoefList, const std::vector<mdkMatrix<ElementType>*>& MatrixList)
 {
-	mdkMatrix<ElementType> tempMatrix;
-
-	tempMatrix.SetTobeTemporary();
-
 	auto MatrixNumber = MatrixList.size();
+
+    auto CoefNumber = CoefList.size();
+
+    if (MatrixNumber != CoefNumber)
+    {
+        mdkError << "MatrixNumber != AlphaNumber @ MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList)" << '\n';
+        return;
+    }
+
+    if (MatrixNumber == 0)
+    {
+        mdkWarning << "Input is empty @ MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList)" << '\n';
+        return;
+    }
 
 	auto Size = MatrixList[0]->GetSize();
 
-	tempMatrix.SetSize(Size.RowNumber, Size.ColNumber);
+    auto OutputRawPointer = OutputMatrix.GetElementDataRawPointer();
 
-	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
+    std::vector<ElementType*> MatrixElementDataRawPtrList(MatrixNumber);
 
-	for (uint64 i = 0; i < Size.ColNumber*Size.RowNumber; ++i)
-	{
-		tempRawPointer[i] = 0;
+    for (uint64 k = 0; k < MatrixNumber; ++k)
+    {
+        MatrixElementDataRawPtrList[k] = MatrixList[k]->GetElementDataRawPointer();
+    }
 
-		for (uint64 k = 0; k < MatrixNumber; ++k)
-		{
-			tempRawPointer[i] += AlphaList[k] * MatrixList[k]->at(i);
-		}
-	}
+    auto CoefRawPtr = CoefList.data();
 
-	return tempMatrix;
+    auto ElementNumber = Size.ColNumber*Size.RowNumber;
+
+    switch (MatrixNumber)
+    {
+    case 1:
+        MatrixLinearCombine_UnrollForLoop_1(OutputRawPointer, ElementNumber, CoefRawPtr, MatrixElementDataRawPtrList);
+        break;
+
+    case 2:
+        MatrixLinearCombine_UnrollForLoop_2(OutputRawPointer, ElementNumber, CoefRawPtr, MatrixElementDataRawPtrList);
+        break;
+
+    case 3:
+        MatrixLinearCombine_UnrollForLoop_3(OutputRawPointer, ElementNumber, CoefRawPtr, MatrixElementDataRawPtrList);
+        break;
+
+    case 4:
+        MatrixLinearCombine_UnrollForLoop_4(OutputRawPointer, ElementNumber, CoefRawPtr, MatrixElementDataRawPtrList);
+        break;
+
+    case 5:
+        MatrixLinearCombine_UnrollForLoop_5(OutputRawPointer, ElementNumber, CoefRawPtr, MatrixElementDataRawPtrList);
+        break;
+
+    case 6:       
+        MatrixLinearCombine_UnrollForLoop_6(OutputRawPointer, ElementNumber, CoefRawPtr, MatrixElementDataRawPtrList);        
+        break;
+
+    default:
+            
+        ElementType tempElement = CoefRawPtr[0];
+
+        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        {
+            tempElement -= tempElement;
+
+            for (uint64 k = 0; k < MatrixNumber; ++k)
+            {
+                tempElement += CoefRawPtr[k] * MatrixElementDataRawPtrList[k][LinearIndex];
+            }
+
+            OutputRawPointer[LinearIndex] = tempElement;
+        }
+    }
+}
+
+
+template<typename ElementType>
+inline
+mdkMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<mdkMatrix<ElementType>*>& MatrixList)
+{
+    mdkMatrix<ElementType> tempMatrix;
+
+    tempMatrix.SetTobeTemporary();
+
+    auto MatrixNumber = MatrixList.size();
+
+    auto CoefNumber = CoefList.size();
+
+    if (MatrixNumber != CoefNumber)
+    {
+        mdkError << "MatrixNumber != AlphaNumber @ MatrixLinearCombine(AlphaList, MatrixList)" << '\n';
+        return tempMatrix;
+    }
+
+    if (MatrixNumber == 0)
+    {
+        mdkWarning << "Input is empty @ MatrixLinearCombine(AlphaList, MatrixList)" << '\n';
+        return tempMatrix;
+    }
+
+    MatrixLinearCombine(tempMatrix, CoefList, MatrixList);
+
+    return tempMatrix;
+}
+
+
+template<typename ElementType>
+inline
+void MatrixLinearCombine_UnrollForLoop_1(ElementType* Output, uint64 ElementNumber,
+                                         const ElementType* Coef, const std::vector<ElementType*>& MatrixElementDataRawPtrList)
+{
+    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    {
+        Output[LinearIndex] = Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex];
+    }
+}
+
+
+template<typename ElementType>
+inline
+void MatrixLinearCombine_UnrollForLoop_2(ElementType* Output, uint64 ElementNumber,
+                                         const ElementType* Coef, const std::vector<ElementType*>& MatrixElementDataRawPtrList)
+{
+    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    {
+        Output[LinearIndex] = Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                            + Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex];
+    }
+}
+
+
+template<typename ElementType>
+inline
+void MatrixLinearCombine_UnrollForLoop_3(ElementType* Output, uint64 ElementNumber,
+                                         const ElementType* Coef, const std::vector<ElementType*>& MatrixElementDataRawPtrList)
+{
+    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    {
+        Output[LinearIndex] =   Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                              + Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex]
+                              + Coef[2] * MatrixElementDataRawPtrList[2][LinearIndex];
+    }
+}
+
+
+
+template<typename ElementType>
+inline
+void MatrixLinearCombine_UnrollForLoop_4(ElementType* Output, uint64 ElementNumber,
+                                         const ElementType* Coef, const std::vector<ElementType*>& MatrixElementDataRawPtrList)
+{
+    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    {
+        Output[LinearIndex] =  Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                             + Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex]
+                             + Coef[2] * MatrixElementDataRawPtrList[2][LinearIndex]
+                             + Coef[3] * MatrixElementDataRawPtrList[3][LinearIndex];
+    }
+}
+
+
+template<typename ElementType>
+inline
+void MatrixLinearCombine_UnrollForLoop_5(ElementType* Output, uint64 ElementNumber,
+                                         const ElementType* Coef, const std::vector<ElementType*>& MatrixElementDataRawPtrList)
+{
+    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    {
+        Output[LinearIndex] =  Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                             + Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex]
+                             + Coef[2] * MatrixElementDataRawPtrList[2][LinearIndex]
+                             + Coef[3] * MatrixElementDataRawPtrList[3][LinearIndex]
+                             + Coef[4] * MatrixElementDataRawPtrList[4][LinearIndex];
+    }
+}
+
+template<typename ElementType>
+inline
+void MatrixLinearCombine_UnrollForLoop_6(ElementType* Output, uint64 ElementNumber,
+                                         const ElementType* Coef, const std::vector<ElementType*>& MatrixElementDataRawPtrList)
+{
+    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    {
+        Output[LinearIndex] = Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                            + Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex]
+                            + Coef[2] * MatrixElementDataRawPtrList[2][LinearIndex]
+                            + Coef[3] * MatrixElementDataRawPtrList[3][LinearIndex]
+                            + Coef[4] * MatrixElementDataRawPtrList[4][LinearIndex]
+                            + Coef[5] * MatrixElementDataRawPtrList[5][LinearIndex];
+    }
 }
 
 

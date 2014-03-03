@@ -45,7 +45,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
 
     m_ColNumber = 1;
 
-    m_EmptyElement = sourceMatrix.GetEmptyElement();
+    m_NaNElement = sourceMatrix.GetNaNElement();
 }
 
 
@@ -57,9 +57,9 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
 {
     // assume all the elements in RowIndexList and ColIndexList are within bound
 
-    if (RowIndexList.size() == 0 && ColIndexList.size() == 0)
+    if (RowIndexList.size() == 0 || ColIndexList.size() == 0)
     {
-        mdkWarning << "RowIndexList and ColIndexList are empty @ mdkShadowMatrix(sourceMatrix, std::vector RowIndexList, std::vector ColIndexList)" << '\n';
+        mdkWarning << "RowIndexList or ColIndexList is empty @ mdkShadowMatrix(sourceMatrix, std::vector RowIndexList, std::vector ColIndexList)" << '\n';        
     }
 
     m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
@@ -68,34 +68,85 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
 
     auto ColNumber_source = sourceMatrix.GetColNumber();
 
-    if (RowIndexList.size() != 0 && ColIndexList.size() != 0)
+    m_RowIndexList_source = RowIndexList;
+
+    m_ColIndexList_source = ColIndexList;
+
+    m_IsLinearIndexListOnly = false;
+
+    m_RowNumber = m_RowIndexList_source.size();
+
+    m_ColNumber = m_ColIndexList_source.size();
+
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+}
+
+
+template<typename ElementType>
+inline
+mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatrix,
+                                              const std::vector<uint64>& RowIndexList,
+                                              const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+{
+    // assume all the elements in RowIndexList and ColIndexList are within bound
+
+    if (RowIndexList.size() == 0)
     {
-        m_RowIndexList_source = RowIndexList;
-
-        m_ColIndexList_source = ColIndexList;
+        mdkWarning << "RowIndexList is empty @ mdkShadowMatrix(sourceMatrix, std::vector RowIndexList, ALL)" << '\n';
     }
-    else if (RowIndexList.size() == 0 && ColIndexList.size() != 0)
+
+    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
+
+    auto RowNumber_source = sourceMatrix.GetRowNumber();
+
+    auto ColNumber_source = sourceMatrix.GetColNumber();
+
+    m_RowIndexList_source = RowIndexList;
+
+    m_ColIndexList_source.resize(ColNumber_source);
+
+    for (uint64 i = 0; i < ColNumber_source; ++i)
     {
-        m_RowIndexList_source.resize(RowNumber_source);
-
-        for (uint64 i = 0; i < RowNumber_source; ++i)
-        {
-            m_RowIndexList_source[i] = i;
-        }
-
-        m_ColIndexList_source = ColIndexList;
+        m_ColIndexList_source[i] = i;    
     }
-    else if (RowIndexList.size() != 0 && ColIndexList.size() == 0)
+
+    m_IsLinearIndexListOnly = false;
+
+    m_RowNumber = m_RowIndexList_source.size();
+
+    m_ColNumber = m_ColIndexList_source.size();
+
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+}
+
+
+template<typename ElementType>
+inline
+mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatrix,
+                                              const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
+                                              const std::vector<uint64>& ColIndexList)
+{
+    // assume all the elements in RowIndexList and ColIndexList are within bound
+
+    if (ColIndexList.size() == 0)
     {
-        m_RowIndexList_source = RowIndexList;
-
-        m_ColIndexList_source.resize(ColNumber_source);
-
-        for (uint64 i = 0; i < ColNumber_source; ++i)
-        {
-            m_ColIndexList_source[i] = i;
-        }
+        mdkWarning << "ColIndexList is empty @ mdkShadowMatrix(sourceMatrix, ALL, std::vector ColIndexList)" << '\n';
     }
+
+    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
+
+    auto RowNumber_source = sourceMatrix.GetRowNumber();
+
+    auto ColNumber_source = sourceMatrix.GetColNumber();
+
+    m_RowIndexList_source.resize(RowNumber_source);
+
+    for (uint64 i = 0; i < RowNumber_source; ++i)
+    {
+        m_RowIndexList_source[i] = i;
+    }
+
+    m_ColIndexList_source = ColIndexList;
 
     m_IsLinearIndexListOnly = false;
 
@@ -136,7 +187,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkShadowMatrix<ElementType>
         m_ElementNumber = m_RowNumber*m_ColNumber;
     }
 
-    m_EmptyElement -= m_EmptyElement;
+    m_NaNElement -= m_NaNElement;
 }
 
 
@@ -166,7 +217,7 @@ inline void mdkShadowMatrix<ElementType>::Clear()
 
     m_ColNumber = 0;
 
-    m_EmptyElement -= m_EmptyElement;
+    m_NaNElement -= m_NaNElement;
 }
 
 
@@ -211,6 +262,19 @@ mdkMatrixSize mdkShadowMatrix<ElementType>::GetSize() const
     Size.ColNumber = m_ColNumber;
 
     return Size;
+}
+
+
+template<typename ElementType>
+inline
+bool mdkShadowMatrix<ElementType>::IsEmpty() const
+{
+    if (m_RowNumber == 0 || m_ColNumber == 0)
+    {
+        return true;
+    }
+
+    return false;
 }
 
 
@@ -375,11 +439,13 @@ void mdkShadowMatrix<ElementType>::operator=(const ElementType& Element)
     }
 	else
 	{
+        auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
+
         for (uint64 j = 0; j < m_ColNumber; ++j)
 		{
             for (uint64 i = 0; i < m_RowNumber; ++i)
 			{
-				uint64 LinearIndex_source = m_ColIndexList_source[j] * m_RowNumber_source + m_RowIndexList_source[i];
+				uint64 LinearIndex_source = m_ColIndexList_source[j] * RowNumber_source + m_RowIndexList_source[i];
 
 				(*ElementData_source)[LinearIndex_source] = Element;
 			}
@@ -397,7 +463,7 @@ ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 LinearIndex)
 	if (LinearIndex >= m_ElementNumber)
 	{
 		mdkError << "Invalid input @ mdkShadowMatrix::operator(LinearIndex)" <<'\n';
-		return m_EmptyElement;
+		return m_NaNElement;
 	}
 
 #endif
@@ -432,7 +498,7 @@ const ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 LinearIndex) 
 	if (LinearIndex >= m_ElementNumber)
 	{
 		mdkError << "Invalid input @ mdkShadowMatrix::operator(LinearIndex)" << '\n';
-		return m_EmptyElement;
+		return m_NaNElement;
 	}
 
 #endif
@@ -467,7 +533,7 @@ ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 RowIndex, uint64 Co
     if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
 	{
 		mdkError << "Invalid input @ mdkShadowMatrix::operator(RowIndex, ColIndex)" << '\n';
-		return m_EmptyElement;
+		return m_NaNElement;
 	}
 
 #endif
@@ -500,7 +566,7 @@ const ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 RowIndex, uin
     if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
 	{
 		mdkError << "Invalid input @ mdkShadowMatrix::operator(RowIndex, ColIndex) const" << '\n';
-		return m_EmptyElement;
+		return m_NaNElement;
 	}
 
 #endif

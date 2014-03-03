@@ -62,20 +62,37 @@ inline void mdkGlueMatrix<ElementType>::Clear()
 
 
 template<typename ElementType>
-inline uint64 mdkGlueMatrix<ElementType>::GetRowNumber() const
+inline 
+uint64 mdkGlueMatrix<ElementType>::GetRowNumber() const
 {
     return m_RowNumber;
 }
 
 
 template<typename ElementType>
-inline uint64 mdkGlueMatrix<ElementType>::GetColNumber() const
+inline 
+uint64 mdkGlueMatrix<ElementType>::GetColNumber() const
 {
     return m_ColNumber;
 }
 
+
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkGlueMatrix<ElementType>::CreateMatrix() const
+inline
+bool mdkGlueMatrix<ElementType>::IsEmpty() const
+{
+    if (m_RowNumber == 0 || m_ColNumber == 0)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> mdkGlueMatrix<ElementType>::CreateMatrix() const
 {
     mdkMatrix<ElementType> tempMatrix;
 
@@ -88,23 +105,109 @@ inline mdkMatrix<ElementType> mdkGlueMatrix<ElementType>::CreateMatrix() const
 
     tempMatrix.SetSize(m_RowNumber, m_ColNumber);
 
-    auto RawPointer = tempMatrix.GetElementDataRawPointer();
-
-    for (uint64 LinearIndex = 0; LinearIndex < m_ColNumber*m_RowNumber; ++LinearIndex)
-    {
-        ElementType temp = m_IndependentElement;
-
-        for (uint64 k = 0; k < m_MatrixElementDataSharedPointerList.size(); ++k)
-        {
-            temp += m_ElementList_Coef[k] * m_MatrixElementDataSharedPointerList[k]->at(LinearIndex);
-        }
-
-        RawPointer[LinearIndex] = temp;
-    }
+    this->CreateMatrix(tempMatrix);
 
     return tempMatrix;
 }
 
+
+template<typename ElementType>
+inline 
+void mdkGlueMatrix<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const
+{
+    auto OutputRawPointer = OutputMatrix.GetElementDataRawPointer();
+
+    auto MatrixNumber = m_MatrixElementDataSharedPointerList.size();
+
+    std::vector<ElementType*> MatrixElementDataRawPtrList(MatrixNumber);
+
+    for (uint64 k = 0; k < MatrixNumber; ++k)
+    {
+        MatrixElementDataRawPtrList[k] = m_MatrixElementDataSharedPointerList[k]->data();
+    }
+
+    auto ElementNumber = m_ColNumber*m_RowNumber;
+
+    if (MatrixNumber == 1)
+    {
+        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        {
+            OutputRawPointer[LinearIndex] =  m_IndependentElement
+                                            + m_ElementList_Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex];
+        }  
+    }
+    else if (MatrixNumber == 2)
+    {
+        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        {
+            OutputRawPointer[LinearIndex] = m_IndependentElement
+                                           + m_ElementList_Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                                           + m_ElementList_Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex];
+        }
+    }
+    else if (MatrixNumber == 3)
+    {
+        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        {
+            OutputRawPointer[LinearIndex] = m_IndependentElement
+                                           + m_ElementList_Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                                           + m_ElementList_Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex]
+                                           + m_ElementList_Coef[2] * MatrixElementDataRawPtrList[2][LinearIndex];
+        }
+    }
+    else if (MatrixNumber == 4)
+    {        
+        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        {
+            OutputRawPointer[LinearIndex] = m_IndependentElement
+                                           + m_ElementList_Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                                           + m_ElementList_Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex]
+                                           + m_ElementList_Coef[2] * MatrixElementDataRawPtrList[2][LinearIndex]
+                                           + m_ElementList_Coef[3] * MatrixElementDataRawPtrList[3][LinearIndex];
+        }
+    }
+    else if (MatrixNumber == 5)
+    {
+        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        {
+            OutputRawPointer[LinearIndex] = m_IndependentElement
+                                           + m_ElementList_Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                                           + m_ElementList_Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex]
+                                           + m_ElementList_Coef[2] * MatrixElementDataRawPtrList[2][LinearIndex]
+                                           + m_ElementList_Coef[3] * MatrixElementDataRawPtrList[3][LinearIndex]
+                                           + m_ElementList_Coef[4] * MatrixElementDataRawPtrList[4][LinearIndex];
+        }
+    }
+    else if (MatrixNumber == 6)
+    {        
+        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        {
+            OutputRawPointer[LinearIndex] = m_IndependentElement
+                                           + m_ElementList_Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                                           + m_ElementList_Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex]
+                                           + m_ElementList_Coef[2] * MatrixElementDataRawPtrList[2][LinearIndex]
+                                           + m_ElementList_Coef[3] * MatrixElementDataRawPtrList[3][LinearIndex]
+                                           + m_ElementList_Coef[4] * MatrixElementDataRawPtrList[4][LinearIndex]
+                                           + m_ElementList_Coef[5] * MatrixElementDataRawPtrList[5][LinearIndex];
+        }
+    }
+    else
+    {
+        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        {
+            auto tempElement = m_IndependentElement;
+
+            for (uint64 k = 0; k < MatrixNumber; ++k)
+            {
+                tempElement += m_ElementList_Coef[k] * MatrixElementDataRawPtrList[k][LinearIndex];
+            }
+
+            OutputRawPointer[LinearIndex] = tempElement;
+        }
+    }
+}
+
+// --------------------------------------- Matrix {+ -}  Matrix  -------------------------------------------------------------//
 
 template<typename ElementType>
 inline 
@@ -205,6 +308,83 @@ mdkGlueMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, cons
     return tempGlueMatrix;
 }
 
+// ------------------------------------- Matrix {+ - * % /}  GlueMatrix ------------------------------------------------//
+
+template<typename ElementType>
+inline
+mdkGlueMatrix<ElementType>& operator+(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+{
+    if (GlueMatrixB.m_RowNumber != MatrixA.GetRowNumber() || GlueMatrixB.m_ColNumber != MatrixA.GetColNumber())
+    {
+        mdkError << "Size does not match @ mdkGlueMatrix operator+(MatrixA, GlueMatrixB)" << '\n';
+        return GlueMatrixB;
+    }
+
+    GlueMatrixB.m_MatrixElementDataSharedPointerList.push_back(MatrixA.GetElementDataSharedPointer());
+
+    GlueMatrixB.m_ElementList_Coef.push_back(1);
+
+    return GlueMatrixB;
+}
+
+
+template<typename ElementType>
+inline mdkGlueMatrix<ElementType>& operator-(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+{
+    if (GlueMatrixB.m_RowNumber != MatrixA.GetRowNumber() || GlueMatrixB.m_ColNumber != MatrixA.GetColNumber())
+    {
+        mdkError << "Size does not match @ mdkGlueMatrix operator-(MatrixA, GlueMatrixB)" << '\n';
+        return GlueMatrixB;
+    }
+
+    GlueMatrixB.m_MatrixElementDataSharedPointerList.push_back(MatrixA.GetElementDataSharedPointer());
+
+    for (uint64 i = 0; i < GlueMatrixB.m_ElementList_Coef.size(); ++i)
+    {
+        GlueMatrixB.m_ElementList_Coef[i] = -GlueMatrixB.m_ElementList_Coef[i];
+    }
+
+    GlueMatrixB.m_ElementList_Coef.push_back(1);
+
+    return GlueMatrixB;
+}
+
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+{
+    auto TempMatrix = MatrixA / GlueMatrixB.CreateMatrix();
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+{
+    auto TempMatrix = MatrixA / GlueMatrixB.CreateMatrix();
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+
+template<typename ElementType>
+inline
+mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+{
+    auto TempMatrix = MatrixA / GlueMatrixB.CreateMatrix();
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+// ---------------------------------------- GlueMatrix {+ - * % /}  Matrix ------------------------------------------------//
 
 template<typename ElementType>
 inline 
@@ -244,43 +424,41 @@ mdkGlueMatrix<ElementType>& operator-(mdkGlueMatrix<ElementType>& GlueMatrixA, c
 
 template<typename ElementType>
 inline 
-mdkGlueMatrix<ElementType>& operator+(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+mdkMatrix<ElementType> operator*(mdkGlueMatrix<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    if (GlueMatrixB.m_RowNumber != MatrixA.GetRowNumber() || GlueMatrixB.m_ColNumber != MatrixA.GetColNumber())
-    {
-        mdkError << "Size does not match @ mdkGlueMatrix operator+(MatrixA, GlueMatrixB)" << '\n';
-        return GlueMatrixB;
-    }
+    auto TempMatrix = GlueMatrixA.CreateMatrix() * MatrixB;
 
-    GlueMatrixB.m_MatrixElementDataSharedPointerList.push_back(MatrixA.GetElementDataSharedPointer());
+    TempMatrix.SetTobeTemporary();
 
-    GlueMatrixB.m_ElementList_Coef.push_back(1);
-
-    return GlueMatrixB;
+    return TempMatrix;
 }
 
 
 template<typename ElementType>
-inline mdkGlueMatrix<ElementType>& operator-(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+inline 
+mdkMatrix<ElementType> operator%(mdkGlueMatrix<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    if (GlueMatrixB.m_RowNumber != MatrixA.GetRowNumber() || GlueMatrixB.m_ColNumber != MatrixA.GetColNumber())
-    {
-        mdkError << "Size does not match @ mdkGlueMatrix operator-(MatrixA, GlueMatrixB)" << '\n';
-        return GlueMatrixB;
-    }
+    auto TempMatrix = GlueMatrixA.CreateMatrix() % MatrixB;
 
-    GlueMatrixB.m_MatrixElementDataSharedPointerList.push_back(MatrixA.GetElementDataSharedPointer());
+    TempMatrix.SetTobeTemporary();
 
-    for (uint64 i = 0; i < GlueMatrixB.m_ElementList_Coef.size(); ++i)
-    {
-        GlueMatrixB.m_ElementList_Coef[i] = -GlueMatrixB.m_ElementList_Coef[i];
-    }
-
-    GlueMatrixB.m_ElementList_Coef.push_back(1);
-
-    return GlueMatrixB;
+    return TempMatrix;
 }
 
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator/(mdkGlueMatrix<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
+{
+    auto TempMatrix = GlueMatrixA.CreateMatrix() / MatrixB;
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+
+// ---------------------------------------- GlueMatrix {+ - * % /}  GlueMatrix ------------------------------------------------//
 
 template<typename ElementType>
 inline 
@@ -333,6 +511,167 @@ mdkGlueMatrix<ElementType>& operator-(mdkGlueMatrix<ElementType>& GlueMatrixA, m
     return GlueMatrixA;
 }
 
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator*(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+{
+    auto TempMatrix = (GlueMatrixA.CreateMatrix()) * (GlueMatrixB.CreateMatrix());
+        
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator%(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+{
+    auto TempMatrix = (GlueMatrixA.CreateMatrix()) % (GlueMatrixB.CreateMatrix());
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator/(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+{
+    auto TempMatrix = (GlueMatrixA.CreateMatrix()) / (GlueMatrixB.CreateMatrix());
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+// ----------------------- GlueMatrix or ShadowMatrix {+ - * % /}  GlueMatrix or ShadowMatrix ------------------------------------//
+
+// note: GlueMatrix {+ - * % /} ShadowMatrix returns Matrix
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator+(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkShadowMatrix<ElementType>& ShadowMatrixB)
+{
+    auto TempMatrix = (GlueMatrixA.CreateMatrix()) + (ShadowMatrixB.CreateMatrix());
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator-(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkShadowMatrix<ElementType>& ShadowMatrixB)
+{
+    auto TempMatrix = (GlueMatrixA.CreateMatrix()) - (ShadowMatrixB.CreateMatrix());
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator*(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkShadowMatrix<ElementType>& ShadowMatrixB)
+{
+    auto TempMatrix = (GlueMatrixA.CreateMatrix()) * (ShadowMatrixB.CreateMatrix());
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator%(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkShadowMatrix<ElementType>& ShadowMatrixB)
+{
+    auto TempMatrix = (GlueMatrixA.CreateMatrix()) % (ShadowMatrixB.CreateMatrix());
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator/(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkShadowMatrix<ElementType>& ShadowMatrixB)
+{
+    auto TempMatrix = (GlueMatrixA.CreateMatrix()) / (ShadowMatrixB.CreateMatrix());
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+// note: ShadowMatrix {+ - * % /} GlueMatrix returns Matrix
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator+(mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+{
+    auto TempMatrix = (ShadowMatrixA.CreateMatrix()) + (GlueMatrixB.CreateMatrix());
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator-(mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+{
+    auto TempMatrix = (ShadowMatrixA.CreateMatrix()) - (GlueMatrixB.CreateMatrix());
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator*(mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+{
+    auto TempMatrix = (ShadowMatrixA.CreateMatrix()) * (GlueMatrixB.CreateMatrix());
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator%(mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+{
+    auto TempMatrix = (ShadowMatrixA.CreateMatrix()) % (GlueMatrixB.CreateMatrix());
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator/(mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
+{
+    auto TempMatrix = (ShadowMatrixA.CreateMatrix()) / (GlueMatrixB.CreateMatrix());
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+// -------------------------------------------- Element {+ - *} Matrix ------------------------------------------------//
 
 template<typename ElementType>
 inline 
@@ -390,6 +729,7 @@ mdkGlueMatrix<ElementType> operator*(const ElementType& Element, const mdkMatrix
     return tempGlueMatrix;
 }
 
+// -------------------------------------------- Element {+ - * /} GlueMatrix ------------------------------------------------//
 
 template<typename ElementType>
 inline 
@@ -429,6 +769,20 @@ mdkGlueMatrix<ElementType>& operator*(const ElementType& Element, mdkGlueMatrix<
     return GlueMatrix;
 }
 
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType> operator/(const ElementType& Element, mdkGlueMatrix<ElementType>& GlueMatrix)
+{
+    auto TempMatrix = Element / (GlueMatrix.CreateMatrix());
+
+    TempMatrix.SetTobeTemporary();
+
+    return TempMatrix;
+}
+
+
+// ------------------------------------ Matrix {+ - * /}  Element ------------------------------------------------//
 
 template<typename ElementType>
 inline 
@@ -478,14 +832,18 @@ template<typename ElementType>
 inline 
 mdkGlueMatrix<ElementType> operator/(const mdkMatrix<ElementType>& Matrix, const ElementType& Element)
 {
-    return Matrix * (1 / Element);
+    return Matrix * (ElementType(1) / Element);
 }
 
+
+// ------------------------------------ GlueMatrix {+ - * /}  Element ------------------------------------------------//
 
 template<typename ElementType>
 inline mdkGlueMatrix<ElementType>& operator+(mdkGlueMatrix<ElementType>& GlueMatrix, const ElementType& Element)
 {
-    return Element + GlueMatrix;
+    GlueMatrix.m_IndependentElement += Element;
+
+    return GlueMatrix;
 }
 
 
@@ -496,6 +854,7 @@ inline mdkGlueMatrix<ElementType>& operator-(mdkGlueMatrix<ElementType>& GlueMat
 
     return GlueMatrix;
 }
+
 
 template<typename ElementType>
 inline mdkGlueMatrix<ElementType>& operator*(mdkGlueMatrix<ElementType>& GlueMatrix, const ElementType& Element)
@@ -508,7 +867,7 @@ template<typename ElementType>
 inline 
 mdkGlueMatrix<ElementType>& operator/(mdkGlueMatrix<ElementType>& GlueMatrix, const ElementType& Element)
 {
-    return (1/Element) * GlueMatrix;
+    return (ElementType(1) / Element) * GlueMatrix;
 }
 
 
