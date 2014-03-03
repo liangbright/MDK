@@ -44,7 +44,8 @@ inline mdkMatrix<ElementType> MatrixMultiply(const mdkMatrix<ElementType>& Matri
 //----------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline void MatrixLinearCombine(mdkMatrix<ElementType>&, const std::vector<ElementType>& CoefList, const std::vector<mdkMatrix<ElementType>*>& MatrixList);
+inline void MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix, 
+                                const std::vector<ElementType>& CoefList, const std::vector<mdkMatrix<ElementType>*>& MatrixList);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<mdkMatrix<ElementType>*>& MatrixList);

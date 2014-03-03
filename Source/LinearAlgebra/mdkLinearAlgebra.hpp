@@ -358,6 +358,10 @@ mdkMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefL
         return tempMatrix;
     }
 
+    auto Size = MatrixList[0]->GetSize();
+
+    tempMatrix.SetSize(Size.RowNumber, Size.ColNumber);
+
     MatrixLinearCombine(tempMatrix, CoefList, MatrixList);
 
     return tempMatrix;
