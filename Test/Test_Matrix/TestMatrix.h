@@ -127,7 +127,19 @@ void Test_Constructor()
 
     mdkMatrix<double> D2;
 
+    //D2 is not temporary
     D2 = A*A*A;
+    
+    // D2 is now temporary
+    D2.SetTobeTemporaryBeforeReturn();
+
+    //D3 is temporary
+    auto D3 = D2;
+
+    mdkMatrix<double> D4;
+
+    // D4 is not temporary
+    D4 = D2;
 }
 
 

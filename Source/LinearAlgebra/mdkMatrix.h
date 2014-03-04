@@ -188,11 +188,15 @@ public:
     //-----------------------------------------------------------------------------------//
     inline void Clear();
 
-    inline void SetTobeTemporary();
+    //--------------------- Handle Temporay Matrix ---------------------------------//
+
+    // use SetTobeTemporary right before "return tempMatrix"    
+    inline void SetTobeTemporaryBeforeReturn();
 
     inline bool IsTemporary() const;
 
     inline uint64 Get_Counter_SharedCopyConstruction_From_TemporaryMatrix() const;
+    //-----------------------------------------------------------------------------//
 
     inline mdkMatrixElementTypeEnum GetElementType() const;
 

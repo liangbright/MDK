@@ -96,7 +96,7 @@ mdkMatrix<ElementType> mdkGlueMatrix<ElementType>::CreateMatrix() const
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     if (m_RowNumber == 0 || m_ColNumber == 0)
     {
@@ -386,7 +386,7 @@ mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, mdkGlueM
 {
     auto TempMatrix = MatrixA / GlueMatrixB.CreateMatrix();
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -397,7 +397,7 @@ inline mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, m
 {
     auto TempMatrix = MatrixA / GlueMatrixB.CreateMatrix();
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -409,7 +409,7 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, mdkGlueM
 {
     auto TempMatrix = MatrixA / GlueMatrixB.CreateMatrix();
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -458,7 +458,7 @@ mdkMatrix<ElementType> operator*(mdkGlueMatrix<ElementType>& GlueMatrixA, const 
 {
     auto TempMatrix = GlueMatrixA.CreateMatrix() * MatrixB;
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -470,7 +470,7 @@ mdkMatrix<ElementType> operator%(mdkGlueMatrix<ElementType>& GlueMatrixA, const 
 {
     auto TempMatrix = GlueMatrixA.CreateMatrix() % MatrixB;
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -482,7 +482,7 @@ mdkMatrix<ElementType> operator/(mdkGlueMatrix<ElementType>& GlueMatrixA, const 
 {
     auto TempMatrix = GlueMatrixA.CreateMatrix() / MatrixB;
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -548,7 +548,7 @@ mdkMatrix<ElementType> operator*(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkGlu
 {
     auto TempMatrix = (GlueMatrixA.CreateMatrix()) * (GlueMatrixB.CreateMatrix());
         
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -560,7 +560,7 @@ mdkMatrix<ElementType> operator%(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkGlu
 {
     auto TempMatrix = (GlueMatrixA.CreateMatrix()) % (GlueMatrixB.CreateMatrix());
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -572,7 +572,7 @@ mdkMatrix<ElementType> operator/(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkGlu
 {
     auto TempMatrix = (GlueMatrixA.CreateMatrix()) / (GlueMatrixB.CreateMatrix());
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -587,7 +587,7 @@ mdkMatrix<ElementType> operator+(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkSha
 {
     auto TempMatrix = (GlueMatrixA.CreateMatrix()) + (ShadowMatrixB.CreateMatrix());
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -599,7 +599,7 @@ mdkMatrix<ElementType> operator-(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkSha
 {
     auto TempMatrix = (GlueMatrixA.CreateMatrix()) - (ShadowMatrixB.CreateMatrix());
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -611,7 +611,7 @@ mdkMatrix<ElementType> operator*(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkSha
 {
     auto TempMatrix = (GlueMatrixA.CreateMatrix()) * (ShadowMatrixB.CreateMatrix());
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -623,7 +623,7 @@ mdkMatrix<ElementType> operator%(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkSha
 {
     auto TempMatrix = (GlueMatrixA.CreateMatrix()) % (ShadowMatrixB.CreateMatrix());
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -635,7 +635,7 @@ mdkMatrix<ElementType> operator/(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkSha
 {
     auto TempMatrix = (GlueMatrixA.CreateMatrix()) / (ShadowMatrixB.CreateMatrix());
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -648,7 +648,7 @@ mdkMatrix<ElementType> operator+(mdkShadowMatrix<ElementType>& ShadowMatrixA, md
 {
     auto TempMatrix = (ShadowMatrixA.CreateMatrix()) + (GlueMatrixB.CreateMatrix());
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -660,7 +660,7 @@ mdkMatrix<ElementType> operator-(mdkShadowMatrix<ElementType>& ShadowMatrixA, md
 {
     auto TempMatrix = (ShadowMatrixA.CreateMatrix()) - (GlueMatrixB.CreateMatrix());
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -672,7 +672,7 @@ mdkMatrix<ElementType> operator*(mdkShadowMatrix<ElementType>& ShadowMatrixA, md
 {
     auto TempMatrix = (ShadowMatrixA.CreateMatrix()) * (GlueMatrixB.CreateMatrix());
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -684,7 +684,7 @@ mdkMatrix<ElementType> operator%(mdkShadowMatrix<ElementType>& ShadowMatrixA, md
 {
     auto TempMatrix = (ShadowMatrixA.CreateMatrix()) % (GlueMatrixB.CreateMatrix());
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -696,7 +696,7 @@ mdkMatrix<ElementType> operator/(mdkShadowMatrix<ElementType>& ShadowMatrixA, md
 {
     auto TempMatrix = (ShadowMatrixA.CreateMatrix()) / (GlueMatrixB.CreateMatrix());
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }
@@ -806,7 +806,7 @@ mdkMatrix<ElementType> operator/(const ElementType& Element, mdkGlueMatrix<Eleme
 {
     auto TempMatrix = Element / (GlueMatrix.CreateMatrix());
 
-    TempMatrix.SetTobeTemporary();
+    TempMatrix.SetTobeTemporaryBeforeReturn();
 
     return TempMatrix;
 }

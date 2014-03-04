@@ -198,8 +198,11 @@ void mdkMatrix<ElementType>::Clear()
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::SetTobeTemporary()
+void mdkMatrix<ElementType>::SetTobeTemporaryBeforeReturn()
 {
+    // must clear the counter
+    m_Counter_SharedCopyConstruction_From_TemporaryMatrix = 0;
+
     m_IsTemporary = true;
 }
 
@@ -1447,7 +1450,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetSubMatrix(uint64 RowIndex_star
 {
     mdkMatrix<ElementType> tempMatrix; // empty matrix
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     if (RowIndex_start >= m_RowNumber || RowIndex_end >= m_RowNumber
         || ColIndex_start >= m_ColNumber || ColIndex_end >= m_ColNumber
@@ -1486,7 +1489,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetSubMatrix(const std::vector<ui
 {
     mdkMatrix<ElementType> tempMatrix; // empty matrix
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto RowNumber = uint64(RowIndexList.size());
     auto ColNumber = uint64(ColIndexList.size());
@@ -1640,7 +1643,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetSubMatrix(const std::vector<ui
 {
     mdkMatrix<ElementType> tempMatrix; // empty matrix
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto ElementNumber_sub = uint64(LinearIndexList.size());
 
@@ -1748,7 +1751,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetCol(uint64 ColIndex) const
 {
 	mdkMatrix<ElementType> tempMatrix; // empty matrix
 
-	tempMatrix.SetTobeTemporary();
+	tempMatrix.SetTobeTemporaryBeforeReturn();
 
 	if (ColIndex >= m_ColNumber)
 	{
@@ -2175,7 +2178,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetRow(uint64 RowIndex) const
 {
     mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
+	tempMatrix.SetTobeTemporaryBeforeReturn();
 
 	if (RowIndex >= m_RowNumber)
 	{
@@ -2561,7 +2564,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetDiangonal() const
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto ElementNumber = this->GetElementNumber();
 
@@ -2773,7 +2776,7 @@ mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, const md
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
     {
@@ -2802,6 +2805,7 @@ mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, const md
         ptrTemp[i] = ptrA[i] + ptrB[i];
     }
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return  tempMatrix;
 }
 
@@ -2812,8 +2816,6 @@ mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const md
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporary();
-
 	auto SizeA = MatrixA.GetSize();
 
 	auto SizeB = MatrixB.GetSize();
@@ -2821,24 +2823,28 @@ mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const md
     if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
     {
         mdkError << "MatrixA or MatrixB is empty @ mdkMatrix operator-(MatrixA, MatrixB)" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
         return  tempMatrix;
     }
 
 	if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
 	{
         tempMatrix.share(MatrixA(0) - MatrixB);
+        tempMatrix.SetTobeTemporaryBeforeReturn();
         return  tempMatrix;
 	}
 
 	if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
 	{
         tempMatrix.share(MatrixA - MatrixB(0));
+        tempMatrix.SetTobeTemporaryBeforeReturn();
         return  tempMatrix;
 	}
 
 	if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
 	{
 		mdkError << "Size does not match @ mdkMatrix operator-(MatrixA, MatrixB)" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return  tempMatrix;
 	}
 
@@ -2857,6 +2863,7 @@ mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const md
         ptrTemp[i] = ptrA[i] - ptrB[i];
 	}
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return  tempMatrix;
 }
 
@@ -2868,9 +2875,7 @@ inline
 mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporary();
-
+    
     auto SizeA = MatrixA.GetSize();
 
     auto SizeB = MatrixB.GetSize();
@@ -2878,12 +2883,14 @@ mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const md
     if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
     {
         mdkError << "MatrixA or MatrixB is empty @ mdkMatrix operator*(MatrixA, MatrixB)" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
         return  tempMatrix;
     }
 
     if (SizeA.ColNumber != SizeB.RowNumber)
     {
         mdkError << "Size does not match @ mdkMatrix operator*(MatrixA, MatrixB)" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
         return  tempMatrix;
     }
 
@@ -2903,6 +2910,7 @@ mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const md
 
     C = A*B;
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
     return tempMatrix;
 
     //--------------------- for-loop : slow ----------------------------------------------------
@@ -2939,6 +2947,7 @@ mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const md
         IndexB += SizeB.RowNumber;
     }
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
     return tempMatrix;   
 }
 
@@ -2949,7 +2958,7 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const md
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
 	auto SizeA = MatrixA.GetSize();
 
@@ -3005,7 +3014,7 @@ mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, const md
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
 	auto SizeA = MatrixA.GetSize();
 
@@ -3063,7 +3072,7 @@ inline mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, c
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto SizeA = MatrixA.GetSize();
 
@@ -3093,7 +3102,7 @@ inline mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, c
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
+	tempMatrix.SetTobeTemporaryBeforeReturn();
 
 	auto SizeA = MatrixA.GetSize();
 
@@ -3125,7 +3134,7 @@ inline mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, c
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto SizeA = MatrixA.GetSize();
 
@@ -3157,7 +3166,7 @@ inline mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, c
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto SizeA = MatrixA.GetSize();
 
@@ -3196,7 +3205,7 @@ inline mdkMatrix<ElementType> operator+(const ElementType& ElementA, const mdkMa
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto SizeB = MatrixB.GetSize();
 
@@ -3228,7 +3237,7 @@ inline mdkMatrix<ElementType> operator-(const ElementType& ElementA, const mdkMa
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto SizeB = MatrixB.GetSize();
 
@@ -3260,7 +3269,7 @@ inline mdkMatrix<ElementType> operator*(const ElementType& ElementA, const mdkMa
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto SizeB = MatrixB.GetSize();
 
@@ -3294,7 +3303,7 @@ inline mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkMa
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporary();
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto SizeB = MatrixB.GetSize();
 
@@ -3717,33 +3726,33 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(const std::strin
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
 	if (FunctionName == "abs")
 	{
-		return this->ElementOperation([](ElementType a){return std::abs(a); });
+        tempMatrix = this->ElementOperation([](ElementType a){return std::abs(a); });
 	}
 	else if (FunctionName == "sin")
 	{
-		return this->ElementOperation([](ElementType a){return std::sin(a); });
+        tempMatrix = this->ElementOperation([](ElementType a){return std::sin(a); });
 	}
 	else if (FunctionName == "cos")
 	{
-		return this->ElementOperation([](ElementType a){return std::cos(a); });
+        tempMatrix = this->ElementOperation([](ElementType a){return std::cos(a); });
 	}
 	else if (FunctionName == "tan")
 	{
-		return this->ElementOperation([](ElementType a){return std::tan(a); });
+        tempMatrix = this->ElementOperation([](ElementType a){return std::tan(a); });
 	}
 	else if (FunctionName == "sqrt")
 	{
-		return this->ElementOperation([](ElementType a){return std::sqrt(a); });
+        tempMatrix =  this->ElementOperation([](ElementType a){return std::sqrt(a); });
 	}
 	else
 	{
 		mdkError << " unknown operator @ mdkMatrix::ElementOperation(std::string FunctionName)" << '\n';
-		return tempMatrix;
 	}
+
+    tempMatrix.SetTobeTemporaryBeforeReturn();
+    return tempMatrix;
 }
 
 
@@ -3754,13 +3763,12 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(FunctionType Fun
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
     auto ElementNumber = this->GetElementNumber();
 
 	if (ElementNumber == 0)
 	{
 		mdkError << "Self is empty @ mdkMatrix::ElementOperation(Function)" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return tempMatrix;
 	}
 
@@ -3775,6 +3783,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(FunctionType Fun
 		tempRawPointer[i] = Function(RawPointer[i]);
 	}
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return tempMatrix;
 }
 
@@ -3796,33 +3805,33 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(const std::strin
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
 	if (FunctionName == "+")
 	{
-		return this->ElementOperation([](ElementType a, ElementType b){return a + b;}, targetMatrix);
+        tempMatrix = this->ElementOperation([](ElementType a, ElementType b){return a + b; }, targetMatrix);
 	}
 	else if (FunctionName == "-")
 	{
-		return this->ElementOperation([](ElementType a, ElementType b){return a - b; }, targetMatrix);
+        tempMatrix = this->ElementOperation([](ElementType a, ElementType b){return a - b; }, targetMatrix);
 	}
 	else if (FunctionName == "*")
 	{
-		return this->ElementOperation([](ElementType a, ElementType b){return a * b; }, targetMatrix);
+        tempMatrix = this->ElementOperation([](ElementType a, ElementType b){return a * b; }, targetMatrix);
 	}
 	else if (FunctionName == "/")
 	{
-		return this->ElementOperation([](ElementType a, ElementType b){return a / b; }, targetMatrix);
+        tempMatrix = this->ElementOperation([](ElementType a, ElementType b){return a / b; }, targetMatrix);
 	}
 	else if (FunctionName == "^")
 	{
-		return this->ElementOperation([](ElementType a, ElementType b){return std::pow(a, b); }, targetMatrix);
+        tempMatrix = this->ElementOperation([](ElementType a, ElementType b){return std::pow(a, b); }, targetMatrix);
 	}
 	else
 	{
-		mdkError << " unknown operator @ mdkMatrix::ElementOperation(std::string FunctionName, targetMatrix)" << '\n';
-		return tempMatrix;
+		mdkError << " unknown operator @ mdkMatrix::ElementOperation(std::string FunctionName, targetMatrix)" << '\n';        
 	}
+
+    tempMatrix.SetTobeTemporaryBeforeReturn();
+    return tempMatrix;
 }
 
 
@@ -3833,11 +3842,10 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(FunctionType Fun
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
 	if (m_ElementNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::ElementOperation(Function, targetMatrix)" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return tempMatrix;
 	}
 
@@ -3846,12 +3854,15 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(FunctionType Fun
 	if	(targetMatrixSize.ColNumber == 0 || targetMatrixSize.RowNumber == 0)
 	{
 		mdkError << "empty targetMatrix @ mdkMatrix ElementOperation(Function, targetMatrix)" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return tempMatrix;
 	}
 
 	if (targetMatrixSize.RowNumber == 1 && targetMatrixSize.ColNumber == 1)
 	{
-		return this->ElementOperation(Function, targetMatrix(0));
+        tempMatrix = this->ElementOperation(Function, targetMatrix(0));
+        tempMatrix.SetTobeTemporaryBeforeReturn();
+        return tempMatrix;
 	}
 
 	auto Flag_row = 0;
@@ -3875,6 +3886,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(FunctionType Fun
 	else
 	{
 		mdkError << "Size does not match @ mdkMatrix::ElementOperation(Functor, targetMatrix)" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return tempMatrix;
 	}
 
@@ -3925,6 +3937,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(FunctionType Fun
 		}
 	}
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return tempMatrix;
 }
 
@@ -3942,34 +3955,34 @@ inline
 mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(const std::string& FunctionName, ElementType Element) const
 {
 	mdkMatrix<ElementType> tempMatrix;
-
-	tempMatrix.SetTobeTemporary();
-
+    
 	if (FunctionName == "+")
 	{
-		return this->ElementOperation([](ElementType a, ElementType b){return a + b; }, Element);
+        tempMatrix = this->ElementOperation([](ElementType a, ElementType b){return a + b; }, Element);
 	}
 	else if (FunctionName == "-")
 	{
-		return this->ElementOperation([](ElementType a, ElementType b){return a - b; }, Element);
+        tempMatrix = this->ElementOperation([](ElementType a, ElementType b){return a - b; }, Element);
 	}
 	else if (FunctionName == "*")
 	{
-		return this->ElementOperation([](ElementType a, ElementType b){return a * b; }, Element);
+        tempMatrix = this->ElementOperation([](ElementType a, ElementType b){return a * b; }, Element);
 	}
 	else if (FunctionName == "/")
 	{
-		return this->ElementOperation([](ElementType a, ElementType b){return a / b; }, Element);
+        tempMatrix = this->ElementOperation([](ElementType a, ElementType b){return a / b; }, Element);
 	}
 	else if (FunctionName == "^")
 	{
-		return this->ElementOperation([](ElementType a, ElementType b){return std::pow(a, b); }, Element);
+        tempMatrix = this->ElementOperation([](ElementType a, ElementType b){return std::pow(a, b); }, Element);
 	}
 	else
 	{
-		mdkError << " unknown operator @ mdkMatrix::ElementOperation(std::string Operator, Element)" << '\n';
-		return tempMatrix;
+		mdkError << " unknown operator @ mdkMatrix::ElementOperation(std::string Operator, Element)" << '\n';        
 	}
+
+    tempMatrix.SetTobeTemporaryBeforeReturn();
+    return tempMatrix;
 }
 
 
@@ -3980,11 +3993,10 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(FunctionType Fun
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
 	if (m_RowNumber == 0 || m_ColNumber == 0)
 	{
 		mdkError << "Self is empty @ mdkMatrix::ElementOperation(Functor, Element)" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return tempMatrix;
 	}
 
@@ -4001,6 +4013,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(FunctionType Fun
 		tempRawPointer[i] = Function(RawPointer[i], ElementType(Element));
 	}
 	
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return tempMatrix;
 }
 
@@ -4036,11 +4049,10 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanToRow()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
 	if (m_RowNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::MeanToRow" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return tempMatrix;
 	}
 
@@ -4069,6 +4081,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanToRow()
 		tempRawPointer[j] = value;
 	}
 	
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return tempMatrix;
 }
 
@@ -4078,11 +4091,10 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanToCol()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
 	if (m_ColNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::MeanToCol" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return tempMatrix;
 	}
 
@@ -4114,6 +4126,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanToCol()
 		tempRawPointer[i] = value;
 	}
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return tempMatrix;
 }
 
@@ -4147,11 +4160,10 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumToRow()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
 	if (m_RowNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::SumToRow" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return tempMatrix;
 	}
 
@@ -4178,6 +4190,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumToRow()
 		tempRawPointer[j] = value;
 	}
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return tempMatrix;
 }
 
@@ -4187,11 +4200,10 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumToCol()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
 	if (m_ColNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::SumToCol" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return tempMatrix;
 	}
 
@@ -4221,6 +4233,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumToCol()
 		tempRawPointer[i] = value;
 	}
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return tempMatrix;
 }
 
@@ -4254,11 +4267,10 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxToRow()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
 	if (m_RowNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::MaxToRow" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return tempMatrix;
 	}
 
@@ -4283,6 +4295,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxToRow()
 		tempRawPointer[j] = value;
 	}
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return tempMatrix;
 }
 
@@ -4292,11 +4305,10 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxToCol()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
 	if (m_ColNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::MaxToCol" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return tempMatrix;
 	}
 
@@ -4324,6 +4336,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxToCol()
 		tempRawPointer[i] = value;
 	}
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return tempMatrix;
 }
 
@@ -4357,11 +4370,10 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinToRow()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
 	if (m_RowNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::MinToRow" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return tempMatrix;
 	}
 
@@ -4386,6 +4398,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinToRow()
 		tempRawPointer[j] = value;
 	}
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return tempMatrix;
 }
 
@@ -4395,11 +4408,10 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinToCol()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
 	if (m_ColNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::MinToCol" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return tempMatrix;
 	}
 
@@ -4427,6 +4439,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinToCol()
 		tempRawPointer[i] = value;
 	}
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return tempMatrix;
 }
 
@@ -4437,11 +4450,10 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetTranspose()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
 	if (m_RowNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::GetTranspose" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
 		return tempMatrix;
 	}
 
@@ -4467,6 +4479,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetTranspose()
 		}
 	}
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return tempMatrix;
 }
 
@@ -4505,11 +4518,10 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::Inv()
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporary();
-
     if (m_RowNumber == 0)
     {
         mdkError << "Self is empty matrix @ mdkMatrix::Inv" << '\n';
+        tempMatrix.SetTobeTemporaryBeforeReturn();
         return tempMatrix;
     }
 
@@ -4523,6 +4535,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::Inv()
 	
 	tempInv = arma::inv(tempMat);
 
+    tempMatrix.SetTobeTemporaryBeforeReturn();
 	return tempMatrix;
 }
 
@@ -4543,9 +4556,9 @@ mdkMatrixSVDResult<ElementType> mdkMatrix<ElementType>::SVD()
 {
 	mdkMatrixSVDResult<ElementType> Result;
 
-	Result.U.SetTobeTemporary();
-	Result.S.SetTobeTemporary();
-	Result.V.SetTobeTemporary();
+    Result.U.SetTobeTemporaryBeforeReturn();
+    Result.S.SetTobeTemporaryBeforeReturn();
+    Result.V.SetTobeTemporaryBeforeReturn();
 
     if (m_RowNumber == 0)
     {
