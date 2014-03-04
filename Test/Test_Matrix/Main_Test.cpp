@@ -74,9 +74,12 @@ int main()
    // auto b = Test_A({ 1 }, {});
 
 
-    /*
+    
     Test_Constructor();
 
+   // Test_Share();
+
+    /*
     Test_Matrix_Operator();
 
     Test_ShadowMatrix_Operator();
@@ -93,9 +96,13 @@ int main()
     Test_GlueMatrix_Speed1();
   */
 
-    Test_GlueMatrix_Speed2();
+    //Test_GlueMatrix_Speed2();
 
     //Test_GlueMatrix_Create();
+
+    //Test_Mutiplication_Speed();
+
+    std::system("pause");
 
     return 1;
 }

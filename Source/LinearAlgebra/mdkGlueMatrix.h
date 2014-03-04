@@ -189,9 +189,9 @@ template<typename ElementType>
 inline mdkGlueMatrix<ElementType>& operator/(mdkGlueMatrix<ElementType>& GlueMatrix, const ElementType& Element);
 //--------------------------------------------------------------------------------------------------//
 
-// assume 10 scalars and 10 matrix on average
+// 100 scalars and 100 matrix should be ok 
 // reserve the capacity of std::vector
-#define MDK_GlueMatrix_ReservedCapacity  20
+#define MDK_GlueMatrix_ReservedCapacity  100
 //--------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>

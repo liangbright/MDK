@@ -95,27 +95,39 @@ void Test_std_vector()
 
 void Test_Constructor()
 {
-    mdkMatrix<double> A(2, 4);
+    mdkMatrix<double> A(2, 2);
 
-    A = { 1, 2, 3, 4,
-          5, 6, 7, 8 };
+    A = { 1, 2, 
+          3, 4};
 
     DisplayMatrix(A);
 
  
-    mdkMatrix<double> B(A.GetElementDataRawPointer(), 2, 4);
+    mdkMatrix<double> B(A.GetElementDataRawPointer(), 2, 2);
     
     DisplayMatrix(B);
 
     mdkMatrix<double> C;
 
-    C.SharedCopy(A);
+    C.Share(A);
 
     A.Copy(A);
 
     A.Copy(C);
 
     C.Copy(A);
+    //-----------------
+
+    // copy constructor, D will be temporary ?
+    mdkMatrix<double> D(A*A);
+
+
+    // copy constructor, D will be temporary ?
+    auto D1 = A*A;
+
+    mdkMatrix<double> D2;
+
+    D2 = A*A*A;
 }
 
 
@@ -191,205 +203,165 @@ void Test_Matrix_Operator()
 void Test_Mutiplication()
 {
 
-	mdkMatrix<double> DoubleMatrixA;
+	mdkMatrix<double> A;
 
-	DoubleMatrixA.SetSize(2, 4);
+	A.SetSize(2, 4);
 
-	DoubleMatrixA = { 1, 2, 3, 4, 
+	A = { 1, 2, 3, 4, 
 		              5, 6, 7, 8 };
 	
-	std::cout << "DoubleMatrixA" << '\n';
+	std::cout << "A" << '\n';
 
-	for (uint64 i = 0; i < 2; ++i)
-	{
-		for (uint64 j = 0; j < 4; ++j)
-		{
-			std::cout << DoubleMatrixA(i, j) << ' ';
-		}
+    DisplayMatrix(A);
 
-		std::cout << '\n';
-	}
+	mdkMatrix<double> B;
 
+	B.SetSize(4, 2);
 
-	mdkMatrix<double> DoubleMatrixB;
+	B = { 1, 2, 
+		  3, 4, 
+		  5, 6, 
+		  7, 8 };
 
-	DoubleMatrixB.SetSize(4, 2);
+	std::cout << "B" << '\n';
 
-	DoubleMatrixB = { 1, 2, 
-		              3, 4, 
-					  5, 6, 
-					  7, 8 };
+    DisplayMatrix(B);
 
-	std::cout << "DoubleMatrixB" << '\n';
+	auto C = A*B;
 
-	for (uint64 i = 0; i < 4; ++i)
-	{
-		for (uint64 j = 0; j < 2; ++j)
-		{
-			std::cout << DoubleMatrixB(i, j) << ' ';
-		}
+	std::cout << "C = A * B" << '\n';
 
-		std::cout << '\n';
-	}
+    DisplayMatrix(C);
 
-	auto DoubleMatrixC = DoubleMatrixA*DoubleMatrixB;
+	A *= 1.25;
 
-	std::cout << "DoubleMatrixC = DoubleMatrixA * DoubleMatrixB" << '\n';
+	std::cout << "A * 1.25 =" << '\n';
 
-	for (uint64 i = 0; i < 2; ++i)
-	{
-		for (uint64 j = 0; j < 2; ++j)
-		{
-			std::cout << DoubleMatrixC(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
-
-	DoubleMatrixA *= 1.25;
-
-	std::cout << "DoubleMatrixA * 1.25 =" << '\n';
-
-	for (uint64 i = 0; i < 2; ++i)
-	{
-		for (uint64 j = 0; j < 4; ++j)
-		{
-			std::cout << DoubleMatrixA(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
+    DisplayMatrix(A);
 
 
-	mdkMatrix<double> DoubleMatrixD(2, 10);
-	DoubleMatrixD = {  1,  2,  3,  4,  5,  6,  7,  8,  9, 10,
-		              11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+	mdkMatrix<double> D(2, 10);
+	D = {  1,  2,  3,  4,  5,  6,  7,  8,  9, 10,
+		  11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
 
-	std::cout << "DoubleMatrixD =" << '\n';
-	for (uint64 i = 0; i < 2; ++i)
-	{
-		for (uint64 j = 0; j < 10; ++j)
-		{
-			std::cout << DoubleMatrixD(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
+	std::cout << "D =" << '\n';
+    DisplayMatrix(D);
 }
 
 
-void Test_CopyOnWrite()
+void Test_Share()
 {
+    mdkMatrix<double> A(2, 2);
 
-	mdkMatrix<double> DoubleMatrixA;
+    A = { 1, 2,
+          3, 4 };
 
-	DoubleMatrixA.SetSize(2, 4);
+    std::cout << "A =" << '\n';
+    DisplayMatrix(A);
 
-	DoubleMatrixA = { 1, 2, 3, 4,
-		5, 6, 7, 8 };
+    mdkMatrix<double> B;
 
-	std::cout << "DoubleMatrixA" << '\n';
+    B.Share(A);
 
-	for (uint64 i = 0; i < 2; ++i)
-	{
-		for (uint64 j = 0; j < 4; ++j)
-		{
-			std::cout << DoubleMatrixA(i, j) << ' ';
-		}
+    B(1, 1) = 0;
 
-		std::cout << '\n';
-	}
+    std::cout << "B =" << '\n';
+    DisplayMatrix(B);
+}
 
 
-	mdkMatrix<double> DoubleMatrixB;
+void Test_Mutiplication_Speed()
+{
+    mdkMatrix<double> A(512, 512);
 
-	DoubleMatrixB = DoubleMatrixA;
+    mdkMatrix<double> B(512, 512);
 
-	std::cout << "DoubleMatrixB" << '\n';
+    mdkMatrix<double> C(512, 512);
 
-	for (uint64 i = 0; i < 2; ++i)
-	{
-		for (uint64 j = 0; j < 4; ++j)
-		{
-			std::cout << DoubleMatrixB(i, j) << ' ';
-		}
+    auto t0 = std::time(0);
 
-		std::cout << '\n';
-	}
+    for (uint64 i = 0; i < 10000; ++i)
+    {
+        
+        //ok
+        //C = A*C;
 
-	DoubleMatrixB += 10;
+        // faster
+        C = 1.0*(A*C) + 2.0*(A*C) + 3.0*(A*C) + 4.0*(A*C) + 5.0*(A*C) + 6.0*(A*C);
 
-	std::cout << "DoubleMatrixB +10 = " << '\n';
+        //fastest
+        //MatrixMultiply(C, A, C);
+    }
 
-	for (uint64 i = 0; i < 2; ++i)
-	{
-		for (uint64 j = 0; j < 4; ++j)
-		{
-			std::cout << DoubleMatrixB(i, j) << ' ';
-		}
+    auto t1 = std::time(0);
 
-		std::cout << '\n';
-	}
+    std::cout << "C = A*B time " << t1 - t0 << '\n';
 
-	std::cout << "DoubleMatrixA = " << '\n';
+    arma::Mat<double> Am(A.GetElementDataRawPointer(), arma::uword(A.GetRowNumber()), arma::uword(A.GetColNumber()), false);
+    arma::Mat<double> Bm(B.GetElementDataRawPointer(), arma::uword(B.GetRowNumber()), arma::uword(B.GetColNumber()), false);
+    arma::Mat<double> Cm(C.GetElementDataRawPointer(), arma::uword(C.GetRowNumber()), arma::uword(C.GetColNumber()), false);
 
-	for (uint64 i = 0; i < 2; ++i)
-	{
-		for (uint64 j = 0; j < 4; ++j)
-		{
-			std::cout << DoubleMatrixA(i, j) << ' ';
-		}
+    t0 = std::time(0);
 
-		std::cout << '\n';
-	}
+    for (uint64 i = 0; i < 10000; ++i)
+    {
+        //Cm = 1.0*(Am*Cm) + 2.0*(Am*Cm) + 3.0*(Am*Cm) + 4.0*(Am*Cm) + 5.0*(Am*Cm) + 6.0*(Am*Cm);
+        Cm = 1.0*Am*Cm + 2.0*Am*Cm + 3.0*Am*Cm + 4.0*Am*Cm + 5.0*Am*Cm + 6.0*Am*Cm;
+    }
+
+    t1 = std::time(0);
+
+    std::cout << "arma Cm = Am*Bm time " << t1 - t0 << '\n';
+
+    std::system("pause");
 }
 
 
 void Test_ElementOperation()
 {
-	mdkMatrix<double> DoubleMatrixA;
+	mdkMatrix<double> A;
 
-	DoubleMatrixA.SetSize(2, 4);
+	A.SetSize(2, 4);
 
-	DoubleMatrixA = { 1, 2, 3, 4,
+	A = { 1, 2, 3, 4,
 		5, 6, 7, 8 };
 
-	std::cout << "DoubleMatrixA" << '\n';
+	std::cout << "A" << '\n';
 
 	for (uint64 i = 0; i < 2; ++i)
 	{
 		for (uint64 j = 0; j < 4; ++j)
 		{
-			std::cout << DoubleMatrixA(i, j) << ' ';
+			std::cout << A(i, j) << ' ';
 		}
 
 		std::cout << '\n';
 	}
 
-	auto DoubleMatrixB = DoubleMatrixA.ElementOperation(std::string("^"), 10.0);
+	auto B = A.ElementOperation(std::string("^"), 10.0);
 
-	std::cout << "DoubleMatrixB = DoubleMatrixA ^ 10 " << '\n';
+	std::cout << "B = A ^ 10 " << '\n';
 
 	for (uint64 i = 0; i < 2; ++i)
 	{
 		for (uint64 j = 0; j < 4; ++j)
 		{
-			std::cout << DoubleMatrixB(i, j) << ' ';
+			std::cout << B(i, j) << ' ';
 		}
 
 		std::cout << '\n';
 	}
 
 
-	auto DoubleMatrixC = DoubleMatrixA.ElementOperation(std::string("sqrt"));
+	auto C = A.ElementOperation(std::string("sqrt"));
 
-	std::cout << "DoubleMatrixC = sqrt(DoubleMatrixA) " << '\n';
+	std::cout << "C = sqrt(A) " << '\n';
 
 	for (uint64 i = 0; i < 2; ++i)
 	{
 		for (uint64 j = 0; j < 4; ++j)
 		{
-			std::cout << DoubleMatrixC(i, j) << ' ';
+			std::cout << C(i, j) << ' ';
 		}
 
 		std::cout << '\n';
@@ -399,34 +371,34 @@ void Test_ElementOperation()
 
 void Test_Transpose()
 {
-	mdkMatrix<double> DoubleMatrixA;
+	mdkMatrix<double> A;
 
-	DoubleMatrixA.SetSize(2, 4);
+	A.SetSize(2, 4);
 
-	DoubleMatrixA = { 1, 2, 3, 4,
+	A = { 1, 2, 3, 4,
 		              5, 6, 7, 8 };
 
-	std::cout << "DoubleMatrixA" << '\n';
+	std::cout << "A" << '\n';
 
 	for (uint64 i = 0; i < 2; ++i)
 	{
 		for (uint64 j = 0; j < 4; ++j)
 		{
-			std::cout << DoubleMatrixA(i, j) << ' ';
+			std::cout << A(i, j) << ' ';
 		}
 
 		std::cout << '\n';
 	}
 
-	auto DoubleMatrixB = DoubleMatrixA.GetTranspose();
+	auto B = A.GetTranspose();
 
-	std::cout << "DoubleMatrixB = transpose(DoubleMatrixA)" << '\n';
+	std::cout << "B = transpose(A)" << '\n';
 
 	for (uint64 i = 0; i < 4; ++i)
 	{
 		for (uint64 j = 0; j < 2; ++j)
 		{
-			std::cout << DoubleMatrixB(i, j) << ' ';
+			std::cout << B(i, j) << ' ';
 		}
 
 		std::cout << '\n';
@@ -436,103 +408,103 @@ void Test_Transpose()
 
 void Test_Sum_Mean_Max_Min()
 {
-	mdkMatrix<double> DoubleMatrixA;
+	mdkMatrix<double> A;
 
-	DoubleMatrixA.SetSize(2, 4);
+	A.SetSize(2, 4);
 
-	DoubleMatrixA = { 1, 2, 3, 4,
+	A = { 1, 2, 3, 4,
 		              5, 6, 7, 8 };
 
-	std::cout << "DoubleMatrixA" << '\n';
+	std::cout << "A" << '\n';
 
 	for (uint64 i = 0; i < 2; ++i)
 	{
 		for (uint64 j = 0; j < 4; ++j)
 		{
-			std::cout << DoubleMatrixA(i, j) << ' ';
+			std::cout << A(i, j) << ' ';
 		}
 
 		std::cout << '\n';
 	}
 
-	auto value = DoubleMatrixA.Sum();
-	std::cout << "value = sum(DoubleMatrixA) = " << value << '\n';
+	auto value = A.Sum();
+	std::cout << "value = sum(A) = " << value << '\n';
 
-	value = DoubleMatrixA.Mean();
-	std::cout << "value = mean(DoubleMatrixA) = " << value << '\n';
+	value = A.Mean();
+	std::cout << "value = mean(A) = " << value << '\n';
 
-	value = DoubleMatrixA.Max();
-	std::cout << "value = max(DoubleMatrixA) = " << value << '\n';
+	value = A.Max();
+	std::cout << "value = max(A) = " << value << '\n';
 
-	value = DoubleMatrixA.Min();
-	std::cout << "value = min(DoubleMatrixA) = " << value << '\n';
+	value = A.Min();
+	std::cout << "value = min(A) = " << value << '\n';
 
-	auto RowMatrix = DoubleMatrixA.SumToRow();
+	auto RowMatrix = A.SumToRow();
 
-	std::cout << "DoubleMatrixA.SumToRow()" << '\n';
+	std::cout << "A.SumToRow()" << '\n';
 	for (uint64 j = 0; j < 4; ++j)
 	{
 		std::cout << RowMatrix(0, j) << ' ';
 	}
 	std::cout << '\n';
 
-	auto ColMatrix = DoubleMatrixA.SumToCol();
+	auto ColMatrix = A.SumToCol();
 
-	std::cout << "DoubleMatrixA.SumToCol()" << '\n';
+	std::cout << "A.SumToCol()" << '\n';
 	for (uint64 i = 0; i < 2; ++i)
 	{
 		std::cout << ColMatrix(i, 0) << '\n';
 	}
 
 
-	RowMatrix = DoubleMatrixA.MeanToRow();
+	RowMatrix = A.MeanToRow();
 
-	std::cout << "DoubleMatrixA.MeanToRow()" << '\n';
+	std::cout << "A.MeanToRow()" << '\n';
 	for (uint64 j = 0; j < 4; ++j)
 	{
 		std::cout << RowMatrix(0, j) << ' ';
 	}
 	std::cout << '\n';
 
-	ColMatrix = DoubleMatrixA.MeanToCol();
+	ColMatrix = A.MeanToCol();
 
-	std::cout << "DoubleMatrixA.MeanToCol()" << '\n';
+	std::cout << "A.MeanToCol()" << '\n';
 	for (uint64 i = 0; i < 2; ++i)
 	{
 		std::cout << ColMatrix(i, 0) << '\n';
 	}
 
 
-	RowMatrix = DoubleMatrixA.MaxToRow();
+	RowMatrix = A.MaxToRow();
 
-	std::cout << "DoubleMatrixA.MaxToRow()" << '\n';
+	std::cout << "A.MaxToRow()" << '\n';
 	for (uint64 j = 0; j < 4; ++j)
 	{
 		std::cout << RowMatrix(0, j) << ' ';
 	}
 	std::cout << '\n';
 
-	ColMatrix = DoubleMatrixA.MaxToCol();
+	ColMatrix = A.MaxToCol();
 
-	std::cout << "DoubleMatrixA.MaxToCol()" << '\n';
+	std::cout << "A.MaxToCol()" << '\n';
 	for (uint64 i = 0; i < 2; ++i)
 	{
 		std::cout << ColMatrix(i, 0) << '\n';
 	}
 
 
-	RowMatrix = DoubleMatrixA.MinToRow();
+	RowMatrix = A.MinToRow();
 
-	std::cout << "DoubleMatrixA.MinToRow()" << '\n';
+	std::cout << "A.MinToRow()" << '\n';
 	for (uint64 j = 0; j < 4; ++j)
 	{
 		std::cout << RowMatrix(0, j) << ' ';
 	}
 	std::cout << '\n';
 
-	ColMatrix = DoubleMatrixA.MinToCol();
+	ColMatrix = A.MinToCol();
 
-	std::cout << "DoubleMatrixA.MinToCol()" << '\n';
+	std::cout << "A.MinToCol()" << '\n';
 	for (uint64 i = 0; i < 2; ++i)
 	{
 		std::cout << ColMatrix(i, 0) << '\n';
@@ -1245,6 +1217,8 @@ void Test_GlueMatrix_Speed2()
 
     for (uint64 i = 0; i < 10000; ++i)
     {
+        //D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
+
         D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
     }
 

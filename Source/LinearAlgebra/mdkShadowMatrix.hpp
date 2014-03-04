@@ -33,7 +33,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
         mdkWarning << "LinearIndexList is empty @ mdkShadowMatrix(sourceMatrix, std::vector LinearIndexList)" << '\n';
     }
 
-    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
+    m_SourceMatrixSharedCopy.Share(sourceMatrix);
 
     m_LinearIndexList_source = LinearIndexList;
 
@@ -62,7 +62,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
         mdkWarning << "RowIndexList or ColIndexList is empty @ mdkShadowMatrix(sourceMatrix, std::vector RowIndexList, std::vector ColIndexList)" << '\n';        
     }
 
-    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
+    m_SourceMatrixSharedCopy.Share(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -95,7 +95,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
         mdkWarning << "RowIndexList is empty @ mdkShadowMatrix(sourceMatrix, std::vector RowIndexList, ALL)" << '\n';
     }
 
-    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
+    m_SourceMatrixSharedCopy.Share(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -133,7 +133,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
         mdkWarning << "ColIndexList is empty @ mdkShadowMatrix(sourceMatrix, ALL, std::vector ColIndexList)" << '\n';
     }
 
-    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
+    m_SourceMatrixSharedCopy.Share(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -162,7 +162,7 @@ template<typename ElementType>
 inline 
 mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
-    m_SourceMatrixSharedCopy.SharedCopy(ShadowMatrix.GetSourceMatrixSharedCopy());
+    m_SourceMatrixSharedCopy.Share(ShadowMatrix.GetSourceMatrixSharedCopy());
 
     m_RowIndexList_source = ShadowMatrix.GetRowIndexListOfSource();
 
@@ -315,6 +315,14 @@ inline
 mdkMatrix<ElementType> mdkShadowMatrix<ElementType>::CreateMatrix() const
 {
     return m_SourceMatrixSharedCopy.GetSubMatrix(m_RowIndexList_source, m_ColIndexList_source);
+}
+
+
+template<typename ElementType>
+inline
+void mdkShadowMatrix<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const
+{
+    return m_SourceMatrixSharedCopy.GetSubMatrix(OutputMatrix, m_RowIndexList_source, m_ColIndexList_source);
 }
 
 

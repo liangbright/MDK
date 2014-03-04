@@ -51,7 +51,7 @@ struct mdkMatrixSVDResult
 };
 
 
-// ----------------------- Matrix {+ - * % /}  Matrix ------------------------------------------------//
+// ------------------------------------ Matrix {+ - * % /}  Matrix ------------------------------------------------//
 
 #if !defined MDK_Enable_GlueMatrix //------------------------------
 
@@ -73,41 +73,41 @@ inline mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, c
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
-// ----------------------- Matrix {+ - * /}  Element ------------------------------------------------//
+// ------------------------------------ Matrix {+ - * /}  Element ------------------------------------------------//
 
 #if !defined MDK_Enable_GlueMatrix //----------------------------------------
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator+(mdkMatrix<ElementType>& Matrix, const ElementType& Element);
+inline mdkMatrix<ElementType> operator+(mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator-(mdkMatrix<ElementType>& Matrix, const ElementType& Element);
+inline mdkMatrix<ElementType> operator-(mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator*(mdkMatrix<ElementType>& Matrix, const ElementType& Element);
+inline mdkMatrix<ElementType> operator*(mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(mdkMatrix<ElementType>& Matrix, const ElementType& Element);
+inline mdkMatrix<ElementType> operator/(mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB);
 
 #endif // !defined MDK_Enable_GlueMatrix -------------------------------------
 
-// ----------------------- Element {+ - * /} Matrix ------------------------------------------------//
+// ------------------------------------- Element {+ - * /} Matrix ------------------------------------------------//
 
 #if !defined MDK_Enable_GlueMatrix  //----------------------
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator+(const ElementType& Element, const mdkMatrix<ElementType>& Matrix);
+inline mdkMatrix<ElementType> operator+(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator-(const ElementType& Element, const mdkMatrix<ElementType>& Matrix);
+inline mdkMatrix<ElementType> operator-(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator*(const ElementType& Element, const mdkMatrix<ElementType>& Matrix);
+inline mdkMatrix<ElementType> operator*(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
 #endif // !defined MDK_Enable_GlueMatrix -------------------
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(const ElementType& Element, const mdkMatrix<ElementType>& Matrix);
+inline mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
 // ----------------------- Element = Matrix if Matrix size is 1x1 ------------------------------------------------//
 // not alowed in c++
@@ -156,9 +156,14 @@ private:
 
 	mdkMatrixElementTypeEnum m_ElementType;
 
-	ElementType  m_NaNElement; // may not be ZeroElement, but ZeroElement != m_NaNElement - m_NaNElement;
+	ElementType  m_NaNElement; // NaN only valid for float and double 
 
-	bool m_IsTemporary; // a Matrix returned from a function is a temporary matrix
+	bool m_IsTemporary; // a Matrix returned from a function is a temporary matrix, use it to prevent data copy
+
+    uint64 m_Counter_SharedCopyConstruction_From_TemporaryMatrix;
+    // 0: a matrix is just created as being temporary matrix and local variable of a function (m_IsTemporary is set to true)
+    // 1 : a matrix is just returned by value from a function, and it is still a temporary matrix  (set m_IsTemporary = true in the copy constructor)
+    // >1: treat as a normal matrix (set m_IsTemporary =false in the copy constructor)    
 
 public:		
 	
@@ -176,6 +181,8 @@ public:
 
     inline mdkMatrix(const ElementType* ElementPointer, uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = true);
 
+    inline mdkMatrix(std::vector<ElementType>* ElementDataPointer, uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = true);
+
 	inline ~mdkMatrix();
 
     //-----------------------------------------------------------------------------------//
@@ -184,6 +191,8 @@ public:
     inline void SetTobeTemporary();
 
     inline bool IsTemporary() const;
+
+    inline uint64 Get_Counter_SharedCopyConstruction_From_TemporaryMatrix() const;
 
     inline mdkMatrixElementTypeEnum GetElementType() const;
 
@@ -236,17 +245,22 @@ public:
     inline void operator=(const mdkGlueMatrix<ElementType>& GlueMatrix);
 
 	template<typename ElementType_target>
-	inline bool Copy(const mdkMatrix<ElementType_target>& targetMatrix);
+    inline bool Copy(const mdkMatrix<ElementType_target>& targetMatrix, bool IsForceCopy = false);
 
 	template<typename ElementType_target>
-	inline bool Copy(const ElementType_target* ElementPointer, uint64 RowNumber, uint64 ColNumber);
+    inline bool Copy(const ElementType_target* ElementPointer, uint64 RowNumber, uint64 ColNumber, bool IsForceCopy = false);
 
 	inline bool Fill(const ElementType& Element);
 
     //----------- Special Copy : share data ------------------------------------------------------------------------//
 
-    // mainly for shadowMatrix
-    inline void SharedCopy(const mdkMatrix<ElementType>& targetMatrix);
+    // 1: for shadowMatrix
+    // 2: replace operator "=" : example: C.SharedCopy(A*B) is faster than C = A*B because no data copy from temp matrix to C
+    inline void Share(const mdkMatrix<ElementType>& targetMatrix);
+
+    inline void Share(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+
+    inline void Share(const mdkGlueMatrix<ElementType>& mdkGlueMatrix);
 
 	//----------- Get/Set Matrix(LinearIndex) : size can not be changed even if m_IsSizeFixed is false -----------------//
 
@@ -338,6 +352,8 @@ public:
 	inline mdkMatrix GetSubMatrix(uint64 RowIndex_start, uint64 RowIndex_end, uint64 ColIndex_start, uint64 ColIndex_end) const;
 
     inline mdkMatrix GetSubMatrix(const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList) const;
+
+    inline void GetSubMatrix(mdkMatrix<ElementType> &OutputMatrix, const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList) const;
 
     inline mdkMatrix GetSubMatrix(const std::vector<uint64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
 

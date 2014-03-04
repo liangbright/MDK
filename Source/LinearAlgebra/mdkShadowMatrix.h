@@ -226,6 +226,8 @@ public:
     inline const mdkMatrix<ElementType>& GetSourceMatrixSharedCopy() const;
 
 	inline mdkMatrix<ElementType> CreateMatrix() const;
+
+    inline void CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const;
 };
 
 }//end namespace mdk

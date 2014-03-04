@@ -73,7 +73,6 @@ ${LinearAlgebra_DIR}/mdkGlueMatrix.h
 ${LinearAlgebra_DIR}/mdkGlueMatrix.hpp
 
 ${LinearAlgebra_DIR}/mdkLinearAlgebra.h
-${LinearAlgebra_DIR}/mdkLinearAlgebra.hpp
 
 )
 
