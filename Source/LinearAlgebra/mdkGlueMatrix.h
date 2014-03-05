@@ -218,6 +218,8 @@ public:
 
     inline mdkGlueMatrix(const mdkGlueMatrix<ElementType>& GlueMatrix);
 
+    inline mdkGlueMatrix(mdkGlueMatrix<ElementType>&& GlueMatrix);
+
     inline ~mdkGlueMatrix();
 
 	//---------------------- Other ----------------------------------------//
@@ -234,9 +236,10 @@ public:
 	
     inline void CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const;
 
-private:
-     void operator=(const mdkGlueMatrix<ElementType>& GlueMatrix); // Not implemented
+//--------------------------- deleted ----------------------------------------//
 
+    void operator=(const mdkGlueMatrix<ElementType>& GlueMatrix) = delete;
+    void operator=(mdkGlueMatrix<ElementType>&& GlueMatrix) = delete;
 };
 
 }//end namespace mdk

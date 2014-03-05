@@ -37,6 +37,22 @@ mdkGlueMatrix<ElementType>::mdkGlueMatrix(const mdkGlueMatrix<ElementType>& Glue
 
 template<typename ElementType>
 inline
+mdkGlueMatrix<ElementType>::mdkGlueMatrix(mdkGlueMatrix<ElementType>&& GlueMatrix)
+{
+    m_RowNumber = GlueMatrix.m_RowNumber;
+
+    m_ColNumber = GlueMatrix.m_ColNumber;
+
+    m_MatrixElementDataSharedPointerList = std::move(GlueMatrix.m_MatrixElementDataSharedPointerList);
+
+    m_ElementList_Coef = std::move(GlueMatrix.m_ElementList_Coef);
+
+    m_IndependentElement = GlueMatrix.m_IndependentElement;
+}
+
+
+template<typename ElementType>
+inline
 mdkGlueMatrix<ElementType>::~mdkGlueMatrix()
 {
 }
@@ -382,22 +398,14 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
 {
-    auto TempMatrix = MatrixA / GlueMatrixB.CreateMatrix();
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return MatrixA / GlueMatrixB.CreateMatrix();
 }
 
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
 {
-    auto TempMatrix = MatrixA / GlueMatrixB.CreateMatrix();
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return MatrixA / GlueMatrixB.CreateMatrix();
 }
 
 
@@ -405,11 +413,7 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
 {
-    auto TempMatrix = MatrixA / GlueMatrixB.CreateMatrix();
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return MatrixA / GlueMatrixB.CreateMatrix();
 }
 
 // ---------------------------------------- GlueMatrix {+ - * % /}  Matrix ------------------------------------------------//
@@ -454,11 +458,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator*(mdkGlueMatrix<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    auto TempMatrix = GlueMatrixA.CreateMatrix() * MatrixB;
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return GlueMatrixA.CreateMatrix() * MatrixB;
 }
 
 
@@ -466,11 +466,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator%(mdkGlueMatrix<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    auto TempMatrix = GlueMatrixA.CreateMatrix() % MatrixB;
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return GlueMatrixA.CreateMatrix() % MatrixB;
 }
 
 
@@ -478,11 +474,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator/(mdkGlueMatrix<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    auto TempMatrix = GlueMatrixA.CreateMatrix() / MatrixB;
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return GlueMatrixA.CreateMatrix() / MatrixB;
 }
 
 
@@ -544,11 +536,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator*(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
 {
-    auto TempMatrix = (GlueMatrixA.CreateMatrix()) * (GlueMatrixB.CreateMatrix());
-        
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return (GlueMatrixA.CreateMatrix()) * (GlueMatrixB.CreateMatrix());       
 }
 
 
@@ -556,11 +544,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator%(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
 {
-    auto TempMatrix = (GlueMatrixA.CreateMatrix()) % (GlueMatrixB.CreateMatrix());
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return (GlueMatrixA.CreateMatrix()) % (GlueMatrixB.CreateMatrix());
 }
 
 
@@ -568,11 +552,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator/(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
 {
-    auto TempMatrix = (GlueMatrixA.CreateMatrix()) / (GlueMatrixB.CreateMatrix());
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return (GlueMatrixA.CreateMatrix()) / (GlueMatrixB.CreateMatrix());
 }
 
 // ----------------------- GlueMatrix or ShadowMatrix {+ - * % /}  GlueMatrix or ShadowMatrix ------------------------------------//
@@ -583,11 +563,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator+(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    auto TempMatrix = (GlueMatrixA.CreateMatrix()) + (ShadowMatrixB.CreateMatrix());
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return (GlueMatrixA.CreateMatrix()) + (ShadowMatrixB.CreateMatrix());
 }
 
 
@@ -595,11 +571,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator-(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    auto TempMatrix = (GlueMatrixA.CreateMatrix()) - (ShadowMatrixB.CreateMatrix());
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return (GlueMatrixA.CreateMatrix()) - (ShadowMatrixB.CreateMatrix());
 }
 
 
@@ -607,11 +579,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator*(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    auto TempMatrix = (GlueMatrixA.CreateMatrix()) * (ShadowMatrixB.CreateMatrix());
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return (GlueMatrixA.CreateMatrix()) * (ShadowMatrixB.CreateMatrix());
 }
 
 
@@ -619,11 +587,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator%(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    auto TempMatrix = (GlueMatrixA.CreateMatrix()) % (ShadowMatrixB.CreateMatrix());
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return (GlueMatrixA.CreateMatrix()) % (ShadowMatrixB.CreateMatrix());
 }
 
 
@@ -631,11 +595,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator/(mdkGlueMatrix<ElementType>& GlueMatrixA, mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    auto TempMatrix = (GlueMatrixA.CreateMatrix()) / (ShadowMatrixB.CreateMatrix());
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return (GlueMatrixA.CreateMatrix()) / (ShadowMatrixB.CreateMatrix());
 }
 
 // note: ShadowMatrix {+ - * % /} GlueMatrix returns Matrix
@@ -644,11 +604,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator+(mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
 {
-    auto TempMatrix = (ShadowMatrixA.CreateMatrix()) + (GlueMatrixB.CreateMatrix());
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return (ShadowMatrixA.CreateMatrix()) + (GlueMatrixB.CreateMatrix());
 }
 
 
@@ -656,11 +612,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator-(mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
 {
-    auto TempMatrix = (ShadowMatrixA.CreateMatrix()) - (GlueMatrixB.CreateMatrix());
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return (ShadowMatrixA.CreateMatrix()) - (GlueMatrixB.CreateMatrix());
 }
 
 
@@ -668,9 +620,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator*(mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
 {
-    auto TempMatrix = (ShadowMatrixA.CreateMatrix()) * (GlueMatrixB.CreateMatrix());
-
-    return TempMatrix;
+    return (ShadowMatrixA.CreateMatrix()) * (GlueMatrixB.CreateMatrix());
 }
 
 
@@ -678,11 +628,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator%(mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
 {
-    auto TempMatrix = (ShadowMatrixA.CreateMatrix()) % (GlueMatrixB.CreateMatrix());
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return (ShadowMatrixA.CreateMatrix()) % (GlueMatrixB.CreateMatrix());
 }
 
 
@@ -690,11 +636,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator/(mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrix<ElementType>& GlueMatrixB)
 {
-    auto TempMatrix = (ShadowMatrixA.CreateMatrix()) / (GlueMatrixB.CreateMatrix());
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return (ShadowMatrixA.CreateMatrix()) / (GlueMatrixB.CreateMatrix());
 }
 
 // -------------------------------------------- Element {+ - *} Matrix ------------------------------------------------//
@@ -800,11 +742,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> operator/(const ElementType& Element, mdkGlueMatrix<ElementType>& GlueMatrix)
 {
-    auto TempMatrix = Element / (GlueMatrix.CreateMatrix());
-
-    TempMatrix.SetTobeTemporaryRightBeforeReturn();
-
-    return TempMatrix;
+    return Element / (GlueMatrix.CreateMatrix());
 }
 
 
