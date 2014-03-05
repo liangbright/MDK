@@ -16,8 +16,6 @@ mdkMatrix<ElementType> MatrixAdd(const mdkMatrix<ElementType>& MatrixA, const md
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
     auto SizeA = MatrixA.GetSize();
 
     auto SizeB = MatrixB.GetSize();
@@ -114,8 +112,6 @@ inline
 mdkMatrix<ElementType> MatrixSubtract(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto SizeA = MatrixA.GetSize();
 
@@ -214,8 +210,6 @@ inline
 mdkMatrix<ElementType> MatrixMultiply(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto SizeA = MatrixA.GetSize();
 
@@ -369,8 +363,6 @@ mdkMatrix<ElementType> MatrixElementMultiply(const mdkMatrix<ElementType>& Matri
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
     auto SizeA = MatrixA.GetSize();
 
     auto SizeB = MatrixB.GetSize();
@@ -468,8 +460,6 @@ inline
 mdkMatrix<ElementType> MatrixElementDivide(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto SizeA = MatrixA.GetSize();
 
@@ -571,8 +561,6 @@ mdkMatrix<ElementType> MatrixAdd(const ElementType& ElementA, const mdkMatrix<El
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
     auto SizeB = MatrixB.GetSize();
 
     if (SizeB.RowNumber == 0)
@@ -627,8 +615,6 @@ inline
 mdkMatrix<ElementType> MatrixSubtract(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB)
 {
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto SizeB = MatrixB.GetSize();
 
@@ -685,8 +671,6 @@ mdkMatrix<ElementType> MatrixMultiply(const ElementType& ElementA, mdkMatrix<Ele
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
     auto SizeB = MatrixB.GetSize();
 
     if (SizeB.RowNumber == 0)
@@ -742,8 +726,6 @@ mdkMatrix<ElementType> MatrixElementMultiply(const ElementType& ElementA, const 
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
     auto SizeB = MatrixB.GetSize();
 
     if (SizeB.RowNumber == 0)
@@ -773,8 +755,6 @@ inline
 mdkMatrix<ElementType> MatrixElementDivide(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB)
 {
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto SizeB = MatrixB.GetSize();
 
@@ -832,8 +812,6 @@ mdkMatrix<ElementType> MatrixAdd(const mdkMatrix<ElementType>& MatrixA, const El
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
     auto SizeA = MatrixA.GetSize();
 
     if (SizeA.RowNumber == 0)
@@ -888,8 +866,6 @@ inline
 mdkMatrix<ElementType> MatrixSubtract(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto SizeA = MatrixA.GetSize();
 
@@ -946,8 +922,6 @@ mdkMatrix<ElementType> MatrixMultiply(const mdkMatrix<ElementType>& MatrixA, con
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
     auto SizeA = MatrixA.GetSize();
 
     if (SizeA.RowNumber == 0)
@@ -1003,8 +977,6 @@ mdkMatrix<ElementType> MatrixElementMultiply(const mdkMatrix<ElementType>& Matri
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
     auto SizeA = MatrixA.GetSize();
 
     if (SizeA.RowNumber == 0)
@@ -1034,8 +1006,6 @@ inline
 mdkMatrix<ElementType> MatrixElementDivide(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto SizeA = MatrixA.GetSize();
 
@@ -1180,8 +1150,6 @@ inline
 mdkMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<mdkMatrix<ElementType>*>& MatrixList)
 {
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto MatrixNumber = MatrixList.size();
 

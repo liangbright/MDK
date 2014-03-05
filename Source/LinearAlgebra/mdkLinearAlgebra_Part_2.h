@@ -8,26 +8,138 @@
 #include <initializer_list>
 
 #include "mdkObject.h"
-#include "mdkMatrix.h"
+//#include "mdkMatrix.h"
 
 namespace mdk
 {
 
+//forward-declare ----------------//
+template<typename ElementType>
+class mdkMatrix;
+//-------------------------------------//
+
+
+template<typename ElementType>
+inline uint64 MatrixRank(const mdkMatrix<ElementType>& Matrix);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> MatrixInv(const mdkMatrix<ElementType>& Matrix);
+
+//-----------------------------------------------------------------------------------------------//
+
+template<typename ElementType>
+struct mdkMatrixEigenResult
+{
+    mdkMatrix<ElementType> EigenVector;    // eigenvector : full matrix
+    mdkMatrix<ElementType> EigenValue;     // eigen value : col vector
+
+    mdkMatrixEigenResult(){};
+
+    // move constructor
+    mdkMatrixEigenResult(mdkMatrixEigenResult&& Result)
+    {
+        EigenVector = std::move(Result.EigenVector);
+        EigenValue = std::move(Result.EigenValue);
+    }
+
+    ~mdkMatrixEigenResult(){};
+
+    void operator=(const mdkMatrixEigenResult&& Result)
+    {
+        EigenVector = std::move(Result.EigenVector);
+        EigenValue = std::move(Result.EigenValue);
+    }
+
+    //------------------------------------------------------
+    void operator=(const mdkMatrixEigenResult&) = delete;
+};
+
+
+template<typename ElementType>
+inline mdkMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(const mdkMatrix<ElementType>& Matrix);
+
+template<typename ElementType>
+inline mdkMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const mdkMatrix<ElementType>& Matrix, bool CheckIfSymmetric = false);
+
+//-----------------------------------------------------------------------------------------------//
+
 template<typename ElementType>
 struct mdkMatrixPCAResult
 {
-    // Matrix = M+U*S*U';
+    mdkMatrix<ElementType> Mean;           // mean
+    mdkMatrix<ElementType> EigenVector;    // eigenvector
+    mdkMatrix<ElementType> EigenValue;     // col vector
 
-    mdkMatrix<ElementType> M;    // mean
-    mdkMatrix<ElementType> U;    // eigenvector
-    mdkMatrix<ElementType> S;    // matrix  : full or vector ?
+    mdkMatrixPCAResult(){};
+
+    // move constructor
+    mdkMatrixPCAResult(mdkMatrixPCAResult&& Result)
+    {
+        Mean = std::move(Result.Mean);
+        EigenVector = std::move(Result.EigenVector);
+        EigenValue = std::move(Result.EigenValue);
+    }
+
+    ~mdkMatrixPCAResult(){};
+
+    void operator=(const mdkMatrixPCAResult&& Result)
+    {
+        Mean = std::move(Result.Mean);
+        EigenVector = std::move(Result.EigenVector);
+        EigenValue = std::move(Result.EigenValue);
+    }
+
+    //------------------------------------------------------
+    void operator=(const mdkMatrixPCAResult&) = delete;
 };
 
 template<typename ElementType>
-inline mdkMatrixPCAResult<ElementType> PCA(const mdkMatrix<ElementType>& Matrix);
+inline mdkMatrixPCAResult<ElementType> MatrixPCA(const mdkMatrix<ElementType>& Matrix);
+
+//-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> Convolution(const mdkMatrix<ElementType>& Matrix, const mdkMatrix<ElementType>& Mask, const char* Option);
+struct mdkMatrixSVDResult
+{
+    // Matrix = U*S*V;
+    mdkMatrix<ElementType> U;  // matrix
+    mdkMatrix<ElementType> S;  // matrix  : change to vector?
+    mdkMatrix<ElementType> V;  // matrix
+
+    mdkMatrixSVDResult(){};
+
+    // move constructor
+    mdkMatrixSVDResult(mdkMatrixSVDResult&& Result)
+    {
+        // this will call copy "=" not move "="
+        //U = Result.U;
+
+        U = std::move(Result.U);
+        V = std::move(Result.V);
+        S = std::move(Result.S);
+    }
+
+    ~mdkMatrixSVDResult(){};
+
+    void operator=(const mdkMatrixSVDResult&& Result)
+    {
+        U = std::move(Result.U);
+        V = std::move(Result.V);
+        S = std::move(Result.S);
+    }
+
+    //------------------------------------------------------
+    void operator=(const mdkMatrixSVDResult&) = delete;
+
+};
+
+template<typename ElementType>
+inline mdkMatrixSVDResult<ElementType> MatrixSVD(const mdkMatrix<ElementType>& Matrix);
+
+//-----------------------------------------------------------------------------------------------//
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> MatrixConvolution(const mdkMatrix<ElementType>& Matrix, const mdkMatrix<ElementType>& Mask, const char* Option);
 
 }//end namespace mdk
 

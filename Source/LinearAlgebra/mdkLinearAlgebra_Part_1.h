@@ -8,10 +8,14 @@
 #include <initializer_list>
 
 
-#include "mdkMatrix.h"
+//#include "mdkMatrix.h"
 
 namespace mdk
 {
+
+//forward-declare ----------------//
+template<typename ElementType>
+class mdkMatrix;
 
 //------------ MatrixAdd, MatrixSubtract, MatrixMultiply, MatrixElementMultiply, MatrixElementDivide ---------------------------------------//
 

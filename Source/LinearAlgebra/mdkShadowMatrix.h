@@ -203,7 +203,7 @@ public:
 
 	//---------------------- Other ----------------------------------------//
 
-    inline void Clear();
+    inline void Reset();
 
     inline bool IsLinearIndexListOnly() const;
 

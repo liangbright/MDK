@@ -32,24 +32,19 @@ class mdkShadowMatrix;
 template<typename ElementType>
 class mdkGlueMatrix;
 
-// end of  forward-declare  //
+template<typename ElementType>
+struct mdkMatrixSVDResult;
+
+template<typename ElementType>
+struct mdkMatrixPCAResult;
+
+// end of  forward-declare  ------//
 
 struct mdkMatrixSize
 {
 	uint64 RowNumber;  // RowNumber = the Number of Rows 
 	uint64 ColNumber;  // ColNumber = the Number of Columns
 };
-
-
-template<typename ElementType>
-struct mdkMatrixSVDResult
-{
-// Matrix = U*S*V;
-	mdkMatrix<ElementType> U;  // matrix
-	mdkMatrix<ElementType> S;  // matrix  : change to vector?
-	mdkMatrix<ElementType> V;  // matrix
-};
-
 
 // ------------------------------------ Matrix {+ - * % /}  Matrix ------------------------------------------------//
 
@@ -158,13 +153,6 @@ private:
 
 	ElementType  m_NaNElement; // NaN only valid for float and double 
 
-	bool m_IsTemporary; // a Matrix returned from a function is a temporary matrix, use it to prevent data copy
-
-    uint64 m_Counter_SharedCopyConstruction_From_TemporaryMatrix;
-    // 0: a matrix is just created as being temporary matrix and local variable of a function (m_IsTemporary is set to true)
-    // 1 : a matrix is just returned by value from a function, and it is still a temporary matrix  (set m_IsTemporary = true in the copy constructor)
-    // >1: treat as a normal matrix (set m_IsTemporary =false in the copy constructor)    
-
 public:		
 	
 	//------------------- constructor and destructor ------------------------------------//
@@ -183,19 +171,22 @@ public:
 
     inline mdkMatrix(std::vector<ElementType>* ElementDataPointer, uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = true);
 
+    // move constructor
+    inline mdkMatrix(mdkMatrix<ElementType>&& targetMatrix, bool IsSizeFixed = true);
+
 	inline ~mdkMatrix();
 
     //-----------------------------------------------------------------------------------//
-    inline void Clear();
+    
+    // set the intial state, only use it in constructor
+    inline void Reset();
 
-    //--------------------- Handle Temporay Matrix ---------------------------------//
+    // clear memory if Self is not empty and m_IsSizeFixed is false
+    inline bool Clear();
 
-    // use SetTobeTemporary right before "return tempMatrix"    
-    inline void SetTobeTemporaryBeforeReturn();
+    // force-clear memory, set to be empty, only use it in move constructor and "="
+    inline void ForceClear();
 
-    inline bool IsTemporary() const;
-
-    inline uint64 Get_Counter_SharedCopyConstruction_From_TemporaryMatrix() const;
     //-----------------------------------------------------------------------------//
 
     inline mdkMatrixElementTypeEnum GetElementType() const;
@@ -218,7 +209,9 @@ public:
 
     inline bool Reshape(uint64 RowNumber, uint64 ColNumber);
 
-    inline void FixSize(bool Fix = true);
+    inline void SetSizeTobeFixed();
+
+    inline void SetSizeTobeDynamic();
 
     inline bool IsSizeFixed() const;
 
@@ -240,6 +233,9 @@ public:
     // otherwise, compiler will create a new one
     inline void operator=(const mdkMatrix<ElementType>& targetMatrix);
 
+    // move assignment operator
+    inline void operator=(mdkMatrix<ElementType>&& targetMatrix);
+
 	inline void operator=(const ElementType& Element);
 
     inline void operator=(const std::initializer_list<ElementType>& list);
@@ -260,11 +256,11 @@ public:
 
     // 1: for shadowMatrix
     // 2: replace operator "=" : example: C.SharedCopy(A*B) is faster than C = A*B because no data copy from temp matrix to C
-    inline void Share(const mdkMatrix<ElementType>& targetMatrix);
+    inline void Share(const mdkMatrix<ElementType>& targetMatrix, bool IsForceShare = false);
 
-    inline void Share(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+    inline void Share(const mdkShadowMatrix<ElementType>& ShadowMatrix, bool IsForceShare = false);
 
-    inline void Share(const mdkGlueMatrix<ElementType>& mdkGlueMatrix);
+    inline void Share(const mdkGlueMatrix<ElementType>& mdkGlueMatrix, bool IsForceShare = false);
 
 	//----------- Get/Set Matrix(LinearIndex) : size can not be changed even if m_IsSizeFixed is false -----------------//
 
@@ -570,76 +566,74 @@ public:
 	template<typename FunctionType>
     inline mdkMatrix ElementOperation(FunctionType Function, ElementType Element) const;
 
-    //-------------------- element operation on self ------------------------------------------------------//
+    //-------------------- element operation in place ------------------------------------------------------//
 
-    inline bool ElementOperationOnSelf(const char* FunctionName);
+    inline bool ElementOperationInPlace(const char* FunctionName);
 
-    inline bool ElementOperationOnSelf(const std::string& FunctionName);
+    inline bool ElementOperationInPlace(const std::string& FunctionName);
 
     template<typename FunctionType>
-    inline bool ElementOperationOnSelf(FunctionType Function);
+    inline bool ElementOperationInPlace(FunctionType Function);
 
     template<typename ElementType_target>
-    inline bool ElementOperationOnSelf(const char* FunctionName, const mdkMatrix<ElementType_target>& targetMatrix);
+    inline bool ElementOperationInPlace(const char* FunctionName, const mdkMatrix<ElementType_target>& targetMatrix);
 
     template<typename ElementType_target>
-    inline bool ElementOperationOnSelf(const std::string& FunctionName, const mdkMatrix<ElementType_target>& targetMatrix);
+    inline bool ElementOperationInPlace(const std::string& FunctionName, const mdkMatrix<ElementType_target>& targetMatrix);
 
     template<typename FunctionType, typename ElementType_target>
-    inline bool ElementOperationOnSelf(FunctionType Function, const mdkMatrix<ElementType_target>& targetMatrix);
+    inline bool ElementOperationInPlace(FunctionType Function, const mdkMatrix<ElementType_target>& targetMatrix);
 
-    inline bool ElementOperationOnSelf(const char* FunctionName, ElementType Element);
+    inline bool ElementOperationInPlace(const char* FunctionName, ElementType Element);
 
-    inline bool ElementOperationOnSelf(const std::string& FunctionName, ElementType Element);
+    inline bool ElementOperationInPlace(const std::string& FunctionName, ElementType Element);
 
     template<typename FunctionType>
-    inline bool ElementOperationOnSelf(FunctionType Function, ElementType Element);
+    inline bool ElementOperationInPlace(FunctionType Function, ElementType Element);
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 
-	inline ElementType Mean();
+    inline ElementType Mean() const;
 
-	inline mdkMatrix MeanToRow();
+    inline mdkMatrix MeanToRow() const;
 
-    inline mdkMatrix MeanToCol();
+    inline mdkMatrix MeanToCol() const;
 
-	inline ElementType Sum();
+    inline ElementType Sum() const;
 
-    inline mdkMatrix SumToRow();
+    inline mdkMatrix SumToRow() const;
 
-    inline mdkMatrix SumToCol();
+    inline mdkMatrix SumToCol() const;
 
-	inline ElementType Max();
+    inline ElementType Max() const;
 
-    inline mdkMatrix MaxToRow();
+    inline mdkMatrix MaxToRow() const;
 
-    inline mdkMatrix MaxToCol();
+    inline mdkMatrix MaxToCol() const;
 
-	inline ElementType Min();
+    inline ElementType Min() const;
 
-    inline mdkMatrix MinToRow();
+    inline mdkMatrix MinToRow() const;
 
-    inline mdkMatrix MinToCol();
+    inline mdkMatrix MinToCol() const;
 
 	//----------------------------------- transpose -----------------------------------------//
 
-	inline mdkMatrix GetTranspose();
-
-    inline mdkMatrix Tran();
+    inline mdkMatrix Transpose() const;
 
 	//----------------------------------- Rank -----------------------------------------//
 
-	inline uint64 Rank();
+    inline uint64 Rank() const;
 
 	//----------------------------------- inverse -----------------------------------------//
 
-	inline mdkMatrix Inv();
+    inline mdkMatrix Inv() const;
 
-	inline mdkMatrix PseudoInv();
+    inline mdkMatrix PseudoInv() const;
 
 	//----------------------------------- SVD -----------------------------------------//
 
-	inline mdkMatrixSVDResult<ElementType> SVD();	
+    inline mdkMatrixSVDResult<ElementType> SVD() const;
 
 
 	//---------------------------- private functions ---------------------------------------//

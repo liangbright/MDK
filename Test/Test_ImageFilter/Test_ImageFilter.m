@@ -34,3 +34,12 @@ ImageData=ReadImageDataFromRawDataFile(FilePathAndName, 'double', Lx, Ly, Lz);
 implay(ImageData)
 %%
 imtool(ImageData(:,:,100))
+%%
+A = [ 1, 2, 3
+      0, 5, 0
+	  0, 0, 9];
+  
+invA= inv(A);  
+
+[s v d]=svd(A);
+

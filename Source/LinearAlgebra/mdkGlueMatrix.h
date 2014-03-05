@@ -222,7 +222,7 @@ public:
 
 	//---------------------- Other ----------------------------------------//
 
-    inline void Clear();
+    inline void Reset();
 
     inline uint64 GetRowNumber() const;
 

@@ -75,7 +75,9 @@ int main()
 
 
     
-    Test_Constructor();
+    //Test_Constructor();
+
+    //Test_MoveConstructor();
 
    // Test_Share();
 
@@ -101,6 +103,8 @@ int main()
     //Test_GlueMatrix_Create();
 
     //Test_Mutiplication_Speed();
+
+    Test_Arma();
 
     std::system("pause");
 

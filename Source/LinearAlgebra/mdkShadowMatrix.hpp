@@ -17,7 +17,7 @@ template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>::mdkShadowMatrix()
 {
-    this->Clear();
+    this->Reset();
 }
 
 
@@ -187,7 +187,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkShadowMatrix<ElementType>
         m_ElementNumber = m_RowNumber*m_ColNumber;
     }
 
-    m_NaNElement -= m_NaNElement;
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 }
 
 
@@ -199,9 +199,9 @@ mdkShadowMatrix<ElementType>::~mdkShadowMatrix()
 
 
 template<typename ElementType>
-inline void mdkShadowMatrix<ElementType>::Clear()
+inline void mdkShadowMatrix<ElementType>::Reset()
 {
-    m_SourceMatrixSharedCopy.Clear(); // this will not clear the data of SourceMatrix
+    m_SourceMatrixSharedCopy.Reset(); // this will not clear the data of SourceMatrix
 
     m_RowIndexList_source.resize(0);
 
@@ -618,7 +618,7 @@ mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatri
 
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporaryBeforeReturn();
+	
 
 
 	if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
@@ -666,7 +666,7 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
 
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporaryBeforeReturn();
+	
 
 
 	if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
@@ -722,7 +722,7 @@ mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatri
 
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporaryBeforeReturn();
+	
 
 	if (SizeA.ColNumber != SizeB.RowNumber)
 	{
@@ -795,7 +795,7 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
 
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporaryBeforeReturn();
+	
 
 	if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
 	{
@@ -843,7 +843,7 @@ mdkMatrix<ElementType> operator%(const mdkShadowMatrix<ElementType>& ShadowMatri
 
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporaryBeforeReturn();
+	
 
 	if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
 	{
@@ -875,7 +875,7 @@ inline mdkMatrix<ElementType> operator+(ElementType Element, const mdkShadowMatr
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporaryBeforeReturn();
+	
 
     auto Size = ShadowMatrix.GetSize();
 
@@ -903,7 +903,7 @@ inline mdkMatrix<ElementType> operator-(ElementType Element, const mdkShadowMatr
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporaryBeforeReturn();
+	
 
     auto Size = ShadowMatrix.GetSize();
 
@@ -931,8 +931,6 @@ inline mdkMatrix<ElementType> operator*(ElementType Element, const mdkShadowMatr
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporaryBeforeReturn();
-
     auto Size = ShadowMatrix.GetSize();
 
 	if (Size.RowNumber == 0 || Size.ColNumber == 0)
@@ -958,8 +956,6 @@ template<typename ElementType>
 inline mdkMatrix<ElementType> operator/(ElementType Element, const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
 	mdkMatrix<ElementType> tempMatrix;
-
-	tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto Size = ShadowMatrix.GetSize();
 
@@ -994,8 +990,6 @@ inline mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& Shad
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	tempMatrix.SetTobeTemporaryBeforeReturn();
-
     auto Size = ShadowMatrix.GetSize();
 
 	if (Size.RowNumber == 0 || Size.ColNumber == 0)
@@ -1028,8 +1022,6 @@ template<typename ElementType>
 inline mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element)
 {
 	mdkMatrix<ElementType> tempMatrix;
-
-	tempMatrix.SetTobeTemporaryBeforeReturn();
 
     auto Size = ShadowMatrix.GetSize();
 
@@ -1072,9 +1064,6 @@ mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatri
     }
 
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
@@ -1121,9 +1110,6 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     mdkMatrix<ElementType> tempMatrix;
 
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
-
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
         mdkError << "Size does not match @ mdkShadowMatrix operator-(ShadowMatrixA, ShadowMatrixB)" << '\n';
@@ -1168,9 +1154,7 @@ mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatri
     }
 
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
+    
     if (SizeA.ColNumber != SizeB.RowNumber)
     {
         mdkError << "Size does not match @ mdkShadowMatrix operator*(ShadowMatrixA, ShadowMatrixB)" << '\n';
@@ -1240,9 +1224,7 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
     }
 
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
+    
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
         mdkError << "Size does not match @ mdkMatrix operator/(MatrixA, MatrixB)" << '\n';
@@ -1288,9 +1270,7 @@ mdkMatrix<ElementType> operator%(const mdkShadowMatrix<ElementType>& ShadowMatri
     }
 
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
+    
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
         mdkError << "Size does not match @ mdkMatrix operator/(MatrixA, MatrixB)" << '\n';
@@ -1344,10 +1324,7 @@ mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const md
     }
 
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
-
+    
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
         mdkError << "Size does not match @ mdkShadowMatrix operator-(ShadowMatrixA, ShadowMatrixB)" << '\n';
@@ -1392,9 +1369,7 @@ mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const md
     }
 
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
+    
     if (SizeA.ColNumber != SizeB.RowNumber)
     {
         mdkError << "Size does not match @ mdkShadowMatrix operator*(ShadowMatrixA, ShadowMatrixB)" << '\n';
@@ -1464,9 +1439,7 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const md
     }
 
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
+    
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
         mdkError << "Size does not match @ mdkMatrix operator/(MatrixA, MatrixB)" << '\n';
@@ -1512,9 +1485,7 @@ mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, const md
     }
 
     mdkMatrix<ElementType> tempMatrix;
-
-    tempMatrix.SetTobeTemporaryBeforeReturn();
-
+    
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
         mdkError << "Size does not match @ mdkMatrix operator/(MatrixA, MatrixB)" << '\n';

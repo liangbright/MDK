@@ -97,12 +97,14 @@ void Test_Constructor()
 {
     mdkMatrix<double> A(2, 2);
 
-    A = { 1, 2, 
-          3, 4};
+    A = { 2, 0, 
+          0, 4};
 
     DisplayMatrix(A);
 
  
+    mdkMatrix<double> A1(A);
+
     mdkMatrix<double> B(A.GetElementDataRawPointer(), 2, 2);
     
     DisplayMatrix(B);
@@ -118,7 +120,8 @@ void Test_Constructor()
     C.Copy(A);
     //-----------------
 
-    // copy constructor, D will be temporary ?
+    // move constructor is used 2 times
+    // one for temp (A*A), the other for D(temp)
     mdkMatrix<double> D(A*A);
 
 
@@ -127,11 +130,10 @@ void Test_Constructor()
 
     mdkMatrix<double> D2;
 
+    // move constructor is used
+    // move "=" is used
     //D2 is not temporary
-    D2 = A*A*A;
-    
-    // D2 is now temporary
-    D2.SetTobeTemporaryBeforeReturn();
+    D2 = A*A;
 
     //D3 is temporary
     auto D3 = D2;
@@ -140,8 +142,55 @@ void Test_Constructor()
 
     // D4 is not temporary
     D4 = D2;
+
 }
 
+void Test_MoveConstructor()
+{
+    mdkMatrix<double> A(2, 2);
+
+    auto ptrA = A.GetElementDataRawPointer();
+
+    A = { 1, 2,
+        3, 4 };
+
+    std::cout << "A" << '\n';
+    DisplayMatrix(A);
+
+    auto Result = A.SVD();
+
+    mdkMatrix<double> B;
+
+    B = std::move(A);
+
+    auto ptrB = B.GetElementDataRawPointer();
+
+    auto ptrA_B = A.GetElementDataRawPointer();
+
+    std::cout << "B" << '\n';
+    DisplayMatrix(B);
+   
+    mdkMatrix<double> C = std::move(A);
+
+    auto ptrC = C.GetElementDataRawPointer();
+
+    auto ptrA_C = A.GetElementDataRawPointer();
+
+    std::cout << "C" << '\n';
+    DisplayMatrix(C);
+
+    mdkMatrix<double> D1;
+
+    // (B*B) is created from move constructor
+    // D is assigned by move "="
+    D1 = std::move(B*B);
+
+    mdkMatrix<double> D2;
+
+    // move "=" is used
+    D2 = B*B;
+    //-------------
+}
 
 
 void Test_Matrix_Operator()
@@ -402,7 +451,7 @@ void Test_Transpose()
 		std::cout << '\n';
 	}
 
-	auto B = A.GetTranspose();
+	auto B = A.Transpose();
 
 	std::cout << "B = transpose(A)" << '\n';
 
@@ -783,7 +832,7 @@ void Test_Set_Get_Append_Row()
 
 void Test_Arma()
 {
-	std::cout << "Test_LinearCombine " << '\n';
+	std::cout << "Test_Arma " << '\n';
 
 	mdkMatrix<double> A(3, 3);
 	A = { 1, 2, 3,
@@ -791,95 +840,32 @@ void Test_Arma()
 		  0, 0, 9};
 
 	std::cout << "A = " << '\n';
-
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		for (uint64 j = 0; j < 3; ++j)
-		{
-			std::cout << A(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
+    DisplayMatrix(A);
 
 	auto invA = A.Inv();
 	std::cout << "A.Inv() = " << '\n';
-
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		for (uint64 j = 0; j < 3; ++j)
-		{
-			std::cout << invA(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
+    DisplayMatrix(invA, 3);
 
 	auto AinvA = A*invA;
 	std::cout << "A*invA = " << '\n';
-
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		for (uint64 j = 0; j < 3; ++j)
-		{
-			std::cout << AinvA(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
+    DisplayMatrix(AinvA, 3);
 
 	auto ASVD = A.SVD();
 
 	std::cout << "ASVD.U = " << '\n';
-
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		for (uint64 j = 0; j < 3; ++j)
-		{
-			std::cout << ASVD.U(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
+    DisplayMatrix(ASVD.U, 3);
 
 	std::cout << "ASVD.S = " << '\n';
-
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		for (uint64 j = 0; j < 3; ++j)
-		{
-			std::cout << ASVD.S(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
-
+    DisplayMatrix(ASVD.S, 3);
 
 	std::cout << "ASVD.V = " << '\n';
+    DisplayMatrix(ASVD.V, 3);
 
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		for (uint64 j = 0; j < 3; ++j)
-		{
-			std::cout << ASVD.V(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
-
-	auto tempA = ASVD.U*ASVD.S*ASVD.V.GetTranspose();
+	auto tempA = ASVD.U * ASVD.S * ASVD.V.Transpose();
 
 	std::cout << "ASVD.U*ASVD.S*ASVD.V' = " << '\n';
+    DisplayMatrix(tempA, 3);
 
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		for (uint64 j = 0; j < 3; ++j)
-		{
-			std::cout << tempA(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
 }
 
 
