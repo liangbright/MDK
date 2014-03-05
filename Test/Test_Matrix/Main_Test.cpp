@@ -75,9 +75,17 @@ int main()
 
 
     
-    //Test_Constructor();
+   // Test_Constructor();
 
-    //Test_MoveConstructor();
+   // Test_MoveConstructor();
+
+   // Test_Set_Get_Append_Delete_Insert_Col();
+
+  //  Test_Set_Get_Append_Delete_Insert_Row();
+
+   // Test_GetSubMatrix();
+
+    Test_SubMatrix();
 
    // Test_Share();
 
@@ -104,7 +112,7 @@ int main()
 
     //Test_Mutiplication_Speed();
 
-    Test_Arma();
+    //Test_Arma();
 
     std::system("pause");
 

@@ -19,7 +19,9 @@ void DisplayMatrix(const mdkMatrix<T>& Matrix, int precision = 0)
     {
         for (uint64 j = 0; j < Matrix.GetColNumber(); ++j)
         {
-            std::cout << std::fixed << std::setprecision(precision) << Matrix(i, j) << ' ';
+            //std::cout << std::fixed << std::setprecision(precision) << Matrix(i, j) << ' ';
+
+            std::cout << std::setw(8) << std::fixed << std::setprecision(precision) << Matrix(i, j);
         }
         std::cout << '\n';
     }
@@ -266,7 +268,7 @@ void Test_Mutiplication()
 
 	mdkMatrix<double> A;
 
-	A.SetSize(2, 4);
+	A.Resize(2, 4);
 
 	A = { 1, 2, 3, 4, 
 		              5, 6, 7, 8 };
@@ -277,7 +279,7 @@ void Test_Mutiplication()
 
 	mdkMatrix<double> B;
 
-	B.SetSize(4, 2);
+    B.Resize(4, 2);
 
 	B = { 1, 2, 
 		  3, 4, 
@@ -382,7 +384,7 @@ void Test_ElementOperation()
 {
 	mdkMatrix<double> A;
 
-	A.SetSize(2, 4);
+    A.Resize(2, 4);
 
 	A = { 1, 2, 3, 4,
 		5, 6, 7, 8 };
@@ -434,10 +436,10 @@ void Test_Transpose()
 {
 	mdkMatrix<double> A;
 
-	A.SetSize(2, 4);
+    A.Resize(2, 4);
 
 	A = { 1, 2, 3, 4,
-		              5, 6, 7, 8 };
+		  5, 6, 7, 8 };
 
 	std::cout << "A" << '\n';
 
@@ -471,7 +473,7 @@ void Test_Sum_Mean_Max_Min()
 {
 	mdkMatrix<double> A;
 
-	A.SetSize(2, 4);
+    A.Resize(2, 4);
 
 	A = { 1, 2, 3, 4,
 		              5, 6, 7, 8 };
@@ -674,160 +676,243 @@ void Test_LinearCombine()
     */
 }
 
-void Test_Set_Get_Append_Col()
+void Test_Set_Get_Append_Delete_Insert_Col()
 {
-	std::cout << "Test_Set_Get_Append_Col " << '\n';
+	std::cout << "Test_Set_Get_Append_Delete_Insert_Col " << '\n';
 
 	mdkMatrix<double> A;
-
-	A.SetSize(3, 0);
 
 	std::vector<double> Col;
 
 	Col = { 1, 2, 3 };
 	A.AppendCol(Col);
 
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
+
 	Col = { 4, 5, 6 };
 	A.AppendCol(Col);
+
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
 
 	Col = { 7, 8, 9 };
 	A.AppendCol(Col);
 
 	std::cout << "A = " << '\n';
-
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		for (uint64 j = 0; j < 3; ++j)
-		{
-			std::cout << A(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
+    DisplayMatrix(A);
 
 
 	Col = { 10, 20, 30 };
 	A.SetCol(1, Col);
 
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
+
 	Col = { 101, 201, 301 };
 	A.SetCol(2, Col);
 
 	std::cout << "A = " << '\n';
-
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		for (uint64 j = 0; j < 3; ++j)
-		{
-			std::cout << A(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
+    DisplayMatrix(A);
 
 
-	auto Col_output = A.Col(0);
-	std::cout << "A.Col(0)" << '\n';
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		std::cout << Col_output(i) << '\n';
-	}
+    Col = { 11, 21, 31 };
+    A.InsertCol(2, Col);
 
-	Col_output = A.Col(1);
-	std::cout << "A.Col(1)" << '\n';
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		std::cout << Col_output(i) << '\n';
-	}
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
 
-	Col_output = A.Col(2);
-	std::cout << "A.Col(2)" << '\n';
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		std::cout << Col_output(i) << '\n';
-	}
 
-	Col_output = A.Col(3);
+    Col = { 110, 210, 310 };
+    A.InsertCol(2, Col);
+
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
+
+    Col = { 4, 5, 6 };
+    A.InsertCol(0, Col);
+
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
+
+    A.DeleteCol(0);
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
+
+    A.DeleteCol(1);
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
+
+    A.DeleteCol({0, 1});
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
+
+    A.DeleteCol(1);
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
 }
 
 
-void Test_Set_Get_Append_Row()
+void Test_Set_Get_Append_Delete_Insert_Row()
 {
-	std::cout << "Test_Set_Get_Append_Row " << '\n';
+    std::cout << "Test_Set_Get_Append_Delete_Insert_Row " << '\n';
 
-	mdkMatrix<double> A;
+    mdkMatrix<double> A;
 
-	A.SetSize(0, 3);
+    std::vector<double> Row;
 
-	std::vector<double> Row;
+    Row = { 1, 2, 3 };
+    A.AppendRow(Row);
 
-	Row = { 1, 2, 3 };
-	A.AppendRow(Row);
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
 
-	Row = { 4, 5, 6 };
-	A.AppendRow(Row);
+    Row = { 4, 5, 6 };
+    A.AppendRow(Row);
 
-	Row = { 7, 8, 9 };
-	A.AppendRow(Row);
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
 
-	std::cout << "A = " << '\n';
+    Row = { 7, 8, 9 };
+    A.AppendRow(Row);
 
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		for (uint64 j = 0; j < 3; ++j)
-		{
-			std::cout << A(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
 
 
-	Row = { 11, 21, 31 };
-	A.SetRow(1, Row);
+    Row = { 10, 20, 30 };
+    A.SetRow(1, Row);
 
-	Row = { 111, 211, 311 };
-	A.SetRow(2, Row);
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
 
-	std::cout << "A = " << '\n';
+    Row = { 101, 201, 301 };
+    A.SetRow(2, Row);
 
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		for (uint64 j = 0; j < 3; ++j)
-		{
-			std::cout << A(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
 
 
-	auto Row_output = A.Row(0);
-	std::cout << "A.Row(0)" << '\n';
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		std::cout << Row_output(i) << ' ';
-	}
-	std::cout << '\n';
+    Row = { 11, 21, 31 };
+    A.InsertRow(2, Row);
+
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
 
 
-	Row_output = A.Row(1);
-	std::cout << "A.Row(1)" << '\n';
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		std::cout << Row_output(i) << ' ';
-	}
-	std::cout << '\n';
+    Row = { 110, 210, 310 };
+    A.InsertRow(2, Row);
 
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
 
+    Row = { 4, 5, 6 };
+    A.InsertRow(0, Row);
 
-	Row_output = A.Row(2);
-	std::cout << "A.Row(2)" << '\n';
-	for (uint64 i = 0; i < 3; ++i)
-	{
-		std::cout << Row_output(i) << ' ';
-	}
-	std::cout << '\n';
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
+
+    A.DeleteRow(0);
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
+
+    A.DeleteRow(1);
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
+
+    A.DeleteRow({ 0, 1 });
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
+
+    A.DeleteRow(1);
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
 }
+
+
+void Test_GetSubMatrix()
+{
+    mdkMatrix<double> A(5, 6);
+
+    A = { 1,     2,     3,     4,     5,     6,
+          10,    20,    30,    40,    50,    60, 
+          100,   200,   300,   40,    500,   600, 
+          1000,  2000,  3000,  4000,  5000,  6000,
+          10000, 20000, 30000, 40000, 50000, 60000, };
+
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
+
+    auto subA1 = A.GetSubMatrix(0, 3, 2, 5);
+    std::cout << "subA1 = " << '\n';
+    DisplayMatrix(subA1);
+
+    auto subA2 = A.GetSubMatrix({ 1 }, {0, 1});
+    std::cout << "subA2 = " << '\n';
+    DisplayMatrix(subA2);
+
+    auto subA3 = A.GetSubMatrix({ 1, 2, 3}, { 0, 1 , 2});
+    std::cout << "subA3 = " << '\n';
+    DisplayMatrix(subA3);
+
+    auto subAa = A.GetSubMatrix(ALL, { 0, 1, 2 });
+    std::cout << "subAa = " << '\n';
+    DisplayMatrix(subAa);
+
+    auto subAb = A.GetSubMatrix({ 0, 1, 2 }, ALL);
+    std::cout << "subAb = " << '\n';
+    DisplayMatrix(subAb);
+
+    mdkMatrix<double> B1(3, 5);
+
+    A.GetSubMatrix(B1, { 0, 1, 2 }, { 0, 1, 2, 3, 4 });
+
+    std::cout << "B1 = " << '\n';
+    DisplayMatrix(B1);
+
+    mdkMatrix<double> B2(5, 3);
+
+    A.GetSubMatrix(B2, {0, 1, 2, 3, 4}, { 0, 1, 2 });
+
+    std::cout << "B2 = " << '\n';
+    DisplayMatrix(B2);
+}
+
+
+void Test_SubMatrix()
+{
+    mdkMatrix<double> A(5, 6);
+
+    A = { 1,     2,     3,     4,     5,     6,
+          10,    20,    30,    40,    50,    60, 
+          100,   200,   300,   40,    500,   600, 
+          1000,  2000,  3000,  4000,  5000,  6000,
+          10000, 20000, 30000, 40000, 50000, 60000, };
+
+    std::cout << "A = " << '\n';
+    DisplayMatrix(A);
+
+    mdkMatrix<double> subA1 = A.SubMatrix(0, 3, 2, 5);
+    std::cout << "subA1 = " << '\n';
+    DisplayMatrix(subA1);
+
+    mdkMatrix<double> subA2 = A.SubMatrix({ 1 }, { 0, 1 });
+    std::cout << "subA2 = " << '\n';
+    DisplayMatrix(subA2);
+
+    mdkMatrix<double> subA3 = A.SubMatrix({ 1, 2, 3 }, { 0, 1, 2 });
+    std::cout << "subA3 = " << '\n';
+    DisplayMatrix(subA3);
+
+    mdkMatrix<double> subAa = A.SubMatrix(ALL, { 0, 1, 2, 1, 0});
+    std::cout << "subAa = " << '\n';
+    DisplayMatrix(subAa);
+
+    mdkMatrix<double> subAb = A.SubMatrix({ 0, 1, 2, 1, 0 }, ALL);
+    std::cout << "subAb = " << '\n';
+    DisplayMatrix(subAb);
+
+ }
 
 
 void Test_Arma()

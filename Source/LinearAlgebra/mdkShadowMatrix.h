@@ -18,7 +18,7 @@ class mdkShadowMatrix;
 template<typename ElementType>
 class mdkMatrix;
 
-class ALL_Symbol_For_mdkMatrix_Operator;
+struct ALL_Symbol_For_mdkMatrix_Operator;
 
 struct mdkMatrixSize;
 // end of forward-declare //

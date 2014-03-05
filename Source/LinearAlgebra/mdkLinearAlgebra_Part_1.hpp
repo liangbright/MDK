@@ -32,7 +32,7 @@ mdkMatrix<ElementType> MatrixAdd(const mdkMatrix<ElementType>& MatrixA, const md
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixAdd(tempMatrix, MatrixA, MatrixB);
 
@@ -129,7 +129,7 @@ mdkMatrix<ElementType> MatrixSubtract(const mdkMatrix<ElementType>& MatrixA, con
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixSubtract(tempMatrix, MatrixA, MatrixB);
 
@@ -227,7 +227,7 @@ mdkMatrix<ElementType> MatrixMultiply(const mdkMatrix<ElementType>& MatrixA, con
         return  tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeB.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeB.ColNumber);
 
     MatrixMultiply(tempMatrix, MatrixA, MatrixB);
 
@@ -253,7 +253,7 @@ void MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
 
         mdkMatrix<ElementType> tempMatrix;
 
-        tempMatrix.SetSize(MatrixA.GetRowNumber(), MatrixB.GetColNumber());
+        tempMatrix.Resize(MatrixA.GetRowNumber(), MatrixB.GetColNumber());
 
         MatrixMultiply(tempMatrix, MatrixA, MatrixB);
 
@@ -379,7 +379,7 @@ mdkMatrix<ElementType> MatrixElementMultiply(const mdkMatrix<ElementType>& Matri
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixElementMultiply(tempMatrix, MatrixA, MatrixB);
 
@@ -477,7 +477,7 @@ mdkMatrix<ElementType> MatrixElementDivide(const mdkMatrix<ElementType>& MatrixA
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixElementDivide(tempMatrix, MatrixA, MatrixB);
 
@@ -569,7 +569,7 @@ mdkMatrix<ElementType> MatrixAdd(const ElementType& ElementA, const mdkMatrix<El
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeB.RowNumber, SizeB.ColNumber);
+    tempMatrix.Resize(SizeB.RowNumber, SizeB.ColNumber);
 
     MatrixAdd(tempMatrix, ElementA, MatrixB);
 
@@ -624,7 +624,7 @@ mdkMatrix<ElementType> MatrixSubtract(const ElementType& ElementA, const mdkMatr
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeB.RowNumber, SizeB.ColNumber);
+    tempMatrix.Resize(SizeB.RowNumber, SizeB.ColNumber);
 
     MatrixSubtract(tempMatrix, ElementA, MatrixB);
 
@@ -679,7 +679,7 @@ mdkMatrix<ElementType> MatrixMultiply(const ElementType& ElementA, mdkMatrix<Ele
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeB.RowNumber, SizeB.ColNumber);
+    tempMatrix.Resize(SizeB.RowNumber, SizeB.ColNumber);
 
     MatrixMultiply(tempMatrix, ElementA, MatrixB);
 
@@ -734,7 +734,7 @@ mdkMatrix<ElementType> MatrixElementMultiply(const ElementType& ElementA, const 
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeB.RowNumber, SizeB.ColNumber);
+    tempMatrix.Resize(SizeB.RowNumber, SizeB.ColNumber);
 
     MatrixElementMultiply(tempMatrix, ElementA, MatrixB);
 
@@ -764,7 +764,7 @@ mdkMatrix<ElementType> MatrixElementDivide(const ElementType& ElementA, const md
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeB.RowNumber, SizeB.ColNumber);
+    tempMatrix.Resize(SizeB.RowNumber, SizeB.ColNumber);
 
     MatrixElementDivide(tempMatrix, ElementA, MatrixB);
 
@@ -820,7 +820,7 @@ mdkMatrix<ElementType> MatrixAdd(const mdkMatrix<ElementType>& MatrixA, const El
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixAdd(tempMatrix, MatrixA, ElementB);
 
@@ -875,7 +875,7 @@ mdkMatrix<ElementType> MatrixSubtract(const mdkMatrix<ElementType>& MatrixA, con
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixSubtract(tempMatrix, MatrixA, ElementB);
 
@@ -930,7 +930,7 @@ mdkMatrix<ElementType> MatrixMultiply(const mdkMatrix<ElementType>& MatrixA, con
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixMultiply(tempMatrix, MatrixA, ElementB);
 
@@ -985,7 +985,7 @@ mdkMatrix<ElementType> MatrixElementMultiply(const mdkMatrix<ElementType>& Matri
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixElementMultiply(tempMatrix, MatrixA, ElementB);
 
@@ -1015,7 +1015,7 @@ mdkMatrix<ElementType> MatrixElementDivide(const mdkMatrix<ElementType>& MatrixA
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixElementDivide(tempMatrix, MatrixA, ElementB);
 
@@ -1084,7 +1084,7 @@ void MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix, const std::vector
 
     if (OutputMatrix.IsEmpty() == true)
     {
-        OutputMatrix.SetSize(Size.RowNumber, Size.ColNumber);
+        OutputMatrix.Resize(Size.RowNumber, Size.ColNumber);
     }
 
     auto OutputRawPointer = OutputMatrix.GetElementDataRawPointer();
@@ -1169,7 +1169,7 @@ mdkMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefL
 
     auto Size = MatrixList[0]->GetSize();
 
-    tempMatrix.SetSize(Size.RowNumber, Size.ColNumber);
+    tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
 
     MatrixLinearCombine(tempMatrix, CoefList, MatrixList);
 

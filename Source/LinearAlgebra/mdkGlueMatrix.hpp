@@ -117,7 +117,7 @@ mdkMatrix<ElementType> mdkGlueMatrix<ElementType>::CreateMatrix() const
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(m_RowNumber, m_ColNumber);
+    tempMatrix.Resize(m_RowNumber, m_ColNumber);
 
     this->CreateMatrix(tempMatrix);
 

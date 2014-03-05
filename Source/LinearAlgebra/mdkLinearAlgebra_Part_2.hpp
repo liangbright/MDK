@@ -56,7 +56,7 @@ mdkMatrix<ElementType> MatrixInv(const mdkMatrix<ElementType>& Matrix)
         return tempMatrix;
     }
 
-    tempMatrix.SetSize(RowNumber, ColNumber);
+    tempMatrix.Resize(RowNumber, ColNumber);
 
     auto ptrData = Matrix.GetElementDataSharedPointer()->data();
 
@@ -96,9 +96,9 @@ mdkMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(cons
         return Result;
     }
 
-    Result.EigenVector.SetSize(RowNumber, RowNumber);
+    Result.EigenVector.Resize(RowNumber, RowNumber);
 
-    Result.EigenValue.SetSize(RowNumber, 1);
+    Result.EigenValue.Resize(RowNumber, 1);
 
     auto ptrData = Matrix.GetElementDataSharedPointer()->data();
 
@@ -154,9 +154,9 @@ mdkMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const mdkMatrix<Eleme
         }
     }
   
-    Result.EigenVector.SetSize(RowNumber, RowNumber);
+    Result.EigenVector.Resize(RowNumber, RowNumber);
 
-    Result.EigenValue.SetSize(RowNumber, 1);
+    Result.EigenValue.Resize(RowNumber, 1);
 
     auto ptrData = Matrix.GetElementDataSharedPointer()->data();
 
@@ -240,9 +240,9 @@ mdkMatrixSVDResult<ElementType> MatrixSVD(const mdkMatrix<ElementType>& Matrix)
         return Result;
     }
 
-    Result.U.SetSize(RowNumber, ColNumber);
-    Result.S.SetSize(RowNumber, ColNumber);
-    Result.V.SetSize(RowNumber, ColNumber);
+    Result.U.Resize(RowNumber, ColNumber);
+    Result.S.Resize(RowNumber, ColNumber);
+    Result.V.Resize(RowNumber, ColNumber);
 
     auto ptrData = Matrix.GetElementDataSharedPointer()->data();
 

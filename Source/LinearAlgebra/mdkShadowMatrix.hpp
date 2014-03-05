@@ -633,7 +633,7 @@ mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatri
 		return  tempMatrix;
 	}
 
-	tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+	tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
 	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -681,7 +681,7 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
 		return  tempMatrix;
 	}
 
-	tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+	tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
 	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -736,7 +736,7 @@ mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatri
 		return  tempMatrix;
 	}
 
-	tempMatrix.SetSize(SizeA.RowNumber, SizeB.ColNumber);
+	tempMatrix.Resize(SizeA.RowNumber, SizeB.ColNumber);
 
 	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -809,7 +809,7 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
 		return  tempMatrix;
 	}
 
-	tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+	tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
 	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -857,7 +857,7 @@ mdkMatrix<ElementType> operator%(const mdkShadowMatrix<ElementType>& ShadowMatri
 		return  tempMatrix;
 	}
 
-	tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+	tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
 	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -885,7 +885,7 @@ inline mdkMatrix<ElementType> operator+(ElementType Element, const mdkShadowMatr
 		return  tempMatrix;
 	}
 
-	tempMatrix.SetSize(Size.RowNumber, Size.ColNumber);
+	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
 
 	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -913,7 +913,7 @@ inline mdkMatrix<ElementType> operator-(ElementType Element, const mdkShadowMatr
 		return  tempMatrix;
 	}
 
-	tempMatrix.SetSize(Size.RowNumber, Size.ColNumber);
+	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
 
 	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -939,7 +939,7 @@ inline mdkMatrix<ElementType> operator*(ElementType Element, const mdkShadowMatr
 		return  tempMatrix;
 	}
 
-	tempMatrix.SetSize(Size.RowNumber, Size.ColNumber);
+	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
 
 	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -965,7 +965,7 @@ inline mdkMatrix<ElementType> operator/(ElementType Element, const mdkShadowMatr
 		return  tempMatrix;
 	}
 
-	tempMatrix.SetSize(Size.RowNumber, Size.ColNumber);
+	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
 
 	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -998,7 +998,7 @@ inline mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& Shad
 		return  tempMatrix;
 	}
 
-	tempMatrix.SetSize(Size.RowNumber, Size.ColNumber);
+	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
 
 	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -1031,7 +1031,7 @@ inline mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& Shad
 		return  tempMatrix;
 	}
 
-	tempMatrix.SetSize(Size.RowNumber, Size.ColNumber);
+	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
 
 	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -1077,7 +1077,7 @@ mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatri
         return  tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -1122,7 +1122,7 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
         return  tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -1167,7 +1167,7 @@ mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatri
         return  tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeB.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeB.ColNumber);
 
     auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -1237,7 +1237,7 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
         return  tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -1283,7 +1283,7 @@ mdkMatrix<ElementType> operator%(const mdkShadowMatrix<ElementType>& ShadowMatri
         return  tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -1337,7 +1337,7 @@ mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const md
         return  tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -1382,7 +1382,7 @@ mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const md
         return  tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeB.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeB.ColNumber);
 
     auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -1452,7 +1452,7 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const md
         return  tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
@@ -1498,7 +1498,7 @@ mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, const md
         return  tempMatrix;
     }
 
-    tempMatrix.SetSize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
