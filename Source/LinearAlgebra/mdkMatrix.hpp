@@ -60,7 +60,7 @@ mdkMatrix<ElementType>::mdkMatrix(mdkMatrix<ElementType>&& targetMatrix, bool Is
     // not necessary to use this->Reset()
 
     //force-share data
-    m_IsSizeFixed = targetMatrix.IsSizeFixed();
+    m_IsSizeFixed = false;
     this->Share(targetMatrix);
 
     // clear the target
@@ -730,16 +730,16 @@ void mdkMatrix<ElementType>::operator=(const mdkGlueMatrix<ElementType>& GlueMat
 }
 
 
+//------------------------Share()--------------------------------------------//
+// matrix A  can share matrix B by A.Share(B) on any of the two conditions
+// 1: A::m_IsSizeFixed == false
+// 2  A::m_IsSizeFixed == true and size of A is equal to size of B
+//
+// after A.Share(B),  A::m_IsSizeFixed is set to be the same as B
 template<typename ElementType>
 inline
 void mdkMatrix<ElementType>::Share(const mdkMatrix<ElementType>& targetMatrix)
 {
-    if (m_IsSizeFixed != targetMatrix.IsSizeFixed())
-    {
-        mdkError << "Size can not change @ mdkMatrix::Share(targetMatrix, IsForceShare)" << '\n';
-        return;
-    }
-
     if (m_IsSizeFixed == true)
     {
         if (m_RowNumber != targetMatrix.GetRowNumber() || m_ColNumber != targetMatrix.GetColNumber())
@@ -758,6 +758,8 @@ void mdkMatrix<ElementType>::Share(const mdkMatrix<ElementType>& targetMatrix)
     m_ElementType = targetMatrix.GetElementType();
 
     m_NaNElement = targetMatrix.GetNaNElement();
+
+    m_IsSizeFixed = targetMatrix.IsSizeFixed();
 }
 
 
@@ -3930,23 +3932,23 @@ void mdkMatrix<ElementType>::operator%=(const mdkMatrix<ElementType>& targetMatr
 
 template<typename ElementType>
 inline 
-void mdkMatrix<ElementType>::operator+=(const mdkGlueMatrix<ElementType>& GlueMatrix)
+void mdkMatrix<ElementType>::operator+=(mdkGlueMatrix<ElementType>& GlueMatrix)
 {
-    this->operator+=(GlueMatrix.CreateMatrix());
+    (*this) = (*this) + GlueMatrix;
 }
 
 
 template<typename ElementType>
 inline 
-void mdkMatrix<ElementType>::operator-=(const mdkGlueMatrix<ElementType>& GlueMatrix)
+void mdkMatrix<ElementType>::operator-=(mdkGlueMatrix<ElementType>& GlueMatrix)
 {
-    this->operator-=(GlueMatrix.CreateMatrix());
+    (*this) = (*this) - GlueMatrix;
 }
 
 
 template<typename ElementType>
 inline 
-void mdkMatrix<ElementType>::operator*=(const mdkGlueMatrix<ElementType>& GlueMatrix)
+void mdkMatrix<ElementType>::operator*=(mdkGlueMatrix<ElementType>& GlueMatrix)
 {
     this->operator*=(GlueMatrix.CreateMatrix());
 }
@@ -3954,7 +3956,7 @@ void mdkMatrix<ElementType>::operator*=(const mdkGlueMatrix<ElementType>& GlueMa
 
 template<typename ElementType>
 inline 
-void mdkMatrix<ElementType>::operator/=(const mdkGlueMatrix<ElementType>& GlueMatrix)
+void mdkMatrix<ElementType>::operator/=(mdkGlueMatrix<ElementType>& GlueMatrix)
 {
     this->operator/=(GlueMatrix.CreateMatrix());
 }
@@ -3962,7 +3964,7 @@ void mdkMatrix<ElementType>::operator/=(const mdkGlueMatrix<ElementType>& GlueMa
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator%=(const mdkGlueMatrix<ElementType>& GlueMatrix)
+void mdkMatrix<ElementType>::operator%=(mdkGlueMatrix<ElementType>& GlueMatrix)
 {
     this->operator%=(GlueMatrix.CreateMatrix());
 }

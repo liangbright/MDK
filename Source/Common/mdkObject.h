@@ -9,7 +9,7 @@ namespace mdk
 class mdkObject
 {
 
-public:		
+protected:
 	mdkObject();
 	~mdkObject();
 

@@ -211,7 +211,7 @@ void Test_Matrix_Operator()
 
     auto a = A(0, 0);
 
-    auto b = A({ 0 }, ALL);
+    mdkMatrix<double> b = A({ 0 }, ALL);
 
     // good: this can not be compiled
     //auto b1 = A(0, ALL);
@@ -221,20 +221,26 @@ void Test_Matrix_Operator()
     B = A({ 0 }, ALL);
 
     // attention !!!: this is compiled: {} is {0}
-    auto B1 = A({ 1 }, { });
+    mdkMatrix<double> B1;
+    
+    B1 = A({ 1 }, {});
 
     // this is compiled as (uint64, uint64)
-    auto B2 = A({0 }, {0});
+    mdkMatrix<double> B2;
+    
+    B2 = A({ 0 }, { 0 });
 
     A({ 0 }, { 0 }) = 0;
 
-    auto C1 = A({ 0 });
+    mdkMatrix<double> C1;
+        
+    C1 = A({ 0 });
 
-    auto C2 = A({ 0, 1});
+    mdkMatrix<double> C2 = A({ 0, 1 });
 
-    auto C3 = A({ 0, 1 }, {0});
+    mdkMatrix<double> C3 = A({ 0, 1 }, { 0 });
 
-    auto C4 = A({ 0 }, { 0 })*A({ 0, 1 }, { 0 });
+    mdkMatrix<double> C4 = A({ 0 }, { 0 })*A({ 0, 1 }, { 0 });
 
     // good: this can not be compiled
     //auto C5 = A({ 0, 1 }, {});
@@ -249,11 +255,15 @@ void Test_Matrix_Operator()
 
     // operator []
 
-    auto d = A[0];
+    mdkMatrix<double> D;
+        
+    D = A[0];
 
-    auto D1 = A[{ 0 }];
+    mdkMatrix<double> D1;
+        
+    D1 = A[{ 0 }];
 
-    auto D2 = A[{ 0, 1 }];
+    mdkMatrix<double> D2 = A[{ 0, 1 }];
 
     A[{ 0, 1 }] = 1;
 
@@ -915,6 +925,31 @@ void Test_SubMatrix()
  }
 
 
+void Test_ShadowMatrix()
+{
+
+    mdkMatrix<double> A(3, 3);
+
+    A = { 1, 2, 3,
+          4, 5, 6,
+          7, 8, 9 };
+
+    mdkMatrix<double> B(4, 4);
+
+    B = { 1, 2, 3, 0,
+          4, 5, 6, 0,
+          7, 8, 9, 0,
+          0, 0, 0, 0};
+
+    mdkMatrix<double> C;
+
+    C = 1.0 + A*A*A + A*B({0,1,2}, {0,1,2});
+
+    std::cout << "C = " << '\n';
+    DisplayMatrix(C);
+}
+
+
 void Test_Arma()
 {
 	std::cout << "Test_Arma " << '\n';
@@ -1075,7 +1110,7 @@ void Test_ShadowMatrix_Operator()
     std::cout << "A = " << '\n';
     DisplayMatrix(A);
 
-    auto subA1 = A({0, 1}, ALL);
+    mdkMatrix<double> subA1 = A({ 0, 1 }, ALL);
 
     mdkMatrix<double> subA2 = subA1;
 
@@ -1099,13 +1134,27 @@ void Test_ShadowMatrix_Operator()
     std::cout << "subA5 = " << '\n';
     DisplayMatrix(subA5);
 
+    // good:
+    // before use ALL symbol
     // compiler internal error  C1001
-    //mdkMatrix<double> subA5a = A({ 0, 1 }, { 0, 1, 2 }) * A({}, { 0, 1 });
+    // mdkMatrix<double> subA5a = A({ 0, 1 }, { 0, 1, 2 }) * A({}, { 0, 1 });
+    //
+    // after use ALL, then still error 
 
     mdkMatrix<double> subA6 = A.Row({0, 1}) * A.Col({0, 1});
 
     std::cout << "subA6 = " << '\n';
     DisplayMatrix(subA6);
+
+
+    typedef double  aaa;
+
+    typedef int  bbb;
+
+    if (std::is_same<aaa, bbb>::value == true)
+    {
+
+    }
 }
 
 
@@ -1145,7 +1194,48 @@ void Test_GlueMatrix()
 
     DisplayMatrix(All);
 
+    (B + C).~mdkGlueMatrix();
+
+    auto a = (A*A).Mean();
+
 }
+
+class TestClass
+{
+public:
+    TestClass()
+    {
+        std::cout << "hello ~" << '\n';
+
+        std::cout << this << '\n';
+    }
+
+    ~TestClass()
+    {
+        std::cout << "bye ~" << '\n';
+        std::cout << this << '\n';
+    }
+
+    TestClass(const TestClass&) = delete;
+    void operator=(const TestClass&) = delete;
+};
+
+void Test_Destructor()
+{
+//    auto Data = std::shared_ptr<std::vector<TestClass>>(new std::vector<TestClass>(1));
+
+    auto Data = std::shared_ptr<TestClass>(new TestClass);
+
+
+    auto Ptr = Data.get();
+
+    {
+      //  mdkMatrix<TestClass> A(Data);
+    }
+
+    std::cout << "All= " << '\n';
+}
+
 
 void Test_GlueMatrix_Speed1()
 {

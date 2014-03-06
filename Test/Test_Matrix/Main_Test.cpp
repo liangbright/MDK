@@ -77,6 +77,8 @@ int main()
     
    // Test_Constructor();
 
+   // Test_Destructor();
+
    // Test_MoveConstructor();
 
    // Test_Set_Get_Append_Delete_Insert_Col();
@@ -85,26 +87,29 @@ int main()
 
    // Test_GetSubMatrix();
 
-    Test_SubMatrix();
+  //  Test_SubMatrix();
+
+   // Test_ShadowMatrix();
+
 
    // Test_Share();
 
-    /*
-    Test_Matrix_Operator();
 
-    Test_ShadowMatrix_Operator();
+   // Test_Matrix_Operator();
+
+    //Test_ShadowMatrix_Operator();
     
     Test_GlueMatrix();
 
 
-    Test_Matrix_ChangeSize();
+   // Test_Matrix_ChangeSize();
 
-    Test_ShadowMatrix_SubMatrix();
+   // Test_ShadowMatrix_SubMatrix();
 
-    Test_ShadowMatrix_Col_Row();
+  //  Test_ShadowMatrix_Col_Row();
 
-    Test_GlueMatrix_Speed1();
-  */
+  //  Test_GlueMatrix_Speed1();
+
 
     //Test_GlueMatrix_Speed2();
 

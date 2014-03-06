@@ -159,8 +159,10 @@ private:
 
 	ElementType  m_NaNElement; // NaN only valid for float and double 
 
-public:		
-	
+public:
+    typedef ElementType  ElementType;
+
+public:			
 	//------------------- constructor and destructor ------------------------------------//
 
 	inline mdkMatrix();
@@ -528,15 +530,15 @@ public:
     inline void operator%=(const mdkMatrix<ElementType>& targetMatrix);
 
 
-    inline void operator+=(const mdkGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator+=(mdkGlueMatrix<ElementType>& GlueMatrix);
 
-    inline void operator-=(const mdkGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator-=(mdkGlueMatrix<ElementType>& GlueMatrix);
 
-    inline void operator*=(const mdkGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator*=(mdkGlueMatrix<ElementType>& GlueMatrix);
 
-    inline void operator/=(const mdkGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator/=(mdkGlueMatrix<ElementType>& GlueMatrix);
 
-    inline void operator%=(const mdkGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator%=(mdkGlueMatrix<ElementType>& GlueMatrix);
 
 
     inline void operator+=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
