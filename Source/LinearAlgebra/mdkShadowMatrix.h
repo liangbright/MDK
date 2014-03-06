@@ -125,7 +125,7 @@ private:
 
     ElementType m_NaNElement;
 
-    bool m_IsLinearIndexListOnly;
+    bool m_Flag_OutputVector;
 
 	// info from the source Matrix -----------------------------------------------//
 
@@ -142,6 +142,8 @@ private:
     inline mdkShadowMatrix(); // only use for empty ShadowMatrix
 
     inline mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatrix, const std::vector<uint64>& LinearIndexList);
+
+    inline mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
 
     inline mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatrix, const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList);
 

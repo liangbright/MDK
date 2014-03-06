@@ -1179,6 +1179,17 @@ mdkMatrix<ElementType>::operator()(const std::vector<uint64>& LinearIndexList)
 }
 
 
+template<typename ElementType>
+inline
+mdkShadowMatrix<ElementType>
+mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+{
+    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
+
+    return tempShadowMatrix;
+}
+
+
 #if defined MDK_Matrix_Enable_Operator_Bracket //-------------------------------------------------------------------------------
 
 template<typename ElementType>
@@ -1229,6 +1240,17 @@ mdkMatrix<ElementType>::operator[](const std::vector<uint64>& LinearIndexList)
 #endif
 
     mdkShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+
+    return tempShadowMatrix;
+}
+
+
+template<typename ElementType>
+inline
+mdkShadowMatrix<ElementType>
+mdkMatrix<ElementType>::operator[](const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+{
+    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
     return tempShadowMatrix;
 }

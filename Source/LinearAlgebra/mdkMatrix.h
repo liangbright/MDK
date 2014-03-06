@@ -132,7 +132,7 @@ struct ALL_Symbol_For_mdkMatrix_Operator
 
 static ALL_Symbol_For_mdkMatrix_Operator This_Is_ALL_Symbol_For_mdkMatrix_Operator("This_Is_ALL_Symbol_For_mdkMatrix_Operator");
 
-//refer to all the cols or rows
+//refer to all the cols or rows, or all the elements
 #define ALL This_Is_ALL_Symbol_For_mdkMatrix_Operator
 
 //--------------------------------------------------------------------------------------------------//
@@ -300,11 +300,15 @@ public:
 
     inline mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& LinearIndexList);
 
+    inline mdkShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+
     #if defined MDK_Matrix_Enable_Operator_Bracket //------------------------------------
     
     inline mdkShadowMatrix<ElementType> operator[](std::initializer_list<uint64>& LinearIndexList);
     
     inline mdkShadowMatrix<ElementType> operator[](const std::vector<uint64>& LinearIndexList);
+
+    inline mdkShadowMatrix<ElementType> operator[](const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
 
     #endif //#if defined MDK_Matrix_Enable_Operator_Bracket //----------------------------
 

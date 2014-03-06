@@ -943,10 +943,14 @@ void Test_ShadowMatrix()
 
     mdkMatrix<double> C;
 
-    C = 1.0 + A*A*A + A*B({0,1,2}, {0,1,2});
+    C = 1.0 + A*A + A * (10.0 + A*B({0,1,2}, {0,1,2}));
 
     std::cout << "C = " << '\n';
     DisplayMatrix(C);
+
+    mdkMatrix<double> D = A(ALL);
+
+    std::system("pause");
 }
 
 
@@ -986,6 +990,8 @@ void Test_Arma()
 	std::cout << "ASVD.U*ASVD.S*ASVD.V' = " << '\n';
     DisplayMatrix(tempA, 3);
 
+
+    std::system("pause");
 }
 
 

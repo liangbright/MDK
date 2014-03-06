@@ -130,6 +130,19 @@ template<typename ElementType>
 inline 
 void mdkGlueMatrix<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const
 {
+    if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
+    {
+        if (OutputMatrix.IsEmpty() == true)
+        {
+            OutputMatrix.Resize(m_RowNumber, m_ColNumber);            
+        }
+        else
+        {
+            mdkError << "Size does not match @ mdkGlueMatrix::CreateMatrix(OutputMatrix)" << '\n';
+            return;
+        }
+    }
+
     auto OutputRawPointer = OutputMatrix.GetElementDataRawPointer();
 
     auto MatrixNumber = m_MatrixElementDataSharedPointerList.size();
@@ -141,7 +154,7 @@ void mdkGlueMatrix<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMatr
         MatrixElementDataRawPtrList[k] = m_MatrixElementDataSharedPointerList[k]->data();
     }
 
-    auto ElementNumber = m_ColNumber*m_RowNumber;
+    auto ElementNumber = m_RowNumber*m_ColNumber;
 
     if (MatrixNumber == 1)
     {

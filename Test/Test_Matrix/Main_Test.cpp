@@ -89,7 +89,7 @@ int main()
 
   //  Test_SubMatrix();
 
-   // Test_ShadowMatrix();
+    Test_ShadowMatrix();
 
 
    // Test_Share();
@@ -99,7 +99,7 @@ int main()
 
     //Test_ShadowMatrix_Operator();
     
-    Test_GlueMatrix();
+   // Test_GlueMatrix();
 
 
    // Test_Matrix_ChangeSize();
