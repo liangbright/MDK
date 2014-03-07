@@ -7,7 +7,8 @@
 
 #include "mdkMatrix.h"
 #include "mdkShadowMatrix.h"
-#include "mdkGlueMatrix.h"
+#include "mdkLinearCombineGlueMatrix.h"
+#include "mdkMultiplyGlueMatrix.h"
 #include "mdkLinearAlgebra.h"
 
 using namespace mdk;
@@ -1200,10 +1201,11 @@ void Test_GlueMatrix()
 
     DisplayMatrix(All);
 
-    (B + C).~mdkGlueMatrix();
+    (B + C).~mdkLinearCombineGlueMatrix();
 
     auto a = (A*A).Mean();
 
+    A({ 0, 1 }) += A;
 }
 
 class TestClass

@@ -11,7 +11,7 @@
 #include "mdkDebugConfig.h"
 #include "mdkMatrix.h"
 #include "mdkShadowMatrix.h"
-#include "mdkGlueMatrix.h"
+#include "mdkLinearCombineGlueMatrix.h"
 #include "mdkLinearAlgebra.h"
 
 namespace mdk
@@ -86,7 +86,7 @@ mdkMatrix<ElementType>::mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatr
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrix<ElementType>& GlueMatrix, bool IsSizeFixed = false)
+mdkMatrix<ElementType>::mdkMatrix(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix, bool IsSizeFixed = false)
 {
     // not necessary to use this->Reset()
 
@@ -699,7 +699,7 @@ void mdkMatrix<ElementType>::operator=(const mdkShadowMatrix<ElementType>& Shado
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator=(const mdkGlueMatrix<ElementType>& GlueMatrix)
+void mdkMatrix<ElementType>::operator=(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix)
 {
     if (m_IsSizeFixed == true)
     {
@@ -782,7 +782,7 @@ void mdkMatrix<ElementType>::Share(const mdkShadowMatrix<ElementType>& ShadowMat
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::Share(const mdkGlueMatrix<ElementType>& GlueMatrix)
+void mdkMatrix<ElementType>::Share(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix)
 {
     if (m_IsSizeFixed == true)
     {
@@ -3214,6 +3214,7 @@ bool mdkMatrix<ElementType>::FillDiangonal(const ElementType& Element)
 
 // ----------------------- Matrix {+ - * % /}  Matrix ------------------------------------------------//
 
+//===========================================================================================================================//
 #if !defined MDK_Enable_GlueMatrix  //-----------------------------------------------------------------------
 
 template<typename ElementType>
@@ -3311,8 +3312,6 @@ mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const md
 	return  tempMatrix;
 }
 
-#endif //#if defined MDK_Enable_GlueMatrix ----------------------------------------------------------------------
-
 
 template<typename ElementType>
 inline
@@ -3392,6 +3391,9 @@ mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const md
 
     return tempMatrix;   
 }
+
+#endif // #if !defined MDK_Enable_GlueMatrix //---------------------------------------------------------------
+//===========================================================================================================================//
 
 
 template<typename ElementType>
@@ -3509,6 +3511,7 @@ mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, const md
 
 // ----------------------- Matrix {+ - * /}  Element ------------------------------------------------//
 
+//===========================================================================================================================//
 #if !defined MDK_Enable_GlueMatrix  //-----------------------------------------------------------------------
 
 template<typename ElementType>
@@ -3633,11 +3636,12 @@ inline mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, c
 }
 
 #endif //defined MDK_Enable_GlueMatrix -----------------------------------------------------------------------
+//===========================================================================================================================//
 
 
 // ----------------------- Element {+ - * /} Matrix ------------------------------------------------//
 
-
+//===========================================================================================================================//
 #if !defined MDK_Enable_GlueMatrix  //-----------------------------------------------------------------------
 
 template<typename ElementType>
@@ -3733,6 +3737,7 @@ inline mdkMatrix<ElementType> operator*(const ElementType& ElementA, const mdkMa
 }
 
 #endif //defined MDK_Enable_GlueMatrix -----------------------------------------------------------------------
+//===========================================================================================================================//
 
 
 template<typename ElementType>
@@ -3954,7 +3959,7 @@ void mdkMatrix<ElementType>::operator%=(const mdkMatrix<ElementType>& targetMatr
 
 template<typename ElementType>
 inline 
-void mdkMatrix<ElementType>::operator+=(mdkGlueMatrix<ElementType>& GlueMatrix)
+void mdkMatrix<ElementType>::operator+=(mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix)
 {
     (*this) = (*this) + GlueMatrix;
 }
@@ -3962,7 +3967,7 @@ void mdkMatrix<ElementType>::operator+=(mdkGlueMatrix<ElementType>& GlueMatrix)
 
 template<typename ElementType>
 inline 
-void mdkMatrix<ElementType>::operator-=(mdkGlueMatrix<ElementType>& GlueMatrix)
+void mdkMatrix<ElementType>::operator-=(mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix)
 {
     (*this) = (*this) - GlueMatrix;
 }
@@ -3970,7 +3975,7 @@ void mdkMatrix<ElementType>::operator-=(mdkGlueMatrix<ElementType>& GlueMatrix)
 
 template<typename ElementType>
 inline 
-void mdkMatrix<ElementType>::operator*=(mdkGlueMatrix<ElementType>& GlueMatrix)
+void mdkMatrix<ElementType>::operator*=(mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix)
 {
     this->operator*=(GlueMatrix.CreateMatrix());
 }
@@ -3978,7 +3983,7 @@ void mdkMatrix<ElementType>::operator*=(mdkGlueMatrix<ElementType>& GlueMatrix)
 
 template<typename ElementType>
 inline 
-void mdkMatrix<ElementType>::operator/=(mdkGlueMatrix<ElementType>& GlueMatrix)
+void mdkMatrix<ElementType>::operator/=(mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix)
 {
     this->operator/=(GlueMatrix.CreateMatrix());
 }
@@ -3986,7 +3991,7 @@ void mdkMatrix<ElementType>::operator/=(mdkGlueMatrix<ElementType>& GlueMatrix)
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator%=(mdkGlueMatrix<ElementType>& GlueMatrix)
+void mdkMatrix<ElementType>::operator%=(mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix)
 {
     this->operator%=(GlueMatrix.CreateMatrix());
 }

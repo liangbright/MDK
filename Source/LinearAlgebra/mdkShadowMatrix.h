@@ -6,27 +6,31 @@
 #include <initializer_list>
 
 #include "mdkObject.h"
-//#include "mdkMatrix.h"
 
 namespace mdk
 {
 
-//forward-declare -----------//
-template<typename ElementType>
-class mdkShadowMatrix;
-
-template<typename ElementType>
-class mdkGlueMatrix;
+//------------------------------ forward-declare -----------//
 
 template<typename ElementType>
 class mdkMatrix;
 
+template<typename ElementType>
+class mdkShadowMatrix;
+
+template<typename ElementType>
+class mdkLinearCombineGlueMatrix;
+
+template<typename ElementType>
+class mdkMultiplyGlueMatrix;
+
 struct ALL_Symbol_For_mdkMatrix_Operator;
 
 struct mdkMatrixSize;
-// end of forward-declare //
+//--------------------------- end of forward-declare -------//
 
-// ----------------------- ShadowMatrix {+ - * / %}  ShadowMatrix ------------------------------------------------//
+
+// ---------------------------------------- ShadowMatrix {+ - *  % /}  ShadowMatrix -------------------------------------------------------//
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
@@ -37,14 +41,50 @@ inline mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& Shad
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
 
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
-
 //element-wise multiplication
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator%(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
 
-// ----------------------- Element {+ - * /} ShadowMatrix ------------------------------------------------//
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
+
+// ------------------------------------------ ShadowMatrix {+ - * % /}  Matrix ----------------------------------------------------------//
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
+
+//element-wise multiplication
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
+
+// ---------------------------------------------- Matrix {+ - * % /}  ShadowMatrix -----------------------------------------------------//
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
+
+//element-wise multiplication
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
+
+// ----------------------------------------- Element {+ - * /} ShadowMatrix --------------------------------------------------------------//
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator+(ElementType Element, const mdkShadowMatrix<ElementType>& ShadowMatrix);
@@ -58,7 +98,7 @@ inline mdkMatrix<ElementType> operator*(ElementType Element, const mdkShadowMatr
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator/(ElementType Element, const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
-// ----------------------- ShadowMatrix {+ - * /}  Element ------------------------------------------------//
+// ------------------------------------------ ShadowMatrix {+ - * /}  Element ------------------------------------------------------------//
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element);
@@ -71,45 +111,90 @@ inline mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& Shad
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element);
-//--------------------------------------------------------------------------------------------------//
 
-// ----------------------- ShadowMatrix {+ - * / %}  Matrix ------------------------------------------------//
-
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
+//----------------------------------------------- ShadowMatrix {+= -= *= %= /=} ShadowMatrix ---------------------------------------------//
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
+inline void operator+=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
+inline void operator-=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
-
-//element-wise multiplication
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
-
-// ----------------------- Matrix {+ - * / %}  ShadowMatrix ------------------------------------------------//
+inline void operator*=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
+inline void operator%=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
+inline void operator/=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
+
+//--------------------------------------------------- ShadowMatrix {+= -= *= %= /=} Matrix ------------------------------------------------//
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
+inline void operator+=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
+inline void operator-=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
 
-//element-wise multiplication
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB);
+inline void operator*=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
 
-//--------------------------------------------------------------------------------------------------//
+template<typename ElementType>
+inline void operator%=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
+
+template<typename ElementType>
+inline void operator/=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB);
+
+//--------------------------------------------------ShadowMatrix {+= -= *= /=} Element ------------------------------------------------------------//
+
+template<typename ElementType>
+inline void operator+=(mdkShadowMatrix<ElementType>& ShadowMatrix, const ElementType& Element);
+
+template<typename ElementType>
+inline void operator-=(EmdkShadowMatrix<ElementType>& ShadowMatrix, const ElementType& Element);
+
+template<typename ElementType>
+inline void operator*=(mdkShadowMatrix<ElementType>& ShadowMatrix, const ElementType& Element);
+
+template<typename ElementType>
+inline void operator/=(mdkShadowMatrix<ElementType>& ShadowMatrix, const ElementType& Element);
+
+//----------------------------------------------- ShadowMatrix {+= -= /= *= %= } LinearCombineGlueMatrix ----------------------------------------//
+
+template<typename ElementType>
+inline void operator+=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrixB);
+
+template<typename ElementType>
+inline void operator-=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrixB);
+
+template<typename ElementType>
+inline void operator*=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrixB);
+
+template<typename ElementType>
+inline void operator%=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrixB);
+
+template<typename ElementType>
+inline void operator/=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrixB);
+
+//------------------------------------------------ ShadowMatrix {+= -= /= *= %= } MultiplyGlueMatrix --------------------------------------------//
+
+template<typename ElementType>
+inline void operator+=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMultiplyGlueMatrix<ElementType>& GlueMatrixB);
+
+template<typename ElementType>
+inline void operator-=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMultiplyGlueMatrix<ElementType>& GlueMatrixB);
+
+template<typename ElementType>
+inline void operator*=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMultiplyGlueMatrix<ElementType>& GlueMatrixB);
+
+template<typename ElementType>
+inline void operator%=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMultiplyGlueMatrix<ElementType>& GlueMatrixB);
+
+template<typename ElementType>
+inline void operator/=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMultiplyGlueMatrix<ElementType>& GlueMatrixB);
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------//
 
 
 template<typename ElementType>
@@ -170,34 +255,6 @@ private:
 public:
 	inline void operator=(const ElementType& Element);
 
-	//---------------------- mdkShadowMatrix {+= -= *= /=} Matrix or mdkShadowMatrix -----------------------------//
-
-    inline void operator+=(const mdkMatrix<ElementType>& targetMatrix);
-
-    inline void operator-=(const mdkMatrix<ElementType>& targetMatrix);
-
-    inline void operator*=(const mdkMatrix<ElementType>& targetMatrix);
-
-    inline void operator/=(const mdkMatrix<ElementType>& targetMatrix);
-
-    inline void operator+=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
-
-    inline void operator-=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
-
-    inline void operator*=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
-
-    inline void operator/=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
-
-    //---------------------- mdkShadowMatrix {+= -= *= /=} Element ----------------------------------------//
-
-	inline void operator+=(ElementType Element);
-
-	inline void operator-=(ElementType Element);
-
-	inline void operator*=(ElementType Element);
-
-	inline void operator/=(ElementType Element);
-
 	//---------------------- Get/Set mdkShadowMatrix(LinearIndex) ----------------------------------------//
 private:
 	inline ElementType& operator()(uint64 LinearIndex);
@@ -245,80 +302,170 @@ private:
     
 // -------------------------------- friend  function ----------------------------------------------------------------------------//
     
-    template<typename T>
-    friend mdkMatrix<T> operator+(const mdkShadowMatrix<T>& ShadowMatrixA, const mdkShadowMatrix<T>& ShadowMatrixB);
+    // ---------------------------------------- ShadowMatrix {+ - *  % /}  ShadowMatrix -------------------------------------------------------//
 
-    template<typename T>
-    friend mdkMatrix<T> operator-(const mdkShadowMatrix<T>& ShadowMatrixA, const mdkShadowMatrix<T>& ShadowMatrixB);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator+(const mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator*(const mdkShadowMatrix<T>& ShadowMatrixA, const mdkShadowMatrix<T>& ShadowMatrixB);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator-(const mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator/(const mdkShadowMatrix<T>& ShadowMatrixA, const mdkShadowMatrix<T>& ShadowMatrixB);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator*(const mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator%(const mdkShadowMatrix<T>& ShadowMatrixA, const mdkShadowMatrix<T>& ShadowMatrixB);
+    //element-wise multiplication
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator%(const mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator+(T Element, const mdkShadowMatrix<T>& ShadowMatrix);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator/(const mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator-(T Element, const mdkShadowMatrix<T>& ShadowMatrix);
+    // ------------------------------------------ ShadowMatrix {+ - * % /}  Matrix ----------------------------------------------------------//
 
-    template<typename T>
-    friend mdkMatrix<T> operator*(T Element, const mdkShadowMatrix<T>& ShadowMatrix);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator+(const mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkMatrix<TYPE>& MatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator/(T Element, const mdkShadowMatrix<T>& ShadowMatrix);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator-(const mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkMatrix<TYPE>& MatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator+(const mdkShadowMatrix<T>& ShadowMatrix, T Element);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator*(const mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkMatrix<TYPE>& MatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator-(const mdkShadowMatrix<T>& ShadowMatrix, T Element);
+    //element-wise multiplication
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator%(const mdkMatrix<TYPE>& ShadowMatrixA, const mdkMatrix<TYPE>& MatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator*(const mdkShadowMatrix<T>& ShadowMatrix, T Element);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator/(const mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkMatrix<TYPE>& MatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator/(const mdkShadowMatrix<T>& ShadowMatrix, T Element);
-  
-    template<typename T>
-    friend mdkMatrix<T> operator+(const mdkShadowMatrix<T>& ShadowMatrixA, const mdkMatrix<T>& MatrixB);
+    // ---------------------------------------------- Matrix {+ - * % /}  ShadowMatrix -----------------------------------------------------//
 
-    template<typename T>
-    friend mdkMatrix<T> operator-(const mdkShadowMatrix<T>& ShadowMatrixA, const mdkMatrix<T>& MatrixB);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator+(const mdkMatrix<TYPE>& MatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator*(const mdkShadowMatrix<T>& ShadowMatrixA, const mdkMatrix<T>& MatrixB);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator-(const mdkMatrix<TYPE>& MatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator/(const mdkShadowMatrix<T>& ShadowMatrixA, const mdkMatrix<T>& MatrixB);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator*(const mdkMatrix<TYPE>& MatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator%(const mdkMatrix<T>& ShadowMatrixA, const mdkMatrix<T>& MatrixB);
+    //element-wise multiplication
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator%(const mdkMatrix<TYPE>& MatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator+(const mdkMatrix<T>& MatrixA, const mdkShadowMatrix<T>& ShadowMatrixB);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator/(const mdkMatrix<TYPE>& MatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
 
-    template<typename T>
-    friend mdkMatrix<T> operator-(const mdkMatrix<T>& MatrixA, const mdkShadowMatrix<T>& ShadowMatrixB);
+    // ----------------------------------------- Element {+ - * /} ShadowMatrix --------------------------------------------------------------//
 
-    template<typename T>
-    friend mdkMatrix<T> operator*(const mdkMatrix<T>& MatrixA, const mdkShadowMatrix<T>& ShadowMatrixB);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator+(TYPE Element, const mdkShadowMatrix<TYPE>& ShadowMatrix);
 
-    template<typename T>
-    friend mdkMatrix<T> operator/(const mdkMatrix<T>& MatrixA, const mdkShadowMatrix<T>& ShadowMatrixB);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator-(TYPE Element, const mdkShadowMatrix<TYPE>& ShadowMatrix);
 
-    template<typename T>
-    friend mdkMatrix<T> operator%(const mdkMatrix<T>& MatrixA, const mdkShadowMatrix<T>& ShadowMatrixB);
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator*(TYPE Element, const mdkShadowMatrix<TYPE>& ShadowMatrix);
 
-    //--------------------GlueMatrix realted function-----------------
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator/(TYPE Element, const mdkShadowMatrix<TYPE>& ShadowMatrix);
 
-    template<typename T>
-    friend mdkMatrix<T> operator*(mdkShadowMatrix<T>& ShadowMatrixA, mdkGlueMatrix<T>& GlueMatrixB);
-    
+    // ------------------------------------------ ShadowMatrix {+ - * /}  Element ------------------------------------------------------------//
+
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator+(const mdkShadowMatrix<TYPE>& ShadowMatrix, TYPE Element);
+
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator-(const mdkShadowMatrix<TYPE>& ShadowMatrix, TYPE Element);
+
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator*(const mdkShadowMatrix<TYPE>& ShadowMatrix, TYPE Element);
+
+    template<typename TYPE>
+    friend mdkMatrix<TYPE> operator/(const mdkShadowMatrix<TYPE>& ShadowMatrix, TYPE Element);
+
+    //----------------------------------------------- ShadowMatrix {+= -= *= %= /=} ShadowMatrix ---------------------------------------------//
+
+    template<typename TYPE>
+    friend void operator+=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
+
+    template<typename TYPE>
+    friend void operator-=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
+
+    template<typename TYPE>
+    friend void operator*=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
+
+    template<typename TYPE>
+    friend void operator%=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
+
+    template<typename TYPE>
+    friend void operator/=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
+
+    //--------------------------------------------------- ShadowMatrix {+= -= *= %= /=} Matrix ------------------------------------------------//
+
+    template<typename TYPE>
+    friend void operator+=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkMatrix<TYPE>& MatrixB);
+
+    template<typename TYPE>
+    friend void operator-=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkMatrix<TYPE>& MatrixB);
+
+    template<typename TYPE>
+    friend void operator*=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkMatrix<TYPE>& MatrixB);
+
+    template<typename TYPE>
+    friend void operator%=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkMatrix<TYPE>& MatrixB);
+
+    template<typename TYPE>
+    friend void operator/=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkMatrix<TYPE>& MatrixB);
+
+    //--------------------------------------------------ShadowMatrix {+= -= *= /=} Element ------------------------------------------------------------//
+
+    template<typename TYPE>
+    friend void operator+=(mdkShadowMatrix<TYPE>& ShadowMatrix, const TYPE& Element);
+
+    template<typename TYPE>
+    friend void operator-=(EmdkShadowMatrix<TYPE>& ShadowMatrix, const TYPE& Element);
+
+    template<typename TYPE>
+    friend void operator*=(mdkShadowMatrix<TYPE>& ShadowMatrix, const TYPE& Element);
+
+    template<typename TYPE>
+    friend void operator/=(mdkShadowMatrix<TYPE>& ShadowMatrix, const TYPE& Element);
+
+    //----------------------------------------------- ShadowMatrix {+= -= /= *= %= } LinearCombineGlueMatrix ----------------------------------------//
+
+    template<typename TYPE>
+    friend void operator+=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<TYPE>& GlueMatrixB);
+
+    template<typename TYPE>
+    friend void operator-=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<TYPE>& GlueMatrixB);
+
+    template<typename TYPE>
+    friend void operator*=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<TYPE>& GlueMatrixB);
+
+    template<typename TYPE>
+    friend void operator%=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<TYPE>& GlueMatrixB);
+
+    template<typename TYPE>
+    friend void operator/=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<TYPE>& GlueMatrixB);
+
+    //------------------------------------------------ ShadowMatrix {+= -= /= *= %= } MultiplyGlueMatrix --------------------------------------------//
+
+    template<typename TYPE>
+    friend void operator+=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkMultiplyGlueMatrix<TYPE>& GlueMatrixB);
+
+    template<typename TYPE>
+    friend void operator-=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkMultiplyGlueMatrix<TYPE>& GlueMatrixB);
+
+    template<typename TYPE>
+    friend void operator*=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkMultiplyGlueMatrix<TYPE>& GlueMatrixB);
+
+    template<typename TYPE>
+    friend void operator%=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkMultiplyGlueMatrix<TYPE>& GlueMatrixB);
+
+    template<typename TYPE>
+    friend void operator/=(mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkMultiplyGlueMatrix<TYPE>& GlueMatrixB);
+
 };
 
 }//end namespace mdk

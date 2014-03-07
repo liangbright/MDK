@@ -30,7 +30,7 @@ template<typename ElementType>
 class mdkShadowMatrix;
 
 template<typename ElementType>
-class mdkGlueMatrix;
+class mdkLinearCombineGlueMatrix;
 
 template<typename ElementType>
 struct mdkMatrixSVDResult;
@@ -48,7 +48,7 @@ struct mdkMatrixSize
 
 // ------------------------------------ Matrix {+ - * % /}  Matrix ------------------------------------------------//
 
-#if !defined MDK_Enable_GlueMatrix //------------------------------
+#if !defined MDK_Enable_GlueMatrix //---------------------------------------------
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
@@ -56,10 +56,10 @@ inline mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, c
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
-#endif // !defined MDK_Enable_GlueMatrix ----------------------------
-
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+
+#endif //!defined MDK_Enable_GlueMatrix --------------------------------------------
 
 //element-wise multiplication
 template<typename ElementType>
@@ -104,13 +104,13 @@ inline mdkMatrix<ElementType> operator*(const ElementType& ElementA, const mdkMa
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
-// ----------------------- Element = Matrix if Matrix size is 1x1 ------------------------------------------------//
-// not alowed in c++
+// ----------------------- Element = Matrix (if 1x1) is not allowed in c++ --------------------------------------------//
+// not allowed in c++
 //template<typename ElementType>
 //inline void operator=(ElementType& Element, const mdkMatrix<ElementType>& Matrix);
 
 
-//--------------------------------------------------------------------------------------------------//
+//------------------------------------------- ALL Symbol --------------------------------------------------------------------------//
 
 struct ALL_Symbol_For_mdkMatrix_Operator
 {
@@ -135,11 +135,11 @@ static ALL_Symbol_For_mdkMatrix_Operator This_Is_ALL_Symbol_For_mdkMatrix_Operat
 //refer to all the cols or rows, or all the elements
 #define ALL This_Is_ALL_Symbol_For_mdkMatrix_Operator
 
-//--------------------------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------------------------------------//
 
 #define MDK_Matrix_ColExpansionStep  100
 
-//--------------------------------------------------------------------------------------------------//
+//----------------------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
 class mdkMatrix : public mdkObject
@@ -173,7 +173,7 @@ public:
 
     inline mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix, bool IsSizeFixed = false);
 
-    inline mdkMatrix(const mdkGlueMatrix<ElementType>& GlueMatrix, bool IsSizeFixed = false);
+    inline mdkMatrix(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix, bool IsSizeFixed = false);
 
     inline mdkMatrix(const ElementType* ElementPointer, uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = false);
 
@@ -186,7 +186,7 @@ public:
 
     //-----------------------------------------------------------------------------------//
     
-    // set the intial state, only use it in constructor
+    // set the initial state, only use it in constructor
     inline void Reset();
 
     // clear memory if Self is not empty and m_IsSizeFixed is false
@@ -231,7 +231,7 @@ public:
 
 	inline uint64 GetRowNumber() const;
 
-	//---------------------- Initilize Matrix ----------------------------------------//
+	//---------------------- Initialize Matrix ----------------------------------------//
 
     // do not use function template for this function
     // otherwise, compiler will create a new one
@@ -246,7 +246,7 @@ public:
 
     inline void operator=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline void operator=(const mdkGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator=(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix);
 
 	template<typename ElementType_target>
     inline bool Copy(const mdkMatrix<ElementType_target>& targetMatrix);
@@ -264,7 +264,7 @@ public:
 
     inline void Share(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline void Share(const mdkGlueMatrix<ElementType>& mdkGlueMatrix);
+    inline void Share(const mdkLinearCombineGlueMatrix<ElementType>& mdkLinearCombineGlueMatrix);
 
 	//----------- Get/Set Matrix(LinearIndex) : size can not be changed even if m_IsSizeFixed is false -----------------//
 
@@ -534,15 +534,15 @@ public:
     inline void operator%=(const mdkMatrix<ElementType>& targetMatrix);
 
 
-    inline void operator+=(mdkGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator+=(mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix);
 
-    inline void operator-=(mdkGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator-=(mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix);
 
-    inline void operator*=(mdkGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator*=(mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix);
 
-    inline void operator/=(mdkGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator/=(mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix);
 
-    inline void operator%=(mdkGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator%=(mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix);
 
 
     inline void operator+=(const mdkShadowMatrix<ElementType>& ShadowMatrix);

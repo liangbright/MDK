@@ -698,6 +698,8 @@ const ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 RowIndex, uin
 }
 
 
+// ---------------------------------------- ShadowMatrix {+ - *  % /}  ShadowMatrix -------------------------------------------------------//
+
 template<typename ElementType>
 inline	
 mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
@@ -796,51 +798,6 @@ mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatri
 }
 
 
-template<typename ElementType>
-inline
-mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
-{
-    auto SizeA = ShadowMatrixA.GetSize();
-
-    auto SizeB = ShadowMatrixB.GetSize();
-
-	if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
-	{
-        return ShadowMatrixA(0) / ShadowMatrixB;
-	}
-
-	if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
-	{
-        return ShadowMatrixA / ShadowMatrixB(0);
-	}
-
-	mdkMatrix<ElementType> tempMatrix;
-
-	if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
-	{
-		mdkError << "Size does not match @ mdkShadowMatrix operator/(ShadowMatrixA, ShadowMatrixB)" << '\n';
-		return  tempMatrix;
-	}
-
-	if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
-	{
-		mdkWarning << "ShadowMatrixA or ShadowMatrixB is empty @ mdkShadowMatrix operator/(ShadowMatrixA, ShadowMatrixB)" << '\n';
-		return  tempMatrix;
-	}
-
-	tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
-
-    for (uint64 i = 0; i < SizeA.RowNumber*SizeA.ColNumber; ++i)
-    {
-        tempRawPointer[i] = ShadowMatrixA(i) / ShadowMatrixB(i);
-    }
-
-	return  tempMatrix;
-}
-
-
 //element-wise multiplication
 template<typename ElementType>
 inline
@@ -888,176 +845,52 @@ mdkMatrix<ElementType> operator%(const mdkShadowMatrix<ElementType>& ShadowMatri
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator+(ElementType Element, const mdkShadowMatrix<ElementType>& ShadowMatrix)
+inline
+mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-	mdkMatrix<ElementType> tempMatrix;
+    auto SizeA = ShadowMatrixA.GetSize();
 
-    auto Size = ShadowMatrix.GetSize();
+    auto SizeB = ShadowMatrixB.GetSize();
 
-	if (Size.RowNumber == 0)
-	{
-		mdkError << "Matrix is empty @ mdkShadowMatrix operator+(Element, ShadowMatrix)" << '\n';
-		return  tempMatrix;
-	}
+    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    {
+        return ShadowMatrixA(0) / ShadowMatrixB;
+    }
 
-	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
+    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    {
+        return ShadowMatrixA / ShadowMatrixB(0);
+    }
 
-	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
+    mdkMatrix<ElementType> tempMatrix;
 
-	for (uint64 i = 0; i < Size.RowNumber*Size.ColNumber; ++i)
-	{
-        tempRawPointer[i] = Element + ShadowMatrix(i);
-	}
+    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    {
+        mdkError << "Size does not match @ mdkShadowMatrix operator/(ShadowMatrixA, ShadowMatrixB)" << '\n';
+        return  tempMatrix;
+    }
 
-	return tempMatrix;
+    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    {
+        mdkWarning << "ShadowMatrixA or ShadowMatrixB is empty @ mdkShadowMatrix operator/(ShadowMatrixA, ShadowMatrixB)" << '\n';
+        return  tempMatrix;
+    }
+
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+
+    auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
+
+    for (uint64 i = 0; i < SizeA.RowNumber*SizeA.ColNumber; ++i)
+    {
+        tempRawPointer[i] = ShadowMatrixA(i) / ShadowMatrixB(i);
+    }
+
+    return  tempMatrix;
 }
 
 
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator-(ElementType Element, const mdkShadowMatrix<ElementType>& ShadowMatrix)
-{
-	mdkMatrix<ElementType> tempMatrix;
+// ------------------------------------------ ShadowMatrix {+ - * % /}  Matrix ----------------------------------------------------------//
 
-    auto Size = ShadowMatrix.GetSize();
-
-	if (Size.RowNumber == 0)
-	{
-		mdkError << "ShadowMatrix is empty @ mdkShadowMatrix operator-(Element, ShadowMatrix)" << '\n';
-		return  tempMatrix;
-	}
-
-	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
-
-	for (uint64 i = 0; i < Size.RowNumber*Size.ColNumber; ++i)
-	{
-        tempRawPointer[i] = Element - ShadowMatrix(i);
-	}
-
-	return tempMatrix;
-}
-
-
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator*(ElementType Element, const mdkShadowMatrix<ElementType>& ShadowMatrix)
-{
-	mdkMatrix<ElementType> tempMatrix;
-
-    auto Size = ShadowMatrix.GetSize();
-
-	if (Size.RowNumber == 0)
-	{
-		mdkError << "ShadowMatrix is empty @ mdkShadowMatrix operator*(Element, ShadowMatrix)" << '\n';
-		return  tempMatrix;
-	}
-
-	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
-
-	for (uint64 i = 0; i < Size.RowNumber*Size.ColNumber; ++i)
-	{
-        tempRawPointer[i] = Element * ShadowMatrix(i);
-	}
-
-	return tempMatrix;
-}
-
-
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(ElementType Element, const mdkShadowMatrix<ElementType>& ShadowMatrix)
-{
-	mdkMatrix<ElementType> tempMatrix;
-
-    auto Size = ShadowMatrix.GetSize();
-
-	if (Size.RowNumber == 0)
-	{
-		mdkError << "ShadowMatrix is empty @ mdkShadowMatrix operator/(Element, ShadowMatrix)" << '\n';
-		return  tempMatrix;
-	}
-
-	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
-
-	for (uint64 i = 0; i < Size.RowNumber*Size.ColNumber; ++i)
-	{
-        tempRawPointer[i] = Element / ShadowMatrix(i);
-	}
-
-	return tempMatrix;
-}
-
-
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element)
-{
-    return Element + ShadowMatrix;
-}
-
-
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element)
-{
-	mdkMatrix<ElementType> tempMatrix;
-
-    auto Size = ShadowMatrix.GetSize();
-
-	if (Size.RowNumber == 0)
-	{
-		mdkError << "ShadowMatrix is empty @ mdkShadowMatrix operator-(ShadowMatrix, Element)" << '\n';
-		return  tempMatrix;
-	}
-
-	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
-
-	for (uint64 i = 0; i < Size.RowNumber*Size.ColNumber; ++i)
-	{
-        tempRawPointer[i] = ShadowMatrix(i) - Element;
-	}
-
-	return tempMatrix;
-}
-
-
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element)
-{
-    return Element * ShadowMatrix;
-}
-
-
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element)
-{
-	mdkMatrix<ElementType> tempMatrix;
-
-    auto Size = ShadowMatrix.GetSize();
-
-	if (Size.RowNumber == 0)
-	{
-		mdkError << "ShadowMatrix is empty @ mdkShadowMatrix operator/(ShadowMatrix, Element)" << '\n';
-		return  tempMatrix;
-	}
-
-	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
-
-	for (uint64 i = 0; i < Size.RowNumber*Size.ColNumber; ++i)
-	{
-        tempRawPointer[i] = ShadowMatrix(i) / Element;
-	}
-
-	return tempMatrix;
-}
-
-
-//---------------------------------------------
 template<typename ElementType>
 inline
 mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
@@ -1177,7 +1010,7 @@ mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatri
     }
 
     mdkMatrix<ElementType> tempMatrix;
-    
+
     if (SizeA.ColNumber != SizeB.RowNumber)
     {
         mdkError << "Size does not match @ mdkShadowMatrix operator*(ShadowMatrixA, ShadowMatrixB)" << '\n';
@@ -1230,53 +1063,6 @@ mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatri
 }
 
 
-template<typename ElementType>
-inline
-mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
-{
-    auto SizeA = ShadowMatrixA.GetSize();
-
-    auto SizeB = MatrixB.GetSize();
-
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
-    {
-        return ShadowMatrixA(0) / MatrixB;
-    }
-
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
-    {
-        return ShadowMatrixA / MatrixB(0);
-    }
-
-    mdkMatrix<ElementType> tempMatrix;
-    
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
-    {
-        mdkError << "Size does not match @ mdkShadowMatrix operator/(ShadowMatrixA, MatrixB)" << '\n';
-        return  tempMatrix;
-    }
-
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
-    {
-        mdkWarning << "MatrixA and MatrixB are empty @ mdkShadowMatrix operator/(ShadowMatrixA, MatrixB)" << '\n';
-        return  tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
-
-    auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
-
-    auto ptrB = MatrixB.GetElementDataRawPointer();
-
-    for (uint64 i = 0; i < SizeA.RowNumber*SizeA.ColNumber; ++i)
-    {
-        tempRawPointer[i] = ShadowMatrixA(i) / ptrB[i];
-    }
-
-    return  tempMatrix;
-}
-
-
 //element-wise multiplication
 template<typename ElementType>
 inline
@@ -1297,7 +1083,7 @@ mdkMatrix<ElementType> operator%(const mdkShadowMatrix<ElementType>& ShadowMatri
     }
 
     mdkMatrix<ElementType> tempMatrix;
-    
+
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
         mdkError << "Size does not match @ mdkShadowMatrix operator/(ShadowMatrixA, MatrixB)" << '\n';
@@ -1324,7 +1110,54 @@ mdkMatrix<ElementType> operator%(const mdkShadowMatrix<ElementType>& ShadowMatri
     return  tempMatrix;
 }
 
-//----------------------------------------------
+
+template<typename ElementType>
+inline
+mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
+{
+    auto SizeA = ShadowMatrixA.GetSize();
+
+    auto SizeB = MatrixB.GetSize();
+
+    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    {
+        return ShadowMatrixA(0) / MatrixB;
+    }
+
+    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    {
+        return ShadowMatrixA / MatrixB(0);
+    }
+
+    mdkMatrix<ElementType> tempMatrix;
+
+    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    {
+        mdkError << "Size does not match @ mdkShadowMatrix operator/(ShadowMatrixA, MatrixB)" << '\n';
+        return  tempMatrix;
+    }
+
+    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    {
+        mdkWarning << "MatrixA and MatrixB are empty @ mdkShadowMatrix operator/(ShadowMatrixA, MatrixB)" << '\n';
+        return  tempMatrix;
+    }
+
+    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+
+    auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
+
+    auto ptrB = MatrixB.GetElementDataRawPointer();
+
+    for (uint64 i = 0; i < SizeA.RowNumber*SizeA.ColNumber; ++i)
+    {
+        tempRawPointer[i] = ShadowMatrixA(i) / ptrB[i];
+    }
+
+    return  tempMatrix;
+}
+
+// ---------------------------------------------- Matrix {+ - * % /}  ShadowMatrix -----------------------------------------------------//
 
 template<typename ElementType>
 inline
@@ -1353,7 +1186,7 @@ mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const md
     }
 
     mdkMatrix<ElementType> tempMatrix;
-    
+
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
         mdkError << "Size does not match @ mdkShadowMatrix operator-(MatrixA, ShadowMatrixB)" << '\n';
@@ -1387,7 +1220,7 @@ mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const md
 {
     //-------------- Matrix * Matrix ---------------------//
 
-   // return MatrixA * ShadowMatrixB.CreateMatrix();
+    // return MatrixA * ShadowMatrixB.CreateMatrix();
 
     //---------------------------------------------------//
 
@@ -1406,7 +1239,7 @@ mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const md
     }
 
     mdkMatrix<ElementType> tempMatrix;
-    
+
     if (SizeA.ColNumber != SizeB.RowNumber)
     {
         mdkError << "Size does not match @ mdkShadowMatrix operator*(MatrixA, ShadowMatrixB)" << '\n';
@@ -1479,7 +1312,7 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const md
     }
 
     mdkMatrix<ElementType> tempMatrix;
-    
+
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
         mdkError << "Size does not match @ mdkShadowMatrix operator/(MatrixA, ShadowMatrixB)" << '\n';
@@ -1527,7 +1360,7 @@ mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, const md
     }
 
     mdkMatrix<ElementType> tempMatrix;
-    
+
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
         mdkError << "Size does not match @ mdkShadowMatrix operator%(MatrixA, ShadowMatrixB)" << '\n';
@@ -1554,362 +1387,678 @@ mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, const md
     return  tempMatrix;
 }
 
+// ----------------------------------------- Element {+ - * /} ShadowMatrix --------------------------------------------------------------//
 
 template<typename ElementType>
-inline
-void mdkShadowMatrix<ElementType>::operator+=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+inline mdkMatrix<ElementType> operator+(ElementType Element, const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
-	uint64 RowNumber;
-	uint64 ColNumber;
+	mdkMatrix<ElementType> tempMatrix;
 
-    ShadowMatrix.GetSize(&RowNumber, &ColNumber);
+    auto Size = ShadowMatrix.GetSize();
 
-	if (RowNumber == 1 && ColNumber == 1)
+	if (Size.RowNumber == 0)
 	{
-        (*this) += ShadowMatrix(0);
-
-		return;
+		mdkError << "Matrix is empty @ mdkShadowMatrix operator+(Element, ShadowMatrix)" << '\n';
+		return  tempMatrix;
 	}
 
-	if (RowNumber != m_RowNumber || ColNumber != m_ColNumber) 
+	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
+
+	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
+
+	for (uint64 i = 0; i < Size.RowNumber*Size.ColNumber; ++i)
 	{
-		mdkError << "Size does not match @ mdkShadowMatrix::operator+=(ShadowMatrix)" << '\n';
-		return;
+        tempRawPointer[i] = Element + ShadowMatrix(i);
 	}
 
-	if (RowNumber == 0)
-	{
-		mdkWarning << "ShadowMatrix is empty @ mdkShadowMatrix::operator+=(ShadowMatrix)" << '\n';
-		return;
-	}
-
-	for (uint64 i = 0; i < m_ElementNumber; ++i)
-	{
-        (*this)(i) += ShadowMatrix(i);
-	}
+	return tempMatrix;
 }
 
 
 template<typename ElementType>
-inline
-void mdkShadowMatrix<ElementType>::operator-=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+inline mdkMatrix<ElementType> operator-(ElementType Element, const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
-	uint64 RowNumber;
-	uint64 ColNumber;
+	mdkMatrix<ElementType> tempMatrix;
 
-    ShadowMatrix.GetSize(&RowNumber, &ColNumber);
+    auto Size = ShadowMatrix.GetSize();
 
-	if (RowNumber == 1 && ColNumber == 1)
+	if (Size.RowNumber == 0)
 	{
-        (*this) -= ShadowMatrix(0);
-
-		return;
+		mdkError << "ShadowMatrix is empty @ mdkShadowMatrix operator-(Element, ShadowMatrix)" << '\n';
+		return  tempMatrix;
 	}
 
-	if (RowNumber != m_RowNumber || ColNumber != m_ColNumber)
+	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
+
+	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
+
+	for (uint64 i = 0; i < Size.RowNumber*Size.ColNumber; ++i)
 	{
-		mdkError << "Size does not match @ mdkShadowMatrix::operator-=(ShadowMatrix)" << '\n';
-		return;
+        tempRawPointer[i] = Element - ShadowMatrix(i);
 	}
 
-	if (RowNumber == 0)
-	{
-		mdkWarning << "ShadowMatrix is empty @ mdkShadowMatrix::operator-=(ShadowMatrix)" << '\n';
-		return;
-	}
-
-	for (uint64 i = 0; i < m_ElementNumber; ++i)
-	{
-        (*this)(i) -= ShadowMatrix(i);
-	}
+	return tempMatrix;
 }
 
 
 template<typename ElementType>
-inline
-void mdkShadowMatrix<ElementType>::operator*=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+inline mdkMatrix<ElementType> operator*(ElementType Element, const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
-	uint64 RowNumber;
-	uint64 ColNumber;
+	mdkMatrix<ElementType> tempMatrix;
 
-    ShadowMatrix.GetSize(&RowNumber, &ColNumber);
+    auto Size = ShadowMatrix.GetSize();
 
-	if (RowNumber == 1 && ColNumber == 1)
+	if (Size.RowNumber == 0)
 	{
-        (*this) *= ShadowMatrix(0);
-
-		return;
+		mdkError << "ShadowMatrix is empty @ mdkShadowMatrix operator*(Element, ShadowMatrix)" << '\n';
+		return  tempMatrix;
 	}
 
-	if (RowNumber != m_RowNumber || ColNumber != m_ColNumber)
+	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
+
+	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
+
+	for (uint64 i = 0; i < Size.RowNumber*Size.ColNumber; ++i)
 	{
-		mdkError << "Size does not match @ mdkShadowMatrix::operator*=(ShadowMatrix)" << '\n';
-		return;
+        tempRawPointer[i] = Element * ShadowMatrix(i);
 	}
 
-	if (RowNumber == 0)
-	{
-		mdkWarning << "ShadowMatrix is empty @ mdkShadowMatrix::operator*=(ShadowMatrix)" << '\n';
-		return;
-	}
-
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
-    {
-        (*this)(i) *= ShadowMatrix(i);
-    }
+	return tempMatrix;
 }
 
 
 template<typename ElementType>
-inline
-void mdkShadowMatrix<ElementType>::operator/=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+inline mdkMatrix<ElementType> operator/(ElementType Element, const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
-	uint64 RowNumber;
-	uint64 ColNumber;
+	mdkMatrix<ElementType> tempMatrix;
 
-    ShadowMatrix.GetSize(&RowNumber, &ColNumber);
+    auto Size = ShadowMatrix.GetSize();
 
-	if (RowNumber == 1 && ColNumber == 1)
+	if (Size.RowNumber == 0)
 	{
-        (*this) /= ShadowMatrix(0);
-
-		return;
+		mdkError << "ShadowMatrix is empty @ mdkShadowMatrix operator/(Element, ShadowMatrix)" << '\n';
+		return  tempMatrix;
 	}
 
-	if (RowNumber != m_RowNumber || ColNumber != m_ColNumber)
+	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
+
+	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
+
+	for (uint64 i = 0; i < Size.RowNumber*Size.ColNumber; ++i)
 	{
-		mdkError << "Size does not match @ mdkShadowMatrix::operator/=(ShadowMatrix)" << '\n';
-		return;
+        tempRawPointer[i] = Element / ShadowMatrix(i);
 	}
 
-	if (RowNumber == 0)
-	{
-		mdkWarning << "ShadowMatrix is empty @ mdkShadowMatrix::operator/=(ShadowMatrix)" << '\n';
-		return;
-	}
+	return tempMatrix;
+}
 
-	for (uint64 i = 0; i < m_ElementNumber; ++i)
-	{
-        (*this)(i) /= ShadowMatrix(i);
-	}
+// ------------------------------------------ ShadowMatrix {+ - * /}  Element ------------------------------------------------------------//
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element)
+{
+    return Element + ShadowMatrix;
 }
 
 
 template<typename ElementType>
-inline
-void mdkShadowMatrix<ElementType>::operator+=(const mdkMatrix<ElementType>& targetMatrix)
+inline mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element)
 {
-    uint64 RowNumber;
-    uint64 ColNumber;
+	mdkMatrix<ElementType> tempMatrix;
 
-    targetMatrix.GetSize(&RowNumber, &ColNumber);
+    auto Size = ShadowMatrix.GetSize();
 
-    if (RowNumber == 1 && ColNumber == 1)
-    {
-        (*this) += targetMatrix(0);
+	if (Size.RowNumber == 0)
+	{
+		mdkError << "ShadowMatrix is empty @ mdkShadowMatrix operator-(ShadowMatrix, Element)" << '\n';
+		return  tempMatrix;
+	}
 
-        return;
-    }
+	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
 
-    if (RowNumber != m_RowNumber || ColNumber != m_ColNumber)
-    {
-        mdkError << "Size does not match @ mdkShadowMatrix::operator+=(targetMatrix)" << '\n';
-        return;
-    }
+	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
-    if (RowNumber == 0)
-    {
-        mdkWarning << "targetMatrix is empty @ mdkShadowMatrix::operator+=(targetMatrix)" << '\n';
-        return;
-    }
+	for (uint64 i = 0; i < Size.RowNumber*Size.ColNumber; ++i)
+	{
+        tempRawPointer[i] = ShadowMatrix(i) - Element;
+	}
 
-    auto targetRawPointer = targetMatrix.GetElementDataRawPointer();
-
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
-    {
-        (*this)(i) += targetRawPointer[i];
-    }
+	return tempMatrix;
 }
 
 
 template<typename ElementType>
-inline
-void mdkShadowMatrix<ElementType>::operator-=(const mdkMatrix<ElementType>& targetMatrix)
+inline mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element)
 {
-    uint64 RowNumber;
-    uint64 ColNumber;
+    return Element * ShadowMatrix;
+}
 
-    targetMatrix.GetSize(&RowNumber, &ColNumber);
 
-    if (RowNumber == 1 && ColNumber == 1)
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrix, ElementType Element)
+{
+	mdkMatrix<ElementType> tempMatrix;
+
+    auto Size = ShadowMatrix.GetSize();
+
+	if (Size.RowNumber == 0)
+	{
+		mdkError << "ShadowMatrix is empty @ mdkShadowMatrix operator/(ShadowMatrix, Element)" << '\n';
+		return  tempMatrix;
+	}
+
+	tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
+
+	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
+
+	for (uint64 i = 0; i < Size.RowNumber*Size.ColNumber; ++i)
+	{
+        tempRawPointer[i] = ShadowMatrix(i) / Element;
+	}
+
+	return tempMatrix;
+}
+
+
+//----------------------------------------------- ShadowMatrix {+= -= *= %= /=} ShadowMatrix ---------------------------------------------//
+
+template<typename ElementType>
+inline
+void operator+=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
+{
+    auto SizeB = ShadowMatrixB.GetSize();
+
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
-        (*this) -= targetMatrix(0, 0);
+        ShadowMatrixA += ShadowMatrixB(0);
 
         return;
     }
 
-    if (RowNumber != m_RowNumber || ColNumber != m_ColNumber)
+    if (SizeB.RowNumber != ShadowMatrixA.GetRowNumber() || SizeB.ColNumber != ShadowMatrixA.GetColNumber())
     {
-        mdkError << "Size does not match @ mdkShadowMatrix::operator-=(targetMatrix)" << '\n';
+        mdkError << "Size does not match @ mdkShadowMatrix operator+=(ShadowMatrixA, ShadowMatrixB)" << '\n';
         return;
     }
 
-    if (RowNumber == 0)
+    if (SizeB.RowNumber == 0)
     {
-        mdkWarning << "targetMatrix is empty @ mdkShadowMatrix::operator-=(targetMatrix)" << '\n';
+        mdkWarning << "ShadowMatrixB is empty @ mdkShadowMatrix: operator+=(ShadowMatrixA, ShadowMatrixB)" << '\n';
         return;
     }
 
-    auto targetRawPointer = targetMatrix.GetElementDataRawPointer();
+    auto ElementNumber = SizeB.RowNumber * SizeB.ColNumber;
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (uint64 i = 0; i < ElementNumber; ++i)
     {
-        (*this)(i) -= targetRawPointer[i];
+        ShadowMatrixA(i) += ShadowMatrixB(i);
     }
 }
 
 
 template<typename ElementType>
 inline
-void mdkShadowMatrix<ElementType>::operator*=(const mdkMatrix<ElementType>& targetMatrix)
+void operator-=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    uint64 RowNumber;
-    uint64 ColNumber;
+    auto SizeB = ShadowMatrixB.GetSize();
 
-    targetMatrix.GetSize(&RowNumber, &ColNumber);
-
-    if (RowNumber == 1 && ColNumber == 1)
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
-        (*this) *= targetMatrix(0);
+        ShadowMatrixA -= ShadowMatrixB(0);
 
         return;
     }
 
-    if (RowNumber != m_RowNumber || ColNumber != m_ColNumber)
+    if (SizeB.RowNumber != ShadowMatrixA.GetRowNumber() || SizeB.ColNumber != ShadowMatrixA.GetColNumber())
     {
-        mdkError << "Size can not change @ mdkShadowMatrix::operator*=(mdkShadowMatrix)" << '\n';
+        mdkError << "Size does not match @ mdkShadowMatrix operator-=(ShadowMatrixA, ShadowMatrixB)" << '\n';
         return;
     }
 
-    if (RowNumber == 0)
+    if (SizeB.RowNumber == 0)
     {
-        mdkWarning << "targetMatrix is empty @ mdkShadowMatrix::operator*=(mdkShadowMatrix)" << '\n';
+        mdkWarning << "ShadowMatrixB is empty @ mdkShadowMatrix: operator-=(ShadowMatrixA, ShadowMatrixB)" << '\n';
         return;
     }
 
-    (*this) = (*this) * targetMatrix;
+    auto ElementNumber = SizeB.RowNumber * SizeB.ColNumber;
+
+    for (uint64 i = 0; i < ElementNumber; ++i)
+    {
+        ShadowMatrixA(i) -= ShadowMatrixB(i);
+    }
 }
 
 
 template<typename ElementType>
 inline
-void mdkShadowMatrix<ElementType>::operator/=(const mdkMatrix<ElementType>& targetMatrix)
+void operator*=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    uint64 RowNumber;
-    uint64 ColNumber;
+    auto SizeB = ShadowMatrixB.GetSize();
 
-    targetMatrix.GetSize(&RowNumber, &ColNumber);
-
-    if (RowNumber == 1 && ColNumber == 1)
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
-        (*this) /= targetMatrix(0);
+        ShadowMatrixA *= ShadowMatrixB(0);
 
         return;
     }
 
-    if (RowNumber != m_RowNumber || ColNumber != m_ColNumber)
+    if (SizeB.RowNumber != ShadowMatrixA.GetRowNumber() || SizeB.ColNumber != ShadowMatrixA.GetColNumber())
     {
-        mdkError << "Size does not match @ mdkShadowMatrix::operator/=(targetMatrix)" << '\n';
+        mdkError << "Size does not match @ mdkShadowMatrix operator%=(ShadowMatrixA, ShadowMatrixB)" << '\n';
         return;
     }
 
-    if (RowNumber == 0)
+    if (SizeB.RowNumber == 0)
     {
-        mdkWarning << "targetMatrix is empty @ mdkShadowMatrix::operator/=(targetMatrix)" << '\n';
+        mdkWarning << "ShadowMatrixB is empty @ mdkShadowMatrix: operator%=(ShadowMatrixA, ShadowMatrixB)" << '\n';
         return;
     }
 
-    auto targetRawPointer = targetMatrix.GetElementDataRawPointer();
+    ShadowMatrixA = ShadowMatrixA * ShadowMatrixB;
+}
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+
+template<typename ElementType>
+inline
+void operator%=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
+{
+    auto SizeB = ShadowMatrixB.GetSize();
+
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
-        (*this)(i) /= targetRawPointer[i];
+        ShadowMatrixA *= ShadowMatrixB(0);
+
+        return;
+    }
+
+    if (SizeB.RowNumber != ShadowMatrixA.GetRowNumber() || SizeB.ColNumber != ShadowMatrixA.GetColNumber())
+    {
+        mdkError << "Size does not match @ mdkShadowMatrix operator%=(ShadowMatrixA, ShadowMatrixB)" << '\n';
+        return;
+    }
+
+    if (SizeB.RowNumber == 0)
+    {
+        mdkWarning << "ShadowMatrixB is empty @ mdkShadowMatrix: operator%=(ShadowMatrixA, ShadowMatrixB)" << '\n';
+        return;
+    }
+
+    auto ElementNumber = SizeB.RowNumber * SizeB.ColNumber;
+
+    for (uint64 i = 0; i < ElementNumber; ++i)
+    {
+        ShadowMatrixA(i) *= ShadowMatrixB(i);
     }
 }
 
+
+template<typename ElementType>
+inline
+void operator/=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
+{
+    auto SizeB = ShadowMatrixB.GetSize();
+
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    {
+        ShadowMatrixA /= ShadowMatrixB(0);
+
+        return;
+    }
+
+    if (SizeB.RowNumber != ShadowMatrixA.GetRowNumber() || SizeB.ColNumber != ShadowMatrixA.GetColNumber())
+    {
+        mdkError << "Size does not match @ mdkShadowMatrix operator/=(ShadowMatrixA, ShadowMatrixB)" << '\n';
+        return;
+    }
+
+    if (SizeB.RowNumber == 0)
+    {
+        mdkWarning << "ShadowMatrixB is empty @ mdkShadowMatrix: operator/=(ShadowMatrixA, ShadowMatrixB)" << '\n';
+        return;
+    }
+
+    auto ElementNumber = SizeB.RowNumber * SizeB.ColNumber;
+
+    for (uint64 i = 0; i < ElementNumber; ++i)
+    {
+        ShadowMatrixA(i) /= ShadowMatrixB(i);
+    }
+}
+
+//--------------------------------------------------- ShadowMatrix {+= -= *= %= /=} Matrix ------------------------------------------------//
+
+template<typename ElementType>
+inline void operator+=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
+{
+    auto SizeB = MatrixB.GetSize();
+
+    if (SizeB.RowNumber == 0)
+    {
+        mdkWarning << "targetMatrix is empty @ mdkShadowMatrix operator+=(ShadowMatrixA, MatrixB)" << '\n';
+        return;
+    }
+
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    {
+        ShadowMatrixA += MatrixB(0);
+
+        return;
+    }
+
+    if (SizeB.RowNumber != ShadowMatrixA.GetRowNumber() || SizeB.ColNumber != ShadowMatrixA.GetColNumber())
+    {
+        mdkError << "Size does not match @ mdkShadowMatrix operator+=(ShadowMatrixA, MatrixB)" << '\n';
+        return;
+    }
+
+    auto ptrB = MatrixB.GetElementDataRawPointer();
+
+    auto ElementNumber = SizeB.RowNumber * SizeB.ColNumber;
+
+    for (uint64 i = 0; i < ElementNumber; ++i)
+    {
+        ShadowMatrixA(i) += ptrB[i];
+    }
+}
+
+
+template<typename ElementType>
+inline void operator-=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
+{
+    auto SizeB = MatrixB.GetSize();
+
+    if (SizeB.RowNumber == 0)
+    {
+        mdkWarning << "MatrixB is empty @ mdkShadowMatrix operator-=(ShadowMatrixA, MatrixB)" << '\n';
+        return;
+    }
+
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    {
+        ShadowMatrixA -= MatrixB(0);
+
+        return;
+    }
+
+    if (SizeB.RowNumber != ShadowMatrixA.GetRowNumber() || SizeB.ColNumber != ShadowMatrixA.GetColNumber())
+    {
+        mdkError << "Size does not match @ mdkShadowMatrix operator-=(ShadowMatrixA, MatrixB)" << '\n';
+        return;
+    }
+
+    auto ptrB = MatrixB.GetElementDataRawPointer();
+
+    auto ElementNumber = SizeB.RowNumber * SizeB.ColNumber;
+
+    for (uint64 i = 0; i < ElementNumber; ++i)
+    {
+        ShadowMatrixA(i) -= ptrB[i];
+    }
+}
+
+
+template<typename ElementType>
+inline void operator*=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
+{
+    auto SizeB = MatrixB.GetSize();
+
+    if (SizeB.RowNumber == 0)
+    {
+        mdkWarning << "MatrixB is empty @ mdkShadowMatrix operator*=(ShadowMatrixA, MatrixB)" << '\n';
+        return;
+    }
+
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    {
+        ShadowMatrixA *= MatrixB(0);
+
+        return;
+    }
+
+    // ShadowMatrix can not change size
+    //
+    if (SizeB.RowNumber != ShadowMatrixA.GetRowNumber() || SizeB.ColNumber != ShadowMatrixA.GetColNumber())
+    {
+        mdkError << "ShadowMatrix Size can not change @ mdkShadowMatrix operator*=(ShadowMatrixA, MatrixB)" << '\n';
+        return;
+    }
+
+    ShadowMatrixA = ShadowMatrixA * MatrixB;
+}
+
+
+template<typename ElementType>
+inline void operator%=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
+{
+    auto SizeB = MatrixB.GetSize();
+
+    if (SizeB.RowNumber == 0)
+    {
+        mdkWarning << "MatrixB is empty @ mdkShadowMatrix operator%=(ShadowMatrixA, MatrixB)" << '\n';
+        return;
+    }
+
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    {
+        ShadowMatrixA *= MatrixB(0);
+
+        return;
+    }
+
+    if (SizeB.RowNumber != ShadowMatrixA.GetRowNumber() || SizeB.ColNumber != ShadowMatrixA.GetColNumber())
+    {
+        mdkError << "Size does not match @ mdkShadowMatrix operator%=(ShadowMatrixA, MatrixB)" << '\n';
+        return;
+    }
+
+    auto ptrB = MatrixB.GetElementDataRawPointer();
+
+    auto ElementNumber = SizeB.RowNumber * SizeB.ColNumber;
+
+    for (uint64 i = 0; i < ElementNumber; ++i)
+    {
+        ShadowMatrixA(i) *= ptrB[i];
+    }
+}
+
+
+template<typename ElementType>
+inline void operator/=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
+{
+    auto SizeB = MatrixB.GetSize();
+
+    if (SizeB.RowNumber == 0)
+    {
+        mdkWarning << "MatrixB is empty @ mdkShadowMatrix operator/=(ShadowMatrixA, MatrixB)" << '\n';
+        return;
+    }
+
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    {
+        ShadowMatrixA /= MatrixB(0);
+
+        return;
+    }
+
+    if (SizeB.RowNumber != ShadowMatrixA.GetRowNumber() || SizeB.ColNumber != ShadowMatrixA.GetColNumber())
+    {
+        mdkError << "Size does not match @ mdkShadowMatrix operator/=(ShadowMatrixA, MatrixB)" << '\n';
+        return;
+    }
+
+    auto ptrB = MatrixB.GetElementDataRawPointer();
+
+    auto ElementNumber = SizeB.RowNumber * SizeB.ColNumber;
+
+    for (uint64 i = 0; i < ElementNumber; ++i)
+    {
+        ShadowMatrixA(i) /= ptrB[i];
+    }
+}
+
+
+//--------------------------------------------------ShadowMatrix {+= -= *= /=} Element ------------------------------------------------------------//
 
 template<typename ElementType>
 inline	
-void mdkShadowMatrix<ElementType>::operator+=(ElementType Element)
+void operator+=(mdkShadowMatrix<ElementType>& ShadowMatrix, const ElementType& Element)
 {
-	if (m_ElementNumber == 0)
+    auto ElementNumber = ShadowMatrix.GetElementNumber()
+
+    if (ElementNumber == 0)
 	{
-		mdkError << "Self is empty @ mdkShadowMatrix::operator+=(Element)" << '\n';
+		mdkError << "ShadowMatrix is empty @ mdkShadowMatrix operator+=(ShadowMatrix, Element)" << '\n';
 		return;
 	}
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (uint64 i = 0; i < ElementNumber; ++i)
     {
-        (*this)(i) += Element;
+        ShadowMatrix(i) += Element;
     }
 }
 
 
 template<typename ElementType>
 inline
-void mdkShadowMatrix<ElementType>::operator-=(ElementType Element)
+void operator-=(mdkShadowMatrix<ElementType>& ShadowMatrix, const ElementType& Element)
 {
-	if (m_ElementNumber == 0)
+    auto ElementNumber = ShadowMatrix.GetElementNumber()
+
+    if (ElementNumber == 0)
 	{
-		mdkError << "Self is empty @ mdkShadowMatrix::operator-=(Element)" << '\n';
+		mdkError << "ShadowMatrix is empty @ mdkShadowMatrix operator-=(ShadowMatrix, Element)" << '\n';
 		return;
 	}
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (uint64 i = 0; i < ElementNumber; ++i)
     {
-        (*this)(i) -= Element;
+        ShadowMatrix(i) -= Element;
     }
 }
 
 
 template<typename ElementType>
 inline
-void mdkShadowMatrix<ElementType>::operator*=(ElementType Element)
+void operator*=(mdkShadowMatrix<ElementType>& ShadowMatrix, const ElementType& Element)
 {
-	if (m_ElementNumber == 0)
+    auto ElementNumber = ShadowMatrix.GetElementNumber()
+
+    if (ElementNumber == 0)
 	{
-		mdkError << "Self is empty @ mdkShadowMatrix::operator*=(Element)" << '\n';
+		mdkError << "ShadowMatrix is empty @ mdkShadowMatrix operator*=(ShadowMatrix, Element)" << '\n';
 		return;
 	}
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (uint64 i = 0; i < ElementNumber; ++i)
     {
-        (*this)(i) *= Element;
+        ShadowMatrix(i) *= Element;
     }
 }
 
 
 template<typename ElementType>
 inline
-void mdkShadowMatrix<ElementType>::operator/=(ElementType Element)
+void operator/=(mdkShadowMatrix<ElementType>& ShadowMatrix, const ElementType& Element)
 {
-	if (m_ElementNumber == 0)
+    auto ElementNumber = ShadowMatrix.GetElementNumber()
+
+    if (ElementNumber == 0)
 	{
-		mdkError << "Self is empty @ mdkShadowMatrix::operator/=(Element)" << '\n';
+		mdkError << "ShadowMatrix is empty @ mdkShadowMatrix operator/=(ShadowMatrix, Element)" << '\n';
 		return;
 	}
 
 	if (double(abs(Element)) < 0.0000000001)
 	{
-		mdkWarning << " abs(Element) < 0.0000000001 @ mdkShadowMatrix::operator/=(Element)" << '\n';
+		mdkWarning << " abs(Element) < 0.0000000001 @ mdkShadowMatrix operator/=(ShadowMatrix, Element)" << '\n';
 	}
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (uint64 i = 0; i < ElementNumber; ++i)
     {
-        (*this)(i) /= Element;
+        ShadowMatrix(i) /= Element;
     }
 }
 
+
+//----------------------------------------------- ShadowMatrix {+= -= /= *= %= } LinearCombineGlueMatrix ----------------------------------------//
+
+template<typename ElementType>
+inline void operator+=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrixB)
+{
+    ShadowMatrixA += GlueMatrixB.CreateMatrix();
+}
+
+
+template<typename ElementType>
+inline void operator-=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrixB)
+{
+    ShadowMatrixA -= GlueMatrixB.CreateMatrix();
+}
+
+
+template<typename ElementType>
+inline void operator*=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrixB)
+{
+    ShadowMatrixA *= GlueMatrixB.CreateMatrix();
+}
+
+
+template<typename ElementType>
+inline void operator%=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrixB)
+{
+    ShadowMatrixA %= GlueMatrixB.CreateMatrix();
+}
+
+
+template<typename ElementType>
+inline void operator/=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrixB)
+{
+    ShadowMatrixA /= GlueMatrixB.CreateMatrix();
+}
+
+//------------------------------------------------ ShadowMatrix {+= -= /= *= %= } MultiplyGlueMatrix --------------------------------------------//
+
+template<typename ElementType>
+inline 
+void operator+=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMultiplyGlueMatrix<ElementType>& GlueMatrixB)
+{
+    ShadowMatrixA += GlueMatrixB.CreateMatrix();
+}
+
+
+template<typename ElementType>
+inline 
+void operator-=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMultiplyGlueMatrix<ElementType>& GlueMatrixB)
+{
+    ShadowMatrixA -= GlueMatrixB.CreateMatrix();
+}
+
+
+template<typename ElementType>
+inline 
+void operator*=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMultiplyGlueMatrix<ElementType>& GlueMatrixB)
+{
+    ShadowMatrixA *= GlueMatrixB.CreateMatrix();
+}
+
+
+template<typename ElementType>
+inline 
+void operator%=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMultiplyGlueMatrix<ElementType>& GlueMatrixB)
+{
+    ShadowMatrixA %= GlueMatrixB.CreateMatrix();
+}
+
+
+template<typename ElementType>
+inline 
+void operator/=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMultiplyGlueMatrix<ElementType>& GlueMatrixB)
+{
+    ShadowMatrixA /= GlueMatrixB.CreateMatrix();
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------//
 
 }//end namespace mdk
 
