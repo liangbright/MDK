@@ -17,10 +17,13 @@ namespace mdk
 // 2D Matrix Class Template, each entry/element is a scalar
 // column major
 //
-// If heavy linear algebra is required, then convert mdkMatrix to Armadillo matrix, do something, and convert back
-// Armadillo is a linear algebra library, and it uses column major matrix
+// Compare to Matlab:
+// mdkMatrix API very similar to Matlab matrix
 //
-// The functions that are not supported in Armadillo, are provided in mdkLinearAlgebra.h/cpp
+// Compare to Armadillo  (a linear algebra library, and it uses column major matrix)
+// mdkMatrix API better than Armadillo
+//
+//
 
 //forward-declare ----------------//
 template<typename ElementType>
@@ -30,13 +33,13 @@ template<typename ElementType>
 class mdkShadowMatrix;
 
 template<typename ElementType>
-class mdkLinearCombineGlueMatrix;
+class mdkGlueMatrixForLinearCombination;
+
+template<typename ElementType>
+class mdkGlueMatrixForMultiplication;
 
 template<typename ElementType>
 struct mdkMatrixSVDResult;
-
-template<typename ElementType>
-struct mdkMatrixPCAResult;
 
 // end of  forward-declare  ------//
 
@@ -46,7 +49,7 @@ struct mdkMatrixSize
 	uint64 ColNumber;  // ColNumber = the Number of Columns
 };
 
-// ------------------------------------ Matrix {+ - * % /}  Matrix ------------------------------------------------//
+// ------------------------------------ Matrix {+ - * /}  Matrix ------------------------------------------------//
 
 #if !defined MDK_Enable_GlueMatrix //---------------------------------------------
 
@@ -60,10 +63,6 @@ template<typename ElementType>
 inline mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
 #endif //!defined MDK_Enable_GlueMatrix --------------------------------------------
-
-//element-wise multiplication
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
@@ -151,13 +150,13 @@ private:
 	
 	uint64 m_ColNumber;
 
+    uint64 m_ElementNumber;
+
 	std::shared_ptr<std::vector<ElementType>> m_ElementData;
 
 	bool m_IsSizeFixed;
 
-	mdkMatrixElementTypeEnum m_ElementType;
-
-	ElementType  m_NaNElement; // NaN only valid for float and double 
+    ElementType m_NaNElement;
 
 public:
     typedef ElementType  ElementType;
@@ -173,7 +172,9 @@ public:
 
     inline mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix, bool IsSizeFixed = false);
 
-    inline mdkMatrix(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix, bool IsSizeFixed = false);
+    inline mdkMatrix(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix, bool IsSizeFixed = false);
+
+    inline mdkMatrix(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix, bool IsSizeFixed = false);
 
     inline mdkMatrix(const ElementType* ElementPointer, uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = false);
 
@@ -199,11 +200,7 @@ public:
 
     inline mdkMatrixElementTypeEnum GetElementType() const;
 
-    inline ElementType GetNaNElement() const;
-
-    inline void SetNaNElement(mdkMatrixElementTypeEnum ElementType);
-
-    inline void SetNaNElement(ElementType NaNElement);
+    inline const ElementType& GetNaNElement() const;
 
     inline const std::shared_ptr<std::vector<ElementType>>& GetElementDataSharedPointer() const;
 
@@ -246,7 +243,9 @@ public:
 
     inline void operator=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline void operator=(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+
+    inline void operator=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
 	template<typename ElementType_target>
     inline bool Copy(const mdkMatrix<ElementType_target>& targetMatrix);
@@ -256,15 +255,18 @@ public:
 
 	inline bool Fill(const ElementType& Element);
 
-    //----------- Special Copy : share data ------------------------------------------------------------------------//
+    // share data
+    inline bool SharedCopy(const mdkMatrix<ElementType>& targetMatrix);
 
-    // 1: for shadowMatrix
-    // 2: replace operator "=" : example: C.SharedCopy(A*B) is faster than C = A*B because no data copy from temp matrix to C
-    inline void Share(const mdkMatrix<ElementType>& targetMatrix);
+    //---------------------------- Eat : take the ownership of the input matrix ------------------------------------------//
 
-    inline void Share(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+    inline bool Eat(mdkMatrix<ElementType>& targetMatrix);
 
-    inline void Share(const mdkLinearCombineGlueMatrix<ElementType>& mdkLinearCombineGlueMatrix);
+    inline bool Eat(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+
+    inline bool Eat(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+
+    inline bool Eat(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
 	//----------- Get/Set Matrix(LinearIndex) : size can not be changed even if m_IsSizeFixed is false -----------------//
 
@@ -521,7 +523,7 @@ public:
 
     inline bool FillDiangonal(const ElementType& Element);
 
-	//---------------------- Matrix {+= -= *= /= %=} Matrix ----------------------------------------//
+	//---------------------- Matrix {+= -= *= /=} Matrix ----------------------------------------//
 
 	inline void operator+=(const mdkMatrix<ElementType>& targetMatrix);
 
@@ -530,8 +532,6 @@ public:
 	inline void operator*=(const mdkMatrix<ElementType>& targetMatrix);
 
 	inline void operator/=(const mdkMatrix<ElementType>& targetMatrix);
-
-    inline void operator%=(const mdkMatrix<ElementType>& targetMatrix);
 
 
     inline void operator+=(mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix);
@@ -542,8 +542,6 @@ public:
 
     inline void operator/=(mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix);
 
-    inline void operator%=(mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix);
-
 
     inline void operator+=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
@@ -552,8 +550,6 @@ public:
     inline void operator*=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
     inline void operator/=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
-
-    inline void operator%=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
     //---------------------- Matrix {+= -= *= /=} Element ----------------------------------------//
 
@@ -572,6 +568,10 @@ public:
     //-------------------- element operation {^} -----------------------------------------------------------//
 
     inline void operator^(double value);
+
+    //-------------------- element operation : (.*) element multiply -----------------------------------------------------------//
+
+    inline mdkMatrix ElementMultiply(const mdkMatrix<ElementType>& targetMatrix);
 
 	//-------------------- element operation : output a new matrix ------------------------------------------//
 

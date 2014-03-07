@@ -11,7 +11,7 @@
 #include "mdkDebugConfig.h"
 #include "mdkMatrix.h"
 #include "mdkShadowMatrix.h"
-#include "mdkLinearCombineGlueMatrix.h"
+#include "mdkGlueMatrixForLinearCombination.h"
 #include "mdkLinearAlgebra.h"
 
 namespace mdk
@@ -59,12 +59,9 @@ mdkMatrix<ElementType>::mdkMatrix(mdkMatrix<ElementType>&& targetMatrix, bool Is
 {
     // not necessary to use this->Reset()
 
-    //force-share data
+    //force-eat data
     m_IsSizeFixed = false;
-    this->Share(targetMatrix);
-
-    // clear the target
-    targetMatrix.ForceClear();
+    this->Eat(targetMatrix);
 
     m_IsSizeFixed = IsSizeFixed;
 }
@@ -78,7 +75,7 @@ mdkMatrix<ElementType>::mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatr
 
     //force-share data
     m_IsSizeFixed = false;
-    this->Share(ShadowMatrix.CreateMatrix());
+    this->Eat(ShadowMatrix.CreateMatrix());
 
     m_IsSizeFixed = IsSizeFixed;
 }
@@ -86,17 +83,30 @@ mdkMatrix<ElementType>::mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatr
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix, bool IsSizeFixed = false)
+mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix, bool IsSizeFixed = false)
 {
     // not necessary to use this->Reset()
 
     //force-share data
     m_IsSizeFixed = false;
-    this->Share(GlueMatrix.CreateMatrix());
+    this->Eat(GlueMatrix.CreateMatrix());
 
     m_IsSizeFixed = IsSizeFixed;
 }
 
+
+template<typename ElementType>
+inline
+mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix, bool IsSizeFixed = false)
+{
+    // not necessary to use this->Reset()
+
+    //force-share data
+    m_IsSizeFixed = false;
+    this->Eat(GlueMatrix.CreateMatrix());
+
+    m_IsSizeFixed = IsSizeFixed;
+}
 
 
 template<typename ElementType>
@@ -155,6 +165,8 @@ mdkMatrix<ElementType>::mdkMatrix(std::vector<ElementType>* ElementDataPointer, 
 
     m_ColNumber = ColNumber;
 
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
     m_IsSizeFixed = IsSizeFixed;
 }
 
@@ -172,14 +184,13 @@ void mdkMatrix<ElementType>::Reset()
 {
     m_RowNumber = 0;
     m_ColNumber = 0;
+    m_ElementNumber = 0;
 
     m_ElementData.reset();
 
     m_IsSizeFixed = false;
 
-    m_ElementType = FindMatrixElementType(m_NaNElement);
-
-    this->SetNaNElement(m_ElementType);
+    m_NaNElement = GetMatrixNaNElement(m_NaNElement);
 }
 
 
@@ -198,6 +209,8 @@ bool mdkMatrix<ElementType>::Clear()
 
     m_RowNumber = 0;
     m_ColNumber = 0;
+    m_ElementNumber = 0;
+
     m_ElementData.reset();
 
     m_IsSizeFixed = false;
@@ -212,6 +225,8 @@ void mdkMatrix<ElementType>::ForceClear()
 {
     m_RowNumber = 0;
     m_ColNumber = 0;
+    m_ElementNumber = 0;
+
     m_ElementData.reset();
 
     m_IsSizeFixed = false;
@@ -222,60 +237,15 @@ template<typename ElementType>
 inline
 mdkMatrixElementTypeEnum mdkMatrix<ElementType>::GetElementType() const
 {
-    return m_ElementType;
+    return FindMatrixElementType(m_NaNElement);
 }
 
 
 template<typename ElementType>
 inline 
-ElementType mdkMatrix<ElementType>::GetNaNElement()  const
+const ElementType& mdkMatrix<ElementType>::GetNaNElement()  const
 {
     return m_NaNElement;
-}
-
-
-template<typename ElementType>
-inline
-void mdkMatrix<ElementType>::SetNaNElement(mdkMatrixElementTypeEnum ElementType)
-{
-    switch (ElementType)
-    {
-    case mdkMatrixElementTypeEnum::Scalar_DOUBLE64:
-        m_NaNElement = std::nan(nullptr);
-        break;
-
-    case mdkMatrixElementTypeEnum::Scalar_FLOAT32:
-        m_NaNElement = std::nanf(nullptr);
-        break;
-
-    case mdkMatrixElementTypeEnum::StdVector_DOUBLE64:
-        m_NaNElement += std::nan(nullptr);
-        break;
-
-    case mdkMatrixElementTypeEnum::StdVector_FLOAT32:
-        m_NaNElement += std::nanf(nullptr);
-        break;
-
-    case mdkMatrixElementTypeEnum::StdArray_DOUBLE64:
-        m_NaNElement += std::nan(nullptr);
-        break;
-
-    case mdkMatrixElementTypeEnum::StdArray_FLOAT32:
-        m_NaNElement += std::nanf(nullptr);
-        break;
-
-    default:
-        mdkWarning << "ElementType is not float or double, so m_NaNElement is set to zero @ mdkMatrix::SetNaNElement(ElementType)" << '\n';
-        m_NaNElement -= m_NaNElement;
-    }
-}
-
-
-template<typename ElementType>
-inline
-void mdkMatrix<ElementType>::SetNaNElement(ElementType NaNElement)
-{
-    m_NaNElement = NaNElement;
 }
 
 
@@ -335,6 +305,8 @@ bool mdkMatrix<ElementType>::Reshape(uint64 targetRowNumber, uint64 targetColNum
 
             m_ColNumber = 0;
 
+            m_ElementNumber = 0;
+
             return true;
         }
         else
@@ -353,6 +325,8 @@ bool mdkMatrix<ElementType>::Reshape(uint64 targetRowNumber, uint64 targetColNum
     m_RowNumber = targetRowNumber;
 
     m_ColNumber = targetColNumber;
+
+    m_ElementNumber = m_RowNumber*m_ColNumber;
 
     return true;
 }
@@ -379,10 +353,12 @@ bool mdkMatrix<ElementType>::Resize(uint64 targetRowNumber, uint64 targetColNumb
     }
 
     // if self is empty
-    if (m_RowNumber == 0)
+    if (m_ElementNumber == 0)
     {
         m_RowNumber = targetRowNumber;
         m_ColNumber = targetColNumber;
+        m_ElementNumber = m_RowNumber*m_ColNumber;
+
         m_ElementData = std::make_shared<std::vector<ElementType>>(targetRowNumber*targetColNumber);
         return true;
     }
@@ -395,6 +371,8 @@ bool mdkMatrix<ElementType>::Resize(uint64 targetRowNumber, uint64 targetColNumb
         }
 
         m_ColNumber = targetColNumber;
+
+        m_ElementNumber = m_RowNumber*m_ColNumber;
 
         m_ElementData->resize(m_ColNumber*m_RowNumber);
 
@@ -427,6 +405,8 @@ bool mdkMatrix<ElementType>::Resize(uint64 targetRowNumber, uint64 targetColNumb
 
     m_RowNumber = targetRowNumber;
     m_ColNumber = targetColNumber;
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
     m_ElementData = tempElementData;
 
     return true;
@@ -477,16 +457,7 @@ template<typename ElementType>
 inline
 uint64 mdkMatrix<ElementType>::GetElementNumber() const
 {
-    // equal to return m_RowNumber * m_ColNumber
-
-    if (m_ElementData) // m_ElementData != nullptr
-    {
-        return m_ElementData->size();
-    }
-    else
-    {
-        return 0;
-    }
+    return m_RowNumber * m_ColNumber
 }
 
 
@@ -510,18 +481,16 @@ template<typename ElementType>
 inline
 void mdkMatrix<ElementType>::operator=(const ElementType& Element)
 {
-    auto ElementNumber = m_RowNumber*m_ColNumber;
-
 	if (m_IsSizeFixed == true)
 	{
-        if (ElementNumber != 1)
+        if (m_ElementNumber != 1)
 		{
 			mdkError << "Can not change matrix size @ mdkMatrix::operator=(Element)" << '\n';
 			return;
 		}
 	}
 
-    if (ElementNumber == 1)
+    if (m_ElementNumber == 1)
     {
         (*m_ElementData)[0] = Element;
     }
@@ -535,6 +504,7 @@ void mdkMatrix<ElementType>::operator=(const ElementType& Element)
 
         m_RowNumber = 1;
         m_ColNumber = 1;
+        m_ElementNumber = 1;
     }
 
 	return;
@@ -546,13 +516,13 @@ inline
 void mdkMatrix<ElementType>::operator=(const std::initializer_list<ElementType>& list)
 {
     //if Self is empty
-	if (m_RowNumber == 0)
+    if (m_ElementNumber == 0)
 	{
 		mdkError << "operator=(list) can only be called after SetSzie() @ mdkMatrix::operator=(list)" << '\n';
 		return;
 	}
 
-	if (m_RowNumber*m_ColNumber != list.size())
+    if (m_ElementNumber != list.size())
 	{
 		mdkError << "Size does not match @ mdkMatrix::operator=(list)" << '\n';
 		return;
@@ -580,46 +550,10 @@ void mdkMatrix<ElementType>::operator=(const std::initializer_list<ElementType>&
 }
 
 
-// Attention : operator=(const mdk::mdkMatrix<double>& targetMatrix) 
-// if targetMatrix is a Temporary Matrix (when it is returned by value from a function)
-// then this Matrix shares the data of targetMatrix
-// I have to add const in operator=(), and use shared_ptr instead of unique_ptr
-// because std::vector<mdkMatrix> A;  A =  B ((std::vector<mdkMatrix) requires operator=(const ...)
-// and there is no way to tell the difference between operator=(const ...) and operator=(...)
-// 
-// shared_ptr is good
-
 template<typename ElementType>
 inline
 void mdkMatrix<ElementType>::operator=(const mdkMatrix<ElementType>& targetMatrix)
 {
-    // MatrixA = MatrixA
-    if (this == &targetMatrix)
-    {
-        mdkWarning << "A Matrix tries to Copy itself @ mdkMatrix::operator=(targetMatrix)" << '\n';
-        return;
-    }
-
-    auto targetSize = targetMatrix.GetSize();
-
-    if (m_IsSizeFixed == true)
-    {
-        if (targetSize.RowNumber != m_RowNumber || targetSize.ColNumber != m_ColNumber)
-        {
-            mdkError << "Matrix size can not be changed @ mdkMatrix::operator=(mdkMatrix)" << '\n';
-            return;
-        }
-    }
-
-    if (targetMatrix.IsEmpty() == true)
-    {
-        mdkWarning << "Input is empty, and this matrix is set to be empty @ mdkMatrix::operator=(targetMatrix)" << '\n';
-
-        this->Clear();
-
-        return;
-    }
-
     this->Copy(targetMatrix);
 }
 
@@ -629,38 +563,7 @@ template<typename ElementType>
 inline
 void mdkMatrix<ElementType>::operator=(mdkMatrix<ElementType>&& targetMatrix)
 {
-    // MatrixA = MatrixA
-    if (this == &targetMatrix)
-    {
-        mdkWarning << "A Matrix tries to steal itself @ mdkMatrix::operator=(mdkMatrix<ElementType>&&)" << '\n';
-        return;
-    }
-
-    auto targetSize = targetMatrix.GetSize();
-
-    if (m_IsSizeFixed == true)
-    {
-        if (targetSize.RowNumber != m_RowNumber || targetSize.ColNumber != m_ColNumber)
-        {
-            mdkError << "Matrix size can not be changed @ mdkMatrix::operator=(mdkMatrix<ElementType>&&)" << '\n';
-            return;
-        }
-    }
-
-    if (targetMatrix.IsEmpty() == true)
-    {
-        mdkWarning << "Input is empty, and this matrix is set to be empty @ mdkMatrix::operator=(targetMatrix)" << '\n';
-
-        this->Clear();
-
-        return;
-    }
-
-    // share data
-    this->Share(targetMatrix);
-
-    // clear the target
-    targetMatrix.ForceClear();
+    this->Eat(targetMatrix);
 }
 
 
@@ -668,132 +571,170 @@ template<typename ElementType>
 inline
 void mdkMatrix<ElementType>::operator=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
+    this->Eat(ShadowMatrix);
+}
+
+
+template<typename ElementType>
+inline
+void mdkMatrix<ElementType>::operator=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+{
+    this->Eat(GlueMatrix);
+}
+
+
+template<typename ElementType>
+inline
+void mdkMatrix<ElementType>::operator=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+{
+    this->Eat(GlueMatrix);
+}
+
+
+template<typename ElementType>
+inline
+bool mdkMatrix<ElementType>::Eat(mdkMatrix<ElementType>& targetMatrix)
+{
+    // MatrixA = MatrixA
+    if (this == &targetMatrix)
+    {
+        mdkWarning << "A Matrix tries to eat itself @ mdkMatrix::Eat(targetMatrix)" << '\n';
+        return false;
+    }
+
+    auto RowNumber = targetMatrix.GetRowNumber();
+
+    auto ColNumber = targetMatrix.GetColNumber();
+
+    if (m_IsSizeFixed == true)
+    {
+        if (RowNumber != m_RowNumber || ColNumber != m_ColNumber)
+        {
+            mdkError << "Matrix size can not be changed @ mdkMatrix::eat(targetMatrix)" << '\n';
+            return false;
+        }
+    }
+    else
+    {
+        if (targetMatrix.IsEmpty() == true)
+        {
+            mdkWarning << "Input is empty, and this matrix is set to be empty @ mdkMatrix::eat(targetMatrix)" << '\n';
+
+            this->Clear();
+
+            return true;
+        }
+    }
+
+    m_RowNumber = RowNumber;
+
+    m_ColNumber = ColNumber;
+
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    m_ElementData = targetMatrix.GetElementDataSharedPointer();
+
+    m_IsSizeFixed = targetMatrix.IsSizeFixed();
+
+    targetMatrix.ForceClear();
+
+    return true;
+}
+
+
+template<typename ElementType>
+inline
+bool mdkMatrix<ElementType>::Eat(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+{
     if (m_IsSizeFixed == true)
     {
         if (ShadowMatrix.GetRowNumber() != m_RowNumber || ShadowMatrix.GetColNumber() != m_ColNumber)
         {
-            mdkError << "Matrix size can not be changed @ mdkMatrix::Copy(ShadowMatrix)" << '\n';
-            return;
+            mdkError << "Matrix size can not be changed @ mdkMatrix::Eat(ShadowMatrix)" << '\n';
+            return false;
         }
+
+        ShadowMatrix.CreateMatrix(*this);
+
+        return true;
     }
+   
+    // m_IsSizeFixed == false
 
-    if (ShadowMatrix.IsEmpty() == true)
-    {
-        mdkWarning << "Input is empty, and this matrix is set to be empty @ mdkMatrix::operator=(ShadowMatrix)" << '\n';
-
-        this->Clear();
-
-        return;
-    }
-
-    if (m_IsSizeFixed == true)
+    if (ShadowMatrix.GetRowNumber() == m_RowNumber || ShadowMatrix.GetColNumber() == m_ColNumber)
     {
         ShadowMatrix.CreateMatrix(*this);
     }
     else
     {
-        this->Share(ShadowMatrix.CreateMatrix());
+        this->Eat(ShadowMatrix.CreateMatrix());
     }
+
+    return true;    
 }
 
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator=(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix)
+void mdkMatrix<ElementType>::Eat(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     if (m_IsSizeFixed == true)
     {
         if (GlueMatrix.GetRowNumber() != m_RowNumber || GlueMatrix.GetColNumber() != m_ColNumber)
         {
-            mdkError << "Matrix size can not be changed @ mdkMatrix::Copy(GlueMatrix)" << '\n';
-            return;
+            mdkError << "Matrix size can not be changed @ mdkMatrix::Eat(GlueMatrixForLinearCombination)" << '\n';
+            return false;
         }
+
+        ShadowMatrix.CreateMatrix(*this);
+
+        return true;
     }
 
-    if (GlueMatrix.IsEmpty() == true)
+    // m_IsSizeFixed == false
+
+    if (ShadowMatrix.GetRowNumber() == m_RowNumber || ShadowMatrix.GetColNumber() == m_ColNumber)
     {
-        mdkWarning << "Input is empty, and this matrix is set to be empty @ mdkMatrix::operator=(GlueMatrix)" << '\n';
-
-        this->Clear();
-
-        return;
-    }
-
-    if (m_IsSizeFixed == true)
-    {
-        GlueMatrix.CreateMatrix(*this);
+        ShadowMatrix.CreateMatrix(*this);
     }
     else
     {
-        this->Share(GlueMatrix.CreateMatrix());   
-    }
-}
-
-
-//------------------------Share()--------------------------------------------//
-// matrix A  can share matrix B by A.Share(B) on any of the two conditions
-// 1: A::m_IsSizeFixed == false
-// 2  A::m_IsSizeFixed == true and size of A is equal to size of B
-//
-// after A.Share(B),  A::m_IsSizeFixed is set to be the same as B
-template<typename ElementType>
-inline
-void mdkMatrix<ElementType>::Share(const mdkMatrix<ElementType>& targetMatrix)
-{
-    if (m_IsSizeFixed == true)
-    {
-        if (m_RowNumber != targetMatrix.GetRowNumber() || m_ColNumber != targetMatrix.GetColNumber())
-        {
-            mdkError << "Size does not match @ mdkMatrix::Share(targetMatrix, IsForceShare)" << '\n';
-            return;
-        }
+        this->Eat(ShadowMatrix.CreateMatrix());
     }
 
-    m_RowNumber = targetMatrix.GetRowNumber();
-
-    m_ColNumber = targetMatrix.GetColNumber();
-
-    m_ElementData = targetMatrix.GetElementDataSharedPointer();
-
-    m_ElementType = targetMatrix.GetElementType();
-
-    m_NaNElement = targetMatrix.GetNaNElement();
-
-    m_IsSizeFixed = targetMatrix.IsSizeFixed();
+    return true;
 }
 
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::Share(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+void mdkMatrix<ElementType>::Eat(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     if (m_IsSizeFixed == true)
     {
-        if (m_RowNumber != ShadowMatrix.GetRowNumber() || m_ColNumber != ShadowMatrix.GetColNumber())
+        if (GlueMatrix.GetRowNumber() != m_RowNumber || GlueMatrix.GetColNumber() != m_ColNumber)
         {
-            mdkError << "Size can not change @ mdkMatrix::Share(ShadowMatrix, IsForceShare)" << '\n';
-            return;
+            mdkError << "Matrix size can not be changed @ mdkMatrix::Eat(GlueMatrixForMultiplication)" << '\n';
+            return false;
         }
+
+        ShadowMatrix.CreateMatrix(*this);
+
+        return true;
     }
 
-    this->operator=(ShadowMatrix);
-}
+    // m_IsSizeFixed == false
 
-
-template<typename ElementType>
-inline
-void mdkMatrix<ElementType>::Share(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix)
-{
-    if (m_IsSizeFixed == true)
+    if (ShadowMatrix.GetRowNumber() == m_RowNumber || ShadowMatrix.GetColNumber() == m_ColNumber)
     {
-        if (m_RowNumber != GlueMatrix.GetRowNumber() || m_ColNumber != GlueMatrix.GetColNumber())
-        {
-            mdkError << "Size can not change @ mdkMatrix::Share(GlueMatrix, IsForceShare)" << '\n';
-            return;
-        }
+        ShadowMatrix.CreateMatrix(*this);
+    }
+    else
+    {
+        this->Eat(ShadowMatrix.CreateMatrix());
     }
 
-    this->operator=(GlueMatrix);
+    return true;
 }
 
 
@@ -806,15 +747,6 @@ bool mdkMatrix<ElementType>::Copy(const mdkMatrix<ElementType_target>& targetMat
     {
         mdkWarning << "A Matrix tries to Copy itself @ mdkMatrix::Copy(targetMatrix)" << '\n';
         return false;
-    }
-
-    if (m_IsSizeFixed == true)
-    {
-        if (targetMatrix.GetRowNumber() != m_RowNumber || targetMatrix.GetColNumber() != m_ColNumber)
-        {
-            mdkError << "Matrix size can not be changed @ mdkMatrix::Copy(targetMatrix)" << '\n';
-            return false;
-        }
     }
 
 	if (targetMatrix.IsEmpty() == true)
@@ -844,11 +776,11 @@ bool mdkMatrix<ElementType>::Copy(const ElementType_target* ElementPointer, uint
 
     auto tempElementType = FindMatrixElementType(ElementPointer[0]);
 
-	if (tempElementType == mdkMatrixElementTypeEnum::UNKNOWN)
-	{
-		mdkError << "input type is unknown @ mdkMatrix::Copy(ElementType_target*, RowNumber, ColNumber)" << '\n';
-		return false;
-	}
+    if (tempElementType == mdkMatrixElementTypeEnum::UNKNOWN)
+    {
+        mdkError << "input type is unknown @ mdkMatrix::Copy(ElementType_target*, RowNumber, ColNumber)" << '\n';
+        return false;
+    }
 
     // if this matrix is not empty, check if this and target share the same data
     if (m_RowNumber > 0)
@@ -868,31 +800,35 @@ bool mdkMatrix<ElementType>::Copy(const ElementType_target* ElementPointer, uint
             return false;
         }
     }
-
-    // check to see if new memory allocation is needed --------------------------------
-
-    bool IsNewMemoryNeeded = false;
-
-    //if self is empty
-    if (m_RowNumber == 0)
-    {
-        IsNewMemoryNeeded = true;
-    }
     else
     {
-        if (RowNumber != m_RowNumber || ColNumber != m_ColNumber)
+        // check to see if new memory allocation is needed --------------------------------
+
+        bool IsNewMemoryNeeded = false;
+
+        //if self is empty
+        if (m_ElementNumber == 0)
         {
             IsNewMemoryNeeded = true;
         }
-    }
+        else
+        {
+            if (RowNumber != m_RowNumber || ColNumber != m_ColNumber)
+            {
+                IsNewMemoryNeeded = true;
+            }
+        }
 
-    if (IsNewMemoryNeeded == true)
-    {
-        m_RowNumber = RowNumber;
+        if (IsNewMemoryNeeded == true)
+        {
+            m_RowNumber = RowNumber;
 
-        m_ColNumber = ColNumber;
+            m_ColNumber = ColNumber;
 
-        m_ElementData = std::make_shared<std::vector<ElementType>>(RowNumber*ColNumber);
+            m_ElementNumber = m_RowNumber*m_ColNumber;
+
+            m_ElementData = std::make_shared<std::vector<ElementType>>(RowNumber*ColNumber);
+        }
     }
 
     //copy data ----------------------------------------------------------
@@ -901,9 +837,7 @@ bool mdkMatrix<ElementType>::Copy(const ElementType_target* ElementPointer, uint
 
     auto tempPtr = ElementPointer;
 
-    auto ElementNumber = m_RowNumber*m_ColNumber;
-
-    for (auto Ptr = RawPointer; Ptr < RawPointer + ElementNumber; ++Ptr)
+    for (auto Ptr = RawPointer; Ptr < RawPointer + m_ElementNumber; ++Ptr)
 	{
         Ptr[0] = ElementType(tempPtr[0]);
 
@@ -918,9 +852,7 @@ template<typename ElementType>
 inline
 bool mdkMatrix<ElementType>::Fill(const ElementType& Element)
 {
-    auto ElementNumber = this->GetElementNumber();
-
-	if (ElementNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "Self is empty @ mdkMatrix::Fill" << '\n';
 		return false;
@@ -928,7 +860,7 @@ bool mdkMatrix<ElementType>::Fill(const ElementType& Element)
 
     auto RawPointer = m_ElementData->data();
 
-    for (auto Ptr = RawPointer; Ptr < RawPointer + ElementNumber; ++Ptr)
+    for (auto Ptr = RawPointer; Ptr < RawPointer + m_ElementNumber; ++Ptr)
     {
         Ptr[0] = Element;
     }
@@ -939,16 +871,51 @@ bool mdkMatrix<ElementType>::Fill(const ElementType& Element)
 
 template<typename ElementType>
 inline
+bool mdkMatrix<ElementType>::SharedCopy(const mdkMatrix<ElementType>& targetMatrix)
+{
+    // MatrixA = MatrixA
+    if (this == &targetMatrix)
+    {
+        mdkWarning << "A Matrix tries to SharedCopy itself @ mdkMatrix::SharedCopy(targetMatrix)" << '\n';
+        return false;
+    }
+
+    auto targetSize = targetMatrix.GetSize();
+
+    if (m_IsSizeFixed == true)
+    {
+        if (targetSize.RowNumber != m_RowNumber || targetSize.ColNumber != m_ColNumber)
+        {
+            mdkError << "Matrix size can not be changed @ mdkMatrix::SharedCopy(targetMatrix)" << '\n';
+            return false;
+        }
+    }
+
+    m_RowNumber = targetMatrix.GetRowNumber();
+
+    m_ColNumber = targetMatrix.GetColNumber();
+
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    m_ElementData = targetMatrix.GetElementDataSharedPointer();
+
+    m_IsSizeFixed = targetMatrix.IsSizeFixed();
+
+    return true;
+}
+
+
+template<typename ElementType>
+inline
 ElementType& mdkMatrix<ElementType>::operator()(uint64 LinearIndex)
 {
 #if defined(MDK_Matrix_Operator_CheckBound)
 
-    auto ElementNumber = this->GetElementNumber();
-
-    if (LinearIndex >= ElementNumber)
+    if (LinearIndex >= m_ElementNumber)
 	{
-		mdkError << "Invalid input @ mdkMatrix::operator(LinearIndex)" <<'\n';
-		return m_NaNElement;
+		mdkError << "Invalid input @ mdkMatrix::operator(i)" <<'\n';
+        
+        return m_NaNElement;
 	}
 
 #endif
@@ -963,12 +930,11 @@ const ElementType& mdkMatrix<ElementType>::operator()(uint64 LinearIndex) const
 {
 #if defined(MDK_Matrix_Operator_CheckBound)
 
-    auto ElementNumber = this->GetElementNumber();
-
-	if (LinearIndex >= ElementNumber)
+	if (LinearIndex >= m_ElementNumber)
 	{
-		mdkError << "Invalid input @ mdkMatrix::operator(LinearIndex) const" << '\n';
-		return m_NaNElement;
+		mdkError << "Invalid input @ mdkMatrix::operator(i) const" << '\n';
+        
+        return m_NaNElement;
 	}
 
 #endif
@@ -985,12 +951,11 @@ ElementType& mdkMatrix<ElementType>::operator[](uint64 LinearIndex)
 {
 #if defined(MDK_Matrix_Operator_CheckBound)
 
-    auto ElementNumber = this->GetElementNumber();
-
-	if (LinearIndex >= ElementNumber)
+	if (LinearIndex >= m_ElementNumber)
 	{
-		mdkError << "LinearIndex >= m_ElementNumber @ mdkMatrix::operator[LinearIndex]" << '\n';
-		return m_NaNElement;
+		mdkError << "Invalid input @ mdkMatrix::operator[i]" << '\n';
+        
+        return m_NaNElement;
 	}
 
 #endif
@@ -1005,12 +970,11 @@ const ElementType& mdkMatrix<ElementType>::operator[](uint64 LinearIndex) const
 {
 #if defined(MDK_Matrix_Operator_CheckBound)
 
-    auto ElementNumber = this->GetElementNumber();
-
-	if (LinearIndex >= ElementNumber)
+	if (LinearIndex >= m_ElementNumber)
 	{
-		mdkError << "LinearIndex >= m_ElementNumber @ mdkMatrix::operator[LinearIndex] const" << '\n';
-		return m_NaNElement;
+		mdkError << "Invalid input @ mdkMatrix::operator[i] const" << '\n';
+        
+        return m_NaNElement;
 	}
 
 #endif
@@ -1025,12 +989,11 @@ template<typename ElementType>
 inline
 ElementType& mdkMatrix<ElementType>::at(uint64 LinearIndex)
 {
-    auto ElementNumber = this->GetElementNumber();
-
-	if (LinearIndex >= ElementNumber)
+	if (LinearIndex >= m_ElementNumber)
 	{
 		mdkError << "Invalid input @ mdkMatrix::at(i)" << '\n';
-		return m_NaNElement;
+        
+        return m_NaNElement;
 	}
 
 	return (*m_ElementData)[LinearIndex];
@@ -1041,12 +1004,11 @@ template<typename ElementType>
 inline
 const ElementType& mdkMatrix<ElementType>::at(uint64 LinearIndex) const
 {
-    auto ElementNumber = this->GetElementNumber();
-
-	if (LinearIndex >= ElementNumber)
+    if (LinearIndex >= m_ElementNumber)
 	{
 		mdkError << "Invalid input @ mdkMatrix::at(i) const" << '\n';
-		return m_NaNElement;
+        
+        return m_NaNElement;
 	}
 
 	return (*m_ElementData)[LinearIndex];
@@ -1062,7 +1024,8 @@ ElementType& mdkMatrix<ElementType>::operator()(uint64 RowIndex, uint64 ColIndex
     if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
 	{
 		mdkError << "Invalid input @ mdkMatrix::operator(i,j)" << '\n';
-		return m_NaNElement;
+        
+        return m_NaNElement;
 	}
 
 #endif
@@ -1082,6 +1045,7 @@ const ElementType& mdkMatrix<ElementType>::operator()(uint64 RowIndex, uint64 Co
     if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
     {
         mdkError << "Invalid input @ mdkMatrix::operator(i,j) const" << '\n';
+        
         return m_NaNElement;
     }
 
@@ -1100,6 +1064,7 @@ ElementType& mdkMatrix<ElementType>::at(uint64 RowIndex, uint64 ColIndex)
     if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
     {
         mdkError << "Invalid input @ mdkMatrix::at(i,j)" << '\n';
+        
         return m_NaNElement;
     }
 
@@ -1116,6 +1081,7 @@ const ElementType& mdkMatrix<ElementType>::at(uint64 RowIndex, uint64 ColIndex) 
     if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
     {
         mdkError << "Invalid input @ mdkMatrix::at(i,j) const" << '\n';
+        
         return m_NaNElement;
     }
 
@@ -1133,11 +1099,9 @@ mdkMatrix<ElementType>::operator()(std::initializer_list<uint64>& LinearIndexLis
 {
 #if defined(MDK_Matrix_Operator_CheckBound)
 
-    auto ElementNumber = this->GetElementNumber();
-
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= ElementNumber)
+        if (*it >= m_ElementNumber)
         {
             mdkError << "Invalid LinearIndexList @ mdkMatrix::operator()({LinearIndexList})" << '\n';
             mdkShadowMatrix<ElementType> tempShadowMatrix;
@@ -1160,11 +1124,9 @@ mdkMatrix<ElementType>::operator()(const std::vector<uint64>& LinearIndexList)
 {
 #if defined(MDK_Matrix_Operator_CheckBound)
 
-    auto ElementNumber = this->GetElementNumber();
-
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= ElementNumber)
+        if (*it >= m_ElementNumber)
         {
             mdkError << "Invalid LinearIndexList @ mdkMatrix::operator()(std::vector LinearIndexList)" << '\n';
             mdkShadowMatrix<ElementType> tempShadowMatrix;
@@ -1199,11 +1161,9 @@ mdkMatrix<ElementType>::operator[](std::initializer_list<uint64>& LinearIndexLis
 {
 #if defined(MDK_Matrix_Operator_CheckBound)
 
-    auto ElementNumber = this->GetElementNumber();
-
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= ElementNumber)
+        if (*it >= m_ElementNumber)
         {
             mdkError << "Invalid LinearIndexList @ mdkMatrix::operator()({LinearIndexList})" << '\n';
             mdkShadowMatrix<ElementType> tempShadowMatrix;
@@ -1226,11 +1186,9 @@ mdkMatrix<ElementType>::operator[](const std::vector<uint64>& LinearIndexList)
 {
 #if defined(MDK_Matrix_Operator_CheckBound)
 
-    auto ElementNumber = this->GetElementNumber();
-
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= ElementNumber)
+        if (*it >= m_ElementNumber)
         {
             mdkError << "Invalid LinearIndexList @ mdkMatrix::SubMatrix(std::vector LinearIndexList)" << '\n';
             mdkShadowMatrix<ElementType> tempShadowMatrix;
@@ -2008,7 +1966,7 @@ bool mdkMatrix<ElementType>::SetCol(uint64 ColIndex, const ElementType_input* Co
 
     uint64 Index = ColIndex*m_RowNumber;
 
-    // just for referece:
+    // just for reference:
     //
     //for (uint64 i = 0; i < m_RowNumber; ++i)
     //{
@@ -2193,6 +2151,8 @@ bool mdkMatrix<ElementType>::DeleteCol(uint64 ColIndex)
 
     m_ColNumber -= 1;
 
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
     return true;
 }
 
@@ -2308,6 +2268,8 @@ bool mdkMatrix<ElementType>::DeleteCol(const uint64* ColIndexPtr, uint64 Length)
         }
     }
 
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
     return true;
 }
 
@@ -2380,6 +2342,8 @@ bool mdkMatrix<ElementType>::InsertCol(uint64 ColIndex, const ElementType_input*
     m_ElementData->insert(m_ElementData->begin() + ColIndex*m_RowNumber, ColData, ColData + Length);
 
     m_ColNumber += 1;
+
+    m_ElementNumber = m_RowNumber*m_ColNumber;
 
     return true;
 }
@@ -2843,7 +2807,7 @@ bool mdkMatrix<ElementType>::DeleteRow(const uint64* RowIndexPtr, uint64 Length)
 
     if (RowIndexList_output.size() > 0)
     {
-        this->Share(this->GetSubMatrix(RowIndexList_output, ALL));
+        this->Eat(this->GetSubMatrix(RowIndexList_output, ALL));
     }
     else
     {
@@ -2953,6 +2917,8 @@ bool mdkMatrix<ElementType>::InsertRow(uint64 RowIndex, const ElementType_input*
 
     m_RowNumber += 1;
 
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
     m_ElementData = tempElementData;
 
     return true;
@@ -2964,9 +2930,7 @@ inline
 mdkShadowMatrix<ElementType>
 mdkMatrix<ElementType>::Diangonal()
 {
-    auto ElementNumber = this->GetElementNumber();
-
-    if (ElementNumber == 0 || m_RowNumber != m_ColNumber)
+    if (m_ElementNumber == 0 || m_RowNumber != m_ColNumber)
     {
         mdkError << " Self is empty or not square @ mdkMatrix::Diangonal" << '\n';
         mdkShadowMatrix<ElementType> tempShadowMatrix;     
@@ -2996,9 +2960,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetDiangonal() const
 {
     mdkMatrix<ElementType> tempMatrix; 
 
-    auto ElementNumber = this->GetElementNumber();
-
-    if (ElementNumber == 0 || m_RowNumber != m_ColNumber)
+    if (m_ElementNumber == 0 || m_RowNumber != m_ColNumber)
     {
         mdkError << " Self is empty or not square @ mdkMatrix::GetDiangonal()" << '\n';
         
@@ -3019,9 +2981,7 @@ template<typename ElementType>
 inline
 bool mdkMatrix<ElementType>::GetDiangonal(std::vector<ElementType>& DiangonalData) const
 {
-    auto ElementNumber = this->GetElementNumber();
-
-    if (ElementNumber == 0 || m_RowNumber != m_ColNumber)
+    if (m_ElementNumber == 0 || m_RowNumber != m_ColNumber)
     {
         mdkError << " Self is empty or not square @ mdkMatrix::GetDiangonal(std::vector)" << '\n';
         return  false;
@@ -3045,9 +3005,7 @@ bool mdkMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) const
         return  false;
     }
 
-    auto ElementNumber = this->GetElementNumber();
-
-    if (ElementNumber == 0 || m_RowNumber != m_ColNumber)
+    if (m_ElementNumber == 0 || m_RowNumber != m_ColNumber)
     {
         mdkError << " Self is empty or not square @ mdkMatrix::GetDiangonal(ElementType* DiangonalData)" << '\n';
         return  false;
@@ -3110,9 +3068,7 @@ template<typename ElementType_input>
 inline
 bool mdkMatrix<ElementType>::SetDiangonal(const std::initializer_list<ElementType_input>& DiangonalData)
 {
-    auto ElementNumber = this->GetElementNumber();
-
-    if (ElementNumber == 0 || m_RowNumber != m_ColNumber)
+    if (m_ElementNumber == 0 || m_RowNumber != m_ColNumber)
     {
         mdkError << "Self is empty or not square @ mdkMatrix::SetDiangonal({DiangonalData})" << '\n';
         return false;
@@ -3133,9 +3089,7 @@ template<typename ElementType_input>
 inline
 bool mdkMatrix<ElementType>::SetDiangonal(const std::vector<ElementType_input>& DiangonalData)
 {
-    auto ElementNumber = this->GetElementNumber();
-
-	if (ElementNumber == 0 || m_RowNumber != m_ColNumber)
+   	if (m_ElementNumber == 0 || m_RowNumber != m_ColNumber)
 	{
 		mdkError << " Self is empty or not square @ mdkMatrix::SetDiangonal(std::vector)" << '\n';
 		return false;
@@ -3162,9 +3116,7 @@ bool mdkMatrix<ElementType>::SetDiangonal(const ElementType_input* DiangonalData
         return false;
     }
 
-    auto ElementNumber = this->GetElementNumber();
-
-    if (ElementNumber == 0 || m_RowNumber != m_ColNumber)
+    if (m_ElementNumber == 0 || m_RowNumber != m_ColNumber)
     {
         mdkError << " Self is empty or not square @ mdkMatrix::SetDiangonal(const ElementType_input* DiangonalData)" << '\n';
         return false;
@@ -3189,9 +3141,7 @@ template<typename ElementType>
 inline
 bool mdkMatrix<ElementType>::FillDiangonal(const ElementType& Element)
 {
-    auto ElementNumber = this->GetElementNumber();
-
-    if (ElementNumber == 0 || m_RowNumber != m_ColNumber)
+    if (m_ElementNumber == 0 || m_RowNumber != m_ColNumber)
     {
         mdkError << " Self is empty or not square @ mdkMatrix::FillDiangonal" << '\n';
         return false;
@@ -3455,60 +3405,6 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const md
 }
 
 
-//element-wise multiplication
-template<typename ElementType>
-inline
-mdkMatrix<ElementType> operator%(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
-{
-    mdkMatrix<ElementType> tempMatrix;
-
-	auto SizeA = MatrixA.GetSize();
-
-	auto SizeB = MatrixB.GetSize();
-
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
-    {
-        mdkError << "MatrixA or MatrixB is empty @ mdkMatrix operator%(MatrixA, MatrixB)" << '\n';
-        
-        return  tempMatrix;
-    }
-
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
-    {
-        return MatrixB.ElementOperation("*", MatrixA(0));
-    }
-
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
-    {
-        return MatrixA.ElementOperation("*", MatrixB(0));
-    }
-
-	if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
-	{
-		mdkError << "Size does not match @ mdkMatrix operator%(MatrixA, MatrixB)" << '\n';
-        
-		return  tempMatrix;
-	}
-
-	tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
-
-	auto ptrTemp = tempMatrix.GetElementDataRawPointer();
-
-	auto ptrA = MatrixA.GetElementDataRawPointer();
-
-	auto ptrB = MatrixB.GetElementDataRawPointer();
-
-    auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
-
-    for (uint64 i = 0; i < ElementNumber; ++i)
-	{
-        ptrTemp[i] = ptrA[i] * ptrB[i];
-	}
-    
-	return  tempMatrix;
-}
-
-
 // ----------------------- Matrix {+ - * /}  Element ------------------------------------------------//
 
 //===========================================================================================================================//
@@ -3534,7 +3430,9 @@ inline mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, c
 
     auto ptrA = MatrixA.GetElementDataRawPointer();
 
-    for (uint64 i = 0; i < Size.RowNumber*Size.ColNumber; ++i)
+    auto ElementNumber = Size.RowNumber*Size.ColNumber;
+
+    for (uint64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ptrA[i] + ElementB;
     }
@@ -3802,9 +3700,7 @@ void mdkMatrix<ElementType>::operator+=(const mdkMatrix<ElementType>& targetMatr
 
 	auto targetRawPointer = targetMatrix.GetElementDataRawPointer();
 
-    auto ElementNumber = m_RowNumber*m_ColNumber;
-
-	for (uint64 i = 0; i < ElementNumber; ++i)
+	for (uint64 i = 0; i < m_ElementNumber; ++i)
 	{
 		RawPointer[i] += targetRawPointer[i];
 	}
@@ -3840,9 +3736,7 @@ void mdkMatrix<ElementType>::operator-=(const mdkMatrix<ElementType>& targetMatr
 
 	auto targetRawPointer = targetMatrix.GetElementDataRawPointer();
 
-    auto ElementNumber = m_RowNumber*m_ColNumber;
-
-	for (uint64 i = 0; i < ElementNumber; ++i)
+	for (uint64 i = 0; i < m_ElementNumber; ++i)
 	{
 		RawPointer[i] -= targetRawPointer[i];
 	}
@@ -3877,7 +3771,7 @@ void mdkMatrix<ElementType>::operator*=(const mdkMatrix<ElementType>& targetMatr
         }
     }
 
-    this->Share((*this) * targetMatrix);
+    this->Eat((*this) * targetMatrix);
 }
 
 
@@ -3910,50 +3804,10 @@ void mdkMatrix<ElementType>::operator/=(const mdkMatrix<ElementType>& targetMatr
 
 	auto targetRawPointer = targetMatrix.GetElementDataRawPointer();
 
-    auto ElementNumber = m_RowNumber*m_ColNumber;
-
-	for (uint64 i = 0; i < ElementNumber; ++i)
+	for (uint64 i = 0; i < m_ElementNumber; ++i)
 	{
 		RawPointer[i] /= targetRawPointer[i];
 	}
-}
-
-
-template<typename ElementType>
-inline
-void mdkMatrix<ElementType>::operator%=(const mdkMatrix<ElementType>& targetMatrix)
-{
-    auto Size = targetMatrix.GetSize();
-
-    if (Size.RowNumber == 0)
-    {
-        mdkError << "targetMatrix is empty @ mdkMatrix::operator%=(Matrix)" << '\n';
-        return;
-    }
-
-    if (Size.RowNumber == 1 && Size.ColNumber == 1)
-    {
-        (*this) *= targetMatrix(0);
-
-        return;
-    }
-
-    if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
-    {
-        mdkError << "Size does not match @ mdkMatrix::operator/=(Matrix)" << '\n';
-        return;
-    }
-
-    auto RawPointer = m_ElementData->data();
-
-    auto targetRawPointer = targetMatrix.GetElementDataRawPointer();
-
-    auto ElementNumber = m_RowNumber*m_ColNumber;
-
-    for (uint64 i = 0; i < ElementNumber; ++i)
-    {
-        RawPointer[i] *= targetRawPointer[i];
-    }
 }
 
 
@@ -3990,14 +3844,6 @@ void mdkMatrix<ElementType>::operator/=(mdkLinearCombineGlueMatrix<ElementType>&
 
 
 template<typename ElementType>
-inline
-void mdkMatrix<ElementType>::operator%=(mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix)
-{
-    this->operator%=(GlueMatrix.CreateMatrix());
-}
-
-
-template<typename ElementType>
 inline 
 void mdkMatrix<ElementType>::operator+=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
@@ -4028,24 +3874,13 @@ void mdkMatrix<ElementType>::operator/=(const mdkShadowMatrix<ElementType>& Shad
     this->operator/=(mdkShadowMatrix.CreateMatrix());
 }
 
-
-template<typename ElementType>
-inline
-void mdkMatrix<ElementType>::operator%=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
-{
-    this->operator%=(mdkShadowMatrix.CreateMatrix());
-}
-
-
 //---------------------- Matrix {+= -= *= /=} Element ----------------------------------------//
 
 template<typename ElementType>
 inline	
 void mdkMatrix<ElementType>::operator+=(ElementType Element)
 {
-    auto ElementNumber = m_RowNumber*m_ColNumber;
-
-	if (ElementNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "Self is empty @ mdkMatrix::operator+=(Element)" << '\n';
 		return;
@@ -4085,9 +3920,7 @@ template<typename ElementType>
 inline
 void mdkMatrix<ElementType>::operator*=(ElementType Element)
 {
-    auto ElementNumber = m_RowNumber*m_ColNumber;
-
-	if (ElementNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "Self is empty @ mdkMatrix::operator*=(Element)" << '\n';
 		return;
@@ -4106,9 +3939,7 @@ template<typename ElementType>
 inline
 void mdkMatrix<ElementType>::operator/=(ElementType Element)
 {
-    auto ElementNumber = m_RowNumber*m_ColNumber;
-
-	if (ElementNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "Self is empty @ mdkMatrix::operator/=(Element)" << '\n';
 		return;
@@ -4133,9 +3964,7 @@ void mdkMatrix<ElementType>::operator/=(ElementType Element)
 template<typename ElementType>
 inline void mdkMatrix<ElementType>::operator^(double value)
 {
-    auto ElementNumber = m_RowNumber*m_ColNumber;
-
-    if (ElementNumber == 0)
+    if (m_ElementNumber == 0)
     {
         mdkError << "Self is empty @ mdkMatrix::operator^(value)" << '\n';
         return;
@@ -4204,9 +4033,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(FunctionType Fun
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-    auto ElementNumber = this->GetElementNumber();
-
-	if (ElementNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "Self is empty @ mdkMatrix::ElementOperation(Function)" << '\n';
         
@@ -4430,7 +4257,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(FunctionType Fun
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	if (m_RowNumber == 0 || m_ColNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "Self is empty @ mdkMatrix::ElementOperation(Functor, Element)" << '\n';
         
@@ -4711,7 +4538,7 @@ template<typename FunctionType>
 inline
 bool mdkMatrix<ElementType>::ElementOperationInPlace(FunctionType Function, ElementType Element)
 {
-    if (m_RowNumber == 0 || m_ColNumber == 0)
+    if (m_ElementNumber == 0)
     {
         mdkError << "Self is empty @ mdkMatrix::ElementOperationInPlace(Function, Element)" << '\n';
 
@@ -4741,7 +4568,7 @@ inline ElementType mdkMatrix<ElementType>::Mean() const
     if (ElementNumber == 0)
     {
         mdkError << "self is empty Matrix @ mdkMatrix::Mean" << '\n';
-        return m_NaNElement;
+        return this->GetNaNElement();
     }
 
     auto RawPointer = m_ElementData->data();
@@ -4764,7 +4591,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanToRow() const
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	if (m_RowNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::MeanToRow" << '\n';
         
@@ -4805,7 +4632,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanToCol() const
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	if (m_ColNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::MeanToCol" << '\n';
         
@@ -4873,7 +4700,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumToRow() const
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	if (m_RowNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::SumToRow" << '\n';
         
@@ -4912,7 +4739,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumToCol() const
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	if (m_ColNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::SumToCol" << '\n';
         
@@ -4978,7 +4805,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxToRow() const
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	if (m_RowNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::MaxToRow" << '\n';
         
@@ -5015,7 +4842,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxToCol() const
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	if (m_ColNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::MaxToCol" << '\n';
         
@@ -5079,7 +4906,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinToRow() const
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	if (m_RowNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::MinToRow" << '\n';
         
@@ -5116,7 +4943,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinToCol() const
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	if (m_ColNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::MinToCol" << '\n';
         
@@ -5157,7 +4984,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::Transpose() const
 {
 	mdkMatrix<ElementType> tempMatrix;
 
-	if (m_RowNumber == 0)
+	if (m_ElementNumber == 0)
 	{
 		mdkError << "self is empty Matrix @ mdkMatrix::GetTranspose" << '\n';
         

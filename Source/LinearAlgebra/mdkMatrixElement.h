@@ -50,6 +50,18 @@ inline
 mdkMatrixElementTypeEnum FindMatrixElementType(ElementType Element);
 
 
+template<typename ElementType>
+inline
+ElementType GetMatrixNaNElement();
+
+template<typename ElementType>
+inline
+ElementType GetMatrixNaNElement(ElementType ReferenceElement);
+
+//------------------------------------------------------------//
+
+
+
 }//end namespace mdk
 
 #include "mdkMatrixElement.hpp"

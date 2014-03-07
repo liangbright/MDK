@@ -37,7 +37,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
         return;
     }
 
-    m_SourceMatrixSharedCopy.Share(sourceMatrix);
+    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
 
     m_LinearIndexList_source = LinearIndexList;
 
@@ -57,7 +57,7 @@ template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
-    m_SourceMatrixSharedCopy.Share(sourceMatrix);
+    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
 
     m_Flag_OutputVector = true;
 
@@ -110,7 +110,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
         return;
     }
 
-    m_SourceMatrixSharedCopy.Share(sourceMatrix);
+    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -127,6 +127,8 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
     m_ColNumber = m_ColIndexList_source.size();
 
     m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    m_NaNElement = sourceMatrix.GetNaNElement();
 }
 
 
@@ -147,7 +149,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
         return;
     }
 
-    m_SourceMatrixSharedCopy.Share(sourceMatrix);
+    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -169,6 +171,8 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
     m_ColNumber = m_ColIndexList_source.size();
 
     m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    m_NaNElement = sourceMatrix.GetNaNElement();
 }
 
 
@@ -189,7 +193,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
         return;
     }
 
-    m_SourceMatrixSharedCopy.Share(sourceMatrix);
+    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -211,6 +215,8 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
     m_ColNumber = m_ColIndexList_source.size();
 
     m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    m_NaNElement = sourceMatrix.GetNaNElement();
 }
 
 
@@ -218,7 +224,7 @@ template<typename ElementType>
 inline 
 mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkShadowMatrix<ElementType>&& ShadowMatrix)
 {
-    m_SourceMatrixSharedCopy.Share(ShadowMatrix.GetSourceMatrixSharedCopy());
+    m_SourceMatrixSharedCopy.SharedCopy(ShadowMatrix.GetSourceMatrixSharedCopy());
 
     m_RowIndexList_source = std::move(ShadowMatrix.m_RowIndexList_source);
 
@@ -264,7 +270,7 @@ inline void mdkShadowMatrix<ElementType>::Reset()
 
     m_ColNumber = 0;
 
-    m_NaNElement -= m_NaNElement;
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 }
 
 
@@ -586,7 +592,7 @@ ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 LinearIndex)
 
 	if (LinearIndex >= m_ElementNumber)
 	{
-		mdkError << "Invalid input @ mdkShadowMatrix::operator(LinearIndex)" <<'\n';
+		mdkError << "Invalid input @ mdkShadowMatrix::operator(i)" <<'\n';
 		return m_NaNElement;
 	}
 
@@ -617,7 +623,7 @@ const ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 LinearIndex) 
 
 	if (LinearIndex >= m_ElementNumber)
 	{
-		mdkError << "Invalid input @ mdkShadowMatrix::operator(LinearIndex)" << '\n';
+		mdkError << "Invalid input @ mdkShadowMatrix::operator(i)" << '\n';
 		return m_NaNElement;
 	}
 
@@ -648,7 +654,7 @@ ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 RowIndex, uint64 Co
 
     if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
 	{
-		mdkError << "Invalid input @ mdkShadowMatrix::operator(RowIndex, ColIndex)" << '\n';
+		mdkError << "Invalid input @ mdkShadowMatrix::operator(i, j)" << '\n';
 		return m_NaNElement;
 	}
 
@@ -677,7 +683,7 @@ const ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 RowIndex, uin
 
     if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
 	{
-		mdkError << "Invalid input @ mdkShadowMatrix::operator(RowIndex, ColIndex) const" << '\n';
+		mdkError << "Invalid input @ mdkShadowMatrix::operator(i, j) const" << '\n';
 		return m_NaNElement;
 	}
 

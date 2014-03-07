@@ -57,6 +57,52 @@ mdkMatrixElementTypeEnum FindMatrixElementType(ElementType Element)
     return mdkMatrixElementTypeEnum::UNKNOWN;
 }
 
+
+template<typename ElementType>
+inline
+ElementType GetMatrixNaNElement()
+{
+    ElementType Element;
+
+    Element = Element - Element;
+
+    return GetMatrixNaNElement(Element);
+}
+
+
+template<typename ElementType>
+inline
+ElementType GetMatrixNaNElement(ElementType ReferenceElement)
+{
+    auto TypeEnum = FindMatrixElementType(ReferenceElement);
+
+    switch (TypeEnum)
+    {
+    case mdkMatrixElementTypeEnum::Scalar_DOUBLE64:
+        return std::nan(nullptr);
+
+    case mdkMatrixElementTypeEnum::Scalar_FLOAT32:
+        return std::nanf(nullptr);
+
+    case mdkMatrixElementTypeEnum::StdVector_DOUBLE64:
+        return Element + std::nan(nullptr);
+
+    case mdkMatrixElementTypeEnum::StdVector_FLOAT32:
+        return Element + std::nanf(nullptr);
+
+    case mdkMatrixElementTypeEnum::StdArray_DOUBLE64:
+        return Element + std::nan(nullptr);
+
+    case mdkMatrixElementTypeEnum::StdArray_FLOAT32:
+        return Element + std::nanf(nullptr);
+
+    default:
+        mdkWarning << "ElementType is not float or double, so NaNElement is set to zero @ GetMatrixNaNElement()" << '\n';
+        return Element;
+    }
+}
+
+
 }//end namespace mdk
 
 #endif

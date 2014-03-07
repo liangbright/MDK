@@ -69,11 +69,11 @@ ${LinearAlgebra_DIR}/mdkMatrix.hpp
 ${LinearAlgebra_DIR}/mdkShadowMatrix.h
 ${LinearAlgebra_DIR}/mdkShadowMatrix.hpp
 
-${LinearAlgebra_DIR}/mdkLinearCombineGlueMatrix.h
-${LinearAlgebra_DIR}/mdkLinearCombineGlueMatrix.hpp
+${LinearAlgebra_DIR}/mdkGlueMatrixForLinearCombination.h
+${LinearAlgebra_DIR}/mdkGlueMatrixForLinearCombination.hpp
 
-${LinearAlgebra_DIR}/mdkMultiplyGlueMatrix.h
-${LinearAlgebra_DIR}/mdkMultiplyGlueMatrix.hpp
+${LinearAlgebra_DIR}/mdkGlueMatrixForMultiplication.h
+${LinearAlgebra_DIR}/mdkGlueMatrixForMultiplication.hpp
 
 ${LinearAlgebra_DIR}/mdkLinearAlgebra.h
 
