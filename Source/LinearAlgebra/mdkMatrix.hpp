@@ -36,6 +36,11 @@ mdkMatrix<ElementType>::mdkMatrix(uint64 RowNumber, uint64 ColNumber, bool IsSiz
     this->Resize(RowNumber, ColNumber);
 
     m_IsSizeFixed = IsSizeFixed;
+
+    if (IsSizeFixed == true)
+    {
+        m_ElementData->shrink_to_fit();
+    }
 }
 
 
@@ -47,6 +52,20 @@ mdkMatrix<ElementType>::mdkMatrix(const mdkMatrix<ElementType>& targetMatrix, bo
 
     //force-copy data
     this->Copy(targetMatrix);     
+
+    m_IsSizeFixed = IsSizeFixed;
+}
+
+
+template<typename ElementType>
+inline 
+mdkMatrix<ElementType>::mdkMatrix(const ElementType& Element, bool IsSizeFixed = false)
+{
+    this->Reset();
+
+    this->Resize(1, 1);
+
+    (*this)(0) = Element;
 
     m_IsSizeFixed = IsSizeFixed;
 }
@@ -334,7 +353,7 @@ bool mdkMatrix<ElementType>::Reshape(uint64 targetRowNumber, uint64 targetColNum
 
 template<typename ElementType>
 inline 
-bool mdkMatrix<ElementType>::Resize(uint64 targetRowNumber, uint64 targetColNumber)
+bool mdkMatrix<ElementType>::Resize(uint64 targetRowNumber, uint64 targetColNumber, bool IsSizeFixed == false)
 {
     if (m_IsSizeFixed == true)
     {
@@ -344,12 +363,18 @@ bool mdkMatrix<ElementType>::Resize(uint64 targetRowNumber, uint64 targetColNumb
 
     if (targetRowNumber == m_RowNumber && targetColNumber == m_ColNumber)
     {
+        m_IsSizeFixed = IsSizeFixed;
+
         return true;
     }
 
     if (targetRowNumber == 0 || targetColNumber == 0)
     {
-        return this->Clear();
+        this->Clear();
+
+        m_IsSizeFixed = IsSizeFixed;
+
+        return true;
     }
 
     // if self is empty
@@ -360,6 +385,9 @@ bool mdkMatrix<ElementType>::Resize(uint64 targetRowNumber, uint64 targetColNumb
         m_ElementNumber = m_RowNumber*m_ColNumber;
 
         m_ElementData = std::make_shared<std::vector<ElementType>>(targetRowNumber*targetColNumber);
+
+        m_IsSizeFixed = IsSizeFixed;
+
         return true;
     }
 
@@ -375,6 +403,8 @@ bool mdkMatrix<ElementType>::Resize(uint64 targetRowNumber, uint64 targetColNumb
         m_ElementNumber = m_RowNumber*m_ColNumber;
 
         m_ElementData->resize(m_ColNumber*m_RowNumber);
+
+        m_IsSizeFixed = IsSizeFixed;
 
         return true;
     }
@@ -408,6 +438,8 @@ bool mdkMatrix<ElementType>::Resize(uint64 targetRowNumber, uint64 targetColNumb
     m_ElementNumber = m_RowNumber*m_ColNumber;
 
     m_ElementData = tempElementData;
+
+    m_IsSizeFixed = IsSizeFixed;
 
     return true;
 }
@@ -633,8 +665,6 @@ bool mdkMatrix<ElementType>::Eat(mdkMatrix<ElementType>& targetMatrix)
     m_ElementNumber = m_RowNumber*m_ColNumber;
 
     m_ElementData = targetMatrix.GetElementDataSharedPointer();
-
-    m_IsSizeFixed = targetMatrix.IsSizeFixed();
 
     targetMatrix.ForceClear();
 
@@ -898,8 +928,6 @@ bool mdkMatrix<ElementType>::SharedCopy(const mdkMatrix<ElementType>& targetMatr
     m_ElementNumber = m_RowNumber*m_ColNumber;
 
     m_ElementData = targetMatrix.GetElementDataSharedPointer();
-
-    m_IsSizeFixed = targetMatrix.IsSizeFixed();
 
     return true;
 }
@@ -3342,9 +3370,6 @@ mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const md
     return tempMatrix;   
 }
 
-#endif // #if !defined MDK_Enable_GlueMatrix //---------------------------------------------------------------
-//===========================================================================================================================//
-
 
 template<typename ElementType>
 inline
@@ -3403,6 +3428,8 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const md
     
 	return  tempMatrix;
 }
+#endif // #if !defined MDK_Enable_GlueMatrix //---------------------------------------------------------------
+//===========================================================================================================================//
 
 
 // ----------------------- Matrix {+ - * /}  Element ------------------------------------------------//

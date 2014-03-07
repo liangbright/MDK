@@ -170,6 +170,8 @@ public:
 
     inline mdkMatrix(const mdkMatrix<ElementType>& targetMatrix, bool IsSizeFixed = false);
 
+    inline mdkMatrix(const ElementType& Element, bool IsSizeFixed = false);
+
     inline mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix, bool IsSizeFixed = false);
 
     inline mdkMatrix(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix, bool IsSizeFixed = false);
@@ -212,7 +214,7 @@ public:
 
     inline bool Reshape(uint64 targetRowNumber, uint64 targetColNumber);
 
-    inline bool Resize(uint64 targetRowNumber, uint64 targetColNumber);
+    inline bool Resize(uint64 targetRowNumber, uint64 targetColNumber, bool IsSizeFixed == false);
 
     inline bool IsSizeFixed() const;
 
