@@ -102,6 +102,17 @@ MatrixClass FunctionA(MatrixClass A)
     return A;
 }
 
+
+MatrixClass FunctionAA(MatrixClass A)
+{
+    MatrixClass B(10101);
+    
+    B = FunctionA(std::move(A));
+
+    return B;
+}
+
+
 MatrixClass FunctionA1(const MatrixClass& A)
 {
     MatrixClass B(1010);
@@ -132,7 +143,9 @@ int main()
 
     //FunctionA1(FunctionB());
 
-    FunctionA2(FunctionB());
+    //FunctionA2(FunctionB());
+
+    FunctionAA(FunctionB());
 
     /*
     MatrixClass A1(2);

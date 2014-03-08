@@ -32,6 +32,11 @@ mdkGlueMatrixForLinearCombination<ElementType>::mdkGlueMatrixForLinearCombinatio
     m_ElementList_Coef = std::move(GlueMatrix.m_ElementList_Coef);
 
     m_IndependentElement = GlueMatrix.m_IndependentElement;
+
+    // clear the counter 
+    GlueMatrix.m_RowNumber = 0;
+    GlueMatrix.m_ColNumber = 0;
+    //
 }
 
 
@@ -81,7 +86,7 @@ template<typename ElementType>
 inline
 bool mdkGlueMatrixForLinearCombination<ElementType>::IsEmpty() const
 {
-    if (m_RowNumber == 0 || m_ColNumber == 0)
+    if (m_RowNumber == 0)
     {
         return true;
     }
@@ -96,7 +101,7 @@ mdkMatrix<ElementType> mdkGlueMatrixForLinearCombination<ElementType>::CreateMat
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    if (m_RowNumber == 0 || m_ColNumber == 0)
+    if (m_RowNumber == 0)
     {
         return tempMatrix;
     }
@@ -115,8 +120,10 @@ void mdkGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkMatrix<Elem
 {
     if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
     {
-        if (OutputMatrix.IsEmpty() == true)
+        if (OutputMatrix.IsSizeFixed() == false)
         {
+            OutputMatrix.Clear();
+
             OutputMatrix.Resize(m_RowNumber, m_ColNumber);            
         }
         else

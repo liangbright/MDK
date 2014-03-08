@@ -18,17 +18,17 @@ namespace mdk
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType>& operator+(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     if (GlueMatrixA.m_RowNumber != MatrixB.GetRowNumber() || GlueMatrixA.m_ColNumber != MatrixB.GetColNumber())
     {
-        mdkError << "Size does not match @ mdkGlueMatrix operator+(GlueMatrixA, MatrixB)" << '\n';
+        mdkError << "Size does not match @ mdkMatrixOperator: +(GlueMatrixA, MatrixB)" << '\n';
         return GlueMatrixA;
     }
 
     GlueMatrixA.m_MatrixElementDataSharedPointerList.push_back(MatrixB.GetElementDataSharedPointer());
 
-    GlueMatrixA.m_ElementList_Coef.push_back(1);
+    GlueMatrixA.m_ElementList_Coef.push_back(ElementType(1));
 
     return GlueMatrixA;
 }
@@ -36,17 +36,17 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator+(mdkGlueMatrixForLinear
 
 template<typename ElementType>
 inline
-mdkGlueMatrixForLinearCombination<ElementType>& operator-(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     if (GlueMatrixA.m_RowNumber != MatrixB.GetRowNumber() || GlueMatrixA.m_ColNumber != MatrixB.GetColNumber())
     {
-        mdkError << "Size does not match @ mdkGlueMatrix operator-(GlueMatrixA, MatrixB)" << '\n';
+        mdkError << "Size does not match @ mdkMatrixOperator: -(GlueMatrixA, MatrixB)" << '\n';
         return GlueMatrixA;
     }
 
     GlueMatrixA.m_MatrixElementDataSharedPointerList.push_back(MatrixB.GetElementDataSharedPointer());
 
-    GlueMatrixA.m_ElementList_Coef.push_back(-1);
+    GlueMatrixA.m_ElementList_Coef.push_back(ElementType(- 1));
 
     return GlueMatrixA;
 }
@@ -54,7 +54,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator-(mdkGlueMatrixForLinear
 
 template<typename ElementType>
 inline
-mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
+mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     return GlueMatrixA.CreateMatrix() * MatrixB;
 }
@@ -62,7 +62,7 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForLinearComb
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> operator/(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
+mdkMatrix<ElementType> operator/(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     return GlueMatrixA.CreateMatrix() / MatrixB;
 }
@@ -75,7 +75,7 @@ mdkMatrix<ElementType> operator/(mdkGlueMatrixForLinearCombination<ElementType>&
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType>& operator+(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB)
 {
     if (GlueMatrixB.m_RowNumber != MatrixA.GetRowNumber() || GlueMatrixB.m_ColNumber != MatrixA.GetColNumber())
     {
@@ -85,7 +85,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator+(const mdkMatrix<Elemen
 
     GlueMatrixB.m_MatrixElementDataSharedPointerList.push_back(MatrixA.GetElementDataSharedPointer());
 
-    GlueMatrixB.m_ElementList_Coef.push_back(1);
+    GlueMatrixB.m_ElementList_Coef.push_back(ElementType(1));
 
     return GlueMatrixB;
 }
@@ -93,7 +93,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator+(const mdkMatrix<Elemen
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType>& operator-(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB)
 {
     if (GlueMatrixB.m_RowNumber != MatrixA.GetRowNumber() || GlueMatrixB.m_ColNumber != MatrixA.GetColNumber())
     {
@@ -108,7 +108,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator-(const mdkMatrix<Elemen
         GlueMatrixB.m_ElementList_Coef[i] = -GlueMatrixB.m_ElementList_Coef[i];
     }
 
-    GlueMatrixB.m_ElementList_Coef.push_back(1);
+    GlueMatrixB.m_ElementList_Coef.push_back(ElementType(1));
 
     GlueMatrixB.m_IndependentElement = -GlueMatrixB.m_IndependentElement;
 
@@ -118,7 +118,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator-(const mdkMatrix<Elemen
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForMultiplication<ElementType>& operator*(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
     return MatrixA * GlueMatrixB.CreateMatrix();
 }
@@ -126,7 +126,7 @@ mdkGlueMatrixForMultiplication<ElementType>& operator*(const mdkMatrix<ElementTy
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
     return MatrixA / GlueMatrixB.CreateMatrix();
 }
@@ -138,7 +138,7 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, mdkGlueM
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType>& operator+(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const ElementType& ElementB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const ElementType& ElementB)
 {
     GlueMatrixA.m_IndependentElement += ElementB;
 
@@ -148,7 +148,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator+(mdkGlueMatrixForLinear
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType>& operator-(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const ElementType& ElementB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const ElementType& ElementB)
 {
     GlueMatrixA.m_IndependentElement -= ElementB;
 
@@ -158,7 +158,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator-(mdkGlueMatrixForLinear
 
 template<typename ElementType>
 inline
-mdkGlueMatrixForLinearCombination<ElementType>& operator*(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const ElementType& ElementB)
+mdkGlueMatrixForLinearCombination<ElementType> operator*(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const ElementType& ElementB)
 {
     GlueMatrixA.m_IndependentElement *= ElementB;
 
@@ -173,7 +173,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator*(mdkGlueMatrixForLinear
 
 template<typename ElementType>
 inline
-mdkGlueMatrixForLinearCombination<ElementType>& operator/(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const ElementType& ElementB)
+mdkGlueMatrixForLinearCombination<ElementType> operator/(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const ElementType& ElementB)
 {
     GlueMatrixA.m_IndependentElement /= ElementB;
 
@@ -192,7 +192,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator/(mdkGlueMatrixForLinear
 
 template<typename ElementType>
 inline
-mdkGlueMatrixForLinearCombination<ElementType>& operator+(const ElementType& ElementA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(const ElementType& ElementA, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB)
 {
     GlueMatrixB.m_IndependentElement += ElementA;
 
@@ -202,7 +202,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator+(const ElementType& Ele
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType>& operator-(const ElementType& ElementA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(const ElementType& ElementA, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB)
 {
     GlueMatrixB.m_IndependentElement = ElementA - GlueMatrix.m_IndependentElement;
 
@@ -217,7 +217,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator-(const ElementType& Ele
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType>& operator*(const ElementType& ElementA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator*(const ElementType& ElementA, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB)
 {
     GlueMatrixB.m_IndependentElement *= ElementA;
 
@@ -232,7 +232,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator*(const ElementType& Ele
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> operator/(const ElementType& ElementA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
     return ElementA / GlueMatrixB.CreateMatrix();
 }
@@ -245,32 +245,32 @@ mdkMatrix<ElementType> operator/(const ElementType& ElementA, mdkGlueMatrixForLi
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, mdkShadowMatrix<ElementType>& ShadowMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return GlueMatrixA + ShadowMatrixB.CreateMatrix();
+    return std::move(GlueMatrixA) + ShadowMatrixB.CreateMatrix();
 }
 
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, mdkShadowMatrix<ElementType>& ShadowMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return GlueMatrixA - ShadowMatrixB.CreateMatrix();
+    return std::move(GlueMatrixA) - ShadowMatrixB.CreateMatrix();
 }
 
 
 template<typename ElementType>
-inline mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, mdkShadowMatrix<ElementType>& ShadowMatrixB)
+inline mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return GlueMatrixA * ShadowMatrixB.CreateMatrix();
+    return GlueMatrixA.CreateMatrix() * ShadowMatrixB.CreateMatrix();
 }
 
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> operator/(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, mdkShadowMatrix<ElementType>& ShadowMatrixB)
+mdkMatrix<ElementType> operator/(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return GlueMatrixA / ShadowMatrixB.CreateMatrix();
+    return GlueMatrixA.CreateMatrix() / ShadowMatrixB.CreateMatrix();
 }
 
 // ------------------------------------------ ShadowMatrix {+ - * /} GlueMatrixForLinearCombination -------------------------------------------------------//
@@ -281,32 +281,32 @@ mdkMatrix<ElementType> operator/(mdkGlueMatrixForLinearCombination<ElementType>&
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB)
 {
-    return ShadowMatrixA.CreateMatrix() + GlueMatrixB;
+    return ShadowMatrixA.CreateMatrix() + std::move(GlueMatrixB);
 }
 
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB)
 {
-    return ShadowMatrixA.CreateMatrix() - GlueMatrixB;
+    return ShadowMatrixA.CreateMatrix() - std::move(GlueMatrixB);
 }
 
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForMultiplication<ElementType> operator*(mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
-    return ShadowMatrixA.CreateMatrix() * GlueMatrixB;
+    return ShadowMatrixA.CreateMatrix() * GlueMatrixB.CreateMatrix();
 }
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+inline mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
-    return ShadowMatrixA.CreateMatrix() / GlueMatrixB;
+    return ShadowMatrixA.CreateMatrix() / GlueMatrixB.CreateMatrix();
 }
 
 // --------------------------------------------- GlueMatrixForLinearCombination {+ - * /}  GlueMatrixForLinearCombination ---------------------------------------//
@@ -317,7 +317,7 @@ inline mdkMatrix<ElementType> operator/(mdkShadowMatrix<ElementType>& ShadowMatr
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType>& operator+(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
     if (GlueMatrixA.m_RowNumber != GlueMatrixB.m_RowNumber || GlueMatrixA.m_ColNumber != GlueMatrixB.m_ColNumber)
     {
@@ -343,7 +343,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator+(mdkGlueMatrixForLinear
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType>& operator-(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
     if (GlueMatrixA.m_RowNumber != GlueMatrixB.m_RowNumber || GlueMatrixA.m_ColNumber != GlueMatrixB.m_ColNumber)
     {
@@ -370,7 +370,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator-(mdkGlueMatrixForLinear
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForMultiplication<ElementType>& operator*(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
     return GlueMatrixA.CreateMatrix() * GlueMatrixB.CreateMatrix();
 }
@@ -378,7 +378,7 @@ mdkGlueMatrixForMultiplication<ElementType>& operator*(mdkGlueMatrixForLinearCom
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> operator/(mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkMatrix<ElementType> operator/(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
     return GlueMatrixA.CreateMatrix() / GlueMatrixB.CreateMatrix();
 }

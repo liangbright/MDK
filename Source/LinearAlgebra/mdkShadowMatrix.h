@@ -71,14 +71,14 @@ private:
 
     inline mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<uint64>& ColIndexList);
 
-    inline mdkShadowMatrix(const mdkShadowMatrix<ElementType>&) = delete;
+    inline mdkShadowMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
     inline mdkShadowMatrix(mdkShadowMatrix<ElementType>&& ShadowMatrix);
 
 public:
 	inline ~mdkShadowMatrix();
 
-	//---------------------- mdkShadowMatrix = mdkShadowMatrix or Matrix or Element ----------------------------------------//
+	//---------------------- mdkShadowMatrix = mdkShadowMatrix or Matrix or Element or GlueMatrix ----------------------------------------//
 private:
     inline void operator=(mdkShadowMatrix<ElementType>&&) = delete;
 
@@ -93,17 +93,17 @@ public:
 
     inline void operator=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    //---------------------- ElementMultiply is .* in matlab -----------------------------------------------//
+    //---------------------- ElementMultiply is .* in matlab -----------------------------------------------------------------------//
 
-    inline mdkMatrix ElementMultiply(const mdkMatrix<ElementType>& targetMatrix);
+    inline mdkMatrix<ElementType> ElementMultiply(const mdkMatrix<ElementType>& targetMatrix);
 
-    inline mdkMatrix ElementMultiply(const ElementType& Element);
+    inline mdkMatrix<ElementType> ElementMultiply(const ElementType& Element);
 
-    inline mdkMatrix ElementMultiply(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+    inline mdkMatrix<ElementType> ElementMultiply(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline mdkMatrix ElementMultiply(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+    inline mdkMatrix<ElementType> ElementMultiply(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
-    inline mdkMatrix ElementMultiply(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    inline mdkMatrix<ElementType> ElementMultiply(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
 	//---------------------- Get/Set mdkShadowMatrix(LinearIndex) ----------------------------------------//
 private:
