@@ -39,14 +39,14 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkMatrix<Element
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
         mdkError << "Size does not match @ mdkMatrixOperator: +(MatrixA, MatrixB)" << '\n';
-        mdkGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
+
         return  tempGlueMatrix;
     }
 
     if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
     {
-        mdkWarning << "MatrixA or MatrixB is empty @ mdkMatrixOperator: +(MatrixA, MatrixB)" << '\n';
-        mdkGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
+        mdkError << "MatrixA or MatrixB is empty @ mdkMatrixOperator: +(MatrixA, MatrixB)" << '\n';
+
         return  tempGlueMatrix;
     }
 
@@ -159,36 +159,32 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeA = MatrixA.GetSize();
 
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
-    {
-        mdkWarning << "MatrixA or MatrixB is empty @ mdkMatrixOperator: /(MatrixA, MatrixB)" << '\n';
-
-        return  tempMatrix;
-    }
-
     if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
     {
-        tempMatrix = MatrixB.ElementOperation("/", MatrixA(0));
-
-        return tempMatrix;
+        return MatrixA(0) / MatrixB;
     }
 
     if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
     {
-        tempMatrix = MatrixA.ElementOperation("/", MatrixB(0));
-
-        return tempMatrix;
+        return MatrixA.ElementOperation("/", MatrixB(0));  // MatrixA / MatrixB(0) return GlueMatrixForMultiplication
     }
+
+    mdkMatrix<ElementType> tempMatrix;
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
         mdkError << "Size does not match @ mdkMatrixOperator: /(MatrixA, MatrixB)" << '\n';
+
+        return  tempMatrix;
+    }
+
+    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    {
+        mdkError << "MatrixA or MatrixB is empty @ mdkMatrixOperator: /(MatrixA, MatrixB)" << '\n';
 
         return  tempMatrix;
     }
