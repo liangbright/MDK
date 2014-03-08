@@ -179,7 +179,7 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
 
 
 template<typename ElementType>
-inline GlueMatrixForMultiplication<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
+inline mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     return ShadowMatrixA.CreateMatrix() * MatrixB;
 }
@@ -362,9 +362,9 @@ mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const md
 
 template<typename ElementType>
 inline 
-GlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
+mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return MatrixA * ShadowMatrixA.CreateMatrix();
+    return MatrixA * ShadowMatrixB.CreateMatrix();
 }
 
 
@@ -606,7 +606,7 @@ mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     if (LinearIndexList_source.empty() == false)
     {
-        ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+        auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
         for (uint64 i = 0; i < ElementNumber; ++i)
         {
@@ -643,7 +643,7 @@ mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatri
 
 template<typename ElementType>
 inline 
-GlueMatrixForMultiplication<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const ElementType& ElementB)
+mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const ElementType& ElementB)
 {
     mdkMatrix<ElementType> tempMatrix;
 
@@ -669,7 +669,7 @@ GlueMatrixForMultiplication<ElementType> operator/(const mdkShadowMatrix<Element
 
     if (LinearIndexList_source.empty() == false)
     {
-        ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+        auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
         for (uint64 i = 0; i < ElementNumber; ++i)
         {
@@ -741,7 +741,7 @@ mdkMatrix<ElementType> operator-(const ElementType& ElementA, const mdkShadowMat
 
     if (LinearIndexList_source.empty() == false)
     {
-        ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+        auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
         for (uint64 i = 0; i < ElementNumber; ++i)
         {
@@ -778,7 +778,7 @@ mdkMatrix<ElementType> operator-(const ElementType& ElementA, const mdkShadowMat
 
 template<typename ElementType>
 inline 
-GlueMatrixForMultiplication<ElementType> operator*(const ElementType& ElementA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
+mdkMatrix<ElementType> operator*(const ElementType& ElementA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
     return ShadowMatrixB * ElementA;
 }
@@ -812,7 +812,7 @@ mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkShadowMat
 
     if (LinearIndexList_source.empty() == false)
     {
-        ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+        auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
         for (uint64 i = 0; i < ElementNumber; ++i)
         {
@@ -884,7 +884,9 @@ mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
-    for (uint64 i = 0; i < SizeA.RowNumber*SizeA.ColNumber; ++i)
+    auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+
+    for (uint64 i = 0; i < ElementNumber; ++i)
     {
         tempRawPointer[i] = ShadowMatrixA(i) + ShadowMatrixB(i);
     }
@@ -929,7 +931,9 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
-    for (uint64 i = 0; i < SizeA.RowNumber*SizeA.ColNumber; ++i)
+    auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+
+    for (uint64 i = 0; i < ElementNumber; ++i)
     {
         tempRawPointer[i] = ShadowMatrixA(i) - ShadowMatrixB(i);
     }
@@ -940,7 +944,7 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
 
 template<typename ElementType>
 inline 
-GlueMatrixForMultiplication<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
+mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
     return ShadowMatrixA.CreateMatrix() * ShadowMatrixB.CreateMatrix();
 }
@@ -982,7 +986,9 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
 
-    for (uint64 i = 0; i < SizeA.RowNumber*SizeA.ColNumber; ++i)
+    auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
+
+    for (uint64 i = 0; i < ElementNumber; ++i)
     {
         tempRawPointer[i] = ShadowMatrixA(i) / ShadowMatrixB(i);
     }
@@ -1030,7 +1036,7 @@ inline void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkMatr
 
     if (LinearIndexList_source.empty() == false)
     {
-        ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+        auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
         for (uint64 i = 0; i < ElementNumber; ++i)
         {
@@ -1099,7 +1105,7 @@ void operator-=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkMatrix<Elem
 
     if (LinearIndexList_source.empty() == false)
     {
-        ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+        auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
         for (uint64 i = 0; i < ElementNumber; ++i)
         {
@@ -1168,7 +1174,7 @@ void operator*=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkMatrix<Elem
 
     if (LinearIndexList_source.empty() == false)
     {
-        ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+        auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
         for (uint64 i = 0; i < ElementNumber; ++i)
         {
@@ -1236,7 +1242,7 @@ inline void operator/=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkMatr
 
     if (LinearIndexList_source.empty() == false)
     {
-        ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+        auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
         for (uint64 i = 0; i < ElementNumber; ++i)
         {
@@ -1289,7 +1295,7 @@ void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& E
 
     if (LinearIndexList_source.empty() == false)
     {
-        ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+        auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
         for (uint64 i = 0; i < ElementNumber; ++i)
         {
@@ -1321,7 +1327,7 @@ void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& E
 
 template<typename ElementType>
 inline 
-void operator-=(EmdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& ElementB)
+void operator-=(mdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& ElementB)
 {
     auto SizeA = ShadowMatrixA.GetSize();
 
@@ -1341,7 +1347,7 @@ void operator-=(EmdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& 
 
     if (LinearIndexList_source.empty() == false)
     {
-        ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+        auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
         for (uint64 i = 0; i < ElementNumber; ++i)
         {
@@ -1393,7 +1399,7 @@ void operator*=(mdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& E
 
     if (LinearIndexList_source.empty() == false)
     {
-        ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+        auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
         for (uint64 i = 0; i < ElementNumber; ++i)
         {
@@ -1450,7 +1456,7 @@ void operator/=(mdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& E
 
     if (LinearIndexList_source.empty() == false)
     {
-        ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+        auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
         for (uint64 i = 0; i < ElementNumber; ++i)
         {
@@ -1685,6 +1691,7 @@ void operator/=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkGlueMatrixF
 {
     ShadowMatrixA /= GlueMatrixB.CreateMatrix()
 }
+
 
 } // namespace mdk
 

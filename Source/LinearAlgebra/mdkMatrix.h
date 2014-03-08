@@ -148,9 +148,9 @@ private:
 
 	std::shared_ptr<std::vector<ElementType>> m_ElementData;
 
-	bool m_IsSizeFixed;
-
     ElementType m_NaNElement;
+
+	bool m_IsSizeFixed;
 
 public:
     typedef ElementType  ElementType;
@@ -164,7 +164,7 @@ public:
 
     inline mdkMatrix(const mdkMatrix<ElementType>& targetMatrix, bool IsSizeFixed = false);
 
-    inline mdkMatrix(const ElementType& Element, bool IsSizeFixed = false);
+    inline mdkMatrix(const ElementType& Element);
 
     inline mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix, bool IsSizeFixed = false);
 
@@ -177,7 +177,7 @@ public:
     inline mdkMatrix(std::vector<ElementType>* ElementDataPointer, uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = false);
 
     // move constructor
-    inline mdkMatrix(mdkMatrix<ElementType>&& targetMatrix, bool IsSizeFixed = false);
+    inline mdkMatrix(mdkMatrix<ElementType>&& targetMatrix);
 
 	inline ~mdkMatrix();
 
@@ -254,15 +254,15 @@ public:
     // share data
     inline bool SharedCopy(const mdkMatrix<ElementType>& targetMatrix);
 
-    //---------------------------- Eat : take the ownership of the input matrix ------------------------------------------//
+    //---------------------------- Take : the the ownership of the input matrix ------------------------------------------//
 
-    inline bool Eat(mdkMatrix<ElementType>& targetMatrix);
+    inline bool Take(mdkMatrix<ElementType>&& targetMatrix);
 
-    inline bool Eat(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+    inline bool Take(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline bool Eat(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+    inline bool Take(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
-    inline bool Eat(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    inline bool Take(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
 	//----------- Get/Set Matrix(LinearIndex) : size can not be changed even if m_IsSizeFixed is false -----------------//
 
@@ -539,20 +539,20 @@ public:
     inline void operator/=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
 
-    inline void operator+=(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator+=(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrix);
 
-    inline void operator-=(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator-=(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrix);
 
-    inline void operator*=(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator*=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
-    inline void operator/=(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix);
+    inline void operator/=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
 
     inline void operator+=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
     inline void operator-=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    inline void operator*=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    inline void operator*=(mdkGlueMatrixForMultiplication<ElementType> GlueMatrix);
 
     inline void operator/=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 

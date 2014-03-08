@@ -247,7 +247,7 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return std::move(GlueMatrixA) + ShadowMatrixB.CreateMatrix();
+    return std::move(GlueMatrixA) +ShadowMatrixB.CreateMatrix();
 }
 
 
@@ -255,7 +255,7 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return std::move(GlueMatrixA) - ShadowMatrixB.CreateMatrix();
+    return std::move(GlueMatrixA) -ShadowMatrixB.CreateMatrix();
 }
 
 

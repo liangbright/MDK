@@ -63,7 +63,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkMatrix<Element
 
     tempGlueMatrix.m_ElementList_Coef.push_back(ElementType(1));
 
-    return tempGlueMatrix
+    return tempGlueMatrix;
 }
 
 
@@ -119,7 +119,8 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkMatrix<Element
 
 
 template<typename ElementType>
-inline mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
+inline
+mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     mdkGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
 
@@ -254,7 +255,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkMatrix<Element
 
 template<typename ElementType>
 inline 
-GlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     mdkGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
 
@@ -274,7 +275,7 @@ GlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementType>&
 
 template<typename ElementType>
 inline 
-GlueMatrixForMultiplication<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+mdkGlueMatrixForMultiplication<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     mdkGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
 
@@ -339,7 +340,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const ElementType& Elem
 
 template<typename ElementType>
 inline 
-GlueMatrixForMultiplication<ElementType> operator*(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB)
+mdkGlueMatrixForMultiplication<ElementType> operator*(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB)
 {
     mdkGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
 
@@ -389,3 +390,5 @@ mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkMatrix<El
 }
 
 } // namespace mdk
+
+#endif

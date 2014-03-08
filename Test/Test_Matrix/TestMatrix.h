@@ -7,8 +7,6 @@
 
 #include "mdkMatrix.h"
 #include "mdkShadowMatrix.h"
-#include "mdkLinearCombineGlueMatrix.h"
-#include "mdkMultiplyGlueMatrix.h"
 #include "mdkLinearAlgebra.h"
 
 using namespace mdk;
@@ -114,7 +112,7 @@ void Test_Constructor()
 
     mdkMatrix<double> C;
 
-    C.Share(A);
+    C.SharedCopy(A);
 
     A.Copy(A);
 
@@ -129,7 +127,7 @@ void Test_Constructor()
 
 
     // copy constructor, D will be temporary ?
-    auto D1 = A*A;
+    mdkMatrix<double> D1 = A*A;
 
     mdkMatrix<double> D2;
 
@@ -301,7 +299,7 @@ void Test_Mutiplication()
 
     DisplayMatrix(B);
 
-	auto C = A*B;
+    mdkMatrix<double> C = A*B;
 
 	std::cout << "C = A * B" << '\n';
 
@@ -335,7 +333,7 @@ void Test_Share()
 
     mdkMatrix<double> B;
 
-    B.Share(A);
+    B.SharedCopy(A);
 
     B(1, 1) = 0;
 
@@ -967,11 +965,11 @@ void Test_Arma()
 	std::cout << "A = " << '\n';
     DisplayMatrix(A);
 
-	auto invA = A.Inv();
+    mdkMatrix<double> invA = A.Inv();
 	std::cout << "A.Inv() = " << '\n';
     DisplayMatrix(invA, 3);
 
-	auto AinvA = A*invA;
+    mdkMatrix<double> AinvA = A*invA;
 	std::cout << "A*invA = " << '\n';
     DisplayMatrix(AinvA, 3);
 
@@ -986,7 +984,7 @@ void Test_Arma()
 	std::cout << "ASVD.V = " << '\n';
     DisplayMatrix(ASVD.V, 3);
 
-	auto tempA = ASVD.U * ASVD.S * ASVD.V.Transpose();
+    mdkMatrix<double> tempA = ASVD.U * ASVD.S * ASVD.V.Transpose();
 
 	std::cout << "ASVD.U*ASVD.S*ASVD.V' = " << '\n';
     DisplayMatrix(tempA, 3);
@@ -1201,9 +1199,9 @@ void Test_GlueMatrix()
 
     DisplayMatrix(All);
 
-    (B + C).~mdkLinearCombineGlueMatrix();
+    (B + C).~mdkGlueMatrixForLinearCombination();
 
-    auto a = (A*A).Mean();
+    //auto a = (A*A).Mean();
 
     A({ 0, 1 }) += A;
 }

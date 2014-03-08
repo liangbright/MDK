@@ -107,7 +107,9 @@ MatrixClass FunctionAA(MatrixClass A)
 {
     MatrixClass B(10101);
     
-    B = FunctionA(std::move(A));
+   // B = FunctionA(std::move(A));
+
+    B = FunctionA(std::forward<MatrixClass>(A));
 
     return B;
 }
