@@ -52,9 +52,9 @@ struct mdkMatrixSize
 	uint64 ColNumber;  // ColNumber = the Number of Columns
 };
 
+//============================================= For Reference ===================================================//
+/*
 // ------------------------------------ Matrix {+ - * /}  Matrix ------------------------------------------------//
-
-#if !defined MDK_Enable_GlueMatrix //---------------------------------------------
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
@@ -96,12 +96,12 @@ inline mdkMatrix<ElementType> operator*(const ElementType& ElementA, const mdkMa
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
-#endif // !defined MDK_Enable_GlueMatrix -------------------
-
 // ----------------------- Element = Matrix (if 1x1) is not allowed in c++ --------------------------------------------//
 // not allowed in c++
 //template<typename ElementType>
 //inline void operator=(ElementType& Element, const mdkMatrix<ElementType>& Matrix);
+*/
+//=====================================================================================================================//
 
 
 //------------------------------------------- ALL Symbol --------------------------------------------------------------------------//
@@ -165,6 +165,9 @@ public:
 
     inline mdkMatrix(const mdkMatrix<ElementType>& targetMatrix, bool IsSizeFixed = false);
 
+    // move constructor
+    inline mdkMatrix(mdkMatrix<ElementType>&& targetMatrix);
+
     inline mdkMatrix(const ElementType& Element);
 
     inline mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix, bool IsSizeFixed = false);
@@ -175,12 +178,55 @@ public:
 
     inline mdkMatrix(ElementType* ElementPointer, uint64 RowNumber, uint64 ColNumber, bool IsInPlaceConstruction = false, bool IsSizeFixed = false);
 
-    // move constructor
-    inline mdkMatrix(mdkMatrix<ElementType>&& targetMatrix);
-
 	inline ~mdkMatrix();
 
-    //-----------------------------------------------------------------------------------//
+    //----------------------  operator=  ----------------------------------------//
+
+    // do not use function template for this function
+    // otherwise, compiler will create a new one
+    inline void operator=(const mdkMatrix<ElementType>& targetMatrix);
+
+    // move assignment operator
+    inline void operator=(mdkMatrix<ElementType>&& targetMatrix);
+
+    inline void operator=(const ElementType& Element);
+
+    inline void operator=(const std::initializer_list<ElementType>& list);
+
+    inline void operator=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+
+    inline void operator=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+
+    inline void operator=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+
+    //----------------------  Copy From Matrix or Element  ----------------------------------------//
+
+    // Copy can be used to convert a matrix from double (ElementType_target) to float (ElementType), etc
+
+    template<typename ElementType_target>  
+    inline bool Copy(const mdkMatrix<ElementType_target>& targetMatrix);
+
+    template<typename ElementType_target>
+    inline bool Copy(const ElementType_target* ElementPointer, uint64 RowNumber, uint64 ColNumber);
+
+    inline bool Fill(const ElementType& Element);
+
+    // copy by share
+    inline bool SharedCopy(const mdkMatrix<ElementType>& targetMatrix);
+
+    //-------------------- Take : the the ownership of the input matrix ---------------------------//
+
+    inline bool Take(mdkMatrix<ElementType>& targetMatrix);
+
+    inline bool Take(mdkMatrix<ElementType>&& targetMatrix);
+
+    inline bool Take(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+
+    inline bool Take(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+
+    inline bool Take(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+
+    //------------------------- Reset , Clear -------------------------------------------//
     
     // set the initial state, only use it in constructor
     inline void Reset();
@@ -188,22 +234,10 @@ public:
     // clear memory if Self is not empty and m_IsSizeFixed is false
     inline bool Clear();
 
-    // force-clear memory, set to be empty, only use it in move constructor and "="
+    // force-clear memory, set to be empty, only use it in move constructor and "=", and Take
     inline void ForceClear();
 
-    //-----------------------------------------------------------------------------//
-
-    inline mdkMatrixElementTypeEnum GetElementType() const;
-
-    inline const ElementType& GetNaNElement() const;
-
-    inline const std::shared_ptr<std::vector<ElementType>>& GetElementDataSharedPointer() const;
-
-	inline ElementType* GetElementDataRawPointer();
-
-	inline const ElementType* GetElementDataRawPointer() const;
-
-	//---------------------- Matrix Size ----------------------------------------//
+	//---------------------- Set/get Matrix Size, Shape ----------------------------------------//
 
     inline bool Reshape(uint64 targetRowNumber, uint64 targetColNumber);
 
@@ -223,49 +257,23 @@ public:
 
 	inline uint64 GetRowNumber() const;
 
-	//---------------------- Initialize Matrix ----------------------------------------//
+    //------------------------ NaN Element -----------------------------//
 
-    // do not use function template for this function
-    // otherwise, compiler will create a new one
-    inline void operator=(const mdkMatrix<ElementType>& targetMatrix);
+    inline const ElementType& GetNaNElement() const;
 
-    // move assignment operator
-    inline void operator=(mdkMatrix<ElementType>&& targetMatrix);
+    //------------------------ Element Type -----------------------------//
 
-	inline void operator=(const ElementType& Element);
+    inline mdkMatrixElementTypeEnum GetElementType() const;
 
-    inline void operator=(const std::initializer_list<ElementType>& list);
+    //--------------------- Get Data Pointer -----------------------------//
 
-    inline void operator=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+    inline const std::shared_ptr<std::vector<ElementType>>& GetElementDataSharedPointer() const;
 
-    inline void operator=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+    inline ElementType* GetElementDataRawPointer();
 
-    inline void operator=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    inline const ElementType* GetElementDataRawPointer() const;
 
-	template<typename ElementType_target>
-    inline bool Copy(const mdkMatrix<ElementType_target>& targetMatrix);
-
-	template<typename ElementType_target>
-    inline bool Copy(const ElementType_target* ElementPointer, uint64 RowNumber, uint64 ColNumber);
-
-	inline bool Fill(const ElementType& Element);
-
-    // share data
-    inline bool SharedCopy(const mdkMatrix<ElementType>& targetMatrix);
-
-    //---------------------------- Take : the the ownership of the input matrix ------------------------------------------//
-
-    inline bool Take(mdkMatrix<ElementType>& targetMatrix);
-
-    inline bool Take(mdkMatrix<ElementType>&& targetMatrix);
-
-    inline bool Take(const mdkShadowMatrix<ElementType>& ShadowMatrix);
-
-    inline bool Take(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
-
-    inline bool Take(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
-
-	//----------- Get/Set Matrix(LinearIndex) : size can not be changed even if m_IsSizeFixed is false -----------------//
+	//----------- Get/Set Matrix(LinearIndex) -----------------------------------//
 
     // operator[]: no bound check
 
@@ -281,7 +289,7 @@ public:
 
 	inline const ElementType& at(uint64 LinearIndex) const;
 
-	//----------- Get/Set Matrix(i,j)  : size can not be changed even if m_IsSizeFixed is false -------------------//
+	//----------- Get/Set Matrix(i,j)  ---------------------------------------------//
 
 	inline ElementType& operator()(uint64 RowIndex, uint64 ColIndex);
 
@@ -291,7 +299,7 @@ public:
 
 	inline const ElementType& at(uint64 RowIndex, uint64 ColIndex) const;
 
-    //---------------------- Get/Set SubMatrix ------------------------------------------------------//
+    //---------------------- Get/Set a set of elements ------------------------------------------------------//
 
     // operator[]: no bound check
 
@@ -306,6 +314,8 @@ public:
     inline mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& LinearIndexList);
 
     inline mdkShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);   
+
+    //---------------------- Get/Set SubMatrix ------------------------------------------------------//
 
     inline mdkShadowMatrix<ElementType> operator()(std::initializer_list<uint64>& RowIndexList,
                                                    std::initializer_list<uint64>& ColIndexList);
@@ -330,8 +340,6 @@ public:
 
     inline ElementType& SubMatrix(uint64 RowIndex, uint64 ColIndex);
 
-    inline mdkShadowMatrix<ElementType> SubMatrix(std::initializer_list<uint64>& LinearIndexList);
-
     inline mdkShadowMatrix<ElementType> SubMatrix(std::initializer_list<uint64>& RowIndexList,
                                                   std::initializer_list<uint64>& ColIndexList);
 
@@ -340,8 +348,6 @@ public:
 
     inline mdkShadowMatrix<ElementType> SubMatrix(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
                                                   const std::initializer_list<uint64>& ColIndexList);
-
-    inline mdkShadowMatrix<ElementType> SubMatrix(const std::vector<uint64>& LinearIndexList);
 
     inline mdkShadowMatrix<ElementType> SubMatrix(const std::vector<uint64>& RowIndexList,
                                                   const std::vector<uint64>& ColIndexList);
@@ -356,19 +362,17 @@ public:
 
     inline mdkMatrix GetSubMatrix(const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList) const;
 
-    inline void GetSubMatrix(mdkMatrix<ElementType> &OutputMatrix, const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList) const;
-
     inline mdkMatrix GetSubMatrix(const std::vector<uint64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
 
     inline mdkMatrix GetSubMatrix(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<uint64>& ColIndexList) const;
 
-    inline mdkMatrix GetSubMatrix(const std::vector<uint64>& LinearIndexList) const;
+    inline bool GetSubMatrix(mdkMatrix<ElementType> &OutputMatrix, const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList) const;
 
 	//---------------------- Get/Set/Fill/Append/Delete/InsertCol Column ----------------------------------------//
 	
     inline mdkShadowMatrix<ElementType> Col(uint64 ColIndex);
 
-    // do not use const as in Col(const std::initializer_list<uint64>& ColIndexList); 
+    // do not use const in Col(const std::initializer_list<uint64>& ColIndexList); 
     // it leads to ambiguous call (vs2013), 
     // e.g., Col({0})  it can initialize Col(uint64) or Col(std::vector);
     //
@@ -612,10 +616,14 @@ public:
 
     inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&)> Operation);
 
+    inline bool ElementOperationInPlace(const char* OperationName, const mdkMatrix<ElementType>& targetMatrix);
+
     inline bool ElementOperationInPlace(const std::string& OperationName, const mdkMatrix<ElementType>& targetMatrix);
 
     inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
                                         const mdkMatrix<ElementType>& targetMatrix);
+
+    inline bool ElementOperationInPlace(const char* OperationName, const ElementType& Element);
 
     inline bool ElementOperationInPlace(const std::string& OperationName, const ElementType& Element);
 

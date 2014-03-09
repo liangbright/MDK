@@ -5,7 +5,6 @@
 #include "mdkLinearAlgebraConfig.h"
 //#include "mdkMatrix.h"
 
-#if defined MDK_Enable_GlueMatrix //=====================================================================================
 
 namespace mdk
 {
@@ -305,7 +304,5 @@ private:
 }// end namespace mdk
 
 #include "mdkGlueMatrixForMultiplication.hpp"
-
-#endif // MDK_Enable_GlueMatrix =====================================================================================
 
 #endif

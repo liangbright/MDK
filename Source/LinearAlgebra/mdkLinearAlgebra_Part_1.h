@@ -25,31 +25,31 @@ template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixAdd(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline void MatrixAdd(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+inline bool MatrixAdd(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixSubtract(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline void MatrixSubtract(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+inline bool MatrixSubtract(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixMultiply(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline void MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+inline bool MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixElementMultiply(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline void MatrixElementMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+inline bool MatrixElementMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixElementDivide(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline void MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+inline bool MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
 
 //------------------- OutputMatrixC = ElementA operator MatrixB --------------------------------------------
 
@@ -57,31 +57,31 @@ template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixAdd(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline void MatrixAdd(mdkMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
+inline bool MatrixAdd(mdkMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixSubtract(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline void MatrixSubtract(mdkMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
+inline bool MatrixSubtract(mdkMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixMultiply(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline void MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, mdkMatrix<ElementType>& MatrixB);
+inline bool MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixElementMultiply(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline void MatrixElementMultiply(mdkMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
+inline bool MatrixElementMultiply(mdkMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixElementDivide(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline void MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
+inline bool MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
 
 //------------------- OutputMatrixC = MatrixA operator ElementB --------------------------------------------
 
@@ -89,31 +89,31 @@ template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixAdd(const mdkMatrix<ElementType>& Matrix, const ElementType& ElementB);
 
 template<typename ElementType>
-inline void MatrixAdd(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
+inline bool MatrixAdd(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixSubtract(const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
-inline void MatrixSubtract(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
+inline bool MatrixSubtract(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixMultiply(const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
-inline void MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
+inline bool MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixElementMultiply(const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
-inline void MatrixElementMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
+inline bool MatrixElementMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixElementDivide(const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
-inline void MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
+inline bool MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
 
 //=========================================================================================================================================//
 //------------------------------------------ MatrixElementOperation ----------------------------------------------------------------------//
@@ -121,6 +121,8 @@ inline void MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const mdk
 
 // ------------------------ MatrixElementOperation on InputMatrix
 
+template<typename ElementType>
+inline mdkMatrix<ElementType> MatrixElementOperation(const char* OperationName, const mdkMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixElementOperation(const std::string& OperationName, const mdkMatrix<ElementType>& InputMatrix);
@@ -139,6 +141,11 @@ inline bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrix,
                                    const mdkMatrix<ElementType>& InputMatrix);
 
 // ------------------------ MatrixElementOperation on InputMatrixA with InputMatrixB
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> MatrixElementOperation(const char* OperationName,
+                                                     const mdkMatrix<ElementType>& InputMatrixA,
+                                                     const mdkMatrix<ElementType>& InputMatrixB);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixElementOperation(const std::string& OperationName,
@@ -164,6 +171,11 @@ inline bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrixC,
                                    const mdkMatrix<ElementType>& InputMatrixB);
 
 // ------------------------ MatrixElementOperation on InputMatrixA with InputElementB
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> MatrixElementOperation(const char* OperationName,
+                                                     const mdkMatrix<ElementType>& InputMatrixA,
+                                                     const ElementType& InputElementB);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixElementOperation(const std::string& OperationName,
@@ -199,7 +211,7 @@ inline mdkMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>
                                                   const std::vector<mdkMatrix<ElementType>*>& MatrixList);
 
 template<typename ElementType>
-inline void MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix, 
+inline bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix,
                                 const std::vector<ElementType>& CoefList, 
                                 const std::vector<mdkMatrix<ElementType>*>& MatrixList);
 
