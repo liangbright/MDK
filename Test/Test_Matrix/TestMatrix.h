@@ -263,9 +263,9 @@ void Test_Matrix_Operator()
         
     D1 = A[{ 0 }];
 
-    mdkMatrix<double> D2 = A[{ 0, 1 }];
+    mdkMatrix<double> D2 = A({ 0, 1 });
 
-    A[{ 0, 1 }] = 1;
+    A({ 0, 1 }) = 1;
 
     std::cout << "A" << '\n';
 
@@ -893,23 +893,23 @@ void Test_SubMatrix()
     std::cout << "A = " << '\n';
     DisplayMatrix(A);
 
-    mdkMatrix<double> subA1 = A.SubMatrix(0, 3, 2, 5);
+    mdkMatrix<double> subA1 = A.GetSubMatrix(0, 3, 2, 5);
     std::cout << "subA1 = " << '\n';
     DisplayMatrix(subA1);
 
-    mdkMatrix<double> subA2 = A.SubMatrix({ 1 }, { 0, 1 });
+    mdkMatrix<double> subA2 = A.at({ 1 }, { 0, 1 });
     std::cout << "subA2 = " << '\n';
     DisplayMatrix(subA2);
 
-    mdkMatrix<double> subA3 = A.SubMatrix({ 1, 2, 3 }, { 0, 1, 2 });
+    mdkMatrix<double> subA3 = A.at({ 1, 2, 3 }, { 0, 1, 2 });
     std::cout << "subA3 = " << '\n';
     DisplayMatrix(subA3);
 
-    mdkMatrix<double> subAa = A.SubMatrix(ALL, { 0, 1, 2, 1, 0});
+    mdkMatrix<double> subAa = A.at(ALL, { 0, 1, 2, 1, 0});
     std::cout << "subAa = " << '\n';
     DisplayMatrix(subAa);
 
-    mdkMatrix<double> subAb = A.SubMatrix({ 0, 1, 2, 1, 0 }, ALL);
+    mdkMatrix<double> subAb = A.at({ 0, 1, 2, 1, 0 }, ALL);
     std::cout << "subAb = " << '\n';
     DisplayMatrix(subAb);
 
@@ -1042,13 +1042,13 @@ void Test_ShadowMatrix_SubMatrix()
 
     mdkMatrix<double> subA1;
     
-    subA1 = A.SubMatrix({ 0 }, { 1 });
+    subA1 = A.at({ 0 }, { 1 });
 
     std::cout << "subA1 = A.SubMatrix({ 0 }, { 1 }) " << '\n';
 
     DisplayMatrix(subA1);
 
-    mdkMatrix<double> subA2 = A.SubMatrix({ 1, 0 }, { 2, 1 });
+    mdkMatrix<double> subA2 = A.at({ 1, 0 }, { 2, 1 });
 
     std::cout << "subA2 = A.SubMatrix({ 1, 0 }, { 2, 1 }) " << '\n';
 
@@ -1059,7 +1059,7 @@ void Test_ShadowMatrix_SubMatrix()
     //subA3 = A.SubMatrix({ 1, 0 }, {});
     //subA3 = A.SubMatrix({}, { 1, 0 });
 
-    mdkMatrix<double> subA4 = A.SubMatrix({ 1, 0 }, ALL);
+    mdkMatrix<double> subA4 = A.at({ 1, 0 }, ALL);
 
     std::cout << "subA4 = A.SubMatrix({ 1, 0 }, ALL) " << '\n';
 

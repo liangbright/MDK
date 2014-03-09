@@ -918,7 +918,7 @@ const ElementType* mdkMatrix<ElementType>::GetElementDataRawPointer() const
 
 //----------- Get/Set Matrix(LinearIndex) -----------------------------------//
 
-// operator[]: no bound check
+// operator[] (): no bound check
 
 template<typename ElementType>
 inline
@@ -940,13 +940,6 @@ template<typename ElementType>
 inline
 ElementType& mdkMatrix<ElementType>::operator()(uint64 LinearIndex)
 {
-    if (LinearIndex >= m_ElementNumber)
-	{
-		mdkError << "Invalid input @ mdkMatrix::operator(i)" <<'\n';
-        
-        return m_NaNElement;
-	}
-
 	return (*m_ElementData)[LinearIndex];
 }
 
@@ -955,16 +948,10 @@ template<typename ElementType>
 inline
 const ElementType& mdkMatrix<ElementType>::operator()(uint64 LinearIndex) const
 {
-	if (LinearIndex >= m_ElementNumber)
-	{
-		mdkError << "Invalid input @ mdkMatrix::operator(i) const" << '\n';
-        
-        return m_NaNElement;
-	}
-
 	return (*m_ElementData)[LinearIndex];
 }
 
+// at(): bound check
 
 template<typename ElementType>
 inline
@@ -997,17 +984,12 @@ const ElementType& mdkMatrix<ElementType>::at(uint64 LinearIndex) const
 
 //----------- Get/Set Matrix(i,j)  ---------------------------------------------//
 
+// operator(): no bound check
+
 template<typename ElementType>
 inline
 ElementType& mdkMatrix<ElementType>::operator()(uint64 RowIndex, uint64 ColIndex)
 {
-    if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
-	{
-		mdkError << "Invalid input @ mdkMatrix::operator(i,j)" << '\n';
-        
-        return m_NaNElement;
-	}
-
     auto LinearIndex = ColIndex*m_RowNumber + RowIndex;
 
     return (*m_ElementData)[LinearIndex];
@@ -1018,13 +1000,6 @@ template<typename ElementType>
 inline
 const ElementType& mdkMatrix<ElementType>::operator()(uint64 RowIndex, uint64 ColIndex) const
 {
-    if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
-    {
-        mdkError << "Invalid input @ mdkMatrix::operator(i,j) const" << '\n';
-        
-        return m_NaNElement;
-    }
-
     auto LinearIndex = ColIndex*m_RowNumber + RowIndex;
 
     return (*m_ElementData)[LinearIndex];
@@ -1066,10 +1041,14 @@ const ElementType& mdkMatrix<ElementType>::at(uint64 RowIndex, uint64 ColIndex) 
 
 //---------------------- Get/Set a set of elements ------------------------------------------------------//
 
+// operator(): no bound check
+//
+// note: operator[] is for single element access only, operator[{}] is not defined
+
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator[](std::initializer_list<uint64>& LinearIndexList)
+mdkMatrix<ElementType>::operator()(std::initializer_list<uint64>& LinearIndexList)
 {
     mdkShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
@@ -1080,7 +1059,7 @@ mdkMatrix<ElementType>::operator[](std::initializer_list<uint64>& LinearIndexLis
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator[](const std::vector<uint64>& LinearIndexList)
+mdkMatrix<ElementType>::operator()(const std::vector<uint64>& LinearIndexList)
 {
     mdkShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
@@ -1091,7 +1070,7 @@ mdkMatrix<ElementType>::operator[](const std::vector<uint64>& LinearIndexList)
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator[](const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
     mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
@@ -1102,7 +1081,7 @@ mdkMatrix<ElementType>::operator[](const ALL_Symbol_For_mdkMatrix_Operator& ALL_
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(std::initializer_list<uint64>& LinearIndexList)
+mdkMatrix<ElementType>::at(std::initializer_list<uint64>& LinearIndexList)
 {
     if (LinearIndexList.size() == 0)
     {
@@ -1130,7 +1109,7 @@ mdkMatrix<ElementType>::operator()(std::initializer_list<uint64>& LinearIndexLis
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const std::vector<uint64>& LinearIndexList)
+mdkMatrix<ElementType>::at(const std::vector<uint64>& LinearIndexList)
 {
     if (LinearIndexList.size() == 0)
     {
@@ -1158,7 +1137,7 @@ mdkMatrix<ElementType>::operator()(const std::vector<uint64>& LinearIndexList)
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
     mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
@@ -1167,10 +1146,79 @@ mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_
 
 //---------------------- Get/Set SubMatrix ------------------------------------------------------//
 
+// operator(): no bound check
+
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>
 mdkMatrix<ElementType>::operator()(std::initializer_list<uint64>& RowIndexList, std::initializer_list<uint64>& ColIndexList)
+{
+    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+
+    return tempShadowMatrix;
+}
+
+
+template<typename ElementType>
+inline
+mdkShadowMatrix<ElementType>
+mdkMatrix<ElementType>::operator()(const std::initializer_list<uint64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+{
+    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+
+    return tempShadowMatrix;
+}
+
+
+template<typename ElementType>
+inline
+mdkShadowMatrix<ElementType>
+mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<uint64>& ColIndexList)
+{
+    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+
+    return tempShadowMatrix;
+}
+
+
+template<typename ElementType>
+inline
+mdkShadowMatrix<ElementType>
+mdkMatrix<ElementType>::operator()(const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList)
+{
+    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+
+    return tempShadowMatrix;
+}
+
+
+template<typename ElementType>
+inline
+mdkShadowMatrix<ElementType>
+mdkMatrix<ElementType>::operator()(const std::vector<uint64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+{
+    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+
+    return tempShadowMatrix;
+}
+
+
+template<typename ElementType>
+inline
+mdkShadowMatrix<ElementType>
+mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<uint64>& ColIndexList)
+{
+    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+
+    return tempShadowMatrix;
+}
+
+// at(): bound check
+
+template<typename ElementType>
+inline
+mdkShadowMatrix<ElementType>
+mdkMatrix<ElementType>::at(std::initializer_list<uint64>& RowIndexList, std::initializer_list<uint64>& ColIndexList)
 {
     if (RowIndexList.size() == 0 || ColIndexList.size() == 0)
     {
@@ -1208,7 +1256,7 @@ mdkMatrix<ElementType>::operator()(std::initializer_list<uint64>& RowIndexList, 
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType> 
-mdkMatrix<ElementType>::operator()(const std::initializer_list<uint64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+mdkMatrix<ElementType>::at(const std::initializer_list<uint64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
     if (RowIndexList.size() == 0)
     {
@@ -1236,7 +1284,7 @@ mdkMatrix<ElementType>::operator()(const std::initializer_list<uint64>& RowIndex
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType> 
-mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<uint64>& ColIndexList)
+mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<uint64>& ColIndexList)
 {
     if (ColIndexList.size() == 0)
     {
@@ -1264,7 +1312,7 @@ mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList)
+mdkMatrix<ElementType>::at(const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList)
 {
     if (RowIndexList.size() == 0 || ColIndexList.size() == 0)
     {
@@ -1302,7 +1350,7 @@ mdkMatrix<ElementType>::operator()(const std::vector<uint64>& RowIndexList, cons
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const std::vector<uint64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+mdkMatrix<ElementType>::at(const std::vector<uint64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
     if (RowIndexList.size() == 0)
     {
@@ -1330,7 +1378,7 @@ mdkMatrix<ElementType>::operator()(const std::vector<uint64>& RowIndexList, cons
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<uint64>& ColIndexList)
+mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<uint64>& ColIndexList)
 {
     if (ColIndexList.size() == 0)
     {
@@ -1356,8 +1404,8 @@ mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_
 
 
 template<typename ElementType>
-inline 
-mdkShadowMatrix<ElementType> 
+inline
+mdkShadowMatrix<ElementType>
 mdkMatrix<ElementType>::SubMatrix(uint64 RowIndex_start, uint64 RowIndex_end, uint64 ColIndex_start, uint64 ColIndex_end)
 {
     if (RowIndex_start >= m_RowNumber || RowIndex_end >= m_RowNumber
@@ -1388,74 +1436,7 @@ mdkMatrix<ElementType>::SubMatrix(uint64 RowIndex_start, uint64 RowIndex_end, ui
     return tempShadowMatrix;
 }
 
-
-
-template<typename ElementType>
-inline ElementType& 
-mdkMatrix<ElementType>::SubMatrix(uint64 RowIndex, uint64 ColIndex)
-{
-    return (*this)(RowIndex, ColIndex);
-}
-
-
-template<typename ElementType>
-inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::SubMatrix(std::initializer_list<uint64>& RowIndexList,
-                                  std::initializer_list<uint64>& ColIndexList)
-{
-    return (*this)(RowIndexList, ColIndexList);
-}
-
-
-template<typename ElementType>
-inline 
-mdkShadowMatrix<ElementType> 
-mdkMatrix<ElementType>::SubMatrix(const std::initializer_list<uint64>& RowIndexList,
-                                  const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
-{
-    return (*this)(RowIndexList, ALL_Symbol);
-}
-
-
-template<typename ElementType>
-inline mdkShadowMatrix<ElementType> 
-mdkMatrix<ElementType>::SubMatrix(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                  const std::initializer_list<uint64>& ColIndexList)
-{
-    return (*this)(ALL_Symbol, ColIndexList);
-}
-
-
-template<typename ElementType>
-inline 
-mdkShadowMatrix<ElementType> 
-mdkMatrix<ElementType>::SubMatrix(const std::vector<uint64>& RowIndexList,
-                                  const std::vector<uint64>& ColIndexList)
-{
-    return (*this)(RowIndexList, ColIndexList);
-}
-
-
-template<typename ElementType>
-inline
-mdkShadowMatrix<ElementType> 
-mdkMatrix<ElementType>::SubMatrix(const std::vector<uint64>& RowIndexList,
-                                  const ALL_Symbol_For_mdkMatrix_Operator& All_Symbol)
-{
-    return (*this)(RowIndexList, All_Symbol);
-}
-
-
-template<typename ElementType>
-inline 
-mdkShadowMatrix<ElementType> 
-mdkMatrix<ElementType>::SubMatrix(const ALL_Symbol_For_mdkMatrix_Operator&,
-                                  const std::vector<uint64>& ColIndexList)
-{
-    return (*this)(All_Symbol, ColIndexList);
-}
-
+// return SubMatrix as Matrix
 
 template<typename ElementType>
 inline
@@ -1508,10 +1489,6 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetSubMatrix(const std::vector<ui
 }
 
 
-// Attention:
-// this function is used for mdkShadowMatrix.CreateMatrix(OutputMatrix)
-// Try not to use it for other purpose because it does not check OutputMatrix
-//
 template<typename ElementType>
 inline
 bool mdkMatrix<ElementType>::GetSubMatrix(mdkMatrix<ElementType>& OutputMatrix,

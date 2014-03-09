@@ -275,7 +275,7 @@ public:
 
 	//----------- Get/Set Matrix(LinearIndex) -----------------------------------//
 
-    // operator[]: no bound check
+    // operator[] or () : no bound check
 
     inline ElementType& operator[](uint64 LinearIndex);
 
@@ -285,29 +285,31 @@ public:
 
     inline const ElementType& operator()(uint64 LinearIndex) const;
     
+    // at(): bound check
+
 	inline ElementType& at(uint64 LinearIndex);
 
 	inline const ElementType& at(uint64 LinearIndex) const;
 
 	//----------- Get/Set Matrix(i,j)  ---------------------------------------------//
 
+    // operator() : no bound check
+
 	inline ElementType& operator()(uint64 RowIndex, uint64 ColIndex);
 
 	inline const ElementType& operator()(uint64 RowIndex, uint64 ColIndex) const;
+
+    // at(): bound check
 
 	inline ElementType& at(uint64 RowIndex, uint64 ColIndex);
 
 	inline const ElementType& at(uint64 RowIndex, uint64 ColIndex) const;
 
-    //---------------------- Get/Set a set of elements ------------------------------------------------------//
+    //---------------------- Get/Set a set of elements by Matrix({}) or Matrix.at({}) ----------------------------//
 
-    // operator[]: no bound check
-
-    inline mdkShadowMatrix<ElementType> operator[](std::initializer_list<uint64>& LinearIndexList);
-
-    inline mdkShadowMatrix<ElementType> operator[](const std::vector<uint64>& LinearIndexList);
-
-    inline mdkShadowMatrix<ElementType> operator[](const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+    // operator(): no bound check
+    //
+    // note: operator[] is for single element access only, operator[{}] is not defined
 
     inline mdkShadowMatrix<ElementType> operator()(std::initializer_list<uint64>& LinearIndexList);
 
@@ -315,7 +317,17 @@ public:
 
     inline mdkShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);   
 
-    //---------------------- Get/Set SubMatrix ------------------------------------------------------//
+    // at(): bound check
+
+    inline mdkShadowMatrix<ElementType> at(std::initializer_list<uint64>& LinearIndexList);
+
+    inline mdkShadowMatrix<ElementType> at(const std::vector<uint64>& LinearIndexList);
+
+    inline mdkShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+
+    //---------------------- Get/Set SubMatrix by Matrix({}, {}) or Matrix.at({}, {})  or Matrix.SubMatrix(a, b, c, d) -------//
+
+    // operator(): no bound check
 
     inline mdkShadowMatrix<ElementType> operator()(std::initializer_list<uint64>& RowIndexList,
                                                    std::initializer_list<uint64>& ColIndexList);
@@ -335,38 +347,46 @@ public:
     inline mdkShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
                                                    const std::vector<uint64>& ColIndexList);
 
-    inline mdkShadowMatrix<ElementType> SubMatrix(uint64 RowIndex_start, uint64 RowIndex_end, 
+    // at(): bound check
+
+    inline mdkShadowMatrix<ElementType> at(std::initializer_list<uint64>& RowIndexList,
+                                           std::initializer_list<uint64>& ColIndexList);
+
+    inline mdkShadowMatrix<ElementType> at(const std::initializer_list<uint64>& RowIndexList,
+                                           const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+
+    inline mdkShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
+                                           const std::initializer_list<uint64>& ColIndexList);
+
+    inline mdkShadowMatrix<ElementType> at(const std::vector<uint64>& RowIndexList,
+                                           const std::vector<uint64>& ColIndexList);
+
+    inline mdkShadowMatrix<ElementType> at(const std::vector<uint64>& RowIndexList,
+                                           const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+
+    inline mdkShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
+                                           const std::vector<uint64>& ColIndexList);
+
+    inline mdkShadowMatrix<ElementType> SubMatrix(uint64 RowIndex_start, uint64 RowIndex_end,
                                                   uint64 ColIndex_start, uint64 ColIndex_end);
 
-    inline ElementType& SubMatrix(uint64 RowIndex, uint64 ColIndex);
+    // return SubMatrix as Matrix
 
-    inline mdkShadowMatrix<ElementType> SubMatrix(std::initializer_list<uint64>& RowIndexList,
-                                                  std::initializer_list<uint64>& ColIndexList);
+	inline mdkMatrix GetSubMatrix(uint64 RowIndex_start, uint64 RowIndex_end, 
+                                  uint64 ColIndex_start, uint64 ColIndex_end) const;
 
-    inline mdkShadowMatrix<ElementType> SubMatrix(const std::initializer_list<uint64>& RowIndexList,
-                                                  const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+    inline mdkMatrix GetSubMatrix(const std::vector<uint64>& RowIndexList, 
+                                  const std::vector<uint64>& ColIndexList) const;
 
-    inline mdkShadowMatrix<ElementType> SubMatrix(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                                  const std::initializer_list<uint64>& ColIndexList);
+    inline mdkMatrix GetSubMatrix(const std::vector<uint64>& RowIndexList, 
+                                  const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
 
-    inline mdkShadowMatrix<ElementType> SubMatrix(const std::vector<uint64>& RowIndexList,
-                                                  const std::vector<uint64>& ColIndexList);
+    inline mdkMatrix GetSubMatrix(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, 
+                                  const std::vector<uint64>& ColIndexList) const;
 
-    inline mdkShadowMatrix<ElementType> SubMatrix(const std::vector<uint64>& RowIndexList,
-                                                  const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
-
-    inline mdkShadowMatrix<ElementType> SubMatrix(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                                  const std::vector<uint64>& ColIndexList);
-
-	inline mdkMatrix GetSubMatrix(uint64 RowIndex_start, uint64 RowIndex_end, uint64 ColIndex_start, uint64 ColIndex_end) const;
-
-    inline mdkMatrix GetSubMatrix(const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList) const;
-
-    inline mdkMatrix GetSubMatrix(const std::vector<uint64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
-
-    inline mdkMatrix GetSubMatrix(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<uint64>& ColIndexList) const;
-
-    inline bool GetSubMatrix(mdkMatrix<ElementType> &OutputMatrix, const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList) const;
+    inline bool GetSubMatrix(mdkMatrix<ElementType> &OutputMatrix, 
+                             const std::vector<uint64>& RowIndexList, 
+                             const std::vector<uint64>& ColIndexList) const;
 
 	//---------------------- Get/Set/Fill/Append/Delete/InsertCol Column ----------------------------------------//
 	
