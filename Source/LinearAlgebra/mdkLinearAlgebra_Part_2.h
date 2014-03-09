@@ -39,7 +39,7 @@ struct mdkMatrixEigenResult
     mdkMatrixEigenResult(mdkMatrixEigenResult&& Result)
     {
         EigenVector = std::move(Result.EigenVector);
-        EigenValue = std::move(Result.EigenValue);
+        EigenValue  = std::move(Result.EigenValue);
     }
 
     ~mdkMatrixEigenResult(){};
@@ -47,7 +47,7 @@ struct mdkMatrixEigenResult
     void operator=(const mdkMatrixEigenResult&& Result)
     {
         EigenVector = std::move(Result.EigenVector);
-        EigenValue = std::move(Result.EigenValue);
+        EigenValue  = std::move(Result.EigenValue);
     }
 
     //------------------------------------------------------

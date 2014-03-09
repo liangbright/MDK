@@ -128,7 +128,7 @@ void mdkGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkMatrix<Elem
         }
         else
         {
-            mdkError << "Size does not match @ mdkGlueMatrix::CreateMatrix(OutputMatrix)" << '\n';
+            mdkError << "Size does not match @ mdkGlueMatrixForLinearCombination::CreateMatrix(OutputMatrix)" << '\n';
             return;
         }
     }

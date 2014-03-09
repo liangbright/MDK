@@ -232,6 +232,27 @@ void operator/=(std::vector<ElementType>& Voxel, const ElementType& Element)
 }
 
 
+template<typename ElementType>
+inline
+std::vector<ElementType> VectorVoxelLinearCombine(const std::vector<double>& CoefList, const std::vector<std::vector<ElementType>*>& ArrayList)
+{
+    std::vector<ElementType> tempArray;
+
+    uint64 ArrayNumber = ArrayList.size();
+
+    for (uint64 i = 0; i < ArrayList[0]->size(); ++i)
+    {
+        tempArray[i] = 0;
+
+        for (uint64 k = 0; k < ArrayNumber; ++k)
+        {
+            tempArray[i] += CoefList[i] * ArrayList[k]->operator[](i);
+        }
+    }
+
+    return tempArray;
+}
+
 }// namespace mkd
 
 #endif

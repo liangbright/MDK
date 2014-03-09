@@ -172,9 +172,7 @@ public:
 
     inline mdkMatrix(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix, bool IsSizeFixed = false);
 
-    inline mdkMatrix(const ElementType* ElementPointer, uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = false);
-
-    inline mdkMatrix(std::vector<ElementType>* ElementDataPointer, uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = false);
+    inline mdkMatrix(ElementType* ElementPointer, uint64 RowNumber, uint64 ColNumber, bool IsInPlaceConstruction = false, bool IsSizeFixed = false);
 
     // move constructor
     inline mdkMatrix(mdkMatrix<ElementType>&& targetMatrix);
@@ -255,6 +253,8 @@ public:
     inline bool SharedCopy(const mdkMatrix<ElementType>& targetMatrix);
 
     //---------------------------- Take : the the ownership of the input matrix ------------------------------------------//
+
+    inline bool Take(mdkMatrix<ElementType>& targetMatrix);
 
     inline bool Take(mdkMatrix<ElementType>&& targetMatrix);
 

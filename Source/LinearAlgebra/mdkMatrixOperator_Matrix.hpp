@@ -160,52 +160,7 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    auto SizeA = MatrixA.GetSize();
-
-    auto SizeB = MatrixB.GetSize();
-
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
-    {
-        return MatrixA(0) / MatrixB;
-    }
-
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
-    {
-        return MatrixA.ElementOperation("/", MatrixB(0));  // MatrixA / MatrixB(0) return GlueMatrixForMultiplication
-    }
-
-    mdkMatrix<ElementType> tempMatrix;
-
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
-    {
-        mdkError << "Size does not match @ mdkMatrixOperator: /(MatrixA, MatrixB)" << '\n';
-
-        return  tempMatrix;
-    }
-
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
-    {
-        mdkError << "MatrixA or MatrixB is empty @ mdkMatrixOperator: /(MatrixA, MatrixB)" << '\n';
-
-        return  tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
-
-    auto ptrTemp = tempMatrix.GetElementDataRawPointer();
-
-    auto ptrA = MatrixA.GetElementDataRawPointer();
-
-    auto ptrB = MatrixB.GetElementDataRawPointer();
-
-    auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
-
-    for (uint64 i = 0; i < ElementNumber; ++i)
-    {
-        ptrTemp[i] = ptrA[i] / ptrB[i];
-    }
-
-    return  tempMatrix;
+    return MatrixElementDivide(MatrixA, MatrixB);
 }
 
 // ---------------------------------------------------- Matrix  {+ - * /}  Element ------------------------------------------------------//
@@ -362,31 +317,7 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
-    auto SizeB = MatrixB.GetSize();
-
-    if (SizeB.RowNumber == 0)
-    {
-        mdkError << "MatrixB is empty @ mdkMatrixOperator: /(ElementA, MatrixB)" << '\n';
-
-        return  tempMatrix;
-    }
-
-    tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
-
-    auto ptrTemp = tempMatrix.GetElementDataRawPointer();
-
-    auto ptrB = MatrixB.GetElementDataRawPointer();
-
-    auto ElementNumber = SizeB.RowNumber*SizeB.ColNumber;
-
-    for (uint64 i = 0; i < ElementNumber; ++i)
-    {
-        ptrTemp[i] = ElementA / ptrB[i];
-    }
-
-    return tempMatrix;
+    return MatrixElementDivide(ElementA, MatrixB);
 }
 
 } // namespace mdk

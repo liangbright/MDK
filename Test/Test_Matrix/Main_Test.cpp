@@ -75,7 +75,7 @@ int main()
 
 
     
-   // Test_Constructor();
+    Test_Constructor();
 
    // Test_Destructor();
 
@@ -89,7 +89,7 @@ int main()
 
   //  Test_SubMatrix();
 
-    Test_ShadowMatrix();
+    //Test_ShadowMatrix();
 
 
    // Test_Share();

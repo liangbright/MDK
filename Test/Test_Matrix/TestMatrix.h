@@ -134,7 +134,7 @@ void Test_Constructor()
     // move constructor is used
     // move "=" is used
     //D2 is not temporary
-    D2 = A*A;
+    D2 = (A*A).ElementMultiply(A);
 
     //D3 is temporary
     auto D3 = D2;

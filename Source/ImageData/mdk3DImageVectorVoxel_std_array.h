@@ -69,6 +69,11 @@ inline void operator/=(std::array<ElementType, Length>& Voxel, const ElementType
 
 //---------------------------------------------------------------------------------------------------------------//
 
+//---------------------------------------------- LinearCombine ------------------------------------------------------------------//
+
+template<typename ElementType, uint64 Length>
+inline std::array<ElementType, Length> VectorVoxelLinearCombine(const std::vector<double>& CoefList,
+                                                                const std::vector<std::array<ElementType, Length>*>& VectorList);
 }
 
 #include "mdk3DImageVectorVoxel_std_array.hpp"

@@ -92,155 +92,210 @@ private:
 
     //--------------------------- friend class ----------------------------------------------------------------------------------//
 
-    template<typename T>
+    template<typename E_TYPE>
     friend class mdkMatrix;
 
     //--------------------------- friend function ----------------------------------------------------------------------------------//
 
     // ----------------------------------------------------- Matrix  {*}  Matrix ---------------------------------------------------------//
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForMultiplication<TYPE> operator*(const mdkMatrix<TYPE>& MatrixA, const mdkMatrix<TYPE>& MatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const mdkMatrix<E_TYPE>& MatrixA, const mdkMatrix<E_TYPE>& MatrixB);
+
+    // ---------------------------------------------------- Matrix  {* /}  Element ------------------------------------------------------//
+
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const mdkMatrix<E_TYPE>& MatrixA, const E_TYPE& ElementB);
+
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator/(const mdkMatrix<E_TYPE>& MatrixA, const E_TYPE& ElementB);
+
+    // --------------------------------------------------- Element {*} Matrix  ---------------------------------------------------------//
+
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const E_TYPE& ElementA, const mdkMatrix<E_TYPE>& MatrixB);
+
+    // ------------------------------------------ Matrix {*}  ShadowMatrix -----------------------------------------------------//
+
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const mdkMatrix<E_TYPE>& MatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
+
+    // ------------------------------------------ ShadowMatrix {*}  Matrix ----------------------------------------------------------//
+
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const mdkShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkMatrix<E_TYPE>& MatrixB);
+
+    // ---------------------------------------- ShadowMatrix {*}  ShadowMatrix -------------------------------------------------------//
+
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const mdkShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
+
+    // ---------------------------------------- Matrix or {*} GlueMatrixForLinearCombination -------------------------------------------------------//
+
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const mdkMatrix<E_TYPE>& MatrixA, const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
+
+
+    // --------------------------------------- GlueMatrixForLinearCombination {*}  Matrix ---------------------------------------------------------//
+
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixA, const mdkMatrix<E_TYPE>& MatrixB);
+
+
+    // -------------------------------------- ShadowMatrix {*} GlueMatrixForLinearCombination -------------------------------------------------------//
+
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const mdkShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
+
+    // ------------------------------------- GlueMatrixForLinearCombination {*}  ShadowMatrix -----------------------------------------------------//
+
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
+
+    // ------------------------------------- GlueMatrixForLinearCombination {*}  GlueMatrixForLinearCombination ---------------------------------------//
+
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixA, const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
 
     // --------------------------------------------- GlueMatrixForMultiplication {+ - * /}  Matrix ---------------------------------------------------------//
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator+(const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixA, const mdkMatrix<TYPE>& MatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator+(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkMatrix<E_TYPE>& MatrixB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator-(const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixA, const mdkMatrix<TYPE>& MatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator-(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkMatrix<E_TYPE>& MatrixB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForMultiplication<TYPE> operator*(mdkGlueMatrixForMultiplication<TYPE> GlueMatrixA, const mdkMatrix<TYPE>& MatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(mdkGlueMatrixForMultiplication<E_TYPE> GlueMatrixA, const mdkMatrix<E_TYPE>& MatrixB);
 
-    template<typename TYPE>
-    friend mdkMatrix<TYPE> operator/(const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixA, const mdkMatrix<TYPE>& MatrixB);
+    template<typename E_TYPE>
+    friend mdkMatrix<E_TYPE> operator/(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkMatrix<E_TYPE>& MatrixB);
 
     // --------------------------------------------- Matrix or {+ - * /} GlueMatrixForMultiplication -------------------------------------------------------//
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator+(const mdkMatrix<TYPE>& MatrixA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator+(const mdkMatrix<E_TYPE>& MatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator-(const mdkMatrix<TYPE>& MatrixA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator-(const mdkMatrix<E_TYPE>& MatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForMultiplication<TYPE> operator*(const mdkMatrix<TYPE>& MatrixA, mdkGlueMatrixForMultiplication<TYPE> GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const mdkMatrix<E_TYPE>& MatrixA, mdkGlueMatrixForMultiplication<E_TYPE> GlueMatrixB);
 
-    template<typename TYPE>
-    friend mdkMatrix<TYPE> operator/(const mdkMatrix<TYPE>& MatrixA, const mdkGlueMatrixForMultiplication<TYPE> GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkMatrix<E_TYPE> operator/(const mdkMatrix<E_TYPE>& MatrixA, const mdkGlueMatrixForMultiplication<E_TYPE> GlueMatrixB);
 
     // -------------------------------------------- GlueMatrixForMultiplication  {+ - * /}  Element ------------------------------------------------------//
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator+(const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixA, const TYPE& ElementB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator+(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const E_TYPE& ElementB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator-(const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixA, const TYPE& ElementB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator-(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const E_TYPE& ElementB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForMultiplication<TYPE> operator*(mdkGlueMatrixForMultiplication<TYPE> GlueMatrixA, const TYPE& ElementB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(mdkGlueMatrixForMultiplication<E_TYPE> GlueMatrixA, const E_TYPE& ElementB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForMultiplication<TYPE> operator/(mdkGlueMatrixForMultiplication<TYPE> GlueMatrixA, const TYPE& ElementB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator/(mdkGlueMatrixForMultiplication<E_TYPE> GlueMatrixA, const E_TYPE& ElementB);
 
     // ---------------------------------------------- Element {+ - * /} GlueMatrixForMultiplication -----------------------------------------------------//
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator+(const TYPE& ElementA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator+(const E_TYPE& ElementA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator-(const TYPE& ElementA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator-(const E_TYPE& ElementA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForMultiplication<TYPE> operator*(const TYPE& ElementA, mdkGlueMatrixForMultiplication<TYPE> GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const E_TYPE& ElementA, mdkGlueMatrixForMultiplication<E_TYPE> GlueMatrixB);
 
-    template<typename TYPE>
-    friend mdkMatrix<TYPE> operator/(const TYPE& ElementA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkMatrix<E_TYPE> operator/(const E_TYPE& ElementA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
     // -------------------------------------------- GlueMatrixForMultiplication {+ - /}  ShadowMatrix -----------------------------------------------------//
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator+(const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator+(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator-(const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator-(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForMultiplication<TYPE> operator*(mdkGlueMatrixForMultiplication<TYPE> GlueMatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(mdkGlueMatrixForMultiplication<E_TYPE> GlueMatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
 
-    template<typename TYPE>
-    friend mdkMatrix<TYPE> operator/(const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixA, const mdkShadowMatrix<TYPE>& ShadowMatrixB);
+    template<typename E_TYPE>
+    friend mdkMatrix<E_TYPE> operator/(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     // ------------------------------------------ ShadowMatrix {+ - * /} GlueMatrixForMultiplication -------------------------------------------------------//
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator+(const mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator+(const mdkShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator-(const mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator-(const mdkShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForMultiplication<TYPE> operator*(const mdkShadowMatrix<TYPE>& ShadowMatrixA, mdkGlueMatrixForMultiplication<TYPE> GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const mdkShadowMatrix<E_TYPE>& ShadowMatrixA, mdkGlueMatrixForMultiplication<E_TYPE> GlueMatrixB);
 
-    template<typename TYPE>
-    friend mdkMatrix<TYPE> operator/(const mdkShadowMatrix<TYPE>& ShadowMatrixA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkMatrix<E_TYPE> operator/(const mdkShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
-    // -------------------------------------------- GlueMatrixForMultiplication {+ - /}  GlueMatrixForLinearCombination -----------------------------------------//
+    // -------------------------------------------- GlueMatrixForMultiplication {+ - * /}  GlueMatrixForLinearCombination -----------------------------------------//
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator+(const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixA_M, mdkGlueMatrixForLinearCombination<TYPE> GlueMatrixB_L);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator+(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA_M, mdkGlueMatrixForLinearCombination<E_TYPE> GlueMatrixB_L);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator-(const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixA_M, mdkGlueMatrixForLinearCombination<TYPE> GlueMatrixB_L);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator-(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA_M, mdkGlueMatrixForLinearCombination<E_TYPE> GlueMatrixB_L);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForMultiplication<TYPE> operator*(mdkGlueMatrixForMultiplication<TYPE> GlueMatrixA_M, const mdkGlueMatrixForLinearCombination<TYPE>& GlueMatrixB_L);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(mdkGlueMatrixForMultiplication<E_TYPE> GlueMatrixA_M, const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB_L);
 
-    template<typename TYPE>
-    friend mdkMatrix<TYPE> operator/(const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixA_M, const mdkGlueMatrixForLinearCombination<TYPE>& GlueMatrixB_L);
+    template<typename E_TYPE>
+    friend mdkMatrix<E_TYPE> operator/(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA_M, const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB_L);
 
     // ------------------------------------------ GlueMatrixForLinearCombination {+ - * /} GlueMatrixForMultiplication -------------------------------------------//
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator+(mdkGlueMatrixForLinearCombination<TYPE> GlueMatrixA_L, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB_M);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator+(mdkGlueMatrixForLinearCombination<E_TYPE> GlueMatrixA_L, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB_M);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator-(mdkGlueMatrixForLinearCombination<TYPE> GlueMatrixA_L, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB_M);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator-(mdkGlueMatrixForLinearCombination<E_TYPE> GlueMatrixA_L, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB_M);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForMultiplication<TYPE> operator*(const mdkGlueMatrixForLinearCombination<TYPE>& GlueMatrixA_L, mdkGlueMatrixForMultiplication<TYPE> GlueMatrixB_M);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixA_L, mdkGlueMatrixForMultiplication<E_TYPE> GlueMatrixB_M);
 
-    template<typename TYPE>
-    friend mdkMatrix<TYPE> operator/(const mdkGlueMatrixForLinearCombination<TYPE>& GlueMatrixA_L, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB_M);
+    template<typename E_TYPE>
+    friend mdkMatrix<E_TYPE> operator/(const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixA_L, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB_M);
 
     // --------------------------------------------- GlueMatrixForMultiplication {+ - * /}  GlueMatrixForMultiplication ---------------------------------------//
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator+(const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator+(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForLinearCombination<TYPE> operator-(const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator-(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
-    template<typename TYPE>
-    friend mdkGlueMatrixForMultiplication<TYPE> operator*(mdkGlueMatrixForMultiplication<TYPE> GlueMatrixA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForMultiplication<E_TYPE> operator*(mdkGlueMatrixForMultiplication<E_TYPE> GlueMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
-    template<typename TYPE>
-    friend mdkMatrix<TYPE> operator/(const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend mdkMatrix<E_TYPE> operator/(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
     //------------------------------------------------ ShadowMatrix {+= -= *= /=} GlueMatrixForMultiplication --------------------------------------------//
 
-    template<typename TYPE>
-    friend void operator+=(mdkShadowMatrix<TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend void operator+=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
-    template<typename TYPE>
-    friend void operator-=(mdkShadowMatrix<TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend void operator-=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
-    template<typename TYPE>
-    friend void operator*=(mdkShadowMatrix<TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend void operator*=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
-    template<typename TYPE>
-    friend void operator/=(mdkShadowMatrix<TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<TYPE>& GlueMatrixB);
+    template<typename E_TYPE>
+    friend void operator/=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
 };
 

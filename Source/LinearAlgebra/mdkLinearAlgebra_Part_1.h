@@ -218,14 +218,6 @@ void MatrixLinearCombine_UnrollForLoop_8(ElementType* Output, uint64 ElementNumb
                                          const ElementType* CoefPtr, 
                                          const std::vector<ElementType*>& MatrixElementDataRawPtrList);
 
-//---------------------------------------------- VectorLinearCombine ------------------------------------------------------------------//
-
-template<typename ElementType, uint64 Length>
-inline std::array<ElementType, Length> VectorLinearCombine(const std::vector<double>& CoefList, 
-                                                           const std::vector<std::array<ElementType, Length>*>& VectorList);
-
-template<typename ElementType>
-inline std::vector<ElementType> VectorLinearCombine(const std::vector<double>& CoefList, const std::vector<std::vector<ElementType>*>& VectorList);
 
 //----------------------------------------------------------------------------------------------------------------//
 

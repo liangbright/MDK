@@ -14,25 +14,9 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> MatrixAdd(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeA = MatrixA.GetSize();
 
-    auto SizeB = MatrixB.GetSize();
-
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
-    {
-        mdkError << "MatrixA or MatrixB is empty @ mdkLinearAlgebra MatrixAdd(OutputMatrixC, MatrixA, MatrixB)" << '\n';
-        return tempMatrix;
-    }
-
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
-    {
-        mdkError << "Size does not match @ mdkLinearAlgebra MatrixAdd(MatrixA, MatrixB)" << '\n';
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixAdd(tempMatrix, MatrixA, MatrixB);
 
@@ -54,34 +38,19 @@ void MatrixAdd(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementTyp
         return;
     }
 
-    bool Is_A_Scalar = false;
-
-    bool Is_B_Scalar = false;
-
     if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
-    {
-        Is_A_Scalar = true;
-    }
-
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
-    {        
-        Is_B_Scalar = true;
-    }
-
-    if (Is_A_Scalar == true && Is_B_Scalar == false)
     {
         mdkWarning << "MatrixA is treated as a scalar @ mdkLinearAlgebra MatrixAdd(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         MatrixAdd(OutputMatrixC, MatrixA(0), MatrixB);
         return;
     }
-    else if (Is_A_Scalar == false && Is_B_Scalar == true)
-    {
+
+    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    {        
         mdkWarning << "MatrixB is treated as a scalar @ mdkLinearAlgebra MatrixAdd(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         MatrixAdd(OutputMatrixC, MatrixA, MatrixB(0));
         return;
     }
-
-    // only one of MatrixA and MatrixB can be scalar
 
     auto SizeC = OutputMatrixC.GetSize();
 
@@ -111,25 +80,9 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> MatrixSubtract(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeA = MatrixA.GetSize();
 
-    auto SizeB = MatrixB.GetSize();
-
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
-    {
-        mdkError << "MatrixA or MatrixB is empty @ mdkLinearAlgebra MatrixSubtract(MatrixA, MatrixB)" << '\n';
-        return tempMatrix;
-    }
-
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
-    {
-        mdkError << "Size does not match @ mdkLinearAlgebra MatrixSubtract(MatrixA, MatrixB)" << '\n';
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixSubtract(tempMatrix, MatrixA, MatrixB);
 
@@ -151,29 +104,15 @@ void MatrixSubtract(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
         return;
     }
 
-    bool Is_A_Scalar = false;
-
-    bool Is_B_Scalar = false;
-
     if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
     {        
-        Is_A_Scalar = true;    
-    }
-
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
-    {        
-        Is_B_Scalar = true;
-        return;
-    }
-
-    if (Is_A_Scalar == true && Is_B_Scalar == false)
-    {
         mdkWarning << "MatrixA is treated as a scalar @ mdkLinearAlgebra MatrixSubtract(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         MatrixSubtract(OutputMatrixC, MatrixA(0), MatrixB);
         return;
     }
-    else if (Is_A_Scalar == false && Is_B_Scalar == true)
-    {
+
+    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    {        
         mdkWarning << "MatrixB is treated as a scalar @ mdkLinearAlgebra MatrixSubtract(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         MatrixSubtract(OutputMatrixC, MatrixA, MatrixB(0));
         return;
@@ -209,25 +148,11 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> MatrixMultiply(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeA = MatrixA.GetSize();
 
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
-    {
-        mdkError << "MatrixA or MatrixB is empty @ mdkLinearAlgebra MatrixMultiply(MatrixA, MatrixB)" << '\n';
-        return  tempMatrix;
-    }
-
-    if (SizeA.ColNumber != SizeB.RowNumber)
-    {
-        mdkError << "Size does not match @ mdkLinearAlgebra MatrixMultiply(MatrixA, MatrixB)" << '\n';
-        return  tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeA.RowNumber, SizeB.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeA.RowNumber, SizeB.ColNumber);
 
     MatrixMultiply(tempMatrix, MatrixA, MatrixB);
 
@@ -257,7 +182,7 @@ void MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
 
         MatrixMultiply(tempMatrix, MatrixA, MatrixB);
 
-        OutputMatrixC.Share(tempMatrix);
+        OutputMatrixC.Take(tempMatrix);
 
         return;
     }
@@ -272,34 +197,19 @@ void MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
         return;
     }
 
-    bool Is_A_Scalar = false;
-
-    bool Is_B_Scalar = false;
-
     if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
-    {
-        Is_A_Scalar = true;
-    }
-
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
-    {
-        Is_B_Scalar = true;
-    }
-
-    if (Is_A_Scalar == true && Is_B_Scalar == false)
     {
         mdkWarning << "MatrixA is treated as a scalar @ mdkLinearAlgebra MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         MatrixMultiply(OutputMatrixC, MatrixA(0), MatrixB);
         return;
     }
-    else if (Is_A_Scalar == false && Is_B_Scalar == true)
+
+    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
     {
         mdkWarning << "MatrixB is treated as a scalar @ mdkLinearAlgebra MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         MatrixMultiply(OutputMatrixC, MatrixA, MatrixB(0));
         return;
     }
-
-    // only one of MatrixA and MatrixB can be scalar
 
     auto SizeC = OutputMatrixC.GetSize();
 
@@ -309,7 +219,7 @@ void MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
         return;
     }
 
-    //--------------------- lapack ------------------------------------------------
+    //--------------------- lapack -------------------------------------------------------------------------------------------
 
     arma::Mat<double> A(ptrA, arma::uword(MatrixA.GetRowNumber()), arma::uword(MatrixA.GetColNumber()), false);
     arma::Mat<double> B(ptrB, arma::uword(MatrixB.GetRowNumber()), arma::uword(MatrixB.GetColNumber()), false);
@@ -319,7 +229,7 @@ void MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
 
     return;
 
-    //--------------------- for-loop : slow ----------------------------------------------------
+    //--------------------- for-loop : slow ------------------------------------------------------------------------------------
 
     uint64 IndexA = 0;
 
@@ -361,25 +271,9 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> MatrixElementMultiply(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeA = MatrixA.GetSize();
 
-    auto SizeB = MatrixB.GetSize();
-
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
-    {
-        mdkError << "MatrixA or MatrixB is empty @ mdkLinearAlgebra MatrixElementMultiply(MatrixA, MatrixB)" << '\n';
-        return;
-    }
-
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
-    {
-        mdkError << "Size does not match @ mdkLinearAlgebra MatrixElementMultiply(MatrixA, MatrixB)" << '\n';
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixElementMultiply(tempMatrix, MatrixA, MatrixB);
 
@@ -401,35 +295,19 @@ void MatrixElementMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatri
         return;
     }
 
-    bool Is_A_Scalar = false;
-
-    bool Is_B_Scalar = false;
-
     if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
-    {
-        Is_A_Scalar = true;
-    }
-
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
-    {
-        Is_B_Scalar = true;
-        return;
-    }
-
-    if (Is_A_Scalar == true && Is_B_Scalar == false)
     {
         mdkWarning << "MatrixA is treated as a scalar @ mdkLinearAlgebra MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         MatrixElementMultiply(OutputMatrixC, MatrixA(0), MatrixB);
         return;
     }
-    else if (Is_A_Scalar == false && Is_B_Scalar == true)
+
+    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
     {
         mdkWarning << "MatrixB is treated as a scalar @ mdkLinearAlgebra MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB(0));
         return;
     }
-
-    // only one of MatrixA and MatrixB can be scalar
 
     auto SizeC = OutputMatrixC.GetSize();
 
@@ -459,25 +337,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> MatrixElementDivide(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
-    auto SizeA = MatrixA.GetSize();
-
-    auto SizeB = MatrixB.GetSize();
-
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
-    {
-        mdkError << "MatrixA or MatrixB is empty @ mdkLinearAlgebra MatrixElementDivide(MatrixA, MatrixB)" << '\n';
-        return tempMatrix;
-    }
-
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
-    {
-        mdkError << "Size does not match @ mdkLinearAlgebra MatrixElementDivide(MatrixA, MatrixB)" << '\n';
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixElementDivide(tempMatrix, MatrixA, MatrixB);
 
@@ -559,17 +419,9 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> MatrixAdd(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeB.RowNumber == 0)
-    {
-        mdkError << "MatrixB is empty @ mdkLinearAlgebra MatrixAdd(ElementA, MatrixB)" << '\n';
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeB.RowNumber, SizeB.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeB.RowNumber, SizeB.ColNumber);
 
     MatrixAdd(tempMatrix, ElementA, MatrixB);
 
@@ -614,17 +466,9 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> MatrixSubtract(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeB.RowNumber == 0)
-    {
-        mdkError << "MatrixB is empty @ mdkLinearAlgebra MatrixSubtract(ElementA, MatrixB)" << '\n';
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeB.RowNumber, SizeB.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeB.RowNumber, SizeB.ColNumber);
 
     MatrixSubtract(tempMatrix, ElementA, MatrixB);
 
@@ -669,17 +513,9 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> MatrixMultiply(const ElementType& ElementA, mdkMatrix<ElementType>& MatrixB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeB.RowNumber == 0)
-    {
-        mdkError << "MatrixB is empty @ mdkLinearAlgebra MatrixMultiply(ElementA, MatrixB)" << '\n';
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeB.RowNumber, SizeB.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeB.RowNumber, SizeB.ColNumber);
 
     MatrixMultiply(tempMatrix, ElementA, MatrixB);
 
@@ -724,17 +560,9 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> MatrixElementMultiply(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeB.RowNumber == 0)
-    {
-        mdkError << "MatrixB is empty @ mdkLinearAlgebra MatrixElementMultiply(ElementA, MatrixB)" << '\n';
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeB.RowNumber, SizeB.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeB.RowNumber, SizeB.ColNumber);
 
     MatrixElementMultiply(tempMatrix, ElementA, MatrixB);
 
@@ -754,17 +582,9 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> MatrixElementDivide(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeB.RowNumber == 0)
-    {
-        mdkError << "MatrixB is empty @ mdkLinearAlgebra MatrixElementDivide(ElementA, MatrixB)" << '\n';
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeB.RowNumber, SizeB.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeB.RowNumber, SizeB.ColNumber);
 
     MatrixElementDivide(tempMatrix, ElementA, MatrixB);
 
@@ -810,17 +630,9 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> MatrixAdd(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeA = MatrixA.GetSize();
 
-    if (SizeA.RowNumber == 0)
-    {
-        mdkError << "MatrixA is empty @ mdkLinearAlgebra MatrixAdd(MatrixA, ElementB)" << '\n';
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixAdd(tempMatrix, MatrixA, ElementB);
 
@@ -865,17 +677,9 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> MatrixSubtract(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeA = MatrixA.GetSize();
 
-    if (SizeA.RowNumber == 0)
-    {
-        mdkError << "MatrixA is empty @ mdkLinearAlgebra MatrixSubtract(MatrixA, ElementB)" << '\n';
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixSubtract(tempMatrix, MatrixA, ElementB);
 
@@ -920,17 +724,9 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> MatrixMultiply(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeA = MatrixA.GetSize();
 
-    if (SizeA.RowNumber == 0)
-    {
-        mdkError << "MatrixA is empty @ mdkLinearAlgebra MatrixMultiply(MatrixA, ElementB)" << '\n';
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixMultiply(tempMatrix, MatrixA, ElementB);
 
@@ -975,17 +771,9 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> MatrixElementMultiply(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeA = MatrixA.GetSize();
 
-    if (SizeA.RowNumber == 0)
-    {
-        mdkError << "MatrixA is empty @ mdkLinearAlgebra MatrixElementMultiply(MatrixA, ElementB)" << '\n';
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixElementMultiply(tempMatrix, MatrixA, ElementB);
 
@@ -1005,17 +793,9 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> MatrixElementDivide(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
-    mdkMatrix<ElementType> tempMatrix;
-
     auto SizeA = MatrixA.GetSize();
 
-    if (SizeA.RowNumber == 0)
-    {
-        mdkError << "MatrixA is empty @ mdkLinearAlgebra MatrixElementDivide(MatrixA, ElementB)" << '\n';
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    mdkMatrix<ElementType> tempMatrix(SizeA.RowNumber, SizeA.ColNumber);
 
     MatrixElementDivide(tempMatrix, MatrixA, ElementB);
 
@@ -1058,7 +838,23 @@ void MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<
 //------------------------------------------ MatrixElementOperation ----------------------------------------------------------------------//
 
 
+
+
 //------------------------------------------ MatrixLinearCombine ----------------------------------------------------------------------//
+
+template<typename ElementType>
+inline
+mdkMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<mdkMatrix<ElementType>*>& MatrixList)
+{
+    auto Size = MatrixList[0]->GetSize();
+
+    mdkMatrix<ElementType> tempMatrix(Size.RowNumber, Size.ColNumber);
+
+    MatrixLinearCombine(tempMatrix, CoefList, MatrixList);
+
+    return tempMatrix;
+}
+
 
 template<typename ElementType>
 inline 
@@ -1070,22 +866,33 @@ void MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix, const std::vector
 
     if (MatrixNumber != CoefNumber)
     {
-        mdkError << "MatrixNumber != AlphaNumber @ MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList)" << '\n';
+        mdkError << "MatrixNumber != CoefNumber @ mdkLinearAlgebra MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList)" << '\n';
         return;
     }
 
     if (MatrixNumber == 0)
     {
-        mdkWarning << "Input is empty @ MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList)" << '\n';
+        mdkWarning << "MatrixList is empty @ mdkLinearAlgebra MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList)" << '\n';
         return;
     }
 
 	auto Size = MatrixList[0]->GetSize();
 
-    if (OutputMatrix.IsEmpty() == true)
+    if (Size.RowNumber != OutputMatrix.GetRowNumber() || Size.ColNumber != OutputMatrix.GetColNumber())
     {
-        OutputMatrix.Resize(Size.RowNumber, Size.ColNumber);
+        if (OutputMatrix.IsSizeFixed() == false)
+        {
+            OutputMatrix.Clear();
+
+            OutputMatrix.Resize(Size.RowNumber, Size.ColNumber);
+        }
+        else
+        {
+            mdkError << "Size does not match @ mdkLinearAlgebra MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList)" << '\n';
+            return;
+        }
     }
+
 
     auto OutputRawPointer = OutputMatrix.GetElementDataRawPointer();
 
@@ -1126,6 +933,14 @@ void MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix, const std::vector
         MatrixLinearCombine_UnrollForLoop_6(OutputRawPointer, ElementNumber, CoefRawPtr, MatrixElementDataRawPtrList);        
         break;
 
+    case 7:
+        MatrixLinearCombine_UnrollForLoop_7(OutputRawPointer, ElementNumber, CoefRawPtr, MatrixElementDataRawPtrList);
+        break;
+
+    case 8:
+        MatrixLinearCombine_UnrollForLoop_8(OutputRawPointer, ElementNumber, CoefRawPtr, MatrixElementDataRawPtrList);
+        break;
+
     default:
             
         ElementType tempElement = CoefRawPtr[0];
@@ -1142,38 +957,6 @@ void MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix, const std::vector
             OutputRawPointer[LinearIndex] = tempElement;
         }
     }
-}
-
-
-template<typename ElementType>
-inline
-mdkMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<mdkMatrix<ElementType>*>& MatrixList)
-{
-    mdkMatrix<ElementType> tempMatrix;
-
-    auto MatrixNumber = MatrixList.size();
-
-    auto CoefNumber = CoefList.size();
-
-    if (MatrixNumber != CoefNumber)
-    {
-        mdkError << "MatrixNumber != AlphaNumber @ MatrixLinearCombine(AlphaList, MatrixList)" << '\n';
-        return tempMatrix;
-    }
-
-    if (MatrixNumber == 0)
-    {
-        mdkWarning << "Input is empty @ MatrixLinearCombine(AlphaList, MatrixList)" << '\n';
-        return tempMatrix;
-    }
-
-    auto Size = MatrixList[0]->GetSize();
-
-    tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
-
-    MatrixLinearCombine(tempMatrix, CoefList, MatrixList);
-
-    return tempMatrix;
 }
 
 
@@ -1309,50 +1092,8 @@ void MatrixLinearCombine_UnrollForLoop_8(ElementType* Output, uint64 ElementNumb
     }
 }
 
+//======================================================================================================================================================//
 
-
-template<typename ElementType, uint64 Length>
-inline
-std::array<ElementType, Length> VectorLinearCombine(const std::vector<double>& CoefList, const std::vector<std::array<ElementType, Length>*>& ArrayList)
-{
-	std::array<ElementType, Length> tempArray;
-
-	uint64 ArrayNumber = ArrayList.size();
-
-	for (uint64 i = 0; i < ArrayList[0]->size(); ++i)
-	{
-		tempArray[i] = 0;
-
-		for (uint64 k = 0; k < ArrayNumber; ++k)
-		{
-			tempArray[i] += CoefList[i] * ArrayList[k]->operator[](i);
-		}
-	}
-
-	return tempArray;
-}
-
-
-template<typename ElementType>
-inline
-std::vector<ElementType> VectorLinearCombine(const std::vector<double>& CoefList, const std::vector<std::vector<ElementType>*>& ArrayList)
-{
-	std::vector<ElementType> tempArray;
-
-	uint64 ArrayNumber = ArrayList.size();
-
-	for (uint64 i = 0; i < ArrayList[0]->size(); ++i)
-	{
-		tempArray[i] = 0;
-
-		for (uint64 k = 0; k < ArrayNumber; ++k)
-		{
-			tempArray[i] += CoefList[i] * ArrayList[k]->operator[](i);
-		}
-	}
-
-	return tempArray;
-}
 
 
 }//end namespace mdk

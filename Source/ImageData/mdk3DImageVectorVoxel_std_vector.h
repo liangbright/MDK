@@ -69,6 +69,9 @@ inline void operator/=(std::vector<ElementType>& Voxel, const ElementType& Eleme
 
 //---------------------------------------------------------------------------------------------------------------//
 
+template<typename ElementType>
+inline std::vector<ElementType> VectorVoxelLinearCombine(const std::vector<double>& CoefList, const std::vector<std::vector<ElementType>*>& VectorList);
+
 }
 
 #include "mdk3DImageVectorVoxel_std_vector.hpp"

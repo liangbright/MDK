@@ -1,4 +1,4 @@
-#ifndef __mdkOSPlatformConfig_h
+#ifndef __mdkOSPlatformConfig_h 
 #define __mdkOSPlatformConfig_h
 
 namespace mdk
