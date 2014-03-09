@@ -614,6 +614,52 @@ void mdkShadowMatrix<ElementType>::operator=(const ElementType& Element)
 
 template<typename ElementType>
 inline
+ElementType& mdkShadowMatrix<ElementType>::operator[](uint64 LinearIndex)
+{
+    auto sptrSource = m_SourceMatrixSharedCopy.GetElementDataSharedPointer();
+
+    if (m_LinearIndexList_source.empty() == false)
+    {
+        return (*sptrSource)[m_LinearIndexList_source[LinearIndex]];
+    }
+
+    auto ColIndex = LinearIndex / m_RowNumber;
+
+    auto RowIndex = LinearIndex % m_RowNumber;
+
+    auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
+
+    auto LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+
+    return (*sptrSource)[LinearIndex_source];
+}
+
+
+template<typename ElementType>
+inline
+const ElementType& mdkShadowMatrix<ElementType>::operator[](uint64 LinearIndex) const
+{
+    auto sptrSource = m_SourceMatrixSharedCopy.GetElementDataSharedPointer();
+
+    if (m_LinearIndexList_source.empty() == false)
+    {
+        return (*sptrSource)[m_LinearIndexList_source[LinearIndex]];
+    }
+
+    auto ColIndex = LinearIndex / m_RowNumber;
+
+    auto RowIndex = LinearIndex % m_RowNumber;
+
+    auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
+
+    auto LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+
+    return (*sptrSource)[LinearIndex_source];
+}
+
+
+template<typename ElementType>
+inline
 ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 LinearIndex)
 {
 #if defined(MDK_ShadowMatrix_Operator_CheckBound)

@@ -22,7 +22,7 @@ mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
     {
-        return ShadowMatrixA(0) + MatrixB;
+        return ShadowMatrixA[0] + MatrixB;
     }
 
     if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
@@ -105,7 +105,7 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
     {
-        return ShadowMatrixA(0) - MatrixB;
+        return ShadowMatrixA[0] - MatrixB;
     }
 
     if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
@@ -195,7 +195,7 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
     {
-        return ShadowMatrixA(0) / MatrixB;
+        return ShadowMatrixA[0] / MatrixB;
     }
 
     if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
@@ -292,7 +292,7 @@ mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const md
 
     if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
     {
-        return MatrixA - ShadowMatrixB(0);
+        return MatrixA - ShadowMatrixB[0];
     }
 
     mdkMatrix<ElementType> tempMatrix;
@@ -383,7 +383,7 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const md
 
     if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
     {
-        return MatrixA / ShadowMatrixB(0);
+        return MatrixA / ShadowMatrixB[0];
     }
 
     mdkMatrix<ElementType> tempMatrix;
@@ -858,12 +858,12 @@ mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
     {
-        return ShadowMatrixA(0) + ShadowMatrixB;
+        return ShadowMatrixA[0] + ShadowMatrixB;
     }
 
     if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
     {
-        return ShadowMatrixA + ShadowMatrixB(0);
+        return ShadowMatrixA + ShadowMatrixB[0];
     }
 
     mdkMatrix<ElementType> tempMatrix;
@@ -888,7 +888,7 @@ mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     for (uint64 i = 0; i < ElementNumber; ++i)
     {
-        tempRawPointer[i] = ShadowMatrixA(i) + ShadowMatrixB(i);
+        tempRawPointer[i] = ShadowMatrixA[i] + ShadowMatrixB[i];
     }
 
     return  tempMatrix;
@@ -905,12 +905,12 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
     {
-        return ShadowMatrixA(0) - ShadowMatrixB;
+        return ShadowMatrixA[0] - ShadowMatrixB;
     }
 
     if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
     {
-        return ShadowMatrixA - ShadowMatrixB(0);
+        return ShadowMatrixA - ShadowMatrixB[0];
     }
 
     mdkMatrix<ElementType> tempMatrix;
@@ -935,7 +935,7 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     for (uint64 i = 0; i < ElementNumber; ++i)
     {
-        tempRawPointer[i] = ShadowMatrixA(i) - ShadowMatrixB(i);
+        tempRawPointer[i] = ShadowMatrixA[i] - ShadowMatrixB[i];
     }
 
     return  tempMatrix;
@@ -960,12 +960,12 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
     {
-        return ShadowMatrixA(0) / ShadowMatrixB;
+        return ShadowMatrixA[0] / ShadowMatrixB;
     }
 
     if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
     {
-        return ShadowMatrixA / ShadowMatrixB(0);
+        return ShadowMatrixA / ShadowMatrixB[0];
     }
 
     mdkMatrix<ElementType> tempMatrix;
@@ -990,7 +990,7 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     for (uint64 i = 0; i < ElementNumber; ++i)
     {
-        tempRawPointer[i] = ShadowMatrixA(i) / ShadowMatrixB(i);
+        tempRawPointer[i] = ShadowMatrixA[i] / ShadowMatrixB[i];
     }
 
     return  tempMatrix;
@@ -1497,7 +1497,7 @@ void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkShadowMatri
 
     if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
-        ShadowMatrixA += ShadowMatrixB(0);
+        ShadowMatrixA += ShadowMatrixB[0];
 
         return;
     }
@@ -1518,7 +1518,7 @@ void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkShadowMatri
 
     for (uint64 i = 0; i < ElementNumber; ++i)
     {
-        ShadowMatrixA(i) += ShadowMatrixB(i);
+        ShadowMatrixA[i] += ShadowMatrixB[i];
     }
 }
 
@@ -1533,7 +1533,7 @@ void operator-=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkShadowMatri
 
     if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
-        ShadowMatrixA -= ShadowMatrixB(0);
+        ShadowMatrixA -= ShadowMatrixB[0];
 
         return;
     }
@@ -1554,7 +1554,7 @@ void operator-=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkShadowMatri
 
     for (uint64 i = 0; i < ElementNumber; ++i)
     {
-        ShadowMatrixA(i) -= ShadowMatrixB(i);
+        ShadowMatrixA[i] -= ShadowMatrixB[i];
     }
 }
 
@@ -1569,7 +1569,7 @@ void operator*=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkShadowMatri
 
     if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
-        ShadowMatrixA -= ShadowMatrixB(0);
+        ShadowMatrixA -= ShadowMatrixB[0];
 
         return;
     }
@@ -1600,7 +1600,7 @@ void operator/=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatr
 
     if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
-        ShadowMatrixA /= ShadowMatrixB(0);
+        ShadowMatrixA /= ShadowMatrixB[0];
 
         return;
     }
@@ -1621,7 +1621,7 @@ void operator/=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatr
 
     for (uint64 i = 0; i < ElementNumber; ++i)
     {
-        ShadowMatrixA(i) /= ShadowMatrixB(i);
+        ShadowMatrixA[i] /= ShadowMatrixB[i];
     }
 }
 

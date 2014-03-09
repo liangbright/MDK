@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 #include <initializer_list>
-
+#include <functional>
 
 //#include "mdkMatrix.h"
 
@@ -115,44 +115,84 @@ inline mdkMatrix<ElementType> MatrixElementDivide(const mdkMatrix<ElementType>& 
 template<typename ElementType>
 inline void MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& Matrix, const ElementType& Element);
 
+//=========================================================================================================================================//
 //------------------------------------------ MatrixElementOperation ----------------------------------------------------------------------//
+//==========================================================================================================================================//
+
+// ------------------------ MatrixElementOperation on InputMatrix
+
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> MatrixElementOperation(const char* OperationName, const mdkMatrix<ElementType>& Matrix);
+inline mdkMatrix<ElementType> MatrixElementOperation(const std::string& OperationName, const mdkMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline void MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrix, const char* OperationName, const mdkMatrix<ElementType>& Matrix);
+inline bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrix, const std::string& OperationName, const mdkMatrix<ElementType>& InputMatrix);
 
-template<typename ElementType, typename OperationType>
-inline mdkMatrix<ElementType> MatrixElementOperation(OperationType Operation, const mdkMatrix<ElementType>& Matrix);
-
-template<typename ElementType, typename OperationType>
-inline void MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrix, OperationType Operation, const mdkMatrix<ElementType>& Matrix);
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> MatrixElementOperation(const char* OperationName,
-                                                     const mdkMatrix<ElementType>& MatrixA,
-                                                     const mdkMatrix<ElementType>& MatrixB);
+inline mdkMatrix<ElementType> MatrixElementOperation(std::function<ElementType(const ElementType&)> Operation,
+                                                     const mdkMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline void MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrix, 
-                                   const char* OperationName,
-                                   const mdkMatrix<ElementType>& MatrixA,
-                                   const mdkMatrix<ElementType>& MatrixB);
+inline bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrix, 
+                                   std::function<ElementType(const ElementType&)> Operation, 
+                                   const mdkMatrix<ElementType>& InputMatrix);
+
+// ------------------------ MatrixElementOperation on InputMatrixA with InputMatrixB
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> MatrixElementOperation(const std::string& OperationName,
+                                                     const mdkMatrix<ElementType>& InputMatrixA,
+                                                     const mdkMatrix<ElementType>& InputMatrixB);
+
+template<typename ElementType>
+inline bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrixC,
+                                   const std::string& OperationName,
+                                   const mdkMatrix<ElementType>& InputMatrixA,
+                                   const mdkMatrix<ElementType>& InputMatrixB);
 
 
-template<typename ElementType, typename OperationType>
-inline mdkMatrix<ElementType> MatrixElementOperation(OperationType Operation,
-                                                     const mdkMatrix<ElementType>& MatrixA,
-                                                     const mdkMatrix<ElementType>& MatrixB);
+template<typename ElementType>
+inline mdkMatrix<ElementType> MatrixElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
+                                                     const mdkMatrix<ElementType>& InputMatrixA,
+                                                     const mdkMatrix<ElementType>& InputMatrixB);
 
-template<typename ElementType, typename OperationType>
-inline void MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrix, 
-                                   OperationType Operation,
-                                   const mdkMatrix<ElementType>& MatrixA,
-                                   const mdkMatrix<ElementType>& MatrixB);
+template<typename ElementType>
+inline bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrixC,
+                                   std::function<ElementType(const ElementType&, const ElementType&)> Operation,
+                                   const mdkMatrix<ElementType>& InputMatrixA,
+                                   const mdkMatrix<ElementType>& InputMatrixB);
 
+// ------------------------ MatrixElementOperation on InputMatrixA with InputElementB
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> MatrixElementOperation(const std::string& OperationName,
+                                                     const mdkMatrix<ElementType>& InputMatrixA,
+                                                     const ElementType& InputElementB);
+
+template<typename ElementType>
+inline bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrixC,
+                                   const std::string& OperationName,
+                                   const mdkMatrix<ElementType>& InputMatrixA,
+                                   const ElementType& InputElementB);
+
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> MatrixElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
+                                                     const mdkMatrix<ElementType>& InputMatrixA,
+                                                     const ElementType& InputElementB);
+
+template<typename ElementType>
+inline bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrixC,
+                                   std::function<ElementType(const ElementType&, const ElementType&)> Operation,
+                                   const mdkMatrix<ElementType>& InputMatrixA,
+                                   const ElementType& InputElementB);
+
+
+//======================================================================================================================================//
 //------------------------------------------ MatrixLinearCombine ----------------------------------------------------------------------//
+//======================================================================================================================================//
+
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefList, 

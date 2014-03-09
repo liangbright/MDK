@@ -62,7 +62,7 @@ inline void mdkGlueMatrixForLinearCombination<ElementType>::Reset()
 
     m_ElementList_Coef.reserve(MDK_GlueMatrixForLinearCombination_ReservedCapacity);
 
-    m_IndependentElement -= m_IndependentElement;
+    m_IndependentElement = ElementType(0);
 }
 
 
@@ -253,6 +253,46 @@ void mdkGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkMatrix<Elem
             OutputRawPointer[LinearIndex] = tempElement;
         }
     }
+}
+
+
+template<typename ElementType>
+inline
+mdkMatrix<ElementType> mdkGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkMatrix<ElementType>& targetMatrix)
+{
+    return MatrixElementMultiply(this->CreateMatrix(), targetMatrix);
+}
+
+
+template<typename ElementType>
+inline
+mdkMatrix<ElementType> mdkGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const ElementType& Element)
+{
+    return MatrixElementMultiply(this->CreateMatrix(), Element);
+}
+
+
+template<typename ElementType>
+inline
+mdkMatrix<ElementType> mdkGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+{
+    return MatrixElementMultiply(this->CreateMatrix(), ShadowMatrix.CreateMatrix());
+}
+
+
+template<typename ElementType>
+inline
+mdkMatrix<ElementType> mdkGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+{
+    return MatrixElementMultiply(this->CreateMatrix(), GlueMatrix.CreateMatrix());
+}
+
+
+template<typename ElementType>
+inline
+mdkMatrix<ElementType> mdkGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+{
+    return MatrixElementMultiply(this->CreateMatrix(), GlueMatrix.CreateMatrix());
 }
 
 }//end namespace mdk

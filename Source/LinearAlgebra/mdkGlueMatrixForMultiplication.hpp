@@ -152,7 +152,7 @@ void mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
 
     if (MatrixNumber == 1)
     {
-        OutputMatrix.Take(m_SourceMatrixSharedCopyList[0].ElementOperation("*", m_Element_Coef));
+        OutputMatrix = MatrixElementMultiply(m_SourceMatrixSharedCopyList[0], m_Element_Coef);
         
         return;
     }
@@ -160,25 +160,40 @@ void mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
     if (MatrixNumber == 2)
     {
         OutputMatrix = MatrixMultiply(m_SourceMatrixSharedCopyList[0], m_SourceMatrixSharedCopyList[1]);   
-        OutputMatrix.ElementOperationInPlace("*", m_Element_Coef);
+
+        MatrixElementMultiply(OutputMatrix, OutputMatrix, m_Element_Coef);
 
         return;
     }
 
     // MatrixNumber >= 3
 
-    // output is a scalar (in matrix form) ------------------------------------------
-    if (m_RowNumber == 1 && m_ColNumber == 1)
+    // output is a vector or scalar (in matrix form) ------------------------------------------
+    if (m_RowNumber == 1)
     {
         OutputMatrix = MatrixMultiply(m_SourceMatrixSharedCopyList[0], m_SourceMatrixSharedCopyList[1]);
         
-        for (uint64 i = 2; i < MatrixNumber; i++)
+        for (uint64 i = 2; i < MatrixNumber; ++i)
         {
             OutputMatrix = MatrixMultiply(OutputMatrix, m_SourceMatrixSharedCopyList[i]);
         }
 
         return;
     }
+
+    // output is a vector or scalar (in matrix form) ------------------------------------------
+    if (m_ColNumber == 1)
+    {
+        OutputMatrix = MatrixMultiply(m_SourceMatrixSharedCopyList[MatrixNumber-2], m_SourceMatrixSharedCopyList[MatrixNumber-1]);
+
+        for (uint64 i = MatrixNumber-3; i >= 0; --i)
+        {
+            OutputMatrix = MatrixMultiply(m_SourceMatrixSharedCopyList[i], OutputMatrix);
+        }
+
+        return;
+    }
+
     //---------------------------------------------------------------------------------
 
 
@@ -186,7 +201,7 @@ void mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
 
     auto MatrixPointerList = std::vector<const mdkMatrix<ElementType>*>(MatrixNumber);
 
-    for (uint64 i = 0; i < MatrixNumber - 1; i++)
+    for (uint64 i = 0; i < MatrixNumber - 1; ++i)
     {
         MatrixPointerList[i] = &m_SourceMatrixSharedCopyList[i];
     }
@@ -207,7 +222,7 @@ void mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
 
         uint64 RelativeIndex_BestMatrixPair = 0;
 
-        for (uint64 i = 0; i < CurMatrixNumber - 1; i++)
+        for (uint64 i = 0; i < CurMatrixNumber - 1; ++i)
         {
             auto tempRowNumber_a = MatrixPointerList[i]->GetRowNumber();
             auto tempColNumber_a = MatrixPointerList[i]->GetRowNumber();
@@ -215,19 +230,12 @@ void mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
             auto tempRowNumber_b = MatrixPointerList[i + 1]->GetRowNumber();
             auto tempColNumber_b = MatrixPointerList[i + 1]->GetRowNumber();
 
-            auto ElementNumber_Diff = (tempRowNumber_a*tempRowNumber_a + tempRowNumber_b*tempRowNumber_b) - 2 * tempRowNumber_a * tempColNumber_b;
+            auto ElementNumber_Diff = (tempRowNumber_a*tempColNumber_a + tempRowNumber_b*tempColNumber_b) - 2 * tempRowNumber_a * tempColNumber_b;
 
             if (ElementNumber_Diff > Max_ElementNumber_Diff)
             {
                 Max_ElementNumber_Diff = ElementNumber_Diff;
 
-                RelativeIndex_BestMatrixPair = i;
-            }
-
-            // Row_vector * Matrix  or Matrix * Col_vector
-            // then prefer this
-            if (tempRowNumber_a == 1 || tempColNumber_b == 1)
-            {
                 RelativeIndex_BestMatrixPair = i;
             }
         }
@@ -243,7 +251,7 @@ void mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
 
         MatrixPointerList.erase(MatrixPointerList.begin() + RelativeIndex_BestMatrixPair);
 
-        MatrixPointerList[RelativeIndex_BestMatrixPair] = ResultMatrixList.data() + RelativeIndex_BestMatrixPair;
+        MatrixPointerList[RelativeIndex_BestMatrixPair] = &ResultMatrixList[RelativeIndex_BestMatrixPair];
 
     }
     
@@ -256,9 +264,15 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> mdkGlueMatrixForMultiplication<ElementType>::ElementMultiply(const mdkMatrix<ElementType>& targetMatrix)
 {
-    auto tempMatrix = this->CreateMatrix();
+    return MatrixElementMultiply(this->CreateMatrix(), targetMatrix);
+}
 
-    return tempMatrix.ElementMultiply(targetMatrix);
+
+template<typename ElementType>
+inline
+mdkMatrix<ElementType> mdkGlueMatrixForMultiplication<ElementType>::ElementMultiply(const ElementType& Element)
+{
+    return MatrixElementMultiply(this->CreateMatrix(), Element);
 }
 
 
@@ -266,9 +280,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> mdkGlueMatrixForMultiplication<ElementType>::ElementMultiply(const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
-    auto tempMatrix = this->CreateMatrix();
-
-    return tempMatrix.ElementMultiply(ShadowMatrix);
+    return MatrixElementMultiply(this->CreateMatrix(), ShadowMatrix.CreateMatrix());
 }
 
 
@@ -276,9 +288,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> mdkGlueMatrixForMultiplication<ElementType>::ElementMultiply(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix)
 {
-    auto tempMatrix = this->CreateMatrix();
-
-    return tempMatrix.ElementMultiply(GlueMatrix);
+    return MatrixElementMultiply(this->CreateMatrix(), GlueMatrix.CreateMatrix());
 }
 
 
@@ -286,10 +296,9 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> mdkGlueMatrixForMultiplication<ElementType>::ElementMultiply(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
-    auto tempMatrix = this->CreateMatrix();
-
-    return tempMatrix.ElementMultiply(GlueMatrix);
+    return MatrixElementMultiply(this->CreateMatrix(), GlueMatrix.CreateMatrix());
 }
+
 
 }// end namespace mdk
 

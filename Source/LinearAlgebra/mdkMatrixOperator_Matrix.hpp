@@ -122,11 +122,21 @@ template<typename ElementType>
 inline
 mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    mdkGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
-
     auto SizeA = MatrixA.GetSize();
 
     auto SizeB = MatrixB.GetSize();
+
+    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    {
+        return MatrixA(0) * MatrixB;
+    }
+
+    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    {
+        return MatrixA * MatrixB(0);
+    }
+
+    mdkGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
 
     if (SizeA.ColNumber != SizeB.RowNumber)
     {

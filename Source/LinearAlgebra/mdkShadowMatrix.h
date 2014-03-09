@@ -111,6 +111,13 @@ public:
 
 	//---------------------- Get/Set mdkShadowMatrix(LinearIndex) ----------------------------------------//
 private:
+
+    // operator[]: no bound check
+
+    inline ElementType& operator[](uint64 LinearIndex);
+
+    inline const ElementType& operator[](uint64 LinearIndex) const;
+
 	inline ElementType& operator()(uint64 LinearIndex);
 
 	inline const ElementType& operator()(uint64 LinearIndex) const;

@@ -4,6 +4,7 @@
 #include <ctime>
 #include <iomanip>
 #include <initializer_list>
+#include <functional>
 
 #include "mdkMatrix.h"
 #include "mdkShadowMatrix.h"
@@ -134,7 +135,7 @@ void Test_Constructor()
     // move constructor is used
     // move "=" is used
     //D2 is not temporary
-    D2 = (A*A).ElementMultiply(A);
+    D2 = (A+A).ElementMultiply(A);
 
     //D3 is temporary
     auto D3 = D2;
@@ -410,7 +411,7 @@ void Test_ElementOperation()
 		std::cout << '\n';
 	}
 
-	auto B = A.ElementOperation(std::string("^"), 10.0);
+    auto B = A.ElementOperation("sqrt"); 
 
 	std::cout << "B = A ^ 10 " << '\n';
 
@@ -425,19 +426,10 @@ void Test_ElementOperation()
 	}
 
 
-	auto C = A.ElementOperation(std::string("sqrt"));
+    auto C = A.ElementOperation("^", 10.0);
 
-	std::cout << "C = sqrt(A) " << '\n';
+	//td::cout << "C = sqrt(A) " << '\n';
 
-	for (uint64 i = 0; i < 2; ++i)
-	{
-		for (uint64 j = 0; j < 4; ++j)
-		{
-			std::cout << C(i, j) << ' ';
-		}
-
-		std::cout << '\n';
-	}
 }
 
 

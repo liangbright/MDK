@@ -77,7 +77,16 @@ private:
     inline void CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const;
 
 public:
+
     inline mdkMatrix<ElementType> ElementMultiply(const mdkMatrix<ElementType>& targetMatrix);
+
+    inline mdkMatrix<ElementType> ElementMultiply(const ElementType& Element);
+
+    inline mdkMatrix<ElementType> ElementMultiply(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+
+    inline mdkMatrix<ElementType> ElementMultiply(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+
+    inline mdkMatrix<ElementType> ElementMultiply(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
 private:
 //--------------------------- deleted ----------------------------------------//

@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <initializer_list>
+#include <functional>
 
 #include "mdkObject.h"
 #include "mdkLinearAlgebraConfig.h"
@@ -266,18 +267,16 @@ public:
 
 	//----------- Get/Set Matrix(LinearIndex) : size can not be changed even if m_IsSizeFixed is false -----------------//
 
+    // operator[]: no bound check
+
+    inline ElementType& operator[](uint64 LinearIndex);
+
+    inline const ElementType& operator[](uint64 LinearIndex) const;
+
 	inline ElementType& operator()(uint64 LinearIndex);
 
     inline const ElementType& operator()(uint64 LinearIndex) const;
-
-    #if defined MDK_Matrix_Enable_Operator_Bracket //------------------------------------
-
-	inline ElementType& operator[](uint64 LinearIndex);
     
-	inline const ElementType& operator[](uint64 LinearIndex) const;
-    
-    #endif // #if defined MDK_Matrix_Enable_Operator_Bracket //---------------------------
-
 	inline ElementType& at(uint64 LinearIndex);
 
 	inline const ElementType& at(uint64 LinearIndex) const;
@@ -294,21 +293,19 @@ public:
 
     //---------------------- Get/Set SubMatrix ------------------------------------------------------//
 
-    inline mdkShadowMatrix<ElementType> operator()(std::initializer_list<uint64>& LinearIndexList);
+    // operator[]: no bound check
 
-    inline mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& LinearIndexList);
-
-    inline mdkShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
-
-    #if defined MDK_Matrix_Enable_Operator_Bracket //------------------------------------
-    
     inline mdkShadowMatrix<ElementType> operator[](std::initializer_list<uint64>& LinearIndexList);
-    
+
     inline mdkShadowMatrix<ElementType> operator[](const std::vector<uint64>& LinearIndexList);
 
     inline mdkShadowMatrix<ElementType> operator[](const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
 
-    #endif //#if defined MDK_Matrix_Enable_Operator_Bracket //----------------------------
+    inline mdkShadowMatrix<ElementType> operator()(std::initializer_list<uint64>& LinearIndexList);
+
+    inline mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& LinearIndexList);
+
+    inline mdkShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);   
 
     inline mdkShadowMatrix<ElementType> operator()(std::initializer_list<uint64>& RowIndexList,
                                                    std::initializer_list<uint64>& ColIndexList);
@@ -580,55 +577,49 @@ public:
 
     inline mdkMatrix ElementMultiply(const mdkMatrix<ElementType>& targetMatrix);
 
+    inline mdkMatrix ElementMultiply(const ElementType& Element);
+
+    inline mdkMatrix ElementMultiply(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+
+    inline mdkMatrix ElementMultiply(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+
+    inline mdkMatrix ElementMultiply(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+
 	//-------------------- general element operation : output a new matrix ------------------------------------------//
 
-    inline mdkMatrix ElementOperation(const char* FunctionName) const;
+    inline mdkMatrix ElementOperation(const char* OperationName) const;
 
-    inline mdkMatrix ElementOperation(const std::string& FunctionName) const;
+    inline mdkMatrix ElementOperation(const std::string& OperationName) const;
 
-	template<typename FunctionType>
-    inline mdkMatrix ElementOperation(FunctionType Function) const;
+    inline mdkMatrix ElementOperation(std::function<ElementType(const ElementType&)> Operation) const;
 
-	template<typename ElementType_target>
-    inline mdkMatrix ElementOperation(const char* FunctionName, const mdkMatrix<ElementType_target>& targetMatrix) const;
+    inline mdkMatrix ElementOperation(const std::string& OperationName, const mdkMatrix<ElementType>& targetMatrix) const;
 
-	template<typename ElementType_target>
-    inline mdkMatrix ElementOperation(const std::string& FunctionName, const mdkMatrix<ElementType_target>& targetMatrix) const;
+    inline mdkMatrix ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, 
+                                      const mdkMatrix<ElementType>& targetMatrix) const;
 
-	template<typename FunctionType, typename ElementType_target>
-    inline mdkMatrix ElementOperation(FunctionType Function, const mdkMatrix<ElementType_target>& targetMatrix) const;
+    inline mdkMatrix ElementOperation(const char* OperationName, const ElementType& Element) const;
 
-	inline mdkMatrix ElementOperation(const char* FunctionName, ElementType Element) const;
+    inline mdkMatrix ElementOperation(const std::string& OperationName, const ElementType& Element) const;
 
-    inline mdkMatrix ElementOperation(const std::string& FunctionName, ElementType Element) const;
-
-	template<typename FunctionType>
-    inline mdkMatrix ElementOperation(FunctionType Function, ElementType Element) const;
+    inline mdkMatrix ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, const ElementType& Element) const;
 
     //-------------------- general element operation in place : Object.ElementOperationInPlace modify the object ------------------//
 
-    inline bool ElementOperationInPlace(const char* FunctionName);
+    inline bool ElementOperationInPlace(const char* OperationName);
 
-    inline bool ElementOperationInPlace(const std::string& FunctionName);
+    inline bool ElementOperationInPlace(const std::string& OperationName);
 
-    template<typename FunctionType>
-    inline bool ElementOperationInPlace(FunctionType Function);
+    inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&)> Operation);
 
-    template<typename ElementType_target>
-    inline bool ElementOperationInPlace(const char* FunctionName, const mdkMatrix<ElementType_target>& targetMatrix);
+    inline bool ElementOperationInPlace(const std::string& OperationName, const mdkMatrix<ElementType>& targetMatrix);
 
-    template<typename ElementType_target>
-    inline bool ElementOperationInPlace(const std::string& FunctionName, const mdkMatrix<ElementType_target>& targetMatrix);
+    inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
+                                        const mdkMatrix<ElementType>& targetMatrix);
 
-    template<typename FunctionType, typename ElementType_target>
-    inline bool ElementOperationInPlace(FunctionType Function, const mdkMatrix<ElementType_target>& targetMatrix);
+    inline bool ElementOperationInPlace(const std::string& OperationName, const ElementType& Element);
 
-    inline bool ElementOperationInPlace(const char* FunctionName, ElementType Element);
-
-    inline bool ElementOperationInPlace(const std::string& FunctionName, ElementType Element);
-
-    template<typename FunctionType>
-    inline bool ElementOperationInPlace(FunctionType Function, ElementType Element);
+    inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation, const ElementType& Element);
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 

@@ -408,7 +408,10 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForMultiplica
 
     //-------------------------------------------------------------------------------------------------------------------------------------------
     // ignore user's grouping: (A*B)*(C*D),  treat it as A*B*C*D
-    //-------------------------------------------------------------------------------------------------------------------------------------------
+    //  may lead to error, for example:
+    //  A : 1x3, B: 3x1, C: 3x3, D: 3x3,  A*B is a scalar,  but B*C is meaningless
+    
+    /* -------------------------------------------------------------------------------------------------------------------------------------------
 
     auto SizeA = GlueMatrixA.GetSize();
 
@@ -441,7 +444,11 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForMultiplica
         GlueMatrixA.m_SourceMatrixSharedCopyList[i].SharedCopy(GlueMatrixB.m_SourceMatrixSharedCopyList[i - MatrixNumber_A]);
     }
 
+    GlueMatrixA.m_Element_Coef *= GlueMatrixB.m_Element_Coef;
+
     return GlueMatrixA;
+
+    */ //-----------------------------------------------------------------------------------------------------------------------------
 }
 
 
