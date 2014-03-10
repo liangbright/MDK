@@ -168,12 +168,12 @@ bool mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
     {
         if (m_Is_m_Element_Coef_Equal_to_One == true)
         {
+            mdkError << "MatrixNumber is 1 and  m_Is_m_Element_Coef_Equal_to_One = true @ mdkGlueMatrixForMultiplication::CreateMatrix(OutputMatrix)" << '\n';
             OutputMatrix.Copy(m_SourceMatrixShallowCopyList[0]);
+            return false;
         }
-        else
-        {
-            MatrixElementMultiply(OutputMatrix, m_SourceMatrixShallowCopyList[0], m_Element_Coef);
-        }
+        
+        MatrixElementMultiply(OutputMatrix, m_SourceMatrixShallowCopyList[0], m_Element_Coef);        
         
         return true;
     }

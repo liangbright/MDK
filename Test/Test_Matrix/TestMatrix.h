@@ -1337,7 +1337,7 @@ void Test_GlueMatrix_Speed2()
 
     for (uint64 i = 0; i < 10000; ++i)
     {
-        MatrixLinearCombine<double>(D, { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D });
+        MatrixLinearCombine<double>(D, { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D }, 0.0);
     }
 
     t1 = std::chrono::system_clock::now();
@@ -1352,7 +1352,7 @@ void Test_GlueMatrix_Speed2()
 
     for (uint64 i = 0; i < 10000; ++i)
     {
-        MatrixLinearCombine<double>({ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D });
+        MatrixLinearCombine<double>({ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D }, 0.0);
     }
 
     t1 = std::chrono::system_clock::now();
@@ -1367,7 +1367,7 @@ void Test_GlueMatrix_Speed2()
 
     for (uint64 i = 0; i < 10000; ++i)
     {
-        D+= MatrixLinearCombine<double>({ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D });
+        D+= MatrixLinearCombine<double>({ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D }, 0.0);
     }
 
     t1 = std::chrono::system_clock::now();

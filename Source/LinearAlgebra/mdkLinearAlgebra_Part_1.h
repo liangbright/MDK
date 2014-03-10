@@ -205,72 +205,94 @@ inline bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrixC,
 //------------------------------------------ MatrixLinearCombine ----------------------------------------------------------------------//
 //======================================================================================================================================//
 
-
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefList, 
-                                                  const std::vector<mdkMatrix<ElementType>*>& MatrixList);
+                                                  const std::vector<const mdkMatrix<ElementType>*>& MatrixPtrList, 
+                                                  const ElementType& IndependentElement);
 
 template<typename ElementType>
 inline bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix,
-                                const std::vector<ElementType>& CoefList, 
-                                const std::vector<mdkMatrix<ElementType>*>& MatrixList);
+                                const std::vector<ElementType>& CoefPtrList, 
+                                const std::vector<const mdkMatrix<ElementType>*>& MatrixPtrList,
+                                const ElementType& IndependentElement);
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_UnrollForLoop_1(ElementType* Output, uint64 ElementNumber,
-                                         const ElementType* CoefPtr, 
-                                         const std::vector<ElementType*>& MatrixElementDataRawPtrList);
-
-
-template<typename ElementType>
-inline
-void MatrixLinearCombine_UnrollForLoop_2(ElementType* Output, uint64 ElementNumber,
-                                         const ElementType* CoefPtr, 
-                                         const std::vector<ElementType*>& MatrixElementDataRawPtrList);
+void MatrixLinearCombine_MatrixNumber_1(ElementType* Output, uint64 ElementNumber,
+                                        const std::vector<ElementType>& CoefList, 
+                                        const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
+                                        const ElementType& IndependentElement);
 
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_UnrollForLoop_3(ElementType* Output, uint64 ElementNumber,
-                                         const ElementType* Coef, 
-                                         const std::vector<ElementType*>& MatrixElementDataRawPtrList);
+void MatrixLinearCombine_MatrixNumber_2(ElementType* Output, uint64 ElementNumber,
+                                        const std::vector<ElementType>& CoefList, 
+                                        const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
+                                        const ElementType& IndependentElement);
 
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_UnrollForLoop_4(ElementType* Output, uint64 ElementNumber,
-                                         const ElementType* CoefPtr, 
-                                         const std::vector<ElementType*>& MatrixElementDataRawPtrList);
+void MatrixLinearCombine_MatrixNumber_3(ElementType* Output, uint64 ElementNumber,
+                                        const std::vector<ElementType>& CoefList, 
+                                        const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
+                                        const ElementType& IndependentElement);
 
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_UnrollForLoop_5(ElementType* Output, uint64 ElementNumber,
-                                         const ElementType* CoefPtr, 
-                                         const std::vector<ElementType*>& MatrixElementDataRawPtrList);
+void MatrixLinearCombine_MatrixNumber_4(ElementType* Output, uint64 ElementNumber,
+                                        const std::vector<ElementType>& CoefList, 
+                                        const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
+                                        const ElementType& IndependentElement);
 
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_UnrollForLoop_6(ElementType* Output, uint64 ElementNumber,
-                                         const ElementType* CoefPtr, 
-                                         const std::vector<ElementType*>& MatrixElementDataRawPtrList);
+void MatrixLinearCombine_MatrixNumber_5(ElementType* Output, uint64 ElementNumber,
+                                        const std::vector<ElementType>& CoefList, 
+                                        const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
+                                        const ElementType& IndependentElement);
 
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_UnrollForLoop_7(ElementType* Output, uint64 ElementNumber,
-                                         const ElementType* CoefPtr, 
-                                         const std::vector<ElementType*>& MatrixElementDataRawPtrList);
+void MatrixLinearCombine_MatrixNumber_6(ElementType* Output, uint64 ElementNumber,
+                                        const std::vector<ElementType>& CoefList, 
+                                        const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
+                                        const ElementType& IndependentElement);
 
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_UnrollForLoop_8(ElementType* Output, uint64 ElementNumber,
-                                         const ElementType* CoefPtr, 
-                                         const std::vector<ElementType*>& MatrixElementDataRawPtrList);
+void MatrixLinearCombine_MatrixNumber_7(ElementType* Output, uint64 ElementNumber,
+                                        const std::vector<ElementType>& CoefList, 
+                                        const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
+                                        const ElementType& IndependentElement);
 
 
+template<typename ElementType>
+inline
+void MatrixLinearCombine_MatrixNumber_8(ElementType* Output, uint64 ElementNumber,
+                                        const std::vector<ElementType>& CoefList, 
+                                        const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
+                                        const ElementType& IndependentElement);
+
+
+template<typename ElementType>
+inline
+void MatrixLinearCombine_MatrixNumber_9(ElementType* Output, uint64 ElementNumber,
+                                        const std::vector<ElementType>& CoefList, 
+                                        const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
+                                        const ElementType& IndependentElement);
+
+template<typename ElementType>
+inline
+void MatrixLinearCombine_MatrixNumber_10(ElementType* Output, uint64 ElementNumber,
+                                        const std::vector<ElementType>& CoefList, 
+                                        const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
+                                        const ElementType& IndependentElement);
 //----------------------------------------------------------------------------------------------------------------//
 
 }//end namespace mdk
