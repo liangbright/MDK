@@ -181,27 +181,6 @@ template<typename ElementType>
 inline
 bool MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    auto ptrA = MatrixA.GetElementDataSharedPointer()->data();
-
-    auto ptrB = MatrixB.GetElementDataSharedPointer()->data();
-
-    auto ptrC = OutputMatrixC.GetElementDataSharedPointer()->data();
-
-    if (ptrC == ptrA || ptrC == ptrB)
-    {
-        // OutputMatrixC is MatrixA or MatrixB
-        // create temp matrix and call this function again
-        // 
-
-        mdkMatrix<ElementType> tempMatrix;
-
-        MatrixMultiply(tempMatrix, MatrixA, MatrixB);
-
-        OutputMatrixC.Take(tempMatrix);
-
-        return true;
-    }
-
     auto SizeA = MatrixA.GetSize();
 
     auto SizeB = MatrixB.GetSize();
@@ -230,6 +209,30 @@ bool MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
 
     auto SizeC = OutputMatrixC.GetSize();
 
+    if (SizeC.RowNumber > 0)
+    {
+        auto ptrA = MatrixA.GetElementDataRawPointer();
+
+        auto ptrB = MatrixB.GetElementDataRawPointer();
+
+        auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+
+        if (ptrC == ptrA || ptrC == ptrB)
+        {
+            // OutputMatrixC is MatrixA or MatrixB
+            // create a temp matrix and call this function again
+            // 
+
+            mdkMatrix<ElementType> tempMatrix;
+
+            MatrixMultiply(tempMatrix, MatrixA, MatrixB);
+
+            OutputMatrixC.Take(tempMatrix);
+
+            return true;
+        }
+    }
+
     if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeB.ColNumber)
     {
         if (OutputMatrixC.IsSizeFixed() == false)
@@ -245,6 +248,13 @@ bool MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
         }
     }
 
+    // get non- const pointer
+
+    auto ptrA = const_cast<ElementType*>(MatrixA.GetElementDataRawPointer());
+
+    auto ptrB = const_cast<ElementType*>(MatrixB.GetElementDataRawPointer());
+
+    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
 
     //--------------------- call lapack via armadillo --------------------------------------------------------------------------------
 
@@ -900,6 +910,8 @@ bool MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
             return false;
         }
     }
+
+    //---------------------------------------------------------------------------------------------------------------------------------------
 
     auto ptrC = OutputMatrixC.GetElementDataRawPointer();
 

@@ -58,7 +58,7 @@ private:
 
 	std::vector<uint64> m_LinearIndexList_source;
 
-    mdkMatrix<ElementType> m_SourceMatrixSharedCopy;
+    mdkMatrix<ElementType> m_SourceMatrixShallowCopy;
 
 	//------------------- constructor and destructor ------------------------------------//
 private:

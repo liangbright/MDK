@@ -55,9 +55,11 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkMatrix<Element
 
     tempGlueMatrix.m_ColNumber = SizeA.ColNumber;
 
-    tempGlueMatrix.m_MatrixElementDataSharedPointerList.push_back(MatrixA.GetElementDataSharedPointer());
+    tempGlueMatrix.m_SourceMatrixShallowCopyList.resize(2);
 
-    tempGlueMatrix.m_MatrixElementDataSharedPointerList.push_back(MatrixB.GetElementDataSharedPointer());
+    tempGlueMatrix.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(MatrixA);
+
+    tempGlueMatrix.m_SourceMatrixShallowCopyList[1].ForceShallowCopy(MatrixB);
 
     tempGlueMatrix.m_ElementList_Coef.push_back(ElementType(1));
 
@@ -96,23 +98,22 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkMatrix<Element
 
     if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
     {
-        mdkWarning << "MatrixA or MatrixB is empty @ mdkMatrixOperator: -(MatrixA, MatrixB)" << '\n';
+        mdkError << "MatrixA or MatrixB is empty @ mdkMatrixOperator: -(MatrixA, MatrixB)" << '\n';
 
         return  tempGlueMatrix;
     }
   
 
-    tempGlueMatrix.m_RowNumber = SizeA.RowNumber;
+    tempGlueMatrix.m_SourceMatrixShallowCopyList.resize(2);
 
-    tempGlueMatrix.m_ColNumber = SizeA.ColNumber;
+    tempGlueMatrix.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(MatrixA);
 
-    tempGlueMatrix.m_MatrixElementDataSharedPointerList.push_back(MatrixA.GetElementDataSharedPointer());
-
-    tempGlueMatrix.m_MatrixElementDataSharedPointerList.push_back(MatrixB.GetElementDataSharedPointer());
+    tempGlueMatrix.m_SourceMatrixShallowCopyList[1].ForceShallowCopy(MatrixB);
 
     tempGlueMatrix.m_ElementList_Coef.push_back(ElementType(1));
 
     tempGlueMatrix.m_ElementList_Coef.push_back(ElementType(-1));
+
 
     return tempGlueMatrix;
 }
@@ -147,7 +148,7 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementTyp
 
     if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
     {
-        mdkWarning << "MatrixA or MatrixB is empty @ mdkMatrixOperator: *(MatrixA, MatrixB)" << '\n';
+        mdkError << "MatrixA or MatrixB is empty @ mdkMatrixOperator: *(MatrixA, MatrixB)" << '\n';
 
         return  tempGlueMatrix;
     }
@@ -156,11 +157,11 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementTyp
 
     tempGlueMatrix.m_ColNumber = SizeB.ColNumber;
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(2);
+    tempGlueMatrix.m_SourceMatrixShallowCopyList.resize(2);
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
+    tempGlueMatrix.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(MatrixA);
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList[1].ForceShare(MatrixB);
+    tempGlueMatrix.m_SourceMatrixShallowCopyList[1].ForceShallowCopy(MatrixB);
 
     return tempGlueMatrix;
 }
@@ -176,7 +177,7 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const md
 // ---------------------------------------------------- Matrix  {+ - * /}  Element ------------------------------------------------------//
 
 // note: Matrix {+ -}  Element return GlueMatrixForLinearCombination
-// note: Matrix {* /}  Element return GlueMatrixForMultiplication  (definition in mdkGlueMatrixForMultiplication.h)
+// note: Matrix {* /}  Element return GlueMatrixForMultiplication
 
 template<typename ElementType>
 inline 
@@ -188,7 +189,9 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkMatrix<Element
 
     tempGlueMatrix.m_ColNumber = MatrixA.GetColNumber();
 
-    tempGlueMatrix.m_MatrixElementDataSharedPointerList.push_back(MatrixA.GetElementDataSharedPointer());
+    tempGlueMatrix.m_SourceMatrixShallowCopyList.resize(1);
+
+    tempGlueMatrix.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(MatrixA);
 
     tempGlueMatrix.m_ElementList_Coef.push_back(ElementType(1));
 
@@ -208,11 +211,13 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkMatrix<Element
 
     tempGlueMatrix.m_ColNumber = MatrixA.GetColNumber();
 
-    tempGlueMatrix.m_MatrixElementDataSharedPointerList.push_back(MatrixA.GetElementDataSharedPointer());
+    tempGlueMatrix.m_SourceMatrixShallowCopyList.resize(1);
+
+    tempGlueMatrix.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(MatrixA);
 
     tempGlueMatrix.m_ElementList_Coef.push_back(ElementType(1));
 
-    tempGlueMatrix.m_IndependentElement = -ElementB;
+    tempGlueMatrix.m_IndependentElement = ElementType(0) - ElementB;
 
     return tempGlueMatrix;
 }
@@ -228,11 +233,13 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementTyp
 
     tempGlueMatrix.m_ColNumber = MatrixA.GetColNumber();
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    tempGlueMatrix.m_SourceMatrixShallowCopyList.resize(1);
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
+    tempGlueMatrix.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(MatrixA);
 
     tempGlueMatrix.m_Element_Coef = ElementB;
+
+    tempGlueMatrix.m_Is_m_Element_Coef_Equal_to_One = false;
 
     return tempGlueMatrix;
 }
@@ -248,11 +255,13 @@ mdkGlueMatrixForMultiplication<ElementType> operator/(const mdkMatrix<ElementTyp
 
     tempGlueMatrix.m_ColNumber = MatrixA.GetColNumber();
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    tempGlueMatrix.m_SourceMatrixShallowCopyList.resize(1);
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList[0].SharedCopy(MatrixA);
+    tempGlueMatrix.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(MatrixA);
 
     tempGlueMatrix.m_Element_Coef = ElementType(1) / ElementB;
+
+    tempGlueMatrix.m_Is_m_Element_Coef_Equal_to_One = false;
 
     return tempGlueMatrix;
 }
@@ -273,7 +282,9 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const ElementType& Elem
 
     tempGlueMatrix.m_ColNumber = MatrixB.GetColNumber();
 
-    tempGlueMatrix.m_MatrixElementDataSharedPointerList.push_back(MatrixB.GetElementDataSharedPointer());
+    tempGlueMatrix.m_SourceMatrixShallowCopyList.resize(1);
+
+    tempGlueMatrix.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(MatrixB);
 
     tempGlueMatrix.m_ElementList_Coef.push_back(ElementType(1));
 
@@ -293,7 +304,9 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const ElementType& Elem
 
     tempGlueMatrix.m_ColNumber = MatrixB.GetColNumber();
 
-    tempGlueMatrix.m_MatrixElementDataSharedPointerList.push_back(MatrixB.GetElementDataSharedPointer());
+    tempGlueMatrix.m_SourceMatrixShallowCopyList.resize(1);
+
+    tempGlueMatrix.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(MatrixB);
 
     tempGlueMatrix.m_ElementList_Coef.push_back(ElementType(-1));
 
@@ -313,11 +326,13 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(const ElementType& Element
 
     tempGlueMatrix.m_ColNumber = MatrixB.GetColNumber();
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    tempGlueMatrix.m_SourceMatrixShallowCopyList.resize(1);
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixB);
+    tempGlueMatrix.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(MatrixB);
 
     tempGlueMatrix.m_Element_Coef = ElementA;
+
+    tempGlueMatrix.m_Is_m_Element_Coef_Equal_to_One = false;
 
     return tempGlueMatrix;
 }

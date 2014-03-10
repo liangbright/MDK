@@ -1,6 +1,7 @@
 #ifndef __Test_h
 #define __Test_h
 
+#include <chrono>
 #include <ctime>
 #include <iomanip>
 #include <initializer_list>
@@ -113,7 +114,7 @@ void Test_Constructor()
 
     mdkMatrix<double> C;
 
-    C.Share(A);
+    C.ForceShallowCopy(A);
 
     A.Copy(A);
 
@@ -334,7 +335,7 @@ void Test_Share()
 
     mdkMatrix<double> B;
 
-    B.Share(A);
+    B.ForceShallowCopy(A);
 
     B(1, 1) = 0;
 
@@ -351,40 +352,39 @@ void Test_Mutiplication_Speed()
 
     mdkMatrix<double> C(512, 512);
 
-    auto t0 = std::time(0);
+    auto t0 = std::chrono::system_clock::now();
 
-    for (uint64 i = 0; i < 10000; ++i)
+    for (uint64 i = 0; i < 1000; ++i)
     {
-        
-        //ok
-        //C = A*C;
+       // C = 1.0*(A*C) + 2.0*(A*C) + 3.0*(A*C) + 4.0*(A*C) + 5.0*(A*C) + 6.0*(A*C);
+        //C = 1.0*A*C + 2.0*A*C + 3.0*A*C + 4.0*A*C + 5.0*A*C + 6.0*A*C;
 
-        // faster
-        C = 1.0*(A*C) + 2.0*(A*C) + 3.0*(A*C) + 4.0*(A*C) + 5.0*(A*C) + 6.0*(A*C);
-
-        //fastest
-        //MatrixMultiply(C, A, C);
+        C = (A*C) + (A*C) + (A*C) + (A*C) + (A*C) + (A*C);
     }
 
-    auto t1 = std::time(0);
+    auto t1 = std::chrono::system_clock::now();
+    std::chrono::duration<double> Temp_time = t1 - t0;
+    std::cout << "C = A*C time = " << Temp_time.count() << '\n';
 
-    std::cout << "C = A*B time " << t1 - t0 << '\n';
 
     arma::Mat<double> Am(A.GetElementDataRawPointer(), arma::uword(A.GetRowNumber()), arma::uword(A.GetColNumber()), false);
     arma::Mat<double> Bm(B.GetElementDataRawPointer(), arma::uword(B.GetRowNumber()), arma::uword(B.GetColNumber()), false);
     arma::Mat<double> Cm(C.GetElementDataRawPointer(), arma::uword(C.GetRowNumber()), arma::uword(C.GetColNumber()), false);
 
-    t0 = std::time(0);
+    t0 = std::chrono::system_clock::now();
 
-    for (uint64 i = 0; i < 10000; ++i)
+    for (uint64 i = 0; i < 1000; ++i)
     {
         //Cm = 1.0*(Am*Cm) + 2.0*(Am*Cm) + 3.0*(Am*Cm) + 4.0*(Am*Cm) + 5.0*(Am*Cm) + 6.0*(Am*Cm);
-        Cm = 1.0*Am*Cm + 2.0*Am*Cm + 3.0*Am*Cm + 4.0*Am*Cm + 5.0*Am*Cm + 6.0*Am*Cm;
+       // Cm = 1.0*Am*Cm + 2.0*Am*Cm + 3.0*Am*Cm + 4.0*Am*Cm + 5.0*Am*Cm + 6.0*Am*Cm;
+
+        Cm = Am*Cm + Am*Cm + Am*Cm + Am*Cm + Am*Cm + Am*Cm;
     }
 
-    t1 = std::time(0);
+    t1 = std::chrono::system_clock::now();
+    std::chrono::duration<double> Temp_time_arma = t1 - t0;
+    std::cout << "Cm = Am*Cm time = " << Temp_time_arma.count() << '\n';
 
-    std::cout << "arma Cm = Am*Bm time " << t1 - t0 << '\n';
 
     std::system("pause");
 }
@@ -1310,7 +1310,7 @@ void Test_GlueMatrix_Speed2()
 
     auto tempRawPointer = D.GetElementDataRawPointer();
 
-    auto t0 = std::time(0);
+    auto t0 = std::chrono::system_clock::now();
 
     for (uint64 i = 0; i < 10000; ++i)
     {
@@ -1325,66 +1325,75 @@ void Test_GlueMatrix_Speed2()
                 + ElementList_Coef[5] * MatrixElementDataRawPtrList[5][LinearIndex];
         }
     }
-    auto t1 = std::time(0);
+    
+    auto t1 = std::chrono::system_clock::now();
 
-    std::cout << "raw time " << t1 - t0 << '\n';
+    std::chrono::duration<double> raw_time = t1 - t0;
+    std::cout << "raw_time = " << raw_time.count() << '\n';
+
     //---------------------------------------------------------------------------------------------
 
-    t0 = std::time(0);
+    t0 = std::chrono::system_clock::now();
 
     for (uint64 i = 0; i < 10000; ++i)
     {
         MatrixLinearCombine<double>(D, { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D });
     }
 
-    t1 = std::time(0);
+    t1 = std::chrono::system_clock::now();
 
-    std::cout << "MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList) time " << t1 - t0 << '\n';
+    std::chrono::duration<double> MatrixLinearCombine_time = t1 - t0;
+
+    std::cout << "MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList) time = " << MatrixLinearCombine_time.count() << '\n';
 
     //---------------------------------------------------------------------------------------------
 
-    t0 = std::time(0);
+    t0 = std::chrono::system_clock::now();
 
     for (uint64 i = 0; i < 10000; ++i)
     {
         MatrixLinearCombine<double>({ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D });
     }
 
-    t1 = std::time(0);
+    t1 = std::chrono::system_clock::now();
 
-    std::cout << "MatrixLinearCombine(AlphaList, MatrixList) time " << t1 - t0 << '\n';
+    std::chrono::duration<double> MatrixLinearCombine_time_a = t1 - t0;
+
+    std::cout << "MatrixLinearCombine(AlphaList, MatrixList) time = " << MatrixLinearCombine_time_a.count() << '\n';
 
     //---------------------------------------------------------------------------------------------
 
-    t0 = std::time(0);
+    t0 = std::chrono::system_clock::now();
 
     for (uint64 i = 0; i < 10000; ++i)
     {
         D+= MatrixLinearCombine<double>({ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D });
     }
 
-    t1 = std::time(0);
+    t1 = std::chrono::system_clock::now();
 
-    std::cout << "D+=MatrixLinearCombine(AlphaList, MatrixList) time " << t1 - t0 << '\n';
+    std::chrono::duration<double> MatrixLinearCombine_time_b = t1 - t0;
+
+    std::cout << "D+=MatrixLinearCombine(AlphaList, MatrixList) time = " << MatrixLinearCombine_time_b.count() << '\n';
     
     //---------------------------------------------------------------------------------------------
 
-    t0 = std::time(0);
+    t0 = std::chrono::system_clock::now();
 
     for (uint64 i = 0; i < 10000; ++i)
     {
         D += 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
     }
 
-    t1 = std::time(0);
+    t1 = std::chrono::system_clock::now();
 
-    std::cout << "D(0,0) " << D(0, 0) << '\n';
+    std::chrono::duration<double> MatrixLinearCombine_time_c = t1 - t0;
 
-    std::cout << "D += 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D : time  " << t1 - t0 << '\n';
+    std::cout << "D += 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D : time = " << MatrixLinearCombine_time_c.count() << '\n';
 
     //---------------------------------------------------------------------------------------------
 
-    t0 = std::time(0);
+    t0 = std::chrono::system_clock::now();
 
     for (uint64 i = 0; i < 10000; ++i)
     {
@@ -1393,11 +1402,11 @@ void Test_GlueMatrix_Speed2()
         D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
     }
 
-    t1 = std::time(0);
+    t1 = std::chrono::system_clock::now();
 
-    std::cout << "D(0,0) " << D(0, 0) << '\n';
+    std::chrono::duration<double> MatrixLinearCombine_time_d = t1 - t0;
 
-    std::cout << "D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D : time  " << t1 - t0 << '\n';
+    std::cout << "D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D : time= " << MatrixLinearCombine_time_d.count() << '\n';
 
 
     std::system("pause");
@@ -1421,28 +1430,32 @@ void Test_GlueMatrix_Speed2()
     arma::Mat<double> C2m(A.GetElementDataRawPointer(), arma::uword(C2.GetRowNumber()), arma::uword(C2.GetColNumber()), false);
     arma::Mat<double> Dm(A.GetElementDataRawPointer(), arma::uword(D.GetRowNumber()), arma::uword(D.GetColNumber()), false);
 
-    t0 = std::time(0);
+    t0 = std::chrono::system_clock::now();
 
     for (uint64 i = 0; i < 10000; ++i)
     {
         Dm += 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m +5.0*Dm + 6.0*Dm;
     }
 
-    t1 = std::time(0);
+    t1 = std::chrono::system_clock::now();
 
-    std::cout << "arma Dm += 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m +5.0*Dm + 6.0*Dm time " << t1 - t0 << '\n';
+    std::chrono::duration<double> MatrixLinearCombine_time_arma_1 = t1 - t0;
+
+    std::cout << "arma Dm += 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m +5.0*Dm + 6.0*Dm time = " << MatrixLinearCombine_time_arma_1.count() << '\n';
 
     //-----------------------------------------------------------------------------------
-    t0 = std::time(0);
+    t0 = std::chrono::system_clock::now();
 
     for (uint64 i = 0; i < 10000; ++i)
     {
         Dm = Dm + 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m + 5.0*Dm + 6.0*Dm;
     }
 
-    t1 = std::time(0);
+    t1 = std::chrono::system_clock::now();
 
-    std::cout << "arma Dm = Dm + 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m +5.0*Dm + 6.0*Dm time " << t1 - t0 << '\n';
+    std::chrono::duration<double> MatrixLinearCombine_time_arma_2 = t1 - t0;
+
+    std::cout << "arma Dm = Dm + 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m +5.0*Dm + 6.0*Dm time = " << MatrixLinearCombine_time_arma_2.count() << '\n';
 
     //--------------------------------------------------------------------------------------
 

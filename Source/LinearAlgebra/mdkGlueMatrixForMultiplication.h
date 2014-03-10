@@ -38,9 +38,11 @@ private:
 
     uint64 m_ColNumber;
 
-    std::vector<mdkMatrix<ElementType>> m_SourceMatrixSharedCopyList;
+    std::vector<mdkMatrix<ElementType>> m_SourceMatrixShallowCopyList;
 
     ElementType m_Element_Coef;
+
+    bool m_Is_m_Element_Coef_Equal_to_One;
 
     //------------------- constructor and destructor ------------------------------------//
 private:

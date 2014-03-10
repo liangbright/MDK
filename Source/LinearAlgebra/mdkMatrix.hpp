@@ -431,6 +431,54 @@ bool mdkMatrix<ElementType>::Fill(const ElementType& Element)
 
 template<typename ElementType>
 inline
+bool mdkMatrix<ElementType>::ShallowCopy(const mdkMatrix<ElementType>& targetMatrix)
+{
+    // MatrixA = MatrixA
+    if (this == &targetMatrix)
+    {
+        mdkWarning << "A Matrix tries to ShallowCopy itself @ mdkMatrix::ShallowCopy(targetMatrix)" << '\n';
+        return false;
+    }
+
+    auto targetSize = targetMatrix.GetSize();
+
+    if (m_IsSizeFixed == true)
+    {
+        if (targetSize.RowNumber != m_RowNumber || targetSize.ColNumber != m_ColNumber)
+        {
+            mdkError << "Matrix size can not be changed @ mdkMatrix::ShallowCopy(targetMatrix)" << '\n';
+            return false;
+        }
+    }
+
+    m_RowNumber = targetMatrix.GetRowNumber();
+
+    m_ColNumber = targetMatrix.GetColNumber();
+
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    m_ElementData = targetMatrix.GetElementDataSharedPointer();
+
+    return true;
+}
+
+
+template<typename ElementType>
+inline
+void mdkMatrix<ElementType>::ForceShallowCopy(const mdkMatrix<ElementType>& targetMatrix)
+{
+    m_RowNumber = targetMatrix.GetRowNumber();
+
+    m_ColNumber = targetMatrix.GetColNumber();
+
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    m_ElementData = targetMatrix.GetElementDataSharedPointer();
+}
+
+
+template<typename ElementType>
+inline
 bool mdkMatrix<ElementType>::Take(mdkMatrix<ElementType>& targetMatrix)
 {
     // MatrixA = MatrixA
@@ -573,55 +621,6 @@ bool mdkMatrix<ElementType>::Take(const mdkGlueMatrixForMultiplication<ElementTy
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::Share(const mdkMatrix<ElementType>& targetMatrix)
-{
-    // MatrixA = MatrixA
-    if (this == &targetMatrix)
-    {
-        mdkWarning << "A Matrix tries to Share itself @ mdkMatrix::Share(targetMatrix)" << '\n';
-        return false;
-    }
-
-    auto targetSize = targetMatrix.GetSize();
-
-    if (m_IsSizeFixed == true)
-    {
-        if (targetSize.RowNumber != m_RowNumber || targetSize.ColNumber != m_ColNumber)
-        {
-            mdkError << "Matrix size can not be changed @ mdkMatrix::Share(targetMatrix)" << '\n';
-            return false;
-        }
-    }
-
-    m_RowNumber = targetMatrix.GetRowNumber();
-
-    m_ColNumber = targetMatrix.GetColNumber();
-
-    m_ElementNumber = m_RowNumber*m_ColNumber;
-
-    m_ElementData = targetMatrix.GetElementDataSharedPointer();
-
-    return true;
-}
-
-
-template<typename ElementType>
-inline
-void mdkMatrix<ElementType>::ForceShare(const mdkMatrix<ElementType>& targetMatrix)
-{
-    m_RowNumber = targetMatrix.GetRowNumber();
-
-    m_ColNumber = targetMatrix.GetColNumber();
-
-    m_ElementNumber = m_RowNumber*m_ColNumber;
-
-    m_ElementData = targetMatrix.GetElementDataSharedPointer();
-}
-
-
-
-template<typename ElementType>
-inline
 void mdkMatrix<ElementType>::Reset()
 {
     m_RowNumber = 0;
@@ -644,18 +643,20 @@ bool mdkMatrix<ElementType>::Clear()
     {
         if (m_RowNumber > 0)
         {
-            mdkError << "Size can not change @ mdkMatrix::Clear" << '\n';
+            mdkError << "m_IsSizeFixed is true, Size can not change @ mdkMatrix::Clear" << '\n';
             return false;
         }
+
+        return true;
     }
+
+    // if (m_IsSizeFixed == false)
 
     m_RowNumber = 0;
     m_ColNumber = 0;
     m_ElementNumber = 0;
 
     m_ElementData.reset();
-
-    m_IsSizeFixed = false;
 
     return true;
 }

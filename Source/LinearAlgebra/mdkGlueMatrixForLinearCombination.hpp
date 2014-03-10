@@ -27,7 +27,7 @@ mdkGlueMatrixForLinearCombination<ElementType>::mdkGlueMatrixForLinearCombinatio
 
     m_ColNumber = GlueMatrix.m_ColNumber;
 
-    m_MatrixElementDataSharedPointerList = std::move(GlueMatrix.m_MatrixElementDataSharedPointerList);
+    m_SourceMatrixShallowCopyList = std::move(GlueMatrix.m_SourceMatrixShallowCopyList);
 
     m_ElementList_Coef = std::move(GlueMatrix.m_ElementList_Coef);
 
@@ -54,9 +54,9 @@ inline void mdkGlueMatrixForLinearCombination<ElementType>::Reset()
 
     m_ColNumber = 0;
 
-    m_MatrixElementDataSharedPointerList.resize(0);
+    m_SourceMatrixShallowCopyList.resize(0);
 
-    m_MatrixElementDataSharedPointerList.reserve(MDK_GlueMatrixForLinearCombination_ReservedCapacity);
+    m_SourceMatrixShallowCopyList.reserve(MDK_GlueMatrixForLinearCombination_ReservedCapacity);
 
     m_ElementList_Coef.resize(0);
 
@@ -90,9 +90,17 @@ mdkMatrixSize mdkGlueMatrixForLinearCombination<ElementType>::GetSize() const
 
     Size.ColNumber = m_ColNumber;
 
-    Size.m_RowNumber = m_RowNumber;
+    Size.RowNumber = m_RowNumber;
 
     return Size;
+}
+
+
+template<typename ElementType>
+inline
+uint64 mdkGlueMatrixForLinearCombination<ElementType>::GetMatrixNumber() const
+{
+    return m_SourceMatrixShallowCopyList.size();
 }
 
 
@@ -150,13 +158,13 @@ bool mdkGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkMatrix<Elem
 
     auto OutputRawPointer = OutputMatrix.GetElementDataRawPointer();
 
-    auto MatrixNumber = m_MatrixElementDataSharedPointerList.size();
+    auto MatrixNumber = m_SourceMatrixShallowCopyList.size();
 
-    std::vector<ElementType*> MatrixElementDataRawPtrList(MatrixNumber);
+    std::vector<const ElementType*> MatrixElementDataRawPtrList(MatrixNumber);
 
     for (uint64 k = 0; k < MatrixNumber; ++k)
     {
-        MatrixElementDataRawPtrList[k] = m_MatrixElementDataSharedPointerList[k]->data();
+        MatrixElementDataRawPtrList[k] = m_SourceMatrixShallowCopyList[k].GetElementDataRawPointer();
     }
 
     auto ElementNumber = m_RowNumber*m_ColNumber;

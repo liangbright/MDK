@@ -30,34 +30,39 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearC
 
     if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
     {
-        mdkError << "GlueMatrixA or MatrixB is empty @ mdkMatrixOperator: +(GlueMatrixA, MatrixB)" << '\n';
-
-        return GlueMatrixA;
+        mdkError << "GlueMatrixA or MatrixB is empty @ mdkMatrixOperator: +(GlueMatrixA_ForLinearCombination, MatrixB)" << '\n';
+        mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
+        return EmptyGlueMatrix;
     }
 
     //scalar --------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 1 || SizeA.ColNumber == 1)
+    if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
     {
         mdkMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateMatrix();
 
         return tempScalarMatrixA(0) + MatrixB;
     }
 
-    if (SizeB.RowNumber == 1 || SizeB.ColNumber == 1)
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
-        return GlueMatrixA + MatrixB(0);
+        return std::move(GlueMatrixA) + MatrixB(0);
     }
 
     //matrix -------------------------------------------------------------------------------------------
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        mdkError << "Size does not match @ mdkMatrixOperator: +(GlueMatrixA, MatrixB)" << '\n';
-        return GlueMatrixA;
+        mdkError << "Size does not match @ mdkMatrixOperator: +(GlueMatrixA_ForLinearCombination, MatrixB)" << '\n';
+        mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
+        return EmptyGlueMatrix;
     }
 
-    GlueMatrixA.m_MatrixElementDataSharedPointerList.push_back(MatrixB.GetElementDataSharedPointer());
+    auto MatrixNumber = GlueMatrixA.GetMatrixNumber();
+
+    GlueMatrixA.m_SourceMatrixShallowCopyList.resize(MatrixNumber + 1);
+
+    GlueMatrixA.m_SourceMatrixShallowCopyList[MatrixNumber].ForceShallowCopy(MatrixB);
 
     GlueMatrixA.m_ElementList_Coef.push_back(ElementType(1));
 
@@ -69,15 +74,51 @@ template<typename ElementType>
 inline
 mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    if (GlueMatrixA.m_RowNumber != MatrixB.GetRowNumber() || GlueMatrixA.m_ColNumber != MatrixB.GetColNumber())
+    // check size -----------------------------
+
+    auto SizeA = GlueMatrixA.GetSize();
+
+    auto SizeB = MatrixB.GetSize();
+
+    // empty -----------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
     {
-        mdkError << "Size does not match @ mdkMatrixOperator: -(GlueMatrixA, MatrixB)" << '\n';
-        return GlueMatrixA;
+        mdkError << "GlueMatrixA or MatrixB is empty @ mdkMatrixOperator: -(GlueMatrixA_ForLinearCombination, MatrixB)" << '\n';
+        mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
+        return EmptyGlueMatrix;
     }
 
-    GlueMatrixA.m_MatrixElementDataSharedPointerList.push_back(MatrixB.GetElementDataSharedPointer());
+    //scalar --------------------------------------------------------------------------------------------
 
-    GlueMatrixA.m_ElementList_Coef.push_back(ElementType(- 1));
+    if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
+    {
+        mdkMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateMatrix();
+
+        return tempScalarMatrixA(0) - MatrixB;
+    }
+
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    {
+        return std::move(GlueMatrixA) - MatrixB(0);
+    }
+
+    //matrix -------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    {
+        mdkError << "Size does not match @ mdkMatrixOperator: -(GlueMatrixA_ForLinearCombination, MatrixB)" << '\n';
+        mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
+        return EmptyGlueMatrix;
+    }
+
+    auto MatrixNumber = GlueMatrixA.GetMatrixNumber();
+
+    GlueMatrixA.m_SourceMatrixShallowCopyList.resize(MatrixNumber + 1);
+
+    GlueMatrixA.m_SourceMatrixShallowCopyList[MatrixNumber].ForceShallowCopy(MatrixB);
+
+    GlueMatrixA.m_ElementList_Coef.push_back(ElementType(-1));
 
     return GlueMatrixA;
 }
@@ -108,13 +149,49 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB)
 {
-    if (GlueMatrixB.m_RowNumber != MatrixA.GetRowNumber() || GlueMatrixB.m_ColNumber != MatrixA.GetColNumber())
+    // check size -----------------------------
+
+    auto SizeA = MatrixA.GetSize();
+
+    auto SizeB = GlueMatrixB.GetSize();
+
+    // empty -----------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
     {
-        mdkError << "Size does not match @ mdkMatrixOperator: +(MatrixA, GlueMatrixB_ForLinearCombination)" << '\n';
-        return GlueMatrixB;
+        mdkError << "MatrixA or GlueMatrixB is empty @ mdkMatrixOperator: +(MatrixA, GlueMatrixB_ForLinearCombination)" << '\n';
+        mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
+        return EmptyGlueMatrix;
     }
 
-    GlueMatrixB.m_MatrixElementDataSharedPointerList.push_back(MatrixA.GetElementDataSharedPointer());
+    //scalar --------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
+    {
+        return MatrixA(0) + std::move(GlueMatrixB);
+    }
+
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    {
+        mdkMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateMatrix();
+
+        return MatrixA + tempScalarMatrixB(0);
+    }
+
+    //matrix -------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    {
+        mdkError << "Size does not match @ mdkMatrixOperator: +(MatrixA, GlueMatrixB_ForLinearCombination)" << '\n';
+        mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
+        return EmptyGlueMatrix;
+    }
+
+    auto MatrixNumber = GlueMatrixB.GetMatrixNumber();
+
+    GlueMatrixB.m_SourceMatrixShallowCopyList.resize(MatrixNumber + 1);
+
+    GlueMatrixB.m_SourceMatrixShallowCopyList[MatrixNumber].ForceShallowCopy(MatrixA);
 
     GlueMatrixB.m_ElementList_Coef.push_back(ElementType(1));
 
@@ -126,15 +203,51 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB)
 {
-    if (GlueMatrixB.m_RowNumber != MatrixA.GetRowNumber() || GlueMatrixB.m_ColNumber != MatrixA.GetColNumber())
+    // check size -----------------------------
+
+    auto SizeA = MatrixA.GetSize();
+
+    auto SizeB = GlueMatrixB.GetSize();
+
+    // empty -----------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
     {
-        mdkError << "Size does not match @ mdkMatrixOperator: -(MatrixA, GlueMatrixB_ForLinearCombination)" << '\n';
-        return GlueMatrixB;
+        mdkError << "MatrixA or GlueMatrixB is empty @ mdkMatrixOperator: -(MatrixA, GlueMatrixB_ForLinearCombination)" << '\n';
+        mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
+        return EmptyGlueMatrix;
     }
 
-    GlueMatrixB.m_MatrixElementDataSharedPointerList.push_back(MatrixA.GetElementDataSharedPointer());
+    //scalar --------------------------------------------------------------------------------------------
 
-    for (uint64 i = 0; i < GlueMatrixB.m_ElementList_Coef.size(); ++i)
+    if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
+    {
+        return MatrixA(0) - std::move(GlueMatrixB);
+    }
+
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    {
+        mdkMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateMatrix();
+
+        return MatrixA - tempScalarMatrixB(0);
+    }
+
+    //matrix -------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    {
+        mdkError << "Size does not match @ mdkMatrixOperator: -(MatrixA, GlueMatrixB_ForLinearCombination)" << '\n';
+        mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
+        return EmptyGlueMatrix;
+    }
+
+    auto MatrixNumber = GlueMatrixB.GetMatrixNumber();
+
+    GlueMatrixB.m_SourceMatrixShallowCopyList.resize(MatrixNumber + 1);
+
+    GlueMatrixB.m_SourceMatrixShallowCopyList[MatrixNumber].ForceShallowCopy(MatrixA);
+
+    for (uint64 i = 0; i < MatrixNumber; ++i)
     {
         GlueMatrixB.m_ElementList_Coef[i] = ElementType(0) - GlueMatrixB.m_ElementList_Coef[i];
     }
@@ -278,7 +391,7 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return std::move(GlueMatrixA) +ShadowMatrixB.CreateMatrix();
+    return std::move(GlueMatrixA) + ShadowMatrixB.CreateMatrix();
 }
 
 
@@ -286,7 +399,7 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return std::move(GlueMatrixA) -ShadowMatrixB.CreateMatrix();
+    return std::move(GlueMatrixA) - ShadowMatrixB.CreateMatrix();
 }
 
 
@@ -348,20 +461,60 @@ inline mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& Shad
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB)
 {
-    if (GlueMatrixA.m_RowNumber != GlueMatrixB.m_RowNumber || GlueMatrixA.m_ColNumber != GlueMatrixB.m_ColNumber)
+    // check size -----------------------------
+
+    auto SizeA = GlueMatrixA.GetSize();
+
+    auto SizeB = GlueMatrixB.GetSize();
+
+    // empty -----------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    {
+        mdkError << "GlueMatrixA or MatrixB is empty @ mdkMatrixOperator: +(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)" << '\n';
+        mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
+        return EmptyGlueMatrix;
+    }
+
+    //scalar --------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
+    {
+        mdkMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateMatrix();
+
+        return tempScalarMatrixA(0) + std::move(GlueMatrixB);
+    }
+
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    {
+        mdkMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateMatrix();
+
+        return std::move(GlueMatrixA) + tempScalarMatrixB(0);
+    }
+
+    //matrix -------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
         mdkError << "Size does not match @ mdkMatrixOperator: +(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)" << '\n';
-        return GlueMatrixA;
+        mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
+        return EmptyGlueMatrix;
     }
 
-    for (uint64 i = 0; i < GlueMatrixB.m_MatrixElementDataSharedPointerList.size(); ++i)
+    auto MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
+
+    auto MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
+
+    m_SourceMatrixShallowCopyList.resize(MatrixNumber_A + MatrixNumber_B);
+
+    for (uint64 i = 0; i < MatrixNumber_B; ++i)
     {
-        GlueMatrixA.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixB.m_MatrixElementDataSharedPointerList[i]);
+        GlueMatrixA.m_SourceMatrixShallowCopyList[MatrixNumber_A + i].ForceShallowCopy(GlueMatrixB.m_SourceMatrixShallowCopyList[i]);
     }
 
-    for (uint64 i = 0; i < GlueMatrixB.m_ElementList_Coef.size(); ++i)
+    for (uint64 i = 0; i < MatrixNumber_B; ++i)
     {
         GlueMatrixA.m_ElementList_Coef.push_back(GlueMatrixB.m_ElementList_Coef[i]);
     }
@@ -374,20 +527,60 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearC
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB)
 {
-    if (GlueMatrixA.m_RowNumber != GlueMatrixB.m_RowNumber || GlueMatrixA.m_ColNumber != GlueMatrixB.m_ColNumber)
+    // check size -----------------------------
+
+    auto SizeA = GlueMatrixA.GetSize();
+
+    auto SizeB = GlueMatrixB.GetSize();
+
+    // empty -----------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
     {
-        mdkError << "Size does not match @ mdkMatrixOperator: +(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)" << '\n';
-        return GlueMatrixA;
+        mdkError << "GlueMatrixA or MatrixB is empty @ mdkMatrixOperator: -(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)" << '\n';
+        mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
+        return EmptyGlueMatrix;
     }
 
-    for (uint64 i = 0; i < GlueMatrixB.m_MatrixElementDataSharedPointerList.size(); ++i)
+    //scalar --------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
     {
-        GlueMatrixA.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixB.m_MatrixElementDataSharedPointerList[i]);
+        mdkMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateMatrix();
+
+        return tempScalarMatrixA(0) - std::move(GlueMatrixB);
     }
 
-    for (uint64 i = 0; i < GlueMatrixB.m_ElementList_Coef.size(); ++i)
+    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    {
+        mdkMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateMatrix();
+
+        return std::move(GlueMatrixA) - tempScalarMatrixB(0);
+    }
+
+    //matrix -------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    {
+        mdkError << "Size does not match @ mdkMatrixOperator: -(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)" << '\n';
+        mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
+        return EmptyGlueMatrix;
+    }
+
+    auto MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
+
+    auto MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
+
+    m_SourceMatrixShallowCopyList.resize(MatrixNumber_A + MatrixNumber_B);
+
+    for (uint64 i = 0; i < MatrixNumber_B; ++i)
+    {
+        GlueMatrixA.m_SourceMatrixShallowCopyList[MatrixNumber_A + i].ForceShallowCopy(GlueMatrixB.m_SourceMatrixShallowCopyList[i]);
+    }
+
+    for (uint64 i = 0; i < MatrixNumber_B; ++i)
     {
         GlueMatrixA.m_ElementList_Coef.push_back(ElementType(0) - GlueMatrixB.m_ElementList_Coef[i]);
     }

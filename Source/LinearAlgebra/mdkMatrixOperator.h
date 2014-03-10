@@ -361,10 +361,10 @@ inline mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& Shad
 // note: GlueMatrixForLinearCombination {/}   GlueMatrixForLinearCombination return Matrix
 
 template<typename ElementType>
-inline mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB);
+inline mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB);
 
 template<typename ElementType>
-inline mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB);
+inline mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB);
 
 template<typename ElementType>
 inline mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB);
@@ -534,7 +534,7 @@ template<typename ElementType>
 inline mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB);
 
 template<typename ElementType>
-inline mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForMultiplication<ElementType> GlueMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB);
+inline mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForMultiplication<ElementType> GlueMatrixA, mdkGlueMatrixForMultiplication<ElementType> GlueMatrixB);
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> operator/(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB);

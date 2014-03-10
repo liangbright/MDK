@@ -211,6 +211,18 @@ public:
 
     inline bool Fill(const ElementType& Element);
 
+    //-------------------------- ShallowCopy ---------------------------------------- //
+    // use with caution:
+    // only copy m_ColNumber, m_RowNumber, m_ElementNumber, and shared_ptr: m_ElementData
+    // if the original object (targetMatrix) changes its size, its ShallowCopy will not known such size change 
+    
+    // if m_IsSizeFixed is true, and size does not match, then return false
+    inline bool ShallowCopy(const mdkMatrix<ElementType>& targetMatrix);
+
+    // it is used by GlueMatrix
+    // ShallowCopy the object (targetMatrix) no matter what
+    inline void ForceShallowCopy(const mdkMatrix<ElementType>& targetMatrix);
+
     //-------------------- Take : the the ownership of the input matrix ---------------------------//
 
     inline bool Take(mdkMatrix<ElementType>& targetMatrix);
@@ -224,13 +236,6 @@ public:
     inline bool Take(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
 
-    //-------------------------- share ---------------------------------------- //
-
-    inline bool Share(const mdkMatrix<ElementType>& targetMatrix);
-
-    // it is used by GlueMatrix
-    //
-    inline void ForceShare(const mdkMatrix<ElementType>& targetMatrix);
 
     //------------------------- Reset , Clear -------------------------------------------//
     

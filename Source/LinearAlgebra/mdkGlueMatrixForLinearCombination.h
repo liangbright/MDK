@@ -41,7 +41,7 @@ private:
 
 	uint64 m_ColNumber;
 
-    std::vector<std::shared_ptr<std::vector<ElementType>>> m_MatrixElementDataSharedPointerList;
+    std::vector<mdkMatrix<ElementType>> m_SourceMatrixShallowCopyList;
 
     std::vector<ElementType> m_ElementList_Coef;
 
@@ -60,6 +60,11 @@ private:
 public:
     inline mdkGlueMatrixForLinearCombination(mdkGlueMatrixForLinearCombination<ElementType>&& GlueMatrix);
 
+    //--------------------------- operator= deleted ----------------------------------------//
+private:
+    void operator=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix) = delete;
+    void operator=(mdkGlueMatrixForLinearCombination<ElementType>&& GlueMatrix) = delete;
+
 	//---------------------- Other ----------------------------------------//
 private:
     inline void Reset();
@@ -69,6 +74,8 @@ private:
     inline uint64 GetColNumber() const;
 
     inline mdkMatrixSize GetSize() const;
+
+    inline uint64 GetMatrixNumber() const;
 
     inline bool IsEmpty() const;
 
@@ -89,11 +96,6 @@ public:
     inline mdkMatrix<ElementType> ElementMultiply(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
 private:
-//--------------------------- deleted ----------------------------------------//
-
-    void operator=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix) = delete;
-    void operator=(mdkGlueMatrixForLinearCombination<ElementType>&& GlueMatrix) = delete;
-
 //--------------------------- friend class ----------------------------------------------------------------------------------//
 
     template<typename E_TYPE>
