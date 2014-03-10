@@ -67,11 +67,13 @@ private:
 
     inline mdkMatrixSize GetSize() const;
 
+    inline uint64 GetMatrixNumber() const;
+
     inline bool IsEmpty() const;
 
     inline mdkMatrix<ElementType> CreateMatrix() const;
 
-    inline void CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const;
+    inline bool CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const;
 
 public:
 

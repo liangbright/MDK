@@ -84,6 +84,21 @@ uint64 mdkGlueMatrixForLinearCombination<ElementType>::GetColNumber() const
 
 template<typename ElementType>
 inline
+mdkMatrixSize mdkGlueMatrixForLinearCombination<ElementType>::GetSize() const
+{
+    mdkMatrixSize Size;
+
+    Size.ColNumber = m_ColNumber;
+
+    Size.m_RowNumber = m_RowNumber;
+
+    return Size;
+}
+
+
+
+template<typename ElementType>
+inline
 bool mdkGlueMatrixForLinearCombination<ElementType>::IsEmpty() const
 {
     if (m_RowNumber == 0)
@@ -116,7 +131,7 @@ mdkMatrix<ElementType> mdkGlueMatrixForLinearCombination<ElementType>::CreateMat
 
 template<typename ElementType>
 inline 
-void mdkGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const
+bool mdkGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const
 {
     if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
     {
@@ -129,7 +144,7 @@ void mdkGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkMatrix<Elem
         else
         {
             mdkError << "Size does not match @ mdkGlueMatrixForLinearCombination::CreateMatrix(OutputMatrix)" << '\n';
-            return;
+            return false;
         }
     }
 
@@ -238,8 +253,65 @@ void mdkGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkMatrix<Elem
                                             + m_ElementList_Coef[7] * MatrixElementDataRawPtrList[7][LinearIndex];
         }
     }
+    else if (MatrixNumber == 9)
+    {
+        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        {
+            OutputRawPointer[LinearIndex] = m_IndependentElement
+                                            + m_ElementList_Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                                            + m_ElementList_Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex]
+                                            + m_ElementList_Coef[2] * MatrixElementDataRawPtrList[2][LinearIndex]
+                                            + m_ElementList_Coef[3] * MatrixElementDataRawPtrList[3][LinearIndex]
+                                            + m_ElementList_Coef[4] * MatrixElementDataRawPtrList[4][LinearIndex]
+                                            + m_ElementList_Coef[5] * MatrixElementDataRawPtrList[5][LinearIndex]
+                                            + m_ElementList_Coef[6] * MatrixElementDataRawPtrList[6][LinearIndex]
+                                            + m_ElementList_Coef[7] * MatrixElementDataRawPtrList[7][LinearIndex]
+                                            + m_ElementList_Coef[8] * MatrixElementDataRawPtrList[8][LinearIndex];
+        }
+    }
+    else if (MatrixNumber == 10)
+    {
+        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        {
+            OutputRawPointer[LinearIndex] = m_IndependentElement
+                                            + m_ElementList_Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
+                                            + m_ElementList_Coef[1] * MatrixElementDataRawPtrList[1][LinearIndex]
+                                            + m_ElementList_Coef[2] * MatrixElementDataRawPtrList[2][LinearIndex]
+                                            + m_ElementList_Coef[3] * MatrixElementDataRawPtrList[3][LinearIndex]
+                                            + m_ElementList_Coef[4] * MatrixElementDataRawPtrList[4][LinearIndex]
+                                            + m_ElementList_Coef[5] * MatrixElementDataRawPtrList[5][LinearIndex]
+                                            + m_ElementList_Coef[6] * MatrixElementDataRawPtrList[6][LinearIndex]
+                                            + m_ElementList_Coef[7] * MatrixElementDataRawPtrList[7][LinearIndex]
+                                            + m_ElementList_Coef[8] * MatrixElementDataRawPtrList[8][LinearIndex]
+                                            + m_ElementList_Coef[9] * MatrixElementDataRawPtrList[9][LinearIndex];
+        }
+    }
     else
     {
+        // two kinds of for-loop ------------------------------------------------------------
+
+        // for-loop #1: faster than #2
+
+        for (auto tempPtr = OutputRawPointer; tempPtr < OutputRawPointer + ElementNumber; ++tempPtr)
+        {
+            tempPtr[0] = m_IndependentElement;
+        }
+
+        for (uint64 k = 0; k < MatrixNumber; ++k)
+        {
+            auto Coef_k = m_ElementList_Coef[k];
+
+            auto RawPtr_k = MatrixElementDataRawPtrList[k];
+
+            for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+            {
+                OutputRawPointer[LinearIndex] += Coef_k * RawPtr_k[LinearIndex];
+            }
+
+        }
+        
+        // for-loop #2:
+        /*
         for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
         {
             // must use a temp variable
@@ -252,7 +324,11 @@ void mdkGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkMatrix<Elem
 
             OutputRawPointer[LinearIndex] = tempElement;
         }
+        */
+
     }
+
+    return true;
 }
 
 
@@ -260,7 +336,11 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> mdkGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkMatrix<ElementType>& targetMatrix)
 {
-    return MatrixElementMultiply(this->CreateMatrix(), targetMatrix);
+    auto tempMatrix = this->CreateMatrix();
+
+    MatrixElementMultiply(tempMatrix, tempMatrix, targetMatrix);
+
+    return tempMatrix;
 }
 
 
@@ -268,7 +348,11 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> mdkGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const ElementType& Element)
 {
-    return MatrixElementMultiply(this->CreateMatrix(), Element);
+    auto tempMatrix = this->CreateMatrix();
+
+    MatrixElementMultiply(tempMatrix, tempMatrix, Element);
+
+    return tempMatrix;
 }
 
 
@@ -276,7 +360,11 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> mdkGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
-    return MatrixElementMultiply(this->CreateMatrix(), ShadowMatrix.CreateMatrix());
+    auto tempMatrix = this->CreateMatrix();
+
+    MatrixElementMultiply(tempMatrix, tempMatrix, ShadowMatrix.CreateMatrix());
+
+    return tempMatrix;
 }
 
 
@@ -284,7 +372,11 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> mdkGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
-    return MatrixElementMultiply(this->CreateMatrix(), GlueMatrix.CreateMatrix());
+    auto tempMatrix = this->CreateMatrix();
+
+    MatrixElementMultiply(tempMatrix, tempMatrix, GlueMatrix.CreateMatrix());
+
+    return tempMatrix;
 }
 
 
@@ -292,7 +384,11 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> mdkGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
-    return MatrixElementMultiply(this->CreateMatrix(), GlueMatrix.CreateMatrix());
+    auto tempMatrix = this->CreateMatrix();
+
+    MatrixElementMultiply(tempMatrix, tempMatrix, GlueMatrix.CreateMatrix());
+
+    return tempMatrix;
 }
 
 }//end namespace mdk

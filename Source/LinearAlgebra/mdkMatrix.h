@@ -211,9 +211,6 @@ public:
 
     inline bool Fill(const ElementType& Element);
 
-    // copy by share
-    inline bool SharedCopy(const mdkMatrix<ElementType>& targetMatrix);
-
     //-------------------- Take : the the ownership of the input matrix ---------------------------//
 
     inline bool Take(mdkMatrix<ElementType>& targetMatrix);
@@ -225,6 +222,15 @@ public:
     inline bool Take(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
     inline bool Take(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+
+
+    //-------------------------- share ---------------------------------------- //
+
+    inline bool Share(const mdkMatrix<ElementType>& targetMatrix);
+
+    // it is used by GlueMatrix
+    //
+    inline void ForceShare(const mdkMatrix<ElementType>& targetMatrix);
 
     //------------------------- Reset , Clear -------------------------------------------//
     

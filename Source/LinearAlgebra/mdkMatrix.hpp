@@ -431,40 +431,6 @@ bool mdkMatrix<ElementType>::Fill(const ElementType& Element)
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::SharedCopy(const mdkMatrix<ElementType>& targetMatrix)
-{
-    // MatrixA = MatrixA
-    if (this == &targetMatrix)
-    {
-        mdkWarning << "A Matrix tries to SharedCopy itself @ mdkMatrix::SharedCopy(targetMatrix)" << '\n';
-        return false;
-    }
-
-    auto targetSize = targetMatrix.GetSize();
-
-    if (m_IsSizeFixed == true)
-    {
-        if (targetSize.RowNumber != m_RowNumber || targetSize.ColNumber != m_ColNumber)
-        {
-            mdkError << "Matrix size can not be changed @ mdkMatrix::SharedCopy(targetMatrix)" << '\n';
-            return false;
-        }
-    }
-
-    m_RowNumber = targetMatrix.GetRowNumber();
-
-    m_ColNumber = targetMatrix.GetColNumber();
-
-    m_ElementNumber = m_RowNumber*m_ColNumber;
-
-    m_ElementData = targetMatrix.GetElementDataSharedPointer();
-
-    return true;
-}
-
-
-template<typename ElementType>
-inline
 bool mdkMatrix<ElementType>::Take(mdkMatrix<ElementType>& targetMatrix)
 {
     // MatrixA = MatrixA
@@ -603,6 +569,55 @@ bool mdkMatrix<ElementType>::Take(const mdkGlueMatrixForMultiplication<ElementTy
 
     return true;
 }
+
+
+template<typename ElementType>
+inline
+bool mdkMatrix<ElementType>::Share(const mdkMatrix<ElementType>& targetMatrix)
+{
+    // MatrixA = MatrixA
+    if (this == &targetMatrix)
+    {
+        mdkWarning << "A Matrix tries to Share itself @ mdkMatrix::Share(targetMatrix)" << '\n';
+        return false;
+    }
+
+    auto targetSize = targetMatrix.GetSize();
+
+    if (m_IsSizeFixed == true)
+    {
+        if (targetSize.RowNumber != m_RowNumber || targetSize.ColNumber != m_ColNumber)
+        {
+            mdkError << "Matrix size can not be changed @ mdkMatrix::Share(targetMatrix)" << '\n';
+            return false;
+        }
+    }
+
+    m_RowNumber = targetMatrix.GetRowNumber();
+
+    m_ColNumber = targetMatrix.GetColNumber();
+
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    m_ElementData = targetMatrix.GetElementDataSharedPointer();
+
+    return true;
+}
+
+
+template<typename ElementType>
+inline
+void mdkMatrix<ElementType>::ForceShare(const mdkMatrix<ElementType>& targetMatrix)
+{
+    m_RowNumber = targetMatrix.GetRowNumber();
+
+    m_ColNumber = targetMatrix.GetColNumber();
+
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    m_ElementData = targetMatrix.GetElementDataSharedPointer();
+}
+
 
 
 template<typename ElementType>

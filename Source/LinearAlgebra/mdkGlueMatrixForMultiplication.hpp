@@ -93,6 +93,14 @@ mdkMatrixSize mdkGlueMatrixForMultiplication<ElementType>::GetSize() const
 
 template<typename ElementType>
 inline
+uint64 mdkGlueMatrixForMultiplication<ElementType>::GetMatrixNumber() const
+{
+    return m_SourceMatrixSharedCopyList.size();
+}
+
+
+template<typename ElementType>
+inline
 bool mdkGlueMatrixForMultiplication<ElementType>::IsEmpty() const
 {
     if (m_RowNumber == 0)
@@ -127,7 +135,7 @@ mdkMatrix<ElementType> mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix
 
 template<typename ElementType>
 inline 
-void mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const
+bool mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const
 {
     if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
     {
@@ -138,7 +146,7 @@ void mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
         else
         {
             mdkError << "Size does not match @ mdkGlueMatrixForMultiplication::CreateMatrix(OutputMatrix)" << '\n';
-            return;
+            return false;
         }
     }
 
@@ -147,14 +155,14 @@ void mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
     if (MatrixNumber == 0)
     {
         mdkError << "MatrixNumber is zero @ mdkGlueMatrixForMultiplication::CreateMatrix(OutputMatrix)" << '\n';
-        return;
+        return false;
     }
 
     if (MatrixNumber == 1)
     {
         OutputMatrix = MatrixElementMultiply(m_SourceMatrixSharedCopyList[0], m_Element_Coef);
         
-        return;
+        return true;
     }
 
     if (MatrixNumber == 2)
@@ -163,7 +171,7 @@ void mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
 
         MatrixElementMultiply(OutputMatrix, OutputMatrix, m_Element_Coef);
 
-        return;
+        return true;
     }
 
     // MatrixNumber >= 3
@@ -178,7 +186,7 @@ void mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
             OutputMatrix = MatrixMultiply(OutputMatrix, m_SourceMatrixSharedCopyList[i]);
         }
 
-        return;
+        return true;
     }
 
     // output is a vector or scalar (in matrix form) ------------------------------------------
@@ -191,7 +199,7 @@ void mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
             OutputMatrix = MatrixMultiply(m_SourceMatrixSharedCopyList[i], OutputMatrix);
         }
 
-        return;
+        return true;
     }
 
     //---------------------------------------------------------------------------------
@@ -253,10 +261,11 @@ void mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
 
         MatrixPointerList[RelativeIndex_BestMatrixPair] = &ResultMatrixList[RelativeIndex_BestMatrixPair];
 
-    }
+    }// while
     
     OutputMatrix.Take(ResultMatrixList[0]);
 
+    return true;
 }
 
 
@@ -264,7 +273,11 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> mdkGlueMatrixForMultiplication<ElementType>::ElementMultiply(const mdkMatrix<ElementType>& targetMatrix)
 {
-    return MatrixElementMultiply(this->CreateMatrix(), targetMatrix);
+    auto tempMatrix = this->CreateMatrix();
+
+    MatrixElementMultiply(tempMatrix, tempMatrix, targetMatrix);
+
+    return tempMatrix;
 }
 
 
@@ -272,7 +285,11 @@ template<typename ElementType>
 inline
 mdkMatrix<ElementType> mdkGlueMatrixForMultiplication<ElementType>::ElementMultiply(const ElementType& Element)
 {
-    return MatrixElementMultiply(this->CreateMatrix(), Element);
+    auto tempMatrix = this->CreateMatrix();
+
+    MatrixElementMultiply(tempMatrix, tempMatrix, Element);
+
+    return tempMatrix;
 }
 
 
@@ -280,7 +297,11 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> mdkGlueMatrixForMultiplication<ElementType>::ElementMultiply(const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
-    return MatrixElementMultiply(this->CreateMatrix(), ShadowMatrix.CreateMatrix());
+    auto tempMatrix = this->CreateMatrix();
+
+    MatrixElementMultiply(tempMatrix, tempMatrix, ShadowMatrix.CreateMatrix());
+
+    return tempMatrix;
 }
 
 
@@ -288,7 +309,11 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> mdkGlueMatrixForMultiplication<ElementType>::ElementMultiply(const mdkLinearCombineGlueMatrix<ElementType>& GlueMatrix)
 {
-    return MatrixElementMultiply(this->CreateMatrix(), GlueMatrix.CreateMatrix());
+    auto tempMatrix = this->CreateMatrix();
+
+    MatrixElementMultiply(tempMatrix, tempMatrix, GlueMatrix.CreateMatrix());
+
+    return tempMatrix;
 }
 
 
@@ -296,7 +321,11 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> mdkGlueMatrixForMultiplication<ElementType>::ElementMultiply(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
-    return MatrixElementMultiply(this->CreateMatrix(), GlueMatrix.CreateMatrix());
+    auto tempMatrix = this->CreateMatrix();
+
+    MatrixElementMultiply(tempMatrix, tempMatrix, GlueMatrix.CreateMatrix());
+
+    return tempMatrix;
 }
 
 

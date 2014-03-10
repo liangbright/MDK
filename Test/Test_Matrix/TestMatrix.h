@@ -113,7 +113,7 @@ void Test_Constructor()
 
     mdkMatrix<double> C;
 
-    C.SharedCopy(A);
+    C.Share(A);
 
     A.Copy(A);
 
@@ -334,7 +334,7 @@ void Test_Share()
 
     mdkMatrix<double> B;
 
-    B.SharedCopy(A);
+    B.Share(A);
 
     B(1, 1) = 0;
 

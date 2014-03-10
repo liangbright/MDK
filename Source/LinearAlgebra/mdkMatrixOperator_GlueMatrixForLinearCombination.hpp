@@ -20,7 +20,38 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    if (GlueMatrixA.m_RowNumber != MatrixB.GetRowNumber() || GlueMatrixA.m_ColNumber != MatrixB.GetColNumber())
+    // check size -----------------------------
+
+    auto SizeA = GlueMatrixA.GetSize();
+
+    auto SizeB = MatrixB.GetSize();
+
+    // empty -----------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    {
+        mdkError << "GlueMatrixA or MatrixB is empty @ mdkMatrixOperator: +(GlueMatrixA, MatrixB)" << '\n';
+
+        return GlueMatrixA;
+    }
+
+    //scalar --------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber == 1 || SizeA.ColNumber == 1)
+    {
+        mdkMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateMatrix();
+
+        return tempScalarMatrixA(0) + MatrixB;
+    }
+
+    if (SizeB.RowNumber == 1 || SizeB.ColNumber == 1)
+    {
+        return GlueMatrixA + MatrixB(0);
+    }
+
+    //matrix -------------------------------------------------------------------------------------------
+
+    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
         mdkError << "Size does not match @ mdkMatrixOperator: +(GlueMatrixA, MatrixB)" << '\n';
         return GlueMatrixA;
@@ -105,12 +136,12 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkMatrix<Element
 
     for (uint64 i = 0; i < GlueMatrixB.m_ElementList_Coef.size(); ++i)
     {
-        GlueMatrixB.m_ElementList_Coef[i] = -GlueMatrixB.m_ElementList_Coef[i];
+        GlueMatrixB.m_ElementList_Coef[i] = ElementType(0) - GlueMatrixB.m_ElementList_Coef[i];
     }
 
     GlueMatrixB.m_ElementList_Coef.push_back(ElementType(1));
 
-    GlueMatrixB.m_IndependentElement = -GlueMatrixB.m_IndependentElement;
+    GlueMatrixB.m_IndependentElement = ElementType(0) - GlueMatrixB.m_IndependentElement;
 
     return GlueMatrixB;
 }
@@ -208,7 +239,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const ElementType& Elem
 
     for (uint64 i = 0; i < GlueMatrixB.m_ElementList_Coef.size(); ++i)
     {
-        GlueMatrixB.m_ElementList_Coef[i] = -GlueMatrixB.m_ElementList_Coef[i];
+        GlueMatrixB.m_ElementList_Coef[i] = ElementType(0) - GlueMatrixB.m_ElementList_Coef[i];
     }
 
     return GlueMatrixB;
@@ -358,7 +389,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearC
 
     for (uint64 i = 0; i < GlueMatrixB.m_ElementList_Coef.size(); ++i)
     {
-        GlueMatrixA.m_ElementList_Coef.push_back(-GlueMatrixB.m_ElementList_Coef[i]);
+        GlueMatrixA.m_ElementList_Coef.push_back(ElementType(0) - GlueMatrixB.m_ElementList_Coef[i]);
     }
 
     GlueMatrixA.m_IndependentElement -= GlueMatrixB.m_IndependentElement;

@@ -37,7 +37,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
         return;
     }
 
-    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
     m_LinearIndexList_source = LinearIndexList;
 
@@ -57,7 +57,7 @@ template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
-    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
     m_Flag_OutputVector = true;
 
@@ -110,7 +110,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
         return;
     }
 
-    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -149,7 +149,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
         return;
     }
 
-    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -193,7 +193,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
         return;
     }
 
-    m_SourceMatrixSharedCopy.SharedCopy(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -224,7 +224,7 @@ template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
-    m_SourceMatrixSharedCopy.SharedCopy(ShadowMatrix.m_SourceMatrixSharedCopy);
+    m_SourceMatrixSharedCopy.ForceShare(ShadowMatrix.m_SourceMatrixSharedCopy);
 
     m_RowIndexList_source = ShadowMatrix.m_RowIndexList_source;
 
@@ -248,7 +248,7 @@ template<typename ElementType>
 inline 
 mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkShadowMatrix<ElementType>&& ShadowMatrix)
 {
-    m_SourceMatrixSharedCopy.SharedCopy(ShadowMatrix.m_SourceMatrixSharedCopy);
+    m_SourceMatrixSharedCopy.ForceShare(ShadowMatrix.m_SourceMatrixSharedCopy);
 
     m_RowIndexList_source = std::move(ShadowMatrix.m_RowIndexList_source);
 

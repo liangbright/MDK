@@ -158,9 +158,9 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementTyp
 
     tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(2);
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList[0].SharedCopy(MatrixA);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList[1].SharedCopy(MatrixB);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList[1].ForceShare(MatrixB);
 
     return tempGlueMatrix;
 }
@@ -230,7 +230,7 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementTyp
 
     tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList[0].SharedCopy(MatrixA);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
 
     tempGlueMatrix.m_Element_Coef = ElementB;
 
@@ -315,7 +315,7 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(const ElementType& Element
 
     tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList[0].SharedCopy(MatrixB);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixB);
 
     tempGlueMatrix.m_Element_Coef = ElementA;
 

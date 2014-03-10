@@ -21,7 +21,37 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    return GlueMatrixA.CreateMatrix() + MatrixB;
+    // check if GlueMatrixA only has one matrix
+
+    if (GlueMatrixA.GetMatrixNumber() == 1)
+    {
+        mdkGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
+
+        // check size
+        if (GlueMatrixA.m_ColNumber != MatrixB.GetColNumber() || GlueMatrixA.m_RowNumber != MatrixB.GetRowNumber())
+        {
+            mdkError << "Size does not match @ mdkMatrixOperator +(GlueMatrixA_ForMultiplication, MatrixB)" << '\n';
+            return tempGlueMatrix_L;
+        }
+
+        tempGlueMatrix_L.m_RowNumber = GlueMatrixA.m_RowNumber;
+
+        tempGlueMatrix_L.m_ColNumber = GlueMatrixA.m_ColNumber;
+
+        tempGlueMatrix_L.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixA.m_SourceMatrixSharedCopyList[0].GetElementDataSharedPointer());
+
+        tempGlueMatrix_L.m_MatrixElementDataSharedPointerList.push_back(MatrixB.GetElementDataSharedPointer());
+
+        tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixA.m_Element_Coef);
+
+        tempGlueMatrix_L.m_ElementList_Coef.push_back(ElementType(1));
+
+        return tempGlueMatrix_L;
+    }
+    else
+    {
+        return GlueMatrixA.CreateMatrix() + MatrixB;
+    }
 }
 
 
@@ -29,7 +59,37 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
-    return GlueMatrixA.CreateMatrix() - MatrixB;
+    // check if GlueMatrixA only has one matrix
+
+    if (GlueMatrixA.GetMatrixNumber() == 1)
+    {
+        mdkGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
+
+        // check size
+        if (GlueMatrixA.m_ColNumber != MatrixB.GetColNumber() || GlueMatrixA.m_RowNumber != MatrixB.GetRowNumber())
+        {
+            mdkError << "Size does not match @ mdkMatrixOperator +(GlueMatrixA_ForMultiplication, MatrixB)" << '\n';
+            return tempGlueMatrix_L;
+        }
+
+        tempGlueMatrix_L.m_RowNumber = GlueMatrixA.m_RowNumber;
+
+        tempGlueMatrix_L.m_ColNumber = GlueMatrixA.m_ColNumber;
+
+        tempGlueMatrix_L.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixA.m_SourceMatrixSharedCopyList[0].GetElementDataSharedPointer());
+
+        tempGlueMatrix_L.m_MatrixElementDataSharedPointerList.push_back(MatrixB.GetElementDataSharedPointer());
+
+        tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixA.m_Element_Coef);
+
+        tempGlueMatrix_L.m_ElementList_Coef.push_back(ElementType(-1));
+
+        return tempGlueMatrix_L;
+    }
+    else
+    {
+        return GlueMatrixA.CreateMatrix() - MatrixB;
+    }
 }
 
 
@@ -61,7 +121,7 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForMultiplica
 
     GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber+1);
 
-    GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber].SharedCopy(MatrixB);
+    GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber].ForceShare(MatrixB);
 
     return GlueMatrixA;
 }
@@ -84,7 +144,37 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
 {
-    return MatrixA + GlueMatrixB.CreateMatrix();
+    // check if GlueMatrixB only has one matrix
+
+    if (GlueMatrixB.GetMatrixNumber() == 1)
+    {
+        mdkGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
+
+        // check size
+        if (GlueMatrixB.m_ColNumber != MatrixA.GetColNumber() || GlueMatrixB.m_RowNumber != MatrixA.GetRowNumber())
+        {
+            mdkError << "Size does not match @ mdkMatrixOperator +(MatrixA, GlueMatrixB_ForMultiplication)" << '\n';
+            return tempGlueMatrix_L;
+        }
+
+        tempGlueMatrix_L.m_RowNumber = GlueMatrixB.m_RowNumber;
+
+        tempGlueMatrix_L.m_ColNumber = GlueMatrixB.m_ColNumber;
+
+        tempGlueMatrix_L.m_MatrixElementDataSharedPointerList.push_back(MatrixA.GetElementDataSharedPointer());
+
+        tempGlueMatrix_L.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixB.m_SourceMatrixSharedCopyList[0].GetElementDataSharedPointer());
+
+        tempGlueMatrix_L.m_ElementList_Coef.push_back(ElementType(1));
+
+        tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixB.m_Element_Coef);
+
+        return tempGlueMatrix_L;
+    }
+    else
+    {
+        return MatrixA + GlueMatrixB.CreateMatrix();
+    }
 }
 
 
@@ -92,7 +182,37 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
 {
-    return MatrixA - GlueMatrixB.CreateMatrix();
+    // check if GlueMatrixB only has one matrix
+
+    if (GlueMatrixB.GetMatrixNumber() == 1)
+    {
+        mdkGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
+
+        // check size
+        if (GlueMatrixB.m_ColNumber != MatrixA.GetColNumber() || GlueMatrixB.m_RowNumber != MatrixA.GetRowNumber())
+        {
+            mdkError << "Size does not match @ mdkMatrixOperator -(MatrixA, GlueMatrixB_ForMultiplication)" << '\n';
+            return tempGlueMatrix_L;
+        }
+
+        tempGlueMatrix_L.m_RowNumber = GlueMatrixA.m_RowNumber;
+
+        tempGlueMatrix_L.m_ColNumber = GlueMatrixA.m_ColNumber;
+
+        tempGlueMatrix_L.m_MatrixElementDataSharedPointerList.push_back(MatrixA.GetElementDataSharedPointer());
+
+        tempGlueMatrix_L.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixB.m_SourceMatrixSharedCopyList[0].GetElementDataSharedPointer());
+
+        tempGlueMatrix_L.m_ElementList_Coef.push_back(ElementType(1));
+
+        tempGlueMatrix_L.m_ElementList_Coef.push_back(ElementType(0) - GlueMatrixA.m_Element_Coef);
+
+        return tempGlueMatrix_L;
+    }
+    else
+    {
+        return MatrixA - GlueMatrixB.CreateMatrix();
+    }
 }
 
 
@@ -131,10 +251,12 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementTyp
         return GlueMatrixB;
     }
 
-    for (uint64 i = MatrixNumber; i > 1; --i)
+    for (uint64 i = MatrixNumber; i >= 1; --i)
     {
-        GlueMatrixB.m_SourceMatrixSharedCopyList[i].Eat(GlueMatrixB.m_SourceMatrixSharedCopyList[i - 1]);
+        GlueMatrixB.m_SourceMatrixSharedCopyList[i].ForceShare(GlueMatrixB.m_SourceMatrixSharedCopyList[i - 1]);
     }    
+
+    GlueMatrixB.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
 
     return GlueMatrixB;
 }
@@ -156,7 +278,28 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const ElementType& ElementB)
 {
-    return GlueMatrixA.CreateMatrix() + ElementB;
+    // check if GlueMatrixA only has one matrix
+
+    if (GlueMatrixA.GetMatrixNumber() == 1)
+    {
+        mdkGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
+
+        tempGlueMatrix_L.m_RowNumber = GlueMatrixA.m_RowNumber;
+
+        tempGlueMatrix_L.m_ColNumber = GlueMatrixA.m_ColNumber;
+
+        tempGlueMatrix_L.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixA.m_SourceMatrixSharedCopyList[0].GetElementDataSharedPointer());
+
+        tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixA.m_Element_Coef);
+
+        tempGlueMatrix_L.m_IndependentElement = ElementB;
+
+        return tempGlueMatrix_L;
+    }
+    else
+    {
+        return GlueMatrixA.CreateMatrix() + ElementB;
+    }
 }
 
 
@@ -164,7 +307,28 @@ template<typename ElementType>
 inline
 mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const ElementType& ElementB)
 {
-    return GlueMatrixA.CreateMatrix() - ElementB;
+    // check if GlueMatrixA only has one matrix
+
+    if (GlueMatrixA.GetMatrixNumber() == 1)
+    {
+        mdkGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
+
+        tempGlueMatrix_L.m_RowNumber = GlueMatrixA.m_RowNumber;
+
+        tempGlueMatrix_L.m_ColNumber = GlueMatrixA.m_ColNumber;
+
+        tempGlueMatrix_L.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixA.m_SourceMatrixSharedCopyList[0].GetElementDataSharedPointer());
+
+        tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixA.m_Element_Coef);
+
+        tempGlueMatrix_L.m_IndependentElement = ElementType(0) - ElementB;
+
+        return tempGlueMatrix_L;
+    }
+    else
+    {
+        return GlueMatrixA.CreateMatrix() - ElementB;
+    }
 }
 
 
@@ -197,7 +361,28 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator+(const ElementType& ElementA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
 {
-    return ElementA + GlueMatrixB.CreateMatrix();
+    // check if GlueMatrixB only has one matrix
+
+    if (GlueMatrixB.GetMatrixNumber() == 1)
+    {
+        mdkGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
+
+        tempGlueMatrix_L.m_RowNumber = GlueMatrixB.m_RowNumber;
+
+        tempGlueMatrix_L.m_ColNumber = GlueMatrixB.m_ColNumber;
+
+        tempGlueMatrix_L.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixB.m_SourceMatrixSharedCopyList[0].GetElementDataSharedPointer());
+
+        tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixB.m_Element_Coef);
+
+        tempGlueMatrix_L.m_IndependentElement = ElementA;
+
+        return tempGlueMatrix_L;
+    }
+    else
+    {
+        return ElementA + GlueMatrixB.CreateMatrix();
+    }
 }
 
 
@@ -205,7 +390,28 @@ template<typename ElementType>
 inline
 mdkGlueMatrixForLinearCombination<ElementType> operator-(const ElementType& ElementA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
 {
-    return ElementA - GlueMatrixB.CreateMatrix();
+    // check if GlueMatrixB only has one matrix
+
+    if (GlueMatrixB.GetMatrixNumber() == 1)
+    {
+        mdkGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
+
+        tempGlueMatrix_L.m_RowNumber = GlueMatrixB.m_RowNumber;
+
+        tempGlueMatrix_L.m_ColNumber = GlueMatrixB.m_ColNumber;
+
+        tempGlueMatrix_L.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixB.m_SourceMatrixSharedCopyList[0].GetElementDataSharedPointer());
+
+        tempGlueMatrix_L.m_ElementList_Coef.push_back(-GlueMatrixB.m_Element_Coef);
+
+        tempGlueMatrix_L.m_IndependentElement = ElementA;
+
+        return tempGlueMatrix_L;
+    }
+    else
+    {
+        return ElementA - GlueMatrixB.CreateMatrix();
+    }
 }
 
 
@@ -226,7 +432,7 @@ mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkGlueMatri
     return ElementA / GlueMatrixB.CreateMatrix();
 }
 
-// -------------------------------------------- GlueMatrixForMultiplication {+ - /}  ShadowMatrix -----------------------------------------------------//
+// -------------------------------------------- GlueMatrixForMultiplication {+ - * /}  ShadowMatrix -----------------------------------------------------//
 
 // note: GlueMatrixForMultiplication {+ -} ShadowMatrix return GlueMatrixForLinearCombination
 // note: GlueMatrixForMultiplication {*}   ShadowMatrix return GlueMatrixForMultiplication
@@ -236,7 +442,7 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return GlueMatrixA.CreateMatrix() + ShadowMatrixB.CreateMatrix();
+    return GlueMatrixA + ShadowMatrixB.CreateMatrix();
 }
 
 
@@ -244,7 +450,7 @@ template<typename ElementType>
 inline
 mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return GlueMatrixA.CreateMatrix() - ShadowMatrixB.CreateMatrix();
+    return GlueMatrixA - ShadowMatrixB.CreateMatrix();
 }
 
 
@@ -273,7 +479,7 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
 {
-    return ShadowMatrixA.CreateMatrix() + GlueMatrixB.CreateMatrix();
+    return ShadowMatrixA.CreateMatrix() + GlueMatrixB;
 }
 
 
@@ -281,7 +487,7 @@ template<typename ElementType>
 inline
 mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
 {
-    return ShadowMatrixA.CreateMatrix() - GlueMatrixB.CreateMatrix();
+    return ShadowMatrixA.CreateMatrix() - GlueMatrixB;
 }
 
 
@@ -310,14 +516,61 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA_M, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB_L)
 {
-    return GlueMatrixA_M.CreateMatrix() + std::move(GlueMatrixB_L);
+    // check if GlueMatrixA_M only has one matrix
+
+    if (GlueMatrixA_M.GetMatrixNumber() == 1)
+    {
+        // check size
+        if (GlueMatrixA_M.m_ColNumber != GlueMatrixB_L.m_ColNumber || GlueMatrixA_M.m_RowNumber != GlueMatrixB_L.m_RowNumber)
+        {
+            mdkError << "Size does not match @ mdkMatrixOperator +(GlueMatrixA_M, GlueMatrixB_L)" << '\n';
+            return GlueMatrixA_L;
+        }
+
+        GlueMatrixB_L.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixA_M.m_SourceMatrixSharedCopyList[0].GetElementDataSharedPointer());
+
+        GlueMatrixB_L.m_ElementList_Coef.push_back(GlueMatrixA_M.m_Element_Coef);
+
+        return GlueMatrixB_L;
+    }
+    else
+    {
+        return GlueMatrixA_M.CreateMatrix() + std::move(GlueMatrixB_L);
+    }
 }
 
 template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType>& operator-(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA_M, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB_L)
 {
-    return GlueMatrixA_M.CreateMatrix() - std::move(GlueMatrixB_L);
+    // check if GlueMatrixA_M only has one matrix
+
+    if (GlueMatrixA_M.GetMatrixNumber() == 1)
+    {
+        // check size
+        if (GlueMatrixA_M.m_ColNumber != GlueMatrixB_L.m_ColNumber || GlueMatrixA_M.m_RowNumber != GlueMatrixB_L.m_RowNumber)
+        {
+            mdkError << "Size does not match @ mdkMatrixOperator -(GlueMatrixA_M, GlueMatrixB_L)" << '\n';
+            return GlueMatrixA_L;
+        }
+
+        GlueMatrixB_L.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixA_M.m_SourceMatrixSharedCopyList[0].GetElementDataSharedPointer());
+
+        for (uint64 i = 0; i < GlueMatrixB_L.m_ElementList_Coef.size(); ++i)
+        {
+            GlueMatrixB_L.m_ElementList_Coef[i] = ElementType(0) - GlueMatrixB_L.m_ElementList_Coef[i];
+        }
+
+        GlueMatrixB_L.m_ElementList_Coef.push_back(GlueMatrixA_M.m_Element_Coef);
+
+        GlueMatrixB_L.m_IndependentElement = ElementType(0) - GlueMatrixB_L.m_IndependentElement;
+
+        return GlueMatrixB_L;
+    }
+    else
+    {
+        return GlueMatrixA_M.CreateMatrix() - std::move(GlueMatrixB_L);
+    }
 }
 
 
@@ -346,14 +599,54 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA_L, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB_M)
 {
-    return std::move(GlueMatrixA_L) + GlueMatrixB_M.CreateMatrix();
+    // check if GlueMatrixB_M only has one matrix
+
+    if (GlueMatrixB_M.GetMatrixNumber() == 1)
+    {
+        // check size
+        if (GlueMatrixB_M.m_ColNumber != GlueMatrixA_L.m_ColNumber || GlueMatrixB_M.m_RowNumber != GlueMatrixA_L.m_RowNumber)
+        {
+            mdkError << "Size does not match @ mdkMatrixOperator +(GlueMatrixA_L, GlueMatrixB_M)" << '\n';
+            return GlueMatrixA_L;
+        }
+
+        GlueMatrixA_L.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixB_M.m_SourceMatrixSharedCopyList[0].GetElementDataSharedPointer());
+
+        GlueMatrixA_L.m_ElementList_Coef.push_back(GlueMatrixB_M.m_Element_Coef);
+
+        return GlueMatrixA_L;
+    }
+    else
+    {
+        return std::move(GlueMatrixA_L) + GlueMatrixB_M.CreateMatrix();
+    }
 }
 
 template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA_L, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB_M)
 {
-    return std::move(GlueMatrixA_L) - GlueMatrixB_M.CreateMatrix();
+    // check if GlueMatrixB_M only has one matrix
+
+    if (GlueMatrixB_M.GetMatrixNumber() == 1)
+    {
+        // check size
+        if (GlueMatrixB_M.m_ColNumber != GlueMatrixA_L.m_ColNumber || GlueMatrixB_M.m_RowNumber != GlueMatrixA_L.m_RowNumber)
+        {
+            mdkError << "Size does not match @ mdkMatrixOperator -(GlueMatrixA_L, GlueMatrixB_M)" << '\n';
+            return GlueMatrixA_L;
+        }
+
+        GlueMatrixA_L.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixB_M.m_SourceMatrixSharedCopyList[0].GetElementDataSharedPointer());
+
+        GlueMatrixA_L.m_ElementList_Coef.push_back(ElementType(0) - GlueMatrixB_M.m_Element_Coef);
+
+        return GlueMatrixA_L;
+    }
+    else
+    {
+        return std::move(GlueMatrixA_L) - GlueMatrixB_M.CreateMatrix();
+    }
 }
 
 
@@ -382,7 +675,77 @@ template<typename ElementType>
 inline 
 mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
 {
-    return GlueMatrixA.CreateMatrix() + GlueMatrixB.CreateMatrix();
+    // check if one matrix in GlueMatrixA and one matrix in GlueMatrixB
+
+    if (GlueMatrixA.GetMatrixNumber() == 1 && GlueMatrixB.GetMatrixNumber() == 1)
+    {
+        auto SizeA = GlueMatrixA.GetSize();
+
+        auto SizeB = GlueMatrixB.GetSize();
+
+        mdkGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
+
+        // check size -----------------------------
+
+        // empty -------------------------------
+
+        if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+        {
+            mdkError << "GlueMatrixA or GlueMatrixB is empty @ mdkMatrixOperator: +(GlueMatrixA_ForMultiplication, GlueMatrixB_ForMultiplication)" << '\n';
+
+            return  tempGlueMatrix_L;
+        }
+
+        //scalar -----------------------
+        
+        if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
+        {
+            mdkMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateMatrix();
+
+            return  tempScalarMatrixA(0) + GlueMatrixB;
+        }
+
+        if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+        {
+            mdkMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateMatrix();
+
+            return GlueMatrixA + tempScalarMatrixB(0);
+        }
+
+        //matrix -------------------
+
+        if (GlueMatrixA.m_ColNumber != GlueMatrixB.m_ColNumber || GlueMatrixA.m_RowNumber != GlueMatrixB.m_RowNumber)
+        {
+            mdkError << "Size does not match @ mdkMatrixOperator +(GlueMatrixA_ForMultiplication, GlueMatrixB_ForMultiplication)" << '\n';
+            return tempGlueMatrix_L;
+        }
+
+        tempGlueMatrix_L.m_RowNumber = GlueMatrixA.m_RowNumber;
+
+        tempGlueMatrix_L.m_ColNumber = GlueMatrixA.m_ColNumber;
+
+        tempGlueMatrix_L.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixA.m_SourceMatrixSharedCopyList[0].GetElementDataSharedPointer());
+
+        tempGlueMatrix_L.m_MatrixElementDataSharedPointerList.push_back(GlueMatrixB.m_SourceMatrixSharedCopyList[0].GetElementDataSharedPointer());
+
+        tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixA.m_Element_Coef);
+
+        tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixB.m_Element_Coef);
+
+        return tempGlueMatrix_L;
+    }
+    else if (GlueMatrixA.GetMatrixNumber() == 1 && GlueMatrixB.GetMatrixNumber() > 1)
+    {
+        return GlueMatrixA + GlueMatrixB.CreateMatrix();
+    }
+    else if (GlueMatrixA.GetMatrixNumber() > 1 && GlueMatrixB.GetMatrixNumber() == 1)
+    {
+        return GlueMatrixA.CreateMatrix() + GlueMatrixB;
+    }
+    else
+    {
+        return GlueMatrixA.CreateMatrix() + GlueMatrixB.CreateMatrix();
+    }
 }
 
 

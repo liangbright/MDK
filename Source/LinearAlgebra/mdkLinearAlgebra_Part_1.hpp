@@ -1552,7 +1552,7 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix, const std::vector
     case 1:
         MatrixLinearCombine_UnrollForLoop_1(OutputRawPointer, ElementNumber, CoefRawPtr, MatrixElementDataRawPtrList);
         break;
-
+        
     case 2:
         MatrixLinearCombine_UnrollForLoop_2(OutputRawPointer, ElementNumber, CoefRawPtr, MatrixElementDataRawPtrList);
         break;
@@ -1580,9 +1580,36 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix, const std::vector
     case 8:
         MatrixLinearCombine_UnrollForLoop_8(OutputRawPointer, ElementNumber, CoefRawPtr, MatrixElementDataRawPtrList);
         break;
-
+        
     default:
             
+        // for-loop #1: faster than #2
+        
+        auto Coef_0 = CoefRawPtr[0];
+
+        auto RawPtr_0 = MatrixElementDataRawPtrList[0];
+
+        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        {
+                OutputRawPointer[LinearIndex] = Coef_0 * RawPtr_0[LinearIndex];       
+        }
+
+        for (uint64 k = 1; k < MatrixNumber; ++k)
+        {
+            auto Coef_k = CoefRawPtr[k];
+
+            auto RawPtr_k = MatrixElementDataRawPtrList[k];
+
+            for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+            {
+                OutputRawPointer[LinearIndex] += Coef_k * RawPtr_k[LinearIndex];
+            }
+
+        }
+        
+
+        // for-loop #2:
+        /*
         ElementType tempElement = CoefRawPtr[0];
 
         for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
@@ -1596,6 +1623,9 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix, const std::vector
 
             OutputRawPointer[LinearIndex] = tempElement;
         }
+        */
+
+
     }
 
     return true;

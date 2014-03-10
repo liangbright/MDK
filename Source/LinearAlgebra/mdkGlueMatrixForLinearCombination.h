@@ -68,11 +68,13 @@ private:
 
     inline uint64 GetColNumber() const;
 
+    inline mdkMatrixSize GetSize() const;
+
     inline bool IsEmpty() const;
 
     inline mdkMatrix<ElementType> CreateMatrix() const;
 	
-    inline void CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const;
+    inline bool CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const;
 
 public:
 
@@ -296,6 +298,14 @@ private:
 
     template<typename E_TYPE>
     friend mdkMatrix<E_TYPE> operator/(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA_M, const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB_L);
+
+    // --------------------------------------------- GlueMatrixForMultiplication {+ -}  GlueMatrixForMultiplication ---------------------------------------//
+
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator+(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
+
+    template<typename E_TYPE>
+    friend mdkGlueMatrixForLinearCombination<E_TYPE> operator-(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
     //----------------------------------------------- ShadowMatrix {+= -= *= /=} GlueMatrixForLinearCombination ----------------------------------------//
 
