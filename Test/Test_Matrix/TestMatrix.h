@@ -1312,6 +1312,8 @@ void Test_GlueMatrix_Speed2()
 
     auto t0 = std::chrono::system_clock::now();
 
+   // #pragma loop(hint_parallel(8))
+
     for (uint64 i = 0; i < 10000; ++i)
     {
         for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)

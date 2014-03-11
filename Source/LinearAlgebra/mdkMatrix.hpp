@@ -4009,36 +4009,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> mdkMatrix<ElementType>::Transpose() const
 {
-	mdkMatrix<ElementType> tempMatrix;
-
-	if (m_ElementNumber == 0)
-	{
-		mdkError << "self is empty Matrix @ mdkMatrix::GetTranspose" << '\n';
-        
-		return tempMatrix;
-	}
-
-	tempMatrix.Resize(m_ColNumber, m_RowNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
-
-	auto RawPointer = m_ElementData->data();
-
-	for (uint64 i = 0; i < m_RowNumber; ++i)
-	{
-        uint64 Index = 0;
-
-		for (uint64 j = 0; j < m_ColNumber; ++j)
-		{	
-		    tempRawPointer[0] = RawPointer[Index + i];
-
-			Index += m_RowNumber;
-
-			++tempRawPointer;
-		}
-	}
-    
-	return tempMatrix;
+    return MatrixTranspose(*this);
 }
 
 

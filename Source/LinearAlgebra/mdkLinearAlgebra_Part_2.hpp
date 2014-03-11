@@ -8,6 +8,59 @@ namespace mdk
 
 template<typename ElementType>
 inline 
+mdkMatrix<ElementType> MatrixTranspose(const mdkMatrix<ElementType>& Matrix)
+{
+    mdkMatrix<ElementType> tempMatrix;
+
+    auto Size = Matrix.GetSize();
+
+    if (Size.RowNumber == 0)
+    {
+        mdkError << "Matrix is empty @ mdkLinearAlgebra MatrixTranspose(Matrix)" << '\n';
+
+        return tempMatrix;
+    }
+
+    if (Size.ColNumber == 1)
+    {
+        tempMatrix.Copy(Matrix.GetElementDataRawPointer(), 1, Size.RowNumber);
+
+        return tempMatrix;
+    }
+
+    if (Size.RowNumber == 1)
+    {
+        tempMatrix.Copy(Matrix.GetElementDataRawPointer(), Size.ColNumber, 1);
+
+        return tempMatrix;
+    }
+
+    tempMatrix.Resize(Size.ColNumber, Size.RowNumber);
+
+    auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
+
+    auto RawPointer = Matrix.GetElementDataRawPointer();
+
+    for (uint64 i = 0; i < Size.RowNumber; ++i)
+    {
+        uint64 Index = 0;
+
+        for (uint64 j = 0; j < Size.ColNumber; ++j)
+        {
+            tempRawPointer[0] = RawPointer[Index + i];
+
+            Index += Size.RowNumber;
+
+            ++tempRawPointer;
+        }
+    }
+
+    return tempMatrix;
+}
+
+
+template<typename ElementType>
+inline 
 uint64 MatrixRank(const mdkMatrix<ElementType>& Matrix)
 {
     auto RowNumber = Matrix.GetRowNumber();

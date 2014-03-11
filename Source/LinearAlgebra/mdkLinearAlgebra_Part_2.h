@@ -18,9 +18,15 @@ template<typename ElementType>
 class mdkMatrix;
 //-------------------------------------//
 
+template<typename ElementType>
+inline mdkMatrix<ElementType> MatrixTranspose(const mdkMatrix<ElementType>& Matrix);
+
+//-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
 inline uint64 MatrixRank(const mdkMatrix<ElementType>& Matrix);
+
+//-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
 inline mdkMatrix<ElementType> MatrixInv(const mdkMatrix<ElementType>& Matrix);
@@ -31,7 +37,7 @@ template<typename ElementType>
 struct mdkMatrixEigenResult
 {
     mdkMatrix<ElementType> EigenVector;    // eigenvector : full matrix
-    mdkMatrix<ElementType> EigenValue;     // eigen value : col vector
+    mdkMatrix<ElementType> EigenValue;     // eigenvalue  : col vector
 
     mdkMatrixEigenResult(){};
 
