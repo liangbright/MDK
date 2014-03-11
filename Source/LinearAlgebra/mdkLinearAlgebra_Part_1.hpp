@@ -1039,9 +1039,7 @@ template<typename ElementType>
 inline 
 mdkMatrix<ElementType> MatrixElementOperation(const std::string& OperationName, const mdkMatrix<ElementType>& InputMatrix)
 {
-    auto InputSize = InputMatrix.GetSize();
-
-    mdkMatrix<ElementType> tempMatrix(InputSize.RowNumber, InputSize.ColNumber);
+    mdkMatrix<ElementType> tempMatrix;
 
     MatrixElementOperation(tempMatrix, OperationName, InputMatrix);
 
@@ -1531,6 +1529,17 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix,
     }
 
     auto Size = MatrixPtrList[0]->GetSize();
+
+    for (uint64 k = 1; k < MatrixPtrList.size(); ++k)
+    {
+        if (Size.RowNumber != MatrixPtrList[k]->GetRowNumber() || Size.ColNumber != MatrixPtrList[k]->GetColNumber())
+        {
+            mdkError << "Size is not the same in MatrixPtrList @ mdkLinearAlgebra MatrixLinearCombine(OutputMatrix, CoefList, MatrixList)" << '\n';
+
+            return false;
+        }
+    }
+
 
     if (Size.RowNumber != OutputMatrix.GetRowNumber() || Size.ColNumber != OutputMatrix.GetColNumber())
     {

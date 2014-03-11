@@ -22,7 +22,7 @@ void DisplayMatrix(const mdkMatrix<T>& Matrix, int precision = 0)
         {
             //std::cout << std::fixed << std::setprecision(precision) << Matrix(i, j) << ' ';
 
-            std::cout << std::setw(8) << std::fixed << std::setprecision(precision) << Matrix(i, j);
+            std::cout << std::setw(10) << std::fixed << std::setprecision(precision) << Matrix(i, j);
         }
         std::cout << '\n';
     }
@@ -1197,6 +1197,81 @@ void Test_GlueMatrix()
 
     A({ 0, 1 }) += A;
 }
+
+
+void Test_GlueMatrix_2()
+{
+    std::cout << "Test_GlueMatrix_2() " << '\n';
+
+    mdkMatrix<double> Scalar(0);
+
+    mdkMatrix<double> A(3, 3);
+    A = { 1, 1, 1,
+          1, 1, 1,
+          1, 1, 1 };
+
+    mdkMatrix<double> AA(3, 4);
+
+    AA = { 1, 1, 1, 1,
+           1, 1, 1, 1,
+           1, 1, 1, 1 };
+
+
+    mdkMatrix<double> B(2, 3);
+    B = { 1, 2, 3,
+          1, 2, 3 };
+
+
+    mdkMatrix<double> C(2, 3);
+    C = { 0, 2, 1,
+          0, 2, 1 };
+
+    mdkMatrix<double> C1(2, 3);
+    C1 = { 1, 0, 1,
+           1, 0, 1 };
+
+    mdkMatrix<double> D = 1.0*A({ 0, 1 }, ALL) + 2.0*B - 3.0*C + 4.0*C1;
+
+    std::cout << "D= " << '\n';
+
+    DisplayMatrix(D);
+
+    auto E = MatrixAdd(mdkMatrix<double>(A.Row({ 0, 1 })), C);
+
+
+    mdkMatrix<double> All = A(ALL, { 0, 1 })*(B + 1.0 + C - 3.0*C + 4.0*C1);
+
+    std::cout << "All= " << '\n';
+
+    DisplayMatrix(All);
+
+    //--------------------------
+
+    mdkMatrix<double> A1 = A;
+    std::cout << "A1= " << '\n';
+    DisplayMatrix(A1);
+
+    mdkMatrix<double> A2 = A;
+    std::cout << "A2= " << '\n';
+    DisplayMatrix(A2);
+
+    mdkMatrix<double> A3 = A;
+    std::cout << "A3= " << '\n';
+    DisplayMatrix(A3);
+
+    mdkMatrix<double> temp = A1 * AA({ 0, 1, 2 }, { 0, 1, 2 });
+    std::cout << "temp= " << '\n';
+    DisplayMatrix(temp);
+
+    //mdkMatrix<double> A4 = A1 + A1 * AA({ 0, 1, 2 }, { 0, 1, 2 });
+
+    mdkMatrix<double> A4 = 1.0 + A1*(A1+ A1*A2 + 1.0 + 10.0*(A1 + A2*A3 + 1.0 + 10.0*A1)) + A1*AA({0, 1, 2}, {0, 1, 2}) + 1.0;
+
+    std::cout << "A4= " << '\n';
+
+    DisplayMatrix(A4, 3);
+}
+
 
 class TestClass
 {

@@ -62,7 +62,7 @@ inline void mdkGlueMatrixForLinearCombination<ElementType>::Reset()
 
     m_ElementList_Coef.reserve(MDK_GlueMatrixForLinearCombination_ReservedCapacity);
 
-    m_IndependentElement = ElementType(0);
+    m_IndependentElement = m_IndependentElement - m_IndependentElement;
 }
 
 

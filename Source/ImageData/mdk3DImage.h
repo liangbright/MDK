@@ -107,7 +107,7 @@ public:
 		            double VoxelPhysicalSize_y = 1.0,
 		            double VoxelPhysicalSize_z = 1.0);
 
-    void Clear();
+    void Reset();
 
 	inline bool IsEmpty() const;
 
@@ -237,6 +237,7 @@ public:
                                   mdk3DImageInterpolationMethodEnum Method = mdk3DImageInterpolationMethodEnum::NearestNeighbor) const;
 
 };
+
 
 }//end namespace mdk
 

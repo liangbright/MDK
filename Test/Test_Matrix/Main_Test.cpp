@@ -101,6 +101,7 @@ int main()
     
    // Test_GlueMatrix();
 
+    Test_GlueMatrix_2();
 
    // Test_Matrix_ChangeSize();
 
@@ -111,7 +112,7 @@ int main()
   //  Test_GlueMatrix_Speed1();
 
 
-    Test_GlueMatrix_Speed2();
+   // Test_GlueMatrix_Speed2();
 
     //Test_GlueMatrix_Create();
 

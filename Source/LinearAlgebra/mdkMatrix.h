@@ -165,10 +165,10 @@ public:
 
     inline mdkMatrix(const mdkMatrix<ElementType>& targetMatrix, bool IsSizeFixed = false);
 
+    inline mdkMatrix(const ElementType& Element);
+
     // move constructor
     inline mdkMatrix(mdkMatrix<ElementType>&& targetMatrix);
-
-    inline mdkMatrix(const ElementType& Element);
 
     inline mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix, bool IsSizeFixed = false);
 
@@ -235,8 +235,6 @@ public:
 
     inline bool Take(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-
-
     //------------------------- Reset , Clear -------------------------------------------//
     
     // set the initial state, only use it in constructor
@@ -286,7 +284,7 @@ public:
 
 	//----------- Get/Set Matrix(LinearIndex) -----------------------------------//
 
-    // operator[] or () : no bound check
+    // operator[] or () : no bound check in release mode
 
     inline ElementType& operator[](uint64 LinearIndex);
 
@@ -304,7 +302,7 @@ public:
 
 	//----------- Get/Set Matrix(i,j)  ---------------------------------------------//
 
-    // operator() : no bound check
+    // operator() : no bound check in release mode
 
 	inline ElementType& operator()(uint64 RowIndex, uint64 ColIndex);
 
@@ -318,7 +316,7 @@ public:
 
     //---------------------- Get/Set a set of elements by Matrix({}) or Matrix.at({}) ----------------------------//
 
-    // operator(): no bound check
+    // operator(): no bound check in release mode
     //
     // note: operator[] is for single element access only, operator[{}] is not defined
 
@@ -338,7 +336,7 @@ public:
 
     //---------------------- Get/Set SubMatrix by Matrix({}, {}) or Matrix.at({}, {})  or Matrix.SubMatrix(a, b, c, d) -------//
 
-    // operator(): no bound check
+    // operator(): no bound check in release mode
 
     inline mdkShadowMatrix<ElementType> operator()(std::initializer_list<uint64>& RowIndexList,
                                                    std::initializer_list<uint64>& ColIndexList);
@@ -452,7 +450,7 @@ public:
 
     inline bool DeleteCol(const std::vector<uint64>& ColIndexList);
 
-    inline bool DeleteCol(const uint64* ColIndexPtr, uint64 Length);
+    inline bool DeleteCol(const uint64* ColIndexListPtr, uint64 Length);
 
     template<typename ElementType_input>
     inline bool InsertCol(uint64 ColIndex, const mdkMatrix<ElementType_input>& ColData);
@@ -513,7 +511,7 @@ public:
 
     inline bool DeleteRow(const std::vector<uint64>& RowIndexList);
 
-    inline bool DeleteRow(const uint64* RowIndexPtr, uint64 Length);
+    inline bool DeleteRow(const uint64* RowIndexListPtr, uint64 Length);
 
     template<typename ElementType_input>
     inline bool InsertRow(uint64 RowIndex, const mdkMatrix<ElementType_input>& RowData);
@@ -580,9 +578,9 @@ public:
     inline void operator/=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
 
-    inline void operator+=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    inline void operator+=(mdkGlueMatrixForMultiplication<ElementType> GlueMatrix);
 
-    inline void operator-=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    inline void operator-=(mdkGlueMatrixForMultiplication<ElementType> GlueMatrix);
 
     inline void operator*=(mdkGlueMatrixForMultiplication<ElementType> GlueMatrix);
 
@@ -594,19 +592,19 @@ public:
 	//template<typename ElementType_target>
 	//inline void operator+(ElementType_target Element);
 
-	inline void operator+=(ElementType Element);
+    inline void operator+=(const ElementType& Element);
 
-	inline void operator-=(ElementType Element);
+    inline void operator-=(const ElementType& Element);
 
-	inline void operator*=(ElementType Element);
+    inline void operator*=(const ElementType& Element);
 
-	inline void operator/=(ElementType Element);
+    inline void operator/=(const ElementType& Element);
 
     //-------------------- element operation {^} -----------------------------------------------------------//
 
-    inline mdkMatrix operator^(ElementType Element);
+    inline mdkMatrix operator^(const ElementType& Element);
 
-    inline void operator^=(ElementType Element);
+    inline void operator^=(const ElementType& Element);
 
     //-------------------- special element operation : (.*) element multiply -----------------------------------------------------------//
 

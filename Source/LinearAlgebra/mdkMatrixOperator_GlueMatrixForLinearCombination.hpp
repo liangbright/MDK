@@ -507,7 +507,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearC
 
     auto MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
 
-    m_SourceMatrixShallowCopyList.resize(MatrixNumber_A + MatrixNumber_B);
+    GlueMatrixA.m_SourceMatrixShallowCopyList.resize(MatrixNumber_A + MatrixNumber_B);
 
     for (uint64 i = 0; i < MatrixNumber_B; ++i)
     {
@@ -573,7 +573,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearC
 
     auto MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
 
-    m_SourceMatrixShallowCopyList.resize(MatrixNumber_A + MatrixNumber_B);
+    GlueMatrixA.m_SourceMatrixShallowCopyList.resize(MatrixNumber_A + MatrixNumber_B);
 
     for (uint64 i = 0; i < MatrixNumber_B; ++i)
     {

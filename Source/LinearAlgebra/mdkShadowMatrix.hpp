@@ -398,8 +398,6 @@ mdkMatrix<ElementType> mdkShadowMatrix<ElementType>::CreateMatrix() const
         return tempMatrix;
     }
 
-    tempMatrix.Resize(m_ElementNumber, 1);
-
     this->CreateMatrix(tempMatrix);
 
     return tempMatrix;
@@ -410,13 +408,13 @@ template<typename ElementType>
 inline
 void mdkShadowMatrix<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMatrix) const
 {
-    if (OutputMatrix.GetElementNumber() != m_ElementNumber)
+    if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
     {
         if (OutputMatrix.IsSizeFixed() == false)
         {
             OutputMatrix.Clear();
 
-            if (m_Flag_OutputVector == false)
+            if (m_Flag_OutputVector == true)
             {
                 OutputMatrix.Resize(m_ElementNumber, 1);
             }
@@ -616,6 +614,16 @@ template<typename ElementType>
 inline
 ElementType& mdkShadowMatrix<ElementType>::operator[](uint64 LinearIndex)
 {
+#if defined(MDK_DEBUG_ShadowMatrix_Operator_CheckBound)
+
+    if (LinearIndex >= m_ElementNumber)
+    {
+        mdkError << "Invalid input @ mdkShadowMatrix::operator[i]" << '\n';
+        return m_NaNElement;
+    }
+
+#endif
+
     auto sptrSource = m_SourceMatrixShallowCopy.GetElementDataSharedPointer();
 
     if (m_LinearIndexList_source.empty() == false)
@@ -639,6 +647,16 @@ template<typename ElementType>
 inline
 const ElementType& mdkShadowMatrix<ElementType>::operator[](uint64 LinearIndex) const
 {
+#if defined(MDK_DEBUG_ShadowMatrix_Operator_CheckBound)
+
+    if (LinearIndex >= m_ElementNumber)
+    {
+        mdkError << "Invalid input @ mdkShadowMatrix::operator[i] const" << '\n';
+        return m_NaNElement;
+    }
+
+#endif
+
     auto sptrSource = m_SourceMatrixShallowCopy.GetElementDataSharedPointer();
 
     if (m_LinearIndexList_source.empty() == false)
@@ -662,7 +680,7 @@ template<typename ElementType>
 inline
 ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 LinearIndex)
 {
-#if defined(MDK_ShadowMatrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_ShadowMatrix_Operator_CheckBound)
 
 	if (LinearIndex >= m_ElementNumber)
 	{
@@ -695,13 +713,13 @@ template<typename ElementType>
 inline
 const ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 LinearIndex) const
 {
-#if defined(MDK_ShadowMatrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_ShadowMatrix_Operator_CheckBound)
 
-	if (LinearIndex >= m_ElementNumber)
-	{
-		mdkError << "Invalid input @ mdkShadowMatrix::operator(i)" << '\n';
-		return m_NaNElement;
-	}
+    if (LinearIndex >= m_ElementNumber)
+    {
+        mdkError << "Invalid input @ mdkShadowMatrix::operator(i) const" << '\n';
+        return m_NaNElement;
+    }
 
 #endif
 
@@ -728,7 +746,7 @@ template<typename ElementType>
 inline
 ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 RowIndex, uint64 ColIndex)
 {
-#if defined(MDK_ShadowMatrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_ShadowMatrix_Operator_CheckBound)
 
     if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
 	{
@@ -759,7 +777,7 @@ template<typename ElementType>
 inline
 const ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 RowIndex, uint64 ColIndex) const
 {
-#if defined(MDK_ShadowMatrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_ShadowMatrix_Operator_CheckBound)
 
     if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
 	{
