@@ -1229,7 +1229,7 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForMultiplica
 
         GlueMatrixA.m_SourceMatrixShallowCopyList[1].ForceShallowCopy(GlueMatrixB.m_SourceMatrixShallowCopyList[0]);
 
-        GlueMatrixA.m_ElementList_Coef.push_back(GlueMatrixB.m_Element_Coef);
+        GlueMatrixA.m_Element_Coef *= GlueMatrixB.m_Element_Coef;
 
         return GlueMatrixA;
     }
@@ -1247,10 +1247,11 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForMultiplica
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------
-    // ignore user's grouping: (A*B)*(C*D),  treat it as A*B*C*D
-    //  may lead to error, for example:
-    //  A : 1x3, B: 3x1, C: 3x3, D: 3x3,  A*B is a scalar,  but B*C is meaningless
-    
+    // do NOT ignore user's grouping: (A*B)*(C*D),  treat it as A*B*C*D
+    //  case 1: may lead to error, for example:
+    //          A : 1x3, B: 3x1, C: 3x3, D: 3x3,  A*B is a scalar,  but B*C is meaningless
+    //  case 2: numerical problem
+    //          user may do this on purpose to ensure numerical accuracy
     /* -------------------------------------------------------------------------------------------------------------------------------------------
 
     auto MatrixNumber_A = GlueMatrixA.GetMatrixSize();
