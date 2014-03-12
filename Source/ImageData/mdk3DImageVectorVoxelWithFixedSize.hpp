@@ -210,8 +210,97 @@ const ElementType& mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>::at(u
 }
 
 
+// ------------------------------------------------------------------------------------------------------------//
+
+template<typename ElementType, uint64 Length>
+inline
+void mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>::operator+=(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel)
+{
+    for (uint64 i = 0; i < Length; ++i)
+    {
+        m_ElementData[i] += Voxel[i];
+    }
+}
+
+
+template<typename ElementType, uint64 Length>
+inline
+void mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>::operator-=(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel)
+{
+    for (uint64 i = 0; i < Length; ++i)
+    {
+        m_ElementData[i] -= Voxel[i];
+    }
+}
+
+
+template<typename ElementType, uint64 Length>
+inline
+void mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>::operator*=(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel)
+{
+    for (uint64 i = 0; i < Length; ++i)
+    {
+        m_ElementData[i] *= Voxel[i];
+    }
+}
+
+
+template<typename ElementType, uint64 Length>
+inline
+void mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>::operator/=(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel)
+{
+    for (uint64 i = 0; i < Length; ++i)
+    {
+        m_ElementData[i] /= Voxel[i];
+    }
+}
+
+//---------------------------------------------------------------------------------------------------------------//
+
+template<typename ElementType, uint64 Length>
+inline
+void mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>::operator+=(const ElementType& Element)
+{
+    for (uint64 i = 0; i < Length; ++i)
+    {
+        m_ElementData[i] += Element;
+    }
+}
+
+
+template<typename ElementType, uint64 Length>
+inline
+void mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>::operator+=(const ElementType& Element)
+{
+    for (uint64 i = 0; i < Length; ++i)
+    {
+        m_ElementData[i] -= Element;
+    }
+}
+
+
+template<typename ElementType, uint64 Length>
+inline
+void mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>::operator+=(const ElementType& Element)
+{
+    for (uint64 i = 0; i < Length; ++i)
+    {
+        m_ElementData[i] *= Element;
+    }
+}
+
+
+template<typename ElementType, uint64 Length>
+inline
+void mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>::operator+=(const ElementType& Element)
+{
+    for (uint64 i = 0; i < Length; ++i)
+    {
+        m_ElementData[i] /= Element;
+    }
+}
+
 }// namespace mdk
 
-#include "mdk3DImageVectorVoxel.hpp"
 
 #endif

@@ -44,29 +44,6 @@ inline mdk3DImageVectorVoxelWithVariableSize<ElementType> operator*(const Elemen
 template<typename ElementType>
 inline mdk3DImageVectorVoxelWithVariableSize<ElementType> operator/(const ElementType& Element, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel);
 
-
-// ------------------------------------------------------------------------------------------------------------//
-
-template<typename ElementType>
-inline void operator+=(mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelB);
-
-template<typename ElementType>
-inline void operator-=(mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelB);
-
-//---------------------------------------------------------------------------------------------------------------//
-
-template<typename ElementType>
-inline void operator+=(mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element);
-
-template<typename ElementType>
-inline void operator-=(mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element);
-
-template<typename ElementType>
-inline void operator*=(mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element);
-
-template<typename ElementType>
-inline void operator/=(mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element);
-
 //---------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>

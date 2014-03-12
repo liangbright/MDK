@@ -104,6 +104,8 @@ mdkMatrix<ElementType>::mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatr
     m_IsSizeFixed = false;
     this->Take(ShadowMatrix.CreateMatrix());
 
+    m_NaNElement = ShadowMatrix.m_NaNElement;
+
     m_IsSizeFixed = IsSizeFixed;
 }
 
@@ -117,6 +119,8 @@ mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrixForLinearCombination<Elemen
     m_IsSizeFixed = false;
     this->Take(GlueMatrix.CreateMatrix());
 
+    m_NaNElement = GetMatrixNaNElement(m_NaNElement);
+
     m_IsSizeFixed = IsSizeFixed;
 }
 
@@ -129,6 +133,8 @@ mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrixForMultiplication<ElementTy
 
     m_IsSizeFixed = false;
     this->Take(GlueMatrix.CreateMatrix());
+
+    m_NaNElement = GetMatrixNaNElement(m_NaNElement);
 
     m_IsSizeFixed = IsSizeFixed;
 }
@@ -214,7 +220,13 @@ void mdkMatrix<ElementType>::operator=(const ElementType& Element)
         }
     }
 
-    if (m_ElementNumber == 1)
+    if (m_ElementNumber == 0)
+    {       
+        this->Resize(1, 1);
+
+        (*m_ElementData)[0] = Element;
+    }
+    else if (m_ElementNumber == 1)
     {
         (*m_ElementData)[0] = Element;
     }

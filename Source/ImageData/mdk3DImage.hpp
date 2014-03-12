@@ -23,15 +23,6 @@ mdk3DImage<VoxelType>::~mdk3DImage()
 
 
 template<typename VoxelType>
-mdk3DImage<VoxelType>::mdk3DImage(const mdk3DImage<VoxelType>& targetImage)
-{
-    this->Reset();
-
-	(*this) = targetImage;
-}
-
-
-template<typename VoxelType>
 void mdk3DImage<VoxelType>::operator=(const mdk3DImage<VoxelType>& targetImage)
 {
 	// Image = Image
@@ -40,56 +31,54 @@ void mdk3DImage<VoxelType>::operator=(const mdk3DImage<VoxelType>& targetImage)
 		return;
 	}
 
-    if (targetImage.IsTemporary() == true)
-	{
-        m_VoxelData = targetImage.GetVoxelDataSharedPointer();
-
-		targetImage.GetImageDimension(&m_ImageDimension[0], &m_ImageDimension[1], &m_ImageDimension[2]);
-
-		m_VoxelNumber = m_ImageDimension[0] * m_ImageDimension[1] * m_ImageDimension[2];
-
-		m_VoxelNumberPerZSlice = m_ImageDimension[0] * m_ImageDimension[1];
-
-		targetImage.GetVoxelPhysicalSize(&m_VoxelPhysicalSize[0], &m_VoxelPhysicalSize[1], &m_VoxelPhysicalSize[2]);
-
-		targetImage.GetPhysicalOrigin(&m_PhysicalOrigin[0], &m_PhysicalOrigin[1], &m_PhysicalOrigin[2]);
-	}
-	else
-	{
-		this->Copy(targetImage);
-	}
+    this->Copy(targetImage);
 }
 
 
 template<typename VoxelType>
-inline 
-void  mdk3DImage<VoxelType>::SetTobeTemporary()
+void mdk3DImage<VoxelType>::operator=(mdk3DImage<VoxelType>&& targetImage)
 {
-    m_IsTemporary = true;
+    m_VoxelData = std::move(targetImage.m_VoxelData);
+
+    m_ImageDimension[0] = targetImage.m_ImageDimension[0];
+
+    m_ImageDimension[1] = targetImage.m_ImageDimension[1];
+
+    m_ImageDimension[2] = targetImage.m_ImageDimension[2];
+
+    m_VoxelNumber = m_ImageDimension[0] * m_ImageDimension[1] * m_ImageDimension[2];
+
+    m_VoxelNumberPerZSlice = m_ImageDimension[0] * m_ImageDimension[1];
+
+    m_VoxelPhysicalSize[0] = targetImage.m_VoxelPhysicalSize[0];
+
+    m_VoxelPhysicalSize[1] = targetImage.m_VoxelPhysicalSize[1];
+
+    m_VoxelPhysicalSize[2] = targetImage.m_VoxelPhysicalSize[2];
+
+    m_PhysicalOrigin[0] = targetImage.m_PhysicalOrigin[0];
+
+    m_PhysicalOrigin[1] = targetImage.m_PhysicalOrigin[1];
+
+    m_PhysicalOrigin[2] = targetImage.m_PhysicalOrigin[2];
+
+    targetImage.ForceClear();
 }
 
 
 template<typename VoxelType>
-inline 
-bool mdk3DImage<VoxelType>::IsTemporary() const
-{
-    return m_IsTemporary;
-}
-
-
-template<typename VoxelType>
-bool mdk3DImage<VoxelType>::Initialize(uint64 Lx, uint64 Ly, uint64 Lz = 1,
-	                                   double PhysicalOrigin_x = 0.0,    
-									   double PhysicalOrigin_y = 0.0, 
-									   double PhysicalOrigin_z = 0.0,
-	                                   double VoxelPhysicalSize_x = 1.0,
-									   double VoxelPhysicalSize_y = 1.0, 
-									   double VoxelPhysicalSize_z = 1.0)
+bool mdk3DImage<VoxelType>::ReInitialize(uint64 Lx, uint64 Ly, uint64 Lz = 1,
+	                                     double PhysicalOrigin_x = 0.0,    
+								  	     double PhysicalOrigin_y = 0.0, 
+									     double PhysicalOrigin_z = 0.0,
+	                                     double VoxelPhysicalSize_x = 1.0,
+									     double VoxelPhysicalSize_y = 1.0, 
+									     double VoxelPhysicalSize_z = 1.0)
 {
 	if (m_VoxelNumber > 0)
 	{
-		mdkWarning << "re-call Initialize @ mdk3DImage::Initialize" << '\n';
-		this->Reset();
+		mdkError << "Can not ReInitialize: Image is not empty @ mdk3DImage::ReInitialize" << '\n';
+        return;
 	}
 
 	m_ImageDimension[0] = Lx;
@@ -241,26 +230,6 @@ void mdk3DImage<VoxelType>::Swap(mdk3DImage<VoxelType>& targetImage)
     targetImage->SetPhysicalOrigin(PhysicalOrigin.x, PhysicalOrigin.y, PhysicalOrigin.z);
 
     targetImage->SetVoxelPhysicalSize(VoxelPhysicalSize.Vx, VoxelPhysicalSize.Vy, VoxelPhysicalSize.Vz);
-}
-
-
-template<typename VoxelType>
-bool mdk3DImage<VoxelType>::Reshape(uint64 Lx, uint64 Ly, uint64 Lz = 1)
-{
-    if (Lx*Ly*Lz != uint64(m_VoxelData->size()))
-    {
-        return false;
-    }
-
-    m_ImageDimension[0] = Lx;
-    m_ImageDimension[1] = Ly;
-    m_ImageDimension[2] = Lz;
-
-    m_VoxelNumber = Lx*Ly*Lz;
-
-    m_VoxelNumberPerZSlice = Lx*Ly;
-
-    return true;
 }
 
 

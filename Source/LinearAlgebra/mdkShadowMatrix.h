@@ -74,9 +74,8 @@ private:
 
     inline mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<uint64>& ColIndexList);
 
-    inline mdkShadowMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix);
+    inline mdkShadowMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix) = delete;
 
-public:
     inline mdkShadowMatrix(mdkShadowMatrix<ElementType>&& ShadowMatrix);
 
 public:
@@ -293,72 +292,72 @@ private:
     //----------------------------------------------- ShadowMatrix {+= -= *= /=} ShadowMatrix ---------------------------------------------//
 
     template<typename E_TYPE>
-    friend void operator+=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend void operator+=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend void operator-=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend void operator-=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend void operator*=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend void operator*=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend void operator/=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend void operator/=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     //--------------------------------------------------- ShadowMatrix {+= -= *= /=} Matrix ------------------------------------------------//
 
     template<typename E_TYPE>
-    friend void operator+=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkMatrix<E_TYPE>& MatrixB);
+    friend void operator+=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkMatrix<E_TYPE>& MatrixB);
 
     template<typename E_TYPE>
-    friend void operator-=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkMatrix<E_TYPE>& MatrixB);
+    friend void operator-=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkMatrix<E_TYPE>& MatrixB);
 
     template<typename E_TYPE>
-    friend void operator*=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkMatrix<E_TYPE>& MatrixB);
+    friend void operator*=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkMatrix<E_TYPE>& MatrixB);
 
     template<typename E_TYPE>
-    friend void operator/=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkMatrix<E_TYPE>& MatrixB);
+    friend void operator/=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkMatrix<E_TYPE>& MatrixB);
 
     //--------------------------------------------------ShadowMatrix {+= -= *= /=} Element ------------------------------------------------------------//
 
     template<typename E_TYPE>
-    friend void operator+=(mdkShadowMatrix<E_TYPE> ShadowMatrix, const E_TYPE& Element);
+    friend void operator+=(mdkShadowMatrix<E_TYPE>&& ShadowMatrix, const E_TYPE& Element);
 
     template<typename E_TYPE>
-    friend void operator-=(mdkShadowMatrix<E_TYPE> ShadowMatrix, const E_TYPE& Element);
+    friend void operator-=(mdkShadowMatrix<E_TYPE>&& ShadowMatrix, const E_TYPE& Element);
 
     template<typename E_TYPE>
-    friend void operator*=(mdkShadowMatrix<E_TYPE> ShadowMatrix, const E_TYPE& Element);
+    friend void operator*=(mdkShadowMatrix<E_TYPE>&& ShadowMatrix, const E_TYPE& Element);
 
     template<typename E_TYPE>
-    friend void operator/=(mdkShadowMatrix<E_TYPE> ShadowMatrix, const E_TYPE& Element);
+    friend void operator/=(mdkShadowMatrix<E_TYPE>&& ShadowMatrix, const E_TYPE& Element);
 
     //----------------------------------------------- ShadowMatrix {+= -= *= /=} GlueMatrixForLinearCombination ----------------------------------------//
 
     template<typename E_TYPE>
-    friend void operator+=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
+    friend void operator+=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
 
     template<typename E_TYPE>
-    friend void operator-=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
+    friend void operator-=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
 
     template<typename E_TYPE>
-    friend void operator*=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
+    friend void operator*=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
 
     template<typename E_TYPE>
-    friend void operator/=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
+    friend void operator/=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
 
     //------------------------------------------------ ShadowMatrix {+= -= *= /=} GlueMatrixForMultiplication --------------------------------------//
 
     template<typename E_TYPE>
-    friend void operator+=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
+    friend void operator+=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
     template<typename E_TYPE>
-    friend void operator-=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
+    friend void operator-=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
     template<typename E_TYPE>
-    friend void operator*=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
+    friend void operator*=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
     template<typename E_TYPE>
-    friend void operator/=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
+    friend void operator/=(mdkShadowMatrix<E_TYPE>&& ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
 
 };

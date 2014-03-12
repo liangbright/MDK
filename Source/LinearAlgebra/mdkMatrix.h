@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 #include <initializer_list>
 #include <functional>
 
@@ -106,11 +107,16 @@ inline mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkMa
 
 //------------------------------------------- ALL Symbol --------------------------------------------------------------------------//
 
+struct ALL_Symbol_InputStruct_For_ALL_Symbol_For_mdkMatrix_Operator
+{
+    std::string Name = "This_Is_For_ALL_Symbol_For_mdkMatrix_Operator";
+};
+
 struct ALL_Symbol_For_mdkMatrix_Operator
 {
-    ALL_Symbol_For_mdkMatrix_Operator(const std::string& str)
+    ALL_Symbol_For_mdkMatrix_Operator(const ALL_Symbol_InputStruct_For_ALL_Symbol_For_mdkMatrix_Operator& InputStruct)
     {
-        if (str != "This_Is_ALL_Symbol_For_mdkMatrix_Operator")
+        if (InputStruct.Name != "This_Is_For_ALL_Symbol_For_mdkMatrix_Operator")
         {
             mdkError << "ALL Symbol error @ ALL_Symbol_For_mdkMatrix_Operator" << '\n';
         }
@@ -121,10 +127,14 @@ struct ALL_Symbol_For_mdkMatrix_Operator
 // deleted:
     ALL_Symbol_For_mdkMatrix_Operator() = delete;
     ALL_Symbol_For_mdkMatrix_Operator(const ALL_Symbol_For_mdkMatrix_Operator&) = delete;
+    ALL_Symbol_For_mdkMatrix_Operator(ALL_Symbol_For_mdkMatrix_Operator&&) = delete;
     void operator=(const ALL_Symbol_For_mdkMatrix_Operator&) = delete;
+    void operator=(ALL_Symbol_For_mdkMatrix_Operator&&) = delete;
 };
 
-static ALL_Symbol_For_mdkMatrix_Operator This_Is_ALL_Symbol_For_mdkMatrix_Operator("This_Is_ALL_Symbol_For_mdkMatrix_Operator");
+static ALL_Symbol_InputStruct_For_ALL_Symbol_For_mdkMatrix_Operator This_Is_ALL_Symbol_InputStruct_For_ALL_Symbol_For_mdkMatrix_Operator;
+
+static ALL_Symbol_For_mdkMatrix_Operator This_Is_ALL_Symbol_For_mdkMatrix_Operator(This_Is_ALL_Symbol_InputStruct_For_ALL_Symbol_For_mdkMatrix_Operator);
 
 //refer to all the cols or rows, or all the elements
 #define ALL This_Is_ALL_Symbol_For_mdkMatrix_Operator

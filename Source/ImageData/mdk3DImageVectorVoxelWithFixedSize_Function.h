@@ -57,35 +57,6 @@ template<typename ElementType, uint64 Length>
 inline mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> operator/(const ElementType& Element, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel);
 
 
-//---------------------------------------------------- Voxel {+= -= *= /=} Voxel ---------------------------------------------// 
-
-template<typename ElementType, uint64 Length>
-inline void operator+=(mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelB);
-
-template<typename ElementType, uint64 Length>
-inline void operator-=(mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelB);
-
-template<typename ElementType, uint64 Length>
-inline void operator*=(mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelB);
-
-template<typename ElementType, uint64 Length>
-inline void operator/=(mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelB);
-
-//---------------------------------------------------- Voxel {+= -= *= /=} Element ---------------------------------------------// 
-
-template<typename ElementType, uint64 Length>
-inline void operator+=(mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element);
-
-template<typename ElementType, uint64 Length>
-inline void operator-=(mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element);
-
-template<typename ElementType, uint64 Length>
-inline void operator*=(mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element);
-
-template<typename ElementType, uint64 Length>
-inline void operator/=(mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element);
-
-
 //---------------------------------------------- LinearCombine ------------------------------------------------------------------//
 
 template<typename ElementType, uint64 Length>

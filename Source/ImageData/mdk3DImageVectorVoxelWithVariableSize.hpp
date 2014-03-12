@@ -231,8 +231,155 @@ const ElementType& mdk3DImageVectorVoxelWithVariableSize<ElementType>::at(uint64
 }
 
 
-}// namespace mdk
+// ------------------------------------------------------------------------------------------------------------//
 
-#include "mdk3DImageVectorVoxelWithVariableSize.hpp"
+template<typename ElementType>
+inline 
+void mdk3DImageVectorVoxelWithVariableSize<ElementType>::operator+=(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelB)
+{
+    auto Length_A = this->GetLength();
+
+    auto Length_B = VoxelB.GetLength();
+
+    if (Length_B == 1)
+    {
+        (*this) += VoxelB[0];
+        return;
+    }
+
+    if (Length_A != Length_B)
+    {
+        mdkError << "VoxelA.size() != VoxelB.size() @ mdk3DImageVectorVoxelWithVariableSize::operator+=(VoxelB)" << '\n';
+    }
+
+    for (uint64 i = 0; i < Length_A; ++i)
+    {
+        m_ElementData[i] += VoxelB[i];
+    }
+}
+
+
+template<typename ElementType>
+inline 
+void mdk3DImageVectorVoxelWithVariableSize<ElementType>::operator-=(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelB)
+{
+    auto Length_A = this->GetLength();
+
+    auto Length_B = VoxelB.GetLength();
+
+    if (Length_B == 1)
+    {
+        (*this) -= VoxelB[0];
+        return;
+    }
+
+    if (Length_A != Length_B)
+    {
+        mdkError << "VoxelA.size() != VoxelB.size() @ mdk3DImageVectorVoxelWithVariableSize::operator-=(VoxelB)" << '\n';
+    }
+
+    for (uint64 i = 0; i < Length_A; ++i)
+    {
+        m_ElementData[i] -= VoxelB[i];
+    }
+}
+
+
+template<typename ElementType>
+inline
+void mdk3DImageVectorVoxelWithVariableSize<ElementType>::operator*=(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelB)
+{
+    auto Length_A = this->GetLength();
+
+    auto Length_B = VoxelB.GetLength();
+
+    if (Length_B == 1)
+    {
+         (*this) *= VoxelB[0];
+         return;
+    }
+
+    if (Length_A != Length_B)
+    {
+        mdkError << "VoxelA.size() != VoxelB.size() @ mdk3DImageVectorVoxelWithVariableSize::operator*=(VoxelB)" << '\n';
+    }
+
+    for (uint64 i = 0; i < Length_A; ++i)
+    {
+        m_ElementData[i] -= VoxelB[i];
+    }
+}
+
+
+template<typename ElementType>
+inline
+void mdk3DImageVectorVoxelWithVariableSize<ElementType>::operator/=(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelB)
+{
+    auto Length_A = this->GetLength();
+
+    auto Length_B = VoxelB.GetLength();
+
+    if (Length_B == 1)
+    {
+        (*this) /= VoxelB[0];
+        return;
+    }
+
+    if (Length_A != Length_B)
+    {
+        mdkError << "VoxelA.size() != VoxelB.size() @ mdk3DImageVectorVoxelWithVariableSize::operator/=(VoxelB)" << '\n';
+    }
+
+    for (uint64 i = 0; i < Length_A; ++i)
+    {
+        m_ElementData[i] -= VoxelB[i];
+    }
+}
+
+//---------------------------------------------------------------------------------------------------------------//
+
+template<typename ElementType>
+inline 
+void mdk3DImageVectorVoxelWithVariableSize<ElementType>::operator+=(const ElementType& Element)
+{
+    for (uint64 i = 0; i < m_ElementData.size(); ++i)
+    {
+        m_ElementData[i] += Element;
+    }
+}
+
+
+template<typename ElementType>
+inline 
+void mdk3DImageVectorVoxelWithVariableSize<ElementType>::operator-=(const ElementType& Element)
+{
+    for (uint64 i = 0; i < m_ElementData.size(); ++i)
+    {
+        m_ElementData[i] -= Element;
+    }
+}
+
+
+template<typename ElementType>
+inline void mdk3DImageVectorVoxelWithVariableSize<ElementType>::operator*=(const ElementType& Element)
+{
+    for (uint64 i = 0; i < m_ElementData.size(); ++i)
+    {
+        m_ElementData[i] *= Element;
+    }
+}
+
+
+template<typename ElementType>
+inline 
+void mdk3DImageVectorVoxelWithVariableSize<ElementType>::operator/=(const ElementType& Element)
+{
+    for (uint64 i = 0; i < m_ElementData.size(); ++i)
+    {
+        m_ElementData[i] /= Element;
+    }
+}
+
+}// namespace mdk
 
 #endif

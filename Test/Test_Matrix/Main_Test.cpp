@@ -1,7 +1,6 @@
 ﻿#include <iostream>
 
 #include "mdkType.h"
-#include "mdkMatrix.h"
 
 #include "TestMatrix.h"
 
@@ -81,38 +80,35 @@ int main()
 
    // Test_MoveConstructor();
 
+    Test_Matrix_Operator();
+
+    // Test_Matrix_ChangeSize();
+
    // Test_Set_Get_Append_Delete_Insert_Col();
 
   //  Test_Set_Get_Append_Delete_Insert_Row();
 
    // Test_GetSubMatrix();
 
+    // Test_ShallowCopy();
+
   //  Test_SubMatrix();
 
     //Test_ShadowMatrix();
-
-
-   // Test_Share();
-
-
-   // Test_Matrix_Operator();
-
+   
     //Test_ShadowMatrix_Operator();
     
-   // Test_GlueMatrix();
-
-    //Test_GlueMatrix_2();
-
-   // Test_Matrix_ChangeSize();
-
    // Test_ShadowMatrix_SubMatrix();
 
   //  Test_ShadowMatrix_Col_Row();
 
+    // Test_GlueMatrix();
+
+    //Test_GlueMatrix_2();
+
   //  Test_GlueMatrix_Speed1();
 
-
-    Test_GlueMatrix_Speed2();
+    //Test_GlueMatrix_Speed2();
 
     //Test_GlueMatrix_Create();
 

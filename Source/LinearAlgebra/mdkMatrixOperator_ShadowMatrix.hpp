@@ -999,7 +999,7 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
 //--------------------------------------------------- ShadowMatrix {+= -= *= /=} Matrix ------------------------------------------------//
 
 template<typename ElementType>
-inline void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
+inline void operator+=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     auto SizeA = ShadowMatrixA.GetSize();
 
@@ -1068,7 +1068,7 @@ inline void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkMatr
 
 template<typename ElementType>
 inline 
-void operator-=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
+void operator-=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     auto SizeA = ShadowMatrixA.GetSize();
 
@@ -1137,7 +1137,7 @@ void operator-=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkMatrix<Elem
 
 template<typename ElementType>
 inline 
-void operator*=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
+void operator*=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     auto SizeA = ShadowMatrixA.GetSize();
 
@@ -1205,7 +1205,7 @@ void operator*=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkMatrix<Elem
 
 
 template<typename ElementType>
-inline void operator/=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
+inline void operator/=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     auto SizeA = ShadowMatrixA.GetSize();
 
@@ -1275,7 +1275,7 @@ inline void operator/=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkMatr
 
 template<typename ElementType>
 inline 
-void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& ElementB)
+void operator+=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const ElementType& ElementB)
 {
     auto SizeA = ShadowMatrixA.GetSize();
 
@@ -1327,7 +1327,7 @@ void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& E
 
 template<typename ElementType>
 inline 
-void operator-=(mdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& ElementB)
+void operator-=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const ElementType& ElementB)
 {
     auto SizeA = ShadowMatrixA.GetSize();
 
@@ -1379,7 +1379,7 @@ void operator-=(mdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& E
 
 template<typename ElementType>
 inline 
-void operator*=(mdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& ElementB)
+void operator*=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const ElementType& ElementB)
 {
     auto SizeA = ShadowMatrixA.GetSize();
 
@@ -1431,7 +1431,7 @@ void operator*=(mdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& E
 
 template<typename ElementType>
 inline
-void operator/=(mdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& ElementB)
+void operator/=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const ElementType& ElementB)
 {
     auto SizeA = ShadowMatrixA.GetSize();
 
@@ -1489,7 +1489,7 @@ void operator/=(mdkShadowMatrix<ElementType> ShadowMatrixA, const ElementType& E
 
 template<typename ElementType>
 inline
-void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
+void operator+=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
     auto SizeA = ShadowMatrixA.GetSize();
 
@@ -1525,7 +1525,7 @@ void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkShadowMatri
 
 template<typename ElementType>
 inline
-void operator-=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
+void operator-=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
     auto SizeA = ShadowMatrixA.GetSize();
 
@@ -1561,7 +1561,7 @@ void operator-=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkShadowMatri
 
 template<typename ElementType>
 inline
-void operator*=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
+void operator*=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
     auto SizeA = ShadowMatrixA.GetSize();
 
@@ -1592,7 +1592,7 @@ void operator*=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkShadowMatri
 
 template<typename ElementType>
 inline
-void operator/=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
+void operator/=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
     auto SizeA = ShadowMatrixA.GetSize();
 
@@ -1630,7 +1630,7 @@ void operator/=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkShadowMatr
 
 template<typename ElementType>
 inline
-void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+void operator+=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
     ShadowMatrixA += GlueMatrixB.CreateMatrix()
 }
@@ -1638,7 +1638,7 @@ void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkGlueMatrixF
 
 template<typename ElementType>
 inline
-void operator-=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+void operator-=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
     ShadowMatrixA -= GlueMatrixB.CreateMatrix()
 }
@@ -1646,7 +1646,7 @@ void operator-=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkGlueMatrixF
 
 template<typename ElementType>
 inline
-void operator*=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+void operator*=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
     ShadowMatrixA *= GlueMatrixB.CreateMatrix()
 }
@@ -1654,7 +1654,7 @@ void operator*=(mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkGlueMatrix
 
 template<typename ElementType>
 inline
-void operator/=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
+void operator/=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
     ShadowMatrixA /= GlueMatrixB.CreateMatrix()
 }
@@ -1663,7 +1663,7 @@ void operator/=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkGlueMatrixF
 
 template<typename ElementType>
 inline
-void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
+void operator+=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
 {
     ShadowMatrixA += GlueMatrixB.CreateMatrix()
 }
@@ -1671,7 +1671,7 @@ void operator+=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkGlueMatrixF
 
 template<typename ElementType>
 inline
-void operator-=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
+void operator-=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
 {
     ShadowMatrixA -= GlueMatrixB.CreateMatrix()
 }
@@ -1679,7 +1679,7 @@ void operator-=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkGlueMatrixF
 
 template<typename ElementType>
 inline
-void operator*=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
+void operator*=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
 {
     ShadowMatrixA *= GlueMatrixB.CreateMatrix()
 }
@@ -1687,7 +1687,7 @@ void operator*=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkGlueMatrixF
 
 template<typename ElementType>
 inline
-void operator/=(mdkShadowMatrix<ElementType> ShadowMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
+void operator/=(mdkShadowMatrix<ElementType>&& ShadowMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
 {
     ShadowMatrixA /= GlueMatrixB.CreateMatrix()
 }

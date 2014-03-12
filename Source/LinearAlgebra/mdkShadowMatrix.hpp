@@ -221,34 +221,10 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkMatrix<ElementType>& sourceMatr
 
 
 template<typename ElementType>
-inline
-mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix)
-{
-    m_SourceMatrixShallowCopy.ForceShallowCopy(ShadowMatrix.m_SourceMatrixShallowCopy);
-
-    m_RowIndexList_source = ShadowMatrix.m_RowIndexList_source;
-
-    m_ColIndexList_source = ShadowMatrix.m_ColIndexList_source;
-
-    m_LinearIndexList_source = ShadowMatrix.m_LinearIndexList_source;
-
-    m_Flag_OutputVector = ShadowMatrix.m_Flag_OutputVector;
-
-    m_RowNumber = ShadowMatrix.m_RowNumber;
-
-    m_ColNumber = ShadowMatrix.m_ColNumber;
-
-    m_ElementNumber = ShadowMatrix.m_ElementNumber;
-
-    m_NaNElement = ShadowMatrix.m_NaNElement;
-}
-
-
-template<typename ElementType>
 inline 
 mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkShadowMatrix<ElementType>&& ShadowMatrix)
 {
-    m_SourceMatrixShallowCopy.ForceShallowCopy(ShadowMatrix.m_SourceMatrixShallowCopy);
+    m_SourceMatrixShallowCopy.ForceShallowCopy(ShadowMatrix.m_SourceMatrixShallowCopy); // do not use std::move() !
 
     m_RowIndexList_source = std::move(ShadowMatrix.m_RowIndexList_source);
 

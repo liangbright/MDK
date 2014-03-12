@@ -57,6 +57,27 @@ public:
     ElementType& at(uint64 Index);
 
     const ElementType& at(uint64 Index) const;
+
+    // ------------------------------------------------------------------------------------------------------------//
+
+    inline void operator+=(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel);
+
+    inline void operator-=(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel);
+
+    inline void operator*=(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel);
+
+    inline void operator/=(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel);
+
+    //---------------------------------------------------------------------------------------------------------------//
+
+    inline void operator+=(const ElementType& Element);
+
+    inline void operator-=(const ElementType& Element);
+
+    inline void operator*=(const ElementType& Element);
+
+    inline void operator/=(const ElementType& Element);
+
 };
 
 
