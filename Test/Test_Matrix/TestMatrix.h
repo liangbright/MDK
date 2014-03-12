@@ -1,6 +1,7 @@
 #ifndef __Test_h
 #define __Test_h
 
+#include <algorithm>
 #include <chrono>
 #include <ctime>
 #include <iomanip>
@@ -346,11 +347,15 @@ void Test_Share()
 
 void Test_Mutiplication_Speed()
 {
-    mdkMatrix<double> A(512, 512);
+    uint64 Lx = 100;
 
-    mdkMatrix<double> B(512, 512);
+    uint64 Ly = 100;
 
-    mdkMatrix<double> C(512, 512);
+    mdkMatrix<double> A(Lx, Ly);
+
+    mdkMatrix<double> B(Lx, Ly);
+
+    mdkMatrix<double> C(Lx, Ly);
 
     auto t0 = std::chrono::system_clock::now();
 
@@ -1312,16 +1317,19 @@ void Test_Destructor()
 
 void Test_GlueMatrix_Speed1()
 {
+    uint64 Lx = 100;
 
-    mdkMatrix<double> A(512, 512);
+    uint64 Ly = 100;
 
-    mdkMatrix<double> B(512, 512);
+    mdkMatrix<double> A(Lx, Ly);
 
-    mdkMatrix<double> C(512, 512);
+    mdkMatrix<double> B(Lx, Ly);
+
+    mdkMatrix<double> C(Lx, Ly);
 
     auto t0 = std::time(0);
 
-    mdkMatrix<double> D(512, 512);
+    mdkMatrix<double> D(Lx, Ly);
     
     for (uint64 i = 0; i < 10000; ++i)
     {
@@ -1342,24 +1350,33 @@ void Test_GlueMatrix_Speed1()
 
 void Test_GlueMatrix_Speed2()
 {
+    uint64 Lx = 100000;
 
-    mdkMatrix<double> A(512, 512);
+    uint64 Ly = 1;
+
+    auto ElementNumber = Lx * Ly;
+
+    uint64 TotalLoopNumber = std::max<uint64>(10000, ElementNumber / 10);
+
+    //-------------------------------------------------------------------------------------------
+
+    mdkMatrix<double> A(Lx, Ly);
 
     A.Fill(1.0);
 
-    mdkMatrix<double> B(512, 512);
+    mdkMatrix<double> B(Lx, Ly);
 
     B.Fill(2.0);
 
-    mdkMatrix<double> C(512, 512);
+    mdkMatrix<double> C(Lx, Ly);
 
     C.Fill(3.0);
 
-    mdkMatrix<double> C2(512, 512);
+    mdkMatrix<double> C2(Lx, Ly);
 
     C2.Fill(3.0);
    
-    mdkMatrix<double> D(512, 512);
+    mdkMatrix<double> D(Lx, Ly);
 
     D.Fill(0.0);
 
@@ -1372,6 +1389,7 @@ void Test_GlueMatrix_Speed2()
     D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
 
     //-------------------------------------------------------------------------------------------
+
     double ElementList_Coef[] = { 1, 2, 3, 4, 5, 6 };
 
     double* MatrixElementDataRawPtrList[] = { A.GetElementDataRawPointer(),
@@ -1381,15 +1399,14 @@ void Test_GlueMatrix_Speed2()
                                               D.GetElementDataRawPointer(),
                                               D.GetElementDataRawPointer() };
 
-    auto ElementNumber = 512 * 512;
-
+    
     auto tempRawPointer = D.GetElementDataRawPointer();
 
     auto t0 = std::chrono::system_clock::now();
 
    // #pragma loop(hint_parallel(8))
 
-    for (uint64 i = 0; i < 10000; ++i)
+    for (uint64 i = 0; i < TotalLoopNumber; ++i)
     {
         for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
         {
@@ -1412,7 +1429,7 @@ void Test_GlueMatrix_Speed2()
 
     t0 = std::chrono::system_clock::now();
 
-    for (uint64 i = 0; i < 10000; ++i)
+    for (uint64 i = 0; i < TotalLoopNumber; ++i)
     {
         MatrixLinearCombine<double>(D, { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D }, 0.0);
     }
@@ -1427,7 +1444,7 @@ void Test_GlueMatrix_Speed2()
 
     t0 = std::chrono::system_clock::now();
 
-    for (uint64 i = 0; i < 10000; ++i)
+    for (uint64 i = 0; i < TotalLoopNumber; ++i)
     {
         MatrixLinearCombine<double>({ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D }, 0.0);
     }
@@ -1442,7 +1459,7 @@ void Test_GlueMatrix_Speed2()
 
     t0 = std::chrono::system_clock::now();
 
-    for (uint64 i = 0; i < 10000; ++i)
+    for (uint64 i = 0; i < TotalLoopNumber; ++i)
     {
         D+= MatrixLinearCombine<double>({ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D }, 0.0);
     }
@@ -1457,7 +1474,7 @@ void Test_GlueMatrix_Speed2()
 
     t0 = std::chrono::system_clock::now();
 
-    for (uint64 i = 0; i < 10000; ++i)
+    for (uint64 i = 0; i < TotalLoopNumber; ++i)
     {
         D += 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
     }
@@ -1472,7 +1489,7 @@ void Test_GlueMatrix_Speed2()
 
     t0 = std::chrono::system_clock::now();
 
-    for (uint64 i = 0; i < 10000; ++i)
+    for (uint64 i = 0; i < TotalLoopNumber; ++i)
     {
         //D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
 
@@ -1509,7 +1526,7 @@ void Test_GlueMatrix_Speed2()
 
     t0 = std::chrono::system_clock::now();
 
-    for (uint64 i = 0; i < 10000; ++i)
+    for (uint64 i = 0; i < TotalLoopNumber; ++i)
     {
         Dm += 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m +5.0*Dm + 6.0*Dm;
     }
@@ -1523,7 +1540,7 @@ void Test_GlueMatrix_Speed2()
     //-----------------------------------------------------------------------------------
     t0 = std::chrono::system_clock::now();
 
-    for (uint64 i = 0; i < 10000; ++i)
+    for (uint64 i = 0; i < TotalLoopNumber; ++i)
     {
         Dm = Dm + 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m + 5.0*Dm + 6.0*Dm;
     }
@@ -1556,16 +1573,19 @@ void Test_GlueMatrix_Speed2()
 
 void Test_GlueMatrix_Create()
 {
+    uint64 Lx = 100;
 
-    mdkMatrix<double> A(512, 512);
+    uint64 Ly = 100;
+
+    mdkMatrix<double> A(Lx, Ly);
 
     A.Fill(1.0);
 
-    mdkMatrix<double> B(512, 512);
+    mdkMatrix<double> B(Lx, Ly);
 
     B.Fill(2.0);
 
-    mdkMatrix<double> C(512, 512);
+    mdkMatrix<double> C(Lx, Ly);
 
     C.Fill(3.0);
 

@@ -19,7 +19,7 @@ namespace mdk
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForMultiplication<ElementType> GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     // check size -----------------------------
 
@@ -69,9 +69,9 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForM
 
         tempGlueMatrix_L.m_ColNumber = GlueMatrixA.m_ColNumber;
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(2);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList = std::move(GlueMatrixA.m_SourceMatrixShallowCopyList);
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(GlueMatrixA.m_SourceMatrixShallowCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(2);
 
         tempGlueMatrix_L.m_SourceMatrixShallowCopyList[1].ForceShallowCopy(MatrixB);
 
@@ -90,7 +90,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForM
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForMultiplication<ElementType> GlueMatrixA, const mdkMatrix<ElementType>& MatrixB)
 {
     // check size -----------------------------
 
@@ -140,9 +140,9 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkGlueMatrixForM
 
         tempGlueMatrix_L.m_ColNumber = GlueMatrixA.m_ColNumber;
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(2);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList = std::move(GlueMatrixA.m_SourceMatrixShallowCopyList);
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(GlueMatrixA.m_SourceMatrixShallowCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(2);
 
         tempGlueMatrix_L.m_SourceMatrixShallowCopyList[1].ForceShallowCopy(MatrixB);
 
@@ -228,7 +228,7 @@ mdkMatrix<ElementType> operator/(const mdkGlueMatrixForMultiplication<ElementTyp
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrixForMultiplication<ElementType> GlueMatrixB)
 {
     // check size -----------------------------
 
@@ -278,11 +278,13 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkMatrix<Element
 
         tempGlueMatrix_L.m_ColNumber = GlueMatrixB.m_ColNumber;
 
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList = std::move(GlueMatrixB.m_SourceMatrixShallowCopyList);
+
         tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(2);
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(MatrixA);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[1].ForceShallowCopy(tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0]);
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[1].ForceShallowCopy(GlueMatrixB.m_SourceMatrixShallowCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(MatrixA);
 
         tempGlueMatrix_L.m_ElementList_Coef.push_back(ElementType(1));
 
@@ -299,7 +301,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkMatrix<Element
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, mdkGlueMatrixForMultiplication<ElementType> GlueMatrixB)
 {
     // check size -----------------------------
 
@@ -349,11 +351,13 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkMatrix<Element
 
         tempGlueMatrix_L.m_ColNumber = GlueMatrixB.m_ColNumber;
 
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList = std::move(GlueMatrixB.m_SourceMatrixShallowCopyList);
+
         tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(2);
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(MatrixA);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[1].ForceShallowCopy(tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0]);
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[1].ForceShallowCopy(GlueMatrixB.m_SourceMatrixShallowCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(MatrixA);
 
         tempGlueMatrix_L.m_ElementList_Coef.push_back(ElementType(1));
 
@@ -442,7 +446,7 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const md
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const ElementType& ElementB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForMultiplication<ElementType> GlueMatrixA, const ElementType& ElementB)
 {
     // check if GlueMatrixA only has one matrix
 
@@ -454,9 +458,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForM
 
         tempGlueMatrix_L.m_ColNumber = GlueMatrixA.m_ColNumber;
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(1);
-
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(GlueMatrixA.m_SourceMatrixShallowCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList = std::move(GlueMatrixA.m_SourceMatrixShallowCopyList);
 
         tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixA.m_Element_Coef);
 
@@ -473,7 +475,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForM
 
 template<typename ElementType>
 inline
-mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const ElementType& ElementB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForMultiplication<ElementType> GlueMatrixA, const ElementType& ElementB)
 {
     // check if GlueMatrixA only has one matrix
 
@@ -485,9 +487,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkGlueMatrixForM
 
         tempGlueMatrix_L.m_ColNumber = GlueMatrixA.m_ColNumber;
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(1);
-
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(GlueMatrixA.m_SourceMatrixShallowCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList = std::move(GlueMatrixA.m_SourceMatrixShallowCopyList);
 
         tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixA.m_Element_Coef);
 
@@ -533,7 +533,7 @@ mdkGlueMatrixForMultiplication<ElementType> operator/(mdkGlueMatrixForMultiplica
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator+(const ElementType& ElementA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(const ElementType& ElementA, mdkGlueMatrixForMultiplication<ElementType> GlueMatrixB)
 {
     // check if GlueMatrixB only has one matrix
 
@@ -545,9 +545,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const ElementType& Elem
 
         tempGlueMatrix_L.m_ColNumber = GlueMatrixB.m_ColNumber;
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(1);
-
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(GlueMatrixB.m_SourceMatrixShallowCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList = std::move(GlueMatrixB.m_SourceMatrixShallowCopyList);
 
         tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixB.m_Element_Coef);
 
@@ -564,7 +562,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const ElementType& Elem
 
 template<typename ElementType>
 inline
-mdkGlueMatrixForLinearCombination<ElementType> operator-(const ElementType& ElementA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(const ElementType& ElementA, mdkGlueMatrixForMultiplication<ElementType> GlueMatrixB)
 {
     // check if GlueMatrixB only has one matrix
 
@@ -576,9 +574,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const ElementType& Elem
 
         tempGlueMatrix_L.m_ColNumber = GlueMatrixB.m_ColNumber;
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(1);
-
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(GlueMatrixB.m_SourceMatrixShallowCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList = std::move(GlueMatrixB.m_SourceMatrixShallowCopyList);
 
         tempGlueMatrix_L.m_ElementList_Coef.push_back(ElementType(0) - GlueMatrixB.m_Element_Coef);
 
@@ -620,17 +616,17 @@ mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkGlueMatri
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForMultiplication<ElementType> GlueMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return GlueMatrixA + ShadowMatrixB.CreateMatrix();
+    return std::move(GlueMatrixA) + ShadowMatrixB.CreateMatrix();
 }
 
 
 template<typename ElementType>
 inline
-mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForMultiplication<ElementType> GlueMatrixA, const mdkShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return GlueMatrixA - ShadowMatrixB.CreateMatrix();
+    return std::move(GlueMatrixA) - ShadowMatrixB.CreateMatrix();
 }
 
 
@@ -657,17 +653,17 @@ mdkMatrix<ElementType> operator/(const mdkGlueMatrixForMultiplication<ElementTyp
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrixForMultiplication<ElementType> GlueMatrixB)
 {
-    return ShadowMatrixA.CreateMatrix() + GlueMatrixB;
+    return ShadowMatrixA.CreateMatrix() + std::move(GlueMatrixB);
 }
 
 
 template<typename ElementType>
 inline
-mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatrixA, mdkGlueMatrixForMultiplication<ElementType> GlueMatrixB)
 {
-    return ShadowMatrixA.CreateMatrix() - GlueMatrixB;
+    return ShadowMatrixA.CreateMatrix() - std::move(GlueMatrixB);
 }
 
 
@@ -694,7 +690,7 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA_M, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB_L)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForMultiplication<ElementType> GlueMatrixA_M, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB_L)
 {
     // check size -----------------------------
 
@@ -724,7 +720,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForM
     {
         mdkMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateMatrix();
 
-        return GlueMatrixA_M + tempScalarMatrixB(0);
+        return std::move(GlueMatrixA_M) + tempScalarMatrixB(0);
     }
 
     //matrix -------------------------------------------------------------------------------------------
@@ -758,7 +754,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForM
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType>& operator-(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA_M, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB_L)
+mdkGlueMatrixForLinearCombination<ElementType>& operator-(mdkGlueMatrixForMultiplication<ElementType> GlueMatrixA_M, mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixB_L)
 {
     // check size -----------------------------
 
@@ -788,7 +784,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator-(const mdkGlueMatrixFor
     {
         mdkMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateMatrix();
 
-        return GlueMatrixA_M - tempScalarMatrixB(0);
+        return std::move(GlueMatrixA_M) - tempScalarMatrixB(0);
     }
 
     //matrix -------------------------------------------------------------------------------------------
@@ -851,7 +847,7 @@ mdkMatrix<ElementType> operator/(const mdkGlueMatrixForMultiplication<ElementTyp
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA_L, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB_M)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA_L, mdkGlueMatrixForMultiplication<ElementType> GlueMatrixB_M)
 {
     // check size -----------------------------
 
@@ -874,7 +870,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearC
     {
         mdkMatrix<ElementType> tempScalarMatrixA = GlueMatrixA_L.CreateMatrix();
 
-        return tempScalarMatrixA(0) + GlueMatrixB_M;
+        return tempScalarMatrixA(0) + std::move(GlueMatrixB_M);
     }
 
     if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
@@ -916,7 +912,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearC
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA_L, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB_M)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrixA_L, mdkGlueMatrixForMultiplication<ElementType> GlueMatrixB_M)
 {
     // check size -----------------------------
 
@@ -939,7 +935,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearC
     {
         mdkMatrix<ElementType> tempScalarMatrixA = GlueMatrixA_L.CreateMatrix();
 
-        return tempScalarMatrixA(0) - GlueMatrixB_M;
+        return tempScalarMatrixA(0) - std::move(GlueMatrixB_M);
     }
 
     if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
@@ -1002,7 +998,7 @@ mdkMatrix<ElementType> operator/(const mdkGlueMatrixForLinearCombination<Element
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForMultiplication<ElementType> GlueMatrixA, mdkGlueMatrixForMultiplication<ElementType> GlueMatrixB)
 {
     // check size -----------------------------
 
@@ -1025,14 +1021,14 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForM
     {
         mdkMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateMatrix();
 
-        return tempScalarMatrixA(0) + GlueMatrixB;
+        return tempScalarMatrixA(0) + std::move(GlueMatrixB);
     }
 
     if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
         mdkMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateMatrix();
 
-        return GlueMatrixA + tempScalarMatrixB(0);
+        return std::move(GlueMatrixA) + tempScalarMatrixB(0);
     }
 
     //matrix -------------------------------------------------------------------------------------------
@@ -1058,9 +1054,12 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForM
 
         tempGlueMatrix_L.m_ColNumber = GlueMatrixA.m_ColNumber;
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(2);
+        //tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(2);
+        //tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(GlueMatrixA.m_SourceMatrixShallowCopyList[0]);
+        //more efficient:
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList = std::move(GlueMatrixA.m_SourceMatrixShallowCopyList);
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(GlueMatrixA.m_SourceMatrixShallowCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(2);
 
         tempGlueMatrix_L.m_SourceMatrixShallowCopyList[1].ForceShallowCopy(GlueMatrixB.m_SourceMatrixShallowCopyList[0]);
 
@@ -1072,11 +1071,11 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForM
     }
     else if (MatrixNumber_A == 1 && MatrixNumber_B > 1)
     {
-        return GlueMatrixA + GlueMatrixB.CreateMatrix();
+        return std::move(GlueMatrixA) + GlueMatrixB.CreateMatrix();
     }
     else if (MatrixNumber_A > 1 && MatrixNumber_B == 1)
     {
-        return GlueMatrixA.CreateMatrix() + GlueMatrixB;
+        return GlueMatrixA.CreateMatrix() + std::move(GlueMatrixB);
     }
     else
     {
@@ -1087,7 +1086,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkGlueMatrixForM
 
 template<typename ElementType>
 inline 
-mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixA, const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrixB)
+mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForMultiplication<ElementType> GlueMatrixA, mdkGlueMatrixForMultiplication<ElementType> GlueMatrixB)
 {
     // check size -----------------------------
 
@@ -1110,14 +1109,14 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkGlueMatrixForM
     {
         mdkMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateMatrix();
 
-        return tempScalarMatrixA(0) - GlueMatrixB;
+        return tempScalarMatrixA(0) - std::move(GlueMatrixB);
     }
 
     if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
         mdkMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateMatrix();
 
-        return GlueMatrixA - tempScalarMatrixB(0);
+        return std::move(GlueMatrixA) - tempScalarMatrixB(0);
     }
 
     //matrix -------------------------------------------------------------------------------------------
@@ -1143,9 +1142,9 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkGlueMatrixForM
 
         tempGlueMatrix_L.m_ColNumber = GlueMatrixA.m_ColNumber;
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(2);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList = std::move(GlueMatrixA.m_SourceMatrixShallowCopyList);
 
-        tempGlueMatrix_L.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(GlueMatrixA.m_SourceMatrixShallowCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixShallowCopyList.resize(2);
 
         tempGlueMatrix_L.m_SourceMatrixShallowCopyList[1].ForceShallowCopy(GlueMatrixB.m_SourceMatrixShallowCopyList[0]);
 
@@ -1157,11 +1156,11 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkGlueMatrixForM
     }
     else if (MatrixNumber_A == 1 && MatrixNumber_B > 1)
     {
-        return GlueMatrixA - GlueMatrixB.CreateMatrix();
+        return std::move(GlueMatrixA) - GlueMatrixB.CreateMatrix();
     }
     else if (MatrixNumber_A > 1 && MatrixNumber_B == 1)
     {
-        return GlueMatrixA.CreateMatrix() - GlueMatrixB;
+        return GlueMatrixA.CreateMatrix() - std::move(GlueMatrixB);
     }
     else
     {
@@ -1224,23 +1223,15 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForMultiplica
     
     if (MatrixNumber_A == 1 && MatrixNumber_B == 1)
     {
-        mdkGlueMatrixForMultiplication<ElementType> tempGlueMatrix_M;
+        GlueMatrixA.m_ColNumber = GlueMatrixB.m_ColNumber;
 
-        tempGlueMatrix_M.m_RowNumber = GlueMatrixA.m_RowNumber;
+        GlueMatrixA.m_SourceMatrixShallowCopyList.resize(2);
 
-        tempGlueMatrix_M.m_ColNumber = GlueMatrixB.m_ColNumber;
+        GlueMatrixA.m_SourceMatrixShallowCopyList[1].ForceShallowCopy(GlueMatrixB.m_SourceMatrixShallowCopyList[0]);
 
-        tempGlueMatrix_M.m_SourceMatrixShallowCopyList.resize(2);
+        GlueMatrixA.m_ElementList_Coef.push_back(GlueMatrixB.m_Element_Coef);
 
-        tempGlueMatrix_M.m_SourceMatrixShallowCopyList[0].ForceShallowCopy(GlueMatrixA.m_SourceMatrixShallowCopyList[0]);
-
-        tempGlueMatrix_M.m_SourceMatrixShallowCopyList[1].ForceShallowCopy(GlueMatrixB.m_SourceMatrixShallowCopyList[0]);
-
-        tempGlueMatrix_M.m_ElementList_Coef.push_back(GlueMatrixA.m_Element_Coef);
-
-        tempGlueMatrix_M.m_ElementList_Coef.push_back(GlueMatrixB.m_Element_Coef);
-
-        return tempGlueMatrix_M;
+        return GlueMatrixA;
     }
     else if (MatrixNumber_A == 1 && MatrixNumber_B > 1)
     {
