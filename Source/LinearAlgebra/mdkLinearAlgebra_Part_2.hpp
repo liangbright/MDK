@@ -23,23 +23,23 @@ mdkMatrix<ElementType> MatrixTranspose(const mdkMatrix<ElementType>& Matrix)
 
     if (Size.ColNumber == 1)
     {
-        tempMatrix.Copy(Matrix.GetElementDataRawPointer(), 1, Size.RowNumber);
+        tempMatrix.Copy(Matrix.GetElementPointer(), 1, Size.RowNumber);
 
         return tempMatrix;
     }
 
     if (Size.RowNumber == 1)
     {
-        tempMatrix.Copy(Matrix.GetElementDataRawPointer(), Size.ColNumber, 1);
+        tempMatrix.Copy(Matrix.GetElementPointer(), Size.ColNumber, 1);
 
         return tempMatrix;
     }
 
     tempMatrix.Resize(Size.ColNumber, Size.RowNumber);
 
-    auto tempRawPointer = tempMatrix.GetElementDataRawPointer();
+    auto tempRawPointer = tempMatrix.GetElementPointer();
 
-    auto RawPointer = Matrix.GetElementDataRawPointer();
+    auto RawPointer = Matrix.GetElementPointer();
 
     for (uint64 i = 0; i < Size.RowNumber; ++i)
     {
@@ -117,7 +117,7 @@ mdkMatrix<ElementType> MatrixInv(const mdkMatrix<ElementType>& Matrix)
 
     arma::Mat<ElementType> tempMat(ptrData, arma::uword(RowNumber), arma::uword(ColNumber), false);
 
-    arma::Mat<ElementType> tempInv(tempMatrix.GetElementDataRawPointer(), arma::uword(RowNumber), arma::uword(ColNumber), false);
+    arma::Mat<ElementType> tempInv(tempMatrix.GetElementPointer(), arma::uword(RowNumber), arma::uword(ColNumber), false);
 
     tempInv = arma::inv(tempMat);
 
@@ -159,9 +159,9 @@ mdkMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(cons
 
     arma::Mat<ElementType> tempMat(ptrData, arma::uword(RowNumber), arma::uword(RowNumber), false);
 
-    arma::Mat<std::complex<ElementType>> tempEigenVector(Result.EigenVector.GetElementDataRawPointer(), arma::uword(RowNumber), arma::uword(RowNumber), false);
+    arma::Mat<std::complex<ElementType>> tempEigenVector(Result.EigenVector.GetElementPointer(), arma::uword(RowNumber), arma::uword(RowNumber), false);
 
-    arma::Col<std::complex<ElementType>> tempEigenValue(Result.EigenValue.GetElementDataRawPointer(), arma::uword(RowNumber), false);
+    arma::Col<std::complex<ElementType>> tempEigenValue(Result.EigenValue.GetElementPointer(), arma::uword(RowNumber), false);
 
     arma::eig_gen(tempEigenValue, tempEigenVector, tempMat);
 
@@ -217,9 +217,9 @@ mdkMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const mdkMatrix<Eleme
 
     arma::Mat<ElementType> tempMat(ptrData, arma::uword(RowNumber), arma::uword(RowNumber), false);
 
-    arma::Mat<ElementType> tempEigenVector(Result.EigenVector.GetElementDataRawPointer(), arma::uword(RowNumber), arma::uword(RowNumber), false);
+    arma::Mat<ElementType> tempEigenVector(Result.EigenVector.GetElementPointer(), arma::uword(RowNumber), arma::uword(RowNumber), false);
 
-    arma::Col<ElementType> tempEigenValue(Result.EigenValue.GetElementDataRawPointer(), arma::uword(RowNumber), false);
+    arma::Col<ElementType> tempEigenValue(Result.EigenValue.GetElementPointer(), arma::uword(RowNumber), false);
 
     arma::eig_sym(tempEigenValue, tempEigenVector, tempMat);
 
@@ -303,9 +303,9 @@ mdkMatrixSVDResult<ElementType> MatrixSVD(const mdkMatrix<ElementType>& Matrix)
 
     arma::Mat<ElementType> X(ptrData, arma::uword(RowNumber), arma::uword(ColNumber), false);
 
-    arma::Mat<ElementType> U(Result.U.GetElementDataRawPointer(), arma::uword(RowNumber), arma::uword(ColNumber), false);
+    arma::Mat<ElementType> U(Result.U.GetElementPointer(), arma::uword(RowNumber), arma::uword(ColNumber), false);
     arma::Col<ElementType> S;
-    arma::Mat<ElementType> V(Result.V.GetElementDataRawPointer(), arma::uword(RowNumber), arma::uword(ColNumber), false);
+    arma::Mat<ElementType> V(Result.V.GetElementPointer(), arma::uword(RowNumber), arma::uword(ColNumber), false);
 
     arma::svd(U, S, V, X);
 

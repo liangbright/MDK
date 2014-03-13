@@ -80,7 +80,7 @@ int main()
 
    // Test_MoveConstructor();
 
-    Test_Matrix_Operator();
+   // Test_Matrix_Operator();
 
     // Test_Matrix_ChangeSize();
 
@@ -96,6 +96,8 @@ int main()
 
     //Test_ShadowMatrix();
    
+    Test_ShadowMatrix_Const();
+
     //Test_ShadowMatrix_Operator();
     
    // Test_ShadowMatrix_SubMatrix();

@@ -72,11 +72,11 @@ bool MatrixAdd(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementTyp
         }
     }
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
-    auto ptrA = MatrixA.GetElementDataRawPointer();
+    auto ptrA = MatrixA.GetElementPointer();
 
-    auto ptrB = MatrixB.GetElementDataRawPointer();
+    auto ptrB = MatrixB.GetElementPointer();
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
@@ -148,11 +148,11 @@ bool MatrixSubtract(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
         }
     }
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
-    auto ptrA = MatrixA.GetElementDataRawPointer();
+    auto ptrA = MatrixA.GetElementPointer();
 
-    auto ptrB = MatrixB.GetElementDataRawPointer();
+    auto ptrB = MatrixB.GetElementPointer();
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
@@ -211,11 +211,11 @@ bool MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
 
     if (SizeC.RowNumber > 0)
     {
-        auto ptrA = MatrixA.GetElementDataRawPointer();
+        auto ptrA = MatrixA.GetElementPointer();
 
-        auto ptrB = MatrixB.GetElementDataRawPointer();
+        auto ptrB = MatrixB.GetElementPointer();
 
-        auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+        auto ptrC = OutputMatrixC.GetElementPointer();
 
         if (ptrC == ptrA || ptrC == ptrB)
         {
@@ -250,11 +250,11 @@ bool MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
 
     // get non- const pointer
 
-    auto ptrA = const_cast<ElementType*>(MatrixA.GetElementDataRawPointer());
+    auto ptrA = const_cast<ElementType*>(MatrixA.GetElementPointer());
 
-    auto ptrB = const_cast<ElementType*>(MatrixB.GetElementDataRawPointer());
+    auto ptrB = const_cast<ElementType*>(MatrixB.GetElementPointer());
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
     //--------------------- call lapack via armadillo --------------------------------------------------------------------------------
 
@@ -343,13 +343,18 @@ bool MatrixElementMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatri
 
     auto SizeC = OutputMatrixC.GetSize();
 
-    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeA.ColNumber)
+    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeB.ColNumber)
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
+            if (SizeC.RowNumber > 0)
+            {
+                mdkWarning << "OutputMatrixC Size is changed @ mdkLinearAlgebra MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+            }
+
             OutputMatrixC.Clear();
 
-            OutputMatrixC.Resize(SizeA.RowNumber, SizeA.ColNumber);
+            OutputMatrixC.Resize(SizeA.RowNumber, SizeB.ColNumber);
         }
         else
         {
@@ -358,11 +363,11 @@ bool MatrixElementMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatri
         }
     }
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
-    auto ptrA = MatrixA.GetElementDataRawPointer();
+    auto ptrA = MatrixA.GetElementPointer();
 
-    auto ptrB = MatrixB.GetElementDataRawPointer();
+    auto ptrB = MatrixB.GetElementPointer();
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
@@ -434,11 +439,11 @@ bool MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<
         }
     }
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
-    auto ptrA = MatrixA.GetElementDataRawPointer();
+    auto ptrA = MatrixA.GetElementPointer();
 
-    auto ptrB = MatrixB.GetElementDataRawPointer();
+    auto ptrB = MatrixB.GetElementPointer();
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
@@ -494,9 +499,9 @@ bool MatrixAdd(mdkMatrix<ElementType>& OutputMatrixC, const ElementType& Element
         }
     }
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
-    auto ptrB = MatrixB.GetElementDataRawPointer();
+    auto ptrB = MatrixB.GetElementPointer();
 
     auto ElementNumber = SizeB.RowNumber*SizeB.ColNumber;
 
@@ -560,9 +565,9 @@ void MatrixSubtract(mdkMatrix<ElementType> OutputMatrixC, const ElementType& Ele
         }
     }
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
-    auto ptrB = MatrixB.GetElementDataRawPointer();
+    auto ptrB = MatrixB.GetElementPointer();
 
     auto ElementNumber = SizeB.RowNumber*SizeB.ColNumber;
 
@@ -626,9 +631,9 @@ bool MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const ElementType& El
         }
     }
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
-    auto ptrB = MatrixB.GetElementDataRawPointer();
+    auto ptrB = MatrixB.GetElementPointer();
 
     auto ElementNumber = SizeB.RowNumber*SizeB.ColNumber;
 
@@ -712,9 +717,9 @@ void MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const ElementTyp
         }
     }
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
-    auto ptrB = MatrixB.GetElementDataRawPointer();
+    auto ptrB = MatrixB.GetElementPointer();
 
     auto ElementNumber = SizeB.RowNumber*SizeB.ColNumber;
 
@@ -779,9 +784,9 @@ bool MatrixAdd(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementTyp
         }
     }
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
-    auto ptrA = MatrixA.GetElementDataRawPointer();
+    auto ptrA = MatrixA.GetElementPointer();
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
@@ -845,9 +850,9 @@ void MatrixSubtract(mdkMatrix<ElementType> OutputMatrixC, const mdkMatrix<Elemen
         }
     }
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
-    auto ptrA = MatrixA.GetElementDataRawPointer();
+    auto ptrA = MatrixA.GetElementPointer();
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
@@ -913,9 +918,9 @@ bool MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
 
     //---------------------------------------------------------------------------------------------------------------------------------------
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
-    auto ptrA = MatrixA.GetElementDataRawPointer();
+    auto ptrA = MatrixA.GetElementPointer();
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
@@ -999,9 +1004,9 @@ void MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<
         }
     }
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
-    auto ptrA = MatrixA.GetElementDataRawPointer();
+    auto ptrA = MatrixA.GetElementPointer();
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
@@ -1130,9 +1135,9 @@ bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrix,
         }
     }
 
-    auto ptrOutput = OutputMatrix.GetElementDataRawPointer();
+    auto ptrOutput = OutputMatrix.GetElementPointer();
 
-    auto ptrInput = InputMatrix.GetElementDataRawPointer();
+    auto ptrInput = InputMatrix.GetElementPointer();
 
     auto ElementNumber = InputSize.ColNumber * InputSize.RowNumber;
 
@@ -1300,11 +1305,11 @@ bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrixC,
         }
     }
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
-    auto ptrA = InputMatrixA.GetElementDataRawPointer();
+    auto ptrA = InputMatrixA.GetElementPointer();
 
-    auto ptrB = InputMatrixB.GetElementDataRawPointer();
+    auto ptrB = InputMatrixB.GetElementPointer();
 
     if (Flag_full == 1)
     {
@@ -1462,9 +1467,9 @@ bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrixC,
         }
     }
 
-    auto ptrC = OutputMatrixC.GetElementDataRawPointer();
+    auto ptrC = OutputMatrixC.GetElementPointer();
 
-    auto ptrA = InputMatrixA.GetElementDataRawPointer();
+    auto ptrA = InputMatrixA.GetElementPointer();
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
@@ -1557,13 +1562,13 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix,
     }
 
 
-    auto OutputRawPointer = OutputMatrix.GetElementDataRawPointer();
+    auto PointerToOutput = OutputMatrix.GetElementPointer();
 
     std::vector<const ElementType*> MatrixElementDataRawPtrList(MatrixNumber);
 
     for (uint64 k = 0; k < MatrixNumber; ++k)
     {
-        MatrixElementDataRawPtrList[k] = MatrixPtrList[k]->GetElementDataRawPointer();
+        MatrixElementDataRawPtrList[k] = MatrixPtrList[k]->GetElementPointer();
     }
 
     auto ElementNumber = Size.ColNumber*Size.RowNumber;
@@ -1571,43 +1576,43 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix,
     switch (MatrixNumber)
     {
     case 1:
-        MatrixLinearCombine_MatrixNumber_1(OutputRawPointer, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
+        MatrixLinearCombine_MatrixNumber_1(PointerToOutput, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
         break;
         
     case 2:
-        MatrixLinearCombine_MatrixNumber_2(OutputRawPointer, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
+        MatrixLinearCombine_MatrixNumber_2(PointerToOutput, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
         break;
 
     case 3:
-        MatrixLinearCombine_MatrixNumber_3(OutputRawPointer, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
+        MatrixLinearCombine_MatrixNumber_3(PointerToOutput, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
         break;
 
     case 4:
-        MatrixLinearCombine_MatrixNumber_4(OutputRawPointer, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
+        MatrixLinearCombine_MatrixNumber_4(PointerToOutput, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
         break;
 
     case 5:
-        MatrixLinearCombine_MatrixNumber_5(OutputRawPointer, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
+        MatrixLinearCombine_MatrixNumber_5(PointerToOutput, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
         break;
 
     case 6:       
-        MatrixLinearCombine_MatrixNumber_6(OutputRawPointer, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
+        MatrixLinearCombine_MatrixNumber_6(PointerToOutput, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
         break;
 
     case 7:
-        MatrixLinearCombine_MatrixNumber_7(OutputRawPointer, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
+        MatrixLinearCombine_MatrixNumber_7(PointerToOutput, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
         break;
 
     case 8:
-        MatrixLinearCombine_MatrixNumber_8(OutputRawPointer, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
+        MatrixLinearCombine_MatrixNumber_8(PointerToOutput, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
         break;
         
     case 9:
-        MatrixLinearCombine_MatrixNumber_9(OutputRawPointer, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
+        MatrixLinearCombine_MatrixNumber_9(PointerToOutput, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
         break;
 
     case 10:
-        MatrixLinearCombine_MatrixNumber_10(OutputRawPointer, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
+        MatrixLinearCombine_MatrixNumber_10(PointerToOutput, ElementNumber, CoefList, MatrixElementDataRawPtrList, IndependentElement);
         break;
         
     default:
@@ -1620,7 +1625,7 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix,
 
         for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
         {
-            OutputRawPointer[LinearIndex] = IndependentElement + Coef_0 * RawPtr_0[LinearIndex];
+            PointerToOutput[LinearIndex] = IndependentElement + Coef_0 * RawPtr_0[LinearIndex];
         }
 
         for (uint64 k = 1; k < MatrixNumber; ++k)
@@ -1631,7 +1636,7 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix,
 
             for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
             {
-                OutputRawPointer[LinearIndex] += Coef_k * RawPtr_k[LinearIndex];
+                PointerToOutput[LinearIndex] += Coef_k * RawPtr_k[LinearIndex];
             }
 
         }
@@ -1648,7 +1653,7 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix,
                 tempElement += CoefRawPtr[k] * MatrixElementDataRawPtrList[k][LinearIndex];
             }
 
-            OutputRawPointer[LinearIndex] = tempElement;
+            PointerToOutput[LinearIndex] = tempElement;
         }
         */
 

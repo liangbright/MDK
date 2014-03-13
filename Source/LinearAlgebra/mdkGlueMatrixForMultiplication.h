@@ -100,6 +100,9 @@ private:
     template<typename E_TYPE>
     friend class mdkMatrix;
 
+    template<typename E_TYPE>
+    friend class mdkShadowMatrix;
+
     //--------------------------- friend function ----------------------------------------------------------------------------------//
 
     // ----------------------------------------------------- Matrix  {*}  Matrix ---------------------------------------------------------//
@@ -287,20 +290,6 @@ private:
 
     template<typename E_TYPE>
     friend mdkMatrix<E_TYPE> operator/(const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
-
-    //------------------------------------------------ ShadowMatrix {+= -= *= /=} GlueMatrixForMultiplication --------------------------------------------//
-
-    template<typename E_TYPE>
-    friend void operator+=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
-
-    template<typename E_TYPE>
-    friend void operator-=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
-
-    template<typename E_TYPE>
-    friend void operator*=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
-
-    template<typename E_TYPE>
-    friend void operator/=(mdkShadowMatrix<E_TYPE> ShadowMatrixA, const mdkGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
 };
 

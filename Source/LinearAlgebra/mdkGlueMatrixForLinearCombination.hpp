@@ -124,13 +124,6 @@ mdkMatrix<ElementType> mdkGlueMatrixForLinearCombination<ElementType>::CreateMat
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    if (m_RowNumber == 0)
-    {
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(m_RowNumber, m_ColNumber);
-
     this->CreateMatrix(tempMatrix);
 
     return tempMatrix;
@@ -157,6 +150,12 @@ bool mdkGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkMatrix<Elem
     }
 
     auto MatrixNumber = m_SourceMatrixShallowCopyList.size();
+
+    if (MatrixNumber == 0)
+    {
+        mdkError << "Self is empty @ mdkGlueMatrixForLinearCombination::CreateMatrix(OutputMatrix)" << '\n';
+        return false;
+    }
 
     std::vector<const mdkMatrix<ElementType>*> MatrixPtrList(MatrixNumber);
 

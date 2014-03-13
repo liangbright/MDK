@@ -122,15 +122,6 @@ mdkMatrix<ElementType> mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    if (m_RowNumber == 0)
-    {
-        mdkWarning << "return empty matrix @ mdkGlueMatrixForMultiplication::CreateMatrix()" << '\n';
-
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(m_RowNumber, m_ColNumber);
-
     this->CreateMatrix(tempMatrix);
 
     return tempMatrix;
