@@ -286,6 +286,55 @@ void mdkMatrix<ElementType>::operator=(const std::initializer_list<ElementType>&
 
 template<typename ElementType>
 inline
+void mdkMatrix<ElementType>::operator=(const std::initializer_list<std::initializer_list<ElementType>>& list)
+{
+    //if Self is empty
+    if (m_ElementNumber == 0)
+    {
+        mdkError << "operator=(list in list) can not be called if self is empty @ mdkMatrix::operator=(list in list)" << '\n';
+        return;
+    }
+
+    if (m_RowNumber != list.size())
+    {
+        mdkError << "Row Size does not match @ mdkMatrix::operator=(list in list)" << '\n';
+        return;
+    }
+
+    //check each row-list 
+    for (uint64 i = 0; i < m_RowNumber; ++i)
+    {
+        auto subList = list.begin()[i];
+
+        if (subList.size() != m_ColNumber)
+        {
+            mdkError << "Col Size does not match in row: " << i << " @ mdkMatrix::operator=(list in list)" << '\n';
+            return;
+        }
+    }
+
+    auto RawPointer = m_ElementData->data();
+
+    for (uint64 i = 0; i < m_RowNumber; ++i)
+    {
+        auto subList = list.begin()[i];
+
+        uint64 Index = 0;
+
+        for (uint64 j = 0; j < m_ColNumber; ++j)
+        {
+            RawPointer[Index + i] = subList.begin()[j];
+
+            Index += m_RowNumber;
+        }
+    }
+
+    return;
+}
+
+
+template<typename ElementType>
+inline
 void mdkMatrix<ElementType>::operator=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
     this->Take(ShadowMatrix);

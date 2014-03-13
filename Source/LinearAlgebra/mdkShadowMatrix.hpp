@@ -89,6 +89,10 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sour
     m_ColNumber = ColNumber_source;
 
     m_NaNElement = sourceMatrix.GetNaNElement();
+
+    m_Flag_All_Row = true;
+
+    m_Flag_All_Col = true;
 }
 
 
@@ -173,6 +177,8 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sour
     m_ElementNumber = m_RowNumber*m_ColNumber;
 
     m_NaNElement = sourceMatrix.GetNaNElement();
+
+    m_Flag_All_Col = true;
 }
 
 
@@ -217,6 +223,8 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sour
     m_ElementNumber = m_RowNumber*m_ColNumber;
 
     m_NaNElement = sourceMatrix.GetNaNElement();
+
+    m_Flag_All_Row = true;
 }
 
 
@@ -241,6 +249,10 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkShadowMatrix<ElementType>&& Sha
     m_ElementNumber = ShadowMatrix.m_ElementNumber;
 
     m_NaNElement = ShadowMatrix.m_NaNElement;
+
+    m_Flag_All_Row = ShadowMatrix.m_Flag_All_Row;
+
+    m_Flag_All_Col = ShadowMatrix.m_Flag_All_Col;
 }
 
 
@@ -271,6 +283,10 @@ inline void mdkShadowMatrix<ElementType>::Reset()
     m_ColNumber = 0;
 
     m_NaNElement = m_SourceMatrixShallowCopy.GetNaNElement();
+
+    m_Flag_All_Row = false;
+
+    m_Flag_All_Col = false;
 }
 
 
@@ -442,6 +458,90 @@ bool mdkShadowMatrix<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMa
 
 template<typename ElementType>
 inline
+void mdkShadowMatrix<ElementType>::operator=(const mdkMatrix<ElementType>& targetMatrix)
+{
+    // MatrixA = MatrixA
+    if (m_SourceMatrixShallowCopy.GetElementPointer() == targetMatrix.GetElementPointer())
+    {
+        return;
+    }
+
+    if (m_Flag_OutputVector == true)
+    {
+        if (m_ElementNumber != targetMatrix.GetElementNumber())
+        {
+            mdkError << "m_ElementNumber != targetMatrix.GetElementNumber() @ mdkShadowMatrix::operator=(mdkShadowMatrix)" << '\n';
+            return;
+        }
+    }
+    else
+    {
+        if (m_RowNumber != targetMatrix.GetRowNumber() || m_ColNumber != targetMatrix.GetColNumber())
+        {
+            mdkError << "Size does not match @ mdkShadowMatrix::operator=(mdkShadowMatrix)" << '\n';
+            return;
+        }
+    }
+
+
+    //-------------------------------------------------
+
+    if (m_LinearIndexList_source.empty() == true)
+    {        
+        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) = targetMatrix
+        {
+            m_SourceMatrixShallowCopy.SetRow(m_RowIndexList_source[0], targetMatrix);
+            return;
+        }
+        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) = targetMatrix
+        {
+            m_SourceMatrixShallowCopy.SetCol(m_ColIndexList_source[0], targetMatrix);
+            return;
+        }
+    }
+
+    //-------------------------------------------------
+
+    auto ptrMatrix = targetMatrix.GetElementPointer();
+
+    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    {
+        (*this)[i] = ptrMatrix[i];
+    }
+}
+
+
+template<typename ElementType>
+inline
+void mdkShadowMatrix<ElementType>::operator=(const ElementType& Element)
+{
+    //------------------------------------------------------------
+
+    if (m_LinearIndexList_source.empty() == true)
+    {
+        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) = Element
+        {
+            m_SourceMatrixShallowCopy.FillRow(m_RowIndexList_source[0], Element);
+            return;
+        }
+        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) = Element
+        {
+            m_SourceMatrixShallowCopy.FillCol(m_ColIndexList_source[0], Element);
+            return;
+        }
+    }
+
+    //------------------------------------------------------------
+
+    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    {
+        (*this)[i] = Element;
+    }
+}
+
+
+template<typename ElementType>
+inline
 void mdkShadowMatrix<ElementType>::operator=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
     // MatrixA = MatrixA
@@ -479,48 +579,17 @@ void mdkShadowMatrix<ElementType>::operator=(const mdkShadowMatrix<ElementType>&
 
 template<typename ElementType>
 inline
-void mdkShadowMatrix<ElementType>::operator=(const mdkMatrix<ElementType>& targetMatrix)
+void mdkShadowMatrix<ElementType>::operator=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
-    // MatrixA = MatrixA
-    if (m_SourceMatrixShallowCopy.GetElementPointer() == targetMatrix.GetElementPointer())
-    {
-        return;
-    }
-
-    if (m_Flag_OutputVector == true)
-    {
-        if (m_ElementNumber != targetMatrix.GetElementNumber())
-        {
-            mdkError << "m_ElementNumber != targetMatrix.GetElementNumber() @ mdkShadowMatrix::operator=(mdkShadowMatrix)" << '\n';
-            return;
-        }
-    }
-    else
-    {
-        if (m_RowNumber != targetMatrix.GetRowNumber() || m_ColNumber != targetMatrix.GetColNumber())
-        {
-            mdkError << "Size does not match @ mdkShadowMatrix::operator=(mdkShadowMatrix)" << '\n';
-            return;
-        }
-    }
-
-    //--------------------------------------------
-
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
-    {
-        (*this)[i] = targetMatrix[i];
-    }
+    (*this) = GlueMatrix.CreateMatrix();
 }
 
 
 template<typename ElementType>
 inline
-void mdkShadowMatrix<ElementType>::operator=(const ElementType& Element)
+void mdkShadowMatrix<ElementType>::operator=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
-    {
-        (*this)[i] = Element;
-    }
+    (*this) = GlueMatrix.CreateMatrix();
 }
 
 
@@ -715,7 +784,7 @@ void mdkShadowMatrix<ElementType>::operator+=(const mdkMatrix<ElementType>& Matr
 
     if (m_RowNumber == 0 || Size.RowNumber == 0)
     {
-        mdkError << "Sefl or Matrix is empty @ mdkShadowMatrix::operator+=(Matrix)" << '\n';
+        mdkError << "Self or Matrix is empty @ mdkShadowMatrix::operator+=(Matrix)" << '\n';
         return;
     }
 
@@ -734,9 +803,11 @@ void mdkShadowMatrix<ElementType>::operator+=(const mdkMatrix<ElementType>& Matr
 
     //----------------------------------------------------//
 
+    auto ptrInput = Matrix.GetElementPointer();
+
     for (uint64 i = 0; i < m_ElementNumber; ++i)
     {
-        (*this)[i] += Matrix[i];
+        (*this)[i] += ptrInput[i];
     }
 }
 
@@ -749,7 +820,7 @@ void mdkShadowMatrix<ElementType>::operator-=(const mdkMatrix<ElementType>& Matr
 
     if (m_RowNumber == 0 || Size.RowNumber == 0)
     {
-        mdkError << "Sefl or Matrix is empty @ mdkShadowMatrix::operator-=(Matrix)" << '\n';
+        mdkError << "Self or Matrix is empty @ mdkShadowMatrix::operator-=(Matrix)" << '\n';
         return;
     }
 
@@ -768,9 +839,11 @@ void mdkShadowMatrix<ElementType>::operator-=(const mdkMatrix<ElementType>& Matr
 
     //----------------------------------------------------//
 
+    auto ptrInput = Matrix.GetElementPointer();
+
     for (uint64 i = 0; i < m_ElementNumber; ++i)
     {
-        (*this)[i] -= Matrix[i];
+        (*this)[i] -= ptrInput[i];
     }
 }
 
@@ -783,7 +856,7 @@ void mdkShadowMatrix<ElementType>::operator*=(const mdkMatrix<ElementType>& Matr
 
     if (m_RowNumber == 0 || Size.RowNumber == 0)
     {
-        mdkError << "Sefl or Matrix is empty @ mdkShadowMatrix::operator*=(Matrix)" << '\n';
+        mdkError << "Self or Matrix is empty @ mdkShadowMatrix::operator*=(Matrix)" << '\n';
         return;
     }
 
@@ -794,7 +867,7 @@ void mdkShadowMatrix<ElementType>::operator*=(const mdkMatrix<ElementType>& Matr
         return;
     }
 
-    if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
+    if (m_ColNumber != Size.RowNumber || Size.RowNumber != Size.ColNumber)
     {
         mdkError << "Size does not match @ mdkShadowMatrix::operator*=(Matrix)" << '\n';
         return;
@@ -802,10 +875,7 @@ void mdkShadowMatrix<ElementType>::operator*=(const mdkMatrix<ElementType>& Matr
 
     //----------------------------------------------------//
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
-    {
-        (*this)[i] *= Matrix[i];
-    }
+    (*this) = this->CreateMatrix() * Matrix;
 }
 
 
@@ -817,7 +887,7 @@ void mdkShadowMatrix<ElementType>::operator/=(const mdkMatrix<ElementType>& Matr
 
     if (m_RowNumber == 0 || Size.RowNumber == 0)
     {
-        mdkError << "Sefl or Matrix is empty @ mdkShadowMatrix::operator/=(Matrix)" << '\n';
+        mdkError << "Self or Matrix is empty @ mdkShadowMatrix::operator/=(Matrix)" << '\n';
         return;
     }
 
@@ -836,9 +906,11 @@ void mdkShadowMatrix<ElementType>::operator/=(const mdkMatrix<ElementType>& Matr
 
     //----------------------------------------------------//
 
+    auto ptrInput = Matrix.GetElementPointer();
+
     for (uint64 i = 0; i < m_ElementNumber; ++i)
     {
-        (*this)[i] /= Matrix[i];
+        (*this)[i] /= ptrInput[i];
     }
 }
 
@@ -940,7 +1012,7 @@ void mdkShadowMatrix<ElementType>::operator+=(const mdkShadowMatrix<ElementType>
         return;
     }
 
-    if (m_RowNumber || Size.RowNumber == 0)
+    if (m_RowNumber == 0 || Size.RowNumber == 0)
     {
         mdkError << "Self or ShadowMatrix is empty @ mdkShadowMatrix::operator+=(ShadowMatrix)" << '\n';
         return;
@@ -974,7 +1046,7 @@ void mdkShadowMatrix<ElementType>::operator-=(const mdkShadowMatrix<ElementType>
         return;
     }
 
-    if (m_RowNumber || Size.RowNumber == 0)
+    if (m_RowNumber == 0 || Size.RowNumber == 0)
     {
         mdkError << "Self or ShadowMatrix is empty @ mdkShadowMatrix::operator-=(ShadowMatrix)" << '\n';
         return;
@@ -1008,7 +1080,7 @@ void mdkShadowMatrix<ElementType>::operator*=(const mdkShadowMatrix<ElementType>
         return;
     }
 
-    if (m_RowNumber || Size.RowNumber == 0)
+    if (m_RowNumber == 0 || Size.RowNumber == 0)
     {
         mdkError << "Self or ShadowMatrix is empty @ mdkShadowMatrix::operator*=(ShadowMatrix)" << '\n';
         return;
@@ -1039,7 +1111,7 @@ void mdkShadowMatrix<ElementType>::operator/=(const mdkShadowMatrix<ElementType>
         return;
     }
 
-    if (m_RowNumber || Size.RowNumber == 0)
+    if (m_RowNumber == 0 || Size.RowNumber == 0)
     {
         mdkError << "Self or ShadowMatrix is empty @ mdkShadowMatrix::operator/=(ShadowMatrix)" << '\n';
         return;
@@ -1193,7 +1265,7 @@ mdkMatrix<ElementType> mdkShadowMatrix<ElementType>::ElementMultiply(const mdkSh
         return tempMatrix;
     }
 
-    if (m_RowNumber || Size.RowNumber == 0)
+    if (m_RowNumber == 0 || Size.RowNumber == 0)
     {
         mdkError << "Self or ShadowMatrix is empty @ mdkShadowMatrix::ElementMultiply(ShadowMatrix)" << '\n';
         return tempMatrix;

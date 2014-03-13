@@ -101,13 +101,32 @@ void Test_std_vector()
 
 void Test_Constructor()
 {
+    std::cout << "Test_Constructor()" << '\n';
+
     mdkMatrix<double> A(2, 2);
 
-    A = { 2, 0, 
-          0, 4};
+    A = { 1, 2, 
+          3, 4};
+
+    A[0] = 0;
+
+    std::cout << "A[0] = 0;" << '\n';
+
+    A(0) = 0;
+
+    std::cout << "A(0) = 0;" << '\n';
+
+    auto ptrA = A.GetElementPointer();
+
+    ptrA[0] = 0;
+
 
     DisplayMatrix("A", A);
 
+    A = { { 5, 6 },
+          { 7, 8 } };
+
+    DisplayMatrix("A", A);
  
     mdkMatrix<double> A1(A);
 

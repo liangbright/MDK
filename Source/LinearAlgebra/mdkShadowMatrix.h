@@ -49,6 +49,10 @@ private:
 
 	// info of the source Matrix -----------------------------------------------//
 
+    bool m_Flag_All_Row;
+
+    bool m_Flag_All_Col;
+
 	std::vector<uint64> m_RowIndexList_source;
 
 	std::vector<uint64> m_ColIndexList_source;

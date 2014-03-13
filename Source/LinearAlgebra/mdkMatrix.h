@@ -203,6 +203,8 @@ public:
 
     inline void operator=(const std::initializer_list<ElementType>& list);
 
+    inline void operator=(const std::initializer_list<std::initializer_list<ElementType>>& list);
+
     inline void operator=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
     inline void operator=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
@@ -224,7 +226,7 @@ public:
     //-------------------------- ShallowCopy ---------------------------------------- //
     // use with caution:
     // only copy m_ColNumber, m_RowNumber, m_ElementNumber, and shared_ptr: m_ElementData
-    // if the original object (targetMatrix) changes its size, its ShallowCopy will not known such size change 
+    // if the original object (targetMatrix) changes its size, its ShallowCopy will not known the size change 
     
     // if m_IsSizeFixed is true, and size does not match, then return false
     inline bool ShallowCopy(const mdkMatrix<ElementType>& targetMatrix);

@@ -191,7 +191,7 @@ mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const md
 
     if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
     {
-        return MatrixA(0) - ShadowMatrixB;
+        return MatrixA[0] - ShadowMatrixB;
     }
 
     if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
@@ -250,7 +250,7 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const md
 
     if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
     {
-        return MatrixA(0) / ShadowMatrixB;
+        return MatrixA[0] / ShadowMatrixB;
     }
 
     if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)

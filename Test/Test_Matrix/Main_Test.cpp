@@ -74,7 +74,7 @@ int main()
 
 
     
-   // Test_Constructor();
+    Test_Constructor();
 
    // Test_Destructor();
 
