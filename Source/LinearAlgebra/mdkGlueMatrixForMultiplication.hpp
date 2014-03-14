@@ -27,7 +27,7 @@ mdkGlueMatrixForMultiplication<ElementType>::mdkGlueMatrixForMultiplication(mdkG
 
     m_ColNumber = GlueMatrix.m_ColNumber;
 
-    m_SourceMatrixShallowCopyList = std::move(GlueMatrix.m_SourceMatrixShallowCopyList);
+    m_SharedSourceMatrixList = std::move(GlueMatrix.m_SharedSourceMatrixList);
 
     m_Element_Coef = std::move(GlueMatrix.m_Element_Coef);
 
@@ -47,9 +47,9 @@ void mdkGlueMatrixForMultiplication<ElementType>::Reset()
 
     m_ColNumber = 0;
 
-    m_SourceMatrixShallowCopyList.resize(0);
+    m_SharedSourceMatrixList.resize(0);
 
-    m_SourceMatrixShallowCopyList.reserve(MDK_GlueMatrixForMultiplication_ReservedCapacity);
+    m_SharedSourceMatrixList.reserve(MDK_GlueMatrixForMultiplication_ReservedCapacity);
 
     m_Element_Coef = ElementType(1);
 
@@ -99,7 +99,7 @@ template<typename ElementType>
 inline
 uint64 mdkGlueMatrixForMultiplication<ElementType>::GetMatrixNumber() const
 {
-    return m_SourceMatrixShallowCopyList.size();
+    return m_SharedSourceMatrixList.size();
 }
 
 
@@ -147,7 +147,7 @@ bool mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
         }
     }
 
-    auto MatrixNumber = m_SourceMatrixShallowCopyList.size();
+    auto MatrixNumber = m_SharedSourceMatrixList.size();
 
     if (MatrixNumber == 0)
     {
@@ -160,18 +160,18 @@ bool mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
         if (m_Is_m_Element_Coef_Equal_to_One == true)
         {
             mdkError << "MatrixNumber is 1 and  m_Is_m_Element_Coef_Equal_to_One = true @ mdkGlueMatrixForMultiplication::CreateMatrix(OutputMatrix)" << '\n';
-            OutputMatrix.Copy(m_SourceMatrixShallowCopyList[0]);
+            OutputMatrix.Copy(m_SharedSourceMatrixList[0]);
             return false;
         }
         
-        MatrixElementMultiply(OutputMatrix, m_SourceMatrixShallowCopyList[0], m_Element_Coef);        
+        MatrixElementMultiply(OutputMatrix, m_SharedSourceMatrixList[0], m_Element_Coef);        
         
         return true;
     }
 
     if (MatrixNumber == 2)
     {
-         MatrixMultiply(OutputMatrix, m_SourceMatrixShallowCopyList[0], m_SourceMatrixShallowCopyList[1]);
+         MatrixMultiply(OutputMatrix, m_SharedSourceMatrixList[0], m_SharedSourceMatrixList[1]);
 
          if (m_Is_m_Element_Coef_Equal_to_One == false)
          {
@@ -186,11 +186,11 @@ bool mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
     // output is a vector or scalar (in matrix form) ------------------------------------------
     if (m_RowNumber == 1)
     {
-        MatrixMultiply(OutputMatrix, m_SourceMatrixShallowCopyList[0], m_SourceMatrixShallowCopyList[1]);
+        MatrixMultiply(OutputMatrix, m_SharedSourceMatrixList[0], m_SharedSourceMatrixList[1]);
         
         for (uint64 i = 2; i < MatrixNumber; ++i)
         {
-            OutputMatrix = MatrixMultiply(OutputMatrix, m_SourceMatrixShallowCopyList[i]);
+            OutputMatrix = MatrixMultiply(OutputMatrix, m_SharedSourceMatrixList[i]);
         }
 
         if (m_Is_m_Element_Coef_Equal_to_One == false)
@@ -204,11 +204,11 @@ bool mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
     // output is a vector or scalar (in matrix form) ------------------------------------------
     if (m_ColNumber == 1)
     {
-        MatrixMultiply(OutputMatrix, m_SourceMatrixShallowCopyList[MatrixNumber - 2], m_SourceMatrixShallowCopyList[MatrixNumber - 1]);
+        MatrixMultiply(OutputMatrix, m_SharedSourceMatrixList[MatrixNumber - 2], m_SharedSourceMatrixList[MatrixNumber - 1]);
 
         for (uint64 i = MatrixNumber-3; i >= 0; --i)
         {
-            OutputMatrix = MatrixMultiply(m_SourceMatrixShallowCopyList[i], OutputMatrix);
+            OutputMatrix = MatrixMultiply(m_SharedSourceMatrixList[i], OutputMatrix);
         }
 
         if (m_Is_m_Element_Coef_Equal_to_One == false)
@@ -228,7 +228,7 @@ bool mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
 
     for (uint64 i = 0; i < MatrixNumber - 1; ++i)
     {
-        MatrixPointerList[i] = &m_SourceMatrixShallowCopyList[i];
+        MatrixPointerList[i] = &m_SharedSourceMatrixList[i];
     }
 
     auto ResultMatrixList = std::vector<mdkMatrix<ElementType>>(MatrixNumber);

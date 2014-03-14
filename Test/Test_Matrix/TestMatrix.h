@@ -105,21 +105,36 @@ void Test_Constructor()
 
     mdkMatrix<double> A(2, 2);
 
-    A = { 1, 2, 
-          3, 4};
+    A = { 101, 102, 
+          103, 104};
 
-    A[0] = 0;
+    DisplayMatrix("A", A);
 
-    std::cout << "A[0] = 0;" << '\n';
+    A[1] = 11;
 
-    A(0) = 0;
+    DisplayMatrix("A", A);
 
-    std::cout << "A(0) = 0;" << '\n';
+    A(1) = 12;
+
+    DisplayMatrix("A", A);
 
     auto ptrA = A.GetElementPointer();
 
-    ptrA[0] = 0;
+    std::cout << "ptrA = A.GetElementPointer();" << '\n';
 
+    ptrA[1] = 1;
+
+    DisplayMatrix("A", A);
+
+    ptrA[2] = 2;
+    
+    DisplayMatrix("A", A);
+
+    A(1,1) = 3;
+
+    DisplayMatrix("A", A);
+
+    A.at(1,1) = 4;
 
     DisplayMatrix("A", A);
 
@@ -136,7 +151,7 @@ void Test_Constructor()
 
     mdkMatrix<double> C;
 
-    C.ForceShallowCopy(A);
+    C.ForceShare(A);
 
     A.Copy(A);
 
@@ -356,7 +371,7 @@ void Test_ShallowCopy()
 
     mdkMatrix<double> B;
 
-    B.ForceShallowCopy(A);
+    B.ForceShare(A);
 
     B(1, 1) = 0;
 

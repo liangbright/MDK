@@ -8,6 +8,8 @@
 #include <initializer_list>
 #include <functional>
 
+#include <armadillo.h>
+
 //#include "mdkMatrix.h"
 
 namespace mdk

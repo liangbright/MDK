@@ -49,61 +49,33 @@ struct mdkMatrixSVDResult;
 
 struct mdkMatrixSize
 {
-	uint64 RowNumber;  // RowNumber = the Number of Rows 
-	uint64 ColNumber;  // ColNumber = the Number of Columns
+	uint64 RowNumber = 0;  // RowNumber = the Number of Rows 
+	uint64 ColNumber = 0;  // ColNumber = the Number of Columns
 };
 
-//============================================= For Reference ===================================================//
-/*
-// ------------------------------------ Matrix {+ - * /}  Matrix ------------------------------------------------//
+// ----------------------------- mdkMatrixCoreData struct -------------------------------------------------------------//
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+struct mdkMatrixCoreData
+{
+    uint64 RowNumber = 0;  // RowNumber = the Number of Rows 
+    uint64 ColNumber = 0;  // ColNumber = the Number of Columns
 
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+    std::vector<ElementType> DataArray;
+//-----------------------------------------------------
+    mdkMatrixCoreData() = default;
 
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+    ~mdkMatrixCoreData() = default;
 
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+//deleted:
+    mdkMatrixCoreData(const mdkMatrixCoreData&) = delete;
 
-// ------------------------------------ Matrix {+ - * /}  Element ------------------------------------------------//
+    mdkMatrixCoreData(mdkMatrixCoreData&&) = delete;
 
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator+(mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB);
+    void operator=(const mdkMatrixCoreData&) = delete;
 
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator-(mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB);
-
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator*(mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB);
-
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB);
-
-// ------------------------------------- Element {+ - * /} Matrix ------------------------------------------------//
-
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator+(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
-
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator-(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
-
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator*(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
-
-template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
-
-// ----------------------- Element = Matrix (if 1x1) is not allowed in c++ --------------------------------------------//
-// not allowed in c++
-//template<typename ElementType>
-//inline void operator=(ElementType& Element, const mdkMatrix<ElementType>& Matrix);
-*/
-//=====================================================================================================================//
-
+    void operator=(mdkMatrixCoreData&&) = delete;
+};
 
 //------------------------------------------- ALL Symbol --------------------------------------------------------------------------//
 
@@ -150,14 +122,10 @@ class mdkMatrix : public mdkObject
 {
 
 private:
+     
+    std::shared_ptr<mdkMatrixCoreData<ElementType>> m_CoreData;
 
-	uint64 m_RowNumber;
-	
-	uint64 m_ColNumber;
-
-    uint64 m_ElementNumber;
-
-	std::shared_ptr<std::vector<ElementType>> m_ElementData;
+    ElementType* m_ElementPointer; // pointer to the first element, keep tracking m_CoreData->DataArray.data()
 
     ElementType m_NaNElement;
 
@@ -173,12 +141,12 @@ public:
 
     inline mdkMatrix(uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = false);
 
-    inline mdkMatrix(const mdkMatrix<ElementType>& targetMatrix, bool IsSizeFixed = false);
+    inline mdkMatrix(const mdkMatrix<ElementType>& InputMatrix, bool IsSizeFixed = false);
 
     inline mdkMatrix(const ElementType& Element);
 
     // move constructor
-    inline mdkMatrix(mdkMatrix<ElementType>&& targetMatrix);
+    inline mdkMatrix(mdkMatrix<ElementType>&& InputMatrix);
 
     inline mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix, bool IsSizeFixed = false);
 
@@ -186,7 +154,7 @@ public:
 
     inline mdkMatrix(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix, bool IsSizeFixed = false);
 
-    inline mdkMatrix(ElementType* ElementPointer, uint64 RowNumber, uint64 ColNumber, bool IsInPlaceConstruction = false, bool IsSizeFixed = false);
+    inline mdkMatrix(const ElementType* InputElementPointer, uint64 InputRowNumber, uint64 InputColNumber, bool IsSizeFixed = false);
 
 	inline ~mdkMatrix();
 
@@ -194,10 +162,10 @@ public:
 
     // do not use function template for this function
     // otherwise, compiler will create a new one
-    inline void operator=(const mdkMatrix<ElementType>& targetMatrix);
+    inline void operator=(const mdkMatrix<ElementType>& InputMatrix);
 
     // move assignment operator
-    inline void operator=(mdkMatrix<ElementType>&& targetMatrix);
+    inline void operator=(mdkMatrix<ElementType>&& InputMatrix);
 
     inline void operator=(const ElementType& Element);
 
@@ -213,33 +181,33 @@ public:
 
     //----------------------  Copy From Matrix or Element  ----------------------------------------//
 
-    // Copy can be used to convert a matrix from double (ElementType_target) to float (ElementType), etc
+    // Copy can be used to convert a matrix from double (ElementType_Input) to float (ElementType), etc
 
-    template<typename ElementType_target>  
-    inline bool Copy(const mdkMatrix<ElementType_target>& targetMatrix);
+    template<typename ElementType_Input>  
+    inline bool Copy(const mdkMatrix<ElementType_Input>& InputMatrix);
 
-    template<typename ElementType_target>
-    inline bool Copy(const ElementType_target* ElementPointer, uint64 RowNumber, uint64 ColNumber);
+    template<typename ElementType_Input>
+    inline bool Copy(const ElementType_Input* InputElementPointer, uint64 InputRowNumber, uint64 InputColNumber);
 
     inline bool Fill(const ElementType& Element);
 
-    //-------------------------- ShallowCopy ---------------------------------------- //
-    // use with caution:
-    // only copy m_ColNumber, m_RowNumber, m_ElementNumber, and shared_ptr: m_ElementData
-    // if the original object (targetMatrix) changes its size, its ShallowCopy will not known the size change 
-    
+    //-------------------------- Share ---------------------------------------- //
+ 
     // if m_IsSizeFixed is true, and size does not match, then return false
-    inline bool ShallowCopy(const mdkMatrix<ElementType>& targetMatrix);
+    
+    inline bool Share(mdkMatrix<ElementType>& InputMatrix);
+
+    inline bool Share(mdkMatrix<ElementType>&& InputMatrix);
 
     // it is used by GlueMatrix
-    // ShallowCopy the object (targetMatrix) no matter what
-    inline void ForceShallowCopy(const mdkMatrix<ElementType>& targetMatrix);
+    // Share the object (InputMatrix) no matter what, even InputMatrix is const
+    inline void ForceShare(const mdkMatrix<ElementType>& InputMatrix);
 
     //-------------------- Take : the the ownership of the input matrix ---------------------------//
 
-    inline bool Take(mdkMatrix<ElementType>& targetMatrix);
+    inline bool Take(mdkMatrix<ElementType>& InputMatrix);
 
-    inline bool Take(mdkMatrix<ElementType>&& targetMatrix);
+    inline bool Take(mdkMatrix<ElementType>&& InputMatrix);
 
     inline bool Take(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
@@ -260,9 +228,9 @@ public:
 
 	//---------------------- Set/get Matrix Size, Shape ----------------------------------------//
 
-    inline bool Reshape(uint64 targetRowNumber, uint64 targetColNumber);
+    inline bool Reshape(uint64 InputRowNumber, uint64 InputColNumber);
 
-    inline bool Resize(uint64 targetRowNumber, uint64 targetColNumber, bool IsSizeFixed = false);
+    inline bool Resize(uint64 InputRowNumber, uint64 InputColNumber, bool IsSizeFixed = false);
 
     inline bool IsSizeFixed() const;
 
@@ -287,8 +255,6 @@ public:
     inline mdkMatrixElementTypeEnum GetElementType() const;
 
     //--------------------- Get Data Pointer -----------------------------//
-
-    inline const std::shared_ptr<std::vector<ElementType>>& GetElementDataSharedPointer() const;
 
     inline ElementType* GetElementPointer();
 
@@ -479,31 +445,31 @@ public:
 
     inline bool GetCol(uint64 ColIndex, ElementType* ColData) const;
 
-    template<typename ElementType_input>
-    inline bool SetCol(uint64 ColIndex, const mdkMatrix<ElementType_input>& ColData);
+    template<typename ElementType_Input>
+    inline bool SetCol(uint64 ColIndex, const mdkMatrix<ElementType_Input>& ColData);
 
-    template<typename ElementType_input>
-    inline bool SetCol(uint64 ColIndex, const std::initializer_list<ElementType_input>& ColData);
+    template<typename ElementType_Input>
+    inline bool SetCol(uint64 ColIndex, const std::initializer_list<ElementType_Input>& ColData);
 
-    template<typename ElementType_input>
-    inline bool SetCol(uint64 ColIndex, const std::vector<ElementType_input>& ColData);
+    template<typename ElementType_Input>
+    inline bool SetCol(uint64 ColIndex, const std::vector<ElementType_Input>& ColData);
 
-	template<typename ElementType_input>
-    inline bool SetCol(uint64 ColIndex, const ElementType_input* ColData, uint64 Length);
+	template<typename ElementType_Input>
+    inline bool SetCol(uint64 ColIndex, const ElementType_Input* ColData, uint64 Length);
 	
     inline bool FillCol(uint64 ColIndex, const ElementType& Element);
 
-    template<typename ElementType_input>
-    inline bool AppendCol(const mdkMatrix<ElementType_input>& ColData);
+    template<typename ElementType_Input>
+    inline bool AppendCol(const mdkMatrix<ElementType_Input>& ColData);
 
-    template<typename ElementType_input>
-    inline bool AppendCol(const std::initializer_list<ElementType_input>& ColData);
+    template<typename ElementType_Input>
+    inline bool AppendCol(const std::initializer_list<ElementType_Input>& ColData);
 
-    template<typename ElementType_input>
-    inline bool AppendCol(const std::vector<ElementType_input>& ColData);
+    template<typename ElementType_Input>
+    inline bool AppendCol(const std::vector<ElementType_Input>& ColData);
 
-	template<typename ElementType_input>
-    inline bool AppendCol(const ElementType_input* ColData, uint64 Length);
+	template<typename ElementType_Input>
+    inline bool AppendCol(const ElementType_Input* ColData, uint64 Length);
 	
     inline bool DeleteCol(uint64 ColIndex);
 
@@ -514,17 +480,17 @@ public:
 
     inline bool DeleteCol(const uint64* ColIndexListPtr, uint64 Length);
 
-    template<typename ElementType_input>
-    inline bool InsertCol(uint64 ColIndex, const mdkMatrix<ElementType_input>& ColData);
+    template<typename ElementType_Input>
+    inline bool InsertCol(uint64 ColIndex, const mdkMatrix<ElementType_Input>& ColData);
 
-    template<typename ElementType_input>
-    inline bool InsertCol(uint64 ColIndex, const std::initializer_list<ElementType_input>& ColData);
+    template<typename ElementType_Input>
+    inline bool InsertCol(uint64 ColIndex, const std::initializer_list<ElementType_Input>& ColData);
 
-    template<typename ElementType_input>
-    inline bool InsertCol(uint64 ColIndex, const std::vector<ElementType_input>& ColData);
+    template<typename ElementType_Input>
+    inline bool InsertCol(uint64 ColIndex, const std::vector<ElementType_Input>& ColData);
 
-    template<typename ElementType_input>
-    inline bool InsertCol(uint64 ColIndex, const ElementType_input* ColData, uint64 Length);
+    template<typename ElementType_Input>
+    inline bool InsertCol(uint64 ColIndex, const ElementType_Input* ColData, uint64 Length);
 
 	//---------------------- Get/Set/Fill/Append/Delete Row  ----------------------------------------//
 	
@@ -540,31 +506,31 @@ public:
 
     inline bool GetRow(uint64 RowIndex, ElementType* RowData) const;
 
-    template<typename ElementType_input>
-    inline bool SetRow(uint64 RowIndex, const mdkMatrix<ElementType_input>& RowData);
+    template<typename ElementType_Input>
+    inline bool SetRow(uint64 RowIndex, const mdkMatrix<ElementType_Input>& RowData);
 
-    template<typename ElementType_input>
-    inline bool SetRow(uint64 RowIndex, const std::initializer_list<ElementType_input>& RowData);
+    template<typename ElementType_Input>
+    inline bool SetRow(uint64 RowIndex, const std::initializer_list<ElementType_Input>& RowData);
 
-    template<typename ElementType_input>
-    inline bool SetRow(uint64 RowIndex, const std::vector<ElementType_input>& RowData);
+    template<typename ElementType_Input>
+    inline bool SetRow(uint64 RowIndex, const std::vector<ElementType_Input>& RowData);
 
-	template<typename ElementType_input>
-    inline bool SetRow(uint64 RowIndex, const ElementType_input* RowData, uint64 Length);
+	template<typename ElementType_Input>
+    inline bool SetRow(uint64 RowIndex, const ElementType_Input* RowData, uint64 Length);
 
     inline bool FillRow(uint64 RowIndex, const ElementType& Element);
 
-    template<typename ElementType_input>
-    inline bool AppendRow(const mdkMatrix<ElementType_input>& RowData);
+    template<typename ElementType_Input>
+    inline bool AppendRow(const mdkMatrix<ElementType_Input>& RowData);
 
-    template<typename ElementType_input>
-    inline bool AppendRow(const std::initializer_list<ElementType_input>& RowData);
+    template<typename ElementType_Input>
+    inline bool AppendRow(const std::initializer_list<ElementType_Input>& RowData);
 
-    template<typename ElementType_input>
-    inline bool AppendRow(const std::vector<ElementType_input>& RowData);
+    template<typename ElementType_Input>
+    inline bool AppendRow(const std::vector<ElementType_Input>& RowData);
 
-	template<typename ElementType_input>
-    inline bool AppendRow(const ElementType_input* RowData, uint64 Length);
+	template<typename ElementType_Input>
+    inline bool AppendRow(const ElementType_Input* RowData, uint64 Length);
 
     inline bool DeleteRow(uint64 RowIndex);
 
@@ -575,17 +541,17 @@ public:
 
     inline bool DeleteRow(const uint64* RowIndexListPtr, uint64 Length);
 
-    template<typename ElementType_input>
-    inline bool InsertRow(uint64 RowIndex, const mdkMatrix<ElementType_input>& RowData);
+    template<typename ElementType_Input>
+    inline bool InsertRow(uint64 RowIndex, const mdkMatrix<ElementType_Input>& RowData);
 
-    template<typename ElementType_input>
-    inline bool InsertRow(uint64 RowIndex, const std::initializer_list<ElementType_input>& RowData);
+    template<typename ElementType_Input>
+    inline bool InsertRow(uint64 RowIndex, const std::initializer_list<ElementType_Input>& RowData);
 
-    template<typename ElementType_input>
-    inline bool InsertRow(uint64 RowIndex, const std::vector<ElementType_input>& RowData);
+    template<typename ElementType_Input>
+    inline bool InsertRow(uint64 RowIndex, const std::vector<ElementType_Input>& RowData);
 
-    template<typename ElementType_input>
-    inline bool InsertRow(uint64 RowIndex, const ElementType_input* RowData, uint64 Length);
+    template<typename ElementType_Input>
+    inline bool InsertRow(uint64 RowIndex, const ElementType_Input* RowData, uint64 Length);
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 
@@ -597,29 +563,29 @@ public:
 
     inline bool GetDiangonal(ElementType* DiangonalData) const;
 
-    template<typename ElementType_input>
-    inline bool SetDiangonal(const mdkMatrix<ElementType_input>& DiangonalData);
+    template<typename ElementType_Input>
+    inline bool SetDiangonal(const mdkMatrix<ElementType_Input>& DiangonalData);
 
-    template<typename ElementType_input>
-    inline bool SetDiangonal(const std::initializer_list<ElementType_input>& DiangonalData);
+    template<typename ElementType_Input>
+    inline bool SetDiangonal(const std::initializer_list<ElementType_Input>& DiangonalData);
 
-    template<typename ElementType_input>
-    inline bool SetDiangonal(const std::vector<ElementType_input>& DiangonalData);
+    template<typename ElementType_Input>
+    inline bool SetDiangonal(const std::vector<ElementType_Input>& DiangonalData);
 
-	template<typename ElementType_input>
-	inline bool SetDiangonal(const ElementType_input* DiangonalData);
+	template<typename ElementType_Input>
+	inline bool SetDiangonal(const ElementType_Input* DiangonalData);
 
     inline bool FillDiangonal(const ElementType& Element);
 
 	//---------------------- Matrix {+= -= *= /=} Matrix ----------------------------------------//
 
-	inline void operator+=(const mdkMatrix<ElementType>& targetMatrix);
+	inline void operator+=(const mdkMatrix<ElementType>& InputMatrix);
 
-	inline void operator-=(const mdkMatrix<ElementType>& targetMatrix);
+	inline void operator-=(const mdkMatrix<ElementType>& InputMatrix);
 
-	inline void operator*=(const mdkMatrix<ElementType>& targetMatrix);
+	inline void operator*=(const mdkMatrix<ElementType>& InputMatrix);
 
-	inline void operator/=(const mdkMatrix<ElementType>& targetMatrix);
+	inline void operator/=(const mdkMatrix<ElementType>& InputMatrix);
 
 
     inline void operator+=(const mdkShadowMatrix<ElementType>& ShadowMatrix);
@@ -651,8 +617,8 @@ public:
     //---------------------- Matrix {+= -= *= /=} Element ----------------------------------------//
 
 	// error:
-	//template<typename ElementType_target>
-	//inline void operator+(ElementType_target Element);
+	//template<typename ElementType_Input>
+	//inline void operator+(ElementType_Input Element);
 
     inline void operator+=(const ElementType& Element);
 
@@ -670,7 +636,7 @@ public:
 
     //-------------------- special element operation : (.*) element multiply -----------------------------------------------------------//
 
-    inline mdkMatrix ElementMultiply(const mdkMatrix<ElementType>& targetMatrix);
+    inline mdkMatrix ElementMultiply(const mdkMatrix<ElementType>& InputMatrix);
 
     inline mdkMatrix ElementMultiply(const ElementType& Element);
 
@@ -688,10 +654,10 @@ public:
 
     inline mdkMatrix ElementOperation(std::function<ElementType(const ElementType&)> Operation) const;
 
-    inline mdkMatrix ElementOperation(const std::string& OperationName, const mdkMatrix<ElementType>& targetMatrix) const;
+    inline mdkMatrix ElementOperation(const std::string& OperationName, const mdkMatrix<ElementType>& InputMatrix) const;
 
     inline mdkMatrix ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, 
-                                      const mdkMatrix<ElementType>& targetMatrix) const;
+                                      const mdkMatrix<ElementType>& InputMatrix) const;
 
     inline mdkMatrix ElementOperation(const char* OperationName, const ElementType& Element) const;
 
@@ -707,12 +673,12 @@ public:
 
     inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&)> Operation);
 
-    inline bool ElementOperationInPlace(const char* OperationName, const mdkMatrix<ElementType>& targetMatrix);
+    inline bool ElementOperationInPlace(const char* OperationName, const mdkMatrix<ElementType>& InputMatrix);
 
-    inline bool ElementOperationInPlace(const std::string& OperationName, const mdkMatrix<ElementType>& targetMatrix);
+    inline bool ElementOperationInPlace(const std::string& OperationName, const mdkMatrix<ElementType>& InputMatrix);
 
     inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
-                                        const mdkMatrix<ElementType>& targetMatrix);
+                                        const mdkMatrix<ElementType>& InputMatrix);
 
     inline bool ElementOperationInPlace(const char* OperationName, const ElementType& Element);
 
@@ -770,6 +736,58 @@ public:
 private:
 
 };
+
+//============================================= For Reference ===================================================//
+/*
+// ------------------------------------ Matrix {+ - * /}  Matrix ------------------------------------------------//
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB);
+
+// ------------------------------------ Matrix {+ - * /}  Element ------------------------------------------------//
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator+(mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator-(mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator*(mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator/(mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB);
+
+// ------------------------------------- Element {+ - * /} Matrix ------------------------------------------------//
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator+(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator-(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator*(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
+
+template<typename ElementType>
+inline mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB);
+
+// ----------------------- Element = Matrix (if 1x1) is not allowed in c++ --------------------------------------------//
+// not allowed in c++
+//template<typename ElementType>
+//inline void operator=(ElementType& Element, const mdkMatrix<ElementType>& Matrix);
+*/
+//=====================================================================================================================//
+
 
 }//end namespace mdk
 

@@ -27,7 +27,7 @@ mdkGlueMatrixForLinearCombination<ElementType>::mdkGlueMatrixForLinearCombinatio
 
     m_ColNumber = GlueMatrix.m_ColNumber;
 
-    m_SourceMatrixShallowCopyList = std::move(GlueMatrix.m_SourceMatrixShallowCopyList);
+    m_SharedSourceMatrixList = std::move(GlueMatrix.m_SharedSourceMatrixList);
 
     m_ElementList_Coef = std::move(GlueMatrix.m_ElementList_Coef);
 
@@ -54,9 +54,9 @@ inline void mdkGlueMatrixForLinearCombination<ElementType>::Reset()
 
     m_ColNumber = 0;
 
-    m_SourceMatrixShallowCopyList.resize(0);
+    m_SharedSourceMatrixList.resize(0);
 
-    m_SourceMatrixShallowCopyList.reserve(MDK_GlueMatrixForLinearCombination_ReservedCapacity);
+    m_SharedSourceMatrixList.reserve(MDK_GlueMatrixForLinearCombination_ReservedCapacity);
 
     m_ElementList_Coef.resize(0);
 
@@ -100,7 +100,7 @@ template<typename ElementType>
 inline
 uint64 mdkGlueMatrixForLinearCombination<ElementType>::GetMatrixNumber() const
 {
-    return m_SourceMatrixShallowCopyList.size();
+    return m_SharedSourceMatrixList.size();
 }
 
 
@@ -149,7 +149,7 @@ bool mdkGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkMatrix<Elem
         }
     }
 
-    auto MatrixNumber = m_SourceMatrixShallowCopyList.size();
+    auto MatrixNumber = m_SharedSourceMatrixList.size();
 
     if (MatrixNumber == 0)
     {
@@ -161,7 +161,7 @@ bool mdkGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkMatrix<Elem
 
     for (uint64 k = 0; k < MatrixNumber; ++k)
     {
-        MatrixPtrList[k] = &m_SourceMatrixShallowCopyList[k];
+        MatrixPtrList[k] = &m_SharedSourceMatrixList[k];
     }
 
     return MatrixLinearCombine(OutputMatrix, m_ElementList_Coef, MatrixPtrList, m_IndependentElement);

@@ -111,7 +111,7 @@ mdkMatrix<ElementType> MatrixInv(const mdkMatrix<ElementType>& Matrix)
 
     tempMatrix.Resize(RowNumber, ColNumber);
 
-    auto ptrData = Matrix.GetElementDataSharedPointer()->data();
+    auto ptrData = const_cast<ElementType*>(Matrix.GetElementPointer());
 
     // call Armadillo 
 
@@ -297,7 +297,7 @@ mdkMatrixSVDResult<ElementType> MatrixSVD(const mdkMatrix<ElementType>& Matrix)
     Result.S.Resize(RowNumber, ColNumber);
     Result.V.Resize(RowNumber, ColNumber);
 
-    auto ptrData = Matrix.GetElementDataSharedPointer()->data();
+    auto ptrData = const_cast<ElementType*>(Matrix.GetElementPointer());
 
     // call Armadillo 
 

@@ -38,7 +38,7 @@ private:
 
     uint64 m_ColNumber;
 
-    std::vector<mdkMatrix<ElementType>> m_SourceMatrixShallowCopyList;
+    std::vector<mdkMatrix<ElementType>> m_SharedSourceMatrixList;
 
     ElementType m_Element_Coef;
 
