@@ -980,7 +980,16 @@ template<typename ElementType>
 inline
 ElementType* mdkMatrix<ElementType>::GetElementPointer()
 {
-    return m_ElementPointer;
+    //return m_ElementPointer;
+
+    if (m_CoreData) // m_CoreData != nullptr
+    {
+        return m_CoreData->DataArray.data();
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 
@@ -988,7 +997,16 @@ template<typename ElementType>
 inline
 const ElementType* mdkMatrix<ElementType>::GetElementPointer() const
 {
-    return m_ElementPointer;
+    //return m_ElementPointer;
+
+    if (m_CoreData) // m_CoreData != nullptr
+    {
+        return m_CoreData->DataArray.data();
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 //----------- Get/Set Matrix(LinearIndex) -----------------------------------//
@@ -1011,6 +1029,7 @@ ElementType& mdkMatrix<ElementType>::operator[](uint64 LinearIndex)
 #endif //MDK_DEBUG_Matrix_Operator_CheckBound
 
     return m_ElementPointer[LinearIndex];
+   //return (*m_CoreData)[LinearIndex];
 }
 
 
@@ -1123,8 +1142,9 @@ ElementType& mdkMatrix<ElementType>::operator()(uint64 RowIndex, uint64 ColIndex
 #endif //MDK_DEBUG_Matrix_Operator_CheckBound
 
     auto LinearIndex = ColIndex*m_CoreData->RowNumber + RowIndex;
-
+    
     return m_ElementPointer[LinearIndex];
+
 }
 
 

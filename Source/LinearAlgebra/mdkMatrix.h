@@ -62,12 +62,42 @@ struct mdkMatrixCoreData
     uint64 ColNumber = 0;  // ColNumber = the Number of Columns
 
     std::vector<ElementType> DataArray;
-//-----------------------------------------------------
+//-------------------------------------------------------------
     mdkMatrixCoreData() = default;
 
     ~mdkMatrixCoreData() = default;
 
-//deleted:
+    ElementType& operator[](uint64 LinearIndex)
+    {
+        return DataArray[LinearIndex];
+    }
+
+    const ElementType& operator[](uint64 LinearIndex) const
+    {
+        return DataArray[LinearIndex];
+    }
+
+    ElementType& operator()(uint64 LinearIndex)
+    {
+        return DataArray[LinearIndex];
+    }
+
+    const ElementType& operator()(uint64 LinearIndex) const
+    {
+        return DataArray[LinearIndex];
+    }
+
+    ElementType& operator()(uint64 RowIndex, uint64 ColIndex)
+    {
+        return DataArray[ColIndex*RowNumber + RowIndex];
+    }
+
+    const ElementType& operator()(uint64 RowIndex, uint64 ColIndex) const
+    {
+        return DataArray[ColIndex*RowNumber + RowIndex];
+    }
+
+//deleted: -------------------------------------------------
     mdkMatrixCoreData(const mdkMatrixCoreData&) = delete;
 
     mdkMatrixCoreData(mdkMatrixCoreData&&) = delete;
@@ -111,7 +141,79 @@ static ALL_Symbol_For_mdkMatrix_Operator This_Is_ALL_Symbol_For_mdkMatrix_Operat
 //refer to all the cols or rows, or all the elements
 #define ALL This_Is_ALL_Symbol_For_mdkMatrix_Operator
 
+//-----------------------------------span: e.g., span(1,10) is 1:10, or span(1, 2, 10) is 1:2:10 ----------------------------------------------//
+
+std::vector<uint64> span(uint64 Index_A, uint64 Index_B)
+{
+    std::vector<uint64> IndexList;
+
+    if (Index_A == Index_B)
+    {
+        IndexList.push_back(Index_A);
+    }
+    else if (Index_A < Index_B)
+    {
+        auto Number = Index_B - Index_A + 1;
+
+        IndexList.reserve(Number);
+
+        for (uint64 i = Index_A; i <= Index_B; ++i)
+        {
+            IndexList.push_back(i);
+        }
+    }
+    else // (Index_A > Index_B)
+    {
+        auto Number = Index_A - Index_B + 1;
+        
+        IndexList.reserve(Number);
+
+        for (uint64 i = Index_A; i >= Index_B; --i)
+        {
+            IndexList.push_back(i);
+        }
+    }
+
+    return IndexList;
+}
+
+
+std::vector<uint64> span(uint64 Index_A, int64 Step, uint64 Index_B)
+{
+    std::vector<uint64> IndexList;
+
+    if (Index_A == Index_B && Step == 0)
+    {
+        IndexList.push_back(Index_A);
+    }
+    else if (Index_A < Index_B && Step > 0)
+    {
+        auto Number = Index_B - Index_A + 1;
+
+        IndexList.reserve(Number);
+
+        for (uint64 i = Index_A; i <= Index_B; i += Step)
+        {
+            IndexList.push_back(i);
+        }
+    }
+    else if (Index_A > Index_B && Step < 0)
+    {
+        auto Number = Index_A - Index_B + 1;
+
+        IndexList.reserve(Number);
+
+        for (uint64 i = Index_A; i >= Index_B; i += Step)
+        {
+            IndexList.push_back(i);
+        }
+    }
+
+    return IndexList;
+}
+
 //-----------------------------------------------------------------------------------------------------------------------------//
+
 
 #define MDK_Matrix_ColExpansionStep  100
 
@@ -130,6 +232,8 @@ private:
     ElementType m_NaNElement;
 
 	bool m_IsSizeFixed;
+
+    //bool m_RowNumber_test = 0;
 
 public:
     typedef ElementType  ElementType;
@@ -191,7 +295,7 @@ public:
 
     inline bool Fill(const ElementType& Element);
 
-    //-------------------------- Share ---------------------------------------- //
+    //-------------------------- Share, ForceShare  ------------------------------------------ //
  
     // if m_IsSizeFixed is true, and size does not match, then return false
     
@@ -200,14 +304,47 @@ public:
     inline bool Share(mdkMatrix<ElementType>&& InputMatrix);
 
     // it is used by GlueMatrix
-    // Share the object (InputMatrix) no matter what, even InputMatrix is const
+    // Share the object (InputMatrix) no matter what, even if InputMatrix is const
     inline void ForceShare(const mdkMatrix<ElementType>& InputMatrix);
+  
+    // about const share: i.e., only read (const functions), not write
+    //
+    // note1: if const share of one single object is needed
+    //        just use const reference: 
+    //        const mdkMatrix<ElementType>& = InputMatrix
+    //        const mdkMatrix<ElementType>& = InputFunction()(return InputMatrix) 
+    //
+    // note2: if const share of many objects is needed
+    //        there is no such thing as std::vector<const mdkMatrix<ElementType>&>
+    //        but you can create std::vector<const mdkMatrix<ElementType>*>    
+    //        However,std::vector<const mdkMatrix<ElementType>> may lead to trouble
+    //        std::vector<const mdkMatrix<ElementType>> ConstMatrixArray(1);
+    //        ConstMatrixArray[0].ForceShare(InputMatrix) is illegal (can not be compiled)
+    //        ConstMatrixArray[0] = InputMatrix will call Copy() which is is illegal again
+    //-----------------------------------------------------------------------------------------------------
+    // conclusion: 
+    // (1) An array of shared objects can be created from InputMatrix or InputFunction()
+    //     std::vector<mdkMatrix<ElementType>> SharedMatrixArray(10);
+    //     SharedMatrixArray[i].ForceShare(InputMatrix);
+    //     SharedMatrixArray[i].ForceShare(InputFunction());
+    //
+    // (2) An array of const shared objects can not be created
+    //     std::vector<const mdkMatrix<ElementType>> ConstMatrixArray(10); is useless
+    //
+    // (3) An array of const pointers to shared objects can be created from InputMatrix, NOT InputFunction()
+    //     std::vector<const mdkMatrix<ElementType>*> SharedMatrixPointerArray(10);
+    //     SharedMatrixPointerArray[i] = &InputMatrix;
+    //------------------------------------------------------------------------------------------------------
 
-    //-------------------- Take : the the ownership of the input matrix ---------------------------//
+    //-------------------- Take -----------------------------------------------------------//
+
+    //Take the the ownership of the InputMatrix and ForceClear it
 
     inline bool Take(mdkMatrix<ElementType>& InputMatrix);
 
     inline bool Take(mdkMatrix<ElementType>&& InputMatrix);
+
+    //Take the the ownership of the Matrix Created from ShadowMatrix or GlueMatrix
 
     inline bool Take(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 

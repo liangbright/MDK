@@ -74,7 +74,7 @@ int main()
 
 
     
-    //Test_Constructor();
+    Test_Constructor();
 
    // Test_Destructor();
 
@@ -110,7 +110,7 @@ int main()
 
   //  Test_GlueMatrix_Speed1();
 
-    Test_GlueMatrix_Speed2();
+   // Test_GlueMatrix_Speed2();
 
     //Test_GlueMatrix_Create();
 

@@ -114,6 +114,19 @@ void Test_Constructor()
 
     DisplayMatrix("A", A);
 
+    auto t0 = std::chrono::system_clock::now();
+
+    for (uint64 i = 0; i < 6000000000; ++i)
+    {
+        A[1] *= i;
+    }
+
+    auto t1 = std::chrono::system_clock::now();
+
+    std::chrono::duration<double> raw_time = t1 - t0;
+    std::cout << "A[1] *= i  time " << raw_time.count() << '\n';
+
+
     A(1) = 12;
 
     DisplayMatrix("A", A);
@@ -133,6 +146,18 @@ void Test_Constructor()
     A(1,1) = 3;
 
     DisplayMatrix("A", A);
+
+    t0 = std::chrono::system_clock::now();
+
+    for (uint64 i = 0; i < 6000000000; ++i)
+    {
+        A(1, 1) *= i;
+    }
+
+    t1 = std::chrono::system_clock::now();
+
+    raw_time = t1 - t0;
+    std::cout << "A(1,1) +=1  time " << raw_time.count() << '\n';
 
     A.at(1,1) = 4;
 

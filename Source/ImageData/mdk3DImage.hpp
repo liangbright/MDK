@@ -577,7 +577,7 @@ VoxelType& mdk3DImage<VoxelType>::operator[](uint64 LinearIndex)
 
 #endif //MDK_DEBUG_3DImage_Operator_CheckBound
 
-    return m_VoxelData->operator[](LinearIndex);
+    return (*m_VoxelDataArray)[LinearIndex];
 }
 
 
