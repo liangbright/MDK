@@ -33,9 +33,9 @@ namespace mdk
 
 struct mdk3DImageDimension
 {
-	uint64 Lx;
-	uint64 Ly;
-	uint64 Lz;
+	int64 Lx;
+	int64 Ly;
+	int64 Lz;
 };
 
 struct mdk3DImagePhysicalSize
@@ -65,79 +65,79 @@ typedef enum
     CubicLinear,
 } mdk3DImageInterpolationMethodEnum;
 
-//--------------------------------------------------- mdk3DImageCoreData struct --------------------------------------------//
+//--------------------------------------------------- mdk3DImageCore struct --------------------------------------------//
 
 template<typename VoxelType>
-struct mdk3DImageCoreData
+struct mdk3DImageData
 {
-    uint64 m_ImageDimension[3]; // {Lx, Ly, Lz} number of voxels in each direction
+    int64 ImageDimension[3]; // {Lx, Ly, Lz} number of voxels in each direction
 
-    uint64 m_VoxelNumberPerZSlice; // total number of voxels in each z-slice  = m_ImageSize[2]*m_ImageSize[1]
+    int64 VoxelNumberPerZSlice; // total number of voxels in each z-slice  = m_ImageSize[2]*m_ImageSize[1]
 
-    double m_PhysicalOrigin[3];    // i.e., Origin in ITK, VTK, {x0, y0, z0} in world coordinate system (x,y,z) (unit: mm)
+    double PhysicalOrigin[3];    // i.e., Origin in ITK, VTK, {x0, y0, z0} in world coordinate system (x,y,z) (unit: mm)
 
-    double m_VoxelPhysicalSize[3]; // i.e., Spacing in ITK, VTK
+    double VoxelPhysicalSize[3]; // i.e., Spacing in ITK, VTK
 
-    std::vector<VoxelType> m_DataArray;
+    std::vector<VoxelType> DataArray;
 
 //----------------------------------------------------------------
 
-    inline VoxelType& operator[](uint64 LinearIndex)
+    inline VoxelType& operator[](int64 LinearIndex)
     {
-        return m_DataArray[LinearIndex];
+        return DataArray[LinearIndex];
     }
 
 
-    inline const VoxelType& operator[](uint64 LinearIndex) const
+    inline const VoxelType& operator[](int64 LinearIndex) const
     {
-        return m_DataArray[LinearIndex];
+        return DataArray[LinearIndex];
     }
 
 
-    inline VoxelType& operator()(uint64 LinearIndex)
+    inline VoxelType& operator()(int64 LinearIndex)
     {
-        return m_DataArray[LinearIndex];    
+        return DataArray[LinearIndex];    
     }
 
 
-    inline const VoxelType& operator()(uint64 LinearIndex) const
+    inline const VoxelType& operator()(int64 LinearIndex) const
     {
-        return m_DataArray[LinearIndex];
+        return DataArray[LinearIndex];
     }
    
 
-    inline VoxelType& operator()(uint64 xIndex, uint64 yIndex, uint64 zIndex)
+    inline VoxelType& operator()(int64 xIndex, int64 yIndex, int64 zIndex)
     {
         auto LinearIndex = zIndex*VoxelNumberPerZSlice + yIndex*ImageDimension[0] + xIndex;
  
-        return m_DataArray[LinearIndex];
+        return DataArray[LinearIndex];
     }
 
 
-    inline const VoxelType& operator()(uint64 xIndex, uint64 yIndex, uint64 zIndex) const
+    inline const VoxelType& operator()(int64 xIndex, int64 yIndex, int64 zIndex) const
     {
         auto LinearIndex = zIndex*VoxelNumberPerZSlice + yIndex*ImageDimension[0] + xIndex;
 
-        return m_DataArray[LinearIndex];
+        return DataArray[LinearIndex];
     }
 
 //---------------------------------------------------------------------------------------------
 
-    inline void GetLinearIndexBy3DIndex(uint64* LinearIndex, uint64 xIndex, uint64 yIndex, uint64 zIndex) const
+    inline int64 GetLinearIndexBy3DIndex(int64 xIndex, int64 yIndex, int64 zIndex) const
     {
-        LinearIndex[0] = zIndex*VoxelNumberPerZSlice + yIndex*ImageDimension[0] + xIndex;    
+        return zIndex*VoxelNumberPerZSlice + yIndex*ImageDimension[0] + xIndex;    
     }
 
 
-    inline void Get3DIndexByLinearIndex(uint64 LinearIndex, uint64* xIndex, uint64* yIndex, uint64* zIndex) const
+    inline void Get3DIndexByLinearIndex(int64 LinearIndex, int64* xIndex, int64* yIndex, int64* zIndex) const
     {
         std::lldiv_t divresult;
 
-        divresult = div(LinearIndex, m_VoxelNumberPerZSlice);
+        divresult = div(LinearIndex, VoxelNumberPerZSlice);
 
         zIndex[0] = divresult.quot;
             
-        divresult = div(divresult.rem, m_ImageDimension[0]);
+        divresult = div(divresult.rem, ImageDimension[0]);
 
         yIndex[0] = divresult.quot;
 
@@ -145,7 +145,7 @@ struct mdk3DImageCoreData
     }
 
 
-    inline void Get3DPositionByLinearIndex(uint64 LinearIndex, double* x, double* y, double* z) const
+    inline void Get3DPositionByLinearIndex(int64 LinearIndex, double* x, double* y, double* z) const
     {       
         std::lldiv_t divresult;
 
@@ -153,27 +153,27 @@ struct mdk3DImageCoreData
 
         z[0] = divresult.quot;
    
-        divresult = div(divresult.rem, m_ImageDimension[0]);
+        divresult = div(divresult.rem, ImageDimension[0]);
 
         y[0] = divresult.quot;
       
         x[0] = divresult.rem;
 
-        x[0] = m_PhysicalOrigin[0] + x[0] * m_VoxelPhysicalSize[0];    
+        x[0] = PhysicalOrigin[0] + x[0] * VoxelPhysicalSize[0];    
 
-        y[0] = m_PhysicalOrigin[0] + y[0] * m_VoxelPhysicalSize[1];
+        y[0] = PhysicalOrigin[0] + y[0] * VoxelPhysicalSize[1];
 
-        z[0] = m_PhysicalOrigin[0] + z[0] * m_VoxelPhysicalSize[2];
+        z[0] = PhysicalOrigin[0] + z[0] * VoxelPhysicalSize[2];
     }
 
 
-    inline void Get3DPositionBy3DIndex(uint64 xIndex, uint64 yIndex, uint64 zIndex, double* x, double* y, double* z) const
+    inline void Get3DPositionBy3DIndex(int64 xIndex, int64 yIndex, int64 zIndex, double* x, double* y, double* z) const
     {
-        x[0] = m_PhysicalOrigin[0] + double(xIndex) * m_VoxelPhysicalSize[0];
+        x[0] = PhysicalOrigin[0] + double(xIndex) * VoxelPhysicalSize[0];
 
-        y[0] = m_PhysicalOrigin[0] + double(yIndex) * m_VoxelPhysicalSize[1];
+        y[0] = PhysicalOrigin[0] + double(yIndex) * VoxelPhysicalSize[1];
 
-        z[0] = m_PhysicalOrigin[0] + double(zIndex) * m_VoxelPhysicalSize[2];
+        z[0] = PhysicalOrigin[0] + double(zIndex) * VoxelPhysicalSize[2];
     }
 };
 
@@ -182,12 +182,15 @@ struct mdk3DImageCoreData
 template<typename VoxelType>
 class mdk3DImage : public mdkObject
 {
-
 private:
 
-    mdk3DImageCoreData<VoxelType> m_CoreData;
+    std::shared_ptr<mdk3DImageData<VoxelType>> m_ImageData;
 
-    VoxelType* m_VoxelPinter;
+    VoxelType* m_VoxelPinter;      // keep tracking m_ImageData.DataArray.data()
+
+    int64 m_ImageDimension[3];    // keep tracking m_ImageData.ImageDimension[0] [1] and [2]
+
+    int64 m_VoxelNumberPerZSlice; // keep tracking m_ImageData.m_VoxelNumberPerZSlice
 
 	VoxelType m_ZeroVoxel;
 
@@ -197,27 +200,37 @@ public:
 	
 	mdk3DImage();
 
-	mdk3DImage(const mdk3DImage<VoxelType>& targetImage) = delete;
+	mdk3DImage(const mdk3DImage<VoxelType>& InputImage) = delete;
 
-    mdk3DImage(mdk3DImage<VoxelType>&& targetImage);
+    mdk3DImage(mdk3DImage<VoxelType>&& InputImage);
 
 	~mdk3DImage();
 
-    void operator=(const mdk3DImage<VoxelType>& targetImage);
+    void operator=(const mdk3DImage<VoxelType>& InputImage);
 
-    void operator=(mdk3DImage<VoxelType>&& targetImage);
+    void operator=(mdk3DImage<VoxelType>&& InputImage);
 
     //---------------------------------------------------------//
 
-    void Copy(const mdk3DImage<VoxelType>& targetImage);
+    bol Copy(const mdk3DImage<VoxelType>& InputImage);
 
-    void Copy(const VoxelType* VoxelPointer, uint64 Lx, uint64 Ly, uint64 Lz = 1);
+    bool CopyData(const VoxelType* InputVoxelPointer, int64 Lx, int64 Ly, int64 Lz = 1);
 
-    void Share(mdk3DImage<VoxelType>& targetImage);
+    inline bool Fill(const VoxelType& Voxel);
 
-    void Take(mdk3DImage<VoxelType>&& targetImage);
+    //---------------------------------------------------------//
 
-    void Take(mdk3DImage<VoxelType>& targetImage);
+    void Share(mdk3DImage<VoxelType>& InputImage);
+
+    void Share(mdk3DImage<VoxelType>&& InputImage);
+
+    void ForceShare(const mdk3DImage<VoxelType>& InputImage);
+
+    //---------------------------------------------------------//
+
+    void Take(mdk3DImage<VoxelType>&& InputImage);
+
+    void Take(mdk3DImage<VoxelType>& InputImage);
 
     //-----------------------------------------------------------------//
 
@@ -227,7 +240,7 @@ public:
 
     //-----------------------------------------------------------------//
 
-    bool Initialize(uint64 Lx, uint64 Ly, uint64 Lz = 1,
+    bool Initialize(int64 Lx, int64 Ly, int64 Lz = 1,
 		            double PhysicalOrigin_x = 0.0,
 		            double PhysicalOrigin_y = 0.0,
 		            double PhysicalOrigin_z = 0.0,
@@ -235,91 +248,79 @@ public:
 		            double VoxelPhysicalSize_y = 1.0,
 		            double VoxelPhysicalSize_z = 1.0);
 
-    inline bool Fill(const VoxelType& Voxel);
-
 	inline bool IsEmpty() const;
 
     inline VoxelType* GetVoxelPointer();
 
     inline const VoxelType* GetVoxelPointer() const;
 
-    // ------------------------ Get/Set ImageInfo ------------------------------------------------------------------------//
+    //--------------------------- Get/Set ZeroVoxel ------------------------------//
 
-    inline mdk3DImageDimension GetImageDimension() const;
-
-    inline void GetImageDimension(uint64* Lx, uint64* Ly, uint64* Lz = nullptr) const;
-
-    inline mdk3DImagePhysicalSize GetImagePhysicalSize() const;
-
-    inline void GetImagePhysicalSize(double* PhysicalSize_x, double* PhysicalSize_y, double* PhysicalSize_z = nullptr) const;
-
-	void SetPhysicalOrigin(double PhysicalOrigin_x, double PhysicalOrigin_y, double PhysicalOrigin_z = 0.0);
-
-    inline mdk3DImagePhysicalOrigin GetPhysicalOrigin() const;
-
-    inline void GetPhysicalOrigin(double* PhysicalOrigin_x, double* PhysicalOrigin_y, double* PhysicalOrigin_z = nullptr) const;
-
-	void SetVoxelPhysicalSize(double VoxelPhysicalSize_x, double VoxelPhysicalSize_y, double VoxelPhysicalSize_z = 1.0);
-
-    inline mdk3DImageVoxelPhysicalSize GetVoxelPhysicalSize() const;
-
-    inline void GetVoxelPhysicalSize(double* VoxelPhysicalSize_x, double* VoxelPhysicalSize_y, double* VoxelPhysicalSize_z = nullptr) const;
-
-    // ------------------------ Index and Position ------------------------------------------------------------------------//
-
-	inline void GetLinearIndexBy3DIndex(uint64* LinearIndex, uint64 xIndex, uint64 yIndex, uint64 zIndex = 0) const;
-
-	inline void Get3DIndexByLinearIndex(uint64 LinearIndex, uint64* xIndex, uint64* yIndex, uint64* zIndex = nullptr) const;
-
-    inline void Get3DPositionByLinearIndex(uint64 LinearIndex, double* x, double* y, double* z = nullptr) const;
-
-    inline void Get3DPositionBy3DIndex(uint64 xIndex, uint64 yIndex, uint64 zIndex, double* x, double* y, double* z = nullptr) const;
-
-	//--------------------------- Get/Set ZeroVoxel ------------------------------//
-
-    inline void SetZeroVoxel(VoxelType EmptyVoxel);
+    inline void SetZeroVoxel(VoxelType ZeroVoxel);
 
     inline const VoxelType& GetZeroVoxel() const;
 
+    // ------------------------ Get ImageInfo ------------------------------------------------------------------------//
+
+    inline mdk3DImageDimension GetImageDimension() const;
+
+    inline mdk3DImagePhysicalSize GetImagePhysicalSize() const;
+
+    inline mdk3DImagePhysicalOrigin GetPhysicalOrigin() const;
+
+    inline mdk3DImageVoxelPhysicalSize GetVoxelPhysicalSize() const;
+
+    inline int64 GetVoxelNumber() const;
+
+    // ------------------------ Index and Position ------------------------------------------------------------------------//
+
+	inline int64 GetLinearIndexBy3DIndex(int64 xIndex, int64 yIndex, int64 zIndex = 0) const;
+
+	inline void Get3DIndexByLinearIndex(int64 LinearIndex, int64* xIndex, int64* yIndex, int64* zIndex) const;
+
+    inline void Get3DPositionByLinearIndex(int64 LinearIndex, double* x, double* y, double* z) const;
+
+    inline void Get3DPositionBy3DIndex(int64 xIndex, int64 yIndex, int64 zIndex, double* x, double* y, double* z) const;
+
 	//--------------------------- Get/Set Voxel      ------------------------------//
 
-    inline VoxelType& operator[](uint64 LinearIndex);
+    inline VoxelType& operator[](int64 LinearIndex);
 
-    inline const VoxelType& operator[](uint64 LinearIndex) const;
+    inline const VoxelType& operator[](int64 LinearIndex) const;
 
-	inline VoxelType& operator()(uint64 LinearIndex);
+	inline VoxelType& operator()(int64 LinearIndex);
 
-	inline const VoxelType& operator()(uint64 LinearIndex) const;
+	inline const VoxelType& operator()(int64 LinearIndex) const;
 
-	inline VoxelType& operator()(uint64 xIndex, uint64 yIndex, uint64 zIndex = 0);
+	inline VoxelType& operator()(int64 xIndex, int64 yIndex, int64 zIndex = 0);
 
-	inline const VoxelType& operator()(uint64 xIndex, uint64 yIndex, uint64 zIndex = 0) const;
+	inline const VoxelType& operator()(int64 xIndex, int64 yIndex, int64 zIndex = 0) const;
 
-	inline VoxelType& at(uint64 LinearIndex);
+	inline VoxelType& at(int64 LinearIndex);
 
-	inline const VoxelType& at(uint64 LinearIndex) const;
+	inline const VoxelType& at(int64 LinearIndex) const;
 
-	inline VoxelType& at(uint64 xIndex, uint64 yIndex, uint64 zIndex = 0);
+	inline VoxelType& at(int64 xIndex, int64 yIndex, int64 zIndex = 0);
 
-	inline const VoxelType& at(uint64 xIndex, uint64 yIndex, uint64 zIndex =0) const;
+	inline const VoxelType& at(int64 xIndex, int64 yIndex, int64 zIndex =0) const;
 
 	//-------------------------- Get SubImage -------------------------------//
 
-    mdk3DImage GetSubImage(uint64 xIndex_s, uint64 xIndex_e, uint64 yIndex_s, uint64 yIndex_e, uint64 zIndex_s = 0, uint64 zIndex_e = 0) const;
+    mdk3DImage GetSubImage(int64 xIndex_s, int64 xIndex_e, int64 yIndex_s, int64 yIndex_e, int64 zIndex_s = 0, int64 zIndex_e = 0) const;
 
 	//-------------------------- Pad, UnPad -------------------------------//
 
-    mdk3DImage  Pad(const char* Option, uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0) const;
+    mdk3DImage  Pad(const char* Option, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const;
 
-    mdk3DImage  Pad(VoxelType Voxel, uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0) const;
+    mdk3DImage  Pad(VoxelType Voxel, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const;
 
-    mdk3DImage  UnPad(uint64 Pad_Lx, uint64 Pad_Ly, uint64 Pad_Lz = 0) const;
+    mdk3DImage  UnPad(int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const;
 
 	//------------------------- Get LinearIndex In Region -------------------//
 
-    mdkMatrix<uint64> GetLinearIndexListOfRegion(uint64 xIndex_s,     uint64 Region_Lx,
-		                                         uint64 yIndex_s,     uint64 Region_Ly,
-                                                 uint64 zIndex_s = 0, uint64 Region_Lz = 0) const;
+    mdkMatrix<int64> GetLinearIndexListOfRegion(int64 xIndex_s,     int64 Region_Lx,
+		                                         int64 yIndex_s,     int64 Region_Ly,
+                                                 int64 zIndex_s = 0, int64 Region_Lz = 0) const;
 
     //-------------------------- Sum, Mean, Max, Min -------------------------------//
 
@@ -333,8 +334,8 @@ public:
 
     //-------------------------- Interpolation at 3D Position (x, y, z)-------------------------------//
 
-    inline VoxelType At3DPosition(double x, double y, double z, 
-                                  mdk3DImageInterpolationMethodEnum Method = mdk3DImageInterpolationMethodEnum::NearestNeighbor) const;
+    inline VoxelType InterpolateAt3DPosition(double x, double y, double z,
+                                             mdk3DImageInterpolationMethodEnum Method = mdk3DImageInterpolationMethodEnum::NearestNeighbor) const;
 
 };
 

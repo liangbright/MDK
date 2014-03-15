@@ -22,9 +22,9 @@ private:
 
     bool CheckInput();
 
-    void Compute2DIntegralImage(uint64 z_Index_start, uint64 z_Index_end);
+    void Compute2DIntegralImage(int64 z_Index_start, int64 z_Index_end);
 
-    void ComputeSumInZDirection(uint64 xy_LinearIndex_start, uint64 xy_LinearIndex_end);
+    void ComputeSumInZDirection(int64 xy_LinearIndex_start, int64 xy_LinearIndex_end);
 
 private:
     mdk3DIntegralImageBuilder(const mdk3DIntegralImageBuilder&); // Not implemented.

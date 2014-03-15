@@ -34,9 +34,9 @@ class mdkGlueMatrixForMultiplication : public mdkObject
 {
 private:
 
-    uint64 m_RowNumber;
+    int64 m_RowNumber;
 
-    uint64 m_ColNumber;
+    int64 m_ColNumber;
 
     std::vector<mdkMatrix<ElementType>> m_SharedSourceMatrixList;
 
@@ -61,15 +61,15 @@ public:
 private:
     inline void Reset();
 
-    inline uint64 GetRowNumber() const;
+    inline int64 GetRowNumber() const;
 
-    inline uint64 GetColNumber() const;
+    inline int64 GetColNumber() const;
 
-    inline uint64 GetElementNumber() const;
+    inline int64 GetElementNumber() const;
 
     inline mdkMatrixSize GetSize() const;
 
-    inline uint64 GetMatrixNumber() const;
+    inline int64 GetMatrixNumber() const;
 
     inline bool IsEmpty() const;
 

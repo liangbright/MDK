@@ -80,7 +80,7 @@ bool MatrixAdd(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementTyp
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrC[i] = ptrA[i] + ptrB[i];
     }
@@ -156,7 +156,7 @@ bool MatrixSubtract(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrC[i] = ptrA[i] - ptrB[i];
     }
@@ -268,17 +268,17 @@ bool MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
 
     //--------------------- for-loop : slow ------------------------------------------------------------------------------------
 
-    uint64 IndexB = 0;
+    int64 IndexB = 0;
 
-    for (uint64 j = 0; j < SizeB.ColNumber; ++j)
+    for (int64 j = 0; j < SizeB.ColNumber; ++j)
     {
-        for (uint64 i = 0; i < SizeA.RowNumber; ++i)
+        for (int64 i = 0; i < SizeA.RowNumber; ++i)
         {
             ElementType sum = ElementType(0);
 
-            uint64 IndexA = 0;
+            int64 IndexA = 0;
 
-            for (uint64 k = 0; k < SizeA.ColNumber; ++k)
+            for (int64 k = 0; k < SizeA.ColNumber; ++k)
             {
                 //sum += MatrixA(i,k) * MatrixB(k,j);
                 //sum += ptrA[k*SizeA.RowNumber + i] * ptrB[j*SizeB.RowNumber + k];
@@ -371,7 +371,7 @@ bool MatrixElementMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatri
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrC[i] = ptrA[i] * ptrB[i];
     }
@@ -447,7 +447,7 @@ bool MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrC[i] = ptrA[i] / ptrB[i];
     }
@@ -514,7 +514,7 @@ bool MatrixAdd(mdkMatrix<ElementType>& OutputMatrixC, const ElementType& Element
     }
     else
     {
-        for (uint64 i = 0; i < ElementNumber; ++i)
+        for (int64 i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ElementA + ptrB[i];
         }
@@ -580,7 +580,7 @@ void MatrixSubtract(mdkMatrix<ElementType> OutputMatrixC, const ElementType& Ele
     }
     else
     {
-        for (uint64 i = 0; i < ElementNumber; ++i)
+        for (int64 i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ElementA - ptrB[i];
         }
@@ -646,7 +646,7 @@ bool MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const ElementType& El
     }
     else
     {
-        for (uint64 i = 0; i < ElementNumber; ++i)
+        for (int64 i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ElementA * ptrB[i];
         }
@@ -732,7 +732,7 @@ void MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const ElementTyp
     }
     else
     {
-        for (uint64 i = 0; i < ElementNumber; ++i)
+        for (int64 i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ElementA / ptrB[i];
         }
@@ -799,7 +799,7 @@ bool MatrixAdd(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<ElementTyp
     }
     else
     {
-        for (uint64 i = 0; i < ElementNumber; ++i)
+        for (int64 i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ptrA[i] + ElementB;
         }
@@ -865,7 +865,7 @@ void MatrixSubtract(mdkMatrix<ElementType> OutputMatrixC, const mdkMatrix<Elemen
     }
     else
     {
-        for (uint64 i = 0; i < ElementNumber; ++i)
+        for (int64 i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ptrA[i] - ElementB;
         }
@@ -933,7 +933,7 @@ bool MatrixMultiply(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<Eleme
     }
     else
     {
-        for (uint64 i = 0; i < ElementNumber; ++i)
+        for (int64 i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ptrA[i] * ElementB;
         }
@@ -1019,7 +1019,7 @@ void MatrixElementDivide(mdkMatrix<ElementType>& OutputMatrixC, const mdkMatrix<
     }
     else
     {
-        for (uint64 i = 0; i < ElementNumber; ++i)
+        for (int64 i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ptrA[i] / ElementB;
         }
@@ -1150,7 +1150,7 @@ bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrix,
     }
     else
     {
-        for (uint64 i = 0; i < ElementNumber; ++i)
+        for (int64 i = 0; i < ElementNumber; ++i)
         {
             ptrOutput[i] = Operation(ptrOutput[i]);
         }
@@ -1315,16 +1315,16 @@ bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrixC,
     {
         auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-        for (uint64 i = 0; i < ElementNumber; ++i)
+        for (int64 i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = Operation(ptrA[i], ptrB[i]);
         }
     }
     else if (Flag_col == 1)
     {
-        for (uint64 j = 0; j < SizeA.ColNumber; ++j)
+        for (int64 j = 0; j < SizeA.ColNumber; ++j)
         {
-            for (uint64 i = 0; i < SizeA.RowNumber; ++i)
+            for (int64 i = 0; i < SizeA.RowNumber; ++i)
             {
                 ptrC[0] = Operation(ptrA[0], ptrB[i]);
 
@@ -1335,11 +1335,11 @@ bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrixC,
     }
     else if (Flag_row == 1)
     {
-        for (uint64 i = 0; i < SizeA.RowNumber; ++i)
+        for (int64 i = 0; i < SizeA.RowNumber; ++i)
         {
-            uint64 tempIndex = 0;
+            int64 tempIndex = 0;
 
-            for (uint64 j = 0; j < SizeA.ColNumber; ++j)
+            for (int64 j = 0; j < SizeA.ColNumber; ++j)
             {
                 ptrC[tempIndex + i] = Operation(ptrA[tempIndex + i], ptrB[i]);
 
@@ -1482,7 +1482,7 @@ bool MatrixElementOperation(mdkMatrix<ElementType>& OutputMatrixC,
     }
     else
     {
-        for (uint64 i = 0; i < ElementNumber; ++i)
+        for (int64 i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = Operation(ptrC[i], InputElementB);
         }
@@ -1517,9 +1517,9 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix,
                          const std::vector<const mdkMatrix<ElementType>*>& MatrixPtrList,
                          const ElementType& IndependentElement)
 {
-    auto MatrixNumber = MatrixPtrList.size();
+    auto MatrixNumber = int64(MatrixPtrList.size());
 
-    auto CoefNumber = CoefList.size();
+    auto CoefNumber = int64(CoefList.size());
 
     if (MatrixNumber != CoefNumber)
     {
@@ -1535,7 +1535,7 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix,
 
     auto Size = MatrixPtrList[0]->GetSize();
 
-    for (uint64 k = 1; k < MatrixPtrList.size(); ++k)
+    for (int64 k = 1; k < int64(MatrixPtrList.size()); ++k)
     {
         if (Size.RowNumber != MatrixPtrList[k]->GetRowNumber() || Size.ColNumber != MatrixPtrList[k]->GetColNumber())
         {
@@ -1566,7 +1566,7 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix,
 
     std::vector<const ElementType*> MatrixElementDataRawPtrList(MatrixNumber);
 
-    for (uint64 k = 0; k < MatrixNumber; ++k)
+    for (int64 k = 0; k < MatrixNumber; ++k)
     {
         MatrixElementDataRawPtrList[k] = MatrixPtrList[k]->GetElementPointer();
     }
@@ -1623,18 +1623,18 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix,
 
         auto RawPtr_0 = MatrixElementDataRawPtrList[0];
 
-        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
         {
             PointerToOutput[LinearIndex] = IndependentElement + Coef_0 * RawPtr_0[LinearIndex];
         }
 
-        for (uint64 k = 1; k < MatrixNumber; ++k)
+        for (int64 k = 1; k < MatrixNumber; ++k)
         {
             auto Coef_k = CoefList[k];
 
             auto RawPtr_k = MatrixElementDataRawPtrList[k];
 
-            for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+            for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
             {
                 PointerToOutput[LinearIndex] += Coef_k * RawPtr_k[LinearIndex];
             }
@@ -1644,11 +1644,11 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix,
 
         // for-loop #2:
         /*
-        for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
         {
             ElementType tempElement = IndependentElement;
 
-            for (uint64 k = 0; k < MatrixNumber; ++k)
+            for (int64 k = 0; k < MatrixNumber; ++k)
             {
                 tempElement += CoefRawPtr[k] * MatrixElementDataRawPtrList[k][LinearIndex];
             }
@@ -1666,12 +1666,12 @@ bool MatrixLinearCombine(mdkMatrix<ElementType>& OutputMatrix,
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_1(ElementType* Output, uint64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_1(ElementType* Output, int64 ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
                                         const ElementType& IndependentElement)
 {
-    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement + CoefList[0] * MatrixElementDataRawPtrList[0][LinearIndex];
     }
@@ -1680,12 +1680,12 @@ void MatrixLinearCombine_MatrixNumber_1(ElementType* Output, uint64 ElementNumbe
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_2(ElementType* Output, uint64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_2(ElementType* Output, int64 ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
                                         const ElementType& IndependentElement)
 {
-    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementDataRawPtrList[0][LinearIndex]
@@ -1696,12 +1696,12 @@ void MatrixLinearCombine_MatrixNumber_2(ElementType* Output, uint64 ElementNumbe
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_3(ElementType* Output, uint64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_3(ElementType* Output, int64 ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
                                         const ElementType& IndependentElement)
 {
-    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementDataRawPtrList[0][LinearIndex]
@@ -1714,12 +1714,12 @@ void MatrixLinearCombine_MatrixNumber_3(ElementType* Output, uint64 ElementNumbe
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_4(ElementType* Output, uint64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_4(ElementType* Output, int64 ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
                                         const ElementType& IndependentElement)
 {
-    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement 
                              + CoefList[0] * MatrixElementDataRawPtrList[0][LinearIndex]
@@ -1732,12 +1732,12 @@ void MatrixLinearCombine_MatrixNumber_4(ElementType* Output, uint64 ElementNumbe
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_5(ElementType* Output, uint64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_5(ElementType* Output, int64 ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
                                         const ElementType& IndependentElement)
 {
-    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementDataRawPtrList[0][LinearIndex]
@@ -1751,12 +1751,12 @@ void MatrixLinearCombine_MatrixNumber_5(ElementType* Output, uint64 ElementNumbe
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_6(ElementType* Output, uint64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_6(ElementType* Output, int64 ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
                                         const ElementType& IndependentElement)
 {
-    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementDataRawPtrList[0][LinearIndex]
@@ -1771,12 +1771,12 @@ void MatrixLinearCombine_MatrixNumber_6(ElementType* Output, uint64 ElementNumbe
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_7(ElementType* Output, uint64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_7(ElementType* Output, int64 ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
                                         const ElementType& IndependentElement)
 {
-    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementDataRawPtrList[0][LinearIndex]
@@ -1792,12 +1792,12 @@ void MatrixLinearCombine_MatrixNumber_7(ElementType* Output, uint64 ElementNumbe
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_8(ElementType* Output, uint64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_8(ElementType* Output, int64 ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
                                         const ElementType& IndependentElement)
 {
-    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementDataRawPtrList[0][LinearIndex]
@@ -1814,12 +1814,12 @@ void MatrixLinearCombine_MatrixNumber_8(ElementType* Output, uint64 ElementNumbe
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_9(ElementType* Output, uint64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_9(ElementType* Output, int64 ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
                                         const ElementType& IndependentElement)
 {
-    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementDataRawPtrList[0][LinearIndex]
@@ -1837,12 +1837,12 @@ void MatrixLinearCombine_MatrixNumber_9(ElementType* Output, uint64 ElementNumbe
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_10(ElementType* Output, uint64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_10(ElementType* Output, int64 ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementDataRawPtrList,
                                         const ElementType& IndependentElement)
 {
-    for (uint64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementDataRawPtrList[0][LinearIndex]

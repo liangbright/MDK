@@ -38,7 +38,7 @@ mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatri
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkWarning << "ShadowMatrixA or MatrixB is empty @ mdkMatrixOperator: +(ShadowMatrixA, MatrixB)" << '\n';
         return  tempMatrix;
@@ -54,7 +54,7 @@ mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] + ptrB[i];
     }
@@ -89,7 +89,7 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkWarning << "ShadowMatrixA or MatrixB is empty @ mdkMatrixOperator: -(ShadowMatrixA, MatrixB)" << '\n';
         return  tempMatrix;
@@ -105,7 +105,7 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] - ptrB[i];
     }
@@ -147,7 +147,7 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkWarning << "ShadowMatrixA or MatrixB is empty @ mdkMatrixOperator: /(ShadowMatrixA, MatrixB)" << '\n';
         return  tempMatrix;
@@ -163,7 +163,7 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] / ptrB[i];
     }
@@ -207,7 +207,7 @@ mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const md
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkWarning << "MatrixA or ShadowMatrixB is empty @ mdkMatrixOperator: /(MatrixA, ShadowMatrixB)" << '\n';
         return  tempMatrix;
@@ -223,7 +223,7 @@ mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const md
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ptrA[i] - ShadowMatrixB[i];
     }
@@ -266,7 +266,7 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const md
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkWarning << "MatrixA or ShadowMatrixB is empty @ mdkMatrixOperator: /(MatrixA, ShadowMatrixB)" << '\n';
         return  tempMatrix;
@@ -282,7 +282,7 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const md
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ptrA[i] / ShadowMatrixB[i];
     }
@@ -300,7 +300,7 @@ mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto SizeA = ShadowMatrixA.GetSize();
 
-    if (SizeA.RowNumber == 0)
+    if (SizeA.RowNumber <= 0)
     {
         mdkError << "ShadowMatrixA is empty @ mdkMatrixOperator: +(ShadowMatrixA, ElementB)" << '\n';
         return  tempMatrix;
@@ -314,7 +314,7 @@ mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] + ElementB;
     }
@@ -331,7 +331,7 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto SizeA = ShadowMatrixA.GetSize();
 
-    if (SizeA.RowNumber == 0)
+    if (SizeA.RowNumber <= 0)
     {
         mdkError << "ShadowMatrixA is empty @ mdkMatrixOperator: -(ShadowMatrixA, ElementB)" << '\n';
         return  tempMatrix;
@@ -345,7 +345,7 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] - ElementB;
     }
@@ -362,7 +362,7 @@ mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto SizeA = ShadowMatrixA.GetSize();
 
-    if (SizeA.RowNumber == 0)
+    if (SizeA.RowNumber <= 0)
     {
         mdkError << "ShadowMatrixA is empty @ mdkMatrixOperator: *(ShadowMatrixA, ElementB)" << '\n';
         return  tempMatrix;
@@ -376,7 +376,7 @@ mdkMatrix<ElementType> operator*(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] * ElementB;
     }
@@ -393,7 +393,7 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto SizeA = ShadowMatrixA.GetSize();
 
-    if (SizeA.RowNumber == 0)
+    if (SizeA.RowNumber <= 0)
     {
         mdkError << "ShadowMatrixA is empty @ mdkMatrixOperator: /(ShadowMatrixA, ElementB)" << '\n';
         return  tempMatrix;
@@ -407,7 +407,7 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] / ElementB;
     }
@@ -433,7 +433,7 @@ mdkMatrix<ElementType> operator-(const ElementType& ElementA, const mdkShadowMat
 
     auto SizeB = ShadowMatrixB.GetSize();
 
-    if (SizeB.RowNumber == 0)
+    if (SizeB.RowNumber <= 0)
     {
         mdkError << "ShadowMatrixB is empty @ mdkMatrixOperator: -(ElementA, ShadowMatrixB)" << '\n';
         return  tempMatrix;
@@ -447,7 +447,7 @@ mdkMatrix<ElementType> operator-(const ElementType& ElementA, const mdkShadowMat
 
     auto ElementNumber = SizeB.RowNumber * SizeB.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ElementA - ShadowMatrixB[i];
     }
@@ -472,7 +472,7 @@ mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkShadowMat
 
     auto SizeB = ShadowMatrixB.GetSize();
 
-    if (SizeB.RowNumber == 0)
+    if (SizeB.RowNumber <= 0)
     {
         mdkError << "ShadowMatrixB is empty @ mdkMatrixOperator: /(ElementA, ShadowMatrixB)" << '\n';
         return  tempMatrix;
@@ -486,7 +486,7 @@ mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkShadowMat
 
     auto ElementNumber = SizeB.RowNumber * SizeB.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ElementA / ShadowMatrixB[i];
     }
@@ -522,7 +522,7 @@ mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatri
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkWarning << "ShadowMatrixA or ShadowMatrixB is empty @ mdkMatrixOperator: +(ShadowMatrixA, ShadowMatrixB)" << '\n';
         return  tempMatrix;
@@ -534,7 +534,7 @@ mdkMatrix<ElementType> operator+(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] + ShadowMatrixB[i];
     }
@@ -569,7 +569,7 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkWarning << "ShadowMatrixA or ShadowMatrixB is empty @ mdkMatrixOperator: -(ShadowMatrixA, ShadowMatrixB)" << '\n';
         return  tempMatrix;
@@ -581,7 +581,7 @@ mdkMatrix<ElementType> operator-(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] - ShadowMatrixB[i];
     }
@@ -624,7 +624,7 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkWarning << "ShadowMatrixA or ShadowMatrixB is empty @ mdkMatrixOperator: /(ShadowMatrixA, ShadowMatrixB)" << '\n';
         return  tempMatrix;
@@ -636,7 +636,7 @@ mdkMatrix<ElementType> operator/(const mdkShadowMatrix<ElementType>& ShadowMatri
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
-    for (uint64 i = 0; i < ElementNumber; ++i)
+    for (int64 i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] / ShadowMatrixB[i];
     }

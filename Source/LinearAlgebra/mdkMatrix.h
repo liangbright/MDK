@@ -49,62 +49,62 @@ struct mdkMatrixSVDResult;
 
 struct mdkMatrixSize
 {
-	uint64 RowNumber = 0;  // RowNumber = the Number of Rows 
-	uint64 ColNumber = 0;  // ColNumber = the Number of Columns
+	int64 RowNumber = 0;  // RowNumber = the Number of Rows 
+	int64 ColNumber = 0;  // ColNumber = the Number of Columns
 };
 
-// ----------------------------- mdkMatrixCoreData struct -------------------------------------------------------------//
+// ----------------------------- mdkMatrixData struct -------------------------------------------------------------//
 
 template<typename ElementType>
-struct mdkMatrixCoreData
+struct mdkMatrixData
 {
-    uint64 RowNumber = 0;  // RowNumber = the Number of Rows 
-    uint64 ColNumber = 0;  // ColNumber = the Number of Columns
+    int64 RowNumber = 0;  // RowNumber = the Number of Rows 
+    int64 ColNumber = 0;  // ColNumber = the Number of Columns
 
     std::vector<ElementType> DataArray;
-//-------------------------------------------------------------
-    mdkMatrixCoreData() = default;
+    //-------------------------------------------------------------
+    mdkMatrixData() {};
 
-    ~mdkMatrixCoreData() = default;
+    ~mdkMatrixData() {};
 
-    ElementType& operator[](uint64 LinearIndex)
+    ElementType& operator[](int64 LinearIndex)
     {
         return DataArray[LinearIndex];
     }
 
-    const ElementType& operator[](uint64 LinearIndex) const
+    const ElementType& operator[](int64 LinearIndex) const
     {
         return DataArray[LinearIndex];
     }
 
-    ElementType& operator()(uint64 LinearIndex)
+    ElementType& operator()(int64 LinearIndex)
     {
         return DataArray[LinearIndex];
     }
 
-    const ElementType& operator()(uint64 LinearIndex) const
+    const ElementType& operator()(int64 LinearIndex) const
     {
         return DataArray[LinearIndex];
     }
 
-    ElementType& operator()(uint64 RowIndex, uint64 ColIndex)
+    ElementType& operator()(int64 RowIndex, int64 ColIndex)
     {
         return DataArray[ColIndex*RowNumber + RowIndex];
     }
 
-    const ElementType& operator()(uint64 RowIndex, uint64 ColIndex) const
+    const ElementType& operator()(int64 RowIndex, int64 ColIndex) const
     {
         return DataArray[ColIndex*RowNumber + RowIndex];
     }
 
 //deleted: -------------------------------------------------
-    mdkMatrixCoreData(const mdkMatrixCoreData&) = delete;
+    mdkMatrixData(const mdkMatrixData&) = delete;
 
-    mdkMatrixCoreData(mdkMatrixCoreData&&) = delete;
+    mdkMatrixData(mdkMatrixData&&) = delete;
 
-    void operator=(const mdkMatrixCoreData&) = delete;
+    void operator=(const mdkMatrixData&) = delete;
 
-    void operator=(mdkMatrixCoreData&&) = delete;
+    void operator=(mdkMatrixData&&) = delete;
 };
 
 //------------------------------------------- ALL Symbol --------------------------------------------------------------------------//
@@ -141,11 +141,11 @@ static ALL_Symbol_For_mdkMatrix_Operator This_Is_ALL_Symbol_For_mdkMatrix_Operat
 //refer to all the cols or rows, or all the elements
 #define ALL This_Is_ALL_Symbol_For_mdkMatrix_Operator
 
-//-----------------------------------span: e.g., span(1,10) is 1:10, or span(1, 2, 10) is 1:2:10 ----------------------------------------------//
+//-----------------------------------span: e.g., span(1,10) is 1:10 in Matlab, or span(1, 2, 10) is 1:2:10 in Matlab -----------------//
 
-std::vector<uint64> span(uint64 Index_A, uint64 Index_B)
+std::vector<int64> span(int64 Index_A, int64 Index_B)
 {
-    std::vector<uint64> IndexList;
+    std::vector<int64> IndexList;
 
     if (Index_A == Index_B)
     {
@@ -153,22 +153,18 @@ std::vector<uint64> span(uint64 Index_A, uint64 Index_B)
     }
     else if (Index_A < Index_B)
     {
-        auto Number = Index_B - Index_A + 1;
+        IndexList.reserve(Index_B - Index_A + 1);
 
-        IndexList.reserve(Number);
-
-        for (uint64 i = Index_A; i <= Index_B; ++i)
+        for (int64 i = Index_A; i <= Index_B; ++i)
         {
             IndexList.push_back(i);
         }
     }
-    else // (Index_A > Index_B)
-    {
-        auto Number = Index_A - Index_B + 1;
-        
-        IndexList.reserve(Number);
+    else //if (Index_A > Index_B)
+    {        
+        IndexList.reserve(Index_A - Index_B + 1);
 
-        for (uint64 i = Index_A; i >= Index_B; --i)
+        for (int64 i = Index_A; i >= Index_B; --i)
         {
             IndexList.push_back(i);
         }
@@ -178,9 +174,9 @@ std::vector<uint64> span(uint64 Index_A, uint64 Index_B)
 }
 
 
-std::vector<uint64> span(uint64 Index_A, int64 Step, uint64 Index_B)
+std::vector<int64> span(int64 Index_A, int64 Step, int64 Index_B)
 {
-    std::vector<uint64> IndexList;
+    std::vector<int64> IndexList;
 
     if (Index_A == Index_B && Step == 0)
     {
@@ -188,22 +184,18 @@ std::vector<uint64> span(uint64 Index_A, int64 Step, uint64 Index_B)
     }
     else if (Index_A < Index_B && Step > 0)
     {
-        auto Number = Index_B - Index_A + 1;
+        IndexList.reserve(Index_B - Index_A + 1);
 
-        IndexList.reserve(Number);
-
-        for (uint64 i = Index_A; i <= Index_B; i += Step)
+        for (int64 i = Index_A; i <= Index_B; i += Step)
         {
             IndexList.push_back(i);
         }
     }
     else if (Index_A > Index_B && Step < 0)
     {
-        auto Number = Index_A - Index_B + 1;
+        IndexList.reserve(Index_A - Index_B + 1);
 
-        IndexList.reserve(Number);
-
-        for (uint64 i = Index_A; i >= Index_B; i += Step)
+        for (int64 i = Index_A; i >= Index_B; i += Step)
         {
             IndexList.push_back(i);
         }
@@ -225,15 +217,13 @@ class mdkMatrix : public mdkObject
 
 private:
      
-    std::shared_ptr<mdkMatrixCoreData<ElementType>> m_CoreData;
+    std::shared_ptr<mdkMatrixData<ElementType>> m_MatrixData;
 
-    ElementType* m_ElementPointer; // pointer to the first element, keep tracking m_CoreData->DataArray.data()
+    ElementType* m_ElementPointer; // pointer to the first element, keep tracking m_MatrixData->DataArray.data()
 
     ElementType m_NaNElement;
 
 	bool m_IsSizeFixed;
-
-    //bool m_RowNumber_test = 0;
 
 public:
     typedef ElementType  ElementType;
@@ -243,7 +233,7 @@ public:
 
 	inline mdkMatrix();
 
-    inline mdkMatrix(uint64 RowNumber, uint64 ColNumber, bool IsSizeFixed = false);
+    inline mdkMatrix(int64 RowNumber, int64 ColNumber, bool IsSizeFixed = false);
 
     inline mdkMatrix(const mdkMatrix<ElementType>& InputMatrix, bool IsSizeFixed = false);
 
@@ -258,7 +248,7 @@ public:
 
     inline mdkMatrix(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix, bool IsSizeFixed = false);
 
-    inline mdkMatrix(const ElementType* InputElementPointer, uint64 InputRowNumber, uint64 InputColNumber, bool IsSizeFixed = false);
+    inline mdkMatrix(const ElementType* InputElementPointer, int64 InputRowNumber, int64 InputColNumber, bool IsSizeFixed = false);
 
 	inline ~mdkMatrix();
 
@@ -291,7 +281,7 @@ public:
     inline bool Copy(const mdkMatrix<ElementType_Input>& InputMatrix);
 
     template<typename ElementType_Input>
-    inline bool Copy(const ElementType_Input* InputElementPointer, uint64 InputRowNumber, uint64 InputColNumber);
+    inline bool Copy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
 
     inline bool Fill(const ElementType& Element);
 
@@ -365,9 +355,9 @@ public:
 
 	//---------------------- Set/get Matrix Size, Shape ----------------------------------------//
 
-    inline bool Reshape(uint64 InputRowNumber, uint64 InputColNumber);
+    inline bool Reshape(int64 InputRowNumber, int64 InputColNumber);
 
-    inline bool Resize(uint64 InputRowNumber, uint64 InputColNumber, bool IsSizeFixed = false);
+    inline bool Resize(int64 InputRowNumber, int64 InputColNumber, bool IsSizeFixed = false);
 
     inline bool IsSizeFixed() const;
 
@@ -375,13 +365,11 @@ public:
 
 	inline mdkMatrixSize GetSize() const;
 
-    inline void GetSize(uint64* RowNumber, uint64* ColNumber) const;
+    inline int64 GetElementNumber() const;
 
-    inline uint64 GetElementNumber() const;
+	inline int64 GetColNumber() const;
 
-	inline uint64 GetColNumber() const;
-
-	inline uint64 GetRowNumber() const;
+	inline int64 GetRowNumber() const;
 
     //------------------------ NaN Element -----------------------------//
 
@@ -401,33 +389,33 @@ public:
 
     // operator[] or () : no bound check in release mode
 
-    inline ElementType& operator[](uint64 LinearIndex);
+    inline ElementType& operator[](int64 LinearIndex);
 
-    inline const ElementType& operator[](uint64 LinearIndex) const;
+    inline const ElementType& operator[](int64 LinearIndex) const;
 
-	inline ElementType& operator()(uint64 LinearIndex);
+	inline ElementType& operator()(int64 LinearIndex);
 
-    inline const ElementType& operator()(uint64 LinearIndex) const;
+    inline const ElementType& operator()(int64 LinearIndex) const;
     
     // at(): bound check
 
-	inline ElementType& at(uint64 LinearIndex);
+	inline ElementType& at(int64 LinearIndex);
 
-	inline const ElementType& at(uint64 LinearIndex) const;
+	inline const ElementType& at(int64 LinearIndex) const;
 
 	//----------- Get/Set Matrix(i,j)  ---------------------------------------------//
 
     // operator() : no bound check in release mode
 
-	inline ElementType& operator()(uint64 RowIndex, uint64 ColIndex);
+	inline ElementType& operator()(int64 RowIndex, int64 ColIndex);
 
-	inline const ElementType& operator()(uint64 RowIndex, uint64 ColIndex) const;
+	inline const ElementType& operator()(int64 RowIndex, int64 ColIndex) const;
 
     // at(): bound check
 
-	inline ElementType& at(uint64 RowIndex, uint64 ColIndex);
+	inline ElementType& at(int64 RowIndex, int64 ColIndex);
 
-	inline const ElementType& at(uint64 RowIndex, uint64 ColIndex) const;
+	inline const ElementType& at(int64 RowIndex, int64 ColIndex) const;
 
     //---------------------- Get/Set a set of elements by Matrix({}) or Matrix.at({}) ----------------------------//
 
@@ -435,13 +423,13 @@ public:
     //
     // note: operator[] is for single element access only, operator[{}] is not defined
 
-    inline mdkShadowMatrix<ElementType> operator()(std::initializer_list<uint64>& LinearIndexList);
+    inline mdkShadowMatrix<ElementType> operator()(std::initializer_list<int64>& LinearIndexList);
 
-    inline const mdkShadowMatrix<ElementType> operator()(std::initializer_list<uint64>& LinearIndexList) const;
+    inline const mdkShadowMatrix<ElementType> operator()(std::initializer_list<int64>& LinearIndexList) const;
 
-    inline mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& LinearIndexList);
+    inline mdkShadowMatrix<ElementType> operator()(const std::vector<int64>& LinearIndexList);
 
-    inline const mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& LinearIndexList) const;
+    inline const mdkShadowMatrix<ElementType> operator()(const std::vector<int64>& LinearIndexList) const;
 
     inline mdkShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);   
 
@@ -449,13 +437,13 @@ public:
 
     // at(): bound check -----------------
 
-    inline mdkShadowMatrix<ElementType> at(std::initializer_list<uint64>& LinearIndexList);
+    inline mdkShadowMatrix<ElementType> at(std::initializer_list<int64>& LinearIndexList);
 
-    inline const mdkShadowMatrix<ElementType> at(std::initializer_list<uint64>& LinearIndexList) const;
+    inline const mdkShadowMatrix<ElementType> at(std::initializer_list<int64>& LinearIndexList) const;
 
-    inline mdkShadowMatrix<ElementType> at(const std::vector<uint64>& LinearIndexList);
+    inline mdkShadowMatrix<ElementType> at(const std::vector<int64>& LinearIndexList);
 
-    inline const mdkShadowMatrix<ElementType> at(const std::vector<uint64>& LinearIndexList) const;
+    inline const mdkShadowMatrix<ElementType> at(const std::vector<int64>& LinearIndexList) const;
 
     inline mdkShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
 
@@ -465,136 +453,128 @@ public:
 
     // operator(): no bound check in release mode
 
-    inline mdkShadowMatrix<ElementType> operator()(std::initializer_list<uint64>& RowIndexList,
-                                                   std::initializer_list<uint64>& ColIndexList);
+    inline mdkShadowMatrix<ElementType> operator()(std::initializer_list<int64>& RowIndexList,
+                                                   std::initializer_list<int64>& ColIndexList);
 
-    inline const mdkShadowMatrix<ElementType> operator()(std::initializer_list<uint64>& RowIndexList,
-                                                         std::initializer_list<uint64>& ColIndexList) const;
+    inline const mdkShadowMatrix<ElementType> operator()(std::initializer_list<int64>& RowIndexList,
+                                                         std::initializer_list<int64>& ColIndexList) const;
 
-    inline mdkShadowMatrix<ElementType> operator()(const std::initializer_list<uint64>& RowIndexList, 
+    inline mdkShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList, 
                                                    const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
 
-    inline const mdkShadowMatrix<ElementType> operator()(const std::initializer_list<uint64>& RowIndexList, 
+    inline const mdkShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList, 
                                                          const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
 
     inline mdkShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                                   const std::initializer_list<uint64>& ColIndexList);
+                                                   const std::initializer_list<int64>& ColIndexList);
 
     inline const mdkShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                                         const std::initializer_list<uint64>& ColIndexList) const;
+                                                         const std::initializer_list<int64>& ColIndexList) const;
 
-    inline mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& RowIndexList,
-                                                   const std::vector<uint64>& ColIndexList);
+    inline mdkShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
+                                                   const std::vector<int64>& ColIndexList);
 
-    inline const mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& RowIndexList,
-                                                         const std::vector<uint64>& ColIndexList) const;
+    inline const mdkShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
+                                                         const std::vector<int64>& ColIndexList) const;
 
-    inline mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& RowIndexList,
+    inline mdkShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
                                                    const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
 
-    inline const mdkShadowMatrix<ElementType> operator()(const std::vector<uint64>& RowIndexList,
+    inline const mdkShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
                                                          const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
 
     inline mdkShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                                   const std::vector<uint64>& ColIndexList);
+                                                   const std::vector<int64>& ColIndexList);
 
     inline const mdkShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                                         const std::vector<uint64>& ColIndexList) const;
+                                                         const std::vector<int64>& ColIndexList) const;
 
     // at(): bound check -----------------
 
-    inline mdkShadowMatrix<ElementType> at(std::initializer_list<uint64>& RowIndexList,
-                                           std::initializer_list<uint64>& ColIndexList);
+    inline mdkShadowMatrix<ElementType> at(std::initializer_list<int64>& RowIndexList,
+                                           std::initializer_list<int64>& ColIndexList);
 
-    inline const mdkShadowMatrix<ElementType> at(std::initializer_list<uint64>& RowIndexList,
-                                                 std::initializer_list<uint64>& ColIndexList) const;
+    inline const mdkShadowMatrix<ElementType> at(std::initializer_list<int64>& RowIndexList,
+                                                 std::initializer_list<int64>& ColIndexList) const;
 
-    inline mdkShadowMatrix<ElementType> at(const std::initializer_list<uint64>& RowIndexList,
+    inline mdkShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
                                            const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
 
-    inline const mdkShadowMatrix<ElementType> at(const std::initializer_list<uint64>& RowIndexList,
+    inline const mdkShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
                                                  const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
 
     inline mdkShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                           const std::initializer_list<uint64>& ColIndexList);
+                                           const std::initializer_list<int64>& ColIndexList);
 
     inline const mdkShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                                 const std::initializer_list<uint64>& ColIndexList) const;
+                                                 const std::initializer_list<int64>& ColIndexList) const;
 
-    inline mdkShadowMatrix<ElementType> at(const std::vector<uint64>& RowIndexList,
-                                           const std::vector<uint64>& ColIndexList);
+    inline mdkShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
+                                           const std::vector<int64>& ColIndexList);
 
-    inline const mdkShadowMatrix<ElementType> at(const std::vector<uint64>& RowIndexList,
-                                                 const std::vector<uint64>& ColIndexList) const;
+    inline const mdkShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
+                                                 const std::vector<int64>& ColIndexList) const;
 
-    inline mdkShadowMatrix<ElementType> at(const std::vector<uint64>& RowIndexList,
+    inline mdkShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
                                            const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
 
-    inline const mdkShadowMatrix<ElementType> at(const std::vector<uint64>& RowIndexList,
+    inline const mdkShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
                                                  const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
 
     inline mdkShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                           const std::vector<uint64>& ColIndexList);
+                                           const std::vector<int64>& ColIndexList);
 
     inline const mdkShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                                 const std::vector<uint64>& ColIndexList) const;
+                                                 const std::vector<int64>& ColIndexList) const;
 
-    inline mdkShadowMatrix<ElementType> SubMatrix(uint64 RowIndex_start, uint64 RowIndex_end,
-                                                  uint64 ColIndex_start, uint64 ColIndex_end);
+    // return SubMatrix as Matrix -----------------------------------------------
 
-    inline const mdkShadowMatrix<ElementType> SubMatrix(uint64 RowIndex_start, uint64 RowIndex_end,
-                                                        uint64 ColIndex_start, uint64 ColIndex_end) const;
-    // return SubMatrix as Matrix -----------------------------
+    inline mdkMatrix GetSubMatrix(const std::vector<int64>& RowIndexList, 
+                                  const std::vector<int64>& ColIndexList) const;
 
-	inline mdkMatrix GetSubMatrix(uint64 RowIndex_start, uint64 RowIndex_end, 
-                                  uint64 ColIndex_start, uint64 ColIndex_end) const;
-
-    inline mdkMatrix GetSubMatrix(const std::vector<uint64>& RowIndexList, 
-                                  const std::vector<uint64>& ColIndexList) const;
-
-    inline mdkMatrix GetSubMatrix(const std::vector<uint64>& RowIndexList, 
+    inline mdkMatrix GetSubMatrix(const std::vector<int64>& RowIndexList, 
                                   const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
 
     inline mdkMatrix GetSubMatrix(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, 
-                                  const std::vector<uint64>& ColIndexList) const;
+                                  const std::vector<int64>& ColIndexList) const;
 
     inline bool GetSubMatrix(mdkMatrix<ElementType> &OutputMatrix, 
-                             const std::vector<uint64>& RowIndexList, 
-                             const std::vector<uint64>& ColIndexList) const;
+                             const std::vector<int64>& RowIndexList, 
+                             const std::vector<int64>& ColIndexList) const;
 
 	//---------------------- Get/Set/Fill/Append/Delete/InsertCol Column ----------------------------------------//
 	
-    inline mdkShadowMatrix<ElementType> Col(uint64 ColIndex);
+    inline mdkShadowMatrix<ElementType> Col(int64 ColIndex);
 
-    // do not use const in Col(const std::initializer_list<uint64>& ColIndexList); 
+    // do not use const in Col(const std::initializer_list<int64>& ColIndexList); 
     // it leads to ambiguous call (vs2013), 
-    // e.g., Col({0})  it can initialize Col(uint64) or Col(std::vector);
+    // e.g., Col({0})  it can initialize Col(int64) or Col(std::vector);
     //
-    // so: use std::initializer_list<uint64> without const 
+    // so: use std::initializer_list<int64> without const 
     //
-    inline mdkShadowMatrix<ElementType> Col(std::initializer_list<uint64>& ColIndexList);
+    inline mdkShadowMatrix<ElementType> Col(std::initializer_list<int64>& ColIndexList);
 
-    inline mdkShadowMatrix<ElementType> Col(const std::vector<uint64>& ColIndexList);
+    inline mdkShadowMatrix<ElementType> Col(const std::vector<int64>& ColIndexList);
 
-    inline mdkMatrix GetCol(uint64 ColIndex) const;
+    inline mdkMatrix GetCol(int64 ColIndex) const;
 
-    inline bool GetCol(uint64 ColIndex, std::vector<ElementType>& ColData) const;
+    inline bool GetCol(int64 ColIndex, std::vector<ElementType>& ColData) const;
 
-    inline bool GetCol(uint64 ColIndex, ElementType* ColData) const;
-
-    template<typename ElementType_Input>
-    inline bool SetCol(uint64 ColIndex, const mdkMatrix<ElementType_Input>& ColData);
+    inline bool GetCol(int64 ColIndex, ElementType* ColData) const;
 
     template<typename ElementType_Input>
-    inline bool SetCol(uint64 ColIndex, const std::initializer_list<ElementType_Input>& ColData);
+    inline bool SetCol(int64 ColIndex, const mdkMatrix<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool SetCol(uint64 ColIndex, const std::vector<ElementType_Input>& ColData);
+    inline bool SetCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData);
+
+    template<typename ElementType_Input>
+    inline bool SetCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData);
 
 	template<typename ElementType_Input>
-    inline bool SetCol(uint64 ColIndex, const ElementType_Input* ColData, uint64 Length);
+    inline bool SetCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length);
 	
-    inline bool FillCol(uint64 ColIndex, const ElementType& Element);
+    inline bool FillCol(int64 ColIndex, const ElementType& Element);
 
     template<typename ElementType_Input>
     inline bool AppendCol(const mdkMatrix<ElementType_Input>& ColData);
@@ -606,56 +586,56 @@ public:
     inline bool AppendCol(const std::vector<ElementType_Input>& ColData);
 
 	template<typename ElementType_Input>
-    inline bool AppendCol(const ElementType_Input* ColData, uint64 Length);
+    inline bool AppendCol(const ElementType_Input* ColData, int64 Length);
 	
-    inline bool DeleteCol(uint64 ColIndex);
+    inline bool DeleteCol(int64 ColIndex);
 
     // no const before std::initializer_list
-    inline bool DeleteCol(std::initializer_list<uint64>& ColIndexList);
+    inline bool DeleteCol(std::initializer_list<int64>& ColIndexList);
 
-    inline bool DeleteCol(const std::vector<uint64>& ColIndexList);
+    inline bool DeleteCol(const std::vector<int64>& ColIndexList);
 
-    inline bool DeleteCol(const uint64* ColIndexListPtr, uint64 Length);
-
-    template<typename ElementType_Input>
-    inline bool InsertCol(uint64 ColIndex, const mdkMatrix<ElementType_Input>& ColData);
+    inline bool DeleteCol(const int64* ColIndexListPtr, int64 Length);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(uint64 ColIndex, const std::initializer_list<ElementType_Input>& ColData);
+    inline bool InsertCol(int64 ColIndex, const mdkMatrix<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(uint64 ColIndex, const std::vector<ElementType_Input>& ColData);
+    inline bool InsertCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(uint64 ColIndex, const ElementType_Input* ColData, uint64 Length);
+    inline bool InsertCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData);
+
+    template<typename ElementType_Input>
+    inline bool InsertCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length);
 
 	//---------------------- Get/Set/Fill/Append/Delete Row  ----------------------------------------//
 	
-    inline mdkShadowMatrix<ElementType> Row(uint64 RowIndex);
+    inline mdkShadowMatrix<ElementType> Row(int64 RowIndex);
 
-    inline mdkShadowMatrix<ElementType> Row(std::initializer_list<uint64>& RowIndexList);
+    inline mdkShadowMatrix<ElementType> Row(std::initializer_list<int64>& RowIndexList);
 
-    inline mdkShadowMatrix<ElementType> Row(const std::vector<uint64>& RowIndexList);
+    inline mdkShadowMatrix<ElementType> Row(const std::vector<int64>& RowIndexList);
 
-    inline mdkMatrix GetRow(uint64 RowIndex) const;
+    inline mdkMatrix GetRow(int64 RowIndex) const;
 
-    inline bool GetRow(uint64 RowIndex, std::vector<ElementType>& RowData) const;
+    inline bool GetRow(int64 RowIndex, std::vector<ElementType>& RowData) const;
 
-    inline bool GetRow(uint64 RowIndex, ElementType* RowData) const;
-
-    template<typename ElementType_Input>
-    inline bool SetRow(uint64 RowIndex, const mdkMatrix<ElementType_Input>& RowData);
+    inline bool GetRow(int64 RowIndex, ElementType* RowData) const;
 
     template<typename ElementType_Input>
-    inline bool SetRow(uint64 RowIndex, const std::initializer_list<ElementType_Input>& RowData);
+    inline bool SetRow(int64 RowIndex, const mdkMatrix<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool SetRow(uint64 RowIndex, const std::vector<ElementType_Input>& RowData);
+    inline bool SetRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData);
+
+    template<typename ElementType_Input>
+    inline bool SetRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input>
-    inline bool SetRow(uint64 RowIndex, const ElementType_Input* RowData, uint64 Length);
+    inline bool SetRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length);
 
-    inline bool FillRow(uint64 RowIndex, const ElementType& Element);
+    inline bool FillRow(int64 RowIndex, const ElementType& Element);
 
     template<typename ElementType_Input>
     inline bool AppendRow(const mdkMatrix<ElementType_Input>& RowData);
@@ -667,28 +647,28 @@ public:
     inline bool AppendRow(const std::vector<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input>
-    inline bool AppendRow(const ElementType_Input* RowData, uint64 Length);
+    inline bool AppendRow(const ElementType_Input* RowData, int64 Length);
 
-    inline bool DeleteRow(uint64 RowIndex);
+    inline bool DeleteRow(int64 RowIndex);
 
     // no const before std::initializer_list
-    inline bool DeleteRow(std::initializer_list<uint64>& RowIndexList);
+    inline bool DeleteRow(std::initializer_list<int64>& RowIndexList);
 
-    inline bool DeleteRow(const std::vector<uint64>& RowIndexList);
+    inline bool DeleteRow(const std::vector<int64>& RowIndexList);
 
-    inline bool DeleteRow(const uint64* RowIndexListPtr, uint64 Length);
-
-    template<typename ElementType_Input>
-    inline bool InsertRow(uint64 RowIndex, const mdkMatrix<ElementType_Input>& RowData);
+    inline bool DeleteRow(const int64* RowIndexListPtr, int64 Length);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(uint64 RowIndex, const std::initializer_list<ElementType_Input>& RowData);
+    inline bool InsertRow(int64 RowIndex, const mdkMatrix<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(uint64 RowIndex, const std::vector<ElementType_Input>& RowData);
+    inline bool InsertRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(uint64 RowIndex, const ElementType_Input* RowData, uint64 Length);
+    inline bool InsertRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData);
+
+    template<typename ElementType_Input>
+    inline bool InsertRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length);
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 
@@ -855,7 +835,7 @@ public:
 
 	//----------------------------------- Rank -----------------------------------------//
 
-    inline uint64 Rank() const;
+    inline int64 Rank() const;
 
 	//----------------------------------- inverse -----------------------------------------//
 

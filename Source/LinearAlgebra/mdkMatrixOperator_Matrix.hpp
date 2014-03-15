@@ -43,7 +43,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkMatrix<Element
         return  tempGlueMatrix;
     }
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "MatrixA or MatrixB is empty @ mdkMatrixOperator: +(MatrixA, MatrixB)" << '\n';
 
@@ -96,7 +96,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkMatrix<Element
         return  tempGlueMatrix;
     }
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "MatrixA or MatrixB is empty @ mdkMatrixOperator: -(MatrixA, MatrixB)" << '\n';
 
@@ -146,7 +146,7 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementTyp
         return  tempGlueMatrix;
     }
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "MatrixA or MatrixB is empty @ mdkMatrixOperator: *(MatrixA, MatrixB)" << '\n';
 

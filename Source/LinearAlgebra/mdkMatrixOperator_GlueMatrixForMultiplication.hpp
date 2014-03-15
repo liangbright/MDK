@@ -29,7 +29,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForMultipl
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "GlueMatrixA or MatrixB is empty @ mdkMatrixOperator: +(GlueMatrixA_ForMultiplication, MatrixB)" << '\n';
         mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix_L;
@@ -100,7 +100,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForMultipl
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "GlueMatrixA or MatrixB is empty @ mdkMatrixOperator: +(GlueMatrixA_ForMultiplication, MatrixB)" << '\n';
         mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix_L;
@@ -171,7 +171,7 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForMultiplica
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "GlueMatrixA or MatrixB is empty @ mdkMatrixOperator: *(GlueMatrixA_ForMultiplication, MatrixB)" << '\n';
         mdkGlueMatrixForMultiplication<ElementType> EmptyGlueMatrix_M;
@@ -201,7 +201,7 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForMultiplica
         return EmptyGlueMatrix_M;
     }
 
-    auto MatrixNumber = GlueMatrixA.GetMatrixNumber();
+    int64 MatrixNumber = GlueMatrixA.GetMatrixNumber();
 
     GlueMatrixA.m_ColNumber = SizeB.ColNumber;
 
@@ -238,7 +238,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkMatrix<Element
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "MatrixA or GlueMatrixB is empty @ mdkMatrixOperator: +(MatrixA, GlueMatrixB_ForMultiplication)" << '\n';
         mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix_L;
@@ -311,7 +311,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkMatrix<Element
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "MatrixA or GlueMatrixB is empty @ mdkMatrixOperator: -(MatrixA, GlueMatrixB_ForMultiplication)" << '\n';
         mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix_L;
@@ -384,7 +384,7 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementTyp
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "MatrixA or MatrixB is empty @ mdkMatrixOperator: *(MatrixA, GlueMatrixB_ForMultiplication)" << '\n';
         mdkGlueMatrixForMultiplication<ElementType> EmptyGlueMatrix_M;
@@ -415,13 +415,13 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(const mdkMatrix<ElementTyp
     }
 
 
-    auto MatrixNumber = GlueMatrixB.m_SharedSourceMatrixList.size();
+    int64 MatrixNumber = GlueMatrixB.m_SharedSourceMatrixList.size();
 
     GlueMatrixB.m_ColNumber = SizeA.ColNumber;
 
     GlueMatrixB.m_SharedSourceMatrixList.resize(MatrixNumber + 1);
 
-    for (uint64 i = MatrixNumber; i >= 1; --i)
+    for (int64 i = MatrixNumber; i >= 1; --i)
     {
         GlueMatrixB.m_SharedSourceMatrixList[i].ForceShare(GlueMatrixB.m_SharedSourceMatrixList[i - 1]);
     }    
@@ -700,7 +700,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForMultipl
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "GlueMatrixA_M or GlueMatrixB_L is empty @ mdkMatrixOperator: +(GlueMatrixA_M, GlueMatrixB_L)" << '\n';
         mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix_L;
@@ -736,7 +736,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForMultipl
 
     if (GlueMatrixA_M.GetMatrixNumber() == 1)
     {
-        auto MatrixNumber_B = GlueMatrixB_L.GetMatrixNumber();
+        int64 MatrixNumber_B = GlueMatrixB_L.GetMatrixNumber();
 
         GlueMatrixB_L.m_SharedSourceMatrixList.resize(MatrixNumber_B + 1);
 
@@ -764,7 +764,7 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator-(mdkGlueMatrixForMultip
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "GlueMatrixA_M or GlueMatrixB_L is empty @ mdkMatrixOperator: -(GlueMatrixA_M, GlueMatrixB_L)" << '\n';
         mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix_L;
@@ -800,13 +800,13 @@ mdkGlueMatrixForLinearCombination<ElementType>& operator-(mdkGlueMatrixForMultip
 
     if (GlueMatrixA_M.GetMatrixNumber() == 1)
     {
-        auto MatrixNumber_B = GlueMatrixB_L.GetMatrixNumber();
+        int64 MatrixNumber_B = GlueMatrixB_L.GetMatrixNumber();
 
         GlueMatrixB_L.m_SharedSourceMatrixList.resize(MatrixNumber_B + 1);
 
         GlueMatrixB_L.m_SharedSourceMatrixList[MatrixNumber_B].ForceShare(GlueMatrixA_M.m_SharedSourceMatrixList[0]);
 
-        for (uint64 i = 0; i < MatrixNumber_B; ++i)
+        for (int64 i = 0; i < MatrixNumber_B; ++i)
         {
             GlueMatrixB_L.m_ElementList_Coef[i] = ElementType(0) - GlueMatrixB_L.m_ElementList_Coef[i];
         }
@@ -857,7 +857,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearC
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "GlueMatrixA_L or GlueMatrixB_L is empty @ mdkMatrixOperator: +(GlueMatrixA_L, GlueMatrixB_M)" << '\n';
         mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix_L;
@@ -893,7 +893,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearC
 
     if (GlueMatrixB_M.GetMatrixNumber() == 1)
     {
-        auto MatrixNumber_A = GlueMatrixA_L.GetMatrixNumber();
+        int64 MatrixNumber_A = GlueMatrixA_L.GetMatrixNumber();
 
         GlueMatrixA_L.m_SharedSourceMatrixList.resize(MatrixNumber_A + 1);
 
@@ -922,7 +922,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearC
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "GlueMatrixA_L or GlueMatrixB_L is empty @ mdkMatrixOperator: -(GlueMatrixA_L, GlueMatrixB_M)" << '\n';
         mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix_L;
@@ -958,7 +958,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearC
 
     if (GlueMatrixB_M.GetMatrixNumber() == 1)
     {
-        auto MatrixNumber_A = GlueMatrixA_L.GetMatrixNumber();
+        int64 MatrixNumber_A = GlueMatrixA_L.GetMatrixNumber();
 
         GlueMatrixA_L.m_SharedSourceMatrixList.resize(MatrixNumber_A + 1);
 
@@ -1008,7 +1008,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForMultipl
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "GlueMatrixA or GlueMatrixB is empty @ mdkMatrixOperator: +(GlueMatrixA_ForMultiplication, GlueMatrixB_ForMultiplication)" << '\n';
         mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix_L;
@@ -1042,9 +1042,9 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForMultipl
 
     // check if one matrix in GlueMatrixA and one matrix in GlueMatrixB
 
-    auto MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
+    int64 MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
 
-    auto MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
+    int64 MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
 
     if (MatrixNumber_A == 1 && MatrixNumber_B == 1)
     {
@@ -1096,7 +1096,7 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForMultipl
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "GlueMatrixA or GlueMatrixB is empty @ mdkMatrixOperator: -(GlueMatrixA_ForMultiplication, GlueMatrixB_ForMultiplication)" << '\n';
         mdkGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix_L;
@@ -1130,9 +1130,9 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForMultipl
 
     // check if one matrix in GlueMatrixA and one matrix in GlueMatrixB
 
-    auto MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
+    int64 MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
 
-    auto MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
+    int64 MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
 
     if (MatrixNumber_A == 1 && MatrixNumber_B == 1)
     {
@@ -1185,7 +1185,7 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForMultiplica
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
         mdkError << "GlueMatrixA or GlueMatrixB is empty @ mdkMatrixOperator: *(GlueMatrixA_ForMultiplication, GlueMatrixB_ForMultiplication)" << '\n';
         mdkGlueMatrixForMultiplication<ElementType> EmptyGlueMatrix_M;
@@ -1217,9 +1217,9 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForMultiplica
         return EmptyGlueMatrix_M;
     }
 
-    auto MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
+    int64 MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
 
-    auto MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
+    int64 MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
     
     if (MatrixNumber_A == 1 && MatrixNumber_B == 1)
     {
@@ -1254,15 +1254,15 @@ mdkGlueMatrixForMultiplication<ElementType> operator*(mdkGlueMatrixForMultiplica
     //          user may do this on purpose to ensure numerical accuracy
     /* -------------------------------------------------------------------------------------------------------------------------------------------
 
-    auto MatrixNumber_A = GlueMatrixA.GetMatrixSize();
+    int64 MatrixNumber_A = GlueMatrixA.GetMatrixSize();
 
-    auto MatrixNumber_B = GlueMatrixB.GetMatrixSize();
+    int64 MatrixNumber_B = GlueMatrixB.GetMatrixSize();
 
     GlueMatrixA.m_ColNumber = SizeB.ColNumber;
 
     GlueMatrixA.m_SharedSourceMatrixList.resize(MatrixNumber_A + MatrixNumber_B);
 
-    for (uint64 i = MatrixNumber_A; i < MatrixNumber_A + MatrixNumber_B; ++i)
+    for (int64 i = MatrixNumber_A; i < MatrixNumber_A + MatrixNumber_B; ++i)
     {
         GlueMatrixA.m_SharedSourceMatrixList[i].ForceShare(GlueMatrixB.m_SharedSourceMatrixList[i - MatrixNumber_A]);
     }

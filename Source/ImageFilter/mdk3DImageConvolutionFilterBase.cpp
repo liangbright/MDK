@@ -27,7 +27,7 @@ bool mdk3DImageConvolutionFilterBase::SetMaskOf3DIndex(const std::vector<mdkMatr
 		return false;
 	}
 
-	for (uint64 i = 0; i < Length; ++i)
+	for (int64 i = 0; i < Length; ++i)
 	{
 		if (MaskList[i].IsEmpty() == true)
 		{
@@ -50,7 +50,7 @@ bool mdk3DImageConvolutionFilterBase::SetMaskOf3DPosition(const std::vector<mdkM
         return false;
     }
 
-    for (uint64 i = 0; i < Length; ++i)
+    for (int64 i = 0; i < Length; ++i)
     {
         if (MaskList[i].IsEmpty() == true)
         {
@@ -116,51 +116,51 @@ void mdk3DImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DIndex()
         return;
     }
 
-    uint64 SafeDistance = 2;
+    int64 SafeDistance = 2;
 
-    for (uint64 i = 0; i < m_MaskList_3DIndex.size(); ++i)
+    for (int64 i = 0; i < m_MaskList_3DIndex.size(); ++i)
     {
         m_NOBoundCheckRegionList_3DIndex[i].IsEmpty = true;
 
-        uint64 MaxDistance_x[2] = { 0, 0 };
+        int64 MaxDistance_x[2] = { 0, 0 };
 
-        uint64 MaxDistance_y[2] = { 0, 0 };
+        int64 MaxDistance_y[2] = { 0, 0 };
 
-        uint64 MaxDistance_z[2] = { 0, 0 };
+        int64 MaxDistance_z[2] = { 0, 0 };
 
-        for (uint64 j = 0; j < m_MaskList_3DIndex[i].GetColNumber(); ++j)
+        for (int64 j = 0; j < m_MaskList_3DIndex[i].GetColNumber(); ++j)
         {
             auto temp = m_MaskList_3DIndex[i](0, j);
 
             if (temp < 0.0)
             {
-                MaxDistance_x[0] = std::max(MaxDistance_x[0], uint64(-temp));
+                MaxDistance_x[0] = std::max(MaxDistance_x[0], int64(-temp));
             }
             else
             {
-                MaxDistance_x[1] = std::max(MaxDistance_x[1], uint64(temp));
+                MaxDistance_x[1] = std::max(MaxDistance_x[1], int64(temp));
             }
 
             temp = m_MaskList_3DIndex[i](1, j);
 
             if (temp < 0.0)
             {
-                MaxDistance_y[0] = std::max(MaxDistance_y[0], uint64(-temp));
+                MaxDistance_y[0] = std::max(MaxDistance_y[0], int64(-temp));
             }
             else
             {
-                MaxDistance_y[1] = std::max(MaxDistance_y[1], uint64(temp));
+                MaxDistance_y[1] = std::max(MaxDistance_y[1], int64(temp));
             }
 
             temp = m_MaskList_3DIndex[i](2, j);
 
             if (temp < 0.0)
             {
-                MaxDistance_z[0] = std::max(MaxDistance_z[0], uint64(-temp));
+                MaxDistance_z[0] = std::max(MaxDistance_z[0], int64(-temp));
             }
             else
             {
-                MaxDistance_z[1] = std::max(MaxDistance_z[1], uint64(temp));
+                MaxDistance_z[1] = std::max(MaxDistance_z[1], int64(temp));
             }
         }
 
@@ -201,7 +201,7 @@ void mdk3DImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DPosition()
 
     auto SafeDistance_z = 2 * m_InputVoxelPhysicalSize[2];
 
-    for (uint64 i = 0; i < m_MaskList_3DPosition.size(); ++i)
+    for (int64 i = 0; i < m_MaskList_3DPosition.size(); ++i)
     {
         m_NOBoundCheckRegionList_3DPosition[i].IsEmpty = true;
 
@@ -211,7 +211,7 @@ void mdk3DImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DPosition()
 
         double MaxDistance_z[2] = { 0, 0 };
 
-        for (uint64 j = 0; j < m_MaskList_3DPosition[i].GetColNumber(); ++j)
+        for (int64 j = 0; j < m_MaskList_3DPosition[i].GetColNumber(); ++j)
         {
             auto temp = m_MaskList_3DPosition[i](0, j);
 

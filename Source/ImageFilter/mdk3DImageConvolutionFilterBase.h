@@ -17,13 +17,13 @@ struct RegionOfNOBoundCheck_3DIndex
 {
     bool IsEmpty;
 
-    uint64 x0_Index;
-    uint64 y0_Index;
-    uint64 z0_Index;
+    int64 x0_Index;
+    int64 y0_Index;
+    int64 z0_Index;
 
-    uint64 x1_Index;
-    uint64 y1_Index;
-    uint64 z1_Index;
+    int64 x1_Index;
+    int64 y1_Index;
+    int64 z1_Index;
 };
 
 struct RegionOfNOBoundCheck_3DPosition
@@ -54,7 +54,7 @@ protected:
 
     std::vector<RegionOfNOBoundCheck_3DPosition> m_NOBoundCheckRegionList_3DPosition;
 
-    uint64 m_InputImageDimension[3];
+    int64 m_InputImageDimension[3];
 
     double m_InputImagePhysicalSize[3];
 

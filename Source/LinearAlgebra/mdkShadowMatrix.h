@@ -37,11 +37,11 @@ class mdkShadowMatrix : public mdkObject
 {
 private:
 
-	uint64 m_RowNumber;
+	int64 m_RowNumber;
 
-	uint64 m_ColNumber;
+	int64 m_ColNumber;
 
-	uint64 m_ElementNumber;
+	int64 m_ElementNumber;
 
     bool m_Flag_OutputVector;
 
@@ -53,11 +53,11 @@ private:
 
     bool m_Flag_All_Col;
 
-	std::vector<uint64> m_RowIndexList_source;
+	std::vector<int64> m_RowIndexList_source;
 
-	std::vector<uint64> m_ColIndexList_source;
+	std::vector<int64> m_ColIndexList_source;
 
-	std::vector<uint64> m_LinearIndexList_source;
+	std::vector<int64> m_LinearIndexList_source;
 
     mdkMatrix<ElementType> m_SharedSourceMatrix;
 
@@ -68,15 +68,15 @@ private:
     // do not need non const versions of the following constructors
     // adding const to the member functions of mdkShadowMatrix is enough
 
-    inline mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix, const std::vector<uint64>& LinearIndexList);
+    inline mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix, const std::vector<int64>& LinearIndexList);
 
     inline mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
 
-    inline mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix, const std::vector<uint64>& RowIndexList, const std::vector<uint64>& ColIndexList);
+    inline mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix, const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList);
 
-    inline mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix, const std::vector<uint64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+    inline mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix, const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
 
-    inline mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<uint64>& ColIndexList);
+    inline mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList);
 
     inline mdkShadowMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix) = delete;
 
@@ -105,19 +105,19 @@ private:
 
     // operator[]: no bound check
 
-    inline ElementType& operator[](uint64 LinearIndex);
+    inline ElementType& operator[](int64 LinearIndex);
 
-    inline const ElementType& operator[](uint64 LinearIndex) const;
+    inline const ElementType& operator[](int64 LinearIndex) const;
 
-	inline ElementType& operator()(uint64 LinearIndex);
+	inline ElementType& operator()(int64 LinearIndex);
 
-	inline const ElementType& operator()(uint64 LinearIndex) const;
+	inline const ElementType& operator()(int64 LinearIndex) const;
 
 	//---------------------- Get/Set mdkShadowMatrix(i,j) ----------------------------------------//
 
-	inline ElementType& operator()(uint64 RowIndex, uint64 ColIndex);
+	inline ElementType& operator()(int64 RowIndex, int64 ColIndex);
 
-	inline const ElementType& operator()(uint64 RowIndex, uint64 ColIndex) const;
+	inline const ElementType& operator()(int64 RowIndex, int64 ColIndex) const;
 
 	//---------------------- Other ----------------------------------------//
 
@@ -125,21 +125,21 @@ private:
 
     inline bool IsLinearIndexListOnly() const;
 
-    inline uint64 GetRowNumber() const;
+    inline int64 GetRowNumber() const;
 
-    inline uint64 GetColNumber() const;
+    inline int64 GetColNumber() const;
 
-    inline uint64 GetElementNumber() const;
+    inline int64 GetElementNumber() const;
 
     inline bool IsEmpty() const;
 
     inline mdkMatrixSize GetSize() const;
 
-    inline const std::vector<uint64>& GetRowIndexListOfSource() const;
+    inline const std::vector<int64>& GetRowIndexListOfSource() const;
 
-    inline const std::vector<uint64>& GetColIndexListOfSource() const;
+    inline const std::vector<int64>& GetColIndexListOfSource() const;
 
-    inline const std::vector<uint64>& GetLinearIndexListOfSource() const;
+    inline const std::vector<int64>& GetLinearIndexListOfSource() const;
 
     inline const mdkMatrix<ElementType>& GetSourceMatrixSharedCopy() const;
 

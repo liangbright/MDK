@@ -13,7 +13,7 @@
 namespace mdk
 {
 
-template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output = 1>
+template<typename VoxelType_Input, typename VoxelType_Output, int64 VectorVoxelLength_Output = 1>
 class mdk3DImageConvolutionFilter : public mdk3DImageFilter<VoxelType_Input, VoxelType_Output>, public mdk3DImageConvolutionFilterBase
 {
 protected:
@@ -25,7 +25,7 @@ public:
 
     void SetOutputVoxelMatrix(const mdkMatrix<VoxelType_Input>* VoxelMatrix);
 
-    inline void FilterFunctionAt3DIndex(uint64 x_Index, uint64 y_Index, uint64 z_Index, VoxelType_Output& OutputVoxel);
+    inline void FilterFunctionAt3DIndex(int64 x_Index, int64 y_Index, int64 z_Index, VoxelType_Output& OutputVoxel);
 
     inline void FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& OutputVoxel);
 
@@ -36,7 +36,7 @@ protected:
 
     virtual void BuildMaskOf3DPosition();
 
-    inline void OutputFunction(uint64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
+    inline void OutputFunction(int64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
 
 private:
 	mdk3DImageConvolutionFilter(const mdk3DImageConvolutionFilter&); // Not implemented.
@@ -51,7 +51,7 @@ public:
 	mdk3DImageConvolutionFilter();
 	~mdk3DImageConvolutionFilter();
 
-    inline void FilterFunctionAt3DIndex(uint64 x_Index, uint64 y_Index, uint64 z_Index, VoxelType_Output& OutputVoxel);
+    inline void FilterFunctionAt3DIndex(int64 x_Index, int64 y_Index, int64 z_Index, VoxelType_Output& OutputVoxel);
 
     inline void FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& OutputVoxel);
 

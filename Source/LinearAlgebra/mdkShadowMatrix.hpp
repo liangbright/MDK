@@ -23,7 +23,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix()
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix, const std::vector<uint64>& LinearIndexList)
+mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix, const std::vector<int64>& LinearIndexList)
 {
     // all the indexes in LinearIndexList are within bound
     // bound check is performed in mdkMatrix when calling the operator(), e.g., A({1, 2, 3}), A is a matrix    
@@ -69,14 +69,14 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sour
 
     m_ColIndexList_source.resize(ColNumber_source);
 
-    for (uint64 i = 0; i < ColNumber_source; ++i)
+    for (int64 i = 0; i < ColNumber_source; ++i)
     {
         m_ColIndexList_source[i] = i;
     }
 
     m_RowIndexList_source.resize(RowNumber_source);
 
-    for (uint64 i = 0; i < RowNumber_source; ++i)
+    for (int64 i = 0; i < RowNumber_source; ++i)
     {
         m_RowIndexList_source[i] = i;
     }
@@ -99,8 +99,8 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sour
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix,
-                                              const std::vector<uint64>& RowIndexList,
-                                              const std::vector<uint64>& ColIndexList)
+                                              const std::vector<int64>& RowIndexList,
+                                              const std::vector<int64>& ColIndexList)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkMatrix when calling the operator(), e.g., A({1, 2, 3}, {0, 1}), A is a matrix    
@@ -139,7 +139,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sour
 template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix,
-                                              const std::vector<uint64>& RowIndexList,
+                                              const std::vector<int64>& RowIndexList,
                                               const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
@@ -163,7 +163,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sour
 
     m_ColIndexList_source.resize(ColNumber_source);
 
-    for (uint64 i = 0; i < ColNumber_source; ++i)
+    for (int64 i = 0; i < ColNumber_source; ++i)
     {
         m_ColIndexList_source[i] = i;    
     }
@@ -186,7 +186,7 @@ template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix,
                                               const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                              const std::vector<uint64>& ColIndexList)
+                                              const std::vector<int64>& ColIndexList)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkMatrix when calling the operator(), e.g., A(ALL, {0, 1, 2}), A is a matrix    
@@ -207,7 +207,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sour
 
     m_RowIndexList_source.resize(RowNumber_source);
 
-    for (uint64 i = 0; i < RowNumber_source; ++i)
+    for (int64 i = 0; i < RowNumber_source; ++i)
     {
         m_RowIndexList_source[i] = i;
     }
@@ -299,7 +299,7 @@ inline bool mdkShadowMatrix<ElementType>::IsLinearIndexListOnly() const
 
 template<typename ElementType>
 inline
-uint64 mdkShadowMatrix<ElementType>::GetElementNumber() const
+int64 mdkShadowMatrix<ElementType>::GetElementNumber() const
 {
     return m_ElementNumber;
 }
@@ -307,7 +307,7 @@ uint64 mdkShadowMatrix<ElementType>::GetElementNumber() const
 
 template<typename ElementType>
 inline
-uint64 mdkShadowMatrix<ElementType>::GetColNumber() const
+int64 mdkShadowMatrix<ElementType>::GetColNumber() const
 {
     return m_ColNumber;
 }
@@ -315,7 +315,7 @@ uint64 mdkShadowMatrix<ElementType>::GetColNumber() const
 
 template<typename ElementType>
 inline
-uint64 mdkShadowMatrix<ElementType>::GetRowNumber() const
+int64 mdkShadowMatrix<ElementType>::GetRowNumber() const
 {
     return m_RowNumber;
 }
@@ -349,7 +349,7 @@ bool mdkShadowMatrix<ElementType>::IsEmpty() const
 
 template<typename ElementType>
 inline 
-const std::vector<uint64>& mdkShadowMatrix<ElementType>::GetRowIndexListOfSource() const
+const std::vector<int64>& mdkShadowMatrix<ElementType>::GetRowIndexListOfSource() const
 {
     return m_RowIndexList_source;
 }
@@ -357,7 +357,7 @@ const std::vector<uint64>& mdkShadowMatrix<ElementType>::GetRowIndexListOfSource
 
 template<typename ElementType>
 inline 
-const std::vector<uint64>& mdkShadowMatrix<ElementType>::GetColIndexListOfSource() const
+const std::vector<int64>& mdkShadowMatrix<ElementType>::GetColIndexListOfSource() const
 {
     return m_ColIndexList_source;
 }
@@ -365,7 +365,7 @@ const std::vector<uint64>& mdkShadowMatrix<ElementType>::GetColIndexListOfSource
 
 template<typename ElementType>
 inline 
-const std::vector<uint64>& mdkShadowMatrix<ElementType>::GetLinearIndexListOfSource() const
+const std::vector<int64>& mdkShadowMatrix<ElementType>::GetLinearIndexListOfSource() const
 {
     return m_LinearIndexList_source;
 }
@@ -429,7 +429,7 @@ bool mdkShadowMatrix<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMa
 
     if (m_LinearIndexList_source.empty() == false)
     {
-        for (uint64 i = 0; i < m_ElementNumber; ++i)
+        for (int64 i = 0; i < m_ElementNumber; ++i)
         {
             ptrTemp[i] = ptrSource[m_LinearIndexList_source[i]];
         }
@@ -438,11 +438,11 @@ bool mdkShadowMatrix<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMa
     {
         auto RowNumber_source = m_SharedSourceMatrix.GetRowNumber();
 
-        for (uint64 j = 0; j < m_ColNumber; ++j)
+        for (int64 j = 0; j < m_ColNumber; ++j)
         {
             auto Index = m_ColIndexList_source[j] * RowNumber_source;
 
-            for (uint64 i = 0; i < m_RowNumber; ++i)
+            for (int64 i = 0; i < m_RowNumber; ++i)
             {
                 auto LinearIndex_source = Index + m_RowIndexList_source[i];
 
@@ -504,7 +504,7 @@ void mdkShadowMatrix<ElementType>::operator=(const mdkMatrix<ElementType>& targe
 
     auto ptrMatrix = targetMatrix.GetElementPointer();
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] = ptrMatrix[i];
     }
@@ -533,7 +533,7 @@ void mdkShadowMatrix<ElementType>::operator=(const ElementType& Element)
 
     //------------------------------------------------------------
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] = Element;
     }
@@ -569,7 +569,7 @@ void mdkShadowMatrix<ElementType>::operator=(const mdkShadowMatrix<ElementType>&
 
     //--------------------------------------------
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] = ShadowMatrix[i];
     }
@@ -595,7 +595,7 @@ void mdkShadowMatrix<ElementType>::operator=(const mdkGlueMatrixForMultiplicatio
 
 template<typename ElementType>
 inline
-ElementType& mdkShadowMatrix<ElementType>::operator[](uint64 LinearIndex)
+ElementType& mdkShadowMatrix<ElementType>::operator[](int64 LinearIndex)
 {
 #if defined(MDK_DEBUG_ShadowMatrix_Operator_CheckBound)
 
@@ -626,7 +626,7 @@ ElementType& mdkShadowMatrix<ElementType>::operator[](uint64 LinearIndex)
 
 template<typename ElementType>
 inline
-const ElementType& mdkShadowMatrix<ElementType>::operator[](uint64 LinearIndex) const
+const ElementType& mdkShadowMatrix<ElementType>::operator[](int64 LinearIndex) const
 {
 #if defined(MDK_DEBUG_ShadowMatrix_Operator_CheckBound)
 
@@ -657,11 +657,11 @@ const ElementType& mdkShadowMatrix<ElementType>::operator[](uint64 LinearIndex) 
 
 template<typename ElementType>
 inline
-ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 LinearIndex)
+ElementType& mdkShadowMatrix<ElementType>::operator()(int64 LinearIndex)
 {
 #if defined(MDK_DEBUG_ShadowMatrix_Operator_CheckBound)
 
-	if (LinearIndex >= m_ElementNumber)
+    if (LinearIndex >= m_ElementNumber || LinearIndex < 0)
 	{
 		mdkError << "Invalid input @ mdkShadowMatrix::operator(i)" <<'\n';
 		return m_NaNElement;
@@ -674,13 +674,13 @@ ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 LinearIndex)
         return m_SharedSourceMatrix[m_LinearIndexList_source[LinearIndex]];
    	}
 	
-    uint64 ColIndex = LinearIndex / m_RowNumber;
+    int64 ColIndex = LinearIndex / m_RowNumber;
 
-	uint64 RowIndex = LinearIndex % m_RowNumber;
+	int64 RowIndex = LinearIndex % m_RowNumber;
 
     auto RowNumber_source = m_SharedSourceMatrix.GetRowNumber();
 
-	uint64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+	int64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
 
     return m_SharedSourceMatrix[LinearIndex_source];
 }
@@ -688,11 +688,11 @@ ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 LinearIndex)
 
 template<typename ElementType>
 inline
-const ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 LinearIndex) const
+const ElementType& mdkShadowMatrix<ElementType>::operator()(int64 LinearIndex) const
 {
 #if defined(MDK_DEBUG_ShadowMatrix_Operator_CheckBound)
 
-    if (LinearIndex >= m_ElementNumber)
+    if (LinearIndex >= m_ElementNumber || LinearIndex < 0)
     {
         mdkError << "Invalid input @ mdkShadowMatrix::operator(i) const" << '\n';
         return m_NaNElement;
@@ -705,13 +705,13 @@ const ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 LinearIndex) 
         return m_SharedSourceMatrix[m_LinearIndexList_source[LinearIndex]];
     }
 
-    uint64 ColIndex = LinearIndex / m_RowNumber;
+    int64 ColIndex = LinearIndex / m_RowNumber;
 
-    uint64 RowIndex = LinearIndex % m_RowNumber;
+    int64 RowIndex = LinearIndex % m_RowNumber;
 
     auto RowNumber_source = m_SharedSourceMatrix.GetRowNumber();
 
-    uint64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+    int64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
 
     return m_SharedSourceMatrix[LinearIndex_source];
 }
@@ -719,11 +719,11 @@ const ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 LinearIndex) 
 
 template<typename ElementType>
 inline
-ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 RowIndex, uint64 ColIndex)
+ElementType& mdkShadowMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex)
 {
 #if defined(MDK_DEBUG_ShadowMatrix_Operator_CheckBound)
 
-    if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
+    if (RowIndex >= m_RowNumber || RowIndex < 0 || ColIndex >= m_ColNumber || ColIndex < 0)
 	{
 		mdkError << "Invalid input @ mdkShadowMatrix::operator(i, j)" << '\n';
 		return m_NaNElement;
@@ -740,7 +740,7 @@ ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 RowIndex, uint64 Co
 	
     auto RowNumber_source = m_SharedSourceMatrix.GetRowNumber();
 
-	uint64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+	int64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
 
     return m_SharedSourceMatrix[LinearIndex_source];
 }
@@ -748,11 +748,11 @@ ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 RowIndex, uint64 Co
 
 template<typename ElementType>
 inline
-const ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 RowIndex, uint64 ColIndex) const
+const ElementType& mdkShadowMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex) const
 {
 #if defined(MDK_DEBUG_ShadowMatrix_Operator_CheckBound)
 
-    if (RowIndex >= m_RowNumber || ColIndex >= m_ColNumber)
+    if (RowIndex >= m_RowNumber || RowIndex < 0 || ColIndex >= m_ColNumber || ColIndex < 0)
 	{
 		mdkError << "Invalid input @ mdkShadowMatrix::operator(i, j) const" << '\n';
 		return m_NaNElement;
@@ -769,7 +769,7 @@ const ElementType& mdkShadowMatrix<ElementType>::operator()(uint64 RowIndex, uin
 	
     auto RowNumber_source = m_SharedSourceMatrix.GetRowNumber();
 
-	uint64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+	int64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
 
     return m_SharedSourceMatrix[LinearIndex_source];
 }
@@ -782,7 +782,7 @@ void mdkShadowMatrix<ElementType>::operator+=(const mdkMatrix<ElementType>& Matr
 {
     auto Size = Matrix.GetSize();
 
-    if (m_RowNumber == 0 || Size.RowNumber == 0)
+    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
         mdkError << "Self or Matrix is empty @ mdkShadowMatrix::operator+=(Matrix)" << '\n';
         return;
@@ -805,7 +805,7 @@ void mdkShadowMatrix<ElementType>::operator+=(const mdkMatrix<ElementType>& Matr
 
     auto ptrInput = Matrix.GetElementPointer();
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] += ptrInput[i];
     }
@@ -818,7 +818,7 @@ void mdkShadowMatrix<ElementType>::operator-=(const mdkMatrix<ElementType>& Matr
 {
     auto Size = Matrix.GetSize();
 
-    if (m_RowNumber == 0 || Size.RowNumber == 0)
+    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
         mdkError << "Self or Matrix is empty @ mdkShadowMatrix::operator-=(Matrix)" << '\n';
         return;
@@ -841,7 +841,7 @@ void mdkShadowMatrix<ElementType>::operator-=(const mdkMatrix<ElementType>& Matr
 
     auto ptrInput = Matrix.GetElementPointer();
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] -= ptrInput[i];
     }
@@ -854,7 +854,7 @@ void mdkShadowMatrix<ElementType>::operator*=(const mdkMatrix<ElementType>& Matr
 {
     auto Size = Matrix.GetSize();
 
-    if (m_RowNumber == 0 || Size.RowNumber == 0)
+    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
         mdkError << "Self or Matrix is empty @ mdkShadowMatrix::operator*=(Matrix)" << '\n';
         return;
@@ -885,7 +885,7 @@ void mdkShadowMatrix<ElementType>::operator/=(const mdkMatrix<ElementType>& Matr
 {
     auto Size = Matrix.GetSize();
 
-    if (m_RowNumber == 0 || Size.RowNumber == 0)
+    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
         mdkError << "Self or Matrix is empty @ mdkShadowMatrix::operator/=(Matrix)" << '\n';
         return;
@@ -908,7 +908,7 @@ void mdkShadowMatrix<ElementType>::operator/=(const mdkMatrix<ElementType>& Matr
 
     auto ptrInput = Matrix.GetElementPointer();
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] /= ptrInput[i];
     }
@@ -920,7 +920,7 @@ template<typename ElementType>
 inline
 void mdkShadowMatrix<ElementType>::operator+=(const ElementType& Element)
 {
-    if (m_RowNumber == 0)
+    if (m_RowNumber <= 0)
     {
         mdkError << "Self is empty @ mdkShadowMatrix::operator+=(Element)" << '\n';
         return;
@@ -928,7 +928,7 @@ void mdkShadowMatrix<ElementType>::operator+=(const ElementType& Element)
 
     //----------------------------------------------------//
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] += Element;
     }
@@ -939,7 +939,7 @@ template<typename ElementType>
 inline
 void mdkShadowMatrix<ElementType>::operator-=(const ElementType& Element)
 {
-    if (m_RowNumber == 0)
+    if (m_RowNumber <= 0)
     {
         mdkError << "Self is empty @ mdkShadowMatrix::operator-=(Element)" << '\n';
         return;
@@ -947,7 +947,7 @@ void mdkShadowMatrix<ElementType>::operator-=(const ElementType& Element)
 
     //----------------------------------------------------//
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] -= Element;
     }
@@ -958,7 +958,7 @@ template<typename ElementType>
 inline
 void mdkShadowMatrix<ElementType>::operator*=(const ElementType& Element)
 {
-    if (m_RowNumber == 0)
+    if (m_RowNumber <= 0)
     {
         mdkError << "Self is empty @ mdkShadowMatrix::operator*=(Element)" << '\n';
         return;
@@ -966,7 +966,7 @@ void mdkShadowMatrix<ElementType>::operator*=(const ElementType& Element)
 
     //----------------------------------------------------//
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] *= Element;
     }
@@ -977,7 +977,7 @@ template<typename ElementType>
 inline
 void mdkShadowMatrix<ElementType>::operator/=(const ElementType& Element)
 {
-    if (m_RowNumber == 0)
+    if (m_RowNumber <= 0)
     {
         mdkError << "Self is empty @ mdkShadowMatrix::operator/=(Element)" << '\n';
         return;
@@ -985,7 +985,7 @@ void mdkShadowMatrix<ElementType>::operator/=(const ElementType& Element)
 
     //----------------------------------------------------//
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] /= Element;
     }
@@ -1012,7 +1012,7 @@ void mdkShadowMatrix<ElementType>::operator+=(const mdkShadowMatrix<ElementType>
         return;
     }
 
-    if (m_RowNumber == 0 || Size.RowNumber == 0)
+    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
         mdkError << "Self or ShadowMatrix is empty @ mdkShadowMatrix::operator+=(ShadowMatrix)" << '\n';
         return;
@@ -1020,7 +1020,7 @@ void mdkShadowMatrix<ElementType>::operator+=(const mdkShadowMatrix<ElementType>
 
     //-------------------------------------------
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] += ShadowMatrix[i];
     }
@@ -1046,7 +1046,7 @@ void mdkShadowMatrix<ElementType>::operator-=(const mdkShadowMatrix<ElementType>
         return;
     }
 
-    if (m_RowNumber == 0 || Size.RowNumber == 0)
+    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
         mdkError << "Self or ShadowMatrix is empty @ mdkShadowMatrix::operator-=(ShadowMatrix)" << '\n';
         return;
@@ -1054,7 +1054,7 @@ void mdkShadowMatrix<ElementType>::operator-=(const mdkShadowMatrix<ElementType>
 
     //-------------------------------------------
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] -= ShadowMatrix[i];
     }
@@ -1080,7 +1080,7 @@ void mdkShadowMatrix<ElementType>::operator*=(const mdkShadowMatrix<ElementType>
         return;
     }
 
-    if (m_RowNumber == 0 || Size.RowNumber == 0)
+    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
         mdkError << "Self or ShadowMatrix is empty @ mdkShadowMatrix::operator*=(ShadowMatrix)" << '\n';
         return;
@@ -1111,7 +1111,7 @@ void mdkShadowMatrix<ElementType>::operator/=(const mdkShadowMatrix<ElementType>
         return;
     }
 
-    if (m_RowNumber == 0 || Size.RowNumber == 0)
+    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
         mdkError << "Self or ShadowMatrix is empty @ mdkShadowMatrix::operator/=(ShadowMatrix)" << '\n';
         return;
@@ -1119,7 +1119,7 @@ void mdkShadowMatrix<ElementType>::operator/=(const mdkShadowMatrix<ElementType>
 
     //-------------------------------------------
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] /= ShadowMatrix[i];
     }
@@ -1215,7 +1215,7 @@ mdkMatrix<ElementType> mdkShadowMatrix<ElementType>::ElementMultiply(const mdkMa
         return  tempMatrix;
     }
 
-    if (m_RowNumber == 0 || Size.RowNumber == 0)
+    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
         mdkWarning << "Self or Matrix is empty @ mdkShadowMatrix::ElementMultiply(Matrix)" << '\n';
         return  tempMatrix;
@@ -1229,7 +1229,7 @@ mdkMatrix<ElementType> mdkShadowMatrix<ElementType>::ElementMultiply(const mdkMa
 
     auto ptrInput = targetMatrix.GetElementPointer();
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         ptrTemp[i] = (*this)[i] * ptrInput[i];
     }
@@ -1265,7 +1265,7 @@ mdkMatrix<ElementType> mdkShadowMatrix<ElementType>::ElementMultiply(const mdkSh
         return tempMatrix;
     }
 
-    if (m_RowNumber == 0 || Size.RowNumber == 0)
+    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
         mdkError << "Self or ShadowMatrix is empty @ mdkShadowMatrix::ElementMultiply(ShadowMatrix)" << '\n';
         return tempMatrix;
@@ -1275,7 +1275,7 @@ mdkMatrix<ElementType> mdkShadowMatrix<ElementType>::ElementMultiply(const mdkSh
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    for (uint64 i = 0; i < m_ElementNumber; ++i)
+    for (int64 i = 0; i < m_ElementNumber; ++i)
     {
         ptrTemp[i] = (*this)[i] * ShadowMatrix[i];
     }

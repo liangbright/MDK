@@ -9,19 +9,19 @@
 namespace mdk
 {
 
-template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
+template<typename VoxelType_Input, typename VoxelType_Output, int64 VectorVoxelLength_Output>
 mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::mdk3DImageConvolutionFilter()
 {
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
+template<typename VoxelType_Input, typename VoxelType_Output, int64 VectorVoxelLength_Output>
 mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::~mdk3DImageConvolutionFilter()
 {
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
+template<typename VoxelType_Input, typename VoxelType_Output, int64 VectorVoxelLength_Output>
 inline
 void
 mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
@@ -31,7 +31,7 @@ SetOutputVoxelMatrix(const mdkMatrix<VoxelType_Input>* VoxelMatrix)
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
+template<typename VoxelType_Input, typename VoxelType_Output, int64 VectorVoxelLength_Output>
 bool mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::Preprocess()
 {
     m_InputImage->GetImageDimension(&m_InputImageDimension[0], &m_InputImageDimension[1], &m_InputImageDimension[2]);
@@ -54,25 +54,25 @@ bool mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelL
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
+template<typename VoxelType_Input, typename VoxelType_Output, int64 VectorVoxelLength_Output>
 void mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::BuildMaskOf3DIndex()
 {
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
+template<typename VoxelType_Input, typename VoxelType_Output, int64 VectorVoxelLength_Output>
 void mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::BuildMaskOf3DPosition()
 {
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
+template<typename VoxelType_Input, typename VoxelType_Output, int64 VectorVoxelLength_Output>
 inline
 void
 mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
-FilterFunctionAt3DIndex(uint64 x_Index, uint64 y_Index, uint64 z_Index, VoxelType_Output& OutputVoxel)
+FilterFunctionAt3DIndex(int64 x_Index, int64 y_Index, int64 z_Index, VoxelType_Output& OutputVoxel)
 {
-    uint64 VectorVoxelLength = m_MaskList_3DIndex.size();
+    int64 VectorVoxelLength = m_MaskList_3DIndex.size();
     //-----------------------------------------
 
     auto x = double(x_Index);
@@ -83,7 +83,7 @@ FilterFunctionAt3DIndex(uint64 x_Index, uint64 y_Index, uint64 z_Index, VoxelTyp
     auto Ly = double(m_InputImageDimension[1]);
     auto Lz = double(m_InputImageDimension[2]);
 
-    for (uint64 i = 0; i < VectorVoxelLength; ++i)
+    for (int64 i = 0; i < VectorVoxelLength; ++i)
     {
         bool EnableBoundCheckForThisPosition = false;
 
@@ -120,14 +120,14 @@ FilterFunctionAt3DIndex(uint64 x_Index, uint64 y_Index, uint64 z_Index, VoxelTyp
 
                 auto temp_z = std::min(std::max(Ptr[2] + z, 0.0), Lz - 1);
 
-                tempVoxel += (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z)) * Ptr[3];
+                tempVoxel += (*m_InputImage)(int64(temp_x), int64(temp_y), int64(temp_z)) * Ptr[3];
             }
         }
         else
         {
             for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
             {
-                tempVoxel += (*m_InputImage)(uint64(x + Ptr[0]), uint64(y + Ptr[1]), uint64(z + Ptr[2])) * Ptr[3];
+                tempVoxel += (*m_InputImage)(int64(x + Ptr[0]), int64(y + Ptr[1]), int64(z + Ptr[2])) * Ptr[3];
             }
         }
 
@@ -137,20 +137,20 @@ FilterFunctionAt3DIndex(uint64 x_Index, uint64 y_Index, uint64 z_Index, VoxelTyp
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
+template<typename VoxelType_Input, typename VoxelType_Output, int64 VectorVoxelLength_Output>
 inline
 void
 mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
 FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& OutputVoxel)
 {
-    uint64 VectorVoxelLength = m_MaskList_3DPosition.size();
+    int64 VectorVoxelLength = m_MaskList_3DPosition.size();
     //-----------------------------------------
 
     auto Lx = double(m_InputImageDimension[0]);
     auto Ly = double(m_InputImageDimension[1]);
     auto Lz = double(m_InputImageDimension[2]);
 
-    for (uint64 i = 0; i < VectorVoxelLength; ++i)
+    for (int64 i = 0; i < VectorVoxelLength; ++i)
     {
         bool EnableBoundCheckForThisPosition = false;
 
@@ -193,8 +193,8 @@ FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& Outpu
 
                 temp_z = std::min(std::max(temp_z, 0.0), Lz - 1);
 
-                // inperpolation method: nearest neighber 
-                tempVoxel += (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z)) * Ptr[3];
+                // interpolation method: nearest neighbor 
+                tempVoxel += (*m_InputImage)(int64(temp_x), int64(temp_y), int64(temp_z)) * Ptr[3];
             }
         }
         else
@@ -207,8 +207,8 @@ FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& Outpu
 
                 auto temp_z = (Ptr[2] + z - m_InputImagePhysicalOrigin[2]) / m_InputVoxelPhysicalSize[2];
 
-                // inperpolation method: nearest neighber 
-                tempVoxel += (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z)) * Ptr[3];
+                // interpolation method: nearest neighbor 
+                tempVoxel += (*m_InputImage)(int64(temp_x), int64(temp_y), int64(temp_z)) * Ptr[3];
             }
         }
 
@@ -218,13 +218,13 @@ FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& Outpu
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output, uint64 VectorVoxelLength_Output>
+template<typename VoxelType_Input, typename VoxelType_Output, int64 VectorVoxelLength_Output>
 inline
 void
 mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
-OutputFunction(uint64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel)
+OutputFunction(int64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel)
 {
-    for (uint64 i = 0; i < VectorVoxelLength_Output; ++i)
+    for (int64 i = 0; i < VectorVoxelLength_Output; ++i)
     {
         (*m_OutputVoxelMatrix)(i, OutputVoxelIndex) = OutputVoxel[i];
     }
@@ -284,7 +284,7 @@ template<typename VoxelType_Input, typename VoxelType_Output>
 inline
 void
 mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::
-FilterFunctionAt3DIndex(uint64 x_Index, uint64 y_Index, uint64 z_Index, VoxelType_Output& OutputVoxel)
+FilterFunctionAt3DIndex(int64 x_Index, int64 y_Index, int64 z_Index, VoxelType_Output& OutputVoxel)
 {
 	//OutputVoxel = 0;
 	//return;
@@ -343,14 +343,14 @@ FilterFunctionAt3DIndex(uint64 x_Index, uint64 y_Index, uint64 z_Index, VoxelTyp
 
 			auto temp_z = std::min(std::max(Ptr[2] + z, 0.0), Lz - 1);
 
-			tempVoxel += (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z)) * Ptr[3];
+			tempVoxel += (*m_InputImage)(int64(temp_x), int64(temp_y), int64(temp_z)) * Ptr[3];
 		}
 	}
 	else
 	{
         for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
 		{
-			tempVoxel += (*m_InputImage)(uint64(x + Ptr[0]), uint64(y + Ptr[1]), uint64(z + Ptr[2])) * Ptr[3];
+			tempVoxel += (*m_InputImage)(int64(x + Ptr[0]), int64(y + Ptr[1]), int64(z + Ptr[2])) * Ptr[3];
 		}
 	}
 
@@ -412,7 +412,7 @@ FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& Outpu
             temp_z = std::min(std::max(temp_z, 0.0), Lz - 1);
 
             // inperpolation method: nearest neighber 
-            tempVoxel += (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z)) * Ptr[3];
+            tempVoxel += (*m_InputImage)(int64(temp_x), int64(temp_y), int64(temp_z)) * Ptr[3];
         }
     }
     else
@@ -426,7 +426,7 @@ FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& Outpu
             auto temp_z = (Ptr[2] + z - m_InputImagePhysicalOrigin[2]) / m_InputVoxelPhysicalSize[2];
 
             // inperpolation method: nearest neighber 
-            tempVoxel += (*m_InputImage)(uint64(temp_x), uint64(temp_y), uint64(temp_z)) * Ptr[3];
+            tempVoxel += (*m_InputImage)(int64(temp_x), int64(temp_y), int64(temp_z)) * Ptr[3];
         }
     }
 

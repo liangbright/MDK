@@ -59,7 +59,7 @@ void mdkGlueMatrixForMultiplication<ElementType>::Reset()
 
 template<typename ElementType>
 inline
-uint64 mdkGlueMatrixForMultiplication<ElementType>::GetRowNumber() const
+int64 mdkGlueMatrixForMultiplication<ElementType>::GetRowNumber() const
 {
     return m_RowNumber;
 }
@@ -67,7 +67,7 @@ uint64 mdkGlueMatrixForMultiplication<ElementType>::GetRowNumber() const
 
 template<typename ElementType>
 inline
-uint64 mdkGlueMatrixForMultiplication<ElementType>::GetColNumber() const
+int64 mdkGlueMatrixForMultiplication<ElementType>::GetColNumber() const
 {
     return m_ColNumber;
 }
@@ -75,7 +75,7 @@ uint64 mdkGlueMatrixForMultiplication<ElementType>::GetColNumber() const
 
 template<typename ElementType>
 inline
-uint64 mdkGlueMatrixForMultiplication<ElementType>::GetElementNumber() const
+int64 mdkGlueMatrixForMultiplication<ElementType>::GetElementNumber() const
 {
     return m_RowNumber*m_ColNumber;
 }
@@ -97,7 +97,7 @@ mdkMatrixSize mdkGlueMatrixForMultiplication<ElementType>::GetSize() const
 
 template<typename ElementType>
 inline
-uint64 mdkGlueMatrixForMultiplication<ElementType>::GetMatrixNumber() const
+int64 mdkGlueMatrixForMultiplication<ElementType>::GetMatrixNumber() const
 {
     return m_SharedSourceMatrixList.size();
 }
@@ -107,7 +107,7 @@ template<typename ElementType>
 inline
 bool mdkGlueMatrixForMultiplication<ElementType>::IsEmpty() const
 {
-    if (m_RowNumber == 0)
+    if (m_RowNumber <= 0)
     {
         return true;
     }
@@ -147,7 +147,7 @@ bool mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
         }
     }
 
-    auto MatrixNumber = m_SharedSourceMatrixList.size();
+    auto MatrixNumber = int64(m_SharedSourceMatrixList.size());
 
     if (MatrixNumber == 0)
     {
@@ -188,7 +188,7 @@ bool mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
     {
         MatrixMultiply(OutputMatrix, m_SharedSourceMatrixList[0], m_SharedSourceMatrixList[1]);
         
-        for (uint64 i = 2; i < MatrixNumber; ++i)
+        for (int64 i = 2; i < MatrixNumber; ++i)
         {
             OutputMatrix = MatrixMultiply(OutputMatrix, m_SharedSourceMatrixList[i]);
         }
@@ -206,7 +206,7 @@ bool mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
     {
         MatrixMultiply(OutputMatrix, m_SharedSourceMatrixList[MatrixNumber - 2], m_SharedSourceMatrixList[MatrixNumber - 1]);
 
-        for (uint64 i = MatrixNumber-3; i >= 0; --i)
+        for (int64 i = MatrixNumber-3; i >= 0; --i)
         {
             OutputMatrix = MatrixMultiply(m_SharedSourceMatrixList[i], OutputMatrix);
         }
@@ -226,7 +226,7 @@ bool mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
 
     auto MatrixPointerList = std::vector<const mdkMatrix<ElementType>*>(MatrixNumber);
 
-    for (uint64 i = 0; i < MatrixNumber - 1; ++i)
+    for (int64 i = 0; i < MatrixNumber - 1; ++i)
     {
         MatrixPointerList[i] = &m_SharedSourceMatrixList[i];
     }
@@ -236,18 +236,18 @@ bool mdkGlueMatrixForMultiplication<ElementType>::CreateMatrix(mdkMatrix<Element
    
     while (true)
     {
-        auto CurMatrixNumber = ResultMatrixList.size();
+        auto CurMatrixNumber = int64(ResultMatrixList.size());
 
         if (CurMatrixNumber == 1)
         {
             break;
         }
 
-        uint64 Max_ElementNumber_Diff = 0;
+        int64 Max_ElementNumber_Diff = 0;
 
-        uint64 RelativeIndex_BestMatrixPair = 0;
+        int64 RelativeIndex_BestMatrixPair = 0;
 
-        for (uint64 i = 0; i < CurMatrixNumber - 1; ++i)
+        for (int64 i = 0; i < CurMatrixNumber - 1; ++i)
         {
             auto tempRowNumber_a = MatrixPointerList[i]->GetRowNumber();
             auto tempColNumber_a = MatrixPointerList[i]->GetRowNumber();

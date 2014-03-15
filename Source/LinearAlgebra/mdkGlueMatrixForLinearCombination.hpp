@@ -68,7 +68,7 @@ inline void mdkGlueMatrixForLinearCombination<ElementType>::Reset()
 
 template<typename ElementType>
 inline 
-uint64 mdkGlueMatrixForLinearCombination<ElementType>::GetRowNumber() const
+int64 mdkGlueMatrixForLinearCombination<ElementType>::GetRowNumber() const
 {
     return m_RowNumber;
 }
@@ -76,7 +76,7 @@ uint64 mdkGlueMatrixForLinearCombination<ElementType>::GetRowNumber() const
 
 template<typename ElementType>
 inline 
-uint64 mdkGlueMatrixForLinearCombination<ElementType>::GetColNumber() const
+int64 mdkGlueMatrixForLinearCombination<ElementType>::GetColNumber() const
 {
     return m_ColNumber;
 }
@@ -98,7 +98,7 @@ mdkMatrixSize mdkGlueMatrixForLinearCombination<ElementType>::GetSize() const
 
 template<typename ElementType>
 inline
-uint64 mdkGlueMatrixForLinearCombination<ElementType>::GetMatrixNumber() const
+int64 mdkGlueMatrixForLinearCombination<ElementType>::GetMatrixNumber() const
 {
     return m_SharedSourceMatrixList.size();
 }
@@ -109,7 +109,7 @@ template<typename ElementType>
 inline
 bool mdkGlueMatrixForLinearCombination<ElementType>::IsEmpty() const
 {
-    if (m_RowNumber == 0)
+    if (m_RowNumber <= 0)
     {
         return true;
     }
@@ -149,7 +149,7 @@ bool mdkGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkMatrix<Elem
         }
     }
 
-    auto MatrixNumber = m_SharedSourceMatrixList.size();
+    int64 MatrixNumber = m_SharedSourceMatrixList.size();
 
     if (MatrixNumber == 0)
     {
@@ -159,7 +159,7 @@ bool mdkGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkMatrix<Elem
 
     std::vector<const mdkMatrix<ElementType>*> MatrixPtrList(MatrixNumber);
 
-    for (uint64 k = 0; k < MatrixNumber; ++k)
+    for (int64 k = 0; k < MatrixNumber; ++k)
     {
         MatrixPtrList[k] = &m_SharedSourceMatrixList[k];
     }

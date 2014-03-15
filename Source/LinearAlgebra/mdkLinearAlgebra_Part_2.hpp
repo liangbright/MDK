@@ -41,11 +41,11 @@ mdkMatrix<ElementType> MatrixTranspose(const mdkMatrix<ElementType>& Matrix)
 
     auto RawPointer = Matrix.GetElementPointer();
 
-    for (uint64 i = 0; i < Size.RowNumber; ++i)
+    for (int64 i = 0; i < Size.RowNumber; ++i)
     {
-        uint64 Index = 0;
+        int64 Index = 0;
 
-        for (uint64 j = 0; j < Size.ColNumber; ++j)
+        for (int64 j = 0; j < Size.ColNumber; ++j)
         {
             tempRawPointer[0] = RawPointer[Index + i];
 
@@ -61,7 +61,7 @@ mdkMatrix<ElementType> MatrixTranspose(const mdkMatrix<ElementType>& Matrix)
 
 template<typename ElementType>
 inline 
-uint64 MatrixRank(const mdkMatrix<ElementType>& Matrix)
+int64 MatrixRank(const mdkMatrix<ElementType>& Matrix)
 {
     auto RowNumber = Matrix.GetRowNumber();
 
@@ -79,7 +79,7 @@ uint64 MatrixRank(const mdkMatrix<ElementType>& Matrix)
 
     arma::Mat<ElementType> tempMat(ptrData, arma::uword(RowNumber), arma::uword(ColNumber), false);
 
-    uint64 value = arma::rank(tempMat);
+    int64 value = arma::rank(tempMat);
 
     return value;
 }
@@ -91,33 +91,31 @@ mdkMatrix<ElementType> MatrixInv(const mdkMatrix<ElementType>& Matrix)
 {
     mdkMatrix<ElementType> tempMatrix;
 
-    auto RowNumber = Matrix.GetRowNumber();
+    auto Size = Matrix.GetSize();
 
-    auto ColNumber = Matrix.GetColNumber();
-
-    if (RowNumber == 0)
+    if (Size.RowNumber == 0)
     {
         mdkError << "Matrix is empty matrix @ mdkLinearAlgebra MatrixINV(Matrix)" << '\n';
 
         return tempMatrix;
     }
 
-    if (RowNumber != ColNumber)
+    if (Size.RowNumber != Size.ColNumber)
     {
-        mdkError << "Matrix is not squre @ mdkLinearAlgebra MatrixINV(Matrix)" << '\n';
+        mdkError << "Matrix is not square @ mdkLinearAlgebra MatrixINV(Matrix)" << '\n';
 
         return tempMatrix;
     }
 
-    tempMatrix.Resize(RowNumber, ColNumber);
+    tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
 
     auto ptrData = const_cast<ElementType*>(Matrix.GetElementPointer());
 
     // call Armadillo 
 
-    arma::Mat<ElementType> tempMat(ptrData, arma::uword(RowNumber), arma::uword(ColNumber), false);
+    arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);
 
-    arma::Mat<ElementType> tempInv(tempMatrix.GetElementPointer(), arma::uword(RowNumber), arma::uword(ColNumber), false);
+    arma::Mat<ElementType> tempInv(tempMatrix.GetElementPointer(), arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);
 
     tempInv = arma::inv(tempMat);
 
@@ -131,37 +129,35 @@ mdkMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(cons
 {
     mdkMatrixEigenResult<std::complex<ElementType>> Result;
 
-    auto RowNumber = Matrix.GetRowNumber();
+    auto Size = Matrix.GetSize();
 
-    auto ColNumber = Matrix.GetColNumber();
-
-    if (RowNumber == 0)
+    if (Size.RowNumber == 0)
     {
         mdkError << "Matrix is empty matrix @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
 
         return Result;
     }
 
-    if (RowNumber != ColNumber)
+    if (Size.RowNumber != Size.ColNumber)
     {
-        mdkError << "Matrix is not squre @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
+        mdkError << "Matrix is not square @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
 
         return Result;
     }
 
-    Result.EigenVector.Resize(RowNumber, RowNumber);
+    Result.EigenVector.Resize(Size.RowNumber, Size.RowNumber);
 
-    Result.EigenValue.Resize(RowNumber, 1);
+    Result.EigenValue.Resize(Size.RowNumber, 1);
 
     auto ptrData = Matrix.GetElementDataSharedPointer()->data();
 
     // call Armadillo 
 
-    arma::Mat<ElementType> tempMat(ptrData, arma::uword(RowNumber), arma::uword(RowNumber), false);
+    arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowNumber), arma::uword(Size.RowNumber), false);
 
-    arma::Mat<std::complex<ElementType>> tempEigenVector(Result.EigenVector.GetElementPointer(), arma::uword(RowNumber), arma::uword(RowNumber), false);
+    arma::Mat<std::complex<ElementType>> tempEigenVector(Result.EigenVector.GetElementPointer(), arma::uword(Size.RowNumber), arma::uword(Size.RowNumber), false);
 
-    arma::Col<std::complex<ElementType>> tempEigenValue(Result.EigenValue.GetElementPointer(), arma::uword(RowNumber), false);
+    arma::Col<std::complex<ElementType>> tempEigenValue(Result.EigenValue.GetElementPointer(), arma::uword(Size.RowNumber), false);
 
     arma::eig_gen(tempEigenValue, tempEigenVector, tempMat);
 
@@ -175,20 +171,18 @@ mdkMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const mdkMatrix<Eleme
 {
     mdkMatrixEigenResult<ElementType> Result;
 
-    auto RowNumber = Matrix.GetRowNumber();
+    auto Size = Matrix.GetSize();
 
-    auto ColNumber = Matrix.GetColNumber();
-
-    if (RowNumber == 0)
+    if (Size.RowNumber == 0)
     {
         mdkError << "Matrix is empty matrix @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
 
         return Result;
     }
 
-    if (RowNumber != ColNumber)
+    if (Size.RowNumber != Size.ColNumber)
     {
-        mdkError << "Matrix is not squre @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
+        mdkError << "Matrix is not square @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
 
         return Result;
     }
@@ -207,19 +201,19 @@ mdkMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const mdkMatrix<Eleme
         }
     }
   
-    Result.EigenVector.Resize(RowNumber, RowNumber);
+    Result.EigenVector.Resize(Size.RowNumber, Size.RowNumber);
 
-    Result.EigenValue.Resize(RowNumber, 1);
+    Result.EigenValue.Resize(Size.RowNumber, 1);
 
     auto ptrData = Matrix.GetElementDataSharedPointer()->data();
 
     // call Armadillo 
 
-    arma::Mat<ElementType> tempMat(ptrData, arma::uword(RowNumber), arma::uword(RowNumber), false);
+    arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowNumber), arma::uword(Size.RowNumber), false);
 
-    arma::Mat<ElementType> tempEigenVector(Result.EigenVector.GetElementPointer(), arma::uword(RowNumber), arma::uword(RowNumber), false);
+    arma::Mat<ElementType> tempEigenVector(Result.EigenVector.GetElementPointer(), arma::uword(Size.RowNumber), arma::uword(Size.RowNumber), false);
 
-    arma::Col<ElementType> tempEigenValue(Result.EigenValue.GetElementPointer(), arma::uword(RowNumber), false);
+    arma::Col<ElementType> tempEigenValue(Result.EigenValue.GetElementPointer(), arma::uword(Size.RowNumber), false);
 
     arma::eig_sym(tempEigenValue, tempEigenVector, tempMat);
 
@@ -233,24 +227,22 @@ mdkMatrixPCAResult<ElementType> MatrixPCA(const mdkMatrix<ElementType>& Matrix)
 {
     mdkMatrixPCAResult<ElementType> PCAResult;
 
-    auto RowNumber = Matrix.GetRowNumber();
+    auto Size = Matrix.GetSize();
 
-    auto ColNumber = Matrix.GetColNumber();
-
-    if (ColNumber <= 1)
+    if (Size.ColNumber <= 1)
     {
         mdkError << "ColNumber <= 1, return empty PCAResult @ mdkLinearAlgebra MatrixPCA(Matrix)" << '\n';
         return PCAResult;
     }
 
     auto MeanCol = Matrix.SumToCol();
-    MeanCol /= ColNumber;
+    MeanCol /= Size.ColNumber;
 
-    mdkMatrix<ElementType> CovarianceMatrix(RowNumber, RowNumber);
+    mdkMatrix<ElementType> CovarianceMatrix(Size.RowNumber, Size.RowNumber);
 
     CovarianceMatrix.Fill(0);
 
-    for (uint64 i = 0; i < ColNumber; ++i)
+    for (int64 i = 0; i < Size.ColNumber; ++i)
     {
         // auto tempCol = Matrix(ALL, { i }) - MeanCol;
 
@@ -261,7 +253,7 @@ mdkMatrixPCAResult<ElementType> MatrixPCA(const mdkMatrix<ElementType>& Matrix)
         CovarianceMatrix += tempCol * tempCol.Transpose();
     }
 
-    CovarianceMatrix /= ColNumber;
+    CovarianceMatrix /= Size.ColNumber;
 
     auto EigenResult = SymmetricRealMatrixEigen(CovarianceMatrix);
 
@@ -283,29 +275,27 @@ mdkMatrixSVDResult<ElementType> MatrixSVD(const mdkMatrix<ElementType>& Matrix)
 {
     mdkMatrixSVDResult<ElementType> Result;
 
-    auto RowNumber = Matrix.GetRowNumber();
+    auto Size = Matrix.GetSize();
 
-    auto ColNumber = Matrix.GetColNumber();
-
-    if (RowNumber == 0)
+    if (Size.RowNumber == 0)
     {
         mdkError << "Matrix is empty  @ mdkLinearAlgebra MatrixSVD(Matrix)" << '\n';
         return Result;
     }
 
-    Result.U.Resize(RowNumber, ColNumber);
-    Result.S.Resize(RowNumber, ColNumber);
-    Result.V.Resize(RowNumber, ColNumber);
+    Result.U.Resize(Size.RowNumber, Size.ColNumber);
+    Result.S.Resize(Size.RowNumber, Size.ColNumber);
+    Result.V.Resize(Size.RowNumber, Size.ColNumber);
 
     auto ptrData = const_cast<ElementType*>(Matrix.GetElementPointer());
 
     // call Armadillo 
 
-    arma::Mat<ElementType> X(ptrData, arma::uword(RowNumber), arma::uword(ColNumber), false);
+    arma::Mat<ElementType> X(ptrData, arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);
 
-    arma::Mat<ElementType> U(Result.U.GetElementPointer(), arma::uword(RowNumber), arma::uword(ColNumber), false);
+    arma::Mat<ElementType> U(Result.U.GetElementPointer(), arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);
     arma::Col<ElementType> S;
-    arma::Mat<ElementType> V(Result.V.GetElementPointer(), arma::uword(RowNumber), arma::uword(ColNumber), false);
+    arma::Mat<ElementType> V(Result.V.GetElementPointer(), arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);
 
     arma::svd(U, S, V, X);
 

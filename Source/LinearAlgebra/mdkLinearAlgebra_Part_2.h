@@ -26,7 +26,7 @@ inline mdkMatrix<ElementType> MatrixTranspose(const mdkMatrix<ElementType>& Matr
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline uint64 MatrixRank(const mdkMatrix<ElementType>& Matrix);
+inline int64 MatrixRank(const mdkMatrix<ElementType>& Matrix);
 
 //-----------------------------------------------------------------------------------------------//
 
