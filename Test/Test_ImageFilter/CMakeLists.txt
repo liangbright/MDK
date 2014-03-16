@@ -18,7 +18,7 @@ set(Debug_DIR "C:/Research/MDK/Code/Source/Debug")
 
 set(Common_DIR "C:/Research/MDK/Code/Source/Common")
 
-set(ImageData_DIR "C:/Research/MDK/Code/Source/ImageData")
+set(Image_DIR "C:/Research/MDK/Code/Source/Image")
 
 set(ImageFilter_DIR "C:/Research/MDK/Code/Source/ImageFilter")
 
@@ -37,7 +37,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}
 ${Common_DIR} 
 ${Debug_DIR} 
 ${FileIO_DIR} 
-${ImageData_DIR} 
+${Image_DIR} 
 ${ImageFilter_DIR} 
 ${LinearAlgebra_DIR}
 ${Arma_DIR} 
@@ -65,21 +65,21 @@ ${Common_DIR}/mdkObject.cpp
 
 ${LinearAlgebra_DIR}/mdkMatrix.h
 ${LinearAlgebra_DIR}/mdkMatrix.hpp
+${LinearAlgebra_DIR}/mdkMatrix.cpp
 
 ${LinearAlgebra_DIR}/mdkShadowMatrix.h
 ${LinearAlgebra_DIR}/mdkShadowMatrix.hpp
 
-${LinearAlgebra_DIR}/mdkGlueMatrix.h
-${LinearAlgebra_DIR}/mdkGlueMatrix.hpp
+${LinearAlgebra_DIR}/mdkGlueMatrixForLinearCombination.h
+${LinearAlgebra_DIR}/mdkGlueMatrixForLinearCombination.hpp
+
+${LinearAlgebra_DIR}/mdkGlueMatrixForMultiplication.h
+${LinearAlgebra_DIR}/mdkGlueMatrixForMultiplication.hpp
 
 ${LinearAlgebra_DIR}/mdkLinearAlgebra.h
-${LinearAlgebra_DIR}/mdkLinearAlgebra.hpp
 
-${ImageData_DIR}/mdk3DImageVoxel.h
-${ImageData_DIR}/mdk3DImageVoxel.hpp
-
-${ImageData_DIR}/mdk3DImage.h
-${ImageData_DIR}/mdk3DImage.hpp
+${Image_DIR}/mdk3DImage.h
+${Image_DIR}/mdk3DImage.hpp
 
 ${ImageFilter_DIR}/mdk3DImageFilter.h
 ${ImageFilter_DIR}/mdk3DImageFilter.hpp

@@ -546,6 +546,8 @@ void mdkMatrix<ElementType>::ForceShare(const mdkMatrix<ElementType>& InputMatri
     }
     else
     {
+        mdkWarning << "empty InputMatrix @ mdkMatrix::ForceShare(InputMatrix)" << '\n';
+
         m_ElementPointer = nullptr;
     }
 }
@@ -584,7 +586,7 @@ bool mdkMatrix<ElementType>::Take(mdkMatrix<ElementType>& InputMatrix)
         return true;
     }
 
-    // InputMatrix is not empty
+    // now, InputMatrix is not empty
 
     m_MatrixData = std::move(InputMatrix.m_MatrixData);
 
@@ -869,6 +871,8 @@ bool mdkMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber, 
             tempDataArray[tempIndex + i] = RawPointer[Index + i];
         }
     }
+
+    //-------------------------------------------------------------
 
     m_MatrixData->RowNumber = InputRowNumber;
 

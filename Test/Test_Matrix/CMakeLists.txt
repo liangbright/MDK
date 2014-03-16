@@ -18,7 +18,7 @@ set(Debug_DIR "C:/Research/MDK/Code/Source/Debug")
 
 set(Common_DIR "C:/Research/MDK/Code/Source/Common")
 
-set(ImageData_DIR "C:/Research/MDK/Code/Source/ImageData")
+set(Image_DIR "C:/Research/MDK/Code/Source/Image")
 
 set(ImageFilter_DIR "C:/Research/MDK/Code/Source/ImageFilter")
 
@@ -65,6 +65,7 @@ ${Common_DIR}/mdkObject.cpp
 
 ${LinearAlgebra_DIR}/mdkMatrix.h
 ${LinearAlgebra_DIR}/mdkMatrix.hpp
+${LinearAlgebra_DIR}/mdkMatrix.cpp
 
 ${LinearAlgebra_DIR}/mdkShadowMatrix.h
 ${LinearAlgebra_DIR}/mdkShadowMatrix.hpp

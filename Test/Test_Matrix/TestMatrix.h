@@ -112,7 +112,7 @@ void Test_Constructor()
 
     mdkMatrix<double> A(2, 2);
 
-    A(span(1, 0), span(1, 0)) = 0;
+    A(span(1, 0), span(1, 0)) = 1;
 
     DisplayMatrix("A", A);
 
@@ -127,7 +127,7 @@ void Test_Constructor()
 
     auto t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < 6000000000; ++i)
+    for (int64 i = 0; i < 60000; ++i)
     {
         A[1] *= i;
     }
@@ -160,7 +160,7 @@ void Test_Constructor()
 
     t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < 6000000000; ++i)
+    for (int64 i = 0; i < 60000; ++i)
     {
         A(1, 1) *= i;
     }
@@ -227,8 +227,8 @@ void Test_MoveConstructor()
 
     auto ptrA = A.GetElementPointer();
 
-    A = { 1, 2,
-        3, 4 };
+    A = { { 1, 2 },
+          { 3, 4 } };
 
     DisplayMatrix("A", A);
 

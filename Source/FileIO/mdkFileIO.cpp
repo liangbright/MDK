@@ -14,8 +14,6 @@ mdk3DImage<double> ReadGrayScale3DImageFromDICOMFile(const std::string& FilePath
 {
     mdk3DImage<double> tempImage;
 
-    tempImage.SetTobeTemporary();
-
     auto reader = vtkSmartPointer<vtkDICOMImageReader>::New();
 
     reader->SetDirectoryName(FilePath.c_str());
@@ -90,13 +88,13 @@ void SaveGrayScale3DImageAsRawDataFile(const std::string& FilePathAndName, const
     auto Spacing = Image.GetVoxelPhysicalSize();
 
     PairList[7].Name = "Spacing_x";
-    PairList[7].Value = QString::number(Spacing.Vx);
+    PairList[7].Value = QString::number(Spacing.Sx);
 
     PairList[8].Name = "Spacing_y";
-    PairList[8].Value = QString::number(Spacing.Vy);
+    PairList[8].Value = QString::number(Spacing.Sy);
 
     PairList[9].Name = "Spacing_z";
-    PairList[9].Value = QString::number(Spacing.Vz);
+    PairList[9].Value = QString::number(Spacing.Sz);
 
     WritePairListAsJsonFile(PairList, QString(FilePathAndName.c_str()));
 
@@ -112,7 +110,7 @@ void SaveGrayScale3DImageAsRawDataFile(const std::string& FilePathAndName, const
 
     uint64 L = Dimension.Lx * Dimension.Ly * Dimension.Lz;
 
-    auto RawPointer = (char*) Image.GetVoxelDataRawPointer();
+    auto RawPointer = (char*) Image.GetVoxelPointer();
 
     DataFile.write(RawPointer, L*8);
 

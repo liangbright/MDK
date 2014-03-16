@@ -34,13 +34,13 @@ SetOutputVoxelMatrix(const mdkMatrix<VoxelType_Input>* VoxelMatrix)
 template<typename VoxelType_Input, typename VoxelType_Output, int64 VectorVoxelLength_Output>
 bool mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::Preprocess()
 {
-    m_InputImage->GetImageDimension(&m_InputImageDimension[0], &m_InputImageDimension[1], &m_InputImageDimension[2]);
+    m_InputImageDimension = m_InputImage->GetImageDimension();
 
-    m_InputImage->GetPhysicalOrigin(&m_InputImagePhysicalOrigin[0], &m_InputImagePhysicalOrigin[1], &m_InputImagePhysicalOrigin[2]);
+    m_InputImagePhysicalOrigin = m_InputImage->GetPhysicalOrigin();
 
-    m_InputImage->GetImagePhysicalSize(&m_InputImagePhysicalSize[0], &m_InputImagePhysicalSize[1], &m_InputImagePhysicalSize[2]);
-    
-    m_InputImage->GetVoxelPhysicalSize(&m_InputVoxelPhysicalSize[0], &m_InputVoxelPhysicalSize[1], &m_InputVoxelPhysicalSize[2]);
+    m_InputImagePhysicalSize = m_InputImage->GetImagePhysicalSize();
+
+    m_InputVoxelPhysicalSize = m_InputImage->GetVoxelPhysicalSize();
 
     this->BuildMaskOf3DIndex();
 
@@ -72,16 +72,16 @@ void
 mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
 FilterFunctionAt3DIndex(int64 x_Index, int64 y_Index, int64 z_Index, VoxelType_Output& OutputVoxel)
 {
-    int64 VectorVoxelLength = m_MaskList_3DIndex.size();
+    auto VectorVoxelLength = int64(m_MaskList_3DIndex.size());
     //-----------------------------------------
 
     auto x = double(x_Index);
     auto y = double(y_Index);
     auto z = double(z_Index);
 
-    auto Lx = double(m_InputImageDimension[0]);
-    auto Ly = double(m_InputImageDimension[1]);
-    auto Lz = double(m_InputImageDimension[2]);
+    auto Lx = m_InputImageDimension.Lx;
+    auto Ly = m_InputImageDimension.Ly;
+    auto Lz = m_InputImageDimension.Lz;
 
     for (int64 i = 0; i < VectorVoxelLength; ++i)
     {
@@ -106,7 +106,7 @@ FilterFunctionAt3DIndex(int64 x_Index, int64 y_Index, int64 z_Index, VoxelType_O
 
         auto tempElementNumber = m_MaskList_3DIndex[i].GetElementNumber();
 
-        auto RawPointer = m_MaskList_3DIndex[i].GetElementDataRawPointer();
+        auto RawPointer = m_MaskList_3DIndex[i].GetElementPointer();
 
         auto tempVoxel = m_ZeroVoxelOfInputImage;
 
@@ -114,20 +114,20 @@ FilterFunctionAt3DIndex(int64 x_Index, int64 y_Index, int64 z_Index, VoxelType_O
         {
             for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
             {
-                auto temp_x = std::min(std::max(Ptr[0] + x, 0.0), Lx - 1);
+                auto temp_x = std::min(std::max(int64(Ptr[0]) + x, int64(0)), Lx - 1);
 
-                auto temp_y = std::min(std::max(Ptr[1] + y, 0.0), Ly - 1);
+                auto temp_y = std::min(std::max(int64(Ptr[1]) + y, int64(0)), Ly - 1);
 
-                auto temp_z = std::min(std::max(Ptr[2] + z, 0.0), Lz - 1);
+                auto temp_z = std::min(std::max(int64(Ptr[2]) + z, int64(0)), Lz - 1);
 
-                tempVoxel += (*m_InputImage)(int64(temp_x), int64(temp_y), int64(temp_z)) * Ptr[3];
+                tempVoxel += (*m_InputImage)(temp_x, temp_y, temp_z) * Ptr[3];
             }
         }
         else
         {
             for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
             {
-                tempVoxel += (*m_InputImage)(int64(x + Ptr[0]), int64(y + Ptr[1]), int64(z + Ptr[2])) * Ptr[3];
+                tempVoxel += (*m_InputImage)(x_Index + int64(Ptr[0]), y_Index + int64(Ptr[1]), z_Index + int64(Ptr[2])) * Ptr[3];
             }
         }
 
@@ -173,7 +173,7 @@ FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& Outpu
 
         auto tempElementNumber = m_MaskList_3DPosition[i].GetElementNumber();
 
-        auto RawPointer = m_MaskList_3DPosition[i].GetElementDataRawPointer();
+        auto RawPointer = m_MaskList_3DPosition[i].GetElementPointer();
 
         auto tempVoxel = m_ZeroVoxelOfInputImage;
 
@@ -181,15 +181,15 @@ FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& Outpu
         {
             for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
             {
-                auto temp_x = (Ptr[0] + x - m_InputImagePhysicalOrigin[0]) / m_InputVoxelPhysicalSize[0];
+                auto temp_x = (Ptr[0] + x - m_InputImagePhysicalOrigin.x) / m_InputVoxelPhysicalSize.Sx;
 
                 temp_x = std::min(std::max(temp_x, 0.0), Lx - 1);
 
-                auto temp_y = (Ptr[1] + y - m_InputImagePhysicalOrigin[1]) / m_InputVoxelPhysicalSize[1];
+                auto temp_y = (Ptr[1] + y - m_InputImagePhysicalOrigin.y) / m_InputVoxelPhysicalSize.Sy;
 
                 temp_y = std::min(std::max(temp_y, 0.0), Ly - 1);
 
-                auto temp_z = (Ptr[2] + z - m_InputImagePhysicalOrigin[2]) / m_InputVoxelPhysicalSize[2];
+                auto temp_z = (Ptr[2] + z - m_InputImagePhysicalOrigin.z) / m_InputVoxelPhysicalSize.Sz;
 
                 temp_z = std::min(std::max(temp_z, 0.0), Lz - 1);
 
@@ -201,11 +201,11 @@ FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& Outpu
         {
             for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
             {
-                auto temp_x = (Ptr[0] + x - m_InputImagePhysicalOrigin[0]) / m_InputVoxelPhysicalSize[0];
+                auto temp_x = (Ptr[0] + x - m_InputImagePhysicalOrigin.x) / m_InputVoxelPhysicalSize.Sx;
 
-                auto temp_y = (Ptr[1] + y - m_InputImagePhysicalOrigin[1]) / m_InputVoxelPhysicalSize[1];
+                auto temp_y = (Ptr[1] + y - m_InputImagePhysicalOrigin.y) / m_InputVoxelPhysicalSize.Sy;
 
-                auto temp_z = (Ptr[2] + z - m_InputImagePhysicalOrigin[2]) / m_InputVoxelPhysicalSize[2];
+                auto temp_z = (Ptr[2] + z - m_InputImagePhysicalOrigin.z) / m_InputVoxelPhysicalSize.Sz;
 
                 // interpolation method: nearest neighbor 
                 tempVoxel += (*m_InputImage)(int64(temp_x), int64(temp_y), int64(temp_z)) * Ptr[3];
@@ -246,13 +246,13 @@ mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::~mdk3DImageCo
 template<typename VoxelType_Input, typename VoxelType_Output>
 bool mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::Preprocess()
 {
-    m_InputImage->GetImageDimension(&m_InputImageDimension[0], &m_InputImageDimension[1], &m_InputImageDimension[2]);
+    m_InputImageDimension = m_InputImage->GetImageDimension();
 
-    m_InputImage->GetPhysicalOrigin(&m_InputImagePhysicalOrigin[0], &m_InputImagePhysicalOrigin[1], &m_InputImagePhysicalOrigin[2]);
+    m_InputImagePhysicalOrigin = m_InputImage->GetPhysicalOrigin();
 
-    m_InputImage->GetImagePhysicalSize(&m_InputImagePhysicalSize[0], &m_InputImagePhysicalSize[1], &m_InputImagePhysicalSize[2]);
+    m_InputImagePhysicalSize = m_InputImage->GetImagePhysicalSize();
 
-    m_InputImage->GetVoxelPhysicalSize(&m_InputVoxelPhysicalSize[0], &m_InputVoxelPhysicalSize[1], &m_InputVoxelPhysicalSize[2]);
+    m_InputVoxelPhysicalSize = m_InputImage->GetVoxelPhysicalSize();
 
     this->BuildMaskOf3DIndex();
 
@@ -319,38 +319,34 @@ FilterFunctionAt3DIndex(int64 x_Index, int64 y_Index, int64 z_Index, VoxelType_O
     }
     //-----------------------------------------
 
-    auto x = double(x_Index);
-    auto y = double(y_Index);
-    auto z = double(z_Index);
-
     auto tempElementNumber = m_MaskList_3DIndex[0].GetElementNumber();
 
-    auto RawPointer = m_MaskList_3DIndex[0].GetElementDataRawPointer();
+    auto RawPointer = m_MaskList_3DIndex[0].GetElementPointer();
 
     auto tempVoxel = m_ZeroVoxelOfOutputImage;
 
     if (EnableBoundCheckForThisPosition == true)
     {
-        auto Lx = double(m_InputImageDimension[0]);
-        auto Ly = double(m_InputImageDimension[1]);
-        auto Lz = double(m_InputImageDimension[2]);
+        auto Lx = m_InputImageDimension.Lx;
+        auto Ly = m_InputImageDimension.Ly;
+        auto Lz = m_InputImageDimension.Lz;
 
         for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
 		{
-			auto temp_x = std::min(std::max(Ptr[0] + x, 0.0), Lx - 1);
+            auto temp_x = std::min(std::max(int64(Ptr[0]) + x_Index, int64(0)), Lx - 1);
 
-			auto temp_y = std::min(std::max(Ptr[1] + y, 0.0), Ly - 1);
+            auto temp_y = std::min(std::max(int64(Ptr[1]) + y_Index, int64(0)), Ly - 1);
 
-			auto temp_z = std::min(std::max(Ptr[2] + z, 0.0), Lz - 1);
+            auto temp_z = std::min(std::max(int64(Ptr[2]) + z_Index, int64(0)), Lz - 1);
 
-			tempVoxel += (*m_InputImage)(int64(temp_x), int64(temp_y), int64(temp_z)) * Ptr[3];
+			tempVoxel += (*m_InputImage)(temp_x, temp_y, temp_z) * Ptr[3];
 		}
 	}
 	else
 	{
         for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
 		{
-			tempVoxel += (*m_InputImage)(int64(x + Ptr[0]), int64(y + Ptr[1]), int64(z + Ptr[2])) * Ptr[3];
+            tempVoxel += (*m_InputImage)(x_Index + int64(Ptr[0]), y_Index + int64(Ptr[1]), z_Index + int64(Ptr[2])) * Ptr[3];
 		}
 	}
 
@@ -387,45 +383,45 @@ FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& Outpu
 
     auto tempElementNumber = m_MaskList_3DPosition[0].GetElementNumber();
 
-    auto RawPointer = m_MaskList_3DPosition[0].GetElementDataRawPointer();
+    auto RawPointer = m_MaskList_3DPosition[0].GetElementPointer();
 
     auto tempVoxel = m_ZeroVoxelOfOutputImage;
 
     if (EnableBoundCheckForThisPosition == true)
     {
-        auto Lx = double(m_InputImageDimension[0]);
-        auto Ly = double(m_InputImageDimension[1]);
-        auto Lz = double(m_InputImageDimension[2]);
+        auto Lx = m_InputImageDimension.Lx;
+        auto Ly = m_InputImageDimension.Ly;
+        auto Lz = m_InputImageDimension.Lz;
 
         for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
         {
-            auto temp_x = (Ptr[0] + x - m_InputImagePhysicalOrigin[0]) / m_InputVoxelPhysicalSize[0];
+            auto temp_x = (Ptr[0] + x - m_InputImagePhysicalOrigin.x) / m_InputVoxelPhysicalSize.Sx;
                 
-            temp_x = std::min(std::max(temp_x, 0.0), Lx - 1);
+            temp_x = std::min(std::max(int64(temp_x), int64(0)), Lx - 1);
 
-            auto temp_y = (Ptr[1] + y - m_InputImagePhysicalOrigin[1]) / m_InputVoxelPhysicalSize[1];
+            auto temp_y = (Ptr[1] + y - m_InputImagePhysicalOrigin.y) / m_InputVoxelPhysicalSize.Sy;
                 
-            temp_y = std::min(std::max(temp_y, 0.0), Ly - 1);
+            temp_y = std::min(std::max(int64(temp_y), int64(0)), Ly - 1);
 
-            auto temp_z = (Ptr[2] + z - m_InputImagePhysicalOrigin[2]) / m_InputVoxelPhysicalSize[2];
+            auto temp_z = (Ptr[2] + z - m_InputImagePhysicalOrigin.z) / m_InputVoxelPhysicalSize.Sz;
 
-            temp_z = std::min(std::max(temp_z, 0.0), Lz - 1);
+            temp_z = std::min(std::max(int64(temp_z), int64(0)), Lz - 1);
 
-            // inperpolation method: nearest neighber 
-            tempVoxel += (*m_InputImage)(int64(temp_x), int64(temp_y), int64(temp_z)) * Ptr[3];
+            // interpolation method: nearest neighbor 
+            tempVoxel += (*m_InputImage)(temp_x, temp_y, temp_z) * Ptr[3];
         }
     }
     else
     {
         for (auto Ptr = RawPointer; Ptr < RawPointer + tempElementNumber; Ptr += 4)
         {
-            auto temp_x = (Ptr[0] + x - m_InputImagePhysicalOrigin[0]) / m_InputVoxelPhysicalSize[0];
+            auto temp_x = (Ptr[0] + x - m_InputImagePhysicalOrigin.x) / m_InputVoxelPhysicalSize.Sx;
 
-            auto temp_y = (Ptr[1] + y - m_InputImagePhysicalOrigin[1]) / m_InputVoxelPhysicalSize[1];
+            auto temp_y = (Ptr[1] + y - m_InputImagePhysicalOrigin.y) / m_InputVoxelPhysicalSize.Sy;
 
-            auto temp_z = (Ptr[2] + z - m_InputImagePhysicalOrigin[2]) / m_InputVoxelPhysicalSize[2];
+            auto temp_z = (Ptr[2] + z - m_InputImagePhysicalOrigin.z) / m_InputVoxelPhysicalSize.Sz;
 
-            // inperpolation method: nearest neighber 
+            // interpolation method: nearest neighbor 
             tempVoxel += (*m_InputImage)(int64(temp_x), int64(temp_y), int64(temp_z)) * Ptr[3];
         }
     }

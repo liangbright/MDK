@@ -54,13 +54,13 @@ protected:
 
     std::vector<RegionOfNOBoundCheck_3DPosition> m_NOBoundCheckRegionList_3DPosition;
 
-    int64 m_InputImageDimension[3];
+    mdk3DImageDimension m_InputImageDimension;
 
-    double m_InputImagePhysicalSize[3];
+    mdk3DImagePhysicalSize m_InputImagePhysicalSize;
 
-    double m_InputImagePhysicalOrigin[3];
+    mdk3DImagePhysicalOrigin m_InputImagePhysicalOrigin;
 
-    double m_InputVoxelPhysicalSize[3];
+    mdk3DImageVoxelPhysicalSize m_InputVoxelPhysicalSize;
 
 public:		
 	mdk3DImageConvolutionFilterBase();

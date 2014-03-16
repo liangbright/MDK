@@ -26,6 +26,7 @@ namespace mdk
 
 #endif
 
+
 enum struct mdkScalarTypeEnum
 {
 	DOUBLE64,
@@ -41,6 +42,8 @@ enum struct mdkScalarTypeEnum
 
 	UNKNOWN,
 };
+
+
 
 //-------------------------------------------------------------//
 template<typename ScalarType>

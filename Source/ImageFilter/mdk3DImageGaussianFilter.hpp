@@ -28,9 +28,9 @@ void
 mdk3DImageGaussianFilter<VoxelType_Input, VoxelType_Output>::
 SetSigmaList(double Sx, double Sy, double Sz)
 {
-    m_SigmaList.Clear();
+    m_SigmaList.Reset();
 
-    m_SigmaList.SetSize(3, 1);
+    m_SigmaList.Resize(3, 1, true);
 
     m_SigmaList(0) = Sx;
     m_SigmaList(1) = Sy;
@@ -94,7 +94,7 @@ void mdk3DImageGaussianFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DI
             return;
         }
 
-        InverseCovarianceMatrix = m_RotationMatrix.Tran() * InverseCovarianceMatrix * m_RotationMatrix;
+        InverseCovarianceMatrix = m_RotationMatrix.Transpose() * InverseCovarianceMatrix * m_RotationMatrix;
     }
 
     int64 OffSet = 0;
@@ -107,7 +107,6 @@ void mdk3DImageGaussianFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DI
     
     mdkMatrix<double> Mask(4, 0);
 
-    Mask.SetTobeTemporary();
 
     mdkMatrix<double> Relative3DIndex(3, 1);
     mdkMatrix<double> Relative3DIndex_Tran(1, 3);

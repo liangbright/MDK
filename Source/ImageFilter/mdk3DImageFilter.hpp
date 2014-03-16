@@ -78,7 +78,7 @@ SetInputImage(const mdk3DImage<VoxelType_Input>* InputImage)
 {
 	m_InputImage = InputImage;
 
-    m_ZeroVoxelOfInputImage = InputImage->GetEmptyVoxel();
+    m_ZeroVoxelOfInputImage = InputImage->GetZeroVoxel();
 
     m_ZeroVoxelOfInputImage -= m_ZeroVoxelOfInputImage;
 }
@@ -140,7 +140,7 @@ SetOutputImage(mdk3DImage<VoxelType_Output>* OutputImage)
 {
 	m_OutputImage = OutputImage;
 
-    m_ZeroVoxelOfOutputImage = OutputImage->GetEmptyVoxel();
+    m_ZeroVoxelOfOutputImage = OutputImage->GetZeroVoxel();
 
     m_ZeroVoxelOfOutputImage -= m_ZeroVoxelOfOutputImage;
 }

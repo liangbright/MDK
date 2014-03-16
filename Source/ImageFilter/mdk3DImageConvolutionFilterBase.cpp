@@ -20,9 +20,9 @@ mdk3DImageConvolutionFilterBase::~mdk3DImageConvolutionFilterBase()
 
 bool mdk3DImageConvolutionFilterBase::SetMaskOf3DIndex(const std::vector<mdkMatrix<double>>& MaskList)
 {
-	auto Length = MaskList.size();
+	auto Length = int64(MaskList.size());
 
-	if (Length == 0)
+	if (Length <= 0)
 	{
 		return false;
 	}
@@ -43,9 +43,9 @@ bool mdk3DImageConvolutionFilterBase::SetMaskOf3DIndex(const std::vector<mdkMatr
 
 bool mdk3DImageConvolutionFilterBase::SetMaskOf3DPosition(const std::vector<mdkMatrix<double>>& MaskList)
 {
-    auto Length = MaskList.size();
+    auto Length = int64(MaskList.size());
 
-    if (Length == 0)
+    if (Length <= 0)
     {
         return false;
     }
@@ -109,16 +109,19 @@ bool mdk3DImageConvolutionFilterBase::SaveMask(const std::string& FilePathAndNam
 
 void mdk3DImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DIndex()
 {
-    m_NOBoundCheckRegionList_3DIndex.resize(m_MaskList_3DIndex.size());
+    auto Length = int64(m_MaskList_3DIndex.size());
 
-    if (m_MaskList_3DIndex.size() == 0)
+    if (Length <= 0)
     {
+        m_NOBoundCheckRegionList_3DIndex.resize(0);
         return;
     }
 
+    m_NOBoundCheckRegionList_3DIndex.resize(Length);
+
     int64 SafeDistance = 2;
 
-    for (int64 i = 0; i < m_MaskList_3DIndex.size(); ++i)
+    for (int64 i = 0; i < Length; ++i)
     {
         m_NOBoundCheckRegionList_3DIndex[i].IsEmpty = true;
 
@@ -164,44 +167,48 @@ void mdk3DImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DIndex()
             }
         }
 
-        if (MaxDistance_x[0] + MaxDistance_x[1] + 1 + 2*SafeDistance < m_InputImageDimension[0]
-            && MaxDistance_y[0] + MaxDistance_y[1] + 1 + 2*SafeDistance < m_InputImageDimension[1]
-            && MaxDistance_z[0] + MaxDistance_z[1] + 1 + 2*SafeDistance < m_InputImageDimension[2])
+        if (MaxDistance_x[0] + MaxDistance_x[1] + 1 + 2*SafeDistance < m_InputImageDimension.Lx
+            && MaxDistance_y[0] + MaxDistance_y[1] + 1 + 2*SafeDistance < m_InputImageDimension.Ly
+            && MaxDistance_z[0] + MaxDistance_z[1] + 1 + 2*SafeDistance < m_InputImageDimension.Lz)
         {
             m_NOBoundCheckRegionList_3DIndex[i].IsEmpty = false;
 
             m_NOBoundCheckRegionList_3DIndex[i].x0_Index = MaxDistance_x[0] + SafeDistance;
 
-            m_NOBoundCheckRegionList_3DIndex[i].x1_Index = m_InputImageDimension[0] - 1 - MaxDistance_x[1] - SafeDistance;
+            m_NOBoundCheckRegionList_3DIndex[i].x1_Index = m_InputImageDimension.Lx - 1 - MaxDistance_x[1] - SafeDistance;
 
             m_NOBoundCheckRegionList_3DIndex[i].y0_Index = MaxDistance_y[0] + SafeDistance;
 
-            m_NOBoundCheckRegionList_3DIndex[i].y1_Index = m_InputImageDimension[1] - 1 - MaxDistance_y[1] - SafeDistance;
+            m_NOBoundCheckRegionList_3DIndex[i].y1_Index = m_InputImageDimension.Ly - 1 - MaxDistance_y[1] - SafeDistance;
 
             m_NOBoundCheckRegionList_3DIndex[i].z0_Index = MaxDistance_z[0] + SafeDistance;
 
-            m_NOBoundCheckRegionList_3DIndex[i].z1_Index = m_InputImageDimension[2] - 1 - MaxDistance_z[1] - SafeDistance;
+            m_NOBoundCheckRegionList_3DIndex[i].z1_Index = m_InputImageDimension.Lz - 1 - MaxDistance_z[1] - SafeDistance;
         }
     }
 }
 
 
 void mdk3DImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DPosition()
-{
-    m_NOBoundCheckRegionList_3DPosition.resize(m_MaskList_3DPosition.size());
+{    
+    auto Length = int64(m_MaskList_3DPosition.size());
 
-    if (m_MaskList_3DPosition.size() == 0)
+    if (Length <= 0)
     {
+        m_NOBoundCheckRegionList_3DPosition.resize(0);
         return;
     }
-    
-    auto SafeDistance_x = 2 * m_InputVoxelPhysicalSize[0];
 
-    auto SafeDistance_y = 2 * m_InputVoxelPhysicalSize[1];
+    m_NOBoundCheckRegionList_3DPosition.resize(Length);
 
-    auto SafeDistance_z = 2 * m_InputVoxelPhysicalSize[2];
 
-    for (int64 i = 0; i < m_MaskList_3DPosition.size(); ++i)
+    auto SafeDistance_x = 2 * m_InputVoxelPhysicalSize.Sx;
+
+    auto SafeDistance_y = 2 * m_InputVoxelPhysicalSize.Sy;
+
+    auto SafeDistance_z = 2 * m_InputVoxelPhysicalSize.Sz;
+
+    for (int64 i = 0; i < Length; ++i)
     {
         m_NOBoundCheckRegionList_3DPosition[i].IsEmpty = true;
 
@@ -247,26 +254,26 @@ void mdk3DImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DPosition()
             }
         }
 
-        if (MaxDistance_x[0] + MaxDistance_x[1] + 2 * SafeDistance_x < m_InputImagePhysicalSize[0]
-            && MaxDistance_y[0] + MaxDistance_y[1] + 2 * SafeDistance_y < m_InputImagePhysicalSize[1]
-            && MaxDistance_z[0] + MaxDistance_z[1] + 2 * SafeDistance_z < m_InputImagePhysicalSize[2])
+        if (MaxDistance_x[0] + MaxDistance_x[1] + 2 * SafeDistance_x < m_InputImagePhysicalSize.Sx
+            && MaxDistance_y[0] + MaxDistance_y[1] + 2 * SafeDistance_y < m_InputImagePhysicalSize.Sy
+            && MaxDistance_z[0] + MaxDistance_z[1] + 2 * SafeDistance_z < m_InputImagePhysicalSize.Sz)
         {
             m_NOBoundCheckRegionList_3DPosition[i].IsEmpty = false;
 
-            m_NOBoundCheckRegionList_3DPosition[i].x0 = m_InputImagePhysicalOrigin[0] + MaxDistance_x[0] + SafeDistance_x;
+            m_NOBoundCheckRegionList_3DPosition[i].x0 = m_InputImagePhysicalOrigin.x + MaxDistance_x[0] + SafeDistance_x;
 
-            m_NOBoundCheckRegionList_3DPosition[i].x0 = m_InputImagePhysicalOrigin[0] 
-                                                        + m_InputImagePhysicalSize[0] - MaxDistance_x[1] - SafeDistance_x;
+            m_NOBoundCheckRegionList_3DPosition[i].x0 = m_InputImagePhysicalOrigin.x 
+                                                        + m_InputImagePhysicalSize.Sx - MaxDistance_x[1] - SafeDistance_x;
           
-            m_NOBoundCheckRegionList_3DPosition[i].y0 = m_InputImagePhysicalOrigin[1] + MaxDistance_y[0] + SafeDistance_y;
+            m_NOBoundCheckRegionList_3DPosition[i].y0 = m_InputImagePhysicalOrigin.y + MaxDistance_y[0] + SafeDistance_y;
 
-            m_NOBoundCheckRegionList_3DPosition[i].y1 = m_InputImagePhysicalOrigin[1] 
-                                                        + m_InputImageDimension[1] - MaxDistance_y[1] - SafeDistance_y;
+            m_NOBoundCheckRegionList_3DPosition[i].y1 = m_InputImagePhysicalOrigin.y 
+                                                        + m_InputImageDimension.Ly - MaxDistance_y[1] - SafeDistance_y;
 
-            m_NOBoundCheckRegionList_3DPosition[i].z0 = m_InputImagePhysicalOrigin[2] + MaxDistance_z[0] + SafeDistance_z;
+            m_NOBoundCheckRegionList_3DPosition[i].z0 = m_InputImagePhysicalOrigin.z + MaxDistance_z[0] + SafeDistance_z;
 
-            m_NOBoundCheckRegionList_3DPosition[i].z1 = m_InputImagePhysicalOrigin[2]
-                                                        + m_InputImageDimension[2] - MaxDistance_z[1] - SafeDistance_z;
+            m_NOBoundCheckRegionList_3DPosition[i].z1 = m_InputImagePhysicalOrigin.z
+                                                        + m_InputImageDimension.Lz - MaxDistance_z[1] - SafeDistance_z;
         }
     }
 }

@@ -439,23 +439,25 @@ void Test_ConvolutionFilter_ScalarOutput()
 
 	//imfilter.EnableBoundCheck(false);
 
-	mdkMatrix<double> Mask(4, 1000*3);
+	mdkMatrix<double> Mask(4, 10000);
 
 	Mask.Fill(0);
 
     imfilter.SetMaskOf3DIndex(Mask);
 
-	std::time_t t0 = std::time(0);
+    auto t0 = std::chrono::system_clock::now();
 
 	imfilter.Run();
 	
-	std::time_t t1 = std::time(0);
+    auto t1 = std::chrono::system_clock::now();
 
-	std::cout << "time " << t1 - t0 << '\n';
+    std::chrono::duration<double> raw_time = t1 - t0;
+
+    std::cout << "time = " << raw_time.count() << '\n';
 
 	std::cout << "FilterFunction " << '\n';
 
-	t0 = std::time(0);
+    t0 = std::chrono::system_clock::now();
 
 	double Output = 0;
 
@@ -466,9 +468,11 @@ void Test_ConvolutionFilter_ScalarOutput()
 
 	std::cout << "Output " << Output << '\n';
 
-	t1 = std::time(0);
+    t1 = std::chrono::system_clock::now();
 
-	std::cout << "FilterFunction time " << t1 - t0 << '\n';
+    raw_time = t1 - t0;
+
+    std::cout << "FilterFunction time = " << raw_time.count() << '\n';
 
 	std::system("pause");
 }
