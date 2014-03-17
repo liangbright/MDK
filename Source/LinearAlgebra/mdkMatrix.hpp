@@ -593,7 +593,7 @@ bool mdkMatrix<ElementType>::Take(mdkMatrix<ElementType>& InputMatrix)
     m_ElementPointer = m_MatrixData->DataArray.data();
 
     // clear
-    InputMatrix.ForceClear();
+    InputMatrix.Clear();
 
     return true;
 }
@@ -705,33 +705,8 @@ void mdkMatrix<ElementType>::Reset()
 
 
 template<typename ElementType>
-inline
-bool mdkMatrix<ElementType>::Clear()
-{
-    if (m_IsSizeFixed == true)
-    {
-        if (m_MatrixData) // m_MatrixData != nullptr
-        {
-            mdkError << "m_IsSizeFixed is true, Size can not change @ mdkMatrix::Clear()" << '\n';
-            return false;
-        }
-
-        return true;
-    }
-
-    // if (m_IsSizeFixed == false)
-
-    m_MatrixData.reset();
-
-    m_ElementPointer = nullptr;
-
-    return true;
-}
-
-
-template<typename ElementType>
 inline 
-void mdkMatrix<ElementType>::ForceClear()
+void mdkMatrix<ElementType>::Clear()
 {
     m_MatrixData.reset();
 

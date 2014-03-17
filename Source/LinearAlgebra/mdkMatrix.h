@@ -292,14 +292,11 @@ public:
 
     //------------------------- Reset , Clear -------------------------------------------//
     
-    // set the initial state, only use it in constructor
+    // set the initial state, use it in constructor, do more things than Clear()
     inline void Reset();
 
-    // clear memory if Self is not empty and m_IsSizeFixed is false
-    inline bool Clear();
-
-    // force-clear memory, set to be empty, only use it in move constructor and "=", and Take
-    inline void ForceClear();
+    // clear memory no matter what, and set m_IsSizeFixed to be false
+    inline void Clear();
 
 	//---------------------- Set/get Matrix Size, Shape ----------------------------------------//
 
