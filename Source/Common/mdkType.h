@@ -44,6 +44,12 @@ enum struct mdkScalarTypeEnum
 };
 
 
+enum struct mdkObjectConstructionTypeEnum
+{
+    SHARE,
+    COPY,
+};
+
 
 //-------------------------------------------------------------//
 template<typename ScalarType>

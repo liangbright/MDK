@@ -27,33 +27,50 @@ mdkMatrix<ElementType>::mdkMatrix()
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(int64 RowNumber, int64 ColNumber, bool IsSizeFixed = false)
+mdkMatrix<ElementType>::mdkMatrix(int64 RowNumber, int64 ColNumber)
 {
     this->Reset();
 
     this->Resize(RowNumber, ColNumber);
-
-    m_IsSizeFixed = IsSizeFixed;
-
-    if (IsSizeFixed == true)
-    {
-        m_MatrixData->DataArray.shrink_to_fit();
-
-        m_ElementPointer = m_MatrixData->DataArray.data();
-    }
 }
 
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(const mdkMatrix<ElementType>& InputMatrix, bool IsSizeFixed = false)
+mdkMatrix<ElementType>::mdkMatrix(const mdkMatrix<ElementType>& InputMatrix)
 {
     this->Reset();
 
-    //force-copy data
-    this->Copy(InputMatrix);     
+    this->Copy(InputMatrix);
+}
 
-    m_IsSizeFixed = IsSizeFixed;
+
+template<typename ElementType>
+inline
+mdkMatrix<ElementType>::mdkMatrix(const ElementType& Element)
+{
+    this->Reset();
+
+    this->Resize(1, 1);
+
+    (*this)(0) = Element;
+}
+
+
+template<typename ElementType>
+inline
+mdkMatrix<ElementType>::mdkMatrix(mdkMatrix<ElementType>& InputMatrix, mdkObjectConstructionTypeEnum Method = mdkObjectConstructionTypeEnum::COPY)
+{
+    this->Reset();
+
+    if (Method == mdkObjectConstructionTypeEnum::COPY)
+    {
+        this->Copy(InputMatrix);
+    }
+    else
+    {
+        this->Share(InputMatrix);
+    }
 }
 
 
@@ -81,19 +98,7 @@ mdkMatrix<ElementType>::mdkMatrix(mdkMatrix<ElementType>&& InputMatrix)
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(const ElementType& Element)
-{
-    this->Reset();
-
-    this->Resize(1, 1);
-
-    (*this)(0) = Element;
-}
-
-
-template<typename ElementType>
-inline
-mdkMatrix<ElementType>::mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix, bool IsSizeFixed = false)
+mdkMatrix<ElementType>::mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix)
 {
     // not necessary to use this->Reset()
 
@@ -101,14 +106,12 @@ mdkMatrix<ElementType>::mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatr
     this->Take(ShadowMatrix.CreateMatrix());
 
     m_NaNElement = ShadowMatrix.m_NaNElement;
-
-    m_IsSizeFixed = IsSizeFixed;
 }
 
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix, bool IsSizeFixed = false)
+mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     // not necessary to use this->Reset()
 
@@ -116,14 +119,12 @@ mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrixForLinearCombination<Elemen
     this->Take(GlueMatrix.CreateMatrix());
 
     m_NaNElement = GetMatrixNaNElement(m_NaNElement);
-
-    m_IsSizeFixed = IsSizeFixed;
 }
 
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix, bool IsSizeFixed = false)
+mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     // not necessary to use this->Reset()
 
@@ -131,14 +132,12 @@ mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrixForMultiplication<ElementTy
     this->Take(GlueMatrix.CreateMatrix());
 
     m_NaNElement = GetMatrixNaNElement(m_NaNElement);
-
-    m_IsSizeFixed = IsSizeFixed;
 }
 
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(const ElementType* InputElementPointer, int64 InputRowNumber, int64 InputColNumber, bool IsSizeFixed = false)
+mdkMatrix<ElementType>::mdkMatrix(const ElementType* InputElementPointer, int64 InputRowNumber, int64 InputColNumber)
 {
     this->Reset();
 
@@ -158,8 +157,6 @@ mdkMatrix<ElementType>::mdkMatrix(const ElementType* InputElementPointer, int64 
     }
 
     this->Copy(InputElementPointer, InputRowNumber, InputColNumber);
-
-    m_IsSizeFixed = IsSizeFixed;
 }
 
 
@@ -525,17 +522,6 @@ bool mdkMatrix<ElementType>::Share(mdkMatrix<ElementType>& InputMatrix)
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::Share(mdkMatrix<ElementType>&& InputMatrix)
-{
-    mdkMatrix<ElementType>& tempMatrix = InputMatrix;
-
-    return this->Share(tempMatrix);
-}
-
-
-
-template<typename ElementType>
-inline
 void mdkMatrix<ElementType>::ForceShare(const mdkMatrix<ElementType>& InputMatrix)
 {
     m_MatrixData = InputMatrix.m_MatrixData; // std::share_ptr
@@ -546,8 +532,6 @@ void mdkMatrix<ElementType>::ForceShare(const mdkMatrix<ElementType>& InputMatri
     }
     else
     {
-        mdkWarning << "empty InputMatrix @ mdkMatrix::ForceShare(InputMatrix)" << '\n';
-
         m_ElementPointer = nullptr;
     }
 }
@@ -579,9 +563,11 @@ bool mdkMatrix<ElementType>::Take(mdkMatrix<ElementType>& InputMatrix)
 
     if (InputMatrix.IsEmpty() == true)
     {
-        mdkWarning << "InputMatrix is empty, and this matrix is set to be empty @ mdkMatrix::Take(InputMatrix)" << '\n';
-
-        this->Clear();
+        if (SelfSize.RowNumber > 0)
+        {
+            mdkWarning << "InputMatrix is empty, and this matrix is set to be empty @ mdkMatrix::Take(InputMatrix)" << '\n';
+            this->Clear();
+        }
 
         return true;
     }
@@ -751,7 +737,7 @@ bool mdkMatrix<ElementType>::Reshape(int64 InputRowNumber, int64 InputColNumber)
 
 template<typename ElementType>
 inline 
-bool mdkMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber, bool IsSizeFixed = false)
+bool mdkMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber)
 {
     if (m_IsSizeFixed == true)
     {
@@ -762,9 +748,7 @@ bool mdkMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber, 
     auto SelfSize = this->GetSize();
 
     if (InputRowNumber == SelfSize.RowNumber && InputColNumber == SelfSize.ColNumber)
-    {
-        m_IsSizeFixed = IsSizeFixed;
-
+    {        
         return true;
     }
 
@@ -777,8 +761,6 @@ bool mdkMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber, 
     if (InputRowNumber == 0 || InputColNumber == 0)
     {
         this->Clear();
-
-        m_IsSizeFixed = IsSizeFixed;
 
         return true;
     }
@@ -795,8 +777,6 @@ bool mdkMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber, 
         m_MatrixData->DataArray.resize(InputRowNumber*InputColNumber);
 
         m_ElementPointer = m_MatrixData->DataArray.data();
-
-        m_IsSizeFixed = IsSizeFixed;
 
         return true;
     }
@@ -819,8 +799,6 @@ bool mdkMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber, 
         m_MatrixData->DataArray.resize(InputRowNumber*InputColNumber);
 
         m_ElementPointer = m_MatrixData->DataArray.data();
-
-        m_IsSizeFixed = IsSizeFixed;
 
         return true;
     }
@@ -858,9 +836,19 @@ bool mdkMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber, 
 
     m_ElementPointer = m_MatrixData->DataArray.data();
 
-    m_IsSizeFixed = IsSizeFixed;
-
     return true;
+}
+
+
+template<typename ElementType>
+inline 
+void mdkMatrix<ElementType>::FixSize()
+{
+    m_IsSizeFixed = true;
+
+    m_MatrixData->DataArray.shrink_to_fit();
+
+    m_ElementPointer = m_MatrixData->DataArray.data();
 }
 
 

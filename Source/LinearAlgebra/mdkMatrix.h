@@ -159,6 +159,8 @@ std::vector<int64> span(int64 Index_A, int64 Step, int64 Index_B);
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
+//----------------------------------------------------------------------------------------------------------------------------//
+
 template<typename ElementType>
 class mdkMatrix : public mdkObject
 {
@@ -181,27 +183,32 @@ public:
 
 	inline mdkMatrix();
 
-    inline mdkMatrix(int64 RowNumber, int64 ColNumber, bool IsSizeFixed = false);
+    inline mdkMatrix(int64 RowNumber, int64 ColNumber);
 
-    inline mdkMatrix(const mdkMatrix<ElementType>& InputMatrix, bool IsSizeFixed = false);
+    // copy constructor
+    inline mdkMatrix(const mdkMatrix<ElementType>& InputMatrix);
 
     inline mdkMatrix(const ElementType& Element);
+
+    // copy or share constructor
+    inline mdkMatrix(mdkMatrix<ElementType>& InputMatrix, mdkObjectConstructionTypeEnum Method = mdkObjectConstructionTypeEnum::COPY);
 
     // move constructor
     inline mdkMatrix(mdkMatrix<ElementType>&& InputMatrix);
 
-    inline mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix, bool IsSizeFixed = false);
+    inline mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline mdkMatrix(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix, bool IsSizeFixed = false);
+    inline mdkMatrix(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
-    inline mdkMatrix(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix, bool IsSizeFixed = false);
+    inline mdkMatrix(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    inline mdkMatrix(const ElementType* InputElementPointer, int64 InputRowNumber, int64 InputColNumber, bool IsSizeFixed = false);
+    inline mdkMatrix(const ElementType* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
 
 	inline ~mdkMatrix();
 
     //----------------------  operator=  ----------------------------------------//
 
+    // copy assignment operator
     // do not use function template for this function
     // otherwise, compiler will create a new one
     inline void operator=(const mdkMatrix<ElementType>& InputMatrix);
@@ -236,15 +243,13 @@ public:
     //-------------------------- Share, ForceShare  ------------------------------------------ //
  
     // if m_IsSizeFixed is true, and size does not match, then return false
-    
+    //
     inline bool Share(mdkMatrix<ElementType>& InputMatrix);
-
-    inline bool Share(mdkMatrix<ElementType>&& InputMatrix);
 
     // it is used by GlueMatrix
     // Share the object (InputMatrix) no matter what, even if InputMatrix is const
     inline void ForceShare(const mdkMatrix<ElementType>& InputMatrix);
-  
+
     // about const share: i.e., only read (const functions), not write
     //
     // note1: if const share of one single object is needed
@@ -254,20 +259,24 @@ public:
     //
     // note2: if const share of many objects is needed
     //        there is no such thing as std::vector<const mdkMatrix<ElementType>&>
-    //        but you can create std::vector<const mdkMatrix<ElementType>*>    
-    //        However,std::vector<const mdkMatrix<ElementType>> may lead to trouble
-    //        std::vector<const mdkMatrix<ElementType>> ConstMatrixArray(1);
-    //        ConstMatrixArray[0].ForceShare(InputMatrix) is illegal (can not be compiled)
-    //        ConstMatrixArray[0] = InputMatrix will call Copy() which is is illegal again
+    //        just create std::vector<const mdkMatrix<ElementType>*> MatrixPtrList = {&A}; from Matrix A
+    //        then const prevent using (*MatrixPtrList[0])(0,0) = 10;
+    //
+    //        However,std::vector<const mdkMatrix<ElementType>> is equal to std::vector<mdkMatrix<ElementType>>
+    //        std::vector<const mdkMatrix<ElementType>> MatrixList can be constructed from Matrix A by share
+    //        
+    //        MatrixList.emplace_back(A, mdkObjectConstructionTypeEnum::SHARE);
+    //        But:
+    //            MatrixList[0](1,1) = 100; CAN be compiled !!!  (A is changed by this code)
+    //
     //-----------------------------------------------------------------------------------------------------
     // conclusion: 
-    // (1) An array of shared objects can be created from InputMatrix or InputFunction()
+    // (1) An array of shared objects can be created from InputMatrix
     //     std::vector<mdkMatrix<ElementType>> SharedMatrixArray(10);
+    //     SharedMatrixArray[i].Share(InputMatrix);
     //     SharedMatrixArray[i].ForceShare(InputMatrix);
-    //     SharedMatrixArray[i].ForceShare(InputFunction());
     //
-    // (2) An array of const shared objects can not be created
-    //     std::vector<const mdkMatrix<ElementType>> ConstMatrixArray(10); is useless
+    // (2) An array of const shared objects can be created by using std::vector, but const is lost
     //
     // (3) An array of const pointers to shared objects can be created from InputMatrix, NOT InputFunction()
     //     std::vector<const mdkMatrix<ElementType>*> SharedMatrixPointerArray(10);
@@ -302,8 +311,10 @@ public:
 
     inline bool Reshape(int64 InputRowNumber, int64 InputColNumber);
 
-    inline bool Resize(int64 InputRowNumber, int64 InputColNumber, bool IsSizeFixed = false);
+    inline bool Resize(int64 InputRowNumber, int64 InputColNumber);
 
+    inline void FixSize();
+    
     inline bool IsSizeFixed() const;
 
     inline bool IsEmpty() const;

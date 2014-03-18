@@ -74,13 +74,15 @@ int main()
 
 
     
-    Test_Constructor();
+    //Test_Constructor();
 
     //Test_Destructor();
 
-    Test_MoveConstructor();
+  //  Test_MoveConstructor();
 
-    Test_Matrix_Operator();
+    Test_ShareConstuctor();
+
+   // Test_Matrix_Operator();
 
     // Test_Matrix_ChangeSize();
 

@@ -265,6 +265,61 @@ void Test_MoveConstructor()
     //-------------
 }
 
+void Test_ShareConstuctor()
+{
+
+    mdkMatrix<double> A(2, 4);
+
+    A = { 1, 2, 3, 4,
+        5, 6, 7, 8 };
+
+
+    DisplayMatrix("A", A);
+
+    auto B = mdkMatrix<double>(A, mdkObjectConstructionTypeEnum::SHARE);
+
+    B(0) = 10;
+
+    DisplayMatrix("B", B);
+
+    DisplayMatrix("A", A);
+
+    auto C = mdkMatrix<double>(A);
+
+    C(1) = 10;
+
+    DisplayMatrix("C", C);
+
+    DisplayMatrix("A", A);
+
+    const mdkMatrix<double> D = mdkMatrix<double>(A, mdkObjectConstructionTypeEnum::SHARE);
+
+    A(2) = 10;
+
+    DisplayMatrix("D", D);
+
+    DisplayMatrix("A", A);
+
+    std::vector<const mdkMatrix<double>> MatrixList;
+
+    MatrixList.emplace_back(A, mdkObjectConstructionTypeEnum::SHARE);
+
+    DisplayMatrix("MatrixList[0]", MatrixList[0]);
+
+    // can be compiled
+    MatrixList[0](1,1) = 100;
+
+    DisplayMatrix("MatrixList[0]", MatrixList[0]);
+
+    DisplayMatrix("A", A);
+
+
+    std::vector<const mdkMatrix<double>*> MatrixPtrList = {&A};
+
+    // can not be compiled
+   // (*MatrixPtrList[0])(1, 1) = 1000;
+
+}
 
 void Test_Matrix_Operator()
 {
