@@ -187,7 +187,7 @@ void Test_Constructor()
 
     mdkMatrix<double> C;
 
-    C.ForceShare(A);
+    C.ForceSharedCopy(A);
 
     A.Copy(A);
 
@@ -276,7 +276,7 @@ void Test_ShareConstuctor()
 
     DisplayMatrix("A", A);
 
-    auto B = mdkMatrix<double>(A, mdkObjectConstructionTypeEnum::SHARE);
+    auto B = mdkMatrix<double>(A, mdkObjectCopyConstructionTypeEnum::SharedCopy);
 
     B(0) = 10;
 
@@ -292,7 +292,7 @@ void Test_ShareConstuctor()
 
     DisplayMatrix("A", A);
 
-    const mdkMatrix<double> D = mdkMatrix<double>(A, mdkObjectConstructionTypeEnum::SHARE);
+    const mdkMatrix<double> D = mdkMatrix<double>(A, mdkObjectCopyConstructionTypeEnum::SharedCopy);
 
     A(2) = 10;
 
@@ -302,7 +302,7 @@ void Test_ShareConstuctor()
 
     std::vector<const mdkMatrix<double>> MatrixList;
 
-    MatrixList.emplace_back(A, mdkObjectConstructionTypeEnum::SHARE);
+    MatrixList.emplace_back(A, mdkObjectCopyConstructionTypeEnum::SharedCopy);
 
     DisplayMatrix("MatrixList[0]", MatrixList[0]);
 
@@ -462,7 +462,7 @@ void Test_Share()
 
     mdkMatrix<double> B;
 
-    B.Share(A);
+    B.SharedCopy(A);
 
     B(1, 1) = 0;
 

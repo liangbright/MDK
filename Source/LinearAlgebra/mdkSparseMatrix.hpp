@@ -59,17 +59,17 @@ mdkMatrix<ElementType>::mdkMatrix(const ElementType& Element)
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(mdkMatrix<ElementType>& InputMatrix, mdkObjectCopyConstructionTypeEnum Method = mdkObjectCopyConstructionTypeEnum::DeepCopy)
+mdkMatrix<ElementType>::mdkMatrix(mdkMatrix<ElementType>& InputMatrix, mdkObjectConstructionTypeEnum Method = mdkObjectConstructionTypeEnum::COPY)
 {
     this->Reset();
 
-    if (Method == mdkObjectCopyConstructionTypeEnum::DeepCopy)
+    if (Method == mdkObjectConstructionTypeEnum::COPY)
     {
         this->Copy(InputMatrix);
     }
     else
     {
-        this->SharedCopy(InputMatrix);
+        this->Share(InputMatrix);
     }
 }
 
@@ -386,7 +386,7 @@ bool mdkMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer, 
         return false;
     }
 
-    // if this matrix is not empty, check if this and Input SharedCopy the same data
+    // if this matrix is not empty, check if this and Input share the same data
     if (this->IsEmpty() == false)
     {
         if (std::size_t(InputElementPointer) == std::size_t(this->GetElementPointer()))
@@ -483,12 +483,12 @@ bool mdkMatrix<ElementType>::Fill(const ElementType& Element)
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::SharedCopy(mdkMatrix<ElementType>& InputMatrix)
+bool mdkMatrix<ElementType>::Share(mdkMatrix<ElementType>& InputMatrix)
 {
     // MatrixA = MatrixA
     if (this == &InputMatrix)
     {
-        mdkWarning << "A Matrix tries to SharedCopy itself @ mdkMatrix::SharedCopy(InputMatrix)" << '\n';
+        mdkWarning << "A Matrix tries to ShallowCopy itself @ mdkMatrix::Share(InputMatrix)" << '\n';
         return false;
     }
 
@@ -500,12 +500,12 @@ bool mdkMatrix<ElementType>::SharedCopy(mdkMatrix<ElementType>& InputMatrix)
     {
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
-            mdkError << "Matrix size can not be changed @ mdkMatrix::SharedCopy(InputMatrix)" << '\n';
+            mdkError << "Matrix size can not be changed @ mdkMatrix::Share(InputMatrix)" << '\n';
             return false;
         }
     }
 
-    m_MatrixData = InputMatrix.m_MatrixData; // std::SharedCopy_ptr
+    m_MatrixData = InputMatrix.m_MatrixData; // std::share_ptr
 
     if (m_MatrixData)
     {
@@ -522,9 +522,9 @@ bool mdkMatrix<ElementType>::SharedCopy(mdkMatrix<ElementType>& InputMatrix)
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::ForceSharedCopy(const mdkMatrix<ElementType>& InputMatrix)
+void mdkMatrix<ElementType>::ForceShare(const mdkMatrix<ElementType>& InputMatrix)
 {
-    m_MatrixData = InputMatrix.m_MatrixData; // std::SharedCopy_ptr
+    m_MatrixData = InputMatrix.m_MatrixData; // std::share_ptr
 
     if (m_MatrixData)
     {

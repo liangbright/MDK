@@ -44,10 +44,10 @@ enum struct mdkScalarTypeEnum
 };
 
 
-enum struct mdkObjectConstructionTypeEnum
+enum struct mdkObjectCopyConstructionTypeEnum
 {
-    SHARE,
-    COPY,
+    DeepCopy,
+    SharedCopy,
 };
 
 

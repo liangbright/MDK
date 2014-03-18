@@ -1,16 +1,16 @@
-#ifndef __mdkFeatureCodebookBuilder_h
-#define __mdkFeatureCodebookBuilder_h
+#ifndef __mdkKMeansDictionaryBuilder_h
+#define __mdkKMeansDictionaryBuilder_h
 
 #include <vector>
 #include <string>
 
-#include "mdkFeatureCodebook.h"
+#include "mdkFeatureDictionary.h"
 
 namespace mdk
 {
 
 template<typename ElementType>
-class mdkFeatureCodebookBuilder : public mdkObject
+class mdkKMeansDictionaryBuilder : public mdkObject
 {
 protected:
 
@@ -24,13 +24,13 @@ protected:
 
 public:
 
-    mdkFeatureCodebookBuilder();
+    mdkKMeansDictionaryBuilder();
 
-    mdkFeatureCodebookBuilder(mdkFeatureCodebookBuilder&&);
+    mdkKMeansDictionaryBuilder(mdkKMeansDictionaryBuilder&&);
 
-    ~mdkFeatureCodebookBuilder();
+    ~mdkKMeansDictionaryBuilder();
 
-    void operator=(mdkFeatureCodebookBuilder&&);
+    void operator=(mdkKMeansDictionaryBuilder&&);
 
     //---------------------------------------------------//
 
@@ -64,7 +64,7 @@ public:
 
     virtual bool Run();
 
-    virtual bool GenerateCodebook();
+    virtual bool GenerateDictionary();
 
     //----------------------------------------------------//
 
@@ -73,15 +73,15 @@ public:
 
 private:
 //deleted
-    mdkFeatureCodebookBuilder(const mdkFeatureCodebookBuilder&) = delete;
+    mdkKMeansDictionaryBuilder(const mdkKMeansDictionaryBuilder&) = delete;
 
-    void operator=(const mdkFeatureCodebookBuilder&) = delete;
+    void operator=(const mdkKMeansDictionaryBuilder&) = delete;
 
 };
 
 }// namespace mdk
 
 
-#include "mdkFeatureCodebookBuilder.hpp"
+#include "mdkKMeansDictionaryBuilder.hpp"
 
 #endif

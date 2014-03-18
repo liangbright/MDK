@@ -1,5 +1,5 @@
-#ifndef __mdkFeatureCodebook_h
-#define __mdkFeatureCodebook_h
+#ifndef __mdkFeatureDictionary_h
+#define __mdkFeatureDictionary_h
 
 
 #include "mdkObject.h"
@@ -10,11 +10,11 @@ namespace mdk
 {
 
 template<typename ElementType>
-class mdkFeatureCodebook : mdkObject
+class mdkFeatureDictionary : mdkObject
 {
 public:
 
-    mdkMatrix<ElementType> m_Code;
+    mdkMatrix<ElementType> m_Dictionary;
 
     mdkMatrix<ElementType> m_Covariance;
 
@@ -22,9 +22,9 @@ public:
 
 public:
 
-    mdkFeatureCodebook();
+    mdkFeatureDictionary();
 
-    ~mdkFeatureCodebook();
+    ~mdkFeatureDictionary();
 
     void Reset();
 
@@ -38,6 +38,6 @@ public:
 
 }// namespace mdk
 
-#include "mdkFeatureCodebook.hpp"
+#include "mdkFeatureDictionary.hpp"
 
 #endif

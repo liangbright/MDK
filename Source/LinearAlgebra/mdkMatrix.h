@@ -185,13 +185,13 @@ public:
 
     inline mdkMatrix(int64 RowNumber, int64 ColNumber);
 
-    // copy constructor
+    // deep-copy constructor
     inline mdkMatrix(const mdkMatrix<ElementType>& InputMatrix);
 
     inline mdkMatrix(const ElementType& Element);
 
-    // copy or share constructor
-    inline mdkMatrix(mdkMatrix<ElementType>& InputMatrix, mdkObjectConstructionTypeEnum Method = mdkObjectConstructionTypeEnum::COPY);
+    // deep-copy or shared-copy constructor
+    inline mdkMatrix(mdkMatrix<ElementType>& InputMatrix, mdkObjectCopyConstructionTypeEnum Method = mdkObjectCopyConstructionTypeEnum::DeepCopy);
 
     // move constructor
     inline mdkMatrix(mdkMatrix<ElementType>&& InputMatrix);
@@ -231,6 +231,7 @@ public:
     //----------------------  Copy From Matrix or Element  ----------------------------------------//
 
     // Copy can be used to convert a matrix from double (ElementType_Input) to float (ElementType), etc
+    // Copy means DeepCopy
 
     template<typename ElementType_Input>  
     inline bool Copy(const mdkMatrix<ElementType_Input>& InputMatrix);
@@ -240,15 +241,22 @@ public:
 
     inline bool Fill(const ElementType& Element);
 
-    //-------------------------- Share, ForceShare  ------------------------------------------ //
+    //-------------------------- SharedCopy, ForceSharedCopy  ------------------------------------------ //
  
+    // Why I use the name: ShallowCopy instead of Share :
+    // A.Share(B) literally means Matrix A and Matrix B share the same thing
+    // but after B.Clear(), and B.Resize(10,10), A and B have different data pointed by different shared_ptr (m_MatrixData)
+    // The "Share" is one-time thing, not share forever, maybe OneTimeShare is better than Share
+    // ShallowCopy is a better name: it means one-time operation
+    // I use the name SharedCopy: A.SharedCopy(B) means A is a copy of B by sharing
+
     // if m_IsSizeFixed is true, and size does not match, then return false
     //
-    inline bool Share(mdkMatrix<ElementType>& InputMatrix);
+    inline bool SharedCopy(mdkMatrix<ElementType>& InputMatrix);
 
     // it is used by GlueMatrix
     // Share the object (InputMatrix) no matter what, even if InputMatrix is const
-    inline void ForceShare(const mdkMatrix<ElementType>& InputMatrix);
+    inline void ForceSharedCopy(const mdkMatrix<ElementType>& InputMatrix);
 
     // about const share: i.e., only read (const functions), not write
     //

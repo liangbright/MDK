@@ -37,7 +37,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sour
         return;
     }
 
-    m_SharedSourceMatrix.ForceShare(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceSharedCopy(sourceMatrix);
 
     m_LinearIndexList_source = LinearIndexList;
 
@@ -57,7 +57,7 @@ template<typename ElementType>
 inline
 mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
-    m_SharedSourceMatrix.ForceShare(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceSharedCopy(sourceMatrix);
 
     m_Flag_OutputVector = true;
 
@@ -114,7 +114,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sour
         return;
     }
 
-    m_SharedSourceMatrix.ForceShare(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceSharedCopy(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -153,7 +153,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sour
         return;
     }
 
-    m_SharedSourceMatrix.ForceShare(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceSharedCopy(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -199,7 +199,7 @@ mdkShadowMatrix<ElementType>::mdkShadowMatrix(const mdkMatrix<ElementType>& sour
         return;
     }
 
-    m_SharedSourceMatrix.ForceShare(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceSharedCopy(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -232,7 +232,7 @@ template<typename ElementType>
 inline 
 mdkShadowMatrix<ElementType>::mdkShadowMatrix(mdkShadowMatrix<ElementType>&& ShadowMatrix)
 {
-    m_SharedSourceMatrix.ForceShare(ShadowMatrix.m_SharedSourceMatrix); // do not use std::move() !
+    m_SourceMatrixSharedCopy.ForceSharedCopy(ShadowMatrix.m_SourceMatrixSharedCopy); // do not use std::move() !
 
     m_RowIndexList_source = std::move(ShadowMatrix.m_RowIndexList_source);
 
@@ -266,7 +266,7 @@ mdkShadowMatrix<ElementType>::~mdkShadowMatrix()
 template<typename ElementType>
 inline void mdkShadowMatrix<ElementType>::Reset()
 {
-    m_SharedSourceMatrix.Reset();
+    m_SourceMatrixSharedCopy.Reset();
 
     m_RowIndexList_source.resize(0);
 
@@ -282,7 +282,7 @@ inline void mdkShadowMatrix<ElementType>::Reset()
 
     m_ColNumber = 0;
 
-    m_NaNElement = m_SharedSourceMatrix.GetNaNElement();
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 
     m_Flag_All_Row = false;
 
@@ -375,7 +375,7 @@ template<typename ElementType>
 inline 
 const mdkMatrix<ElementType>& mdkShadowMatrix<ElementType>::GetSourceMatrixSharedCopy() const
 {
-    return m_SharedSourceMatrix;
+    return m_SourceMatrixSharedCopy;
 }
 
 
@@ -425,7 +425,7 @@ bool mdkShadowMatrix<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMa
 
     auto ptrTemp = OutputMatrix.GetElementPointer();
 
-    auto ptrSource = m_SharedSourceMatrix.GetElementPointer();
+    auto ptrSource = m_SourceMatrixSharedCopy.GetElementPointer();
 
     if (m_LinearIndexList_source.empty() == false)
     {
@@ -436,7 +436,7 @@ bool mdkShadowMatrix<ElementType>::CreateMatrix(mdkMatrix<ElementType>& OutputMa
     }
     else
     {
-        auto RowNumber_source = m_SharedSourceMatrix.GetRowNumber();
+        auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
         for (int64 j = 0; j < m_ColNumber; ++j)
         {
@@ -461,7 +461,7 @@ inline
 void mdkShadowMatrix<ElementType>::operator=(const mdkMatrix<ElementType>& targetMatrix)
 {
     // MatrixA = MatrixA
-    if (m_SharedSourceMatrix.GetElementPointer() == targetMatrix.GetElementPointer())
+    if (m_SourceMatrixSharedCopy.GetElementPointer() == targetMatrix.GetElementPointer())
     {
         return;
     }
@@ -490,12 +490,12 @@ void mdkShadowMatrix<ElementType>::operator=(const mdkMatrix<ElementType>& targe
     {        
         if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) = targetMatrix
         {
-            m_SharedSourceMatrix.SetRow(m_RowIndexList_source[0], targetMatrix);
+            m_SourceMatrixSharedCopy.SetRow(m_RowIndexList_source[0], targetMatrix);
             return;
         }
         else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) = targetMatrix
         {
-            m_SharedSourceMatrix.SetCol(m_ColIndexList_source[0], targetMatrix);
+            m_SourceMatrixSharedCopy.SetCol(m_ColIndexList_source[0], targetMatrix);
             return;
         }
     }
@@ -521,12 +521,12 @@ void mdkShadowMatrix<ElementType>::operator=(const ElementType& Element)
     {
         if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) = Element
         {
-            m_SharedSourceMatrix.FillRow(m_RowIndexList_source[0], Element);
+            m_SourceMatrixSharedCopy.FillRow(m_RowIndexList_source[0], Element);
             return;
         }
         else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) = Element
         {
-            m_SharedSourceMatrix.FillCol(m_ColIndexList_source[0], Element);
+            m_SourceMatrixSharedCopy.FillCol(m_ColIndexList_source[0], Element);
             return;
         }
     }
@@ -609,18 +609,18 @@ ElementType& mdkShadowMatrix<ElementType>::operator[](int64 LinearIndex)
 
     if (m_LinearIndexList_source.empty() == false)
     {
-        return m_SharedSourceMatrix[m_LinearIndexList_source[LinearIndex]];
+        return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
     }
 
     auto ColIndex = LinearIndex / m_RowNumber;
 
     auto RowIndex = LinearIndex % m_RowNumber;
 
-    auto RowNumber_source = m_SharedSourceMatrix.GetRowNumber();
+    auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
     auto LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
 
-    return m_SharedSourceMatrix[LinearIndex_source];
+    return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
 
 
@@ -640,18 +640,18 @@ const ElementType& mdkShadowMatrix<ElementType>::operator[](int64 LinearIndex) c
 
     if (m_LinearIndexList_source.empty() == false)
     {
-        return m_SharedSourceMatrix[m_LinearIndexList_source[LinearIndex]];
+        return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
     }
 
     auto ColIndex = LinearIndex / m_RowNumber;
 
     auto RowIndex = LinearIndex % m_RowNumber;
 
-    auto RowNumber_source = m_SharedSourceMatrix.GetRowNumber();
+    auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
     auto LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
 
-    return m_SharedSourceMatrix[LinearIndex_source];
+    return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
 
 
@@ -671,18 +671,18 @@ ElementType& mdkShadowMatrix<ElementType>::operator()(int64 LinearIndex)
 
 	if (m_LinearIndexList_source.empty() == false)
     {
-        return m_SharedSourceMatrix[m_LinearIndexList_source[LinearIndex]];
+        return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
    	}
 	
     int64 ColIndex = LinearIndex / m_RowNumber;
 
 	int64 RowIndex = LinearIndex % m_RowNumber;
 
-    auto RowNumber_source = m_SharedSourceMatrix.GetRowNumber();
+    auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
 	int64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
 
-    return m_SharedSourceMatrix[LinearIndex_source];
+    return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
 
 
@@ -702,18 +702,18 @@ const ElementType& mdkShadowMatrix<ElementType>::operator()(int64 LinearIndex) c
 
     if (m_LinearIndexList_source.empty() == false)
     {
-        return m_SharedSourceMatrix[m_LinearIndexList_source[LinearIndex]];
+        return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
     }
 
     int64 ColIndex = LinearIndex / m_RowNumber;
 
     int64 RowIndex = LinearIndex % m_RowNumber;
 
-    auto RowNumber_source = m_SharedSourceMatrix.GetRowNumber();
+    auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
     int64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
 
-    return m_SharedSourceMatrix[LinearIndex_source];
+    return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
 
 
@@ -735,14 +735,14 @@ ElementType& mdkShadowMatrix<ElementType>::operator()(int64 RowIndex, int64 ColI
 
     if (m_LinearIndexList_source.empty() == false)
 	{
-        return m_SharedSourceMatrix[m_LinearIndexList_source[LinearIndex]];
+        return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
 	}
 	
-    auto RowNumber_source = m_SharedSourceMatrix.GetRowNumber();
+    auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
 	int64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
 
-    return m_SharedSourceMatrix[LinearIndex_source];
+    return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
 
 
@@ -764,14 +764,14 @@ const ElementType& mdkShadowMatrix<ElementType>::operator()(int64 RowIndex, int6
 
     if (m_LinearIndexList_source.empty() == false)
 	{
-        return m_SharedSourceMatrix[m_LinearIndexList_source[LinearIndex]];
+        return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
 	}
 	
-    auto RowNumber_source = m_SharedSourceMatrix.GetRowNumber();
+    auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
 	int64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
 
-    return m_SharedSourceMatrix[LinearIndex_source];
+    return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
 
 //--------------------------------------------------- ShadowMatrix {+= -= *= /=} Matrix ------------------------------------------------//

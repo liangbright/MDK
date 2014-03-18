@@ -60,9 +60,9 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearC
 
     int64 MatrixNumber = GlueMatrixA.GetMatrixNumber();
 
-    GlueMatrixA.m_SharedSourceMatrixList.resize(MatrixNumber + 1);
+    GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
 
-    GlueMatrixA.m_SharedSourceMatrixList[MatrixNumber].ForceShare(MatrixB);
+    GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber].ForceSharedCopy(MatrixB);
 
     GlueMatrixA.m_ElementList_Coef.push_back(ElementType(1));
 
@@ -114,9 +114,9 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearC
 
     int64 MatrixNumber = GlueMatrixA.GetMatrixNumber();
 
-    GlueMatrixA.m_SharedSourceMatrixList.resize(MatrixNumber + 1);
+    GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
 
-    GlueMatrixA.m_SharedSourceMatrixList[MatrixNumber].ForceShare(MatrixB);
+    GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber].ForceSharedCopy(MatrixB);
 
     GlueMatrixA.m_ElementList_Coef.push_back(ElementType(-1));
 
@@ -189,9 +189,9 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(const mdkMatrix<Element
 
     int64 MatrixNumber = GlueMatrixB.GetMatrixNumber();
 
-    GlueMatrixB.m_SharedSourceMatrixList.resize(MatrixNumber + 1);
+    GlueMatrixB.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
 
-    GlueMatrixB.m_SharedSourceMatrixList[MatrixNumber].ForceShare(MatrixA);
+    GlueMatrixB.m_SourceMatrixSharedCopyList[MatrixNumber].ForceSharedCopy(MatrixA);
 
     GlueMatrixB.m_ElementList_Coef.push_back(ElementType(1));
 
@@ -243,9 +243,9 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(const mdkMatrix<Element
 
     int64 MatrixNumber = GlueMatrixB.GetMatrixNumber();
 
-    GlueMatrixB.m_SharedSourceMatrixList.resize(MatrixNumber + 1);
+    GlueMatrixB.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
 
-    GlueMatrixB.m_SharedSourceMatrixList[MatrixNumber].ForceShare(MatrixA);
+    GlueMatrixB.m_SourceMatrixSharedCopyList[MatrixNumber].ForceSharedCopy(MatrixA);
 
     for (int64 i = 0; i < MatrixNumber; ++i)
     {
@@ -507,11 +507,11 @@ mdkGlueMatrixForLinearCombination<ElementType> operator+(mdkGlueMatrixForLinearC
 
     int64 MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
 
-    GlueMatrixA.m_SharedSourceMatrixList.resize(MatrixNumber_A + MatrixNumber_B);
+    GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + MatrixNumber_B);
 
     for (int64 i = 0; i < MatrixNumber_B; ++i)
     {
-        GlueMatrixA.m_SharedSourceMatrixList[MatrixNumber_A + i].ForceShare(GlueMatrixB.m_SharedSourceMatrixList[i]);
+        GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber_A + i].ForceSharedCopy(GlueMatrixB.m_SourceMatrixSharedCopyList[i]);
     }
 
     for (int64 i = 0; i < MatrixNumber_B; ++i)
@@ -573,11 +573,11 @@ mdkGlueMatrixForLinearCombination<ElementType> operator-(mdkGlueMatrixForLinearC
 
     int64 MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
 
-    GlueMatrixA.m_SharedSourceMatrixList.resize(MatrixNumber_A + MatrixNumber_B);
+    GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + MatrixNumber_B);
 
     for (int64 i = 0; i < MatrixNumber_B; ++i)
     {
-        GlueMatrixA.m_SharedSourceMatrixList[MatrixNumber_A + i].ForceShare(GlueMatrixB.m_SharedSourceMatrixList[i]);
+        GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber_A + i].ForceSharedCopy(GlueMatrixB.m_SourceMatrixSharedCopyList[i]);
     }
 
     for (int64 i = 0; i < MatrixNumber_B; ++i)
