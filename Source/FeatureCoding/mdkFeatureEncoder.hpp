@@ -1,25 +1,25 @@
-#ifndef __mdkFeatureSparseEncoder_hpp
-#define __mdkFeatureSparseEncoder_hpp
+#ifndef __mdkFeatureEncoder_hpp
+#define __mdkFeatureEncoder_hpp
 
 namespace mdk
 {
 
 template<typename ElementType>
-mdkFeatureSparseEncoder<ElementType>::mdkFeatureSparseEncoder()
+mdkFeatureEncoder<ElementType>::mdkFeatureEncoder()
 {
 
 }
 
 
 template<typename ElementType>
-mdkFeatureSparseEncoder<ElementType>::~mdkFeatureSparseEncoder()
+mdkFeatureEncoder<ElementType>::~mdkFeatureEncoder()
 {
 
 }
 
 
 template<typename ElementType>
-void mdkFeatureSparseEncoder<ElementType>::Reset()
+void mdkFeatureEncoder<ElementType>::Reset()
 {
     m_Dictionary_Storage.Reset();
 
@@ -35,11 +35,11 @@ void mdkFeatureSparseEncoder<ElementType>::Reset()
 
 
 template<typename ElementType>
-bool mdkFeatureSparseEncoder<ElementType>::SetInputFeatureData(const mdkMatrix<ElementType>* InputFeatureData)
+bool mdkFeatureEncoder<ElementType>::SetInputFeatureData(const mdkMatrix<ElementType>* InputFeatureData)
 {
     if (InputFeatureData == nullptr)
     {
-        mdkError << "Invalid input @ mdkFeatureSparseEncoder::SetInputFeatureData(InputFeatureData)" << '\n';
+        mdkError << "Invalid input @ mdkFeatureEncoder::SetInputFeatureData(InputFeatureData)" << '\n';
         return false;
     }
 
@@ -50,11 +50,11 @@ bool mdkFeatureSparseEncoder<ElementType>::SetInputFeatureData(const mdkMatrix<E
 
 
 template<typename ElementType>
-bool mdkFeatureSparseEncoder<ElementType>::SetDictionary(const mdkFeatureDictionary<ElementType>* Dictionary)
+bool mdkFeatureEncoder<ElementType>::SetDictionary(const mdkFeatureDictionary<ElementType>* Dictionary)
 {
     if (InputFeatureData == nullptr)
     {
-        mdkError << "Invalid input @ mdkFeatureSparseEncoder::SetDictionary(Dictionary)" << '\n';
+        mdkError << "Invalid input @ mdkFeatureEncoder::SetDictionary(Dictionary)" << '\n';
         return false;
     }
 
@@ -66,7 +66,7 @@ bool mdkFeatureSparseEncoder<ElementType>::SetDictionary(const mdkFeatureDiction
 
 
 template<typename ElementType>
-bool mdkFeatureSparseEncoder<ElementType>::LoadDictionary(const std::string& FilePathAndName)
+bool mdkFeatureEncoder<ElementType>::LoadDictionary(const std::string& FilePathAndName)
 {
     auto IsOK = m_Dictionary_SharedCopy.Load(FilePathAndName);
 
@@ -77,24 +77,24 @@ bool mdkFeatureSparseEncoder<ElementType>::LoadDictionary(const std::string& Fil
 
 
 template<typename ElementType>
-bool mdkFeatureSparseEncoder<ElementType>::SetOutputFeatureCode(mdkMatrix<ElementType>& FeatureCode)
+bool mdkFeatureEncoder<ElementType>::SetOutputFeatureCode(mdkMatrix<ElementType>* FeatureCode)
 {
     if (FeatureCode == nullptr)
     {
-        mdkError << "Invalid input @ mdkFeatureSparseEncoder::SetOutputFeatureCode(FeatureCode)" << '\n';
+        mdkError << "Invalid input @ mdkFeatureEncoder::SetOutputFeatureCode(FeatureCode)" << '\n';
         return false;
     }
 
-    m_FeatureCode = &FeatureCode;
+    m_FeatureCode = FeatureCode;
 
-    m_FeatureCode_SharedCopy.ForceSharedCopy(FeatureCode);
+    m_FeatureCode_SharedCopy.ForceSharedCopy(*FeatureCode);
 
     return true;
 }
 
 
 template<typename ElementType>
-bool mdkFeatureSparseEncoder<ElementType>::Update()
+bool mdkFeatureEncoder<ElementType>::Update()
 {
     auto DataSize = m_FeatureData->GetSize();
 
@@ -120,14 +120,14 @@ bool mdkFeatureSparseEncoder<ElementType>::Update()
 
 
 template<typename ElementType>
-bool mdkFeatureSparseEncoder<ElementType>::GenerateCode()
+bool mdkFeatureEncoder<ElementType>::GenerateCode()
 {
     return true;
 }
 
 
 template<typename ElementType>
-const mdkMatrix<ElementType>& mdkFeatureSparseEncoder<ElementType>::GetOutputFeatureCode()
+const mdkMatrix<ElementType>& mdkFeatureEncoder<ElementType>::GetOutputFeatureCode()
 {
     return m_FeatureCode_SharedCopy;
 }

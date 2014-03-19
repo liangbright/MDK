@@ -79,19 +79,19 @@ ElementType GetMatrixNaNElement(ElementType ReferenceElement)
     switch (TypeEnum)
     {
     case mdkMatrixElementTypeEnum::Scalar_DOUBLE64:
-        return std::nan(nullptr);
+        return ElementType(std::nan(nullptr));
 
     case mdkMatrixElementTypeEnum::Scalar_FLOAT32:
         return std::nanf(nullptr);
 
     case mdkMatrixElementTypeEnum::StdVector_DOUBLE64:
-        return ReferenceElement + std::nan(nullptr);
+        return ReferenceElement + ElementType(std::nan(nullptr));
 
     case mdkMatrixElementTypeEnum::StdVector_FLOAT32:
         return ReferenceElement + std::nanf(nullptr);
 
     case mdkMatrixElementTypeEnum::StdArray_DOUBLE64:
-        return ReferenceElement + std::nan(nullptr);
+        return ReferenceElement + ElementType(std::nan(nullptr));
 
     case mdkMatrixElementTypeEnum::StdArray_FLOAT32:
         return ReferenceElement + std::nanf(nullptr);

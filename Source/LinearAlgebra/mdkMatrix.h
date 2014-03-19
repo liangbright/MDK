@@ -185,13 +185,10 @@ public:
 
     inline mdkMatrix(int64 RowNumber, int64 ColNumber);
 
-    // deep-copy constructor
-    inline mdkMatrix(const mdkMatrix<ElementType>& InputMatrix);
-
     inline mdkMatrix(const ElementType& Element);
 
     // deep-copy or shared-copy constructor
-    inline mdkMatrix(mdkMatrix<ElementType>& InputMatrix, mdkObjectCopyConstructionTypeEnum Method = mdkObjectCopyConstructionTypeEnum::DeepCopy);
+    inline mdkMatrix(const mdkMatrix<ElementType>& InputMatrix, mdkObjectCopyConstructionTypeEnum Method = mdkObjectCopyConstructionTypeEnum::DeepCopy);
 
     // move constructor
     inline mdkMatrix(mdkMatrix<ElementType>&& InputMatrix);
@@ -228,16 +225,15 @@ public:
 
     inline void operator=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    //----------------------  Copy From Matrix or Element  ----------------------------------------//
+    //----------------------  DeepCopy From Matrix or Element  ----------------------------------------//
 
-    // Copy can be used to convert a matrix from double (ElementType_Input) to float (ElementType), etc
-    // Copy means DeepCopy
+    // DeepCopy can be used to convert a matrix from double (ElementType_Input) to float (ElementType), etc
 
     template<typename ElementType_Input>  
-    inline bool Copy(const mdkMatrix<ElementType_Input>& InputMatrix);
+    inline bool DeepCopy(const mdkMatrix<ElementType_Input>& InputMatrix);
 
     template<typename ElementType_Input>
-    inline bool Copy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
+    inline bool DeepCopy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
 
     inline bool Fill(const ElementType& Element);
 

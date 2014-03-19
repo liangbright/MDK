@@ -37,16 +37,6 @@ mdkMatrix<ElementType>::mdkMatrix(int64 RowNumber, int64 ColNumber)
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(const mdkMatrix<ElementType>& InputMatrix)
-{
-    this->Reset();
-
-    this->Copy(InputMatrix);
-}
-
-
-template<typename ElementType>
-inline
 mdkMatrix<ElementType>::mdkMatrix(const ElementType& Element)
 {
     this->Reset();
@@ -59,17 +49,17 @@ mdkMatrix<ElementType>::mdkMatrix(const ElementType& Element)
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(mdkMatrix<ElementType>& InputMatrix, mdkObjectCopyConstructionTypeEnum Method = mdkObjectCopyConstructionTypeEnum::DeepCopy)
+mdkMatrix<ElementType>::mdkMatrix(const mdkMatrix<ElementType>& InputMatrix, mdkObjectCopyConstructionTypeEnum Method = mdkObjectCopyConstructionTypeEnum::DeepCopy)
 {
     this->Reset();
 
     if (Method == mdkObjectCopyConstructionTypeEnum::DeepCopy)
     {
-        this->Copy(InputMatrix);
+        this->DeepCopy(InputMatrix);
     }
     else
     {
-        this->SharedCopy(InputMatrix);
+        this->ForceSharedCopy(InputMatrix);
     }
 }
 
@@ -345,17 +335,17 @@ void mdkMatrix<ElementType>::operator=(const mdkGlueMatrixForMultiplication<Elem
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::Copy(const mdkMatrix<ElementType_Input>& InputMatrix)
+bool mdkMatrix<ElementType>::DeepCopy(const mdkMatrix<ElementType_Input>& InputMatrix)
 {
     if (this == &InputMatrix)
     {
-        mdkWarning << "A Matrix tries to Copy itself @ mdkMatrix::Copy(InputMatrix)" << '\n';
+        mdkWarning << "A Matrix tries to DeepCopy itself @ mdkMatrix::DeepCopy(InputMatrix)" << '\n';
         return false;
     }
 
     if (InputMatrix.IsEmpty() == true)
     {
-        mdkWarning << "InputMatrix is empty, and this matrix is set to be empty @ mdkMatrix::Copy(InputMatrix)" << '\n';
+        mdkWarning << "InputMatrix is empty, and this matrix is set to be empty @ mdkMatrix::DeepCopy(InputMatrix)" << '\n';
 
         this->Clear();
 
@@ -363,18 +353,18 @@ bool mdkMatrix<ElementType>::Copy(const mdkMatrix<ElementType_Input>& InputMatri
     }
 
     // copy data
-    return this->Copy(InputMatrix.GetElementPointer(), InputMatrix.GetRowNumber(), InputMatrix.GetColNumber());
+    return this->DeepCopy(InputMatrix.GetElementPointer(), InputMatrix.GetRowNumber(), InputMatrix.GetColNumber());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber)
+bool mdkMatrix<ElementType>::DeepCopy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber)
 {
     if (InputElementPointer == nullptr || InputRowNumber <= 0 || InputColNumber <= 0)
     {
-        mdkError << "Input pointer is nullptr @ mdkMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
+        mdkError << "Input pointer is nullptr @ mdkMatrix::DeepCopy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
         return true;
     }
 
@@ -382,7 +372,7 @@ bool mdkMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer, 
 
     if (tempElementType == mdkMatrixElementTypeEnum::UNKNOWN)
     {
-        mdkError << "Input type is unknown @ mdkMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
+        mdkError << "Input type is unknown @ mdkMatrix::DeepCopy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
         return false;
     }
 
@@ -391,7 +381,7 @@ bool mdkMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer, 
     {
         if (std::size_t(InputElementPointer) == std::size_t(this->GetElementPointer()))
         {
-            mdkWarning << "A Matrix tries to Copy itself @ mdkMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
+            mdkWarning << "A Matrix tries to DeepCopy itself @ mdkMatrix::DeepCopy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
             return false;
         }
     }
@@ -408,7 +398,7 @@ bool mdkMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer, 
     {
         if (InputRowNumber != SelfSize.RowNumber || InputColNumber != SelfSize.ColNumber)
         {
-            mdkError << "Can not change matrix size @ mdkMatrix::Copy(ElementType_Input*, InputRowNumber, InputColNumber)" << '\n';
+            mdkError << "Can not change matrix size @ mdkMatrix::DeepCopy(ElementType_Input*, InputRowNumber, InputColNumber)" << '\n';
             return false;
         }
     }

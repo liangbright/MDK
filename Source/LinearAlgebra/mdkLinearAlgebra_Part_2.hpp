@@ -23,14 +23,14 @@ mdkMatrix<ElementType> MatrixTranspose(const mdkMatrix<ElementType>& Matrix)
 
     if (Size.ColNumber == 1)
     {
-        tempMatrix.Copy(Matrix.GetElementPointer(), 1, Size.RowNumber);
+        tempMatrix.DeepCopy(Matrix.GetElementPointer(), 1, Size.RowNumber);
 
         return tempMatrix;
     }
 
     if (Size.RowNumber == 1)
     {
-        tempMatrix.Copy(Matrix.GetElementPointer(), Size.ColNumber, 1);
+        tempMatrix.DeepCopy(Matrix.GetElementPointer(), Size.ColNumber, 1);
 
         return tempMatrix;
     }

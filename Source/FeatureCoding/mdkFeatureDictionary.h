@@ -14,7 +14,7 @@ class mdkFeatureDictionary : mdkObject
 {
 public:
 
-    mdkMatrix<ElementType> m_Dictionary;
+    mdkMatrix<ElementType> m_Record;
 
     mdkMatrix<ElementType> m_Covariance;
 
@@ -24,7 +24,21 @@ public:
 
     mdkFeatureDictionary();
 
+    mdkFeatureDictionary(const mdkFeatureDictionary& InputDictionary);
+
+    mdkFeatureDictionary(mdkFeatureDictionary&& InputDictionary);
+
     ~mdkFeatureDictionary();
+
+    void operator=(const mdkFeatureDictionary& InputDictionary);
+
+    void operator=(mdkFeatureDictionary&& InputDictionary);
+
+    void DeepCopy(const mdkFeatureDictionary<ElementType>& InputDictionary);
+
+    void SharedCopy(mdkFeatureDictionary<ElementType>& InputDictionary);
+
+    void ForceSharedCopy(const mdkFeatureDictionary<ElementType>& InputDictionary);
 
     void Reset();
 
@@ -33,6 +47,8 @@ public:
     bool Load(const std::string& FilePathAndName);
 
     bool Save(const std::string& FilePathAndName);
+
+    mdkMatrixSize GetSize();
 };
 
 

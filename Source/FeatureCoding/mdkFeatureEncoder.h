@@ -1,5 +1,5 @@
-#ifndef __mdkFeatureSparseEncoder_h
-#define __mdkFeatureSparseEncoder_h
+#ifndef __mdkFeatureEncoder_h
+#define __mdkFeatureEncoder_h
 
 #include <string>
 
@@ -10,7 +10,7 @@ namespace mdk
 {
 
 template<typename ElementType>
-class mdkFeatureSparseEncoder : public mdkObject
+class mdkFeatureEncoder : public mdkObject
 {
 protected:
 
@@ -30,13 +30,13 @@ protected:
 
 public:
 
-    mdkFeatureSparseEncoder();
+    mdkFeatureEncoder();
 
-    ~mdkFeatureSparseEncoder();
+    ~mdkFeatureEncoder();
 
     //-----------------------------------------
 
-    void Reset();
+    virtual void Reset();
     
     //-----------------------------------------
 
@@ -46,7 +46,7 @@ public:
 
     bool LoadDictionary(const std::string& FilePathAndName);
 
-    void SetOutputFeatureCode(mdkMatrix<ElementType>& FeatureCode);
+    bool SetOutputFeatureCode(mdkMatrix<ElementType>* FeatureCode);
 
     //-----------------------------------------
 
@@ -64,14 +64,14 @@ protected:
 
 private:
 //deleted:
-    mdkFeatureSparseEncoder(const mdkFeatureSparseEncoder&) = delete;
+    mdkFeatureEncoder(const mdkFeatureEncoder&) = delete;
 
-    void operator=(const mdkFeatureSparseEncoder&) = delete;
+    void operator=(const mdkFeatureEncoder&) = delete;
 
 };
 
 }
 
-#include "mdkFeatureSparseEncoder.hpp"
+#include "mdkFeatureEncoder.hpp"
 
 #endif
