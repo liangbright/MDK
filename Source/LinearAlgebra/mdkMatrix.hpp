@@ -146,7 +146,7 @@ mdkMatrix<ElementType>::mdkMatrix(const ElementType* InputElementPointer, int64 
         }
     }
 
-    this->Copy(InputElementPointer, InputRowNumber, InputColNumber);
+    this->CopyData(InputElementPointer, InputRowNumber, InputColNumber);
 }
 
 
@@ -161,7 +161,7 @@ template<typename ElementType>
 inline
 void mdkMatrix<ElementType>::operator=(const mdkMatrix<ElementType>& InputMatrix)
 {
-    this->Copy(InputMatrix);
+    this->DeepCopy(InputMatrix);
 }
 
 
@@ -360,12 +360,27 @@ bool mdkMatrix<ElementType>::DeepCopy(const mdkMatrix<ElementType_Input>& InputM
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
+bool mdkMatrix<ElementType>::DeepCopy(const mdkMatrix<ElementType_Input>* InputMatrix)
+{
+    if (InputMatrix == nullptr)
+    {
+        mdkError << "Input is nullptr @ mdkMatrix::DeepCopy(mdkMatrix* InputMatrix)" << '\n';
+        return false;
+    }
+
+    return this->DeepCopy(*InputMatrix);
+}
+
+
+template<typename ElementType>
+template<typename ElementType_Input>
+inline
 bool mdkMatrix<ElementType>::DeepCopy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber)
 {
     if (InputElementPointer == nullptr || InputRowNumber <= 0 || InputColNumber <= 0)
     {
         mdkError << "Input pointer is nullptr @ mdkMatrix::DeepCopy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
-        return true;
+        return false;
     }
 
     auto tempElementType = FindMatrixElementType(InputElementPointer[0]);
@@ -475,11 +490,20 @@ template<typename ElementType>
 inline
 bool mdkMatrix<ElementType>::SharedCopy(mdkMatrix<ElementType>& InputMatrix)
 {
-    // MatrixA = MatrixA
+    // self assignment test is not necessary, just to output some information
+
+    // Matrix = Matrix
     if (this == &InputMatrix)
     {
         mdkWarning << "A Matrix tries to SharedCopy itself @ mdkMatrix::SharedCopy(InputMatrix)" << '\n';
-        return false;
+        return true;
+    }
+
+    // data = data
+    if (this->GetElementPointer() == InputMatrix.GetElementPointer())
+    {
+        mdkWarning << "A Matrix tries to SharedCopy the same data @ mdkMatrix::SharedCopy(InputMatrix)" << '\n';
+        return true;
     }
 
     auto InputSize = InputMatrix.GetSize();
@@ -495,7 +519,9 @@ bool mdkMatrix<ElementType>::SharedCopy(mdkMatrix<ElementType>& InputMatrix)
         }
     }
 
-    m_MatrixData = InputMatrix.m_MatrixData; // std::SharedCopy_ptr
+    //--------------------------------------------------------------------------------------------------------
+
+    m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment test is not necessary
 
     if (m_MatrixData)
     {
@@ -512,9 +538,23 @@ bool mdkMatrix<ElementType>::SharedCopy(mdkMatrix<ElementType>& InputMatrix)
 
 template<typename ElementType>
 inline
+bool mdkMatrix<ElementType>::SharedCopy(mdkMatrix<ElementType>* InputMatrix)
+{
+    if (InputMatrix == nullptr)
+    {
+        mdkError << "Input is nullptr @ mdkMatrix::SharedCopy(mdkMatrix* InputMatrix)" << '\n';
+        return false;
+    }
+
+    return this->SharedCopy(*InputMatrix);
+}
+
+
+template<typename ElementType>
+inline
 void mdkMatrix<ElementType>::ForceSharedCopy(const mdkMatrix<ElementType>& InputMatrix)
 {
-    m_MatrixData = InputMatrix.m_MatrixData; // std::SharedCopy_ptr
+    m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment test is not necessary
 
     if (m_MatrixData)
     {
@@ -524,6 +564,20 @@ void mdkMatrix<ElementType>::ForceSharedCopy(const mdkMatrix<ElementType>& Input
     {
         m_ElementPointer = nullptr;
     }
+}
+
+
+template<typename ElementType>
+inline
+bool mdkMatrix<ElementType>::ForceSharedCopy(const mdkMatrix<ElementType>* InputMatrix)
+{
+    if (InputMatrix == nullptr)
+    {
+        mdkError << "Input is nullptr @ mdkMatrix::ForceSharedCopy(mdkMatrix* InputMatrix)" << '\n';
+        return false;
+    }
+
+    return this->ForceSharedCopy(*InputMatrix);
 }
 
 

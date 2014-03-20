@@ -189,19 +189,19 @@ void Test_FunctionTemplate_InputFilterFunction()
 
 	std::time_t t0 = std::time(0);
 
-	imfilter.Run();
+	imfilter.Update();
 
 	std::time_t t1 = std::time(0);
 
-	std::cout << "imfilter.Run() time " << t1 - t0 << '\n';
+	std::cout << "imfilter.Update() time " << t1 - t0 << '\n';
 
 	t0 = std::time(0);
 
-//	imfilter.Run(FilterFunction);
+//	imfilter.Update(FilterFunction);
 
 	t1 = std::time(0);
 
-	std::cout << "imfilter.Run(FilterFunction) time " << t1 - t0 << '\n';
+	std::cout << "imfilter.Update(FilterFunction) time " << t1 - t0 << '\n';
 
 	std::cout << "FilterFunction function " << '\n';
 
@@ -254,7 +254,7 @@ void Test_MultiThread()
 
 	std::time_t t0 = std::time(0);
 
-	imfilter.Run();
+	imfilter.Update();
 
 	std::time_t t1 = std::time(0);
 
@@ -358,7 +358,7 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	std::time_t t0 = std::time(0);
 
-	imfilter.Run();
+	imfilter.Update();
 
 	std::time_t t1 = std::time(0);
 
@@ -384,7 +384,7 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	t0 = std::time(0);
 
-	imfilter.Run();
+	imfilter.Update();
 
 	t1 = std::time(0);
 
@@ -447,7 +447,7 @@ void Test_ConvolutionFilter_ScalarOutput()
 
     auto t0 = std::chrono::system_clock::now();
 
-	imfilter.Run();
+	imfilter.Update();
 	
     auto t1 = std::chrono::system_clock::now();
 
@@ -566,7 +566,7 @@ void Test_ConvolutionFilter_VectorOutput()
 	
 	std::time_t t0 = std::time(0);
 
-	imfilter.Run();
+	imfilter.Update();
 
 	std::time_t t1 = std::time(0);
 
@@ -614,7 +614,7 @@ void test_Valve_Filter()
 
     std::time_t t0 = std::time(0);
 
-    imfilter.Run();
+    imfilter.Update();
 
     std::time_t t1 = std::time(0);
 
@@ -658,7 +658,7 @@ void test_GaussianFilter()
 
     std::time_t t0 = std::time(0);
 
-    imfilter.Run();
+    imfilter.Update();
 
     std::time_t t1 = std::time(0);
 
@@ -699,7 +699,7 @@ void test_IntegralImageBuider()
 
     std::time_t t0 = std::time(0);
 
-    imbuilder.Run();
+    imbuilder.Update();
 
     std::time_t t1 = std::time(0);
 

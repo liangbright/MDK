@@ -151,7 +151,10 @@ public:
     // Copy can be used to convert an image from double (VoxelType_Input) to float (VoxelType), etc
 
     template<typename VoxelType_Input>
-    bool Copy(const mdk3DImage<VoxelType>& InputImage);
+    bool DeepCopy(const mdk3DImage<VoxelType_Input>& InputImage);
+    
+    template<typename VoxelType_Input>
+    bool DeepCopy(const mdk3DImage<VoxelType_Input>* InputImage);
 
     template<typename VoxelType_Input>
     bool CopyData(const VoxelType_Input* InputVoxelPointer, int64 Lx, int64 Ly, int64 Lz = 1);
@@ -159,10 +162,18 @@ public:
     inline bool Fill(const VoxelType& Voxel);
 
     //---------------------------------------------------------//
+    
+    // only an empty image A can use A.SharedCopy(B)
+    //
+    bool SharedCopy(mdk3DImage<VoxelType>& InputImage);
 
-    void Share(mdk3DImage<VoxelType>& InputImage);
+    bool SharedCopy(mdk3DImage<VoxelType>* InputImage);
 
-    void ForceShare(const mdk3DImage<VoxelType>& InputImage);
+    // SharedCopy InputImage no matter what
+    //
+    void ForceSharedCopy(const mdk3DImage<VoxelType>& InputImage);
+
+    bool ForceSharedCopy(const mdk3DImage<VoxelType>* InputImage);
 
     //---------------------------------------------------------//
 

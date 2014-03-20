@@ -30,7 +30,9 @@ SetSigmaList(double Sx, double Sy, double Sz)
 {
     m_SigmaList.Reset();
 
-    m_SigmaList.Resize(3, 1, true);
+    m_SigmaList.Resize(3, 1);
+
+    m_SigmaList.FixSize();
 
     m_SigmaList(0) = Sx;
     m_SigmaList(1) = Sy;

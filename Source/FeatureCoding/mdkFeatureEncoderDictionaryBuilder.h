@@ -62,7 +62,7 @@ public:
 
     //----------------------------------------------------//
 
-    const mdkFeatureDictionary<ElementType>& GetOutputDictionary();
+    const mdkFeatureDictionary<ElementType>* GetOutputDictionary();
 
 protected:
 

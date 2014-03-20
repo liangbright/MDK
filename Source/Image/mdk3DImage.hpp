@@ -186,7 +186,7 @@ mdk3DImage<VoxelType>::mdk3DImage(mdk3DImage<VoxelType>&& InputImage)
         m_VoxelPointer = nullptr;
     }
 
-    InputImage.clear();
+    InputImage.Clear();
 }
 
 
@@ -208,19 +208,19 @@ void mdk3DImage<VoxelType>::operator=(mdk3DImage<VoxelType>&& InputImage)
 
 template<typename VoxelType>
 template<typename VoxelType_Input>
-bool mdk3DImage<VoxelType>::Copy(const mdk3DImage<VoxelType_Input>& InputImage)
+bool mdk3DImage<VoxelType>::DeepCopy(const mdk3DImage<VoxelType_Input>& InputImage)
 {
     if (this == &InputImage)
     {
-        mdkError << "try to copy self @ mdk3DImage::Copy" << '\n';
-        return false;
+        mdkWarning << "try to DeepCopy self @ mdk3DImage::DeepCopy(InputImage)" << '\n';
+        return true;
     }
 
 	if (InputImage.IsEmpty() == true)
 	{
         if (this->IsEmpty() == false)
         {
-            mdkError << "Self is not emtpy but InputImage is empty @ mdk3DImage::Copy" << '\n';
+            mdkError << "Self is not emtpy but InputImage is empty @ mdk3DImage::DeepCopy(InputImage)" << '\n';
             return false;
         }
         else
@@ -251,6 +251,20 @@ bool mdk3DImage<VoxelType>::Copy(const mdk3DImage<VoxelType_Input>& InputImage)
 
 template<typename VoxelType>
 template<typename VoxelType_Input>
+bool mdk3DImage<VoxelType>::DeepCopy(const mdk3DImage<VoxelType_Input>* InputImage)
+{
+    if (InputImage == nullptr)
+    {
+        mdkError << "Input is nullptr @ mdk3DImage::DeepCopy(mdk3DImage* InputImage)" << '\n';
+        return false;
+    }
+
+    return this->DeepCopy(*InputImage);
+}
+
+
+template<typename VoxelType>
+template<typename VoxelType_Input>
 bool mdk3DImage<VoxelType>::CopyData(const VoxelType_Input* InputVoxelPointer, int64 Lx, int64 Ly, int64 Lz = 1)
 {
     if (this->IsEmpty == false)
@@ -272,7 +286,7 @@ bool mdk3DImage<VoxelType>::CopyData(const VoxelType_Input* InputVoxelPointer, i
     if (std::size_t(InputVoxelPointer) == std::size_t(VoxelPtr))
     {
         mdkWarning << "An image tries to Copy itself @ mdk3DImage::CopyData" << '\n';
-        return false;
+        return true;
     }
     
 
@@ -309,15 +323,15 @@ bool mdk3DImage<VoxelType>::Fill(const VoxelType& Voxel)
 
 
 template<typename VoxelType>
-void mdk3DImage<VoxelType>::Share(mdk3DImage<VoxelType>& InputImage)
+bool mdk3DImage<VoxelType>::SharedCopy(mdk3DImage<VoxelType>& InputImage)
 {
     if (this->IsEmpty() == false)
     {
-        mdkError << "Self is not empty @ mdk3DImage::Share" << '\n';
-        return;
+        mdkError << "Self is not empty @ mdk3DImage::SharedCopy(const mdk3DImage& InputImage)" << '\n';
+        return false;
     }
 
-    m_ImageData = InputImage.m_ImageData;
+    m_ImageData = InputImage.m_ImageData; // std::Shared_ptr, self assignment test is not necessary
 
     if (m_ImageData)
     {
@@ -328,13 +342,27 @@ void mdk3DImage<VoxelType>::Share(mdk3DImage<VoxelType>& InputImage)
         m_VoxelPointer = nullptr;
     }
 
+    return true;
 }
 
 
 template<typename VoxelType>
-void mdk3DImage<VoxelType>::ForceShare(const mdk3DImage<VoxelType>& InputImage)
+bool mdk3DImage<VoxelType>::SharedCopy(mdk3DImage<VoxelType>* InputImage)
 {
-    m_ImageData = InputImage.m_ImageData;
+    if (InputImage == nullptr)
+    {
+        mdkError << "Input is nullptr @ mdk3DImage::SharedCopy(mdk3DImage* InputImage)" << '\n';
+        return false;
+    }
+
+    return this->SharedCopy(*InputImage);
+}
+
+
+template<typename VoxelType>
+void mdk3DImage<VoxelType>::ForceSharedCopy(const mdk3DImage<VoxelType>& InputImage)
+{
+    m_ImageData = InputImage.m_ImageData; // std::Shared_ptr, self assignment test is not necessary
 
     if (m_ImageData)
     {
@@ -344,6 +372,19 @@ void mdk3DImage<VoxelType>::ForceShare(const mdk3DImage<VoxelType>& InputImage)
     {
         m_VoxelPointer = nullptr;
     }
+}
+
+
+template<typename VoxelType>
+bool mdk3DImage<VoxelType>::ForceSharedCopy(const mdk3DImage<VoxelType>* InputImage)
+{
+    if (InputImage == nullptr)
+    {
+        mdkError << "Input is nullptr @ mdk3DImage::ForceSharedCopy(mdk3DImage* InputImage)" << '\n';
+        return false;
+    }
+
+    return this->ForceSharedCopy(*InputImage);
 }
 
 
@@ -388,7 +429,7 @@ void mdk3DImage<VoxelType>::Reset()
 
 
 template<typename VoxelType>
-void mdk3DImage<VoxelType>::clear()
+void mdk3DImage<VoxelType>::Clear()
 {
     m_ImageData.reset(); // reset shared_ptr
 

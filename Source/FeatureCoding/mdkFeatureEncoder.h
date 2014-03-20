@@ -16,11 +16,13 @@ protected:
 
     // input:
 
+    const mdkMatrix<ElementType>* m_FeatureData;
+
+    // input, and can also be internal data, 
+
     const mdkFeatureDictionary<ElementType>* m_Dictionary;
 
     mdkFeatureDictionary<ElementType> m_Dictionary_SharedCopy;
-
-    const mdkMatrix<ElementType>* m_FeatureData;
 
     // output:
 
@@ -54,7 +56,7 @@ public:
 
     //----------------------------------------------------//
 
-    const mdkMatrix<ElementType>& GetOutputFeatureCode();
+    const mdkMatrix<ElementType>* GetOutputFeatureCode();
 
 
 protected:

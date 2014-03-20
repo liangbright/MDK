@@ -14,16 +14,15 @@ class mdkKMeansDictionaryBuilder : public mdkFeatureEncoderDictionaryBuilder<Ele
 {
 protected:
 
-    std::string m_KMeansLibrary;
+    std::string m_KMeansLibraryName;
 
 public:
 
     mdkKMeansDictionaryBuilder();
 
-
     ~mdkKMeansDictionaryBuilder();
 
-    bool SetKMeansLibrary(const std::string& KMeansLibrary);
+    bool SelectKMeansLibrary(const std::string& KMeansLibraryName);
 
     //----------------------------------------------------//
 
@@ -50,8 +49,6 @@ private:
     mdkKMeansDictionaryBuilder(mdkKMeansDictionaryBuilder&&) = delete;
 
     void operator=(mdkKMeansDictionaryBuilder&&) = delete;
-
-
 };
 
 }// namespace mdk

@@ -34,21 +34,29 @@ public:
 
     void operator=(mdkFeatureDictionary&& InputDictionary);
 
-    void DeepCopy(const mdkFeatureDictionary<ElementType>& InputDictionary);
+    bool DeepCopy(const mdkFeatureDictionary<ElementType>& InputDictionary);
 
-    void SharedCopy(mdkFeatureDictionary<ElementType>& InputDictionary);
+    bool DeepCopy(const mdkFeatureDictionary<ElementType>* InputDictionary);
+
+    bool SharedCopy(mdkFeatureDictionary<ElementType>& InputDictionary);
+
+    bool SharedCopy(mdkFeatureDictionary<ElementType>* InputDictionary);
 
     void ForceSharedCopy(const mdkFeatureDictionary<ElementType>& InputDictionary);
+
+    bool ForceSharedCopy(const mdkFeatureDictionary<ElementType>* InputDictionary);
 
     void Reset();
 
     void Clear();
 
+    bool IsEmpty();
+
+    mdkMatrixSize GetSize();
+
     bool Load(const std::string& FilePathAndName);
 
     bool Save(const std::string& FilePathAndName);
-
-    mdkMatrixSize GetSize();
 };
 
 

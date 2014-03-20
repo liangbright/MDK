@@ -12,7 +12,7 @@ namespace mdk
 template<typename ElementType>
 mdkKMeansDictionaryBuilder<ElementType>::mdkKMeansDictionaryBuilder()
 {
-    m_KMeansLibrary = "OpenCV";
+    m_KMeansLibraryName = "OpenCV";
 }
 
 
@@ -24,15 +24,15 @@ mdkKMeansDictionaryBuilder<ElementType>::~mdkKMeansDictionaryBuilder()
 //---------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-bool mdkKMeansDictionaryBuilder<ElementType>::SetKMeansLibrary(const std::string& KMeansLibrary)
+bool mdkKMeansDictionaryBuilder<ElementType>::SelectKMeansLibrary(const std::string& KMeansLibraryName)
 {
-    if (KMeansLibrary != "OpenCV" || KMeansLibrary != "VLFeat")
+    if (KMeansLibraryName != "OpenCV" || KMeansLibraryName != "VLFeat")
     {
-        mdkError << "Invalid input @ mdkKMeansDictionaryBuilder::SetKMeansLibrary" << '\n';
+        mdkError << "Invalid input @ mdkKMeansDictionaryBuilder::SelectKMeansLibrary" << '\n';
         return false;
     }
 
-    m_KMeansLibrary = KMeansLibrary;
+    m_KMeansLibraryName = KMeansLibraryName;
 
     return true;
 }
@@ -59,11 +59,11 @@ bool mdkKMeansDictionaryBuilder<ElementType>::GenerateDictionary()
 template<typename ElementType>
 bool mdkKMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild()
 {
-    if (m_KMeansLibrary == "OpenCV")
+    if (m_KMeansLibraryName == "OpenCV")
     {
         return this->KMeansFirstTimeBuild_using_OpenCV();
     }
-    else if (m_KMeansLibrary == "VLFeat")
+    else if (m_KMeansLibraryName == "VLFeat")
     {
         return this->KMeansFirstTimeBuild_using_VLFeat();
     }

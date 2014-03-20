@@ -60,7 +60,7 @@ bool mdkFeatureEncoder<ElementType>::SetDictionary(const mdkFeatureDictionary<El
 
     m_Dictionary = Dictionary;
 
-    m_Dictionary_SharedCopy.ForceSharedCopy(*Dictionary);
+    m_Dictionary_SharedCopy.ForceSharedCopy(Dictionary);
 }
 
 
@@ -87,7 +87,7 @@ bool mdkFeatureEncoder<ElementType>::SetOutputFeatureCode(mdkMatrix<ElementType>
 
     m_FeatureCode = FeatureCode;
 
-    m_FeatureCode_SharedCopy.ForceSharedCopy(*FeatureCode);
+    m_FeatureCode_SharedCopy.ForceSharedCopy(FeatureCode);
 
     return true;
 }
@@ -112,7 +112,7 @@ bool mdkFeatureEncoder<ElementType>::Update()
 
     if (m_FeatureCode != &m_FeatureCode_SharedCopy)
     {
-        m_FeatureCode_SharedCopy.SharedCopy(*m_FeatureCode);
+        m_FeatureCode_SharedCopy.SharedCopy(m_FeatureCode);
     }
 
     return IsOK;
@@ -127,9 +127,9 @@ bool mdkFeatureEncoder<ElementType>::GenerateCode()
 
 
 template<typename ElementType>
-const mdkMatrix<ElementType>& mdkFeatureEncoder<ElementType>::GetOutputFeatureCode()
+const mdkMatrix<ElementType>* mdkFeatureEncoder<ElementType>::GetOutputFeatureCode()
 {
-    return m_FeatureCode_SharedCopy;
+    return &m_FeatureCode_SharedCopy;
 }
 
 

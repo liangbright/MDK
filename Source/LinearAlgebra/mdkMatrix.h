@@ -233,6 +233,9 @@ public:
     inline bool DeepCopy(const mdkMatrix<ElementType_Input>& InputMatrix);
 
     template<typename ElementType_Input>
+    inline bool DeepCopy(const mdkMatrix<ElementType_Input>* InputMatrix);
+
+    template<typename ElementType_Input>
     inline bool DeepCopy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
 
     inline bool Fill(const ElementType& Element);
@@ -250,9 +253,13 @@ public:
     //
     inline bool SharedCopy(mdkMatrix<ElementType>& InputMatrix);
 
+    inline bool SharedCopy(mdkMatrix<ElementType>* InputMatrix);
+
     // it is used by GlueMatrix
     // Share the object (InputMatrix) no matter what, even if InputMatrix is const
     inline void ForceSharedCopy(const mdkMatrix<ElementType>& InputMatrix);
+
+    inline bool ForceSharedCopy(const mdkMatrix<ElementType>* InputMatrix);
 
     // about const share: i.e., only read (const functions), not write
     //

@@ -62,7 +62,7 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetOutputDictionary(mdkFea
 
     m_Dictionary = OutputDictionary;
 
-    m_Dictionary_SharedCopy.SharedCopy(*OutputDictionary);
+    m_Dictionary_SharedCopy.SharedCopy(OutputDictionary);
 
     return true;
 }
@@ -126,15 +126,13 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::Update()
         return false;
     }
 
-    if (m_Dictionary == nullptr)
-    {
-        mdkError << "m_Dictionary is empty @ mdkFeatureEncoderDictionaryBuilder::Update()" << '\n';
-        return false;
-    }
-
     auto DataSize = m_FeatureData->GetSize();
 
-    auto BookSize = m_Dictionary->GetSize();
+    if (DataSize.RowNumber == 0)
+    {
+        mdkError << "InputFeatureData is empty @ mdkFeatureEncoderDictionaryBuilder::Run()" << '\n';
+        return false;
+    }
 
     if (m_DictionaryLength == 0)
     {
@@ -142,11 +140,7 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::Update()
         return false;
     }
 
-    if (DataSize.RowNumber == 0)
-    {
-        mdkError << "InputFeatureData is empty @ mdkFeatureEncoderDictionaryBuilder::Run()" << '\n';
-        return false;
-    }
+    auto BookSize = m_Dictionary->GetSize();
 
     if (BookSize.RowNumber > 0 && BookSize.RowNumber != DataSize.RowNumber)
     {
@@ -162,8 +156,10 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::Update()
 
     if (m_Dictionary != &m_Dictionary_SharedCopy)
     {
-        m_Dictionary_SharedCopy.SharedCopy(*m_Dictionary);
+        m_Dictionary_SharedCopy.SharedCopy(m_Dictionary);
     }
+
+    //--------------------------------------------------
 
     return IsOK;
 }
@@ -177,9 +173,9 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::GenerateDictionary()
 
 
 template<typename ElementType>
-const mdkFeatureDictionary<ElementType>& mdkFeatureEncoderDictionaryBuilder<ElementType>::GetOutputDictionary()
+const mdkFeatureDictionary<ElementType>* mdkFeatureEncoderDictionaryBuilder<ElementType>::GetOutputDictionary()
 {
-    return m_Dictionary_SharedCopy;
+    return &m_Dictionary_SharedCopy;
 }
 
 

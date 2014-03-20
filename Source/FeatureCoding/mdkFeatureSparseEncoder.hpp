@@ -75,6 +75,7 @@ bool mdkFeatureSparseEncoder<ElementType>::Update()
         m_FeatureSparseCode_SharedCopy.SharedCopy(*m_FeatureSparseCode);
     }
 
+    //--------------------------------------------------------------
 
     return IsOK;
 }
@@ -88,9 +89,9 @@ bool mdkFeatureSparseEncoder<ElementType>::GenerateCode()
 
 
 template<typename ElementType>
-const mdkMatrix<ElementType>& mdkFeatureSparseEncoder<ElementType>::GetOutputFeatureSparseCode()
+const mdkMatrix<ElementType>* mdkFeatureSparseEncoder<ElementType>::GetOutputFeatureSparseCode()
 {
-    return m_FeatureSparseCode_SharedCopy;
+    return &m_FeatureSparseCode_SharedCopy;
 }
 
 

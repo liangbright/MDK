@@ -58,26 +58,97 @@ void mdkFeatureDictionary<ElementType>::operator=(mdkFeatureDictionary&& InputDi
 
 
 template<typename ElementType>
-void mdkFeatureDictionary<ElementType>::SharedCopy(mdkFeatureDictionary<ElementType>& InputDictionary)
+bool mdkFeatureDictionary<ElementType>::DeepCopy(const mdkFeatureDictionary<ElementType>& InputDictionary)
 {
+    if (this->IsEmpty() == false)
+    {
+        mdkError << "Self is not empty @ mdkFeatureDictionary::DeepCopy(mdkFeatureDictionary&)" << '\n';
+        return false;
+    }
+
+    this->Clear();
+
+    m_Record.DeepCopy(InputDictionary.m_Record);
+
+    m_Covariance.DeepCopy(InputDictionary.m_Covariance);
+
+    m_Variance.DeepCopy(InputDictionary.m_Variance);
+
+    return true;
+
+}
+
+
+template<typename ElementType>
+bool mdkFeatureDictionary<ElementType>::DeepCopy(const mdkFeatureDictionary<ElementType>* InputDictionary)
+{
+    if (InputDictionary == nullptr)
+    {
+        mdkError << "Input is nullptr @ mdkFeatureDictionary::DeepCopy(mdkFeatureDictionary*)" << '\n';
+        return false;
+    }
+
+    return this->DeepCopy(*InputDictionary);
+}
+
+
+template<typename ElementType>
+bool mdkFeatureDictionary<ElementType>::SharedCopy(mdkFeatureDictionary<ElementType>& InputDictionary)
+{
+    if (this->IsEmpty() == false)
+    {
+        mdkError << "Self is not empty @ mdkFeatureDictionary::SharedCopy(mdkFeatureDictionary&)" << '\n';
+        return false;
+    }
+
+    this->Clear();
+
     m_Record.SharedCopy(InputDictionary.m_Record);
 
     m_Covariance.SharedCopy(InputDictionary.m_Covariance);
 
     m_Variance.SharedCopy(InputDictionary.m_Variance);
 
+    return true;
 }
 
+
+template<typename ElementType>
+bool mdkFeatureDictionary<ElementType>::SharedCopy(mdkFeatureDictionary<ElementType>* InputDictionary)
+{
+    if (InputDictionary == nullptr)
+    {
+        mdkError << "Input is nullptr @ mdkFeatureDictionary::SharedCopy(mdkFeatureDictionary*)" << '\n';
+        return false;
+    }
+
+    return this->SharedCopy(*InputDictionary);
+}
 
 
 template<typename ElementType>
 void mdkFeatureDictionary<ElementType>::ForceSharedCopy(const mdkFeatureDictionary<ElementType>& InputDictionary)
 {
+    this->Clear();
+
     m_Record.ForceSharedCopy(InputDictionary.m_Record);
 
     m_Covariance.ForceSharedCopy(InputDictionary.m_Covariance);
 
     m_Variance.ForceSharedCopy(InputDictionary.m_Variance);
+}
+
+
+template<typename ElementType>
+bool mdkFeatureDictionary<ElementType>::ForceSharedCopy(const mdkFeatureDictionary<ElementType>* InputDictionary)
+{
+    if (InputDictionary == nullptr)
+    {
+        mdkError << "Input is nullptr @ mdkFeatureDictionary::ForceSharedCopy(mdkFeatureDictionary*)" << '\n';
+        return false;
+    }
+
+    return this->ForceSharedCopy(*InputDictionary);
 }
 
 
@@ -89,7 +160,6 @@ void mdkFeatureDictionary<ElementType>::Reset()
     m_Covariance.Reset();
 
     m_Variance.Reset(); // Variance(j) = sqrt(sum_i(Prob(i,j)*(Feature_i - Dictionary(:,j))^2))
-
 }
 
 
@@ -101,9 +171,21 @@ void mdkFeatureDictionary<ElementType>::Clear()
     m_Covariance.Clear();
 
     m_Variance.Clear();
-
 }
 
+
+template<typename ElementType>
+bool mdkFeatureDictionary<ElementType>::IsEmpty()
+{
+    return m_Record.IsEmpty();
+}
+
+
+template<typename ElementType>
+mdkMatrixSize mdkFeatureDictionary<ElementType>::GetSize()
+{
+    return m_Record.GetSize();
+}
 
 template<typename ElementType>
 bool mdkFeatureDictionary<ElementType>::Load(const std::string& FilePathAndName)
@@ -116,13 +198,6 @@ template<typename ElementType>
 bool mdkFeatureDictionary<ElementType>::Save(const std::string& FilePathAndName)
 {
     return true;
-}
-
-
-template<typename ElementType>
-mdkMatrixSize mdkFeatureDictionary<ElementType>::GetSize()
-{
-    return m_Record.GetSize();
 }
 
 

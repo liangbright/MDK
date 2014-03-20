@@ -41,7 +41,7 @@ public:
 
     //----------------------------------------------------//
 
-    const mdkMatrix<ElementType>& GetOutputFeatureSparseCode();
+    const mdkMatrix<ElementType>* GetOutputFeatureSparseCode();
 
 
 protected:
