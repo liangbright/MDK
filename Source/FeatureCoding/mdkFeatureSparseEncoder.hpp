@@ -67,12 +67,12 @@ bool mdkFeatureSparseEncoder<ElementType>::Update()
 
     if (m_FeatureCode != &m_FeatureCode_SharedCopy)
     {
-        m_FeatureCode_SharedCopy.SharedCopy(*m_FeatureCode);
+        m_FeatureCode_SharedCopy.SharedCopy(m_FeatureCode);
     }
 
     if (m_FeatureSparseCode != &m_FeatureSparseCode_SharedCopy)
     {
-        m_FeatureSparseCode_SharedCopy.SharedCopy(*m_FeatureSparseCode);
+        m_FeatureSparseCode_SharedCopy.SharedCopy(m_FeatureSparseCode);
     }
 
     //--------------------------------------------------------------

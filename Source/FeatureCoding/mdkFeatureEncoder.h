@@ -56,7 +56,7 @@ public:
 
     //----------------------------------------------------//
 
-    const mdkMatrix<ElementType>* GetOutputFeatureCode();
+    mdkMatrix<ElementType>* GetOutputFeatureCode();
 
 
 protected:

@@ -2,7 +2,7 @@
 
 #include "mdkType.h"
 
-#include "TestMatrix.h"
+#include "TestDenseMatrix.h"
 
 using namespace mdk;
 

@@ -173,7 +173,7 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::GenerateDictionary()
 
 
 template<typename ElementType>
-const mdkFeatureDictionary<ElementType>* mdkFeatureEncoderDictionaryBuilder<ElementType>::GetOutputDictionary()
+mdkFeatureDictionary<ElementType>* mdkFeatureEncoderDictionaryBuilder<ElementType>::GetOutputDictionary()
 {
     return &m_Dictionary_SharedCopy;
 }

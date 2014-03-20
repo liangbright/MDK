@@ -108,9 +108,9 @@ public:
 
     virtual bool Update();
 	
-    const mdk3DImage<VoxelType_Output>* GetOutputImage();
+    mdk3DImage<VoxelType_Output>* GetOutputImage();
 
-    const mdkMatrix<VoxelType_Output>* GetOutputArray();
+    mdkMatrix<VoxelType_Output>* GetOutputArray();
 
     //----------------------------------------------------------------
 

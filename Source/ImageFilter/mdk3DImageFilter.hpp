@@ -722,7 +722,7 @@ OutputFunction(int64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel)
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-const mdk3DImage<VoxelType_Output>* 
+mdk3DImage<VoxelType_Output>* 
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::GetOutputImage()
 {
     return &m_OutputImage_SharedCopy;
@@ -730,7 +730,7 @@ mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::GetOutputImage()
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-const mdkMatrix<VoxelType_Output>*
+mdkMatrix<VoxelType_Output>*
 mdk3DImageFilter<VoxelType_Input, VoxelType_Output>::GetOutputArray()
 {
     return &m_OutputArray_SharedCopy;

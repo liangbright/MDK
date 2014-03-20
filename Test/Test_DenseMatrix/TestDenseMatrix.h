@@ -9,13 +9,13 @@
 #include <initializer_list>
 #include <functional>
 
-#include "mdkMatrix.h"
-#include "mdkLinearAlgebra.h"
+#include "mdkDenseMatrix.h"
+#include "mdkLinearAlgebra_DenseMatrix_Part_2.h"
 
 using namespace mdk;
 
 template<typename T>
-void DisplayMatrix(const std::string& Name, const mdkMatrix<T>& Matrix, uint32 value_std_setw = 6, uint32 precision = 0)
+void DisplayMatrix(const std::string& Name, const mdkDenseMatrix<T>& Matrix, uint32 value_std_setw = 6, uint32 precision = 0)
 {
     std::cout << Name << " = " << '\n';
 
@@ -110,7 +110,7 @@ void Test_Constructor()
 
     int k = int(j);
 
-    mdkMatrix<double> A(2, 2);
+    mdkDenseMatrix<double> A(2, 2);
 
     A(span(1, 0), span(1, 0)) = 1;
 
@@ -179,32 +179,32 @@ void Test_Constructor()
 
     DisplayMatrix("A", A);
  
-    mdkMatrix<double> A1(A);
+    mdkDenseMatrix<double> A1(A);
 
-    mdkMatrix<double> B(A.GetElementPointer(), 2, 2);
+    mdkDenseMatrix<double> B(A.GetElementPointer(), 2, 2);
     
     DisplayMatrix("B", B);
 
-    mdkMatrix<double> C;
+    mdkDenseMatrix<double> C;
 
     C.ForceSharedCopy(A);
 
-    A.Copy(A);
+    A.DeepCopy(A);
 
-    A.Copy(C);
+    A.DeepCopy(C);
 
-    C.Copy(A);
+    C.DeepCopy(A);
     //-----------------
 
     // move constructor is used 2 times
     // one for temp (A*A), the other for D(temp)
-    mdkMatrix<double> D(A*A);
+    mdkDenseMatrix<double> D(A*A);
 
 
     // copy constructor, D will be temporary ?
-    mdkMatrix<double> D1 = A*A;
+    mdkDenseMatrix<double> D1 = A*A;
 
-    mdkMatrix<double> D2;
+    mdkDenseMatrix<double> D2;
 
     // move constructor is used
     // move "=" is used
@@ -214,7 +214,7 @@ void Test_Constructor()
     //D3 is temporary
     auto D3 = D2;
 
-    mdkMatrix<double> D4;
+    mdkDenseMatrix<double> D4;
 
     // D4 is not temporary
     D4 = D2;
@@ -223,7 +223,7 @@ void Test_Constructor()
 
 void Test_MoveConstructor()
 {
-    mdkMatrix<double> A(2, 2);
+    mdkDenseMatrix<double> A(2, 2);
 
     auto ptrA = A.GetElementPointer();
 
@@ -234,7 +234,7 @@ void Test_MoveConstructor()
 
     auto Result = A.SVD();
 
-    mdkMatrix<double> B;
+    mdkDenseMatrix<double> B;
 
     B = std::move(A);
 
@@ -244,7 +244,7 @@ void Test_MoveConstructor()
 
     DisplayMatrix("B", B);
    
-    mdkMatrix<double> C = std::move(A);
+    mdkDenseMatrix<double> C = std::move(A);
 
     auto ptrC = C.GetElementPointer();
 
@@ -252,13 +252,13 @@ void Test_MoveConstructor()
 
     DisplayMatrix("C", C);
 
-    mdkMatrix<double> D1;
+    mdkDenseMatrix<double> D1;
 
     // (B*B) is created from move constructor
     // D is assigned by move "="
     D1 = std::move(B*B);
 
-    mdkMatrix<double> D2;
+    mdkDenseMatrix<double> D2;
 
     // move "=" is used
     D2 = B*B;
@@ -268,7 +268,7 @@ void Test_MoveConstructor()
 void Test_ShareConstuctor()
 {
 
-    mdkMatrix<double> A(2, 4);
+    mdkDenseMatrix<double> A(2, 4);
 
     A = { 1, 2, 3, 4,
         5, 6, 7, 8 };
@@ -276,7 +276,7 @@ void Test_ShareConstuctor()
 
     DisplayMatrix("A", A);
 
-    auto B = mdkMatrix<double>(A, mdkObjectCopyConstructionTypeEnum::SharedCopy);
+    auto B = mdkDenseMatrix<double>(A, mdkObjectCopyConstructionTypeEnum::SharedCopy);
 
     B(0) = 10;
 
@@ -284,7 +284,7 @@ void Test_ShareConstuctor()
 
     DisplayMatrix("A", A);
 
-    auto C = mdkMatrix<double>(A);
+    auto C = mdkDenseMatrix<double>(A);
 
     C(1) = 10;
 
@@ -292,7 +292,7 @@ void Test_ShareConstuctor()
 
     DisplayMatrix("A", A);
 
-    const mdkMatrix<double> D = mdkMatrix<double>(A, mdkObjectCopyConstructionTypeEnum::SharedCopy);
+    const mdkDenseMatrix<double> D = mdkDenseMatrix<double>(A, mdkObjectCopyConstructionTypeEnum::SharedCopy);
 
     A(2) = 10;
 
@@ -300,7 +300,7 @@ void Test_ShareConstuctor()
 
     DisplayMatrix("A", A);
 
-    std::vector<const mdkMatrix<double>> MatrixList;
+    std::vector<const mdkDenseMatrix<double>> MatrixList;
 
     MatrixList.emplace_back(A, mdkObjectCopyConstructionTypeEnum::SharedCopy);
 
@@ -314,7 +314,7 @@ void Test_ShareConstuctor()
     DisplayMatrix("A", A);
 
 
-    std::vector<const mdkMatrix<double>*> MatrixPtrList = {&A};
+    std::vector<const mdkDenseMatrix<double>*> MatrixPtrList = {&A};
 
     // can not be compiled
    // (*MatrixPtrList[0])(1, 1) = 1000;
@@ -327,9 +327,9 @@ void Test_Matrix_Operator()
 
     double temp = {};
 
-    mdkMatrix<double> tempMatrix = {};
+    mdkDenseMatrix<double> tempMatrix = {};
 
-    mdkMatrix<double> A(2, 4);
+    mdkDenseMatrix<double> A(2, 4);
 
     A = { 1, 2, 3, 4,
           5, 6, 7, 8 };
@@ -338,7 +338,7 @@ void Test_Matrix_Operator()
 
     auto a = A(0, 0);
 
-    mdkMatrix<double> b = A({ 0 }, ALL);
+    mdkDenseMatrix<double> b = A({ 0 }, ALL);
 
     //error message:
     auto b1 = A(0, 100);
@@ -351,10 +351,10 @@ void Test_Matrix_Operator()
     //this can not be compiled, b3 is ShadowMatix
     //auto b3 = A({ 0 }, ALL);
 
-    mdkMatrix<double> B = A({ 0 }, ALL);
+    mdkDenseMatrix<double> B = A({ 0 }, ALL);
 
     // attention !!!:
-    mdkMatrix<double> B1;
+    mdkDenseMatrix<double> B1;
     //  this is compiled: A({ 1 }, {}) is A({1}, {0})
     B1 = A({ 1 }, {});
 
@@ -363,27 +363,27 @@ void Test_Matrix_Operator()
 
     A({ 0 }, { 0 }) = 10;
 
-    mdkMatrix<double> C1;
+    mdkDenseMatrix<double> C1;
         
     C1 = A({ 0 });
 
-    mdkMatrix<double> C1a = A({ 0 }, {0});
+    mdkDenseMatrix<double> C1a = A({ 0 }, {0});
 
-    mdkMatrix<double> C2 = A({ 0, 1 });
+    mdkDenseMatrix<double> C2 = A({ 0, 1 });
 
-    mdkMatrix<double> C3 = A({ 0, 1 }, { 1, 1 });
+    mdkDenseMatrix<double> C3 = A({ 0, 1 }, { 1, 1 });
 
-    mdkMatrix<double> C3a = A({ 0, 1 }, {0});
+    mdkDenseMatrix<double> C3a = A({ 0, 1 }, {0});
 
-    //mdkMatrix<double> C3b = A({0}, { 0, 1});
+    //mdkDenseMatrix<double> C3b = A({0}, { 0, 1});
 
-    mdkMatrix<double> C4 = A({ 0 }, { 0 })*A({ 0, 1 }, { 0 });
+    mdkDenseMatrix<double> C4 = A({ 0 }, { 0 })*A({ 0, 1 }, { 0 });
 
     // good: this can not be compiled
     //auto C5 = A({ 0, 1 }, {});
 
     // good: this can not be compiled
-    //mdkMatrix<double> C5 = A({ 0, 1 }, {1}).~mdkShadowMatrix();
+    //mdkDenseMatrix<double> C5 = A({ 0, 1 }, {1}).~mdkShadowMatrix();
 
     DisplayMatrix("A", A);
 
@@ -391,18 +391,18 @@ void Test_Matrix_Operator()
 
     // operator []
 
-    mdkMatrix<double> D;
+    mdkDenseMatrix<double> D;
         
     D = A[0];
 
-    mdkMatrix<double> D1;
+    mdkDenseMatrix<double> D1;
         
     D1 = A[{0}];
 
     // good: this can not be compiled
     //D1a = A[{ 0, 2 }];
 
-    mdkMatrix<double> D2 = A({ 0, 1 });
+    mdkDenseMatrix<double> D2 = A({ 0, 1 });
 
     A({ 0, 1 }) = 1;
 
@@ -413,7 +413,7 @@ void Test_Matrix_Operator()
 void Test_Mutiplication()
 {
 
-	mdkMatrix<double> A;
+	mdkDenseMatrix<double> A;
 
 	A.Resize(2, 4);
 
@@ -423,7 +423,7 @@ void Test_Mutiplication()
 
     DisplayMatrix("A", A);
 
-	mdkMatrix<double> B;
+	mdkDenseMatrix<double> B;
 
     B.Resize(4, 2);
 
@@ -434,7 +434,7 @@ void Test_Mutiplication()
 
     DisplayMatrix("B", B);
 
-    mdkMatrix<double> C = A*B;
+    mdkDenseMatrix<double> C = A*B;
 
     DisplayMatrix("C = A * B", C);
 
@@ -443,7 +443,7 @@ void Test_Mutiplication()
     DisplayMatrix("A * 1.25", A);
 
 
-	mdkMatrix<double> D(2, 10);
+	mdkDenseMatrix<double> D(2, 10);
 	D = {  1,  2,  3,  4,  5,  6,  7,  8,  9, 10,
 		  11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
 
@@ -453,14 +453,14 @@ void Test_Mutiplication()
 
 void Test_Share()
 {
-    mdkMatrix<double> A(2, 2);
+    mdkDenseMatrix<double> A(2, 2);
 
     A = { 1, 2,
           3, 4 };
 
     DisplayMatrix("A", A);
 
-    mdkMatrix<double> B;
+    mdkDenseMatrix<double> B;
 
     B.SharedCopy(A);
 
@@ -478,11 +478,11 @@ void Test_Mutiplication_Speed()
 
     int64 Ly = 100;
 
-    mdkMatrix<double> A(Lx, Ly);
+    mdkDenseMatrix<double> A(Lx, Ly);
 
-    mdkMatrix<double> B(Lx, Ly);
+    mdkDenseMatrix<double> B(Lx, Ly);
 
-    mdkMatrix<double> C(Lx, Ly);
+    mdkDenseMatrix<double> C(Lx, Ly);
 
     auto t0 = std::chrono::system_clock::now();
 
@@ -524,7 +524,7 @@ void Test_Mutiplication_Speed()
 
 void Test_ElementOperation()
 {
-	mdkMatrix<double> A;
+	mdkDenseMatrix<double> A;
 
     A.Resize(2, 4);
 
@@ -547,7 +547,7 @@ void Test_ElementOperation()
 
 void Test_Transpose()
 {
-	mdkMatrix<double> A;
+	mdkDenseMatrix<double> A;
 
     A.Resize(2, 4);
 
@@ -565,7 +565,7 @@ void Test_Transpose()
 
 void Test_Sum_Mean_Max_Min()
 {
-	mdkMatrix<double> A;
+	mdkDenseMatrix<double> A;
 
     A.Resize(2, 4);
 
@@ -626,7 +626,7 @@ void Test_LinearCombine()
     /*
 	std::cout << "Test_LinearCombine " << '\n';
 
-	mdkMatrix<double> A(3, 4);
+	mdkDenseMatrix<double> A(3, 4);
 	A = {1,  2,  3,  4,
 	     5,  6,  7,  8,
 	     9, 10, 11, 12};
@@ -643,7 +643,7 @@ void Test_LinearCombine()
 		std::cout << '\n';
 	}
 
-	mdkMatrix<double> B(3, 4);
+	mdkDenseMatrix<double> B(3, 4);
 	B =  1.0 + A;
 
 	std::cout << "B = A+1 " << '\n';
@@ -658,7 +658,7 @@ void Test_LinearCombine()
 		std::cout << '\n';
 	}
 
-	mdkMatrix<double> C(3, 4);
+	mdkDenseMatrix<double> C(3, 4);
 	C = B + 1.0;
 
 	std::cout << "C = B+1 " << '\n';
@@ -673,7 +673,7 @@ void Test_LinearCombine()
 		std::cout << '\n';
 	}
 
-	mdkMatrix<double> D(3, 4);
+	mdkDenseMatrix<double> D(3, 4);
 	D = C + 1.0;
 
 	std::cout << "D = C+1 " << '\n';
@@ -704,7 +704,7 @@ void Test_LinearCombine()
 
 	std::vector<double> AlphaList = { 1, 2, 3, 4 };
 
-	std::vector<mdkMatrix<double>*> MatrixList = { &A, &B, &C, &D };
+	std::vector<mdkDenseMatrix<double>*> MatrixList = { &A, &B, &C, &D };
 
 	auto SumMatrix = mdk::LinearCombine(AlphaList, MatrixList);
 
@@ -726,7 +726,7 @@ void Test_Set_Get_Append_Delete_Insert_Col()
 {
 	std::cout << "Test_Set_Get_Append_Delete_Insert_Col " << '\n';
 
-	mdkMatrix<double> A;
+	mdkDenseMatrix<double> A;
 
 	std::vector<double> Col;
 
@@ -797,7 +797,7 @@ void Test_Set_Get_Append_Delete_Insert_Row()
 {
     std::cout << "Test_Set_Get_Append_Delete_Insert_Row " << '\n';
 
-    mdkMatrix<double> A;
+    mdkDenseMatrix<double> A;
 
     std::vector<double> Row;
 
@@ -864,7 +864,7 @@ void Test_Set_Get_Append_Delete_Insert_Row()
 
 void Test_GetSubMatrix()
 {
-    mdkMatrix<double> A(5, 6);
+    mdkDenseMatrix<double> A(5, 6);
 
     A = { 1,     2,     3,     4,     5,     6,
           10,    20,    30,    40,    50,    60, 
@@ -894,13 +894,13 @@ void Test_GetSubMatrix()
 
     DisplayMatrix("subAb", subAb);
 
-    mdkMatrix<double> B1(3, 5);
+    mdkDenseMatrix<double> B1(3, 5);
 
     A.GetSubMatrix(B1, { 0, 1, 2 }, { 0, 1, 2, 3, 4 });
 
     DisplayMatrix("B1", B1);
 
-    mdkMatrix<double> B2(5, 3);
+    mdkDenseMatrix<double> B2(5, 3);
 
     A.GetSubMatrix(B2, {0, 1, 2, 3, 4}, { 0, 1, 2 });
 
@@ -910,7 +910,7 @@ void Test_GetSubMatrix()
 
 void Test_SubMatrix()
 {
-    mdkMatrix<double> A(5, 6);
+    mdkDenseMatrix<double> A(5, 6);
 
     A = { 1,     2,     3,     4,     5,     6,
           10,    20,    30,    40,    50,    60, 
@@ -920,23 +920,23 @@ void Test_SubMatrix()
 
     DisplayMatrix("A", A);
 
-    mdkMatrix<double> subA1 = A.GetSubMatrix(span(0, 3), span(2, 5));
+    mdkDenseMatrix<double> subA1 = A.GetSubMatrix(span(0, 3), span(2, 5));
 
     DisplayMatrix("A", A);
 
-    mdkMatrix<double> subA2 = A.at({ 1 }, { 0, 1 });
+    mdkDenseMatrix<double> subA2 = A.at({ 1 }, { 0, 1 });
 
     DisplayMatrix("subA2", subA2);
 
-    mdkMatrix<double> subA3 = A.at({ 1, 2, 3 }, { 0, 1, 2 });
+    mdkDenseMatrix<double> subA3 = A.at({ 1, 2, 3 }, { 0, 1, 2 });
 
     DisplayMatrix("subA3", subA3);
 
-    mdkMatrix<double> subAa = A.at(ALL, { 0, 1, 2, 1, 0});
+    mdkDenseMatrix<double> subAa = A.at(ALL, { 0, 1, 2, 1, 0});
 
     DisplayMatrix("subAa", subAa);
 
-    mdkMatrix<double> subAb = A.at({ 0, 1, 2, 1, 0 }, ALL);
+    mdkDenseMatrix<double> subAb = A.at({ 0, 1, 2, 1, 0 }, ALL);
 
     DisplayMatrix("subAb", subAb);
 
@@ -946,26 +946,26 @@ void Test_SubMatrix()
 void Test_ShadowMatrix()
 {
 
-    mdkMatrix<double> A(3, 3);
+    mdkDenseMatrix<double> A(3, 3);
 
     A = { 1, 2, 3,
           4, 5, 6,
           7, 8, 9 };
 
-    mdkMatrix<double> B(4, 4);
+    mdkDenseMatrix<double> B(4, 4);
 
     B = { 1, 2, 3, 0,
           4, 5, 6, 0,
           7, 8, 9, 0,
           0, 0, 0, 0};
 
-    mdkMatrix<double> C;
+    mdkDenseMatrix<double> C;
 
     C = 1.0 + A*A + A * (10.0 + A*B({0,1,2}, {0,1,2}));
 
     DisplayMatrix("C", C);
 
-    mdkMatrix<double> D = A(ALL);
+    mdkDenseMatrix<double> D = A(ALL);
 
     std::system("pause");
 }
@@ -975,18 +975,18 @@ void Test_Arma()
 {
 	std::cout << "Test_Arma " << '\n';
 
-	mdkMatrix<double> A(3, 3);
+	mdkDenseMatrix<double> A(3, 3);
 	A = { 1, 2, 3,
 		  0, 5, 0, 
 		  0, 0, 9};
 
     DisplayMatrix("A", A);
 
-    mdkMatrix<double> invA = A.Inv();
+    mdkDenseMatrix<double> invA = A.Inv();
 
     DisplayMatrix("A.Inv()", invA, 3);
 
-    mdkMatrix<double> AinvA = A*invA;
+    mdkDenseMatrix<double> AinvA = A*invA;
 
     DisplayMatrix("A*invA", AinvA, 3);
 
@@ -998,7 +998,7 @@ void Test_Arma()
 
     DisplayMatrix("ASVD.V", ASVD.V, 3);
 
-    mdkMatrix<double> tempA = ASVD.U * ASVD.S * MatrixTranspose(ASVD.V);
+    mdkDenseMatrix<double> tempA = ASVD.U * ASVD.S * MatrixTranspose(ASVD.V);
 
     DisplayMatrix("ASVD.U*ASVD.S*ASVD.V'", tempA, 3);
 
@@ -1011,7 +1011,7 @@ void Test_Matrix_ChangeSize()
 {
     std::cout << "Test_Matrix_ChangeSize()" << '\n';
 
-    mdkMatrix<double> A(6, 9);
+    mdkDenseMatrix<double> A(6, 9);
 
     A = { 1, 2, 3, 4, 5, 6, 7, 8, 9,
           2, 5, 0, 2, 1, 2, 1, 2, 1,
@@ -1043,7 +1043,7 @@ void Test_ShadowMatrix_SubMatrix()
 {
     std::cout << "Test_ShadowMatrix_SubMatrix()" << '\n';
 
-    mdkMatrix<double> A(6, 9);
+    mdkDenseMatrix<double> A(6, 9);
 
     A = { 1, 2, 3, 4, 5, 6, 7, 8, 9,
         2, 5, 0, 2, 1, 2, 1, 2, 1,
@@ -1058,40 +1058,40 @@ void Test_ShadowMatrix_SubMatrix()
 
     auto A1 = A({ 0 }, { 1 });
 
-    mdkMatrix<double> subA1;
+    mdkDenseMatrix<double> subA1;
     
     subA1 = A.at({ 0 }, { 1 });
 
     DisplayMatrix("subA1 = A.SubMatrix({ 0 }, { 1 })", subA1);
 
-    mdkMatrix<double> subA2 = A.at({ 1, 0 }, { 2, 1 });
+    mdkDenseMatrix<double> subA2 = A.at({ 1, 0 }, { 2, 1 });
 
     DisplayMatrix("subA2 = A.SubMatrix({ 1, 0 }, { 2, 1 })", subA2);
 
     // good this can not be compiled
-    mdkMatrix<double> subA3;    
+    mdkDenseMatrix<double> subA3;    
     //subA3 = A.SubMatrix({ 1, 0 }, {});
     //subA3 = A.SubMatrix({}, { 1, 0 });
 
-    mdkMatrix<double> subA4 = A.at({ 1, 0 }, ALL);
+    mdkDenseMatrix<double> subA4 = A.at({ 1, 0 }, ALL);
 
     DisplayMatrix("subA4 = A.SubMatrix({ 1, 0 }, ALL)", subA4);
 }
 
 
 
-void Function_for_Test_ShadowMatrix_Const(const mdkMatrix<double>& Matrix)
+void Function_for_Test_ShadowMatrix_Const(const mdkDenseMatrix<double>& Matrix)
 {
-    mdkMatrix<double> A = Matrix(ALL);
+    mdkDenseMatrix<double> A = Matrix(ALL);
 
     // Good:can not be compiled
     //Matrix(ALL) = 1;
 
 }
 
-void Function_for_Test_ShadowMatrix_Non_Const(mdkMatrix<double>& Matrix)
+void Function_for_Test_ShadowMatrix_Non_Const(mdkDenseMatrix<double>& Matrix)
 {
-    mdkMatrix<double> A = Matrix(ALL);
+    mdkDenseMatrix<double> A = Matrix(ALL);
 
     // can be compiled
     Matrix(ALL) = 1;
@@ -1101,7 +1101,7 @@ void Function_for_Test_ShadowMatrix_Non_Const(mdkMatrix<double>& Matrix)
 
 void Test_ShadowMatrix_Const()
 {
-    mdkMatrix<double> A(3, 3);
+    mdkDenseMatrix<double> A(3, 3);
 
     A = { 1, 2, 3,
           4, 5, 6,
@@ -1115,7 +1115,7 @@ void Test_ShadowMatrix_Const()
 
 void Test_ShadowMatrix_Col_Row()
 {
-    mdkMatrix<double> A(6, 9);
+    mdkDenseMatrix<double> A(6, 9);
 
     A = { 1, 2, 3, 4, 5, 6, 7, 8.001, 9.00000001,
         2, 5, 0, 2, 1, 2, 1, 2, 1,
@@ -1126,18 +1126,18 @@ void Test_ShadowMatrix_Col_Row()
 
     DisplayMatrix("A", A);
 
-    mdkMatrix<double> subA1 = A.Col({0, 1});
+    mdkDenseMatrix<double> subA1 = A.Col({0, 1});
 
     DisplayMatrix("subA1 = A.Col({0, 1}) ", subA1);
 
-    mdkMatrix<double> subA2 = A.Row({ 0, 1 });
+    mdkDenseMatrix<double> subA2 = A.Row({ 0, 1 });
 
     DisplayMatrix("subA2 = A.Row({0, 1}) ", subA2);
 }
 
 void Test_ShadowMatrix_Operator()
 {
-    mdkMatrix<double> A(5, 5);
+    mdkDenseMatrix<double> A(5, 5);
     A = { 1, 2, 3, 4, 5,
           0, 5, 0, 2, 1,
           0, 0, 9, 1, 0,
@@ -1146,34 +1146,34 @@ void Test_ShadowMatrix_Operator()
 
     DisplayMatrix("A", A);
 
-    mdkMatrix<double> subA1 = A({ 0, 1 }, ALL);
+    mdkDenseMatrix<double> subA1 = A({ 0, 1 }, ALL);
 
-    mdkMatrix<double> subA2 = subA1;
+    mdkDenseMatrix<double> subA2 = subA1;
 
     DisplayMatrix("subA2", subA2);
 
-    mdkMatrix<double> subA3 = A({ 0, 1 }, ALL) * 10.0;
+    mdkDenseMatrix<double> subA3 = A({ 0, 1 }, ALL) * 10.0;
 
     DisplayMatrix("subA3", subA3);
 
-    mdkMatrix<double> subA4 = A(ALL, { 0, 1 });
+    mdkDenseMatrix<double> subA4 = A(ALL, { 0, 1 });
 
     DisplayMatrix("sub4", subA4);
 
     std::vector<double> v = {};
 
-    mdkMatrix<double> subA5 = A({0, 1}, {0, 1, 2}) * A({0, 1, 2}, {0, 1});
+    mdkDenseMatrix<double> subA5 = A({0, 1}, {0, 1, 2}) * A({0, 1, 2}, {0, 1});
 
     DisplayMatrix("subA5", subA5);
 
     // good:
     // before use ALL symbol
     // compiler internal error  C1001
-    // mdkMatrix<double> subA5a = A({ 0, 1 }, { 0, 1, 2 }) * A({}, { 0, 1 });
+    // mdkDenseMatrix<double> subA5a = A({ 0, 1 }, { 0, 1, 2 }) * A({}, { 0, 1 });
     //
     // after use ALL, then still error 
 
-    mdkMatrix<double> subA6 = A.Row({0, 1}) * A.Col({0, 1});
+    mdkDenseMatrix<double> subA6 = A.Row({0, 1}) * A.Col({0, 1});
 
     DisplayMatrix("subA6", subA6);
 
@@ -1194,38 +1194,38 @@ void Test_GlueMatrix()
     std::cout << "Test_GlueMatrix()" << '\n';
 
 
-    mdkMatrix<double> A(3, 3);
+    mdkDenseMatrix<double> A(3, 3);
     A = { 1, 2, 0,
           1, 2, 0,
           3, 3, 3};
 
 
-    mdkMatrix<double> B(2, 3);
+    mdkDenseMatrix<double> B(2, 3);
     B = { 1, 2, 3,
           1, 2, 3};
 
 
-    mdkMatrix<double> C(2, 3);
+    mdkDenseMatrix<double> C(2, 3);
     C = { 0, 2, 1,
           0, 2, 1};
 
-    mdkMatrix<double> C1(2, 3);
+    mdkDenseMatrix<double> C1(2, 3);
     C1 = { 1, 0, 1,
            1, 0, 1 };
 
-    mdkMatrix<double> D = 1.0*A({ 0, 1 }, ALL) + 2.0*B - 3.0*C + 4.0*C1;
+    mdkDenseMatrix<double> D = 1.0*A({ 0, 1 }, ALL) + 2.0*B - 3.0*C + 4.0*C1;
 
     DisplayMatrix("D", D);
 
-    auto E = MatrixAdd(mdkMatrix<double>(A.Row({ 0, 1 })), C);
+    auto E = MatrixAdd(mdkDenseMatrix<double>(A.Row({ 0, 1 })), C);
 
 
-    mdkMatrix<double> All = A(ALL, { 0, 1 })*(B + 1.0 + C - 3.0*C + 4.0*C1);
+    mdkDenseMatrix<double> All = A(ALL, { 0, 1 })*(B + 1.0 + C - 3.0*C + 4.0*C1);
 
 
     DisplayMatrix("All", All);
 
-    (B + C).~mdkGlueMatrixForLinearCombination();
+    (B + C).~mdkDenseGlueMatrixForLinearCombination();
 
     //auto a = (A*A).Mean();
 
@@ -1237,65 +1237,65 @@ void Test_GlueMatrix_2()
 {
     std::cout << "Test_GlueMatrix_2() " << '\n';
 
-    mdkMatrix<double> Scalar(0);
+    mdkDenseMatrix<double> Scalar(0);
 
-    mdkMatrix<double> A(3, 3);
+    mdkDenseMatrix<double> A(3, 3);
     A = { 1, 1, 1,
           1, 1, 1,
           1, 1, 1 };
 
-    mdkMatrix<double> AA(3, 4);
+    mdkDenseMatrix<double> AA(3, 4);
 
     AA = { 1, 1, 1, 1,
            1, 1, 1, 1,
            1, 1, 1, 1 };
 
 
-    mdkMatrix<double> B(2, 3);
+    mdkDenseMatrix<double> B(2, 3);
     B = { 1, 2, 3,
           1, 2, 3 };
 
 
-    mdkMatrix<double> C(2, 3);
+    mdkDenseMatrix<double> C(2, 3);
     C = { 0, 2, 1,
           0, 2, 1 };
 
-    mdkMatrix<double> C1(2, 3);
+    mdkDenseMatrix<double> C1(2, 3);
     C1 = { 1, 0, 1,
            1, 0, 1 };
 
-    mdkMatrix<double> D = 1.0*A({ 0, 1 }, ALL) + 2.0*B - 3.0*C + 4.0*C1;
+    mdkDenseMatrix<double> D = 1.0*A({ 0, 1 }, ALL) + 2.0*B - 3.0*C + 4.0*C1;
 
     DisplayMatrix("D", D);
 
-    auto E = MatrixAdd(mdkMatrix<double>(A.Row({ 0, 1 })), C);
+    auto E = MatrixAdd(mdkDenseMatrix<double>(A.Row({ 0, 1 })), C);
 
 
-    mdkMatrix<double> All = A(ALL, { 0, 1 })*(B + 1.0 + C - 3.0*C + 4.0*C1);
+    mdkDenseMatrix<double> All = A(ALL, { 0, 1 })*(B + 1.0 + C - 3.0*C + 4.0*C1);
 
     DisplayMatrix("All", All);
 
     //--------------------------
 
-    mdkMatrix<double> A1 = A;
+    mdkDenseMatrix<double> A1 = A;
 
     DisplayMatrix("A1", A1);
 
-    mdkMatrix<double> A2 = A;
+    mdkDenseMatrix<double> A2 = A;
 
     DisplayMatrix("A2", A2);
 
-    mdkMatrix<double> A3 = A;
+    mdkDenseMatrix<double> A3 = A;
 
     DisplayMatrix("A3", A3);
 
-    mdkMatrix<double> temp = A1 * AA({ 0, 1, 2 }, { 0, 1, 2 });
+    mdkDenseMatrix<double> temp = A1 * AA({ 0, 1, 2 }, { 0, 1, 2 });
 
     DisplayMatrix("temp", temp);
 
-    //mdkMatrix<double> A4 = A1 + A1 * AA({ 0, 1, 2 }, { 0, 1, 2 });
+    //mdkDenseMatrix<double> A4 = A1 + A1 * AA({ 0, 1, 2 }, { 0, 1, 2 });
 
-    mdkMatrix<double> A4 = 1.0 + A1*(A1+ A1*A2 + 1.0 + 10.0*(A1 + A2*A3 + 1.0 + 10.0*A1)) + A1*AA({0, 1, 2}, {0, 1, 2}) + 1.0;
+    mdkDenseMatrix<double> A4 = 1.0 + A1*(A1+ A1*A2 + 1.0 + 10.0*(A1 + A2*A3 + 1.0 + 10.0*A1)) + A1*AA({0, 1, 2}, {0, 1, 2}) + 1.0;
 
 
     DisplayMatrix("A4", A4, 3);
@@ -1332,7 +1332,7 @@ void Test_Destructor()
     auto Ptr = Data.get();
 
     {
-      //  mdkMatrix<TestClass> A(Data);
+      //  mdkDenseMatrix<TestClass> A(Data);
     }
 
     std::cout << "All= " << '\n';
@@ -1345,15 +1345,15 @@ void Test_GlueMatrix_Speed1()
 
     int64 Ly = 100;
 
-    mdkMatrix<double> A(Lx, Ly);
+    mdkDenseMatrix<double> A(Lx, Ly);
 
-    mdkMatrix<double> B(Lx, Ly);
+    mdkDenseMatrix<double> B(Lx, Ly);
 
-    mdkMatrix<double> C(Lx, Ly);
+    mdkDenseMatrix<double> C(Lx, Ly);
 
     auto t0 = std::time(0);
 
-    mdkMatrix<double> D(Lx, Ly);
+    mdkDenseMatrix<double> D(Lx, Ly);
     
     for (int64 i = 0; i < 10000; ++i)
     {
@@ -1384,23 +1384,23 @@ void Test_GlueMatrix_Speed2()
 
     //-------------------------------------------------------------------------------------------
 
-    mdkMatrix<double> A(Lx, Ly);
+    mdkDenseMatrix<double> A(Lx, Ly);
 
     A.Fill(1.0);
 
-    mdkMatrix<double> B(Lx, Ly);
+    mdkDenseMatrix<double> B(Lx, Ly);
 
     B.Fill(2.0);
 
-    mdkMatrix<double> C(Lx, Ly);
+    mdkDenseMatrix<double> C(Lx, Ly);
 
     C.Fill(3.0);
 
-    mdkMatrix<double> C2(Lx, Ly);
+    mdkDenseMatrix<double> C2(Lx, Ly);
 
     C2.Fill(3.0);
    
-    mdkMatrix<double> D(Lx, Ly);
+    mdkDenseMatrix<double> D(Lx, Ly);
 
     D.Fill(0.0);
 
@@ -1602,15 +1602,15 @@ void Test_GlueMatrix_Create()
 
     int64 Ly = 100;
 
-    mdkMatrix<double> A(Lx, Ly);
+    mdkDenseMatrix<double> A(Lx, Ly);
 
     A.Fill(1.0);
 
-    mdkMatrix<double> B(Lx, Ly);
+    mdkDenseMatrix<double> B(Lx, Ly);
 
     B.Fill(2.0);
 
-    mdkMatrix<double> C(Lx, Ly);
+    mdkDenseMatrix<double> C(Lx, Ly);
 
     C.Fill(3.0);
 

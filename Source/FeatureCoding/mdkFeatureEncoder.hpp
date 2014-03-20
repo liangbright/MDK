@@ -127,7 +127,7 @@ bool mdkFeatureEncoder<ElementType>::GenerateCode()
 
 
 template<typename ElementType>
-const mdkMatrix<ElementType>* mdkFeatureEncoder<ElementType>::GetOutputFeatureCode()
+mdkMatrix<ElementType>* mdkFeatureEncoder<ElementType>::GetOutputFeatureCode()
 {
     return &m_FeatureCode_SharedCopy;
 }

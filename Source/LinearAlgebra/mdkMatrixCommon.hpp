@@ -1,7 +1,8 @@
-#ifndef __mdkMatrixElement_hpp
-#define __mdkMatrixElement_hpp
+#ifndef __mdkMatrixCommon_hpp
+#define __mdkMatrixCommon_hpp
 
-#include "mdkMatrixElement.h"
+//#include "mdkMatrixCommon.h"
+
 #include "mdkDebugConfig.h"
 
 namespace mdk

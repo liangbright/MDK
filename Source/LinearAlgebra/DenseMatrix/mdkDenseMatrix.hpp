@@ -1,25 +1,14 @@
-#ifndef __mdkMatrix_hpp
-#define __mdkMatrix_hpp
+#ifndef __mdkDenseMatrix_hpp
+#define __mdkDenseMatrix_hpp
 
-#include <string>
-#include <cmath>
-#include <algorithm>
-
-#include "mdkType.h"
-#include "mdkDebugConfig.h"
-#include "mdkMatrix.h"
-#include "mdkShadowMatrix.h"
-#include "mdkGlueMatrixForLinearCombination.h"
-#include "mdkGlueMatrixForMultiplication.h"
-#include "mdkMatrixOperator.h"
-#include "mdkLinearAlgebra.h"
+//#include "mdkDenseMatrix.h"
 
 namespace mdk
 {
  
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix()
+mdkDenseMatrix<ElementType>::mdkDenseMatrix()
 {
 	this->Reset();
 }
@@ -27,7 +16,7 @@ mdkMatrix<ElementType>::mdkMatrix()
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(int64 RowNumber, int64 ColNumber)
+mdkDenseMatrix<ElementType>::mdkDenseMatrix(int64 RowNumber, int64 ColNumber)
 {
     this->Reset();
 
@@ -37,17 +26,7 @@ mdkMatrix<ElementType>::mdkMatrix(int64 RowNumber, int64 ColNumber)
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(const mdkMatrix<ElementType>& InputMatrix)
-{
-    this->Reset();
-
-    this->Copy(InputMatrix);
-}
-
-
-template<typename ElementType>
-inline
-mdkMatrix<ElementType>::mdkMatrix(const ElementType& Element)
+mdkDenseMatrix<ElementType>::mdkDenseMatrix(const ElementType& Element)
 {
     this->Reset();
 
@@ -59,17 +38,18 @@ mdkMatrix<ElementType>::mdkMatrix(const ElementType& Element)
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(mdkMatrix<ElementType>& InputMatrix, mdkObjectConstructionTypeEnum Method = mdkObjectConstructionTypeEnum::COPY)
+mdkDenseMatrix<ElementType>::mdkDenseMatrix(const mdkDenseMatrix<ElementType>& InputMatrix, 
+                                            mdkObjectCopyConstructionTypeEnum Method = mdkObjectCopyConstructionTypeEnum::DeepCopy)
 {
     this->Reset();
 
-    if (Method == mdkObjectConstructionTypeEnum::COPY)
+    if (Method == mdkObjectCopyConstructionTypeEnum::DeepCopy)
     {
-        this->Copy(InputMatrix);
+        this->DeepCopy(InputMatrix);
     }
     else
     {
-        this->Share(InputMatrix);
+        this->ForceSharedCopy(InputMatrix);
     }
 }
 
@@ -77,7 +57,7 @@ mdkMatrix<ElementType>::mdkMatrix(mdkMatrix<ElementType>& InputMatrix, mdkObject
 // move constructor
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(mdkMatrix<ElementType>&& InputMatrix)
+mdkDenseMatrix<ElementType>::mdkDenseMatrix(mdkDenseMatrix<ElementType>&& InputMatrix)
 {
     m_MatrixData = std::move(InputMatrix.m_MatrixData);
 
@@ -98,7 +78,7 @@ mdkMatrix<ElementType>::mdkMatrix(mdkMatrix<ElementType>&& InputMatrix)
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+mdkDenseMatrix<ElementType>::mdkDenseMatrix(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
 {
     // not necessary to use this->Reset()
 
@@ -111,7 +91,7 @@ mdkMatrix<ElementType>::mdkMatrix(const mdkShadowMatrix<ElementType>& ShadowMatr
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+mdkDenseMatrix<ElementType>::mdkDenseMatrix(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     // not necessary to use this->Reset()
 
@@ -124,7 +104,7 @@ mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrixForLinearCombination<Elemen
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+mdkDenseMatrix<ElementType>::mdkDenseMatrix(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     // not necessary to use this->Reset()
 
@@ -137,13 +117,13 @@ mdkMatrix<ElementType>::mdkMatrix(const mdkGlueMatrixForMultiplication<ElementTy
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::mdkMatrix(const ElementType* InputElementPointer, int64 InputRowNumber, int64 InputColNumber)
+mdkDenseMatrix<ElementType>::mdkDenseMatrix(const ElementType* InputElementPointer, int64 InputRowNumber, int64 InputColNumber)
 {
     this->Reset();
 
     if (InputElementPointer == nullptr)
     {
-        mdkWarning << "Empty Input @ mdkMatrix::mdkMatrix(const ElementType*, int64, int64, bool)" << '\n';
+        mdkWarning << "Empty Input @ mdkDenseMatrix::mdkDenseMatrix(const ElementType*, int64, int64, bool)" << '\n';
         return;
     }
 
@@ -151,34 +131,34 @@ mdkMatrix<ElementType>::mdkMatrix(const ElementType* InputElementPointer, int64 
     {
         if (InputElementPointer != nullptr)
         {
-            mdkError << "Invalid Input @ mdkMatrix::mdkMatrix(const ElementType*, int64, int64, bool)" << '\n';
+            mdkError << "Invalid Input @ mdkDenseMatrix::mdkDenseMatrix(const ElementType*, int64, int64, bool)" << '\n';
             return;
         }
     }
 
-    this->Copy(InputElementPointer, InputRowNumber, InputColNumber);
+    this->DeepCopy(InputElementPointer, InputRowNumber, InputColNumber);
 }
 
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType>::~mdkMatrix()
+mdkDenseMatrix<ElementType>::~mdkDenseMatrix()
 {
 }
 
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator=(const mdkMatrix<ElementType>& InputMatrix)
+void mdkDenseMatrix<ElementType>::operator=(const mdkDenseMatrix<ElementType>& InputMatrix)
 {
-    this->Copy(InputMatrix);
+    this->DeepCopy(InputMatrix);
 }
 
 
 // move assignment operator
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator=(mdkMatrix<ElementType>&& InputMatrix)
+void mdkDenseMatrix<ElementType>::operator=(mdkDenseMatrix<ElementType>&& InputMatrix)
 {
     this->Take(InputMatrix);
 }
@@ -186,7 +166,7 @@ void mdkMatrix<ElementType>::operator=(mdkMatrix<ElementType>&& InputMatrix)
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator=(const ElementType& Element)
+void mdkDenseMatrix<ElementType>::operator=(const ElementType& Element)
 {
     auto ElementNumber = this->GetElementNumber();
 
@@ -194,7 +174,7 @@ void mdkMatrix<ElementType>::operator=(const ElementType& Element)
     {
         if (ElementNumber <= 0)
         {
-            mdkError << "Can not change matrix size @ mdkMatrix::operator=(Element)" << '\n';
+            mdkError << "Can not change matrix size @ mdkDenseMatrix::operator=(Element)" << '\n';
             return;
         }
     }
@@ -211,7 +191,7 @@ void mdkMatrix<ElementType>::operator=(const ElementType& Element)
     }
     else
     {
-        mdkWarning << "The size of the matrix changes to 1x1 @ mdkMatrix::operator=(Element)" << '\n';
+        mdkWarning << "The size of the matrix changes to 1x1 @ mdkDenseMatrix::operator=(Element)" << '\n';
 
         this->Clear();
 
@@ -226,7 +206,7 @@ void mdkMatrix<ElementType>::operator=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator=(const std::initializer_list<ElementType>& list)
+void mdkDenseMatrix<ElementType>::operator=(const std::initializer_list<ElementType>& list)
 {
     auto SelfSize = this->GetSize();
 
@@ -235,13 +215,13 @@ void mdkMatrix<ElementType>::operator=(const std::initializer_list<ElementType>&
     //if Self is empty
     if (ElementNumber <= 0)
     {
-        mdkError << "operator=(list) can not be called if self is empty @ mdkMatrix::operator=(list)" << '\n';
+        mdkError << "operator=(list) can not be called if self is empty @ mdkDenseMatrix::operator=(list)" << '\n';
         return;
     }
 
     if (ElementNumber != list.size())
     {
-        mdkError << "Size does not match @ mdkMatrix::operator=(list)" << '\n';
+        mdkError << "Size does not match @ mdkDenseMatrix::operator=(list)" << '\n';
         return;
     }
 
@@ -269,20 +249,20 @@ void mdkMatrix<ElementType>::operator=(const std::initializer_list<ElementType>&
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator=(const std::initializer_list<std::initializer_list<ElementType>>& list)
+void mdkDenseMatrix<ElementType>::operator=(const std::initializer_list<std::initializer_list<ElementType>>& list)
 {
     auto SelfSize = this->GetSize();
 
     //if Self is empty
     if (SelfSize.RowNumber <= 0)
     {
-        mdkError << "operator=(list in list) can not be called if self is empty @ mdkMatrix::operator=(list in list)" << '\n';
+        mdkError << "operator=(list in list) can not be called if self is empty @ mdkDenseMatrix::operator=(list in list)" << '\n';
         return;
     }
 
     if (SelfSize.RowNumber != list.size())
     {
-        mdkError << "Row Size does not match @ mdkMatrix::operator=(list in list)" << '\n';
+        mdkError << "Row Size does not match @ mdkDenseMatrix::operator=(list in list)" << '\n';
         return;
     }
 
@@ -293,7 +273,7 @@ void mdkMatrix<ElementType>::operator=(const std::initializer_list<std::initiali
 
         if (subList.size() != SelfSize.ColNumber)
         {
-            mdkError << "Col Size does not match in row: " << i << " @ mdkMatrix::operator=(list in list)" << '\n';
+            mdkError << "Col Size does not match in row: " << i << " @ mdkDenseMatrix::operator=(list in list)" << '\n';
             return;
         }
     }
@@ -320,7 +300,7 @@ void mdkMatrix<ElementType>::operator=(const std::initializer_list<std::initiali
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+void mdkDenseMatrix<ElementType>::operator=(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
 {
     this->Take(ShadowMatrix);
 }
@@ -328,7 +308,7 @@ void mdkMatrix<ElementType>::operator=(const mdkShadowMatrix<ElementType>& Shado
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+void mdkDenseMatrix<ElementType>::operator=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     this->Take(GlueMatrix);
 }
@@ -336,7 +316,7 @@ void mdkMatrix<ElementType>::operator=(const mdkGlueMatrixForLinearCombination<E
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+void mdkDenseMatrix<ElementType>::operator=(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     this->Take(GlueMatrix);
 }
@@ -345,17 +325,17 @@ void mdkMatrix<ElementType>::operator=(const mdkGlueMatrixForMultiplication<Elem
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::Copy(const mdkMatrix<ElementType_Input>& InputMatrix)
+bool mdkDenseMatrix<ElementType>::DeepCopy(const mdkDenseMatrix<ElementType_Input>& InputMatrix)
 {
     if (this == &InputMatrix)
     {
-        mdkWarning << "A Matrix tries to Copy itself @ mdkMatrix::Copy(InputMatrix)" << '\n';
+        mdkWarning << "A Matrix tries to DeepCopy itself @ mdkDenseMatrix::DeepCopy(InputMatrix)" << '\n';
         return false;
     }
 
     if (InputMatrix.IsEmpty() == true)
     {
-        mdkWarning << "InputMatrix is empty, and this matrix is set to be empty @ mdkMatrix::Copy(InputMatrix)" << '\n';
+        mdkWarning << "InputMatrix is empty, and this matrix is set to be empty @ mdkDenseMatrix::DeepCopy(InputMatrix)" << '\n';
 
         this->Clear();
 
@@ -363,35 +343,50 @@ bool mdkMatrix<ElementType>::Copy(const mdkMatrix<ElementType_Input>& InputMatri
     }
 
     // copy data
-    return this->Copy(InputMatrix.GetElementPointer(), InputMatrix.GetRowNumber(), InputMatrix.GetColNumber());
+    return this->DeepCopy(InputMatrix.GetElementPointer(), InputMatrix.GetRowNumber(), InputMatrix.GetColNumber());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber)
+bool mdkDenseMatrix<ElementType>::DeepCopy(const mdkDenseMatrix<ElementType_Input>* InputMatrix)
+{
+    if (InputMatrix == nullptr)
+    {
+        mdkError << "Input is nullptr @ mdkDenseMatrix::DeepCopy(mdkDenseMatrix* InputMatrix)" << '\n';
+        return false;
+    }
+
+    return this->DeepCopy(*InputMatrix);
+}
+
+
+template<typename ElementType>
+template<typename ElementType_Input>
+inline
+bool mdkDenseMatrix<ElementType>::DeepCopy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber)
 {
     if (InputElementPointer == nullptr || InputRowNumber <= 0 || InputColNumber <= 0)
     {
-        mdkError << "Input pointer is nullptr @ mdkMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
-        return true;
+        mdkError << "Input pointer is nullptr @ mdkDenseMatrix::DeepCopy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
+        return false;
     }
 
     auto tempElementType = FindMatrixElementType(InputElementPointer[0]);
 
     if (tempElementType == mdkMatrixElementTypeEnum::UNKNOWN)
     {
-        mdkError << "Input type is unknown @ mdkMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
+        mdkError << "Input type is unknown @ mdkDenseMatrix::DeepCopy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
         return false;
     }
 
-    // if this matrix is not empty, check if this and Input share the same data
+    // if this matrix is not empty, check if this and Input SharedCopy the same data
     if (this->IsEmpty() == false)
     {
         if (std::size_t(InputElementPointer) == std::size_t(this->GetElementPointer()))
         {
-            mdkWarning << "A Matrix tries to Copy itself @ mdkMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
+            mdkWarning << "A Matrix tries to DeepCopy itself @ mdkDenseMatrix::DeepCopy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
             return false;
         }
     }
@@ -408,7 +403,7 @@ bool mdkMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer, 
     {
         if (InputRowNumber != SelfSize.RowNumber || InputColNumber != SelfSize.ColNumber)
         {
-            mdkError << "Can not change matrix size @ mdkMatrix::Copy(ElementType_Input*, InputRowNumber, InputColNumber)" << '\n';
+            mdkError << "Can not change matrix size @ mdkDenseMatrix::DeepCopy(ElementType_Input*, InputRowNumber, InputColNumber)" << '\n';
             return false;
         }
     }
@@ -460,13 +455,13 @@ bool mdkMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer, 
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::Fill(const ElementType& Element)
+bool mdkDenseMatrix<ElementType>::Fill(const ElementType& Element)
 {
     auto ElementNumber = this->GetElementNumber();
 
     if (ElementNumber <= 0)
     {
-        mdkError << "Self is empty @ mdkMatrix::Fill" << '\n';
+        mdkError << "Self is empty @ mdkDenseMatrix::Fill" << '\n';
         return false;
     }
 
@@ -483,13 +478,22 @@ bool mdkMatrix<ElementType>::Fill(const ElementType& Element)
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::Share(mdkMatrix<ElementType>& InputMatrix)
+bool mdkDenseMatrix<ElementType>::SharedCopy(mdkDenseMatrix<ElementType>& InputMatrix)
 {
-    // MatrixA = MatrixA
+    // self assignment test is not necessary, just to output some information
+
+    // Matrix = Matrix
     if (this == &InputMatrix)
     {
-        mdkWarning << "A Matrix tries to ShallowCopy itself @ mdkMatrix::Share(InputMatrix)" << '\n';
-        return false;
+        mdkWarning << "A Matrix tries to SharedCopy itself @ mdkDenseMatrix::SharedCopy(InputMatrix)" << '\n';
+        return true;
+    }
+
+    // data = data
+    if (this->GetElementPointer() == InputMatrix.GetElementPointer())
+    {
+        mdkWarning << "A Matrix tries to SharedCopy the same data @ mdkDenseMatrix::SharedCopy(InputMatrix)" << '\n';
+        return true;
     }
 
     auto InputSize = InputMatrix.GetSize();
@@ -500,12 +504,14 @@ bool mdkMatrix<ElementType>::Share(mdkMatrix<ElementType>& InputMatrix)
     {
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
-            mdkError << "Matrix size can not be changed @ mdkMatrix::Share(InputMatrix)" << '\n';
+            mdkError << "Matrix size can not be changed @ mdkDenseMatrix::SharedCopy(InputMatrix)" << '\n';
             return false;
         }
     }
 
-    m_MatrixData = InputMatrix.m_MatrixData; // std::share_ptr
+    //--------------------------------------------------------------------------------------------------------
+
+    m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment test is not necessary
 
     if (m_MatrixData)
     {
@@ -522,9 +528,23 @@ bool mdkMatrix<ElementType>::Share(mdkMatrix<ElementType>& InputMatrix)
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::ForceShare(const mdkMatrix<ElementType>& InputMatrix)
+bool mdkDenseMatrix<ElementType>::SharedCopy(mdkDenseMatrix<ElementType>* InputMatrix)
 {
-    m_MatrixData = InputMatrix.m_MatrixData; // std::share_ptr
+    if (InputMatrix == nullptr)
+    {
+        mdkError << "Input is nullptr @ mdkDenseMatrix::SharedCopy(mdkDenseMatrix* InputMatrix)" << '\n';
+        return false;
+    }
+
+    return this->SharedCopy(*InputMatrix);
+}
+
+
+template<typename ElementType>
+inline
+void mdkDenseMatrix<ElementType>::ForceSharedCopy(const mdkDenseMatrix<ElementType>& InputMatrix)
+{
+    m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment test is not necessary
 
     if (m_MatrixData)
     {
@@ -539,12 +559,26 @@ void mdkMatrix<ElementType>::ForceShare(const mdkMatrix<ElementType>& InputMatri
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::Take(mdkMatrix<ElementType>& InputMatrix)
+bool mdkDenseMatrix<ElementType>::ForceSharedCopy(const mdkDenseMatrix<ElementType>* InputMatrix)
+{
+    if (InputMatrix == nullptr)
+    {
+        mdkError << "Input is nullptr @ mdkDenseMatrix::ForceSharedCopy(mdkDenseMatrix* InputMatrix)" << '\n';
+        return false;
+    }
+
+    return this->ForceSharedCopy(*InputMatrix);
+}
+
+
+template<typename ElementType>
+inline
+bool mdkDenseMatrix<ElementType>::Take(mdkDenseMatrix<ElementType>& InputMatrix)
 {
     // MatrixA = MatrixA
     if (this == &InputMatrix)
     {
-        mdkWarning << "A Matrix tries to take itself @ mdkMatrix::Take(InputMatrix)" << '\n';
+        mdkWarning << "A Matrix tries to take itself @ mdkDenseMatrix::Take(InputMatrix)" << '\n';
         return false;
     }
 
@@ -556,7 +590,7 @@ bool mdkMatrix<ElementType>::Take(mdkMatrix<ElementType>& InputMatrix)
     {
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
-            mdkError << "Size does not match @ mdkMatrix::Take(InputMatrix)" << '\n';
+            mdkError << "Size does not match @ mdkDenseMatrix::Take(InputMatrix)" << '\n';
             return false;
         }
     }
@@ -565,7 +599,7 @@ bool mdkMatrix<ElementType>::Take(mdkMatrix<ElementType>& InputMatrix)
     {
         if (SelfSize.RowNumber > 0)
         {
-            mdkWarning << "InputMatrix is empty, and this matrix is set to be empty @ mdkMatrix::Take(InputMatrix)" << '\n';
+            mdkWarning << "InputMatrix is empty, and this matrix is set to be empty @ mdkDenseMatrix::Take(InputMatrix)" << '\n';
             this->Clear();
         }
 
@@ -587,9 +621,9 @@ bool mdkMatrix<ElementType>::Take(mdkMatrix<ElementType>& InputMatrix)
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::Take(mdkMatrix<ElementType>&& InputMatrix)
+bool mdkDenseMatrix<ElementType>::Take(mdkDenseMatrix<ElementType>&& InputMatrix)
 {
-    mdkMatrix<ElementType>& tempMatrix = InputMatrix;
+    mdkDenseMatrix<ElementType>& tempMatrix = InputMatrix;
 
     return this->Take(tempMatrix);
 }
@@ -597,7 +631,7 @@ bool mdkMatrix<ElementType>::Take(mdkMatrix<ElementType>&& InputMatrix)
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::Take(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+bool mdkDenseMatrix<ElementType>::Take(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
 {
     auto InputSize = ShadowMatrix.GetSize();
 
@@ -611,7 +645,7 @@ bool mdkMatrix<ElementType>::Take(const mdkShadowMatrix<ElementType>& ShadowMatr
     {
         if (m_IsSizeFixed == true)
         {
-            mdkError << "Size does not match @ mdkMatrix::Take(ShadowMatrix)" << '\n';
+            mdkError << "Size does not match @ mdkDenseMatrix::Take(ShadowMatrix)" << '\n';
             return false;
         }
 
@@ -624,7 +658,7 @@ bool mdkMatrix<ElementType>::Take(const mdkShadowMatrix<ElementType>& ShadowMatr
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::Take(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+bool mdkDenseMatrix<ElementType>::Take(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     auto InputSize = GlueMatrix.GetSize();
 
@@ -638,7 +672,7 @@ bool mdkMatrix<ElementType>::Take(const mdkGlueMatrixForLinearCombination<Elemen
     {
         if (m_IsSizeFixed == true)
         {
-            mdkError << "Size does not match @ mdkMatrix::Take(GlueMatrix_ForLinearCombination)" << '\n';
+            mdkError << "Size does not match @ mdkDenseMatrix::Take(GlueMatrix_ForLinearCombination)" << '\n';
             return false;
         }
 
@@ -651,7 +685,7 @@ bool mdkMatrix<ElementType>::Take(const mdkGlueMatrixForLinearCombination<Elemen
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::Take(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+bool mdkDenseMatrix<ElementType>::Take(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     auto InputSize = GlueMatrix.GetSize();
 
@@ -665,7 +699,7 @@ bool mdkMatrix<ElementType>::Take(const mdkGlueMatrixForMultiplication<ElementTy
     {
         if (m_IsSizeFixed == true)
         {
-            mdkError << "Size does not match @ mdkMatrix::Take(GlueMatrix_ForMultiplication)" << '\n';
+            mdkError << "Size does not match @ mdkDenseMatrix::Take(GlueMatrix_ForMultiplication)" << '\n';
             return false;
         }
 
@@ -678,7 +712,7 @@ bool mdkMatrix<ElementType>::Take(const mdkGlueMatrixForMultiplication<ElementTy
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::Reset()
+void mdkDenseMatrix<ElementType>::Reset()
 {
     m_MatrixData.reset();
 
@@ -692,7 +726,7 @@ void mdkMatrix<ElementType>::Reset()
 
 template<typename ElementType>
 inline 
-void mdkMatrix<ElementType>::Clear()
+void mdkDenseMatrix<ElementType>::Clear()
 {
     m_MatrixData.reset();
 
@@ -704,11 +738,11 @@ void mdkMatrix<ElementType>::Clear()
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::Reshape(int64 InputRowNumber, int64 InputColNumber)
+bool mdkDenseMatrix<ElementType>::Reshape(int64 InputRowNumber, int64 InputColNumber)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix size can not be changed @ mdkMatrix::Reshape()" << '\n';
+        mdkError << "Matrix size can not be changed @ mdkDenseMatrix::Reshape()" << '\n';
         return false;
     }
 
@@ -716,14 +750,14 @@ bool mdkMatrix<ElementType>::Reshape(int64 InputRowNumber, int64 InputColNumber)
     {
         if (InputRowNumber > 0 || InputColNumber > 0)
         {
-            mdkError << "Self is empty and Size does not match @ mdkMatrix::Reshape()" << '\n';
+            mdkError << "Self is empty and Size does not match @ mdkDenseMatrix::Reshape()" << '\n';
             return false;
         }
     }
 
     if (InputRowNumber*InputColNumber != this->GetElementNumber())
     {
-        mdkError << "Size does not match @ mdkMatrix::Reshape" << '\n';
+        mdkError << "Size does not match @ mdkDenseMatrix::Reshape" << '\n';
         return false;
     }
 
@@ -737,11 +771,11 @@ bool mdkMatrix<ElementType>::Reshape(int64 InputRowNumber, int64 InputColNumber)
 
 template<typename ElementType>
 inline 
-bool mdkMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber)
+bool mdkDenseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not be changed @ mdkMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
+        mdkError << "Matrix Size can not be changed @ mdkDenseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
         return false;
     }
 
@@ -754,7 +788,7 @@ bool mdkMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber)
 
     if (InputRowNumber < 0 || InputColNumber < 0)
     {
-        mdkError << "Invalid Input: negtive @ mdkMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
+        mdkError << "Invalid Input: negtive @ mdkDenseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
         return false;
     }
 
@@ -768,7 +802,7 @@ bool mdkMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber)
     // if self is empty
     if (SelfSize.RowNumber <= 0)
     {
-        m_MatrixData = std::make_shared<mdkMatrixData<ElementType>>();
+        m_MatrixData = std::make_shared<mdkDenseMatrixData<ElementType>>();
 
         m_MatrixData->RowNumber = InputRowNumber;
 
@@ -789,7 +823,7 @@ bool mdkMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber)
 
         if (int64(m_MatrixData->DataArray.capacity()) - Self_ElementNumber < (InputColNumber - SelfSize.ColNumber)*SelfSize.RowNumber)
         {
-            m_MatrixData->DataArray.reserve((SelfSize.ColNumber + MDK_Matrix_ColExpansionStep)*SelfSize.RowNumber);
+            m_MatrixData->DataArray.reserve((SelfSize.ColNumber + MDK_DenseMatrix_ColExpansionStep)*SelfSize.RowNumber);
         }
 
         m_MatrixData->RowNumber = InputRowNumber;
@@ -842,7 +876,7 @@ bool mdkMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber)
 
 template<typename ElementType>
 inline 
-void mdkMatrix<ElementType>::FixSize()
+void mdkDenseMatrix<ElementType>::FixSize()
 {
     m_IsSizeFixed = true;
 
@@ -854,7 +888,7 @@ void mdkMatrix<ElementType>::FixSize()
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::IsSizeFixed() const
+bool mdkDenseMatrix<ElementType>::IsSizeFixed() const
 {
     return m_IsSizeFixed;
 }
@@ -862,7 +896,7 @@ bool mdkMatrix<ElementType>::IsSizeFixed() const
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::IsEmpty() const
+bool mdkDenseMatrix<ElementType>::IsEmpty() const
 {
     return !(m_MatrixData); 
 }
@@ -870,7 +904,62 @@ bool mdkMatrix<ElementType>::IsEmpty() const
 
 template<typename ElementType>
 inline
-mdkMatrixSize mdkMatrix<ElementType>::GetSize() const
+bool mdkDenseMatrix<ElementType>::IsNoneEmptyVector() const
+{
+    if (!m_MatrixData)
+    {
+        return false;
+    }
+
+    if (m_MatrixData->RowNumber == 1 || m_MatrixData->ColNumber == 1)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+template<typename ElementType>
+inline
+bool mdkDenseMatrix<ElementType>::IsNoneEmptyRowVector() const
+{
+    if (!m_MatrixData)
+    {
+        return false;
+    }
+
+    if (m_MatrixData->RowNumber == 1)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+template<typename ElementType>
+inline
+bool mdkDenseMatrix<ElementType>::IsNoneEmptyColVector() const
+{
+    if (!m_MatrixData)
+    {
+        return false;
+    }
+
+    if (m_MatrixData->ColNumber == 1)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+
+template<typename ElementType>
+inline
+mdkMatrixSize mdkDenseMatrix<ElementType>::GetSize() const
 {
     mdkMatrixSize Size;
 
@@ -892,7 +981,7 @@ mdkMatrixSize mdkMatrix<ElementType>::GetSize() const
 
 template<typename ElementType>
 inline
-int64 mdkMatrix<ElementType>::GetElementNumber() const
+int64 mdkDenseMatrix<ElementType>::GetElementNumber() const
 {
     if (m_MatrixData) // m_MatrixData != nullptr
     {
@@ -907,7 +996,7 @@ int64 mdkMatrix<ElementType>::GetElementNumber() const
 
 template<typename ElementType>
 inline 
-int64 mdkMatrix<ElementType>::GetColNumber() const
+int64 mdkDenseMatrix<ElementType>::GetColNumber() const
 {
     if (m_MatrixData) // m_MatrixData != nullptr
     {
@@ -922,7 +1011,7 @@ int64 mdkMatrix<ElementType>::GetColNumber() const
 
 template<typename ElementType>
 inline 
-int64 mdkMatrix<ElementType>::GetRowNumber() const
+int64 mdkDenseMatrix<ElementType>::GetRowNumber() const
 {
     if (m_MatrixData) // m_MatrixData != nullptr
     {
@@ -937,7 +1026,7 @@ int64 mdkMatrix<ElementType>::GetRowNumber() const
 
 template<typename ElementType>
 inline
-const ElementType& mdkMatrix<ElementType>::GetNaNElement()  const
+const ElementType& mdkDenseMatrix<ElementType>::GetNaNElement()  const
 {
     return m_NaNElement;
 }
@@ -945,7 +1034,7 @@ const ElementType& mdkMatrix<ElementType>::GetNaNElement()  const
 
 template<typename ElementType>
 inline
-mdkMatrixElementTypeEnum mdkMatrix<ElementType>::GetElementType() const
+mdkMatrixElementTypeEnum mdkDenseMatrix<ElementType>::GetElementType() const
 {
     return FindMatrixElementType(m_NaNElement);
 }
@@ -953,7 +1042,7 @@ mdkMatrixElementTypeEnum mdkMatrix<ElementType>::GetElementType() const
 
 template<typename ElementType>
 inline
-ElementType* mdkMatrix<ElementType>::GetElementPointer()
+ElementType* mdkDenseMatrix<ElementType>::GetElementPointer()
 {
     //return m_ElementPointer;
 
@@ -970,7 +1059,7 @@ ElementType* mdkMatrix<ElementType>::GetElementPointer()
 
 template<typename ElementType>
 inline
-const ElementType* mdkMatrix<ElementType>::GetElementPointer() const
+const ElementType* mdkDenseMatrix<ElementType>::GetElementPointer() const
 {
     //return m_ElementPointer;
 
@@ -990,18 +1079,18 @@ const ElementType* mdkMatrix<ElementType>::GetElementPointer() const
 
 template<typename ElementType>
 inline
-ElementType& mdkMatrix<ElementType>::operator[](int64 LinearIndex)
+ElementType& mdkDenseMatrix<ElementType>::operator[](int64 LinearIndex)
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (LinearIndex >= this->GetElementNumber()|| LinearIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::operator[](i)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::operator[](i)" << '\n';
 
         return m_NaNElement;
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     return m_ElementPointer[LinearIndex];
 }
@@ -1009,18 +1098,18 @@ ElementType& mdkMatrix<ElementType>::operator[](int64 LinearIndex)
 
 template<typename ElementType>
 inline
-const ElementType& mdkMatrix<ElementType>::operator[](int64 LinearIndex) const
+const ElementType& mdkDenseMatrix<ElementType>::operator[](int64 LinearIndex) const
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::operator[](i) const" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::operator[](i) const" << '\n';
 
         return m_NaNElement;
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     return m_ElementPointer[LinearIndex];
 }
@@ -1028,18 +1117,18 @@ const ElementType& mdkMatrix<ElementType>::operator[](int64 LinearIndex) const
 
 template<typename ElementType>
 inline
-ElementType& mdkMatrix<ElementType>::operator()(int64 LinearIndex)
+ElementType& mdkDenseMatrix<ElementType>::operator()(int64 LinearIndex)
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::operator()(i)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::operator()(i)" << '\n';
 
         return m_NaNElement;
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
 	return m_ElementPointer[LinearIndex];
 }
@@ -1047,18 +1136,18 @@ ElementType& mdkMatrix<ElementType>::operator()(int64 LinearIndex)
 
 template<typename ElementType>
 inline
-const ElementType& mdkMatrix<ElementType>::operator()(int64 LinearIndex) const
+const ElementType& mdkDenseMatrix<ElementType>::operator()(int64 LinearIndex) const
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::operator()(i) const" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::operator()(i) const" << '\n';
 
         return m_NaNElement;
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
 	return m_ElementPointer[LinearIndex];
 }
@@ -1067,11 +1156,11 @@ const ElementType& mdkMatrix<ElementType>::operator()(int64 LinearIndex) const
 
 template<typename ElementType>
 inline
-ElementType& mdkMatrix<ElementType>::at(int64 LinearIndex)
+ElementType& mdkDenseMatrix<ElementType>::at(int64 LinearIndex)
 {
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkMatrix::at(i)" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix::at(i)" << '\n';
         
         return m_NaNElement;
 	}
@@ -1082,11 +1171,11 @@ ElementType& mdkMatrix<ElementType>::at(int64 LinearIndex)
 
 template<typename ElementType>
 inline
-const ElementType& mdkMatrix<ElementType>::at(int64 LinearIndex) const
+const ElementType& mdkDenseMatrix<ElementType>::at(int64 LinearIndex) const
 {
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkMatrix::at(i) const" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix::at(i) const" << '\n';
         
         return m_NaNElement;
 	}
@@ -1100,20 +1189,20 @@ const ElementType& mdkMatrix<ElementType>::at(int64 LinearIndex) const
 
 template<typename ElementType>
 inline
-ElementType& mdkMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex)
+ElementType& mdkDenseMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex)
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     auto SelfSize = this->GetSize();
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::operator()(i,j)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::operator()(i,j)" << '\n';
 
         return m_NaNElement;
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
     
     return (*m_MatrixData)(RowIndex, ColIndex);
 
@@ -1122,20 +1211,20 @@ ElementType& mdkMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex)
 
 template<typename ElementType>
 inline
-const ElementType& mdkMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex) const
+const ElementType& mdkDenseMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex) const
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     auto SelfSize = this->GetSize();
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::operator()(i,j) const" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::operator()(i,j) const" << '\n';
 
         return m_NaNElement;
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     return (*m_MatrixData)(RowIndex, ColIndex);
 }
@@ -1143,13 +1232,13 @@ const ElementType& mdkMatrix<ElementType>::operator()(int64 RowIndex, int64 ColI
 
 template<typename ElementType>
 inline
-ElementType& mdkMatrix<ElementType>::at(int64 RowIndex, int64 ColIndex)
+ElementType& mdkDenseMatrix<ElementType>::at(int64 RowIndex, int64 ColIndex)
 {
     auto SelfSize = this->GetSize();
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::at(i,j)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::at(i,j)" << '\n';
         
         return m_NaNElement;
     }
@@ -1160,13 +1249,13 @@ ElementType& mdkMatrix<ElementType>::at(int64 RowIndex, int64 ColIndex)
 
 template<typename ElementType>
 inline
-const ElementType& mdkMatrix<ElementType>::at(int64 RowIndex, int64 ColIndex) const
+const ElementType& mdkDenseMatrix<ElementType>::at(int64 RowIndex, int64 ColIndex) const
 {
     auto SelfSize = this->GetSize();
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::at(i,j) const" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::at(i,j) const" << '\n';
         
         return m_NaNElement;
     }
@@ -1182,15 +1271,15 @@ const ElementType& mdkMatrix<ElementType>::at(int64 RowIndex, int64 ColIndex) co
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearIndexList)
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkMatrix::operator()(std::initializer_list {LinearIndexList})" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "LinearIndexList is empty @ mdkDenseMatrix::operator()(std::initializer_list {LinearIndexList})" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1200,15 +1289,15 @@ mdkMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearIndexList
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkMatrix::operator()(std::initializer_list {LinearIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid LinearIndexList @ mdkDenseMatrix::operator()(std::initializer_list {LinearIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1216,15 +1305,15 @@ mdkMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearIndexList
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearIndexList) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearIndexList) const
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkMatrix::operator()(std::initializer_list {LinearIndexList}) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "LinearIndexList is empty @ mdkDenseMatrix::operator()(std::initializer_list {LinearIndexList}) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1234,15 +1323,15 @@ mdkMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearIndexList
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkMatrix::operator()(std::initializer_list {LinearIndexList}) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid LinearIndexList @ mdkDenseMatrix::operator()(std::initializer_list {LinearIndexList}) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1250,15 +1339,15 @@ mdkMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearIndexList
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList)
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkMatrix::operator()(std::vector {LinearIndexList})" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "LinearIndexList is empty @ mdkDenseMatrix::operator()(std::vector {LinearIndexList})" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1268,15 +1357,15 @@ mdkMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList)
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkMatrix::operator()(std::vector {LinearIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid LinearIndexList @ mdkDenseMatrix::operator()(std::vector {LinearIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1284,15 +1373,15 @@ mdkMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList)
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList) const
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkMatrix::operator()(std::vector {LinearIndexList}) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "LinearIndexList is empty @ mdkDenseMatrix::operator()(std::vector {LinearIndexList}) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1302,15 +1391,15 @@ mdkMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList) co
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkMatrix::operator()(std::vector {LinearIndexList}) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid LinearIndexList @ mdkDenseMatrix::operator()(std::vector {LinearIndexList}) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1318,10 +1407,10 @@ mdkMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList) co
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -1329,10 +1418,10 @@ mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
 {
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -1340,13 +1429,13 @@ mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList)
 {
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkMatrix::at(std::initializer_list {LinearIndexList})" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "LinearIndexList is empty @ mdkDenseMatrix::at(std::initializer_list {LinearIndexList})" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1356,13 +1445,13 @@ mdkMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList)
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkMatrix::at(std::initializer_list {LinearIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid LinearIndexList @ mdkDenseMatrix::at(std::initializer_list {LinearIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1370,13 +1459,13 @@ mdkMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList)
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList) const
 {
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkMatrix::at(std::initializer_list {LinearIndexList}) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "LinearIndexList is empty @ mdkDenseMatrix::at(std::initializer_list {LinearIndexList}) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1386,13 +1475,13 @@ mdkMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList) const
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkMatrix::at(std::initializer_list {LinearIndexList}) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid LinearIndexList @ mdkDenseMatrix::at(std::initializer_list {LinearIndexList}) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1400,13 +1489,13 @@ mdkMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList) const
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList)
 {
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkMatrix::at(std::vector {LinearIndexList})" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "LinearIndexList is empty @ mdkDenseMatrix::at(std::vector {LinearIndexList})" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1416,13 +1505,13 @@ mdkMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList)
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkMatrix::at(std::vector {LinearIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid LinearIndexList @ mdkDenseMatrix::at(std::vector {LinearIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1430,13 +1519,13 @@ mdkMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList)
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList) const
 {
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkMatrix::at(std::vector {LinearIndexList} const)" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "LinearIndexList is empty @ mdkDenseMatrix::at(std::vector {LinearIndexList} const)" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1446,13 +1535,13 @@ mdkMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList) const
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkMatrix::at(std::vector {LinearIndexList} const)" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid LinearIndexList @ mdkDenseMatrix::at(std::vector {LinearIndexList} const)" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1460,10 +1549,10 @@ mdkMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList) const
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -1471,10 +1560,10 @@ mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
 {
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -1485,15 +1574,15 @@ mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) 
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList)
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1503,8 +1592,8 @@ mdkMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexList, s
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -1513,15 +1602,15 @@ mdkMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexList, s
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -1529,15 +1618,15 @@ mdkMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexList, s
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList) const
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1547,8 +1636,8 @@ mdkMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexList, s
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -1557,15 +1646,15 @@ mdkMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexList, s
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -1573,15 +1662,15 @@ mdkMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexList, s
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList is empty @ mdkMatrix::operator()(std::initializer_list {RowIndexList}, ALL)" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList is empty @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, ALL)" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1591,15 +1680,15 @@ mdkMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexL
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::operator()(std::initializer_list {RowIndexList}, ALL)" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, ALL)" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -1607,15 +1696,15 @@ mdkMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexL
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList is empty @ mdkMatrix::operator()(std::initializer_list {RowIndexList}, ALL) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList is empty @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, ALL) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1625,15 +1714,15 @@ mdkMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexL
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::operator()(std::initializer_list {RowIndexList}, ALL) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, ALL) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -1641,15 +1730,15 @@ mdkMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexL
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList)
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkMatrix::operator()(ALL, std::initializer_list {ColIndexList})" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "ColIndexList is empty @ mdkDenseMatrix::operator()(ALL, std::initializer_list {ColIndexList})" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1659,15 +1748,15 @@ mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::operator()(ALL, std::initializer_list {ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::operator()(ALL, std::initializer_list {ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -1675,15 +1764,15 @@ mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList) const
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkMatrix::operator()(ALL, std::initializer_list {ColIndexList}) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "ColIndexList is empty @ mdkDenseMatrix::operator()(ALL, std::initializer_list {ColIndexList}) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1693,15 +1782,15 @@ mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::operator()(ALL, std::initializer_list {ColIndexList}) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::operator()(ALL, std::initializer_list {ColIndexList}) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -1709,15 +1798,15 @@ mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList)
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1727,8 +1816,8 @@ mdkMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -1737,15 +1826,15 @@ mdkMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -1753,15 +1842,15 @@ mdkMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList) const 
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList) const 
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkMatrix::operator()(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1771,8 +1860,8 @@ mdkMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::operator()(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -1781,15 +1870,15 @@ mdkMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const
     {
         if (*it >= SelfSize.ColNumber)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -1797,15 +1886,15 @@ mdkMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkMatrix::operator()(std::vector {RowIndexList}, ALL)" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, ALL)" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1815,15 +1904,15 @@ mdkMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::operator()(std::vector {RowIndexList}, ALL)" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, ALL)" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -1831,15 +1920,15 @@ mdkMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkMatrix::operator()(std::vector {RowIndexList}, ALL) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, ALL) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1849,15 +1938,15 @@ mdkMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::operator()(std::vector {RowIndexList}, ALL) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, ALL) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -1865,15 +1954,15 @@ mdkMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList)
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkMatrix::operator()(ALL, std::vector {ColIndexList})" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "ColIndexList is empty @ mdkDenseMatrix::operator()(ALL, std::vector {ColIndexList})" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1883,15 +1972,15 @@ mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::operator()(ALL, std::vector {ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::operator()(ALL, std::vector {ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -1899,15 +1988,15 @@ mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
 {
-#if defined(MDK_DEBUG_Matrix_Operator_CheckBound)
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkMatrix::operator()(ALL, std::vector {ColIndexList}) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "ColIndexList is empty @ mdkDenseMatrix::operator()(ALL, std::vector {ColIndexList}) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1917,15 +2006,15 @@ mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::operator()(ALL, std::vector {ColIndexList}) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::operator()(ALL, std::vector {ColIndexList}) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-#endif //MDK_DEBUG_Matrix_Operator_CheckBound
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -1934,13 +2023,13 @@ mdkMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList)
 {
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1950,8 +2039,8 @@ mdkMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std::init
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -1960,13 +2049,13 @@ mdkMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std::init
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::at({RowIndexList}, {ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::at({RowIndexList}, {ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -1974,13 +2063,13 @@ mdkMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std::init
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList) const
 {
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1990,8 +2079,8 @@ mdkMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std::init
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -2000,13 +2089,13 @@ mdkMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std::init
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::at({RowIndexList}, {ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::at({RowIndexList}, {ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2014,13 +2103,13 @@ mdkMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std::init
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType> 
-mdkMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+mdkDenseShadowMatrix<ElementType> 
+mdkDenseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList is empty @ mdkMatrix::at(std::initializer_list {RowIndexList}, ALL)" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList is empty @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, ALL)" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2030,13 +2119,13 @@ mdkMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, con
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::at(std::initializer_list {RowIndexList}, ALL)" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, ALL)" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -2044,13 +2133,13 @@ mdkMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, con
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
 {
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList is empty @ mdkMatrix::at(std::initializer_list {RowIndexList}, ALL) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList is empty @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, ALL) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2060,13 +2149,13 @@ mdkMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, con
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::at(std::initializer_list {RowIndexList}, ALL) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, ALL) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -2074,13 +2163,13 @@ mdkMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, con
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType> 
-mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList)
+mdkDenseShadowMatrix<ElementType> 
+mdkDenseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList)
 {
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkMatrix::at(ALL, std::initializer_list {ColIndexList})" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "ColIndexList is empty @ mdkDenseMatrix::at(ALL, std::initializer_list {ColIndexList})" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2090,13 +2179,13 @@ mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, 
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::at(ALL, std::initializer_list {ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::at(ALL, std::initializer_list {ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2104,13 +2193,13 @@ mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, 
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList) const
 {
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkMatrix::at(ALL, std::initializer_list {ColIndexList}) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "ColIndexList is empty @ mdkDenseMatrix::at(ALL, std::initializer_list {ColIndexList}) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2120,13 +2209,13 @@ mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, 
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::at(ALL, std::initializer_list {ColIndexList}) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::at(ALL, std::initializer_list {ColIndexList}) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2134,13 +2223,13 @@ mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, 
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList)
 {
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2150,8 +2239,8 @@ mdkMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::ve
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -2160,13 +2249,13 @@ mdkMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::ve
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2174,13 +2263,13 @@ mdkMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::ve
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList) const
 {
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2190,8 +2279,8 @@ mdkMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::ve
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -2200,13 +2289,13 @@ mdkMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::ve
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2214,13 +2303,13 @@ mdkMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::ve
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList is empty @ mdkMatrix::at(std::vector {RowIndexList}, ALL)" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList is empty @ mdkDenseMatrix::at(std::vector {RowIndexList}, ALL)" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2230,13 +2319,13 @@ mdkMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Sym
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::at(std::vector {RowIndexList}, ALL)" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::at(std::vector {RowIndexList}, ALL)" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -2244,13 +2333,13 @@ mdkMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Sym
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
 {
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList is empty @ mdkMatrix::at(std::vector {RowIndexList}, ALL) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "RowIndexList is empty @ mdkDenseMatrix::at(std::vector {RowIndexList}, ALL) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2260,13 +2349,13 @@ mdkMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Sym
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::at(std::vector {RowIndexList}, ALL) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::at(std::vector {RowIndexList}, ALL) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -2274,13 +2363,13 @@ mdkMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Sym
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList)
 {
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkMatrix::at(ALL, std::vector {ColIndexList})" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "ColIndexList is empty @ mdkDenseMatrix::at(ALL, std::vector {ColIndexList})" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2290,13 +2379,13 @@ mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, 
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::at(ALL, std::vector {ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::at(ALL, std::vector {ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2304,13 +2393,13 @@ mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, 
 
 template<typename ElementType>
 inline
-const mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
+const mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
 {
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkMatrix::at(ALL, std::vector {ColIndexList}) const" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "ColIndexList is empty @ mdkDenseMatrix::at(ALL, std::vector {ColIndexList}) const" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2320,13 +2409,13 @@ mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, 
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::at(ALL, std::vector {ColIndexList}) const" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::at(ALL, std::vector {ColIndexList}) const" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2335,9 +2424,9 @@ mdkMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, 
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::GetSubMatrix(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList) const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::GetSubMatrix(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList) const
 {
-    mdkMatrix<ElementType> tempMatrix; // empty matrix
+    mdkDenseMatrix<ElementType> tempMatrix; // empty matrix
 
     GetSubMatrix(tempMatrix, RowIndexList, ColIndexList);
 
@@ -2347,13 +2436,13 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetSubMatrix(const std::vector<in
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::GetSubMatrix(mdkMatrix<ElementType>& OutputMatrix,
+bool mdkDenseMatrix<ElementType>::GetSubMatrix(mdkDenseMatrix<ElementType>& OutputMatrix,
                                           const std::vector<int64>& RowIndexList, 
                                           const std::vector<int64>& ColIndexList) const
 {
     if (this == &OutputMatrix)
     {
-        mdkError << "A Matrix tries to get a SubMatrix of itself @ mdkMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+        mdkError << "A Matrix tries to get a SubMatrix of itself @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
         return false;
     }
 
@@ -2363,7 +2452,7 @@ bool mdkMatrix<ElementType>::GetSubMatrix(mdkMatrix<ElementType>& OutputMatrix,
 
     if (OutputRowNumber <= 0 || OutputColNumber <= 0)
     {
-        mdkError << "RowIndexList or ColIndexList is empty @ mdkMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+        mdkError << "RowIndexList or ColIndexList is empty @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
         return false;
     }
 
@@ -2373,7 +2462,7 @@ bool mdkMatrix<ElementType>::GetSubMatrix(mdkMatrix<ElementType>& OutputMatrix,
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
             return false;
         }
     }
@@ -2382,7 +2471,7 @@ bool mdkMatrix<ElementType>::GetSubMatrix(mdkMatrix<ElementType>& OutputMatrix,
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+            mdkError << "Invalid RowIndexList @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
             return false;
         }
     }
@@ -2396,7 +2485,7 @@ bool mdkMatrix<ElementType>::GetSubMatrix(mdkMatrix<ElementType>& OutputMatrix,
         }
         else
         {
-            mdkError << "Invalid OutputMatrix @ mdkMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+            mdkError << "Invalid OutputMatrix @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
             return false;
         }
     }
@@ -2426,7 +2515,7 @@ bool mdkMatrix<ElementType>::GetSubMatrix(mdkMatrix<ElementType>& OutputMatrix,
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> mdkMatrix<ElementType>::GetSubMatrix(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::GetSubMatrix(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
 {
     auto SelfSize = this->GetSize();
 
@@ -2442,7 +2531,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetSubMatrix(const std::vector<in
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::GetSubMatrix(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::GetSubMatrix(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
 {
     auto SelfSize = this->GetSize();
 
@@ -2459,20 +2548,20 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetSubMatrix(const ALL_Symbol_For
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::Col(int64 ColIndex)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::Col(int64 ColIndex)
 {
     return this->at(ALL, { ColIndex });
 
     /*
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::Col(ColIndex)" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;        
+        mdkError << "Invalid Input @ mdkDenseMatrix::Col(ColIndex)" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;        
         return tempShadowMatrix;
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL, {ColIndex});
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL, {ColIndex});
 
     return tempShadowMatrix;
     */
@@ -2481,16 +2570,16 @@ mdkMatrix<ElementType>::Col(int64 ColIndex)
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::Col(std::initializer_list<int64>& ColIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::Col(std::initializer_list<int64>& ColIndexList)
 {
     return this->at(ALL, ColIndexList);
 
     /*
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkMatrix::Col()(std::initializer_list {ColIndexList})" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "ColIndexList is empty @ mdkDenseMatrix::Col()(std::initializer_list {ColIndexList})" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2498,13 +2587,13 @@ mdkMatrix<ElementType>::Col(std::initializer_list<int64>& ColIndexList)
     {
         if (*it >= SelfSize.ColNumber)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::Col({ColIndexList})" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::Col({ColIndexList})" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL, ColIndexList);
 
     return tempShadowMatrix;
     */
@@ -2513,16 +2602,16 @@ mdkMatrix<ElementType>::Col(std::initializer_list<int64>& ColIndexList)
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::Col(const std::vector<int64>& ColIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::Col(const std::vector<int64>& ColIndexList)
 {
     return this->at(ALL, ColIndexList);
 
     /*
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkMatrix::operator()(std::vector {ColIndexList})" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;
+        mdkError << "ColIndexList is empty @ mdkDenseMatrix::operator()(std::vector {ColIndexList})" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2530,13 +2619,13 @@ mdkMatrix<ElementType>::Col(const std::vector<int64>& ColIndexList)
     {        
         if (*it >= SelfSize.ColNumber)
         {
-            mdkError << "Invalid ColIndexList @ mdkMatrix::Col(std::vector ColIndexList)" << '\n';
-            mdkShadowMatrix<ElementType> tempShadowMatrix;            
+            mdkError << "Invalid ColIndexList @ mdkDenseMatrix::Col(std::vector ColIndexList)" << '\n';
+            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;            
             return tempShadowMatrix;
         }
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, ALL, ColIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL, ColIndexList);
 
     return tempShadowMatrix;
     */
@@ -2545,15 +2634,15 @@ mdkMatrix<ElementType>::Col(const std::vector<int64>& ColIndexList)
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> mdkMatrix<ElementType>::GetCol(int64 ColIndex) const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::GetCol(int64 ColIndex) const
 {
-	mdkMatrix<ElementType> tempMatrix;
+	mdkDenseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkMatrix::GetCol(ColIndex)" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix::GetCol(ColIndex)" << '\n';
         
         return tempMatrix;
 	}
@@ -2577,13 +2666,13 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetCol(int64 ColIndex) const
 
 template<typename ElementType>
 inline 
-bool mdkMatrix<ElementType>::GetCol(int64 ColIndex, std::vector<ElementType>& ColData) const
+bool mdkDenseMatrix<ElementType>::GetCol(int64 ColIndex, std::vector<ElementType>& ColData) const
 {
     auto SelfSize = this->GetSize();
 
 	if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkMatrix::GetCol(int64 ColIndex, std::vector<ElementType>& ColData)" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix::GetCol(int64 ColIndex, std::vector<ElementType>& ColData)" << '\n';
 		return false;
 	}
 
@@ -2606,13 +2695,13 @@ bool mdkMatrix<ElementType>::GetCol(int64 ColIndex, std::vector<ElementType>& Co
 
 template<typename ElementType>
 inline 
-bool mdkMatrix<ElementType>::GetCol(int64 ColIndex, ElementType* ColData) const
+bool mdkDenseMatrix<ElementType>::GetCol(int64 ColIndex, ElementType* ColData) const
 {
     auto SelfSize = this->GetSize();
 
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0 || ColData == nullptr)
 	{
-		mdkError << "Invalid Input @ mdkMatrix::GetCol(int64 ColIndex, ElementType* ColData)" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix::GetCol(int64 ColIndex, ElementType* ColData)" << '\n';
 		return false;
 	}
 
@@ -2632,13 +2721,13 @@ bool mdkMatrix<ElementType>::GetCol(int64 ColIndex, ElementType* ColData) const
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-bool mdkMatrix<ElementType>::SetCol(int64 ColIndex, const mdkMatrix<ElementType_Input>& ColData)
+bool mdkDenseMatrix<ElementType>::SetCol(int64 ColIndex, const mdkDenseMatrix<ElementType_Input>& ColData)
 {
     auto SelfSize = this->GetSize();
 
 	if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
 	{
-		mdkError << "Invalid Input : ColIndex is out of bound @ mdkMatrix::SetCol(ColIndex, mdkMatrix)" << '\n';
+		mdkError << "Invalid Input : ColIndex is out of bound @ mdkDenseMatrix::SetCol(ColIndex, mdkDenseMatrix)" << '\n';
 		return false;
 	}
 
@@ -2646,19 +2735,19 @@ bool mdkMatrix<ElementType>::SetCol(int64 ColIndex, const mdkMatrix<ElementType_
 
 	if (Size.ColNumber != 1 || Size.RowNumber != 1)
 	{
-		mdkError << "Invalid Input : must be a vector @ mdkMatrix::SetCol(ColIndex, mdkMatrix)" << '\n';
+		mdkError << "Invalid Input : must be a vector @ mdkDenseMatrix::SetCol(ColIndex, mdkDenseMatrix)" << '\n';
 		return false;
 	}
 
 	if (Size.RowNumber > 1 && Size.RowNumber != SelfSize.RowNumber)
 	{
-		mdkError << "Invalid Input : size does not match @ mdkMatrix::SetCol(ColIndex, mdkMatrix)" << '\n';
+		mdkError << "Invalid Input : size does not match @ mdkDenseMatrix::SetCol(ColIndex, mdkDenseMatrix)" << '\n';
 		return false;
 	}
 
 	if (Size.ColNumber > 1 && Size.ColNumber != SelfSize.RowNumber)
 	{
-		mdkError << "Invalid Input : size does not match @ mdkMatrix::SetCol(ColIndex, mdkMatrix)" << '\n';
+		mdkError << "Invalid Input : size does not match @ mdkDenseMatrix::SetCol(ColIndex, mdkDenseMatrix)" << '\n';
 		return false;
 	}
 
@@ -2669,7 +2758,7 @@ bool mdkMatrix<ElementType>::SetCol(int64 ColIndex, const mdkMatrix<ElementType_
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::SetCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData)
+bool mdkDenseMatrix<ElementType>::SetCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData)
 {
     return this->SetCol(ColIndex, ColData.begin(), ColData.size());
 }
@@ -2678,7 +2767,7 @@ bool mdkMatrix<ElementType>::SetCol(int64 ColIndex, const std::initializer_list<
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::SetCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData)
+bool mdkDenseMatrix<ElementType>::SetCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData)
 {
     return this->SetCol(ColIndex, ColData.data(), ColData.size());
 }
@@ -2687,13 +2776,13 @@ bool mdkMatrix<ElementType>::SetCol(int64 ColIndex, const std::vector<ElementTyp
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-bool mdkMatrix<ElementType>::SetCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length)
+bool mdkDenseMatrix<ElementType>::SetCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length)
 {
     auto SelfSize = this->GetSize();
 
     if (ColData == nullptr || Length <= 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkMatrix::SetCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix::SetCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
 		return false;
 	}
     
@@ -2724,13 +2813,13 @@ bool mdkMatrix<ElementType>::SetCol(int64 ColIndex, const ElementType_Input* Col
 
 template<typename ElementType>
 inline 
-bool mdkMatrix<ElementType>::FillCol(int64 ColIndex, const ElementType& Element)
+bool mdkDenseMatrix<ElementType>::FillCol(int64 ColIndex, const ElementType& Element)
 {
     auto SelfSize = this->GetSize();
 
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::FillCol(int64 ColIndex, const ElementType& Element)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::FillCol(int64 ColIndex, const ElementType& Element)" << '\n';
         return false;
     }
 
@@ -2751,17 +2840,17 @@ bool mdkMatrix<ElementType>::FillCol(int64 ColIndex, const ElementType& Element)
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::AppendCol(const mdkMatrix<ElementType_Input>& ColData)
+bool mdkDenseMatrix<ElementType>::AppendCol(const mdkDenseMatrix<ElementType_Input>& ColData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkMatrix::AppendCol(const mdkMatrix<ElementType_Input>& ColData)" << '\n';
+        mdkError << "Matrix Size can not change @ mdkDenseMatrix::AppendCol(const mdkDenseMatrix<ElementType_Input>& ColData)" << '\n';
         return false;
     }
 
     if (ColData.IsEmpty() == true)
     {
-        mdkError << "Empty Input @ mdkMatrix::AppendCol(const mdkMatrix<ElementType_Input>& ColData)" << '\n';
+        mdkError << "Empty Input @ mdkDenseMatrix::AppendCol(const mdkDenseMatrix<ElementType_Input>& ColData)" << '\n';
         return false;
     }
 
@@ -2783,17 +2872,17 @@ bool mdkMatrix<ElementType>::AppendCol(const mdkMatrix<ElementType_Input>& ColDa
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-bool mdkMatrix<ElementType>::AppendCol(const std::initializer_list<ElementType_Input>& ColData)
+bool mdkDenseMatrix<ElementType>::AppendCol(const std::initializer_list<ElementType_Input>& ColData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkMatrix::AppendCol(const std::initializer_list<ElementType_Input>& ColData)" << '\n';
+        mdkError << "Matrix Size can not change @ mdkDenseMatrix::AppendCol(const std::initializer_list<ElementType_Input>& ColData)" << '\n';
         return false;
     }
 
     if (ColData.size() <= 0)
     {
-        mdkError << "Empty Input @ mdkMatrix::AppendCol(const std::initializer_list<ElementType_Input>& ColData)" << '\n';
+        mdkError << "Empty Input @ mdkDenseMatrix::AppendCol(const std::initializer_list<ElementType_Input>& ColData)" << '\n';
         return false;
     }
 
@@ -2815,17 +2904,17 @@ bool mdkMatrix<ElementType>::AppendCol(const std::initializer_list<ElementType_I
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::AppendCol(const std::vector<ElementType_Input>& ColData)
+bool mdkDenseMatrix<ElementType>::AppendCol(const std::vector<ElementType_Input>& ColData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkMatrix::AppendCol(const std::vector<ElementType_Input>& ColData)" << '\n';
+        mdkError << "Matrix Size can not change @ mdkDenseMatrix::AppendCol(const std::vector<ElementType_Input>& ColData)" << '\n';
         return false;
     }
 
     if (ColData.size() <= 0)
     {
-        mdkError << "Empty Input @ mdkMatrix::AppendCol(const std::vector<ElementType_Input>& ColData)" << '\n';
+        mdkError << "Empty Input @ mdkDenseMatrix::AppendCol(const std::vector<ElementType_Input>& ColData)" << '\n';
         return false;
     }
 
@@ -2847,17 +2936,17 @@ bool mdkMatrix<ElementType>::AppendCol(const std::vector<ElementType_Input>& Col
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-bool mdkMatrix<ElementType>::AppendCol(const ElementType_Input* ColData, int64 Length)
+bool mdkDenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColData, int64 Length)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkMatrix::AppendCol(const ElementType_Input* ColData, int64 Length)" << '\n';
+        mdkError << "Matrix Size can not change @ mdkDenseMatrix::AppendCol(const ElementType_Input* ColData, int64 Length)" << '\n';
         return false;
     }
 
     if (ColData == nullptr || Length <= 0)
     {
-        mdkError << "Empty Input @ mdkMatrix::AppendCol(const ElementType_Input* ColData, int64 Length)" << '\n';
+        mdkError << "Empty Input @ mdkDenseMatrix::AppendCol(const ElementType_Input* ColData, int64 Length)" << '\n';
         return false;
     }
 
@@ -2878,11 +2967,11 @@ bool mdkMatrix<ElementType>::AppendCol(const ElementType_Input* ColData, int64 L
 
 template<typename ElementType>
 inline 
-bool mdkMatrix<ElementType>::DeleteCol(int64 ColIndex)
+bool mdkDenseMatrix<ElementType>::DeleteCol(int64 ColIndex)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkMatrix::DeleteCol(int64 ColIndex)" << '\n';
+        mdkError << "Matrix Size can not change @ mdkDenseMatrix::DeleteCol(int64 ColIndex)" << '\n';
         return false;
     }
 
@@ -2890,7 +2979,7 @@ bool mdkMatrix<ElementType>::DeleteCol(int64 ColIndex)
 
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::DeleteCol(int64 ColIndex)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::DeleteCol(int64 ColIndex)" << '\n';
         return false;
     }
 
@@ -2907,17 +2996,17 @@ bool mdkMatrix<ElementType>::DeleteCol(int64 ColIndex)
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::DeleteCol(std::initializer_list<int64>& ColIndexList)
+bool mdkDenseMatrix<ElementType>::DeleteCol(std::initializer_list<int64>& ColIndexList)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkMatrix::DeleteCol(std::initializer_list<int64>& ColIndexList)" << '\n';
+        mdkError << "Matrix Size can not change @ mdkDenseMatrix::DeleteCol(std::initializer_list<int64>& ColIndexList)" << '\n';
         return false;
     }
 
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "Empty Input @ mdkMatrix::DeleteCol(std::initializer_list ColIndexList)" << '\n';
+        mdkError << "Empty Input @ mdkDenseMatrix::DeleteCol(std::initializer_list ColIndexList)" << '\n';
         return false;
     }
 
@@ -2927,7 +3016,7 @@ bool mdkMatrix<ElementType>::DeleteCol(std::initializer_list<int64>& ColIndexLis
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Out of bound Input @ mdkMatrix::DeleteCol(std::initializer_list ColIndexList)" << '\n';
+            mdkError << "Out of bound Input @ mdkDenseMatrix::DeleteCol(std::initializer_list ColIndexList)" << '\n';
             return false;
         }
     }
@@ -2938,17 +3027,17 @@ bool mdkMatrix<ElementType>::DeleteCol(std::initializer_list<int64>& ColIndexLis
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::DeleteCol(const std::vector<int64>& ColIndexList)
+bool mdkDenseMatrix<ElementType>::DeleteCol(const std::vector<int64>& ColIndexList)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkMatrix::DeleteCol(const std::vector<int64>& ColIndexList)" << '\n';
+        mdkError << "Matrix Size can not change @ mdkDenseMatrix::DeleteCol(const std::vector<int64>& ColIndexList)" << '\n';
         return false;
     }
 
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "Empty Input @ mdkMatrix::DeleteCol(std::vector ColIndexList)" << '\n';
+        mdkError << "Empty Input @ mdkDenseMatrix::DeleteCol(std::vector ColIndexList)" << '\n';
         return false;
     }
 
@@ -2958,7 +3047,7 @@ bool mdkMatrix<ElementType>::DeleteCol(const std::vector<int64>& ColIndexList)
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Out of bound Input @ mdkMatrix::DeleteCol(std::vector ColIndexList)" << '\n';
+            mdkError << "Out of bound Input @ mdkDenseMatrix::DeleteCol(std::vector ColIndexList)" << '\n';
             return false;
         }
     }
@@ -2969,17 +3058,17 @@ bool mdkMatrix<ElementType>::DeleteCol(const std::vector<int64>& ColIndexList)
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::DeleteCol(const int64* ColIndexListPtr, int64 Length)
+bool mdkDenseMatrix<ElementType>::DeleteCol(const int64* ColIndexListPtr, int64 Length)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
+        mdkError << "Matrix Size can not change @ mdkDenseMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
         return false;
     }
 
     if (ColIndexListPtr == nullptr || Length <= 0)
     {
-        mdkError << "Empty Input @ mdkMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
+        mdkError << "Empty Input @ mdkDenseMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
         return false;
     }
 
@@ -3009,7 +3098,7 @@ bool mdkMatrix<ElementType>::DeleteCol(const int64* ColIndexListPtr, int64 Lengt
 
         if (Index_i == Index_prev)
         {
-            mdkWarning << "duplicate Input @ mdkMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
+            mdkWarning << "duplicate Input @ mdkDenseMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
         }
         else
         {
@@ -3031,17 +3120,17 @@ bool mdkMatrix<ElementType>::DeleteCol(const int64* ColIndexListPtr, int64 Lengt
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::InsertCol(int64 ColIndex, const mdkMatrix<ElementType_Input>& ColData)
+bool mdkDenseMatrix<ElementType>::InsertCol(int64 ColIndex, const mdkDenseMatrix<ElementType_Input>& ColData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkMatrix::InsertCol(ColIndex, mdkMatrix)" << '\n';
+        mdkError << "Matrix Size can not change @ mdkDenseMatrix::InsertCol(ColIndex, mdkDenseMatrix)" << '\n';
         return false;
     }
 
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input : ColIndex is out of bound @ mdkMatrix::InsertCol(ColIndex, mdkMatrix)" << '\n';
+        mdkError << "Invalid Input : ColIndex is out of bound @ mdkDenseMatrix::InsertCol(ColIndex, mdkDenseMatrix)" << '\n';
         return false;
     }
 
@@ -3049,7 +3138,7 @@ bool mdkMatrix<ElementType>::InsertCol(int64 ColIndex, const mdkMatrix<ElementTy
 
     if (InputSize.ColNumber != 1 || InputSize.RowNumber != 1)
     {
-        mdkError << "Invalid Input : must be a vector @ mdkMatrix::InsertCol(ColIndex, mdkMatrix)" << '\n';
+        mdkError << "Invalid Input : must be a vector @ mdkDenseMatrix::InsertCol(ColIndex, mdkDenseMatrix)" << '\n';
         return false;
     }
 
@@ -3057,13 +3146,13 @@ bool mdkMatrix<ElementType>::InsertCol(int64 ColIndex, const mdkMatrix<ElementTy
 
     if (InputSize.RowNumber > 1 && InputSize.RowNumber != SelfSize.RowNumber)
     {
-        mdkError << "Invalid Input : size does not match @ mdkMatrix::InsertCol(ColIndex, mdkMatrix)" << '\n';
+        mdkError << "Invalid Input : size does not match @ mdkDenseMatrix::InsertCol(ColIndex, mdkDenseMatrix)" << '\n';
         return false;
     }
 
     if (InputSize.ColNumber > 1 && InputSize.ColNumber != SelfSize.RowNumber)
     {
-        mdkError << "Invalid Input : size does not match @ mdkMatrix::InsertCol(ColIndex, mdkMatrix)" << '\n';
+        mdkError << "Invalid Input : size does not match @ mdkDenseMatrix::InsertCol(ColIndex, mdkDenseMatrix)" << '\n';
         return false;
     }
 
@@ -3075,7 +3164,7 @@ bool mdkMatrix<ElementType>::InsertCol(int64 ColIndex, const mdkMatrix<ElementTy
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::InsertCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData)
+bool mdkDenseMatrix<ElementType>::InsertCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData)
 {
     return this->InsertCol(ColIndex, ColData.begin(), ColData.size());
 }
@@ -3084,7 +3173,7 @@ bool mdkMatrix<ElementType>::InsertCol(int64 ColIndex, const std::initializer_li
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::InsertCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData)
+bool mdkDenseMatrix<ElementType>::InsertCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData)
 {
     return this->InsertCol(ColIndex, ColData.data(), ColData.size());
 }
@@ -3093,11 +3182,11 @@ bool mdkMatrix<ElementType>::InsertCol(int64 ColIndex, const std::vector<Element
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::InsertCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length)
+bool mdkDenseMatrix<ElementType>::InsertCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
+        mdkError << "Matrix Size can not change @ mdkDenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
         return false;
     }
 
@@ -3105,7 +3194,7 @@ bool mdkMatrix<ElementType>::InsertCol(int64 ColIndex, const ElementType_Input* 
 
     if (ColData == nullptr || Length <= 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
         return false;
     }
 
@@ -3121,8 +3210,8 @@ bool mdkMatrix<ElementType>::InsertCol(int64 ColIndex, const ElementType_Input* 
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::Row(int64 RowIndex)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::Row(int64 RowIndex)
 {
     return this->at({RowIndex}, ALL);
 }
@@ -3130,8 +3219,8 @@ mdkMatrix<ElementType>::Row(int64 RowIndex)
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::Row(std::initializer_list<int64>& RowIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::Row(std::initializer_list<int64>& RowIndexList)
 {
     return this->at(RowIndexList, ALL);
 }
@@ -3139,8 +3228,8 @@ mdkMatrix<ElementType>::Row(std::initializer_list<int64>& RowIndexList)
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::Row(const std::vector<int64>& RowIndexList)
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::Row(const std::vector<int64>& RowIndexList)
 {
     return this->at(RowIndexList, ALL);
 }
@@ -3148,15 +3237,15 @@ mdkMatrix<ElementType>::Row(const std::vector<int64>& RowIndexList)
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::GetRow(int64 RowIndex) const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::GetRow(int64 RowIndex) const
 {
-    mdkMatrix<ElementType> tempMatrix;	
+    mdkDenseMatrix<ElementType> tempMatrix;	
 
     auto SelfSize = this->GetSize();
 
 	if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkMatrix::GetRow(RowIndex)" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix::GetRow(RowIndex)" << '\n';
         
         return tempMatrix;
 	}
@@ -3182,13 +3271,13 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetRow(int64 RowIndex) const
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::GetRow(int64 RowIndex, std::vector<ElementType>& RowData) const
+bool mdkDenseMatrix<ElementType>::GetRow(int64 RowIndex, std::vector<ElementType>& RowData) const
 {
     auto SelfSize = this->GetSize();
 
 	if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkMatrix::GetRow(RowIndex, std::vector<ElementType>& RowData)" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix::GetRow(RowIndex, std::vector<ElementType>& RowData)" << '\n';
 		return false;
 	}
 
@@ -3213,13 +3302,13 @@ bool mdkMatrix<ElementType>::GetRow(int64 RowIndex, std::vector<ElementType>& Ro
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::GetRow(int64 RowIndex, ElementType* RowData) const
+bool mdkDenseMatrix<ElementType>::GetRow(int64 RowIndex, ElementType* RowData) const
 {
     auto SelfSize = this->GetSize();
 
 	if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkMatrix GetRow(RowIndex, ElementType* RowData)" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix GetRow(RowIndex, ElementType* RowData)" << '\n';
 		return false;
 	}
 
@@ -3241,13 +3330,13 @@ bool mdkMatrix<ElementType>::GetRow(int64 RowIndex, ElementType* RowData) const
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-bool mdkMatrix<ElementType>::SetRow(int64 RowIndex, const mdkMatrix<ElementType_Input>& RowData)
+bool mdkDenseMatrix<ElementType>::SetRow(int64 RowIndex, const mdkDenseMatrix<ElementType_Input>& RowData)
 {
     auto SelfSize = this->GetSize();
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix SetRow(int64 RowIndex, const mdkMatrix<ElementType_Input>& RowData)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix SetRow(int64 RowIndex, const mdkDenseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
@@ -3255,19 +3344,19 @@ bool mdkMatrix<ElementType>::SetRow(int64 RowIndex, const mdkMatrix<ElementType_
 
     if (InputSize.ColNumber != 1 || InputSize.RowNumber != 1)
 	{
-		mdkError << "Invalid Input @ mdkMatrix SetRow(RowIndex,mdkMatrix)" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix SetRow(RowIndex,mdkDenseMatrix)" << '\n';
 		return false;
 	}
 
     if (InputSize.RowNumber > 1 && InputSize.RowNumber != SelfSize.ColNumber)
 	{
-		mdkError << "Invalid Input @ mdkMatrix SetRow(RowIndex,mdkMatrix)" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix SetRow(RowIndex,mdkDenseMatrix)" << '\n';
 		return false;
 	}
 
     if (InputSize.ColNumber > 1 && InputSize.ColNumber != SelfSize.ColNumber)
 	{
-		mdkError << "Invalid Input @ mdkMatrix SetRow(RowIndex,mdkMatrix)" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix SetRow(RowIndex,mdkDenseMatrix)" << '\n';
 		return false;
 	}
 
@@ -3278,7 +3367,7 @@ bool mdkMatrix<ElementType>::SetRow(int64 RowIndex, const mdkMatrix<ElementType_
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::SetRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData)
+bool mdkDenseMatrix<ElementType>::SetRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData)
 {
     return this->SetRow(RowIndex, RowData.begin(), RowData.size());
 }
@@ -3287,7 +3376,7 @@ bool mdkMatrix<ElementType>::SetRow(int64 RowIndex, const std::initializer_list<
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::SetRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData)
+bool mdkDenseMatrix<ElementType>::SetRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData)
 {
     return this->SetRow(RowIndex, RowData.data(), RowData.size());
 }
@@ -3296,19 +3385,19 @@ bool mdkMatrix<ElementType>::SetRow(int64 RowIndex, const std::vector<ElementTyp
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::SetRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length)
+bool mdkDenseMatrix<ElementType>::SetRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length)
 {
     auto SelfSize = this->GetSize();
 
     if (RowData == nullptr || Length <= 0 || RowIndex >= SelfSize.RowNumber || RowIndex < 0)
     {
-        mdkError << "Empty Input @ mdkMatrix::SetRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        mdkError << "Empty Input @ mdkDenseMatrix::SetRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
     if (Length != SelfSize.ColNumber)
     {
-        mdkError << "Length does not match @ mdkMatrix::SetRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        mdkError << "Length does not match @ mdkDenseMatrix::SetRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
@@ -3329,13 +3418,13 @@ bool mdkMatrix<ElementType>::SetRow(int64 RowIndex, const ElementType_Input* Row
 
 template<typename ElementType>
 inline 
-bool mdkMatrix<ElementType>::FillRow(int64 RowIndex, const ElementType& Element)
+bool mdkDenseMatrix<ElementType>::FillRow(int64 RowIndex, const ElementType& Element)
 {
     auto SelfSize = this->GetSize();
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::FillRow(int64 RowIndex, const ElementType& Element)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::FillRow(int64 RowIndex, const ElementType& Element)" << '\n';
         return false;
     }
 
@@ -3357,17 +3446,17 @@ bool mdkMatrix<ElementType>::FillRow(int64 RowIndex, const ElementType& Element)
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-bool mdkMatrix<ElementType>::AppendRow(const mdkMatrix<ElementType_Input>& RowData)
+bool mdkDenseMatrix<ElementType>::AppendRow(const mdkDenseMatrix<ElementType_Input>& RowData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkMatrix::AppendRow(const mdkMatrix<ElementType_Input>& RowData)" << '\n';
+        mdkError << "Size can not change @ mdkDenseMatrix::AppendRow(const mdkDenseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
     if (RowData.IsEmpty() == true)
     {
-        mdkError << "Input is empty @ mdkMatrix::AppendRow(const mdkMatrix<ElementType_Input>& RowData)" << '\n';
+        mdkError << "Input is empty @ mdkDenseMatrix::AppendRow(const mdkDenseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
@@ -3389,17 +3478,17 @@ bool mdkMatrix<ElementType>::AppendRow(const mdkMatrix<ElementType_Input>& RowDa
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool  mdkMatrix<ElementType>::AppendRow(const std::initializer_list<ElementType_Input>& RowData)
+bool  mdkDenseMatrix<ElementType>::AppendRow(const std::initializer_list<ElementType_Input>& RowData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkMatrix::AppendRow(const std::initializer_list<ElementType_Input>& RowData)" << '\n';
+        mdkError << "Size can not change @ mdkDenseMatrix::AppendRow(const std::initializer_list<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
     if (RowData.size() <= 0)
     {
-        mdkError << "Input is empty @ mdkMatrix::AppendRow(const std::initializer_list<ElementType_Input>& RowData)" << '\n';
+        mdkError << "Input is empty @ mdkDenseMatrix::AppendRow(const std::initializer_list<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
@@ -3421,17 +3510,17 @@ bool  mdkMatrix<ElementType>::AppendRow(const std::initializer_list<ElementType_
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool  mdkMatrix<ElementType>::AppendRow(const std::vector<ElementType_Input>& RowData)
+bool  mdkDenseMatrix<ElementType>::AppendRow(const std::vector<ElementType_Input>& RowData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkMatrix::AppendRow(const std::vector<ElementType_Input>& RowData)" << '\n';
+        mdkError << "Size can not change @ mdkDenseMatrix::AppendRow(const std::vector<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
     if (RowData.size() <= 0)
     {
-        mdkError << "Input is empty @ mdkMatrix::AppendRow(const std::vector<ElementType_Input>& RowData)" << '\n';
+        mdkError << "Input is empty @ mdkDenseMatrix::AppendRow(const std::vector<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
@@ -3453,17 +3542,17 @@ bool  mdkMatrix<ElementType>::AppendRow(const std::vector<ElementType_Input>& Ro
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::AppendRow(const ElementType_Input* RowData, int64 Length)
+bool mdkDenseMatrix<ElementType>::AppendRow(const ElementType_Input* RowData, int64 Length)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkMatrix::AppendRow(const ElementType_Input* RowData, int64 Length)" << '\n';
+        mdkError << "Size can not change @ mdkDenseMatrix::AppendRow(const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
     if (RowData == nullptr || Length <= 0)
     {
-        mdkError << "Input is empty @ mdkMatrix::AppendRow(const ElementType_Input* RowData, int64 Length)" << '\n';
+        mdkError << "Input is empty @ mdkDenseMatrix::AppendRow(const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
@@ -3484,11 +3573,11 @@ bool mdkMatrix<ElementType>::AppendRow(const ElementType_Input* RowData, int64 L
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::DeleteRow(int64 RowIndex)
+bool mdkDenseMatrix<ElementType>::DeleteRow(int64 RowIndex)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkMatrix::DeleteRow(int64 RowIndex)" << '\n';
+        mdkError << "Size can not change @ mdkDenseMatrix::DeleteRow(int64 RowIndex)" << '\n';
         return false;
     }
 
@@ -3496,7 +3585,7 @@ bool mdkMatrix<ElementType>::DeleteRow(int64 RowIndex)
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::DeleteRow(int64 RowIndex)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::DeleteRow(int64 RowIndex)" << '\n';
         return false;
     }
 
@@ -3506,11 +3595,11 @@ bool mdkMatrix<ElementType>::DeleteRow(int64 RowIndex)
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::DeleteRow(const std::vector<int64>& RowIndexList)
+bool mdkDenseMatrix<ElementType>::DeleteRow(const std::vector<int64>& RowIndexList)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkMatrix::DeleteRow(const std::vector<int64>& RowIndexList)" << '\n';
+        mdkError << "Size can not change @ mdkDenseMatrix::DeleteRow(const std::vector<int64>& RowIndexList)" << '\n';
         return false;
     }
 
@@ -3520,7 +3609,7 @@ bool mdkMatrix<ElementType>::DeleteRow(const std::vector<int64>& RowIndexList)
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid Input @ mdkMatrix::DeleteRow(const std::vector<int64>& RowIndexList)" << '\n';
+            mdkError << "Invalid Input @ mdkDenseMatrix::DeleteRow(const std::vector<int64>& RowIndexList)" << '\n';
             return false;
         }
     }
@@ -3531,17 +3620,17 @@ bool mdkMatrix<ElementType>::DeleteRow(const std::vector<int64>& RowIndexList)
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::DeleteRow(const int64* RowIndexListPtr, int64 Length)
+bool mdkDenseMatrix<ElementType>::DeleteRow(const int64* RowIndexListPtr, int64 Length)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkMatrix::DeleteRow(const int64* RowIndexPtr, int64 Length)" << '\n';
+        mdkError << "Size can not change @ mdkDenseMatrix::DeleteRow(const int64* RowIndexPtr, int64 Length)" << '\n';
         return false;
     }
 
     if (RowIndexListPtr == nullptr || Length <= 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix::DeleteRow(const int64* RowIndexPtr, int64 Length)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::DeleteRow(const int64* RowIndexPtr, int64 Length)" << '\n';
         return false;
     }
 
@@ -3585,17 +3674,17 @@ bool mdkMatrix<ElementType>::DeleteRow(const int64* RowIndexListPtr, int64 Lengt
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::InsertRow(int64 RowIndex, const mdkMatrix<ElementType_Input>& RowData)
+bool mdkDenseMatrix<ElementType>::InsertRow(int64 RowIndex, const mdkDenseMatrix<ElementType_Input>& RowData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkMatrix::InsertRow(int64 RowIndex, const mdkMatrix<ElementType_Input>& RowData)" << '\n';
+        mdkError << "Size can not change @ mdkDenseMatrix::InsertRow(int64 RowIndex, const mdkDenseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkMatrix InsertRow(int64 RowIndex, const mdkMatrix<ElementType_Input>& RowData)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix InsertRow(int64 RowIndex, const mdkDenseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
@@ -3605,19 +3694,19 @@ bool mdkMatrix<ElementType>::InsertRow(int64 RowIndex, const mdkMatrix<ElementTy
 
     if (InputSize.ColNumber != 1 || InputSize.RowNumber != 1)
     {
-        mdkError << "Invalid Input @ mdkMatrix InsertRow(RowIndex,mdkMatrix)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix InsertRow(RowIndex,mdkDenseMatrix)" << '\n';
         return false;
     }
 
     if (InputSize.RowNumber > 1 && InputSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << "Invalid Input @ mdkMatrix InsertRow(RowIndex,mdkMatrix)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix InsertRow(RowIndex,mdkDenseMatrix)" << '\n';
         return false;
     }
 
     if (InputSize.ColNumber > 1 && InputSize.ColNumber != SelfSize.ColNumber)
     {
-        mdkError << "Invalid Input @ mdkMatrix InsertRow(RowIndex,mdkMatrix)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix InsertRow(RowIndex,mdkDenseMatrix)" << '\n';
         return false;
     }
 
@@ -3628,7 +3717,7 @@ bool mdkMatrix<ElementType>::InsertRow(int64 RowIndex, const mdkMatrix<ElementTy
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::InsertRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData)
+bool mdkDenseMatrix<ElementType>::InsertRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData)
 {
     return this->InsertRow(RowIndex, RowData.begin(), RowData.size());
 }
@@ -3637,7 +3726,7 @@ bool mdkMatrix<ElementType>::InsertRow(int64 RowIndex, const std::initializer_li
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::InsertRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData)
+bool mdkDenseMatrix<ElementType>::InsertRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData)
 {
     return this->InsertRow(RowIndex, RowData.data(), RowData.size());
 }
@@ -3646,11 +3735,11 @@ bool mdkMatrix<ElementType>::InsertRow(int64 RowIndex, const std::vector<Element
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::InsertRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length)
+bool mdkDenseMatrix<ElementType>::InsertRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        mdkError << "Size can not change @ mdkDenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
@@ -3658,17 +3747,17 @@ bool mdkMatrix<ElementType>::InsertRow(int64 RowIndex, const ElementType_Input* 
 
     if (RowData == nullptr || Length <= 0 || RowIndex >= SelfSize.RowNumber || RowIndex < 0)
     {
-        mdkError << "Empty Input @ mdkMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        mdkError << "Empty Input @ mdkDenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
     if (Length != SelfSize.ColNumber)
     {
-        mdkError << "Length does not match @ mdkMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        mdkError << "Length does not match @ mdkDenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
-    mdkMatrix<ElementType> tempMatrix(SelfSize.RowNumber + 1, SelfSize.ColNumber);
+    mdkDenseMatrix<ElementType> tempMatrix(SelfSize.RowNumber + 1, SelfSize.ColNumber);
 
     auto tempRawPointer = tempMatrix.GetElementPointer();
 
@@ -3703,15 +3792,15 @@ bool mdkMatrix<ElementType>::InsertRow(int64 RowIndex, const ElementType_Input* 
 
 template<typename ElementType>
 inline
-mdkShadowMatrix<ElementType>
-mdkMatrix<ElementType>::Diangonal()
+mdkDenseShadowMatrix<ElementType>
+mdkDenseMatrix<ElementType>::Diangonal()
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << " Self is empty or not square @ mdkMatrix::Diangonal" << '\n';
-        mdkShadowMatrix<ElementType> tempShadowMatrix;     
+        mdkError << " Self is empty or not square @ mdkDenseMatrix::Diangonal" << '\n';
+        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;     
         return  tempShadowMatrix;
     }
 
@@ -3726,7 +3815,7 @@ mdkMatrix<ElementType>::Diangonal()
         Index += SelfSize.RowNumber;
     }
 
-    mdkShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -3734,15 +3823,15 @@ mdkMatrix<ElementType>::Diangonal()
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::GetDiangonal() const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::GetDiangonal() const
 {
-    mdkMatrix<ElementType> tempMatrix; 
+    mdkDenseMatrix<ElementType> tempMatrix; 
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << " Self is empty or not square @ mdkMatrix::GetDiangonal()" << '\n';
+        mdkError << " Self is empty or not square @ mdkDenseMatrix::GetDiangonal()" << '\n';
         
         return  tempMatrix;
     }
@@ -3759,13 +3848,13 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::GetDiangonal() const
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::GetDiangonal(std::vector<ElementType>& DiangonalData) const
+bool mdkDenseMatrix<ElementType>::GetDiangonal(std::vector<ElementType>& DiangonalData) const
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << " Self is empty or not square @ mdkMatrix::GetDiangonal(std::vector)" << '\n';
+        mdkError << " Self is empty or not square @ mdkDenseMatrix::GetDiangonal(std::vector)" << '\n';
         return  false;
     }
 
@@ -3779,11 +3868,11 @@ bool mdkMatrix<ElementType>::GetDiangonal(std::vector<ElementType>& DiangonalDat
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) const
+bool mdkDenseMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) const
 {
     if (DiangonalData == nullptr)
     {
-        mdkError << " Input is nullptr @ mdkMatrix::GetDiangonal(ElementType* DiangonalData)" << '\n';
+        mdkError << " Input is nullptr @ mdkDenseMatrix::GetDiangonal(ElementType* DiangonalData)" << '\n';
         return  false;
     }
 
@@ -3791,7 +3880,7 @@ bool mdkMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) const
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << " Self is empty or not square @ mdkMatrix::GetDiangonal(ElementType* DiangonalData)" << '\n';
+        mdkError << " Self is empty or not square @ mdkDenseMatrix::GetDiangonal(ElementType* DiangonalData)" << '\n';
         return  false;
     }
 
@@ -3813,13 +3902,13 @@ bool mdkMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) const
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-bool mdkMatrix<ElementType>::SetDiangonal(const mdkMatrix<ElementType_Input>& DiangonalData)
+bool mdkDenseMatrix<ElementType>::SetDiangonal(const mdkDenseMatrix<ElementType_Input>& DiangonalData)
 {
 	auto InputSize = DiangonalData.GetSize();
 
     if (InputSize.ColNumber != 1 || InputSize.RowNumber != 1)
 	{
-		mdkError << "Invalid Input @ mdkMatrix::SetDiangonal(Matrix)" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix::SetDiangonal(Matrix)" << '\n';
 		return false;
 	}
 
@@ -3827,19 +3916,19 @@ bool mdkMatrix<ElementType>::SetDiangonal(const mdkMatrix<ElementType_Input>& Di
 
     if (InputSize.RowNumber > 1 && InputSize.RowNumber != SelfSize.ColNumber)
 	{
-		mdkError << "Invalid Input @ mdkMatrix::SetDiangonal(Matrix)" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix::SetDiangonal(Matrix)" << '\n';
 		return false;
 	}
 
     if (InputSize.ColNumber > 1 && InputSize.ColNumber != SelfSize.ColNumber)
 	{
-		mdkError << "Invalid Input @ mdkMatrix::SetDiangonal(Matrix)" << '\n';
+		mdkError << "Invalid Input @ mdkDenseMatrix::SetDiangonal(Matrix)" << '\n';
 		return false;
 	}
 
     if (InputSize.RowNumber == 1 && InputSize.ColNumber == 1)
     {
-        mdkWarning << "Input matrix is 1x1 and treated as a scalar @ mdkMatrix::SetDiangonal(Matrix)" << '\n';
+        mdkWarning << "Input matrix is 1x1 and treated as a scalar @ mdkDenseMatrix::SetDiangonal(Matrix)" << '\n';
         return this->FillDiangonal(ElementType(DiangonalData(0)));
     }
     else
@@ -3852,19 +3941,19 @@ bool mdkMatrix<ElementType>::SetDiangonal(const mdkMatrix<ElementType_Input>& Di
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::SetDiangonal(const std::initializer_list<ElementType_Input>& DiangonalData)
+bool mdkDenseMatrix<ElementType>::SetDiangonal(const std::initializer_list<ElementType_Input>& DiangonalData)
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << "Self is empty or not square @ mdkMatrix::SetDiangonal(std::initializer_list)" << '\n';
+        mdkError << "Self is empty or not square @ mdkDenseMatrix::SetDiangonal(std::initializer_list)" << '\n';
         return false;
     }
 
     if (DiangonalData.size() != SelfSize.RowNumber)
     {
-        mdkError << "Invalid Input @ mdkMatrix::SetDiangonal(std::initializer_list)" << '\n';
+        mdkError << "Invalid Input @ mdkDenseMatrix::SetDiangonal(std::initializer_list)" << '\n';
         return false;
     }
 
@@ -3875,19 +3964,19 @@ bool mdkMatrix<ElementType>::SetDiangonal(const std::initializer_list<ElementTyp
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::SetDiangonal(const std::vector<ElementType_Input>& DiangonalData)
+bool mdkDenseMatrix<ElementType>::SetDiangonal(const std::vector<ElementType_Input>& DiangonalData)
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
 	{
-		mdkError << " Self is empty or not square @ mdkMatrix::SetDiangonal(std::vector)" << '\n';
+		mdkError << " Self is empty or not square @ mdkDenseMatrix::SetDiangonal(std::vector)" << '\n';
 		return false;
 	}
 
     if (DiangonalData.size() != SelfSize.RowNumber)
     {
-        mdkError << " Input is invalid @ mdkMatrix::SetDiangonal(std::vector)" << '\n';
+        mdkError << " Input is invalid @ mdkDenseMatrix::SetDiangonal(std::vector)" << '\n';
         return false;
     }
 
@@ -3898,11 +3987,11 @@ bool mdkMatrix<ElementType>::SetDiangonal(const std::vector<ElementType_Input>& 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkMatrix<ElementType>::SetDiangonal(const ElementType_Input* DiangonalData)
+bool mdkDenseMatrix<ElementType>::SetDiangonal(const ElementType_Input* DiangonalData)
 {
     if (DiangonalData == nullptr)
     {
-        mdkError << " Input is nullptr @ mdkMatrix::SetDiangonal(const ElementType_Input* DiangonalData)" << '\n';
+        mdkError << " Input is nullptr @ mdkDenseMatrix::SetDiangonal(const ElementType_Input* DiangonalData)" << '\n';
         return false;
     }
 
@@ -3910,7 +3999,7 @@ bool mdkMatrix<ElementType>::SetDiangonal(const ElementType_Input* DiangonalData
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << " Self is empty or not square @ mdkMatrix::SetDiangonal(const ElementType_Input* DiangonalData)" << '\n';
+        mdkError << " Self is empty or not square @ mdkDenseMatrix::SetDiangonal(const ElementType_Input* DiangonalData)" << '\n';
         return false;
     }
 
@@ -3931,13 +4020,13 @@ bool mdkMatrix<ElementType>::SetDiangonal(const ElementType_Input* DiangonalData
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::FillDiangonal(const ElementType& Element)
+bool mdkDenseMatrix<ElementType>::FillDiangonal(const ElementType& Element)
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << " Self is empty or not square @ mdkMatrix::FillDiangonal" << '\n';
+        mdkError << " Self is empty or not square @ mdkDenseMatrix::FillDiangonal" << '\n';
         return false;
     }
 
@@ -3963,7 +4052,7 @@ bool mdkMatrix<ElementType>::FillDiangonal(const ElementType& Element)
 
 template<typename ElementType>
 inline	
-mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
+mdkDenseMatrix<ElementType> operator+(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
 {
     return MatrixAdd(MatrixA, MatrixB);
 }
@@ -3971,7 +4060,7 @@ mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, const md
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
+mdkDenseMatrix<ElementType> operator-(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
 {
     return MatrixSubtract(MatrixA, MatrixB);
 }
@@ -3979,7 +4068,7 @@ mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const md
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
+mdkDenseMatrix<ElementType> operator*(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
 {
     return MatrixMultiply(MatrixA, MatrixB);
 }
@@ -3987,7 +4076,7 @@ mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const md
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const mdkMatrix<ElementType>& MatrixB)
+mdkDenseMatrix<ElementType> operator/(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
 {
     return MatrixElementDivide(MatrixA, MatrixB);
 }
@@ -3995,28 +4084,28 @@ mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const md
 // ----------------------- Matrix {+ - * /}  Element ------------------------------------------------//
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator+(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+inline mdkDenseMatrix<ElementType> operator+(const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     return MatrixAdd(MatrixA, ElementB);
 }
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator-(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+inline mdkDenseMatrix<ElementType> operator-(const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     return MatrixSubtract(MatrixA, ElementB);
 }
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator*(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+inline mdkDenseMatrix<ElementType> operator*(const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     return MatrixMultiply(MatrixA, ElementB);
 }
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+inline mdkDenseMatrix<ElementType> operator/(const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     return MatrixElementDivide(MatrixA, ElementB);
 }
@@ -4024,28 +4113,28 @@ inline mdkMatrix<ElementType> operator/(const mdkMatrix<ElementType>& MatrixA, c
 // ----------------------- Element {+ - * /} Matrix ------------------------------------------------//
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator+(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB)
+inline mdkDenseMatrix<ElementType> operator+(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
 {
     return MatrixAdd(ElementA, MatrixB);
 }
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator-(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB)
+inline mdkDenseMatrix<ElementType> operator-(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
 {
     return MatrixSubtract(ElementA, MatrixB);
 }
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator*(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB)
+inline mdkDenseMatrix<ElementType> operator*(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
 {
     return MatrixMultiply(ElementA, MatrixB);
 }
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkMatrix<ElementType>& MatrixB)
+inline mdkDenseMatrix<ElementType> operator/(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
 {
     return MatrixElementDivide(ElementA, MatrixB);
 }
@@ -4058,7 +4147,7 @@ inline mdkMatrix<ElementType> operator/(const ElementType& ElementA, const mdkMa
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator+=(const mdkMatrix<ElementType>& InputMatrix)
+void mdkDenseMatrix<ElementType>::operator+=(const mdkDenseMatrix<ElementType>& InputMatrix)
 {
     MatrixAdd(*this, *this, InputMatrix);
 }
@@ -4066,7 +4155,7 @@ void mdkMatrix<ElementType>::operator+=(const mdkMatrix<ElementType>& InputMatri
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator-=(const mdkMatrix<ElementType>& InputMatrix)
+void mdkDenseMatrix<ElementType>::operator-=(const mdkDenseMatrix<ElementType>& InputMatrix)
 {
     MatrixSubtract(*this, *this, InputMatrix);
 }
@@ -4074,7 +4163,7 @@ void mdkMatrix<ElementType>::operator-=(const mdkMatrix<ElementType>& InputMatri
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator*=(const mdkMatrix<ElementType>& InputMatrix)
+void mdkDenseMatrix<ElementType>::operator*=(const mdkDenseMatrix<ElementType>& InputMatrix)
 {
     MatrixMultiply(*this, *this, InputMatrix);
 }
@@ -4082,22 +4171,22 @@ void mdkMatrix<ElementType>::operator*=(const mdkMatrix<ElementType>& InputMatri
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator/=(const mdkMatrix<ElementType>& InputMatrix)
+void mdkDenseMatrix<ElementType>::operator/=(const mdkDenseMatrix<ElementType>& InputMatrix)
 {
     MatrixElementDivide(*this, *this, InputMatrix);
 }
 
-//---------------------- Matrix {+= -= *= /=} mdkShadowMatrix ----------------------------------------//
+//---------------------- Matrix {+= -= *= /=} mdkDenseShadowMatrix ----------------------------------------//
 
 template<typename ElementType>
 inline 
-void mdkMatrix<ElementType>::operator+=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+void mdkDenseMatrix<ElementType>::operator+=(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
 {
     auto InputSize = ShadowMatrix.GetSize();
 
     if (InputSize.RowNumber <= 0)
     {
-        mdkError << "ShadowMatrix is empty @ mdkMatrix::operator+=(ShadowMatrix)" << '\n';
+        mdkError << "ShadowMatrix is empty @ mdkDenseMatrix::operator+=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4114,7 +4203,7 @@ void mdkMatrix<ElementType>::operator+=(const mdkShadowMatrix<ElementType>& Shad
 
     if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
     {
-        mdkError << "Size does not match @ mdkMatrix::operator+=(ShadowMatrix)" << '\n';
+        mdkError << "Size does not match @ mdkDenseMatrix::operator+=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4129,13 +4218,13 @@ void mdkMatrix<ElementType>::operator+=(const mdkShadowMatrix<ElementType>& Shad
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator-=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+void mdkDenseMatrix<ElementType>::operator-=(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
 {
     auto InputSize = ShadowMatrix.GetSize();
 
     if (InputSize.RowNumber <= 0)
     {
-        mdkError << "ShadowMatrix is empty @ mdkMatrix::operator-=(ShadowMatrix)" << '\n';
+        mdkError << "ShadowMatrix is empty @ mdkDenseMatrix::operator-=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4152,7 +4241,7 @@ void mdkMatrix<ElementType>::operator-=(const mdkShadowMatrix<ElementType>& Shad
 
     if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
     {
-        mdkError << "Size does not match @ mdkMatrix::operator-=(ShadowMatrix)" << '\n';
+        mdkError << "Size does not match @ mdkDenseMatrix::operator-=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4167,21 +4256,21 @@ void mdkMatrix<ElementType>::operator-=(const mdkShadowMatrix<ElementType>& Shad
 
 template<typename ElementType>
 inline 
-void mdkMatrix<ElementType>::operator*=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+void mdkDenseMatrix<ElementType>::operator*=(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
 {
-    this->operator*=(mdkShadowMatrix.CreateMatrix());
+    this->operator*=(mdkDenseShadowMatrix.CreateMatrix());
 }
 
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator/=(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+void mdkDenseMatrix<ElementType>::operator/=(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
 {
     auto InputSize = ShadowMatrix.GetSize();
 
     if (InputSize.RowNumber <= 0)
     {
-        mdkError << "ShadowMatrix is empty @ mdkMatrix::operator/=(ShadowMatrix)" << '\n';
+        mdkError << "ShadowMatrix is empty @ mdkDenseMatrix::operator/=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4198,7 +4287,7 @@ void mdkMatrix<ElementType>::operator/=(const mdkShadowMatrix<ElementType>& Shad
 
     if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
     {
-        mdkError << "Size does not match @ mdkMatrix::operator/=(ShadowMatrix)" << '\n';
+        mdkError << "Size does not match @ mdkDenseMatrix::operator/=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4214,7 +4303,7 @@ void mdkMatrix<ElementType>::operator/=(const mdkShadowMatrix<ElementType>& Shad
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator+=(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrix)
+void mdkDenseMatrix<ElementType>::operator+=(mdkDenseGlueMatrixForLinearCombination<ElementType> GlueMatrix)
 {
     (*this) = (*this) + std::move(GlueMatrix);
 }
@@ -4222,7 +4311,7 @@ void mdkMatrix<ElementType>::operator+=(mdkGlueMatrixForLinearCombination<Elemen
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator-=(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrix)
+void mdkDenseMatrix<ElementType>::operator-=(mdkDenseGlueMatrixForLinearCombination<ElementType> GlueMatrix)
 {
     (*this) = (*this) - std::move(GlueMatrix);
 }
@@ -4230,7 +4319,7 @@ void mdkMatrix<ElementType>::operator-=(mdkGlueMatrixForLinearCombination<Elemen
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator*=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+void mdkDenseMatrix<ElementType>::operator*=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     this->operator*=(GlueMatrix.CreateMatrix());
 }
@@ -4238,7 +4327,7 @@ void mdkMatrix<ElementType>::operator*=(const mdkGlueMatrixForLinearCombination<
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator/=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+void mdkDenseMatrix<ElementType>::operator/=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     this->operator/=(GlueMatrix.CreateMatrix());
 }
@@ -4247,7 +4336,7 @@ void mdkMatrix<ElementType>::operator/=(const mdkGlueMatrixForLinearCombination<
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator+=(mdkGlueMatrixForMultiplication<ElementType> GlueMatrix)
+void mdkDenseMatrix<ElementType>::operator+=(mdkDenseGlueMatrixForMultiplication<ElementType> GlueMatrix)
 {
     (*this) = (*this) + std::move(GlueMatrix);
 }
@@ -4255,7 +4344,7 @@ void mdkMatrix<ElementType>::operator+=(mdkGlueMatrixForMultiplication<ElementTy
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator-=(mdkGlueMatrixForMultiplication<ElementType> GlueMatrix)
+void mdkDenseMatrix<ElementType>::operator-=(mdkDenseGlueMatrixForMultiplication<ElementType> GlueMatrix)
 {
     (*this) = (*this) - std::move(GlueMatrix);
 }
@@ -4263,7 +4352,7 @@ void mdkMatrix<ElementType>::operator-=(mdkGlueMatrixForMultiplication<ElementTy
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator*=(mdkGlueMatrixForMultiplication<ElementType> GlueMatrix)
+void mdkDenseMatrix<ElementType>::operator*=(mdkDenseGlueMatrixForMultiplication<ElementType> GlueMatrix)
 {
     (*this) = (*this) * std::move(GlueMatrix);
 }
@@ -4271,7 +4360,7 @@ void mdkMatrix<ElementType>::operator*=(mdkGlueMatrixForMultiplication<ElementTy
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator/=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+void mdkDenseMatrix<ElementType>::operator/=(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     this->operator/=(GlueMatrix.CreateMatrix());
 }
@@ -4280,7 +4369,7 @@ void mdkMatrix<ElementType>::operator/=(const mdkGlueMatrixForMultiplication<Ele
 
 template<typename ElementType>
 inline	
-void mdkMatrix<ElementType>::operator+=(const ElementType& Element)
+void mdkDenseMatrix<ElementType>::operator+=(const ElementType& Element)
 {
     MatrixAdd(*this, *this, Element);
 }
@@ -4288,7 +4377,7 @@ void mdkMatrix<ElementType>::operator+=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator-=(const ElementType& Element)
+void mdkDenseMatrix<ElementType>::operator-=(const ElementType& Element)
 {
     MatrixSubtract(*this, *this, Element);
 }
@@ -4296,7 +4385,7 @@ void mdkMatrix<ElementType>::operator-=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator*=(const ElementType& Element)
+void mdkDenseMatrix<ElementType>::operator*=(const ElementType& Element)
 {
     MatrixElementMultiply(*this, *this, Element);
 }
@@ -4304,7 +4393,7 @@ void mdkMatrix<ElementType>::operator*=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void mdkMatrix<ElementType>::operator/=(const ElementType& Element)
+void mdkDenseMatrix<ElementType>::operator/=(const ElementType& Element)
 {
     MatrixElementDivide(*this, *this, Element);
 }
@@ -4315,15 +4404,15 @@ void mdkMatrix<ElementType>::operator/=(const ElementType& Element)
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> mdkMatrix<ElementType>::operator^(const ElementType& Element)
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::operator^(const ElementType& Element)
 {
-    mdkMatrix<ElementType> tempMatrix;
+    mdkDenseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
     {
-        mdkError << "Self is empty @ mdkMatrix::operator^(value)" << '\n';
+        mdkError << "Self is empty @ mdkDenseMatrix::operator^(value)" << '\n';
 
         return tempMatrix;
     }
@@ -4347,13 +4436,13 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::operator^(const ElementType& Elem
 //-------------------- element operation {^=} -----------------------------------------------------------//
 
 template<typename ElementType>
-inline void mdkMatrix<ElementType>::operator^=(const ElementType& Element)
+inline void mdkDenseMatrix<ElementType>::operator^=(const ElementType& Element)
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
     {
-        mdkError << "Self is empty @ mdkMatrix::operator^(value)" << '\n';
+        mdkError << "Self is empty @ mdkDenseMatrix::operator^(value)" << '\n';
         return;
     }
 
@@ -4372,7 +4461,7 @@ inline void mdkMatrix<ElementType>::operator^=(const ElementType& Element)
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementMultiply(const mdkMatrix<ElementType>& InputMatrix)
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseMatrix<ElementType>& InputMatrix)
 {
     return MatrixElementMultiply(*this, InputMatrix);
 
@@ -4381,7 +4470,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementMultiply(const mdkMatrix<E
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementMultiply(const ElementType& Element)
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const ElementType& Element)
 {
     return MatrixElementMultiply(*this, Element);
 }
@@ -4389,7 +4478,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementMultiply(const ElementType
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementMultiply(const mdkShadowMatrix<ElementType>& ShadowMatrix)
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
 {
     return MatrixElementMultiply(*this, ShadowMatrix.CreateMatrix());
 }
@@ -4397,7 +4486,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementMultiply(const mdkShadowMa
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementMultiply(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     return MatrixElementMultiply(*this, GlueMatrix.CreateMatrix());
 }
@@ -4405,7 +4494,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementMultiply(const mdkGlueMatr
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementMultiply(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     return MatrixElementMultiply(*this, GlueMatrix.CreateMatrix());
 }
@@ -4415,7 +4504,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementMultiply(const mdkGlueMatr
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(const char* OperationName) const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementOperation(const char* OperationName) const
 {
     return MatrixElementOperation(std::string(OperationName), *this);
 }
@@ -4423,7 +4512,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(const char* Oper
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(const std::string& OperationName) const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementOperation(const std::string& OperationName) const
 {
     return MatrixElementOperation(OperationName, *this);
 }
@@ -4431,7 +4520,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(const std::strin
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(std::function<ElementType(const ElementType&)> Operation) const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementOperation(std::function<ElementType(const ElementType&)> Operation) const
 {
     return MatrixElementOperation(Operation, *this);
 }
@@ -4439,7 +4528,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(std::function<El
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(const std::string& OperationName, const mdkMatrix<ElementType>& InputMatrix) const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementOperation(const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix) const
 {
     return MatrixElementOperation(OperationName, *this, InputMatrix);
 }
@@ -4447,8 +4536,8 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(const std::strin
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, 
-                                                                const mdkMatrix<ElementType>& InputMatrix) const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, 
+                                                                const mdkDenseMatrix<ElementType>& InputMatrix) const
 {
     return MatrixElementOperation(Operation, *this, InputMatrix);
 }
@@ -4456,7 +4545,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(std::function<El
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(const char* OperationName, const ElementType& Element) const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementOperation(const char* OperationName, const ElementType& Element) const
 {
     return MatrixElementOperation(std::string(OperationName), *this, Element);
 }
@@ -4464,7 +4553,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(const char* Oper
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(const std::string& OperationName, const ElementType& Element) const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementOperation(const std::string& OperationName, const ElementType& Element) const
 {
     return MatrixElementOperation(OperationName, *this, Element);
 }
@@ -4472,7 +4561,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(const std::strin
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, 
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, 
                                                                 const ElementType& Element) const
 {
     return MatrixElementOperation(Operation, *this, Element);
@@ -4483,7 +4572,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::ElementOperation(std::function<El
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::ElementOperationInPlace(const char* OperationName)
+bool mdkDenseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName)
 {
     return MatrixElementOperation(*this, std::string(OperationName), *this);
 }
@@ -4491,7 +4580,7 @@ bool mdkMatrix<ElementType>::ElementOperationInPlace(const char* OperationName)
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName)
+bool mdkDenseMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName)
 {
     return MatrixElementOperation(*this, OperationName, *this);
 }
@@ -4499,7 +4588,7 @@ bool mdkMatrix<ElementType>::ElementOperationInPlace(const std::string& Operatio
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(const ElementType&)> Operation)
+bool mdkDenseMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(const ElementType&)> Operation)
 {
     return MatrixElementOperation(*this, Operation, *this);
 }
@@ -4507,7 +4596,7 @@ bool mdkMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(c
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::ElementOperationInPlace(const char* OperationName, const mdkMatrix<ElementType>& InputMatrix)
+bool mdkDenseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName, const mdkDenseMatrix<ElementType>& InputMatrix)
 {
     return MatrixElementOperation(*this, std::string(OperationName), *this, InputMatrix);
 }
@@ -4515,7 +4604,7 @@ bool mdkMatrix<ElementType>::ElementOperationInPlace(const char* OperationName, 
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName, const mdkMatrix<ElementType>& InputMatrix)
+bool mdkDenseMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix)
 {
     return MatrixElementOperation(*this, OperationName, *this, InputMatrix);
 }
@@ -4523,8 +4612,8 @@ bool mdkMatrix<ElementType>::ElementOperationInPlace(const std::string& Operatio
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
-                                                     const mdkMatrix<ElementType>& InputMatrix)
+bool mdkDenseMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
+                                                     const mdkDenseMatrix<ElementType>& InputMatrix)
 {
     return MatrixElementOperation(*this, Operation, *this, InputMatrix);
 }
@@ -4532,7 +4621,7 @@ bool mdkMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(c
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::ElementOperationInPlace(const char* OperationName, const ElementType& Element)
+bool mdkDenseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName, const ElementType& Element)
 {
     return MatrixElementOperation(*this, std::string(OperationName), *this, Element);
 }
@@ -4540,7 +4629,7 @@ bool mdkMatrix<ElementType>::ElementOperationInPlace(const char* OperationName, 
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName, const ElementType& Element)
+bool mdkDenseMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName, const ElementType& Element)
 {
     return MatrixElementOperation(*this, OperationName, *this, Element);
 }
@@ -4548,7 +4637,7 @@ bool mdkMatrix<ElementType>::ElementOperationInPlace(const std::string& Operatio
 
 template<typename ElementType>
 inline
-bool mdkMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation, const ElementType& Element)
+bool mdkDenseMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation, const ElementType& Element)
 {
     return MatrixElementOperation(*this, Operation, *this, Element);
 }
@@ -4557,13 +4646,13 @@ bool mdkMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(c
 
 
 template<typename ElementType>
-inline ElementType mdkMatrix<ElementType>::Mean() const
+inline ElementType mdkDenseMatrix<ElementType>::Mean() const
 {
     auto Self_ElementNumber = this->GetElementNumber();
 
     if (Self_ElementNumber <= 0)
     {
-        mdkError << "self is empty Matrix @ mdkMatrix::Mean" << '\n';
+        mdkError << "self is empty Matrix @ mdkDenseMatrix::Mean" << '\n';
         return m_NaNElement;
     }
 
@@ -4583,15 +4672,15 @@ inline ElementType mdkMatrix<ElementType>::Mean() const
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanToRow() const
+inline mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::MeanToRow() const
 {
-	mdkMatrix<ElementType> tempMatrix;
+	mdkDenseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix::MeanToRow" << '\n';
+		mdkError << "self is empty Matrix @ mdkDenseMatrix::MeanToRow" << '\n';
 
 		return tempMatrix;
 	}
@@ -4623,15 +4712,15 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanToRow() const
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanToCol() const
+inline mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::MeanToCol() const
 {
-	mdkMatrix<ElementType> tempMatrix;
+	mdkDenseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix::MeanToCol" << '\n';
+		mdkError << "self is empty Matrix @ mdkDenseMatrix::MeanToCol" << '\n';
   
 		return tempMatrix;
 	}
@@ -4663,13 +4752,13 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MeanToCol() const
 
 
 template<typename ElementType>
-inline ElementType mdkMatrix<ElementType>::Sum() const
+inline ElementType mdkDenseMatrix<ElementType>::Sum() const
 {
     auto Self_ElementNumber = this->GetElementNumber();
 
     if (Self_ElementNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix::Sum" << '\n';
+		mdkError << "self is empty Matrix @ mdkDenseMatrix::Sum" << '\n';
         return m_NaNElement;
 	}
 
@@ -4687,15 +4776,15 @@ inline ElementType mdkMatrix<ElementType>::Sum() const
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumToRow() const
+inline mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::SumToRow() const
 {
-	mdkMatrix<ElementType> tempMatrix;
+	mdkDenseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix::SumToRow" << '\n';
+		mdkError << "self is empty Matrix @ mdkDenseMatrix::SumToRow" << '\n';
         
 		return tempMatrix;
 	}
@@ -4727,15 +4816,15 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumToRow() const
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumToCol() const
+inline mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::SumToCol() const
 {
-	mdkMatrix<ElementType> tempMatrix;
+	mdkDenseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix::SumToCol" << '\n';
+		mdkError << "self is empty Matrix @ mdkDenseMatrix::SumToCol" << '\n';
         
 		return tempMatrix;
 	}
@@ -4767,13 +4856,13 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::SumToCol() const
 
 
 template<typename ElementType>
-inline ElementType mdkMatrix<ElementType>::Max() const
+inline ElementType mdkDenseMatrix<ElementType>::Max() const
 {
     auto Self_ElementNumber = this->GetElementNumber();
 
     if (Self_ElementNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix::Max" << '\n';
+		mdkError << "self is empty Matrix @ mdkDenseMatrix::Max" << '\n';
         return m_NaNElement;
 	}
 
@@ -4791,15 +4880,15 @@ inline ElementType mdkMatrix<ElementType>::Max() const
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxToRow() const
+inline mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::MaxToRow() const
 {
-	mdkMatrix<ElementType> tempMatrix;
+	mdkDenseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix::MaxToRow" << '\n';
+		mdkError << "self is empty Matrix @ mdkDenseMatrix::MaxToRow" << '\n';
         
 		return tempMatrix;
 	}
@@ -4831,15 +4920,15 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxToRow() const
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxToCol() const
+inline mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::MaxToCol() const
 {
-	mdkMatrix<ElementType> tempMatrix;
+	mdkDenseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix::MaxToCol" << '\n';
+		mdkError << "self is empty Matrix @ mdkDenseMatrix::MaxToCol" << '\n';
         
 		return tempMatrix;
 	}
@@ -4871,13 +4960,13 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MaxToCol() const
 
 
 template<typename ElementType>
-inline ElementType mdkMatrix<ElementType>::Min() const
+inline ElementType mdkDenseMatrix<ElementType>::Min() const
 {
     auto Self_ElementNumber = this->GetElementNumber();
 
     if (Self_ElementNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix::Min" << '\n';
+		mdkError << "self is empty Matrix @ mdkDenseMatrix::Min" << '\n';
         return m_NaNElement;
 	}
 
@@ -4895,15 +4984,15 @@ inline ElementType mdkMatrix<ElementType>::Min() const
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinToRow() const
+inline mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::MinToRow() const
 {
-	mdkMatrix<ElementType> tempMatrix;
+	mdkDenseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix::MinToRow" << '\n';
+		mdkError << "self is empty Matrix @ mdkDenseMatrix::MinToRow" << '\n';
         
 		return tempMatrix;
 	}
@@ -4935,15 +5024,15 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinToRow() const
 
 
 template<typename ElementType>
-inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinToCol() const
+inline mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::MinToCol() const
 {
-	mdkMatrix<ElementType> tempMatrix;
+	mdkDenseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkMatrix::MinToCol" << '\n';
+		mdkError << "self is empty Matrix @ mdkDenseMatrix::MinToCol" << '\n';
         
 		return tempMatrix;
 	}
@@ -4976,7 +5065,7 @@ inline mdkMatrix<ElementType> mdkMatrix<ElementType>::MinToCol() const
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> mdkMatrix<ElementType>::Transpose() const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::Transpose() const
 {
     return MatrixTranspose(*this);
 }
@@ -4984,7 +5073,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::Transpose() const
 
 template<typename ElementType>
 inline
-int64 mdkMatrix<ElementType>::Rank() const
+int64 mdkDenseMatrix<ElementType>::Rank() const
 {
     return MatrixRank(*this);
 }
@@ -4992,7 +5081,7 @@ int64 mdkMatrix<ElementType>::Rank() const
 
 template<typename ElementType>
 inline 
-mdkMatrix<ElementType> mdkMatrix<ElementType>::Inv() const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::Inv() const
 {
     return MatrixInv(*this);
 }
@@ -5000,7 +5089,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::Inv() const
 
 template<typename ElementType>
 inline
-mdkMatrix<ElementType> mdkMatrix<ElementType>::PseudoInv() const
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::PseudoInv() const
 {
 	// call Armadillo 
 
@@ -5010,7 +5099,7 @@ mdkMatrix<ElementType> mdkMatrix<ElementType>::PseudoInv() const
 
 template<typename ElementType>
 inline
-mdkMatrixSVDResult<ElementType> mdkMatrix<ElementType>::SVD() const
+mdkDenseMatrixSVDResult<ElementType> mdkDenseMatrix<ElementType>::SVD() const
 {
     return MatrixSVD(*this);
 }

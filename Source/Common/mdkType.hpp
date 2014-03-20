@@ -1,7 +1,7 @@
 #ifndef __mdkType_hpp
 #define __mdkType_hpp
 
-#include "mdkType.h"
+//#include "mdkType.h"
 #include "mdkDebugConfig.h"
 
 namespace mdk
