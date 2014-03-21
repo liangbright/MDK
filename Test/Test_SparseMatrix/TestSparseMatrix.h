@@ -41,12 +41,12 @@ void Test_Constructor()
 
     mdkSparseMatrix<double> A;
 
-    A.Construct({ 0, 1 , 2, 2}, { 0, 1 , 2, 2}, { 1, 2, 3, 3}, 10, 10);
+    A.Construct({ 0, 1 , 2, 3}, { 0, 1 , 2, 3}, { 1, 2, 3, 4}, 10, 10);
 
 
     DisplayMatrix("A", A);
 
-    A(0, 1) = 11;
+    A(0, 1) = 101;
 
     DisplayMatrix("A", A);
 
@@ -67,6 +67,31 @@ void Test_Constructor()
     A(4, 3) = 43;
 
     DisplayMatrix("A", A);
+
+    A(6, 6) = 66;
+
+    DisplayMatrix("A", A);
+
+    A(7, 7) = 77;
+
+    DisplayMatrix("A", A);
+
+    A(8, 8) = 88;
+
+    DisplayMatrix("A", A);
+
+    A(9, 9) = 99;
+
+    DisplayMatrix("A", A);
+
+    A(9, 8) = 98;
+
+    DisplayMatrix("A", A);
+
+    A(8, 9) = 89;
+
+    DisplayMatrix("A", A);
+
 }
 
 

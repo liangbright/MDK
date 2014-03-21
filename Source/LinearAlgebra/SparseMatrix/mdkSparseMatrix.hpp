@@ -106,15 +106,32 @@ mdkSparseMatrixData<ElementType>::Construct(const int64* RowIndexList,
     //----------------------------------------------------------------
 
     m_ColBeginElementLinearIndexInDataArray[ColIndexList_sort[0]] = 0;
-
-    int64 PreviousColIndex = ColIndexList_sort[0];
-
+    
     for (int64 i = 0; i < RecordedElementNumber; ++i)
     {
-        if (ColIndexList_sort[i] != PreviousColIndex)
+        int64 CurrentColIndex = ColIndexList_sort[i];
+
+        // add row index of element # i to the buffer RowIndexSubList for the current Col
+
+        RowIndexSubList.push_back(RowIndexList[LinearIndex_In_ColIndexList[i]]);
+
+        bool Flag_save_col_info = false;
+
+        if (i < RecordedElementNumber - 1)
         {
-            // element in new col is detected
-            // save the info of the previous col
+            if (ColIndexList_sort[i + 1] != CurrentColIndex) // new col at i+1
+            {
+                Flag_save_col_info = true;
+            }
+        }
+        else
+        {
+            Flag_save_col_info = true;
+        }
+
+        if (Flag_save_col_info == true)
+        {
+            // new col is detected at i+1, save the info of the current col
 
             auto RecordedElementNumberInPerviousCol = int64(RowIndexSubList.size());
 
@@ -137,9 +154,9 @@ mdkSparseMatrixData<ElementType>::Construct(const int64* RowIndexList,
                 {
                     m_RowIndexList.push_back(RowIndexSubList[j]);
 
-                    m_ColIndexList.push_back(PreviousColIndex);
+                    m_ColIndexList.push_back(CurrentColIndex);
 
-                    auto tempOffset = LinearIndex_In_ColIndexList[i - RecordedElementNumberInPerviousCol + LinearIndex_In_RowIndexSubList[j]];
+                    auto tempOffset = LinearIndex_In_ColIndexList[i + 1 - RecordedElementNumberInPerviousCol + LinearIndex_In_RowIndexSubList[j]];
 
                     m_DataArray.push_back(DataArray[tempOffset]);
 
@@ -147,53 +164,16 @@ mdkSparseMatrixData<ElementType>::Construct(const int64* RowIndexList,
                 }
             }
 
-            m_RecordedElementNumberInEachCol[PreviousColIndex] = RecordedElementNumberInPerviousCol;
+            m_RecordedElementNumberInEachCol[CurrentColIndex] = RecordedElementNumberInPerviousCol;
 
             RowIndexSubList.resize(0);
             LinearIndex_In_RowIndexSubList.resize(0);
 
-            // record the new data [i] as the first one in col # ColIndexList_sort[i]
+            // record the LinearIndex of first element in col # CurrentColIndex + 1
 
-            m_ColBeginElementLinearIndexInDataArray[ColIndexList_sort[i]] = i;
-
-            //------------------------
-            PreviousColIndex = ColIndexList_sort[i];
-        }
-
-        // add row index of element # i to the buffer RowIndexSubList for the current Col
-
-        RowIndexSubList.push_back(RowIndexList[LinearIndex_In_ColIndexList[i]]);
+            m_ColBeginElementLinearIndexInDataArray[CurrentColIndex+1] = i+1;
+        }       
     }
-
-    //------------------------------------------
-
-    Sort(RowIndexSubList, RowIndexSubList, LinearIndex_In_RowIndexSubList, "ascend");
-
-    auto RecordedElementNumberInPerviousCol = int64(RowIndexSubList.size());
-
-    int64 tempRowIndex_prev = -1;
-
-    for (int64 j = 0; j < RecordedElementNumberInPerviousCol; ++j)
-    {
-        if (RowIndexSubList[j] == tempRowIndex_prev)
-        {
-            mdkError << "duplicate values are found, construction abort! @ mdkSparseMatrixData::Construct(...)" << '\n';            
-            return;
-        }
-        else
-        {
-            m_RowIndexList.push_back(RowIndexSubList[j]);
-
-            m_ColIndexList.push_back(PreviousColIndex);
-
-            m_DataArray.push_back(DataArray[LinearIndex_In_ColIndexList[RecordedElementNumber - RecordedElementNumberInPerviousCol
-                                                                        + LinearIndex_In_RowIndexSubList[j]]]);
-
-            tempRowIndex_prev = RowIndexSubList[j];
-        }
-    }
-
-    m_RecordedElementNumberInEachCol[PreviousColIndex] = RecordedElementNumberInPerviousCol;
 }
 
 
@@ -277,21 +257,19 @@ ElementType& mdkSparseMatrixData<ElementType>::SetElement(int64 RowIndex, int64 
         return m_DataArray[tempRelativeIndex];
     }
 
-    //--------- Create a new record --------------------//
+    //---------------------------------------- Create a new record --------------------------------------------------//
 
-    auto RelativeIndex_Begin = m_ColBeginElementLinearIndexInDataArray[ColIndex];
-
-    if (RelativeIndex_Begin < 0) // insert the first element in col # ColIndex
+    if (m_ColBeginElementLinearIndexInDataArray[ColIndex] < 0) // insert the first element in col # ColIndex
     {
-        int64 Offset = 0;
+        int64 Offset = -1;
 
         // check col with Index > ColIndex
         for (int64 i = ColIndex + 1; i < m_ColNumber; ++i)
-        {
-            Offset = m_ColBeginElementLinearIndexInDataArray[i];
-
-            if (Offset >= 0)
+        {            
+            if (m_ColBeginElementLinearIndexInDataArray[i] >= 0)
             {
+                Offset = m_ColBeginElementLinearIndexInDataArray[i];
+
                 break;
             }
         }
@@ -313,7 +291,6 @@ ElementType& mdkSparseMatrixData<ElementType>::SetElement(int64 RowIndex, int64 
             {
                 Offset = 0;
             }
-
         }
         
         m_RowIndexList.insert(m_RowIndexList.begin() + Offset, RowIndex);
@@ -337,19 +314,21 @@ ElementType& mdkSparseMatrixData<ElementType>::SetElement(int64 RowIndex, int64 
         return m_DataArray[Offset];
     
     }
-    else // RelativeIndex_Begin >= 0, insert the input element in a non-empty col # ColIndex
+    else // insert the input element in a non-empty col # ColIndex
     {
         // get the RowIndexSubList of the elements in Col # ColIndex
         // compare RowIndex to  RowIndexSubList, and get offset
+        
+        int64 Index_Begin = m_ColBeginElementLinearIndexInDataArray[ColIndex];
 
-        int64 Offset = RelativeIndex_Begin;
+        int64 Offset = Index_Begin + m_RecordedElementNumberInEachCol[ColIndex];
 
         for (int64 i = 0; i < m_RecordedElementNumberInEachCol[ColIndex]; ++i)
-        {            
-            Offset = RelativeIndex_Begin + i;
-
-            if (m_RowIndexList[Offset] > RowIndex)
+        {                        
+            if (m_RowIndexList[Index_Begin + i] > RowIndex)
             {
+                Offset = Index_Begin + i;
+
                 break;
             }
         }
@@ -359,8 +338,6 @@ ElementType& mdkSparseMatrixData<ElementType>::SetElement(int64 RowIndex, int64 
         m_ColIndexList.insert(m_ColIndexList.begin() + Offset, ColIndex);
 
         m_DataArray.insert(m_DataArray.begin() + Offset, InputElement);
-
-        m_ColBeginElementLinearIndexInDataArray[ColIndex] = Offset;
 
         for (int64 i = ColIndex + 1; i < m_ColNumber; ++i)
         {
