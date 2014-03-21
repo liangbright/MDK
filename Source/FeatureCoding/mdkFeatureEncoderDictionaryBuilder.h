@@ -18,7 +18,7 @@ protected:
 
     mdkFeatureEncoder<ElementType>* m_GenericEncoder;
 
-    const mdkMatrix<ElementType>* m_FeatureData;
+    const mdkDenseMatrix<ElementType>* m_FeatureData;
 
     int64 m_DictionaryLength;
 
@@ -54,7 +54,7 @@ public:
 
     //---------------------------------------------------//
 
-    bool SetInputFeatureData(const mdkMatrix<ElementType>* InputFeatureData);
+    bool SetInputFeatureData(const mdkDenseMatrix<ElementType>* InputFeatureData);
 
     //----------------------------------------------------//
 

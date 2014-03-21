@@ -1,7 +1,7 @@
-#ifndef __mdkLinearAlgebra_Part_0_hpp
-#define __mdkLinearAlgebra_Part_0_hpp
+#ifndef __mdkLinearAlgebra_Function_Part_0_hpp
+#define __mdkLinearAlgebra_Function_Part_0_hpp
 
-//#include "mdkLinearAlgebra_DenseMatrix_Part_0.h"
+//#include "mdkLinearAlgebra_Function_DenseMatrix_Part_0.h"
 
 namespace mdk
 {
@@ -96,7 +96,7 @@ bool Sort(const ElementType* InputDataArray, int64 Length, ElementType* OutputDa
         return false;
     }
 
-    if (Order != "ascend" || Order != "descend")
+    if (Order != "ascend" && Order != "descend")
     {
         mdkError << " unknown  Order @mdkLinearAlgebra Sort(pointers)" << '\n';
         return false;

@@ -12,11 +12,8 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/core/core.hpp>
 
-#include "mdkType.h"
 
-#include "mdkMatrix.h"
-#include "mdkLinearAlgebra.h"
-
+#include "mdkDenseMatrix.h"
 #include "mdkFeatureDictionary.h"
 #include "mdkFeatureEncoder.h"
 #include "mdkFeatureEncoderDictionaryBuilder.h"
@@ -30,7 +27,7 @@
 using namespace mdk;
 
 template<typename T>
-void DisplayMatrix(const std::string& Name, const mdkMatrix<T>& Matrix, uint32 value_std_setw = 6, uint32 precision = 0)
+void DisplayMatrix(const std::string& Name, const mdkDenseMatrix<T>& Matrix, uint32 value_std_setw = 6, uint32 precision = 0)
 {
     std::cout << Name << " = " << '\n';
 
@@ -49,7 +46,7 @@ void DisplayMatrix(const std::string& Name, const mdkMatrix<T>& Matrix, uint32 v
 
 void Test_OpenCVMatrix()
 {
-    mdkMatrix<double> A(2, 3);
+    mdkDenseMatrix<double> A(2, 3);
 
     A = { 1, 2, 3,
           4, 5, 6 };
@@ -90,9 +87,26 @@ void Test_mdkKMeansDictionaryBuilder_using_OpenCV()
 
     mdkKMeansDictionaryBuilder<double> KMeansBuilder;
 
-    mdkMatrix<double> FeatureData(100, 100);
+    mdkDenseMatrix<double> FeatureData(100, 100);
 
-    mdk::int64 DictionaryLength = 10;
+    for (mdk::int64 i = 0; i < 100; ++i)
+    {
+        auto temp = i % 3;
+        if (temp == 0)
+        {
+            FeatureData.FillRow(i, 0);
+        }
+        else if (temp == 1)
+        {
+            FeatureData.FillRow(i, 1);
+        }
+        else if (temp == 2)
+        {
+            FeatureData.FillRow(i, 2);
+        }
+    }
+
+    mdk::int64 DictionaryLength = 3;
 
     mdkFeatureDictionary<double> KMeansDictionary;
 

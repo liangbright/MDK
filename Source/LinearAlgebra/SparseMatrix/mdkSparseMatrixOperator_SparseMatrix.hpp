@@ -1,24 +1,24 @@
-#ifndef __mdkDenseMatrixOperator_DenseMatrix_hpp
-#define __mdkDenseMatrixOperator_DenseMatrix_hpp
+#ifndef __mdkSparseMatrixOperator_SparseMatrix_hpp
+#define __mdkSparseMatrixOperator_SparseMatrix_hpp
 
 namespace mdk
 {
 
 //============================================================================================================================================//
 //
-//                                                    {Matrix} v.s {Matrix, Element}
+//                                                    {SparseMatrix} v.s {SparseMatrix, Element}
 //
 //============================================================================================================================================//
 
-// ----------------------------------------------------- Matrix  {+ - * /}  Matrix ---------------------------------------------------------//
+// ----------------------------------------------------- SparseMatrix  {+ - *}  SparseMatrix ---------------------------------------------------------//
 
-// note: Matrix {+ -} Matrix return GlueMatrixForLinearCombination
-// note: Matrix {*}   Matrix return MultiplyGlueMatrix
-// note: Matrix {/}   Matrix return Matrix
+// note: SparseMatrix {+ -} SparseMatrix return SparseGlueMatrixForLinearCombination
+// note: SparseMatrix {*}   SparseMatrix return SparseGlueMatrixForMultiplication
+// note: SparseMatrix {/}   SparseMatrix is 0/0
 
 template<typename ElementType>
 inline 
-mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
+mdkSparseGlueMatrixForLinearCombination<ElementType> operator+(const mdkSparseMatrix<ElementType>& MatrixA, const mdkSparseMatrix<ElementType>& MatrixB)
 {
     auto SizeA = MatrixA.GetSize();
 
@@ -34,18 +34,18 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(const mdkDenseMatr
         return MatrixA + MatrixB(0);
     }
 
-    mdkDenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
+    mdkSparseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        mdkError << "Size does not match @ mdkDenseMatrixOperator: +(MatrixA, MatrixB)" << '\n';
+        mdkError << "Size does not match @ mdkSparseMatrixOperator: +(MatrixA, MatrixB)" << '\n';
 
         return  tempGlueMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        mdkError << "MatrixA or MatrixB is empty @ mdkDenseMatrixOperator: +(MatrixA, MatrixB)" << '\n';
+        mdkError << "MatrixA or MatrixB is empty @ mdkSparseMatrixOperator: +(MatrixA, MatrixB)" << '\n';
 
         return  tempGlueMatrix;
     }
@@ -71,7 +71,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(const mdkDenseMatr
 
 template<typename ElementType>
 inline 
-mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
+mdkSparseGlueMatrixForLinearCombination<ElementType> operator-(const mdkSparseMatrix<ElementType>& MatrixA, const mdkSparseMatrix<ElementType>& MatrixB)
 {
     auto SizeA = MatrixA.GetSize();
 
@@ -87,18 +87,18 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(const mdkDenseMatr
         return MatrixA - MatrixB(0);
     }
 
-    mdkDenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
+    mdkSparseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        mdkError << "Size does not match @ mdkDenseMatrixOperator: -(MatrixA, MatrixB)" << '\n';
+        mdkError << "Size does not match @ mdkSparseMatrixOperator: -(MatrixA, MatrixB)" << '\n';
 
         return  tempGlueMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        mdkError << "MatrixA or MatrixB is empty @ mdkDenseMatrixOperator: -(MatrixA, MatrixB)" << '\n';
+        mdkError << "MatrixA or MatrixB is empty @ mdkSparseMatrixOperator: -(MatrixA, MatrixB)" << '\n';
 
         return  tempGlueMatrix;
     }
@@ -121,7 +121,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(const mdkDenseMatr
 
 template<typename ElementType>
 inline
-mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
+mdkSparseGlueMatrixForMultiplication<ElementType> operator*(const mdkSparseMatrix<ElementType>& MatrixA, const mdkSparseMatrix<ElementType>& MatrixB)
 {
     auto SizeA = MatrixA.GetSize();
 
@@ -137,18 +137,18 @@ mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const mdkDenseMatrix<
         return MatrixA * MatrixB(0);
     }
 
-    mdkDenseGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
+    mdkSparseGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
 
     if (SizeA.ColNumber != SizeB.RowNumber)
     {
-        mdkError << "Size does not match @ mdkDenseMatrixOperator: *(MatrixA, MatrixB)" << '\n';
+        mdkError << "Size does not match @ mdkSparseMatrixOperator: *(MatrixA, MatrixB)" << '\n';
 
         return  tempGlueMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        mdkError << "MatrixA or MatrixB is empty @ mdkDenseMatrixOperator: *(MatrixA, MatrixB)" << '\n';
+        mdkError << "MatrixA or MatrixB is empty @ mdkSparseMatrixOperator: *(MatrixA, MatrixB)" << '\n';
 
         return  tempGlueMatrix;
     }
@@ -166,36 +166,20 @@ mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const mdkDenseMatrix<
     return tempGlueMatrix;
 }
 
+// ---------------------------------------------------- SparseMatrix  {+ - * /}  Element ------------------------------------------------------//
 
-template<typename ElementType>
-inline
-mdkDenseMatrix<ElementType> operator/(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
-{
-    return MatrixElementDivide(MatrixA, MatrixB);
-}
-
-// ---------------------------------------------------- Matrix  {+ - * /}  Element ------------------------------------------------------//
-
-// note: Matrix {+ -}  Element return GlueMatrixForLinearCombination
-// note: Matrix {* /}  Element return GlueMatrixForMultiplication
+// note: SparseMatrix {+ -}  Element return DenseMatrix
+// note: SparseMatrix {* /}  Element return SparseGlueMatrixForMultiplication
 
 template<typename ElementType>
 inline 
-mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+mdkDenseMatrix<ElementType> operator+(const mdkSparseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
-    mdkDenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
+    mdkDenseMatrix<ElementType> tempMatrix;
 
-    tempGlueMatrix.m_RowNumber = MatrixA.GetRowNumber();
+    tempMatrix = MatrixA.CreateDenseMatrix();
 
-    tempGlueMatrix.m_ColNumber = MatrixA.GetColNumber();
-
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
-
-    tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceSharedCopy(MatrixA);
-
-    tempGlueMatrix.m_ElementList_Coef.push_back(ElementType(1));
-
-    tempGlueMatrix.m_IndependentElement = ElementB;
+    tempMatrix += ElementB;
 
     return tempGlueMatrix;
 }
@@ -203,21 +187,13 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(const mdkDenseMatr
 
 template<typename ElementType>
 inline 
-mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+mdkDenseMatrix<ElementType> operator-(const mdkSparseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
-    mdkDenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
+    mdkDenseMatrix<ElementType> tempMatrix;
 
-    tempGlueMatrix.m_RowNumber = MatrixA.GetRowNumber();
+    tempMatrix = MatrixA.CreateDenseMatrix();
 
-    tempGlueMatrix.m_ColNumber = MatrixA.GetColNumber();
-
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
-
-    tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceSharedCopy(MatrixA);
-
-    tempGlueMatrix.m_ElementList_Coef.push_back(ElementType(1));
-
-    tempGlueMatrix.m_IndependentElement = ElementType(0) - ElementB;
+    tempMatrix -= ElementB;
 
     return tempGlueMatrix;
 }
@@ -225,9 +201,9 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(const mdkDenseMatr
 
 template<typename ElementType>
 inline 
-mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+mdkSparseGlueMatrixForMultiplication<ElementType> operator*(const mdkSparseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
-    mdkDenseGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
+    mdkSparseGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
 
     tempGlueMatrix.m_RowNumber = MatrixA.GetRowNumber();
 
@@ -247,9 +223,9 @@ mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const mdkDenseMatrix<
 
 template<typename ElementType>
 inline 
-mdkDenseGlueMatrixForMultiplication<ElementType> operator/(const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+mdkSparseGlueMatrixForMultiplication<ElementType> operator/(const mdkSparseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
-    mdkDenseGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
+    mdkSparseGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
 
     tempGlueMatrix.m_RowNumber = MatrixA.GetRowNumber();
 
@@ -266,17 +242,17 @@ mdkDenseGlueMatrixForMultiplication<ElementType> operator/(const mdkDenseMatrix<
     return tempGlueMatrix;
 }
 
-// --------------------------------------------------- Element {+ - * /} Matrix  ---------------------------------------------------------//
+// --------------------------------------------------- Element {+ - *} SparseMatrix  ---------------------------------------------------------//
 
-// note: Element {+ -} Matrix return GlueMatrixForLinearCombination
-// note: Element {*}   Matrix return GlueMatrixForMultiplication
-// note: Element {/}   Matrix return Matrix
+// note: Element {+ -} SparseMatrix return SparseGlueMatrixForLinearCombination
+// note: Element {*}   SparseMatrix return SparseGlueMatrixForMultiplication
+// note: Element {/}   SparseMatrix is x/0
 
 template<typename ElementType>
 inline 
-mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
+mdkSparseGlueMatrixForLinearCombination<ElementType> operator+(const ElementType& ElementA, const mdkSparseMatrix<ElementType>& MatrixB)
 {
-    mdkDenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
+    mdkSparseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
 
     tempGlueMatrix.m_RowNumber = MatrixB.GetRowNumber();
 
@@ -296,9 +272,9 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(const ElementType&
 
 template<typename ElementType>
 inline
-mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
+mdkSparseGlueMatrixForLinearCombination<ElementType> operator-(const ElementType& ElementA, const mdkSparseMatrix<ElementType>& MatrixB)
 {
-    mdkDenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
+    mdkSparseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
 
     tempGlueMatrix.m_RowNumber = MatrixB.GetRowNumber();
 
@@ -318,9 +294,9 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(const ElementType&
 
 template<typename ElementType>
 inline 
-mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
+mdkSparseGlueMatrixForMultiplication<ElementType> operator*(const ElementType& ElementA, const mdkSparseMatrix<ElementType>& MatrixB)
 {
-    mdkDenseGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
+    mdkSparseGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
 
     tempGlueMatrix.m_RowNumber = MatrixB.GetRowNumber();
 
@@ -335,14 +311,6 @@ mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const ElementType& El
     tempGlueMatrix.m_Is_m_Element_Coef_Equal_to_One = false;
 
     return tempGlueMatrix;
-}
-
-
-template<typename ElementType>
-inline
-mdkDenseMatrix<ElementType> operator/(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
-{
-    return MatrixElementDivide(ElementA, MatrixB);
 }
 
 } // namespace mdk

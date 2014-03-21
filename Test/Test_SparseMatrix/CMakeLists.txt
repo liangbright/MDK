@@ -6,17 +6,13 @@ endif()
  
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ Kits/8.1/Lib/winv6.3/um/x64")
 
-PROJECT(MDK_TestFeatureCoding)
+PROJECT(MDK_Test_SparseMatrix)
 
 set(VTK_DIR C:/Programs/VTK/VTK_6.1_VC2013_Build)
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
 find_package(Qt5Widgets)
-
-set(OpenCV_DIR C:/Programs/OpenCV/VC2013_build)
-
-find_package(OpenCV REQUIRED)
 
 set(MDK_DIR "C:/Research/MDK/Code/Source")
 
@@ -32,13 +28,12 @@ ${MDK_DIR}/Common
 ${MDK_DIR}/LinearAlgebra
 ${MDK_DIR}/LinearAlgebra/DenseMatrix
 ${MDK_DIR}/LinearAlgebra/SparseMatrix
-${MDK_DIR}/FeatureCoding
 ${Arma_DIR} 
 ${Arma_Source_DIR} 
 ${Lapack_Blas_DIR}
 )
 
-#FILE(GLOB Arma_FILES ${Arma_Source_DIR}/*.hpp)
+#FILE(GLOB Arma_FILES ${Arma_DIR}/armadillo_bits/*.hpp)
 
 FILE(GLOB Arma_FILES C:/Research/MDK/armadillo_4.000.2/armadillo_bits/*.hpp)
 
@@ -51,6 +46,7 @@ set(Source_FILES
 ${MDK_DIR}/Common/mdkObject.cpp
 
 ${MDK_DIR}/LinearAlgebra/mdkMatrix_Common.cpp
+
 )
 
 set(LinearALgebraLib_win64 
@@ -64,6 +60,6 @@ message(STATUS ${Source_FILES})
 
 message(STATUS ${Arma_FILES})
 
-add_executable(MDK_TestFeatureCoding ${Test_FILES} ${Source_FILES} ${Arma_FILES})
+add_executable(MDK_Test_SparseMatrix ${Test_FILES} ${Source_FILES} ${Arma_FILES})
 
-target_link_libraries(MDK_TestFeatureCoding ${LinearALgebraLib_win64} ${VTK_LIBRARIES} ${OpenCV_LIBS})
+target_link_libraries(MDK_Test_SparseMatrix ${LinearALgebraLib_win64} ${VTK_LIBRARIES}) 

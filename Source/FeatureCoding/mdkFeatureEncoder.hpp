@@ -35,7 +35,7 @@ void mdkFeatureEncoder<ElementType>::Reset()
 
 
 template<typename ElementType>
-bool mdkFeatureEncoder<ElementType>::SetInputFeatureData(const mdkMatrix<ElementType>* InputFeatureData)
+bool mdkFeatureEncoder<ElementType>::SetInputFeatureData(const mdkDenseMatrix<ElementType>* InputFeatureData)
 {
     if (InputFeatureData == nullptr)
     {
@@ -77,7 +77,7 @@ bool mdkFeatureEncoder<ElementType>::LoadDictionary(const std::string& FilePathA
 
 
 template<typename ElementType>
-bool mdkFeatureEncoder<ElementType>::SetOutputFeatureCode(mdkMatrix<ElementType>* FeatureCode)
+bool mdkFeatureEncoder<ElementType>::SetOutputFeatureCode(mdkDenseMatrix<ElementType>* FeatureCode)
 {
     if (FeatureCode == nullptr)
     {
@@ -112,7 +112,7 @@ bool mdkFeatureEncoder<ElementType>::Update()
 
     if (m_FeatureCode != &m_FeatureCode_SharedCopy)
     {
-        m_FeatureCode_SharedCopy.SharedCopy(m_FeatureCode);
+        m_FeatureCode_SharedCopy.ForceSharedCopy(m_FeatureCode);
     }
 
     return IsOK;
@@ -127,7 +127,7 @@ bool mdkFeatureEncoder<ElementType>::GenerateCode()
 
 
 template<typename ElementType>
-mdkMatrix<ElementType>* mdkFeatureEncoder<ElementType>::GetOutputFeatureCode()
+mdkDenseMatrix<ElementType>* mdkFeatureEncoder<ElementType>::GetOutputFeatureCode()
 {
     return &m_FeatureCode_SharedCopy;
 }

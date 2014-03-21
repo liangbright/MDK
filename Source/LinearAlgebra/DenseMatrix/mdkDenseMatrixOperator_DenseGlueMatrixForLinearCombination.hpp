@@ -39,7 +39,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(mdkDenseGlueMatrix
 
     if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
     {
-        mdkDenseMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateMatrix();
+        mdkDenseMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateDenseMatrix();
 
         return tempScalarMatrixA(0) + MatrixB;
     }
@@ -93,7 +93,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(mdkDenseGlueMatrix
 
     if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
     {
-        mdkDenseMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateMatrix();
+        mdkDenseMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateDenseMatrix();
 
         return tempScalarMatrixA(0) - MatrixB;
     }
@@ -128,7 +128,7 @@ template<typename ElementType>
 inline
 mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
 {
-    return GlueMatrixA.CreateMatrix() * MatrixB;
+    return GlueMatrixA.CreateDenseMatrix() * MatrixB;
 }
 
 
@@ -136,7 +136,7 @@ template<typename ElementType>
 inline 
 mdkDenseMatrix<ElementType> operator/(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
 {
-    return GlueMatrixA.CreateMatrix() / MatrixB;
+    return GlueMatrixA.CreateDenseMatrix() / MatrixB;
 }
 
 // --------------------------------------------- Matrix or {+ - * /} GlueMatrixForLinearCombination -------------------------------------------------------//
@@ -173,7 +173,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(const mdkDenseMatr
 
     if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
-        mdkDenseMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateMatrix();
+        mdkDenseMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateDenseMatrix();
 
         return MatrixA + tempScalarMatrixB(0);
     }
@@ -227,7 +227,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(const mdkDenseMatr
 
     if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
-        mdkDenseMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateMatrix();
+        mdkDenseMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateDenseMatrix();
 
         return MatrixA - tempScalarMatrixB(0);
     }
@@ -264,7 +264,7 @@ template<typename ElementType>
 inline 
 mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
-    return MatrixA * GlueMatrixB.CreateMatrix();
+    return MatrixA * GlueMatrixB.CreateDenseMatrix();
 }
 
 
@@ -272,7 +272,7 @@ template<typename ElementType>
 inline 
 mdkDenseMatrix<ElementType> operator/(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
-    return MatrixA / GlueMatrixB.CreateMatrix();
+    return MatrixA / GlueMatrixB.CreateDenseMatrix();
 }
 
 
@@ -378,7 +378,7 @@ template<typename ElementType>
 inline 
 mdkDenseMatrix<ElementType> operator/(const ElementType& ElementA, const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
-    return ElementA / GlueMatrixB.CreateMatrix();
+    return ElementA / GlueMatrixB.CreateDenseMatrix();
 }
 
 // -------------------------------------------- GlueMatrixForLinearCombination {+ - * /}  ShadowMatrix -----------------------------------------------------//
@@ -391,7 +391,7 @@ template<typename ElementType>
 inline 
 mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(mdkDenseGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkDenseShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return std::move(GlueMatrixA) + ShadowMatrixB.CreateMatrix();
+    return std::move(GlueMatrixA) + ShadowMatrixB.CreateDenseMatrix();
 }
 
 
@@ -399,14 +399,14 @@ template<typename ElementType>
 inline 
 mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(mdkDenseGlueMatrixForLinearCombination<ElementType> GlueMatrixA, const mdkDenseShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return std::move(GlueMatrixA) - ShadowMatrixB.CreateMatrix();
+    return std::move(GlueMatrixA) - ShadowMatrixB.CreateDenseMatrix();
 }
 
 
 template<typename ElementType>
 inline mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkDenseShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return GlueMatrixA.CreateMatrix() * ShadowMatrixB.CreateMatrix();
+    return GlueMatrixA.CreateDenseMatrix() * ShadowMatrixB.CreateDenseMatrix();
 }
 
 
@@ -414,7 +414,7 @@ template<typename ElementType>
 inline 
 mdkDenseMatrix<ElementType> operator/(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkDenseShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return GlueMatrixA.CreateMatrix() / ShadowMatrixB.CreateMatrix();
+    return GlueMatrixA.CreateDenseMatrix() / ShadowMatrixB.CreateDenseMatrix();
 }
 
 // ------------------------------------------ ShadowMatrix {+ - * /} GlueMatrixForLinearCombination -------------------------------------------------------//
@@ -427,7 +427,7 @@ template<typename ElementType>
 inline 
 mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(const mdkDenseShadowMatrix<ElementType>& ShadowMatrixA, mdkDenseGlueMatrixForLinearCombination<ElementType> GlueMatrixB)
 {
-    return ShadowMatrixA.CreateMatrix() + std::move(GlueMatrixB);
+    return ShadowMatrixA.CreateDenseMatrix() + std::move(GlueMatrixB);
 }
 
 
@@ -435,7 +435,7 @@ template<typename ElementType>
 inline 
 mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(const mdkDenseShadowMatrix<ElementType>& ShadowMatrixA, mdkDenseGlueMatrixForLinearCombination<ElementType> GlueMatrixB)
 {
-    return ShadowMatrixA.CreateMatrix() - std::move(GlueMatrixB);
+    return ShadowMatrixA.CreateDenseMatrix() - std::move(GlueMatrixB);
 }
 
 
@@ -443,14 +443,14 @@ template<typename ElementType>
 inline 
 mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const mdkDenseShadowMatrix<ElementType>& ShadowMatrixA, const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
-    return ShadowMatrixA.CreateMatrix() * GlueMatrixB.CreateMatrix();
+    return ShadowMatrixA.CreateDenseMatrix() * GlueMatrixB.CreateDenseMatrix();
 }
 
 
 template<typename ElementType>
 inline mdkDenseMatrix<ElementType> operator/(const mdkDenseShadowMatrix<ElementType>& ShadowMatrixA, const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
-    return ShadowMatrixA.CreateMatrix() / GlueMatrixB.CreateMatrix();
+    return ShadowMatrixA.CreateDenseMatrix() / GlueMatrixB.CreateDenseMatrix();
 }
 
 // --------------------------------------------- GlueMatrixForLinearCombination {+ - * /}  GlueMatrixForLinearCombination ---------------------------------------//
@@ -482,14 +482,14 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(mdkDenseGlueMatrix
 
     if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
     {
-        mdkDenseMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateMatrix();
+        mdkDenseMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateDenseMatrix();
 
         return tempScalarMatrixA(0) + std::move(GlueMatrixB);
     }
 
     if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
-        mdkDenseMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateMatrix();
+        mdkDenseMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateDenseMatrix();
 
         return std::move(GlueMatrixA) + tempScalarMatrixB(0);
     }
@@ -548,14 +548,14 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(mdkDenseGlueMatrix
 
     if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
     {
-        mdkDenseMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateMatrix();
+        mdkDenseMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateDenseMatrix();
 
         return tempScalarMatrixA(0) - std::move(GlueMatrixB);
     }
 
     if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
     {
-        mdkDenseMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateMatrix();
+        mdkDenseMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateDenseMatrix();
 
         return std::move(GlueMatrixA) - tempScalarMatrixB(0);
     }
@@ -596,7 +596,7 @@ template<typename ElementType>
 inline 
 mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
-    return GlueMatrixA.CreateMatrix() * GlueMatrixB.CreateMatrix();
+    return GlueMatrixA.CreateDenseMatrix() * GlueMatrixB.CreateDenseMatrix();
 }
 
 
@@ -604,7 +604,7 @@ template<typename ElementType>
 inline 
 mdkDenseMatrix<ElementType> operator/(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrixA, const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrixB)
 {
-    return GlueMatrixA.CreateMatrix() / GlueMatrixB.CreateMatrix();
+    return GlueMatrixA.CreateDenseMatrix() / GlueMatrixB.CreateDenseMatrix();
 }
 
 } // namespace mdk

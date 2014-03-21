@@ -4,7 +4,7 @@
 
 #include <opencv2/core/core.hpp>
 
-#include "mdkKMeansDictionaryBuilder.h"
+//#include "mdkKMeansDictionaryBuilder.h"
 
 namespace mdk
 {
@@ -87,7 +87,7 @@ bool mdkKMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_OpenCV(
         mdkWarning << "ElemetType is not float @ mdkKMeansDictionaryBuilder::KMeansFirstTimeBuild_using_OpenCV()" << '\n';
     }
 
-    mdkMatrix<float> tempFeatureData(m_FeatureData->GetColNumber(), m_FeatureData->GetRowNumber());
+    mdkDenseMatrix<float> tempFeatureData(m_FeatureData->GetColNumber(), m_FeatureData->GetRowNumber());
 
     for (int64 i = 0; i < tempFeatureData.GetRowNumber(); ++i)
     {
@@ -112,7 +112,7 @@ bool mdkKMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_OpenCV(
                cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 10, 1.0),
                3, cv::KMEANS_PP_CENTERS, Center);
 
-    // convert Center to mdkMatrix  --------------------------------------------------------------         
+    // convert Center to mdkDenseMatrix  --------------------------------------------------------------         
 
     for (int i = 0; i < int(m_FeatureData->GetRowNumber()); ++i)
     {

@@ -16,7 +16,7 @@ protected:
 
     // input:
 
-    const mdkMatrix<ElementType>* m_FeatureData;
+    const mdkDenseMatrix<ElementType>* m_FeatureData;
 
     // input, and can also be internal data, 
 
@@ -26,9 +26,9 @@ protected:
 
     // output:
 
-    mdkMatrix<ElementType>* m_FeatureCode;
+    mdkDenseMatrix<ElementType>* m_FeatureCode;
 
-    mdkMatrix<ElementType> m_FeatureCode_SharedCopy;
+    mdkDenseMatrix<ElementType> m_FeatureCode_SharedCopy;
 
 public:
 
@@ -42,13 +42,13 @@ public:
     
     //-----------------------------------------
 
-    bool SetInputFeatureData(const mdkMatrix<ElementType>* InputFeatureData);
+    bool SetInputFeatureData(const mdkDenseMatrix<ElementType>* InputFeatureData);
 
     bool SetDictionary(const mdkFeatureDictionary<ElementType>* Dictionary);
 
     bool LoadDictionary(const std::string& FilePathAndName);
 
-    bool SetOutputFeatureCode(mdkMatrix<ElementType>* FeatureCode);
+    bool SetOutputFeatureCode(mdkDenseMatrix<ElementType>* FeatureCode);
 
     //-----------------------------------------
 
@@ -56,7 +56,7 @@ public:
 
     //----------------------------------------------------//
 
-    mdkMatrix<ElementType>* GetOutputFeatureCode();
+    mdkDenseMatrix<ElementType>* GetOutputFeatureCode();
 
 
 protected:

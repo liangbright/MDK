@@ -128,11 +128,11 @@ bool mdkDenseGlueMatrixForLinearCombination<ElementType>::IsEmpty() const
 template<typename ElementType>
 inline 
 mdkDenseMatrix<ElementType> 
-mdkDenseGlueMatrixForLinearCombination<ElementType>::CreateMatrix() const
+mdkDenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix() const
 {
     mdkDenseMatrix<ElementType> tempMatrix;
 
-    this->CreateMatrix(tempMatrix);
+    this->CreateDenseMatrix(tempMatrix);
 
     return tempMatrix;
 }
@@ -141,7 +141,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType>::CreateMatrix() const
 template<typename ElementType>
 inline 
 bool 
-mdkDenseGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkDenseMatrix<ElementType>& OutputMatrix) const
+mdkDenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix(mdkDenseMatrix<ElementType>& OutputMatrix) const
 {
     if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
     {
@@ -153,7 +153,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkDenseMatrix
         }
         else
         {
-            mdkError << "Size does not match @ mdkDenseGlueMatrixForLinearCombination::CreateMatrix(OutputMatrix)" << '\n';
+            mdkError << "Size does not match @ mdkDenseGlueMatrixForLinearCombination::CreateDenseMatrix(OutputMatrix)" << '\n';
             return false;
         }
     }
@@ -162,7 +162,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType>::CreateMatrix(mdkDenseMatrix
 
     if (MatrixNumber == 0)
     {
-        mdkError << "Self is empty @ mdkDenseGlueMatrixForLinearCombination::CreateMatrix(OutputMatrix)" << '\n';
+        mdkError << "Self is empty @ mdkDenseGlueMatrixForLinearCombination::CreateDenseMatrix(OutputMatrix)" << '\n';
         return false;
     }
 
@@ -182,7 +182,7 @@ inline
 mdkDenseMatrix<ElementType> 
 mdkDenseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkDenseMatrix<ElementType>& targetMatrix)
 {
-    auto tempMatrix = this->CreateMatrix();
+    auto tempMatrix = this->CreateDenseMatrix();
 
     MatrixElementMultiply(tempMatrix, tempMatrix, targetMatrix);
 
@@ -195,7 +195,7 @@ inline
 mdkDenseMatrix<ElementType> 
 mdkDenseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const ElementType& Element)
 {
-    auto tempMatrix = this->CreateMatrix();
+    auto tempMatrix = this->CreateDenseMatrix();
 
     MatrixElementMultiply(tempMatrix, tempMatrix, Element);
 
@@ -208,9 +208,9 @@ inline
 mdkDenseMatrix<ElementType> 
 mdkDenseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
 {
-    auto tempMatrix = this->CreateMatrix();
+    auto tempMatrix = this->CreateDenseMatrix();
 
-    MatrixElementMultiply(tempMatrix, tempMatrix, ShadowMatrix.CreateMatrix());
+    MatrixElementMultiply(tempMatrix, tempMatrix, ShadowMatrix.CreateDenseMatrix());
 
     return tempMatrix;
 }
@@ -221,9 +221,9 @@ inline
 mdkDenseMatrix<ElementType> 
 mdkDenseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
-    auto tempMatrix = this->CreateMatrix();
+    auto tempMatrix = this->CreateDenseMatrix();
 
-    MatrixElementMultiply(tempMatrix, tempMatrix, GlueMatrix.CreateMatrix());
+    MatrixElementMultiply(tempMatrix, tempMatrix, GlueMatrix.CreateDenseMatrix());
 
     return tempMatrix;
 }
@@ -234,9 +234,9 @@ inline
 mdkDenseMatrix<ElementType>
 mdkDenseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
-    auto tempMatrix = this->CreateMatrix();
+    auto tempMatrix = this->CreateDenseMatrix();
 
-    MatrixElementMultiply(tempMatrix, tempMatrix, GlueMatrix.CreateMatrix());
+    MatrixElementMultiply(tempMatrix, tempMatrix, GlueMatrix.CreateDenseMatrix());
 
     return tempMatrix;
 }

@@ -762,6 +762,22 @@ const ElementType* mdkMatrix<ElementType>::GetElementPointer() const
     return m_DenseMatrix.GetElementPointer();
 }
 
+
+template<typename ElementType>
+inline
+const ElementType& mdkDenseMatrix<ElementType>::GetElement(int64 LinearIndex) const
+{
+    return (*this)(LinearIndex);
+}
+
+
+template<typename ElementType>
+inline
+const ElementType& mdkDenseMatrix<ElementType>::GetElement(int64 RowIndex, int64 ColIndex) const
+{
+    return (*this)(RowIndex, ColIndex);
+}
+
 //----------- Get/Set Matrix(LinearIndex) -----------------------------------//
 
 // operator[] (): no bound check in release mode

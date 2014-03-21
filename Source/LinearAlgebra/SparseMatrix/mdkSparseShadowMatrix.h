@@ -173,7 +173,7 @@ public:
 
     inline void operator/=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix);
 
-    //----------------------------------------------- SparseShadowMatrix {+= -= *= /=} DenseGlueMatrixForLinearCombination ----------------------------------------//
+    //----------------------------------------------- SparseShadowMatrix {+= -= *= /=} SparseGlueMatrixForLinearCombination ----------------------------------------//
 
     inline void operator+=(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
@@ -183,7 +183,7 @@ public:
 
     inline void operator/=(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
-    //------------------------------------------------ SparseShadowMatrix {+= -= *= /=} DenseGlueMatrixForMultiplication --------------------------------------//
+    //------------------------------------------------ SparseShadowMatrix {+= -= *= /=} SparseGlueMatrixForMultiplication --------------------------------------//
 
     inline void operator+=(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
@@ -195,15 +195,23 @@ public:
 
     //---------------------- ElementMultiply is .* in Matlab -----------------------------------------------------------------------//
 
-    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkSparseMatrix<ElementType>& Matrix) const;
-
     inline mdkSparseMatrix<ElementType> ElementMultiply(const ElementType& Element) const;
 
-    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix) const;
+    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkSparseMatrix<ElementType>& InputSparseMatrix) const;
 
-    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix) const;
+    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkSparseShadowMatrix<ElementType>& SparseShadowMatrix) const;
 
-    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix) const;
+    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkSparseGlueMatrixForLinearCombination<ElementType>& SparseGlueMatrix) const;
+
+    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkSparseGlueMatrixForMultiplication<ElementType>& SparseGlueMatrix) const;
+
+    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkDenseMatrix<ElementType>& InputDenseMatrix) const;
+
+    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkDenseShadowMatrix<ElementType>& DenseShadowMatrix) const;
+
+    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& DenseGlueMatrix) const;
+
+    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& DenseGlueMatrix) const;
 
 private:
 //------------------------------- friend class ----------------------------------------------------------------------------//

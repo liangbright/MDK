@@ -1,14 +1,6 @@
 #ifndef __mdkDenseShadowMatrix_hpp
 #define __mdkDenseShadowMatrix_hpp
 
-#include <string>
-#include <cmath>
-#include <algorithm>
-
-#include "mdkDebugConfig.h"
-#include "mdkLinearAlgebra_DenseMatrix.h"
-#include "mdkDenseMatrix.h"
-
 //#include "mdkDenseShadowMatrix.h"
 
 namespace mdk
@@ -382,11 +374,11 @@ const mdkDenseMatrix<ElementType>& mdkDenseShadowMatrix<ElementType>::GetSourceM
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::CreateMatrix() const
+mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::CreateDenseMatrix() const
 {
     mdkDenseMatrix<ElementType> tempMatrix;
 
-    this->CreateMatrix(tempMatrix);
+    this->CreateDenseMatrix(tempMatrix);
 
     return tempMatrix;
 }
@@ -394,7 +386,7 @@ mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::CreateMatrix() co
 
 template<typename ElementType>
 inline
-bool mdkDenseShadowMatrix<ElementType>::CreateMatrix(mdkDenseMatrix<ElementType>& OutputMatrix) const
+bool mdkDenseShadowMatrix<ElementType>::CreateDenseMatrix(mdkDenseMatrix<ElementType>& OutputMatrix) const
 {
     if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
     {
@@ -413,14 +405,14 @@ bool mdkDenseShadowMatrix<ElementType>::CreateMatrix(mdkDenseMatrix<ElementType>
         }
         else
         {
-            mdkError << "Size does not match @ mdkDenseShadowMatrix::CreateMatrix(OutputMatrix)" << '\n';
+            mdkError << "Size does not match @ mdkDenseShadowMatrix::CreateDenseMatrix(OutputMatrix)" << '\n';
             return false;
         }
     }
 
     if (m_ElementNumber == 0)
     {
-        mdkWarning << "Self is empty @ mdkDenseShadowMatrix::CreateMatrix(OutputMatrix)" << '\n';
+        mdkWarning << "Self is empty @ mdkDenseShadowMatrix::CreateDenseMatrix(OutputMatrix)" << '\n';
         return true;
     }
 

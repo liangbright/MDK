@@ -73,9 +73,9 @@ private:
 
     inline bool IsEmpty() const;
 
-    inline mdkDenseMatrix<ElementType> CreateMatrix() const;
+    inline mdkDenseMatrix<ElementType> CreateDenseMatrix() const;
 
-    inline bool CreateMatrix(mdkDenseMatrix<ElementType>& OutputMatrix) const;
+    inline bool CreateDenseMatrix(mdkDenseMatrix<ElementType>& OutputMatrix) const;
 
 public:
 

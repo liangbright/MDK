@@ -5,7 +5,6 @@
 
 #include "mdkFeatureEncoder.h"
 
-
 namespace mdk
 {
 
@@ -16,10 +15,24 @@ protected:
 
     // additional output:
 
-    mdkMatrix<ElementType>* m_FeatureSparseCode;
+    mdkDenseMatrix<ElementType>* m_FeatureCodeInCompactFormat;
 
-    mdkMatrix<ElementType> m_FeatureSparseCode_SharedCopy;
-
+    mdkDenseMatrix<ElementType>  m_FeatureCodeInCompactFormat_SharedCopy;
+   
+    // MaxNumberOfNonZeroValue = 2
+    //
+    // Code in Dense Format
+    // 0 1 0 1 0
+    // 1 0 1 0 0
+    // 1 1 0 0 1
+    // 0 0 0 1 0
+    // 0 0 1 0 0
+    //
+    // Code in Compact Format
+    // row index  1  0  2  0   2
+    // value      1  1  1  1   1
+    // row index  2  2  4  3  -1
+    // value      1  1  1  1  -1
 
 public:
 
@@ -33,7 +46,7 @@ public:
     
     //-----------------------------------------
 
-    bool SetOutputFeatureSparseCode(mdkMatrix<ElementType>* FeatureSparseCode);
+    bool SetOutputFeatureCodeInCompactFormat(mdkDenseMatrix<ElementType>* FeatureCode);
 
     //-----------------------------------------
 
@@ -41,7 +54,7 @@ public:
 
     //----------------------------------------------------//
 
-    const mdkMatrix<ElementType>* GetOutputFeatureSparseCode();
+    const mdkDenseMatrix<ElementType>* GetOutputFeatureCodeInCompactFormat();
 
 
 protected:

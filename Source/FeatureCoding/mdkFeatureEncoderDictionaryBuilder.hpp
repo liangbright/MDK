@@ -62,7 +62,7 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetOutputDictionary(mdkFea
 
     m_Dictionary = OutputDictionary;
 
-    m_Dictionary_SharedCopy.SharedCopy(OutputDictionary);
+    m_Dictionary_SharedCopy.ForceSharedCopy(OutputDictionary);
 
     return true;
 }
@@ -102,7 +102,7 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetGenericEncoder(const md
 //---------------------------------------------------//
 
 template<typename ElementType>
-bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetInputFeatureData(const mdkMatrix<ElementType>* InputFeatureData)
+bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetInputFeatureData(const mdkDenseMatrix<ElementType>* InputFeatureData)
 {
     if (InputFeatureData == nullptr)
     {
@@ -156,7 +156,7 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::Update()
 
     if (m_Dictionary != &m_Dictionary_SharedCopy)
     {
-        m_Dictionary_SharedCopy.SharedCopy(m_Dictionary);
+        m_Dictionary_SharedCopy.ForceSharedCopy(m_Dictionary);
     }
 
     //--------------------------------------------------

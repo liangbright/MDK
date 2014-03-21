@@ -1,5 +1,5 @@
-#ifndef __mdkLinearAlgebra_DenseMatrix_Part_2_hpp
-#define __mdkLinearAlgebra_DenseMatrix_Part_2_hpp
+#ifndef __mdkLinearAlgebra_Function_DenseMatrix_Part_2_hpp
+#define __mdkLinearAlgebra_Function_DenseMatrix_Part_2_hpp
 
 //#include "mdkLinearAlgebra_DenseMatrix_Part_2.h"
 

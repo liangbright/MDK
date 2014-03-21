@@ -4,10 +4,13 @@
 #include <vector>
 #include <memory>
 #include <initializer_list>
+#include <string>
+#include <cmath>
+#include <algorithm>
 
-#include "mdkObject.h"
-#include "mdkDenseMatrixOperator.h"
+#include "mdkDebugConfig.h"
 
+#include "mdkDenseMatrix.h"
 
 namespace mdk
 {
@@ -143,9 +146,9 @@ private:
 
     inline const mdkDenseMatrix<ElementType>& GetSourceMatrixSharedCopy() const;
 
-    inline mdkDenseMatrix<ElementType> CreateMatrix() const;
+    inline mdkDenseMatrix<ElementType> CreateDenseMatrix() const;
 
-    inline bool CreateMatrix(mdkDenseMatrix<ElementType>& OutputMatrix) const;
+    inline bool CreateDenseMatrix(mdkDenseMatrix<ElementType>& OutputMatrix) const;
 
 public:
     //--------------------------------------------------- ShadowMatrix {+= -= *= /=} Matrix ------------------------------------------------//

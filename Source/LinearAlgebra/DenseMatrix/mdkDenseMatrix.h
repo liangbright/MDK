@@ -11,12 +11,12 @@
 
 #include "mdkObject.h"
 #include "mdkLinearAlgebraConfig.h"
-#include "mdkMatrixCommon.h"
+#include "mdkMatrix_Common.h"
 #include "mdkDenseShadowMatrix.h"
 #include "mdkDenseGlueMatrixForLinearCombination.h"
 #include "mdkDenseGlueMatrixForMultiplication.h"
 #include "mdkDenseMatrixOperator.h"
-#include "mdkLinearAlgebra_DenseMatrix.h"
+#include "mdkLinearAlgebra_Function_DenseMatrix.h"
 
 namespace mdk
 {
@@ -662,15 +662,15 @@ public:
 
     //-------------------- special element operation : (.*) element multiply -----------------------------------------------------------//
 
-    inline mdkDenseMatrix ElementMultiply(const mdkDenseMatrix<ElementType>& InputMatrix);
+    inline mdkDenseMatrix ElementMultiply(const mdkDenseMatrix<ElementType>& InputMatrix) const;
 
-    inline mdkDenseMatrix ElementMultiply(const ElementType& Element);
+    inline mdkDenseMatrix ElementMultiply(const ElementType& Element) const;
 
-    inline mdkDenseMatrix ElementMultiply(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix);
+    inline mdkDenseMatrix ElementMultiply(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix) const;
 
-    inline mdkDenseMatrix ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+    inline mdkDenseMatrix ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix) const;
 
-    inline mdkDenseMatrix ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    inline mdkDenseMatrix ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix) const;
 
 	//-------------------- general element operation : output a new matrix ------------------------------------------//
 

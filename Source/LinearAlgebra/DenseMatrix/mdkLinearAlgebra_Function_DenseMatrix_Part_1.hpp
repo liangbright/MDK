@@ -1,7 +1,7 @@
-#ifndef __mdkLinearAlgebra_DenseMatrix_Part_1_hpp
-#define __mdkLinearAlgebra_DenseMatrix_Part_1_hpp
+#ifndef __mdkLinearAlgebra_Function_DenseMatrix_Part_1_hpp
+#define __mdkLinearAlgebra_Function_DenseMatrix_Part_1_hpp
 
-//#include "mdkLinearAlgebra_DenseMatrix_Part_1.h"
+//#include "mdkLinearAlgebra_Function_DenseMatrix_Part_1.h"
 
 namespace mdk
 {

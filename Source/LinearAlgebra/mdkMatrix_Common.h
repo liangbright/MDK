@@ -1,5 +1,5 @@
-#ifndef __mdkMatrixCommon_h
-#define __mdkMatrixCommon_h
+#ifndef __mdkMatrix_Common_h
+#define __mdkMatrix_Common_h
 
 #include <vector>
 
@@ -116,6 +116,6 @@ ElementType GetMatrixNaNElement(ElementType ReferenceElement);
 
 }//end namespace mdk
 
-#include "mdkMatrixCommon.hpp"
+#include "mdkMatrix_Common.hpp"
 
 #endif

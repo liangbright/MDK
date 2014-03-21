@@ -1,17 +1,6 @@
 #ifndef __mdkSparseMatrix_hpp
 #define __mdkSparseMatrix_hpp
 
-#include <string>
-#include <cmath>
-#include <algorithm>
-
-#include "mdkType.h"
-#include "mdkDebugConfig.h"
-#include "mdkSparseMatrix.h"
-
-#include "mdkSparseMatrixOperator.h"
-#include "mdkLinearAlgebra_SparseMatrix.h"
-
 //#include "mdkSparseMatrix.h"
 
 namespace mdk
@@ -21,156 +10,7 @@ template<typename ElementType>
 inline
 mdkSparseMatrixData<ElementType>::mdkSparseMatrixData()
 {
-    m_RowNumber = 0;
-
-    m_ColNumber = 0;
-}
-
-
-template<typename ElementType>
-inline
-mdkSparseMatrixData<ElementType>::mdkSparseMatrixData(int64 RowNumber, int64 ColNumber)
-{
-    m_RowNumber = RowNumber;
-
-    m_ColNumber = ColNumber;
-}
-
-
-template<typename ElementType>
-inline
-mdkSparseMatrixData<ElementType>::Construct(const int64* RowIndexList,
-                                            const int64* ColIndexList,
-                                            const ElementType* DataArray,
-                                            int64 NonZeroElementNumber,
-                                            int64 RowNumber,
-                                            int64 ColNumber,
-                                            int64 AdditionalReservedCapacity = MDK_SparseMatrix_AdditionalReservedCapacity)
-{
-    m_RowNumber = RowNumber;
-
-    m_ColNumber = ColNumber;
-
-    std::vector<int64> tempColIndexList(NonZeroElementNumber);
-
-    std::vector<int64> RelativeIndexInColIndexList(NonZeroElementNumber);
-
-    //sort tempColIndexList in ascending order
-
-    Sort(ColIndexList, ElementNumber, tempColIndexList, RelativeIndexInColIndexList.data(), "ascend");
-
-    std::vector<int64> tempRowIndexList;
-
-    tempRowIndexList.reserve(NonZeroElementNumber);
-
-    std::vector<int64> tempList_no_use;
-
-    tempRelativeList.reserve(NonZeroElementNumber);
-
-    //--------------------------------------------------------------
-
-    m_DataArray.reserve(NonZeroElementNumber + AdditionalReservedCapacity);
-
-    //--------------------------------------------------------------
-
-    int64 CurrentColIndex = tempColIndexList[0];
-
-    m_ColBeginElementRelativeIndexList.resize(ColNumber+1);
-
-    for (int64 i = 0; i < ColNumber; ++i)
-    {
-        m_ColBeginElementRelativeIndexList[i] = -1;
-    }
-
-    m_ColBeginElementRelativeIndexList(ColNumber) = NonZeroElementNumber; // end of the record
-
-    //----------------------------------------------------------------
-
-    m_NonZeroElementNumberInEachCol.resize(ColNumber);
-
-    for (int64 i = 0; i < ColNumber; ++i)
-    {
-        m_NonZeroElementNumberInEachCol[i] = 0;
-    }
-
-    //----------------------------------------------------------------
-
-    m_ColBeginElementRelativeIndexList[CurrentColIndex] = 0;
-
-    for (int64 i = 0; i < NoneZeroElementNumber; ++i)
-    {
-        if (tempColIndexList[i] != CurrentColIndex)
-        {
-            Sort(tempRowIndexList, tempRowIndexList, tempRelativeList, "ascend");
-
-            for (int64 j = 0; j < tempRowIndexList.size(); ++j)
-            {
-                m_RowIndexList.push_back(tempRowIndexList[j]);
-
-                m_DataArray.push_back(DataArray[RelativeIndexInColIndexList[i+tempRelativeList[j]]]);
-            }
-
-            m_ColBeginElementRelativeIndexList[tempColIndexList[i]] = i;
-
-            m_NonZeroElementNumberInEachCol[tempColIndexList[i]] = tempRowIndexList.size();
-
-            tempRowIndexList.resize(0);
-            tempRelativeList.resize(0);
-
-            //------------------------
-            CurrentColIndex = tempColIndexList[i];            
-        }
-
-        tempRowIndexList.push_back(RowIndexList[RelativeIndexList[i]]);
-    }
-
-    Sort(tempRowIndexList, tempRowIndexList, tempRelativeList, "ascend");
-
-    for (int64 j = 0; j < tempRowIndexList.size(); ++j)
-    {
-        m_RowIndexList.push_back(tempRowIndexList[j]);
-
-        m_DataArray.push_back(DataArray[RelativeIndexInColIndexList[i + tempRelativeList[j]]]);
-    }
-}
-
-
-template<typename ElementType>
-inline 
-mdkSparseMatrixData<ElementType>::mdkSparseMatrixData(const mdkMatrix<int64>& RowIndexList,
-                                                      const mdkMatrix<int64>& ColIndexList,
-                                                      const mdkMatrix<ElementType>& DataArray,
-                                                      int64 RowNumber,
-                                                      int64 ColNumber,
-                                                      int64 AdditionalReservedCapacity = MDK_SparseMatrix_AdditionalReservedCapacity)
-{
-    this->Construct(RowIndexList.GetElementPointer(), 
-                    ColIndexList.GetElementPointer(),
-                    DataArray.GetElementPointer(), 
-                    int64(DataArray.GetElementNumber()),
-                    RowNumber,
-                    ColNumber,
-                    AdditionalReservedCapacity);
-}
-
-
-template<typename ElementType>
-inline 
-mdkSparseMatrixData<ElementType>::mdkSparseMatrixData(const std::vector<int64>& RowIndexList,
-                                                      const std::vector<int64>& ColIndexList,
-                                                      const std::vector<ElementType>& DataArray,
-                                                      int64 RowNumber,
-                                                      int64 ColNumber,
-                                                      int64 AdditionalReservedCapacity = MDK_SparseMatrix_AdditionalReservedCapacity)
-{
-
-    this->Construct(RowIndexList.data(),
-                    ColIndexList.data(),
-                    DataArray.data(),
-                    int64(DataArray.size()),
-                    RowNumber,
-                    ColNumber,
-                    AdditionalReservedCapacity);
+    this->Reset();
 }
 
 
@@ -184,13 +24,203 @@ mdkSparseMatrixData<ElementType>::~mdkSparseMatrixData()
 
 template<typename ElementType>
 inline
-ElementType&
-mdkSparseMatrixData<ElementType>::operator[](int64 LinearIndex)
+void
+mdkSparseMatrixData<ElementType>::Construct(int64 RowNumber, int64 ColNumber)
 {
-    //check if [LinearIndex] is none zero
-    // if not zero, then return it
-    // if is zero, then insert one element record
+    m_RowNumber = RowNumber;
 
+    m_ColNumber = ColNumber;
+
+    m_RecordedElementNumberInEachCol.resize(ColNumber);
+
+    for (int64 i = 0; i < ColNumber; ++i)
+    {
+        m_RecordedElementNumberInEachCol[i] = 0;
+    }
+}
+
+
+template<typename ElementType>
+inline
+void
+mdkSparseMatrixData<ElementType>::Construct(const int64* RowIndexList,
+                                            const int64* ColIndexList,
+                                            const ElementType* DataArray,
+                                            int64 RecordedElementNumber,
+                                            int64 RowNumber,
+                                            int64 ColNumber,
+                                            int64 AdditionalReservedCapacity = 0)
+{
+    m_RowNumber = RowNumber;
+
+    m_ColNumber = ColNumber;
+
+    //--------------------------------------------------------------
+
+    m_RowIndexList.reserve(RecordedElementNumber + AdditionalReservedCapacity);
+
+    m_ColIndexList.reserve(RecordedElementNumber + AdditionalReservedCapacity);
+
+    m_DataArray.reserve(RecordedElementNumber + AdditionalReservedCapacity);
+
+    //--------------------------------------------------------------
+
+    std::vector<int64> ColIndexList_sort(RecordedElementNumber);
+
+    std::vector<int64> LinearIndex_In_ColIndexList(RecordedElementNumber);
+
+    //sort tempColIndexList in ascending order
+
+    Sort(ColIndexList, RecordedElementNumber, ColIndexList_sort.data(), LinearIndex_In_ColIndexList.data(), "ascend");
+
+    //--------------------------------------------------------------
+
+    std::vector<int64> RowIndexSubList;
+
+    RowIndexSubList.reserve(RecordedElementNumber);
+
+    std::vector<int64> LinearIndex_In_RowIndexSubList;
+
+    LinearIndex_In_RowIndexSubList.reserve(RecordedElementNumber);
+
+    //--------------------------------------------------------------
+
+    m_ColBeginElementLinearIndexInDataArray.resize(ColNumber+1);
+
+    for (int64 i = 0; i < ColNumber; ++i)
+    {
+        m_ColBeginElementLinearIndexInDataArray[i] = -1;
+    }
+
+    m_ColBeginElementLinearIndexInDataArray[ColNumber] = RecordedElementNumber; // end of the record
+
+    //----------------------------------------------------------------
+
+    m_RecordedElementNumberInEachCol.resize(ColNumber);
+
+    for (int64 i = 0; i < ColNumber; ++i)
+    {
+        m_RecordedElementNumberInEachCol[i] = 0;
+    }
+
+    //----------------------------------------------------------------
+
+    m_ColBeginElementLinearIndexInDataArray[ColIndexList_sort[0]] = 0;
+
+    int64 PreviousColIndex = ColIndexList_sort[0];
+
+    for (int64 i = 0; i < RecordedElementNumber; ++i)
+    {
+        if (ColIndexList_sort[i] != PreviousColIndex)
+        {
+            // element in new col is detected
+            // save the info of the previous col
+
+            auto RecordedElementNumberInPerviousCol = int64(RowIndexSubList.size());
+
+            Sort(RowIndexSubList, RowIndexSubList, LinearIndex_In_RowIndexSubList, "ascend");
+
+            int64 tempRowIndex_prev = -1;
+
+            for (int64 j = 0; j < RecordedElementNumberInPerviousCol; ++j)
+            {
+                if (RowIndexSubList[j] == tempRowIndex_prev)
+                {
+                    mdkError << "duplicate values are found, construction abort! @ mdkSparseMatrixData::Construct(...)" << '\n';
+                    
+                    return;
+
+                    // Matlab does this : not useful
+                    // m_DataArray[m_DataArray.size()] += DataArray[tempOffset];
+                }
+                else
+                {
+                    m_RowIndexList.push_back(RowIndexSubList[j]);
+
+                    m_ColIndexList.push_back(PreviousColIndex);
+
+                    auto tempOffset = LinearIndex_In_ColIndexList[i - RecordedElementNumberInPerviousCol + LinearIndex_In_RowIndexSubList[j]];
+
+                    m_DataArray.push_back(DataArray[tempOffset]);
+
+                    tempRowIndex_prev = RowIndexSubList[j];
+                }
+            }
+
+            m_RecordedElementNumberInEachCol[PreviousColIndex] = RecordedElementNumberInPerviousCol;
+
+            RowIndexSubList.resize(0);
+            LinearIndex_In_RowIndexSubList.resize(0);
+
+            // record the new data [i] as the first one in col # ColIndexList_sort[i]
+
+            m_ColBeginElementLinearIndexInDataArray[ColIndexList_sort[i]] = i;
+
+            //------------------------
+            PreviousColIndex = ColIndexList_sort[i];
+        }
+
+        // add row index of element # i to the buffer RowIndexSubList for the current Col
+
+        RowIndexSubList.push_back(RowIndexList[LinearIndex_In_ColIndexList[i]]);
+    }
+
+    //------------------------------------------
+
+    Sort(RowIndexSubList, RowIndexSubList, LinearIndex_In_RowIndexSubList, "ascend");
+
+    auto RecordedElementNumberInPerviousCol = int64(RowIndexSubList.size());
+
+    int64 tempRowIndex_prev = -1;
+
+    for (int64 j = 0; j < RecordedElementNumberInPerviousCol; ++j)
+    {
+        if (RowIndexSubList[j] == tempRowIndex_prev)
+        {
+            mdkError << "duplicate values are found, construction abort! @ mdkSparseMatrixData::Construct(...)" << '\n';            
+            return;
+        }
+        else
+        {
+            m_RowIndexList.push_back(RowIndexSubList[j]);
+
+            m_ColIndexList.push_back(PreviousColIndex);
+
+            m_DataArray.push_back(DataArray[LinearIndex_In_ColIndexList[RecordedElementNumber - RecordedElementNumberInPerviousCol
+                                                                        + LinearIndex_In_RowIndexSubList[j]]]);
+
+            tempRowIndex_prev = RowIndexSubList[j];
+        }
+    }
+
+    m_RecordedElementNumberInEachCol[PreviousColIndex] = RecordedElementNumberInPerviousCol;
+}
+
+
+template<typename ElementType>
+inline 
+void mdkSparseMatrixData<ElementType>::Reset()
+{
+    m_RowNumber = 0;
+
+    m_ColNumber = 0;
+
+    m_RowIndexList.resize(0);
+
+    m_ColBeginElementLinearIndexInDataArray.resize(0);
+
+    m_RecordedElementNumberInEachCol.resize(0);
+
+    m_DataArray.resize(0);
+
+    m_ZeroElement = ElementType(0);
+}
+
+
+template<typename ElementType>
+inline 
+const ElementType& mdkSparseMatrixData<ElementType>::GetElement(int64 LinearIndex) const
+{
     std::lldiv_t divresult;
 
     divresult = div(LinearIndex, m_RowNumber);
@@ -199,34 +229,278 @@ mdkSparseMatrixData<ElementType>::operator[](int64 LinearIndex)
 
     RowIndex = divresult.rem;
 
-    auto RelativeIndexList = m_ColBeginElementRelativeIndexList[ColIndex];
+    return this->GetElement(RowIndex, ColIndex);
+}
 
-    if (RelativeIndexList >= 0)
+
+template<typename ElementType>
+inline 
+const ElementType& mdkSparseMatrixData<ElementType>::GetElement(int64 RowIndex, int64 ColIndex) const
+{
+    auto RelativeIndex = this->GetLinearIndexInDataArray(RowIndex, ColIndex);
+
+    if (RelativeIndex >= 0)
     {
-        for (int64 i = 0; i < m_NonZeroElementNumberInEachCol[ColIndex]; ++i)
-        {
-            auto tempRelativeIndexList = RelativeIndexList + i;
+        return m_DataArray[RelativeIndex];
+    }
 
-            if (m_RowIndexList[tempRelativeIndexList] == RowIndex)
+    return m_ZeroElement;
+}
+
+
+template<typename ElementType>
+inline
+ElementType& mdkSparseMatrixData<ElementType>::SetElement(int64 LinearIndex, const ElementType& InputElement)
+{
+    std::lldiv_t divresult;
+
+    divresult = div(LinearIndex, m_RowNumber);
+
+    ColIndex = divresult.quot;
+
+    RowIndex = divresult.rem;
+
+    return this->SetElement(RowIndex, ColIndex, InputElement);
+}
+
+
+template<typename ElementType>
+inline
+ElementType& mdkSparseMatrixData<ElementType>::SetElement(int64 RowIndex, int64 ColIndex, const ElementType& InputElement)
+{
+    auto tempRelativeIndex = this->GetLinearIndexInDataArray(RowIndex, ColIndex);
+
+    if (tempRelativeIndex >= 0)
+    {
+        m_DataArray[tempRelativeIndex] = InputElement;
+
+        return m_DataArray[tempRelativeIndex];
+    }
+
+    //--------- Create a new record --------------------//
+
+    auto RelativeIndex_Begin = m_ColBeginElementLinearIndexInDataArray[ColIndex];
+
+    if (RelativeIndex_Begin < 0) // insert the first element in col # ColIndex
+    {
+        int64 Offset = 0;
+
+        // check col with Index > ColIndex
+        for (int64 i = ColIndex + 1; i < m_ColNumber; ++i)
+        {
+            Offset = m_ColBeginElementLinearIndexInDataArray[i];
+
+            if (Offset >= 0)
             {
-                return m_DataArray[tempRelativeIndexList];
+                break;
+            }
+        }
+
+        if (Offset < 0) // every col (index > ColIndex) is empty
+        {
+            // check backward
+            for (int64 i = ColIndex -1; i >= 0; --i)
+            {                
+                if (m_RecordedElementNumberInEachCol[i] > 0)
+                {
+                    Offset = m_ColBeginElementLinearIndexInDataArray[i] + m_RecordedElementNumberInEachCol[i];
+
+                    break;
+                }
+            }
+
+            if (Offset < 0) // still empty: this is an empty matrix
+            {
+                Offset = 0;
+            }
+
+        }
+        
+        m_RowIndexList.insert(m_RowIndexList.begin() + Offset, RowIndex);
+
+        m_ColIndexList.insert(m_ColIndexList.begin() + Offset, ColIndex);
+
+        m_DataArray.insert(m_DataArray.begin() + Offset, InputElement);
+
+        m_ColBeginElementLinearIndexInDataArray[ColIndex] = Offset;
+
+        for (int64 i = ColIndex + 1; i < m_ColNumber; ++i)
+        {
+            if (m_ColBeginElementLinearIndexInDataArray[i] >= 0)
+            {
+                m_ColBeginElementLinearIndexInDataArray[i] += 1;
+            }
+        }
+
+        m_RecordedElementNumberInEachCol[ColIndex] = 1;
+
+        return m_DataArray[Offset];
+    
+    }
+    else // RelativeIndex_Begin >= 0, insert the input element in a non-empty col # ColIndex
+    {
+        // get the RowIndexSubList of the elements in Col # ColIndex
+        // compare RowIndex to  RowIndexSubList, and get offset
+
+        int64 Offset = RelativeIndex_Begin;
+
+        for (int64 i = 0; i < m_RecordedElementNumberInEachCol[ColIndex]; ++i)
+        {            
+            Offset = RelativeIndex_Begin + i;
+
+            if (m_RowIndexList[Offset] > RowIndex)
+            {
+                break;
+            }
+        }
+
+        m_RowIndexList.insert(m_RowIndexList.begin() + Offset, RowIndex);
+
+        m_ColIndexList.insert(m_ColIndexList.begin() + Offset, ColIndex);
+
+        m_DataArray.insert(m_DataArray.begin() + Offset, InputElement);
+
+        m_ColBeginElementLinearIndexInDataArray[ColIndex] = Offset;
+
+        for (int64 i = ColIndex + 1; i < m_ColNumber; ++i)
+        {
+            if (m_ColBeginElementLinearIndexInDataArray[i] >= 0)
+            {
+                m_ColBeginElementLinearIndexInDataArray[i] += 1;
+            }
+        }
+
+        m_RecordedElementNumberInEachCol[ColIndex] += 1;
+
+        return m_DataArray[Offset];
+    }
+
+}
+
+
+template<typename ElementType>
+inline 
+int64 mdkSparseMatrixData<ElementType>::GetLinearIndexInDataArray(int64 LinearIndex) const
+{
+    std::lldiv_t divresult;
+
+    divresult = div(LinearIndex, m_RowNumber);
+
+    ColIndex = divresult.quot;
+
+    RowIndex = divresult.rem;
+
+    return this->GetLinearIndexInDataArray(RowIndex, ColIndex);
+}
+
+
+template<typename ElementType>
+inline 
+int64 mdkSparseMatrixData<ElementType>::GetLinearIndexInDataArray(int64 RowIndex, int64 ColIndex) const
+{
+    auto RelativeIndex_Begin = m_ColBeginElementLinearIndexInDataArray[ColIndex];
+
+    if (RelativeIndex_Begin >= 0)
+    {
+        for (int64 i = 0; i < m_RecordedElementNumberInEachCol[ColIndex]; ++i)
+        {
+            auto RelativeIndex = RelativeIndex_Begin + i;
+
+            if (m_RowIndexList[RelativeIndex] == RowIndex)
+            {
+                return RelativeIndex;
             }
         }
     }
 
-    //-----------------------------------------------------------//
-    //[LinearIndex] is zero
-
-    if (RelativeIndexList < 0)
-    {
-
-    }
-    else
-    {
-
-    }
-
+    return -1;
 }
+
+
+template<typename ElementType>
+inline
+ElementType&
+mdkSparseMatrixData<ElementType>::operator[](int64 LinearIndex)
+{
+    return (*this)(LinearIndex);
+}
+
+
+template<typename ElementType>
+inline
+const ElementType&
+mdkSparseMatrixData<ElementType>::operator[](int64 LinearIndex) const
+{
+    return (*this)(LinearIndex);
+}
+
+
+template<typename ElementType>
+inline
+ElementType&
+mdkSparseMatrixData<ElementType>::operator()(int64 LinearIndex)
+{
+    std::lldiv_t divresult;
+
+    divresult = div(LinearIndex, m_RowNumber);
+
+    ColIndex = divresult.quot;
+
+    RowIndex = divresult.rem;
+
+    return (*this)(RowIndex, ColIndex);
+}
+
+
+template<typename ElementType>
+inline
+const ElementType&
+mdkSparseMatrixData<ElementType>::operator()(int64 LinearIndex) const
+{
+    std::lldiv_t divresult;
+
+    divresult = div(LinearIndex, m_RowNumber);
+
+    ColIndex = divresult.quot;
+
+    RowIndex = divresult.rem;
+
+    return (*this)(RowIndex, ColIndex);
+}
+
+
+template<typename ElementType>
+inline
+ElementType&
+mdkSparseMatrixData<ElementType>::operator()(int64 RowIndex, int64 ColIndex)
+{
+    return this->SetElement(RowIndex, ColIndex, m_ZeroElement);
+}
+
+
+template<typename ElementType>
+inline
+const ElementType&
+mdkSparseMatrixData<ElementType>::operator()(int64 RowIndex, int64 ColIndex) const
+{
+    return this->GetElement(RowIndex, ColIndex);
+}
+
+
+template<typename ElementType>
+inline
+int64 mdkSparseMatrixData<ElementType>::GetRecordedElementNumber() const
+{
+    int64 RecordedElementNumber = 0;
+
+    for (int64 i = 0; i < m_ColNumber; ++i)
+    {
+        RecordedElementNumber += m_RecordedElementNumberInEachCol[i];
+    }
+
+    return RecordedElementNumber;
+}
+
 
 
 //===================================================================================================================================//
@@ -249,42 +523,6 @@ mdkSparseMatrix<ElementType>::mdkSparseMatrix(int64 RowNumber, int64 ColNumber)
 
 
 template<typename ElementType>
-inline 
-mdkSparseMatrix<ElementType>::mdkSparseMatrix(const mdkMatrix<int64>& RowIndexList,
-                                              const mdkMatrix<int64>& ColIndexList,
-                                              const mdkMatrix<ElementType>& DataArray,
-                                              int64 RowNumber,
-                                              int64 ColNumber,
-                                              int64 AdditionalReservedCapacity = MDK_SparseMatrix_AdditionalReservedCapacity)
-{
-    this->Construct(RowIndexList, ColIndexList, DataArray, RowNumber, ColNumber, AdditionalReservedCapacity);
-}
-
-
-template<typename ElementType>
-inline
-mdkSparseMatrix<ElementType>::mdkSparseMatrix(const std::vector<int64>& RowIndexList,
-                                              const std::vector<int64>& ColIndexList,
-                                              const std::vector<ElementType>& DataArray,
-                                              int64 RowNumber,
-                                              int64 ColNumber,
-                                              int64 AdditionalReservedCapacity = MDK_SparseMatrix_AdditionalReservedCapacity)
-{
-    this->Construct(RowIndexList, ColIndexList, DataArray, RowNumber, ColNumber, AdditionalReservedCapacity);
-}
-
-
-template<typename ElementType>
-inline
-mdkSparseMatrix<ElementType>::mdkSparseMatrix(const mdkSparseMatrix<ElementType>& InputMatrix)
-{
-    this->Reset();
-
-    this->DeepCopy(InputMatrix);
-}
-
-
-template<typename ElementType>
 inline
 mdkSparseMatrix<ElementType>::mdkSparseMatrix(const ElementType& Element)
 {
@@ -298,7 +536,7 @@ mdkSparseMatrix<ElementType>::mdkSparseMatrix(const ElementType& Element)
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType>::mdkSparseMatrix(mdkSparseMatrix<ElementType>& InputMatrix, 
+mdkSparseMatrix<ElementType>::mdkSparseMatrix(const mdkSparseMatrix<ElementType>& InputMatrix, 
                                               mdkObjectCopyConstructionTypeEnum Method = mdkObjectCopyConstructionTypeEnum::DeepCopy)
 {
     this->Reset();
@@ -347,23 +585,21 @@ mdkSparseMatrix<ElementType>::~mdkSparseMatrix()
 }
 
 
-
 template<typename ElementType>
 inline 
-bool mdkSparseMatrix<ElementType>::Construct(const mdkMatrix<int64>& RowIndexList,
-                                             const mdkMatrix<int64>& ColIndexList,
-                                             const mdkMatrix<ElementType>& DataArray,
+bool mdkSparseMatrix<ElementType>::Construct(const mdkDenseMatrix<int64>& RowIndexList,
+                                             const mdkDenseMatrix<int64>& ColIndexList,
+                                             const mdkDenseMatrix<ElementType>& DataArray,
                                              int64 RowNumber,
                                              int64 ColNumber,
-                                             int64 AdditionalReservedCapacity = MDK_SparseMatrix_AdditionalReservedCapacity);
+                                             int64 AdditionalReservedCapacity = 0)
 {
-    //check input
-
-    m_MatrixData = std::make_shared<mdkSparseMatrixData<ElementType>>();
-
-    m_MatrixData->Construct(RowIndexList, ColIndexList, DataArray, RowNumber, ColNumber, AdditionalReservedCapacity);
-
-    return true;
+    return this->Construct(RowIndexList.GetElementPointer(),
+                           ColIndexList.GetElementPointer(), 
+                           DataArray.GetElementPointer(), 
+                           RowNumber,
+                           ColNumber, 
+                           std::max(AdditionalReservedCapacity, int64(0)));
 }
 
 
@@ -374,13 +610,65 @@ bool mdkSparseMatrix<ElementType>::Construct(const std::vector<int64>& RowIndexL
                                              const std::vector<ElementType>& DataArray,
                                              int64 RowNumber,
                                              int64 ColNumber,
-                                             int64 AdditionalReservedCapacity = MDK_SparseMatrix_AdditionalReservedCapacity);
+                                             int64 AdditionalReservedCapacity = 0)
+{
+    return this->Construct(RowIndexList.data(),
+                           ColIndexList.data(), 
+                           DataArray.data(), 
+                           int64(DataArray.size()), 
+                           RowNumber, 
+                           ColNumber,
+                           std::max(AdditionalReservedCapacity, int64(0)));
+
+}
+
+
+template<typename ElementType>
+inline 
+bool mdkSparseMatrix<ElementType>::Construct(const std::initializer_list<int64>& RowIndexList,
+                                             const std::initializer_list<int64>& ColIndexList,
+                                             const std::initializer_list<ElementType>& DataArray,
+                                             int64 RowNumber,
+                                             int64 ColNumber,
+                                             int64 AdditionalReservedCapacity = 0)
+{
+    return this->Construct(RowIndexList.begin(), 
+                           ColIndexList.begin(), 
+                           DataArray.begin(), 
+                           int64(DataArray.size()), 
+                           RowNumber, 
+                           ColNumber, 
+                           std::max(AdditionalReservedCapacity, int64(0)));
+}
+
+
+template<typename ElementType>
+inline 
+bool mdkSparseMatrix<ElementType>::Construct(const int64* RowIndexList,
+                                             const int64* ColIndexList,
+                                             const ElementType* DataArray,
+                                             int64 RecordedElementNumber,
+                                             int64 RowNumber,
+                                             int64 ColNumber,
+                                             int64 AdditionalReservedCapacity = 0)
 {
     //check input
+    if (RowIndexList == nullptr || ColIndexList == nullptr || DataArray == nullptr || RecordedElementNumber < 0 || RowNumber < 0 || ColNumber < 0)
+    {
+        mdkError << "empty input @ mdkSparseMatrix::Construct(pointers, ...)" << '\n';
+        return false;
+    }
 
     m_MatrixData = std::make_shared<mdkSparseMatrixData<ElementType>>();
 
-    m_MatrixData->Construct(RowIndexList, ColIndexList, DataArray, RowNumber, ColNumber, AdditionalReservedCapacity);
+    if (RecordedElementNumber == 0)
+    {
+        m_MatrixData->Construct(RowNumber, ColNumber);
+
+        return true;
+    }
+
+    m_MatrixData->Construct(RowIndexList, ColIndexList, DataArray, RecordedElementNumber, RowNumber, ColNumber, std::max(AdditionalReservedCapacity, int64(0)));
 
     return true;
 }
@@ -547,7 +835,7 @@ void mdkSparseMatrix<ElementType>::operator=(const mdkSparseShadowMatrix<Element
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+void mdkSparseMatrix<ElementType>::operator=(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     this->Take(GlueMatrix);
 }
@@ -555,7 +843,7 @@ void mdkSparseMatrix<ElementType>::operator=(const mdkGlueMatrixForLinearCombina
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+void mdkSparseMatrix<ElementType>::operator=(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     this->Take(GlueMatrix);
 }
@@ -889,15 +1177,15 @@ bool mdkSparseMatrix<ElementType>::IsEmpty() const
 
 template<typename ElementType>
 inline
-mdkSparseMatrixSize mdkSparseMatrix<ElementType>::GetSize() const
+mdkMatrixSize mdkSparseMatrix<ElementType>::GetSize() const
 {
-    mdkSparseMatrixSize Size;
+    mdkMatrixSize Size;
 
     if (m_MatrixData) // m_MatrixData != nullptr
     {
-        Size.RowNumber = m_MatrixData->RowNumber;
+        Size.RowNumber = m_MatrixData->m_RowNumber;
 
-        Size.ColNumber = m_MatrixData->ColNumber;
+        Size.ColNumber = m_MatrixData->m_ColNumber;
     }
     else
     {
@@ -915,7 +1203,7 @@ int64 mdkSparseMatrix<ElementType>::GetElementNumber() const
 {
     if (m_MatrixData) // m_MatrixData != nullptr
     {
-        return m_MatrixData->RowNumber * m_MatrixData->ColNumber;
+        return m_MatrixData->m_RowNumber * m_MatrixData->m_ColNumber;
     }
     else
     {
@@ -926,11 +1214,11 @@ int64 mdkSparseMatrix<ElementType>::GetElementNumber() const
 
 template<typename ElementType>
 inline
-int64 mdkSparseMatrix<ElementType>::GetNonZeroElementNumber() const
+int64 mdkSparseMatrix<ElementType>::GetRecordedElementNumber() const
 {
     if (m_MatrixData) // m_MatrixData != nullptr
     {
-        return m_MatrixData->GetNonZeroElementNumber();
+        return m_MatrixData->GetRecordedElementNumber();
     }
     else
     {
@@ -945,7 +1233,7 @@ int64 mdkSparseMatrix<ElementType>::GetColNumber() const
 {
     if (m_MatrixData) // m_MatrixData != nullptr
     {
-        return m_MatrixData->ColNumber;
+        return m_MatrixData->m_ColNumber;
     }
     else
     {
@@ -960,7 +1248,7 @@ int64 mdkSparseMatrix<ElementType>::GetRowNumber() const
 {
     if (m_MatrixData) // m_MatrixData != nullptr
     {
-        return m_MatrixData->RowNumber;
+        return m_MatrixData->m_RowNumber;
     }
     else
     {
@@ -979,7 +1267,7 @@ const ElementType& mdkSparseMatrix<ElementType>::GetNaNElement()  const
 
 template<typename ElementType>
 inline
-mdkSparseMatrixElementTypeEnum mdkSparseMatrix<ElementType>::GetElementType() const
+mdkMatrixElementTypeEnum mdkSparseMatrix<ElementType>::GetElementType() const
 {
     return FindMatrixElementType(m_NaNElement);
 }
@@ -1018,6 +1306,67 @@ const ElementType* mdkSparseMatrix<ElementType>::GetElementPointer() const
     }
 }
 
+
+template<typename ElementType>
+inline 
+const ElementType& mdkSparseMatrix<ElementType>::GetElement(int64 LinearIndex) const
+{ 
+    if (LinearIndex >= this->GetElementNumber || LinearIndex < 0)
+    {
+        mdkError << "Invalid input @ mdkSparseMatrix::GetElement(LinearIndex, InputElement)" << '\n';
+        return m_NaNElement;
+    }
+
+    return m_MatrixData->GetElement(LinearIndex);
+}
+
+
+template<typename ElementType>
+inline
+const ElementType& mdkSparseMatrix<ElementType>::GetElement(int64 RowIndex, int64 ColIndex) const
+{
+    auto SelfSize = this->GetSize();
+
+    if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
+    {
+        mdkError << "Invalid input @ mdkSparseMatrix::GetElement(RowIndex, ColIndex)" << '\n';
+        return m_NaNElement;
+    }
+
+    return m_MatrixData->GetElement(RowIndex, ColIndex);
+}
+
+
+template<typename ElementType>
+inline
+bool mdkSparseMatrix<ElementType>::SetElement(int64 LinearIndex, const ElementType& InputElement)
+{
+    if (LinearIndex >= this->GetElementNumber || LinearIndex < 0)
+    {
+        mdkError << "Invalid input @ mdkSparseMatrix::SetElement(LinearIndex, InputElement)" << '\n';
+        return false;
+    }
+
+    m_MatrixData->SetElement(LinearIndex, InputElement);
+}
+
+
+template<typename ElementType>
+inline
+bool mdkSparseMatrix<ElementType>::SetElement(int64 RowIndex, int64 ColIndex, const ElementType& InputElement)
+{
+    auto SelfSize = this->GetSize();
+
+    if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
+    {
+        mdkError << "Invalid input @ mdkSparseMatrix::SetElement(RowIndex, ColIndex, InputElement)" << '\n';
+        return false;
+    }
+
+    m_MatrixData->SetElement(RowIndex, ColIndex, InputElement);
+}
+
+
 //----------- Get/Set Matrix(LinearIndex) -----------------------------------//
 
 // operator[] (): no bound check in release mode
@@ -1026,18 +1375,7 @@ template<typename ElementType>
 inline
 ElementType& mdkSparseMatrix<ElementType>::operator[](int64 LinearIndex)
 {
-#if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
-
-    if (LinearIndex >= this->GetElementNumber()|| LinearIndex < 0)
-    {
-        mdkError << "Invalid Input @ mdkSparseMatrix::operator[](i)" << '\n';
-
-        return m_NaNElement;
-    }
-
-#endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
-
-    return (*m_MatrixData)[LinearIndex];
+    return (*this)(LinearIndex);
 }
 
 
@@ -1045,18 +1383,7 @@ template<typename ElementType>
 inline
 const ElementType& mdkSparseMatrix<ElementType>::operator[](int64 LinearIndex) const
 {
-#if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
-
-    if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
-    {
-        mdkError << "Invalid Input @ mdkSparseMatrix::operator[](i) const" << '\n';
-
-        return m_NaNElement;
-    }
-
-#endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
-
-    return (*m_MatrixData)[LinearIndex];
+    return (*this)(LinearIndex);
 }
 
 
@@ -1075,7 +1402,7 @@ ElementType& mdkSparseMatrix<ElementType>::operator()(int64 LinearIndex)
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    return (*m_MatrixData)[LinearIndex];
+    return (*m_MatrixData)(LinearIndex);
 }
 
 
@@ -1094,7 +1421,7 @@ const ElementType& mdkSparseMatrix<ElementType>::operator()(int64 LinearIndex) c
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    return (*m_MatrixData)[LinearIndex];
+    return (*m_MatrixData)(LinearIndex);
 }
 
 // at(): bound check
@@ -1110,7 +1437,7 @@ ElementType& mdkSparseMatrix<ElementType>::at(int64 LinearIndex)
         return m_NaNElement;
 	}
 
-    return (*m_MatrixData)[LinearIndex];
+    return (*m_MatrixData)(LinearIndex);
 }
 
 
@@ -1125,7 +1452,7 @@ const ElementType& mdkSparseMatrix<ElementType>::at(int64 LinearIndex) const
         return m_NaNElement;
 	}
 
-    return (*m_MatrixData)[LinearIndex];
+    return (*m_MatrixData)(LinearIndex);
 }
 
 //----------- Get/Set Matrix(i,j)  ---------------------------------------------//
@@ -1353,7 +1680,7 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexLi
 template<typename ElementType>
 inline
 mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol)
+mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
     mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
@@ -1364,7 +1691,7 @@ mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkSparseMatrix_Op
 template<typename ElementType>
 inline
 const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol) const
+mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
 {
     mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
@@ -1495,7 +1822,7 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList) cons
 template<typename ElementType>
 inline
 mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol)
+mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
     mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
@@ -1506,7 +1833,7 @@ mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkSparseMatrix_Operator& 
 template<typename ElementType>
 inline
 const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol) const
+mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
 {
     mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
@@ -1608,7 +1935,7 @@ mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexL
 template<typename ElementType>
 inline
 mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol)
+mdkSparseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
@@ -1642,7 +1969,7 @@ mdkSparseMatrix<ElementType>::operator()(const std::initializer_list<int64>& Row
 template<typename ElementType>
 inline
 const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol) const
+mdkSparseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
@@ -1676,7 +2003,7 @@ mdkSparseMatrix<ElementType>::operator()(const std::initializer_list<int64>& Row
 template<typename ElementType>
 inline
 mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList)
+mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList)
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
@@ -1710,7 +2037,7 @@ mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkSparseMatrix_Op
 template<typename ElementType>
 inline
 const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList) const
+mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList) const
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
@@ -1832,7 +2159,7 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList,
 template<typename ElementType>
 inline
 mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol)
+mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
@@ -1866,7 +2193,7 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList,
 template<typename ElementType>
 inline
 const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol) const
+mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
@@ -1900,7 +2227,7 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList,
 template<typename ElementType>
 inline
 mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList)
+mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList)
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
@@ -1934,7 +2261,7 @@ mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkSparseMatrix_Op
 template<typename ElementType>
 inline
 const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
+mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
@@ -2049,7 +2376,7 @@ mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std
 template<typename ElementType>
 inline
 mdkSparseShadowMatrix<ElementType> 
-mdkSparseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol)
+mdkSparseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
     if (RowIndexList.size() <= 0)
     {
@@ -2079,7 +2406,7 @@ mdkSparseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexLis
 template<typename ElementType>
 inline
 const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol) const
+mdkSparseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
 {
     if (RowIndexList.size() <= 0)
     {
@@ -2109,7 +2436,7 @@ mdkSparseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexLis
 template<typename ElementType>
 inline
 mdkSparseShadowMatrix<ElementType> 
-mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList)
+mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList)
 {
     if (ColIndexList.size() <= 0)
     {
@@ -2139,7 +2466,7 @@ mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkSparseMatrix_Operator& 
 template<typename ElementType>
 inline
 const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList) const
+mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList) const
 {
     if (ColIndexList.size() <= 0)
     {
@@ -2249,7 +2576,7 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const s
 template<typename ElementType>
 inline
 mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol)
+mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
     if (RowIndexList.size() <= 0)
     {
@@ -2279,7 +2606,7 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const A
 template<typename ElementType>
 inline
 const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol) const
+mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
 {
     if (RowIndexList.size() <= 0)
     {
@@ -2309,7 +2636,7 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const A
 template<typename ElementType>
 inline
 mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList)
+mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList)
 {
     if (ColIndexList.size() <= 0)
     {
@@ -2339,7 +2666,7 @@ mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkSparseMatrix_Operator& 
 template<typename ElementType>
 inline
 const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
+mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
 {
     if (ColIndexList.size() <= 0)
     {
@@ -2444,7 +2771,7 @@ bool mdkSparseMatrix<ElementType>::GetSubMatrix(mdkSparseMatrix<ElementType>& Ou
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetSubMatrix(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol) const
+mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetSubMatrix(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
 {
     auto SelfSize = this->GetSize();
 
@@ -2460,7 +2787,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetSubMatrix(const st
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetSubMatrix(const ALL_Symbol_For_mdkSparseMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
+mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetSubMatrix(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
 {
     auto SelfSize = this->GetSize();
 
@@ -2527,13 +2854,13 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetCol(int64 ColIndex
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::GetCol(int64 ColIndex, mdkMatrix<ElementType>& ColData) const
+bool mdkSparseMatrix<ElementType>::GetCol(int64 ColIndex, mdkDenseMatrix<ElementType>& ColData) const
 {
     auto SelfSize = this->GetSize();
 
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::GetCol(int64 ColIndex, std::vector<ElementType>& ColData)" << '\n';
+        mdkError << "Invalid Input @ mdkSparseMatrix::GetCol(int64 ColIndex, mdkDenseMatrix<ElementType>& ColData)" << '\n';
         return false;
     }
 
@@ -4041,13 +4368,6 @@ void mdkSparseMatrix<ElementType>::operator*=(const mdkSparseMatrix<ElementType>
 }
 
 
-template<typename ElementType>
-inline
-void mdkSparseMatrix<ElementType>::operator/=(const mdkSparseMatrix<ElementType>& InputMatrix)
-{
-    MatrixElementDivide(*this, *this, InputMatrix);
-}
-
 //---------------------- Matrix {+= -= *= /=} mdkSparseShadowMatrix ----------------------------------------//
 
 template<typename ElementType>
@@ -4079,12 +4399,8 @@ void mdkSparseMatrix<ElementType>::operator+=(const mdkSparseShadowMatrix<Elemen
         return;
     }
 
-    auto RawPointer this->GetElementPointer();
+//----------------
 
-    for (int64 i = 0; i < Self_ElementNumber; ++i)
-    {
-        RawPointer[i] += ShadowMatrix[i];
-    }
 }
 
 
@@ -4117,12 +4433,7 @@ void mdkSparseMatrix<ElementType>::operator-=(const mdkSparseShadowMatrix<Elemen
         return;
     }
 
-    auto RawPointer this->GetElementPointer();
-
-    for (int64 i = 0; i < Self_ElementNumber; ++i)
-    {
-        RawPointer[i] -= ShadowMatrix[i];
-    }
+    //----------------
 }
 
 
@@ -4133,49 +4444,11 @@ void mdkSparseMatrix<ElementType>::operator*=(const mdkSparseShadowMatrix<Elemen
     this->operator*=(mdkSparseShadowMatrix.CreateMatrix());
 }
 
+//---------------------- SparseMatrix {+= -= *=} SparseGlueMatrixForLinearCombination ----------------------------------------//
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator/=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix)
-{
-    auto InputSize = ShadowMatrix.GetSize();
-
-    if (InputSize.RowNumber <= 0)
-    {
-        mdkError << "ShadowMatrix is empty @ mdkSparseMatrix::operator/=(ShadowMatrix)" << '\n';
-        return;
-    }
-
-    if (InputSize.RowNumber == 1 && InputSize.ColNumber == 1)
-    {
-        (*this) /= ShadowMatrix[0];
-
-        return;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    auto Self_ElementNumber = SelfSize.RowNumber * SelfSize.ColNumber;
-
-    if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
-    {
-        mdkError << "Size does not match @ mdkSparseMatrix::operator/=(ShadowMatrix)" << '\n';
-        return;
-    }
-
-    auto RawPointer this->GetElementPointer();
-
-    for (int64 i = 0; i < Self_ElementNumber; ++i)
-    {
-        RawPointer[i] /= ShadowMatrix[i];
-    }
-}
-
-//---------------------- Matrix {+= -= *= /=} GlueMatrixForLinearCombination ----------------------------------------//
-
-template<typename ElementType>
-inline
-void mdkSparseMatrix<ElementType>::operator+=(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrix)
+void mdkSparseMatrix<ElementType>::operator+=(mdkSparseGlueMatrixForLinearCombination<ElementType> GlueMatrix)
 {
     (*this) = (*this) + std::move(GlueMatrix);
 }
@@ -4183,7 +4456,7 @@ void mdkSparseMatrix<ElementType>::operator+=(mdkGlueMatrixForLinearCombination<
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator-=(mdkGlueMatrixForLinearCombination<ElementType> GlueMatrix)
+void mdkSparseMatrix<ElementType>::operator-=(mdkSparseGlueMatrixForLinearCombination<ElementType> GlueMatrix)
 {
     (*this) = (*this) - std::move(GlueMatrix);
 }
@@ -4191,24 +4464,17 @@ void mdkSparseMatrix<ElementType>::operator-=(mdkGlueMatrixForLinearCombination<
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator*=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+void mdkSparseMatrix<ElementType>::operator*=(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     this->operator*=(GlueMatrix.CreateMatrix());
 }
 
 
-template<typename ElementType>
-inline
-void mdkSparseMatrix<ElementType>::operator/=(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
-{
-    this->operator/=(GlueMatrix.CreateMatrix());
-}
-
-//---------------------- Matrix {+= -= *= /=} GlueMatrixForMultiplication ----------------------------------------//
+//---------------------- SparseMatrix {+= -= *=} SparseGlueMatrixForMultiplication ----------------------------------------//
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator+=(mdkGlueMatrixForMultiplication<ElementType> GlueMatrix)
+void mdkSparseMatrix<ElementType>::operator+=(mdkSparseGlueMatrixForMultiplication<ElementType> GlueMatrix)
 {
     (*this) = (*this) + std::move(GlueMatrix);
 }
@@ -4216,7 +4482,7 @@ void mdkSparseMatrix<ElementType>::operator+=(mdkGlueMatrixForMultiplication<Ele
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator-=(mdkGlueMatrixForMultiplication<ElementType> GlueMatrix)
+void mdkSparseMatrix<ElementType>::operator-=(mdkSparseGlueMatrixForMultiplication<ElementType> GlueMatrix)
 {
     (*this) = (*this) - std::move(GlueMatrix);
 }
@@ -4224,20 +4490,12 @@ void mdkSparseMatrix<ElementType>::operator-=(mdkGlueMatrixForMultiplication<Ele
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator*=(mdkGlueMatrixForMultiplication<ElementType> GlueMatrix)
+void mdkSparseMatrix<ElementType>::operator*=(mdkSparseGlueMatrixForMultiplication<ElementType> GlueMatrix)
 {
     (*this) = (*this) * std::move(GlueMatrix);
 }
 
-
-template<typename ElementType>
-inline
-void mdkSparseMatrix<ElementType>::operator/=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
-{
-    this->operator/=(GlueMatrix.CreateMatrix());
-}
-
-//---------------------- Matrix {+= -= *= /=} Element ----------------------------------------//
+//---------------------- SparseMatrix {+= -= *= /=} Element ----------------------------------------//
 
 template<typename ElementType>
 inline	
@@ -4270,8 +4528,6 @@ void mdkSparseMatrix<ElementType>::operator/=(const ElementType& Element)
     MatrixElementDivide(*this, *this, Element);
 }
 
-
-
 //-------------------- element operation {^} -----------------------------------------------------------//
 
 template<typename ElementType>
@@ -4289,15 +4545,15 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::operator^(const Eleme
         return tempMatrix;
     }
 
-    tempMatrix.Resize(SelfSize.RowNumber, SelfSize.ColNumber);
+    tempMatrix.DeepCopy(*this);
 
-    auto tempRawPointer = tempMatrix.GetElementPointer();
+    auto tempRawPointer = tempMatrix.GetNonZeroElementPointer();
 
-    auto RawPointer = this->GetElementPointer();
+    auto RawPointer = this->GetNonZeroElementPointer();
 
-    auto Self_ElementNumber = SelfSize.RowNumber*SelfSize.ColNumber;
+    auto RecordedElementNumber = this->GetElementNumberInDataArray();
 
-    for (int64 i = 0; i < Self_ElementNumber; ++i)
+    for (int64 i = 0; i < RecordedElementNumber; ++i)
     {
         tempRawPointer[i] = std::pow(RawPointer[i], Element);
     }
@@ -4318,11 +4574,11 @@ inline void mdkSparseMatrix<ElementType>::operator^=(const ElementType& Element)
         return;
     }
 
-    auto BeginPointer this->GetElementPointer();
+    auto BeginPointer this->GetNonZeroElementPointer();
 
-    auto Self_ElementNumber = SelfSize.RowNumber*SelfSize.ColNumber;
+    auto RecordedElementNumber = this->GetElementNumberInDataArray();
 
-    for (auto Ptr = BeginPointer; Ptr < BeginPointer + Self_ElementNumber; ++Ptr)
+    for (auto Ptr = BeginPointer; Ptr < BeginPointer + RecordedElementNumber; ++Ptr)
     {
         Ptr[0] = std::pow(Ptr[0], Element);
     }
@@ -4332,43 +4588,76 @@ inline void mdkSparseMatrix<ElementType>::operator^=(const ElementType& Element)
 //-------------------- special element operation ( .* in matlab ) ------------------------------------------//
 
 template<typename ElementType>
-inline 
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkSparseMatrix<ElementType>& InputMatrix)
-{
-    return MatrixElementMultiply(*this, InputMatrix);
-
-}
-
-
-template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const ElementType& Element)
+mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const ElementType& Element) const
 {
     return MatrixElementMultiply(*this, Element);
 }
 
 
 template<typename ElementType>
-inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix)
+inline 
+mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkSparseMatrix<ElementType>& InputSparseMatrix) const
 {
-    return MatrixElementMultiply(*this, ShadowMatrix.CreateMatrix());
+    return MatrixElementMultiply(*this, InputSparseMatrix);
+
 }
 
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix) const
 {
-    return MatrixElementMultiply(*this, GlueMatrix.CreateMatrix());
+    return MatrixElementMultiply(*this, ShadowMatrix.CreateSparseMatrix());
 }
 
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix) const
 {
-    return MatrixElementMultiply(*this, GlueMatrix.CreateMatrix());
+    return MatrixElementMultiply(*this, GlueMatrix.CreateSparseMatrix());
+}
+
+
+template<typename ElementType>
+inline
+mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix) const
+{
+    return MatrixElementMultiply(*this, GlueMatrix.CreateSparseMatrix());
+}
+
+
+template<typename ElementType>
+inline
+mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkDenseMatrix<ElementType>& InputDenseMatrix) const
+{
+    return MatrixElementMultiply(*this, InputDenseMatrix);
+
+}
+
+
+template<typename ElementType>
+inline
+mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkDenseShadowMatrix<ElementType>& DenseShadowMatrix) const
+{
+    return MatrixElementMultiply(*this, DenseShadowMatrix.CreateDenseMatrix());
+}
+
+
+template<typename ElementType>
+inline
+mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& DenseGlueMatrix) const
+{
+    return MatrixElementMultiply(*this, DenseGlueMatrix.CreateDenseMatrix());
+}
+
+
+template<typename ElementType>
+inline
+mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& DenseGlueMatrix) const
+{
+    return MatrixElementMultiply(*this, DenseGlueMatrix.CreateDenseMatrix());
 }
 
 
@@ -4409,7 +4698,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(cons
 template<typename ElementType>
 inline 
 mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, 
-                                                                const mdkSparseMatrix<ElementType>& InputMatrix) const
+                                                                            const mdkSparseMatrix<ElementType>& InputMatrix) const
 {
     return MatrixElementOperation(Operation, *this, InputMatrix);
 }
@@ -4434,7 +4723,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(cons
 template<typename ElementType>
 inline
 mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, 
-                                                                const ElementType& Element) const
+                                                                            const ElementType& Element) const
 {
     return MatrixElementOperation(Operation, *this, Element);
 }
@@ -4485,7 +4774,7 @@ bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(const std::string& Op
 template<typename ElementType>
 inline
 bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
-                                                     const mdkSparseMatrix<ElementType>& InputMatrix)
+                                                           const mdkSparseMatrix<ElementType>& InputMatrix)
 {
     return MatrixElementOperation(*this, Operation, *this, InputMatrix);
 }
@@ -4528,11 +4817,13 @@ inline ElementType mdkSparseMatrix<ElementType>::Mean() const
         return m_NaNElement;
     }
 
-    auto RawPointer = this->GetElementPointer();
+    auto RawPointer = this->GetNonZeroElementPointer();
+
+    auto RecordedElementNumber = this->GetElementNumberInDataArray();
 
     ElementType value = RawPointer[0];
 
-    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Self_ElementNumber; ++Ptr)
+    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + RecordedElementNumber; ++Ptr)
     {
         value += Ptr[0];
     }
@@ -4557,27 +4848,7 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MeanToRow() co
 		return tempMatrix;
 	}
 
-	tempMatrix.Resize(1, SelfSize.ColNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 j = 0; j < SelfSize.ColNumber; ++j)
-	{
-        auto value = RawPointer[0];
-
-        ++RawPointer;
-
-		for (int64 i = 1; i < SelfSize.RowNumber; ++i)
-		{            
-			value += RawPointer[0];      
-
-            ++RawPointer;
-		}
-
-        tempRawPointer[j] = value / SelfSize.RowNumber;
-	}
+//-------------------------------------
     
 	return tempMatrix;
 }
@@ -4597,28 +4868,7 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MeanToCol() co
 		return tempMatrix;
 	}
 
-	tempMatrix.Resize(SelfSize.ColNumber, 1);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 i = 0; i < SelfSize.RowNumber; ++i)
-	{
-        auto value = RawPointer[0];
-
-        int64 Index = SelfSize.RowNumber;
-
-		for (int64 j = 1; j < SelfSize.ColNumber; ++j)
-		{
-			value += RawPointer[Index + i];
-
-			Index += SelfSize.RowNumber;
-		}
-
-        tempRawPointer[i] = value / SelfSize.ColNumber;
-	}
-
+    //-------------------------------------
 	return tempMatrix;
 }
 
@@ -4634,11 +4884,13 @@ inline ElementType mdkSparseMatrix<ElementType>::Sum() const
         return m_NaNElement;
 	}
 
-    auto RawPointer = this->GetElementPointer();
+    auto RawPointer = this->GetNonZeroElementPointer();
 
-	ElementType value = RawPointer[0];
+    auto RecordedElementNumber = this->GetElementNumberInDataArray();
 
-    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Self_ElementNumber; ++Ptr)
+    ElementType value = RawPointer[0];
+
+    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + RecordedElementNumber; ++Ptr)
     {
         value += Ptr[0];
     }
@@ -4661,27 +4913,7 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::SumToRow() con
 		return tempMatrix;
 	}
 
-	tempMatrix.Resize(1, SelfSize.ColNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 j = 0; j < SelfSize.ColNumber; ++j)
-	{
-        auto value = RawPointer[0];
-
-        ++RawPointer;
-
-		for (int64 i = 1; i < SelfSize.RowNumber; ++i)
-		{
-			value += RawPointer[0];
-
-            ++RawPointer;
-		}
-
-		tempRawPointer[j] = value;
-	}
+	//-------------------------------------------
     
 	return tempMatrix;
 }
@@ -4701,27 +4933,7 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::SumToCol() con
 		return tempMatrix;
 	}
 
-	tempMatrix.Resize(SelfSize.RowNumber, 1);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 i = 0; i < SelfSize.RowNumber; ++i)
-	{
-        auto value = RawPointer[i];
-
-        int64 Index = SelfSize.RowNumber;
-
-		for (int64 j = 1; j < SelfSize.ColNumber; ++j)
-		{
-			value += RawPointer[Index + i];
-
-			Index += SelfSize.RowNumber;
-		}
-
-		tempRawPointer[i] = value;
-	}
+    //-------------------------------------------
     
 	return tempMatrix;
 }
@@ -4730,19 +4942,19 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::SumToCol() con
 template<typename ElementType>
 inline ElementType mdkSparseMatrix<ElementType>::Max() const
 {
-    auto Self_ElementNumber = this->GetElementNumber();
+    auto RecordedElementNumber = this->GetElementNumberInDataArray();
 
-    if (Self_ElementNumber <= 0)
+    if (RecordedElementNumber <= 0)
 	{
 		mdkError << "self is empty Matrix @ mdkSparseMatrix::Max" << '\n';
         return m_NaNElement;
 	}
 
-	auto RawPointer = this->GetElementPointer();
+    auto RawPointer = this->GetNonZeroElementPointer();
 
 	ElementType value = RawPointer[0];
 
-    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Self_ElementNumber; ++Ptr)
+    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + RecordedElementNumber; ++Ptr)
 	{
         value = std::max(value, Ptr[0]);
 	}
@@ -4765,27 +4977,7 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MaxToRow() con
 		return tempMatrix;
 	}
 
-	tempMatrix.Resize(1, SelfSize.ColNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 j = 0; j < SelfSize.ColNumber; ++j)
-	{
-        auto value = RawPointer[0];
-
-        ++RawPointer;
-
-		for (int64 i = 1; i < SelfSize.RowNumber; ++i)
-		{
-			value = std::max(value, RawPointer[0]);
-
-            ++ RawPointer;
-		}
-
-		tempRawPointer[j] = value;
-	}
+//--------------------------------------------
     
 	return tempMatrix;
 }
@@ -4805,27 +4997,7 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MaxToCol() con
 		return tempMatrix;
 	}
 
-	tempMatrix.Resize(SelfSize.ColNumber, 1);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 i = 0; i < SelfSize.RowNumber; ++i)
-	{
-        auto value = RawPointer[i];
-
-        auto Index = SelfSize.RowNumber;
-
-		for (int64 j = 1; j < SelfSize.ColNumber; ++j)
-		{
-			value = std::max(value, RawPointer[Index + i]);
-
-			Index += SelfSize.RowNumber;
-		}
-
-		tempRawPointer[i] = value;
-	}
+//------------------------------------------------
 
 	return tempMatrix;
 }
@@ -4834,21 +5006,21 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MaxToCol() con
 template<typename ElementType>
 inline ElementType mdkSparseMatrix<ElementType>::Min() const
 {
-    auto Self_ElementNumber = this->GetElementNumber();
+    auto RecordedElementNumber = this->GetElementNumberInDataArray();
 
-    if (Self_ElementNumber <= 0)
+    if (RecordedElementNumber <= 0)
 	{
 		mdkError << "self is empty Matrix @ mdkSparseMatrix::Min" << '\n';
         return m_NaNElement;
 	}
 
-	auto RawPointer = this->GetElementPointer();
+    auto RawPointer = this->GetNonZeroElementPointer();
 
     ElementType value = RawPointer[0];
 
-    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Self_ElementNumber; ++Ptr)
+    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + RecordedElementNumber; ++Ptr)
     {
-        value = std::min(value, Ptr[0]);
+        value = std::max(value, Ptr[0]);
     }
 
 	return value;
@@ -4869,27 +5041,7 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MinToRow() con
 		return tempMatrix;
 	}
 
-	tempMatrix.Resize(1, SelfSize.ColNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 j = 0; j < SelfSize.ColNumber; ++j)
-	{
-		auto value = RawPointer[0];
-
-        ++RawPointer;
-
-		for (int64 i = 1; i < SelfSize.RowNumber; ++i)
-		{
-			value = std::min(value, RawPointer[0]);
-
-            ++RawPointer;
-		}
-
-		tempRawPointer[j] = value;
-	}
+	//----------------------------------------------------
     
 	return tempMatrix;
 }
@@ -4909,27 +5061,7 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MinToCol() con
 		return tempMatrix;
 	}
 
-	tempMatrix.Resize(SelfSize.ColNumber, 1);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 i = 0; i < SelfSize.RowNumber; ++i)
-	{
-        auto value = RawPointer[i];
-
-        auto Index = SelfSize.RowNumber;
-
-		for (int64 j = 1; j < SelfSize.ColNumber; ++j)
-		{
-			value = std::min(value, RawPointer[Index + i]);
-
-			Index += SelfSize.RowNumber;
-		}
-
-		tempRawPointer[i] = value;
-	}
+	//--------------------------------------------------------------------------
     
 	return tempMatrix;
 }
@@ -4953,7 +5085,7 @@ int64 mdkSparseMatrix<ElementType>::Rank() const
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::Inv() const
+mdkDenseMatrix<ElementType> mdkSparseMatrix<ElementType>::Inv() const
 {
     return MatrixInv(*this);
 }
@@ -4961,7 +5093,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::Inv() const
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::PseudoInv() const
+mdkDenseMatrix<ElementType> mdkSparseMatrix<ElementType>::PseudoInv() const
 {
 	// call Armadillo 
 

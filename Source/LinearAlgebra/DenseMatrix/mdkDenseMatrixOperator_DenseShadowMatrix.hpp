@@ -117,7 +117,7 @@ mdkDenseMatrix<ElementType> operator-(const mdkDenseShadowMatrix<ElementType>& S
 template<typename ElementType>
 inline mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const mdkDenseShadowMatrix<ElementType>& ShadowMatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
 {
-    return ShadowMatrixA.CreateMatrix() * MatrixB;
+    return ShadowMatrixA.CreateDenseMatrix() * MatrixB;
 }
 
 
@@ -177,7 +177,7 @@ template<typename ElementType>
 inline 
 mdkDenseMatrix<ElementType> operator+(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return ShadowMatrixB + ShadowMatrixA.CreateMatrix();
+    return ShadowMatrixB + ShadowMatrixA.CreateDenseMatrix();
 }
 
 
@@ -236,7 +236,7 @@ template<typename ElementType>
 inline 
 mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return MatrixA * ShadowMatrixB.CreateMatrix();
+    return MatrixA * ShadowMatrixB.CreateDenseMatrix();
 }
 
 
@@ -594,7 +594,7 @@ template<typename ElementType>
 inline 
 mdkDenseGlueMatrixForMultiplication<ElementType> operator*(const mdkDenseShadowMatrix<ElementType>& ShadowMatrixA, const mdkDenseShadowMatrix<ElementType>& ShadowMatrixB)
 {
-    return ShadowMatrixA.CreateMatrix() * ShadowMatrixB.CreateMatrix();
+    return ShadowMatrixA.CreateDenseMatrix() * ShadowMatrixB.CreateDenseMatrix();
 }
 
 

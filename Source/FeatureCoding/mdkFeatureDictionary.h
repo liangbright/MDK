@@ -3,7 +3,7 @@
 
 
 #include "mdkObject.h"
-#include "mdkMatrix.h"
+#include "mdkDenseMatrix.h"
 
 
 namespace mdk
@@ -14,11 +14,11 @@ class mdkFeatureDictionary : mdkObject
 {
 public:
 
-    mdkMatrix<ElementType> m_Record;
+    mdkDenseMatrix<ElementType> m_Record;
 
-    mdkMatrix<ElementType> m_Covariance;
+    mdkDenseMatrix<ElementType> m_Covariance;
 
-    mdkMatrix<ElementType> m_Variance;  // Variance(j) = sqrt(sum_i(Prob(i,j)*(Feature_i - Code(:,j))^2))
+    mdkDenseMatrix<ElementType> m_Variance;  // Variance(j) = sqrt(sum_i(Prob(i,j)*(Feature_i - Code(:,j))^2))
 
 public:
 

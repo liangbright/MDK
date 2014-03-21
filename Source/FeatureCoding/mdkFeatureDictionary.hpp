@@ -95,6 +95,7 @@ bool mdkFeatureDictionary<ElementType>::DeepCopy(const mdkFeatureDictionary<Elem
 template<typename ElementType>
 bool mdkFeatureDictionary<ElementType>::SharedCopy(mdkFeatureDictionary<ElementType>& InputDictionary)
 {
+    // only empty dictionary can use this method
     if (this->IsEmpty() == false)
     {
         mdkError << "Self is not empty @ mdkFeatureDictionary::SharedCopy(mdkFeatureDictionary&)" << '\n';
@@ -148,7 +149,9 @@ bool mdkFeatureDictionary<ElementType>::ForceSharedCopy(const mdkFeatureDictiona
         return false;
     }
 
-    return this->ForceSharedCopy(*InputDictionary);
+    this->ForceSharedCopy(*InputDictionary);
+
+    return true;
 }
 
 

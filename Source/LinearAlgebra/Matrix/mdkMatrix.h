@@ -261,6 +261,12 @@ public:
 
     inline const ElementType* GetElementPointer() const;
 
+    //--------------------- Get Element -----------------------------//
+
+    inline const ElementType& GetElement(int64 LinearIndex) const;
+
+    inline const ElementType& GetElement(int64 RowIndex, int64 ColIndex) const;
+
 	//----------- Get/Set Matrix(LinearIndex) -----------------------------------//
 
     // operator[] or () : no bound check in release mode

@@ -4461,7 +4461,7 @@ inline void mdkDenseMatrix<ElementType>::operator^=(const ElementType& Element)
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseMatrix<ElementType>& InputMatrix)
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseMatrix<ElementType>& InputMatrix) const
 {
     return MatrixElementMultiply(*this, InputMatrix);
 
@@ -4470,7 +4470,7 @@ mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const m
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const ElementType& Element)
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const ElementType& Element) const
 {
     return MatrixElementMultiply(*this, Element);
 }
@@ -4478,7 +4478,7 @@ mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const E
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix) const
 {
     return MatrixElementMultiply(*this, ShadowMatrix.CreateMatrix());
 }
@@ -4486,7 +4486,7 @@ mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const m
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix) const
 {
     return MatrixElementMultiply(*this, GlueMatrix.CreateMatrix());
 }
@@ -4494,7 +4494,7 @@ mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const m
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix) const
 {
     return MatrixElementMultiply(*this, GlueMatrix.CreateMatrix());
 }

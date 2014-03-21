@@ -1,5 +1,5 @@
-#ifndef __mdkLinearAlgebra_DenseMatrix_Part_2_h
-#define __mdkLinearAlgebra_DenseMatrix_Part_2_h
+#ifndef __mdkLinearAlgebra_Function_DenseMatrix_Part_2_h
+#define __mdkLinearAlgebra_Function_DenseMatrix_Part_2_h
 
 #include <vector>
 #include <array>
@@ -11,7 +11,7 @@
 
 #include "mdkObject.h"
 //#include "mdkDenseMatrix.h"
-#include "mdkMatrixCommon.h"
+#include "mdkMatrix_Common.h"
 
 namespace mdk
 {
@@ -152,6 +152,6 @@ inline mdkDenseMatrix<ElementType> MatrixConvolution(const mdkDenseMatrix<Elemen
 
 }//end namespace mdk
 
-#include "mdkLinearAlgebra_DenseMatrix_Part_2.hpp"
+#include "mdkLinearAlgebra_Function_DenseMatrix_Part_2.hpp"
 
 #endif

@@ -6,9 +6,18 @@
 #include <string>
 #include <initializer_list>
 #include <functional>
+#include <cmath>
+#include <algorithm>
 
 #include "mdkLinearAlgebraConfig.h"
-#include "mdkMatrix.h"
+
+#include "mdkType.h"
+#include "mdkMatrix_Common.h"
+#include "mdkSparseShadowMatrix.h"
+#include "mdkSparseGlueMatrixForMultiplication.h"
+#include "mdkSparseGlueMatrixForLinearCombination.h"
+#include "mdkSparseMatrixOperator.h"
+#include "mdkLinearAlgebra_Function_SparseMatrix.h"
 
 
 namespace mdk
@@ -21,30 +30,6 @@ namespace mdk
 // mdkSparseMatrix is the same as Matlab SparseMatrix except index staring from 0 instead of 1 in Matlab
 //
 
-//forward-declare ----------------//
-template<typename ElementType>
-class mdkMatrix;
-
-template<typename ElementType>
-class mdkSparseMatrix;
-
-template<typename ElementType>
-class mdkSparseShadowMatrix;
-
-template<typename ElementType>
-class mdkSparseGlueMatrixForLinearCombination;
-
-template<typename ElementType>
-class mdkSparseGlueMatrixForMultiplication;
-
-// end of  forward-declare  ------//
-
-// -----------------------//
-
-#define MDK_SparseMatrix_AdditionalReservedCapacity 1000; 
-
-// -----------------------//
-
 // ----------------------------- mdkSparseMatrixData struct -------------------------------------------------------------//
 
 template<typename ElementType>
@@ -55,39 +40,50 @@ struct mdkSparseMatrixData
 
     std::vector<int64> m_RowIndexList;
 
-    std::vector<int64> m_ColBeginElementRelativeIndexList; // Index in m_RowIndexList and m_DataArray
-
-    std::vector<int64> m_NonZeroElementNumberInEachCol;
+    std::vector<int64> m_ColIndexList;
 
     std::vector<ElementType> m_DataArray;
-//-------------------------------------------------------------
+
+    std::vector<int64> m_ColBeginElementLinearIndexInDataArray; // Index in m_RowIndexList m_ColIndexList m_DataArray
+
+    std::vector<int64> m_RecordedElementNumberInEachCol;
+
+    ElementType m_ZeroElement;
+
+//-------------------------------------------------------------------------------------------------
     inline mdkSparseMatrixData();
 
-    inline mdkSparseMatrixData(int64 RowNumber, int64 ColNumber);
+    inline ~mdkSparseMatrixData();
+
+    inline void Construct(int64 RowNumber, int64 ColNumber);
 
     inline void Construct(const int64* RowIndexList,
                           const int64* ColIndexList,
                           const ElementType* DataArray,
-                          int64 NonZeroElementNumber,
+                          int64 RecordedElementNumber,
                           int64 RowNumber,
                           int64 ColNumber,
-                          int64 AdditionalReservedCapacity = MDK_SparseMatrix_AdditionalReservedCapacity);
+                          int64 AdditionalReservedCapacity = 0);
 
-    inline mdkSparseMatrixData(const mdkMatrix<int64>& RowIndexList,
-                               const mdkMatrix<int64>& ColIndexList,
-                               const mdkMatrix<ElementType>& DataArray,
-                               int64 RowNumber,
-                               int64 ColNumber,
-                               int64 AdditionalReservedCapacity = MDK_SparseMatrix_AdditionalReservedCapacity);
+    inline void Reset();
 
-    inline mdkSparseMatrixData(const std::vector<int64>& RowIndexList,
-                               const std::vector<int64>& ColIndexList,
-                               const std::vector<ElementType>& DataArray,
-                               int64 RowNumber,
-                               int64 ColNumber,
-                               int64 AdditionalReservedCapacity = MDK_SparseMatrix_AdditionalReservedCapacity);
+    //------------------------------------------
 
-    inline ~mdkSparseMatrixData();
+    inline const ElementType& GetElement(int64 LinearIndex) const;
+
+    inline const ElementType& GetElement(int64 RowIndex, int64 ColIndex) const;
+
+    inline ElementType& SetElement(int64 LinearIndex, const ElementType& InputElement);
+
+    inline ElementType& SetElement(int64 RowIndex, int64 ColIndex, const ElementType& InputElement);
+
+    //------------------------------------------
+
+    inline int64 GetLinearIndexInDataArray(int64 LinearIndex) const;
+
+    inline int64 GetLinearIndexInDataArray(int64 RowIndex, int64 ColIndex) const;
+
+    //------------------------------------------
 
     inline ElementType& operator[](int64 LinearIndex);
 
@@ -100,6 +96,10 @@ struct mdkSparseMatrixData
     inline ElementType& operator()(int64 RowIndex, int64 ColIndex);
 
     inline const ElementType& operator()(int64 RowIndex, int64 ColIndex) const;
+
+    //------------------------------------------
+
+    inline int64 GetRecordedElementNumber() const;
 
 private:
 //deleted: -------------------------------------------------
@@ -136,27 +136,10 @@ public:
 
     inline mdkSparseMatrix(int64 RowNumber, int64 ColNumber);
 
-    inline mdkSparseMatrix(const mdkMatrix<int64>& RowIndexList,
-                           const mdkMatrix<int64>& ColIndexList,
-                           const mdkMatrix<ElementType>& DataArray,
-                           int64 RowNumber,
-                           int64 ColNumber,
-                           int64 AdditionalReservedCapacity = MDK_SparseMatrix_AdditionalReservedCapacity);
-
-    inline mdkSparseMatrix(const std::vector<int64>& RowIndexList,
-                           const std::vector<int64>& ColIndexList,
-                           const std::vector<ElementType>& DataArray,
-                           int64 RowNumber,
-                           int64 ColNumber,
-                           int64 AdditionalReservedCapacity = MDK_SparseMatrix_AdditionalReservedCapacity);
-
-    // copy constructor (DeepCopy)
-    inline mdkSparseMatrix(const mdkSparseMatrix<ElementType>& InputSparseMatrix);
-
     inline mdkSparseMatrix(const ElementType& Element);
 
-    // copy constructor (DeepCopy or ShallowCopy)
-    inline mdkSparseMatrix(mdkSparseMatrix<ElementType>& InputSparseMatrix, mdkObjectConstructionTypeEnum Method = mdkObjectConstructionTypeEnum::DeepCopy);
+    // copy constructor (DeepCopy or SharedCopy)
+    inline mdkSparseMatrix(const mdkSparseMatrix<ElementType>& InputSparseMatrix, mdkObjectCopyConstructionTypeEnum Method = mdkObjectCopyConstructionTypeEnum::DeepCopy);
 
     // move constructor
     inline mdkSparseMatrix(mdkSparseMatrix<ElementType>&& InputSparseMatrix);
@@ -169,22 +152,36 @@ public:
 
 	inline ~mdkSparseMatrix();
 
-
     //------------------------------construction method -----------------------------//
 
-    inline bool Construct(const mdkMatrix<int64>& RowIndexList,
-                          const mdkMatrix<int64>& ColIndexList,
-                          const mdkMatrix<ElementType>& DataArray,
+    inline bool Construct(const mdkDenseMatrix<int64>& RowIndexList,
+                          const mdkDenseMatrix<int64>& ColIndexList,
+                          const mdkDenseMatrix<ElementType>& DataArray,
                           int64 RowNumber,
                           int64 ColNumber,
-                          int64 AdditionalReservedCapacity = MDK_SparseMatrix_AdditionalReservedCapacity);
+                          int64 AdditionalReservedCapacity = 0);
 
     inline bool Construct(const std::vector<int64>& RowIndexList,
                           const std::vector<int64>& ColIndexList,
                           const std::vector<ElementType>& DataArray,
                           int64 RowNumber,
                           int64 ColNumber,
-                          int64 AdditionalReservedCapacity = MDK_SparseMatrix_AdditionalReservedCapacity);
+                          int64 AdditionalReservedCapacity = 0);
+
+    inline bool Construct(const std::initializer_list<int64>& RowIndexList,
+                          const std::initializer_list<int64>& ColIndexList,
+                          const std::initializer_list<ElementType>& DataArray,
+                          int64 RowNumber,
+                          int64 ColNumber,
+                          int64 AdditionalReservedCapacity = 0);
+
+    inline bool Construct(const int64* RowIndexList,
+                          const int64* ColIndexList,
+                          const ElementType* DataArray,
+                          int64 RecordedElementNumber,
+                          int64 RowNumber,
+                          int64 ColNumber,
+                          int64 AdditionalReservedCapacity = 0);
 
     //----------------------  operator=  ----------------------------------------//
 
@@ -213,10 +210,10 @@ public:
     // Copy can be used to convert a SparseMatrix from double (ElementType_Input) to float (ElementType), etc
 
     template<typename ElementType_Input>  
-    inline bool Copy(const mdkSparseMatrix<ElementType_Input>& InputMatrix);
+    inline bool DeepCopy(const mdkSparseMatrix<ElementType_Input>& InputMatrix);
 
     template<typename ElementType_Input>
-    inline bool Copy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
+    inline bool DeepCopy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
 
     inline bool Fill(const ElementType& Element);
 
@@ -224,11 +221,11 @@ public:
  
     // if m_IsSizeFixed is true, and size does not match, then return false
     //
-    inline bool Share(mdkSparseMatrix<ElementType>& InputMatrix);
+    inline bool SharedCopy(mdkSparseMatrix<ElementType>& InputMatrix);
 
     // it is used by SparseGlueMatrix
     // Share the object (InputSparseMatrix) no matter what, even if InputSparseMatrix is const
-    inline void ForceShare(const mdkSparseMatrix<ElementType>& InputMatrix);
+    inline void ForceSharedCopy(const mdkSparseMatrix<ElementType>& InputMatrix);
 
     //-------------------- Take -----------------------------------------------------------//
 
@@ -270,7 +267,7 @@ public:
 
     inline int64 GetElementNumber() const;
 
-    inline int64 GetNonZeroElementNumber() const;
+    inline int64 GetRecordedElementNumber() const;
 
 	inline int64 GetColNumber() const;
 
@@ -282,7 +279,23 @@ public:
 
     //------------------------ Element Type -----------------------------//
 
-    inline mdkSparseMatrixElementTypeEnum GetElementType() const;
+    inline mdkMatrixElementTypeEnum GetElementType() const;
+
+    //--------------------- Get Data Pointer -----------------------------//
+
+    inline ElementType* GetElementPointer();
+
+    inline const ElementType* GetElementPointer() const;
+
+    //--------------------- Get/Set Element -----------------------------//
+
+    inline const ElementType& GetElement(int64 LinearIndex) const;
+
+    inline const ElementType& GetElement(int64 RowIndex, int64 ColIndex) const;
+
+    inline bool SetElement(int64 LinearIndex, const ElementType& InputElement);
+
+    inline bool SetElement(int64 RowIndex, int64 ColIndex, const ElementType& InputElement);
 
 	//----------- Get/Set SparseMatrix(LinearIndex) -----------------------------------//
 
@@ -643,6 +656,16 @@ public:
 
     inline void operator*=(mdkSparseGlueMatrixForMultiplication<ElementType> GlueMatrix);
 
+    //---------------------- SparseMatrix {+= -= *= /=} Element ----------------------------------------//
+
+    inline void operator+=(const ElementType& Element);
+
+    inline void operator-=(const ElementType& Element);
+
+    inline void operator*=(const ElementType& Element);
+
+    inline void operator/=(const ElementType& Element);
+
     //-------------------- special element operation {^} -----------------------------------------------------------//
 
     inline mdkSparseMatrix operator^(const ElementType& Element);
@@ -651,23 +674,63 @@ public:
 
     //-------------------- special element operation {.*} element multiply -----------------------------------------------------------//
 
-    inline mdkSparseMatrix ElementMultiply(const ElementType& Element);
+    inline mdkSparseMatrix ElementMultiply(const ElementType& Element) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkSparseMatrix<ElementType>& InputSparseMatrix);
+    inline mdkSparseMatrix ElementMultiply(const mdkSparseMatrix<ElementType>& InputSparseMatrix) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkSparseShadowMatrix<ElementType>& SparseShadowMatrix);
+    inline mdkSparseMatrix ElementMultiply(const mdkSparseShadowMatrix<ElementType>& SparseShadowMatrix) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkSparseGlueMatrixForLinearCombination<ElementType>& SparseGlueMatrix);
+    inline mdkSparseMatrix ElementMultiply(const mdkSparseGlueMatrixForLinearCombination<ElementType>& SparseGlueMatrix) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkSparseGlueMatrixForMultiplication<ElementType>& SparseGlueMatrix);
+    inline mdkSparseMatrix ElementMultiply(const mdkSparseGlueMatrixForMultiplication<ElementType>& SparseGlueMatrix) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkDenseMatrix<ElementType>& InputDenseMatrix);
+    inline mdkSparseMatrix ElementMultiply(const mdkDenseMatrix<ElementType>& InputDenseMatrix) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkDenseShadowMatrix<ElementType>& DenseShadowMatrix);
+    inline mdkSparseMatrix ElementMultiply(const mdkDenseShadowMatrix<ElementType>& DenseShadowMatrix) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& DenseGlueMatrix);
+    inline mdkSparseMatrix ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& DenseGlueMatrix) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& DenseGlueMatrix);
+    inline mdkSparseMatrix ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& DenseGlueMatrix) const;
+
+    //-------------------- general element operation : output a new matrix ------------------------------------------//
+
+    inline mdkSparseMatrix ElementOperation(const char* OperationName) const;
+
+    inline mdkSparseMatrix ElementOperation(const std::string& OperationName) const;
+
+    inline mdkSparseMatrix ElementOperation(std::function<ElementType(const ElementType&)> Operation) const;
+
+    inline mdkSparseMatrix ElementOperation(const std::string& OperationName, const mdkSparseMatrix<ElementType>& InputMatrix) const;
+
+    inline mdkSparseMatrix ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
+                                            const mdkSparseMatrix<ElementType>& InputMatrix) const;
+
+    inline mdkSparseMatrix ElementOperation(const char* OperationName, const ElementType& Element) const;
+
+    inline mdkSparseMatrix ElementOperation(const std::string& OperationName, const ElementType& Element) const;
+
+    inline mdkSparseMatrix ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, const ElementType& Element) const;
+
+    //-------------------- general element operation in place : Object.ElementOperationInPlace modify the object ------------------//
+
+    inline bool ElementOperationInPlace(const char* OperationName);
+
+    inline bool ElementOperationInPlace(const std::string& OperationName);
+
+    inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&)> Operation);
+
+    inline bool ElementOperationInPlace(const char* OperationName, const mdkSparseMatrix<ElementType>& InputMatrix);
+
+    inline bool ElementOperationInPlace(const std::string& OperationName, const mdkSparseMatrix<ElementType>& InputMatrix);
+
+    inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
+                                        const mdkSparseMatrix<ElementType>& InputMatrix);
+
+    inline bool ElementOperationInPlace(const char* OperationName, const ElementType& Element);
+
+    inline bool ElementOperationInPlace(const std::string& OperationName, const ElementType& Element);
+
+    inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation, const ElementType& Element);
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 
@@ -705,13 +768,13 @@ public:
 
 	//----------------------------------- inverse -----------------------------------------//
 
-    inline mdkMatrix Inv() const;
+    inline mdkDenseMatrix<ElementType> Inv() const;
 
-    inline mdkMatrix PseudoInv() const;
+    inline mdkDenseMatrix<ElementType> PseudoInv() const;
 
 	//----------------------------------- SVD -----------------------------------------//
 
-    inline mdkMatrixSVDResult<ElementType> SVD() const;
+    inline mdkSparseMatrixSVDResult<ElementType> SVD() const;
 
 
 	//---------------------------- private functions ---------------------------------------//
