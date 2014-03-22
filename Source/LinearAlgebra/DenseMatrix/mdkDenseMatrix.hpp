@@ -414,7 +414,7 @@ bool mdkDenseMatrix<ElementType>::DeepCopy(const ElementType_Input* InputElement
         bool IsNewMemoryNeeded = false;
 
         //if self is empty
-        if (this->IsEmpty() == true)
+        if (Self_ElementNumber == 0)
         {
             IsNewMemoryNeeded = true;
         }
@@ -880,9 +880,12 @@ void mdkDenseMatrix<ElementType>::FixSize()
 {
     m_IsSizeFixed = true;
 
-    m_MatrixData->DataArray.shrink_to_fit();
+    if (m_MatrixData)
+    {
+        m_MatrixData->DataArray.shrink_to_fit();
 
-    m_ElementPointer = m_MatrixData->DataArray.data();
+        m_ElementPointer = m_MatrixData->DataArray.data();
+    }
 }
 
 
@@ -900,61 +903,6 @@ bool mdkDenseMatrix<ElementType>::IsEmpty() const
 {
     return !(m_MatrixData); 
 }
-
-
-template<typename ElementType>
-inline
-bool mdkDenseMatrix<ElementType>::IsNoneEmptyVector() const
-{
-    if (!m_MatrixData)
-    {
-        return false;
-    }
-
-    if (m_MatrixData->RowNumber == 1 || m_MatrixData->ColNumber == 1)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-
-template<typename ElementType>
-inline
-bool mdkDenseMatrix<ElementType>::IsNoneEmptyRowVector() const
-{
-    if (!m_MatrixData)
-    {
-        return false;
-    }
-
-    if (m_MatrixData->RowNumber == 1)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-
-template<typename ElementType>
-inline
-bool mdkDenseMatrix<ElementType>::IsNoneEmptyColVector() const
-{
-    if (!m_MatrixData)
-    {
-        return false;
-    }
-
-    if (m_MatrixData->ColNumber == 1)
-    {
-        return true;
-    }
-
-    return false;
-}
-
 
 
 template<typename ElementType>
@@ -1021,6 +969,78 @@ int64 mdkDenseMatrix<ElementType>::GetRowNumber() const
     {
         return 0;
     }
+}
+
+
+template<typename ElementType>
+inline
+bool mdkDenseMatrix<ElementType>::IsNonemptyVector() const
+{
+    if (!m_MatrixData)
+    {
+        return false;
+    }
+
+    if (m_MatrixData->RowNumber == 1 || m_MatrixData->ColNumber == 1)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+template<typename ElementType>
+inline
+bool mdkDenseMatrix<ElementType>::IsNonemptyRowVector() const
+{
+    if (!m_MatrixData)
+    {
+        return false;
+    }
+
+    if (m_MatrixData->RowNumber == 1)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+template<typename ElementType>
+inline
+bool mdkDenseMatrix<ElementType>::IsNonemptyColVector() const
+{
+    if (!m_MatrixData)
+    {
+        return false;
+    }
+
+    if (m_MatrixData->ColNumber == 1)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+template<typename ElementType>
+inline
+bool mdkDenseMatrix<ElementType>::IsNonemptySquare() const
+{
+    if (!m_MatrixData)
+    {
+        return false;
+    }
+
+    if (m_MatrixData->RowNumber == m_MatrixData->ColNumber)
+    {
+        return true;
+    }
+
+    return false;
 }
 
 

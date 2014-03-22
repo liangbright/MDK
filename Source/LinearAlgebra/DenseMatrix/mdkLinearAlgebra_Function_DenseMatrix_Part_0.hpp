@@ -114,12 +114,12 @@ bool Sort(const ElementType* InputDataArray, int64 Length, ElementType* OutputDa
     if (Order == "ascend")
     {
         std::sort(tempPairList.begin(), tempPairList.end(), 
-                  [](const mdkPairForSort<ElementType>& a, const mdkPairForSort<ElementType>& b) { return a.Index < b.Index; });
+                  [](const mdkPairForSort<ElementType>& a, const mdkPairForSort<ElementType>& b) { return a.Element < b.Element; });
     }
     else
     {
         std::sort(tempPairList.begin(), tempPairList.end(),
-                  [](const mdkPairForSort<ElementType>& a, const mdkPairForSort<ElementType>& b) { return a.Index > b.Index; });
+                  [](const mdkPairForSort<ElementType>& a, const mdkPairForSort<ElementType>& b) { return a.Element > b.Element; });
     }
 
 

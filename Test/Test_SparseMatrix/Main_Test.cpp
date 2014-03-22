@@ -9,7 +9,9 @@ using namespace mdk;
 
 int main()
 {
-    Test_Constructor();
+    //Test_Constructor();
+
+    Test_Resize();
 
     //Test_Destructor();
 

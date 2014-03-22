@@ -23,17 +23,17 @@
 namespace mdk
 {
 
-// 2D SparseMatrix Class Template, each entry/element is a scalar
-// column major
+// 2D SparseMatrix Class Template
+// Compressed sparse column (CSC)
 //
 // Compare to Matlab:
-// mdkSparseMatrix is the same as Matlab SparseMatrix except index staring from 0 instead of 1 in Matlab
+// mdkSparseMatrix is the same as Matlab Sparse Matrix except index staring from 0 instead of 1 in Matlab
 //
 
-// ----------------------------- mdkSparseMatrixData struct -------------------------------------------------------------//
+// ----------------------------- mdkSparseMatrixDataInCSCFormat struct -------------------------------------------------------------//
 
 template<typename ElementType>
-struct mdkSparseMatrixData
+struct mdkSparseMatrixDataInCSCFormat
 {
     int64 m_RowNumber;  // RowNumber = the Number of Rows 
     int64 m_ColNumber;  // ColNumber = the Number of Columns
@@ -51,41 +51,32 @@ struct mdkSparseMatrixData
     ElementType m_ZeroElement;
 
 //-------------------------------------------------------------------------------------------------
-    inline mdkSparseMatrixData();
+    inline mdkSparseMatrixDataInCSCFormat();
 
-    inline ~mdkSparseMatrixData();
+    inline ~mdkSparseMatrixDataInCSCFormat();
 
-    inline void Construct(int64 RowNumber, int64 ColNumber);
+    inline void Construct(int64 InputRowNumber, int64 InputColNumber);
 
-    inline void Construct(const int64* RowIndexList,
-                          const int64* ColIndexList,
-                          const ElementType* DataArray,
+    inline void Construct(const int64* InputRowIndexList,
+                          const int64* InputColIndexList,
+                          const ElementType* InputDataArray,
                           int64 RecordedElementNumber,
-                          int64 RowNumber,
-                          int64 ColNumber,
+                          int64 InputRowNumber,
+                          int64 InputColNumber,
                           int64 AdditionalReservedCapacity = 0);
+
+    //------------------------------------------
 
     inline void Reset();
 
-    //------------------------------------------
-
-    inline const ElementType& GetElement(int64 LinearIndex) const;
-
-    inline const ElementType& GetElement(int64 RowIndex, int64 ColIndex) const;
-
-    inline ElementType& SetElement(int64 LinearIndex, const ElementType& InputElement);
-
-    inline ElementType& SetElement(int64 RowIndex, int64 ColIndex, const ElementType& InputElement);
+    inline void Resize(int64 InputRowNumber, int64 InputColNumber);
 
     //------------------------------------------
+    // note 1: [] and () have no bound check in release mode
+    // note 2: none cost operator [] and () willl created a new record at location [k], (k) or (RowIndex, ColIndex)
+    //         if there is no record in that location
 
-    inline int64 GetLinearIndexInDataArray(int64 LinearIndex) const;
-
-    inline int64 GetLinearIndexInDataArray(int64 RowIndex, int64 ColIndex) const;
-
-    //------------------------------------------
-
-    inline ElementType& operator[](int64 LinearIndex);
+    inline ElementType& operator[](int64 LinearIndex); 
 
     inline const ElementType& operator[](int64 LinearIndex) const;
 
@@ -98,18 +89,41 @@ struct mdkSparseMatrixData
     inline const ElementType& operator()(int64 RowIndex, int64 ColIndex) const;
 
     //------------------------------------------
+    // note: output -1 if no record exits in the input location
+
+    inline int64 GetLinearIndexInDataArray(int64 LinearIndex) const;
+
+    inline int64 GetLinearIndexInDataArray(int64 RowIndex, int64 ColIndex) const;
+
+    //------------------------------------------
+    // note: output ElementType(0) if no record exits in the input location
+
+    inline const ElementType& GetElement(int64 LinearIndex) const;
+
+    inline const ElementType& GetElement(int64 RowIndex, int64 ColIndex) const;
+
+    inline ElementType& SetElement(int64 LinearIndex, const ElementType& InputElement);
+
+    inline ElementType& SetElement(int64 RowIndex, int64 ColIndex, const ElementType& InputElement);
+
+    //------------------------------------------
+    // get the length of m_DataArray
 
     inline int64 GetRecordedElementNumber() const;
 
+    //-----------------------------------------
+
+    inline void DeepCopy(const mdkSparseMatrixDataInCSCFormat& InputData);
+
 private:
 //deleted: -------------------------------------------------
-    mdkSparseMatrixData(const mdkSparseMatrixData&) = delete;
+    mdkSparseMatrixDataInCSCFormat(const mdkSparseMatrixDataInCSCFormat&) = delete;
 
-    mdkSparseMatrixData(mdkSparseMatrixData&&) = delete;
+    mdkSparseMatrixDataInCSCFormat(mdkSparseMatrixDataInCSCFormat&&) = delete;
 
-    void operator=(const mdkSparseMatrixData&) = delete;
+    void operator=(const mdkSparseMatrixDataInCSCFormat&) = delete;
 
-    void operator=(mdkSparseMatrixData&&) = delete;
+    void operator=(mdkSparseMatrixDataInCSCFormat&&) = delete;
 };
 
 //----------------------------------------------------------------------------------------------------------------------------//
@@ -120,7 +134,7 @@ class mdkSparseMatrix : public mdkObject
 
 private:
      
-    std::shared_ptr<mdkSparseMatrixData<ElementType>> m_MatrixData;
+    std::shared_ptr<mdkSparseMatrixDataInCSCFormat<ElementType>> m_MatrixData;
 
     ElementType m_NaNElement;
 
@@ -299,6 +313,9 @@ public:
 
 	//----------- Get/Set SparseMatrix(LinearIndex) -----------------------------------//
 
+    // none-const operator [] and (), and at() will create a new record at location [k] or (k) 
+    // if there is no record at that location 
+
     // operator[] or () : no bound check in release mode
 
     inline ElementType& operator[](int64 LinearIndex);
@@ -316,6 +333,9 @@ public:
 	inline const ElementType& at(int64 LinearIndex) const;
 
 	//----------- Get/Set SparseMatrix(i,j)  ---------------------------------------------//
+
+    // none-const operator [] and (), and at() will create a new record at location (i,j) 
+    // if there is no record at that location 
 
     // operator() : no bound check in release mode
 

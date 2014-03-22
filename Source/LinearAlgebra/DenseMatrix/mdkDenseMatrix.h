@@ -266,12 +266,6 @@ public:
 
     inline bool IsEmpty() const;
 
-    inline bool IsNoneEmptyVector() const;
-
-    inline bool IsNoneEmptyRowVector() const;
-
-    inline bool IsNoneEmptyColVector() const;
-
 	inline mdkMatrixSize GetSize() const;
 
     inline int64 GetElementNumber() const;
@@ -279,6 +273,14 @@ public:
 	inline int64 GetColNumber() const;
 
 	inline int64 GetRowNumber() const;
+
+    inline bool IsNonemptyVector() const;
+
+    inline bool IsNonemptyRowVector() const;
+
+    inline bool IsNonemptyColVector() const;
+
+    inline bool IsNonemptySquare() const;
 
     //------------------------ NaN Element -----------------------------//
 
@@ -363,78 +365,78 @@ public:
     // operator(): no bound check in release mode
 
     inline mdkDenseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& RowIndexList,
-                                                   std::initializer_list<int64>& ColIndexList);
+                                                        std::initializer_list<int64>& ColIndexList);
 
     inline const mdkDenseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& RowIndexList,
-                                                         std::initializer_list<int64>& ColIndexList) const;
+                                                              std::initializer_list<int64>& ColIndexList) const;
 
     inline mdkDenseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList, 
-                                                   const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+                                                        const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
 
     inline const mdkDenseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList, 
-                                                         const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
+                                                              const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
 
     inline mdkDenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                                   const std::initializer_list<int64>& ColIndexList);
+                                                        const std::initializer_list<int64>& ColIndexList);
 
     inline const mdkDenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                                         const std::initializer_list<int64>& ColIndexList) const;
+                                                              const std::initializer_list<int64>& ColIndexList) const;
 
     inline mdkDenseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
-                                                   const std::vector<int64>& ColIndexList);
+                                                        const std::vector<int64>& ColIndexList);
 
     inline const mdkDenseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
-                                                         const std::vector<int64>& ColIndexList) const;
+                                                              const std::vector<int64>& ColIndexList) const;
 
     inline mdkDenseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
-                                                   const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+                                                        const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
 
     inline const mdkDenseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
-                                                         const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
+                                                              const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
 
     inline mdkDenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                                   const std::vector<int64>& ColIndexList);
+                                                        const std::vector<int64>& ColIndexList);
 
     inline const mdkDenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                                         const std::vector<int64>& ColIndexList) const;
+                                                              const std::vector<int64>& ColIndexList) const;
 
     // at(): bound check -----------------
 
     inline mdkDenseShadowMatrix<ElementType> at(std::initializer_list<int64>& RowIndexList,
-                                           std::initializer_list<int64>& ColIndexList);
+                                                std::initializer_list<int64>& ColIndexList);
 
     inline const mdkDenseShadowMatrix<ElementType> at(std::initializer_list<int64>& RowIndexList,
-                                                 std::initializer_list<int64>& ColIndexList) const;
+                                                      std::initializer_list<int64>& ColIndexList) const;
 
     inline mdkDenseShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
-                                           const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+                                                const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
 
     inline const mdkDenseShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
-                                                 const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
+                                                      const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
 
     inline mdkDenseShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                           const std::initializer_list<int64>& ColIndexList);
+                                                const std::initializer_list<int64>& ColIndexList);
 
     inline const mdkDenseShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                                 const std::initializer_list<int64>& ColIndexList) const;
+                                                      const std::initializer_list<int64>& ColIndexList) const;
 
     inline mdkDenseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
-                                           const std::vector<int64>& ColIndexList);
+                                                const std::vector<int64>& ColIndexList);
 
     inline const mdkDenseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
-                                                 const std::vector<int64>& ColIndexList) const;
+                                                      const std::vector<int64>& ColIndexList) const;
 
     inline mdkDenseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
-                                           const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+                                                const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
 
     inline const mdkDenseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
-                                                 const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
+                                                      const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
 
     inline mdkDenseShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                           const std::vector<int64>& ColIndexList);
+                                                const std::vector<int64>& ColIndexList);
 
     inline const mdkDenseShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
-                                                 const std::vector<int64>& ColIndexList) const;
+                                                      const std::vector<int64>& ColIndexList) const;
 
     // return SubMatrix as Matrix -----------------------------------------------
 
@@ -691,7 +693,7 @@ public:
 
     inline mdkDenseMatrix ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, const ElementType& Element) const;
 
-    //-------------------- general element operation in place : Object.ElementOperationInPlace modify the object ------------------//
+    //-------------------- general element operation in place : Object.ElementOperationInPlace modify the object itself ---------------//
 
     inline bool ElementOperationInPlace(const char* OperationName);
 
@@ -763,7 +765,7 @@ private:
 
 };
 
-//============================================= For Reference ===================================================//
+//================================================== For Reference ===============================================================//
 /*
 // ------------------------------------ Matrix {+ - * /}  Matrix ------------------------------------------------//
 
@@ -806,6 +808,8 @@ inline mdkDenseMatrix<ElementType> operator*(const ElementType& ElementA, const 
 
 template<typename ElementType>
 inline mdkDenseMatrix<ElementType> operator/(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB);
+
+// ----------------------- Matrix = Element is defined by a constructor, and "=" operator --------------------------//
 
 // ----------------------- Element = Matrix (if 1x1) is not allowed in c++ --------------------------------------------//
 // not allowed in c++
