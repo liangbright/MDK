@@ -110,6 +110,7 @@ public:
     // move assignment operator
     inline void operator=(mdkMatrix<ElementType>&& InputMatrix);
 
+    // other 
     inline void operator=(const ElementType& Element);
 
     inline void operator=(const std::initializer_list<ElementType>& list);
@@ -139,7 +140,7 @@ public:
 
     //-------------------------- SharedCopy, ForceSharedCopy  ------------------------------------------ //
  
-    // Why I use the name: ShallowCopy instead of Share :
+    // Why I use the name: SharedCopy instead of Share :
     // A.Share(B) literally means Matrix A and Matrix B share the same thing
     // but after B.Clear(), and B.Resize(10,10), A and B have different data pointed by different shared_ptr (m_MatrixData)
     // The "Share" is one-time thing, not share forever, maybe OneTimeShare is better than Share
@@ -195,6 +196,8 @@ public:
 
     //Take the the ownership of the InputMatrix and Clear it
 
+    inline bool Take(mdkMatrix<ElementType>* InputMatrix);
+
     inline bool Take(mdkMatrix<ElementType>& InputMatrix);
 
     inline bool Take(mdkMatrix<ElementType>&& InputMatrix);
@@ -206,6 +209,50 @@ public:
     inline bool Take(const mdkGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
     inline bool Take(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+
+    //---------------- Get Data from DenseMatrix or SparseMatrix ----------------------------------------//
+
+    template<typename ElementType_Input>
+    inline bool DeepCopy(const mdkDenseMatrix<ElementType_Input>& InputMatrix);
+
+    template<typename ElementType_Input>
+    inline bool DeepCopy(const mdkDenseMatrix<ElementType_Input>* InputMatrix);
+
+    // SharedCopy DenseMatrix
+    inline bool SharedCopy(mdkDenseMatrix<ElementType>& InputMatrix);
+
+    inline bool SharedCopy(mdkDenseMatrix<ElementType>* InputMatrix);
+
+    // ForceSharedCopy DenseMatrix
+    inline void ForceSharedCopy(const mdkDenseMatrix<ElementType>& InputMatrix);
+
+    inline bool ForceSharedCopy(const mdkDenseMatrix<ElementType>* InputMatrix);
+
+    // Take DenseMatrix
+    inline bool Take(mdkDenseMatrix<ElementType>& InputMatrix);
+
+    inline bool Take(mdkDenseMatrix<ElementType>* InputMatrix);
+
+    // SharedCopy SparseMatrix
+    inline bool SharedCopy(mdkSparseMatrix<ElementType>& InputMatrix);
+
+    inline bool SharedCopy(mdkSparseMatrix<ElementType>* InputMatrix);
+
+    // ForceSharedCopy SparseMatrix
+    inline void ForceSharedCopy(const mdkSparseMatrix<ElementType>& InputMatrix);
+
+    inline bool ForceSharedCopy(const mdkSparseMatrix<ElementType>* InputMatrix);
+
+    // Take SparseMatrix
+    inline bool Take(mdkSparseMatrix<ElementType>& InputMatrix);
+
+    inline bool Take(mdkSparseMatrix<ElementType>* InputMatrix);
+
+    //---------------- Output DenseMatrix or SparseMatrix -----------------------------------//
+
+    inline mdkDenseMatrix<ElementType>& toDenseMatrix();
+
+    inline mdkSparseMatrix<ElementType>& toSparseMatrix();
 
     //------------------------- Reset , Clear -------------------------------------------//
     

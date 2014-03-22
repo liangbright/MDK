@@ -160,7 +160,7 @@ bool mdkDenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(mdkDens
         if (m_Is_m_Element_Coef_Equal_to_One == true)
         {
             mdkError << "MatrixNumber is 1 and  m_Is_m_Element_Coef_Equal_to_One = true @ mdkDenseGlueMatrixForMultiplication::CreateDenseMatrix(OutputMatrix)" << '\n';
-            OutputMatrix.DeepCopy(m_SourceMatrixSharedCopyList[0]);
+            OutputMatrix.Copy(m_SourceMatrixSharedCopyList[0]);
             return false;
         }
         

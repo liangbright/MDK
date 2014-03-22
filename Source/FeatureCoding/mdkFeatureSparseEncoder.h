@@ -19,9 +19,11 @@ protected:
 
     mdkDenseMatrix<ElementType>  m_FeatureCodeInCompactFormat_SharedCopy;
    
+    // Example:
+    //
     // MaxNumberOfNonZeroValue = 2
     //
-    // Code in Dense Format
+    // Code in Dense Format (a column is a code vector)
     // 0 1 0 1 0
     // 1 0 1 0 0
     // 1 1 0 0 1
@@ -29,7 +31,7 @@ protected:
     // 0 0 1 0 0
     //
     // Code in Compact Format
-    // row index  1  0  2  0   2
+    // row index  1  0  1  0   2
     // value      1  1  1  1   1
     // row index  2  2  4  3  -1
     // value      1  1  1  1  -1

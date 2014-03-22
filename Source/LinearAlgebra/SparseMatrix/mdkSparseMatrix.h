@@ -67,7 +67,7 @@ struct mdkSparseMatrixDataInCSCFormat
 
     //------------------------------------------
 
-    inline void Reset();
+    inline void Clear();
 
     inline void Resize(int64 InputRowNumber, int64 InputColNumber);
 
@@ -113,7 +113,9 @@ struct mdkSparseMatrixDataInCSCFormat
 
     //-----------------------------------------
 
-    inline void DeepCopy(const mdkSparseMatrixDataInCSCFormat& InputData);
+    inline void Copy(const mdkSparseMatrixDataInCSCFormat& InputData);
+
+    inline void Take(mdkSparseMatrixDataInCSCFormat& InputData);
 
 private:
 //deleted: -------------------------------------------------
@@ -152,8 +154,8 @@ public:
 
     inline mdkSparseMatrix(const ElementType& Element);
 
-    // copy constructor (DeepCopy or SharedCopy)
-    inline mdkSparseMatrix(const mdkSparseMatrix<ElementType>& InputSparseMatrix, mdkObjectCopyConstructionTypeEnum Method = mdkObjectCopyConstructionTypeEnum::DeepCopy);
+    // copy constructor (Copy or Share)
+    inline mdkSparseMatrix(const mdkSparseMatrix<ElementType>& InputSparseMatrix, mdkObjectConstructionTypeEnum Method = mdkObjectConstructionTypeEnum::Copy);
 
     // move constructor
     inline mdkSparseMatrix(mdkSparseMatrix<ElementType>&& InputSparseMatrix);
@@ -224,10 +226,10 @@ public:
     // Copy can be used to convert a SparseMatrix from double (ElementType_Input) to float (ElementType), etc
 
     template<typename ElementType_Input>  
-    inline bool DeepCopy(const mdkSparseMatrix<ElementType_Input>& InputMatrix);
+    inline bool Copy(const mdkSparseMatrix<ElementType_Input>& InputMatrix);
 
     template<typename ElementType_Input>
-    inline bool DeepCopy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
+    inline bool Copy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
 
     inline bool Fill(const ElementType& Element);
 
@@ -235,11 +237,11 @@ public:
  
     // if m_IsSizeFixed is true, and size does not match, then return false
     //
-    inline bool SharedCopy(mdkSparseMatrix<ElementType>& InputMatrix);
+    inline bool Share(mdkSparseMatrix<ElementType>& InputMatrix);
 
     // it is used by SparseGlueMatrix
     // Share the object (InputSparseMatrix) no matter what, even if InputSparseMatrix is const
-    inline void ForceSharedCopy(const mdkSparseMatrix<ElementType>& InputMatrix);
+    inline void ForceShare(const mdkSparseMatrix<ElementType>& InputMatrix);
 
     //-------------------- Take -----------------------------------------------------------//
 
@@ -258,10 +260,11 @@ public:
     inline bool Take(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
     //------------------------- Reset , Clear -------------------------------------------//
-    
+private:    
     // set the initial state, use it in constructor, do more things than Clear()
     inline void Reset();
 
+public:
     // clear memory no matter what, and set m_IsSizeFixed to be false
     inline void Clear();
 

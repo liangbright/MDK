@@ -10,7 +10,7 @@ template<typename ElementType>
 inline
 mdkDenseMatrix<ElementType>::mdkDenseMatrix()
 {
-	this->Reset();
+    this->Resize(0, 0);
 }
 
 
@@ -18,8 +18,6 @@ template<typename ElementType>
 inline
 mdkDenseMatrix<ElementType>::mdkDenseMatrix(int64 RowNumber, int64 ColNumber)
 {
-    this->Reset();
-
     this->Resize(RowNumber, ColNumber);
 }
 
@@ -28,8 +26,6 @@ template<typename ElementType>
 inline
 mdkDenseMatrix<ElementType>::mdkDenseMatrix(const ElementType& Element)
 {
-    this->Reset();
-
     this->Resize(1, 1);
 
     (*this)(0) = Element;
@@ -39,17 +35,17 @@ mdkDenseMatrix<ElementType>::mdkDenseMatrix(const ElementType& Element)
 template<typename ElementType>
 inline
 mdkDenseMatrix<ElementType>::mdkDenseMatrix(const mdkDenseMatrix<ElementType>& InputMatrix, 
-                                            mdkObjectCopyConstructionTypeEnum Method = mdkObjectCopyConstructionTypeEnum::DeepCopy)
+                                            mdkObjectConstructionTypeEnum Method = mdkObjectConstructionTypeEnum::Copy)
 {
-    this->Reset();
-
-    if (Method == mdkObjectCopyConstructionTypeEnum::DeepCopy)
+    if (Method == mdkObjectConstructionTypeEnum::Copy)
     {
-        this->DeepCopy(InputMatrix);
+        this->Resize(0, 0);
+
+        this->Copy(InputMatrix);
     }
     else
     {
-        this->ForceSharedCopy(InputMatrix);
+        this->ForceShare(InputMatrix);
     }
 }
 
@@ -80,10 +76,9 @@ template<typename ElementType>
 inline
 mdkDenseMatrix<ElementType>::mdkDenseMatrix(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
 {
-    // not necessary to use this->Reset()
+    this->Resize(0, 0);
 
-    m_IsSizeFixed = false;
-    this->Take(ShadowMatrix.CreateMatrix());
+    this->Take(ShadowMatrix.CreateDenseMatrix());
 
     m_NaNElement = ShadowMatrix.m_NaNElement;
 }
@@ -93,10 +88,9 @@ template<typename ElementType>
 inline
 mdkDenseMatrix<ElementType>::mdkDenseMatrix(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
-    // not necessary to use this->Reset()
+    this->Resize(0, 0);
 
-    m_IsSizeFixed = false;
-    this->Take(GlueMatrix.CreateMatrix());
+    this->Take(GlueMatrix.CreateDenseMatrix());
 
     m_NaNElement = GetMatrixNaNElement(m_NaNElement);
 }
@@ -106,10 +100,9 @@ template<typename ElementType>
 inline
 mdkDenseMatrix<ElementType>::mdkDenseMatrix(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
-    // not necessary to use this->Reset()
+    this->Resize(0, 0);
 
-    m_IsSizeFixed = false;
-    this->Take(GlueMatrix.CreateMatrix());
+    this->Take(GlueMatrix.CreateDenseMatrix());
 
     m_NaNElement = GetMatrixNaNElement(m_NaNElement);
 }
@@ -119,7 +112,7 @@ template<typename ElementType>
 inline
 mdkDenseMatrix<ElementType>::mdkDenseMatrix(const ElementType* InputElementPointer, int64 InputRowNumber, int64 InputColNumber)
 {
-    this->Reset();
+    this->Resize(0, 0);
 
     if (InputElementPointer == nullptr)
     {
@@ -136,7 +129,7 @@ mdkDenseMatrix<ElementType>::mdkDenseMatrix(const ElementType* InputElementPoint
         }
     }
 
-    this->DeepCopy(InputElementPointer, InputRowNumber, InputColNumber);
+    this->Copy(InputElementPointer, InputRowNumber, InputColNumber);
 }
 
 
@@ -151,7 +144,7 @@ template<typename ElementType>
 inline
 void mdkDenseMatrix<ElementType>::operator=(const mdkDenseMatrix<ElementType>& InputMatrix)
 {
-    this->DeepCopy(InputMatrix);
+    this->Copy(InputMatrix);
 }
 
 
@@ -160,7 +153,7 @@ template<typename ElementType>
 inline
 void mdkDenseMatrix<ElementType>::operator=(mdkDenseMatrix<ElementType>&& InputMatrix)
 {
-    this->Take(InputMatrix);
+    this->Take(std::forward<mdkDenseMatrix<ElementType>&&>(InputMatrix));
 }
 
 
@@ -325,17 +318,17 @@ void mdkDenseMatrix<ElementType>::operator=(const mdkDenseGlueMatrixForMultiplic
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkDenseMatrix<ElementType>::DeepCopy(const mdkDenseMatrix<ElementType_Input>& InputMatrix)
+bool mdkDenseMatrix<ElementType>::Copy(const mdkDenseMatrix<ElementType_Input>& InputMatrix)
 {
     if (this == &InputMatrix)
     {
-        mdkWarning << "A Matrix tries to DeepCopy itself @ mdkDenseMatrix::DeepCopy(InputMatrix)" << '\n';
+        mdkWarning << "A Matrix tries to Copy itself @ mdkDenseMatrix::Copy(InputMatrix)" << '\n';
         return false;
     }
 
     if (InputMatrix.IsEmpty() == true)
     {
-        mdkWarning << "InputMatrix is empty, and this matrix is set to be empty @ mdkDenseMatrix::DeepCopy(InputMatrix)" << '\n';
+        mdkWarning << "InputMatrix is empty, and this matrix is set to be empty @ mdkDenseMatrix::Copy(InputMatrix)" << '\n';
 
         this->Clear();
 
@@ -343,33 +336,33 @@ bool mdkDenseMatrix<ElementType>::DeepCopy(const mdkDenseMatrix<ElementType_Inpu
     }
 
     // copy data
-    return this->DeepCopy(InputMatrix.GetElementPointer(), InputMatrix.GetRowNumber(), InputMatrix.GetColNumber());
+    return this->Copy(InputMatrix.GetElementPointer(), InputMatrix.GetRowNumber(), InputMatrix.GetColNumber());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkDenseMatrix<ElementType>::DeepCopy(const mdkDenseMatrix<ElementType_Input>* InputMatrix)
+bool mdkDenseMatrix<ElementType>::Copy(const mdkDenseMatrix<ElementType_Input>* InputMatrix)
 {
     if (InputMatrix == nullptr)
     {
-        mdkError << "Input is nullptr @ mdkDenseMatrix::DeepCopy(mdkDenseMatrix* InputMatrix)" << '\n';
+        mdkError << "Input is nullptr @ mdkDenseMatrix::Copy(mdkDenseMatrix* InputMatrix)" << '\n';
         return false;
     }
 
-    return this->DeepCopy(*InputMatrix);
+    return this->Copy(*InputMatrix);
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkDenseMatrix<ElementType>::DeepCopy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber)
+bool mdkDenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber)
 {
     if (InputElementPointer == nullptr || InputRowNumber <= 0 || InputColNumber <= 0)
     {
-        mdkError << "Input pointer is nullptr @ mdkDenseMatrix::DeepCopy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
+        mdkError << "Input pointer is nullptr @ mdkDenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
         return false;
     }
 
@@ -377,16 +370,16 @@ bool mdkDenseMatrix<ElementType>::DeepCopy(const ElementType_Input* InputElement
 
     if (tempElementType == mdkMatrixElementTypeEnum::UNKNOWN)
     {
-        mdkError << "Input type is unknown @ mdkDenseMatrix::DeepCopy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
+        mdkError << "Input type is unknown @ mdkDenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
         return false;
     }
 
-    // if this matrix is not empty, check if this and Input SharedCopy the same data
+    // if this matrix is not empty, check if this and Input Share the same data
     if (this->IsEmpty() == false)
     {
         if (std::size_t(InputElementPointer) == std::size_t(this->GetElementPointer()))
         {
-            mdkWarning << "A Matrix tries to DeepCopy itself @ mdkDenseMatrix::DeepCopy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
+            mdkWarning << "A Matrix tries to Copy itself @ mdkDenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
             return false;
         }
     }
@@ -403,7 +396,7 @@ bool mdkDenseMatrix<ElementType>::DeepCopy(const ElementType_Input* InputElement
     {
         if (InputRowNumber != SelfSize.RowNumber || InputColNumber != SelfSize.ColNumber)
         {
-            mdkError << "Can not change matrix size @ mdkDenseMatrix::DeepCopy(ElementType_Input*, InputRowNumber, InputColNumber)" << '\n';
+            mdkError << "Can not change matrix size @ mdkDenseMatrix::Copy(ElementType_Input*, InputRowNumber, InputColNumber)" << '\n';
             return false;
         }
     }
@@ -478,21 +471,28 @@ bool mdkDenseMatrix<ElementType>::Fill(const ElementType& Element)
 
 template<typename ElementType>
 inline
-bool mdkDenseMatrix<ElementType>::SharedCopy(mdkDenseMatrix<ElementType>& InputMatrix)
+bool mdkDenseMatrix<ElementType>::Share(mdkDenseMatrix<ElementType>& InputMatrix)
 {
+    if (InputMatrix.IsNull() == true)
+    {
+        mdkError << "InputMatrix is a Null matrix @ mdkDenseMatrix::Share(InputMatrix)" << '\n';
+
+        return false;
+    }
+
     // self assignment test is not necessary, just to output some information
 
     // Matrix = Matrix
     if (this == &InputMatrix)
     {
-        mdkWarning << "A Matrix tries to SharedCopy itself @ mdkDenseMatrix::SharedCopy(InputMatrix)" << '\n';
+        mdkWarning << "A Matrix tries to Share itself @ mdkDenseMatrix::Share(InputMatrix)" << '\n';
         return true;
     }
 
     // data = data
     if (this->GetElementPointer() == InputMatrix.GetElementPointer())
     {
-        mdkWarning << "A Matrix tries to SharedCopy the same data @ mdkDenseMatrix::SharedCopy(InputMatrix)" << '\n';
+        mdkWarning << "A Matrix tries to Share the same data @ mdkDenseMatrix::Share(InputMatrix)" << '\n';
         return true;
     }
 
@@ -504,7 +504,7 @@ bool mdkDenseMatrix<ElementType>::SharedCopy(mdkDenseMatrix<ElementType>& InputM
     {
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
-            mdkError << "Matrix size can not be changed @ mdkDenseMatrix::SharedCopy(InputMatrix)" << '\n';
+            mdkError << "Matrix size can not be changed @ mdkDenseMatrix::Share(InputMatrix)" << '\n';
             return false;
         }
     }
@@ -528,22 +528,28 @@ bool mdkDenseMatrix<ElementType>::SharedCopy(mdkDenseMatrix<ElementType>& InputM
 
 template<typename ElementType>
 inline
-bool mdkDenseMatrix<ElementType>::SharedCopy(mdkDenseMatrix<ElementType>* InputMatrix)
+bool mdkDenseMatrix<ElementType>::Share(mdkDenseMatrix<ElementType>* InputMatrix)
 {
     if (InputMatrix == nullptr)
     {
-        mdkError << "Input is nullptr @ mdkDenseMatrix::SharedCopy(mdkDenseMatrix* InputMatrix)" << '\n';
+        mdkError << "Input is nullptr @ mdkDenseMatrix::Share(mdkDenseMatrix* InputMatrix)" << '\n';
         return false;
     }
 
-    return this->SharedCopy(*InputMatrix);
+    return this->Share(*InputMatrix);
 }
 
 
 template<typename ElementType>
 inline
-void mdkDenseMatrix<ElementType>::ForceSharedCopy(const mdkDenseMatrix<ElementType>& InputMatrix)
+void mdkDenseMatrix<ElementType>::ForceShare(const mdkDenseMatrix<ElementType>& InputMatrix)
 {
+    if (InputMatrix.IsNull() == true)
+    {
+        mdkError << "InputMatrix is a Null matrix @ mdkDenseMatrix::ForceShare(InputMatrix)" << '\n';
+        return;
+    }
+
     m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment test is not necessary
 
     if (m_MatrixData)
@@ -559,15 +565,23 @@ void mdkDenseMatrix<ElementType>::ForceSharedCopy(const mdkDenseMatrix<ElementTy
 
 template<typename ElementType>
 inline
-bool mdkDenseMatrix<ElementType>::ForceSharedCopy(const mdkDenseMatrix<ElementType>* InputMatrix)
+bool mdkDenseMatrix<ElementType>::ForceShare(const mdkDenseMatrix<ElementType>* InputMatrix)
 {
     if (InputMatrix == nullptr)
     {
-        mdkError << "Input is nullptr @ mdkDenseMatrix::ForceSharedCopy(mdkDenseMatrix* InputMatrix)" << '\n';
+        mdkError << "Input is nullptr @ mdkDenseMatrix::ForceShare(mdkDenseMatrix* InputMatrix)" << '\n';
         return false;
     }
 
-    return this->ForceSharedCopy(*InputMatrix);
+    return this->ForceShare(*InputMatrix);
+}
+
+
+template<typename ElementType>
+inline
+void mdkDenseMatrix<ElementType>::Take(mdkDenseMatrix<ElementType>&& InputMatrix)
+{
+    this->Take(std::forward<mdkDenseMatrix<ElementType>&>(InputMatrix));
 }
 
 
@@ -608,12 +622,16 @@ bool mdkDenseMatrix<ElementType>::Take(mdkDenseMatrix<ElementType>& InputMatrix)
 
     // now, InputMatrix is not empty
 
-    m_MatrixData = std::move(InputMatrix.m_MatrixData);
+    m_MatrixData->RowNumber = InputMatrix.m_MatrixData->RowNumber;
+
+    m_MatrixData->ColNumber = InputMatrix.m_MatrixData->ColNumber;
+
+    m_MatrixData->DataArray = std::move(InputMatrix.m_MatrixData->DataArray);
 
     m_ElementPointer = m_MatrixData->DataArray.data();
 
-    // clear
-    InputMatrix.Clear();
+    // Resize InputMatrix to be empty
+    InputMatrix.Resize(0, 0);
 
     return true;
 }
@@ -621,11 +639,15 @@ bool mdkDenseMatrix<ElementType>::Take(mdkDenseMatrix<ElementType>& InputMatrix)
 
 template<typename ElementType>
 inline
-bool mdkDenseMatrix<ElementType>::Take(mdkDenseMatrix<ElementType>&& InputMatrix)
+bool mdkDenseMatrix<ElementType>::Take(mdkDenseMatrix<ElementType>* InputMatrix)
 {
-    mdkDenseMatrix<ElementType>& tempMatrix = InputMatrix;
+    if (InputMatrix == nullptr)
+    {
+        mdkError << "Input is nullptr @ mdkDenseMatrix::Take(mdkDenseMatrix* InputMatrix)" << '\n';
+        return false;
+    }
 
-    return this->Take(tempMatrix);
+    return this->Take(*InputMatrix);
 }
 
 
@@ -639,7 +661,7 @@ bool mdkDenseMatrix<ElementType>::Take(const mdkDenseShadowMatrix<ElementType>& 
 
     if (InputSize.RowNumber == SelfSize.RowNumber && InputSize.ColNumber == SelfSize.ColNumber)
     {
-        ShadowMatrix.CreateMatrix(*this);
+        ShadowMatrix.CreateDenseMatrix(*this);
     }
     else
     {
@@ -649,7 +671,7 @@ bool mdkDenseMatrix<ElementType>::Take(const mdkDenseShadowMatrix<ElementType>& 
             return false;
         }
 
-        this->Take(ShadowMatrix.CreateMatrix());
+        this->Take(ShadowMatrix.CreateDenseMatrix());
     }
 
     return true;
@@ -666,7 +688,7 @@ bool mdkDenseMatrix<ElementType>::Take(const mdkDenseGlueMatrixForLinearCombinat
 
     if (InputSize.RowNumber == SelfSize.RowNumber && InputSize.ColNumber == SelfSize.ColNumber)
     {
-        GlueMatrix.CreateMatrix(*this);
+        GlueMatrix.CreateDenseMatrix(*this);
     }
     else
     {
@@ -676,7 +698,7 @@ bool mdkDenseMatrix<ElementType>::Take(const mdkDenseGlueMatrixForLinearCombinat
             return false;
         }
 
-        this->Take(GlueMatrix.CreateMatrix());
+        this->Take(GlueMatrix.CreateDenseMatrix());
     }
 
     return true;
@@ -693,7 +715,7 @@ bool mdkDenseMatrix<ElementType>::Take(const mdkDenseGlueMatrixForMultiplication
 
     if (InputSize.RowNumber == SelfSize.RowNumber && InputSize.ColNumber == SelfSize.ColNumber)
     {
-        GlueMatrix.CreateMatrix(*this);
+        GlueMatrix.CreateDenseMatrix(*this);
     }
     else
     {
@@ -703,7 +725,7 @@ bool mdkDenseMatrix<ElementType>::Take(const mdkDenseGlueMatrixForMultiplication
             return false;
         }
 
-        this->Take(GlueMatrix.CreateMatrix());
+        this->Take(GlueMatrix.CreateDenseMatrix());
     }
 
     return true;
@@ -712,27 +734,9 @@ bool mdkDenseMatrix<ElementType>::Take(const mdkDenseGlueMatrixForMultiplication
 
 template<typename ElementType>
 inline
-void mdkDenseMatrix<ElementType>::Reset()
-{
-    m_MatrixData.reset();
-
-    m_ElementPointer = nullptr;
-
-    m_IsSizeFixed = false;
-
-    m_NaNElement = GetMatrixNaNElement(m_NaNElement);
-}
-
-
-template<typename ElementType>
-inline 
 void mdkDenseMatrix<ElementType>::Clear()
 {
-    m_MatrixData.reset();
-
-    m_ElementPointer = nullptr;
-
-    m_IsSizeFixed = false;
+    this->Resize(0, 0);
 }
 
 
@@ -779,31 +783,43 @@ bool mdkDenseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNum
         return false;
     }
 
-    auto SelfSize = this->GetSize();
-
-    if (InputRowNumber == SelfSize.RowNumber && InputColNumber == SelfSize.ColNumber)
-    {        
-        return true;
-    }
-
     if (InputRowNumber < 0 || InputColNumber < 0)
     {
         mdkError << "Invalid Input: negtive @ mdkDenseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
         return false;
     }
 
-    if (InputRowNumber == 0 || InputColNumber == 0)
+    //--------initialize the matrix ----------------------------------------
+    if (!m_MatrixData)
     {
-        this->Clear();
+        m_MatrixData = std::make_shared<mdkDenseMatrixData<ElementType>>();
+
+        m_ElementPointer = nullptr;
+
+        m_IsSizeFixed = false;
+
+        m_NaNElement = GetMatrixNaNElement(m_NaNElement);
+    }
+    //-------------------------------------------------------------------------
+
+    if (InputRowNumber == 0 || InputColNumber == 0)
+    {               
+        m_MatrixData->RowNumber = 0;
+
+        m_MatrixData->ColNumber = 0;
+
+        m_MatrixData->DataArray.resize(0);
+
+        m_ElementPointer = nullptr;
 
         return true;
     }
 
+    auto SelfSize = this->GetSize();
+
     // if self is empty
     if (SelfSize.RowNumber <= 0)
     {
-        m_MatrixData = std::make_shared<mdkDenseMatrixData<ElementType>>();
-
         m_MatrixData->RowNumber = InputRowNumber;
 
         m_MatrixData->ColNumber = InputColNumber;
@@ -812,6 +828,12 @@ bool mdkDenseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNum
 
         m_ElementPointer = m_MatrixData->DataArray.data();
 
+        return true;
+    }
+
+    // if self is not empty, and nothing will change
+    if (InputRowNumber == SelfSize.RowNumber && InputColNumber == SelfSize.ColNumber)
+    {
         return true;
     }
 
@@ -901,7 +923,23 @@ template<typename ElementType>
 inline
 bool mdkDenseMatrix<ElementType>::IsEmpty() const
 {
-    return !(m_MatrixData); 
+    if (m_MatrixData) // m_MatrixData != nullptr
+    {
+        if (m_MatrixData->RowNumber > 0)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+template<typename ElementType>
+inline
+bool mdkDenseMatrix<ElementType>::IsNull() const
+{
+    return !(m_MatrixData);
 }
 
 
@@ -3804,7 +3842,11 @@ bool mdkDenseMatrix<ElementType>::InsertRow(int64 RowIndex, const ElementType_In
         }
     }
 
+    //---------------------------------------------------
+
     this->Take(tempMatrix);
+
+    //-------------------------------------------------------
 
     return true;
 }
@@ -4278,7 +4320,7 @@ template<typename ElementType>
 inline 
 void mdkDenseMatrix<ElementType>::operator*=(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
 {
-    this->operator*=(mdkDenseShadowMatrix.CreateMatrix());
+    this->operator*=(mdkDenseShadowMatrix.CreateDenseMatrix());
 }
 
 
@@ -4341,7 +4383,7 @@ template<typename ElementType>
 inline
 void mdkDenseMatrix<ElementType>::operator*=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
-    this->operator*=(GlueMatrix.CreateMatrix());
+    this->operator*=(GlueMatrix.CreateDenseMatrix());
 }
 
 
@@ -4349,7 +4391,7 @@ template<typename ElementType>
 inline
 void mdkDenseMatrix<ElementType>::operator/=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
-    this->operator/=(GlueMatrix.CreateMatrix());
+    this->operator/=(GlueMatrix.CreateDenseMatrix());
 }
 
 //---------------------- Matrix {+= -= *= /=} GlueMatrixForMultiplication ----------------------------------------//
@@ -4382,7 +4424,7 @@ template<typename ElementType>
 inline
 void mdkDenseMatrix<ElementType>::operator/=(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
-    this->operator/=(GlueMatrix.CreateMatrix());
+    this->operator/=(GlueMatrix.CreateDenseMatrix());
 }
 
 //---------------------- Matrix {+= -= *= /=} Element ----------------------------------------//
@@ -4500,7 +4542,7 @@ template<typename ElementType>
 inline
 mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix) const
 {
-    return MatrixElementMultiply(*this, ShadowMatrix.CreateMatrix());
+    return MatrixElementMultiply(*this, ShadowMatrix.CreateDenseMatrix());
 }
 
 
@@ -4508,7 +4550,7 @@ template<typename ElementType>
 inline
 mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix) const
 {
-    return MatrixElementMultiply(*this, GlueMatrix.CreateMatrix());
+    return MatrixElementMultiply(*this, GlueMatrix.CreateDenseMatrix());
 }
 
 
@@ -4516,7 +4558,7 @@ template<typename ElementType>
 inline
 mdkDenseMatrix<ElementType> mdkDenseMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix) const
 {
-    return MatrixElementMultiply(*this, GlueMatrix.CreateMatrix());
+    return MatrixElementMultiply(*this, GlueMatrix.CreateDenseMatrix());
 }
 
 

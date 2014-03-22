@@ -44,7 +44,7 @@ set(Source_FILES
 
 ${MDK_DIR}/Common/mdkObject.cpp
 
-${MDK_DIR}/LinearAlgebra/mdkMatrixCommon.cpp
+${MDK_DIR}/LinearAlgebra/mdkMatrix_Common.cpp
 
 )
 

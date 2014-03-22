@@ -10,7 +10,7 @@ template<typename ElementType>
 inline
 mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix()
 {
-    this->Reset();
+    this->Clear();
 }
 
 
@@ -26,11 +26,11 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
     {
         mdkError << "LinearIndexList is empty @ mdkDenseShadowMatrix(sourceMatrix, std::vector LinearIndexList)" << '\n';
 
-        this->Reset();
+        this->Clear();
         return;
     }
 
-    m_SourceMatrixSharedCopy.ForceSharedCopy(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
     m_LinearIndexList_source = LinearIndexList;
 
@@ -50,7 +50,7 @@ template<typename ElementType>
 inline
 mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
-    m_SourceMatrixSharedCopy.ForceSharedCopy(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
     m_Flag_OutputVector = true;
 
@@ -103,11 +103,11 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
     {
         mdkError << "RowIndexList or ColIndexList is empty @ mdkDenseShadowMatrix(sourceMatrix, std::vector RowIndexList, std::vector ColIndexList)" << '\n';
 
-        this->Reset();
+        this->Clear();
         return;
     }
 
-    m_SourceMatrixSharedCopy.ForceSharedCopy(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -142,11 +142,11 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
     {
         mdkError << "RowIndexList is empty @ mdkDenseShadowMatrix(sourceMatrix, std::vector RowIndexList, ALL)" << '\n';
 
-        this->Reset();
+        this->Clear();
         return;
     }
 
-    m_SourceMatrixSharedCopy.ForceSharedCopy(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -188,11 +188,11 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
     {
         mdkError << "ColIndexList is empty @ mdkDenseShadowMatrix(sourceMatrix, ALL, std::vector ColIndexList)" << '\n';
 
-        this->Reset();
+        this->Clear();
         return;
     }
 
-    m_SourceMatrixSharedCopy.ForceSharedCopy(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -225,7 +225,7 @@ template<typename ElementType>
 inline 
 mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(mdkDenseShadowMatrix<ElementType>&& ShadowMatrix)
 {
-    m_SourceMatrixSharedCopy.ForceSharedCopy(ShadowMatrix.m_SourceMatrixSharedCopy); // do not use std::move() !
+    m_SourceMatrixSharedCopy.ForceShare(ShadowMatrix.m_SourceMatrixSharedCopy); // do not use std::move() !
 
     m_RowIndexList_source = std::move(ShadowMatrix.m_RowIndexList_source);
 
@@ -257,9 +257,10 @@ mdkDenseShadowMatrix<ElementType>::~mdkDenseShadowMatrix()
 
 
 template<typename ElementType>
-inline void mdkDenseShadowMatrix<ElementType>::Reset()
+inline 
+void mdkDenseShadowMatrix<ElementType>::Clear()
 {
-    m_SourceMatrixSharedCopy.Reset();
+    m_SourceMatrixSharedCopy.Clear();
 
     m_RowIndexList_source.resize(0);
 

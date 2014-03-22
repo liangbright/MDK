@@ -14,7 +14,7 @@ template<typename ElementType>
 inline
 mdkSparseMatrixDataInCSCFormat<ElementType>::mdkSparseMatrixDataInCSCFormat()
 {
-    this->Reset();
+    this->Clear();
 }
 
 
@@ -31,7 +31,7 @@ inline
 void
 mdkSparseMatrixDataInCSCFormat<ElementType>::Construct(int64 InputRowNumber, int64 InputColNumber)
 {
-    this->Reset();
+    this->Clear();
 
     //----------------------------------------------------------
 
@@ -68,7 +68,7 @@ mdkSparseMatrixDataInCSCFormat<ElementType>::Construct(const int64* InputRowInde
                                                        int64 InputColNumber,
                                                        int64 AdditionalReservedCapacity = 0)
 {
-    this->Reset();
+    this->Clear();
 
     //--------------------------------------------------------------
 
@@ -200,7 +200,7 @@ mdkSparseMatrixDataInCSCFormat<ElementType>::Construct(const int64* InputRowInde
 
 template<typename ElementType>
 inline 
-void mdkSparseMatrixDataInCSCFormat<ElementType>::Reset()
+void mdkSparseMatrixDataInCSCFormat<ElementType>::Clear()
 {
     m_RowNumber = 0;
 
@@ -229,7 +229,7 @@ void mdkSparseMatrixDataInCSCFormat<ElementType>::Resize(int64 InputRowNumber, i
 
     if (InputRowNumber == 0 || InputColNumber == 0)
     {
-        this->Reset();
+        this->Clear();
         return;
     }
 
@@ -655,7 +655,7 @@ int64 mdkSparseMatrixDataInCSCFormat<ElementType>::GetRecordedElementNumber() co
 
 template<typename ElementType>
 inline 
-void mdkSparseMatrixDataInCSCFormat<ElementType>::DeepCopy(const mdkSparseMatrixDataInCSCFormat<ElementType>& InputMatrixData)
+void mdkSparseMatrixDataInCSCFormat<ElementType>::Copy(const mdkSparseMatrixDataInCSCFormat<ElementType>& InputMatrixData)
 {
     m_RowNumber = InputMatrixData.m_RowNumber;
 
@@ -673,6 +673,25 @@ void mdkSparseMatrixDataInCSCFormat<ElementType>::DeepCopy(const mdkSparseMatrix
 }
 
 
+template<typename ElementType>
+inline
+void mdkSparseMatrixDataInCSCFormat<ElementType>::Take(mdkSparseMatrixDataInCSCFormat<ElementType>& InputMatrixData)
+{
+    m_RowNumber = InputMatrixData.m_RowNumber;
+
+    m_ColNumber = InputMatrixData.m_ColNumber;
+
+    m_RowIndexList = std::move(InputMatrixData.m_RowIndexList);
+
+    m_DataArray = std::move(InputMatrixData.m_DataArray);
+
+    m_ColBeginElementLinearIndexInDataArray = std::move(InputMatrixData.m_ColBeginElementLinearIndexInDataArray);
+
+    m_RecordedElementNumberInEachCol = std::move(InputMatrixData.m_RecordedElementNumberInEachCol);
+
+    m_ZeroElement = InputMatrixData.m_ZeroElement;
+}
+
 //===================================================================================================================================//
 //                                                    mdkSparseMatrix
 //===================================================================================================================================//
@@ -681,7 +700,7 @@ template<typename ElementType>
 inline
 mdkSparseMatrix<ElementType>::mdkSparseMatrix()
 {
-	this->Reset();
+    this->Resize(0, 0);
 }
 
 
@@ -689,8 +708,6 @@ template<typename ElementType>
 inline
 mdkSparseMatrix<ElementType>::mdkSparseMatrix(int64 RowNumber, int64 ColNumber)
 {
-    this->Reset();
-
     this->Resize(RowNumber, ColNumber);
 }
 
@@ -699,8 +716,6 @@ template<typename ElementType>
 inline
 mdkSparseMatrix<ElementType>::mdkSparseMatrix(const ElementType& Element)
 {
-    this->Reset();
-
     this->Resize(1, 1);
 
     (*this)(0) = Element;
@@ -710,17 +725,17 @@ mdkSparseMatrix<ElementType>::mdkSparseMatrix(const ElementType& Element)
 template<typename ElementType>
 inline
 mdkSparseMatrix<ElementType>::mdkSparseMatrix(const mdkSparseMatrix<ElementType>& InputMatrix, 
-                                              mdkObjectCopyConstructionTypeEnum Method = mdkObjectCopyConstructionTypeEnum::DeepCopy)
+                                              mdkObjectConstructionTypeEnum Method = mdkObjectConstructionTypeEnum::Copy)
 {
-    this->Reset();
-
-    if (Method == mdkObjectCopyConstructionTypeEnum::DeepCopy)
+    if (Method == mdkObjectConstructionTypeEnum::Copy)
     {
-        this->DeepCopy(InputMatrix);
+        this->Resize(0, 0);
+
+        this->Copy(InputMatrix);
     }
     else
     {
-        this->SharedCopy(InputMatrix);
+        this->Share(InputMatrix);
     }
 }
 
@@ -742,9 +757,8 @@ template<typename ElementType>
 inline
 mdkSparseMatrix<ElementType>::mdkSparseMatrix(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix)
 {
-    // not necessary to use this->Reset()
+    this->Resize(0, 0);
 
-    m_IsSizeFixed = false;
     this->Take(ShadowMatrix.CreateSparseMatrix());
 
     m_NaNElement = ShadowMatrix.m_NaNElement;
@@ -851,7 +865,7 @@ template<typename ElementType>
 inline
 void mdkSparseMatrix<ElementType>::operator=(const mdkSparseMatrix<ElementType>& InputMatrix)
 {
-    this->DeepCopy(InputMatrix);
+    this->Copy(InputMatrix);
 }
 
 
@@ -1025,17 +1039,17 @@ void mdkSparseMatrix<ElementType>::operator=(const mdkSparseGlueMatrixForMultipl
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::DeepCopy(const mdkSparseMatrix<ElementType_Input>& InputMatrix)
+bool mdkSparseMatrix<ElementType>::Copy(const mdkSparseMatrix<ElementType_Input>& InputMatrix)
 {
     if (this == &InputMatrix)
     {
-        mdkWarning << "A Matrix tries to DeepCopy itself @ mdkSparseMatrix::DeepCopy(InputMatrix)" << '\n';
+        mdkWarning << "A Matrix tries to Copy itself @ mdkSparseMatrix::Copy(InputMatrix)" << '\n';
         return false;
     }
 
     if (InputMatrix.IsEmpty() == true)
     {
-        mdkWarning << "InputMatrix is empty, and this matrix is set to be empty @ mdkSparseMatrix::DeepCopy(InputMatrix)" << '\n';
+        mdkWarning << "InputMatrix is empty, and this matrix is set to be empty @ mdkSparseMatrix::Copy(InputMatrix)" << '\n';
 
         this->Clear();
 
@@ -1050,7 +1064,7 @@ bool mdkSparseMatrix<ElementType>::DeepCopy(const mdkSparseMatrix<ElementType_In
 
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
-            mdkError << "Can not change matrix size @ mdkSparseMatrix::DeepCopy(InputMatrix)" << '\n';
+            mdkError << "Can not change matrix size @ mdkSparseMatrix::Copy(InputMatrix)" << '\n';
             return false;
         }
     }
@@ -1061,9 +1075,7 @@ bool mdkSparseMatrix<ElementType>::DeepCopy(const mdkSparseMatrix<ElementType_In
 
     //----------------------------- copy ----------------------//
 
-    m_MatrixData = std::make_shared<mdkSparseMatrixDataInCSCFormat<ElementType>>();
-
-    m_MatrixData->DeepCopy(*InputMatrix.m_MatrixData);
+    m_MatrixData->Copy(*InputMatrix.m_MatrixData);
   
     return true;
     
@@ -1072,12 +1084,12 @@ bool mdkSparseMatrix<ElementType>::DeepCopy(const mdkSparseMatrix<ElementType_In
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::SharedCopy(mdkSparseMatrix<ElementType>& InputMatrix)
+bool mdkSparseMatrix<ElementType>::Share(mdkSparseMatrix<ElementType>& InputMatrix)
 {
     // MatrixA = MatrixA
     if (this == &InputMatrix)
     {
-        mdkWarning << "A Matrix tries to ShallowDeepCopy itself @ mdkSparseMatrix::SharedCopy(InputMatrix)" << '\n';
+        mdkWarning << "A Matrix tries to share itself @ mdkSparseMatrix::Share(InputMatrix)" << '\n';
         return false;
     }
 
@@ -1089,7 +1101,7 @@ bool mdkSparseMatrix<ElementType>::SharedCopy(mdkSparseMatrix<ElementType>& Inpu
     {
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
-            mdkError << "Matrix size can not be changed @ mdkSparseMatrix::SharedCopy(InputMatrix)" << '\n';
+            mdkError << "Matrix size can not be changed @ mdkSparseMatrix::Share(InputMatrix)" << '\n';
             return false;
         }
     }
@@ -1102,7 +1114,7 @@ bool mdkSparseMatrix<ElementType>::SharedCopy(mdkSparseMatrix<ElementType>& Inpu
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::ForceSharedCopy(const mdkSparseMatrix<ElementType>& InputMatrix)
+void mdkSparseMatrix<ElementType>::ForceShare(const mdkSparseMatrix<ElementType>& InputMatrix)
 {
     m_MatrixData = InputMatrix.m_MatrixData; // std::SharedCopy_ptr
 }
@@ -1145,10 +1157,10 @@ bool mdkSparseMatrix<ElementType>::Take(mdkSparseMatrix<ElementType>& InputMatri
 
     // now, InputMatrix is not empty
 
-    m_MatrixData = std::move(InputMatrix.m_MatrixData);
+    m_MatrixData->Take(*InputMatrix.m_MatrixData);
 
-    // clear
-    InputMatrix.Clear();
+    // Resize InputMatrix to be empty
+    InputMatrix.Resize(0, 0);
 
     return true;
 }
@@ -1246,24 +1258,13 @@ bool mdkSparseMatrix<ElementType>::Take(const mdkSparseGlueMatrixForMultiplicati
 
 
 template<typename ElementType>
-inline
-void mdkSparseMatrix<ElementType>::Reset()
-{
-    m_MatrixData.reset();
-
-    m_IsSizeFixed = false;
-
-    m_NaNElement = GetMatrixNaNElement(m_NaNElement);
-}
-
-
-template<typename ElementType>
 inline 
 void mdkSparseMatrix<ElementType>::Clear()
 {
-    m_MatrixData.reset();
-
-    m_IsSizeFixed = false;
+    if (m_MatrixData)
+    { 
+        m_MatrixData->Clear();
+    }
 }
 
 
@@ -1294,7 +1295,7 @@ bool mdkSparseMatrix<ElementType>::Reshape(int64 InputRowNumber, int64 InputColN
 
   //-------------------------------------------
 
-    return true;
+    return false;
 }
 
 
@@ -1321,6 +1322,17 @@ bool mdkSparseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNu
         return false;
     }
 
+    //--------initialize the matrix ----------------------------------------------------
+    if (!m_MatrixData)
+    {
+        m_MatrixData = std::make_shared<mdkSparseMatrixDataInCSCFormat<ElementType>>();
+
+        m_IsSizeFixed = false;
+
+        m_NaNElement = GetMatrixNaNElement(m_NaNElement);
+    }
+    //-----------------------------------------------------------------------------------
+
     if (InputRowNumber == 0 || InputColNumber == 0)
     {
         this->Clear();
@@ -1331,8 +1343,6 @@ bool mdkSparseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNu
     // if self is empty
     if (SelfSize.RowNumber <= 0)
     {
-        m_MatrixData = std::make_shared<mdkSparseMatrixDataInCSCFormat<ElementType>>();
-
         m_MatrixData->Construct(InputRowNumber, InputColNumber);
     }
     else
@@ -4740,7 +4750,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::operator^(const Eleme
         return tempMatrix;
     }
 
-    tempMatrix.DeepCopy(*this);
+    tempMatrix.Copy(*this);
 
     auto tempRawPointer = tempMatrix.GetNonZeroElementPointer();
 

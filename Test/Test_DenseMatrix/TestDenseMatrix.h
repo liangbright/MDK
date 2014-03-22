@@ -10,7 +10,6 @@
 #include <functional>
 
 #include "mdkDenseMatrix.h"
-#include "mdkLinearAlgebra_DenseMatrix_Part_2.h"
 
 using namespace mdk;
 
@@ -187,13 +186,13 @@ void Test_Constructor()
 
     mdkDenseMatrix<double> C;
 
-    C.ForceSharedCopy(A);
+    C.ForceShare(A);
 
-    A.DeepCopy(A);
+    A.Copy(A);
 
-    A.DeepCopy(C);
+    A.Copy(C);
 
-    C.DeepCopy(A);
+    C.Copy(A);
     //-----------------
 
     // move constructor is used 2 times
@@ -276,7 +275,7 @@ void Test_ShareConstuctor()
 
     DisplayMatrix("A", A);
 
-    auto B = mdkDenseMatrix<double>(A, mdkObjectCopyConstructionTypeEnum::SharedCopy);
+    auto B = mdkDenseMatrix<double>(A, mdkObjectConstructionTypeEnum::Share);
 
     B(0) = 10;
 
@@ -292,7 +291,7 @@ void Test_ShareConstuctor()
 
     DisplayMatrix("A", A);
 
-    const mdkDenseMatrix<double> D = mdkDenseMatrix<double>(A, mdkObjectCopyConstructionTypeEnum::SharedCopy);
+    const mdkDenseMatrix<double> D = mdkDenseMatrix<double>(A, mdkObjectConstructionTypeEnum::Share);
 
     A(2) = 10;
 
@@ -302,7 +301,7 @@ void Test_ShareConstuctor()
 
     std::vector<const mdkDenseMatrix<double>> MatrixList;
 
-    MatrixList.emplace_back(A, mdkObjectCopyConstructionTypeEnum::SharedCopy);
+    MatrixList.emplace_back(A, mdkObjectConstructionTypeEnum::Share);
 
     DisplayMatrix("MatrixList[0]", MatrixList[0]);
 
@@ -462,7 +461,7 @@ void Test_Share()
 
     mdkDenseMatrix<double> B;
 
-    B.SharedCopy(A);
+    B.Share(A);
 
     B(1, 1) = 0;
 

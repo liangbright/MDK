@@ -124,7 +124,7 @@ private:
 
 	//---------------------- Other ----------------------------------------//
 
-    inline void Reset();
+    inline void Clear();
 
     inline bool IsLinearIndexListOnly() const;
 

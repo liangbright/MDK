@@ -80,7 +80,7 @@ int main()
 
   //  Test_MoveConstructor();
 
-    Test_ShareConstuctor();
+  //  Test_ShareConstuctor();
 
    // Test_Matrix_Operator();
 

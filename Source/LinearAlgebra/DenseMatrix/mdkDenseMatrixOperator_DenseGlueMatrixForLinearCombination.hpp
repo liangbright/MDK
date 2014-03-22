@@ -62,7 +62,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(mdkDenseGlueMatrix
 
     GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
 
-    GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber].ForceSharedCopy(MatrixB);
+    GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber].ForceShare(MatrixB);
 
     GlueMatrixA.m_ElementList_Coef.push_back(ElementType(1));
 
@@ -116,7 +116,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(mdkDenseGlueMatrix
 
     GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
 
-    GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber].ForceSharedCopy(MatrixB);
+    GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber].ForceShare(MatrixB);
 
     GlueMatrixA.m_ElementList_Coef.push_back(ElementType(-1));
 
@@ -191,7 +191,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(const mdkDenseMatr
 
     GlueMatrixB.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
 
-    GlueMatrixB.m_SourceMatrixSharedCopyList[MatrixNumber].ForceSharedCopy(MatrixA);
+    GlueMatrixB.m_SourceMatrixSharedCopyList[MatrixNumber].ForceShare(MatrixA);
 
     GlueMatrixB.m_ElementList_Coef.push_back(ElementType(1));
 
@@ -245,7 +245,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(const mdkDenseMatr
 
     GlueMatrixB.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
 
-    GlueMatrixB.m_SourceMatrixSharedCopyList[MatrixNumber].ForceSharedCopy(MatrixA);
+    GlueMatrixB.m_SourceMatrixSharedCopyList[MatrixNumber].Share(MatrixA);
 
     for (int64 i = 0; i < MatrixNumber; ++i)
     {
@@ -511,7 +511,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator+(mdkDenseGlueMatrix
 
     for (int64 i = 0; i < MatrixNumber_B; ++i)
     {
-        GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber_A + i].ForceSharedCopy(GlueMatrixB.m_SourceMatrixSharedCopyList[i]);
+        GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber_A + i].Share(GlueMatrixB.m_SourceMatrixSharedCopyList[i]);
     }
 
     for (int64 i = 0; i < MatrixNumber_B; ++i)
@@ -577,7 +577,7 @@ mdkDenseGlueMatrixForLinearCombination<ElementType> operator-(mdkDenseGlueMatrix
 
     for (int64 i = 0; i < MatrixNumber_B; ++i)
     {
-        GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber_A + i].ForceSharedCopy(GlueMatrixB.m_SourceMatrixSharedCopyList[i]);
+        GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber_A + i].Share(GlueMatrixB.m_SourceMatrixSharedCopyList[i]);
     }
 
     for (int64 i = 0; i < MatrixNumber_B; ++i)

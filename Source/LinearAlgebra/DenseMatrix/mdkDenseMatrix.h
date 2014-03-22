@@ -124,7 +124,7 @@ public:
     inline mdkDenseMatrix(const ElementType& Element);
 
     // deep-copy or shared-copy constructor
-    inline mdkDenseMatrix(const mdkDenseMatrix<ElementType>& InputMatrix, mdkObjectCopyConstructionTypeEnum Method = mdkObjectCopyConstructionTypeEnum::DeepCopy);
+    inline mdkDenseMatrix(const mdkDenseMatrix<ElementType>& InputMatrix, mdkObjectConstructionTypeEnum Method = mdkObjectConstructionTypeEnum::Copy);
 
     // move constructor
     inline mdkDenseMatrix(mdkDenseMatrix<ElementType>&& InputMatrix);
@@ -161,84 +161,101 @@ public:
 
     inline void operator=(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    //----------------------  DeepCopy From Matrix or Element  ----------------------------------------//
+    //----------------------  Copy From Matrix or Element  ----------------------------------------//
 
-    // DeepCopy can be used to convert a matrix from double (ElementType_Input) to float (ElementType), etc
+    // Copy can be used to convert a matrix from double (ElementType_Input) to float (ElementType), etc
 
     template<typename ElementType_Input>  
-    inline bool DeepCopy(const mdkDenseMatrix<ElementType_Input>& InputMatrix);
+    inline bool Copy(const mdkDenseMatrix<ElementType_Input>& InputMatrix);
 
     template<typename ElementType_Input>
-    inline bool DeepCopy(const mdkDenseMatrix<ElementType_Input>* InputMatrix);
+    inline bool Copy(const mdkDenseMatrix<ElementType_Input>* InputMatrix);
 
     template<typename ElementType_Input>
-    inline bool DeepCopy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
+    inline bool Copy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
 
     inline bool Fill(const ElementType& Element);
 
-    //-------------------------- SharedCopy, ForceSharedCopy  ------------------------------------------ //
- 
-    // Why I use the name: ShallowCopy instead of Share :
-    // A.Share(B) literally means Matrix A and Matrix B share the same thing
-    // but after B.Clear(), and B.Resize(10,10), A and B have different data pointed by different shared_ptr (m_MatrixData)
-    // The "Share" is one-time thing, not share forever, maybe OneTimeShare is better than Share
-    // ShallowCopy is a better name: it means one-time operation
-    // I use the name SharedCopy: A.SharedCopy(B) means A is a copy of B by sharing
+    //-------------------------- Shared, ForceShare  ------------------------------------------ //
 
-    // if m_IsSizeFixed is true, and size does not match, then return false
+    // Matrix A, MatrixB, A.Share(B)
     //
-    inline bool SharedCopy(mdkDenseMatrix<ElementType>& InputMatrix);
+    // If B is a null matrix (B.IsNull() == true), then A.Share(B) set A to an empty matrix, and A != B
+    // If B change the value of an element, A will know (i.e., the data in A is the same as the data in B)
+    // If B change its size, A will know.
+    //
+    // The above rule also applies to A if A changes it self.
+    //
+    // A.Share(B) really means A and B share the same data forever
+    // 
+    // There are 3 situations I may use Share
+    //
+    // (1) A.Share(B), then use A as an observer of B, and do not modify B by using A, e.g., A(0,0)=1;
+    // 
+    // (2) A.Share(B), then forget B and use A,  e.g., A(0,0)=1;
+    //
+    // (2) A.Share(B), then use both A and B to operate on the same data 
+    //                      in this case, using a pointer to B is better if B is a named objects
+    //
+    // Share vs ForceShare
+    //
+    // A.Share(B): if m_IsSizeFixed of A is true, and size of A does not match size of B, then return false
+    //
+    // A.ForceShare(B): Share B no matter what, it is used by GlueMatrix
 
-    inline bool SharedCopy(mdkDenseMatrix<ElementType>* InputMatrix);
+    inline bool Share(mdkDenseMatrix<ElementType>& InputMatrix);
 
-    // it is used by GlueMatrix
-    // Share the object (InputMatrix) no matter what, even if InputMatrix is const
-    inline void ForceSharedCopy(const mdkDenseMatrix<ElementType>& InputMatrix);
+    inline bool Share(mdkDenseMatrix<ElementType>* InputMatrix);
 
-    inline bool ForceSharedCopy(const mdkDenseMatrix<ElementType>* InputMatrix);
+    inline void ForceShare(const mdkDenseMatrix<ElementType>& InputMatrix);
 
-    // about const share: i.e., only read (const functions), not write
+    inline bool ForceShare(const mdkDenseMatrix<ElementType>* InputMatrix);
+
+    // about const share: e.g., A.ConstShare(B), then A can only read (const functions) from B, and cant not write to B
     //
     // note1: if const share of one single object is needed
     //        just use const reference: 
-    //        const mdkDenseMatrix<ElementType>& = InputMatrix
-    //        const mdkDenseMatrix<ElementType>& = InputFunction()(return InputMatrix) 
+    //        const mdkDenseMatrix<ElementType>& A = B
+    //        const mdkDenseMatrix<ElementType>& A = InputFunction()(return a Matrix) 
     //
     // note2: if const share of many objects is needed
     //        there is no such thing as std::vector<const mdkDenseMatrix<ElementType>&>
-    //        just create std::vector<const mdkDenseMatrix<ElementType>*> MatrixPtrList = {&A}; from Matrix A
-    //        then const prevent using (*MatrixPtrList[0])(0,0) = 10;
+    //
+    //        you can create std::vector<const mdkDenseMatrix<ElementType>*> MatrixPtrListA = {&B1, &B2, ...};
+    //        and const prevent changing B, e.g., (*MatrixPtrListA[0])(0,0) = 10; can not be compiled
     //
     //        However,std::vector<const mdkDenseMatrix<ElementType>> is equal to std::vector<mdkDenseMatrix<ElementType>>
-    //        std::vector<const mdkDenseMatrix<ElementType>> MatrixList can be constructed from Matrix A by share
-    //        
-    //        MatrixList.emplace_back(A, mdkObjectConstructionTypeEnum::SHARE);
+    //
+    //        std::vector<const mdkDenseMatrix<ElementType>> MatrixListA;        
+    //        MatrixListA.emplace_back(B1, mdkObjectCopyConstructionTypeEnum::Share);
     //        But:
-    //            MatrixList[0](1,1) = 100; CAN be compiled !!!  (A is changed by this code)
+    //            MatrixListA[0](1,1) = 100; CAN be compiled !!!  (B1 is changed by this code)
     //
     //-----------------------------------------------------------------------------------------------------
     // conclusion: 
-    // (1) An array of shared objects can be created from InputMatrix
+    // (1) An array of Share objects can be created from InputMatrix
     //     std::vector<mdkDenseMatrix<ElementType>> SharedMatrixArray(10);
     //     SharedMatrixArray[i].Share(InputMatrix);
     //     SharedMatrixArray[i].ForceShare(InputMatrix);
     //
-    // (2) An array of const shared objects can be created by using std::vector, but const is lost
+    // (2) An array of const Share objects can be created by using std::vector, but const is lost
     //
-    // (3) An array of const pointers to shared objects can be created from InputMatrix, NOT InputFunction()
+    // (3) An array of const pointers to objects can be created from InputMatrix
     //     std::vector<const mdkDenseMatrix<ElementType>*> SharedMatrixPointerArray(10);
     //     SharedMatrixPointerArray[i] = &InputMatrix;
     //------------------------------------------------------------------------------------------------------
 
     //-------------------- Take -----------------------------------------------------------//
 
-    //Take the the ownership of the InputMatrix and ForceClear it
+    //Take the the ownership (MatrixData) of the InputMatrix and Clear InputMatrix
+
+    inline void Take(mdkDenseMatrix<ElementType>&& InputMatrix);
 
     inline bool Take(mdkDenseMatrix<ElementType>& InputMatrix);
 
-    inline bool Take(mdkDenseMatrix<ElementType>&& InputMatrix);
+    inline bool Take(mdkDenseMatrix<ElementType>* InputMatrix);
 
-    //Take the the ownership of the Matrix Created from ShadowMatrix or GlueMatrix
+    //Take the Matrix Created from ShadowMatrix or GlueMatrix
 
     inline bool Take(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix);
 
@@ -246,12 +263,9 @@ public:
 
     inline bool Take(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    //------------------------- Reset , Clear -------------------------------------------//
-    
-    // set the initial state, use it in constructor, do more things than Clear()
-    inline void Reset();
+    //------------------------- Clear -------------------------------------------//
 
-    // clear memory no matter what, and set m_IsSizeFixed to be false
+    // equal to Resize(0, 0)
     inline void Clear();
 
 	//---------------------- Set/get Matrix Size, Shape ----------------------------------------//
@@ -265,6 +279,8 @@ public:
     inline bool IsSizeFixed() const;
 
     inline bool IsEmpty() const;
+
+    inline bool IsNull() const;
 
 	inline mdkMatrixSize GetSize() const;
 
