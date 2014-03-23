@@ -16,13 +16,9 @@ protected:
 
     // input:
 
-    mdkFeatureEncoder<ElementType>* m_GenericEncoder;
-
     const mdkDenseMatrix<ElementType>* m_FeatureData;
 
-    int64 m_DictionaryLength;
-
-    const mdkFeatureDictionary<ElementType>* m_InitialDictionary;
+    mdkFeatureEncoder<ElementType>* m_GenericEncoder;
 
     // output:
 
@@ -38,15 +34,11 @@ public:
 
     //---------------------------------------------------//
 
-    virtual void Reset();
+    virtual void Clear();
 
     //---------------------------------------------------//
 
-    bool SetInitialDictionary(const mdkFeatureDictionary<ElementType>* InitialDictionary);
-
-    bool SetOutputDictionary(mdkFeatureDictionary<ElementType>* Dictionary);
-
-    bool SetDictionaryLength(int64 Length);
+    bool SetInputFeatureData(const mdkDenseMatrix<ElementType>* InputFeatureData);
 
     //---------------------------------------------------//
 
@@ -54,7 +46,7 @@ public:
 
     //---------------------------------------------------//
 
-    bool SetInputFeatureData(const mdkDenseMatrix<ElementType>* InputFeatureData);
+    bool SetOutputDictionary(mdkFeatureDictionary<ElementType>* Dictionary);
 
     //----------------------------------------------------//
 

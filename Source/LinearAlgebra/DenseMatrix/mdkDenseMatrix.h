@@ -265,7 +265,7 @@ public:
 
     //------------------------- Clear -------------------------------------------//
 
-    // equal to Resize(0, 0)
+    // clear memory, not equal to Resize(0, 0) which may not release memory
     inline void Clear();
 
 	//---------------------- Set/get Matrix Size, Shape ----------------------------------------//

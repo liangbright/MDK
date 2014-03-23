@@ -7,7 +7,7 @@ namespace mdk
 template<typename ElementType>
 mdkFeatureSparseEncoder<ElementType>::mdkFeatureSparseEncoder()
 {
-
+    this->Clear();
 }
 
 
@@ -19,11 +19,11 @@ mdkFeatureSparseEncoder<ElementType>::~mdkFeatureSparseEncoder()
 
 
 template<typename ElementType>
-void mdkFeatureSparseEncoder<ElementType>::Reset()
+void mdkFeatureSparseEncoder<ElementType>::Clear()
 {
-    this->mdkFeatureEncoder::Reset();
+    this->mdkFeatureEncoder::Clear();
 
-    m_FeatureCodeInCompactFormat_SharedCopy.Reset();
+    m_FeatureCodeInCompactFormat_SharedCopy.Clear();
 
     m_FeatureCodeInCompactFormat = &m_FeatureCodeInCompactFormat_SharedCopy;
 
@@ -42,7 +42,7 @@ bool mdkFeatureSparseEncoder<ElementType>::SetOutputFeatureCodeInCompactFormat(m
 
     m_FeatureCodeInCompactFormat = FeatureCode;
 
-    m_FeatureCodeInCompactFormat_SharedCopy.ForceSharedCopy(FeatureCode);
+    m_FeatureCodeInCompactFormat_SharedCopy.ForceShare(FeatureCode);
 
     return true;
 }
@@ -67,7 +67,7 @@ bool mdkFeatureSparseEncoder<ElementType>::Update()
 
     if (m_FeatureCode != &m_FeatureCode_SharedCopy)
     {
-        m_FeatureCode_SharedCopy.ForceSharedCopy(m_FeatureCode);
+        m_FeatureCode_SharedCopy.ForceShare(m_FeatureCode);
     }
 
     // note: whether or not to convert m_FeatureCode to m_FeatureCodeInCompactFormat
@@ -76,7 +76,7 @@ bool mdkFeatureSparseEncoder<ElementType>::Update()
 
     if (m_FeatureCodeInCompactFormat != &m_FeatureCodeInCompactFormat_SharedCopy)
     {
-        m_FeatureCodeInCompactFormat_SharedCopy.ForceSharedCopy(m_FeatureCodeInCompactFormat);
+        m_FeatureCodeInCompactFormat_SharedCopy.ForceShare(m_FeatureCodeInCompactFormat);
     }
 
     //--------------------------------------------------------------

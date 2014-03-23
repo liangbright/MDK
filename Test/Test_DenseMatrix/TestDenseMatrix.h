@@ -102,12 +102,10 @@ void Test_Constructor()
 {
     std::cout << "Test_Constructor()" << '\n';
 
+    std::vector<mdkDenseMatrix<double>> AList;
 
-    unsigned int j = 2147483648;
+    AList.reserve(10);
 
-    int i = 1;
-
-    int k = int(j);
 
     mdkDenseMatrix<double> A(2, 2);
 

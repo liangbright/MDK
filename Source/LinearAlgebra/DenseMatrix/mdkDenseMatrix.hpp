@@ -736,7 +736,13 @@ template<typename ElementType>
 inline
 void mdkDenseMatrix<ElementType>::Clear()
 {
-    this->Resize(0, 0);
+    m_MatrixData->RowNumber = 0;
+
+    m_MatrixData->ColNumber = 0;
+
+    m_MatrixData->DataArray.clear();
+
+    m_ElementPointer = nullptr;
 }
 
 
@@ -3722,7 +3728,7 @@ bool mdkDenseMatrix<ElementType>::DeleteRow(const int64* RowIndexListPtr, int64 
     }
     else
     {
-        this->Reset();
+        this->Clear();
     }
 
     return true;

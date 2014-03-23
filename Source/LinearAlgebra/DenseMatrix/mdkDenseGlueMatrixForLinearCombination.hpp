@@ -16,7 +16,19 @@ template<typename ElementType>
 inline
 mdkDenseGlueMatrixForLinearCombination<ElementType>::mdkDenseGlueMatrixForLinearCombination()
 {
-    this->Reset();
+    m_RowNumber = 0;
+
+    m_ColNumber = 0;
+
+    m_SourceMatrixSharedCopyList.resize(0);
+
+    m_SourceMatrixSharedCopyList.reserve(MDK_DenseGlueMatrixForLinearCombination_ReservedCapacity);
+
+    m_ElementList_Coef.resize(0);
+
+    m_ElementList_Coef.reserve(MDK_DenseGlueMatrixForLinearCombination_ReservedCapacity);
+
+    m_IndependentElement = m_IndependentElement - m_IndependentElement;
 }
 
 
@@ -45,27 +57,6 @@ template<typename ElementType>
 inline
 mdkDenseGlueMatrixForLinearCombination<ElementType>::~mdkDenseGlueMatrixForLinearCombination()
 {
-}
-
-
-template<typename ElementType>
-inline 
-void 
-mdkDenseGlueMatrixForLinearCombination<ElementType>::Reset()
-{
-    m_RowNumber = 0;
-
-    m_ColNumber = 0;
-
-    m_SourceMatrixSharedCopyList.resize(0);
-
-    m_SourceMatrixSharedCopyList.reserve(MDK_DenseGlueMatrixForLinearCombination_ReservedCapacity);
-
-    m_ElementList_Coef.resize(0);
-
-    m_ElementList_Coef.reserve(MDK_DenseGlueMatrixForLinearCombination_ReservedCapacity);
-
-    m_IndependentElement = m_IndependentElement - m_IndependentElement;
 }
 
 

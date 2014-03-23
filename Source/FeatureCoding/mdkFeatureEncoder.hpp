@@ -7,7 +7,7 @@ namespace mdk
 template<typename ElementType>
 mdkFeatureEncoder<ElementType>::mdkFeatureEncoder()
 {
-
+    this->Clear();
 }
 
 
@@ -19,15 +19,15 @@ mdkFeatureEncoder<ElementType>::~mdkFeatureEncoder()
 
 
 template<typename ElementType>
-void mdkFeatureEncoder<ElementType>::Reset()
+void mdkFeatureEncoder<ElementType>::Clear()
 {
-    m_Dictionary_Storage.Reset();
+    m_Dictionary_Storage.Clear();
 
     m_Dictionary = &m_Dictionary_SharedCopy;
 
     m_FeatureData = nullptr;
 
-    m_FeatureCode_Storage.Reset();
+    m_FeatureCode_Storage.Clear();
 
     m_FeatureCode = &m_FeatureCode_SharedCopy;
 

@@ -9,7 +9,17 @@ namespace mdk
 template<typename ElementType>
 mdkDenseGlueMatrixForMultiplication<ElementType>::mdkDenseGlueMatrixForMultiplication()
 {
-    this->Reset();
+    m_RowNumber = 0;
+
+    m_ColNumber = 0;
+
+    m_SourceMatrixSharedCopyList.resize(0);
+
+    m_SourceMatrixSharedCopyList.reserve(MDK_DenseGlueMatrixForMultiplication_ReservedCapacity);
+
+    m_Element_Coef = ElementType(1);
+
+    m_Is_m_Element_Coef_Equal_to_One = true;
 }
 
 
@@ -36,24 +46,6 @@ mdkDenseGlueMatrixForMultiplication<ElementType>::mdkDenseGlueMatrixForMultiplic
     // clear counter 
     GlueMatrix.m_RowNumber = 0;
     GlueMatrix.m_ColNumber = 0;
-}
-
-
-template<typename ElementType>
-inline
-void mdkDenseGlueMatrixForMultiplication<ElementType>::Reset()
-{
-    m_RowNumber = 0;
-
-    m_ColNumber = 0;
-
-    m_SourceMatrixSharedCopyList.resize(0);
-
-    m_SourceMatrixSharedCopyList.reserve(MDK_DenseGlueMatrixForMultiplication_ReservedCapacity);
-
-    m_Element_Coef = ElementType(1);
-
-    m_Is_m_Element_Coef_Equal_to_One = true;
 }
 
 

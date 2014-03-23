@@ -59,7 +59,6 @@ public:
 
     //---------------------- Other ----------------------------------------//
 private:
-    inline void Reset();
 
     inline int64 GetRowNumber() const;
 

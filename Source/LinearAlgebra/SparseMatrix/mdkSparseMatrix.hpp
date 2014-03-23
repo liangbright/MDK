@@ -206,13 +206,13 @@ void mdkSparseMatrixDataInCSCFormat<ElementType>::Clear()
 
     m_ColNumber = 0;
 
-    m_RowIndexList.resize(0);
+    m_RowIndexList.clear();
 
-    m_ColBeginElementLinearIndexInDataArray.resize(0);
+    m_ColBeginElementLinearIndexInDataArray.clear();
 
-    m_RecordedElementNumberInEachCol.resize(0);
+    m_RecordedElementNumberInEachCol.clear();
 
-    m_DataArray.resize(0);
+    m_DataArray.clear();
 
     m_ZeroElement = ElementType(0);
 }
@@ -1480,10 +1480,8 @@ mdkMatrixElementTypeEnum mdkSparseMatrix<ElementType>::GetElementType() const
 
 template<typename ElementType>
 inline
-ElementType* mdkSparseMatrix<ElementType>::GetElementPointer()
+ElementType* mdkSparseMatrix<ElementType>::GetRecordedElementPointer()
 {
-    //return m_ElementPointer;
-
     if (m_MatrixData) // m_MatrixData != nullptr
     {
         return m_MatrixData->m_DataArray.data();
@@ -1497,10 +1495,8 @@ ElementType* mdkSparseMatrix<ElementType>::GetElementPointer()
 
 template<typename ElementType>
 inline
-const ElementType* mdkSparseMatrix<ElementType>::GetElementPointer() const
+const ElementType* mdkSparseMatrix<ElementType>::GetRecordedElementPointer() const
 {
-    //return m_ElementPointer;
-
     if (m_MatrixData) // m_MatrixData != nullptr
     {
         return m_MatrixData->m_DataArray.data();

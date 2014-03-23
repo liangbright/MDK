@@ -27,9 +27,8 @@ struct mdkMatrixSize;
 
 //---------------------------------------------------------------------------------------------------------------------------------//
 
-// 100 scalars and 100 matrix should be OK
-// reserve the capacity of std::vector
-#define MDK_DenseGlueMatrixForLinearCombination_ReservedCapacity  100
+// reserve the capacity of m_SourceMatrixSharedCopyList
+#define MDK_DenseGlueMatrixForLinearCombination_ReservedCapacity  20
 //--------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
@@ -67,7 +66,6 @@ private:
 
 	//---------------------- Other ----------------------------------------//
 private:
-    inline void Reset();
 
     inline int64 GetRowNumber() const;
 

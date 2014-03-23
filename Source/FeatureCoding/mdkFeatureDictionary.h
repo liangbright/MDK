@@ -34,19 +34,17 @@ public:
 
     void operator=(mdkFeatureDictionary&& InputDictionary);
 
-    bool DeepCopy(const mdkFeatureDictionary<ElementType>& InputDictionary);
+    bool Copy(const mdkFeatureDictionary<ElementType>& InputDictionary);
 
-    bool DeepCopy(const mdkFeatureDictionary<ElementType>* InputDictionary);
+    bool Copy(const mdkFeatureDictionary<ElementType>* InputDictionary);
 
-    bool SharedCopy(mdkFeatureDictionary<ElementType>& InputDictionary);
+    bool Share(mdkFeatureDictionary<ElementType>& InputDictionary);
 
-    bool SharedCopy(mdkFeatureDictionary<ElementType>* InputDictionary);
+    bool Share(mdkFeatureDictionary<ElementType>* InputDictionary);
 
-    void ForceSharedCopy(const mdkFeatureDictionary<ElementType>& InputDictionary);
+    void ForceShare(const mdkFeatureDictionary<ElementType>& InputDictionary);
 
-    bool ForceSharedCopy(const mdkFeatureDictionary<ElementType>* InputDictionary);
-
-    void Reset();
+    bool ForceShare(const mdkFeatureDictionary<ElementType>* InputDictionary);
 
     void Clear();
 

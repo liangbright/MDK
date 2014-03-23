@@ -7,7 +7,7 @@ namespace mdk
 template<typename ElementType>
 mdkFeatureEncoderDictionaryBuilder<ElementType>::mdkFeatureEncoderDictionaryBuilder()
 {
-    this->Reset();
+    this->Clear();
 }
 
 
@@ -18,67 +18,29 @@ mdkFeatureEncoderDictionaryBuilder<ElementType>::~mdkFeatureEncoderDictionaryBui
 
 
 template<typename ElementType>
-void mdkFeatureEncoderDictionaryBuilder<ElementType>::Reset()
+void mdkFeatureEncoderDictionaryBuilder<ElementType>::Clear()
 {
     m_GenericEncoder = nullptr;
 
     m_FeatureData = nullptr;
 
-    m_DictionaryLength = 0;
-
-    m_InitialDictionary = nullptr;
-
-    m_Dictionary_SharedCopy.Reset();
+    m_Dictionary_SharedCopy.Clear();
 
     m_Dictionary = &m_Dictionary_SharedCopy;
 }
 
-
 //---------------------------------------------------//
 
 template<typename ElementType>
-bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetInitialDictionary(const mdkFeatureDictionary<ElementType>* InitialDictionary)
+bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetInputFeatureData(const mdkDenseMatrix<ElementType>* InputFeatureData)
 {
-    if (InitialDictionary == nullptr)
+    if (InputFeatureData == nullptr)
     {
-        mdkError << "Invalid Input @ mdkFeatureEncoderDictionaryBuilder::SetInitialDictionary(InitialDictionary)" << '\n';
+        mdkError << "Invalid input @ mdkFeatureEncoderDictionaryBuilder::SetInputFeatureData(InputFeatureData)" << '\n';
         return false;
     }
 
-    m_InitialDictionary = InitialDictionary;
-
-    return true;
-}
-
-
-template<typename ElementType>
-bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetOutputDictionary(mdkFeatureDictionary<ElementType>* OutputDictionary)
-{
-    if (OutputDictionary == nullptr)
-    {
-        mdkError << "Invalid input @ mdkFeatureEncoderDictionaryBuilder::SetOutputDictionary(OutputDictionary)" << '\n';
-        return false;
-    }
-
-    m_Dictionary = OutputDictionary;
-
-    m_Dictionary_SharedCopy.ForceSharedCopy(OutputDictionary);
-
-    return true;
-}
-
-
-
-template<typename ElementType>
-bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetDictionaryLength(int64 Length)
-{
-    if (Length <= 0)
-    {
-        mdkError << "Invalid input @ mdkFeatureEncoderDictionaryBuilder::SetDictionaryLength(Length)" << '\n';
-        return false;
-    }
-
-    m_DictionaryLength = Length;
+    m_FeatureData = InputFeatureData;
 
     return true;
 }
@@ -102,18 +64,21 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetGenericEncoder(const md
 //---------------------------------------------------//
 
 template<typename ElementType>
-bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetInputFeatureData(const mdkDenseMatrix<ElementType>* InputFeatureData)
+bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetOutputDictionary(mdkFeatureDictionary<ElementType>* OutputDictionary)
 {
-    if (InputFeatureData == nullptr)
+    if (OutputDictionary == nullptr)
     {
-        mdkError << "Invalid input @ mdkFeatureEncoderDictionaryBuilder::SetInputFeatureData(InputFeatureData)" << '\n';
+        mdkError << "Invalid input @ mdkFeatureEncoderDictionaryBuilder::SetOutputDictionary(OutputDictionary)" << '\n';
         return false;
     }
 
-    m_FeatureData = InputFeatureData;
+    m_Dictionary = OutputDictionary;
+
+    m_Dictionary_SharedCopy.ForceShare(OutputDictionary);
 
     return true;
 }
+
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -156,7 +121,7 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::Update()
 
     if (m_Dictionary != &m_Dictionary_SharedCopy)
     {
-        m_Dictionary_SharedCopy.ForceSharedCopy(m_Dictionary);
+        m_Dictionary_SharedCopy.ForceShare(m_Dictionary);
     }
 
     //--------------------------------------------------

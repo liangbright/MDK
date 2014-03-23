@@ -300,9 +300,9 @@ public:
 
     //--------------------- Get Data Pointer -----------------------------//
 
-    inline ElementType* GetElementPointer();
+    inline ElementType* GetRecordedElementPointer();
 
-    inline const ElementType* GetElementPointer() const;
+    inline const ElementType* GetRecordedElementPointer() const;
 
     //--------------------- Get/Set Element -----------------------------//
 
