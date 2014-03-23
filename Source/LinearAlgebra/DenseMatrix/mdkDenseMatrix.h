@@ -186,7 +186,8 @@ public:
     //
     // The above rule also applies to A if A changes it self.
     //
-    // A.Share(B) really means A and B share the same data forever
+    // A.Share(B) really means A and B share the same data
+    // until A.Share(C), then A == C, and the share-relation between A and B ends, B keeps its data.
     // 
     // There are 3 situations I may use Share
     //
@@ -279,6 +280,8 @@ public:
     inline bool IsSizeFixed() const;
 
     inline bool IsEmpty() const;
+
+    inline bool IsShared() const;
 
 	inline mdkMatrixSize GetSize() const;
 

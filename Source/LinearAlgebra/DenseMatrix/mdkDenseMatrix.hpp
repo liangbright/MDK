@@ -910,6 +910,19 @@ bool mdkDenseMatrix<ElementType>::IsEmpty() const
 
 template<typename ElementType>
 inline
+bool mdkDenseMatrix<ElementType>::IsShared() const
+{
+    if (m_MatrixData.use_count() > 1)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+template<typename ElementType>
+inline
 mdkMatrixSize mdkDenseMatrix<ElementType>::GetSize() const
 {
     mdkMatrixSize Size;
