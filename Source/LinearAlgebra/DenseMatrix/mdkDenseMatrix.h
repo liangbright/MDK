@@ -280,8 +280,6 @@ public:
 
     inline bool IsEmpty() const;
 
-    inline bool IsNull() const;
-
 	inline mdkMatrixSize GetSize() const;
 
     inline int64 GetElementNumber() const;

@@ -450,9 +450,9 @@ template<typename ElementType>
 inline
 bool mdkDenseMatrix<ElementType>::Fill(const ElementType& Element)
 {
-    auto ElementNumber = this->GetElementNumber();
+    auto Self_ElementNumber = this->GetElementNumber();
 
-    if (ElementNumber <= 0)
+    if (Self_ElementNumber <= 0)
     {
         mdkError << "Self is empty @ mdkDenseMatrix::Fill" << '\n';
         return false;
@@ -460,7 +460,7 @@ bool mdkDenseMatrix<ElementType>::Fill(const ElementType& Element)
 
     auto BeginPointer = this->GetElementPointer();
 
-    for (auto Ptr = BeginPointer; Ptr < BeginPointer + ElementNumber; ++Ptr)
+    for (auto Ptr = BeginPointer; Ptr < BeginPointer + Self_ElementNumber; ++Ptr)
     {
         Ptr[0] = Element;
     }
@@ -473,13 +473,6 @@ template<typename ElementType>
 inline
 bool mdkDenseMatrix<ElementType>::Share(mdkDenseMatrix<ElementType>& InputMatrix)
 {
-    if (InputMatrix.IsNull() == true)
-    {
-        mdkError << "InputMatrix is a Null matrix @ mdkDenseMatrix::Share(InputMatrix)" << '\n';
-
-        return false;
-    }
-
     // self assignment test is not necessary, just to output some information
 
     // Matrix = Matrix
@@ -513,14 +506,7 @@ bool mdkDenseMatrix<ElementType>::Share(mdkDenseMatrix<ElementType>& InputMatrix
 
     m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment test is not necessary
 
-    if (m_MatrixData)
-    {
-        m_ElementPointer = m_MatrixData->DataArray.data();
-    }
-    else
-    {
-        m_ElementPointer = nullptr;
-    }
+    m_ElementPointer = m_MatrixData->DataArray.data();
 
     return true;
 }
@@ -544,22 +530,9 @@ template<typename ElementType>
 inline
 void mdkDenseMatrix<ElementType>::ForceShare(const mdkDenseMatrix<ElementType>& InputMatrix)
 {
-    if (InputMatrix.IsNull() == true)
-    {
-        mdkError << "InputMatrix is a Null matrix @ mdkDenseMatrix::ForceShare(InputMatrix)" << '\n';
-        return;
-    }
-
     m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment test is not necessary
 
-    if (m_MatrixData)
-    {
-        m_ElementPointer = m_MatrixData->DataArray.data();
-    }
-    else
-    {
-        m_ElementPointer = nullptr;
-    }
+    m_ElementPointer = m_MatrixData->DataArray.data();
 }
 
 
@@ -630,8 +603,8 @@ bool mdkDenseMatrix<ElementType>::Take(mdkDenseMatrix<ElementType>& InputMatrix)
 
     m_ElementPointer = m_MatrixData->DataArray.data();
 
-    // Resize InputMatrix to be empty
-    InputMatrix.Resize(0, 0);
+    // Clear InputMatrix to be empty
+    InputMatrix.Clear();
 
     return true;
 }
@@ -908,12 +881,9 @@ void mdkDenseMatrix<ElementType>::FixSize()
 {
     m_IsSizeFixed = true;
 
-    if (m_MatrixData)
-    {
-        m_MatrixData->DataArray.shrink_to_fit();
+    m_MatrixData->DataArray.shrink_to_fit();
 
-        m_ElementPointer = m_MatrixData->DataArray.data();
-    }
+    m_ElementPointer = m_MatrixData->DataArray.data();
 }
 
 
@@ -929,23 +899,12 @@ template<typename ElementType>
 inline
 bool mdkDenseMatrix<ElementType>::IsEmpty() const
 {
-    if (m_MatrixData) // m_MatrixData != nullptr
+    if (m_MatrixData->RowNumber > 0)
     {
-        if (m_MatrixData->RowNumber > 0)
-        {
-            return false;
-        }
+        return false;
     }
-
+    
     return true;
-}
-
-
-template<typename ElementType>
-inline
-bool mdkDenseMatrix<ElementType>::IsNull() const
-{
-    return !(m_MatrixData);
 }
 
 
@@ -955,17 +914,9 @@ mdkMatrixSize mdkDenseMatrix<ElementType>::GetSize() const
 {
     mdkMatrixSize Size;
 
-    if (m_MatrixData) // m_MatrixData != nullptr
-    {
-        Size.RowNumber = m_MatrixData->RowNumber;
+    Size.RowNumber = m_MatrixData->RowNumber;
 
-        Size.ColNumber = m_MatrixData->ColNumber;
-    }
-    else
-    {
-        Size.RowNumber = 0;
-        Size.ColNumber = 0;
-    }
+    Size.ColNumber = m_MatrixData->ColNumber;
 
     return Size;
 }
@@ -975,14 +926,7 @@ template<typename ElementType>
 inline
 int64 mdkDenseMatrix<ElementType>::GetElementNumber() const
 {
-    if (m_MatrixData) // m_MatrixData != nullptr
-    {
-        return m_MatrixData->RowNumber * m_MatrixData->ColNumber;
-    }
-    else
-    {
-        return 0;
-    }
+    return m_MatrixData->RowNumber * m_MatrixData->ColNumber;
 }
 
 
@@ -990,14 +934,7 @@ template<typename ElementType>
 inline 
 int64 mdkDenseMatrix<ElementType>::GetColNumber() const
 {
-    if (m_MatrixData) // m_MatrixData != nullptr
-    {
-        return m_MatrixData->ColNumber;
-    }
-    else
-    {
-        return 0;
-    }
+    return m_MatrixData->ColNumber;
 }
 
 
@@ -1005,14 +942,7 @@ template<typename ElementType>
 inline 
 int64 mdkDenseMatrix<ElementType>::GetRowNumber() const
 {
-    if (m_MatrixData) // m_MatrixData != nullptr
-    {
-        return m_MatrixData->RowNumber;
-    }
-    else
-    {
-        return 0;
-    }
+    return m_MatrixData->RowNumber;
 }
 
 
@@ -1020,11 +950,6 @@ template<typename ElementType>
 inline
 bool mdkDenseMatrix<ElementType>::IsNonemptyVector() const
 {
-    if (!m_MatrixData)
-    {
-        return false;
-    }
-
     if (m_MatrixData->RowNumber == 1 || m_MatrixData->ColNumber == 1)
     {
         return true;
@@ -1038,11 +963,6 @@ template<typename ElementType>
 inline
 bool mdkDenseMatrix<ElementType>::IsNonemptyRowVector() const
 {
-    if (!m_MatrixData)
-    {
-        return false;
-    }
-
     if (m_MatrixData->RowNumber == 1)
     {
         return true;
@@ -1056,11 +976,6 @@ template<typename ElementType>
 inline
 bool mdkDenseMatrix<ElementType>::IsNonemptyColVector() const
 {
-    if (!m_MatrixData)
-    {
-        return false;
-    }
-
     if (m_MatrixData->ColNumber == 1)
     {
         return true;
@@ -1074,12 +989,7 @@ template<typename ElementType>
 inline
 bool mdkDenseMatrix<ElementType>::IsNonemptySquare() const
 {
-    if (!m_MatrixData)
-    {
-        return false;
-    }
-
-    if (m_MatrixData->RowNumber == m_MatrixData->ColNumber)
+    if (m_MatrixData->RowNumber > 0 && m_MatrixData->RowNumber == m_MatrixData->ColNumber)
     {
         return true;
     }
@@ -1108,16 +1018,7 @@ template<typename ElementType>
 inline
 ElementType* mdkDenseMatrix<ElementType>::GetElementPointer()
 {
-    //return m_ElementPointer;
-
-    if (m_MatrixData) // m_MatrixData != nullptr
-    {
-        return m_MatrixData->DataArray.data();
-    }
-    else
-    {
-        return nullptr;
-    }
+    return m_MatrixData->DataArray.data();
 }
 
 
@@ -1125,16 +1026,7 @@ template<typename ElementType>
 inline
 const ElementType* mdkDenseMatrix<ElementType>::GetElementPointer() const
 {
-    //return m_ElementPointer;
-
-    if (m_MatrixData) // m_MatrixData != nullptr
-    {
-        return m_MatrixData->DataArray.data();
-    }
-    else
-    {
-        return nullptr;
-    }
+    return m_MatrixData->DataArray.data();
 }
 
 //----------- Get/Set Matrix(LinearIndex) -----------------------------------//

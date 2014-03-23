@@ -84,8 +84,8 @@ public:
 
     inline mdkMatrix(const ElementType& Element);
 
-    // deep-copy or shared-copy constructor
-    inline mdkMatrix(const mdkMatrix<ElementType>& InputMatrix, mdkObjectCopyConstructionTypeEnum Method = mdkObjectCopyConstructionTypeEnum::DeepCopy);
+    // -copy or shared-copy constructor
+    inline mdkMatrix(const mdkMatrix<ElementType>& InputMatrix, mdkObjectConstructionTypeEnum Method = mdkObjectConstructionTypeEnum::Copy);
 
     // move constructor
     inline mdkMatrix(mdkMatrix<ElementType>&& InputMatrix);
@@ -123,74 +123,34 @@ public:
 
     inline void operator=(const mdkGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    //----------------------  DeepCopy From Matrix or Element  ----------------------------------------//
+    //----------------------  Copy From Matrix or Element  ----------------------------------------//
 
-    // DeepCopy can be used to convert a matrix from double (ElementType_Input) to float (ElementType), etc
+    // Copy can be used to convert a matrix from double (ElementType_Input) to float (ElementType), etc
 
     template<typename ElementType_Input>  
-    inline bool DeepCopy(const mdkMatrix<ElementType_Input>& InputMatrix);
+    inline bool Copy(const mdkMatrix<ElementType_Input>& InputMatrix);
 
     template<typename ElementType_Input>
-    inline bool DeepCopy(const mdkMatrix<ElementType_Input>* InputMatrix);
+    inline bool Copy(const mdkMatrix<ElementType_Input>* InputMatrix);
 
     template<typename ElementType_Input>
-    inline bool DeepCopy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
+    inline bool Copy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
 
     inline bool Fill(const ElementType& Element);
 
-    //-------------------------- SharedCopy, ForceSharedCopy  ------------------------------------------ //
- 
-    // Why I use the name: SharedCopy instead of Share :
-    // A.Share(B) literally means Matrix A and Matrix B share the same thing
-    // but after B.Clear(), and B.Resize(10,10), A and B have different data pointed by different shared_ptr (m_MatrixData)
-    // The "Share" is one-time thing, not share forever, maybe OneTimeShare is better than Share
-    // ShallowCopy is a better name: it means one-time operation
-    // I use the name SharedCopy: A.SharedCopy(B) means A is a copy of B by sharing
+    //-------------------------- Share, ForceShare  ------------------------------------------ //
 
     // if m_IsSizeFixed is true, and size does not match, then return false
     //
-    inline bool SharedCopy(mdkMatrix<ElementType>& InputMatrix);
+    inline bool Share(mdkMatrix<ElementType>& InputMatrix);
 
-    inline bool SharedCopy(mdkMatrix<ElementType>* InputMatrix);
+    inline bool Share(mdkMatrix<ElementType>* InputMatrix);
 
     // it is used by GlueMatrix
     // Share the object (InputMatrix) no matter what, even if InputMatrix is const
-    inline void ForceSharedCopy(const mdkMatrix<ElementType>& InputMatrix);
+    inline void ForceShare(const mdkMatrix<ElementType>& InputMatrix);
 
-    inline bool ForceSharedCopy(const mdkMatrix<ElementType>* InputMatrix);
-
-    // about const share: i.e., only read (const functions), not write
-    //
-    // note1: if const share of one single object is needed
-    //        just use const reference: 
-    //        const mdkMatrix<ElementType>& = InputMatrix
-    //        const mdkMatrix<ElementType>& = InputFunction()(return InputMatrix) 
-    //
-    // note2: if const share of many objects is needed
-    //        there is no such thing as std::vector<const mdkMatrix<ElementType>&>
-    //        just create std::vector<const mdkMatrix<ElementType>*> MatrixPtrList = {&A}; from Matrix A
-    //        then const prevent using (*MatrixPtrList[0])(0,0) = 10;
-    //
-    //        However,std::vector<const mdkMatrix<ElementType>> is equal to std::vector<mdkMatrix<ElementType>>
-    //        std::vector<const mdkMatrix<ElementType>> MatrixList can be constructed from Matrix A by share
-    //        
-    //        MatrixList.emplace_back(A, mdkObjectConstructionTypeEnum::SHARE);
-    //        But:
-    //            MatrixList[0](1,1) = 100; CAN be compiled !!!  (A is changed by this code)
-    //
-    //-----------------------------------------------------------------------------------------------------
-    // conclusion: 
-    // (1) An array of shared objects can be created from InputMatrix
-    //     std::vector<mdkMatrix<ElementType>> SharedMatrixArray(10);
-    //     SharedMatrixArray[i].Share(InputMatrix);
-    //     SharedMatrixArray[i].ForceShare(InputMatrix);
-    //
-    // (2) An array of const shared objects can be created by using std::vector, but const is lost
-    //
-    // (3) An array of const pointers to shared objects can be created from InputMatrix, NOT InputFunction()
-    //     std::vector<const mdkMatrix<ElementType>*> SharedMatrixPointerArray(10);
-    //     SharedMatrixPointerArray[i] = &InputMatrix;
-    //------------------------------------------------------------------------------------------------------
+    inline bool ForceShare(const mdkMatrix<ElementType>* InputMatrix);
 
     //-------------------- Take -----------------------------------------------------------//
 
@@ -213,35 +173,35 @@ public:
     //---------------- Get Data from DenseMatrix or SparseMatrix ----------------------------------------//
 
     template<typename ElementType_Input>
-    inline bool DeepCopy(const mdkDenseMatrix<ElementType_Input>& InputMatrix);
+    inline bool Copy(const mdkDenseMatrix<ElementType_Input>& InputMatrix);
 
     template<typename ElementType_Input>
-    inline bool DeepCopy(const mdkDenseMatrix<ElementType_Input>* InputMatrix);
+    inline bool Copy(const mdkDenseMatrix<ElementType_Input>* InputMatrix);
 
-    // SharedCopy DenseMatrix
-    inline bool SharedCopy(mdkDenseMatrix<ElementType>& InputMatrix);
+    // Share DenseMatrix
+    inline bool Share(mdkDenseMatrix<ElementType>& InputMatrix);
 
-    inline bool SharedCopy(mdkDenseMatrix<ElementType>* InputMatrix);
+    inline bool Share(mdkDenseMatrix<ElementType>* InputMatrix);
 
-    // ForceSharedCopy DenseMatrix
-    inline void ForceSharedCopy(const mdkDenseMatrix<ElementType>& InputMatrix);
+    // ForceShare DenseMatrix
+    inline void ForceShare(const mdkDenseMatrix<ElementType>& InputMatrix);
 
-    inline bool ForceSharedCopy(const mdkDenseMatrix<ElementType>* InputMatrix);
+    inline bool ForceShare(const mdkDenseMatrix<ElementType>* InputMatrix);
 
     // Take DenseMatrix
     inline bool Take(mdkDenseMatrix<ElementType>& InputMatrix);
 
     inline bool Take(mdkDenseMatrix<ElementType>* InputMatrix);
 
-    // SharedCopy SparseMatrix
-    inline bool SharedCopy(mdkSparseMatrix<ElementType>& InputMatrix);
+    // Share SparseMatrix
+    inline bool Share(mdkSparseMatrix<ElementType>& InputMatrix);
 
-    inline bool SharedCopy(mdkSparseMatrix<ElementType>* InputMatrix);
+    inline bool Share(mdkSparseMatrix<ElementType>* InputMatrix);
 
-    // ForceSharedCopy SparseMatrix
-    inline void ForceSharedCopy(const mdkSparseMatrix<ElementType>& InputMatrix);
+    // ForceShare SparseMatrix
+    inline void ForceShare(const mdkSparseMatrix<ElementType>& InputMatrix);
 
-    inline bool ForceSharedCopy(const mdkSparseMatrix<ElementType>* InputMatrix);
+    inline bool ForceShare(const mdkSparseMatrix<ElementType>* InputMatrix);
 
     // Take SparseMatrix
     inline bool Take(mdkSparseMatrix<ElementType>& InputMatrix);
@@ -254,12 +214,9 @@ public:
 
     inline mdkSparseMatrix<ElementType>& toSparseMatrix();
 
-    //------------------------- Reset , Clear -------------------------------------------//
+    //------------------------- Clear -------------------------------------------//
     
-    // set the initial state, use it in constructor, do more things than Clear()
-    inline void Reset();
-
-    // clear memory no matter what, and set m_IsSizeFixed to be false
+    // clear memory and set m_IsSizeFixed to be false
     inline void Clear();
 
 	//---------------------- Set/get Matrix Size, Shape ----------------------------------------//
@@ -308,11 +265,16 @@ public:
 
     inline const ElementType* GetElementPointer() const;
 
-    //--------------------- Get Element -----------------------------//
+    //--------------------- Get/Set Element -----------------------------//
 
     inline const ElementType& GetElement(int64 LinearIndex) const;
 
     inline const ElementType& GetElement(int64 RowIndex, int64 ColIndex) const;
+
+
+    inline bool SetElement(int64 LinearIndex, const ElementType& InputElement);
+
+    inline bool SetElement(int64 RowIndex, int64 ColIndex, const ElementType& InputElement);
 
 	//----------- Get/Set Matrix(LinearIndex) -----------------------------------//
 
@@ -674,7 +636,7 @@ public:
 
     inline void operator/=(const ElementType& Element);
 
-    //-------------------- element operation {^} -----------------------------------------------------------//
+    //-------------------- special element operation {^} -----------------------------------------------------------//
 
     inline mdkMatrix operator^(const ElementType& Element);
 
