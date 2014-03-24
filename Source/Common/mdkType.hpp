@@ -9,52 +9,52 @@ namespace mdk
 
 template<typename ObjectType>
 inline
-mdkScalarTypeEnum FindScalarType(ObjectType Scalar)
+ScalarTypeEnum FindScalarType(ObjectType Scalar)
 {
     std::string TypeName(typeid(Scalar).name());
 
     if (TypeName == "double")
     {
-        return mdkScalarTypeEnum::DOUBLE64;
+        return ScalarTypeEnum::DOUBLE64;
     }
     else if (TypeName == "float")
     {
-        return mdkScalarTypeEnum::FLOAT32;
+        return ScalarTypeEnum::FLOAT32;
     }
     else if (TypeName == "signed char")
     {
-        return mdkScalarTypeEnum::INT8;
+        return ScalarTypeEnum::INT8;
     }
     else if (TypeName == "short")
     {
-        return mdkScalarTypeEnum::INT16;
+        return ScalarTypeEnum::INT16;
     }
     else if (TypeName == "int")
     {
-        return mdkScalarTypeEnum::INT32;
+        return ScalarTypeEnum::INT32;
     }
     else if (TypeName == "__int64") // OS is Windows
     {
-        return mdkScalarTypeEnum::INT64;
+        return ScalarTypeEnum::INT64;
     }
     else if (TypeName == "unsigned char")
     {
-        return mdkScalarTypeEnum::UINT8;
+        return ScalarTypeEnum::UINT8;
     }
     else if (TypeName == "unsigned short")
     {
-        return mdkScalarTypeEnum::UINT16;
+        return ScalarTypeEnum::UINT16;
     }
     else if (TypeName == "unsigned int")
     {
-        return mdkScalarTypeEnum::UINT32;
+        return ScalarTypeEnum::UINT32;
     }
     else if (TypeName == "unsigned __int64") // OS is Windows
     {
-        return mdkScalarTypeEnum::UINT64;
+        return ScalarTypeEnum::UINT64;
     }
 
-    return mdkScalarTypeEnum::UNKNOWN;
+    return ScalarTypeEnum::UNKNOWN;
 }
 
 

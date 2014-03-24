@@ -14,7 +14,7 @@ namespace mdk
 
 template<typename ElementType>
 inline
-mdkSparseGlueMatrixForLinearCombination<ElementType>::mdkSparseGlueMatrixForLinearCombination()
+SparseGlueMatrixForLinearCombination<ElementType>::SparseGlueMatrixForLinearCombination()
 {
     this->Reset();
 }
@@ -22,7 +22,7 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::mdkSparseGlueMatrixForLine
 
 template<typename ElementType>
 inline
-mdkSparseGlueMatrixForLinearCombination<ElementType>::mdkSparseGlueMatrixForLinearCombination(mdkSparseGlueMatrixForLinearCombination<ElementType>&& GlueMatrix)
+SparseGlueMatrixForLinearCombination<ElementType>::SparseGlueMatrixForLinearCombination(SparseGlueMatrixForLinearCombination<ElementType>&& GlueMatrix)
 {
     m_RowNumber = GlueMatrix.m_RowNumber;
 
@@ -43,7 +43,7 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::mdkSparseGlueMatrixForLine
 
 template<typename ElementType>
 inline
-mdkSparseGlueMatrixForLinearCombination<ElementType>::~mdkSparseGlueMatrixForLinearCombination()
+SparseGlueMatrixForLinearCombination<ElementType>::~SparseGlueMatrixForLinearCombination()
 {
 }
 
@@ -51,7 +51,7 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::~mdkSparseGlueMatrixForLin
 template<typename ElementType>
 inline 
 void 
-mdkSparseGlueMatrixForLinearCombination<ElementType>::Reset()
+SparseGlueMatrixForLinearCombination<ElementType>::Reset()
 {
     m_RowNumber = 0;
 
@@ -72,7 +72,7 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::Reset()
 template<typename ElementType>
 inline 
 int64 
-mdkSparseGlueMatrixForLinearCombination<ElementType>::GetRowNumber() const
+SparseGlueMatrixForLinearCombination<ElementType>::GetRowNumber() const
 {
     return m_RowNumber;
 }
@@ -81,7 +81,7 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::GetRowNumber() const
 template<typename ElementType>
 inline 
 int64 
-mdkSparseGlueMatrixForLinearCombination<ElementType>::GetColNumber() const
+SparseGlueMatrixForLinearCombination<ElementType>::GetColNumber() const
 {
     return m_ColNumber;
 }
@@ -89,10 +89,10 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::GetColNumber() const
 
 template<typename ElementType>
 inline
-mdkMatrixSize
-mdkSparseGlueMatrixForLinearCombination<ElementType>::GetSize() const
+MatrixSize
+SparseGlueMatrixForLinearCombination<ElementType>::GetSize() const
 {
-    mdkMatrixSize Size;
+    MatrixSize Size;
 
     Size.ColNumber = m_ColNumber;
 
@@ -105,7 +105,7 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::GetSize() const
 template<typename ElementType>
 inline
 int64 
-mdkSparseGlueMatrixForLinearCombination<ElementType>::GetMatrixNumber() const
+SparseGlueMatrixForLinearCombination<ElementType>::GetMatrixNumber() const
 {
     return m_SourceMatrixSharedCopyList.size();
 }
@@ -114,7 +114,7 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::GetMatrixNumber() const
 
 template<typename ElementType>
 inline
-bool mdkSparseGlueMatrixForLinearCombination<ElementType>::IsEmpty() const
+bool SparseGlueMatrixForLinearCombination<ElementType>::IsEmpty() const
 {
     if (m_RowNumber <= 0)
     {
@@ -127,10 +127,10 @@ bool mdkSparseGlueMatrixForLinearCombination<ElementType>::IsEmpty() const
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> 
-mdkSparseGlueMatrixForLinearCombination<ElementType>::CreateSparseMatrix() const
+SparseMatrix<ElementType> 
+SparseGlueMatrixForLinearCombination<ElementType>::CreateSparseMatrix() const
 {
-    mdkSparseMatrix<ElementType> tempMatrix;
+    SparseMatrix<ElementType> tempMatrix;
 
     this->CreateMatrix(tempMatrix);
 
@@ -141,7 +141,7 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::CreateSparseMatrix() const
 template<typename ElementType>
 inline 
 bool 
-mdkSparseGlueMatrixForLinearCombination<ElementType>::CreateSparseMatrix(mdkSparseMatrix<ElementType>& OutputMatrix) const
+SparseGlueMatrixForLinearCombination<ElementType>::CreateSparseMatrix(SparseMatrix<ElementType>& OutputMatrix) const
 {
     if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
     {
@@ -153,7 +153,7 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::CreateSparseMatrix(mdkSpar
         }
         else
         {
-            mdkError << "Size does not match @ mdkSparseGlueMatrixForLinearCombination::CreateMatrix(OutputMatrix)" << '\n';
+            MDK_Error << "Size does not match @ SparseGlueMatrixForLinearCombination::CreateMatrix(OutputMatrix)" << '\n';
             return false;
         }
     }
@@ -162,11 +162,11 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::CreateSparseMatrix(mdkSpar
 
     if (MatrixNumber == 0)
     {
-        mdkError << "Self is empty @ mdkSparseGlueMatrixForLinearCombination::CreateMatrix(OutputMatrix)" << '\n';
+        MDK_Error << "Self is empty @ SparseGlueMatrixForLinearCombination::CreateMatrix(OutputMatrix)" << '\n';
         return false;
     }
 
-    std::vector<const mdkSparseMatrix<ElementType>*> MatrixPtrList(MatrixNumber);
+    std::vector<const SparseMatrix<ElementType>*> MatrixPtrList(MatrixNumber);
 
     for (int64 k = 0; k < MatrixNumber; ++k)
     {
@@ -179,8 +179,8 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::CreateSparseMatrix(mdkSpar
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> 
-mdkSparseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkSparseMatrix<ElementType>& targetMatrix)
+SparseMatrix<ElementType> 
+SparseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const SparseMatrix<ElementType>& targetMatrix)
 {
     auto tempMatrix = this->CreateMatrix();
 
@@ -192,8 +192,8 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkS
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> 
-mdkSparseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const ElementType& Element)
+SparseMatrix<ElementType> 
+SparseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const ElementType& Element)
 {
     auto tempMatrix = this->CreateMatrix();
 
@@ -205,8 +205,8 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const Elem
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> 
-mdkSparseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix)
+SparseMatrix<ElementType> 
+SparseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const SparseShadowMatrix<ElementType>& ShadowMatrix)
 {
     auto tempMatrix = this->CreateMatrix();
 
@@ -218,8 +218,8 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkS
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> 
-mdkSparseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+SparseMatrix<ElementType> 
+SparseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     auto tempMatrix = this->CreateMatrix();
 
@@ -231,8 +231,8 @@ mdkSparseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkS
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType>
-mdkSparseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+SparseMatrix<ElementType>
+SparseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     auto tempMatrix = this->CreateMatrix();
 

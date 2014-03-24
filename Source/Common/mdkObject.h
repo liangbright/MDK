@@ -5,18 +5,18 @@
 
 namespace mdk
 {
-class mdkObject
+class Object
 {
 
 protected:
-	mdkObject();
-	~mdkObject();
+	Object();
+	~Object();
 
     // do not use any virtual function (such as virtual void Clear)
 
 protected:
-	mdkObject(const mdkObject&);       // Empty function
-	void operator=(const mdkObject&);  // Empty function
+	Object(const Object&);       // Empty function
+	void operator=(const Object&);  // Empty function
 };
 
 }//end namespace mdk

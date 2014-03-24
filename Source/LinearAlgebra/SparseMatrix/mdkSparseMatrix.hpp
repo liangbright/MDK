@@ -12,7 +12,7 @@ namespace mdk
 
 template<typename ElementType>
 inline
-mdkSparseMatrixDataInCSCFormat<ElementType>::mdkSparseMatrixDataInCSCFormat()
+SparseMatrixDataInCSCFormat<ElementType>::SparseMatrixDataInCSCFormat()
 {
     this->Clear();
 }
@@ -20,7 +20,7 @@ mdkSparseMatrixDataInCSCFormat<ElementType>::mdkSparseMatrixDataInCSCFormat()
 
 template<typename ElementType>
 inline
-mdkSparseMatrixDataInCSCFormat<ElementType>::~mdkSparseMatrixDataInCSCFormat()
+SparseMatrixDataInCSCFormat<ElementType>::~SparseMatrixDataInCSCFormat()
 {
 
 }
@@ -29,7 +29,7 @@ mdkSparseMatrixDataInCSCFormat<ElementType>::~mdkSparseMatrixDataInCSCFormat()
 template<typename ElementType>
 inline
 void
-mdkSparseMatrixDataInCSCFormat<ElementType>::Construct(int64 InputRowNumber, int64 InputColNumber)
+SparseMatrixDataInCSCFormat<ElementType>::Construct(int64 InputRowNumber, int64 InputColNumber)
 {
     this->Clear();
 
@@ -60,7 +60,7 @@ mdkSparseMatrixDataInCSCFormat<ElementType>::Construct(int64 InputRowNumber, int
 template<typename ElementType>
 inline
 void
-mdkSparseMatrixDataInCSCFormat<ElementType>::Construct(const int64* InputRowIndexList,
+SparseMatrixDataInCSCFormat<ElementType>::Construct(const int64* InputRowIndexList,
                                                        const int64* InputColIndexList,
                                                        const ElementType* InputDataArray,
                                                        int64 RecordedElementNumber,
@@ -164,7 +164,7 @@ mdkSparseMatrixDataInCSCFormat<ElementType>::Construct(const int64* InputRowInde
             {
                 if (RowIndexSubList[j] == tempRowIndex_prev)
                 {
-                    mdkError << "duplicate values are found, construction abort! @ mdkSparseMatrixDataInCSCFormat::Construct(...)" << '\n';
+                    MDK_Error << "duplicate values are found, construction abort! @ mdkSparseMatrixDataInCSCFormat::Construct(...)" << '\n';
                     
                     return;
 
@@ -200,7 +200,7 @@ mdkSparseMatrixDataInCSCFormat<ElementType>::Construct(const int64* InputRowInde
 
 template<typename ElementType>
 inline 
-void mdkSparseMatrixDataInCSCFormat<ElementType>::Clear()
+void SparseMatrixDataInCSCFormat<ElementType>::Clear()
 {
     m_RowNumber = 0;
 
@@ -220,7 +220,7 @@ void mdkSparseMatrixDataInCSCFormat<ElementType>::Clear()
 
 template<typename ElementType>
 inline 
-void mdkSparseMatrixDataInCSCFormat<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber)
+void SparseMatrixDataInCSCFormat<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber)
 {
     if (InputRowNumber == m_RowNumber && InputColNumber == m_ColNumber)
     {
@@ -381,7 +381,7 @@ void mdkSparseMatrixDataInCSCFormat<ElementType>::Resize(int64 InputRowNumber, i
 template<typename ElementType>
 inline
 ElementType&
-mdkSparseMatrixDataInCSCFormat<ElementType>::operator[](int64 LinearIndex)
+SparseMatrixDataInCSCFormat<ElementType>::operator[](int64 LinearIndex)
 {
     return (*this)(LinearIndex);
 }
@@ -390,7 +390,7 @@ mdkSparseMatrixDataInCSCFormat<ElementType>::operator[](int64 LinearIndex)
 template<typename ElementType>
 inline
 const ElementType&
-mdkSparseMatrixDataInCSCFormat<ElementType>::operator[](int64 LinearIndex) const
+SparseMatrixDataInCSCFormat<ElementType>::operator[](int64 LinearIndex) const
 {
     return (*this)(LinearIndex);
 }
@@ -399,7 +399,7 @@ mdkSparseMatrixDataInCSCFormat<ElementType>::operator[](int64 LinearIndex) const
 template<typename ElementType>
 inline
 ElementType&
-mdkSparseMatrixDataInCSCFormat<ElementType>::operator()(int64 LinearIndex)
+SparseMatrixDataInCSCFormat<ElementType>::operator()(int64 LinearIndex)
 {
     std::lldiv_t divresult;
 
@@ -416,7 +416,7 @@ mdkSparseMatrixDataInCSCFormat<ElementType>::operator()(int64 LinearIndex)
 template<typename ElementType>
 inline
 const ElementType&
-mdkSparseMatrixDataInCSCFormat<ElementType>::operator()(int64 LinearIndex) const
+SparseMatrixDataInCSCFormat<ElementType>::operator()(int64 LinearIndex) const
 {
     std::lldiv_t divresult;
 
@@ -433,7 +433,7 @@ mdkSparseMatrixDataInCSCFormat<ElementType>::operator()(int64 LinearIndex) const
 template<typename ElementType>
 inline
 ElementType&
-mdkSparseMatrixDataInCSCFormat<ElementType>::operator()(int64 RowIndex, int64 ColIndex)
+SparseMatrixDataInCSCFormat<ElementType>::operator()(int64 RowIndex, int64 ColIndex)
 {
     return this->SetElement(RowIndex, ColIndex, m_ZeroElement);
 }
@@ -442,7 +442,7 @@ mdkSparseMatrixDataInCSCFormat<ElementType>::operator()(int64 RowIndex, int64 Co
 template<typename ElementType>
 inline
 const ElementType&
-mdkSparseMatrixDataInCSCFormat<ElementType>::operator()(int64 RowIndex, int64 ColIndex) const
+SparseMatrixDataInCSCFormat<ElementType>::operator()(int64 RowIndex, int64 ColIndex) const
 {
     return this->GetElement(RowIndex, ColIndex);
 }
@@ -450,7 +450,7 @@ mdkSparseMatrixDataInCSCFormat<ElementType>::operator()(int64 RowIndex, int64 Co
 
 template<typename ElementType>
 inline
-const ElementType& mdkSparseMatrixDataInCSCFormat<ElementType>::GetElement(int64 LinearIndex) const
+const ElementType& SparseMatrixDataInCSCFormat<ElementType>::GetElement(int64 LinearIndex) const
 {
     std::lldiv_t divresult;
 
@@ -466,7 +466,7 @@ const ElementType& mdkSparseMatrixDataInCSCFormat<ElementType>::GetElement(int64
 
 template<typename ElementType>
 inline
-const ElementType& mdkSparseMatrixDataInCSCFormat<ElementType>::GetElement(int64 RowIndex, int64 ColIndex) const
+const ElementType& SparseMatrixDataInCSCFormat<ElementType>::GetElement(int64 RowIndex, int64 ColIndex) const
 {
     auto RelativeIndex = this->GetLinearIndexInDataArray(RowIndex, ColIndex);
 
@@ -481,7 +481,7 @@ const ElementType& mdkSparseMatrixDataInCSCFormat<ElementType>::GetElement(int64
 
 template<typename ElementType>
 inline
-ElementType& mdkSparseMatrixDataInCSCFormat<ElementType>::SetElement(int64 LinearIndex, const ElementType& InputElement)
+ElementType& SparseMatrixDataInCSCFormat<ElementType>::SetElement(int64 LinearIndex, const ElementType& InputElement)
 {
     std::lldiv_t divresult;
 
@@ -497,7 +497,7 @@ ElementType& mdkSparseMatrixDataInCSCFormat<ElementType>::SetElement(int64 Linea
 
 template<typename ElementType>
 inline
-ElementType& mdkSparseMatrixDataInCSCFormat<ElementType>::SetElement(int64 RowIndex, int64 ColIndex, const ElementType& InputElement)
+ElementType& SparseMatrixDataInCSCFormat<ElementType>::SetElement(int64 RowIndex, int64 ColIndex, const ElementType& InputElement)
 {
     auto tempRelativeIndex = this->GetLinearIndexInDataArray(RowIndex, ColIndex);
 
@@ -608,7 +608,7 @@ ElementType& mdkSparseMatrixDataInCSCFormat<ElementType>::SetElement(int64 RowIn
 
 template<typename ElementType>
 inline
-int64 mdkSparseMatrixDataInCSCFormat<ElementType>::GetLinearIndexInDataArray(int64 LinearIndex) const
+int64 SparseMatrixDataInCSCFormat<ElementType>::GetLinearIndexInDataArray(int64 LinearIndex) const
 {
     std::lldiv_t divresult;
 
@@ -624,7 +624,7 @@ int64 mdkSparseMatrixDataInCSCFormat<ElementType>::GetLinearIndexInDataArray(int
 
 template<typename ElementType>
 inline
-int64 mdkSparseMatrixDataInCSCFormat<ElementType>::GetLinearIndexInDataArray(int64 RowIndex, int64 ColIndex) const
+int64 SparseMatrixDataInCSCFormat<ElementType>::GetLinearIndexInDataArray(int64 RowIndex, int64 ColIndex) const
 {
     auto RelativeIndex_Begin = m_ColBeginElementLinearIndexInDataArray[ColIndex];
 
@@ -647,7 +647,7 @@ int64 mdkSparseMatrixDataInCSCFormat<ElementType>::GetLinearIndexInDataArray(int
 
 template<typename ElementType>
 inline
-int64 mdkSparseMatrixDataInCSCFormat<ElementType>::GetRecordedElementNumber() const
+int64 SparseMatrixDataInCSCFormat<ElementType>::GetRecordedElementNumber() const
 {
     return int64(m_DataArray.size());
 }
@@ -655,7 +655,7 @@ int64 mdkSparseMatrixDataInCSCFormat<ElementType>::GetRecordedElementNumber() co
 
 template<typename ElementType>
 inline 
-void mdkSparseMatrixDataInCSCFormat<ElementType>::Copy(const mdkSparseMatrixDataInCSCFormat<ElementType>& InputMatrixData)
+void SparseMatrixDataInCSCFormat<ElementType>::Copy(const SparseMatrixDataInCSCFormat<ElementType>& InputMatrixData)
 {
     m_RowNumber = InputMatrixData.m_RowNumber;
 
@@ -675,7 +675,7 @@ void mdkSparseMatrixDataInCSCFormat<ElementType>::Copy(const mdkSparseMatrixData
 
 template<typename ElementType>
 inline
-void mdkSparseMatrixDataInCSCFormat<ElementType>::Take(mdkSparseMatrixDataInCSCFormat<ElementType>& InputMatrixData)
+void SparseMatrixDataInCSCFormat<ElementType>::Take(SparseMatrixDataInCSCFormat<ElementType>& InputMatrixData)
 {
     m_RowNumber = InputMatrixData.m_RowNumber;
 
@@ -698,24 +698,30 @@ void mdkSparseMatrixDataInCSCFormat<ElementType>::Take(mdkSparseMatrixDataInCSCF
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType>::mdkSparseMatrix()
+SparseMatrix<ElementType>::SparseMatrix()
 {
+    m_IsSizeFixed = false;
+
     this->Resize(0, 0);
 }
 
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType>::mdkSparseMatrix(int64 RowNumber, int64 ColNumber)
+SparseMatrix<ElementType>::SparseMatrix(int64 RowNumber, int64 ColNumber)
 {
+    m_IsSizeFixed = false;
+
     this->Resize(RowNumber, ColNumber);
 }
 
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType>::mdkSparseMatrix(const ElementType& Element)
+SparseMatrix<ElementType>::SparseMatrix(const ElementType& Element)
 {
+    m_IsSizeFixed = false;
+
     this->Resize(1, 1);
 
     (*this)(0) = Element;
@@ -724,9 +730,11 @@ mdkSparseMatrix<ElementType>::mdkSparseMatrix(const ElementType& Element)
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType>::mdkSparseMatrix(const mdkSparseMatrix<ElementType>& InputMatrix, 
-                                              mdkObjectConstructionTypeEnum Method = mdkObjectConstructionTypeEnum::Copy)
+SparseMatrix<ElementType>::SparseMatrix(const SparseMatrix<ElementType>& InputMatrix, 
+                                        ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy)
 {
+    m_IsSizeFixed = false;
+
     if (Method == mdkObjectConstructionTypeEnum::Copy)
     {
         this->Resize(0, 0);
@@ -743,7 +751,7 @@ mdkSparseMatrix<ElementType>::mdkSparseMatrix(const mdkSparseMatrix<ElementType>
 // move constructor
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType>::mdkSparseMatrix(mdkSparseMatrix<ElementType>&& InputMatrix)
+SparseMatrix<ElementType>::SparseMatrix(SparseMatrix<ElementType>&& InputMatrix)
 {
     m_MatrixData = std::move(InputMatrix.m_MatrixData);
 
@@ -755,7 +763,7 @@ mdkSparseMatrix<ElementType>::mdkSparseMatrix(mdkSparseMatrix<ElementType>&& Inp
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType>::mdkSparseMatrix(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix)
+SparseMatrix<ElementType>::SparseMatrix(const SparseShadowMatrix<ElementType>& ShadowMatrix)
 {
     this->Resize(0, 0);
 
@@ -767,19 +775,19 @@ mdkSparseMatrix<ElementType>::mdkSparseMatrix(const mdkSparseShadowMatrix<Elemen
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType>::~mdkSparseMatrix()
+SparseMatrix<ElementType>::~SparseMatrix()
 {
 }
 
 
 template<typename ElementType>
 inline 
-bool mdkSparseMatrix<ElementType>::Construct(const mdkDenseMatrix<int64>& RowIndexList,
-                                             const mdkDenseMatrix<int64>& ColIndexList,
-                                             const mdkDenseMatrix<ElementType>& DataArray,
-                                             int64 RowNumber,
-                                             int64 ColNumber,
-                                             int64 AdditionalReservedCapacity = 0)
+bool SparseMatrix<ElementType>::Construct(const DenseMatrix<int64>& RowIndexList,
+                                          const DenseMatrix<int64>& ColIndexList,
+                                          const DenseMatrix<ElementType>& DataArray,
+                                          int64 RowNumber,
+                                          int64 ColNumber,
+                                          int64 AdditionalReservedCapacity = 0)
 {
     return this->Construct(RowIndexList.GetElementPointer(),
                            ColIndexList.GetElementPointer(), 
@@ -792,12 +800,12 @@ bool mdkSparseMatrix<ElementType>::Construct(const mdkDenseMatrix<int64>& RowInd
 
 template<typename ElementType>
 inline 
-bool mdkSparseMatrix<ElementType>::Construct(const std::vector<int64>& RowIndexList,
-                                             const std::vector<int64>& ColIndexList,
-                                             const std::vector<ElementType>& DataArray,
-                                             int64 RowNumber,
-                                             int64 ColNumber,
-                                             int64 AdditionalReservedCapacity = 0)
+bool SparseMatrix<ElementType>::Construct(const std::vector<int64>& RowIndexList,
+                                          const std::vector<int64>& ColIndexList,
+                                          const std::vector<ElementType>& DataArray,
+                                          int64 RowNumber,
+                                          int64 ColNumber,
+                                          int64 AdditionalReservedCapacity = 0)
 {
     return this->Construct(RowIndexList.data(),
                            ColIndexList.data(), 
@@ -812,12 +820,12 @@ bool mdkSparseMatrix<ElementType>::Construct(const std::vector<int64>& RowIndexL
 
 template<typename ElementType>
 inline 
-bool mdkSparseMatrix<ElementType>::Construct(const std::initializer_list<int64>& RowIndexList,
-                                             const std::initializer_list<int64>& ColIndexList,
-                                             const std::initializer_list<ElementType>& DataArray,
-                                             int64 RowNumber,
-                                             int64 ColNumber,
-                                             int64 AdditionalReservedCapacity = 0)
+bool SparseMatrix<ElementType>::Construct(const std::initializer_list<int64>& RowIndexList,
+                                          const std::initializer_list<int64>& ColIndexList,
+                                          const std::initializer_list<ElementType>& DataArray,
+                                          int64 RowNumber,
+                                          int64 ColNumber,
+                                          int64 AdditionalReservedCapacity = 0)
 {
     return this->Construct(RowIndexList.begin(), 
                            ColIndexList.begin(), 
@@ -831,22 +839,22 @@ bool mdkSparseMatrix<ElementType>::Construct(const std::initializer_list<int64>&
 
 template<typename ElementType>
 inline 
-bool mdkSparseMatrix<ElementType>::Construct(const int64* RowIndexList,
-                                             const int64* ColIndexList,
-                                             const ElementType* DataArray,
-                                             int64 RecordedElementNumber,
-                                             int64 RowNumber,
-                                             int64 ColNumber,
-                                             int64 AdditionalReservedCapacity = 0)
+bool SparseMatrix<ElementType>::Construct(const int64* RowIndexList,
+                                          const int64* ColIndexList,
+                                          const ElementType* DataArray,
+                                          int64 RecordedElementNumber,
+                                          int64 RowNumber,
+                                          int64 ColNumber,
+                                          int64 AdditionalReservedCapacity = 0)
 {
     //check input
     if (RowIndexList == nullptr || ColIndexList == nullptr || DataArray == nullptr || RecordedElementNumber < 0 || RowNumber < 0 || ColNumber < 0)
     {
-        mdkError << "empty input @ mdkSparseMatrix::Construct(pointers, ...)" << '\n';
+        MDK_Error << "empty input @ mdkSparseMatrix::Construct(pointers, ...)" << '\n';
         return false;
     }
 
-    m_MatrixData = std::make_shared<mdkSparseMatrixDataInCSCFormat<ElementType>>();
+    m_MatrixData = std::make_shared<SparseMatrixDataInCSCFormat<ElementType>>();
 
     if (RecordedElementNumber == 0)
     {
@@ -863,7 +871,7 @@ bool mdkSparseMatrix<ElementType>::Construct(const int64* RowIndexList,
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator=(const mdkSparseMatrix<ElementType>& InputMatrix)
+void SparseMatrix<ElementType>::operator=(const SparseMatrix<ElementType>& InputMatrix)
 {
     this->Copy(InputMatrix);
 }
@@ -872,7 +880,7 @@ void mdkSparseMatrix<ElementType>::operator=(const mdkSparseMatrix<ElementType>&
 // move assignment operator
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator=(mdkSparseMatrix<ElementType>&& InputMatrix)
+void SparseMatrix<ElementType>::operator=(SparseMatrix<ElementType>&& InputMatrix)
 {
     this->Take(InputMatrix);
 }
@@ -880,7 +888,7 @@ void mdkSparseMatrix<ElementType>::operator=(mdkSparseMatrix<ElementType>&& Inpu
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator=(const ElementType& Element)
+void SparseMatrix<ElementType>::operator=(const ElementType& Element)
 {
     auto ElementNumber = this->GetElementNumber();
 
@@ -888,7 +896,7 @@ void mdkSparseMatrix<ElementType>::operator=(const ElementType& Element)
     {
         if (ElementNumber <= 0)
         {
-            mdkError << "Can not change matrix size @ mdkSparseMatrix::operator=(Element)" << '\n';
+            MDK_Error << "Can not change matrix size @ mdkSparseMatrix::operator=(Element)" << '\n';
             return;
         }
     }
@@ -920,7 +928,7 @@ void mdkSparseMatrix<ElementType>::operator=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator=(const std::initializer_list<ElementType>& list)
+void SparseMatrix<ElementType>::operator=(const std::initializer_list<ElementType>& list)
 {
     auto SelfSize = this->GetSize();
 
@@ -929,13 +937,13 @@ void mdkSparseMatrix<ElementType>::operator=(const std::initializer_list<Element
     //if Self is empty
     if (ElementNumber <= 0)
     {
-        mdkError << "operator=(list) can not be called if self is empty @ mdkSparseMatrix::operator=(list)" << '\n';
+        MDK_Error << "operator=(list) can not be called if self is empty @ mdkSparseMatrix::operator=(list)" << '\n';
         return;
     }
 
     if (ElementNumber != list.size())
     {
-        mdkError << "Size does not match @ mdkSparseMatrix::operator=(list)" << '\n';
+        MDK_Error << "Size does not match @ mdkSparseMatrix::operator=(list)" << '\n';
         return;
     }
 
@@ -963,20 +971,20 @@ void mdkSparseMatrix<ElementType>::operator=(const std::initializer_list<Element
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator=(const std::initializer_list<std::initializer_list<ElementType>>& list)
+void SparseMatrix<ElementType>::operator=(const std::initializer_list<std::initializer_list<ElementType>>& list)
 {
     auto SelfSize = this->GetSize();
 
     //if Self is empty
     if (SelfSize.RowNumber <= 0)
     {
-        mdkError << "operator=(list in list) can not be called if self is empty @ mdkSparseMatrix::operator=(list in list)" << '\n';
+        MDK_Error << "operator=(list in list) can not be called if self is empty @ mdkSparseMatrix::operator=(list in list)" << '\n';
         return;
     }
 
     if (SelfSize.RowNumber != list.size())
     {
-        mdkError << "Row Size does not match @ mdkSparseMatrix::operator=(list in list)" << '\n';
+        MDK_Error << "Row Size does not match @ mdkSparseMatrix::operator=(list in list)" << '\n';
         return;
     }
 
@@ -987,7 +995,7 @@ void mdkSparseMatrix<ElementType>::operator=(const std::initializer_list<std::in
 
         if (subList.size() != SelfSize.ColNumber)
         {
-            mdkError << "Col Size does not match in row: " << i << " @ mdkSparseMatrix::operator=(list in list)" << '\n';
+            MDK_Error << "Col Size does not match in row: " << i << " @ mdkSparseMatrix::operator=(list in list)" << '\n';
             return;
         }
     }
@@ -1014,7 +1022,7 @@ void mdkSparseMatrix<ElementType>::operator=(const std::initializer_list<std::in
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix)
+void SparseMatrix<ElementType>::operator=(const SparseShadowMatrix<ElementType>& ShadowMatrix)
 {
     this->Take(ShadowMatrix);
 }
@@ -1022,7 +1030,7 @@ void mdkSparseMatrix<ElementType>::operator=(const mdkSparseShadowMatrix<Element
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator=(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+void SparseMatrix<ElementType>::operator=(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     this->Take(GlueMatrix);
 }
@@ -1030,7 +1038,7 @@ void mdkSparseMatrix<ElementType>::operator=(const mdkSparseGlueMatrixForLinearC
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator=(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+void SparseMatrix<ElementType>::operator=(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     this->Take(GlueMatrix);
 }
@@ -1039,7 +1047,7 @@ void mdkSparseMatrix<ElementType>::operator=(const mdkSparseGlueMatrixForMultipl
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::Copy(const mdkSparseMatrix<ElementType_Input>& InputMatrix)
+bool SparseMatrix<ElementType>::Copy(const SparseMatrix<ElementType_Input>& InputMatrix)
 {
     if (this == &InputMatrix)
     {
@@ -1064,7 +1072,7 @@ bool mdkSparseMatrix<ElementType>::Copy(const mdkSparseMatrix<ElementType_Input>
 
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
-            mdkError << "Can not change matrix size @ mdkSparseMatrix::Copy(InputMatrix)" << '\n';
+            MDK_Error << "Can not change matrix size @ mdkSparseMatrix::Copy(InputMatrix)" << '\n';
             return false;
         }
     }
@@ -1084,7 +1092,7 @@ bool mdkSparseMatrix<ElementType>::Copy(const mdkSparseMatrix<ElementType_Input>
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::Share(mdkSparseMatrix<ElementType>& InputMatrix)
+bool SparseMatrix<ElementType>::Share(SparseMatrix<ElementType>& InputMatrix)
 {
     // MatrixA = MatrixA
     if (this == &InputMatrix)
@@ -1101,7 +1109,7 @@ bool mdkSparseMatrix<ElementType>::Share(mdkSparseMatrix<ElementType>& InputMatr
     {
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
-            mdkError << "Matrix size can not be changed @ mdkSparseMatrix::Share(InputMatrix)" << '\n';
+            MDK_Error << "Matrix size can not be changed @ mdkSparseMatrix::Share(InputMatrix)" << '\n';
             return false;
         }
     }
@@ -1114,7 +1122,7 @@ bool mdkSparseMatrix<ElementType>::Share(mdkSparseMatrix<ElementType>& InputMatr
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::ForceShare(const mdkSparseMatrix<ElementType>& InputMatrix)
+void SparseMatrix<ElementType>::ForceShare(const SparseMatrix<ElementType>& InputMatrix)
 {
     m_MatrixData = InputMatrix.m_MatrixData; // std::SharedCopy_ptr
 }
@@ -1122,7 +1130,7 @@ void mdkSparseMatrix<ElementType>::ForceShare(const mdkSparseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::Take(mdkSparseMatrix<ElementType>& InputMatrix)
+bool SparseMatrix<ElementType>::Take(SparseMatrix<ElementType>& InputMatrix)
 {
     // MatrixA = MatrixA
     if (this == &InputMatrix)
@@ -1139,7 +1147,7 @@ bool mdkSparseMatrix<ElementType>::Take(mdkSparseMatrix<ElementType>& InputMatri
     {
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
-            mdkError << "Size does not match @ mdkSparseMatrix::Take(InputMatrix)" << '\n';
+            MDK_Error << "Size does not match @ mdkSparseMatrix::Take(InputMatrix)" << '\n';
             return false;
         }
     }
@@ -1168,9 +1176,9 @@ bool mdkSparseMatrix<ElementType>::Take(mdkSparseMatrix<ElementType>& InputMatri
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::Take(mdkSparseMatrix<ElementType>&& InputMatrix)
+bool SparseMatrix<ElementType>::Take(SparseMatrix<ElementType>&& InputMatrix)
 {
-    mdkSparseMatrix<ElementType>& tempMatrix = InputMatrix;
+    SparseMatrix<ElementType>& tempMatrix = InputMatrix;
 
     return this->Take(tempMatrix);
 }
@@ -1178,7 +1186,7 @@ bool mdkSparseMatrix<ElementType>::Take(mdkSparseMatrix<ElementType>&& InputMatr
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::Take(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix)
+bool SparseMatrix<ElementType>::Take(const SparseShadowMatrix<ElementType>& ShadowMatrix)
 {
     auto InputSize = ShadowMatrix.GetSize();
 
@@ -1192,7 +1200,7 @@ bool mdkSparseMatrix<ElementType>::Take(const mdkSparseShadowMatrix<ElementType>
     {
         if (m_IsSizeFixed == true)
         {
-            mdkError << "Size does not match @ mdkSparseMatrix::Take(ShadowMatrix)" << '\n';
+            MDK_Error << "Size does not match @ mdkSparseMatrix::Take(ShadowMatrix)" << '\n';
             return false;
         }
 
@@ -1205,7 +1213,7 @@ bool mdkSparseMatrix<ElementType>::Take(const mdkSparseShadowMatrix<ElementType>
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::Take(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+bool SparseMatrix<ElementType>::Take(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     auto InputSize = GlueMatrix.GetSize();
 
@@ -1219,7 +1227,7 @@ bool mdkSparseMatrix<ElementType>::Take(const mdkSparseGlueMatrixForLinearCombin
     {
         if (m_IsSizeFixed == true)
         {
-            mdkError << "Size does not match @ mdkSparseMatrix::Take(SparseGlueMatrix_ForLinearCombination)" << '\n';
+            MDK_Error << "Size does not match @ mdkSparseMatrix::Take(SparseGlueMatrix_ForLinearCombination)" << '\n';
             return false;
         }
 
@@ -1232,7 +1240,7 @@ bool mdkSparseMatrix<ElementType>::Take(const mdkSparseGlueMatrixForLinearCombin
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::Take(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+bool SparseMatrix<ElementType>::Take(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     auto InputSize = GlueMatrix.GetSize();
 
@@ -1246,7 +1254,7 @@ bool mdkSparseMatrix<ElementType>::Take(const mdkSparseGlueMatrixForMultiplicati
     {
         if (m_IsSizeFixed == true)
         {
-            mdkError << "Size does not match @ mdkSparseMatrix::Take(SparseGlueMatrix_ForMultiplication)" << '\n';
+            MDK_Error << "Size does not match @ mdkSparseMatrix::Take(SparseGlueMatrix_ForMultiplication)" << '\n';
             return false;
         }
 
@@ -1259,7 +1267,7 @@ bool mdkSparseMatrix<ElementType>::Take(const mdkSparseGlueMatrixForMultiplicati
 
 template<typename ElementType>
 inline 
-void mdkSparseMatrix<ElementType>::Clear()
+void SparseMatrix<ElementType>::Clear()
 {
     if (m_MatrixData)
     { 
@@ -1270,11 +1278,11 @@ void mdkSparseMatrix<ElementType>::Clear()
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::Reshape(int64 InputRowNumber, int64 InputColNumber)
+bool SparseMatrix<ElementType>::Reshape(int64 InputRowNumber, int64 InputColNumber)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix size can not be changed @ mdkSparseMatrix::Reshape()" << '\n';
+        MDK_Error << "Matrix size can not be changed @ mdkSparseMatrix::Reshape()" << '\n';
         return false;
     }
 
@@ -1282,14 +1290,14 @@ bool mdkSparseMatrix<ElementType>::Reshape(int64 InputRowNumber, int64 InputColN
     {
         if (InputRowNumber > 0 || InputColNumber > 0)
         {
-            mdkError << "Self is empty and Size does not match @ mdkSparseMatrix::Reshape()" << '\n';
+            MDK_Error << "Self is empty and Size does not match @ mdkSparseMatrix::Reshape()" << '\n';
             return false;
         }
     }
 
     if (InputRowNumber*InputColNumber != this->GetElementNumber())
     {
-        mdkError << "Size does not match @ mdkSparseMatrix::Reshape" << '\n';
+        MDK_Error << "Size does not match @ mdkSparseMatrix::Reshape" << '\n';
         return false;
     }
 
@@ -1301,11 +1309,11 @@ bool mdkSparseMatrix<ElementType>::Reshape(int64 InputRowNumber, int64 InputColN
 
 template<typename ElementType>
 inline 
-bool mdkSparseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber)
+bool SparseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not be changed @ mdkSparseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
+        MDK_Error << "Matrix Size can not be changed @ mdkSparseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
         return false;
     }
 
@@ -1318,16 +1326,14 @@ bool mdkSparseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNu
 
     if (InputRowNumber < 0 || InputColNumber < 0)
     {
-        mdkError << "Invalid Input: negtive @ mdkSparseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
+        MDK_Error << "Invalid Input: negtive @ mdkSparseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
         return false;
     }
 
     //--------initialize the matrix ----------------------------------------------------
     if (!m_MatrixData)
     {
-        m_MatrixData = std::make_shared<mdkSparseMatrixDataInCSCFormat<ElementType>>();
-
-        m_IsSizeFixed = false;
+        m_MatrixData = std::make_shared<SparseMatrixDataInCSCFormat<ElementType>>();
 
         m_NaNElement = GetMatrixNaNElement(m_NaNElement);
     }
@@ -1356,7 +1362,7 @@ bool mdkSparseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNu
 
 template<typename ElementType>
 inline 
-void mdkSparseMatrix<ElementType>::FixSize()
+void SparseMatrix<ElementType>::FixSize()
 {
     m_IsSizeFixed = true;
 
@@ -1366,7 +1372,7 @@ void mdkSparseMatrix<ElementType>::FixSize()
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::IsSizeFixed() const
+bool SparseMatrix<ElementType>::IsSizeFixed() const
 {
     return m_IsSizeFixed;
 }
@@ -1374,7 +1380,7 @@ bool mdkSparseMatrix<ElementType>::IsSizeFixed() const
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::IsEmpty() const
+bool SparseMatrix<ElementType>::IsEmpty() const
 {
     return !(m_MatrixData); 
 }
@@ -1382,21 +1388,13 @@ bool mdkSparseMatrix<ElementType>::IsEmpty() const
 
 template<typename ElementType>
 inline
-mdkMatrixSize mdkSparseMatrix<ElementType>::GetSize() const
+MatrixSize SparseMatrix<ElementType>::GetSize() const
 {
-    mdkMatrixSize Size;
+    MatrixSize Size;
 
-    if (m_MatrixData) // m_MatrixData != nullptr
-    {
-        Size.RowNumber = m_MatrixData->m_RowNumber;
+    Size.RowNumber = m_MatrixData->m_RowNumber;
 
-        Size.ColNumber = m_MatrixData->m_ColNumber;
-    }
-    else
-    {
-        Size.RowNumber = 0;
-        Size.ColNumber = 0;
-    }
+    Size.ColNumber = m_MatrixData->m_ColNumber;
 
     return Size;
 }
@@ -1404,67 +1402,39 @@ mdkMatrixSize mdkSparseMatrix<ElementType>::GetSize() const
 
 template<typename ElementType>
 inline
-int64 mdkSparseMatrix<ElementType>::GetElementNumber() const
+int64 SparseMatrix<ElementType>::GetElementNumber() const
 {
-    if (m_MatrixData) // m_MatrixData != nullptr
-    {
-        return m_MatrixData->m_RowNumber * m_MatrixData->m_ColNumber;
-    }
-    else
-    {
-        return 0;
-    }
+    return m_MatrixData->m_RowNumber * m_MatrixData->m_ColNumber;
 }
 
 
 template<typename ElementType>
 inline
-int64 mdkSparseMatrix<ElementType>::GetRecordedElementNumber() const
+int64 SparseMatrix<ElementType>::GetRecordedElementNumber() const
 {
-    if (m_MatrixData) // m_MatrixData != nullptr
-    {
-        return m_MatrixData->GetRecordedElementNumber();
-    }
-    else
-    {
-        return 0;
-    }
+    return m_MatrixData->GetRecordedElementNumber();
 }
 
 
 template<typename ElementType>
 inline 
-int64 mdkSparseMatrix<ElementType>::GetColNumber() const
+int64 SparseMatrix<ElementType>::GetColNumber() const
 {
-    if (m_MatrixData) // m_MatrixData != nullptr
-    {
-        return m_MatrixData->m_ColNumber;
-    }
-    else
-    {
-        return 0;
-    }
+    return m_MatrixData->m_ColNumber;
 }
 
 
 template<typename ElementType>
 inline 
-int64 mdkSparseMatrix<ElementType>::GetRowNumber() const
+int64 SparseMatrix<ElementType>::GetRowNumber() const
 {
-    if (m_MatrixData) // m_MatrixData != nullptr
-    {
-        return m_MatrixData->m_RowNumber;
-    }
-    else
-    {
-        return 0;
-    }
+    return m_MatrixData->m_RowNumber;
 }
 
 
 template<typename ElementType>
 inline
-const ElementType& mdkSparseMatrix<ElementType>::GetNaNElement()  const
+const ElementType& SparseMatrix<ElementType>::GetNaNElement()  const
 {
     return m_NaNElement;
 }
@@ -1472,7 +1442,7 @@ const ElementType& mdkSparseMatrix<ElementType>::GetNaNElement()  const
 
 template<typename ElementType>
 inline
-mdkMatrixElementTypeEnum mdkSparseMatrix<ElementType>::GetElementType() const
+MatrixElementTypeEnum SparseMatrix<ElementType>::GetElementType() const
 {
     return FindMatrixElementType(m_NaNElement);
 }
@@ -1480,41 +1450,27 @@ mdkMatrixElementTypeEnum mdkSparseMatrix<ElementType>::GetElementType() const
 
 template<typename ElementType>
 inline
-ElementType* mdkSparseMatrix<ElementType>::GetRecordedElementPointer()
+ElementType* SparseMatrix<ElementType>::GetRecordedElementPointer()
 {
-    if (m_MatrixData) // m_MatrixData != nullptr
-    {
-        return m_MatrixData->m_DataArray.data();
-    }
-    else
-    {
-        return nullptr;
-    }
+    return m_MatrixData->m_DataArray.data();
 }
 
 
 template<typename ElementType>
 inline
-const ElementType* mdkSparseMatrix<ElementType>::GetRecordedElementPointer() const
+const ElementType* SparseMatrix<ElementType>::GetRecordedElementPointer() const
 {
-    if (m_MatrixData) // m_MatrixData != nullptr
-    {
-        return m_MatrixData->m_DataArray.data();
-    }
-    else
-    {
-        return nullptr;
-    }
+    return m_MatrixData->m_DataArray.data();
 }
 
 
 template<typename ElementType>
 inline 
-const ElementType& mdkSparseMatrix<ElementType>::GetElement(int64 LinearIndex) const
+const ElementType& SparseMatrix<ElementType>::GetElement(int64 LinearIndex) const
 { 
     if (LinearIndex >= this->GetElementNumber || LinearIndex < 0)
     {
-        mdkError << "Invalid input @ mdkSparseMatrix::GetElement(LinearIndex, InputElement)" << '\n';
+        MDK_Error << "Invalid input @ mdkSparseMatrix::GetElement(LinearIndex, InputElement)" << '\n';
         return m_NaNElement;
     }
 
@@ -1524,13 +1480,13 @@ const ElementType& mdkSparseMatrix<ElementType>::GetElement(int64 LinearIndex) c
 
 template<typename ElementType>
 inline
-const ElementType& mdkSparseMatrix<ElementType>::GetElement(int64 RowIndex, int64 ColIndex) const
+const ElementType& SparseMatrix<ElementType>::GetElement(int64 RowIndex, int64 ColIndex) const
 {
     auto SelfSize = this->GetSize();
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid input @ mdkSparseMatrix::GetElement(RowIndex, ColIndex)" << '\n';
+        MDK_Error << "Invalid input @ mdkSparseMatrix::GetElement(RowIndex, ColIndex)" << '\n';
         return m_NaNElement;
     }
 
@@ -1540,11 +1496,11 @@ const ElementType& mdkSparseMatrix<ElementType>::GetElement(int64 RowIndex, int6
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::SetElement(int64 LinearIndex, const ElementType& InputElement)
+bool SparseMatrix<ElementType>::SetElement(int64 LinearIndex, const ElementType& InputElement)
 {
     if (LinearIndex >= this->GetElementNumber || LinearIndex < 0)
     {
-        mdkError << "Invalid input @ mdkSparseMatrix::SetElement(LinearIndex, InputElement)" << '\n';
+        MDK_Error << "Invalid input @ mdkSparseMatrix::SetElement(LinearIndex, InputElement)" << '\n';
         return false;
     }
 
@@ -1554,13 +1510,13 @@ bool mdkSparseMatrix<ElementType>::SetElement(int64 LinearIndex, const ElementTy
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::SetElement(int64 RowIndex, int64 ColIndex, const ElementType& InputElement)
+bool SparseMatrix<ElementType>::SetElement(int64 RowIndex, int64 ColIndex, const ElementType& InputElement)
 {
     auto SelfSize = this->GetSize();
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid input @ mdkSparseMatrix::SetElement(RowIndex, ColIndex, InputElement)" << '\n';
+        MDK_Error << "Invalid input @ mdkSparseMatrix::SetElement(RowIndex, ColIndex, InputElement)" << '\n';
         return false;
     }
 
@@ -1574,7 +1530,7 @@ bool mdkSparseMatrix<ElementType>::SetElement(int64 RowIndex, int64 ColIndex, co
 
 template<typename ElementType>
 inline
-ElementType& mdkSparseMatrix<ElementType>::operator[](int64 LinearIndex)
+ElementType& SparseMatrix<ElementType>::operator[](int64 LinearIndex)
 {
     return (*this)(LinearIndex);
 }
@@ -1582,7 +1538,7 @@ ElementType& mdkSparseMatrix<ElementType>::operator[](int64 LinearIndex)
 
 template<typename ElementType>
 inline
-const ElementType& mdkSparseMatrix<ElementType>::operator[](int64 LinearIndex) const
+const ElementType& SparseMatrix<ElementType>::operator[](int64 LinearIndex) const
 {
     return (*this)(LinearIndex);
 }
@@ -1590,13 +1546,13 @@ const ElementType& mdkSparseMatrix<ElementType>::operator[](int64 LinearIndex) c
 
 template<typename ElementType>
 inline
-ElementType& mdkSparseMatrix<ElementType>::operator()(int64 LinearIndex)
+ElementType& SparseMatrix<ElementType>::operator()(int64 LinearIndex)
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::operator()(i)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix::operator()(i)" << '\n';
 
         return m_NaNElement;
     }
@@ -1609,13 +1565,13 @@ ElementType& mdkSparseMatrix<ElementType>::operator()(int64 LinearIndex)
 
 template<typename ElementType>
 inline
-const ElementType& mdkSparseMatrix<ElementType>::operator()(int64 LinearIndex) const
+const ElementType& SparseMatrix<ElementType>::operator()(int64 LinearIndex) const
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::operator()(i) const" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix::operator()(i) const" << '\n';
 
         return m_NaNElement;
     }
@@ -1629,11 +1585,11 @@ const ElementType& mdkSparseMatrix<ElementType>::operator()(int64 LinearIndex) c
 
 template<typename ElementType>
 inline
-ElementType& mdkSparseMatrix<ElementType>::at(int64 LinearIndex)
+ElementType& SparseMatrix<ElementType>::at(int64 LinearIndex)
 {
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix::at(i)" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix::at(i)" << '\n';
         
         return m_NaNElement;
 	}
@@ -1644,11 +1600,11 @@ ElementType& mdkSparseMatrix<ElementType>::at(int64 LinearIndex)
 
 template<typename ElementType>
 inline
-const ElementType& mdkSparseMatrix<ElementType>::at(int64 LinearIndex) const
+const ElementType& SparseMatrix<ElementType>::at(int64 LinearIndex) const
 {
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix::at(i) const" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix::at(i) const" << '\n';
         
         return m_NaNElement;
 	}
@@ -1662,7 +1618,7 @@ const ElementType& mdkSparseMatrix<ElementType>::at(int64 LinearIndex) const
 
 template<typename ElementType>
 inline
-ElementType& mdkSparseMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex)
+ElementType& SparseMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex)
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
@@ -1670,7 +1626,7 @@ ElementType& mdkSparseMatrix<ElementType>::operator()(int64 RowIndex, int64 ColI
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::operator()(i,j)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix::operator()(i,j)" << '\n';
 
         return m_NaNElement;
     }
@@ -1684,7 +1640,7 @@ ElementType& mdkSparseMatrix<ElementType>::operator()(int64 RowIndex, int64 ColI
 
 template<typename ElementType>
 inline
-const ElementType& mdkSparseMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex) const
+const ElementType& SparseMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex) const
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
@@ -1692,7 +1648,7 @@ const ElementType& mdkSparseMatrix<ElementType>::operator()(int64 RowIndex, int6
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::operator()(i,j) const" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix::operator()(i,j) const" << '\n';
 
         return m_NaNElement;
     }
@@ -1705,13 +1661,13 @@ const ElementType& mdkSparseMatrix<ElementType>::operator()(int64 RowIndex, int6
 
 template<typename ElementType>
 inline
-ElementType& mdkSparseMatrix<ElementType>::at(int64 RowIndex, int64 ColIndex)
+ElementType& SparseMatrix<ElementType>::at(int64 RowIndex, int64 ColIndex)
 {
     auto SelfSize = this->GetSize();
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::at(i,j)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix::at(i,j)" << '\n';
         
         return m_NaNElement;
     }
@@ -1722,13 +1678,13 @@ ElementType& mdkSparseMatrix<ElementType>::at(int64 RowIndex, int64 ColIndex)
 
 template<typename ElementType>
 inline
-const ElementType& mdkSparseMatrix<ElementType>::at(int64 RowIndex, int64 ColIndex) const
+const ElementType& SparseMatrix<ElementType>::at(int64 RowIndex, int64 ColIndex) const
 {
     auto SelfSize = this->GetSize();
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::at(i,j) const" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix::at(i,j) const" << '\n';
         
         return m_NaNElement;
     }
@@ -1744,15 +1700,15 @@ const ElementType& mdkSparseMatrix<ElementType>::at(int64 RowIndex, int64 ColInd
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearIndexList)
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkSparseMatrix::operator()(std::initializer_list {LinearIndexList})" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "LinearIndexList is empty @ mdkSparseMatrix::operator()(std::initializer_list {LinearIndexList})" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1762,15 +1718,15 @@ mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearInd
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkSparseMatrix::operator()(std::initializer_list {LinearIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid LinearIndexList @ mdkSparseMatrix::operator()(std::initializer_list {LinearIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1778,15 +1734,15 @@ mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearInd
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearIndexList) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearIndexList) const
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkSparseMatrix::operator()(std::initializer_list {LinearIndexList}) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "LinearIndexList is empty @ mdkSparseMatrix::operator()(std::initializer_list {LinearIndexList}) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1796,15 +1752,15 @@ mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearInd
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkSparseMatrix::operator()(std::initializer_list {LinearIndexList}) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid LinearIndexList @ mdkSparseMatrix::operator()(std::initializer_list {LinearIndexList}) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1812,15 +1768,15 @@ mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& LinearInd
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList)
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkSparseMatrix::operator()(std::vector {LinearIndexList})" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "LinearIndexList is empty @ mdkSparseMatrix::operator()(std::vector {LinearIndexList})" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1830,15 +1786,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexLi
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkSparseMatrix::operator()(std::vector {LinearIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid LinearIndexList @ mdkSparseMatrix::operator()(std::vector {LinearIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1846,15 +1802,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexLi
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList) const
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkSparseMatrix::operator()(std::vector {LinearIndexList}) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "LinearIndexList is empty @ mdkSparseMatrix::operator()(std::vector {LinearIndexList}) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1864,15 +1820,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexLi
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkSparseMatrix::operator()(std::vector {LinearIndexList}) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid LinearIndexList @ mdkSparseMatrix::operator()(std::vector {LinearIndexList}) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1880,10 +1836,10 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexLi
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
 {
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -1891,10 +1847,10 @@ mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
 {
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -1902,13 +1858,13 @@ mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList)
 {
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkSparseMatrix::at(std::initializer_list {LinearIndexList})" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "LinearIndexList is empty @ mdkSparseMatrix::at(std::initializer_list {LinearIndexList})" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1918,13 +1874,13 @@ mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList)
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkSparseMatrix::at(std::initializer_list {LinearIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid LinearIndexList @ mdkSparseMatrix::at(std::initializer_list {LinearIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1932,13 +1888,13 @@ mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList)
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList) const
 {
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkSparseMatrix::at(std::initializer_list {LinearIndexList}) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "LinearIndexList is empty @ mdkSparseMatrix::at(std::initializer_list {LinearIndexList}) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1948,13 +1904,13 @@ mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList) 
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkSparseMatrix::at(std::initializer_list {LinearIndexList}) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid LinearIndexList @ mdkSparseMatrix::at(std::initializer_list {LinearIndexList}) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1962,13 +1918,13 @@ mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& LinearIndexList) 
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList)
 {
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkSparseMatrix::at(std::vector {LinearIndexList})" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "LinearIndexList is empty @ mdkSparseMatrix::at(std::vector {LinearIndexList})" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -1978,13 +1934,13 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList)
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkSparseMatrix::at(std::vector {LinearIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid LinearIndexList @ mdkSparseMatrix::at(std::vector {LinearIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -1992,13 +1948,13 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList)
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList) const
 {
     if (LinearIndexList.size() <= 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkSparseMatrix::at(std::vector {LinearIndexList} const)" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "LinearIndexList is empty @ mdkSparseMatrix::at(std::vector {LinearIndexList} const)" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2008,13 +1964,13 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList) cons
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            mdkError << "Invalid LinearIndexList @ mdkSparseMatrix::at(std::vector {LinearIndexList} const)" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid LinearIndexList @ mdkSparseMatrix::at(std::vector {LinearIndexList} const)" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -2022,10 +1978,10 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList) cons
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
 {
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -2033,10 +1989,10 @@ mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Sy
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
 {
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -2047,15 +2003,15 @@ mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Sy
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList)
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2065,8 +2021,8 @@ mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexL
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -2075,15 +2031,15 @@ mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexL
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2091,15 +2047,15 @@ mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexL
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList) const
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2109,8 +2065,8 @@ mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexL
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -2119,15 +2075,15 @@ mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexL
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2135,15 +2091,15 @@ mdkSparseMatrix<ElementType>::operator()(std::initializer_list<int64>& RowIndexL
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList is empty @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, ALL)" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList is empty @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, ALL)" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2153,15 +2109,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::initializer_list<int64>& Row
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, ALL)" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, ALL)" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -2169,15 +2125,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::initializer_list<int64>& Row
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList is empty @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, ALL) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList is empty @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, ALL) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2187,15 +2143,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::initializer_list<int64>& Row
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, ALL) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::initializer_list {RowIndexList}, ALL) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -2203,15 +2159,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::initializer_list<int64>& Row
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList)
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkSparseMatrix::operator()(ALL, std::initializer_list {ColIndexList})" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "ColIndexList is empty @ mdkSparseMatrix::operator()(ALL, std::initializer_list {ColIndexList})" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2221,15 +2177,15 @@ mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::operator()(ALL, std::initializer_list {ColIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::operator()(ALL, std::initializer_list {ColIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2237,15 +2193,15 @@ mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList) const
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkSparseMatrix::operator()(ALL, std::initializer_list {ColIndexList}) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "ColIndexList is empty @ mdkSparseMatrix::operator()(ALL, std::initializer_list {ColIndexList}) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2255,15 +2211,15 @@ mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::operator()(ALL, std::initializer_list {ColIndexList}) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::operator()(ALL, std::initializer_list {ColIndexList}) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2271,15 +2227,15 @@ mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList)
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2289,8 +2245,8 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList,
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -2299,15 +2255,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList,
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2315,15 +2271,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList,
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList) const 
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList) const 
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2333,8 +2289,8 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList,
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -2343,15 +2299,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList,
     {
         if (*it >= SelfSize.ColNumber)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2359,15 +2315,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList,
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, ALL)" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, ALL)" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2377,15 +2333,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList,
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, ALL)" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, ALL)" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -2393,15 +2349,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList,
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, ALL) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, ALL) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2411,15 +2367,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList,
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, ALL) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::operator()(std::vector {RowIndexList}, ALL) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -2427,15 +2383,15 @@ mdkSparseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList,
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList)
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkSparseMatrix::operator()(ALL, std::vector {ColIndexList})" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "ColIndexList is empty @ mdkSparseMatrix::operator()(ALL, std::vector {ColIndexList})" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2445,15 +2401,15 @@ mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::operator()(ALL, std::vector {ColIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::operator()(ALL, std::vector {ColIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2461,15 +2417,15 @@ mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkSparseMatrix::operator()(ALL, std::vector {ColIndexList}) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "ColIndexList is empty @ mdkSparseMatrix::operator()(ALL, std::vector {ColIndexList}) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2479,15 +2435,15 @@ mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::operator()(ALL, std::vector {ColIndexList}) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::operator()(ALL, std::vector {ColIndexList}) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2496,13 +2452,13 @@ mdkSparseMatrix<ElementType>::operator()(const ALL_Symbol_For_mdkMatrix_Operator
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList)
 {
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2512,8 +2468,8 @@ mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -2522,13 +2478,13 @@ mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::at({RowIndexList}, {ColIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::at({RowIndexList}, {ColIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2536,13 +2492,13 @@ mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std::initializer_list<int64>& ColIndexList) const
 {
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2552,8 +2508,8 @@ mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -2562,13 +2518,13 @@ mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::at({RowIndexList}, {ColIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::at({RowIndexList}, {ColIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2576,13 +2532,13 @@ mdkSparseMatrix<ElementType>::at(std::initializer_list<int64>& RowIndexList, std
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType> 
-mdkSparseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+SparseShadowMatrix<ElementType> 
+SparseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
 {
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList is empty @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, ALL)" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList is empty @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, ALL)" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2592,13 +2548,13 @@ mdkSparseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexLis
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, ALL)" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, ALL)" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -2606,13 +2562,13 @@ mdkSparseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexLis
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
 {
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList is empty @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, ALL) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList is empty @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, ALL) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2622,13 +2578,13 @@ mdkSparseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexLis
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, ALL) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::at(std::initializer_list {RowIndexList}, ALL) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -2636,13 +2592,13 @@ mdkSparseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexLis
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType> 
-mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList)
+SparseShadowMatrix<ElementType> 
+SparseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList)
 {
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkSparseMatrix::at(ALL, std::initializer_list {ColIndexList})" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "ColIndexList is empty @ mdkSparseMatrix::at(ALL, std::initializer_list {ColIndexList})" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2652,13 +2608,13 @@ mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Sy
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::at(ALL, std::initializer_list {ColIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::at(ALL, std::initializer_list {ColIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2666,13 +2622,13 @@ mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Sy
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList) const
 {
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkSparseMatrix::at(ALL, std::initializer_list {ColIndexList}) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "ColIndexList is empty @ mdkSparseMatrix::at(ALL, std::initializer_list {ColIndexList}) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2682,13 +2638,13 @@ mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Sy
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::at(ALL, std::initializer_list {ColIndexList}) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::at(ALL, std::initializer_list {ColIndexList}) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2696,13 +2652,13 @@ mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Sy
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList)
 {
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2712,8 +2668,8 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const s
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -2722,13 +2678,13 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const s
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2736,13 +2692,13 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const s
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList) const
 {
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkSparseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2752,8 +2708,8 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const s
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -2762,13 +2718,13 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const s
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2776,13 +2732,13 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const s
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
 {
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList is empty @ mdkSparseMatrix::at(std::vector {RowIndexList}, ALL)" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList is empty @ mdkSparseMatrix::at(std::vector {RowIndexList}, ALL)" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2792,13 +2748,13 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const A
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::at(std::vector {RowIndexList}, ALL)" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::at(std::vector {RowIndexList}, ALL)" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -2806,13 +2762,13 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const A
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
 {
     if (RowIndexList.size() <= 0)
     {
-        mdkError << "RowIndexList is empty @ mdkSparseMatrix::at(std::vector {RowIndexList}, ALL) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "RowIndexList is empty @ mdkSparseMatrix::at(std::vector {RowIndexList}, ALL) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2822,13 +2778,13 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const A
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::at(std::vector {RowIndexList}, ALL) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::at(std::vector {RowIndexList}, ALL) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
 
     return tempShadowMatrix;
 }
@@ -2836,13 +2792,13 @@ mdkSparseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const A
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList)
 {
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkSparseMatrix::at(ALL, std::vector {ColIndexList})" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "ColIndexList is empty @ mdkSparseMatrix::at(ALL, std::vector {ColIndexList})" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2852,13 +2808,13 @@ mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Sy
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::at(ALL, std::vector {ColIndexList})" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::at(ALL, std::vector {ColIndexList})" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2866,13 +2822,13 @@ mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Sy
 
 template<typename ElementType>
 inline
-const mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
+const SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
 {
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "ColIndexList is empty @ mdkSparseMatrix::at(ALL, std::vector {ColIndexList}) const" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+        MDK_Error << "ColIndexList is empty @ mdkSparseMatrix::at(ALL, std::vector {ColIndexList}) const" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
 
@@ -2882,13 +2838,13 @@ mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Sy
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::at(ALL, std::vector {ColIndexList}) const" << '\n';
-            mdkSparseShadowMatrix<ElementType> tempShadowMatrix;
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::at(ALL, std::vector {ColIndexList}) const" << '\n';
+            SparseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
 
     return tempShadowMatrix;
 }
@@ -2897,9 +2853,9 @@ mdkSparseMatrix<ElementType>::at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Sy
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetSubMatrix(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::GetSubMatrix(const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList) const
 {
-    mdkSparseMatrix<ElementType> tempMatrix; // empty matrix
+    SparseMatrix<ElementType> tempMatrix; // empty matrix
 
     GetSubMatrix(tempMatrix, RowIndexList, ColIndexList);
 
@@ -2909,13 +2865,13 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetSubMatrix(const st
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::GetSubMatrix(mdkSparseMatrix<ElementType>& OutputMatrix,
+bool SparseMatrix<ElementType>::GetSubMatrix(SparseMatrix<ElementType>& OutputMatrix,
                                           const std::vector<int64>& RowIndexList, 
                                           const std::vector<int64>& ColIndexList) const
 {
     if (this == &OutputMatrix)
     {
-        mdkError << "A Matrix tries to get a SubMatrix of itself @ mdkSparseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+        MDK_Error << "A Matrix tries to get a SubMatrix of itself @ mdkSparseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
         return false;
     }
 
@@ -2925,7 +2881,7 @@ bool mdkSparseMatrix<ElementType>::GetSubMatrix(mdkSparseMatrix<ElementType>& Ou
 
     if (OutputRowNumber <= 0 || OutputColNumber <= 0)
     {
-        mdkError << "RowIndexList or ColIndexList is empty @ mdkSparseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+        MDK_Error << "RowIndexList or ColIndexList is empty @ mdkSparseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
         return false;
     }
 
@@ -2935,7 +2891,7 @@ bool mdkSparseMatrix<ElementType>::GetSubMatrix(mdkSparseMatrix<ElementType>& Ou
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Invalid ColIndexList @ mdkSparseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+            MDK_Error << "Invalid ColIndexList @ mdkSparseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
             return false;
         }
     }
@@ -2944,7 +2900,7 @@ bool mdkSparseMatrix<ElementType>::GetSubMatrix(mdkSparseMatrix<ElementType>& Ou
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid RowIndexList @ mdkSparseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+            MDK_Error << "Invalid RowIndexList @ mdkSparseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
             return false;
         }
     }
@@ -2958,7 +2914,7 @@ bool mdkSparseMatrix<ElementType>::GetSubMatrix(mdkSparseMatrix<ElementType>& Ou
         }
         else
         {
-            mdkError << "Invalid OutputMatrix @ mdkSparseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+            MDK_Error << "Invalid OutputMatrix @ mdkSparseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
             return false;
         }
     }
@@ -2972,7 +2928,7 @@ bool mdkSparseMatrix<ElementType>::GetSubMatrix(mdkSparseMatrix<ElementType>& Ou
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetSubMatrix(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::GetSubMatrix(const std::vector<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
 {
     auto SelfSize = this->GetSize();
 
@@ -2988,7 +2944,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetSubMatrix(const st
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetSubMatrix(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList) const
 {
     auto SelfSize = this->GetSize();
 
@@ -3005,8 +2961,8 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetSubMatrix(const AL
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::Col(int64 ColIndex)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::Col(int64 ColIndex)
 {
     return this->at(ALL, { ColIndex });
 }
@@ -3014,8 +2970,8 @@ mdkSparseMatrix<ElementType>::Col(int64 ColIndex)
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::Col(std::initializer_list<int64>& ColIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::Col(std::initializer_list<int64>& ColIndexList)
 {
     return this->at(ALL, ColIndexList);
 }
@@ -3023,8 +2979,8 @@ mdkSparseMatrix<ElementType>::Col(std::initializer_list<int64>& ColIndexList)
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::Col(const std::vector<int64>& ColIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::Col(const std::vector<int64>& ColIndexList)
 {
     return this->at(ALL, ColIndexList);
 }
@@ -3032,15 +2988,15 @@ mdkSparseMatrix<ElementType>::Col(const std::vector<int64>& ColIndexList)
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetCol(int64 ColIndex) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::GetCol(int64 ColIndex) const
 {
-	mdkSparseMatrix<ElementType> tempMatrix;
+	SparseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix::GetCol(ColIndex)" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix::GetCol(ColIndex)" << '\n';
         
         return tempMatrix;
 	}
@@ -3055,13 +3011,13 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetCol(int64 ColIndex
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::GetCol(int64 ColIndex, mdkDenseMatrix<ElementType>& ColData) const
+bool SparseMatrix<ElementType>::GetCol(int64 ColIndex, DenseMatrix<ElementType>& ColData) const
 {
     auto SelfSize = this->GetSize();
 
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::GetCol(int64 ColIndex, mdkDenseMatrix<ElementType>& ColData)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix::GetCol(int64 ColIndex, DenseMatrix<ElementType>& ColData)" << '\n';
         return false;
     }
 
@@ -3075,13 +3031,13 @@ bool mdkSparseMatrix<ElementType>::GetCol(int64 ColIndex, mdkDenseMatrix<Element
 
 template<typename ElementType>
 inline 
-bool mdkSparseMatrix<ElementType>::GetCol(int64 ColIndex, std::vector<ElementType>& ColData) const
+bool SparseMatrix<ElementType>::GetCol(int64 ColIndex, std::vector<ElementType>& ColData) const
 {
     auto SelfSize = this->GetSize();
 
 	if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix::GetCol(int64 ColIndex, std::vector<ElementType>& ColData)" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix::GetCol(int64 ColIndex, std::vector<ElementType>& ColData)" << '\n';
 		return false;
 	}
 
@@ -3095,13 +3051,13 @@ bool mdkSparseMatrix<ElementType>::GetCol(int64 ColIndex, std::vector<ElementTyp
 
 template<typename ElementType>
 inline 
-bool mdkSparseMatrix<ElementType>::GetCol(int64 ColIndex, ElementType* ColData) const
+bool SparseMatrix<ElementType>::GetCol(int64 ColIndex, ElementType* ColData) const
 {
     auto SelfSize = this->GetSize();
 
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0 || ColData == nullptr)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix::GetCol(int64 ColIndex, ElementType* ColData)" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix::GetCol(int64 ColIndex, ElementType* ColData)" << '\n';
 		return false;
 	}
 
@@ -3121,13 +3077,13 @@ bool mdkSparseMatrix<ElementType>::GetCol(int64 ColIndex, ElementType* ColData) 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-bool mdkSparseMatrix<ElementType>::SetCol(int64 ColIndex, const mdkSparseMatrix<ElementType_Input>& ColData)
+bool SparseMatrix<ElementType>::SetCol(int64 ColIndex, const SparseMatrix<ElementType_Input>& ColData)
 {
     auto SelfSize = this->GetSize();
 
 	if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
 	{
-		mdkError << "Invalid Input : ColIndex is out of bound @ mdkSparseMatrix::SetCol(ColIndex, mdkSparseMatrix)" << '\n';
+		MDK_Error << "Invalid Input : ColIndex is out of bound @ mdkSparseMatrix::SetCol(ColIndex, mdkSparseMatrix)" << '\n';
 		return false;
 	}
 
@@ -3135,19 +3091,19 @@ bool mdkSparseMatrix<ElementType>::SetCol(int64 ColIndex, const mdkSparseMatrix<
 
 	if (Size.ColNumber != 1 || Size.RowNumber != 1)
 	{
-		mdkError << "Invalid Input : must be a vector @ mdkSparseMatrix::SetCol(ColIndex, mdkSparseMatrix)" << '\n';
+		MDK_Error << "Invalid Input : must be a vector @ mdkSparseMatrix::SetCol(ColIndex, mdkSparseMatrix)" << '\n';
 		return false;
 	}
 
 	if (Size.RowNumber > 1 && Size.RowNumber != SelfSize.RowNumber)
 	{
-		mdkError << "Invalid Input : size does not match @ mdkSparseMatrix::SetCol(ColIndex, mdkSparseMatrix)" << '\n';
+		MDK_Error << "Invalid Input : size does not match @ mdkSparseMatrix::SetCol(ColIndex, mdkSparseMatrix)" << '\n';
 		return false;
 	}
 
 	if (Size.ColNumber > 1 && Size.ColNumber != SelfSize.RowNumber)
 	{
-		mdkError << "Invalid Input : size does not match @ mdkSparseMatrix::SetCol(ColIndex, mdkSparseMatrix)" << '\n';
+		MDK_Error << "Invalid Input : size does not match @ mdkSparseMatrix::SetCol(ColIndex, mdkSparseMatrix)" << '\n';
 		return false;
 	}
 
@@ -3158,7 +3114,7 @@ bool mdkSparseMatrix<ElementType>::SetCol(int64 ColIndex, const mdkSparseMatrix<
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::SetCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData)
+bool SparseMatrix<ElementType>::SetCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData)
 {
     return this->SetCol(ColIndex, ColData.begin(), ColData.size());
 }
@@ -3167,7 +3123,7 @@ bool mdkSparseMatrix<ElementType>::SetCol(int64 ColIndex, const std::initializer
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::SetCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData)
+bool SparseMatrix<ElementType>::SetCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData)
 {
     return this->SetCol(ColIndex, ColData.data(), ColData.size());
 }
@@ -3176,13 +3132,13 @@ bool mdkSparseMatrix<ElementType>::SetCol(int64 ColIndex, const std::vector<Elem
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-bool mdkSparseMatrix<ElementType>::SetCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length)
+bool SparseMatrix<ElementType>::SetCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length)
 {
     auto SelfSize = this->GetSize();
 
     if (ColData == nullptr || Length <= 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix::SetCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix::SetCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
 		return false;
 	}
     
@@ -3213,13 +3169,13 @@ bool mdkSparseMatrix<ElementType>::SetCol(int64 ColIndex, const ElementType_Inpu
 
 template<typename ElementType>
 inline 
-bool mdkSparseMatrix<ElementType>::FillCol(int64 ColIndex, const ElementType& Element)
+bool SparseMatrix<ElementType>::FillCol(int64 ColIndex, const ElementType& Element)
 {
     auto SelfSize = this->GetSize();
 
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::FillCol(int64 ColIndex, const ElementType& Element)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix::FillCol(int64 ColIndex, const ElementType& Element)" << '\n';
         return false;
     }
 
@@ -3240,17 +3196,17 @@ bool mdkSparseMatrix<ElementType>::FillCol(int64 ColIndex, const ElementType& El
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::AppendCol(const mdkSparseMatrix<ElementType_Input>& ColData)
+bool SparseMatrix<ElementType>::AppendCol(const SparseMatrix<ElementType_Input>& ColData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkSparseMatrix::AppendCol(const mdkSparseMatrix<ElementType_Input>& ColData)" << '\n';
+        MDK_Error << "Matrix Size can not change @ mdkSparseMatrix::AppendCol(const mdkSparseMatrix<ElementType_Input>& ColData)" << '\n';
         return false;
     }
 
     if (ColData.IsEmpty() == true)
     {
-        mdkError << "Empty Input @ mdkSparseMatrix::AppendCol(const mdkSparseMatrix<ElementType_Input>& ColData)" << '\n';
+        MDK_Error << "Empty Input @ mdkSparseMatrix::AppendCol(const mdkSparseMatrix<ElementType_Input>& ColData)" << '\n';
         return false;
     }
 
@@ -3272,17 +3228,17 @@ bool mdkSparseMatrix<ElementType>::AppendCol(const mdkSparseMatrix<ElementType_I
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-bool mdkSparseMatrix<ElementType>::AppendCol(const std::initializer_list<ElementType_Input>& ColData)
+bool SparseMatrix<ElementType>::AppendCol(const std::initializer_list<ElementType_Input>& ColData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkSparseMatrix::AppendCol(const std::initializer_list<ElementType_Input>& ColData)" << '\n';
+        MDK_Error << "Matrix Size can not change @ mdkSparseMatrix::AppendCol(const std::initializer_list<ElementType_Input>& ColData)" << '\n';
         return false;
     }
 
     if (ColData.size() <= 0)
     {
-        mdkError << "Empty Input @ mdkSparseMatrix::AppendCol(const std::initializer_list<ElementType_Input>& ColData)" << '\n';
+        MDK_Error << "Empty Input @ mdkSparseMatrix::AppendCol(const std::initializer_list<ElementType_Input>& ColData)" << '\n';
         return false;
     }
 
@@ -3304,17 +3260,17 @@ bool mdkSparseMatrix<ElementType>::AppendCol(const std::initializer_list<Element
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::AppendCol(const std::vector<ElementType_Input>& ColData)
+bool SparseMatrix<ElementType>::AppendCol(const std::vector<ElementType_Input>& ColData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkSparseMatrix::AppendCol(const std::vector<ElementType_Input>& ColData)" << '\n';
+        MDK_Error << "Matrix Size can not change @ mdkSparseMatrix::AppendCol(const std::vector<ElementType_Input>& ColData)" << '\n';
         return false;
     }
 
     if (ColData.size() <= 0)
     {
-        mdkError << "Empty Input @ mdkSparseMatrix::AppendCol(const std::vector<ElementType_Input>& ColData)" << '\n';
+        MDK_Error << "Empty Input @ mdkSparseMatrix::AppendCol(const std::vector<ElementType_Input>& ColData)" << '\n';
         return false;
     }
 
@@ -3336,17 +3292,17 @@ bool mdkSparseMatrix<ElementType>::AppendCol(const std::vector<ElementType_Input
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-bool mdkSparseMatrix<ElementType>::AppendCol(const ElementType_Input* ColData, int64 Length)
+bool SparseMatrix<ElementType>::AppendCol(const ElementType_Input* ColData, int64 Length)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkSparseMatrix::AppendCol(const ElementType_Input* ColData, int64 Length)" << '\n';
+        MDK_Error << "Matrix Size can not change @ mdkSparseMatrix::AppendCol(const ElementType_Input* ColData, int64 Length)" << '\n';
         return false;
     }
 
     if (ColData == nullptr || Length <= 0)
     {
-        mdkError << "Empty Input @ mdkSparseMatrix::AppendCol(const ElementType_Input* ColData, int64 Length)" << '\n';
+        MDK_Error << "Empty Input @ mdkSparseMatrix::AppendCol(const ElementType_Input* ColData, int64 Length)" << '\n';
         return false;
     }
 
@@ -3367,11 +3323,11 @@ bool mdkSparseMatrix<ElementType>::AppendCol(const ElementType_Input* ColData, i
 
 template<typename ElementType>
 inline 
-bool mdkSparseMatrix<ElementType>::DeleteCol(int64 ColIndex)
+bool SparseMatrix<ElementType>::DeleteCol(int64 ColIndex)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkSparseMatrix::DeleteCol(int64 ColIndex)" << '\n';
+        MDK_Error << "Matrix Size can not change @ mdkSparseMatrix::DeleteCol(int64 ColIndex)" << '\n';
         return false;
     }
 
@@ -3379,7 +3335,7 @@ bool mdkSparseMatrix<ElementType>::DeleteCol(int64 ColIndex)
 
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::DeleteCol(int64 ColIndex)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix::DeleteCol(int64 ColIndex)" << '\n';
         return false;
     }
 
@@ -3396,17 +3352,17 @@ bool mdkSparseMatrix<ElementType>::DeleteCol(int64 ColIndex)
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::DeleteCol(std::initializer_list<int64>& ColIndexList)
+bool SparseMatrix<ElementType>::DeleteCol(std::initializer_list<int64>& ColIndexList)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkSparseMatrix::DeleteCol(std::initializer_list<int64>& ColIndexList)" << '\n';
+        MDK_Error << "Matrix Size can not change @ mdkSparseMatrix::DeleteCol(std::initializer_list<int64>& ColIndexList)" << '\n';
         return false;
     }
 
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "Empty Input @ mdkSparseMatrix::DeleteCol(std::initializer_list ColIndexList)" << '\n';
+        MDK_Error << "Empty Input @ mdkSparseMatrix::DeleteCol(std::initializer_list ColIndexList)" << '\n';
         return false;
     }
 
@@ -3416,7 +3372,7 @@ bool mdkSparseMatrix<ElementType>::DeleteCol(std::initializer_list<int64>& ColIn
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Out of bound Input @ mdkSparseMatrix::DeleteCol(std::initializer_list ColIndexList)" << '\n';
+            MDK_Error << "Out of bound Input @ mdkSparseMatrix::DeleteCol(std::initializer_list ColIndexList)" << '\n';
             return false;
         }
     }
@@ -3427,17 +3383,17 @@ bool mdkSparseMatrix<ElementType>::DeleteCol(std::initializer_list<int64>& ColIn
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::DeleteCol(const std::vector<int64>& ColIndexList)
+bool SparseMatrix<ElementType>::DeleteCol(const std::vector<int64>& ColIndexList)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkSparseMatrix::DeleteCol(const std::vector<int64>& ColIndexList)" << '\n';
+        MDK_Error << "Matrix Size can not change @ mdkSparseMatrix::DeleteCol(const std::vector<int64>& ColIndexList)" << '\n';
         return false;
     }
 
     if (ColIndexList.size() <= 0)
     {
-        mdkError << "Empty Input @ mdkSparseMatrix::DeleteCol(std::vector ColIndexList)" << '\n';
+        MDK_Error << "Empty Input @ mdkSparseMatrix::DeleteCol(std::vector ColIndexList)" << '\n';
         return false;
     }
 
@@ -3447,7 +3403,7 @@ bool mdkSparseMatrix<ElementType>::DeleteCol(const std::vector<int64>& ColIndexL
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            mdkError << "Out of bound Input @ mdkSparseMatrix::DeleteCol(std::vector ColIndexList)" << '\n';
+            MDK_Error << "Out of bound Input @ mdkSparseMatrix::DeleteCol(std::vector ColIndexList)" << '\n';
             return false;
         }
     }
@@ -3458,17 +3414,17 @@ bool mdkSparseMatrix<ElementType>::DeleteCol(const std::vector<int64>& ColIndexL
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::DeleteCol(const int64* ColIndexListPtr, int64 Length)
+bool SparseMatrix<ElementType>::DeleteCol(const int64* ColIndexListPtr, int64 Length)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkSparseMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
+        MDK_Error << "Matrix Size can not change @ mdkSparseMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
         return false;
     }
 
     if (ColIndexListPtr == nullptr || Length <= 0)
     {
-        mdkError << "Empty Input @ mdkSparseMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
+        MDK_Error << "Empty Input @ mdkSparseMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
         return false;
     }
 
@@ -3520,17 +3476,17 @@ bool mdkSparseMatrix<ElementType>::DeleteCol(const int64* ColIndexListPtr, int64
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::InsertCol(int64 ColIndex, const mdkSparseMatrix<ElementType_Input>& ColData)
+bool SparseMatrix<ElementType>::InsertCol(int64 ColIndex, const SparseMatrix<ElementType_Input>& ColData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkSparseMatrix::InsertCol(ColIndex, mdkSparseMatrix)" << '\n';
+        MDK_Error << "Matrix Size can not change @ mdkSparseMatrix::InsertCol(ColIndex, mdkSparseMatrix)" << '\n';
         return false;
     }
 
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input : ColIndex is out of bound @ mdkSparseMatrix::InsertCol(ColIndex, mdkSparseMatrix)" << '\n';
+        MDK_Error << "Invalid Input : ColIndex is out of bound @ mdkSparseMatrix::InsertCol(ColIndex, mdkSparseMatrix)" << '\n';
         return false;
     }
 
@@ -3538,7 +3494,7 @@ bool mdkSparseMatrix<ElementType>::InsertCol(int64 ColIndex, const mdkSparseMatr
 
     if (InputSize.ColNumber != 1 || InputSize.RowNumber != 1)
     {
-        mdkError << "Invalid Input : must be a vector @ mdkSparseMatrix::InsertCol(ColIndex, mdkSparseMatrix)" << '\n';
+        MDK_Error << "Invalid Input : must be a vector @ mdkSparseMatrix::InsertCol(ColIndex, mdkSparseMatrix)" << '\n';
         return false;
     }
 
@@ -3546,13 +3502,13 @@ bool mdkSparseMatrix<ElementType>::InsertCol(int64 ColIndex, const mdkSparseMatr
 
     if (InputSize.RowNumber > 1 && InputSize.RowNumber != SelfSize.RowNumber)
     {
-        mdkError << "Invalid Input : size does not match @ mdkSparseMatrix::InsertCol(ColIndex, mdkSparseMatrix)" << '\n';
+        MDK_Error << "Invalid Input : size does not match @ mdkSparseMatrix::InsertCol(ColIndex, mdkSparseMatrix)" << '\n';
         return false;
     }
 
     if (InputSize.ColNumber > 1 && InputSize.ColNumber != SelfSize.RowNumber)
     {
-        mdkError << "Invalid Input : size does not match @ mdkSparseMatrix::InsertCol(ColIndex, mdkSparseMatrix)" << '\n';
+        MDK_Error << "Invalid Input : size does not match @ mdkSparseMatrix::InsertCol(ColIndex, mdkSparseMatrix)" << '\n';
         return false;
     }
 
@@ -3564,7 +3520,7 @@ bool mdkSparseMatrix<ElementType>::InsertCol(int64 ColIndex, const mdkSparseMatr
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::InsertCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData)
+bool SparseMatrix<ElementType>::InsertCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData)
 {
     return this->InsertCol(ColIndex, ColData.begin(), ColData.size());
 }
@@ -3573,7 +3529,7 @@ bool mdkSparseMatrix<ElementType>::InsertCol(int64 ColIndex, const std::initiali
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::InsertCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData)
+bool SparseMatrix<ElementType>::InsertCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData)
 {
     return this->InsertCol(ColIndex, ColData.data(), ColData.size());
 }
@@ -3582,11 +3538,11 @@ bool mdkSparseMatrix<ElementType>::InsertCol(int64 ColIndex, const std::vector<E
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::InsertCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length)
+bool SparseMatrix<ElementType>::InsertCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Matrix Size can not change @ mdkSparseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
+        MDK_Error << "Matrix Size can not change @ mdkSparseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
         return false;
     }
 
@@ -3594,7 +3550,7 @@ bool mdkSparseMatrix<ElementType>::InsertCol(int64 ColIndex, const ElementType_I
 
     if (ColData == nullptr || Length <= 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
         return false;
     }
 
@@ -3610,8 +3566,8 @@ bool mdkSparseMatrix<ElementType>::InsertCol(int64 ColIndex, const ElementType_I
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::Row(int64 RowIndex)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::Row(int64 RowIndex)
 {
     return this->at({RowIndex}, ALL);
 }
@@ -3619,8 +3575,8 @@ mdkSparseMatrix<ElementType>::Row(int64 RowIndex)
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::Row(std::initializer_list<int64>& RowIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::Row(std::initializer_list<int64>& RowIndexList)
 {
     return this->at(RowIndexList, ALL);
 }
@@ -3628,8 +3584,8 @@ mdkSparseMatrix<ElementType>::Row(std::initializer_list<int64>& RowIndexList)
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::Row(const std::vector<int64>& RowIndexList)
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::Row(const std::vector<int64>& RowIndexList)
 {
     return this->at(RowIndexList, ALL);
 }
@@ -3637,15 +3593,15 @@ mdkSparseMatrix<ElementType>::Row(const std::vector<int64>& RowIndexList)
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetRow(int64 RowIndex) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::GetRow(int64 RowIndex) const
 {
-    mdkSparseMatrix<ElementType> tempMatrix;	
+    SparseMatrix<ElementType> tempMatrix;	
 
     auto SelfSize = this->GetSize();
 
 	if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix::GetRow(RowIndex)" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix::GetRow(RowIndex)" << '\n';
         
         return tempMatrix;
 	}
@@ -3671,13 +3627,13 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetRow(int64 RowIndex
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::GetRow(int64 RowIndex, std::vector<ElementType>& RowData) const
+bool SparseMatrix<ElementType>::GetRow(int64 RowIndex, std::vector<ElementType>& RowData) const
 {
     auto SelfSize = this->GetSize();
 
 	if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix::GetRow(RowIndex, std::vector<ElementType>& RowData)" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix::GetRow(RowIndex, std::vector<ElementType>& RowData)" << '\n';
 		return false;
 	}
 
@@ -3702,13 +3658,13 @@ bool mdkSparseMatrix<ElementType>::GetRow(int64 RowIndex, std::vector<ElementTyp
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::GetRow(int64 RowIndex, ElementType* RowData) const
+bool SparseMatrix<ElementType>::GetRow(int64 RowIndex, ElementType* RowData) const
 {
     auto SelfSize = this->GetSize();
 
 	if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix GetRow(RowIndex, ElementType* RowData)" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix GetRow(RowIndex, ElementType* RowData)" << '\n';
 		return false;
 	}
 
@@ -3730,13 +3686,13 @@ bool mdkSparseMatrix<ElementType>::GetRow(int64 RowIndex, ElementType* RowData) 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-bool mdkSparseMatrix<ElementType>::SetRow(int64 RowIndex, const mdkSparseMatrix<ElementType_Input>& RowData)
+bool SparseMatrix<ElementType>::SetRow(int64 RowIndex, const SparseMatrix<ElementType_Input>& RowData)
 {
     auto SelfSize = this->GetSize();
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix SetRow(int64 RowIndex, const mdkSparseMatrix<ElementType_Input>& RowData)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix SetRow(int64 RowIndex, const mdkSparseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
@@ -3744,19 +3700,19 @@ bool mdkSparseMatrix<ElementType>::SetRow(int64 RowIndex, const mdkSparseMatrix<
 
     if (InputSize.ColNumber != 1 || InputSize.RowNumber != 1)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix SetRow(RowIndex,mdkSparseMatrix)" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix SetRow(RowIndex,mdkSparseMatrix)" << '\n';
 		return false;
 	}
 
     if (InputSize.RowNumber > 1 && InputSize.RowNumber != SelfSize.ColNumber)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix SetRow(RowIndex,mdkSparseMatrix)" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix SetRow(RowIndex,mdkSparseMatrix)" << '\n';
 		return false;
 	}
 
     if (InputSize.ColNumber > 1 && InputSize.ColNumber != SelfSize.ColNumber)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix SetRow(RowIndex,mdkSparseMatrix)" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix SetRow(RowIndex,mdkSparseMatrix)" << '\n';
 		return false;
 	}
 
@@ -3767,7 +3723,7 @@ bool mdkSparseMatrix<ElementType>::SetRow(int64 RowIndex, const mdkSparseMatrix<
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::SetRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData)
+bool SparseMatrix<ElementType>::SetRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData)
 {
     return this->SetRow(RowIndex, RowData.begin(), RowData.size());
 }
@@ -3776,7 +3732,7 @@ bool mdkSparseMatrix<ElementType>::SetRow(int64 RowIndex, const std::initializer
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::SetRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData)
+bool SparseMatrix<ElementType>::SetRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData)
 {
     return this->SetRow(RowIndex, RowData.data(), RowData.size());
 }
@@ -3785,19 +3741,19 @@ bool mdkSparseMatrix<ElementType>::SetRow(int64 RowIndex, const std::vector<Elem
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::SetRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length)
+bool SparseMatrix<ElementType>::SetRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length)
 {
     auto SelfSize = this->GetSize();
 
     if (RowData == nullptr || Length <= 0 || RowIndex >= SelfSize.RowNumber || RowIndex < 0)
     {
-        mdkError << "Empty Input @ mdkSparseMatrix::SetRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        MDK_Error << "Empty Input @ mdkSparseMatrix::SetRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
     if (Length != SelfSize.ColNumber)
     {
-        mdkError << "Length does not match @ mdkSparseMatrix::SetRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        MDK_Error << "Length does not match @ mdkSparseMatrix::SetRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
@@ -3818,13 +3774,13 @@ bool mdkSparseMatrix<ElementType>::SetRow(int64 RowIndex, const ElementType_Inpu
 
 template<typename ElementType>
 inline 
-bool mdkSparseMatrix<ElementType>::FillRow(int64 RowIndex, const ElementType& Element)
+bool SparseMatrix<ElementType>::FillRow(int64 RowIndex, const ElementType& Element)
 {
     auto SelfSize = this->GetSize();
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::FillRow(int64 RowIndex, const ElementType& Element)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix::FillRow(int64 RowIndex, const ElementType& Element)" << '\n';
         return false;
     }
 
@@ -3846,17 +3802,17 @@ bool mdkSparseMatrix<ElementType>::FillRow(int64 RowIndex, const ElementType& El
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-bool mdkSparseMatrix<ElementType>::AppendRow(const mdkSparseMatrix<ElementType_Input>& RowData)
+bool SparseMatrix<ElementType>::AppendRow(const SparseMatrix<ElementType_Input>& RowData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkSparseMatrix::AppendRow(const mdkSparseMatrix<ElementType_Input>& RowData)" << '\n';
+        MDK_Error << "Size can not change @ mdkSparseMatrix::AppendRow(const mdkSparseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
     if (RowData.IsEmpty() == true)
     {
-        mdkError << "Input is empty @ mdkSparseMatrix::AppendRow(const mdkSparseMatrix<ElementType_Input>& RowData)" << '\n';
+        MDK_Error << "Input is empty @ mdkSparseMatrix::AppendRow(const mdkSparseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
@@ -3878,17 +3834,17 @@ bool mdkSparseMatrix<ElementType>::AppendRow(const mdkSparseMatrix<ElementType_I
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool  mdkSparseMatrix<ElementType>::AppendRow(const std::initializer_list<ElementType_Input>& RowData)
+bool  SparseMatrix<ElementType>::AppendRow(const std::initializer_list<ElementType_Input>& RowData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkSparseMatrix::AppendRow(const std::initializer_list<ElementType_Input>& RowData)" << '\n';
+        MDK_Error << "Size can not change @ mdkSparseMatrix::AppendRow(const std::initializer_list<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
     if (RowData.size() <= 0)
     {
-        mdkError << "Input is empty @ mdkSparseMatrix::AppendRow(const std::initializer_list<ElementType_Input>& RowData)" << '\n';
+        MDK_Error << "Input is empty @ mdkSparseMatrix::AppendRow(const std::initializer_list<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
@@ -3910,17 +3866,17 @@ bool  mdkSparseMatrix<ElementType>::AppendRow(const std::initializer_list<Elemen
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool  mdkSparseMatrix<ElementType>::AppendRow(const std::vector<ElementType_Input>& RowData)
+bool  SparseMatrix<ElementType>::AppendRow(const std::vector<ElementType_Input>& RowData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkSparseMatrix::AppendRow(const std::vector<ElementType_Input>& RowData)" << '\n';
+        MDK_Error << "Size can not change @ mdkSparseMatrix::AppendRow(const std::vector<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
     if (RowData.size() <= 0)
     {
-        mdkError << "Input is empty @ mdkSparseMatrix::AppendRow(const std::vector<ElementType_Input>& RowData)" << '\n';
+        MDK_Error << "Input is empty @ mdkSparseMatrix::AppendRow(const std::vector<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
@@ -3942,17 +3898,17 @@ bool  mdkSparseMatrix<ElementType>::AppendRow(const std::vector<ElementType_Inpu
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::AppendRow(const ElementType_Input* RowData, int64 Length)
+bool SparseMatrix<ElementType>::AppendRow(const ElementType_Input* RowData, int64 Length)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkSparseMatrix::AppendRow(const ElementType_Input* RowData, int64 Length)" << '\n';
+        MDK_Error << "Size can not change @ mdkSparseMatrix::AppendRow(const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
     if (RowData == nullptr || Length <= 0)
     {
-        mdkError << "Input is empty @ mdkSparseMatrix::AppendRow(const ElementType_Input* RowData, int64 Length)" << '\n';
+        MDK_Error << "Input is empty @ mdkSparseMatrix::AppendRow(const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
@@ -3973,11 +3929,11 @@ bool mdkSparseMatrix<ElementType>::AppendRow(const ElementType_Input* RowData, i
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::DeleteRow(int64 RowIndex)
+bool SparseMatrix<ElementType>::DeleteRow(int64 RowIndex)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkSparseMatrix::DeleteRow(int64 RowIndex)" << '\n';
+        MDK_Error << "Size can not change @ mdkSparseMatrix::DeleteRow(int64 RowIndex)" << '\n';
         return false;
     }
 
@@ -3985,7 +3941,7 @@ bool mdkSparseMatrix<ElementType>::DeleteRow(int64 RowIndex)
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::DeleteRow(int64 RowIndex)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix::DeleteRow(int64 RowIndex)" << '\n';
         return false;
     }
 
@@ -3995,11 +3951,11 @@ bool mdkSparseMatrix<ElementType>::DeleteRow(int64 RowIndex)
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::DeleteRow(const std::vector<int64>& RowIndexList)
+bool SparseMatrix<ElementType>::DeleteRow(const std::vector<int64>& RowIndexList)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkSparseMatrix::DeleteRow(const std::vector<int64>& RowIndexList)" << '\n';
+        MDK_Error << "Size can not change @ mdkSparseMatrix::DeleteRow(const std::vector<int64>& RowIndexList)" << '\n';
         return false;
     }
 
@@ -4009,7 +3965,7 @@ bool mdkSparseMatrix<ElementType>::DeleteRow(const std::vector<int64>& RowIndexL
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            mdkError << "Invalid Input @ mdkSparseMatrix::DeleteRow(const std::vector<int64>& RowIndexList)" << '\n';
+            MDK_Error << "Invalid Input @ mdkSparseMatrix::DeleteRow(const std::vector<int64>& RowIndexList)" << '\n';
             return false;
         }
     }
@@ -4020,17 +3976,17 @@ bool mdkSparseMatrix<ElementType>::DeleteRow(const std::vector<int64>& RowIndexL
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::DeleteRow(const int64* RowIndexListPtr, int64 Length)
+bool SparseMatrix<ElementType>::DeleteRow(const int64* RowIndexListPtr, int64 Length)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkSparseMatrix::DeleteRow(const int64* RowIndexPtr, int64 Length)" << '\n';
+        MDK_Error << "Size can not change @ mdkSparseMatrix::DeleteRow(const int64* RowIndexPtr, int64 Length)" << '\n';
         return false;
     }
 
     if (RowIndexListPtr == nullptr || Length <= 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::DeleteRow(const int64* RowIndexPtr, int64 Length)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix::DeleteRow(const int64* RowIndexPtr, int64 Length)" << '\n';
         return false;
     }
 
@@ -4074,17 +4030,17 @@ bool mdkSparseMatrix<ElementType>::DeleteRow(const int64* RowIndexListPtr, int64
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::InsertRow(int64 RowIndex, const mdkSparseMatrix<ElementType_Input>& RowData)
+bool SparseMatrix<ElementType>::InsertRow(int64 RowIndex, const SparseMatrix<ElementType_Input>& RowData)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkSparseMatrix::InsertRow(int64 RowIndex, const mdkSparseMatrix<ElementType_Input>& RowData)" << '\n';
+        MDK_Error << "Size can not change @ mdkSparseMatrix::InsertRow(int64 RowIndex, const mdkSparseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix InsertRow(int64 RowIndex, const mdkSparseMatrix<ElementType_Input>& RowData)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix InsertRow(int64 RowIndex, const mdkSparseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
@@ -4094,19 +4050,19 @@ bool mdkSparseMatrix<ElementType>::InsertRow(int64 RowIndex, const mdkSparseMatr
 
     if (InputSize.ColNumber != 1 || InputSize.RowNumber != 1)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix InsertRow(RowIndex,mdkSparseMatrix)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix InsertRow(RowIndex,mdkSparseMatrix)" << '\n';
         return false;
     }
 
     if (InputSize.RowNumber > 1 && InputSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix InsertRow(RowIndex,mdkSparseMatrix)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix InsertRow(RowIndex,mdkSparseMatrix)" << '\n';
         return false;
     }
 
     if (InputSize.ColNumber > 1 && InputSize.ColNumber != SelfSize.ColNumber)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix InsertRow(RowIndex,mdkSparseMatrix)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix InsertRow(RowIndex,mdkSparseMatrix)" << '\n';
         return false;
     }
 
@@ -4117,7 +4073,7 @@ bool mdkSparseMatrix<ElementType>::InsertRow(int64 RowIndex, const mdkSparseMatr
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::InsertRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData)
+bool SparseMatrix<ElementType>::InsertRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData)
 {
     return this->InsertRow(RowIndex, RowData.begin(), RowData.size());
 }
@@ -4126,7 +4082,7 @@ bool mdkSparseMatrix<ElementType>::InsertRow(int64 RowIndex, const std::initiali
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::InsertRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData)
+bool SparseMatrix<ElementType>::InsertRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData)
 {
     return this->InsertRow(RowIndex, RowData.data(), RowData.size());
 }
@@ -4135,11 +4091,11 @@ bool mdkSparseMatrix<ElementType>::InsertRow(int64 RowIndex, const std::vector<E
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::InsertRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length)
+bool SparseMatrix<ElementType>::InsertRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length)
 {
     if (m_IsSizeFixed == true)
     {
-        mdkError << "Size can not change @ mdkSparseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        MDK_Error << "Size can not change @ mdkSparseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
@@ -4147,17 +4103,17 @@ bool mdkSparseMatrix<ElementType>::InsertRow(int64 RowIndex, const ElementType_I
 
     if (RowData == nullptr || Length <= 0 || RowIndex >= SelfSize.RowNumber || RowIndex < 0)
     {
-        mdkError << "Empty Input @ mdkSparseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        MDK_Error << "Empty Input @ mdkSparseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
     if (Length != SelfSize.ColNumber)
     {
-        mdkError << "Length does not match @ mdkSparseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        MDK_Error << "Length does not match @ mdkSparseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
-    mdkSparseMatrix<ElementType> tempMatrix(SelfSize.RowNumber + 1, SelfSize.ColNumber);
+    SparseMatrix<ElementType> tempMatrix(SelfSize.RowNumber + 1, SelfSize.ColNumber);
 
     auto tempRawPointer = tempMatrix.GetElementPointer();
 
@@ -4192,15 +4148,15 @@ bool mdkSparseMatrix<ElementType>::InsertRow(int64 RowIndex, const ElementType_I
 
 template<typename ElementType>
 inline
-mdkSparseShadowMatrix<ElementType>
-mdkSparseMatrix<ElementType>::Diangonal()
+SparseShadowMatrix<ElementType>
+SparseMatrix<ElementType>::Diangonal()
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << " Self is empty or not square @ mdkSparseMatrix::Diangonal" << '\n';
-        mdkSparseShadowMatrix<ElementType> tempShadowMatrix;     
+        MDK_Error << " Self is empty or not square @ mdkSparseMatrix::Diangonal" << '\n';
+        SparseShadowMatrix<ElementType> tempShadowMatrix;     
         return  tempShadowMatrix;
     }
 
@@ -4215,7 +4171,7 @@ mdkSparseMatrix<ElementType>::Diangonal()
         Index += SelfSize.RowNumber;
     }
 
-    mdkSparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+    SparseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
 
     return tempShadowMatrix;
 }
@@ -4223,15 +4179,15 @@ mdkSparseMatrix<ElementType>::Diangonal()
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetDiangonal() const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::GetDiangonal() const
 {
-    mdkSparseMatrix<ElementType> tempMatrix; 
+    SparseMatrix<ElementType> tempMatrix; 
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << " Self is empty or not square @ mdkSparseMatrix::GetDiangonal()" << '\n';
+        MDK_Error << " Self is empty or not square @ mdkSparseMatrix::GetDiangonal()" << '\n';
         
         return  tempMatrix;
     }
@@ -4248,13 +4204,13 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::GetDiangonal() const
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::GetDiangonal(std::vector<ElementType>& DiangonalData) const
+bool SparseMatrix<ElementType>::GetDiangonal(std::vector<ElementType>& DiangonalData) const
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << " Self is empty or not square @ mdkSparseMatrix::GetDiangonal(std::vector)" << '\n';
+        MDK_Error << " Self is empty or not square @ mdkSparseMatrix::GetDiangonal(std::vector)" << '\n';
         return  false;
     }
 
@@ -4268,11 +4224,11 @@ bool mdkSparseMatrix<ElementType>::GetDiangonal(std::vector<ElementType>& Diango
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) const
+bool SparseMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) const
 {
     if (DiangonalData == nullptr)
     {
-        mdkError << " Input is nullptr @ mdkSparseMatrix::GetDiangonal(ElementType* DiangonalData)" << '\n';
+        MDK_Error << " Input is nullptr @ mdkSparseMatrix::GetDiangonal(ElementType* DiangonalData)" << '\n';
         return  false;
     }
 
@@ -4280,7 +4236,7 @@ bool mdkSparseMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) cons
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << " Self is empty or not square @ mdkSparseMatrix::GetDiangonal(ElementType* DiangonalData)" << '\n';
+        MDK_Error << " Self is empty or not square @ mdkSparseMatrix::GetDiangonal(ElementType* DiangonalData)" << '\n';
         return  false;
     }
 
@@ -4302,13 +4258,13 @@ bool mdkSparseMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) cons
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-bool mdkSparseMatrix<ElementType>::SetDiangonal(const mdkSparseMatrix<ElementType_Input>& DiangonalData)
+bool SparseMatrix<ElementType>::SetDiangonal(const SparseMatrix<ElementType_Input>& DiangonalData)
 {
 	auto InputSize = DiangonalData.GetSize();
 
     if (InputSize.ColNumber != 1 || InputSize.RowNumber != 1)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix::SetDiangonal(Matrix)" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix::SetDiangonal(Matrix)" << '\n';
 		return false;
 	}
 
@@ -4316,13 +4272,13 @@ bool mdkSparseMatrix<ElementType>::SetDiangonal(const mdkSparseMatrix<ElementTyp
 
     if (InputSize.RowNumber > 1 && InputSize.RowNumber != SelfSize.ColNumber)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix::SetDiangonal(Matrix)" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix::SetDiangonal(Matrix)" << '\n';
 		return false;
 	}
 
     if (InputSize.ColNumber > 1 && InputSize.ColNumber != SelfSize.ColNumber)
 	{
-		mdkError << "Invalid Input @ mdkSparseMatrix::SetDiangonal(Matrix)" << '\n';
+		MDK_Error << "Invalid Input @ mdkSparseMatrix::SetDiangonal(Matrix)" << '\n';
 		return false;
 	}
 
@@ -4341,19 +4297,19 @@ bool mdkSparseMatrix<ElementType>::SetDiangonal(const mdkSparseMatrix<ElementTyp
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::SetDiangonal(const std::initializer_list<ElementType_Input>& DiangonalData)
+bool SparseMatrix<ElementType>::SetDiangonal(const std::initializer_list<ElementType_Input>& DiangonalData)
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << "Self is empty or not square @ mdkSparseMatrix::SetDiangonal(std::initializer_list)" << '\n';
+        MDK_Error << "Self is empty or not square @ mdkSparseMatrix::SetDiangonal(std::initializer_list)" << '\n';
         return false;
     }
 
     if (DiangonalData.size() != SelfSize.RowNumber)
     {
-        mdkError << "Invalid Input @ mdkSparseMatrix::SetDiangonal(std::initializer_list)" << '\n';
+        MDK_Error << "Invalid Input @ mdkSparseMatrix::SetDiangonal(std::initializer_list)" << '\n';
         return false;
     }
 
@@ -4364,19 +4320,19 @@ bool mdkSparseMatrix<ElementType>::SetDiangonal(const std::initializer_list<Elem
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::SetDiangonal(const std::vector<ElementType_Input>& DiangonalData)
+bool SparseMatrix<ElementType>::SetDiangonal(const std::vector<ElementType_Input>& DiangonalData)
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
 	{
-		mdkError << " Self is empty or not square @ mdkSparseMatrix::SetDiangonal(std::vector)" << '\n';
+		MDK_Error << " Self is empty or not square @ mdkSparseMatrix::SetDiangonal(std::vector)" << '\n';
 		return false;
 	}
 
     if (DiangonalData.size() != SelfSize.RowNumber)
     {
-        mdkError << " Input is invalid @ mdkSparseMatrix::SetDiangonal(std::vector)" << '\n';
+        MDK_Error << " Input is invalid @ mdkSparseMatrix::SetDiangonal(std::vector)" << '\n';
         return false;
     }
 
@@ -4387,11 +4343,11 @@ bool mdkSparseMatrix<ElementType>::SetDiangonal(const std::vector<ElementType_In
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool mdkSparseMatrix<ElementType>::SetDiangonal(const ElementType_Input* DiangonalData)
+bool SparseMatrix<ElementType>::SetDiangonal(const ElementType_Input* DiangonalData)
 {
     if (DiangonalData == nullptr)
     {
-        mdkError << " Input is nullptr @ mdkSparseMatrix::SetDiangonal(const ElementType_Input* DiangonalData)" << '\n';
+        MDK_Error << " Input is nullptr @ mdkSparseMatrix::SetDiangonal(const ElementType_Input* DiangonalData)" << '\n';
         return false;
     }
 
@@ -4399,7 +4355,7 @@ bool mdkSparseMatrix<ElementType>::SetDiangonal(const ElementType_Input* Diangon
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << " Self is empty or not square @ mdkSparseMatrix::SetDiangonal(const ElementType_Input* DiangonalData)" << '\n';
+        MDK_Error << " Self is empty or not square @ mdkSparseMatrix::SetDiangonal(const ElementType_Input* DiangonalData)" << '\n';
         return false;
     }
 
@@ -4420,13 +4376,13 @@ bool mdkSparseMatrix<ElementType>::SetDiangonal(const ElementType_Input* Diangon
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::FillDiangonal(const ElementType& Element)
+bool SparseMatrix<ElementType>::FillDiangonal(const ElementType& Element)
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        mdkError << " Self is empty or not square @ mdkSparseMatrix::FillDiangonal" << '\n';
+        MDK_Error << " Self is empty or not square @ mdkSparseMatrix::FillDiangonal" << '\n';
         return false;
     }
 
@@ -4547,7 +4503,7 @@ inline mdkSparseMatrix<ElementType> operator/(const ElementType& ElementA, const
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator+=(const mdkSparseMatrix<ElementType>& InputMatrix)
+void SparseMatrix<ElementType>::operator+=(const SparseMatrix<ElementType>& InputMatrix)
 {
     MatrixAdd(*this, *this, InputMatrix);
 }
@@ -4555,7 +4511,7 @@ void mdkSparseMatrix<ElementType>::operator+=(const mdkSparseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator-=(const mdkSparseMatrix<ElementType>& InputMatrix)
+void SparseMatrix<ElementType>::operator-=(const SparseMatrix<ElementType>& InputMatrix)
 {
     MatrixSubtract(*this, *this, InputMatrix);
 }
@@ -4563,7 +4519,7 @@ void mdkSparseMatrix<ElementType>::operator-=(const mdkSparseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator*=(const mdkSparseMatrix<ElementType>& InputMatrix)
+void SparseMatrix<ElementType>::operator*=(const SparseMatrix<ElementType>& InputMatrix)
 {
     MatrixMultiply(*this, *this, InputMatrix);
 }
@@ -4573,13 +4529,13 @@ void mdkSparseMatrix<ElementType>::operator*=(const mdkSparseMatrix<ElementType>
 
 template<typename ElementType>
 inline 
-void mdkSparseMatrix<ElementType>::operator+=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix)
+void SparseMatrix<ElementType>::operator+=(const SparseShadowMatrix<ElementType>& ShadowMatrix)
 {
     auto InputSize = ShadowMatrix.GetSize();
 
     if (InputSize.RowNumber <= 0)
     {
-        mdkError << "ShadowMatrix is empty @ mdkSparseMatrix::operator+=(ShadowMatrix)" << '\n';
+        MDK_Error << "ShadowMatrix is empty @ mdkSparseMatrix::operator+=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4596,7 +4552,7 @@ void mdkSparseMatrix<ElementType>::operator+=(const mdkSparseShadowMatrix<Elemen
 
     if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
     {
-        mdkError << "Size does not match @ mdkSparseMatrix::operator+=(ShadowMatrix)" << '\n';
+        MDK_Error << "Size does not match @ mdkSparseMatrix::operator+=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4607,13 +4563,13 @@ void mdkSparseMatrix<ElementType>::operator+=(const mdkSparseShadowMatrix<Elemen
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator-=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix)
+void SparseMatrix<ElementType>::operator-=(const SparseShadowMatrix<ElementType>& ShadowMatrix)
 {
     auto InputSize = ShadowMatrix.GetSize();
 
     if (InputSize.RowNumber <= 0)
     {
-        mdkError << "ShadowMatrix is empty @ mdkSparseMatrix::operator-=(ShadowMatrix)" << '\n';
+        MDK_Error << "ShadowMatrix is empty @ mdkSparseMatrix::operator-=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4630,7 +4586,7 @@ void mdkSparseMatrix<ElementType>::operator-=(const mdkSparseShadowMatrix<Elemen
 
     if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
     {
-        mdkError << "Size does not match @ mdkSparseMatrix::operator-=(ShadowMatrix)" << '\n';
+        MDK_Error << "Size does not match @ mdkSparseMatrix::operator-=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4640,16 +4596,16 @@ void mdkSparseMatrix<ElementType>::operator-=(const mdkSparseShadowMatrix<Elemen
 
 template<typename ElementType>
 inline 
-void mdkSparseMatrix<ElementType>::operator*=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix)
+void SparseMatrix<ElementType>::operator*=(const SparseShadowMatrix<ElementType>& ShadowMatrix)
 {
-    this->operator*=(mdkSparseShadowMatrix.CreateMatrix());
+    this->operator*=(SparseShadowMatrix.CreateMatrix());
 }
 
 //---------------------- SparseMatrix {+= -= *=} SparseGlueMatrixForLinearCombination ----------------------------------------//
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator+=(mdkSparseGlueMatrixForLinearCombination<ElementType> GlueMatrix)
+void SparseMatrix<ElementType>::operator+=(SparseGlueMatrixForLinearCombination<ElementType> GlueMatrix)
 {
     (*this) = (*this) + std::move(GlueMatrix);
 }
@@ -4657,7 +4613,7 @@ void mdkSparseMatrix<ElementType>::operator+=(mdkSparseGlueMatrixForLinearCombin
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator-=(mdkSparseGlueMatrixForLinearCombination<ElementType> GlueMatrix)
+void SparseMatrix<ElementType>::operator-=(SparseGlueMatrixForLinearCombination<ElementType> GlueMatrix)
 {
     (*this) = (*this) - std::move(GlueMatrix);
 }
@@ -4665,7 +4621,7 @@ void mdkSparseMatrix<ElementType>::operator-=(mdkSparseGlueMatrixForLinearCombin
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator*=(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+void SparseMatrix<ElementType>::operator*=(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     this->operator*=(GlueMatrix.CreateMatrix());
 }
@@ -4675,7 +4631,7 @@ void mdkSparseMatrix<ElementType>::operator*=(const mdkSparseGlueMatrixForLinear
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator+=(mdkSparseGlueMatrixForMultiplication<ElementType> GlueMatrix)
+void SparseMatrix<ElementType>::operator+=(SparseGlueMatrixForMultiplication<ElementType> GlueMatrix)
 {
     (*this) = (*this) + std::move(GlueMatrix);
 }
@@ -4683,7 +4639,7 @@ void mdkSparseMatrix<ElementType>::operator+=(mdkSparseGlueMatrixForMultiplicati
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator-=(mdkSparseGlueMatrixForMultiplication<ElementType> GlueMatrix)
+void SparseMatrix<ElementType>::operator-=(SparseGlueMatrixForMultiplication<ElementType> GlueMatrix)
 {
     (*this) = (*this) - std::move(GlueMatrix);
 }
@@ -4691,7 +4647,7 @@ void mdkSparseMatrix<ElementType>::operator-=(mdkSparseGlueMatrixForMultiplicati
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator*=(mdkSparseGlueMatrixForMultiplication<ElementType> GlueMatrix)
+void SparseMatrix<ElementType>::operator*=(SparseGlueMatrixForMultiplication<ElementType> GlueMatrix)
 {
     (*this) = (*this) * std::move(GlueMatrix);
 }
@@ -4700,7 +4656,7 @@ void mdkSparseMatrix<ElementType>::operator*=(mdkSparseGlueMatrixForMultiplicati
 
 template<typename ElementType>
 inline	
-void mdkSparseMatrix<ElementType>::operator+=(const ElementType& Element)
+void SparseMatrix<ElementType>::operator+=(const ElementType& Element)
 {
     MatrixAdd(*this, *this, Element);
 }
@@ -4708,7 +4664,7 @@ void mdkSparseMatrix<ElementType>::operator+=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator-=(const ElementType& Element)
+void SparseMatrix<ElementType>::operator-=(const ElementType& Element)
 {
     MatrixSubtract(*this, *this, Element);
 }
@@ -4716,7 +4672,7 @@ void mdkSparseMatrix<ElementType>::operator-=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator*=(const ElementType& Element)
+void SparseMatrix<ElementType>::operator*=(const ElementType& Element)
 {
     MatrixElementMultiply(*this, *this, Element);
 }
@@ -4724,7 +4680,7 @@ void mdkSparseMatrix<ElementType>::operator*=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void mdkSparseMatrix<ElementType>::operator/=(const ElementType& Element)
+void SparseMatrix<ElementType>::operator/=(const ElementType& Element)
 {
     MatrixElementDivide(*this, *this, Element);
 }
@@ -4733,15 +4689,15 @@ void mdkSparseMatrix<ElementType>::operator/=(const ElementType& Element)
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::operator^(const ElementType& Element)
+SparseMatrix<ElementType> SparseMatrix<ElementType>::operator^(const ElementType& Element)
 {
-    mdkSparseMatrix<ElementType> tempMatrix;
+    SparseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
     {
-        mdkError << "Self is empty @ mdkSparseMatrix::operator^(value)" << '\n';
+        MDK_Error << "Self is empty @ mdkSparseMatrix::operator^(value)" << '\n';
 
         return tempMatrix;
     }
@@ -4765,13 +4721,13 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::operator^(const Eleme
 //-------------------- element operation {^=} -----------------------------------------------------------//
 
 template<typename ElementType>
-inline void mdkSparseMatrix<ElementType>::operator^=(const ElementType& Element)
+inline void SparseMatrix<ElementType>::operator^=(const ElementType& Element)
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
     {
-        mdkError << "Self is empty @ mdkSparseMatrix::operator^(value)" << '\n';
+        MDK_Error << "Self is empty @ mdkSparseMatrix::operator^(value)" << '\n';
         return;
     }
 
@@ -4790,7 +4746,7 @@ inline void mdkSparseMatrix<ElementType>::operator^=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const ElementType& Element) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementMultiply(const ElementType& Element) const
 {
     return MatrixElementMultiply(*this, Element);
 }
@@ -4798,7 +4754,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkSparseMatrix<ElementType>& InputSparseMatrix) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementMultiply(const SparseMatrix<ElementType>& InputSparseMatrix) const
 {
     return MatrixElementMultiply(*this, InputSparseMatrix);
 
@@ -4807,7 +4763,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementMultiply(const SparseShadowMatrix<ElementType>& ShadowMatrix) const
 {
     return MatrixElementMultiply(*this, ShadowMatrix.CreateSparseMatrix());
 }
@@ -4815,7 +4771,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementMultiply(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix) const
 {
     return MatrixElementMultiply(*this, GlueMatrix.CreateSparseMatrix());
 }
@@ -4823,7 +4779,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementMultiply(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix) const
 {
     return MatrixElementMultiply(*this, GlueMatrix.CreateSparseMatrix());
 }
@@ -4831,7 +4787,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkDenseMatrix<ElementType>& InputDenseMatrix) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementMultiply(const DenseMatrix<ElementType>& InputDenseMatrix) const
 {
     return MatrixElementMultiply(*this, InputDenseMatrix);
 
@@ -4840,7 +4796,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkDenseShadowMatrix<ElementType>& DenseShadowMatrix) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementMultiply(const DenseShadowMatrix<ElementType>& DenseShadowMatrix) const
 {
     return MatrixElementMultiply(*this, DenseShadowMatrix.CreateDenseMatrix());
 }
@@ -4848,7 +4804,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& DenseGlueMatrix) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementMultiply(const DenseGlueMatrixForLinearCombination<ElementType>& DenseGlueMatrix) const
 {
     return MatrixElementMultiply(*this, DenseGlueMatrix.CreateDenseMatrix());
 }
@@ -4856,7 +4812,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& DenseGlueMatrix) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementMultiply(const DenseGlueMatrixForMultiplication<ElementType>& DenseGlueMatrix) const
 {
     return MatrixElementMultiply(*this, DenseGlueMatrix.CreateDenseMatrix());
 }
@@ -4866,7 +4822,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementMultiply(const
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(const char* OperationName) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementOperation(const char* OperationName) const
 {
     return MatrixElementOperation(std::string(OperationName), *this);
 }
@@ -4874,7 +4830,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(cons
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(const std::string& OperationName) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementOperation(const std::string& OperationName) const
 {
     return MatrixElementOperation(OperationName, *this);
 }
@@ -4882,7 +4838,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(cons
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(std::function<ElementType(const ElementType&)> Operation) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementOperation(std::function<ElementType(const ElementType&)> Operation) const
 {
     return MatrixElementOperation(Operation, *this);
 }
@@ -4890,7 +4846,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(std:
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(const std::string& OperationName, const mdkSparseMatrix<ElementType>& InputMatrix) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementOperation(const std::string& OperationName, const SparseMatrix<ElementType>& InputMatrix) const
 {
     return MatrixElementOperation(OperationName, *this, InputMatrix);
 }
@@ -4898,8 +4854,8 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(cons
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, 
-                                                                            const mdkSparseMatrix<ElementType>& InputMatrix) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, 
+                                                                            const SparseMatrix<ElementType>& InputMatrix) const
 {
     return MatrixElementOperation(Operation, *this, InputMatrix);
 }
@@ -4907,7 +4863,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(std:
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(const char* OperationName, const ElementType& Element) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementOperation(const char* OperationName, const ElementType& Element) const
 {
     return MatrixElementOperation(std::string(OperationName), *this, Element);
 }
@@ -4915,7 +4871,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(cons
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(const std::string& OperationName, const ElementType& Element) const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementOperation(const std::string& OperationName, const ElementType& Element) const
 {
     return MatrixElementOperation(OperationName, *this, Element);
 }
@@ -4923,7 +4879,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(cons
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, 
+SparseMatrix<ElementType> SparseMatrix<ElementType>::ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, 
                                                                             const ElementType& Element) const
 {
     return MatrixElementOperation(Operation, *this, Element);
@@ -4934,7 +4890,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::ElementOperation(std:
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName)
+bool SparseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName)
 {
     return MatrixElementOperation(*this, std::string(OperationName), *this);
 }
@@ -4942,7 +4898,7 @@ bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(const char* Operation
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName)
+bool SparseMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName)
 {
     return MatrixElementOperation(*this, OperationName, *this);
 }
@@ -4950,7 +4906,7 @@ bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(const std::string& Op
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(const ElementType&)> Operation)
+bool SparseMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(const ElementType&)> Operation)
 {
     return MatrixElementOperation(*this, Operation, *this);
 }
@@ -4958,7 +4914,7 @@ bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(std::function<Element
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName, const mdkSparseMatrix<ElementType>& InputMatrix)
+bool SparseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName, const SparseMatrix<ElementType>& InputMatrix)
 {
     return MatrixElementOperation(*this, std::string(OperationName), *this, InputMatrix);
 }
@@ -4966,7 +4922,7 @@ bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(const char* Operation
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName, const mdkSparseMatrix<ElementType>& InputMatrix)
+bool SparseMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName, const SparseMatrix<ElementType>& InputMatrix)
 {
     return MatrixElementOperation(*this, OperationName, *this, InputMatrix);
 }
@@ -4974,8 +4930,8 @@ bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(const std::string& Op
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
-                                                           const mdkSparseMatrix<ElementType>& InputMatrix)
+bool SparseMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
+                                                           const SparseMatrix<ElementType>& InputMatrix)
 {
     return MatrixElementOperation(*this, Operation, *this, InputMatrix);
 }
@@ -4983,7 +4939,7 @@ bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(std::function<Element
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName, const ElementType& Element)
+bool SparseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName, const ElementType& Element)
 {
     return MatrixElementOperation(*this, std::string(OperationName), *this, Element);
 }
@@ -4991,7 +4947,7 @@ bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(const char* Operation
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName, const ElementType& Element)
+bool SparseMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName, const ElementType& Element)
 {
     return MatrixElementOperation(*this, OperationName, *this, Element);
 }
@@ -4999,7 +4955,7 @@ bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(const std::string& Op
 
 template<typename ElementType>
 inline
-bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation, const ElementType& Element)
+bool SparseMatrix<ElementType>::ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation, const ElementType& Element)
 {
     return MatrixElementOperation(*this, Operation, *this, Element);
 }
@@ -5008,13 +4964,13 @@ bool mdkSparseMatrix<ElementType>::ElementOperationInPlace(std::function<Element
 
 
 template<typename ElementType>
-inline ElementType mdkSparseMatrix<ElementType>::Mean() const
+inline ElementType SparseMatrix<ElementType>::Mean() const
 {
     auto Self_ElementNumber = this->GetElementNumber();
 
     if (Self_ElementNumber <= 0)
     {
-        mdkError << "self is empty Matrix @ mdkSparseMatrix::Mean" << '\n';
+        MDK_Error << "self is empty Matrix @ mdkSparseMatrix::Mean" << '\n';
         return m_NaNElement;
     }
 
@@ -5036,15 +4992,15 @@ inline ElementType mdkSparseMatrix<ElementType>::Mean() const
 
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MeanToRow() const
+inline SparseMatrix<ElementType> SparseMatrix<ElementType>::MeanToRow() const
 {
-	mdkSparseMatrix<ElementType> tempMatrix;
+	SparseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkSparseMatrix::MeanToRow" << '\n';
+		MDK_Error << "self is empty Matrix @ mdkSparseMatrix::MeanToRow" << '\n';
 
 		return tempMatrix;
 	}
@@ -5056,15 +5012,15 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MeanToRow() co
 
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MeanToCol() const
+inline SparseMatrix<ElementType> SparseMatrix<ElementType>::MeanToCol() const
 {
-	mdkSparseMatrix<ElementType> tempMatrix;
+	SparseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkSparseMatrix::MeanToCol" << '\n';
+		MDK_Error << "self is empty Matrix @ mdkSparseMatrix::MeanToCol" << '\n';
   
 		return tempMatrix;
 	}
@@ -5075,13 +5031,13 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MeanToCol() co
 
 
 template<typename ElementType>
-inline ElementType mdkSparseMatrix<ElementType>::Sum() const
+inline ElementType SparseMatrix<ElementType>::Sum() const
 {
     auto Self_ElementNumber = this->GetElementNumber();
 
     if (Self_ElementNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkSparseMatrix::Sum" << '\n';
+		MDK_Error << "self is empty Matrix @ mdkSparseMatrix::Sum" << '\n';
         return m_NaNElement;
 	}
 
@@ -5101,15 +5057,15 @@ inline ElementType mdkSparseMatrix<ElementType>::Sum() const
 
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::SumToRow() const
+inline SparseMatrix<ElementType> SparseMatrix<ElementType>::SumToRow() const
 {
-	mdkSparseMatrix<ElementType> tempMatrix;
+	SparseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkSparseMatrix::SumToRow" << '\n';
+		MDK_Error << "self is empty Matrix @ mdkSparseMatrix::SumToRow" << '\n';
         
 		return tempMatrix;
 	}
@@ -5121,15 +5077,15 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::SumToRow() con
 
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::SumToCol() const
+inline SparseMatrix<ElementType> SparseMatrix<ElementType>::SumToCol() const
 {
-	mdkSparseMatrix<ElementType> tempMatrix;
+	SparseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkSparseMatrix::SumToCol" << '\n';
+		MDK_Error << "self is empty Matrix @ mdkSparseMatrix::SumToCol" << '\n';
         
 		return tempMatrix;
 	}
@@ -5141,13 +5097,13 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::SumToCol() con
 
 
 template<typename ElementType>
-inline ElementType mdkSparseMatrix<ElementType>::Max() const
+inline ElementType SparseMatrix<ElementType>::Max() const
 {
     auto RecordedElementNumber = this->GetElementNumberInDataArray();
 
     if (RecordedElementNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkSparseMatrix::Max" << '\n';
+		MDK_Error << "self is empty Matrix @ mdkSparseMatrix::Max" << '\n';
         return m_NaNElement;
 	}
 
@@ -5165,15 +5121,15 @@ inline ElementType mdkSparseMatrix<ElementType>::Max() const
 
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MaxToRow() const
+inline SparseMatrix<ElementType> SparseMatrix<ElementType>::MaxToRow() const
 {
-	mdkSparseMatrix<ElementType> tempMatrix;
+	SparseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkSparseMatrix::MaxToRow" << '\n';
+		MDK_Error << "self is empty Matrix @ mdkSparseMatrix::MaxToRow" << '\n';
         
 		return tempMatrix;
 	}
@@ -5185,15 +5141,15 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MaxToRow() con
 
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MaxToCol() const
+inline SparseMatrix<ElementType> SparseMatrix<ElementType>::MaxToCol() const
 {
-	mdkSparseMatrix<ElementType> tempMatrix;
+	SparseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkSparseMatrix::MaxToCol" << '\n';
+		MDK_Error << "self is empty Matrix @ mdkSparseMatrix::MaxToCol" << '\n';
         
 		return tempMatrix;
 	}
@@ -5205,13 +5161,13 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MaxToCol() con
 
 
 template<typename ElementType>
-inline ElementType mdkSparseMatrix<ElementType>::Min() const
+inline ElementType SparseMatrix<ElementType>::Min() const
 {
     auto RecordedElementNumber = this->GetElementNumberInDataArray();
 
     if (RecordedElementNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkSparseMatrix::Min" << '\n';
+		MDK_Error << "self is empty Matrix @ mdkSparseMatrix::Min" << '\n';
         return m_NaNElement;
 	}
 
@@ -5229,15 +5185,15 @@ inline ElementType mdkSparseMatrix<ElementType>::Min() const
 
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MinToRow() const
+inline SparseMatrix<ElementType> SparseMatrix<ElementType>::MinToRow() const
 {
-	mdkSparseMatrix<ElementType> tempMatrix;
+	SparseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkSparseMatrix::MinToRow" << '\n';
+		MDK_Error << "self is empty Matrix @ mdkSparseMatrix::MinToRow" << '\n';
         
 		return tempMatrix;
 	}
@@ -5249,15 +5205,15 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MinToRow() con
 
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MinToCol() const
+inline SparseMatrix<ElementType> SparseMatrix<ElementType>::MinToCol() const
 {
-	mdkSparseMatrix<ElementType> tempMatrix;
+	SparseMatrix<ElementType> tempMatrix;
 
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0)
 	{
-		mdkError << "self is empty Matrix @ mdkSparseMatrix::MinToCol" << '\n';
+		MDK_Error << "self is empty Matrix @ mdkSparseMatrix::MinToCol" << '\n';
         
 		return tempMatrix;
 	}
@@ -5270,7 +5226,7 @@ inline mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::MinToCol() con
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::Transpose() const
+SparseMatrix<ElementType> SparseMatrix<ElementType>::Transpose() const
 {
     return MatrixTranspose(*this);
 }
@@ -5278,7 +5234,7 @@ mdkSparseMatrix<ElementType> mdkSparseMatrix<ElementType>::Transpose() const
 
 template<typename ElementType>
 inline
-int64 mdkSparseMatrix<ElementType>::Rank() const
+int64 SparseMatrix<ElementType>::Rank() const
 {
     return MatrixRank(*this);
 }
@@ -5286,7 +5242,7 @@ int64 mdkSparseMatrix<ElementType>::Rank() const
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> mdkSparseMatrix<ElementType>::Inv() const
+DenseMatrix<ElementType> SparseMatrix<ElementType>::Inv() const
 {
     return MatrixInv(*this);
 }
@@ -5294,7 +5250,7 @@ mdkDenseMatrix<ElementType> mdkSparseMatrix<ElementType>::Inv() const
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> mdkSparseMatrix<ElementType>::PseudoInv() const
+DenseMatrix<ElementType> SparseMatrix<ElementType>::PseudoInv() const
 {
 	// call Armadillo 
 
@@ -5304,7 +5260,7 @@ mdkDenseMatrix<ElementType> mdkSparseMatrix<ElementType>::PseudoInv() const
 
 template<typename ElementType>
 inline
-mdkSparseMatrixSVDResult<ElementType> mdkSparseMatrix<ElementType>::SVD() const
+SparseMatrixSVDResult<ElementType> SparseMatrix<ElementType>::SVD() const
 {
     return MatrixSVD(*this);
 }

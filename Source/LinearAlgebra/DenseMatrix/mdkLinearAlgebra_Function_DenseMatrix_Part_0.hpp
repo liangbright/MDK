@@ -7,7 +7,7 @@ namespace mdk
 {
 
 template<typename ElementType>
-bool Sort(const mdkDenseMatrix<ElementType>& InputDataArray, mdkDenseMatrix<ElementType>& OutputDataArray, mdkDenseMatrix<ElementType>& OutputIndexList, const std::string& Order)
+bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementType>& OutputDataArray, DenseMatrix<ElementType>& OutputIndexList, const std::string& Order)
 {
     // input should be a vector
 
@@ -15,7 +15,7 @@ bool Sort(const mdkDenseMatrix<ElementType>& InputDataArray, mdkDenseMatrix<Elem
 
     if (InputSize.RowNumber != 1 && InputSize.ColNumber != 1) // not a none-empty vector
     {
-        mdkError << "Invalid InputDataArray @mdkLinearAlgebra Sort(input is Matrix)" << '\n';
+        MDK_Error << "Invalid InputDataArray @mdkLinearAlgebra Sort(input is Matrix)" << '\n';
         return false;
     }
 
@@ -26,7 +26,7 @@ bool Sort(const mdkDenseMatrix<ElementType>& InputDataArray, mdkDenseMatrix<Elem
     {
         if (OutputDataArray.IsSizeFixed() == true)
         {
-            mdkError << "Invalid OutputDataArray @mdkLinearAlgebra Sort(input is Matrix)" << '\n';
+            MDK_Error << "Invalid OutputDataArray @mdkLinearAlgebra Sort(input is Matrix)" << '\n';
             return false;
         }
         else
@@ -44,7 +44,7 @@ bool Sort(const mdkDenseMatrix<ElementType>& InputDataArray, mdkDenseMatrix<Elem
     {
         if (OutputIndexList.IsSizeFixed() == true)
         {
-            mdkError << "Invalid OutputIndexList @mdkLinearAlgebra Sort(input is Matrix)" << '\n';
+            MDK_Error << "Invalid OutputIndexList @mdkLinearAlgebra Sort(input is Matrix)" << '\n';
             return false;
         }
         else
@@ -92,13 +92,13 @@ bool Sort(const ElementType* InputDataArray, int64 Length, ElementType* OutputDa
 {
     if (InputDataArray == nullptr || Length == 0 || OutputDataArray == nullptr || OutputIndexList == nullptr)
     {
-        mdkError << "Invalid input @mdkLinearAlgebra Sort(pointers)" << '\n';
+        MDK_Error << "Invalid input @mdkLinearAlgebra Sort(pointers)" << '\n';
         return false;
     }
 
     if (Order != "ascend" && Order != "descend")
     {
-        mdkError << " unknown  Order @mdkLinearAlgebra Sort(pointers)" << '\n';
+        MDK_Error << " unknown  Order @mdkLinearAlgebra Sort(pointers)" << '\n';
         return false;
     }
 

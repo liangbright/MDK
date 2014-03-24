@@ -14,21 +14,28 @@ namespace mdk
 
 //------------------------------ forward-declare -----------//
 
-template<typename ElementType>
-class mdkDenseMatrix;
+struct ALL_Symbol_For_Matrix_Operator;
+
+struct MatrixSize;
 
 template<typename ElementType>
-class mdkSparseMatrix;
+class DenseMatrix;
 
 template<typename ElementType>
-class mdkDenseGlueMatrixForLinearCombination;
+class DenseGlueMatrixForLinearCombination;
 
 template<typename ElementType>
-class mdkDenseGlueMatrixForMultiplication;
+class DenseGlueMatrixForMultiplication;
 
-struct ALL_Symbol_For_mdkMatrix_Operator;
+template<typename ElementType>
+class SparseMatrix;
 
-struct mdkMatrixSize;
+template<typename ElementType>
+class SparseGlueMatrixForLinearCombination;
+
+template<typename ElementType>
+class SparseGlueMatrixForMultiplication;
+
 //--------------------------- end of forward-declare -------//
 
 
@@ -36,7 +43,7 @@ struct mdkMatrixSize;
 //--------------------------------------------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-class mdkSparseShadowMatrix : public mdkObject
+class SparseShadowMatrix : public Object
 {
 private:
 
@@ -60,49 +67,49 @@ private:
 
 	std::vector<int64> m_LinearIndexList_source;
 
-    mdkSparseMatrix<ElementType> m_SourceMatrixSharedCopy;
+    SparseMatrix<ElementType> m_SourceMatrixSharedCopy;
 
 	//------------------- constructor and destructor ------------------------------------//
 private:
-    inline mdkSparseShadowMatrix(); // empty ShadowMatrix
+    inline SparseShadowMatrix(); // empty ShadowMatrix
 
     // do not need non const versions of the following constructors
-    // adding const to the member functions of mdkSparseShadowMatrix is enough
+    // adding const to the member functions of SparseShadowMatrix is enough
 
-    inline mdkSparseShadowMatrix(const mdkSparseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& LinearIndexList);
+    inline SparseShadowMatrix(const SparseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& LinearIndexList);
 
-    inline mdkSparseShadowMatrix(const mdkSparseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+    inline SparseShadowMatrix(const SparseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline mdkSparseShadowMatrix(const mdkSparseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList);
+    inline SparseShadowMatrix(const SparseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList);
 
-    inline mdkSparseShadowMatrix(const mdkSparseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& RowIndexList, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+    inline SparseShadowMatrix(const SparseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline mdkSparseShadowMatrix(const mdkSparseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList);
+    inline SparseShadowMatrix(const SparseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList);
 
-    inline mdkSparseShadowMatrix(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix) = delete;
+    inline SparseShadowMatrix(const SparseShadowMatrix<ElementType>& ShadowMatrix) = delete;
 
-    inline mdkSparseShadowMatrix(mdkSparseShadowMatrix<ElementType>&& ShadowMatrix);
+    inline SparseShadowMatrix(SparseShadowMatrix<ElementType>&& ShadowMatrix);
 
 public:
-	inline ~mdkSparseShadowMatrix();
+	inline ~SparseShadowMatrix();
 
-	//---------------------- mdkSparseShadowMatrix = mdkSparseShadowMatrix or Matrix or Element or GlueMatrix ----------------------------------------//
+	//---------------------- SparseShadowMatrix = SparseShadowMatrix or Matrix or Element or GlueMatrix ----------------------------------------//
 private:
-    inline void operator=(mdkSparseShadowMatrix<ElementType>&&) = delete;
+    inline void operator=(SparseShadowMatrix<ElementType>&&) = delete;
 
 public:
-    inline void operator=(const mdkSparseMatrix<ElementType>& Matrix);
+    inline void operator=(const SparseMatrix<ElementType>& Matrix);
 
     inline void operator=(const ElementType& Element);
 
-    inline void operator=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix);
+    inline void operator=(const SparseShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline void operator=(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+    inline void operator=(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
-    inline void operator=(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    inline void operator=(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
 private:
-	//---------------------- Get/Set mdkSparseShadowMatrix(LinearIndex) ----------------------------------------//
+	//---------------------- Get/Set SparseShadowMatrix(LinearIndex) ----------------------------------------//
 
     // operator[]: no bound check
 
@@ -114,7 +121,7 @@ private:
 
 	inline const ElementType& operator()(int64 LinearIndex) const;
 
-	//---------------------- Get/Set mdkSparseShadowMatrix(i,j) ----------------------------------------//
+	//---------------------- Get/Set SparseShadowMatrix(i,j) ----------------------------------------//
 
 	inline ElementType& operator()(int64 RowIndex, int64 ColIndex);
 
@@ -142,210 +149,210 @@ private:
 
     inline const std::vector<int64>& GetLinearIndexListOfSource() const;
 
-    inline const mdkSparseMatrix<ElementType>& GetSourceMatrixSharedCopy() const;
+    inline const SparseMatrix<ElementType>& GetSourceMatrixSharedCopy() const;
 
-    inline mdkSparseMatrix<ElementType> CreateSparseMatrix() const;
+    inline SparseMatrix<ElementType> CreateSparseMatrix() const;
 
     inline mdkDenseMatrix<ElementType> CreateDenseMatrix() const;
 
-    inline bool CreateSparseMatrix(mdkSparseMatrix<ElementType>& OutputMatrix) const;
+    inline bool CreateSparseMatrix(SparseMatrix<ElementType>& OutputMatrix) const;
 
     inline bool CreateDenseMatrix(mdkDenseMatrix<ElementType>& OutputMatrix) const;
 
 public:
     //--------------------------------------------------- SparseShadowMatrix {+= -= *= /=} SparseMatrix ------------------------------------------------//
 
-    inline void operator+=(const mdkSparseMatrix<ElementType>& Matrix);
+    inline void operator+=(const SparseMatrix<ElementType>& Matrix);
 
-    inline void operator-=(const mdkSparseMatrix<ElementType>& Matrix);
+    inline void operator-=(const SparseMatrix<ElementType>& Matrix);
 
-    inline void operator*=(const mdkSparseMatrix<ElementType>& Matrix);
+    inline void operator*=(const SparseMatrix<ElementType>& Matrix);
 
-    inline void operator/=(const mdkSparseMatrix<ElementType>& Matrix);
+    inline void operator/=(const SparseMatrix<ElementType>& Matrix);
 
     //----------------------------------------------- SparseShadowMatrix {+= -= *= /=} SparseShadowMatrix ---------------------------------------------//
 
-    inline void operator+=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix);
+    inline void operator+=(const SparseShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline void operator-=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix);
+    inline void operator-=(const SparseShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline void operator*=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix);
+    inline void operator*=(const SparseShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline void operator/=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix);
+    inline void operator/=(const SparseShadowMatrix<ElementType>& ShadowMatrix);
 
     //----------------------------------------------- SparseShadowMatrix {+= -= *= /=} SparseGlueMatrixForLinearCombination ----------------------------------------//
 
-    inline void operator+=(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+    inline void operator+=(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
-    inline void operator-=(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+    inline void operator-=(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
-    inline void operator*=(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+    inline void operator*=(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
-    inline void operator/=(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+    inline void operator/=(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
     //------------------------------------------------ SparseShadowMatrix {+= -= *= /=} SparseGlueMatrixForMultiplication --------------------------------------//
 
-    inline void operator+=(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    inline void operator+=(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    inline void operator-=(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    inline void operator-=(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    inline void operator*=(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    inline void operator*=(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    inline void operator/=(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    inline void operator/=(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
     //---------------------- ElementMultiply is .* in Matlab -----------------------------------------------------------------------//
 
-    inline mdkSparseMatrix<ElementType> ElementMultiply(const ElementType& Element) const;
+    inline SparseMatrix<ElementType> ElementMultiply(const ElementType& Element) const;
 
-    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkSparseMatrix<ElementType>& InputSparseMatrix) const;
+    inline SparseMatrix<ElementType> ElementMultiply(const SparseMatrix<ElementType>& InputSparseMatrix) const;
 
-    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkSparseShadowMatrix<ElementType>& SparseShadowMatrix) const;
+    inline SparseMatrix<ElementType> ElementMultiply(const SparseShadowMatrix<ElementType>& SparseShadowMatrix) const;
 
-    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkSparseGlueMatrixForLinearCombination<ElementType>& SparseGlueMatrix) const;
+    inline SparseMatrix<ElementType> ElementMultiply(const SparseGlueMatrixForLinearCombination<ElementType>& SparseGlueMatrix) const;
 
-    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkSparseGlueMatrixForMultiplication<ElementType>& SparseGlueMatrix) const;
+    inline SparseMatrix<ElementType> ElementMultiply(const SparseGlueMatrixForMultiplication<ElementType>& SparseGlueMatrix) const;
 
-    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkDenseMatrix<ElementType>& InputDenseMatrix) const;
+    inline SparseMatrix<ElementType> ElementMultiply(const DenseMatrix<ElementType>& InputDenseMatrix) const;
 
-    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkDenseShadowMatrix<ElementType>& DenseShadowMatrix) const;
+    inline SparseMatrix<ElementType> ElementMultiply(const DenseShadowMatrix<ElementType>& DenseShadowMatrix) const;
 
-    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& DenseGlueMatrix) const;
+    inline SparseMatrix<ElementType> ElementMultiply(const DenseGlueMatrixForLinearCombination<ElementType>& DenseGlueMatrix) const;
 
-    inline mdkSparseMatrix<ElementType> ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& DenseGlueMatrix) const;
+    inline SparseMatrix<ElementType> ElementMultiply(const DenseGlueMatrixForMultiplication<ElementType>& DenseGlueMatrix) const;
 
 private:
 //------------------------------- friend class ----------------------------------------------------------------------------//
     
     template<typename E_TYPE>
-    friend class mdkSparseMatrix;
+    friend class SparseMatrix;
     
 // -------------------------------- friend  function ----------------------------------------------------------------------------//
     
     // ------------------------------------------ SparseShadowMatrix {+ - * /}  SparseMatrix ----------------------------------------------------------//
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator+(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkSparseMatrix<E_TYPE>& MatrixB);
+    friend SparseMatrix<E_TYPE> operator+(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, const SparseMatrix<E_TYPE>& MatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator-(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkSparseMatrix<E_TYPE>& MatrixB);
+    friend SparseMatrix<E_TYPE> operator-(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, const SparseMatrix<E_TYPE>& MatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForMultiplication<E_TYPE> operator*(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkSparseMatrix<E_TYPE>& MatrixB);
+    friend SparseGlueMatrixForMultiplication<E_TYPE> operator*(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, const SparseMatrix<E_TYPE>& MatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator/(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkSparseMatrix<E_TYPE>& MatrixB);
+    friend SparseMatrix<E_TYPE> operator/(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, const SparseMatrix<E_TYPE>& MatrixB);
 
     // ---------------------------------------------- SparseMatrix {+ - * /}  SparseShadowMatrix -----------------------------------------------------//
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator+(const mdkSparseMatrix<E_TYPE>& MatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseMatrix<E_TYPE> operator+(const SparseMatrix<E_TYPE>& MatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator-(const mdkSparseMatrix<E_TYPE>& MatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseMatrix<E_TYPE> operator-(const SparseMatrix<E_TYPE>& MatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForMultiplication<E_TYPE> operator*(const mdkSparseMatrix<E_TYPE>& MatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseGlueMatrixForMultiplication<E_TYPE> operator*(const SparseMatrix<E_TYPE>& MatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator/(const mdkSparseMatrix<E_TYPE>& MatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseMatrix<E_TYPE> operator/(const SparseMatrix<E_TYPE>& MatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     // ------------------------------------------ SparseShadowMatrix {+ - * /}  Element ------------------------------------------------------------//
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator+(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrix, const E_TYPE& Element);
+    friend SparseMatrix<E_TYPE> operator+(const SparseShadowMatrix<E_TYPE>& ShadowMatrix, const E_TYPE& Element);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator-(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrix, const E_TYPE& Element);
+    friend SparseMatrix<E_TYPE> operator-(const SparseShadowMatrix<E_TYPE>& ShadowMatrix, const E_TYPE& Element);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator*(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrix, const E_TYPE& Element);
+    friend SparseMatrix<E_TYPE> operator*(const SparseShadowMatrix<E_TYPE>& ShadowMatrix, const E_TYPE& Element);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator/(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrix, const E_TYPE& Element);
+    friend SparseMatrix<E_TYPE> operator/(const SparseShadowMatrix<E_TYPE>& ShadowMatrix, const E_TYPE& Element);
 
     // ----------------------------------------- Element {+ - * /} SparseShadowMatrix --------------------------------------------------------------//
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator+(const E_TYPE& Element, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrix);
+    friend SparseMatrix<E_TYPE> operator+(const E_TYPE& Element, const SparseShadowMatrix<E_TYPE>& ShadowMatrix);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator-(const E_TYPE& Element, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrix);
+    friend SparseMatrix<E_TYPE> operator-(const E_TYPE& Element, const SparseShadowMatrix<E_TYPE>& ShadowMatrix);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator*(const E_TYPE& Element, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrix);
+    friend SparseMatrix<E_TYPE> operator*(const E_TYPE& Element, const SparseShadowMatrix<E_TYPE>& ShadowMatrix);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator/(const E_TYPE& Element, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrix);
+    friend SparseMatrix<E_TYPE> operator/(const E_TYPE& Element, const SparseShadowMatrix<E_TYPE>& ShadowMatrix);
 
     // ---------------------------------------- SparseShadowMatrix {+ - * /}  SparseShadowMatrix -------------------------------------------------------//
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator+(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseMatrix<E_TYPE> operator+(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator-(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseMatrix<E_TYPE> operator-(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForMultiplication<E_TYPE> operator*(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseGlueMatrixForMultiplication<E_TYPE> operator*(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator/(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseMatrix<E_TYPE> operator/(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     // ------------------------------------------ SparseShadowMatrix {+ - * /} DenseGlueMatrixForLinearCombination -------------------------------------------------------//
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForLinearCombination<E_TYPE> operator+(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, mdkSparseGlueMatrixForLinearCombination<E_TYPE> GlueMatrixB);
+    friend SparseGlueMatrixForLinearCombination<E_TYPE> operator+(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, SparseGlueMatrixForLinearCombination<E_TYPE> GlueMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForLinearCombination<E_TYPE> operator-(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, mdkSparseGlueMatrixForLinearCombination<E_TYPE> GlueMatrixB);
+    friend SparseGlueMatrixForLinearCombination<E_TYPE> operator-(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, SparseGlueMatrixForLinearCombination<E_TYPE> GlueMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForMultiplication<E_TYPE> operator*(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkSparseGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
+    friend SparseGlueMatrixForMultiplication<E_TYPE> operator*(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, const SparseGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator/(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkSparseGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
+    friend SparseMatrix<E_TYPE> operator/(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, const SparseGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixB);
 
     // -------------------------------------------- DenseGlueMatrixForLinearCombination {+ - * /}  SparseShadowMatrix -----------------------------------------------------//
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForLinearCombination<E_TYPE> operator+(mdkSparseGlueMatrixForLinearCombination<E_TYPE> GlueMatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseGlueMatrixForLinearCombination<E_TYPE> operator+(SparseGlueMatrixForLinearCombination<E_TYPE> GlueMatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForLinearCombination<E_TYPE> operator-(mdkSparseGlueMatrixForLinearCombination<E_TYPE> GlueMatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseGlueMatrixForLinearCombination<E_TYPE> operator-(SparseGlueMatrixForLinearCombination<E_TYPE> GlueMatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForMultiplication<E_TYPE> operator*(const mdkSparseGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseGlueMatrixForMultiplication<E_TYPE> operator*(const SparseGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator/(const mdkSparseGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseMatrix<E_TYPE> operator/(const SparseGlueMatrixForLinearCombination<E_TYPE>& GlueMatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     // ------------------------------------------ SparseShadowMatrix {+ - * /} DenseGlueMatrixForMultiplication -------------------------------------------------------//
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForLinearCombination<E_TYPE> operator+(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkSparseGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
+    friend SparseGlueMatrixForLinearCombination<E_TYPE> operator+(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, const SparseGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForLinearCombination<E_TYPE> operator-(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkSparseGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
+    friend SparseGlueMatrixForLinearCombination<E_TYPE> operator-(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, const SparseGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForMultiplication<E_TYPE> operator*(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, mdkSparseGlueMatrixForMultiplication<E_TYPE> GlueMatrixB);
+    friend SparseGlueMatrixForMultiplication<E_TYPE> operator*(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, SparseGlueMatrixForMultiplication<E_TYPE> GlueMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator/(const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixA, const mdkSparseGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
+    friend SparseMatrix<E_TYPE> operator/(const SparseShadowMatrix<E_TYPE>& ShadowMatrixA, const SparseGlueMatrixForMultiplication<E_TYPE>& GlueMatrixB);
 
     // -------------------------------------------- DenseGlueMatrixForMultiplication {+ - * /}  SparseShadowMatrix -----------------------------------------------------//
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForLinearCombination<E_TYPE> operator+(const mdkSparseGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseGlueMatrixForLinearCombination<E_TYPE> operator+(const SparseGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForLinearCombination<E_TYPE> operator-(const mdkSparseGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseGlueMatrixForLinearCombination<E_TYPE> operator-(const SparseGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseGlueMatrixForMultiplication<E_TYPE> operator*(mdkSparseGlueMatrixForMultiplication<E_TYPE> GlueMatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseGlueMatrixForMultiplication<E_TYPE> operator*(SparseGlueMatrixForMultiplication<E_TYPE> GlueMatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
     template<typename E_TYPE>
-    friend mdkSparseMatrix<E_TYPE> operator/(const mdkSparseGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const mdkSparseShadowMatrix<E_TYPE>& ShadowMatrixB);
+    friend SparseMatrix<E_TYPE> operator/(const SparseGlueMatrixForMultiplication<E_TYPE>& GlueMatrixA, const SparseShadowMatrix<E_TYPE>& ShadowMatrixB);
 
 };
 

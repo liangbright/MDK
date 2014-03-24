@@ -27,7 +27,7 @@
 using namespace mdk;
 
 template<typename T>
-void DisplayMatrix(const std::string& Name, const mdkDenseMatrix<T>& Matrix, uint32 value_std_setw = 6, uint32 precision = 0)
+void DisplayMatrix(const std::string& Name, const DenseMatrix<T>& Matrix, uint32 value_std_setw = 6, uint32 precision = 0)
 {
     std::cout << Name << " = " << '\n';
 
@@ -46,7 +46,7 @@ void DisplayMatrix(const std::string& Name, const mdkDenseMatrix<T>& Matrix, uin
 
 void Test_OpenCVMatrix()
 {
-    mdkDenseMatrix<double> A(2, 3);
+    DenseMatrix<double> A(2, 3);
 
     A = { 1, 2, 3,
           4, 5, 6 };
@@ -85,9 +85,9 @@ void Test_mdkKMeansDictionaryBuilder_using_OpenCV()
 {
     //OpenCV KMeans only support float ! not double!
 
-    mdkKMeansDictionaryBuilder<double> KMeansBuilder;
+    KMeansDictionaryBuilder<double> KMeansBuilder;
 
-    mdkDenseMatrix<double> FeatureData(100, 100);
+    DenseMatrix<double> FeatureData(100, 100);
 
     for (mdk::int64 i = 0; i < 100; ++i)
     {
@@ -108,15 +108,15 @@ void Test_mdkKMeansDictionaryBuilder_using_OpenCV()
 
     mdk::int64 DictionaryLength = 3;
 
-    mdkFeatureDictionary<double> KMeansDictionary;
+    FeatureDictionary<double> KMeansDictionary;
 
     KMeansDictionary.m_Record.Resize(100, DictionaryLength);
-
-    KMeansBuilder.SetDictionaryLength(DictionaryLength);
 
     KMeansBuilder.SetInputFeatureData(&FeatureData);
 
     KMeansBuilder.SetOutputDictionary(&KMeansDictionary);
+
+    KMeansBuilder.SetOutputDictionaryLength(3);
 
     KMeansBuilder.Update();
 

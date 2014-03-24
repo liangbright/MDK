@@ -5,23 +5,23 @@ namespace mdk
 {
 
 template<typename ElementType>
-mdkFeatureSparseEncoder<ElementType>::mdkFeatureSparseEncoder()
+FeatureSparseEncoder<ElementType>::FeatureSparseEncoder()
 {
     this->Clear();
 }
 
 
 template<typename ElementType>
-mdkFeatureSparseEncoder<ElementType>::~mdkFeatureSparseEncoder()
+FeatureSparseEncoder<ElementType>::~FeatureSparseEncoder()
 {
 
 }
 
 
 template<typename ElementType>
-void mdkFeatureSparseEncoder<ElementType>::Clear()
+void FeatureSparseEncoder<ElementType>::Clear()
 {
-    this->mdkFeatureEncoder::Clear();
+    this->FeatureEncoder::Clear();
 
     m_FeatureCodeInCompactFormat_SharedCopy.Clear();
 
@@ -32,11 +32,11 @@ void mdkFeatureSparseEncoder<ElementType>::Clear()
 
 
 template<typename ElementType>
-bool mdkFeatureSparseEncoder<ElementType>::SetOutputFeatureCodeInCompactFormat(mdkDenseMatrix<ElementType>* FeatureCode)
+bool FeatureSparseEncoder<ElementType>::SetOutputFeatureCodeInCompactFormat(DenseMatrix<ElementType>* FeatureCode)
 {
     if (FeatureCode == nullptr)
     {
-        mdkError << "Invalid input @ mdkFeatureSparseEncoder::GetOutputFeatureCodeInCompactFormat(FeatureCode)" << '\n';
+        MDK_Error << "Invalid input @ FeatureSparseEncoder::GetOutputFeatureCodeInCompactFormat(FeatureCode)" << '\n';
         return false;
     }
 
@@ -49,13 +49,13 @@ bool mdkFeatureSparseEncoder<ElementType>::SetOutputFeatureCodeInCompactFormat(m
 
 
 template<typename ElementType>
-bool mdkFeatureSparseEncoder<ElementType>::Update()
+bool FeatureSparseEncoder<ElementType>::Update()
 {
     auto DataSize = m_FeatureData->GetSize();
 
     if (DataSize.RowNumber == 0)
     {
-        mdkError << "InputFeatureData is empty @ mdkFeatureSparseEncoder::Update()" << '\n';
+        MDK_Error << "InputFeatureData is empty @ mdkFeatureSparseEncoder::Update()" << '\n';
         return false;
     }
 
@@ -86,14 +86,14 @@ bool mdkFeatureSparseEncoder<ElementType>::Update()
 
 
 template<typename ElementType>
-bool mdkFeatureSparseEncoder<ElementType>::GenerateCode()
+bool FeatureSparseEncoder<ElementType>::GenerateCode()
 {
     return true;
 }
 
 
 template<typename ElementType>
-const mdkDenseMatrix<ElementType>* mdkFeatureSparseEncoder<ElementType>::GetOutputFeatureCodeInCompactFormat()
+const DenseMatrix<ElementType>* FeatureSparseEncoder<ElementType>::GetOutputFeatureCodeInCompactFormat()
 {
     return &m_FeatureCodeInCompactFormat_SharedCopy;
 }

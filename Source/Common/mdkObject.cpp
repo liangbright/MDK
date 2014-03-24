@@ -3,22 +3,22 @@
 namespace mdk
 {
 
-mdkObject::mdkObject()
+Object::Object()
 {
 }
 	
 
-mdkObject::~mdkObject()
+Object::~Object()
 {
 }
 
 
-mdkObject::mdkObject(const mdkObject&)
+Object::Object(const Object&)
 {
 }
 
 
-void mdkObject::operator=(const mdkObject&)
+void Object::operator=(const Object&)
 {
 }
 

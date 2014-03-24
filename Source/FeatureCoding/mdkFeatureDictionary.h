@@ -10,47 +10,47 @@ namespace mdk
 {
 
 template<typename ElementType>
-class mdkFeatureDictionary : mdkObject
+class FeatureDictionary : Object
 {
 public:
 
-    mdkDenseMatrix<ElementType> m_Record;
+    DenseMatrix<ElementType> m_Record;
 
-    mdkDenseMatrix<ElementType> m_Covariance;
+    DenseMatrix<ElementType> m_Covariance;
 
-    mdkDenseMatrix<ElementType> m_Variance;  // Variance(j) = sqrt(sum_i(Prob(i,j)*(Feature_i - Code(:,j))^2))
+    DenseMatrix<ElementType> m_Variance;  // Variance(j) = sqrt(sum_i(Prob(i,j)*(Feature_i - Code(:,j))^2))
 
 public:
 
-    mdkFeatureDictionary();
+    FeatureDictionary();
 
-    mdkFeatureDictionary(const mdkFeatureDictionary& InputDictionary);
+    FeatureDictionary(const FeatureDictionary& InputDictionary);
 
-    mdkFeatureDictionary(mdkFeatureDictionary&& InputDictionary);
+    FeatureDictionary(FeatureDictionary&& InputDictionary);
 
-    ~mdkFeatureDictionary();
+    ~FeatureDictionary();
 
-    void operator=(const mdkFeatureDictionary& InputDictionary);
+    void operator=(const FeatureDictionary& InputDictionary);
 
-    void operator=(mdkFeatureDictionary&& InputDictionary);
+    void operator=(FeatureDictionary&& InputDictionary);
 
-    bool Copy(const mdkFeatureDictionary<ElementType>& InputDictionary);
+    bool Copy(const FeatureDictionary& InputDictionary);
 
-    bool Copy(const mdkFeatureDictionary<ElementType>* InputDictionary);
+    bool Copy(const FeatureDictionary* InputDictionary);
 
-    bool Share(mdkFeatureDictionary<ElementType>& InputDictionary);
+    bool Share(FeatureDictionary& InputDictionary);
 
-    bool Share(mdkFeatureDictionary<ElementType>* InputDictionary);
+    bool Share(FeatureDictionary* InputDictionary);
 
-    void ForceShare(const mdkFeatureDictionary<ElementType>& InputDictionary);
+    void ForceShare(const FeatureDictionary& InputDictionary);
 
-    bool ForceShare(const mdkFeatureDictionary<ElementType>* InputDictionary);
+    bool ForceShare(const FeatureDictionary* InputDictionary);
 
     void Clear();
 
     bool IsEmpty();
 
-    mdkMatrixSize GetSize();
+    MatrixSize GetSize();
 
     bool Load(const std::string& FilePathAndName);
 

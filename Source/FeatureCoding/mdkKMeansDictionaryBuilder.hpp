@@ -10,25 +10,38 @@ namespace mdk
 {
 
 template<typename ElementType>
-mdkKMeansDictionaryBuilder<ElementType>::mdkKMeansDictionaryBuilder()
+KMeansDictionaryBuilder<ElementType>::KMeansDictionaryBuilder()
 {
-    m_KMeansLibraryName = "OpenCV";
+    this->Clear();
 }
 
 
 template<typename ElementType>
-mdkKMeansDictionaryBuilder<ElementType>::~mdkKMeansDictionaryBuilder()
+KMeansDictionaryBuilder<ElementType>::~KMeansDictionaryBuilder()
 {
 }
 
 //---------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-bool mdkKMeansDictionaryBuilder<ElementType>::SelectKMeansLibrary(const std::string& KMeansLibraryName)
+void KMeansDictionaryBuilder<ElementType>::Clear()
+{
+    this->FeatureEncoderDictionaryBuilder::Clear();
+
+    m_KMeansLibraryName = "OpenCV";
+
+    m_InitialDictionary = nullptr;
+
+    m_DictionaryLength = 0;
+}
+
+
+template<typename ElementType>
+bool KMeansDictionaryBuilder<ElementType>::SelectKMeansLibrary(const std::string& KMeansLibraryName)
 {
     if (KMeansLibraryName != "OpenCV" || KMeansLibraryName != "VLFeat")
     {
-        mdkError << "Invalid input @ mdkKMeansDictionaryBuilder::SelectKMeansLibrary" << '\n';
+        MDK_Error << "Invalid input @ KMeansDictionaryBuilder::SelectKMeansLibrary" << '\n';
         return false;
     }
 
@@ -39,7 +52,29 @@ bool mdkKMeansDictionaryBuilder<ElementType>::SelectKMeansLibrary(const std::str
 
 
 template<typename ElementType>
-bool mdkKMeansDictionaryBuilder<ElementType>::GenerateDictionary()
+bool KMeansDictionaryBuilder<ElementType>::SetInitialDictionary(const FeatureDictionary<ElementType>* InitialDictionary)
+{
+    m_InitialDictionary = InitialDictionary;
+}
+
+
+template<typename ElementType>
+bool KMeansDictionaryBuilder<ElementType>::SetOutputDictionaryLength(int64 DictionaryLength)
+{
+    if (DictionaryLength <= 0)
+    {
+        MDK_Error << "Invalid Input @ KMeansDictionaryBuilder::SetOutputDictionaryLength(DictionaryLength)" << '\n';
+        return false;
+    }
+
+    m_DictionaryLength = DictionaryLength;
+
+    return true;
+}
+
+
+template<typename ElementType>
+bool KMeansDictionaryBuilder<ElementType>::GenerateDictionary()
 {
     bool IsOK = false;
 
@@ -57,7 +92,7 @@ bool mdkKMeansDictionaryBuilder<ElementType>::GenerateDictionary()
 
 
 template<typename ElementType>
-bool mdkKMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild()
+bool KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild()
 {
     if (m_KMeansLibraryName == "OpenCV")
     {
@@ -75,7 +110,7 @@ bool mdkKMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild()
 
 
 template<typename ElementType>
-bool mdkKMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_OpenCV()
+bool KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_OpenCV()
 {
     //call OpenCV kmeans function
     //OpenCV KMeans only supports float ! not double!
@@ -84,10 +119,10 @@ bool mdkKMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_OpenCV(
 
     if (OpenCVElemetType != OpenCVSingleChannelMatrixElementTypeEnum::FLOAT32)
     {
-        mdkWarning << "ElemetType is not float @ mdkKMeansDictionaryBuilder::KMeansFirstTimeBuild_using_OpenCV()" << '\n';
+        MDK_Warning << "ElemetType is not float @ mdkKMeansDictionaryBuilder::KMeansFirstTimeBuild_using_OpenCV()" << '\n';
     }
 
-    mdkDenseMatrix<float> tempFeatureData(m_FeatureData->GetColNumber(), m_FeatureData->GetRowNumber());
+    DenseMatrix<float> tempFeatureData(m_FeatureData->GetColNumber(), m_FeatureData->GetRowNumber());
 
     for (int64 i = 0; i < tempFeatureData.GetRowNumber(); ++i)
     {
@@ -127,7 +162,7 @@ bool mdkKMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_OpenCV(
 
 
 template<typename ElementType>
-bool mdkKMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_VLFeat()
+bool KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_VLFeat()
 {
 
     return true;
@@ -135,7 +170,7 @@ bool mdkKMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_VLFeat(
 
 
 template<typename ElementType>
-bool mdkKMeansDictionaryBuilder<ElementType>::KMeansOnlineUpdate()
+bool KMeansDictionaryBuilder<ElementType>::KMeansOnlineUpdate()
 {
     return true;
 }

@@ -10,19 +10,29 @@ namespace mdk
 {
 
 template<typename ElementType>
-class mdkKMeansDictionaryBuilder : public mdkFeatureEncoderDictionaryBuilder<ElementType>
+class KMeansDictionaryBuilder : public FeatureEncoderDictionaryBuilder<ElementType>
 {
 protected:
 
     std::string m_KMeansLibraryName;
 
+    const FeatureDictionary<ElementType>* m_InitialDictionary;
+
+    int64 m_DictionaryLength;
+
 public:
 
-    mdkKMeansDictionaryBuilder();
+    KMeansDictionaryBuilder();
 
-    ~mdkKMeansDictionaryBuilder();
+    ~KMeansDictionaryBuilder();
+
+    void Clear();
 
     bool SelectKMeansLibrary(const std::string& KMeansLibraryName);
+  
+    bool SetInitialDictionary(const FeatureDictionary<ElementType>* InitialDictionary);
+
+    bool SetOutputDictionaryLength(int64 DictionaryLength);
 
     //----------------------------------------------------//
 
@@ -42,13 +52,13 @@ private:
 
 private:
 //deleted
-    mdkKMeansDictionaryBuilder(const mdkKMeansDictionaryBuilder&) = delete;
+    KMeansDictionaryBuilder(const KMeansDictionaryBuilder&) = delete;
 
-    void operator=(const mdkKMeansDictionaryBuilder&) = delete;
+    void operator=(const KMeansDictionaryBuilder&) = delete;
 
-    mdkKMeansDictionaryBuilder(mdkKMeansDictionaryBuilder&&) = delete;
+    KMeansDictionaryBuilder(KMeansDictionaryBuilder&&) = delete;
 
-    void operator=(mdkKMeansDictionaryBuilder&&) = delete;
+    void operator=(KMeansDictionaryBuilder&&) = delete;
 };
 
 }// namespace mdk

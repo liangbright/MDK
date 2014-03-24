@@ -19,53 +19,53 @@ namespace mdk
 
 //forward-declare ----------------//
 template<typename ElementType>
-class mdkSparseMatrix;
+class SparseMatrix;
 //-------------------------------------//
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> MatrixTranspose(const mdkSparseMatrix<ElementType>& Matrix);
+inline SparseMatrix<ElementType> MatrixTranspose(const SparseMatrix<ElementType>& Matrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline int64 MatrixRank(const mdkSparseMatrix<ElementType>& Matrix);
+inline int64 MatrixRank(const SparseMatrix<ElementType>& Matrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> MatrixInv(const mdkSparseMatrix<ElementType>& Matrix);
+inline SparseMatrix<ElementType> MatrixInv(const SparseMatrix<ElementType>& Matrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-using mdkSparseMatrixEigenResult = mdkDenseMatrixEigenResult<ElementType>;
+using SparseMatrixEigenResult = mdkDenseMatrixEigenResult<ElementType>;
 
 template<typename ElementType>
-inline mdkSparseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(const mdkSparseMatrix<ElementType>& Matrix);
+inline SparseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(const SparseMatrix<ElementType>& Matrix);
 
 template<typename ElementType>
-inline mdkSparseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const mdkSparseMatrix<ElementType>& Matrix, bool CheckIfSymmetric = false);
+inline SparseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const SparseMatrix<ElementType>& Matrix, bool CheckIfSymmetric = false);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-using mdkSparseMatrixPCAResult = mdkDenseMatrixPCAResult<ElementType>;
+using SparseMatrixPCAResult = mdkDenseMatrixPCAResult<ElementType>;
 
 template<typename ElementType>
-inline mdkSparseMatrixPCAResult<ElementType> MatrixPCA(const mdkSparseMatrix<ElementType>& Matrix);
+inline SparseMatrixPCAResult<ElementType> MatrixPCA(const SparseMatrix<ElementType>& Matrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-using mdkSparseMatrixSVDResult = mdkDenseMatrixSVDResult<ElementType>;
+using SparseMatrixSVDResult = mdkDenseMatrixSVDResult<ElementType>;
 
 template<typename ElementType>
-inline mdkSparseMatrixSVDResult<ElementType> MatrixSVD(const mdkSparseMatrix<ElementType>& Matrix);
+inline SparseMatrixSVDResult<ElementType> MatrixSVD(const SparseMatrix<ElementType>& Matrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> MatrixConvolution(const mdkSparseMatrix<ElementType>& Matrix, const mdkSparseMatrix<ElementType>& Mask, const char* Option);
+inline SparseMatrix<ElementType> MatrixConvolution(const SparseMatrix<ElementType>& Matrix, const SparseMatrix<ElementType>& Mask, const char* Option);
 
 }//end namespace mdk
 

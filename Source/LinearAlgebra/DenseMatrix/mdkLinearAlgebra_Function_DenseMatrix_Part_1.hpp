@@ -15,9 +15,9 @@ namespace mdk
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixAdd(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
+DenseMatrix<ElementType> MatrixAdd(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixAdd(tempMatrix, MatrixA, MatrixB);
 
@@ -27,7 +27,7 @@ mdkDenseMatrix<ElementType> MatrixAdd(const mdkDenseMatrix<ElementType>& MatrixA
 
 template<typename ElementType>
 inline
-bool MatrixAdd(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
+bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
 {
     auto SizeA = MatrixA.GetSize();
 
@@ -35,7 +35,7 @@ bool MatrixAdd(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<
 
     if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
     {
-        mdkError << "MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+        MDK_Error << "MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         return false;
     }
 
@@ -51,7 +51,7 @@ bool MatrixAdd(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        mdkError << "MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+        MDK_Error << "MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         return false;
     }
 
@@ -67,7 +67,7 @@ bool MatrixAdd(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<
         }
         else
         {
-            mdkError << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+            MDK_Error << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, MatrixB)" << '\n';
             return false;
         }
     }
@@ -91,9 +91,9 @@ bool MatrixAdd(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixSubtract(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
+DenseMatrix<ElementType> MatrixSubtract(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixSubtract(tempMatrix, MatrixA, MatrixB);
 
@@ -103,7 +103,7 @@ mdkDenseMatrix<ElementType> MatrixSubtract(const mdkDenseMatrix<ElementType>& Ma
 
 template<typename ElementType>
 inline
-bool MatrixSubtract(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
+bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
 {
     auto SizeA = MatrixA.GetSize();
 
@@ -111,7 +111,7 @@ bool MatrixSubtract(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMa
 
     if (SizeA.RowNumber == 0 || SizeA.ColNumber == 0)
     {
-        mdkError << "MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+        MDK_Error << "MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         return false;
     }
 
@@ -127,7 +127,7 @@ bool MatrixSubtract(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMa
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        mdkError << "MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+        MDK_Error << "MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         return false;
     }
 
@@ -143,7 +143,7 @@ bool MatrixSubtract(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMa
         }
         else
         {
-            mdkError << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+            MDK_Error << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, MatrixB)" << '\n';
             return false;
         }
     }
@@ -167,9 +167,9 @@ bool MatrixSubtract(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMa
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixMultiply(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
+DenseMatrix<ElementType> MatrixMultiply(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixMultiply(tempMatrix, MatrixA, MatrixB);
 
@@ -179,7 +179,7 @@ mdkDenseMatrix<ElementType> MatrixMultiply(const mdkDenseMatrix<ElementType>& Ma
 
 template<typename ElementType>
 inline
-bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
+bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
 {
     auto SizeA = MatrixA.GetSize();
 
@@ -187,7 +187,7 @@ bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMa
 
     if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
     {
-        mdkError << "MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+        MDK_Error << "MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         return false;
     }
 
@@ -203,7 +203,7 @@ bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMa
 
     if (SizeA.ColNumber != SizeB.RowNumber)
     {
-        mdkError << "MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+        MDK_Error << "MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         return false;
     }
 
@@ -223,7 +223,7 @@ bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMa
             // create a temp matrix and call this function again
             // 
 
-            mdkDenseMatrix<ElementType> tempMatrix;
+            DenseMatrix<ElementType> tempMatrix;
 
             MatrixMultiply(tempMatrix, MatrixA, MatrixB);
 
@@ -243,7 +243,7 @@ bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMa
         }
         else
         {
-            mdkError << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+            MDK_Error << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
             return false;
         }
     }
@@ -301,9 +301,9 @@ bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMa
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixElementMultiply(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
+DenseMatrix<ElementType> MatrixElementMultiply(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixElementMultiply(tempMatrix, MatrixA, MatrixB);
 
@@ -313,7 +313,7 @@ mdkDenseMatrix<ElementType> MatrixElementMultiply(const mdkDenseMatrix<ElementTy
 
 template<typename ElementType>
 inline 
-bool MatrixElementMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
+bool MatrixElementMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
 {
     auto SizeA = MatrixA.GetSize();
 
@@ -321,7 +321,7 @@ bool MatrixElementMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdk
 
     if (SizeA.RowNumber == 0 || SizeA.ColNumber == 0)
     {
-        mdkError << "MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+        MDK_Error << "MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         return false;
     }
 
@@ -337,7 +337,7 @@ bool MatrixElementMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdk
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        mdkError << "MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+        MDK_Error << "MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         return false;
     }
 
@@ -349,7 +349,7 @@ bool MatrixElementMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdk
         {
             if (SizeC.RowNumber > 0)
             {
-                mdkWarning << "OutputMatrixC Size is changed @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+                MDK_Warning << "OutputMatrixC Size is changed @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
             }
 
             OutputMatrixC.Clear();
@@ -358,7 +358,7 @@ bool MatrixElementMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdk
         }
         else
         {
-            mdkError << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+            MDK_Error << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
             return false;
         }
     }
@@ -382,9 +382,9 @@ bool MatrixElementMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdk
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixElementDivide(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
+DenseMatrix<ElementType> MatrixElementDivide(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixElementDivide(tempMatrix, MatrixA, MatrixB);
 
@@ -394,7 +394,7 @@ mdkDenseMatrix<ElementType> MatrixElementDivide(const mdkDenseMatrix<ElementType
 
 template<typename ElementType>
 inline 
-bool MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB)
+bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
 {
     auto SizeA = MatrixA.GetSize();
 
@@ -402,7 +402,7 @@ bool MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDe
 
     if (SizeA.RowNumber == 0 || SizeA.ColNumber == 0)
     {
-        mdkError << "MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+        MDK_Error << "MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         return false;
     }
 
@@ -418,7 +418,7 @@ bool MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDe
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        mdkError << "MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+        MDK_Error << "MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, MatrixB)" << '\n';
         return false;
     }
 
@@ -434,7 +434,7 @@ bool MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDe
         }
         else
         {
-            mdkError << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, MatrixB)" << '\n';
+            MDK_Error << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, MatrixB)" << '\n';
             return false;
         }
     }
@@ -460,9 +460,9 @@ bool MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDe
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixAdd(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
+DenseMatrix<ElementType> MatrixAdd(const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixAdd(tempMatrix, ElementA, MatrixB);
 
@@ -472,13 +472,13 @@ mdkDenseMatrix<ElementType> MatrixAdd(const ElementType& ElementA, const mdkDens
 
 template<typename ElementType>
 inline
-bool MatrixAdd(mdkDenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
+bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB)
 {
     auto SizeB = MatrixB.GetSize();
 
     if (SizeB.RowNumber == 0)
     {
-        mdkError << "MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, ElementA, MatrixB)" << '\n';
+        MDK_Error << "MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, ElementA, MatrixB)" << '\n';
         return false;
     }
 
@@ -494,7 +494,7 @@ bool MatrixAdd(mdkDenseMatrix<ElementType>& OutputMatrixC, const ElementType& El
         }
         else
         {
-            mdkError << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, ElementA, MatrixB)" << '\n';
+            MDK_Error << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, ElementA, MatrixB)" << '\n';
             return false;
         }
     }
@@ -526,9 +526,9 @@ bool MatrixAdd(mdkDenseMatrix<ElementType>& OutputMatrixC, const ElementType& El
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> MatrixSubtract(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
+DenseMatrix<ElementType> MatrixSubtract(const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixSubtract(tempMatrix, ElementA, MatrixB);
 
@@ -538,13 +538,13 @@ mdkDenseMatrix<ElementType> MatrixSubtract(const ElementType& ElementA, const md
 
 template<typename ElementType>
 inline
-void MatrixSubtract(mdkDenseMatrix<ElementType> OutputMatrixC, const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
+void MatrixSubtract(DenseMatrix<ElementType> OutputMatrixC, const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB)
 {
     auto SizeB = MatrixB.GetSize();
 
     if (SizeB.RowNumber == 0)
     {
-        mdkError << "MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, ElementA, MatrixB)" << '\n';
+        MDK_Error << "MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, ElementA, MatrixB)" << '\n';
         return;
     }
 
@@ -560,7 +560,7 @@ void MatrixSubtract(mdkDenseMatrix<ElementType> OutputMatrixC, const ElementType
         }
         else
         {
-            mdkError << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, ElementA, MatrixB)" << '\n';
+            MDK_Error << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, ElementA, MatrixB)" << '\n';
             return false;
         }
     }
@@ -592,9 +592,9 @@ void MatrixSubtract(mdkDenseMatrix<ElementType> OutputMatrixC, const ElementType
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixMultiply(const ElementType& ElementA, mdkDenseMatrix<ElementType>& MatrixB)
+DenseMatrix<ElementType> MatrixMultiply(const ElementType& ElementA, DenseMatrix<ElementType>& MatrixB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixMultiply(tempMatrix, ElementA, MatrixB);
 
@@ -604,13 +604,13 @@ mdkDenseMatrix<ElementType> MatrixMultiply(const ElementType& ElementA, mdkDense
 
 template<typename ElementType>
 inline
-bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
+bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB)
 {
     auto SizeB = MatrixB.GetSize();
 
     if (SizeB.RowNumber == 0)
     {
-        mdkError << "MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, ElementA, MatrixB)" << '\n';
+        MDK_Error << "MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, ElementA, MatrixB)" << '\n';
         return false;
     }
 
@@ -626,7 +626,7 @@ bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const ElementTyp
         }
         else
         {
-            mdkError << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, ElementA, MatrixB)" << '\n';
+            MDK_Error << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, ElementA, MatrixB)" << '\n';
             return false;
         }
     }
@@ -658,9 +658,9 @@ bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const ElementTyp
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixElementMultiply(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
+DenseMatrix<ElementType> MatrixElementMultiply(const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixElementMultiply(tempMatrix, ElementA, MatrixB);
 
@@ -670,7 +670,7 @@ mdkDenseMatrix<ElementType> MatrixElementMultiply(const ElementType& ElementA, c
 
 template<typename ElementType>
 inline 
-bool MatrixElementMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
+bool MatrixElementMultiply(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB)
 {
     return MatrixMultiply(OutputMatrixC, ElementA, MatrixB);
 }
@@ -678,9 +678,9 @@ bool MatrixElementMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const Ele
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixElementDivide(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
+DenseMatrix<ElementType> MatrixElementDivide(const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixElementDivide(tempMatrix, ElementA, MatrixB);
 
@@ -690,13 +690,13 @@ mdkDenseMatrix<ElementType> MatrixElementDivide(const ElementType& ElementA, con
 
 template<typename ElementType>
 inline 
-void MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB)
+void MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB)
 {
     auto SizeB = MatrixB.GetSize();
 
     if (SizeB.RowNumber == 0)
     {
-        mdkError << "MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, ElementA, MatrixB)" << '\n';
+        MDK_Error << "MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, ElementA, MatrixB)" << '\n';
         return;
     }
 
@@ -712,7 +712,7 @@ void MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, const Eleme
         }
         else
         {
-            mdkError << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, ElementA, MatrixB)" << '\n';
+            MDK_Error << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, ElementA, MatrixB)" << '\n';
             return false;
         }
     }
@@ -745,9 +745,9 @@ void MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, const Eleme
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> MatrixAdd(const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+DenseMatrix<ElementType> MatrixAdd(const DenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixAdd(tempMatrix, MatrixA, ElementB);
 
@@ -757,13 +757,13 @@ mdkDenseMatrix<ElementType> MatrixAdd(const mdkDenseMatrix<ElementType>& MatrixA
 
 template<typename ElementType>
 inline
-bool MatrixAdd(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     auto SizeA = MatrixA.GetSize();
 
     if (SizeA.RowNumber == 0)
     {
-        mdkError << "MatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, ElementB)" << '\n';
+        MDK_Error << "MatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, ElementB)" << '\n';
         return false;
     }
 
@@ -779,7 +779,7 @@ bool MatrixAdd(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<
         }
         else
         {
-            mdkError << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, ElementB)" << '\n';
+            MDK_Error << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, ElementB)" << '\n';
             return false;
         }
     }
@@ -811,9 +811,9 @@ bool MatrixAdd(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> MatrixSubtract(const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+DenseMatrix<ElementType> MatrixSubtract(const DenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixSubtract(tempMatrix, MatrixA, ElementB);
 
@@ -823,13 +823,13 @@ mdkDenseMatrix<ElementType> MatrixSubtract(const mdkDenseMatrix<ElementType>& Ma
 
 template<typename ElementType>
 inline
-void MatrixSubtract(mdkDenseMatrix<ElementType> OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+void MatrixSubtract(DenseMatrix<ElementType> OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     auto SizeA = MatrixA.GetSize();
 
     if (SizeA.RowNumber == 0)
     {
-        mdkError << "MatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, ElementB)" << '\n';
+        MDK_Error << "MatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, ElementB)" << '\n';
         return;
     }
 
@@ -845,7 +845,7 @@ void MatrixSubtract(mdkDenseMatrix<ElementType> OutputMatrixC, const mdkDenseMat
         }
         else
         {
-            mdkError << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, ElementB)" << '\n';
+            MDK_Error << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, ElementB)" << '\n';
             return false;
         }
     }
@@ -877,9 +877,9 @@ void MatrixSubtract(mdkDenseMatrix<ElementType> OutputMatrixC, const mdkDenseMat
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> MatrixMultiply(const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+DenseMatrix<ElementType> MatrixMultiply(const DenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixMultiply(tempMatrix, MatrixA, ElementB);
 
@@ -889,13 +889,13 @@ mdkDenseMatrix<ElementType> MatrixMultiply(const mdkDenseMatrix<ElementType>& Ma
 
 template<typename ElementType>
 inline
-bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     auto SizeA = MatrixA.GetSize();
 
     if (SizeA.RowNumber == 0)
     {
-        mdkError << "MatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, ElementB)" << '\n';
+        MDK_Error << "MatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, ElementB)" << '\n';
         return false;
     }
 
@@ -911,7 +911,7 @@ bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMa
         }
         else
         {
-            mdkError << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, ElementB)" << '\n';
+            MDK_Error << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, ElementB)" << '\n';
             return false;
         }
     }
@@ -945,9 +945,9 @@ bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMa
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> MatrixElementMultiply(const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+DenseMatrix<ElementType> MatrixElementMultiply(const DenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixElementMultiply(tempMatrix, MatrixA, ElementB);
 
@@ -957,7 +957,7 @@ mdkDenseMatrix<ElementType> MatrixElementMultiply(const mdkDenseMatrix<ElementTy
 
 template<typename ElementType>
 inline
-bool MatrixElementMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+bool MatrixElementMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     return MatrixMultiply(OutputMatrixC, MatrixA, ElementB);
 }
@@ -965,9 +965,9 @@ bool MatrixElementMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdk
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> MatrixElementDivide(const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+DenseMatrix<ElementType> MatrixElementDivide(const DenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixElementDivide(tempMatrix, MatrixA, ElementB);
 
@@ -977,13 +977,13 @@ mdkDenseMatrix<ElementType> MatrixElementDivide(const mdkDenseMatrix<ElementType
 
 template<typename ElementType>
 inline
-void MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+void MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     auto SizeA = MatrixA.GetSize();
 
     if (SizeA.RowNumber == 0)
     {
-        mdkError << "MatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, ElementB)" << '\n';
+        MDK_Error << "MatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, ElementB)" << '\n';
         return;
     }
 
@@ -999,7 +999,7 @@ void MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDe
         }
         else
         {
-            mdkError << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, ElementB)" << '\n';
+            MDK_Error << "OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, ElementB)" << '\n';
             return false;
         }
     }
@@ -1034,9 +1034,9 @@ void MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDe
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix)
+DenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix;
+    DenseMatrix<ElementType> OutputMatrix;
 
     MatrixElementNamedOperation(OutputMatrix, OperationName, InputMatrix);
 
@@ -1046,7 +1046,7 @@ mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& Opera
 
 template<typename ElementType>
 inline 
-bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrix, const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix)
+bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrix, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix)
 {
     // note: must use  MatrixElementOperation<ElementType>, not MatrixElementOperation
     // otherwise compiler error (vs2013)
@@ -1073,7 +1073,7 @@ bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrix, cons
     }
     else
     {
-        mdkError << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixElementNamedOperation(OutputMatrix, OperationName, InputMatrix)" << '\n';
+        MDK_Error << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixElementNamedOperation(OutputMatrix, OperationName, InputMatrix)" << '\n';
 
         return false;
     }
@@ -1082,11 +1082,11 @@ bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrix, cons
 
 template<typename ElementType, typename OperationType>
 inline 
-mdkDenseMatrix<ElementType> MatrixElementOperation(OperationType Operation, const mdkDenseMatrix<ElementType>& InputMatrix)
+DenseMatrix<ElementType> MatrixElementOperation(OperationType Operation, const DenseMatrix<ElementType>& InputMatrix)
 {
     auto InputSize = InputMatrix.GetSize();
 
-    mdkDenseMatrix<ElementType> OutputMatrix(InputSize.RowNumber, InputSize.ColNumber);
+    DenseMatrix<ElementType> OutputMatrix(InputSize.RowNumber, InputSize.ColNumber);
 
     MatrixElementOperation(OutputMatrix, Operation, InputMatrix);
 
@@ -1096,13 +1096,13 @@ mdkDenseMatrix<ElementType> MatrixElementOperation(OperationType Operation, cons
 
 template<typename ElementType, typename OperationType>
 inline 
-bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrix, OperationType Operation, const mdkDenseMatrix<ElementType>& InputMatrix)
+bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrix, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix)
 {
     auto InputSize = InputMatrix.GetSize();
 
     if (InputSize.RowNumber == 0)
     {
-        mdkError << "InputMatrix is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrix, Operation, InputMatrix)" << '\n';
+        MDK_Error << "InputMatrix is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrix, Operation, InputMatrix)" << '\n';
 
         return false;
     }
@@ -1119,7 +1119,7 @@ bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrix, Operation
         }
         else
         {
-            mdkError << "Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrix, Operation, InputMatrix)" << '\n';
+            MDK_Error << "Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrix, Operation, InputMatrix)" << '\n';
             return false;
         }
     }
@@ -1153,11 +1153,11 @@ bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrix, Operation
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const char OperationName,
-                                                        const mdkDenseMatrix<ElementType>& InputMatrixA,
-                                                        const mdkDenseMatrix<ElementType>& InputMatrixB)
+DenseMatrix<ElementType> MatrixElementNamedOperation(const char OperationName,
+                                                        const DenseMatrix<ElementType>& InputMatrixA,
+                                                        const DenseMatrix<ElementType>& InputMatrixB)
 {                                              
-    mdkDenseMatrix<ElementType> OutputMatrix;
+    DenseMatrix<ElementType> OutputMatrix;
 
     MatrixElementNamedOperation(OutputMatrix, OperationName, InputMatrixA, InputMatrixB);
 
@@ -1167,10 +1167,10 @@ mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const char OperationName
 
 template<typename ElementType>
 inline 
-bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
+bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrixC,
                                  const char OperationName,
-                                 const mdkDenseMatrix<ElementType>& InputMatrixA,
-                                 const mdkDenseMatrix<ElementType>& InputMatrixB)
+                                 const DenseMatrix<ElementType>& InputMatrixA,
+                                 const DenseMatrix<ElementType>& InputMatrixB)
 {
     // note: must use  MatrixElementOperation<ElementType>, not MatrixElementOperation
     // otherwise compiler error (vs2013)
@@ -1197,7 +1197,7 @@ bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
     }
     else
     {
-        mdkError << " unknown Operation @ MatrixElementNamedOperation(OutputMatrixC, OperationName, InputMatrixA, InputMatrixB)" << '\n';
+        MDK_Error << " unknown Operation @ MatrixElementNamedOperation(OutputMatrixC, OperationName, InputMatrixA, InputMatrixB)" << '\n';
 
         return false;
     }
@@ -1207,11 +1207,11 @@ bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName,
-                                                        const mdkDenseMatrix<ElementType>& InputMatrixA,
-                                                        const mdkDenseMatrix<ElementType>& InputMatrixB)
+DenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName,
+                                                        const DenseMatrix<ElementType>& InputMatrixA,
+                                                        const DenseMatrix<ElementType>& InputMatrixB)
 {                                              
-    mdkDenseMatrix<ElementType> OutputMatrix;
+    DenseMatrix<ElementType> OutputMatrix;
 
     MatrixElementNamedOperation(OutputMatrix, OperationName, InputMatrixA, InputMatrixB);
 
@@ -1221,10 +1221,10 @@ mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& Opera
 
 template<typename ElementType>
 inline 
-bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
+bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrixC,
                                  const std::string& OperationName,
-                                 const mdkDenseMatrix<ElementType>& InputMatrixA,
-                                 const mdkDenseMatrix<ElementType>& InputMatrixB)
+                                 const DenseMatrix<ElementType>& InputMatrixA,
+                                 const DenseMatrix<ElementType>& InputMatrixB)
 {
     // note: must use  MatrixElementOperation<ElementType>, not MatrixElementOperation
     // otherwise compiler error (vs2013)
@@ -1251,7 +1251,7 @@ bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
     }
     else
     {
-        mdkError << " unknown Operation @ MatrixElementNamedOperation(OutputMatrixC, OperationName, InputMatrixA, InputMatrixB)" << '\n';
+        MDK_Error << " unknown Operation @ MatrixElementNamedOperation(OutputMatrixC, OperationName, InputMatrixA, InputMatrixB)" << '\n';
 
         return false;
     }
@@ -1261,11 +1261,11 @@ bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
 
 template<typename ElementType, typename OperationType>
 inline 
-mdkDenseMatrix<ElementType> MatrixElementOperation(OperationType Operation,
-                                                   const mdkDenseMatrix<ElementType>& InputMatrixA,
-                                                   const mdkDenseMatrix<ElementType>& InputMatrixB)
+DenseMatrix<ElementType> MatrixElementOperation(OperationType Operation,
+                                                   const DenseMatrix<ElementType>& InputMatrixA,
+                                                   const DenseMatrix<ElementType>& InputMatrixB)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix;
+    DenseMatrix<ElementType> OutputMatrix;
 
     MatrixElementOperation<ElementType>(OutputMatrix, Operation, InputMatrixA, InputMatrixB);
 
@@ -1275,10 +1275,10 @@ mdkDenseMatrix<ElementType> MatrixElementOperation(OperationType Operation,
 
 template<typename ElementType, typename OperationType>
 inline 
-bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
+bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
                             OperationType Operation,
-                            const mdkDenseMatrix<ElementType>& InputMatrixA,
-                            const mdkDenseMatrix<ElementType>& InputMatrixB)
+                            const DenseMatrix<ElementType>& InputMatrixA,
+                            const DenseMatrix<ElementType>& InputMatrixB)
 {
     auto SizeA = InputMatrixA.GetSize();
 
@@ -1286,7 +1286,7 @@ bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
 
     if (SizeA.RowNumber == 0 || SizeB.RowNumber ==0)
     {
-        mdkError << "InputMatrixA or InputMatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrix, Operation, InputMatrixA, InputMatrixB)" << '\n';
+        MDK_Error << "InputMatrixA or InputMatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrix, Operation, InputMatrixA, InputMatrixB)" << '\n';
 
         return false;
     }
@@ -1316,7 +1316,7 @@ bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
     }
     else
     {
-        mdkError << "Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrix, Operation, InputMatrixA, InputMatrixB)" << '\n';
+        MDK_Error << "Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrix, Operation, InputMatrixA, InputMatrixB)" << '\n';
 
         return false;
     }
@@ -1333,7 +1333,7 @@ bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
         }
         else
         {
-            mdkError << "Size of OutputMatrixC does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrixC, Operation, InputMatrixA, InputMatrixB)" << '\n';
+            MDK_Error << "Size of OutputMatrixC does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrixC, Operation, InputMatrixA, InputMatrixB)" << '\n';
             return false;
         }
     }
@@ -1385,11 +1385,11 @@ bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const char OperationName,
-                                                        const mdkDenseMatrix<ElementType>& InputMatrixA,
+DenseMatrix<ElementType> MatrixElementNamedOperation(const char OperationName,
+                                                        const DenseMatrix<ElementType>& InputMatrixA,
                                                         const ElementType& InputElementB)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix;
+    DenseMatrix<ElementType> OutputMatrix;
 
     MatrixElementNamedOperation(OutputMatrix, OperationName, InputMatrixA, InputElementB);
 
@@ -1399,9 +1399,9 @@ mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const char OperationName
 
 template<typename ElementType>
 inline 
-bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
+bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrixC,
                                  const char OperationName,
-                                 const mdkDenseMatrix<ElementType>& InputMatrixA,
+                                 const DenseMatrix<ElementType>& InputMatrixA,
                                  const ElementType& InputElementB)
 
 {
@@ -1430,7 +1430,7 @@ bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
     }
     else
     {
-        mdkError << " unknown operator @ mdkLinearAlgebra_DenseMatrix MatrixElementNamedOperation(OutputMatrixC, OperationName, InputMatrixA, InputElementB)" << '\n';
+        MDK_Error << " unknown operator @ mdkLinearAlgebra_DenseMatrix MatrixElementNamedOperation(OutputMatrixC, OperationName, InputMatrixA, InputElementB)" << '\n';
 
         return false;
     }
@@ -1439,11 +1439,11 @@ bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName,
-                                                        const mdkDenseMatrix<ElementType>& InputMatrixA,
+DenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName,
+                                                        const DenseMatrix<ElementType>& InputMatrixA,
                                                         const ElementType& InputElementB)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix;
+    DenseMatrix<ElementType> OutputMatrix;
 
     MatrixElementNamedOperation(OutputMatrix, OperationName, InputMatrixA, InputElementB);
 
@@ -1453,9 +1453,9 @@ mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& Opera
 
 template<typename ElementType>
 inline 
-bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
+bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrixC,
                                  const std::string& OperationName,
-                                 const mdkDenseMatrix<ElementType>& InputMatrixA,
+                                 const DenseMatrix<ElementType>& InputMatrixA,
                                  const ElementType& InputElementB)
 
 {
@@ -1484,7 +1484,7 @@ bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
     }
     else
     {
-        mdkError << " unknown operator @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrixC, OperationName, InputMatrixA, InputElementB)" << '\n';
+        MDK_Error << " unknown operator @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrixC, OperationName, InputMatrixA, InputElementB)" << '\n';
 
         return false;
     }
@@ -1493,11 +1493,11 @@ bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
 
 template<typename ElementType, typename OperationType>
 inline 
-mdkDenseMatrix<ElementType> MatrixElementOperation(OperationType Operation,
-                                                   const mdkDenseMatrix<ElementType>& InputMatrixA,
+DenseMatrix<ElementType> MatrixElementOperation(OperationType Operation,
+                                                   const DenseMatrix<ElementType>& InputMatrixA,
                                                    const ElementType& InputElementB)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix;
+    DenseMatrix<ElementType> OutputMatrix;
 
     MatrixElementOperation<ElementType>(OutputMatrix, Operation, InputMatrixA, InputElementB);
 
@@ -1508,16 +1508,16 @@ mdkDenseMatrix<ElementType> MatrixElementOperation(OperationType Operation,
 
 template<typename ElementType, typename OperationType>
 inline
-bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, 
+bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC, 
                             OperationType Operation,
-                            const mdkDenseMatrix<ElementType>& InputMatrixA,
+                            const DenseMatrix<ElementType>& InputMatrixA,
                             const ElementType& InputElementB)
 {
     auto SizeA = InputMatrixA.GetSize();
 
     if (SizeA.RowNumber == 0)
     {
-        mdkError << "InputMatrixA is empty @ MatrixElementOperation(OutputMatrixC, Operation, InputMatrixA, InputElementB)" << '\n';
+        MDK_Error << "InputMatrixA is empty @ MatrixElementOperation(OutputMatrixC, Operation, InputMatrixA, InputElementB)" << '\n';
 
         return false;
     }
@@ -1534,7 +1534,7 @@ bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
         }
         else
         {
-            mdkError << "Size of OutputMatrixC does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrixC, Operation, InputMatrixA, InputElementB)" << '\n';
+            MDK_Error << "Size of OutputMatrixC does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrixC, Operation, InputMatrixA, InputElementB)" << '\n';
             return false;
         }
     }
@@ -1572,10 +1572,10 @@ bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> 
-MatrixColNamedOperation(const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputColIndex, const bool Enable_BoundCheck)
+DenseMatrix<ElementType> 
+MatrixColNamedOperation(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, int64 InputColIndex, const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix(InputMatrix.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrix.GetRowNumber(), 1);
 
     MatrixColNamedOperation(OutputMatrix, 0, OperationName, InputMatrix, InputColIndex, Enable_BoundCheck);
 
@@ -1586,9 +1586,9 @@ MatrixColNamedOperation(const std::string& OperationName, const mdkDenseMatrix<E
 template<typename ElementType>
 inline
 bool 
-MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputColIndex,
+MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputColIndex,
                         const std::string& OperationName, 
-                        const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputColIndex,
+                        const DenseMatrix<ElementType>& InputMatrix, int64 InputColIndex,
                         const bool Enable_BoundCheck)
 {
     if (OperationName == "abs")
@@ -1613,7 +1613,7 @@ MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputC
     }
     else
     {
-        mdkError << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixColNamedOperation(OutputMatrix, OutputColIndex, OperationName, InputMatrix, InputColIndex, Enable_BoundCheck)" << '\n';
+        MDK_Error << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixColNamedOperation(OutputMatrix, OutputColIndex, OperationName, InputMatrix, InputColIndex, Enable_BoundCheck)" << '\n';
 
         return false;
     }
@@ -1622,12 +1622,12 @@ MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputC
 
 template<typename ElementType, typename OperationType>
 inline 
-mdkDenseMatrix<ElementType>
+DenseMatrix<ElementType>
 MatrixColOperation(OperationType Operation,
-                   const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputColIndex,
+                   const DenseMatrix<ElementType>& InputMatrix, int64 InputColIndex,
                    const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix(InputMatrix.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrix.GetRowNumber(), 1);
 
     MatrixColOperation(OutputMatrix, 0, Operation, InputMatrix, InputColIndex, Enable_BoundCheck);
 
@@ -1638,9 +1638,9 @@ MatrixColOperation(OperationType Operation,
 template<typename ElementType, typename OperationType>
 inline 
 bool 
-MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputColIndex,
+MatrixColOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputColIndex,
                    OperationType Operation,
-                   const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputColIndex, 
+                   const DenseMatrix<ElementType>& InputMatrix, int64 InputColIndex, 
                    const bool Enable_BoundCheck)
 {
     if (Enable_BoundCheck)
@@ -1649,7 +1649,7 @@ MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputColInd
 
         if (InputSize.RowNumber == 0)
         {
-            mdkError << "InputMatrix is empty @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrix, OutputColIndex, Operation, InputMatrix, InputColIndex, Enable_BoundCheck)" << '\n';
+            MDK_Error << "InputMatrix is empty @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrix, OutputColIndex, Operation, InputMatrix, InputColIndex, Enable_BoundCheck)" << '\n';
 
             return false;
         }
@@ -1658,7 +1658,7 @@ MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputColInd
 
         if (InputSize.RowNumber != OutputSize.RowNumber || InputColIndex >= InputSize.ColNumber || OutputColIndex >= OutputSize.ColNumber)
         {
-            mdkError << "Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrix, OutputColIndex, Operation, InputMatrix, InputColIndex, Enable_BoundCheck)" << '\n';
+            MDK_Error << "Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrix, OutputColIndex, Operation, InputMatrix, InputColIndex, Enable_BoundCheck)" << '\n';
             return false;
         }
     }
@@ -1699,13 +1699,13 @@ MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputColInd
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> 
+DenseMatrix<ElementType> 
 MatrixColNamedOperation(const char OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
-                        const mdkDenseMatrix<ElementType>& InputMatrixB,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
 
     MatrixColNamedOperation(OutputMatrix, 0, OperationName, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck);
 
@@ -1716,10 +1716,10 @@ MatrixColNamedOperation(const char OperationName,
 template<typename ElementType>
 inline
 bool
-MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
                         const char OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
-                        const mdkDenseMatrix<ElementType>& InputMatrixB,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
     //note:
@@ -1747,7 +1747,7 @@ MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
     }
     else
     {
-        mdkError << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixColNamedOperation(OutputMatrixC, OutputColIndexC, OperationName, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
+        MDK_Error << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixColNamedOperation(OutputMatrixC, OutputColIndexC, OperationName, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
 
         return false;
     }
@@ -1756,13 +1756,13 @@ MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> 
+DenseMatrix<ElementType> 
 MatrixColNamedOperation(const std::string& OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
-                        const mdkDenseMatrix<ElementType>& InputMatrixB,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
 
     MatrixColNamedOperation(OutputMatrix, 0, OperationName, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck);
 
@@ -1773,10 +1773,10 @@ MatrixColNamedOperation(const std::string& OperationName,
 template<typename ElementType>
 inline
 bool
-MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
                         const std::string& OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
-                        const mdkDenseMatrix<ElementType>& InputMatrixB,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
     //note:
@@ -1804,7 +1804,7 @@ MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
     }
     else
     {
-        mdkError << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixColNamedOperation(OutputMatrixC, OutputColIndexC, OperationName, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
+        MDK_Error << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixColNamedOperation(OutputMatrixC, OutputColIndexC, OperationName, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
 
         return false;
     }
@@ -1813,13 +1813,13 @@ MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
 
 template<typename ElementType, typename OperationType>
 inline 
-mdkDenseMatrix<ElementType>
+DenseMatrix<ElementType>
 MatrixColOperation(OperationType Operation,
-                   const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
-                   const mdkDenseMatrix<ElementType>& InputMatrixB,
+                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixB,
                    const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
 
     MatrixColOperation(OutputMatrix, 0, Operation, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck);
 
@@ -1830,10 +1830,10 @@ MatrixColOperation(OperationType Operation,
 template<typename ElementType, typename OperationType>
 inline 
 bool
-MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
                    OperationType Operation,
-                   const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
-                   const mdkDenseMatrix<ElementType>& InputMatrixB,
+                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixB,
                    const bool Enable_BoundCheck)
 {
     if (InputMatrixB.GetRowNumber() == 1 && InputMatrixB.GetColNumber() == 1)
@@ -1853,14 +1853,14 @@ MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIn
 
         if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
         {
-            mdkError << "InputMatrixA or InputMatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
+            MDK_Error << "InputMatrixA or InputMatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
 
             return false;
         }
 
         if (OutputColIndexC >= SizeC.ColNumber || SizeC.RowNumber != SizeA.RowNumber || InputColIndexA >= SizeA.ColNumber)
         {
-            mdkError << "Size does not match-a @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
+            MDK_Error << "Size does not match-a @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
             return false;
         }
 
@@ -1872,7 +1872,7 @@ MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIn
         }
         else
         {
-            mdkError << "Size does not match-b @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
+            MDK_Error << "Size does not match-b @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
 
             return false;
         }
@@ -1920,13 +1920,13 @@ MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIn
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> 
+DenseMatrix<ElementType> 
 MatrixColNamedOperation(const char OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
 
     MatrixColNamedOperation(OutputMatrix, 0, OperationName, InputMatrixA, InputColIndexA, InputElementB, Enable_BoundCheck);
 
@@ -1937,9 +1937,9 @@ MatrixColNamedOperation(const char OperationName,
 template<typename ElementType>
 inline 
 bool
-MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
                         const char OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
@@ -1965,7 +1965,7 @@ MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
     }
     else
     {
-        mdkError << " unknown operator @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, OperationName, InputMatrixA, InputColIndexA, InputElementB)" << '\n';
+        MDK_Error << " unknown operator @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, OperationName, InputMatrixA, InputColIndexA, InputElementB)" << '\n';
 
         return false;
     }
@@ -1974,13 +1974,13 @@ MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> 
+DenseMatrix<ElementType> 
 MatrixColNamedOperation(const std::string& OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
 
     MatrixColNamedOperation(OutputMatrix, 0, OperationName, InputMatrixA, InputColIndexA, InputElementB, Enable_BoundCheck);
 
@@ -1991,9 +1991,9 @@ MatrixColNamedOperation(const std::string& OperationName,
 template<typename ElementType>
 inline 
 bool
-MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
                         const std::string& OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
@@ -2019,7 +2019,7 @@ MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
     }
     else
     {
-        mdkError << " unknown operator @ mdkLinearAlgebra_DenseMatrix MatrixColNamedOperation(OutputMatrixC, OutputColIndexC, OperationName, InputMatrixA, InputColIndexA, InputElementB)" << '\n';
+        MDK_Error << " unknown operator @ mdkLinearAlgebra_DenseMatrix MatrixColNamedOperation(OutputMatrixC, OutputColIndexC, OperationName, InputMatrixA, InputColIndexA, InputElementB)" << '\n';
 
         return false;
     }
@@ -2028,13 +2028,13 @@ MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
 
 template<typename ElementType, typename OperationType>
 inline 
-mdkDenseMatrix<ElementType> 
+DenseMatrix<ElementType> 
 MatrixColOperation(OperationType Operation,
-                   const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
                    const ElementType& InputElementB,
                    const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
 
     MatrixColOperation(OutputMatrix, 0, Operation, InputMatrixA, InputColIndexA, InputElementB, Enable_BoundCheck);
 
@@ -2045,9 +2045,9 @@ MatrixColOperation(OperationType Operation,
 template<typename ElementType, typename OperationType>
 inline
 bool
-MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
                    OperationType Operation,
-                   const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
                    const ElementType& InputElementB,
                    const bool Enable_BoundCheck)
 {
@@ -2059,14 +2059,14 @@ MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIn
 
         if (SizeA.RowNumber == 0)
         {
-            mdkError << "InputMatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputElementB, Enable_BoundCheck)" << '\n';
+            MDK_Error << "InputMatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputElementB, Enable_BoundCheck)" << '\n';
 
             return false;
         }
 
         if (OutputColIndexC >= SizeC.ColNumber || SizeC.RowNumber != SizeA.RowNumber || InputColIndexA >= SizeA.ColNumber)
         {
-            mdkError << "Size does not match-a @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputElementB, Enable_BoundCheck)" << '\n';
+            MDK_Error << "Size does not match-a @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputElementB, Enable_BoundCheck)" << '\n';
             return false;
         }
     }
@@ -2113,12 +2113,12 @@ MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIn
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType>
+DenseMatrix<ElementType>
 MatrixRowNamedOperation(const std::string& OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
+                        const DenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
                         const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix(1, InputMatrix.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrix(1, InputMatrix.GetColNumber());
 
     MatrixRowNamedOperation(OutputMatrix, 0, OperationName, InputMatrix, InputRowIndex, Enable_BoundCheck);
 
@@ -2129,9 +2129,9 @@ MatrixRowNamedOperation(const std::string& OperationName,
 template<typename ElementType>
 inline 
 bool
-MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputRowIndex,
+MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputRowIndex,
                         const std::string& OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
+                        const DenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
                         const bool Enable_BoundCheck)
 {
     if (OperationName == "abs")
@@ -2156,7 +2156,7 @@ MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputR
     }
     else
     {
-        mdkError << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixRowNamedOperation(OutputMatrix, OutputRowIndex, OperationName, InputMatrix, InputRowIndex, Enable_BoundCheck)" << '\n';
+        MDK_Error << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixRowNamedOperation(OutputMatrix, OutputRowIndex, OperationName, InputMatrix, InputRowIndex, Enable_BoundCheck)" << '\n';
 
         return false;
     }
@@ -2165,12 +2165,12 @@ MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputR
 
 template<typename ElementType, typename OperationType>
 inline
-mdkDenseMatrix<ElementType> 
+DenseMatrix<ElementType> 
 MatrixRowOperation(OperationType Operation,
-                   const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
+                   const DenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
                    const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrix(1, InputMatrix.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrix(1, InputMatrix.GetColNumber());
 
     MatrixRowOperation(OutputMatrix, 0, Operation, InputMatrix, InputRowIndex, Enable_BoundCheck);
 
@@ -2181,9 +2181,9 @@ MatrixRowOperation(OperationType Operation,
 template<typename ElementType, typename OperationType>
 inline
 bool
-MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputRowIndex,
+MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputRowIndex,
                    OperationType Operation,
-                   const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
+                   const DenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
                    const bool Enable_BoundCheck)
 {
     if (Enable_BoundCheck)
@@ -2192,7 +2192,7 @@ MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputRowInd
 
         if (InputSize.RowNumber == 0)
         {
-            mdkError << "InputMatrix is empty @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrix, OutputRowIndex, Operation, InputMatrix, InputRowIndex, Enable_BoundCheck)" << '\n';
+            MDK_Error << "InputMatrix is empty @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrix, OutputRowIndex, Operation, InputMatrix, InputRowIndex, Enable_BoundCheck)" << '\n';
 
             return false;
         }
@@ -2201,7 +2201,7 @@ MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputRowInd
 
         if (InputSize.ColNumber != OutputSize.ColNumber || InputRowIndex >= InputSize.RowNumber || OutputRowIndex >= OutputSize.RowNumber)
         {
-            mdkError << "Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrix, OutputRowIndex, Operation, InputMatrix, InputRowIndex, Enable_BoundCheck)" << '\n';
+            MDK_Error << "Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrix, OutputRowIndex, Operation, InputMatrix, InputRowIndex, Enable_BoundCheck)" << '\n';
             return false;
         }
     }
@@ -2256,13 +2256,13 @@ MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputRowInd
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> 
+DenseMatrix<ElementType> 
 MatrixRowNamedOperation(const char OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
-                        const mdkDenseMatrix<ElementType>& InputMatrixB,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
 
     MatrixRowNamedOperation(OutputMatrixC, 0, OperationName, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck);
 
@@ -2273,10 +2273,10 @@ MatrixRowNamedOperation(const char OperationName,
 template<typename ElementType>
 inline 
 bool
-MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
                         const char OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
-                        const mdkDenseMatrix<ElementType>& InputMatrixB,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
     //note:
@@ -2304,7 +2304,7 @@ MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
     }
     else
     {
-        mdkError << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixRowNamedOperation(OutputMatrixC, OutputRowIndexC, OperationName, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
+        MDK_Error << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixRowNamedOperation(OutputMatrixC, OutputRowIndexC, OperationName, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
 
         return false;
     }
@@ -2313,13 +2313,13 @@ MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> 
+DenseMatrix<ElementType> 
 MatrixRowNamedOperation(const std::string& OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
-                        const mdkDenseMatrix<ElementType>& InputMatrixB,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
 
     MatrixRowNamedOperation(OutputMatrixC, 0, OperationName, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck);
 
@@ -2330,10 +2330,10 @@ MatrixRowNamedOperation(const std::string& OperationName,
 template<typename ElementType>
 inline 
 bool
-MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
                         const std::string& OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
-                        const mdkDenseMatrix<ElementType>& InputMatrixB,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
     //note:
@@ -2361,7 +2361,7 @@ MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
     }
     else
     {
-        mdkError << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, OperationName, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
+        MDK_Error << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, OperationName, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
 
         return false;
     }
@@ -2370,13 +2370,13 @@ MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
 
 template<typename ElementType, typename OperationType>
 inline 
-mdkDenseMatrix<ElementType> 
+DenseMatrix<ElementType> 
 MatrixRowOperation(OperationType Operation,
-                   const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
-                   const mdkDenseMatrix<ElementType>& InputMatrixB,
+                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixB,
                    const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
 
     MatrixRowOperation(OutputMatrixC, 0, InputMatrixA, Operation, InputRowIndexA, InputMatrixB, Enable_BoundCheck);
 
@@ -2387,10 +2387,10 @@ MatrixRowOperation(OperationType Operation,
 template<typename ElementType, typename OperationType>
 inline 
 bool
-MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
                    OperationType Operation,
-                   const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
-                   const mdkDenseMatrix<ElementType>& InputMatrixB,
+                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixB,
                    const bool Enable_BoundCheck)
 {
     if (InputMatrixB.GetRowNumber() == 1 && InputMatrixB.GetColNumber() == 1)
@@ -2410,14 +2410,14 @@ MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIn
 
         if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
         {
-            mdkError << "InputMatrixA or InputMatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
+            MDK_Error << "InputMatrixA or InputMatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
 
             return false;
         }
 
         if (OutputRowIndexC >= SizeC.RowNumber || SizeC.ColNumber != SizeA.ColNumber || InputRowIndexA >= SizeA.RowNumber)
         {
-            mdkError << "Size does not match-a @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
+            MDK_Error << "Size does not match-a @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
             return false;
         }
 
@@ -2429,7 +2429,7 @@ MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIn
         }
         else
         {
-            mdkError << "Size does not match-b @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
+            MDK_Error << "Size does not match-b @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck)" << '\n';
 
             return false;
         }
@@ -2487,13 +2487,13 @@ MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIn
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> 
+DenseMatrix<ElementType> 
 MatrixRowNamedOperation(const char OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
 
     MatrixRowNamedOperation(OutputMatrixC, 0, OperationName, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck);
 
@@ -2504,9 +2504,9 @@ MatrixRowNamedOperation(const char OperationName,
 template<typename ElementType>
 inline
 bool
-MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
                         const char OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
@@ -2535,7 +2535,7 @@ MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
     }
     else
     {
-        mdkError << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixRowNamedOperation(OutputMatrixC, OutputRowIndexC, OperationName, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck)" << '\n';
+        MDK_Error << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixRowNamedOperation(OutputMatrixC, OutputRowIndexC, OperationName, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck)" << '\n';
 
         return false;
     }
@@ -2544,13 +2544,13 @@ MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType>
+DenseMatrix<ElementType>
 MatrixRowNamedOperation(const std::string& OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
 
     MatrixRowNamedOperation(OutputMatrixC, 0, OperationName, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck);
 
@@ -2561,9 +2561,9 @@ MatrixRowNamedOperation(const std::string& OperationName,
 template<typename ElementType>
 inline
 bool
-MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
                         const std::string& OperationName,
-                        const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
@@ -2592,7 +2592,7 @@ MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
     }
     else
     {
-        mdkError << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixRowNamedOperation(OutputMatrixC, OutputRowIndexC, OperationName, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck)" << '\n';
+        MDK_Error << " unknown Operation @ mdkLinearAlgebra_DenseMatrix MatrixRowNamedOperation(OutputMatrixC, OutputRowIndexC, OperationName, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck)" << '\n';
 
         return false;
     }
@@ -2601,13 +2601,13 @@ MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 Output
 
 template<typename ElementType, typename OperationType>
 inline 
-mdkDenseMatrix<ElementType> 
+DenseMatrix<ElementType> 
 MatrixRowOperation(OperationType Operation,
-                   const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
                    const ElementType& InputElementB,
                    const bool Enable_BoundCheck)
 {
-    mdkDenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
 
     MatrixRowOperation(OutputMatrixC, 0, OperationName, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck);
 
@@ -2618,9 +2618,9 @@ MatrixRowOperation(OperationType Operation,
 template<typename ElementType, typename OperationType>
 inline
 bool
-MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
                    OperationType Operation,
-                   const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
                    const ElementType& InputElementB,
                    const bool Enable_BoundCheck)
 {
@@ -2632,14 +2632,14 @@ MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIn
 
         if (SizeA.RowNumber == 0)
         {
-            mdkError << "InputMatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck)" << '\n';
+            MDK_Error << "InputMatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck)" << '\n';
 
             return false;
         }
 
         if (OutputRowIndexC >= SizeC.RowNumber || SizeC.ColNumber != SizeA.ColNumber || InputRowIndexA >= SizeA.RowNumber)
         {
-            mdkError << "Size does not match-a @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck)" << '\n';
+            MDK_Error << "Size does not match-a @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck)" << '\n';
             return false;
         }       
     }
@@ -2698,11 +2698,11 @@ MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIn
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefList, 
-                                                const std::vector<const mdkDenseMatrix<ElementType>*>& MatrixPtrList,
+DenseMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefList, 
+                                                const std::vector<const DenseMatrix<ElementType>*>& MatrixPtrList,
                                                 const ElementType& IndependentElement)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     MatrixLinearCombine(tempMatrix, CoefList, MatrixPtrList, IndependentElement);
 
@@ -2712,9 +2712,9 @@ mdkDenseMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& 
 
 template<typename ElementType>
 inline 
-bool MatrixLinearCombine(mdkDenseMatrix<ElementType>& OutputMatrix, 
+bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix, 
                          const std::vector<ElementType>& CoefList, 
-                         const std::vector<const mdkDenseMatrix<ElementType>*>& MatrixPtrList,
+                         const std::vector<const DenseMatrix<ElementType>*>& MatrixPtrList,
                          const ElementType& IndependentElement)
 {
     auto MatrixNumber = int64(MatrixPtrList.size());
@@ -2723,13 +2723,13 @@ bool MatrixLinearCombine(mdkDenseMatrix<ElementType>& OutputMatrix,
 
     if (MatrixNumber != CoefNumber)
     {
-        mdkError << "MatrixNumber != CoefNumber @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, CoefList, MatrixList)" << '\n';
+        MDK_Error << "MatrixNumber != CoefNumber @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, CoefList, MatrixList)" << '\n';
         return false;
     }
 
     if (MatrixNumber == 0)
     {
-        mdkWarning << "MatrixList is empty @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, CoefList, MatrixList)" << '\n';
+        MDK_Warning << "MatrixList is empty @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, CoefList, MatrixList)" << '\n';
         return false;
     }
 
@@ -2739,7 +2739,7 @@ bool MatrixLinearCombine(mdkDenseMatrix<ElementType>& OutputMatrix,
     {
         if (Size.RowNumber != MatrixPtrList[k]->GetRowNumber() || Size.ColNumber != MatrixPtrList[k]->GetColNumber())
         {
-            mdkError << "Size is not the same in MatrixPtrList @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, CoefList, MatrixList)" << '\n';
+            MDK_Error << "Size is not the same in MatrixPtrList @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, CoefList, MatrixList)" << '\n';
 
             return false;
         }
@@ -2756,7 +2756,7 @@ bool MatrixLinearCombine(mdkDenseMatrix<ElementType>& OutputMatrix,
         }
         else
         {
-            mdkError << "OutputMatrix Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList)" << '\n';
+            MDK_Error << "OutputMatrix Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList)" << '\n';
             return false;
         }
     }

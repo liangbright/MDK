@@ -27,7 +27,7 @@ namespace mdk
 #endif
 
 
-enum struct mdkScalarTypeEnum
+enum struct ScalarTypeEnum
 {
 	DOUBLE64,
 	FLOAT32,
@@ -44,7 +44,7 @@ enum struct mdkScalarTypeEnum
 };
 
 
-enum struct mdkObjectConstructionTypeEnum
+enum struct ObjectConstructionTypeEnum
 {
     Copy,
     Share,
@@ -54,7 +54,7 @@ enum struct mdkObjectConstructionTypeEnum
 //-------------------------------------------------------------//
 template<typename ScalarType>
 inline
-mdkScalarTypeEnum FindScalarType(ScalarType Scalar);
+ScalarTypeEnum FindScalarType(ScalarType Scalar);
 
 template<typename ScalarType>
 inline

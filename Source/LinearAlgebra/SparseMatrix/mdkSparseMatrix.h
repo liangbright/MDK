@@ -33,7 +33,7 @@ namespace mdk
 // ----------------------------- mdkSparseMatrixDataInCSCFormat struct -------------------------------------------------------------//
 
 template<typename ElementType>
-struct mdkSparseMatrixDataInCSCFormat
+struct SparseMatrixDataInCSCFormat
 {
     int64 m_RowNumber;  // RowNumber = the Number of Rows 
     int64 m_ColNumber;  // ColNumber = the Number of Columns
@@ -51,9 +51,9 @@ struct mdkSparseMatrixDataInCSCFormat
     ElementType m_ZeroElement;
 
 //-------------------------------------------------------------------------------------------------
-    inline mdkSparseMatrixDataInCSCFormat();
+    inline SparseMatrixDataInCSCFormat();
 
-    inline ~mdkSparseMatrixDataInCSCFormat();
+    inline ~SparseMatrixDataInCSCFormat();
 
     inline void Construct(int64 InputRowNumber, int64 InputColNumber);
 
@@ -113,30 +113,30 @@ struct mdkSparseMatrixDataInCSCFormat
 
     //-----------------------------------------
 
-    inline void Copy(const mdkSparseMatrixDataInCSCFormat& InputData);
+    inline void Copy(const SparseMatrixDataInCSCFormat& InputData);
 
-    inline void Take(mdkSparseMatrixDataInCSCFormat& InputData);
+    inline void Take(SparseMatrixDataInCSCFormat& InputData);
 
 private:
 //deleted: -------------------------------------------------
-    mdkSparseMatrixDataInCSCFormat(const mdkSparseMatrixDataInCSCFormat&) = delete;
+    SparseMatrixDataInCSCFormat(const SparseMatrixDataInCSCFormat&) = delete;
 
-    mdkSparseMatrixDataInCSCFormat(mdkSparseMatrixDataInCSCFormat&&) = delete;
+    SparseMatrixDataInCSCFormat(SparseMatrixDataInCSCFormat&&) = delete;
 
-    void operator=(const mdkSparseMatrixDataInCSCFormat&) = delete;
+    void operator=(const SparseMatrixDataInCSCFormat&) = delete;
 
-    void operator=(mdkSparseMatrixDataInCSCFormat&&) = delete;
+    void operator=(SparseMatrixDataInCSCFormat&&) = delete;
 };
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-class mdkSparseMatrix : public mdkObject
+class SparseMatrix : public Object
 {
 
 private:
      
-    std::shared_ptr<mdkSparseMatrixDataInCSCFormat<ElementType>> m_MatrixData;
+    std::shared_ptr<SparseMatrixDataInCSCFormat<ElementType>> m_MatrixData;
 
     ElementType m_NaNElement;
 
@@ -148,31 +148,31 @@ public:
 public:			
 	//------------------- constructor and destructor ------------------------------------//
 
-	inline mdkSparseMatrix();
+	inline SparseMatrix();
 
-    inline mdkSparseMatrix(int64 RowNumber, int64 ColNumber);
+    inline SparseMatrix(int64 RowNumber, int64 ColNumber);
 
-    inline mdkSparseMatrix(const ElementType& Element);
+    inline SparseMatrix(const ElementType& Element);
 
     // copy constructor (Copy or Share)
-    inline mdkSparseMatrix(const mdkSparseMatrix<ElementType>& InputSparseMatrix, mdkObjectConstructionTypeEnum Method = mdkObjectConstructionTypeEnum::Copy);
+    inline SparseMatrix(const SparseMatrix<ElementType>& InputSparseMatrix, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
 
     // move constructor
-    inline mdkSparseMatrix(mdkSparseMatrix<ElementType>&& InputSparseMatrix);
+    inline SparseMatrix(SparseMatrix<ElementType>&& InputSparseMatrix);
 
-    inline mdkSparseMatrix(const mdkSparseShadowMatrix<ElementType>& SparseShadowMatrix);
+    inline SparseMatrix(const SparseShadowMatrix<ElementType>& SparseShadowMatrix);
 
-    inline mdkSparseMatrix(const mdkSparseGlueMatrixForLinearCombination<ElementType>& SparseGlueMatrix);
+    inline SparseMatrix(const SparseGlueMatrixForLinearCombination<ElementType>& SparseGlueMatrix);
 
-    inline mdkSparseMatrix(const mdkSparseGlueMatrixForMultiplication<ElementType>& SparseGlueMatrix);
+    inline SparseMatrix(const SparseGlueMatrixForMultiplication<ElementType>& SparseGlueMatrix);
 
-	inline ~mdkSparseMatrix();
+	inline ~SparseMatrix();
 
     //------------------------------construction method -----------------------------//
 
-    inline bool Construct(const mdkDenseMatrix<int64>& RowIndexList,
-                          const mdkDenseMatrix<int64>& ColIndexList,
-                          const mdkDenseMatrix<ElementType>& DataArray,
+    inline bool Construct(const DenseMatrix<int64>& RowIndexList,
+                          const DenseMatrix<int64>& ColIndexList,
+                          const DenseMatrix<ElementType>& DataArray,
                           int64 RowNumber,
                           int64 ColNumber,
                           int64 AdditionalReservedCapacity = 0);
@@ -204,10 +204,10 @@ public:
     // copy assignment operator
     // do not use function template for this function
     // otherwise, compiler will create a new one
-    inline void operator=(const mdkSparseMatrix<ElementType>& InputMatrix);
+    inline void operator=(const SparseMatrix<ElementType>& InputMatrix);
 
     // move assignment operator
-    inline void operator=(mdkSparseMatrix<ElementType>&& InputMatrix);
+    inline void operator=(SparseMatrix<ElementType>&& InputMatrix);
 
     inline void operator=(const ElementType& Element);
 
@@ -215,18 +215,18 @@ public:
 
     inline void operator=(const std::initializer_list<std::initializer_list<ElementType>>& list);
 
-    inline void operator=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix);
+    inline void operator=(const SparseShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline void operator=(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+    inline void operator=(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
-    inline void operator=(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    inline void operator=(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
     //----------------------  Copy From SparseMatrix or Element  ----------------------------------------//
 
     // Copy can be used to convert a SparseMatrix from double (ElementType_Input) to float (ElementType), etc
 
     template<typename ElementType_Input>  
-    inline bool Copy(const mdkSparseMatrix<ElementType_Input>& InputMatrix);
+    inline bool Copy(const SparseMatrix<ElementType_Input>& InputMatrix);
 
     template<typename ElementType_Input>
     inline bool Copy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
@@ -237,27 +237,27 @@ public:
  
     // if m_IsSizeFixed is true, and size does not match, then return false
     //
-    inline bool Share(mdkSparseMatrix<ElementType>& InputMatrix);
+    inline bool Share(SparseMatrix<ElementType>& InputMatrix);
 
     // it is used by SparseGlueMatrix
     // Share the object (InputSparseMatrix) no matter what, even if InputSparseMatrix is const
-    inline void ForceShare(const mdkSparseMatrix<ElementType>& InputMatrix);
+    inline void ForceShare(const SparseMatrix<ElementType>& InputMatrix);
 
     //-------------------- Take -----------------------------------------------------------//
 
     //Take the the ownership of the InputSparseMatrix and ForceClear it
 
-    inline bool Take(mdkSparseMatrix<ElementType>& InputMatrix);
+    inline bool Take(SparseMatrix<ElementType>& InputMatrix);
 
-    inline bool Take(mdkSparseMatrix<ElementType>&& InputMatrix);
+    inline bool Take(SparseMatrix<ElementType>&& InputMatrix);
 
     //Take the the ownership of the SparseMatrix Created from ShadowSparseMatrix or SparseGlueMatrix
 
-    inline bool Take(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix);
+    inline bool Take(const SparseShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline bool Take(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+    inline bool Take(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
-    inline bool Take(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    inline bool Take(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
     //------------------------- Reset , Clear -------------------------------------------//
 private:    
@@ -280,7 +280,7 @@ public:
 
     inline bool IsEmpty() const;
 
-	inline mdkMatrixSize GetSize() const;
+	inline MatrixSize GetSize() const;
 
     inline int64 GetElementNumber() const;
 
@@ -296,7 +296,7 @@ public:
 
     //------------------------ Element Type -----------------------------//
 
-    inline mdkMatrixElementTypeEnum GetElementType() const;
+    inline MatrixElementTypeEnum GetElementType() const;
 
     //--------------------- Get Data Pointer -----------------------------//
 
@@ -358,146 +358,146 @@ public:
     //
     // note: operator[] is for single element access only, operator[{}] is not defined
 
-    inline mdkSparseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& LinearIndexList);
+    inline SparseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& LinearIndexList);
 
-    inline const mdkSparseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& LinearIndexList) const;
+    inline const SparseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& LinearIndexList) const;
 
-    inline mdkSparseShadowMatrix<ElementType> operator()(const std::vector<int64>& LinearIndexList);
+    inline SparseShadowMatrix<ElementType> operator()(const std::vector<int64>& LinearIndexList);
 
-    inline const mdkSparseShadowMatrix<ElementType> operator()(const std::vector<int64>& LinearIndexList) const;
+    inline const SparseShadowMatrix<ElementType> operator()(const std::vector<int64>& LinearIndexList) const;
 
-    inline mdkSparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+    inline SparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const mdkSparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
+    inline const SparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     // at(): bound check -----------------
 
-    inline mdkSparseShadowMatrix<ElementType> at(std::initializer_list<int64>& LinearIndexList);
+    inline SparseShadowMatrix<ElementType> at(std::initializer_list<int64>& LinearIndexList);
 
-    inline const mdkSparseShadowMatrix<ElementType> at(std::initializer_list<int64>& LinearIndexList) const;
+    inline const SparseShadowMatrix<ElementType> at(std::initializer_list<int64>& LinearIndexList) const;
 
-    inline mdkSparseShadowMatrix<ElementType> at(const std::vector<int64>& LinearIndexList);
+    inline SparseShadowMatrix<ElementType> at(const std::vector<int64>& LinearIndexList);
 
-    inline const mdkSparseShadowMatrix<ElementType> at(const std::vector<int64>& LinearIndexList) const;
+    inline const SparseShadowMatrix<ElementType> at(const std::vector<int64>& LinearIndexList) const;
 
-    inline mdkSparseShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+    inline SparseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const mdkSparseShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
+    inline const SparseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     //---------------------- Get/Set SubSparseMatrix by SparseMatrix({}, {}) or SparseMatrix.at({}, {})  or SparseMatrix.SubSparseMatrix(a, b, c, d) -------//
 
     // operator(): no bound check in release mode
 
-    inline mdkSparseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& RowIndexList,
+    inline SparseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& RowIndexList,
                                                          std::initializer_list<int64>& ColIndexList);
 
-    inline const mdkSparseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& RowIndexList,
+    inline const SparseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& RowIndexList,
                                                                std::initializer_list<int64>& ColIndexList) const;
 
-    inline mdkSparseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList,
-                                                         const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+    inline SparseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList,
+                                                         const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const mdkSparseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList,
-                                                               const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
+    inline const SparseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList,
+                                                               const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
-    inline mdkSparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
+    inline SparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
                                                          const std::initializer_list<int64>& ColIndexList);
 
-    inline const mdkSparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
+    inline const SparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
                                                                const std::initializer_list<int64>& ColIndexList) const;
 
-    inline mdkSparseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
+    inline SparseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
                                                          const std::vector<int64>& ColIndexList);
 
-    inline const mdkSparseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
+    inline const SparseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
                                                                const std::vector<int64>& ColIndexList) const;
 
-    inline mdkSparseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
-                                                         const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+    inline SparseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
+                                                         const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const mdkSparseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
-                                                               const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
+    inline const SparseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
+                                                               const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
-    inline mdkSparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
+    inline SparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
                                                          const std::vector<int64>& ColIndexList);
 
-    inline const mdkSparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
+    inline const SparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
                                                                const std::vector<int64>& ColIndexList) const;
 
     // at(): bound check -----------------
 
-    inline mdkSparseShadowMatrix<ElementType> at(std::initializer_list<int64>& RowIndexList,
+    inline SparseShadowMatrix<ElementType> at(std::initializer_list<int64>& RowIndexList,
                                                  std::initializer_list<int64>& ColIndexList);
 
-    inline const mdkSparseShadowMatrix<ElementType> at(std::initializer_list<int64>& RowIndexList,
+    inline const SparseShadowMatrix<ElementType> at(std::initializer_list<int64>& RowIndexList,
                                                        std::initializer_list<int64>& ColIndexList) const;
 
-    inline mdkSparseShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
-                                                 const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+    inline SparseShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
+                                                 const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const mdkSparseShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
-                                                       const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
+    inline const SparseShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
+                                                       const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
-    inline mdkSparseShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
+    inline SparseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
                                                  const std::initializer_list<int64>& ColIndexList);
 
-    inline const mdkSparseShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
+    inline const SparseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
                                                        const std::initializer_list<int64>& ColIndexList) const;
 
-    inline mdkSparseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
+    inline SparseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
                                                  const std::vector<int64>& ColIndexList);
 
-    inline const mdkSparseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
+    inline const SparseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
                                                        const std::vector<int64>& ColIndexList) const;
 
-    inline mdkSparseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
-                                                 const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol);
+    inline SparseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
+                                                 const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const mdkSparseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
-                                                       const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
+    inline const SparseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
+                                                       const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
-    inline mdkSparseShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
+    inline SparseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
                                                  const std::vector<int64>& ColIndexList);
 
-    inline const mdkSparseShadowMatrix<ElementType> at(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
+    inline const SparseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
                                                        const std::vector<int64>& ColIndexList) const;
 
     // return SubSparseMatrix as SparseMatrix -----------------------------------------------
 
-    inline mdkSparseMatrix GetSubMatrix(const std::vector<int64>& RowIndexList, 
+    inline SparseMatrix GetSubMatrix(const std::vector<int64>& RowIndexList, 
                                         const std::vector<int64>& ColIndexList) const;
 
-    inline mdkSparseMatrix GetSubMatrix(const std::vector<int64>& RowIndexList, 
-                                        const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol) const;
+    inline SparseMatrix GetSubMatrix(const std::vector<int64>& RowIndexList, 
+                                        const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
-    inline mdkSparseMatrix GetSubMatrix(const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol, 
+    inline SparseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
                                         const std::vector<int64>& ColIndexList) const;
 
-    inline bool GetSubMatrix(mdkSparseMatrix<ElementType> &OutputSparseMatrix, 
+    inline bool GetSubMatrix(SparseMatrix<ElementType> &OutputSparseMatrix, 
                              const std::vector<int64>& RowIndexList, 
                              const std::vector<int64>& ColIndexList) const;
 
 	//---------------------- Get/Set/Fill/Append/Delete/InsertCol Column ----------------------------------------//
 	
-    inline mdkSparseShadowMatrix<ElementType> Col(int64 ColIndex);
+    inline SparseShadowMatrix<ElementType> Col(int64 ColIndex);
 
-    inline mdkSparseShadowMatrix<ElementType> Col(std::initializer_list<int64>& ColIndexList);
+    inline SparseShadowMatrix<ElementType> Col(std::initializer_list<int64>& ColIndexList);
 
-    inline mdkSparseShadowMatrix<ElementType> Col(const std::vector<int64>& ColIndexList);
+    inline SparseShadowMatrix<ElementType> Col(const std::vector<int64>& ColIndexList);
 
-    inline mdkSparseMatrix GetCol(int64 ColIndex) const;
+    inline SparseMatrix GetCol(int64 ColIndex) const;
 
-    inline bool GetCol(int64 ColIndex, mdkDenseMatrix<ElementType>& ColData) const;
+    inline bool GetCol(int64 ColIndex, DenseMatrix<ElementType>& ColData) const;
 
     inline bool GetCol(int64 ColIndex, std::vector<ElementType>& ColData) const;
 
     inline bool GetCol(int64 ColIndex, ElementType* ColData) const;
 
     template<typename ElementType_Input>
-    inline bool SetCol(int64 ColIndex, const mdkSparseMatrix<ElementType_Input>& ColData);
+    inline bool SetCol(int64 ColIndex, const SparseMatrix<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool SetCol(int64 ColIndex, const mdkDenseMatrix<ElementType_Input>& ColData);
+    inline bool SetCol(int64 ColIndex, const DenseMatrix<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
     inline bool SetCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData);
@@ -511,10 +511,10 @@ public:
     inline bool FillCol(int64 RowIndex, const ElementType& Element);
 
     template<typename ElementType_Input>
-    inline bool AppendCol(const mdkSparseMatrix<ElementType_Input>& ColData);
+    inline bool AppendCol(const SparseMatrix<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool AppendCol(const mdkDenseMatrix<ElementType_Input>& ColData);
+    inline bool AppendCol(const DenseMatrix<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
     inline bool AppendCol(const std::initializer_list<ElementType_Input>& ColData);
@@ -535,10 +535,10 @@ public:
     inline bool DeleteCol(const int64* ColIndexListPtr, int64 Length);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(int64 ColIndex, const mdkSparseMatrix<ElementType_Input>& ColData);
+    inline bool InsertCol(int64 ColIndex, const SparseMatrix<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(int64 ColIndex, const mdkDenseMatrix<ElementType_Input>& ColData);
+    inline bool InsertCol(int64 ColIndex, const DenseMatrix<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
     inline bool InsertCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData);
@@ -551,25 +551,25 @@ public:
 
 	//---------------------- Get/Set/Fill/Append/Delete Row  ----------------------------------------//
 	
-    inline mdkSparseShadowMatrix<ElementType> Row(int64 RowIndex);
+    inline SparseShadowMatrix<ElementType> Row(int64 RowIndex);
 
-    inline mdkSparseShadowMatrix<ElementType> Row(std::initializer_list<int64>& RowIndexList);
+    inline SparseShadowMatrix<ElementType> Row(std::initializer_list<int64>& RowIndexList);
 
-    inline mdkSparseShadowMatrix<ElementType> Row(const std::vector<int64>& RowIndexList);
+    inline SparseShadowMatrix<ElementType> Row(const std::vector<int64>& RowIndexList);
 
-    inline mdkSparseMatrix GetRow(int64 RowIndex) const;
+    inline SparseMatrix GetRow(int64 RowIndex) const;
 
-    inline bool GetRow(int64 RowIndex, mdkDenseMatrix<ElementType>& RowData) const;
+    inline bool GetRow(int64 RowIndex, DenseMatrix<ElementType>& RowData) const;
 
     inline bool GetRow(int64 RowIndex, std::vector<ElementType>& RowData) const;
 
     inline bool GetRow(int64 RowIndex, ElementType* RowData) const;
 
     template<typename ElementType_Input>
-    inline bool SetRow(int64 RowIndex, const mdkSparseMatrix<ElementType_Input>& RowData);
+    inline bool SetRow(int64 RowIndex, const SparseMatrix<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool SetRow(int64 RowIndex, const mdkDenseMatrix<ElementType_Input>& RowData);
+    inline bool SetRow(int64 RowIndex, const DenseMatrix<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
     inline bool SetRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData);
@@ -583,10 +583,10 @@ public:
     inline bool FillRow(int64 RowIndex, const ElementType& Element);
 
     template<typename ElementType_Input>
-    inline bool AppendRow(const mdkDenseMatrix<ElementType_Input>& RowData);
+    inline bool AppendRow(const DenseMatrix<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool AppendRow(const mdkSparseMatrix<ElementType_Input>& RowData);
+    inline bool AppendRow(const SparseMatrix<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
     inline bool AppendRow(const std::initializer_list<ElementType_Input>& RowData);
@@ -607,10 +607,10 @@ public:
     inline bool DeleteRow(const int64* RowIndexListPtr, int64 Length);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(int64 RowIndex, const mdkSparseMatrix<ElementType_Input>& RowData);
+    inline bool InsertRow(int64 RowIndex, const SparseMatrix<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(int64 RowIndex, const mdkDenseMatrix<ElementType_Input>& RowData);
+    inline bool InsertRow(int64 RowIndex, const DenseMatrix<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
     inline bool InsertRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData);
@@ -623,21 +623,21 @@ public:
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 
-    inline mdkSparseShadowMatrix<ElementType> Diangonal();
+    inline SparseShadowMatrix<ElementType> Diangonal();
 
-    inline mdkSparseMatrix GetDiangonal() const;
+    inline SparseMatrix GetDiangonal() const;
 
-    inline bool GetDiangonal(mdkDenseMatrix<ElementType>& DiangonalData) const;
+    inline bool GetDiangonal(DenseMatrix<ElementType>& DiangonalData) const;
 
     inline bool GetDiangonal(std::vector<ElementType>& DiangonalData) const;
 
     inline bool GetDiangonal(ElementType* DiangonalData) const;
 
     template<typename ElementType_Input>
-    inline bool SetDiangonal(const mdkSparseMatrix<ElementType_Input>& DiangonalData);
+    inline bool SetDiangonal(const SparseMatrix<ElementType_Input>& DiangonalData);
 
     template<typename ElementType_Input>
-    inline bool SetDiangonal(const mdkDenseMatrix<ElementType_Input>& DiangonalData);
+    inline bool SetDiangonal(const DenseMatrix<ElementType_Input>& DiangonalData);
 
     template<typename ElementType_Input>
     inline bool SetDiangonal(const std::initializer_list<ElementType_Input>& DiangonalData);
@@ -652,32 +652,32 @@ public:
 
 	//---------------------- SparseMatrix {+= -= *= /=} SparseMatrix ----------------------------------------//
 
-	inline void operator+=(const mdkSparseMatrix<ElementType>& InputMatrix);
+	inline void operator+=(const SparseMatrix<ElementType>& InputMatrix);
 
-    inline void operator-=(const mdkSparseMatrix<ElementType>& InputMatrix);
+    inline void operator-=(const SparseMatrix<ElementType>& InputMatrix);
 
-    inline void operator*=(const mdkSparseMatrix<ElementType>& InputMatrix);
-
-
-    inline void operator+=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix);
-
-    inline void operator-=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix);
-
-    inline void operator*=(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix);
+    inline void operator*=(const SparseMatrix<ElementType>& InputMatrix);
 
 
-    inline void operator+=(mdkSparseGlueMatrixForLinearCombination<ElementType> GlueMatrix);
+    inline void operator+=(const SparseShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline void operator-=(mdkSparseGlueMatrixForLinearCombination<ElementType> GlueMatrix);
+    inline void operator-=(const SparseShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline void operator*=(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+    inline void operator*=(const SparseShadowMatrix<ElementType>& ShadowMatrix);
 
 
-    inline void operator+=(mdkSparseGlueMatrixForMultiplication<ElementType> GlueMatrix);
+    inline void operator+=(SparseGlueMatrixForLinearCombination<ElementType> GlueMatrix);
 
-    inline void operator-=(mdkSparseGlueMatrixForMultiplication<ElementType> GlueMatrix);
+    inline void operator-=(SparseGlueMatrixForLinearCombination<ElementType> GlueMatrix);
 
-    inline void operator*=(mdkSparseGlueMatrixForMultiplication<ElementType> GlueMatrix);
+    inline void operator*=(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+
+
+    inline void operator+=(SparseGlueMatrixForMultiplication<ElementType> GlueMatrix);
+
+    inline void operator-=(SparseGlueMatrixForMultiplication<ElementType> GlueMatrix);
+
+    inline void operator*=(SparseGlueMatrixForMultiplication<ElementType> GlueMatrix);
 
     //---------------------- SparseMatrix {+= -= *= /=} Element ----------------------------------------//
 
@@ -691,48 +691,48 @@ public:
 
     //-------------------- special element operation {^} -----------------------------------------------------------//
 
-    inline mdkSparseMatrix operator^(const ElementType& Element);
+    inline SparseMatrix operator^(const ElementType& Element);
 
     inline void operator^=(const ElementType& Element);
 
     //-------------------- special element operation {.*} element multiply -----------------------------------------------------------//
 
-    inline mdkSparseMatrix ElementMultiply(const ElementType& Element) const;
+    inline SparseMatrix ElementMultiply(const ElementType& Element) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkSparseMatrix<ElementType>& InputSparseMatrix) const;
+    inline SparseMatrix ElementMultiply(const SparseMatrix<ElementType>& InputSparseMatrix) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkSparseShadowMatrix<ElementType>& SparseShadowMatrix) const;
+    inline SparseMatrix ElementMultiply(const SparseShadowMatrix<ElementType>& SparseShadowMatrix) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkSparseGlueMatrixForLinearCombination<ElementType>& SparseGlueMatrix) const;
+    inline SparseMatrix ElementMultiply(const SparseGlueMatrixForLinearCombination<ElementType>& SparseGlueMatrix) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkSparseGlueMatrixForMultiplication<ElementType>& SparseGlueMatrix) const;
+    inline SparseMatrix ElementMultiply(const SparseGlueMatrixForMultiplication<ElementType>& SparseGlueMatrix) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkDenseMatrix<ElementType>& InputDenseMatrix) const;
+    inline SparseMatrix ElementMultiply(const DenseMatrix<ElementType>& InputDenseMatrix) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkDenseShadowMatrix<ElementType>& DenseShadowMatrix) const;
+    inline SparseMatrix ElementMultiply(const DenseShadowMatrix<ElementType>& DenseShadowMatrix) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& DenseGlueMatrix) const;
+    inline SparseMatrix ElementMultiply(const DenseGlueMatrixForLinearCombination<ElementType>& DenseGlueMatrix) const;
 
-    inline mdkSparseMatrix ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& DenseGlueMatrix) const;
+    inline SparseMatrix ElementMultiply(const DenseGlueMatrixForMultiplication<ElementType>& DenseGlueMatrix) const;
 
     //-------------------- general element operation : output a new matrix ------------------------------------------//
 
-    inline mdkSparseMatrix ElementOperation(const char* OperationName) const;
+    inline SparseMatrix ElementOperation(const char* OperationName) const;
 
-    inline mdkSparseMatrix ElementOperation(const std::string& OperationName) const;
+    inline SparseMatrix ElementOperation(const std::string& OperationName) const;
 
-    inline mdkSparseMatrix ElementOperation(std::function<ElementType(const ElementType&)> Operation) const;
+    inline SparseMatrix ElementOperation(std::function<ElementType(const ElementType&)> Operation) const;
 
-    inline mdkSparseMatrix ElementOperation(const std::string& OperationName, const mdkSparseMatrix<ElementType>& InputMatrix) const;
+    inline SparseMatrix ElementOperation(const std::string& OperationName, const SparseMatrix<ElementType>& InputMatrix) const;
 
-    inline mdkSparseMatrix ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
-                                            const mdkSparseMatrix<ElementType>& InputMatrix) const;
+    inline SparseMatrix ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
+                                            const SparseMatrix<ElementType>& InputMatrix) const;
 
-    inline mdkSparseMatrix ElementOperation(const char* OperationName, const ElementType& Element) const;
+    inline SparseMatrix ElementOperation(const char* OperationName, const ElementType& Element) const;
 
-    inline mdkSparseMatrix ElementOperation(const std::string& OperationName, const ElementType& Element) const;
+    inline SparseMatrix ElementOperation(const std::string& OperationName, const ElementType& Element) const;
 
-    inline mdkSparseMatrix ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, const ElementType& Element) const;
+    inline SparseMatrix ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, const ElementType& Element) const;
 
     //-------------------- general element operation in place : Object.ElementOperationInPlace modify the object ------------------//
 
@@ -742,12 +742,12 @@ public:
 
     inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&)> Operation);
 
-    inline bool ElementOperationInPlace(const char* OperationName, const mdkSparseMatrix<ElementType>& InputMatrix);
+    inline bool ElementOperationInPlace(const char* OperationName, const SparseMatrix<ElementType>& InputMatrix);
 
-    inline bool ElementOperationInPlace(const std::string& OperationName, const mdkSparseMatrix<ElementType>& InputMatrix);
+    inline bool ElementOperationInPlace(const std::string& OperationName, const SparseMatrix<ElementType>& InputMatrix);
 
     inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
-                                        const mdkSparseMatrix<ElementType>& InputMatrix);
+                                        const SparseMatrix<ElementType>& InputMatrix);
 
     inline bool ElementOperationInPlace(const char* OperationName, const ElementType& Element);
 
@@ -759,31 +759,31 @@ public:
 
     inline ElementType Mean() const;
 
-    inline mdkSparseMatrix MeanToRow() const;
+    inline SparseMatrix MeanToRow() const;
 
-    inline mdkSparseMatrix MeanToCol() const;
+    inline SparseMatrix MeanToCol() const;
 
     inline ElementType Sum() const;
 
-    inline mdkSparseMatrix SumToRow() const;
+    inline SparseMatrix SumToRow() const;
 
-    inline mdkSparseMatrix SumToCol() const;
+    inline SparseMatrix SumToCol() const;
 
     inline ElementType Max() const;
 
-    inline mdkSparseMatrix MaxToRow() const;
+    inline SparseMatrix MaxToRow() const;
 
-    inline mdkSparseMatrix MaxToCol() const;
+    inline SparseMatrix MaxToCol() const;
 
     inline ElementType Min() const;
 
-    inline mdkSparseMatrix MinToRow() const;
+    inline SparseMatrix MinToRow() const;
 
-    inline mdkSparseMatrix MinToCol() const;
+    inline SparseMatrix MinToCol() const;
 
 	//----------------------------------- transpose -----------------------------------------//
 
-    inline mdkSparseMatrix Transpose() const;
+    inline SparseMatrix Transpose() const;
 
 	//----------------------------------- Rank -----------------------------------------//
 
@@ -791,13 +791,13 @@ public:
 
 	//----------------------------------- inverse -----------------------------------------//
 
-    inline mdkDenseMatrix<ElementType> Inv() const;
+    inline DenseMatrix<ElementType> Inv() const;
 
-    inline mdkDenseMatrix<ElementType> PseudoInv() const;
+    inline DenseMatrix<ElementType> PseudoInv() const;
 
 	//----------------------------------- SVD -----------------------------------------//
 
-    inline mdkSparseMatrixSVDResult<ElementType> SVD() const;
+    inline SparseMatrixSVDResult<ElementType> SVD() const;
 
 
 	//---------------------------- private functions ---------------------------------------//
@@ -811,49 +811,49 @@ private:
 // ------------------------------------ SparseMatrix {+ - * /}  SparseMatrix ------------------------------------------------//
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> operator+(const mdkSparseMatrix<ElementType>& SparseMatrixA, const mdkSparseMatrix<ElementType>& SparseMatrixB);
+inline SparseMatrix<ElementType> operator+(const SparseMatrix<ElementType>& SparseMatrixA, const SparseMatrix<ElementType>& SparseMatrixB);
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> operator-(const mdkSparseMatrix<ElementType>& SparseMatrixA, const mdkSparseMatrix<ElementType>& SparseMatrixB);
+inline SparseMatrix<ElementType> operator-(const SparseMatrix<ElementType>& SparseMatrixA, const SparseMatrix<ElementType>& SparseMatrixB);
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> operator*(const mdkSparseMatrix<ElementType>& SparseMatrixA, const mdkSparseMatrix<ElementType>& SparseMatrixB);
+inline SparseMatrix<ElementType> operator*(const SparseMatrix<ElementType>& SparseMatrixA, const SparseMatrix<ElementType>& SparseMatrixB);
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> operator/(const mdkSparseMatrix<ElementType>& SparseMatrixA, const mdkSparseMatrix<ElementType>& SparseMatrixB);
+inline SparseMatrix<ElementType> operator/(const SparseMatrix<ElementType>& SparseMatrixA, const SparseMatrix<ElementType>& SparseMatrixB);
 
 // ------------------------------------ SparseMatrix {+ - * /}  Element ------------------------------------------------//
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> operator+(mdkSparseMatrix<ElementType>& SparseMatrixA, const ElementType& ElementB);
+inline SparseMatrix<ElementType> operator+(SparseMatrix<ElementType>& SparseMatrixA, const ElementType& ElementB);
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> operator-(mdkSparseMatrix<ElementType>& SparseMatrixA, const ElementType& ElementB);
+inline SparseMatrix<ElementType> operator-(SparseMatrix<ElementType>& SparseMatrixA, const ElementType& ElementB);
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> operator*(mdkSparseMatrix<ElementType>& SparseMatrixA, const ElementType& ElementB);
+inline SparseMatrix<ElementType> operator*(SparseMatrix<ElementType>& SparseMatrixA, const ElementType& ElementB);
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> operator/(mdkSparseMatrix<ElementType>& SparseMatrixA, const ElementType& ElementB);
+inline SparseMatrix<ElementType> operator/(SparseMatrix<ElementType>& SparseMatrixA, const ElementType& ElementB);
 
 // ------------------------------------- Element {+ - * /} SparseMatrix ------------------------------------------------//
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> operator+(const ElementType& ElementA, const mdkSparseMatrix<ElementType>& SparseMatrixB);
+inline SparseMatrix<ElementType> operator+(const ElementType& ElementA, const SparseMatrix<ElementType>& SparseMatrixB);
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> operator-(const ElementType& ElementA, const mdkSparseMatrix<ElementType>& SparseMatrixB);
+inline SparseMatrix<ElementType> operator-(const ElementType& ElementA, const SparseMatrix<ElementType>& SparseMatrixB);
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> operator*(const ElementType& ElementA, const mdkSparseMatrix<ElementType>& SparseMatrixB);
+inline SparseMatrix<ElementType> operator*(const ElementType& ElementA, const SparseMatrix<ElementType>& SparseMatrixB);
 
 template<typename ElementType>
-inline mdkSparseMatrix<ElementType> operator/(const ElementType& ElementA, const mdkSparseMatrix<ElementType>& SparseMatrixB);
+inline SparseMatrix<ElementType> operator/(const ElementType& ElementA, const SparseMatrix<ElementType>& SparseMatrixB);
 
 // ----------------------- Element = SparseMatrix (if 1x1) is not allowed in c++ --------------------------------------------//
 // not allowed in c++
 //template<typename ElementType>
-//inline void operator=(ElementType& Element, const mdkSparseMatrix<ElementType>& SparseMatrix);
+//inline void operator=(ElementType& Element, const SparseMatrix<ElementType>& SparseMatrix);
 */
 //=====================================================================================================================//
 

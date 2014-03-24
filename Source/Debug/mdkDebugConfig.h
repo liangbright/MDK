@@ -9,25 +9,25 @@ namespace mdk
 
 //==================================================================================================================
 
-#define  mdkDebugCode(x)    x
+#define  MDK_DebugCode(x)    x
 
 //#define  mdkDebugCode(x) 
 
-#define  mdkWarning    std::cout << "Warning: "
+#define  MDK_Warning    std::cout << "Warning: "
 
-#define  mdkError      std::cout << '\a' << '\a' << '\a' << "ERROR: !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!: " << '\n'
+#define  MDK_Error      std::cout << '\a' << '\a' << '\a' << "ERROR: !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!: " << '\n'
 
 /*
-#define  mdkWarning    std::cout << "Warning: ......" << '\n' \
-                                 << "File: "__FILE__ << '\n' \
-                                 << "Line: " << __LINE__ << '\n' \
-                                 << "Message: "
+#define  MDK_Warning    std::cout << "Warning: ......" << '\n' \
+                                  << "File: "__FILE__ << '\n' \
+                                  << "Line: " << __LINE__ << '\n' \
+                                  << "Message: "
 
-#define  mdkError      std::cout << '\a' << '\a' << '\a' \
-                                 << "ERROR: !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!: " << '\n' \
-                                 << "File: "__FILE__ << '\n' \
-                                 << "Line: " << __LINE__ << '\n' \
-                                 << "Message: "
+#define  MDK_Error      std::cout << '\a' << '\a' << '\a' \
+                                  << "ERROR: !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!: " << '\n' \
+                                  << "File: "__FILE__ << '\n' \
+                                  << "Line: " << __LINE__ << '\n' \
+                                  << "Message: "
 */
 //-------------------------------mdk3DImage---------------------------------------------------------//
 

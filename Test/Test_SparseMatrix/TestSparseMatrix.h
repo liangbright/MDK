@@ -17,7 +17,7 @@
 using namespace mdk;
 
 template<typename T>
-void DisplayMatrix(const std::string& Name, const mdkSparseMatrix<T>& Matrix, uint32 value_std_setw = 6, uint32 precision = 0)
+void DisplayMatrix(const std::string& Name, const SparseMatrix<T>& Matrix, uint32 value_std_setw = 6, uint32 precision = 0)
 {
     auto Size = Matrix.GetSize();
 
@@ -41,7 +41,7 @@ void Test_Constructor()
 {
     std::cout << "Test_Constructor()" << '\n';
 
-    mdkSparseMatrix<double> A;
+    SparseMatrix<double> A;
 
     A.Construct({ 0, 1 , 2, 3}, { 0, 1 , 2, 3}, { 1, 2, 3, 4}, 10, 10);
 
@@ -100,7 +100,7 @@ void Test_Resize()
 {
     std::cout << "Test_Constructor()" << '\n';
 
-    mdkSparseMatrix<double> A;
+    SparseMatrix<double> A;
 
     A.Construct({ 0, 1, 2, 3 }, { 0, 1, 2, 3 }, { 1, 2, 3, 4 }, 10, 10);
 

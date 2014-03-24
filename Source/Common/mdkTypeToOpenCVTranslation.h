@@ -27,7 +27,7 @@ typedef enum
 
 //-------------------------------------------------------------//
 
-OpenCVSingleChannelMatrixElementTypeEnum GetOpenCVSingleChannelMatrixElementType(mdkScalarTypeEnum mdkScalarType);
+OpenCVSingleChannelMatrixElementTypeEnum GetOpenCVSingleChannelMatrixElementType(ScalarTypeEnum mdkScalarType);
 
 
 template<typename ScalarType>

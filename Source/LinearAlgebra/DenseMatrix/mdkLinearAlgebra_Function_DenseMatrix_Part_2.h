@@ -18,29 +18,29 @@ namespace mdk
 
 //forward-declare ----------------//
 template<typename ElementType>
-class mdkDenseMatrix;
+class DenseMatrix;
 //-------------------------------------//
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixTranspose(const mdkDenseMatrix<ElementType>& Matrix);
+inline DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& Matrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline int64 MatrixRank(const mdkDenseMatrix<ElementType>& Matrix);
+inline int64 MatrixRank(const DenseMatrix<ElementType>& Matrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixInv(const mdkDenseMatrix<ElementType>& Matrix);
+inline DenseMatrix<ElementType> MatrixInv(const DenseMatrix<ElementType>& Matrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
 struct mdkDenseMatrixEigenResult
 {
-    mdkDenseMatrix<ElementType> EigenVector;    // eigenvector : full matrix
-    mdkDenseMatrix<ElementType> EigenValue;     // eigenvalue  : col vector
+    DenseMatrix<ElementType> EigenVector;    // eigenvector : full matrix
+    DenseMatrix<ElementType> EigenValue;     // eigenvalue  : col vector
 
     mdkDenseMatrixEigenResult(){};
 
@@ -64,19 +64,19 @@ struct mdkDenseMatrixEigenResult
 };
 
 template<typename ElementType>
-inline mdkDenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(const mdkDenseMatrix<ElementType>& Matrix);
+inline mdkDenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(const DenseMatrix<ElementType>& Matrix);
 
 template<typename ElementType>
-inline mdkDenseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const mdkDenseMatrix<ElementType>& Matrix, bool CheckIfSymmetric = false);
+inline mdkDenseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const DenseMatrix<ElementType>& Matrix, bool CheckIfSymmetric = false);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
 struct mdkDenseMatrixPCAResult
 {
-    mdkDenseMatrix<ElementType> Mean;           // mean
-    mdkDenseMatrix<ElementType> EigenVector;    // eigenvector
-    mdkDenseMatrix<ElementType> EigenValue;     // col vector
+    DenseMatrix<ElementType> Mean;           // mean
+    DenseMatrix<ElementType> EigenVector;    // eigenvector
+    DenseMatrix<ElementType> EigenValue;     // col vector
 
     mdkDenseMatrixPCAResult(){};
 
@@ -102,7 +102,7 @@ struct mdkDenseMatrixPCAResult
 };
 
 template<typename ElementType>
-inline mdkDenseMatrixPCAResult<ElementType> MatrixPCA(const mdkDenseMatrix<ElementType>& Matrix);
+inline mdkDenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& Matrix);
 
 //-----------------------------------------------------------------------------------------------//
 
@@ -110,9 +110,9 @@ template<typename ElementType>
 struct mdkDenseMatrixSVDResult
 {
     // Matrix = U*S*V;
-    mdkDenseMatrix<ElementType> U;  // matrix
-    mdkDenseMatrix<ElementType> S;  // matrix  : change to vector?
-    mdkDenseMatrix<ElementType> V;  // matrix
+    DenseMatrix<ElementType> U;  // matrix
+    DenseMatrix<ElementType> S;  // matrix  : change to vector?
+    DenseMatrix<ElementType> V;  // matrix
 
     mdkDenseMatrixSVDResult(){};
 
@@ -143,12 +143,12 @@ struct mdkDenseMatrixSVDResult
 
 
 template<typename ElementType>
-inline mdkDenseMatrixSVDResult<ElementType> MatrixSVD(const mdkDenseMatrix<ElementType>& Matrix);
+inline mdkDenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Matrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixConvolution(const mdkDenseMatrix<ElementType>& Matrix, const mdkDenseMatrix<ElementType>& Mask, const char* Option);
+inline DenseMatrix<ElementType> MatrixConvolution(const DenseMatrix<ElementType>& Matrix, const DenseMatrix<ElementType>& Mask, const char* Option);
 
 }//end namespace mdk
 

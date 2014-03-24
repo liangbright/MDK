@@ -6,29 +6,29 @@
 namespace mdk
 {
 
-OpenCVSingleChannelMatrixElementTypeEnum GetOpenCVSingleChannelMatrixElementType(mdkScalarTypeEnum mdkScalarType)
+OpenCVSingleChannelMatrixElementTypeEnum GetOpenCVSingleChannelMatrixElementType(ScalarTypeEnum mdkScalarType)
 {
     switch (mdkScalarType)
     {
-    case mdkScalarTypeEnum::DOUBLE64 :
+    case ScalarTypeEnum::DOUBLE64 :
         return OpenCVSingleChannelMatrixElementTypeEnum::DOUBLE64;
 
-    case mdkScalarTypeEnum::FLOAT32 :
+    case ScalarTypeEnum::FLOAT32 :
         return OpenCVSingleChannelMatrixElementTypeEnum::FLOAT32;
 
-    case mdkScalarTypeEnum::INT8:
+    case ScalarTypeEnum::INT8:
         return OpenCVSingleChannelMatrixElementTypeEnum::INT8;
 
-    case mdkScalarTypeEnum::INT16:
+    case ScalarTypeEnum::INT16:
         return OpenCVSingleChannelMatrixElementTypeEnum::INT16;
 
-    case mdkScalarTypeEnum::INT32:
+    case ScalarTypeEnum::INT32:
         return OpenCVSingleChannelMatrixElementTypeEnum::INT32;
 
-    case mdkScalarTypeEnum::UINT8:
+    case ScalarTypeEnum::UINT8:
         return OpenCVSingleChannelMatrixElementTypeEnum::UINT8;
 
-    case mdkScalarTypeEnum::UINT16:
+    case ScalarTypeEnum::UINT16:
         return OpenCVSingleChannelMatrixElementTypeEnum::UINT16;
 
     default:

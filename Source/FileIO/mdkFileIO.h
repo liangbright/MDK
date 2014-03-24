@@ -5,7 +5,7 @@
 
 #include <QString.h>
 
-#include "mdk3DImage.h"
+#include "mdkImageIn3D.h"
 
 namespace mdk
 {
@@ -16,9 +16,9 @@ struct NameValueQStringPair
     QString  Value;
 };
 
-mdk3DImage<double> ReadGrayScale3DImageFromDICOMFile(const std::string& FilePath);
+ImageIn3D<double> ReadGrayScale3DImageFromDICOMFile(const std::string& FilePath);
 
-void SaveGrayScale3DImageAsRawDataFile(const std::string& FilePathAndName, const mdk3DImage<double>& Image);
+void SaveGrayScale3DImageAsRawDataFile(const std::string& FilePathAndName, const ImageIn3D<double>& Image);
 
 bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, const QString& FilePathAndName);
 

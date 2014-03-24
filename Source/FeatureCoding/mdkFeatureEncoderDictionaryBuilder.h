@@ -10,27 +10,27 @@ namespace mdk
 {
 
 template<typename ElementType>
-class mdkFeatureEncoderDictionaryBuilder : public mdkObject
+class FeatureEncoderDictionaryBuilder : public Object
 {
 protected:
 
     // input:
 
-    const mdkDenseMatrix<ElementType>* m_FeatureData;
+    const DenseMatrix<ElementType>* m_FeatureData;
 
-    mdkFeatureEncoder<ElementType>* m_GenericEncoder;
+    FeatureEncoder<ElementType>* m_GenericEncoder;
 
     // output:
 
-    mdkFeatureDictionary<ElementType>* m_Dictionary;
+    FeatureDictionary<ElementType>* m_Dictionary;
 
-    mdkFeatureDictionary<ElementType> m_Dictionary_SharedCopy;
+    FeatureDictionary<ElementType> m_Dictionary_SharedCopy;
 
 public:
 
-    mdkFeatureEncoderDictionaryBuilder();
+    FeatureEncoderDictionaryBuilder();
 
-    ~mdkFeatureEncoderDictionaryBuilder();
+    ~FeatureEncoderDictionaryBuilder();
 
     //---------------------------------------------------//
 
@@ -38,15 +38,15 @@ public:
 
     //---------------------------------------------------//
 
-    bool SetInputFeatureData(const mdkDenseMatrix<ElementType>* InputFeatureData);
+    bool SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
 
     //---------------------------------------------------//
 
-    bool SetGenericEncoder(const mdkFeatureEncoder<ElementType>* FeatureEncoder);
+    bool SetGenericEncoder(const FeatureEncoder<ElementType>* FeatureEncoder);
 
     //---------------------------------------------------//
 
-    bool SetOutputDictionary(mdkFeatureDictionary<ElementType>* Dictionary);
+    bool SetOutputDictionary(FeatureDictionary<ElementType>* Dictionary);
 
     //----------------------------------------------------//
 
@@ -54,7 +54,7 @@ public:
 
     //----------------------------------------------------//
 
-    mdkFeatureDictionary<ElementType>* GetOutputDictionary();
+    FeatureDictionary<ElementType>* GetOutputDictionary();
 
 protected:
 
@@ -62,13 +62,13 @@ protected:
 
 private:
 //deleted
-    mdkFeatureEncoderDictionaryBuilder(const mdkFeatureEncoderDictionaryBuilder&) = delete;
+    FeatureEncoderDictionaryBuilder(const FeatureEncoderDictionaryBuilder&) = delete;
 
-    void operator=(const mdkFeatureEncoderDictionaryBuilder&) = delete;
+    void operator=(const FeatureEncoderDictionaryBuilder&) = delete;
 
-    mdkFeatureEncoderDictionaryBuilder(mdkFeatureEncoderDictionaryBuilder&&) = delete;
+    FeatureEncoderDictionaryBuilder(FeatureEncoderDictionaryBuilder&&) = delete;
 
-    void operator=(mdkFeatureEncoderDictionaryBuilder&&) = delete;
+    void operator=(FeatureEncoderDictionaryBuilder&&) = delete;
 
 };
 

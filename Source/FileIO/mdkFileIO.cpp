@@ -10,9 +10,9 @@
 namespace mdk
 {
 
-mdk3DImage<double> ReadGrayScale3DImageFromDICOMFile(const std::string& FilePath)
+Image3D<double> ReadGrayScale3DImageFromDICOMFile(const std::string& FilePath)
 {
-    mdk3DImage<double> tempImage;
+    Image3D<double> tempImage;
 
     auto reader = vtkSmartPointer<vtkDICOMImageReader>::New();
 
@@ -54,7 +54,7 @@ mdk3DImage<double> ReadGrayScale3DImageFromDICOMFile(const std::string& FilePath
 }
 
 
-void SaveGrayScale3DImageAsRawDataFile(const std::string& FilePathAndName, const mdk3DImage<double>& Image)
+void SaveGrayScale3DImageAsRawDataFile(const std::string& FilePathAndName, const Image3D<double>& Image)
 {
     std::vector<NameValueQStringPair> PairList(10);
 

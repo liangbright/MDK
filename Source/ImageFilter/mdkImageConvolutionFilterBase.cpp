@@ -1,24 +1,24 @@
 #include <thread>
 #include <algorithm>
 
-#include "mdk3DImageConvolutionFilterBase.h"
+#include "mdkImageConvolutionFilterBase.h"
 #include "mdkDebugConfig.h"
 
 namespace mdk
 {
 
-mdk3DImageConvolutionFilterBase::mdk3DImageConvolutionFilterBase()
+ImageConvolutionFilterBase::ImageConvolutionFilterBase()
 {
 }
 
 
-mdk3DImageConvolutionFilterBase::~mdk3DImageConvolutionFilterBase()
+ImageConvolutionFilterBase::~ImageConvolutionFilterBase()
 {
 	// do nothing
 }
 
 
-bool mdk3DImageConvolutionFilterBase::SetMaskOf3DIndex(const std::vector<mdkMatrix<double>>& MaskList)
+bool ImageConvolutionFilterBase::SetMaskOf3DIndex(const std::vector<DenseMatrix<double>>& MaskList)
 {
 	auto Length = int64(MaskList.size());
 
@@ -41,7 +41,7 @@ bool mdk3DImageConvolutionFilterBase::SetMaskOf3DIndex(const std::vector<mdkMatr
 }
 
 
-bool mdk3DImageConvolutionFilterBase::SetMaskOf3DPosition(const std::vector<mdkMatrix<double>>& MaskList)
+bool ImageConvolutionFilterBase::SetMaskOf3DPosition(const std::vector<DenseMatrix<double>>& MaskList)
 {
     auto Length = int64(MaskList.size());
 
@@ -64,7 +64,7 @@ bool mdk3DImageConvolutionFilterBase::SetMaskOf3DPosition(const std::vector<mdkM
 }
 
 
-bool mdk3DImageConvolutionFilterBase::SetMaskOf3DIndex(const mdkMatrix<double>& Mask)
+bool ImageConvolutionFilterBase::SetMaskOf3DIndex(const DenseMatrix<double>& Mask)
 {
     if (Mask.IsEmpty() == true)
     {
@@ -79,7 +79,7 @@ bool mdk3DImageConvolutionFilterBase::SetMaskOf3DIndex(const mdkMatrix<double>& 
 }
 
 
-bool mdk3DImageConvolutionFilterBase::SetMaskOf3DPosition(const mdkMatrix<double>& Mask)
+bool ImageConvolutionFilterBase::SetMaskOf3DPosition(const DenseMatrix<double>& Mask)
 {
 	if (Mask.IsEmpty() == true)
 	{
@@ -94,20 +94,20 @@ bool mdk3DImageConvolutionFilterBase::SetMaskOf3DPosition(const mdkMatrix<double
 }
 
 
-bool mdk3DImageConvolutionFilterBase::LoadMask(const std::string& FilePathAndName)
+bool ImageConvolutionFilterBase::LoadMask(const std::string& FilePathAndName)
 {
 
     return true;
 }
 
 
-bool mdk3DImageConvolutionFilterBase::SaveMask(const std::string& FilePathAndName)
+bool ImageConvolutionFilterBase::SaveMask(const std::string& FilePathAndName)
 {
     return true;
 }
 
 
-void mdk3DImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DIndex()
+void ImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DIndex()
 {
     auto Length = int64(m_MaskList_3DIndex.size());
 
@@ -189,7 +189,7 @@ void mdk3DImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DIndex()
 }
 
 
-void mdk3DImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DPosition()
+void ImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DPosition()
 {    
     auto Length = int64(m_MaskList_3DPosition.size());
 
@@ -279,7 +279,7 @@ void mdk3DImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DPosition()
 }
 
 
-bool mdk3DImageConvolutionFilterBase::IsMaskOf3DIndexEmpty()
+bool ImageConvolutionFilterBase::IsMaskOf3DIndexEmpty()
 {
     if (m_MaskList_3DIndex.size() > 0)
     {
@@ -290,7 +290,7 @@ bool mdk3DImageConvolutionFilterBase::IsMaskOf3DIndexEmpty()
 }
 
 
-bool mdk3DImageConvolutionFilterBase::IsMaskOf3DPositionEmpty()
+bool ImageConvolutionFilterBase::IsMaskOf3DPositionEmpty()
 {
     if (m_MaskList_3DPosition.size() > 0)
     {

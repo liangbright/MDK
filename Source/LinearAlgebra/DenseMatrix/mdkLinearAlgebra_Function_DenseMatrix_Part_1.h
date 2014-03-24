@@ -17,105 +17,105 @@ namespace mdk
 
 //forward-declare ----------------//
 template<typename ElementType>
-class mdkDenseMatrix;
+class DenseMatrix;
 
 //------------ MatrixAdd, MatrixSubtract, MatrixMultiply, MatrixElementMultiply, MatrixElementDivide ---------------------------------------//
 
 //------------------- OutputMatrixC = MatrixA operator MatrixB --------------------------------------------
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixAdd(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline DenseMatrix<ElementType> MatrixAdd(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline bool MatrixAdd(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixSubtract(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline DenseMatrix<ElementType> MatrixSubtract(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline bool MatrixSubtract(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixMultiply(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline DenseMatrix<ElementType> MatrixMultiply(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixElementMultiply(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline DenseMatrix<ElementType> MatrixElementMultiply(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline bool MatrixElementMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline bool MatrixElementMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixElementDivide(const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline DenseMatrix<ElementType> MatrixElementDivide(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline bool MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& MatrixA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 
 //------------------- OutputMatrixC = ElementA operator MatrixB --------------------------------------------
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixAdd(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline DenseMatrix<ElementType> MatrixAdd(const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline bool MatrixAdd(mdkDenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixSubtract(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline DenseMatrix<ElementType> MatrixSubtract(const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline bool MatrixSubtract(mdkDenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixMultiply(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline DenseMatrix<ElementType> MatrixMultiply(const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, mdkDenseMatrix<ElementType>& MatrixB);
+inline bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixElementMultiply(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline DenseMatrix<ElementType> MatrixElementMultiply(const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline bool MatrixElementMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline bool MatrixElementMultiply(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixElementDivide(const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline DenseMatrix<ElementType> MatrixElementDivide(const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
-inline bool MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const mdkDenseMatrix<ElementType>& MatrixB);
+inline bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB);
 
 //------------------- OutputMatrixC = MatrixA operator ElementB --------------------------------------------
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixAdd(const mdkDenseMatrix<ElementType>& Matrix, const ElementType& ElementB);
+inline DenseMatrix<ElementType> MatrixAdd(const DenseMatrix<ElementType>& Matrix, const ElementType& ElementB);
 
 template<typename ElementType>
-inline bool MatrixAdd(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& Matrix, const ElementType& Element);
+inline bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixSubtract(const mdkDenseMatrix<ElementType>& Matrix, const ElementType& Element);
+inline DenseMatrix<ElementType> MatrixSubtract(const DenseMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
-inline bool MatrixSubtract(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& Matrix, const ElementType& Element);
+inline bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixMultiply(const mdkDenseMatrix<ElementType>& Matrix, const ElementType& Element);
+inline DenseMatrix<ElementType> MatrixMultiply(const DenseMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
-inline bool MatrixMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& Matrix, const ElementType& Element);
+inline bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixElementMultiply(const mdkDenseMatrix<ElementType>& Matrix, const ElementType& Element);
+inline DenseMatrix<ElementType> MatrixElementMultiply(const DenseMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
-inline bool MatrixElementMultiply(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& Matrix, const ElementType& Element);
+inline bool MatrixElementMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixElementDivide(const mdkDenseMatrix<ElementType>& Matrix, const ElementType& Element);
+inline DenseMatrix<ElementType> MatrixElementDivide(const DenseMatrix<ElementType>& Matrix, const ElementType& Element);
 
 template<typename ElementType>
-inline bool MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, const mdkDenseMatrix<ElementType>& Matrix, const ElementType& Element);
+inline bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& Matrix, const ElementType& Element);
 
 //=========================================================================================================================================//
 //------------------------------------------ MatrixElementOperation ----------------------------------------------------------------------//
@@ -124,82 +124,82 @@ inline bool MatrixElementDivide(mdkDenseMatrix<ElementType>& OutputMatrixC, cons
 // ------------------------ MatrixElementOperation on InputMatrix
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix);
+inline DenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrix, const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix);
+inline bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrix, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix);
 
 
 template<typename ElementType, typename OperationType>
-inline mdkDenseMatrix<ElementType> MatrixElementOperation(OperationType Operation, const mdkDenseMatrix<ElementType>& InputMatrix);
+inline DenseMatrix<ElementType> MatrixElementOperation(OperationType Operation, const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType, typename OperationType>
-inline bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrix, OperationType Operation, const mdkDenseMatrix<ElementType>& InputMatrix);
+inline bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrix, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix);
 
 // ------------------------ MatrixElementOperation on InputMatrixA with InputMatrixB
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const char OperationName,
-                                                               const mdkDenseMatrix<ElementType>& InputMatrixA,
-                                                               const mdkDenseMatrix<ElementType>& InputMatrixB);
+inline DenseMatrix<ElementType> MatrixElementNamedOperation(const char OperationName,
+                                                               const DenseMatrix<ElementType>& InputMatrixA,
+                                                               const DenseMatrix<ElementType>& InputMatrixB);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName,
-                                                               const mdkDenseMatrix<ElementType>& InputMatrixA,
-                                                               const mdkDenseMatrix<ElementType>& InputMatrixB);
+inline DenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName,
+                                                               const DenseMatrix<ElementType>& InputMatrixA,
+                                                               const DenseMatrix<ElementType>& InputMatrixB);
 
 template<typename ElementType>
-inline bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
+inline bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrixC,
                                         const std::string& OperationName,
-                                        const mdkDenseMatrix<ElementType>& InputMatrixA,
-                                        const mdkDenseMatrix<ElementType>& InputMatrixB);
+                                        const DenseMatrix<ElementType>& InputMatrixA,
+                                        const DenseMatrix<ElementType>& InputMatrixB);
 
 
 template<typename ElementType, typename OperationType>
-inline mdkDenseMatrix<ElementType> MatrixElementOperation(OperationType Operation,
-                                                          const mdkDenseMatrix<ElementType>& InputMatrixA,
-                                                          const mdkDenseMatrix<ElementType>& InputMatrixB);
+inline DenseMatrix<ElementType> MatrixElementOperation(OperationType Operation,
+                                                          const DenseMatrix<ElementType>& InputMatrixA,
+                                                          const DenseMatrix<ElementType>& InputMatrixB);
 
 template<typename ElementType, typename OperationType>
-inline bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
+inline bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
                                    OperationType Operation,
-                                   const mdkDenseMatrix<ElementType>& InputMatrixA,
-                                   const mdkDenseMatrix<ElementType>& InputMatrixB);
+                                   const DenseMatrix<ElementType>& InputMatrixA,
+                                   const DenseMatrix<ElementType>& InputMatrixB);
 
 // ------------------------ MatrixElementOperation on InputMatrixA with InputElementB
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const char OperationName,
-                                                               const mdkDenseMatrix<ElementType>& InputMatrixA,
+inline DenseMatrix<ElementType> MatrixElementNamedOperation(const char OperationName,
+                                                               const DenseMatrix<ElementType>& InputMatrixA,
                                                                const ElementType& InputElementB);
 
 template<typename ElementType>
-inline bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
+inline bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrixC,
                                         const char OperationName,
-                                        const mdkDenseMatrix<ElementType>& InputMatrixA,
+                                        const DenseMatrix<ElementType>& InputMatrixA,
                                         const ElementType& InputElementB);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName,
-                                                               const mdkDenseMatrix<ElementType>& InputMatrixA,
+inline DenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName,
+                                                               const DenseMatrix<ElementType>& InputMatrixA,
                                                                const ElementType& InputElementB);
 
 template<typename ElementType>
-inline bool MatrixElementNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
+inline bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrixC,
                                         const std::string& OperationName,
-                                        const mdkDenseMatrix<ElementType>& InputMatrixA,
+                                        const DenseMatrix<ElementType>& InputMatrixA,
                                         const ElementType& InputElementB);
 
 
 template<typename ElementType, typename OperationType>
-inline mdkDenseMatrix<ElementType> MatrixElementOperation(OperationType Operation,
-                                                          const mdkDenseMatrix<ElementType>& InputMatrixA,
+inline DenseMatrix<ElementType> MatrixElementOperation(OperationType Operation,
+                                                          const DenseMatrix<ElementType>& InputMatrixA,
                                                           const ElementType& InputElementB);
 
 template<typename ElementType, typename OperationType>
-inline bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
+inline bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
                                    OperationType Operation,
-                                   const mdkDenseMatrix<ElementType>& InputMatrixA,
+                                   const DenseMatrix<ElementType>& InputMatrixA,
                                    const ElementType& InputElementB);
 
 
@@ -210,108 +210,108 @@ inline bool MatrixElementOperation(mdkDenseMatrix<ElementType>& OutputMatrixC,
 // ------------------------ MatrixColOperation on InputMatrix at InputColIndex
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixColNamedOperation(const std::string& OperationName,
-                                                           const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputColIndex,
+inline DenseMatrix<ElementType> MatrixColNamedOperation(const std::string& OperationName,
+                                                           const DenseMatrix<ElementType>& InputMatrix, int64 InputColIndex,
                                                            const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline bool MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputColIndex,
+inline bool MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputColIndex,
                                     const std::string& OperationName, 
-                                    const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputColIndex,
+                                    const DenseMatrix<ElementType>& InputMatrix, int64 InputColIndex,
                                     const bool Enable_BoundCheck = true);
 
 
 template<typename ElementType, typename OperationType>
-inline mdkDenseMatrix<ElementType> MatrixColOperation(OperationType Operation,
-                                                      const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputColIndex,
+inline DenseMatrix<ElementType> MatrixColOperation(OperationType Operation,
+                                                      const DenseMatrix<ElementType>& InputMatrix, int64 InputColIndex,
                                                       const bool Enable_BoundCheck = true);
 
 template<typename ElementType, typename OperationType>
-inline bool MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputColIndex,
+inline bool MatrixColOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputColIndex,
                                OperationType Operation, 
-                               const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputColIndex,
+                               const DenseMatrix<ElementType>& InputMatrix, int64 InputColIndex,
                                const bool Enable_BoundCheck = true);
 
 // ------------------------ MatrixColOperation on InputMatrixA at InputColIndexA with InputMatrixB
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixColNamedOperation(const char OperationName,
-                                                           const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
-                                                           const mdkDenseMatrix<ElementType>& InputMatrixB,
+inline DenseMatrix<ElementType> MatrixColNamedOperation(const char OperationName,
+                                                           const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                                                           const DenseMatrix<ElementType>& InputMatrixB,
                                                            const bool Enable_BoundCheck = true);
 template<typename ElementType>
-inline bool MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+inline bool MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
                                     const char OperationName,
-                                    const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
-                                    const mdkDenseMatrix<ElementType>& InputMatrixB,
+                                    const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                                    const DenseMatrix<ElementType>& InputMatrixB,
                                     const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixColNamedOperation(const std::string& OperationName,
-                                                           const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
-                                                           const mdkDenseMatrix<ElementType>& InputMatrixB,
+inline DenseMatrix<ElementType> MatrixColNamedOperation(const std::string& OperationName,
+                                                           const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                                                           const DenseMatrix<ElementType>& InputMatrixB,
                                                            const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline bool MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+inline bool MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
                                     const std::string& OperationName,
-                                    const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
-                                    const mdkDenseMatrix<ElementType>& InputMatrixB,
+                                    const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                                    const DenseMatrix<ElementType>& InputMatrixB,
                                     const bool Enable_BoundCheck = true);
 
 
 template<typename ElementType, typename OperationType>
-inline mdkDenseMatrix<ElementType> MatrixColOperation(OperationType Operation,
-                                                      const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
-                                                      const mdkDenseMatrix<ElementType>& InputMatrixB,
+inline DenseMatrix<ElementType> MatrixColOperation(OperationType Operation,
+                                                      const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                                                      const DenseMatrix<ElementType>& InputMatrixB,
                                                       const bool Enable_BoundCheck = true);
 
 template<typename ElementType, typename OperationType>
-inline bool MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+inline bool MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
                                OperationType Operation,
-                               const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
-                               const mdkDenseMatrix<ElementType>& InputMatrixB,
+                               const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                               const DenseMatrix<ElementType>& InputMatrixB,
                                const bool Enable_BoundCheck = true);
 
 // ------------------------ MatrixColOperation on InputMatrixA at InputColIndexA with InputElementB
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixColNamedOperation(const char OperationName,
-                                                           const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+inline DenseMatrix<ElementType> MatrixColNamedOperation(const char OperationName,
+                                                           const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
                                                            const ElementType& InputElementB,
                                                            const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline bool MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+inline bool MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
                                     const char OperationName,
-                                    const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                                    const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
                                     const ElementType& InputElementB,
                                     const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixColNamedOperation(const std::string& OperationName,
-                                                           const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+inline DenseMatrix<ElementType> MatrixColNamedOperation(const std::string& OperationName,
+                                                           const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
                                                            const ElementType& InputElementB,
                                                            const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline bool MatrixColNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+inline bool MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
                                     const std::string& OperationName,
-                                    const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                                    const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
                                     const ElementType& InputElementB,
                                     const bool Enable_BoundCheck = true);
 
 
 template<typename ElementType, typename OperationType>
-inline mdkDenseMatrix<ElementType> MatrixColOperation(OperationType Operation,
-                                                      const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+inline DenseMatrix<ElementType> MatrixColOperation(OperationType Operation,
+                                                      const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
                                                       const ElementType& InputElementB,
                                                       const bool Enable_BoundCheck = true);
 
 template<typename ElementType, typename OperationType>
-inline bool MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+inline bool MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
                                OperationType Operation,
-                               const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                               const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
                                const ElementType& InputElementB,
                                const bool Enable_BoundCheck = true);
 
@@ -323,109 +323,109 @@ inline bool MatrixColOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64
 // ------------------------ MatrixRowOperation on InputMatrix at InputRowIndex
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixRowNamedOperation(const std::string& OperationName,
-                                                           const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
+inline DenseMatrix<ElementType> MatrixRowNamedOperation(const std::string& OperationName,
+                                                           const DenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
                                                            const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline bool MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputRowIndex,
+inline bool MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputRowIndex,
                                     const std::string& OperationName, 
-                                    const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
+                                    const DenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
                                     const bool Enable_BoundCheck = true);
 
 
 template<typename ElementType, typename OperationType>
-inline mdkDenseMatrix<ElementType> MatrixRowOperation(OperationType Operation,
-                                                      const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
+inline DenseMatrix<ElementType> MatrixRowOperation(OperationType Operation,
+                                                      const DenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
                                                       const bool Enable_BoundCheck = true);
 
 template<typename ElementType, typename OperationType>
-inline bool MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrix, int64 OutputRowIndex,
+inline bool MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputRowIndex,
                                OperationType Operation, 
-                               const mdkDenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
+                               const DenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
                                const bool Enable_BoundCheck = true);
 
 // ------------------------ MatrixRowOperation on InputMatrixA at InputRowIndexA with InputMatrixB
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixRowNamedOperation(const char OperationName,
-                                                           const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
-                                                           const mdkDenseMatrix<ElementType>& InputMatrixB,
+inline DenseMatrix<ElementType> MatrixRowNamedOperation(const char OperationName,
+                                                           const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                                                           const DenseMatrix<ElementType>& InputMatrixB,
                                                            const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline bool MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+inline bool MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
                                     const char OperationName,
-                                    const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
-                                    const mdkDenseMatrix<ElementType>& InputMatrixB,
+                                    const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                                    const DenseMatrix<ElementType>& InputMatrixB,
                                     const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixRowNamedOperation(const std::string& OperationName,
-                                                           const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
-                                                           const mdkDenseMatrix<ElementType>& InputMatrixB,
+inline DenseMatrix<ElementType> MatrixRowNamedOperation(const std::string& OperationName,
+                                                           const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                                                           const DenseMatrix<ElementType>& InputMatrixB,
                                                            const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline bool MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+inline bool MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
                                     const std::string& OperationName,
-                                    const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
-                                    const mdkDenseMatrix<ElementType>& InputMatrixB,
+                                    const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                                    const DenseMatrix<ElementType>& InputMatrixB,
                                     const bool Enable_BoundCheck = true);
 
 
 template<typename ElementType, typename OperationType>
-inline mdkDenseMatrix<ElementType> MatrixRowOperation(OperationType Operation,
-                                                      const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
-                                                      const mdkDenseMatrix<ElementType>& InputMatrixB,
+inline DenseMatrix<ElementType> MatrixRowOperation(OperationType Operation,
+                                                      const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                                                      const DenseMatrix<ElementType>& InputMatrixB,
                                                       const bool Enable_BoundCheck = true);
 
 template<typename ElementType, typename OperationType>
-inline bool MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+inline bool MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
                                OperationType Operation,
-                               const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
-                               const mdkDenseMatrix<ElementType>& InputMatrixB,
+                               const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                               const DenseMatrix<ElementType>& InputMatrixB,
                                const bool Enable_BoundCheck = true);
 
 // ------------------------ MatrixRowOperation on InputMatrixA at InputColIndexA with InputElementB
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixRowNamedOperation(const char OperationName,
-                                                           const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+inline DenseMatrix<ElementType> MatrixRowNamedOperation(const char OperationName,
+                                                           const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
                                                            const ElementType& InputElementB,
                                                            const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline bool MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+inline bool MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
                                     const char OperationName,
-                                    const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                                    const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
                                     const ElementType& InputElementB,
                                     const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixRowNamedOperation(const std::string& OperationName,
-                                                           const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+inline DenseMatrix<ElementType> MatrixRowNamedOperation(const std::string& OperationName,
+                                                           const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
                                                            const ElementType& InputElementB,
                                                            const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline bool MatrixRowNamedOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+inline bool MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
                                     const std::string& OperationName,
-                                    const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                                    const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
                                     const ElementType& InputElementB,
                                     const bool Enable_BoundCheck = true);
 
 
 template<typename ElementType, typename OperationType>
-inline mdkDenseMatrix<ElementType> MatrixRowOperation(OperationType Operation,
-                                                      const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+inline DenseMatrix<ElementType> MatrixRowOperation(OperationType Operation,
+                                                      const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
                                                       const ElementType& InputElementB,
                                                       const bool Enable_BoundCheck = true);
 
 template<typename ElementType, typename OperationType>
-inline bool MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+inline bool MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
                                OperationType Operation,
-                               const mdkDenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                               const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
                                const ElementType& InputElementB,
                                const bool Enable_BoundCheck = true);
 
@@ -435,14 +435,14 @@ inline bool MatrixRowOperation(mdkDenseMatrix<ElementType>& OutputMatrixC, int64
 //======================================================================================================================================//
 
 template<typename ElementType>
-inline mdkDenseMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefList, 
-                                                       const std::vector<const mdkDenseMatrix<ElementType>*>& MatrixPtrList, 
+inline DenseMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefList, 
+                                                       const std::vector<const DenseMatrix<ElementType>*>& MatrixPtrList, 
                                                        const ElementType& IndependentElement);
 
 template<typename ElementType>
-inline bool MatrixLinearCombine(mdkDenseMatrix<ElementType>& OutputMatrix,
+inline bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
                                 const std::vector<ElementType>& CoefPtrList, 
-                                const std::vector<const mdkDenseMatrix<ElementType>*>& MatrixPtrList,
+                                const std::vector<const DenseMatrix<ElementType>*>& MatrixPtrList,
                                 const ElementType& IndependentElement);
 
 template<typename ElementType>

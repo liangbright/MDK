@@ -8,21 +8,21 @@ namespace mdk
 {
 
 template<typename ElementType>
-mdkFeatureDictionary<ElementType>::mdkFeatureDictionary()
+FeatureDictionary<ElementType>::FeatureDictionary()
 {
 
 }
 
 
 template<typename ElementType>
-mdkFeatureDictionary<ElementType>::mdkFeatureDictionary(const mdkFeatureDictionary& InputDictionary)
+FeatureDictionary<ElementType>::FeatureDictionary(const FeatureDictionary& InputDictionary)
 {
     this->Copy(InputDictionary)
 }
 
 
 template<typename ElementType>
-mdkFeatureDictionary<ElementType>::mdkFeatureDictionary(mdkFeatureDictionary&& InputDictionary)
+FeatureDictionary<ElementType>::FeatureDictionary(FeatureDictionary&& InputDictionary)
 {
     m_Record = std::move(InputDictionary.m_Record);
 
@@ -33,21 +33,21 @@ mdkFeatureDictionary<ElementType>::mdkFeatureDictionary(mdkFeatureDictionary&& I
 
 
 template<typename ElementType>
-mdkFeatureDictionary<ElementType>::~mdkFeatureDictionary()
+FeatureDictionary<ElementType>::~FeatureDictionary()
 {
 
 }
 
 
 template<typename ElementType>
-void mdkFeatureDictionary<ElementType>::operator=(const mdkFeatureDictionary& InputDictionary)
+void FeatureDictionary<ElementType>::operator=(const FeatureDictionary& InputDictionary)
 {
     this->Copy(InputDictionary)
 }
 
 
 template<typename ElementType>
-void mdkFeatureDictionary<ElementType>::operator=(mdkFeatureDictionary&& InputDictionary)
+void FeatureDictionary<ElementType>::operator=(FeatureDictionary&& InputDictionary)
 {
     m_Record = std::move(InputDictionary.m_Record);
 
@@ -58,15 +58,13 @@ void mdkFeatureDictionary<ElementType>::operator=(mdkFeatureDictionary&& InputDi
 
 
 template<typename ElementType>
-bool mdkFeatureDictionary<ElementType>::Copy(const mdkFeatureDictionary<ElementType>& InputDictionary)
+bool FeatureDictionary<ElementType>::Copy(const FeatureDictionary<ElementType>& InputDictionary)
 {
     if (this->IsEmpty() == false)
     {
-        mdkError << "Self is not empty @ mdkFeatureDictionary::Copy(mdkFeatureDictionary&)" << '\n';
+        MDK_Error << "Self is not empty @ FeatureDictionary::Copy(FeatureDictionary&)" << '\n';
         return false;
     }
-
-    this->Clear();
 
     m_Record.Copy(InputDictionary.m_Record);
 
@@ -80,11 +78,11 @@ bool mdkFeatureDictionary<ElementType>::Copy(const mdkFeatureDictionary<ElementT
 
 
 template<typename ElementType>
-bool mdkFeatureDictionary<ElementType>::Copy(const mdkFeatureDictionary<ElementType>* InputDictionary)
+bool FeatureDictionary<ElementType>::Copy(const FeatureDictionary<ElementType>* InputDictionary)
 {
     if (InputDictionary == nullptr)
     {
-        mdkError << "Input is nullptr @ mdkFeatureDictionary::Copy(mdkFeatureDictionary*)" << '\n';
+        MDK_Error << "Input is nullptr @ FeatureDictionary::Copy(FeatureDictionary*)" << '\n';
         return false;
     }
 
@@ -93,33 +91,36 @@ bool mdkFeatureDictionary<ElementType>::Copy(const mdkFeatureDictionary<ElementT
 
 
 template<typename ElementType>
-bool mdkFeatureDictionary<ElementType>::Share(mdkFeatureDictionary<ElementType>& InputDictionary)
+bool FeatureDictionary<ElementType>::Share(FeatureDictionary<ElementType>& InputDictionary)
 {
-    // only empty dictionary can use this method
-    if (this->IsEmpty() == false)
+    if (this == InputDictionary)
     {
-        mdkError << "Self is not empty @ mdkFeatureDictionary::Share(mdkFeatureDictionary&)" << '\n';
-        return false;
+        return true;
     }
 
-    this->Clear();
+    auto IsOK_1 = m_Record.Share(InputDictionary.m_Record);
 
-    m_Record.Share(InputDictionary.m_Record);
+    auto IsOK_2 = m_Covariance.Share(InputDictionary.m_Covariance);
 
-    m_Covariance.Share(InputDictionary.m_Covariance);
+    auto IsOK_3 = m_Variance.Share(InputDictionary.m_Variance);
 
-    m_Variance.Share(InputDictionary.m_Variance);
-
-    return true;
+    if (IsOK_1 == true && IsOK_2 == true && IsOK_3 == true)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 
 template<typename ElementType>
-bool mdkFeatureDictionary<ElementType>::Share(mdkFeatureDictionary<ElementType>* InputDictionary)
+bool FeatureDictionary<ElementType>::Share(FeatureDictionary<ElementType>* InputDictionary)
 {
     if (InputDictionary == nullptr)
     {
-        mdkError << "Input is nullptr @ mdkFeatureDictionary::Share(mdkFeatureDictionary*)" << '\n';
+        MDK_Error << "Input is nullptr @ FeatureDictionary::Share(FeatureDictionary*)" << '\n';
         return false;
     }
 
@@ -128,9 +129,12 @@ bool mdkFeatureDictionary<ElementType>::Share(mdkFeatureDictionary<ElementType>*
 
 
 template<typename ElementType>
-void mdkFeatureDictionary<ElementType>::ForceShare(const mdkFeatureDictionary<ElementType>& InputDictionary)
+void FeatureDictionary<ElementType>::ForceShare(const FeatureDictionary<ElementType>& InputDictionary)
 {
-    this->Clear();
+    if (this == &InputDictionary)
+    {
+        return;
+    }
 
     m_Record.ForceShare(InputDictionary.m_Record);
 
@@ -141,11 +145,11 @@ void mdkFeatureDictionary<ElementType>::ForceShare(const mdkFeatureDictionary<El
 
 
 template<typename ElementType>
-bool mdkFeatureDictionary<ElementType>::ForceShare(const mdkFeatureDictionary<ElementType>* InputDictionary)
+bool FeatureDictionary<ElementType>::ForceShare(const FeatureDictionary<ElementType>* InputDictionary)
 {
     if (InputDictionary == nullptr)
     {
-        mdkError << "Input is nullptr @ mdkFeatureDictionary::ForceShare(mdkFeatureDictionary*)" << '\n';
+        MDK_Error << "Input is nullptr @ FeatureDictionary::ForceShare(FeatureDictionary*)" << '\n';
         return false;
     }
 
@@ -156,7 +160,7 @@ bool mdkFeatureDictionary<ElementType>::ForceShare(const mdkFeatureDictionary<El
 
 
 template<typename ElementType>
-void mdkFeatureDictionary<ElementType>::Clear()
+void FeatureDictionary<ElementType>::Clear()
 {
     m_Record.Clear();
 
@@ -167,27 +171,27 @@ void mdkFeatureDictionary<ElementType>::Clear()
 
 
 template<typename ElementType>
-bool mdkFeatureDictionary<ElementType>::IsEmpty()
+bool FeatureDictionary<ElementType>::IsEmpty()
 {
     return m_Record.IsEmpty();
 }
 
 
 template<typename ElementType>
-mdkMatrixSize mdkFeatureDictionary<ElementType>::GetSize()
+MatrixSize FeatureDictionary<ElementType>::GetSize()
 {
     return m_Record.GetSize();
 }
 
 template<typename ElementType>
-bool mdkFeatureDictionary<ElementType>::Load(const std::string& FilePathAndName)
+bool FeatureDictionary<ElementType>::Load(const std::string& FilePathAndName)
 {
     return true;
 }
 
 
 template<typename ElementType>
-bool mdkFeatureDictionary<ElementType>::Save(const std::string& FilePathAndName)
+bool FeatureDictionary<ElementType>::Save(const std::string& FilePathAndName)
 {
     return true;
 }

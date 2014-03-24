@@ -5,20 +5,20 @@ namespace mdk
 {
 
 template<typename ElementType>
-mdkFeatureEncoderDictionaryBuilder<ElementType>::mdkFeatureEncoderDictionaryBuilder()
+FeatureEncoderDictionaryBuilder<ElementType>::FeatureEncoderDictionaryBuilder()
 {
     this->Clear();
 }
 
 
 template<typename ElementType>
-mdkFeatureEncoderDictionaryBuilder<ElementType>::~mdkFeatureEncoderDictionaryBuilder()
+FeatureEncoderDictionaryBuilder<ElementType>::~FeatureEncoderDictionaryBuilder()
 {
 }
 
 
 template<typename ElementType>
-void mdkFeatureEncoderDictionaryBuilder<ElementType>::Clear()
+void FeatureEncoderDictionaryBuilder<ElementType>::Clear()
 {
     m_GenericEncoder = nullptr;
 
@@ -32,11 +32,11 @@ void mdkFeatureEncoderDictionaryBuilder<ElementType>::Clear()
 //---------------------------------------------------//
 
 template<typename ElementType>
-bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetInputFeatureData(const mdkDenseMatrix<ElementType>* InputFeatureData)
+bool FeatureEncoderDictionaryBuilder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData)
 {
     if (InputFeatureData == nullptr)
     {
-        mdkError << "Invalid input @ mdkFeatureEncoderDictionaryBuilder::SetInputFeatureData(InputFeatureData)" << '\n';
+        MDK_Error << "Invalid input @ FeatureEncoderDictionaryBuilder::SetInputFeatureData(InputFeatureData)" << '\n';
         return false;
     }
 
@@ -48,11 +48,11 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetInputFeatureData(const 
 //---------------------------------------------------//
 
 template<typename ElementType>
-bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetGenericEncoder(const mdkFeatureEncoder<ElementType>* FeatureEncoder)
+bool FeatureEncoderDictionaryBuilder<ElementType>::SetGenericEncoder(const FeatureEncoder<ElementType>* FeatureEncoder)
 {
     if (FeatureEncoder == nullptr)
     {
-        mdkError << "Invalid input @ mdkFeatureEncoderDictionaryBuilder::SetGenericEncoder(FeatureEncoder)" << '\n';
+        MDK_Error << "Invalid input @ FeatureEncoderDictionaryBuilder::SetGenericEncoder(FeatureEncoder)" << '\n';
         return false;
     }
 
@@ -64,11 +64,11 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetGenericEncoder(const md
 //---------------------------------------------------//
 
 template<typename ElementType>
-bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetOutputDictionary(mdkFeatureDictionary<ElementType>* OutputDictionary)
+bool FeatureEncoderDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionary<ElementType>* OutputDictionary)
 {
     if (OutputDictionary == nullptr)
     {
-        mdkError << "Invalid input @ mdkFeatureEncoderDictionaryBuilder::SetOutputDictionary(OutputDictionary)" << '\n';
+        MDK_Error << "Invalid input @ FeatureEncoderDictionaryBuilder::SetOutputDictionary(OutputDictionary)" << '\n';
         return false;
     }
 
@@ -83,11 +83,11 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::SetOutputDictionary(mdkFea
 //---------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-bool mdkFeatureEncoderDictionaryBuilder<ElementType>::Update()
+bool FeatureEncoderDictionaryBuilder<ElementType>::Update()
 {
     if (m_FeatureData == nullptr)
     {
-        mdkError << "m_FeatureData is empty @ mdkFeatureEncoderDictionaryBuilder::Update()" << '\n';
+        MDK_Error << "m_FeatureData is empty @ FeatureEncoderDictionaryBuilder::Update()" << '\n';
         return false;
     }
 
@@ -95,13 +95,7 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::Update()
 
     if (DataSize.RowNumber == 0)
     {
-        mdkError << "InputFeatureData is empty @ mdkFeatureEncoderDictionaryBuilder::Run()" << '\n';
-        return false;
-    }
-
-    if (m_DictionaryLength == 0)
-    {
-        mdkError << "m_DictionaryLength is zero @ mdkFeatureEncoderDictionaryBuilder::Update()" << '\n';
+        MDK_Error << "InputFeatureData is empty @ FeatureEncoderDictionaryBuilder::Run()" << '\n';
         return false;
     }
 
@@ -109,7 +103,7 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::Update()
 
     if (BookSize.RowNumber > 0 && BookSize.RowNumber != DataSize.RowNumber)
     {
-        mdkError << "Feature dimension does not match @ mdkFeatureEncoderDictionaryBuilder::Run()" << '\n';
+        MDK_Error << "Feature dimension does not match @ FeatureEncoderDictionaryBuilder::Run()" << '\n';
         return false;
     }
 
@@ -131,14 +125,14 @@ bool mdkFeatureEncoderDictionaryBuilder<ElementType>::Update()
 
 
 template<typename ElementType>
-bool mdkFeatureEncoderDictionaryBuilder<ElementType>::GenerateDictionary()
+bool FeatureEncoderDictionaryBuilder<ElementType>::GenerateDictionary()
 {
     return true;
 }
 
 
 template<typename ElementType>
-mdkFeatureDictionary<ElementType>* mdkFeatureEncoderDictionaryBuilder<ElementType>::GetOutputDictionary()
+FeatureDictionary<ElementType>* FeatureEncoderDictionaryBuilder<ElementType>::GetOutputDictionary()
 {
     return &m_Dictionary_SharedCopy;
 }

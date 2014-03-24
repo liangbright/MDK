@@ -10,31 +10,31 @@ namespace mdk
 {
 
 template<typename ElementType>
-class mdkFeatureEncoder : public mdkObject
+class FeatureEncoder : public mdkObject
 {
 protected:
 
     // input:
 
-    const mdkDenseMatrix<ElementType>* m_FeatureData;
+    const DenseMatrix<ElementType>* m_FeatureData;
 
     // input, and can also be internal data, 
 
-    const mdkFeatureDictionary<ElementType>* m_Dictionary;
+    const FeatureDictionary<ElementType>* m_Dictionary;
 
-    mdkFeatureDictionary<ElementType> m_Dictionary_SharedCopy;
+    FeatureDictionary<ElementType> m_Dictionary_SharedCopy;
 
     // output:
 
-    mdkDenseMatrix<ElementType>* m_FeatureCode;
+    DenseMatrix<ElementType>* m_FeatureCode;
 
-    mdkDenseMatrix<ElementType> m_FeatureCode_SharedCopy;
+    DenseMatrix<ElementType> m_FeatureCode_SharedCopy;
 
 public:
 
-    mdkFeatureEncoder();
+    FeatureEncoder();
 
-    ~mdkFeatureEncoder();
+    ~FeatureEncoder();
 
     //-----------------------------------------
 
@@ -42,13 +42,13 @@ public:
     
     //-----------------------------------------
 
-    bool SetInputFeatureData(const mdkDenseMatrix<ElementType>* InputFeatureData);
+    bool SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
 
-    bool SetDictionary(const mdkFeatureDictionary<ElementType>* Dictionary);
+    bool SetDictionary(const FeatureDictionary<ElementType>* Dictionary);
 
     bool LoadDictionary(const std::string& FilePathAndName);
 
-    bool SetOutputFeatureCode(mdkDenseMatrix<ElementType>* FeatureCode);
+    bool SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode);
 
     //-----------------------------------------
 
@@ -56,7 +56,7 @@ public:
 
     //----------------------------------------------------//
 
-    mdkDenseMatrix<ElementType>* GetOutputFeatureCode();
+    DenseMatrix<ElementType>* GetOutputFeatureCode();
 
 
 protected:
@@ -66,9 +66,9 @@ protected:
 
 private:
 //deleted:
-    mdkFeatureEncoder(const mdkFeatureEncoder&) = delete;
+    FeatureEncoder(const FeatureEncoder&) = delete;
 
-    void operator=(const mdkFeatureEncoder&) = delete;
+    void operator=(const FeatureEncoder&) = delete;
 
 };
 

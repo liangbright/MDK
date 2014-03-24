@@ -1,15 +1,15 @@
-#ifndef __mdk3DImageSequence_h
-#define __mdk3DImageSequence_h
+#ifndef __mdkImageSequence_h
+#define __mdkImageSequence_h
 
 #include <vector>
 
 #include "mdkObject.h"
-#include "mdk3DImage.h"
+#include "mdkImage.h"
 
 namespace mdk
 {
 
-// 3D Image Sequence Class
+//  Image Sequence Class
 // Voxel = a vector of scalars
 // Lx: number of voxels in x-direction
 // Ly: number of voxels in y-direction
@@ -17,12 +17,12 @@ namespace mdk
 // Lt: number of voxels in t-direction
 
 template<typename VoxelType>
-class mdk3DImageSequence : public mdkObject
+class ImageSequence : public Object
 {
 
 private:
 
-    std::vector<mdk3DImage<VoxelType>> m_ImageData;
+    std::vector<Image<VoxelType>> m_ImageData;
 
 	double VoxelPhysicalSize[3];
 
@@ -36,19 +36,19 @@ private:
 
 public:		
 	
-	mdk3DImageSequence();
+	ImageSequence();
 
-	~mdk3DImageSequence();
+	~ImageSequence();
 
 	bool Initialize(uint64 Lx, uint64 Ly, uint64 Lz, uint64 Lt,
 		            double VoxelPhysicalSize_x, double VoxelPhysicalSize_y, double VoxelPhysicalSize_z,
                     const std::vector<double>& TimeInterval);
 
-    bool Swallow(mdk3DImage<VoxelType>& targetImage);
+    bool Swallow(Image<VoxelType>& targetImage);
 
 private:
-	mdk3DImageSequence(const mdk3DImageSequence&);        // Not implemented.
-	void operator=(const mdk3DImageSequence&);            // Not implemented.
+	ImageSequence(const ImageSequence&);        // Not implemented.
+	void operator=(const ImageSequence&);            // Not implemented.
 };
 
 }//end namespace mdk

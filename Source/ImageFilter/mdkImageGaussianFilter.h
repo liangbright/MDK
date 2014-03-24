@@ -1,7 +1,11 @@
 ﻿#ifndef __mdk3DImageGaussianFilter_h
 #define __mdk3DImageGaussianFilter_h
 
-#include "mdkMatrix.h"
+#include <algorithm>
+#include <cmath>
+
+#include "mdkDebugConfig.h"
+#include "mdkDenseMatrix.h"
 #include "mdk3DImageConvolutionFilter.h"
 
 namespace mdk
@@ -12,9 +16,9 @@ class mdk3DImageGaussianFilter : public mdk3DImageConvolutionFilter<VoxelType_In
 {
 private:
 
-    mdkMatrix<double> m_SigmaList;
+    DenseMatrix<double> m_SigmaList;
 
-    mdkMatrix<double> m_RotationMatrix;
+    DenseMatrix<double> m_RotationMatrix;
 
     double m_CutOffRatio;
 
@@ -24,7 +28,7 @@ public:
   
     void SetSigmaList(double Sx, double Sy, double Sz);
 
-    void SetRotationMatrix(const mdkMatrix<double>& RotationMatrix);
+    void SetRotationMatrix(const DenseMatrix<double>& RotationMatrix);
 
     void SetCutOffRatio(double CutOffRatio);
 

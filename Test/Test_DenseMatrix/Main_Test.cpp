@@ -35,7 +35,7 @@ TempStruct Test_A(const std::initializer_list<uint64>& a, std::initializer_list<
 }
 
 
-TempStruct Test_A(const std::initializer_list<uint64>& a, const mdkObject& b)
+TempStruct Test_A(const std::initializer_list<uint64>& a, const Object& b)
 {
     std::cout << "initializer_list" << '\n';
 

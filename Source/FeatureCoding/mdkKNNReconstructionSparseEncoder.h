@@ -10,7 +10,7 @@ namespace mdk
 {
 
 template<typename ElementType>
-class mdkKNNSoftAssignSparseEncoder : public mdkFeatureSparseEncoder<ElementType>
+class KNNSoftAssignSparseEncoder : public FeatureSparseEncoder<ElementType>
 {
 
 private: 
@@ -19,13 +19,11 @@ private:
 
 public:
 
-    mdkKNNSoftAssignSparseEncoder();
+    KNNSoftAssignSparseEncoder();
 
-    ~mdkKNNSoftAssignSparseEncoder();
+    ~KNNSoftAssignSparseEncoder();
 
     //-----------------------------------------
-
-    void Reset();
 
     void Clear();
 
@@ -37,9 +35,9 @@ protected:
 
 private:
 //deleted:
-    mdkKNNSoftAssignSparseEncoder(const mdkKNNSoftAssignSparseEncoder&) = delete;
+    KNNSoftAssignSparseEncoder(const KNNSoftAssignSparseEncoder&) = delete;
 
-    void operator=(const mdkKNNSoftAssignSparseEncoder&) = delete;
+    void operator=(const KNNSoftAssignSparseEncoder&) = delete;
 
 };
 

@@ -1,31 +1,28 @@
-#ifndef __mdk3DImageGaussianFilter_hpp
-#define __mdk3DImageGaussianilter_hpp
+#ifndef __mdkImageGaussianFilter_hpp
+#define __mdkImageGaussianilter_hpp
 
-#include <algorithm>
-#include <cmath>
+//#include "mdkImageGaussianFilter.h"
 
-#include "mdk3DImageGaussianFilter.h"
-#include "mdkDebugConfig.h"
 
 namespace mdk
 {
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-mdk3DImageGaussianFilter<VoxelType_Input, VoxelType_Output>::mdk3DImageGaussianFilter()
+ImageGaussianFilter<VoxelType_Input, VoxelType_Output>::ImageGaussianFilter()
 {
     m_CutOffRatio = 3; // default: within 3 * std
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-mdk3DImageGaussianFilter<VoxelType_Input, VoxelType_Output>::~mdk3DImageGaussianFilter()
+ImageGaussianFilter<VoxelType_Input, VoxelType_Output>::~ImageGaussianFilter()
 {
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
 void
-mdk3DImageGaussianFilter<VoxelType_Input, VoxelType_Output>::
+ImageGaussianFilter<VoxelType_Input, VoxelType_Output>::
 SetSigmaList(double Sx, double Sy, double Sz)
 {
     m_SigmaList.Reset();
@@ -41,11 +38,11 @@ SetSigmaList(double Sx, double Sy, double Sz)
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void mdk3DImageGaussianFilter<VoxelType_Input, VoxelType_Output>::SetRotationMatrix(const mdkMatrix<double>& RotationMatrix)
+void ImageGaussianFilter<VoxelType_Input, VoxelType_Output>::SetRotationMatrix(const DenseMatrix<double>& RotationMatrix)
 {
     if (RotationMatrix.GetColNumber() != 3 || RotationMatrix.GetRowNumber() != 3)
     {
-        mdkError << "RotationMatrix is invalid @ mdk3DImageGaussianFilter::SetRotationMatrix" << '\n';
+        MDK_Error << "RotationMatrix is invalid @ ImageGaussianFilter::SetRotationMatrix" << '\n';
         return;
     }
 
@@ -54,11 +51,11 @@ void mdk3DImageGaussianFilter<VoxelType_Input, VoxelType_Output>::SetRotationMat
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void mdk3DImageGaussianFilter<VoxelType_Input, VoxelType_Output>::SetCutOffRatio(double CutOffRatio)
+void ImageGaussianFilter<VoxelType_Input, VoxelType_Output>::SetCutOffRatio(double CutOffRatio)
 {
     if (CutOffRatio < 0.0)
     {
-        mdkWarning << "CutOffRatio < 0.0 @ mdk3DImageGaussianFilter::SetCutOffRatio" << '\n';
+        MDK_Warning << "CutOffRatio < 0.0 @ ImageGaussianFilter::SetCutOffRatio" << '\n';
     }
 
     m_CutOffRatio = CutOffRatio;
@@ -66,7 +63,7 @@ void mdk3DImageGaussianFilter<VoxelType_Input, VoxelType_Output>::SetCutOffRatio
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void mdk3DImageGaussianFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DIndex()
+void ImageGaussianFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DIndex()
 {
     // check to see if the Mask has been loaded from somewhere else
     if (this->IsMaskOf3DIndexEmpty() == false)
@@ -76,11 +73,11 @@ void mdk3DImageGaussianFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DI
 
     if (m_SigmaList.IsEmpty() == true)
     {
-        mdkError << "m_SigmaList is empty @ mdk3DImageGaussianFilter::BuildMaskOf3DIndex" << '\n';
+        MDK_Error << "m_SigmaList is empty @ ImageGaussianFilter::BuildMaskOf3DIndex" << '\n';
         return;
     }
 
-    mdkMatrix<double> InverseCovarianceMatrix(3, 3);
+    DenseMatrix<double> InverseCovarianceMatrix(3, 3);
 
     InverseCovarianceMatrix.Fill(0);
 
@@ -92,7 +89,7 @@ void mdk3DImageGaussianFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DI
     {
         if (m_RotationMatrix.GetColNumber() != 3 || m_RotationMatrix.GetRowNumber() != 3)
         {
-            mdkError << "m_RotationMatrix is invalid @ mdk3DImageGaussianFilter::BuildMaskOf3DIndex" << '\n';
+            MDK_Error << "m_RotationMatrix is invalid @ ImageGaussianFilter::BuildMaskOf3DIndex" << '\n';
             return;
         }
 
@@ -107,13 +104,13 @@ void mdk3DImageGaussianFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DI
     // at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
     // add the points within the m_CutOffRatio to Mask
     
-    mdkMatrix<double> Mask(4, 0);
+    DenseMatrix<double> Mask(4, 0);
 
 
-    mdkMatrix<double> Relative3DIndex(3, 1);
-    mdkMatrix<double> Relative3DIndex_Tran(1, 3);
+    DenseMatrix<double> Relative3DIndex(3, 1);
+    DenseMatrix<double> Relative3DIndex_Tran(1, 3);
 
-    mdkMatrix<double> SquaredRatio(1, 1);
+    DenseMatrix<double> SquaredRatio(1, 1);
 
     auto CutOffRatio_square = m_CutOffRatio*m_CutOffRatio;
 

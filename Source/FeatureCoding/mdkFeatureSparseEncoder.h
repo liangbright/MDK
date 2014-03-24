@@ -9,15 +9,15 @@ namespace mdk
 {
 
 template<typename ElementType>
-class mdkFeatureSparseEncoder : public mdkFeatureEncoder<ElementType>
+class FeatureSparseEncoder : public FeatureEncoder<ElementType>
 {
 protected:
 
     // additional output:
 
-    mdkDenseMatrix<ElementType>* m_FeatureCodeInCompactFormat;
+    DenseMatrix<ElementType>* m_FeatureCodeInCompactFormat;
 
-    mdkDenseMatrix<ElementType>  m_FeatureCodeInCompactFormat_SharedCopy;
+    DenseMatrix<ElementType>  m_FeatureCodeInCompactFormat_SharedCopy;
    
     // Example:
     //
@@ -38,9 +38,9 @@ protected:
 
 public:
 
-    mdkFeatureSparseEncoder();
+    FeatureSparseEncoder();
 
-    ~mdkFeatureSparseEncoder();
+    ~FeatureSparseEncoder();
 
     //-----------------------------------------
 
@@ -48,7 +48,7 @@ public:
     
     //-----------------------------------------
 
-    bool SetOutputFeatureCodeInCompactFormat(mdkDenseMatrix<ElementType>* FeatureCode);
+    bool SetOutputFeatureCodeInCompactFormat(DenseMatrix<ElementType>* FeatureCode);
 
     //-----------------------------------------
 
@@ -56,7 +56,7 @@ public:
 
     //----------------------------------------------------//
 
-    const mdkDenseMatrix<ElementType>* GetOutputFeatureCodeInCompactFormat();
+    const DenseMatrix<ElementType>* GetOutputFeatureCodeInCompactFormat();
 
 
 protected:
@@ -66,9 +66,9 @@ protected:
 
 private:
 //deleted:
-    mdkFeatureSparseEncoder(const mdkFeatureSparseEncoder&) = delete;
+    FeatureSparseEncoder(const FeatureSparseEncoder&) = delete;
 
-    void operator=(const mdkFeatureSparseEncoder&) = delete;
+    void operator=(const FeatureSparseEncoder&) = delete;
 
 };
 

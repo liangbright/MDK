@@ -7,21 +7,21 @@ namespace mdk
 {
 
 template<typename ElementType>
-mdkSparseGlueMatrixForMultiplication<ElementType>::mdkSparseGlueMatrixForMultiplication()
+SparseGlueMatrixForMultiplication<ElementType>::SparseGlueMatrixForMultiplication()
 {
     this->Reset();
 }
 
 
 template<typename ElementType>
-mdkSparseGlueMatrixForMultiplication<ElementType>::~mdkSparseGlueMatrixForMultiplication()
+SparseGlueMatrixForMultiplication<ElementType>::~SparseGlueMatrixForMultiplication()
 {
 
 }
 
 
 template<typename ElementType>
-mdkSparseGlueMatrixForMultiplication<ElementType>::mdkSparseGlueMatrixForMultiplication(mdkSparseGlueMatrixForMultiplication<ElementType>&& GlueMatrix)
+SparseGlueMatrixForMultiplication<ElementType>::SparseGlueMatrixForMultiplication(SparseGlueMatrixForMultiplication<ElementType>&& GlueMatrix)
 {
     m_RowNumber = GlueMatrix.m_RowNumber;
 
@@ -41,7 +41,7 @@ mdkSparseGlueMatrixForMultiplication<ElementType>::mdkSparseGlueMatrixForMultipl
 
 template<typename ElementType>
 inline
-void mdkSparseGlueMatrixForMultiplication<ElementType>::Reset()
+void SparseGlueMatrixForMultiplication<ElementType>::Reset()
 {
     m_RowNumber = 0;
 
@@ -59,7 +59,7 @@ void mdkSparseGlueMatrixForMultiplication<ElementType>::Reset()
 
 template<typename ElementType>
 inline
-int64 mdkSparseGlueMatrixForMultiplication<ElementType>::GetRowNumber() const
+int64 SparseGlueMatrixForMultiplication<ElementType>::GetRowNumber() const
 {
     return m_RowNumber;
 }
@@ -67,7 +67,7 @@ int64 mdkSparseGlueMatrixForMultiplication<ElementType>::GetRowNumber() const
 
 template<typename ElementType>
 inline
-int64 mdkSparseGlueMatrixForMultiplication<ElementType>::GetColNumber() const
+int64 SparseGlueMatrixForMultiplication<ElementType>::GetColNumber() const
 {
     return m_ColNumber;
 }
@@ -75,7 +75,7 @@ int64 mdkSparseGlueMatrixForMultiplication<ElementType>::GetColNumber() const
 
 template<typename ElementType>
 inline
-int64 mdkSparseGlueMatrixForMultiplication<ElementType>::GetElementNumber() const
+int64 SparseGlueMatrixForMultiplication<ElementType>::GetElementNumber() const
 {
     return m_RowNumber*m_ColNumber;
 }
@@ -83,9 +83,9 @@ int64 mdkSparseGlueMatrixForMultiplication<ElementType>::GetElementNumber() cons
 
 template<typename ElementType>
 inline
-mdkMatrixSize mdkSparseGlueMatrixForMultiplication<ElementType>::GetSize() const
+MatrixSize SparseGlueMatrixForMultiplication<ElementType>::GetSize() const
 {
-    mdkMatrixSize Size;
+    MatrixSize Size;
 
     Size.RowNumber = m_RowNumber;
 
@@ -97,7 +97,7 @@ mdkMatrixSize mdkSparseGlueMatrixForMultiplication<ElementType>::GetSize() const
 
 template<typename ElementType>
 inline
-int64 mdkSparseGlueMatrixForMultiplication<ElementType>::GetMatrixNumber() const
+int64 SparseGlueMatrixForMultiplication<ElementType>::GetMatrixNumber() const
 {
     return m_SourceMatrixSharedCopyList.size();
 }
@@ -105,7 +105,7 @@ int64 mdkSparseGlueMatrixForMultiplication<ElementType>::GetMatrixNumber() const
 
 template<typename ElementType>
 inline
-bool mdkSparseGlueMatrixForMultiplication<ElementType>::IsEmpty() const
+bool SparseGlueMatrixForMultiplication<ElementType>::IsEmpty() const
 {
     if (m_RowNumber <= 0)
     {
@@ -118,9 +118,9 @@ bool mdkSparseGlueMatrixForMultiplication<ElementType>::IsEmpty() const
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseGlueMatrixForMultiplication<ElementType>::CreateSparseMatrix() const
+SparseMatrix<ElementType> SparseGlueMatrixForMultiplication<ElementType>::CreateSparseMatrix() const
 {
-    mdkSparseMatrix<ElementType> tempMatrix;
+    SparseMatrix<ElementType> tempMatrix;
 
     this->CreateMatrix(tempMatrix);
 
@@ -130,7 +130,7 @@ mdkSparseMatrix<ElementType> mdkSparseGlueMatrixForMultiplication<ElementType>::
 
 template<typename ElementType>
 inline 
-bool mdkSparseGlueMatrixForMultiplication<ElementType>::CreateSparseMatrix(mdkSparseMatrix<ElementType>& OutputMatrix) const
+bool SparseGlueMatrixForMultiplication<ElementType>::CreateSparseMatrix(SparseMatrix<ElementType>& OutputMatrix) const
 {
     if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
     {
@@ -142,7 +142,7 @@ bool mdkSparseGlueMatrixForMultiplication<ElementType>::CreateSparseMatrix(mdkSp
         }
         else
         {
-            mdkError << "Size does not match @ mdkSparseGlueMatrixForMultiplication::CreateMatrix(OutputMatrix)" << '\n';
+            mdkError << "Size does not match @ SparseGlueMatrixForMultiplication::CreateMatrix(OutputMatrix)" << '\n';
             return false;
         }
     }
@@ -151,7 +151,7 @@ bool mdkSparseGlueMatrixForMultiplication<ElementType>::CreateSparseMatrix(mdkSp
 
     if (MatrixNumber == 0)
     {
-        mdkError << "MatrixNumber is zero @ mdkSparseGlueMatrixForMultiplication::CreateMatrix(OutputMatrix)" << '\n';
+        mdkError << "MatrixNumber is zero @ SparseGlueMatrixForMultiplication::CreateMatrix(OutputMatrix)" << '\n';
         return false;
     }
 
@@ -159,7 +159,7 @@ bool mdkSparseGlueMatrixForMultiplication<ElementType>::CreateSparseMatrix(mdkSp
     {
         if (m_Is_m_Element_Coef_Equal_to_One == true)
         {
-            mdkError << "MatrixNumber is 1 and  m_Is_m_Element_Coef_Equal_to_One = true @ mdkSparseGlueMatrixForMultiplication::CreateMatrix(OutputMatrix)" << '\n';
+            mdkError << "MatrixNumber is 1 and  m_Is_m_Element_Coef_Equal_to_One = true @ SparseGlueMatrixForMultiplication::CreateMatrix(OutputMatrix)" << '\n';
             OutputMatrix.DeepCopy(m_SourceMatrixSharedCopyList[0]);
             return false;
         }
@@ -224,14 +224,14 @@ bool mdkSparseGlueMatrixForMultiplication<ElementType>::CreateSparseMatrix(mdkSp
 
     //General : find the best combination to get the result -------------------------------------------------------------
 
-    auto MatrixPointerList = std::vector<const mdkSparseMatrix<ElementType>*>(MatrixNumber);
+    auto MatrixPointerList = std::vector<const SparseMatrix<ElementType>*>(MatrixNumber);
 
     for (int64 i = 0; i < MatrixNumber - 1; ++i)
     {
         MatrixPointerList[i] = &m_SourceMatrixSharedCopyList[i];
     }
 
-    auto ResultMatrixList = std::vector<mdkSparseMatrix<ElementType>>(MatrixNumber);
+    auto ResultMatrixList = std::vector<SparseMatrix<ElementType>>(MatrixNumber);
 
    
     while (true)
@@ -293,7 +293,7 @@ bool mdkSparseGlueMatrixForMultiplication<ElementType>::CreateSparseMatrix(mdkSp
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> mdkSparseGlueMatrixForMultiplication<ElementType>::ElementMultiply(const mdkSparseMatrix<ElementType>& targetMatrix)
+SparseMatrix<ElementType> SparseGlueMatrixForMultiplication<ElementType>::ElementMultiply(const SparseMatrix<ElementType>& targetMatrix)
 {
     auto tempMatrix = this->CreateMatrix();
 
@@ -305,7 +305,7 @@ mdkSparseMatrix<ElementType> mdkSparseGlueMatrixForMultiplication<ElementType>::
 
 template<typename ElementType>
 inline
-mdkSparseMatrix<ElementType> mdkSparseGlueMatrixForMultiplication<ElementType>::ElementMultiply(const ElementType& Element)
+SparseMatrix<ElementType> SparseGlueMatrixForMultiplication<ElementType>::ElementMultiply(const ElementType& Element)
 {
     auto tempMatrix = this->CreateMatrix();
 
@@ -317,7 +317,7 @@ mdkSparseMatrix<ElementType> mdkSparseGlueMatrixForMultiplication<ElementType>::
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> mdkSparseGlueMatrixForMultiplication<ElementType>::ElementMultiply(const mdkSparseShadowMatrix<ElementType>& ShadowMatrix)
+SparseMatrix<ElementType> SparseGlueMatrixForMultiplication<ElementType>::ElementMultiply(const SparseShadowMatrix<ElementType>& ShadowMatrix)
 {
     auto tempMatrix = this->CreateMatrix();
 
@@ -329,7 +329,7 @@ mdkSparseMatrix<ElementType> mdkSparseGlueMatrixForMultiplication<ElementType>::
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> mdkSparseGlueMatrixForMultiplication<ElementType>::ElementMultiply(const mdkSparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+SparseMatrix<ElementType> SparseGlueMatrixForMultiplication<ElementType>::ElementMultiply(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     auto tempMatrix = this->CreateMatrix();
 
@@ -341,7 +341,7 @@ mdkSparseMatrix<ElementType> mdkSparseGlueMatrixForMultiplication<ElementType>::
 
 template<typename ElementType>
 inline 
-mdkSparseMatrix<ElementType> mdkSparseGlueMatrixForMultiplication<ElementType>::ElementMultiply(const mdkSparseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+SparseMatrix<ElementType> SparseGlueMatrixForMultiplication<ElementType>::ElementMultiply(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     auto tempMatrix = this->CreateMatrix();
 

@@ -1,45 +1,41 @@
-#ifndef __mdk3DIntegralImageBuilder_hpp
-#define __mdk3DIntegralImageBuilder_hpp
+#ifndef __mdkIntegralImageBuilder_hpp
+#define __mdkIntegralImageBuilder_hpp
 
-#include <algorithm>
-#include <cmath>
-
-#include "mdk3DIntegralImageBuilder.h"
-#include "mdkDebugConfig.h"
+//#include "mdkIntegralImageBuilder.h"
 
 namespace mdk
 {
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-mdk3DIntegralImageBuilder<VoxelType_Input, VoxelType_Output>::mdk3DIntegralImageBuilder()
+IntegralImageBuilder<VoxelType_Input, VoxelType_Output>::IntegralImageBuilder()
 {
 
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-mdk3DIntegralImageBuilder<VoxelType_Input, VoxelType_Output>::~mdk3DIntegralImageBuilder()
+IntegralImageBuilder<VoxelType_Input, VoxelType_Output>::~IntegralImageBuilder()
 {
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void mdk3DIntegralImageBuilder<VoxelType_Input, VoxelType_Output>::Clear()
+void IntegralImageBuilder<VoxelType_Input, VoxelType_Output>::Clear()
 {
-    this->mdk3DImageFilter::Clear();
+    this->ImageFilter::Clear();
 
     m_Flag_OutputImage = true;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-bool mdk3DIntegralImageBuilder<VoxelType_Input, VoxelType_Output>::CheckInput()
+bool IntegralImageBuilder<VoxelType_Input, VoxelType_Output>::CheckInput()
 {
-    this->mdk3DImageFilter::CheckInput();
+    this->ImageFilter::CheckInput();
 
     if (m_Flag_OutputImage == false)
     {
-        mdkError << "OutputImage is invalid @ mdk3DIntegralImageBuilder::CheckInput" << '\n';
+        MDK_Error << "OutputImage is invalid @ IntegralImageBuilder::CheckInput" << '\n';
         return false;
     }
 
@@ -49,7 +45,7 @@ bool mdk3DIntegralImageBuilder<VoxelType_Input, VoxelType_Output>::CheckInput()
 
     if (InputDim.Lx != OutputDim.Lx || InputDim.Ly != OutputDim.Ly || InputDim.Lz != OutputDim.Lz)
     {
-        mdkError << "Dimension does not match @ mdk3DIntegralImageBuilder::CheckInput" << '\n';
+        MDK_Error << "Dimension does not match @ IntegralImageBuilder::CheckInput" << '\n';
         return false;
     }
 
@@ -59,12 +55,12 @@ bool mdk3DIntegralImageBuilder<VoxelType_Input, VoxelType_Output>::CheckInput()
 
 template<typename VoxelType_Input, typename VoxelType_Output>
 inline
-void mdk3DIntegralImageBuilder<VoxelType_Input, VoxelType_Output>::
+void IntegralImageBuilder<VoxelType_Input, VoxelType_Output>::
 Compute2DIntegralImage(int64 z_Index_start, int64 z_Index_end)
 {
     if (z_Index_end < z_Index_start || z_Index_start < 0)
     {
-        mdkError << "Invalid input @ mdk3DIntegralImageBuilder::Compute2DIntegralImage" << '\n';
+        MDK_Error << "Invalid input @ IntegralImageBuilder::Compute2DIntegralImage" << '\n';
         return;
     }
 
@@ -100,12 +96,12 @@ Compute2DIntegralImage(int64 z_Index_start, int64 z_Index_end)
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void mdk3DIntegralImageBuilder<VoxelType_Input, VoxelType_Output>::
+void IntegralImageBuilder<VoxelType_Input, VoxelType_Output>::
 ComputeSumInZDirection(int64 xy_LinearIndex_start, int64 xy_LinearIndex_end)
 {
     if (xy_LinearIndex_end < xy_LinearIndex_start || xy_LinearIndex_start < 0)
     {
-        mdkError << "Invalid input @ mdk3DIntegralImageBuilder::ComputeSumInZDirection" << '\n';
+        MDK_Error << "Invalid input @ IntegralImageBuilder::ComputeSumInZDirection" << '\n';
         return;
     }
 
@@ -130,7 +126,7 @@ ComputeSumInZDirection(int64 xy_LinearIndex_start, int64 xy_LinearIndex_end)
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-bool mdk3DIntegralImageBuilder<VoxelType_Input, VoxelType_Output>::Run()
+bool IntegralImageBuilder<VoxelType_Input, VoxelType_Output>::Update()
 {
     auto IsOK = this->CheckInput();
 

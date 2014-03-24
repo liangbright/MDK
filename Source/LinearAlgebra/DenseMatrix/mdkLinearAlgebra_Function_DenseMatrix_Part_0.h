@@ -14,7 +14,7 @@ namespace mdk
 
 //forward-declare ----------------//
 template<typename ElementType>
-class mdkDenseMatrix;
+class DenseMatrix;
 
 template<typename ElementType>
 struct mdkPairForSort
@@ -25,7 +25,7 @@ struct mdkPairForSort
 };
 
 template<typename ElementType>
-bool Sort(const mdkDenseMatrix<ElementType>& InputDataArray, mdkDenseMatrix<ElementType>& OutputDataArray, mdkDenseMatrix<ElementType>& OutputIndexList, const std::string& Order);
+bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementType>& OutputDataArray, DenseMatrix<ElementType>& OutputIndexList, const std::string& Order);
 
 template<typename ElementType>
 bool Sort(const std::vector<ElementType>& InputDataArray, std::vector<ElementType>& OutputDataArray, std::vector<ElementType>& OutputIndexList, const std::string& Order);

@@ -5,21 +5,21 @@ namespace mdk
 {
 
 template<typename ElementType>
-mdkFeatureEncoder<ElementType>::mdkFeatureEncoder()
+FeatureEncoder<ElementType>::FeatureEncoder()
 {
     this->Clear();
 }
 
 
 template<typename ElementType>
-mdkFeatureEncoder<ElementType>::~mdkFeatureEncoder()
+FeatureEncoder<ElementType>::~FeatureEncoder()
 {
 
 }
 
 
 template<typename ElementType>
-void mdkFeatureEncoder<ElementType>::Clear()
+void FeatureEncoder<ElementType>::Clear()
 {
     m_Dictionary_Storage.Clear();
 
@@ -30,16 +30,15 @@ void mdkFeatureEncoder<ElementType>::Clear()
     m_FeatureCode_Storage.Clear();
 
     m_FeatureCode = &m_FeatureCode_SharedCopy;
-
 }
 
 
 template<typename ElementType>
-bool mdkFeatureEncoder<ElementType>::SetInputFeatureData(const mdkDenseMatrix<ElementType>* InputFeatureData)
+bool FeatureEncoder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData)
 {
     if (InputFeatureData == nullptr)
     {
-        mdkError << "Invalid input @ mdkFeatureEncoder::SetInputFeatureData(InputFeatureData)" << '\n';
+        MDK_Error << "Invalid input @ FeatureEncoder::SetInputFeatureData(InputFeatureData)" << '\n';
         return false;
     }
 
@@ -50,11 +49,11 @@ bool mdkFeatureEncoder<ElementType>::SetInputFeatureData(const mdkDenseMatrix<El
 
 
 template<typename ElementType>
-bool mdkFeatureEncoder<ElementType>::SetDictionary(const mdkFeatureDictionary<ElementType>* Dictionary)
+bool FeatureEncoder<ElementType>::SetDictionary(const FeatureDictionary<ElementType>* Dictionary)
 {
     if (InputFeatureData == nullptr)
     {
-        mdkError << "Invalid input @ mdkFeatureEncoder::SetDictionary(Dictionary)" << '\n';
+        MDK_Error << "Invalid input @ FeatureEncoder::SetDictionary(Dictionary)" << '\n';
         return false;
     }
 
@@ -66,7 +65,7 @@ bool mdkFeatureEncoder<ElementType>::SetDictionary(const mdkFeatureDictionary<El
 
 
 template<typename ElementType>
-bool mdkFeatureEncoder<ElementType>::LoadDictionary(const std::string& FilePathAndName)
+bool FeatureEncoder<ElementType>::LoadDictionary(const std::string& FilePathAndName)
 {
     auto IsOK = m_Dictionary_SharedCopy.Load(FilePathAndName);
 
@@ -77,11 +76,11 @@ bool mdkFeatureEncoder<ElementType>::LoadDictionary(const std::string& FilePathA
 
 
 template<typename ElementType>
-bool mdkFeatureEncoder<ElementType>::SetOutputFeatureCode(mdkDenseMatrix<ElementType>* FeatureCode)
+bool FeatureEncoder<ElementType>::SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode)
 {
     if (FeatureCode == nullptr)
     {
-        mdkError << "Invalid input @ mdkFeatureEncoder::SetOutputFeatureCode(FeatureCode)" << '\n';
+        MDK_Error << "Invalid input @ FeatureEncoder::SetOutputFeatureCode(FeatureCode)" << '\n';
         return false;
     }
 
@@ -94,13 +93,13 @@ bool mdkFeatureEncoder<ElementType>::SetOutputFeatureCode(mdkDenseMatrix<Element
 
 
 template<typename ElementType>
-bool mdkFeatureEncoder<ElementType>::Update()
+bool FeatureEncoder<ElementType>::Update()
 {
     auto DataSize = m_FeatureData->GetSize();
 
     if (DataSize.RowNumber == 0)
     {
-        mdkError << "InputFeatureData is empty @ mdkFeatureDictionaryBuilder::Update()" << '\n';
+        MDK_Error << "InputFeatureData is empty @ FeatureEncoder::Update()" << '\n';
         return false;
     }
 
@@ -120,14 +119,14 @@ bool mdkFeatureEncoder<ElementType>::Update()
 
 
 template<typename ElementType>
-bool mdkFeatureEncoder<ElementType>::GenerateCode()
+bool FeatureEncoder<ElementType>::GenerateCode()
 {
     return true;
 }
 
 
 template<typename ElementType>
-mdkDenseMatrix<ElementType>* mdkFeatureEncoder<ElementType>::GetOutputFeatureCode()
+DenseMatrix<ElementType>* FeatureEncoder<ElementType>::GetOutputFeatureCode()
 {
     return &m_FeatureCode_SharedCopy;
 }

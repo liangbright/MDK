@@ -8,15 +8,15 @@ namespace mdk
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> MatrixTranspose(const mdkDenseMatrix<ElementType>& Matrix)
+DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& Matrix)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     auto Size = Matrix.GetSize();
 
     if (Size.RowNumber == 0)
     {
-        mdkError << "Matrix is empty @ mdkLinearAlgebra MatrixTranspose(Matrix)" << '\n';
+        MDK_Error << "Matrix is empty @ mdkLinearAlgebra MatrixTranspose(Matrix)" << '\n';
 
         return tempMatrix;
     }
@@ -61,7 +61,7 @@ mdkDenseMatrix<ElementType> MatrixTranspose(const mdkDenseMatrix<ElementType>& M
 
 template<typename ElementType>
 inline 
-int64 MatrixRank(const mdkDenseMatrix<ElementType>& Matrix)
+int64 MatrixRank(const DenseMatrix<ElementType>& Matrix)
 {
     auto RowNumber = Matrix.GetRowNumber();
 
@@ -69,7 +69,7 @@ int64 MatrixRank(const mdkDenseMatrix<ElementType>& Matrix)
 
     if (RowNumber == 0)
     {
-        mdkError << "Matrix is empty  @ mdkLinearAlgebra MatrixRank(Matrix)" << '\n';
+        MDK_Error << "Matrix is empty  @ mdkLinearAlgebra MatrixRank(Matrix)" << '\n';
         return 0;
     }
 
@@ -87,22 +87,22 @@ int64 MatrixRank(const mdkDenseMatrix<ElementType>& Matrix)
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> MatrixInv(const mdkDenseMatrix<ElementType>& Matrix)
+DenseMatrix<ElementType> MatrixInv(const DenseMatrix<ElementType>& Matrix)
 {
-    mdkDenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> tempMatrix;
 
     auto Size = Matrix.GetSize();
 
     if (Size.RowNumber == 0)
     {
-        mdkError << "Matrix is empty matrix @ mdkLinearAlgebra MatrixINV(Matrix)" << '\n';
+        MDK_Error << "Matrix is empty matrix @ mdkLinearAlgebra MatrixINV(Matrix)" << '\n';
 
         return tempMatrix;
     }
 
     if (Size.RowNumber != Size.ColNumber)
     {
-        mdkError << "Matrix is not square @ mdkLinearAlgebra MatrixINV(Matrix)" << '\n';
+        MDK_Error << "Matrix is not square @ mdkLinearAlgebra MatrixINV(Matrix)" << '\n';
 
         return tempMatrix;
     }
@@ -125,7 +125,7 @@ mdkDenseMatrix<ElementType> MatrixInv(const mdkDenseMatrix<ElementType>& Matrix)
 
 template<typename ElementType>
 inline 
-mdkDenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(const mdkDenseMatrix<ElementType>& Matrix)
+mdkDenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(const DenseMatrix<ElementType>& Matrix)
 {
     mdkDenseMatrixEigenResult<std::complex<ElementType>> Result;
 
@@ -133,14 +133,14 @@ mdkDenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen
 
     if (Size.RowNumber == 0)
     {
-        mdkError << "Matrix is empty matrix @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
+        MDK_Error << "Matrix is empty matrix @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
 
         return Result;
     }
 
     if (Size.RowNumber != Size.ColNumber)
     {
-        mdkError << "Matrix is not square @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
+        MDK_Error << "Matrix is not square @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
 
         return Result;
     }
@@ -167,7 +167,7 @@ mdkDenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen
 
 template<typename ElementType>
 inline 
-mdkDenseMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const mdkDenseMatrix<ElementType>& Matrix, bool CheckIfSymmetric = false)
+mdkDenseMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const DenseMatrix<ElementType>& Matrix, bool CheckIfSymmetric = false)
 {
     mdkDenseMatrixEigenResult<ElementType> Result;
 
@@ -175,21 +175,21 @@ mdkDenseMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const mdkDenseMa
 
     if (Size.RowNumber == 0)
     {
-        mdkError << "Matrix is empty matrix @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
+        MDK_Error << "Matrix is empty matrix @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
 
         return Result;
     }
 
     if (Size.RowNumber != Size.ColNumber)
     {
-        mdkError << "Matrix is not square @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
+        MDK_Error << "Matrix is not square @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
 
         return Result;
     }
 
     if (CheckIfSymmetric == true)
     {
-        mdkDenseMatrix<ElementType> tempMatrix_2 = Matrix - Matrix.Transpose();
+        DenseMatrix<ElementType> tempMatrix_2 = Matrix - Matrix.Transpose();
 
         tempMatrix_2.ElementOperationInPlace("abs");
 
@@ -197,7 +197,7 @@ mdkDenseMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const mdkDenseMa
 
         if (std::abs(tempsum) > 0.00000001)
         {
-            mdkError << "Matrix is not Symmetric, try to generate result @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
+            MDK_Error << "Matrix is not Symmetric, try to generate result @ mdkLinearAlgebra MatrixEigen(Matrix)" << '\n';
         }
     }
   
@@ -223,7 +223,7 @@ mdkDenseMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const mdkDenseMa
 
 template<typename ElementType>
 inline
-mdkDenseMatrixPCAResult<ElementType> MatrixPCA(const mdkDenseMatrix<ElementType>& Matrix)
+mdkDenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& Matrix)
 {
     mdkDenseMatrixPCAResult<ElementType> PCAResult;
 
@@ -231,14 +231,14 @@ mdkDenseMatrixPCAResult<ElementType> MatrixPCA(const mdkDenseMatrix<ElementType>
 
     if (Size.ColNumber <= 1)
     {
-        mdkError << "ColNumber <= 1, return empty PCAResult @ mdkLinearAlgebra MatrixPCA(Matrix)" << '\n';
+        MDK_Error << "ColNumber <= 1, return empty PCAResult @ mdkLinearAlgebra MatrixPCA(Matrix)" << '\n';
         return PCAResult;
     }
 
     auto MeanCol = Matrix.SumToCol();
     MeanCol /= Size.ColNumber;
 
-    mdkDenseMatrix<ElementType> CovarianceMatrix(Size.RowNumber, Size.RowNumber);
+    DenseMatrix<ElementType> CovarianceMatrix(Size.RowNumber, Size.RowNumber);
 
     CovarianceMatrix.Fill(0);
 
@@ -271,7 +271,7 @@ mdkDenseMatrixPCAResult<ElementType> MatrixPCA(const mdkDenseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-mdkDenseMatrixSVDResult<ElementType> MatrixSVD(const mdkDenseMatrix<ElementType>& Matrix)
+mdkDenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Matrix)
 {
     mdkDenseMatrixSVDResult<ElementType> Result;
 
@@ -279,7 +279,7 @@ mdkDenseMatrixSVDResult<ElementType> MatrixSVD(const mdkDenseMatrix<ElementType>
 
     if (Size.RowNumber == 0)
     {
-        mdkError << "Matrix is empty  @ mdkLinearAlgebra MatrixSVD(Matrix)" << '\n';
+        MDK_Error << "Matrix is empty  @ mdkLinearAlgebra MatrixSVD(Matrix)" << '\n';
         return Result;
     }
 

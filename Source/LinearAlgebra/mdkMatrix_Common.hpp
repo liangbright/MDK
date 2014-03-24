@@ -10,52 +10,52 @@ namespace mdk
 
 template<typename ElementType>
 inline
-mdkMatrixElementTypeEnum FindMatrixElementType(ElementType Element)
+MatrixElementTypeEnum FindMatrixElementType(ElementType Element)
 {
     std::string TypeName(typeid(Element).name());
 
     if (TypeName == "double")
     {
-        return mdkMatrixElementTypeEnum::Scalar_DOUBLE64;
+        return MatrixElementTypeEnum::Scalar_DOUBLE64;
     }
     else if (TypeName == "float")
     {
-        return mdkMatrixElementTypeEnum::Scalar_FLOAT32;
+        return MatrixElementTypeEnum::Scalar_FLOAT32;
     }
     else if (TypeName == "signed char")
     {
-        return mdkMatrixElementTypeEnum::Scalar_INT8;
+        return MatrixElementTypeEnum::Scalar_INT8;
     }
     else if (TypeName == "short")
     {
-        return mdkMatrixElementTypeEnum::Scalar_INT16;
+        return MatrixElementTypeEnum::Scalar_INT16;
     }
     else if (TypeName == "int")
     {
-        return mdkMatrixElementTypeEnum::Scalar_INT32;
+        return MatrixElementTypeEnum::Scalar_INT32;
     }
     else if (TypeName == "__int64") // OS is Windows
     {
-        return mdkMatrixElementTypeEnum::Scalar_INT64;
+        return MatrixElementTypeEnum::Scalar_INT64;
     }
     else if (TypeName == "unsigned char")
     {
-        return mdkMatrixElementTypeEnum::Scalar_UINT8;
+        return MatrixElementTypeEnum::Scalar_UINT8;
     }
     else if (TypeName == "unsigned short")
     {
-        return mdkMatrixElementTypeEnum::Scalar_UINT16;
+        return MatrixElementTypeEnum::Scalar_UINT16;
     }
     else if (TypeName == "unsigned int")
     {
-        return mdkMatrixElementTypeEnum::Scalar_UINT32;
+        return MatrixElementTypeEnum::Scalar_UINT32;
     }
     else if (TypeName == "unsigned __int64") // OS is Windows
     {
-        return mdkMatrixElementTypeEnum::Scalar_UINT64;
+        return MatrixElementTypeEnum::Scalar_UINT64;
     }
 
-    return mdkMatrixElementTypeEnum::UNKNOWN;
+    return MatrixElementTypeEnum::UNKNOWN;
 }
 
 
@@ -79,26 +79,26 @@ ElementType GetMatrixNaNElement(ElementType ReferenceElement)
 
     switch (TypeEnum)
     {
-    case mdkMatrixElementTypeEnum::Scalar_DOUBLE64:
+    case MatrixElementTypeEnum::Scalar_DOUBLE64:
         return ElementType(std::nan(nullptr));
 
-    case mdkMatrixElementTypeEnum::Scalar_FLOAT32:
+    case MatrixElementTypeEnum::Scalar_FLOAT32:
         return std::nanf(nullptr);
 
-    case mdkMatrixElementTypeEnum::StdVector_DOUBLE64:
+    case MatrixElementTypeEnum::StdVector_DOUBLE64:
         return ReferenceElement + ElementType(std::nan(nullptr));
 
-    case mdkMatrixElementTypeEnum::StdVector_FLOAT32:
+    case MatrixElementTypeEnum::StdVector_FLOAT32:
         return ReferenceElement + std::nanf(nullptr);
 
-    case mdkMatrixElementTypeEnum::StdArray_DOUBLE64:
+    case MatrixElementTypeEnum::StdArray_DOUBLE64:
         return ReferenceElement + ElementType(std::nan(nullptr));
 
-    case mdkMatrixElementTypeEnum::StdArray_FLOAT32:
+    case MatrixElementTypeEnum::StdArray_FLOAT32:
         return ReferenceElement + std::nanf(nullptr);
 
     default:
-        mdkWarning << "ElementType is not float or double, so NaNElement is set to zero @ GetMatrixNaNElement()" << '\n';
+        MDK_Warning << "ElementType is not float or double, so NaNElement is set to zero @ GetMatrixNaNElement()" << '\n';
         return ReferenceElement - ReferenceElement;
     }
 }
