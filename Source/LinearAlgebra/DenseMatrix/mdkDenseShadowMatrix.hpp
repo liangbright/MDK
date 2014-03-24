@@ -10,7 +10,19 @@ template<typename ElementType>
 inline
 mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix()
 {
-    this->Clear();
+    m_Flag_OutputVector = false;
+
+    m_ElementNumber = 0;
+
+    m_RowNumber = 0;
+
+    m_ColNumber = 0;
+
+    m_Flag_All_Row = false;
+
+    m_Flag_All_Col = false;
+
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 }
 
 
@@ -18,17 +30,8 @@ template<typename ElementType>
 inline
 mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& LinearIndexList)
 {
-    // all the indexes in LinearIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}), A is a matrix    
     // the constructed ShadowMatrix is a col-vector
-
-    if (LinearIndexList.size() == 0)
-    {
-        mdkError << "LinearIndexList is empty @ mdkDenseShadowMatrix(sourceMatrix, std::vector LinearIndexList)" << '\n';
-
-        this->Clear();
-        return;
-    }
 
     m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
@@ -36,13 +39,19 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 
     m_Flag_OutputVector = true;
 
+    //-----------------------------------------------
+
     m_ElementNumber = LinearIndexList.size();
 
     m_RowNumber = m_ElementNumber;
 
     m_ColNumber = 1;
 
-    m_NaNElement = sourceMatrix.GetNaNElement();
+    m_Flag_All_Row = false;
+
+    m_Flag_All_Col = false;
+
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 }
 
 
@@ -53,8 +62,6 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
     m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
     m_Flag_OutputVector = true;
-
-    //-----------------------------------------------
 
     auto RowNumber_source = sourceMatrix.GetRowNumber();
 
@@ -81,11 +88,11 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 
     m_ColNumber = ColNumber_source;
 
-    m_NaNElement = sourceMatrix.GetNaNElement();
-
     m_Flag_All_Row = true;
 
     m_Flag_All_Col = true;
+
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 }
 
 
@@ -97,15 +104,6 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, {0, 1}), A is a matrix    
-
-
-    if (RowIndexList.empty() == true || ColIndexList.empty() == true)
-    {
-        mdkError << "RowIndexList or ColIndexList is empty @ mdkDenseShadowMatrix(sourceMatrix, std::vector RowIndexList, std::vector ColIndexList)" << '\n';
-
-        this->Clear();
-        return;
-    }
 
     m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
@@ -119,13 +117,19 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 
     m_Flag_OutputVector = false;
 
+    //-----------------------------------------------
+
     m_RowNumber = m_RowIndexList_source.size();
 
     m_ColNumber = m_ColIndexList_source.size();
 
     m_ElementNumber = m_RowNumber*m_ColNumber;
 
-    m_NaNElement = sourceMatrix.GetNaNElement();
+    m_Flag_All_Row = false;
+
+    m_Flag_All_Col = false;
+
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 }
 
 
@@ -137,14 +141,6 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, ALL), A is a matrix    
-
-    if (RowIndexList.empty() == true)
-    {
-        mdkError << "RowIndexList is empty @ mdkDenseShadowMatrix(sourceMatrix, std::vector RowIndexList, ALL)" << '\n';
-
-        this->Clear();
-        return;
-    }
 
     m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
@@ -163,15 +159,19 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 
     m_Flag_OutputVector = false;
 
+    //------------------------------------------
+
     m_RowNumber = m_RowIndexList_source.size();
 
     m_ColNumber = m_ColIndexList_source.size();
 
     m_ElementNumber = m_RowNumber*m_ColNumber;
 
-    m_NaNElement = sourceMatrix.GetNaNElement();
+    m_Flag_All_Row = false;
 
     m_Flag_All_Col = true;
+
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 }
 
 
@@ -183,14 +183,6 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A(ALL, {0, 1, 2}), A is a matrix    
-
-    if (ColIndexList.empty() == true)
-    {
-        mdkError << "ColIndexList is empty @ mdkDenseShadowMatrix(sourceMatrix, ALL, std::vector ColIndexList)" << '\n';
-
-        this->Clear();
-        return;
-    }
 
     m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
@@ -209,15 +201,19 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 
     m_Flag_OutputVector = false;
 
+    //-------------------------------------------
+
     m_RowNumber = m_RowIndexList_source.size();
 
     m_ColNumber = m_ColIndexList_source.size();
 
     m_ElementNumber = m_RowNumber*m_ColNumber;
 
-    m_NaNElement = sourceMatrix.GetNaNElement();
-
     m_Flag_All_Row = true;
+
+    m_Flag_All_Col = true;
+
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 }
 
 
@@ -235,17 +231,19 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(mdkDenseShadowMatrix<Ele
 
     m_Flag_OutputVector = ShadowMatrix.m_Flag_OutputVector;
 
+    //-----------------------------------------------------
+
     m_RowNumber = ShadowMatrix.m_RowNumber;
 
     m_ColNumber = ShadowMatrix.m_ColNumber;
 
     m_ElementNumber = ShadowMatrix.m_ElementNumber;
 
-    m_NaNElement = ShadowMatrix.m_NaNElement;
-
     m_Flag_All_Row = ShadowMatrix.m_Flag_All_Row;
 
     m_Flag_All_Col = ShadowMatrix.m_Flag_All_Col;
+
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 }
 
 
@@ -253,34 +251,6 @@ template<typename ElementType>
 inline
 mdkDenseShadowMatrix<ElementType>::~mdkDenseShadowMatrix()
 {
-}
-
-
-template<typename ElementType>
-inline 
-void mdkDenseShadowMatrix<ElementType>::Clear()
-{
-    m_SourceMatrixSharedCopy.Clear();
-
-    m_RowIndexList_source.resize(0);
-
-    m_ColIndexList_source.resize(0);
-
-    m_LinearIndexList_source.resize(0);
-
-    m_Flag_OutputVector = false;
-
-    m_ElementNumber = 0;
-
-    m_RowNumber = 0;
-
-    m_ColNumber = 0;
-
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
-
-    m_Flag_All_Row = false;
-
-    m_Flag_All_Col = false;
 }
 
 
@@ -452,25 +422,25 @@ bool mdkDenseShadowMatrix<ElementType>::CreateDenseMatrix(mdkDenseMatrix<Element
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseMatrix<ElementType>& targetMatrix)
+void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseMatrix<ElementType>& InputMatrix)
 {
     // MatrixA = MatrixA
-    if (m_SourceMatrixSharedCopy.GetElementPointer() == targetMatrix.GetElementPointer())
+    if (m_SourceMatrixSharedCopy.GetElementPointer() == InputMatrix.GetElementPointer())
     {
         return;
     }
 
     if (m_Flag_OutputVector == true)
     {
-        if (m_ElementNumber != targetMatrix.GetElementNumber())
+        if (m_ElementNumber != InputMatrix.GetElementNumber())
         {
-            mdkError << "m_ElementNumber != targetMatrix.GetElementNumber() @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)" << '\n';
+            mdkError << "m_ElementNumber != InputMatrix.GetElementNumber() @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)" << '\n';
             return;
         }
     }
     else
     {
-        if (m_RowNumber != targetMatrix.GetRowNumber() || m_ColNumber != targetMatrix.GetColNumber())
+        if (m_RowNumber != InputMatrix.GetRowNumber() || m_ColNumber != InputMatrix.GetColNumber())
         {
             mdkError << "Size does not match @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)" << '\n';
             return;
@@ -482,21 +452,21 @@ void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseMatrix<ElementTy
 
     if (m_LinearIndexList_source.empty() == true)
     {        
-        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) = targetMatrix
+        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) = InputMatrix
         {
-            m_SourceMatrixSharedCopy.SetRow(m_RowIndexList_source[0], targetMatrix);
+            m_SourceMatrixSharedCopy.SetRow(m_RowIndexList_source[0], InputMatrix);
             return;
         }
-        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) = targetMatrix
+        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) = InputMatrix
         {
-            m_SourceMatrixSharedCopy.SetCol(m_ColIndexList_source[0], targetMatrix);
+            m_SourceMatrixSharedCopy.SetCol(m_ColIndexList_source[0], InputMatrix);
             return;
         }
     }
 
     //-------------------------------------------------
 
-    auto ptrMatrix = targetMatrix.GetElementPointer();
+    auto ptrMatrix = InputMatrix.GetElementPointer();
 
     for (int64 i = 0; i < m_ElementNumber; ++i)
     {
@@ -606,9 +576,9 @@ ElementType& mdkDenseShadowMatrix<ElementType>::operator[](int64 LinearIndex)
         return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
     }
 
-    auto ColIndex = LinearIndex / m_RowNumber;
+    int64 ColIndex = LinearIndex / m_RowNumber;
 
-    auto RowIndex = LinearIndex % m_RowNumber;
+    int64 RowIndex = LinearIndex % m_RowNumber;
 
     auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
@@ -637,9 +607,9 @@ const ElementType& mdkDenseShadowMatrix<ElementType>::operator[](int64 LinearInd
         return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
     }
 
-    auto ColIndex = LinearIndex / m_RowNumber;
+    int64 ColIndex = LinearIndex / m_RowNumber;
 
-    auto RowIndex = LinearIndex % m_RowNumber;
+    int64 RowIndex = LinearIndex % m_RowNumber;
 
     auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
@@ -658,7 +628,7 @@ ElementType& mdkDenseShadowMatrix<ElementType>::operator()(int64 LinearIndex)
     if (LinearIndex >= m_ElementNumber || LinearIndex < 0)
 	{
 		mdkError << "Invalid input @ mdkDenseShadowMatrix::operator(i)" <<'\n';
-		return m_NaNElement;
+        return m_NaNElement;
 	}
 
 #endif
@@ -720,15 +690,15 @@ ElementType& mdkDenseShadowMatrix<ElementType>::operator()(int64 RowIndex, int64
     if (RowIndex >= m_RowNumber || RowIndex < 0 || ColIndex >= m_ColNumber || ColIndex < 0)
 	{
 		mdkError << "Invalid input @ mdkDenseShadowMatrix::operator(i, j)" << '\n';
-		return m_NaNElement;
+        return m_NaNElement;
 	}
 
 #endif
 
-	auto LinearIndex = ColIndex *m_RowNumber + RowIndex;
-
     if (m_LinearIndexList_source.empty() == false)
 	{
+        auto LinearIndex = ColIndex *m_RowNumber + RowIndex;
+
         return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
 	}
 	
@@ -749,15 +719,15 @@ const ElementType& mdkDenseShadowMatrix<ElementType>::operator()(int64 RowIndex,
     if (RowIndex >= m_RowNumber || RowIndex < 0 || ColIndex >= m_ColNumber || ColIndex < 0)
 	{
 		mdkError << "Invalid input @ mdkDenseShadowMatrix::operator(i, j) const" << '\n';
-		return m_NaNElement;
+        return m_NaNElement;
 	}
 
 #endif
 
-	auto LinearIndex = ColIndex *m_RowNumber + RowIndex;
-
     if (m_LinearIndexList_source.empty() == false)
 	{
+        auto LinearIndex = ColIndex *m_RowNumber + RowIndex;
+
         return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
 	}
 	
@@ -795,6 +765,22 @@ void mdkDenseShadowMatrix<ElementType>::operator+=(const mdkDenseMatrix<ElementT
         return;
     }
 
+    //-------------------------------------------------
+
+    if (m_LinearIndexList_source.empty() == true)
+    {
+        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) += Matrix
+        {
+            m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '+', Matrix, false);
+            return;
+        }
+        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) += Matrix
+        {
+            m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '+', Matrix, false);
+            return;
+        }
+    }
+
     //----------------------------------------------------//
 
     auto ptrInput = Matrix.GetElementPointer();
@@ -829,6 +815,22 @@ void mdkDenseShadowMatrix<ElementType>::operator-=(const mdkDenseMatrix<ElementT
     {
         mdkError << "Size does not match @ mdkDenseShadowMatrix::operator-=(Matrix)" << '\n';
         return;
+    }
+
+    //-------------------------------------------------
+
+    if (m_LinearIndexList_source.empty() == true)
+    {
+        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) -= Matrix
+        {
+            m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '-', Matrix, false); // false: bound check has been done
+            return;
+        }
+        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) -= Matrix
+        {
+            m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '-', Matrix, false); // false: bound check has been done
+            return;
+        }
     }
 
     //----------------------------------------------------//
@@ -898,6 +900,22 @@ void mdkDenseShadowMatrix<ElementType>::operator/=(const mdkDenseMatrix<ElementT
         return;
     }
 
+    //-------------------------------------------------
+
+    if (m_LinearIndexList_source.empty() == true)
+    {
+        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) /= Matrix
+        {
+            m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '/', Matrix, false);
+            return;
+        }
+        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) /= Matrix
+        {
+            m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '/', Matrix, false);
+            return;
+        }
+    }
+
     //----------------------------------------------------//
 
     auto ptrInput = Matrix.GetElementPointer();
@@ -920,6 +938,22 @@ void mdkDenseShadowMatrix<ElementType>::operator+=(const ElementType& Element)
         return;
     }
 
+    //-------------------------------------------------
+
+    if (m_LinearIndexList_source.empty() == true)
+    {
+        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) += Element
+        {
+            m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '+', Element);
+            return;
+        }
+        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) += Element
+        {
+            m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_RowIndexList_source[0], '+', Element);
+            return;
+        }
+    }
+
     //----------------------------------------------------//
 
     for (int64 i = 0; i < m_ElementNumber; ++i)
@@ -937,6 +971,22 @@ void mdkDenseShadowMatrix<ElementType>::operator-=(const ElementType& Element)
     {
         mdkError << "Self is empty @ mdkDenseShadowMatrix::operator-=(Element)" << '\n';
         return;
+    }
+
+    //-------------------------------------------------
+
+    if (m_LinearIndexList_source.empty() == true)
+    {
+        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) -= Element
+        {
+            m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '-', Element);
+            return;
+        }
+        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) -= Element
+        {
+            m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '-', Element);
+            return;
+        }
     }
 
     //----------------------------------------------------//
@@ -958,6 +1008,22 @@ void mdkDenseShadowMatrix<ElementType>::operator*=(const ElementType& Element)
         return;
     }
 
+    //-------------------------------------------------
+
+    if (m_LinearIndexList_source.empty() == true)
+    {
+        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) *= Element
+        {
+            m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '*', Element);
+            return;
+        }
+        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) *= Element
+        {
+            m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '*', Element);
+            return;
+        }
+    }
+
     //----------------------------------------------------//
 
     for (int64 i = 0; i < m_ElementNumber; ++i)
@@ -975,6 +1041,22 @@ void mdkDenseShadowMatrix<ElementType>::operator/=(const ElementType& Element)
     {
         mdkError << "Self is empty @ mdkDenseShadowMatrix::operator/=(Element)" << '\n';
         return;
+    }
+
+    //-------------------------------------------------
+
+    if (m_LinearIndexList_source.empty() == true)
+    {
+        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) /= Element
+        {
+            m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '/', Element);
+            return;
+        }
+        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) /= Element
+        {
+            m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_RowIndexList_source[0], '/', Element);
+            return;
+        }
     }
 
     //----------------------------------------------------//
@@ -1221,7 +1303,7 @@ mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::ElementMultiply(c
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ptrInput = targetMatrix.GetElementPointer();
+    auto ptrInput = InputMatrix.GetElementPointer();
 
     for (int64 i = 0; i < m_ElementNumber; ++i)
     {

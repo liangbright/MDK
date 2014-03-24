@@ -14,7 +14,7 @@
 using namespace mdk;
 
 template<typename T>
-void DisplayMatrix(const std::string& Name, const mdkDenseMatrix<T>& Matrix, uint32 value_std_setw = 6, uint32 precision = 0)
+void DisplayMatrix(const std::string& Name, const mdkDenseMatrix<T>& Matrix, uint32 value_std_setw = 6, uint32 precision = 4)
 {
     std::cout << Name << " = " << '\n';
 
@@ -24,7 +24,7 @@ void DisplayMatrix(const std::string& Name, const mdkDenseMatrix<T>& Matrix, uin
         {
             //std::cout << std::fixed << std::setprecision(precision) << Matrix(i, j) << ' ';
 
-            std::cout << std::setw(value_std_setw + precision) << std::setprecision(precision) << Matrix(i, j);
+            std::cout << std::setw(value_std_setw + precision) << std::setprecision(precision) << Matrix(i, j) << ' ';
         }
         std::cout << '\n';
     }
@@ -106,6 +106,20 @@ void Test_Constructor()
 
     AList.reserve(10);
 
+    auto t0 = std::chrono::system_clock::now();
+
+    for (int64 i = 0; i < 1000000; ++i)
+    {
+        //mdkDenseMatrix<double> AA;
+        std::vector<mdkDenseMatrix<double>> TempList(1);
+    }
+
+    auto t1 = std::chrono::system_clock::now();
+
+    std::chrono::duration<double> raw_time = t1 - t0;
+    std::cout << "construction  time " << raw_time.count() << '\n';
+
+
 
     mdkDenseMatrix<double> A(2, 2);
 
@@ -122,16 +136,16 @@ void Test_Constructor()
 
     DisplayMatrix("A", A);
 
-    auto t0 = std::chrono::system_clock::now();
+    t0 = std::chrono::system_clock::now();
 
     for (int64 i = 0; i < 60000; ++i)
     {
         A[1] *= i;
     }
 
-    auto t1 = std::chrono::system_clock::now();
+    t1 = std::chrono::system_clock::now();
 
-    std::chrono::duration<double> raw_time = t1 - t0;
+    raw_time = t1 - t0;
     std::cout << "A[1] *= i  time " << raw_time.count() << '\n';
 
 
@@ -525,19 +539,53 @@ void Test_ElementOperation()
 
     A.Resize(2, 4);
 
-	A = { 1, 2, 3, 4,
-		5, 6, 7, 8 };
+    A = { { 1, 2, 3, 4 },
+          { 5, 6, 7, 8 } };
 
     DisplayMatrix("A", A);
 
-    auto B = A.ElementOperation("sqrt"); 
+    auto B = A.ElementNamedOperation("sqrt");
 
-    DisplayMatrix("B = A.ElementOperation(\"sqrt\")", A);
+    DisplayMatrix("B = A.ElementNamedOperation(\"sqrt\")", B);
 
+    B = A.ElementNamedOperation('+', 1);
+
+    DisplayMatrix("B = A.ElementNamedOperation('+', 1)", B);
 
     auto C = A^10.0;
 
     DisplayMatrix("C=A^10.0", C);
+
+
+    A.ElementNamedOperationInPlace('+', 1);
+
+    DisplayMatrix(" A.ElementNamedOperationInPlace('+', 1)", A);
+
+}
+
+void Test_ColOperation()
+{
+    mdkDenseMatrix<double> A;
+
+    A.Resize(2, 4);
+
+    A = { { 1, 2, 3, 4 },
+          { 5, 6, 7, 8 } };
+
+    DisplayMatrix("A", A);
+
+    auto B = A.ColNamedOperation(0, "sqrt");
+
+    DisplayMatrix("B = A.ColNamedOperation(0, \"sqrt\")", B);
+
+    B = A.ColNamedOperation(0, '+', 1);
+
+    DisplayMatrix("B = A.ColNamedOperation(0, '+', 1)", B);
+
+
+    A.ColNamedOperationInPlace(0, '+', 1);
+
+    DisplayMatrix(" A.ColNamedOperationInPlace(0, '+', 1", A);
 
 }
 

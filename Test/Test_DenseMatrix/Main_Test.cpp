@@ -82,6 +82,10 @@ int main()
 
   //  Test_ShareConstuctor();
 
+//    Test_ElementOperation();
+
+    Test_ColOperation();
+
    // Test_Matrix_Operator();
 
     // Test_Matrix_ChangeSize();
@@ -112,7 +116,7 @@ int main()
 
   //  Test_GlueMatrix_Speed1();
 
-    Test_GlueMatrix_Speed2();
+    //Test_GlueMatrix_Speed2();
 
     //Test_GlueMatrix_Create();
 

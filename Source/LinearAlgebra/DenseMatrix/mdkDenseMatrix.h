@@ -673,7 +673,7 @@ public:
 
     inline void operator/=(const ElementType& Element);
 
-    //-------------------- element operation {^} -----------------------------------------------------------//
+    //-------------------- special element operation {^} -----------------------------------------------------------//
 
     inline mdkDenseMatrix operator^(const ElementType& Element);
 
@@ -691,45 +691,131 @@ public:
 
     inline mdkDenseMatrix ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix) const;
 
-	//-------------------- general element operation : output a new matrix ------------------------------------------//
+	//-------------------- general element operation : output a new matrix with the same size ------------------------------------------//
 
-    inline mdkDenseMatrix ElementOperation(const char* OperationName) const;
+    inline mdkDenseMatrix ElementNamedOperation(const std::string& OperationName) const;
 
-    inline mdkDenseMatrix ElementOperation(const std::string& OperationName) const;
+    template<typename OperationType>
+    inline mdkDenseMatrix ElementOperation(OperationType Operation) const;
 
-    inline mdkDenseMatrix ElementOperation(std::function<ElementType(const ElementType&)> Operation) const;
+    inline mdkDenseMatrix ElementNamedOperation(const char OperationName, const mdkDenseMatrix<ElementType>& InputMatrix) const;
 
-    inline mdkDenseMatrix ElementOperation(const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix) const;
+    inline mdkDenseMatrix ElementNamedOperation(const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix) const;
 
-    inline mdkDenseMatrix ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, 
-                                           const mdkDenseMatrix<ElementType>& InputMatrix) const;
+    template<typename OperationType>
+    inline mdkDenseMatrix ElementOperation(OperationType Operation, const mdkDenseMatrix<ElementType>& InputMatrix) const;
 
-    inline mdkDenseMatrix ElementOperation(const char* OperationName, const ElementType& Element) const;
+    inline mdkDenseMatrix ElementNamedOperation(const char OperationName, const ElementType& Element) const;
 
-    inline mdkDenseMatrix ElementOperation(const std::string& OperationName, const ElementType& Element) const;
+    inline mdkDenseMatrix ElementNamedOperation(const std::string& OperationName, const ElementType& Element) const;
 
-    inline mdkDenseMatrix ElementOperation(std::function<ElementType(const ElementType&, const ElementType&)> Operation, const ElementType& Element) const;
+    template<typename OperationType>
+    inline mdkDenseMatrix ElementOperation(OperationType Operation, const ElementType& Element) const;
 
     //-------------------- general element operation in place : Object.ElementOperationInPlace modify the object itself ---------------//
 
-    inline bool ElementOperationInPlace(const char* OperationName);
+    inline bool ElementNamedOperationInPlace(const std::string& OperationName);
 
-    inline bool ElementOperationInPlace(const std::string& OperationName);
+    template<typename OperationType>
+    inline bool ElementOperationInPlace(OperationType Operation);
 
-    inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&)> Operation);
+    inline bool ElementNamedOperationInPlace(const char OperationName, const mdkDenseMatrix<ElementType>& InputMatrix);
 
-    inline bool ElementOperationInPlace(const char* OperationName, const mdkDenseMatrix<ElementType>& InputMatrix);
+    inline bool ElementNamedOperationInPlace(const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix);
 
-    inline bool ElementOperationInPlace(const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix);
+    template<typename OperationType>
+    inline bool ElementOperationInPlace(OperationType Operation, const mdkDenseMatrix<ElementType>& InputMatrix);
 
-    inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation,
-                                        const mdkDenseMatrix<ElementType>& InputMatrix);
+    inline bool ElementNamedOperationInPlace(const char OperationName, const ElementType& Element);
 
-    inline bool ElementOperationInPlace(const char* OperationName, const ElementType& Element);
+    inline bool ElementNamedOperationInPlace(const std::string& OperationName, const ElementType& Element);
 
-    inline bool ElementOperationInPlace(const std::string& OperationName, const ElementType& Element);
+    template<typename OperationType>
+    inline bool ElementOperationInPlace(OperationType Operation, const ElementType& Element);
 
-    inline bool ElementOperationInPlace(std::function<ElementType(const ElementType&, const ElementType&)> Operation, const ElementType& Element);
+    //-------------------- general Col operation : output a new col-matrix ------------------------------------------//
+
+    inline mdkDenseMatrix ColNamedOperation(int64 ColIndex, const std::string& OperationName, bool EnableBoundCheck = true) const;
+
+    template<typename OperationType>
+    inline mdkDenseMatrix ColOperation(int64 ColIndex, OperationType Operation, bool EnableBoundCheck = true) const;
+
+    inline mdkDenseMatrix ColNamedOperation(int64 ColIndex, const char OperationName, const mdkDenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+
+    inline mdkDenseMatrix ColNamedOperation(int64 ColIndex, const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+    
+    template<typename OperationType>
+    inline mdkDenseMatrix ColOperation(int64 ColIndex, OperationType Operation, const mdkDenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+
+    inline mdkDenseMatrix ColNamedOperation(int64 ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+
+    inline mdkDenseMatrix ColNamedOperation(int64 ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+
+    template<typename OperationType>
+    inline mdkDenseMatrix ColOperation(int64 ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true) const;
+
+    //-------------------- general col operation in place : Object.ColOperationInPlace modify the object itself ---------------//
+
+    inline bool ColNamedOperationInPlace(int64 ColIndex, const std::string& OperationName, bool EnableBoundCheck = true);
+
+    template<typename OperationType>
+    inline bool ColOperationInPlace(int64 ColIndex, OperationType Operation, bool EnableBoundCheck = true);
+
+    inline bool ColNamedOperationInPlace(int64 ColIndex, const char OperationName, const mdkDenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+
+    inline bool ColNamedOperationInPlace(int64 ColIndex, const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+
+    template<typename OperationType>
+    inline bool ColOperationInPlace(int64 ColIndex, OperationType Operation, const mdkDenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+
+    inline bool ColNamedOperationInPlace(int64 ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+    inline bool ColNamedOperationInPlace(int64 ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+    template<typename OperationType>
+    inline bool ColOperationInPlace(int64 ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
+
+    //-------------------- general Row operation : output a new row-matrix ------------------------------------------//
+
+    inline mdkDenseMatrix RowNamedOperation(int64 RowIndex, const std::string& OperationName, bool EnableBoundCheck = true) const;
+
+    template<typename OperationType>
+    inline mdkDenseMatrix RowOperation(int64 RowIndex, OperationType Operation, bool EnableBoundCheck = true) const;
+
+    inline mdkDenseMatrix RowNamedOperation(int64 RowIndex, const char OperationName, const mdkDenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+
+    inline mdkDenseMatrix RowNamedOperation(int64 RowIndex, const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+
+    template<typename OperationType>
+    inline mdkDenseMatrix RowOperation(int64 RowIndex, OperationType Operation, const mdkDenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+
+    inline mdkDenseMatrix RowNamedOperation(int64 RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+
+    inline mdkDenseMatrix RowNamedOperation(int64 RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+
+    template<typename OperationType>
+    inline mdkDenseMatrix RowOperation(int64 RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true) const;
+
+    //-------------------- general row operation in place : Object.RowOperationInPlace modify the object itself ---------------//
+
+    inline bool RowNamedOperationInPlace(int64 RowIndex, const std::string& OperationName, bool EnableBoundCheck = true);
+
+    template<typename OperationType>
+    inline bool RowOperationInPlace(int64 RowIndex, OperationType Operation, bool EnableBoundCheck = true);
+
+    inline bool RowNamedOperationInPlace(int64 RowIndex, const char OperationName, const mdkDenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+
+    inline bool RowNamedOperationInPlace(int64 RowIndex, const std::string& OperationName, const mdkDenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+
+    template<typename OperationType>
+    inline bool RowOperationInPlace(int64 RowIndex, OperationType Operation, const mdkDenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+
+    inline bool RowNamedOperationInPlace(int64 RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+    inline bool RowNamedOperationInPlace(int64 RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+    template<typename OperationType>
+    inline bool RowOperationInPlace(int64 RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 

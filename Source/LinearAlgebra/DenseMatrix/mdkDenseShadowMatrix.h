@@ -48,13 +48,13 @@ private:
 
     bool m_Flag_OutputVector;
 
-    ElementType m_NaNElement;
-
-	// info of the source Matrix -----------------------------------------------//
-
     bool m_Flag_All_Row;
 
     bool m_Flag_All_Col;
+
+    ElementType m_NaNElement;
+
+	// info of the source Matrix -----------------------------------------------//
 
 	std::vector<int64> m_RowIndexList_source;
 
@@ -93,7 +93,7 @@ private:
     inline void operator=(mdkDenseShadowMatrix<ElementType>&&) = delete;
 
 public:
-    inline void operator=(const mdkDenseMatrix<ElementType>& Matrix);
+    inline void operator=(const mdkDenseMatrix<ElementType>& InputMatrix);
 
     inline void operator=(const ElementType& Element);
 
@@ -123,8 +123,6 @@ private:
 	inline const ElementType& operator()(int64 RowIndex, int64 ColIndex) const;
 
 	//---------------------- Other ----------------------------------------//
-
-    inline void Clear();
 
     inline bool IsLinearIndexListOnly() const;
 
