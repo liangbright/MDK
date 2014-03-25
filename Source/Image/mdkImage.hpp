@@ -22,9 +22,9 @@ ImageData<VoxelType>::~ImageData()
 template<typename VoxelType>
 void ImageData<VoxelType>::Clear()
 {
-    m_ImageDimension[0] = 0;
-    m_ImageDimension[1] = 0;
-    m_ImageDimension[2] = 0;
+    m_Dimension[0] = 0;
+    m_Dimension[1] = 0;
+    m_Dimension[2] = 0;
 
     m_VoxelNumberPerZSlice = 0;
 
@@ -32,9 +32,9 @@ void ImageData<VoxelType>::Clear()
     m_PhysicalOrigin[1] = 0;
     m_PhysicalOrigin[2] = 0;
 
-    m_VoxelPhysicalSize[0] = 0;
-    m_VoxelPhysicalSize[1] = 0;
-    m_VoxelPhysicalSize[2] = 0;
+    m_VoxelSpacing[0] = 0;
+    m_VoxelSpacing[1] = 0;
+    m_VoxelSpacing[2] = 0;
 
     m_DataArray.clear();
 }
@@ -76,7 +76,7 @@ template<typename VoxelType>
 inline
 VoxelType& ImageData<VoxelType>::operator()(int64 xIndex, int64 yIndex, int64 zIndex)
 {
-    auto LinearIndex = zIndex*m_VoxelNumberPerZSlice + yIndex*m_ImageDimension[0] + xIndex;
+    auto LinearIndex = zIndex*m_VoxelNumberPerZSlice + yIndex*m_Dimension[0] + xIndex;
  
     return m_DataArray[LinearIndex];
 }
@@ -86,7 +86,7 @@ template<typename VoxelType>
 inline
 const VoxelType& ImageData<VoxelType>::operator()(int64 xIndex, int64 yIndex, int64 zIndex) const
 {
-    auto LinearIndex = zIndex*m_VoxelNumberPerZSlice + yIndex*m_ImageDimension[0] + xIndex;
+    auto LinearIndex = zIndex*m_VoxelNumberPerZSlice + yIndex*m_Dimension[0] + xIndex;
 
     return m_DataArray[LinearIndex];
 }
@@ -96,7 +96,7 @@ template<typename VoxelType>
 inline
 int64 ImageData<VoxelType>::GetLinearIndexBy3DIndex(int64 xIndex, int64 yIndex, int64 zIndex) const
 {
-    return zIndex*m_VoxelNumberPerZSlice + yIndex*m_ImageDimension[0] + xIndex;    
+    return zIndex*m_VoxelNumberPerZSlice + yIndex*m_Dimension[0] + xIndex;    
 }
 
 
@@ -110,7 +110,7 @@ void ImageData<VoxelType>::Get3DIndexByLinearIndex(int64 LinearIndex, int64* xIn
 
     zIndex[0] = divresult.quot;
             
-    divresult = div(divresult.rem, m_ImageDimension[0]);
+    divresult = div(divresult.rem, m_Dimension[0]);
 
     yIndex[0] = divresult.quot;
 
@@ -128,17 +128,17 @@ void ImageData<VoxelType>::Get3DPositionByLinearIndex(int64 LinearIndex, double*
 
     z[0] = divresult.quot;
 
-    divresult = div(divresult.rem, m_ImageDimension[0]);
+    divresult = div(divresult.rem, m_Dimension[0]);
 
     y[0] = divresult.quot;
       
     x[0] = divresult.rem;
 
-    x[0] = m_PhysicalOrigin[0] + x[0] * m_VoxelPhysicalSize[0];
+    x[0] = m_PhysicalOrigin[0] + x[0] * m_VoxelSpacing[0];
 
-    y[0] = m_PhysicalOrigin[0] + y[0] * m_VoxelPhysicalSize[1];
+    y[0] = m_PhysicalOrigin[0] + y[0] * m_VoxelSpacing[1];
 
-    z[0] = m_PhysicalOrigin[0] + z[0] * m_VoxelPhysicalSize[2];
+    z[0] = m_PhysicalOrigin[0] + z[0] * m_VoxelSpacing[2];
 }
 
 
@@ -146,11 +146,11 @@ template<typename VoxelType>
 inline
 void ImageData<VoxelType>::Get3DPositionBy3DIndex(int64 xIndex, int64 yIndex, int64 zIndex, double* x, double* y, double* z) const
 {
-    x[0] = m_PhysicalOrigin[0] + double(xIndex) * m_VoxelPhysicalSize[0];
+    x[0] = m_PhysicalOrigin[0] + double(xIndex) * m_VoxelSpacing[0];
 
-    y[0] = m_PhysicalOrigin[0] + double(yIndex) * m_VoxelPhysicalSize[1];
+    y[0] = m_PhysicalOrigin[0] + double(yIndex) * m_VoxelSpacing[1];
 
-    z[0] = m_PhysicalOrigin[0] + double(zIndex) * m_VoxelPhysicalSize[2];
+    z[0] = m_PhysicalOrigin[0] + double(zIndex) * m_VoxelSpacing[2];
 }
 
 //============================================================================================================================//
@@ -158,7 +158,9 @@ void ImageData<VoxelType>::Get3DPositionBy3DIndex(int64 xIndex, int64 yIndex, in
 template<typename VoxelType>
 Image<VoxelType>::Image()
 {
-    this->ReInitialize(0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
+    this->ReInitialize(0,   0,   0, 
+                       0.0, 0.0, 0.0, 
+                       1.0, 1.0, 1.0);
 }
 
 
@@ -222,7 +224,7 @@ bool Image<VoxelType>::Copy(const Image<VoxelType_Input>& InputImage)
 
     auto InputPtr = InputImage.GetVoxelPointer();
 
-    auto InputDimension = InputImage.GetImageDimension();
+    auto InputDimension = InputImage.GetDimension();
     
     auto InputSpacing = InputImage.GetVoxelPhysicalSize();
 
@@ -264,7 +266,7 @@ bool Image<VoxelType>::Copy(const VoxelType_Input* InputVoxelPointer, int64 Lx, 
 		return false;
 	}
 
-    auto SelfDimension = this->GetImageDimension();
+    auto SelfDimension = this->GetDimension();
 
     if (SelfDimension.Lx != Lx || SelfDimension.Ly != Ly || SelfDimension.Lz != Lz)
     {
@@ -300,9 +302,7 @@ bool Image<VoxelType>::Fill(const VoxelType& Voxel)
 
     auto BeginPtr = this->GetVoxelPointer();
 
-    auto ImageDimension = this->GetImageDimension();
-
-    auto VoxelNumber = ImageDimension.Lx *ImageDimension.Ly *ImageDimension.Lz;
+    auto VoxelNumber = this->GetVoxelNumber();
 
     for (auto Ptr = BeginPtr; Ptr < BeginPtr + VoxelNumber; ++Ptr)
     {
@@ -316,22 +316,13 @@ bool Image<VoxelType>::Fill(const VoxelType& Voxel)
 template<typename VoxelType>
 bool Image<VoxelType>::Share(Image<VoxelType>& InputImage)
 {
-    if (this->IsEmpty() == false)
-    {
-        MDK_Error << "Self is not empty @ Image::Share(const Image& InputImage)" << '\n';
-        return false;
-    }
-
     m_ImageData = InputImage.m_ImageData; // std::Shared_ptr, self assignment test is not necessary
 
-    if (m_ImageData)
-    {
-        m_VoxelPointer = m_ImageData->m_DataArray.data();
-    }
-    else
-    {
-        m_VoxelPointer = nullptr;
-    }
+    m_VoxelPointer = m_ImageData->m_DataArray.data();
+
+    m_ZeroVoxel = InputImage.m_ZeroVoxel;
+
+    m_ZeroVoxel_Error_Output = m_ZeroVoxel;
 
     return true;
 }
@@ -355,14 +346,11 @@ void Image<VoxelType>::ForceShare(const Image<VoxelType>& InputImage)
 {
     m_ImageData = InputImage.m_ImageData; // std::Shared_ptr, self assignment test is not necessary
 
-    if (m_ImageData)
-    {
-        m_VoxelPointer = m_ImageData->m_DataArray.data();
-    }
-    else
-    {
-        m_VoxelPointer = nullptr;
-    }
+    m_VoxelPointer = m_ImageData->m_DataArray.data();
+
+    m_ZeroVoxel = InputImage.m_ZeroVoxel;
+
+    m_ZeroVoxel_Error_Output = m_ZeroVoxel;
 }
 
 
@@ -402,7 +390,7 @@ void Image<VoxelType>::Take(Image<VoxelType>& InputImage)
         m_VoxelPointer = nullptr;
     }
 
-    InputImage.clear();
+    InputImage.Clear();
 }
 
 
@@ -442,9 +430,9 @@ bool Image<VoxelType>::ReInitialize(int64 Lx, int64 Ly, int64 Lz = 1,
         m_ImageData = std::make_shared<ImageData<VoxelType>>();
     }
 
-    m_ImageData->m_ImageDimension[0] = Lx;
-    m_ImageData->m_ImageDimension[1] = Ly;
-    m_ImageData->m_ImageDimension[2] = Lz;
+    m_ImageData->m_Dimension[0] = Lx;
+    m_ImageData->m_Dimension[1] = Ly;
+    m_ImageData->m_Dimension[2] = Lz;
 
     m_ImageData->m_VoxelNumberPerZSlice = Ly*Lx;
 
@@ -452,15 +440,22 @@ bool Image<VoxelType>::ReInitialize(int64 Lx, int64 Ly, int64 Lz = 1,
     m_ImageData->m_PhysicalOrigin[1] = PhysicalOrigin_y;
     m_ImageData->m_PhysicalOrigin[2] = PhysicalOrigin_z;
 
-    m_ImageData->m_VoxelPhysicalSize[0] = VoxelPhysicalSize_x;
-    m_ImageData->m_VoxelPhysicalSize[1] = VoxelPhysicalSize_y;
-    m_ImageData->m_VoxelPhysicalSize[2] = VoxelPhysicalSize_z;
+    m_ImageData->m_VoxelSpacing[0] = VoxelPhysicalSize_x;
+    m_ImageData->m_VoxelSpacing[1] = VoxelPhysicalSize_y;
+    m_ImageData->m_VoxelSpacing[2] = VoxelPhysicalSize_z;
 
     m_ImageData->m_DataArray.resize(Lx*Ly*Lz);
 
     m_VoxelPointer = m_ImageData->m_DataArray.data();
 
     return true;
+}
+
+
+template<typename VoxelType>
+bool Image<VoxelType>::ReInitialize(const ImageDimension& Dim, const ImagePhysicalOrigin& Origin, const ImageVoxelSpacing& VoxelSize)
+{
+    return this->ReInitialize(Dim.Lx, Dim.Ly, Dim.Lz, Origin.x, Origin.y, Origin.z, VoxelSize.Sx, VoxelSize.Sy, VoxelSize.Sz);
 }
 
 
@@ -508,13 +503,13 @@ const VoxelType& Image<VoxelType>::GetZeroVoxel() const
 
 template<typename VoxelType>
 inline
-ImageDimension Image<VoxelType>::GetImageDimension() const
+ImageDimension Image<VoxelType>::GetDimension() const
 {
     ImageDimension Dimension;
 
-    Dimension.Lx = m_ImageData->m_ImageDimension[0];
-    Dimension.Ly = m_ImageData->m_ImageDimension[1];
-    Dimension.Lz = m_ImageData->m_ImageDimension[2];
+    Dimension.Lx = m_ImageData->m_Dimension[0];
+    Dimension.Ly = m_ImageData->m_Dimension[1];
+    Dimension.Lz = m_ImageData->m_Dimension[2];
 
     return Dimension;
 }
@@ -522,15 +517,15 @@ ImageDimension Image<VoxelType>::GetImageDimension() const
 
 template<typename VoxelType>
 inline 
-ImagePhysicalSize Image<VoxelType>::GetImagePhysicalSize() const
+ImagePhysicalSize Image<VoxelType>::GetPhysicalSize() const
 {
     ImagePhysicalSize Size;
 
-    Size.Sx = m_ImageData->m_ImageDimension[0] * m_ImageData->m_VoxelPhysicalSize[0];
+    Size.Sx = m_ImageData->m_Dimension[0] * m_ImageData->m_VoxelSpacing[0];
 
-    Size.Sy = m_ImageData->m_ImageDimension[1] * m_ImageData->m_VoxelPhysicalSize[1];
+    Size.Sy = m_ImageData->m_Dimension[1] * m_ImageData->m_VoxelSpacing[1];
 
-    Size.Sz = m_ImageData->m_ImageDimension[2] * m_ImageData->m_VoxelPhysicalSize[2];
+    Size.Sz = m_ImageData->m_Dimension[2] * m_ImageData->m_VoxelSpacing[2];
 
     return Size;
 }
@@ -538,13 +533,13 @@ ImagePhysicalSize Image<VoxelType>::GetImagePhysicalSize() const
 
 template<typename VoxelType>
 inline
-ImageVoxelPhysicalSize Image<VoxelType>::GetVoxelPhysicalSize() const
+ImageVoxelSpacing Image<VoxelType>::GetVoxelSpacing() const
 {
-    ImageVoxelPhysicalSize Size;
+    ImageVoxelSpacing Size;
 
-    Size.Sx = m_ImageData->m_VoxelPhysicalSize[0];
-    Size.Sy = m_ImageData->m_VoxelPhysicalSize[1];
-    Size.Sz = m_ImageData->m_VoxelPhysicalSize[2];
+    Size.Sx = m_ImageData->m_VoxelSpacing[0];
+    Size.Sy = m_ImageData->m_VoxelSpacing[1];
+    Size.Sz = m_ImageData->m_VoxelSpacing[2];
 
     return Size;
 }
@@ -568,7 +563,7 @@ template<typename VoxelType>
 inline
 int64 Image<VoxelType>::GetVoxelNumber() const
 {
-    return m_ImageData->m_VoxelNumberPerZSlice * m_ImageData->m_ImageDimension[0]
+    return m_ImageData->m_VoxelNumberPerZSlice * m_ImageData->m_Dimension[0];
 }
  
 
@@ -725,7 +720,7 @@ VoxelType& Image<VoxelType>::operator()(int64 xIndex, int64 yIndex, int64 zIndex
 {
 #if defined(MDK_DEBUG_Image_Operator_CheckBound)
 
-    auto ImageDimension = this->GetImageDimension();
+    auto ImageDimension = this->GetDimension();
 
 	if (xIndex >= ImageDimension.Lx || xIndex < 0 || yIndex >= ImageDimension.Ly || yIndex < 0 || zIndex >= ImageDimension.Lz || zIndex < 0)
 	{
@@ -746,7 +741,7 @@ const VoxelType& Image<VoxelType>::operator()(int64 xIndex, int64 yIndex, int64 
 {
 #if defined(MDK_DEBUG_Image_Operator_CheckBound)
 
-    auto ImageDimension = this->GetImageDimension();
+    auto ImageDimension = this->GetDimension();
 
 	if (xIndex >= ImageDimension.Lx || xIndex < 0 || yIndex >= ImageDimension.Ly || yIndex < 0 || zIndex >= ImageDimension.Lz || zIndex < 0)
 	{
@@ -764,7 +759,7 @@ template<typename VoxelType>
 inline
 VoxelType& Image<VoxelType>::at(int64 xIndex, int64 yIndex, int64 zIndex = 0)
 {
-    auto ImageDimension = this->GetImageDimension();
+    auto ImageDimension = this->GetDimension();
 
 	if (xIndex >= ImageDimension[0] || xIndex < 0 || yIndex >= ImageDimension[1] || yIndex < 0 || zIndex >= ImageDimension[2] || zIndex < 0)
 	{
@@ -781,7 +776,7 @@ template<typename VoxelType>
 inline
 const VoxelType& Image<VoxelType>::at(int64 xIndex, int64 yIndex, int64 zIndex = 0) const
 {
-    auto ImageDimension = this->GetImageDimension();
+    auto ImageDimension = this->GetDimension();
 
     if (xIndex >= ImageDimension[0] || xIndex < 0 || yIndex >= ImageDimension[1] || yIndex < 0 || zIndex >= ImageDimension[2] || zIndex < 0)
     {
@@ -805,7 +800,7 @@ Image<VoxelType> Image<VoxelType>::GetSubImage(int64 xIndex_s, int64 xIndex_e, i
         return tempImage;
     }
 
-    auto ImageDimension = this->GetImageDimension();
+    auto ImageDimension = this->GetDimension();
 
     if (xIndex_s >= ImageDimension[0] || xIndex_s < 0
         || xIndex_e >= ImageDimension[0] || xIndex_e < 0
@@ -826,8 +821,8 @@ Image<VoxelType> Image<VoxelType>::GetSubImage(int64 xIndex_s, int64 xIndex_e, i
 	Lz = zIndex_e - zIndex_s + 1;
 
 	tempImage.ReInitialize(Lx, Ly, Lz,
-  		                 m_PhysicalOrigin[0],    m_PhysicalOrigin[1],    m_PhysicalOrigin[2],
-		                 m_VoxelPhysicalSize[0], m_VoxelPhysicalSize[1], m_VoxelPhysicalSize[2]);
+  		                 m_PhysicalOrigin[0],  m_PhysicalOrigin[1], m_PhysicalOrigin[2],
+		                 m_VoxelSpacing[0],    m_VoxelSpacing[1],   m_VoxelSpacing[2]);
 
 	tempRawPtr = SubImage.GetVoxelPointer();
 
@@ -892,19 +887,19 @@ Pad(const std::string& Option, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) con
 		return tempImage;
 	}
 
-    auto ImageDimension = this->GetImageDimension();
+    auto ImageDimension = this->GetDimension();
 
     auto PhysicalOrigin = this->GetPhysicalOrigin();
 
-    auto VoxelPhysicalSize = this->GetVoxelPhysicalSize();
+    auto VoxelSpacing = this->GetVoxelSpacing();
 
 	auto Lx = ImageDimension[0] + Pad_Lx;
     auto Ly = ImageDimension[1] + Pad_Ly;
     auto Lz = ImageDimension[2] + Pad_Lz;
 
 	tempImage.ReInitialize(Lx, Ly, Lz,
-                         PhysicalOrigin[0], PhysicalOrigin[1], PhysicalOrigin[2],
-                         VoxelPhysicalSize[0], VoxelPhysicalSize[1], VoxelPhysicalSize[2]);
+                           PhysicalOrigin[0],   PhysicalOrigin[1],    PhysicalOrigin[2],
+                           VoxelSpacing[0],     VoxelSpacing[1],      VoxelSpacing[2]);
 
 
 	if (OptionStr == "zero")
@@ -973,11 +968,11 @@ Pad(VoxelType Voxel, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const
 		return tempImage;
 	}
 
-    auto ImageDimension = this->GetImageDimension();
+    auto ImageDimension = this->GetDimension();
 
     auto PhysicalOrigin = this->GetPhysicalOrigin();
 
-    auto VoxelPhysicalSize = this->GetVoxelPhysicalSize();
+    auto VoxelSpacing = this->GetVoxelSpacing();
 
 	auto Lx = ImageDimension[0] + Pad_Lx;
     auto Ly = ImageDimension[1] + Pad_Ly;
@@ -985,7 +980,7 @@ Pad(VoxelType Voxel, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const
 
 	tempImage.ReInitialize(Lx, Ly, Lz,
                            PhysicalOrigin[0], PhysicalOrigin[1], PhysicalOrigin[2],
-                           VoxelPhysicalSize[0], VoxelPhysicalSize[1], VoxelPhysicalSize[2]);
+                           VoxelSpacing[0],   VoxelSpacing[1],   VoxelSpacing[2]);
 
     tempImage.Fill(Voxel);
 
@@ -1016,7 +1011,7 @@ UnPad(int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const
 {
     Image<VoxelType> tempImage; // empty image
    
-    auto ImageDimension = this->GetImageDimension();
+    auto ImageDimension = this->GetDimension();
 
     if (Pad_Lx > ImageDimension[0] || Pad_Lx  < 0 || Pad_Ly > ImageDimension[1] || Pad_Ly < 0 || Pad_Lz > ImageDimension[2] || Pad_Lz < 0)
 	{
@@ -1051,12 +1046,12 @@ template<typename VoxelType>
 DenseMatrix<int64>
 Image<VoxelType>::
 GetLinearIndexListOfRegion(int64 xIndex_s,     int64 Region_Lx,
-                            int64 yIndex_s,     int64 Region_Ly,
-                            int64 zIndex_s = 0, int64 Region_Lz = 0) const
+                           int64 yIndex_s,     int64 Region_Ly,
+                           int64 zIndex_s = 0, int64 Region_Lz = 0) const
 {
     DenseMatrix<int64>  List;
     
-    auto ImageDimension = this->GetImageDimension();
+    auto ImageDimension = this->GetDimension();
 
     if (   xIndex_s >= ImageDimension[0] || xIndex_s < 0
         || yIndex_s >= ImageDimension[1] || yIndex_s < 0

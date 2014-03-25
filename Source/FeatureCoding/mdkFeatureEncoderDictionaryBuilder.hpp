@@ -20,8 +20,6 @@ FeatureEncoderDictionaryBuilder<ElementType>::~FeatureEncoderDictionaryBuilder()
 template<typename ElementType>
 void FeatureEncoderDictionaryBuilder<ElementType>::Clear()
 {
-    m_GenericEncoder = nullptr;
-
     m_FeatureData = nullptr;
 
     m_Dictionary_SharedCopy.Clear();
@@ -48,22 +46,6 @@ bool FeatureEncoderDictionaryBuilder<ElementType>::SetInputFeatureData(const Den
 //---------------------------------------------------//
 
 template<typename ElementType>
-bool FeatureEncoderDictionaryBuilder<ElementType>::SetGenericEncoder(const FeatureEncoder<ElementType>* FeatureEncoder)
-{
-    if (FeatureEncoder == nullptr)
-    {
-        MDK_Error << "Invalid input @ FeatureEncoderDictionaryBuilder::SetGenericEncoder(FeatureEncoder)" << '\n';
-        return false;
-    }
-
-    m_GenericEncoder = FeatureEncoder;
-
-    return true;
-}
-
-//---------------------------------------------------//
-
-template<typename ElementType>
 bool FeatureEncoderDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionary<ElementType>* OutputDictionary)
 {
     if (OutputDictionary == nullptr)
@@ -74,7 +56,7 @@ bool FeatureEncoderDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDi
 
     m_Dictionary = OutputDictionary;
 
-    m_Dictionary_SharedCopy.ForceShare(OutputDictionary);
+    m_Dictionary_SharedCopy.Share(OutputDictionary);
 
     return true;
 }

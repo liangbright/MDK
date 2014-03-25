@@ -27,19 +27,19 @@ void ImageFilter<VoxelType_Input, VoxelType_Output>::Clear()
 
     m_InputRegion = nullptr;
 
-    m_InputVoxelLinearIndexList = nullptr;
+    m_InputVoxel3DIndexList = nullptr;
 
 	m_Input3DPositionList = nullptr;
 
-    m_OutputImage = nullptr; // do not set m_OutputImage to be &m_OutputImage_SharedCopy
+    m_OutputImage_SharedCopy.Clear();
 
-    m_OutputArray = nullptr; // do not set m_OutputArray to be &m_OutputArray_SharedCopy
+    m_OutputImage = &m_OutputImage_SharedCopy;
 
-    m_OutputImage_SharedCopy.Clear(); // keep tracking *m_OutputImage
+    m_OutputArray_SharedCopy.Clear();
 
-    m_OutputArray_SharedCopy.Clear(); // keep tracking *m_OutputArray
+    m_OutputArray = &m_OutputArray_SharedCopy;
 
-    m_Flag_OutputImage = false;
+    m_Flag_OutputImage = true; // default to output image with the same size 
 
     m_Flag_OutputArray = false;
 
@@ -51,9 +51,9 @@ void ImageFilter<VoxelType_Input, VoxelType_Output>::Clear()
 
     m_IsInputFilterFunctionAt3DIndexObtained = false;
 
-    m_ZeroVoxelOfInputImage -= m_ZeroVoxelOfInputImage;
+    m_ZeroVoxelOfInputImage = VoxelType_Input(0);
 
-    m_ZeroVoxelOfOutputImage -= m_ZeroVoxelOfOutputImage;
+    m_ZeroVoxelOfOutputImage = VoxelType_Output(0);
 
     m_TotalOutputVoxelNumber = 0;
 
@@ -66,9 +66,18 @@ void ImageFilter<VoxelType_Input, VoxelType_Output>::Clear()
 template<typename VoxelType_Input, typename VoxelType_Output>
 void
 ImageFilter<VoxelType_Input, VoxelType_Output>::
-EnableBoundCheck(bool On_Off)
+EnableBoundCheck()
 {
-	m_IsBoundCheckEnabled = On_Off;
+	m_IsBoundCheckEnabled = true;
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
+void
+ImageFilter<VoxelType_Input, VoxelType_Output>::
+DisableBoundCheck()
+{
+    m_IsBoundCheckEnabled = false;
 }
 
 
@@ -96,13 +105,13 @@ SetInputImage(const Image<VoxelType_Input>* InputImage)
 template<typename VoxelType_Input, typename VoxelType_Output>
 bool
 ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInputRegion(const mdkMatrix<int64>* InputRegion)
+SetInputRegion(const DenseMatrix<int64>* InputRegion)
 {
-    if (InputRegion == nullptr)
-    {
-        MDK_Error << "Input is nullptr @ ImageFilter::SetInputRegion" << '\n';
-        return false;
-    }
+//    if (InputRegion == nullptr)
+//    {
+//        MDK_Error << "Input is nullptr @ ImageFilter::SetInputRegion" << '\n';
+//        return false;
+//    }
 
     m_InputRegion = InputRegion;
 
@@ -113,15 +122,15 @@ SetInputRegion(const mdkMatrix<int64>* InputRegion)
 template<typename VoxelType_Input, typename VoxelType_Output>
 bool
 ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInputVoxelLinearIndexList(const mdkMatrix<int64>* InputVoxelLinearIndexList)
+SetInputVoxel3DIndexList(const DenseMatrix<int64>* InputVoxel3DIndexList)
 {
-    if (InputVoxelLinearIndexList == nullptr)
-    {
-        MDK_Error << "Input is nullptr @ ImageFilter::SetInputVoxelLinearIndexList" << '\n';
-        return false;
-    }
+//    if (InputVoxel3DIndexList == nullptr)
+//    {
+//        MDK_Error << "Input is nullptr @ ImageFilter::SetInputVoxel3DIndexList" << '\n';
+//        return false;
+//    }
 
-	m_InputVoxelLinearIndexList = InputVoxelLinearIndexList;
+    m_InputVoxel3DIndexList = InputVoxel3DIndexList;
 
     return true;
 }
@@ -130,13 +139,13 @@ SetInputVoxelLinearIndexList(const mdkMatrix<int64>* InputVoxelLinearIndexList)
 template<typename VoxelType_Input, typename VoxelType_Output>
 bool
 ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInput3DPositionList(const mdkMatrix<float>* Input3DPositionList)
+SetInput3DPositionList(const DenseMatrix<float>* Input3DPositionList)
 {
-    if (Input3DPositionList == nullptr)
-    {
-        MDK_Error << "Input is nullptr @ ImageFilter::SetInput3DPositionList" << '\n';
-        return false;
-    }
+//    if (Input3DPositionList == nullptr)
+//    {
+//        MDK_Error << "Input is nullptr @ ImageFilter::SetInput3DPositionList" << '\n';
+//        return false;
+//    }
 
 	m_Input3DPositionList = Input3DPositionList;
 
@@ -179,7 +188,7 @@ SetOutputImage(Image<VoxelType_Output>* OutputImage)
 
 	m_OutputImage = OutputImage;
 
-    m_OutputImage_SharedCopy.SharedCopy(OutputImage);
+    m_OutputImage_SharedCopy.Share(OutputImage);
 
     m_ZeroVoxelOfOutputImage = OutputImage->GetZeroVoxel();
 
@@ -192,17 +201,9 @@ SetOutputImage(Image<VoxelType_Output>* OutputImage)
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void
-ImageFilter<VoxelType_Input, VoxelType_Output>::SetOutputTobeImage()
-{
-    m_Flag_OutputImage = true;
-}
-
-
-template<typename VoxelType_Input, typename VoxelType_Output>
 bool
 ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetOutputArray(mdkMatrix<VoxelType_Output>* OutputArray)
+SetOutputArray(DenseMatrix<VoxelType_Output>* OutputArray)
 {
     if (OutputArray == nullptr)
     {
@@ -212,19 +213,11 @@ SetOutputArray(mdkMatrix<VoxelType_Output>* OutputArray)
 
 	m_OutputArray = OutputArray;
 
-    m_OutputArray_SharedCopy.SharedCopy(OutputArray);
+    m_OutputArray_SharedCopy.Share(OutputArray);
 
     m_Flag_OutputArray = true;
 
     return true;
-}
-
-
-template<typename VoxelType_Input, typename VoxelType_Output>
-void
-ImageFilter<VoxelType_Input, VoxelType_Output>::SetOutputTobeArray()
-{
-    m_Flag_OutputArray = true;
 }
 
 
@@ -256,67 +249,106 @@ bool ImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
 {
 	if (m_InputImage == nullptr)
 	{
-		MDK_Error << "Invalid input @ ImageFilter::CheckInputData" << '\n';
+		MDK_Error << "Empty input image (nullptr) @ ImageFilter::CheckInput" << '\n';
 		return false;
 	}
 
 	if (m_InputImage->IsEmpty() == true)
 	{
-		MDK_Error << "Empty input image @ ImageFilter::CheckInputData" << '\n';
+		MDK_Error << "Empty input image @ ImageFilter::CheckInput" << '\n';
 		return false;
 	}
 
-	//------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------------------------
 
-    m_Flag_OutputToOtherPlace = false;
-
-    if (m_Flag_OutputImage == true && m_Flag_OutputArray == true)
+    if (m_Flag_OutputToOtherPlace == false)
     {
-        MDK_Error << "Can not output image and array at the same time @ ImageFilter::CheckInputData" << '\n';
-        return false;
-    }
-    else if (m_Flag_OutputImage == false && m_Flag_OutputArray == false)
-    {
-        m_Flag_OutputToOtherPlace = true;
-    }
-        
-    //---------------------------------
-    m_TotalOutputVoxelNumber = 0;
-
-	if (m_InputRegion != nullptr && m_InputVoxelLinearIndexList == nullptr && m_Input3DPositionList == nullptr)
-    {
-        if (m_Flag_OutputImage == true)
+        if (m_Flag_OutputImage == true && m_Flag_OutputArray == true)
         {
-            auto Dimension = m_OutputImage->GetImageDimension();
-
-            if ((*m_InputRegion)(0, 1) != Dimension.Lx || (*m_InputRegion)(1, 1) != Dimension.Ly || (*m_InputRegion)(2, 1) != Dimension.Lz)
-            {
-                MDK_Error << "Invalid input: m_InputRegion does not match m_OutputImage @ ImageFilter::Run" << '\n';
-                return false;
-            }            
+            MDK_Error << "Can not output image and array at the same time @ ImageFilter::CheckInput" << '\n';
+            return false;
         }
 
-        m_TotalOutputVoxelNumber = (*m_InputRegion)(0, 1)*(*m_InputRegion)(0, 2)*(*m_InputRegion)(0, 3);
+        if (m_Flag_OutputImage == false && m_Flag_OutputArray == false)
+        {
+            MDK_Error << "No output is selected @ ImageFilter::CheckInput" << '\n';
+            return false;
+        }
     }
-	else if (m_InputRegion == nullptr && m_InputVoxelLinearIndexList != nullptr && m_Input3DPositionList == nullptr)
+    else
     {
-        m_TotalOutputVoxelNumber = m_InputVoxelLinearIndexList->GetElementNumber();
+        if (m_Flag_OutputImage == true || m_Flag_OutputArray == true)
+        {
+            MDK_Error << "Can not output image or array when m_Flag_OutputToOtherPlace is true  @ ImageFilter::CheckInput" << '\n';
+            return false;
+        }
     }
-	else if (m_InputRegion == nullptr && m_InputVoxelLinearIndexList == nullptr && m_Input3DPositionList != nullptr)
+        
+    //-------------------------------------------------------------------------------------------------------------
+    m_TotalOutputVoxelNumber = 0;
+
+    if (m_InputRegion == nullptr && m_InputVoxel3DIndexList == nullptr && m_Input3DPositionList == nullptr)
+    {
+        auto InputDimension = m_InputImage->GetDimension();
+
+        m_TotalOutputVoxelNumber = InputDimension.Lx*InputDimension.Ly*InputDimension.Lz;
+    }
+    else if (m_InputRegion != nullptr && m_InputVoxel3DIndexList == nullptr && m_Input3DPositionList == nullptr)
+    {
+        m_TotalOutputVoxelNumber = m_InputRegion->Lx()*m_InputRegion->Ly()*m_InputRegion->Lz();             
+    }
+    else if (m_InputRegion == nullptr && m_InputVoxel3DIndexList != nullptr && m_Input3DPositionList == nullptr)
+    {
+        m_TotalOutputVoxelNumber = m_InputVoxel3DIndexList->GetColNumber();
+    }
+    else if (m_InputRegion == nullptr && m_InputVoxel3DIndexList == nullptr && m_Input3DPositionList != nullptr)
 	{
 		m_TotalOutputVoxelNumber = m_Input3DPositionList->GetColNumber();
-	}
-	else if (m_InputRegion == nullptr && m_InputVoxelLinearIndexList == nullptr && m_Input3DPositionList == nullptr)
-    {
-        auto Dimension = m_InputImage->GetImageDimension();
-
-        m_TotalOutputVoxelNumber = Dimension.Lx*Dimension.Ly*Dimension.Lz;
-    }
+	}    
 	else
 	{
 		MDK_Error << "Invalid input @ ImageFilter::Run" << '\n';
 		return false;
 	}
+
+    //------------------------------------------------------------------------------------------------------------------------
+
+    if (m_Flag_OutputImage == true)
+    {
+        if (m_InputRegion == nullptr)
+        {
+            auto InputDimension = m_InputImage->GetDimension();
+
+            auto OutputDimension = m_OutputImage->GetDimension();
+
+            if (OutputDimension.Lx != InputDimension.Lx || OutputDimension.Ly != InputDimension.Ly || OutputDimension.Lz != InputDimension.Lz)
+            {
+                m_OutputImage->ReInitialize(m_InputImage->GetDimension(), m_InputImage->GetPhysicalOrigin(), m_InputImage->GetVoxelSpacing());
+            }
+        }
+        else
+        {
+            auto OutputDimension = m_OutputImage->GetDimension();
+
+            if (m_InputRegion->Lx() != OutputDimension.Lx || m_InputRegion->Ly() != OutputDimension.Ly || m_InputRegion->Lz() != OutputDimension.Lz)
+            {
+                OutputDimension.Lx = m_InputRegion->Lx();
+                OutputDimension.Ly = m_InputRegion->Ly();
+                OutputDimension.Lz = m_InputRegion->Lz();
+
+                m_OutputImage->ReInitialize(OutputDimension, m_InputImage->GetPhysicalOrigin(), m_InputImage->GetVoxelSpacing());
+            }
+        }        
+    }
+
+    if (m_Flag_OutputArray == true)
+    {
+        if (m_OutputArray->GetElementNumber() != m_TotalOutputVoxelNumber)
+        {
+            m_OutputArray->Clear();
+            m_OutputArray->Resize(1, m_TotalOutputVoxelNumber);
+        }
+    }
 
     //------------------------------
 
@@ -378,14 +410,14 @@ bool ImageFilter<VoxelType_Input, VoxelType_Output>::Update()
 
     //---------------------------------------------------------------------------
 
-    if (m_OutputImage != nullptr && m_OutputImage != &m_OutputImage_SharedCopy)
+    if (m_OutputImage != &m_OutputImage_SharedCopy)
     {
-        m_OutputImage_SharedCopy.SharedCopy(m_OutputImage);
+        m_OutputImage_SharedCopy.Share(m_OutputImage);
     }
 
-    if (m_OutputArray != nullptr && m_OutputArray != &m_OutputArray_SharedCopy)
+    if (m_OutputArray != &m_OutputArray_SharedCopy)
     {
-        m_OutputArray_SharedCopy.SharedCopy(m_OutputArray);
+        m_OutputArray_SharedCopy.Share(m_OutputArray);
     }
 
     //---------------------------------------------------------------------------
@@ -404,7 +436,7 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
 	
     if (m_Flag_OutputToOtherPlace == false)
     {
-		if (m_InputRegion == nullptr && m_InputVoxelLinearIndexList == nullptr  && m_Input3DPositionList == nullptr)
+		if (m_InputRegion == nullptr && m_InputVoxel3DIndexList == nullptr  && m_Input3DPositionList == nullptr)
         {
 			int64 FilterCenter3DIndex[3];  // [xc, yc, zc]
 
@@ -415,12 +447,12 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
                 this->FilterFunctionAt3DIndex(FilterCenter3DIndex[0], FilterCenter3DIndex[1], FilterCenter3DIndex[2], (*m_OutputImage)(VoxelIndex));
             }
         }
-		else if (m_InputRegion != nullptr && m_InputVoxelLinearIndexList == nullptr  && m_Input3DPositionList == nullptr)
+		else if (m_InputRegion != nullptr && m_InputVoxel3DIndexList == nullptr  && m_Input3DPositionList == nullptr)
         {
 			int64 RegionOrigin[3]; // [x0, y0, z0]
-			RegionOrigin[0] = (*m_InputRegion)(0, 0);
-			RegionOrigin[1] = (*m_InputRegion)(1, 0);
-			RegionOrigin[2] = (*m_InputRegion)(2, 0);
+            RegionOrigin[0] = m_InputRegion->x0_Index;
+            RegionOrigin[1] = m_InputRegion->y0_Index;
+            RegionOrigin[2] = m_InputRegion->z0_Index;
 
             if (m_Flag_OutputImage == true)
             {
@@ -453,7 +485,7 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
                 }
             }
         }
-		else if (m_InputRegion == nullptr && m_InputVoxelLinearIndexList != nullptr  && m_Input3DPositionList == nullptr)
+		else if (m_InputRegion == nullptr && m_InputVoxel3DIndexList != nullptr  && m_Input3DPositionList == nullptr)
         {
 			int64 FilterCenter3DIndex[3];  // [xc, yc, zc]
 
@@ -461,7 +493,9 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
             {
 				for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
 				{
-					m_InputImage->Get3DIndexByLinearIndex((*m_InputVoxelLinearIndexList)[VoxelIndex], &FilterCenter3DIndex[0], &FilterCenter3DIndex[1], &FilterCenter3DIndex[2]);
+                    FilterCenter3DIndex[0] = (*m_InputVoxel3DIndexList)(0, VoxelIndex);
+                    FilterCenter3DIndex[1] = (*m_InputVoxel3DIndexList)(1, VoxelIndex);
+                    FilterCenter3DIndex[2] = (*m_InputVoxel3DIndexList)(2, VoxelIndex);
 
                     this->FilterFunctionAt3DIndex(FilterCenter3DIndex[0], FilterCenter3DIndex[1], FilterCenter3DIndex[2], (*m_OutputImage)(VoxelIndex));
 				}
@@ -470,13 +504,15 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
             {
 				for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
 				{
-					m_InputImage->Get3DIndexByLinearIndex((*m_InputVoxelLinearIndexList)[VoxelIndex], &FilterCenter3DIndex[0], &FilterCenter3DIndex[1], &FilterCenter3DIndex[2]);
+                    FilterCenter3DIndex[0] = (*m_InputVoxel3DIndexList)(0, VoxelIndex);
+                    FilterCenter3DIndex[1] = (*m_InputVoxel3DIndexList)(1, VoxelIndex);
+                    FilterCenter3DIndex[2] = (*m_InputVoxel3DIndexList)(2, VoxelIndex);
 
                     this->FilterFunctionAt3DIndex(FilterCenter3DIndex[0], FilterCenter3DIndex[1], FilterCenter3DIndex[2], (*m_OutputArray)[VoxelIndex]);
 				}
             }
         }
-		else if (m_InputRegion == nullptr && m_InputVoxelLinearIndexList == nullptr  && m_Input3DPositionList != nullptr)
+		else if (m_InputRegion == nullptr && m_InputVoxel3DIndexList == nullptr && m_Input3DPositionList != nullptr)
 		{
 			if (m_Flag_OutputImage == true)
 			{
@@ -510,11 +546,11 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
             MDK_Error << "Invalid Input @ ImageFilter::Update_in_a_Thread" << '\n';
         }
     }
-    else
+    else // output to another place
     {
         auto tempOutputVoxel = m_ZeroVoxelOfOutputImage;
 
-		if (m_InputRegion == nullptr && m_InputVoxelLinearIndexList == nullptr && m_Input3DPositionList != nullptr)
+		if (m_InputRegion == nullptr && m_InputVoxel3DIndexList == nullptr && m_Input3DPositionList == nullptr)
         {
 			int64 FilterCenter3DIndex[3];
 
@@ -527,14 +563,14 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
                 this->OutputFunction(VoxelIndex, tempOutputVoxel);
             }
         }
-		else if (m_InputRegion != nullptr && m_InputVoxelLinearIndexList == nullptr && m_Input3DPositionList != nullptr)
+		else if (m_InputRegion != nullptr && m_InputVoxel3DIndexList == nullptr && m_Input3DPositionList == nullptr)
         {
 			int64 FilterCenter3DIndex[3];
 
 			int64 RegionOrigin[3]; // [x0, y0, z0]
-			RegionOrigin[0] = (*m_InputRegion)(0, 0);
-			RegionOrigin[1] = (*m_InputRegion)(1, 0);
-			RegionOrigin[2] = (*m_InputRegion)(2, 0);
+            RegionOrigin[0] = m_InputRegion->x0_Index;
+            RegionOrigin[1] = m_InputRegion->y0_Index;
+            RegionOrigin[2] = m_InputRegion->z0_Index;
 
             for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
             {
@@ -549,20 +585,22 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
                 this->OutputFunction(VoxelIndex, tempOutputVoxel);
             }
         }
-		else if (m_InputRegion == nullptr && m_InputVoxelLinearIndexList != nullptr && m_Input3DPositionList != nullptr)
+		else if (m_InputRegion == nullptr && m_InputVoxel3DIndexList != nullptr && m_Input3DPositionList == nullptr)
         {
 			int64 FilterCenter3DIndex[3];
 
             for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
             {
-                m_InputImage->Get3DIndexByLinearIndex((*m_InputVoxelLinearIndexList)[VoxelIndex], &FilterCenter3DIndex[0], &FilterCenter3DIndex[1], &FilterCenter3DIndex[2]);
+                FilterCenter3DIndex[0] = (*m_InputVoxel3DIndexList)(0, VoxelIndex);
+                FilterCenter3DIndex[1] = (*m_InputVoxel3DIndexList)(1, VoxelIndex);
+                FilterCenter3DIndex[2] = (*m_InputVoxel3DIndexList)(2, VoxelIndex);
 
                 this->FilterFunctionAt3DIndex(FilterCenter3DIndex[0], FilterCenter3DIndex[1], FilterCenter3DIndex[2], tempOutputVoxel);
 
                 this->OutputFunction(VoxelIndex, tempOutputVoxel);
             }
         }
-		else if (m_InputRegion == nullptr && m_InputVoxelLinearIndexList == nullptr  && m_Input3DPositionList != nullptr)
+		else if (m_InputRegion == nullptr && m_InputVoxel3DIndexList == nullptr  && m_Input3DPositionList != nullptr)
 		{
 			double FilterCenter3DPosition[3];
 
@@ -727,7 +765,7 @@ ImageFilter<VoxelType_Input, VoxelType_Output>::GetOutputImage()
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-mdkMatrix<VoxelType_Output>*
+DenseMatrix<VoxelType_Output>*
 ImageFilter<VoxelType_Input, VoxelType_Output>::GetOutputArray()
 {
     return &m_OutputArray_SharedCopy;

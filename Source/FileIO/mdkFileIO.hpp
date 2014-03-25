@@ -212,7 +212,7 @@ bool SaveGrayScaleImageAsDataFile(const std::string& FilePathAndName, const Imag
     PairList[1].Name = "ScalarType";
     PairList[1].Value = QScalarTypeName;
 
-    auto Dimension = InputImage.GetImageDimension();
+    auto Dimension = InputImage.GetDimension();
 
     PairList[2].Name = "Dimension_x";
     PairList[2].Value = QString::number(Dimension.Lx);
@@ -234,7 +234,7 @@ bool SaveGrayScaleImageAsDataFile(const std::string& FilePathAndName, const Imag
     PairList[7].Name = "Origin_z";
     PairList[7].Value = QString::number(Origin.z);
 
-    auto Spacing = InputImage.GetVoxelPhysicalSize();
+    auto Spacing = InputImage.GetVoxelSpacing();
 
     PairList[8].Name = "Spacing_x";
     PairList[8].Value = QString::number(Spacing.Sx);

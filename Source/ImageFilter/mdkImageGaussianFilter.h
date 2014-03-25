@@ -1,18 +1,18 @@
-﻿#ifndef __mdk3DImageGaussianFilter_h
-#define __mdk3DImageGaussianFilter_h
+﻿#ifndef __mdkImageGaussianFilter_h
+#define __mdkImageGaussianFilter_h
 
 #include <algorithm>
 #include <cmath>
 
 #include "mdkDebugConfig.h"
 #include "mdkDenseMatrix.h"
-#include "mdk3DImageConvolutionFilter.h"
+#include "mdkImageConvolutionFilter.h"
 
 namespace mdk
 {
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-class mdk3DImageGaussianFilter : public mdk3DImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>
+class ImageGaussianFilter : public ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>
 {
 private:
 
@@ -23,8 +23,8 @@ private:
     double m_CutOffRatio;
 
 public:		
-    mdk3DImageGaussianFilter();
-    ~mdk3DImageGaussianFilter();
+    ImageGaussianFilter();
+    ~ImageGaussianFilter();
   
     void SetSigmaList(double Sx, double Sy, double Sz);
 
@@ -36,12 +36,12 @@ protected:
     void BuildMaskOf3DIndex();
 
 private:
-    mdk3DImageGaussianFilter(const mdk3DImageGaussianFilter&); // Not implemented.
-    void operator=(const mdk3DImageGaussianFilter&);           // Not implemented.
+    ImageGaussianFilter(const ImageGaussianFilter&); // Not implemented.
+    void operator=(const ImageGaussianFilter&);      // Not implemented.
 };
 
 }//end namespace mdk
 
-#include "mdk3DImageGaussianFilter.hpp"
+#include "mdkImageGaussianFilter.hpp"
 
 #endif

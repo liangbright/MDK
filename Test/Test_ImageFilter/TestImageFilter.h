@@ -6,14 +6,15 @@
 #include <array>
 
 #include "mdkFileIO.h"
-#include "mdkMatrix.h"
-#include "mdk3DImage.h"
-#include "mdk3DImageFilter.h"
-#include "mdk3DImageConvolutionFilter.h"
-#include "mdk3DImageGaussianFilter.h"
-#include "mdk3DIntegralImageBuilder.h"
+#include "mdkDenseMatrix.h"
+#include "mdkImage.h"
+#include "mdkImageFilter.h"
+#include "mdkImageConvolutionFilter.h"
+#include "mdkImageGaussianFilter.h"
+#include "mdkIntegralImageBuilder.h"
 
-using namespace mdk;
+namespace mdk
+{
 
 template<typename T>
 class TestClass
@@ -62,7 +63,7 @@ void Tempfunction(double& a, int N)
 }
 
 
-inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, const mdk3DImage<double>& InputImage, double& Output)
+inline void FilterFunction(int64 xIndex, int64 yIndex, int64 zIndex, const Image<double>& InputImage, double& Output)
 {
 	//std::cout << "FilterFuntion " << '\n';
 
@@ -82,7 +83,7 @@ inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, const md
 
 		 //Output += i * InputImage(xIndex, yIndex, zIndex);
 
-		//Output += i * InputImage(uint64(x), uint64(y), uint64(z));
+		//Output += i * InputImage(int64(x), int64(y), int64(z));
 	}
 
 	Output = Value;
@@ -91,13 +92,13 @@ inline void FilterFunction(uint64 xIndex, uint64 yIndex, uint64 zIndex, const md
 
 void Test_FilterFunction()
 {
-	uint64 Lx = 512;
-	uint64 Ly = 512;
-	uint64 Lz = 512;
+	int64 Lx = 512;
+	int64 Ly = 512;
+	int64 Lz = 512;
 
-	mdk3DImage<double> InputImage;
+	Image<double> InputImage;
 
-	InputImage.Initialize(Lx, Ly, Lz);
+	InputImage.ReInitialize(Lx, Ly, Lz);
 
 	InputImage.Fill(1);
 
@@ -107,7 +108,7 @@ void Test_FilterFunction()
 
 	double Output = 0;
 
-	for (uint64 i = 0; i < Lx*Ly*Lz; ++i)
+	for (int64 i = 0; i < Lx*Ly*Lz; ++i)
 	{
 		FilterFunction(0, 0, 0, InputImage, Output);
 	}
@@ -128,7 +129,7 @@ void Test_FunctionPointer()
 
 	double Value = 0;
 	auto t0 = std::time(0);
-	for (uint64 i = 0; i < 1000000; ++i)
+	for (int64 i = 0; i < 1000000; ++i)
 	{
 		Tempfunction(Value, N);
 	}
@@ -139,7 +140,7 @@ void Test_FunctionPointer()
 
 	Value = 0;
 	auto t2 = std::time(0);
-	for (uint64 i = 0; i < 1000000; ++i)
+	for (int64 i = 0; i < 1000000; ++i)
 	{
 		(*TempfunctionPtr)(Value, N);
 	}
@@ -149,35 +150,26 @@ void Test_FunctionPointer()
 	std::system("pause");
 }
 
-void Test_FunctionTemplate()
-{
-	mdkMatrix<double> M(1,3);
-	M = { 1, 2, 3 };
-
-	M.ElementOperation("sqrt");
-
-	std::system("pause");
-}
 
 void Test_FunctionTemplate_InputFilterFunction()
 {
-	uint64 Lx = 512;
-	uint64 Ly = 512;
-	uint64 Lz = 512;
+	int64 Lx = 512;
+	int64 Ly = 512;
+	int64 Lz = 512;
 
-	mdk3DImage<double> InputImage;
+	Image<double> InputImage;
 
-	InputImage.Initialize(Lx, Ly, Lz);
+	InputImage.ReInitialize(Lx, Ly, Lz);
 
 	InputImage.Fill(1);
 
-	mdk3DImage<double> OutputImage;
+	Image<double> OutputImage;
 
-	OutputImage.Initialize(Lx, Ly, Lz);
+	OutputImage.ReInitialize(Lx, Ly, Lz);
 
 	OutputImage.Fill(0);
 
-	mdk3DImageFilter<double, double>  imfilter;
+	ImageFilter<double, double>  imfilter;
 
 	imfilter.SetInputImage(&InputImage);
 
@@ -209,7 +201,7 @@ void Test_FunctionTemplate_InputFilterFunction()
 
 	double Output = 0;
 
-	for (uint64 i = 0; i < Lx*Ly*Lz; ++i)
+	for (int64 i = 0; i < Lx*Ly*Lz; ++i)
 	{
 		FilterFunction(0, 0, 0, InputImage, Output);
 	}
@@ -226,23 +218,23 @@ void Test_FunctionTemplate_InputFilterFunction()
 
 void Test_MultiThread()
 {
-	uint64 Lx = 512;
-	uint64 Ly = 512;
-	uint64 Lz = 512;
+	int64 Lx = 512;
+	int64 Ly = 512;
+	int64 Lz = 512;
 
-	mdk3DImage<double> InputImage;
+	Image<double> InputImage;
 
-	InputImage.Initialize(Lx, Ly, Lz);
+	InputImage.ReInitialize(Lx, Ly, Lz);
 
 	InputImage.Fill(1);
 
-	mdk3DImage<double> OutputImage;
+	Image<double> OutputImage;
 
-	OutputImage.Initialize(Lx, Ly, Lz);
+	OutputImage.ReInitialize(Lx, Ly, Lz);
 
 	OutputImage.Fill(0);
 
-	mdk3DImageFilter<double, double>  imfilter;
+	ImageFilter<double, double>  imfilter;
 
 	imfilter.SetInputImage(&InputImage);
 
@@ -267,7 +259,7 @@ void Test_MultiThread()
 
 	double Output = 0;
 
-	for (uint64 i = 0; i < Lx*Ly*Lz; ++i)
+	for (int64 i = 0; i < Lx*Ly*Lz; ++i)
 	{
 		FilterFunction(0, 0, 0, InputImage, Output);
 	}
@@ -279,7 +271,7 @@ void Test_MultiThread()
 	std::cout << "time " << t1 - t0 << '\n';
 
 	/*
-	std::function<void(uint64, uint64, uint64, const mdk3DImage<double>&, double&)> stdFunction = FilterFunction;
+	std::function<void(int64, int64, int64, const Image<double>&, double&)> stdFunction = FilterFunction;
 
 	std::cout << "std function " << '\n';
 
@@ -289,7 +281,7 @@ void Test_MultiThread()
 
 	Value = 0;
 
-	for (uint64 i = 0; i < Lx*Ly*Lz; ++i)
+	for (int64 i = 0; i < Lx*Ly*Lz; ++i)
 	{
 		stdFunction(0, 0, 0, InputImage, Output);
 
@@ -311,7 +303,7 @@ void Test_MultiThread()
 
 	Value = 0;
 
-	for (uint64 i = 0; i < Lx*Ly*Lz; ++i)
+	for (int64 i = 0; i < Lx*Ly*Lz; ++i)
 	{
 		(*FunctionPtr)(0, 0, 0, InputImage, Output);
 
@@ -330,23 +322,23 @@ void Test_MultiThread()
 
 void Test_ConvolutionFilter_VirtualFilterFunction()
 {
-	uint64 Lx = 512;
-	uint64 Ly = 512;
-	uint64 Lz = 512;
+	int64 Lx = 512;
+	int64 Ly = 512;
+	int64 Lz = 512;
 
-	mdk3DImage<double> InputImage;
+	Image<double> InputImage;
 
-	InputImage.Initialize(Lx, Ly, Lz);
+	InputImage.ReInitialize(Lx, Ly, Lz);
 
 	InputImage.Fill(1);
 
-	mdk3DImage<double> OutputImage;
+	Image<double> OutputImage;
 
-	OutputImage.Initialize(Lx, Ly, Lz);
+	OutputImage.ReInitialize(Lx, Ly, Lz);
 
 	OutputImage.Fill(0);
 
-	mdk3DImageFilter<double, double>  imfilter;
+	ImageFilter<double, double>  imfilter;
 
 	imfilter.SetInputImage(&InputImage);
 
@@ -364,7 +356,7 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	std::cout << "imfilter time " << t1 - t0 << '\n';
 
-	mdk3DImageConvolutionFilter<double, double>  imconvfilter;
+	ImageConvolutionFilter<double, double>  imconvfilter;
 
 	imconvfilter.SetInputImage(&InputImage);
 
@@ -376,7 +368,7 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	imconvfilter.EnableBoundCheck(false);
 
-	mdkMatrix<double> Mask(4, 1000 * 36 * 36 / 2);
+	DenseMatrix<double> Mask(4, 1000 * 36 * 36 / 2);
 
 	Mask.Fill(0);
 
@@ -388,7 +380,7 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	t1 = std::time(0);
 
-	std::cout << "mdk3DImageConvolutionFilter time " << t1 - t0 << '\n';
+	std::cout << "ImageConvolutionFilter time " << t1 - t0 << '\n';
 
 	std::cout << "FilterFunction " << '\n';
 
@@ -396,7 +388,7 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	double Output = 0;
 
-	for (uint64 i = 0; i < Lx*Ly*Lz; ++i)
+	for (int64 i = 0; i < Lx*Ly*Lz; ++i)
 	{
 		FilterFunction(0, 0, 0, InputImage, Output);
 	}
@@ -413,33 +405,35 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 void Test_ConvolutionFilter_ScalarOutput()
 {
-	uint64 Lx = 100;
-	uint64 Ly = 100;
-	uint64 Lz = 100;
+	int64 Lx = 100;
+	int64 Ly = 100;
+	int64 Lz = 100;
 
-	mdk3DImage<double> InputImage;
+	Image<double> InputImage;
 
-	InputImage.Initialize(Lx, Ly, Lz);
+	InputImage.ReInitialize(Lx, Ly, Lz);
 
 	InputImage.Fill(1);
 
-	mdk3DImage<double> OutputImage;
+	Image<double> OutputImage;
 
-	OutputImage.Initialize(Lx, Ly, Lz);
+	OutputImage.ReInitialize(Lx, Ly, Lz);
 
 	OutputImage.Fill(0);
 
-	mdk3DImageConvolutionFilter<double, double>  imfilter;
+	ImageConvolutionFilter<double, double>  imfilter;
 
 	imfilter.SetInputImage(&InputImage);
 
 	imfilter.SetOutputImage(&OutputImage);
 
-	imfilter.SetMaxThreadNumber(1);
+	imfilter.SetMaxThreadNumber(4);
 
 	//imfilter.EnableBoundCheck(false);
 
-	mdkMatrix<double> Mask(4, 10000);
+    int64 NeighbourVoxelNumber = 10000;
+
+    DenseMatrix<double> Mask(4, NeighbourVoxelNumber);
 
 	Mask.Fill(0);
 
@@ -461,7 +455,7 @@ void Test_ConvolutionFilter_ScalarOutput()
 
 	double Output = 0;
 
-	for (uint64 i = 0; i < Lx*Ly*Lz; ++i)
+    for (int64 i = 0; i < Lx*Ly*Lz; ++i)
 	{
 		FilterFunction(0, 0, 0, InputImage, Output);
 	}
@@ -492,7 +486,7 @@ void Test_ConvolutionFilter_VectorOutput()
 	std::vector<std::vector<double>> v(512*512*512);
 	std::cout << "v Memory (G) is " << double(v.capacity()*sizeof(std::vector<double>) + sizeof(v)) / (1024 * 1024 * 1024) << '\n';
 
-	for (uint64 i = 0; i < v.size(); ++i)
+	for (int64 i = 0; i < v.size(); ++i)
 	{ 
 		v[i] = ZeroVoxel;
 	}
@@ -515,21 +509,21 @@ void Test_ConvolutionFilter_VectorOutput()
 
     /*
 
-	uint64 OuputVoxelDimension = 2;
+	int64 OuputVoxelDimension = 2;
 
-	mdk3DImage<double> InputImage;
+	Image<double> InputImage;
 
-	uint64 Lx = 512;
-	uint64 Ly = 512;
-	uint64 Lz = 512;
+	int64 Lx = 512;
+	int64 Ly = 512;
+	int64 Lz = 512;
 
-	InputImage.Initialize(Lx, Ly, Lz);
+	InputImage.ReInitialize(Lx, Ly, Lz);
 
 	InputImage.Fill(1.0);
 
-	mdk3DImage<std::array<double, 2>> OutputImage;
+	Image<std::array<double, 2>> OutputImage;
 
-	OutputImage.Initialize(Lx, Ly, Lz);
+	OutputImage.ReInitialize(Lx, Ly, Lz);
 
 	std::array<double, 2> OutputZeroVoxel = { 0, 0 };
 
@@ -545,7 +539,7 @@ void Test_ConvolutionFilter_VectorOutput()
 
 	std::cout << "(*ArrayPtr).capacity()" << (*ArrayPtr).capacity() << '\n';
 
-	mdk3DImageConvolutionFilter<double, std::array<double, 2>, 2>  imfilter;
+	ImageConvolutionFilter<double, std::array<double, 2>, 2>  imfilter;
 	
 	imfilter.SetInputImage(&InputImage);
 
@@ -553,10 +547,10 @@ void Test_ConvolutionFilter_VectorOutput()
 
 	imfilter.SetMaxThreadNumber(1);
 	
-	std::vector<mdkMatrix<double>> MaskList;
+	std::vector<DenseMatrix<double>> MaskList;
 	MaskList.resize(OuputVoxelDimension);
 
-	for (uint64 i = 0; i < OuputVoxelDimension; ++i)
+	for (int64 i = 0; i < OuputVoxelDimension; ++i)
 	{
 		MaskList[i].SetSize(4, 1000);
 		MaskList[i].Fill(0);
@@ -581,19 +575,19 @@ void test_Valve_Filter()
 {
     std::string FilePath("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0");
 
-    auto InputImage = ReadGrayScale3DImageFromDICOMFile(FilePath);
+    auto InputImage = LoadGrayScaleImageFromDICOMFile<double>(FilePath);
 
     std::string OutputFilePathAndName("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0_OutputImage");
 
-    auto InputDimension = InputImage.GetImageDimension();
+    auto InputDimension = InputImage.GetDimension();
 
-    mdk3DImage<double> OutputImage;
+    Image<double> OutputImage;
 
-    OutputImage.Initialize(InputDimension.Lx, InputDimension.Ly, InputDimension.Lz);
+    OutputImage.ReInitialize(InputDimension.Lx, InputDimension.Ly, InputDimension.Lz);
 
     OutputImage.Fill(0);
 
-    mdk3DImageConvolutionFilter<double, double>  imfilter;
+    ImageConvolutionFilter<double, double>  imfilter;
 
     imfilter.SetInputImage(&InputImage);
 
@@ -601,7 +595,7 @@ void test_Valve_Filter()
 
     imfilter.SetMaxThreadNumber(4);
 
-    mdkMatrix<double> Mask(4, 7);
+    DenseMatrix<double> Mask(4, 7);
 
     Mask = { -100,  0,   0,    0,   1,   1,   10,
              -1, -1,   0,    0,   0,   1,   1,
@@ -620,8 +614,7 @@ void test_Valve_Filter()
 
     std::cout << "time " << t1 - t0 << '\n';
 
-
-    SaveGrayScale3DImageAsRawDataFile(OutputFilePathAndName, OutputImage);
+    SaveGrayScaleImageAsDataFile(OutputFilePathAndName, OutputImage);
 
     std::system("pause");
 }
@@ -630,19 +623,19 @@ void test_GaussianFilter()
 {
     std::string FilePath("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0");
 
-    auto InputImage = ReadGrayScale3DImageFromDICOMFile(FilePath);
+    auto InputImage = LoadGrayScaleImageFromDICOMFile<double>(FilePath);
 
     std::string OutputFilePathAndName("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0_OutputImage");
 
-    auto InputDimension = InputImage.GetImageDimension();
+    auto InputDimension = InputImage.GetDimension();
 
-    mdk3DImage<double> OutputImage;
+    Image<double> OutputImage;
 
-    OutputImage.Initialize(InputDimension.Lx, InputDimension.Ly, InputDimension.Lz);
+    OutputImage.ReInitialize(InputDimension.Lx, InputDimension.Ly, InputDimension.Lz);
 
     OutputImage.Fill(0);
 
-    mdk3DImageGaussianFilter<double, double>  imfilter;
+    ImageGaussianFilter<double, double>  imfilter;
 
     imfilter.SetInputImage(&InputImage);
 
@@ -665,7 +658,7 @@ void test_GaussianFilter()
     std::cout << "time " << t1 - t0 << '\n';
 
 
-    SaveGrayScale3DImageAsRawDataFile(OutputFilePathAndName, OutputImage);
+    SaveGrayScaleImageAsDataFile(OutputFilePathAndName, OutputImage);
 
     std::system("pause");
 }
@@ -675,19 +668,19 @@ void test_IntegralImageBuider()
 {
     std::string FilePath("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0");
 
-    auto InputImage = ReadGrayScale3DImageFromDICOMFile(FilePath);
+    auto InputImage = LoadGrayScaleImageFromDICOMFile<double>(FilePath);
 
     std::string OutputFilePathAndName("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0_OutputImage");
 
-    auto InputDimension = InputImage.GetImageDimension();
+    auto InputDimension = InputImage.GetDimension();
 
-    mdk3DImage<double> OutputImage;
+    Image<double> OutputImage;
 
-    OutputImage.Initialize(InputDimension.Lx, InputDimension.Ly, InputDimension.Lz);
+    OutputImage.ReInitialize(InputDimension.Lx, InputDimension.Ly, InputDimension.Lz);
 
     OutputImage.Fill(0);
 
-    mdk3DIntegralImageBuilder<double, double>  imbuilder;
+    IntegralImageBuilder<double, double>  imbuilder;
 
     imbuilder.SetInputImage(&InputImage);
 
@@ -705,10 +698,11 @@ void test_IntegralImageBuider()
 
     std::cout << "time " << t1 - t0 << '\n';
 
-    SaveGrayScale3DImageAsRawDataFile(OutputFilePathAndName, OutputImage);
+    SaveGrayScaleImageAsDataFile(OutputFilePathAndName, OutputImage);
 
     std::system("pause");
 }
 
+}//namespace mdk
 
 #endif

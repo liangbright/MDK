@@ -60,12 +60,6 @@ void FeatureDictionary<ElementType>::operator=(FeatureDictionary&& InputDictiona
 template<typename ElementType>
 bool FeatureDictionary<ElementType>::Copy(const FeatureDictionary<ElementType>& InputDictionary)
 {
-    if (this->IsEmpty() == false)
-    {
-        MDK_Error << "Self is not empty @ FeatureDictionary::Copy(FeatureDictionary&)" << '\n';
-        return false;
-    }
-
     m_Record.Copy(InputDictionary.m_Record);
 
     m_Covariance.Copy(InputDictionary.m_Covariance);

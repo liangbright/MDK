@@ -14,20 +14,20 @@ include(${VTK_USE_FILE})
 
 find_package(Qt5Widgets)
 
-set(MDK_DIR "C:/Research/MDK/Code/Source")
+set(MDK_Source_DIR "C:/Research/MDK/Code/Source")
 
-set(Arma_DIR "C:/Research/MDK/armadillo_4.000.2")
+set(Arma_DIR "C:/Research/MDK/armadillo")
 
 set(Lapack_Blas_DIR "C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release")
 
 include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR} 
-${MDK_DIR}
-${MDK_DIR}/Debug
-${MDK_DIR}/Common
-${MDK_DIR}/LinearAlgebra
-${MDK_DIR}/LinearAlgebra/DenseMatrix
-${MDK_DIR}/LinearAlgebra/SparseMatrix
+${MDK_Source_DIR}
+${MDK_Source_DIR}/Debug
+${MDK_Source_DIR}/Common
+${MDK_Source_DIR}/LinearAlgebra
+${MDK_Source_DIR}/LinearAlgebra/DenseMatrix
+${MDK_Source_DIR}/LinearAlgebra/SparseMatrix
 ${Arma_DIR} 
 ${Arma_Source_DIR} 
 ${Lapack_Blas_DIR}
@@ -35,17 +35,17 @@ ${Lapack_Blas_DIR}
 
 #FILE(GLOB Arma_FILES ${Arma_DIR}/armadillo_bits/*.hpp)
 
-FILE(GLOB Arma_FILES C:/Research/MDK/armadillo_4.000.2/armadillo_bits/*.hpp)
+FILE(GLOB Arma_FILES C:/Research/MDK/armadillo/armadillo_bits/*.hpp)
 
-set(Arma_FILES ${Arma_FILES} C:/Research/MDK/armadillo_4.000.2/armadillo.h)
+set(Arma_FILES ${Arma_FILES} C:/Research/MDK/armadillo/armadillo.h)
 
 FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
 set(Source_FILES 
 
-${MDK_DIR}/Common/mdkObject.cpp
+${MDK_Source_DIR}/Common/mdkObject.cpp
 
-${MDK_DIR}/LinearAlgebra/mdkMatrix_Common.cpp
+${MDK_Source_DIR}/LinearAlgebra/mdkMatrix_Common.cpp
 
 )
 

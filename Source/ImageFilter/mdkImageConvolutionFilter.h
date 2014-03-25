@@ -8,7 +8,7 @@
 
 #include "mdkDebugConfig.h"
 #include "mdkObject.h"
-#include "DenseMatrix.h"
+#include "mdkDenseMatrix.h"
 #include "mdkImage.h"
 #include "mdkImageFilter.h"
 #include "mdkImageConvolutionFilterBase.h"

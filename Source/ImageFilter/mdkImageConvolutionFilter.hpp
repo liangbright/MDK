@@ -31,13 +31,13 @@ SetOutputVoxelMatrix(const DenseMatrix<VoxelType_Input>* VoxelMatrix)
 template<typename VoxelType_Input, typename VoxelType_Output, int64 VectorVoxelLength_Output>
 bool ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::Preprocess()
 {
-    m_InputImageDimension = m_InputImage->GetImageDimension();
+    m_InputImageDimension = m_InputImage->GetDimension();
 
     m_InputImagePhysicalOrigin = m_InputImage->GetPhysicalOrigin();
 
-    m_InputImagePhysicalSize = m_InputImage->GetImagePhysicalSize();
+    m_InputImagePhysicalSize = m_InputImage->GetPhysicalSize();
 
-    m_InputVoxelPhysicalSize = m_InputImage->GetVoxelPhysicalSize();
+    m_InputVoxelPhysicalSize = m_InputImage->GetVoxelSpacing();
 
     this->BuildMaskOf3DIndex();
 
@@ -243,13 +243,13 @@ ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::~ImageConvolutionF
 template<typename VoxelType_Input, typename VoxelType_Output>
 bool ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::Preprocess()
 {
-    m_InputImageDimension = m_InputImage->GetImageDimension();
+    m_InputImageDimension = m_InputImage->GetDimension();
 
     m_InputImagePhysicalOrigin = m_InputImage->GetPhysicalOrigin();
 
-    m_InputImagePhysicalSize = m_InputImage->GetImagePhysicalSize();
+    m_InputImagePhysicalSize = m_InputImage->GetPhysicalSize();
 
-    m_InputVoxelPhysicalSize = m_InputImage->GetVoxelPhysicalSize();
+    m_InputVoxelPhysicalSize = m_InputImage->GetVoxelSpacing();
 
     this->BuildMaskOf3DIndex();
 

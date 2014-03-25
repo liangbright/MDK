@@ -13,32 +13,6 @@
 namespace mdk
 {
 
-struct RegionOfNOBoundCheck_3DIndex
-{
-    bool IsEmpty;
-
-    int64 x0_Index;
-    int64 y0_Index;
-    int64 z0_Index;
-
-    int64 x1_Index;
-    int64 y1_Index;
-    int64 z1_Index;
-};
-
-struct RegionOfNOBoundCheck_3DPosition
-{
-    bool IsEmpty;
-
-    double x0;
-    double y0;
-    double z0;
-
-    double x1;
-    double y1;
-    double z1;
-};
-
 class ImageConvolutionFilterBase : public Object
 {
 protected:
@@ -50,9 +24,9 @@ protected:
     // each coloum is [dx; dy; dz; w]
     // w is the coefficient at (dx, dy, dz)
 
-    std::vector<RegionOfNOBoundCheck_3DIndex> m_NOBoundCheckRegionList_3DIndex;
+    std::vector<ImageBoxRegionOf3DIndex> m_NOBoundCheckRegionList_3DIndex;
 
-    std::vector<RegionOfNOBoundCheck_3DPosition> m_NOBoundCheckRegionList_3DPosition;
+    std::vector<ImageBoxRegionOf3DPosition> m_NOBoundCheckRegionList_3DPosition;
 
     ImageDimension m_InputImageDimension;
 
@@ -60,7 +34,7 @@ protected:
 
     ImagePhysicalOrigin m_InputImagePhysicalOrigin;
 
-    ImageVoxelPhysicalSize m_InputVoxelPhysicalSize;
+    ImageVoxelSpacing m_InputVoxelPhysicalSize;
 
 public:		
 	ImageConvolutionFilterBase();

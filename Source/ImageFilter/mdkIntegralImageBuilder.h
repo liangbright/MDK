@@ -6,8 +6,8 @@
 
 
 #include "mdkDebugConfig.h"
-#include "ImageFilter.h"
-#include "IntegralImageBuilder.h"
+#include "mdkImageFilter.h"
+#include "mdkIntegralImageBuilder.h"
 
 namespace mdk
 {

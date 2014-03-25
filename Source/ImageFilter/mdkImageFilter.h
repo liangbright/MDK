@@ -6,7 +6,6 @@
 #include <thread>
 
 #include "mdkDebugConfig.h"
-#include "mdkObject.h"
 #include "mdkDenseMatrix.h"
 #include "mdkImage.h"
 
@@ -24,12 +23,10 @@ protected:
     const Image<VoxelType_Input>*  m_InputImage;
 
 	// input_1:
-	const DenseMatrix<int64>*  m_InputRegion;  // size of m_InputRegion = size of m_OutputImage or m_OutputArray
-	                                          // col 0: [x0_Index; y0_Index; z0_Index]
-	                                          // col 1: [Lx; Ly; Lz]
-
+    const ImageBoxRegionOf3DIndex*  m_InputRegion;  // size of m_InputRegion = size of m_OutputImage or m_OutputArray
+	                                 
 	// input_2:
-    const DenseMatrix<int64>*  m_InputVoxelLinearIndexList;  // compute values at these center positions
+    const DenseMatrix<int64>*  m_InputVoxel3DIndexList;  // compute values at these center positions
 	                
 	// input_3:
 	const DenseMatrix<float>*  m_Input3DPositionList;  // compute values at these center positions (float precision is enough)
@@ -54,15 +51,15 @@ protected:
 	// input_output_1:
     DenseMatrix<VoxelType_Output>* m_OutputArray;
 
+    //------------ internal variable --------------
+
+    Image<VoxelType_Output> m_OutputImage_SharedCopy; // keep tracking m_OutputImage
+
+    DenseMatrix<VoxelType_Output> m_OutputArray_SharedCopy; // keep tracking m_OutputArray
+
     bool m_Flag_OutputImage;
 
     bool m_Flag_OutputArray;
-
-    //------------ internal variable --------------
-
-    Image<VoxelType_Output> m_OutputImage_SharedCopy; // keep tracking *m_OutputImage
-
-    Image<VoxelType_Output> m_OutputArray_SharedCopy; // keep tracking *m_OutputArray
 
     bool m_Flag_OutputToOtherPlace;
 
@@ -88,7 +85,7 @@ public:
 
     bool SetInputRegion(const DenseMatrix<int64>* InputRegion);
 
-    bool SetInputVoxelLinearIndexList(const DenseMatrix<int64>* InputVoxelLinearIndexList);
+    bool SetInputVoxel3DIndexList(const DenseMatrix<int64>* InputVoxel3DIndexList);
 
     bool SetInput3DPositionList(const DenseMatrix<float>* Input3DPositionList);
 
@@ -102,7 +99,9 @@ public:
 
     void SetMaxThreadNumber(int64 MaxNumber);
 
-	void EnableBoundCheck(bool On_Off = true);
+	void EnableBoundCheck();
+
+    void DisableBoundCheck();
 
     inline virtual void FilterFunctionAt3DIndex(int64 x_Index, int64 y_Index, int64 z_Index, VoxelType_Output& OutputVoxel);
 
@@ -116,14 +115,11 @@ public:
 
     //----------------------------------------------------------------
 
-    static bool Apply(const Image<VoxelType_Input>* InputImage,
-                      const DenseMatrix<int64>*  m_InputRegion,
-                      const DenseMatrix<int64>* m_InputVoxelSet,
-                      Image<VoxelType_Output>* OutputImage,
-                      std::vector< VoxelType_Output>* m_OutputArray,                       
-                      int64 MaxThreadNumber,
-                      const std::string& FilterFunctionType, // "3DIndex" or "3DPosition"
-                      std::function<void(double, double, double, VoxelType_Output&)> FilterFunction);
+    static bool Apply(Image<VoxelType_Output>* OutputImage, 
+                      const Image<VoxelType_Input>* InputImage,                                     
+                      const std::string& FilterFunctionType, // "At3DIndex" or "At3DPosition"
+                      std::function<void(double, double, double, VoxelType_Output&)> FilterFunction,
+                      int64 MaxThreadNumber = 1);
 
 protected:
     bool CheckInput();
@@ -141,8 +137,8 @@ protected:
     void Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end);
 
 private:
-	ImageFilter(const ImageFilter&); // Not implemented.
-	void operator=(const ImageFilter&);   // Not implemented.
+	ImageFilter(const ImageFilter&)    = delete;
+	void operator=(const ImageFilter&) = delete;
 };
 
 }//end namespace mdk

@@ -20,16 +20,15 @@ find_package(OpenCV REQUIRED)
 
 set(MDK_DIR "C:/Research/MDK/Code/Source")
 
-set(Arma_DIR "C:/Research/MDK/armadillo_4.000.2")
+set(Arma_DIR "C:/Research/MDK/armadillo")
 
 set(Lapack_Blas_DIR "C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release")
 
 include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR} 
-${MDK_DIR}
 ${MDK_DIR}/Debug
 ${MDK_DIR}/Common
-${MDK_DIR}/LinearAlgebra
+${MDK_DIR}/LinearAlgebra/Common
 ${MDK_DIR}/LinearAlgebra/DenseMatrix
 ${MDK_DIR}/LinearAlgebra/SparseMatrix
 ${MDK_DIR}/FeatureCoding
@@ -40,9 +39,9 @@ ${Lapack_Blas_DIR}
 
 #FILE(GLOB Arma_FILES ${Arma_Source_DIR}/*.hpp)
 
-FILE(GLOB Arma_FILES C:/Research/MDK/armadillo_4.000.2/armadillo_bits/*.hpp)
+FILE(GLOB Arma_FILES C:/Research/MDK/armadillo/armadillo_bits/*.hpp)
 
-set(Arma_FILES ${Arma_FILES} C:/Research/MDK/armadillo_4.000.2/armadillo.h)
+set(Arma_FILES ${Arma_FILES} C:/Research/MDK/armadillo/armadillo.h)
 
 FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
@@ -50,7 +49,7 @@ set(Source_FILES
 
 ${MDK_DIR}/Common/mdkObject.cpp
 
-${MDK_DIR}/LinearAlgebra/mdkMatrix_Common.cpp
+${MDK_DIR}/LinearAlgebra/Common/mdkMatrix_Common.cpp
 )
 
 set(LinearALgebraLib_win64 

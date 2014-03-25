@@ -53,7 +53,7 @@ struct ImagePhysicalOrigin
     double z;
 };
 
-struct ImageVoxelPhysicalSize
+struct ImageVoxelSpacing
 {
     double Sx;
     double Sy;
@@ -66,19 +66,102 @@ typedef enum
     CubicLinear,
 } ImageInterpolationMethodEnum;
 
+
+struct ImageBoxRegionOf3DIndex
+{
+    bool IsEmpty;
+
+    int64 x0_Index;
+    int64 y0_Index;
+    int64 z0_Index;
+
+    int64 x1_Index;
+    int64 y1_Index;
+    int64 z1_Index;
+
+//-------------------------------------
+    ImageBoxRegionOf3DIndex()
+    {
+        IsEmpty = true;
+        x0_Index = 0;
+        y0_Index = 0;
+        z0_Index = 0;
+        x1_Index = 0;
+        y1_Index = 0;
+        z1_Index = 0;
+    };
+
+    int64 Lx() const
+    {
+        return x1_Index - x0_Index;
+    }
+
+    int64 Ly() const
+    {
+        return y1_Index - y0_Index;
+    }
+
+    int64 Lz() const
+    {
+        return z1_Index - z0_Index;
+    }
+};
+
+
+struct ImageBoxRegionOf3DPosition
+{
+    bool IsEmpty;
+
+    double x0;
+    double y0;
+    double z0;
+
+    double x1;
+    double y1;
+    double z1;
+
+//-------------------------------------
+
+    ImageBoxRegionOf3DPosition() 
+    {
+        IsEmpty = true;
+        x0 = 0;
+        y0 = 0;
+        z0 = 0;
+        x1 = 0;
+        y1 = 0;
+        z1 = 0;
+    };
+
+    double Lx() const
+    {
+        return x1 - x0;
+    }
+
+    double Ly() const
+    {
+        return y1 - y0;
+    }
+
+    double Lz() const
+    {
+        return z1 - z0;
+    }
+};
+
 //===================================================================================================================//
 //--------------------------------------------------- ImageData struct --------------------------------------------//
 
 template<typename VoxelType>
 struct ImageData
 {
-    int64 m_ImageDimension[3]; // {Lx, Ly, Lz} number of voxels in each direction
+    int64 m_Dimension[3]; // {Lx, Ly, Lz} number of voxels in each direction
 
     int64 m_VoxelNumberPerZSlice; // total number of voxels in each z-slice  = m_ImageSize[2]*m_ImageSize[1]
 
     double m_PhysicalOrigin[3];    // i.e., Origin in ITK, VTK, {x0, y0, z0} in world coordinate system (x,y,z) (unit: mm)
 
-    double m_VoxelPhysicalSize[3]; // i.e., Spacing in ITK, VTK
+    double m_VoxelSpacing[3]; // i.e., Spacing in ITK, VTK
 
     std::vector<VoxelType> m_DataArray;
 
@@ -187,14 +270,16 @@ public:
     void Clear();
 
     //-----------------------------------------------------------------//
-
+    
     bool ReInitialize(int64 Lx, int64 Ly, int64 Lz = 1,
 		              double PhysicalOrigin_x = 0.0,
 		              double PhysicalOrigin_y = 0.0,
 		              double PhysicalOrigin_z = 0.0,
-		              double VoxelPhysicalSize_x = 1.0,
-		              double VoxelPhysicalSize_y = 1.0,
-		              double VoxelPhysicalSize_z = 1.0);
+                      double VoxelSpacing_x = 1.0,
+                      double VoxelSpacing_y = 1.0,
+                      double VoxelSpacing_z = 1.0);
+
+    bool ReInitialize(const ImageDimension& Dim, const ImagePhysicalOrigin& Origin, const ImageVoxelSpacing& VoxelSize);
 
 	inline bool IsEmpty() const;
 
@@ -210,13 +295,13 @@ public:
 
     // ------------------------ Get ImageInfo ------------------------------------------------------------------------//
 
-    inline ImageDimension GetImageDimension() const;
+    inline ImageDimension GetDimension() const;
 
-    inline ImagePhysicalSize GetImagePhysicalSize() const;
+    inline ImagePhysicalSize GetPhysicalSize() const;
 
     inline ImagePhysicalOrigin GetPhysicalOrigin() const;
 
-    inline ImageVoxelPhysicalSize GetVoxelPhysicalSize() const;
+    inline ImageVoxelSpacing GetVoxelSpacing() const;
 
     inline int64 GetVoxelNumber() const;
 

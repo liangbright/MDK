@@ -22,7 +22,7 @@ public:
     
     inline mdk3DImageVectorVoxelWithVariableSize();
 
-    inline mdk3DImageVectorVoxelWithVariableSize(const ElementType& Element, uint64 Length = 1);
+    inline mdk3DImageVectorVoxelWithVariableSize(const ElementType& Element, int64 Length = 1);
 
     inline mdk3DImageVectorVoxelWithVariableSize(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel) = delete;
 

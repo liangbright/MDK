@@ -10,7 +10,7 @@
 namespace mdk
 {
   
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 class VectorVoxelWithFixedSize : public Object
 {
 private:

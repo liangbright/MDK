@@ -25,7 +25,7 @@ void
 ImageGaussianFilter<VoxelType_Input, VoxelType_Output>::
 SetSigmaList(double Sx, double Sy, double Sz)
 {
-    m_SigmaList.Reset();
+    m_SigmaList.Clear();
 
     m_SigmaList.Resize(3, 1);
 

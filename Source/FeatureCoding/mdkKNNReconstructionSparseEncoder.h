@@ -1,5 +1,5 @@
-#ifndef __mdkKNNSoftAssignSparseEncoder_h
-#define __mdkKNNSoftAssignSparseEncoder_h
+#ifndef __mdkKNNReconstructionSparseEncoder_h
+#define __mdkKNNReconstructionSparseEncoder_h
 
 #include <string>
 
@@ -10,7 +10,7 @@ namespace mdk
 {
 
 template<typename ElementType>
-class KNNSoftAssignSparseEncoder : public FeatureSparseEncoder<ElementType>
+class KNNReconstructionSparseEncoder : public FeatureSparseEncoder<ElementType>
 {
 
 private: 
@@ -19,9 +19,9 @@ private:
 
 public:
 
-    KNNSoftAssignSparseEncoder();
+    KNNReconstructionSparseEncoder();
 
-    ~KNNSoftAssignSparseEncoder();
+    ~KNNReconstructionSparseEncoder();
 
     //-----------------------------------------
 
@@ -35,14 +35,14 @@ protected:
 
 private:
 //deleted:
-    KNNSoftAssignSparseEncoder(const KNNSoftAssignSparseEncoder&) = delete;
+    KNNReconstructionSparseEncoder(const KNNReconstructionSparseEncoder&) = delete;
 
-    void operator=(const KNNSoftAssignSparseEncoder&) = delete;
+    void operator=(const KNNReconstructionSparseEncoder&) = delete;
 
 };
 
 }
 
-#include "mdkKNNSoftAssignSparseEncoder.hpp"
+#include "mdkKNNReconstructionSparseEncoder.hpp"
 
 #endif

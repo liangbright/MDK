@@ -1,25 +1,25 @@
-#ifndef __mdkKNNSoftAssignSparseEncoder_hpp
-#define __mdkKNNSoftAssignSparseEncoder_hpp
+#ifndef __mdkKNNReconstructionSparseEncoder_hpp
+#define __mdkKNNReconstructionSparseEncoder_hpp
 
 namespace mdk
 {
 
 template<typename ElementType>
-KNNSoftAssignSparseEncoder<ElementType>::KNNSoftAssignSparseEncoder()
+KNNReconstructionSparseEncoder<ElementType>::KNNReconstructionSparseEncoder()
+{
+    this->Clear();
+}
+
+
+template<typename ElementType>
+KNNReconstructionSparseEncoder<ElementType>::~KNNReconstructionSparseEncoder()
 {
 
 }
 
 
 template<typename ElementType>
-KNNSoftAssignSparseEncoder<ElementType>::~KNNSoftAssignSparseEncoder()
-{
-
-}
-
-
-template<typename ElementType>
-KNNSoftAssignSparseEncoder<ElementType>::Clear()
+KNNReconstructionSparseEncoder<ElementType>::Clear()
 {
     this->FeatureSparseEncoder::Clear();
 
@@ -28,11 +28,11 @@ KNNSoftAssignSparseEncoder<ElementType>::Clear()
 
 
 template<typename ElementType>
-bool KNNSoftAssignSparseEncoder<ElementType>::SetMaxNumberOfNeighbours(int64 MaxNumberOfNeighbours)
+bool KNNReconstructionSparseEncoder<ElementType>::SetMaxNumberOfNeighbours(int64 MaxNumberOfNeighbours)
 {
     if (MaxNumberOfNeighbours <= 0)
     {
-        MDK_Error << "Invalid input @ KNNSoftAssignSparseEncoder::SetMaxNumberOfNeighbours(MaxNumberOfNeighbours)" << '\n';
+        MDK_Error << "Invalid input @ KNNReconstructionSparseEncoder::SetMaxNumberOfNeighbours(MaxNumberOfNeighbours)" << '\n';
         return false;
     }
 
@@ -43,7 +43,7 @@ bool KNNSoftAssignSparseEncoder<ElementType>::SetMaxNumberOfNeighbours(int64 Max
 
 
 template<typename ElementType>
-bool KNNSoftAssignSparseEncoder<ElementType>::GenerateCode()
+bool KNNReconstructionSparseEncoder<ElementType>::GenerateCode()
 {
     return true;
 }

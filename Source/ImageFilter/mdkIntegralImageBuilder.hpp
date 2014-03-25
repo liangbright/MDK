@@ -39,9 +39,9 @@ bool IntegralImageBuilder<VoxelType_Input, VoxelType_Output>::CheckInput()
         return false;
     }
 
-    auto InputDim = m_InputImage->GetImageDimension();
+    auto InputDim = m_InputImage->GetDimension();
 
-    auto OutputDim = m_OutputImage->GetImageDimension();
+    auto OutputDim = m_OutputImage->GetDimension();
 
     if (InputDim.Lx != OutputDim.Lx || InputDim.Ly != OutputDim.Ly || InputDim.Lz != OutputDim.Lz)
     {
@@ -64,7 +64,7 @@ Compute2DIntegralImage(int64 z_Index_start, int64 z_Index_end)
         return;
     }
 
-    auto InputDim = m_InputImage->GetImageDimension();
+    auto InputDim = m_InputImage->GetDimension();
 
     for (int64 z = z_Index_start; z <= z_Index_end; ++z)
     {
@@ -105,7 +105,7 @@ ComputeSumInZDirection(int64 xy_LinearIndex_start, int64 xy_LinearIndex_end)
         return;
     }
 
-    auto InputDim = m_InputImage->GetImageDimension();
+    auto InputDim = m_InputImage->GetDimension();
 
     for (int64 k = xy_LinearIndex_start; k <= xy_LinearIndex_end; ++k)
     {
@@ -139,7 +139,7 @@ bool IntegralImageBuilder<VoxelType_Input, VoxelType_Output>::Update()
    
     // divide the output image into z-groups
 
-    auto InputDim = m_InputImage->GetImageDimension();
+    auto InputDim = m_InputImage->GetDimension();
 
     std::vector<int64> z_IndexList_start;
     std::vector<int64> z_IndexList_end;

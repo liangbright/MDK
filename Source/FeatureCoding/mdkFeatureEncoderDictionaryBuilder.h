@@ -18,13 +18,11 @@ protected:
 
     const DenseMatrix<ElementType>* m_FeatureData;
 
-    FeatureEncoder<ElementType>* m_GenericEncoder;
-
     // output:
 
     FeatureDictionary<ElementType>* m_Dictionary;
 
-    FeatureDictionary<ElementType> m_Dictionary_SharedCopy;
+    FeatureDictionary<ElementType>  m_Dictionary_SharedCopy;
 
 public:
 
@@ -39,10 +37,6 @@ public:
     //---------------------------------------------------//
 
     bool SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
-
-    //---------------------------------------------------//
-
-    bool SetGenericEncoder(const FeatureEncoder<ElementType>* FeatureEncoder);
 
     //---------------------------------------------------//
 

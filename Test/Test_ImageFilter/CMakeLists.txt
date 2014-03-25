@@ -6,7 +6,7 @@ endif()
  
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ Kits/8.1/Lib/winv6.3/um/x64")
 
-PROJECT(MDK_TestImageFilter)
+PROJECT(MDK_Test_ImageFilter)
 
 set(VTK_DIR C:/Programs/VTK/VTK_6.1_VC2013_Build)
 find_package(VTK REQUIRED)
@@ -14,94 +14,46 @@ include(${VTK_USE_FILE})
 
 find_package(Qt5Widgets)
 
-set(Debug_DIR "C:/Research/MDK/Code/Source/Debug")
+set(MDK_DIR "C:/Research/MDK/Code/Source")
 
-set(Common_DIR "C:/Research/MDK/Code/Source/Common")
-
-set(Image_DIR "C:/Research/MDK/Code/Source/Image")
-
-set(ImageFilter_DIR "C:/Research/MDK/Code/Source/ImageFilter")
-
-set(LinearAlgebra_DIR "C:/Research/MDK/Code/Source/LinearAlgebra")
-
-set(FileIO_DIR "C:/Research/MDK/Code/Source/FileIO")
-
-set(Arma_DIR "C:/Research/MDK/armadillo_4.000.2")
-
-set(Arma_Source_DIR "C:/Research/MDK/armadillo_4.000.2/armadillo_bits")
+set(Arma_DIR "C:/Research/MDK/armadillo")
 
 set(Lapack_Blas_DIR "C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release")
 
 include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR} 
-${Common_DIR} 
-${Debug_DIR} 
-${FileIO_DIR} 
-${Image_DIR} 
-${ImageFilter_DIR} 
-${LinearAlgebra_DIR}
-${Arma_DIR} 
-${Arma_Source_DIR} 
+${MDK_DIR}/Debug
+${MDK_DIR}/Common
+${MDK_DIR}/FileIO
+${MDK_DIR}/LinearAlgebra/Common
+${MDK_DIR}/LinearAlgebra/DenseMatrix
+${MDK_DIR}/Image
+${MDK_DIR}/ImageFilter
+${Arma_DIR}
 ${Lapack_Blas_DIR}
 )
 
-#FILE(GLOB Arma_FILES ${Arma_Source_DIR}/*.hpp)
+#FILE(GLOB Arma_FILES ${Arma_DIR}/armadillo_bits/*.hpp)
 
-FILE(GLOB Arma_FILES C:/Research/MDK/armadillo_4.000.2/armadillo_bits/*.hpp)
+FILE(GLOB Arma_FILES C:/Research/MDK/armadillo/armadillo_bits/*.hpp)
 
-set(Arma_FILES ${Arma_FILES} C:/Research/MDK/armadillo_4.000.2/armadillo.h)
+set(Arma_FILES ${Arma_FILES} C:/Research/MDK/armadillo/armadillo.h)
 
 FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
 set(Source_FILES 
 
-${Debug_DIR}/mdkDebugConfig.h
+${MDK_DIR}/Common/mdkObject.cpp
 
-${Common_DIR}/mdkType.h
-${Common_DIR}/mdkType.hpp
+${MDK_DIR}/LinearAlgebra/Common/mdkMatrix_Common.cpp
 
-${Common_DIR}/mdkObject.h
-${Common_DIR}/mdkObject.cpp
+${MDK_DIR}/ImageFilter/mdkImageConvolutionFilterBase.cpp
 
-${LinearAlgebra_DIR}/mdkMatrix.h
-${LinearAlgebra_DIR}/mdkMatrix.hpp
-${LinearAlgebra_DIR}/mdkMatrix.cpp
-
-${LinearAlgebra_DIR}/mdkShadowMatrix.h
-${LinearAlgebra_DIR}/mdkShadowMatrix.hpp
-
-${LinearAlgebra_DIR}/mdkGlueMatrixForLinearCombination.h
-${LinearAlgebra_DIR}/mdkGlueMatrixForLinearCombination.hpp
-
-${LinearAlgebra_DIR}/mdkGlueMatrixForMultiplication.h
-${LinearAlgebra_DIR}/mdkGlueMatrixForMultiplication.hpp
-
-${LinearAlgebra_DIR}/mdkLinearAlgebra.h
-
-${Image_DIR}/mdk3DImage.h
-${Image_DIR}/mdk3DImage.hpp
-
-${ImageFilter_DIR}/mdk3DImageFilter.h
-${ImageFilter_DIR}/mdk3DImageFilter.hpp
-
-${ImageFilter_DIR}/mdk3DImageConvolutionFilterBase.h
-${ImageFilter_DIR}/mdk3DImageConvolutionFilterBase.cpp
-
-${ImageFilter_DIR}/mdk3DImageConvolutionFilter.h
-${ImageFilter_DIR}/mdk3DImageConvolutionFilter.hpp
-
-${ImageFilter_DIR}/mdk3DImageGaussianFilter.h
-${ImageFilter_DIR}/mdk3DImageGaussianFilter.hpp
-
-${ImageFilter_DIR}/mdk3DIntegralImageBuilder.h
-${ImageFilter_DIR}/mdk3DIntegralImageBuilder.hpp
-
-${FileIO_DIR}/mdkFileIO.h
-${FileIO_DIR}/mdkFileIO.cpp
 )
 
-set(LinearALgebraLib_win64
-C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/lapack_win64_MT.lib  C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/blas_win64_MT.lib
+set(LinearALgebraLib_win64 
+C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/lapack_win64_MT.lib  
+C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/blas_win64_MT.lib
 )
 
 message(STATUS ${Test_FILES})
@@ -110,6 +62,6 @@ message(STATUS ${Source_FILES})
 
 message(STATUS ${Arma_FILES})
 
-add_executable(MDK_TestImageFilter ${Test_FILES} ${Source_FILES} ${Arma_FILES})
+add_executable(MDK_Test_ImageFilter ${Test_FILES} ${Source_FILES} ${Arma_FILES})
 
-target_link_libraries(MDK_TestImageFilter ${LinearALgebraLib_win64} ${VTK_LIBRARIES}) 
+target_link_libraries(MDK_Test_ImageFilter ${LinearALgebraLib_win64} ${VTK_LIBRARIES}) 
