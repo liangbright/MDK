@@ -151,13 +151,13 @@ private:
 public:
     //--------------------------------------------------- ShadowMatrix {+= -= *= /=} Matrix ------------------------------------------------//
 
-    inline void operator+=(const DenseMatrix<ElementType>& Matrix);
+    inline void operator+=(const DenseMatrix<ElementType>& InputMatrix);
 
-    inline void operator-=(const DenseMatrix<ElementType>& Matrix);
+    inline void operator-=(const DenseMatrix<ElementType>& InputMatrix);
 
-    inline void operator*=(const DenseMatrix<ElementType>& Matrix);
+    inline void operator*=(const DenseMatrix<ElementType>& InputMatrix);
 
-    inline void operator/=(const DenseMatrix<ElementType>& Matrix);
+    inline void operator/=(const DenseMatrix<ElementType>& InputMatrix);
 
     //--------------------------------------------------ShadowMatrix {+= -= *= /=} Element ------------------------------------------------------------//
 
@@ -201,7 +201,7 @@ public:
 
     //---------------------- ElementMultiply is .* in matlab -----------------------------------------------------------------------//
 
-    inline DenseMatrix<ElementType> ElementMultiply(const DenseMatrix<ElementType>& Matrix) const;
+    inline DenseMatrix<ElementType> ElementMultiply(const DenseMatrix<ElementType>& InputMatrix) const;
 
     inline DenseMatrix<ElementType> ElementMultiply(const ElementType& Element) const;
 

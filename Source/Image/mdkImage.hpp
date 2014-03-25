@@ -1,10 +1,7 @@
 #ifndef __mdkImage_hpp
 #define __mdkImage_hpp
 
-#include <cstdlib>
-
-#include "Image.h"
-#include "ImageVoxel.h"
+//#include "mdkImage.h"
 
 namespace mdk
 {
@@ -161,7 +158,7 @@ void ImageData<VoxelType>::Get3DPositionBy3DIndex(int64 xIndex, int64 yIndex, in
 template<typename VoxelType>
 Image<VoxelType>::Image()
 {
-    this->ReReInitialize(0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
+    this->ReInitialize(0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
 }
 
 
@@ -174,20 +171,13 @@ Image<VoxelType>::~Image()
 template<typename VoxelType>
 Image<VoxelType>::Image(Image<VoxelType>&& InputImage)
 {
-    this->Clear();
-
     m_ImageData = std::move(InputImage.m_ImageData);
 
-    if (m_ImageData)
-    {
-        m_VoxelPointer = m_ImageData->m_DataArray.data();
-    }
-    else
-    {
-        m_VoxelPointer = nullptr;
-    }
+    m_VoxelPointer = m_ImageData->m_DataArray.data();
 
-    InputImage.Clear();
+    m_ZeroVoxel = InputImage.m_ZeroVoxel;
+
+    m_ZeroVoxel_Error_Output = m_ZeroVoxel;
 }
 
 
@@ -419,7 +409,10 @@ void Image<VoxelType>::Take(Image<VoxelType>& InputImage)
 template<typename VoxelType>
 void Image<VoxelType>::Clear()
 {
-    m_ImageData->Clear();
+    if (m_ImageData)
+    {
+        m_ImageData->Clear();
+    }
 
     m_VoxelPointer = nullptr;
 
@@ -430,13 +423,13 @@ void Image<VoxelType>::Clear()
 
 
 template<typename VoxelType>
-bool Image<VoxelType>::ReReInitialize(int64 Lx, int64 Ly, int64 Lz = 1,
-                                        double PhysicalOrigin_x = 0.0,
-                                        double PhysicalOrigin_y = 0.0,
-                                        double PhysicalOrigin_z = 0.0,
-                                        double VoxelPhysicalSize_x = 1.0,
-                                        double VoxelPhysicalSize_y = 1.0,
-                                        double VoxelPhysicalSize_z = 1.0)
+bool Image<VoxelType>::ReInitialize(int64 Lx, int64 Ly, int64 Lz = 1,
+                                    double PhysicalOrigin_x = 0.0,
+                                    double PhysicalOrigin_y = 0.0,
+                                    double PhysicalOrigin_z = 0.0,
+                                    double VoxelPhysicalSize_x = 1.0,
+                                    double VoxelPhysicalSize_y = 1.0,
+                                    double VoxelPhysicalSize_z = 1.0)
 {
     if (Lx < 0 || Ly < 0 || Lz < 0)
     {
@@ -1055,13 +1048,13 @@ UnPad(int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const
 
 
 template<typename VoxelType>
-mdkMatrix<int64>
+DenseMatrix<int64>
 Image<VoxelType>::
 GetLinearIndexListOfRegion(int64 xIndex_s,     int64 Region_Lx,
                             int64 yIndex_s,     int64 Region_Ly,
                             int64 zIndex_s = 0, int64 Region_Lz = 0) const
 {
-    mdkMatrix<int64>  List;
+    DenseMatrix<int64>  List;
     
     auto ImageDimension = this->GetImageDimension();
 
@@ -1108,7 +1101,7 @@ GetLinearIndexListOfRegion(int64 xIndex_s,     int64 Region_Lx,
 template<typename VoxelType>
 inline
 VoxelType Image<VoxelType>::InterpolateAt3DPosition(double x, double y, double z,
-                                                        ImageInterpolationMethodEnum Method = ImageInterpolationMethodEnum::NearestNeighbor) const
+                                                    ImageInterpolationMethodEnum Method = ImageInterpolationMethodEnum::NearestNeighbor) const
 {
     return VoxelType(0);
 }

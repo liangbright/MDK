@@ -382,89 +382,89 @@ public:
     // operator(): no bound check in release mode
 
     inline DenseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& RowIndexList,
-                                                        std::initializer_list<int64>& ColIndexList);
+                                                     std::initializer_list<int64>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& RowIndexList,
-                                                              std::initializer_list<int64>& ColIndexList) const;
+                                                           std::initializer_list<int64>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList, 
-                                                        const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+                                                     const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
     inline const DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList, 
-                                                              const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                                           const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                        const std::initializer_list<int64>& ColIndexList);
+                                                     const std::initializer_list<int64>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
                                                               const std::initializer_list<int64>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
-                                                        const std::vector<int64>& ColIndexList);
+                                                     const std::vector<int64>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
-                                                              const std::vector<int64>& ColIndexList) const;
+                                                           const std::vector<int64>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
-                                                        const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+                                                     const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
     inline const DenseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
                                                               const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                        const std::vector<int64>& ColIndexList);
+                                                     const std::vector<int64>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                              const std::vector<int64>& ColIndexList) const;
+                                                           const std::vector<int64>& ColIndexList) const;
 
     // at(): bound check -----------------
 
     inline DenseShadowMatrix<ElementType> at(std::initializer_list<int64>& RowIndexList,
-                                                std::initializer_list<int64>& ColIndexList);
+                                             std::initializer_list<int64>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> at(std::initializer_list<int64>& RowIndexList,
-                                                      std::initializer_list<int64>& ColIndexList) const;
+                                                   std::initializer_list<int64>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
-                                                const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+                                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
     inline const DenseShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
                                                       const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                const std::initializer_list<int64>& ColIndexList);
+                                             const std::initializer_list<int64>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                      const std::initializer_list<int64>& ColIndexList) const;
+                                                   const std::initializer_list<int64>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
-                                                const std::vector<int64>& ColIndexList);
+                                             const std::vector<int64>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
-                                                      const std::vector<int64>& ColIndexList) const;
+                                                   const std::vector<int64>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
                                                 const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
     inline const DenseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
-                                                      const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                const std::vector<int64>& ColIndexList);
+                                             const std::vector<int64>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                      const std::vector<int64>& ColIndexList) const;
+                                                   const std::vector<int64>& ColIndexList) const;
 
     // return SubMatrix as Matrix -----------------------------------------------
 
     inline DenseMatrix GetSubMatrix(const std::vector<int64>& RowIndexList, 
-                                       const std::vector<int64>& ColIndexList) const;
+                                    const std::vector<int64>& ColIndexList) const;
 
     inline DenseMatrix GetSubMatrix(const std::vector<int64>& RowIndexList, 
-                                       const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                    const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
-                                       const std::vector<int64>& ColIndexList) const;
+                                    const std::vector<int64>& ColIndexList) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix, 
                              const std::vector<int64>& RowIndexList, 

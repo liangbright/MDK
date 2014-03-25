@@ -60,7 +60,65 @@ ScalarTypeEnum FindScalarType(ObjectType Scalar)
 
 template<typename ScalarType>
 inline
-uint64 CalByteNumberOfScalar(ScalarType Scalar)
+std::string FindScalarTypeName(ScalarType Scalar)
+{
+    std::string Name;
+
+    std::string TypeName(typeid(Scalar).name());
+
+    if (TypeName == "double")
+    {
+        Name = "double";
+    }
+    else if (TypeName == "float")
+    {
+        Name = "float";
+    }
+    else if (TypeName == "signed char")
+    {
+        Name = "int8";
+    }
+    else if (TypeName == "short")
+    {
+        Name = "int16";
+    }
+    else if (TypeName == "int")
+    {
+        Name = "int32";
+    }
+    else if (TypeName == "__int64") // OS is Windows
+    {
+        Name = "int64";
+    }
+    else if (TypeName == "unsigned char")
+    {
+        Name = "uint8";
+    }
+    else if (TypeName == "unsigned short")
+    {
+        Name = "uint16";
+    }
+    else if (TypeName == "unsigned int")
+    {
+        Name = "uint32";
+    }
+    else if (TypeName == "unsigned __int64") // OS is Windows
+    {
+        Name = "uint64";
+    }
+    else
+    {
+        Name = "unknown";
+    }
+
+    return Name;
+}
+
+
+
+template<typename ScalarType>
+inline
+int64 CalByteNumberOfScalar(ScalarType Scalar)
 {
     std::string TypeName(typeid(Scalar).name());
 
@@ -105,7 +163,7 @@ uint64 CalByteNumberOfScalar(ScalarType Scalar)
         return 8;
     }
 
-    mdkError << "Unknown ScalarType @ CalByteNumberOfScalar" << '\n';
+    MDK_Error << "Unknown ScalarType @ CalByteNumberOfScalar" << '\n';
     return 0;
 }
 

@@ -99,8 +99,8 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                        const std::vector<int64>& RowIndexList,
-                                                        const std::vector<int64>& ColIndexList)
+                                                  const std::vector<int64>& RowIndexList,
+                                                  const std::vector<int64>& ColIndexList)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, {0, 1}), A is a matrix    
@@ -136,8 +136,8 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                        const std::vector<int64>& RowIndexList,
-                                                        const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
+                                                  const std::vector<int64>& RowIndexList,
+                                                  const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, ALL), A is a matrix    
@@ -178,8 +178,8 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                        const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                        const std::vector<int64>& ColIndexList)
+                                                  const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                                                  const std::vector<int64>& ColIndexList)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A(ALL, {0, 1, 2}), A is a matrix    
@@ -738,23 +738,23 @@ const ElementType& DenseShadowMatrix<ElementType>::operator()(int64 RowIndex, in
     return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
 
-//--------------------------------------------------- ShadowMatrix {+= -= *= /=} Matrix ------------------------------------------------//
+//-------------------------------------------- DenseShadowMatrix {+= -= *= /=} DenseMatrix ------------------------------------------------//
 
 template<typename ElementType>
 inline 
-void DenseShadowMatrix<ElementType>::operator+=(const DenseMatrix<ElementType>& Matrix)
+void DenseShadowMatrix<ElementType>::operator+=(const DenseMatrix<ElementType>& InputMatrix)
 {
-    auto Size = Matrix.GetSize();
+    auto Size = InputMatrix.GetSize();
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        MDK_Error << "Self or Matrix is empty @ mdkDenseShadowMatrix::operator+=(Matrix)" << '\n';
+        MDK_Error << "Self or Matrix is empty @ mdkDenseShadowMatrix::operator+=(InputMatrix)" << '\n';
         return;
     }
 
     if (Size.RowNumber == 1 && Size.ColNumber == 1)
     {
-        (*this) += Matrix[0];
+        (*this) += InputMatrix[0];
 
         return;
     }
@@ -769,21 +769,21 @@ void DenseShadowMatrix<ElementType>::operator+=(const DenseMatrix<ElementType>& 
 
     if (m_LinearIndexList_source.empty() == true)
     {
-        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) += Matrix
+        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) += InputMatrix
         {
-            m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '+', Matrix, false);
+            m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '+', InputMatrix, false);
             return;
         }
-        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) += Matrix
+        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) += InputMatrix
         {
-            m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '+', Matrix, false);
+            m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '+', InputMatrix, false);
             return;
         }
     }
 
     //----------------------------------------------------//
 
-    auto ptrInput = Matrix.GetElementPointer();
+    auto ptrInput = InputMatrix.GetElementPointer();
 
     for (int64 i = 0; i < m_ElementNumber; ++i)
     {
@@ -794,26 +794,26 @@ void DenseShadowMatrix<ElementType>::operator+=(const DenseMatrix<ElementType>& 
 
 template<typename ElementType>
 inline 
-void DenseShadowMatrix<ElementType>::operator-=(const DenseMatrix<ElementType>& Matrix)
+void DenseShadowMatrix<ElementType>::operator-=(const DenseMatrix<ElementType>& InputMatrix)
 {
-    auto Size = Matrix.GetSize();
+    auto Size = InputMatrix.GetSize();
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        MDK_Error << "Self or Matrix is empty @ mdkDenseShadowMatrix::operator-=(Matrix)" << '\n';
+        MDK_Error << "Self or InputMatrix is empty @ mdkDenseShadowMatrix::operator-=(InputMatrix)" << '\n';
         return;
     }
 
     if (Size.RowNumber == 1 && Size.ColNumber == 1)
     {
-        (*this) -= Matrix[0];
+        (*this) -= InputMatrix[0];
 
         return;
     }
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseShadowMatrix::operator-=(Matrix)" << '\n';
+        MDK_Error << "Size does not match @ mdkDenseShadowMatrix::operator-=(InputMatrix)" << '\n';
         return;
     }
 
@@ -821,21 +821,21 @@ void DenseShadowMatrix<ElementType>::operator-=(const DenseMatrix<ElementType>& 
 
     if (m_LinearIndexList_source.empty() == true)
     {
-        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) -= Matrix
+        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) -= InputMatrix
         {
-            m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '-', Matrix, false); // false: bound check has been done
+            m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '-', InputMatrix, false); // false: bound check has been done
             return;
         }
         else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) -= Matrix
         {
-            m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '-', Matrix, false); // false: bound check has been done
+            m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '-', InputMatrix, false); // false: bound check has been done
             return;
         }
     }
 
     //----------------------------------------------------//
 
-    auto ptrInput = Matrix.GetElementPointer();
+    auto ptrInput = InputMatrix.GetElementPointer();
 
     for (int64 i = 0; i < m_ElementNumber; ++i)
     {
@@ -846,19 +846,19 @@ void DenseShadowMatrix<ElementType>::operator-=(const DenseMatrix<ElementType>& 
 
 template<typename ElementType>
 inline 
-void DenseShadowMatrix<ElementType>::operator*=(const DenseMatrix<ElementType>& Matrix)
+void DenseShadowMatrix<ElementType>::operator*=(const DenseMatrix<ElementType>& InputMatrix)
 {
-    auto Size = Matrix.GetSize();
+    auto Size = InputMatrix.GetSize();
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        MDK_Error << "Self or Matrix is empty @ mdkDenseShadowMatrix::operator*=(Matrix)" << '\n';
+        MDK_Error << "Self or Matrix is empty @ mdkDenseShadowMatrix::operator*=(InputMatrix)" << '\n';
         return;
     }
 
     if (Size.RowNumber == 1 && Size.ColNumber == 1)
     {
-        (*this) *= Matrix[0];
+        (*this) *= InputMatrix[0];
 
         return;
     }
@@ -871,32 +871,32 @@ void DenseShadowMatrix<ElementType>::operator*=(const DenseMatrix<ElementType>& 
 
     //----------------------------------------------------//
 
-    (*this) = this->CreateMatrix() * Matrix;
+    (*this) = this->CreateMatrix() * InputMatrix;
 }
 
 
 template<typename ElementType>
 inline 
-void DenseShadowMatrix<ElementType>::operator/=(const DenseMatrix<ElementType>& Matrix)
+void DenseShadowMatrix<ElementType>::operator/=(const DenseMatrix<ElementType>& InputMatrix)
 {
-    auto Size = Matrix.GetSize();
+    auto Size = InputMatrix.GetSize();
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        MDK_Error << "Self or Matrix is empty @ mdkDenseShadowMatrix::operator/=(Matrix)" << '\n';
+        MDK_Error << "Self or Matrix is empty @ mdkDenseShadowMatrix::operator/=(InputMatrix)" << '\n';
         return;
     }
 
     if (Size.RowNumber == 1 && Size.ColNumber == 1)
     {
-        (*this) /= Matrix[0];
+        (*this) /= InputMatrix[0];
 
         return;
     }
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseShadowMatrix::operator/=(Matrix)" << '\n';
+        MDK_Error << "Size does not match @ mdkDenseShadowMatrix::operator/=(InputMatrix)" << '\n';
         return;
     }
 
@@ -904,21 +904,21 @@ void DenseShadowMatrix<ElementType>::operator/=(const DenseMatrix<ElementType>& 
 
     if (m_LinearIndexList_source.empty() == true)
     {
-        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) /= Matrix
+        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) /= InputMatrix
         {
-            m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '/', Matrix, false);
+            m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '/', InputMatrix, false);
             return;
         }
-        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) /= Matrix
+        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) /= InputMatrix
         {
-            m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '/', Matrix, false);
+            m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '/', InputMatrix, false);
             return;
         }
     }
 
     //----------------------------------------------------//
 
-    auto ptrInput = Matrix.GetElementPointer();
+    auto ptrInput = InputMatrix.GetElementPointer();
 
     for (int64 i = 0; i < m_ElementNumber; ++i)
     {
@@ -926,7 +926,7 @@ void DenseShadowMatrix<ElementType>::operator/=(const DenseMatrix<ElementType>& 
     }
 }
 
-//--------------------------------------------------ShadowMatrix {+= -= *= /=} Element ------------------------------------------------------------//
+//--------------------------------------------- DenseShadowMatrix {+= -= *= /=} Element ------------------------------------------------------------//
 
 template<typename ElementType>
 inline

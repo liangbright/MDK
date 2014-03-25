@@ -1,6 +1,9 @@
 #ifndef __mdkType_h
 #define __mdkType_h
 
+#include <string>
+
+
 #include "mdkOSPlatformConfig.h"
 
 namespace mdk
@@ -58,7 +61,11 @@ ScalarTypeEnum FindScalarType(ScalarType Scalar);
 
 template<typename ScalarType>
 inline
-uint64 CalByteNumberOfScalar(ScalarType Scalar);
+std::string FindScalarTypeName(ScalarType Scalar);
+
+template<typename ScalarType>
+inline
+int64 CalByteNumberOfScalar(ScalarType Scalar);
 
 }//end namespace mdk
 

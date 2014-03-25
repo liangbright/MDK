@@ -3,9 +3,10 @@
 
 #include <vector>
 #include <memory>
+#include <cstdlib>
 
 #include "mdkObject.h"
-#include "mdkMatrix.h"
+#include "mdkDenseMatrix.h"
 
 namespace mdk
 {
@@ -265,9 +266,9 @@ public:
 
 	//------------------------- Get LinearIndex In Region -------------------//
 
-    mdkMatrix<int64> GetLinearIndexListOfRegion(int64 xIndex_s,     int64 Region_Lx,
-		                                        int64 yIndex_s,     int64 Region_Ly,
-                                                int64 zIndex_s = 0, int64 Region_Lz = 0) const;
+    DenseMatrix<int64> GetLinearIndexListOfRegion(int64 xIndex_s,     int64 Region_Lx,
+	                                              int64 yIndex_s,     int64 Region_Ly,
+                                                  int64 zIndex_s = 0, int64 Region_Lz = 0) const;
 
     //-------------------------- Sum, Mean, Max, Min -------------------------------//
 

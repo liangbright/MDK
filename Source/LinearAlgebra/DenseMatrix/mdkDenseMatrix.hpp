@@ -65,14 +65,7 @@ DenseMatrix<ElementType>::DenseMatrix(DenseMatrix<ElementType>&& InputMatrix)
 {
     m_MatrixData = std::move(InputMatrix.m_MatrixData);
 
-    if (m_MatrixData)
-    {
-        m_ElementPointer = m_MatrixData->DataArray.data();
-    }
-    else
-    {
-        m_ElementPointer = nullptr;
-    }
+    m_ElementPointer = m_MatrixData->DataArray.data();
 
     m_NaNElement = InputMatrix.m_NaNElement;
 
@@ -728,11 +721,14 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::Clear()
 {
-    m_MatrixData->RowNumber = 0;
+    if (m_MatrixData)
+    {
+        m_MatrixData->RowNumber = 0;
 
-    m_MatrixData->ColNumber = 0;
+        m_MatrixData->ColNumber = 0;
 
-    m_MatrixData->DataArray.clear();
+        m_MatrixData->DataArray.clear();
+    }
 
     m_ElementPointer = nullptr;
 }
@@ -4022,7 +4018,7 @@ bool DenseMatrix<ElementType>::FillDiangonal(const ElementType& Element)
         return false;
     }
 
-    auto RawPointer this->GetElementPointer();
+    auto RawPointer = this->GetElementPointer();
 
     int64 Index = 0;
 
