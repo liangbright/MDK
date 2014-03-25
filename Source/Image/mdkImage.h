@@ -93,17 +93,17 @@ struct ImageBoxRegionOf3DIndex
 
     int64 Lx() const
     {
-        return x1_Index - x0_Index;
+        return x1_Index - x0_Index + 1;
     }
 
     int64 Ly() const
     {
-        return y1_Index - y0_Index;
+        return y1_Index - y0_Index + 1;
     }
 
     int64 Lz() const
     {
-        return z1_Index - z0_Index;
+        return z1_Index - z0_Index + 1;
     }
 };
 
