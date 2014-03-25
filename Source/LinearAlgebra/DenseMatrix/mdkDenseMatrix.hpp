@@ -721,14 +721,11 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::Clear()
 {
-    if (m_MatrixData)
-    {
-        m_MatrixData->RowNumber = 0;
+    m_MatrixData->RowNumber = 0;
 
-        m_MatrixData->ColNumber = 0;
+    m_MatrixData->ColNumber = 0;
 
-        m_MatrixData->DataArray.clear();
-    }
+    m_MatrixData->DataArray.clear();
 
     m_ElementPointer = nullptr;
 }

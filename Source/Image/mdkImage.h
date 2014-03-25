@@ -235,13 +235,26 @@ public:
     // Copy can be used to convert an image from double (VoxelType_Input) to float (VoxelType), etc
 
     template<typename VoxelType_Input>
-    bool Copy(const Image<VoxelType_Input>& InputImage);
+    void Copy(const Image<VoxelType_Input>& InputImage);
     
     template<typename VoxelType_Input>
     bool Copy(const Image<VoxelType_Input>* InputImage);
 
     template<typename VoxelType_Input>
-    bool Copy(const VoxelType_Input* InputVoxelPointer, int64 Lx, int64 Ly, int64 Lz = 1);
+    bool Copy(const VoxelType_Input* InputVoxelPointer,
+              const ImageDimension& Dim, 
+              const ImagePhysicalOrigin& Origin,
+              const ImageVoxelSpacing& VoxelSize);
+
+    template<typename VoxelType_Input>
+    bool Copy(const VoxelType_Input* InputVoxelPointer, 
+              int64 Lx, int64 Ly, int64 Lz = 1,
+              double PhysicalOrigin_x = 0.0,
+              double PhysicalOrigin_y = 0.0,
+              double PhysicalOrigin_z = 0.0,
+              double VoxelSpacing_x = 1.0,
+              double VoxelSpacing_y = 1.0,
+              double VoxelSpacing_z = 1.0);
 
     inline bool Fill(const VoxelType& Voxel);
 
@@ -271,6 +284,8 @@ public:
 
     //-----------------------------------------------------------------//
     
+    bool ReInitialize(const ImageDimension& Dim, const ImagePhysicalOrigin& Origin, const ImageVoxelSpacing& VoxelSize);
+
     bool ReInitialize(int64 Lx, int64 Ly, int64 Lz = 1,
 		              double PhysicalOrigin_x = 0.0,
 		              double PhysicalOrigin_y = 0.0,
@@ -279,9 +294,9 @@ public:
                       double VoxelSpacing_y = 1.0,
                       double VoxelSpacing_z = 1.0);
 
-    bool ReInitialize(const ImageDimension& Dim, const ImagePhysicalOrigin& Origin, const ImageVoxelSpacing& VoxelSize);
-
 	inline bool IsEmpty() const;
+
+    //--------------------------- Get Voxel Pointer ------------------------------//
 
     inline VoxelType* GetVoxelPointer();
 

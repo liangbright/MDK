@@ -201,44 +201,40 @@ void Image<VoxelType>::operator=(Image<VoxelType>&& InputImage)
 
 template<typename VoxelType>
 template<typename VoxelType_Input>
-bool Image<VoxelType>::Copy(const Image<VoxelType_Input>& InputImage)
+void Image<VoxelType>::Copy(const Image<VoxelType_Input>& InputImage)
 {
     if (this == &InputImage)
     {
-        MDK_Warning << "try to Copy self @ Image::DeepCopy(InputImage)" << '\n';
-        return true;
+        MDK_Warning << "try to Copy self @ Image::Copy(InputImage)" << '\n';
+        return;
     }
 
 	if (InputImage.IsEmpty() == true)
 	{
-        if (this->IsEmpty() == false)
+        if (this->IsEmpty() == true)
         {
-            MDK_Error << "Self is not emtpy but InputImage is empty @ Image::Copy(InputImage)" << '\n';
-            return false;
+            return;
         }
         else
         {
-            return true;
+            this->Clear();
+            return;
         }
 	}
 
     auto InputPtr = InputImage.GetVoxelPointer();
 
     auto InputDimension = InputImage.GetDimension();
-    
-    auto InputSpacing = InputImage.GetVoxelPhysicalSize();
-
+   
     auto InputOrigin = InputImage.GetPhysicalOrigin();
 
-    if (this->IsEmpty() == true)
-    {
-        this->ReInitialize(InputDimension.Lx, InputDimension.Ly, InputDimension.Lz,
-                         InputOrigin.x, InputOrigin.y, InputOrigin.z,
-                         InputSpacing.Sx, InputSpacing.Sy, InputSpacing.Sz);
-    }
+    auto InputSpacing = InputImage.GetVoxelSpacing();
 
-    return this->Copy(InputPtr, InputDimension.Lx, InputDimension.Ly, InputDimension.Lz);
+    this->Copy(InputPtr, InputDimension, InputOrigin, InputSpacing);
 
+    m_ZeroVoxel = InputImage.m_ZeroVoxel;
+
+    m_ZeroVoxel_Error_Output = m_ZeroVoxel;
 }
 
 
@@ -252,17 +248,38 @@ bool Image<VoxelType>::Copy(const Image<VoxelType_Input>* InputImage)
         return false;
     }
 
-    return this->Copy(*InputImage);
+    this->Copy(*InputImage);
+
+    return true;
 }
 
 
 template<typename VoxelType>
 template<typename VoxelType_Input>
-bool Image<VoxelType>::Copy(const VoxelType_Input* InputVoxelPointer, int64 Lx, int64 Ly, int64 Lz = 1)
+bool Image<VoxelType>::Copy(const VoxelType_Input* InputVoxelPointer,
+                            const ImageDimension& Dim, 
+                            const ImagePhysicalOrigin& Origin,
+                            const ImageVoxelSpacing& VoxelSpacing)
 {
-    if (this->IsEmpty == false)
+    return this->Copy(InputVoxelPointer, Dim.Lx, Dim.Ly, Dim.Lz, Origin.x, Origin.y, Origin.z, VoxelSpacing.Sx, VoxelSpacing.Sy, VoxelSpacing.Sz);
+}
+
+
+
+template<typename VoxelType>
+template<typename VoxelType_Input>
+bool Image<VoxelType>::Copy(const VoxelType_Input* InputVoxelPointer, 
+                            int64 Lx, int64 Ly, int64 Lz = 1,
+                            double PhysicalOrigin_x = 0.0,
+                            double PhysicalOrigin_y = 0.0,
+                            double PhysicalOrigin_z = 0.0,
+                            double VoxelSpacing_x = 1.0,
+                            double VoxelSpacing_y = 1.0,
+                            double VoxelSpacing_z = 1.0)
+{
+    if (InputVoxelPointer == nullptr || Lx < 0 || Ly < 0 || Lz < 0 || VoxelSpacing_x < 0.0 || VoxelSpacing_y < 0.0 || VoxelSpacing_z < 0.0)
 	{
-        MDK_Error << "Self is empty @ Image::Copy(pointer,...)" << '\n';
+        MDK_Error << "Invalid input @ Image::Copy(pointer,...)" << '\n';
 		return false;
 	}
 
@@ -270,19 +287,24 @@ bool Image<VoxelType>::Copy(const VoxelType_Input* InputVoxelPointer, int64 Lx, 
 
     if (SelfDimension.Lx != Lx || SelfDimension.Ly != Ly || SelfDimension.Lz != Lz)
     {
-        MDK_Error << "Dimension does not match @ Image::Copy(pointer,...)" << '\n';
-        return false;
+        this->ReInitialize(Lx, Ly, Lz, 
+                           PhysicalOrigin_x, PhysicalOrigin_y, PhysicalOrigin_z,
+                           VoxelSpacing_x, VoxelSpacing_y, VoxelSpacing_z);
+    }
+
+    if (Lx*Ly*Lz == 0)
+    {
+        return true;
     }
 
     auto VoxelPtr = this->GetVoxelPointer();
 
     if (std::size_t(InputVoxelPointer) == std::size_t(VoxelPtr))
     {
-        MDK_Warning << "An image tries to Copy itself @ Image::CopyData" << '\n';
+        MDK_Warning << "An image tries to Copy itself @ Image::Copy(pointer,...)" << '\n';
         return true;
     }
-    
-
+  
 	for (int64 i = 0; i < m_VoxelNumber; ++i)
 	{
         VoxelPtr[i] = VoxelType(InputVoxelPointer[i]);
@@ -295,14 +317,14 @@ bool Image<VoxelType>::Copy(const VoxelType_Input* InputVoxelPointer, int64 Lx, 
 template<typename VoxelType>
 bool Image<VoxelType>::Fill(const VoxelType& Voxel)
 {
-    if (this->IsEmpty() == true)
+    auto VoxelNumber = this->GetVoxelNumber();
+
+    if (VoxelNumber == 0)
     {
         return false;
     }
 
     auto BeginPtr = this->GetVoxelPointer();
-
-    auto VoxelNumber = this->GetVoxelNumber();
 
     for (auto Ptr = BeginPtr; Ptr < BeginPtr + VoxelNumber; ++Ptr)
     {
@@ -379,16 +401,27 @@ void Image<VoxelType>::Take(Image<VoxelType>&& InputImage)
 template<typename VoxelType>
 void Image<VoxelType>::Take(Image<VoxelType>& InputImage)
 {
-    m_ImageData = std::move(InputImage.m_ImageData);
+    m_ImageData->m_Dimension[0] = InputImage.m_ImageData->m_Dimension[0];
+    m_ImageData->m_Dimension[1] = InputImage.m_ImageData->m_Dimension[1];
+    m_ImageData->m_Dimension[2] = InputImage.m_ImageData->m_Dimension[2];
 
-    if (m_ImageData)
-    {
-        m_VoxelPointer = m_ImageData->m_DataArray.data();
-    }
-    else
-    {
-        m_VoxelPointer = nullptr;
-    }
+    m_ImageData->m_VoxelNumberPerZSlice = InputImage.m_ImageData->m_VoxelNumberPerZSlice;
+
+    m_ImageData->m_PhysicalOrigin[0] = InputImage.m_ImageData->m_PhysicalOrigin[0];
+    m_ImageData->m_PhysicalOrigin[1] = InputImage.m_ImageData->m_PhysicalOrigin[1];
+    m_ImageData->m_PhysicalOrigin[2] = InputImage.m_ImageData->m_PhysicalOrigin[2];
+
+    m_ImageData->m_VoxelSpacing[0] = InputImage.m_ImageData->m_VoxelSpacing[0];
+    m_ImageData->m_VoxelSpacing[1] = InputImage.m_ImageData->m_VoxelSpacing[1];
+    m_ImageData->m_VoxelSpacing[2] = InputImage.m_ImageData->m_VoxelSpacing[2];
+
+    m_ImageData->m_DataArray = std::move(InputImage.m_ImageData->m_DataArray);
+
+    m_VoxelPointer = m_ImageData->m_DataArray.data();
+
+    m_ZeroVoxel = InputImage.m_ZeroVoxel;
+
+    m_ZeroVoxel_Error_Output = m_ZeroVoxel;
 
     InputImage.Clear();
 }
@@ -397,10 +430,7 @@ void Image<VoxelType>::Take(Image<VoxelType>& InputImage)
 template<typename VoxelType>
 void Image<VoxelType>::Clear()
 {
-    if (m_ImageData)
-    {
-        m_ImageData->Clear();
-    }
+    m_ImageData->Clear();
 
     m_VoxelPointer = nullptr;
 
@@ -415,11 +445,11 @@ bool Image<VoxelType>::ReInitialize(int64 Lx, int64 Ly, int64 Lz = 1,
                                     double PhysicalOrigin_x = 0.0,
                                     double PhysicalOrigin_y = 0.0,
                                     double PhysicalOrigin_z = 0.0,
-                                    double VoxelPhysicalSize_x = 1.0,
-                                    double VoxelPhysicalSize_y = 1.0,
-                                    double VoxelPhysicalSize_z = 1.0)
+                                    double VoxelSpacing_x = 1.0,
+                                    double VoxelSpacing_y = 1.0,
+                                    double VoxelSpacing_z = 1.0)
 {
-    if (Lx < 0 || Ly < 0 || Lz < 0)
+    if (Lx < 0 || Ly < 0 || Lz < 0 || VoxelSpacing_x < 0.0 || VoxelSpacing_y < 0.0 || VoxelSpacing_z < 0.0)
     {
         MDK_Error << "Invalid input @ Image::ReInitialize" << '\n';
         return false;
@@ -440,9 +470,9 @@ bool Image<VoxelType>::ReInitialize(int64 Lx, int64 Ly, int64 Lz = 1,
     m_ImageData->m_PhysicalOrigin[1] = PhysicalOrigin_y;
     m_ImageData->m_PhysicalOrigin[2] = PhysicalOrigin_z;
 
-    m_ImageData->m_VoxelSpacing[0] = VoxelPhysicalSize_x;
-    m_ImageData->m_VoxelSpacing[1] = VoxelPhysicalSize_y;
-    m_ImageData->m_VoxelSpacing[2] = VoxelPhysicalSize_z;
+    m_ImageData->m_VoxelSpacing[0] = VoxelSpacing_x;
+    m_ImageData->m_VoxelSpacing[1] = VoxelSpacing_y;
+    m_ImageData->m_VoxelSpacing[2] = VoxelSpacing_z;
 
     m_ImageData->m_DataArray.resize(Lx*Ly*Lz);
 
@@ -453,9 +483,9 @@ bool Image<VoxelType>::ReInitialize(int64 Lx, int64 Ly, int64 Lz = 1,
 
 
 template<typename VoxelType>
-bool Image<VoxelType>::ReInitialize(const ImageDimension& Dim, const ImagePhysicalOrigin& Origin, const ImageVoxelSpacing& VoxelSize)
+bool Image<VoxelType>::ReInitialize(const ImageDimension& Dim, const ImagePhysicalOrigin& Origin, const ImageVoxelSpacing& VoxelSpacing)
 {
-    return this->ReInitialize(Dim.Lx, Dim.Ly, Dim.Lz, Origin.x, Origin.y, Origin.z, VoxelSize.Sx, VoxelSize.Sy, VoxelSize.Sz);
+    return this->ReInitialize(Dim.Lx, Dim.Ly, Dim.Lz, Origin.x, Origin.y, Origin.z, VoxelSpacing.Sx, VoxelSpacing.Sy, VoxelSpacing.Sz);
 }
 
 

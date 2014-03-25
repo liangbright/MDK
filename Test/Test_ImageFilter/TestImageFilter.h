@@ -366,8 +366,6 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	imconvfilter.SetMaxThreadNumber(1);
 
-	imconvfilter.EnableBoundCheck(false);
-
 	DenseMatrix<double> Mask(4, 1000 * 36 * 36 / 2);
 
 	Mask.Fill(0);

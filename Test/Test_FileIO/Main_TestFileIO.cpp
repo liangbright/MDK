@@ -7,7 +7,7 @@ using namespace mdk;
 int main()
 {
 
-   // Test_ImageIO();
+    Test_ImageIO();
 
     Test_MatrixIO();
 

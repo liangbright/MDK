@@ -1168,7 +1168,7 @@ bool SparseMatrix<ElementType>::Take(SparseMatrix<ElementType>& InputMatrix)
     m_MatrixData->Take(*InputMatrix.m_MatrixData);
 
     // Resize InputMatrix to be empty
-    InputMatrix.Resize(0, 0);
+    InputMatrix.Clear();
 
     return true;
 }
@@ -1269,10 +1269,7 @@ template<typename ElementType>
 inline 
 void SparseMatrix<ElementType>::Clear()
 {
-    if (m_MatrixData)
-    { 
-        m_MatrixData->Clear();
-    }
+    m_MatrixData->Clear();
 }
 
 

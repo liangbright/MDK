@@ -51,9 +51,9 @@ void ImageFilter<VoxelType_Input, VoxelType_Output>::Clear()
 
     m_IsInputFilterFunctionAt3DIndexObtained = false;
 
-    m_ZeroVoxelOfInputImage = VoxelType_Input(0);
+    m_ZeroVoxelOfInputImage = m_ZeroVoxelOfInputImage - m_ZeroVoxelOfInputImage;
 
-    m_ZeroVoxelOfOutputImage = VoxelType_Output(0);
+    m_ZeroVoxelOfOutputImage = m_ZeroVoxelOfOutputImage - m_ZeroVoxelOfOutputImage;
 
     m_TotalOutputVoxelNumber = 0;
 
