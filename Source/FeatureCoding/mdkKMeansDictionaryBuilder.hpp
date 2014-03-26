@@ -26,7 +26,7 @@ KMeansDictionaryBuilder<ElementType>::~KMeansDictionaryBuilder()
 template<typename ElementType>
 void KMeansDictionaryBuilder<ElementType>::Clear()
 {
-    this->FeatureEncoderDictionaryBuilder::Clear();
+    this->FeatureDictionaryBuilder::Clear();
 
     m_KMeansLibraryName = "OpenCV";
 

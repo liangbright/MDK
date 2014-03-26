@@ -21,76 +21,89 @@ template<typename ElementType>
 class DenseMatrix;
 //-------------------------------------//
 
+//-----------------------------------------------------------------------------------------------//
+
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& Matrix);
+inline
+ElementType MatrixNorm_L1(const DenseMatrix<ElementType>& InputMatrix);
+
+template<typename ElementType>
+inline
+ElementType MatrixNorm_L2(const DenseMatrix<ElementType>& InputMatrix);
+
+//-----------------------------------------------------------------------------------------------//
+
+
+template<typename ElementType>
+inline DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline int64 MatrixRank(const DenseMatrix<ElementType>& Matrix);
+inline int64 MatrixRank(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixInv(const DenseMatrix<ElementType>& Matrix);
+inline DenseMatrix<ElementType> MatrixInv(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-struct mdkDenseMatrixEigenResult
+struct DenseMatrixEigenResult
 {
     DenseMatrix<ElementType> EigenVector;    // eigenvector : full matrix
     DenseMatrix<ElementType> EigenValue;     // eigenvalue  : col vector
 
-    mdkDenseMatrixEigenResult(){};
+    DenseMatrixEigenResult(){};
 
     // move constructor
-    mdkDenseMatrixEigenResult(mdkDenseMatrixEigenResult&& Result)
+    DenseMatrixEigenResult(DenseMatrixEigenResult&& Result)
     {
         EigenVector = std::move(Result.EigenVector);
-        EigenValue = std::move(Result.EigenValue);
+        EigenValue  = std::move(Result.EigenValue);
     }
 
-    ~mdkDenseMatrixEigenResult(){};
+    ~DenseMatrixEigenResult(){};
 
-    void operator=(const mdkDenseMatrixEigenResult&& Result)
+    void operator=(const DenseMatrixEigenResult&& Result)
     {
         EigenVector = std::move(Result.EigenVector);
-        EigenValue = std::move(Result.EigenValue);
+        EigenValue  = std::move(Result.EigenValue);
     }
 
     //------------------------------------------------------
-    void operator=(const mdkDenseMatrixEigenResult&) = delete;
+    void operator=(const DenseMatrixEigenResult&) = delete;
 };
 
 template<typename ElementType>
-inline mdkDenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(const DenseMatrix<ElementType>& Matrix);
+inline DenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline mdkDenseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const DenseMatrix<ElementType>& Matrix, bool CheckIfSymmetric = false);
+inline DenseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const DenseMatrix<ElementType>& InputMatrix, bool CheckIfSymmetric = false);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-struct mdkDenseMatrixPCAResult
+struct DenseMatrixPCAResult
 {
     DenseMatrix<ElementType> Mean;           // mean
     DenseMatrix<ElementType> EigenVector;    // eigenvector
     DenseMatrix<ElementType> EigenValue;     // col vector
 
-    mdkDenseMatrixPCAResult(){};
+    DenseMatrixPCAResult(){};
 
     // move constructor
-    mdkDenseMatrixPCAResult(mdkDenseMatrixPCAResult&& Result)
+    DenseMatrixPCAResult(DenseMatrixPCAResult&& Result)
     {
         Mean = std::move(Result.Mean);
         EigenVector = std::move(Result.EigenVector);
         EigenValue = std::move(Result.EigenValue);
     }
 
-    ~mdkDenseMatrixPCAResult(){};
+    ~DenseMatrixPCAResult(){};
 
-    void operator=(const mdkDenseMatrixPCAResult&& Result)
+    void operator=(const DenseMatrixPCAResult&& Result)
     {
         Mean = std::move(Result.Mean);
         EigenVector = std::move(Result.EigenVector);
@@ -98,26 +111,26 @@ struct mdkDenseMatrixPCAResult
     }
 
     //------------------------------------------------------
-    void operator=(const mdkDenseMatrixPCAResult&) = delete;
+    void operator=(const DenseMatrixPCAResult&) = delete;
 };
 
 template<typename ElementType>
-inline mdkDenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& Matrix);
+inline DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-struct mdkDenseMatrixSVDResult
+struct DenseMatrixSVDResult
 {
     // Matrix = U*S*V;
     DenseMatrix<ElementType> U;  // matrix
     DenseMatrix<ElementType> S;  // matrix  : change to vector?
     DenseMatrix<ElementType> V;  // matrix
 
-    mdkDenseMatrixSVDResult(){};
+    DenseMatrixSVDResult(){};
 
     // move constructor
-    mdkDenseMatrixSVDResult(mdkDenseMatrixSVDResult&& Result)
+    DenseMatrixSVDResult(DenseMatrixSVDResult&& Result)
     {
         // this will call copy "=" not move "="
         //U = Result.U;
@@ -127,9 +140,9 @@ struct mdkDenseMatrixSVDResult
         S = std::move(Result.S);
     }
 
-    ~mdkDenseMatrixSVDResult(){};
+    ~DenseMatrixSVDResult(){};
 
-    void operator=(const mdkDenseMatrixSVDResult&& Result)
+    void operator=(const DenseMatrixSVDResult&& Result)
     {
         U = std::move(Result.U);
         V = std::move(Result.V);
@@ -137,18 +150,18 @@ struct mdkDenseMatrixSVDResult
     }
 
     //------------------------------------------------------
-    void operator=(const mdkDenseMatrixSVDResult&) = delete;
+    void operator=(const DenseMatrixSVDResult&) = delete;
 
 };
 
 
 template<typename ElementType>
-inline mdkDenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Matrix);
+inline DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixConvolution(const DenseMatrix<ElementType>& Matrix, const DenseMatrix<ElementType>& Mask, const char* Option);
+inline DenseMatrix<ElementType> MatrixConvolution(const DenseMatrix<ElementType>& InputMatrix, const DenseMatrix<ElementType>& Mask, const char* Option);
 
 }//end namespace mdk
 

@@ -5383,7 +5383,7 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::PseudoInv() const
 
 template<typename ElementType>
 inline
-mdkDenseMatrixSVDResult<ElementType> DenseMatrix<ElementType>::SVD() const
+DenseMatrixSVDResult<ElementType> DenseMatrix<ElementType>::SVD() const
 {
     return MatrixSVD(*this);
 }

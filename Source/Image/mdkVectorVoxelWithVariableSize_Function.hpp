@@ -1,15 +1,15 @@
-#ifndef __mdk3DImageVectorVoxelWithVariableSize_Function_hpp
-#define __mdk3DImageVectorVoxelWithVariableSize_Function_hpp
+#ifndef __mdkVectorVoxelWithVariableSize_Function_hpp
+#define __mdkVectorVoxelWithVariableSize_Function_hpp
 
-#include "mdk3DImageVectorVoxelWithVariableSize_Function.h"
+//#include "mdkVectorVoxelWithVariableSize_Function.h"
 
 namespace mdk
 {
 
 template<typename ElementType>
 inline 
-mdk3DImageVectorVoxelWithVariableSize<ElementType> 
-operator+(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelB)
+VectorVoxelWithVariableSize<ElementType> 
+operator+(const VectorVoxelWithVariableSize<ElementType>& VoxelA, const VectorVoxelWithVariableSize<ElementType>& VoxelB)
 {
     auto Length_A = VoxelA.GetLength();
 
@@ -27,15 +27,15 @@ operator+(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, cons
 
     if (Length_A != Length_B)
     {
-        mdkError << "VoxelA.size() != VoxelB.size() @ mdk3DImageVectorVoxelWithVariableSize_Function operator+(VoxelA, VoxelB)" << '\n';
+        MDK_Error << "VoxelA.size() != VoxelB.size() @ VectorVoxelWithVariableSize_Function operator+(VoxelA, VoxelB)" << '\n';
 
-        mdk3DImageVectorVoxelWithVariableSize<ElementType> EmptyVoxel;
+        VectorVoxelWithVariableSize<ElementType> EmptyVoxel;
         return EmptyVoxel;
     }
 
-    mdk3DImageVectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Length_A);
+    VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Length_A);
 
-    for (uint64 i = 0; i < Length_A; ++i)
+    for (int64 i = 0; i < Length_A; ++i)
 	{
 		tempVoxel[i] = VoxelA[i] + VoxelB[i];
 	}
@@ -46,8 +46,8 @@ operator+(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, cons
 
 template<typename ElementType>
 inline
-mdk3DImageVectorVoxelWithVariableSize<ElementType> 
-operator-(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelB)
+VectorVoxelWithVariableSize<ElementType> 
+operator-(const VectorVoxelWithVariableSize<ElementType>& VoxelA, const VectorVoxelWithVariableSize<ElementType>& VoxelB)
 {
     auto Length_A = VoxelA.GetLength();
 
@@ -65,14 +65,14 @@ operator-(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, cons
 
     if (Length_A != Length_B)
     {
-        mdkError << "VoxelA.size() != VoxelB.size() @ mdk3DImageVectorVoxelWithVariableSize_Function operator-(VoxelA, VoxelB)" << '\n';
-        mdk3DImageVectorVoxelWithVariableSize<ElementType> EmptyVoxel;
+        MDK_Error << "VoxelA.size() != VoxelB.size() @ VectorVoxelWithVariableSize_Function operator-(VoxelA, VoxelB)" << '\n';
+        VectorVoxelWithVariableSize<ElementType> EmptyVoxel;
         return EmptyVoxel;
     }
 
-    mdk3DImageVectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Length_A);
+    VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Length_A);
 
-    for (uint64 i = 0; i < Length_A; ++i)
+    for (int64 i = 0; i < Length_A; ++i)
 	{
 		tempVoxel[i] = VoxelA[i] - VoxelB[i];
 	}
@@ -83,8 +83,8 @@ operator-(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, cons
 
 template<typename ElementType>
 inline
-mdk3DImageVectorVoxelWithVariableSize<ElementType>
-operator*(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelB)
+VectorVoxelWithVariableSize<ElementType>
+operator*(const VectorVoxelWithVariableSize<ElementType>& VoxelA, const VectorVoxelWithVariableSize<ElementType>& VoxelB)
 {
     auto Length_A = VoxelA.GetLength();
 
@@ -102,15 +102,15 @@ operator*(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, cons
 
     if (Length_A != Length_B)
     {
-        mdkError << "VoxelA.size() != VoxelB.size() @ mdk3DImageVectorVoxelWithVariableSize_Function operator*(VoxelA, VoxelB)" << '\n';
-        mdk3DImageVectorVoxelWithVariableSize<ElementType> EmptyVoxel;
+        MDK_Error << "VoxelA.size() != VoxelB.size() @ VectorVoxelWithVariableSize_Function operator*(VoxelA, VoxelB)" << '\n';
+        VectorVoxelWithVariableSize<ElementType> EmptyVoxel;
         return EmptyVoxel;
     }
 
 
-    mdk3DImageVectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Length_A);
+    VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Length_A);
 
-    for (uint64 i = 0; i < Length_A; ++i)
+    for (int64 i = 0; i < Length_A; ++i)
     {
         tempVoxel[i] = VoxelA[i] * VoxelB[i];
     }
@@ -121,8 +121,8 @@ operator*(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, cons
 
 template<typename ElementType>
 inline
-mdk3DImageVectorVoxelWithVariableSize<ElementType>
-operator/(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelB)
+VectorVoxelWithVariableSize<ElementType>
+operator/(const VectorVoxelWithVariableSize<ElementType>& VoxelA, const VectorVoxelWithVariableSize<ElementType>& VoxelB)
 {
     auto Length_A = VoxelA.GetLength();
 
@@ -140,14 +140,14 @@ operator/(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, cons
 
     if (Length_A != Length_B)
     {
-        mdkError << "VoxelA.size() != VoxelB.size() @ mdk3DImageVectorVoxelWithVariableSize_Function operator/(VoxelA, VoxelB)" << '\n';
-        mdk3DImageVectorVoxelWithVariableSize<ElementType> EmptyVoxel;
+        MDK_Error << "VoxelA.size() != VoxelB.size() @ VectorVoxelWithVariableSize_Function operator/(VoxelA, VoxelB)" << '\n';
+        VectorVoxelWithVariableSize<ElementType> EmptyVoxel;
         return EmptyVoxel;
     }
 
-    mdk3DImageVectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Length_A);
+    VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Length_A);
 
-    for (uint64 i = 0; i < Length_A; ++i)
+    for (int64 i = 0; i < Length_A; ++i)
     {
         tempVoxel[i] = VoxelA[i] / VoxelB[i];
     }
@@ -159,12 +159,12 @@ operator/(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, cons
 
 template<typename ElementType>
 inline 
-mdk3DImageVectorVoxelWithVariableSize<ElementType> 
-operator+(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element)
+VectorVoxelWithVariableSize<ElementType> 
+operator+(const VectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element)
 {
-    mdk3DImageVectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.size());
+    VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+	for (int64 i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Voxel[i] + Element;
 	}
@@ -175,12 +175,12 @@ operator+(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const
 
 template<typename ElementType>
 inline
-mdk3DImageVectorVoxelWithVariableSize<ElementType> 
-operator-(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element)
+VectorVoxelWithVariableSize<ElementType> 
+operator-(const VectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element)
 {
-    mdk3DImageVectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.size());
+    VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+	for (int64 i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Voxel[i] - Element;
 	}
@@ -191,12 +191,12 @@ operator-(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const
 
 template<typename ElementType>
 inline
-mdk3DImageVectorVoxelWithVariableSize<ElementType> 
-operator*(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element)
+VectorVoxelWithVariableSize<ElementType> 
+operator*(const VectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element)
 {
-    mdk3DImageVectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.size());
+    VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+	for (int64 i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Voxel[i] * Element;
 	}
@@ -207,12 +207,12 @@ operator*(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const
 
 template<typename ElementType>
 inline
-mdk3DImageVectorVoxelWithVariableSize<ElementType> 
-operator/(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element)
+VectorVoxelWithVariableSize<ElementType> 
+operator/(const VectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element)
 {
-    mdk3DImageVectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.size());
+    VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+	for (int64 i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Voxel[i] / Element;
 	}
@@ -224,12 +224,12 @@ operator/(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const
 
 template<typename ElementType>
 inline
-mdk3DImageVectorVoxelWithVariableSize<ElementType> 
-operator+(const ElementType& Element, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel)
+VectorVoxelWithVariableSize<ElementType> 
+operator+(const ElementType& Element, const VectorVoxelWithVariableSize<ElementType>& Voxel)
 {
-    mdk3DImageVectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.size());
+    VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+	for (int64 i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Element + Voxel[i];
 	}
@@ -240,12 +240,12 @@ operator+(const ElementType& Element, const mdk3DImageVectorVoxelWithVariableSiz
 
 template<typename ElementType>
 inline
-mdk3DImageVectorVoxelWithVariableSize<ElementType> 
-operator-(const ElementType& Element, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel)
+VectorVoxelWithVariableSize<ElementType> 
+operator-(const ElementType& Element, const VectorVoxelWithVariableSize<ElementType>& Voxel)
 {
-    mdk3DImageVectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.size());
+    VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+	for (int64 i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Element - Voxel[i];
 	}
@@ -256,12 +256,12 @@ operator-(const ElementType& Element, const mdk3DImageVectorVoxelWithVariableSiz
 
 template<typename ElementType>
 inline
-mdk3DImageVectorVoxelWithVariableSize<ElementType> 
-operator*(const ElementType& Element, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel)
+VectorVoxelWithVariableSize<ElementType> 
+operator*(const ElementType& Element, const VectorVoxelWithVariableSize<ElementType>& Voxel)
 {
-    mdk3DImageVectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.size());
+    VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+	for (int64 i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Element * Voxel[i];
 	}
@@ -272,12 +272,12 @@ operator*(const ElementType& Element, const mdk3DImageVectorVoxelWithVariableSiz
 
 template<typename ElementType>
 inline
-mdk3DImageVectorVoxelWithVariableSize<ElementType> 
-operator/(const ElementType& Element, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel)
+VectorVoxelWithVariableSize<ElementType> 
+operator/(const ElementType& Element, const VectorVoxelWithVariableSize<ElementType>& Voxel)
 {
-    mdk3DImageVectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.size());
+    VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+	for (int64 i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Element / Voxel[i];
 	}
@@ -288,43 +288,43 @@ operator/(const ElementType& Element, const mdk3DImageVectorVoxelWithVariableSiz
 
 template<typename ElementType>
 inline
-mdk3DImageVectorVoxelWithVariableSize<ElementType> 
-VectorVoxelLinearCombine(const std<ElementType>& CoefList, const std::vector<mdk3DImageVectorVoxelWithVariableSize<ElementType>*>& VoxelPtrList)
+VectorVoxelWithVariableSize<ElementType> 
+VectorVoxelLinearCombine(const std<ElementType>& CoefList, const std::vector<const VectorVoxelWithVariableSize<ElementType>*>& VoxelList)
 {
-    mdk3DImageVectorVoxelWithFixedSize<ElementType> EmptyVoxel; // empty Voxel
+    VectorVoxelWithVariableSize<ElementType> EmptyVoxel; // empty Voxel
 
-    uint64 VoxelNumber = VoxelPtrList.size();
-
-    if (CoefList.size() != VoxelNumber)
+    if (CoefList.size() != VoxelList.size())
     {
-        mdkError << "CoefList.size() != VoxelNumber @ mdk3DImageVectorVoxelWithVariableSize_Function VectorVoxelLinearCombine" << '\n';
+        MDK_Error << "CoefList.size() != VoxelList.size() @ VectorVoxelWithVariableSize_Function VectorVoxelLinearCombine" << '\n';
 
         return EmptyVoxel;
     } 
 
-    auto Length = VoxelPtrList[0]->GetLength();
+    int64 VoxelNumber = int64(VoxelList.size());
 
-    for (uint64 k = 1; k < VoxelNumber; ++k)
+    auto Length = VoxelList[0]->GetLength();
+
+    for (int64 k = 1; k < VoxelNumber; ++k)
     {
-        if (VoxelPtrList[k]->GetLength() != Length)
+        if (VoxelList[k]->GetLength() != Length)
         {
-            mdkError << "Size is not the same in VoxelPtrList @ mdk3DImageVectorVoxelWithVariableSize_Function VectorVoxelLinearCombine" << '\n';
+            MDK_Error << "Size is not the same in VoxelList @ VectorVoxelWithVariableSize_Function VectorVoxelLinearCombine" << '\n';
 
             return EmptyVoxel;
         }
     }
 
-    mdk3DImageVectorVoxelWithFixedSize<ElementType> tempVoxel(ElementType(0), Length);
+    VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Length);
 
-    for (uint64 k = 0; k < VoxelNumber; ++k)
+    for (int64 k = 0; k < VoxelNumber; ++k)
     {
         auto Coef_k = CoefList[k];
 
-        auto VoxelPtr_k = VoxelPtrList[k];
+        auto Voxel_k = VoxelList[k];
 
-        for (uint64 i = 0; i < Length; ++i)
+        for (int64 i = 0; i < Length; ++i)
         {
-            tempVoxel[i] + = Coef_k * VoxelPtr_k[i];
+            tempVoxel[i] + = Coef_k * Voxel_k[i];
         }
     }
 

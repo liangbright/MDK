@@ -1,19 +1,19 @@
-#ifndef __mdk3DImageVectorVoxelWithFixedSize_Function_hpp
-#define __mdk3DImageVectorVoxelWithFixedSize_Function_hpp
+#ifndef __mdkVectorVoxelWithFixedSize_Function_hpp
+#define __mdkVectorVoxelWithFixedSize_Function_hpp
 
-#include "mdk3DImageVectorVoxelWithFixedSize_Function.h"
+//#include "VectorVoxelWithFixedSize_Function.h"
 
 namespace mdk
 {
 
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 inline 
-mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> 
-operator+(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelB)
+VectorVoxelWithFixedSize<ElementType, Length> 
+operator+(const VectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const VectorVoxelWithFixedSize<ElementType, Length>& VoxelB)
 {
-	mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
+	VectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
 
-	for (uint64 i = 0; i < Length; ++i)
+	for (int64 i = 0; i < Length; ++i)
 	{
 		tempVoxel[i] = VoxelA[i] + VoxelB[i];
 	}
@@ -22,14 +22,14 @@ operator+(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA,
 }
 
 
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 inline
-mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> 
-operator-(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelB)
+VectorVoxelWithFixedSize<ElementType, Length> 
+operator-(const VectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const VectorVoxelWithFixedSize<ElementType, Length>& VoxelB)
 {
-	mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
+	VectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
 
-	for (uint64 i = 0; i < Length; ++i)
+	for (int64 i = 0; i < Length; ++i)
 	{
 		tempVoxel[i] = VoxelA[i] - VoxelB[i];
 	}
@@ -38,14 +38,14 @@ operator-(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA,
 }
 
 
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 inline
-mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>
-operator*(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelB)
+VectorVoxelWithFixedSize<ElementType, Length>
+operator*(const VectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const VectorVoxelWithFixedSize<ElementType, Length>& VoxelB)
 {
-    mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
+    VectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
 
-    for (uint64 i = 0; i < Length; ++i)
+    for (int64 i = 0; i < Length; ++i)
     {
         tempVoxel[i] = VoxelA[i] * VoxelB[i];
     }
@@ -54,14 +54,14 @@ operator*(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA,
 }
 
 
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 inline
-mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>
-operator/(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelB)
+VectorVoxelWithFixedSize<ElementType, Length>
+operator/(const VectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const VectorVoxelWithFixedSize<ElementType, Length>& VoxelB)
 {
-    mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
+    VectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
 
-    for (uint64 i = 0; i < Length; ++i)
+    for (int64 i = 0; i < Length; ++i)
     {
         tempVoxel[i] = VoxelA[i] / VoxelB[i];
     }
@@ -71,56 +71,56 @@ operator/(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA,
 
 //---------------------------------------------------------------------------------------------------------------//
 
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 inline 
-mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> 
-operator+(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element)
+VectorVoxelWithFixedSize<ElementType, Length> 
+operator+(const VectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element)
 {
-	mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
+	VectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+    for (int64 i = 0; i < Length; ++i)
 	{
 		tempVoxel[i] = Voxel[i] + Element;
 	}
 }
 
 
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 inline
-mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> 
-operator-(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element)
+VectorVoxelWithFixedSize<ElementType, Length> 
+operator-(const VectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element)
 {
-	mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
+	VectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+    for (int64 i = 0; i < Length; ++i)
 	{
 		tempVoxel[i] = Voxel[i] - Element;
 	}
 }
 
 
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 inline
-mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> 
-operator*(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element)
+VectorVoxelWithFixedSize<ElementType, Length> 
+operator*(const VectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element)
 {
-	mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
+	VectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+	for (int64 i = 0; i < Length; ++i)
 	{
 		tempVoxel[i] = Voxel[i] * Element;
 	}
 }
 
 
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 inline
-mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> 
-operator/(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element)
+VectorVoxelWithFixedSize<ElementType, Length> 
+operator/(const VectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element)
 {
-	mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
+	VectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+	for (int64 i = 0; i < Length; ++i)
 	{
 		tempVoxel[i] = Voxel[i] / Element;
 	}
@@ -128,80 +128,80 @@ operator/(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel, 
 
 //---------------------------------------------------------------------------------------------------------------//
 
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 inline
-mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> 
-operator+(const ElementType& Element, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel)
+VectorVoxelWithFixedSize<ElementType, Length> 
+operator+(const ElementType& Element, const VectorVoxelWithFixedSize<ElementType, Length>& Voxel)
 {
-	mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
+	VectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+	for (int64 i = 0; i < Length; ++i)
 	{
 		tempVoxel[i] = Element + Voxel[i];
 	}
 }
 
 
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 inline
-mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> 
-operator-(const ElementType& Element, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel)
+VectorVoxelWithFixedSize<ElementType, Length> 
+operator-(const ElementType& Element, const VectorVoxelWithFixedSize<ElementType, Length>& Voxel)
 {
-	mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
+	VectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+	for (int64 i = 0; i < Length; ++i)
 	{
 		tempVoxel[i] = Element - Voxel[i];
 	}
 }
 
 
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 inline
-mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> 
-operator*(const ElementType& Element, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel)
+VectorVoxelWithFixedSize<ElementType, Length> 
+operator*(const ElementType& Element, const VectorVoxelWithFixedSize<ElementType, Length>& Voxel)
 {
-	mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
+	VectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+	for (int64 i = 0; i < Length; ++i)
 	{
 		tempVoxel[i] = Element * Voxel[i];
 	}
 }
 
 
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 inline
-mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> 
-operator/(const ElementType& Element, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel)
+VectorVoxelWithFixedSize<ElementType, Length> 
+operator/(const ElementType& Element, const VectorVoxelWithFixedSize<ElementType, Length>& Voxel)
 {
-	mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
+	VectorVoxelWithFixedSize<ElementType, Length> tempVoxel;
 
-	for (uint64 i = 0; i < Voxel.size(); ++i)
+	for (int64 i = 0; i < Length; ++i)
 	{
 		tempVoxel[i] = Element / Voxel[i];
 	}
 }
 
 
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 inline
-mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> 
-VectorVoxelLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>*>& VoxelPtrList)
+VectorVoxelWithFixedSize<ElementType, Length> 
+VectorVoxelLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<const VectorVoxelWithFixedSize<ElementType, Length>*>& VoxelList)
 {
-    mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> tempVoxel; // has been Reset to zero
+    VectorVoxelWithFixedSize<ElementType, Length> tempVoxel; // has been Reset to zero
 
-    uint64 VoxelNumber = VoxelPtrList.size();
+    int64 VoxelNumber = int64(VoxelList.size());
 
-    for (uint64 k = 0; k < VoxelNumber; ++k)
+    for (int64 k = 0; k < VoxelNumber; ++k)
     {
         auto Coef_k = CoefList[k];
 
-        auto VoxelPtr_k = VoxelPtrList[k];
+        auto Voxel_k = VoxelList[k];
 
-        for (uint64 i = 0; i < Length; ++i)
+        for (int64 i = 0; i < Length; ++i)
         {            
-            tempVoxel[i] + = Coef_k * VoxelPtr_k[i];
+            tempVoxel[i] + = Coef_k * Voxel_k[i];
         }
     }
 

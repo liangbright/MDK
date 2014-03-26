@@ -1,5 +1,5 @@
-﻿#ifndef __mdk3DImageVectorVoxelWithVariableSize_Function_h
-#define __mdk3DImageVectorVoxelWithVariableSize_Function_h
+﻿#ifndef __mdkVectorVoxelWithVariableSize_Function_h
+#define __mdkVectorVoxelWithVariableSize_Function_h
 
 #include <vector>
 
@@ -8,51 +8,51 @@
 namespace mdk
 {
     
-// second choice: use mdk3DImageVectorVoxelWithVariableSize<double/float/etc>  as a variable length vector voxel
+// second choice: use VectorVoxelWithVariableSize<double/float/etc>  as a variable length vector voxel
 
 template<typename ElementType>
-inline mdk3DImageVectorVoxelWithVariableSize<ElementType> operator+(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelB);
+inline VectorVoxelWithVariableSize<ElementType> operator+(const VectorVoxelWithVariableSize<ElementType>& VoxelA, const VectorVoxelWithVariableSize<ElementType>& VoxelB);
 
 template<typename ElementType>
-inline mdk3DImageVectorVoxelWithVariableSize<ElementType> operator-(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelA, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& VoxelB);
+inline VectorVoxelWithVariableSize<ElementType> operator-(const VectorVoxelWithVariableSize<ElementType>& VoxelA, const VectorVoxelWithVariableSize<ElementType>& VoxelB);
 
 //---------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline mdk3DImageVectorVoxelWithVariableSize<ElementType> operator+(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element);
+inline VectorVoxelWithVariableSize<ElementType> operator+(const VectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element);
 
 template<typename ElementType>
-inline mdk3DImageVectorVoxelWithVariableSize<ElementType> operator-(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element);
+inline VectorVoxelWithVariableSize<ElementType> operator-(const VectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element);
 
 template<typename ElementType>
-inline mdk3DImageVectorVoxelWithVariableSize<ElementType> operator*(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element);
+inline VectorVoxelWithVariableSize<ElementType> operator*(const VectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element);
 
 template<typename ElementType>
-inline mdk3DImageVectorVoxelWithVariableSize<ElementType> operator/(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element);
+inline VectorVoxelWithVariableSize<ElementType> operator/(const VectorVoxelWithVariableSize<ElementType>& Voxel, const ElementType& Element);
 
 //---------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline mdk3DImageVectorVoxelWithVariableSize<ElementType> operator+(const ElementType& Element, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel);
+inline VectorVoxelWithVariableSize<ElementType> operator+(const ElementType& Element, const VectorVoxelWithVariableSize<ElementType>& Voxel);
 
 template<typename ElementType>
-inline mdk3DImageVectorVoxelWithVariableSize<ElementType> operator-(const ElementType& Element, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel);
+inline VectorVoxelWithVariableSize<ElementType> operator-(const ElementType& Element, const VectorVoxelWithVariableSize<ElementType>& Voxel);
 
 template<typename ElementType>
-inline mdk3DImageVectorVoxelWithVariableSize<ElementType> operator*(const ElementType& Element, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel);
+inline VectorVoxelWithVariableSize<ElementType> operator*(const ElementType& Element, const VectorVoxelWithVariableSize<ElementType>& Voxel);
 
 template<typename ElementType>
-inline mdk3DImageVectorVoxelWithVariableSize<ElementType> operator/(const ElementType& Element, const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel);
+inline VectorVoxelWithVariableSize<ElementType> operator/(const ElementType& Element, const VectorVoxelWithVariableSize<ElementType>& Voxel);
 
 //---------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
 inline
-mdk3DImageVectorVoxelWithVariableSize<ElementType>
-VectorVoxelLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<mdk3DImageVectorVoxelWithVariableSize<ElementType>*>& VoxelPtrList);
+VectorVoxelWithVariableSize<ElementType>
+VectorVoxelLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<const VectorVoxelWithVariableSize<ElementType>*>& VoxelList);
 
 }
 
-#include "mdk3DImageVectorVoxelWithVariableSize_Function.hpp"
+#include "mdkVectorVoxelWithVariableSize_Function.hpp"
 
 #endif

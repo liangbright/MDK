@@ -38,7 +38,7 @@ public:
 
     inline void Fill(const ElementType& Element);
 
-    inline uint64 GetLength();
+    inline int64 GetLength();
 
     //-----------element access------------------//
 
@@ -46,17 +46,17 @@ public:
 
     inline const ElementType* GetElementPointer() const;
 
-    inline ElementType& operator[](uint64 Index);
+    inline ElementType& operator[](int64 Index);
 
-    inline const ElementType& operator[](uint64 Index) const;
+    inline const ElementType& operator[](int64 Index) const;
 
-    ElementType& operator()(uint64 Index);
+    ElementType& operator()(int64 Index);
 
-    const ElementType& operator()(uint64 Index) const;
+    const ElementType& operator()(int64 Index) const;
 
-    ElementType& at(uint64 Index);
+    ElementType& at(int64 Index);
 
-    const ElementType& at(uint64 Index) const;
+    const ElementType& at(int64 Index) const;
 
     //------------ operator += -= *= /= -------------------//
 

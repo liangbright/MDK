@@ -1,44 +1,44 @@
-#ifndef __mdkFeatureEncoder_hpp
-#define __mdkFeatureEncoder_hpp
+#ifndef __mdkFeatureDictionaryBasedEncoder_hpp
+#define __mdkFeatureDictionaryBasedEncoder_hpp
 
 namespace mdk
 {
 
 template<typename ElementType>
-FeatureEncoder<ElementType>::FeatureEncoder()
+FeatureDictionaryBasedEncoder<ElementType>::FeatureDictionaryBasedEncoder()
 {
     this->Clear();
 }
 
 
 template<typename ElementType>
-FeatureEncoder<ElementType>::~FeatureEncoder()
+FeatureDictionaryBasedEncoder<ElementType>::~FeatureDictionaryBasedEncoder()
 {
 
 }
 
 
 template<typename ElementType>
-void FeatureEncoder<ElementType>::Clear()
+void FeatureDictionaryBasedEncoder<ElementType>::Clear()
 {
-    m_Dictionary_Storage.Clear();
+    m_Dictionary_SharedCopy.Clear();
 
     m_Dictionary = &m_Dictionary_SharedCopy;
 
     m_FeatureData = nullptr;
 
-    m_FeatureCode_Storage.Clear();
+    m_FeatureCode_SharedCopy.Clear();
 
     m_FeatureCode = &m_FeatureCode_SharedCopy;
 }
 
 
 template<typename ElementType>
-bool FeatureEncoder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData)
+bool FeatureDictionaryBasedEncoder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData)
 {
     if (InputFeatureData == nullptr)
     {
-        MDK_Error << "Invalid input @ FeatureEncoder::SetInputFeatureData(InputFeatureData)" << '\n';
+        MDK_Error << "Invalid input @ FeatureDictionaryBasedEncoder::SetInputFeatureData(InputFeatureData)" << '\n';
         return false;
     }
 
@@ -49,11 +49,11 @@ bool FeatureEncoder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementT
 
 
 template<typename ElementType>
-bool FeatureEncoder<ElementType>::SetDictionary(const FeatureDictionary<ElementType>* Dictionary)
+bool FeatureDictionaryBasedEncoder<ElementType>::SetDictionary(const FeatureDictionary<ElementType>* Dictionary)
 {
     if (InputFeatureData == nullptr)
     {
-        MDK_Error << "Invalid input @ FeatureEncoder::SetDictionary(Dictionary)" << '\n';
+        MDK_Error << "Invalid input @ FeatureDictionaryBasedEncoder::SetDictionary(Dictionary)" << '\n';
         return false;
     }
 
@@ -65,7 +65,7 @@ bool FeatureEncoder<ElementType>::SetDictionary(const FeatureDictionary<ElementT
 
 
 template<typename ElementType>
-bool FeatureEncoder<ElementType>::LoadDictionary(const std::string& FilePathAndName)
+bool FeatureDictionaryBasedEncoder<ElementType>::LoadDictionary(const std::string& FilePathAndName)
 {
     auto IsOK = m_Dictionary_SharedCopy.Load(FilePathAndName);
 
@@ -76,11 +76,11 @@ bool FeatureEncoder<ElementType>::LoadDictionary(const std::string& FilePathAndN
 
 
 template<typename ElementType>
-bool FeatureEncoder<ElementType>::SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode)
+bool FeatureDictionaryBasedEncoder<ElementType>::SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode)
 {
     if (FeatureCode == nullptr)
     {
-        MDK_Error << "Invalid input @ FeatureEncoder::SetOutputFeatureCode(FeatureCode)" << '\n';
+        MDK_Error << "Invalid input @ FeatureDictionaryBasedEncoder::SetOutputFeatureCode(FeatureCode)" << '\n';
         return false;
     }
 
@@ -93,13 +93,13 @@ bool FeatureEncoder<ElementType>::SetOutputFeatureCode(DenseMatrix<ElementType>*
 
 
 template<typename ElementType>
-bool FeatureEncoder<ElementType>::Update()
+bool FeatureDictionaryBasedEncoder<ElementType>::Update()
 {
     auto DataSize = m_FeatureData->GetSize();
 
     if (DataSize.RowNumber == 0)
     {
-        MDK_Error << "InputFeatureData is empty @ FeatureEncoder::Update()" << '\n';
+        MDK_Error << "InputFeatureData is empty @ FeatureDictionaryBasedEncoder::Update()" << '\n';
         return false;
     }
 
@@ -119,14 +119,14 @@ bool FeatureEncoder<ElementType>::Update()
 
 
 template<typename ElementType>
-bool FeatureEncoder<ElementType>::GenerateCode()
+bool FeatureDictionaryBasedEncoder<ElementType>::GenerateCode()
 {
     return true;
 }
 
 
 template<typename ElementType>
-DenseMatrix<ElementType>* FeatureEncoder<ElementType>::GetOutputFeatureCode()
+DenseMatrix<ElementType>* FeatureDictionaryBasedEncoder<ElementType>::GetOutputFeatureCode()
 {
     return &m_FeatureCode_SharedCopy;
 }

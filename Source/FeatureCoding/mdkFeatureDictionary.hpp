@@ -87,7 +87,7 @@ bool FeatureDictionary<ElementType>::Copy(const FeatureDictionary<ElementType>* 
 template<typename ElementType>
 bool FeatureDictionary<ElementType>::Share(FeatureDictionary<ElementType>& InputDictionary)
 {
-    if (this == InputDictionary)
+    if (this == &InputDictionary)
     {
         return true;
     }
@@ -98,13 +98,13 @@ bool FeatureDictionary<ElementType>::Share(FeatureDictionary<ElementType>& Input
 
     auto IsOK_3 = m_Variance.Share(InputDictionary.m_Variance);
 
-    if (IsOK_1 == true && IsOK_2 == true && IsOK_3 == true)
+    if (IsOK_1 == false || IsOK_2 == false || IsOK_3 == false)
     {
-        return true;
+        return false;
     }
     else
     {
-        return false;
+        return true;
     }
 }
 

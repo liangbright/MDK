@@ -1,15 +1,15 @@
-#ifndef __mdkFeatureSparseEncoder_h
-#define __mdkFeatureSparseEncoder_h
+#ifndef __mdkFeatureDictionaryBasedSparseEncoder_h
+#define __mdkFeatureDictionaryBasedSparseEncoder_h
 
 #include <string>
 
-#include "mdkFeatureEncoder.h"
+#include "mdkFeatureDictionaryBasedEncoder.h"
 
 namespace mdk
 {
 
 template<typename ElementType>
-class FeatureSparseEncoder : public FeatureEncoder<ElementType>
+class FeatureDictionaryBasedSparseEncoder : public FeatureDictionaryBasedEncoder<ElementType>
 {
 protected:
 
@@ -38,9 +38,9 @@ protected:
 
 public:
 
-    FeatureSparseEncoder();
+    FeatureDictionaryBasedSparseEncoder();
 
-    ~FeatureSparseEncoder();
+    ~FeatureDictionaryBasedSparseEncoder();
 
     //-----------------------------------------
 
@@ -66,14 +66,14 @@ protected:
 
 private:
 //deleted:
-    FeatureSparseEncoder(const FeatureSparseEncoder&) = delete;
+    FeatureDictionaryBasedSparseEncoder(const FeatureDictionaryBasedSparseEncoder&) = delete;
 
-    void operator=(const FeatureSparseEncoder&) = delete;
+    void operator=(const FeatureDictionaryBasedSparseEncoder&) = delete;
 
 };
 
 }
 
-#include "mdkFeatureSparseEncoder.hpp"
+#include "mdkFeatureDictionaryBasedSparseEncoder.hpp"
 
 #endif

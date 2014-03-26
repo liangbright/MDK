@@ -9,6 +9,8 @@ namespace mdk
 
     #define MDK_DEBUG_VectorVoxelWithFixedSize_Operator_CheckBound
 
+    #define MDK_DEBUG_VectorVoxelWithVariableSize_Operator_CheckBound
+
 #endif
 
 }//end namespace mdk

@@ -1,6 +1,8 @@
 #ifndef __mdkKNNReconstructionSparseEncoder_hpp
 #define __mdkKNNReconstructionSparseEncoder_hpp
 
+//#include "mdkKNNReconstructionSparseEncoder.h"
+
 namespace mdk
 {
 
@@ -19,9 +21,9 @@ KNNReconstructionSparseEncoder<ElementType>::~KNNReconstructionSparseEncoder()
 
 
 template<typename ElementType>
-KNNReconstructionSparseEncoder<ElementType>::Clear()
+void KNNReconstructionSparseEncoder<ElementType>::Clear()
 {
-    this->FeatureSparseEncoder::Clear();
+    this->FeatureDictionaryBasedSparseEncoder::Clear();
 
     m_MaxNumberOfNeighbours = 5;
 }

@@ -1,5 +1,5 @@
-﻿#ifndef __mdk3DImageVectorVoxelWithVariableSize_h
-#define __mdk3DImageVectorVoxelWithVariableSize_h
+﻿#ifndef __mdkVectorVoxelWithVariableSize_h
+#define __mdkVectorVoxelWithVariableSize_h
 
 #include <utility>
 #include <vector>
@@ -11,7 +11,7 @@ namespace mdk
 {
   
 template<typename ElementType>
-class mdk3DImageVectorVoxelWithVariableSize : public mdkObject
+class VectorVoxelWithVariableSize : public Object
 {
 private:
     std::vector<ElementType> m_ElementData;
@@ -20,31 +20,31 @@ private:
 
 public:
     
-    inline mdk3DImageVectorVoxelWithVariableSize();
+    inline VectorVoxelWithVariableSize();
 
-    inline mdk3DImageVectorVoxelWithVariableSize(const ElementType& Element, int64 Length = 1);
+    inline VectorVoxelWithVariableSize(const ElementType& Element, int64 Length = 1);
 
-    inline mdk3DImageVectorVoxelWithVariableSize(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel) = delete;
+    inline VectorVoxelWithVariableSize(const VectorVoxelWithVariableSize<ElementType>& Voxel) = delete;
 
-    inline mdk3DImageVectorVoxelWithVariableSize(mdk3DImageVectorVoxelWithVariableSize<ElementType, Length>&& Voxel);
+    inline VectorVoxelWithVariableSize(VectorVoxelWithVariableSize<ElementType, Length>&& Voxel);
 
-    inline ~mdk3DImageVectorVoxelWithVariableSize();
+    inline ~VectorVoxelWithVariableSize();
 
-    inline void operator=(const mdk3DImageVectorVoxelWithVariableSize<ElementType, Length>& Voxel);
+    inline void operator=(const VectorVoxelWithVariableSize<ElementType, Length>& Voxel);
 
-    inline void operator=(mdk3DImageVectorVoxelWithVariableSize<ElementType, Length>&& Voxel);
+    inline void operator=(VectorVoxelWithVariableSize<ElementType, Length>&& Voxel);
 
-    inline void Reset(); // set to empty
+    inline void Clear(); // set to empty
 
     inline void Fill(const ElementType& Element);
 
-    inline uint64 GetLength();
+    inline int64 GetLength();
 
     //-----------element access------------------//
 
-    inline ElementType* GetElementDataRawPointer();
+    inline ElementType* GetElementPointer();
 
-    inline const ElementType* GetElementDataRawPointer() const;
+    inline const ElementType* GetElementPointer() const;
 
     inline ElementType& operator[](uint64 Index);
 
@@ -60,13 +60,13 @@ public:
 
     // ------------------------------------------------------------------------------------------------------------//
 
-    inline void operator+=(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel);
+    inline void operator+=(const VectorVoxelWithVariableSize<ElementType>& Voxel);
 
-    inline void operator-=(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel);
+    inline void operator-=(const VectorVoxelWithVariableSize<ElementType>& Voxel);
 
-    inline void operator*=(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel);
+    inline void operator*=(const VectorVoxelWithVariableSize<ElementType>& Voxel);
 
-    inline void operator/=(const mdk3DImageVectorVoxelWithVariableSize<ElementType>& Voxel);
+    inline void operator/=(const VectorVoxelWithVariableSize<ElementType>& Voxel);
 
     //---------------------------------------------------------------------------------------------------------------//
 
@@ -83,6 +83,6 @@ public:
 
 }// namespace mdk
 
-#include "mdk3DImageVectorVoxelWithVariableSize.hpp"
+#include "mdkVectorVoxelWithVariableSize.hpp"
 
 #endif

@@ -1,5 +1,5 @@
-﻿#ifndef __mdk3DImageVectorVoxelWithFixedSize_Function_h
-#define __mdk3DImageVectorVoxelWithFixedSize_Function_h
+﻿#ifndef __mdkVectorVoxelWithFixedSize_Function_h
+#define __mdkVectorVoxelWithFixedSize_Function_h
 
 #include <array>
 
@@ -9,63 +9,63 @@ namespace mdk
 {
     
 // forward declare----------------------------------
-template<typename ElementType, uint64 Length>
-class mdk3DImageVectorVoxelWithFixedSize;
+template<typename ElementType, int64 Length>
+class VectorVoxelWithFixedSize;
 /------------------------------------------------------
 
 
 //---------------------------------------------------- Voxel {+ - * /} Voxel ---------------------------------------------// 
 
-template<typename ElementType, uint64 Length>
-inline mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> operator+(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelB);
+template<typename ElementType, int64 Length>
+inline VectorVoxelWithFixedSize<ElementType, Length> operator+(const VectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const VectorVoxelWithFixedSize<ElementType, Length>& VoxelB);
 
-template<typename ElementType, uint64 Length>
-inline mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> operator-(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelB);
+template<typename ElementType, int64 Length>
+inline VectorVoxelWithFixedSize<ElementType, Length> operator-(const VectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const VectorVoxelWithFixedSize<ElementType, Length>& VoxelB);
 
-template<typename ElementType, uint64 Length>
-inline mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> operator*(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelB);
+template<typename ElementType, int64 Length>
+inline VectorVoxelWithFixedSize<ElementType, Length> operator*(const VectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const VectorVoxelWithFixedSize<ElementType, Length>& VoxelB);
 
-template<typename ElementType, uint64 Length>
-inline mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> operator/(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& VoxelB);
+template<typename ElementType, int64 Length>
+inline VectorVoxelWithFixedSize<ElementType, Length> operator/(const VectorVoxelWithFixedSize<ElementType, Length>& VoxelA, const VectorVoxelWithFixedSize<ElementType, Length>& VoxelB);
 
 //---------------------------------------------------- Voxel {+ - * /} Element ---------------------------------------------// 
 
-template<typename ElementType, uint64 Length>
-inline mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> operator+(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element);
+template<typename ElementType, int64 Length>
+inline VectorVoxelWithFixedSize<ElementType, Length> operator+(const VectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element);
 
-template<typename ElementType, uint64 Length>
-inline mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> operator-(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element);
+template<typename ElementType, int64 Length>
+inline VectorVoxelWithFixedSize<ElementType, Length> operator-(const VectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element);
 
-template<typename ElementType, uint64 Length>
-inline mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> operator*(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element);
+template<typename ElementType, int64 Length>
+inline VectorVoxelWithFixedSize<ElementType, Length> operator*(const VectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element);
 
-template<typename ElementType, uint64 Length>
-inline mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> operator/(const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element);
+template<typename ElementType, int64 Length>
+inline VectorVoxelWithFixedSize<ElementType, Length> operator/(const VectorVoxelWithFixedSize<ElementType, Length>& Voxel, const ElementType& Element);
 
 //----------------------------------------------------  Element {+ - * /} Voxel ---------------------------------------------// 
 
-template<typename ElementType, uint64 Length>
-inline mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> operator+(const ElementType& Element, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel);
+template<typename ElementType, int64 Length>
+inline VectorVoxelWithFixedSize<ElementType, Length> operator+(const ElementType& Element, const VectorVoxelWithFixedSize<ElementType, Length>& Voxel);
 
-template<typename ElementType, uint64 Length>
-inline mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> operator-(const ElementType& Element, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel);
+template<typename ElementType, int64 Length>
+inline VectorVoxelWithFixedSize<ElementType, Length> operator-(const ElementType& Element, const VectorVoxelWithFixedSize<ElementType, Length>& Voxel);
 
-template<typename ElementType, uint64 Length>
-inline mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> operator*(const ElementType& Element, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel);
+template<typename ElementType, int64 Length>
+inline VectorVoxelWithFixedSize<ElementType, Length> operator*(const ElementType& Element, const VectorVoxelWithFixedSize<ElementType, Length>& Voxel);
 
-template<typename ElementType, uint64 Length>
-inline mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> operator/(const ElementType& Element, const mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>& Voxel);
+template<typename ElementType, int64 Length>
+inline VectorVoxelWithFixedSize<ElementType, Length> operator/(const ElementType& Element, const VectorVoxelWithFixedSize<ElementType, Length>& Voxel);
 
 
 //---------------------------------------------- LinearCombine ------------------------------------------------------------------//
 
-template<typename ElementType, uint64 Length>
+template<typename ElementType, int64 Length>
 inline 
-mdk3DImageVectorVoxelWithFixedSize<ElementType, Length> 
-VectorVoxelLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<mdk3DImageVectorVoxelWithFixedSize<ElementType, Length>*>& VoxelPtrList);
+VectorVoxelWithFixedSize<ElementType, Length> 
+VectorVoxelLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<const VectorVoxelWithFixedSize<ElementType, Length>*>& VoxelList);
 
 }
 
-#include "mdk3DImageVectorVoxelWithFixedSize_Function.hpp"
+#include "mdkVectorVoxelWithFixedSize_Function.hpp"
 
 #endif

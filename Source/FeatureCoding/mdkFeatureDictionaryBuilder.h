@@ -1,5 +1,5 @@
-#ifndef __mdkFeatureEncoderDictionaryBuilder_h
-#define __mdkFeatureEncoderDictionaryBuilder_h
+#ifndef __mdkFeatureDictionaryBuilder_h
+#define __mdkFeatureDictionaryBuilder_h
 
 #include <vector>
 #include <string>
@@ -10,7 +10,7 @@ namespace mdk
 {
 
 template<typename ElementType>
-class FeatureEncoderDictionaryBuilder : public Object
+class FeatureDictionaryBuilder : public Object
 {
 protected:
 
@@ -26,9 +26,9 @@ protected:
 
 public:
 
-    FeatureEncoderDictionaryBuilder();
+    FeatureDictionaryBuilder();
 
-    ~FeatureEncoderDictionaryBuilder();
+    ~FeatureDictionaryBuilder();
 
     //---------------------------------------------------//
 
@@ -56,19 +56,19 @@ protected:
 
 private:
 //deleted
-    FeatureEncoderDictionaryBuilder(const FeatureEncoderDictionaryBuilder&) = delete;
+    FeatureDictionaryBuilder(const FeatureDictionaryBuilder&) = delete;
 
-    void operator=(const FeatureEncoderDictionaryBuilder&) = delete;
+    void operator=(const FeatureDictionaryBuilder&) = delete;
 
-    FeatureEncoderDictionaryBuilder(FeatureEncoderDictionaryBuilder&&) = delete;
+    FeatureDictionaryBuilder(FeatureDictionaryBuilder&&) = delete;
 
-    void operator=(FeatureEncoderDictionaryBuilder&&) = delete;
+    void operator=(FeatureDictionaryBuilder&&) = delete;
 
 };
 
 }// namespace mdk
 
 
-#include "mdkFeatureEncoderDictionaryBuilder.hpp"
+#include "mdkFeatureDictionaryBuilder.hpp"
 
 #endif

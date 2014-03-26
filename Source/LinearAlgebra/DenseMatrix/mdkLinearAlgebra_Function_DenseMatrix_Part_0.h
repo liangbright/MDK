@@ -24,6 +24,7 @@ struct mdkPairForSort
     int64 Index;
 };
 
+//only sort 1-D array
 template<typename ElementType>
 bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementType>& OutputDataArray, DenseMatrix<ElementType>& OutputIndexList, const std::string& Order);
 

@@ -859,7 +859,7 @@ public:
 
 	//----------------------------------- SVD -----------------------------------------//
 
-    inline mdkDenseMatrixSVDResult<ElementType> SVD() const;
+    inline DenseMatrixSVDResult<ElementType> SVD() const;
 
 
 	//---------------------------- private functions ---------------------------------------//

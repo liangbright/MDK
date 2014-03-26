@@ -4,13 +4,13 @@
 #include <vector>
 #include <string>
 
-#include "mdkFeatureEncoderDictionaryBuilder.h"
+#include "mdkFeatureDictionaryBuilder.h"
 
 namespace mdk
 {
 
 template<typename ElementType>
-class KMeansDictionaryBuilder : public FeatureEncoderDictionaryBuilder<ElementType>
+class KMeansDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
 {
 protected:
 

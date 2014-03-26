@@ -3,14 +3,14 @@
 
 #include <string>
 
-#include "mdkFeatureSparseEncoder.h"
+#include "mdkFeatureDictionaryBasedSparseEncoder.h"
 
 
 namespace mdk
 {
 
 template<typename ElementType>
-class KNNSoftAssignSparseEncoder : public FeatureSparseEncoder<ElementType>
+class KNNSoftAssignSparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
 {
 
 private: 
@@ -43,6 +43,6 @@ private:
 
 }
 
-#include "mdkKNNSoftAssignEncoder.hpp"
+#include "mdkKNNSoftAssignSparseEncoder.hpp"
 
 #endif

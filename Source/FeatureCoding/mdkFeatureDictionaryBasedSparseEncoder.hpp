@@ -1,27 +1,27 @@
-#ifndef __mdkFeatureSparseEncoder_hpp
-#define __mdkFeatureSparseEncoder_hpp
+#ifndef __mdkFeatureDictionaryBasedSparseEncoder_hpp
+#define __mdkFeatureDictionaryBasedSparseEncoder_hpp
 
 namespace mdk
 {
 
 template<typename ElementType>
-FeatureSparseEncoder<ElementType>::FeatureSparseEncoder()
+FeatureDictionaryBasedSparseEncoder<ElementType>::FeatureDictionaryBasedSparseEncoder()
 {
     this->Clear();
 }
 
 
 template<typename ElementType>
-FeatureSparseEncoder<ElementType>::~FeatureSparseEncoder()
+FeatureDictionaryBasedSparseEncoder<ElementType>::~FeatureDictionaryBasedSparseEncoder()
 {
 
 }
 
 
 template<typename ElementType>
-void FeatureSparseEncoder<ElementType>::Clear()
+void FeatureDictionaryBasedSparseEncoder<ElementType>::Clear()
 {
-    this->FeatureEncoder::Clear();
+    this->FeatureDictionaryBasedEncoder::Clear();
 
     m_FeatureCodeInCompactFormat_SharedCopy.Clear();
 
@@ -32,11 +32,11 @@ void FeatureSparseEncoder<ElementType>::Clear()
 
 
 template<typename ElementType>
-bool FeatureSparseEncoder<ElementType>::SetOutputFeatureCodeInCompactFormat(DenseMatrix<ElementType>* FeatureCode)
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCodeInCompactFormat(DenseMatrix<ElementType>* FeatureCode)
 {
     if (FeatureCode == nullptr)
     {
-        MDK_Error << "Invalid input @ FeatureSparseEncoder::GetOutputFeatureCodeInCompactFormat(FeatureCode)" << '\n';
+        MDK_Error << "Invalid input @ FeatureDictionaryBasedSparseEncoder::GetOutputFeatureCodeInCompactFormat(FeatureCode)" << '\n';
         return false;
     }
 
@@ -49,13 +49,13 @@ bool FeatureSparseEncoder<ElementType>::SetOutputFeatureCodeInCompactFormat(Dens
 
 
 template<typename ElementType>
-bool FeatureSparseEncoder<ElementType>::Update()
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::Update()
 {
     auto DataSize = m_FeatureData->GetSize();
 
     if (DataSize.RowNumber == 0)
     {
-        MDK_Error << "InputFeatureData is empty @ mdkFeatureSparseEncoder::Update()" << '\n';
+        MDK_Error << "InputFeatureData is empty @ mdkFeatureDictionaryBasedSparseEncoder::Update()" << '\n';
         return false;
     }
 
@@ -86,14 +86,14 @@ bool FeatureSparseEncoder<ElementType>::Update()
 
 
 template<typename ElementType>
-bool FeatureSparseEncoder<ElementType>::GenerateCode()
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::GenerateCode()
 {
     return true;
 }
 
 
 template<typename ElementType>
-const DenseMatrix<ElementType>* FeatureSparseEncoder<ElementType>::GetOutputFeatureCodeInCompactFormat()
+const DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputFeatureCodeInCompactFormat()
 {
     return &m_FeatureCodeInCompactFormat_SharedCopy;
 }

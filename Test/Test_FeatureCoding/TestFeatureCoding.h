@@ -15,9 +15,9 @@
 
 #include "mdkDenseMatrix.h"
 #include "mdkFeatureDictionary.h"
-#include "mdkFeatureEncoder.h"
-#include "mdkFeatureEncoderDictionaryBuilder.h"
-#include "mdkFeatureSparseEncoder.h"
+#include "mdkFeatureDictionaryBuilder.h"
+#include "mdkFeatureDictionaryBasedEncoder.h"
+#include "mdkFeatureDictionaryBasedSparseEncoder.h"
 #include "mdkKMeansDictionaryBuilder.h"
 #include "mdkKNNReconstructionSparseEncoder.h"
 #include "mdkKNNSoftAssignSparseEncoder.h"
