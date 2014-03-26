@@ -1,7 +1,6 @@
 #ifndef __mdkFeatureDictionaryBasedEncoder_h
 #define __mdkFeatureDictionaryBasedEncoder_h
 
-#include <string>
 
 #include "mdkFeatureDictionary.h"
 
@@ -14,22 +13,8 @@ class FeatureDictionaryBasedEncoder : public Object
 {
 protected:
 
-    // input:
-
-    const DenseMatrix<ElementType>* m_FeatureData;
-
-    // input, and can also be internal data, 
-
-    const FeatureDictionary<ElementType>* m_Dictionary;
-
-    FeatureDictionary<ElementType> m_Dictionary_SharedCopy;
-
-    // output:
-
-    DenseMatrix<ElementType>* m_FeatureCode;
-
-    DenseMatrix<ElementType> m_FeatureCode_SharedCopy;
-
+    bool m_IsDenseEncoder;
+    
 public:
 
     FeatureDictionaryBasedEncoder();
@@ -38,17 +23,23 @@ public:
 
     //-----------------------------------------
 
-    virtual void Clear();
+    bool IsDenseEncoder();
+
+    bool IsSparseEncoder();
+
+    //-----------------------------------------
+
+    virtual void Clear() = 0;
     
     //-----------------------------------------
 
-    bool SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
+    virtual bool SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData) = 0;
+    
+    virtual bool SetInputDictionary(const FeatureDictionary<ElementType>* Dictionary) = 0;
 
-    bool SetDictionary(const FeatureDictionary<ElementType>* Dictionary);
+    virtual bool SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode) = 0;
 
-    bool LoadDictionary(const std::string& FilePathAndName);
-
-    bool SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode);
+    virtual bool SetMaximunNumberOfThreads(int64 Number) = 0;
 
     //-----------------------------------------
 
@@ -56,13 +47,20 @@ public:
 
     //----------------------------------------------------//
 
-    DenseMatrix<ElementType>* GetOutputFeatureCode();
-
+    virtual DenseMatrix<ElementType>* GetOutputFeatureCode() = 0;
 
 protected:
 
-    virtual bool GenerateCode();
+    virtual int64 GetFeatureVectorNumber() = 0;
 
+    virtual int64 GetMaximunNumberOfThreads() = 0;
+
+    //output: IndexList_start and IndexList_end
+    void DivideData(int64 Index_min, int64 Index_max, std::vector<int64>& IndexList_start, std::vector<int64>& IndexList_end);
+
+    void GenerateCode_in_a_Thread(int64 IndexOfFeatureVector_start, int64 IndexOfFeatureVector_end);
+
+    virtual void EncodingFunction(int64 IndexOfFeatureVector) = 0;
 
 private:
 //deleted:
@@ -72,8 +70,9 @@ private:
 
 };
 
-}
 
 #include "mdkFeatureDictionaryBasedEncoder.hpp"
+
+}
 
 #endif

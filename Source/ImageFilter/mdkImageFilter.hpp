@@ -642,7 +642,7 @@ DivideData(int64 Index_min, int64 Index_max, int64 MinDataNumberPerThread,
 
 	int64 DataNumberPerThread = 0;
 
-	for (int64 i = m_MaxThreadNumber; i > 0; --i)
+	for (int64 i = m_MaxThreadNumber; i >= 1; --i)
 	{
         DataNumberPerThread = TotalDataNumber / i;
 

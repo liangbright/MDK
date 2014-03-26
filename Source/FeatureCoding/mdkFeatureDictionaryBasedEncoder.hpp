@@ -1,13 +1,15 @@
 #ifndef __mdkFeatureDictionaryBasedEncoder_hpp
 #define __mdkFeatureDictionaryBasedEncoder_hpp
 
+//#include "mdkFeatureDictionaryBasedEncoder.h"
+
 namespace mdk
 {
 
 template<typename ElementType>
 FeatureDictionaryBasedEncoder<ElementType>::FeatureDictionaryBasedEncoder()
 {
-    this->Clear();
+
 }
 
 
@@ -19,120 +21,124 @@ FeatureDictionaryBasedEncoder<ElementType>::~FeatureDictionaryBasedEncoder()
 
 
 template<typename ElementType>
-void FeatureDictionaryBasedEncoder<ElementType>::Clear()
+bool FeatureDictionaryBasedEncoder<ElementType>::IsDenseEncoder()
 {
-    m_Dictionary_SharedCopy.Clear();
-
-    m_Dictionary = &m_Dictionary_SharedCopy;
-
-    m_FeatureData = nullptr;
-
-    m_FeatureCode_SharedCopy.Clear();
-
-    m_FeatureCode = &m_FeatureCode_SharedCopy;
+    return m_IsDenseEncoder;
 }
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedEncoder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData)
+bool FeatureDictionaryBasedEncoder<ElementType>::IsSparseEncoder()
 {
-    if (InputFeatureData == nullptr)
-    {
-        MDK_Error << "Invalid input @ FeatureDictionaryBasedEncoder::SetInputFeatureData(InputFeatureData)" << '\n';
-        return false;
-    }
-
-    m_FeatureData = InputFeatureData;
-
-    return true;
-}
-
-
-template<typename ElementType>
-bool FeatureDictionaryBasedEncoder<ElementType>::SetDictionary(const FeatureDictionary<ElementType>* Dictionary)
-{
-    if (InputFeatureData == nullptr)
-    {
-        MDK_Error << "Invalid input @ FeatureDictionaryBasedEncoder::SetDictionary(Dictionary)" << '\n';
-        return false;
-    }
-
-    m_Dictionary = Dictionary;
-
-    m_Dictionary_SharedCopy.ForceSharedCopy(Dictionary);
-}
-
-
-
-template<typename ElementType>
-bool FeatureDictionaryBasedEncoder<ElementType>::LoadDictionary(const std::string& FilePathAndName)
-{
-    auto IsOK = m_Dictionary_SharedCopy.Load(FilePathAndName);
-
-    m_Dictionary = &m_Dictionary_SharedCopy;
-
-    return IsOK;
-}
-
-
-template<typename ElementType>
-bool FeatureDictionaryBasedEncoder<ElementType>::SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode)
-{
-    if (FeatureCode == nullptr)
-    {
-        MDK_Error << "Invalid input @ FeatureDictionaryBasedEncoder::SetOutputFeatureCode(FeatureCode)" << '\n';
-        return false;
-    }
-
-    m_FeatureCode = FeatureCode;
-
-    m_FeatureCode_SharedCopy.ForceSharedCopy(FeatureCode);
-
-    return true;
+    return !m_IsDenseEncoder;
 }
 
 
 template<typename ElementType>
 bool FeatureDictionaryBasedEncoder<ElementType>::Update()
 {
-    auto DataSize = m_FeatureData->GetSize();
+    // multi-thread -----------------------------------------------------------------
 
-    if (DataSize.RowNumber == 0)
+    // divide the input feature column-vectors into groups
+
+    int64 FeatureVectorNumber = this->GetFeatureVectorNumber();
+
+    std::vector<int64> IndexList_start;
+    std::vector<int64> IndexList_end;
+
+    this->DivideData(0, FeatureVectorNumber, IndexList_start, IndexList_end);
+
+    int64 ThreadNumber = IndexList_start.size();
+
+    if (ThreadNumber > 1)
     {
-        MDK_Error << "InputFeatureData is empty @ FeatureDictionaryBasedEncoder::Update()" << '\n';
-        return false;
+        // create and start the threads
+        std::vector<std::thread> ThreadList(ThreadNumber);
+
+        for (int64 i = 0; i < ThreadNumber; ++i)
+        {
+            ThreadList[i] = std::thread([&]{this->GenerateCode_in_a_Thread(IndexList_start[i], IndexList_end[i]); });
+        }
+
+        //wait for all the threads
+        for (int64 i = 0; i < ThreadNumber; ++i)
+        {
+            ThreadList[i].join();
+        }
+    }
+    else//single-thread
+    {
+        this->GenerateCode_in_a_Thread(0, FeatureVectorNumber);
     }
 
-    //--------------------------------------------------------------
 
-    auto IsOK = this->GenerateCode();
-
-    //--------------------------------------------------------------
-
-    if (m_FeatureCode != &m_FeatureCode_SharedCopy)
-    {
-        m_FeatureCode_SharedCopy.ForceSharedCopy(m_FeatureCode);
-    }
-
-    return IsOK;
-}
-
-
-template<typename ElementType>
-bool FeatureDictionaryBasedEncoder<ElementType>::GenerateCode()
-{
     return true;
 }
 
 
-template<typename ElementType>
-DenseMatrix<ElementType>* FeatureDictionaryBasedEncoder<ElementType>::GetOutputFeatureCode()
+template<typename VoxelType_Input, typename VoxelType_Output>
+void
+FeatureDictionaryBasedEncoder<ElementType>::
+DivideData(int64 Index_min, int64 Index_max, std::vector<int64>& IndexList_start, std::vector<int64>& IndexList_end)
 {
-    return &m_FeatureCode_SharedCopy;
+    int64 MaximunNumberOfThreads = this->GetMaximunNumberOfThreads();
+
+    if (MaximunNumberOfThreads == 1)
+    {
+        IndexList_start.push_back(Index_min);
+        IndexList_end.push_back(Index_max);
+        return;
+    }
+
+    auto TotalDataNumber = Index_max - Index_min + 1;
+
+    int64 ThreadNumber = 1;
+
+    int64 DataNumberPerThread = 0;
+
+    for (int64 i = MaximunNumberOfThreads; i >= 1; --i)
+    {
+        DataNumberPerThread = TotalDataNumber / i;
+
+        if (DataNumberPerThread >= 1)
+        {
+            ThreadNumber = i;
+            break;
+        }
+    }
+
+    if (ThreadNumber == 1)
+    {//one thread is enough
+
+        IndexList_start.push_back(Index_min);
+        IndexList_end.push_back(Index_max);
+        return;
+    }
+
+    int64 tempIndex = Index_min;
+
+    for (int64 i = 0; i < ThreadNumber; ++i)
+    {
+        IndexList_start.push_back(tempIndex);
+        IndexList_end.push_back(tempIndex + DataNumberPerThread - 1);
+
+        tempIndex += DataNumberPerThread;
+    }
+
+    IndexList_end[ThreadNumber - 1] = Index_max;
 }
 
 
-}// namespace mdk
+template<typename ElementType>
+void FeatureDictionaryBasedEncoder<ElementType>::GenerateCode_in_a_Thread(int64 IndexOfFeatureVector_start, int64 IndexOfFeatureVector_end)
+{
+    for (int64 i = IndexOfFeatureVector_start; i <= IndexOfFeatureVector_end; ++i)
+    {
+        this->EncodingFunction(i);
+    }
+}
 
+
+}
 
 #endif

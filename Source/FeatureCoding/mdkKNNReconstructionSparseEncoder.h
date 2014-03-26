@@ -15,7 +15,7 @@ class KNNReconstructionSparseEncoder : public FeatureDictionaryBasedSparseEncode
 
 private: 
 
-    int64 m_MaxNumberOfNeighbours;
+    int64 m_NeighbourNumber;
 
 public:
 
@@ -27,11 +27,17 @@ public:
 
     void Clear();
 
-    bool SetMaxNumberOfNeighbours(int64 MaxNumberOfNeighbours);
+    bool SetNeighbourNumber(int64 NeighbourNumber);
+
+    //-----------------------------------------
+
+    static DenseMatrix<ElementType> Apply();
 
 protected:
 
-    bool GenerateCode();
+    bool CheckInputAndOutput();
+
+    bool EncodingFunction(int64 IndexOfFeatureVector);
 
 private:
 //deleted:
