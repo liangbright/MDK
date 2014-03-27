@@ -41,7 +41,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     //-----------------------------------------------
 
-    m_ElementNumber = LinearIndexList.size();
+    m_ElementNumber = m_LinearIndexList_source.size();
 
     m_RowNumber = m_ElementNumber;
 
@@ -50,47 +50,6 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
     m_Flag_All_Row = false;
 
     m_Flag_All_Col = false;
-
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
-}
-
-
-template<typename ElementType>
-inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
-{
-    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
-
-    m_Flag_OutputVector = true;
-
-    auto RowNumber_source = sourceMatrix.GetRowNumber();
-
-    auto ColNumber_source = sourceMatrix.GetColNumber();
-
-    m_ColIndexList_source.resize(ColNumber_source);
-
-    for (int64 i = 0; i < ColNumber_source; ++i)
-    {
-        m_ColIndexList_source[i] = i;
-    }
-
-    m_RowIndexList_source.resize(RowNumber_source);
-
-    for (int64 i = 0; i < RowNumber_source; ++i)
-    {
-        m_RowIndexList_source[i] = i;
-    }
-    //-----------------------------------------------
-
-    m_ElementNumber = RowNumber_source*ColNumber_source;
-
-    m_RowNumber = RowNumber_source;
-
-    m_ColNumber = ColNumber_source;
-
-    m_Flag_All_Row = true;
-
-    m_Flag_All_Col = true;
 
     m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 }
@@ -208,6 +167,222 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
     m_ColNumber = m_ColIndexList_source.size();
 
     m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    m_Flag_All_Row = true;
+
+    m_Flag_All_Col = true;
+
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+}
+
+
+template<typename ElementType>
+inline
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int64>& LinearIndexList)
+{
+    // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}), A is a matrix    
+    // the constructed ShadowMatrix is a col-vector
+
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
+
+    m_LinearIndexList_source.resize(LinearIndexList.GetElementNumber());
+
+    for (int64 i = 0; i < LinearIndexList.GetElementNumber(); ++i)
+    {
+        m_LinearIndexList_source[i] = LinearIndexList[i];
+    }
+
+    m_Flag_OutputVector = true;
+
+    //-----------------------------------------------
+
+    m_ElementNumber = m_LinearIndexList_source.size();
+
+    m_RowNumber = m_ElementNumber;
+
+    m_ColNumber = 1;
+
+    m_Flag_All_Row = false;
+
+    m_Flag_All_Col = false;
+
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+}
+
+
+template<typename ElementType>
+inline
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
+                                                  const DenseMatrix<int64>& RowIndexList,
+                                                  const DenseMatrix<int64>& ColIndexList)
+{
+    // all the indexes in RowIndexList and ColIndexList are within bound
+    // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, {0, 1}), A is a matrix    
+
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
+
+    auto RowNumber_source = sourceMatrix.GetRowNumber();
+
+    auto ColNumber_source = sourceMatrix.GetColNumber();
+
+    m_RowIndexList_source.resize(RowIndexList.GetElementNumber());
+
+    for (int64 i = 0; i < RowIndexList.GetElementNumber(); ++i)
+    {
+        m_RowIndexList_source[i] = RowIndexList[i];
+    }
+
+    m_ColIndexList_source.resize(ColIndexList.GetElementNumber());
+
+    for (int64 i = 0; i < ColIndexList.GetElementNumber(); ++i)
+    {
+        m_ColIndexList_source[i] = ColIndexList[i];
+    }
+
+    m_Flag_OutputVector = false;
+
+    //-----------------------------------------------
+
+    m_RowNumber = m_RowIndexList_source.size();
+
+    m_ColNumber = m_ColIndexList_source.size();
+
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    m_Flag_All_Row = false;
+
+    m_Flag_All_Col = false;
+
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+}
+
+
+template<typename ElementType>
+inline
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
+                                                  const DenseMatrix<int64>& RowIndexList,
+                                                  const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
+{
+    // all the indexes in RowIndexList and ColIndexList are within bound
+    // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, ALL), A is a matrix    
+
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
+
+    auto RowNumber_source = sourceMatrix.GetRowNumber();
+
+    auto ColNumber_source = sourceMatrix.GetColNumber();
+
+    m_RowIndexList_source.resize(RowIndexList.GetElementNumber());
+
+    for (int64 i = 0; i < RowIndexList.GetElementNumber(); ++i)
+    {
+        m_RowIndexList_source[i] = RowIndexList[i];
+    }
+
+    m_ColIndexList_source.resize(ColNumber_source);
+
+    for (int64 i = 0; i < ColNumber_source; ++i)
+    {
+        m_ColIndexList_source[i] = i;    
+    }
+
+    m_Flag_OutputVector = false;
+
+    //------------------------------------------
+
+    m_RowNumber = m_RowIndexList_source.size();
+
+    m_ColNumber = m_ColIndexList_source.size();
+
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    m_Flag_All_Row = false;
+
+    m_Flag_All_Col = true;
+
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+}
+
+
+template<typename ElementType>
+inline
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
+                                                  const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                                                  const DenseMatrix<int64>& ColIndexList)
+{
+    // all the indexes in RowIndexList and ColIndexList are within bound
+    // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A(ALL, {0, 1, 2}), A is a matrix    
+
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
+
+    auto RowNumber_source = sourceMatrix.GetRowNumber();
+
+    auto ColNumber_source = sourceMatrix.GetColNumber();
+
+    m_RowIndexList_source.resize(RowNumber_source);
+
+    for (int64 i = 0; i < RowNumber_source; ++i)
+    {
+        m_RowIndexList_source[i] = i;
+    }
+
+    m_ColIndexList_source.resize(ColIndexList.GetElementNumber());
+
+    for (int64 i = 0; i < ColIndexList.GetElementNumber(); ++i)
+    {
+        m_ColIndexList_source[i] = ColIndexList[i];
+    }
+
+    m_Flag_OutputVector = false;
+
+    //-------------------------------------------
+
+    m_RowNumber = m_RowIndexList_source.size();
+
+    m_ColNumber = m_ColIndexList_source.size();
+
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    m_Flag_All_Row = true;
+
+    m_Flag_All_Col = true;
+
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+}
+
+
+template<typename ElementType>
+inline
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
+{
+    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
+
+    m_Flag_OutputVector = true;
+
+    auto RowNumber_source = sourceMatrix.GetRowNumber();
+
+    auto ColNumber_source = sourceMatrix.GetColNumber();
+
+    m_ColIndexList_source.resize(ColNumber_source);
+
+    for (int64 i = 0; i < ColNumber_source; ++i)
+    {
+        m_ColIndexList_source[i] = i;
+    }
+
+    m_RowIndexList_source.resize(RowNumber_source);
+
+    for (int64 i = 0; i < RowNumber_source; ++i)
+    {
+        m_RowIndexList_source[i] = i;
+    }
+    //-----------------------------------------------
+
+    m_ElementNumber = RowNumber_source*ColNumber_source;
+
+    m_RowNumber = RowNumber_source;
+
+    m_ColNumber = ColNumber_source;
 
     m_Flag_All_Row = true;
 

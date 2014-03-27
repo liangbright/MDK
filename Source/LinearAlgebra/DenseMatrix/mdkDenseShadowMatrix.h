@@ -8,7 +8,6 @@
 #include <cmath>
 #include <algorithm>
 
-#include "mdkDebugConfig.h"
 
 #include "mdkDenseMatrix.h"
 
@@ -73,13 +72,21 @@ private:
 
     inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& LinearIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
-
     inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList);
 
     inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
     inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList);
+
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int64>& LinearIndexList);
+
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int64>& RowIndexList, const DenseMatrix<int64>& ColIndexList);
+
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const DenseMatrix<int64>& ColIndexList);
+
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
     inline DenseShadowMatrix(const DenseShadowMatrix<ElementType>& ShadowMatrix) = delete;
 

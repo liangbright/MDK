@@ -1054,6 +1054,48 @@ const ElementType* DenseMatrix<ElementType>::GetElementPointer() const
     return m_MatrixData->DataArray.data();
 }
 
+
+template<typename ElementType>
+inline ElementType* DenseMatrix<ElementType>::begin()
+{// the position of the first element
+    return m_MatrixData->DataArray.data();
+}
+
+
+template<typename ElementType>
+inline const ElementType* DenseMatrix<ElementType>::begin() const
+{
+    return m_MatrixData->DataArray.data();
+}
+
+
+template<typename ElementType>
+inline ElementType* DenseMatrix<ElementType>::end()
+{// the last position + 1
+    auto endPtr = m_MatrixData->DataArray.data();
+
+    if (endPtr != nullptr)
+    {
+        endPtr += 1;
+    }
+
+    return endPtr;
+}
+
+
+template<typename ElementType>
+inline const ElementType* DenseMatrix<ElementType>::end() const
+{
+    auto endPtr = m_MatrixData->DataArray.data();
+
+    if (endPtr != nullptr)
+    {
+        endPtr += 1;
+    }
+
+    return endPtr;
+}
+
 //----------- Get/Set Matrix(LinearIndex) -----------------------------------//
 
 // operator[] (): no bound check in release mode
@@ -1389,6 +1431,74 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList) 
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::operator()(const DenseMatrix<int64>& LinearIndexList)
+{
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
+
+    if (LinearIndexList.GetElementNumber() <= 0)
+    {
+        MDK_Error << "LinearIndexList is empty @ mdkDenseMatrix::operator()(DenseMatrix {LinearIndexList})" << '\n';
+        DenseShadowMatrix<ElementType> tempShadowMatrix;
+        return tempShadowMatrix;
+    }
+
+    auto Self_ElementNumber = this->GetElementNumber();
+
+    for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
+    {
+        if (*it >= Self_ElementNumber || *it < 0)
+        {
+            MDK_Error << "Invalid LinearIndexList @ mdkDenseMatrix::operator()(DenseMatrix {LinearIndexList})" << '\n';
+            DenseShadowMatrix<ElementType> tempShadowMatrix;
+            return tempShadowMatrix;
+        }
+    }
+
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
+
+    DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+
+    return tempShadowMatrix;
+}
+
+
+template<typename ElementType>
+inline
+const DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::operator()(const DenseMatrix<int64>& LinearIndexList) const
+{
+#if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
+
+    if (LinearIndexList.GetElementNumber() <= 0)
+    {
+        MDK_Error << "LinearIndexList is empty @ mdkDenseMatrix::operator()(DenseMatrix {LinearIndexList}) const" << '\n';
+        DenseShadowMatrix<ElementType> tempShadowMatrix;
+        return tempShadowMatrix;
+    }
+
+    auto Self_ElementNumber = this->GetElementNumber();
+
+    for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
+    {
+        if (*it >= Self_ElementNumber || *it < 0)
+        {
+            MDK_Error << "Invalid LinearIndexList @ mdkDenseMatrix::operator()(DenseMatrix {LinearIndexList}) const" << '\n';
+            DenseShadowMatrix<ElementType> tempShadowMatrix;
+            return tempShadowMatrix;
+        }
+    }
+
+#endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
+
+    DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+
+    return tempShadowMatrix;
+}
+
+
+template<typename ElementType>
+inline
+DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
 {
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
@@ -1517,6 +1627,66 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList) const
         if (*it >= Self_ElementNumber || *it < 0)
         {
             MDK_Error << "Invalid LinearIndexList @ mdkDenseMatrix::at(std::vector {LinearIndexList} const)" << '\n';
+            DenseShadowMatrix<ElementType> tempShadowMatrix;
+            return tempShadowMatrix;
+        }
+    }
+
+    DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+
+    return tempShadowMatrix;
+}
+
+
+template<typename ElementType>
+inline
+DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::at(const DenseMatrix<int64>& LinearIndexList)
+{
+    if (LinearIndexList.GetElementNumber() <= 0)
+    {
+        MDK_Error << "LinearIndexList is empty @ mdkDenseMatrix::at(DenseMatrix {LinearIndexList})" << '\n';
+        DenseShadowMatrix<ElementType> tempShadowMatrix;
+        return tempShadowMatrix;
+    }
+
+    auto Self_ElementNumber = this->GetElementNumber();
+
+    for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
+    {
+        if (*it >= Self_ElementNumber || *it < 0)
+        {
+            MDK_Error << "Invalid LinearIndexList @ mdkDenseMatrix::at(DenseMatrix {LinearIndexList})" << '\n';
+            DenseShadowMatrix<ElementType> tempShadowMatrix;
+            return tempShadowMatrix;
+        }
+    }
+
+    DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+
+    return tempShadowMatrix;
+}
+
+
+template<typename ElementType>
+inline
+const DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::at(const DenseMatrix<int64>& LinearIndexList)
+{
+    if (LinearIndexList.GetElementNumber() <= 0)
+    {
+        MDK_Error << "LinearIndexList is empty @ mdkDenseMatrix::at(DenseMatrix {LinearIndexList}) const" << '\n';
+        DenseShadowMatrix<ElementType> tempShadowMatrix;
+        return tempShadowMatrix;
+    }
+
+    auto Self_ElementNumber = this->GetElementNumber();
+
+    for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
+    {
+        if (*it >= Self_ElementNumber || *it < 0)
+        {
+            MDK_Error << "Invalid LinearIndexList @ mdkDenseMatrix::at(DenseMatrix {LinearIndexList}) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2401,6 +2571,61 @@ DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, c
     return tempShadowMatrix;
 }
 
+
+template<typename ElementType>
+inline
+DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Col(int64 ColIndex)
+{
+    return this->at(ALL, { ColIndex });
+}
+
+
+template<typename ElementType>
+inline
+DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Col(std::initializer_list<int64>& ColIndexList)
+{
+    return this->at(ALL, ColIndexList);
+}
+
+
+template<typename ElementType>
+inline
+DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Col(const std::vector<int64>& ColIndexList)
+{
+    return this->at(ALL, ColIndexList);
+}
+
+
+template<typename ElementType>
+inline
+DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Row(int64 RowIndex)
+{
+    return this->at({ RowIndex }, ALL);
+}
+
+
+template<typename ElementType>
+inline
+DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Row(std::initializer_list<int64>& RowIndexList)
+{
+    return this->at(RowIndexList, ALL);
+}
+
+
+template<typename ElementType>
+inline
+DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Row(const std::vector<int64>& RowIndexList)
+{
+    return this->at(RowIndexList, ALL);
+}
+
+
 // return SubMatrix as Matrix
 
 template<typename ElementType>
@@ -2524,92 +2749,6 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const ALL_Symbol
     }
 
     return this->GetSubMatrix(RowIndexList, ColIndexList);
-}
-
-
-template<typename ElementType>
-inline
-DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Col(int64 ColIndex)
-{
-    return this->at(ALL, { ColIndex });
-
-    /*
-    if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
-    {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::Col(ColIndex)" << '\n';
-        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;        
-        return tempShadowMatrix;
-    }
-
-    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL, {ColIndex});
-
-    return tempShadowMatrix;
-    */
-}
-
-
-template<typename ElementType>
-inline
-DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Col(std::initializer_list<int64>& ColIndexList)
-{
-    return this->at(ALL, ColIndexList);
-
-    /*
-    if (ColIndexList.size() <= 0)
-    {
-        MDK_Error << "ColIndexList is empty @ mdkDenseMatrix::Col()(std::initializer_list {ColIndexList})" << '\n';
-        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
-        return tempShadowMatrix;
-    }
-
-    for (auto it = ColIndexList.begin(); it != ColIndexList.end(); ++it)
-    {
-        if (*it >= SelfSize.ColNumber)
-        {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::Col({ColIndexList})" << '\n';
-            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
-            return tempShadowMatrix;
-        }
-    }
-
-    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL, ColIndexList);
-
-    return tempShadowMatrix;
-    */
-}
-
-
-template<typename ElementType>
-inline
-DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Col(const std::vector<int64>& ColIndexList)
-{
-    return this->at(ALL, ColIndexList);
-
-    /*
-    if (ColIndexList.size() <= 0)
-    {
-        MDK_Error << "ColIndexList is empty @ mdkDenseMatrix::operator()(std::vector {ColIndexList})" << '\n';
-        mdkDenseShadowMatrix<ElementType> tempShadowMatrix;
-        return tempShadowMatrix;
-    }
-
-    for (auto it = ColIndexList.begin(); it != ColIndexList.end(); ++it)
-    {        
-        if (*it >= SelfSize.ColNumber)
-        {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::Col(std::vector ColIndexList)" << '\n';
-            mdkDenseShadowMatrix<ElementType> tempShadowMatrix;            
-            return tempShadowMatrix;
-        }
-    }
-
-    mdkDenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL, ColIndexList);
-
-    return tempShadowMatrix;
-    */
 }
 
 
@@ -3186,33 +3325,6 @@ bool DenseMatrix<ElementType>::InsertCol(int64 ColIndex, const ElementType_Input
     m_ElementPointer = m_MatrixData->DataArray.data();
 
     return true;
-}
-
-
-template<typename ElementType>
-inline
-DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Row(int64 RowIndex)
-{
-    return this->at({RowIndex}, ALL);
-}
-
-
-template<typename ElementType>
-inline
-DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Row(std::initializer_list<int64>& RowIndexList)
-{
-    return this->at(RowIndexList, ALL);
-}
-
-
-template<typename ElementType>
-inline
-DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Row(const std::vector<int64>& RowIndexList)
-{
-    return this->at(RowIndexList, ALL);
 }
 
 
