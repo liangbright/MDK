@@ -2626,6 +2626,66 @@ DenseMatrix<ElementType>::Row(const std::vector<int64>& RowIndexList)
 }
 
 
+template<typename ElementType>
+inline
+DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Diangonal()
+{
+    auto SelfSize = this->GetSize();
+
+    if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
+    {
+        MDK_Error << " Self is empty or not square @ DenseMatrix::Diangonal()" << '\n';
+        DenseShadowMatrix<ElementType> tempShadowMatrix;
+        return  tempShadowMatrix;
+    }
+
+    std::vector<int64> LinearIndexList(SelfSize.ColNumber);
+
+    int64 Index = 0;
+
+    for (int64 i = 0; i < SelfSize.RowNumber; ++i)
+    {
+        LinearIndexList[j] = Index + i;
+
+        Index += SelfSize.RowNumber;
+    }
+
+    DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+
+    return tempShadowMatrix;
+}
+
+template<typename ElementType>
+inline
+const DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Diangonal() const
+{
+    auto SelfSize = this->GetSize();
+
+    if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
+    {
+        MDK_Error << " Self is empty or not square @ DenseMatrix::Diangonal() const" << '\n';
+        DenseShadowMatrix<ElementType> tempShadowMatrix;
+        return  tempShadowMatrix;
+    }
+
+    std::vector<int64> LinearIndexList(SelfSize.ColNumber);
+
+    int64 Index = 0;
+
+    for (int64 i = 0; i < SelfSize.RowNumber; ++i)
+    {
+        LinearIndexList[j] = Index + i;
+
+        Index += SelfSize.RowNumber;
+    }
+
+    DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
+
+    return tempShadowMatrix;
+}
+
 // return SubMatrix as Matrix
 
 template<typename ElementType>
@@ -3884,37 +3944,6 @@ bool DenseMatrix<ElementType>::InsertRow(int64 RowIndex, const ElementType_Input
     //-------------------------------------------------------
 
     return true;
-}
-
-
-template<typename ElementType>
-inline
-DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Diangonal()
-{
-    auto SelfSize = this->GetSize();
-
-    if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
-    {
-        MDK_Error << " Self is empty or not square @ mdkDenseMatrix::Diangonal" << '\n';
-        DenseShadowMatrix<ElementType> tempShadowMatrix;     
-        return  tempShadowMatrix;
-    }
-
-    std::vector<int64> LinearIndexList(SelfSize.ColNumber);
-
-    int64 Index = 0;
-
-    for (int64 i = 0; i < SelfSize.RowNumber; ++i)
-    {
-        LinearIndexList[j] = Index + i;
-
-        Index += SelfSize.RowNumber;
-    }
-
-    DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
-
-    return tempShadowMatrix;
 }
 
 

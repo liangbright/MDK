@@ -533,6 +533,11 @@ public:
 
     inline DenseShadowMatrix<ElementType> Row(DenseMatrix<int64>& RowIndexList);
 
+    //
+    inline DenseShadowMatrix<ElementType> Diangonal();
+
+    inline const DenseShadowMatrix<ElementType> Diangonal() const;
+
     // return SubMatrix as Matrix -----------------------------------------------
 
     inline DenseMatrix GetSubMatrix(const std::vector<int64>& RowIndexList, 
@@ -676,8 +681,6 @@ public:
     inline bool InsertRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length);
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
-
-    inline DenseShadowMatrix<ElementType> Diangonal();
 
     inline DenseMatrix GetDiangonal() const;
 
