@@ -558,13 +558,6 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>& InputMatrix)
 {
-    // MatrixA = MatrixA
-    if (this == &InputMatrix)
-    {
-        MDK_Warning << "A Matrix tries to take itself @ DenseMatrix::Take(InputMatrix)" << '\n';
-        return false;
-    }
-
     auto InputSize = InputMatrix.GetSize();
 
     auto SelfSize = this->GetSize();
@@ -589,7 +582,14 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>& InputMatrix)
         return true;
     }
 
-    // now, InputMatrix is not empty
+    // MatrixA = MatrixA
+    if (this->GetElementPointer() == InputMatrix.GetElementPointer())
+    {
+        MDK_Warning << "A Matrix tries to take itself @ DenseMatrix::Take(InputMatrix)" << '\n';
+        return false;
+    }
+
+    // now, InputMatrix is not empty, and is not self
     
     //note: m_MatrixData.swap(InputMatrix.m_MatrixData) will invalidate Share()
 
@@ -660,7 +660,14 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputVector)
         return true;
     }
 
-    // now, InputMatrix is not empty
+    // MatrixA = MatrixA
+    if (this->GetElementPointer() == InputVector.data())
+    {
+        MDK_Warning << "A Matrix tries to take itself @ DenseMatrix::Take(InputVector)" << '\n';
+        return false;
+    }
+
+    // now, InputMatrix is not empty, and is not self
 
     m_MatrixData->RowNumber = InputLength;
 

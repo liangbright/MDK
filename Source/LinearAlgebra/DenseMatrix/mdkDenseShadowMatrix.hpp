@@ -681,6 +681,13 @@ template<typename ElementType>
 inline
 bool DenseShadowMatrix<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>& OutputMatrix) const
 {
+    if (m_SourceMatrixSharedCopy.GetElementPointer() == OutputMatrix.GetElementPointer())
+    {
+        OutputMatrix = this->CreateDenseMatrix();
+
+        return true;
+    }
+
     if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
     {
         if (OutputMatrix.IsSizeFixed() == false)
