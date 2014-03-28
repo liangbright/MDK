@@ -12,16 +12,16 @@ struct TempStruct
     int t2;
 };
 
-int Test_A(uint64 a, uint64 b)
+int Test_A(int64 a, int64 b)
 {
     std::cout << "a = " << a << '\n';
 
-    std::cout << " uint64 a, uint64 b" << '\n';
+    std::cout << " int64 a, int64 b" << '\n';
 
     return 1;
 }
 
-TempStruct Test_A(const std::initializer_list<uint64>& a, std::initializer_list<uint64>& b)
+TempStruct Test_A(const std::initializer_list<int64>& a, std::initializer_list<int64>& b)
 {
     std::cout << "initializer_list" << '\n';
 
@@ -35,7 +35,7 @@ TempStruct Test_A(const std::initializer_list<uint64>& a, std::initializer_list<
 }
 
 
-TempStruct Test_A(const std::initializer_list<uint64>& a, const Object& b)
+TempStruct Test_A(const std::initializer_list<int64>& a, const Object& b)
 {
     std::cout << "initializer_list" << '\n';
 
@@ -52,7 +52,7 @@ int aaa_main()
 {
     double a1 = 1234567890;
 
-    uint64 a2 = uint64(a1);
+    int64 a2 = int64(a1);
 
 
     auto a = Test_A(0, 0);
@@ -84,7 +84,7 @@ int main()
 
 //    Test_ElementOperation();
 
-    Test_ColOperation();
+  //  Test_ColOperation();
 
    // Test_Matrix_Operator();
 
@@ -98,7 +98,7 @@ int main()
 
     // Test_Share();
 
-  //  Test_SubMatrix();
+    Test_SubMatrix();
 
     //Test_ShadowMatrix();
    

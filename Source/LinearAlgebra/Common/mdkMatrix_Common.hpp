@@ -83,22 +83,22 @@ ElementType GetMatrixNaNElement(ElementType ReferenceElement)
         return ElementType(std::nan(nullptr));
 
     case MatrixElementTypeEnum::Scalar_FLOAT32:
-        return std::nanf(nullptr);
+        return ElementType(std::nanf(nullptr));
 
     case MatrixElementTypeEnum::StdVector_DOUBLE64:
         return ReferenceElement + ElementType(std::nan(nullptr));
 
     case MatrixElementTypeEnum::StdVector_FLOAT32:
-        return ReferenceElement + std::nanf(nullptr);
+        return ReferenceElement + ElementType(std::nanf(nullptr));
 
     case MatrixElementTypeEnum::StdArray_DOUBLE64:
         return ReferenceElement + ElementType(std::nan(nullptr));
 
     case MatrixElementTypeEnum::StdArray_FLOAT32:
-        return ReferenceElement + std::nanf(nullptr);
+        return ReferenceElement + ElementType(std::nanf(nullptr));
 
     default:
-        MDK_Warning << "ElementType is not float or double, so NaNElement is set to zero @ GetMatrixNaNElement()" << '\n';
+        //MDK_Warning << "ElementType is not float or double, so NaNElement is set to zero @ GetMatrixNaNElement()" << '\n';
         return ReferenceElement - ReferenceElement;
     }
 }
