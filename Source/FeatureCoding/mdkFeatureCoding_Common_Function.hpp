@@ -52,7 +52,7 @@ DenseMatrix<ElementType> ComputeListOfL2DistanceFromOneFeatureToFeatureDictionar
 
 
 template<typename ElementType>
-DenseMatrix<int64> FindKNNFromDistanceList(int64 K_NeighbourNumber, const DenseMatrix<ElementType>& DistanceList)
+DenseMatrix<int64> FindKNNByDistanceList(int64 K_NeighbourNumber, const DenseMatrix<ElementType>& DistanceList)
 {
     DenseMatrix<int64> NeighbourIndexList;
 
@@ -60,7 +60,7 @@ DenseMatrix<int64> FindKNNFromDistanceList(int64 K_NeighbourNumber, const DenseM
 
     if (K_NeighbourNumber > ElementNumber || K_NeighbourNumber <= 0)
     {
-        MDK_Error << "Invalid input @ mdkFeatureCoding FindKNNFromDistanceList(...)" << '\n';
+        MDK_Error << "Invalid input @ mdkFeatureCoding FindKNNByDistanceList(...)" << '\n';
         return NeighbourIndexList;
     }
 

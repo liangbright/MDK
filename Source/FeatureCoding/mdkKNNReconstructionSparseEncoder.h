@@ -3,7 +3,8 @@
 
 #include <string>
 
-#include "mdkFeatureDictionaryBasedSparseEncoder.hpp"
+#include "mdkFeatureDictionaryBasedSparseEncoder.h"
+#include "mdkFeatureCoding_Common_Function.h"
 
 
 namespace mdk

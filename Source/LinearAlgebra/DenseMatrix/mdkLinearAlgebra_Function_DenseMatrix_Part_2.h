@@ -9,7 +9,7 @@
 #include <complex>
 
 
-#include "mdkObject.h"
+#include "mdkType.h"
 //#include "mdkDenseMatrix.h"
 #include "mdkMatrix_Common.h"
 

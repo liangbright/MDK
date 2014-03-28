@@ -8,9 +8,9 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there.")
 endif()
  
+PROJECT(MDK_TestEigen)
+ 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ Kits/8.1/Lib/winv6.3/um/x64")
-
-PROJECT(MDK_TestFeatureCoding)
 
 set(VTK_DIR C:/Programs/VTK/VTK_6.1_VC2013_Build)
 find_package(VTK REQUIRED)
@@ -69,6 +69,6 @@ message(STATUS ${Source_FILES})
 
 message(STATUS ${Arma_FILES})
 
-add_executable(MDK_TestFeatureCoding ${Test_FILES} ${Source_FILES} ${Arma_FILES})
+add_executable(MDK_TestEigen ${Test_FILES} ${Source_FILES} ${Arma_FILES})
 
-target_link_libraries(MDK_TestFeatureCoding ${LinearALgebraLib_win64} ${VTK_LIBRARIES} ${OpenCV_LIBS})
+target_link_libraries(MDK_TestEigen ${LinearALgebraLib_win64} ${VTK_LIBRARIES} ${OpenCV_LIBS})

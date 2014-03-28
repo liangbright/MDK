@@ -69,9 +69,9 @@ bool KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int64 IndexOf
 
     auto L2DistanceList = ComputeListOfL2DistanceFromOneFeatureToFeatureDictionary(FeatureVector, m_Dictionary->m_Record);
 
-    auto NeighbourIndexList = FindKNNFromDistanceList(m_NeighbourNumber, L2DistanceList);
+    auto NeighbourIndexList = FindKNNByDistanceList(m_NeighbourNumber, L2DistanceList);
 
-    DenseMatrix<ElementType> SubRecord = m_Dictionary->m_Record.GetSubMatrix(ALL, NeighbourIndexList);
+    auto SubRecord = m_Dictionary->m_Record.GetSubMatrix(ALL, NeighbourIndexList);
 
     // solve linear equation using least square method
 

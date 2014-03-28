@@ -24,16 +24,17 @@
 
 #include "mdkTypeToOpenCVTranslation.h"
 
-using namespace mdk;
+namespace mdk
+{
 
 template<typename T>
 void DisplayMatrix(const std::string& Name, const DenseMatrix<T>& Matrix, uint32 value_std_setw = 6, uint32 precision = 0)
 {
     std::cout << Name << " = " << '\n';
 
-    for (mdk::int64 i = 0; i < Matrix.GetRowNumber(); ++i)
+    for (int64 i = 0; i < Matrix.GetRowNumber(); ++i)
     {
-        for (mdk::int64 j = 0; j < Matrix.GetColNumber(); ++j)
+        for (int64 j = 0; j < Matrix.GetColNumber(); ++j)
         {
             //std::cout << std::fixed << std::setprecision(precision) << Matrix(i, j) << ' ';
 
@@ -48,8 +49,8 @@ void Test_OpenCVMatrix()
 {
     DenseMatrix<double> A(2, 3);
 
-    A = { 1, 2, 3,
-          4, 5, 6 };
+    A = { { 1, 2, 3 },
+          { 4, 5, 6 } };
 
     DisplayMatrix("A", A);
 
@@ -59,8 +60,6 @@ void Test_OpenCVMatrix()
 
     auto OpenCVElemetType = GetOpenCVSingleChannelMatrixElementType<double>();
 
-   // cv::Mat img(500, 500, CV_8UC3);
-
     auto Data = cv::Mat(2, 3, OpenCVElemetType, (void*)B.GetElementPointer());
 
    // B.Clear();
@@ -69,9 +68,9 @@ void Test_OpenCVMatrix()
 
     std::cout << "Data:" << '\n';
     
-    for (mdk::int64 i = 0; i < 2; ++i)
+    for (int64 i = 0; i < 2; ++i)
     {
-        for (mdk::int64 j = 0; j < 3; ++j)
+        for (int64 j = 0; j < 3; ++j)
         {
             std::cout << Data.at<double>(i, j) << "  ";
         }
@@ -89,7 +88,7 @@ void Test_mdkKMeansDictionaryBuilder_using_OpenCV()
 
     DenseMatrix<double> FeatureData(100, 100);
 
-    for (mdk::int64 i = 0; i < 100; ++i)
+    for (int64 i = 0; i < 100; ++i)
     {
         auto temp = i % 3;
         if (temp == 0)
@@ -106,7 +105,7 @@ void Test_mdkKMeansDictionaryBuilder_using_OpenCV()
         }
     }
 
-    mdk::int64 DictionaryLength = 3;
+    int64 DictionaryLength = 3;
 
     FeatureDictionary<double> KMeansDictionary;
 
@@ -122,5 +121,7 @@ void Test_mdkKMeansDictionaryBuilder_using_OpenCV()
 
     DisplayMatrix("Dictionary", KMeansDictionary.m_Record);
 }
+
+}//namespace mdk
 
 #endif
