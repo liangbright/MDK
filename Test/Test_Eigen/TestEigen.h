@@ -6,8 +6,6 @@
 #include <chrono>
 #include <ctime>
 #include <iomanip>
-#include <initializer_list>
-#include <functional>
 
 #include <Eigen/Dense>
 
@@ -84,22 +82,23 @@ void Test_LinearEquationSolver_LeastSquares()
 
     DisplayMatrix("InputB", InputB);
 
-    DenseMatrix<double> OutputX;
+    DenseMatrix<double> OutputX(2, 1);
 
     Eigen::Map<Eigen::MatrixXd> A(InputA.GetElementPointer(), 10, 2);
 
     Eigen::Map<Eigen::MatrixXd> B(InputB.GetElementPointer(), 10, 1);
 
-    Eigen::MatrixXd X;
+    Eigen::Map<Eigen::MatrixXd> X(OutputX.GetElementPointer(), 2, 1);
 
     X = A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(B);
 
     std::cout << "The least-squares solution is:\n" << X << '\n';
 
-  
-    OutputX.Copy(X.data(), 2, 1);
-
     DisplayMatrix("OutputX", OutputX);
+
+    //
+    DenseMatrix<double> AA(2, 2);
+    AA = AA*AA;
 }
 
 

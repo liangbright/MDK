@@ -43,15 +43,9 @@ ${Lapack_Blas_DIR}
 ${Eigen_DIR}
 )
 
-#FILE(GLOB Arma_FILES ${Arma_Source_DIR}/*.hpp)
-
-FILE(GLOB Arma_FILES C:/Research/MDK/armadillo/armadillo_bits/*.hpp)
-
-set(Arma_FILES ${Arma_FILES} C:/Research/MDK/armadillo/armadillo.h)
-
 FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
-set(Source_FILES 
+set(CPP_FILES 
 
 ${MDK_DIR}/Common/mdkObject.cpp
 
@@ -69,6 +63,6 @@ message(STATUS ${Source_FILES})
 
 message(STATUS ${Arma_FILES})
 
-add_executable(MDK_TestEigen ${Test_FILES} ${Source_FILES} ${Arma_FILES})
+add_executable(MDK_TestEigen ${Test_FILES} ${CPP_FILES} )
 
 target_link_libraries(MDK_TestEigen ${LinearALgebraLib_win64} ${VTK_LIBRARIES} ${OpenCV_LIBS})
