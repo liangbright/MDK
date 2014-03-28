@@ -9,12 +9,6 @@
 namespace mdk
 {
 
-// forward declare ------------------------------------
-template<typename ElementType>
-class DenseMatix;
-//-------------------------------------------------------
-
-
 enum struct MatrixElementTypeEnum
 {
     Scalar_DOUBLE64,
@@ -97,8 +91,8 @@ static ALL_Symbol_For_Matrix_Operator This_Is_ALL_Symbol_For_Matrix_Operator(Thi
 
 //-----------------------------------span: e.g., span(1,10) is 1:10 in Matlab, or span(1, 2, 10) is 1:2:10 in Matlab -----------------//
 
-//DenseMatix<int64> span(int64 Index_A, int64 Index_B);
-//DenseMatix<int64> span(int64 Index_A, int64 Step, int64 Index_B);
+std::vector<int64> span(int64 Index_A, int64 Index_B);
+std::vector<int64> span(int64 Index_A, int64 Step, int64 Index_B);
 
 
 //----------------------------------------------------------------------------------------------------------------------------//

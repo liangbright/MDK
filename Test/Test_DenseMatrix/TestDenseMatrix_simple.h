@@ -31,6 +31,31 @@ void DisplayMatrix(const std::string& Name, const DenseMatrix<T>& Matrix, uint32
     }
 }
 
+void print_vec(const std::vector<int>& vec)
+{
+    for (auto x : vec) {
+        std::cout << ' ' << x;
+    }
+    std::cout << '\n';
+}
+
+void test_vec_insert()
+{
+    std::vector<int> vec;
+    print_vec(vec);
+
+    //auto it = vec.begin();
+    //it = vec.insert(it, { 1, 2 });
+    //print_vec(vec);
+
+    std::vector<int> vec2 = {1, 2};
+
+    auto it = vec.begin();
+    it = vec.insert(it, vec2.begin(), vec2.end());
+    print_vec(vec);
+}
+
+
 void Test_SubMatrix()
 {
     DenseMatrix<double> A;

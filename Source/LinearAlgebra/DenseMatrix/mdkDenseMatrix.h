@@ -260,7 +260,7 @@ public:
 
     inline bool Take(DenseMatrix<ElementType>* InputMatrix);
 
-    inline bool Take(std::vector<ElementType>& InputVector);
+    //inline bool Take(std::vector<ElementType>& InputVector); // problem: can not determine if Input is row or col vector;
 
     //Take the Matrix Created from ShadowMatrix or GlueMatrix
 
@@ -297,13 +297,13 @@ public:
 
 	inline int64 GetRowNumber() const;
 
-    inline bool IsNonemptyVector() const;
+    inline bool IsVector() const;
 
-    inline bool IsNonemptyRowVector() const;
+    inline bool IsRowVector() const;
 
-    inline bool IsNonemptyColVector() const;
+    inline bool IsColVector() const;
 
-    inline bool IsNonemptySquare() const;
+    inline bool IsSquare() const;
 
     //------------------------ NaN Element -----------------------------//
 
@@ -323,9 +323,7 @@ public:
 
     inline const ElementType* begin() const;
 
-    inline ElementType* end(); // the last position + 1
-
-    inline const ElementType* end() const;
+    inline const ElementType* end() const; // the last position + 1
 
 	//----------- Get/Set Matrix(LinearIndex) -----------------------------------//
 
@@ -585,6 +583,10 @@ public:
     inline DenseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
                                     const DenseMatrix<int64>& ColIndexList) const;
 
+    inline bool GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix, 
+                             const int64* RowIndexList, int64 OutputRowNumber,
+                             const int64* ColIndexList, int64 OutputColNumber) const;
+
 	//---------------------- Get/Set/Fill/Append/Delete/Insert Single Column ----------------------------------------//
 	
     inline DenseMatrix GetCol(int64 ColIndex) const;
@@ -621,14 +623,13 @@ public:
 	
     inline bool DeleteCol(int64 ColIndex);
 
-    // no const before std::initializer_list
-    inline bool DeleteCol(std::initializer_list<int64>& ColIndexList);
+    inline bool DeleteCol(const std::initializer_list<int64>& ColIndexList);
 
-    //inline bool DeleteCol(const std::vector<int64>& ColIndexList);
+    inline bool DeleteCol(const std::vector<int64>& ColIndexList);
 
     inline bool DeleteCol(const DenseMatrix<int64>& ColIndexList);
 
-    inline bool DeleteCol(const int64* ColIndexListPtr, int64 Length);
+    inline bool DeleteCol(const int64* ColIndexList, int64 Length);
 
     template<typename ElementType_Input>
     inline bool InsertCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData);
@@ -678,14 +679,13 @@ public:
 
     inline bool DeleteRow(int64 RowIndex);
 
-    // no const before std::initializer_list
-    inline bool DeleteRow(std::initializer_list<int64>& RowIndexList);
+    inline bool DeleteRow(const std::initializer_list<int64>& RowIndexList);
 
-    //inline bool DeleteRow(const std::vector<int64>& RowIndexList);
+    inline bool DeleteRow(const std::vector<int64>& RowIndexList);
 
     inline bool DeleteRow(const DenseMatrix<int64>& RowIndexList);
 
-    inline bool DeleteRow(const int64* RowIndexListPtr, int64 Length);
+    inline bool DeleteRow(const int64* RowIndexList, int64 Length);
 
     template<typename ElementType_Input>
     inline bool InsertRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData);

@@ -404,25 +404,25 @@ void Image<VoxelType>::Take(Image<VoxelType>& InputImage)
     m_ImageData->m_Dimension[0] = InputImage.m_ImageData->m_Dimension[0];
     m_ImageData->m_Dimension[1] = InputImage.m_ImageData->m_Dimension[1];
     m_ImageData->m_Dimension[2] = InputImage.m_ImageData->m_Dimension[2];
-
+    
     m_ImageData->m_VoxelNumberPerZSlice = InputImage.m_ImageData->m_VoxelNumberPerZSlice;
-
+    
     m_ImageData->m_PhysicalOrigin[0] = InputImage.m_ImageData->m_PhysicalOrigin[0];
     m_ImageData->m_PhysicalOrigin[1] = InputImage.m_ImageData->m_PhysicalOrigin[1];
     m_ImageData->m_PhysicalOrigin[2] = InputImage.m_ImageData->m_PhysicalOrigin[2];
-
+    
     m_ImageData->m_VoxelSpacing[0] = InputImage.m_ImageData->m_VoxelSpacing[0];
     m_ImageData->m_VoxelSpacing[1] = InputImage.m_ImageData->m_VoxelSpacing[1];
     m_ImageData->m_VoxelSpacing[2] = InputImage.m_ImageData->m_VoxelSpacing[2];
-
+    
     m_ImageData->m_DataArray = std::move(InputImage.m_ImageData->m_DataArray);
-
+    
     m_VoxelPointer = m_ImageData->m_DataArray.data();
 
     m_ZeroVoxel = InputImage.m_ZeroVoxel;
 
     m_ZeroVoxel_Error_Output = m_ZeroVoxel;
-
+    
     InputImage.Clear();
 }
 

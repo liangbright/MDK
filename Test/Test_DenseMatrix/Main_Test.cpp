@@ -72,7 +72,7 @@ int main()
 
    // auto b = Test_A({ 1 }, {});
 
-
+   // test_vec_insert();
     
     //Test_Constructor();
 
@@ -90,15 +90,15 @@ int main()
 
     // Test_Matrix_ChangeSize();
 
-  //  Test_Set_Get_Append_Delete_Insert_Col();
+    Test_Set_Get_Append_Delete_Insert_Col();
 
-   // Test_Set_Get_Append_Delete_Insert_Row();
+    Test_Set_Get_Append_Delete_Insert_Row();
 
    // Test_GetSubMatrix();
 
     // Test_Share();
 
-    Test_SubMatrix();
+    //Test_SubMatrix();
 
     //Test_ShadowMatrix();
    

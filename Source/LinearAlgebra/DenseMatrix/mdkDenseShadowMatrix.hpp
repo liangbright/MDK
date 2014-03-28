@@ -548,7 +548,7 @@ template<typename ElementType>
 inline 
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(DenseShadowMatrix<ElementType>&& ShadowMatrix)
 {
-    m_SourceMatrixSharedCopy.ForceShare(ShadowMatrix.m_SourceMatrixSharedCopy); // do not use std::move() !
+    m_SourceMatrixSharedCopy = std::move(ShadowMatrix.m_SourceMatrixSharedCopy);
 
     m_RowIndexList_source = std::move(ShadowMatrix.m_RowIndexList_source);
 
@@ -629,12 +629,7 @@ template<typename ElementType>
 inline
 bool DenseShadowMatrix<ElementType>::IsEmpty() const
 {
-    if (m_ElementNumber == 0)
-    {
-        return true;
-    }
-
-    return false;
+    return (m_ElementNumber == 0);
 }
 
 
@@ -860,11 +855,17 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseShadowMatrix<ElementTy
 
     //--------------------------------------------
 
-    for (int64 i = 0; i < m_ElementNumber; ++i)
+    if (m_SourceMatrixSharedCopy.GetElementPointer() == ShadowMatrix.m_SourceMatrixSharedCopy.GetElementPointer())
     {
-        (*this)[i] = ShadowMatrix[i];
+        (*this) = ShadowMatrix.CreateDenseMatrix();
     }
-
+    else
+    {
+        for (int64 i = 0; i < m_ElementNumber; ++i)
+        {
+            (*this)[i] = ShadowMatrix[i];
+        }
+    }
 }
 
 
@@ -1423,9 +1424,16 @@ void DenseShadowMatrix<ElementType>::operator+=(const DenseShadowMatrix<ElementT
 
     //-------------------------------------------
 
-    for (int64 i = 0; i < m_ElementNumber; ++i)
+    if (m_SourceMatrixSharedCopy.GetElementPointer() == ShadowMatrix.m_SourceMatrixSharedCopy.GetElementPointer())
     {
-        (*this)[i] += ShadowMatrix[i];
+        (*this) += ShadowMatrix.CreateDenseMatrix();
+    }
+    else
+    {
+        for (int64 i = 0; i < m_ElementNumber; ++i)
+        {
+            (*this)[i] += ShadowMatrix[i];
+        }
     }
 }
 
@@ -1457,9 +1465,16 @@ void DenseShadowMatrix<ElementType>::operator-=(const DenseShadowMatrix<ElementT
 
     //-------------------------------------------
 
-    for (int64 i = 0; i < m_ElementNumber; ++i)
+    if (m_SourceMatrixSharedCopy.GetElementPointer() == ShadowMatrix.m_SourceMatrixSharedCopy.GetElementPointer())
     {
-        (*this)[i] -= ShadowMatrix[i];
+        (*this) -= ShadowMatrix.CreateDenseMatrix();
+    }
+    else
+    {
+        for (int64 i = 0; i < m_ElementNumber; ++i)
+        {
+            (*this)[i] -= ShadowMatrix[i];
+        }
     }
 }
 
@@ -1522,9 +1537,16 @@ void DenseShadowMatrix<ElementType>::operator/=(const DenseShadowMatrix<ElementT
 
     //-------------------------------------------
 
-    for (int64 i = 0; i < m_ElementNumber; ++i)
+    if (m_SourceMatrixSharedCopy.GetElementPointer() == ShadowMatrix.m_SourceMatrixSharedCopy.GetElementPointer())
     {
-        (*this)[i] /= ShadowMatrix[i];
+        (*this) /= ShadowMatrix.CreateDenseMatrix();
+    }
+    else
+    {
+        for (int64 i = 0; i < m_ElementNumber; ++i)
+        {
+            (*this)[i] /= ShadowMatrix[i];
+        }
     }
 }
 

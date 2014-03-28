@@ -122,14 +122,14 @@ void Test_Constructor()
 
     DenseMatrix<int64> testA;
 
-    DenseMatrix<double> A;
+    DenseMatrix<double> A(2, 2);
 
-   // A(span(1, 0), span(1, 0)) = 1;
+    A(span(1, 0), span(1, 0)) = 1;
 
     DisplayMatrix("A", A);
 
-    A = { 101, 102, 
-          103, 104};
+    A = { { 101, 102 },
+          { 103, 104 } };
 
     DisplayMatrix("A", A);
 
@@ -235,7 +235,7 @@ void Test_Constructor()
 
 void Test_MoveConstructor()
 {
-    DenseMatrix<double> A;
+    DenseMatrix<double> A(2, 2);
 
     auto ptrA = A.GetElementPointer();
 
@@ -280,10 +280,10 @@ void Test_MoveConstructor()
 void Test_ShareConstuctor()
 {
 
-    DenseMatrix<double> A;
+    DenseMatrix<double> A(2, 4);
 
-    A = { 1, 2, 3, 4,
-        5, 6, 7, 8 };
+    A = { { 1, 2, 3, 4 },
+          { 5, 6, 7, 8 }};
 
 
     DisplayMatrix("A", A);
@@ -341,10 +341,10 @@ void Test_Matrix_Operator()
 
     DenseMatrix<double> tempMatrix = {};
 
-    DenseMatrix<double> A;
+    DenseMatrix<double> A(2, 4);
 
-    A = { 1, 2, 3, 4,
-          5, 6, 7, 8 };
+    A = { { 1, 2, 3, 4 },
+          { 5, 6, 7, 8 } };
 
     DisplayMatrix("A", A);
 
@@ -432,8 +432,8 @@ void Test_Mutiplication()
 
 	A.Resize(2, 4);
 
-	A = { 1, 2, 3, 4, 
-          5, 6, 7, 8 };
+    A = { { 1, 2, 3, 4 },
+          { 5, 6, 7, 8 } };
 	
 
     DisplayMatrix("A", A);
@@ -442,10 +442,10 @@ void Test_Mutiplication()
 
     B.Resize(4, 2);
 
-	B = { 1, 2, 
-		  3, 4, 
-		  5, 6, 
-		  7, 8 };
+    B = { { 1, 2 },
+          { 3, 4 },
+          { 5, 6 },
+          { 7, 8 } };
 
     DisplayMatrix("B", B);
 
@@ -458,9 +458,9 @@ void Test_Mutiplication()
     DisplayMatrix("A * 1.25", A);
 
 
-	DenseMatrix<double> D;
-	D = {  1,  2,  3,  4,  5,  6,  7,  8,  9, 10,
-		  11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+	DenseMatrix<double> D(2, 10);
+    D = { { 1,  2,  3,  4,  5,  6,  7,  8,  9,  10 },
+          { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 } };
 
     DisplayMatrix("D", D);
 }
@@ -468,10 +468,10 @@ void Test_Mutiplication()
 
 void Test_Share()
 {
-    DenseMatrix<double> A;
+    DenseMatrix<double> A(2,2);
 
-    A = { 1, 2,
-          3, 4 };
+    A = { { 1, 2 },
+          { 3, 4 } };
 
     DisplayMatrix("A", A);
 
@@ -493,11 +493,11 @@ void Test_Mutiplication_Speed()
 
     int64 Ly = 100;
 
-    DenseMatrix<double> A;
+    DenseMatrix<double> A(Lx, Ly);
 
-    DenseMatrix<double> B;
+    DenseMatrix<double> B(Lx, Ly);
 
-    DenseMatrix<double> C;
+    DenseMatrix<double> C(Lx, Ly);
 
     auto t0 = std::chrono::system_clock::now();
 
@@ -600,8 +600,8 @@ void Test_Transpose()
 
     A.Resize(2, 4);
 
-	A = { 1, 2, 3, 4,
-		  5, 6, 7, 8 };
+    A = { { 1, 2, 3, 4 },
+		  { 5, 6, 7, 8 }};
 
     DisplayMatrix("A", A);
 
@@ -618,8 +618,8 @@ void Test_Sum_Mean_Max_Min()
 
     A.Resize(2, 4);
 
-	A = { 1, 2, 3, 4,
-		  5, 6, 7, 8 };
+    A = { { 1, 2, 3, 4 },
+          { 5, 6, 7, 8 } };
 
     DisplayMatrix("A", A);
 
@@ -777,9 +777,11 @@ void Test_Set_Get_Append_Delete_Insert_Col()
 
 	DenseMatrix<double> A;
 
-	std::vector<double> Col;
+    DenseMatrix<double> Col(1, 3);
+	//std::vector<double> Col;
 
 	Col = { 1, 2, 3 };
+
 	A.AppendCol(Col);
 
     std::cout << "A = " << '\n';
@@ -848,7 +850,8 @@ void Test_Set_Get_Append_Delete_Insert_Row()
 
     DenseMatrix<double> A;
 
-    std::vector<double> Row;
+    DenseMatrix<double> Row(1, 3);
+    //std::vector<double> Row;
 
     Row = { 1, 2, 3 };
     A.AppendRow(Row);
@@ -913,7 +916,7 @@ void Test_Set_Get_Append_Delete_Insert_Row()
 
 void Test_GetSubMatrix()
 {
-    DenseMatrix<double> A;
+    DenseMatrix<double> A(5, 6);
 
     A = { 1,     2,     3,     4,     5,     6,
           10,    20,    30,    40,    50,    60, 
@@ -959,7 +962,7 @@ void Test_GetSubMatrix()
 
 void Test_SubMatrix()
 {
-    DenseMatrix<double> A;
+    DenseMatrix<double> A(5, 6);
 
     A = { 1,     2,     3,     4,     5,     6,
           10,    20,    30,    40,    50,    60, 
@@ -1003,16 +1006,16 @@ void Test_ShadowMatrix()
 
     DenseMatrix<double> A(3, 3);
 
-    A = { 1, 2, 3,
-          4, 5, 6,
-          7, 8, 9 };
+    A = { { 1, 2, 3 },
+          { 4, 5, 6 },
+          { 7, 8, 9 } };
 
     DenseMatrix<double> B(4, 4);
 
-    B = { 1, 2, 3, 0,
-          4, 5, 6, 0,
-          7, 8, 9, 0,
-          0, 0, 0, 0};
+    B = { { 1, 2, 3, 0 },
+          { 4, 5, 6, 0 },
+          { 7, 8, 9, 0 },
+          { 0, 0, 0, 0 } };
 
     DenseMatrix<double> C;
 
@@ -1031,9 +1034,9 @@ void Test_Arma()
 	std::cout << "Test_Arma " << '\n';
 
 	DenseMatrix<double> A(3, 3);
-	A = { 1, 2, 3,
-		  0, 5, 0, 
-		  0, 0, 9};
+    A = { { 1, 2, 3 },
+          { 0, 5, 0 },
+          { 0, 0, 9 } };
 
     DisplayMatrix("A", A);
 
@@ -1068,18 +1071,21 @@ void Test_Matrix_ChangeSize()
 
     DenseMatrix<double> A(6, 9);
 
-    A = { 1, 2, 3, 4, 5, 6, 7, 8, 9,
-          2, 5, 0, 2, 1, 2, 1, 2, 1,
-          3, 0, 9, 3, 5, 3, 5, 3, 5,
-          4, 0, 8, 4, 5, 4, 5, 4, 5,
-          5, 0, 7, 5, 5, 5, 5, 5, 5,
-          6, 0, 6, 6, 5, 6, 5, 6, 5 };
+    A = { { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+          { 2, 5, 0, 2, 1, 2, 1, 2, 1 },
+          { 3, 0, 9, 3, 5, 3, 5, 3, 5 },
+          { 4, 0, 8, 4, 5, 4, 5, 4, 5 },
+          { 5, 0, 7, 5, 5, 5, 5, 5, 5 },
+          { 6, 0, 6, 6, 5, 6, 5, 6, 5 } };
 
     DisplayMatrix("A", A);
 
-    A.DeleteCol({0});
+    // this can NOT be compiled
+    //A.DeleteCol({0});
 
-    DisplayMatrix("A.DeleteCol({0})", A);
+    A.DeleteCol(0);
+
+    DisplayMatrix("A.DeleteCol(0)", A);
 
 
     A.DeleteCol({1, 7});
@@ -1100,12 +1106,12 @@ void Test_ShadowMatrix_SubMatrix()
 
     DenseMatrix<double> A(6, 9);
 
-    A = { 1, 2, 3, 4, 5, 6, 7, 8, 9,
-        2, 5, 0, 2, 1, 2, 1, 2, 1,
-        3, 0, 9, 3, 5, 3, 5, 3, 5,
-        4, 0, 8, 4, 5, 4, 5, 4, 5,
-        5, 0, 7, 5, 5, 5, 5, 5, 5,
-        6, 0, 6, 6, 5, 6, 5, 6, 5 };
+    A = { { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+          { 2, 5, 0, 2, 1, 2, 1, 2, 1 },
+          { 3, 0, 9, 3, 5, 3, 5, 3, 5 },
+          { 4, 0, 8, 4, 5, 4, 5, 4, 5 },
+          { 5, 0, 7, 5, 5, 5, 5, 5, 5 },
+          { 6, 0, 6, 6, 5, 6, 5, 6, 5 } };
 
     
 
@@ -1172,12 +1178,12 @@ void Test_ShadowMatrix_Col_Row()
 {
     DenseMatrix<double> A(6, 9);
 
-    A = { 1, 2, 3, 4, 5, 6, 7, 8.001, 9.00000001,
-        2, 5, 0, 2, 1, 2, 1, 2, 1,
-        3, 0, 9, 3, 5, 3, 5, 3, 5,
-        4, 0, 8, 4, 5, 4, 5, 4, 5,
-        5, 0, 7, 5, 5, 5, 5, 5, 5,
-        6, 0, 6, 6, 5, 6, 5, 6, 5 };
+    A = { { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+          { 2, 5, 0, 2, 1, 2, 1, 2, 1 },
+          { 3, 0, 9, 3, 5, 3, 5, 3, 5 },
+          { 4, 0, 8, 4, 5, 4, 5, 4, 5 },
+          { 5, 0, 7, 5, 5, 5, 5, 5, 5 },
+          { 6, 0, 6, 6, 5, 6, 5, 6, 5 } };
 
     DisplayMatrix("A", A);
 
@@ -1192,12 +1198,12 @@ void Test_ShadowMatrix_Col_Row()
 
 void Test_ShadowMatrix_Operator()
 {
-    DenseMatrix<double> A;
-    A = { 1, 2, 3, 4, 5,
-          0, 5, 0, 2, 1,
-          0, 0, 9, 1, 0,
-          0, 1, 0, 1, 0,
-          1, 0, 1, 0, 1};
+    DenseMatrix<double> A(5, 5);
+    A = { { 1, 2, 3, 4, 5 },
+          { 0, 5, 0, 2, 1 },
+          { 0, 0, 9, 1, 0 },
+          { 0, 1, 0, 1, 0 },
+          { 1, 0, 1, 0, 1 } };
 
     DisplayMatrix("A", A);
 
@@ -1250,23 +1256,23 @@ void Test_GlueMatrix()
 
 
     DenseMatrix<double> A(3, 3);
-    A = { 1, 2, 0,
-          1, 2, 0,
-          3, 3, 3};
+    A = { { 1, 2, 0 },
+          { 1, 2, 0 },
+          { 3, 3, 3 } };
 
 
     DenseMatrix<double> B(2, 3);
-    B = { 1, 2, 3,
-          1, 2, 3};
+    B = { { 1, 2, 3 },
+          { 1, 2, 3 } };
 
 
     DenseMatrix<double> C(2, 3);
-    C = { 0, 2, 1,
-          0, 2, 1};
+    C = { { 0, 2, 1 },
+          { 0, 2, 1 } };
 
     DenseMatrix<double> C1(2, 3);
-    C1 = { 1, 0, 1,
-           1, 0, 1 };
+    C1 = { { 1, 0, 1 },
+           { 1, 0, 1 } };
 
     DenseMatrix<double> D = 1.0*A({ 0, 1 }, ALL) + 2.0*B - 3.0*C + 4.0*C1;
 
@@ -1294,30 +1300,30 @@ void Test_GlueMatrix_2()
 
     DenseMatrix<double> Scalar(0);
 
-    DenseMatrix<double> A;
-    A = { 1, 1, 1,
-          1, 1, 1,
-          1, 1, 1 };
+    DenseMatrix<double> A(3, 3);
+    A = { { 1, 1, 1 },
+          { 1, 1, 1 },
+          { 1, 1, 1 } };
 
-    DenseMatrix<double> AA;
+    DenseMatrix<double> AA(3, 4);
 
-    AA = { 1, 1, 1, 1,
-           1, 1, 1, 1,
-           1, 1, 1, 1 };
-
-
-    DenseMatrix<double> B;
-    B = { 1, 2, 3,
-          1, 2, 3 };
+    AA = { { 1, 1, 1, 1 },
+           { 1, 1, 1, 1 },
+           { 1, 1, 1, 1 } };
 
 
-    DenseMatrix<double> C;
-    C = { 0, 2, 1,
-          0, 2, 1 };
+    DenseMatrix<double> B(2, 3);
+    B = { { 1, 2, 3 },
+          { 1, 2, 3 } };
 
-    DenseMatrix<double> C1;
-    C1 = { 1, 0, 1,
-           1, 0, 1 };
+
+    DenseMatrix<double> C(2, 3);
+    C = { { 0, 2, 1 },
+          { 0, 2, 1 } };
+
+    DenseMatrix<double> C1(2, 3);
+    C1 = { { 1, 0, 1 },
+           { 1, 0, 1 } };
 
     DenseMatrix<double> D = 1.0*A({ 0, 1 }, ALL) + 2.0*B - 3.0*C + 4.0*C1;
 
@@ -1400,15 +1406,15 @@ void Test_GlueMatrix_Speed1()
 
     int64 Ly = 100;
 
-    DenseMatrix<double> A;
+    DenseMatrix<double> A(Lx, Ly);
 
-    DenseMatrix<double> B;
+    DenseMatrix<double> B(Lx, Ly);
 
-    DenseMatrix<double> C;
+    DenseMatrix<double> C(Lx, Ly);
 
     auto t0 = std::time(0);
 
-    DenseMatrix<double> D;
+    DenseMatrix<double> D(Lx, Ly);
     
     for (int64 i = 0; i < 10000; ++i)
     {
@@ -1439,15 +1445,15 @@ void Test_GlueMatrix_Speed2()
 
     //-------------------------------------------------------------------------------------------
 
-    DenseMatrix<double> A;
+    DenseMatrix<double> A(Lx, Ly);
 
     A.Fill(1.0);
 
-    DenseMatrix<double> B;
+    DenseMatrix<double> B(Lx, Ly);
 
     B.Fill(2.0);
 
-    DenseMatrix<double> C;
+    DenseMatrix<double> C(Lx, Ly);
 
     C.Fill(3.0);
 
@@ -1455,7 +1461,7 @@ void Test_GlueMatrix_Speed2()
 
     C2.Fill(3.0);
    
-    DenseMatrix<double> D;
+    DenseMatrix<double> D(Lx, Ly);
 
     D.Fill(0.0);
 
@@ -1657,15 +1663,15 @@ void Test_GlueMatrix_Create()
 
     int64 Ly = 100;
 
-    DenseMatrix<double> A;
+    DenseMatrix<double> A(Lx, Ly);
 
     A.Fill(1.0);
 
-    DenseMatrix<double> B;
+    DenseMatrix<double> B(Lx, Ly);
 
     B.Fill(2.0);
 
-    DenseMatrix<double> C;
+    DenseMatrix<double> C(Lx, Ly);
 
     C.Fill(3.0);
 
@@ -1676,9 +1682,6 @@ void Test_GlueMatrix_Create()
 
     // use operator =, not copy constructor
     C = A+B;
-
-
-
 
     C.Fill(3.0);
 }

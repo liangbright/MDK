@@ -32,7 +32,7 @@ DenseMatrix<ElementType>::DenseMatrix(std::initializer_list<ElementType> VectorD
     }
     else
     {
-        this->Resize(int64(VectorData.size()), 1);
+        this->Resize(1, int64(VectorData.size())); // row vector
 
         m_MatrixData->DataArray = VectorData;
     }
@@ -118,7 +118,7 @@ DenseMatrix<ElementType>::DenseMatrix(const ElementType* InputElementPointer, in
 
     if (InputElementPointer == nullptr)
     {
-        MDK_Warning << "Empty Input @ mdkDenseMatrix::mdkDenseMatrix(const ElementType*, int64, int64, bool)" << '\n';
+        MDK_Warning << "Empty Input @ DenseMatrix::mdkDenseMatrix(const ElementType*, int64, int64, bool)" << '\n';
         return;
     }
 
@@ -126,7 +126,7 @@ DenseMatrix<ElementType>::DenseMatrix(const ElementType* InputElementPointer, in
     {
         if (InputElementPointer != nullptr)
         {
-            MDK_Error << "Invalid Input @ mdkDenseMatrix::mdkDenseMatrix(const ElementType*, int64, int64, bool)" << '\n';
+            MDK_Error << "Invalid Input @ DenseMatrix::mdkDenseMatrix(const ElementType*, int64, int64, bool)" << '\n';
             return;
         }
     }
@@ -169,7 +169,7 @@ void DenseMatrix<ElementType>::operator=(const ElementType& Element)
     {
         if (ElementNumber <= 0)
         {
-            MDK_Error << "Can not change matrix size @ mdkDenseMatrix::operator=(Element)" << '\n';
+            MDK_Error << "Can not change matrix size @ DenseMatrix::operator=(Element)" << '\n';
             return;
         }
     }
@@ -186,7 +186,7 @@ void DenseMatrix<ElementType>::operator=(const ElementType& Element)
     }
     else
     {
-        MDK_Warning << "The size of the matrix changes to 1x1 @ mdkDenseMatrix::operator=(Element)" << '\n';
+        MDK_Warning << "The size of the matrix changes to 1x1 @ DenseMatrix::operator=(Element)" << '\n';
 
         this->Clear();
 
@@ -203,42 +203,27 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::operator=(const std::initializer_list<ElementType>& list)
 {
+//input is a vector
+
     auto SelfSize = this->GetSize();
 
-    auto ElementNumber = SelfSize.RowNumber * SelfSize.ColNumber;
-
     //if Self is empty
-    if (ElementNumber <= 0)
+    if (SelfSize.RowNumber <= 0)
     {
-        MDK_Error << "operator=(list) can not be called if self is empty @ mdkDenseMatrix::operator=(list)" << '\n';
+        MDK_Error << "operator=(list) can not be called if self is empty @ DenseMatrix::operator=(list)" << '\n';
         return;
     }
 
-    if (ElementNumber != list.size())
+    int64 InputLength = int64(list.size());
+
+    if ((SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputLength) || (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength))
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrix::operator=(list)" << '\n';
-        return;
+        m_MatrixData->DataArray = list;
     }
-
-    auto RawPointer = this->GetElementPointer();
-
-    int64 Counter = 0;
-
-    for (int64 i = 0; i < SelfSize.RowNumber; ++i)
+    else
     {
-        int64 Index = 0;
-
-        for (int64 j = 0; j < SelfSize.ColNumber; ++j)
-        {
-            RawPointer[Index + i] = list.begin()[Counter];
-
-            Index += SelfSize.RowNumber;
-
-            Counter += 1;
-        }
+        MDK_Error << "Size can not change in this function @ DenseMatrix::operator=(list)" << '\n';
     }
-
-    return;
 }
 
 
@@ -246,18 +231,20 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::operator=(const std::initializer_list<std::initializer_list<ElementType>>& list)
 {
+//input is a matrix
+
     auto SelfSize = this->GetSize();
 
     //if Self is empty
     if (SelfSize.RowNumber <= 0)
     {
-        MDK_Error << "operator=(list in list) can not be called if self is empty @ mdkDenseMatrix::operator=(list in list)" << '\n';
+        MDK_Error << "operator=(list in list) can not be called if self is empty @ DenseMatrix::operator=(list in list)" << '\n';
         return;
     }
 
     if (SelfSize.RowNumber != list.size())
     {
-        MDK_Error << "Row Size does not match @ mdkDenseMatrix::operator=(list in list)" << '\n';
+        MDK_Error << "Row Size does not match @ DenseMatrix::operator=(list in list)" << '\n';
         return;
     }
 
@@ -268,7 +255,7 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<std::initia
 
         if (subList.size() != SelfSize.ColNumber)
         {
-            MDK_Error << "Col Size does not match in row: " << i << " @ mdkDenseMatrix::operator=(list in list)" << '\n';
+            MDK_Error << "Col Size does not match in row: " << i << " @ DenseMatrix::operator=(list in list)" << '\n';
             return;
         }
     }
@@ -288,8 +275,6 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<std::initia
             Index += SelfSize.RowNumber;
         }
     }
-
-    return;
 }
 
 
@@ -324,13 +309,13 @@ bool DenseMatrix<ElementType>::Copy(const DenseMatrix<ElementType_Input>& InputM
 {
     if (this == &InputMatrix)
     {
-        MDK_Warning << "A Matrix tries to Copy itself @ mdkDenseMatrix::Copy(InputMatrix)" << '\n';
+        MDK_Warning << "A Matrix tries to Copy itself @ DenseMatrix::Copy(InputMatrix)" << '\n';
         return false;
     }
 
     if (InputMatrix.IsEmpty() == true)
     {
-        MDK_Warning << "InputMatrix is empty, and this matrix is set to be empty @ mdkDenseMatrix::Copy(InputMatrix)" << '\n';
+        MDK_Warning << "InputMatrix is empty, and this matrix is set to be empty @ DenseMatrix::Copy(InputMatrix)" << '\n';
 
         this->Clear();
 
@@ -349,7 +334,7 @@ bool DenseMatrix<ElementType>::Copy(const DenseMatrix<ElementType_Input>* InputM
 {
     if (InputMatrix == nullptr)
     {
-        MDK_Error << "Input is nullptr @ mdkDenseMatrix::Copy(mdkDenseMatrix* InputMatrix)" << '\n';
+        MDK_Error << "Input is nullptr @ DenseMatrix::Copy(mdkDenseMatrix* InputMatrix)" << '\n';
         return false;
     }
 
@@ -364,7 +349,7 @@ bool DenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer
 {
     if (InputElementPointer == nullptr || InputRowNumber <= 0 || InputColNumber <= 0)
     {
-        MDK_Error << "Input pointer is nullptr @ mdkDenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
+        MDK_Error << "Input pointer is nullptr @ DenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
         return false;
     }
 
@@ -372,7 +357,7 @@ bool DenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer
 
     if (tempElementType == MatrixElementTypeEnum::UNKNOWN)
     {
-        MDK_Error << "Input type is unknown @ mdkDenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
+        MDK_Error << "Input type is unknown @ DenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
         return false;
     }
 
@@ -381,7 +366,7 @@ bool DenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer
     {
         if (std::size_t(InputElementPointer) == std::size_t(this->GetElementPointer()))
         {
-            MDK_Warning << "A Matrix tries to Copy itself @ mdkDenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
+            MDK_Warning << "A Matrix tries to Copy itself @ DenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
             return false;
         }
     }
@@ -398,7 +383,7 @@ bool DenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer
     {
         if (InputRowNumber != SelfSize.RowNumber || InputColNumber != SelfSize.ColNumber)
         {
-            MDK_Error << "Can not change matrix size @ mdkDenseMatrix::Copy(ElementType_Input*, InputRowNumber, InputColNumber)" << '\n';
+            MDK_Error << "Can not change matrix size @ DenseMatrix::Copy(ElementType_Input*, InputRowNumber, InputColNumber)" << '\n';
             return false;
         }
     }
@@ -458,7 +443,7 @@ bool DenseMatrix<ElementType>::Fill(const ElementType& Element)
 
     if (Self_ElementNumber <= 0)
     {
-        MDK_Error << "Self is empty @ mdkDenseMatrix::Fill" << '\n';
+        MDK_Error << "Self is empty @ DenseMatrix::Fill" << '\n';
         return false;
     }
 
@@ -482,14 +467,14 @@ bool DenseMatrix<ElementType>::Share(DenseMatrix<ElementType>& InputMatrix)
     // Matrix = Matrix
     if (this == &InputMatrix)
     {
-        MDK_Warning << "A Matrix tries to Share itself @ mdkDenseMatrix::Share(InputMatrix)" << '\n';
+        MDK_Warning << "A Matrix tries to Share itself @ DenseMatrix::Share(InputMatrix)" << '\n';
         return true;
     }
 
     // data = data
     if (this->GetElementPointer() == InputMatrix.GetElementPointer())
     {
-        MDK_Warning << "A Matrix tries to Share the same data @ mdkDenseMatrix::Share(InputMatrix)" << '\n';
+        MDK_Warning << "A Matrix tries to Share the same data @ DenseMatrix::Share(InputMatrix)" << '\n';
         return true;
     }
 
@@ -501,7 +486,7 @@ bool DenseMatrix<ElementType>::Share(DenseMatrix<ElementType>& InputMatrix)
     {
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
-            MDK_Error << "Matrix size can not be changed @ mdkDenseMatrix::Share(InputMatrix)" << '\n';
+            MDK_Error << "Matrix size can not be changed @ DenseMatrix::Share(InputMatrix)" << '\n';
             return false;
         }
     }
@@ -522,7 +507,7 @@ bool DenseMatrix<ElementType>::Share(DenseMatrix<ElementType>* InputMatrix)
 {
     if (InputMatrix == nullptr)
     {
-        MDK_Error << "Input is nullptr @ mdkDenseMatrix::Share(mdkDenseMatrix* InputMatrix)" << '\n';
+        MDK_Error << "Input is nullptr @ DenseMatrix::Share(mdkDenseMatrix* InputMatrix)" << '\n';
         return false;
     }
 
@@ -537,7 +522,7 @@ void DenseMatrix<ElementType>::ForceShare(const DenseMatrix<ElementType>& InputM
     // data = data
     if (this->GetElementPointer() == InputMatrix.GetElementPointer())
     {
-        MDK_Warning << "A Matrix tries to ForceShare the same data @ mdkDenseMatrix::Share(InputMatrix)" << '\n';
+        MDK_Warning << "A Matrix tries to ForceShare the same data @ DenseMatrix::Share(InputMatrix)" << '\n';
         return;
     }
 
@@ -553,7 +538,7 @@ bool DenseMatrix<ElementType>::ForceShare(const DenseMatrix<ElementType>* InputM
 {
     if (InputMatrix == nullptr)
     {
-        MDK_Error << "Input is nullptr @ mdkDenseMatrix::ForceShare(mdkDenseMatrix* InputMatrix)" << '\n';
+        MDK_Error << "Input is nullptr @ DenseMatrix::ForceShare(mdkDenseMatrix* InputMatrix)" << '\n';
         return false;
     }
 
@@ -576,7 +561,7 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>& InputMatrix)
     // MatrixA = MatrixA
     if (this == &InputMatrix)
     {
-        MDK_Warning << "A Matrix tries to take itself @ mdkDenseMatrix::Take(InputMatrix)" << '\n';
+        MDK_Warning << "A Matrix tries to take itself @ DenseMatrix::Take(InputMatrix)" << '\n';
         return false;
     }
 
@@ -588,7 +573,7 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>& InputMatrix)
     {
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
-            MDK_Error << "Size does not match @ mdkDenseMatrix::Take(InputMatrix)" << '\n';
+            MDK_Error << "Size does not match @ DenseMatrix::Take(InputMatrix)" << '\n';
             return false;
         }
     }
@@ -597,7 +582,7 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>& InputMatrix)
     {
         if (SelfSize.RowNumber > 0)
         {
-            MDK_Warning << "InputMatrix is empty, and this matrix is set to be empty @ mdkDenseMatrix::Take(InputMatrix)" << '\n';
+            MDK_Warning << "InputMatrix is empty, and this matrix is set to be empty @ DenseMatrix::Take(InputMatrix)" << '\n';
             this->Clear();
         }
 
@@ -605,6 +590,8 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>& InputMatrix)
     }
 
     // now, InputMatrix is not empty
+    
+    //note: m_MatrixData.swap(InputMatrix.m_MatrixData) will invalidate Share()
 
     m_MatrixData->RowNumber = InputMatrix.m_MatrixData->RowNumber;
 
@@ -627,7 +614,7 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>* InputMatrix)
 {
     if (InputMatrix == nullptr)
     {
-        MDK_Error << "Input is nullptr @ mdkDenseMatrix::Take(mdkDenseMatrix* InputMatrix)" << '\n';
+        MDK_Error << "Input is nullptr @ DenseMatrix::Take(mdkDenseMatrix* InputMatrix)" << '\n';
         return false;
     }
 
@@ -635,6 +622,7 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>* InputMatrix)
 }
 
 
+/*
 template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputVector)
@@ -656,7 +644,7 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputVector)
         }
         else
         {
-            MDK_Error << "Size does not match @ mdkDenseMatrix::Take(InputVector)" << '\n';
+            MDK_Error << "Size does not match @ DenseMatrix::Take(InputVector)" << '\n';
             return false;
         }
     }
@@ -665,7 +653,7 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputVector)
     {
         if (SelfSize.RowNumber > 0)
         {
-            MDK_Warning << "InputVector is empty, and this matrix is set to be empty @ mdkDenseMatrix::Take(InputVector)" << '\n';
+            MDK_Warning << "InputVector is empty, and this matrix is set to be empty @ DenseMatrix::Take(InputVector)" << '\n';
             this->Clear();
         }
 
@@ -687,6 +675,7 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputVector)
 
     return true;
 }
+*/
 
 
 template<typename ElementType>
@@ -705,7 +694,7 @@ bool DenseMatrix<ElementType>::Take(const DenseShadowMatrix<ElementType>& Shadow
     {
         if (this->IsSizeFixed() == true)
         {
-            MDK_Error << "Size does not match @ mdkDenseMatrix::Take(ShadowMatrix)" << '\n';
+            MDK_Error << "Size does not match @ DenseMatrix::Take(ShadowMatrix)" << '\n';
             return false;
         }
 
@@ -732,7 +721,7 @@ bool DenseMatrix<ElementType>::Take(const DenseGlueMatrixForLinearCombination<El
     {
         if (this->IsSizeFixed() == true)
         {
-            MDK_Error << "Size does not match @ mdkDenseMatrix::Take(GlueMatrix_ForLinearCombination)" << '\n';
+            MDK_Error << "Size does not match @ DenseMatrix::Take(GlueMatrix_ForLinearCombination)" << '\n';
             return false;
         }
 
@@ -759,7 +748,7 @@ bool DenseMatrix<ElementType>::Take(const DenseGlueMatrixForMultiplication<Eleme
     {
         if (this->IsSizeFixed() == true)
         {
-            MDK_Error << "Size does not match @ mdkDenseMatrix::Take(GlueMatrix_ForMultiplication)" << '\n';
+            MDK_Error << "Size does not match @ DenseMatrix::Take(GlueMatrix_ForMultiplication)" << '\n';
             return false;
         }
 
@@ -792,7 +781,7 @@ bool DenseMatrix<ElementType>::Reshape(int64 InputRowNumber, int64 InputColNumbe
 {
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error << "Matrix size can not be changed @ mdkDenseMatrix::Reshape()" << '\n';
+        MDK_Error << "Matrix size can not be changed @ DenseMatrix::Reshape()" << '\n';
         return false;
     }
 
@@ -800,14 +789,14 @@ bool DenseMatrix<ElementType>::Reshape(int64 InputRowNumber, int64 InputColNumbe
     {
         if (InputRowNumber > 0 || InputColNumber > 0)
         {
-            MDK_Error << "Self is empty and Size does not match @ mdkDenseMatrix::Reshape()" << '\n';
+            MDK_Error << "Self is empty and Size does not match @ DenseMatrix::Reshape()" << '\n';
             return false;
         }
     }
 
     if (InputRowNumber*InputColNumber != this->GetElementNumber())
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrix::Reshape" << '\n';
+        MDK_Error << "Size does not match @ DenseMatrix::Reshape" << '\n';
         return false;
     }
 
@@ -825,7 +814,7 @@ bool DenseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber
 {
     if (InputRowNumber < 0 || InputColNumber < 0)
     {
-        MDK_Error << "Invalid Input: negtive @ mdkDenseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
+        MDK_Error << "Invalid Input: negtive @ DenseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
         return false;
     }
 
@@ -844,7 +833,7 @@ bool DenseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber
 
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error << "Matrix Size can not be changed @ mdkDenseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
+        MDK_Error << "Matrix Size can not be changed @ DenseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
         return false;
     }
 
@@ -1018,7 +1007,7 @@ int64 DenseMatrix<ElementType>::GetRowNumber() const
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::IsNonemptyVector() const
+bool DenseMatrix<ElementType>::IsVector() const
 {
     return (m_MatrixData->RowNumber == 1 || m_MatrixData->ColNumber == 1);
 }
@@ -1026,7 +1015,7 @@ bool DenseMatrix<ElementType>::IsNonemptyVector() const
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::IsNonemptyRowVector() const
+bool DenseMatrix<ElementType>::IsRowVector() const
 {
     return (m_MatrixData->RowNumber == 1);
 }
@@ -1034,7 +1023,7 @@ bool DenseMatrix<ElementType>::IsNonemptyRowVector() const
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::IsNonemptyColVector() const
+bool DenseMatrix<ElementType>::IsColVector() const
 {
     return (m_MatrixData->ColNumber == 1);
 }
@@ -1042,7 +1031,7 @@ bool DenseMatrix<ElementType>::IsNonemptyColVector() const
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::IsNonemptySquare() const
+bool DenseMatrix<ElementType>::IsSquare() const
 {
     return (m_MatrixData->RowNumber > 0 && m_MatrixData->RowNumber == m_MatrixData->ColNumber);
 }
@@ -1095,20 +1084,6 @@ inline const ElementType* DenseMatrix<ElementType>::begin() const
 
 
 template<typename ElementType>
-inline ElementType* DenseMatrix<ElementType>::end()
-{// the last position + 1
-    auto endPtr = m_MatrixData->DataArray.data();
-
-    if (endPtr != nullptr)
-    {
-        endPtr += 1;
-    }
-
-    return endPtr;
-}
-
-
-template<typename ElementType>
 inline const ElementType* DenseMatrix<ElementType>::end() const
 {
     auto endPtr = m_MatrixData->DataArray.data();
@@ -1133,7 +1108,7 @@ ElementType& DenseMatrix<ElementType>::operator[](int64 LinearIndex)
 
     if (LinearIndex >= this->GetElementNumber()|| LinearIndex < 0)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::operator[](i)" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::operator[](i)" << '\n';
 
         return m_NaNElement;
     }
@@ -1152,7 +1127,7 @@ const ElementType& DenseMatrix<ElementType>::operator[](int64 LinearIndex) const
 
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::operator[](i) const" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::operator[](i) const" << '\n';
 
         return m_NaNElement;
     }
@@ -1171,7 +1146,7 @@ ElementType& DenseMatrix<ElementType>::operator()(int64 LinearIndex)
 
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::operator()(i)" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::operator()(i)" << '\n';
 
         return m_NaNElement;
     }
@@ -1190,7 +1165,7 @@ const ElementType& DenseMatrix<ElementType>::operator()(int64 LinearIndex) const
 
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::operator()(i) const" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::operator()(i) const" << '\n';
 
         return m_NaNElement;
     }
@@ -1208,7 +1183,7 @@ ElementType& DenseMatrix<ElementType>::at(int64 LinearIndex)
 {
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
 	{
-		MDK_Error << "Invalid Input @ mdkDenseMatrix::at(i)" << '\n';
+		MDK_Error << "Invalid Input @ DenseMatrix::at(i)" << '\n';
         
         return m_NaNElement;
 	}
@@ -1223,7 +1198,7 @@ const ElementType& DenseMatrix<ElementType>::at(int64 LinearIndex) const
 {
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
 	{
-		MDK_Error << "Invalid Input @ mdkDenseMatrix::at(i) const" << '\n';
+		MDK_Error << "Invalid Input @ DenseMatrix::at(i) const" << '\n';
         
         return m_NaNElement;
 	}
@@ -1245,7 +1220,7 @@ ElementType& DenseMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::operator()(i,j)" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::operator()(i,j)" << '\n';
 
         return m_NaNElement;
     }
@@ -1267,7 +1242,7 @@ const ElementType& DenseMatrix<ElementType>::operator()(int64 RowIndex, int64 Co
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::operator()(i,j) const" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::operator()(i,j) const" << '\n';
 
         return m_NaNElement;
     }
@@ -1286,7 +1261,7 @@ ElementType& DenseMatrix<ElementType>::at(int64 RowIndex, int64 ColIndex)
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::at(i,j)" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::at(i,j)" << '\n';
         
         return m_NaNElement;
     }
@@ -1303,7 +1278,7 @@ const ElementType& DenseMatrix<ElementType>::at(int64 RowIndex, int64 ColIndex) 
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::at(i,j) const" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::at(i,j) const" << '\n';
         
         return m_NaNElement;
     }
@@ -1327,7 +1302,7 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& LinearI
 
     if (LinearIndexList.size() <= 0)
     {
-        MDK_Error << "LinearIndexList is empty @ mdkDenseMatrix::operator()(std::initializer_list {LinearIndexList})" << '\n';
+        MDK_Error << "LinearIndexList is empty @ DenseMatrix::operator()(std::initializer_list {LinearIndexList})" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1338,7 +1313,7 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& LinearI
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            MDK_Error << "Invalid LinearIndexList @ mdkDenseMatrix::operator()(std::initializer_list {LinearIndexList})" << '\n';
+            MDK_Error << "Invalid LinearIndexList @ DenseMatrix::operator()(std::initializer_list {LinearIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1361,7 +1336,7 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& LinearI
 
     if (LinearIndexList.size() <= 0)
     {
-        MDK_Error << "LinearIndexList is empty @ mdkDenseMatrix::operator()(std::initializer_list {LinearIndexList}) const" << '\n';
+        MDK_Error << "LinearIndexList is empty @ DenseMatrix::operator()(std::initializer_list {LinearIndexList}) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1372,7 +1347,7 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& LinearI
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            MDK_Error << "Invalid LinearIndexList @ mdkDenseMatrix::operator()(std::initializer_list {LinearIndexList}) const" << '\n';
+            MDK_Error << "Invalid LinearIndexList @ DenseMatrix::operator()(std::initializer_list {LinearIndexList}) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1397,7 +1372,7 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList)
 
     if (LinearIndexList.size() <= 0)
     {
-        MDK_Error << "LinearIndexList is empty @ mdkDenseMatrix::operator()(std::vector {LinearIndexList})" << '\n';
+        MDK_Error << "LinearIndexList is empty @ DenseMatrix::operator()(std::vector {LinearIndexList})" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1408,7 +1383,7 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList)
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            MDK_Error << "Invalid LinearIndexList @ mdkDenseMatrix::operator()(std::vector {LinearIndexList})" << '\n';
+            MDK_Error << "Invalid LinearIndexList @ DenseMatrix::operator()(std::vector {LinearIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1431,7 +1406,7 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList) 
 
     if (LinearIndexList.size() <= 0)
     {
-        MDK_Error << "LinearIndexList is empty @ mdkDenseMatrix::operator()(std::vector {LinearIndexList}) const" << '\n';
+        MDK_Error << "LinearIndexList is empty @ DenseMatrix::operator()(std::vector {LinearIndexList}) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1442,7 +1417,7 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& LinearIndexList) 
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            MDK_Error << "Invalid LinearIndexList @ mdkDenseMatrix::operator()(std::vector {LinearIndexList}) const" << '\n';
+            MDK_Error << "Invalid LinearIndexList @ DenseMatrix::operator()(std::vector {LinearIndexList}) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1532,7 +1507,7 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int64>& LinearIndexList
 {
     if (LinearIndexList.size() <= 0)
     {
-        MDK_Error << "LinearIndexList is empty @ mdkDenseMatrix::at(std::initializer_list {LinearIndexList})" << '\n';
+        MDK_Error << "LinearIndexList is empty @ DenseMatrix::at(std::initializer_list {LinearIndexList})" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1543,7 +1518,7 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int64>& LinearIndexList
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            MDK_Error << "Invalid LinearIndexList @ mdkDenseMatrix::at(std::initializer_list {LinearIndexList})" << '\n';
+            MDK_Error << "Invalid LinearIndexList @ DenseMatrix::at(std::initializer_list {LinearIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1562,7 +1537,7 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int64>& LinearIndexList
 {
     if (LinearIndexList.size() <= 0)
     {
-        MDK_Error << "LinearIndexList is empty @ mdkDenseMatrix::at(std::initializer_list {LinearIndexList}) const" << '\n';
+        MDK_Error << "LinearIndexList is empty @ DenseMatrix::at(std::initializer_list {LinearIndexList}) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1573,7 +1548,7 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int64>& LinearIndexList
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            MDK_Error << "Invalid LinearIndexList @ mdkDenseMatrix::at(std::initializer_list {LinearIndexList}) const" << '\n';
+            MDK_Error << "Invalid LinearIndexList @ DenseMatrix::at(std::initializer_list {LinearIndexList}) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1592,7 +1567,7 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList)
 {
     if (LinearIndexList.size() <= 0)
     {
-        MDK_Error << "LinearIndexList is empty @ mdkDenseMatrix::at(std::vector {LinearIndexList})" << '\n';
+        MDK_Error << "LinearIndexList is empty @ DenseMatrix::at(std::vector {LinearIndexList})" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1603,7 +1578,7 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList)
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            MDK_Error << "Invalid LinearIndexList @ mdkDenseMatrix::at(std::vector {LinearIndexList})" << '\n';
+            MDK_Error << "Invalid LinearIndexList @ DenseMatrix::at(std::vector {LinearIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1622,7 +1597,7 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList) const
 {
     if (LinearIndexList.size() <= 0)
     {
-        MDK_Error << "LinearIndexList is empty @ mdkDenseMatrix::at(std::vector {LinearIndexList} const)" << '\n';
+        MDK_Error << "LinearIndexList is empty @ DenseMatrix::at(std::vector {LinearIndexList} const)" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1633,7 +1608,7 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& LinearIndexList) const
     {
         if (*it >= Self_ElementNumber || *it < 0)
         {
-            MDK_Error << "Invalid LinearIndexList @ mdkDenseMatrix::at(std::vector {LinearIndexList} const)" << '\n';
+            MDK_Error << "Invalid LinearIndexList @ DenseMatrix::at(std::vector {LinearIndexList} const)" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1715,7 +1690,7 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowInde
 
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ DenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1726,7 +1701,7 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowInde
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1736,7 +1711,7 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowInde
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1759,7 +1734,7 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowInde
 
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ DenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1770,7 +1745,7 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowInde
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1780,7 +1755,7 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowInde
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::operator()(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1803,7 +1778,7 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowInde
 
     if (RowIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList is empty @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, ALL)" << '\n';
+        MDK_Error << "RowIndexList is empty @ DenseMatrix::operator()(std::initializer_list {RowIndexList}, ALL)" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1814,7 +1789,7 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowInde
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, ALL)" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::operator()(std::initializer_list {RowIndexList}, ALL)" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1837,7 +1812,7 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowInde
 
     if (RowIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList is empty @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, ALL) const" << '\n';
+        MDK_Error << "RowIndexList is empty @ DenseMatrix::operator()(std::initializer_list {RowIndexList}, ALL) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1848,7 +1823,7 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int64>& RowInde
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::initializer_list {RowIndexList}, ALL) const" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::operator()(std::initializer_list {RowIndexList}, ALL) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1871,7 +1846,7 @@ DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_S
 
     if (ColIndexList.size() <= 0)
     {
-        MDK_Error << "ColIndexList is empty @ mdkDenseMatrix::operator()(ALL, std::initializer_list {ColIndexList})" << '\n';
+        MDK_Error << "ColIndexList is empty @ DenseMatrix::operator()(ALL, std::initializer_list {ColIndexList})" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1882,7 +1857,7 @@ DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_S
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::operator()(ALL, std::initializer_list {ColIndexList})" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::operator()(ALL, std::initializer_list {ColIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1905,7 +1880,7 @@ DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_S
 
     if (ColIndexList.size() <= 0)
     {
-        MDK_Error << "ColIndexList is empty @ mdkDenseMatrix::operator()(ALL, std::initializer_list {ColIndexList}) const" << '\n';
+        MDK_Error << "ColIndexList is empty @ DenseMatrix::operator()(ALL, std::initializer_list {ColIndexList}) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1916,7 +1891,7 @@ DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_S
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::operator()(ALL, std::initializer_list {ColIndexList}) const" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::operator()(ALL, std::initializer_list {ColIndexList}) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1939,7 +1914,7 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, con
 
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ DenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1950,7 +1925,7 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, con
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1960,7 +1935,7 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, con
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -1983,7 +1958,7 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, con
 
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ DenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -1994,7 +1969,7 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, con
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2004,7 +1979,7 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, con
     {
         if (*it >= SelfSize.ColNumber)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::operator()(std::vector {RowIndexList}, {ColIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2027,7 +2002,7 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, con
 
     if (RowIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, ALL)" << '\n';
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ DenseMatrix::operator()(std::vector {RowIndexList}, ALL)" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2038,7 +2013,7 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, con
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, ALL)" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::operator()(std::vector {RowIndexList}, ALL)" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2061,7 +2036,7 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, con
 
     if (RowIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, ALL) const" << '\n';
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ DenseMatrix::operator()(std::vector {RowIndexList}, ALL) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2072,7 +2047,7 @@ DenseMatrix<ElementType>::operator()(const std::vector<int64>& RowIndexList, con
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::operator()(std::vector {RowIndexList}, ALL) const" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::operator()(std::vector {RowIndexList}, ALL) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2095,7 +2070,7 @@ DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_S
 
     if (ColIndexList.size() <= 0)
     {
-        MDK_Error << "ColIndexList is empty @ mdkDenseMatrix::operator()(ALL, std::vector {ColIndexList})" << '\n';
+        MDK_Error << "ColIndexList is empty @ DenseMatrix::operator()(ALL, std::vector {ColIndexList})" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2106,7 +2081,7 @@ DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_S
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::operator()(ALL, std::vector {ColIndexList})" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::operator()(ALL, std::vector {ColIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2129,7 +2104,7 @@ DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_S
 
     if (ColIndexList.size() <= 0)
     {
-        MDK_Error << "ColIndexList is empty @ mdkDenseMatrix::operator()(ALL, std::vector {ColIndexList}) const" << '\n';
+        MDK_Error << "ColIndexList is empty @ DenseMatrix::operator()(ALL, std::vector {ColIndexList}) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2140,7 +2115,7 @@ DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_S
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::operator()(ALL, std::vector {ColIndexList}) const" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::operator()(ALL, std::vector {ColIndexList}) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2281,7 +2256,7 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, c
 {
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ DenseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2292,7 +2267,7 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, c
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2302,7 +2277,7 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, c
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::at({RowIndexList}, {ColIndexList})" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::at({RowIndexList}, {ColIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2321,7 +2296,7 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, c
 {
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ DenseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2332,7 +2307,7 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, c
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::at(std::initializer_list {RowIndexList}, {ColIndexList}) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2342,7 +2317,7 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, c
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::at({RowIndexList}, {ColIndexList})" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::at({RowIndexList}, {ColIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2361,7 +2336,7 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, c
 {
     if (RowIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList is empty @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, ALL)" << '\n';
+        MDK_Error << "RowIndexList is empty @ DenseMatrix::at(std::initializer_list {RowIndexList}, ALL)" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2372,7 +2347,7 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, c
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, ALL)" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::at(std::initializer_list {RowIndexList}, ALL)" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2391,7 +2366,7 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, c
 {
     if (RowIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList is empty @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, ALL) const" << '\n';
+        MDK_Error << "RowIndexList is empty @ DenseMatrix::at(std::initializer_list {RowIndexList}, ALL) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2402,7 +2377,7 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int64>& RowIndexList, c
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::at(std::initializer_list {RowIndexList}, ALL) const" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::at(std::initializer_list {RowIndexList}, ALL) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2421,7 +2396,7 @@ DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, c
 {
     if (ColIndexList.size() <= 0)
     {
-        MDK_Error << "ColIndexList is empty @ mdkDenseMatrix::at(ALL, std::initializer_list {ColIndexList})" << '\n';
+        MDK_Error << "ColIndexList is empty @ DenseMatrix::at(ALL, std::initializer_list {ColIndexList})" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2432,7 +2407,7 @@ DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, c
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::at(ALL, std::initializer_list {ColIndexList})" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::at(ALL, std::initializer_list {ColIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2451,7 +2426,7 @@ DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, c
 {
     if (ColIndexList.size() <= 0)
     {
-        MDK_Error << "ColIndexList is empty @ mdkDenseMatrix::at(ALL, std::initializer_list {ColIndexList}) const" << '\n';
+        MDK_Error << "ColIndexList is empty @ DenseMatrix::at(ALL, std::initializer_list {ColIndexList}) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2462,7 +2437,7 @@ DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, c
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::at(ALL, std::initializer_list {ColIndexList}) const" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::at(ALL, std::initializer_list {ColIndexList}) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2481,7 +2456,7 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::
 {
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ DenseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2492,7 +2467,7 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2502,7 +2477,7 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::at(std::vector {RowIndexList}, {ColIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2521,7 +2496,7 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::
 {
     if (RowIndexList.size() <= 0 || ColIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList or  ColIndexList is empty @ mdkDenseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+        MDK_Error << "RowIndexList or  ColIndexList is empty @ DenseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2532,7 +2507,7 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2542,7 +2517,7 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const std::
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::at(std::vector {RowIndexList}, {ColIndexList}) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2561,7 +2536,7 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_S
 {
     if (RowIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList is empty @ mdkDenseMatrix::at(std::vector {RowIndexList}, ALL)" << '\n';
+        MDK_Error << "RowIndexList is empty @ DenseMatrix::at(std::vector {RowIndexList}, ALL)" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2572,7 +2547,7 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_S
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::at(std::vector {RowIndexList}, ALL)" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::at(std::vector {RowIndexList}, ALL)" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2591,7 +2566,7 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_S
 {
     if (RowIndexList.size() <= 0)
     {
-        MDK_Error << "RowIndexList is empty @ mdkDenseMatrix::at(std::vector {RowIndexList}, ALL) const" << '\n';
+        MDK_Error << "RowIndexList is empty @ DenseMatrix::at(std::vector {RowIndexList}, ALL) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2602,7 +2577,7 @@ DenseMatrix<ElementType>::at(const std::vector<int64>& RowIndexList, const ALL_S
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::at(std::vector {RowIndexList}, ALL) const" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::at(std::vector {RowIndexList}, ALL) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2621,7 +2596,7 @@ DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, c
 {
     if (ColIndexList.size() <= 0)
     {
-        MDK_Error << "ColIndexList is empty @ mdkDenseMatrix::at(ALL, std::vector {ColIndexList})" << '\n';
+        MDK_Error << "ColIndexList is empty @ DenseMatrix::at(ALL, std::vector {ColIndexList})" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2632,7 +2607,7 @@ DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, c
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::at(ALL, std::vector {ColIndexList})" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::at(ALL, std::vector {ColIndexList})" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2651,7 +2626,7 @@ DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, c
 {
     if (ColIndexList.size() <= 0)
     {
-        MDK_Error << "ColIndexList is empty @ mdkDenseMatrix::at(ALL, std::vector {ColIndexList}) const" << '\n';
+        MDK_Error << "ColIndexList is empty @ DenseMatrix::at(ALL, std::vector {ColIndexList}) const" << '\n';
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return tempShadowMatrix;
     }
@@ -2662,7 +2637,7 @@ DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, c
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::at(ALL, std::vector {ColIndexList}) const" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::at(ALL, std::vector {ColIndexList}) const" << '\n';
             DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
@@ -2937,7 +2912,7 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
 {
     if (this == &OutputMatrix)
     {
-        MDK_Error << "A Matrix tries to get a SubMatrix of itself @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+        MDK_Error << "A Matrix tries to get a SubMatrix of itself @ DenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
         return false;
     }
 
@@ -2947,7 +2922,7 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
 
     if (OutputRowNumber <= 0 || OutputColNumber <= 0)
     {
-        MDK_Error << "RowIndexList or ColIndexList is empty @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+        MDK_Error << "RowIndexList or ColIndexList is empty @ DenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
         return false;
     }
 
@@ -2957,7 +2932,7 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
             return false;
         }
     }
@@ -2966,7 +2941,7 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
             return false;
         }
     }
@@ -2980,7 +2955,7 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
         }
         else
         {
-            MDK_Error << "Invalid OutputMatrix @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
+            MDK_Error << "Invalid OutputMatrix @ DenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
             return false;
         }
     }
@@ -3052,83 +3027,13 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const std::vecto
     return tempMatrix;
 }
 
-
 template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
                                             const std::vector<int64>& RowIndexList, 
                                             const std::vector<int64>& ColIndexList) const
 {
-    if (this == &OutputMatrix)
-    {
-        MDK_Error << "A Matrix tries to get a SubMatrix of itself @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
-        return false;
-    }
-
-    auto OutputRowNumber = int64(RowIndexList.size());
-    
-    auto OutputColNumber = int64(ColIndexList.size());
-
-    if (OutputRowNumber <= 0 || OutputColNumber <= 0)
-    {
-        MDK_Error << "RowIndexList or ColIndexList is empty @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    for (auto it = ColIndexList.begin(); it != ColIndexList.end(); ++it)
-    {
-        if (*it >= SelfSize.ColNumber || *it < 0)
-        {
-            MDK_Error << "Invalid ColIndexList @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
-            return false;
-        }
-    }
-
-    for (auto it = RowIndexList.begin(); it != RowIndexList.end(); ++it)
-    {
-        if (*it >= SelfSize.RowNumber || *it < 0)
-        {
-            MDK_Error << "Invalid RowIndexList @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
-            return false;
-        }
-    }
-
-    if (OutputMatrix.GetColNumber() != OutputColNumber || OutputMatrix.GetRowNumber() != OutputRowNumber)
-    {
-        if (OutputMatrix.IsSizeFixed() == false)
-        {
-            OutputMatrix.Clear();
-            OutputMatrix.Resize(OutputRowNumber, OutputColNumber);
-        }
-        else
-        {
-            MDK_Error << "Invalid OutputMatrix @ mdkDenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)" << '\n';
-            return false;
-        }
-    }
-
-
-    auto tempRawPointer = OutputMatrix.GetElementPointer();
-
-    auto RawPointer = this->GetElementPointer();
-
-    for (int64 j = 0; j < OutputColNumber; ++j)
-    {
-        auto Index = ColIndexList[j] * SelfSize.RowNumber;
-
-        for (int64 i = 0; i < OutputRowNumber; ++i)
-        {
-            int64 LinearIndex = Index + RowIndexList[i];
-
-            tempRawPointer[0] = RawPointer[LinearIndex];
-
-            ++tempRawPointer;
-        }
-    }
-
-    return true;
+    return this->GetSubMatrix(OutputMatrix, RowIndexList.data(), int64(RowIndexList.size()), ColIndexList.data(), int64(ColIndexList.size()));
 }
 
 
@@ -3169,9 +3074,17 @@ template<typename ElementType>
 inline
 DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseMatrix<int64>& RowIndexList, const DenseMatrix<int64>& ColIndexList) const
 {
-    DenseMatrix<ElementType> tempMatrix; // empty matrix
+    DenseMatrix<ElementType> tempMatrix;
 
-    GetSubMatrix(tempMatrix, RowIndexList.m_MatrixData->DataArray, ColIndexList.m_MatrixData->DataArray);
+    if (ColIndexList.IsVector() == false || RowIndexList.IsVector() == false)
+    {
+        MDK_Error << "Input is NOT a vector @ DenseMatrix::GetSubMatrix(DenseMatrix: RowIndexList, ColIndexList)";
+        return tempMatrix;
+    }
+
+    this->GetSubMatrix(tempMatrix, 
+                       RowIndexList.GetElementPointer(), RowIndexList.GetElementNumber(), 
+                       ColIndexList.GetElementPointer(), ColIndexList.GetElementNumber());
 
     return tempMatrix;
 }
@@ -3183,7 +3096,15 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
                                             const DenseMatrix<int64>& RowIndexList,
                                             const DenseMatrix<int64>& ColIndexList) const
 {
-    return this->GetSubMatrix(OutputMatrix, RowIndexList.m_MatrixData->DataArray, ColIndexList.m_MatrixData->DataArray)
+    if (ColIndexList.IsVector() == false || RowIndexList.IsVector() == false)
+    {
+        MDK_Error << "Input is NOT a vector @ DenseMatrix::GetSubMatrix(OutputMatrix, DenseMatrix: RowIndexList, ColIndexList)";
+        return tempMatrix;
+    }
+
+    return this->GetSubMatrix(OutputMatrix,
+                              RowIndexList.GetElementPointer(), RowIndexList.GetElementNumber(), 
+                              ColIndexList.GetElementPointer(), ColIndexList.GetElementNumber());
 }
 
 
@@ -3191,7 +3112,28 @@ template<typename ElementType>
 inline
 DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseMatrix<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
 {
-    return this->GetSubMatrix(RowIndexList.m_MatrixData->DataArray, ALL_Symbol);
+    DenseMatrix<ElementType> tempMatrix;
+
+    if (RowIndexList.IsVector() == false)
+    {
+        MDK_Error << "Input is NOT a vector @ DenseMatrix::GetSubMatrix(DenseMatrix: RowIndexList, ALL)";
+        return tempMatrix;
+    }
+
+    auto SelfSize = this->GetSize();
+
+    std::vector<int64> ColIndexList(SelfSize.ColNumber);
+
+    for (int64 i = 0; i < SelfSize.ColNumber; ++i)
+    {
+        ColIndexList[i] = i;
+    }
+
+    this->GetSubMatrix(tempMatrix,
+                       RowIndexList.GetElementPointer(), RowIndexList.GetElementNumber(),
+                       ColIndexList.data(), int64(ColIndexList.size()));
+
+    return tempMatrix;
 }
 
 
@@ -3199,7 +3141,110 @@ template<typename ElementType>
 inline
 DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const DenseMatrix<int64>& ColIndexList) const
 {
-    return this->GetSubMatrix(ALL_Symbol, ColIndexList.m_MatrixData->DataArray);
+    DenseMatrix<ElementType> tempMatrix;
+
+    if (ColIndexList.IsVector() == false)
+    {
+        MDK_Error << "Input is NOT a vector @ DenseMatrix::GetSubMatrix(ALL, DenseMatrix: ColIndexList)";
+        return tempMatrix;
+    }
+
+    auto SelfSize = this->GetSize();
+
+    std::vector<int64> RowIndexList(SelfSize.RowNumber);
+
+    for (int64 i = 0; i < SelfSize.RowNumber; ++i)
+    {
+        RowIndexList[i] = i;
+    }
+
+    this->GetSubMatrix(tempMatrix,
+                       RowIndexList.data(), int64(RowIndexList.size()),
+                       ColIndexList.GetElementPointer(), ColIndexList.GetElementNumber());
+
+    return tempMatrix;
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
+                                            const int64* RowIndexList, int64 OutputRowNumber,
+                                            const int64* ColIndexList, int64 OutputColNumber) const
+{
+    auto SelfSize = this->GetSize();
+
+    if (SelfSize.ColNumber == 0)
+    {
+        MDK_Error << "Self is empty @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer...)" << '\n';
+        return false;
+    }
+
+    if (this->GetElementPointer() == OutputMatrix.GetElementPointer())
+    {
+        MDK_Error << "A Matrix tries to change to be a SubMatrix of itself @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer...)" << '\n';
+        return false;
+    }
+
+    if (RowIndexList == nullptr || OutputRowNumber <= 0 || ColIndexList== nullptr || OutputColNumber <= 0)
+    {
+        MDK_Error << "RowIndexList or ColIndexList is empty @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer...)" << '\n';
+        return false;
+    }
+
+   
+    for (auto it = ColIndexList; it != ColIndexList + OutputColNumber; ++it)
+    {
+        if (*it >= SelfSize.ColNumber || *it < 0)
+        {
+            MDK_Error << "Invalid ColIndexList @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer...)" << '\n';
+            return false;
+        }
+    }
+
+    for (auto it = RowIndexList; it != RowIndexList + OutputRowNumber; ++it)
+    {
+        if (*it >= SelfSize.RowNumber || *it < 0)
+        {
+            MDK_Error << "Invalid RowIndexList @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer...)" << '\n';
+            return false;
+        }
+    }
+
+    if (OutputMatrix.GetColNumber() != OutputColNumber || OutputMatrix.GetRowNumber() != OutputRowNumber)
+    {
+        if (OutputMatrix.IsSizeFixed() == false)
+        {
+            OutputMatrix.Clear();
+            OutputMatrix.Resize(OutputRowNumber, OutputColNumber);
+        }
+        else
+        {
+            MDK_Error << "Invalid OutputMatrix @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer...)" << '\n';
+            return false;
+        }
+    }
+
+
+    auto tempRawPointer = OutputMatrix.GetElementPointer();
+
+    auto RawPointer = this->GetElementPointer();
+
+    for (int64 j = 0; j < OutputColNumber; ++j)
+    {
+        auto Index = ColIndexList[j] * SelfSize.RowNumber;
+
+        for (int64 i = 0; i < OutputRowNumber; ++i)
+        {
+            int64 LinearIndex = Index + RowIndexList[i];
+
+            tempRawPointer[0] = RawPointer[LinearIndex];
+
+            ++tempRawPointer;
+        }
+    }
+
+    return true;
 }
 
 
@@ -3209,27 +3254,9 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetCol(int64 ColIndex) const
 {
 	DenseMatrix<ElementType> tempMatrix;
 
-    auto SelfSize = this->GetSize();
+    tempMatrix.Resize(this->GetRowNumber(), 1);
 
-    if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
-	{
-		MDK_Error << "Invalid Input @ mdkDenseMatrix::GetCol(ColIndex)" << '\n';
-        
-        return tempMatrix;
-	}
-
-    tempMatrix.Resize(SelfSize.RowNumber, 1);
-
-    auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer this->GetElementPointer();
-
-	int64 Index = ColIndex*SelfSize.RowNumber;
-
-	for (int64 i = 0; i < SelfSize.RowNumber; ++i)
-	{
-		tempRawPointer[i] = RawPointer[Index + i];
-	}
+    this->GetCol(ColIndex, tempMatrix.GetElementPointer());
 
     return tempMatrix;
 }
@@ -3239,28 +3266,9 @@ template<typename ElementType>
 inline 
 bool DenseMatrix<ElementType>::GetCol(int64 ColIndex, std::vector<ElementType>& ColData) const
 {
-    auto SelfSize = this->GetSize();
+    ColData.resize(this->GetRowNumber());
 
-	if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
-	{
-		MDK_Error << "Invalid Input @ mdkDenseMatrix::GetCol(int64 ColIndex, std::vector<ElementType>& ColData)" << '\n';
-		return false;
-	}
-
-	ColData.resize(SelfSize.RowNumber);
-
-	auto tempRawPointer = ColData.data();
-
-	auto RawPointer this->GetElementPointer();
-
-	int64 Index = ColIndex*SelfSize.RowNumber;
-
-	for (int64 i = 0; i < SelfSize.RowNumber; ++i)
-	{
-		tempRawPointer[i] = RawPointer[Index + i];
-	}
-
-	return true;
+    return this->GetCol(ColIndex, ColData.data());
 }
 
 
@@ -3270,13 +3278,19 @@ bool DenseMatrix<ElementType>::GetCol(int64 ColIndex, ElementType* ColData) cons
 {
     auto SelfSize = this->GetSize();
 
+    if (SelfSize.ColNumber == 0)
+    {
+        MDK_Error << "Self is empty @ DenseMatrix::GetCol(ColIndex, ElementType* ColData)" << '\n';
+        return false;
+    }
+
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0 || ColData == nullptr)
 	{
-		MDK_Error << "Invalid Input @ mdkDenseMatrix::GetCol(int64 ColIndex, ElementType* ColData)" << '\n';
+		MDK_Error << "Invalid Input @ DenseMatrix::GetCol(int64 ColIndex, ElementType* ColData)" << '\n';
 		return false;
 	}
 
-	auto RawPointer this->GetElementPointer();
+	auto RawPointer = this->GetElementPointer();
 
 	int64 Index = ColIndex*SelfSize.RowNumber;
 
@@ -3294,7 +3308,7 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::SetCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData)
 {
-    return this->SetCol(ColIndex, ColData.begin(), ColData.size());
+    return this->SetCol(ColIndex, ColData.begin(), int64(ColData.size()));
 }
 
 
@@ -3303,7 +3317,7 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::SetCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData)
 {
-    return this->SetCol(ColIndex, ColData.data(), ColData.size());
+    return this->SetCol(ColIndex, ColData.data(), int64(ColData.size()));
 }
 
 
@@ -3312,35 +3326,13 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::SetCol(int64 ColIndex, const DenseMatrix<ElementType_Input>& ColData)
 {
-    auto SelfSize = this->GetSize();
-
-    if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
+    if (ColData.IsVector() == false)
     {
-        MDK_Error << "Invalid Input : ColIndex is out of bound @ mdkDenseMatrix::SetCol(ColIndex, mdkDenseMatrix)" << '\n';
+        MDK_Error << "Invalid Input : must be a vector @ DenseMatrix::SetCol(ColIndex, mdkDenseMatrix)" << '\n';
         return false;
     }
 
-    auto Size = ColData.GetSize();
-
-    if (Size.ColNumber != 1 || Size.RowNumber != 1)
-    {
-        MDK_Error << "Invalid Input : must be a vector @ mdkDenseMatrix::SetCol(ColIndex, mdkDenseMatrix)" << '\n';
-        return false;
-    }
-
-    if (Size.RowNumber > 1 && Size.RowNumber != SelfSize.RowNumber)
-    {
-        MDK_Error << "Invalid Input : size does not match @ mdkDenseMatrix::SetCol(ColIndex, mdkDenseMatrix)" << '\n';
-        return false;
-    }
-
-    if (Size.ColNumber > 1 && Size.ColNumber != SelfSize.RowNumber)
-    {
-        MDK_Error << "Invalid Input : size does not match @ mdkDenseMatrix::SetCol(ColIndex, mdkDenseMatrix)" << '\n';
-        return false;
-    }
-
-    return this->SetCol(ColIndex, ColData.GetElementPointer(), std::max(Size.RowNumber, Size.ColNumber));
+    return this->SetCol(ColIndex, ColData.GetElementPointer(), ColData.GetElementNumber());
 }
 
 
@@ -3351,9 +3343,15 @@ bool DenseMatrix<ElementType>::SetCol(int64 ColIndex, const ElementType_Input* C
 {
     auto SelfSize = this->GetSize();
 
-    if (ColData == nullptr || Length <= 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
+    if (SelfSize.ColNumber == 0)
+    {
+        MDK_Error << "Self is empty @ DenseMatrix::SetCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
+        return false;
+    }
+
+    if (ColIndex >= SelfSize.ColNumber || ColIndex < 0 || ColData == nullptr || Length != SelfSize.RowNumber)
 	{
-		MDK_Error << "Invalid Input @ mdkDenseMatrix::SetCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
+		MDK_Error << "Invalid Input @ DenseMatrix::SetCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
 		return false;
 	}
     
@@ -3388,9 +3386,15 @@ bool DenseMatrix<ElementType>::FillCol(int64 ColIndex, const ElementType& Elemen
 {
     auto SelfSize = this->GetSize();
 
+    if (SelfSize.ColNumber == 0)
+    {
+        MDK_Error << "Self is empty @ DenseMatrix::FillCol(int64 ColIndex, const ElementType& Element)" << '\n';
+        return false;
+    }
+
     if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::FillCol(int64 ColIndex, const ElementType& Element)" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::FillCol(int64 ColIndex, const ElementType& Element)" << '\n';
         return false;
     }
 
@@ -3413,30 +3417,7 @@ template<typename ElementType_Input>
 inline 
 bool DenseMatrix<ElementType>::AppendCol(const std::initializer_list<ElementType_Input>& ColData)
 {
-    if (this->IsSizeFixed() == true)
-    {
-        MDK_Error << "Matrix Size can not change @ mdkDenseMatrix::AppendCol(const std::initializer_list<ElementType_Input>& ColData)" << '\n';
-        return false;
-    }
-
-    if (ColData.size() <= 0)
-    {
-        MDK_Error << "Empty Input @ mdkDenseMatrix::AppendCol(const std::initializer_list<ElementType_Input>& ColData)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    auto  RowNumber = SelfSize.RowNumber;
-
-    if (RowNumber <= 0)
-    {
-        RowNumber = ColData.size();
-    }
-
-    this->Resize(RowNumber, SelfSize.ColNumber + 1);
-
-    return this->SetCol(SelfSize.ColNumber, ColData);
+    return this->SetCol(ColData.begin(), int64(ColData.size()));
 }
 
 
@@ -3445,30 +3426,7 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::AppendCol(const std::vector<ElementType_Input>& ColData)
 {
-    if (this->IsSizeFixed() == true)
-    {
-        MDK_Error << "Matrix Size can not change @ mdkDenseMatrix::AppendCol(const std::vector<ElementType_Input>& ColData)" << '\n';
-        return false;
-    }
-
-    if (ColData.size() <= 0)
-    {
-        MDK_Error << "Empty Input @ mdkDenseMatrix::AppendCol(const std::vector<ElementType_Input>& ColData)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    auto  RowNumber = SelfSize.RowNumber;
-
-    if (RowNumber <= 0)
-    {
-        RowNumber = ColData.size();
-    }
-
-    this->Resize(RowNumber, SelfSize.ColNumber + 1);
-
-    return this->SetCol(SelfSize.ColNumber, ColData);
+    return this->SetCol(ColData.data(), int64(ColData.size()));
 }
 
 
@@ -3477,30 +3435,13 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::AppendCol(const DenseMatrix<ElementType_Input>& ColData)
 {
-    if (this->IsSizeFixed() == true)
+    if (ColData.IsVector() == false)
     {
-        MDK_Error << "Matrix Size can not change @ mdkDenseMatrix::AppendCol(const mdkDenseMatrix<ElementType_Input>& ColData)" << '\n';
+        MDK_Error << "Input must be a vector @ DenseMatrix::AppendCol(const mdkDenseMatrix<ElementType_Input>& ColData)" << '\n';
         return false;
     }
 
-    if (ColData.IsEmpty() == true)
-    {
-        MDK_Error << "Empty Input @ mdkDenseMatrix::AppendCol(const mdkDenseMatrix<ElementType_Input>& ColData)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    auto RowNumber = SelfSize.RowNumber;
-
-    if (RowNumber <= 0)
-    {
-        RowNumber = std::max(ColData.GetRowNumber(), ColData.GetColNumber());
-    }
-
-    this->Resize(RowNumber, SelfSize.ColNumber + 1);
-
-    return this->SetCol(SelfSize.ColNumber, ColData);
+    return this->AppendCol(ColData.GetElementPointer(), ColData.GetElementNumber());
 }
 
 
@@ -3511,26 +3452,31 @@ bool DenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColData, int64
 {
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error << "Matrix Size can not change @ mdkDenseMatrix::AppendCol(const ElementType_Input* ColData, int64 Length)" << '\n';
+        MDK_Error << "Matrix Size can not change @ DenseMatrix::AppendCol(const ElementType_Input* ColData, int64 Length)" << '\n';
         return false;
     }
 
     if (ColData == nullptr || Length <= 0)
     {
-        MDK_Error << "Empty Input @ mdkDenseMatrix::AppendCol(const ElementType_Input* ColData, int64 Length)" << '\n';
+        MDK_Error << "Invalid Input: empty @ DenseMatrix::AppendCol(const ElementType_Input* ColData, int64 Length)" << '\n';
         return false;
     }
 
     auto SelfSize = this->GetSize();
 
-    auto  RowNumber = SelfSize.RowNumber;
-
-    if (RowNumber <= 0)
+    if (SelfSize.RowNumber > 0 && Length != SelfSize.RowNumber)
     {
-        RowNumber = Length;
+        MDK_Error << "Invalid Input: size does not match @ DenseMatrix::AppendCol(const ElementType_Input* ColData, int64 Length)" << '\n';
+        return false;
     }
 
-    this->Resize(RowNumber, SelfSize.ColNumber + 1);
+    // for reference
+    //if (SelfSize.RowNumber == 0)
+    //{
+    //   SelfSize.RowNumber = Length;
+    //}
+
+    this->Resize(Length, SelfSize.ColNumber + 1);
 
     return this->SetCol(SelfSize.ColNumber, ColData, Length);
 }
@@ -3540,120 +3486,35 @@ template<typename ElementType>
 inline 
 bool DenseMatrix<ElementType>::DeleteCol(int64 ColIndex)
 {
-    if (this->IsSizeFixed() == true)
-    {
-        MDK_Error << "Matrix Size can not change @ mdkDenseMatrix::DeleteCol(int64 ColIndex)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
-    {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::DeleteCol(int64 ColIndex)" << '\n';
-        return false;
-    }
-
-    m_MatrixData->DataArray.erase(m_MatrixData->DataArray.begin() + ColIndex*SelfSize.RowNumber, 
-                                  m_MatrixData->DataArray.begin() + (ColIndex + 1)*SelfSize.RowNumber);
-
-    m_MatrixData->ColNumber -= 1;
-
-    m_ElementPointer = m_MatrixData->DataArray.data();
-
-    return true;
+    return DeleteCol(&ColIndex, 1);
 }
 
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::DeleteCol(std::initializer_list<int64>& ColIndexList)
+bool DenseMatrix<ElementType>::DeleteCol(const std::initializer_list<int64>& ColIndexList)
 {
-    if (this->IsSizeFixed() == true)
-    {
-        MDK_Error << "Matrix Size can not change @ mdkDenseMatrix::DeleteCol(std::initializer_list<int64>& ColIndexList)" << '\n';
-        return false;
-    }
-
-    if (ColIndexList.size() <= 0)
-    {
-        MDK_Error << "Empty Input @ mdkDenseMatrix::DeleteCol(std::initializer_list ColIndexList)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    for (auto it = ColIndexList.begin(); it != ColIndexList.end(); ++it)
-    {
-        if (*it >= SelfSize.ColNumber || *it < 0)
-        {
-            MDK_Error << "Out of bound Input @ mdkDenseMatrix::DeleteCol(std::initializer_list ColIndexList)" << '\n';
-            return false;
-        }
-    }
-
-    return this->DeleteCol(ColIndexList.begin(), ColIndexList.size());
+    return this->DeleteCol(ColIndexList.begin(), int64(ColIndexList.size()));
 }
 
 
-/*
 template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::DeleteCol(const std::vector<int64>& ColIndexList)
-{
-    if (this->IsSizeFixed() == true)
-    {
-        MDK_Error << "Matrix Size can not change @ mdkDenseMatrix::DeleteCol(const std::vector<int64>& ColIndexList)" << '\n';
-        return false;
-    }
-
-    if (ColIndexList.size() <= 0)
-    {
-        MDK_Error << "Empty Input @ mdkDenseMatrix::DeleteCol(std::vector ColIndexList)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    for (auto it = ColIndexList.begin(); it != ColIndexList.end(); ++it)
-    {
-        if (*it >= SelfSize.ColNumber || *it < 0)
-        {
-            MDK_Error << "Out of bound Input @ mdkDenseMatrix::DeleteCol(std::vector ColIndexList)" << '\n';
-            return false;
-        }
-    }
-
-    return this->DeleteCol(ColIndexList.data(), ColIndexList.size());
+{    
+    return this->DeleteCol(ColIndexList.data(), int64(ColIndexList.size()));
 }
-*/
+
 
 
 template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::DeleteCol(const DenseMatrix<int64>& ColIndexList)
 {
-    if (this->IsSizeFixed() == true)
+    if (ColIndexList.IsVector() == false)
     {
-        MDK_Error << "Matrix Size can not change @ mdkDenseMatrix::DeleteCol(const DenseMatrix<int64>& ColIndexList)" << '\n';
+        MDK_Error << "Input is NOT a vector @ DenseMatrix::DeleteCol(const DenseMatrix<int64>& ColIndexList)" << '\n';
         return false;
-    }
-
-    if (ColIndexList.GetElementNumber() <= 0)
-    {
-        MDK_Error << "Empty Input @ mdkDenseMatrix::DeleteCol(DenseMatrix ColIndexList)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    for (auto it = ColIndexList.begin(); it != ColIndexList.end(); ++it)
-    {
-        if (*it >= SelfSize.ColNumber || *it < 0)
-        {
-            MDK_Error << "Out of bound Input @ mdkDenseMatrix::DeleteCol(DenseMatrix ColIndexList)" << '\n';
-            return false;
-        }
     }
 
     return this->DeleteCol(ColIndexList.GetElementPointer(), ColIndexList.GetElementNumber());
@@ -3662,39 +3523,47 @@ bool DenseMatrix<ElementType>::DeleteCol(const DenseMatrix<int64>& ColIndexList)
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::DeleteCol(const int64* ColIndexListPtr, int64 Length)
+bool DenseMatrix<ElementType>::DeleteCol(const int64* ColIndexList, int64 Length)
 {
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error << "Matrix Size can not change @ mdkDenseMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
+        MDK_Error << "Matrix Size can not change @ DenseMatrix::DeleteCol(const int64* ColIndexList, int64 Length)" << '\n';
         return false;
     }
-
-    if (ColIndexListPtr == nullptr || Length <= 0)
-    {
-        MDK_Error << "Empty Input @ mdkDenseMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
-        return false;
-    }
-
-    if (Length == 1)
-    {
-        return this->DeleteCol(ColIndexListPtr[0]);
-    }
-
-    // Length > 1 -------------------------------------------
 
     auto SelfSize = this->GetSize();
+
+    if (SelfSize.ColNumber == 0)
+    {
+        MDK_Error << "Self is empty @ DenseMatrix::DeleteCol(const int64* ColIndexList, int64 Length)" << '\n';
+        return false;
+    }
+
+    if (ColIndexList == nullptr || Length <= 0)
+    {
+        MDK_Error << "Empty Input @ DenseMatrix::DeleteCol(const int64* ColIndexList, int64 Length)" << '\n';
+        return false;
+    }
+
+    for (auto it = ColIndexList; it != ColIndexList + Length; ++it)
+    {
+        if (*it >= SelfSize.ColNumber || *it < 0)
+        {
+            MDK_Error << "Out of bound Input @ DenseMatrix::DeleteCol(const int64* ColIndexList, int64 Length)" << '\n';
+            return false;
+        }
+    }
 
     std::vector<int64> ColIndexList_max_to_min(Length);
 
     for (int64 i = 0; i < Length; ++i)
     {
-        ColIndexList_max_to_min[i] = ColIndexListPtr[i];
+        ColIndexList_max_to_min[i] = ColIndexList[i];
     }
 
     std::sort(ColIndexList_max_to_min.begin(), ColIndexList_max_to_min.end(), [](int64 a, int64 b) { return a > b; });
 
-    int64 Index_prev = ColIndexList_max_to_min[0] + 1;
+    int64 Index_prev = -1;
 
     for (int64 i = 0; i < int64(ColIndexList_max_to_min.size()); ++i)
     {
@@ -3702,7 +3571,7 @@ bool DenseMatrix<ElementType>::DeleteCol(const int64* ColIndexListPtr, int64 Len
 
         if (Index_i == Index_prev)
         {
-            MDK_Warning << "duplicate Input @ mdkDenseMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
+            MDK_Warning << "duplicate Input @ DenseMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
         }
         else
         {
@@ -3726,7 +3595,7 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::InsertCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData)
 {
-    return this->InsertCol(ColIndex, ColData.begin(), ColData.size());
+    return this->InsertCol(ColIndex, ColData.begin(), int64(ColData.size()));
 }
 
 
@@ -3735,7 +3604,7 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::InsertCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData)
 {
-    return this->InsertCol(ColIndex, ColData.data(), ColData.size());
+    return this->InsertCol(ColIndex, ColData.data(), int64(ColData.size()));
 }
 
 
@@ -3744,42 +3613,13 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::InsertCol(int64 ColIndex, const DenseMatrix<ElementType_Input>& ColData)
 {
-    if (this->IsSizeFixed() == true)
+    if (ColData.IsVector() == false)
     {
-        MDK_Error << "Matrix Size can not change @ mdkDenseMatrix::InsertCol(ColIndex, mdkDenseMatrix)" << '\n';
+        MDK_Error << "Input is NOT a vector @ DenseMatrix::InsertCol(ColIndex, DenseMatrix)" << '\n';
         return false;
     }
 
-    if (ColIndex >= SelfSize.ColNumber || ColIndex < 0)
-    {
-        MDK_Error << "Invalid Input : ColIndex is out of bound @ mdkDenseMatrix::InsertCol(ColIndex, mdkDenseMatrix)" << '\n';
-        return false;
-    }
-
-    auto InputSize = ColData.GetSize();
-
-    if (InputSize.ColNumber != 1 || InputSize.RowNumber != 1)
-    {
-        MDK_Error << "Invalid Input : must be a vector @ mdkDenseMatrix::InsertCol(ColIndex, mdkDenseMatrix)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    if (InputSize.RowNumber > 1 && InputSize.RowNumber != SelfSize.RowNumber)
-    {
-        MDK_Error << "Invalid Input : size does not match @ mdkDenseMatrix::InsertCol(ColIndex, mdkDenseMatrix)" << '\n';
-        return false;
-    }
-
-    if (InputSize.ColNumber > 1 && InputSize.ColNumber != SelfSize.RowNumber)
-    {
-        MDK_Error << "Invalid Input : size does not match @ mdkDenseMatrix::InsertCol(ColIndex, mdkDenseMatrix)" << '\n';
-        return false;
-    }
-
-    return this->InsertCol(ColIndex, ColData.GetElementPointer(), std::max(InputSize.RowNumber, InputSize.ColNumber));
-
+    return this->InsertCol(ColIndex, ColData.GetElementPointer(), ColData.GetElementNumber());
 }
 
 
@@ -3790,19 +3630,32 @@ bool DenseMatrix<ElementType>::InsertCol(int64 ColIndex, const ElementType_Input
 {
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error << "Matrix Size can not change @ mdkDenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
+        MDK_Error << "Matrix Size can not change @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
         return false;
     }
 
     auto SelfSize = this->GetSize();
 
-    if (ColData == nullptr || Length <= 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
+    if (SelfSize.ColNumber == 0)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
-        return false;
+        if (ColIndex != 0 || ColData == nullptr || Length <= 0)
+        {
+            MDK_Error << "Invalid Input @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
+            return false;
+        }
+    }
+    else
+    {
+        if (ColIndex >= SelfSize.ColNumber || ColIndex < 0 || ColData == nullptr || Length != SelfSize.RowNumber || Length <= 0)
+        {
+            MDK_Error << "Invalid Input @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
+            return false;
+        }
     }
 
     m_MatrixData->DataArray.insert(m_MatrixData->DataArray.begin() + ColIndex*SelfSize.RowNumber, ColData, ColData + Length);
+
+    m_MatrixData->RowNumber = Length;
 
     m_MatrixData->ColNumber += 1;
 
@@ -3818,29 +3671,9 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetRow(int64 RowIndex) const
 {
     DenseMatrix<ElementType> tempMatrix;	
 
-    auto SelfSize = this->GetSize();
+    tempMatrix.Resize(1, this->GetColNumber());
 
-	if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
-	{
-		MDK_Error << "Invalid Input @ mdkDenseMatrix::GetRow(RowIndex)" << '\n';
-        
-        return tempMatrix;
-	}
-
-    tempMatrix.Resize(1, SelfSize.ColNumber);
-
-    auto tempRawPointer = tempMatrix.GetElementPointer();
-
-    auto RawPointer = this->GetElementPointer();
-
-	int64 Index = 0;
-
-	for (int64 j = 0; j < SelfSize.ColNumber; ++j)
-	{
-		tempRawPointer[j] = RawPointer[Index + RowIndex];
-
-		Index += SelfSize.RowNumber;
-	}
+    this->GetRow(RowIndex, tempMatrix.GetElementPointer());
 
     return tempMatrix;
 }
@@ -3850,30 +3683,9 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::GetRow(int64 RowIndex, std::vector<ElementType>& RowData) const
 {
-    auto SelfSize = this->GetSize();
+	RowData.resize(this->GetColNumber());
 
-	if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
-	{
-		MDK_Error << "Invalid Input @ mdkDenseMatrix::GetRow(RowIndex, std::vector<ElementType>& RowData)" << '\n';
-		return false;
-	}
-
-	RowData.resize(SelfSize.ColNumber);
-
-	auto tempRawPointer = RowData.data();
-
-    auto RawPointer = this->GetElementPointer();
-
-	int64 Index = 0;
-
-	for (int64 j = 0; j < SelfSize.ColNumber; ++j)
-	{
-		tempRawPointer[j] = RawPointer[Index + RowIndex];
-
-		Index += SelfSize.RowNumber;
-	}
-
-	return true;
+    return this->GetRow(RowIndex, RowData.data());
 }
 
 
@@ -3883,13 +3695,19 @@ bool DenseMatrix<ElementType>::GetRow(int64 RowIndex, ElementType* RowData) cons
 {
     auto SelfSize = this->GetSize();
 
+    if (SelfSize.RowNumber == 0)
+    {
+        MDK_Error << "Self is empty @ DenseMatrix GetRow(RowIndex, ElementType* RowData)" << '\n';
+        return false;
+    }
+
 	if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
 	{
-		MDK_Error << "Invalid Input @ mdkDenseMatrix GetRow(RowIndex, ElementType* RowData)" << '\n';
+		MDK_Error << "Invalid Input @ DenseMatrix GetRow(RowIndex, ElementType* RowData)" << '\n';
 		return false;
 	}
 
-	auto RawPointer this->GetElementPointer();
+	auto RawPointer = this->GetElementPointer();
 
 	int64 Index = 0;
 
@@ -3909,7 +3727,7 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::SetRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData)
 {
-    return this->SetRow(RowIndex, RowData.begin(), RowData.size());
+    return this->SetRow(RowIndex, RowData.begin(), int64(RowData.size()));
 }
 
 
@@ -3918,7 +3736,7 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::SetRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData)
 {
-    return this->SetRow(RowIndex, RowData.data(), RowData.size());
+    return this->SetRow(RowIndex, RowData.data(), int64(RowData.size()));
 }
 
 
@@ -3927,35 +3745,13 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::SetRow(int64 RowIndex, const DenseMatrix<ElementType_Input>& RowData)
 {
-    auto SelfSize = this->GetSize();
-
-    if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
+    if (RowData.IsVector() == false)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix SetRow(int64 RowIndex, const mdkDenseMatrix<ElementType_Input>& RowData)" << '\n';
+        MDK_Error << "Input must be a vector @ DenseMatrix::SetRow(int64 RowIndex, const DenseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
-    auto InputSize = RowData.GetSize();
-
-    if (InputSize.ColNumber != 1 || InputSize.RowNumber != 1)
-    {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix SetRow(RowIndex,mdkDenseMatrix)" << '\n';
-        return false;
-    }
-
-    if (InputSize.RowNumber > 1 && InputSize.RowNumber != SelfSize.ColNumber)
-    {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix SetRow(RowIndex,mdkDenseMatrix)" << '\n';
-        return false;
-    }
-
-    if (InputSize.ColNumber > 1 && InputSize.ColNumber != SelfSize.ColNumber)
-    {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix SetRow(RowIndex,mdkDenseMatrix)" << '\n';
-        return false;
-    }
-
-    return this->SetRow(RowIndex, RowData.GetElementPointer(), std::max(InputSize.RowNumber, InputSize.ColNumber));
+    return this->SetRow(RowIndex, RowData.GetElementPointer(), RowData.GetElementNumber());
 }
 
 
@@ -3966,15 +3762,15 @@ bool DenseMatrix<ElementType>::SetRow(int64 RowIndex, const ElementType_Input* R
 {
     auto SelfSize = this->GetSize();
 
-    if (RowData == nullptr || Length <= 0 || RowIndex >= SelfSize.RowNumber || RowIndex < 0)
+    if (SelfSize.RowNumber == 0)
     {
-        MDK_Error << "Empty Input @ mdkDenseMatrix::SetRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        MDK_Error << "Self is empty @ DenseMatrix::SetRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
-    if (Length != SelfSize.ColNumber)
+    if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || RowData == nullptr || Length != SelfSize.ColNumber)
     {
-        MDK_Error << "Length does not match @ mdkDenseMatrix::SetRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::SetRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
@@ -3999,9 +3795,15 @@ bool DenseMatrix<ElementType>::FillRow(int64 RowIndex, const ElementType& Elemen
 {
     auto SelfSize = this->GetSize();
 
+    if (SelfSize.RowNumber == 0)
+    {
+        MDK_Error << "Self is empty @ DenseMatrix::FillRow(int64 RowIndex, const ElementType& Element)" << '\n';
+        return false;
+    }
+
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::FillRow(int64 RowIndex, const ElementType& Element)" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::FillRow(int64 RowIndex, const ElementType& Element)" << '\n';
         return false;
     }
 
@@ -4025,30 +3827,7 @@ template<typename ElementType_Input>
 inline
 bool  DenseMatrix<ElementType>::AppendRow(const std::initializer_list<ElementType_Input>& RowData)
 {
-    if (this->IsSizeFixed() == true)
-    {
-        MDK_Error << "Size can not change @ mdkDenseMatrix::AppendRow(const std::initializer_list<ElementType_Input>& RowData)" << '\n';
-        return false;
-    }
-
-    if (RowData.size() <= 0)
-    {
-        MDK_Error << "Input is empty @ mdkDenseMatrix::AppendRow(const std::initializer_list<ElementType_Input>& RowData)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    auto  ColNumber = SelfSize.ColNumber;
-
-    if (ColNumber <= 0)
-    {
-        ColNumber = RowData.size();
-    }
-
-    this->Resize(SelfSize.RowNumber + 1, ColNumber);
-
-    return this->SetRow(SelfSize.RowNumber, RowData);
+    return this->AppendRow(RowData.begin(), int64(RowData.size()));
 }
 
 
@@ -4056,31 +3835,8 @@ template<typename ElementType>
 template<typename ElementType_Input>
 inline
 bool  DenseMatrix<ElementType>::AppendRow(const std::vector<ElementType_Input>& RowData)
-{
-    if (this->IsSizeFixed() == true)
-    {
-        MDK_Error << "Size can not change @ mdkDenseMatrix::AppendRow(const std::vector<ElementType_Input>& RowData)" << '\n';
-        return false;
-    }
-
-    if (RowData.size() <= 0)
-    {
-        MDK_Error << "Input is empty @ mdkDenseMatrix::AppendRow(const std::vector<ElementType_Input>& RowData)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    auto  ColNumber = SelfSize.ColNumber;
-
-    if (ColNumber <= 0)
-    {
-        ColNumber = RowData.size();
-    }
-
-    this->Resize(SelfSize.RowNumber + 1, ColNumber);
-
-    return this->SetRow(SelfSize.RowNumber, RowData);
+{    
+    return this->AppendRow(RowData.data(), int64(RowData.size()));
 }
 
 
@@ -4089,30 +3845,13 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::AppendRow(const DenseMatrix<ElementType_Input>& RowData)
 {
-    if (this->IsSizeFixed() == true)
+    if (RowData.IsVector() == false)
     {
-        MDK_Error << "Size can not change @ mdkDenseMatrix::AppendRow(const mdkDenseMatrix<ElementType_Input>& RowData)" << '\n';
+        MDK_Error << "Input must be a vector @ DenseMatrix::AppendRow(const DenseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
-    if (RowData.IsEmpty() == true)
-    {
-        MDK_Error << "Input is empty @ mdkDenseMatrix::AppendRow(const mdkDenseMatrix<ElementType_Input>& RowData)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    auto  ColNumber = SelfSize.ColNumber;
-
-    if (ColNumber <= 0)
-    {
-        ColNumber = std::max(RowData.GetRowNumber(), RowData.GetColNumber);
-    }
-
-    this->Resize(SelfSize.RowNumber + 1, ColNumber);
-
-    return this->SetRow(SelfSize.RowNumber, RowData);
+    return this->AppendRow(RowData.GetElementPointer(), RowData.GetElementNumber());
 }
 
 
@@ -4123,26 +3862,31 @@ bool DenseMatrix<ElementType>::AppendRow(const ElementType_Input* RowData, int64
 {
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error << "Size can not change @ mdkDenseMatrix::AppendRow(const ElementType_Input* RowData, int64 Length)" << '\n';
+        MDK_Error << "Size can not change @ DenseMatrix::AppendRow(const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
     if (RowData == nullptr || Length <= 0)
     {
-        MDK_Error << "Input is empty @ mdkDenseMatrix::AppendRow(const ElementType_Input* RowData, int64 Length)" << '\n';
+        MDK_Error << "Invalid Input: empty @ DenseMatrix::AppendRow(const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
     auto SelfSize = this->GetSize();
 
-    auto  ColNumber = SelfSize.ColNumber;
-
-    if (ColNumber <= 0)
+    if (SelfSize.ColNumber > 0 && Length != SelfSize.ColNumber)
     {
-        ColNumber = RowData.size();
+        MDK_Error << "Invalid Input: size does not match @ DenseMatrix::AppendRow(const ElementType_Input* RowData, int64 Length)" << '\n';
+        return false;
     }
 
-    this->Resize(SelfSize.RowNumber + 1, ColNumber);
+    // for reference
+    //if (SelfSize.ColNumber <= 0)
+    //{
+    //    SelfSize.ColNumber = Length;
+    //}
+
+    this->Resize(SelfSize.RowNumber + 1, Length);
 
     return this->SetRow(SelfSize.RowNumber, RowData, Length);
 }
@@ -4152,70 +3896,34 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::DeleteRow(int64 RowIndex)
 {
-    if (this->IsSizeFixed() == true)
-    {
-        MDK_Error << "Size can not change @ mdkDenseMatrix::DeleteRow(int64 RowIndex)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
-    {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::DeleteRow(int64 RowIndex)" << '\n';
-        return false;
-    }
-
     return this->DeleteRow(&RowIndex, 1);
 }
 
 
-/*
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::DeleteRow(const std::initializer_list<int64>& RowIndexList)
+{
+    return this->DeleteRow(RowIndexList.begin(), int64(RowIndexList.size()));
+}
+
+
 template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::DeleteRow(const std::vector<int64>& RowIndexList)
 {
-    if (this->IsSizeFixed() == true)
-    {
-        MDK_Error << "Size can not change @ mdkDenseMatrix::DeleteRow(const std::vector<int64>& RowIndexList)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    for (auto it = RowIndexList.begin(); it != RowIndexList.end(); ++it)
-    {
-        if (*it >= SelfSize.RowNumber || *it < 0)
-        {
-            MDK_Error << "Invalid Input @ mdkDenseMatrix::DeleteRow(const std::vector<int64>& RowIndexList)" << '\n';
-            return false;
-        }
-    }
-
-    return this->DeleteRow(RowIndexList.data(), RowIndexList.size());
+    return this->DeleteRow(RowIndexList.data(), int64(RowIndexList.size()));
 }
-*/
 
 
 template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::DeleteRow(const DenseMatrix<int64>& RowIndexList)
 {
-    if (this->IsSizeFixed() == true)
+    if (RowIndexList.IsVector() == false)
     {
-        MDK_Error << "Size can not change @ mdkDenseMatrix::DeleteRow(const DenseMatrix<int64>& RowIndexList)" << '\n';
+        MDK_Error << "Input must be a vector @ DenseMatrix::DeleteRow(const DenseMatrix<int64>& RowIndexList)" << '\n';
         return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    for (auto it = RowIndexList.begin(); it != RowIndexList.end(); ++it)
-    {
-        if (*it >= SelfSize.RowNumber || *it < 0)
-        {
-            MDK_Error << "Invalid Input @ mdkDenseMatrix::DeleteRow(const DenseMatrix<int64>& RowIndexList)" << '\n';
-            return false;
-        }
     }
 
     return this->DeleteRow(RowIndexList.GetElementPointer(), RowIndexList.GetElementNumber());
@@ -4224,21 +3932,36 @@ bool DenseMatrix<ElementType>::DeleteRow(const DenseMatrix<int64>& RowIndexList)
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::DeleteRow(const int64* RowIndexListPtr, int64 Length)
+bool DenseMatrix<ElementType>::DeleteRow(const int64* RowIndexList, int64 Length)
 {
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error << "Size can not change @ mdkDenseMatrix::DeleteRow(const int64* RowIndexPtr, int64 Length)" << '\n';
-        return false;
-    }
-
-    if (RowIndexListPtr == nullptr || Length <= 0)
-    {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::DeleteRow(const int64* RowIndexPtr, int64 Length)" << '\n';
+        MDK_Error << "Size can not change @ DenseMatrix::DeleteRow(const int64* RowIndexList, int64 Length)" << '\n';
         return false;
     }
 
     auto SelfSize = this->GetSize();
+
+    if (SelfSize.RowNumber == 0)
+    {
+        MDK_Error << "Self is empty @ DenseMatrix::DeleteRow(const int64* RowIndexList, int64 Length)" << '\n';
+        return false;
+    }
+
+    if (RowIndexList == nullptr || Length <= 0)
+    {
+        MDK_Error << "Invalid Input @ DenseMatrix::DeleteRow(const int64* RowIndexList, int64 Length)" << '\n';
+        return false;
+    }
+
+    for (auto it = RowIndexList; it != RowIndexList + Length; ++it)
+    {
+        if (*it >= SelfSize.RowNumber || *it < 0)
+        {
+            MDK_Error << "Invalid Input @ DenseMatrix::DeleteRow(const int64* RowIndexList, int64 Length)" << '\n';
+            return false;
+        }
+    }
 
     std::vector<int64> CounterList(SelfSize.RowNumber);
     
@@ -4249,7 +3972,7 @@ bool DenseMatrix<ElementType>::DeleteRow(const int64* RowIndexListPtr, int64 Len
 
     for (int64 i = 0; i < Length; ++i)
     {
-        CounterList[RowIndexListPtr[i]] = 1;
+        CounterList[RowIndexList[i]] = 1;
     }
 
     std::vector<int64> RowIndexList_output;
@@ -4280,7 +4003,7 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::InsertRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData)
 {
-    return this->InsertRow(RowIndex, RowData.begin(), RowData.size());
+    return this->InsertRow(RowIndex, RowData.begin(), int64(RowData.size()));
 }
 
 
@@ -4289,7 +4012,7 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::InsertRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData)
 {
-    return this->InsertRow(RowIndex, RowData.data(), RowData.size());
+    return this->InsertRow(RowIndex, RowData.data(), int64(RowData.size()));
 }
 
 
@@ -4298,41 +4021,13 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::InsertRow(int64 RowIndex, const DenseMatrix<ElementType_Input>& RowData)
 {
-    if (this->IsSizeFixed() == true)
+    if (RowData.IsVector() == false)
     {
-        MDK_Error << "Size can not change @ mdkDenseMatrix::InsertRow(int64 RowIndex, const mdkDenseMatrix<ElementType_Input>& RowData)" << '\n';
+        MDK_Error << "Input is NOT a vector @ DenseMatrix::InsertRow(int64 RowIndex, const DenseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
     }
 
-    if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
-    {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix InsertRow(int64 RowIndex, const mdkDenseMatrix<ElementType_Input>& RowData)" << '\n';
-        return false;
-    }
-
-    auto InputSize = RowData.GetSize();
-
-    auto SelfSize = this->GetSize();
-
-    if (InputSize.ColNumber != 1 || InputSize.RowNumber != 1)
-    {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix InsertRow(RowIndex,mdkDenseMatrix)" << '\n';
-        return false;
-    }
-
-    if (InputSize.RowNumber > 1 && InputSize.RowNumber != SelfSize.ColNumber)
-    {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix InsertRow(RowIndex,mdkDenseMatrix)" << '\n';
-        return false;
-    }
-
-    if (InputSize.ColNumber > 1 && InputSize.ColNumber != SelfSize.ColNumber)
-    {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix InsertRow(RowIndex,mdkDenseMatrix)" << '\n';
-        return false;
-    }
-
-    return this->InsertRow(RowIndex, RowData.GetElementPointer(), std::max(Size.RowNumber, Size.ColNumber));
+    return this->InsertRow(RowIndex, RowData.GetElementPointer(), RowData.GetElementNumber());
 }
 
 
@@ -4343,21 +4038,28 @@ bool DenseMatrix<ElementType>::InsertRow(int64 RowIndex, const ElementType_Input
 {
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error << "Size can not change @ mdkDenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        MDK_Error << "Size can not change @ DenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
+
+    if (this->IsEmpty() == true)
+    {
+        if (RowIndex == 0 && RowData != nullptr && Length > 0)
+        {
+            return this->AppendRow(RowData, Length);
+        }
+
+        MDK_Error << "Invalid Input @ DenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        return false;
+    }
+
+    // Self is not empty ----------------------------------------------------------------------------------------------------------
 
     auto SelfSize = this->GetSize();
 
-    if (RowData == nullptr || Length <= 0 || RowIndex >= SelfSize.RowNumber || RowIndex < 0)
+    if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || RowData == nullptr || Length != SelfSize.ColNumber)
     {
-        MDK_Error << "Empty Input @ mdkDenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
-        return false;
-    }
-
-    if (Length != SelfSize.ColNumber)
-    {
-        MDK_Error << "Length does not match @ mdkDenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
     }
 
@@ -4367,11 +4069,13 @@ bool DenseMatrix<ElementType>::InsertRow(int64 RowIndex, const ElementType_Input
 
     auto RawPointer = this->GetElementPointer();
 
-    for (int64 i = 0; i < RowIndex; ++i)
+    for (int64 j = 0; j < SelfSize.ColNumber; ++j)
     {
-        for (int64 j = 0; j < SelfSize.ColNumber; ++j)
+        auto tempIndex = j*SelfSize.RowNumber;
+
+        for (int64 i = 0; i < RowIndex; ++i)
         {
-            tempRawPointer[j*(SelfSize.RowNumber + 1) + i] = RawPointer[j*SelfSize.RowNumber + i];
+            tempRawPointer[tempIndex + j + i] = RawPointer[tempIndex + i];
         }
     }
 
@@ -4380,11 +4084,13 @@ bool DenseMatrix<ElementType>::InsertRow(int64 RowIndex, const ElementType_Input
         tempRawPointer[j*(SelfSize.RowNumber + 1) + RowIndex] = ElementType(RowData[j]);
     }
 
-    for (int64 i = RowIndex + 1; i < SelfSize.RowNumber + 1; ++i)
+    for (int64 j = 0; j < SelfSize.ColNumber; ++j)
     {
-        for (int64 j = 0; j < SelfSize.ColNumber; ++j)
-        {
-            tempRawPointer[j*(SelfSize.RowNumber + 1) + i] = RawPointer[j*SelfSize.RowNumber + i - 1];
+        auto tempIndex = j*SelfSize.RowNumber;
+
+        for (int64 i = RowIndex + 1; i < SelfSize.RowNumber + 1; ++i)
+        {            
+            tempRawPointer[tempIndex + j + i] = RawPointer[tempIndex + i - 1];
         }
     }
 
@@ -4408,7 +4114,7 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetDiangonal() const
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error << " Self is empty or not square @ mdkDenseMatrix::GetDiangonal()" << '\n';
+        MDK_Error << " Self is empty or not square @ DenseMatrix::GetDiangonal()" << '\n';
         
         return  tempMatrix;
     }
@@ -4431,7 +4137,7 @@ bool DenseMatrix<ElementType>::GetDiangonal(std::vector<ElementType>& DiangonalD
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error << " Self is empty or not square @ mdkDenseMatrix::GetDiangonal(std::vector)" << '\n';
+        MDK_Error << " Self is empty or not square @ DenseMatrix::GetDiangonal(std::vector)" << '\n';
         return  false;
     }
 
@@ -4449,7 +4155,7 @@ bool DenseMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) const
 {
     if (DiangonalData == nullptr)
     {
-        MDK_Error << " Input is nullptr @ mdkDenseMatrix::GetDiangonal(ElementType* DiangonalData)" << '\n';
+        MDK_Error << " Input is nullptr @ DenseMatrix::GetDiangonal(ElementType* DiangonalData)" << '\n';
         return  false;
     }
 
@@ -4457,7 +4163,7 @@ bool DenseMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) const
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error << " Self is empty or not square @ mdkDenseMatrix::GetDiangonal(ElementType* DiangonalData)" << '\n';
+        MDK_Error << " Self is empty or not square @ DenseMatrix::GetDiangonal(ElementType* DiangonalData)" << '\n';
         return  false;
     }
 
@@ -4485,13 +4191,13 @@ bool DenseMatrix<ElementType>::SetDiangonal(const std::initializer_list<ElementT
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error << "Self is empty or not square @ mdkDenseMatrix::SetDiangonal(std::initializer_list)" << '\n';
+        MDK_Error << "Self is empty or not square @ DenseMatrix::SetDiangonal(std::initializer_list)" << '\n';
         return false;
     }
 
     if (DiangonalData.size() != SelfSize.RowNumber)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::SetDiangonal(std::initializer_list)" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::SetDiangonal(std::initializer_list)" << '\n';
         return false;
     }
 
@@ -4508,13 +4214,13 @@ bool DenseMatrix<ElementType>::SetDiangonal(const std::vector<ElementType_Input>
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
 	{
-		MDK_Error << " Self is empty or not square @ mdkDenseMatrix::SetDiangonal(std::vector)" << '\n';
+		MDK_Error << " Self is empty or not square @ DenseMatrix::SetDiangonal(std::vector)" << '\n';
 		return false;
 	}
 
     if (DiangonalData.size() != SelfSize.RowNumber)
     {
-        MDK_Error << " Input is invalid @ mdkDenseMatrix::SetDiangonal(std::vector)" << '\n';
+        MDK_Error << " Input is invalid @ DenseMatrix::SetDiangonal(std::vector)" << '\n';
         return false;
     }
 
@@ -4531,7 +4237,7 @@ bool DenseMatrix<ElementType>::SetDiangonal(const DenseMatrix<ElementType_Input>
 
     if (InputSize.ColNumber != 1 || InputSize.RowNumber != 1)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::SetDiangonal(Matrix)" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::SetDiangonal(Matrix)" << '\n';
         return false;
     }
 
@@ -4539,19 +4245,19 @@ bool DenseMatrix<ElementType>::SetDiangonal(const DenseMatrix<ElementType_Input>
 
     if (InputSize.RowNumber > 1 && InputSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::SetDiangonal(Matrix)" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::SetDiangonal(Matrix)" << '\n';
         return false;
     }
 
     if (InputSize.ColNumber > 1 && InputSize.ColNumber != SelfSize.ColNumber)
     {
-        MDK_Error << "Invalid Input @ mdkDenseMatrix::SetDiangonal(Matrix)" << '\n';
+        MDK_Error << "Invalid Input @ DenseMatrix::SetDiangonal(Matrix)" << '\n';
         return false;
     }
 
     if (InputSize.RowNumber == 1 && InputSize.ColNumber == 1)
     {
-        MDK_Warning << "Input matrix is 1x1 and treated as a scalar @ mdkDenseMatrix::SetDiangonal(Matrix)" << '\n';
+        MDK_Warning << "Input matrix is 1x1 and treated as a scalar @ DenseMatrix::SetDiangonal(Matrix)" << '\n';
         return this->FillDiangonal(ElementType(DiangonalData(0)));
     }
     else
@@ -4568,7 +4274,7 @@ bool DenseMatrix<ElementType>::SetDiangonal(const ElementType_Input* DiangonalDa
 {
     if (DiangonalData == nullptr)
     {
-        MDK_Error << " Input is nullptr @ mdkDenseMatrix::SetDiangonal(const ElementType_Input* DiangonalData)" << '\n';
+        MDK_Error << " Input is nullptr @ DenseMatrix::SetDiangonal(const ElementType_Input* DiangonalData)" << '\n';
         return false;
     }
 
@@ -4576,7 +4282,7 @@ bool DenseMatrix<ElementType>::SetDiangonal(const ElementType_Input* DiangonalDa
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error << " Self is empty or not square @ mdkDenseMatrix::SetDiangonal(const ElementType_Input* DiangonalData)" << '\n';
+        MDK_Error << " Self is empty or not square @ DenseMatrix::SetDiangonal(const ElementType_Input* DiangonalData)" << '\n';
         return false;
     }
 
@@ -4603,7 +4309,7 @@ bool DenseMatrix<ElementType>::FillDiangonal(const ElementType& Element)
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error << " Self is empty or not square @ mdkDenseMatrix::FillDiangonal" << '\n';
+        MDK_Error << " Self is empty or not square @ DenseMatrix::FillDiangonal" << '\n';
         return false;
     }
 
@@ -4763,7 +4469,7 @@ void DenseMatrix<ElementType>::operator+=(const DenseShadowMatrix<ElementType>& 
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error << "ShadowMatrix is empty @ mdkDenseMatrix::operator+=(ShadowMatrix)" << '\n';
+        MDK_Error << "ShadowMatrix is empty @ DenseMatrix::operator+=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4780,7 +4486,7 @@ void DenseMatrix<ElementType>::operator+=(const DenseShadowMatrix<ElementType>& 
 
     if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrix::operator+=(ShadowMatrix)" << '\n';
+        MDK_Error << "Size does not match @ DenseMatrix::operator+=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4801,7 +4507,7 @@ void DenseMatrix<ElementType>::operator-=(const DenseShadowMatrix<ElementType>& 
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error << "ShadowMatrix is empty @ mdkDenseMatrix::operator-=(ShadowMatrix)" << '\n';
+        MDK_Error << "ShadowMatrix is empty @ DenseMatrix::operator-=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4818,7 +4524,7 @@ void DenseMatrix<ElementType>::operator-=(const DenseShadowMatrix<ElementType>& 
 
     if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrix::operator-=(ShadowMatrix)" << '\n';
+        MDK_Error << "Size does not match @ DenseMatrix::operator-=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4847,7 +4553,7 @@ void DenseMatrix<ElementType>::operator/=(const DenseShadowMatrix<ElementType>& 
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error << "ShadowMatrix is empty @ mdkDenseMatrix::operator/=(ShadowMatrix)" << '\n';
+        MDK_Error << "ShadowMatrix is empty @ DenseMatrix::operator/=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4864,7 +4570,7 @@ void DenseMatrix<ElementType>::operator/=(const DenseShadowMatrix<ElementType>& 
 
     if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrix::operator/=(ShadowMatrix)" << '\n';
+        MDK_Error << "Size does not match @ DenseMatrix::operator/=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -4989,7 +4695,7 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::operator^(const ElementType& 
 
     if (SelfSize.RowNumber <= 0)
     {
-        MDK_Error << "Self is empty @ mdkDenseMatrix::operator^(value)" << '\n';
+        MDK_Error << "Self is empty @ DenseMatrix::operator^(value)" << '\n';
 
         return tempMatrix;
     }
@@ -5019,7 +4725,7 @@ inline void DenseMatrix<ElementType>::operator^=(const ElementType& Element)
 
     if (SelfSize.RowNumber <= 0)
     {
-        MDK_Error << "Self is empty @ mdkDenseMatrix::operator^(value)" << '\n';
+        MDK_Error << "Self is empty @ DenseMatrix::operator^(value)" << '\n';
         return;
     }
 
@@ -5528,7 +5234,7 @@ inline ElementType DenseMatrix<ElementType>::Mean() const
 
     if (Self_ElementNumber <= 0)
     {
-        MDK_Error << "self is empty Matrix @ mdkDenseMatrix::Mean" << '\n';
+        MDK_Error << "self is empty Matrix @ DenseMatrix::Mean" << '\n';
         return m_NaNElement;
     }
 
@@ -5556,7 +5262,7 @@ inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MeanToRow() const
 
     if (SelfSize.RowNumber <= 0)
 	{
-		MDK_Error << "self is empty Matrix @ mdkDenseMatrix::MeanToRow" << '\n';
+		MDK_Error << "self is empty Matrix @ DenseMatrix::MeanToRow" << '\n';
 
 		return tempMatrix;
 	}
@@ -5596,7 +5302,7 @@ inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MeanToCol() const
 
     if (SelfSize.RowNumber <= 0)
 	{
-		MDK_Error << "self is empty Matrix @ mdkDenseMatrix::MeanToCol" << '\n';
+		MDK_Error << "self is empty Matrix @ DenseMatrix::MeanToCol" << '\n';
   
 		return tempMatrix;
 	}
@@ -5634,7 +5340,7 @@ inline ElementType DenseMatrix<ElementType>::Sum() const
 
     if (Self_ElementNumber <= 0)
 	{
-		MDK_Error << "self is empty Matrix @ mdkDenseMatrix::Sum" << '\n';
+		MDK_Error << "self is empty Matrix @ DenseMatrix::Sum" << '\n';
         return m_NaNElement;
 	}
 
@@ -5660,7 +5366,7 @@ inline DenseMatrix<ElementType> DenseMatrix<ElementType>::SumToRow() const
 
     if (SelfSize.RowNumber <= 0)
 	{
-		MDK_Error << "self is empty Matrix @ mdkDenseMatrix::SumToRow" << '\n';
+		MDK_Error << "self is empty Matrix @ DenseMatrix::SumToRow" << '\n';
         
 		return tempMatrix;
 	}
@@ -5700,7 +5406,7 @@ inline DenseMatrix<ElementType> DenseMatrix<ElementType>::SumToCol() const
 
     if (SelfSize.RowNumber <= 0)
 	{
-		MDK_Error << "self is empty Matrix @ mdkDenseMatrix::SumToCol" << '\n';
+		MDK_Error << "self is empty Matrix @ DenseMatrix::SumToCol" << '\n';
         
 		return tempMatrix;
 	}
@@ -5738,7 +5444,7 @@ inline ElementType DenseMatrix<ElementType>::Max() const
 
     if (Self_ElementNumber <= 0)
 	{
-		MDK_Error << "self is empty Matrix @ mdkDenseMatrix::Max" << '\n';
+		MDK_Error << "self is empty Matrix @ DenseMatrix::Max" << '\n';
         return m_NaNElement;
 	}
 
@@ -5764,7 +5470,7 @@ inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MaxToRow() const
 
     if (SelfSize.RowNumber <= 0)
 	{
-		MDK_Error << "self is empty Matrix @ mdkDenseMatrix::MaxToRow" << '\n';
+		MDK_Error << "self is empty Matrix @ DenseMatrix::MaxToRow" << '\n';
         
 		return tempMatrix;
 	}
@@ -5804,7 +5510,7 @@ inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MaxToCol() const
 
     if (SelfSize.RowNumber <= 0)
 	{
-		MDK_Error << "self is empty Matrix @ mdkDenseMatrix::MaxToCol" << '\n';
+		MDK_Error << "self is empty Matrix @ DenseMatrix::MaxToCol" << '\n';
         
 		return tempMatrix;
 	}
@@ -5842,7 +5548,7 @@ inline ElementType DenseMatrix<ElementType>::Min() const
 
     if (Self_ElementNumber <= 0)
 	{
-		MDK_Error << "self is empty Matrix @ mdkDenseMatrix::Min" << '\n';
+		MDK_Error << "self is empty Matrix @ DenseMatrix::Min" << '\n';
         return m_NaNElement;
 	}
 
@@ -5868,7 +5574,7 @@ inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MinToRow() const
 
     if (SelfSize.RowNumber <= 0)
 	{
-		MDK_Error << "self is empty Matrix @ mdkDenseMatrix::MinToRow" << '\n';
+		MDK_Error << "self is empty Matrix @ DenseMatrix::MinToRow" << '\n';
         
 		return tempMatrix;
 	}
@@ -5908,7 +5614,7 @@ inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MinToCol() const
 
     if (SelfSize.RowNumber <= 0)
 	{
-		MDK_Error << "self is empty Matrix @ mdkDenseMatrix::MinToCol" << '\n';
+		MDK_Error << "self is empty Matrix @ DenseMatrix::MinToCol" << '\n';
         
 		return tempMatrix;
 	}

@@ -61,14 +61,14 @@ private:
 
 	std::vector<int64> m_LinearIndexList_source;
 
-    DenseMatrix<ElementType> m_SourceMatrixSharedCopy;
+    DenseMatrix<ElementType> m_SourceMatrixSharedCopy; // can not use a raw pointer to the source matrix, see operator=(const DenseShadowMatrix&)
 
 	//------------------- constructor and destructor ------------------------------------//
 private:
     inline DenseShadowMatrix(); // empty ShadowMatrix
 
-    // do not need non const versions of the following constructors
-    // adding const to the member functions of mdkDenseShadowMatrix is enough
+    // do not need none const versions of the following constructors
+    // adding const to the member functions of DenseShadowMatrix is enough
 
     inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::initializer_list<int64>& LinearIndexList);
 

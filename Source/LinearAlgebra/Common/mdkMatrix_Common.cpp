@@ -1,11 +1,9 @@
 #include "mdkMatrix_Common.h"
 
-#include "mdkDenseMatrix.h"
-
 namespace mdk
 {
 
-DenseMatrix<int64> span(int64 Index_A, int64 Index_B)
+std::vector<int64> span(int64 Index_A, int64 Index_B)
 {
     std::vector<int64> IndexList;
 
@@ -32,15 +30,11 @@ DenseMatrix<int64> span(int64 Index_A, int64 Index_B)
         }
     }
 
-    DenseMatrix<int64> OutputIndexList;
-
-    OutputIndexList.Take(IndexList);
-
-    return OutputIndexList;
+    return IndexList;
 }
 
 
-DenseMatrix<int64> span(int64 Index_A, int64 Step, int64 Index_B)
+std::vector<int64> span(int64 Index_A, int64 Step, int64 Index_B)
 {
     std::vector<int64> IndexList;
 
@@ -67,11 +61,7 @@ DenseMatrix<int64> span(int64 Index_A, int64 Step, int64 Index_B)
         }
     }
 
-    DenseMatrix<int64> OutputIndexList;
-
-    OutputIndexList.Take(IndexList);
-
-    return OutputIndexList;
+    return IndexList;
 }
 
 }// namespace mdk
