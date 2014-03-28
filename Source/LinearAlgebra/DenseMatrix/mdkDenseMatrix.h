@@ -587,7 +587,7 @@ public:
                              const int64* RowIndexList, int64 OutputRowNumber,
                              const int64* ColIndexList, int64 OutputColNumber) const;
 
-	//---------------------- Get/Set/Fill/Append/Delete/Insert Single Column ----------------------------------------//
+	//---------------------- Get/Set/Fill/Append/Insert A Single Column, Delete multi-Columns ----------------------------------------//
 	
     inline DenseMatrix GetCol(int64 ColIndex) const;
 
@@ -643,7 +643,7 @@ public:
     template<typename ElementType_Input>
     inline bool InsertCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length);
 
-	//---------------------- Get/Set/Fill/Append/Delete Single Row  ----------------------------------------//
+	//---------------------- Get/Set/Fill/Append A Single Row, Delete Multi-Rows  ----------------------------------------//
 	
     inline DenseMatrix GetRow(int64 RowIndex) const;
 
