@@ -878,7 +878,7 @@ template<typename ElementType>
 inline
 void DenseShadowMatrix<ElementType>::operator=(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
-    (*this) = GlueMatrix.CreateMatrix();
+    (*this) = GlueMatrix.CreateDenseMatrix();
 }
 
 
@@ -886,7 +886,7 @@ template<typename ElementType>
 inline
 void DenseShadowMatrix<ElementType>::operator=(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
-    (*this) = GlueMatrix.CreateMatrix();
+    (*this) = GlueMatrix.CreateDenseMatrix();
 }
 
 
@@ -1204,7 +1204,7 @@ void DenseShadowMatrix<ElementType>::operator*=(const DenseMatrix<ElementType>& 
 
     //----------------------------------------------------//
 
-    (*this) = this->CreateMatrix() * InputMatrix;
+    (*this) = this->CreateDenseMatrix() * InputMatrix;
 }
 
 
@@ -1511,7 +1511,7 @@ void DenseShadowMatrix<ElementType>::operator*=(const DenseShadowMatrix<ElementT
 
     //-----------------------------------------------------------
 
-    (*this) = this->CreateMatrix() * ShadowMatrix.CreateMatrix();
+    (*this) = this->CreateDenseMatrix() * ShadowMatrix.CreateDenseMatrix();
 }
 
 
@@ -1561,7 +1561,7 @@ template<typename ElementType>
 inline
 void DenseShadowMatrix<ElementType>::operator+=(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
-    (*this) += GlueMatrix.CreateMatrix()
+    (*this) += GlueMatrix.CreateDenseMatrix()
 }
 
 
@@ -1569,7 +1569,7 @@ template<typename ElementType>
 inline
 void DenseShadowMatrix<ElementType>::operator-=(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
-    (*this) -= GlueMatrix.CreateMatrix()
+    (*this) -= GlueMatrix.CreateDenseMatrix()
 }
 
 
@@ -1577,7 +1577,7 @@ template<typename ElementType>
 inline
 void DenseShadowMatrix<ElementType>::operator*=(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
-    (*this) *= GlueMatrix.CreateMatrix()
+    (*this) *= GlueMatrix.CreateDenseMatrix()
 }
 
 
@@ -1585,7 +1585,7 @@ template<typename ElementType>
 inline
 void DenseShadowMatrix<ElementType>::operator/=(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
-    (*this) /= GlueMatrix.CreateMatrix()
+    (*this) /= GlueMatrix.CreateDenseMatrix()
 }
 
 //------------------------------------------------ ShadowMatrix {+= -= *= /=} GlueMatrixForMultiplication --------------------------------------------//
@@ -1594,7 +1594,7 @@ template<typename ElementType>
 inline
 void DenseShadowMatrix<ElementType>::operator+=(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
-    (*this) += GlueMatrix.CreateMatrix()
+    (*this) += GlueMatrix.CreateDenseMatrix()
 }
 
 
@@ -1602,7 +1602,7 @@ template<typename ElementType>
 inline
 void DenseShadowMatrix<ElementType>::operator-=(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
-    (*this) -= GlueMatrix.CreateMatrix()
+    (*this) -= GlueMatrix.CreateDenseMatrix()
 }
 
 
@@ -1610,61 +1610,26 @@ template<typename ElementType>
 inline
 void DenseShadowMatrix<ElementType>::operator*=(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
-    (*this) *= GlueMatrix.CreateMatrix()
+    (*this) *= GlueMatrix.CreateDenseMatrix()
 }
 
 template<typename ElementType>
 inline
 void DenseShadowMatrix<ElementType>::operator/=(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
-    (*this) /= GlueMatrix.CreateMatrix()
+    (*this) /= GlueMatrix.CreateDenseMatrix()
 }
 
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> DenseShadowMatrix<ElementType>::ElementMultiply(const DenseMatrix<ElementType>& Matrix) const
+DenseMatrix<ElementType> DenseShadowMatrix<ElementType>::ElementMultiply(const DenseMatrix<ElementType>& InputMatrix) const
 {
-    auto Size = Matrix.GetSize();
+    auto tempMatrix = this->CreateDenseMatrix();
 
-    if (m_ColNumber == 1 && m_RowNumber == 1)
-    {
-        return (*this)[0] * Matrix;
-    }
+    MatrixElementMultiply(tempMatrix, tempMatrix, InputMatrix);
 
-    if (Size.ColNumber == 1 && Size.RowNumber == 1)
-    {
-        return (*this) * Matrix[0];
-    }
-
-    DenseMatrix<ElementType> tempMatrix;
-
-    if (m_RowNumber != Size.RowNumber || m_ColNumber != Size.ColNumber)
-    {
-        MDK_Error << "Size does not match @ mdkDenseShadowMatrix::ElementMultiply(Matrix)" << '\n';
-        return  tempMatrix;
-    }
-
-    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
-    {
-        MDK_Warning << "Self or Matrix is empty @ mdkDenseShadowMatrix::ElementMultiply(Matrix)" << '\n';
-        return  tempMatrix;
-    }
-
-    //----------------------------------------------------//
-
-    tempMatrix.FastResize(m_RowNumber, m_ColNumber);
-
-    auto ptrTemp = tempMatrix.GetElementPointer();
-
-    auto ptrInput = InputMatrix.GetElementPointer();
-
-    for (int64 i = 0; i < m_ElementNumber; ++i)
-    {
-        ptrTemp[i] = (*this)[i] * ptrInput[i];
-    }
-
-    return  tempMatrix;
+    return tempMatrix;   
 }
 
 
@@ -1672,7 +1637,11 @@ template<typename ElementType>
 inline
 DenseMatrix<ElementType> DenseShadowMatrix<ElementType>::ElementMultiply(const ElementType& Element) const
 {
-    return (*this) * Element;
+    auto tempMatrix = this->CreateDenseMatrix();
+
+    MatrixElementMultiply(tempMatrix, tempMatrix, Element);
+
+    return tempMatrix;
 }
 
 
@@ -1718,7 +1687,13 @@ template<typename ElementType>
 inline
 DenseMatrix<ElementType> DenseShadowMatrix<ElementType>::ElementMultiply(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix) const
 {
-    return this->ElementMultiply(GlueMatrix.CreateMatrix());
+    auto tempMatrixA = this->CreateDenseMatrix();
+
+    auto tempMatrixB = GlueMatrix.CreateDenseMatrix();
+
+    MatrixElementMultiply(tempMatrixA, tempMatrixA, tempMatrixB);
+
+    return tempMatrixA;
 }
 
 
@@ -1726,7 +1701,13 @@ template<typename ElementType>
 inline
 DenseMatrix<ElementType> DenseShadowMatrix<ElementType>::ElementMultiply(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix) const
 {
-    return this->ElementMultiply(GlueMatrix.CreateMatrix());
+    auto tempMatrixA = this->CreateDenseMatrix();
+
+    auto tempMatrixB = GlueMatrix.CreateDenseMatrix();
+
+    MatrixElementMultiply(tempMatrixA, tempMatrixA, tempMatrixB);
+
+    return tempMatrixA;
 }
 
 

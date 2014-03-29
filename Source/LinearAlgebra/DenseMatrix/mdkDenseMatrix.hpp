@@ -4902,15 +4902,6 @@ inline void DenseMatrix<ElementType>::operator^=(const ElementType& Element)
 //-------------------- special element operation ( .* in matlab ) ------------------------------------------//
 
 template<typename ElementType>
-inline 
-DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementMultiply(const DenseMatrix<ElementType>& InputMatrix) const
-{
-    return MatrixElementMultiply(*this, InputMatrix);
-
-}
-
-
-template<typename ElementType>
 inline
 DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementMultiply(const ElementType& Element) const
 {
@@ -4920,9 +4911,37 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementMultiply(const Element
 
 template<typename ElementType>
 inline
+DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementMultiply(const DenseMatrix<ElementType>& InputMatrix) const
+{
+    return MatrixElementMultiply(*this, InputMatrix);
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementMultiply(DenseMatrix<ElementType>&& InputMatrix) const
+{
+    if (m_ElementPointer == InputMatrix.GetElementPointer())
+    {
+        return MatrixElementMultiply(*this, InputMatrix);
+    }
+    
+    MatrixElementMultiply(InputMatrix, InputMatrix, *this);
+
+    return InputMatrix;
+}
+
+
+
+template<typename ElementType>
+inline
 DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementMultiply(const DenseShadowMatrix<ElementType>& ShadowMatrix) const
 {
-    return MatrixElementMultiply(*this, ShadowMatrix.CreateDenseMatrix());
+    auto tempMatrix = ShadowMatrix.CreateDenseMatrix();
+
+    MatrixElementMultiply(tempMatrix, tempMatrix, *this);
+
+    return tempMatrix;
 }
 
 
@@ -4930,7 +4949,11 @@ template<typename ElementType>
 inline
 DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementMultiply(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix) const
 {
-    return MatrixElementMultiply(*this, GlueMatrix.CreateDenseMatrix());
+    auto tempMatrix = GlueMatrix.CreateDenseMatrix();
+
+    MatrixElementMultiply(tempMatrix, tempMatrix, *this);
+
+    return tempMatrix;
 }
 
 
@@ -4938,7 +4961,11 @@ template<typename ElementType>
 inline
 DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementMultiply(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix) const
 {
-    return MatrixElementMultiply(*this, GlueMatrix.CreateDenseMatrix());
+    auto tempMatrix = GlueMatrix.CreateDenseMatrix();
+
+    MatrixElementMultiply(tempMatrix, tempMatrix, *this);
+
+    return tempMatrix;
 }
 
 

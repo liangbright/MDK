@@ -798,9 +798,11 @@ public:
 
     //-------------------- special element operation : (.*) element multiply -----------------------------------------------------------//
 
+    inline DenseMatrix ElementMultiply(const ElementType& Element) const;
+
     inline DenseMatrix ElementMultiply(const DenseMatrix<ElementType>& InputMatrix) const;
 
-    inline DenseMatrix ElementMultiply(const ElementType& Element) const;
+    inline DenseMatrix ElementMultiply(DenseMatrix<ElementType>&& InputMatrix) const;
 
     inline DenseMatrix ElementMultiply(const DenseShadowMatrix<ElementType>& ShadowMatrix) const;
 

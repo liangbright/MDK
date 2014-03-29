@@ -507,6 +507,22 @@ void Test_Mutiplication()
     DisplayMatrix("D", D);
 }
 
+void Test_ElementMultiply()
+{
+    DenseMatrix<double> A(2, 2);
+
+    A = { { 1, 2 },
+          { 3, 4 } };
+
+
+    DenseMatrix<double> B(2, 2);
+
+    B = { { 1, 2 },
+          { 3, 4 } };
+
+    auto C = A.ElementMultiply(A.ElementMultiply(B));
+}
+
 
 void Test_Share()
 {

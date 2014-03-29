@@ -74,7 +74,7 @@ int main()
 
    // test_vec_insert();
     
-    Test_Constructor_a();
+   // Test_Constructor_a();
 
     //Test_Constructor();
 
@@ -83,6 +83,8 @@ int main()
   //  Test_MoveConstructor();
 
   //  Test_ShareConstuctor();
+
+    Test_ElementMultiply();
 
 //    Test_ElementOperation();
 
