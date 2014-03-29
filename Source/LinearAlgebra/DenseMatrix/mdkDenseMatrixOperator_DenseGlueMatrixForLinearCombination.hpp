@@ -60,7 +60,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
 
     int64 MatrixNumber = GlueMatrixA.GetMatrixNumber();
 
-    GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
+    //GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
+    GlueMatrixA.m_SourceMatrixSharedCopyList.reserve(MatrixNumber + 1);
+    GlueMatrixA.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
     GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber].ForceShare(MatrixB);
 
@@ -114,7 +116,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
 
     int64 MatrixNumber = GlueMatrixA.GetMatrixNumber();
 
-    GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
+    //GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
+    GlueMatrixA.m_SourceMatrixSharedCopyList.reserve(MatrixNumber + 1);
+    GlueMatrixA.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
     GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber].ForceShare(MatrixB);
 
@@ -189,7 +193,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
 
     int64 MatrixNumber = GlueMatrixB.GetMatrixNumber();
 
-    GlueMatrixB.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
+    //GlueMatrixB.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
+    GlueMatrixB.m_SourceMatrixSharedCopyList.reserve(MatrixNumber + 1);
+    GlueMatrixB.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
     GlueMatrixB.m_SourceMatrixSharedCopyList[MatrixNumber].ForceShare(MatrixA);
 
@@ -243,9 +249,11 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
 
     int64 MatrixNumber = GlueMatrixB.GetMatrixNumber();
 
-    GlueMatrixB.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
+    //GlueMatrixB.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
+    GlueMatrixB.m_SourceMatrixSharedCopyList.reserve(MatrixNumber + 1);
+    GlueMatrixB.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-    GlueMatrixB.m_SourceMatrixSharedCopyList[MatrixNumber].Share(MatrixA);
+    GlueMatrixB.m_SourceMatrixSharedCopyList[MatrixNumber].ForceShare(MatrixA);
 
     for (int64 i = 0; i < MatrixNumber; ++i)
     {
@@ -507,12 +515,17 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
 
     int64 MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
 
-    GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + MatrixNumber_B);
+    //GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + MatrixNumber_B);
+    GlueMatrixA.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_A + MatrixNumber_B);
 
     for (int64 i = 0; i < MatrixNumber_B; ++i)
     {
-        GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber_A + i].Share(GlueMatrixB.m_SourceMatrixSharedCopyList[i]);
+        GlueMatrixA.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
+
+        GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber_A + i].SwapSmartPointer(GlueMatrixB.m_SourceMatrixSharedCopyList[i]);
     }
+
+    GlueMatrixA.m_ElementList_Coef.reserve(MatrixNumber_A + MatrixNumber_B);
 
     for (int64 i = 0; i < MatrixNumber_B; ++i)
     {
@@ -573,12 +586,17 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
 
     int64 MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
 
-    GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + MatrixNumber_B);
+    //GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + MatrixNumber_B);
+    GlueMatrixA.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_A + MatrixNumber_B);
 
     for (int64 i = 0; i < MatrixNumber_B; ++i)
     {
-        GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber_A + i].Share(GlueMatrixB.m_SourceMatrixSharedCopyList[i]);
+        GlueMatrixA.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
+
+        GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber_A + i].SwapSmartPointer(GlueMatrixB.m_SourceMatrixSharedCopyList[i]);
     }
+
+    GlueMatrixA.m_ElementList_Coef.reserve(MatrixNumber_A + MatrixNumber_B);
 
     for (int64 i = 0; i < MatrixNumber_B; ++i)
     {

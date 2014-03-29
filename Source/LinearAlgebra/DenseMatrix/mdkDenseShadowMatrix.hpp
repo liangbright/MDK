@@ -548,7 +548,7 @@ template<typename ElementType>
 inline 
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(DenseShadowMatrix<ElementType>&& ShadowMatrix)
 {
-    m_SourceMatrixSharedCopy = std::move(ShadowMatrix.m_SourceMatrixSharedCopy);
+    m_SourceMatrixSharedCopy.ForceShare(ShadowMatrix.m_SourceMatrixSharedCopy); // std::move will move the data, i.e., std::move = Take
 
     m_RowIndexList_source = std::move(ShadowMatrix.m_RowIndexList_source);
 

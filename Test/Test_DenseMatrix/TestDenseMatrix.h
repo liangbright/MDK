@@ -98,6 +98,32 @@ void Test_std_vector()
 	std::cout << vec3[20] << '\n';
 }
 
+void Test_Constructor_a()
+{
+    std::cout << "Test_Constructor()" << '\n';
+
+    DenseMatrix<double> A;
+
+    DenseMatrix<double> A1(0);
+
+    DenseMatrix<double> A2(MDK_PURE_EMPTY_MATRIX);
+
+    // can not be compiled
+    //DenseMatrix<double> A2({0});
+
+    DenseMatrix<double> A3(false); // equal to A1(0)
+
+   // DenseMatrix<double> A4(Empty_Matrix_Symbol A = false); // equal to A1(0)
+
+    A = {1, 2};
+
+    DenseMatrix<double> AA = A + A;
+
+    DenseMatrix<double> B;
+
+    A.SwapSmartPointer(A);
+}
+
 
 void Test_Constructor()
 {
@@ -1473,7 +1499,7 @@ void Test_GlueMatrix_Speed2()
 
     C.Fill(3.0);
 
-    DenseMatrix<double> C2;
+    DenseMatrix<double> C2(Lx, Ly);
 
     C2.Fill(3.0);
    

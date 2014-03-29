@@ -30,6 +30,12 @@ namespace mdk
 #endif
 
 
+#if defined(OS_Windows_x64)
+#ifdef _MSC_VER
+    #define noexcept throw() 
+#endif
+#endif
+
 enum struct ScalarTypeEnum
 {
 	DOUBLE64,

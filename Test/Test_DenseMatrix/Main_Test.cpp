@@ -74,7 +74,9 @@ int main()
 
    // test_vec_insert();
     
-    Test_Constructor();
+    Test_Constructor_a();
+
+    //Test_Constructor();
 
     //Test_Destructor();
 

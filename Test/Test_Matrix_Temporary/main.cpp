@@ -1,6 +1,7 @@
 #include <iostream>
-
+#include <vector>
 #include <string>
+#include <memory>
 
 class MatrixClass
 {
@@ -9,10 +10,19 @@ public:
 
     std::string m_str;
 
+    std::shared_ptr<int> m_spt;
+
+    MatrixClass()
+    {
+        m_spt = std::make_shared<int>(10);
+
+        std::cout << "hello(): " << m_value << '\n';
+    }
+
     MatrixClass(int a)
     {
         m_value = a;
-        std::cout << "hello: " << m_value << '\n';
+        std::cout << "hello a : " << m_value << '\n';
     }
 
     MatrixClass(const MatrixClass& A)
@@ -141,13 +151,18 @@ MatrixClass FunctionB()
 
 int main()
 {
+
+    std::vector<MatrixClass> List;
+
+    List.reserve(10);
+
     //FunctionA(FunctionB());
 
     //FunctionA1(FunctionB());
 
     //FunctionA2(FunctionB());
 
-    FunctionAA(FunctionB());
+    //FunctionAA(FunctionB());
 
     /*
     MatrixClass A1(2);

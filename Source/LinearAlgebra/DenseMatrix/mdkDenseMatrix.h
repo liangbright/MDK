@@ -119,7 +119,9 @@ public:
 public:			
 	//------------------- constructor and destructor ------------------------------------//
 
-	inline DenseMatrix();
+    inline DenseMatrix();
+
+    inline DenseMatrix(const Pure_Empty_Matrix_Symbol&);
 
     inline DenseMatrix(int64 RowNumber, int64 ColNumber);
 
@@ -133,7 +135,7 @@ public:
     inline DenseMatrix(const DenseMatrix<ElementType>& InputMatrix, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
 
     // move constructor
-    inline DenseMatrix(DenseMatrix<ElementType>&& InputMatrix);
+    inline DenseMatrix(DenseMatrix<ElementType>&& InputMatrix) noexcept;
 
     inline DenseMatrix(const DenseShadowMatrix<ElementType>& ShadowMatrix);
 
@@ -210,6 +212,8 @@ public:
     //
     // A.ForceShare(B): Share B no matter what, it is used by GlueMatrix
 
+    // m_MatrixData = InputMatrix.m_MatrixData;
+
     inline bool Share(DenseMatrix<ElementType>& InputMatrix);
 
     inline bool Share(DenseMatrix<ElementType>* InputMatrix);
@@ -254,7 +258,9 @@ public:
 
     //-------------------- Take -----------------------------------------------------------//
 
-    //Take the the ownership (MatrixData) of the InputMatrix and Clear InputMatrix
+    //Take the the data of the InputMatrix and Clear InputMatrix
+
+    // m_MatrixData->DataArray = std::move(InputMatrix.m_MatrixData->DataArray);
 
     inline void Take(DenseMatrix<ElementType>&& InputMatrix);
 
@@ -262,7 +268,7 @@ public:
 
     inline bool Take(DenseMatrix<ElementType>* InputMatrix);
 
-    //inline bool Take(std::vector<ElementType>& InputVector); // problem: can not determine if Input is row or col vector;
+    //inline bool Take(std::vector<ElementType>& InputRowVector);
 
     //Take the Matrix Created from ShadowMatrix or GlueMatrix
 
@@ -271,6 +277,12 @@ public:
     inline bool Take(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
     inline bool Take(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+
+    //------------------------- Swap shared_ptr m_MatrixData -------------------------------------------//
+
+    // m_MatrixData.swap(InputMatrix.m_MatrixData)
+
+    inline void SwapSmartPointer(DenseMatrix<ElementType>& InputMatrix);
 
     //------------------------- Clear -------------------------------------------//
 
@@ -290,6 +302,8 @@ public:
     inline bool IsSizeFixed() const;
 
     inline bool IsEmpty() const;
+
+    inline bool IsPureEmpty() const;
 
     inline bool IsShared() const;
 

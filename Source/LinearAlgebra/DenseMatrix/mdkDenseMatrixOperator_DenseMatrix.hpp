@@ -55,10 +55,12 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
 
     tempGlueMatrix.m_ColNumber = SizeA.ColNumber;
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(2);
+    //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(2);    
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(2);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
     tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
-
     tempGlueMatrix.m_SourceMatrixSharedCopyList[1].ForceShare(MatrixB);
 
     tempGlueMatrix.m_ElementList_Coef.push_back(ElementType(1));
@@ -104,7 +106,10 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
     }
   
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(2);
+    //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(2);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(2);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
     tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
 
@@ -157,7 +162,10 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(const DenseMatrix<Elemen
 
     tempGlueMatrix.m_ColNumber = SizeB.ColNumber;
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(2);
+    //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(2);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(2);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
     tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
 
@@ -189,8 +197,10 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
 
     tempGlueMatrix.m_ColNumber = MatrixA.GetColNumber();
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
-
+    //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(1);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
+    
     tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
 
     tempGlueMatrix.m_ElementList_Coef.push_back(ElementType(1));
@@ -211,8 +221,10 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
 
     tempGlueMatrix.m_ColNumber = MatrixA.GetColNumber();
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
-
+    //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(1);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
+ 
     tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
 
     tempGlueMatrix.m_ElementList_Coef.push_back(ElementType(1));
@@ -233,7 +245,9 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(const DenseMatrix<Elemen
 
     tempGlueMatrix.m_ColNumber = MatrixA.GetColNumber();
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(1);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
     tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
 
@@ -255,7 +269,9 @@ DenseGlueMatrixForMultiplication<ElementType> operator/(const DenseMatrix<Elemen
 
     tempGlueMatrix.m_ColNumber = MatrixA.GetColNumber();
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(1);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
     tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
 
@@ -282,7 +298,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const ElementType& El
 
     tempGlueMatrix.m_ColNumber = MatrixB.GetColNumber();
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(1);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
     tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixB);
 
@@ -304,7 +322,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const ElementType& El
 
     tempGlueMatrix.m_ColNumber = MatrixB.GetColNumber();
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(1);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
     tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixB);
 
@@ -326,7 +346,9 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(const ElementType& Eleme
 
     tempGlueMatrix.m_ColNumber = MatrixB.GetColNumber();
 
-    tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(1);
+    tempGlueMatrix.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
     tempGlueMatrix.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixB);
 

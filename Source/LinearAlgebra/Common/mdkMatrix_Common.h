@@ -59,14 +59,14 @@ struct MatrixSize
 
 struct InputStruct_For_ALL_Symbol_For_Matrix_Operator
 {
-    std::string Name = "This_Is_For_ALL_Symbol_For_Matrix_Operator";
+    std::string Name = "InputStruct_For_ALL_Symbol_For_Matrix_Operator";
 };
 
 struct ALL_Symbol_For_Matrix_Operator
 {
     ALL_Symbol_For_Matrix_Operator(const InputStruct_For_ALL_Symbol_For_Matrix_Operator& InputStruct)
     {
-        if (InputStruct.Name != "This_Is_For_ALL_Symbol_For_Matrix_Operator")
+        if (InputStruct.Name != "InputStruct_For_ALL_Symbol_For_Matrix_Operator")
         {
             MDK_Error << "ALL Symbol error @ ALL_Symbol_For_mdkMatrix_Operator" << '\n';
         }
@@ -95,6 +95,38 @@ std::vector<int64> span(int64 Index_A, int64 Index_B);
 std::vector<int64> span(int64 Index_A, int64 Step, int64 Index_B);
 
 
+//------------------------------- Empty_Matrix_Symbol to Construct empty Matrix with/without memory allocation ----------------------------------------//
+
+struct InputStruct_For_Pure_Empty_Matrix_Symbol
+{
+    std::string Name = "InputStruct_For_Pure_Empty_Matrix_Symbol";
+};
+
+struct Pure_Empty_Matrix_Symbol
+{
+    Pure_Empty_Matrix_Symbol(const InputStruct_For_Pure_Empty_Matrix_Symbol& InputStruct)
+    {
+        if (InputStruct.Name != "InputStruct_For_Pure_Empty_Matrix_Symbol")
+        {
+            MDK_Error << "Symbol error @ Pure_Empty_Matrix_Symbol" << '\n';
+        }
+    }
+
+    ~Pure_Empty_Matrix_Symbol() {}
+
+    // deleted:
+    Pure_Empty_Matrix_Symbol() = delete;
+    Pure_Empty_Matrix_Symbol(const Pure_Empty_Matrix_Symbol&) = delete;
+    Pure_Empty_Matrix_Symbol(Pure_Empty_Matrix_Symbol&&) = delete;
+    void operator=(const Pure_Empty_Matrix_Symbol&) = delete;
+    void operator=(Pure_Empty_Matrix_Symbol&&) = delete;
+};
+
+static InputStruct_For_Pure_Empty_Matrix_Symbol This_Is_InputStruct_For_Pure_Empty_Matrix_Symbol;
+
+static Pure_Empty_Matrix_Symbol This_Pure_Empty_Matrix_Symbol(This_Is_InputStruct_For_Pure_Empty_Matrix_Symbol);
+
+#define MDK_PURE_EMPTY_MATRIX This_Pure_Empty_Matrix_Symbol
 //----------------------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>

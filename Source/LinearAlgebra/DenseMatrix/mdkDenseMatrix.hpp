@@ -16,6 +16,12 @@ DenseMatrix<ElementType>::DenseMatrix()
 
 template<typename ElementType>
 inline
+DenseMatrix<ElementType>::DenseMatrix(const Pure_Empty_Matrix_Symbol&)
+{
+}
+
+template<typename ElementType>
+inline
 DenseMatrix<ElementType>::DenseMatrix(int64 RowNumber, int64 ColNumber)
 {
     this->Resize(RowNumber, ColNumber);
@@ -87,7 +93,7 @@ DenseMatrix<ElementType>::DenseMatrix(const DenseMatrix<ElementType>& InputMatri
 // move constructor
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>::DenseMatrix(DenseMatrix<ElementType>&& InputMatrix)
+DenseMatrix<ElementType>::DenseMatrix(DenseMatrix<ElementType>&& InputMatrix) noexcept
 {
     m_MatrixData = std::move(InputMatrix.m_MatrixData);
 
@@ -493,19 +499,10 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::Share(DenseMatrix<ElementType>& InputMatrix)
 {
-    // self assignment test is not necessary, just to output some information
-
     // Matrix = Matrix
     if (this == &InputMatrix)
     {
         MDK_Warning << "A Matrix tries to Share itself @ DenseMatrix::Share(InputMatrix)" << '\n';
-        return true;
-    }
-
-    // data = data
-    if (this->GetElementPointer() == InputMatrix.GetElementPointer())
-    {
-        //MDK_Warning << "A Matrix tries to Share the same data @ DenseMatrix::Share(InputMatrix)" << '\n';
         return true;
     }
 
@@ -527,6 +524,8 @@ bool DenseMatrix<ElementType>::Share(DenseMatrix<ElementType>& InputMatrix)
     m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment test is not necessary
 
     m_ElementPointer = m_MatrixData->DataArray.data();
+
+    m_NaNElement = InputMatrix.m_NaNElement;
 
     return true;
 }
@@ -557,16 +556,11 @@ void DenseMatrix<ElementType>::ForceShare(const DenseMatrix<ElementType>& InputM
         return;
     }
 
-    // data = data
-    if (this->GetElementPointer() == InputMatrix.GetElementPointer())
-    {
-        //MDK_Warning << "A Matrix tries to ForceShare the same data @ DenseMatrix::Share(InputMatrix)" << '\n';
-        return;
-    }
-
-    m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment test is not necessary
+    m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment check is not necessary
 
     m_ElementPointer = m_MatrixData->DataArray.data();
+
+    m_NaNElement = InputMatrix.m_NaNElement;
 }
 
 
@@ -646,6 +640,8 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>& InputMatrix)
 
     m_ElementPointer = m_MatrixData->DataArray.data();
 
+    m_NaNElement = InputMatrix.m_NaNElement;
+
     // Clear InputMatrix to be empty
     InputMatrix.Clear();
 
@@ -672,6 +668,12 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputVector)
 {
+    // MatrixA = MatrixA
+    if (this->GetElementPointer() == InputVector.data())
+    {
+        MDK_Warning << "A Matrix tries to take itself @ DenseMatrix::Take(std::vector)" << '\n';
+        return true;
+    }
 
     auto InputLength = int64(InputVector.size());
 
@@ -681,51 +683,72 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputVector)
     {
         if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputLength)
         {
+            m_MatrixData->DataArray = std::move(InputVector);
 
+            m_ElementPointer = m_MatrixData->DataArray.data();
         }
         else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength)
         {
+            m_MatrixData->DataArray = std::move(InputVector);
 
+            m_ElementPointer = m_MatrixData->DataArray.data();
         }
         else
         {
             MDK_Error << "Size does not match @ DenseMatrix::Take(InputVector)" << '\n';
             return false;
         }
-    }
-
-    if (InputLength == 0)
-    {
-        if (SelfSize.RowNumber > 0)
-        {
-            MDK_Warning << "InputVector is empty, and this matrix is set to be empty @ DenseMatrix::Take(InputVector)" << '\n';
-            this->Clear();
-        }
 
         return true;
     }
-
-    // MatrixA = MatrixA
-    if (this->GetElementPointer() == InputVector.data())
+    else
     {
-        MDK_Warning << "A Matrix tries to take itself @ DenseMatrix::Take(InputVector)" << '\n';
-        return false;
+        if (InputLength == 0)
+        {
+            if (SelfSize.RowNumber > 0)
+            {
+                MDK_Warning << "InputVector is empty, and this matrix is set to be empty @ DenseMatrix::Take(std::vector)" << '\n';
+                this->Clear();
+            }
+
+            return true;
+        }
+
+        // now, InputMatrix is not empty
+
+        if (SelfSize.RowNumber == 1)
+        {            
+            m_MatrixData->DataArray = std::move(InputVector);
+
+            m_MatrixData->ColNumber = InputLength;
+
+            m_ElementPointer = m_MatrixData->DataArray.data();
+        }
+        else if (SelfSize.ColNumber == 1)
+        {
+            m_MatrixData->DataArray = std::move(InputVector);
+
+            m_MatrixData->RowNumber = InputLength;
+
+            m_ElementPointer = m_MatrixData->DataArray.data();
+        }
+        else
+        {
+            m_MatrixData->DataArray = std::move(InputVector);
+
+            m_MatrixData->RowNumber = InputLength;
+
+            m_MatrixData->ColNumber = 1;
+
+            m_ElementPointer = m_MatrixData->DataArray.data();
+        }
+
+        // Clear InputVector to be empty
+        InputVector.clear();
+
+        return true;
     }
-
-    // now, InputMatrix is not empty, and is not self
-
-    m_MatrixData->RowNumber = InputLength;
-
-    m_MatrixData->ColNumber = 1;
-
-    m_MatrixData->DataArray = std::move(InputVector);
-
-    m_ElementPointer = m_MatrixData->DataArray.data();
-
-    // Clear InputVector to be empty
-    InputVector.clear();
-
-    return true;
+    
 }
 */
 
@@ -808,6 +831,45 @@ bool DenseMatrix<ElementType>::Take(const DenseGlueMatrixForMultiplication<Eleme
     }
 
     return true;
+}
+
+
+template<typename ElementType>
+inline
+void DenseMatrix<ElementType>::SwapSmartPointer(DenseMatrix<ElementType>& InputMatrix)
+{
+// for GlueMatrix
+
+    // Matrix = Matrix
+    if (this == &InputMatrix)
+    {
+        MDK_Warning << "A Matrix tries to Swap with itself @ DenseMatrix::SwapSmartPointer(InputMatrix)" << '\n';
+        return;
+    }
+
+    m_MatrixData.swap(InputMatrix.m_MatrixData); // shared_ptr self swap check is not necessary
+
+    if (m_MatrixData)
+    {
+        m_ElementPointer = m_MatrixData->DataArray.data();
+    }
+    else
+    {
+        m_ElementPointer = nullptr;
+
+        MDK_Warning << "m_MatrixData is empty after SwapSmartPointer @ DenseMatrix::SwapSmartPointer(InputMatrix)" << '\n';
+    }
+
+    m_NaNElement = InputMatrix.m_NaNElement;
+
+    if (InputMatrix.m_MatrixData)
+    {
+        InputMatrix.m_ElementPointer = InputMatrix.m_MatrixData->DataArray.data();
+    }
+    else
+    {
+        InputMatrix.m_ElementPointer = nullptr;
+    }
 }
 
 
@@ -1045,6 +1107,14 @@ inline
 bool DenseMatrix<ElementType>::IsEmpty() const
 {
     return (m_MatrixData->RowNumber <= 0);
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::IsPureEmpty() const
+{
+    return (!m_MatrixData);
 }
 
 

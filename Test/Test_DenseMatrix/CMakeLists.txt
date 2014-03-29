@@ -8,6 +8,11 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there.")
 endif()
 
+if(${CMAKE_BINARY_DIR} STREQUAL C:/Research/MDK)
+  message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there.")
+endif()
+
+
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ Kits/8.1/Lib/winv6.3/um/x64")
 
 PROJECT(MDK_Test_DenseMatrix)
@@ -18,6 +23,8 @@ set(Arma_DIR "C:/Research/MDK/armadillo")
 
 set(Lapack_Blas_DIR "C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release")
 
+set(Eigen_DIR "C:/Research/MDK/eigen")
+
 include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR} 
 ${MDK_DIR}/Debug
@@ -26,6 +33,7 @@ ${MDK_DIR}/LinearAlgebra/Common
 ${MDK_DIR}/LinearAlgebra/DenseMatrix
 ${Arma_DIR}
 ${Lapack_Blas_DIR}
+${Eigen_DIR}
 )
 
 set(MDK_CPP_FILES 

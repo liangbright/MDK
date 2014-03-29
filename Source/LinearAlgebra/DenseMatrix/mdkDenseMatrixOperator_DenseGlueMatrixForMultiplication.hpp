@@ -71,7 +71,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForMul
 
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList = std::move(GlueMatrixA.m_SourceMatrixSharedCopyList);
 
-        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.resize(2);
+        //tempGlueMatrix_L.m_SourceMatrixSharedCopyList.resize(2);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.reserve(2);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].ForceShare(MatrixB);
 
@@ -142,7 +144,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForMul
 
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList = std::move(GlueMatrixA.m_SourceMatrixSharedCopyList);
 
-        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.resize(2);
+        //tempGlueMatrix_L.m_SourceMatrixSharedCopyList.resize(2);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.reserve(2);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].ForceShare(MatrixB);
 
@@ -205,7 +209,9 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(DenseGlueMatrixForMultip
 
     GlueMatrixA.m_ColNumber = SizeB.ColNumber;
 
-    GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber+1);
+    //GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber+1);
+    GlueMatrixA.m_SourceMatrixSharedCopyList.reserve(MatrixNumber + 1);
+    GlueMatrixA.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
     GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber].ForceShare(MatrixB);
 
@@ -280,9 +286,11 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
 
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList = std::move(GlueMatrixB.m_SourceMatrixSharedCopyList);
 
-        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.resize(2);
+        //tempGlueMatrix_L.m_SourceMatrixSharedCopyList.resize(2);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.reserve(2);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].ForceShare(tempGlueMatrix_L.m_SourceMatrixSharedCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].SwapSmartPointer(tempGlueMatrix_L.m_SourceMatrixSharedCopyList[0]);
 
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
 
@@ -353,9 +361,11 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
 
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList = std::move(GlueMatrixB.m_SourceMatrixSharedCopyList);
 
-        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.resize(2);
+        //tempGlueMatrix_L.m_SourceMatrixSharedCopyList.resize(2);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.reserve(2);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].ForceShare(tempGlueMatrix_L.m_SourceMatrixSharedCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].SwapSmartPointer(tempGlueMatrix_L.m_SourceMatrixSharedCopyList[0]);
 
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
 
@@ -419,11 +429,13 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(const DenseMatrix<Elemen
 
     GlueMatrixB.m_ColNumber = SizeA.ColNumber;
 
-    GlueMatrixB.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
+    //GlueMatrixB.m_SourceMatrixSharedCopyList.resize(MatrixNumber + 1);
+    GlueMatrixB.m_SourceMatrixSharedCopyList.reserve(MatrixNumber + 1);
+    GlueMatrixB.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
     for (int64 i = MatrixNumber; i >= 1; --i)
     {
-        GlueMatrixB.m_SourceMatrixSharedCopyList[i].ForceShare(GlueMatrixB.m_SourceMatrixSharedCopyList[i - 1]);
+        GlueMatrixB.m_SourceMatrixSharedCopyList[i].SwapSmartPointer(GlueMatrixB.m_SourceMatrixSharedCopyList[i - 1]);
     }    
 
     GlueMatrixB.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
@@ -738,9 +750,11 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForMul
     {
         int64 MatrixNumber_B = GlueMatrixB_L.GetMatrixNumber();
 
-        GlueMatrixB_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_B + 1);
+        //GlueMatrixB_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_B + 1);
+        GlueMatrixB_L.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_B + 1);
+        GlueMatrixB_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        GlueMatrixB_L.m_SourceMatrixSharedCopyList[MatrixNumber_B].ForceShare(GlueMatrixA_M.m_SourceMatrixSharedCopyList[0]);
+        GlueMatrixB_L.m_SourceMatrixSharedCopyList[MatrixNumber_B].SwapSmartPointer(GlueMatrixA_M.m_SourceMatrixSharedCopyList[0]);
 
         GlueMatrixB_L.m_ElementList_Coef.push_back(GlueMatrixA_M.m_Element_Coef);
 
@@ -802,9 +816,11 @@ DenseGlueMatrixForLinearCombination<ElementType>& operator-(DenseGlueMatrixForMu
     {
         int64 MatrixNumber_B = GlueMatrixB_L.GetMatrixNumber();
 
-        GlueMatrixB_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_B + 1);
+        //GlueMatrixB_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_B + 1);
+        GlueMatrixB_L.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_B + 1);
+        GlueMatrixB_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        GlueMatrixB_L.m_SourceMatrixSharedCopyList[MatrixNumber_B].ForceShare(GlueMatrixA_M.m_SourceMatrixSharedCopyList[0]);
+        GlueMatrixB_L.m_SourceMatrixSharedCopyList[MatrixNumber_B].SwapSmartPointer(GlueMatrixA_M.m_SourceMatrixSharedCopyList[0]);
 
         for (int64 i = 0; i < MatrixNumber_B; ++i)
         {
@@ -895,9 +911,11 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
     {
         int64 MatrixNumber_A = GlueMatrixA_L.GetMatrixNumber();
 
-        GlueMatrixA_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + 1);
+        //GlueMatrixA_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + 1);
+        GlueMatrixA_L.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_A + 1);
+        GlueMatrixA_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        GlueMatrixA_L.m_SourceMatrixSharedCopyList[MatrixNumber_A].ForceShare(GlueMatrixB_M.m_SourceMatrixSharedCopyList[0]);
+        GlueMatrixA_L.m_SourceMatrixSharedCopyList[MatrixNumber_A].SwapSmartPointer(GlueMatrixB_M.m_SourceMatrixSharedCopyList[0]);
 
         GlueMatrixA_L.m_ElementList_Coef.push_back(GlueMatrixB_M.m_Element_Coef);
 
@@ -960,9 +978,11 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
     {
         int64 MatrixNumber_A = GlueMatrixA_L.GetMatrixNumber();
 
-        GlueMatrixA_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + 1);
+        //GlueMatrixA_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + 1);
+        GlueMatrixA_L.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_A + 1);
+        GlueMatrixA_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        GlueMatrixA_L.m_SourceMatrixSharedCopyList[MatrixNumber_A].ForceShare(GlueMatrixB_M.m_SourceMatrixSharedCopyList[0]);
+        GlueMatrixA_L.m_SourceMatrixSharedCopyList[MatrixNumber_A].SwapSmartPointer(GlueMatrixB_M.m_SourceMatrixSharedCopyList[0]);
 
         GlueMatrixA_L.m_ElementList_Coef.push_back(ElementType(0) - GlueMatrixB_M.m_Element_Coef);
 
@@ -1059,9 +1079,11 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForMul
         //more efficient:
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList = std::move(GlueMatrixA.m_SourceMatrixSharedCopyList);
 
-        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.resize(2);
+        //tempGlueMatrix_L.m_SourceMatrixSharedCopyList.resize(2);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.reserve(2);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].ForceShare(GlueMatrixB.m_SourceMatrixSharedCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].SwapSmartPointer(GlueMatrixB.m_SourceMatrixSharedCopyList[0]);
 
         tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixA.m_Element_Coef);
 
@@ -1144,9 +1166,11 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForMul
 
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList = std::move(GlueMatrixA.m_SourceMatrixSharedCopyList);
 
-        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.resize(2);
+        //tempGlueMatrix_L.m_SourceMatrixSharedCopyList.resize(2);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.reserve(2);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].ForceShare(GlueMatrixB.m_SourceMatrixSharedCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].SwapSmartPointer(GlueMatrixB.m_SourceMatrixSharedCopyList[0]);
 
         tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixA.m_Element_Coef);
 
@@ -1225,9 +1249,11 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(DenseGlueMatrixForMultip
     {
         GlueMatrixA.m_ColNumber = GlueMatrixB.m_ColNumber;
 
-        GlueMatrixA.m_SourceMatrixSharedCopyList.resize(2);
+        //GlueMatrixA.m_SourceMatrixSharedCopyList.resize(2);
+        GlueMatrixA.m_SourceMatrixSharedCopyList.reserve(2);
+        GlueMatrixA.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        GlueMatrixA.m_SourceMatrixSharedCopyList[1].ForceShare(GlueMatrixB.m_SourceMatrixSharedCopyList[0]);
+        GlueMatrixA.m_SourceMatrixSharedCopyList[1].SwapSmartPointer(GlueMatrixB.m_SourceMatrixSharedCopyList[0]);
 
         GlueMatrixA.m_Element_Coef *= GlueMatrixB.m_Element_Coef;
 
