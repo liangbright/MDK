@@ -109,7 +109,7 @@ void Test_Constructor()
 
     auto t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < 1000000; ++i)
+    for (int64 i = 0; i < 1000; ++i)
     {
         //DenseMatrix<double> AA;
         std::vector<DenseMatrix<double>> TempList(1);
@@ -120,7 +120,23 @@ void Test_Constructor()
     std::chrono::duration<double> raw_time = t1 - t0;
     std::cout << "construction  time " << raw_time.count() << '\n';
 
-    DenseMatrix<int64> testA;
+    DenseMatrix<int64> testRowVector;
+
+    testRowVector = {101, 102, 103, 104};
+
+    DisplayMatrix("testRowVector", testRowVector);
+
+    DenseMatrix<int64> testColVector = { 101, 102, 103, 104 };
+
+    testColVector.Reshape(4, 1);
+
+    DisplayMatrix("testColVector", testColVector);
+
+
+    DenseMatrix<int64> testA = { { 101, 102 },
+                                 { 103, 104 } };
+
+    DisplayMatrix("testA", testA);
 
     DenseMatrix<double> A(2, 2);
 

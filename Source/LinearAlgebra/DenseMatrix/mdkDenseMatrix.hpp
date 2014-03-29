@@ -24,17 +24,34 @@ DenseMatrix<ElementType>::DenseMatrix(int64 RowNumber, int64 ColNumber)
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>::DenseMatrix(std::initializer_list<ElementType> VectorData)
+DenseMatrix<ElementType>::DenseMatrix(const std::initializer_list<ElementType>& InputList)
 {
-    if (VectorData.size() == 0)
+    if (InputList.size() == 0)
     {
         this->Resize(0, 0);
     }
     else
     {
-        this->Resize(1, int64(VectorData.size())); // row vector
+        this->Resize(0, 0);
 
-        m_MatrixData->DataArray = VectorData;
+        (*this) = InputList;
+    }
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>::DenseMatrix(const std::initializer_list<std::initializer_list<ElementType>>& InputListInList)
+{
+    if (InputListInList.size() == 0)
+    {
+        this->Resize(0, 0);
+    }
+    else
+    {
+        this->Resize(0, 0);
+
+        (*this) = InputListInList;
     }
 }
 
@@ -167,104 +184,130 @@ void DenseMatrix<ElementType>::operator=(const ElementType& Element)
 
     if (this->IsSizeFixed() == true)
     {
-        if (ElementNumber <= 0)
+        if (ElementNumber != 1)
         {
             MDK_Error << "Can not change matrix size @ DenseMatrix::operator=(Element)" << '\n';
             return;
         }
-    }
 
-    if (ElementNumber <= 0)
-    {       
-        this->Resize(1, 1);
-
-        (*this)[0] = Element;
-    }
-    else if (ElementNumber == 1)
-    {
         (*this)[0] = Element;
     }
     else
     {
-        MDK_Warning << "The size of the matrix changes to 1x1 @ DenseMatrix::operator=(Element)" << '\n';
+        if (ElementNumber == 0)
+        {
+            this->Resize(1, 1);
 
-        this->Clear();
+            (*this)[0] = Element;
+        }
+        else if (ElementNumber == 1)
+        {
+            (*this)[0] = Element;
+        }
+        else
+        {
+            MDK_Warning << "The size of the matrix changes to 1x1 @ DenseMatrix::operator=(Element)" << '\n';
 
-        this->Resize(1, 1);
+            this->Clear();
 
-        (*this)[0] = Element;
-    }
+            this->Resize(1, 1);
 
-    return;
-}
-
-
-template<typename ElementType>
-inline
-void DenseMatrix<ElementType>::operator=(const std::initializer_list<ElementType>& list)
-{
-//input is a vector
-
-    auto SelfSize = this->GetSize();
-
-    //if Self is empty
-    if (SelfSize.RowNumber <= 0)
-    {
-        MDK_Error << "operator=(list) can not be called if self is empty @ DenseMatrix::operator=(list)" << '\n';
-        return;
-    }
-
-    int64 InputLength = int64(list.size());
-
-    if ((SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputLength) || (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength))
-    {
-        m_MatrixData->DataArray = list;
-    }
-    else
-    {
-        MDK_Error << "Size can not change in this function @ DenseMatrix::operator=(list)" << '\n';
+            (*this)[0] = Element;
+        }
     }
 }
 
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::operator=(const std::initializer_list<std::initializer_list<ElementType>>& list)
+void DenseMatrix<ElementType>::operator=(const std::initializer_list<ElementType>& InputList)
 {
-//input is a matrix
+//InputList is treated as a row vector
+
+    auto InputLength = int64(InputList.size());
+
+    if (InputLength <= 0)
+    {
+        MDK_Error << "Input is empty @ DenseMatrix::operator=(initializer_list)" << '\n';
+        return;
+    }
 
     auto SelfSize = this->GetSize();
 
-    //if Self is empty
-    if (SelfSize.RowNumber <= 0)
+    if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputLength)
     {
-        MDK_Error << "operator=(list in list) can not be called if self is empty @ DenseMatrix::operator=(list in list)" << '\n';
+        this->SetRow(0, InputList);
+        return;
+    }
+    else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength)
+    {
+        this->SetCol(0, InputList);
         return;
     }
 
-    if (SelfSize.RowNumber != list.size())
+    if (this->IsSizeFixed() == true)
     {
-        MDK_Error << "Row Size does not match @ DenseMatrix::operator=(list in list)" << '\n';
+        MDK_Error << "Can not change matrix size @ DenseMatrix::operator=(Element)" << '\n';
+    }
+    else
+    {
+        this->FastResize(1, InputLength);    
+        this->SetRow(0, InputList);
+    }
+}
+
+
+template<typename ElementType>
+inline
+void DenseMatrix<ElementType>::operator=(const std::initializer_list<std::initializer_list<ElementType>>& InputListInList)
+{
+//InputList is a matrix, each sub list is a row vector
+
+    auto SelfSize = this->GetSize();
+
+    auto InputRowNumber = int64(InputListInList.size());
+
+    if (InputRowNumber <= 0)
+    {
+        MDK_Error << "Input is empty @ DenseMatrix::operator=(InputListInList)" << '\n';
         return;
     }
+
+    auto InputColNumber = (InputListInList.begin()[0]).size();
 
     //check each row-list 
-    for (int64 i = 0; i < SelfSize.RowNumber; ++i)
+    for (int64 i = 1; i < InputRowNumber; ++i)
     {
-        auto subList = list.begin()[i];
+        auto subListLength = int64((InputListInList.begin()[i]).size());
 
-        if (subList.size() != SelfSize.ColNumber)
+        if (subListLength != InputColNumber)
         {
-            MDK_Error << "Col Size does not match in row: " << i << " @ DenseMatrix::operator=(list in list)" << '\n';
+            MDK_Error << "The number of Elements in each row is not the same: #" << i << " @ DenseMatrix::operator=(InputListInList)" << '\n';
             return;
         }
+    }
+
+    if (this->IsSizeFixed() == true)
+    {
+        if (SelfSize.RowNumber != InputRowNumber || SelfSize.ColNumber != InputColNumber)
+        {
+            MDK_Error << "Size can not change @ DenseMatrix::operator=(list in list)" << '\n';
+            return;
+        }
+    }
+    else
+    {
+        this->FastResize(InputRowNumber, InputColNumber);
+
+        SelfSize.RowNumber = InputRowNumber;
+        SelfSize.ColNumber = InputColNumber;
     }
 
     auto RawPointer = this->GetElementPointer();
 
     for (int64 i = 0; i < SelfSize.RowNumber; ++i)
     {
-        auto subList = list.begin()[i];
+        auto subList = InputListInList.begin()[i];
 
         int64 Index = 0;
 
@@ -310,16 +353,27 @@ bool DenseMatrix<ElementType>::Copy(const DenseMatrix<ElementType_Input>& InputM
     if (this == &InputMatrix)
     {
         MDK_Warning << "A Matrix tries to Copy itself @ DenseMatrix::Copy(InputMatrix)" << '\n';
-        return false;
+        return true;
     }
 
     if (InputMatrix.IsEmpty() == true)
     {
-        MDK_Warning << "InputMatrix is empty, and this matrix is set to be empty @ DenseMatrix::Copy(InputMatrix)" << '\n';
+        if (this->IsSizeFixed() == true)
+        {
+            if (this->IsEmpty() == false)
+            {
+                MDK_Error << "Can not change size @ DenseMatrix::Copy(InputMatrix)" << '\n';
+                return false;
+            }
 
-        this->Clear();
-
-        return true;
+            return true;
+        }
+        else
+        {
+            //MDK_Warning << "InputMatrix is empty, and this matrix is set to be empty @ DenseMatrix::Copy(InputMatrix)" << '\n';
+            this->Clear();
+            return true;
+        }       
     }
 
     // copy data
@@ -366,16 +420,14 @@ bool DenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer
     {
         if (std::size_t(InputElementPointer) == std::size_t(this->GetElementPointer()))
         {
-            MDK_Warning << "A Matrix tries to Copy itself @ DenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
-            return false;
+           // MDK_Warning << "A Matrix tries to Copy itself @ DenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)" << '\n';
+            return true;
         }
     }
 
     //------------------------------------------------------------------
 
     auto SelfSize = this->GetSize();
-
-    auto Self_ElementNumber = SelfSize.RowNumber * SelfSize.ColNumber;
 
     //------------------------------------------------------------------
 
@@ -389,33 +441,10 @@ bool DenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer
     }
     else
     {
-        // check to see if new memory allocation is needed --------------------------------
+        this->FastResize(InputRowNumber, InputColNumber);
 
-        bool IsNewMemoryNeeded = false;
-
-        //if self is empty
-        if (Self_ElementNumber == 0)
-        {
-            IsNewMemoryNeeded = true;
-        }
-        else
-        {
-            if (InputRowNumber != SelfSize.RowNumber || InputColNumber != SelfSize.ColNumber)
-            {
-                IsNewMemoryNeeded = true;
-            }
-        }
-
-        if (IsNewMemoryNeeded == true)
-        {
-            this->Clear();
-
-            this->Resize(InputRowNumber, InputColNumber);
-
-            SelfSize = this->GetSize();
-
-            Self_ElementNumber = SelfSize.RowNumber * SelfSize.ColNumber;
-        }
+        SelfSize.RowNumber = InputRowNumber;
+        SelfSize.ColNumber = InputColNumber;
     }
 
     //copy data ----------------------------------------------------------
@@ -423,6 +452,8 @@ bool DenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer
     auto BeginPointer = this->GetElementPointer();
 
     auto tempPtr = InputElementPointer;
+
+    auto Self_ElementNumber = SelfSize.RowNumber * SelfSize.ColNumber;
 
     for (auto Ptr = BeginPointer; Ptr < BeginPointer + Self_ElementNumber; ++Ptr)
     {
@@ -474,7 +505,7 @@ bool DenseMatrix<ElementType>::Share(DenseMatrix<ElementType>& InputMatrix)
     // data = data
     if (this->GetElementPointer() == InputMatrix.GetElementPointer())
     {
-        MDK_Warning << "A Matrix tries to Share the same data @ DenseMatrix::Share(InputMatrix)" << '\n';
+        //MDK_Warning << "A Matrix tries to Share the same data @ DenseMatrix::Share(InputMatrix)" << '\n';
         return true;
     }
 
@@ -519,10 +550,17 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::ForceShare(const DenseMatrix<ElementType>& InputMatrix)
 {
+    // Matrix = Matrix
+    if (this == &InputMatrix)
+    {
+        MDK_Warning << "A Matrix tries to ForceShare itself @ DenseMatrix::ForceShare(InputMatrix)" << '\n';
+        return;
+    }
+
     // data = data
     if (this->GetElementPointer() == InputMatrix.GetElementPointer())
     {
-        MDK_Warning << "A Matrix tries to ForceShare the same data @ DenseMatrix::Share(InputMatrix)" << '\n';
+        //MDK_Warning << "A Matrix tries to ForceShare the same data @ DenseMatrix::Share(InputMatrix)" << '\n';
         return;
     }
 
@@ -558,6 +596,13 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>& InputMatrix)
 {
+    // Matrix = Matrix
+    if (this == &InputMatrix)
+    {
+        MDK_Warning << "A Matrix tries to take itself @ DenseMatrix::take(InputMatrix)" << '\n';
+        return true;
+    }
+
     auto InputSize = InputMatrix.GetSize();
 
     auto SelfSize = this->GetSize();
@@ -575,7 +620,7 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>& InputMatrix)
     {
         if (SelfSize.RowNumber > 0)
         {
-            MDK_Warning << "InputMatrix is empty, and this matrix is set to be empty @ DenseMatrix::Take(InputMatrix)" << '\n';
+            //MDK_Warning << "InputMatrix is empty, and this matrix is set to be empty @ DenseMatrix::Take(InputMatrix)" << '\n';
             this->Clear();
         }
 
@@ -585,8 +630,8 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>& InputMatrix)
     // MatrixA = MatrixA
     if (this->GetElementPointer() == InputMatrix.GetElementPointer())
     {
-        MDK_Warning << "A Matrix tries to take itself @ DenseMatrix::Take(InputMatrix)" << '\n';
-        return false;
+        //MDK_Warning << "A Matrix tries to take itself @ DenseMatrix::Take(InputMatrix)" << '\n';
+        return true;
     }
 
     // now, InputMatrix is not empty, and is not self
@@ -933,6 +978,43 @@ bool DenseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber
     m_MatrixData->DataArray = std::move(tempDataArray);
 
     m_ElementPointer = m_MatrixData->DataArray.data();
+
+    return true;
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::FastResize(int64 InputRowNumber, int64 InputColNumber)
+{
+    if (this->IsSizeFixed() == true)
+    {
+        MDK_Error << "Can not change size @ DenseMatrix::FastResize(int64 InputRowNumber, int64 InputColNumber)" << '\n';
+        return false;
+    }
+
+    if (InputRowNumber < 0 || InputColNumber < 0)
+    {
+        MDK_Error << "Invalid input @ DenseMatrix::FastResize(int64 InputRowNumber, int64 InputColNumber)" << '\n';
+        return false;    
+    }
+
+    int64 InputElementNumber = InputRowNumber * InputColNumber;
+
+    if (InputElementNumber != m_MatrixData->RowNumber *  m_MatrixData->ColNumber)
+    {
+        if (InputElementNumber > int64(m_MatrixData->DataArray.capacity()))
+        {
+            m_MatrixData->DataArray.clear();
+        }
+
+        m_MatrixData->DataArray.resize(InputRowNumber * InputColNumber);    
+
+        m_ElementPointer = m_MatrixData->DataArray.data();
+    }
+   
+    m_MatrixData->RowNumber = InputRowNumber;
+    m_MatrixData->ColNumber = InputColNumber;
 
     return true;
 }

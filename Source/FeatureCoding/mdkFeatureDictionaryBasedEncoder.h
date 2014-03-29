@@ -39,7 +39,7 @@ public:
 
     virtual bool SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode) = 0;
 
-    virtual bool SetMaximunNumberOfThreads(int64 Number) = 0;
+    virtual bool SetMaxNumberOfThreads(int64 Number) = 0;
 
     //-----------------------------------------
 
@@ -51,9 +51,9 @@ public:
 
 protected:
 
-    virtual int64 GetFeatureVectorNumber() = 0;
+    virtual int64 GetTotalNumberOfInputFeatureVectors() = 0;
 
-    virtual int64 GetMaximunNumberOfThreads() = 0;
+    virtual int64 GetMaxNumberOfThreads() = 0;
 
     //output: IndexList_start and IndexList_end
     void DivideData(int64 Index_min, int64 Index_max, std::vector<int64>& IndexList_start, std::vector<int64>& IndexList_end);
@@ -70,9 +70,8 @@ private:
 
 };
 
+}
 
 #include "mdkFeatureDictionaryBasedEncoder.hpp"
-
-}
 
 #endif

@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include <Eigen/Dense>
+
 #include "mdkType.h"
 
 namespace mdk
@@ -18,6 +20,8 @@ class DenseMatrix;
 // similar to lsqlin in Matlab, use the same notation
 //
 // find X that minimizes ||C*X - d||^2 such that A*X <= b, Aeq*X = beq, lb <= X <= ub
+//
+// X, d, b, lb, ub : col vector
 
 struct DenseLsqlinOption
 {
@@ -44,14 +48,14 @@ struct DenseLsqlinResult
     DenseLsqlinResult() {};
     ~DenseLsqlinResult() {};
 
-    LsqlinResult(DenseLsqlinResult&& InputResult)
+    DenseLsqlinResult(DenseLsqlinResult&& InputResult)
     {
         X = std::move(InputResult.X);
         Residual = std::move(InputResult.Residual);
         MethodName = std::move(InputResult.MethodName);
     }
 
-    operator=(DenseLsqlinResult&& InputResult)
+    void operator=(DenseLsqlinResult&& InputResult)
     {
         X = std::move(InputResult.X);
         Residual = std::move(InputResult.Residual);
@@ -60,8 +64,12 @@ struct DenseLsqlinResult
 
 private:
     DenseLsqlinResult(const DenseLsqlinResult&) = delete;
-    void operator(const DenseLsqlinResult&) = delete;
+    void operator=(const DenseLsqlinResult&) = delete;
 };
+
+template<typename ElementType>
+DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& C,
+                                                              const DenseMatrix<ElementType>& d);
 
 template<typename ElementType>
 DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& C,
@@ -96,7 +104,7 @@ DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<
                                                               const DenseMatrix<ElementType>& beq,
                                                               const DenseMatrix<ElementType>& lb,
                                                               const DenseMatrix<ElementType>& ub,
-                                                              const DenseMatrix<ElementType>& x0);
+                                                              const DenseMatrix<ElementType>& X0);
 
 template<typename ElementType>
 DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& C,
@@ -107,12 +115,12 @@ DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<
                                                               const DenseMatrix<ElementType>& beq,
                                                               const DenseMatrix<ElementType>& lb,
                                                               const DenseMatrix<ElementType>& ub,
-                                                              const DenseMatrix<ElementType>& x0,
+                                                              const DenseMatrix<ElementType>& X0,
                                                               const DenseLsqlinOption& Option);
 
 
 }
 
-#include "mdkLinearAlgebra_Function_DenseMatrix_Part_3_hpp"
+#include "mdkLinearAlgebra_Function_DenseMatrix_Part_3.hpp"
 
 #endif

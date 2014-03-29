@@ -76,9 +76,8 @@ bool FeatureDictionaryBasedEncoder<ElementType>::Update()
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void
-FeatureDictionaryBasedEncoder<ElementType>::
+template<typename ElementType>
+void FeatureDictionaryBasedEncoder<ElementType>::
 DivideData(int64 Index_min, int64 Index_max, std::vector<int64>& IndexList_start, std::vector<int64>& IndexList_end)
 {
     int64 MaximunNumberOfThreads = this->GetMaximunNumberOfThreads();

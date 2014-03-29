@@ -692,15 +692,13 @@ bool DenseShadowMatrix<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>&
     {
         if (OutputMatrix.IsSizeFixed() == false)
         {
-            OutputMatrix.Clear();
-
             if (m_Flag_OutputVector == true)
             {
-                OutputMatrix.Resize(m_ElementNumber, 1);
+                OutputMatrix.FastResize(m_ElementNumber, 1);
             }
             else
             {
-                OutputMatrix.Resize(m_RowNumber, m_ColNumber);
+                OutputMatrix.FastResize(m_RowNumber, m_ColNumber);
             }
         }
         else
@@ -1655,7 +1653,7 @@ DenseMatrix<ElementType> DenseShadowMatrix<ElementType>::ElementMultiply(const D
 
     //----------------------------------------------------//
 
-    tempMatrix.Resize(m_RowNumber, m_ColNumber);
+    tempMatrix.FastResize(m_RowNumber, m_ColNumber);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
@@ -1703,7 +1701,7 @@ DenseMatrix<ElementType> DenseShadowMatrix<ElementType>::ElementMultiply(const D
         return tempMatrix;
     }
 
-    tempMatrix.Resize(m_RowNumber, m_ColNumber);
+    tempMatrix.FastResize(m_RowNumber, m_ColNumber);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 

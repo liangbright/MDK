@@ -74,7 +74,7 @@ int main()
 
    // test_vec_insert();
     
-    //Test_Constructor();
+    Test_Constructor();
 
     //Test_Destructor();
 
@@ -90,9 +90,9 @@ int main()
 
     // Test_Matrix_ChangeSize();
 
-    Test_Set_Get_Append_Delete_Insert_Col();
+   // Test_Set_Get_Append_Delete_Insert_Col();
 
-    Test_Set_Get_Append_Delete_Insert_Row();
+   // Test_Set_Get_Append_Delete_Insert_Row();
 
    // Test_GetSubMatrix();
 

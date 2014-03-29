@@ -38,7 +38,7 @@ inline SparseMatrix<ElementType> MatrixInv(const SparseMatrix<ElementType>& Matr
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-using SparseMatrixEigenResult = mdkDenseMatrixEigenResult<ElementType>;
+using SparseMatrixEigenResult = DenseMatrixEigenResult<ElementType>;
 
 template<typename ElementType>
 inline SparseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(const SparseMatrix<ElementType>& Matrix);
@@ -49,7 +49,7 @@ inline SparseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const Spars
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-using SparseMatrixPCAResult = mdkDenseMatrixPCAResult<ElementType>;
+using SparseMatrixPCAResult = DenseMatrixPCAResult<ElementType>;
 
 template<typename ElementType>
 inline SparseMatrixPCAResult<ElementType> MatrixPCA(const SparseMatrix<ElementType>& Matrix);
@@ -57,7 +57,7 @@ inline SparseMatrixPCAResult<ElementType> MatrixPCA(const SparseMatrix<ElementTy
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-using SparseMatrixSVDResult = mdkDenseMatrixSVDResult<ElementType>;
+using SparseMatrixSVDResult = DenseMatrixSVDResult<ElementType>;
 
 template<typename ElementType>
 inline SparseMatrixSVDResult<ElementType> MatrixSVD(const SparseMatrix<ElementType>& Matrix);

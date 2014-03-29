@@ -25,41 +25,38 @@ protected:
 
     const FeatureDictionary<ElementType>* m_Dictionary;
 
+    // this is sparseness
+
+    int64 m_MaxNumberOfNonzeroElementsInEachCode;
+
     // output code in compact format (the first choice, used in encoding) :
 
-    int64 m_MaxNumberOfNonZeroElementsInEachCode;
-
     DenseMatrix<ElementType>* m_FeatureCodeInCompactFormat;
-
-    DenseMatrix<ElementType>  m_FeatureCodeInCompactFormat_SharedCopy;
 
     // output code in dense format (converted from code in compact format, once compact code is computed):
 
     DenseMatrix<ElementType>* m_FeatureCodeInDenseFormat;
 
-    DenseMatrix<ElementType> m_FeatureCodeInDenseFormat_SharedCopy;
-
     // output code in sparse matrix (converted from code in compact format, once compact code is computed):
-    SparseMatrix<ElementType>* m_FeatureCodeInSparseFormat;
 
-    SparseMatrix<ElementType> m_FeatureCodeInSparseFormat_SharedCopy;
+    SparseMatrix<ElementType>* m_FeatureCodeInSparseFormat;
 
     // Code Example --------------------------------------------------------------------
     //
-    // MaxNumberOfNonZeroElementsInEachCode is 2
+    // m_MaxNumberOfNonzeroElementsInEachCode is 2
     //
     // Code in Dense Format (a column is a code vector)
-    // 0 1 0 1 0
-    // 1 0 1 0 0
-    // 1 1 0 0 1
-    // 0 0 0 1 0
-    // 0 0 1 0 0
+    // 0    0.1  0    0.2  0
+    // 0.3  0.4  0    0.5  0 
+    // 0.6  0    0    0    0.7
+    // 0    0    0.8  0    0
+    // 0    0    0.9  0    0
     //
     // Code in Compact Format
-    // row index  1  0  1  0   2
-    // value      1  1  1  1   1
-    // row index  2  2  4  3  -1
-    // value      1  1  1  1  -1
+    // row index  1    0     3    0     2
+    // value      0.3  0.1   0.8  0.2   0.7
+    // row index  2    2     4    1    -1     (-1 means nothing is here and below)
+    // value      0.6  0.4   0.9  0.5   ?     (? means this value does not matter)
     //
     // Code in Sparse Format
     // convert Code in Compact Format to a sparse matrix (Matlab sparse matrix format)
@@ -67,9 +64,19 @@ protected:
 
     //Input Parameter:
 
-    int64 m_MaximunNumberOfThreads; // the maximum number of threads for encoding
+    int64 m_MaxNumberOfThreads; // the maximum number of threads for encoding
 
 private:
+
+    DenseMatrix<ElementType>  m_FeatureCodeInCompactFormat_SharedCopy;
+
+    DenseMatrix<ElementType>  m_FeatureCodeInDenseFormat_SharedCopy;
+
+    SparseMatrix<ElementType> m_FeatureCodeInSparseFormat_SharedCopy;
+
+    bool m_Flag_Output_FeatureCodeInDenseFormat;
+
+    bool m_Flag_Output_FeatureCodeInSparseFormat;
 
     std::atomic<bool> m_Flag_FeatureCodeInDenseFormat_Is_Updated;
 
@@ -93,13 +100,15 @@ public:
 
     bool SetMaxNumberOfNonZeroElementsInEachCode(int64 Spasity);
 
-    bool SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode); // output FeatureCodeInDenseFormat
-
     bool SetOutputFeatureCodeInCompactFormat(DenseMatrix<ElementType>* FeatureCode);
 
-    bool SetOutputFeatureCodeInSparseFormat(DenseMatrix<ElementType>* FeatureCode);
+    bool SetOutputFeatureCodeInDenseFormat(DenseMatrix<ElementType>* FeatureCode);
 
-    bool SetMaximunNumberOfThreads(int64 Number);
+    bool SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode); // output FeatureCodeInDenseFormat
+
+    bool SetOutputFeatureCodeInSparseFormat(SparseMatrix<ElementType>* FeatureCode);
+
+    bool SetMaxNumberOfThreads(int64 Number);
 
     //-----------------------------------------
 
@@ -109,6 +118,8 @@ public:
 
     DenseMatrix<ElementType>* GetOutputFeatureCodeInCompactFormat();
 
+    DenseMatrix<ElementType>* GetOutputFeatureCodeInDenseFormat();
+
     DenseMatrix<ElementType>* GetOutputFeatureCode(); // output FeatureCodeInDenseFormat
 
     DenseMatrix<ElementType>* GetOutputFeatureCodeInSparseFormat();
@@ -116,15 +127,17 @@ public:
 
     //---------------------------------------------------//
 
-    static GetFeatureCodeInDenseFormatFromCompactFormat(DenseMatrix<ElementType>& FeatureCodeInDenseFormat, const DenseMatrix<ElementType>& FeatureCodeInCompactFormat);
+    static void GetFeatureCodeInDenseFormatFromCompactFormat(DenseMatrix<ElementType>& FeatureCodeInDenseFormat, 
+                                                             const DenseMatrix<ElementType>& FeatureCodeInCompactFormat);
 
-    static GetFeatureCodeInSparseFormatFromCompactFormat(SparseMatrix<ElementType>& FeatureCodeInSparseFormat, const DenseMatrix<ElementType>& FeatureCodeInCompactFormat);
+    static void GetFeatureCodeInSparseFormatFromCompactFormat(SparseMatrix<ElementType>& FeatureCodeInSparseFormat, 
+                                                              const DenseMatrix<ElementType>& FeatureCodeInCompactFormat);
 
 protected:
 
-    int64 GetMaximunNumberOfThreads();
+    int64 GetMaxNumberOfThreads();
 
-    int64 GetFeatureVectorNumber();
+    int64 GetTotalNumberOfInputFeatureVectors();
 
     virtual bool CheckInputAndOutput();
 

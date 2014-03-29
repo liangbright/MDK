@@ -1,5 +1,5 @@
-#ifndef __TestMatrix_h
-#define __TestMatrix_h
+#ifndef __TestMatrix_simple_h
+#define __TestMatrix_simple_h
 
 //================================================
 #include <algorithm>

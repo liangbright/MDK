@@ -106,10 +106,10 @@ private:
     // ----------------------------------------------------- Matrix  {+ -}  Matrix ---------------------------------------------------------//
 
     template <typename E_TYPE>
-    friend inline DenseGlueMatrixForLinearCombination<E_TYPE> operator+(const DenseMatrix<E_TYPE>& MatrixA, const DenseMatrix<E_TYPE>& MatrixB);
+    friend DenseGlueMatrixForLinearCombination<E_TYPE> operator+(const DenseMatrix<E_TYPE>& MatrixA, const DenseMatrix<E_TYPE>& MatrixB);
 
     template <typename E_TYPE>
-    friend DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<E_TYPE>& MatrixA, const DenseMatrix<E_TYPE>& MatrixB);
+    friend DenseGlueMatrixForLinearCombination<E_TYPE> operator-(const DenseMatrix<E_TYPE>& MatrixA, const DenseMatrix<E_TYPE>& MatrixB);
 
     // ---------------------------------------------------- Matrix  {+ -}  Element ------------------------------------------------------//
 

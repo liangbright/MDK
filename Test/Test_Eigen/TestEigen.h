@@ -84,21 +84,30 @@ void Test_LinearEquationSolver_LeastSquares()
 
     DenseMatrix<double> OutputX(2, 1);
 
+    DenseMatrix<double> OutputResidual(10, 1);
+
     Eigen::Map<Eigen::MatrixXd> A(InputA.GetElementPointer(), 10, 2);
 
     Eigen::Map<Eigen::MatrixXd> B(InputB.GetElementPointer(), 10, 1);
 
     Eigen::Map<Eigen::MatrixXd> X(OutputX.GetElementPointer(), 2, 1);
 
+    Eigen::Map<Eigen::MatrixXd> Residual(OutputResidual.GetElementPointer(), 10, 1);
+
     X = A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(B);
+
+    Residual = A*X - B;
 
     std::cout << "The least-squares solution is:\n" << X << '\n';
 
     DisplayMatrix("OutputX", OutputX);
 
-    //
-    DenseMatrix<double> AA(2, 2);
-    AA = AA*AA;
+    auto Result = SolveLinearLeastSquaresProblem(InputA, InputB);
+
+    OutputX = Result.X;
+
+    DisplayMatrix("OutputX", OutputX);
+
 }
 
 

@@ -123,7 +123,9 @@ public:
 
     inline DenseMatrix(int64 RowNumber, int64 ColNumber);
 
-    inline DenseMatrix(std::initializer_list<ElementType> VectorData);
+    inline DenseMatrix(const std::initializer_list<ElementType>& InputList);
+
+    inline DenseMatrix(const std::initializer_list<std::initializer_list<ElementType>>& InputListInList);
 
     inline DenseMatrix(const ElementType& Element);
 
@@ -155,9 +157,9 @@ public:
 
     inline void operator=(const ElementType& Element);
 
-    inline void operator=(const std::initializer_list<ElementType>& list);
+    inline void operator=(const std::initializer_list<ElementType>& InputList);
 
-    inline void operator=(const std::initializer_list<std::initializer_list<ElementType>>& list);
+    inline void operator=(const std::initializer_list<std::initializer_list<ElementType>>& InputListInList);
 
     inline void operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix);
 
@@ -279,7 +281,9 @@ public:
 
     inline bool Reshape(int64 InputRowNumber, int64 InputColNumber);
 
-    inline bool Resize(int64 InputRowNumber, int64 InputColNumber);
+    inline bool Resize(int64 InputRowNumber, int64 InputColNumber); // try to keep the old data
+
+    inline bool FastResize(int64 InputRowNumber, int64 InputColNumber); // do not care about old data
 
     inline void FixSize();
     

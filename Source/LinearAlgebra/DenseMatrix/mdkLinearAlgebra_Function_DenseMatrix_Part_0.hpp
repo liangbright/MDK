@@ -31,9 +31,7 @@ bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementTyp
         }
         else
         {
-            OutputDataArray.Clear();
-
-            OutputDataArray.Resize(InputSize.RowNumber, InputSize.ColNumber);
+            OutputDataArray.FastResize(InputSize.RowNumber, InputSize.ColNumber);
         }
     }
 
@@ -49,9 +47,7 @@ bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementTyp
         }
         else
         {
-            OutputIndexListSize.Clear();
-
-            OutputIndexListSize.Resize(InputSize.RowNumber, InputSize.ColNumber);
+            OutputIndexListSize.FastResize(InputSize.RowNumber, InputSize.ColNumber);
         }
     }
 

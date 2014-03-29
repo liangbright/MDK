@@ -38,7 +38,7 @@ bool KNNReconstructionSparseEncoder<ElementType>::SetNeighbourNumber(int64 Neigh
         return false;
     }
 
-    m_NeighbourNumber = NeighbourNumber;
+    m_MaxNumberOfNonzeroElementsInEachCode = NeighbourNumber;
 
     return true;
 }
@@ -52,7 +52,7 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInputAndOutput()
         return false;
     }
 
-    if (m_NeighbourNumber <= 0)
+    if (m_MaxNumberOfNonzeroElementsInEachCode <= 0)
     {
         MDK_Error << "Invalid input NeighbourNumber (<= 0) @ KNNReconstructionSparseEncoder::CheckInputAndOutput()" << '\n';
         return false;
@@ -69,14 +69,90 @@ bool KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int64 IndexOf
 
     auto L2DistanceList = ComputeListOfL2DistanceFromOneFeatureToFeatureDictionary(FeatureVector, m_Dictionary->m_Record);
 
-    auto NeighbourIndexList = FindKNNByDistanceList(m_NeighbourNumber, L2DistanceList);
+    auto NeighbourIndexList = FindKNNByDistanceList(m_MaxNumberOfNonzeroElementsInEachCode, L2DistanceList);
 
     auto SubRecord = m_Dictionary->m_Record.GetSubMatrix(ALL, NeighbourIndexList);
 
-    // solve linear equation using least square method
+    // solve linear equation using least square method (unconstrained)
 
+    auto Result = SolveLinearLeastSquaresProblem(SubRecord, FeatureVector);
+
+    for (int64 i = 0; i < m_MaxNumberOfNonzeroElementsInEachCode; ++i)
+    {
+        (*m_FeatureCodeInCompactFormat)(2 * i, IndexOfFeatureVector) = NeighbourIndexList[i];
+        (*m_FeatureCodeInCompactFormat)(2 * i + 1, IndexOfFeatureVector) = Result.X[i];
+    }
 
     return true;
+}
+
+
+template<typename ElementType>
+DenseMatrix<ElementType> KNNReconstructionSparseEncoder<ElementType>::Apply(const DenseMatrix<ElementType>* FeatureData,
+                                                                            const FeatureDictionary<ElementType>* Dictionary,
+                                                                            int64 NeighbourNumber = 3,
+                                                                            bool  Flag_OutputCodeInCompactFormat = true, // CompactFormat in default
+                                                                            int64 MaxNumberOfThreads = 1)
+{
+    DenseMatrix<ElementType> OutputFeatureCode;
+
+    this->Apply(OutputFeatureCode, FeatureData, Dictionary, NeighbourNumber, Flag_OutputCodeInCompactFormat, MaxNumberOfThreads);
+
+    return OutputFeatureCode;
+}
+
+
+template<typename ElementType>
+bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<ElementType>& OutputFeatureCode,
+                                                        const DenseMatrix<ElementType>* FeatureData,
+                                                        const FeatureDictionary<ElementType>* Dictionary,
+                                                        int64 NeighbourNumber = 3,
+                                                        bool  Flag_OutputCodeInCompactFormat = true, // CompactFormat in default
+                                                        int64 MaxNumberOfThreads = 1)
+{
+    KNNReconstructionSparseEncoder<ElementType>  Encoder;
+
+    Encoder.SetInputFeatureData(FeatureData);
+
+    Encoder.SetInputDictionary(Dictionary);
+
+    Encoder.SetNeighbourNumber(NeighbourNumber);
+
+    Encoder.SetMaxNumberOfThreads(MaxNumberOfThreads);
+
+    if (Flag_OutputCodeInCompactFormat == true)
+    {
+        Encoder.SetOutputFeatureCodeInCompactFormat(&OutputFeatureCode);;
+    }
+    else
+    {
+        Encoder.SetOutputFeatureCodeInDenseFormat(&OutputFeatureCode);;
+    }
+
+    Encoder.Update();
+}
+
+
+template<typename ElementType>
+bool KNNReconstructionSparseEncoder<ElementType>::Apply(SparseMatrix<ElementType>& OutputFeatureCode,
+                                                        const DenseMatrix<ElementType>* FeatureData,
+                                                        const FeatureDictionary<ElementType>* Dictionary,
+                                                        int64 NeighbourNumber = 3,
+                                                        int64 MaxNumberOfThreads = 1)
+{
+    KNNReconstructionSparseEncoder<ElementType>  Encoder;
+
+    Encoder.SetInputFeatureData(FeatureData);
+
+    Encoder.SetInputDictionary(Dictionary);
+
+    Encoder.SetNeighbourNumber(NeighbourNumber);
+
+    Encoder.SetMaxNumberOfThreads(MaxNumberOfThreads);
+
+    Encoder.SetOutputFeatureCodeInSparseFormat(&OutputFeatureCode);;
+
+    Encoder.Update();
 }
 
 

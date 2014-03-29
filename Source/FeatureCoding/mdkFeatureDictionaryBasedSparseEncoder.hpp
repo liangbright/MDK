@@ -27,23 +27,29 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::Clear()
 
     m_Dictionary  = nullptr;
 
+    m_MaxNumberOfNonzeroElementsInEachCode = 1;
+
     m_FeatureCodeInCompactFormat_SharedCopy.Clear();
 
     m_FeatureCodeInCompactFormat = &m_FeatureCodeInCompactFormat_SharedCopy;
 
     m_FeatureCodeInDenseFormat_SharedCopy.Clear();
 
-    m_FeatureCode = &m_FeatureCodeInDenseFormat_SharedCopy;
+    m_FeatureCodeInDenseFormat = &m_FeatureCodeInDenseFormat_SharedCopy;
 
     m_FeatureCodeInSparseFormat_SharedCopy.Clear();
 
     m_FeatureCodeInSparseFormat = &m_FeatureCodeInSparseFormat_SharedCopy;
 
+    m_Flag_Output_FeatureCodeInDenseFormat = false;
+
+    m_Flag_Output_FeatureCodeInSparseFormat = false;
+
     m_Flag_FeatureCodeInDenseFormat_Is_Updated = false;
 
     m_Flag_FeatureCodeInSparseFormat_Is_Updated = false;
 
-    m_MaximunNumberOfThreads = 1;
+    m_MaxNumberOfThreads = 1;
 }
 
 
@@ -65,32 +71,13 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetInputFeatureData(const
 template<typename ElementType>
 bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetInputDictionary(const FeatureDictionary<ElementType>* Dictionary)
 {
-    if (InputFeatureData == nullptr)
+    if (Dictionary == nullptr)
     {
         MDK_Error << "Invalid input @ FeatureDictionaryBasedDenseEncoder::SetInputDictionary(Dictionary)" << '\n';
         return false;
     }
 
     m_Dictionary = Dictionary;
-
-    m_Dictionary_SharedCopy.ForceShare(Dictionary);
-}
-
-
-template<typename ElementType>
-bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode)
-{
-    if (FeatureCode == nullptr)
-    {
-        MDK_Error << "Invalid input @ FeatureDictionaryBasedSparseEncoder::GetOutputFeatureCode(FeatureCode)" << '\n';
-        return false;
-    }
-
-    m_FeatureCodeInDenseFormat = FeatureCode;
-
-    m_FeatureCodeInDenseFormat_SharedCopy.ForceShare(FeatureCode);
-
-    return true;
 }
 
 
@@ -111,6 +98,31 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCodeInCom
 }
 
 
+template<typename ElementType>
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCodeInDenseFormat(DenseMatrix<ElementType>* FeatureCode)
+{
+    if (FeatureCode == nullptr)
+    {
+        MDK_Error << "Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputFeatureCodeInDenseFormat(FeatureCode)" << '\n';
+        return false;
+    }
+
+    m_FeatureCodeInDenseFormat = FeatureCode;
+
+    m_FeatureCodeInDenseFormat_SharedCopy.ForceShare(FeatureCode);
+
+    m_Flag_Output_FeatureCodeInDenseFormat = true;
+
+    return true;
+}
+
+
+template<typename ElementType>
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode)
+{
+    return this->GetOutputFeatureCodeInDenseFormat();
+}
+
 
 template<typename ElementType>
 bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCodeInSparseFormat(SparseMatrix<ElementType>* FeatureCode)
@@ -125,26 +137,28 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCodeInSpa
 
     m_FeatureCodeInSparseFormat_SharedCopy.ForceShare(FeatureCode);
 
+    m_Flag_Output_FeatureCodeInSparseFormat = true;
+
     return true;
 }
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetMaximunNumberOfThreads(int64 Number)
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetMaxNumberOfThreads(int64 Number)
 {
-    m_MaximunNumberOfThreads = Number;
+    m_MaxNumberOfThreads = Number;
 }
 
 
 template<typename ElementType>
-int64 FeatureDictionaryBasedSparseEncoder<ElementType>::GetMaximunNumberOfThreads()
+int64 FeatureDictionaryBasedSparseEncoder<ElementType>::GetMaxNumberOfThreads()
 {
-    return m_MaximunNumberOfThreads;
+    return m_MaxNumberOfThreads;
 }
 
 
 template<typename ElementType>
-int64 FeatureDictionaryBasedSparseEncoder<ElementType>::GetFeatureVectorNumber()
+int64 FeatureDictionaryBasedSparseEncoder<ElementType>::GetTotalNumberOfInputFeatureVectors()
 {
     return m_FeatureData->GetColNumber();
 }
@@ -169,20 +183,19 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::CheckInputAndOutput()
 
     int64 FeatureCodeDimension = DictionarySize.ColNumber;
 
-    if (m_MaxNumberOfNonZeroElementsInEachCode <= 0 || m_MaxNumberOfNonZeroElementsInEachCode > FeatureCodeDimension)
+    if (m_MaxNumberOfNonzeroElementsInEachCode <= 0 || m_MaxNumberOfNonzeroElementsInEachCode > FeatureCodeDimension)
     {
-        MDK_Error << "input MaxNumberOfNonZeroElementsInEachCode is invalid @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()" << '\n';
+        MDK_Error << "Input MaxNumberOfNonZeroElementsInEachCode is invalid @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()" << '\n';
         return false;
     }
 
     auto tempSize = m_FeatureCodeInCompactFormat->GetSize();
 
-    if (tempSize.RowNumber != 2 * m_MaxNumberOfNonZeroElementsInEachCode || tempSize.ColNumber != m_FeatureData->GetColNumber())
+    if (tempSize.RowNumber != 2 * m_MaxNumberOfNonzeroElementsInEachCode || tempSize.ColNumber != m_FeatureData->GetColNumber())
     {
         if (m_FeatureCodeInCompactFormat->IsSizeFixed() == false)
         {
-            m_FeatureCodeInCompactFormat->Clear();
-            m_FeatureCodeInCompactFormat->Resize(2 * m_MaxNumberOfNonZeroElementsInEachCode, m_FeatureData->GetColNumber());
+            m_FeatureCodeInCompactFormat->FastResize(2 * m_MaxNumberOfNonzeroElementsInEachCode, m_FeatureData->GetColNumber());
         }
         else
         {
@@ -191,11 +204,11 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::CheckInputAndOutput()
         }
     }
 
-    if (m_MaximunNumberOfThreads <= 0)
+    if (m_MaxNumberOfThreads <= 0)
     {
-        MDK_Warning << "input MaximunNumberOfThreads is invalid, set to 1 @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()" << '\n';
+        MDK_Warning << "Input MaxNumberOfThreads is invalid, set to 1 @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()" << '\n';
 
-        m_MaximunNumberOfThreads = 1;
+        m_MaxNumberOfThreads = 1;
     }
 
     return true;
@@ -222,8 +235,18 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::Update()
 
     m_Flag_FeatureCodeInDenseFormat_Is_Updated = false;
 
+    if (m_Flag_Output_FeatureCodeInDenseFormat == true)
+    {
+        this->GetOutputFeatureCodeInDenseFormat(); // update FeatureCodeInDenseFormat
+    }
+
     m_Flag_FeatureCodeInSparseFormat_Is_Updated = false;
 
+    if (m_Flag_Output_FeatureCodeInSparseFormat == true)
+    {
+        this->GetOutputFeatureCodeInSparseFormat(); // update FeatureCodeInSparseFormat
+    }
+   
     //--------------------------------------------------------------
 
     return true;
@@ -239,7 +262,7 @@ DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetO
 
 
 template<typename ElementType>
-DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputFeatureCode() // InDenseFormat
+DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputFeatureCodeInDenseFormat()
 {
     if (m_Flag_FeatureCodeInDenseFormat_Is_Updated == false)
     {
@@ -253,8 +276,7 @@ DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetO
         {
             if (m_FeatureCodeInDenseFormat->IsSizeFixed() == false)
             {
-                m_FeatureCodeInDenseFormat->Clear();
-                m_FeatureCodeInDenseFormat->Resize(FeatureCodeDimension, m_FeatureData->GetColNumber());
+                m_FeatureCodeInDenseFormat->FastResize(FeatureCodeDimension, m_FeatureData->GetColNumber());
 
                 this->GetFeatureCodeInDenseFormatFromCompactFormat(*m_FeatureCodeInDenseFormat, *m_FeatureCodeInCompactFormat);
 
@@ -277,6 +299,13 @@ DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetO
 
 
 template<typename ElementType>
+DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputFeatureCode() // InDenseFormat
+{
+    return this->GetOutputFeatureCodeInDenseFormat();
+}
+
+
+template<typename ElementType>
 DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputFeatureCodeInSparseFormat()
 {
     if (m_Flag_FeatureCodeInSparseFormat_Is_Updated == false)
@@ -291,8 +320,7 @@ DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetO
         {
             if (m_FeatureCodeInSparseFormat->IsSizeFixed() == false)
             {
-                m_FeatureCodeInSparseFormat->Clear();
-                m_FeatureCodeInSparseFormat->Resize(FeatureCodeDimension, m_FeatureData->GetColNumber());
+                m_FeatureCodeInSparseFormat->FastResize(FeatureCodeDimension, m_FeatureData->GetColNumber());
 
                 this->GetFeatureCodeInSparseFormatFromCompactFormat(*m_FeatureCodeInSparseFormat, *m_FeatureCodeInCompactFormat);
 
@@ -313,6 +341,22 @@ DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetO
     return &m_FeatureCodeInSparseFormat_SharedCopy;
 }
 
+
+template<typename ElementType>
+void FeatureDictionaryBasedSparseEncoder<ElementType>::
+GetFeatureCodeInDenseFormatFromCompactFormat(DenseMatrix<ElementType>& FeatureCodeInDenseFormat,
+                                             const DenseMatrix<ElementType>& FeatureCodeInCompactFormat)
+{
+
+}
+
+
+template<typename ElementType>
+void FeatureDictionaryBasedSparseEncoder<ElementType>::
+GetFeatureCodeInSparseFormatFromCompactFormat(SparseMatrix<ElementType>& FeatureCodeInSparseFormat,
+                                              const DenseMatrix<ElementType>& FeatureCodeInCompactFormat)
+{
+}
 
 }// namespace mdk
 

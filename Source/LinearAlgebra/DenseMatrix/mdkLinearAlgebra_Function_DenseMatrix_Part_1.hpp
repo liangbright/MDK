@@ -61,9 +61,7 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<Elemen
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeA.RowNumber, SizeA.ColNumber);
+            OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
         }
         else
         {
@@ -137,9 +135,7 @@ bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeA.RowNumber, SizeA.ColNumber);
+            OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
         }
         else
         {
@@ -237,9 +233,7 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeA.RowNumber, SizeB.ColNumber);
+            OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
         }
         else
         {
@@ -352,9 +346,7 @@ bool MatrixElementMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseM
                 MDK_Warning << "OutputMatrixC Size is changed @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
             }
 
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeA.RowNumber, SizeB.ColNumber);
+            OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
         }
         else
         {
@@ -428,9 +420,7 @@ bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeA.RowNumber, SizeA.ColNumber);
+            OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
         }
         else
         {
@@ -488,9 +478,7 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& Eleme
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeB.RowNumber, SizeB.ColNumber);
+            OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
         }
         else
         {
@@ -554,9 +542,7 @@ void MatrixSubtract(DenseMatrix<ElementType> OutputMatrixC, const ElementType& E
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeB.RowNumber, SizeB.ColNumber);
+            OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
         }
         else
         {
@@ -620,9 +606,7 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& 
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeB.RowNumber, SizeB.ColNumber);
+            OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
         }
         else
         {
@@ -706,9 +690,7 @@ void MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const ElementT
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeB.RowNumber, SizeB.ColNumber);
+            OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
         }
         else
         {
@@ -773,9 +755,7 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<Elemen
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeA.RowNumber, SizeA.ColNumber);
+            OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
         }
         else
         {
@@ -839,9 +819,7 @@ void MatrixSubtract(DenseMatrix<ElementType> OutputMatrixC, const DenseMatrix<El
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeA.RowNumber, SizeA.ColNumber);
+            OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
         }
         else
         {
@@ -905,9 +883,7 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeA.RowNumber, SizeA.ColNumber);
+            OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
         }
         else
         {
@@ -993,9 +969,7 @@ void MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeA.RowNumber, SizeA.ColNumber);
+            OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
         }
         else
         {
@@ -1121,9 +1095,7 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrix, OperationTyp
     {
         if (OutputMatrix.IsSizeFixed() == false)
         {
-            OutputMatrix.Clear();
-
-            OutputMatrix.Resize(InputSize.RowNumber, InputSize.ColNumber);
+            OutputMatrix.FastResize(InputSize.RowNumber, InputSize.ColNumber);
         }
         else
         {
@@ -1335,9 +1307,7 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeA.RowNumber, SizeA.ColNumber);
+            OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
         }
         else
         {
@@ -1536,9 +1506,7 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
     {
         if (OutputMatrixC.IsSizeFixed() == false)
         {
-            OutputMatrixC.Clear();
-
-            OutputMatrixC.Resize(SizeA.RowNumber, SizeA.ColNumber);
+            OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
         }
         else
         {
@@ -2791,9 +2759,7 @@ bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
     {
         if (OutputMatrix.IsSizeFixed() == false)
         {
-            OutputMatrix.Clear();
-
-            OutputMatrix.Resize(Size.RowNumber, Size.ColNumber);
+            OutputMatrix.FastResize(Size.RowNumber, Size.ColNumber);
         }
         else
         {

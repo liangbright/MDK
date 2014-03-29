@@ -138,9 +138,7 @@ DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix(DenseMatrix<
     {
         if (OutputMatrix.IsSizeFixed() == false)
         {
-            OutputMatrix.Clear();
-
-            OutputMatrix.Resize(m_RowNumber, m_ColNumber);            
+            OutputMatrix.FastResize(m_RowNumber, m_ColNumber);            
         }
         else
         {

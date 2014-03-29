@@ -3,6 +3,8 @@
 
 #include "mdkFeatureDictionary.h"
 
+#include "mdkSparseMatrix.h"
+
 namespace mdk
 {
 

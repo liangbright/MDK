@@ -7,22 +7,12 @@ endif()
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there.")
 endif()
- 
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ Kits/8.1/Lib/winv6.3/um/x64")
 
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ Kits/8.1/Lib/winv6.3/um/x64")
+ 
 PROJECT(MDK_TestFeatureCoding)
 
-set(VTK_DIR C:/Programs/VTK/VTK_6.1_VC2013_Build)
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
-
-find_package(Qt5Widgets)
-
-set(OpenCV_DIR C:/Programs/OpenCV/VC2013_build)
-
-find_package(OpenCV REQUIRED)
-
-set(MDK_DIR "C:/Research/MDK/Code/Source")
+set(MDK_DIR "C:/Research/MDK/MDK/Source")
 
 set(Arma_DIR "C:/Research/MDK/armadillo")
 
@@ -43,18 +33,8 @@ ${Lapack_Blas_DIR}
 ${Eigen_DIR}
 )
 
-#FILE(GLOB Arma_FILES ${Arma_Source_DIR}/*.hpp)
-
-FILE(GLOB Arma_FILES C:/Research/MDK/armadillo/armadillo_bits/*.hpp)
-
-set(Arma_FILES ${Arma_FILES} C:/Research/MDK/armadillo/armadillo.h)
-
-FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
-
-set(Source_FILES 
-
+set(MDK_CPP_FILES 
 ${MDK_DIR}/Common/mdkObject.cpp
-
 ${MDK_DIR}/LinearAlgebra/Common/mdkMatrix_Common.cpp
 )
 
@@ -63,12 +43,19 @@ C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/lapack_win64_MT.lib
 C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/blas_win64_MT.lib
 )
 
+set(VTK_DIR C:/Programs/VTK/VTK_6.1_VC2013_Build)
+find_package(VTK REQUIRED)
+include(${VTK_USE_FILE})
+
+find_package(Qt5Widgets)
+
+set(OpenCV_DIR C:/Programs/OpenCV/VC2013_build)
+find_package(OpenCV REQUIRED)
+
+FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
+
 message(STATUS ${Test_FILES})
 
-message(STATUS ${Source_FILES})
-
-message(STATUS ${Arma_FILES})
-
-add_executable(MDK_TestFeatureCoding ${Test_FILES} ${Source_FILES} ${Arma_FILES})
+add_executable(MDK_TestFeatureCoding ${Test_FILES} ${MDK_CPP_FILES})
 
 target_link_libraries(MDK_TestFeatureCoding ${LinearALgebraLib_win64} ${VTK_LIBRARIES} ${OpenCV_LIBS})

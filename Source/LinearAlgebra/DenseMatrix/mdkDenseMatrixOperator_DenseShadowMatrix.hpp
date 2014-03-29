@@ -46,7 +46,7 @@ DenseMatrix<ElementType> operator+(const DenseShadowMatrix<ElementType>& ShadowM
 
     //----------------------------------------------------//
 
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrB = MatrixB.GetElementPointer();
 
@@ -97,7 +97,7 @@ DenseMatrix<ElementType> operator-(const DenseShadowMatrix<ElementType>& ShadowM
 
     //----------------------------------------------------//
 
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrB = MatrixB.GetElementPointer();
 
@@ -155,7 +155,7 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
 
     //----------------------------------------------------//
 
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrB = MatrixB.GetElementPointer();
 
@@ -215,7 +215,7 @@ DenseMatrix<ElementType> operator-(const DenseMatrix<ElementType>& MatrixA, cons
 
     //----------------------------------------------------//
 
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrA = MatrixA.GetElementPointer();
 
@@ -274,7 +274,7 @@ DenseMatrix<ElementType> operator/(const DenseMatrix<ElementType>& MatrixA, cons
 
     //----------------------------------------------------//
 
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrA = MatrixA.GetElementPointer();
 
@@ -308,7 +308,7 @@ DenseMatrix<ElementType> operator+(const DenseShadowMatrix<ElementType>& ShadowM
 
     //----------------------------------------------------//
 
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
@@ -339,7 +339,7 @@ DenseMatrix<ElementType> operator-(const DenseShadowMatrix<ElementType>& ShadowM
 
     //----------------------------------------------------//
 
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
@@ -370,7 +370,7 @@ DenseMatrix<ElementType> operator*(const DenseShadowMatrix<ElementType>& ShadowM
 
     //----------------------------------------------------//
 
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
@@ -401,7 +401,7 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
 
     //----------------------------------------------------//
 
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
@@ -441,7 +441,7 @@ DenseMatrix<ElementType> operator-(const ElementType& ElementA, const DenseShado
 
     //----------------------------------------------------//
 
-    tempMatrix.Resize(SizeB.RowNumber, SizeB.ColNumber);
+    tempMatrix.FastResize(SizeB.RowNumber, SizeB.ColNumber);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
@@ -480,7 +480,7 @@ DenseMatrix<ElementType> operator/(const ElementType& ElementA, const DenseShado
 
     //----------------------------------------------------//
 
-    tempMatrix.Resize(SizeB.RowNumber, SizeB.ColNumber);
+    tempMatrix.FastResize(SizeB.RowNumber, SizeB.ColNumber);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
@@ -528,7 +528,7 @@ DenseMatrix<ElementType> operator+(const DenseShadowMatrix<ElementType>& ShadowM
         return  tempMatrix;
     }
 
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
@@ -575,7 +575,7 @@ DenseMatrix<ElementType> operator-(const DenseShadowMatrix<ElementType>& ShadowM
         return  tempMatrix;
     }
 
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
@@ -630,7 +630,7 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
         return  tempMatrix;
     }
 
-    tempMatrix.Resize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 

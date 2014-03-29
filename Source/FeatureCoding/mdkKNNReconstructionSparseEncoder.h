@@ -14,10 +14,6 @@ template<typename ElementType>
 class KNNReconstructionSparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
 {
 
-private: 
-
-    int64 m_NeighbourNumber;
-
 public:
 
     KNNReconstructionSparseEncoder();
@@ -28,11 +24,28 @@ public:
 
     void Clear();
 
-    bool SetNeighbourNumber(int64 NeighbourNumber);
+    bool SetNeighbourNumber(int64 NeighbourNumber); // the number of nearest neighbors, i.e., K
 
     //-----------------------------------------
 
-    static DenseMatrix<ElementType> Apply();
+    static DenseMatrix<ElementType> Apply(const DenseMatrix<ElementType>* FeatureData, 
+                                          const FeatureDictionary<ElementType>* Dictionary,
+                                          int64 NeighbourNumber = 3,
+                                          bool  Flag_OutputCodeInCompactFormat = true, // CompactFormat in default
+                                          int64 MaxNumberOfThreads = 1);
+
+    static bool Apply(DenseMatrix<ElementType>& OutputFeatureCode, 
+                      const DenseMatrix<ElementType>* FeatureData,
+                      const FeatureDictionary<ElementType>* Dictionary,
+                      int64 NeighbourNumber = 3,
+                      bool  Flag_OutputCodeInCompactFormat = true, // CompactFormat in default
+                      int64 MaxNumberOfThreads = 1);
+
+    static bool Apply(SparseMatrix<ElementType>& OutputFeatureCode,
+                      const DenseMatrix<ElementType>* FeatureData,
+                      const FeatureDictionary<ElementType>* Dictionary,
+                      int64 NeighbourNumber = 3,
+                      int64 MaxNumberOfThreads = 1);
 
 protected:
 

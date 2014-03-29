@@ -87,7 +87,7 @@ DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& InputMa
         return tempMatrix;
     }
 
-    tempMatrix.Resize(Size.ColNumber, Size.RowNumber);
+    tempMatrix.FastResize(Size.ColNumber, Size.RowNumber);
 
     auto tempRawPointer = tempMatrix.GetElementPointer();
 
@@ -157,7 +157,7 @@ DenseMatrix<ElementType> MatrixInv(const DenseMatrix<ElementType>& InputMatrix)
         return tempMatrix;
     }
 
-    tempMatrix.Resize(Size.RowNumber, Size.ColNumber);
+    tempMatrix.FastResize(Size.RowNumber, Size.ColNumber);
 
     auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
@@ -195,9 +195,9 @@ DenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(co
         return Result;
     }
 
-    Result.EigenVector.Resize(Size.RowNumber, Size.RowNumber);
+    Result.EigenVector.FastResize(Size.RowNumber, Size.RowNumber);
 
-    Result.EigenValue.Resize(Size.RowNumber, 1);
+    Result.EigenValue.FastResize(Size.RowNumber, 1);
 
     auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
@@ -251,9 +251,9 @@ DenseMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const DenseMatrix<E
         }
     }
   
-    Result.EigenVector.Resize(Size.RowNumber, Size.RowNumber);
+    Result.EigenVector.FastResize(Size.RowNumber, Size.RowNumber);
 
-    Result.EigenValue.Resize(Size.RowNumber, 1);
+    Result.EigenValue.FastResize(Size.RowNumber, 1);
 
     auto ptrData = Matrix.GetElementDataSharedPointer()->data();
 
@@ -333,9 +333,9 @@ DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Inpu
         return Result;
     }
 
-    Result.U.Resize(Size.RowNumber, Size.ColNumber);
-    Result.S.Resize(Size.RowNumber, Size.ColNumber);
-    Result.V.Resize(Size.RowNumber, Size.ColNumber);
+    Result.U.FastResize(Size.RowNumber, Size.ColNumber);
+    Result.S.FastResize(Size.RowNumber, Size.ColNumber);
+    Result.V.FastResize(Size.RowNumber, Size.ColNumber);
 
     auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
