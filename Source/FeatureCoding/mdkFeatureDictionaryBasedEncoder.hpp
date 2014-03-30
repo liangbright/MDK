@@ -41,7 +41,7 @@ bool FeatureDictionaryBasedEncoder<ElementType>::Update()
 
     // divide the input feature column-vectors into groups
 
-    int64 FeatureVectorNumber = this->GetFeatureVectorNumber();
+    int64 FeatureVectorNumber = this->GetTotalNumberOfInputFeatureVectors();
 
     std::vector<int64> IndexList_start;
     std::vector<int64> IndexList_end;
@@ -68,7 +68,7 @@ bool FeatureDictionaryBasedEncoder<ElementType>::Update()
     }
     else//single-thread
     {
-        this->GenerateCode_in_a_Thread(0, FeatureVectorNumber);
+        this->GenerateCode_in_a_Thread(0, FeatureVectorNumber-1);
     }
 
 
@@ -80,7 +80,7 @@ template<typename ElementType>
 void FeatureDictionaryBasedEncoder<ElementType>::
 DivideData(int64 Index_min, int64 Index_max, std::vector<int64>& IndexList_start, std::vector<int64>& IndexList_end)
 {
-    int64 MaximunNumberOfThreads = this->GetMaximunNumberOfThreads();
+    int64 MaximunNumberOfThreads = this->GetMaxNumberOfThreads();
 
     if (MaximunNumberOfThreads == 1)
     {

@@ -574,7 +574,9 @@ bool DenseMatrix<ElementType>::ForceShare(const DenseMatrix<ElementType>* InputM
         return false;
     }
 
-    return this->ForceShare(*InputMatrix);
+    this->ForceShare(*InputMatrix);
+
+    return true;
 }
 
 
@@ -4841,38 +4843,13 @@ void DenseMatrix<ElementType>::operator/=(const ElementType& Element)
 }
 
 
-
 //-------------------- element operation {^} -----------------------------------------------------------//
 
 template<typename ElementType>
 inline 
 DenseMatrix<ElementType> DenseMatrix<ElementType>::operator^(const ElementType& Element)
 {
-    DenseMatrix<ElementType> tempMatrix;
-
-    auto SelfSize = this->GetSize();
-
-    if (SelfSize.RowNumber <= 0)
-    {
-        MDK_Error << "Self is empty @ DenseMatrix::operator^(value)" << '\n';
-
-        return tempMatrix;
-    }
-
-    tempMatrix.Resize(SelfSize.RowNumber, SelfSize.ColNumber);
-
-    auto tempRawPointer = tempMatrix.GetElementPointer();
-
-    auto RawPointer = this->GetElementPointer();
-
-    auto Self_ElementNumber = SelfSize.RowNumber*SelfSize.ColNumber;
-
-    for (int64 i = 0; i < Self_ElementNumber; ++i)
-    {
-        tempRawPointer[i] = std::pow(RawPointer[i], Element);
-    }
-
-    return tempMatrix;
+    return MatrixElementNamedOperation('^', *this, Element);
 }
 
 //-------------------- special element operation {^=} -----------------------------------------------------------//
@@ -4880,22 +4857,7 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::operator^(const ElementType& 
 template<typename ElementType>
 inline void DenseMatrix<ElementType>::operator^=(const ElementType& Element)
 {
-    auto SelfSize = this->GetSize();
-
-    if (SelfSize.RowNumber <= 0)
-    {
-        MDK_Error << "Self is empty @ DenseMatrix::operator^(value)" << '\n';
-        return;
-    }
-
-    auto BeginPointer this->GetElementPointer();
-
-    auto Self_ElementNumber = SelfSize.RowNumber*SelfSize.ColNumber;
-
-    for (auto Ptr = BeginPointer; Ptr < BeginPointer + Self_ElementNumber; ++Ptr)
-    {
-        Ptr[0] = std::pow(Ptr[0], Element);
-    }
+    MatrixElementNamedOperation(*this, '^', *this, Element);
 }
 
 
@@ -5416,418 +5378,100 @@ DenseMatrix<ElementType>::RowOperationInPlace(int64 RowIndex, OperationType Oper
 template<typename ElementType>
 inline ElementType DenseMatrix<ElementType>::Mean() const
 {
-    auto Self_ElementNumber = this->GetElementNumber();
-
-    if (Self_ElementNumber <= 0)
-    {
-        MDK_Error << "self is empty Matrix @ DenseMatrix::Mean" << '\n';
-        return m_NaNElement;
-    }
-
-    auto RawPointer = this->GetElementPointer();
-
-    ElementType value = RawPointer[0];
-
-    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Self_ElementNumber; ++Ptr)
-    {
-        value += Ptr[0];
-    }
-
-    value /= Self_ElementNumber;
-
-    return value;
+    return MatrixMean(*this);
 }
 
 
 template<typename ElementType>
 inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MeanToRow() const
 {
-	DenseMatrix<ElementType> tempMatrix;
-
-    auto SelfSize = this->GetSize();
-
-    if (SelfSize.RowNumber <= 0)
-	{
-		MDK_Error << "self is empty Matrix @ DenseMatrix::MeanToRow" << '\n';
-
-		return tempMatrix;
-	}
-
-	tempMatrix.Resize(1, SelfSize.ColNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 j = 0; j < SelfSize.ColNumber; ++j)
-	{
-        auto value = RawPointer[0];
-
-        ++RawPointer;
-
-		for (int64 i = 1; i < SelfSize.RowNumber; ++i)
-		{            
-			value += RawPointer[0];      
-
-            ++RawPointer;
-		}
-
-        tempRawPointer[j] = value / SelfSize.RowNumber;
-	}
-    
-	return tempMatrix;
+    return MatrixMeanToRow(*this);
 }
 
 
 template<typename ElementType>
 inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MeanToCol() const
 {
-	DenseMatrix<ElementType> tempMatrix;
-
-    auto SelfSize = this->GetSize();
-
-    if (SelfSize.RowNumber <= 0)
-	{
-		MDK_Error << "self is empty Matrix @ DenseMatrix::MeanToCol" << '\n';
-  
-		return tempMatrix;
-	}
-
-	tempMatrix.Resize(SelfSize.ColNumber, 1);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 i = 0; i < SelfSize.RowNumber; ++i)
-	{
-        auto value = RawPointer[0];
-
-        int64 Index = SelfSize.RowNumber;
-
-		for (int64 j = 1; j < SelfSize.ColNumber; ++j)
-		{
-			value += RawPointer[Index + i];
-
-			Index += SelfSize.RowNumber;
-		}
-
-        tempRawPointer[i] = value / SelfSize.ColNumber;
-	}
-
-	return tempMatrix;
+    return MatrixMeanToCol(*this);
 }
 
 
 template<typename ElementType>
 inline ElementType DenseMatrix<ElementType>::Sum() const
 {
-    auto Self_ElementNumber = this->GetElementNumber();
-
-    if (Self_ElementNumber <= 0)
-	{
-		MDK_Error << "self is empty Matrix @ DenseMatrix::Sum" << '\n';
-        return m_NaNElement;
-	}
-
-    auto RawPointer = this->GetElementPointer();
-
-	ElementType value = RawPointer[0];
-
-    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Self_ElementNumber; ++Ptr)
-    {
-        value += Ptr[0];
-    }
-
-	return value;
+    return MatrixSum(*this);
 }
 
 
 template<typename ElementType>
 inline DenseMatrix<ElementType> DenseMatrix<ElementType>::SumToRow() const
 {
-	DenseMatrix<ElementType> tempMatrix;
-
-    auto SelfSize = this->GetSize();
-
-    if (SelfSize.RowNumber <= 0)
-	{
-		MDK_Error << "self is empty Matrix @ DenseMatrix::SumToRow" << '\n';
-        
-		return tempMatrix;
-	}
-
-	tempMatrix.Resize(1, SelfSize.ColNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 j = 0; j < SelfSize.ColNumber; ++j)
-	{
-        auto value = RawPointer[0];
-
-        ++RawPointer;
-
-		for (int64 i = 1; i < SelfSize.RowNumber; ++i)
-		{
-			value += RawPointer[0];
-
-            ++RawPointer;
-		}
-
-		tempRawPointer[j] = value;
-	}
-    
-	return tempMatrix;
+    return MatrixSumToRow(*this);
 }
 
 
 template<typename ElementType>
 inline DenseMatrix<ElementType> DenseMatrix<ElementType>::SumToCol() const
 {
-	DenseMatrix<ElementType> tempMatrix;
-
-    auto SelfSize = this->GetSize();
-
-    if (SelfSize.RowNumber <= 0)
-	{
-		MDK_Error << "self is empty Matrix @ DenseMatrix::SumToCol" << '\n';
-        
-		return tempMatrix;
-	}
-
-	tempMatrix.Resize(SelfSize.RowNumber, 1);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 i = 0; i < SelfSize.RowNumber; ++i)
-	{
-        auto value = RawPointer[i];
-
-        int64 Index = SelfSize.RowNumber;
-
-		for (int64 j = 1; j < SelfSize.ColNumber; ++j)
-		{
-			value += RawPointer[Index + i];
-
-			Index += SelfSize.RowNumber;
-		}
-
-		tempRawPointer[i] = value;
-	}
-    
-	return tempMatrix;
+    return MatrixSumToCol(*this);
 }
 
 
 template<typename ElementType>
 inline ElementType DenseMatrix<ElementType>::Max() const
 {
-    auto Self_ElementNumber = this->GetElementNumber();
-
-    if (Self_ElementNumber <= 0)
-	{
-		MDK_Error << "self is empty Matrix @ DenseMatrix::Max" << '\n';
-        return m_NaNElement;
-	}
-
-	auto RawPointer = this->GetElementPointer();
-
-	ElementType value = RawPointer[0];
-
-    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Self_ElementNumber; ++Ptr)
-	{
-        value = std::max(value, Ptr[0]);
-	}
-
-	return value;
+    return MatrixMax(*this);
 }
 
 
 template<typename ElementType>
 inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MaxToRow() const
 {
-	DenseMatrix<ElementType> tempMatrix;
-
-    auto SelfSize = this->GetSize();
-
-    if (SelfSize.RowNumber <= 0)
-	{
-		MDK_Error << "self is empty Matrix @ DenseMatrix::MaxToRow" << '\n';
-        
-		return tempMatrix;
-	}
-
-	tempMatrix.Resize(1, SelfSize.ColNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 j = 0; j < SelfSize.ColNumber; ++j)
-	{
-        auto value = RawPointer[0];
-
-        ++RawPointer;
-
-		for (int64 i = 1; i < SelfSize.RowNumber; ++i)
-		{
-			value = std::max(value, RawPointer[0]);
-
-            ++ RawPointer;
-		}
-
-		tempRawPointer[j] = value;
-	}
-    
-	return tempMatrix;
+    return MatrixMaxToRow(*this);
 }
 
 
 template<typename ElementType>
 inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MaxToCol() const
 {
-	DenseMatrix<ElementType> tempMatrix;
-
-    auto SelfSize = this->GetSize();
-
-    if (SelfSize.RowNumber <= 0)
-	{
-		MDK_Error << "self is empty Matrix @ DenseMatrix::MaxToCol" << '\n';
-        
-		return tempMatrix;
-	}
-
-	tempMatrix.Resize(SelfSize.ColNumber, 1);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 i = 0; i < SelfSize.RowNumber; ++i)
-	{
-        auto value = RawPointer[i];
-
-        auto Index = SelfSize.RowNumber;
-
-		for (int64 j = 1; j < SelfSize.ColNumber; ++j)
-		{
-			value = std::max(value, RawPointer[Index + i]);
-
-			Index += SelfSize.RowNumber;
-		}
-
-		tempRawPointer[i] = value;
-	}
-
-	return tempMatrix;
+    return MatrixMaxToCol(*this);
 }
 
 
 template<typename ElementType>
 inline ElementType DenseMatrix<ElementType>::Min() const
 {
-    auto Self_ElementNumber = this->GetElementNumber();
-
-    if (Self_ElementNumber <= 0)
-	{
-		MDK_Error << "self is empty Matrix @ DenseMatrix::Min" << '\n';
-        return m_NaNElement;
-	}
-
-	auto RawPointer = this->GetElementPointer();
-
-    ElementType value = RawPointer[0];
-
-    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Self_ElementNumber; ++Ptr)
-    {
-        value = std::min(value, Ptr[0]);
-    }
-
-	return value;
+    return MatrixMin(*this);
 }
 
 
 template<typename ElementType>
 inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MinToRow() const
 {
-	DenseMatrix<ElementType> tempMatrix;
-
-    auto SelfSize = this->GetSize();
-
-    if (SelfSize.RowNumber <= 0)
-	{
-		MDK_Error << "self is empty Matrix @ DenseMatrix::MinToRow" << '\n';
-        
-		return tempMatrix;
-	}
-
-	tempMatrix.Resize(1, SelfSize.ColNumber);
-
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 j = 0; j < SelfSize.ColNumber; ++j)
-	{
-		auto value = RawPointer[0];
-
-        ++RawPointer;
-
-		for (int64 i = 1; i < SelfSize.RowNumber; ++i)
-		{
-			value = std::min(value, RawPointer[0]);
-
-            ++RawPointer;
-		}
-
-		tempRawPointer[j] = value;
-	}
-    
-	return tempMatrix;
+    return MatrixMinToRow(*this);
 }
 
 
 template<typename ElementType>
 inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MinToCol() const
 {
-	DenseMatrix<ElementType> tempMatrix;
+    return MatrixMinToCol(*this);
+}
 
-    auto SelfSize = this->GetSize();
 
-    if (SelfSize.RowNumber <= 0)
-	{
-		MDK_Error << "self is empty Matrix @ DenseMatrix::MinToCol" << '\n';
-        
-		return tempMatrix;
-	}
+template<typename ElementType>
+inline 
+ElementType DenseMatrix<ElementType>::L1Norm() const
+{
+    return MatrixNorm_L1(*this);
+}
 
-	tempMatrix.Resize(SelfSize.ColNumber, 1);
 
-	auto tempRawPointer = tempMatrix.GetElementPointer();
-
-	auto RawPointer = this->GetElementPointer();
-
-	for (int64 i = 0; i < SelfSize.RowNumber; ++i)
-	{
-        auto value = RawPointer[i];
-
-        auto Index = SelfSize.RowNumber;
-
-		for (int64 j = 1; j < SelfSize.ColNumber; ++j)
-		{
-			value = std::min(value, RawPointer[Index + i]);
-
-			Index += SelfSize.RowNumber;
-		}
-
-		tempRawPointer[i] = value;
-	}
-    
-	return tempMatrix;
+template<typename ElementType>
+inline 
+ElementType DenseMatrix<ElementType>::L2Norm() const
+{
+    return MatrixNorm_L2(*this);
 }
 
 

@@ -84,7 +84,7 @@ int main()
 
   //  Test_ShareConstuctor();
 
-    Test_ElementMultiply();
+   // Test_ElementMultiply();
 
 //    Test_ElementOperation();
 
@@ -120,7 +120,7 @@ int main()
 
   //  Test_GlueMatrix_Speed1();
 
-    //Test_GlueMatrix_Speed2();
+    Test_GlueMatrix_Speed2();
 
     //Test_GlueMatrix_Create();
 

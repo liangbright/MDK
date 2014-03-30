@@ -962,6 +962,12 @@ public:
 
     inline DenseMatrix MinToCol() const;
 
+    //------------------------------------ norm ----------------------------------------------//
+
+    inline ElementType L1Norm() const;
+
+    inline ElementType L2Norm() const;
+
 	//----------------------------------- transpose -----------------------------------------//
 
     inline DenseMatrix Transpose() const;

@@ -122,7 +122,7 @@ public:
 
     DenseMatrix<ElementType>* GetOutputFeatureCode(); // output FeatureCodeInDenseFormat
 
-    DenseMatrix<ElementType>* GetOutputFeatureCodeInSparseFormat();
+    SparseMatrix<ElementType>* GetOutputFeatureCodeInSparseFormat();
 
 
     //---------------------------------------------------//

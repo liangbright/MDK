@@ -25,7 +25,7 @@ void KNNReconstructionSparseEncoder<ElementType>::Clear()
 {
     this->FeatureDictionaryBasedSparseEncoder::Clear();
 
-    m_NeighbourNumber = 1;
+    m_MaxNumberOfNonzeroElementsInEachCode = 1;
 }
 
 
@@ -63,9 +63,9 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInputAndOutput()
 
 
 template<typename ElementType>
-bool KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int64 IndexOfFeatureVector)
+void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int64 IndexOfFeatureVector)
 {
-    auto FeatureVector = m_FeatureData.GetCol(IndexOfFeatureVector);
+    auto FeatureVector = m_FeatureData->GetCol(IndexOfFeatureVector);
 
     auto L2DistanceList = ComputeListOfL2DistanceFromOneFeatureToFeatureDictionary(FeatureVector, m_Dictionary->m_Record);
 
@@ -79,11 +79,9 @@ bool KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int64 IndexOf
 
     for (int64 i = 0; i < m_MaxNumberOfNonzeroElementsInEachCode; ++i)
     {
-        (*m_FeatureCodeInCompactFormat)(2 * i, IndexOfFeatureVector) = NeighbourIndexList[i];
+        (*m_FeatureCodeInCompactFormat)(2 * i, IndexOfFeatureVector) = ElementType(NeighbourIndexList[i]); // int64 to double or float
         (*m_FeatureCodeInCompactFormat)(2 * i + 1, IndexOfFeatureVector) = Result.X[i];
     }
-
-    return true;
 }
 
 

@@ -78,6 +78,8 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetInputDictionary(const 
     }
 
     m_Dictionary = Dictionary;
+
+    return true;
 }
 
 
@@ -120,7 +122,7 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCodeInDen
 template<typename ElementType>
 bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode)
 {
-    return this->GetOutputFeatureCodeInDenseFormat();
+    return this->SetOutputFeatureCodeInDenseFormat(FeatureCode);
 }
 
 
@@ -146,7 +148,18 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCodeInSpa
 template<typename ElementType>
 bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetMaxNumberOfThreads(int64 Number)
 {
+    if (Number <= 0)
+    {
+        MDK_Error << "Invalid input @ FeatureDictionaryBasedSparseEncoder::SetMaxNumberOfThreads(int64 Number)" << '\n';
+
+        m_MaxNumberOfThreads = 1;
+
+        return false;
+    }
+
     m_MaxNumberOfThreads = Number;
+
+    return true;
 }
 
 
@@ -306,7 +319,7 @@ DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetO
 
 
 template<typename ElementType>
-DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputFeatureCodeInSparseFormat()
+SparseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputFeatureCodeInSparseFormat()
 {
     if (m_Flag_FeatureCodeInSparseFormat_Is_Updated == false)
     {

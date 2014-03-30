@@ -48,13 +48,13 @@ public:
 
     void Clear();
 
-    bool IsEmpty();
+    bool IsEmpty() const;
 
-    MatrixSize GetSize();
+    MatrixSize GetSize() const;
 
     bool Load(const std::string& FilePathAndName);
 
-    bool Save(const std::string& FilePathAndName);
+    bool Save(const std::string& FilePathAndName) const;
 };
 
 

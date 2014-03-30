@@ -6,6 +6,440 @@
 namespace mdk
 {
 
+//================================================================================================================================//
+
+template<typename ElementType>
+inline
+ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix)
+{
+    auto ElementNumber = InputMatrix.GetElementNumber();
+
+    if (ElementNumber <= 0)
+    {
+        MDK_Error << "Input is an empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMean(InputMatrix)" << '\n';
+        return InputMatrix.GetNaNElement();
+    }
+
+    auto RawPointer = InputMatrix.GetElementPointer();
+
+    ElementType value = RawPointer[0];
+
+    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + ElementNumber; ++Ptr)
+    {
+        value += Ptr[0];
+    }
+
+    value /= ElementNumber;
+
+    return value;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixMeanToRow(const DenseMatrix<ElementType>& InputMatrix)
+{
+    DenseMatrix<ElementType> tempMatrix;
+
+    auto InputSize = InputMatrix.GetSize();
+
+    if (InputSize.RowNumber <= 0)
+    {
+        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMeanToRow(InputMatrix)" << '\n';
+
+        return tempMatrix;
+    }
+
+    tempMatrix.Resize(1, InputSize.ColNumber);
+
+    auto tempRawPointer = tempMatrix.GetElementPointer();
+
+    auto RawPointer = InputMatrix.GetElementPointer();
+
+    for (int64 j = 0; j < InputSize.ColNumber; ++j)
+    {
+        auto value = RawPointer[0];
+
+        ++RawPointer;
+
+        for (int64 i = 1; i < InputSize.RowNumber; ++i)
+        {
+            value += RawPointer[0];
+
+            ++RawPointer;
+        }
+
+        tempRawPointer[j] = value / InputSize.RowNumber;
+    }
+
+    return tempMatrix;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixMeanToCol(const DenseMatrix<ElementType>& InputMatrix)
+{
+    DenseMatrix<ElementType> tempMatrix;
+
+    auto InputSize = InputMatrix.GetSize();
+
+    if (InputSize.RowNumber <= 0)
+    {
+        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMeanToCol(InputMatrix)" << '\n';
+
+        return tempMatrix;
+    }
+
+    tempMatrix.Resize(InputSize.ColNumber, 1);
+
+    auto tempRawPointer = tempMatrix.GetElementPointer();
+
+    auto RawPointer = InputMatrix.GetElementPointer();
+
+    for (int64 i = 0; i < InputSize.RowNumber; ++i)
+    {
+        auto value = RawPointer[0];
+
+        int64 Index = InputSize.RowNumber;
+
+        for (int64 j = 1; j < InputSize.ColNumber; ++j)
+        {
+            value += RawPointer[Index + i];
+
+            Index += InputSize.RowNumber;
+        }
+
+        tempRawPointer[i] = value / InputSize.ColNumber;
+    }
+
+    return tempMatrix;
+}
+
+
+template<typename ElementType>
+inline
+ElementType MatrixMax(const DenseMatrix<ElementType>& InputMatrix)
+{
+    auto Input_ElementNumber = InputMatrix.GetElementNumber();
+
+    if (Input_ElementNumber <= 0)
+    {
+        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMax(InputMatrix)" << '\n';
+        return InputMatrix.GetNaNElement();
+    }
+
+    auto RawPointer = InputMatrix.GetElementPointer();
+
+    ElementType value = RawPointer[0];
+
+    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Input_ElementNumber; ++Ptr)
+    {
+        value = std::max(value, Ptr[0]);
+    }
+
+    return value;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixMaxToRow(const DenseMatrix<ElementType>& InputMatrix)
+{
+    DenseMatrix<ElementType> tempMatrix;
+
+    auto InputSize = InputMatrix.GetSize();
+
+    if (InputSize.RowNumber <= 0)
+    {
+        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMaxToRow(InputMatrix)" << '\n';
+
+        return tempMatrix;
+    }
+
+    tempMatrix.Resize(1, InputSize.ColNumber);
+
+    auto tempRawPointer = tempMatrix.GetElementPointer();
+
+    auto RawPointer = InputMatrix.GetElementPointer();
+
+    for (int64 j = 0; j < InputSize.ColNumber; ++j)
+    {
+        auto value = RawPointer[0];
+
+        ++RawPointer;
+
+        for (int64 i = 1; i < InputSize.RowNumber; ++i)
+        {
+            value = std::max(value, RawPointer[0]);
+
+            ++RawPointer;
+        }
+
+        tempRawPointer[j] = value;
+    }
+
+    return tempMatrix;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixMaxToCol(const DenseMatrix<ElementType>& InputMatrix)
+{
+    DenseMatrix<ElementType> tempMatrix;
+
+    auto InputSize = InputMatrix.GetSize();
+
+    if (InputSize.RowNumber <= 0)
+    {
+        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMaxToCol(InputMatrix)" << '\n';
+
+        return tempMatrix;
+    }
+
+    tempMatrix.Resize(InputSize.ColNumber, 1);
+
+    auto tempRawPointer = tempMatrix.GetElementPointer();
+
+    auto RawPointer = InputMatrix.GetElementPointer();
+
+    for (int64 i = 0; i < InputSize.RowNumber; ++i)
+    {
+        auto value = RawPointer[i];
+
+        auto Index = InputSize.RowNumber;
+
+        for (int64 j = 1; j < InputSize.ColNumber; ++j)
+        {
+            value = std::max(value, RawPointer[Index + i]);
+
+            Index += InputSize.RowNumber;
+        }
+
+        tempRawPointer[i] = value;
+    }
+
+    return tempMatrix;
+}
+
+
+template<typename ElementType>
+inline
+ElementType MatrixMin(const DenseMatrix<ElementType>& InputMatrix)
+{
+    auto Input_ElementNumber = InputMatrix.GetElementNumber();
+
+    if (Input_ElementNumber <= 0)
+    {
+        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMin(InputMatrix)" << '\n';
+        return InputMatrix.GetNaNElement();
+    }
+
+    auto RawPointer = InputMatrix.GetElementPointer();
+
+    ElementType value = RawPointer[0];
+
+    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Input_ElementNumber; ++Ptr)
+    {
+        value = std::min(value, Ptr[0]);
+    }
+
+    return value;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixMinToRow(const DenseMatrix<ElementType>& InputMatrix)
+{
+    DenseMatrix<ElementType> tempMatrix;
+
+    auto InputSize = InputMatrix.GetSize();
+
+    if (InputSize.RowNumber <= 0)
+    {
+        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMinToRow(InputMatrix)" << '\n';
+
+        return tempMatrix;
+    }
+
+    tempMatrix.Resize(1, InputSize.ColNumber);
+
+    auto tempRawPointer = tempMatrix.GetElementPointer();
+
+    auto RawPointer = InputMatrix.GetElementPointer();
+
+    for (int64 j = 0; j < InputSize.ColNumber; ++j)
+    {
+        auto value = RawPointer[0];
+
+        ++RawPointer;
+
+        for (int64 i = 1; i < InputSize.RowNumber; ++i)
+        {
+            value = std::min(value, RawPointer[0]);
+
+            ++RawPointer;
+        }
+
+        tempRawPointer[j] = value;
+    }
+
+    return tempMatrix;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixMinToCol(const DenseMatrix<ElementType>& InputMatrix)
+{
+    DenseMatrix<ElementType> tempMatrix;
+
+    auto InputSize = InputMatrix.GetSize();
+
+    if (InputSize.RowNumber <= 0)
+    {
+        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMinToCol(InputMatrix)" << '\n';
+
+        return tempMatrix;
+    }
+
+    tempMatrix.Resize(InputSize.ColNumber, 1);
+
+    auto tempRawPointer = tempMatrix.GetElementPointer();
+
+    auto RawPointer = InputMatrix.GetElementPointer();
+
+    for (int64 i = 0; i < InputSize.RowNumber; ++i)
+    {
+        auto value = RawPointer[i];
+
+        auto Index = InputSize.RowNumber;
+
+        for (int64 j = 1; j < InputSize.ColNumber; ++j)
+        {
+            value = std::min(value, RawPointer[Index + i]);
+
+            Index += InputSize.RowNumber;
+        }
+
+        tempRawPointer[i] = value;
+    }
+
+    return tempMatrix;
+}
+
+
+template<typename ElementType>
+inline
+ElementType MatrixSum(const DenseMatrix<ElementType>& InputMatrix)
+{
+    auto Input_ElementNumber = InputMatrix.GetElementNumber();
+
+    if (Input_ElementNumber <= 0)
+    {
+        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSum(InputMatrix)" << '\n';
+        return InputMatrix.GetNaNElement();
+    }
+
+    auto RawPointer = InputMatrix.GetElementPointer();
+
+    ElementType value = RawPointer[0];
+
+    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Input_ElementNumber; ++Ptr)
+    {
+        value += Ptr[0];
+    }
+
+    return value;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixSumToRow(const DenseMatrix<ElementType>& InputMatrix)
+{
+    DenseMatrix<ElementType> tempMatrix;
+
+    auto InputSize = InputMatrix.GetSize();
+
+    if (InputSize.RowNumber <= 0)
+    {
+        MDK_Error << "InputMatrix is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSumToRow(InputMatrix)" << '\n';
+
+        return tempMatrix;
+    }
+
+    tempMatrix.Resize(1, InputSize.ColNumber);
+
+    auto tempRawPointer = tempMatrix.GetElementPointer();
+
+    auto RawPointer = InputMatrix.GetElementPointer();
+
+    for (int64 j = 0; j < InputSize.ColNumber; ++j)
+    {
+        auto value = RawPointer[0];
+
+        ++RawPointer;
+
+        for (int64 i = 1; i < InputSize.RowNumber; ++i)
+        {
+            value += RawPointer[0];
+
+            ++RawPointer;
+        }
+
+        tempRawPointer[j] = value;
+    }
+
+    return tempMatrix;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixSumToCol(const DenseMatrix<ElementType>& InputMatrix)
+{
+    DenseMatrix<ElementType> tempMatrix;
+
+    auto InputSize = InputMatrix.GetSize();
+
+    if (InputSize.RowNumber <= 0)
+    {
+        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSumToCol(InputMatrix)" << '\n';
+
+        return tempMatrix;
+    }
+
+    tempMatrix.Resize(InputSize.RowNumber, 1);
+
+    auto tempRawPointer = tempMatrix.GetElementPointer();
+
+    auto RawPointer = InputMatrix.GetElementPointer();
+
+    for (int64 i = 0; i < InputSize.RowNumber; ++i)
+    {
+        auto value = RawPointer[i];
+
+        int64 Index = InputSize.RowNumber;
+
+        for (int64 j = 1; j < InputSize.ColNumber; ++j)
+        {
+            value += RawPointer[Index + i];
+
+            Index += InputSize.RowNumber;
+        }
+
+        tempRawPointer[i] = value;
+    }
+
+    return tempMatrix;
+}
+
+
+//===================================================================================================================================//
+
 template<typename ElementType>
 inline
 ElementType MatrixNorm_L1(const DenseMatrix<ElementType>& InputMatrix)

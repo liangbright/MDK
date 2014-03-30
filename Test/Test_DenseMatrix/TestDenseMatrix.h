@@ -1636,7 +1636,7 @@ void Test_GlueMatrix_Speed2()
     {
         //D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
 
-        D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
+        D = D + 1.0*A + 2.0*B +3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
     }
 
     t1 = std::chrono::system_clock::now();
@@ -1671,7 +1671,7 @@ void Test_GlueMatrix_Speed2()
 
     for (int64 i = 0; i < TotalLoopNumber; ++i)
     {
-        Dm += 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m +5.0*Dm + 6.0*Dm;
+        Dm += 1.0*Am + 2.0*Bm +3.0*Cm + 4.0*C2m + 5.0*Dm + 6.0*Dm;
     }
 
     t1 = std::chrono::system_clock::now();
@@ -1685,7 +1685,7 @@ void Test_GlueMatrix_Speed2()
 
     for (int64 i = 0; i < TotalLoopNumber; ++i)
     {
-        Dm = Dm + 1.0*Am + 2.0*Bm + 3.0*Cm + 4.0*C2m + 5.0*Dm + 6.0*Dm;
+        Dm = Dm + 1.0*Am + 2.0*Bm +3.0*Cm + 4.0*C2m + 5.0*Dm + 6.0*Dm;
     }
 
     t1 = std::chrono::system_clock::now();

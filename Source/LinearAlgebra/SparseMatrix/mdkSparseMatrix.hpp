@@ -31,13 +31,17 @@ inline
 void
 SparseMatrixDataInCSCFormat<ElementType>::Construct(int64 InputRowNumber, int64 InputColNumber)
 {
-    this->Clear();
-
     //----------------------------------------------------------
 
     m_RowNumber = InputRowNumber;
 
     m_ColNumber = InputColNumber;
+
+    m_RowIndexList.resize(0);
+
+    m_ColIndexList.resize(0);
+
+    m_DataArray.resize(0);
 
     m_RecordedElementNumberInEachCol.resize(InputColNumber);
 
@@ -68,8 +72,6 @@ SparseMatrixDataInCSCFormat<ElementType>::Construct(const int64* InputRowIndexLi
                                                        int64 InputColNumber,
                                                        int64 AdditionalReservedCapacity = 0)
 {
-    this->Clear();
-
     //--------------------------------------------------------------
 
     m_RowNumber = InputRowNumber;
@@ -80,9 +82,15 @@ SparseMatrixDataInCSCFormat<ElementType>::Construct(const int64* InputRowIndexLi
 
     m_RowIndexList.reserve(RecordedElementNumber + AdditionalReservedCapacity);
 
+    m_RowIndexList.resize(0);
+
     m_ColIndexList.reserve(RecordedElementNumber + AdditionalReservedCapacity);
 
+    m_ColIndexList.resize(0);
+
     m_DataArray.reserve(RecordedElementNumber + AdditionalReservedCapacity);
+
+    m_DataArray.resize(0);
 
     //--------------------------------------------------------------
 
@@ -215,6 +223,8 @@ void SparseMatrixDataInCSCFormat<ElementType>::Clear()
     m_DataArray.clear();
 
     m_ZeroElement = m_ZeroElement - m_ZeroElement;
+
+    m_IsSizeFixed = false;
 }
 
 
@@ -375,6 +385,14 @@ void SparseMatrixDataInCSCFormat<ElementType>::Resize(int64 InputRowNumber, int6
 
     this->Construct(newRowIndexList.data(), newColIndexList.data(), newDataArray.data(), int64(newDataArray.size()), InputRowNumber, InputColNumber);
    
+}
+
+
+template<typename ElementType>
+inline
+void SparseMatrixDataInCSCFormat<ElementType>::FastResize(int64 InputRowNumber, int64 InputColNumber)
+{
+    this->Construct(InputRowNumber, InputColNumber);
 }
 
 
@@ -700,8 +718,6 @@ template<typename ElementType>
 inline
 SparseMatrix<ElementType>::SparseMatrix()
 {
-    m_IsSizeFixed = false;
-
     this->Resize(0, 0);
 }
 
@@ -710,8 +726,6 @@ template<typename ElementType>
 inline
 SparseMatrix<ElementType>::SparseMatrix(int64 RowNumber, int64 ColNumber)
 {
-    m_IsSizeFixed = false;
-
     this->Resize(RowNumber, ColNumber);
 }
 
@@ -720,8 +734,6 @@ template<typename ElementType>
 inline
 SparseMatrix<ElementType>::SparseMatrix(const ElementType& Element)
 {
-    m_IsSizeFixed = false;
-
     this->Resize(1, 1);
 
     (*this)(0) = Element;
@@ -733,8 +745,6 @@ inline
 SparseMatrix<ElementType>::SparseMatrix(const SparseMatrix<ElementType>& InputMatrix, 
                                         ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy)
 {
-    m_IsSizeFixed = false;
-
     if (Method == mdkObjectConstructionTypeEnum::Copy)
     {
         this->Resize(0, 0);
@@ -743,7 +753,7 @@ SparseMatrix<ElementType>::SparseMatrix(const SparseMatrix<ElementType>& InputMa
     }
     else
     {
-        this->Share(InputMatrix);
+        this->ForceShare(InputMatrix);
     }
 }
 
@@ -756,8 +766,6 @@ SparseMatrix<ElementType>::SparseMatrix(SparseMatrix<ElementType>&& InputMatrix)
     m_MatrixData = std::move(InputMatrix.m_MatrixData);
 
     m_NaNElement = InputMatrix.m_NaNElement;
-
-    m_IsSizeFixed = InputMatrix.m_IsSizeFixed;
 }
 
 
@@ -892,7 +900,7 @@ void SparseMatrix<ElementType>::operator=(const ElementType& Element)
 {
     auto ElementNumber = this->GetElementNumber();
 
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         if (ElementNumber <= 0)
         {
@@ -1066,7 +1074,7 @@ bool SparseMatrix<ElementType>::Copy(const SparseMatrix<ElementType_Input>& Inpu
 
     auto InputSize = InputMatrix.GetSize();
 
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         auto SelfSize = this->GetSize();
 
@@ -1105,7 +1113,7 @@ bool SparseMatrix<ElementType>::Share(SparseMatrix<ElementType>& InputMatrix)
 
     auto SelfSize = this->GetSize();
 
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
@@ -1116,6 +1124,8 @@ bool SparseMatrix<ElementType>::Share(SparseMatrix<ElementType>& InputMatrix)
 
     m_MatrixData = InputMatrix.m_MatrixData; // std::SharedCopy_ptr
 
+    m_NaNElement = InputMatrix.m_NaNElement;
+
     return true;
 }
 
@@ -1124,7 +1134,32 @@ template<typename ElementType>
 inline
 void SparseMatrix<ElementType>::ForceShare(const SparseMatrix<ElementType>& InputMatrix)
 {
+    // Matrix = Matrix
+    if (this == &InputMatrix)
+    {
+        MDK_Warning << "A Matrix tries to ForceShare itself @ SparseMatrix::ForceShare(InputMatrix)" << '\n';
+        return;
+    }
+
     m_MatrixData = InputMatrix.m_MatrixData; // std::SharedCopy_ptr
+
+    m_NaNElement = InputMatrix.m_NaNElement;
+}
+
+
+template<typename ElementType>
+inline
+bool SparseMatrix<ElementType>::ForceShare(const SparseMatrix<ElementType>* InputMatrix)
+{
+    if (InputMatrix == nullptr)
+    {
+        MDK_Error << "Input is nullptr @ SparseMatrix::ForceShare(const SparseMatrix<ElementType>* InputMatrix)" << '\n';
+        return false;
+    }
+
+    this->ForceShare(*InputMatrix);
+
+    return true;
 }
 
 
@@ -1143,7 +1178,7 @@ bool SparseMatrix<ElementType>::Take(SparseMatrix<ElementType>& InputMatrix)
 
     auto SelfSize = this->GetSize();
 
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
@@ -1202,7 +1237,7 @@ bool SparseMatrix<ElementType>::Take(const SparseShadowMatrix<ElementType>& Shad
     }
     else
     {
-        if (m_IsSizeFixed == true)
+        if (this->IsSizeFixed() == true)
         {
             MDK_Error << "Size does not match @ SparseMatrix::Take(ShadowMatrix)" << '\n';
             return false;
@@ -1229,7 +1264,7 @@ bool SparseMatrix<ElementType>::Take(const SparseGlueMatrixForLinearCombination<
     }
     else
     {
-        if (m_IsSizeFixed == true)
+        if (this->IsSizeFixed() == true)
         {
             MDK_Error << "Size does not match @ SparseMatrix::Take(SparseGlueMatrix_ForLinearCombination)" << '\n';
             return false;
@@ -1256,7 +1291,7 @@ bool SparseMatrix<ElementType>::Take(const SparseGlueMatrixForMultiplication<Ele
     }
     else
     {
-        if (m_IsSizeFixed == true)
+        if (this->IsSizeFixed() == true)
         {
             MDK_Error << "Size does not match @ SparseMatrix::Take(SparseGlueMatrix_ForMultiplication)" << '\n';
             return false;
@@ -1281,7 +1316,7 @@ template<typename ElementType>
 inline
 bool SparseMatrix<ElementType>::Reshape(int64 InputRowNumber, int64 InputColNumber)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Matrix size can not be changed @ SparseMatrix::Reshape()" << '\n';
         return false;
@@ -1312,19 +1347,6 @@ template<typename ElementType>
 inline 
 bool SparseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumber)
 {
-    if (m_IsSizeFixed == true)
-    {
-        MDK_Error << "Matrix Size can not be changed @ SparseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    if (InputRowNumber == SelfSize.RowNumber && InputColNumber == SelfSize.ColNumber)
-    {        
-        return true;
-    }
-
     if (InputRowNumber < 0 || InputColNumber < 0)
     {
         MDK_Error << "Invalid Input: negtive @ SparseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
@@ -1338,6 +1360,21 @@ bool SparseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumbe
 
         m_NaNElement = GetMatrixNaNElement(m_NaNElement);
     }
+    //-----------------------------------------------------------------------------------
+
+    if (this->IsSizeFixed() == true)
+    {
+        MDK_Error << "Matrix Size can not be changed @ SparseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
+        return false;
+    }
+
+    auto SelfSize = this->GetSize();
+
+    if (InputRowNumber == SelfSize.RowNumber && InputColNumber == SelfSize.ColNumber)
+    {        
+        return true;
+    }
+
     //-----------------------------------------------------------------------------------
 
     if (InputRowNumber == 0 || InputColNumber == 0)
@@ -1362,10 +1399,48 @@ bool SparseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumbe
 
 
 template<typename ElementType>
+inline
+bool SparseMatrix<ElementType>::FastResize(int64 InputRowNumber, int64 InputColNumber)
+{
+    if (this->IsSizeFixed() == true)
+    {
+        MDK_Error << "Matrix Size can not be changed @ SparseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
+        return false;
+    }
+
+    auto SelfSize = this->GetSize();
+
+    if (InputRowNumber == SelfSize.RowNumber && InputColNumber == SelfSize.ColNumber)
+    {
+        return true;
+    }
+
+    if (InputRowNumber < 0 || InputColNumber < 0)
+    {
+        MDK_Error << "Invalid Input: negtive @ SparseMatrix::Resize(int64 RowNumber, int64 ColNumber)" << '\n';
+        return false;
+    }
+
+    //--------initialize the matrix ----------------------------------------------------
+    if (!m_MatrixData)
+    {
+        m_MatrixData = std::make_shared<SparseMatrixDataInCSCFormat<ElementType>>();
+
+        m_NaNElement = GetMatrixNaNElement(m_NaNElement);
+    }
+    //-----------------------------------------------------------------------------------
+
+    m_MatrixData->FastResize(InputRowNumber, InputColNumber);
+
+    return true;
+}
+
+
+template<typename ElementType>
 inline 
 void SparseMatrix<ElementType>::FixSize()
 {
-    m_IsSizeFixed = true;
+    m_MatrixData->m_IsSizeFixed = true;
 
     m_MatrixData->m_DataArray.shrink_to_fit();
 }
@@ -1375,7 +1450,7 @@ template<typename ElementType>
 inline
 bool SparseMatrix<ElementType>::IsSizeFixed() const
 {
-    return m_IsSizeFixed;
+    return m_MatrixData->m_IsSizeFixed;
 }
 
 
@@ -3199,7 +3274,7 @@ template<typename ElementType_Input>
 inline
 bool SparseMatrix<ElementType>::AppendCol(const SparseMatrix<ElementType_Input>& ColData)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Matrix Size can not change @ SparseMatrix::AppendCol(const mdkSparseMatrix<ElementType_Input>& ColData)" << '\n';
         return false;
@@ -3231,7 +3306,7 @@ template<typename ElementType_Input>
 inline 
 bool SparseMatrix<ElementType>::AppendCol(const std::initializer_list<ElementType_Input>& ColData)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Matrix Size can not change @ SparseMatrix::AppendCol(const std::initializer_list<ElementType_Input>& ColData)" << '\n';
         return false;
@@ -3263,7 +3338,7 @@ template<typename ElementType_Input>
 inline
 bool SparseMatrix<ElementType>::AppendCol(const std::vector<ElementType_Input>& ColData)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Matrix Size can not change @ SparseMatrix::AppendCol(const std::vector<ElementType_Input>& ColData)" << '\n';
         return false;
@@ -3295,7 +3370,7 @@ template<typename ElementType_Input>
 inline 
 bool SparseMatrix<ElementType>::AppendCol(const ElementType_Input* ColData, int64 Length)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Matrix Size can not change @ SparseMatrix::AppendCol(const ElementType_Input* ColData, int64 Length)" << '\n';
         return false;
@@ -3326,7 +3401,7 @@ template<typename ElementType>
 inline 
 bool SparseMatrix<ElementType>::DeleteCol(int64 ColIndex)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Matrix Size can not change @ SparseMatrix::DeleteCol(int64 ColIndex)" << '\n';
         return false;
@@ -3355,7 +3430,7 @@ template<typename ElementType>
 inline
 bool SparseMatrix<ElementType>::DeleteCol(std::initializer_list<int64>& ColIndexList)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Matrix Size can not change @ SparseMatrix::DeleteCol(std::initializer_list<int64>& ColIndexList)" << '\n';
         return false;
@@ -3386,7 +3461,7 @@ template<typename ElementType>
 inline
 bool SparseMatrix<ElementType>::DeleteCol(const std::vector<int64>& ColIndexList)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Matrix Size can not change @ SparseMatrix::DeleteCol(const std::vector<int64>& ColIndexList)" << '\n';
         return false;
@@ -3417,7 +3492,7 @@ template<typename ElementType>
 inline
 bool SparseMatrix<ElementType>::DeleteCol(const int64* ColIndexListPtr, int64 Length)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Matrix Size can not change @ SparseMatrix::DeleteCol(const int64* ColIndexPtr, int64 Length)" << '\n';
         return false;
@@ -3479,7 +3554,7 @@ template<typename ElementType_Input>
 inline
 bool SparseMatrix<ElementType>::InsertCol(int64 ColIndex, const SparseMatrix<ElementType_Input>& ColData)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Matrix Size can not change @ SparseMatrix::InsertCol(ColIndex, mdkSparseMatrix)" << '\n';
         return false;
@@ -3541,7 +3616,7 @@ template<typename ElementType_Input>
 inline
 bool SparseMatrix<ElementType>::InsertCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Matrix Size can not change @ SparseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int64 Length)" << '\n';
         return false;
@@ -3805,7 +3880,7 @@ template<typename ElementType_Input>
 inline 
 bool SparseMatrix<ElementType>::AppendRow(const SparseMatrix<ElementType_Input>& RowData)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Size can not change @ SparseMatrix::AppendRow(const mdkSparseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
@@ -3837,7 +3912,7 @@ template<typename ElementType_Input>
 inline
 bool  SparseMatrix<ElementType>::AppendRow(const std::initializer_list<ElementType_Input>& RowData)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Size can not change @ SparseMatrix::AppendRow(const std::initializer_list<ElementType_Input>& RowData)" << '\n';
         return false;
@@ -3869,7 +3944,7 @@ template<typename ElementType_Input>
 inline
 bool  SparseMatrix<ElementType>::AppendRow(const std::vector<ElementType_Input>& RowData)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Size can not change @ SparseMatrix::AppendRow(const std::vector<ElementType_Input>& RowData)" << '\n';
         return false;
@@ -3901,7 +3976,7 @@ template<typename ElementType_Input>
 inline
 bool SparseMatrix<ElementType>::AppendRow(const ElementType_Input* RowData, int64 Length)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Size can not change @ SparseMatrix::AppendRow(const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;
@@ -3932,7 +4007,7 @@ template<typename ElementType>
 inline
 bool SparseMatrix<ElementType>::DeleteRow(int64 RowIndex)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Size can not change @ SparseMatrix::DeleteRow(int64 RowIndex)" << '\n';
         return false;
@@ -3954,7 +4029,7 @@ template<typename ElementType>
 inline
 bool SparseMatrix<ElementType>::DeleteRow(const std::vector<int64>& RowIndexList)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Size can not change @ SparseMatrix::DeleteRow(const std::vector<int64>& RowIndexList)" << '\n';
         return false;
@@ -3979,7 +4054,7 @@ template<typename ElementType>
 inline
 bool SparseMatrix<ElementType>::DeleteRow(const int64* RowIndexListPtr, int64 Length)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Size can not change @ SparseMatrix::DeleteRow(const int64* RowIndexPtr, int64 Length)" << '\n';
         return false;
@@ -4033,7 +4108,7 @@ template<typename ElementType_Input>
 inline
 bool SparseMatrix<ElementType>::InsertRow(int64 RowIndex, const SparseMatrix<ElementType_Input>& RowData)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Size can not change @ SparseMatrix::InsertRow(int64 RowIndex, const mdkSparseMatrix<ElementType_Input>& RowData)" << '\n';
         return false;
@@ -4094,7 +4169,7 @@ template<typename ElementType_Input>
 inline
 bool SparseMatrix<ElementType>::InsertRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length)
 {
-    if (m_IsSizeFixed == true)
+    if (this->IsSizeFixed() == true)
     {
         MDK_Error << "Size can not change @ SparseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int64 Length)" << '\n';
         return false;

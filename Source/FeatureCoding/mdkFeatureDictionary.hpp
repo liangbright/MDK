@@ -165,14 +165,14 @@ void FeatureDictionary<ElementType>::Clear()
 
 
 template<typename ElementType>
-bool FeatureDictionary<ElementType>::IsEmpty()
+bool FeatureDictionary<ElementType>::IsEmpty() const
 {
     return m_Record.IsEmpty();
 }
 
 
 template<typename ElementType>
-MatrixSize FeatureDictionary<ElementType>::GetSize()
+MatrixSize FeatureDictionary<ElementType>::GetSize() const
 {
     return m_Record.GetSize();
 }
@@ -185,7 +185,7 @@ bool FeatureDictionary<ElementType>::Load(const std::string& FilePathAndName)
 
 
 template<typename ElementType>
-bool FeatureDictionary<ElementType>::Save(const std::string& FilePathAndName)
+bool FeatureDictionary<ElementType>::Save(const std::string& FilePathAndName) const
 {
     return true;
 }

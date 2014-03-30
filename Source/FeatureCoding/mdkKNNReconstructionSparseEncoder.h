@@ -51,7 +51,7 @@ protected:
 
     bool CheckInputAndOutput();
 
-    bool EncodingFunction(int64 IndexOfFeatureVector);
+    void EncodingFunction(int64 IndexOfFeatureVector);
 
 private:
 //deleted:

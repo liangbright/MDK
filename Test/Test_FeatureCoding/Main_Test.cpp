@@ -9,9 +9,15 @@ using namespace mdk;
 int main()
 {
    
-    Test_OpenCVMatrix();
+    //Test_OpenCVMatrix();
 
-    Test_mdkKMeansDictionaryBuilder_using_OpenCV();
+    //Test_KMeansDictionaryBuilder_using_OpenCV();
+
+   // Test_FeatureCodeInCompactFormat();
+
+    Test_FindKNNByDistanceList();
+
+   // Test_KNNReconstructionSparseEncoder();
 
     std::system("pause");
 

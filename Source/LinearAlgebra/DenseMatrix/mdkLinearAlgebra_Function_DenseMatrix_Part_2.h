@@ -25,6 +25,57 @@ class DenseMatrix;
 
 template<typename ElementType>
 inline
+ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix);
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixMeanToRow(const DenseMatrix<ElementType>& InputMatrix);
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixMeanToCol(const DenseMatrix<ElementType>& InputMatrix);
+
+template<typename ElementType>
+inline
+ElementType MatrixMax(const DenseMatrix<ElementType>& InputMatrix);
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixMaxToRow(const DenseMatrix<ElementType>& InputMatrix);
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixMaxToCol(const DenseMatrix<ElementType>& InputMatrix);
+
+template<typename ElementType>
+inline
+ElementType MatrixMin(const DenseMatrix<ElementType>& InputMatrix);
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixMinToRow(const DenseMatrix<ElementType>& InputMatrix);
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixMinToCol(const DenseMatrix<ElementType>& InputMatrix);
+
+
+template<typename ElementType>
+inline
+ElementType MatrixSum(const DenseMatrix<ElementType>& InputMatrix);
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixSumToRow(const DenseMatrix<ElementType>& InputMatrix);
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixSumToCol(const DenseMatrix<ElementType>& InputMatrix);
+
+//-----------------------------------------------------------------------------------------------//
+
+template<typename ElementType>
+inline
 ElementType MatrixNorm_L1(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>

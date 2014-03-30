@@ -50,12 +50,14 @@ struct SparseMatrixDataInCSCFormat
 
     ElementType m_ZeroElement;
 
+    bool m_IsSizeFixed;
+
 //-------------------------------------------------------------------------------------------------
     inline SparseMatrixDataInCSCFormat();
 
     inline ~SparseMatrixDataInCSCFormat();
 
-    inline void Construct(int64 InputRowNumber, int64 InputColNumber);
+    inline void Construct(int64 InputRowNumber, int64 InputColNumber); // all zero
 
     inline void Construct(const int64* InputRowIndexList,
                           const int64* InputColIndexList,
@@ -70,6 +72,8 @@ struct SparseMatrixDataInCSCFormat
     inline void Clear();
 
     inline void Resize(int64 InputRowNumber, int64 InputColNumber);
+
+    inline void FastResize(int64 InputRowNumber, int64 InputColNumber);
 
     //------------------------------------------
     // note 1: [] and () have no bound check in release mode
@@ -140,8 +144,6 @@ private:
 
     ElementType m_NaNElement;
 
-	bool m_IsSizeFixed;
-
 public:
     typedef ElementType  ElementType;
 
@@ -153,6 +155,10 @@ public:
     inline SparseMatrix(int64 RowNumber, int64 ColNumber);
 
     inline SparseMatrix(const ElementType& Element);
+
+    inline SparseMatrix(const std::initializer_list<ElementType>& InputList);
+
+    inline SparseMatrix(const std::initializer_list<std::initializer_list<ElementType>>& InputListInList);
 
     // copy constructor (Copy or Share)
     inline SparseMatrix(const SparseMatrix<ElementType>& InputSparseMatrix, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
@@ -211,9 +217,9 @@ public:
 
     inline void operator=(const ElementType& Element);
 
-    inline void operator=(const std::initializer_list<ElementType>& list);
+    inline void operator=(const std::initializer_list<ElementType>& InputList);
 
-    inline void operator=(const std::initializer_list<std::initializer_list<ElementType>>& list);
+    inline void operator=(const std::initializer_list<std::initializer_list<ElementType>>& InputListInList);
 
     inline void operator=(const SparseShadowMatrix<ElementType>& ShadowMatrix);
 
@@ -239,13 +245,19 @@ public:
     //
     inline bool Share(SparseMatrix<ElementType>& InputMatrix);
 
-    // it is used by SparseGlueMatrix
+    inline bool Share(SparseMatrix<ElementType>* InputMatrix);
+
     // Share the object (InputSparseMatrix) no matter what, even if InputSparseMatrix is const
+    //
     inline void ForceShare(const SparseMatrix<ElementType>& InputMatrix);
+
+    inline bool ForceShare(const SparseMatrix<ElementType>* InputMatrix);
 
     //-------------------- Take -----------------------------------------------------------//
 
     //Take the the ownership of the InputSparseMatrix and ForceClear it
+
+    inline bool Take(SparseMatrix<ElementType>* InputMatrix);
 
     inline bool Take(SparseMatrix<ElementType>& InputMatrix);
 
@@ -259,11 +271,6 @@ public:
 
     inline bool Take(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    //------------------------- Reset , Clear -------------------------------------------//
-private:    
-    // set the initial state, use it in constructor, do more things than Clear()
-    inline void Reset();
-
 public:
     // clear memory no matter what, and set m_IsSizeFixed to be false
     inline void Clear();
@@ -274,11 +281,15 @@ public:
 
     inline bool Resize(int64 InputRowNumber, int64 InputColNumber);
 
+    inline bool FastResize(int64 InputRowNumber, int64 InputColNumber);
+
     inline void FixSize();
     
     inline bool IsSizeFixed() const;
 
     inline bool IsEmpty() const;
+
+    inline bool IsPureEmpty() const;
 
 	inline MatrixSize GetSize() const;
 
