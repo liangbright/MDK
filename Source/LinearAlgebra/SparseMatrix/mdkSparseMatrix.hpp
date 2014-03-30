@@ -80,17 +80,17 @@ SparseMatrixDataInCSCFormat<ElementType>::Construct(const int64* InputRowIndexLi
 
     //--------------------------------------------------------------
 
-    m_RowIndexList.reserve(RecordedElementNumber + AdditionalReservedCapacity);
-
     m_RowIndexList.resize(0);
 
-    m_ColIndexList.reserve(RecordedElementNumber + AdditionalReservedCapacity);
+    m_RowIndexList.reserve(RecordedElementNumber + AdditionalReservedCapacity);
 
     m_ColIndexList.resize(0);
 
-    m_DataArray.reserve(RecordedElementNumber + AdditionalReservedCapacity);
+    m_ColIndexList.reserve(RecordedElementNumber + AdditionalReservedCapacity);
 
     m_DataArray.resize(0);
+
+    m_DataArray.reserve(RecordedElementNumber + AdditionalReservedCapacity);
 
     //--------------------------------------------------------------
 
@@ -1379,7 +1379,7 @@ bool SparseMatrix<ElementType>::Resize(int64 InputRowNumber, int64 InputColNumbe
 
     if (InputRowNumber == 0 || InputColNumber == 0)
     {
-        this->Clear();
+        m_MatrixData->Construct(InputRowNumber, InputColNumber);
 
         return true;
     }
