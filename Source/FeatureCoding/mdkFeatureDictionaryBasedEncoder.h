@@ -15,12 +15,12 @@ protected:
 
     bool m_IsDenseEncoder;
     
-public:
 
+protected:
     FeatureDictionaryBasedEncoder();
-
     ~FeatureDictionaryBasedEncoder();
 
+public:
     //-----------------------------------------
 
     bool IsDenseEncoder();

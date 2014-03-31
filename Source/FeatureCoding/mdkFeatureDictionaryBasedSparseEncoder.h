@@ -82,11 +82,11 @@ private:
 
     std::atomic<bool> m_Flag_FeatureCodeInSparseFormat_Is_Updated;
 
-public:
-
+protected:
     FeatureDictionaryBasedSparseEncoder();
 
-    ~FeatureDictionaryBasedSparseEncoder();
+public:
+    virtual ~FeatureDictionaryBasedSparseEncoder();
 
     //-----------------------------------------
 

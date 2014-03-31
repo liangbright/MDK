@@ -30,11 +30,12 @@ protected:
 
     DenseMatrix<ElementType> m_FeatureCode_SharedCopy;
 
-public:
 
+protected:
     FeatureDictionaryBasedDenseEncoder();
 
-    ~FeatureDictionaryBasedDenseEncoder();
+public:
+    virtual ~FeatureDictionaryBasedDenseEncoder();
 
     //-----------------------------------------
 

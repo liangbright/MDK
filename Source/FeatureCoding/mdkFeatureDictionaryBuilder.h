@@ -24,11 +24,11 @@ protected:
 
     FeatureDictionary<ElementType>  m_Dictionary_SharedCopy;
 
-public:
-
+protected:
     FeatureDictionaryBuilder();
-
     ~FeatureDictionaryBuilder();
+
+public:
 
     //---------------------------------------------------//
 
