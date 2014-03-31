@@ -15,7 +15,7 @@ bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementTyp
 
     if (InputSize.RowNumber != 1 && InputSize.ColNumber != 1) // not a none-empty vector
     {
-        MDK_Error << "Invalid InputDataArray @mdkLinearAlgebra Sort(input is Matrix)" << '\n';
+        MDK_Error("Invalid InputDataArray @mdkLinearAlgebra Sort(input is Matrix)")
         return false;
     }
 
@@ -26,7 +26,7 @@ bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementTyp
     {
         if (OutputDataArray.IsSizeFixed() == true)
         {
-            MDK_Error << "Invalid OutputDataArray @mdkLinearAlgebra Sort(input is Matrix)" << '\n';
+            MDK_Error("Invalid OutputDataArray @mdkLinearAlgebra Sort(input is Matrix)")
             return false;
         }
         else
@@ -42,7 +42,7 @@ bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementTyp
     {
         if (OutputIndexList.IsSizeFixed() == true)
         {
-            MDK_Error << "Invalid OutputIndexList @mdkLinearAlgebra Sort(input is Matrix)" << '\n';
+            MDK_Error("Invalid OutputIndexList @mdkLinearAlgebra Sort(input is Matrix)")
             return false;
         }
         else
@@ -88,13 +88,13 @@ bool Sort(const ElementType* InputDataArray, int64 Length, ElementType* OutputDa
 {
     if (InputDataArray == nullptr || Length == 0 || OutputDataArray == nullptr || OutputIndexList == nullptr)
     {
-        MDK_Error << "Invalid input @mdkLinearAlgebra Sort(pointers)" << '\n';
+        MDK_Error("Invalid input @mdkLinearAlgebra Sort(pointers)")
         return false;
     }
 
     if (Order != "ascend" && Order != "descend")
     {
-        MDK_Error << " unknown  Order @mdkLinearAlgebra Sort(pointers)" << '\n';
+        MDK_Error(" unknown  Order @mdkLinearAlgebra Sort(pointers)")
         return false;
     }
 

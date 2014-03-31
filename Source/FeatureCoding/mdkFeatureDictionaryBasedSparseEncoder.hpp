@@ -58,7 +58,7 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetInputFeatureData(const
 {
     if (InputFeatureData == nullptr)
     {
-        MDK_Error << "Invalid input @ FeatureDictionaryBasedSparseEncoder::SetInputFeatureData(InputFeatureData)" << '\n';
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetInputFeatureData(InputFeatureData)")
         return false;
     }
 
@@ -73,7 +73,7 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetInputDictionary(const 
 {
     if (Dictionary == nullptr)
     {
-        MDK_Error << "Invalid input @ FeatureDictionaryBasedDenseEncoder::SetInputDictionary(Dictionary)" << '\n';
+        MDK_Error("Invalid input @ FeatureDictionaryBasedDenseEncoder::SetInputDictionary(Dictionary)")
         return false;
     }
 
@@ -88,7 +88,7 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCodeInCom
 {
     if (FeatureCode == nullptr)
     {
-        MDK_Error << "Invalid input @ FeatureDictionaryBasedSparseEncoder::GetOutputFeatureCodeInCompactFormat(FeatureCode)" << '\n';
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::GetOutputFeatureCodeInCompactFormat(FeatureCode)")
         return false;
     }
 
@@ -105,7 +105,7 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCodeInDen
 {
     if (FeatureCode == nullptr)
     {
-        MDK_Error << "Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputFeatureCodeInDenseFormat(FeatureCode)" << '\n';
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputFeatureCodeInDenseFormat(FeatureCode)")
         return false;
     }
 
@@ -131,7 +131,7 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCodeInSpa
 {
     if (FeatureCode == nullptr)
     {
-        MDK_Error << "Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputFeatureCodeInSparseFormat(FeatureCode)" << '\n';
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputFeatureCodeInSparseFormat(FeatureCode)")
         return false;
     }
 
@@ -150,7 +150,7 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetMaxNumberOfThreads(int
 {
     if (Number <= 0)
     {
-        MDK_Error << "Invalid input @ FeatureDictionaryBasedSparseEncoder::SetMaxNumberOfThreads(int64 Number)" << '\n';
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetMaxNumberOfThreads(int64 Number)")
 
         m_MaxNumberOfThreads = 1;
 
@@ -182,13 +182,13 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::CheckInputAndOutput()
 {
     if (m_FeatureData->IsEmpty() == true)
     {
-        MDK_Error << "Input FeatureData is empty @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()" << '\n';
+        MDK_Error("Input FeatureData is empty @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
         return false;
     }
 
     if (m_Dictionary->IsEmpty() == true)
     {
-        MDK_Error << "Input Dictionary is empty @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()" << '\n';
+        MDK_Error("Input Dictionary is empty @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
         return false;
     }
 
@@ -198,7 +198,7 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::CheckInputAndOutput()
 
     if (m_MaxNumberOfNonzeroElementsInEachCode <= 0 || m_MaxNumberOfNonzeroElementsInEachCode > FeatureCodeDimension)
     {
-        MDK_Error << "Input MaxNumberOfNonZeroElementsInEachCode is invalid @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()" << '\n';
+        MDK_Error("Input MaxNumberOfNonZeroElementsInEachCode is invalid @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
         return false;
     }
 
@@ -212,14 +212,14 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::CheckInputAndOutput()
         }
         else
         {
-            MDK_Error << "can not change the size of m_FeatureCodeInCompactFormat matrix @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()" << '\n';
+            MDK_Error("can not change the size of m_FeatureCodeInCompactFormat matrix @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
             return false;
         }
     }
 
     if (m_MaxNumberOfThreads <= 0)
     {
-        MDK_Warning << "Input MaxNumberOfThreads is invalid, set to 1 @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()" << '\n';
+        MDK_Warning("Input MaxNumberOfThreads is invalid, set to 1 @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
 
         m_MaxNumberOfThreads = 1;
     }
@@ -302,7 +302,7 @@ DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetO
             }
             else
             {
-                MDK_Error << "can not change the size of m_FeatureCodeInDenseFormat matrix @ mdkFeatureDictionaryBasedSparseEncoder::CheckInput()" << '\n';
+                MDK_Error("can not change the size of m_FeatureCodeInDenseFormat matrix @ mdkFeatureDictionaryBasedSparseEncoder::CheckInput()")
             }
         }       
     }
@@ -346,7 +346,7 @@ SparseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::Get
             }
             else
             {
-                MDK_Error << "can not change the size of m_FeatureCodeInSparseFormat matrix @ mdkFeatureDictionaryBasedSparseEncoder::CheckInput()" << '\n';
+                MDK_Error("can not change the size of m_FeatureCodeInSparseFormat matrix @ mdkFeatureDictionaryBasedSparseEncoder::CheckInput()")
             }
         }
     }

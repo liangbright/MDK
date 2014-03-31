@@ -132,7 +132,7 @@ bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatri
         }
         else
         {
-            MDK_Error << "Size does not match @ mdkDenseGlueMatrixForMultiplication::CreateDenseMatrix(OutputMatrix)" << '\n';
+            MDK_Error("Size does not match @ mdkDenseGlueMatrixForMultiplication::CreateDenseMatrix(OutputMatrix)")
             return false;
         }
     }
@@ -141,7 +141,7 @@ bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatri
 
     if (MatrixNumber == 0)
     {
-        MDK_Error << "MatrixNumber is zero @ mdkDenseGlueMatrixForMultiplication::CreateDenseMatrix(OutputMatrix)" << '\n';
+        MDK_Error("MatrixNumber is zero @ mdkDenseGlueMatrixForMultiplication::CreateDenseMatrix(OutputMatrix)")
         return false;
     }
 
@@ -149,7 +149,7 @@ bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatri
     {
         if (m_Is_m_Element_Coef_Equal_to_One == true)
         {
-            MDK_Error << "MatrixNumber is 1 and  m_Is_m_Element_Coef_Equal_to_One = true @ mdkDenseGlueMatrixForMultiplication::CreateDenseMatrix(OutputMatrix)" << '\n';
+            MDK_Error("MatrixNumber is 1 and  m_Is_m_Element_Coef_Equal_to_One = true @ mdkDenseGlueMatrixForMultiplication::CreateDenseMatrix(OutputMatrix)")
             OutputMatrix.Copy(m_SourceMatrixSharedCopyList[0]);
             return false;
         }

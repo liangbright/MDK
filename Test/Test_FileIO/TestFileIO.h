@@ -44,7 +44,7 @@ void Test_MatrixIO()
 {
     std::string FilePath("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/Test_InputMatrix");
 
-    auto InputMatrix = LoadScalarDenseMatrixFromDataFile<double>(FilePath);
+    auto InputMatrix = LoadScalarDenseMatrixFromDataFile<float>(FilePath);
 
     DisplayMatrix("InputMatrix", InputMatrix);
 

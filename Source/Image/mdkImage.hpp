@@ -205,7 +205,7 @@ void Image<VoxelType>::Copy(const Image<VoxelType_Input>& InputImage)
 {
     if (this == &InputImage)
     {
-        MDK_Warning << "try to Copy self @ Image::Copy(InputImage)" << '\n';
+        MDK_Warning("try to Copy self @ Image::Copy(InputImage)")
         return;
     }
 
@@ -244,7 +244,7 @@ bool Image<VoxelType>::Copy(const Image<VoxelType_Input>* InputImage)
 {
     if (InputImage == nullptr)
     {
-        MDK_Error << "Input is nullptr @ Image::Copy(Image* InputImage)" << '\n';
+        MDK_Error("Input is nullptr @ Image::Copy(Image* InputImage)")
         return false;
     }
 
@@ -279,7 +279,7 @@ bool Image<VoxelType>::Copy(const VoxelType_Input* InputVoxelPointer,
 {
     if (InputVoxelPointer == nullptr || Lx < 0 || Ly < 0 || Lz < 0 || VoxelSpacing_x < 0.0 || VoxelSpacing_y < 0.0 || VoxelSpacing_z < 0.0)
 	{
-        MDK_Error << "Invalid input @ Image::Copy(pointer,...)" << '\n';
+        MDK_Error("Invalid input @ Image::Copy(pointer,...)")
 		return false;
 	}
 
@@ -301,7 +301,7 @@ bool Image<VoxelType>::Copy(const VoxelType_Input* InputVoxelPointer,
 
     if (std::size_t(InputVoxelPointer) == std::size_t(VoxelPtr))
     {
-        MDK_Warning << "An image tries to Copy itself @ Image::Copy(pointer,...)" << '\n';
+        MDK_Warning("An image tries to Copy itself @ Image::Copy(pointer,...)")
         return true;
     }
   
@@ -355,7 +355,7 @@ bool Image<VoxelType>::Share(Image<VoxelType>* InputImage)
 {
     if (InputImage == nullptr)
     {
-        MDK_Error << "Input is nullptr @ Image::Share(Image* InputImage)" << '\n';
+        MDK_Error("Input is nullptr @ Image::Share(Image* InputImage)")
         return false;
     }
 
@@ -381,7 +381,7 @@ bool Image<VoxelType>::ForceShare(const Image<VoxelType>* InputImage)
 {
     if (InputImage == nullptr)
     {
-        MDK_Error << "Input is nullptr @ Image::ForceShare(Image* InputImage)" << '\n';
+        MDK_Error("Input is nullptr @ Image::ForceShare(Image* InputImage)")
         return false;
     }
 
@@ -451,7 +451,7 @@ bool Image<VoxelType>::ReInitialize(int64 Lx, int64 Ly, int64 Lz = 1,
 {
     if (Lx < 0 || Ly < 0 || Lz < 0 || VoxelSpacing_x < 0.0 || VoxelSpacing_y < 0.0 || VoxelSpacing_z < 0.0)
     {
-        MDK_Error << "Invalid input @ Image::ReInitialize" << '\n';
+        MDK_Error("Invalid input @ Image::ReInitialize")
         return false;
     }
 
@@ -639,7 +639,7 @@ VoxelType& Image<VoxelType>::operator[](int64 LinearIndex)
 
     if (LinearIndex >= VoxelNumber || LinearIndex < 0)
     {
-        MDK_Error << "Invalid input @ Image::operator(LinearIndex)" << '\n';
+        MDK_Error("Invalid input @ Image::operator(LinearIndex)")
         m_ZeroVoxel_Error_Output = m_ZeroVoxel;
         return m_ZeroVoxel_Error_Output;
     }
@@ -660,7 +660,7 @@ const VoxelType& Image<VoxelType>::operator[](int64 LinearIndex) const
 
     if (LinearIndex >= VoxelNumber || LinearIndex < 0)
     {
-        MDK_Error << "Invalid input @ Image::operator(LinearIndex)" << '\n';
+        MDK_Error("Invalid input @ Image::operator(LinearIndex)")
         return m_ZeroVoxel;
     }
 
@@ -680,7 +680,7 @@ VoxelType& Image<VoxelType>::operator()(int64 LinearIndex)
 
 	if (LinearIndex >= VoxelNumber || LinearIndex < 0)
 	{
-		MDK_Error << "Invalid input @ Image::operator(LinearIndex)" << '\n';
+		MDK_Error("Invalid input @ Image::operator(LinearIndex)")
 		m_ZeroVoxel_Error_Output = m_ZeroVoxel;
 		return m_ZeroVoxel_Error_Output;
 	}
@@ -701,7 +701,7 @@ const VoxelType& Image<VoxelType>::operator()(int64 LinearIndex) const
 
 	if (LinearIndex >= VoxelNumber || LinearIndex < 0)
 	{
-		MDK_Error << "Invalid input @ Image::operator(LinearIndex) const" << '\n';
+		MDK_Error("Invalid input @ Image::operator(LinearIndex) const")
 		return m_ZeroVoxel;
 	}
 
@@ -719,7 +719,7 @@ VoxelType& Image<VoxelType>::at(int64 LinearIndex)
 
     if (LinearIndex >= VoxelNumber || LinearIndex < 0)
     {
-        MDK_Error << "Invalid input @ Image::at(LinearIndex)" << '\n';
+        MDK_Error("Invalid input @ Image::at(LinearIndex)")
         m_ZeroVoxel_Error_Output = m_ZeroVoxel;
         return m_ZeroVoxel_Error_Output;
     }
@@ -736,7 +736,7 @@ const VoxelType& Image<VoxelType>::at(int64 LinearIndex) const
 
     if (LinearIndex >= VoxelNumber || LinearIndex < 0)
     {
-        MDK_Error << "Invalid input @ Image::at(LinearIndex)" << '\n';
+        MDK_Error("Invalid input @ Image::at(LinearIndex)")
         return m_ZeroVoxel;
     }
 
@@ -754,7 +754,7 @@ VoxelType& Image<VoxelType>::operator()(int64 xIndex, int64 yIndex, int64 zIndex
 
 	if (xIndex >= ImageDimension.Lx || xIndex < 0 || yIndex >= ImageDimension.Ly || yIndex < 0 || zIndex >= ImageDimension.Lz || zIndex < 0)
 	{
-		MDK_Error << "Invalid input @ Image::operator(xIndex, yIndex, zIndex)" << '\n';
+		MDK_Error("Invalid input @ Image::operator(xIndex, yIndex, zIndex)")
 		m_ZeroVoxel_Error_Output = m_ZeroVoxel;
 		return m_ZeroVoxel_Error_Output;
 	}
@@ -775,7 +775,7 @@ const VoxelType& Image<VoxelType>::operator()(int64 xIndex, int64 yIndex, int64 
 
 	if (xIndex >= ImageDimension.Lx || xIndex < 0 || yIndex >= ImageDimension.Ly || yIndex < 0 || zIndex >= ImageDimension.Lz || zIndex < 0)
 	{
-        MDK_Error << "Invalid input @ Image::operator(xIndex, yIndex, zIndex) const" << '\n';
+        MDK_Error("Invalid input @ Image::operator(xIndex, yIndex, zIndex) const")
         return m_ZeroVoxel;
 	}
 
@@ -793,7 +793,7 @@ VoxelType& Image<VoxelType>::at(int64 xIndex, int64 yIndex, int64 zIndex = 0)
 
 	if (xIndex >= ImageDimension[0] || xIndex < 0 || yIndex >= ImageDimension[1] || yIndex < 0 || zIndex >= ImageDimension[2] || zIndex < 0)
 	{
-		MDK_Error << "Invalid input @ Image::at(xIndex, yIndex, zIndex)" << '\n';
+		MDK_Error("Invalid input @ Image::at(xIndex, yIndex, zIndex)")
 		m_ZeroVoxel_Error_Output = m_ZeroVoxel;
 		return m_ZeroVoxel_Error_Output;
 	}
@@ -810,7 +810,7 @@ const VoxelType& Image<VoxelType>::at(int64 xIndex, int64 yIndex, int64 zIndex =
 
     if (xIndex >= ImageDimension[0] || xIndex < 0 || yIndex >= ImageDimension[1] || yIndex < 0 || zIndex >= ImageDimension[2] || zIndex < 0)
     {
-        MDK_Error << "Invalid input @ Image::at(xIndex, yIndex, zIndex) const" << '\n';
+        MDK_Error("Invalid input @ Image::at(xIndex, yIndex, zIndex) const")
         m_ZeroVoxel_Error_Output = m_ZeroVoxel;
         return m_ZeroVoxel_Error_Output;
     }
@@ -826,7 +826,7 @@ Image<VoxelType> Image<VoxelType>::GetSubImage(int64 xIndex_s, int64 xIndex_e, i
     
     if (this->IsEmpty() == true)
     {
-        MDK_Warning << "Image is empty @ Image::GetSubImage()" << '\n';
+        MDK_Warning("Image is empty @ Image::GetSubImage()")
         return tempImage;
     }
 
@@ -842,7 +842,7 @@ Image<VoxelType> Image<VoxelType>::GetSubImage(int64 xIndex_s, int64 xIndex_e, i
         || zIndex_e >= ImageDimension[2] || zIndex_e < 0
         || zIndex_s > zIndex_e)
 	{
-        MDK_Error << "Invalid input @ Image::GetSubImage() const" << '\n';
+        MDK_Error("Invalid input @ Image::GetSubImage() const")
 		return tempImage;
 	}
 
@@ -898,19 +898,19 @@ Pad(const std::string& Option, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) con
     
     if (this->IsEmpty() == true)
     {
-        MDK_Warning << "Image is empty @ Image::Pad" << '\n';
+        MDK_Warning("Image is empty @ Image::Pad")
         return tempImage;
     }
 
     if (Option != "replicate")
 	{
-		MDK_Error << "Invalid Option @ Image::Pad" << '\n';
+		MDK_Error("Invalid Option @ Image::Pad")
 		return tempImage;
 	}
 
     if (Pad_Lx <= 0 && Pad_Ly <= 0 && Pad_Lz <= 0)
 	{
-		MDK_Warning << "Invalid Pad Size @ Image::Pad" << '\n';
+		MDK_Warning("Invalid Pad Size @ Image::Pad")
 
 		tempImage = (*this);
 
@@ -985,13 +985,13 @@ Pad(VoxelType Voxel, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const
     
     if (this->IsEmpty() == true)
     {
-        MDK_Warning << "Image is empty @ Image::Pad" << '\n';
+        MDK_Warning("Image is empty @ Image::Pad")
         return tempImage;
     }
 
 	if (Pad_Lx <= 0 && Pad_Ly <= 0 && Pad_Lz <= 0)
 	{
-		MDK_Warning << "Invalid Pad Size @ Image::Pad" << '\n';
+		MDK_Warning("Invalid Pad Size @ Image::Pad")
 
 		tempImage = (*this);
 
@@ -1045,19 +1045,19 @@ UnPad(int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const
 
     if (Pad_Lx > ImageDimension[0] || Pad_Lx  < 0 || Pad_Ly > ImageDimension[1] || Pad_Ly < 0 || Pad_Lz > ImageDimension[2] || Pad_Lz < 0)
 	{
-		MDK_Error << "Invalid Pad Size @ Image::UnPad" << '\n';
+		MDK_Error("Invalid Pad Size @ Image::UnPad")
 		return tempImage;
 	}
 
 	if (Pad_Lx == ImageDimension[0] || Pad_Ly == ImageDimension[1] || Pad_Lz == ImageDimension[2])
 	{
-		MDK_Warning << "Output is empty @ Image::UnPad" << '\n';
+		MDK_Warning("Output is empty @ Image::UnPad")
 		return tempImage;
 	}
 
 	if (Pad_Lx == 0 && Pad_Ly == 0 && Pad_Lz == 0)
 	{
-		MDK_Warning << "Input Pad Size is [0, 0, 0] @ Image::UnPad" << '\n';
+		MDK_Warning("Input Pad Size is [0, 0, 0] @ Image::UnPad")
 
 		tempImage = (*this);
 
@@ -1090,13 +1090,13 @@ GetLinearIndexListOfRegion(int64 xIndex_s,     int64 Region_Lx,
         || Region_Ly > ImageDimension[1] - yIndex_s || Region_Ly < 0
         || Region_Lz > ImageDimension[2] - zIndex_s || Region_Lz < 0)
 	{
-		MDK_Error << "Invalid input @ Image::GetLinearIndexArrayOfRegion" << '\n';
+		MDK_Error("Invalid input @ Image::GetLinearIndexArrayOfRegion")
 		return List;
 	}
 
 	if (Region_Lx == 0 || Region_Ly == 0 || Region_Lz == 0)
 	{
-		MDK_Warning << "Empty input region @ Image::GetLinearIndexArrayOfRegion" << '\n';
+		MDK_Warning("Empty input region @ Image::GetLinearIndexArrayOfRegion")
 		return List;
 	}
 

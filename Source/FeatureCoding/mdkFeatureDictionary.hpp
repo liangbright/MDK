@@ -76,7 +76,7 @@ bool FeatureDictionary<ElementType>::Copy(const FeatureDictionary<ElementType>* 
 {
     if (InputDictionary == nullptr)
     {
-        MDK_Error << "Input is nullptr @ FeatureDictionary::Copy(FeatureDictionary*)" << '\n';
+        MDK_Error("Input is nullptr @ FeatureDictionary::Copy(FeatureDictionary*)")
         return false;
     }
 
@@ -114,7 +114,7 @@ bool FeatureDictionary<ElementType>::Share(FeatureDictionary<ElementType>* Input
 {
     if (InputDictionary == nullptr)
     {
-        MDK_Error << "Input is nullptr @ FeatureDictionary::Share(FeatureDictionary*)" << '\n';
+        MDK_Error("Input is nullptr @ FeatureDictionary::Share(FeatureDictionary*)")
         return false;
     }
 
@@ -143,7 +143,7 @@ bool FeatureDictionary<ElementType>::ForceShare(const FeatureDictionary<ElementT
 {
     if (InputDictionary == nullptr)
     {
-        MDK_Error << "Input is nullptr @ FeatureDictionary::ForceShare(FeatureDictionary*)" << '\n';
+        MDK_Error("Input is nullptr @ FeatureDictionary::ForceShare(FeatureDictionary*)")
         return false;
     }
 

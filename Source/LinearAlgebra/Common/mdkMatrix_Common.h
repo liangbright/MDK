@@ -5,6 +5,7 @@
 
 #include "mdkOSPlatformConfig.h"
 #include "mdkType.h"
+#include "mdkDebugConfig.h"
 
 namespace mdk
 {
@@ -68,7 +69,7 @@ struct ALL_Symbol_For_Matrix_Operator
     {
         if (InputStruct.Name != "InputStruct_For_ALL_Symbol_For_Matrix_Operator")
         {
-            MDK_Error << "ALL Symbol error @ ALL_Symbol_For_mdkMatrix_Operator" << '\n';
+            MDK_Error("ALL Symbol error @ ALL_Symbol_For_mdkMatrix_Operator")
         }
     }
 
@@ -108,7 +109,7 @@ struct Pure_Empty_Matrix_Symbol
     {
         if (InputStruct.Name != "InputStruct_For_Pure_Empty_Matrix_Symbol")
         {
-            MDK_Error << "Symbol error @ Pure_Empty_Matrix_Symbol" << '\n';
+            MDK_Error("Symbol error @ Pure_Empty_Matrix_Symbol")
         }
     }
 

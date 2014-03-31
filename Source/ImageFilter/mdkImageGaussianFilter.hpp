@@ -42,7 +42,7 @@ void ImageGaussianFilter<VoxelType_Input, VoxelType_Output>::SetRotationMatrix(c
 {
     if (RotationMatrix.GetColNumber() != 3 || RotationMatrix.GetRowNumber() != 3)
     {
-        MDK_Error << "RotationMatrix is invalid @ ImageGaussianFilter::SetRotationMatrix" << '\n';
+        MDK_Error("RotationMatrix is invalid @ ImageGaussianFilter::SetRotationMatrix")
         return;
     }
 
@@ -55,7 +55,8 @@ void ImageGaussianFilter<VoxelType_Input, VoxelType_Output>::SetCutOffRatio(doub
 {
     if (CutOffRatio < 0.0)
     {
-        MDK_Warning << "CutOffRatio < 0.0 @ ImageGaussianFilter::SetCutOffRatio" << '\n';
+        MDK_Error("CutOffRatio < 0.0 @ ImageGaussianFilter::SetCutOffRatio")
+        return;
     }
 
     m_CutOffRatio = CutOffRatio;
@@ -73,7 +74,7 @@ void ImageGaussianFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DIndex(
 
     if (m_SigmaList.IsEmpty() == true)
     {
-        MDK_Error << "m_SigmaList is empty @ ImageGaussianFilter::BuildMaskOf3DIndex" << '\n';
+        MDK_Error("m_SigmaList is empty @ ImageGaussianFilter::BuildMaskOf3DIndex")
         return;
     }
 
@@ -89,7 +90,7 @@ void ImageGaussianFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DIndex(
     {
         if (m_RotationMatrix.GetColNumber() != 3 || m_RotationMatrix.GetRowNumber() != 3)
         {
-            MDK_Error << "m_RotationMatrix is invalid @ ImageGaussianFilter::BuildMaskOf3DIndex" << '\n';
+            MDK_Error("m_RotationMatrix is invalid @ ImageGaussianFilter::BuildMaskOf3DIndex")
             return;
         }
 

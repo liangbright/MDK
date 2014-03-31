@@ -34,13 +34,13 @@ DenseMatrix<ElementType> operator+(const DenseShadowMatrix<ElementType>& ShadowM
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: +(ShadowMatrixA, MatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: +(ShadowMatrixA, MatrixB)")
         return  tempMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Warning << "ShadowMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: +(ShadowMatrixA, MatrixB)" << '\n';
+        MDK_Warning("ShadowMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: +(ShadowMatrixA, MatrixB)")
         return  tempMatrix;
     }
 
@@ -85,13 +85,13 @@ DenseMatrix<ElementType> operator-(const DenseShadowMatrix<ElementType>& ShadowM
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: -(ShadowMatrixA, MatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: -(ShadowMatrixA, MatrixB)")
         return  tempMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Warning << "ShadowMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: -(ShadowMatrixA, MatrixB)" << '\n';
+        MDK_Warning("ShadowMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: -(ShadowMatrixA, MatrixB)")
         return  tempMatrix;
     }
 
@@ -143,13 +143,13 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: /(ShadowMatrixA, MatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: /(ShadowMatrixA, MatrixB)")
         return  tempMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Warning << "ShadowMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: /(ShadowMatrixA, MatrixB)" << '\n';
+        MDK_Warning("ShadowMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: /(ShadowMatrixA, MatrixB)")
         return  tempMatrix;
     }
 
@@ -203,13 +203,13 @@ DenseMatrix<ElementType> operator-(const DenseMatrix<ElementType>& MatrixA, cons
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: /(MatrixA, ShadowMatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: /(MatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Warning << "MatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: /(MatrixA, ShadowMatrixB)" << '\n';
+        MDK_Warning("MatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: /(MatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
@@ -262,13 +262,13 @@ DenseMatrix<ElementType> operator/(const DenseMatrix<ElementType>& MatrixA, cons
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: /(MatrixA, ShadowMatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: /(MatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Warning << "MatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: /(MatrixA, ShadowMatrixB)" << '\n';
+        MDK_Warning("MatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: /(MatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
@@ -302,7 +302,7 @@ DenseMatrix<ElementType> operator+(const DenseShadowMatrix<ElementType>& ShadowM
 
     if (SizeA.RowNumber <= 0)
     {
-        MDK_Error << "ShadowMatrixA is empty @ mdkDenseMatrixOperator: +(ShadowMatrixA, ElementB)" << '\n';
+        MDK_Error("ShadowMatrixA is empty @ mdkDenseMatrixOperator: +(ShadowMatrixA, ElementB)")
         return  tempMatrix;
     }
 
@@ -333,7 +333,7 @@ DenseMatrix<ElementType> operator-(const DenseShadowMatrix<ElementType>& ShadowM
 
     if (SizeA.RowNumber <= 0)
     {
-        MDK_Error << "ShadowMatrixA is empty @ mdkDenseMatrixOperator: -(ShadowMatrixA, ElementB)" << '\n';
+        MDK_Error("ShadowMatrixA is empty @ mdkDenseMatrixOperator: -(ShadowMatrixA, ElementB)")
         return  tempMatrix;
     }
 
@@ -364,7 +364,7 @@ DenseMatrix<ElementType> operator*(const DenseShadowMatrix<ElementType>& ShadowM
 
     if (SizeA.RowNumber <= 0)
     {
-        MDK_Error << "ShadowMatrixA is empty @ mdkDenseMatrixOperator: *(ShadowMatrixA, ElementB)" << '\n';
+        MDK_Error("ShadowMatrixA is empty @ mdkDenseMatrixOperator: *(ShadowMatrixA, ElementB)")
         return  tempMatrix;
     }
 
@@ -395,7 +395,7 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
 
     if (SizeA.RowNumber <= 0)
     {
-        MDK_Error << "ShadowMatrixA is empty @ mdkDenseMatrixOperator: /(ShadowMatrixA, ElementB)" << '\n';
+        MDK_Error("ShadowMatrixA is empty @ mdkDenseMatrixOperator: /(ShadowMatrixA, ElementB)")
         return  tempMatrix;
     }
 
@@ -435,7 +435,7 @@ DenseMatrix<ElementType> operator-(const ElementType& ElementA, const DenseShado
 
     if (SizeB.RowNumber <= 0)
     {
-        MDK_Error << "ShadowMatrixB is empty @ mdkDenseMatrixOperator: -(ElementA, ShadowMatrixB)" << '\n';
+        MDK_Error("ShadowMatrixB is empty @ mdkDenseMatrixOperator: -(ElementA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
@@ -474,7 +474,7 @@ DenseMatrix<ElementType> operator/(const ElementType& ElementA, const DenseShado
 
     if (SizeB.RowNumber <= 0)
     {
-        MDK_Error << "ShadowMatrixB is empty @ mdkDenseMatrixOperator: /(ElementA, ShadowMatrixB)" << '\n';
+        MDK_Error("ShadowMatrixB is empty @ mdkDenseMatrixOperator: /(ElementA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
@@ -518,13 +518,13 @@ DenseMatrix<ElementType> operator+(const DenseShadowMatrix<ElementType>& ShadowM
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: +(ShadowMatrixA, ShadowMatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: +(ShadowMatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Warning << "ShadowMatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: +(ShadowMatrixA, ShadowMatrixB)" << '\n';
+        MDK_Warning("ShadowMatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: +(ShadowMatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
@@ -565,13 +565,13 @@ DenseMatrix<ElementType> operator-(const DenseShadowMatrix<ElementType>& ShadowM
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: -(ShadowMatrixA, ShadowMatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: -(ShadowMatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Warning << "ShadowMatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: -(ShadowMatrixA, ShadowMatrixB)" << '\n';
+        MDK_Warning("ShadowMatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: -(ShadowMatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
@@ -620,13 +620,13 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: /(ShadowMatrixA, ShadowMatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: /(ShadowMatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Warning << "ShadowMatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: /(ShadowMatrixA, ShadowMatrixB)" << '\n';
+        MDK_Warning("ShadowMatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: /(ShadowMatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 

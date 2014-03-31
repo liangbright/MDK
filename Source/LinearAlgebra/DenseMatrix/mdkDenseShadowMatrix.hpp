@@ -703,14 +703,14 @@ bool DenseShadowMatrix<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>&
         }
         else
         {
-            MDK_Error << "Size does not match @ mdkDenseShadowMatrix::CreateDenseMatrix(OutputMatrix)" << '\n';
+            MDK_Error("Size does not match @ mdkDenseShadowMatrix::CreateDenseMatrix(OutputMatrix)")
             return false;
         }
     }
 
     if (m_ElementNumber == 0)
     {
-        MDK_Warning << "Self is empty @ mdkDenseShadowMatrix::CreateDenseMatrix(OutputMatrix)" << '\n';
+        MDK_Warning("Self is empty @ mdkDenseShadowMatrix::CreateDenseMatrix(OutputMatrix)")
         return true;
     }
 
@@ -761,7 +761,7 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseMatrix<ElementType>& I
     {
         if (m_ElementNumber != InputMatrix.GetElementNumber())
         {
-            MDK_Error << "m_ElementNumber != InputMatrix.GetElementNumber() @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)" << '\n';
+            MDK_Error("m_ElementNumber != InputMatrix.GetElementNumber() @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)")
             return;
         }
     }
@@ -769,7 +769,7 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseMatrix<ElementType>& I
     {
         if (m_RowNumber != InputMatrix.GetRowNumber() || m_ColNumber != InputMatrix.GetColNumber())
         {
-            MDK_Error << "Size does not match @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)" << '\n';
+            MDK_Error("Size does not match @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)")
             return;
         }
     }
@@ -845,7 +845,7 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseShadowMatrix<ElementTy
     {
         if (m_ElementNumber != ShadowMatrix.GetElementNumber())
         {
-            MDK_Error << "m_ElementNumber != ShadowMatrix.GetElementNumber() @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)" << '\n';
+            MDK_Error("m_ElementNumber != ShadowMatrix.GetElementNumber() @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)")
             return;
         }
     }
@@ -853,7 +853,7 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseShadowMatrix<ElementTy
     {
         if (m_RowNumber != ShadowMatrix.GetRowNumber() || m_ColNumber != ShadowMatrix.GetColNumber())
         {
-            MDK_Error << "Size does not match @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)" << '\n';
+            MDK_Error("Size does not match @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)")
             return;
         }
     }
@@ -898,7 +898,7 @@ ElementType& DenseShadowMatrix<ElementType>::operator[](int64 LinearIndex)
 
     if (LinearIndex >= m_ElementNumber)
     {
-        MDK_Error << "Invalid input @ mdkDenseShadowMatrix::operator[i]" << '\n';
+        MDK_Error("Invalid input @ mdkDenseShadowMatrix::operator[i]")
         return m_NaNElement;
     }
 
@@ -929,7 +929,7 @@ const ElementType& DenseShadowMatrix<ElementType>::operator[](int64 LinearIndex)
 
     if (LinearIndex >= m_ElementNumber)
     {
-        MDK_Error << "Invalid input @ mdkDenseShadowMatrix::operator[i] const" << '\n';
+        MDK_Error("Invalid input @ mdkDenseShadowMatrix::operator[i] const")
         return m_NaNElement;
     }
 
@@ -960,7 +960,7 @@ ElementType& DenseShadowMatrix<ElementType>::operator()(int64 LinearIndex)
 
     if (LinearIndex >= m_ElementNumber || LinearIndex < 0)
 	{
-		MDK_Error << "Invalid input @ mdkDenseShadowMatrix::operator(i)" <<'\n';
+		MDK_Error("Invalid input @ mdkDenseShadowMatrix::operator(i)")
         return m_NaNElement;
 	}
 
@@ -991,7 +991,7 @@ const ElementType& DenseShadowMatrix<ElementType>::operator()(int64 LinearIndex)
 
     if (LinearIndex >= m_ElementNumber || LinearIndex < 0)
     {
-        MDK_Error << "Invalid input @ mdkDenseShadowMatrix::operator(i) const" << '\n';
+        MDK_Error("Invalid input @ mdkDenseShadowMatrix::operator(i) const")
         return m_NaNElement;
     }
 
@@ -1022,7 +1022,7 @@ ElementType& DenseShadowMatrix<ElementType>::operator()(int64 RowIndex, int64 Co
 
     if (RowIndex >= m_RowNumber || RowIndex < 0 || ColIndex >= m_ColNumber || ColIndex < 0)
 	{
-		MDK_Error << "Invalid input @ mdkDenseShadowMatrix::operator(i, j)" << '\n';
+		MDK_Error("Invalid input @ mdkDenseShadowMatrix::operator(i, j)")
         return m_NaNElement;
 	}
 
@@ -1051,7 +1051,7 @@ const ElementType& DenseShadowMatrix<ElementType>::operator()(int64 RowIndex, in
 
     if (RowIndex >= m_RowNumber || RowIndex < 0 || ColIndex >= m_ColNumber || ColIndex < 0)
 	{
-		MDK_Error << "Invalid input @ mdkDenseShadowMatrix::operator(i, j) const" << '\n';
+		MDK_Error("Invalid input @ mdkDenseShadowMatrix::operator(i, j) const")
         return m_NaNElement;
 	}
 
@@ -1081,7 +1081,7 @@ void DenseShadowMatrix<ElementType>::operator+=(const DenseMatrix<ElementType>& 
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        MDK_Error << "Self or Matrix is empty @ mdkDenseShadowMatrix::operator+=(InputMatrix)" << '\n';
+        MDK_Error("Self or Matrix is empty @ mdkDenseShadowMatrix::operator+=(InputMatrix)")
         return;
     }
 
@@ -1094,7 +1094,7 @@ void DenseShadowMatrix<ElementType>::operator+=(const DenseMatrix<ElementType>& 
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseShadowMatrix::operator+=(Matrix)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseShadowMatrix::operator+=(Matrix)")
         return;
     }
 
@@ -1133,7 +1133,7 @@ void DenseShadowMatrix<ElementType>::operator-=(const DenseMatrix<ElementType>& 
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        MDK_Error << "Self or InputMatrix is empty @ mdkDenseShadowMatrix::operator-=(InputMatrix)" << '\n';
+        MDK_Error("Self or InputMatrix is empty @ mdkDenseShadowMatrix::operator-=(InputMatrix)")
         return;
     }
 
@@ -1146,7 +1146,7 @@ void DenseShadowMatrix<ElementType>::operator-=(const DenseMatrix<ElementType>& 
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseShadowMatrix::operator-=(InputMatrix)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseShadowMatrix::operator-=(InputMatrix)")
         return;
     }
 
@@ -1185,7 +1185,7 @@ void DenseShadowMatrix<ElementType>::operator*=(const DenseMatrix<ElementType>& 
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        MDK_Error << "Self or Matrix is empty @ mdkDenseShadowMatrix::operator*=(InputMatrix)" << '\n';
+        MDK_Error("Self or Matrix is empty @ mdkDenseShadowMatrix::operator*=(InputMatrix)")
         return;
     }
 
@@ -1198,7 +1198,7 @@ void DenseShadowMatrix<ElementType>::operator*=(const DenseMatrix<ElementType>& 
 
     if (m_ColNumber != Size.RowNumber || Size.RowNumber != Size.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseShadowMatrix::operator*=(Matrix)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseShadowMatrix::operator*=(Matrix)")
         return;
     }
 
@@ -1216,7 +1216,7 @@ void DenseShadowMatrix<ElementType>::operator/=(const DenseMatrix<ElementType>& 
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        MDK_Error << "Self or Matrix is empty @ mdkDenseShadowMatrix::operator/=(InputMatrix)" << '\n';
+        MDK_Error("Self or Matrix is empty @ mdkDenseShadowMatrix::operator/=(InputMatrix)")
         return;
     }
 
@@ -1229,7 +1229,7 @@ void DenseShadowMatrix<ElementType>::operator/=(const DenseMatrix<ElementType>& 
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseShadowMatrix::operator/=(InputMatrix)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseShadowMatrix::operator/=(InputMatrix)")
         return;
     }
 
@@ -1267,7 +1267,7 @@ void DenseShadowMatrix<ElementType>::operator+=(const ElementType& Element)
 {
     if (m_RowNumber <= 0)
     {
-        MDK_Error << "Self is empty @ mdkDenseShadowMatrix::operator+=(Element)" << '\n';
+        MDK_Error("Self is empty @ mdkDenseShadowMatrix::operator+=(Element)")
         return;
     }
 
@@ -1302,7 +1302,7 @@ void DenseShadowMatrix<ElementType>::operator-=(const ElementType& Element)
 {
     if (m_RowNumber <= 0)
     {
-        MDK_Error << "Self is empty @ mdkDenseShadowMatrix::operator-=(Element)" << '\n';
+        MDK_Error("Self is empty @ mdkDenseShadowMatrix::operator-=(Element)")
         return;
     }
 
@@ -1337,7 +1337,7 @@ void DenseShadowMatrix<ElementType>::operator*=(const ElementType& Element)
 {
     if (m_RowNumber <= 0)
     {
-        MDK_Error << "Self is empty @ mdkDenseShadowMatrix::operator*=(Element)" << '\n';
+        MDK_Error("Self is empty @ mdkDenseShadowMatrix::operator*=(Element)")
         return;
     }
 
@@ -1372,7 +1372,7 @@ void DenseShadowMatrix<ElementType>::operator/=(const ElementType& Element)
 {
     if (m_RowNumber <= 0)
     {
-        MDK_Error << "Self is empty @ mdkDenseShadowMatrix::operator/=(Element)" << '\n';
+        MDK_Error("Self is empty @ mdkDenseShadowMatrix::operator/=(Element)")
         return;
     }
 
@@ -1417,13 +1417,13 @@ void DenseShadowMatrix<ElementType>::operator+=(const DenseShadowMatrix<ElementT
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseShadowMatrix::operator+=(ShadowMatrix)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseShadowMatrix::operator+=(ShadowMatrix)")
         return;
     }
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        MDK_Error << "Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::operator+=(ShadowMatrix)" << '\n';
+        MDK_Error("Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::operator+=(ShadowMatrix)")
         return;
     }
 
@@ -1458,13 +1458,13 @@ void DenseShadowMatrix<ElementType>::operator-=(const DenseShadowMatrix<ElementT
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseShadowMatrix::operato-=(ShadowMatrix)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseShadowMatrix::operato-=(ShadowMatrix)")
         return;
     }
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        MDK_Error << "Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::operator-=(ShadowMatrix)" << '\n';
+        MDK_Error("Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::operator-=(ShadowMatrix)")
         return;
     }
 
@@ -1499,13 +1499,13 @@ void DenseShadowMatrix<ElementType>::operator*=(const DenseShadowMatrix<ElementT
 
     if (m_ColNumber != Size.RowNumber || Size.RowNumber != Size.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseShadowMatrix::operator*=(ShadowMatrix)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseShadowMatrix::operator*=(ShadowMatrix)")
         return;
     }
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        MDK_Error << "Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::operator*=(ShadowMatrix)" << '\n';
+        MDK_Error("Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::operator*=(ShadowMatrix)")
         return;
     }
 
@@ -1530,13 +1530,13 @@ void DenseShadowMatrix<ElementType>::operator/=(const DenseShadowMatrix<ElementT
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseShadowMatrix::operato/=(ShadowMatrix)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseShadowMatrix::operato/=(ShadowMatrix)")
         return;
     }
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        MDK_Error << "Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::operator/=(ShadowMatrix)" << '\n';
+        MDK_Error("Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::operator/=(ShadowMatrix)")
         return;
     }
 
@@ -1660,13 +1660,13 @@ DenseMatrix<ElementType> DenseShadowMatrix<ElementType>::ElementMultiply(const D
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseShadowMatrix::ElementMultiply(ShadowMatrix)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseShadowMatrix::ElementMultiply(ShadowMatrix)")
         return tempMatrix;
     }
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        MDK_Error << "Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::ElementMultiply(ShadowMatrix)" << '\n';
+        MDK_Error("Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::ElementMultiply(ShadowMatrix)")
         return tempMatrix;
     }
 

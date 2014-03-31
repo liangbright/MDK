@@ -38,14 +38,14 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: +(MatrixA, MatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: +(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Error << "MatrixA or MatrixB is empty @ mdkDenseMatrixOperator: +(MatrixA, MatrixB)" << '\n';
+        MDK_Error("MatrixA or MatrixB is empty @ mdkDenseMatrixOperator: +(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
@@ -93,14 +93,14 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: -(MatrixA, MatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: -(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Error << "MatrixA or MatrixB is empty @ mdkDenseMatrixOperator: -(MatrixA, MatrixB)" << '\n';
+        MDK_Error("MatrixA or MatrixB is empty @ mdkDenseMatrixOperator: -(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
@@ -146,14 +146,14 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(const DenseMatrix<Elemen
 
     if (SizeA.ColNumber != SizeB.RowNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: *(MatrixA, MatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: *(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Error << "MatrixA or MatrixB is empty @ mdkDenseMatrixOperator: *(MatrixA, MatrixB)" << '\n';
+        MDK_Error("MatrixA or MatrixB is empty @ mdkDenseMatrixOperator: *(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }

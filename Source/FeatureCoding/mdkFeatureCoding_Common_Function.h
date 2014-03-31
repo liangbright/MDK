@@ -9,11 +9,6 @@ namespace mdk
 {
 
 template<typename ElementType>
-DenseMatrix<ElementType> ComputeListOfL2DistanceFromOneFeatureToFeatureDictionary(const DenseMatrix<ElementType>& Feature, 
-                                                                                  const DenseMatrix<ElementType>& DictionaryRecord);
-
-
-template<typename ElementType>
 DenseMatrix<int64> FindKNNByDistanceList(int64 K_NeighbourNumber, const DenseMatrix<ElementType>& DistanceList);
 
 }

@@ -88,7 +88,7 @@ SetInputImage(const Image<VoxelType_Input>* InputImage)
 {
     if (InputImage == nullptr)
     {
-        MDK_Error << "Input is nullptr @ ImageFilter::SetInputImage" << '\n';
+        MDK_Error("Input is nullptr @ ImageFilter::SetInputImage")
         return false;
     }
 
@@ -109,7 +109,7 @@ SetInputRegion(const DenseMatrix<int64>* InputRegion)
 {
 //    if (InputRegion == nullptr)
 //    {
-//        MDK_Error << "Input is nullptr @ ImageFilter::SetInputRegion" << '\n';
+//        MDK_Error("Input is nullptr @ ImageFilter::SetInputRegion")
 //        return false;
 //    }
 
@@ -126,7 +126,7 @@ SetInputVoxel3DIndexList(const DenseMatrix<int64>* InputVoxel3DIndexList)
 {
 //    if (InputVoxel3DIndexList == nullptr)
 //    {
-//        MDK_Error << "Input is nullptr @ ImageFilter::SetInputVoxel3DIndexList" << '\n';
+//        MDK_Error("Input is nullptr @ ImageFilter::SetInputVoxel3DIndexList")
 //        return false;
 //    }
 
@@ -143,7 +143,7 @@ SetInput3DPositionList(const DenseMatrix<float>* Input3DPositionList)
 {
 //    if (Input3DPositionList == nullptr)
 //    {
-//        MDK_Error << "Input is nullptr @ ImageFilter::SetInput3DPositionList" << '\n';
+//        MDK_Error("Input is nullptr @ ImageFilter::SetInput3DPositionList")
 //        return false;
 //    }
 
@@ -182,7 +182,7 @@ SetOutputImage(Image<VoxelType_Output>* OutputImage)
 {
     if (OutputImage == nullptr)
     {
-        MDK_Error << "Input is nullptr @ ImageFilter::SetOutputImage" << '\n';
+        MDK_Error("Input is nullptr @ ImageFilter::SetOutputImage")
         return false;
     }
 
@@ -207,7 +207,7 @@ SetOutputArray(DenseMatrix<VoxelType_Output>* OutputArray)
 {
     if (OutputArray == nullptr)
     {
-        MDK_Error << "Input is nullptr @ ImageFilter::OutputArray" << '\n';
+        MDK_Error("Input is nullptr @ ImageFilter::OutputArray")
         return false;
     }
 
@@ -249,13 +249,13 @@ bool ImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
 {
 	if (m_InputImage == nullptr)
 	{
-		MDK_Error << "Empty input image (nullptr) @ ImageFilter::CheckInput" << '\n';
+		MDK_Error("Empty input image (nullptr) @ ImageFilter::CheckInput")
 		return false;
 	}
 
 	if (m_InputImage->IsEmpty() == true)
 	{
-		MDK_Error << "Empty input image @ ImageFilter::CheckInput" << '\n';
+		MDK_Error("Empty input image @ ImageFilter::CheckInput")
 		return false;
 	}
 
@@ -265,13 +265,13 @@ bool ImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
     {
         if (m_Flag_OutputImage == true && m_Flag_OutputArray == true)
         {
-            MDK_Error << "Can not output image and array at the same time @ ImageFilter::CheckInput" << '\n';
+            MDK_Error("Can not output image and array at the same time @ ImageFilter::CheckInput")
             return false;
         }
 
         if (m_Flag_OutputImage == false && m_Flag_OutputArray == false)
         {
-            MDK_Error << "No output is selected @ ImageFilter::CheckInput" << '\n';
+            MDK_Error("No output is selected @ ImageFilter::CheckInput")
             return false;
         }
     }
@@ -279,7 +279,7 @@ bool ImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
     {
         if (m_Flag_OutputImage == true || m_Flag_OutputArray == true)
         {
-            MDK_Error << "Can not output image or array when m_Flag_OutputToOtherPlace is true  @ ImageFilter::CheckInput" << '\n';
+            MDK_Error("Can not output image or array when m_Flag_OutputToOtherPlace is true  @ ImageFilter::CheckInput")
             return false;
         }
     }
@@ -307,7 +307,7 @@ bool ImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
 	}    
 	else
 	{
-		MDK_Error << "Invalid input @ ImageFilter::Run" << '\n';
+		MDK_Error("Invalid input @ ImageFilter::Run")
 		return false;
 	}
 
@@ -543,7 +543,7 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
 		}
         else
         {
-            MDK_Error << "Invalid Input @ ImageFilter::Update_in_a_Thread" << '\n';
+            MDK_Error("Invalid Input @ ImageFilter::Update_in_a_Thread")
         }
     }
     else // output to another place
@@ -617,7 +617,7 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
 		}
         else
         {
-            MDK_Error << "Invalid Input @ ImageFilter::Update_in_a_Thread" << '\n';
+            MDK_Error("Invalid Input @ ImageFilter::Update_in_a_Thread")
         }
     }
 }
@@ -699,7 +699,7 @@ FilterFunctionAt3DIndex(int64 x_Index, int64 y_Index, int64 z_Index, VoxelType_O
 	}
     else
     {
-        MDK_Warning << "m_IsInputFilterFunctionAt3DIndexObtained = false @ ImageFilter::FilterFunctionAt3DIndex" << '\n';
+        MDK_Warning("m_IsInputFilterFunctionAt3DIndexObtained = false @ ImageFilter::FilterFunctionAt3DIndex")
     }
 
 }
@@ -729,7 +729,7 @@ FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& Outpu
 	}
     else
     {
-        MDK_Warning << "m_IsInputFilterFunctionAt3DPositionObtained = false @ ImageFilter::FilterFunctionAt3DPosition" << '\n';
+        MDK_Warning("m_IsInputFilterFunctionAt3DPositionObtained = false @ ImageFilter::FilterFunctionAt3DPosition")
     }
 
 }
@@ -751,7 +751,7 @@ OutputFunction(int64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel)
     }
     else
     {
-        MDK_Warning << "OutputFunction is empty @ ImageFilter::OutputFunction" << '\n';
+        MDK_Warning("OutputFunction is empty @ ImageFilter::OutputFunction")
     }
 }
 

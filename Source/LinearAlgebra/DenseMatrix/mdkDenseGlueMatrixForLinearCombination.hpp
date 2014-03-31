@@ -142,7 +142,7 @@ DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix(DenseMatrix<
         }
         else
         {
-            MDK_Error << "Size does not match @ mdkDenseGlueMatrixForLinearCombination::CreateDenseMatrix(OutputMatrix)" << '\n';
+            MDK_Error("Size does not match @ mdkDenseGlueMatrixForLinearCombination::CreateDenseMatrix(OutputMatrix)")
             return false;
         }
     }
@@ -151,7 +151,7 @@ DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix(DenseMatrix<
 
     if (MatrixNumber == 0)
     {
-        MDK_Error << "Self is empty @ mdkDenseGlueMatrixForLinearCombination::CreateDenseMatrix(OutputMatrix)" << '\n';
+        MDK_Error("Self is empty @ mdkDenseGlueMatrixForLinearCombination::CreateDenseMatrix(OutputMatrix)")
         return false;
     }
 

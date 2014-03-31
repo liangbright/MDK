@@ -41,7 +41,7 @@ bool KMeansDictionaryBuilder<ElementType>::SelectKMeansLibrary(const std::string
 {
     if (KMeansLibraryName != "OpenCV" || KMeansLibraryName != "VLFeat")
     {
-        MDK_Error << "Invalid input @ KMeansDictionaryBuilder::SelectKMeansLibrary" << '\n';
+        MDK_Error("Invalid input @ KMeansDictionaryBuilder::SelectKMeansLibrary")
         return false;
     }
 
@@ -63,7 +63,7 @@ bool KMeansDictionaryBuilder<ElementType>::SetOutputDictionaryLength(int64 Dicti
 {
     if (DictionaryLength <= 0)
     {
-        MDK_Error << "Invalid Input @ KMeansDictionaryBuilder::SetOutputDictionaryLength(DictionaryLength)" << '\n';
+        MDK_Error("Invalid Input @ KMeansDictionaryBuilder::SetOutputDictionaryLength(DictionaryLength)")
         return false;
     }
 
@@ -119,9 +119,11 @@ bool KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_OpenCV()
 
     if (OpenCVElemetType != OpenCVSingleChannelMatrixElementTypeEnum::FLOAT32)
     {
-        MDK_Warning << "ElemetType is not float @ mdkKMeansDictionaryBuilder::KMeansFirstTimeBuild_using_OpenCV()" << '\n';
+        MDK_Warning("ElemetType is not float @ mdkKMeansDictionaryBuilder::KMeansFirstTimeBuild_using_OpenCV()")
     }
 
+    //---- transpose the data ---- OpenCV : each row is a feature vector
+    //
     DenseMatrix<float> tempFeatureData(m_FeatureData->GetColNumber(), m_FeatureData->GetRowNumber());
 
     for (int64 i = 0; i < tempFeatureData.GetRowNumber(); ++i)

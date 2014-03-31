@@ -34,7 +34,7 @@ bool FeatureDictionaryBuilder<ElementType>::SetInputFeatureData(const DenseMatri
 {
     if (InputFeatureData == nullptr)
     {
-        MDK_Error << "Invalid input @ FeatureDictionaryBuilder::SetInputFeatureData(InputFeatureData)" << '\n';
+        MDK_Error("Invalid input @ FeatureDictionaryBuilder::SetInputFeatureData(InputFeatureData)")
         return false;
     }
 
@@ -50,7 +50,7 @@ bool FeatureDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionar
 {
     if (OutputDictionary == nullptr)
     {
-        MDK_Error << "Invalid input @ FeatureDictionaryBuilder::SetOutputDictionary(OutputDictionary)" << '\n';
+        MDK_Error("Invalid input @ FeatureDictionaryBuilder::SetOutputDictionary(OutputDictionary)")
         return false;
     }
 
@@ -69,7 +69,7 @@ bool FeatureDictionaryBuilder<ElementType>::Update()
 {
     if (m_FeatureData == nullptr)
     {
-        MDK_Error << "m_FeatureData is empty @ FeatureDictionaryBuilder::Update()" << '\n';
+        MDK_Error("m_FeatureData is empty @ FeatureDictionaryBuilder::Update()")
         return false;
     }
 
@@ -77,7 +77,7 @@ bool FeatureDictionaryBuilder<ElementType>::Update()
 
     if (DataSize.RowNumber == 0)
     {
-        MDK_Error << "InputFeatureData is empty @ FeatureDictionaryBuilder::Run()" << '\n';
+        MDK_Error("InputFeatureData is empty @ FeatureDictionaryBuilder::Run()")
         return false;
     }
 
@@ -85,7 +85,7 @@ bool FeatureDictionaryBuilder<ElementType>::Update()
 
     if (BookSize.RowNumber > 0 && BookSize.RowNumber != DataSize.RowNumber)
     {
-        MDK_Error << "Feature dimension does not match @ FeatureDictionaryBuilder::Run()" << '\n';
+        MDK_Error("Feature dimension does not match @ FeatureDictionaryBuilder::Run()")
         return false;
     }
 

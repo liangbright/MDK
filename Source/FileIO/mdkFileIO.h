@@ -44,6 +44,9 @@ bool SaveGrayScaleImageAsDataFile(const std::string& FilePathAndName, const Imag
 template<typename ScalarType>
 DenseMatrix<ScalarType> LoadScalarDenseMatrixFromDataFile(const std::string& FilePathAndName);
 
+template<typename OutputScalarType, typename InputScalarType>
+void Internal_LoadScalarDenseMatrixFromDataFile(DenseMatrix<OutputScalarType>& OutputMatrix, QFile& DataFile, int64 RowNumber, int64 ColNumber, int64 BytesOfInputScalarType);
+
 template<typename ScalarType>
 bool SaveScalarDenseMatrixAsDataFile(const std::string& FilePathAndName, const DenseMatrix<ScalarType>& InputMatrix);
 

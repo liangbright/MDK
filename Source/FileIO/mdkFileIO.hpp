@@ -14,7 +14,7 @@ bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, 
 
     if (!JsonFile.open(QIODevice::WriteOnly))
     {
-        MDK_Error << "Couldn't open file to save result @ WritePairListAsJsonFile" << '\n';
+        MDK_Error("Couldn't open file to save result @ WritePairListAsJsonFile(...)")
         return false;
     }
 
@@ -42,7 +42,11 @@ bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, 
 
     QFile::remove(FilePathAndName + ".json");
 
-    return JsonFile.rename(FilePathAndName + ".json");
+    JsonFile.rename(FilePathAndName + ".json");
+
+    JsonFile.close();
+
+    return true;
 }
 
 
@@ -103,7 +107,7 @@ bool LoadGrayScaleImageFromDataFile(const std::string& FilePathAndName, const Im
 
     if (ByteNumber <= 0)
     {
-        MDK_Error << "Unknown type of image @ LoadGrayScaleImageFromDataFile" << '\n';
+        MDK_Error("Unknown type of image @ LoadGrayScaleImageFromDataFile(...)")
         return false;
     }
 
@@ -166,7 +170,7 @@ bool LoadGrayScaleImageFromDataFile(const std::string& FilePathAndName, const Im
 
     if (!DataFile.open(QIODevice::WriteOnly))
     {
-        MDK_Error << "Couldn't open file to write image data @ SaveGrayScaleImageAsDataFile" << '\n';
+        MDK_Error("Couldn't open file to write image data @ SaveGrayScaleImageAsDataFile(...)")
         return false;
     }
 
@@ -177,6 +181,8 @@ bool LoadGrayScaleImageFromDataFile(const std::string& FilePathAndName, const Im
     DataFile.write(RawPointer, L*ByteNumber);
 
     DataFile.flush();
+
+    DataFile.close();
 
     return true;
 }
@@ -195,7 +201,7 @@ bool SaveGrayScaleImageAsDataFile(const std::string& FilePathAndName, const Imag
 
     if (ByteNumber <= 0)
     {
-        MDK_Error << "Unknown type of image @ SaveGrayScaleImageAsDataFile" << '\n';
+        MDK_Error("Unknown type of image @ SaveGrayScaleImageAsDataFile(...)")
         return false;
     }
 
@@ -258,7 +264,7 @@ bool SaveGrayScaleImageAsDataFile(const std::string& FilePathAndName, const Imag
 
     if (!DataFile.open(QIODevice::WriteOnly))
     {
-        MDK_Error << "Couldn't open file to write image data @ SaveGrayScaleImageAsDataFile" << '\n';
+        MDK_Error("Couldn't open file to write image data @ SaveGrayScaleImageAsDataFile(...)")
         return false;
     }
 
@@ -269,6 +275,8 @@ bool SaveGrayScaleImageAsDataFile(const std::string& FilePathAndName, const Imag
     DataFile.write(RawPointer, L*ByteNumber);
 
     DataFile.flush();
+
+    DataFile.close();
 
     return true;
 }
@@ -285,7 +293,7 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromDataFile(const std::string& Fil
 
     //----------------------------------------------------------
 
-    ScalarType ReferenceScalar = ScalarType(0);
+    auto ReferenceScalar = ScalarType(0);
 
     auto OutputScalarTypeName_temp = FindScalarTypeName(ReferenceScalar);
 
@@ -301,7 +309,7 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromDataFile(const std::string& Fil
 
     if (!HeaderFile.open(QIODevice::ReadOnly))
     {
-        MDK_Error << "Couldn't open HeaderFile." << '\n' ;
+        MDK_Error("Couldn't open Header File.")
         return OutputMatrix;
     }
 
@@ -320,7 +328,8 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromDataFile(const std::string& Fil
     }
     else
     {
-        MDK_Error << "Couldn't get ScalarType @ LoadScalarDenseMatrixFromDataFile" << '\n';
+        MDK_Error("Couldn't get ScalarType @ LoadScalarDenseMatrixFromDataFile(...)")
+        HeaderFile.close();
         return OutputMatrix;
     }
 
@@ -335,7 +344,8 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromDataFile(const std::string& Fil
     }
     else
     {
-        MDK_Error << "Couldn't get RowNumber @ LoadScalarDenseMatrixFromDataFile" << '\n';
+        MDK_Error("Couldn't get RowNumber @ LoadScalarDenseMatrixFromDataFile(...)")
+        HeaderFile.close();
         return OutputMatrix;
     }
 
@@ -348,279 +358,112 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromDataFile(const std::string& Fil
     }
     else
     {
-        MDK_Error << "Couldn't get ColNumber @ LoadScalarDenseMatrixFromDataFile" << '\n';
+        MDK_Error("Couldn't get ColNumber @ LoadScalarDenseMatrixFromDataFile(...)")
+        HeaderFile.close();
         return OutputMatrix;
     }
     
+    HeaderFile.close();
+
     //-------------------------------------------------- Read data ---------------------------------------------------------//
 
     QFile DataFile(QFilePathAndName + ".data");
 
     if (!DataFile.open(QIODevice::ReadOnly))
     {
-        MDK_Error << "Couldn't open data file:" << FilePathAndName;
+        MDK_Error("Couldn't open data file:" << FilePathAndName)
         return OutputMatrix;
     }
+
+    //----------------------------------------------------------------------------------------------
 
     if (OutputScalarTypeName == InputScalarTypeName)
     {
-        int64 BypesofDataFile = DataFile.size();
+        Internal_LoadScalarDenseMatrixFromDataFile<ScalarType, ScalarType>(OutputMatrix, DataFile, RowNumber, ColNumber, OutputByteNumber);
 
-        if (BypesofDataFile != RowNumber*ColNumber * OutputByteNumber)
-        {
-            MDK_Error << "Data file size is not equal to matrix size @ LoadScalarDenseMatrixFromDataFile" << '\n';
-            return OutputMatrix;
-        }
-
-        OutputMatrix.Resize(RowNumber, ColNumber);
-
-        DataFile.read((char*)(OutputMatrix.GetElementPointer()), BypesofDataFile);
+        DataFile.close();
 
         return OutputMatrix;
     }
 
-    //---------------------------------------
+    MDK_Warning("OutputScalarTypeName != InputScalarTypeName, Output may be wrong @ LoadScalarDenseMatrixFromDataFile(...)")
 
-    MDK_Warning << "OutputScalarTypeName != InputScalarTypeName, Output may be wrong @ LoadScalarDenseMatrixFromDataFile" << '\n';
 
     if (InputScalarTypeName == "double")
     {
-        int64 BypesofDataFile = DataFile.size();
-
-        if (BypesofDataFile != RowNumber*ColNumber*8)
-        {
-            MDK_Error << "Data file size is not equal to matrix size @ LoadScalarDenseMatrixFromDataFile" << '\n';
-            return OutputMatrix;
-        }
-
-        OutputMatrix.Resize(RowNumber, ColNumber);
-
-        auto ElementPointer = OutputMatrix.GetElementPointer();
-
-        double tempScalar = 0;
-
-        for (int64 i = 0; i < RowNumber*ColNumber; ++i)
-        {            
-            DataFile.read((char*)(&tempScalar), 8);
-
-            ElementPointer[i] = ScalarType(tempScalar);
-        }
+        Internal_LoadScalarDenseMatrixFromDataFile<ScalarType, double>(OutputMatrix, DataFile, RowNumber, ColNumber, 8);
     }
     else if (InputScalarTypeName == "float")
     {
-        int64 BypesofDataFile = DataFile.size();
-
-        if (BypesofDataFile != RowNumber*ColNumber*4)
-        {
-            MDK_Error << "Data file size is not equal to matrix size @ LoadScalarDenseMatrixFromDataFile" << '\n';
-            return OutputMatrix;
-        }
-
-        OutputMatrix.Resize(RowNumber, ColNumber);
-
-        auto ElementPointer = OutputMatrix.GetElementPointer();
-
-        float tempScalar = 0;
-
-        for (int64 i = 0; i < RowNumber*ColNumber; ++i)
-        {            
-            DataFile.read((char*)(&tempScalar), 4);
-
-            ElementPointer[i] = ScalarType(tempScalar);
-        }
+        Internal_LoadScalarDenseMatrixFromDataFile<ScalarType, float>(OutputMatrix, DataFile, RowNumber, ColNumber, 4);
     }
     else if (InputScalarTypeName == "int8")
     {
-        int64 BypesofDataFile = DataFile.size();
-
-        if (BypesofDataFile != RowNumber*ColNumber * 1)
-        {
-            MDK_Error << "Data file size is not equal to matrix size @ LoadScalarDenseMatrixFromDataFile" << '\n';
-            return OutputMatrix;
-        }
-
-        OutputMatrix.Resize(RowNumber, ColNumber);
-
-        auto ElementPointer = OutputMatrix.GetElementPointer();
-
-        int8 tempScalar = 0;
-
-        for (int64 i = 0; i < RowNumber*ColNumber; ++i)
-        {            
-            DataFile.read((char*)(&tempScalar), 1);
-
-            ElementPointer[i] = ScalarType(tempScalar);
-        }
+        Internal_LoadScalarDenseMatrixFromDataFile<ScalarType, int8>(OutputMatrix, DataFile, RowNumber, ColNumber, 1);
     }
     else if (InputScalarTypeName == "int16")
     {
-        int64 BypesofDataFile = DataFile.size();
-
-        if (BypesofDataFile != RowNumber*ColNumber * 2)
-        {
-            MDK_Error << "Data file size is not equal to matrix size @ LoadScalarDenseMatrixFromDataFile" << '\n';
-            return OutputMatrix;
-        }
-
-        OutputMatrix.Resize(RowNumber, ColNumber);
-
-        auto ElementPointer = OutputMatrix.GetElementPointer();
-
-        int16 tempScalar = 0;
-
-        for (int64 i = 0; i < RowNumber*ColNumber; ++i)
-        {            
-            DataFile.read((char*)(&tempScalar), 2);
-
-            ElementPointer[i] = ScalarType(tempScalar);
-        }
+        Internal_LoadScalarDenseMatrixFromDataFile<ScalarType, int16>(OutputMatrix, DataFile, RowNumber, ColNumber, 2);
     }
     else if (InputScalarTypeName == "int32")
     {
-        int64 BypesofDataFile = DataFile.size();
-
-        if (BypesofDataFile != RowNumber*ColNumber * 4)
-        {
-            MDK_Error << "Data file size is not equal to matrix size @ LoadScalarDenseMatrixFromDataFile" << '\n';
-            return OutputMatrix;
-        }
-
-        OutputMatrix.Resize(RowNumber, ColNumber);
-
-        auto ElementPointer = OutputMatrix.GetElementPointer();
-
-        int32 tempScalar = 0;
-
-        for (int64 i = 0; i < RowNumber*ColNumber; ++i)
-        {            
-            DataFile.read((char*)(&tempScalar), 4);
-
-            ElementPointer[i] = ScalarType(tempScalar);
-        }
+        Internal_LoadScalarDenseMatrixFromDataFile<ScalarType, int32>(OutputMatrix, DataFile, RowNumber, ColNumber, 4);
     }
     else if (InputScalarTypeName == "int64")
     {
-        int64 BypesofDataFile = DataFile.size();
-
-        if (BypesofDataFile != RowNumber*ColNumber * 8)
-        {
-            MDK_Error << "Data file size is not equal to matrix size @ LoadScalarDenseMatrixFromDataFile" << '\n';
-            return OutputMatrix;
-        }
-
-        OutputMatrix.Resize(RowNumber, ColNumber);
-
-        auto ElementPointer = OutputMatrix.GetElementPointer();
-
-        int64 tempScalar = 0;
-
-        for (int64 i = 0; i < RowNumber*ColNumber; ++i)
-        {           
-            DataFile.read((char*)(&tempScalar), 8);
-
-            ElementPointer[i] = ScalarType(tempScalar);
-        }
+        Internal_LoadScalarDenseMatrixFromDataFile<ScalarType, int64>(OutputMatrix, DataFile, RowNumber, ColNumber, 8);
     }
     else if (InputScalarTypeName == "uint8")
     {
-        int64 BypesofDataFile = DataFile.size();
-
-        if (BypesofDataFile != RowNumber*ColNumber * 1)
-        {
-            MDK_Error << "Data file size is not equal to matrix size @ LoadScalarDenseMatrixFromDataFile" << '\n';
-            return OutputMatrix;
-        }
-
-        OutputMatrix.Resize(RowNumber, ColNumber);
-
-        auto ElementPointer = OutputMatrix.GetElementPointer();
-
-        uint8 tempScalar = 0;
-
-        for (int64 i = 0; i < RowNumber*ColNumber; ++i)
-        {
-            DataFile.read((char*)(&tempScalar), 1);
-
-            ElementPointer[i] = ScalarType(tempScalar);
-        }
+        Internal_LoadScalarDenseMatrixFromDataFile<ScalarType, uint8>(OutputMatrix, DataFile, RowNumber, ColNumber, 1);
     }
     else if (InputScalarTypeName == "uint16")
     {
-        int64 BypesofDataFile = DataFile.size();
-
-        if (BypesofDataFile != RowNumber*ColNumber * 2)
-        {
-            MDK_Error << "Data file size is not equal to matrix size @ LoadScalarDenseMatrixFromDataFile" << '\n';
-            return OutputMatrix;
-        }
-
-        OutputMatrix.Resize(RowNumber, ColNumber);
-
-        auto ElementPointer = OutputMatrix.GetElementPointer();
-
-        uint16 tempScalar = 0;
-
-        for (int64 i = 0; i < RowNumber*ColNumber; ++i)
-        {            
-            DataFile.read((char*)(&tempScalar), 2);
-
-            ElementPointer[i] = ScalarType(tempScalar);
-        }
+        Internal_LoadScalarDenseMatrixFromDataFile<ScalarType, uint16>(OutputMatrix, DataFile, RowNumber, ColNumber, 2);
     }
     else if (InputScalarTypeName == "uint32")
     {
-        int64 BypesofDataFile = DataFile.size();
-
-        if (BypesofDataFile != RowNumber*ColNumber * 4)
-        {
-            MDK_Error << "Data file size is not equal to matrix size @ LoadScalarDenseMatrixFromDataFile" << '\n';
-            return OutputMatrix;
-        }
-
-        OutputMatrix.Resize(RowNumber, ColNumber);
-
-        auto ElementPointer = OutputMatrix.GetElementPointer();
-
-        uint32 tempScalar = 0;
-
-        for (int64 i = 0; i < RowNumber*ColNumber; ++i)
-        {
-            DataFile.read((char*)(&tempScalar), 4);
-
-            ElementPointer[i] = ScalarType(tempScalar);
-        }
+        Internal_LoadScalarDenseMatrixFromDataFile<ScalarType, uint32>(OutputMatrix, DataFile, RowNumber, ColNumber, 4);
     }
     else if (InputScalarTypeName == "uint64")
     {
-        int64 BypesofDataFile = DataFile.size();
-
-        if (BypesofDataFile != RowNumber*ColNumber * 8)
-        {
-            MDK_Error << "Data file size is not equal to matrix size @ LoadScalarDenseMatrixFromDataFile" << '\n';
-            return OutputMatrix;
-        }
-
-        OutputMatrix.Resize(RowNumber, ColNumber);
-
-        auto ElementPointer = OutputMatrix.GetElementPointer();
-
-        uint64 tempScalar = 0;
-
-        for (int64 i = 0; i < RowNumber*ColNumber; ++i)
-        {
-            DataFile.read((char*)(&tempScalar), 8);
-
-            ElementPointer[i] = ScalarType(tempScalar);
-        }
+        Internal_LoadScalarDenseMatrixFromDataFile<ScalarType, uint64>(OutputMatrix, DataFile, RowNumber, ColNumber, 8);
     }
     else
     {
-        MDK_Error << "unknown ScalarType of data file @ LoadScalarDenseMatrixFromDataFile " << '\n';
+        MDK_Error("unknown ScalarType of data file @ LoadScalarDenseMatrixFromDataFile(...) ")
     }
+
+    DataFile.close();
 
     return OutputMatrix;
 }
 
+
+template<typename OutputScalarType, typename InputScalarType>
+void Internal_LoadScalarDenseMatrixFromDataFile(DenseMatrix<OutputScalarType>& OutputMatrix, QFile& DataFile, int64 RowNumber, int64 ColNumber, int64 BytesOfInputScalarType)
+{
+    int64 BypesofDataFile = DataFile.size();
+
+    if (BypesofDataFile != RowNumber*ColNumber * BytesOfInputScalarType)
+    {
+        MDK_Error("Data file size is not equal to matrix size @ LoadScalarDenseMatrixFromDataFile(...)")
+        return;
+    }
+
+    OutputMatrix.FastResize(RowNumber, ColNumber);
+
+    auto ElementPointer = OutputMatrix.GetElementPointer();
+
+    auto tempScalar = InputScalarType(0);
+
+    for (int64 i = 0; i < RowNumber*ColNumber; ++i)
+    {
+        DataFile.read((char*)(&tempScalar), BytesOfInputScalarType);
+
+        ElementPointer[i] = OutputScalarType(tempScalar);
+    }
+}
 
 // note:
 // do not include file type in FilePathAndName
@@ -635,7 +478,7 @@ bool SaveScalarDenseMatrixAsDataFile(const std::string& FilePathAndName, const D
 
     if (ByteNumber <= 0)
     {
-        MDK_Error << "Unknown type of matrix @ SaveScalarDenseMatrixAsDataFile" << '\n';
+        MDK_Error("Unknown type of matrix @ SaveScalarDenseMatrixAsDataFile(...)")
         return false;
     }
 
@@ -672,7 +515,7 @@ bool SaveScalarDenseMatrixAsDataFile(const std::string& FilePathAndName, const D
 
     if (!DataFile.open(QIODevice::WriteOnly))
     {
-        MDK_Error << "Couldn't open file to write matrix data @ SaveScalarDenseMatrixAsDataFile" << '\n';
+        MDK_Error("Couldn't open file to write matrix data @ SaveScalarDenseMatrixAsDataFile(...)")
         return false;
     }
 

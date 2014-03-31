@@ -34,7 +34,7 @@ bool KNNReconstructionSparseEncoder<ElementType>::SetNeighbourNumber(int64 Neigh
 {
     if (NeighbourNumber <= 0)
     {
-        MDK_Error << "Invalid input @ KNNReconstructionSparseEncoder::SetNeighbourNumber(NeighbourNumber)" << '\n';
+        MDK_Error("Invalid input @ KNNReconstructionSparseEncoder::SetNeighbourNumber(NeighbourNumber)")
         return false;
     }
 
@@ -54,7 +54,7 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInputAndOutput()
 
     if (m_MaxNumberOfNonzeroElementsInEachCode <= 0)
     {
-        MDK_Error << "Invalid input NeighbourNumber (<= 0) @ KNNReconstructionSparseEncoder::CheckInputAndOutput()" << '\n';
+        MDK_Error("Invalid input NeighbourNumber (<= 0) @ KNNReconstructionSparseEncoder::CheckInputAndOutput()")
         return false;
     }
 
@@ -67,7 +67,7 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int64 IndexOf
 {
     auto FeatureVector = m_FeatureData->GetCol(IndexOfFeatureVector);
 
-    auto L2DistanceList = ComputeListOfL2DistanceFromOneFeatureToFeatureDictionary(FeatureVector, m_Dictionary->m_Record);
+    auto L2DistanceList = ComputeL2DistanceListFromSingleVectorToVectorSet(FeatureVector, m_Dictionary->m_Record);
 
     auto NeighbourIndexList = FindKNNByDistanceList(m_MaxNumberOfNonzeroElementsInEachCode, L2DistanceList);
 

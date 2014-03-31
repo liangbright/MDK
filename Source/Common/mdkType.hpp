@@ -163,7 +163,7 @@ int64 CalByteNumberOfScalar(ScalarType Scalar)
         return 8;
     }
 
-    MDK_Error << "Unknown ScalarType @ CalByteNumberOfScalar" << '\n';
+    MDK_Error("Unknown ScalarType @ CalByteNumberOfScalar")
     return 0;
 }
 

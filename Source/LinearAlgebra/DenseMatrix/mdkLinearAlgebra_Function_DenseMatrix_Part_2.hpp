@@ -16,7 +16,7 @@ ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix)
 
     if (ElementNumber <= 0)
     {
-        MDK_Error << "Input is an empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMean(InputMatrix)" << '\n';
+        MDK_Error("Input is an empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMean(InputMatrix)")
         return InputMatrix.GetNaNElement();
     }
 
@@ -45,7 +45,7 @@ DenseMatrix<ElementType> MatrixMeanToRow(const DenseMatrix<ElementType>& InputMa
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMeanToRow(InputMatrix)" << '\n';
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMeanToRow(InputMatrix)")
 
         return tempMatrix;
     }
@@ -86,7 +86,7 @@ DenseMatrix<ElementType> MatrixMeanToCol(const DenseMatrix<ElementType>& InputMa
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMeanToCol(InputMatrix)" << '\n';
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMeanToCol(InputMatrix)")
 
         return tempMatrix;
     }
@@ -125,7 +125,7 @@ ElementType MatrixMax(const DenseMatrix<ElementType>& InputMatrix)
 
     if (Input_ElementNumber <= 0)
     {
-        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMax(InputMatrix)" << '\n';
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMax(InputMatrix)")
         return InputMatrix.GetNaNElement();
     }
 
@@ -152,7 +152,7 @@ DenseMatrix<ElementType> MatrixMaxToRow(const DenseMatrix<ElementType>& InputMat
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMaxToRow(InputMatrix)" << '\n';
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMaxToRow(InputMatrix)")
 
         return tempMatrix;
     }
@@ -193,7 +193,7 @@ DenseMatrix<ElementType> MatrixMaxToCol(const DenseMatrix<ElementType>& InputMat
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMaxToCol(InputMatrix)" << '\n';
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMaxToCol(InputMatrix)")
 
         return tempMatrix;
     }
@@ -232,7 +232,7 @@ ElementType MatrixMin(const DenseMatrix<ElementType>& InputMatrix)
 
     if (Input_ElementNumber <= 0)
     {
-        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMin(InputMatrix)" << '\n';
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMin(InputMatrix)")
         return InputMatrix.GetNaNElement();
     }
 
@@ -259,7 +259,7 @@ DenseMatrix<ElementType> MatrixMinToRow(const DenseMatrix<ElementType>& InputMat
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMinToRow(InputMatrix)" << '\n';
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMinToRow(InputMatrix)")
 
         return tempMatrix;
     }
@@ -300,7 +300,7 @@ DenseMatrix<ElementType> MatrixMinToCol(const DenseMatrix<ElementType>& InputMat
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMinToCol(InputMatrix)" << '\n';
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMinToCol(InputMatrix)")
 
         return tempMatrix;
     }
@@ -339,7 +339,7 @@ ElementType MatrixSum(const DenseMatrix<ElementType>& InputMatrix)
 
     if (Input_ElementNumber <= 0)
     {
-        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSum(InputMatrix)" << '\n';
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSum(InputMatrix)")
         return InputMatrix.GetNaNElement();
     }
 
@@ -366,7 +366,7 @@ DenseMatrix<ElementType> MatrixSumToRow(const DenseMatrix<ElementType>& InputMat
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error << "InputMatrix is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSumToRow(InputMatrix)" << '\n';
+        MDK_Error("InputMatrix is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSumToRow(InputMatrix)")
 
         return tempMatrix;
     }
@@ -407,7 +407,7 @@ DenseMatrix<ElementType> MatrixSumToCol(const DenseMatrix<ElementType>& InputMat
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error << "Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSumToCol(InputMatrix)" << '\n';
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSumToCol(InputMatrix)")
 
         return tempMatrix;
     }
@@ -448,7 +448,7 @@ ElementType MatrixNorm_L1(const DenseMatrix<ElementType>& InputMatrix)
 
     if (ElementNumber == 0)
     {
-        MDK_Error << "empty input matrix @ mdkLinearAlgebra_DenseMatrix MatrixNorm_L1(InputMatrix)" << '\n';
+        MDK_Error("empty input matrix @ mdkLinearAlgebra_DenseMatrix MatrixNorm_L1(InputMatrix)")
         return InputMatrix.GetNaNElement();
     }
 
@@ -473,7 +473,7 @@ ElementType MatrixNorm_L2(const DenseMatrix<ElementType>& InputMatrix)
 
     if (ElementNumber == 0)
     {
-        MDK_Error << "empty input matrix @ mdkLinearAlgebra_DenseMatrix MatrixNorm_L2(InputMatrix)" << '\n';
+        MDK_Error("empty input matrix @ mdkLinearAlgebra_DenseMatrix MatrixNorm_L2(InputMatrix)")
         return InputMatrix.GetNaNElement();
     }
 
@@ -502,7 +502,7 @@ DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& InputMa
 
     if (Size.RowNumber == 0)
     {
-        MDK_Error << "InputMatrix is empty @ mdkLinearAlgebra_DenseMatrix MatrixTranspose(InputMatrix)" << '\n';
+        MDK_Error("InputMatrix is empty @ mdkLinearAlgebra_DenseMatrix MatrixTranspose(InputMatrix)")
 
         return tempMatrix;
     }
@@ -553,7 +553,7 @@ int64 MatrixRank(const DenseMatrix<ElementType>& InputMatrix)
 
     if (Size.RowNumber == 0)
     {
-        MDK_Error << "InputMatrix is empty  @ mdkLinearAlgebra_DenseMatrix MatrixRank(InputMatrix)" << '\n';
+        MDK_Error("InputMatrix is empty  @ mdkLinearAlgebra_DenseMatrix MatrixRank(InputMatrix)")
         return 0;
     }
 
@@ -579,14 +579,14 @@ DenseMatrix<ElementType> MatrixInv(const DenseMatrix<ElementType>& InputMatrix)
 
     if (Size.RowNumber == 0)
     {
-        MDK_Error << "InputMatrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixInv(InputMatrix)" << '\n';
+        MDK_Error("InputMatrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixInv(InputMatrix)")
 
         return tempMatrix;
     }
 
     if (Size.RowNumber != Size.ColNumber)
     {
-        MDK_Error << "InputMatrix is not square @ mdkLinearAlgebra_DenseMatrix MatrixInv(InputMatrix)" << '\n';
+        MDK_Error("InputMatrix is not square @ mdkLinearAlgebra_DenseMatrix MatrixInv(InputMatrix)")
 
         return tempMatrix;
     }
@@ -617,14 +617,14 @@ DenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(co
 
     if (Size.RowNumber == 0)
     {
-        MDK_Error << "InputMatrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixEigen(InputMatrix)" << '\n';
+        MDK_Error("InputMatrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixEigen(InputMatrix)")
 
         return Result;
     }
 
     if (Size.RowNumber != Size.ColNumber)
     {
-        MDK_Error << "InputMatrix is not square @ mdkLinearAlgebra MatrixEigen(InputMatrix)" << '\n';
+        MDK_Error("InputMatrix is not square @ mdkLinearAlgebra MatrixEigen(InputMatrix)")
 
         return Result;
     }
@@ -659,14 +659,14 @@ DenseMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const DenseMatrix<E
 
     if (Size.RowNumber == 0)
     {
-        MDK_Error << "Matrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixEigen(Matrix)" << '\n';
+        MDK_Error("Matrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixEigen(Matrix)")
 
         return Result;
     }
 
     if (Size.RowNumber != Size.ColNumber)
     {
-        MDK_Error << "Matrix is not square @ mdkLinearAlgebra_DenseMatrix MatrixEigen(Matrix)" << '\n';
+        MDK_Error("Matrix is not square @ mdkLinearAlgebra_DenseMatrix MatrixEigen(Matrix)")
 
         return Result;
     }
@@ -681,7 +681,7 @@ DenseMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const DenseMatrix<E
 
         if (std::abs(tempsum) > 0.00000001)
         {
-            MDK_Error << "Matrix is not Symmetric, try to generate result @ mdkLinearAlgebra_DenseMatrix MatrixEigen(InputMatrix)" << '\n';
+            MDK_Error("Matrix is not Symmetric, try to generate result @ mdkLinearAlgebra_DenseMatrix MatrixEigen(InputMatrix)")
         }
     }
   
@@ -715,7 +715,7 @@ DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& Inpu
 
     if (Size.ColNumber <= 1)
     {
-        MDK_Error << "ColNumber <= 1, return empty PCAResult @ mdkLinearAlgebra MatrixPCA(Matrix)" << '\n';
+        MDK_Error("ColNumber <= 1, return empty PCAResult @ mdkLinearAlgebra MatrixPCA(Matrix)")
         return PCAResult;
     }
 
@@ -763,7 +763,7 @@ DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Inpu
 
     if (Size.RowNumber == 0)
     {
-        MDK_Error << "Matrix is empty  @ mdkLinearAlgebra MatrixSVD(InputMatrix)" << '\n';
+        MDK_Error("Matrix is empty  @ mdkLinearAlgebra MatrixSVD(InputMatrix)")
         return Result;
     }
 

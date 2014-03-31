@@ -260,8 +260,6 @@ public:
 
     //---------------------------------------------------------//
     
-    // only an empty image A can use A.Share(B)
-    //
     bool Share(Image<VoxelType>& InputImage);
 
     bool Share(Image<VoxelType>* InputImage);

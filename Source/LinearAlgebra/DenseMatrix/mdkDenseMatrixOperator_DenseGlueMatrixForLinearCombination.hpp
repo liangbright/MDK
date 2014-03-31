@@ -30,7 +30,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Error << "GlueMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: +(GlueMatrixA_ForLinearCombination, MatrixB)" << '\n';
+        MDK_Error("GlueMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: +(GlueMatrixA_ForLinearCombination, MatrixB)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
         return EmptyGlueMatrix;
     }
@@ -53,7 +53,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: +(GlueMatrixA_ForLinearCombination, MatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: +(GlueMatrixA_ForLinearCombination, MatrixB)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
         return EmptyGlueMatrix;
     }
@@ -86,7 +86,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Error << "GlueMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: -(GlueMatrixA_ForLinearCombination, MatrixB)" << '\n';
+        MDK_Error("GlueMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: -(GlueMatrixA_ForLinearCombination, MatrixB)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
         return EmptyGlueMatrix;
     }
@@ -109,7 +109,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: -(GlueMatrixA_ForLinearCombination, MatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: -(GlueMatrixA_ForLinearCombination, MatrixB)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
         return EmptyGlueMatrix;
     }
@@ -163,7 +163,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Error << "MatrixA or GlueMatrixB is empty @ mdkDenseMatrixOperator: +(MatrixA, GlueMatrixB_ForLinearCombination)" << '\n';
+        MDK_Error("MatrixA or GlueMatrixB is empty @ mdkDenseMatrixOperator: +(MatrixA, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
         return EmptyGlueMatrix;
     }
@@ -186,7 +186,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: +(MatrixA, GlueMatrixB_ForLinearCombination)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: +(MatrixA, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
         return EmptyGlueMatrix;
     }
@@ -219,7 +219,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Error << "MatrixA or GlueMatrixB is empty @ mdkDenseMatrixOperator: -(MatrixA, GlueMatrixB_ForLinearCombination)" << '\n';
+        MDK_Error("MatrixA or GlueMatrixB is empty @ mdkDenseMatrixOperator: -(MatrixA, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
         return EmptyGlueMatrix;
     }
@@ -242,7 +242,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: -(MatrixA, GlueMatrixB_ForLinearCombination)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: -(MatrixA, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
         return EmptyGlueMatrix;
     }
@@ -481,7 +481,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Error << "GlueMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: +(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)" << '\n';
+        MDK_Error("GlueMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: +(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
         return EmptyGlueMatrix;
     }
@@ -506,7 +506,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: +(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: +(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
         return EmptyGlueMatrix;
     }
@@ -552,7 +552,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Error << "GlueMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: -(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)" << '\n';
+        MDK_Error("GlueMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: -(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
         return EmptyGlueMatrix;
     }
@@ -577,7 +577,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        MDK_Error << "Size does not match @ mdkDenseMatrixOperator: -(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)" << '\n';
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: -(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
         return EmptyGlueMatrix;
     }

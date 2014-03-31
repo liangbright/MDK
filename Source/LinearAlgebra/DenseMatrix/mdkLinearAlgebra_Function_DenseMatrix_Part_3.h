@@ -15,6 +15,13 @@ template<typename ElementType>
 class DenseMatrix;
 //-------------------------------------//
 
+// SingleVector is a column vector
+// each column of VectorSet is a vector
+// L2DistanceList[j] = distance between SingleVector and VectorSet(ALL, j)
+template<typename ElementType>
+DenseMatrix<ElementType> ComputeL2DistanceListFromSingleVectorToVectorSet(const DenseMatrix<ElementType>& SingleVector,
+                                                                          const DenseMatrix<ElementType>& VectorSet);
+
 
 //--------------------SolveLinearLeastSquaresProblem (lsqlin in Matlab) --------------------------------------------------------//
 // similar to lsqlin in Matlab, use the same notation

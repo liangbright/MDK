@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <mdkDebug.h>
+
 namespace mdk
 {
 
@@ -13,9 +15,12 @@ namespace mdk
 
 //#define  mdkDebugCode(x) 
 
-#define  MDK_Warning    std::cout << "Warning: "
-
-#define  MDK_Error      std::cout << '\a' << '\a' << '\a' << "ERROR: !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!: " << '\n'
+#define  MDK_Warning(x)    std::cout << "Warning: " << x << '\n';
+    
+#define  MDK_Error(x)      std::cout << '\a' << '\a' << '\a' << "ERROR: !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!: " << '\n' \
+                                     << x << '\n';  \
+                           std::system("pause");    \
+                           Pause_Here_To_Debug<double>();
 
 /*
 #define  MDK_Warning    std::cout << "Warning: ......" << '\n' \

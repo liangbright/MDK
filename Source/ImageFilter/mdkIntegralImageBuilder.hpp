@@ -35,7 +35,7 @@ bool IntegralImageBuilder<VoxelType_Input, VoxelType_Output>::CheckInput()
 
     if (m_Flag_OutputImage == false)
     {
-        MDK_Error << "OutputImage is invalid @ IntegralImageBuilder::CheckInput" << '\n';
+        MDK_Error("OutputImage is invalid @ IntegralImageBuilder::CheckInput")
         return false;
     }
 
@@ -45,7 +45,7 @@ bool IntegralImageBuilder<VoxelType_Input, VoxelType_Output>::CheckInput()
 
     if (InputDim.Lx != OutputDim.Lx || InputDim.Ly != OutputDim.Ly || InputDim.Lz != OutputDim.Lz)
     {
-        MDK_Error << "Dimension does not match @ IntegralImageBuilder::CheckInput" << '\n';
+        MDK_Error("Dimension does not match @ IntegralImageBuilder::CheckInput")
         return false;
     }
 
@@ -60,7 +60,7 @@ Compute2DIntegralImage(int64 z_Index_start, int64 z_Index_end)
 {
     if (z_Index_end < z_Index_start || z_Index_start < 0)
     {
-        MDK_Error << "Invalid input @ IntegralImageBuilder::Compute2DIntegralImage" << '\n';
+        MDK_Error("Invalid input @ IntegralImageBuilder::Compute2DIntegralImage")
         return;
     }
 
@@ -101,7 +101,7 @@ ComputeSumInZDirection(int64 xy_LinearIndex_start, int64 xy_LinearIndex_end)
 {
     if (xy_LinearIndex_end < xy_LinearIndex_start || xy_LinearIndex_start < 0)
     {
-        MDK_Error << "Invalid input @ IntegralImageBuilder::ComputeSumInZDirection" << '\n';
+        MDK_Error("Invalid input @ IntegralImageBuilder::ComputeSumInZDirection")
         return;
     }
 
