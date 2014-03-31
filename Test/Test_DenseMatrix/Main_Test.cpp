@@ -68,10 +68,6 @@ int aaa_main()
 
 int main()
 {
-    DenseMatrix<double> A = {1, 2};
-
-    A=A*A;
-
    // auto a = Test_A(1, 1);
 
    // auto b = Test_A({ 1 }, {});

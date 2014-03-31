@@ -19,7 +19,6 @@ namespace mdk
     
 #define  MDK_Error(x)      std::cout << '\a' << '\a' << '\a' << "ERROR: !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!: " << '\n' \
                                      << x << '\n';  \
-                           std::system("pause");    \
                            Pause_Here_To_Debug<double>();
 
 /*

@@ -21,14 +21,13 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix()
     m_Flag_All_Row = false;
 
     m_Flag_All_Col = false;
-
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 }
 
-//>>>
+
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::initializer_list<int64>& LinearIndexList)
+: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}), A is a matrix    
     // the constructed ShadowMatrix is a col-vector
@@ -60,6 +59,7 @@ inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   const std::initializer_list<int64>& RowIndexList,
                                                   const std::initializer_list<int64>& ColIndexList)
+: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, {0, 1}), A is a matrix    
@@ -97,6 +97,7 @@ inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   const std::initializer_list<int64>& RowIndexList,
                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
+: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, ALL), A is a matrix    
@@ -139,6 +140,7 @@ inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
                                                   const std::initializer_list<int64>& ColIndexList)
+: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A(ALL, {0, 1, 2}), A is a matrix    
@@ -174,11 +176,12 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 }
-//>>>
+
 
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& LinearIndexList)
+: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}), A is a matrix    
     // the constructed ShadowMatrix is a col-vector
@@ -210,6 +213,7 @@ inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   const std::vector<int64>& RowIndexList,
                                                   const std::vector<int64>& ColIndexList)
+: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, {0, 1}), A is a matrix    
@@ -247,6 +251,7 @@ inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   const std::vector<int64>& RowIndexList,
                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
+: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, ALL), A is a matrix    
@@ -289,6 +294,7 @@ inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
                                                   const std::vector<int64>& ColIndexList)
+: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A(ALL, {0, 1, 2}), A is a matrix    
@@ -330,6 +336,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int64>& LinearIndexList)
+: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}), A is a matrix    
     // the constructed ShadowMatrix is a col-vector
@@ -366,6 +373,7 @@ inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   const DenseMatrix<int64>& RowIndexList,
                                                   const DenseMatrix<int64>& ColIndexList)
+: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, {0, 1}), A is a matrix    
@@ -413,6 +421,7 @@ inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   const DenseMatrix<int64>& RowIndexList,
                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
+: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, ALL), A is a matrix    
@@ -460,6 +469,7 @@ inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
                                                   const DenseMatrix<int64>& ColIndexList)
+: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A(ALL, {0, 1, 2}), A is a matrix    
@@ -506,6 +516,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
+: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
 
@@ -547,6 +558,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline 
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(DenseShadowMatrix<ElementType>&& ShadowMatrix)
+: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     m_SourceMatrixSharedCopy.ForceShare(ShadowMatrix.m_SourceMatrixSharedCopy); // std::move will move the data, i.e., std::move = Take
 
@@ -671,8 +683,11 @@ DenseMatrix<ElementType> DenseShadowMatrix<ElementType>::CreateDenseMatrix() con
 {
     DenseMatrix<ElementType> tempMatrix;
 
-    this->CreateDenseMatrix(tempMatrix);
-
+    if (m_ElementNumber > 0)
+    {
+        this->CreateDenseMatrix(tempMatrix);
+    }
+    
     return tempMatrix;
 }
 

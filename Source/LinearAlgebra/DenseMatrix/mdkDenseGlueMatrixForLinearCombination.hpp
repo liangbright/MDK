@@ -107,12 +107,7 @@ template<typename ElementType>
 inline
 bool DenseGlueMatrixForLinearCombination<ElementType>::IsEmpty() const
 {
-    if (m_RowNumber <= 0)
-    {
-        return true;
-    }
-
-    return false;
+    return (m_RowNumber <= 0);
 }
 
 
@@ -123,7 +118,10 @@ DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix() const
 {
     DenseMatrix<ElementType> tempMatrix;
 
-    this->CreateDenseMatrix(tempMatrix);
+    if (this->IsEmpty() == false)
+    {
+        this->CreateDenseMatrix(tempMatrix);
+    }
 
     return tempMatrix;
 }

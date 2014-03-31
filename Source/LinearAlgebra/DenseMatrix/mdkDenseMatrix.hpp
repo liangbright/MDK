@@ -3111,8 +3111,7 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
     {
         if (OutputMatrix.IsSizeFixed() == false)
         {
-            OutputMatrix.Clear();
-            OutputMatrix.Resize(OutputRowNumber, OutputColNumber);
+            OutputMatrix.FastResize(OutputRowNumber, OutputColNumber);
         }
         else
         {
@@ -3376,8 +3375,7 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
     {
         if (OutputMatrix.IsSizeFixed() == false)
         {
-            OutputMatrix.Clear();
-            OutputMatrix.Resize(OutputRowNumber, OutputColNumber);
+            OutputMatrix.FastResize(OutputRowNumber, OutputColNumber);
         }
         else
         {

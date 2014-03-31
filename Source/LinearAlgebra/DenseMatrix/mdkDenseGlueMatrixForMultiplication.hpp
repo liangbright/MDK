@@ -99,12 +99,7 @@ template<typename ElementType>
 inline
 bool DenseGlueMatrixForMultiplication<ElementType>::IsEmpty() const
 {
-    if (m_RowNumber <= 0)
-    {
-        return true;
-    }
-
-    return false;
+    return (m_RowNumber <= 0);
 }
 
 
@@ -114,7 +109,10 @@ DenseMatrix<ElementType> DenseGlueMatrixForMultiplication<ElementType>::CreateDe
 {
     DenseMatrix<ElementType> tempMatrix;
 
-    this->CreateDenseMatrix(tempMatrix);
+    if (this->IsEmpty() == false)
+    {
+        this->CreateDenseMatrix(tempMatrix);
+    }
 
     return tempMatrix;
 }
