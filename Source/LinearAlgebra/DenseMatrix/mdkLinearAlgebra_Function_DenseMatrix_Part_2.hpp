@@ -56,13 +56,13 @@ DenseMatrix<ElementType> MatrixMeanToRow(const DenseMatrix<ElementType>& InputMa
 
     auto RawPointer = InputMatrix.GetElementPointer();
 
-    for (int64 j = 0; j < InputSize.ColNumber; ++j)
+    for (int_max j = 0; j < InputSize.ColNumber; ++j)
     {
         auto value = RawPointer[0];
 
         ++RawPointer;
 
-        for (int64 i = 1; i < InputSize.RowNumber; ++i)
+        for (int_max i = 1; i < InputSize.RowNumber; ++i)
         {
             value += RawPointer[0];
 
@@ -97,13 +97,13 @@ DenseMatrix<ElementType> MatrixMeanToCol(const DenseMatrix<ElementType>& InputMa
 
     auto RawPointer = InputMatrix.GetElementPointer();
 
-    for (int64 i = 0; i < InputSize.RowNumber; ++i)
+    for (int_max i = 0; i < InputSize.RowNumber; ++i)
     {
         auto value = RawPointer[0];
 
-        int64 Index = InputSize.RowNumber;
+        int_max Index = InputSize.RowNumber;
 
-        for (int64 j = 1; j < InputSize.ColNumber; ++j)
+        for (int_max j = 1; j < InputSize.ColNumber; ++j)
         {
             value += RawPointer[Index + i];
 
@@ -163,13 +163,13 @@ DenseMatrix<ElementType> MatrixMaxToRow(const DenseMatrix<ElementType>& InputMat
 
     auto RawPointer = InputMatrix.GetElementPointer();
 
-    for (int64 j = 0; j < InputSize.ColNumber; ++j)
+    for (int_max j = 0; j < InputSize.ColNumber; ++j)
     {
         auto value = RawPointer[0];
 
         ++RawPointer;
 
-        for (int64 i = 1; i < InputSize.RowNumber; ++i)
+        for (int_max i = 1; i < InputSize.RowNumber; ++i)
         {
             value = std::max(value, RawPointer[0]);
 
@@ -204,13 +204,13 @@ DenseMatrix<ElementType> MatrixMaxToCol(const DenseMatrix<ElementType>& InputMat
 
     auto RawPointer = InputMatrix.GetElementPointer();
 
-    for (int64 i = 0; i < InputSize.RowNumber; ++i)
+    for (int_max i = 0; i < InputSize.RowNumber; ++i)
     {
         auto value = RawPointer[i];
 
         auto Index = InputSize.RowNumber;
 
-        for (int64 j = 1; j < InputSize.ColNumber; ++j)
+        for (int_max j = 1; j < InputSize.ColNumber; ++j)
         {
             value = std::max(value, RawPointer[Index + i]);
 
@@ -270,13 +270,13 @@ DenseMatrix<ElementType> MatrixMinToRow(const DenseMatrix<ElementType>& InputMat
 
     auto RawPointer = InputMatrix.GetElementPointer();
 
-    for (int64 j = 0; j < InputSize.ColNumber; ++j)
+    for (int_max j = 0; j < InputSize.ColNumber; ++j)
     {
         auto value = RawPointer[0];
 
         ++RawPointer;
 
-        for (int64 i = 1; i < InputSize.RowNumber; ++i)
+        for (int_max i = 1; i < InputSize.RowNumber; ++i)
         {
             value = std::min(value, RawPointer[0]);
 
@@ -311,13 +311,13 @@ DenseMatrix<ElementType> MatrixMinToCol(const DenseMatrix<ElementType>& InputMat
 
     auto RawPointer = InputMatrix.GetElementPointer();
 
-    for (int64 i = 0; i < InputSize.RowNumber; ++i)
+    for (int_max i = 0; i < InputSize.RowNumber; ++i)
     {
         auto value = RawPointer[i];
 
         auto Index = InputSize.RowNumber;
 
-        for (int64 j = 1; j < InputSize.ColNumber; ++j)
+        for (int_max j = 1; j < InputSize.ColNumber; ++j)
         {
             value = std::min(value, RawPointer[Index + i]);
 
@@ -377,13 +377,13 @@ DenseMatrix<ElementType> MatrixSumToRow(const DenseMatrix<ElementType>& InputMat
 
     auto RawPointer = InputMatrix.GetElementPointer();
 
-    for (int64 j = 0; j < InputSize.ColNumber; ++j)
+    for (int_max j = 0; j < InputSize.ColNumber; ++j)
     {
         auto value = RawPointer[0];
 
         ++RawPointer;
 
-        for (int64 i = 1; i < InputSize.RowNumber; ++i)
+        for (int_max i = 1; i < InputSize.RowNumber; ++i)
         {
             value += RawPointer[0];
 
@@ -418,13 +418,13 @@ DenseMatrix<ElementType> MatrixSumToCol(const DenseMatrix<ElementType>& InputMat
 
     auto RawPointer = InputMatrix.GetElementPointer();
 
-    for (int64 i = 0; i < InputSize.RowNumber; ++i)
+    for (int_max i = 0; i < InputSize.RowNumber; ++i)
     {
         auto value = RawPointer[i];
 
-        int64 Index = InputSize.RowNumber;
+        int_max Index = InputSize.RowNumber;
 
-        for (int64 j = 1; j < InputSize.ColNumber; ++j)
+        for (int_max j = 1; j < InputSize.ColNumber; ++j)
         {
             value += RawPointer[Index + i];
 
@@ -527,11 +527,11 @@ DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& InputMa
 
     auto RawPointer = InputMatrix.GetElementPointer();
 
-    for (int64 i = 0; i < Size.RowNumber; ++i)
+    for (int_max i = 0; i < Size.RowNumber; ++i)
     {
-        int64 Index = 0;
+        int_max Index = 0;
 
-        for (int64 j = 0; j < Size.ColNumber; ++j)
+        for (int_max j = 0; j < Size.ColNumber; ++j)
         {
             tempRawPointer[0] = RawPointer[Index + i];
 
@@ -547,7 +547,7 @@ DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& InputMa
 
 template<typename ElementType>
 inline 
-int64 MatrixRank(const DenseMatrix<ElementType>& InputMatrix)
+int_max MatrixRank(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto Size = InputMatrix.GetSize();
 
@@ -563,7 +563,7 @@ int64 MatrixRank(const DenseMatrix<ElementType>& InputMatrix)
 
     arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);
 
-    int64 value = arma::rank(tempMat);
+    int_max value = arma::rank(tempMat);
 
     return value;
 }
@@ -726,7 +726,7 @@ DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& Inpu
 
     CovarianceMatrix.Fill(0);
 
-    for (int64 i = 0; i < Size.ColNumber; ++i)
+    for (int_max i = 0; i < Size.ColNumber; ++i)
     {
         // auto tempCol = Matrix(ALL, { i }) - MeanCol;
 

@@ -16,7 +16,7 @@ VectorVoxelWithVariableSize<ElementType>::VectorVoxelWithVariableSize()
 
 template<typename ElementType>
 inline
-VectorVoxelWithVariableSize<ElementType>::VectorVoxelWithVariableSize(const ElementType& Element, int64 Length = 1)
+VectorVoxelWithVariableSize<ElementType>::VectorVoxelWithVariableSize(const ElementType& Element, int_max Length = 1)
 {
     m_ElementData.resize(Length);
 
@@ -53,7 +53,7 @@ operator=(const VectorVoxelWithVariableSize<ElementType>& Voxel);
         return;
     }
 
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_ElementData[i] = Voxel[i];
     }
@@ -85,7 +85,7 @@ void VectorVoxelWithVariableSize<ElementType>::Fill(const ElementType& Element)
 {
     auto Length = this->GetLength();
 
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_ElementData[i] = Element;
     }
@@ -96,9 +96,9 @@ void VectorVoxelWithVariableSize<ElementType>::Fill(const ElementType& Element)
 
 template<typename ElementType>
 inline
-int64 VectorVoxelWithVariableSize<ElementType>::GetLength()
+int_max VectorVoxelWithVariableSize<ElementType>::GetLength()
 {
-    return int64(m_ElementData.size());
+    return int_max(m_ElementData.size());
 }
 
 
@@ -123,7 +123,7 @@ const ElementType* VectorVoxelWithVariableSize<ElementType>::GetElementPointer()
 
 template<typename ElementType>
 inline
-ElementType& VectorVoxelWithVariableSize<ElementType>::operator[](int64 Index)
+ElementType& VectorVoxelWithVariableSize<ElementType>::operator[](int_max Index)
 {
 #if defined MDK_DEBUG_VectorVoxelWithVariableSize_Operator_CheckBound
 
@@ -143,7 +143,7 @@ ElementType& VectorVoxelWithVariableSize<ElementType>::operator[](int64 Index)
 
 template<typename ElementType>
 inline
-const ElementType& VectorVoxelWithVariableSize<ElementType>::operator[](int64 Index) const
+const ElementType& VectorVoxelWithVariableSize<ElementType>::operator[](int_max Index) const
 {
 #if defined MDK_DEBUG_VectorVoxelWithVariableSize_Operator_CheckBound
 
@@ -163,7 +163,7 @@ const ElementType& VectorVoxelWithVariableSize<ElementType>::operator[](int64 In
 
 template<typename ElementType>
 inline
-ElementType& VectorVoxelWithVariableSize<ElementType>::operator()(int64 Index)
+ElementType& VectorVoxelWithVariableSize<ElementType>::operator()(int_max Index)
 {
 #if defined MDK_DEBUG_VectorVoxelWithVariableSize_Operator_CheckBound
 
@@ -183,7 +183,7 @@ ElementType& VectorVoxelWithVariableSize<ElementType>::operator()(int64 Index)
 
 template<typename ElementType>
 inline
-const ElementType& VectorVoxelWithVariableSize<ElementType>::operator()(int64 Index) const
+const ElementType& VectorVoxelWithVariableSize<ElementType>::operator()(int_max Index) const
 {
 #if defined MDK_DEBUG_VectorVoxelWithVariableSize_Operator_CheckBound
 
@@ -203,7 +203,7 @@ const ElementType& VectorVoxelWithVariableSize<ElementType>::operator()(int64 In
 
 template<typename ElementType>
 inline
-ElementType& VectorVoxelWithVariableSize<ElementType>::at(int64 Index)
+ElementType& VectorVoxelWithVariableSize<ElementType>::at(int_max Index)
 {
     auto Length = this->GetLength();
 
@@ -219,7 +219,7 @@ ElementType& VectorVoxelWithVariableSize<ElementType>::at(int64 Index)
 
 template<typename ElementType>
 inline
-const ElementType& VectorVoxelWithVariableSize<ElementType>::at(int64 Index) const
+const ElementType& VectorVoxelWithVariableSize<ElementType>::at(int_max Index) const
 {
     auto Length = this->GetLength();
 
@@ -254,7 +254,7 @@ void VectorVoxelWithVariableSize<ElementType>::operator+=(const VectorVoxelWithV
         MDK_Error << "VoxelA.size() != VoxelB.size() @ VectorVoxelWithVariableSize::operator+=(VoxelB)" << '\n';
     }
 
-    for (int64 i = 0; i < Length_A; ++i)
+    for (int_max i = 0; i < Length_A; ++i)
     {
         m_ElementData[i] += VoxelB[i];
     }
@@ -280,7 +280,7 @@ void VectorVoxelWithVariableSize<ElementType>::operator-=(const VectorVoxelWithV
         MDK_Error << "VoxelA.size() != VoxelB.size() @ VectorVoxelWithVariableSize::operator-=(VoxelB)" << '\n';
     }
 
-    for (int64 i = 0; i < Length_A; ++i)
+    for (int_max i = 0; i < Length_A; ++i)
     {
         m_ElementData[i] -= VoxelB[i];
     }
@@ -306,7 +306,7 @@ void VectorVoxelWithVariableSize<ElementType>::operator*=(const VectorVoxelWithV
         MDK_Error << "VoxelA.size() != VoxelB.size() @ VectorVoxelWithVariableSize::operator*=(VoxelB)" << '\n';
     }
 
-    for (int64 i = 0; i < Length_A; ++i)
+    for (int_max i = 0; i < Length_A; ++i)
     {
         m_ElementData[i] *= VoxelB[i];
     }
@@ -332,7 +332,7 @@ void VectorVoxelWithVariableSize<ElementType>::operator/=(const VectorVoxelWithV
         MDK_Error << "VoxelA.size() != VoxelB.size() @ VectorVoxelWithVariableSize::operator/=(VoxelB)" << '\n';
     }
 
-    for (int64 i = 0; i < Length_A; ++i)
+    for (int_max i = 0; i < Length_A; ++i)
     {
         m_ElementData[i] /= VoxelB[i];
     }
@@ -344,7 +344,7 @@ template<typename ElementType>
 inline 
 void VectorVoxelWithVariableSize<ElementType>::operator+=(const ElementType& Element)
 {
-    for (int64 i = 0; i < this->GetLength(); ++i)
+    for (int_max i = 0; i < this->GetLength(); ++i)
     {
         m_ElementData[i] += Element;
     }
@@ -355,7 +355,7 @@ template<typename ElementType>
 inline 
 void VectorVoxelWithVariableSize<ElementType>::operator-=(const ElementType& Element)
 {
-    for (int64 i = 0; i < this->GetLength(); ++i)
+    for (int_max i = 0; i < this->GetLength(); ++i)
     {
         m_ElementData[i] -= Element;
     }
@@ -365,7 +365,7 @@ void VectorVoxelWithVariableSize<ElementType>::operator-=(const ElementType& Ele
 template<typename ElementType>
 inline void VectorVoxelWithVariableSize<ElementType>::operator*=(const ElementType& Element)
 {
-    for (int64 i = 0; i < this->GetLength(); ++i)
+    for (int_max i = 0; i < this->GetLength(); ++i)
     {
         m_ElementData[i] *= Element;
     }
@@ -376,7 +376,7 @@ template<typename ElementType>
 inline 
 void VectorVoxelWithVariableSize<ElementType>::operator/=(const ElementType& Element)
 {
-    for (int64 i = 0; i < this->GetLength(); ++i)
+    for (int_max i = 0; i < this->GetLength(); ++i)
     {
         m_ElementData[i] /= Element;
     }

@@ -51,7 +51,7 @@ DenseGlueMatrixForMultiplication<ElementType>::DenseGlueMatrixForMultiplication(
 
 template<typename ElementType>
 inline
-int64 DenseGlueMatrixForMultiplication<ElementType>::GetRowNumber() const
+int_max DenseGlueMatrixForMultiplication<ElementType>::GetRowNumber() const
 {
     return m_RowNumber;
 }
@@ -59,7 +59,7 @@ int64 DenseGlueMatrixForMultiplication<ElementType>::GetRowNumber() const
 
 template<typename ElementType>
 inline
-int64 DenseGlueMatrixForMultiplication<ElementType>::GetColNumber() const
+int_max DenseGlueMatrixForMultiplication<ElementType>::GetColNumber() const
 {
     return m_ColNumber;
 }
@@ -67,7 +67,7 @@ int64 DenseGlueMatrixForMultiplication<ElementType>::GetColNumber() const
 
 template<typename ElementType>
 inline
-int64 DenseGlueMatrixForMultiplication<ElementType>::GetElementNumber() const
+int_max DenseGlueMatrixForMultiplication<ElementType>::GetElementNumber() const
 {
     return m_RowNumber*m_ColNumber;
 }
@@ -89,7 +89,7 @@ MatrixSize DenseGlueMatrixForMultiplication<ElementType>::GetSize() const
 
 template<typename ElementType>
 inline
-int64 DenseGlueMatrixForMultiplication<ElementType>::GetMatrixNumber() const
+int_max DenseGlueMatrixForMultiplication<ElementType>::GetMatrixNumber() const
 {
     return m_SourceMatrixSharedCopyList.size();
 }
@@ -135,7 +135,7 @@ bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatri
         }
     }
 
-    auto MatrixNumber = int64(m_SourceMatrixSharedCopyList.size());
+    auto MatrixNumber = int_max(m_SourceMatrixSharedCopyList.size());
 
     if (MatrixNumber == 0)
     {
@@ -176,7 +176,7 @@ bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatri
     {
         MatrixMultiply(OutputMatrix, m_SourceMatrixSharedCopyList[0], m_SourceMatrixSharedCopyList[1]);
         
-        for (int64 i = 2; i < MatrixNumber; ++i)
+        for (int_max i = 2; i < MatrixNumber; ++i)
         {
             OutputMatrix = MatrixMultiply(OutputMatrix, m_SourceMatrixSharedCopyList[i]);
         }
@@ -194,7 +194,7 @@ bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatri
     {
         MatrixMultiply(OutputMatrix, m_SourceMatrixSharedCopyList[MatrixNumber - 2], m_SourceMatrixSharedCopyList[MatrixNumber - 1]);
 
-        for (int64 i = MatrixNumber-3; i >= 0; --i)
+        for (int_max i = MatrixNumber-3; i >= 0; --i)
         {
             OutputMatrix = MatrixMultiply(m_SourceMatrixSharedCopyList[i], OutputMatrix);
         }
@@ -214,7 +214,7 @@ bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatri
 
     auto MatrixPointerList = std::vector<const DenseMatrix<ElementType>*>(MatrixNumber);
 
-    for (int64 i = 0; i < MatrixNumber - 1; ++i)
+    for (int_max i = 0; i < MatrixNumber - 1; ++i)
     {
         MatrixPointerList[i] = &m_SourceMatrixSharedCopyList[i];
     }
@@ -224,18 +224,18 @@ bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatri
    
     while (true)
     {
-        auto CurMatrixNumber = int64(ResultMatrixList.size());
+        auto CurMatrixNumber = int_max(ResultMatrixList.size());
 
         if (CurMatrixNumber == 1)
         {
             break;
         }
 
-        int64 Max_ElementNumber_Diff = 0;
+        int_max Max_ElementNumber_Diff = 0;
 
-        int64 RelativeIndex_BestMatrixPair = 0;
+        int_max RelativeIndex_BestMatrixPair = 0;
 
-        for (int64 i = 0; i < CurMatrixNumber - 1; ++i)
+        for (int_max i = 0; i < CurMatrixNumber - 1; ++i)
         {
             auto tempRowNumber_a = MatrixPointerList[i]->GetRowNumber();
             auto tempColNumber_a = MatrixPointerList[i]->GetRowNumber();

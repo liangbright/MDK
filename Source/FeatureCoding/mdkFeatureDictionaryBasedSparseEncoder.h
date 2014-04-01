@@ -27,7 +27,7 @@ protected:
 
     // this is sparseness
 
-    int64 m_MaxNumberOfNonzeroElementsInEachCode;
+    int_max m_MaxNumberOfNonzeroElementsInEachCode;
 
     // output code in compact format (the first choice, used in encoding) :
 
@@ -64,7 +64,7 @@ protected:
 
     //Input Parameter:
 
-    int64 m_MaxNumberOfThreads; // the maximum number of threads for encoding
+    int_max m_MaxNumberOfThreads; // the maximum number of threads for encoding
 
 private:
 
@@ -98,7 +98,7 @@ public:
 
     bool SetInputDictionary(const FeatureDictionary<ElementType>* Dictionary);
 
-    bool SetMaxNumberOfNonZeroElementsInEachCode(int64 Spasity);
+    bool SetMaxNumberOfNonZeroElementsInEachCode(int_max Spasity);
 
     bool SetOutputFeatureCodeInCompactFormat(DenseMatrix<ElementType>* FeatureCode);
 
@@ -108,7 +108,7 @@ public:
 
     bool SetOutputFeatureCodeInSparseFormat(SparseMatrix<ElementType>* FeatureCode);
 
-    bool SetMaxNumberOfThreads(int64 Number);
+    bool SetMaxNumberOfThreads(int_max Number);
 
     //-----------------------------------------
 
@@ -135,9 +135,9 @@ public:
 
 protected:
 
-    int64 GetMaxNumberOfThreads();
+    int_max GetMaxNumberOfThreads();
 
-    int64 GetTotalNumberOfInputFeatureVectors();
+    int_max GetTotalNumberOfInputFeatureVectors();
 
     virtual bool CheckInputAndOutput();
 

@@ -4,7 +4,7 @@
 // based on : Online Dictionary Learning for Sparse Coding. Julien Mairal
 //            SPAMS (SPArse Modeling Software) http://spams-devel.gforge.inria.fr/
 
-// [D model] = mexTrainDL(X,param,model);
+// [D model] = mexTrainDL(X,param, model);
 
 #include <vector>
 #include <string>
@@ -18,52 +18,163 @@ namespace mdk
 template<typename ElementType>
 struct Parameter_Of_SPAMSOnlineDictionaryBuilder  // param in [D model] = mexTrainDL(X,param,model);
 {
-    int64 mode = -1; // -1 means use m_SparseEncoder instead of the methods in SPAMS software
+    int_max mode; // -1 means use m_SparseEncoder instead of the methods in SPAMS software
 
-    int64 modeD = 0; // select method to normalize Dictionary
+    int_max modeD; // select method to normalize Dictionary
 
     DenseMatrix<ElementType> D; // initial Dictionary
 
-    int64 K = 0; // length of dictionary, not not useful if D is not empty
+    int_max K; // length of dictionary, not not useful if D is not empty
 
-    double lambda;
+    ElementType lambda;
 
-    double lambda2 = 0;
+    ElementType lambda2;
 
-    int64 iter; //(number of iterations)
+    int_max iter; //(number of iterations)
 
-    bool posAlpha = false;
+    bool posAlpha; // positivity constraints on the coefficients
 
-    bool posD = false;
+    bool posD;     // positivity constraints on the dictionary
 
-    double gamma1;
+    ElementType gamma1;
 
-    int64 batchsize = 512;
+    ElementType gamma2;
 
-    int64 iter_updateD = 1;
+    int_max batchsize;
 
-    int64 modeParam;
+    int_max iter_updateD = 1;
 
-    double rho;
+    int_max modeParam;
 
-    double t0;
+    ElementType rho;
 
-    bool clean = true;
+    ElementType t0;
+
+    bool clean;
 
     bool verbose;
 
-    int64 numThreads = 1;
+    int_max numThreads;
 
-//-----parameter not mentioned in online document
-    bool whiten = false;
+    /*
+    ElementType mu;    
+    ElementType lambda3 = 0;
+    ElementType lambda4 = 0;
+    bool whiten;
+    bool expand;
+    bool isConstant;
+    bool updateConstant;
+    bool ThetaDiag;
+    bool ThetaDiagPlus;
+    bool ThetaId;
+    bool DequalsW;
+    bool weightClasses;
+    bool balanceClasses;
+    bool extend;
+    bool pattern;
+    bool stochastic;
+    bool scaleW;
+    bool batch;
+       
+    bool log;
+    bool updateD;
+    bool updateW;
+    bool updateTheta;
+    char* logName;
+    */
+
+    Parameter_Of_SPAMSOnlineDictionaryBuilder() { this->Clear() };
+
+    ~Parameter_Of_SPAMSOnlineDictionaryBuilder() {};
+
+    void Clear()
+    {
+        mode = -1;
+
+        modeD = 0;
+
+        D.Clear();
+
+        K = 0;
+
+        lambda = 0;
+
+        lambda2 = 0;
+
+        iter = 1000;
+
+        posAlpha = false;
+
+        posD = false;
+
+        gamma1 = 0;
+
+        gamma2 = 0;
+
+        batchsize = 512;
+
+        iter_updateD = 1;
+
+        modeParam = 0;
+
+        rho = 1;
+
+        t0 = 0.00001;
+
+        clean = true;
+
+        verbose = true;
+
+        numThreads = 1;
+    }
+
+private:
+    Parameter_Of_SPAMSOnlineDictionaryBuilder(const Parameter_Of_SPAMSOnlineDictionaryBuilder&) = delete;
+    void operator=(const Parameter_Of_SPAMSOnlineDictionaryBuilder&) = delete;
 };
 
 
 template<typename ElementType>
-struct State_Of_SPAMSOnlineDictionaryBuilder  // model in [D model] = mexTrainDL(X,param,model);
+struct State_Of_SPAMSOnlineDictionaryBuilder  // D and model in [D model] = mexTrainDL(X,param,model);
 {
     DenseMatrix<ElementType> A;
     DenseMatrix<ElementType> B;
+    DenseMatrix<ElementType> D;
+//-----------------------------------------------------------------------------------------------
+    State_Of_SPAMSOnlineDictionaryBuilder(){};
+
+    State_Of_SPAMSOnlineDictionaryBuilder(State_Of_SPAMSOnlineDictionaryBuilder&& InputState)
+    {
+        A = std::move(InputState.A);
+        B = std::move(InputState.B);
+        D = std::move(InputState.D);
+    }
+
+    ~State_Of_SPAMSOnlineDictionaryBuilder(){};
+
+    void Take(State_Of_SPAMSOnlineDictionaryBuilder& InputState)
+    {
+        A.Take(InputState.A);
+        B.Take(InputState.B);
+        D.Take(InputState.D);
+    }
+
+    void Clear()
+    {
+        A.Clear();
+        B.Clear();
+        D.Clear();
+    }
+
+    bool IsEmpty()
+    {
+        return A.IsEmpty();
+    }
+
+private:
+    State_Of_SPAMSOnlineDictionaryBuilder(const State_Of_SPAMSOnlineDictionaryBuilder&) = delete;
+    void operator=(const State_Of_SPAMSOnlineDictionaryBuilder&) = delete;
+    void operator=(State_Of_SPAMSOnlineDictionaryBuilder&&) = delete;
 };
 
 
@@ -74,13 +185,10 @@ protected:
 
     FeatureDictionaryBasedSparseEncoder<ElementType>* m_SparseEncoder;
 
-    std::string m_SparseEncoderName;
-
-    Parameter_Of_SPAMSOnlineDictionaryBuilder<ElementType> m_Parameter;
-
     State_Of_SPAMSOnlineDictionaryBuilder<ElementType> m_State;
 
-    const FeatureDictionary<ElementType>* m_InitialDictionary;
+public:
+    Parameter_Of_SPAMSOnlineDictionaryBuilder<ElementType> m_Parameter;
 
 public:
 
@@ -90,23 +198,19 @@ public:
 
     void Clear();
   
-    bool SetInitialState(const State_Of_SPAMSOnlineDictionaryBuilder<ElementType>& InitialState);
+    bool SetInitialState(State_Of_SPAMSOnlineDictionaryBuilder<ElementType> InitialState); //copy value
 
-    bool SetOutputDictionaryLength(int64 DictionaryLength);
+    State_Of_SPAMSOnlineDictionaryBuilder<ElementType>* GetCurrentState();
 
-    State_Of_SPAMSOnlineDictionaryBuilder<ElementType> GetCurrentState();
+    bool SaveStateAndParameter(const std::string& FilePathAndName);
+
+    bool LoadStateAndParameter(const std::string& FilePathAndName);
 
     //----------------------------------------------------//
 
 protected:
 
     bool GenerateDictionary();
-
-private:
-
-    bool FirstTimeBuild();
-
-    bool OnlineUpdate();
 
 private:
 //deleted

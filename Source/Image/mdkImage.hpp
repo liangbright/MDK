@@ -42,7 +42,7 @@ void ImageData<VoxelType>::Clear()
 
 template<typename VoxelType>
 inline 
-VoxelType& ImageData<VoxelType>::operator[](int64 LinearIndex)
+VoxelType& ImageData<VoxelType>::operator[](int_max LinearIndex)
 { 
     return m_DataArray[LinearIndex];
 }
@@ -50,7 +50,7 @@ VoxelType& ImageData<VoxelType>::operator[](int64 LinearIndex)
 
 template<typename VoxelType>
 inline
-const VoxelType& ImageData<VoxelType>::operator[](int64 LinearIndex) const
+const VoxelType& ImageData<VoxelType>::operator[](int_max LinearIndex) const
 {
     return m_DataArray[LinearIndex];
 }
@@ -58,7 +58,7 @@ const VoxelType& ImageData<VoxelType>::operator[](int64 LinearIndex) const
 
 template<typename VoxelType>
 inline
-VoxelType& ImageData<VoxelType>::operator()(int64 LinearIndex)
+VoxelType& ImageData<VoxelType>::operator()(int_max LinearIndex)
 {
     return m_DataArray[LinearIndex];
 }
@@ -66,7 +66,7 @@ VoxelType& ImageData<VoxelType>::operator()(int64 LinearIndex)
 
 template<typename VoxelType>
 inline
-const VoxelType& ImageData<VoxelType>::operator()(int64 LinearIndex) const
+const VoxelType& ImageData<VoxelType>::operator()(int_max LinearIndex) const
 {
     return m_DataArray[LinearIndex];
 }
@@ -74,7 +74,7 @@ const VoxelType& ImageData<VoxelType>::operator()(int64 LinearIndex) const
 
 template<typename VoxelType>
 inline
-VoxelType& ImageData<VoxelType>::operator()(int64 xIndex, int64 yIndex, int64 zIndex)
+VoxelType& ImageData<VoxelType>::operator()(int_max xIndex, int_max yIndex, int_max zIndex)
 {
     auto LinearIndex = zIndex*m_VoxelNumberPerZSlice + yIndex*m_Dimension[0] + xIndex;
  
@@ -84,7 +84,7 @@ VoxelType& ImageData<VoxelType>::operator()(int64 xIndex, int64 yIndex, int64 zI
 
 template<typename VoxelType>
 inline
-const VoxelType& ImageData<VoxelType>::operator()(int64 xIndex, int64 yIndex, int64 zIndex) const
+const VoxelType& ImageData<VoxelType>::operator()(int_max xIndex, int_max yIndex, int_max zIndex) const
 {
     auto LinearIndex = zIndex*m_VoxelNumberPerZSlice + yIndex*m_Dimension[0] + xIndex;
 
@@ -94,7 +94,7 @@ const VoxelType& ImageData<VoxelType>::operator()(int64 xIndex, int64 yIndex, in
 
 template<typename VoxelType>
 inline
-int64 ImageData<VoxelType>::GetLinearIndexBy3DIndex(int64 xIndex, int64 yIndex, int64 zIndex) const
+int_max ImageData<VoxelType>::GetLinearIndexBy3DIndex(int_max xIndex, int_max yIndex, int_max zIndex) const
 {
     return zIndex*m_VoxelNumberPerZSlice + yIndex*m_Dimension[0] + xIndex;    
 }
@@ -102,7 +102,7 @@ int64 ImageData<VoxelType>::GetLinearIndexBy3DIndex(int64 xIndex, int64 yIndex, 
 
 template<typename VoxelType>
 inline 
-void ImageData<VoxelType>::Get3DIndexByLinearIndex(int64 LinearIndex, int64* xIndex, int64* yIndex, int64* zIndex) const
+void ImageData<VoxelType>::Get3DIndexByLinearIndex(int_max LinearIndex, int_max* xIndex, int_max* yIndex, int_max* zIndex) const
 {
     std::lldiv_t divresult;
 
@@ -120,7 +120,7 @@ void ImageData<VoxelType>::Get3DIndexByLinearIndex(int64 LinearIndex, int64* xIn
 
 template<typename VoxelType>
 inline 
-void ImageData<VoxelType>::Get3DPositionByLinearIndex(int64 LinearIndex, double* x, double* y, double* z) const
+void ImageData<VoxelType>::Get3DPositionByLinearIndex(int_max LinearIndex, double* x, double* y, double* z) const
 {       
     std::lldiv_t divresult;
 
@@ -144,7 +144,7 @@ void ImageData<VoxelType>::Get3DPositionByLinearIndex(int64 LinearIndex, double*
 
 template<typename VoxelType>
 inline
-void ImageData<VoxelType>::Get3DPositionBy3DIndex(int64 xIndex, int64 yIndex, int64 zIndex, double* x, double* y, double* z) const
+void ImageData<VoxelType>::Get3DPositionBy3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, double* x, double* y, double* z) const
 {
     x[0] = m_PhysicalOrigin[0] + double(xIndex) * m_VoxelSpacing[0];
 
@@ -269,7 +269,7 @@ bool Image<VoxelType>::Copy(const VoxelType_Input* InputVoxelPointer,
 template<typename VoxelType>
 template<typename VoxelType_Input>
 bool Image<VoxelType>::Copy(const VoxelType_Input* InputVoxelPointer, 
-                            int64 Lx, int64 Ly, int64 Lz = 1,
+                            int_max Lx, int_max Ly, int_max Lz = 1,
                             double PhysicalOrigin_x = 0.0,
                             double PhysicalOrigin_y = 0.0,
                             double PhysicalOrigin_z = 0.0,
@@ -305,7 +305,7 @@ bool Image<VoxelType>::Copy(const VoxelType_Input* InputVoxelPointer,
         return true;
     }
   
-	for (int64 i = 0; i < m_VoxelNumber; ++i)
+	for (int_max i = 0; i < m_VoxelNumber; ++i)
 	{
         VoxelPtr[i] = VoxelType(InputVoxelPointer[i]);
 	}
@@ -441,7 +441,7 @@ void Image<VoxelType>::Clear()
 
 
 template<typename VoxelType>
-bool Image<VoxelType>::ReInitialize(int64 Lx, int64 Ly, int64 Lz = 1,
+bool Image<VoxelType>::ReInitialize(int_max Lx, int_max Ly, int_max Lz = 1,
                                     double PhysicalOrigin_x = 0.0,
                                     double PhysicalOrigin_y = 0.0,
                                     double PhysicalOrigin_z = 0.0,
@@ -591,7 +591,7 @@ ImagePhysicalOrigin Image<VoxelType>::GetPhysicalOrigin() const
 
 template<typename VoxelType>
 inline
-int64 Image<VoxelType>::GetVoxelNumber() const
+int_max Image<VoxelType>::GetVoxelNumber() const
 {
     return m_ImageData->m_VoxelNumberPerZSlice * m_ImageData->m_Dimension[0];
 }
@@ -599,7 +599,7 @@ int64 Image<VoxelType>::GetVoxelNumber() const
 
 template<typename VoxelType>
 inline
-int64 Image<VoxelType>::GetLinearIndexBy3DIndex(int64 xIndex, int64 yIndex, int64 zIndex = 0) const
+int_max Image<VoxelType>::GetLinearIndexBy3DIndex(int_max xIndex, int_max yIndex, int_max zIndex = 0) const
 {
     return m_ImageData->GetLinearIndexBy3DIndex(xIndex, yIndex, zIndex);
 }
@@ -607,7 +607,7 @@ int64 Image<VoxelType>::GetLinearIndexBy3DIndex(int64 xIndex, int64 yIndex, int6
 
 template<typename VoxelType>
 inline
-void Image<VoxelType>::Get3DIndexByLinearIndex(int64 LinearIndex, int64* xIndex, int64* yIndex, int64* zIndex) const
+void Image<VoxelType>::Get3DIndexByLinearIndex(int_max LinearIndex, int_max* xIndex, int_max* yIndex, int_max* zIndex) const
 {
     m_ImageData->Get3DIndexByLinearIndex(LinearIndex, xIndex, yIndex, zIndex);
 }
@@ -615,7 +615,7 @@ void Image<VoxelType>::Get3DIndexByLinearIndex(int64 LinearIndex, int64* xIndex,
 
 template<typename VoxelType>
 inline
-void Image<VoxelType>::Get3DPositionByLinearIndex(int64 LinearIndex, double* x, double* y, double* z) const
+void Image<VoxelType>::Get3DPositionByLinearIndex(int_max LinearIndex, double* x, double* y, double* z) const
 {
     m_ImageData->Get3DPositionByLinearIndex(LinearIndex, x, y, z);
 }
@@ -623,7 +623,7 @@ void Image<VoxelType>::Get3DPositionByLinearIndex(int64 LinearIndex, double* x, 
 
 template<typename VoxelType>
 inline
-void Image<VoxelType>::Get3DPositionBy3DIndex(int64 xIndex, int64 yIndex, int64 zIndex, double* x, double* y, double* z) const
+void Image<VoxelType>::Get3DPositionBy3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, double* x, double* y, double* z) const
 {
     m_ImageData->Get3DPositionBy3DIndex(xIndex, yIndex, zIndex, x, y, z);
 }
@@ -631,7 +631,7 @@ void Image<VoxelType>::Get3DPositionBy3DIndex(int64 xIndex, int64 yIndex, int64 
 
 template<typename VoxelType>
 inline
-VoxelType& Image<VoxelType>::operator[](int64 LinearIndex)
+VoxelType& Image<VoxelType>::operator[](int_max LinearIndex)
 {
 #if defined(MDK_DEBUG_Image_Operator_CheckBound)
 
@@ -652,7 +652,7 @@ VoxelType& Image<VoxelType>::operator[](int64 LinearIndex)
 
 template<typename VoxelType>
 inline
-const VoxelType& Image<VoxelType>::operator[](int64 LinearIndex) const
+const VoxelType& Image<VoxelType>::operator[](int_max LinearIndex) const
 {
 #if defined(MDK_DEBUG_Image_Operator_CheckBound)
 
@@ -672,7 +672,7 @@ const VoxelType& Image<VoxelType>::operator[](int64 LinearIndex) const
 
 template<typename VoxelType>
 inline
-VoxelType& Image<VoxelType>::operator()(int64 LinearIndex)
+VoxelType& Image<VoxelType>::operator()(int_max LinearIndex)
 {
 #if defined(MDK_DEBUG_Image_Operator_CheckBound)
 
@@ -693,7 +693,7 @@ VoxelType& Image<VoxelType>::operator()(int64 LinearIndex)
 
 template<typename VoxelType>
 inline
-const VoxelType& Image<VoxelType>::operator()(int64 LinearIndex) const
+const VoxelType& Image<VoxelType>::operator()(int_max LinearIndex) const
 {
 #if defined(MDK_DEBUG_Image_Operator_CheckBound)
 
@@ -713,7 +713,7 @@ const VoxelType& Image<VoxelType>::operator()(int64 LinearIndex) const
 
 template<typename VoxelType>
 inline
-VoxelType& Image<VoxelType>::at(int64 LinearIndex)
+VoxelType& Image<VoxelType>::at(int_max LinearIndex)
 {
     auto VoxelNumber = this->GetVoxelNumber();
 
@@ -730,7 +730,7 @@ VoxelType& Image<VoxelType>::at(int64 LinearIndex)
 
 template<typename VoxelType>
 inline
-const VoxelType& Image<VoxelType>::at(int64 LinearIndex) const
+const VoxelType& Image<VoxelType>::at(int_max LinearIndex) const
 {
     auto VoxelNumber = this->GetVoxelNumber();
 
@@ -746,7 +746,7 @@ const VoxelType& Image<VoxelType>::at(int64 LinearIndex) const
 
 template<typename VoxelType>
 inline
-VoxelType& Image<VoxelType>::operator()(int64 xIndex, int64 yIndex, int64 zIndex = 0)
+VoxelType& Image<VoxelType>::operator()(int_max xIndex, int_max yIndex, int_max zIndex = 0)
 {
 #if defined(MDK_DEBUG_Image_Operator_CheckBound)
 
@@ -767,7 +767,7 @@ VoxelType& Image<VoxelType>::operator()(int64 xIndex, int64 yIndex, int64 zIndex
 
 template<typename VoxelType>
 inline
-const VoxelType& Image<VoxelType>::operator()(int64 xIndex, int64 yIndex, int64 zIndex = 0) const
+const VoxelType& Image<VoxelType>::operator()(int_max xIndex, int_max yIndex, int_max zIndex = 0) const
 {
 #if defined(MDK_DEBUG_Image_Operator_CheckBound)
 
@@ -787,7 +787,7 @@ const VoxelType& Image<VoxelType>::operator()(int64 xIndex, int64 yIndex, int64 
 
 template<typename VoxelType>
 inline
-VoxelType& Image<VoxelType>::at(int64 xIndex, int64 yIndex, int64 zIndex = 0)
+VoxelType& Image<VoxelType>::at(int_max xIndex, int_max yIndex, int_max zIndex = 0)
 {
     auto ImageDimension = this->GetDimension();
 
@@ -804,7 +804,7 @@ VoxelType& Image<VoxelType>::at(int64 xIndex, int64 yIndex, int64 zIndex = 0)
 
 template<typename VoxelType>
 inline
-const VoxelType& Image<VoxelType>::at(int64 xIndex, int64 yIndex, int64 zIndex = 0) const
+const VoxelType& Image<VoxelType>::at(int_max xIndex, int_max yIndex, int_max zIndex = 0) const
 {
     auto ImageDimension = this->GetDimension();
 
@@ -820,7 +820,7 @@ const VoxelType& Image<VoxelType>::at(int64 xIndex, int64 yIndex, int64 zIndex =
 
 
 template<typename VoxelType>
-Image<VoxelType> Image<VoxelType>::GetSubImage(int64 xIndex_s, int64 xIndex_e, int64 yIndex_s, int64 yIndex_e, int64 zIndex_s = 0, int64 zIndex_e = 0) const
+Image<VoxelType> Image<VoxelType>::GetSubImage(int_max xIndex_s, int_max xIndex_e, int_max yIndex_s, int_max yIndex_e, int_max zIndex_s = 0, int_max zIndex_e = 0) const
 {
     Image<VoxelType> tempImage; // empty image
     
@@ -860,19 +860,19 @@ Image<VoxelType> Image<VoxelType>::GetSubImage(int64 xIndex_s, int64 xIndex_e, i
 
     VoxelNumberPerZSlice = m_ImageData->VoxelNumberPerZSlice;
 
-	int64 Index_k = 0;
+	int_max Index_k = 0;
 
-	int64 Index_j = 0;
+	int_max Index_j = 0;
 
 	Index_k = zIndex_s;
 
-	for (int64 k = zIndex_s; k <= zIndex_e; ++k)
+	for (int_max k = zIndex_s; k <= zIndex_e; ++k)
 	{
 		Index_j = yIndex_s;
 
-		for (int64 j = yIndex_s; j <= yIndex_e; ++j)
+		for (int_max j = yIndex_s; j <= yIndex_e; ++j)
 		{
-			for (int64 i = xIndex_s; i <= xIndex_e; ++i)
+			for (int_max i = xIndex_s; i <= xIndex_e; ++i)
 			{
 				tempRawPtr[0] = RawPtr[Index_k + Index_j + i];
 
@@ -892,7 +892,7 @@ Image<VoxelType> Image<VoxelType>::GetSubImage(int64 xIndex_s, int64 xIndex_e, i
 template<typename VoxelType>
 Image<VoxelType> 
 Image<VoxelType>::
-Pad(const std::string& Option, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const
+Pad(const std::string& Option, int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz = 0) const
 {
     Image<VoxelType> tempImage; // empty image
     
@@ -936,11 +936,11 @@ Pad(const std::string& Option, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) con
 	{
         tempImage.Fill(VoxelType(0));
 
-		for (int64 k = 0; k <= Lz; ++k)
+		for (int_max k = 0; k <= Lz; ++k)
 		{
-			for (int64 j = 0; j <= Ly; ++j)
+			for (int_max j = 0; j <= Ly; ++j)
 			{
-				for (int64 i = 0; i <= Lx; ++i)
+				for (int_max i = 0; i <= Lx; ++i)
 				{
 					auto temp_i = i + Pad_Lx;
 					auto temp_j = j + Pad_Ly;
@@ -953,11 +953,11 @@ Pad(const std::string& Option, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) con
 	}
 	else if (Option == "replicate")
 	{
-		for (int64 temp_k = 0; temp_k <= Lz; ++temp_k)
+		for (int_max temp_k = 0; temp_k <= Lz; ++temp_k)
 		{
-			for (int64 temp_j = 0; temp_j <= Ly; ++temp_j)
+			for (int_max temp_j = 0; temp_j <= Ly; ++temp_j)
 			{
-				for (int64 temp_i = 0; temp_i <= Lx; ++temp_i)
+				for (int_max temp_i = 0; temp_i <= Lx; ++temp_i)
 				{
 					auto i = std::min(std::max(temp_i - Pad_Lx, 0), ImageDimension[0] - 1);
 
@@ -979,7 +979,7 @@ Pad(const std::string& Option, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) con
 template<typename VoxelType>
 Image<VoxelType>
 Image<VoxelType>::
-Pad(VoxelType Voxel, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const
+Pad(VoxelType Voxel, int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz = 0) const
 {
     Image<VoxelType> tempImage; // empty image
     
@@ -1014,11 +1014,11 @@ Pad(VoxelType Voxel, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const
 
     tempImage.Fill(Voxel);
 
-    for (int64 k = 0; k <= Lz; ++k)
+    for (int_max k = 0; k <= Lz; ++k)
     {
-        for (int64 j = 0; j <= Ly; ++j)
+        for (int_max j = 0; j <= Ly; ++j)
         {
-            for (int64 i = 0; i <= Lx; ++i)
+            for (int_max i = 0; i <= Lx; ++i)
             {
                 auto temp_i = i + Pad_Lx;
                 auto temp_j = j + Pad_Ly;
@@ -1037,7 +1037,7 @@ Pad(VoxelType Voxel, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const
 template<typename VoxelType>
 Image<VoxelType> 
 Image<VoxelType>::
-UnPad(int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const
+UnPad(int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz = 0) const
 {
     Image<VoxelType> tempImage; // empty image
    
@@ -1073,13 +1073,13 @@ UnPad(int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const
 
 
 template<typename VoxelType>
-DenseMatrix<int64>
+DenseMatrix<int_max>
 Image<VoxelType>::
-GetLinearIndexListOfRegion(int64 xIndex_s,     int64 Region_Lx,
-                           int64 yIndex_s,     int64 Region_Ly,
-                           int64 zIndex_s = 0, int64 Region_Lz = 0) const
+GetLinearIndexListOfRegion(int_max xIndex_s,     int_max Region_Lx,
+                           int_max yIndex_s,     int_max Region_Ly,
+                           int_max zIndex_s = 0, int_max Region_Lz = 0) const
 {
-    DenseMatrix<int64>  List;
+    DenseMatrix<int_max>  List;
     
     auto ImageDimension = this->GetDimension();
 
@@ -1104,13 +1104,13 @@ GetLinearIndexListOfRegion(int64 xIndex_s,     int64 Region_Lx,
 
     auto VoxelNumberPerZSlice = m_ImageData->VoxelNumberPerZSlice;
 
-	int64 Counter = 0;
+	int_max Counter = 0;
 
-	for (int64 k = zIndex_s; k < zIndex_s + Region_Lz; ++k)
+	for (int_max k = zIndex_s; k < zIndex_s + Region_Lz; ++k)
 	{
-		for (int64 j = yIndex_s; j < yIndex_s + Region_Ly; ++j)
+		for (int_max j = yIndex_s; j < yIndex_s + Region_Ly; ++j)
 		{
-			for (int64 i = xIndex_s; i < xIndex_s + Region_Lx; ++i)
+			for (int_max i = xIndex_s; i < xIndex_s + Region_Lx; ++i)
 			{
 				List[Counter] = k*VoxelNumberPerZSlice + j*ImageDimension[0] + i;
 

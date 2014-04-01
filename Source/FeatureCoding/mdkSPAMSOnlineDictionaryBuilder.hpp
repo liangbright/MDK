@@ -28,30 +28,41 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::Clear()
 {
     this->FeatureDictionaryBuilder::Clear();
 
-    m_InitialDictionary = nullptr;
+    m_Parameter.Clear();
 
-    m_DictionaryLength = 0;
+    m_State.Clear();
 }
 
 
 template<typename ElementType>
-bool SPAMSOnlineDictionaryBuilder<ElementType>::SetInitialDictionary(const FeatureDictionary<ElementType>* InitialDictionary)
+bool SPAMSOnlineDictionaryBuilder<ElementType>::SetInitialState(State_Of_SPAMSOnlineDictionaryBuilder<ElementType> InitialState)
 {
-    m_InitialDictionary = InitialDictionary;
+    //check InitialState
+
+    m_State.Take(InitialState);
+
+    return true;
 }
 
 
 template<typename ElementType>
-bool SPAMSOnlineDictionaryBuilder<ElementType>::SetOutputDictionaryLength(int64 DictionaryLength)
+State_Of_SPAMSOnlineDictionaryBuilder<ElementType>*
+SPAMSOnlineDictionaryBuilder<ElementType>::GetCurrentState()
 {
-    if (DictionaryLength <= 0)
-    {
-        MDK_Error("Invalid Input @ SPAMSOnlineDictionaryBuilder::SetOutputDictionaryLength(DictionaryLength)")
-        return false;
-    }
+    return &m_State;
+}
 
-    m_DictionaryLength = DictionaryLength;
 
+template<typename ElementType>
+bool SPAMSOnlineDictionaryBuilder<ElementType>::SaveStateAndParameter(const std::string& FilePathAndName)
+{
+    return true;
+}
+
+
+template<typename ElementType>
+bool SPAMSOnlineDictionaryBuilder<ElementType>::LoadStateAndParameter(const std::string& FilePathAndName)
+{
     return true;
 }
 
@@ -59,28 +70,9 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::SetOutputDictionaryLength(int64 
 template<typename ElementType>
 bool SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 {
-    bool IsOK = false;
 
-    if (m_InitialDictionary == nullptr) // build a brand new dictionary
-    {
-        IsOK = this->FirstTimeBuild();
-    }
-    else // update the Dictionary
-    {
-        IsOK = this->OnlineUpdate();
-    }
-
-    return IsOK;
 }
 
-
-
-
-template<typename ElementType>
-bool SPAMSOnlineDictionaryBuilder<ElementType>::OnlineUpdate()
-{
-    return true;
-}
 
 
 }// namespace mdk

@@ -15,7 +15,7 @@ class KNNSoftAssignSparseEncoder : public FeatureDictionaryBasedSparseEncoder<El
 
 private: 
 
-    int64 m_MaxNumberOfNeighbours;
+    int_max m_MaxNumberOfNeighbours;
 
 public:
 
@@ -27,7 +27,7 @@ public:
 
     void Clear();
 
-    bool SetMaxNumberOfNeighbours(int64 MaxNumberOfNeighbours);
+    bool SetMaxNumberOfNeighbours(int_max MaxNumberOfNeighbours);
 
 protected:
 

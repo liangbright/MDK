@@ -20,10 +20,10 @@ bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, 
 
     QTextStream out(&JsonFile);
 
-    uint64 s = PairList.size();
+    uint_max s = PairList.size();
 
     out << "{\n";
-    for (uint64 i = 0; i < s; ++i)
+    for (uint_max i = 0; i < s; ++i)
     {
         out << "\"" << PairList[i].Name << "\"" << " : " << "\"" << PairList[i].Value << "\"";
 
@@ -103,7 +103,7 @@ bool LoadGrayScaleImageFromDataFile(const std::string& FilePathAndName, const Im
 {
     ScalarType ReferenceScalar = ScalarType(0);
 
-    int64 ByteNumber = CalByteNumberOfScalar(ReferenceScalar);
+    int_max ByteNumber = CalByteNumberOfScalar(ReferenceScalar);
 
     if (ByteNumber <= 0)
     {
@@ -174,7 +174,7 @@ bool LoadGrayScaleImageFromDataFile(const std::string& FilePathAndName, const Im
         return false;
     }
 
-    int64 L = Dimension.Lx * Dimension.Ly * Dimension.Lz;
+    int_max L = Dimension.Lx * Dimension.Ly * Dimension.Lz;
 
     auto RawPointer = (char*)InputImage.GetVoxelPointer();
 
@@ -197,7 +197,7 @@ bool SaveGrayScaleImageAsDataFile(const std::string& FilePathAndName, const Imag
 {
     ScalarType ReferenceScalar = ScalarType(0);
 
-    int64 ByteNumber = CalByteNumberOfScalar(ReferenceScalar);
+    int_max ByteNumber = CalByteNumberOfScalar(ReferenceScalar);
 
     if (ByteNumber <= 0)
     {
@@ -268,7 +268,7 @@ bool SaveGrayScaleImageAsDataFile(const std::string& FilePathAndName, const Imag
         return false;
     }
 
-    int64 L = Dimension.Lx * Dimension.Ly * Dimension.Lz;
+    int_max L = Dimension.Lx * Dimension.Ly * Dimension.Lz;
 
     auto RawPointer = (char*)InputImage.GetVoxelPointer();
 
@@ -299,7 +299,7 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromDataFile(const std::string& Fil
 
     QString OutputScalarTypeName(OutputScalarTypeName_temp.c_str());
 
-    int64 OutputByteNumber = CalByteNumberOfScalar(ReferenceScalar);
+    int_max OutputByteNumber = CalByteNumberOfScalar(ReferenceScalar);
 
     //---------------------------------------------- Read header --------------------------------------------------------//
 
@@ -335,7 +335,7 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromDataFile(const std::string& Fil
 
     //---------------------------------------------------
 
-    int64 RowNumber = 0;
+    int_max RowNumber = 0;
 
     it = HeaderObject.find("RowNumber");
     if (it != HeaderObject.end())
@@ -349,7 +349,7 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromDataFile(const std::string& Fil
         return OutputMatrix;
     }
 
-    int64 ColNumber = 0;
+    int_max ColNumber = 0;
 
     it = HeaderObject.find("ColNumber");
     if (it != HeaderObject.end())
@@ -441,9 +441,9 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromDataFile(const std::string& Fil
 
 
 template<typename OutputScalarType, typename InputScalarType>
-void Internal_LoadScalarDenseMatrixFromDataFile(DenseMatrix<OutputScalarType>& OutputMatrix, QFile& DataFile, int64 RowNumber, int64 ColNumber, int64 BytesOfInputScalarType)
+void Internal_LoadScalarDenseMatrixFromDataFile(DenseMatrix<OutputScalarType>& OutputMatrix, QFile& DataFile, int_max RowNumber, int_max ColNumber, int_max BytesOfInputScalarType)
 {
-    int64 BypesofDataFile = DataFile.size();
+    int_max BypesofDataFile = DataFile.size();
 
     if (BypesofDataFile != RowNumber*ColNumber * BytesOfInputScalarType)
     {
@@ -457,7 +457,7 @@ void Internal_LoadScalarDenseMatrixFromDataFile(DenseMatrix<OutputScalarType>& O
 
     auto tempScalar = InputScalarType(0);
 
-    for (int64 i = 0; i < RowNumber*ColNumber; ++i)
+    for (int_max i = 0; i < RowNumber*ColNumber; ++i)
     {
         DataFile.read((char*)(&tempScalar), BytesOfInputScalarType);
 
@@ -474,7 +474,7 @@ bool SaveScalarDenseMatrixAsDataFile(const std::string& FilePathAndName, const D
 {
     ScalarType tempScalar = ScalarType(0);
 
-    int64 ByteNumber = CalByteNumberOfScalar(tempScalar);
+    int_max ByteNumber = CalByteNumberOfScalar(tempScalar);
 
     if (ByteNumber <= 0)
     {
@@ -519,7 +519,7 @@ bool SaveScalarDenseMatrixAsDataFile(const std::string& FilePathAndName, const D
         return false;
     }
 
-    int64 L = Size.ColNumber*Size.RowNumber;
+    int_max L = Size.ColNumber*Size.RowNumber;
 
     auto RawPointer = (char*)InputMatrix.GetElementPointer();
 

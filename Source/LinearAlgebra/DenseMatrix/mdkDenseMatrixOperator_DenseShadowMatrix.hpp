@@ -54,7 +54,7 @@ DenseMatrix<ElementType> operator+(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] + ptrB[i];
     }
@@ -105,7 +105,7 @@ DenseMatrix<ElementType> operator-(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] - ptrB[i];
     }
@@ -163,7 +163,7 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] / ptrB[i];
     }
@@ -223,7 +223,7 @@ DenseMatrix<ElementType> operator-(const DenseMatrix<ElementType>& MatrixA, cons
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ptrA[i] - ShadowMatrixB[i];
     }
@@ -282,7 +282,7 @@ DenseMatrix<ElementType> operator/(const DenseMatrix<ElementType>& MatrixA, cons
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ptrA[i] / ShadowMatrixB[i];
     }
@@ -314,7 +314,7 @@ DenseMatrix<ElementType> operator+(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] + ElementB;
     }
@@ -345,7 +345,7 @@ DenseMatrix<ElementType> operator-(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] - ElementB;
     }
@@ -376,7 +376,7 @@ DenseMatrix<ElementType> operator*(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] * ElementB;
     }
@@ -407,7 +407,7 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] / ElementB;
     }
@@ -447,7 +447,7 @@ DenseMatrix<ElementType> operator-(const ElementType& ElementA, const DenseShado
 
     auto ElementNumber = SizeB.RowNumber * SizeB.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ElementA - ShadowMatrixB[i];
     }
@@ -486,7 +486,7 @@ DenseMatrix<ElementType> operator/(const ElementType& ElementA, const DenseShado
 
     auto ElementNumber = SizeB.RowNumber * SizeB.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ElementA / ShadowMatrixB[i];
     }
@@ -534,7 +534,7 @@ DenseMatrix<ElementType> operator+(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] + ShadowMatrixB[i];
     }
@@ -581,7 +581,7 @@ DenseMatrix<ElementType> operator-(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] - ShadowMatrixB[i];
     }
@@ -636,7 +636,7 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrTemp[i] = ShadowMatrixA[i] / ShadowMatrixB[i];
     }

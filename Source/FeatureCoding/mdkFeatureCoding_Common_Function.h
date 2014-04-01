@@ -9,7 +9,7 @@ namespace mdk
 {
 
 template<typename ElementType>
-DenseMatrix<int64> FindKNNByDistanceList(int64 K_NeighbourNumber, const DenseMatrix<ElementType>& DistanceList);
+DenseMatrix<int_max> FindKNNByDistanceList(int_max K_NeighbourNumber, const DenseMatrix<ElementType>& DistanceList);
 
 }
 

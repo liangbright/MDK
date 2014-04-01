@@ -17,7 +17,7 @@
 namespace mdk
 {
 
-template<typename VoxelType_Input, typename VoxelType_Output, int64 VectorVoxelLength_Output = 1>
+template<typename VoxelType_Input, typename VoxelType_Output, int_max VectorVoxelLength_Output = 1>
 class ImageConvolutionFilter : public ImageFilter<VoxelType_Input, VoxelType_Output>, public ImageConvolutionFilterBase
 {
 protected:
@@ -29,7 +29,7 @@ public:
 
     void SetOutputVoxelMatrix(const DenseMatrix<VoxelType_Input>* VoxelMatrix);
 
-    inline void FilterFunctionAt3DIndex(int64 x_Index, int64 y_Index, int64 z_Index, VoxelType_Output& OutputVoxel);
+    inline void FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, VoxelType_Output& OutputVoxel);
 
     inline void FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& OutputVoxel);
 
@@ -40,7 +40,7 @@ protected:
 
     virtual void BuildMaskOf3DPosition();
 
-    inline void OutputFunction(int64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
+    inline void OutputFunction(int_max OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
 
 private:
 	ImageConvolutionFilter(const ImageConvolutionFilter&); // Not implemented.
@@ -55,7 +55,7 @@ public:
 	ImageConvolutionFilter();
 	~ImageConvolutionFilter();
 
-    inline void FilterFunctionAt3DIndex(int64 x_Index, int64 y_Index, int64 z_Index, VoxelType_Output& OutputVoxel);
+    inline void FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, VoxelType_Output& OutputVoxel);
 
     inline void FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& OutputVoxel);
 

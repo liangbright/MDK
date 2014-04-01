@@ -84,21 +84,21 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::SetOutputFeatureCode(Dense
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedDenseEncoder<ElementType>::SetMaximunNumberOfThreads(int64 Number)
+bool FeatureDictionaryBasedDenseEncoder<ElementType>::SetMaximunNumberOfThreads(int_max Number)
 {
     m_MaximunNumberOfThreads = Number;
 }
 
 
 template<typename ElementType>
-int64 FeatureDictionaryBasedDenseEncoder<ElementType>::GetMaximunNumberOfThreads()
+int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetMaximunNumberOfThreads()
 {
     return m_MaximunNumberOfThreads;
 }
 
 
 template<typename ElementType>
-int64 FeatureDictionaryBasedDenseEncoder<ElementType>::GetFeatureVectorNumber()
+int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetFeatureVectorNumber()
 {
     return m_FeatureData->GetColNumber();
 }
@@ -121,7 +121,7 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::CheckInputAndOutput()
 
     auto DictionarySize = m_Dictionary->GetSize();
 
-    int64 FeatureCodeDimension = DictionarySize.ColNumber;
+    int_max FeatureCodeDimension = DictionarySize.ColNumber;
 
     if (m_MaxNumberOfNonZeroElementsInEachCode <= 0 || m_MaxNumberOfNonZeroElementsInEachCode > FeatureCodeDimension)
     {

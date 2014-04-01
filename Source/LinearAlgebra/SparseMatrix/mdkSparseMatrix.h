@@ -35,18 +35,18 @@ namespace mdk
 template<typename ElementType>
 struct SparseMatrixDataInCSCFormat
 {
-    int64 m_RowNumber;  // RowNumber = the Number of Rows 
-    int64 m_ColNumber;  // ColNumber = the Number of Columns
+    int_max m_RowNumber;  // RowNumber = the Number of Rows 
+    int_max m_ColNumber;  // ColNumber = the Number of Columns
 
-    std::vector<int64> m_RowIndexList;
+    std::vector<int_max> m_RowIndexList;
 
-    std::vector<int64> m_ColIndexList;
+    std::vector<int_max> m_ColIndexList;
 
     std::vector<ElementType> m_DataArray;
 
-    std::vector<int64> m_ColBeginElementLinearIndexInDataArray; // Index in m_RowIndexList m_ColIndexList m_DataArray
+    std::vector<int_max> m_ColBeginElementLinearIndexInDataArray; // Index in m_RowIndexList m_ColIndexList m_DataArray
 
-    std::vector<int64> m_RecordedElementNumberInEachCol;
+    std::vector<int_max> m_RecordedElementNumberInEachCol;
 
     ElementType m_ZeroElement;
 
@@ -57,63 +57,63 @@ struct SparseMatrixDataInCSCFormat
 
     inline ~SparseMatrixDataInCSCFormat();
 
-    inline void Construct(int64 InputRowNumber, int64 InputColNumber); // all zero
+    inline void Construct(int_max InputRowNumber, int_max InputColNumber); // all zero
 
-    inline void Construct(const int64* InputRowIndexList,
-                          const int64* InputColIndexList,
+    inline void Construct(const int_max* InputRowIndexList,
+                          const int_max* InputColIndexList,
                           const ElementType* InputDataArray,
-                          int64 RecordedElementNumber,
-                          int64 InputRowNumber,
-                          int64 InputColNumber,
-                          int64 AdditionalReservedCapacity = 0);
+                          int_max RecordedElementNumber,
+                          int_max InputRowNumber,
+                          int_max InputColNumber,
+                          int_max AdditionalReservedCapacity = 0);
 
     //------------------------------------------
 
     inline void Clear();
 
-    inline void Resize(int64 InputRowNumber, int64 InputColNumber);
+    inline void Resize(int_max InputRowNumber, int_max InputColNumber);
 
-    inline void FastResize(int64 InputRowNumber, int64 InputColNumber);
+    inline void FastResize(int_max InputRowNumber, int_max InputColNumber);
 
     //------------------------------------------
     // note 1: [] and () have no bound check in release mode
     // note 2: none cost operator [] and () willl created a new record at location [k], (k) or (RowIndex, ColIndex)
     //         if there is no record in that location
 
-    inline ElementType& operator[](int64 LinearIndex); 
+    inline ElementType& operator[](int_max LinearIndex); 
 
-    inline const ElementType& operator[](int64 LinearIndex) const;
+    inline const ElementType& operator[](int_max LinearIndex) const;
 
-    inline ElementType& operator()(int64 LinearIndex);
+    inline ElementType& operator()(int_max LinearIndex);
 
-    inline const ElementType& operator()(int64 LinearIndex) const;
+    inline const ElementType& operator()(int_max LinearIndex) const;
 
-    inline ElementType& operator()(int64 RowIndex, int64 ColIndex);
+    inline ElementType& operator()(int_max RowIndex, int_max ColIndex);
 
-    inline const ElementType& operator()(int64 RowIndex, int64 ColIndex) const;
+    inline const ElementType& operator()(int_max RowIndex, int_max ColIndex) const;
 
     //------------------------------------------
     // note: output -1 if no record exits in the input location
 
-    inline int64 GetLinearIndexInDataArray(int64 LinearIndex) const;
+    inline int_max GetLinearIndexInDataArray(int_max LinearIndex) const;
 
-    inline int64 GetLinearIndexInDataArray(int64 RowIndex, int64 ColIndex) const;
+    inline int_max GetLinearIndexInDataArray(int_max RowIndex, int_max ColIndex) const;
 
     //------------------------------------------
     // note: output ElementType(0) if no record exits in the input location
 
-    inline const ElementType& GetElement(int64 LinearIndex) const;
+    inline const ElementType& GetElement(int_max LinearIndex) const;
 
-    inline const ElementType& GetElement(int64 RowIndex, int64 ColIndex) const;
+    inline const ElementType& GetElement(int_max RowIndex, int_max ColIndex) const;
 
-    inline ElementType& SetElement(int64 LinearIndex, const ElementType& InputElement);
+    inline ElementType& SetElement(int_max LinearIndex, const ElementType& InputElement);
 
-    inline ElementType& SetElement(int64 RowIndex, int64 ColIndex, const ElementType& InputElement);
+    inline ElementType& SetElement(int_max RowIndex, int_max ColIndex, const ElementType& InputElement);
 
     //------------------------------------------
     // get the length of m_DataArray
 
-    inline int64 GetRecordedElementNumber() const;
+    inline int_max GetRecordedElementNumber() const;
 
     //-----------------------------------------
 
@@ -152,7 +152,7 @@ public:
 
 	inline SparseMatrix();
 
-    inline SparseMatrix(int64 RowNumber, int64 ColNumber);
+    inline SparseMatrix(int_max RowNumber, int_max ColNumber);
 
     inline SparseMatrix(const ElementType& Element);
 
@@ -176,34 +176,34 @@ public:
 
     //------------------------------construction method -----------------------------//
 
-    inline bool Construct(const DenseMatrix<int64>& RowIndexList,
-                          const DenseMatrix<int64>& ColIndexList,
+    inline bool Construct(const DenseMatrix<int_max>& RowIndexList,
+                          const DenseMatrix<int_max>& ColIndexList,
                           const DenseMatrix<ElementType>& DataArray,
-                          int64 RowNumber,
-                          int64 ColNumber,
-                          int64 AdditionalReservedCapacity = 0);
+                          int_max RowNumber,
+                          int_max ColNumber,
+                          int_max AdditionalReservedCapacity = 0);
 
-    inline bool Construct(const std::vector<int64>& RowIndexList,
-                          const std::vector<int64>& ColIndexList,
+    inline bool Construct(const std::vector<int_max>& RowIndexList,
+                          const std::vector<int_max>& ColIndexList,
                           const std::vector<ElementType>& DataArray,
-                          int64 RowNumber,
-                          int64 ColNumber,
-                          int64 AdditionalReservedCapacity = 0);
+                          int_max RowNumber,
+                          int_max ColNumber,
+                          int_max AdditionalReservedCapacity = 0);
 
-    inline bool Construct(const std::initializer_list<int64>& RowIndexList,
-                          const std::initializer_list<int64>& ColIndexList,
+    inline bool Construct(const std::initializer_list<int_max>& RowIndexList,
+                          const std::initializer_list<int_max>& ColIndexList,
                           const std::initializer_list<ElementType>& DataArray,
-                          int64 RowNumber,
-                          int64 ColNumber,
-                          int64 AdditionalReservedCapacity = 0);
+                          int_max RowNumber,
+                          int_max ColNumber,
+                          int_max AdditionalReservedCapacity = 0);
 
-    inline bool Construct(const int64* RowIndexList,
-                          const int64* ColIndexList,
+    inline bool Construct(const int_max* RowIndexList,
+                          const int_max* ColIndexList,
                           const ElementType* DataArray,
-                          int64 RecordedElementNumber,
-                          int64 RowNumber,
-                          int64 ColNumber,
-                          int64 AdditionalReservedCapacity = 0);
+                          int_max RecordedElementNumber,
+                          int_max RowNumber,
+                          int_max ColNumber,
+                          int_max AdditionalReservedCapacity = 0);
 
     //----------------------  operator=  ----------------------------------------//
 
@@ -235,7 +235,7 @@ public:
     inline bool Copy(const SparseMatrix<ElementType_Input>& InputMatrix);
 
     template<typename ElementType_Input>
-    inline bool Copy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
+    inline bool Copy(const ElementType_Input* InputElementPointer, int_max InputRowNumber, int_max InputColNumber);
 
     inline bool Fill(const ElementType& Element);
 
@@ -277,11 +277,11 @@ public:
 
 	//---------------------- Set/get SparseMatrix Size, Shape ----------------------------------------//
 
-    inline bool Reshape(int64 InputRowNumber, int64 InputColNumber);
+    inline bool Reshape(int_max InputRowNumber, int_max InputColNumber);
 
-    inline bool Resize(int64 InputRowNumber, int64 InputColNumber);
+    inline bool Resize(int_max InputRowNumber, int_max InputColNumber);
 
-    inline bool FastResize(int64 InputRowNumber, int64 InputColNumber);
+    inline bool FastResize(int_max InputRowNumber, int_max InputColNumber);
 
     inline void FixSize();
     
@@ -293,13 +293,13 @@ public:
 
 	inline MatrixSize GetSize() const;
 
-    inline int64 GetElementNumber() const;
+    inline int_max GetElementNumber() const;
 
-    inline int64 GetRecordedElementNumber() const;
+    inline int_max GetRecordedElementNumber() const;
 
-	inline int64 GetColNumber() const;
+	inline int_max GetColNumber() const;
 
-	inline int64 GetRowNumber() const;
+	inline int_max GetRowNumber() const;
 
     //------------------------ NaN Element -----------------------------//
 
@@ -317,13 +317,13 @@ public:
 
     //--------------------- Get/Set Element -----------------------------//
 
-    inline const ElementType& GetElement(int64 LinearIndex) const;
+    inline const ElementType& GetElement(int_max LinearIndex) const;
 
-    inline const ElementType& GetElement(int64 RowIndex, int64 ColIndex) const;
+    inline const ElementType& GetElement(int_max RowIndex, int_max ColIndex) const;
 
-    inline bool SetElement(int64 LinearIndex, const ElementType& InputElement);
+    inline bool SetElement(int_max LinearIndex, const ElementType& InputElement);
 
-    inline bool SetElement(int64 RowIndex, int64 ColIndex, const ElementType& InputElement);
+    inline bool SetElement(int_max RowIndex, int_max ColIndex, const ElementType& InputElement);
 
 	//----------- Get/Set SparseMatrix(LinearIndex) -----------------------------------//
 
@@ -332,19 +332,19 @@ public:
 
     // operator[] or () : no bound check in release mode
 
-    inline ElementType& operator[](int64 LinearIndex);
+    inline ElementType& operator[](int_max LinearIndex);
 
-    inline const ElementType& operator[](int64 LinearIndex) const;
+    inline const ElementType& operator[](int_max LinearIndex) const;
 
-	inline ElementType& operator()(int64 LinearIndex);
+	inline ElementType& operator()(int_max LinearIndex);
 
-    inline const ElementType& operator()(int64 LinearIndex) const;
+    inline const ElementType& operator()(int_max LinearIndex) const;
     
     // at(): bound check
 
-	inline ElementType& at(int64 LinearIndex);
+	inline ElementType& at(int_max LinearIndex);
 
-	inline const ElementType& at(int64 LinearIndex) const;
+	inline const ElementType& at(int_max LinearIndex) const;
 
 	//----------- Get/Set SparseMatrix(i,j)  ---------------------------------------------//
 
@@ -353,15 +353,15 @@ public:
 
     // operator() : no bound check in release mode
 
-	inline ElementType& operator()(int64 RowIndex, int64 ColIndex);
+	inline ElementType& operator()(int_max RowIndex, int_max ColIndex);
 
-	inline const ElementType& operator()(int64 RowIndex, int64 ColIndex) const;
+	inline const ElementType& operator()(int_max RowIndex, int_max ColIndex) const;
 
     // at(): bound check
 
-	inline ElementType& at(int64 RowIndex, int64 ColIndex);
+	inline ElementType& at(int_max RowIndex, int_max ColIndex);
 
-	inline const ElementType& at(int64 RowIndex, int64 ColIndex) const;
+	inline const ElementType& at(int_max RowIndex, int_max ColIndex) const;
 
     //---------------------- Get/Set a set of elements by SparseMatrix({}) or SparseMatrix.at({}) ----------------------------//
 
@@ -369,13 +369,13 @@ public:
     //
     // note: operator[] is for single element access only, operator[{}] is not defined
 
-    inline SparseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& LinearIndexList);
+    inline SparseShadowMatrix<ElementType> operator()(std::initializer_list<int_max>& LinearIndexList);
 
-    inline const SparseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& LinearIndexList) const;
+    inline const SparseShadowMatrix<ElementType> operator()(std::initializer_list<int_max>& LinearIndexList) const;
 
-    inline SparseShadowMatrix<ElementType> operator()(const std::vector<int64>& LinearIndexList);
+    inline SparseShadowMatrix<ElementType> operator()(const std::vector<int_max>& LinearIndexList);
 
-    inline const SparseShadowMatrix<ElementType> operator()(const std::vector<int64>& LinearIndexList) const;
+    inline const SparseShadowMatrix<ElementType> operator()(const std::vector<int_max>& LinearIndexList) const;
 
     inline SparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
@@ -383,13 +383,13 @@ public:
 
     // at(): bound check -----------------
 
-    inline SparseShadowMatrix<ElementType> at(std::initializer_list<int64>& LinearIndexList);
+    inline SparseShadowMatrix<ElementType> at(std::initializer_list<int_max>& LinearIndexList);
 
-    inline const SparseShadowMatrix<ElementType> at(std::initializer_list<int64>& LinearIndexList) const;
+    inline const SparseShadowMatrix<ElementType> at(std::initializer_list<int_max>& LinearIndexList) const;
 
-    inline SparseShadowMatrix<ElementType> at(const std::vector<int64>& LinearIndexList);
+    inline SparseShadowMatrix<ElementType> at(const std::vector<int_max>& LinearIndexList);
 
-    inline const SparseShadowMatrix<ElementType> at(const std::vector<int64>& LinearIndexList) const;
+    inline const SparseShadowMatrix<ElementType> at(const std::vector<int_max>& LinearIndexList) const;
 
     inline SparseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
@@ -399,127 +399,127 @@ public:
 
     // operator(): no bound check in release mode
 
-    inline SparseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& RowIndexList,
-                                                         std::initializer_list<int64>& ColIndexList);
+    inline SparseShadowMatrix<ElementType> operator()(std::initializer_list<int_max>& RowIndexList,
+                                                         std::initializer_list<int_max>& ColIndexList);
 
-    inline const SparseShadowMatrix<ElementType> operator()(std::initializer_list<int64>& RowIndexList,
-                                                               std::initializer_list<int64>& ColIndexList) const;
+    inline const SparseShadowMatrix<ElementType> operator()(std::initializer_list<int_max>& RowIndexList,
+                                                               std::initializer_list<int_max>& ColIndexList) const;
 
-    inline SparseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList,
+    inline SparseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& RowIndexList,
                                                          const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const SparseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList,
+    inline const SparseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& RowIndexList,
                                                                const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline SparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                         const std::initializer_list<int64>& ColIndexList);
+                                                         const std::initializer_list<int_max>& ColIndexList);
 
     inline const SparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                               const std::initializer_list<int64>& ColIndexList) const;
+                                                               const std::initializer_list<int_max>& ColIndexList) const;
 
-    inline SparseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
-                                                         const std::vector<int64>& ColIndexList);
+    inline SparseShadowMatrix<ElementType> operator()(const std::vector<int_max>& RowIndexList,
+                                                         const std::vector<int_max>& ColIndexList);
 
-    inline const SparseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
-                                                               const std::vector<int64>& ColIndexList) const;
+    inline const SparseShadowMatrix<ElementType> operator()(const std::vector<int_max>& RowIndexList,
+                                                               const std::vector<int_max>& ColIndexList) const;
 
-    inline SparseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
+    inline SparseShadowMatrix<ElementType> operator()(const std::vector<int_max>& RowIndexList,
                                                          const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const SparseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
+    inline const SparseShadowMatrix<ElementType> operator()(const std::vector<int_max>& RowIndexList,
                                                                const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline SparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                         const std::vector<int64>& ColIndexList);
+                                                         const std::vector<int_max>& ColIndexList);
 
     inline const SparseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                               const std::vector<int64>& ColIndexList) const;
+                                                               const std::vector<int_max>& ColIndexList) const;
 
     // at(): bound check -----------------
 
-    inline SparseShadowMatrix<ElementType> at(std::initializer_list<int64>& RowIndexList,
-                                                 std::initializer_list<int64>& ColIndexList);
+    inline SparseShadowMatrix<ElementType> at(std::initializer_list<int_max>& RowIndexList,
+                                                 std::initializer_list<int_max>& ColIndexList);
 
-    inline const SparseShadowMatrix<ElementType> at(std::initializer_list<int64>& RowIndexList,
-                                                       std::initializer_list<int64>& ColIndexList) const;
+    inline const SparseShadowMatrix<ElementType> at(std::initializer_list<int_max>& RowIndexList,
+                                                       std::initializer_list<int_max>& ColIndexList) const;
 
-    inline SparseShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
+    inline SparseShadowMatrix<ElementType> at(const std::initializer_list<int_max>& RowIndexList,
                                                  const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const SparseShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
+    inline const SparseShadowMatrix<ElementType> at(const std::initializer_list<int_max>& RowIndexList,
                                                        const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline SparseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                 const std::initializer_list<int64>& ColIndexList);
+                                                 const std::initializer_list<int_max>& ColIndexList);
 
     inline const SparseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                       const std::initializer_list<int64>& ColIndexList) const;
+                                                       const std::initializer_list<int_max>& ColIndexList) const;
 
-    inline SparseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
-                                                 const std::vector<int64>& ColIndexList);
+    inline SparseShadowMatrix<ElementType> at(const std::vector<int_max>& RowIndexList,
+                                                 const std::vector<int_max>& ColIndexList);
 
-    inline const SparseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
-                                                       const std::vector<int64>& ColIndexList) const;
+    inline const SparseShadowMatrix<ElementType> at(const std::vector<int_max>& RowIndexList,
+                                                       const std::vector<int_max>& ColIndexList) const;
 
-    inline SparseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
+    inline SparseShadowMatrix<ElementType> at(const std::vector<int_max>& RowIndexList,
                                                  const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const SparseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
+    inline const SparseShadowMatrix<ElementType> at(const std::vector<int_max>& RowIndexList,
                                                        const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline SparseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                 const std::vector<int64>& ColIndexList);
+                                                 const std::vector<int_max>& ColIndexList);
 
     inline const SparseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                       const std::vector<int64>& ColIndexList) const;
+                                                       const std::vector<int_max>& ColIndexList) const;
 
     // return SubSparseMatrix as SparseMatrix -----------------------------------------------
 
-    inline SparseMatrix GetSubMatrix(const std::vector<int64>& RowIndexList, 
-                                        const std::vector<int64>& ColIndexList) const;
+    inline SparseMatrix GetSubMatrix(const std::vector<int_max>& RowIndexList, 
+                                        const std::vector<int_max>& ColIndexList) const;
 
-    inline SparseMatrix GetSubMatrix(const std::vector<int64>& RowIndexList, 
+    inline SparseMatrix GetSubMatrix(const std::vector<int_max>& RowIndexList, 
                                         const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline SparseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
-                                        const std::vector<int64>& ColIndexList) const;
+                                        const std::vector<int_max>& ColIndexList) const;
 
     inline bool GetSubMatrix(SparseMatrix<ElementType> &OutputSparseMatrix, 
-                             const std::vector<int64>& RowIndexList, 
-                             const std::vector<int64>& ColIndexList) const;
+                             const std::vector<int_max>& RowIndexList, 
+                             const std::vector<int_max>& ColIndexList) const;
 
 	//---------------------- Get/Set/Fill/Append/Delete/InsertCol Column ----------------------------------------//
 	
-    inline SparseShadowMatrix<ElementType> Col(int64 ColIndex);
+    inline SparseShadowMatrix<ElementType> Col(int_max ColIndex);
 
-    inline SparseShadowMatrix<ElementType> Col(std::initializer_list<int64>& ColIndexList);
+    inline SparseShadowMatrix<ElementType> Col(std::initializer_list<int_max>& ColIndexList);
 
-    inline SparseShadowMatrix<ElementType> Col(const std::vector<int64>& ColIndexList);
+    inline SparseShadowMatrix<ElementType> Col(const std::vector<int_max>& ColIndexList);
 
-    inline SparseMatrix GetCol(int64 ColIndex) const;
+    inline SparseMatrix GetCol(int_max ColIndex) const;
 
-    inline bool GetCol(int64 ColIndex, DenseMatrix<ElementType>& ColData) const;
+    inline bool GetCol(int_max ColIndex, DenseMatrix<ElementType>& ColData) const;
 
-    inline bool GetCol(int64 ColIndex, std::vector<ElementType>& ColData) const;
+    inline bool GetCol(int_max ColIndex, std::vector<ElementType>& ColData) const;
 
-    inline bool GetCol(int64 ColIndex, ElementType* ColData) const;
-
-    template<typename ElementType_Input>
-    inline bool SetCol(int64 ColIndex, const SparseMatrix<ElementType_Input>& ColData);
+    inline bool GetCol(int_max ColIndex, ElementType* ColData) const;
 
     template<typename ElementType_Input>
-    inline bool SetCol(int64 ColIndex, const DenseMatrix<ElementType_Input>& ColData);
+    inline bool SetCol(int_max ColIndex, const SparseMatrix<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool SetCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData);
+    inline bool SetCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool SetCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData);
+    inline bool SetCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData);
+
+    template<typename ElementType_Input>
+    inline bool SetCol(int_max ColIndex, const std::vector<ElementType_Input>& ColData);
 
 	template<typename ElementType_Input>
-    inline bool SetCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length);
+    inline bool SetCol(int_max ColIndex, const ElementType_Input* ColData, int_max Length);
 	
-    inline bool FillCol(int64 RowIndex, const ElementType& Element);
+    inline bool FillCol(int_max RowIndex, const ElementType& Element);
 
     template<typename ElementType_Input>
     inline bool AppendCol(const SparseMatrix<ElementType_Input>& ColData);
@@ -534,64 +534,64 @@ public:
     inline bool AppendCol(const std::vector<ElementType_Input>& ColData);
 
 	template<typename ElementType_Input>
-    inline bool AppendCol(const ElementType_Input* ColData, int64 Length);
+    inline bool AppendCol(const ElementType_Input* ColData, int_max Length);
 	
-    inline bool DeleteCol(int64 ColIndex);
+    inline bool DeleteCol(int_max ColIndex);
 
     // no const before std::initializer_list
-    inline bool DeleteCol(std::initializer_list<int64>& ColIndexList);
+    inline bool DeleteCol(std::initializer_list<int_max>& ColIndexList);
 
-    inline bool DeleteCol(const std::vector<int64>& ColIndexList);
+    inline bool DeleteCol(const std::vector<int_max>& ColIndexList);
 
-    inline bool DeleteCol(const int64* ColIndexListPtr, int64 Length);
-
-    template<typename ElementType_Input>
-    inline bool InsertCol(int64 ColIndex, const SparseMatrix<ElementType_Input>& ColData);
+    inline bool DeleteCol(const int_max* ColIndexListPtr, int_max Length);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(int64 ColIndex, const DenseMatrix<ElementType_Input>& ColData);
+    inline bool InsertCol(int_max ColIndex, const SparseMatrix<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData);
+    inline bool InsertCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData);
+    inline bool InsertCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length);
+    inline bool InsertCol(int_max ColIndex, const std::vector<ElementType_Input>& ColData);
+
+    template<typename ElementType_Input>
+    inline bool InsertCol(int_max ColIndex, const ElementType_Input* ColData, int_max Length);
 
 	//---------------------- Get/Set/Fill/Append/Delete Row  ----------------------------------------//
 	
-    inline SparseShadowMatrix<ElementType> Row(int64 RowIndex);
+    inline SparseShadowMatrix<ElementType> Row(int_max RowIndex);
 
-    inline SparseShadowMatrix<ElementType> Row(std::initializer_list<int64>& RowIndexList);
+    inline SparseShadowMatrix<ElementType> Row(std::initializer_list<int_max>& RowIndexList);
 
-    inline SparseShadowMatrix<ElementType> Row(const std::vector<int64>& RowIndexList);
+    inline SparseShadowMatrix<ElementType> Row(const std::vector<int_max>& RowIndexList);
 
-    inline SparseMatrix GetRow(int64 RowIndex) const;
+    inline SparseMatrix GetRow(int_max RowIndex) const;
 
-    inline bool GetRow(int64 RowIndex, DenseMatrix<ElementType>& RowData) const;
+    inline bool GetRow(int_max RowIndex, DenseMatrix<ElementType>& RowData) const;
 
-    inline bool GetRow(int64 RowIndex, std::vector<ElementType>& RowData) const;
+    inline bool GetRow(int_max RowIndex, std::vector<ElementType>& RowData) const;
 
-    inline bool GetRow(int64 RowIndex, ElementType* RowData) const;
-
-    template<typename ElementType_Input>
-    inline bool SetRow(int64 RowIndex, const SparseMatrix<ElementType_Input>& RowData);
+    inline bool GetRow(int_max RowIndex, ElementType* RowData) const;
 
     template<typename ElementType_Input>
-    inline bool SetRow(int64 RowIndex, const DenseMatrix<ElementType_Input>& RowData);
+    inline bool SetRow(int_max RowIndex, const SparseMatrix<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool SetRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData);
+    inline bool SetRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool SetRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData);
+    inline bool SetRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData);
+
+    template<typename ElementType_Input>
+    inline bool SetRow(int_max RowIndex, const std::vector<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input>
-    inline bool SetRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length);
+    inline bool SetRow(int_max RowIndex, const ElementType_Input* RowData, int_max Length);
 
-    inline bool FillRow(int64 RowIndex, const ElementType& Element);
+    inline bool FillRow(int_max RowIndex, const ElementType& Element);
 
     template<typename ElementType_Input>
     inline bool AppendRow(const DenseMatrix<ElementType_Input>& RowData);
@@ -606,31 +606,31 @@ public:
     inline bool AppendRow(const std::vector<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input>
-    inline bool AppendRow(const ElementType_Input* RowData, int64 Length);
+    inline bool AppendRow(const ElementType_Input* RowData, int_max Length);
 
-    inline bool DeleteRow(int64 RowIndex);
+    inline bool DeleteRow(int_max RowIndex);
 
     // no const before std::initializer_list
-    inline bool DeleteRow(std::initializer_list<int64>& RowIndexList);
+    inline bool DeleteRow(std::initializer_list<int_max>& RowIndexList);
 
-    inline bool DeleteRow(const std::vector<int64>& RowIndexList);
+    inline bool DeleteRow(const std::vector<int_max>& RowIndexList);
 
-    inline bool DeleteRow(const int64* RowIndexListPtr, int64 Length);
-
-    template<typename ElementType_Input>
-    inline bool InsertRow(int64 RowIndex, const SparseMatrix<ElementType_Input>& RowData);
+    inline bool DeleteRow(const int_max* RowIndexListPtr, int_max Length);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(int64 RowIndex, const DenseMatrix<ElementType_Input>& RowData);
+    inline bool InsertRow(int_max RowIndex, const SparseMatrix<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData);
+    inline bool InsertRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData);
+    inline bool InsertRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length);
+    inline bool InsertRow(int_max RowIndex, const std::vector<ElementType_Input>& RowData);
+
+    template<typename ElementType_Input>
+    inline bool InsertRow(int_max RowIndex, const ElementType_Input* RowData, int_max Length);
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 
@@ -798,7 +798,7 @@ public:
 
 	//----------------------------------- Rank -----------------------------------------//
 
-    inline int64 Rank() const;
+    inline int_max Rank() const;
 
 	//----------------------------------- inverse -----------------------------------------//
 

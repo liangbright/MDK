@@ -21,7 +21,7 @@ struct mdkPairForSort
 {
     ElementType Element;
 
-    int64 Index;
+    int_max Index;
 };
 
 //only sort 1-D array
@@ -32,7 +32,7 @@ template<typename ElementType>
 bool Sort(const std::vector<ElementType>& InputDataArray, std::vector<ElementType>& OutputDataArray, std::vector<ElementType>& OutputIndexList, const std::string& Order);
 
 template<typename ElementType>
-bool Sort(const ElementType* InputDataArray, int64 Length, ElementType* OutputDataArray, ElementType* OutputIndexList, const std::string& Order);
+bool Sort(const ElementType* InputDataArray, int_max Length, ElementType* OutputDataArray, ElementType* OutputIndexList, const std::string& Order);
 
 
 }//end namespace mdk

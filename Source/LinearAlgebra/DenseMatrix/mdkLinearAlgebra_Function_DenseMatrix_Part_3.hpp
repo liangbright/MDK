@@ -33,13 +33,13 @@ DenseMatrix<ElementType> ComputeL2DistanceListFromSingleVectorToVectorSet(const 
 
     auto ElementPointer = VectorSet.GetElementPointer();
 
-    for (int64 j = 0; j < Size.ColNumber; ++j)
+    for (int_max j = 0; j < Size.ColNumber; ++j)
     {
         auto BeginPointer_j = ElementPointer + j*Size.RowNumber;
 
         ElementType Distance_j = ElementType(0);
 
-        for (int64 i = 0; i < Size.RowNumber; ++i)
+        for (int_max i = 0; i < Size.RowNumber; ++i)
         {
             auto temp = SingleVector[i] - BeginPointer_j[i];
             Distance_j += temp*temp;

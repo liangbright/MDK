@@ -30,7 +30,7 @@ private:
 	// zero if Lt = 0
 	std::vector<double> m_TimeInterval;
 
-	uint64 m_ImageSize[4]; // {Lx, Ly, Lz, Lt}  number of voxels in each direction
+	int_max m_ImageSize[4]; // {Lx, Ly, Lz, Lt}  number of voxels in each direction
 
 	double m_PhysicalOrigin[4]; // {x0, y0, z0, t0} in world coordinate system (unit: mm, second)
 
@@ -40,7 +40,7 @@ public:
 
 	~ImageSequence();
 
-	bool Initialize(uint64 Lx, uint64 Ly, uint64 Lz, uint64 Lt,
+	bool Initialize(int_max Lx, int_max Ly, int_max Lz, int_max Lt,
 		            double VoxelPhysicalSize_x, double VoxelPhysicalSize_y, double VoxelPhysicalSize_z,
                     const std::vector<double>& TimeInterval);
 

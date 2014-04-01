@@ -62,9 +62,9 @@ public:
 
 protected:
 
-    int64 GetMaximunNumberOfThreads();
+    int_max GetMaximunNumberOfThreads();
 
-    int64 GetFeatureVectorNumber();
+    int_max GetFeatureVectorNumber();
 
     virtual bool CheckInputAndOutput();
 

@@ -118,53 +118,28 @@ std::string FindScalarTypeName(ScalarType Scalar)
 
 template<typename ScalarType>
 inline
-int64 CalByteNumberOfScalar(ScalarType Scalar)
+int_max CalByteNumberOfScalar(ScalarType Scalar)
 {
     std::string TypeName(typeid(Scalar).name());
 
-    if (TypeName == "double")
-    {
-        return 8;
+    if (TypeName == "double" 
+        || TypeName == "float" 
+        || TypeName == "signed char" 
+        || TypeName == "short" 
+        || TypeName == "int"
+        || TypeName == "__int64"
+        || TypeName == "unsigned char"
+        || TypeName == "unsigned short"
+        || TypeName == "unsigned int"
+        || TypeName == "unsigned __int64")
+    {        
+        return int_max(sizeof(Scalar));
     }
-    else if (TypeName == "float")
+    else
     {
-        return 4;
+        MDK_Error("Unknown ScalarType @ CalByteNumberOfScalar(ScalarType Scalar)")
+        return 0;
     }
-    else if (TypeName == "signed char")
-    {
-        return 1;
-    }
-    else if (TypeName == "short")
-    {
-        return 2;
-    }
-    else if (TypeName == "int")
-    {
-        return 4;
-    }
-    else if (TypeName == "__int64")
-    {
-        return 8;
-    }
-    else if (TypeName == "unsigned char")
-    {
-        return 1;
-    }
-    else if (TypeName == "unsigned short")
-    {
-        return 2;
-    }
-    else if (TypeName == "unsigned int")
-    {
-        return 4;
-    }
-    else if (TypeName == "unsigned __int64")
-    {
-        return 8;
-    }
-
-    MDK_Error("Unknown ScalarType @ CalByteNumberOfScalar")
-    return 0;
 }
 
 }//end namespace mdk

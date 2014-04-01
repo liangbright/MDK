@@ -28,7 +28,7 @@ void KNNSoftAssignSparseEncoder<ElementType>::Clear()
 
 
 template<typename ElementType>
-bool KNNSoftAssignSparseEncoder<ElementType>::SetMaxNumberOfNeighbours(int64 MaxNumberOfNeighbours)
+bool KNNSoftAssignSparseEncoder<ElementType>::SetMaxNumberOfNeighbours(int_max MaxNumberOfNeighbours)
 {
     if (MaxNumberOfNeighbours <= 0)
     {

@@ -19,6 +19,8 @@ namespace mdk
 
 	typedef signed long long int64;
 
+    typedef signed long long int_max;
+
 	typedef unsigned char uint8;
 
 	typedef unsigned short uint16;
@@ -26,6 +28,8 @@ namespace mdk
 	typedef unsigned int uint32;
 
 	typedef unsigned long long uint64;
+
+    typedef unsigned long long uint_max;
 
 #endif
 
@@ -71,7 +75,7 @@ std::string FindScalarTypeName(ScalarType Scalar);
 
 template<typename ScalarType>
 inline
-int64 CalByteNumberOfScalar(ScalarType Scalar);
+int_max CalByteNumberOfScalar(ScalarType Scalar);
 
 }//end namespace mdk
 

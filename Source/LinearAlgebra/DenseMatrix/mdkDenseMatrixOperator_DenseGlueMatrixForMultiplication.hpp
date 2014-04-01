@@ -205,7 +205,7 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(DenseGlueMatrixForMultip
         return EmptyGlueMatrix_M;
     }
 
-    int64 MatrixNumber = GlueMatrixA.GetMatrixNumber();
+    int_max MatrixNumber = GlueMatrixA.GetMatrixNumber();
 
     GlueMatrixA.m_ColNumber = SizeB.ColNumber;
 
@@ -425,7 +425,7 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(const DenseMatrix<Elemen
     }
 
 
-    int64 MatrixNumber = GlueMatrixB.m_SourceMatrixSharedCopyList.size();
+    int_max MatrixNumber = GlueMatrixB.m_SourceMatrixSharedCopyList.size();
 
     GlueMatrixB.m_ColNumber = SizeA.ColNumber;
 
@@ -433,7 +433,7 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(const DenseMatrix<Elemen
     GlueMatrixB.m_SourceMatrixSharedCopyList.reserve(MatrixNumber + 1);
     GlueMatrixB.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-    for (int64 i = MatrixNumber; i >= 1; --i)
+    for (int_max i = MatrixNumber; i >= 1; --i)
     {
         GlueMatrixB.m_SourceMatrixSharedCopyList[i].SwapSmartPointer(GlueMatrixB.m_SourceMatrixSharedCopyList[i - 1]);
     }    
@@ -748,7 +748,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForMul
 
     if (GlueMatrixA_M.GetMatrixNumber() == 1)
     {
-        int64 MatrixNumber_B = GlueMatrixB_L.GetMatrixNumber();
+        int_max MatrixNumber_B = GlueMatrixB_L.GetMatrixNumber();
 
         //GlueMatrixB_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_B + 1);
         GlueMatrixB_L.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_B + 1);
@@ -814,7 +814,7 @@ DenseGlueMatrixForLinearCombination<ElementType>& operator-(DenseGlueMatrixForMu
 
     if (GlueMatrixA_M.GetMatrixNumber() == 1)
     {
-        int64 MatrixNumber_B = GlueMatrixB_L.GetMatrixNumber();
+        int_max MatrixNumber_B = GlueMatrixB_L.GetMatrixNumber();
 
         //GlueMatrixB_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_B + 1);
         GlueMatrixB_L.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_B + 1);
@@ -822,7 +822,7 @@ DenseGlueMatrixForLinearCombination<ElementType>& operator-(DenseGlueMatrixForMu
 
         GlueMatrixB_L.m_SourceMatrixSharedCopyList[MatrixNumber_B].SwapSmartPointer(GlueMatrixA_M.m_SourceMatrixSharedCopyList[0]);
 
-        for (int64 i = 0; i < MatrixNumber_B; ++i)
+        for (int_max i = 0; i < MatrixNumber_B; ++i)
         {
             GlueMatrixB_L.m_ElementList_Coef[i] = ElementType(0) - GlueMatrixB_L.m_ElementList_Coef[i];
         }
@@ -909,7 +909,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
 
     if (GlueMatrixB_M.GetMatrixNumber() == 1)
     {
-        int64 MatrixNumber_A = GlueMatrixA_L.GetMatrixNumber();
+        int_max MatrixNumber_A = GlueMatrixA_L.GetMatrixNumber();
 
         //GlueMatrixA_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + 1);
         GlueMatrixA_L.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_A + 1);
@@ -976,7 +976,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
 
     if (GlueMatrixB_M.GetMatrixNumber() == 1)
     {
-        int64 MatrixNumber_A = GlueMatrixA_L.GetMatrixNumber();
+        int_max MatrixNumber_A = GlueMatrixA_L.GetMatrixNumber();
 
         //GlueMatrixA_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + 1);
         GlueMatrixA_L.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_A + 1);
@@ -1062,9 +1062,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForMul
 
     // check if one matrix in GlueMatrixA and one matrix in GlueMatrixB
 
-    int64 MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
+    int_max MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
 
-    int64 MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
+    int_max MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
 
     if (MatrixNumber_A == 1 && MatrixNumber_B == 1)
     {
@@ -1152,9 +1152,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForMul
 
     // check if one matrix in GlueMatrixA and one matrix in GlueMatrixB
 
-    int64 MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
+    int_max MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
 
-    int64 MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
+    int_max MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
 
     if (MatrixNumber_A == 1 && MatrixNumber_B == 1)
     {
@@ -1241,9 +1241,9 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(DenseGlueMatrixForMultip
         return EmptyGlueMatrix_M;
     }
 
-    int64 MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
+    int_max MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
 
-    int64 MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
+    int_max MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
     
     if (MatrixNumber_A == 1 && MatrixNumber_B == 1)
     {
@@ -1280,15 +1280,15 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(DenseGlueMatrixForMultip
     //          user may do this on purpose to ensure numerical accuracy
     /* -------------------------------------------------------------------------------------------------------------------------------------------
 
-    int64 MatrixNumber_A = GlueMatrixA.GetMatrixSize();
+    int_max MatrixNumber_A = GlueMatrixA.GetMatrixSize();
 
-    int64 MatrixNumber_B = GlueMatrixB.GetMatrixSize();
+    int_max MatrixNumber_B = GlueMatrixB.GetMatrixSize();
 
     GlueMatrixA.m_ColNumber = SizeB.ColNumber;
 
     GlueMatrixA.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + MatrixNumber_B);
 
-    for (int64 i = MatrixNumber_A; i < MatrixNumber_A + MatrixNumber_B; ++i)
+    for (int_max i = MatrixNumber_A; i < MatrixNumber_A + MatrixNumber_B; ++i)
     {
         GlueMatrixA.m_SourceMatrixSharedCopyList[i].ForceSharedCopy(GlueMatrixB.m_SourceMatrixSharedCopyList[i - MatrixNumber_A]);
     }

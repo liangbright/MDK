@@ -41,27 +41,27 @@ bool FeatureDictionaryBasedEncoder<ElementType>::Update()
 
     // divide the input feature column-vectors into groups
 
-    int64 FeatureVectorNumber = this->GetTotalNumberOfInputFeatureVectors();
+    int_max FeatureVectorNumber = this->GetTotalNumberOfInputFeatureVectors();
 
-    std::vector<int64> IndexList_start;
-    std::vector<int64> IndexList_end;
+    std::vector<int_max> IndexList_start;
+    std::vector<int_max> IndexList_end;
 
     this->DivideData(0, FeatureVectorNumber, IndexList_start, IndexList_end);
 
-    int64 ThreadNumber = IndexList_start.size();
+    int_max ThreadNumber = IndexList_start.size();
 
     if (ThreadNumber > 1)
     {
         // create and start the threads
         std::vector<std::thread> ThreadList(ThreadNumber);
 
-        for (int64 i = 0; i < ThreadNumber; ++i)
+        for (int_max i = 0; i < ThreadNumber; ++i)
         {
             ThreadList[i] = std::thread([&]{this->GenerateCode_in_a_Thread(IndexList_start[i], IndexList_end[i]); });
         }
 
         //wait for all the threads
-        for (int64 i = 0; i < ThreadNumber; ++i)
+        for (int_max i = 0; i < ThreadNumber; ++i)
         {
             ThreadList[i].join();
         }
@@ -78,9 +78,9 @@ bool FeatureDictionaryBasedEncoder<ElementType>::Update()
 
 template<typename ElementType>
 void FeatureDictionaryBasedEncoder<ElementType>::
-DivideData(int64 Index_min, int64 Index_max, std::vector<int64>& IndexList_start, std::vector<int64>& IndexList_end)
+DivideData(int_max Index_min, int_max Index_max, std::vector<int_max>& IndexList_start, std::vector<int_max>& IndexList_end)
 {
-    int64 MaximunNumberOfThreads = this->GetMaxNumberOfThreads();
+    int_max MaximunNumberOfThreads = this->GetMaxNumberOfThreads();
 
     if (MaximunNumberOfThreads == 1)
     {
@@ -91,11 +91,11 @@ DivideData(int64 Index_min, int64 Index_max, std::vector<int64>& IndexList_start
 
     auto TotalDataNumber = Index_max - Index_min + 1;
 
-    int64 ThreadNumber = 1;
+    int_max ThreadNumber = 1;
 
-    int64 DataNumberPerThread = 0;
+    int_max DataNumberPerThread = 0;
 
-    for (int64 i = MaximunNumberOfThreads; i >= 1; --i)
+    for (int_max i = MaximunNumberOfThreads; i >= 1; --i)
     {
         DataNumberPerThread = TotalDataNumber / i;
 
@@ -114,9 +114,9 @@ DivideData(int64 Index_min, int64 Index_max, std::vector<int64>& IndexList_start
         return;
     }
 
-    int64 tempIndex = Index_min;
+    int_max tempIndex = Index_min;
 
-    for (int64 i = 0; i < ThreadNumber; ++i)
+    for (int_max i = 0; i < ThreadNumber; ++i)
     {
         IndexList_start.push_back(tempIndex);
         IndexList_end.push_back(tempIndex + DataNumberPerThread - 1);
@@ -129,9 +129,9 @@ DivideData(int64 Index_min, int64 Index_max, std::vector<int64>& IndexList_start
 
 
 template<typename ElementType>
-void FeatureDictionaryBasedEncoder<ElementType>::GenerateCode_in_a_Thread(int64 IndexOfFeatureVector_start, int64 IndexOfFeatureVector_end)
+void FeatureDictionaryBasedEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end)
 {
-    for (int64 i = IndexOfFeatureVector_start; i <= IndexOfFeatureVector_end; ++i)
+    for (int_max i = IndexOfFeatureVector_start; i <= IndexOfFeatureVector_end; ++i)
     {
         this->EncodingFunction(i);
     }

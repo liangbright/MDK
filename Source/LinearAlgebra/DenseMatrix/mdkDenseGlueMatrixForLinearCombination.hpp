@@ -62,7 +62,7 @@ DenseGlueMatrixForLinearCombination<ElementType>::~DenseGlueMatrixForLinearCombi
 
 template<typename ElementType>
 inline 
-int64 
+int_max 
 DenseGlueMatrixForLinearCombination<ElementType>::GetRowNumber() const
 {
     return m_RowNumber;
@@ -71,7 +71,7 @@ DenseGlueMatrixForLinearCombination<ElementType>::GetRowNumber() const
 
 template<typename ElementType>
 inline 
-int64 
+int_max 
 DenseGlueMatrixForLinearCombination<ElementType>::GetColNumber() const
 {
     return m_ColNumber;
@@ -95,7 +95,7 @@ DenseGlueMatrixForLinearCombination<ElementType>::GetSize() const
 
 template<typename ElementType>
 inline
-int64 
+int_max 
 DenseGlueMatrixForLinearCombination<ElementType>::GetMatrixNumber() const
 {
     return m_SourceMatrixSharedCopyList.size();
@@ -145,7 +145,7 @@ DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix(DenseMatrix<
         }
     }
 
-    int64 MatrixNumber = m_SourceMatrixSharedCopyList.size();
+    int_max MatrixNumber = m_SourceMatrixSharedCopyList.size();
 
     if (MatrixNumber == 0)
     {
@@ -155,7 +155,7 @@ DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix(DenseMatrix<
 
     std::vector<const DenseMatrix<ElementType>*> MatrixPtrList(MatrixNumber);
 
-    for (int64 k = 0; k < MatrixNumber; ++k)
+    for (int_max k = 0; k < MatrixNumber; ++k)
     {
         MatrixPtrList[k] = &m_SourceMatrixSharedCopyList[k];
     }

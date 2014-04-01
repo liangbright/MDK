@@ -24,34 +24,34 @@ public:
 
     void Clear();
 
-    bool SetNeighbourNumber(int64 NeighbourNumber); // the number of nearest neighbors, i.e., K
+    bool SetNeighbourNumber(int_max NeighbourNumber); // the number of nearest neighbors, i.e., K
 
     //-----------------------------------------
 
     static DenseMatrix<ElementType> Apply(const DenseMatrix<ElementType>* FeatureData, 
                                           const FeatureDictionary<ElementType>* Dictionary,
-                                          int64 NeighbourNumber = 3,
+                                          int_max NeighbourNumber = 3,
                                           bool  Flag_OutputCodeInCompactFormat = true, // CompactFormat in default
-                                          int64 MaxNumberOfThreads = 1);
+                                          int_max MaxNumberOfThreads = 1);
 
     static bool Apply(DenseMatrix<ElementType>& OutputFeatureCode, 
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
-                      int64 NeighbourNumber = 3,
+                      int_max NeighbourNumber = 3,
                       bool  Flag_OutputCodeInCompactFormat = true, // CompactFormat in default
-                      int64 MaxNumberOfThreads = 1);
+                      int_max MaxNumberOfThreads = 1);
 
     static bool Apply(SparseMatrix<ElementType>& OutputFeatureCode,
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
-                      int64 NeighbourNumber = 3,
-                      int64 MaxNumberOfThreads = 1);
+                      int_max NeighbourNumber = 3,
+                      int_max MaxNumberOfThreads = 1);
 
 protected:
 
     bool CheckInputAndOutput();
 
-    void EncodingFunction(int64 IndexOfFeatureVector);
+    void EncodingFunction(int_max IndexOfFeatureVector);
 
 private:
 //deleted:

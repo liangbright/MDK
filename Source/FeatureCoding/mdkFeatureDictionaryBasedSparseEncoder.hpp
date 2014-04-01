@@ -146,11 +146,11 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCodeInSpa
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetMaxNumberOfThreads(int64 Number)
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetMaxNumberOfThreads(int_max Number)
 {
     if (Number <= 0)
     {
-        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetMaxNumberOfThreads(int64 Number)")
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetMaxNumberOfThreads(int_max Number)")
 
         m_MaxNumberOfThreads = 1;
 
@@ -164,14 +164,14 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetMaxNumberOfThreads(int
 
 
 template<typename ElementType>
-int64 FeatureDictionaryBasedSparseEncoder<ElementType>::GetMaxNumberOfThreads()
+int_max FeatureDictionaryBasedSparseEncoder<ElementType>::GetMaxNumberOfThreads()
 {
     return m_MaxNumberOfThreads;
 }
 
 
 template<typename ElementType>
-int64 FeatureDictionaryBasedSparseEncoder<ElementType>::GetTotalNumberOfInputFeatureVectors()
+int_max FeatureDictionaryBasedSparseEncoder<ElementType>::GetTotalNumberOfInputFeatureVectors()
 {
     return m_FeatureData->GetColNumber();
 }
@@ -194,7 +194,7 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::CheckInputAndOutput()
 
     auto DictionarySize = m_Dictionary->GetSize();
 
-    int64 FeatureCodeDimension = DictionarySize.ColNumber;
+    int_max FeatureCodeDimension = DictionarySize.ColNumber;
 
     if (m_MaxNumberOfNonzeroElementsInEachCode <= 0 || m_MaxNumberOfNonzeroElementsInEachCode > FeatureCodeDimension)
     {
@@ -281,7 +281,7 @@ DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetO
     {
         auto DictionarySize = m_Dictionary->GetSize();
 
-        int64 FeatureCodeDimension = DictionarySize.ColNumber;
+        int_max FeatureCodeDimension = DictionarySize.ColNumber;
 
         auto tempSize = m_FeatureCodeInDenseFormat->GetSize();
 
@@ -325,7 +325,7 @@ SparseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::Get
     {
         auto DictionarySize = m_Dictionary->GetSize();
 
-        int64 FeatureCodeDimension = DictionarySize.ColNumber;
+        int_max FeatureCodeDimension = DictionarySize.ColNumber;
 
         auto tempSize = m_FeatureCodeInSparseFormat->GetSize();
 

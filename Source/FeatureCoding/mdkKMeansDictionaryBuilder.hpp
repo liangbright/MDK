@@ -59,7 +59,7 @@ bool KMeansDictionaryBuilder<ElementType>::SetInitialDictionary(const FeatureDic
 
 
 template<typename ElementType>
-bool KMeansDictionaryBuilder<ElementType>::SetOutputDictionaryLength(int64 DictionaryLength)
+bool KMeansDictionaryBuilder<ElementType>::SetOutputDictionaryLength(int_max DictionaryLength)
 {
     if (DictionaryLength <= 0)
     {
@@ -126,9 +126,9 @@ bool KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_OpenCV()
     //
     DenseMatrix<float> tempFeatureData(m_FeatureData->GetColNumber(), m_FeatureData->GetRowNumber());
 
-    for (int64 i = 0; i < tempFeatureData.GetRowNumber(); ++i)
+    for (int_max i = 0; i < tempFeatureData.GetRowNumber(); ++i)
     {
-        for (int64 j = 0; j < tempFeatureData.GetColNumber(); ++j)
+        for (int_max j = 0; j < tempFeatureData.GetColNumber(); ++j)
         {
             tempFeatureData(i, j) = float((*m_FeatureData)(j, i));
         }

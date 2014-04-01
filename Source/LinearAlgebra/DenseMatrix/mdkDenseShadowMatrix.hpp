@@ -26,7 +26,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix()
 
 template<typename ElementType>
 inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::initializer_list<int64>& LinearIndexList)
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::initializer_list<int_max>& LinearIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}), A is a matrix    
@@ -57,8 +57,8 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                  const std::initializer_list<int64>& RowIndexList,
-                                                  const std::initializer_list<int64>& ColIndexList)
+                                                  const std::initializer_list<int_max>& RowIndexList,
+                                                  const std::initializer_list<int_max>& ColIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
@@ -95,7 +95,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                  const std::initializer_list<int64>& RowIndexList,
+                                                  const std::initializer_list<int_max>& RowIndexList,
                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
@@ -112,7 +112,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_ColIndexList_source.resize(ColNumber_source);
 
-    for (int64 i = 0; i < ColNumber_source; ++i)
+    for (int_max i = 0; i < ColNumber_source; ++i)
     {
         m_ColIndexList_source[i] = i;
     }
@@ -139,7 +139,7 @@ template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                  const std::initializer_list<int64>& ColIndexList)
+                                                  const std::initializer_list<int_max>& ColIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
@@ -153,7 +153,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_RowIndexList_source.resize(RowNumber_source);
 
-    for (int64 i = 0; i < RowNumber_source; ++i)
+    for (int_max i = 0; i < RowNumber_source; ++i)
     {
         m_RowIndexList_source[i] = i;
     }
@@ -180,7 +180,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& LinearIndexList)
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int_max>& LinearIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}), A is a matrix    
@@ -211,8 +211,8 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                  const std::vector<int64>& RowIndexList,
-                                                  const std::vector<int64>& ColIndexList)
+                                                  const std::vector<int_max>& RowIndexList,
+                                                  const std::vector<int_max>& ColIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
@@ -249,7 +249,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                  const std::vector<int64>& RowIndexList,
+                                                  const std::vector<int_max>& RowIndexList,
                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
@@ -266,7 +266,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_ColIndexList_source.resize(ColNumber_source);
 
-    for (int64 i = 0; i < ColNumber_source; ++i)
+    for (int_max i = 0; i < ColNumber_source; ++i)
     {
         m_ColIndexList_source[i] = i;    
     }
@@ -293,7 +293,7 @@ template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                  const std::vector<int64>& ColIndexList)
+                                                  const std::vector<int_max>& ColIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
@@ -307,7 +307,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_RowIndexList_source.resize(RowNumber_source);
 
-    for (int64 i = 0; i < RowNumber_source; ++i)
+    for (int_max i = 0; i < RowNumber_source; ++i)
     {
         m_RowIndexList_source[i] = i;
     }
@@ -335,7 +335,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int64>& LinearIndexList)
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int_max>& LinearIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}), A is a matrix    
@@ -345,7 +345,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_LinearIndexList_source.resize(LinearIndexList.GetElementNumber());
 
-    for (int64 i = 0; i < LinearIndexList.GetElementNumber(); ++i)
+    for (int_max i = 0; i < LinearIndexList.GetElementNumber(); ++i)
     {
         m_LinearIndexList_source[i] = LinearIndexList[i];
     }
@@ -371,8 +371,8 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                  const DenseMatrix<int64>& RowIndexList,
-                                                  const DenseMatrix<int64>& ColIndexList)
+                                                  const DenseMatrix<int_max>& RowIndexList,
+                                                  const DenseMatrix<int_max>& ColIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
@@ -386,14 +386,14 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_RowIndexList_source.resize(RowIndexList.GetElementNumber());
 
-    for (int64 i = 0; i < RowIndexList.GetElementNumber(); ++i)
+    for (int_max i = 0; i < RowIndexList.GetElementNumber(); ++i)
     {
         m_RowIndexList_source[i] = RowIndexList[i];
     }
 
     m_ColIndexList_source.resize(ColIndexList.GetElementNumber());
 
-    for (int64 i = 0; i < ColIndexList.GetElementNumber(); ++i)
+    for (int_max i = 0; i < ColIndexList.GetElementNumber(); ++i)
     {
         m_ColIndexList_source[i] = ColIndexList[i];
     }
@@ -419,7 +419,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                  const DenseMatrix<int64>& RowIndexList,
+                                                  const DenseMatrix<int_max>& RowIndexList,
                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
@@ -434,14 +434,14 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_RowIndexList_source.resize(RowIndexList.GetElementNumber());
 
-    for (int64 i = 0; i < RowIndexList.GetElementNumber(); ++i)
+    for (int_max i = 0; i < RowIndexList.GetElementNumber(); ++i)
     {
         m_RowIndexList_source[i] = RowIndexList[i];
     }
 
     m_ColIndexList_source.resize(ColNumber_source);
 
-    for (int64 i = 0; i < ColNumber_source; ++i)
+    for (int_max i = 0; i < ColNumber_source; ++i)
     {
         m_ColIndexList_source[i] = i;    
     }
@@ -468,7 +468,7 @@ template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                  const DenseMatrix<int64>& ColIndexList)
+                                                  const DenseMatrix<int_max>& ColIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
@@ -482,14 +482,14 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_RowIndexList_source.resize(RowNumber_source);
 
-    for (int64 i = 0; i < RowNumber_source; ++i)
+    for (int_max i = 0; i < RowNumber_source; ++i)
     {
         m_RowIndexList_source[i] = i;
     }
 
     m_ColIndexList_source.resize(ColIndexList.GetElementNumber());
 
-    for (int64 i = 0; i < ColIndexList.GetElementNumber(); ++i)
+    for (int_max i = 0; i < ColIndexList.GetElementNumber(); ++i)
     {
         m_ColIndexList_source[i] = ColIndexList[i];
     }
@@ -528,14 +528,14 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_ColIndexList_source.resize(ColNumber_source);
 
-    for (int64 i = 0; i < ColNumber_source; ++i)
+    for (int_max i = 0; i < ColNumber_source; ++i)
     {
         m_ColIndexList_source[i] = i;
     }
 
     m_RowIndexList_source.resize(RowNumber_source);
 
-    for (int64 i = 0; i < RowNumber_source; ++i)
+    for (int_max i = 0; i < RowNumber_source; ++i)
     {
         m_RowIndexList_source[i] = i;
     }
@@ -602,7 +602,7 @@ inline bool DenseShadowMatrix<ElementType>::IsLinearIndexListOnly() const
 
 template<typename ElementType>
 inline
-int64 DenseShadowMatrix<ElementType>::GetElementNumber() const
+int_max DenseShadowMatrix<ElementType>::GetElementNumber() const
 {
     return m_ElementNumber;
 }
@@ -610,7 +610,7 @@ int64 DenseShadowMatrix<ElementType>::GetElementNumber() const
 
 template<typename ElementType>
 inline
-int64 DenseShadowMatrix<ElementType>::GetColNumber() const
+int_max DenseShadowMatrix<ElementType>::GetColNumber() const
 {
     return m_ColNumber;
 }
@@ -618,7 +618,7 @@ int64 DenseShadowMatrix<ElementType>::GetColNumber() const
 
 template<typename ElementType>
 inline
-int64 DenseShadowMatrix<ElementType>::GetRowNumber() const
+int_max DenseShadowMatrix<ElementType>::GetRowNumber() const
 {
     return m_RowNumber;
 }
@@ -647,7 +647,7 @@ bool DenseShadowMatrix<ElementType>::IsEmpty() const
 
 template<typename ElementType>
 inline 
-const std::vector<int64>& DenseShadowMatrix<ElementType>::GetRowIndexListOfSource() const
+const std::vector<int_max>& DenseShadowMatrix<ElementType>::GetRowIndexListOfSource() const
 {
     return m_RowIndexList_source;
 }
@@ -655,7 +655,7 @@ const std::vector<int64>& DenseShadowMatrix<ElementType>::GetRowIndexListOfSourc
 
 template<typename ElementType>
 inline 
-const std::vector<int64>& DenseShadowMatrix<ElementType>::GetColIndexListOfSource() const
+const std::vector<int_max>& DenseShadowMatrix<ElementType>::GetColIndexListOfSource() const
 {
     return m_ColIndexList_source;
 }
@@ -663,7 +663,7 @@ const std::vector<int64>& DenseShadowMatrix<ElementType>::GetColIndexListOfSourc
 
 template<typename ElementType>
 inline 
-const std::vector<int64>& DenseShadowMatrix<ElementType>::GetLinearIndexListOfSource() const
+const std::vector<int_max>& DenseShadowMatrix<ElementType>::GetLinearIndexListOfSource() const
 {
     return m_LinearIndexList_source;
 }
@@ -735,7 +735,7 @@ bool DenseShadowMatrix<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>&
 
     if (m_LinearIndexList_source.empty() == false)
     {
-        for (int64 i = 0; i < m_ElementNumber; ++i)
+        for (int_max i = 0; i < m_ElementNumber; ++i)
         {
             ptrTemp[i] = ptrSource[m_LinearIndexList_source[i]];
         }
@@ -744,11 +744,11 @@ bool DenseShadowMatrix<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>&
     {
         auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
-        for (int64 j = 0; j < m_ColNumber; ++j)
+        for (int_max j = 0; j < m_ColNumber; ++j)
         {
             auto Index = m_ColIndexList_source[j] * RowNumber_source;
 
-            for (int64 i = 0; i < m_RowNumber; ++i)
+            for (int_max i = 0; i < m_RowNumber; ++i)
             {
                 auto LinearIndex_source = Index + m_RowIndexList_source[i];
 
@@ -810,7 +810,7 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseMatrix<ElementType>& I
 
     auto ptrMatrix = InputMatrix.GetElementPointer();
 
-    for (int64 i = 0; i < m_ElementNumber; ++i)
+    for (int_max i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] = ptrMatrix[i];
     }
@@ -839,7 +839,7 @@ void DenseShadowMatrix<ElementType>::operator=(const ElementType& Element)
 
     //------------------------------------------------------------
 
-    for (int64 i = 0; i < m_ElementNumber; ++i)
+    for (int_max i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] = Element;
     }
@@ -881,7 +881,7 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseShadowMatrix<ElementTy
     }
     else
     {
-        for (int64 i = 0; i < m_ElementNumber; ++i)
+        for (int_max i = 0; i < m_ElementNumber; ++i)
         {
             (*this)[i] = ShadowMatrix[i];
         }
@@ -907,7 +907,7 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseGlueMatrixForMultiplic
 
 template<typename ElementType>
 inline
-ElementType& DenseShadowMatrix<ElementType>::operator[](int64 LinearIndex)
+ElementType& DenseShadowMatrix<ElementType>::operator[](int_max LinearIndex)
 {
 #if defined(MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound)
 
@@ -924,9 +924,9 @@ ElementType& DenseShadowMatrix<ElementType>::operator[](int64 LinearIndex)
         return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
     }
 
-    int64 ColIndex = LinearIndex / m_RowNumber;
+    int_max ColIndex = LinearIndex / m_RowNumber;
 
-    int64 RowIndex = LinearIndex % m_RowNumber;
+    int_max RowIndex = LinearIndex % m_RowNumber;
 
     auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
@@ -938,7 +938,7 @@ ElementType& DenseShadowMatrix<ElementType>::operator[](int64 LinearIndex)
 
 template<typename ElementType>
 inline
-const ElementType& DenseShadowMatrix<ElementType>::operator[](int64 LinearIndex) const
+const ElementType& DenseShadowMatrix<ElementType>::operator[](int_max LinearIndex) const
 {
 #if defined(MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound)
 
@@ -955,9 +955,9 @@ const ElementType& DenseShadowMatrix<ElementType>::operator[](int64 LinearIndex)
         return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
     }
 
-    int64 ColIndex = LinearIndex / m_RowNumber;
+    int_max ColIndex = LinearIndex / m_RowNumber;
 
-    int64 RowIndex = LinearIndex % m_RowNumber;
+    int_max RowIndex = LinearIndex % m_RowNumber;
 
     auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
@@ -969,7 +969,7 @@ const ElementType& DenseShadowMatrix<ElementType>::operator[](int64 LinearIndex)
 
 template<typename ElementType>
 inline
-ElementType& DenseShadowMatrix<ElementType>::operator()(int64 LinearIndex)
+ElementType& DenseShadowMatrix<ElementType>::operator()(int_max LinearIndex)
 {
 #if defined(MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound)
 
@@ -986,13 +986,13 @@ ElementType& DenseShadowMatrix<ElementType>::operator()(int64 LinearIndex)
         return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
    	}
 	
-    int64 ColIndex = LinearIndex / m_RowNumber;
+    int_max ColIndex = LinearIndex / m_RowNumber;
 
-	int64 RowIndex = LinearIndex % m_RowNumber;
+	int_max RowIndex = LinearIndex % m_RowNumber;
 
     auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
-	int64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+	int_max LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
 
     return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
@@ -1000,7 +1000,7 @@ ElementType& DenseShadowMatrix<ElementType>::operator()(int64 LinearIndex)
 
 template<typename ElementType>
 inline
-const ElementType& DenseShadowMatrix<ElementType>::operator()(int64 LinearIndex) const
+const ElementType& DenseShadowMatrix<ElementType>::operator()(int_max LinearIndex) const
 {
 #if defined(MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound)
 
@@ -1017,13 +1017,13 @@ const ElementType& DenseShadowMatrix<ElementType>::operator()(int64 LinearIndex)
         return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
     }
 
-    int64 ColIndex = LinearIndex / m_RowNumber;
+    int_max ColIndex = LinearIndex / m_RowNumber;
 
-    int64 RowIndex = LinearIndex % m_RowNumber;
+    int_max RowIndex = LinearIndex % m_RowNumber;
 
     auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
-    int64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+    int_max LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
 
     return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
@@ -1031,7 +1031,7 @@ const ElementType& DenseShadowMatrix<ElementType>::operator()(int64 LinearIndex)
 
 template<typename ElementType>
 inline
-ElementType& DenseShadowMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex)
+ElementType& DenseShadowMatrix<ElementType>::operator()(int_max RowIndex, int_max ColIndex)
 {
 #if defined(MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound)
 
@@ -1052,7 +1052,7 @@ ElementType& DenseShadowMatrix<ElementType>::operator()(int64 RowIndex, int64 Co
 	
     auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
-	int64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+	int_max LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
 
     return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
@@ -1060,7 +1060,7 @@ ElementType& DenseShadowMatrix<ElementType>::operator()(int64 RowIndex, int64 Co
 
 template<typename ElementType>
 inline
-const ElementType& DenseShadowMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex) const
+const ElementType& DenseShadowMatrix<ElementType>::operator()(int_max RowIndex, int_max ColIndex) const
 {
 #if defined(MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound)
 
@@ -1081,7 +1081,7 @@ const ElementType& DenseShadowMatrix<ElementType>::operator()(int64 RowIndex, in
 	
     auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
 
-	int64 LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+	int_max LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
 
     return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
@@ -1133,7 +1133,7 @@ void DenseShadowMatrix<ElementType>::operator+=(const DenseMatrix<ElementType>& 
 
     auto ptrInput = InputMatrix.GetElementPointer();
 
-    for (int64 i = 0; i < m_ElementNumber; ++i)
+    for (int_max i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] += ptrInput[i];
     }
@@ -1185,7 +1185,7 @@ void DenseShadowMatrix<ElementType>::operator-=(const DenseMatrix<ElementType>& 
 
     auto ptrInput = InputMatrix.GetElementPointer();
 
-    for (int64 i = 0; i < m_ElementNumber; ++i)
+    for (int_max i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] -= ptrInput[i];
     }
@@ -1268,7 +1268,7 @@ void DenseShadowMatrix<ElementType>::operator/=(const DenseMatrix<ElementType>& 
 
     auto ptrInput = InputMatrix.GetElementPointer();
 
-    for (int64 i = 0; i < m_ElementNumber; ++i)
+    for (int_max i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] /= ptrInput[i];
     }
@@ -1304,7 +1304,7 @@ void DenseShadowMatrix<ElementType>::operator+=(const ElementType& Element)
 
     //----------------------------------------------------//
 
-    for (int64 i = 0; i < m_ElementNumber; ++i)
+    for (int_max i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] += Element;
     }
@@ -1339,7 +1339,7 @@ void DenseShadowMatrix<ElementType>::operator-=(const ElementType& Element)
 
     //----------------------------------------------------//
 
-    for (int64 i = 0; i < m_ElementNumber; ++i)
+    for (int_max i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] -= Element;
     }
@@ -1374,7 +1374,7 @@ void DenseShadowMatrix<ElementType>::operator*=(const ElementType& Element)
 
     //----------------------------------------------------//
 
-    for (int64 i = 0; i < m_ElementNumber; ++i)
+    for (int_max i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] *= Element;
     }
@@ -1409,7 +1409,7 @@ void DenseShadowMatrix<ElementType>::operator/=(const ElementType& Element)
 
     //----------------------------------------------------//
 
-    for (int64 i = 0; i < m_ElementNumber; ++i)
+    for (int_max i = 0; i < m_ElementNumber; ++i)
     {
         (*this)[i] /= Element;
     }
@@ -1450,7 +1450,7 @@ void DenseShadowMatrix<ElementType>::operator+=(const DenseShadowMatrix<ElementT
     }
     else
     {
-        for (int64 i = 0; i < m_ElementNumber; ++i)
+        for (int_max i = 0; i < m_ElementNumber; ++i)
         {
             (*this)[i] += ShadowMatrix[i];
         }
@@ -1491,7 +1491,7 @@ void DenseShadowMatrix<ElementType>::operator-=(const DenseShadowMatrix<ElementT
     }
     else
     {
-        for (int64 i = 0; i < m_ElementNumber; ++i)
+        for (int_max i = 0; i < m_ElementNumber; ++i)
         {
             (*this)[i] -= ShadowMatrix[i];
         }
@@ -1563,7 +1563,7 @@ void DenseShadowMatrix<ElementType>::operator/=(const DenseShadowMatrix<ElementT
     }
     else
     {
-        for (int64 i = 0; i < m_ElementNumber; ++i)
+        for (int_max i = 0; i < m_ElementNumber; ++i)
         {
             (*this)[i] /= ShadowMatrix[i];
         }
@@ -1689,7 +1689,7 @@ DenseMatrix<ElementType> DenseShadowMatrix<ElementType>::ElementMultiply(const D
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    for (int64 i = 0; i < m_ElementNumber; ++i)
+    for (int_max i = 0; i < m_ElementNumber; ++i)
     {
         ptrTemp[i] = (*this)[i] * ShadowMatrix[i];
     }

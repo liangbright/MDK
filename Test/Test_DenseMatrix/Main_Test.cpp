@@ -12,16 +12,16 @@ struct TempStruct
     int t2;
 };
 
-int Test_A(int64 a, int64 b)
+int Test_A(int_max a, int_max b)
 {
     std::cout << "a = " << a << '\n';
 
-    std::cout << " int64 a, int64 b" << '\n';
+    std::cout << " int_max a, int_max b" << '\n';
 
     return 1;
 }
 
-TempStruct Test_A(const std::initializer_list<int64>& a, std::initializer_list<int64>& b)
+TempStruct Test_A(const std::initializer_list<int_max>& a, std::initializer_list<int_max>& b)
 {
     std::cout << "initializer_list" << '\n';
 
@@ -35,7 +35,7 @@ TempStruct Test_A(const std::initializer_list<int64>& a, std::initializer_list<i
 }
 
 
-TempStruct Test_A(const std::initializer_list<int64>& a, const Object& b)
+TempStruct Test_A(const std::initializer_list<int_max>& a, const Object& b)
 {
     std::cout << "initializer_list" << '\n';
 
@@ -52,7 +52,7 @@ int aaa_main()
 {
     double a1 = 1234567890;
 
-    int64 a2 = int64(a1);
+    int_max a2 = int_max(a1);
 
 
     auto a = Test_A(0, 0);

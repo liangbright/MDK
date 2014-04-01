@@ -10,7 +10,7 @@
 namespace mdk
 {
   
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 class VectorVoxelWithFixedSize : public Object
 {
 private:
@@ -38,7 +38,7 @@ public:
 
     inline void Fill(const ElementType& Element);
 
-    inline int64 GetLength();
+    inline int_max GetLength();
 
     //-----------element access------------------//
 
@@ -46,17 +46,17 @@ public:
 
     inline const ElementType* GetElementPointer() const;
 
-    inline ElementType& operator[](int64 Index);
+    inline ElementType& operator[](int_max Index);
 
-    inline const ElementType& operator[](int64 Index) const;
+    inline const ElementType& operator[](int_max Index) const;
 
-    ElementType& operator()(int64 Index);
+    ElementType& operator()(int_max Index);
 
-    const ElementType& operator()(int64 Index) const;
+    const ElementType& operator()(int_max Index) const;
 
-    ElementType& at(int64 Index);
+    ElementType& at(int_max Index);
 
-    const ElementType& at(int64 Index) const;
+    const ElementType& at(int_max Index) const;
 
     //------------ operator += -= *= /= -------------------//
 

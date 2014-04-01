@@ -18,7 +18,7 @@ protected:
 
     const FeatureDictionary<ElementType>* m_InitialDictionary;
 
-    int64 m_DictionaryLength;
+    int_max m_DictionaryLength;
 
 public:
 
@@ -32,7 +32,7 @@ public:
   
     bool SetInitialDictionary(const FeatureDictionary<ElementType>* InitialDictionary);
 
-    bool SetOutputDictionaryLength(int64 DictionaryLength);
+    bool SetOutputDictionaryLength(int_max DictionaryLength);
 
     //----------------------------------------------------//
 

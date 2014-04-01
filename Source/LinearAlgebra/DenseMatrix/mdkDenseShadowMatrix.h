@@ -39,11 +39,11 @@ class DenseShadowMatrix : public Object
 {
 private:
 
-	int64 m_RowNumber;
+	int_max m_RowNumber;
 
-	int64 m_ColNumber;
+	int_max m_ColNumber;
 
-	int64 m_ElementNumber;
+	int_max m_ElementNumber;
 
     bool m_Flag_OutputVector;
 
@@ -55,11 +55,11 @@ private:
 
 	// info of the source Matrix -----------------------------------------------//
 
-	std::vector<int64> m_RowIndexList_source;
+	std::vector<int_max> m_RowIndexList_source;
 
-	std::vector<int64> m_ColIndexList_source;
+	std::vector<int_max> m_ColIndexList_source;
 
-	std::vector<int64> m_LinearIndexList_source;
+	std::vector<int_max> m_LinearIndexList_source;
 
     DenseMatrix<ElementType> m_SourceMatrixSharedCopy; // can not use a raw pointer to the source matrix, see operator=(const DenseShadowMatrix&)
 
@@ -70,29 +70,29 @@ private:
     // do not need none const versions of the following constructors
     // adding const to the member functions of DenseShadowMatrix is enough
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::initializer_list<int64>& LinearIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::initializer_list<int_max>& LinearIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::initializer_list<int64>& RowIndexList, const std::initializer_list<int64>& ColIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::initializer_list<int_max>& RowIndexList, const std::initializer_list<int_max>& ColIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::initializer_list<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::initializer_list<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::initializer_list<int64>& ColIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::initializer_list<int_max>& ColIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& LinearIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int_max>& LinearIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& RowIndexList, const std::vector<int64>& ColIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int_max>& RowIndexList, const std::vector<int_max>& ColIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::vector<int64>& ColIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::vector<int_max>& ColIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int64>& LinearIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int_max>& LinearIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int64>& RowIndexList, const DenseMatrix<int64>& ColIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int_max>& RowIndexList, const DenseMatrix<int_max>& ColIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int64>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const DenseMatrix<int64>& ColIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const DenseMatrix<int_max>& ColIndexList);
 
     inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
@@ -123,39 +123,39 @@ private:
 
     // operator[]: no bound check
 
-    inline ElementType& operator[](int64 LinearIndex);
+    inline ElementType& operator[](int_max LinearIndex);
 
-    inline const ElementType& operator[](int64 LinearIndex) const;
+    inline const ElementType& operator[](int_max LinearIndex) const;
 
-	inline ElementType& operator()(int64 LinearIndex);
+	inline ElementType& operator()(int_max LinearIndex);
 
-	inline const ElementType& operator()(int64 LinearIndex) const;
+	inline const ElementType& operator()(int_max LinearIndex) const;
 
 	//---------------------- Get/Set mdkDenseShadowMatrix(i,j) ----------------------------------------//
 
-	inline ElementType& operator()(int64 RowIndex, int64 ColIndex);
+	inline ElementType& operator()(int_max RowIndex, int_max ColIndex);
 
-	inline const ElementType& operator()(int64 RowIndex, int64 ColIndex) const;
+	inline const ElementType& operator()(int_max RowIndex, int_max ColIndex) const;
 
 	//---------------------- Other ----------------------------------------//
 
     inline bool IsLinearIndexListOnly() const;
 
-    inline int64 GetRowNumber() const;
+    inline int_max GetRowNumber() const;
 
-    inline int64 GetColNumber() const;
+    inline int_max GetColNumber() const;
 
-    inline int64 GetElementNumber() const;
+    inline int_max GetElementNumber() const;
 
     inline bool IsEmpty() const;
 
     inline MatrixSize GetSize() const;
 
-    inline const std::vector<int64>& GetRowIndexListOfSource() const;
+    inline const std::vector<int_max>& GetRowIndexListOfSource() const;
 
-    inline const std::vector<int64>& GetColIndexListOfSource() const;
+    inline const std::vector<int_max>& GetColIndexListOfSource() const;
 
-    inline const std::vector<int64>& GetLinearIndexListOfSource() const;
+    inline const std::vector<int_max>& GetLinearIndexListOfSource() const;
 
     inline const DenseMatrix<ElementType>& GetSourceMatrixSharedCopy() const;
 

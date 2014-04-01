@@ -19,9 +19,9 @@ void DisplayMatrix(const std::string& Name, const DenseMatrix<T>& Matrix, uint32
 {
     std::cout << Name << " = " << '\n';
 
-    for (int64 i = 0; i < Matrix.GetRowNumber(); ++i)
+    for (int_max i = 0; i < Matrix.GetRowNumber(); ++i)
     {
-        for (int64 j = 0; j < Matrix.GetColNumber(); ++j)
+        for (int_max j = 0; j < Matrix.GetColNumber(); ++j)
         {
             //std::cout << std::fixed << std::setprecision(precision) << Matrix(i, j) << ' ';
 
@@ -155,7 +155,7 @@ void Test_Constructor()
 
     auto t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < 1000; ++i)
+    for (int_max i = 0; i < 1000; ++i)
     {
         //DenseMatrix<double> AA;
         std::vector<DenseMatrix<double>> TempList(1);
@@ -166,20 +166,20 @@ void Test_Constructor()
     std::chrono::duration<double> raw_time = t1 - t0;
     std::cout << "construction  time " << raw_time.count() << '\n';
 
-    DenseMatrix<int64> testRowVector;
+    DenseMatrix<int_max> testRowVector;
 
     testRowVector = {101, 102, 103, 104};
 
     DisplayMatrix("testRowVector", testRowVector);
 
-    DenseMatrix<int64> testColVector = { 101, 102, 103, 104 };
+    DenseMatrix<int_max> testColVector = { 101, 102, 103, 104 };
 
     testColVector.Reshape(4, 1);
 
     DisplayMatrix("testColVector", testColVector);
 
 
-    DenseMatrix<int64> testA = { { 101, 102 },
+    DenseMatrix<int_max> testA = { { 101, 102 },
                                  { 103, 104 } };
 
     DisplayMatrix("testA", testA);
@@ -201,7 +201,7 @@ void Test_Constructor()
 
     t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < 60000; ++i)
+    for (int_max i = 0; i < 60000; ++i)
     {
         A[1] *= i;
     }
@@ -234,7 +234,7 @@ void Test_Constructor()
 
     t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < 60000; ++i)
+    for (int_max i = 0; i < 60000; ++i)
     {
         A(1, 1) *= i;
     }
@@ -567,9 +567,9 @@ void Test_Share()
 
 void Test_Mutiplication_Speed()
 {
-    int64 Lx = 100;
+    int_max Lx = 100;
 
-    int64 Ly = 100;
+    int_max Ly = 100;
 
     DenseMatrix<double> A(Lx, Ly);
 
@@ -579,7 +579,7 @@ void Test_Mutiplication_Speed()
 
     auto t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < 1000; ++i)
+    for (int_max i = 0; i < 1000; ++i)
     {
        // C = 1.0*(A*C) + 2.0*(A*C) + 3.0*(A*C) + 4.0*(A*C) + 5.0*(A*C) + 6.0*(A*C);
         //C = 1.0*A*C + 2.0*A*C + 3.0*A*C + 4.0*A*C + 5.0*A*C + 6.0*A*C;
@@ -598,7 +598,7 @@ void Test_Mutiplication_Speed()
 
     t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < 1000; ++i)
+    for (int_max i = 0; i < 1000; ++i)
     {
         //Cm = 1.0*(Am*Cm) + 2.0*(Am*Cm) + 3.0*(Am*Cm) + 4.0*(Am*Cm) + 5.0*(Am*Cm) + 6.0*(Am*Cm);
        // Cm = 1.0*Am*Cm + 2.0*Am*Cm + 3.0*Am*Cm + 4.0*Am*Cm + 5.0*Am*Cm + 6.0*Am*Cm;
@@ -760,9 +760,9 @@ void Test_LinearCombine()
 
 	std::cout << "A = " << '\n';
 
-	for (int64 i = 0; i < 3; ++i)
+	for (int_max i = 0; i < 3; ++i)
 	{
-		for (int64 j = 0; j < 4; ++j)
+		for (int_max j = 0; j < 4; ++j)
 		{
 			std::cout << A(i, j) << ' ';
 		}
@@ -775,9 +775,9 @@ void Test_LinearCombine()
 
 	std::cout << "B = A+1 " << '\n';
 
-	for (int64 i = 0; i < 3; ++i)
+	for (int_max i = 0; i < 3; ++i)
 	{
-		for (int64 j = 0; j < 4; ++j)
+		for (int_max j = 0; j < 4; ++j)
 		{
 			std::cout << B(i, j) << ' ';
 		}
@@ -790,9 +790,9 @@ void Test_LinearCombine()
 
 	std::cout << "C = B+1 " << '\n';
 
-	for (int64 i = 0; i < 3; ++i)
+	for (int_max i = 0; i < 3; ++i)
 	{
-		for (int64 j = 0; j < 4; ++j)
+		for (int_max j = 0; j < 4; ++j)
 		{
 			std::cout << C(i, j) << ' ';
 		}
@@ -805,9 +805,9 @@ void Test_LinearCombine()
 
 	std::cout << "D = C+1 " << '\n';
 
-	for (int64 i = 0; i < 3; ++i)
+	for (int_max i = 0; i < 3; ++i)
 	{
-		for (int64 j = 0; j < 4; ++j)
+		for (int_max j = 0; j < 4; ++j)
 		{
 			std::cout << D(i, j) << ' ';
 		}
@@ -819,9 +819,9 @@ void Test_LinearCombine()
 
 	std::cout << "E = A + B*2 + C*3 + D*4 = " << '\n';
 
-	for (int64 i = 0; i < 3; ++i)
+	for (int_max i = 0; i < 3; ++i)
 	{
-		for (int64 j = 0; j < 4; ++j)
+		for (int_max j = 0; j < 4; ++j)
 		{
 			std::cout << E(i, j) << ' ';
 		}
@@ -837,9 +837,9 @@ void Test_LinearCombine()
 
 	std::cout << "1A+2B+3C+4D = " << '\n';
 
-	for (int64 i = 0; i < 3; ++i)
+	for (int_max i = 0; i < 3; ++i)
 	{
-		for (int64 j = 0; j < 4; ++j)
+		for (int_max j = 0; j < 4; ++j)
 		{
 			std::cout << SumMatrix(i, j) << ' ';
 		}
@@ -1480,9 +1480,9 @@ void Test_Destructor()
 
 void Test_GlueMatrix_Speed1()
 {
-    int64 Lx = 100;
+    int_max Lx = 100;
 
-    int64 Ly = 100;
+    int_max Ly = 100;
 
     DenseMatrix<double> A(Lx, Ly);
 
@@ -1494,7 +1494,7 @@ void Test_GlueMatrix_Speed1()
 
     DenseMatrix<double> D(Lx, Ly);
     
-    for (int64 i = 0; i < 10000; ++i)
+    for (int_max i = 0; i < 10000; ++i)
     {
         D += 1.0*A + 2.0*B - 3.0 * C;
     }
@@ -1513,13 +1513,13 @@ void Test_GlueMatrix_Speed1()
 
 void Test_GlueMatrix_Speed2()
 {
-    int64 Lx = 10000;
+    int_max Lx = 10000;
 
-    int64 Ly = 10;
+    int_max Ly = 10;
 
     auto ElementNumber = Lx * Ly;
 
-    int64 TotalLoopNumber = std::max<int64>(30000, ElementNumber / 10);
+    int_max TotalLoopNumber = std::max<int_max>(30000, ElementNumber / 10);
 
     //-------------------------------------------------------------------------------------------
 
@@ -1569,9 +1569,9 @@ void Test_GlueMatrix_Speed2()
 
    // #pragma loop(hint_parallel(8))
 
-    for (int64 i = 0; i < TotalLoopNumber; ++i)
+    for (int_max i = 0; i < TotalLoopNumber; ++i)
     {
-        for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
         {
             tempRawPointer[LinearIndex] += 0.0
                 + ElementList_Coef[0] * MatrixElementDataRawPtrList[0][LinearIndex]
@@ -1592,7 +1592,7 @@ void Test_GlueMatrix_Speed2()
 
     t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < TotalLoopNumber; ++i)
+    for (int_max i = 0; i < TotalLoopNumber; ++i)
     {
         MatrixLinearCombine<double>(D, { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D }, 0.0);
     }
@@ -1607,7 +1607,7 @@ void Test_GlueMatrix_Speed2()
 
     t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < TotalLoopNumber; ++i)
+    for (int_max i = 0; i < TotalLoopNumber; ++i)
     {
         MatrixLinearCombine<double>({ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D }, 0.0);
     }
@@ -1622,7 +1622,7 @@ void Test_GlueMatrix_Speed2()
 
     t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < TotalLoopNumber; ++i)
+    for (int_max i = 0; i < TotalLoopNumber; ++i)
     {
         D+= MatrixLinearCombine<double>({ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 }, { &A, &B, &C, &C2, &D, &D }, 0.0);
     }
@@ -1637,7 +1637,7 @@ void Test_GlueMatrix_Speed2()
 
     t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < TotalLoopNumber; ++i)
+    for (int_max i = 0; i < TotalLoopNumber; ++i)
     {
         D += 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
     }
@@ -1652,7 +1652,7 @@ void Test_GlueMatrix_Speed2()
 
     t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < TotalLoopNumber; ++i)
+    for (int_max i = 0; i < TotalLoopNumber; ++i)
     {
         //D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
 
@@ -1689,7 +1689,7 @@ void Test_GlueMatrix_Speed2()
 
     t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < TotalLoopNumber; ++i)
+    for (int_max i = 0; i < TotalLoopNumber; ++i)
     {
         Dm += 1.0*Am + 2.0*Bm +3.0*Cm + 4.0*C2m + 5.0*Dm + 6.0*Dm;
     }
@@ -1703,7 +1703,7 @@ void Test_GlueMatrix_Speed2()
     //-----------------------------------------------------------------------------------
     t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < TotalLoopNumber; ++i)
+    for (int_max i = 0; i < TotalLoopNumber; ++i)
     {
         Dm = Dm + 1.0*Am + 2.0*Bm +3.0*Cm + 4.0*C2m + 5.0*Dm + 6.0*Dm;
     }
@@ -1737,9 +1737,9 @@ void Test_GlueMatrix_Speed2()
 
 void Test_GlueMatrix_Create()
 {
-    int64 Lx = 100;
+    int_max Lx = 100;
 
-    int64 Ly = 100;
+    int_max Ly = 100;
 
     DenseMatrix<double> A(Lx, Ly);
 

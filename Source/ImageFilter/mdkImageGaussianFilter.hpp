@@ -97,9 +97,9 @@ void ImageGaussianFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DIndex(
         InverseCovarianceMatrix = m_RotationMatrix.Transpose() * InverseCovarianceMatrix * m_RotationMatrix;
     }
 
-    int64 OffSet = 0;
+    int_max OffSet = 0;
 
-    OffSet = int64(m_SigmaList.Max() * m_CutOffRatio * 1.5) + 1;
+    OffSet = int_max(m_SigmaList.Max() * m_CutOffRatio * 1.5) + 1;
 
     // construct a grid of relative indexes according to the maximum sigma
     // at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
@@ -115,11 +115,11 @@ void ImageGaussianFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DIndex(
 
     auto CutOffRatio_square = m_CutOffRatio*m_CutOffRatio;
 
-    for (int64 z = -OffSet; z <= OffSet; ++z)
+    for (int_max z = -OffSet; z <= OffSet; ++z)
     {
-        for (int64 y = -OffSet; y <= OffSet; ++y)
+        for (int_max y = -OffSet; y <= OffSet; ++y)
         {
-            for (int64 x = -OffSet; x <= OffSet; ++x)
+            for (int_max x = -OffSet; x <= OffSet; ++x)
             {
                 Relative3DIndex = { double(x), double(y), double(z) };
 

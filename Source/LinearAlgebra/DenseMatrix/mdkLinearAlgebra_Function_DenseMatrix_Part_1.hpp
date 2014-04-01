@@ -78,7 +78,7 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<Elemen
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrC[i] = ptrA[i] + ptrB[i];
     }
@@ -152,7 +152,7 @@ bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrC[i] = ptrA[i] - ptrB[i];
     }
@@ -262,17 +262,17 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
 
     //--------------------- for-loop : slow ------------------------------------------------------------------------------------
 
-    int64 IndexB = 0;
+    int_max IndexB = 0;
 
-    for (int64 j = 0; j < SizeB.ColNumber; ++j)
+    for (int_max j = 0; j < SizeB.ColNumber; ++j)
     {
-        for (int64 i = 0; i < SizeA.RowNumber; ++i)
+        for (int_max i = 0; i < SizeA.RowNumber; ++i)
         {
             ElementType sum = ElementType(0);
 
-            int64 IndexA = 0;
+            int_max IndexA = 0;
 
-            for (int64 k = 0; k < SizeA.ColNumber; ++k)
+            for (int_max k = 0; k < SizeA.ColNumber; ++k)
             {
                 //sum += MatrixA(i,k) * MatrixB(k,j);
                 //sum += ptrA[k*SizeA.RowNumber + i] * ptrB[j*SizeB.RowNumber + k];
@@ -363,7 +363,7 @@ bool MatrixElementMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseM
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrC[i] = ptrA[i] * ptrB[i];
     }
@@ -437,7 +437,7 @@ bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
 
     auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
 
-    for (int64 i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementNumber; ++i)
     {
         ptrC[i] = ptrA[i] / ptrB[i];
     }
@@ -502,7 +502,7 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& Eleme
     }
     else
     {
-        for (int64 i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ElementA + ptrB[i];
         }
@@ -566,7 +566,7 @@ void MatrixSubtract(DenseMatrix<ElementType> OutputMatrixC, const ElementType& E
     }
     else
     {
-        for (int64 i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ElementA - ptrB[i];
         }
@@ -630,7 +630,7 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& 
     }
     else
     {
-        for (int64 i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ElementA * ptrB[i];
         }
@@ -714,7 +714,7 @@ void MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const ElementT
     }
     else
     {
-        for (int64 i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ElementA / ptrB[i];
         }
@@ -779,7 +779,7 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<Elemen
     }
     else
     {
-        for (int64 i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ptrA[i] + ElementB;
         }
@@ -843,7 +843,7 @@ void MatrixSubtract(DenseMatrix<ElementType> OutputMatrixC, const DenseMatrix<El
     }
     else
     {
-        for (int64 i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ptrA[i] - ElementB;
         }
@@ -909,7 +909,7 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
     }
     else
     {
-        for (int64 i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ptrA[i] * ElementB;
         }
@@ -993,7 +993,7 @@ void MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
     }
     else
     {
-        for (int64 i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = ptrA[i] / ElementB;
         }
@@ -1119,7 +1119,7 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrix, OperationTyp
     }
     else
     {
-        for (int64 i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementNumber; ++i)
         {
             ptrOutput[i] = Operation(ptrInput[i]);
         }
@@ -1326,16 +1326,16 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
     {
         auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
 
-        for (int64 i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = Operation(ptrA[i], ptrB[i]);
         }
     }
     else if (Flag_col == 1)
     {
-        for (int64 j = 0; j < SizeA.ColNumber; ++j)
+        for (int_max j = 0; j < SizeA.ColNumber; ++j)
         {
-            for (int64 i = 0; i < SizeA.RowNumber; ++i)
+            for (int_max i = 0; i < SizeA.RowNumber; ++i)
             {
                 ptrC[i] = Operation(ptrA[i], ptrB[i]);
             }
@@ -1343,11 +1343,11 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
     }
     else if (Flag_row == 1)
     {
-        for (int64 i = 0; i < SizeA.RowNumber; ++i)
+        for (int_max i = 0; i < SizeA.RowNumber; ++i)
         {
-            int64 tempIndex = 0;
+            int_max tempIndex = 0;
 
-            for (int64 j = 0; j < SizeA.ColNumber; ++j)
+            for (int_max j = 0; j < SizeA.ColNumber; ++j)
             {
                 ptrC[tempIndex + i] = Operation(ptrA[tempIndex + i], ptrB[i]);
 
@@ -1530,7 +1530,7 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
     }
     else
     {
-        for (int64 i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementNumber; ++i)
         {
             ptrC[i] = Operation(ptrA[i], InputElementB);
         }
@@ -1582,7 +1582,7 @@ DenseMatrix<ElementType> MatrixSqrt(const DenseMatrix<ElementType>& InputMatrix)
 template<typename ElementType>
 inline 
 DenseMatrix<ElementType> 
-MatrixColNamedOperation(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, int64 InputColIndex, const bool Enable_BoundCheck)
+MatrixColNamedOperation(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, int_max InputColIndex, const bool Enable_BoundCheck)
 {
     DenseMatrix<ElementType> OutputMatrix(InputMatrix.GetRowNumber(), 1);
 
@@ -1595,9 +1595,9 @@ MatrixColNamedOperation(const std::string& OperationName, const DenseMatrix<Elem
 template<typename ElementType>
 inline
 bool 
-MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputColIndex,
+MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputColIndex,
                         const std::string& OperationName, 
-                        const DenseMatrix<ElementType>& InputMatrix, int64 InputColIndex,
+                        const DenseMatrix<ElementType>& InputMatrix, int_max InputColIndex,
                         const bool Enable_BoundCheck)
 {
     if (OperationName == "abs")
@@ -1633,7 +1633,7 @@ template<typename ElementType, typename OperationType>
 inline 
 DenseMatrix<ElementType>
 MatrixColOperation(OperationType Operation,
-                   const DenseMatrix<ElementType>& InputMatrix, int64 InputColIndex,
+                   const DenseMatrix<ElementType>& InputMatrix, int_max InputColIndex,
                    const bool Enable_BoundCheck)
 {
     DenseMatrix<ElementType> OutputMatrix(InputMatrix.GetRowNumber(), 1);
@@ -1647,9 +1647,9 @@ MatrixColOperation(OperationType Operation,
 template<typename ElementType, typename OperationType>
 inline 
 bool 
-MatrixColOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputColIndex,
+MatrixColOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputColIndex,
                    OperationType Operation,
-                   const DenseMatrix<ElementType>& InputMatrix, int64 InputColIndex, 
+                   const DenseMatrix<ElementType>& InputMatrix, int_max InputColIndex, 
                    const bool Enable_BoundCheck)
 {
     if (Enable_BoundCheck)
@@ -1695,7 +1695,7 @@ MatrixColOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputColIndex,
 
         auto Offset_input = InputColIndex*RowNumber;
 
-        for (int64 i = 0; i < RowNumber; ++i)
+        for (int_max i = 0; i < RowNumber; ++i)
         {
             ptrOutput[i + Offset_output] = Operation(ptrInput[i + Offset_input]);
         }
@@ -1710,7 +1710,7 @@ template<typename ElementType>
 inline 
 DenseMatrix<ElementType> 
 MatrixColNamedOperation(const char OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                         const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
@@ -1725,9 +1725,9 @@ MatrixColNamedOperation(const char OperationName,
 template<typename ElementType>
 inline
 bool
-MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputColIndexC,
                         const char OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                         const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
@@ -1767,7 +1767,7 @@ template<typename ElementType>
 inline 
 DenseMatrix<ElementType> 
 MatrixColNamedOperation(const std::string& OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                         const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
@@ -1782,9 +1782,9 @@ MatrixColNamedOperation(const std::string& OperationName,
 template<typename ElementType>
 inline
 bool
-MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputColIndexC,
                         const std::string& OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                         const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
@@ -1824,7 +1824,7 @@ template<typename ElementType, typename OperationType>
 inline 
 DenseMatrix<ElementType>
 MatrixColOperation(OperationType Operation,
-                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                    const DenseMatrix<ElementType>& InputMatrixB,
                    const bool Enable_BoundCheck)
 {
@@ -1839,9 +1839,9 @@ MatrixColOperation(OperationType Operation,
 template<typename ElementType, typename OperationType>
 inline 
 bool
-MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputColIndexC,
                    OperationType Operation,
-                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                    const DenseMatrix<ElementType>& InputMatrixB,
                    const bool Enable_BoundCheck)
 {
@@ -1903,7 +1903,7 @@ MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndex
 
         ptrC += Offset;
 
-        for (int64 i = 0; i < RowNumber; ++i)
+        for (int_max i = 0; i < RowNumber; ++i)
         {
             ptrC[0] = Operation(ptrC[0], ptrB[i]);
 
@@ -1916,7 +1916,7 @@ MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndex
 
         auto OffsetA = InputColIndexA * RowNumber;
 
-        for (int64 i = 0; i < RowNumber; ++i)
+        for (int_max i = 0; i < RowNumber; ++i)
         {
             ptrC[i + OffsetC] = Operation(ptrA[i + OffsetA], ptrB[i]);
         }
@@ -1931,7 +1931,7 @@ template<typename ElementType>
 inline 
 DenseMatrix<ElementType> 
 MatrixColNamedOperation(const char OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
@@ -1946,9 +1946,9 @@ MatrixColNamedOperation(const char OperationName,
 template<typename ElementType>
 inline 
 bool
-MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputColIndexC,
                         const char OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
@@ -1985,7 +1985,7 @@ template<typename ElementType>
 inline
 DenseMatrix<ElementType> 
 MatrixColNamedOperation(const std::string& OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
@@ -2000,9 +2000,9 @@ MatrixColNamedOperation(const std::string& OperationName,
 template<typename ElementType>
 inline 
 bool
-MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputColIndexC,
                         const std::string& OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
@@ -2039,7 +2039,7 @@ template<typename ElementType, typename OperationType>
 inline 
 DenseMatrix<ElementType> 
 MatrixColOperation(OperationType Operation,
-                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                    const ElementType& InputElementB,
                    const bool Enable_BoundCheck)
 {
@@ -2054,9 +2054,9 @@ MatrixColOperation(OperationType Operation,
 template<typename ElementType, typename OperationType>
 inline
 bool
-MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndexC,
+MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputColIndexC,
                    OperationType Operation,
-                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputColIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                    const ElementType& InputElementB,
                    const bool Enable_BoundCheck)
 {
@@ -2105,7 +2105,7 @@ MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputColIndex
 
         auto Offset_A = InputColIndexA * RowNumber;
 
-        for (int64 i = 0; i < RowNumber; ++i)
+        for (int_max i = 0; i < RowNumber; ++i)
         {
             ptrC[i + Offset_C] = Operation(ptrA[i + Offset_A], InputElementB);
         }
@@ -2124,7 +2124,7 @@ template<typename ElementType>
 inline 
 DenseMatrix<ElementType>
 MatrixRowNamedOperation(const std::string& OperationName,
-                        const DenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
+                        const DenseMatrix<ElementType>& InputMatrix, int_max InputRowIndex,
                         const bool Enable_BoundCheck)
 {
     DenseMatrix<ElementType> OutputMatrix(1, InputMatrix.GetColNumber());
@@ -2138,9 +2138,9 @@ MatrixRowNamedOperation(const std::string& OperationName,
 template<typename ElementType>
 inline 
 bool
-MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputRowIndex,
+MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputRowIndex,
                         const std::string& OperationName,
-                        const DenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
+                        const DenseMatrix<ElementType>& InputMatrix, int_max InputRowIndex,
                         const bool Enable_BoundCheck)
 {
     if (OperationName == "abs")
@@ -2176,7 +2176,7 @@ template<typename ElementType, typename OperationType>
 inline
 DenseMatrix<ElementType> 
 MatrixRowOperation(OperationType Operation,
-                   const DenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
+                   const DenseMatrix<ElementType>& InputMatrix, int_max InputRowIndex,
                    const bool Enable_BoundCheck)
 {
     DenseMatrix<ElementType> OutputMatrix(1, InputMatrix.GetColNumber());
@@ -2190,9 +2190,9 @@ MatrixRowOperation(OperationType Operation,
 template<typename ElementType, typename OperationType>
 inline
 bool
-MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputRowIndex,
+MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputRowIndex,
                    OperationType Operation,
-                   const DenseMatrix<ElementType>& InputMatrix, int64 InputRowIndex,
+                   const DenseMatrix<ElementType>& InputMatrix, int_max InputRowIndex,
                    const bool Enable_BoundCheck)
 {
     if (Enable_BoundCheck)
@@ -2229,7 +2229,7 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputRowIndex,
 
         if (OutputRowIndex == InputRowIndex) // in place operation
         {
-            for (int64 j = 0; j < ColNumber; ++j)
+            for (int_max j = 0; j < ColNumber; ++j)
             {
                 auto temp = j*RowNumber + OutputRowIndex;
 
@@ -2238,7 +2238,7 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputRowIndex,
         }
         else
         {
-            for (int64 j = 0; j < ColNumber; ++j)
+            for (int_max j = 0; j < ColNumber; ++j)
             {
                 auto temp = j*RowNumber;
 
@@ -2252,7 +2252,7 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrix, int64 OutputRowIndex,
 
         auto RowNumber_input = InputMatrix.GetRowNumber();
 
-        for (int64 j = 0; j < ColNumber; ++j)
+        for (int_max j = 0; j < ColNumber; ++j)
         {
             ptrOutput[j*RowNumber_output + OutputRowIndex] = Operation(ptrInput[j*RowNumber_input + InputRowIndex]);
         }
@@ -2267,7 +2267,7 @@ template<typename ElementType>
 inline 
 DenseMatrix<ElementType> 
 MatrixRowNamedOperation(const char OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                         const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
@@ -2282,9 +2282,9 @@ MatrixRowNamedOperation(const char OperationName,
 template<typename ElementType>
 inline 
 bool
-MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowIndexC,
                         const char OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                         const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
@@ -2324,7 +2324,7 @@ template<typename ElementType>
 inline 
 DenseMatrix<ElementType> 
 MatrixRowNamedOperation(const std::string& OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                         const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
@@ -2339,9 +2339,9 @@ MatrixRowNamedOperation(const std::string& OperationName,
 template<typename ElementType>
 inline 
 bool
-MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowIndexC,
                         const std::string& OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                         const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
@@ -2381,7 +2381,7 @@ template<typename ElementType, typename OperationType>
 inline 
 DenseMatrix<ElementType> 
 MatrixRowOperation(OperationType Operation,
-                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                    const DenseMatrix<ElementType>& InputMatrixB,
                    const bool Enable_BoundCheck)
 {
@@ -2396,9 +2396,9 @@ MatrixRowOperation(OperationType Operation,
 template<typename ElementType, typename OperationType>
 inline 
 bool
-MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowIndexC,
                    OperationType Operation,
-                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                    const DenseMatrix<ElementType>& InputMatrixB,
                    const bool Enable_BoundCheck)
 {
@@ -2460,7 +2460,7 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndex
 
         if (OutputRowIndexC == InputRowIndexA) // in place operation
         {
-            for (int64 j = 0; j < ColNumber; ++j)
+            for (int_max j = 0; j < ColNumber; ++j)
             {
                 auto temp = j*RowNumber + OutputRowIndexC;
 
@@ -2469,7 +2469,7 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndex
         }
         else
         {
-            for (int64 j = 0; j < ColNumber; ++j)
+            for (int_max j = 0; j < ColNumber; ++j)
             {
                 auto temp = j*RowNumber;
 
@@ -2483,7 +2483,7 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndex
 
         auto RowNumberA = InputMatrixA.GetRowNumber();
 
-        for (int64 j = 0; j < ColNumber; ++j)
+        for (int_max j = 0; j < ColNumber; ++j)
         {
             ptrC[j*RowNumberC + OutputRowIndexC] = Operation(ptrA[j*RowNumberA + InputRowIndexA], ptrB[j]);
         }
@@ -2498,7 +2498,7 @@ template<typename ElementType>
 inline 
 DenseMatrix<ElementType> 
 MatrixRowNamedOperation(const char OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
@@ -2513,9 +2513,9 @@ MatrixRowNamedOperation(const char OperationName,
 template<typename ElementType>
 inline
 bool
-MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowIndexC,
                         const char OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
@@ -2555,7 +2555,7 @@ template<typename ElementType>
 inline
 DenseMatrix<ElementType>
 MatrixRowNamedOperation(const std::string& OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
@@ -2570,9 +2570,9 @@ MatrixRowNamedOperation(const std::string& OperationName,
 template<typename ElementType>
 inline
 bool
-MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowIndexC,
                         const std::string& OperationName,
-                        const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                        const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
@@ -2612,7 +2612,7 @@ template<typename ElementType, typename OperationType>
 inline 
 DenseMatrix<ElementType> 
 MatrixRowOperation(OperationType Operation,
-                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                    const ElementType& InputElementB,
                    const bool Enable_BoundCheck)
 {
@@ -2627,9 +2627,9 @@ MatrixRowOperation(OperationType Operation,
 template<typename ElementType, typename OperationType>
 inline
 bool
-MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndexC,
+MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowIndexC,
                    OperationType Operation,
-                   const DenseMatrix<ElementType>& InputMatrixA, int64 InputRowIndexA,
+                   const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                    const ElementType& InputElementB,
                    const bool Enable_BoundCheck)
 {
@@ -2667,7 +2667,7 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndex
 
         if (OutputRowIndexC == InputRowIndexA) // in place operation
         {
-            for (int64 j = 0; j < ColNumber; ++j)
+            for (int_max j = 0; j < ColNumber; ++j)
             {
                 auto temp = j*RowNumber + OutputRowIndexC;
 
@@ -2676,7 +2676,7 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndex
         }
         else
         {
-            for (int64 j = 0; j < ColNumber; ++j)
+            for (int_max j = 0; j < ColNumber; ++j)
             {
                 auto temp = j*RowNumber;
 
@@ -2690,7 +2690,7 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int64 OutputRowIndex
 
         auto RowNumberA = InputMatrixA.GetRowNumber();
 
-        for (int64 j = 0; j < ColNumber; ++j)
+        for (int_max j = 0; j < ColNumber; ++j)
         {
             ptrC[j*RowNumberC + OutputRowIndexC] = Operation(ptrA[j*RowNumberA + InputRowIndexA], InputElementB);
         }
@@ -2726,9 +2726,9 @@ bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
                          const std::vector<const DenseMatrix<ElementType>*>& MatrixList,
                          const ElementType& IndependentElement)
 {
-    auto MatrixNumber = int64(MatrixList.size());
+    auto MatrixNumber = int_max(MatrixList.size());
 
-    auto CoefNumber = int64(CoefList.size());
+    auto CoefNumber = int_max(CoefList.size());
 
     if (MatrixNumber != CoefNumber)
     {
@@ -2744,7 +2744,7 @@ bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 
     auto Size = MatrixList[0]->GetSize();
 
-    for (int64 k = 1; k < int64(MatrixList.size()); ++k)
+    for (int_max k = 1; k < int_max(MatrixList.size()); ++k)
     {
         if (Size.RowNumber != MatrixList[k]->GetRowNumber() || Size.ColNumber != MatrixList[k]->GetColNumber())
         {
@@ -2773,7 +2773,7 @@ bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 
     std::vector<const ElementType*> MatrixElementPointerList(MatrixNumber);
 
-    for (int64 k = 0; k < MatrixNumber; ++k)
+    for (int_max k = 0; k < MatrixNumber; ++k)
     {
         MatrixElementPointerList[k] = MatrixList[k]->GetElementPointer();
     }
@@ -2830,18 +2830,18 @@ bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 
         auto RawPtr_0 = MatrixElementPointerList[0];
 
-        for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
         {
             PointerToOutput[LinearIndex] = IndependentElement + Coef_0 * RawPtr_0[LinearIndex];
         }
 
-        for (int64 k = 1; k < MatrixNumber; ++k)
+        for (int_max k = 1; k < MatrixNumber; ++k)
         {
             auto Coef_k = CoefList[k];
 
             auto RawPtr_k = MatrixElementPointerList[k];
 
-            for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+            for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
             {
                 PointerToOutput[LinearIndex] += Coef_k * RawPtr_k[LinearIndex];
             }
@@ -2851,11 +2851,11 @@ bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 
         // for-loop #2:
         /*
-        for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
         {
             ElementType tempElement = IndependentElement;
 
-            for (int64 k = 0; k < MatrixNumber; ++k)
+            for (int_max k = 0; k < MatrixNumber; ++k)
             {
                 tempElement += CoefRawPtr[k] * MatrixElementPointerList[k][LinearIndex];
             }
@@ -2873,12 +2873,12 @@ bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_1(ElementType* Output, int64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_1(ElementType* Output, int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
-    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement + CoefList[0] * MatrixElementPointerList[0][LinearIndex];
     }
@@ -2887,12 +2887,12 @@ void MatrixLinearCombine_MatrixNumber_1(ElementType* Output, int64 ElementNumber
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_2(ElementType* Output, int64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_2(ElementType* Output, int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
-    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -2903,12 +2903,12 @@ void MatrixLinearCombine_MatrixNumber_2(ElementType* Output, int64 ElementNumber
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_3(ElementType* Output, int64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_3(ElementType* Output, int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
-    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -2921,12 +2921,12 @@ void MatrixLinearCombine_MatrixNumber_3(ElementType* Output, int64 ElementNumber
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_4(ElementType* Output, int64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_4(ElementType* Output, int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
-    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement 
                              + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -2939,12 +2939,12 @@ void MatrixLinearCombine_MatrixNumber_4(ElementType* Output, int64 ElementNumber
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_5(ElementType* Output, int64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_5(ElementType* Output, int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
-    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -2958,12 +2958,12 @@ void MatrixLinearCombine_MatrixNumber_5(ElementType* Output, int64 ElementNumber
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_6(ElementType* Output, int64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_6(ElementType* Output, int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
-    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -2978,12 +2978,12 @@ void MatrixLinearCombine_MatrixNumber_6(ElementType* Output, int64 ElementNumber
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_7(ElementType* Output, int64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_7(ElementType* Output, int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
-    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -2999,12 +2999,12 @@ void MatrixLinearCombine_MatrixNumber_7(ElementType* Output, int64 ElementNumber
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_8(ElementType* Output, int64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_8(ElementType* Output, int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
-    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -3021,12 +3021,12 @@ void MatrixLinearCombine_MatrixNumber_8(ElementType* Output, int64 ElementNumber
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_9(ElementType* Output, int64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_9(ElementType* Output, int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
-    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -3044,12 +3044,12 @@ void MatrixLinearCombine_MatrixNumber_9(ElementType* Output, int64 ElementNumber
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_10(ElementType* Output, int64 ElementNumber,
+void MatrixLinearCombine_MatrixNumber_10(ElementType* Output, int_max ElementNumber,
                                          const std::vector<ElementType>& CoefList,  
                                          const std::vector<const ElementType*>& MatrixElementPointerList,
                                          const ElementType& IndependentElement)
 {
-    for (int64 LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementPointerList[0][LinearIndex]

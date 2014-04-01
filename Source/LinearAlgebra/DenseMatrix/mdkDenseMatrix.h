@@ -37,8 +37,8 @@ namespace mdk
 template<typename ElementType>
 struct DenseMatrixData
 {
-    int64 RowNumber;  // RowNumber = the Number of Rows 
-    int64 ColNumber;  // ColNumber = the Number of Columns
+    int_max RowNumber;  // RowNumber = the Number of Rows 
+    int_max ColNumber;  // ColNumber = the Number of Columns
 
     ElementType* ElementPointer;
 
@@ -65,7 +65,7 @@ struct DenseMatrixData
 
             DataArray.resize(ElementNumber);
 
-            for (int64 i = 0; i < ElementNumber; ++i)
+            for (int_max i = 0; i < ElementNumber; ++i)
             {
                 DataArray[i] = ElementPointer[i];
             }
@@ -74,32 +74,32 @@ struct DenseMatrixData
         }
     }
 
-    ElementType& operator[](int64 LinearIndex)
+    ElementType& operator[](int_max LinearIndex)
     {
         return ElementPointer[LinearIndex];
     }
 
-    const ElementType& operator[](int64 LinearIndex) const
+    const ElementType& operator[](int_max LinearIndex) const
     {
         return ElementPointer[LinearIndex];
     }
 
-    ElementType& operator()(int64 LinearIndex)
+    ElementType& operator()(int_max LinearIndex)
     {
         return ElementPointer[LinearIndex];
     }
 
-    const ElementType& operator()(int64 LinearIndex) const
+    const ElementType& operator()(int_max LinearIndex) const
     {
         return ElementPointer[LinearIndex];
     }
 
-    ElementType& operator()(int64 RowIndex, int64 ColIndex)
+    ElementType& operator()(int_max RowIndex, int_max ColIndex)
     {
         return ElementPointer[ColIndex*RowNumber + RowIndex];
     }
 
-    const ElementType& operator()(int64 RowIndex, int64 ColIndex) const
+    const ElementType& operator()(int_max RowIndex, int_max ColIndex) const
     {
         return ElementPointer[ColIndex*RowNumber + RowIndex];
     }
@@ -114,10 +114,6 @@ private:
 
     void operator=(DenseMatrixData&&) = delete;
 };
-
-//-----------------------------------------------------------------------------------------------------------------------------//
-
-#define MDK_DenseMatrix_ColExpansionStep  100
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
@@ -143,7 +139,7 @@ public:
 
     inline DenseMatrix(const Pure_Empty_Matrix_Symbol&);
 
-    inline DenseMatrix(int64 RowNumber, int64 ColNumber);
+    inline DenseMatrix(int_max RowNumber, int_max ColNumber);
 
     inline DenseMatrix(const std::initializer_list<ElementType>& InputList);
 
@@ -163,7 +159,7 @@ public:
 
     inline DenseMatrix(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    inline DenseMatrix(ElementType* InputElementPointer, int64 InputRowNumber, int64 InputColNumber, bool IsSizeFixed = true); 
+    inline DenseMatrix(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed = true); 
     // use existing data pointed by InputElementPointer
     // The data must be in heap
     // if the data is in stack of a function, then return a matrix will cause crash !
@@ -203,7 +199,7 @@ public:
     inline bool Copy(const DenseMatrix<ElementType_Input>* InputMatrix);
 
     template<typename ElementType_Input>
-    inline bool Copy(const ElementType_Input* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
+    inline bool Copy(const ElementType_Input* InputElementPointer, int_max InputRowNumber, int_max InputColNumber);
 
     inline bool Fill(const ElementType& Element);
 
@@ -314,11 +310,13 @@ public:
 
 	//---------------------- Set/get Matrix Size, Shape ----------------------------------------//
 
-    inline bool Reshape(int64 InputRowNumber, int64 InputColNumber);
+    inline bool Reshape(int_max InputRowNumber, int_max InputColNumber);
 
-    inline bool Resize(int64 InputRowNumber, int64 InputColNumber); // try to keep the old data
+    inline bool Resize(int_max InputRowNumber, int_max InputColNumber); // try to keep the old data
 
-    inline bool FastResize(int64 InputRowNumber, int64 InputColNumber); // do not care about old data
+    inline bool FastResize(int_max InputRowNumber, int_max InputColNumber); // do not care about old data
+
+    inline bool ReserveCapacity(int_max InputElementNumber); // reserve memory, current matrix size does not change
 
     inline void FixSize();
     
@@ -332,11 +330,11 @@ public:
 
 	inline MatrixSize GetSize() const;
 
-    inline int64 GetElementNumber() const;
+    inline int_max GetElementNumber() const;
 
-	inline int64 GetColNumber() const;
+	inline int_max GetColNumber() const;
 
-	inline int64 GetRowNumber() const;
+	inline int_max GetRowNumber() const;
 
     inline bool IsVector() const;
 
@@ -370,33 +368,33 @@ public:
 
     // operator[] or () : no bound check in release mode
 
-    inline ElementType& operator[](int64 LinearIndex);
+    inline ElementType& operator[](int_max LinearIndex);
 
-    inline const ElementType& operator[](int64 LinearIndex) const;
+    inline const ElementType& operator[](int_max LinearIndex) const;
 
-	inline ElementType& operator()(int64 LinearIndex);
+	inline ElementType& operator()(int_max LinearIndex);
 
-    inline const ElementType& operator()(int64 LinearIndex) const;
+    inline const ElementType& operator()(int_max LinearIndex) const;
     
     // at(): bound check
 
-	inline ElementType& at(int64 LinearIndex);
+	inline ElementType& at(int_max LinearIndex);
 
-	inline const ElementType& at(int64 LinearIndex) const;
+	inline const ElementType& at(int_max LinearIndex) const;
 
 	//----------- Get/Set Matrix(i,j)  ---------------------------------------------//
 
     // operator() : no bound check in release mode
 
-	inline ElementType& operator()(int64 RowIndex, int64 ColIndex);
+	inline ElementType& operator()(int_max RowIndex, int_max ColIndex);
 
-	inline const ElementType& operator()(int64 RowIndex, int64 ColIndex) const;
+	inline const ElementType& operator()(int_max RowIndex, int_max ColIndex) const;
 
     // at(): bound check
 
-	inline ElementType& at(int64 RowIndex, int64 ColIndex);
+	inline ElementType& at(int_max RowIndex, int_max ColIndex);
 
-	inline const ElementType& at(int64 RowIndex, int64 ColIndex) const;
+	inline const ElementType& at(int_max RowIndex, int_max ColIndex) const;
 
     //----------- Get/Set a set of elements by Matrix({}), Matrix.at({}) -------------------------------------//
 
@@ -404,17 +402,17 @@ public:
     //
     // note: operator[] is for single element access only, operator[{}] is not defined
 
-    inline DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& LinearIndexList);
+    inline DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& LinearIndexList);
 
-    inline const DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& LinearIndexList) const;
+    inline const DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& LinearIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(const std::vector<int64>& LinearIndexList);
+    inline DenseShadowMatrix<ElementType> operator()(const std::vector<int_max>& LinearIndexList);
 
-    inline const DenseShadowMatrix<ElementType> operator()(const std::vector<int64>& LinearIndexList) const;
+    inline const DenseShadowMatrix<ElementType> operator()(const std::vector<int_max>& LinearIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int64>& LinearIndexList);
+    inline DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& LinearIndexList);
 
-    inline const DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int64>& LinearIndexList) const;
+    inline const DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& LinearIndexList) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
@@ -422,17 +420,17 @@ public:
 
     // at(): bound check -----------------
 
-    inline DenseShadowMatrix<ElementType> at(const std::initializer_list<int64>& LinearIndexList);
+    inline DenseShadowMatrix<ElementType> at(const std::initializer_list<int_max>& LinearIndexList);
 
-    inline const DenseShadowMatrix<ElementType> at(const std::initializer_list<int64>& LinearIndexList) const;
+    inline const DenseShadowMatrix<ElementType> at(const std::initializer_list<int_max>& LinearIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> at(const std::vector<int64>& LinearIndexList);
+    inline DenseShadowMatrix<ElementType> at(const std::vector<int_max>& LinearIndexList);
 
-    inline const DenseShadowMatrix<ElementType> at(const std::vector<int64>& LinearIndexList) const;
+    inline const DenseShadowMatrix<ElementType> at(const std::vector<int_max>& LinearIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> at(const DenseMatrix<int64>& LinearIndexList);
+    inline DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& LinearIndexList);
 
-    inline const DenseShadowMatrix<ElementType> at(const DenseMatrix<int64>& LinearIndexList) const;
+    inline const DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& LinearIndexList) const;
 
     inline DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol); // convert matrix to col-vector
 
@@ -442,141 +440,141 @@ public:
 
     // operator(): no bound check in release mode
 
-    inline DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList,
-                                                     const std::initializer_list<int64>& ColIndexList);
+    inline DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& RowIndexList,
+                                                     const std::initializer_list<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList,
-                                                           const std::initializer_list<int64>& ColIndexList) const;
+    inline const DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& RowIndexList,
+                                                           const std::initializer_list<int_max>& ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList, 
+    inline DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& RowIndexList, 
                                                      const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int64>& RowIndexList, 
+    inline const DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& RowIndexList, 
                                                            const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                     const std::initializer_list<int64>& ColIndexList);
+                                                     const std::initializer_list<int_max>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                           const std::initializer_list<int64>& ColIndexList) const;
+                                                           const std::initializer_list<int_max>& ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
-                                                     const std::vector<int64>& ColIndexList);
+    inline DenseShadowMatrix<ElementType> operator()(const std::vector<int_max>& RowIndexList,
+                                                     const std::vector<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
-                                                           const std::vector<int64>& ColIndexList) const;
+    inline const DenseShadowMatrix<ElementType> operator()(const std::vector<int_max>& RowIndexList,
+                                                           const std::vector<int_max>& ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
+    inline DenseShadowMatrix<ElementType> operator()(const std::vector<int_max>& RowIndexList,
                                                      const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const DenseShadowMatrix<ElementType> operator()(const std::vector<int64>& RowIndexList,
+    inline const DenseShadowMatrix<ElementType> operator()(const std::vector<int_max>& RowIndexList,
                                                            const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                     const std::vector<int64>& ColIndexList);
+                                                     const std::vector<int_max>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                           const std::vector<int64>& ColIndexList) const;
+                                                           const std::vector<int_max>& ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int64>& RowIndexList,
-                                                     const DenseMatrix<int64>& ColIndexList);
+    inline DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& RowIndexList,
+                                                     const DenseMatrix<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int64>& RowIndexList,
-                                                           const DenseMatrix<int64>& ColIndexList) const;
+    inline const DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& RowIndexList,
+                                                           const DenseMatrix<int_max>& ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int64>& RowIndexList,
+    inline DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& RowIndexList,
                                                      const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int64>& RowIndexList,
+    inline const DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& RowIndexList,
                                                            const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                     const DenseMatrix<int64>& ColIndexList);
+                                                     const DenseMatrix<int_max>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                           const DenseMatrix<int64>& ColIndexList) const;
+                                                           const DenseMatrix<int_max>& ColIndexList) const;
 
     // at(): bound check -----------------
 
-    inline DenseShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
-                                             const std::initializer_list<int64>& ColIndexList);
+    inline DenseShadowMatrix<ElementType> at(const std::initializer_list<int_max>& RowIndexList,
+                                             const std::initializer_list<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
-                                                   const std::initializer_list<int64>& ColIndexList) const;
+    inline const DenseShadowMatrix<ElementType> at(const std::initializer_list<int_max>& RowIndexList,
+                                                   const std::initializer_list<int_max>& ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
+    inline DenseShadowMatrix<ElementType> at(const std::initializer_list<int_max>& RowIndexList,
                                              const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const DenseShadowMatrix<ElementType> at(const std::initializer_list<int64>& RowIndexList,
+    inline const DenseShadowMatrix<ElementType> at(const std::initializer_list<int_max>& RowIndexList,
                                                    const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                             const std::initializer_list<int64>& ColIndexList);
+                                             const std::initializer_list<int_max>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                   const std::initializer_list<int64>& ColIndexList) const;
+                                                   const std::initializer_list<int_max>& ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
-                                             const std::vector<int64>& ColIndexList);
+    inline DenseShadowMatrix<ElementType> at(const std::vector<int_max>& RowIndexList,
+                                             const std::vector<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
-                                                   const std::vector<int64>& ColIndexList) const;
+    inline const DenseShadowMatrix<ElementType> at(const std::vector<int_max>& RowIndexList,
+                                                   const std::vector<int_max>& ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
+    inline DenseShadowMatrix<ElementType> at(const std::vector<int_max>& RowIndexList,
                                              const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const DenseShadowMatrix<ElementType> at(const std::vector<int64>& RowIndexList,
+    inline const DenseShadowMatrix<ElementType> at(const std::vector<int_max>& RowIndexList,
                                                    const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                             const std::vector<int64>& ColIndexList);
+                                             const std::vector<int_max>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                   const std::vector<int64>& ColIndexList) const;
+                                                   const std::vector<int_max>& ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> at(const DenseMatrix<int64>& RowIndexList,
-                                             const DenseMatrix<int64>& ColIndexList);
+    inline DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& RowIndexList,
+                                             const DenseMatrix<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> at(const DenseMatrix<int64>& RowIndexList,
-                                                   const DenseMatrix<int64>& ColIndexList) const;
+    inline const DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& RowIndexList,
+                                                   const DenseMatrix<int_max>& ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> at(const DenseMatrix<int64>& RowIndexList,
+    inline DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& RowIndexList,
                                              const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const DenseShadowMatrix<ElementType> at(const DenseMatrix<int64>& RowIndexList,
+    inline const DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& RowIndexList,
                                                    const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                             const DenseMatrix<int64>& ColIndexList);
+                                             const DenseMatrix<int_max>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                   const DenseMatrix<int64>& ColIndexList) const;
+                                                   const DenseMatrix<int_max>& ColIndexList) const;
 
     // Col(...) is just at(ALL, ...)
 
-    inline DenseShadowMatrix<ElementType> Col(int64 ColIndex);
+    inline DenseShadowMatrix<ElementType> Col(int_max ColIndex);
 
-    // do not use const in Col(const std::initializer_list<int64>& ColIndexList); 
+    // do not use const in Col(const std::initializer_list<int_max>& ColIndexList); 
     // it leads to ambiguous call (vs2013), 
-    // e.g., Col({0})  it can initialize Col(int64) or Col(std::vector);
+    // e.g., Col({0})  it can initialize Col(int_max) or Col(std::vector);
     //
-    // so: use std::initializer_list<int64> without const 
+    // so: use std::initializer_list<int_max> without const 
     //
-    inline DenseShadowMatrix<ElementType> Col(const std::initializer_list<int64>& ColIndexList);
+    inline DenseShadowMatrix<ElementType> Col(const std::initializer_list<int_max>& ColIndexList);
 
-    inline DenseShadowMatrix<ElementType> Col(const std::vector<int64>& ColIndexList);
+    inline DenseShadowMatrix<ElementType> Col(const std::vector<int_max>& ColIndexList);
 
-    inline DenseShadowMatrix<ElementType> Col(const DenseMatrix<int64>& ColIndexList);
+    inline DenseShadowMatrix<ElementType> Col(const DenseMatrix<int_max>& ColIndexList);
 
     // Row(...) is just at(..., ALL)
 
-    inline DenseShadowMatrix<ElementType> Row(int64 RowIndex);
+    inline DenseShadowMatrix<ElementType> Row(int_max RowIndex);
 
-    inline DenseShadowMatrix<ElementType> Row(const std::initializer_list<int64>& RowIndexList);
+    inline DenseShadowMatrix<ElementType> Row(const std::initializer_list<int_max>& RowIndexList);
 
-    inline DenseShadowMatrix<ElementType> Row(const std::vector<int64>& RowIndexList);
+    inline DenseShadowMatrix<ElementType> Row(const std::vector<int_max>& RowIndexList);
 
-    inline DenseShadowMatrix<ElementType> Row(const DenseMatrix<int64>& RowIndexList);
+    inline DenseShadowMatrix<ElementType> Row(const DenseMatrix<int_max>& RowIndexList);
 
     //
     inline DenseShadowMatrix<ElementType> Diangonal();
@@ -585,70 +583,70 @@ public:
 
     // return SubMatrix as DenseMatrix ---------------------------------------------------------------
 
-    inline DenseMatrix GetSubMatrix(const std::initializer_list<int64>& RowIndexList,
-                                    const std::initializer_list<int64>& ColIndexList) const;
+    inline DenseMatrix GetSubMatrix(const std::initializer_list<int_max>& RowIndexList,
+                                    const std::initializer_list<int_max>& ColIndexList) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix, 
-                             const std::initializer_list<int64>& RowIndexList, 
-                             const std::initializer_list<int64>& ColIndexList) const;
+                             const std::initializer_list<int_max>& RowIndexList, 
+                             const std::initializer_list<int_max>& ColIndexList) const;
 
-    inline DenseMatrix GetSubMatrix(const std::initializer_list<int64>& RowIndexList,
+    inline DenseMatrix GetSubMatrix(const std::initializer_list<int_max>& RowIndexList,
                                     const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
-                                    const std::initializer_list<int64>& ColIndexList) const;
+                                    const std::initializer_list<int_max>& ColIndexList) const;
 
-    inline DenseMatrix GetSubMatrix(const std::vector<int64>& RowIndexList,
-                                    const std::vector<int64>& ColIndexList) const;
+    inline DenseMatrix GetSubMatrix(const std::vector<int_max>& RowIndexList,
+                                    const std::vector<int_max>& ColIndexList) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix,
-                             const std::vector<int64>& RowIndexList,
-                             const std::vector<int64>& ColIndexList) const;
+                             const std::vector<int_max>& RowIndexList,
+                             const std::vector<int_max>& ColIndexList) const;
 
-    inline DenseMatrix GetSubMatrix(const std::vector<int64>& RowIndexList,
+    inline DenseMatrix GetSubMatrix(const std::vector<int_max>& RowIndexList,
                                     const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
-                                    const std::vector<int64>& ColIndexList) const;
+                                    const std::vector<int_max>& ColIndexList) const;
 
-    inline DenseMatrix GetSubMatrix(const DenseMatrix<int64>& RowIndexList,
-                                    const DenseMatrix<int64>& ColIndexList) const;
+    inline DenseMatrix GetSubMatrix(const DenseMatrix<int_max>& RowIndexList,
+                                    const DenseMatrix<int_max>& ColIndexList) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix, 
-                             const DenseMatrix<int64>& RowIndexList, 
-                             const DenseMatrix<int64>& ColIndexList) const;
+                             const DenseMatrix<int_max>& RowIndexList, 
+                             const DenseMatrix<int_max>& ColIndexList) const;
 
-    inline DenseMatrix GetSubMatrix(const DenseMatrix<int64>& RowIndexList,
+    inline DenseMatrix GetSubMatrix(const DenseMatrix<int_max>& RowIndexList,
                                     const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
-                                    const DenseMatrix<int64>& ColIndexList) const;
+                                    const DenseMatrix<int_max>& ColIndexList) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix, 
-                             const int64* RowIndexList, int64 OutputRowNumber,
-                             const int64* ColIndexList, int64 OutputColNumber) const;
+                             const int_max* RowIndexList, int_max OutputRowNumber,
+                             const int_max* ColIndexList, int_max OutputColNumber) const;
 
 	//---------------------- Get/Set/Fill/Append/Insert A Single Column, Delete multi-Columns ----------------------------------------//
 	
-    inline DenseMatrix GetCol(int64 ColIndex) const;
+    inline DenseMatrix GetCol(int_max ColIndex) const;
 
-    inline bool GetCol(int64 ColIndex, std::vector<ElementType>& ColData) const;
+    inline bool GetCol(int_max ColIndex, std::vector<ElementType>& ColData) const;
 
-    inline bool GetCol(int64 ColIndex, ElementType* ColData) const;
-
-    template<typename ElementType_Input>
-    inline bool SetCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData);
+    inline bool GetCol(int_max ColIndex, ElementType* ColData) const;
 
     template<typename ElementType_Input>
-    inline bool SetCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData);
+    inline bool SetCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool SetCol(int64 ColIndex, const DenseMatrix<ElementType_Input>& ColData);
+    inline bool SetCol(int_max ColIndex, const std::vector<ElementType_Input>& ColData);
+
+    template<typename ElementType_Input>
+    inline bool SetCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColData);
 
 	template<typename ElementType_Input>
-    inline bool SetCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length);
+    inline bool SetCol(int_max ColIndex, const ElementType_Input* ColData, int_max Length);
 	
-    inline bool FillCol(int64 ColIndex, const ElementType& Element);
+    inline bool FillCol(int_max ColIndex, const ElementType& Element);
 
     template<typename ElementType_Input>
     inline bool AppendCol(const std::initializer_list<ElementType_Input>& ColData);
@@ -660,51 +658,51 @@ public:
     inline bool AppendCol(const DenseMatrix<ElementType_Input>& ColData);
 
 	template<typename ElementType_Input>
-    inline bool AppendCol(const ElementType_Input* ColData, int64 Length);
+    inline bool AppendCol(const ElementType_Input* ColData, int_max Length);
 	
-    inline bool DeleteCol(int64 ColIndex);
+    inline bool DeleteCol(int_max ColIndex);
 
-    inline bool DeleteCol(const std::initializer_list<int64>& ColIndexList);
+    inline bool DeleteCol(const std::initializer_list<int_max>& ColIndexList);
 
-    inline bool DeleteCol(const std::vector<int64>& ColIndexList);
+    inline bool DeleteCol(const std::vector<int_max>& ColIndexList);
 
-    inline bool DeleteCol(const DenseMatrix<int64>& ColIndexList);
+    inline bool DeleteCol(const DenseMatrix<int_max>& ColIndexList);
 
-    inline bool DeleteCol(const int64* ColIndexList, int64 Length);
-
-    template<typename ElementType_Input>
-    inline bool InsertCol(int64 ColIndex, const std::initializer_list<ElementType_Input>& ColData);
+    inline bool DeleteCol(const int_max* ColIndexList, int_max Length);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(int64 ColIndex, const std::vector<ElementType_Input>& ColData);
+    inline bool InsertCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(int64 ColIndex, const DenseMatrix<ElementType_Input>& ColData);
+    inline bool InsertCol(int_max ColIndex, const std::vector<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(int64 ColIndex, const ElementType_Input* ColData, int64 Length);
+    inline bool InsertCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColData);
+
+    template<typename ElementType_Input>
+    inline bool InsertCol(int_max ColIndex, const ElementType_Input* ColData, int_max Length);
 
 	//---------------------- Get/Set/Fill/Append A Single Row, Delete Multi-Rows  ----------------------------------------//
 	
-    inline DenseMatrix GetRow(int64 RowIndex) const;
+    inline DenseMatrix GetRow(int_max RowIndex) const;
 
-    inline bool GetRow(int64 RowIndex, std::vector<ElementType>& RowData) const;
+    inline bool GetRow(int_max RowIndex, std::vector<ElementType>& RowData) const;
 
-    inline bool GetRow(int64 RowIndex, ElementType* RowData) const;
-
-    template<typename ElementType_Input>
-    inline bool SetRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData);
+    inline bool GetRow(int_max RowIndex, ElementType* RowData) const;
 
     template<typename ElementType_Input>
-    inline bool SetRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData);
+    inline bool SetRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool SetRow(int64 RowIndex, const DenseMatrix<ElementType_Input>& RowData);
+    inline bool SetRow(int_max RowIndex, const std::vector<ElementType_Input>& RowData);
+
+    template<typename ElementType_Input>
+    inline bool SetRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input>
-    inline bool SetRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length);
+    inline bool SetRow(int_max RowIndex, const ElementType_Input* RowData, int_max Length);
 
-    inline bool FillRow(int64 RowIndex, const ElementType& Element);
+    inline bool FillRow(int_max RowIndex, const ElementType& Element);
 
     template<typename ElementType_Input>
     inline bool AppendRow(const std::initializer_list<ElementType_Input>& RowData);
@@ -716,29 +714,29 @@ public:
     inline bool AppendRow(const DenseMatrix<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input>
-    inline bool AppendRow(const ElementType_Input* RowData, int64 Length);
+    inline bool AppendRow(const ElementType_Input* RowData, int_max Length);
 
-    inline bool DeleteRow(int64 RowIndex);
+    inline bool DeleteRow(int_max RowIndex);
 
-    inline bool DeleteRow(const std::initializer_list<int64>& RowIndexList);
+    inline bool DeleteRow(const std::initializer_list<int_max>& RowIndexList);
 
-    inline bool DeleteRow(const std::vector<int64>& RowIndexList);
+    inline bool DeleteRow(const std::vector<int_max>& RowIndexList);
 
-    inline bool DeleteRow(const DenseMatrix<int64>& RowIndexList);
+    inline bool DeleteRow(const DenseMatrix<int_max>& RowIndexList);
 
-    inline bool DeleteRow(const int64* RowIndexList, int64 Length);
-
-    template<typename ElementType_Input>
-    inline bool InsertRow(int64 RowIndex, const std::initializer_list<ElementType_Input>& RowData);
+    inline bool DeleteRow(const int_max* RowIndexList, int_max Length);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(int64 RowIndex, const std::vector<ElementType_Input>& RowData);
+    inline bool InsertRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(int64 RowIndex, const DenseMatrix<ElementType_Input>& RowData);
+    inline bool InsertRow(int_max RowIndex, const std::vector<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(int64 RowIndex, const ElementType_Input* RowData, int64 Length);
+    inline bool InsertRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowData);
+
+    template<typename ElementType_Input>
+    inline bool InsertRow(int_max RowIndex, const ElementType_Input* RowData, int_max Length);
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 
@@ -877,87 +875,87 @@ public:
 
     //-------------------- general Col operation : output a new col-matrix ------------------------------------------//
 
-    inline DenseMatrix ColNamedOperation(int64 ColIndex, const std::string& OperationName, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColNamedOperation(int_max ColIndex, const std::string& OperationName, bool EnableBoundCheck = true) const;
 
     template<typename OperationType>
-    inline DenseMatrix ColOperation(int64 ColIndex, OperationType Operation, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColOperation(int_max ColIndex, OperationType Operation, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix ColNamedOperation(int64 ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColNamedOperation(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix ColNamedOperation(int64 ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColNamedOperation(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
     
     template<typename OperationType>
-    inline DenseMatrix ColOperation(int64 ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColOperation(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix ColNamedOperation(int64 ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColNamedOperation(int_max ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix ColNamedOperation(int64 ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColNamedOperation(int_max ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
 
     template<typename OperationType>
-    inline DenseMatrix ColOperation(int64 ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColOperation(int_max ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true) const;
 
     //-------------------- general col operation in place : Object.ColOperationInPlace modify the object itself ---------------//
 
-    inline bool ColNamedOperationInPlace(int64 ColIndex, const std::string& OperationName, bool EnableBoundCheck = true);
+    inline bool ColNamedOperationInPlace(int_max ColIndex, const std::string& OperationName, bool EnableBoundCheck = true);
 
     template<typename OperationType>
-    inline bool ColOperationInPlace(int64 ColIndex, OperationType Operation, bool EnableBoundCheck = true);
+    inline bool ColOperationInPlace(int_max ColIndex, OperationType Operation, bool EnableBoundCheck = true);
 
-    inline bool ColNamedOperationInPlace(int64 ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+    inline bool ColNamedOperationInPlace(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
-    inline bool ColNamedOperationInPlace(int64 ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
-
-    template<typename OperationType>
-    inline bool ColOperationInPlace(int64 ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
-
-    inline bool ColNamedOperationInPlace(int64 ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true);
-
-    inline bool ColNamedOperationInPlace(int64 ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+    inline bool ColNamedOperationInPlace(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
     template<typename OperationType>
-    inline bool ColOperationInPlace(int64 ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
+    inline bool ColOperationInPlace(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+
+    inline bool ColNamedOperationInPlace(int_max ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+    inline bool ColNamedOperationInPlace(int_max ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+    template<typename OperationType>
+    inline bool ColOperationInPlace(int_max ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
 
     //-------------------- general Row operation : output a new row-matrix ------------------------------------------//
 
-    inline DenseMatrix RowNamedOperation(int64 RowIndex, const std::string& OperationName, bool EnableBoundCheck = true) const;
+    inline DenseMatrix RowNamedOperation(int_max RowIndex, const std::string& OperationName, bool EnableBoundCheck = true) const;
 
     template<typename OperationType>
-    inline DenseMatrix RowOperation(int64 RowIndex, OperationType Operation, bool EnableBoundCheck = true) const;
+    inline DenseMatrix RowOperation(int_max RowIndex, OperationType Operation, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix RowNamedOperation(int64 RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+    inline DenseMatrix RowNamedOperation(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix RowNamedOperation(int64 RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
-
-    template<typename OperationType>
-    inline DenseMatrix RowOperation(int64 RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
-
-    inline DenseMatrix RowNamedOperation(int64 RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
-
-    inline DenseMatrix RowNamedOperation(int64 RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+    inline DenseMatrix RowNamedOperation(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
 
     template<typename OperationType>
-    inline DenseMatrix RowOperation(int64 RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true) const;
+    inline DenseMatrix RowOperation(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+
+    inline DenseMatrix RowNamedOperation(int_max RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+
+    inline DenseMatrix RowNamedOperation(int_max RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+
+    template<typename OperationType>
+    inline DenseMatrix RowOperation(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true) const;
 
     //-------------------- general row operation in place : Object.RowOperationInPlace modify the object itself ---------------//
 
-    inline bool RowNamedOperationInPlace(int64 RowIndex, const std::string& OperationName, bool EnableBoundCheck = true);
+    inline bool RowNamedOperationInPlace(int_max RowIndex, const std::string& OperationName, bool EnableBoundCheck = true);
 
     template<typename OperationType>
-    inline bool RowOperationInPlace(int64 RowIndex, OperationType Operation, bool EnableBoundCheck = true);
+    inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, bool EnableBoundCheck = true);
 
-    inline bool RowNamedOperationInPlace(int64 RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+    inline bool RowNamedOperationInPlace(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
-    inline bool RowNamedOperationInPlace(int64 RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
-
-    template<typename OperationType>
-    inline bool RowOperationInPlace(int64 RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
-
-    inline bool RowNamedOperationInPlace(int64 RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true);
-
-    inline bool RowNamedOperationInPlace(int64 RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+    inline bool RowNamedOperationInPlace(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
     template<typename OperationType>
-    inline bool RowOperationInPlace(int64 RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
+    inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+
+    inline bool RowNamedOperationInPlace(int_max RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+    inline bool RowNamedOperationInPlace(int_max RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+    template<typename OperationType>
+    inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 
@@ -997,7 +995,7 @@ public:
 
 	//----------------------------------- Rank -----------------------------------------//
 
-    inline int64 Rank() const;
+    inline int_max Rank() const;
 
 	//----------------------------------- inverse -----------------------------------------//
 

@@ -26,7 +26,7 @@ protected:
     const ImageBoxRegionOf3DIndex*  m_InputRegion;  // size of m_InputRegion = size of m_OutputImage or m_OutputArray
 	                                 
 	// input_2:
-    const DenseMatrix<int64>*  m_InputVoxel3DIndexList;  // compute values at these center positions
+    const DenseMatrix<int_max>*  m_InputVoxel3DIndexList;  // compute values at these center positions
 	                
 	// input_3:
 	const DenseMatrix<float>*  m_Input3DPositionList;  // compute values at these center positions (float precision is enough)
@@ -35,10 +35,10 @@ protected:
 	std::function<void(double, double, double, const Image<VoxelType_Input>&, VoxelType_Output&)> m_InputFilterFunction_At3DPosition;
 
 	// input_5:
-	std::function<void(int64, int64, int64, const Image<VoxelType_Input>&, VoxelType_Output&)> m_InputFilterFunction_At3DIndex;
+	std::function<void(int_max, int_max, int_max, const Image<VoxelType_Input>&, VoxelType_Output&)> m_InputFilterFunction_At3DIndex;
 
     // input_6:
-    int64 m_MaxThreadNumber;
+    int_max m_MaxThreadNumber;
 
     // input_7:
 	bool m_IsBoundCheckEnabled;
@@ -71,9 +71,9 @@ protected:
 
     bool m_IsInputFilterFunctionAt3DIndexObtained;
 
-    int64 m_TotalOutputVoxelNumber;
+    int_max m_TotalOutputVoxelNumber;
 
-    int64 m_MinVoxelNumberPerThread;
+    int_max m_MinVoxelNumberPerThread;
 
 public:		
 	ImageFilter();
@@ -83,13 +83,13 @@ public:
 
     bool SetInputImage(const Image<VoxelType_Input>* InputImage);
 
-    bool SetInputRegion(const DenseMatrix<int64>* InputRegion);
+    bool SetInputRegion(const DenseMatrix<int_max>* InputRegion);
 
-    bool SetInputVoxel3DIndexList(const DenseMatrix<int64>* InputVoxel3DIndexList);
+    bool SetInputVoxel3DIndexList(const DenseMatrix<int_max>* InputVoxel3DIndexList);
 
     bool SetInput3DPositionList(const DenseMatrix<float>* Input3DPositionList);
 
-	void SetInputFilterFunctionAt3DIndex(std::function<void(int64, int64, int64, const Image<VoxelType_Input>&, VoxelType_Output&)> Input);
+	void SetInputFilterFunctionAt3DIndex(std::function<void(int_max, int_max, int_max, const Image<VoxelType_Input>&, VoxelType_Output&)> Input);
 
 	void SetInputFilterFunctionAt3DPosition(std::function<void(double, double, double, const Image<VoxelType_Input>&, VoxelType_Output&)> Input);
 
@@ -97,13 +97,13 @@ public:
 
     bool SetOutputArray(DenseMatrix<VoxelType_Output>* OutputArray);
 
-    void SetMaxThreadNumber(int64 MaxNumber);
+    void SetMaxThreadNumber(int_max MaxNumber);
 
 	void EnableBoundCheck();
 
     void DisableBoundCheck();
 
-    inline virtual void FilterFunctionAt3DIndex(int64 x_Index, int64 y_Index, int64 z_Index, VoxelType_Output& OutputVoxel);
+    inline virtual void FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, VoxelType_Output& OutputVoxel);
 
     inline virtual void FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& OutputVoxel);
 
@@ -119,7 +119,7 @@ public:
                       const Image<VoxelType_Input>* InputImage,                                     
                       const std::string& FilterFunctionType, // "At3DIndex" or "At3DPosition"
                       std::function<void(double, double, double, VoxelType_Output&)> FilterFunction,
-                      int64 MaxThreadNumber = 1);
+                      int_max MaxThreadNumber = 1);
 
 protected:
     bool CheckInput();
@@ -129,12 +129,12 @@ protected:
     virtual bool Postprocess();
 
     //output: IndexList_start and IndexList_end
-    void DivideData(int64 Index_min, int64 Index_max, int64 MinDataNumberPerThread,
-                    std::vector<int64>& IndexList_start, std::vector<int64>& IndexList_end);
+    void DivideData(int_max Index_min, int_max Index_max, int_max MinDataNumberPerThread,
+                    std::vector<int_max>& IndexList_start, std::vector<int_max>& IndexList_end);
 
-    inline virtual void OutputFunction(int64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
+    inline virtual void OutputFunction(int_max OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
 
-    void Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end);
+    void Update_in_a_Thread(int_max OutputVoxelIndex_start, int_max OutputVoxelIndex_end);
 
 private:
 	ImageFilter(const ImageFilter&)    = delete;

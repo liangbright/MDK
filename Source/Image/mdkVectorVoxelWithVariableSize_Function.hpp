@@ -35,7 +35,7 @@ operator+(const VectorVoxelWithVariableSize<ElementType>& VoxelA, const VectorVo
 
     VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Length_A);
 
-    for (int64 i = 0; i < Length_A; ++i)
+    for (int_max i = 0; i < Length_A; ++i)
 	{
 		tempVoxel[i] = VoxelA[i] + VoxelB[i];
 	}
@@ -72,7 +72,7 @@ operator-(const VectorVoxelWithVariableSize<ElementType>& VoxelA, const VectorVo
 
     VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Length_A);
 
-    for (int64 i = 0; i < Length_A; ++i)
+    for (int_max i = 0; i < Length_A; ++i)
 	{
 		tempVoxel[i] = VoxelA[i] - VoxelB[i];
 	}
@@ -110,7 +110,7 @@ operator*(const VectorVoxelWithVariableSize<ElementType>& VoxelA, const VectorVo
 
     VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Length_A);
 
-    for (int64 i = 0; i < Length_A; ++i)
+    for (int_max i = 0; i < Length_A; ++i)
     {
         tempVoxel[i] = VoxelA[i] * VoxelB[i];
     }
@@ -147,7 +147,7 @@ operator/(const VectorVoxelWithVariableSize<ElementType>& VoxelA, const VectorVo
 
     VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Length_A);
 
-    for (int64 i = 0; i < Length_A; ++i)
+    for (int_max i = 0; i < Length_A; ++i)
     {
         tempVoxel[i] = VoxelA[i] / VoxelB[i];
     }
@@ -164,7 +164,7 @@ operator+(const VectorVoxelWithVariableSize<ElementType>& Voxel, const ElementTy
 {
     VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (int64 i = 0; i < Voxel.GetLength(); ++i)
+	for (int_max i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Voxel[i] + Element;
 	}
@@ -180,7 +180,7 @@ operator-(const VectorVoxelWithVariableSize<ElementType>& Voxel, const ElementTy
 {
     VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (int64 i = 0; i < Voxel.GetLength(); ++i)
+	for (int_max i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Voxel[i] - Element;
 	}
@@ -196,7 +196,7 @@ operator*(const VectorVoxelWithVariableSize<ElementType>& Voxel, const ElementTy
 {
     VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (int64 i = 0; i < Voxel.GetLength(); ++i)
+	for (int_max i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Voxel[i] * Element;
 	}
@@ -212,7 +212,7 @@ operator/(const VectorVoxelWithVariableSize<ElementType>& Voxel, const ElementTy
 {
     VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (int64 i = 0; i < Voxel.GetLength(); ++i)
+	for (int_max i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Voxel[i] / Element;
 	}
@@ -229,7 +229,7 @@ operator+(const ElementType& Element, const VectorVoxelWithVariableSize<ElementT
 {
     VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (int64 i = 0; i < Voxel.GetLength(); ++i)
+	for (int_max i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Element + Voxel[i];
 	}
@@ -245,7 +245,7 @@ operator-(const ElementType& Element, const VectorVoxelWithVariableSize<ElementT
 {
     VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (int64 i = 0; i < Voxel.GetLength(); ++i)
+	for (int_max i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Element - Voxel[i];
 	}
@@ -261,7 +261,7 @@ operator*(const ElementType& Element, const VectorVoxelWithVariableSize<ElementT
 {
     VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (int64 i = 0; i < Voxel.GetLength(); ++i)
+	for (int_max i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Element * Voxel[i];
 	}
@@ -277,7 +277,7 @@ operator/(const ElementType& Element, const VectorVoxelWithVariableSize<ElementT
 {
     VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Voxel.GetLength());
 
-	for (int64 i = 0; i < Voxel.GetLength(); ++i)
+	for (int_max i = 0; i < Voxel.GetLength(); ++i)
 	{
 		tempVoxel[i] = Element / Voxel[i];
 	}
@@ -300,11 +300,11 @@ VectorVoxelLinearCombine(const std<ElementType>& CoefList, const std::vector<con
         return EmptyVoxel;
     } 
 
-    int64 VoxelNumber = int64(VoxelList.size());
+    int_max VoxelNumber = int_max(VoxelList.size());
 
     auto Length = VoxelList[0]->GetLength();
 
-    for (int64 k = 1; k < VoxelNumber; ++k)
+    for (int_max k = 1; k < VoxelNumber; ++k)
     {
         if (VoxelList[k]->GetLength() != Length)
         {
@@ -316,13 +316,13 @@ VectorVoxelLinearCombine(const std<ElementType>& CoefList, const std::vector<con
 
     VectorVoxelWithVariableSize<ElementType> tempVoxel(ElementType(0), Length);
 
-    for (int64 k = 0; k < VoxelNumber; ++k)
+    for (int_max k = 0; k < VoxelNumber; ++k)
     {
         auto Coef_k = CoefList[k];
 
         auto Voxel_k = VoxelList[k];
 
-        for (int64 i = 0; i < Length; ++i)
+        for (int_max i = 0; i < Length; ++i)
         {
             tempVoxel[i] + = Coef_k * Voxel_k[i];
         }

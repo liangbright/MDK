@@ -34,9 +34,9 @@ namespace mdk
 
 struct ImageDimension
 {
-	int64 Lx;
-	int64 Ly;
-	int64 Lz;
+	int_max Lx;
+	int_max Ly;
+	int_max Lz;
 };
 
 struct ImagePhysicalSize
@@ -71,13 +71,13 @@ struct ImageBoxRegionOf3DIndex
 {
     bool IsEmpty;
 
-    int64 x0_Index;
-    int64 y0_Index;
-    int64 z0_Index;
+    int_max x0_Index;
+    int_max y0_Index;
+    int_max z0_Index;
 
-    int64 x1_Index;
-    int64 y1_Index;
-    int64 z1_Index;
+    int_max x1_Index;
+    int_max y1_Index;
+    int_max z1_Index;
 
 //-------------------------------------
     ImageBoxRegionOf3DIndex()
@@ -91,17 +91,17 @@ struct ImageBoxRegionOf3DIndex
         z1_Index = 0;
     };
 
-    int64 Lx() const
+    int_max Lx() const
     {
         return x1_Index - x0_Index + 1;
     }
 
-    int64 Ly() const
+    int_max Ly() const
     {
         return y1_Index - y0_Index + 1;
     }
 
-    int64 Lz() const
+    int_max Lz() const
     {
         return z1_Index - z0_Index + 1;
     }
@@ -155,9 +155,9 @@ struct ImageBoxRegionOf3DPosition
 template<typename VoxelType>
 struct ImageData
 {
-    int64 m_Dimension[3]; // {Lx, Ly, Lz} number of voxels in each direction
+    int_max m_Dimension[3]; // {Lx, Ly, Lz} number of voxels in each direction
 
-    int64 m_VoxelNumberPerZSlice; // total number of voxels in each z-slice  = m_ImageSize[2]*m_ImageSize[1]
+    int_max m_VoxelNumberPerZSlice; // total number of voxels in each z-slice  = m_ImageSize[2]*m_ImageSize[1]
 
     double m_PhysicalOrigin[3];    // i.e., Origin in ITK, VTK, {x0, y0, z0} in world coordinate system (x,y,z) (unit: mm)
 
@@ -173,25 +173,25 @@ struct ImageData
 
     void Clear();
 
-    inline VoxelType& operator[](int64 LinearIndex);
+    inline VoxelType& operator[](int_max LinearIndex);
 
-    inline const VoxelType& operator[](int64 LinearIndex) const;
+    inline const VoxelType& operator[](int_max LinearIndex) const;
 
-    inline VoxelType& operator()(int64 LinearIndex);
+    inline VoxelType& operator()(int_max LinearIndex);
 
-    inline const VoxelType& operator()(int64 LinearIndex) const;
+    inline const VoxelType& operator()(int_max LinearIndex) const;
    
-    inline VoxelType& operator()(int64 xIndex, int64 yIndex, int64 zIndex);
+    inline VoxelType& operator()(int_max xIndex, int_max yIndex, int_max zIndex);
 
-    inline const VoxelType& operator()(int64 xIndex, int64 yIndex, int64 zIndex) const;
+    inline const VoxelType& operator()(int_max xIndex, int_max yIndex, int_max zIndex) const;
 
-    inline int64 GetLinearIndexBy3DIndex(int64 xIndex, int64 yIndex, int64 zIndex) const;
+    inline int_max GetLinearIndexBy3DIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
 
-    inline void Get3DIndexByLinearIndex(int64 LinearIndex, int64* xIndex, int64* yIndex, int64* zIndex) const;
+    inline void Get3DIndexByLinearIndex(int_max LinearIndex, int_max* xIndex, int_max* yIndex, int_max* zIndex) const;
 
-    inline void Get3DPositionByLinearIndex(int64 LinearIndex, double* x, double* y, double* z) const;
+    inline void Get3DPositionByLinearIndex(int_max LinearIndex, double* x, double* y, double* z) const;
 
-    inline void Get3DPositionBy3DIndex(int64 xIndex, int64 yIndex, int64 zIndex, double* x, double* y, double* z) const;
+    inline void Get3DPositionBy3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, double* x, double* y, double* z) const;
 
 private:
 //deleted:
@@ -248,7 +248,7 @@ public:
 
     template<typename VoxelType_Input>
     bool Copy(const VoxelType_Input* InputVoxelPointer, 
-              int64 Lx, int64 Ly, int64 Lz = 1,
+              int_max Lx, int_max Ly, int_max Lz = 1,
               double PhysicalOrigin_x = 0.0,
               double PhysicalOrigin_y = 0.0,
               double PhysicalOrigin_z = 0.0,
@@ -284,7 +284,7 @@ public:
     
     bool ReInitialize(const ImageDimension& Dim, const ImagePhysicalOrigin& Origin, const ImageVoxelSpacing& VoxelSize);
 
-    bool ReInitialize(int64 Lx, int64 Ly, int64 Lz = 1,
+    bool ReInitialize(int_max Lx, int_max Ly, int_max Lz = 1,
 		              double PhysicalOrigin_x = 0.0,
 		              double PhysicalOrigin_y = 0.0,
 		              double PhysicalOrigin_z = 0.0,
@@ -316,57 +316,57 @@ public:
 
     inline ImageVoxelSpacing GetVoxelSpacing() const;
 
-    inline int64 GetVoxelNumber() const;
+    inline int_max GetVoxelNumber() const;
 
     // ------------------------ Index and Position ------------------------------------------------------------------------//
 
-	inline int64 GetLinearIndexBy3DIndex(int64 xIndex, int64 yIndex, int64 zIndex = 0) const;
+	inline int_max GetLinearIndexBy3DIndex(int_max xIndex, int_max yIndex, int_max zIndex = 0) const;
 
-	inline void Get3DIndexByLinearIndex(int64 LinearIndex, int64* xIndex, int64* yIndex, int64* zIndex) const;
+	inline void Get3DIndexByLinearIndex(int_max LinearIndex, int_max* xIndex, int_max* yIndex, int_max* zIndex) const;
 
-    inline void Get3DPositionByLinearIndex(int64 LinearIndex, double* x, double* y, double* z) const;
+    inline void Get3DPositionByLinearIndex(int_max LinearIndex, double* x, double* y, double* z) const;
 
-    inline void Get3DPositionBy3DIndex(int64 xIndex, int64 yIndex, int64 zIndex, double* x, double* y, double* z) const;
+    inline void Get3DPositionBy3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, double* x, double* y, double* z) const;
 
 	//--------------------------- Get/Set Voxel      ------------------------------//
 
-    inline VoxelType& operator[](int64 LinearIndex);
+    inline VoxelType& operator[](int_max LinearIndex);
 
-    inline const VoxelType& operator[](int64 LinearIndex) const;
+    inline const VoxelType& operator[](int_max LinearIndex) const;
 
-	inline VoxelType& operator()(int64 LinearIndex);
+	inline VoxelType& operator()(int_max LinearIndex);
 
-	inline const VoxelType& operator()(int64 LinearIndex) const;
+	inline const VoxelType& operator()(int_max LinearIndex) const;
 
-	inline VoxelType& operator()(int64 xIndex, int64 yIndex, int64 zIndex = 0);
+	inline VoxelType& operator()(int_max xIndex, int_max yIndex, int_max zIndex = 0);
 
-	inline const VoxelType& operator()(int64 xIndex, int64 yIndex, int64 zIndex = 0) const;
+	inline const VoxelType& operator()(int_max xIndex, int_max yIndex, int_max zIndex = 0) const;
 
-	inline VoxelType& at(int64 LinearIndex);
+	inline VoxelType& at(int_max LinearIndex);
 
-	inline const VoxelType& at(int64 LinearIndex) const;
+	inline const VoxelType& at(int_max LinearIndex) const;
 
-	inline VoxelType& at(int64 xIndex, int64 yIndex, int64 zIndex = 0);
+	inline VoxelType& at(int_max xIndex, int_max yIndex, int_max zIndex = 0);
 
-	inline const VoxelType& at(int64 xIndex, int64 yIndex, int64 zIndex =0) const;
+	inline const VoxelType& at(int_max xIndex, int_max yIndex, int_max zIndex =0) const;
 
 	//-------------------------- Get SubImage -------------------------------//
 
-    Image GetSubImage(int64 xIndex_s, int64 xIndex_e, int64 yIndex_s, int64 yIndex_e, int64 zIndex_s = 0, int64 zIndex_e = 0) const;
+    Image GetSubImage(int_max xIndex_s, int_max xIndex_e, int_max yIndex_s, int_max yIndex_e, int_max zIndex_s = 0, int_max zIndex_e = 0) const;
 
 	//-------------------------- Pad, UnPad -------------------------------//
 
-    Image  Pad(const std::string& Option, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const;
+    Image  Pad(const std::string& Option, int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz = 0) const;
 
-    Image  Pad(VoxelType Voxel, int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const;
+    Image  Pad(VoxelType Voxel, int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz = 0) const;
 
-    Image  UnPad(int64 Pad_Lx, int64 Pad_Ly, int64 Pad_Lz = 0) const;
+    Image  UnPad(int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz = 0) const;
 
 	//------------------------- Get LinearIndex In Region -------------------//
 
-    DenseMatrix<int64> GetLinearIndexListOfRegion(int64 xIndex_s,     int64 Region_Lx,
-	                                              int64 yIndex_s,     int64 Region_Ly,
-                                                  int64 zIndex_s = 0, int64 Region_Lz = 0) const;
+    DenseMatrix<int_max> GetLinearIndexListOfRegion(int_max xIndex_s,     int_max Region_Lx,
+	                                              int_max yIndex_s,     int_max Region_Ly,
+                                                  int_max zIndex_s = 0, int_max Region_Lz = 0) const;
 
     //-------------------------- Sum, Mean, Max, Min -------------------------------//
 

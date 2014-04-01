@@ -20,14 +20,14 @@ ImageConvolutionFilterBase::~ImageConvolutionFilterBase()
 
 bool ImageConvolutionFilterBase::SetMaskOf3DIndex(const std::vector<DenseMatrix<double>>& MaskList)
 {
-	auto Length = int64(MaskList.size());
+	auto Length = int_max(MaskList.size());
 
 	if (Length <= 0)
 	{
 		return false;
 	}
 
-	for (int64 i = 0; i < Length; ++i)
+	for (int_max i = 0; i < Length; ++i)
 	{
 		if (MaskList[i].IsEmpty() == true)
 		{
@@ -43,14 +43,14 @@ bool ImageConvolutionFilterBase::SetMaskOf3DIndex(const std::vector<DenseMatrix<
 
 bool ImageConvolutionFilterBase::SetMaskOf3DPosition(const std::vector<DenseMatrix<double>>& MaskList)
 {
-    auto Length = int64(MaskList.size());
+    auto Length = int_max(MaskList.size());
 
     if (Length <= 0)
     {
         return false;
     }
 
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         if (MaskList[i].IsEmpty() == true)
         {
@@ -109,7 +109,7 @@ bool ImageConvolutionFilterBase::SaveMask(const std::string& FilePathAndName)
 
 void ImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DIndex()
 {
-    auto Length = int64(m_MaskList_3DIndex.size());
+    auto Length = int_max(m_MaskList_3DIndex.size());
 
     if (Length <= 0)
     {
@@ -119,51 +119,51 @@ void ImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DIndex()
 
     m_NOBoundCheckRegionList_3DIndex.resize(Length);
 
-    int64 SafeDistance = 2;
+    int_max SafeDistance = 2;
 
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_NOBoundCheckRegionList_3DIndex[i].IsEmpty = true;
 
-        int64 MaxDistance_x[2] = { 0, 0 };
+        int_max MaxDistance_x[2] = { 0, 0 };
 
-        int64 MaxDistance_y[2] = { 0, 0 };
+        int_max MaxDistance_y[2] = { 0, 0 };
 
-        int64 MaxDistance_z[2] = { 0, 0 };
+        int_max MaxDistance_z[2] = { 0, 0 };
 
-        for (int64 j = 0; j < m_MaskList_3DIndex[i].GetColNumber(); ++j)
+        for (int_max j = 0; j < m_MaskList_3DIndex[i].GetColNumber(); ++j)
         {
             auto temp = m_MaskList_3DIndex[i](0, j);
 
             if (temp < 0.0)
             {
-                MaxDistance_x[0] = std::max(MaxDistance_x[0], int64(-temp));
+                MaxDistance_x[0] = std::max(MaxDistance_x[0], int_max(-temp));
             }
             else
             {
-                MaxDistance_x[1] = std::max(MaxDistance_x[1], int64(temp));
+                MaxDistance_x[1] = std::max(MaxDistance_x[1], int_max(temp));
             }
 
             temp = m_MaskList_3DIndex[i](1, j);
 
             if (temp < 0.0)
             {
-                MaxDistance_y[0] = std::max(MaxDistance_y[0], int64(-temp));
+                MaxDistance_y[0] = std::max(MaxDistance_y[0], int_max(-temp));
             }
             else
             {
-                MaxDistance_y[1] = std::max(MaxDistance_y[1], int64(temp));
+                MaxDistance_y[1] = std::max(MaxDistance_y[1], int_max(temp));
             }
 
             temp = m_MaskList_3DIndex[i](2, j);
 
             if (temp < 0.0)
             {
-                MaxDistance_z[0] = std::max(MaxDistance_z[0], int64(-temp));
+                MaxDistance_z[0] = std::max(MaxDistance_z[0], int_max(-temp));
             }
             else
             {
-                MaxDistance_z[1] = std::max(MaxDistance_z[1], int64(temp));
+                MaxDistance_z[1] = std::max(MaxDistance_z[1], int_max(temp));
             }
         }
 
@@ -191,7 +191,7 @@ void ImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DIndex()
 
 void ImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DPosition()
 {    
-    auto Length = int64(m_MaskList_3DPosition.size());
+    auto Length = int_max(m_MaskList_3DPosition.size());
 
     if (Length <= 0)
     {
@@ -208,7 +208,7 @@ void ImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DPosition()
 
     auto SafeDistance_z = 2 * m_InputVoxelPhysicalSize.Sz;
 
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_NOBoundCheckRegionList_3DPosition[i].IsEmpty = true;
 
@@ -218,7 +218,7 @@ void ImageConvolutionFilterBase::ComputeRegionOfNOBoundCheck_3DPosition()
 
         double MaxDistance_z[2] = { 0, 0 };
 
-        for (int64 j = 0; j < m_MaskList_3DPosition[i].GetColNumber(); ++j)
+        for (int_max j = 0; j < m_MaskList_3DPosition[i].GetColNumber(); ++j)
         {
             auto temp = m_MaskList_3DPosition[i](0, j);
 

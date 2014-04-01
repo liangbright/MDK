@@ -28,9 +28,9 @@ private:
 
     bool CheckInput();
 
-    void Compute2DIntegralImage(int64 z_Index_start, int64 z_Index_end);
+    void Compute2DIntegralImage(int_max z_Index_start, int_max z_Index_end);
 
-    void ComputeSumInZDirection(int64 xy_LinearIndex_start, int64 xy_LinearIndex_end);
+    void ComputeSumInZDirection(int_max xy_LinearIndex_start, int_max xy_LinearIndex_end);
 
 private:
     IntegralImageBuilder(const IntegralImageBuilder&); // Not implemented.

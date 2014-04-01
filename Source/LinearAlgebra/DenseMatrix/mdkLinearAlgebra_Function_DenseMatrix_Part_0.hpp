@@ -63,11 +63,11 @@ bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementTyp
 template<typename ElementType>
 bool Sort(const std::vector<ElementType>& InputDataArray, std::vector<ElementType>& OutputDataArray, std::vector<ElementType>& OutputIndexList, const std::string& Order)
 {
-    auto InputLength = int64(InputDataArray.size());
+    auto InputLength = int_max(InputDataArray.size());
 
-    auto OutputLength = int64(OutputDataArray.size());
+    auto OutputLength = int_max(OutputDataArray.size());
 
-    auto OutputIndexListLength = int64(OutputIndexList.size());
+    auto OutputIndexListLength = int_max(OutputIndexList.size());
 
     if (OutputLength != InputLength)
     {
@@ -84,7 +84,7 @@ bool Sort(const std::vector<ElementType>& InputDataArray, std::vector<ElementTyp
 
 
 template<typename ElementType>
-bool Sort(const ElementType* InputDataArray, int64 Length, ElementType* OutputDataArray, ElementType* OutputIndexList, const std::string& Order)
+bool Sort(const ElementType* InputDataArray, int_max Length, ElementType* OutputDataArray, ElementType* OutputIndexList, const std::string& Order)
 {
     if (InputDataArray == nullptr || Length == 0 || OutputDataArray == nullptr || OutputIndexList == nullptr)
     {
@@ -100,7 +100,7 @@ bool Sort(const ElementType* InputDataArray, int64 Length, ElementType* OutputDa
 
     std::vector<mdkPairForSort<ElementType>> tempPairList(Length);
 
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         tempPairList[i].Element = InputDataArray[i];
 
@@ -119,7 +119,7 @@ bool Sort(const ElementType* InputDataArray, int64 Length, ElementType* OutputDa
     }
 
 
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         OutputDataArray[i] = tempPairList[i].Element;
 

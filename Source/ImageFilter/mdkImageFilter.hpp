@@ -105,7 +105,7 @@ SetInputImage(const Image<VoxelType_Input>* InputImage)
 template<typename VoxelType_Input, typename VoxelType_Output>
 bool
 ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInputRegion(const DenseMatrix<int64>* InputRegion)
+SetInputRegion(const DenseMatrix<int_max>* InputRegion)
 {
 //    if (InputRegion == nullptr)
 //    {
@@ -122,7 +122,7 @@ SetInputRegion(const DenseMatrix<int64>* InputRegion)
 template<typename VoxelType_Input, typename VoxelType_Output>
 bool
 ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInputVoxel3DIndexList(const DenseMatrix<int64>* InputVoxel3DIndexList)
+SetInputVoxel3DIndexList(const DenseMatrix<int_max>* InputVoxel3DIndexList)
 {
 //    if (InputVoxel3DIndexList == nullptr)
 //    {
@@ -156,7 +156,7 @@ SetInput3DPositionList(const DenseMatrix<float>* Input3DPositionList)
 template<typename VoxelType_Input, typename VoxelType_Output>
 void
 ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInputFilterFunctionAt3DIndex(std::function<void(int64, int64, int64, const Image<VoxelType_Input>&, VoxelType_Output&)> InputFilterFunction)
+SetInputFilterFunctionAt3DIndex(std::function<void(int_max, int_max, int_max, const Image<VoxelType_Input>&, VoxelType_Output&)> InputFilterFunction)
 {
 	m_InputFilterFunction_At3DIndex = InputFilterFunction;
 
@@ -224,7 +224,7 @@ SetOutputArray(DenseMatrix<VoxelType_Output>* OutputArray)
 template<typename VoxelType_Input, typename VoxelType_Output>
 void 
 ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetMaxThreadNumber(int64 MaxNumber)
+SetMaxThreadNumber(int_max MaxNumber)
 {
 	m_MaxThreadNumber = MaxNumber;
 }
@@ -380,25 +380,25 @@ bool ImageFilter<VoxelType_Input, VoxelType_Output>::Update()
    
     // divide the output image into groups
 
-	std::vector<int64> IndexList_start;
-	std::vector<int64> IndexList_end;
+	std::vector<int_max> IndexList_start;
+	std::vector<int_max> IndexList_end;
 
     this->DivideData(0, m_TotalOutputVoxelNumber - 1, m_MinVoxelNumberPerThread, IndexList_start, IndexList_end);
 
-	int64 ThreadNumber = IndexList_start.size();
+	int_max ThreadNumber = IndexList_start.size();
 	
     if (ThreadNumber > 1)
     {
 		// create and start the threads
 		std::vector<std::thread> ThreadList(ThreadNumber);
 
-        for (int64 i = 0; i < ThreadNumber; ++i)
+        for (int_max i = 0; i < ThreadNumber; ++i)
 		{
             ThreadList[i] = std::thread([&]{this->Update_in_a_Thread(IndexList_start[i], IndexList_end[i]); });
 		}
 
 		//wait for all the threads
-        for (int64 i = 0; i < ThreadNumber; ++i)
+        for (int_max i = 0; i < ThreadNumber; ++i)
 		{
             ThreadList[i].join();
 		}
@@ -429,7 +429,7 @@ bool ImageFilter<VoxelType_Input, VoxelType_Output>::Update()
 template<typename VoxelType_Input, typename VoxelType_Output>
 void
 ImageFilter<VoxelType_Input, VoxelType_Output>::
-Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
+Update_in_a_Thread(int_max OutputVoxelIndex_start, int_max OutputVoxelIndex_end)
 {
     std::cout << "VoxelIndex_start " << OutputVoxelIndex_start << '\n';
     std::cout << "VoxelIndex_end   " << OutputVoxelIndex_end << '\n';
@@ -438,9 +438,9 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
     {
 		if (m_InputRegion == nullptr && m_InputVoxel3DIndexList == nullptr  && m_Input3DPositionList == nullptr)
         {
-			int64 FilterCenter3DIndex[3];  // [xc, yc, zc]
+			int_max FilterCenter3DIndex[3];  // [xc, yc, zc]
 
-            for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+            for (int_max VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
             {
                 m_InputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter3DIndex[0], &FilterCenter3DIndex[1], &FilterCenter3DIndex[2]);
 
@@ -449,16 +449,16 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
         }
 		else if (m_InputRegion != nullptr && m_InputVoxel3DIndexList == nullptr  && m_Input3DPositionList == nullptr)
         {
-			int64 RegionOrigin[3]; // [x0, y0, z0]
+			int_max RegionOrigin[3]; // [x0, y0, z0]
             RegionOrigin[0] = m_InputRegion->x0_Index;
             RegionOrigin[1] = m_InputRegion->y0_Index;
             RegionOrigin[2] = m_InputRegion->z0_Index;
 
             if (m_Flag_OutputImage == true)
             {
-				int64 FilterCenter3DIndex[3];  // [xc, yc, zc]
+				int_max FilterCenter3DIndex[3];  // [xc, yc, zc]
 
-                for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+                for (int_max VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
                 {
                     m_OutputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter3DIndex[0], &FilterCenter3DIndex[1], &FilterCenter3DIndex[2]);
 
@@ -471,9 +471,9 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
             }
             else
             {
-				int64 FilterCenter3DIndex[3];  // [xc, yc, zc]
+				int_max FilterCenter3DIndex[3];  // [xc, yc, zc]
 
-                for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+                for (int_max VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
                 {
                     m_OutputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter3DIndex[0], &FilterCenter3DIndex[1], &FilterCenter3DIndex[2]);
 
@@ -487,11 +487,11 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
         }
 		else if (m_InputRegion == nullptr && m_InputVoxel3DIndexList != nullptr  && m_Input3DPositionList == nullptr)
         {
-			int64 FilterCenter3DIndex[3];  // [xc, yc, zc]
+			int_max FilterCenter3DIndex[3];  // [xc, yc, zc]
 
             if (m_Flag_OutputImage == true)
             {
-				for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+				for (int_max VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
 				{
                     FilterCenter3DIndex[0] = (*m_InputVoxel3DIndexList)(0, VoxelIndex);
                     FilterCenter3DIndex[1] = (*m_InputVoxel3DIndexList)(1, VoxelIndex);
@@ -502,7 +502,7 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
             }
             else
             {
-				for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+				for (int_max VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
 				{
                     FilterCenter3DIndex[0] = (*m_InputVoxel3DIndexList)(0, VoxelIndex);
                     FilterCenter3DIndex[1] = (*m_InputVoxel3DIndexList)(1, VoxelIndex);
@@ -518,7 +518,7 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
 			{
 				double FilterCenter3DPosition[3];
 
-				for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+				for (int_max VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
 				{					
 					FilterCenter3DPosition[0] = (*m_Input3DPositionList)(0, VoxelIndex);
 					FilterCenter3DPosition[1] = (*m_Input3DPositionList)(1, VoxelIndex);
@@ -531,7 +531,7 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
 			{
 				double FilterCenter3DPosition[3];
 
-				for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+				for (int_max VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
 				{					
 					FilterCenter3DPosition[0] = (*m_Input3DPositionList)(0, VoxelIndex);
 					FilterCenter3DPosition[1] = (*m_Input3DPositionList)(1, VoxelIndex);
@@ -552,9 +552,9 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
 
 		if (m_InputRegion == nullptr && m_InputVoxel3DIndexList == nullptr && m_Input3DPositionList == nullptr)
         {
-			int64 FilterCenter3DIndex[3];
+			int_max FilterCenter3DIndex[3];
 
-            for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+            for (int_max VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
             {
                 m_InputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter3DIndex[0], &FilterCenter3DIndex[1], &FilterCenter3DIndex[2]);
 
@@ -565,14 +565,14 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
         }
 		else if (m_InputRegion != nullptr && m_InputVoxel3DIndexList == nullptr && m_Input3DPositionList == nullptr)
         {
-			int64 FilterCenter3DIndex[3];
+			int_max FilterCenter3DIndex[3];
 
-			int64 RegionOrigin[3]; // [x0, y0, z0]
+			int_max RegionOrigin[3]; // [x0, y0, z0]
             RegionOrigin[0] = m_InputRegion->x0_Index;
             RegionOrigin[1] = m_InputRegion->y0_Index;
             RegionOrigin[2] = m_InputRegion->z0_Index;
 
-            for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+            for (int_max VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
             {
                 m_OutputImage->Get3DIndexByLinearIndex(VoxelIndex, &FilterCenter3DIndex[0], &FilterCenter3DIndex[1], &FilterCenter3DIndex[2]);
 
@@ -587,9 +587,9 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
         }
 		else if (m_InputRegion == nullptr && m_InputVoxel3DIndexList != nullptr && m_Input3DPositionList == nullptr)
         {
-			int64 FilterCenter3DIndex[3];
+			int_max FilterCenter3DIndex[3];
 
-            for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+            for (int_max VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
             {
                 FilterCenter3DIndex[0] = (*m_InputVoxel3DIndexList)(0, VoxelIndex);
                 FilterCenter3DIndex[1] = (*m_InputVoxel3DIndexList)(1, VoxelIndex);
@@ -604,7 +604,7 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
 		{
 			double FilterCenter3DPosition[3];
 
-			for (int64 VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
+			for (int_max VoxelIndex = OutputVoxelIndex_start; VoxelIndex <= OutputVoxelIndex_end; ++VoxelIndex)
 			{				
 				FilterCenter3DPosition[0] = (*m_Input3DPositionList)(0, VoxelIndex);
 				FilterCenter3DPosition[1] = (*m_Input3DPositionList)(1, VoxelIndex);
@@ -626,8 +626,8 @@ Update_in_a_Thread(int64 OutputVoxelIndex_start, int64 OutputVoxelIndex_end)
 template<typename VoxelType_Input, typename VoxelType_Output>
 void
 ImageFilter<VoxelType_Input, VoxelType_Output>::
-DivideData(int64 Index_min, int64 Index_max, int64 MinDataNumberPerThread,
-           std::vector<int64>& IndexList_start, std::vector<int64>& IndexList_end)
+DivideData(int_max Index_min, int_max Index_max, int_max MinDataNumberPerThread,
+           std::vector<int_max>& IndexList_start, std::vector<int_max>& IndexList_end)
 {
     if (m_MaxThreadNumber == 1)
     {
@@ -638,11 +638,11 @@ DivideData(int64 Index_min, int64 Index_max, int64 MinDataNumberPerThread,
 
 	auto TotalDataNumber = Index_max - Index_min + 1;
 
-	int64 ThreadNumber = 1;
+	int_max ThreadNumber = 1;
 
-	int64 DataNumberPerThread = 0;
+	int_max DataNumberPerThread = 0;
 
-	for (int64 i = m_MaxThreadNumber; i >= 1; --i)
+	for (int_max i = m_MaxThreadNumber; i >= 1; --i)
 	{
         DataNumberPerThread = TotalDataNumber / i;
 
@@ -661,9 +661,9 @@ DivideData(int64 Index_min, int64 Index_max, int64 MinDataNumberPerThread,
 		return;
 	}
 
-    int64 tempIndex = Index_min;
+    int_max tempIndex = Index_min;
 
-    for (int64 i = 0; i < ThreadNumber; ++i)
+    for (int_max i = 0; i < ThreadNumber; ++i)
 	{
         IndexList_start.push_back(tempIndex);
         IndexList_end.push_back(tempIndex + DataNumberPerThread - 1);
@@ -679,7 +679,7 @@ template<typename VoxelType_Input, typename VoxelType_Output>
 inline
 void
 ImageFilter<VoxelType_Input, VoxelType_Output>::
-FilterFunctionAt3DIndex(int64 x_Index, int64 y_Index, int64 z_Index, VoxelType_Output& OutputVoxel)
+FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, VoxelType_Output& OutputVoxel)
 {
 	// input (x,y,z) may be 3DIndex or 3DPosition, or 3DPosition with spacing =[1,1,1]
 	/*
@@ -739,7 +739,7 @@ template<typename VoxelType_Input, typename VoxelType_Output>
 inline
 void
 ImageFilter<VoxelType_Input, VoxelType_Output>::
-OutputFunction(int64 OutputVoxelIndex, const VoxelType_Output& OutputVoxel)
+OutputFunction(int_max OutputVoxelIndex, const VoxelType_Output& OutputVoxel)
 {
     if (m_Flag_OutputImage == true)
     {

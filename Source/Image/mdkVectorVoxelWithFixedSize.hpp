@@ -6,7 +6,7 @@
 namespace mdk
 {
  
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 VectorVoxelWithFixedSize<ElementType, Length>::VectorVoxelWithFixedSize()
 {
@@ -14,18 +14,18 @@ VectorVoxelWithFixedSize<ElementType, Length>::VectorVoxelWithFixedSize()
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 VectorVoxelWithFixedSize<ElementType, Length>::VectorVoxelWithFixedSize(const ElementType& Element)
 {
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_ElementData[i] = Element;
     }
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 VectorVoxelWithFixedSize<ElementType, Length>::VectorVoxelWithFixedSize(VectorVoxelWithFixedSize<ElementType, Length>&& Voxel)
 {
@@ -33,7 +33,7 @@ VectorVoxelWithFixedSize<ElementType, Length>::VectorVoxelWithFixedSize(VectorVo
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 VectorVoxelWithFixedSize<ElementType, Length>::~VectorVoxelWithFixedSize()
 {
@@ -41,19 +41,19 @@ VectorVoxelWithFixedSize<ElementType, Length>::~VectorVoxelWithFixedSize()
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 void VectorVoxelWithFixedSize<ElementType, Length>::
 operator=(const VectorVoxelWithFixedSize<ElementType, Length>& Voxel);
 {
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_ElementData[i] = Voxel[i];
     }
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 void VectorVoxelWithFixedSize<ElementType, Length>::
 operator=(VectorVoxelWithFixedSize<ElementType, Length>&& Voxel);
@@ -62,7 +62,7 @@ operator=(VectorVoxelWithFixedSize<ElementType, Length>&& Voxel);
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 void VectorVoxelWithFixedSize<ElementType, Length>::Clear()
 {
@@ -72,20 +72,20 @@ void VectorVoxelWithFixedSize<ElementType, Length>::Clear()
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 void VectorVoxelWithFixedSize<ElementType, Length>::Fill(const ElementType& Element)
 {
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_ElementData[i] = Element;
     }
 }
  
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
-int64 VectorVoxelWithFixedSize<ElementType, Length>::GetLength()
+int_max VectorVoxelWithFixedSize<ElementType, Length>::GetLength()
 {
     return Length;
 }
@@ -93,7 +93,7 @@ int64 VectorVoxelWithFixedSize<ElementType, Length>::GetLength()
 
 //-----------element access------------------//
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 ElementType* VectorVoxelWithFixedSize<ElementType, Length>::GetElementPointer()
 {
@@ -101,7 +101,7 @@ ElementType* VectorVoxelWithFixedSize<ElementType, Length>::GetElementPointer()
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 const ElementType* VectorVoxelWithFixedSize<ElementType, Length>::GetElementPointer() const
 {
@@ -110,9 +110,9 @@ const ElementType* VectorVoxelWithFixedSize<ElementType, Length>::GetElementPoin
 
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
-ElementType& VectorVoxelWithFixedSize<ElementType, Length>::operator[](int64 Index)
+ElementType& VectorVoxelWithFixedSize<ElementType, Length>::operator[](int_max Index)
 {
 #if defined MDK_DEBUG_VectorVoxelWithFixedSize_Operator_CheckBound
 
@@ -128,9 +128,9 @@ ElementType& VectorVoxelWithFixedSize<ElementType, Length>::operator[](int64 Ind
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
-const ElementType& VectorVoxelWithFixedSize<ElementType, Length>::operator[](int64 Index) const
+const ElementType& VectorVoxelWithFixedSize<ElementType, Length>::operator[](int_max Index) const
 {
 #if defined MDK_DEBUG_VectorVoxelWithFixedSize_Operator_CheckBound
 
@@ -146,9 +146,9 @@ const ElementType& VectorVoxelWithFixedSize<ElementType, Length>::operator[](int
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
-ElementType& VectorVoxelWithFixedSize<ElementType, Length>::operator()(int64 Index)
+ElementType& VectorVoxelWithFixedSize<ElementType, Length>::operator()(int_max Index)
 {
 #if defined MDK_DEBUG_VectorVoxelWithFixedSize_Operator_CheckBound
 
@@ -164,9 +164,9 @@ ElementType& VectorVoxelWithFixedSize<ElementType, Length>::operator()(int64 Ind
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
-const ElementType& VectorVoxelWithFixedSize<ElementType, Length>::operator()(int64 Index) const
+const ElementType& VectorVoxelWithFixedSize<ElementType, Length>::operator()(int_max Index) const
 {
 #if defined MDK_DEBUG_VectorVoxelWithFixedSize_Operator_CheckBound
 
@@ -182,9 +182,9 @@ const ElementType& VectorVoxelWithFixedSize<ElementType, Length>::operator()(int
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
-ElementType& VectorVoxelWithFixedSize<ElementType, Length>::at(int64 Index)
+ElementType& VectorVoxelWithFixedSize<ElementType, Length>::at(int_max Index)
 {
     if (Index >= Length || Index < 0)
     {
@@ -196,9 +196,9 @@ ElementType& VectorVoxelWithFixedSize<ElementType, Length>::at(int64 Index)
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
-const ElementType& VectorVoxelWithFixedSize<ElementType, Length>::at(int64 Index) const
+const ElementType& VectorVoxelWithFixedSize<ElementType, Length>::at(int_max Index) const
 {
     if (Index >= Length || Index < 0)
     {
@@ -212,44 +212,44 @@ const ElementType& VectorVoxelWithFixedSize<ElementType, Length>::at(int64 Index
 
 // ------------------------------------------------------------------------------------------------------------//
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 void VectorVoxelWithFixedSize<ElementType, Length>::operator+=(const VectorVoxelWithFixedSize<ElementType, Length>& Voxel)
 {
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_ElementData[i] += Voxel[i];
     }
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 void VectorVoxelWithFixedSize<ElementType, Length>::operator-=(const VectorVoxelWithFixedSize<ElementType, Length>& Voxel)
 {
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_ElementData[i] -= Voxel[i];
     }
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 void VectorVoxelWithFixedSize<ElementType, Length>::operator*=(const VectorVoxelWithFixedSize<ElementType, Length>& Voxel)
 {
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_ElementData[i] *= Voxel[i];
     }
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 void VectorVoxelWithFixedSize<ElementType, Length>::operator/=(const VectorVoxelWithFixedSize<ElementType, Length>& Voxel)
 {
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_ElementData[i] /= Voxel[i];
     }
@@ -257,44 +257,44 @@ void VectorVoxelWithFixedSize<ElementType, Length>::operator/=(const VectorVoxel
 
 //---------------------------------------------------------------------------------------------------------------//
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 void VectorVoxelWithFixedSize<ElementType, Length>::operator+=(const ElementType& Element)
 {
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_ElementData[i] += Element;
     }
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 void VectorVoxelWithFixedSize<ElementType, Length>::operator+=(const ElementType& Element)
 {
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_ElementData[i] -= Element;
     }
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 void VectorVoxelWithFixedSize<ElementType, Length>::operator+=(const ElementType& Element)
 {
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_ElementData[i] *= Element;
     }
 }
 
 
-template<typename ElementType, int64 Length>
+template<typename ElementType, int_max Length>
 inline
 void VectorVoxelWithFixedSize<ElementType, Length>::operator+=(const ElementType& Element)
 {
-    for (int64 i = 0; i < Length; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         m_ElementData[i] /= Element;
     }

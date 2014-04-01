@@ -3,9 +3,9 @@
 namespace mdk
 {
 
-std::vector<int64> span(int64 Index_A, int64 Index_B)
+std::vector<int_max> span(int_max Index_A, int_max Index_B)
 {
-    std::vector<int64> IndexList;
+    std::vector<int_max> IndexList;
 
     if (Index_A == Index_B)
     {
@@ -15,7 +15,7 @@ std::vector<int64> span(int64 Index_A, int64 Index_B)
     {
         IndexList.reserve(Index_B - Index_A + 1);
 
-        for (int64 i = Index_A; i <= Index_B; ++i)
+        for (int_max i = Index_A; i <= Index_B; ++i)
         {
             IndexList.push_back(i);
         }
@@ -24,7 +24,7 @@ std::vector<int64> span(int64 Index_A, int64 Index_B)
     {
         IndexList.reserve(Index_A - Index_B + 1);
 
-        for (int64 i = Index_A; i >= Index_B; --i)
+        for (int_max i = Index_A; i >= Index_B; --i)
         {
             IndexList.push_back(i);
         }
@@ -34,9 +34,9 @@ std::vector<int64> span(int64 Index_A, int64 Index_B)
 }
 
 
-std::vector<int64> span(int64 Index_A, int64 Step, int64 Index_B)
+std::vector<int_max> span(int_max Index_A, int_max Step, int_max Index_B)
 {
-    std::vector<int64> IndexList;
+    std::vector<int_max> IndexList;
 
     if (Index_A == Index_B && Step == 0)
     {
@@ -46,7 +46,7 @@ std::vector<int64> span(int64 Index_A, int64 Step, int64 Index_B)
     {
         IndexList.reserve(Index_B - Index_A + 1);
 
-        for (int64 i = Index_A; i <= Index_B; i += Step)
+        for (int_max i = Index_A; i <= Index_B; i += Step)
         {
             IndexList.push_back(i);
         }
@@ -55,7 +55,7 @@ std::vector<int64> span(int64 Index_A, int64 Step, int64 Index_B)
     {
         IndexList.reserve(Index_A - Index_B + 1);
 
-        for (int64 i = Index_A; i >= Index_B; i += Step)
+        for (int_max i = Index_A; i >= Index_B; i += Step)
         {
             IndexList.push_back(i);
         }

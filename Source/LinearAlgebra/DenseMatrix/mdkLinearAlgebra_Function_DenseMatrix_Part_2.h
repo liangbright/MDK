@@ -91,7 +91,7 @@ inline DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline int64 MatrixRank(const DenseMatrix<ElementType>& InputMatrix);
+inline int_max MatrixRank(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 
