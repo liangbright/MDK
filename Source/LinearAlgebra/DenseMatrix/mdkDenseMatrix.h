@@ -40,6 +40,8 @@ struct DenseMatrixData
     int64 RowNumber;  // RowNumber = the Number of Rows 
     int64 ColNumber;  // ColNumber = the Number of Columns
 
+    ElementType* ElementPointer;
+
     std::vector<ElementType> DataArray;
 
     bool IsSizeFixed;
@@ -49,39 +51,57 @@ struct DenseMatrixData
     {
         RowNumber = 0;
         ColNumber = 0;
+        ElementPointer = nullptr;
         IsSizeFixed = false;
     };
 
     ~DenseMatrixData() {};
 
+    void CopyDataToInternalMemoryIfNecessary()
+    {
+        if (ElementPointer != DataArray.data())
+        {
+            auto ElementNumber = RowNumber*ColNumber;
+
+            DataArray.resize(ElementNumber);
+
+            for (int64 i = 0; i < ElementNumber; ++i)
+            {
+                DataArray[i] = ElementPointer[i];
+            }
+
+            ElementPointer = DataArray.data();
+        }
+    }
+
     ElementType& operator[](int64 LinearIndex)
     {
-        return DataArray[LinearIndex];
+        return ElementPointer[LinearIndex];
     }
 
     const ElementType& operator[](int64 LinearIndex) const
     {
-        return DataArray[LinearIndex];
+        return ElementPointer[LinearIndex];
     }
 
     ElementType& operator()(int64 LinearIndex)
     {
-        return DataArray[LinearIndex];
+        return ElementPointer[LinearIndex];
     }
 
     const ElementType& operator()(int64 LinearIndex) const
     {
-        return DataArray[LinearIndex];
+        return ElementPointer[LinearIndex];
     }
 
     ElementType& operator()(int64 RowIndex, int64 ColIndex)
     {
-        return DataArray[ColIndex*RowNumber + RowIndex];
+        return ElementPointer[ColIndex*RowNumber + RowIndex];
     }
 
     const ElementType& operator()(int64 RowIndex, int64 ColIndex) const
     {
-        return DataArray[ColIndex*RowNumber + RowIndex];
+        return ElementPointer[ColIndex*RowNumber + RowIndex];
     }
 
 private:
@@ -109,7 +129,7 @@ private:
      
     std::shared_ptr<DenseMatrixData<ElementType>> m_MatrixData;
 
-    ElementType* m_ElementPointer; // pointer to the first element, keep tracking m_MatrixData->DataArray.data()
+    ElementType* m_ElementPointer; // pointer to the first element, keep tracking m_MatrixData->ElementPointer
 
     ElementType m_NaNElement;	
 
@@ -143,7 +163,10 @@ public:
 
     inline DenseMatrix(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    inline DenseMatrix(const ElementType* InputElementPointer, int64 InputRowNumber, int64 InputColNumber);
+    inline DenseMatrix(ElementType* InputElementPointer, int64 InputRowNumber, int64 InputColNumber, bool IsSizeFixed = true); 
+    // use existing data pointed by InputElementPointer
+    // The data must be in heap
+    // if the data is in stack of a function, then return a matrix will cause crash !
 
 	inline ~DenseMatrix();
 

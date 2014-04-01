@@ -124,6 +124,26 @@ void Test_Constructor_a()
     A.SwapSmartPointer(A);
 }
 
+void Test_Constructor_External_Data()
+{
+    DenseMatrix<double> A(2, 2);
+
+    A = { { 1, 2 },
+         { 3, 4 } };
+
+    DisplayMatrix("A", A);
+
+    {
+        DenseMatrix<double> B(A.GetElementPointer(), 2, 2);
+
+        DisplayMatrix("B", B);
+
+        B(0, 0) = 0;
+
+        DisplayMatrix("A", A);
+        DisplayMatrix("B", B);
+    }
+}
 
 void Test_Constructor()
 {
