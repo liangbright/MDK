@@ -8,6 +8,9 @@
 
 #include <vector>
 #include <string>
+#include <memory>
+
+#include <spams/dictLearn/dicts.h>
 
 #include "mdkFeatureDictionaryBasedSparseEncoder.h"
 #include "mdkFeatureDictionaryBuilder.h"
@@ -209,6 +212,8 @@ public:
     //----------------------------------------------------//
 
 protected:
+
+    bool CheckInputAndOutput();
 
     bool GenerateDictionary();
 

@@ -133,6 +133,7 @@ public:
     static void GetFeatureCodeInSparseFormatFromCompactFormat(SparseMatrix<ElementType>& FeatureCodeInSparseFormat, 
                                                               const DenseMatrix<ElementType>& FeatureCodeInCompactFormat);
 
+    //---------------------------------------------------//
 protected:
 
     int_max GetMaxNumberOfThreads();

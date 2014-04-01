@@ -1,7 +1,6 @@
 #ifndef __mdkDebug_h
 #define __mdkDebug_h
 
-
 namespace mdk
 {
 
@@ -11,7 +10,6 @@ void Pause_Here_To_Debug()
     std::system("pause");
     auto a = T(1);
 }
-
 
 }// namespace mdk
 

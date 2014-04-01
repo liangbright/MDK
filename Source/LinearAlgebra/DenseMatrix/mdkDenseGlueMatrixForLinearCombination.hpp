@@ -134,13 +134,11 @@ DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix(DenseMatrix<
 {
     if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
     {
-        if (OutputMatrix.IsSizeFixed() == false)
+        auto IsOK = OutputMatrix.FastResize(m_RowNumber, m_ColNumber);
+
+        if (IsOK == false)
         {
-            OutputMatrix.FastResize(m_RowNumber, m_ColNumber);            
-        }
-        else
-        {
-            MDK_Error("Size does not match @ mdkDenseGlueMatrixForLinearCombination::CreateDenseMatrix(OutputMatrix)")
+            MDK_Error("Size does not match and can not be changed @ mdkDenseGlueMatrixForLinearCombination::CreateDenseMatrix(OutputMatrix)")
             return false;
         }
     }

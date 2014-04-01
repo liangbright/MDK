@@ -49,6 +49,8 @@ public:
 
     virtual DenseMatrix<ElementType>* GetOutputFeatureCode() = 0;
 
+    //----------------------------------------------------//
+
 protected:
 
     virtual int_max GetTotalNumberOfInputFeatureVectors() = 0;
