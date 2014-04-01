@@ -270,7 +270,7 @@ void VectorVoxelWithFixedSize<ElementType, Length>::operator+=(const ElementType
 
 template<typename ElementType, int_max Length>
 inline
-void VectorVoxelWithFixedSize<ElementType, Length>::operator+=(const ElementType& Element)
+void VectorVoxelWithFixedSize<ElementType, Length>::operator-=(const ElementType& Element)
 {
     for (int_max i = 0; i < Length; ++i)
     {
@@ -281,7 +281,7 @@ void VectorVoxelWithFixedSize<ElementType, Length>::operator+=(const ElementType
 
 template<typename ElementType, int_max Length>
 inline
-void VectorVoxelWithFixedSize<ElementType, Length>::operator+=(const ElementType& Element)
+void VectorVoxelWithFixedSize<ElementType, Length>::operator*=(const ElementType& Element)
 {
     for (int_max i = 0; i < Length; ++i)
     {
@@ -292,7 +292,7 @@ void VectorVoxelWithFixedSize<ElementType, Length>::operator+=(const ElementType
 
 template<typename ElementType, int_max Length>
 inline
-void VectorVoxelWithFixedSize<ElementType, Length>::operator+=(const ElementType& Element)
+void VectorVoxelWithFixedSize<ElementType, Length>::operator/=(const ElementType& Element)
 {
     for (int_max i = 0; i < Length; ++i)
     {

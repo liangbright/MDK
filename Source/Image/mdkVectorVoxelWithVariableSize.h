@@ -46,17 +46,17 @@ public:
 
     inline const ElementType* GetElementPointer() const;
 
-    inline ElementType& operator[](uint_max Index);
+    inline ElementType& operator[](int_max Index);
 
-    inline const ElementType& operator[](uint_max Index) const;
+    inline const ElementType& operator[](int_max Index) const;
 
-    ElementType& operator()(uint_max Index);
+    ElementType& operator()(int_max Index);
 
-    const ElementType& operator()(uint_max Index) const;
+    const ElementType& operator()(int_max Index) const;
 
-    ElementType& at(uint_max Index);
+    ElementType& at(int_max Index);
 
-    const ElementType& at(uint_max Index) const;
+    const ElementType& at(int_max Index) const;
 
     // ------------------------------------------------------------------------------------------------------------//
 
