@@ -86,7 +86,7 @@ struct Parameter_Of_SPAMSOnlineDictionaryBuilder  // param in [D model] = mexTra
     char* logName;
     */
 
-    Parameter_Of_SPAMSOnlineDictionaryBuilder() { this->Clear() };
+    Parameter_Of_SPAMSOnlineDictionaryBuilder() { this->Clear(); };
 
     ~Parameter_Of_SPAMSOnlineDictionaryBuilder() {};
 
@@ -98,7 +98,7 @@ struct Parameter_Of_SPAMSOnlineDictionaryBuilder  // param in [D model] = mexTra
 
         D.Clear();
 
-        K = 0;
+        K = 1;
 
         lambda = 0;
 
@@ -200,10 +200,14 @@ public:
     ~SPAMSOnlineDictionaryBuilder();
 
     void Clear();
-  
+
+    bool CheckInputAndOutput();
+
     bool SetInitialState(State_Of_SPAMSOnlineDictionaryBuilder<ElementType> InitialState); //copy value
 
     State_Of_SPAMSOnlineDictionaryBuilder<ElementType>* GetCurrentState();
+
+    bool SetSparseEncoder(FeatureDictionaryBasedSparseEncoder<ElementType>* Encoder);
 
     bool SaveStateAndParameter(const std::string& FilePathAndName);
 
@@ -212,8 +216,6 @@ public:
     //----------------------------------------------------//
 
 protected:
-
-    bool CheckInputAndOutput();
 
     bool GenerateDictionary();
 

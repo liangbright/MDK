@@ -1,43 +1,119 @@
-A=[1, 2, 3, 4, 5
-   0, 5, 0, 2, 1
-   0, 0, 9, 1, 0
-   0, 1, 0, 1, 0
-   1, 0, 1, 0, 1];
-%%
-subA2=A([1,2],:)
-subA3=A([1,2],:)*10
-subA4=A(:, [1,2])
-subA5 = A([1,2], [1, 2, 3]) * A([1, 2, 3], [1, 2])
-subA6=A([1,2],:)*A(:,[1, 2])
-%%
-A=[1 2 0
-   1 2 0
-   3 3 3];
+clear all; 
+%
+X=zeros(10,10);
+for i=1:10
+    X(:,i)=i;
+end
+%
+%X=randn(10, 100);
 
-B=[1 2 3
-   1 2 3];
+param.K=3; 
+param.mode=0;
+param.lambda=1;
+param.numThreads=1;
+param.batchsize=400;
+param.verbose=false;
+param.iter=1000;
 
-C=[0 2 1 
-   0 2 1];
-
-C1=[1 0 1 
-    1 0 1];
-
-D = 1.0*A([1, 2], :) + 2.0*B - 3.0*C + 4.0*C1;
-
-All = A(:, [1,2])*(B + 1.0 + C - 3.0*C + 4.0*C1);
-%%
-A=rand(512, 512);
-B=rand(512, 512);
-C=rand(512, 512);
-C2=rand(512, 512);
-D=rand(512, 512);
+param.modeD=0;
+param.posD=true;
 
 tic
-for i = 1:10000
+D = mexTrainDL(X,param);
+t=toc;
 
-    temp= 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
-    
-    D=D+temp;
-end
-toc
+%%
+I=double(imread('data/lena.png'))/255;
+% extract 8 x 8 patches
+X=im2col(I,[8 8],'sliding');
+X=X-repmat(mean(X),[size(X,1) 1]);
+X=X ./ repmat(sqrt(sum(X.^2)),[size(X,1) 1]);
+
+param.K=256;  % learns a dictionary with 100 elements
+param.lambda=0.15;
+param.numThreads=-1; % number of threads
+param.batchsize=400;
+param.verbose=false;
+
+param.iter=1000;  % let us see what happens after 1000 iterations.
+
+%%%%%%%%%% FIRST EXPERIMENT %%%%%%%%%%%
+tic
+D = mexTrainDL(X,param);
+t=toc;
+fprintf('time of computation for Dictionary Learning: %f\n',t);
+
+fprintf('Evaluating cost function...\n');
+alpha=mexLasso(X,D,param);
+R=mean(0.5*sum((X-D*alpha).^2)+param.lambda*sum(abs(alpha)));
+ImD=displayPatches(D);
+subplot(1,3,1);
+imagesc(ImD); colormap('gray');
+fprintf('objective function: %f\n',R);
+drawnow;
+
+fprintf('*********** SECOND EXPERIMENT ***********\n');
+%%%%%%%%%% SECOND EXPERIMENT %%%%%%%%%%%
+% Train on half of the training set, then retrain on the second part
+X1=X(:,1:floor(size(X,2)/2));
+X2=X(:,floor(size(X,2)/2):end);
+param.iter=500;
+tic
+[D model] = mexTrainDL(X1,param);
+t=toc;
+fprintf('time of computation for Dictionary Learning: %f\n',t);
+fprintf('Evaluating cost function...\n');
+alpha=mexLasso(X,D,param);
+R=mean(0.5*sum((X-D*alpha).^2)+param.lambda*sum(abs(alpha)));
+fprintf('objective function: %f\n',R);
+tic
+% Then reuse the learned model to retrain a few iterations more.
+param2=param;
+param2.D=D;
+[D model] = mexTrainDL(X2,param2,model);
+%[D] = mexTrainDL(X,param);
+t=toc;
+fprintf('time of computation for Dictionary Learning: %f\n',t);
+fprintf('Evaluating cost function...\n');
+alpha=mexLasso(X,D,param);
+R=mean(0.5*sum((X-D*alpha).^2)+param.lambda*sum(abs(alpha)));
+fprintf('objective function: %f\n',R);
+
+% let us add sparsity to the dictionary itself
+fprintf('*********** THIRD EXPERIMENT ***********\n');
+param.modeParam=0;
+param.iter=1000;
+param.gamma1=0.3;
+param.modeD=1;
+tic
+[D] = mexTrainDL(X,param);
+t=toc;
+fprintf('time of computation for Dictionary Learning: %f\n',t);
+fprintf('Evaluating cost function...\n');
+alpha=mexLasso(X,D,param);
+R=mean(0.5*sum((X-D*alpha).^2)+param.lambda*sum(abs(alpha)));
+fprintf('objective function: %f\n',R);
+tic
+subplot(1,3,2);
+ImD=displayPatches(D);
+imagesc(ImD); colormap('gray');
+drawnow;
+
+fprintf('*********** FOURTH EXPERIMENT ***********\n');
+param.modeParam=0;
+param.iter=1000;
+param.gamma1=0.3;
+param.modeD=3;
+tic
+[D] = mexTrainDL(X,param);
+t=toc;
+fprintf('time of computation for Dictionary Learning: %f\n',t);
+fprintf('Evaluating cost function...\n');
+alpha=mexLasso(X,D,param);
+R=mean(0.5*sum((X-D*alpha).^2)+param.lambda*sum(abs(alpha)));
+fprintf('objective function: %f\n',R);
+tic
+subplot(1,3,3);
+ImD=displayPatches(D);
+imagesc(ImD); colormap('gray');
+drawnow;

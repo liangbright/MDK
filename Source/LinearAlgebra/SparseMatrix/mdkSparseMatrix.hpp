@@ -65,12 +65,12 @@ template<typename ElementType>
 inline
 void
 SparseMatrixDataInCSCFormat<ElementType>::Construct(const int_max* InputRowIndexList,
-                                                       const int_max* InputColIndexList,
-                                                       const ElementType* InputDataArray,
-                                                       int_max RecordedElementNumber,
-                                                       int_max InputRowNumber,
-                                                       int_max InputColNumber,
-                                                       int_max AdditionalReservedCapacity = 0)
+                                                    const int_max* InputColIndexList,
+                                                    const ElementType* InputDataArray,
+                                                    int_max RecordedElementNumber,
+                                                    int_max InputRowNumber,
+                                                    int_max InputColNumber,
+                                                    int_max AdditionalReservedCapacity = 0)
 {
     //--------------------------------------------------------------
 
@@ -94,26 +94,6 @@ SparseMatrixDataInCSCFormat<ElementType>::Construct(const int_max* InputRowIndex
 
     //--------------------------------------------------------------
 
-    std::vector<int_max> InputColIndexList_sort(RecordedElementNumber);
-
-    std::vector<int_max> LinearIndex_In_InputColIndexList(RecordedElementNumber);
-
-    //sort tempColIndexList in ascending order
-
-    Sort(InputColIndexList, RecordedElementNumber, InputColIndexList_sort.data(), LinearIndex_In_InputColIndexList.data(), "ascend");
-
-    //--------------------------------------------------------------
-
-    std::vector<int_max> RowIndexSubList;
-
-    RowIndexSubList.reserve(RecordedElementNumber);
-
-    std::vector<int_max> LinearIndex_In_RowIndexSubList;
-
-    LinearIndex_In_RowIndexSubList.reserve(RecordedElementNumber);
-
-    //--------------------------------------------------------------
-
     m_ColBeginElementLinearIndexInDataArray.resize(InputColNumber + 1);
 
     for (int_max i = 0; i < InputColNumber; ++i)
@@ -131,6 +111,26 @@ SparseMatrixDataInCSCFormat<ElementType>::Construct(const int_max* InputRowIndex
     {
         m_RecordedElementNumberInEachCol[i] = 0;
     }
+
+    //--------------------------------------------------------------
+
+    std::vector<int_max> InputColIndexList_sort(RecordedElementNumber);
+
+    std::vector<int_max> LinearIndex_In_InputColIndexList(RecordedElementNumber);
+
+    //sort tempColIndexList in ascending order
+
+    Sort(InputColIndexList, RecordedElementNumber, InputColIndexList_sort.data(), LinearIndex_In_InputColIndexList.data(), "ascend");
+
+    //--------------------------------------------------------------
+
+    std::vector<int_max> RowIndexSubList;
+
+    RowIndexSubList.reserve(RecordedElementNumber);
+
+    std::vector<int_max> LinearIndex_In_RowIndexSubList;
+
+    LinearIndex_In_RowIndexSubList.reserve(RecordedElementNumber);
 
     //----------------------------------------------------------------
 
@@ -862,7 +862,10 @@ bool SparseMatrix<ElementType>::Construct(const int_max* RowIndexList,
         return false;
     }
 
-    m_MatrixData = std::make_shared<SparseMatrixDataInCSCFormat<ElementType>>();
+    if (!m_MatrixData)
+    {
+        m_MatrixData = std::make_shared<SparseMatrixDataInCSCFormat<ElementType>>();
+    }
 
     if (RecordedElementNumber == 0)
     {

@@ -287,11 +287,11 @@ DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetO
 
         if (tempSize.RowNumber != FeatureCodeDimension || tempSize.ColNumber != m_FeatureData->GetColNumber())
         {
-            if (m_FeatureCodeInDenseFormat->IsSizeFixed() == false)
-            {
-                m_FeatureCodeInDenseFormat->FastResize(FeatureCodeDimension, m_FeatureData->GetColNumber());
+            auto IsOK = m_FeatureCodeInDenseFormat->FastResize(FeatureCodeDimension, m_FeatureData->GetColNumber());
 
-                this->GetFeatureCodeInDenseFormatFromCompactFormat(*m_FeatureCodeInDenseFormat, *m_FeatureCodeInCompactFormat);
+            if (IsOK == true)
+            {
+                this->GetFeatureCodeInDenseFormatFromCompactFormat(*m_FeatureCodeInDenseFormat, *m_FeatureCodeInCompactFormat, FeatureCodeDimension);
 
                 if (m_FeatureCodeInDenseFormat != &m_FeatureCodeInDenseFormat_SharedCopy)
                 {
@@ -301,8 +301,8 @@ DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetO
                 m_Flag_FeatureCodeInDenseFormat_Is_Updated = true;
             }
             else
-            {
-                MDK_Error("can not change the size of m_FeatureCodeInDenseFormat matrix @ mdkFeatureDictionaryBasedSparseEncoder::CheckInput()")
+            {           
+                MDK_Error("Size does not match and can not change @ FeatureDictionaryBasedSparseEncoder::GetOutputFeatureCodeInDenseFormat()")       
             }
         }       
     }
@@ -331,11 +331,11 @@ SparseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::Get
 
         if (tempSize.RowNumber != FeatureCodeDimension || tempSize.ColNumber != m_FeatureData->GetColNumber())
         {
-            if (m_FeatureCodeInSparseFormat->IsSizeFixed() == false)
-            {
-                m_FeatureCodeInSparseFormat->FastResize(FeatureCodeDimension, m_FeatureData->GetColNumber());
+            auto IsOK = m_FeatureCodeInSparseFormat->FastResize(FeatureCodeDimension, m_FeatureData->GetColNumber());
 
-                this->GetFeatureCodeInSparseFormatFromCompactFormat(*m_FeatureCodeInSparseFormat, *m_FeatureCodeInCompactFormat);
+            if (IsOK == true)
+            {                
+                this->GetFeatureCodeInSparseFormatFromCompactFormat(*m_FeatureCodeInSparseFormat, *m_FeatureCodeInCompactFormat, FeatureCodeDimension);
 
                 if (m_FeatureCodeInSparseFormat != &m_FeatureCodeInSparseFormat_SharedCopy)
                 {
@@ -346,7 +346,7 @@ SparseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::Get
             }
             else
             {
-                MDK_Error("can not change the size of m_FeatureCodeInSparseFormat matrix @ mdkFeatureDictionaryBasedSparseEncoder::CheckInput()")
+                MDK_Error("Size does not match and can not change @ FeatureDictionaryBasedSparseEncoder::GetOutputFeatureCodeInSparseFormat()")
             }
         }
     }
@@ -356,19 +356,110 @@ SparseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::Get
 
 
 template<typename ElementType>
-void FeatureDictionaryBasedSparseEncoder<ElementType>::
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::
 GetFeatureCodeInDenseFormatFromCompactFormat(DenseMatrix<ElementType>& FeatureCodeInDenseFormat,
-                                             const DenseMatrix<ElementType>& FeatureCodeInCompactFormat)
+                                             const DenseMatrix<ElementType>& FeatureCodeInCompactFormat,
+                                             int_max FeatureCodeDimension)
 {
+    int_max VectorNumber = FeatureCodeInCompactFormat.GetColNumber();
 
+    auto RowNumber = FeatureCodeInCompactFormat.GetRowNumber();
+
+    if ((RowNumber % 2) != 0 || VectorNumber == 0 || FeatureCodeDimension < RowNumber / 2)
+    {
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::GetFeatureCodeInDenseFormatFromCompactFormat(...)")
+        return false;
+    }
+
+    auto IsOK = FeatureCodeInDenseFormat.FastResize(FeatureCodeDimension, VectorNumber);
+
+    if (IsOK == false)
+    {
+        MDK_Error("Can not change size @ FeatureDictionaryBasedSparseEncoder::GetFeatureCodeInDenseFormatFromCompactFormat(...)")
+        return false;
+    }
+
+    auto BeginPointer = FeatureCodeInCompactFormat.GetElementPointer();
+
+    for (int_max j = 0; j < VectorNumber; ++j)
+    {
+        auto Ptr_col = BeginPointer + j*RowNumber;
+
+        for (auto Ptr = Ptr_col; Ptr < Ptr_col + RowNumber; Ptr += 2)
+        {
+            auto Index = int_max(Ptr[0]);
+
+            if (Index >= FeatureCodeDimension)
+            {
+                MDK_Error("Index invalid in FeatureCodeInCompactFormat @ FeatureDictionaryBasedSparseEncoder::GetFeatureCodeInDenseFormatFromCompactFormat(...)")
+                return false;
+            }
+
+            if (Index >= 0)
+            {
+                FeatureCodeInDenseFormat(Index, j) = Ptr[1];
+            }
+        }
+    }
+
+    return true;
 }
 
 
 template<typename ElementType>
-void FeatureDictionaryBasedSparseEncoder<ElementType>::
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::
 GetFeatureCodeInSparseFormatFromCompactFormat(SparseMatrix<ElementType>& FeatureCodeInSparseFormat,
-                                              const DenseMatrix<ElementType>& FeatureCodeInCompactFormat)
+                                              const DenseMatrix<ElementType>& FeatureCodeInCompactFormat,
+                                              int_max FeatureCodeDimension)
 {
+    int_max VectorNumber = FeatureCodeInCompactFormat.GetColNumber();
+
+    auto RowNumber = FeatureCodeInCompactFormat.GetRowNumber();
+
+    if ((RowNumber % 2) != 0 || VectorNumber == 0 || FeatureCodeDimension < RowNumber / 2)
+    {
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::GetFeatureCodeInSparseFormatFromCompactFormat(...)")
+        return false;
+    }
+
+    std::vector<int_max> RowIndexList;
+    std::vector<int_max> ColIndexList;
+    std::vector<ElementType> DataArray;
+
+    auto BeginPointer = FeatureCodeInCompactFormat.GetElementPointer();
+
+    for (int_max j = 0; j < VectorNumber; ++j)
+    {
+        auto Ptr_col = BeginPointer + j*RowNumber;
+
+        for (auto Ptr = Ptr_col; Ptr < Ptr_col + RowNumber; Ptr += 2)
+        {
+            auto Index = int_max(Ptr[0]);
+
+            if (Index >= FeatureCodeDimension)
+            {
+                MDK_Error("Index invalid in FeatureCodeInCompactFormat @ FeatureDictionaryBasedSparseEncoder::GetFeatureCodeInSparseFormatFromCompactFormat(...)")
+                return false;
+            }
+
+            if (Index >= 0)
+            {
+                RowIndexList.push_back(Index);
+                ColIndexList.push_back(j);
+                DataArray.push_back(Ptr[1]);
+            }
+        }
+    }
+
+    auto IsOK = FeatureCodeInSparseFormat.Construct(RowIndexList, ColIndexList, DataArray, FeatureCodeDimension, VectorNumber);
+
+    if (IsOK == false)
+    {
+        MDK_Error("Can not change size @ FeatureDictionaryBasedSparseEncoder::GetFeatureCodeInSparseFormatFromCompactFormat(...)")
+        return false;
+    }
+
+    return true;
 }
 
 }// namespace mdk

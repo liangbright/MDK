@@ -112,6 +112,10 @@ public:
 
     //-----------------------------------------
 
+    virtual bool CheckInputAndOutput();
+
+    //-----------------------------------------
+
     virtual bool Update();
 
     //----------------------------------------------------//
@@ -127,20 +131,23 @@ public:
 
     //---------------------------------------------------//
 
-    static void GetFeatureCodeInDenseFormatFromCompactFormat(DenseMatrix<ElementType>& FeatureCodeInDenseFormat, 
-                                                             const DenseMatrix<ElementType>& FeatureCodeInCompactFormat);
+    static bool GetFeatureCodeInDenseFormatFromCompactFormat(DenseMatrix<ElementType>& FeatureCodeInDenseFormat, 
+                                                             const DenseMatrix<ElementType>& FeatureCodeInCompactFormat,
+                                                             int_max FeatureCodeDimension);
 
-    static void GetFeatureCodeInSparseFormatFromCompactFormat(SparseMatrix<ElementType>& FeatureCodeInSparseFormat, 
-                                                              const DenseMatrix<ElementType>& FeatureCodeInCompactFormat);
+    static bool GetFeatureCodeInSparseFormatFromCompactFormat(SparseMatrix<ElementType>& FeatureCodeInSparseFormat, 
+                                                              const DenseMatrix<ElementType>& FeatureCodeInCompactFormat,
+                                                              int_max FeatureCodeDimension);
 
     //---------------------------------------------------//
+
+    
+
 protected:
 
     int_max GetMaxNumberOfThreads();
 
     int_max GetTotalNumberOfInputFeatureVectors();
-
-    virtual bool CheckInputAndOutput();
 
 private:
 //deleted:

@@ -46,9 +46,9 @@ bool FeatureDictionaryBasedEncoder<ElementType>::Update()
     std::vector<int_max> IndexList_start;
     std::vector<int_max> IndexList_end;
 
-    this->DivideData(0, FeatureVectorNumber, IndexList_start, IndexList_end);
+    this->DivideData(0, FeatureVectorNumber-1, IndexList_start, IndexList_end);
 
-    int_max ThreadNumber = IndexList_start.size();
+    auto ThreadNumber = int_max(IndexList_start.size());
 
     if (ThreadNumber > 1)
     {
@@ -57,7 +57,13 @@ bool FeatureDictionaryBasedEncoder<ElementType>::Update()
 
         for (int_max i = 0; i < ThreadNumber; ++i)
         {
-            ThreadList[i] = std::thread([&]{this->GenerateCode_in_a_Thread(IndexList_start[i], IndexList_end[i]); });
+            auto Index_start = IndexList_start[i];
+            auto Index_end = IndexList_end[i];
+
+            ThreadList[i] = std::thread([&]{this->GenerateCode_in_a_Thread(Index_start, Index_end); });
+
+            // this will crash, i can be 4
+            //ThreadList[i] = std::thread([&]{this->GenerateCode_in_a_Thread(IndexList_start[i], IndexList_end[i]); });
         }
 
         //wait for all the threads

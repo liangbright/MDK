@@ -394,7 +394,10 @@ bool ImageFilter<VoxelType_Input, VoxelType_Output>::Update()
 
         for (int_max i = 0; i < ThreadNumber; ++i)
 		{
-            ThreadList[i] = std::thread([&]{this->Update_in_a_Thread(IndexList_start[i], IndexList_end[i]); });
+            auto Index_start = IndexList_start[i];
+            auto Index_end = IndexList_end[i];
+
+            ThreadList[i] = std::thread([&]{this->Update_in_a_Thread(Index_start, Index_end); });
 		}
 
 		//wait for all the threads

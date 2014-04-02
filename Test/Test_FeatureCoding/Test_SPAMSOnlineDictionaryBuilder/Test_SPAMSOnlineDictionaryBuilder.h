@@ -31,20 +31,35 @@ namespace mdk
 {
 
 template<typename ElementType>
-void DisplayMatrix(const std::string& Name, const DenseMatrix<ElementType>& InputMatrix, int_max value_std_setw = 6, int_max precision = 0)
+void DisplayMatrix(const std::string& Name, const DenseMatrix<ElementType>& InputMatrix, int_max precision = 0, bool Flag_scientific = false)
 {
     std::cout << Name << " = " << '\n';
+
+    if (Flag_scientific == true)
+    {
+        std::cout << std::scientific << std::setprecision(precision);
+    }
+    else
+    {
+        std::cout << std::setprecision(precision) << std::fixed;
+    }
 
     for (int_max i = 0; i < InputMatrix.GetRowNumber(); ++i)
     {
         for (int_max j = 0; j < InputMatrix.GetColNumber(); ++j)
         {
-            //std::cout << std::fixed << std::setprecision(precision) << Matrix(i, j) << ' ';
-
-            std::cout << std::setw(value_std_setw + precision) << std::setprecision(precision) << InputMatrix(i, j);
+            std::cout << std::setw(6 + precision) << InputMatrix(i, j) << ' ';
         }
         std::cout << '\n';
     }
+}
+
+
+void Test_DisplayMatrix()
+{
+    DenseMatrix<double> A = { 1, 0.00001, 0.00001, 0.00002, 0.0000000003 };
+    DisplayMatrix("A", A, 3);
+
 }
 
 void Test_FindKNNByDistanceList()
@@ -64,57 +79,41 @@ void Test_FindKNNByDistanceList()
         NeighbourDistanceList[i] = DistanceList[NeighbourIndexList[i]];
     }
 
-    DisplayMatrix<double>("NeighbourDistanceList", NeighbourDistanceList);
+    DisplayMatrix("NeighbourDistanceList", NeighbourDistanceList);
 }
 
 
 void Test_Train()
 {
-    DenseMatrix<double> FeatureData(10, 3);
+    DenseMatrix<double> FeatureData(10, 10);
 
-    for (int64 i = 0; i < 3; ++i)
+    for (int64 i = 0; i < 10; ++i)
     {
-        auto temp = i % 3;
-        if (temp == 0)
-        {
-            FeatureData.FillCol(i, 0.0);
-        }
-        else if (temp == 1)
-        {
-            FeatureData.FillCol(i, 1.0);
-        }
-        else if (temp == 2)
-        {
-            FeatureData.FillCol(i, 2.0);
-        }
+        FeatureData.FillCol(i, i);
     }
 
-    DisplayMatrix<double>("FeatureData", FeatureData);
+    DisplayMatrix("FeatureData", FeatureData);
 
-    FeatureDictionary<double> KMeansDictionary;
-
-    KMeansDictionary.m_Record.Resize(10, 3);
-
-    KMeansDictionary.m_Record.FillCol(0, 0.0);
-    KMeansDictionary.m_Record.FillCol(1, 1.0);
-    KMeansDictionary.m_Record.FillCol(2, 2.0);
-
-
-    DenseMatrix<double> OutputFeatureCodeInCompactFormat(3, 3);
 
     KNNReconstructionSparseEncoder<double> Encoder;
 
-    Encoder.SetInputFeatureData(&FeatureData);
-
-    Encoder.SetInputDictionary(&KMeansDictionary);
-
+    Encoder.SetMaxNumberOfThreads(1);
     Encoder.SetNeighbourNumber(1);
 
-    Encoder.SetOutputFeatureCodeInCompactFormat(&OutputFeatureCodeInCompactFormat);
+    SPAMSOnlineDictionaryBuilder<double> DictionaryBuilder;
 
-    Encoder.Update();
+    DictionaryBuilder.SetInputFeatureData(&FeatureData);
 
-    DisplayMatrix<double>("OutputFeatureCodeInCompactFormat", OutputFeatureCodeInCompactFormat);
+    DictionaryBuilder.SetSparseEncoder(&Encoder);
+
+    DictionaryBuilder.m_Parameter.mode = -1;
+    DictionaryBuilder.m_Parameter.K = 3;
+    DictionaryBuilder.m_Parameter.posD = true;
+    DictionaryBuilder.Update();
+
+    auto Dictionary = DictionaryBuilder.GetOutputDictionary();
+
+    DisplayMatrix("Dictionary", Dictionary->m_Record, 6);
 }
 
 }//namespace mdk

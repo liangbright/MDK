@@ -28,6 +28,8 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::Clear()
 {
     this->FeatureDictionaryBuilder::Clear();
 
+    m_SparseEncoder = nullptr;
+
     m_Parameter.Clear();
 
     m_State.Clear();
@@ -40,6 +42,21 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::SetInitialState(State_Of_SPAMSOn
     //check InitialState
 
     m_State.Take(InitialState);
+
+    return true;
+}
+
+
+template<typename ElementType>
+bool SPAMSOnlineDictionaryBuilder<ElementType>::SetSparseEncoder(FeatureDictionaryBasedSparseEncoder<ElementType>* Encoder)
+{
+    if (Encoder == nullptr)
+    {
+        MDK_Error("Invalid input @ SPAMSOnlineDictionaryBuilder::SetSparseEncoder(...)")
+        return false;
+    }
+
+    m_SparseEncoder = Encoder;
 
     return true;
 }
@@ -71,6 +88,20 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::LoadStateAndParameter(const std:
 template<typename ElementType>
 bool SPAMSOnlineDictionaryBuilder<ElementType>::CheckInputAndOutput()
 {
+    if (this->FeatureDictionaryBuilder::CheckInputAndOutput() == false)
+    {
+        return false;
+    }
+
+    //--------------------------------------------------------
+    if (m_SparseEncoder == nullptr)
+    {
+        MDK_Error("m_SparseEncoder is nullptr @ SPAMSOnlineDictionaryBuilder::CheckInputAndOutput()")
+        return false;
+    }
+
+    //---------------------------------------------------------
+
     return true;
 }
 
@@ -85,7 +116,8 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 
     //---------------------------------------------------------
 
-    auto X_spt = std::make_unique<spams::Matrix<ElementType>>(m_FeatureData->GetElementPointer(), m_FeatureData->GetRowNumber(), m_FeatureData->GetColNumber());
+    auto X_spt = std::make_unique<spams::Matrix<ElementType>>(const_cast<ElementType*>(m_FeatureData->GetElementPointer()),
+        m_FeatureData->GetRowNumber(), m_FeatureData->GetColNumber());
     auto X = X_spt.get();
 
     std::unique_ptr<spams::Trainer<ElementType>> trainer_spt;
@@ -98,7 +130,7 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
     }
     else
     {
-        Matrix<T> D1(m_State.D.GetElementPointer(), m_State.D.GetRowNumber(), m_State.D.GetColNumber());
+        spams::Matrix<ElementType> D1(m_State.D.GetElementPointer(), m_State.D.GetRowNumber(), m_State.D.GetColNumber());
 
         if (m_State.A.IsEmpty() == true)
         {
@@ -109,7 +141,7 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
         {
             spams::Matrix<ElementType> A(m_State.A.GetElementPointer(), m_State.A.GetRowNumber(), m_State.A.GetColNumber());
             spams::Matrix<ElementType> B(m_State.B.GetElementPointer(), m_State.B.GetRowNumber(), m_State.B.GetColNumber());
-            trainer_spt.reset(new spams::Trainer<ElementType>(A, B, D1, m_Parameter.batchsize, m_Parameter.numThreads));
+            trainer_spt.reset(new spams::Trainer<ElementType>(A, B, D1, m_Parameter.iter, m_Parameter.batchsize, m_Parameter.numThreads));
             trainer = trainer_spt.get();
         }
     }
@@ -122,11 +154,11 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
     param.lambda2 = m_Parameter.lambda2;
     param.iter = m_Parameter.iter;
     param.t0 = m_Parameter.t0;
-    param.mode = m_Parameter.mode;
+    param.mode = static_cast<spams::constraint_type>(m_Parameter.mode);
     param.posAlpha = m_Parameter.posAlpha;
     param.posD = m_Parameter.posD;
     param.expand = false; // what is this ?
-    param.modeD = m_Parameter.modeD;
+    param.modeD = static_cast<spams::constraint_type_D>(m_Parameter.modeD);
     param.whiten = false;
     param.clean = m_Parameter.clean;
     param.verbose = m_Parameter.verbose;
@@ -134,7 +166,7 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
     param.gamma2 = m_Parameter.gamma2;
     param.rho = m_Parameter.rho;
     param.stochastic = false; // what is this ?
-    param.modeParam = m_Parameter.modeParam;
+    param.modeParam = static_cast<spams::mode_compute>(m_Parameter.modeParam);
     param.batch = false;
     param.iter_updateD = m_Parameter.iter_updateD;
     param.log = false;
@@ -143,7 +175,7 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 
     if (param.mode >= 0)
     {
-        trainer->train_extended(*X, param);
+        trainer->train(*X, param);
     }
     else
     {
@@ -160,6 +192,22 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 
     spams::Matrix<ElementType>& B = trainer->getB_ref();
     m_State.B.Copy(B.rawX(), B.m(), B.n());
+
+    //-------------------------------------------------------------------------------
+
+    if (m_Dictionary->m_Record.GetElementPointer() != m_State.D.GetElementPointer())
+    {
+        if (m_Dictionary->m_Record.GetElementPointer() == nullptr)
+        {
+            m_Dictionary->m_Record.ForceShare(m_State.D);
+        }
+        else
+        {
+            m_Dictionary->m_Record.Copy(m_State.D);
+        }
+    }
+
+    //------------------------------------------------------------------------------
 
     return true;
 }

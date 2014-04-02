@@ -959,6 +959,13 @@ bool DenseMatrix<ElementType>::Resize(int_max InputRowNumber, int_max InputColNu
     }
     //-------------------------------------------------------------------------
 
+    auto SelfSize = this->GetSize();
+
+    if (InputRowNumber == SelfSize.RowNumber && InputColNumber == SelfSize.ColNumber)
+    {
+        return true;
+    }
+
     if (this->IsSizeFixed() == true)
     {
         MDK_Error("Matrix Size can not be changed @ DenseMatrix::Resize(int_max RowNumber, int_max ColNumber)")
@@ -993,14 +1000,6 @@ bool DenseMatrix<ElementType>::Resize(int_max InputRowNumber, int_max InputColNu
 
         m_ElementPointer = m_MatrixData->ElementPointer;
 
-        return true;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    // if self is not empty, and size is the same, then nothing will change
-    if (InputRowNumber == SelfSize.RowNumber && InputColNumber == SelfSize.ColNumber)
-    {
         return true;
     }
 
@@ -1081,30 +1080,37 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::FastResize(int_max InputRowNumber, int_max InputColNumber)
 {
-    if (this->IsSizeFixed() == true)
-    {
-        MDK_Error("Can not change size @ DenseMatrix::FastResize(int_max InputRowNumber, int_max InputColNumber)")
-        return false;
-    }
-
     if (InputRowNumber < 0 || InputColNumber < 0)
     {
         MDK_Error("Invalid input @ DenseMatrix::FastResize(int_max InputRowNumber, int_max InputColNumber)")
         return false;    
     }
 
+    auto Size = this->GetSize();
+
+    if (Size.RowNumber == InputRowNumber && Size.ColNumber == InputColNumber)
+    {
+        return true;
+    }
+
+    if (this->IsSizeFixed() == true)
+    {
+        MDK_Error("Can not change size @ DenseMatrix::FastResize(int_max InputRowNumber, int_max InputColNumber)")
+        return false;
+    }
+
 try
 {
     int_max InputElementNumber = InputRowNumber * InputColNumber;
 
-    if (InputElementNumber != m_MatrixData->RowNumber *  m_MatrixData->ColNumber)
+    if (InputElementNumber != Size.RowNumber *  Size.ColNumber)
     {
         if (InputElementNumber > int_max(m_MatrixData->DataArray.capacity()))
         {
             m_MatrixData->DataArray.clear();
         }
 
-        m_MatrixData->DataArray.resize(InputRowNumber * InputColNumber);    
+        m_MatrixData->DataArray.resize(InputElementNumber);
 
         m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
 
@@ -1299,7 +1305,7 @@ template<typename ElementType>
 inline
 const ElementType* DenseMatrix<ElementType>::GetElementPointer() const
 {
-    return m_MatrixData->DataArray.data();
+    return m_MatrixData->ElementPointer;
 }
 
 

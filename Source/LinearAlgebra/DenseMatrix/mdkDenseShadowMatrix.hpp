@@ -705,20 +705,20 @@ bool DenseShadowMatrix<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>&
 
     if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
     {
-        if (OutputMatrix.IsSizeFixed() == false)
+        bool IsOK = false;
+
+        if (m_Flag_OutputVector == true)
         {
-            if (m_Flag_OutputVector == true)
-            {
-                OutputMatrix.FastResize(m_ElementNumber, 1);
-            }
-            else
-            {
-                OutputMatrix.FastResize(m_RowNumber, m_ColNumber);
-            }
+            IsOK = OutputMatrix.FastResize(m_ElementNumber, 1);
         }
         else
         {
-            MDK_Error("Size does not match @ mdkDenseShadowMatrix::CreateDenseMatrix(OutputMatrix)")
+            IsOK = OutputMatrix.FastResize(m_RowNumber, m_ColNumber);
+        }
+
+        if (IsOK == false)
+        {
+            MDK_Error("Size does not match and can not change @ mdkDenseShadowMatrix::CreateDenseMatrix(OutputMatrix)")
             return false;
         }
     }

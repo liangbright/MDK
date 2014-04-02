@@ -6,8 +6,12 @@ using namespace mdk;
 
 int main()
 {
-   
-    Test_FindKNNByDistanceList();
+
+    Test_DisplayMatrix();
+
+    //Test_FindKNNByDistanceList();
+
+    Test_Train();
 
 
     std::system("pause");

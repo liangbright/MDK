@@ -61,6 +61,20 @@ bool FeatureDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionar
     return true;
 }
 
+//---------------------------------------------------//
+
+template<typename ElementType>
+bool FeatureDictionaryBuilder<ElementType>::CheckInputAndOutput()
+{
+    if (m_FeatureData == nullptr)
+    {
+        MDK_Error("m_FeatureData is nullptr @ FeatureDictionaryBuilder::CheckInputAndOutput()")
+        return false;
+    }
+
+    return true;
+}
+
 
 //---------------------------------------------------------------------------------------------------------------//
 

@@ -33,9 +33,9 @@ void DisplayMatrix(const std::string& Name, const DenseMatrix<T>& Matrix, uint32
 {
     std::cout << Name << " = " << '\n';
 
-    for (int64 i = 0; i < Matrix.GetRowNumber(); ++i)
+    for (int_max i = 0; i < Matrix.GetRowNumber(); ++i)
     {
-        for (int64 j = 0; j < Matrix.GetColNumber(); ++j)
+        for (int_max j = 0; j < Matrix.GetColNumber(); ++j)
         {
             //std::cout << std::fixed << std::setprecision(precision) << Matrix(i, j) << ' ';
 
@@ -69,9 +69,9 @@ void Test_OpenCVMatrix()
 
     std::cout << "Data:" << '\n';
     
-    for (int64 i = 0; i < 2; ++i)
+    for (int_max i = 0; i < 2; ++i)
     {
-        for (int64 j = 0; j < 3; ++j)
+        for (int_max j = 0; j < 3; ++j)
         {
             std::cout << Data.at<double>(i, j) << "  ";
         }
@@ -89,7 +89,7 @@ void Test_KMeansDictionaryBuilder_using_OpenCV()
 
     DenseMatrix<double> FeatureData(100, 100);
 
-    for (int64 i = 0; i < 100; ++i)
+    for (int_max i = 0; i < 100; ++i)
     {
         auto temp = i % 3;
         if (temp == 0)
@@ -106,7 +106,7 @@ void Test_KMeansDictionaryBuilder_using_OpenCV()
         }
     }
 
-    int64 DictionaryLength = 3;
+    int_max DictionaryLength = 3;
 
     FeatureDictionary<double> KMeansDictionary;
 
@@ -127,7 +127,7 @@ void Test_FindKNNByDistanceList()
 {
     DenseMatrix<double> DistanceList = {1, 2, 3, 4 ,5, 1, 2, 3, 4, 5 };
 
-    int64 K = 10;
+    int_max K = 10;
 
     auto NeighbourIndexList = FindKNNByDistanceList(K, DistanceList);
 
@@ -135,7 +135,7 @@ void Test_FindKNNByDistanceList()
 
     DenseMatrix<double> NeighbourDistanceList(1, K);
 
-    for (int64 i = 0; i < K; ++i)
+    for (int_max i = 0; i < K; ++i)
     {
         NeighbourDistanceList[i] = DistanceList[NeighbourIndexList[i]];
     }
@@ -148,7 +148,7 @@ void Test_KNNReconstructionSparseEncoder()
 {
     DenseMatrix<double> FeatureData(10, 3);
 
-    for (int64 i = 0; i < 3; ++i)
+    for (int_max i = 0; i < 3; ++i)
     {
         auto temp = i % 3;
         if (temp == 0)
@@ -196,23 +196,23 @@ void Test_KNNReconstructionSparseEncoder()
 
 void Test_FeatureCodeInCompactFormat()
 {
-    // index is stored as double or float from int64
-    // it needs to be converted to int64
+    // index is stored as double or float from int_max
+    // it needs to be converted to int_max
 
-    // convert int64 to double or float
+    // convert int_max to double or float
     // and convert back
     // all good
 
-    int64 CodeLength = 1000000;
+    int_max CodeLength = 1000000;
 
-    std::vector<int64> intList(CodeLength);
+    std::vector<int_max> intList(CodeLength);
 
     std::vector<double> doubleList(CodeLength);
 
     std::vector<float> floatList(CodeLength);
 
 
-    for (int64 i = 0; i < CodeLength; ++i)
+    for (int_max i = 0; i < CodeLength; ++i)
     {
         intList[i] = i;
 
@@ -222,17 +222,17 @@ void Test_FeatureCodeInCompactFormat()
     }
 
 
-    int64 diff_a = 0;
-    int64 diff_b = 0;
+    int_max diff_a = 0;
+    int_max diff_b = 0;
 
     double diff_c = 0;
     float diff_d = 0;
 
-    for (int64 i = 0; i < CodeLength; ++i)
+    for (int_max i = 0; i < CodeLength; ++i)
     {
-        diff_a += std::abs(intList[i] - int64(doubleList[i]));
+        diff_a += std::abs(intList[i] - int_max(doubleList[i]));
 
-        diff_b += std::abs(intList[i] - int64(floatList[i]));
+        diff_b += std::abs(intList[i] - int_max(floatList[i]));
 
         diff_a += std::abs(double(intList[i]) - doubleList[i]);
 

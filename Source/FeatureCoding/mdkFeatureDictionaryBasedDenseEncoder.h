@@ -53,6 +53,10 @@ public:
 
     //-----------------------------------------
 
+    virtual bool CheckInputAndOutput();
+
+    //-----------------------------------------
+
     virtual bool Update();
 
     //----------------------------------------------------//
@@ -65,9 +69,6 @@ protected:
     int_max GetMaximunNumberOfThreads();
 
     int_max GetFeatureVectorNumber();
-
-    virtual bool CheckInputAndOutput();
-
 
 private:
 //deleted:
