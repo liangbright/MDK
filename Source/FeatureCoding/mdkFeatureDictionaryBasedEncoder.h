@@ -41,15 +41,22 @@ public:
 
     virtual bool SetMaxNumberOfThreads(int_max Number) = 0;
 
-    //-----------------------------------------
+    //-----------------------------------------------------//
 
     virtual bool Update();
 
+    //-----------------------------------------------------//
+
+    virtual bool CheckInputAndOutput();
+
+    virtual bool Preprocess();
+
+    virtual bool Postprocess();
+
     //----------------------------------------------------//
 
-    virtual inline void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
-                                         const FeatureDictionary<ElementType>& InputDictionary,
-                                         DenseMatrix<ElementType>& Code) = 0;
+    virtual inline void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector, 
+                                         DenseMatrix<ElementType>& CodeInDenseVector) = 0;
 
     //----------------------------------------------------//
 

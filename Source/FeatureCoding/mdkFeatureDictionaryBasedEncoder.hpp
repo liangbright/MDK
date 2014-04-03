@@ -35,8 +35,39 @@ bool FeatureDictionaryBasedEncoder<ElementType>::IsSparseEncoder()
 
 
 template<typename ElementType>
+bool FeatureDictionaryBasedEncoder<ElementType>::CheckInputAndOutput()
+{
+    return true;
+}
+
+
+template<typename ElementType>
+bool FeatureDictionaryBasedEncoder<ElementType>::Preprocess()
+{
+    return true;
+}
+
+
+template<typename ElementType>
+bool FeatureDictionaryBasedEncoder<ElementType>::Postprocess()
+{
+    return true;
+}
+
+
+template<typename ElementType>
 bool FeatureDictionaryBasedEncoder<ElementType>::Update()
 {
+    if (this->CheckInputAndOutput() == false)
+    {
+        return false;
+    }
+
+    if (this->Preprocess() == false)
+    {
+        return false;
+    }
+
     // multi-thread -----------------------------------------------------------------
 
     // divide the input feature column-vectors into groups
@@ -77,8 +108,9 @@ bool FeatureDictionaryBasedEncoder<ElementType>::Update()
         this->GenerateCode_in_a_Thread(0, FeatureVectorNumber-1);
     }
 
+    //------------------------------------------------------------
 
-    return true;
+    return this->Postprocess();
 }
 
 

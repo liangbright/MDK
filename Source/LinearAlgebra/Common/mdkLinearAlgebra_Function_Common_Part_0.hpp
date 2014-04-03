@@ -28,9 +28,9 @@ bool ConvertSparseMatrixToDenseMatrix(const SparseMatrix<ElementType>& InputSpar
         return false;
     }
 
-    for (int_max k = 0; k < Size.RowNumber*Size.ColNumber; ++k)
+    for (int_max k = 0; k < Size.ColNumber*Size.RowNumber; ++k)
     {
-        OutputDenseMatrix[k] = InputSparseMatrix[k];
+        OutputDenseMatrix[k] = InputSparseMatrix.GetElement(k);
     }
 
     return true;

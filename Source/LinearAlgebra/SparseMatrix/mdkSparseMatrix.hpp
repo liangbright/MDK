@@ -672,9 +672,9 @@ const ElementType& SparseMatrixDataInCSCFormat<ElementType>::GetElement(int_max 
 
     divresult = div(LinearIndex, m_RowNumber);
 
-    ColIndex = divresult.quot;
+    auto ColIndex = divresult.quot;
 
-    RowIndex = divresult.rem;
+    auto RowIndex = divresult.rem;
 
     return this->GetElement(RowIndex, ColIndex);
 }
@@ -862,40 +862,6 @@ int_max SparseMatrixDataInCSCFormat<ElementType>::GetLinearIndexInDataArray(int_
 
 
 template<typename ElementType>
-inline
-int_max SparseMatrixDataInCSCFormat<ElementType>::GetRecordedElementNumber() const
-{
-    return int_max(m_DataArray.size());
-}
-
-
-template<typename ElementType>
-inline
-std::vector<int_max> SparseMatrixDataInCSCFormat<ElementType>::GetColIndexList() const
-{
-    auto RecordedElementNumber = int_max(m_DataArray.size());
-
-    std::vector<int_max> ColIndexList(RecordedElementNumber);
-    
-    for (int_max j = 0; j < m_ColNumber; ++j)
-    {
-        if (m_RecordedElementNumberInEachCol[j] > 0)
-        {
-            auto begin_index = m_ColBeginElementLinearIndexInDataArray[j];
-            auto end_index = begin_index + m_RecordedElementNumberInEachCol[j] - 1;
-
-            for (int_max k = begin_index; k <= end_index; ++k)
-            {
-                ColIndexList[k] = j;
-            }
-        }
-    }
-
-    return ColIndexList;
-}
-
-
-template<typename ElementType>
 inline 
 void SparseMatrixDataInCSCFormat<ElementType>::Copy(const SparseMatrixDataInCSCFormat<ElementType>& InputMatrixData)
 {
@@ -932,6 +898,133 @@ void SparseMatrixDataInCSCFormat<ElementType>::Take(SparseMatrixDataInCSCFormat<
     m_RecordedElementNumberInEachCol = std::move(InputMatrixData.m_RecordedElementNumberInEachCol);
 
     m_ZeroElement = InputMatrixData.m_ZeroElement;
+}
+
+
+template<typename ElementType>
+inline
+int_max SparseMatrixDataInCSCFormat<ElementType>::GetRecordedElementNumber() const
+{
+    return int_max(m_DataArray.size());
+}
+
+
+template<typename ElementType>
+inline
+std::vector<int_max> SparseMatrixDataInCSCFormat<ElementType>::GetColIndexList() const
+{
+    auto RecordedElementNumber = int_max(m_DataArray.size());
+
+    std::vector<int_max> ColIndexList(RecordedElementNumber);
+
+    for (int_max j = 0; j < m_ColNumber; ++j)
+    {
+        if (m_RecordedElementNumberInEachCol[j] > 0)
+        {
+            auto begin_index = m_ColBeginElementLinearIndexInDataArray[j];
+            auto end_index = begin_index + m_RecordedElementNumberInEachCol[j] - 1;
+
+            for (int_max k = begin_index; k <= end_index; ++k)
+            {
+                ColIndexList[k] = j;
+            }
+        }
+    }
+
+    return ColIndexList;
+}
+
+
+template<typename ElementType>
+inline
+ElementType* SparseMatrixDataInCSCFormat<ElementType>::GetPointerOfBeginElementInCol(int_max ColIndex)
+{
+    auto tempIndex = m_ColBeginElementLinearIndexInDataArray[ColIndex];
+
+    if (tempIndex >= 0)
+    {
+        return &m_DataArray[tempIndex];
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+
+template<typename ElementType>
+inline
+const ElementType* SparseMatrixDataInCSCFormat<ElementType>::GetPointerOfBeginElementInCol(int_max ColIndex) const
+{
+    auto tempIndex = m_ColBeginElementLinearIndexInDataArray[ColIndex];
+
+    if (tempIndex >= 0)
+    {
+        return &m_DataArray[tempIndex];
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+
+template<typename ElementType>
+inline
+int_max SparseMatrixDataInCSCFormat<ElementType>::GetLinearIndexOfBeginElementInCol(int_max ColIndex) const
+{
+    return m_ColBeginElementLinearIndexInDataArray[ColIndex];
+}
+
+
+template<typename ElementType>
+inline
+int_max SparseMatrixDataInCSCFormat<ElementType>::GetRowIndexOfBeginElementInCol(int_max ColIndex) const
+{
+    auto tempIndex = m_ColBeginElementLinearIndexInDataArray[ColIndex];
+
+    if (tempIndex >= 0)
+    {
+        return m_RowIndexList[tempIndex];
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+
+
+template<typename ElementType>
+inline
+int_max SparseMatrixDataInCSCFormat<ElementType>::GetRecordedElementNumberInCol(int_max ColIndex) const
+{
+    return m_RecordedElementNumberInEachCol[ColIndex];
+}
+
+
+template<typename ElementType>
+inline
+std::vector<int_max> SparseMatrixDataInCSCFormat<ElementType>::GetRowIndexListInCol(int_max ColIndex) const
+{
+    auto RecordedElementNumber = int_max(m_DataArray.size());
+
+    std::vector<int_max> OutputRowIndexList;
+    
+    OutputRowIndexList.reserve(m_RecordedElementNumberInEachCol[ColIndex]);
+
+    if (m_RecordedElementNumberInEachCol[ColIndex] > 0)
+    {
+        auto begin_index = m_ColBeginElementLinearIndexInDataArray[ColIndex];
+        auto end_index = begin_index + m_RecordedElementNumberInEachCol[ColIndex] - 1;
+
+        for (int_max k = begin_index; k <= end_index; ++k)
+        {
+            OutputRowIndexList.push_back(m_RowIndexList[k]);
+        }
+     }
+    
+    return OutputRowIndexList;
 }
 
 //===================================================================================================================================//
@@ -1100,42 +1193,12 @@ bool SparseMatrix<ElementType>::Construct(const int_max* RowIndexList,
 
 
 template<typename ElementType>
-inline 
-bool SparseMatrix<ElementType>::ConstructInPlace(int_max* RowIndexList,
-                                                 int_max* ColIndexList,
-                                                 ElementType* DataArray,
-                                                 int_max RecordedElementNumber,
-                                                 int_max RowNumber,
-                                                 int_max ColNumber,
-                                                 bool IsSizeFixed = true)
-
-{
-    //check input
-    if (RowIndexList == nullptr || ColIndexList == nullptr || DataArray == nullptr || RecordedElementNumber <= 0 || RowNumber < 0 || ColNumber < 0)
-    {
-        MDK_Error("empty input @ SparseMatrix::ConstructInPlace(pointers, ...)")
-        return false;
-    }
-
-    m_MatrixData->ConstructInPlace(RowIndexList,
-                                   ColIndexList,
-                                   DataArray,
-                                   RecordedElementNumber,
-                                   RowNumber,
-                                   ColNumber,
-                                   IsSizeFixed);
-
-    return true;
-}
-
-
-template<typename ElementType>
 inline
 bool SparseMatrix<ElementType>::ConstructColVector(const std::initializer_list<int_max>& RowIndexList,
                                                    const std::vector<ElementType>& DataArray,
                                                    int_max RowNumber)
 {
-    if (RowIndexList.size() != DataArray.size() || RowNumber > int_max(DataArray.size()))
+    if (RowIndexList.size() != DataArray.size() || RowNumber < int_max(DataArray.size()))
     {
         MDK_Error("Invalid input @ SparseMatrix::ConstructColVector(std::initializer_list ...)")
         return false;
@@ -1153,7 +1216,7 @@ bool SparseMatrix<ElementType>::ConstructColVector(const std::vector<int_max>& R
                                                    const std::vector<ElementType>& DataArray,
                                                    int_max RowNumber)
 {
-    if (RowIndexList.size() != DataArray.size() || RowNumber > int_max(DataArray.size()))
+    if (RowIndexList.size() != DataArray.size() || RowNumber < int_max(DataArray.size()))
     {
         MDK_Error("Invalid input @ SparseMatrix::ConstructColVector(std::vector ...)")
         return false;
@@ -1171,7 +1234,7 @@ bool SparseMatrix<ElementType>::ConstructColVector(const DenseMatrix<int_max>& R
                                                    const DenseMatrix<ElementType>& DataArray,
                                                    int_max RowNumber)
 {
-    if (RowIndexList.GetElementNumber() != DataArray.GetElementNumber() || RowNumber > DataArray.GetElementNumber())
+    if (RowIndexList.GetElementNumber() != DataArray.GetElementNumber() || RowNumber < DataArray.GetElementNumber())
     {
         MDK_Error("Invalid input @ SparseMatrix::ConstructColVector(DenseMatrix ...)")
         return false;
@@ -1179,7 +1242,17 @@ bool SparseMatrix<ElementType>::ConstructColVector(const DenseMatrix<int_max>& R
 
     m_MatrixData->ConstructColVector(RowIndexList.GetElementPointer(), DataArray.GetElementPointer(), DataArray.GetElementNumber(), RowNumber);
 
-   return true;
+    return true;
+}
+
+
+template<typename ElementType>
+inline 
+void SparseMatrix<ElementType>::ConstructColVectorWithOrder(std::vector<int_max> RowIndexList,
+                                                            std::vector<ElementType> DataArray,
+                                                            int_max RowNumber)
+{
+    m_MatrixData->ConstructColVectorWithOrder(std::move(RowIndexList), std::move(DataArray), RowNumber);
 }
 
 
@@ -1189,7 +1262,7 @@ bool SparseMatrix<ElementType>::ConstructRowVector(const std::initializer_list<i
                                                    const std::vector<ElementType>& DataArray,
                                                    int_max ColNumber)
 {
-    if (RowIndexList.size() != DataArray.size() || ColNumber > int_max(DataArray.size()))
+    if (RowIndexList.size() != DataArray.size() || ColNumber < int_max(DataArray.size()))
     {
         MDK_Error("Invalid input @ SparseMatrix::ConstructRowVector(std::initializer_list ...)")
         return false;
@@ -1207,7 +1280,7 @@ bool SparseMatrix<ElementType>::ConstructRowVector(const std::vector<int_max>& C
                                                    const std::vector<ElementType>& DataArray,
                                                    int_max ColNumber)
 {
-    if (RowIndexList.size() != DataArray.size() || ColNumber > int_max(DataArray.size()))
+    if (RowIndexList.size() != DataArray.size() || ColNumber < int_max(DataArray.size()))
     {
         MDK_Error("Invalid input @ SparseMatrix::ConstructRowVector(std::vector ...)")
         return false;
@@ -1225,7 +1298,7 @@ bool SparseMatrix<ElementType>::ConstructRowVector(const DenseMatrix<int_max>& C
                                                    const DenseMatrix<ElementType>& DataArray,
                                                    int_max ColNumber)
 {
-    if (RowIndexList.GetElementNumber() != DataArray.GetElementNumber() || ColNumber > DataArray.GetElementNumber())
+    if (RowIndexList.GetElementNumber() != DataArray.GetElementNumber() || ColNumber < DataArray.GetElementNumber())
     {
         MDK_Error("Invalid input @ SparseMatrix::ConstructRowVector(DenseMatrix ...)")
         return false;
@@ -2100,14 +2173,103 @@ const ElementType* SparseMatrix<ElementType>::GetRecordedElementPointer() const
 
 
 template<typename ElementType>
+inline
+ElementType* SparseMatrix<ElementType>::GetPointerOfBeginElementInCol(int_max ColIndex)
+{
+    if (ColIndex >= m_MatrixData->m_ColNumber || ColIndex < 0)
+    {
+        MDK_Error("Invalid input @ SparseMatrix::GetPointerOfBeginElementInCol(int_max ColIndex)")
+        return nullptr;
+    }
+
+    return m_MatrixData->GetPointerOfBeginElementInCol(ColIndex);
+}
+
+
+template<typename ElementType>
+inline
+const ElementType* SparseMatrix<ElementType>::GetPointerOfBeginElementInCol(int_max ColIndex) const
+{
+    if (ColIndex >= m_MatrixData->m_ColNumber || ColIndex < 0)
+    {
+        MDK_Error("Invalid input @ SparseMatrix::GetPointerOfBeginElementInCol(int_max ColIndex)")
+        return nullptr;
+    }
+
+    return m_MatrixData->GetPointerOfBeginElementInCol(ColIndex);
+}
+
+
+template<typename ElementType>
+inline
+int_max SparseMatrix<ElementType>::GetLinearIndexOfBeginElementInCol(int_max ColIndex) const
+{
+    if (ColIndex >= m_MatrixData->m_ColNumber || ColIndex < 0)
+    {
+        MDK_Error("Invalid input @ SparseMatrix::GetLinearIndexOfBeginElementInCol(int_max ColIndex)")
+        return -1;
+    }
+
+    return m_MatrixData->GetLinearIndexOfBeginElementInCol(ColIndex);
+}
+
+
+template<typename ElementType>
+inline
+int_max SparseMatrix<ElementType>::GetRowIndexOfBeginElementInCol(int_max ColIndex) const
+{
+    if (ColIndex >= m_MatrixData->m_ColNumber || ColIndex < 0)
+    {
+        MDK_Error("Invalid input @ SparseMatrix::GetRowIndexOfBeginElementInCol(int_max ColIndex)")
+        return -1;
+    }
+
+    return m_MatrixData->GetRowIndexOfBeginElementInCol(ColIndex);
+}
+
+
+template<typename ElementType>
+inline
+int_max SparseMatrix<ElementType>::GetRecordedElementNumberInCol(int_max ColIndex) const
+{
+    if (ColIndex >= m_MatrixData->m_ColNumber || ColIndex < 0)
+    {
+        MDK_Error("Invalid input @ SparseMatrix::GetRecordedElementNumberInCol(int_max ColIndex)")
+        return 0;
+    }
+
+    return m_MatrixData->GetRecordedElementNumberInCol(ColIndex);
+}
+
+
+template<typename ElementType>
+inline
+std::vector<int_max> SparseMatrix<ElementType>::GetRowIndexListInCol(int_max ColIndex) const
+{
+    if (ColIndex >= m_MatrixData->m_ColNumber || ColIndex < 0)
+    {
+        MDK_Error("Invalid input @ SparseMatrix::GetRowIndexListInCol(int_max ColIndex)")
+        std::vector<int_max> emptyList;
+        return emptyList;
+    }
+
+    return m_MatrixData->GetRowIndexListInCol(ColIndex);
+}
+
+
+template<typename ElementType>
 inline 
 const ElementType& SparseMatrix<ElementType>::GetElement(int_max LinearIndex) const
 { 
-    if (LinearIndex >= this->GetElementNumber || LinearIndex < 0)
+#if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
+
+    if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
     {
         MDK_Error("Invalid input @ SparseMatrix::GetElement(LinearIndex, InputElement)")
         return m_NaNElement;
     }
+
+#endif
 
     return m_MatrixData->GetElement(LinearIndex);
 }
@@ -2117,6 +2279,8 @@ template<typename ElementType>
 inline
 const ElementType& SparseMatrix<ElementType>::GetElement(int_max RowIndex, int_max ColIndex) const
 {
+#if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
+
     auto SelfSize = this->GetSize();
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
@@ -2124,6 +2288,8 @@ const ElementType& SparseMatrix<ElementType>::GetElement(int_max RowIndex, int_m
         MDK_Error("Invalid input @ SparseMatrix::GetElement(RowIndex, ColIndex)")
         return m_NaNElement;
     }
+
+#endif
 
     return m_MatrixData->GetElement(RowIndex, ColIndex);
 }
@@ -2133,11 +2299,15 @@ template<typename ElementType>
 inline
 bool SparseMatrix<ElementType>::SetElement(int_max LinearIndex, const ElementType& InputElement)
 {
+#if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
+
     if (LinearIndex >= this->GetElementNumber || LinearIndex < 0)
     {
         MDK_Error("Invalid input @ SparseMatrix::SetElement(LinearIndex, InputElement)")
         return false;
     }
+
+#endif
 
     m_MatrixData->SetElement(LinearIndex, InputElement);
 }
@@ -2147,6 +2317,8 @@ template<typename ElementType>
 inline
 bool SparseMatrix<ElementType>::SetElement(int_max RowIndex, int_max ColIndex, const ElementType& InputElement)
 {
+#if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
+
     auto SelfSize = this->GetSize();
 
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
@@ -2154,6 +2326,8 @@ bool SparseMatrix<ElementType>::SetElement(int_max RowIndex, int_max ColIndex, c
         MDK_Error("Invalid input @ SparseMatrix::SetElement(RowIndex, ColIndex, InputElement)")
         return false;
     }
+
+#endif
 
     m_MatrixData->SetElement(RowIndex, ColIndex, InputElement);
 }
@@ -2213,7 +2387,10 @@ const ElementType& SparseMatrix<ElementType>::operator()(int_max LinearIndex) co
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    return (*m_MatrixData)(LinearIndex);
+    // this will call none const ()
+    //return (*m_MatrixData)(LinearIndex);
+
+    return m_MatrixData->GetElement(LinearIndex);
 }
 
 // at(): bound check
@@ -2244,7 +2421,9 @@ const ElementType& SparseMatrix<ElementType>::at(int_max LinearIndex) const
         return m_NaNElement;
 	}
 
-    return (*m_MatrixData)(LinearIndex);
+    //return (*m_MatrixData)(LinearIndex);
+
+    return m_MatrixData->GetElement(LinearIndex);
 }
 
 //----------- Get/Set Matrix(i,j)  ---------------------------------------------//
@@ -2290,7 +2469,9 @@ const ElementType& SparseMatrix<ElementType>::operator()(int_max RowIndex, int_m
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
-    return (*m_MatrixData)(RowIndex, ColIndex);
+    //return (*m_MatrixData)(RowIndex, ColIndex);
+
+    return m_MatrixData->GetElement(RowIndex, ColIndex);
 }
 
 
@@ -2324,7 +2505,9 @@ const ElementType& SparseMatrix<ElementType>::at(int_max RowIndex, int_max ColIn
         return m_NaNElement;
     }
 
-    return (*m_MatrixData)(RowIndex, ColIndex);
+    //return (*m_MatrixData)(RowIndex, ColIndex);
+
+    return m_MatrixData->GetElement(RowIndex, ColIndex);
 }
 
 //---------------------- Get/Set a set of elements ------------------------------------------------------//

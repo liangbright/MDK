@@ -59,7 +59,8 @@ DenseMatrix<ElementType> ComputeL2DistanceListFromSingleVectorToVectorSet(const 
 
 template<typename ElementType>
 DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& C,
-                                                              const DenseMatrix<ElementType>& d)
+                                                              const DenseMatrix<ElementType>& d,
+                                                              const std::string& MethodName = "SVD")
 {
     DenseLsqlinResult<ElementType> Result;
 
@@ -67,21 +68,28 @@ DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<
 
     Result.Residual.FastResize(C.GetRowNumber(), 1);
 
-    Result.MethodName = "SVD";
+    if (MethodName == "SVD")
+    {
+        Result.MethodName = "SVD";
 
-    typedef Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> EigenMapDynamicMatrix;
+        typedef Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> EigenMapDynamicMatrix;
 
-    EigenMapDynamicMatrix Input_C(const_cast<ElementType*>(C.GetElementPointer()), C.GetRowNumber(), C.GetColNumber());
+        EigenMapDynamicMatrix Input_C(const_cast<ElementType*>(C.GetElementPointer()), C.GetRowNumber(), C.GetColNumber());
 
-    EigenMapDynamicMatrix Input_d(const_cast<ElementType*>(d.GetElementPointer()), d.GetElementNumber(), 1);
+        EigenMapDynamicMatrix Input_d(const_cast<ElementType*>(d.GetElementPointer()), d.GetElementNumber(), 1);
 
-    EigenMapDynamicMatrix Output_X(Result.X.GetElementPointer(), Result.X.GetElementNumber(), 1);
+        EigenMapDynamicMatrix Output_X(Result.X.GetElementPointer(), Result.X.GetElementNumber(), 1);
 
-    EigenMapDynamicMatrix Output_Residual(Result.Residual.GetElementPointer(), Result.Residual.GetElementNumber(), 1);
+        EigenMapDynamicMatrix Output_Residual(Result.Residual.GetElementPointer(), Result.Residual.GetElementNumber(), 1);
 
-    Output_X = Input_C.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(Input_d);
+        Output_X = Input_C.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(Input_d);
 
-    Output_Residual = Input_C*Output_X - Input_d;
+        Output_Residual = Input_C*Output_X - Input_d;
+    }
+    else
+    {
+        MDK_Error("Not supported yet @ SolveLinearLeastSquaresProblem(...)")
+    }
 
     return Result;
 }

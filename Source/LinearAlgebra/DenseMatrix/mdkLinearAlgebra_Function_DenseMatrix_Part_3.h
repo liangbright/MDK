@@ -76,7 +76,8 @@ private:
 
 template<typename ElementType>
 DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& C,
-                                                              const DenseMatrix<ElementType>& d);
+                                                              const DenseMatrix<ElementType>& d,
+                                                              const std::string& MethodName);
 
 template<typename ElementType>
 DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& X0,

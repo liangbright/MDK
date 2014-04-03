@@ -25,22 +25,11 @@ void SPAMSSparseEncoder<ElementType>::Clear()
 {
     this->FeatureDictionaryBasedSparseEncoder::Clear();
 
-    m_MaxNumberOfNonzeroElementsInEachCode = 1;
-}
+    m_Parameter_OMP.Clear();
 
+    m_Parameter_Lasso.Clear();
 
-template<typename ElementType>
-bool SPAMSSparseEncoder<ElementType>::SetNeighbourNumber(int_max NeighbourNumber)
-{
-    if (NeighbourNumber <= 0)
-    {
-        MDK_Error("Invalid input @ SPAMSSparseEncoder::SetNeighbourNumber(NeighbourNumber)")
-        return false;
-    }
-
-    m_MaxNumberOfNonzeroElementsInEachCode = NeighbourNumber;
-
-    return true;
+    m_MethodName = "OMP";
 }
 
 
@@ -52,9 +41,17 @@ bool SPAMSSparseEncoder<ElementType>::CheckInputAndOutput()
         return false;
     }
 
-    if (m_MaxNumberOfNonzeroElementsInEachCode <= 0)
+    if (m_MethodName == "OMP")
     {
-        MDK_Error("Invalid input NeighbourNumber (<= 0) @ SPAMSSparseEncoder::CheckInputAndOutput()")
+
+    }
+    else if (m_MethodName == "Lasso")
+    {
+
+    }
+    else
+    {
+        MDK_Error("Not support @ SPAMSSparseEncoder::CheckInputAndOutput()")
         return false;
     }
 
@@ -63,107 +60,55 @@ bool SPAMSSparseEncoder<ElementType>::CheckInputAndOutput()
 
 
 template<typename ElementType>
+void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end)
+{
+    auto tempFeatureData = m_FeatureData->GetSubMatrix(ALL, span(IndexOfFeatureVector_start, IndexOfFeatureVector_end));
+
+    auto CodeDimension = m_Dictionary->m_Record.GetColNumber();
+
+    spams::Matrix<ElementType> X(const_cast<ElementType*>(tempFeatureData.GetElementPointer()),
+                                 tempFeatureData.GetRowNumber(), 
+                                 tempFeatureData.GetColNumber());
+
+    spams::Matrix<ElementType> D(const_cast<ElementType*>(m_Dictionary->m_Record.GetElementPointer()),
+                                 m_Dictionary->m_Record.GetRowNumber(),
+                                 m_Dictionary->m_Record.GetColNumber());
+
+    spams::SpMatrix<ElementType> alpha;
+
+    int L = m_Parameter_OMP.L;
+
+    ElementType Eps = m_Parameter_OMP.eps;
+
+    ElementType Lambda = m_Parameter_OMP.lambda;
+
+    spams::omp<ElementType>(X, D, alpha, &L, &Eps, &Lambda, false, false, false, 1, nullptr);
+
+    for (int_max i = IndexOfFeatureVector_start; i <= IndexOfFeatureVector_end; ++i)
+    {
+        spams::SpVector<ElementType> tempS;
+
+        alpha.refCol(i - IndexOfFeatureVector_start, tempS);
+
+        std::vector<int_max> RowIndexList(int_max(tempS.nzmax()));
+        for (int_max k = 0; k < int_max(tempS.nzmax()); ++k)
+        {
+            RowIndexList[k] = tempS.r(k);
+        }
+
+        std::vector<ElementType> DataArray(tempS.rawX(), tempS.rawX() + int_max(tempS.nzmax()));
+
+        (*m_CodeInSparseVectorList)[i].ConstructColVectorWithOrder(std::move(RowIndexList), std::move(DataArray), CodeDimension);
+    }
+}
+
+
+template<typename ElementType>
 inline
 void SPAMSSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
-                                                                   const FeatureDictionary<ElementType>& InputDictionary,
-                                                                   DenseMatrix<ElementType>& SingleFeatureCode,
-                                                                   bool Flag_OutputCodeInCompactFormat)
+                                                       SparseMatrix<ElementType>& CodeInSparseVector)
 {
-    auto L2DistanceList = ComputeL2DistanceListFromSingleVectorToVectorSet(SingleFeatureDataVector, InputDictionary.m_Record);
-
-    auto NeighbourIndexList = FindKNNByDistanceList(m_MaxNumberOfNonzeroElementsInEachCode, L2DistanceList);
-
-    auto SubRecord = InputDictionary.m_Record.GetSubMatrix(ALL, NeighbourIndexList);
-
-    // solve linear equation using least square method (unconstrained)
-
-    auto Result = SolveLinearLeastSquaresProblem(SubRecord, SingleFeatureDataVector);
-
-    if (Flag_OutputCodeInCompactFormat == true)
-    {
-        for (int_max i = 0; i < NeighbourIndexList.GetElementNumber(); ++i)
-        {
-            SingleFeatureCode[2 * i] = ElementType(NeighbourIndexList[i]); // int_max to ElementType such as double or float
-            SingleFeatureCode[2 * i + 1] = Result.X[i];
-        }
-    }
-    else// DenseFormat
-    {
-        for (int_max i = 0; i < NeighbourIndexList.GetElementNumber(); ++i)
-        {
-            SingleFeatureCode[NeighbourIndexList[i]] = Result.X[i];
-        }
-    }
-
-}
-
-
-template<typename ElementType>
-DenseMatrix<ElementType> SPAMSSparseEncoder<ElementType>::Apply(const DenseMatrix<ElementType>* FeatureData,
-                                                                            const FeatureDictionary<ElementType>* Dictionary,
-                                                                            int_max NeighbourNumber = 3,
-                                                                            bool  Flag_OutputCodeInCompactFormat = false, // DenseFormat in default
-                                                                            int_max MaxNumberOfThreads = 1)
-{
-    DenseMatrix<ElementType> OutputFeatureCode;
-
-    this->Apply(OutputFeatureCode, FeatureData, Dictionary, NeighbourNumber, Flag_OutputCodeInCompactFormat, MaxNumberOfThreads);
-
-    return OutputFeatureCode;
-}
-
-
-template<typename ElementType>
-bool SPAMSSparseEncoder<ElementType>::Apply(DenseMatrix<ElementType>& OutputFeatureCode,
-                                                        const DenseMatrix<ElementType>* FeatureData,
-                                                        const FeatureDictionary<ElementType>* Dictionary,
-                                                        int_max NeighbourNumber = 3,
-                                                        bool  Flag_OutputCodeInCompactFormat = false, // DenseFormat in default
-                                                        int_max MaxNumberOfThreads = 1)
-{
-    auto Encoder = std::make_unique<SPAMSSparseEncoder<ElementType>>();
-
-    Encoder->SetInputFeatureData(FeatureData);
-
-    Encoder->SetInputDictionary(Dictionary);
-
-    Encoder->SetNeighbourNumber(NeighbourNumber);
-
-    Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
-
-    if (Flag_OutputCodeInCompactFormat == true)
-    {
-        Encoder->SetOutputFeatureCodeInCompactFormat(&OutputFeatureCode);;
-    }
-    else
-    {
-        Encoder->SetOutputFeatureCodeInDenseFormat(&OutputFeatureCode);;
-    }
-
-    Encoder->Update();
-}
-
-
-template<typename ElementType>
-bool SPAMSSparseEncoder<ElementType>::Apply(SparseMatrix<ElementType>& OutputFeatureCode,
-                                                        const DenseMatrix<ElementType>* FeatureData,
-                                                        const FeatureDictionary<ElementType>* Dictionary,
-                                                        int_max NeighbourNumber = 3,
-                                                        int_max MaxNumberOfThreads = 1)
-{
-    auto Encoder = std::make_unique<SPAMSSparseEncoder<ElementType>>();
-
-    Encoder->SetInputFeatureData(FeatureData);
-
-    Encoder->SetInputDictionary(Dictionary);
-
-    Encoder->SetNeighbourNumber(NeighbourNumber);
-
-    Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
-
-    Encoder->SetOutputFeatureCodeInSparseFormat(&OutputFeatureCode);;
-
-    Encoder->Update();
+   
 }
 
 

@@ -586,6 +586,14 @@ public:
 
     inline const DenseShadowMatrix<ElementType> Diangonal() const;
 
+    // -------------------------- special col reference ---------------------------------------------
+
+    // side effect: A.RefCol(0)=0; // Matrix = 0
+
+    //inline DenseMatrix RefCol(int_max ColIndex);
+
+    //inline const DenseMatrix RefCol(int_max ColIndex) const;
+
     // return SubMatrix as DenseMatrix ---------------------------------------------------------------
 
     inline DenseMatrix GetSubMatrix(const std::initializer_list<int_max>& RowIndexList,

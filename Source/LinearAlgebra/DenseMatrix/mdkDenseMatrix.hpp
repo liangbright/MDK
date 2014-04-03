@@ -3267,6 +3267,50 @@ DenseMatrix<ElementType>::Diangonal() const
     return tempShadowMatrix;
 }
 
+
+/*
+template<typename ElementType>
+inline 
+DenseMatrix<ElementType> DenseMatrix<ElementType>::RefCol(int_max ColIndex)
+{
+    auto Size = this->GetSize();
+
+    if (ColIndex >= Size.ColNumber || ColIndex < 0)
+    {
+        MDK_Error("Invalid input @ DenseMatrix::RefCol(int_max ColIndex)")
+        DenseMatrix<ElementType> tempCol;
+        return tempCol;
+    }
+
+    auto Pointer_Col = this->GetElementPointer() + ColIndex*Size.RowNumber;
+
+    DenseMatrix<ElementType> tempCol(Pointer_Col, Size.RowNumber, 1, true);
+
+    return tempCol;
+}
+
+
+template<typename ElementType>
+inline 
+const DenseMatrix<ElementType> DenseMatrix<ElementType>::RefCol(int_max ColIndex) const
+{
+    auto Size = this->GetSize();
+
+    if (ColIndex >= Size.ColNumber || ColIndex < 0)
+    {
+        MDK_Error("Invalid input @ DenseMatrix::RefCol(int_max ColIndex) const")
+        DenseMatrix<ElementType> tempCol;
+        return tempCol;
+    }
+
+    auto Pointer_Col = this->GetElementPointer() + ColIndex*Size.RowNumber;
+
+    DenseMatrix<ElementType> tempCol(const_cast<ElementType*>(Pointer_Col), Size.RowNumber, 1, true);
+
+    return tempCol;
+}
+*/
+
 // return SubMatrix as DenseMatrix -----------------------------------------------------------------------------------------------------------------
 
 template<typename ElementType>

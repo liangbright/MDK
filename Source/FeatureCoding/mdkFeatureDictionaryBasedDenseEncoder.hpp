@@ -84,32 +84,51 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::SetOutputFeatureCode(Dense
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedDenseEncoder<ElementType>::SetMaximunNumberOfThreads(int_max Number)
+bool FeatureDictionaryBasedDenseEncoder<ElementType>::SetMaxNumberOfThreads(int_max Number)
 {
-    m_MaximunNumberOfThreads = Number;
+    m_MaxNumberOfThreads = Number;
 }
 
 
 template<typename ElementType>
-int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetMaximunNumberOfThreads()
+int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetMaxNumberOfThreads()
 {
-    return m_MaximunNumberOfThreads;
+    return m_MaxNumberOfThreads;
 }
 
 
 template<typename ElementType>
-int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetFeatureVectorNumber()
+int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetTotalNumberOfInputFeatureVectors()
 {
-    return m_FeatureData->GetColNumber();
+    if (m_FeatureData != nullptr)
+    {
+        return m_FeatureData->GetColNumber();
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 
 template<typename ElementType>
 bool FeatureDictionaryBasedDenseEncoder<ElementType>::CheckInputAndOutput()
 {
+    if (m_FeatureData == nullptr)
+    {
+        MDK_Error << "Input FeatureData is empty (nullptr) @ FeatureDictionaryBasedDenseEncoder::CheckInputAndOutput()" << '\n';
+        return false;
+    }
+
     if (m_FeatureData->IsEmpty() == true)
     {
         MDK_Error << "Input FeatureData is empty @ FeatureDictionaryBasedDenseEncoder::CheckInputAndOutput()" << '\n';
+        return false;
+    }
+
+    if (m_Dictionary == nullptr)
+    {
+        MDK_Error << "Input Dictionary is empty (nullptr) @ FeatureDictionaryBasedDenseEncoder::CheckInputAndOutput()" << '\n';
         return false;
     }
 
@@ -119,15 +138,7 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::CheckInputAndOutput()
         return false;
     }
 
-    auto DictionarySize = m_Dictionary->GetSize();
-
-    int_max FeatureCodeDimension = DictionarySize.ColNumber;
-
-    if (m_MaxNumberOfNonZeroElementsInEachCode <= 0 || m_MaxNumberOfNonZeroElementsInEachCode > FeatureCodeDimension)
-    {
-        MDK_Error << "input MaxNumberOfNonZeroElementsInEachCode is invalid @ FeatureDictionaryBasedDenseEncoder::CheckInputAndOutput()" << '\n';
-        return false;
-    }
+    auto FeatureCodeDimension = m_Dictionary->m_Record.GetColNumber();
 
     auto tempSize = m_FeatureCode->GetSize();
 
@@ -145,11 +156,11 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::CheckInputAndOutput()
         }
     }
 
-    if (m_MaximunNumberOfThreads <= 0)
+    if (m_MaxNumberOfThreads <= 0)
     {
         MDK_Warning << "input MaximunNumberOfThreads is invalid, set to 1 @ FeatureDictionaryBasedDenseEncoder::CheckInputAndOutput()" << '\n';
 
-        m_MaximunNumberOfThreads = 1;
+        m_MaxNumberOfThreads = 1;
     }
 
     return true;
@@ -159,12 +170,12 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::CheckInputAndOutput()
 template<typename ElementType>
 bool FeatureDictionaryBasedDenseEncoder<ElementType>::Update()
 {
-    if (this->CheckInputAndOutput() == false)
+    auto IsOK = this->FeatureDictionaryBasedEncoder::Update();
+
+    if (IsOK == false)
     {
         return false;
     }
-
-    this->FeatureDictionaryBasedEncoder::Update();
 
     //--------------------------------------------------------------
 
@@ -188,7 +199,7 @@ void FeatureDictionaryBasedDenseEncoder<ElementType>::GenerateCode_in_a_Thread(i
     {
         m_FeatureData->GetCol(i, SingleFeatureDataVector);
 
-        this->EncodingFunction(SingleFeatureDataVector, *m_Dictionary, SingleFeatureCode);
+        this->EncodingFunction(SingleFeatureDataVector, SingleFeatureCode);
 
         m_FeatureCode->SetCol(i, SingleFeatureCode);
     }

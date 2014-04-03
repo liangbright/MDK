@@ -36,9 +36,8 @@ public:
 
     using FeatureDictionaryBasedSparseEncoder::EncodingFunction;
 
-    void inline EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureVector,
-                                 const FeatureDictionary<ElementType>& InputDictionary,
-                                 SparseMatrix<ElementType>& CodeInSparseVector);
+    inline void EncodingFunction(const DenseMatrix<ElementType>& FeatureData,
+                                 SparseMatrix<ElementType>& Code);
 
     //---------------------------------------------------------------------------------
 

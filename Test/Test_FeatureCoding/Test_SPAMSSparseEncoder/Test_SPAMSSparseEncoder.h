@@ -1,5 +1,5 @@
-#ifndef __Test_SPAMSOnlineDictionaryBuilder_h
-#define __Test_SPAMSOnlineDictionaryBuilder_h
+#ifndef __Test_SPAMSSparseEncoder_h
+#define __Test_SPAMSSparseEncoder_h
 
 //================================================
 #include <algorithm>
@@ -26,6 +26,7 @@
 #include "mdkFeatureCoding_Common_Function.h"
 #include "mdkTypeToOpenCVTranslation.h"
 #include "mdkSPAMSOnlineDictionaryBuilder.h"
+#include "mdkSPAMSSparseEncoder.h"
 
 namespace mdk
 {
@@ -62,76 +63,57 @@ void Test_DisplayMatrix()
 
 }
 
-void Test_FindKNNByDistanceList()
+void Test_OMP()
 {
-    DenseMatrix<double> DistanceList = {1, 2, 3, 4 ,5, 1, 2, 3, 4, 5 };
+    int_max FeatureDimension = 3;
 
-    int_max K = 10;
-
-    auto NeighbourIndexList = FindKNNByDistanceList(K, DistanceList);
-
-    DisplayMatrix<int_max>("NeighbourIndexList", NeighbourIndexList);
-
-    DenseMatrix<double> NeighbourDistanceList(1, K);
-
-    for (int_max i = 0; i < K; ++i)
-    {
-        NeighbourDistanceList[i] = DistanceList[NeighbourIndexList[i]];
-    }
-
-    DisplayMatrix("NeighbourDistanceList", NeighbourDistanceList);
-}
-
-
-void Test_Train()
-{
-    int_max FeatureDimension = 100;
-
-    int_max FeatureVectorNumber = 10000;
+    int_max FeatureVectorNumber = 3;
 
     DenseMatrix<double> FeatureData(FeatureDimension, FeatureVectorNumber);
 
-    for (int64 i = 0; i < FeatureVectorNumber; ++i)
+    for (int_max i = 0; i < FeatureVectorNumber; ++i)
     {
         auto value = double(i) / double(FeatureVectorNumber);
 
-        FeatureData.FillCol(i, value);
+        FeatureData.Col(i) = value;
 
-        FeatureData.FillRow(i / 100, value);
+        FeatureData.Row(i) = value;
     }
 
-    //DisplayMatrix("FeatureData", FeatureData);
+    FeatureDictionary<double> Dictionary;
 
-    KNNReconstructionSparseEncoder<double> Encoder;
+    Dictionary.m_Record.FastResize(FeatureDimension, 3);
 
-    Encoder.SetMaxNumberOfThreads(4);
+    for (int_max i = 0; i < 3; ++i)
+    {
+        Dictionary.m_Record.Col(i) = i;
+        Dictionary.m_Record.Row(i) = i;
+    }
 
-    Encoder.SetNeighbourNumber(3);
+    SPAMSSparseEncoder<double> Encoder;
 
-    SPAMSOnlineDictionaryBuilder<double> DictionaryBuilder;
+    Encoder.m_MethodName = "OMP";
 
-    DictionaryBuilder.SetInputFeatureData(&FeatureData);
+    Encoder.m_Parameter_OMP.L = 3;
+    Encoder.m_Parameter_OMP.eps = 0;
+    Encoder.m_Parameter_OMP.lambda = 0;
 
-    DictionaryBuilder.SetSparseEncoder(&Encoder);
+    Encoder.SetInputDictionary(&Dictionary);
 
-    DictionaryBuilder.m_Parameter.mode = -1;
-    DictionaryBuilder.m_Parameter.lambda = 1;
-    DictionaryBuilder.m_Parameter.K = 100;
-    DictionaryBuilder.m_Parameter.posD = true;
-    DictionaryBuilder.m_Parameter.verbose = false;
+    Encoder.SetInputFeatureData(&FeatureData);
 
-    auto t0 = std::chrono::system_clock::now();
+    Encoder.SetMaxNumberOfThreads(1);
 
-    DictionaryBuilder.Update();
+    Encoder.Update();
 
-    auto t1 = std::chrono::system_clock::now();
+    auto Code = Encoder.GetOutputCodeInDenseMatrix();
 
-    std::chrono::duration<double> raw_time = t1 - t0;
-    std::cout << "DictionaryBuilder.Update()  time " << raw_time.count() << '\n';
+    DisplayMatrix("X", FeatureData, 6);
 
-    auto Dictionary = DictionaryBuilder.GetOutputDictionary();
+    DisplayMatrix("D", Dictionary.m_Record, 6);
 
-//    DisplayMatrix("Dictionary", Dictionary->m_Record, 6);
+    DisplayMatrix("Alpha", *Code, 6);
+
 }
 
 }//namespace mdk

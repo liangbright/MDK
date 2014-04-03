@@ -6,8 +6,12 @@
 //
 // A=mexOMP(X,D,param);
 // A=mexLasso(X,D,param);
+//
+// A=KNN(X,D,param); using Lasso with mode = -1, lambda=0, and D is from KNN
 
 #include <string>
+
+#include <spams/decomp/decomp.h>
 
 #include "mdkFeatureDictionaryBasedSparseEncoder.h"
 #include "mdkFeatureCoding_Common_Function.h"
@@ -56,7 +60,7 @@ struct Lasso_Paramter_Of_SPAMSSparseEncoder
         lambda2 = 0;
         pos = false;
         cholesky = false;
-        osl = false;
+        ols = false;
     }
 };
 
@@ -64,10 +68,10 @@ struct Lasso_Paramter_Of_SPAMSSparseEncoder
 template<typename ElementType>
 class SPAMSSparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
 {
-protected:
-    std::string MethodName; // "OMP" or "Lasso"
-
 public:
+
+    std::string m_MethodName; // "OMP" or "Lasso"
+
     OMP_Paramter_Of_SPAMSSparseEncoder<ElementType> m_Parameter_OMP;
 
     Lasso_Paramter_Of_SPAMSSparseEncoder<ElementType> m_Parameter_Lasso;
@@ -82,39 +86,20 @@ public:
 
     void Clear();
 
-    bool SelectMethod(const std::string& MethodName);
-
     bool CheckInputAndOutput();
 
     //--------------------------------------------------------------------------------
 
     using FeatureDictionaryBasedSparseEncoder::EncodingFunction;
 
-    void inline EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
-                                 const FeatureDictionary<ElementType>& Dictionary,
-                                 DenseMatrix<ElementType>& SingleFeatureCode,
-                                 bool Flag_OutputCodeInCompactFormat);
+    inline void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
+                                 SparseMatrix<ElementType>& CodeInSparseVector);
 
     //---------------------------------------------------------------------------------
 
-    static DenseMatrix<ElementType> Apply(const DenseMatrix<ElementType>* FeatureData, 
-                                          const FeatureDictionary<ElementType>* Dictionary,
-                                          int_max NeighbourNumber = 3,
-                                          bool  Flag_OutputCodeInCompactFormat = false, // DenseFormat in default
-                                          int_max MaxNumberOfThreads = 1);
+protected:
+    void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end);
 
-    static bool Apply(DenseMatrix<ElementType>& OutputFeatureCode, 
-                      const DenseMatrix<ElementType>* FeatureData,
-                      const FeatureDictionary<ElementType>* Dictionary,
-                      int_max NeighbourNumber = 3,
-                      bool  Flag_OutputCodeInCompactFormat = false, // DenseFormat in default
-                      int_max MaxNumberOfThreads = 1);
-
-    static bool Apply(SparseMatrix<ElementType>& OutputFeatureCode,
-                      const DenseMatrix<ElementType>* FeatureData,
-                      const FeatureDictionary<ElementType>* Dictionary,
-                      int_max NeighbourNumber = 3,
-                      int_max MaxNumberOfThreads = 1);
 
 private:
 //deleted:

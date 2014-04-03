@@ -65,20 +65,19 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInputAndOutput()
 template<typename ElementType>
 inline
 void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
-                                                                   const FeatureDictionary<ElementType>& InputDictionary,
                                                                    SparseMatrix<ElementType>& CodeInSparseVector)
 {
-    auto L2DistanceList = ComputeL2DistanceListFromSingleVectorToVectorSet(SingleFeatureDataVector, InputDictionary.m_Record);
+    auto L2DistanceList = ComputeL2DistanceListFromSingleVectorToVectorSet(SingleFeatureDataVector, m_Dictionary->m_Record);
 
     auto NeighbourIndexList = FindKNNByDistanceList(m_NeighbourNumber, L2DistanceList);
 
-    auto SubRecord = InputDictionary.m_Record.GetSubMatrix(ALL, NeighbourIndexList);
+    auto SubRecord = m_Dictionary->m_Record.GetSubMatrix(ALL, NeighbourIndexList);
 
     // solve linear equation using least square method (unconstrained)
 
     auto Result = SolveLinearLeastSquaresProblem(SubRecord, SingleFeatureDataVector);
 
-    CodeInSparseVector.ConstructColVector(NeighbourIndexList, Result.X, InputDictionary.m_Record.GetColNumber());
+    CodeInSparseVector.ConstructColVector(NeighbourIndexList, Result.X, m_Dictionary->m_Record.GetColNumber());
 }
 
 

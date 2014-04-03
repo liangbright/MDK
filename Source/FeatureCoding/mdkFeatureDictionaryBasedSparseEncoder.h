@@ -91,14 +91,10 @@ public:
 
     virtual bool Update();
 
-    //----------------------------------------------------//
-
-    inline virtual void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureVector,
-                                         const FeatureDictionary<ElementType>& InputDictionary,
+    inline virtual void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
                                          DenseMatrix<ElementType>& CodeInDenseVector);
 
-    inline virtual void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureVector,
-                                         const FeatureDictionary<ElementType>& InputDictionary,
+    inline virtual void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
                                          SparseMatrix<ElementType>& CodeInSparseVector) = 0;
 
     //----------------------------------------------------//
@@ -119,7 +115,7 @@ protected:
 
     int_max GetTotalNumberOfInputFeatureVectors();
 
-    void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end);
+    virtual void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end);
 
 private:
 //deleted:

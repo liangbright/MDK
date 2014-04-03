@@ -45,25 +45,13 @@ public:
 
     bool SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
 
-    bool SetDictionary(const FeatureDictionary<ElementType>* Dictionary);
-
-    bool LoadDictionary(const std::string& FilePathAndName);
+    bool SetInputDictionary(const FeatureDictionary<ElementType>* Dictionary);
 
     bool SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode);
 
     //-----------------------------------------
 
-    virtual bool CheckInputAndOutput();
-
-    //-----------------------------------------
-
     virtual bool Update();
-
-    //-----------------------------------------
-
-    virtual inline void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
-                                         const FeatureDictionary<ElementType>& InputDictionary,
-                                         DenseMatrix<ElementType>& SingleFeatureCode) {}
 
     //----------------------------------------------------//
 
@@ -76,7 +64,7 @@ protected:
 
     int_max GetFeatureVectorNumber();
 
-    void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end);
+    virtual void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end);
 
 private:
 //deleted:

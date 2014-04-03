@@ -68,14 +68,6 @@ struct SparseMatrixDataInCSCFormat
                           int_max InputColNumber,
                           int_max AdditionalReservedCapacity = 0);
 
-    inline void ConstructInPlace(int_max* InputRowIndexList,
-                                 int_max* InputColIndexList,
-                                 ElementType* InputDataArray,
-                                 int_max RecordedElementNumber,
-                                 int_max InputRowNumber,
-                                 int_max InputColNumber,
-                                 bool IsSizeFixed = true);
-
     inline void ConstructColVector(const int_max* InputRowIndexList,
                                    const ElementType* InputDataArray,
                                    int_max RecordedElementNumber,
@@ -143,6 +135,12 @@ struct SparseMatrixDataInCSCFormat
 
     inline ElementType& SetElement(int_max RowIndex, int_max ColIndex, const ElementType& InputElement);
 
+    //-----------------------------------------
+
+    inline void Copy(const SparseMatrixDataInCSCFormat& InputData);
+
+    inline void Take(SparseMatrixDataInCSCFormat& InputData);
+
     //------------------------------------------
     // get the length of m_DataArray
 
@@ -152,9 +150,17 @@ struct SparseMatrixDataInCSCFormat
 
     //-----------------------------------------
 
-    inline void Copy(const SparseMatrixDataInCSCFormat& InputData);
+    ElementType* GetPointerOfBeginElementInCol(int_max ColIndex);
 
-    inline void Take(SparseMatrixDataInCSCFormat& InputData);
+    const ElementType* GetPointerOfBeginElementInCol(int_max ColIndex) const;
+
+    int_max GetLinearIndexOfBeginElementInCol(int_max ColIndex) const;
+
+    int_max GetRowIndexOfBeginElementInCol(int_max ColIndex) const;
+
+    int_max GetRecordedElementNumberInCol(int_max ColIndex) const;
+
+    inline std::vector<int_max> GetRowIndexListInCol(int_max ColIndex) const;
 
 private:
 //deleted: -------------------------------------------------
@@ -240,15 +246,6 @@ public:
                           int_max ColNumber,
                           int_max AdditionalReservedCapacity = 0);
 
-    inline bool ConstructInPlace(int_max* RowIndexList,
-                                 int_max* ColIndexList,
-                                 ElementType* DataArray,
-                                 int_max RecordedElementNumber,
-                                 int_max RowNumber,
-                                 int_max ColNumber,
-                                 bool IsSizeFixed = true);
-
-
     inline bool ConstructColVector(const std::initializer_list<int_max>& RowIndexList,
                                    const std::vector<ElementType>& DataArray,
                                    int_max RowNumber);
@@ -261,6 +258,11 @@ public:
     inline bool ConstructColVector(const DenseMatrix<int_max>& RowIndexList,
                                    const DenseMatrix<ElementType>& DataArray,
                                    int_max RowNumber);
+
+
+    inline void ConstructColVectorWithOrder(std::vector<int_max> RowIndexList,
+                                            std::vector<ElementType> DataArray,
+                                            int_max RowNumber);
 
     inline bool ConstructRowVector(const std::initializer_list<int_max>& ColIndexList,
                                    const std::vector<ElementType>& DataArray,
@@ -405,13 +407,15 @@ public:
 
     inline const ElementType* GetRecordedElementPointer() const;
 
-    inline ElementType* begin_col(int_max ColIndex);
+    inline ElementType* GetPointerOfBeginElementInCol(int_max ColIndex);
 
-    inline const ElementType* begin_col(int_max ColIndex) const;
+    inline const ElementType* GetPointerOfBeginElementInCol(int_max ColIndex) const;
 
-    inline const ElementType* end_col(int_max ColIndex) const;
+    inline int_max GetLinearIndexOfBeginElementInCol(int_max ColIndex) const;
 
-    inline int_max GetElementNumberInCol(int_max ColIndex) const;
+    int_max GetRowIndexOfBeginElementInCol(int_max ColIndex) const;
+
+    inline int_max GetRecordedElementNumberInCol(int_max ColIndex) const;
 
     inline std::vector<int_max> GetRowIndexListInCol(int_max ColIndex) const;
 
@@ -632,6 +636,12 @@ public:
     inline SparseShadowMatrix<ElementType> Row(const std::vector<int_max>& RowIndexList);
 
     inline SparseShadowMatrix<ElementType> Diangonal();
+
+    //-------------------------------- special col reference ------------------------------
+
+    inline SparseMatrix RefCol(int_max ColIndex);
+
+    inline const SparseMatrix RefCol(int_max ColIndex) const;
 
     // return SubSparseMatrix as SparseMatrix -----------------------------------------------
 

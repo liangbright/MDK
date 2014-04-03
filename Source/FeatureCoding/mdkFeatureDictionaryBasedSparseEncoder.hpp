@@ -209,6 +209,11 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::CheckInputAndOutput()
         return false;
     }
 
+    if (m_CodeInSparseVectorList->IsEmpty() == true)
+    {
+        m_CodeInSparseVectorList->FastResize(1, m_FeatureData->GetColNumber());
+    }
+
     if (m_MaxNumberOfThreads <= 0)
     {
         MDK_Warning("Input MaxNumberOfThreads is invalid, set to 1 @ FeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
@@ -220,16 +225,15 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::CheckInputAndOutput()
 }
 
 
-
 template<typename ElementType>
 bool FeatureDictionaryBasedSparseEncoder<ElementType>::Update()
 {
-    if (this->CheckInputAndOutput() == false)
+    auto IsOK = this->FeatureDictionaryBasedEncoder::Update();
+
+    if (IsOK == false)
     {
         return false;
     }
-
-    this->FeatureDictionaryBasedEncoder::Update();
 
     //--------------------------------------------------------------
 
@@ -267,7 +271,7 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::GenerateCode_in_a_Thread(
     {
         m_FeatureData->GetCol(i, SingleFeatureDataVector);
 
-        this->EncodingFunction(SingleFeatureDataVector, *m_Dictionary, (*m_CodeInSparseVectorList)[i]);
+        this->EncodingFunction(SingleFeatureDataVector, (*m_CodeInSparseVectorList)[i]);
     }
 }
 
@@ -275,14 +279,13 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::GenerateCode_in_a_Thread(
 template<typename ElementType>
 inline
 void FeatureDictionaryBasedSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
-                                                                        const FeatureDictionary<ElementType>& InputDictionary,
-                                                                        DenseMatrix<ElementType>& CodeInDenseMatrix)
+                                                                        DenseMatrix<ElementType>& CodeInDenseVector)
 {
-    SparseMatrix<ElementType> CodeInSparseMatrix(m_Dictionary->m_Record.GetColNumber(), 1);
+    SparseMatrix<ElementType> CodeInSparseVector(m_Dictionary->m_Record.GetColNumber(), 1);
 
-    this->EncodingFunction(SingleFeatureDataVector, InputDictionary, CodeInSparseMatrix);
+    this->EncodingFunction(SingleFeatureDataVector, CodeInSparseVector);
 
-    ConvertSparseMatrixToDenseMatrix(CodeInSparseMatrix, CodeInDenseMatrix);
+    ConvertSparseMatrixToDenseMatrix(CodeInSparseVector, CodeInDenseVector);
 }
 
 
