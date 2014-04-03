@@ -85,19 +85,20 @@ void Test_FindKNNByDistanceList()
 
 void Test_Train()
 {
-    DenseMatrix<double> FeatureData(10, 10);
+    DenseMatrix<double> FeatureData(10, 1000);
 
-    for (int64 i = 0; i < 10; ++i)
+    for (int64 i = 0; i < 1000; ++i)
     {
         FeatureData.FillCol(i, i);
+        FeatureData.FillRow(i / 100, i);
     }
 
-    DisplayMatrix("FeatureData", FeatureData);
-
+    //DisplayMatrix("FeatureData", FeatureData);
 
     KNNReconstructionSparseEncoder<double> Encoder;
 
-    Encoder.SetMaxNumberOfThreads(1);
+    Encoder.SetMaxNumberOfThreads(4);
+
     Encoder.SetNeighbourNumber(1);
 
     SPAMSOnlineDictionaryBuilder<double> DictionaryBuilder;
@@ -107,8 +108,11 @@ void Test_Train()
     DictionaryBuilder.SetSparseEncoder(&Encoder);
 
     DictionaryBuilder.m_Parameter.mode = -1;
+    DictionaryBuilder.m_Parameter.lambda = 1;
     DictionaryBuilder.m_Parameter.K = 3;
     DictionaryBuilder.m_Parameter.posD = true;
+    DictionaryBuilder.m_Parameter.verbose = false;
+
     DictionaryBuilder.Update();
 
     auto Dictionary = DictionaryBuilder.GetOutputDictionary();

@@ -1,5 +1,5 @@
-#ifndef __mdkLinearAlgebra_DenseMatrix_Function_Common_Part_0_hpp
-#define __mdkLinearAlgebra_DenseMatrix_Function_Common_Part_0_hpp
+#ifndef __mdkLinearAlgebra_Function_Common_Part_0_hpp
+#define __mdkLinearAlgebra_Function_Common_Part_0_hpp
 
 //#include "mdkLinearAlgebra_Function_Common_Part_0.h"
 
@@ -8,32 +8,49 @@ namespace mdk
 {
 
 template<typename ElementType>
-mdkDenseMatrix<ElementType> CreateDenseMatrixFromSparseMatrix(const mdkSparseMatrix<ElementType>& InputSparseMatrix)
+inline
+DenseMatrix<ElementType> CreateDenseMatrixFromSparseMatrix(const SparseMatrix<ElementType>& InputSparseMatrix)
 {
     mdkDenseMatrix<ElementType> OutputDenseMatrix;
 
-    CreateDenseMatrixFromSparseMatrix(OutputDenseMatrix, InputSparseMatrix);
+    ConvertSparseMatrixToDenseMatrix(InputSparseMatrix, OutputDenseMatrix);
 }
 
 
 template<typename ElementType>
-bool CreateDenseMatrixFromSparseMatrix(mdkDenseMatrix<ElementType>& OutputDenseMatrix, const mdkSparseMatrix<ElementType>& InputSparseMatrix)
+inline
+bool ConvertSparseMatrixToDenseMatrix(const SparseMatrix<ElementType>& InputSparseMatrix, DenseMatrix<ElementType>& OutputDenseMatrix)
 {
+    auto Size = InputSparseMatrix.GetSize();
+
+    if (OutputDenseMatrix.FastResize(Size.RowNumber, Size.ColNumber) == false)
+    {
+        return false;
+    }
+
+    for (int_max k = 0; k < Size.RowNumber*Size.ColNumber; ++k)
+    {
+        OutputDenseMatrix[k] = InputSparseMatrix[k];
+    }
+
     return true;
 }
 
 
 template<typename ElementType>
-mdkSparseMatrix<ElementType> CreateSparseMatrixFromDenseMatrix(const mdkDenseMatrix<ElementType>& InputDenseMatrix)
+inline
+SparseMatrix<ElementType> CreateSparseMatrixFromDenseMatrix(const DenseMatrix<ElementType>& InputDenseMatrix, ElementType absThreashold)
 {
     mdkSparseMatrix<ElementType> OutputSparseMatrix;
 
-    return CreateSparseMatrixFromDenseMatrix(OutputSparseMatrix, InputDenseMatrix);
+    return ConvertDenseMatrixToSparseMatrix(InputDenseMatrix, ElementType absThreashold, OutputSparseMatrix);
 }
 
 
 template<typename ElementType>
-bool CreateSparseMatrixFromDenseMatrix(mdkSparseMatrix<ElementType>& OutputSparseMatrix, const mdkDenseMatrix<ElementType>& InputDenseMatrix)
+inline
+bool ConvertDenseMatrixToSparseMatrix(const DenseMatrix<ElementType>& InputDenseMatrix, ElementType absThreashold,
+                                      SparseMatrix<ElementType>& OutputSparseMatrix )
 {
     return true;
 }

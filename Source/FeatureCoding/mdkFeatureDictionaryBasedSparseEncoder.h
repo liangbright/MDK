@@ -25,42 +25,17 @@ protected:
 
     const FeatureDictionary<ElementType>* m_Dictionary;
 
-    // this is sparseness
+    // output code in dense Matrix:
 
-    int_max m_MaxNumberOfNonzeroElementsInEachCode;
+    DenseMatrix<ElementType>* m_CodeInDenseMatrix; // converted from m_CodeInSparseVectorList
 
-    // output code in compact format (the first choice, used in encoding) :
+    // output code in one sparse matrix:
 
-    DenseMatrix<ElementType>* m_FeatureCodeInCompactFormat;
+    SparseMatrix<ElementType>* m_CodeInSparseMatrix; // converted from m_CodeInSparseVectorList
 
-    // output code in dense format (converted from code in compact format, once compact code is computed):
+    // output code as separated sparse vectors:
 
-    DenseMatrix<ElementType>* m_FeatureCodeInDenseFormat;
-
-    // output code in sparse matrix (converted from code in compact format, once compact code is computed):
-
-    SparseMatrix<ElementType>* m_FeatureCodeInSparseFormat;
-
-    // Code Example --------------------------------------------------------------------
-    //
-    // m_MaxNumberOfNonzeroElementsInEachCode is 2
-    //
-    // Code in Dense Format (a column is a code vector)
-    // 0    0.1  0    0.2  0
-    // 0.3  0.4  0    0.5  0 
-    // 0.6  0    0    0    0.7
-    // 0    0    0.8  0    0
-    // 0    0    0.9  0    0
-    //
-    // Code in Compact Format
-    // row index  1    0     3    0     2
-    // value      0.3  0.1   0.8  0.2   0.7
-    // row index  2    2     4    1    -1     (-1 means nothing is here and below)
-    // value      0.6  0.4   0.9  0.5   ?     (? means this value does not matter)
-    //
-    // Code in Sparse Format
-    // convert Code in Compact Format to a sparse matrix (Matlab sparse matrix format)
-    //------------------------------------------------------------------------------------
+    DenseMatrix<SparseMatrix<ElementType>>* m_CodeInSparseVectorList;
 
     //Input Parameter:
 
@@ -68,19 +43,19 @@ protected:
 
 private:
 
-    DenseMatrix<ElementType>  m_FeatureCodeInCompactFormat_SharedCopy;
+    DenseMatrix<ElementType>  m_CodeInDenseMatrix_SharedCopy;
 
-    DenseMatrix<ElementType>  m_FeatureCodeInDenseFormat_SharedCopy;
+    SparseMatrix<ElementType>  m_CodeInSparseMatrix_SharedCopy;
 
-    SparseMatrix<ElementType> m_FeatureCodeInSparseFormat_SharedCopy;
+    DenseMatrix<SparseMatrix<ElementType>> m_CodeInSparseVectorList_SharedCopy;
 
-    bool m_Flag_Output_FeatureCodeInDenseFormat;
+    bool m_Flag_Output_CodeInDenseMatrix;
 
-    bool m_Flag_Output_FeatureCodeInSparseFormat;
+    bool m_Flag_Output_CodeInSparseMatrix;
 
-    std::atomic<bool> m_Flag_FeatureCodeInDenseFormat_Is_Updated;
+    std::atomic<bool> m_Flag_CodeInDenseMatrix_Is_Updated;
 
-    std::atomic<bool> m_Flag_FeatureCodeInSparseFormat_Is_Updated;
+    std::atomic<bool> m_Flag_CodeInSparseMatrix_Is_Updated;
 
 protected:
     FeatureDictionaryBasedSparseEncoder();
@@ -94,19 +69,17 @@ public:
 
     //-----------------------------------------
 
-    bool SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
+    bool SetInputFeatureData(const DenseMatrix<ElementType>* FeatureData);
 
     bool SetInputDictionary(const FeatureDictionary<ElementType>* Dictionary);
 
-    bool SetMaxNumberOfNonZeroElementsInEachCode(int_max Spasity);
+    bool SetOutputCodeInDenseMatrix(DenseMatrix<ElementType>* Code);
 
-    bool SetOutputFeatureCodeInCompactFormat(DenseMatrix<ElementType>* FeatureCode);
+    bool SetOutputCode(DenseMatrix<ElementType>* Code); // output CodeInDenseMatrix
 
-    bool SetOutputFeatureCodeInDenseFormat(DenseMatrix<ElementType>* FeatureCode);
+    bool SetOutputCodeInSparseMatrix(SparseMatrix<ElementType>* Code);
 
-    bool SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode); // output FeatureCodeInDenseFormat
-
-    bool SetOutputFeatureCodeInSparseFormat(SparseMatrix<ElementType>* FeatureCode);
+    bool SetOutputCodeInSparseVectorList(DenseMatrix<SparseMatrix<ElementType>>* Code);
 
     bool SetMaxNumberOfThreads(int_max Number);
 
@@ -120,34 +93,33 @@ public:
 
     //----------------------------------------------------//
 
-    DenseMatrix<ElementType>* GetOutputFeatureCodeInCompactFormat();
+    inline virtual void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureVector,
+                                         const FeatureDictionary<ElementType>& InputDictionary,
+                                         DenseMatrix<ElementType>& CodeInDenseVector);
 
-    DenseMatrix<ElementType>* GetOutputFeatureCodeInDenseFormat();
+    inline virtual void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureVector,
+                                         const FeatureDictionary<ElementType>& InputDictionary,
+                                         SparseMatrix<ElementType>& CodeInSparseVector) = 0;
 
-    DenseMatrix<ElementType>* GetOutputFeatureCode(); // output FeatureCodeInDenseFormat
+    //----------------------------------------------------//
 
-    SparseMatrix<ElementType>* GetOutputFeatureCodeInSparseFormat();
+    DenseMatrix<ElementType>* GetOutputCodeInDenseMatrix();
 
+    DenseMatrix<ElementType>* GetOutputCode(); // output CodeInDenseMatrix
+
+    SparseMatrix<ElementType>* GetOutputCodeInSparseMatrix();
+
+    DenseMatrix<SparseMatrix<ElementType>>* GetOutputCodeInSparseVectorList();
 
     //---------------------------------------------------//
-
-    static bool GetFeatureCodeInDenseFormatFromCompactFormat(DenseMatrix<ElementType>& FeatureCodeInDenseFormat, 
-                                                             const DenseMatrix<ElementType>& FeatureCodeInCompactFormat,
-                                                             int_max FeatureCodeDimension);
-
-    static bool GetFeatureCodeInSparseFormatFromCompactFormat(SparseMatrix<ElementType>& FeatureCodeInSparseFormat, 
-                                                              const DenseMatrix<ElementType>& FeatureCodeInCompactFormat,
-                                                              int_max FeatureCodeDimension);
-
-    //---------------------------------------------------//
-
-    
 
 protected:
 
     int_max GetMaxNumberOfThreads();
 
     int_max GetTotalNumberOfInputFeatureVectors();
+
+    void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end);
 
 private:
 //deleted:

@@ -17,6 +17,7 @@
 #include "mdkDenseGlueMatrixForMultiplication.h"
 #include "mdkDenseMatrixOperator.h"
 #include "mdkLinearAlgebra_Function_DenseMatrix.h"
+#include "mdkLinearAlgebra_Function_Common.h"
 
 namespace mdk
 {
@@ -315,6 +316,10 @@ public:
     inline bool Resize(int_max InputRowNumber, int_max InputColNumber); // try to keep the old data
 
     inline bool FastResize(int_max InputRowNumber, int_max InputColNumber); // do not care about old data
+
+    inline bool Resize(int_max InputElementNumber); // try to keep the old data, can not use this to resize a m x n matrix (m>1 or n>1)
+
+    inline bool FastResize(int_max InputElementNumber); // do not care about old data, can not use this to resize a m x n matrix (m>1 or n>1)
 
     inline bool ReserveCapacity(int_max InputElementNumber); // reserve memory, current matrix size does not change
 
@@ -632,6 +637,8 @@ public:
 
     inline bool GetCol(int_max ColIndex, std::vector<ElementType>& ColData) const;
 
+    inline bool GetCol(int_max ColIndex, DenseMatrix<ElementType>& ColData) const;
+
     inline bool GetCol(int_max ColIndex, ElementType* ColData) const;
 
     template<typename ElementType_Input>
@@ -687,6 +694,8 @@ public:
     inline DenseMatrix GetRow(int_max RowIndex) const;
 
     inline bool GetRow(int_max RowIndex, std::vector<ElementType>& RowData) const;
+
+    inline bool GetRow(int_max RowIndex, DenseMatrix<ElementType>& RowData) const;
 
     inline bool GetRow(int_max RowIndex, ElementType* RowData) const;
 

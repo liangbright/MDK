@@ -88,7 +88,14 @@ DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<
 
 
 template<typename ElementType>
-DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& C,
+DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& X0,
+                                                              const DenseMatrix<ElementType>& C,
+                                                              const DenseMatrix<ElementType>& d);
+
+
+template<typename ElementType>
+DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& X0,
+                                                              const DenseMatrix<ElementType>& C,
                                                               const DenseMatrix<ElementType>& d,
                                                               const DenseMatrix<ElementType>& A, 
                                                               const DenseMatrix<ElementType>& b, 
@@ -96,7 +103,8 @@ DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<
                                                               const DenseMatrix<ElementType>& beq);
 
 template<typename ElementType>
-DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& C,
+DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& X0, 
+                                                              const DenseMatrix<ElementType>& C,
                                                               const DenseMatrix<ElementType>& d,
                                                               const DenseMatrix<ElementType>& A, 
                                                               const DenseMatrix<ElementType>& b, 
@@ -106,18 +114,19 @@ DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<
                                                               const DenseMatrix<ElementType>& ub);
 
 template<typename ElementType>
-DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& C,
+DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& X0,
+                                                              const DenseMatrix<ElementType>& C,
                                                               const DenseMatrix<ElementType>& d,
                                                               const DenseMatrix<ElementType>& A, 
                                                               const DenseMatrix<ElementType>& b, 
                                                               const DenseMatrix<ElementType>& Aeq,
                                                               const DenseMatrix<ElementType>& beq,
                                                               const DenseMatrix<ElementType>& lb,
-                                                              const DenseMatrix<ElementType>& ub,
-                                                              const DenseMatrix<ElementType>& x0);
+                                                              const DenseMatrix<ElementType>& ub);
 
 template<typename ElementType>
-DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& C,
+DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& X0,
+                                                              const DenseMatrix<ElementType>& C,
                                                               const DenseMatrix<ElementType>& d,
                                                               const DenseMatrix<ElementType>& A, 
                                                               const DenseMatrix<ElementType>& b, 
@@ -125,7 +134,6 @@ DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<
                                                               const DenseMatrix<ElementType>& beq,
                                                               const DenseMatrix<ElementType>& lb,
                                                               const DenseMatrix<ElementType>& ub,
-                                                              const DenseMatrix<ElementType>& x0,
                                                               const DenseLsqlinOption& Option);
 }
 

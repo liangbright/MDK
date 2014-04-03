@@ -37,7 +37,7 @@ public:
     
     virtual bool SetInputDictionary(const FeatureDictionary<ElementType>* Dictionary) = 0;
 
-    virtual bool SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode) = 0;
+    virtual bool SetOutputCode(DenseMatrix<ElementType>* Code) = 0;
 
     virtual bool SetMaxNumberOfThreads(int_max Number) = 0;
 
@@ -47,7 +47,13 @@ public:
 
     //----------------------------------------------------//
 
-    virtual DenseMatrix<ElementType>* GetOutputFeatureCode() = 0;
+    virtual inline void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
+                                         const FeatureDictionary<ElementType>& InputDictionary,
+                                         DenseMatrix<ElementType>& Code) = 0;
+
+    //----------------------------------------------------//
+
+    virtual DenseMatrix<ElementType>* GetOutputCode() = 0;
 
     //----------------------------------------------------//
 
@@ -60,9 +66,7 @@ protected:
     //output: IndexList_start and IndexList_end
     void DivideData(int_max Index_min, int_max Index_max, std::vector<int_max>& IndexList_start, std::vector<int_max>& IndexList_end);
 
-    void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end);
-
-    virtual void EncodingFunction(int_max IndexOfFeatureVector) = 0;
+    virtual void GenerateCode_in_a_Thread(int_max IndexOfFeatureDataVector_start, int_max IndexOfFeatureDataVector_end) = 0;
 
 private:
 //deleted:

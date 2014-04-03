@@ -31,7 +31,7 @@ class SparseGlueMatrixForLinearCombination;
 //--------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-class SparseGlueMatrixForMultiplication : public mdkObject
+class SparseGlueMatrixForMultiplication : public Object
 {
 private:
 

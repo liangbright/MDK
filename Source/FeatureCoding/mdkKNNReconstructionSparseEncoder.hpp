@@ -25,7 +25,7 @@ void KNNReconstructionSparseEncoder<ElementType>::Clear()
 {
     this->FeatureDictionaryBasedSparseEncoder::Clear();
 
-    m_MaxNumberOfNonzeroElementsInEachCode = 1;
+    m_NeighbourNumber = 0;
 }
 
 
@@ -38,7 +38,7 @@ bool KNNReconstructionSparseEncoder<ElementType>::SetNeighbourNumber(int_max Nei
         return false;
     }
 
-    m_MaxNumberOfNonzeroElementsInEachCode = NeighbourNumber;
+    m_NeighbourNumber = NeighbourNumber;
 
     return true;
 }
@@ -52,7 +52,7 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInputAndOutput()
         return false;
     }
 
-    if (m_MaxNumberOfNonzeroElementsInEachCode <= 0)
+    if (m_NeighbourNumber <= 0)
     {
         MDK_Error("Invalid input NeighbourNumber (<= 0) @ KNNReconstructionSparseEncoder::CheckInputAndOutput()")
         return false;
@@ -63,76 +63,27 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInputAndOutput()
 
 
 template<typename ElementType>
-void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max IndexOfFeatureVector)
+inline
+void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
+                                                                   const FeatureDictionary<ElementType>& InputDictionary,
+                                                                   SparseMatrix<ElementType>& CodeInSparseVector)
 {
-    auto FeatureVector = m_FeatureData->GetCol(IndexOfFeatureVector);
+    auto L2DistanceList = ComputeL2DistanceListFromSingleVectorToVectorSet(SingleFeatureDataVector, InputDictionary.m_Record);
 
-    auto L2DistanceList = ComputeL2DistanceListFromSingleVectorToVectorSet(FeatureVector, m_Dictionary->m_Record);
+    auto NeighbourIndexList = FindKNNByDistanceList(m_NeighbourNumber, L2DistanceList);
 
-    auto NeighbourIndexList = FindKNNByDistanceList(m_MaxNumberOfNonzeroElementsInEachCode, L2DistanceList);
-
-    auto SubRecord = m_Dictionary->m_Record.GetSubMatrix(ALL, NeighbourIndexList);
+    auto SubRecord = InputDictionary.m_Record.GetSubMatrix(ALL, NeighbourIndexList);
 
     // solve linear equation using least square method (unconstrained)
 
-    auto Result = SolveLinearLeastSquaresProblem(SubRecord, FeatureVector);
+    auto Result = SolveLinearLeastSquaresProblem(SubRecord, SingleFeatureDataVector);
 
-    for (int_max i = 0; i < m_MaxNumberOfNonzeroElementsInEachCode; ++i)
-    {
-        (*m_FeatureCodeInCompactFormat)(2 * i, IndexOfFeatureVector) = ElementType(NeighbourIndexList[i]); // int_max to double or float
-        (*m_FeatureCodeInCompactFormat)(2 * i + 1, IndexOfFeatureVector) = Result.X[i];
-    }
+    CodeInSparseVector.ConstructColVector(NeighbourIndexList, Result.X, InputDictionary.m_Record.GetColNumber());
 }
 
 
 template<typename ElementType>
-DenseMatrix<ElementType> KNNReconstructionSparseEncoder<ElementType>::Apply(const DenseMatrix<ElementType>* FeatureData,
-                                                                            const FeatureDictionary<ElementType>* Dictionary,
-                                                                            int_max NeighbourNumber = 3,
-                                                                            bool  Flag_OutputCodeInCompactFormat = true, // CompactFormat in default
-                                                                            int_max MaxNumberOfThreads = 1)
-{
-    DenseMatrix<ElementType> OutputFeatureCode;
-
-    this->Apply(OutputFeatureCode, FeatureData, Dictionary, NeighbourNumber, Flag_OutputCodeInCompactFormat, MaxNumberOfThreads);
-
-    return OutputFeatureCode;
-}
-
-
-template<typename ElementType>
-bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<ElementType>& OutputFeatureCode,
-                                                        const DenseMatrix<ElementType>* FeatureData,
-                                                        const FeatureDictionary<ElementType>* Dictionary,
-                                                        int_max NeighbourNumber = 3,
-                                                        bool  Flag_OutputCodeInCompactFormat = true, // CompactFormat in default
-                                                        int_max MaxNumberOfThreads = 1)
-{
-    auto Encoder = std::make_unique<KNNReconstructionSparseEncoder<ElementType>>();
-
-    Encoder->SetInputFeatureData(FeatureData);
-
-    Encoder->SetInputDictionary(Dictionary);
-
-    Encoder->SetNeighbourNumber(NeighbourNumber);
-
-    Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
-
-    if (Flag_OutputCodeInCompactFormat == true)
-    {
-        Encoder->SetOutputFeatureCodeInCompactFormat(&OutputFeatureCode);;
-    }
-    else
-    {
-        Encoder->SetOutputFeatureCodeInDenseFormat(&OutputFeatureCode);;
-    }
-
-    Encoder->Update();
-}
-
-
-template<typename ElementType>
-bool KNNReconstructionSparseEncoder<ElementType>::Apply(SparseMatrix<ElementType>& OutputFeatureCode,
+bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<ElementType>& OutputCode,
                                                         const DenseMatrix<ElementType>* FeatureData,
                                                         const FeatureDictionary<ElementType>* Dictionary,
                                                         int_max NeighbourNumber = 3,
@@ -148,11 +99,56 @@ bool KNNReconstructionSparseEncoder<ElementType>::Apply(SparseMatrix<ElementType
 
     Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
 
-    Encoder->SetOutputFeatureCodeInSparseFormat(&OutputFeatureCode);;
+    Encoder->SetOutputCodeInDenseMatrix(&OutputCode);
 
     Encoder->Update();
 }
 
+
+template<typename ElementType>
+bool KNNReconstructionSparseEncoder<ElementType>::Apply(SparseMatrix<ElementType>& OutputCode,
+                                                        const DenseMatrix<ElementType>* FeatureData,
+                                                        const FeatureDictionary<ElementType>* Dictionary,
+                                                        int_max NeighbourNumber = 3,
+                                                        int_max MaxNumberOfThreads = 1)
+{
+    auto Encoder = std::make_unique<KNNReconstructionSparseEncoder<ElementType>>();
+
+    Encoder->SetInputFeatureData(FeatureData);
+
+    Encoder->SetInputDictionary(Dictionary);
+
+    Encoder->SetNeighbourNumber(NeighbourNumber);
+
+    Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
+
+    Encoder->SetOutputCodeInSparseMatrix(&OutputCode);;
+
+    Encoder->Update();
+}
+
+
+template<typename ElementType>
+bool KNNReconstructionSparseEncoder<ElementType>::Apply(std::vector<SparseMatrix<ElementType>>& OutputCode,
+                                                        const DenseMatrix<ElementType>* FeatureData,
+                                                        const FeatureDictionary<ElementType>* Dictionary,
+                                                        int_max NeighbourNumber = 3,
+                                                        int_max MaxNumberOfThreads = 1)
+{
+    auto Encoder = std::make_unique<KNNReconstructionSparseEncoder<ElementType>>();
+
+    Encoder->SetInputFeatureData(FeatureData);
+
+    Encoder->SetInputDictionary(Dictionary);
+
+    Encoder->SetNeighbourNumber(NeighbourNumber);
+
+    Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
+
+    Encoder->SetOutputCodeInSparseVectorList(&OutputCode);;
+
+    Encoder->Update();
+}
 
 }// namespace mdk
 

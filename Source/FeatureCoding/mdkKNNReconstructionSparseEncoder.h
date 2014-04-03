@@ -14,13 +14,17 @@ template<typename ElementType>
 class KNNReconstructionSparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
 {
 
+protected:
+
+    int_max m_NeighbourNumber;
+
 public:
 
     KNNReconstructionSparseEncoder();
 
     ~KNNReconstructionSparseEncoder();
 
-    //-----------------------------------------
+    //--------------------------------------------------------------------------------
 
     void Clear();
 
@@ -28,31 +32,33 @@ public:
 
     bool CheckInputAndOutput();
 
-    //-----------------------------------------
+    //--------------------------------------------------------------------------------
 
-    static DenseMatrix<ElementType> Apply(const DenseMatrix<ElementType>* FeatureData, 
-                                          const FeatureDictionary<ElementType>* Dictionary,
-                                          int_max NeighbourNumber = 3,
-                                          bool  Flag_OutputCodeInCompactFormat = true, // CompactFormat in default
-                                          int_max MaxNumberOfThreads = 1);
+    using FeatureDictionaryBasedSparseEncoder::EncodingFunction;
 
-    static bool Apply(DenseMatrix<ElementType>& OutputFeatureCode, 
-                      const DenseMatrix<ElementType>* FeatureData,
-                      const FeatureDictionary<ElementType>* Dictionary,
-                      int_max NeighbourNumber = 3,
-                      bool  Flag_OutputCodeInCompactFormat = true, // CompactFormat in default
-                      int_max MaxNumberOfThreads = 1);
+    void inline EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureVector,
+                                 const FeatureDictionary<ElementType>& InputDictionary,
+                                 SparseMatrix<ElementType>& CodeInSparseVector);
 
-    static bool Apply(SparseMatrix<ElementType>& OutputFeatureCode,
+    //---------------------------------------------------------------------------------
+
+    static bool Apply(DenseMatrix<ElementType>& OutputCode, 
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
                       int_max NeighbourNumber = 3,
                       int_max MaxNumberOfThreads = 1);
 
-    
-protected:
+    static bool Apply(SparseMatrix<ElementType>& OutputCode,
+                      const DenseMatrix<ElementType>* FeatureData,
+                      const FeatureDictionary<ElementType>* Dictionary,
+                      int_max NeighbourNumber = 3,
+                      int_max MaxNumberOfThreads = 1);
 
-    void EncodingFunction(int_max IndexOfFeatureVector);
+    static bool Apply(std::vector<SparseMatrix<ElementType>>& OutputCode,
+                      const DenseMatrix<ElementType>* FeatureData,
+                      const FeatureDictionary<ElementType>* Dictionary,
+                      int_max NeighbourNumber = 3,
+                      int_max MaxNumberOfThreads = 1);
 
 private:
 //deleted:

@@ -63,11 +63,7 @@ template<typename ElementType>
 inline
 ElementType GetMatrixNaNElement()
 {
-    ElementType Element;
-
-    Element = Element - Element;
-
-    return GetMatrixNaNElement(Element);
+    return GetMatrixNaNElement(ElementType(0));
 }
 
 
@@ -86,20 +82,20 @@ ElementType GetMatrixNaNElement(ElementType ReferenceElement)
         return ElementType(std::nanf(nullptr));
 
     case MatrixElementTypeEnum::StdVector_DOUBLE64:
-        return ReferenceElement + ElementType(std::nan(nullptr));
+        return ElementType(std::nan(nullptr));
 
     case MatrixElementTypeEnum::StdVector_FLOAT32:
-        return ReferenceElement + ElementType(std::nanf(nullptr));
+        return ElementType(std::nanf(nullptr));
 
     case MatrixElementTypeEnum::StdArray_DOUBLE64:
-        return ReferenceElement + ElementType(std::nan(nullptr));
+        return ElementType(std::nan(nullptr));
 
     case MatrixElementTypeEnum::StdArray_FLOAT32:
-        return ReferenceElement + ElementType(std::nanf(nullptr));
+        return ElementType(std::nanf(nullptr));
 
     default:
         //MDK_Warning << "ElementType is not float or double, so NaNElement is set to zero @ GetMatrixNaNElement()" << '\n';
-        return ReferenceElement - ReferenceElement;
+        return ElementType(0);
     }
 }
 

@@ -946,6 +946,8 @@ bool DenseMatrix<ElementType>::Resize(int_max InputRowNumber, int_max InputColNu
         return false;
     }
 
+try
+{
     //--------initialize the matrix data ----------------------------------------
     if (!m_MatrixData)
     {
@@ -953,7 +955,7 @@ bool DenseMatrix<ElementType>::Resize(int_max InputRowNumber, int_max InputColNu
 
         m_ElementPointer = nullptr;
 
-        m_NaNElement = m_NaNElement - m_NaNElement; 
+        m_NaNElement = ElementType(0);
 
         m_NaNElement = GetMatrixNaNElement(m_NaNElement); // zero if int
     }
@@ -1071,6 +1073,12 @@ bool DenseMatrix<ElementType>::Resize(int_max InputRowNumber, int_max InputColNu
     m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
 
     m_ElementPointer = m_MatrixData->ElementPointer;
+}
+catch (...)
+{
+    MDK_Error("Out of Memory @ DenseMatrix::Resize(int_max InputRowNumber, int_max InputColNumber)")
+    return false;
+}
 
     return true;
 }
@@ -1126,6 +1134,135 @@ catch (...)
     return false;
 }
 
+    return true;
+}
+
+
+template<typename ElementType>
+inline 
+bool DenseMatrix<ElementType>::Resize(int_max InputElementNumber) // try to keep the old data, can not use this to resize a m x n matrix (m>1 or n>1)
+{
+    if (InputElementNumber < 0)
+    {
+        MDK_Error("Invalid input @ DenseMatrix::Resize(int_max InputElementNumber)")
+        return false;
+    }
+
+    auto Size = this->GetSize();
+
+    if (Size.RowNumber >1 || Size.ColNumber > 1)
+    {
+        MDK_Error("Self is not empty and not a vector @ DenseMatrix::Resize(int_max InputElementNumber)")
+        return false;
+    }
+
+    if (Size.RowNumber*Size.ColNumber == InputElementNumber)
+    {
+        return true;
+    }
+
+    if (this->IsSizeFixed() == true)
+    {
+        MDK_Error("Can not change size @ DenseMatrix::Resize(int_max InputElementNumber)")
+        return false;
+    }
+
+try
+{
+    m_MatrixData->DataArray.resize(InputElementNumber);
+
+    m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+
+    m_ElementPointer = m_MatrixData->ElementPointer;
+
+    if (Size.RowNumber == 0)// empty -> row vector
+    {
+        m_MatrixData->RowNumber = 1;
+        m_MatrixData->ColNumber = InputElementNumber;
+    }
+    else if (Size.RowNumber == 1)
+    {
+        m_MatrixData->RowNumber = 1;
+        m_MatrixData->ColNumber = InputElementNumber;
+    }
+    else if (Size.ColNumber == 1)
+    {
+        m_MatrixData->RowNumber = InputElementNumber;
+        m_MatrixData->ColNumber = 1;
+    }
+}
+catch (...)
+{
+    MDK_Error("Out of Memory @ DenseMatrix::Resize(int_max InputElementNumber)")
+    return false;
+}
+    return true;
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::FastResize(int_max InputElementNumber) // do not care about old data, can not use this to resize a m x n matrix (m>1 or n>1)
+{
+    if (InputElementNumber < 0)
+    {
+        MDK_Error("Invalid input @ DenseMatrix::FastResize(int_max InputElementNumber)")
+        return false;
+    }
+
+    auto Size = this->GetSize();
+
+    if (Size.RowNumber >1 || Size.ColNumber > 1)
+    {
+        MDK_Error("Self is not empty and not a vector @ DenseMatrix::FastResize(int_max InputElementNumber)")
+        return false;
+    }
+
+    if (Size.RowNumber*Size.ColNumber == InputElementNumber)
+    {
+        return true;
+    }
+
+    if (this->IsSizeFixed() == true)
+    {
+        MDK_Error("Can not change size @ DenseMatrix::FastResize(int_max InputElementNumber)")
+        return false;
+    }
+
+try
+{
+    if (InputElementNumber > int_max(m_MatrixData->DataArray.capacity()))
+    {
+        m_MatrixData->DataArray.clear();
+    }
+
+    m_MatrixData->DataArray.resize(InputElementNumber);
+
+    m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+
+    m_ElementPointer = m_MatrixData->ElementPointer;
+
+    if (Size.RowNumber == 0)// empty -> row vector
+    {
+        m_MatrixData->RowNumber = 1;
+        m_MatrixData->ColNumber = InputElementNumber;
+    }
+    else if (Size.RowNumber == 1)
+    {
+        m_MatrixData->RowNumber = 1;
+        m_MatrixData->ColNumber = InputElementNumber;
+    }
+    else if (Size.ColNumber == 1)
+    {
+        m_MatrixData->RowNumber = InputElementNumber;
+        m_MatrixData->ColNumber = 1;
+    }
+}
+catch (...)
+{
+    MDK_Error("Out of Memory @ DenseMatrix::FastResize(int_max InputElementNumber)")
+    return false;
+}
     return true;
 }
 
@@ -3511,6 +3648,16 @@ bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, std::vector<ElementType>
 
 
 template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseMatrix<ElementType>& ColData) const
+{
+    ColData.FastResize(this->GetRowNumber(), 1);
+
+    return this->GetCol(ColIndex, ColData.GetElementPointer());
+}
+
+
+template<typename ElementType>
 inline 
 bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, ElementType* ColData) const
 {
@@ -3530,11 +3677,11 @@ bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, ElementType* ColData) co
 
 	auto RawPointer = this->GetElementPointer();
 
-	int_max Index = ColIndex*SelfSize.RowNumber;
+    RawPointer += ColIndex*SelfSize.RowNumber;
 
 	for (int_max i = 0; i < SelfSize.RowNumber; ++i)
 	{
-		ColData[i] = RawPointer[Index + i];
+		ColData[i] = RawPointer[i];
 	}
 
 	return true;
@@ -3937,6 +4084,16 @@ bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, std::vector<ElementType>
 
 template<typename ElementType>
 inline
+bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseMatrix<ElementType>& RowData) const
+{
+    RowData.FastResize(1, this->GetColNumber());
+
+    return this->GetRow(RowIndex, RowData.GetElementPointer());
+}
+
+
+template<typename ElementType>
+inline
 bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, ElementType* RowData) const
 {
     auto SelfSize = this->GetSize();
@@ -3947,7 +4104,7 @@ bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, ElementType* RowData) co
         return false;
     }
 
-	if (RowIndex >= SelfSize.RowNumber || RowIndex < 0)
+    if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || RowData == nullptr)
 	{
 		MDK_Error("Invalid Input @ DenseMatrix GetRow(RowIndex, ElementType* RowData)")
 		return false;

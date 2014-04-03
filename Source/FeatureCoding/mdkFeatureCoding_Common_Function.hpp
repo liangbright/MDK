@@ -70,7 +70,7 @@ DenseMatrix<int_max> FindKNNByDistanceList(int_max K_NeighbourNumber, const Dens
     {
 
         //------------------------------------------------------------
-        int_max Index_max_in_NeighbourIndexList;
+        int_max Index_max_in_NeighbourIndexList = 0;
 
         ElementType Distance_max_in_NeighbourIndexList = DistanceList[NeighbourIndexList[0]];
 

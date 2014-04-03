@@ -133,17 +133,6 @@ DivideData(int_max Index_min, int_max Index_max, std::vector<int_max>& IndexList
     IndexList_end[ThreadNumber - 1] = Index_max;
 }
 
-
-template<typename ElementType>
-void FeatureDictionaryBasedEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end)
-{
-    for (int_max i = IndexOfFeatureVector_start; i <= IndexOfFeatureVector_end; ++i)
-    {
-        this->EncodingFunction(i);
-    }
-}
-
-
 }
 
 #endif

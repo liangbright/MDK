@@ -59,6 +59,12 @@ public:
 
     virtual bool Update();
 
+    //-----------------------------------------
+
+    virtual inline void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
+                                         const FeatureDictionary<ElementType>& InputDictionary,
+                                         DenseMatrix<ElementType>& SingleFeatureCode) {}
+
     //----------------------------------------------------//
 
     DenseMatrix<ElementType>* GetOutputFeatureCode();
@@ -69,6 +75,8 @@ protected:
     int_max GetMaximunNumberOfThreads();
 
     int_max GetFeatureVectorNumber();
+
+    void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end);
 
 private:
 //deleted:

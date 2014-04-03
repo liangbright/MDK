@@ -178,6 +178,24 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::Update()
 
 
 template<typename ElementType>
+void FeatureDictionaryBasedDenseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end)
+{
+    DenseMatrix<ElementType> SingleFeatureCode(m_FeatureCode->GetRowNumber(), 1);
+
+    DenseMatrix<ElementType> SingleFeatureDataVector(m_FeatureData->GetRowNumber(), 1);
+
+    for (int_max i = IndexOfFeatureVector_start; i <= IndexOfFeatureVector_end; ++i)
+    {
+        m_FeatureData->GetCol(i, SingleFeatureDataVector);
+
+        this->EncodingFunction(SingleFeatureDataVector, *m_Dictionary, SingleFeatureCode);
+
+        m_FeatureCode->SetCol(i, SingleFeatureCode);
+    }
+}
+
+
+template<typename ElementType>
 DenseMatrix<ElementType>* FeatureDictionaryBasedDenseEncoder<ElementType>::GetOutputFeatureCode()
 {
     return &m_FeatureCode_SharedCopy;

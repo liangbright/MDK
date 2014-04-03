@@ -27,27 +27,25 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::Clear()
 
     m_Dictionary  = nullptr;
 
-    m_MaxNumberOfNonzeroElementsInEachCode = 1;
+    m_CodeInDenseMatrix_SharedCopy.Clear();
 
-    m_FeatureCodeInCompactFormat_SharedCopy.Clear();
+    m_CodeInDenseMatrix = &m_CodeInDenseMatrix_SharedCopy;
 
-    m_FeatureCodeInCompactFormat = &m_FeatureCodeInCompactFormat_SharedCopy;
+    m_CodeInSparseMatrix_SharedCopy.Clear();
 
-    m_FeatureCodeInDenseFormat_SharedCopy.Clear();
+    m_CodeInSparseMatrix = &m_CodeInSparseMatrix_SharedCopy;
 
-    m_FeatureCodeInDenseFormat = &m_FeatureCodeInDenseFormat_SharedCopy;
+    m_CodeInSparseVectorList_SharedCopy.Clear();
 
-    m_FeatureCodeInSparseFormat_SharedCopy.Clear();
+    m_CodeInSparseVectorList = &m_CodeInSparseVectorList_SharedCopy;
 
-    m_FeatureCodeInSparseFormat = &m_FeatureCodeInSparseFormat_SharedCopy;
+    m_Flag_Output_CodeInDenseMatrix = false;
 
-    m_Flag_Output_FeatureCodeInDenseFormat = false;
+    m_Flag_Output_CodeInSparseMatrix = false;
 
-    m_Flag_Output_FeatureCodeInSparseFormat = false;
+    m_Flag_CodeInDenseMatrix_Is_Updated = false;
 
-    m_Flag_FeatureCodeInDenseFormat_Is_Updated = false;
-
-    m_Flag_FeatureCodeInSparseFormat_Is_Updated = false;
+    m_Flag_CodeInSparseMatrix_Is_Updated = false;
 
     m_MaxNumberOfThreads = 1;
 }
@@ -84,62 +82,62 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetInputDictionary(const 
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCodeInCompactFormat(DenseMatrix<ElementType>* FeatureCode)
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCodeInDenseMatrix(DenseMatrix<ElementType>* Code)
 {
-    if (FeatureCode == nullptr)
+    if (Code == nullptr)
     {
-        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::GetOutputFeatureCodeInCompactFormat(FeatureCode)")
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputCodeInDenseMatrix(Code)")
         return false;
     }
 
-    m_FeatureCodeInCompactFormat = FeatureCode;
+    m_CodeInDenseMatrix = Code;
 
-    m_FeatureCodeInCompactFormat_SharedCopy.ForceShare(FeatureCode);
+    m_CodeInDenseMatrix_SharedCopy.ForceShare(Code);
+
+    m_Flag_Output_CodeInDenseMatrix = true;
 
     return true;
 }
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCodeInDenseFormat(DenseMatrix<ElementType>* FeatureCode)
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCode(DenseMatrix<ElementType>* Code)
 {
-    if (FeatureCode == nullptr)
+    return this->SetOutputCodeInDenseMatrix(Code);
+}
+
+
+template<typename ElementType>
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCodeInSparseMatrix(SparseMatrix<ElementType>* Code)
+{
+    if (Code == nullptr)
     {
-        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputFeatureCodeInDenseFormat(FeatureCode)")
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputCodeInSparseMatrix(Code)")
         return false;
     }
 
-    m_FeatureCodeInDenseFormat = FeatureCode;
+    m_CodeInSparseMatrix = Code;
 
-    m_FeatureCodeInDenseFormat_SharedCopy.ForceShare(FeatureCode);
+    m_CodeInSparseMatrix_SharedCopy.ForceShare(Code);
 
-    m_Flag_Output_FeatureCodeInDenseFormat = true;
+    m_Flag_Output_CodeInSparseMatrix = true;
 
     return true;
 }
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode)
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCodeInSparseVectorList(DenseMatrix<SparseMatrix<ElementType>>* Code)
 {
-    return this->SetOutputFeatureCodeInDenseFormat(FeatureCode);
-}
-
-
-template<typename ElementType>
-bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputFeatureCodeInSparseFormat(SparseMatrix<ElementType>* FeatureCode)
-{
-    if (FeatureCode == nullptr)
+    if (Code == nullptr)
     {
-        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputFeatureCodeInSparseFormat(FeatureCode)")
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputCodeInSparseVectorList(Code)")
         return false;
     }
 
-    m_FeatureCodeInSparseFormat = FeatureCode;
+    m_CodeInSparseVectorList = Code;
 
-    m_FeatureCodeInSparseFormat_SharedCopy.ForceShare(FeatureCode);
-
-    m_Flag_Output_FeatureCodeInSparseFormat = true;
+    m_CodeInSparseVectorList_SharedCopy.ForceShare(Code);
 
     return true;
 }
@@ -173,53 +171,47 @@ int_max FeatureDictionaryBasedSparseEncoder<ElementType>::GetMaxNumberOfThreads(
 template<typename ElementType>
 int_max FeatureDictionaryBasedSparseEncoder<ElementType>::GetTotalNumberOfInputFeatureVectors()
 {
-    return m_FeatureData->GetColNumber();
+    if (m_FeatureData != nullptr)
+    {
+        return m_FeatureData->GetColNumber();
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 
 template<typename ElementType>
 bool FeatureDictionaryBasedSparseEncoder<ElementType>::CheckInputAndOutput()
 {
+    if (m_FeatureData == nullptr)
+    {
+        MDK_Error("Input FeatureData is empty (nullptr) @ FeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
+        return false;
+    }
+
     if (m_FeatureData->IsEmpty() == true)
     {
-        MDK_Error("Input FeatureData is empty @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
+        MDK_Error("Input FeatureData is empty matrix @ FeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
+        return false;
+    }
+
+    if (m_Dictionary == nullptr)
+    {
+        MDK_Error("Input Dictionary is empty (nullptr) @ FeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
         return false;
     }
 
     if (m_Dictionary->IsEmpty() == true)
     {
-        MDK_Error("Input Dictionary is empty @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
+        MDK_Error("Input Dictionary is empty @ FeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
         return false;
-    }
-
-    auto DictionarySize = m_Dictionary->GetSize();
-
-    int_max FeatureCodeDimension = DictionarySize.ColNumber;
-
-    if (m_MaxNumberOfNonzeroElementsInEachCode <= 0 || m_MaxNumberOfNonzeroElementsInEachCode > FeatureCodeDimension)
-    {
-        MDK_Error("Input MaxNumberOfNonZeroElementsInEachCode is invalid @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
-        return false;
-    }
-
-    auto tempSize = m_FeatureCodeInCompactFormat->GetSize();
-
-    if (tempSize.RowNumber != 2 * m_MaxNumberOfNonzeroElementsInEachCode || tempSize.ColNumber != m_FeatureData->GetColNumber())
-    {
-        if (m_FeatureCodeInCompactFormat->IsSizeFixed() == false)
-        {
-            m_FeatureCodeInCompactFormat->FastResize(2 * m_MaxNumberOfNonzeroElementsInEachCode, m_FeatureData->GetColNumber());
-        }
-        else
-        {
-            MDK_Error("can not change the size of m_FeatureCodeInCompactFormat matrix @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
-            return false;
-        }
     }
 
     if (m_MaxNumberOfThreads <= 0)
     {
-        MDK_Warning("Input MaxNumberOfThreads is invalid, set to 1 @ mdkFeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
+        MDK_Warning("Input MaxNumberOfThreads is invalid, set to 1 @ FeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
 
         m_MaxNumberOfThreads = 1;
     }
@@ -241,23 +233,23 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::Update()
 
     //--------------------------------------------------------------
 
-    if (m_FeatureCodeInCompactFormat != &m_FeatureCodeInCompactFormat_SharedCopy)
+    if (m_CodeInSparseVectorList != &m_CodeInSparseVectorList_SharedCopy)
     {
-        m_FeatureCodeInCompactFormat_SharedCopy.ForceShare(m_FeatureCodeInCompactFormat);
+        m_CodeInSparseVectorList_SharedCopy.ForceShare(m_CodeInSparseVectorList);
     }
 
-    m_Flag_FeatureCodeInDenseFormat_Is_Updated = false;
+    m_Flag_CodeInDenseMatrix_Is_Updated = false;
 
-    if (m_Flag_Output_FeatureCodeInDenseFormat == true)
+    if (m_Flag_Output_CodeInDenseMatrix == true)
     {
-        this->GetOutputFeatureCodeInDenseFormat(); // update FeatureCodeInDenseFormat
+        this->GetOutputCodeInDenseMatrix(); // update
     }
 
-    m_Flag_FeatureCodeInSparseFormat_Is_Updated = false;
+    m_Flag_CodeInSparseMatrix_Is_Updated = false;
 
-    if (m_Flag_Output_FeatureCodeInSparseFormat == true)
+    if (m_Flag_Output_CodeInSparseMatrix == true)
     {
-        this->GetOutputFeatureCodeInSparseFormat(); // update FeatureCodeInSparseFormat
+        this->GetOutputCodeInSparseMatrix(); // update
     }
    
     //--------------------------------------------------------------
@@ -266,201 +258,105 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::Update()
 }
 
 
-
 template<typename ElementType>
-DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputFeatureCodeInCompactFormat()
+void FeatureDictionaryBasedSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFeatureDataVector_start, int_max IndexOfFeatureDataVector_end)
 {
-    return &m_FeatureCodeInCompactFormat_SharedCopy;
-}
+    DenseMatrix<ElementType> SingleFeatureDataVector(m_FeatureData->GetRowNumber(), 1);
 
-
-template<typename ElementType>
-DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputFeatureCodeInDenseFormat()
-{
-    if (m_Flag_FeatureCodeInDenseFormat_Is_Updated == false)
+    for (int_max i = IndexOfFeatureDataVector_start; i <= IndexOfFeatureDataVector_end; ++i)
     {
-        auto DictionarySize = m_Dictionary->GetSize();
+        m_FeatureData->GetCol(i, SingleFeatureDataVector);
 
-        int_max FeatureCodeDimension = DictionarySize.ColNumber;
-
-        auto tempSize = m_FeatureCodeInDenseFormat->GetSize();
-
-        if (tempSize.RowNumber != FeatureCodeDimension || tempSize.ColNumber != m_FeatureData->GetColNumber())
-        {
-            auto IsOK = m_FeatureCodeInDenseFormat->FastResize(FeatureCodeDimension, m_FeatureData->GetColNumber());
-
-            if (IsOK == true)
-            {
-                this->GetFeatureCodeInDenseFormatFromCompactFormat(*m_FeatureCodeInDenseFormat, *m_FeatureCodeInCompactFormat, FeatureCodeDimension);
-
-                if (m_FeatureCodeInDenseFormat != &m_FeatureCodeInDenseFormat_SharedCopy)
-                {
-                    m_FeatureCodeInDenseFormat_SharedCopy.ForceShare(m_FeatureCodeInDenseFormat);
-                }
-
-                m_Flag_FeatureCodeInDenseFormat_Is_Updated = true;
-            }
-            else
-            {           
-                MDK_Error("Size does not match and can not change @ FeatureDictionaryBasedSparseEncoder::GetOutputFeatureCodeInDenseFormat()")       
-            }
-        }       
+        this->EncodingFunction(SingleFeatureDataVector, *m_Dictionary, (*m_CodeInSparseVectorList)[i]);
     }
-
-    return &m_FeatureCodeInDenseFormat_SharedCopy;
 }
 
 
 template<typename ElementType>
-DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputFeatureCode() // InDenseFormat
+inline
+void FeatureDictionaryBasedSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
+                                                                        const FeatureDictionary<ElementType>& InputDictionary,
+                                                                        DenseMatrix<ElementType>& CodeInDenseMatrix)
 {
-    return this->GetOutputFeatureCodeInDenseFormat();
+    SparseMatrix<ElementType> CodeInSparseMatrix(m_Dictionary->m_Record.GetColNumber(), 1);
+
+    this->EncodingFunction(SingleFeatureDataVector, InputDictionary, CodeInSparseMatrix);
+
+    ConvertSparseMatrixToDenseMatrix(CodeInSparseMatrix, CodeInDenseMatrix);
 }
 
 
 template<typename ElementType>
-SparseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputFeatureCodeInSparseFormat()
+DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputCodeInDenseMatrix()
 {
-    if (m_Flag_FeatureCodeInSparseFormat_Is_Updated == false)
+    if (m_Flag_CodeInDenseMatrix_Is_Updated == false)
     {
-        auto DictionarySize = m_Dictionary->GetSize();
+        auto CodeDimension = m_Dictionary->m_Record.GetColNumber();
 
-        int_max FeatureCodeDimension = DictionarySize.ColNumber;
+        auto IsOK = m_CodeInDenseMatrix->FastResize(CodeDimension, m_FeatureData->GetColNumber());
 
-        auto tempSize = m_FeatureCodeInSparseFormat->GetSize();
-
-        if (tempSize.RowNumber != FeatureCodeDimension || tempSize.ColNumber != m_FeatureData->GetColNumber())
+        if (IsOK == true)
         {
-            auto IsOK = m_FeatureCodeInSparseFormat->FastResize(FeatureCodeDimension, m_FeatureData->GetColNumber());
+            DenseMatrix<ElementType> tempCode(CodeDimension, 1);
 
-            if (IsOK == true)
-            {                
-                this->GetFeatureCodeInSparseFormatFromCompactFormat(*m_FeatureCodeInSparseFormat, *m_FeatureCodeInCompactFormat, FeatureCodeDimension);
-
-                if (m_FeatureCodeInSparseFormat != &m_FeatureCodeInSparseFormat_SharedCopy)
-                {
-                    m_FeatureCodeInSparseFormat_SharedCopy.ForceShare(m_FeatureCodeInSparseFormat);
-                }
-
-                m_Flag_FeatureCodeInSparseFormat_Is_Updated = true;
-            }
-            else
+            for (int_max j = 0; j < m_CodeInDenseMatrix->GetColNumber(); ++j)
             {
-                MDK_Error("Size does not match and can not change @ FeatureDictionaryBasedSparseEncoder::GetOutputFeatureCodeInSparseFormat()")
+                ConvertSparseMatrixToDenseMatrix((*m_CodeInSparseVectorList)[j], tempCode);
+
+                m_CodeInDenseMatrix->SetCol(j, tempCode);
             }
+                
+            if (m_CodeInDenseMatrix != &m_CodeInDenseMatrix_SharedCopy)
+            {
+                m_CodeInDenseMatrix_SharedCopy.ForceShare(m_CodeInDenseMatrix);
+            }
+
+            m_Flag_CodeInDenseMatrix_Is_Updated = true;
         }
-    }
+        else
+        {           
+            MDK_Error("Size does not match and can not change @ FeatureDictionaryBasedSparseEncoder::GetOutputCodeInDenseMatrix()") 
+        }
+    }       
 
-    return &m_FeatureCodeInSparseFormat_SharedCopy;
+    return &m_CodeInDenseMatrix_SharedCopy;
 }
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedSparseEncoder<ElementType>::
-GetFeatureCodeInDenseFormatFromCompactFormat(DenseMatrix<ElementType>& FeatureCodeInDenseFormat,
-                                             const DenseMatrix<ElementType>& FeatureCodeInCompactFormat,
-                                             int_max FeatureCodeDimension)
+DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputCode() // InDenseMatrix
 {
-    int_max VectorNumber = FeatureCodeInCompactFormat.GetColNumber();
-
-    auto RowNumber = FeatureCodeInCompactFormat.GetRowNumber();
-
-    if ((RowNumber % 2) != 0 || VectorNumber == 0 || FeatureCodeDimension < RowNumber / 2)
-    {
-        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::GetFeatureCodeInDenseFormatFromCompactFormat(...)")
-        return false;
-    }
-
-    auto IsOK = FeatureCodeInDenseFormat.FastResize(FeatureCodeDimension, VectorNumber);
-
-    if (IsOK == false)
-    {
-        MDK_Error("Can not change size @ FeatureDictionaryBasedSparseEncoder::GetFeatureCodeInDenseFormatFromCompactFormat(...)")
-        return false;
-    }
-
-    auto BeginPointer = FeatureCodeInCompactFormat.GetElementPointer();
-
-    for (int_max j = 0; j < VectorNumber; ++j)
-    {
-        auto Ptr_col = BeginPointer + j*RowNumber;
-
-        for (auto Ptr = Ptr_col; Ptr < Ptr_col + RowNumber; Ptr += 2)
-        {
-            auto Index = int_max(Ptr[0]);
-
-            if (Index >= FeatureCodeDimension)
-            {
-                MDK_Error("Index invalid in FeatureCodeInCompactFormat @ FeatureDictionaryBasedSparseEncoder::GetFeatureCodeInDenseFormatFromCompactFormat(...)")
-                return false;
-            }
-
-            if (Index >= 0)
-            {
-                FeatureCodeInDenseFormat(Index, j) = Ptr[1];
-            }
-        }
-    }
-
-    return true;
+    return this->GetOutputCodeInDenseMatrix();
 }
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedSparseEncoder<ElementType>::
-GetFeatureCodeInSparseFormatFromCompactFormat(SparseMatrix<ElementType>& FeatureCodeInSparseFormat,
-                                              const DenseMatrix<ElementType>& FeatureCodeInCompactFormat,
-                                              int_max FeatureCodeDimension)
+SparseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputCodeInSparseMatrix()
 {
-    int_max VectorNumber = FeatureCodeInCompactFormat.GetColNumber();
-
-    auto RowNumber = FeatureCodeInCompactFormat.GetRowNumber();
-
-    if ((RowNumber % 2) != 0 || VectorNumber == 0 || FeatureCodeDimension < RowNumber / 2)
+    if (m_Flag_CodeInSparseMatrix_Is_Updated == false)
     {
-        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::GetFeatureCodeInSparseFormatFromCompactFormat(...)")
-        return false;
-    }
+        auto CodeDimension = m_Dictionary->m_Record.GetColNumber();
 
-    std::vector<int_max> RowIndexList;
-    std::vector<int_max> ColIndexList;
-    std::vector<ElementType> DataArray;
+        m_CodeInSparseMatrix->ConstructFromSparseColVectorListInOrder(*m_CodeInSparseVectorList, CodeDimension, m_FeatureData->GetColNumber());
 
-    auto BeginPointer = FeatureCodeInCompactFormat.GetElementPointer();
-
-    for (int_max j = 0; j < VectorNumber; ++j)
-    {
-        auto Ptr_col = BeginPointer + j*RowNumber;
-
-        for (auto Ptr = Ptr_col; Ptr < Ptr_col + RowNumber; Ptr += 2)
+        if (m_CodeInSparseMatrix != &m_CodeInSparseMatrix_SharedCopy)
         {
-            auto Index = int_max(Ptr[0]);
-
-            if (Index >= FeatureCodeDimension)
-            {
-                MDK_Error("Index invalid in FeatureCodeInCompactFormat @ FeatureDictionaryBasedSparseEncoder::GetFeatureCodeInSparseFormatFromCompactFormat(...)")
-                return false;
-            }
-
-            if (Index >= 0)
-            {
-                RowIndexList.push_back(Index);
-                ColIndexList.push_back(j);
-                DataArray.push_back(Ptr[1]);
-            }
+            m_CodeInSparseMatrix_SharedCopy.ForceShare(m_CodeInSparseMatrix);
         }
+
+        m_Flag_CodeInSparseMatrix_Is_Updated = true;
     }
 
-    auto IsOK = FeatureCodeInSparseFormat.Construct(RowIndexList, ColIndexList, DataArray, FeatureCodeDimension, VectorNumber);
-
-    if (IsOK == false)
-    {
-        MDK_Error("Can not change size @ FeatureDictionaryBasedSparseEncoder::GetFeatureCodeInSparseFormatFromCompactFormat(...)")
-        return false;
-    }
-
-    return true;
+    return &m_CodeInSparseMatrix_SharedCopy;
 }
+
+
+template<typename ElementType>
+DenseMatrix<SparseMatrix<ElementType>>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputCodeInSparseVectorList()
+{
+    return &m_CodeInSparseVectorList_SharedCopy;
+}
+
 
 }// namespace mdk
 
