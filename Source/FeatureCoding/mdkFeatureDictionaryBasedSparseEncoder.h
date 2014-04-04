@@ -59,10 +59,9 @@ private:
 
 protected:
     FeatureDictionaryBasedSparseEncoder();
+    ~FeatureDictionaryBasedSparseEncoder();
 
 public:
-    virtual ~FeatureDictionaryBasedSparseEncoder();
-
     //-----------------------------------------
 
     virtual void Clear();

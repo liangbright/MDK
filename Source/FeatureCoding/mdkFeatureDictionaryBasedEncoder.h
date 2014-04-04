@@ -63,6 +63,17 @@ public:
     virtual DenseMatrix<ElementType>* GetOutputCode() = 0;
 
     //----------------------------------------------------//
+    // just put it here for reference
+    // Clone self using new and return unique_ptr
+    // only copy the parameter of the Encoder
+    // then a copy is independent with the others, and can be used in a thread
+    // But, this will cause huge problem
+    // a virtual destructor chain is needed to delete the real object instead of the base class
+    // so, avoid virtual destructor
+    //
+    // virtual std::unique_ptr<FeatureDictionaryBasedEncoder<ElementType>> Clone();
+
+    //----------------------------------------------------//
 
 protected:
 

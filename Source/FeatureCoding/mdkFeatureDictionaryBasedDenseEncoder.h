@@ -33,10 +33,9 @@ protected:
 
 protected:
     FeatureDictionaryBasedDenseEncoder();
+    ~FeatureDictionaryBasedDenseEncoder();
 
 public:
-    virtual ~FeatureDictionaryBasedDenseEncoder();
-
     //-----------------------------------------
 
     virtual void Clear();
