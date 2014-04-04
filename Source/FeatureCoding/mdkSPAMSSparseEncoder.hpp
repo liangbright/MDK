@@ -76,14 +76,59 @@ void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFe
 
     spams::SpMatrix<ElementType> alpha;
 
-    int L = m_Parameter_OMP.L;
+    if (m_MethodName == "OMP")
+    {
+        int L = m_Parameter_OMP.L;
 
-    ElementType Eps = m_Parameter_OMP.eps;
+        ElementType Eps = m_Parameter_OMP.eps;
 
-    ElementType Lambda = m_Parameter_OMP.lambda;
+        ElementType Lambda = m_Parameter_OMP.lambda;
 
-    spams::omp<ElementType>(X, D, alpha, &L, &Eps, &Lambda, false, false, false, 1, nullptr);
+        spams::omp<ElementType>(X, D, alpha, &L, &Eps, &Lambda, false, false, false, 1, nullptr);
+    }
+    else if (m_MethodName == "Lasso")
+    {
+        auto mode = static_cast<spams::constraint_type>(m_Parameter_Lasso.mode);
+        bool pos = m_Parameter_Lasso.pos;
+        bool ols = m_Parameter_Lasso.ols;
+        auto lambda = m_Parameter_Lasso.lambda;
+        auto lambda2 = m_Parameter_Lasso.lambda2;
 
+        int n = m_Dictionary->m_Record.GetRowNumber();
+        int K = m_Dictionary->m_Record.GetColNumber();
+
+        int L;
+        if (m_Parameter_Lasso.L > 0)
+        {
+            L = m_Parameter_Lasso.L;
+        }
+        else
+        {
+            L = K;
+        }
+
+        if (L > n && !(mode == spams::PENALTY && (std::abs(lambda) < 0.000001) && !pos && lambda2 > 0))
+        {           
+            L = n;
+        }
+        if (L > K)
+        {        
+            L = K;
+        }
+
+        bool cholesky = m_Parameter_Lasso.cholesky;
+        int length_path = 4 * L;
+
+        if (cholesky)
+        {
+            spams::lasso<ElementType>(X, D, alpha, L, lambda, lambda2, mode, pos, ols, 1, nullptr, length_path);
+        }
+        else 
+        {
+            spams::lasso2<ElementType>(X, D, alpha, L, lambda, lambda2, mode, pos, 1, nullptr, length_path);
+        }
+    }
+    
     for (int_max i = IndexOfFeatureVector_start; i <= IndexOfFeatureVector_end; ++i)
     {
         spams::SpVector<ElementType> tempS;

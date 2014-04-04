@@ -1,5 +1,5 @@
-#ifndef __Test_SPAMSOnlineDictionaryBuilder_h
-#define __Test_SPAMSOnlineDictionaryBuilder_h
+#ifndef __Test_KNNSparseEncoder_h
+#define __Test_KNNSparseEncoder_h
 
 //================================================
 #include <algorithm>
@@ -26,6 +26,8 @@
 #include "mdkFeatureCoding_Common_Function.h"
 #include "mdkTypeToOpenCVTranslation.h"
 #include "mdkSPAMSOnlineDictionaryBuilder.h"
+#include "mdkSPAMSSparseEncoder.h"
+#include "mdkKNNReconstructionSparseEncoder.h"
 
 namespace mdk
 {
@@ -62,44 +64,22 @@ void Test_DisplayMatrix()
 
 }
 
-void Test_FindKNNByDistanceList()
-{
-    DenseMatrix<double> DistanceList = {1, 2, 3, 4 ,5, 1, 2, 3, 4, 5 };
 
-    int_max K = 10;
-
-    auto NeighbourIndexList = FindKNNByDistanceList(K, DistanceList);
-
-    DisplayMatrix<int_max>("NeighbourIndexList", NeighbourIndexList);
-
-    DenseMatrix<double> NeighbourDistanceList(1, K);
-
-    for (int_max i = 0; i < K; ++i)
-    {
-        NeighbourDistanceList[i] = DistanceList[NeighbourIndexList[i]];
-    }
-
-    DisplayMatrix("NeighbourDistanceList", NeighbourDistanceList);
-}
-
-
-void Test_Train()
+void Test_KNNReconstructionSparseEncoder()
 {
     int_max FeatureDimension = 10000;
 
-    int_max FeatureVectorNumber = FeatureDimension*10;
+    int_max FeatureVectorNumber = 10000;
 
-    DenseMatrix<double> FeatureData(FeatureDimension, FeatureVectorNumber);
+    DenseMatrix<float> FeatureData(FeatureDimension, FeatureVectorNumber);
 
     auto t0 = std::chrono::system_clock::now();
 
-    for (int64 i = 0; i < FeatureVectorNumber; ++i)
+    for (int_max i = 0; i < FeatureVectorNumber; ++i)
     {
-        auto value = double(i) / double(FeatureVectorNumber);
+        auto value = float(i) / float(FeatureVectorNumber);
 
-        FeatureData.FillCol(i, value);
-
-//        FeatureData.FillRow(i/1000, value);
+        FeatureData.Col(i) = value;
     }
 
     auto t1 = std::chrono::system_clock::now();
@@ -107,42 +87,49 @@ void Test_Train()
     std::chrono::duration<double> raw_time = t1 - t0;
     std::cout << "Fill FeatureData  time " << raw_time.count() << '\n';
 
-    //DisplayMatrix("FeatureData", FeatureData);
+    FeatureDictionary<float> Dictionary;
 
-    KNNReconstructionSparseEncoder<double> Encoder;
+    int_max K = 10;
 
-    Encoder.SelectLsqLinMethod("Normal");
+    Dictionary.m_Record.FastResize(FeatureDimension, K);
+
+    for (int_max i = 0; i < K; ++i)
+    {
+        Dictionary.m_Record.Col(i) = i;
+    }
+
+    KNNReconstructionSparseEncoder<float> Encoder;
+
+    Encoder.m_Parameter.LsqlinMethodName = "Normal";
+    Encoder.m_Parameter.NeighbourNumber = 3;
+
+    Encoder.SetInputDictionary(&Dictionary);
+
+    Encoder.SetInputFeatureData(&FeatureData);
 
     Encoder.SetMaxNumberOfThreads(1);
 
-    Encoder.SetNeighbourNumber(3);
-
-    SPAMSOnlineDictionaryBuilder<double> DictionaryBuilder;
-
-    DictionaryBuilder.SetInputFeatureData(&FeatureData);
-
-    DictionaryBuilder.SetSparseEncoder(&Encoder);
-
-    DictionaryBuilder.m_Parameter.mode = -1;
-    DictionaryBuilder.m_Parameter.lambda = 1;
-    DictionaryBuilder.m_Parameter.K = 100;
-    DictionaryBuilder.m_Parameter.posD = false;
-    DictionaryBuilder.m_Parameter.verbose = false;
-
-    std::cout << "DictionaryBuilder.Update()  start: " << '\n';
+    std::cout << "Encoder.Update()  start " << '\n';
 
     t0 = std::chrono::system_clock::now();
 
-    DictionaryBuilder.Update();
+    for (int_max i = 0; i < 10; ++i)
+    {
+        Encoder.Update();
+    }
 
     t1 = std::chrono::system_clock::now();
-
     raw_time = t1 - t0;
-    std::cout << "DictionaryBuilder.Update()  time " << raw_time.count() << '\n';
+    std::cout << "Encoder.Update()  time " << raw_time.count() << '\n';
 
-    auto Dictionary = DictionaryBuilder.GetOutputDictionary();
+    auto Code = Encoder.GetOutputCodeInDenseMatrix();
 
-//    DisplayMatrix("Dictionary", Dictionary->m_Record, 6);
+   // DisplayMatrix("X", FeatureData, 6);
+
+  //  DisplayMatrix("D", Dictionary.m_Record, 6);
+
+  //  DisplayMatrix("Alpha", *Code, 6);
+
 }
 
 }//namespace mdk

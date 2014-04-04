@@ -209,10 +209,7 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::CheckInputAndOutput()
         return false;
     }
 
-    if (m_CodeInSparseVectorList->IsEmpty() == true)
-    {
-        m_CodeInSparseVectorList->FastResize(1, m_FeatureData->GetColNumber());
-    }
+    m_CodeInSparseVectorList->FastResize(1, m_FeatureData->GetColNumber());
 
     if (m_MaxNumberOfThreads <= 0)
     {

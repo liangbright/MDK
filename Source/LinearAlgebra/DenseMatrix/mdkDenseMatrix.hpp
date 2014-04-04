@@ -187,7 +187,7 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::operator=(DenseMatrix<ElementType>&& InputMatrix)
 {
-    this->Take(std::forward<DenseMatrix<ElementType>&&>(InputMatrix));
+    this->Take(std::forward<DenseMatrix<ElementType>&>(InputMatrix));
 }
 
 
@@ -3827,11 +3827,8 @@ bool DenseMatrix<ElementType>::FillCol(int_max ColIndex, const ElementType& Elem
         return false;
     }
 
-    auto BeginPointer = this->GetElementPointer();
+    auto BeginPointer = this->GetElementPointer() + ColIndex*SelfSize.RowNumber;
 
-    int_max Index = ColIndex*SelfSize.RowNumber;
-
-    BeginPointer += Index;
     for (auto Ptr = BeginPointer; Ptr < BeginPointer + SelfSize.RowNumber; ++Ptr)
     {
         Ptr[0] = Element;

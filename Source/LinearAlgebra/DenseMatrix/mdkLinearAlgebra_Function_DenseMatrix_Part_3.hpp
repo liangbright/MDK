@@ -60,7 +60,7 @@ DenseMatrix<ElementType> ComputeL2DistanceListFromSingleVectorToVectorSet(const 
 template<typename ElementType>
 DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& C,
                                                               const DenseMatrix<ElementType>& d,
-                                                              const std::string& MethodName = "SVD")
+                                                              const DenseLsqlinOption<ElementType>& Option)
 {
     DenseLsqlinResult<ElementType> Result;
 
@@ -68,28 +68,52 @@ DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<
 
     Result.Residual.FastResize(C.GetRowNumber(), 1);
 
-    if (MethodName == "SVD")
+    typedef Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> EigenMapDynamicMatrix;
+
+    EigenMapDynamicMatrix Input_C(const_cast<ElementType*>(C.GetElementPointer()), C.GetRowNumber(), C.GetColNumber());
+
+    EigenMapDynamicMatrix Input_d(const_cast<ElementType*>(d.GetElementPointer()), d.GetElementNumber(), 1);
+
+    EigenMapDynamicMatrix Output_X(Result.X.GetElementPointer(), Result.X.GetElementNumber(), 1);
+
+    EigenMapDynamicMatrix Output_Residual(Result.Residual.GetElementPointer(), Result.Residual.GetElementNumber(), 1);
+
+    if (Option.MethodName == "SVD")
     {
         Result.MethodName = "SVD";
 
-        typedef Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> EigenMapDynamicMatrix;
-
-        EigenMapDynamicMatrix Input_C(const_cast<ElementType*>(C.GetElementPointer()), C.GetRowNumber(), C.GetColNumber());
-
-        EigenMapDynamicMatrix Input_d(const_cast<ElementType*>(d.GetElementPointer()), d.GetElementNumber(), 1);
-
-        EigenMapDynamicMatrix Output_X(Result.X.GetElementPointer(), Result.X.GetElementNumber(), 1);
-
-        EigenMapDynamicMatrix Output_Residual(Result.Residual.GetElementPointer(), Result.Residual.GetElementNumber(), 1);
-
         Output_X = Input_C.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(Input_d);
 
-        Output_Residual = Input_C*Output_X - Input_d;
+    }
+    else if (Option.MethodName == "QR")
+    {
+        Result.MethodName = "QR";
+
+        Output_X = Input_C.colPivHouseholderQr().solve(Input_d);
+
+    }
+    else if (Option.MethodName == "Normal")
+    {
+        Result.MethodName = "Normal";
+
+        if (Option.GramianMatrix_CtC.IsEmpty() == false)
+        {
+            EigenMapDynamicMatrix Input_CtC(const_cast<ElementType*>(Option.GramianMatrix_CtC.GetElementPointer()), 
+                                            Option.GramianMatrix_CtC.GetRowNumber(), Option.GramianMatrix_CtC.GetColNumber());
+
+            Output_X = Input_CtC.ldlt().solve(Input_C.transpose()*Input_d);
+        }
+        else
+        {
+            Output_X = (Input_C.transpose()*Input_C).ldlt().solve(Input_C.transpose()*Input_d);
+        }
     }
     else
     {
         MDK_Error("Not supported yet @ SolveLinearLeastSquaresProblem(...)")
     }
+
+    Output_Residual = Input_C*Output_X - Input_d;
 
     return Result;
 }
@@ -142,7 +166,7 @@ DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<
                                                               const DenseMatrix<ElementType>& beq,
                                                               const DenseMatrix<ElementType>& lb,
                                                               const DenseMatrix<ElementType>& ub,
-                                                              const DenseLsqlinOption& Option);
+                                                              const DenseLsqlinOption<ElementType>& Option);
 }
 
 #endif

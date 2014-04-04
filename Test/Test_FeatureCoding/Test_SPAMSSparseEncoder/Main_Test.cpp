@@ -11,8 +11,9 @@ int main()
 
     //Test_FindKNNByDistanceList();
 
-    Test_OMP();
+   // Test_OMP();
 
+    Test_Lasso();
 
     std::system("pause");
 

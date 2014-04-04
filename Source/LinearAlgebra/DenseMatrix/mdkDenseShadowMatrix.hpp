@@ -799,7 +799,7 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseMatrix<ElementType>& I
             m_SourceMatrixSharedCopy.SetRow(m_RowIndexList_source[0], InputMatrix);
             return;
         }
-        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) = InputMatrix
+        else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) = InputMatrix
         {
             m_SourceMatrixSharedCopy.SetCol(m_ColIndexList_source[0], InputMatrix);
             return;
@@ -830,7 +830,7 @@ void DenseShadowMatrix<ElementType>::operator=(const ElementType& Element)
             m_SourceMatrixSharedCopy.FillRow(m_RowIndexList_source[0], Element);
             return;
         }
-        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) = Element
+        else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) = Element
         {
             m_SourceMatrixSharedCopy.FillCol(m_ColIndexList_source[0], Element);
             return;
@@ -1122,7 +1122,7 @@ void DenseShadowMatrix<ElementType>::operator+=(const DenseMatrix<ElementType>& 
             m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '+', InputMatrix, false);
             return;
         }
-        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) += InputMatrix
+        else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) += InputMatrix
         {
             m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '+', InputMatrix, false);
             return;
@@ -1174,7 +1174,7 @@ void DenseShadowMatrix<ElementType>::operator-=(const DenseMatrix<ElementType>& 
             m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '-', InputMatrix, false); // false: bound check has been done
             return;
         }
-        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) -= Matrix
+        else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) -= Matrix
         {
             m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '-', InputMatrix, false); // false: bound check has been done
             return;
@@ -1257,7 +1257,7 @@ void DenseShadowMatrix<ElementType>::operator/=(const DenseMatrix<ElementType>& 
             m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '/', InputMatrix, false);
             return;
         }
-        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) /= InputMatrix
+        else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) /= InputMatrix
         {
             m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '/', InputMatrix, false);
             return;
@@ -1295,7 +1295,7 @@ void DenseShadowMatrix<ElementType>::operator+=(const ElementType& Element)
             m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '+', Element);
             return;
         }
-        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) += Element
+        else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) += Element
         {
             m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_RowIndexList_source[0], '+', Element);
             return;
@@ -1330,7 +1330,7 @@ void DenseShadowMatrix<ElementType>::operator-=(const ElementType& Element)
             m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '-', Element);
             return;
         }
-        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) -= Element
+        else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) -= Element
         {
             m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '-', Element);
             return;
@@ -1365,7 +1365,7 @@ void DenseShadowMatrix<ElementType>::operator*=(const ElementType& Element)
             m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '*', Element);
             return;
         }
-        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) *= Element
+        else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) *= Element
         {
             m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_ColIndexList_source[0], '*', Element);
             return;
@@ -1400,7 +1400,7 @@ void DenseShadowMatrix<ElementType>::operator/=(const ElementType& Element)
             m_SourceMatrixSharedCopy.RowNamedOperationInPlace(m_RowIndexList_source[0], '/', Element);
             return;
         }
-        else if (m_Flag_All_Row == true && m_ColIndexList_source.size() == 1) // SourceMatrix(:,j) /= Element
+        else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) /= Element
         {
             m_SourceMatrixSharedCopy.ColNamedOperationInPlace(m_RowIndexList_source[0], '/', Element);
             return;

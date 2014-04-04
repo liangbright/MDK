@@ -30,8 +30,15 @@ DenseMatrix<ElementType> ComputeL2DistanceListFromSingleVectorToVectorSet(const 
 //
 // X, d, b, lb, ub : col vector
 
+
+template<typename ElementType>
 struct DenseLsqlinOption
 {
+    std::string MethodName;
+
+    DenseMatrix<ElementType> GramianMatrix_CtC; // C'*C
+
+//-------------------------------
 
     DenseLsqlinOption()
     {
@@ -77,7 +84,7 @@ private:
 template<typename ElementType>
 DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& C,
                                                               const DenseMatrix<ElementType>& d,
-                                                              const std::string& MethodName);
+                                                              const DenseLsqlinOption<ElementType>& Option);
 
 template<typename ElementType>
 DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<ElementType>& X0,
@@ -132,7 +139,7 @@ DenseLsqlinResult<ElementType> SolveLinearLeastSquaresProblem(const DenseMatrix<
                                                               const DenseMatrix<ElementType>& beq,
                                                               const DenseMatrix<ElementType>& lb,
                                                               const DenseMatrix<ElementType>& ub,                                                              
-                                                              const DenseLsqlinOption& Option);
+                                                              const DenseLsqlinOption<ElementType>& Option);
 
 
 }

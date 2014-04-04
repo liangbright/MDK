@@ -6,17 +6,54 @@
 #include "mdkFeatureDictionaryBasedSparseEncoder.h"
 #include "mdkFeatureCoding_Common_Function.h"
 
+// find K Nearest Neighbor [d_1, d_2, ..., d_k] from D by using L2 norm
+// find Alpha that minimizes||X - [d_1, d_2, d_k ]*Alpha||, by using Linear least suqares (Lsqlin) method
+// constraints on Alpha can be added to Lsqlin, such as nonnegative, sum to 1, etc, ...
+// X : m_FeatureData
+// D : m_Dictionary->m_Record
+// Alpha: m_CodeInSparseVectorList
 
 namespace mdk
 {
 
+struct Parameter_Of_KNNReconstructionSparseEncoder
+{
+    int_max NeighbourNumber;
+
+    std::string LsqlinMethodName;
+
+    bool Nonnegative;
+
+    bool SumToOne;
+
+//------------------------------
+
+    Parameter_Of_KNNReconstructionSparseEncoder() { this->Clear(); }
+    ~Parameter_Of_KNNReconstructionSparseEncoder() {}
+
+    void Clear()
+    {
+        NeighbourNumber = -1;
+        LsqlinMethodName = "Normal";
+        Nonnegative = false;
+        SumToOne = false;
+    }
+
+private:
+    Parameter_Of_KNNReconstructionSparseEncoder(const Parameter_Of_KNNReconstructionSparseEncoder&) = delete;
+    void operator=(const Parameter_Of_KNNReconstructionSparseEncoder&) = delete;
+};
+
+
 template<typename ElementType>
 class KNNReconstructionSparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
 {
+public:
+
+    Parameter_Of_KNNReconstructionSparseEncoder m_Parameter;
 
 protected:
-
-    int_max m_NeighbourNumber;
+    DenseMatrix<ElementType> m_GramianMatrix_DtD; // D'*D
 
 public:
 
@@ -28,10 +65,13 @@ public:
 
     void Clear();
 
-    bool SetNeighbourNumber(int_max NeighbourNumber); // the number of nearest neighbors, i.e., K
-
     bool CheckInputAndOutput();
 
+    bool PrecomputeGramianMatrix_DtD();
+
+    bool Preprocess();
+
+    bool Postprocess();
     //--------------------------------------------------------------------------------
 
     using FeatureDictionaryBasedSparseEncoder::EncodingFunction;

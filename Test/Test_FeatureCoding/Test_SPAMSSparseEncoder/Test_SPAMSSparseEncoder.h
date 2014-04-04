@@ -116,6 +116,62 @@ void Test_OMP()
 
 }
 
+void Test_Lasso()
+{
+    int_max FeatureDimension = 3;
+
+    int_max FeatureVectorNumber = 3;
+
+    DenseMatrix<double> FeatureData(FeatureDimension, FeatureVectorNumber);
+
+    for (int_max i = 0; i < FeatureVectorNumber; ++i)
+    {
+        auto value = double(i) / double(FeatureVectorNumber);
+
+        FeatureData.Col(i) = value;
+
+        FeatureData.Row(i) = value;
+    }
+
+    FeatureDictionary<double> Dictionary;
+
+    Dictionary.m_Record.FastResize(FeatureDimension, 3);
+
+    for (int_max i = 0; i < 3; ++i)
+    {
+        Dictionary.m_Record.Col(i) = i;
+        Dictionary.m_Record.Row(i) = i;
+    }
+
+    SPAMSSparseEncoder<double> Encoder;
+
+    Encoder.m_MethodName = "Lasso";
+
+    Encoder.m_Parameter_Lasso.mode = 0;
+    Encoder.m_Parameter_Lasso.lambda = 1;
+    Encoder.m_Parameter_Lasso.lambda2 = 0;
+    Encoder.m_Parameter_Lasso.pos = true;
+    Encoder.m_Parameter_Lasso.ols = false;
+
+
+    Encoder.SetInputDictionary(&Dictionary);
+
+    Encoder.SetInputFeatureData(&FeatureData);
+
+    Encoder.SetMaxNumberOfThreads(1);
+
+    Encoder.Update();
+
+    auto Code = Encoder.GetOutputCodeInDenseMatrix();
+
+    DisplayMatrix("X", FeatureData, 6);
+
+    DisplayMatrix("D", Dictionary.m_Record, 6);
+
+    DisplayMatrix("Alpha", *Code, 6);
+
+}
+
 }//namespace mdk
 
 #endif

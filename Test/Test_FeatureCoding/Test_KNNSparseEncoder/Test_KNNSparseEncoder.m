@@ -20,9 +20,5 @@ param.lambda=0;
 param.numThreads=1;
 
 tic
-A1 = full(mexOMP(X,D, param));
-t=toc;
-
-tic
-A2 = full(mexLasso(X,D, param));
+A = full(mexOMP(X,D, param));
 t=toc;

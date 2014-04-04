@@ -6,8 +6,6 @@
 //
 // A=mexOMP(X,D,param);
 // A=mexLasso(X,D,param);
-//
-// A=KNN(X,D,param); using Lasso with mode = -1, lambda=0, and D is from KNN
 
 #include <string>
 
@@ -58,6 +56,7 @@ struct Lasso_Paramter_Of_SPAMSSparseEncoder
         mode = 0;
         lambda = 0;
         lambda2 = 0;
+        L = -1;
         pos = false;
         cholesky = false;
         ols = false;
