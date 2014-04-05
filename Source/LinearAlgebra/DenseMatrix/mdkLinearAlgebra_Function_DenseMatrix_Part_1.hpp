@@ -3,6 +3,8 @@
 
 //#include "mdkLinearAlgebra_DenseMatrix_Function_DenseMatrix_Part_1.h"
 
+#include "armadillo.h"
+
 namespace mdk
 {
 
@@ -59,13 +61,11 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<Elemen
 
     if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeA.ColNumber)
     {
-        if (OutputMatrixC.IsSizeFixed() == false)
+        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+
+        if (IsOK == false)
         {
-            OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
-        }
-        else
-        {
-            MDK_Error("OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, MatrixB)")
+            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, MatrixB)")
             return false;
         }
     }
@@ -133,13 +133,11 @@ bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
 
     if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeA.ColNumber)
     {
-        if (OutputMatrixC.IsSizeFixed() == false)
-        {
-            OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
-        }
-        else
-        {
-            MDK_Error("OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, MatrixB)")
+        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+
+        if (IsOK == false)
+        {            
+            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, MatrixB)")
             return false;
         }
     }
@@ -170,6 +168,153 @@ DenseMatrix<ElementType> MatrixMultiply(const DenseMatrix<ElementType>& MatrixA,
     MatrixMultiply(tempMatrix, MatrixA, MatrixB);
 
     return  tempMatrix;
+}
+
+
+template<typename ElementType>
+inline
+bool MatrixMultiply_slow(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
+{
+    auto SizeA = MatrixA.GetSize();
+
+    auto SizeB = MatrixB.GetSize();
+
+    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    {
+        MDK_Error("MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)")
+        return false;
+    }
+
+    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    {
+        return MatrixMultiply(OutputMatrixC, MatrixA(0), MatrixB);
+    }
+
+    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    {
+        return MatrixMultiply(OutputMatrixC, MatrixA, MatrixB(0));
+    }
+
+    if (SizeA.ColNumber != SizeB.RowNumber)
+    {
+        MDK_Error("MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)")
+        return false;
+    }
+
+    auto SizeC = OutputMatrixC.GetSize();
+
+    if (SizeC.RowNumber > 0)
+    {
+        auto ptrA = MatrixA.GetElementPointer();
+
+        auto ptrB = MatrixB.GetElementPointer();
+
+        auto ptrC = OutputMatrixC.GetElementPointer();
+
+        if (ptrC == ptrA || ptrC == ptrB)
+        {
+            // OutputMatrixC is MatrixA or MatrixB
+            // create a temp matrix and call this function again
+            // 
+
+            DenseMatrix<ElementType> tempMatrix;
+
+            MatrixMultiply(tempMatrix, MatrixA, MatrixB);
+
+            OutputMatrixC.Take(tempMatrix);
+
+            return true;
+        }
+    }
+
+    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeB.ColNumber)
+    {
+        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
+
+        if (IsOK == false)
+        {
+            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)")
+            return false;
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+    // C : M x K ,   A: M x N,   B: N x K
+
+    int_max M = SizeA.RowNumber;
+    int_max N = SizeA.ColNumber;
+    
+    int_max K = SizeB.ColNumber;
+
+    auto C_begin = OutputMatrixC.GetElementPointer();
+    auto A_begin = MatrixA.GetElementPointer();
+    auto B_begin = MatrixB.GetElementPointer();
+
+    for (auto pC = C_begin; pC != C_begin + M*K; ++pC)
+    {
+        pC[0] = ElementType(0);
+    }
+
+    auto pA = A_begin;
+
+    auto pB = B_begin;
+
+    auto pC_Col_k_begin = C_begin;
+
+    for (int_max k = 0; k < K; ++k)
+    {           
+        for (int_max n = 0; n < N; ++n)
+        {         
+            //for (int_max m = 0; m < M; ++m)
+            for (auto pC = pC_Col_k_begin; pC < pC_Col_k_begin + M; ++pC)
+            {
+                //C(m, k) += A(m, n)*B(n, k);
+
+                pC[0] += pA[0] * pB[0];   
+
+                ++pA;
+            }
+
+            ++pB;
+        }
+
+        pA = A_begin;
+
+        pC_Col_k_begin += M;
+    }
+
+    return true;
+
+    //--------------------- for-loop : slow ------------------------------------------------------------------------------------
+
+    int_max IndexB = 0;
+
+    for (int_max j = 0; j < SizeB.ColNumber; ++j)
+    {
+        for (int_max i = 0; i < SizeA.RowNumber; ++i)
+        {
+            ElementType sum = ElementType(0);
+
+            int_max IndexA = 0;
+
+            for (int_max k = 0; k < SizeA.ColNumber; ++k)
+            {
+                //sum += MatrixA(i,k) * MatrixB(k,j);
+                //sum += ptrA[k*SizeA.RowNumber + i] * ptrB[j*SizeB.RowNumber + k];
+                sum += ptrA[IndexA + i] * ptrB[IndexB + k];
+
+                IndexA += SizeA.RowNumber;
+            }
+
+            ptrC[0] = sum;
+
+            ++ptrC;
+        }
+
+        IndexB += SizeB.RowNumber;
+    }
+
+    return true;
 }
 
 
@@ -231,13 +376,11 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
 
     if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeB.ColNumber)
     {
-        if (OutputMatrixC.IsSizeFixed() == false)
+        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
+
+        if (IsOK == false)
         {
-            OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
-        }
-        else
-        {
-            MDK_Error("OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)")
+            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)")
             return false;
         }
     }
@@ -258,38 +401,7 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
 
     C = A*B;
 
-    return true;
-
-    //--------------------- for-loop : slow ------------------------------------------------------------------------------------
-
-    int_max IndexB = 0;
-
-    for (int_max j = 0; j < SizeB.ColNumber; ++j)
-    {
-        for (int_max i = 0; i < SizeA.RowNumber; ++i)
-        {
-            ElementType sum = ElementType(0);
-
-            int_max IndexA = 0;
-
-            for (int_max k = 0; k < SizeA.ColNumber; ++k)
-            {
-                //sum += MatrixA(i,k) * MatrixB(k,j);
-                //sum += ptrA[k*SizeA.RowNumber + i] * ptrB[j*SizeB.RowNumber + k];
-                sum += ptrA[IndexA + i] * ptrB[IndexB + k];
-
-                IndexA += SizeA.RowNumber;
-            }
-
-            ptrC[0] = sum;
-
-            ++ptrC;
-        }
-
-        IndexB += SizeB.RowNumber;
-    }
-
-    return true;
+    return true;   
 }
 
 
@@ -339,18 +451,11 @@ bool MatrixElementMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseM
 
     if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeB.ColNumber)
     {
-        if (OutputMatrixC.IsSizeFixed() == false)
-        {
-            if (SizeC.RowNumber > 0)
-            {
-                MDK_Warning("OutputMatrixC Size is changed @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)")
-            }
+        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
 
-            OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
-        }
-        else
+        if (IsOK == false)
         {
-            MDK_Error("OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)")
+            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)")
             return false;
         }
     }
@@ -418,13 +523,11 @@ bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
 
     if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeA.ColNumber)
     {
-        if (OutputMatrixC.IsSizeFixed() == false)
+        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+
+        if (IsOK == false)
         {
-            OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
-        }
-        else
-        {
-            MDK_Error("OutputMatrixC Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, MatrixB)")
+            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, MatrixB)")
             return false;
         }
     }

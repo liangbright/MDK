@@ -28,7 +28,7 @@ DenseGlueMatrixForLinearCombination<ElementType>::DenseGlueMatrixForLinearCombin
 
     m_ElementList_Coef.reserve(MDK_DenseGlueMatrixForLinearCombination_ReservedCapacity);
 
-    m_IndependentElement = m_IndependentElement - m_IndependentElement;
+    m_IndependentElement = ElementType(0);
 }
 
 

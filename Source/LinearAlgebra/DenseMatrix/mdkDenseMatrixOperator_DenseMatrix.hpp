@@ -105,6 +105,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
         return  tempGlueMatrix;
     }
   
+    tempGlueMatrix.m_RowNumber = SizeA.RowNumber;
+
+    tempGlueMatrix.m_ColNumber = SizeA.ColNumber;
 
     //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(2);
     tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(2);

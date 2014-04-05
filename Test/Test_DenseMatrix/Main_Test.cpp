@@ -68,6 +68,8 @@ int aaa_main()
 
 int main()
 {
+    Test_MatrixMutiply();
+
    // auto a = Test_A(1, 1);
 
    // auto b = Test_A({ 1 }, {});
@@ -76,7 +78,7 @@ int main()
     
    // Test_Constructor_a();
 
-     Test_Constructor_External_Data();
+    // Test_Constructor_External_Data();
 
     //Test_Constructor();
 

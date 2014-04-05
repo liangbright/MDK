@@ -9,6 +9,8 @@
 #include <initializer_list>
 #include <functional>
 
+#include "armadillo.h"
+
 #include "mdkDenseMatrix.h"
 
 namespace mdk
@@ -1763,6 +1765,84 @@ void Test_GlueMatrix_Create()
 
     C.Fill(3.0);
 }
+
+
+
+
+
+void Test_MatrixMutiply()
+{
+    int_max Lx = 100;
+    int_max Ly = 100;
+
+    DenseMatrix<double> A;
+    DenseMatrix<double> B;
+    DenseMatrix<double> C1;
+    DenseMatrix<double> C2;
+
+    A = { { 1, 4, 7 },
+          { 2, 5, 8 },
+          { 3, 6, 9 } };
+
+    B = { { 1, 2, 3 },
+          { 4, 5, 6 },
+          { 7, 8, 9 } };
+
+    
+    A.FastResize(Lx, Ly);
+    for (int_max j = 0; j < Ly; ++j)
+    {
+        A.FillCol(j, j);
+    }
+
+    B.FastResize(Lx, Ly);
+    for (int_max j = 0; j < Ly; ++j)
+    {
+        B.FillCol(j, j+100);
+    }
+
+    C1.FastResize(Lx, Ly);
+    C2.FastResize(Lx, Ly);
+    
+
+    int_max LoopNumber = 1000;
+
+    auto t0 = std::chrono::system_clock::now();
+
+    for (int_max i = 0; i < LoopNumber; ++i)
+    {
+        MatrixMultiply(C1, A, B);
+    }
+
+    auto t1 = std::chrono::system_clock::now();
+
+    std::chrono::duration<double> raw_time = t1 - t0;
+    std::cout << "MatrixMultiply time = " << raw_time.count() << '\n';
+
+   
+
+    t0 = std::chrono::system_clock::now();
+
+    for (int_max i = 0; i < LoopNumber; ++i)
+    {
+        MatrixMultiply_slow(C2, A, B);
+    }
+
+    t1 = std::chrono::system_clock::now();
+
+    raw_time = t1 - t0;
+    std::cout << "MatrixMultiply_slow time = " << raw_time.count() << '\n';
+
+    //DisplayMatrix("C1", C1);
+
+    //DisplayMatrix("C2", C2);
+
+    DenseMatrix<double> C_diff = C2 - C2;
+    C_diff.ElementNamedOperationInPlace("abs");
+    auto diff = C_diff.Sum();
+    std::cout << "diff  = " << diff << '\n';
+}
+
 
 }//namespace mdk
 

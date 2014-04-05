@@ -416,9 +416,9 @@ void SparseMatrixDataInCSCFormat<ElementType>::Clear()
 
     m_DataArray.clear();
 
-    m_ZeroElement = m_ZeroElement - m_ZeroElement;
+    m_ZeroElement = ElementType(0);
 
-    m_Threshold = m_ZeroElement;
+    m_Threshold = ElementType(0);
 
     m_IsSizeFixed = false;
 }
@@ -1871,7 +1871,7 @@ try
     {
         m_MatrixData = std::make_shared<SparseMatrixDataInCSCFormat<ElementType>>();
 
-        m_NaNElement = GetMatrixNaNElement(m_NaNElement);
+        m_NaNElement = GetMatrixNaNElement(ElementType(0));
     }
     //-----------------------------------------------------------------------------------
 
