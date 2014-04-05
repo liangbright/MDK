@@ -45,6 +45,8 @@ struct DenseMatrixData
 
     std::vector<ElementType> DataArray;
 
+    ElementType NaNElement;
+
     bool IsSizeFixed;
 
 //-------------------------------------------------------------
@@ -53,6 +55,7 @@ struct DenseMatrixData
         RowNumber = 0;
         ColNumber = 0;
         ElementPointer = nullptr;
+        NaNElement = GetMatrixNaNElement(ElementType(0)); // zero if int
         IsSizeFixed = false;
     };
 
@@ -127,9 +130,7 @@ private:
     std::shared_ptr<DenseMatrixData<ElementType>> m_MatrixData;
 
     ElementType* m_ElementPointer; // pointer to the first element, keep tracking m_MatrixData->ElementPointer
-
-    ElementType m_NaNElement;	
-
+                                   // to accelerate operator () and [], e.g., A(k)=value, or A[k]=value
 public:
     typedef ElementType  ElementType;
 

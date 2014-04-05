@@ -51,6 +51,8 @@ struct SparseMatrixDataInCSCFormat
 
     ElementType m_Threshold; // if abs(x) <= m_Threshold, then x is zero
 
+    ElementType m_NaNElement;
+
     bool m_IsSizeFixed;
 
 //-------------------------------------------------------------------------------------------------
@@ -181,9 +183,7 @@ class SparseMatrix : public Object
 
 private:
     
-    std::shared_ptr<SparseMatrixDataInCSCFormat<ElementType>> m_MatrixData;
-
-    ElementType m_NaNElement;
+    std::shared_ptr<SparseMatrixDataInCSCFormat<ElementType>> m_MatrixData;    
 
 public:
     typedef ElementType  ElementType;

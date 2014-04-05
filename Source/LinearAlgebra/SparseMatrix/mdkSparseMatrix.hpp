@@ -420,6 +420,8 @@ void SparseMatrixDataInCSCFormat<ElementType>::Clear()
 
     m_Threshold = ElementType(0);
 
+    m_NaNElement = GetMatrixNaNElement(ElementType(0)); // zero if int
+
     m_IsSizeFixed = false;
 }
 
@@ -1081,8 +1083,6 @@ inline
 SparseMatrix<ElementType>::SparseMatrix(SparseMatrix<ElementType>&& InputMatrix)
 {
     m_MatrixData = std::move(InputMatrix.m_MatrixData);
-
-    m_NaNElement = InputMatrix.m_NaNElement;
 }
 
 
@@ -1093,8 +1093,6 @@ SparseMatrix<ElementType>::SparseMatrix(const SparseShadowMatrix<ElementType>& S
     this->Resize(0, 0);
 
     this->Take(ShadowMatrix.CreateSparseMatrix());
-
-    m_NaNElement = ShadowMatrix.m_NaNElement;
 }
 
 
@@ -1637,8 +1635,6 @@ bool SparseMatrix<ElementType>::Share(SparseMatrix<ElementType>& InputMatrix)
 
     m_MatrixData = InputMatrix.m_MatrixData; // std::SharedCopy_ptr
 
-    m_NaNElement = InputMatrix.m_NaNElement;
-
     return true;
 }
 
@@ -1655,8 +1651,6 @@ void SparseMatrix<ElementType>::ForceShare(const SparseMatrix<ElementType>& Inpu
     }
 
     m_MatrixData = InputMatrix.m_MatrixData; // std::SharedCopy_ptr
-
-    m_NaNElement = InputMatrix.m_NaNElement;
 }
 
 
@@ -1946,8 +1940,6 @@ try
     if (!m_MatrixData)
     {
         m_MatrixData = std::make_shared<SparseMatrixDataInCSCFormat<ElementType>>();
-
-        m_NaNElement = GetMatrixNaNElement(m_NaNElement);
     }
     //-----------------------------------------------------------------------------------
 
@@ -2144,7 +2136,7 @@ template<typename ElementType>
 inline
 const ElementType& SparseMatrix<ElementType>::GetNaNElement()  const
 {
-    return m_NaNElement;
+    return m_MatrixData->m_NaNElement;
 }
 
 
@@ -2152,7 +2144,7 @@ template<typename ElementType>
 inline
 MatrixElementTypeEnum SparseMatrix<ElementType>::GetElementType() const
 {
-    return FindMatrixElementType(m_NaNElement);
+    return FindMatrixElementType(m_MatrixData->m_NaNElement);
 }
 
 
@@ -2266,7 +2258,7 @@ const ElementType& SparseMatrix<ElementType>::GetElement(int_max LinearIndex) co
     if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
     {
         MDK_Error("Invalid input @ SparseMatrix::GetElement(LinearIndex, InputElement)")
-        return m_NaNElement;
+        return m_MatrixData->m_NaNElement;
     }
 
 #endif
@@ -2286,7 +2278,7 @@ const ElementType& SparseMatrix<ElementType>::GetElement(int_max RowIndex, int_m
     if (RowIndex >= SelfSize.RowNumber || RowIndex < 0 || ColIndex >= SelfSize.ColNumber || ColIndex < 0)
     {
         MDK_Error("Invalid input @ SparseMatrix::GetElement(RowIndex, ColIndex)")
-        return m_NaNElement;
+        return m_MatrixData->m_NaNElement;
     }
 
 #endif
@@ -2363,7 +2355,7 @@ ElementType& SparseMatrix<ElementType>::operator()(int_max LinearIndex)
     {
         MDK_Error("Invalid Input @ SparseMatrix::operator()(i)")
 
-        return m_NaNElement;
+        return m_MatrixData->m_NaNElement;
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
@@ -2382,7 +2374,7 @@ const ElementType& SparseMatrix<ElementType>::operator()(int_max LinearIndex) co
     {
         MDK_Error("Invalid Input @ SparseMatrix::operator()(i) const")
 
-        return m_NaNElement;
+        return m_MatrixData->m_NaNElement;
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
@@ -2403,7 +2395,7 @@ ElementType& SparseMatrix<ElementType>::at(int_max LinearIndex)
 	{
 		MDK_Error("Invalid Input @ SparseMatrix::at(i)")
         
-        return m_NaNElement;
+        return m_MatrixData->m_NaNElement;
 	}
 
     return (*m_MatrixData)(LinearIndex);
@@ -2418,7 +2410,7 @@ const ElementType& SparseMatrix<ElementType>::at(int_max LinearIndex) const
 	{
 		MDK_Error("Invalid Input @ SparseMatrix::at(i) const")
         
-        return m_NaNElement;
+        return m_MatrixData->m_NaNElement;
 	}
 
     //return (*m_MatrixData)(LinearIndex);
@@ -2442,7 +2434,7 @@ ElementType& SparseMatrix<ElementType>::operator()(int_max RowIndex, int_max Col
     {
         MDK_Error("Invalid Input @ SparseMatrix::operator()(i,j)")
 
-        return m_NaNElement;
+        return m_MatrixData->m_NaNElement;
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
@@ -2464,7 +2456,7 @@ const ElementType& SparseMatrix<ElementType>::operator()(int_max RowIndex, int_m
     {
         MDK_Error("Invalid Input @ SparseMatrix::operator()(i,j) const")
 
-        return m_NaNElement;
+        return m_MatrixData->m_NaNElement;
     }
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
@@ -2485,7 +2477,7 @@ ElementType& SparseMatrix<ElementType>::at(int_max RowIndex, int_max ColIndex)
     {
         MDK_Error("Invalid Input @ SparseMatrix::at(i,j)")
         
-        return m_NaNElement;
+        return m_MatrixData->m_NaNElement;
     }
     
     return (*m_MatrixData)(RowIndex, ColIndex);
@@ -2502,7 +2494,7 @@ const ElementType& SparseMatrix<ElementType>::at(int_max RowIndex, int_max ColIn
     {
         MDK_Error("Invalid Input @ SparseMatrix::at(i,j) const")
         
-        return m_NaNElement;
+        return m_MatrixData->m_NaNElement;
     }
 
     //return (*m_MatrixData)(RowIndex, ColIndex);

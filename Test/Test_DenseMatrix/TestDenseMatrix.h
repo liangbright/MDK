@@ -1772,8 +1772,8 @@ void Test_GlueMatrix_Create()
 
 void Test_MatrixMutiply()
 {
-    int_max Lx = 100;
-    int_max Ly = 100;
+    int_max Lx = 1000;
+    int_max Ly = 1000;
 
     DenseMatrix<double> A;
     DenseMatrix<double> B;
@@ -1805,7 +1805,7 @@ void Test_MatrixMutiply()
     C2.FastResize(Lx, Ly);
     
 
-    int_max LoopNumber = 1000;
+    int_max LoopNumber = 1;
 
     auto t0 = std::chrono::system_clock::now();
 

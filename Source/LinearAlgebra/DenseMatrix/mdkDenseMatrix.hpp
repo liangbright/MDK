@@ -98,8 +98,6 @@ DenseMatrix<ElementType>::DenseMatrix(DenseMatrix<ElementType>&& InputMatrix) no
     m_MatrixData = std::move(InputMatrix.m_MatrixData);
 
     m_ElementPointer = m_MatrixData->ElementPointer;
-
-    m_NaNElement = InputMatrix.m_NaNElement;
 }
 
 
@@ -534,8 +532,6 @@ bool DenseMatrix<ElementType>::Share(DenseMatrix<ElementType>& InputMatrix)
 
     m_ElementPointer = m_MatrixData->ElementPointer;
 
-    m_NaNElement = InputMatrix.m_NaNElement;
-
     return true;
 }
 
@@ -568,8 +564,6 @@ void DenseMatrix<ElementType>::ForceShare(const DenseMatrix<ElementType>& InputM
     m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment check is not necessary
 
     m_ElementPointer = m_MatrixData->ElementPointer;
-
-    m_NaNElement = InputMatrix.m_NaNElement;
 }
 
 
@@ -651,9 +645,9 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>& InputMatrix)
 
     m_MatrixData->ElementPointer = InputMatrix.m_MatrixData->ElementPointer;
 
-    m_ElementPointer = m_MatrixData->ElementPointer;
+    m_MatrixData->NaNElement = InputMatrix.m_MatrixData->NaNElement;
 
-    m_NaNElement = InputMatrix.m_NaNElement;
+    m_ElementPointer = m_MatrixData->ElementPointer;
 
     // Clear InputMatrix to be empty
     InputMatrix.Clear();
@@ -699,12 +693,14 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputVector)
             m_MatrixData->DataArray = std::move(InputVector);
             m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
             m_ElementPointer = m_MatrixData->ElementPointer;
+            m_MatrixData->NaNElement = InputMatrix.m_MatrixData->NaNElement;
         }
         else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength)
         {
             m_MatrixData->DataArray = std::move(InputVector);
             m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
             m_ElementPointer = m_MatrixData->ElementPointer;
+            m_MatrixData->NaNElement = InputMatrix.m_MatrixData->NaNElement;
         }
         else
         {
@@ -734,7 +730,7 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputVector)
             m_MatrixData->DataArray = std::move(InputVector);
             m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
             m_MatrixData->ColNumber = InputLength;
-
+            m_MatrixData->NaNElement = InputMatrix.m_MatrixData->NaNElement;
             m_ElementPointer = m_MatrixData->ElementPointer;
         }
         else if (SelfSize.ColNumber == 1)
@@ -742,7 +738,7 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputVector)
             m_MatrixData->DataArray = std::move(InputVector);
             m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
             m_MatrixData->RowNumber = InputLength;
-
+            m_MatrixData->NaNElement = InputMatrix.m_MatrixData->NaNElement;
             m_ElementPointer = m_MatrixData->ElementPointer;
         }
         else
@@ -751,7 +747,7 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputVector)
             m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
             m_MatrixData->RowNumber = InputLength;
             m_MatrixData->ColNumber = 1;
-
+            m_MatrixData->NaNElement = InputMatrix.m_MatrixData->NaNElement;
             m_ElementPointer = m_MatrixData->ElementPointer;
         }
 
@@ -872,8 +868,6 @@ void DenseMatrix<ElementType>::SwapSmartPointer(DenseMatrix<ElementType>& InputM
         MDK_Warning("m_MatrixData is empty after SwapSmartPointer @ DenseMatrix::SwapSmartPointer(InputMatrix)")
     }
 
-    m_NaNElement = InputMatrix.m_NaNElement;
-
     if (InputMatrix.m_MatrixData)
     {
         InputMatrix.m_ElementPointer = InputMatrix.m_MatrixData->ElementPointer;
@@ -954,10 +948,6 @@ try
         m_MatrixData = std::make_shared<DenseMatrixData<ElementType>>();
 
         m_ElementPointer = nullptr;
-
-        m_NaNElement = ElementType(0);
-
-        m_NaNElement = GetMatrixNaNElement(m_NaNElement); // zero if int
     }
     //-------------------------------------------------------------------------
 
@@ -1418,7 +1408,7 @@ template<typename ElementType>
 inline
 const ElementType& DenseMatrix<ElementType>::GetNaNElement()  const
 {
-    return m_NaNElement;
+    return m_MatrixData->NaNElement;
 }
 
 
@@ -1426,7 +1416,7 @@ template<typename ElementType>
 inline
 MatrixElementTypeEnum DenseMatrix<ElementType>::GetElementType() const
 {
-    return FindMatrixElementType(m_NaNElement);
+    return FindMatrixElementType(m_MatrixData->NaNElement);
 }
 
 
@@ -1487,7 +1477,7 @@ ElementType& DenseMatrix<ElementType>::operator[](int_max LinearIndex)
     {
         MDK_Error("Invalid Input @ DenseMatrix::operator[](i)")
 
-        return m_NaNElement;
+        return m_MatrixData->NaNElement;
     }
 
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
@@ -1506,7 +1496,7 @@ const ElementType& DenseMatrix<ElementType>::operator[](int_max LinearIndex) con
     {
         MDK_Error("Invalid Input @ DenseMatrix::operator[](i) const")
 
-        return m_NaNElement;
+        return m_MatrixData->NaNElement;
     }
 
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
@@ -1525,7 +1515,7 @@ ElementType& DenseMatrix<ElementType>::operator()(int_max LinearIndex)
     {
         MDK_Error("Invalid Input @ DenseMatrix::operator()(i)")
 
-        return m_NaNElement;
+        return m_MatrixData->NaNElement;
     }
 
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
@@ -1544,7 +1534,7 @@ const ElementType& DenseMatrix<ElementType>::operator()(int_max LinearIndex) con
     {
         MDK_Error("Invalid Input @ DenseMatrix::operator()(i) const")
 
-        return m_NaNElement;
+        return m_MatrixData->NaNElement;
     }
 
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
@@ -1562,7 +1552,7 @@ ElementType& DenseMatrix<ElementType>::at(int_max LinearIndex)
 	{
 		MDK_Error("Invalid Input @ DenseMatrix::at(i)")
         
-        return m_NaNElement;
+        return m_MatrixData->NaNElement;
 	}
 
 	return m_ElementPointer[LinearIndex];
@@ -1577,7 +1567,7 @@ const ElementType& DenseMatrix<ElementType>::at(int_max LinearIndex) const
 	{
 		MDK_Error("Invalid Input @ DenseMatrix::at(i) const")
         
-        return m_NaNElement;
+        return m_MatrixData->NaNElement;
 	}
 
 	return m_ElementPointer[LinearIndex];
@@ -1599,7 +1589,7 @@ ElementType& DenseMatrix<ElementType>::operator()(int_max RowIndex, int_max ColI
     {
         MDK_Error("Invalid Input @ DenseMatrix::operator()(i,j)")
 
-        return m_NaNElement;
+        return m_MatrixData->NaNElement;
     }
 
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
@@ -1621,7 +1611,7 @@ const ElementType& DenseMatrix<ElementType>::operator()(int_max RowIndex, int_ma
     {
         MDK_Error("Invalid Input @ DenseMatrix::operator()(i,j) const")
 
-        return m_NaNElement;
+        return m_MatrixData->NaNElement;
     }
 
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
@@ -1640,7 +1630,7 @@ ElementType& DenseMatrix<ElementType>::at(int_max RowIndex, int_max ColIndex)
     {
         MDK_Error("Invalid Input @ DenseMatrix::at(i,j)")
         
-        return m_NaNElement;
+        return m_MatrixData->NaNElement;
     }
     
     return (*m_MatrixData)(RowIndex, ColIndex);
@@ -1657,7 +1647,7 @@ const ElementType& DenseMatrix<ElementType>::at(int_max RowIndex, int_max ColInd
     {
         MDK_Error("Invalid Input @ DenseMatrix::at(i,j) const")
         
-        return m_NaNElement;
+        return m_MatrixData->NaNElement;
     }
 
     return (*m_MatrixData)(RowIndex, ColIndex);
