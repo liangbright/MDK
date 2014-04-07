@@ -1011,6 +1011,8 @@ public:
 
     inline DenseMatrix Transpose() const;
 
+    inline void TransposeInPlace();
+
 	//----------------------------------- Rank -----------------------------------------//
 
     inline int_max Rank() const;

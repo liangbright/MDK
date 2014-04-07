@@ -17,7 +17,7 @@ namespace mdk
 {
 
 template<typename T>
-void DisplayMatrix(const std::string& Name, const DenseMatrix<T>& Matrix, uint32 value_std_setw = 6, uint32 precision = 4)
+void DisplayMatrix(const std::string& Name, const DenseMatrix<T>& Matrix, int_max value_std_setw = 6, int_max precision = 4)
 {
     std::cout << Name << " = " << '\n';
 

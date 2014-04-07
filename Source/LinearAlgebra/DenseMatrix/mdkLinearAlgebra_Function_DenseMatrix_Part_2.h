@@ -84,9 +84,13 @@ ElementType MatrixNorm_L2(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 
-
 template<typename ElementType>
 inline DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& InputMatrix);
+
+//-----------------------------------------------------------------------------------------------//
+
+template<typename ElementType>
+inline void MatrixTransposeInPlace(DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 

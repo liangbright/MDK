@@ -92,8 +92,8 @@ static ALL_Symbol_For_Matrix_Operator This_Is_ALL_Symbol_For_Matrix_Operator(Thi
 
 //-----------------------------------span: e.g., span(1,10) is 1:10 in Matlab, or span(1, 2, 10) is 1:2:10 in Matlab -----------------//
 
-std::vector<int_max> span(int_max Index_A, int_max Index_B);
-std::vector<int_max> span(int_max Index_A, int_max Step, int_max Index_B);
+inline std::vector<int_max> span(int_max Index_A, int_max Index_B);
+inline std::vector<int_max> span(int_max Index_A, int_max Step, int_max Index_B);
 
 
 //------------------------------- Empty_Matrix_Symbol to Construct empty Matrix with/without memory allocation ----------------------------------------//

@@ -547,6 +547,33 @@ DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& InputMa
 
 template<typename ElementType>
 inline 
+void MatrixTransposeInPlace(DenseMatrix<ElementType>& InputMatrix)
+{
+    auto Size = InputMatrix.GetSize();
+
+    if (Size.RowNumber == 0)
+    {
+        return;
+    }
+
+    if (Size.ColNumber == 1 || Size.RowNumber == 1)
+    {
+        InputMatrix.Reshape(Size.ColNumber, Size.RowNumber);
+        return;
+    }
+
+    //--------------------- call armadillo
+
+    arma::Mat<ElementType> A(InputMatrix.GetElementPointer(), arma::uword(InputMatrix.GetRowNumber()), arma::uword(InputMatrix.GetColNumber()), false);
+
+    arma::inplace_trans(A);
+
+    InputMatrix.Reshape(Size.ColNumber, Size.RowNumber);
+}
+
+
+template<typename ElementType>
+inline 
 int_max MatrixRank(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto Size = InputMatrix.GetSize();

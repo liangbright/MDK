@@ -5758,6 +5758,14 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::Transpose() const
 
 template<typename ElementType>
 inline
+void DenseMatrix<ElementType>::TransposeInPlace()
+{
+    MatrixTransposeInPlace(*this);
+}
+
+
+template<typename ElementType>
+inline
 int_max DenseMatrix<ElementType>::Rank() const
 {
     return MatrixRank(*this);
