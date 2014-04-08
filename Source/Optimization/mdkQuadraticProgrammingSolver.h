@@ -13,7 +13,7 @@
 #include "mdkSparseMatrix.h"
 
 
-// min 0.5 x'*H*x + x'*g
+// find x that minimizes 0.5 * x'*H*x + x'*g
 //
 // subject to
 //
@@ -37,11 +37,14 @@ enum struct HessianType_Of_QuadraticProgramming
 
 struct Option_Of_QuadraticProgramming
 {
-    bool IsOnlineMode;
-
+    std::string Mode;
+    // OneTimeOnly          (default mode)
+    // Online_Varying_H_A   (for dictionary learning)
+    // Online_Fixed_H_A     (for some control problems)
+    
     double CPUTime;
 
-    int_max MaxWSR;
+    int_max MaxIterNumber;
 
     HessianType_Of_QuadraticProgramming HessianType;
 
@@ -60,18 +63,18 @@ struct Option_Of_QuadraticProgramming
 
     void operator=(const Option_Of_QuadraticProgramming& InputOption)
     {
-        IsOnlineMode = InputOption.IsOnlineMode;
+        Mode = InputOption.Mode;
         CPUTime = InputOption.CPUTime;
-        MaxWSR = InputOption.MaxWSR;
+        MaxIterNumber = InputOption.MaxIterNumber;
         HessianType = InputOption.HessianType;
         InputDataWillNotbeUsedByAnyOtherProcessDuringOptimization = InputOption.InputDataWillNotbeUsedByAnyOtherProcessDuringOptimization;
     }
 
     void SetToDefault()
     {
-        IsOnlineMode = false;
+        Mode = "OneTimeOnly";
         CPUTime = false;
-        MaxWSR = -1;
+        MaxIterNumber = -1;
         HessianType = HessianType_Of_QuadraticProgramming::Unknown;
         InputDataWillNotbeUsedByAnyOtherProcessDuringOptimization = false;
     }
@@ -151,19 +154,22 @@ private:
     qpOASES::Options<ElementType> m_Option_qpOASES;
 
     const DenseMatrix<ElementType>*  m_H_dense;
-    const SparseMatrix<ElementType>* m_H_sparse;
-
-    const DenseMatrix<ElementType>* m_g;
-
-    const DenseMatrix<ElementType>* m_lb_x;
-    const DenseMatrix<ElementType>* m_ub_x;
-
+    const DenseMatrix<ElementType>*  m_g_dense;
+    const DenseMatrix<ElementType>*  m_lb_x_dense;
+    const DenseMatrix<ElementType>*  m_ub_x_dense;
     const DenseMatrix<ElementType>*  m_A_dense;
-    const SparseMatrix<ElementType>* m_A_sparse;
-    const DenseMatrix<ElementType>*  m_lb_A;
-    const DenseMatrix<ElementType>*  m_ub_A;
+    const DenseMatrix<ElementType>*  m_lb_A_dense;
+    const DenseMatrix<ElementType>*  m_ub_A_dense;
+    const DenseMatrix<ElementType>*  m_x0_dense;
 
-    const DenseMatrix<ElementType>* m_x0;
+    const SparseMatrix<ElementType>*  m_H_sparse;
+    const SparseMatrix<ElementType>*  m_g_sparse;
+    const SparseMatrix<ElementType>*  m_lb_x_sparse;
+    const SparseMatrix<ElementType>*  m_ub_x_sparse;
+    const SparseMatrix<ElementType>*  m_A_sparse;
+    const SparseMatrix<ElementType>*  m_lb_A_sparse;
+    const SparseMatrix<ElementType>*  m_ub_A_sparse;
+    const SparseMatrix<ElementType>*  m_x0_sparse;
 
     bool m_IsInputDense;
 
@@ -176,6 +182,14 @@ private:
     std::unique_ptr<qpOASES::QProblemB<ElementType>> m_QProblemB_Online;
     std::unique_ptr<qpOASES::SQProblem<ElementType>> m_SQProblem_Online;
 
+    int_max m_Counter_In_Mode_Online_Varying_H_A;
+    int_max m_VaribleNumber_In_Mode_Online_Varying_H_A;
+    int_max m_ConstraintNumber_In_Mode_Online_Varying_H_A;
+
+    //----empty matrix
+    DenseMatrix<ElementType>  m_EmptyDenseMatrix;
+    SparseMatrix<ElementType> m_EmptySparseMatrix;
+
 public:
 
     QuadraticProgrammingSolver();
@@ -184,22 +198,22 @@ public:
     void Clear();
 
     void SetInputData(const DenseMatrix<ElementType>* H,                      
-                      const DenseMatrix<ElementType>* g,
-                      const DenseMatrix<ElementType>* lb_x,
-                      const DenseMatrix<ElementType>* A,
-                      const DenseMatrix<ElementType>* ub_x,
-                      const DenseMatrix<ElementType>* lb_A,
-                      const DenseMatrix<ElementType>* ub_A,
-                      const DenseMatrix<ElementType>* x0);
+                      const DenseMatrix<ElementType>* g    = nullptr,
+                      const DenseMatrix<ElementType>* lb_x = nullptr,
+                      const DenseMatrix<ElementType>* ub_x = nullptr,
+                      const DenseMatrix<ElementType>* A    = nullptr,
+                      const DenseMatrix<ElementType>* lb_A = nullptr,
+                      const DenseMatrix<ElementType>* ub_A = nullptr,
+                      const DenseMatrix<ElementType>* x0   = nullptr);
 
-    void SetInputData(const SparseMatrix<ElementType>* H,                     
-                      const DenseMatrix<ElementType>*  g,
-                      const DenseMatrix<ElementType>*  lb_x,
-                      const DenseMatrix<ElementType>*  ub_x,
-                      const SparseMatrix<ElementType>* A,
-                      const DenseMatrix<ElementType>*  lb_A,
-                      const DenseMatrix<ElementType>*  ub_A,
-                      const DenseMatrix<ElementType>*  x0);
+    void SetInputData(const SparseMatrix<ElementType>*  H,                     
+                      const SparseMatrix<ElementType>*  g    = nullptr,
+                      const SparseMatrix<ElementType>*  lb_x = nullptr,
+                      const SparseMatrix<ElementType>*  ub_x = nullptr,
+                      const SparseMatrix<ElementType>*  A    = nullptr,
+                      const SparseMatrix<ElementType>*  lb_A = nullptr,
+                      const SparseMatrix<ElementType>*  ub_A = nullptr,
+                      const SparseMatrix<ElementType>*  x0   = nullptr);
 
     bool SetOutputSolution(Solution_Of_QuadraticProgramming<ElementType>* Solution);
 
@@ -218,32 +232,34 @@ public:
                                                                const DenseMatrix<ElementType>* x0   = nullptr,
                                                                const Option_Of_QuadraticProgramming* Option = nullptr);
 
-    static Solution_Of_QuadraticProgramming<ElementType> Apply(const SparseMatrix<ElementType>* H,                                                               
-                                                               const DenseMatrix<ElementType>*  g    = nullptr,
-                                                               const DenseMatrix<ElementType>*  lb_x = nullptr,
-                                                               const DenseMatrix<ElementType>*  ub_x = nullptr,
-                                                               const SparseMatrix<ElementType>* A    = nullptr,
-                                                               const DenseMatrix<ElementType>*  lb_A = nullptr,
-                                                               const DenseMatrix<ElementType>*  ub_A = nullptr,
-                                                               const DenseMatrix<ElementType>*  x0   = nullptr,
+    static Solution_Of_QuadraticProgramming<ElementType> Apply(const SparseMatrix<ElementType>*  H,
+                                                               const SparseMatrix<ElementType>*  g    = nullptr,
+                                                               const SparseMatrix<ElementType>*  lb_x = nullptr,
+                                                               const SparseMatrix<ElementType>*  ub_x = nullptr,
+                                                               const SparseMatrix<ElementType>*  A    = nullptr,
+                                                               const SparseMatrix<ElementType>*  lb_A = nullptr,
+                                                               const SparseMatrix<ElementType>*  ub_A = nullptr,
+                                                               const SparseMatrix<ElementType>*  x0   = nullptr,
                                                                const Option_Of_QuadraticProgramming* Option = nullptr);
 private:
 
     bool CheckInput_dense_OneTimeOnly();
-
-    bool CheckInput_sparse_OneTimeOnly();
-
-    bool CheckInput_dense_Online();
-
-    bool CheckInput_sparse_Online();
-
     bool Update_dense_OneTimeOnly();
 
+    bool CheckInput_sparse_OneTimeOnly();
     bool Update_sparse_OneTimeOnly();
 
-    bool Update_dense_Online();
+    bool CheckInput_dense_Online_Varying_H_A();
+    bool Update_dense_Online_Varying_H_A();
 
-    bool Update_sparse_Online();
+    bool CheckInput_sparse_Online_Varying_H_A();
+    bool Update_sparse_Online_Varying_H_A();
+
+    bool CheckInput_dense_Online_Fixed_H_A();
+    bool Update_dense_Online_Fixed_H_A();
+
+    bool CheckInput_sparse_Online_Fixed_H_A();
+    bool Update_sparse_Online_Fixed_H_A();
 
 private:
     QuadraticProgrammingSolver(const QuadraticProgrammingSolver&) = delete;

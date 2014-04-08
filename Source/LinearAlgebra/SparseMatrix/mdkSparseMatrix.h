@@ -156,7 +156,7 @@ struct SparseMatrixDataInCSCFormat
 
     const ElementType* GetPointerOfBeginElementInCol(int_max ColIndex) const;
 
-    int_max GetLinearIndexOfBeginElementInCol(int_max ColIndex) const;
+    int_max GetDataArrayLinearIndexOfBeginElementInCol(int_max ColIndex) const;
 
     int_max GetRowIndexOfBeginElementInCol(int_max ColIndex) const;
 
@@ -403,17 +403,25 @@ public:
 
     //--------------------- Get Data Pointer -----------------------------//
 
-    inline ElementType* GetRecordedElementPointer();
+    inline ElementType* GetPointerOfDataArray();
 
-    inline const ElementType* GetRecordedElementPointer() const;
+    inline const ElementType* GetPointerOfDataArray() const;
+
+    inline int_max* GetPointerOfRowIndexList();
+
+    inline const int_max* GetPointerOfRowIndexList() const;
+
+    inline int_max* GetPointerOfColBeginElementLinearIndexInDataArray();
+
+    inline const int_max* GetPointerOfColBeginElementLinearIndexInDataArray() const;
 
     inline ElementType* GetPointerOfBeginElementInCol(int_max ColIndex);
 
     inline const ElementType* GetPointerOfBeginElementInCol(int_max ColIndex) const;
 
-    inline int_max GetLinearIndexOfBeginElementInCol(int_max ColIndex) const;
+    inline int_max GetDataArrayLinearIndexOfBeginElementInCol(int_max ColIndex) const;
 
-    int_max GetRowIndexOfBeginElementInCol(int_max ColIndex) const;
+    inline int_max GetRowIndexOfBeginElementInCol(int_max ColIndex) const;
 
     inline int_max GetRecordedElementNumberInCol(int_max ColIndex) const;
 
