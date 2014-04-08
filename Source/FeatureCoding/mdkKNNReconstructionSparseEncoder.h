@@ -5,6 +5,7 @@
 
 #include "mdkFeatureDictionaryBasedSparseEncoder.h"
 #include "mdkFeatureCoding_Common_Function.h"
+#include "mdkLinearLeastSquaresProblemSolver.h"
 
 // find K Nearest Neighbor [d_1, d_2, ..., d_k] from D by using L2 norm
 // find Alpha that minimizes||X - [d_1, d_2, d_k ]*Alpha||, by using Linear least suqares (Lsqlin) method
@@ -20,8 +21,6 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
 {
     int_max NeighbourNumber;
 
-    std::string LsqlinMethodName;
-
     bool Nonnegative;
 
     bool SumToOne;
@@ -33,10 +32,9 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
 
     void Clear()
     {
-        NeighbourNumber = -1;
-        LsqlinMethodName = "Normal";
-        Nonnegative = false;
-        SumToOne = false;
+        NeighbourNumber  = -1;
+        Nonnegative      = false;
+        SumToOne         = false;
     }
 
 private:

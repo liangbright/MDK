@@ -1,6 +1,9 @@
 #ifndef __mdkDebug_h
 #define __mdkDebug_h
 
+#include "mdkType.h"
+
+
 namespace mdk
 {
 

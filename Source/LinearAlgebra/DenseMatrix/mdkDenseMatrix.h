@@ -851,126 +851,162 @@ public:
 
 	//-------------------- general element operation : output a new matrix with the same size ------------------------------------------//
 
-    inline DenseMatrix ElementNamedOperation(const std::string& OperationName) const;
+    inline DenseMatrix ElementOperation(const char* OperationName) const;
+
+    inline DenseMatrix ElementOperation(const std::string& OperationName) const;
 
     template<typename OperationType>
     inline DenseMatrix ElementOperation(OperationType Operation) const;
 
-    inline DenseMatrix ElementNamedOperation(const char OperationName, const DenseMatrix<ElementType>& InputMatrix) const;
+    inline DenseMatrix ElementOperation(const char OperationName, const DenseMatrix<ElementType>& InputMatrix) const;
 
-    inline DenseMatrix ElementNamedOperation(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix) const;
+    inline DenseMatrix ElementOperation(const char* OperationName, const DenseMatrix<ElementType>& InputMatrix) const;
+
+    inline DenseMatrix ElementOperation(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix) const;
 
     template<typename OperationType>
     inline DenseMatrix ElementOperation(OperationType Operation, const DenseMatrix<ElementType>& InputMatrix) const;
 
-    inline DenseMatrix ElementNamedOperation(const char OperationName, const ElementType& Element) const;
+    inline DenseMatrix ElementOperation(const char OperationName, const ElementType& Element) const;
 
-    inline DenseMatrix ElementNamedOperation(const std::string& OperationName, const ElementType& Element) const;
+    inline DenseMatrix ElementOperation(const char* OperationName, const ElementType& Element) const;
+
+    inline DenseMatrix ElementOperation(const std::string& OperationName, const ElementType& Element) const;
 
     template<typename OperationType>
     inline DenseMatrix ElementOperation(OperationType Operation, const ElementType& Element) const;
 
     //-------------------- general element operation in place : Object.ElementOperationInPlace modify the object itself ---------------//
 
-    inline bool ElementNamedOperationInPlace(const std::string& OperationName);
+    inline bool ElementOperationInPlace(const char* OperationName);
+
+    inline bool ElementOperationInPlace(const std::string& OperationName);
 
     template<typename OperationType>
     inline bool ElementOperationInPlace(OperationType Operation);
 
-    inline bool ElementNamedOperationInPlace(const char OperationName, const DenseMatrix<ElementType>& InputMatrix);
+    inline bool ElementOperationInPlace(const char OperationName, const DenseMatrix<ElementType>& InputMatrix);
 
-    inline bool ElementNamedOperationInPlace(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix);
+    inline bool ElementOperationInPlace(const char* OperationName, const DenseMatrix<ElementType>& InputMatrix);
+
+    inline bool ElementOperationInPlace(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix);
 
     template<typename OperationType>
     inline bool ElementOperationInPlace(OperationType Operation, const DenseMatrix<ElementType>& InputMatrix);
 
-    inline bool ElementNamedOperationInPlace(const char OperationName, const ElementType& Element);
+    inline bool ElementOperationInPlace(const char OperationName, const ElementType& Element);
 
-    inline bool ElementNamedOperationInPlace(const std::string& OperationName, const ElementType& Element);
+    inline bool ElementOperationInPlace(const char* OperationName, const ElementType& Element);
+
+    inline bool ElementOperationInPlace(const std::string& OperationName, const ElementType& Element);
 
     template<typename OperationType>
     inline bool ElementOperationInPlace(OperationType Operation, const ElementType& Element);
 
     //-------------------- general Col operation : output a new col-matrix ------------------------------------------//
 
-    inline DenseMatrix ColNamedOperation(int_max ColIndex, const std::string& OperationName, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColOperation(int_max ColIndex, const char* OperationName, bool EnableBoundCheck = true) const;
+
+    inline DenseMatrix ColOperation(int_max ColIndex, const std::string& OperationName, bool EnableBoundCheck = true) const;
 
     template<typename OperationType>
     inline DenseMatrix ColOperation(int_max ColIndex, OperationType Operation, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix ColNamedOperation(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColOperation(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix ColNamedOperation(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColOperation(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+
+    inline DenseMatrix ColOperation(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
     
     template<typename OperationType>
     inline DenseMatrix ColOperation(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix ColNamedOperation(int_max ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColOperation(int_max ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix ColNamedOperation(int_max ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColOperation(int_max ColIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+
+    inline DenseMatrix ColOperation(int_max ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
 
     template<typename OperationType>
     inline DenseMatrix ColOperation(int_max ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true) const;
 
     //-------------------- general col operation in place : Object.ColOperationInPlace modify the object itself ---------------//
 
-    inline bool ColNamedOperationInPlace(int_max ColIndex, const std::string& OperationName, bool EnableBoundCheck = true);
+    inline bool ColOperationInPlace(int_max ColIndex, const char* OperationName, bool EnableBoundCheck = true);
+
+    inline bool ColOperationInPlace(int_max ColIndex, const std::string& OperationName, bool EnableBoundCheck = true);
 
     template<typename OperationType>
     inline bool ColOperationInPlace(int_max ColIndex, OperationType Operation, bool EnableBoundCheck = true);
 
-    inline bool ColNamedOperationInPlace(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+    inline bool ColOperationInPlace(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
-    inline bool ColNamedOperationInPlace(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+    inline bool ColOperationInPlace(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+
+    inline bool ColOperationInPlace(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
     template<typename OperationType>
     inline bool ColOperationInPlace(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
-    inline bool ColNamedOperationInPlace(int_max ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+    inline bool ColOperationInPlace(int_max ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true);
 
-    inline bool ColNamedOperationInPlace(int_max ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+    inline bool ColOperationInPlace(int_max ColIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+    inline bool ColOperationInPlace(int_max ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
 
     template<typename OperationType>
     inline bool ColOperationInPlace(int_max ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
 
     //-------------------- general Row operation : output a new row-matrix ------------------------------------------//
 
-    inline DenseMatrix RowNamedOperation(int_max RowIndex, const std::string& OperationName, bool EnableBoundCheck = true) const;
+    inline DenseMatrix RowOperation(int_max RowIndex, const char* OperationName, bool EnableBoundCheck = true) const;
+
+    inline DenseMatrix RowOperation(int_max RowIndex, const std::string& OperationName, bool EnableBoundCheck = true) const;
 
     template<typename OperationType>
     inline DenseMatrix RowOperation(int_max RowIndex, OperationType Operation, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix RowNamedOperation(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+    inline DenseMatrix RowOperation(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix RowNamedOperation(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+    inline DenseMatrix RowOperation(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+
+    inline DenseMatrix RowOperation(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
 
     template<typename OperationType>
     inline DenseMatrix RowOperation(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix RowNamedOperation(int_max RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+    inline DenseMatrix RowOperation(int_max RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix RowNamedOperation(int_max RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+    inline DenseMatrix RowOperation(int_max RowIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+
+    inline DenseMatrix RowOperation(int_max RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
 
     template<typename OperationType>
     inline DenseMatrix RowOperation(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true) const;
 
     //-------------------- general row operation in place : Object.RowOperationInPlace modify the object itself ---------------//
 
-    inline bool RowNamedOperationInPlace(int_max RowIndex, const std::string& OperationName, bool EnableBoundCheck = true);
+    inline bool RowOperationInPlace(int_max RowIndex, const char* OperationName, bool EnableBoundCheck = true);
+
+    inline bool RowOperationInPlace(int_max RowIndex, const std::string& OperationName, bool EnableBoundCheck = true);
 
     template<typename OperationType>
     inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, bool EnableBoundCheck = true);
 
-    inline bool RowNamedOperationInPlace(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+    inline bool RowOperationInPlace(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
-    inline bool RowNamedOperationInPlace(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+    inline bool RowOperationInPlace(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+
+    inline bool RowOperationInPlace(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
     template<typename OperationType>
     inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
-    inline bool RowNamedOperationInPlace(int_max RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+    inline bool RowOperationInPlace(int_max RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true);
 
-    inline bool RowNamedOperationInPlace(int_max RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+    inline bool RowOperationInPlace(int_max RowIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+    inline bool RowOperationInPlace(int_max RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
 
     template<typename OperationType>
     inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);

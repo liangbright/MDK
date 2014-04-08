@@ -2,7 +2,7 @@
 
 #include "mdkDenseMatrix.h"
 #include "mdkQuadraticProgrammingSolver.h"
-
+#include "mdkLinearLeastSquaresProblemSolver.h"
 
 template<typename ElementType>
 void DisplayMatrix(const std::string& Name, const mdk::DenseMatrix<ElementType>& InputMatrix, mdk::int_max precision = 6, bool Flag_scientific = false)
@@ -271,6 +271,36 @@ void test_qp_Online_Varing_H_A()
 
 }
 
+void test_lsqlin_by_qp()
+{
+    using namespace mdk;
+    
+    DenseMatrix<double> D(2, 2);
+
+    D= { { 1.0, 0.0 },
+         { 0.0, 0.5 } };
+
+    DenseMatrix<double> c(2, 1);
+    c= { 1.5, 1.0 };
+    
+    DenseMatrix<double> lb(2, 1);
+    lb= { 0.5, -2.0 };
+
+    DenseMatrix<double> ub(2, 1);
+    ub = { 5.0, 2.0 };
+
+    DenseMatrix<double> A(1, 2);
+    A= { 1.0, 1.0 };
+    DenseMatrix<double> lbA = { -1.0 };
+    DenseMatrix<double> ubA = { 2.0 };
+
+    auto Solution = LinearLeastSquaresProblemSolver<double>::Apply(&D, &c, &lb, &ub, &A, &lbA, &ubA);
+
+    DisplayMatrix("X", Solution.X);
+
+    std::system("pause");
+}
+
 
 int main()
 {
@@ -279,11 +309,13 @@ int main()
 
     //test_QProblem();
 
-    //test_qp();
+   // test_qp();
 
-    test_SQProblem();
+   // test_SQProblem();
 
-    test_qp_Online_Varing_H_A();
+   // test_qp_Online_Varing_H_A();
+
+    test_lsqlin_by_qp();
 
     std::system("pause");
 }

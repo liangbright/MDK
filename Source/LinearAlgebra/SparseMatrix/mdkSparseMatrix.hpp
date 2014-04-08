@@ -1192,6 +1192,18 @@ bool SparseMatrix<ElementType>::Construct(const int_max* RowIndexList,
 
 template<typename ElementType>
 inline
+void SparseMatrix<ElementType>::ConstructWithOrder(const std::vector<int_max>& RowIndexList,
+                                                   const std::vector<int_max>& ColIndexList,
+                                                   const std::vector<ElementType>& DataArray,
+                                                   int_max RowNumber,
+                                                   int_max ColNumber)
+{
+    m_MatrixData->ConstructWithOrder(std::move(RowIndexList), std::move(ColIndexList), std::move(DataArray), RowNumber, ColNumber);
+}
+
+
+template<typename ElementType>
+inline
 bool SparseMatrix<ElementType>::ConstructColVector(const std::initializer_list<int_max>& RowIndexList,
                                                    const std::vector<ElementType>& DataArray,
                                                    int_max RowNumber)
@@ -6068,6 +6080,14 @@ inline
 SparseMatrix<ElementType> SparseMatrix<ElementType>::Transpose() const
 {
     return MatrixTranspose(*this);
+}
+
+
+template<typename ElementType>
+inline
+void SparseMatrix<ElementType>::TransposeInPlace()
+{
+    return MatrixTransposeInPlace(*this);
 }
 
 

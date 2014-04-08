@@ -16,24 +16,6 @@
 namespace mdk
 {
 
-template<typename T>
-void DisplayMatrix(const std::string& Name, const DenseMatrix<T>& Matrix, int_max value_std_setw = 6, int_max precision = 4)
-{
-    std::cout << Name << " = " << '\n';
-
-    for (int_max i = 0; i < Matrix.GetRowNumber(); ++i)
-    {
-        for (int_max j = 0; j < Matrix.GetColNumber(); ++j)
-        {
-            //std::cout << std::fixed << std::setprecision(precision) << Matrix(i, j) << ' ';
-
-            std::cout << std::setw(value_std_setw + precision) << std::setprecision(precision) << Matrix(i, j) << ' ';
-        }
-        std::cout << '\n';
-    }
-}
-
-
 void Test_ConstPointer_function(const double* p)
 {
 	//p[1] = 2;
@@ -628,22 +610,30 @@ void Test_ElementOperation()
 
     DisplayMatrix("A", A);
 
-    auto B = A.ElementNamedOperation("sqrt");
+    auto A1 = A.ElementOperation('*', 1);
 
-    DisplayMatrix("B = A.ElementNamedOperation(\"sqrt\")", B);
+    auto A2 = A.ElementOperation("*", 1);
 
-    B = A.ElementNamedOperation('+', 1);
+    auto A3 = A.ElementOperation(std::string("*"), 1);
 
-    DisplayMatrix("B = A.ElementNamedOperation('+', 1)", B);
+
+
+    auto B = A.ElementOperation("sqrt");
+
+    DisplayMatrix("B = A.ElementOperation(\"sqrt\")", B);
+
+    B = A.ElementOperation('+', 1);
+
+    DisplayMatrix("B = A.ElementOperation('+', 1)", B);
 
     auto C = A^10.0;
 
     DisplayMatrix("C=A^10.0", C);
 
 
-    A.ElementNamedOperationInPlace('+', 1);
+    A.ElementOperationInPlace('+', 1);
 
-    DisplayMatrix(" A.ElementNamedOperationInPlace('+', 1)", A);
+    DisplayMatrix(" A.ElementOperationInPlace('+', 1)", A);
 
 }
 
@@ -658,18 +648,18 @@ void Test_ColOperation()
 
     DisplayMatrix("A", A);
 
-    auto B = A.ColNamedOperation(0, "sqrt");
+    auto B = A.ColOperation(0, "sqrt");
 
-    DisplayMatrix("B = A.ColNamedOperation(0, \"sqrt\")", B);
+    DisplayMatrix("B = A.ColOperation(0, \"sqrt\")", B);
 
-    B = A.ColNamedOperation(0, '+', 1);
+    B = A.ColOperation(0, '+', 1);
 
-    DisplayMatrix("B = A.ColNamedOperation(0, '+', 1)", B);
+    DisplayMatrix("B = A.ColOperation(0, '+', 1)", B);
 
 
-    A.ColNamedOperationInPlace(0, '+', 1);
+    A.ColOperationInPlace(0, '+', 1);
 
-    DisplayMatrix(" A.ColNamedOperationInPlace(0, '+', 1", A);
+    DisplayMatrix(" A.ColOperationInPlace(0, '+', 1", A);
 
 }
 
@@ -1838,7 +1828,7 @@ void Test_MatrixMutiply()
     //DisplayMatrix("C2", C2);
 
     DenseMatrix<double> C_diff = C2 - C2;
-    C_diff.ElementNamedOperationInPlace("abs");
+    C_diff.ElementOperationInPlace("abs");
     auto diff = C_diff.Sum();
     std::cout << "diff  = " << diff << '\n';
 }

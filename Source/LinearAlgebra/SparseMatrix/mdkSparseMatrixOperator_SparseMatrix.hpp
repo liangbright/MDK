@@ -38,14 +38,14 @@ mdkSparseGlueMatrixForLinearCombination<ElementType> operator+(const mdkSparseMa
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        mdkError << "Size does not match @ mdkSparseMatrixOperator: +(MatrixA, MatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkSparseMatrixOperator: +(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        mdkError << "MatrixA or MatrixB is empty @ mdkSparseMatrixOperator: +(MatrixA, MatrixB)" << '\n';
+        MDK_Error("MatrixA or MatrixB is empty @ mdkSparseMatrixOperator: +(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
@@ -91,14 +91,14 @@ mdkSparseGlueMatrixForLinearCombination<ElementType> operator-(const mdkSparseMa
 
     if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
     {
-        mdkError << "Size does not match @ mdkSparseMatrixOperator: -(MatrixA, MatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkSparseMatrixOperator: -(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        mdkError << "MatrixA or MatrixB is empty @ mdkSparseMatrixOperator: -(MatrixA, MatrixB)" << '\n';
+        MDK_Error("MatrixA or MatrixB is empty @ mdkSparseMatrixOperator: -(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
@@ -141,14 +141,14 @@ mdkSparseGlueMatrixForMultiplication<ElementType> operator*(const mdkSparseMatri
 
     if (SizeA.ColNumber != SizeB.RowNumber)
     {
-        mdkError << "Size does not match @ mdkSparseMatrixOperator: *(MatrixA, MatrixB)" << '\n';
+        MDK_Error("Size does not match @ mdkSparseMatrixOperator: *(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
 
     if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        mdkError << "MatrixA or MatrixB is empty @ mdkSparseMatrixOperator: *(MatrixA, MatrixB)" << '\n';
+        MDK_Error("MatrixA or MatrixB is empty @ mdkSparseMatrixOperator: *(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }

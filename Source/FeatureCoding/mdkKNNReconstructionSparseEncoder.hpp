@@ -45,24 +45,6 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInputAndOutput()
         return false;
     }
 
-    if (m_Parameter.LsqlinMethodName == "SVD")
-    {
-    }
-    else if (m_Parameter.LsqlinMethodName == "QR")
-    {
-
-    }
-    else if (m_Parameter.LsqlinMethodName == "Normal")
-    {
-
-    }
-    else
-    {
-        MDK_Error("unknown method for Linear Least Squares Method @ KNNReconstructionSparseEncoder::CheckInputAndOutput()")
-
-        return false;
-    }
-
     return true;
 }
 
@@ -85,14 +67,7 @@ bool KNNReconstructionSparseEncoder<ElementType>::PrecomputeGramianMatrix_DtD()
 template<typename ElementType>
 bool KNNReconstructionSparseEncoder<ElementType>::Preprocess()
 {
-    if (m_Parameter.LsqlinMethodName == "Normal")
-    {
-        this->PrecomputeGramianMatrix_DtD();
-    }
-    else
-    {
-        m_GramianMatrix_DtD.Clear();
-    }
+    this->PrecomputeGramianMatrix_DtD();
 
     return true;
 }
@@ -109,22 +84,102 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(const DenseMa
 
     auto SubRecord = m_Dictionary->m_Record.GetSubMatrix(ALL, NeighbourIndexList);
 
-    // solve linear equation using least square method (unconstrained)
+    // use LinearLeastSquaresProblemSolver
 
-    DenseLsqlinOption<ElementType> Option;
+    auto CodeLength = m_Dictionary->m_Record.GetColNumber();
 
-    Option.MethodName = m_Parameter.LsqlinMethodName;
+    Option_Of_LinearLeastSquaresProblemSolver Option;
 
-    if (Option.MethodName == "Normal" && m_GramianMatrix_DtD.IsEmpty() == false)
+    if (m_Parameter.Nonnegative == false && m_Parameter.SumToOne == false)
     {
-        Option.GramianMatrix_CtC = m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList);
+        Option.MethodName = "Normal";
 
-        //do not write to GramianMatrix_CtC of m_Option_Of_Lsqlin: this function is in a thread
+        DenseMatrix<ElementType> H;
+
+        if (m_GramianMatrix_DtD.IsEmpty() == false)
+        {
+            H = std::move(m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList));
+        }
+
+        DenseMatrix<ElementType> A;
+
+        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&SubRecord, &SingleFeatureDataVector,
+                                                                            nullptr, nullptr, &A, nullptr, nullptr, nullptr,
+                                                                            &H, &Option);
+
+        CodeInSparseVector.ConstructColVector(NeighbourIndexList, Solution.X, CodeLength);       
     }
+    else if (m_Parameter.Nonnegative == true && m_Parameter.SumToOne == false)
+    {
+        DenseMatrix<ElementType> lb_x(m_Parameter.NeighbourNumber, 1);
+        lb_x.Fill(0);
 
-    auto Result = SolveLinearLeastSquaresProblem(SubRecord, SingleFeatureDataVector, Option);
+        Option.MethodName = "QuadraticProgramming";
 
-    CodeInSparseVector.ConstructColVector(NeighbourIndexList, Result.X, m_Dictionary->m_Record.GetColNumber());
+        DenseMatrix<ElementType> H;
+
+        if (m_GramianMatrix_DtD.IsEmpty() == false)
+        {
+            H = std::move(m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList));
+        }
+
+        DenseMatrix<ElementType> A;
+
+        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&SubRecord, &SingleFeatureDataVector,
+                                                                            &lb_x, nullptr, &A, nullptr, nullptr, nullptr,
+                                                                            &H, &Option);
+
+        CodeInSparseVector.ConstructColVector(NeighbourIndexList, Solution.X, CodeLength);
+    }
+    else if (m_Parameter.Nonnegative == true && m_Parameter.SumToOne == true)
+    {
+        DenseMatrix<ElementType> lb_x(m_Parameter.NeighbourNumber, 1);
+        lb_x.Fill(0);
+
+        DenseMatrix<ElementType> A(1, m_Parameter.NeighbourNumber);
+        A.Fill(1);
+
+        DenseMatrix<ElementType> lb_A = 1;
+        DenseMatrix<ElementType> ub_A = 1;
+
+        Option.MethodName = "QuadraticProgramming";
+
+        DenseMatrix<ElementType> H;
+
+        if (m_GramianMatrix_DtD.IsEmpty() == false)
+        {
+            H = std::move(m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList));
+        }
+
+        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&SubRecord, &SingleFeatureDataVector,
+                                                                            &lb_x, nullptr, &A, &lb_A, &ub_A, nullptr,
+                                                                            &H, &Option);
+
+        CodeInSparseVector.ConstructColVector(NeighbourIndexList, Solution.X, CodeLength);
+    }
+    else //if(m_Parameter.Nonnegative == false && m_Parameter.SumToOne == true)
+    {
+        DenseMatrix<ElementType> A(1, m_Parameter.NeighbourNumber);
+        A.Fill(1);
+
+        DenseMatrix<ElementType> lb_A = 1;
+        DenseMatrix<ElementType> ub_A = 1;
+
+        Option.MethodName = "QuadraticProgramming";
+
+        DenseMatrix<ElementType> H;
+
+        if (m_GramianMatrix_DtD.IsEmpty() == false)
+        {
+            H = std::move(m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList));
+        }
+
+        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&SubRecord, &SingleFeatureDataVector,
+                                                                            nullptr, nullptr, &A, &lb_A, &ub_A, nullptr,
+                                                                            &H, &Option);
+
+        CodeInSparseVector.ConstructColVector(NeighbourIndexList, Solution.X, CodeLength);
+    }
 }
 
 

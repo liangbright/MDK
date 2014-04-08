@@ -246,6 +246,12 @@ public:
                           int_max ColNumber,
                           int_max AdditionalReservedCapacity = 0);
 
+    inline void ConstructWithOrder(const std::vector<int_max>& RowIndexList,
+                                   const std::vector<int_max>& ColIndexList,
+                                   const std::vector<ElementType>& DataArray,
+                                   int_max RowNumber,
+                                   int_max ColNumber);
+
     inline bool ConstructColVector(const std::initializer_list<int_max>& RowIndexList,
                                    const std::vector<ElementType>& DataArray,
                                    int_max RowNumber);
@@ -965,6 +971,9 @@ public:
 	//----------------------------------- transpose -----------------------------------------//
 
     inline SparseMatrix Transpose() const;
+
+
+    inline void TransposeInPlace();
 
 	//----------------------------------- Rank -----------------------------------------//
 

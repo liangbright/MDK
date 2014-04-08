@@ -171,7 +171,9 @@ private:
     const SparseMatrix<ElementType>*  m_ub_A_sparse;
     const SparseMatrix<ElementType>*  m_x0_sparse;
 
-    bool m_IsInputDense;
+    bool m_DenseInput;
+    bool m_SparseInput;
+    bool m_Only_A_Sparse;
 
     Solution_Of_QuadraticProgramming<ElementType>* m_Solution;
 
@@ -215,6 +217,15 @@ public:
                       const SparseMatrix<ElementType>*  ub_A = nullptr,
                       const SparseMatrix<ElementType>*  x0   = nullptr);
 
+    void SetInputData(const DenseMatrix<ElementType>*  H,                      
+                      const DenseMatrix<ElementType>*  g    = nullptr,
+                      const DenseMatrix<ElementType>*  lb_x = nullptr,
+                      const DenseMatrix<ElementType>*  ub_x = nullptr,
+                      const SparseMatrix<ElementType>* A    = nullptr,
+                      const DenseMatrix<ElementType>*  lb_A = nullptr,
+                      const DenseMatrix<ElementType>*  ub_A = nullptr,
+                      const DenseMatrix<ElementType>*  x0   = nullptr);
+
     bool SetOutputSolution(Solution_Of_QuadraticProgramming<ElementType>* Solution);
 
     bool Update();
@@ -241,25 +252,39 @@ public:
                                                                const SparseMatrix<ElementType>*  ub_A = nullptr,
                                                                const SparseMatrix<ElementType>*  x0   = nullptr,
                                                                const Option_Of_QuadraticProgramming* Option = nullptr);
+
+    static Solution_Of_QuadraticProgramming<ElementType> Apply(const DenseMatrix<ElementType>*  H,                                                               
+                                                               const DenseMatrix<ElementType>*  g    = nullptr,
+                                                               const DenseMatrix<ElementType>*  lb_x = nullptr,
+                                                               const DenseMatrix<ElementType>*  ub_x = nullptr,
+                                                               const SparseMatrix<ElementType>* A    = nullptr,
+                                                               const DenseMatrix<ElementType>*  lb_A = nullptr,
+                                                               const DenseMatrix<ElementType>*  ub_A = nullptr,
+                                                               const DenseMatrix<ElementType>*  x0   = nullptr,
+                                                               const Option_Of_QuadraticProgramming* Option = nullptr);
+
 private:
 
-    bool CheckInput_dense_OneTimeOnly();
-    bool Update_dense_OneTimeOnly();
+    bool CheckInput_ALLDense();
+    bool Update_Mode_OneTimeOnly_Input_ALLDense();
 
-    bool CheckInput_sparse_OneTimeOnly();
-    bool Update_sparse_OneTimeOnly();
+    bool CheckInput_ALLSparse();
+    bool Update_Mode_OneTimeOnly_Input_ALLSparse();
 
-    bool CheckInput_dense_Online_Varying_H_A();
-    bool Update_dense_Online_Varying_H_A();
+    bool CheckInput_Only_A_sparse();
+    bool Update_Mode_OneTimeOnly_Input_Only_A_sparse();
 
-    bool CheckInput_sparse_Online_Varying_H_A();
-    bool Update_sparse_Online_Varying_H_A();
+    bool CheckInput_ALLDense_Mode_Online_Varying_H_A();
+    bool Update_Mode_Online_Varying_H_A_Input_ALLDense();
 
-    bool CheckInput_dense_Online_Fixed_H_A();
-    bool Update_dense_Online_Fixed_H_A();
+    bool CheckInput_ALLSparse_Mode_Online_Varying_H_A();
+    bool Update_Mode_Online_Varying_H_A_Input_ALLSparse();
 
-    bool CheckInput_sparse_Online_Fixed_H_A();
-    bool Update_sparse_Online_Fixed_H_A();
+    //bool CheckInput_ALLDense_Mode_Online_Fixed_H_A();
+    //bool Update_Mode_Online_Fixed_H_A_Input_ALLDense();
+
+    //bool CheckInput_ALLSparse_Mode_Online_Fixed_H_A();
+    //bool Update_Mode_Online_Fixed_H_A_Input_AllSparse();
 
 private:
     QuadraticProgrammingSolver(const QuadraticProgrammingSolver&) = delete;
