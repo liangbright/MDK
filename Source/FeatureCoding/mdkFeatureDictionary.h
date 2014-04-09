@@ -12,51 +12,48 @@ namespace mdk
 template<typename ElementType>
 class FeatureDictionary : Object
 {
-public:
-
-    DenseMatrix<ElementType> m_Record; // D
-
-    DenseMatrix<ElementType> m_Covariance;
-    // relation between bases
-
-    DenseMatrix<ElementType> m_StandardDeviation;
-    // StandardDeviation(j) = sqrt(sum_i(Prob(i,j)*(FeatureData_i - D(:,j))^2))
 
 public:
 
-    FeatureDictionary();
+    FeatureDictionary() {}
 
-    FeatureDictionary(const FeatureDictionary& InputDictionary);
+    FeatureDictionary(const FeatureDictionary& InputDictionary) {}
 
-    FeatureDictionary(FeatureDictionary&& InputDictionary);
+    FeatureDictionary(FeatureDictionary&& InputDictionary) {}
 
-    ~FeatureDictionary();
+    virtual ~FeatureDictionary() {}
 
-    void operator=(const FeatureDictionary& InputDictionary);
+    virtual void operator=(const FeatureDictionary& InputDictionary) = 0;
 
-    void operator=(FeatureDictionary&& InputDictionary);
+    virtual void operator=(FeatureDictionary&& InputDictionary) = 0;
 
-    bool Copy(const FeatureDictionary& InputDictionary);
+    virtual bool Copy(const FeatureDictionary& InputDictionary) = 0;
 
-    bool Copy(const FeatureDictionary* InputDictionary);
+    virtual bool Copy(const FeatureDictionary* InputDictionary) = 0;
 
-    bool Share(FeatureDictionary& InputDictionary);
+    virtual bool Share(FeatureDictionary& InputDictionary) = 0;
 
-    bool Share(FeatureDictionary* InputDictionary);
+    virtual bool Share(FeatureDictionary* InputDictionary) = 0;
 
-    void ForceShare(const FeatureDictionary& InputDictionary);
+    virtual void ForceShare(const FeatureDictionary& InputDictionary) = 0;
 
-    bool ForceShare(const FeatureDictionary* InputDictionary);
+    virtual bool ForceShare(const FeatureDictionary* InputDictionary) = 0;
 
-    void Clear();
+    virtual void Clear() = 0;
 
-    bool IsEmpty() const;
+    virtual bool IsEmpty() const = 0;
 
-    MatrixSize GetSize() const;
+    virtual MatrixSize GetSize() const = 0;
 
-    bool Load(const std::string& FilePathAndName);
+    virtual bool Load(const std::string& FilePathAndName) = 0;
 
-    bool Save(const std::string& FilePathAndName) const;
+    virtual bool Save(const std::string& FilePathAndName) const = 0;
+
+    //------------------------------------------------------------//
+
+    virtual DenseMatrix<ElementType>& BasisMatrix() = 0;
+
+    virtual const DenseMatrix<ElementType>& BasisMatrix() const = 0;
 };
 
 

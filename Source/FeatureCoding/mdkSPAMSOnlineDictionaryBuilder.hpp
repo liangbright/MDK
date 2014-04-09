@@ -37,28 +37,31 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::Clear()
 
 
 template<typename ElementType>
-bool SPAMSOnlineDictionaryBuilder<ElementType>::SetInitialState(State_Of_SPAMSOnlineDictionaryBuilder<ElementType> InitialState)
+void SPAMSOnlineDictionaryBuilder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData)
 {
-    //check InitialState
+    m_FeatureData = InputFeatureData;
+}
 
-    m_State.Take(InitialState);
+//---------------------------------------------------//
 
-    return true;
+template<typename ElementType>
+void SPAMSOnlineDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionary<ElementType>* OutputDictionary)
+{
+    m_Dictionary = OutputDictionary;
 }
 
 
 template<typename ElementType>
-bool SPAMSOnlineDictionaryBuilder<ElementType>::SetSparseEncoder(FeatureDictionaryBasedSparseEncoder<ElementType>* Encoder)
+void SPAMSOnlineDictionaryBuilder<ElementType>::SetInitialState(State_Of_SPAMSOnlineDictionaryBuilder<ElementType> InitialState)
 {
-    if (Encoder == nullptr)
-    {
-        MDK_Error("Invalid input @ SPAMSOnlineDictionaryBuilder::SetSparseEncoder(...)")
-        return false;
-    }
+    m_State = std::move(InitialState);
+}
 
+
+template<typename ElementType>
+void SPAMSOnlineDictionaryBuilder<ElementType>::SetSparseEncoder(FeatureDictionaryBasedSparseEncoder<ElementType>* Encoder)
+{
     m_SparseEncoder = Encoder;
-
-    return true;
 }
 
 
@@ -88,34 +91,41 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::LoadStateAndParameter(const std:
 template<typename ElementType>
 bool SPAMSOnlineDictionaryBuilder<ElementType>::CheckInput()
 {
-    if (this->FeatureDictionaryBuilder::CheckInput() == false)
+    if (m_FeatureData == nullptr)
     {
+        MDK_Error("m_FeatureData is nullptr @ SPAMSOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
-    //--------------------------------------------------------
+    auto DataSize = m_FeatureData->GetSize();
+
+    if (DataSize.RowNumber == 0)
+    {
+        MDK_Error("InputFeatureData is empty @ SPAMSOnlineDictionaryBuilder::CheckInput()")
+        return false;
+    }
+
+    auto BookSize = m_Dictionary->GetSize();
+
+    if (BookSize.RowNumber > 0 && BookSize.RowNumber != DataSize.RowNumber)
+    {
+        MDK_Error("Feature dimension does not match @ SPAMSOnlineDictionaryBuilder::CheckInput()")
+        return false;
+    }
+
     if (m_SparseEncoder == nullptr)
     {
         MDK_Error("m_SparseEncoder is nullptr @ SPAMSOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
-    //---------------------------------------------------------
-
     return true;
 }
 
 
 template<typename ElementType>
-bool SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
+void SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 {
-    if (this->CheckInput() == false)
-    {
-        return false;
-    }
-
-    //---------------------------------------------------------
-
     auto X_spt = std::make_unique<spams::Matrix<ElementType>>(const_cast<ElementType*>(m_FeatureData->GetElementPointer()),
                                                               m_FeatureData->GetRowNumber(), m_FeatureData->GetColNumber());
     auto X = X_spt.get();
@@ -192,26 +202,31 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 
     spams::Matrix<ElementType>& B = trainer->getB_ref();
     m_State.B.Copy(B.rawX(), B.m(), B.n());
+}
 
-    //-------------------------------------------------------------------------------
 
-    if (m_Dictionary->m_Record.GetElementPointer() != m_State.D.GetElementPointer())
+template<typename ElementType>
+void SPAMSOnlineDictionaryBuilder<ElementType>::UpdatePipelineOutput()
+{
+    if (m_Dictionary->m_BasisMatrix.GetElementPointer() != m_State.D.GetElementPointer())
     {
-        if (m_Dictionary->m_Record.GetElementPointer() == nullptr)
+        if (m_Dictionary->m_BasisMatrix.GetElementPointer() == nullptr)
         {
-            m_Dictionary->m_Record.ForceShare(m_State.D);
+            m_Dictionary->m_BasisMatrix.ForceShare(m_State.D);
         }
         else
         {
-            m_Dictionary->m_Record.Copy(m_State.D);
+            m_Dictionary->m_BasisMatrix.Copy(m_State.D);
         }
     }
-
-    //------------------------------------------------------------------------------
-
-    return true;
 }
 
+
+template<typename ElementType>
+FeatureDictionaryForCommonSparseEndocer<ElementType>* SPAMSOnlineDictionaryBuilder<ElementType>::GetOutputDictionary()
+{
+    return &m_Dictionary_SharedCopy;
+}
 
 
 }// namespace mdk

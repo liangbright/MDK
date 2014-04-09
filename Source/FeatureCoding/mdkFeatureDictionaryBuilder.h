@@ -1,10 +1,7 @@
 #ifndef __mdkFeatureDictionaryBuilder_h
 #define __mdkFeatureDictionaryBuilder_h
 
-#include <vector>
-#include <string>
-
-#include "mdkFeatureDictionary.h"
+#include "mdkObject.h"
 
 namespace mdk
 {
@@ -12,39 +9,26 @@ namespace mdk
 template<typename ElementType>
 class FeatureDictionaryBuilder : public Object
 {
-protected:
-
-    // input:
-
-    const DenseMatrix<ElementType>* m_FeatureData;
-
-    // output:
-
-    FeatureDictionary<ElementType>* m_Dictionary;
-
-    FeatureDictionary<ElementType>  m_Dictionary_SharedCopy;
-
-protected:
-    FeatureDictionaryBuilder();
-    ~FeatureDictionaryBuilder();
-
 public:
 
-    //---------------------------------------------------//
-
-    virtual void Clear();
-
-    //---------------------------------------------------//
-
-    bool SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
+    FeatureDictionaryBuilder() {}
+    virtual ~FeatureDictionaryBuilder() {}
 
     //---------------------------------------------------//
 
-    bool SetOutputDictionary(FeatureDictionary<ElementType>* Dictionary);
+    virtual void Clear() = 0;
+
+    //---------------------------------------------------//
+
+    void SetInputFeatureData() {} // just for reminder
 
     //----------------------------------------------------//
 
-    virtual bool CheckInput();
+    void SetOutputDictionary() {} // just for reminder
+ 
+    //----------------------------------------------------//
+
+    virtual bool CheckInput() = 0;
 
     //----------------------------------------------------//
 
@@ -52,14 +36,12 @@ public:
 
     //----------------------------------------------------//
 
-    FeatureDictionary<ElementType>* GetOutputDictionary();
+    void GetOutputDictionary() {} // just for reminder
 
 protected:
-
-    virtual bool GenerateDictionary();
+    virtual void GenerateDictionary() = 0;
 
 private:
-//deleted
     FeatureDictionaryBuilder(const FeatureDictionaryBuilder&) = delete;
 
     void operator=(const FeatureDictionaryBuilder&) = delete;
@@ -67,12 +49,8 @@ private:
     FeatureDictionaryBuilder(FeatureDictionaryBuilder&&) = delete;
 
     void operator=(FeatureDictionaryBuilder&&) = delete;
-
 };
 
 }// namespace mdk
-
-
-#include "mdkFeatureDictionaryBuilder.hpp"
 
 #endif

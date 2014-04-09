@@ -23,4 +23,10 @@ void Object::operator=(const Object&)
 }
 
 
+void Object::ShallowCopy(const Object* Input)
+{
+
+}
+
+
 }//end namespace mdk

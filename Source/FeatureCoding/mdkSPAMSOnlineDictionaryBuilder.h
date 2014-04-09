@@ -184,14 +184,20 @@ private:
 template<typename ElementType>
 class SPAMSOnlineDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
 {
+public:
+    Parameter_Of_SPAMSOnlineDictionaryBuilder<ElementType> m_Parameter;
+
 protected:
+
+    const DenseMatrix<ElementType>* m_FeatureData;
 
     FeatureDictionaryBasedSparseEncoder<ElementType>* m_SparseEncoder;
 
     State_Of_SPAMSOnlineDictionaryBuilder<ElementType> m_State;
 
-public:
-    Parameter_Of_SPAMSOnlineDictionaryBuilder<ElementType> m_Parameter;
+    FeatureDictionaryForCommonSparseEndocer<ElementType>* m_Dictionary;
+
+    FeatureDictionaryForCommonSparseEndocer<ElementType> m_Dictionary_SharedCopy;
 
 public:
 
@@ -201,13 +207,19 @@ public:
 
     void Clear();
 
+    void SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
+
+    void SetOutputDictionary(FeatureDictionaryForCommonSparseEndocer<ElementType>* Dictionary);
+
+    FeatureDictionaryForCommonSparseEndocer<ElementType>* GetOutputDictionary();
+
     bool CheckInput();
 
-    bool SetInitialState(State_Of_SPAMSOnlineDictionaryBuilder<ElementType> InitialState); //copy value
+    void SetInitialState(State_Of_SPAMSOnlineDictionaryBuilder<ElementType> InitialState); //copy value
 
     State_Of_SPAMSOnlineDictionaryBuilder<ElementType>* GetCurrentState();
 
-    bool SetSparseEncoder(FeatureDictionaryBasedSparseEncoder<ElementType>* Encoder);
+    void SetSparseEncoder(FeatureDictionaryBasedSparseEncoder<ElementType>* Encoder);
 
     bool SaveStateAndParameter(const std::string& FilePathAndName);
 
@@ -215,9 +227,13 @@ public:
 
     //----------------------------------------------------//
 
+    bool Update();
+
 protected:
 
-    bool GenerateDictionary();
+    void GenerateDictionary();
+
+    void UpdatePipelineOutput();
 
 private:
 //deleted

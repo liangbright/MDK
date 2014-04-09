@@ -12,11 +12,11 @@ protected:
 	Object();
 	~Object();
 
-    // do not use any virtual function (such as virtual void Clear)
+    virtual void ShallowCopy(const Object* Input);
 
 protected:
-	Object(const Object&);       // Empty function
-	void operator=(const Object&);  // Empty function
+	Object(const Object&) ;
+	void operator=(const Object&);
 };
 
 }//end namespace mdk
