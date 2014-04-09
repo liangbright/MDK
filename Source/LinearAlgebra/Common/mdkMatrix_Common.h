@@ -2,6 +2,8 @@
 #define __mdkMatrix_Common_h
 
 #include <vector>
+#include <iomanip>
+
 
 #include "mdkOSPlatformConfig.h"
 #include "mdkType.h"

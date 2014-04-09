@@ -152,12 +152,15 @@ DivideData(int_max Index_min, int_max Index_max, std::vector<int_max>& IndexList
         return;
     }
 
+    IndexList_start.resize(ThreadNumber);
+    IndexList_end.resize(ThreadNumber);
+
     int_max tempIndex = Index_min;
 
     for (int_max i = 0; i < ThreadNumber; ++i)
     {
-        IndexList_start.push_back(tempIndex);
-        IndexList_end.push_back(tempIndex + DataNumberPerThread - 1);
+        IndexList_start[i] = tempIndex;
+        IndexList_end[i] = tempIndex + DataNumberPerThread - 1;
 
         tempIndex += DataNumberPerThread;
     }

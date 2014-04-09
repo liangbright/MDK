@@ -7,7 +7,7 @@
 #include "mdkFeatureCoding_Common_Function.h"
 #include "mdkLinearLeastSquaresProblemSolver.h"
 
-// find K Nearest Neighbor [d_1, d_2, ..., d_k] from D by using L2 norm
+// find K Nearest Neighbor [d_1, d_2, ..., d_k] from D by using KNNDistanceType
 // find Alpha that minimizes||X - [d_1, d_2, d_k ]*Alpha||, by using Linear least suqares (Lsqlin) method
 // constraints on Alpha can be added to Lsqlin, such as nonnegative, sum to 1, etc, ...
 // X : m_FeatureData
@@ -21,7 +21,7 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
 {
     int_max NeighbourNumber;
 
-    std::string DistanceType; 
+    std::string KNNDistanceType; 
     // use this kind of distance to find KNN, X= a*d_i, a is constant and may not be 1
     //
     // L1
