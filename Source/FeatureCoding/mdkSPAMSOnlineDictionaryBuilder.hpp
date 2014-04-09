@@ -86,9 +86,9 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::LoadStateAndParameter(const std:
 
 
 template<typename ElementType>
-bool SPAMSOnlineDictionaryBuilder<ElementType>::CheckInputAndOutput()
+bool SPAMSOnlineDictionaryBuilder<ElementType>::CheckInput()
 {
-    if (this->FeatureDictionaryBuilder::CheckInputAndOutput() == false)
+    if (this->FeatureDictionaryBuilder::CheckInput() == false)
     {
         return false;
     }
@@ -96,7 +96,7 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::CheckInputAndOutput()
     //--------------------------------------------------------
     if (m_SparseEncoder == nullptr)
     {
-        MDK_Error("m_SparseEncoder is nullptr @ SPAMSOnlineDictionaryBuilder::CheckInputAndOutput()")
+        MDK_Error("m_SparseEncoder is nullptr @ SPAMSOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
@@ -109,7 +109,7 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::CheckInputAndOutput()
 template<typename ElementType>
 bool SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 {
-    if (this->CheckInputAndOutput() == false)
+    if (this->CheckInput() == false)
     {
         return false;
     }
@@ -117,7 +117,7 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
     //---------------------------------------------------------
 
     auto X_spt = std::make_unique<spams::Matrix<ElementType>>(const_cast<ElementType*>(m_FeatureData->GetElementPointer()),
-        m_FeatureData->GetRowNumber(), m_FeatureData->GetColNumber());
+                                                              m_FeatureData->GetRowNumber(), m_FeatureData->GetColNumber());
     auto X = X_spt.get();
 
     std::unique_ptr<spams::Trainer<ElementType>> trainer_spt;

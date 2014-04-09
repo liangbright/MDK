@@ -357,7 +357,6 @@ public:
 
     inline bool Take(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-public:
     // clear memory no matter what, and set m_IsSizeFixed to be false
     inline void Clear();
 
@@ -407,6 +406,18 @@ public:
 
     inline MatrixElementTypeEnum GetElementType() const;
 
+    //------------ Get Array ---------------------------------------------//
+
+    inline const std::vector<int_max>& GetRowIndexList() const;
+
+    inline std::vector<int_max> GetColIndexList() const;
+
+    inline const std::vector<ElementType>& GetDataArray() const;
+
+    inline const std::vector<int_max>& GetColBeginElementLinearIndexInDataArray() const;
+
+    std::vector<int_max> GetRowIndexListInCol(int_max ColIndex) const;
+
     //--------------------- Get Data Pointer -----------------------------//
 
     inline ElementType* GetPointerOfDataArray();
@@ -430,8 +441,6 @@ public:
     inline int_max GetRowIndexOfBeginElementInCol(int_max ColIndex) const;
 
     inline int_max GetRecordedElementNumberInCol(int_max ColIndex) const;
-
-    inline std::vector<int_max> GetRowIndexListInCol(int_max ColIndex) const;
 
     //--------------------- Get/Set Element -----------------------------//
 

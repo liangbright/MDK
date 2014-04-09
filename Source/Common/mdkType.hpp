@@ -115,32 +115,86 @@ std::string FindScalarTypeName(ScalarType Scalar)
 }
 
 
-
 template<typename ScalarType>
 inline
-int_max CalByteNumberOfScalar(ScalarType Scalar)
+int_max CalByteNumberOfScalar(const ScalarType& Scalar)
 {
-    std::string TypeName(typeid(Scalar).name());
-
-    if (TypeName == "double" 
-        || TypeName == "float" 
-        || TypeName == "signed char" 
-        || TypeName == "short" 
-        || TypeName == "int"
-        || TypeName == "__int64"
-        || TypeName == "unsigned char"
-        || TypeName == "unsigned short"
-        || TypeName == "unsigned int"
-        || TypeName == "unsigned __int64")
-    {        
-        return int_max(sizeof(Scalar));
-    }
-    else
-    {
-        MDK_Error("Unknown ScalarType @ CalByteNumberOfScalar(ScalarType Scalar)")
-        return 0;
-    }
+    MDK_Error("Unknown ScalarType @ CalByteNumberOfScalar(ScalarType Scalar)")
+    return 0;
 }
+ 
+
+inline double CalByteNumberOfScalar(const double&)
+{
+    return sizeof(double);
+}
+
+
+inline float CalByteNumberOfScalar(const float&)
+{
+    return sizeof(float);
+}
+
+
+inline char CalByteNumberOfScalar(const char&)
+{
+    return sizeof(char);
+}
+
+
+inline short CalByteNumberOfScalar(const short&)
+{
+    return sizeof(short);
+}
+
+
+inline int CalByteNumberOfScalar(const int&)
+{
+    return sizeof(int);
+}
+
+
+inline long CalByteNumberOfScalar(const long&)
+{
+    return sizeof(long);
+}
+
+
+inline long long CalByteNumberOfScalar(const long long&)
+{
+    return sizeof(long long);
+}
+
+
+inline unsigned char CalByteNumberOfScalar(const unsigned char&)
+{
+    return sizeof(unsigned char);
+}
+
+
+inline unsigned short CalByteNumberOfScalar(const unsigned short&)
+{
+    return sizeof(unsigned short);
+}
+
+
+inline unsigned int CalByteNumberOfScalar(const unsigned int&)
+{
+    return sizeof(unsigned int);
+}
+
+
+inline unsigned long CalByteNumberOfScalar(const unsigned long&)
+{
+    return sizeof(unsigned long);
+}
+
+
+inline unsigned long long CalByteNumberOfScalar(const unsigned long long&)
+{
+    return sizeof(unsigned long long);
+}
+
 
 }//end namespace mdk
 

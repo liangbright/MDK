@@ -1,32 +1,16 @@
-#ifndef __mdkKNNReconstructionSparseEncoder_h
-#define __mdkKNNReconstructionSparseEncoder_h
+#ifndef __mdkKNNReconstructionAndSoftAssignSparseEncoder_h
+#define __mdkKNNReconstructionAndSoftAssignSparseEncoder_h
 
-#include <string>
 
-#include "mdkFeatureDictionaryBasedSparseEncoder.h"
-#include "mdkFeatureCoding_Common_Function.h"
-#include "mdkLinearLeastSquaresProblemSolver.h"
+#include "mdkKNNReconstructionSparseEncoder.h"
 
-// find K Nearest Neighbor [d_1, d_2, ..., d_k] from D by using L2 norm
-// find Alpha that minimizes||X - [d_1, d_2, d_k ]*Alpha||, by using Linear least suqares (Lsqlin) method
-// constraints on Alpha can be added to Lsqlin, such as nonnegative, sum to 1, etc, ...
-// X : m_FeatureData
-// D : m_Dictionary->m_Record
-// Alpha: m_CodeInSparseVectorList
 
 namespace mdk
 {
 
-struct Parameter_Of_KNNReconstructionSparseEncoder
+struct Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder
 {
     int_max NeighbourNumber;
-
-    std::string DistanceType; 
-    // use this kind of distance to find KNN, X= a*d_i, a is constant and may not be 1
-    //
-    // L1
-    // L2
-    // Correlation
 
     bool Nonnegative;
 
@@ -34,8 +18,8 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
 
 //------------------------------
 
-    Parameter_Of_KNNReconstructionSparseEncoder() { this->Clear(); }
-    ~Parameter_Of_KNNReconstructionSparseEncoder() {}
+    Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder() { this->Clear(); }
+    ~Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder() {}
 
     void Clear()
     {
@@ -45,26 +29,27 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
     }
 
 private:
-    Parameter_Of_KNNReconstructionSparseEncoder(const Parameter_Of_KNNReconstructionSparseEncoder&) = delete;
-    void operator=(const Parameter_Of_KNNReconstructionSparseEncoder&) = delete;
+    Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder(const Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder&) = delete;
+    void operator=(const Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder&) = delete;
 };
 
 
 template<typename ElementType>
-class KNNReconstructionSparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
+class KNNReconstructionAndSoftAssignSparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
 {
 public:
 
-    Parameter_Of_KNNReconstructionSparseEncoder m_Parameter;
+    Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder m_Parameter;
 
-protected:
-    DenseMatrix<ElementType> m_GramianMatrix_DtD; // D'*D
+private:
+
+    KNNReconstructionSparseEncoder<ElementType> m_ReconstructionEncoder;
 
 public:
 
-    KNNReconstructionSparseEncoder();
+    KNNReconstructionAndSoftAssignSparseEncoder();
 
-    ~KNNReconstructionSparseEncoder();
+    ~KNNReconstructionAndSoftAssignSparseEncoder();
 
     //--------------------------------------------------------------------------------
 
@@ -72,11 +57,6 @@ public:
 
     bool CheckInput();
 
-    bool ComputeGramianMatrix_DtD();
-
-    bool Preprocess();
-
-    bool Postprocess();
     //--------------------------------------------------------------------------------
 
     using FeatureDictionaryBasedSparseEncoder::EncodingFunction;
@@ -105,14 +85,14 @@ public:
 
 private:
 //deleted:
-    KNNReconstructionSparseEncoder(const KNNReconstructionSparseEncoder&) = delete;
+    KNNReconstructionAndSoftAssignSparseEncoder(const KNNReconstructionAndSoftAssignSparseEncoder&) = delete;
 
-    void operator=(const KNNReconstructionSparseEncoder&) = delete;
+    void operator=(const KNNReconstructionAndSoftAssignSparseEncoder&) = delete;
 
 };
 
 }
 
-#include "mdkKNNReconstructionSparseEncoder.hpp"
+#include "mdkKNNReconstructionAndSoftAssignSparseEncoder.hpp"
 
 #endif

@@ -23,27 +23,16 @@ enum struct MatrixElementTypeEnum
     Scalar_UINT32,
     Scalar_UINT64,
 
-    StdVector_DOUBLE64,
-    StdVector_FLOAT32,
-    StdVector_INT8,
-    StdVector_INT16,
-    StdVector_INT32,
-    StdVector_INT64,
-    StdVector_UINT8,
-    StdVector_UINT16,
-    StdVector_UINT32,
-    StdVector_UINT64,
-
-    StdArray_DOUBLE64,
-    StdArray_FLOAT32,
-    StdArray_INT8,
-    StdArray_INT16,
-    StdArray_INT32,
-    StdArray_INT64,
-    StdArray_UINT8,
-    StdArray_UINT16,
-    StdArray_UINT32,
-    StdArray_UINT64,
+    Other_DOUBLE64,
+    Other_FLOAT32,
+    Other_INT8,
+    Other_INT16,
+    Other_INT32,
+    Other_INT64,
+    Other_UINT8,
+    Other_UINT16,
+    Other_UINT32,
+    Other_UINT64,
 
     UNKNOWN,
 };
@@ -141,7 +130,7 @@ ElementType GetMatrixNaNElement();
 
 template<typename ElementType>
 inline
-ElementType GetMatrixNaNElement(ElementType ReferenceElement);
+ElementType GetMatrixNaNElement(const ElementType& ReferenceElement);
 
 //------------------------------------------------------------//
 

@@ -35,7 +35,7 @@ bool FeatureDictionaryBasedEncoder<ElementType>::IsSparseEncoder()
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedEncoder<ElementType>::CheckInputAndOutput()
+bool FeatureDictionaryBasedEncoder<ElementType>::CheckInput()
 {
     return true;
 }
@@ -58,7 +58,7 @@ bool FeatureDictionaryBasedEncoder<ElementType>::Postprocess()
 template<typename ElementType>
 bool FeatureDictionaryBasedEncoder<ElementType>::Update()
 {
-    if (this->CheckInputAndOutput() == false)
+    if (this->CheckInput() == false)
     {
         return false;
     }

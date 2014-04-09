@@ -55,7 +55,7 @@ struct DenseMatrixData
         RowNumber = 0;
         ColNumber = 0;
         ElementPointer = nullptr;
-        NaNElement = GetMatrixNaNElement(ElementType(0)); // zero if int
+        NaNElement = GetMatrixNaNElement(NaNElement); // zero if int
         IsSizeFixed = false;
     };
 
@@ -596,6 +596,12 @@ public:
     //inline const DenseMatrix RefCol(int_max ColIndex) const;
 
     // return SubMatrix as DenseMatrix ---------------------------------------------------------------
+
+    inline DenseMatrix GetSubMatrix(const std::initializer_list<int_max>& LinearIndexList) const;
+
+    inline DenseMatrix GetSubMatrix(const std::vector<int_max>& LinearIndexList) const;
+
+    inline DenseMatrix GetSubMatrix(const DenseMatrix<int_max>& LinearIndexList) const;
 
     inline DenseMatrix GetSubMatrix(const std::initializer_list<int_max>& RowIndexList,
                                     const std::initializer_list<int_max>& ColIndexList) const;

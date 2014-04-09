@@ -27,15 +27,15 @@ protected:
 
     // output code in dense Matrix:
 
-    DenseMatrix<ElementType>* m_CodeInDenseMatrix; // converted from m_CodeInSparseVectorList
+    DenseMatrix<ElementType>* m_CodeInDenseMatrix; // converted from m_CodeInSparseColVectorList
 
     // output code in one sparse matrix:
 
-    SparseMatrix<ElementType>* m_CodeInSparseMatrix; // converted from m_CodeInSparseVectorList
+    SparseMatrix<ElementType>* m_CodeInSparseMatrix; // converted from m_CodeInSparseColVectorList
 
     // output code as separated sparse vectors:
 
-    DenseMatrix<SparseMatrix<ElementType>>* m_CodeInSparseVectorList;
+    DenseMatrix<SparseMatrix<ElementType>>* m_CodeInSparseColVectorList;
 
     //Input Parameter:
 
@@ -47,7 +47,7 @@ private:
 
     SparseMatrix<ElementType>  m_CodeInSparseMatrix_SharedCopy;
 
-    DenseMatrix<SparseMatrix<ElementType>> m_CodeInSparseVectorList_SharedCopy;
+    DenseMatrix<SparseMatrix<ElementType>> m_CodeInSparseColVectorList_SharedCopy;
 
     bool m_Flag_Output_CodeInDenseMatrix;
 
@@ -78,23 +78,23 @@ public:
 
     bool SetOutputCodeInSparseMatrix(SparseMatrix<ElementType>* Code);
 
-    bool SetOutputCodeInSparseVectorList(DenseMatrix<SparseMatrix<ElementType>>* Code);
+    bool SetOutputCodeInSparseColVectorList(DenseMatrix<SparseMatrix<ElementType>>* Code);
 
     bool SetMaxNumberOfThreads(int_max Number);
 
     //-----------------------------------------
 
-    virtual bool CheckInputAndOutput();
+    virtual bool CheckInput();
 
     //-----------------------------------------
 
     virtual bool Update();
 
-    inline virtual void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
-                                         DenseMatrix<ElementType>& CodeInDenseVector);
+    inline virtual void EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
+                                         DenseMatrix<ElementType>& CodeInDenseColVector);
 
-    inline virtual void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
-                                         SparseMatrix<ElementType>& CodeInSparseVector) = 0;
+    inline virtual void EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
+                                         SparseMatrix<ElementType>& CodeInSparseColVector) = 0;
 
     //----------------------------------------------------//
 
@@ -104,7 +104,7 @@ public:
 
     SparseMatrix<ElementType>* GetOutputCodeInSparseMatrix();
 
-    DenseMatrix<SparseMatrix<ElementType>>* GetOutputCodeInSparseVectorList();
+    DenseMatrix<SparseMatrix<ElementType>>* GetOutputCodeInSparseColVectorList();
 
     //---------------------------------------------------//
 

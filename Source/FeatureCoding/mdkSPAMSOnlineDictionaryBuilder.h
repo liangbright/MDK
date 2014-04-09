@@ -201,7 +201,7 @@ public:
 
     void Clear();
 
-    bool CheckInputAndOutput();
+    bool CheckInput();
 
     bool SetInitialState(State_Of_SPAMSOnlineDictionaryBuilder<ElementType> InitialState); //copy value
 

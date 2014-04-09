@@ -75,7 +75,7 @@ std::string FindScalarTypeName(ScalarType Scalar);
 
 template<typename ScalarType>
 inline
-int_max CalByteNumberOfScalar(ScalarType Scalar);
+int_max CalByteNumberOfScalar(const ScalarType& Scalar);
 
 }//end namespace mdk
 

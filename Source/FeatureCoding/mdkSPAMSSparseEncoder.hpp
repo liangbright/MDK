@@ -34,9 +34,9 @@ void SPAMSSparseEncoder<ElementType>::Clear()
 
 
 template<typename ElementType>
-bool SPAMSSparseEncoder<ElementType>::CheckInputAndOutput()
+bool SPAMSSparseEncoder<ElementType>::CheckInput()
 {
-    if (this->FeatureDictionaryBasedSparseEncoder::CheckInputAndOutput() == false)
+    if (this->FeatureDictionaryBasedSparseEncoder::CheckInput() == false)
     {
         return false;
     }
@@ -51,7 +51,7 @@ bool SPAMSSparseEncoder<ElementType>::CheckInputAndOutput()
     }
     else
     {
-        MDK_Error("Not support @ SPAMSSparseEncoder::CheckInputAndOutput()")
+        MDK_Error("Not support @ SPAMSSparseEncoder::CheckInput()")
         return false;
     }
 
@@ -64,7 +64,7 @@ void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFe
 {
     auto tempFeatureData = m_FeatureData->GetSubMatrix(ALL, span(IndexOfFeatureVector_start, IndexOfFeatureVector_end));
 
-    auto CodeDimension = m_Dictionary->m_Record.GetColNumber();
+    auto CodeLength = m_Dictionary->m_Record.GetColNumber();
 
     spams::Matrix<ElementType> X(const_cast<ElementType*>(tempFeatureData.GetElementPointer()),
                                  tempFeatureData.GetRowNumber(), 
@@ -143,17 +143,17 @@ void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFe
 
         std::vector<ElementType> DataArray(tempS.rawX(), tempS.rawX() + int_max(tempS.nzmax()));
 
-        (*m_CodeInSparseVectorList)[i].ConstructColVectorWithOrder(std::move(RowIndexList), std::move(DataArray), CodeDimension);
+        (*m_CodeInSparseColVectorList)[i].ConstructColVectorWithOrder(std::move(RowIndexList), std::move(DataArray), CodeLength);
     }
 }
 
 
 template<typename ElementType>
 inline
-void SPAMSSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
-                                                       SparseMatrix<ElementType>& CodeInSparseVector)
+void SPAMSSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
+                                                       SparseMatrix<ElementType>& CodeInSparseColVector)
 {
-   
+    MDK_Error("This function is not implemented @ SPAMSSparseEncoder::EncodingFunction(...)")
 }
 
 

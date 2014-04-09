@@ -69,36 +69,84 @@ ElementType GetMatrixNaNElement()
 
 template<typename ElementType>
 inline
-ElementType GetMatrixNaNElement(ElementType ReferenceElement)
+ElementType GetMatrixNaNElement(const ElementType& ReferenceElement)
 {
-    auto TypeEnum = FindMatrixElementType(ReferenceElement);
-
-    switch (TypeEnum)
-    {
-    case MatrixElementTypeEnum::Scalar_DOUBLE64:
-        return ElementType(std::nan(nullptr));
-
-    case MatrixElementTypeEnum::Scalar_FLOAT32:
-        return ElementType(std::nanf(nullptr));
-
-    case MatrixElementTypeEnum::StdVector_DOUBLE64:
-        return ElementType(std::nan(nullptr));
-
-    case MatrixElementTypeEnum::StdVector_FLOAT32:
-        return ElementType(std::nanf(nullptr));
-
-    case MatrixElementTypeEnum::StdArray_DOUBLE64:
-        return ElementType(std::nan(nullptr));
-
-    case MatrixElementTypeEnum::StdArray_FLOAT32:
-        return ElementType(std::nanf(nullptr));
-
-    default:
-        //MDK_Warning << "ElementType is not float or double, so NaNElement is set to zero @ GetMatrixNaNElement()" << '\n';
-        return ElementType(0);
-    }
+    return ReferenceElement;
 }
 
+
+inline double GetMatrixNaNElement(const double&)
+{
+    return std::nan(nullptr);
+}
+
+
+inline float GetMatrixNaNElement(const float&)
+{
+    return std::nanf(nullptr);
+}
+
+
+inline char GetMatrixNaNElement(const char&)
+{
+    return char(0);
+}
+
+
+inline short GetMatrixNaNElement(const short&)
+{
+    return short(0);
+}
+
+
+inline int GetMatrixNaNElement(const int&)
+{
+    return int(0);
+}
+
+
+inline long GetMatrixNaNElement(const long&)
+{
+    return long(0);
+}
+
+
+inline long long GetMatrixNaNElement(const long long&)
+{
+    return long long(0);
+}
+
+
+inline unsigned char GetMatrixNaNElement(const unsigned char&)
+{
+    return unsigned char(0);
+}
+
+
+inline unsigned short GetMatrixNaNElement(const unsigned short&)
+{
+    return unsigned short(0);
+}
+
+
+inline unsigned int GetMatrixNaNElement(const unsigned int&)
+{
+    return unsigned int(0);
+}
+
+
+inline unsigned long GetMatrixNaNElement(const unsigned long&)
+{
+    return unsigned long(0);
+}
+
+
+inline unsigned long long GetMatrixNaNElement(const unsigned long long&)
+{
+    return unsigned long long(0);
+}
+
+//------------------------------------------------------------------------------//
 
 inline std::vector<int_max> span(int_max Index_A, int_max Index_B)
 {

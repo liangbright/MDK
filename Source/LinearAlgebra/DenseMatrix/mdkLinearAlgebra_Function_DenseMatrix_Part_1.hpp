@@ -637,14 +637,14 @@ DenseMatrix<ElementType> MatrixSubtract(const ElementType& ElementA, const Dense
 
 template<typename ElementType>
 inline
-void MatrixSubtract(DenseMatrix<ElementType> OutputMatrixC, const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB)
+bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB)
 {
     auto SizeB = MatrixB.GetSize();
 
     if (SizeB.RowNumber == 0)
     {
         MDK_Error("MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, ElementA, MatrixB)")
-        return;
+        return false;
     }
 
     auto SizeC = OutputMatrixC.GetSize();
@@ -902,14 +902,14 @@ DenseMatrix<ElementType> MatrixSubtract(const DenseMatrix<ElementType>& MatrixA,
 
 template<typename ElementType>
 inline
-void MatrixSubtract(DenseMatrix<ElementType> OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     auto SizeA = MatrixA.GetSize();
 
     if (SizeA.RowNumber == 0)
     {
         MDK_Error("MatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, ElementB)")
-        return;
+        return false;
     }
 
     auto SizeC = OutputMatrixC.GetSize();

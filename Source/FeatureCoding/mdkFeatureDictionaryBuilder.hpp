@@ -64,11 +64,11 @@ bool FeatureDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionar
 //---------------------------------------------------//
 
 template<typename ElementType>
-bool FeatureDictionaryBuilder<ElementType>::CheckInputAndOutput()
+bool FeatureDictionaryBuilder<ElementType>::CheckInput()
 {
     if (m_FeatureData == nullptr)
     {
-        MDK_Error("m_FeatureData is nullptr @ FeatureDictionaryBuilder::CheckInputAndOutput()")
+        MDK_Error("m_FeatureData is nullptr @ FeatureDictionaryBuilder::CheckInput()")
         return false;
     }
 

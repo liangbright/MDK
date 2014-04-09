@@ -17,10 +17,10 @@ class DenseMatrix;
 
 // SingleVector is a column vector
 // each column of VectorSet is a vector
-// L2DistanceList[j] = distance between SingleVector and VectorSet(ALL, j)
+// L2DistanceList[j] = distance between SingleVector and ColVectorSet(ALL, j)
 template<typename ElementType>
-DenseMatrix<ElementType> ComputeL2DistanceListFromSingleVectorToVectorSet(const DenseMatrix<ElementType>& SingleVector,
-                                                                          const DenseMatrix<ElementType>& VectorSet);
+DenseMatrix<ElementType> ComputeL2DistanceListFromSingleVectorToColVectorSet(const DenseMatrix<ElementType>& SingleVector,
+                                                                             const DenseMatrix<ElementType>& ColVectorSet);
 
 
 

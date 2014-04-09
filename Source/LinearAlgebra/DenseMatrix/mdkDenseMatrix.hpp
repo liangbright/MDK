@@ -1067,6 +1067,9 @@ try
 catch (...)
 {
     MDK_Error("Out of Memory @ DenseMatrix::Resize(int_max InputRowNumber, int_max InputColNumber)")
+
+    this->Clear();
+
     return false;
 }
 
@@ -1121,6 +1124,9 @@ try
 catch (...)
 {
     MDK_Error("Out of Memory @ DenseMatrix::FastResize(int_max InputRowNumber, int_max InputColNumber)")
+
+    this->Clear();
+
     return false;
 }
 
@@ -1184,6 +1190,9 @@ try
 catch (...)
 {
     MDK_Error("Out of Memory @ DenseMatrix::Resize(int_max InputElementNumber)")
+
+    this->Clear();
+
     return false;
 }
     return true;
@@ -1251,6 +1260,9 @@ try
 catch (...)
 {
     MDK_Error("Out of Memory @ DenseMatrix::FastResize(int_max InputElementNumber)")
+
+    this->Clear();
+
     return false;
 }
     return true;
@@ -3305,6 +3317,120 @@ const DenseMatrix<ElementType> DenseMatrix<ElementType>::RefCol(int_max ColIndex
 
 template<typename ElementType>
 inline
+DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const std::initializer_list<int_max>& LinearIndexList) const
+{
+    DenseMatrix<ElementType> tempMatrix; // empty matrix
+
+    auto InputLength = int_max(LinearIndexList.size());
+
+    auto Self_ElementNumber = this->GetElementNumber();
+
+    if (InputLength <= 0 || InputLength > Self_ElementNumber)
+    {
+        MDK_Warning("Input is empty @ DenseMatrix::GetSubMatrix(LinearIndexList)")
+        return tempMatrix;
+    }
+
+    tempMatrix.FastResize(1, InputLength);
+
+    auto Ptr = this->GetElementPointer();
+
+    for (int_max i = 0; i < InputLength; ++i)
+    {
+        auto Index = LinearIndexList.begin()[i];
+
+        if (Index < 0 || Index >= Self_ElementNumber)
+        {
+            tempMatrix.Clear();
+            MDK_Warning("Invalid input @ DenseMatrix::GetSubMatrix(LinearIndexList)")
+            return tempMatrix;
+        }
+
+        tempMatrix[i] = Ptr[Index];
+    }
+
+    return tempMatrix;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const std::vector<int_max>& LinearIndexList) const
+{
+    DenseMatrix<ElementType> tempMatrix; // empty matrix
+
+    auto InputLength = int_max(LinearIndexList.size());
+
+    auto Self_ElementNumber = this->GetElementNumber();
+
+    if (InputLength <= 0 || InputLength > Self_ElementNumber)
+    {
+        MDK_Warning("Input is empty @ DenseMatrix::GetSubMatrix(LinearIndexList)")
+        return tempMatrix;
+    }
+
+    tempMatrix.FastResize(1, InputLength);
+
+    auto Ptr = this->GetElementPointer();
+
+    for (int_max i = 0; i < InputLength; ++i)
+    {
+        auto Index = LinearIndexList[i];
+
+        if (Index < 0 || Index >= Self_ElementNumber)
+        {
+            tempMatrix.Clear();
+            MDK_Warning("Invalid input @ DenseMatrix::GetSubMatrix(LinearIndexList)")
+            return tempMatrix;
+        }
+
+        tempMatrix[i] = Ptr[Index];
+    }
+
+    return tempMatrix;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseMatrix<int_max>& LinearIndexList) const
+{
+    DenseMatrix<ElementType> tempMatrix; // empty matrix
+
+    auto InputLength = LinearIndexList.GetElementNumber();
+
+    auto Self_ElementNumber = this->GetElementNumber();
+
+    if (InputLength <= 0 || InputLength > Self_ElementNumber)
+    {
+        MDK_Warning("Input is empty @ DenseMatrix::GetSubMatrix(LinearIndexList)")
+            return tempMatrix;
+    }
+
+    tempMatrix.FastResize(1, InputLength);
+
+    auto Ptr = this->GetElementPointer();
+
+    for (int_max i = 0; i < InputLength; ++i)
+    {
+        auto Index = LinearIndexList[i];
+
+        if (Index < 0 || Index >= Self_ElementNumber)
+        {
+            tempMatrix.Clear();
+            MDK_Warning("Invalid input @ DenseMatrix::GetSubMatrix(LinearIndexList)")
+            return tempMatrix;
+        }
+
+        tempMatrix[i] = Ptr[Index];
+    }
+
+    return tempMatrix;
+}
+
+
+template<typename ElementType>
+inline
 DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const std::initializer_list<int_max>& RowIndexList, const std::initializer_list<int_max>& ColIndexList) const
 {
     DenseMatrix<ElementType> tempMatrix; // empty matrix
@@ -3370,26 +3496,9 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
         }
     }
 
-
-    auto tempRawPointer = OutputMatrix.GetElementPointer();
-
-    auto RawPointer = this->GetElementPointer();
-
-    for (int_max j = 0; j < OutputColNumber; ++j)
-    {
-        auto Index = ColIndexList.begin()[j] * SelfSize.RowNumber;
-
-        for (int_max i = 0; i < OutputRowNumber; ++i)
-        {
-            int_max LinearIndex = Index + RowIndexList.begin()[i];
-
-            tempRawPointer[0] = RawPointer[LinearIndex];
-
-            ++tempRawPointer;
-        }
-    }
-
-    return true;
+    return this->GetSubMatrix(OutputMatrix,
+                              ColIndexList.begin(), int_max(RowIndexList.size()),
+                              ColIndexList.begin(), int_max(ColIndexList.size()));
 }
 
 

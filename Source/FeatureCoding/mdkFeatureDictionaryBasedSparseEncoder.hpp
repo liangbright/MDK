@@ -35,9 +35,9 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::Clear()
 
     m_CodeInSparseMatrix = &m_CodeInSparseMatrix_SharedCopy;
 
-    m_CodeInSparseVectorList_SharedCopy.Clear();
+    m_CodeInSparseColVectorList_SharedCopy.Clear();
 
-    m_CodeInSparseVectorList = &m_CodeInSparseVectorList_SharedCopy;
+    m_CodeInSparseColVectorList = &m_CodeInSparseColVectorList_SharedCopy;
 
     m_Flag_Output_CodeInDenseMatrix = false;
 
@@ -127,17 +127,17 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCodeInSparseMatr
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCodeInSparseVectorList(DenseMatrix<SparseMatrix<ElementType>>* Code)
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCodeInSparseColVectorList(DenseMatrix<SparseMatrix<ElementType>>* Code)
 {
     if (Code == nullptr)
     {
-        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputCodeInSparseVectorList(Code)")
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputCodeInSparseColVectorList(Code)")
         return false;
     }
 
-    m_CodeInSparseVectorList = Code;
+    m_CodeInSparseColVectorList = Code;
 
-    m_CodeInSparseVectorList_SharedCopy.ForceShare(Code);
+    m_CodeInSparseColVectorList_SharedCopy.ForceShare(Code);
 
     return true;
 }
@@ -183,37 +183,37 @@ int_max FeatureDictionaryBasedSparseEncoder<ElementType>::GetTotalNumberOfInputF
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedSparseEncoder<ElementType>::CheckInputAndOutput()
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::CheckInput()
 {
     if (m_FeatureData == nullptr)
     {
-        MDK_Error("Input FeatureData is empty (nullptr) @ FeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
+        MDK_Error("Input FeatureData is empty (nullptr) @ FeatureDictionaryBasedSparseEncoder::CheckInput()")
         return false;
     }
 
     if (m_FeatureData->IsEmpty() == true)
     {
-        MDK_Error("Input FeatureData is empty matrix @ FeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
+        MDK_Error("Input FeatureData is empty matrix @ FeatureDictionaryBasedSparseEncoder::CheckInput()")
         return false;
     }
 
     if (m_Dictionary == nullptr)
     {
-        MDK_Error("Input Dictionary is empty (nullptr) @ FeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
+        MDK_Error("Input Dictionary is empty (nullptr) @ FeatureDictionaryBasedSparseEncoder::CheckInput()")
         return false;
     }
 
     if (m_Dictionary->IsEmpty() == true)
     {
-        MDK_Error("Input Dictionary is empty @ FeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
+        MDK_Error("Input Dictionary is empty @ FeatureDictionaryBasedSparseEncoder::CheckInput()")
         return false;
     }
 
-    m_CodeInSparseVectorList->FastResize(1, m_FeatureData->GetColNumber());
+    m_CodeInSparseColVectorList->FastResize(1, m_FeatureData->GetColNumber());
 
     if (m_MaxNumberOfThreads <= 0)
     {
-        MDK_Warning("Input MaxNumberOfThreads is invalid, set to 1 @ FeatureDictionaryBasedSparseEncoder::CheckInputAndOutput()")
+        MDK_Warning("Input MaxNumberOfThreads is invalid, set to 1 @ FeatureDictionaryBasedSparseEncoder::CheckInput()")
 
         m_MaxNumberOfThreads = 1;
     }
@@ -234,9 +234,9 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::Update()
 
     //--------------------------------------------------------------
 
-    if (m_CodeInSparseVectorList != &m_CodeInSparseVectorList_SharedCopy)
+    if (m_CodeInSparseColVectorList != &m_CodeInSparseColVectorList_SharedCopy)
     {
-        m_CodeInSparseVectorList_SharedCopy.ForceShare(m_CodeInSparseVectorList);
+        m_CodeInSparseColVectorList_SharedCopy.ForceShare(m_CodeInSparseColVectorList);
     }
 
     m_Flag_CodeInDenseMatrix_Is_Updated = false;
@@ -268,21 +268,21 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::GenerateCode_in_a_Thread(
     {
         m_FeatureData->GetCol(i, SingleFeatureDataVector);
 
-        this->EncodingFunction(SingleFeatureDataVector, (*m_CodeInSparseVectorList)[i]);
+        this->EncodingFunction(SingleFeatureDataVector, (*m_CodeInSparseColVectorList)[i]);
     }
 }
 
 
 template<typename ElementType>
 inline
-void FeatureDictionaryBasedSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
-                                                                        DenseMatrix<ElementType>& CodeInDenseVector)
+void FeatureDictionaryBasedSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
+                                                                        DenseMatrix<ElementType>& CodeInDenseColVector)
 {
-    SparseMatrix<ElementType> CodeInSparseVector(m_Dictionary->m_Record.GetColNumber(), 1);
+    SparseMatrix<ElementType> CodeInSparseColVector;
 
-    this->EncodingFunction(SingleFeatureDataVector, CodeInSparseVector);
+    this->EncodingFunction(DataColVector, CodeInSparseColVector);
 
-    ConvertSparseMatrixToDenseMatrix(CodeInSparseVector, CodeInDenseVector);
+    ConvertSparseMatrixToDenseMatrix(CodeInSparseColVector, CodeInDenseColVector);
 }
 
 
@@ -301,7 +301,7 @@ DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetO
 
             for (int_max j = 0; j < m_CodeInDenseMatrix->GetColNumber(); ++j)
             {
-                ConvertSparseMatrixToDenseMatrix((*m_CodeInSparseVectorList)[j], tempCode);
+                ConvertSparseMatrixToDenseMatrix((*m_CodeInSparseColVectorList)[j], tempCode);
 
                 m_CodeInDenseMatrix->SetCol(j, tempCode);
             }
@@ -337,7 +337,7 @@ SparseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::Get
     {
         auto CodeDimension = m_Dictionary->m_Record.GetColNumber();
 
-        m_CodeInSparseMatrix->ConstructFromSparseColVectorListInOrder(*m_CodeInSparseVectorList, CodeDimension, m_FeatureData->GetColNumber());
+        m_CodeInSparseMatrix->ConstructFromSparseColVectorListInOrder(*m_CodeInSparseColVectorList, CodeDimension, m_FeatureData->GetColNumber());
 
         if (m_CodeInSparseMatrix != &m_CodeInSparseMatrix_SharedCopy)
         {
@@ -352,9 +352,9 @@ SparseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::Get
 
 
 template<typename ElementType>
-DenseMatrix<SparseMatrix<ElementType>>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputCodeInSparseVectorList()
+DenseMatrix<SparseMatrix<ElementType>>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputCodeInSparseColVectorList()
 {
-    return &m_CodeInSparseVectorList_SharedCopy;
+    return &m_CodeInSparseColVectorList_SharedCopy;
 }
 
 

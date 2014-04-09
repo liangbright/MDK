@@ -420,7 +420,7 @@ void SparseMatrixDataInCSCFormat<ElementType>::Clear()
 
     m_Threshold = ElementType(0);
 
-    m_NaNElement = GetMatrixNaNElement(ElementType(0)); // zero if int
+    m_NaNElement = GetMatrixNaNElement(m_NaNElement); // zero if int
 
     m_IsSizeFixed = false;
 }
@@ -705,9 +705,9 @@ ElementType& SparseMatrixDataInCSCFormat<ElementType>::SetElement(int_max Linear
 
     divresult = div(LinearIndex, m_RowNumber);
 
-    ColIndex = divresult.quot;
+    auto ColIndex = divresult.quot;
 
-    RowIndex = divresult.rem;
+    auto RowIndex = divresult.rem;
 
     return this->SetElement(RowIndex, ColIndex, InputElement);
 }
@@ -2191,6 +2191,50 @@ MatrixElementTypeEnum SparseMatrix<ElementType>::GetElementType() const
 }
 
 
+
+template<typename ElementType>
+inline const std::vector<int_max>& SparseMatrix<ElementType>::GetRowIndexList() const
+{
+    return m_MatrixData->m_RowIndexList;
+}
+
+
+template<typename ElementType>
+inline std::vector<int_max> SparseMatrix<ElementType>::GetColIndexList() const
+{
+    return m_MatrixData->GetColIndexList();
+}
+
+
+template<typename ElementType>
+inline const std::vector<ElementType>& SparseMatrix<ElementType>::GetDataArray() const
+{
+    return m_MatrixData->m_DataArray;
+}
+
+
+template<typename ElementType>
+inline const std::vector<int_max>& SparseMatrix<ElementType>::GetColBeginElementLinearIndexInDataArray() const
+{
+    return m_MatrixData->m_ColBeginElementLinearIndexInDataArray;
+}
+
+
+template<typename ElementType>
+inline
+std::vector<int_max> SparseMatrix<ElementType>::GetRowIndexListInCol(int_max ColIndex) const
+{
+    if (ColIndex >= m_MatrixData->m_ColNumber || ColIndex < 0)
+    {
+        MDK_Error("Invalid input @ SparseMatrix::GetRowIndexListInCol(int_max ColIndex)")
+            std::vector<int_max> emptyList;
+        return emptyList;
+    }
+
+    return m_MatrixData->GetRowIndexListInCol(ColIndex);
+}
+
+
 template<typename ElementType>
 inline
 ElementType* SparseMatrix<ElementType>::GetPointerOfDataArray()
@@ -2310,21 +2354,6 @@ int_max SparseMatrix<ElementType>::GetRecordedElementNumberInCol(int_max ColInde
 
 
 template<typename ElementType>
-inline
-std::vector<int_max> SparseMatrix<ElementType>::GetRowIndexListInCol(int_max ColIndex) const
-{
-    if (ColIndex >= m_MatrixData->m_ColNumber || ColIndex < 0)
-    {
-        MDK_Error("Invalid input @ SparseMatrix::GetRowIndexListInCol(int_max ColIndex)")
-        std::vector<int_max> emptyList;
-        return emptyList;
-    }
-
-    return m_MatrixData->GetRowIndexListInCol(ColIndex);
-}
-
-
-template<typename ElementType>
 inline 
 const ElementType& SparseMatrix<ElementType>::GetElement(int_max LinearIndex) const
 { 
@@ -2368,7 +2397,7 @@ bool SparseMatrix<ElementType>::SetElement(int_max LinearIndex, const ElementTyp
 {
 #if defined(MDK_DEBUG_SparseMatrix_Operator_CheckBound)
 
-    if (LinearIndex >= this->GetElementNumber || LinearIndex < 0)
+    if (LinearIndex >= this->GetElementNumber() || LinearIndex < 0)
     {
         MDK_Error("Invalid input @ SparseMatrix::SetElement(LinearIndex, InputElement)")
         return false;
@@ -2377,6 +2406,8 @@ bool SparseMatrix<ElementType>::SetElement(int_max LinearIndex, const ElementTyp
 #endif
 
     m_MatrixData->SetElement(LinearIndex, InputElement);
+
+    return true;
 }
 
 
@@ -2397,6 +2428,8 @@ bool SparseMatrix<ElementType>::SetElement(int_max RowIndex, int_max ColIndex, c
 #endif
 
     m_MatrixData->SetElement(RowIndex, ColIndex, InputElement);
+
+    return true;
 }
 
 
@@ -2488,6 +2521,7 @@ const ElementType& SparseMatrix<ElementType>::at(int_max LinearIndex) const
         return m_MatrixData->m_NaNElement;
 	}
 
+    // this will call none const ()
     //return (*m_MatrixData)(LinearIndex);
 
     return m_MatrixData->GetElement(LinearIndex);
@@ -2536,6 +2570,7 @@ const ElementType& SparseMatrix<ElementType>::operator()(int_max RowIndex, int_m
 
 #endif //MDK_DEBUG_SparseMatrix_Operator_CheckBound
 
+    // this will call none const ()
     //return (*m_MatrixData)(RowIndex, ColIndex);
 
     return m_MatrixData->GetElement(RowIndex, ColIndex);
@@ -2572,6 +2607,7 @@ const ElementType& SparseMatrix<ElementType>::at(int_max RowIndex, int_max ColIn
         return m_MatrixData->m_NaNElement;
     }
 
+    // this will call none const ()
     //return (*m_MatrixData)(RowIndex, ColIndex);
 
     return m_MatrixData->GetElement(RowIndex, ColIndex);

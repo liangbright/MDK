@@ -47,7 +47,7 @@ public:
 
     //-----------------------------------------------------//
 
-    virtual bool CheckInputAndOutput();
+    virtual bool CheckInput();
 
     virtual bool Preprocess();
 
@@ -55,8 +55,8 @@ public:
 
     //----------------------------------------------------//
 
-    virtual inline void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector, 
-                                         DenseMatrix<ElementType>& CodeInDenseVector) = 0;
+    virtual inline void EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
+                                         DenseMatrix<ElementType>& CodeInDenseColVector) = 0;
 
     //----------------------------------------------------//
 

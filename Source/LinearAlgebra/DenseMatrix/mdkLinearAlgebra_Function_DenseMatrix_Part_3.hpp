@@ -10,28 +10,34 @@ namespace mdk
 // each column of VectorSet is a vector
 // L2DistanceList[j] = distance between SingleVector and VectorSet(ALL, j)
 template<typename ElementType>
-DenseMatrix<ElementType> ComputeL2DistanceListFromSingleVectorToVectorSet(const DenseMatrix<ElementType>& SingleVector,
-                                                                          const DenseMatrix<ElementType>& VectorSet)
+DenseMatrix<ElementType> ComputeL2DistanceListFromSingleVectorToColVectorSet(const DenseMatrix<ElementType>& SingleVector,
+                                                                             const DenseMatrix<ElementType>& ColVectorSet)
 {
     DenseMatrix<ElementType> L2DistanceList;
 
-    auto Size = VectorSet.GetSize();
+    auto Size = ColVectorSet.GetSize();
 
     if (Size.ColNumber == 0)
     {
-        MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeL2DistanceListFromSingleVectorToVectorSet(...)")
+        MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeL2DistanceListFromSingleVectorToColVectorSet(...)")
+        return L2DistanceList;
+    }
+
+    if (SingleVector.IsVector() == false)
+    {
+        MDK_Error("Input vector is not a vector @ mdkLinearAlgebra_DenseMatrix ComputeL2DistanceListFromSingleVectorToColVectorSet(...)")
         return L2DistanceList;
     }
 
     if (SingleVector.GetElementNumber() != Size.RowNumber)
     {
-        MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeL2DistanceListFromSingleVectorToVectorSet(...)")
+        MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeL2DistanceListFromSingleVectorToColVectorSet(...)")
         return L2DistanceList;
     }
 
-    L2DistanceList.Resize(1, Size.ColNumber);
+    L2DistanceList.FastResize(1, Size.RowNumber);
 
-    auto ElementPointer = VectorSet.GetElementPointer();
+    auto ElementPointer = ColVectorSet.GetElementPointer();
 
     for (int_max j = 0; j < Size.ColNumber; ++j)
     {

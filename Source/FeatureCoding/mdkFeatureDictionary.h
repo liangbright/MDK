@@ -14,11 +14,13 @@ class FeatureDictionary : Object
 {
 public:
 
-    DenseMatrix<ElementType> m_Record;
+    DenseMatrix<ElementType> m_Record; // D
 
     DenseMatrix<ElementType> m_Covariance;
+    // relation between bases
 
-    DenseMatrix<ElementType> m_Variance;  // Variance(j) = sqrt(sum_i(Prob(i,j)*(Feature_i - Code(:,j))^2))
+    DenseMatrix<ElementType> m_StandardDeviation;
+    // StandardDeviation(j) = sqrt(sum_i(Prob(i,j)*(FeatureData_i - D(:,j))^2))
 
 public:
 

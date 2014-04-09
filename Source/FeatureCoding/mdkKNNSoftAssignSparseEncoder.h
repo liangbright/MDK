@@ -13,9 +13,9 @@ template<typename ElementType>
 class KNNSoftAssignSparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
 {
 
-private: 
+public:
 
-    int_max m_MaxNumberOfNeighbours;
+    int_max m_NeighbourNumber;
 
 public:
 
@@ -27,11 +27,13 @@ public:
 
     void Clear();
 
-    bool SetMaxNumberOfNeighbours(int_max MaxNumberOfNeighbours);
+    bool CheckInput();
+    //-----------------------------------------
 
-protected:
+    using FeatureDictionaryBasedSparseEncoder::EncodingFunction;
 
-    bool GenerateCode();
+    inline void EncodingFunction(const DenseMatrix<ElementType>& DataColVector, SparseMatrix<ElementType>& CodeInSparseColVector);
+
 
 private:
 //deleted:

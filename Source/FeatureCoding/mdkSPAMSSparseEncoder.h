@@ -85,14 +85,13 @@ public:
 
     void Clear();
 
-    bool CheckInputAndOutput();
+    bool CheckInput();
 
     //--------------------------------------------------------------------------------
 
     using FeatureDictionaryBasedSparseEncoder::EncodingFunction;
 
-    inline void EncodingFunction(const DenseMatrix<ElementType>& SingleFeatureDataVector,
-                                 SparseMatrix<ElementType>& CodeInSparseVector);
+    inline void EncodingFunction(const DenseMatrix<ElementType>& DataColVector, SparseMatrix<ElementType>& CodeInSparseColVector);
 
     //---------------------------------------------------------------------------------
 

@@ -502,7 +502,7 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLD
         ElementType* ptrCPUTime = nullptr;
         if (m_Option.CPUTime > 0.0)
         {
-            CPUTime = m_Option.CPUTime;
+            CPUTime = ElementType(m_Option.CPUTime);
             ptrCPUTime = &CPUTime;
         }
 
@@ -574,7 +574,7 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLD
         ElementType* ptrCPUTime = nullptr;
         if (m_Option.CPUTime > 0.0)
         {
-            CPUTime = m_Option.CPUTime;
+            CPUTime = ElementType(m_Option.CPUTime);
             ptrCPUTime = &CPUTime;
         }
 
@@ -881,7 +881,7 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLS
         ElementType* ptrCPUTime = nullptr;
         if (m_Option.CPUTime > 0.0)
         {
-            CPUTime = m_Option.CPUTime;
+            CPUTime = ElementType(m_Option.CPUTime);
             ptrCPUTime = &CPUTime;
         }
 
@@ -957,7 +957,7 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLS
         ElementType* ptrCPUTime = nullptr;
         if (m_Option.CPUTime > 0.0)
         {
-            CPUTime = m_Option.CPUTime;
+            CPUTime = ElementType(m_Option.CPUTime);
             ptrCPUTime = &CPUTime;
         }
 
@@ -1079,7 +1079,7 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_Only
         ElementType* ptrCPUTime = nullptr;
         if (m_Option.CPUTime > 0.0)
         {
-            CPUTime = m_Option.CPUTime;
+            CPUTime = ElementType(m_Option.CPUTime);
             ptrCPUTime = &CPUTime;
         }
 
@@ -1152,7 +1152,7 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_Only
         ElementType* ptrCPUTime = nullptr;
         if (m_Option.CPUTime > 0.0)
         {
-            CPUTime = m_Option.CPUTime;
+            CPUTime = ElementType(m_Option.CPUTime);
             ptrCPUTime = &CPUTime;
         }
 
@@ -1283,7 +1283,7 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_Online_Varying_H_A_Inp
     ElementType* ptrCPUTime = nullptr;
     if (m_Option.CPUTime > 0.0)
     {
-        CPUTime = m_Option.CPUTime;
+        CPUTime = ElementType(m_Option.CPUTime);
         ptrCPUTime = &CPUTime;
     }
 
@@ -1418,7 +1418,7 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_Online_Varying_H_A_Inp
     ElementType* ptrCPUTime = nullptr;
     if (m_Option.CPUTime > 0.0)
     {
-        CPUTime = m_Option.CPUTime;
+        CPUTime = ElementType(m_Option.CPUTime);
         ptrCPUTime = &CPUTime;
     }
 
