@@ -12,8 +12,9 @@
 
 #include <spams/dictLearn/dicts.h>
 
-#include "mdkFeatureDictionaryBasedSparseEncoder.h"
 #include "mdkFeatureDictionaryBuilder.h"
+#include "mdkFeatureDictionaryBasedSparseEncoder.h"
+#include "mdkFeatureDictionaryForSparseCoding.h"
 
 namespace mdk
 {
@@ -195,9 +196,9 @@ protected:
 
     State_Of_SPAMSOnlineDictionaryBuilder<ElementType> m_State;
 
-    FeatureDictionaryForCommonSparseEndocer<ElementType>* m_Dictionary;
+    FeatureDictionaryForSparseCoding<ElementType>* m_Dictionary;
 
-    FeatureDictionaryForCommonSparseEndocer<ElementType> m_Dictionary_SharedCopy;
+    FeatureDictionaryForSparseCoding<ElementType> m_Dictionary_SharedCopy;
 
 public:
 
@@ -209,11 +210,7 @@ public:
 
     void SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
 
-    void SetOutputDictionary(FeatureDictionaryForCommonSparseEndocer<ElementType>* Dictionary);
-
-    FeatureDictionaryForCommonSparseEndocer<ElementType>* GetOutputDictionary();
-
-    bool CheckInput();
+    void SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* Dictionary);
 
     void SetInitialState(State_Of_SPAMSOnlineDictionaryBuilder<ElementType> InitialState); //copy value
 
@@ -221,22 +218,23 @@ public:
 
     void SetSparseEncoder(FeatureDictionaryBasedSparseEncoder<ElementType>* Encoder);
 
-    bool SaveStateAndParameter(const std::string& FilePathAndName);
-
     bool LoadStateAndParameter(const std::string& FilePathAndName);
 
-    //----------------------------------------------------//
+    bool SaveStateAndParameter(const std::string& FilePathAndName);
 
-    bool Update();
+    bool CheckInput();
+
+    FeatureDictionaryForSparseCoding<ElementType>* GetOutputDictionary();
 
 protected:
 
     void GenerateDictionary();
 
+    void SetupDefaultPipelineOutput();
+
     void UpdatePipelineOutput();
 
 private:
-//deleted
     SPAMSOnlineDictionaryBuilder(const SPAMSOnlineDictionaryBuilder&) = delete;
 
     void operator=(const SPAMSOnlineDictionaryBuilder&) = delete;

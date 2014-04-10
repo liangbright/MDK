@@ -584,7 +584,7 @@ int_max MatrixRank(const DenseMatrix<ElementType>& InputMatrix)
         return 0;
     }
 
-    auto ptrData = InputMatrix.GetElementDataSharedPointer()->data();
+    auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
     // call Armadillo 
 
@@ -644,14 +644,14 @@ DenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(co
 
     if (Size.RowNumber == 0)
     {
-        MDK_Error("InputMatrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixEigen(InputMatrix)")
+        MDK_Error("InputMatrix is empty matrix @ mdkLinearAlgebra_DenseMatrix NonSymmetricRealMatrixEigen(InputMatrix)")
 
         return Result;
     }
 
     if (Size.RowNumber != Size.ColNumber)
     {
-        MDK_Error("InputMatrix is not square @ mdkLinearAlgebra MatrixEigen(InputMatrix)")
+        MDK_Error("InputMatrix is not square @ mdkLinearAlgebra_DenseMatrix NonSymmetricRealMatrixEigen(InputMatrix)")
 
         return Result;
     }
@@ -686,14 +686,14 @@ DenseMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const DenseMatrix<E
 
     if (Size.RowNumber == 0)
     {
-        MDK_Error("Matrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixEigen(Matrix)")
+        MDK_Error("Matrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixEigen(InputMatrix)")
 
         return Result;
     }
 
     if (Size.RowNumber != Size.ColNumber)
     {
-        MDK_Error("Matrix is not square @ mdkLinearAlgebra_DenseMatrix MatrixEigen(Matrix)")
+        MDK_Error("Matrix is not square @ mdkLinearAlgebra_DenseMatrix MatrixEigen(InputMatrix)")
 
         return Result;
     }
@@ -702,11 +702,11 @@ DenseMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const DenseMatrix<E
     {
         DenseMatrix<ElementType> tempMatrix_2 = InputMatrix - InputMatrix.Transpose();
 
-        tempMatrix_2.ElementNamedOperationInPlace("abs");
+        tempMatrix_2.ElementOperationInPlace("abs");
 
-        double tempsum = tempMatrix_2.Sum();
+        double tempsum = double(tempMatrix_2.Sum());
 
-        if (std::abs(tempsum) > 0.00000001)
+        if (std::abs(tempsum) > EPS(tempsum))
         {
             MDK_Error("Matrix is not Symmetric, try to generate result @ mdkLinearAlgebra_DenseMatrix MatrixEigen(InputMatrix)")
         }
@@ -716,7 +716,7 @@ DenseMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const DenseMatrix<E
 
     Result.EigenValue.FastResize(Size.RowNumber, 1);
 
-    auto ptrData = Matrix.GetElementDataSharedPointer()->data();
+    auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
     // call Armadillo 
 
@@ -742,7 +742,7 @@ DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& Inpu
 
     if (Size.ColNumber <= 1)
     {
-        MDK_Error("ColNumber <= 1, return empty PCAResult @ mdkLinearAlgebra MatrixPCA(Matrix)")
+        MDK_Error("ColNumber <= 1, return empty PCAResult @ mdkLinearAlgebra_DenseMatrix MatrixPCA(...)")
         return PCAResult;
     }
 
@@ -753,15 +753,31 @@ DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& Inpu
 
     CovarianceMatrix.Fill(0);
 
+    // reference only
+    //for (int_max i = 0; i < Size.ColNumber; ++i)
+    //{
+    //    DenseMatrix<ElementType> tempCol = InputMatrix(ALL, { i }) - MeanCol;
+       
+    //    CovarianceMatrix += tempCol * tempCol.Transpose();
+    //}
+
+    DenseMatrix<ElementType> tempMatrix(Size.RowNumber, Size.RowNumber);
+
+    DenseMatrix<ElementType> tempCol(Size.RowNumber, 1);
+
+    DenseMatrix<ElementType> tempColTranspose(1, Size.RowNumber);
+
     for (int_max i = 0; i < Size.ColNumber; ++i)
     {
-        // auto tempCol = Matrix(ALL, { i }) - MeanCol;
+        InputMatrix.GetCol(i, tempCol);
 
-        auto tempCol = InputMatrix.GetCol(i);
-        
-        tempCol -= MeanCol;
+        MatrixSubtract(tempCol, tempCol, MeanCol);
 
-        CovarianceMatrix += tempCol * tempCol.Transpose();
+        tempColTranspose = tempCol.Transpose();
+
+        MatrixMultiply(tempMatrix, tempCol, tempColTranspose);
+
+        CovarianceMatrix += tempMatrix;
     }
 
     CovarianceMatrix /= Size.ColNumber;
@@ -790,7 +806,7 @@ DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Inpu
 
     if (Size.RowNumber == 0)
     {
-        MDK_Error("Matrix is empty  @ mdkLinearAlgebra MatrixSVD(InputMatrix)")
+        MDK_Error("Matrix is empty  @ mdkLinearAlgebra_DenseMatrix MatrixSVD(InputMatrix)")
         return Result;
     }
 

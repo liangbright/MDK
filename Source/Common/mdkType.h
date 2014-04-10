@@ -77,6 +77,7 @@ template<typename ScalarType>
 inline
 int_max CalByteNumberOfScalar(const ScalarType& Scalar);
 
+
 }//end namespace mdk
 
 #include "mdkType.hpp"

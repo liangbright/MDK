@@ -72,7 +72,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
     const std::vector<ElementType>& Alpha_v = CodeInSparseColVector.GetDataArray();
     DenseMatrix<ElementType> Alpha(const_cast<ElementType*>(Alpha_v.data()), m_Parameter.NeighbourNumber, 1);
 
-    auto SubRecord = m_Dictionary->m_Record.GetSubMatrix(ALL, NeighbourIndexList);
+    auto SubRecord = m_Dictionary->BasisMatrix().GetSubMatrix(ALL, NeighbourIndexList);
 
     // compute ReconstructedDataColVector
 

@@ -52,13 +52,15 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInput()
 template<typename ElementType>
 bool KNNReconstructionSparseEncoder<ElementType>::ComputeGramianMatrix_DtD()
 {
-    if (m_Dictionary->m_Record.IsEmpty() == true)
+    if (m_Dictionary->IsEmpty() == true)
     {
         MDK_Error("Dictionary is empty @ KNNReconstructionSparseEncoder::ComputeGramianMatrix_DtD()")
         return false;
     }
 
-    m_GramianMatrix_DtD = m_Dictionary->m_Record.Transpose()*m_Dictionary->m_Record;
+    auto D = m_Dictionary->BasisMatrix();
+
+    m_GramianMatrix_DtD = D.Transpose()*D;
 
     return true;
 }
@@ -78,15 +80,17 @@ inline
 void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
                                                                    SparseMatrix<ElementType>& CodeInSparseColVector)
 {
-    auto L2DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, m_Dictionary->m_Record);
+    auto D = m_Dictionary->BasisMatrix();
+
+    auto L2DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, D);
 
     auto NeighbourIndexList = FindKNNByDistanceList(m_Parameter.NeighbourNumber, L2DistanceList);
 
-    auto SubRecord = m_Dictionary->m_Record.GetSubMatrix(ALL, NeighbourIndexList);
+    auto SubRecord = D.GetSubMatrix(ALL, NeighbourIndexList);
 
     // use LinearLeastSquaresProblemSolver
 
-    auto CodeLength = m_Dictionary->m_Record.GetColNumber();
+    auto CodeLength = D.GetColNumber();
 
     Option_Of_LinearLeastSquaresProblemSolver Option;
 

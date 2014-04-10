@@ -360,7 +360,7 @@ public:
 
     //--------------------- Get Data Pointer -----------------------------//
 
-    inline ElementType* GetElementPointer();
+    inline ElementType* GetElementPointer(); //  the position of the first element
 
     inline const ElementType* GetElementPointer() const;
 
@@ -369,6 +369,10 @@ public:
     inline const ElementType* begin() const;
 
     inline const ElementType* end() const; // the last position + 1
+
+    inline ElementType* GetElementPointerOfCol(int_max ColIndex); //  the position of the first element in Col # ColIndex
+
+    inline const ElementType* GetElementPointerOfCol(int_max ColIndex) const;
 
 	//----------- Get/Set Matrix(LinearIndex) -----------------------------------//
 

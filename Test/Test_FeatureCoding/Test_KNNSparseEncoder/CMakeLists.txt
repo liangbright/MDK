@@ -28,6 +28,7 @@ include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR} 
 ${MDK_DIR}/Debug
 ${MDK_DIR}/Common
+${MDK_DIR}/Multithreading
 ${MDK_DIR}/LinearAlgebra/Common
 ${MDK_DIR}/LinearAlgebra/DenseMatrix
 ${MDK_DIR}/LinearAlgebra/SparseMatrix

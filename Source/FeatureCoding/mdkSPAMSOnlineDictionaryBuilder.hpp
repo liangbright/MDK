@@ -26,13 +26,13 @@ SPAMSOnlineDictionaryBuilder<ElementType>::~SPAMSOnlineDictionaryBuilder()
 template<typename ElementType>
 void SPAMSOnlineDictionaryBuilder<ElementType>::Clear()
 {
-    this->FeatureDictionaryBuilder::Clear();
-
     m_SparseEncoder = nullptr;
 
     m_Parameter.Clear();
 
     m_State.Clear();
+
+    this->SetupDefaultPipelineOutput();
 }
 
 
@@ -45,7 +45,7 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::SetInputFeatureData(const DenseM
 //---------------------------------------------------//
 
 template<typename ElementType>
-void SPAMSOnlineDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionary<ElementType>* OutputDictionary)
+void SPAMSOnlineDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* OutputDictionary)
 {
     m_Dictionary = OutputDictionary;
 }
@@ -74,18 +74,17 @@ SPAMSOnlineDictionaryBuilder<ElementType>::GetCurrentState()
 
 
 template<typename ElementType>
-bool SPAMSOnlineDictionaryBuilder<ElementType>::SaveStateAndParameter(const std::string& FilePathAndName)
+bool SPAMSOnlineDictionaryBuilder<ElementType>::LoadStateAndParameter(const std::string& FilePathAndName)
 {
     return true;
 }
 
 
 template<typename ElementType>
-bool SPAMSOnlineDictionaryBuilder<ElementType>::LoadStateAndParameter(const std::string& FilePathAndName)
+bool SPAMSOnlineDictionaryBuilder<ElementType>::SaveStateAndParameter(const std::string& FilePathAndName)
 {
     return true;
 }
-
 
 
 template<typename ElementType>
@@ -117,6 +116,12 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::CheckInput()
     {
         MDK_Error("m_SparseEncoder is nullptr @ SPAMSOnlineDictionaryBuilder::CheckInput()")
         return false;
+    }
+
+    if (m_Dictionary == nullptr)
+    {
+        m_Dictionary_SharedCopy.Clear();
+        m_Dictionary = &m_Dictionary_SharedCopy;
     }
 
     return true;
@@ -206,24 +211,34 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 
 
 template<typename ElementType>
+void SPAMSOnlineDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
+{
+    m_Dictionary_SharedCopy.Clear();
+    m_Dictionary = &m_Dictionary_SharedCopy;
+}
+
+
+template<typename ElementType>
 void SPAMSOnlineDictionaryBuilder<ElementType>::UpdatePipelineOutput()
 {
-    if (m_Dictionary->m_BasisMatrix.GetElementPointer() != m_State.D.GetElementPointer())
+    auto D = m_Dictionary->BasisMatrix();
+
+    if (D.GetElementPointer() != m_State.D.GetElementPointer())
     {
-        if (m_Dictionary->m_BasisMatrix.GetElementPointer() == nullptr)
+        if (D.GetElementPointer() == nullptr)
         {
-            m_Dictionary->m_BasisMatrix.ForceShare(m_State.D);
+            D.ForceShare(m_State.D);
         }
         else
         {
-            m_Dictionary->m_BasisMatrix.Copy(m_State.D);
+            D.Copy(m_State.D);
         }
     }
 }
 
 
 template<typename ElementType>
-FeatureDictionaryForCommonSparseEndocer<ElementType>* SPAMSOnlineDictionaryBuilder<ElementType>::GetOutputDictionary()
+FeatureDictionaryForSparseCoding<ElementType>* SPAMSOnlineDictionaryBuilder<ElementType>::GetOutputDictionary()
 {
     return &m_Dictionary_SharedCopy;
 }

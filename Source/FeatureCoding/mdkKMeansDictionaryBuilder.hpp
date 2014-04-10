@@ -26,91 +26,94 @@ KMeansDictionaryBuilder<ElementType>::~KMeansDictionaryBuilder()
 template<typename ElementType>
 void KMeansDictionaryBuilder<ElementType>::Clear()
 {
-    this->FeatureDictionaryBuilder::Clear();
-
     m_KMeansLibraryName = "OpenCV";
+
+    m_ClusterNumber = -1;
+
+    m_FeatureData = nullptr;
 
     m_InitialDictionary = nullptr;
 
-    m_DictionaryLength = 0;
+    this->SetupDefaultPipelineOutput();
 }
 
 
 template<typename ElementType>
-bool KMeansDictionaryBuilder<ElementType>::SelectKMeansLibrary(const std::string& KMeansLibraryName)
+void KMeansDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
 {
-    if (KMeansLibraryName != "OpenCV" || KMeansLibraryName != "VLFeat")
-    {
-        MDK_Error("Invalid input @ KMeansDictionaryBuilder::SelectKMeansLibrary")
-        return false;
-    }
-
-    m_KMeansLibraryName = KMeansLibraryName;
-
-    return true;
+    m_Dictionary_SharedCopy.Clear();
+    m_Dictionary = &m_Dictionary_SharedCopy;
 }
 
 
 template<typename ElementType>
-bool KMeansDictionaryBuilder<ElementType>::SetInitialDictionary(const FeatureDictionary<ElementType>* InitialDictionary)
+void KMeansDictionaryBuilder<ElementType>::UpdatePipelineOutput()
+{
+    if (m_Dictionary != m_Dictionary_SharedCopy)
+    {
+        m_Dictionary_SharedCopy.ForceShare(m_Dictionary);
+    }
+}
+
+
+template<typename ElementType>
+void KMeansDictionaryBuilder<ElementType>::SetInitialDictionary(const FeatureDictionary<ElementType>* InitialDictionary)
 {
     m_InitialDictionary = InitialDictionary;
 }
 
 
 template<typename ElementType>
-bool KMeansDictionaryBuilder<ElementType>::SetOutputDictionaryLength(int_max DictionaryLength)
+bool KMeansDictionaryBuilder<ElementType>::CheckInput()
 {
-    if (DictionaryLength <= 0)
+    if (m_KMeansLibraryName != "OpenCV" || m_KMeansLibraryName != "VLFeat")
     {
-        MDK_Error("Invalid Input @ KMeansDictionaryBuilder::SetOutputDictionaryLength(DictionaryLength)")
+        MDK_Error("Invalid input @ KMeansDictionaryBuilder::CheckInput()")
         return false;
     }
 
-    m_DictionaryLength = DictionaryLength;
+    if (m_ClusterNumber <= 0)
+    {
+        MDK_Error("m_ClusterNumber <= 0 @ KMeansDictionaryBuilder::CheckInput()")
+        return false;
+    }
 
     return true;
 }
 
 
 template<typename ElementType>
-bool KMeansDictionaryBuilder<ElementType>::GenerateDictionary()
+void KMeansDictionaryBuilder<ElementType>::GenerateDictionary()
 {
     bool IsOK = false;
 
     if (m_InitialDictionary == nullptr) // build a brand new dictionary
     {
-        IsOK = this->KMeansFirstTimeBuild();
+        this->KMeansFirstTimeBuild();
     }
     else // update the Dictionary
     {
-        IsOK = this->KMeansOnlineUpdate();
+        this->KMeansOnlineUpdate();
     }
-
-    return IsOK;
 }
 
 
 template<typename ElementType>
-bool KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild()
+void KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild()
 {
     if (m_KMeansLibraryName == "OpenCV")
     {
-        return this->KMeansFirstTimeBuild_using_OpenCV();
+        this->KMeansFirstTimeBuild_using_OpenCV();
     }
     else if (m_KMeansLibraryName == "VLFeat")
     {
-        return this->KMeansFirstTimeBuild_using_VLFeat();
-    }
-    else
-    {
-        return false;
+        this->KMeansFirstTimeBuild_using_VLFeat();
     }
 }
 
 
 template<typename ElementType>
-bool KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_OpenCV()
+void KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_OpenCV()
 {
     //call OpenCV kmeans function
     //OpenCV KMeans only supports float ! not double!
@@ -150,31 +153,28 @@ bool KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_OpenCV()
                3, cv::KMEANS_PP_CENTERS, Center);
 
     // convert Center to mdkDenseMatrix  --------------------------------------------------------------         
+    
+    auto D = m_Dictionary->BasisMatrix();
 
     for (int i = 0; i < int(m_FeatureData->GetRowNumber()); ++i)
     {
-        for (int j = 0; j < int(m_DictionaryLength); ++j)
+        for (int j = 0; j < int(m_ClusterNumber); ++j)
         {
-            (*m_Dictionary).m_Record(i, j) = ElementType(Center.at<float>(j, i));
+            D(i, j) = ElementType(Center.at<float>(j, i));
         }
     }
-
-    return true;
 }
 
 
 template<typename ElementType>
-bool KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_VLFeat()
+void KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_VLFeat()
 {
-
-    return true;
 }
 
 
 template<typename ElementType>
-bool KMeansDictionaryBuilder<ElementType>::KMeansOnlineUpdate()
+void KMeansDictionaryBuilder<ElementType>::KMeansOnlineUpdate()
 {
-    return true;
 }
 
 

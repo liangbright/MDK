@@ -4,7 +4,7 @@
 #include <string>
 
 #include "mdkFeatureDictionaryBasedEncoder.h"
-
+#include "mdkFeatureDictionaryForDenseCoding.h"
 
 namespace mdk
 {
@@ -20,15 +20,15 @@ protected:
 
     // input, and can also be internal data, 
 
-    const FeatureDictionary<ElementType>* m_Dictionary;
+    const FeatureDictionaryForDenseCoding<ElementType>* m_Dictionary;
 
-    FeatureDictionary<ElementType> m_Dictionary_SharedCopy;
+    FeatureDictionaryForDenseCoding<ElementType> m_Dictionary_SharedCopy;
 
     // output:
 
-    DenseMatrix<ElementType>* m_FeatureCode;
+    DenseMatrix<ElementType>* m_Code;
 
-    DenseMatrix<ElementType> m_FeatureCode_SharedCopy;
+    DenseMatrix<ElementType> m_Code_SharedCopy;
 
 
 protected:
@@ -42,11 +42,11 @@ public:
     
     //-----------------------------------------
 
-    bool SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
+    void SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
 
-    bool SetInputDictionary(const FeatureDictionary<ElementType>* Dictionary);
+    void SetInputDictionary(const FeatureDictionaryForDenseCoding<ElementType>* Dictionary);
 
-    bool SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode);
+    void SetOutputCode(DenseMatrix<ElementType>* Code);
 
     //-----------------------------------------
 
@@ -54,7 +54,7 @@ public:
 
     //----------------------------------------------------//
 
-    DenseMatrix<ElementType>* GetOutputFeatureCode();
+    DenseMatrix<ElementType>* GetOutputCode();
 
 
 protected:

@@ -12,54 +12,25 @@ namespace mdk
 template<typename ElementType>
 class PCADenseEncoder : public FeatureDictionaryBasedDenseEncoder<ElementType>
 {
-protected:
-
-
 
 protected:
     PCADenseEncoder();
     ~PCADenseEncoder();
 
 public:
-    //-----------------------------------------
-
-    virtual void Clear();
     
-    //-----------------------------------------
-
-    bool SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
-
-    bool SetInputDictionary(const FeatureDictionary<ElementType>* Dictionary);
-
-    bool SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode);
-
-    //-----------------------------------------
-
-    virtual bool Update();
-
-    //----------------------------------------------------//
-
-    DenseMatrix<ElementType>* GetOutputFeatureCode();
-
-
-protected:
-
-    int_max GetMaximunNumberOfThreads();
-
-    int_max GetFeatureVectorNumber();
-
-    virtual void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end);
+    void EncodingFunction(const DenseMatrix<ElementType>& DataColVector,  DenseMatrix<ElementType>& CodeInDenseColVector);
 
 private:
 //deleted:
-    FeatureDictionaryBasedDenseEncoder(const FeatureDictionaryBasedDenseEncoder&) = delete;
+    PCADenseEncoder(const PCADenseEncoder&) = delete;
 
-    void operator=(const FeatureDictionaryBasedDenseEncoder&) = delete;
+    void operator=(const PCADenseEncoder&) = delete;
 
 };
 
 }
 
-#include "mdkFeatureDictionaryBasedDenseEncoder.hpp"
+#include "mdkPCADenseEncoder.hpp"
 
 #endif

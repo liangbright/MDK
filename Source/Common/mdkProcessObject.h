@@ -2,35 +2,31 @@
 #define __mdkProcessObject_h
 
 #include "mdkObject.h"
+#include "mdkDebugConfig.h"
+
 
 namespace mdk
 {
 
 class ProcessObject : public Object
 {
-private:
-
-    std::vector<Object**> ProcessOutputObjectPointerList;
-
-    std::vector<Object*> ProcessOutputObjectPointerList_SharedCopy;
-
 protected:
-    ProcessObject();
-    virtual ~ProcessObject();
+    ProcessObject() {}
+    virtual ~ProcessObject() {}
 
 public:
-    virtual void Clear() = 0;
+    virtual void Clear() = 0; // set to default/initial state
 
-    virtual void Update() = 0;
+    virtual bool Update() = 0; // run the process and update output
 
 protected:
-    virtual void SetupPipelineOutput();
-    
-    void UpdatePipelineOutput();
+    virtual void SetupDefaultPipelineOutput() = 0; // this is usually called in Clear()
+    virtual void UpdatePipelineOutput() = 0;       // this is usually called in Update()
 
 private:
     ProcessObject(const ProcessObject&) = delete;  
     void operator=(const ProcessObject&) = delete; 
+};
 
 }//end namespace mdk
 

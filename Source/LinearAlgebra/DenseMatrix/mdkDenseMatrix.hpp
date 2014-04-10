@@ -1475,6 +1475,43 @@ inline const ElementType* DenseMatrix<ElementType>::end() const
     return endPtr;
 }
 
+
+template<typename ElementType>
+inline 
+ElementType* DenseMatrix<ElementType>::GetElementPointerOfCol(int_max ColIndex) //  the position of the first element in Col # ColIndex
+{
+    auto Size = this->GetSize();
+
+    if (ColIndex >= Size.ColNumber || ColIndex < 0)
+    {
+        MDK_Error("Invalid Input @ DenseMatrix::GetElementPointerOfCol(...)")
+        return nullptr;
+    }
+
+    auto BeginPointer = this->GetElementPointer();
+
+    return  BeginPointer + ColIndex*Size.RowNumber;
+}
+
+
+template<typename ElementType>
+inline
+const ElementType* DenseMatrix<ElementType>::GetElementPointerOfCol(int_max ColIndex) const
+{
+    auto Size = this->GetSize();
+
+    if (ColIndex >= Size.ColNumber || ColIndex < 0)
+    {
+        MDK_Error("Invalid Input @ DenseMatrix::GetElementPointerOfCol(...) const")
+        return nullptr;
+    }
+
+    auto BeginPointer = this->GetElementPointer();
+
+    return  BeginPointer + ColIndex*Size.RowNumber;
+}
+
+
 //----------- Get/Set Matrix(LinearIndex) -----------------------------------//
 
 // operator[] (): no bound check in release mode

@@ -29,34 +29,42 @@ void FeatureDictionaryBasedDenseEncoder<ElementType>::Clear()
 
     m_FeatureData = nullptr;
 
-    m_FeatureCode_SharedCopy.Clear();
-
-    m_FeatureCode = &m_FeatureCode_SharedCopy;
+    this->SetupDefaultPipelineOutput();
 }
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedDenseEncoder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData)
+void FeatureDictionaryBasedDenseEncoder<ElementType>::SetupDefaultPipelineOutput()
 {
-    if (InputFeatureData == nullptr)
+    m_Code_SharedCopy.Clear();
+    m_Code = &m_Code_SharedCopy;
+}
+
+
+template<typename ElementType>
+void FeatureDictionaryBasedDenseEncoder<ElementType>::UpdatePipelineOutput()
+{
+    if (m_Code != &m_Code_SharedCopy)
     {
-        MDK_Error << "Invalid input @ FeatureDictionaryBasedDenseEncoder::SetInputFeatureData(InputFeatureData)" << '\n';
-        return false;
+        m_Code_SharedCopy.ForceShare(m_Code);
     }
-
-    m_FeatureData = InputFeatureData;
-
-    return true;
 }
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedDenseEncoder<ElementType>::SetInputDictionary(const FeatureDictionary<ElementType>* Dictionary)
+void FeatureDictionaryBasedDenseEncoder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData)
+{
+    m_FeatureData = InputFeatureData;
+}
+
+
+template<typename ElementType>
+void FeatureDictionaryBasedDenseEncoder<ElementType>::SetInputDictionary(const FeatureDictionaryForDenseCoding<ElementType>* Dictionary)
 {
     if (InputFeatureData == nullptr)
     {
-        MDK_Error << "Invalid input @ FeatureDictionaryBasedDenseEncoder::SetInputDictionary(Dictionary)" << '\n';
-        return false;
+        MDK_Error("Invalid input @ FeatureDictionaryBasedDenseEncoder::SetInputDictionary(Dictionary)")
+        return;
     }
 
     m_Dictionary = Dictionary;
@@ -65,26 +73,15 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::SetInputDictionary(const F
 }
 
 
-
 template<typename ElementType>
-bool FeatureDictionaryBasedDenseEncoder<ElementType>::SetOutputFeatureCode(DenseMatrix<ElementType>* FeatureCode)
+void FeatureDictionaryBasedDenseEncoder<ElementType>::SetOutputCode(DenseMatrix<ElementType>* Code)
 {
-    if (FeatureCode == nullptr)
-    {
-        MDK_Error << "Invalid input @ FeatureDictionaryBasedDenseEncoder::SetOutputFeatureCode(FeatureCode)" << '\n';
-        return false;
-    }
-
-    m_FeatureCode = FeatureCode;
-
-    m_FeatureCode_SharedCopy.ForceShare(FeatureCode);
-
-    return true;
+    m_Code = FeatureCode;
 }
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedDenseEncoder<ElementType>::SetMaxNumberOfThreads(int_max Number)
+void FeatureDictionaryBasedDenseEncoder<ElementType>::SetMaxNumberOfThreads(int_max Number)
 {
     m_MaxNumberOfThreads = Number;
 }
@@ -112,53 +109,56 @@ int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetTotalNumberOfInputFe
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedDenseEncoder<ElementType>::CheckInputAndOutput()
+bool FeatureDictionaryBasedDenseEncoder<ElementType>::CheckInput()
 {
     if (m_FeatureData == nullptr)
     {
-        MDK_Error << "Input FeatureData is empty (nullptr) @ FeatureDictionaryBasedDenseEncoder::CheckInputAndOutput()" << '\n';
+        MDK_Error << "Input FeatureData is empty (nullptr) @ FeatureDictionaryBasedDenseEncoder::CheckInput()" << '\n';
         return false;
     }
 
     if (m_FeatureData->IsEmpty() == true)
     {
-        MDK_Error << "Input FeatureData is empty @ FeatureDictionaryBasedDenseEncoder::CheckInputAndOutput()" << '\n';
+        MDK_Error << "Input FeatureData is empty @ FeatureDictionaryBasedDenseEncoder::CheckInput()" << '\n';
         return false;
     }
 
     if (m_Dictionary == nullptr)
     {
-        MDK_Error << "Input Dictionary is empty (nullptr) @ FeatureDictionaryBasedDenseEncoder::CheckInputAndOutput()" << '\n';
+        MDK_Error << "Input Dictionary is empty (nullptr) @ FeatureDictionaryBasedDenseEncoder::CheckInput()" << '\n';
         return false;
     }
 
     if (m_Dictionary->IsEmpty() == true)
     {
-        MDK_Error << "Input Dictionary is empty @ FeatureDictionaryBasedDenseEncoder::CheckInputAndOutput()" << '\n';
+        MDK_Error << "Input Dictionary is empty @ FeatureDictionaryBasedDenseEncoder::CheckInput()" << '\n';
         return false;
     }
 
-    auto FeatureCodeDimension = m_Dictionary->m_Record.GetColNumber();
-
-    auto tempSize = m_FeatureCode->GetSize();
-
-    if (tempSize.RowNumber != FeatureCodeDimension || tempSize.ColNumber != m_FeatureData->GetColNumber())
+    if (m_Code == nullptr)
     {
-        if (m_FeatureCode->IsSizeFixed() == false)
+        m_Code_SharedCopy.Clear();
+        m_Code = &m_Code_SharedCopy;
+    }
+
+    auto CodeDimension = m_Dictionary->BasisMatrix().GetColNumber();
+
+    auto tempSize = m_Code->GetSize();
+
+    if (tempSize.RowNumber != CodeLength || tempSize.ColNumber != m_FeatureData->GetColNumber())
+    {
+        auto IsOK = m_Code->FastResize(CodeDimension, m_FeatureData->GetColNumber());
+
+        if (IsOK == false)
         {
-            m_FeatureCode->Clear();
-            m_FeatureCode->Resize(FeatureCodeDimension, m_FeatureData->GetColNumber());
-        }
-        else
-        {
-            MDK_Error << "can not change the size of m_FeatureCode matrix @ FeatureDictionaryBasedDenseEncoder::CheckInputAndOutput()" << '\n';
+            MDK_Error << "can not change the size of m_Code matrix @ FeatureDictionaryBasedDenseEncoder::CheckInput()" << '\n';
             return false;        
         }
     }
 
     if (m_MaxNumberOfThreads <= 0)
     {
-        MDK_Warning << "input MaximunNumberOfThreads is invalid, set to 1 @ FeatureDictionaryBasedDenseEncoder::CheckInputAndOutput()" << '\n';
+        MDK_Warning << "input MaximunNumberOfThreads is invalid, set to 1 @ FeatureDictionaryBasedDenseEncoder::CheckInput()" << '\n';
 
         m_MaxNumberOfThreads = 1;
     }
@@ -168,30 +168,9 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::CheckInputAndOutput()
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedDenseEncoder<ElementType>::Update()
-{
-    auto IsOK = this->FeatureDictionaryBasedEncoder::Update();
-
-    if (IsOK == false)
-    {
-        return false;
-    }
-
-    //--------------------------------------------------------------
-
-    if (m_FeatureCode != &m_FeatureCode_SharedCopy)
-    {
-        m_FeatureCode_SharedCopy.ForceShare(m_FeatureCode);
-    }
-
-    return true;
-}
-
-
-template<typename ElementType>
 void FeatureDictionaryBasedDenseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end)
 {
-    DenseMatrix<ElementType> SingleFeatureCode(m_FeatureCode->GetRowNumber(), 1);
+    DenseMatrix<ElementType> SingleCode(m_Code->GetRowNumber(), 1);
 
     DenseMatrix<ElementType> SingleFeatureDataVector(m_FeatureData->GetRowNumber(), 1);
 
@@ -199,17 +178,17 @@ void FeatureDictionaryBasedDenseEncoder<ElementType>::GenerateCode_in_a_Thread(i
     {
         m_FeatureData->GetCol(i, SingleFeatureDataVector);
 
-        this->EncodingFunction(SingleFeatureDataVector, SingleFeatureCode);
+        this->EncodingFunction(SingleFeatureDataVector, SingleCode);
 
-        m_FeatureCode->SetCol(i, SingleFeatureCode);
+        m_Code->SetCol(i, SingleCode);
     }
 }
 
 
 template<typename ElementType>
-DenseMatrix<ElementType>* FeatureDictionaryBasedDenseEncoder<ElementType>::GetOutputFeatureCode()
+DenseMatrix<ElementType>* FeatureDictionaryBasedDenseEncoder<ElementType>::GetOutputCode()
 {
-    return &m_FeatureCode_SharedCopy;
+    return &m_Code_SharedCopy;
 }
 
 

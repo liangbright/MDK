@@ -41,17 +41,9 @@ bool SPAMSSparseEncoder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_MethodName == "OMP")
+    if (m_MethodName != "OMP" && m_MethodName != "Lasso")
     {
-
-    }
-    else if (m_MethodName == "Lasso")
-    {
-
-    }
-    else
-    {
-        MDK_Error("Not support @ SPAMSSparseEncoder::CheckInput()")
+        MDK_Error("Method Not support @ SPAMSSparseEncoder::CheckInput()")
         return false;
     }
 

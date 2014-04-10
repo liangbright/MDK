@@ -1,13 +1,13 @@
 #ifndef __mdkFeatureDictionaryBuilder_h
 #define __mdkFeatureDictionaryBuilder_h
 
-#include "mdkObject.h"
+#include "mdkProcessObject.h"
 
 namespace mdk
 {
 
 template<typename ElementType>
-class FeatureDictionaryBuilder : public Object
+class FeatureDictionaryBuilder : public ProcessObject
 {
 public:
 
@@ -15,16 +15,12 @@ public:
     virtual ~FeatureDictionaryBuilder() {}
 
     //---------------------------------------------------//
-
-    virtual void Clear() = 0;
-
-    //---------------------------------------------------//
-
-    void SetInputFeatureData() {} // just for reminder
+    // just for reminder
+    void SetInputFeatureData() {MDK_Error("Empty Function @ FeatureDictionaryBuilder::SetInputFeatureData()")}
 
     //----------------------------------------------------//
-
-    void SetOutputDictionary() {} // just for reminder
+    // just for reminder
+    void SetOutputDictionary() {MDK_Error("Empty Function @ FeatureDictionaryBuilder::SetOutputDictionary()")}
  
     //----------------------------------------------------//
 
@@ -35,11 +31,15 @@ public:
     virtual bool Update();
 
     //----------------------------------------------------//
-
-    void GetOutputDictionary() {} // just for reminder
+    // just for reminder
+    void GetOutputDictionary() {MDK_Error("Empty Function @ FeatureDictionaryBuilder::SetOutputDictionary()") } 
 
 protected:
     virtual void GenerateDictionary() = 0;
+
+    virtual void SetupDefaultPipelineOutput() = 0;
+
+    virtual void UpdatePipelineOutput() = 0;
 
 private:
     FeatureDictionaryBuilder(const FeatureDictionaryBuilder&) = delete;

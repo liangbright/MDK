@@ -8,6 +8,7 @@
 
 #include "mdkSparseMatrix.h"
 #include "mdkFeatureDictionaryBasedEncoder.h"
+#include "mdkFeatureDictionaryForSparseCoding.h"
 
 namespace mdk
 {
@@ -23,7 +24,7 @@ protected:
 
     // input dictionary:
 
-    const FeatureDictionary<ElementType>* m_Dictionary;
+    const FeatureDictionaryForSparseCoding<ElementType>* m_Dictionary;
 
     // output code in dense Matrix:
 
@@ -59,7 +60,7 @@ private:
 
 protected:
     FeatureDictionaryBasedSparseEncoder();
-    ~FeatureDictionaryBasedSparseEncoder();
+    virtual ~FeatureDictionaryBasedSparseEncoder();
 
 public:
     //-----------------------------------------
@@ -68,27 +69,25 @@ public:
 
     //-----------------------------------------
 
-    bool SetInputFeatureData(const DenseMatrix<ElementType>* FeatureData);
+    void SetInputFeatureData(const DenseMatrix<ElementType>* FeatureData);
 
-    bool SetInputDictionary(const FeatureDictionary<ElementType>* Dictionary);
+    void SetInputDictionary(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary);
 
-    bool SetOutputCodeInDenseMatrix(DenseMatrix<ElementType>* Code);
+    void SetOutputCode(DenseMatrix<ElementType>* Code); // output CodeInDenseMatrix
 
-    bool SetOutputCode(DenseMatrix<ElementType>* Code); // output CodeInDenseMatrix
+    void SetOutputCodeInDenseMatrix(DenseMatrix<ElementType>* Code);
 
-    bool SetOutputCodeInSparseMatrix(SparseMatrix<ElementType>* Code);
+    void SetOutputCodeInSparseMatrix(SparseMatrix<ElementType>* Code);
 
-    bool SetOutputCodeInSparseColVectorList(DenseMatrix<SparseMatrix<ElementType>>* Code);
+    void SetOutputCodeInSparseColVectorList(DenseMatrix<SparseMatrix<ElementType>>* Code);
 
-    bool SetMaxNumberOfThreads(int_max Number);
+    void SetMaxNumberOfThreads(int_max Number);
 
     //-----------------------------------------
 
     virtual bool CheckInput();
 
     //-----------------------------------------
-
-    virtual bool Update();
 
     inline virtual void EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
                                          DenseMatrix<ElementType>& CodeInDenseColVector);
@@ -98,9 +97,9 @@ public:
 
     //----------------------------------------------------//
 
-    DenseMatrix<ElementType>* GetOutputCodeInDenseMatrix();
-
     DenseMatrix<ElementType>* GetOutputCode(); // output CodeInDenseMatrix
+
+    DenseMatrix<ElementType>* GetOutputCodeInDenseMatrix();
 
     SparseMatrix<ElementType>* GetOutputCodeInSparseMatrix();
 
@@ -116,8 +115,11 @@ protected:
 
     virtual void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end);
 
+    virtual void SetupDefaultPipelineOutput();
+
+    virtual void UpdatePipelineOutput();
+
 private:
-//deleted:
     FeatureDictionaryBasedSparseEncoder(const FeatureDictionaryBasedSparseEncoder&) = delete;
 
     void operator=(const FeatureDictionaryBasedSparseEncoder&) = delete;

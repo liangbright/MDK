@@ -1,16 +1,11 @@
 #ifndef __mdkLinearAlgebra_Function_DenseMatrix_Part_2_h
 #define __mdkLinearAlgebra_Function_DenseMatrix_Part_2_h
 
-#include <vector>
-#include <array>
-#include <memory>
-#include <string>
-#include <initializer_list>
+#include <algorithm>
 #include <complex>
 
 
-#include "mdkType.h"
-//#include "mdkDenseMatrix.h"
+#include "mdkConstant.h"
 #include "mdkMatrix_Common.h"
 
 namespace mdk
