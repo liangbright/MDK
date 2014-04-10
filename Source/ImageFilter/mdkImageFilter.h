@@ -5,7 +5,10 @@
 #include <functional>
 #include <thread>
 
+
 #include "mdkDebugConfig.h"
+#include "mdkParallelForLoop.h"
+#include "mdkProcessObject.h"
 #include "mdkDenseMatrix.h"
 #include "mdkImage.h"
 
@@ -14,7 +17,7 @@ namespace mdk
 {
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-class ImageFilter : public Object
+class ImageFilter : public ProcessObject
 {
 protected:
 	//-------------- input ----------------------
@@ -77,25 +80,25 @@ protected:
 
 public:		
 	ImageFilter();
-	~ImageFilter();
+	virtual ~ImageFilter();
   
     void Clear();
 
-    bool SetInputImage(const Image<VoxelType_Input>* InputImage);
+    void SetInputImage(const Image<VoxelType_Input>* InputImage);
 
-    bool SetInputRegion(const DenseMatrix<int_max>* InputRegion);
+    void SetInputRegion(const DenseMatrix<int_max>* InputRegion);
 
-    bool SetInputVoxel3DIndexList(const DenseMatrix<int_max>* InputVoxel3DIndexList);
+    void SetInputVoxel3DIndexList(const DenseMatrix<int_max>* InputVoxel3DIndexList);
 
-    bool SetInput3DPositionList(const DenseMatrix<float>* Input3DPositionList);
+    void SetInput3DPositionList(const DenseMatrix<float>* Input3DPositionList);
 
 	void SetInputFilterFunctionAt3DIndex(std::function<void(int_max, int_max, int_max, const Image<VoxelType_Input>&, VoxelType_Output&)> Input);
 
 	void SetInputFilterFunctionAt3DPosition(std::function<void(double, double, double, const Image<VoxelType_Input>&, VoxelType_Output&)> Input);
 
-	bool SetOutputImage(Image<VoxelType_Output>* OutputImage);
+    void SetOutputImage(Image<VoxelType_Output>* OutputImage);
 
-    bool SetOutputArray(DenseMatrix<VoxelType_Output>* OutputArray);
+    void SetOutputArray(DenseMatrix<VoxelType_Output>* OutputArray);
 
     void SetMaxThreadNumber(int_max MaxNumber);
 
@@ -124,17 +127,16 @@ public:
 protected:
     bool CheckInput();
 
+    void SetupDefaultPipelineOutput();
+    void UpdatePipelineOutput();
+
     virtual bool Preprocess();
 
     virtual bool Postprocess();
 
-    //output: IndexList_start and IndexList_end
-    void DivideData(int_max Index_min, int_max Index_max, int_max MinDataNumberPerThread,
-                    std::vector<int_max>& IndexList_start, std::vector<int_max>& IndexList_end);
-
     inline virtual void OutputFunction(int_max OutputVoxelIndex, const VoxelType_Output& OutputVoxel);
 
-    void Update_in_a_Thread(int_max OutputVoxelIndex_start, int_max OutputVoxelIndex_end);
+    void Run_in_a_Thread(int_max OutputVoxelIndex_start, int_max OutputVoxelIndex_end);
 
 private:
 	ImageFilter(const ImageFilter&)    = delete;

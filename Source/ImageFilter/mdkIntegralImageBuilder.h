@@ -33,8 +33,8 @@ private:
     void ComputeSumInZDirection(int_max xy_LinearIndex_start, int_max xy_LinearIndex_end);
 
 private:
-    IntegralImageBuilder(const IntegralImageBuilder&); // Not implemented.
-    void operator=(const IntegralImageBuilder&);            // Not implemented.
+    IntegralImageBuilder(const IntegralImageBuilder&) = delete;
+    void operator=(const IntegralImageBuilder&) = delete;
 };
 
 }//end namespace mdk

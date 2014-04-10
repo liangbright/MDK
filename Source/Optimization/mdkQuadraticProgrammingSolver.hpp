@@ -48,8 +48,7 @@ void QuadraticProgrammingSolver<ElementType>::Clear()
     m_VaribleNumber_In_Mode_Online_Varying_H_A = 0;
     m_ConstraintNumber_In_Mode_Online_Varying_H_A = 0;
 
-    m_Solution_SharedCopy.Clear();
-    m_Solution = &m_Solution_SharedCopy;
+    this->SetupDefaultPipelineOutput();
 
     m_QProblem_Online.reset();
     m_QProblemB_Online.reset();
@@ -60,6 +59,24 @@ void QuadraticProgrammingSolver<ElementType>::Clear()
 
     m_EmptySparseMatrix.Clear();
     m_EmptySparseMatrix.FixSize();
+}
+
+
+template<typename ElementType>
+void QuadraticProgrammingSolver<ElementType>::SetupDefaultPipelineOutput()
+{
+    m_Solution_SharedCopy.Clear();
+    m_Solution = &m_Solution_SharedCopy;
+}
+
+
+template<typename ElementType>
+void QuadraticProgrammingSolver<ElementType>::UpdatePipelineOutput()
+{
+    if (m_Solution != &m_Solution_SharedCopy)
+    {
+        m_Solution_SharedCopy.ShallowCopy(*m_Solution);
+    }
 }
 
 
@@ -223,10 +240,7 @@ bool QuadraticProgrammingSolver<ElementType>::Update()
 
     if (IsOK = true)
     {
-        if (m_Solution != &m_Solution_SharedCopy)
-        {
-            m_Solution_SharedCopy.ShallowCopy(*m_Solution);
-        }
+        this->UpdatePipelineOutput();
 
         return true;
     }

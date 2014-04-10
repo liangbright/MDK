@@ -44,14 +44,31 @@ void LinearLeastSquaresProblemSolver<ElementType>::Clear()
 
     m_IsInputDense = true;
 
-    m_Solution_SharedCopy.Clear();
-    m_Solution = &m_Solution_SharedCopy;
+    this->SetupDefaultPipelineOutput();
 
     m_EmptyDenseMatrix.Clear();
     m_EmptyDenseMatrix.FixSize();
 
     m_EmptySparseMatrix.Clear();
     m_EmptySparseMatrix.FixSize();
+}
+
+
+template<typename ElementType>
+void LinearLeastSquaresProblemSolver<ElementType>::SetupDefaultPipelineOutput()
+{
+    m_Solution_SharedCopy.Clear();
+    m_Solution = &m_Solution_SharedCopy;
+}
+
+
+template<typename ElementType>
+void LinearLeastSquaresProblemSolver<ElementType>::UpdatePipelineOutput()
+{
+    if (m_Solution != &m_Solution_SharedCopy)
+    {
+        m_Solution_SharedCopy.ShallowCopy(*m_Solution);
+    }
 }
 
 
@@ -184,10 +201,7 @@ bool LinearLeastSquaresProblemSolver<ElementType>::Update()
 
     if (IsOK == true)
     {
-        if (m_Solution != &m_Solution_SharedCopy)
-        {
-            m_Solution_SharedCopy.ShallowCopy(*m_Solution);
-        }
+        this->UpdatePipelineOutput();
         return true;
     }
     else

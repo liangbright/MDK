@@ -6,7 +6,7 @@
 
 #include <Eigen/Dense>
 
-#include "mdkObject.h"
+#include "mdkProcessObject.h"
 #include "mdkQuadraticProgrammingSolver.h"
 
 
@@ -101,7 +101,7 @@ private:
 
 
 template<typename ElementType>
-class LinearLeastSquaresProblemSolver : public Object
+class LinearLeastSquaresProblemSolver : public ProcessObject
 {
 public:
     Option_Of_LinearLeastSquaresProblemSolver m_Option;
@@ -204,6 +204,9 @@ public:
                                                                     const DenseMatrix<ElementType>*  H );
 
 private:
+
+    void SetupDefaultPipelineOutput();
+    void UpdatePipelineOutput();
 
     bool CheckInput_dense();
     bool Update_dense_unconstrained();

@@ -4,29 +4,6 @@
 #include "mdkQuadraticProgrammingSolver.h"
 #include "mdkLinearLeastSquaresProblemSolver.h"
 
-template<typename ElementType>
-void DisplayMatrix(const std::string& Name, const mdk::DenseMatrix<ElementType>& InputMatrix, mdk::int_max precision = 6, bool Flag_scientific = false)
-{
-    std::cout << Name << " = " << '\n';
-
-    if (Flag_scientific == true)
-    {
-        std::cout << std::scientific << std::setprecision(precision);
-    }
-    else
-    {
-        std::cout << std::setprecision(precision) << std::fixed;
-    }
-
-    for (mdk::int_max i = 0; i < InputMatrix.GetRowNumber(); ++i)
-    {
-        for (mdk::int_max j = 0; j < InputMatrix.GetColNumber(); ++j)
-        {
-            std::cout << std::setw(6 + precision) << InputMatrix(i, j) << ' ';
-        }
-        std::cout << '\n';
-    }
-}
 
 void test_matrix()
 {

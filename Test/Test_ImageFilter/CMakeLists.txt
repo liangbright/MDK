@@ -26,21 +26,19 @@ set(MDK_DIR "C:/Research/MDK/MDK/Source")
 
 set(Arma_DIR "C:/Research/MDK/armadillo")
 
-set(Lapack_Blas_DIR "C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release")
-
 set(Eigen_DIR "C:/Research/MDK/eigen")
 
 include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR} 
 ${MDK_DIR}/Debug
 ${MDK_DIR}/Common
+${MDK_DIR}/Multithreading
 ${MDK_DIR}/FileIO
 ${MDK_DIR}/LinearAlgebra/Common
 ${MDK_DIR}/LinearAlgebra/DenseMatrix
 ${MDK_DIR}/Image
 ${MDK_DIR}/ImageFilter
 ${Arma_DIR}
-${Lapack_Blas_DIR}
 ${Eigen_DIR}
 )
 
@@ -49,7 +47,6 @@ FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
 set(MDK_CPP_FILES 
 ${MDK_DIR}/Common/mdkObject.cpp
-${MDK_DIR}/LinearAlgebra/Common/mdkMatrix_Common.cpp
 ${MDK_DIR}/ImageFilter/mdkImageConvolutionFilterBase.cpp
 )
 

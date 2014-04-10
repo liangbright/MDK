@@ -31,13 +31,7 @@ void ImageFilter<VoxelType_Input, VoxelType_Output>::Clear()
 
 	m_Input3DPositionList = nullptr;
 
-    m_OutputImage_SharedCopy.Clear();
-
-    m_OutputImage = &m_OutputImage_SharedCopy;
-
-    m_OutputArray_SharedCopy.Clear();
-
-    m_OutputArray = &m_OutputArray_SharedCopy;
+    this->SetupDefaultPipelineOutput();
 
     m_Flag_OutputImage = true; // default to output image with the same size 
 
@@ -57,39 +51,61 @@ void ImageFilter<VoxelType_Input, VoxelType_Output>::Clear()
 
     m_TotalOutputVoxelNumber = 0;
 
-    m_MinVoxelNumberPerThread = 100;
+    m_MinVoxelNumberPerThread = 1;
 
     m_MaxThreadNumber = 1;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void
-ImageFilter<VoxelType_Input, VoxelType_Output>::
-EnableBoundCheck()
+void ImageFilter<VoxelType_Input, VoxelType_Output>::SetupDefaultPipelineOutput()
+{
+    m_OutputImage_SharedCopy.Clear();
+
+    m_OutputImage = &m_OutputImage_SharedCopy;
+
+    m_OutputArray_SharedCopy.Clear();
+
+    m_OutputArray = &m_OutputArray_SharedCopy;
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
+void ImageFilter<VoxelType_Input, VoxelType_Output>::UpdatePipelineOutput()
+{
+    if (m_OutputImage != &m_OutputImage_SharedCopy)
+    {
+        m_OutputImage_SharedCopy.Share(m_OutputImage);
+    }
+
+    if (m_OutputArray != &m_OutputArray_SharedCopy)
+    {
+        m_OutputArray_SharedCopy.Share(m_OutputArray);
+    }
+}
+
+
+template<typename VoxelType_Input, typename VoxelType_Output>
+void ImageFilter<VoxelType_Input, VoxelType_Output>::EnableBoundCheck()
 {
 	m_IsBoundCheckEnabled = true;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void
-ImageFilter<VoxelType_Input, VoxelType_Output>::
-DisableBoundCheck()
+void ImageFilter<VoxelType_Input, VoxelType_Output>::DisableBoundCheck()
 {
     m_IsBoundCheckEnabled = false;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-bool
-ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInputImage(const Image<VoxelType_Input>* InputImage)
+void ImageFilter<VoxelType_Input, VoxelType_Output>:: SetInputImage(const Image<VoxelType_Input>* InputImage)
 {
     if (InputImage == nullptr)
     {
         MDK_Error("Input is nullptr @ ImageFilter::SetInputImage")
-        return false;
+        return;
     }
 
 	m_InputImage = InputImage;
@@ -97,65 +113,32 @@ SetInputImage(const Image<VoxelType_Input>* InputImage)
     m_ZeroVoxelOfInputImage = InputImage->GetZeroVoxel();
 
     m_ZeroVoxelOfInputImage -= m_ZeroVoxelOfInputImage;
-
-    return true;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-bool
-ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInputRegion(const DenseMatrix<int_max>* InputRegion)
+void ImageFilter<VoxelType_Input, VoxelType_Output>::SetInputRegion(const DenseMatrix<int_max>* InputRegion)
 {
-//    if (InputRegion == nullptr)
-//    {
-//        MDK_Error("Input is nullptr @ ImageFilter::SetInputRegion")
-//        return false;
-//    }
-
     m_InputRegion = InputRegion;
-
-    return true;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-bool
-ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInputVoxel3DIndexList(const DenseMatrix<int_max>* InputVoxel3DIndexList)
+void ImageFilter<VoxelType_Input, VoxelType_Output>::SetInputVoxel3DIndexList(const DenseMatrix<int_max>* InputVoxel3DIndexList)
 {
-//    if (InputVoxel3DIndexList == nullptr)
-//    {
-//        MDK_Error("Input is nullptr @ ImageFilter::SetInputVoxel3DIndexList")
-//        return false;
-//    }
-
     m_InputVoxel3DIndexList = InputVoxel3DIndexList;
-
-    return true;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-bool
-ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetInput3DPositionList(const DenseMatrix<float>* Input3DPositionList)
+void ImageFilter<VoxelType_Input, VoxelType_Output>::SetInput3DPositionList(const DenseMatrix<float>* Input3DPositionList)
 {
-//    if (Input3DPositionList == nullptr)
-//    {
-//        MDK_Error("Input is nullptr @ ImageFilter::SetInput3DPositionList")
-//        return false;
-//    }
-
 	m_Input3DPositionList = Input3DPositionList;
-
-    return true;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void
-ImageFilter<VoxelType_Input, VoxelType_Output>::
+void ImageFilter<VoxelType_Input, VoxelType_Output>::
 SetInputFilterFunctionAt3DIndex(std::function<void(int_max, int_max, int_max, const Image<VoxelType_Input>&, VoxelType_Output&)> InputFilterFunction)
 {
 	m_InputFilterFunction_At3DIndex = InputFilterFunction;
@@ -165,8 +148,7 @@ SetInputFilterFunctionAt3DIndex(std::function<void(int_max, int_max, int_max, co
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void 
-ImageFilter<VoxelType_Input, VoxelType_Output>::
+void ImageFilter<VoxelType_Input, VoxelType_Output>::
 SetInputFilterFunctionAt3DPosition(std::function<void(double, double, double, const Image<VoxelType_Input>&, VoxelType_Output&)> InputFilterFunction)
 {
 	m_InputFilterFunction_At3DPosition = InputFilterFunction;
@@ -176,55 +158,39 @@ SetInputFilterFunctionAt3DPosition(std::function<void(double, double, double, co
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-bool
-ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetOutputImage(Image<VoxelType_Output>* OutputImage)
+void ImageFilter<VoxelType_Input, VoxelType_Output>::SetOutputImage(Image<VoxelType_Output>* OutputImage)
 {
     if (OutputImage == nullptr)
     {
         MDK_Error("Input is nullptr @ ImageFilter::SetOutputImage")
-        return false;
+        return;
     }
 
 	m_OutputImage = OutputImage;
 
-    m_OutputImage_SharedCopy.Share(OutputImage);
-
     m_ZeroVoxelOfOutputImage = OutputImage->GetZeroVoxel();
 
-    m_ZeroVoxelOfOutputImage -= m_ZeroVoxelOfOutputImage;
-
     m_Flag_OutputImage = true;
-
-    return true;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-bool
-ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetOutputArray(DenseMatrix<VoxelType_Output>* OutputArray)
+void ImageFilter<VoxelType_Input, VoxelType_Output>::SetOutputArray(DenseMatrix<VoxelType_Output>* OutputArray)
 {
     if (OutputArray == nullptr)
     {
         MDK_Error("Input is nullptr @ ImageFilter::OutputArray")
-        return false;
+        return;
     }
 
 	m_OutputArray = OutputArray;
 
-    m_OutputArray_SharedCopy.Share(OutputArray);
-
     m_Flag_OutputArray = true;
-
-    return true;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void 
-ImageFilter<VoxelType_Input, VoxelType_Output>::
-SetMaxThreadNumber(int_max MaxNumber)
+void ImageFilter<VoxelType_Input, VoxelType_Output>::SetMaxThreadNumber(int_max MaxNumber)
 {
 	m_MaxThreadNumber = MaxNumber;
 }
@@ -249,13 +215,13 @@ bool ImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
 {
 	if (m_InputImage == nullptr)
 	{
-		MDK_Error("Empty input image (nullptr) @ ImageFilter::CheckInput")
+		MDK_Error("Input image is Empty (nullptr) @ ImageFilter::CheckInput()")
 		return false;
 	}
 
 	if (m_InputImage->IsEmpty() == true)
 	{
-		MDK_Error("Empty input image @ ImageFilter::CheckInput")
+		MDK_Error("Input image is Empty @ ImageFilter::CheckInput()")
 		return false;
 	}
 
@@ -265,13 +231,13 @@ bool ImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
     {
         if (m_Flag_OutputImage == true && m_Flag_OutputArray == true)
         {
-            MDK_Error("Can not output image and array at the same time @ ImageFilter::CheckInput")
+            MDK_Error("Can not output image and array at the same time @ ImageFilter::CheckInput()")
             return false;
         }
 
         if (m_Flag_OutputImage == false && m_Flag_OutputArray == false)
         {
-            MDK_Error("No output is selected @ ImageFilter::CheckInput")
+            MDK_Error("NO output is selected @ ImageFilter::CheckInput()")
             return false;
         }
     }
@@ -279,7 +245,7 @@ bool ImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
     {
         if (m_Flag_OutputImage == true || m_Flag_OutputArray == true)
         {
-            MDK_Error("Can not output image or array when m_Flag_OutputToOtherPlace is true  @ ImageFilter::CheckInput")
+            MDK_Error("Can not output image or array when m_Flag_OutputToOtherPlace is true  @ ImageFilter::CheckInput()")
             return false;
         }
     }
@@ -307,7 +273,7 @@ bool ImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
 	}    
 	else
 	{
-		MDK_Error("Invalid input @ ImageFilter::Run")
+		MDK_Error("Invalid input @ ImageFilter::CheckInput()")
 		return false;
 	}
 
@@ -360,79 +326,39 @@ template<typename VoxelType_Input, typename VoxelType_Output>
 bool ImageFilter<VoxelType_Input, VoxelType_Output>::Update()
 {
     //-------------------------------------------------------------------------------
-    auto IsOK = this->CheckInput();
 
-    if (IsOK == false)
+    if (this->CheckInput() == false)
     {
         return false;
     }
 
     //-------------------------------------------------------------------------------
 
-    auto IsGood = this->Preprocess();
-
-	if (IsGood == false)
+    if (this->Preprocess() == false)
 	{
 		return false;
 	}
 
 	// multi-thread -----------------------------------------------------------------
    
-    // divide the output image into groups
-
-	std::vector<int_max> IndexList_start;
-	std::vector<int_max> IndexList_end;
-
-    this->DivideData(0, m_TotalOutputVoxelNumber - 1, m_MinVoxelNumberPerThread, IndexList_start, IndexList_end);
-
-	int_max ThreadNumber = IndexList_start.size();
-	
-    if (ThreadNumber > 1)
-    {
-		// create and start the threads
-		std::vector<std::thread> ThreadList(ThreadNumber);
-
-        for (int_max i = 0; i < ThreadNumber; ++i)
-		{
-            auto Index_start = IndexList_start[i];
-            auto Index_end = IndexList_end[i];
-
-            ThreadList[i] = std::thread([&]{this->Update_in_a_Thread(Index_start, Index_end); });
-		}
-
-		//wait for all the threads
-        for (int_max i = 0; i < ThreadNumber; ++i)
-		{
-            ThreadList[i].join();
-		}
-	}
-	else//single-thread
-	{
-        this->Update_in_a_Thread(0, m_TotalOutputVoxelNumber - 1);
-	}
+    ParallelBlock([&](int_max Index_start, int_max Index_end){this->Run_in_a_Thread(Index_start, Index_end); },
+                  0, m_TotalOutputVoxelNumber - 1, m_MaxThreadNumber, m_MinVoxelNumberPerThread);
 
     //---------------------------------------------------------------------------
 
-    if (m_OutputImage != &m_OutputImage_SharedCopy)
+    if (this->Postprocess() == false)
     {
-        m_OutputImage_SharedCopy.Share(m_OutputImage);
+        return false;
     }
 
-    if (m_OutputArray != &m_OutputArray_SharedCopy)
-    {
-        m_OutputArray_SharedCopy.Share(m_OutputArray);
-    }
+    this->UpdatePipelineOutput();
 
-    //---------------------------------------------------------------------------
-
-    return this->Postprocess();
+    return true;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void
-ImageFilter<VoxelType_Input, VoxelType_Output>::
-Update_in_a_Thread(int_max OutputVoxelIndex_start, int_max OutputVoxelIndex_end)
+void ImageFilter<VoxelType_Input, VoxelType_Output>::Run_in_a_Thread(int_max OutputVoxelIndex_start, int_max OutputVoxelIndex_end)
 {
     std::cout << "VoxelIndex_start " << OutputVoxelIndex_start << '\n';
     std::cout << "VoxelIndex_end   " << OutputVoxelIndex_end << '\n';
@@ -546,7 +472,7 @@ Update_in_a_Thread(int_max OutputVoxelIndex_start, int_max OutputVoxelIndex_end)
 		}
         else
         {
-            MDK_Error("Invalid Input @ ImageFilter::Update_in_a_Thread")
+            MDK_Error("Invalid Input @ ImageFilter::Run_in_a_Thread")
         }
     }
     else // output to another place
@@ -620,68 +546,15 @@ Update_in_a_Thread(int_max OutputVoxelIndex_start, int_max OutputVoxelIndex_end)
 		}
         else
         {
-            MDK_Error("Invalid Input @ ImageFilter::Update_in_a_Thread")
+            MDK_Error("Invalid Input @ ImageFilter::Run_in_a_Thread")
         }
     }
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-void
-ImageFilter<VoxelType_Input, VoxelType_Output>::
-DivideData(int_max Index_min, int_max Index_max, int_max MinDataNumberPerThread,
-           std::vector<int_max>& IndexList_start, std::vector<int_max>& IndexList_end)
-{
-    if (m_MaxThreadNumber == 1)
-    {
-        IndexList_start.push_back(Index_min);
-        IndexList_end.push_back(Index_max);
-        return;
-    }
-
-	auto TotalDataNumber = Index_max - Index_min + 1;
-
-	int_max ThreadNumber = 1;
-
-	int_max DataNumberPerThread = 0;
-
-	for (int_max i = m_MaxThreadNumber; i >= 1; --i)
-	{
-        DataNumberPerThread = TotalDataNumber / i;
-
-        if (DataNumberPerThread >= MinDataNumberPerThread)
-		{
-			ThreadNumber = i;
-			break;
-		}
-	}
-
-	if (ThreadNumber == 1)
-	{//one thread is enough
-
-		IndexList_start.push_back(Index_min);
-		IndexList_end.push_back(Index_max);
-		return;
-	}
-
-    int_max tempIndex = Index_min;
-
-    for (int_max i = 0; i < ThreadNumber; ++i)
-	{
-        IndexList_start.push_back(tempIndex);
-        IndexList_end.push_back(tempIndex + DataNumberPerThread - 1);
-
-        tempIndex += DataNumberPerThread;
-	}
-
-    IndexList_end[ThreadNumber - 1] = Index_max;
-}
-
-
-template<typename VoxelType_Input, typename VoxelType_Output>
 inline
-void
-ImageFilter<VoxelType_Input, VoxelType_Output>::
+void ImageFilter<VoxelType_Input, VoxelType_Output>::
 FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, VoxelType_Output& OutputVoxel)
 {
 	// input (x,y,z) may be 3DIndex or 3DPosition, or 3DPosition with spacing =[1,1,1]
@@ -702,7 +575,7 @@ FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, Voxel
 	}
     else
     {
-        MDK_Warning("m_IsInputFilterFunctionAt3DIndexObtained = false @ ImageFilter::FilterFunctionAt3DIndex")
+        MDK_Warning("m_IsInputFilterFunctionAt3DIndexObtained == false @ ImageFilter::FilterFunctionAt3DIndex")
     }
 
 }
@@ -710,8 +583,7 @@ FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, Voxel
 
 template<typename VoxelType_Input, typename VoxelType_Output>
 inline
-void
-ImageFilter<VoxelType_Input, VoxelType_Output>::
+void ImageFilter<VoxelType_Input, VoxelType_Output>::
 FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& OutputVoxel)
 {
 // input (x,y,z) may be 3DIndex or 3DPosition, or 3DPosition with spacing =[1,1,1]
@@ -732,7 +604,7 @@ FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& Outpu
 	}
     else
     {
-        MDK_Warning("m_IsInputFilterFunctionAt3DPositionObtained = false @ ImageFilter::FilterFunctionAt3DPosition")
+        MDK_Warning("m_IsInputFilterFunctionAt3DPositionObtained == false @ ImageFilter::FilterFunctionAt3DPosition")
     }
 
 }
@@ -740,9 +612,7 @@ FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& Outpu
 
 template<typename VoxelType_Input, typename VoxelType_Output>
 inline
-void
-ImageFilter<VoxelType_Input, VoxelType_Output>::
-OutputFunction(int_max OutputVoxelIndex, const VoxelType_Output& OutputVoxel)
+void ImageFilter<VoxelType_Input, VoxelType_Output>::OutputFunction(int_max OutputVoxelIndex, const VoxelType_Output& OutputVoxel)
 {
     if (m_Flag_OutputImage == true)
     {
@@ -760,16 +630,14 @@ OutputFunction(int_max OutputVoxelIndex, const VoxelType_Output& OutputVoxel)
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-Image<VoxelType_Output>* 
-ImageFilter<VoxelType_Input, VoxelType_Output>::GetOutputImage()
+Image<VoxelType_Output>* ImageFilter<VoxelType_Input, VoxelType_Output>::GetOutputImage()
 {
     return &m_OutputImage_SharedCopy;
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-DenseMatrix<VoxelType_Output>*
-ImageFilter<VoxelType_Input, VoxelType_Output>::GetOutputArray()
+DenseMatrix<VoxelType_Output>* ImageFilter<VoxelType_Input, VoxelType_Output>::GetOutputArray()
 {
     return &m_OutputArray_SharedCopy;
 }

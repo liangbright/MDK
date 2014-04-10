@@ -209,6 +209,57 @@ inline std::vector<int_max> span(int_max Index_A, int_max Step, int_max Index_B)
     return IndexList;
 }
 
+
+template<typename ElementType>
+void DisplayMatrix(const std::string& Name, const DenseMatrix<ElementType>& InputMatrix, int_max precision = 0, bool Flag_scientific = false)
+{
+    std::cout << Name << " = " << '\n';
+
+    if (Flag_scientific == true)
+    {
+        std::cout << std::scientific << std::setprecision(precision);
+    }
+    else
+    {
+        std::cout << std::setprecision(precision) << std::fixed;
+    }
+
+    for (int_max i = 0; i < InputMatrix.GetRowNumber(); ++i)
+    {
+        for (int_max j = 0; j < InputMatrix.GetColNumber(); ++j)
+        {
+            std::cout << std::setw(6 + precision) << InputMatrix(i, j) << ' ';
+        }
+        std::cout << '\n';
+    }
+}
+
+
+template<typename ElementType>
+void DisplayMatrix(const std::string& Name, const SparseMatrix<ElementType>& InputMatrix, int_max precision = 0, bool Flag_scientific = false)
+{
+    std::cout << Name << " = " << '\n';
+
+    if (Flag_scientific == true)
+    {
+        std::cout << std::scientific << std::setprecision(precision);
+    }
+    else
+    {
+        std::cout << std::setprecision(precision) << std::fixed;
+    }
+
+    for (int_max i = 0; i < InputMatrix.GetRowNumber(); ++i)
+    {
+        for (int_max j = 0; j < InputMatrix.GetColNumber(); ++j)
+        {
+            std::cout << std::setw(6 + precision) << InputMatrix.GetElement(i, j) << ' ';
+        }
+        std::cout << '\n';
+    }
+}
+
+
 }//end namespace mdk
 
 #endif

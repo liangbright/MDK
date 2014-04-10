@@ -8,7 +8,7 @@
 #include <qpOASES.h>
 
 
-#include "mdkObject.h"
+#include "mdkProcessObject.h"
 #include "mdkDenseMatrix.h"
 #include "mdkSparseMatrix.h"
 
@@ -144,7 +144,7 @@ private:
 
 
 template<typename ElementType>
-class QuadraticProgrammingSolver : public Object
+class QuadraticProgrammingSolver : public ProcessObject
 {
 public:
     Option_Of_QuadraticProgramming m_Option;
@@ -264,6 +264,9 @@ public:
                                                                const Option_Of_QuadraticProgramming* Option = nullptr);
 
 private:
+
+    void SetupDefaultPipelineOutput();
+    void UpdatePipelineOutput();
 
     bool CheckInput_ALLDense();
     bool Update_Mode_OneTimeOnly_Input_ALLDense();
