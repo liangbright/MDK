@@ -45,7 +45,7 @@ public:
 
     //-----------------------------------------------------//
 
-    virtual bool CheckInput();
+    virtual bool CheckInput() = 0;
 
     virtual bool Preprocess();
 
@@ -67,6 +67,8 @@ protected:
     virtual int_max GetTotalNumberOfInputFeatureVectors() = 0;
 
     virtual int_max GetMaxNumberOfThreads() = 0;
+
+    virtual int_max GetMinNumberOfDataPerThread() = 0;
 
     virtual void GenerateCode_in_a_Thread(int_max IndexOfFeatureDataVector_start, int_max IndexOfFeatureDataVector_end) = 0;
 

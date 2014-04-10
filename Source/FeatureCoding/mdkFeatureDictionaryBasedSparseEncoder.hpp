@@ -38,6 +38,8 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::Clear()
     m_Flag_CodeInSparseMatrix_Is_Updated = false;
 
     m_MaxNumberOfThreads = 1;
+
+    m_MinNumberOfDataPerThread = 1;
 }
 
 
@@ -172,6 +174,14 @@ template<typename ElementType>
 int_max FeatureDictionaryBasedSparseEncoder<ElementType>::GetMaxNumberOfThreads()
 {
     return m_MaxNumberOfThreads;
+}
+
+
+
+template<typename ElementType>
+int_max FeatureDictionaryBasedSparseEncoder<ElementType>::GetMinNumberOfDataPerThread()
+{
+    return m_MinNumberOfDataPerThread;
 }
 
 

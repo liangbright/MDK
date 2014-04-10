@@ -23,13 +23,15 @@ FeatureDictionaryBasedDenseEncoder<ElementType>::~FeatureDictionaryBasedDenseEnc
 template<typename ElementType>
 void FeatureDictionaryBasedDenseEncoder<ElementType>::Clear()
 {
-    m_Dictionary_SharedCopy.Clear();
-
-    m_Dictionary = &m_Dictionary_SharedCopy;
-
     m_FeatureData = nullptr;
 
+    m_Dictionary = nullptr;
+
     this->SetupDefaultPipelineOutput();
+
+    m_MaxNumberOfThreads = 1;
+
+    m_MinNumberOfDataPerThread = 1;
 }
 
 
@@ -61,22 +63,14 @@ void FeatureDictionaryBasedDenseEncoder<ElementType>::SetInputFeatureData(const 
 template<typename ElementType>
 void FeatureDictionaryBasedDenseEncoder<ElementType>::SetInputDictionary(const FeatureDictionaryForDenseCoding<ElementType>* Dictionary)
 {
-    if (InputFeatureData == nullptr)
-    {
-        MDK_Error("Invalid input @ FeatureDictionaryBasedDenseEncoder::SetInputDictionary(Dictionary)")
-        return;
-    }
-
     m_Dictionary = Dictionary;
-
-    m_Dictionary_SharedCopy.ForceShare(Dictionary);
 }
 
 
 template<typename ElementType>
 void FeatureDictionaryBasedDenseEncoder<ElementType>::SetOutputCode(DenseMatrix<ElementType>* Code)
 {
-    m_Code = FeatureCode;
+    m_Code = Code;
 }
 
 
@@ -91,6 +85,13 @@ template<typename ElementType>
 int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetMaxNumberOfThreads()
 {
     return m_MaxNumberOfThreads;
+}
+
+
+template<typename ElementType>
+int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetMinNumberOfDataPerThread()
+{
+    return m_MinNumberOfDataPerThread;
 }
 
 
@@ -137,6 +138,7 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::CheckInput()
 
     if (m_Code == nullptr)
     {
+        MDK_Warning << "SetOutputCode(nullptr) @ FeatureDictionaryBasedDenseEncoder::CheckInput()" << '\n';
         m_Code_SharedCopy.Clear();
         m_Code = &m_Code_SharedCopy;
     }
@@ -145,7 +147,7 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::CheckInput()
 
     auto tempSize = m_Code->GetSize();
 
-    if (tempSize.RowNumber != CodeLength || tempSize.ColNumber != m_FeatureData->GetColNumber())
+    if (tempSize.RowNumber != CodeDimension || tempSize.ColNumber != m_FeatureData->GetColNumber())
     {
         auto IsOK = m_Code->FastResize(CodeDimension, m_FeatureData->GetColNumber());
 

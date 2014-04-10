@@ -36,11 +36,13 @@ protected:
 
     // output code as separated sparse vectors:
 
-    DenseMatrix<SparseMatrix<ElementType>>* m_CodeInSparseColVectorList;
+    DenseMatrix<SparseMatrix<ElementType>>* m_CodeInSparseColVectorList; // computed in GenerateCode_in_a_Thread(...)
 
-    //Input Parameter:
+    //about multithreading:
 
     int_max m_MaxNumberOfThreads; // the maximum number of threads for encoding
+
+    int_max m_MinNumberOfDataPerThread;
 
 private:
 
@@ -110,6 +112,8 @@ public:
 protected:
 
     int_max GetMaxNumberOfThreads();
+
+    int_max GetMinNumberOfDataPerThread();
 
     int_max GetTotalNumberOfInputFeatureVectors();
 

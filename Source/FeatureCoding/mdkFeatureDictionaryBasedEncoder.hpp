@@ -35,13 +35,6 @@ bool FeatureDictionaryBasedEncoder<ElementType>::IsSparseEncoder()
 
 
 template<typename ElementType>
-bool FeatureDictionaryBasedEncoder<ElementType>::CheckInput()
-{
-    return true;
-}
-
-
-template<typename ElementType>
 bool FeatureDictionaryBasedEncoder<ElementType>::Preprocess()
 {
     return true;
@@ -74,7 +67,7 @@ bool FeatureDictionaryBasedEncoder<ElementType>::Update()
     // multi-thread -----------------------------------------------------------------
 
     ParallelBlock([&](int_max Index_start, int_max Index_end){this->GenerateCode_in_a_Thread(Index_start, Index_end); }, 
-                  0, FeatureVectorNumber - 1, this->GetMaxNumberOfThreads());
+                  0, FeatureVectorNumber - 1, this->GetMaxNumberOfThreads(), this->GetMinNumberOfDataPerThread());
     //------------------------------------------------------------
 
     if (this->Postprocess() == false)

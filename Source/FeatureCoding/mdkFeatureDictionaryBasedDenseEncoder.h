@@ -18,22 +18,25 @@ protected:
 
     const DenseMatrix<ElementType>* m_FeatureData;
 
-    // input, and can also be internal data, 
+    // input 
 
     const FeatureDictionaryForDenseCoding<ElementType>* m_Dictionary;
-
-    FeatureDictionaryForDenseCoding<ElementType> m_Dictionary_SharedCopy;
 
     // output:
 
     DenseMatrix<ElementType>* m_Code;
 
-    DenseMatrix<ElementType> m_Code_SharedCopy;
+    // other
+    int_max m_MaxNumberOfThreads;
 
+    int_max m_MinNumberOfDataPerThread;
+
+private:
+    DenseMatrix<ElementType> m_Code_SharedCopy;
 
 protected:
     FeatureDictionaryBasedDenseEncoder();
-    ~FeatureDictionaryBasedDenseEncoder();
+    virtual ~FeatureDictionaryBasedDenseEncoder();
 
 public:
     //-----------------------------------------
@@ -48,6 +51,8 @@ public:
 
     void SetOutputCode(DenseMatrix<ElementType>* Code);
 
+    void SetMaxNumberOfThreads(int_max Number);
+
     //-----------------------------------------
 
     virtual bool Update();
@@ -56,12 +61,17 @@ public:
 
     DenseMatrix<ElementType>* GetOutputCode();
 
-
 protected:
 
     int_max GetMaximunNumberOfThreads();
 
+    int_max GetMinNumberOfDataPerThread();
+
     int_max GetFeatureVectorNumber();
+
+    void SetupDefaultPipelineOutput();
+
+    void UpdatePipelineOutput();
 
     virtual void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end);
 
