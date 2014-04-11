@@ -21,9 +21,7 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
 {
     int_max NeighbourNumber;
 
-    std::string KNNDistanceType; 
-    // use this kind of distance to find KNN, X= a*d_i, a is constant and may not be 1
-    //
+    std::string DistanceTypeForKNNSearch;
     // L1
     // L2
     // Correlation

@@ -74,44 +74,68 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
 
     auto SubRecord = m_Dictionary->BasisMatrix().GetSubMatrix(ALL, NeighbourIndexList);
 
-    // compute ReconstructedDataColVector
-
+    // compute ReconstructedDataColVector X_hat
     auto ReconstructedDataColVector = MatrixMultiply(SubRecord, Alpha);
-
-    auto NeighbourL2DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(ReconstructedDataColVector, SubRecord);
-
-    // compute Membership using Reconstructed Data X_hat
-    DenseMatrix<ElementType> Membership(m_Parameter.NeighbourNumber, 1);
-
-    for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
-    {
-        auto s = m_Dictionary->m_StandardDeviation[NeighbourIndexList[i]];
-
-        Membership[i] = std::exp(ElementType(-0.5)*(NeighbourL2DistanceList[i] * NeighbourL2DistanceList[i]) / (s*s));
-    }
 
     // get reconstruction error ||X-X_hat||
     auto ErrorVector = MatrixSubtract(DataColVector, ReconstructedDataColVector);
-    ErrorVector.ElementOperationInPlace("abs");
-    auto Error = ErrorVector.Sum();
+    auto ReconstructionErrorL2Norm = ErrorVector.L2Norm();
 
-    // update Membership based on reconstruction error --------------------------------------------
-    // if Error is high, then Membership should be low
+    // compute Membership in [0, 1] using Reconstructed Data X_hat --------------------------------------
+    DenseMatrix<ElementType> Membership(m_Parameter.NeighbourNumber, 1);
 
-    // first: get the max StandardDeviation
+    if (m_Parameter.DistanceTypeForSoftAssign == "L1Distance")
+    {
+        auto NeighbourDistanceList = ComputeL1DistanceListFromSingleVectorToColVectorSet(ReconstructedDataColVector, SubRecord);
+
+        for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
+        {
+            auto s = m_Dictionary->m_StandardDeviation[NeighbourIndexList[i]];
+
+            Membership[i] = std::exp(ElementType(-0.5)*(NeighbourDistanceList[i] * NeighbourDistanceList[i]) / (s*s));
+        }
+    }
+    else if (m_Parameter.DistanceTypeForSoftAssign == "L2Distance")
+    {
+        auto NeighbourDistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(ReconstructedDataColVector, SubRecord);
+
+        for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
+        {
+            auto s = m_Dictionary->m_StandardDeviation[NeighbourIndexList[i]];
+
+            Membership[i] = std::exp(ElementType(-0.5)*(NeighbourDistanceList[i] * NeighbourDistanceList[i]) / (s*s));
+        }
+    }
+    else if (m_Parameter.DistanceTypeForSoftAssign == "Correlation")
+    {
+        auto NeighbourCorrelationList = ComputeCorrelationListFromSingleVectorToColVectorSet(ReconstructedDataColVector, SubRecord);
+
+        for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
+        {            
+            Membership[i] = std::abs(NeighbourCorrelationList[i]);
+        }
+    }
+
+    // normalize (sum to 1)
+    Membership /= Membership.L1Norm();
+
+    // normalize (sum to m_Parameter.NeighbourNumber if m_Parameter.NeighbourNumber is large, to prevent numerical problem)
+    // Membership *=m_Parameter.NeighbourNumber;
+
+    // update Membership based on reconstruction error
+
+    // first: get the max StandardDeviation in the neighborhood
     ElementType s_max = 0;
 
     for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
     {
-        s_max += m_Dictionary->m_StandardDeviation[NeighbourIndexList[i]];
+        s_max = std::max(s_max, m_Dictionary->m_StandardDeviation[NeighbourIndexList[i]]);
     }
-    s_max /= m_Parameter.NeighbourNumber;
+    // second: compute ReconstructionScore in [0, 1]
+    auto ReconstructionScore = std::exp(ElementType(-0.5)*(ReconstructionErrorL2Norm *ReconstructionErrorL2Norm) / (s_max*s_max));
 
     // then: update Membership
-    for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
-    {
-        Membership[i] *= std::exp(ElementType(-0.5)*(NeighbourL2DistanceList[i] * NeighbourL2DistanceList[i]) / (s_max*s_max));
-    }
+    Membership *= ReconstructionScore;
 
     // set the final code
     for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)

@@ -10,13 +10,25 @@ namespace mdk
 
 struct Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder
 {
+    // parameter for KNN Reconstruction ----------------------------
+
     int_max NeighbourNumber;
 
     bool Nonnegative;
 
     bool SumToOne;
+    
+    std::string DistanceTypeForKNNSearch;
+    // L1 Distance
+    // L2 Distance
+    // Correlation
 
-//------------------------------
+    // parameter for KNN SoftAssign ----------------------------
+
+    std::string DistanceTypeForSoftAssign;
+    // L1 Distance
+    // L2 Distance
+    // Correlation
 
     Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder() { this->Clear(); }
     ~Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder() {}
