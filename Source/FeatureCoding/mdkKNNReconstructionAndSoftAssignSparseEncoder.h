@@ -10,24 +10,24 @@ namespace mdk
 
 struct Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder
 {
-    // parameter for KNN Reconstruction ----------------------------
-
     int_max NeighbourNumber;
+
+    // parameter for KNN Reconstruction ----------------------------
 
     bool Nonnegative;
 
     bool SumToOne;
     
     std::string DistanceTypeForKNNSearch;
-    // L1 Distance
-    // L2 Distance
+    // L1Distance
+    // L2Distance
     // Correlation
 
     // parameter for KNN SoftAssign ----------------------------
 
     std::string DistanceTypeForSoftAssign;
-    // L1 Distance
-    // L2 Distance
+    // L1Distance
+    // L2Distance
     // Correlation
 
     Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder() { this->Clear(); }
@@ -36,8 +36,11 @@ struct Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder
     void Clear()
     {
         NeighbourNumber  = -1;
+        DistanceTypeForKNNSearch.clear();
         Nonnegative      = false;
         SumToOne         = false;
+
+        DistanceTypeForSoftAssign.clear();
     }
 
 private:
@@ -67,6 +70,10 @@ public:
 
     void Clear();
 
+    void SetInputFeatureData(const DenseMatrix<ElementType>* FeatureData);
+
+    void SetInputDictionary(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary);
+
     bool CheckInput();
 
     //--------------------------------------------------------------------------------
@@ -94,6 +101,12 @@ public:
                       const FeatureDictionary<ElementType>* Dictionary,
                       int_max NeighbourNumber,
                       int_max MaxNumberOfThreads = 1);
+
+private:
+
+    void bool Preprocess();
+
+    void bool UpdateParameterForKNNReconstruction();
 
 private:
 //deleted:

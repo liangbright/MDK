@@ -9,13 +9,34 @@
 namespace mdk
 {
 
+struct Parameter_Of_KNNSoftAssignSparseEncoder
+{
+    int_max NeighbourNumber;
+
+    std::string DistanceType;
+    // L1Distance
+    // L2Distance
+    // Correlation
+
+    Parameter_Of_KNNSoftAssignSparseEncoder() { this->Clear(); }
+    ~Parameter_Of_KNNSoftAssignSparseEncoder() {}
+
+    void Clear()
+    {
+        NeighbourNumber = -1;
+
+        DistanceType.clear();
+    }
+};
+
+
 template<typename ElementType>
 class KNNSoftAssignSparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
 {
 
 public:
 
-    int_max m_NeighbourNumber;
+    Parameter_Of_KNNSoftAssignSparseEncoder m_Paramter;
 
 public:
 

@@ -30,6 +30,24 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::Clear()
 
 
 template<typename ElementType>
+void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* FeatureData)
+{
+    this->FeatureDictionaryBasedSparseEncoder::SetInputFeatureData(FeatureData);
+
+    m_ReconstructionEncoder.SetInputFeatureData(m_FeatureData);
+}
+
+
+template<typename ElementType>
+void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::SetInputDictionary(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary)
+{
+    this->FeatureDictionaryBasedSparseEncoder::SetInputDictionary(Dictionary);
+
+    m_ReconstructionEncoder.SetInputDictionary(Dictionary);
+}
+
+
+template<typename ElementType>
 bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::CheckInput()
 {
     if (this->FeatureDictionaryBasedSparseEncoder::CheckInput() == false)
@@ -37,19 +55,12 @@ bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::CheckInput()
         return false;
     }
 
-    m_ReconstructionEncoder.m_Parameter.NeighbourNumber = m_Parameter.NeighbourNumber;
-    m_ReconstructionEncoder.m_Parameter.Nonnegative = m_Parameter.Nonnegative;
-    m_ReconstructionEncoder.m_Parameter.SumToOne = m_Parameter.SumToOne;
-
-    m_ReconstructionEncoder.SetInputDictionary(m_Dictionary);
-
-    m_ReconstructionEncoder.SetInputFeatureData(m_FeatureData);
-
-    if (m_ReconstructionEncoder.CheckInput() == false)
-    {        
+    if (this->UpdateParameterForKNNReconstruction() == false)
+    {
+        MDK_Error("Invalid Parameter for KNNReconstruction @ KNNReconstructionAndSoftAssignSparseEncoder::CheckInput()")
         return false;
     }
-
+  
     if (m_Dictionary->m_StandardDeviation.IsEmpty() == true)
     {
         MDK_Error("Incomplete Dictionary: m_StandardDeviation is empty @ KNNReconstructionAndSoftAssignSparseEncoder::CheckInput()")
@@ -57,6 +68,28 @@ bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::CheckInput()
     }
 
     return true;
+}
+
+
+template<typename ElementType>
+void bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::Preprocess()
+{
+    return this->UpdateParameterForKNNReconstruction();
+}
+
+
+template<typename ElementType>
+void bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::UpdateParameterForKNNReconstruction()
+{
+    m_ReconstructionEncoder.m_Parameter.NeighbourNumber = m_Parameter.NeighbourNumber;
+    m_ReconstructionEncoder.m_Parameter.DistanceTypeForKNNSearch = m_Parameter.DistanceTypeForKNNSearch;
+    m_ReconstructionEncoder.m_Parameter.Nonnegative = m_Parameter.Nonnegative;
+    m_ReconstructionEncoder.m_Parameter.SumToOne = m_Parameter.SumToOne;
+
+    if (m_ReconstructionEncoder.CheckInput() == false)
+    {
+        return false;
+    }
 }
 
 
@@ -81,7 +114,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
     auto ErrorVector = MatrixSubtract(DataColVector, ReconstructedDataColVector);
     auto ReconstructionErrorL2Norm = ErrorVector.L2Norm();
 
-    // compute Membership in [0, 1] using Reconstructed Data X_hat --------------------------------------
+    // compute Membership in [0, 1] using Reconstructed Data X_hat (not X) --------------------------------------
     DenseMatrix<ElementType> Membership(m_Parameter.NeighbourNumber, 1);
 
     if (m_Parameter.DistanceTypeForSoftAssign == "L1Distance")
@@ -113,14 +146,13 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
         for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
         {            
             Membership[i] = std::abs(NeighbourCorrelationList[i]);
+
+            //Membership[i] = (NeighbourCorrelationList[i] + 1) / 2;
         }
     }
 
-    // normalize (sum to 1)
+    // normalize (sum to 1) ???
     Membership /= Membership.L1Norm();
-
-    // normalize (sum to m_Parameter.NeighbourNumber if m_Parameter.NeighbourNumber is large, to prevent numerical problem)
-    // Membership *=m_Parameter.NeighbourNumber;
 
     // update Membership based on reconstruction error
 

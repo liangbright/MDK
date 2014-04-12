@@ -45,6 +45,14 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInput()
         return false;
     }
 
+    if (m_Parameter.DistanceTypeForKNNSearch != "L1Distance" 
+        && m_Parameter.DistanceTypeForKNNSearch != "L2Distance" 
+        && m_Parameter.DistanceTypeForKNNSearch != "Correlation")
+    {
+        MDK_Error("DistanceTypeForKNNSearch is invalid @ KNNReconstructionSparseEncoder::CheckInput()")
+        return false;
+    }
+
     return true;
 }
 
@@ -82,9 +90,27 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(const DenseMa
 {
     auto D = m_Dictionary->BasisMatrix();
 
-    auto L2DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, D);
+    DenseMatrix<ElementType> DistanceList;
 
-    auto NeighbourIndexList = FindKNNByDistanceList(m_Parameter.NeighbourNumber, L2DistanceList);
+    if (m_Parameter.DistanceTypeForKNNSearch == "L1Distance")
+    {
+        DistanceList = ComputeL1DistanceListFromSingleVectorToColVectorSet(DataColVector, D);
+    }
+    else if (m_Parameter.DistanceTypeForKNNSearch == "L2Distance")
+    {
+        DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, D);
+    }
+    else if (m_Parameter.DistanceTypeForKNNSearch == "Correlation")
+    {
+        DistanceList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, D);
+    }
+    else
+    {
+        MDK_Error("DistanceTypeForKNNSearch is invalid @ KNNReconstructionSparseEncoder::EncodingFunction(...)")
+        return;
+    }
+
+    auto NeighbourIndexList = FindKNNByDistanceList(m_Parameter.NeighbourNumber, DistanceList);
 
     auto SubRecord = D.GetSubMatrix(ALL, NeighbourIndexList);
 

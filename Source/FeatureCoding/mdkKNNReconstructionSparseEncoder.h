@@ -22,8 +22,8 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
     int_max NeighbourNumber;
 
     std::string DistanceTypeForKNNSearch;
-    // L1
-    // L2
+    // L1Distance
+    // L2Distance
     // Correlation
 
     bool Nonnegative;
@@ -38,6 +38,7 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
     void Clear()
     {
         NeighbourNumber  = -1;
+        DistanceTypeForKNNSearch.clear();
         Nonnegative      = false;
         SumToOne         = false;
     }
