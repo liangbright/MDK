@@ -5,9 +5,8 @@
 #include <cmath>
 
 
-#include "mdkDebugConfig.h"
 #include "mdkImageFilter.h"
-#include "mdkIntegralImageBuilder.h"
+
 
 namespace mdk
 {

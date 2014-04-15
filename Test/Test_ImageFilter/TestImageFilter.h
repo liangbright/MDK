@@ -6,11 +6,8 @@
 #include <array>
 
 #include "mdkFileIO.h"
-#include "mdkDenseMatrix.h"
-#include "mdkImage.h"
-#include "mdkImageFilter.h"
-#include "mdkImageConvolutionFilter.h"
-#include "mdkImageGaussianFilter.h"
+#include "mdkConvolutionImageFilter.h"
+#include "mdkGaussianImageFilter.h"
 #include "mdkIntegralImageBuilder.h"
 
 namespace mdk
@@ -356,7 +353,7 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	std::cout << "imfilter time " << t1 - t0 << '\n';
 
-	ImageConvolutionFilter<double, double>  imconvfilter;
+    ConvolutionImageFilter<double, double>  imconvfilter;
 
 	imconvfilter.SetInputImage(&InputImage);
 
@@ -419,7 +416,7 @@ void Test_ConvolutionFilter_ScalarOutput()
 
 	OutputImage.Fill(0);
 
-	ImageConvolutionFilter<double, double>  imfilter;
+    ConvolutionImageFilter<double, double>  imfilter;
 
 	imfilter.SetInputImage(&InputImage);
 
@@ -585,7 +582,7 @@ void test_Valve_Filter()
 
     OutputImage.Fill(0);
 
-    ImageConvolutionFilter<double, double>  imfilter;
+    ConvolutionImageFilter<double, double>  imfilter;
 
     imfilter.SetInputImage(&InputImage);
 
@@ -633,7 +630,7 @@ void test_GaussianFilter()
 
     OutputImage.Fill(0);
 
-    ImageGaussianFilter<double, double>  imfilter;
+    GaussianImageFilter<double, double>  imfilter;
 
     imfilter.SetInputImage(&InputImage);
 

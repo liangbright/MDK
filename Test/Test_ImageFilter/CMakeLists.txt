@@ -47,7 +47,6 @@ FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
 set(MDK_CPP_FILES 
 ${MDK_DIR}/Common/mdkObject.cpp
-${MDK_DIR}/ImageFilter/mdkImageConvolutionFilterBase.cpp
 )
 
 set(LinearALgebraLib_win64 

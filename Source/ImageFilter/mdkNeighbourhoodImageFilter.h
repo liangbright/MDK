@@ -1,20 +1,17 @@
-﻿#ifndef __mdkImageConvolutionFilterBase_h
-#define __mdkImageConvolutionFilterBase_h
+﻿#ifndef __mdkNeighbourhoodImageFilter_h
+#define __mdkNeighbourhoodImageFilter_h
 
-#include <vector>
-#include <array>
-#include <string>
 
-#include "mdkObject.h"
-#include "mdkDenseMatrix.h"
-#include "mdkImage.h"
 #include "mdkImageFilter.h"
+
 
 namespace mdk
 {
 
-class ImageConvolutionFilterBase : public Object
+template<typename VoxelType_Input, typename VoxelType_Output>
+class NeighbourhoodImageFilter : public ImageFilter<VoxelType_Input, VoxelType_Output>
 {
+
 protected:
     std::vector<DenseMatrix<double>> m_MaskList_3DIndex;
 	// each coloum is [dx_Index; dy_Index; dz_Index; w]
@@ -36,10 +33,11 @@ protected:
 
     ImageVoxelSpacing m_InputVoxelPhysicalSize;
 
-public:		
-	ImageConvolutionFilterBase();
-	~ImageConvolutionFilterBase();
-  
+protected:		
+	NeighbourhoodImageFilter();
+	virtual ~NeighbourhoodImageFilter();
+ 
+public:
 	bool LoadMask(const std::string& FilePathAndName);
 
 	bool SaveMask(const std::string& FilePathAndName);
@@ -60,11 +58,22 @@ public:
 
     bool IsMaskOf3DPositionEmpty();
 
+    bool CheckInput();
+
+    bool Preprocess();
+
+    virtual void BuildMaskOf3DIndex();    // code the mask in this function
+
+    virtual void BuildMaskOf3DPosition(); // code the mask in this function
+
 private:
-	ImageConvolutionFilterBase(const ImageConvolutionFilterBase&); // Not implemented.
-	void operator=(const ImageConvolutionFilterBase&);   // Not implemented.
+	NeighbourhoodImageFilter(const NeighbourhoodImageFilter&); // Not implemented.
+	void operator=(const NeighbourhoodImageFilter&);   // Not implemented.
 };
 
 }//end namespace mdk
+
+
+#include "mdkNeighbourhoodImageFilter.hpp"
 
 #endif

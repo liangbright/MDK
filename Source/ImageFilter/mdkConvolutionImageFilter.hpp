@@ -1,27 +1,25 @@
-#ifndef __mdkImageConvolutionFilter_hpp
-#define __mdkImageConvolutionFilter_hpp
+#ifndef __mdkConvolutionImageFilter_hpp
+#define __mdkConvolutionImageFilter_hpp
 
-//#include "mdkImageConvolutionFilter.h"
 
 namespace mdk
 {
 
 template<typename VoxelType_Input, typename VoxelType_Output, int_max VectorVoxelLength_Output>
-ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::ImageConvolutionFilter()
+ConvolutionImageFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::ConvolutionImageFilter()
 {
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output, int_max VectorVoxelLength_Output>
-ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::~ImageConvolutionFilter()
+ConvolutionImageFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::~ConvolutionImageFilter()
 {
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output, int_max VectorVoxelLength_Output>
 inline
-void
-ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
+void ConvolutionImageFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
 SetOutputVoxelMatrix(const DenseMatrix<VoxelType_Input>* VoxelMatrix)
 {
     m_OutputVoxelMatrix = VoxelMatrix;
@@ -29,44 +27,8 @@ SetOutputVoxelMatrix(const DenseMatrix<VoxelType_Input>* VoxelMatrix)
 
 
 template<typename VoxelType_Input, typename VoxelType_Output, int_max VectorVoxelLength_Output>
-bool ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::Preprocess()
-{
-    m_InputImageDimension = m_InputImage->GetDimension();
-
-    m_InputImagePhysicalOrigin = m_InputImage->GetPhysicalOrigin();
-
-    m_InputImagePhysicalSize = m_InputImage->GetPhysicalSize();
-
-    m_InputVoxelPhysicalSize = m_InputImage->GetVoxelSpacing();
-
-    this->BuildMaskOf3DIndex();
-
-    this->BuildMaskOf3DPosition();
-
-    this->ComputeRegionOfNOBoundCheck_3DIndex();
-
-    this->ComputeRegionOfNOBoundCheck_3DPosition();
-
-    return true;
-}
-
-
-template<typename VoxelType_Input, typename VoxelType_Output, int_max VectorVoxelLength_Output>
-void ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::BuildMaskOf3DIndex()
-{
-}
-
-
-template<typename VoxelType_Input, typename VoxelType_Output, int_max VectorVoxelLength_Output>
-void ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::BuildMaskOf3DPosition()
-{
-}
-
-
-template<typename VoxelType_Input, typename VoxelType_Output, int_max VectorVoxelLength_Output>
 inline
-void
-ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
+void ConvolutionImageFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
 FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, VoxelType_Output& OutputVoxel)
 {
     auto VectorVoxelLength = int_max(m_MaskList_3DIndex.size());
@@ -136,8 +98,7 @@ FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, Voxel
 
 template<typename VoxelType_Input, typename VoxelType_Output, int_max VectorVoxelLength_Output>
 inline
-void
-ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
+void ConvolutionImageFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
 FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& OutputVoxel)
 {
     int_max VectorVoxelLength = m_MaskList_3DPosition.size();
@@ -217,8 +178,7 @@ FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& Outpu
 
 template<typename VoxelType_Input, typename VoxelType_Output, int_max VectorVoxelLength_Output>
 inline
-void
-ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
+void ConvolutionImageFilter<VoxelType_Input, VoxelType_Output, VectorVoxelLength_Output>::
 OutputFunction(int_max OutputVoxelIndex, const VoxelType_Output& OutputVoxel)
 {
     for (int_max i = 0; i < VectorVoxelLength_Output; ++i)
@@ -229,58 +189,21 @@ OutputFunction(int_max OutputVoxelIndex, const VoxelType_Output& OutputVoxel)
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::ImageConvolutionFilter()
+ConvolutionImageFilter<VoxelType_Input, VoxelType_Output, 1>::ConvolutionImageFilter()
 {
 }
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
-ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::~ImageConvolutionFilter()
+ConvolutionImageFilter<VoxelType_Input, VoxelType_Output, 1>::~ConvolutionImageFilter()
 {
 }
 
-
-template<typename VoxelType_Input, typename VoxelType_Output>
-bool ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::Preprocess()
-{
-    m_InputImageDimension = m_InputImage->GetDimension();
-
-    m_InputImagePhysicalOrigin = m_InputImage->GetPhysicalOrigin();
-
-    m_InputImagePhysicalSize = m_InputImage->GetPhysicalSize();
-
-    m_InputVoxelPhysicalSize = m_InputImage->GetVoxelSpacing();
-
-    this->BuildMaskOf3DIndex();
-
-    this->BuildMaskOf3DPosition();
-
-    // after building mask
-
-    this->ComputeRegionOfNOBoundCheck_3DIndex();
-
-    this->ComputeRegionOfNOBoundCheck_3DPosition();
-
-    return true;
-}
-
-
-template<typename VoxelType_Input, typename VoxelType_Output>
-void ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::BuildMaskOf3DIndex()
-{
-}
-
-
-template<typename VoxelType_Input, typename VoxelType_Output>
-void ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::BuildMaskOf3DPosition()
-{
-}
 
 
 template<typename VoxelType_Input, typename VoxelType_Output>
 inline
-void
-ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::
+void ConvolutionImageFilter<VoxelType_Input, VoxelType_Output, 1>::
 FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, VoxelType_Output& OutputVoxel)
 {
 	//OutputVoxel = 0;
@@ -353,8 +276,7 @@ FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, Voxel
 
 template<typename VoxelType_Input, typename VoxelType_Output>
 inline
-void
-ImageConvolutionFilter<VoxelType_Input, VoxelType_Output, 1>::
+void ConvolutionImageFilter<VoxelType_Input, VoxelType_Output, 1>::
 FilterFunctionAt3DPosition(double x, double y, double z, VoxelType_Output& OutputVoxel)
 {
     //-----------------------------------------

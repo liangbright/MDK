@@ -30,9 +30,9 @@ protected:
 	                                 
 	// input_2:
     const DenseMatrix<int_max>*  m_InputVoxel3DIndexList;  // compute values at these center positions
-	                
+
 	// input_3:
-	const DenseMatrix<float>*  m_Input3DPositionList;  // compute values at these center positions (float precision is enough)
+    const DenseMatrix<double>*  m_Input3DPositionList;     // compute values at these center positions
 
     // input_4:
 	std::function<void(double, double, double, const Image<VoxelType_Input>&, VoxelType_Output&)> m_InputFilterFunction_At3DPosition;
@@ -54,9 +54,9 @@ protected:
 	// input_output_1:
     DenseMatrix<VoxelType_Output>* m_OutputArray;
 
-    //------------ internal variable --------------
+    //------------ internal variable -------------------
 
-    Image<VoxelType_Output> m_OutputImage_SharedCopy; // keep tracking m_OutputImage
+    Image<VoxelType_Output> m_OutputImage_SharedCopy;       // keep tracking m_OutputImage
 
     DenseMatrix<VoxelType_Output> m_OutputArray_SharedCopy; // keep tracking m_OutputArray
 
@@ -128,6 +128,7 @@ protected:
     bool CheckInput();
 
     void SetupDefaultPipelineOutput();
+
     void UpdatePipelineOutput();
 
     virtual bool Preprocess();
@@ -143,7 +144,7 @@ private:
 	void operator=(const ImageFilter&) = delete;
 };
 
-}//end namespace mdk
+}// namespace mdk
 
 #include "mdkImageFilter.hpp"
 

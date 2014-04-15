@@ -211,7 +211,7 @@ inline std::vector<int_max> span(int_max Index_A, int_max Step, int_max Index_B)
 
 
 template<typename ElementType>
-void DisplayMatrix(const std::string& Name, const DenseMatrix<ElementType>& InputMatrix, int_max precision = 0, bool Flag_scientific = false)
+void DisplayMatrix(const std::string& Name, const DenseMatrix<ElementType>& InputMatrix, int_max precision, bool Flag_scientific)
 {
     std::cout << Name << " = " << '\n';
 
@@ -236,7 +236,7 @@ void DisplayMatrix(const std::string& Name, const DenseMatrix<ElementType>& Inpu
 
 
 template<typename ElementType>
-void DisplayMatrix(const std::string& Name, const SparseMatrix<ElementType>& InputMatrix, int_max precision = 0, bool Flag_scientific = false)
+void DisplayMatrix(const std::string& Name, const SparseMatrix<ElementType>& InputMatrix, int_max precision, bool Flag_scientific)
 {
     std::cout << Name << " = " << '\n';
 
