@@ -168,6 +168,8 @@ void Test_KNNReconstructionAndSoftAssignSparseEncoder()
     Encoder.m_Parameter.Nonnegative = true;
     Encoder.m_Parameter.SumToOne = true;
 
+    Encoder.m_Parameter.DistanceTypeForSoftAssign = "L2Distance";
+
     Encoder.SetInputDictionary(&Dictionary);
 
     Encoder.SetInputFeatureData(&FeatureData);

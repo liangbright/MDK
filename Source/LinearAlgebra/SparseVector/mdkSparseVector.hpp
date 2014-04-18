@@ -293,7 +293,7 @@ const ElementType& SparseVector<ElementType>::GetElement(int_max Index) const
         }
     }
 
-    if (IndexInDataArray > 0)
+    if (IndexInDataArray >= 0)
     {
         return m_DataArray[IndexInDataArray];
     }
@@ -327,7 +327,7 @@ bool SparseVector<ElementType>::SetElement(int_max Index, const ElementType& Ele
         }
     }
 
-    if (IndexInDataArray > 0)
+    if (IndexInDataArray >= 0)
     {
         m_DataArray[IndexInDataArray] = Element;
         return true;

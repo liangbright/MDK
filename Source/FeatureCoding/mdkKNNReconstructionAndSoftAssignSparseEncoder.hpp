@@ -156,9 +156,14 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
     // normalize (sum to 1) ???
     auto eps_value = EPS<ElementType>();
     auto L1Norm_value = Membership.L1Norm();
-    if (L1Norm_value > eps_value)
+    auto temp_value = ElementType(1) / ElementType(m_Parameter.NeighbourNumber);
+    if (L1Norm_value >= eps_value*temp_value)
     {
         Membership /= L1Norm_value;
+    }
+    else
+    {
+        Membership.Fill(temp_value);
     }
 
     // update Membership based on reconstruction error
@@ -178,7 +183,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
     // then: update Membership
     Membership *= ReconstructionScore;
 
-    // set the final code
+    // set the final code    
     for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
     {
         CodeInSparseColVector.SetElement(NeighbourIndexList[i], Membership[i]);
