@@ -32,6 +32,7 @@ ${MDK_DIR}/Multithreading
 ${MDK_DIR}/LinearAlgebra/Common
 ${MDK_DIR}/LinearAlgebra/DenseMatrix
 ${MDK_DIR}/LinearAlgebra/SparseMatrix
+${MDK_DIR}/LinearAlgebra/SparseVector
 ${MDK_DIR}/Optimization
 ${MDK_DIR}/FeatureCoding
 ${Arma_DIR} 

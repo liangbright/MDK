@@ -1046,14 +1046,14 @@ DenseMatrix<ElementType> MatrixElementDivide(const DenseMatrix<ElementType>& Mat
 
 template<typename ElementType>
 inline
-void MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
+bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const ElementType& ElementB)
 {
     auto SizeA = MatrixA.GetSize();
 
     if (SizeA.RowNumber == 0)
     {
         MDK_Error("MatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, ElementB)")
-        return;
+        return false;
     }
 
     auto SizeC = OutputMatrixC.GetSize();
@@ -1088,6 +1088,8 @@ void MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
             ptrC[i] = ptrA[i] / ElementB;
         }
     }
+
+    return true;
 }
 
 //=========================================================================================================================================//

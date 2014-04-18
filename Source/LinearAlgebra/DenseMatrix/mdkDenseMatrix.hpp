@@ -260,7 +260,7 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<ElementType
 
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error("Can not change matrix size @ DenseMatrix::operator=(Element)")
+        MDK_Error("Can not change matrix size @ DenseMatrix::operator=(initializer_list)")
     }
     else
     {
@@ -1146,7 +1146,7 @@ bool DenseMatrix<ElementType>::Resize(int_max InputElementNumber) // try to keep
 
     auto Size = this->GetSize();
 
-    if (Size.RowNumber >1 || Size.ColNumber > 1)
+    if (Size.RowNumber > 1 && Size.ColNumber > 1)
     {
         MDK_Error("Self is not empty and not a vector @ DenseMatrix::Resize(int_max InputElementNumber)")
         return false;
@@ -1211,7 +1211,7 @@ bool DenseMatrix<ElementType>::FastResize(int_max InputElementNumber) // do not 
 
     auto Size = this->GetSize();
 
-    if (Size.RowNumber >1 || Size.ColNumber > 1)
+    if (Size.RowNumber > 1 && Size.ColNumber > 1)
     {
         MDK_Error("Self is not empty and not a vector @ DenseMatrix::FastResize(int_max InputElementNumber)")
         return false;
@@ -1300,17 +1300,23 @@ catch (...)
 
 
 template<typename ElementType>
-inline 
-void DenseMatrix<ElementType>::FixSize()
+inline
+void DenseMatrix<ElementType>::Squeeze()
 {
-    m_MatrixData->IsSizeFixed = true;
-
     if (m_MatrixData->DataArray.data() != nullptr)
     {
         m_MatrixData->DataArray.shrink_to_fit();
         m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
         m_ElementPointer = m_MatrixData->ElementPointer;
     }
+}
+
+
+template<typename ElementType>
+inline 
+void DenseMatrix<ElementType>::FixSize()
+{
+    m_MatrixData->IsSizeFixed = true;
 }
 
 

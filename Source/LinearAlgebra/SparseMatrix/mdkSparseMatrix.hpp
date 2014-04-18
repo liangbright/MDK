@@ -420,7 +420,7 @@ void SparseMatrixDataInCSCFormat<ElementType>::Clear()
 
     m_Threshold = ElementType(0);
 
-    m_NaNElement = GetMatrixNaNElement(m_NaNElement); // zero if int
+    m_NaNElement = GetNaNElement(m_NaNElement); // zero if int
 
     m_IsSizeFixed = false;
 }
@@ -1322,13 +1322,13 @@ bool SparseMatrix<ElementType>::ConstructRowVector(const DenseMatrix<int_max>& C
 
 template<typename ElementType>
 inline 
-bool SparseMatrix<ElementType>::ConstructFromSparseColVectorListInOrder(const std::vector<SparseMatrix<ElementType>>& SparseVectorList,
-                                                                        int_max RowNumber,
-                                                                        int_max ColNumber)
+bool SparseMatrix<ElementType>::ConstructFromSparseColVectorSetInOrder(const std::vector<SparseVector<ElementType>>& SparseVectorSet,
+                                                                       int_max RowNumber,
+                                                                       int_max ColNumber)
 {
-    if (ColNumber != int_max(SparseVectorList.size()))
+    if (ColNumber != int_max(SparseVectorSet.size()))
     {
-        MDK_Error("Invalid input @ SparseMatrix::ConstructFromSparseColVectorListInOrder(std::vector ...)")
+        MDK_Error("Invalid input @ SparseMatrix::ConstructFromSparseColVectorSetInOrder(std::vector ...)")
         return false;
     }
 
@@ -1338,19 +1338,23 @@ bool SparseMatrix<ElementType>::ConstructFromSparseColVectorListInOrder(const st
     
     for (int_max j = 0; j < ColNumber; ++j)
     {
-        auto Length = int_max(SparseVectorList[j].m_MatrixData->m_DataArray.size());
+        auto Length = SparseVectorSet[j].GetLength();
 
         if (Length > RowNumber)
         {
-            MDK_Error("Invalid input: RowNumber @ SparseMatrix::ConstructFromSparseColVectorListInOrder(std::vector ...)")
+            MDK_Error("Invalid input: RowNumber @ SparseMatrix::ConstructFromSparseColVectorSetInOrder(std::vector ...)")
             return false;
         }
 
+        auto IndexList_j = SparseVectorSet[j].IndexList();
+
+        auto DataArray_j = SparseVectorSet[j].DataArray();
+
         for (int_max i = 0; i < Length; ++i)
         {
-            RowIndexList.push_back(SparseVectorList[j].m_MatrixData->m_RowIndexList[i]);
+            RowIndexList.push_back(IndexList_j[i]);
             ColIndexList.push_back(j);
-            DataArray.push_back(SparseVectorList[j].m_MatrixData->m_DataArray[i]);
+            DataArray.push_back(DataArray_j[i]);
         }
     }
 
@@ -1362,13 +1366,13 @@ bool SparseMatrix<ElementType>::ConstructFromSparseColVectorListInOrder(const st
 
 template<typename ElementType>
 inline 
-bool SparseMatrix<ElementType>::ConstructFromSparseColVectorListInOrder(const DenseMatrix<SparseMatrix<ElementType>>& SparseVectorList,
+bool SparseMatrix<ElementType>::ConstructFromSparseColVectorSetInOrder(const DenseMatrix<SparseVector<ElementType>>& SparseVectorSet,
                                                                         int_max RowNumber,
                                                                         int_max ColNumber)
 {
-    if (ColNumber != SparseVectorList.GetElementNumber())
+    if (ColNumber != SparseVectorSet.GetElementNumber())
     {
-        MDK_Error("Invalid input @ SparseMatrix::ConstructFromSparseColVectorListInOrder(DenseMatrix ...)")
+        MDK_Error("Invalid input @ SparseMatrix::ConstructFromSparseColVectorSetInOrder(DenseMatrix ...)")
         return false;
     }
 
@@ -1378,19 +1382,67 @@ bool SparseMatrix<ElementType>::ConstructFromSparseColVectorListInOrder(const De
     
     for (int_max j = 0; j < ColNumber; ++j)
     {
-        auto Length = int_max(SparseVectorList[j].m_MatrixData->m_DataArray.size());
+        auto Length = SparseVectorSet[j].GetLength();
 
         if (Length > RowNumber)
         {
-            MDK_Error("Invalid input: RowNumber @ SparseMatrix::ConstructFromSparseColVectorListInOrder(DenseMatrix ...)")
+            MDK_Error("Invalid input: RowNumber @ SparseMatrix::ConstructFromSparseColVectorSetInOrder(DenseMatrix ...)")
             return false;
         }
 
+        auto IndexList_j = SparseVectorSet[j].IndexList();
+
+        auto DataArray_j = SparseVectorSet[j].DataArray();
+
         for (int_max i = 0; i < Length; ++i)
         {
-            RowIndexList.push_back(SparseVectorList[j].m_MatrixData->m_RowIndexList[i]);
+            RowIndexList.push_back(IndexList_j[i]);
             ColIndexList.push_back(j);
-            DataArray.push_back(SparseVectorList[j].m_MatrixData->m_DataArray[i]);
+            DataArray.push_back(DataArray_j[i]);
+        }
+    }
+
+    m_MatrixData->ConstructWithOrder(std::move(RowIndexList), std::move(ColIndexList), std::move(DataArray), RowNumber, ColNumber);
+
+    return true;
+}
+
+
+template<typename ElementType>
+inline
+bool SparseMatrix<ElementType>::ConstructFromSparseColVectorSetInOrder(const DataContainer<SparseVector<ElementType>>& SparseVectorSet,
+                                                                       int_max RowNumber,
+                                                                       int_max ColNumber)
+{
+    if (ColNumber != SparseVectorSet.GetElementNumber())
+    {
+        MDK_Error("Invalid input @ SparseMatrix::ConstructFromSparseColVectorSetInOrder(DenseMatrix ...)")
+        return false;
+    }
+
+    std::vector<int_max> RowIndexList;
+    std::vector<int_max> ColIndexList;
+    std::vector<ElementType> DataArray;
+
+    for (int_max j = 0; j < ColNumber; ++j)
+    {
+        auto Length = SparseVectorSet[j].GetLength();
+
+        if (Length > RowNumber)
+        {
+            MDK_Error("Invalid input: RowNumber @ SparseMatrix::ConstructFromSparseColVectorSetInOrder(DenseMatrix ...)")
+                return false;
+        }
+
+        auto IndexList_j = SparseVectorSet[j].IndexList();
+
+        auto DataArray_j = SparseVectorSet[j].DataArray();
+
+        for (int_max i = 0; i < Length; ++i)
+        {
+            RowIndexList.push_back(IndexList_j[i]);
+            ColIndexList.push_back(j);
+            DataArray.push_back(DataArray_j[i]);
         }
     }
 

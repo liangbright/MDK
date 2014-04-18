@@ -57,9 +57,9 @@ bool KNNSoftAssignSparseEncoder<ElementType>::CheckInput()
 template<typename ElementType>
 inline 
 void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
-                                                               SparseMatrix<ElementType>& CodeInSparseColVector)
+                                                               SparseVector<ElementType>& CodeInSparseColVector)
 {
-    auto D = m_Dictionary->BasisMatrix();
+    const DenseMatrix<ElementType>& D = m_Dictionary->BasisMatrix();
 
     auto CodeLength = D.GetColNumber();
 
@@ -111,7 +111,7 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix
     // normalize ???
     Membership /= Membership.L1Norm();
 
-    CodeInSparseColVector.ConstructColVector(NeighbourIndexList, Membership, CodeLength);
+    CodeInSparseColVector.Construct(NeighbourIndexList, Membership, CodeLength);
 }
 
 

@@ -1,6 +1,7 @@
 #ifndef __mdkKNNReconstructionAndSoftAssignSparseEncoder_h
 #define __mdkKNNReconstructionAndSoftAssignSparseEncoder_h
 
+#include  <algorithm>
 
 #include "mdkKNNReconstructionSparseEncoder.h"
 
@@ -12,7 +13,7 @@ struct Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder
 {
     int_max NeighbourNumber;
 
-    // parameter for KNN Reconstruction ----------------------------
+    // parameter only for Reconstruction ----------------------------
 
     bool Nonnegative;
 
@@ -20,15 +21,15 @@ struct Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder
     
     std::string DistanceTypeForKNNSearch;
     // L1Distance
-    // L2Distance
+    // L2Distance  : default
     // Correlation
 
-    // parameter for KNN SoftAssign ----------------------------
+    // parameter only for Soft Assign ----------------------------
 
     std::string DistanceTypeForSoftAssign;
     // L1Distance
     // L2Distance
-    // Correlation
+    // Correlation  : default
 
     Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder() { this->Clear(); }
     ~Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder() {}
@@ -36,11 +37,11 @@ struct Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder
     void Clear()
     {
         NeighbourNumber  = -1;
-        DistanceTypeForKNNSearch.clear();
+        DistanceTypeForKNNSearch = "L2Distance";
         Nonnegative      = false;
         SumToOne         = false;
 
-        DistanceTypeForSoftAssign.clear();
+        DistanceTypeForSoftAssign = "Correlation";
     }
 
 private:
@@ -80,7 +81,7 @@ public:
 
     using FeatureDictionaryBasedSparseEncoder::EncodingFunction;
 
-    inline void EncodingFunction(const DenseMatrix<ElementType>& DataColVector, SparseMatrix<ElementType>& CodeInSparseColVector);
+    inline void EncodingFunction(const DenseMatrix<ElementType>& DataColVector, SparseVector<ElementType>& CodeInSparseColVector);
 
     //---------------------------------------------------------------------------------
 
@@ -90,13 +91,13 @@ public:
                       int_max NeighbourNumber,
                       int_max MaxNumberOfThreads = 1);
 
-    static bool Apply(SparseMatrix<ElementType>& OutputCodenSparseMatrix,
+    static bool Apply(SparseMatrix<ElementType>& OutputCodeInSparseMatrix,
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
                       int_max NeighbourNumber,
                       int_max MaxNumberOfThreads = 1);
 
-    static bool Apply(DenseMatrix<SparseMatrix<ElementType>>& OutputCodeInSparseColVectorList,
+    static bool Apply(DenseMatrix<SparseVector<ElementType>>& OutputCodeInSparseColVectorSet,
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
                       int_max NeighbourNumber,
@@ -104,9 +105,9 @@ public:
 
 private:
 
-    void bool Preprocess();
+    bool Preprocess();
 
-    void bool UpdateParameterForKNNReconstruction();
+    bool UpdateParameterForKNNReconstruction();
 
 private:
 //deleted:

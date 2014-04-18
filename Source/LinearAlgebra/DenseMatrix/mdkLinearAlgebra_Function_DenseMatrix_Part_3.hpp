@@ -288,7 +288,7 @@ ElementType ComputeCorrelationBetweenTwoVectors(const ElementType* VectorA, cons
     ElementType part_AA = ElementType(0);
     ElementType part_BB = ElementType(0);
 
-    for (int_max i = 0; i < Size.RowNumber; ++i)
+    for (int_max i = 0; i < Length; ++i)
     {
         part_AB += (VectorA[i] - Mean_A)*(VectorB[i] - Mean_B);
         
@@ -297,8 +297,23 @@ ElementType ComputeCorrelationBetweenTwoVectors(const ElementType* VectorA, cons
         part_BB += (VectorB[i] - Mean_B)*(VectorB[i] - Mean_B);
     }
 
-    auto Correlation = part_AB / (std::sqrt(part_AA) * std::sqrt(part_BB));
+    auto Correlation = ElementType(0);
 
+    auto eps_value = EPS<ElementType>();
+
+    if (std::abs(part_AA) > eps_value && std::abs(part_BB) > eps_value)
+    { 
+        Correlation = part_AB / (std::sqrt(part_AA) * std::sqrt(part_BB));
+    }
+    else if (std::abs(part_AA) <= eps_value && std::abs(part_BB) <= eps_value)
+    {
+        Correlation = 1;
+    }
+    else // (std::abs(part_AA) <= eps_value && std::abs(part_BB) > eps_value) || (std::abs(part_AA) > eps_value && std::abs(part_BB) <= eps_value)
+    {
+        Correlation = 0;
+    }
+    
     return Correlation;
 }
 
@@ -396,7 +411,22 @@ ElementType ComputeUncenteredCorrelationBetweenTwoVectors(const ElementType* Vec
         part_BB += VectorB[i] * VectorB[i];
     }
 
-    auto Correlation = part_AB / (std::sqrt(part_AA) * std::sqrt(part_BB));
+    auto Correlation = ElementType(0);
+
+    auto eps_value = EPS<ElementType>();
+
+    if (std::abs(part_AA) > eps_value && std::abs(part_BB) > eps_value)
+    {
+        Correlation = part_AB / (std::sqrt(part_AA) * std::sqrt(part_BB));
+    }
+    else if (std::abs(part_AA) <= eps_value && std::abs(part_BB) <= eps_value)
+    {
+        Correlation = 1;
+    }
+    else // (std::abs(part_AA) <= eps_value && std::abs(part_BB) > eps_value) || (std::abs(part_AA) > eps_value && std::abs(part_BB) <= eps_value)
+    {
+        Correlation = 0;
+    }
 
     return Correlation;
 }

@@ -12,6 +12,7 @@
 #include "mdkLinearAlgebraConfig.h"
 
 #include "mdkType.h"
+#include "mdkDataContainer.h"
 #include "mdkMatrix_Common.h"
 #include "mdkSparseShadowMatrix.h"
 #include "mdkSparseGlueMatrixForMultiplication.h"
@@ -23,6 +24,11 @@
 
 namespace mdk
 {
+
+//-----------------------------
+template<typename ElementType>
+class SparseVector;
+//------------------------------
 
 // 2D SparseMatrix Class Template
 // Compressed sparse column (CSC)
@@ -283,13 +289,17 @@ public:
                                    const DenseMatrix<ElementType>& DataArray,
                                    int_max ColNumber);
 
-    inline bool ConstructFromSparseColVectorListInOrder(const std::vector<SparseMatrix<ElementType>>& SparseVectorList,
-                                                        int_max RowNumber,
-                                                        int_max ColNumber);
+    inline bool ConstructFromSparseColVectorSetInOrder(const std::vector<SparseVector<ElementType>>& SparseVectorSet,
+                                                       int_max RowNumber,
+                                                       int_max ColNumber);
 
-    inline bool ConstructFromSparseColVectorListInOrder(const DenseMatrix<SparseMatrix<ElementType>>& SparseVectorList,
-                                                        int_max RowNumber,
-                                                        int_max ColNumber);
+    inline bool ConstructFromSparseColVectorSetInOrder(const DenseMatrix<SparseVector<ElementType>>& SparseVectorSet,
+                                                       int_max RowNumber,
+                                                       int_max ColNumber);
+
+    inline bool ConstructFromSparseColVectorSetInOrder(const DataContainer<SparseVector<ElementType>>& SparseVectorSet,
+                                                       int_max RowNumber,
+                                                       int_max ColNumber);
 
     //----------------------  operator=  ----------------------------------------//
 

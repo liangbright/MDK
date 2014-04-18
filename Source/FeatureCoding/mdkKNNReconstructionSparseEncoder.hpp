@@ -86,9 +86,9 @@ bool KNNReconstructionSparseEncoder<ElementType>::Preprocess()
 template<typename ElementType>
 inline
 void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
-                                                                   SparseMatrix<ElementType>& CodeInSparseColVector)
+                                                                   SparseVector<ElementType>& CodeInSparseColVector)
 {
-    auto D = m_Dictionary->BasisMatrix();
+    const DenseMatrix<ElementType>& D = m_Dictionary->BasisMatrix(); // "auto D = " will copy
 
     DenseMatrix<ElementType> DistanceList;
 
@@ -137,7 +137,7 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(const DenseMa
                                                                             nullptr, nullptr, &A, nullptr, nullptr, nullptr,
                                                                             &H, &Option);
 
-        CodeInSparseColVector.ConstructColVector(NeighbourIndexList, Solution.X, CodeLength);       
+        CodeInSparseColVector.Construct(NeighbourIndexList, Solution.X, CodeLength);       
     }
     else if (m_Parameter.Nonnegative == true && m_Parameter.SumToOne == false)
     {
@@ -159,7 +159,7 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(const DenseMa
                                                                             &lb_x, nullptr, &A, nullptr, nullptr, nullptr,
                                                                             &H, &Option);
 
-        CodeInSparseColVector.ConstructColVector(NeighbourIndexList, Solution.X, CodeLength);
+        CodeInSparseColVector.Construct(NeighbourIndexList, Solution.X, CodeLength);
     }
     else if (m_Parameter.Nonnegative == true && m_Parameter.SumToOne == true)
     {
@@ -185,7 +185,7 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(const DenseMa
                                                                             &lb_x, nullptr, &A, &lb_A, &ub_A, nullptr,
                                                                             &H, &Option);
 
-        CodeInSparseColVector.ConstructColVector(NeighbourIndexList, Solution.X, CodeLength);
+        CodeInSparseColVector.Construct(NeighbourIndexList, Solution.X, CodeLength);
     }
     else //if(m_Parameter.Nonnegative == false && m_Parameter.SumToOne == true)
     {
@@ -208,7 +208,7 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(const DenseMa
                                                                             nullptr, nullptr, &A, &lb_A, &ub_A, nullptr,
                                                                             &H, &Option);
 
-        CodeInSparseColVector.ConstructColVector(NeighbourIndexList, Solution.X, CodeLength);
+        CodeInSparseColVector.Construct(NeighbourIndexList, Solution.X, CodeLength);
     }
 }
 

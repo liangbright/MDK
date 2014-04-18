@@ -125,15 +125,6 @@ template<typename ElementType>
 inline
 MatrixElementTypeEnum FindMatrixElementType(ElementType Element);
 
-
-template<typename ElementType>
-inline
-ElementType GetMatrixNaNElement();
-
-template<typename ElementType>
-inline
-ElementType GetMatrixNaNElement(const ElementType& ReferenceElement);
-
 //------------------------------------------------------------//
 
 template<typename ElementType>

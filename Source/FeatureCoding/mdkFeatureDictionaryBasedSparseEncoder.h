@@ -6,7 +6,9 @@
 #include <thread>
 
 
+#include "mdkDataContainer.h"
 #include "mdkSparseMatrix.h"
+#include "mdkSparseVector.h"
 #include "mdkFeatureDictionaryBasedEncoder.h"
 #include "mdkFeatureDictionaryForSparseCoding.h"
 
@@ -36,7 +38,7 @@ protected:
 
     // output code as separated sparse vectors:
 
-    DenseMatrix<SparseMatrix<ElementType>>* m_CodeInSparseColVectorList; // computed in GenerateCode_in_a_Thread(...)
+    DataContainer<SparseVector<ElementType>>* m_CodeInSparseColVectorSet; // computed in GenerateCode_in_a_Thread(...)
 
     //about multithreading:
 
@@ -50,7 +52,7 @@ private:
 
     SparseMatrix<ElementType>  m_CodeInSparseMatrix_SharedCopy;
 
-    DenseMatrix<SparseMatrix<ElementType>> m_CodeInSparseColVectorList_SharedCopy;
+    DataContainer<SparseVector<ElementType>> m_CodeInSparseColVectorSet_SharedCopy;
 
     bool m_Flag_Output_CodeInDenseMatrix;
 
@@ -81,7 +83,7 @@ public:
 
     void SetOutputCodeInSparseMatrix(SparseMatrix<ElementType>* Code);
 
-    void SetOutputCodeInSparseColVectorList(DenseMatrix<SparseMatrix<ElementType>>* Code);
+    void SetOutputCodeInSparseColVectorSet(DenseMatrix<SparseMatrix<ElementType>>* Code);
 
     void SetMaxNumberOfThreads(int_max Number);
 
@@ -95,7 +97,7 @@ public:
                                          DenseMatrix<ElementType>& CodeInDenseColVector);
 
     inline virtual void EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
-                                         SparseMatrix<ElementType>& CodeInSparseColVector) = 0;
+                                         SparseVector<ElementType>& CodeInSparseColVector) = 0;
 
     //----------------------------------------------------//
 
@@ -105,7 +107,7 @@ public:
 
     SparseMatrix<ElementType>* GetOutputCodeInSparseMatrix();
 
-    DenseMatrix<SparseMatrix<ElementType>>* GetOutputCodeInSparseColVectorList();
+    DenseMatrix<SparseMatrix<ElementType>>* GetOutputCodeInSparseColVectorSet();
 
     //---------------------------------------------------//
 

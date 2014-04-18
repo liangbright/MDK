@@ -9,6 +9,9 @@ class DenseMatrix;
 
 template<typename ElementType>
 class SparseMatrix;
+
+template<typename ElementType>
+class SparseVector;
 //-----------------------------------------//
 
 template<typename ElementType>
@@ -27,6 +30,24 @@ template<typename ElementType>
 inline
 bool ConvertDenseMatrixToSparseMatrix(const DenseMatrix<ElementType>& InputDenseMatrix, ElementType absThreashold,
                                       SparseMatrix<ElementType>& OutputSparseMatrix);
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> CreateDenseMatrixAsRowVectorFromSparseVector(const SparseMatrix<ElementType>& InputSparseVector);
+
+template<typename ElementType>
+inline
+bool ConvertSparseVectorToDenseMatrixAsRowVector(const SparseVector<ElementType>& InputSparseVector, DenseMatrix<ElementType>& OutputDenseVector);
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> CreateDenseMatrixAsColVectorFromSparseVector(const SparseMatrix<ElementType>& InputSparseVector);
+
+template<typename ElementType>
+inline
+bool ConvertSparseVectorToDenseMatrixAsColVector(const SparseVector<ElementType>& InputSparseVector, DenseMatrix<ElementType>& OutputDenseVector);
+
 
 }
 

@@ -53,7 +53,7 @@ public:
 
     using FeatureDictionaryBasedSparseEncoder::EncodingFunction;
 
-    inline void EncodingFunction(const DenseMatrix<ElementType>& DataColVector, SparseMatrix<ElementType>& CodeInSparseColVector);
+    inline void EncodingFunction(const DenseMatrix<ElementType>& DataColVector, SparseVector<ElementType>& CodeInSparseColVector);
 
 
 private:

@@ -72,14 +72,14 @@ bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::CheckInput()
 
 
 template<typename ElementType>
-void bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::Preprocess()
+bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::Preprocess()
 {
     return this->UpdateParameterForKNNReconstruction();
 }
 
 
 template<typename ElementType>
-void bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::UpdateParameterForKNNReconstruction()
+bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::UpdateParameterForKNNReconstruction()
 {
     m_ReconstructionEncoder.m_Parameter.NeighbourNumber = m_Parameter.NeighbourNumber;
     m_ReconstructionEncoder.m_Parameter.DistanceTypeForKNNSearch = m_Parameter.DistanceTypeForKNNSearch;
@@ -90,19 +90,21 @@ void bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::UpdateParame
     {
         return false;
     }
+
+    return true;
 }
 
 
 template<typename ElementType>
 inline
 void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
-                                                                                SparseMatrix<ElementType>& CodeInSparseColVector)
+                                                                                SparseVector<ElementType>& CodeInSparseColVector)
 {
     m_ReconstructionEncoder.EncodingFunction(DataColVector, CodeInSparseColVector);
 
-    const std::vector<int_max>& NeighbourIndexList = CodeInSparseColVector.GetRowIndexList();
+    const std::vector<int_max>& NeighbourIndexList = CodeInSparseColVector.IndexList();
 
-    const std::vector<ElementType>& Alpha_v = CodeInSparseColVector.GetDataArray();
+    const std::vector<ElementType>& Alpha_v = CodeInSparseColVector.DataArray();
     DenseMatrix<ElementType> Alpha(const_cast<ElementType*>(Alpha_v.data()), m_Parameter.NeighbourNumber, 1);
 
     auto SubRecord = m_Dictionary->BasisMatrix().GetSubMatrix(ALL, NeighbourIndexList);
@@ -152,16 +154,23 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
     }
 
     // normalize (sum to 1) ???
-    Membership /= Membership.L1Norm();
+    auto eps_value = EPS<ElementType>();
+    auto L1Norm_value = Membership.L1Norm();
+    if (L1Norm_value > eps_value)
+    {
+        Membership /= L1Norm_value;
+    }
 
     // update Membership based on reconstruction error
 
     // first: get the max StandardDeviation in the neighborhood
-    ElementType s_max = 0;
+    auto s_max = ElementType(0);
 
     for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
     {
-        s_max = std::max(s_max, m_Dictionary->m_StandardDeviation[NeighbourIndexList[i]]);
+        auto s_temp = m_Dictionary->m_StandardDeviation[NeighbourIndexList[i]];
+
+        s_max = (std::max)(s_max, s_temp); // std::max(s_max, s_temp) can not be compiled
     }
     // second: compute ReconstructionScore in [0, 1]
     auto ReconstructionScore = std::exp(ElementType(-0.5)*(ReconstructionErrorL2Norm *ReconstructionErrorL2Norm) / (s_max*s_max));
@@ -224,7 +233,7 @@ bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::Apply(SparseMatri
 
 
 template<typename ElementType>
-bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::Apply(DenseMatrix<SparseMatrix<ElementType>>& OutputCodeInSparseColVectorList,
+bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::Apply(DenseMatrix<SparseVector<ElementType>>& OutputCodeInSparseColVectorSet,
                                                                      const DenseMatrix<ElementType>* FeatureData,
                                                                      const FeatureDictionary<ElementType>* Dictionary,
                                                                      int_max NeighbourNumber,
@@ -238,7 +247,7 @@ bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::Apply(DenseMatrix
 
     Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
 
-    Encoder->SetOutputCodeInSparseColVectorList(&OutputCodeInSparseColVectorList);;
+    Encoder->SetOutputCodeInSparseColVectorSet(&OutputCodeInSparseColVectorSet);;
 
     Encoder->m_Parameter.NeighbourNumber = NeighbourNumber;
 

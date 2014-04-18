@@ -55,7 +55,7 @@ struct DenseMatrixData
         RowNumber = 0;
         ColNumber = 0;
         ElementPointer = nullptr;
-        NaNElement = GetMatrixNaNElement(NaNElement); // zero if int
+        NaNElement = GetNaNElement(NaNElement); // zero if int
         IsSizeFixed = false;
     };
 
@@ -323,6 +323,8 @@ public:
     inline bool FastResize(int_max InputElementNumber); // do not care about old data, can not use this to resize a m x n matrix (m>1 or n>1)
 
     inline bool ReserveCapacity(int_max InputElementNumber); // reserve memory, current matrix size does not change
+
+    inline void Squeeze();
 
     inline void FixSize();
     

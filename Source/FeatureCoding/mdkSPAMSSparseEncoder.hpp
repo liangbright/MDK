@@ -56,15 +56,15 @@ void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFe
 {
     auto tempFeatureData = m_FeatureData->GetSubMatrix(ALL, span(IndexOfFeatureVector_start, IndexOfFeatureVector_end));
 
-    auto CodeLength = m_Dictionary->m_Record.GetColNumber();
+    auto CodeLength = m_Dictionary->BasisMatrix().GetColNumber();
 
     spams::Matrix<ElementType> X(const_cast<ElementType*>(tempFeatureData.GetElementPointer()),
                                  tempFeatureData.GetRowNumber(), 
                                  tempFeatureData.GetColNumber());
 
-    spams::Matrix<ElementType> D(const_cast<ElementType*>(m_Dictionary->m_Record.GetElementPointer()),
-                                 m_Dictionary->m_Record.GetRowNumber(),
-                                 m_Dictionary->m_Record.GetColNumber());
+    spams::Matrix<ElementType> D(const_cast<ElementType*>(m_Dictionary->BasisMatrix().GetElementPointer()),
+                                 m_Dictionary->BasisMatrix().GetRowNumber(),
+                                 m_Dictionary->BasisMatrix().GetColNumber());
 
     spams::SpMatrix<ElementType> alpha;
 
@@ -86,8 +86,8 @@ void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFe
         auto lambda = m_Parameter_Lasso.lambda;
         auto lambda2 = m_Parameter_Lasso.lambda2;
 
-        int n = m_Dictionary->m_Record.GetRowNumber();
-        int K = m_Dictionary->m_Record.GetColNumber();
+        int n = m_Dictionary->BasisMatrix().GetRowNumber();
+        int K = m_Dictionary->BasisMatrix().GetColNumber();
 
         int L;
         if (m_Parameter_Lasso.L > 0)
@@ -135,7 +135,7 @@ void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFe
 
         std::vector<ElementType> DataArray(tempS.rawX(), tempS.rawX() + int_max(tempS.nzmax()));
 
-        (*m_CodeInSparseColVectorList)[i].ConstructColVectorWithOrder(std::move(RowIndexList), std::move(DataArray), CodeLength);
+        (*m_CodeInSparseColVectorSet)[i].ConstructWithOrder(std::move(RowIndexList), std::move(DataArray), CodeLength);
     }
 }
 
@@ -143,7 +143,7 @@ void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFe
 template<typename ElementType>
 inline
 void SPAMSSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
-                                                       SparseMatrix<ElementType>& CodeInSparseColVector)
+                                                       SparseVector<ElementType>& CodeInSparseColVector)
 {
     MDK_Error("This function is not implemented @ SPAMSSparseEncoder::EncodingFunction(...)")
 }
