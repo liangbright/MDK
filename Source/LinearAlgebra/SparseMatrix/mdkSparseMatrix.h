@@ -55,8 +55,6 @@ struct SparseMatrixDataInCSCFormat
 
     ElementType m_ZeroElement;
 
-    ElementType m_Threshold; // if abs(x) <= m_Threshold, then x is zero
-
     ElementType m_NaNElement;
 
     bool m_IsSizeFixed;
@@ -86,19 +84,19 @@ struct SparseMatrixDataInCSCFormat
                                    int_max RecordedElementNumber,
                                    int_max InputColNumber);
 
-    inline void ConstructWithOrder(std::vector<int_max> InputRowIndexList,
-                                   std::vector<int_max> InputColIndexList,
-                                   std::vector<ElementType> InputDataArray,
-                                   int_max InputRowNumber,
-                                   int_max InputColNumber);
+    inline void ConstructFromSortedData(std::vector<int_max> InputRowIndexList,
+                                        std::vector<int_max> InputColIndexList,
+                                        std::vector<ElementType> InputDataArray,
+                                        int_max InputRowNumber,
+                                        int_max InputColNumber);
 
-    inline void ConstructColVectorWithOrder(std::vector<int_max> InputRowIndexList,
-                                            std::vector<ElementType> InputDataArray,
-                                            int_max InputRowNumber);
+    inline void ConstructColVectorFromSortedData(std::vector<int_max> InputRowIndexList,
+                                                 std::vector<ElementType> InputDataArray,
+                                                 int_max InputRowNumber);
 
-    inline void ConstructRowVectorWithOrder(std::vector<int_max> InputColIndexList,
-                                            std::vector<ElementType> InputDataArray,
-                                            int_max InputColNumber);
+    inline void ConstructRowVectorFromSortedData(std::vector<int_max> InputColIndexList,
+                                                 std::vector<ElementType> InputDataArray,
+                                                 int_max InputColNumber);
 
     //---------------------------------------------------------------------
 
@@ -252,11 +250,11 @@ public:
                           int_max ColNumber,
                           int_max AdditionalReservedCapacity = 0);
 
-    inline void ConstructWithOrder(const std::vector<int_max>& RowIndexList,
-                                   const std::vector<int_max>& ColIndexList,
-                                   const std::vector<ElementType>& DataArray,
-                                   int_max RowNumber,
-                                   int_max ColNumber);
+    inline void ConstructFromSortedData(const std::vector<int_max>& RowIndexList,
+                                        const std::vector<int_max>& ColIndexList,
+                                        const std::vector<ElementType>& DataArray,
+                                        int_max RowNumber,
+                                        int_max ColNumber);
 
     inline bool ConstructColVector(const std::initializer_list<int_max>& RowIndexList,
                                    const std::vector<ElementType>& DataArray,
@@ -272,9 +270,9 @@ public:
                                    int_max RowNumber);
 
 
-    inline void ConstructColVectorWithOrder(std::vector<int_max> RowIndexList,
-                                            std::vector<ElementType> DataArray,
-                                            int_max RowNumber);
+    inline void ConstructColVectorFromSortedData(std::vector<int_max> RowIndexList,
+                                                 std::vector<ElementType> DataArray,
+                                                 int_max RowNumber);
 
     inline bool ConstructRowVector(const std::initializer_list<int_max>& ColIndexList,
                                    const std::vector<ElementType>& DataArray,

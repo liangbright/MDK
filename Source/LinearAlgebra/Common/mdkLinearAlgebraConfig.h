@@ -9,13 +9,13 @@ namespace mdk
 
     #define  MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound
 
-    #define  MDK_DEBUG_SparseMatrix_Operator_CheckBound
-
-    #define  MDK_DEBUG_SparseShadowMatrix_Operator_CheckBound
-
     #define  MDK_DEBUG_DenseVectorWithFixedSize_Operator_CheckBound
 
     #define  MDK_DEBUG_DenseVectorWithVariableSize_Operator_CheckBound
+
+    #define  MDK_DEBUG_SparseMatrix_Operator_CheckBound
+
+    #define  MDK_DEBUG_SparseShadowMatrix_Operator_CheckBound
 
 #endif
 

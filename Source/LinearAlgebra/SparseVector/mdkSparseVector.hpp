@@ -149,7 +149,7 @@ bool SparseVector<ElementType>::Construct(const int_max* IndexList,
 
 template<typename ElementType>
 inline
-void SparseVector<ElementType>::ConstructWithOrder(std::vector<int_max> IndexList, std::vector<ElementType> InputDataArray, int_max Length)
+void SparseVector<ElementType>::ConstructFromSortedData(std::vector<int_max> IndexList, std::vector<ElementType> InputDataArray, int_max Length)
 {
     m_Length = Length;
 

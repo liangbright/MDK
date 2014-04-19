@@ -1423,6 +1423,42 @@ bool DenseMatrix<ElementType>::IsSquare() const
 
 
 template<typename ElementType>
+inline 
+bool DenseMatrix<ElementType>::IsIdentityMatrix(ElementType Threshold) const
+{
+    if (this->IsSquare() == false)
+    {
+        return false;
+    }
+
+    auto Value_sum = this->Sum();
+
+    if (std::abs(Value_sum - SelfSize.RowNumber) > Threshold)
+    {
+        return false;
+    }
+
+    auto RawPointer this->GetElementPointer();
+
+    int_max Index = 0;
+
+    for (int_max i = 0; i < SelfSize.RowNumber; ++i)
+    {
+        auto DiangonalElement_j = RawPointer[Index + i];
+
+        if (std::abs(DiangonalElement_j - ElementType(1)) > Threshold) // must use ">" becuause ElementType may be int and Threshold is 0
+        {
+            return false;
+        }
+
+        Index += SelfSize.RowNumber;
+    }
+
+    return true;
+}
+
+
+template<typename ElementType>
 inline
 const ElementType& DenseMatrix<ElementType>::GetNaNElement()  const
 {

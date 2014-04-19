@@ -220,7 +220,7 @@ void SparseMatrixDataInCSCFormat<ElementType>::ConstructColVector(const int_max*
         DataArray_sort[i] = InputDataArray[ReletiveIndexList_sort[i]];
     }
 
-    this->ConstructColVectorWithOrder(std::move(RowIndexList_sort), std::move(DataArray_sort), InputRowNumber);
+    this->ConstructColVectorFromSortedData(std::move(RowIndexList_sort), std::move(DataArray_sort), InputRowNumber);
 }
 
 
@@ -244,17 +244,17 @@ void SparseMatrixDataInCSCFormat<ElementType>::ConstructRowVector(const int_max*
         DataArray_sort[i] = InputDataArray[ReletiveIndexList_sort[i]];
     }
 
-    this->ConstructRowVectorWithOrder(std::move(ColIndexList_sort), std::move(DataArray_sort), InputColNumber);
+    this->ConstructRowVectorFromSortedData(std::move(ColIndexList_sort), std::move(DataArray_sort), InputColNumber);
 }
 
 
 template<typename ElementType>
 inline
-void SparseMatrixDataInCSCFormat<ElementType>::ConstructWithOrder(std::vector<int_max> InputRowIndexList,
-                                                                  std::vector<int_max> InputColIndexList,
-                                                                  std::vector<ElementType> InputDataArray,
-                                                                  int_max InputRowNumber,
-                                                                  int_max InputColNumber)
+void SparseMatrixDataInCSCFormat<ElementType>::ConstructFromSortedData(std::vector<int_max> InputRowIndexList,
+                                                                       std::vector<int_max> InputColIndexList,
+                                                                       std::vector<ElementType> InputDataArray,
+                                                                       int_max InputRowNumber,
+                                                                       int_max InputColNumber)
 {
     //--------------------------------------------------------------
 
@@ -313,9 +313,9 @@ void SparseMatrixDataInCSCFormat<ElementType>::ConstructWithOrder(std::vector<in
 
 template<typename ElementType>
 inline 
-void SparseMatrixDataInCSCFormat<ElementType>::ConstructColVectorWithOrder(std::vector<int_max> InputRowIndexList,
-                                                                           std::vector<ElementType> InputDataArray,
-                                                                           int_max InputRowNumber)
+void SparseMatrixDataInCSCFormat<ElementType>::ConstructColVectorFromSortedData(std::vector<int_max> InputRowIndexList,
+                                                                                std::vector<ElementType> InputDataArray,
+                                                                                int_max InputRowNumber)
 {
     //--------------------------------------------------------------
 
@@ -349,9 +349,9 @@ void SparseMatrixDataInCSCFormat<ElementType>::ConstructColVectorWithOrder(std::
 
 template<typename ElementType>
 inline
-void SparseMatrixDataInCSCFormat<ElementType>::ConstructRowVectorWithOrder(std::vector<int_max> InputColIndexList,
-                                                                           std::vector<ElementType> InputDataArray,
-                                                                           int_max InputColNumber)
+void SparseMatrixDataInCSCFormat<ElementType>::ConstructRowVectorFromSortedData(std::vector<int_max> InputColIndexList,
+                                                                                std::vector<ElementType> InputDataArray,
+                                                                                int_max InputColNumber)
 {
     //--------------------------------------------------------------
 
@@ -417,8 +417,6 @@ void SparseMatrixDataInCSCFormat<ElementType>::Clear()
     m_DataArray.clear();
 
     m_ZeroElement = ElementType(0);
-
-    m_Threshold = ElementType(0);
 
     m_NaNElement = GetNaNElement(m_NaNElement); // zero if int
 
@@ -1192,13 +1190,13 @@ bool SparseMatrix<ElementType>::Construct(const int_max* RowIndexList,
 
 template<typename ElementType>
 inline
-void SparseMatrix<ElementType>::ConstructWithOrder(const std::vector<int_max>& RowIndexList,
-                                                   const std::vector<int_max>& ColIndexList,
-                                                   const std::vector<ElementType>& DataArray,
-                                                   int_max RowNumber,
-                                                   int_max ColNumber)
+void SparseMatrix<ElementType>::ConstructFromSortedData(const std::vector<int_max>& RowIndexList,
+                                                        const std::vector<int_max>& ColIndexList,
+                                                        const std::vector<ElementType>& DataArray,
+                                                        int_max RowNumber,
+                                                        int_max ColNumber)
 {
-    m_MatrixData->ConstructWithOrder(std::move(RowIndexList), std::move(ColIndexList), std::move(DataArray), RowNumber, ColNumber);
+    m_MatrixData->ConstructFromSortedData(std::move(RowIndexList), std::move(ColIndexList), std::move(DataArray), RowNumber, ColNumber);
 }
 
 
@@ -1258,11 +1256,11 @@ bool SparseMatrix<ElementType>::ConstructColVector(const DenseMatrix<int_max>& R
 
 template<typename ElementType>
 inline 
-void SparseMatrix<ElementType>::ConstructColVectorWithOrder(std::vector<int_max> RowIndexList,
-                                                            std::vector<ElementType> DataArray,
-                                                            int_max RowNumber)
+void SparseMatrix<ElementType>::ConstructColVectorFromSortedData(std::vector<int_max> RowIndexList,
+                                                                 std::vector<ElementType> DataArray,
+                                                                 int_max RowNumber)
 {
-    m_MatrixData->ConstructColVectorWithOrder(std::move(RowIndexList), std::move(DataArray), RowNumber);
+    m_MatrixData->ConstructColVectorFromSortedData(std::move(RowIndexList), std::move(DataArray), RowNumber);
 }
 
 
@@ -1358,7 +1356,7 @@ bool SparseMatrix<ElementType>::ConstructFromSparseColVectorSetInOrder(const std
         }
     }
 
-    m_MatrixData->ConstructWithOrder(std::move(RowIndexList), std::move(ColIndexList), std::move(DataArray), RowNumber, ColNumber);
+    m_MatrixData->ConstructFromSortedData(std::move(RowIndexList), std::move(ColIndexList), std::move(DataArray), RowNumber, ColNumber);
 
     return true;
 }
@@ -1402,7 +1400,7 @@ bool SparseMatrix<ElementType>::ConstructFromSparseColVectorSetInOrder(const Den
         }
     }
 
-    m_MatrixData->ConstructWithOrder(std::move(RowIndexList), std::move(ColIndexList), std::move(DataArray), RowNumber, ColNumber);
+    m_MatrixData->ConstructFromSortedData(std::move(RowIndexList), std::move(ColIndexList), std::move(DataArray), RowNumber, ColNumber);
 
     return true;
 }
@@ -1446,7 +1444,7 @@ bool SparseMatrix<ElementType>::ConstructFromSparseColVectorSetInOrder(const Dat
         }
     }
 
-    m_MatrixData->ConstructWithOrder(std::move(RowIndexList), std::move(ColIndexList), std::move(DataArray), RowNumber, ColNumber);
+    m_MatrixData->ConstructFromSortedData(std::move(RowIndexList), std::move(ColIndexList), std::move(DataArray), RowNumber, ColNumber);
 
     return true;
 }

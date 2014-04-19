@@ -8,6 +8,7 @@
 #include <functional>
 #include <cmath>
 #include <algorithm>
+#include <limits> 
 
 #include "mdkObject.h"
 #include "mdkLinearAlgebraConfig.h"
@@ -351,6 +352,8 @@ public:
     inline bool IsColVector() const;
 
     inline bool IsSquare() const;
+
+    inline bool IsIdentityMatrix(ElementType Threshold = ElementType(0)) const;
 
     //------------------------ NaN Element -----------------------------//
 

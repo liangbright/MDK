@@ -62,7 +62,7 @@ public:
                           int_max RecordedElementNumber,
                           int_max Length);
 
-    inline void ConstructWithOrder(std::vector<int_max> IndexList, std::vector<ElementType> DataArray, int_max Length);
+    inline void ConstructFromSortedData(std::vector<int_max> IndexList, std::vector<ElementType> DataArray, int_max Length);
 
     inline void operator=(const SparseVector& InputVector);
 

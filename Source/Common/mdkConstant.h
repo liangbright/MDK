@@ -1,17 +1,14 @@
 #ifndef __mdkConstant_h
 #define __mdkConstant_h
 
+#include <limits>
+
+
 #include "mdkDebugConfig.h"
+
 
 namespace mdk
 {
-
-template<typename ScalarType>
-inline ScalarType EPS(const ScalarType& ReferenceScalar);
-
-template<typename ScalarType>
-inline ScalarType EPS();
-
 
 template<typename ElementType>
 inline

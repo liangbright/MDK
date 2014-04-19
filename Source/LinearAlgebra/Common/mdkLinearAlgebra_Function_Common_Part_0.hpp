@@ -1,8 +1,6 @@
 #ifndef __mdkLinearAlgebra_Function_Common_Part_0_hpp
 #define __mdkLinearAlgebra_Function_Common_Part_0_hpp
 
-//#include "mdkLinearAlgebra_Function_Common_Part_0.h"
-
 
 namespace mdk
 {
@@ -28,9 +26,17 @@ bool ConvertSparseMatrixToDenseMatrix(const SparseMatrix<ElementType>& InputSpar
         return false;
     }
 
-    for (int_max k = 0; k < Size.ColNumber*Size.RowNumber; ++k)
+    const std::vector<int_max>& ColIndexList = InputSparseMatrix.GetColIndexList();
+
+    const std::vector<int_max>& RowIndexList = InputSparseMatrix.GetRowIndexList();
+
+    const std::vector<ElementType>& DataArray = InputSparseMatrix.GetDataArray();
+
+    OutputDenseMatrix.Fill(ElementType(0));
+
+    for (int_max k = 0; k < int_max(DataArray.size()); ++k)
     {
-        OutputDenseMatrix[k] = InputSparseMatrix.GetElement(k);
+        OutputDenseMatrix(RowIndexList[k], ColIndexList[k]) = DataArray[k];
     }
 
     return true;
@@ -52,6 +58,29 @@ inline
 bool ConvertDenseMatrixToSparseMatrix(const DenseMatrix<ElementType>& InputDenseMatrix, ElementType absThreashold,
                                       SparseMatrix<ElementType>& OutputSparseMatrix )
 {
+    auto Size = InputDenseMatrix.GetSize();
+
+    std::vector<int_max> ColIndexList;
+    std::vector<int_max> RowIndexList;
+    std::vector<ElementType> DataArray;
+
+    for (int_max j = 0; j < Size.ColNumber; ++j)
+    {
+        auto LinearIndex = j*Size.RowNumber + i;
+
+        for (int_max i = 0; i < Size.RowNumber; ++i)
+        {
+            if (std::abs(InputDenseMatrix[LinearIndex]) > absThreashold) // must use " > " because absThreashold may be 0 (e.g., ElementType is int)
+            {
+                ColIndexList.push_back(j);
+                RowIndexList.push_back(i);
+                DataArray.push_back(InputDenseMatrix[LinearIndex]);
+            }
+        }
+    }
+
+    OutputSparseMatrix.ConstructFromSortedData(std::move(RowIndexList), std::move(ColIndexList), std::move(DataArray), Size.RowNumber, Size.ColNumber);
+
     return true;
 }
 
