@@ -142,6 +142,8 @@ public:
 
     inline DenseMatrix(const Pure_Empty_Matrix_Symbol&);
 
+    inline DenseMatrix(const Empty_Matrix_Symbol&);
+
     inline DenseMatrix(int_max RowNumber, int_max ColNumber);
 
     inline DenseMatrix(const std::initializer_list<ElementType>& InputList);

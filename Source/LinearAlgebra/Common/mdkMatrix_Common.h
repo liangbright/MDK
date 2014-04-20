@@ -87,7 +87,7 @@ inline std::vector<int_max> span(int_max Index_A, int_max Index_B);
 inline std::vector<int_max> span(int_max Index_A, int_max Step, int_max Index_B);
 
 
-//------------------------------- Empty_Matrix_Symbol to Construct empty Matrix with/without memory allocation ----------------------------------------//
+//------------------------------- Pure_Empty_Matrix_Symbol to Construct empty Matrix without creating shared_ptr m_MatrixData ------------------------//
 
 struct InputStruct_For_Pure_Empty_Matrix_Symbol
 {
@@ -119,19 +119,55 @@ static InputStruct_For_Pure_Empty_Matrix_Symbol This_Is_InputStruct_For_Pure_Emp
 static Pure_Empty_Matrix_Symbol This_Pure_Empty_Matrix_Symbol(This_Is_InputStruct_For_Pure_Empty_Matrix_Symbol);
 
 #define MDK_PURE_EMPTY_MATRIX This_Pure_Empty_Matrix_Symbol
+
+//------------------------------- Empty_Matrix_Symbol to Construct empty Matrix with a shared_ptr m_MatrixData ------------------------//
+
+struct InputStruct_For_Empty_Matrix_Symbol
+{
+    std::string Name = "InputStruct_For_Empty_Matrix_Symbol";
+};
+
+struct Empty_Matrix_Symbol
+{
+    Empty_Matrix_Symbol(const InputStruct_For_Empty_Matrix_Symbol& InputStruct)
+    {
+        if (InputStruct.Name != "InputStruct_For_Empty_Matrix_Symbol")
+        {
+            MDK_Error("Symbol error @ Empty_Matrix_Symbol")
+        }
+    }
+
+    ~Empty_Matrix_Symbol() {}
+
+    // deleted:
+    Empty_Matrix_Symbol() = delete;
+    Empty_Matrix_Symbol(const Empty_Matrix_Symbol&) = delete;
+    Empty_Matrix_Symbol(Empty_Matrix_Symbol&&) = delete;
+    void operator=(const Empty_Matrix_Symbol&) = delete;
+    void operator=(Empty_Matrix_Symbol&&) = delete;
+};
+
+static InputStruct_For_Empty_Matrix_Symbol This_Is_InputStruct_For_Empty_Matrix_Symbol;
+
+static Empty_Matrix_Symbol This_Empty_Matrix_Symbol(This_Is_InputStruct_For_Empty_Matrix_Symbol);
+
+#define MDK_EMPTY_MATRIX This_Empty_Matrix_Symbol
+
 //----------------------------------------------------------------------------------------------------------------------------//
-
-template<typename ElementType>
-inline
-MatrixElementTypeEnum FindMatrixElementType(ElementType Element);
-
-//------------------------------------------------------------//
 
 template<typename ElementType>
 class DenseMatrix;
 
 template<typename ElementType>
 class SparseMatrix;
+
+//------------------------------------------------------------//
+
+template<typename ElementType>
+inline
+MatrixElementTypeEnum FindMatrixElementType(ElementType Element);
+
+//------------------------------------------------------------//
 
 template<typename ElementType>
 void DisplayMatrix(const std::string& Name, const DenseMatrix<ElementType>& InputMatrix, int_max precision = 0, bool Flag_scientific = false);

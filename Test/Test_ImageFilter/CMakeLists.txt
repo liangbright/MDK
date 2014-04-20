@@ -16,11 +16,11 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ K
 
 PROJECT(MDK_Test_ImageFilter)
 
-set(VTK_DIR C:/Programs/VTK/VTK_6.1_VC2013_Build)
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
+find_package(ITK REQUIRED)
+include(${ITK_USE_FILE})
 
-find_package(Qt5Widgets)
+set(CMAKE_AUTOMOC ON)
+find_package(Qt5Widgets REQUIRED QUIET)
 
 set(MDK_DIR "C:/Research/MDK/MDK/Source")
 
@@ -62,4 +62,6 @@ message(STATUS ${Arma_FILES})
 
 add_executable(MDK_Test_ImageFilter ${Test_FILES} ${MDK_CPP_FILES})
 
-target_link_libraries(MDK_Test_ImageFilter ${LinearALgebraLib_win64} ${VTK_LIBRARIES}) 
+qt5_use_modules(MDK_Test_ImageFilter Core)
+
+target_link_libraries(MDK_Test_ImageFilter ${LinearALgebraLib_win64} ${ITK_LIBRARIES}) 

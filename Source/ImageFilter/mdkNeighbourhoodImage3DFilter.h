@@ -1,15 +1,15 @@
-﻿#ifndef __mdkNeighbourhoodImageFilter_h
-#define __mdkNeighbourhoodImageFilter_h
+﻿#ifndef __mdkNeighbourhoodImage3DFilter_h
+#define __mdkNeighbourhoodImage3DFilter_h
 
 
-#include "mdkImageFilter.h"
+#include "mdkImage3DFilter.h"
 
 
 namespace mdk
 {
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-class NeighbourhoodImageFilter : public ImageFilter<VoxelType_Input, VoxelType_Output>
+template<typename PixelType_Input, typename PixelType_Output>
+class NeighbourhoodImage3DFilter : public Image3DFilter<PixelType_Input, PixelType_Output>
 {
 
 protected:
@@ -35,21 +35,21 @@ protected:
     //
     // w is the coefficient at (dx, dy, dz)
 
-    std::vector<ImageBoxRegionOf3DIndex>    m_NOBoundCheckRegionList_3DIndex;
+    std::vector<Image3DBoxRegionOf3DIndex>            m_NOBoundCheckRegionList_3DIndex;
 
-    std::vector<ImageBoxRegionOf3DPosition> m_NOBoundCheckRegionList_3DPosition;
+    std::vector<Image3DBoxRegionOf3DPhysicalPosition> m_NOBoundCheckRegionList_3DPosition;
 
-    ImageDimension      m_InputImageDimension;
+    Image3DSize      m_InputImageSize;
 
-    ImagePhysicalSize   m_InputImagePhysicalSize;
+    Image3DPhysicalSize   m_InputImagePhysicalSize;
 
-    ImagePhysicalOrigin m_InputImagePhysicalOrigin;
+    Image3DPhysicalOrigin m_InputImagePhysicalOrigin;
 
-    ImageVoxelSpacing   m_InputVoxelPhysicalSize;
+    Image3DPixelSpacing   m_InputImagePixelSpacing;
 
 protected:		
-	NeighbourhoodImageFilter();
-	virtual ~NeighbourhoodImageFilter();
+	NeighbourhoodImage3DFilter();
+	virtual ~NeighbourhoodImage3DFilter();
  
 public:
 	bool LoadMask(const std::string& FilePathAndName);
@@ -84,13 +84,13 @@ protected:
     virtual bool Preprocess();
 
 private:
-	NeighbourhoodImageFilter(const NeighbourhoodImageFilter&); // Not implemented.
-	void operator=(const NeighbourhoodImageFilter&);   // Not implemented.
+	NeighbourhoodImage3DFilter(const NeighbourhoodImage3DFilter&); // Not implemented.
+	void operator=(const NeighbourhoodImage3DFilter&);   // Not implemented.
 };
 
 }//end namespace mdk
 
 
-#include "mdkNeighbourhoodImageFilter.hpp"
+#include "mdkNeighbourhoodImage3DFilter.hpp"
 
 #endif

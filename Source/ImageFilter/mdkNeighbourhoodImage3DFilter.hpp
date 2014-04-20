@@ -1,44 +1,44 @@
-#ifndef __mdkNeighbourhoodImageFilter_hpp
-#define __mdkNeighbourhoodImageFilter_hpp
+#ifndef __mdkNeighbourhoodImage3DFilter_hpp
+#define __mdkNeighbourhoodImage3DFilter_hpp
 
 #include <thread>
 #include <algorithm>
 
-#include "mdkNeighbourhoodImageFilter.h"
+#include "mdkNeighbourhoodImage3DFilter.h"
 #include "mdkDebugConfig.h"
 
 namespace mdk
 {
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::NeighbourhoodImageFilter()
+template<typename PixelType_Input, typename PixelType_Output>
+NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::NeighbourhoodImage3DFilter()
 {
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::~NeighbourhoodImageFilter()
+template<typename PixelType_Input, typename PixelType_Output>
+NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::~NeighbourhoodImage3DFilter()
 {
 	// do nothing
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::SetMaskOf3DIndex(const std::vector<DenseMatrix<double>>& MaskList)
+template<typename PixelType_Input, typename PixelType_Output>
+void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::SetMaskOf3DIndex(const std::vector<DenseMatrix<double>>& MaskList)
 {
     m_MaskList_3DIndex = MaskList;
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::SetMaskOf3DPosition(const std::vector<DenseMatrix<double>>& MaskList)
+template<typename PixelType_Input, typename PixelType_Output>
+void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::SetMaskOf3DPosition(const std::vector<DenseMatrix<double>>& MaskList)
 {
     m_MaskList_3DPosition = MaskList;
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::SetMaskOf3DIndex(const DenseMatrix<double>& Mask)
+template<typename PixelType_Input, typename PixelType_Output>
+void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::SetMaskOf3DIndex(const DenseMatrix<double>& Mask)
 {
     m_MaskList_3DIndex.resize(1);
 
@@ -46,8 +46,8 @@ void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::SetMaskOf3DInd
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::SetMaskOf3DPosition(const DenseMatrix<double>& Mask)
+template<typename PixelType_Input, typename PixelType_Output>
+void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::SetMaskOf3DPosition(const DenseMatrix<double>& Mask)
 {
     m_MaskList_3DPosition.resize(1);
 
@@ -55,23 +55,23 @@ void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::SetMaskOf3DPos
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-bool NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::LoadMask(const std::string& FilePathAndName)
+template<typename PixelType_Input, typename PixelType_Output>
+bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::LoadMask(const std::string& FilePathAndName)
 {
 
     return true;
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-bool NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::SaveMask(const std::string& FilePathAndName)
+template<typename PixelType_Input, typename PixelType_Output>
+bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::SaveMask(const std::string& FilePathAndName)
 {
     return true;
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::ComputeRegionOfNOBoundCheck_3DIndex()
+template<typename PixelType_Input, typename PixelType_Output>
+void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::ComputeRegionOfNOBoundCheck_3DIndex()
 {
     auto Length = int_max(m_MaskList_3DIndex.size());
 
@@ -131,30 +131,30 @@ void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::ComputeRegionO
             }
         }
 
-        if (MaxDistance_x[0] + MaxDistance_x[1] + 1 + 2*SafeDistance < m_InputImageDimension.Lx
-            && MaxDistance_y[0] + MaxDistance_y[1] + 1 + 2*SafeDistance < m_InputImageDimension.Ly
-            && MaxDistance_z[0] + MaxDistance_z[1] + 1 + 2*SafeDistance < m_InputImageDimension.Lz)
+        if (MaxDistance_x[0] + MaxDistance_x[1] + 1 + 2*SafeDistance < m_InputImageSize.Lx
+            && MaxDistance_y[0] + MaxDistance_y[1] + 1 + 2*SafeDistance < m_InputImageSize.Ly
+            && MaxDistance_z[0] + MaxDistance_z[1] + 1 + 2*SafeDistance < m_InputImageSize.Lz)
         {
             m_NOBoundCheckRegionList_3DIndex[i].IsEmpty = false;
 
-            m_NOBoundCheckRegionList_3DIndex[i].x0_Index = MaxDistance_x[0] + SafeDistance;
+            m_NOBoundCheckRegionList_3DIndex[i].x0 = MaxDistance_x[0] + SafeDistance;
 
-            m_NOBoundCheckRegionList_3DIndex[i].x1_Index = m_InputImageDimension.Lx - 1 - MaxDistance_x[1] - SafeDistance;
+            m_NOBoundCheckRegionList_3DIndex[i].x1 = m_InputImageSize.Lx - 1 - MaxDistance_x[1] - SafeDistance;
 
-            m_NOBoundCheckRegionList_3DIndex[i].y0_Index = MaxDistance_y[0] + SafeDistance;
+            m_NOBoundCheckRegionList_3DIndex[i].y0 = MaxDistance_y[0] + SafeDistance;
 
-            m_NOBoundCheckRegionList_3DIndex[i].y1_Index = m_InputImageDimension.Ly - 1 - MaxDistance_y[1] - SafeDistance;
+            m_NOBoundCheckRegionList_3DIndex[i].y1 = m_InputImageSize.Ly - 1 - MaxDistance_y[1] - SafeDistance;
 
-            m_NOBoundCheckRegionList_3DIndex[i].z0_Index = MaxDistance_z[0] + SafeDistance;
+            m_NOBoundCheckRegionList_3DIndex[i].z0 = MaxDistance_z[0] + SafeDistance;
 
-            m_NOBoundCheckRegionList_3DIndex[i].z1_Index = m_InputImageDimension.Lz - 1 - MaxDistance_z[1] - SafeDistance;
+            m_NOBoundCheckRegionList_3DIndex[i].z1 = m_InputImageSize.Lz - 1 - MaxDistance_z[1] - SafeDistance;
         }
     }
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::ComputeRegionOfNOBoundCheck_3DPosition()
+template<typename PixelType_Input, typename PixelType_Output>
+void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::ComputeRegionOfNOBoundCheck_3DPosition()
 {    
     auto Length = int_max(m_MaskList_3DPosition.size());
 
@@ -167,11 +167,11 @@ void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::ComputeRegionO
     m_NOBoundCheckRegionList_3DPosition.resize(Length);
 
 
-    auto SafeDistance_x = 2 * m_InputVoxelPhysicalSize.Sx;
+    auto SafeDistance_x = 2 * m_InputImagePixelSpacing.Sx;
 
-    auto SafeDistance_y = 2 * m_InputVoxelPhysicalSize.Sy;
+    auto SafeDistance_y = 2 * m_InputImagePixelSpacing.Sy;
 
-    auto SafeDistance_z = 2 * m_InputVoxelPhysicalSize.Sz;
+    auto SafeDistance_z = 2 * m_InputImagePixelSpacing.Sz;
 
     for (int_max i = 0; i < Length; ++i)
     {
@@ -219,49 +219,49 @@ void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::ComputeRegionO
             }
         }
 
-        if (MaxDistance_x[0] + MaxDistance_x[1] + 2 * SafeDistance_x < m_InputImagePhysicalSize.Sx
-            && MaxDistance_y[0] + MaxDistance_y[1] + 2 * SafeDistance_y < m_InputImagePhysicalSize.Sy
-            && MaxDistance_z[0] + MaxDistance_z[1] + 2 * SafeDistance_z < m_InputImagePhysicalSize.Sz)
+        if (MaxDistance_x[0] + MaxDistance_x[1] + 2 * SafeDistance_x < m_InputImagePhysicalSize.Lx
+            && MaxDistance_y[0] + MaxDistance_y[1] + 2 * SafeDistance_y < m_InputImagePhysicalSize.Ly
+            && MaxDistance_z[0] + MaxDistance_z[1] + 2 * SafeDistance_z < m_InputImagePhysicalSize.Lz)
         {
             m_NOBoundCheckRegionList_3DPosition[i].IsEmpty = false;
 
             m_NOBoundCheckRegionList_3DPosition[i].x0 = m_InputImagePhysicalOrigin.x + MaxDistance_x[0] + SafeDistance_x;
 
             m_NOBoundCheckRegionList_3DPosition[i].x0 = m_InputImagePhysicalOrigin.x 
-                                                        + m_InputImagePhysicalSize.Sx - MaxDistance_x[1] - SafeDistance_x;
+                                                        + m_InputImagePhysicalSize.Lx - MaxDistance_x[1] - SafeDistance_x;
           
             m_NOBoundCheckRegionList_3DPosition[i].y0 = m_InputImagePhysicalOrigin.y + MaxDistance_y[0] + SafeDistance_y;
 
             m_NOBoundCheckRegionList_3DPosition[i].y1 = m_InputImagePhysicalOrigin.y 
-                                                        + m_InputImageDimension.Ly - MaxDistance_y[1] - SafeDistance_y;
+                                                        + m_InputImagePhysicalSize.Ly - MaxDistance_y[1] - SafeDistance_y;
 
             m_NOBoundCheckRegionList_3DPosition[i].z0 = m_InputImagePhysicalOrigin.z + MaxDistance_z[0] + SafeDistance_z;
 
             m_NOBoundCheckRegionList_3DPosition[i].z1 = m_InputImagePhysicalOrigin.z
-                                                        + m_InputImageDimension.Lz - MaxDistance_z[1] - SafeDistance_z;
+                                                        + m_InputImagePhysicalSize.Lz - MaxDistance_z[1] - SafeDistance_z;
         }
     }
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-bool NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::IsMaskOf3DIndexEmpty()
+template<typename PixelType_Input, typename PixelType_Output>
+bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::IsMaskOf3DIndexEmpty()
 {    
     return (m_MaskList_3DIndex.size() == 0);
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-bool NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::IsMaskOf3DPositionEmpty()
+template<typename PixelType_Input, typename PixelType_Output>
+bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::IsMaskOf3DPositionEmpty()
 {
     return (m_MaskList_3DPosition.size() == 0);
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-bool NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
+template<typename PixelType_Input, typename PixelType_Output>
+bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::CheckInput()
 {
-    if (this->ImageFilter::CheckInput() == false)
+    if (this->Image3DFilter::CheckInput() == false)
     {
         return false;
     }
@@ -272,7 +272,7 @@ bool NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
 
         if (Length <= 0)
         {
-            MDK_Error("Empty MaskList_3DPosition @ NeighbourhoodImageFilter::CheckInput()")
+            MDK_Error("Empty MaskList_3DPosition @ NeighbourhoodImage3DFilter::CheckInput()")
             return false;
         }
 
@@ -280,7 +280,7 @@ bool NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
         {
             if (m_MaskList_3DPosition[i].IsEmpty() == true)
             {
-                MDK_Error("Empty MaskList_3DPosition @ NeighbourhoodImageFilter::CheckInput()")
+                MDK_Error("Empty MaskList_3DPosition @ NeighbourhoodImage3DFilter::CheckInput()")
                 return false;
             }
         }
@@ -291,7 +291,7 @@ bool NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
 
         if (Length <= 0)
         {
-            MDK_Error("Empty MaskList_3DIndex @ NeighbourhoodImageFilter::CheckInput()")
+            MDK_Error("Empty MaskList_3DIndex @ NeighbourhoodImage3DFilter::CheckInput()")
             return false;
         }
 
@@ -299,7 +299,7 @@ bool NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
         {
             if (m_MaskList_3DIndex[i].IsEmpty() == true)
             {
-                MDK_Error("Empty MaskList_3DIndex @ NeighbourhoodImageFilter::CheckInput()")
+                MDK_Error("Empty MaskList_3DIndex @ NeighbourhoodImage3DFilter::CheckInput()")
                 return false;
             }
         }
@@ -309,21 +309,21 @@ bool NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::CheckInput()
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-bool NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::Preprocess()
+template<typename PixelType_Input, typename PixelType_Output>
+bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::Preprocess()
 {
-    if (this->ImageFilter::Preprocess() == false)
+    if (this->Image3DFilter::Preprocess() == false)
     {
         return false;
     }
 
-    m_InputImageDimension = m_InputImage->GetDimension();
+    m_InputImageSize = m_InputImage->GetSize();
 
     m_InputImagePhysicalOrigin = m_InputImage->GetPhysicalOrigin();
 
     m_InputImagePhysicalSize = m_InputImage->GetPhysicalSize();
 
-    m_InputVoxelPhysicalSize = m_InputImage->GetVoxelSpacing();
+    m_InputImagePixelSpacing = m_InputImage->GetPixelSpacing();
 
     this->BuildMaskOf3DIndex();
 
@@ -337,10 +337,10 @@ bool NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::Preprocess()
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::Clear()
+template<typename PixelType_Input, typename PixelType_Output>
+void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::Clear()
 {
-    this->ImageFilter::Clear();
+    this->Image3DFilter::Clear();
 
     m_MaskList_3DIndex.clear();
 
@@ -350,33 +350,33 @@ void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::Clear()
 
     m_NOBoundCheckRegionList_3DPosition.clear();
 
-    m_InputImageDimension.Lx = 0;
-    m_InputImageDimension.Ly = 0;
-    m_InputImageDimension.Lz = 0;
+    m_InputImageSize.Lx = 0;
+    m_InputImageSize.Ly = 0;
+    m_InputImageSize.Lz = 0;
 
-    m_InputImagePhysicalSize.Sx = 0;
-    m_InputImagePhysicalSize.Sy = 0;
-    m_InputImagePhysicalSize.Sz = 0;
+    m_InputImagePhysicalSize.Lx = 0;
+    m_InputImagePhysicalSize.Ly = 0;
+    m_InputImagePhysicalSize.Lz = 0;
 
     m_InputImagePhysicalOrigin.x = 0;
     m_InputImagePhysicalOrigin.y = 0;
     m_InputImagePhysicalOrigin.z = 0;
 
-    m_InputVoxelPhysicalSize.Sx = 0;
-    m_InputVoxelPhysicalSize.Sy = 0;
-    m_InputVoxelPhysicalSize.Sz = 0;
+    m_InputImagePixelSpacing.Sx = 0;
+    m_InputImagePixelSpacing.Sy = 0;
+    m_InputImagePixelSpacing.Sz = 0;
 }
 
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DIndex()
+template<typename PixelType_Input, typename PixelType_Output>
+void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::BuildMaskOf3DIndex()
 {
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void NeighbourhoodImageFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DPosition()
+template<typename PixelType_Input, typename PixelType_Output>
+void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::BuildMaskOf3DPosition()
 {
 }
 

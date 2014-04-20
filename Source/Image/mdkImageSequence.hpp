@@ -1,18 +1,22 @@
-#include "mdk3DImageSequence.h"
+#ifndef __mdkImageSequence_hpp
+#define __mdkImageSequence_hpp
 
 namespace mdk
 {
 
-mdk3DImageSequence::mdk3DImageSequence()
+template<typename VoxelType>
+ImageSequence::ImageSequence()
 {
 
 }
 
-
-mdk3DImageSequence::~mdk3DImageSequence()
+template<typename VoxelType>
+ImageSequence::~ImageSequence()
 {
 
 }
 
 
 }//end namespace mdk
+
+#endif

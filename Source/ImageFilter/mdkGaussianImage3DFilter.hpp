@@ -1,25 +1,25 @@
-#ifndef __mdkGaussianImageFilter_hpp
-#define __mdkGaussianImageilter_hpp
+#ifndef __mdkGaussianImage3DFilter_hpp
+#define __mdkGaussianImage3DFilter_hpp
 
 
 namespace mdk
 {
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-GaussianImageFilter<VoxelType_Input, VoxelType_Output>::GaussianImageFilter()
+template<typename PixelType_Input, typename PixelType_Output>
+GaussianImage3DFilter<PixelType_Input, PixelType_Output>::GaussianImage3DFilter()
 {
     m_CutOffRatio = 3; // default: within 3 * std
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-GaussianImageFilter<VoxelType_Input, VoxelType_Output>::~GaussianImageFilter()
+template<typename PixelType_Input, typename PixelType_Output>
+GaussianImage3DFilter<PixelType_Input, PixelType_Output>::~GaussianImage3DFilter()
 {
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void GaussianImageFilter<VoxelType_Input, VoxelType_Output>::SetSigmaList(double Sx, double Sy, double Sz)
+template<typename PixelType_Input, typename PixelType_Output>
+void GaussianImage3DFilter<PixelType_Input, PixelType_Output>::SetSigmaList(double Sx, double Sy, double Sz)
 {
     m_SigmaList.Clear();
 
@@ -33,12 +33,12 @@ void GaussianImageFilter<VoxelType_Input, VoxelType_Output>::SetSigmaList(double
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void GaussianImageFilter<VoxelType_Input, VoxelType_Output>::SetRotationMatrix(const DenseMatrix<double>& RotationMatrix)
+template<typename PixelType_Input, typename PixelType_Output>
+void GaussianImage3DFilter<PixelType_Input, PixelType_Output>::SetRotationMatrix(const DenseMatrix<double>& RotationMatrix)
 {
     if (RotationMatrix.GetColNumber() != 3 || RotationMatrix.GetRowNumber() != 3)
     {
-        MDK_Error("RotationMatrix is invalid @ GaussianImageFilter::SetRotationMatrix")
+        MDK_Error("RotationMatrix is invalid @ GaussianImage3DFilter::SetRotationMatrix")
         return;
     }
 
@@ -46,12 +46,12 @@ void GaussianImageFilter<VoxelType_Input, VoxelType_Output>::SetRotationMatrix(c
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void GaussianImageFilter<VoxelType_Input, VoxelType_Output>::SetCutOffRatio(double CutOffRatio)
+template<typename PixelType_Input, typename PixelType_Output>
+void GaussianImage3DFilter<PixelType_Input, PixelType_Output>::SetCutOffRatio(double CutOffRatio)
 {
     if (CutOffRatio < 0.0)
     {
-        MDK_Error("CutOffRatio < 0.0 @ GaussianImageFilter::SetCutOffRatio")
+        MDK_Error("CutOffRatio < 0.0 @ GaussianImage3DFilter::SetCutOffRatio")
         return;
     }
 
@@ -59,8 +59,8 @@ void GaussianImageFilter<VoxelType_Input, VoxelType_Output>::SetCutOffRatio(doub
 }
 
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-void GaussianImageFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DIndex()
+template<typename PixelType_Input, typename PixelType_Output>
+void GaussianImage3DFilter<PixelType_Input, PixelType_Output>::BuildMaskOf3DIndex()
 {
     // check to see if the Mask has been loaded from somewhere else
     if (this->IsMaskOf3DIndexEmpty() == false)
@@ -70,7 +70,7 @@ void GaussianImageFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DIndex(
 
     if (m_SigmaList.IsEmpty() == true)
     {
-        MDK_Error("m_SigmaList is empty @ GaussianImageFilter::BuildMaskOf3DIndex")
+        MDK_Error("m_SigmaList is empty @ GaussianImage3DFilter::BuildMaskOf3DIndex")
         return;
     }
 
@@ -86,7 +86,7 @@ void GaussianImageFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DIndex(
     {
         if (m_RotationMatrix.GetColNumber() != 3 || m_RotationMatrix.GetRowNumber() != 3)
         {
-            MDK_Error("m_RotationMatrix is invalid @ GaussianImageFilter::BuildMaskOf3DIndex")
+            MDK_Error("m_RotationMatrix is invalid @ GaussianImage3DFilter::BuildMaskOf3DIndex")
             return;
         }
 
@@ -136,9 +136,9 @@ void GaussianImageFilter<VoxelType_Input, VoxelType_Output>::BuildMaskOf3DIndex(
 
     // ----------- normalize coefficient in Mask ---------
 
-    auto tempSumCol = Mask.SumToCol();
+    auto tempRow = Mask.GetRow(3);
 
-    auto tempSum = tempSumCol(3);
+    auto tempSum = tempRow.Sum();
 
     Mask.Row(3) /= tempSum;
 

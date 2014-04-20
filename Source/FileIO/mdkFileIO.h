@@ -4,9 +4,10 @@
 #include <string>
 
 
-#include <vtkSmartPointer.h>
-#include <vtkDICOMImageReader.h>
-#include <vtkImageData.h>
+#include "itkGDCMImageIO.h"
+#include "itkGDCMSeriesFileNames.h"
+#include "itkNumericSeriesFileNames.h"
+#include "itkImageSeriesReader.h"
 
 
 #include <QString.h>
@@ -16,8 +17,7 @@
 #include <QJsonObject>
 
 
-#include "mdkType.h"
-#include "mdkImage.h"
+#include "mdkImage3D.h"
 #include "mdkDenseMatrix.h"
 
 
@@ -33,22 +33,22 @@ struct NameValueQStringPair
 bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, const QString& FilePathAndName);
 
 template<typename ScalarType>
-Image<ScalarType> LoadGrayScaleImageFromDICOMFile(const std::string& FilePathAndName);
+Image3D<ScalarType> LoadGrayScale3DImageFromDICOMSeries(const std::string& FilePath);
 
 template<typename ScalarType>
-Image<ScalarType> LoadGrayScaleImageFromDataFile(const std::string& FilePathAndName);
+Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const std::string& FilePathAndName);
 
 template<typename ScalarType>
-bool SaveGrayScaleImageAsDataFile(const std::string& FilePathAndName, const Image<ScalarType>& InputImage);
+bool SaveGrayScale3DImageAsJsonDataFile(const Image3D<ScalarType>& InputImage, const std::string& FilePathAndName);
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> LoadScalarDenseMatrixFromDataFile(const std::string& FilePathAndName);
+DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const std::string& FilePathAndName);
 
 template<typename OutputScalarType, typename InputScalarType>
-void Internal_LoadScalarDenseMatrixFromDataFile(DenseMatrix<OutputScalarType>& OutputMatrix, QFile& DataFile, int_max RowNumber, int_max ColNumber, int_max BytesOfInputScalarType);
+void Internal_LoadScalarDenseMatrixFromJsonDataFile(DenseMatrix<OutputScalarType>& OutputMatrix, QFile& DataFile, int_max RowNumber, int_max ColNumber, int_max BytesOfInputScalarType);
 
 template<typename ScalarType>
-bool SaveScalarDenseMatrixAsDataFile(const std::string& FilePathAndName, const DenseMatrix<ScalarType>& InputMatrix);
+bool SaveScalarDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, const std::string& FilePathAndName);
 
 }
 

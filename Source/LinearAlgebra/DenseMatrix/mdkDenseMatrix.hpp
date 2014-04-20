@@ -20,6 +20,15 @@ DenseMatrix<ElementType>::DenseMatrix(const Pure_Empty_Matrix_Symbol&)
 {
 }
 
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>::DenseMatrix(const Empty_Matrix_Symbol&)
+{
+    this->Resize(0, 0);
+}
+
+
 template<typename ElementType>
 inline
 DenseMatrix<ElementType>::DenseMatrix(int_max RowNumber, int_max ColNumber)
@@ -1332,7 +1341,12 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::IsEmpty() const
 {
-    return (m_MatrixData->RowNumber <= 0);
+    if (m_MatrixData)
+    {
+        return (m_MatrixData->RowNumber <= 0);
+    }
+
+    return true;
 }
 
 
