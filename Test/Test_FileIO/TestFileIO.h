@@ -51,6 +51,42 @@ void Test_MatrixIO()
 
 }
 
+
+void Test_Image_Matrix_IO()
+{
+    std::string FilePath;
+
+    FilePath = "H:/Heart_backup/Data/Yale_CT/P1940650/phase0/";
+
+    auto InputImage = LoadGrayScale3DImageFromDICOMSeries<double>(FilePath);
+
+    auto Size = InputImage.GetSize();
+
+    DenseMatrix<double> Mean(1, Size.Lz);
+    Mean.Fill(0);
+
+    for (int_max z = 0; z < Size.Lz; ++z)
+    {
+        double temp = 0;
+
+        for (int_max y = 0; y < Size.Ly; ++y)
+        {
+            for (int_max x = 0; x < Size.Lx; ++x)
+            {
+                temp += InputImage(x, y, z);
+            }
+        }
+
+        temp /= Size.Lx*Size.Ly;
+
+        Mean[z] = temp;
+    }
+
+    std::string OutputFilePathAndName = "H:/Heart_backup/Data/Yale_CT/P1940650/phase0_mean";
+
+    SaveScalarDenseMatrixAsJsonDataFile(Mean, OutputFilePathAndName);
+}
+
 }//end of namespace
 
 

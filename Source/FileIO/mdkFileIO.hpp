@@ -56,7 +56,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromDICOMSeries(const std::string& FileP
     Image3D<ScalarType> OutputImage;
 
 
-    typedef itk::Image< ScalarType >               ITKImageType;
+    typedef itk::Image< ScalarType, 3 >               ITKImageType;
 
     typedef itk::ImageSeriesReader< ITKImageType >    ITKImageReaderType;
 
@@ -73,9 +73,6 @@ Image3D<ScalarType> LoadGrayScale3DImageFromDICOMSeries(const std::string& FileP
 
     ITKImageReader->SetImageIO(gdcmIO);
     ITKImageReader->SetFileNames(filenames);
-
-    //Attention: must use this
-    ITKImageReader->ReverseOrderOn();
 
     try
     {
@@ -420,7 +417,7 @@ bool SaveScalarDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMat
 
     auto Size = InputMatrix.GetSize();
 
-    PairList[0].Name = "DataType";
+    PairList[0].Name = "MatrixType";
     PairList[0].Value = "ScalarDenseMatrix";
 
     auto ScalarTypeName = FindScalarTypeName(tempScalar);
