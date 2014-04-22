@@ -42,16 +42,10 @@ C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/lapack_win64_MT.lib
 C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/blas_win64_MT.lib
 )
 
-set(VTK_DIR C:/Programs/VTK/VTK_6.1_VC2013_Build)
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
-
-find_package(Qt5Widgets)
-
 FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
 message(STATUS ${Test_FILES})
 
 add_executable(MDK_Test_DenseMatrix ${Test_FILES} ${MDK_CPP_FILES})
 
-target_link_libraries(MDK_Test_DenseMatrix ${LinearALgebraLib_win64} ${VTK_LIBRARIES}) 
+target_link_libraries(MDK_Test_DenseMatrix ${LinearALgebraLib_win64}) 

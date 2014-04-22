@@ -68,6 +68,8 @@ int aaa_main()
 
 int main()
 {
+    Test_Operator_With_ElementPointer();
+
     //Test_MatrixMutiply();
 
    // auto a = Test_A(1, 1);
@@ -90,7 +92,7 @@ int main()
 
    // Test_ElementMultiply();
 
-    Test_ElementOperation();
+    //Test_ElementOperation();
 
   //  Test_ColOperation();
 

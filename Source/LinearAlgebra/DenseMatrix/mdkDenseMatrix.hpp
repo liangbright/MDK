@@ -1,7 +1,6 @@
 #ifndef __mdkDenseMatrix_hpp
 #define __mdkDenseMatrix_hpp
 
-//#include "mdkDenseMatrix.h"
 
 namespace mdk
 {
@@ -146,29 +145,7 @@ DenseMatrix<ElementType>::DenseMatrix(ElementType* InputElementPointer, int_max 
 {
     this->Resize(0, 0);
 
-    if (InputElementPointer == nullptr)
-    {
-        MDK_Error("Empty Input @ DenseMatrix::mdkDenseMatrix(const ElementType*, int_max, int_max, bool)")
-        return;
-    }
-
-    if (InputRowNumber <= 0 || InputColNumber <= 0)
-    {
-        if (InputElementPointer != nullptr)
-        {
-            MDK_Error("Invalid Input @ DenseMatrix::mdkDenseMatrix(const ElementType*, int_max, int_max, bool)")
-            return;
-        }
-    }
-    
-    m_MatrixData->RowNumber = InputRowNumber;
-    m_MatrixData->ColNumber = InputColNumber;
-
-    m_MatrixData->DataArray.clear();
-
-    m_MatrixData->ElementPointer = InputElementPointer;
-
-    m_ElementPointer = m_MatrixData->ElementPointer;
+    this->ShallowCopy(InputElementPointer, InputRowNumber, InputColNumber);
 
     m_MatrixData->IsSizeFixed = IsSizeFixed;
 }
@@ -506,6 +483,38 @@ bool DenseMatrix<ElementType>::Fill(const ElementType& Element)
     {
         Ptr[0] = Element;
     }
+
+    return true;
+}
+
+
+template<typename ElementType>
+inline 
+bool DenseMatrix<ElementType>::ShallowCopy(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber)
+{
+    if (InputElementPointer == nullptr || InputRowNumber <= 0 || InputColNumber <= 0)
+    {
+        MDK_Error("Invalid input @ DenseMatrix::ShallowCopy(...)")
+        return false;
+    }
+
+    if (this->IsSizeFixed() == true)
+    {
+        if (m_MatrixData->RowNumber != InputRowNumber && m_MatrixData->ColNumber != InputColNumber)
+        {
+            MDK_Error("Size can not change @ DenseMatrix::ShallowCopy(...)")
+            return false;        
+        }
+    }
+
+    m_MatrixData->RowNumber = InputRowNumber;
+    m_MatrixData->ColNumber = InputColNumber;
+
+    m_MatrixData->DataArray.clear();
+
+    m_MatrixData->ElementPointer = InputElementPointer;
+
+    m_ElementPointer = m_MatrixData->ElementPointer;
 
     return true;
 }
@@ -1010,7 +1019,7 @@ try
     {
         auto Self_ElementNumber = SelfSize.RowNumber * SelfSize.ColNumber;
 
-        //m_MatrixData->CopyDataToInternalMemoryIfNecessary();
+        //m_MatrixData->CopyDataToInternalDataArrayIfNecessary();
         if (m_MatrixData->ElementPointer != m_MatrixData->DataArray.data())
         {
             auto ElementNumber_min = std::min(Self_ElementNumber, InputColNumber*InputRowNumber);
@@ -1289,7 +1298,7 @@ try
 
     if (InputElementNumber > Self_ElementNumber)
     {
-        m_MatrixData->CopyDataToInternalMemoryIfNecessary();
+        m_MatrixData->CopyDataToInternalDataArrayIfNecessary();
 
         m_MatrixData->DataArray.reserve(InputElementNumber);
 
@@ -1587,7 +1596,9 @@ ElementType& DenseMatrix<ElementType>::operator[](int_max LinearIndex)
 
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    return m_ElementPointer[LinearIndex];
+    return m_ElementPointer[LinearIndex]; 
+
+    // return (*m_MatrixData)[LinearIndex]; this is ~26% slower
 }
 
 
@@ -4172,7 +4183,7 @@ bool DenseMatrix<ElementType>::DeleteCol(const int_max* ColIndexList, int_max Le
         }
     }
 
-    m_MatrixData->CopyDataToInternalMemoryIfNecessary();
+    m_MatrixData->CopyDataToInternalDataArrayIfNecessary();
 
     std::vector<int_max> ColIndexList_max_to_min(Length);
 
@@ -4275,7 +4286,7 @@ bool DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Inp
         }
     }
 
-    m_MatrixData->CopyDataToInternalMemoryIfNecessary();
+    m_MatrixData->CopyDataToInternalDataArrayIfNecessary();
 
     m_MatrixData->DataArray.insert(m_MatrixData->DataArray.begin() + ColIndex*SelfSize.RowNumber, ColData, ColData + Length);
 

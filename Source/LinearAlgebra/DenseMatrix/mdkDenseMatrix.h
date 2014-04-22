@@ -62,10 +62,16 @@ struct DenseMatrixData
 
     ~DenseMatrixData() {};
 
-    void CopyDataToInternalMemoryIfNecessary()
+    void CopyDataToInternalDataArrayIfNecessary()
     {
         if (ElementPointer != DataArray.data())
         {
+            if (ElementPointer == nullptr)
+            {
+                MDK_Error("ElementPointer is nullptr @ DenseMatrixData::CopyDataToInternalDataArrayIfNecessary()")
+                return;
+            }
+
             auto ElementNumber = RowNumber*ColNumber;
 
             DataArray.resize(ElementNumber);
@@ -193,7 +199,7 @@ public:
 
     inline void operator=(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    //----------------------  Copy From Matrix or Element  ----------------------------------------//
+    //----------------------  Copy Matrix or Element  ----------------------------------------//
 
     // Copy can be used to convert a matrix from double (ElementType_Input) to float (ElementType), etc
 
@@ -207,6 +213,11 @@ public:
     inline bool Copy(const ElementType_Input* InputElementPointer, int_max InputRowNumber, int_max InputColNumber);
 
     inline bool Fill(const ElementType& Element);
+
+    //----------------------  ShallowCopy Matrix of another library (e.g., eigen) ----------------------------------------//
+    // do not ShallowCopy Matrix in MDK, use Share() or ForceShare()
+    
+    inline bool ShallowCopy(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber);
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
 

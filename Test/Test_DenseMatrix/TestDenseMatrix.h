@@ -82,6 +82,33 @@ void Test_std_vector()
 	std::cout << vec3[20] << '\n';
 }
 
+
+void Test_Operator_With_ElementPointer()
+{
+    std::cout << "Test_Operator_With_ElementPointer()" << '\n';
+
+    int_max Lx = 10;
+    int_max Ly = 10;
+
+    DenseMatrix<double> A(Lx,Ly);
+
+    auto t0 = std::chrono::system_clock::now();
+
+    for (int_max k = 0; k < 200000000; ++k)
+    {
+        for (int_max i = 0; i < Lx*Ly; ++i)
+        {
+            A[i] = i;
+        }
+    }
+
+    auto t1 = std::chrono::system_clock::now();
+    
+    std::chrono::duration<double> raw_time = t1 - t0;
+    std::cout << " time " << raw_time.count() << '\n';
+}
+
+
 void Test_Constructor_a()
 {
     std::cout << "Test_Constructor()" << '\n';
@@ -597,6 +624,7 @@ void Test_Mutiplication_Speed()
 
     std::system("pause");
 }
+
 
 
 void Test_ElementOperation()

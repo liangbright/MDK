@@ -37,7 +37,9 @@ ${MDK_DIR}/FileIO
 ${MDK_DIR}/LinearAlgebra/Common
 ${MDK_DIR}/LinearAlgebra/DenseMatrix
 ${MDK_DIR}/Image
-${MDK_DIR}/ImageFilter
+${MDK_DIR}/ImageFilter/Common
+${MDK_DIR}/ImageFilter/2DFiler
+${MDK_DIR}/ImageFilter/3DFiler
 ${Arma_DIR}
 ${Eigen_DIR}
 )

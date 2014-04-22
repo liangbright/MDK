@@ -10,6 +10,8 @@
 #include "mdkGaussianImage3DFilter.h"
 #include "mdkIntegralImage3DBuilder.h"
 
+#include "mdkImageFilter_Common_Function.h"
+
 namespace mdk
 {
 
@@ -696,6 +698,42 @@ void test_IntegralImageBuider()
     SaveGrayScale3DImageAsJsonDataFile(OutputImage, OutputFilePathAndName);
 
     std::system("pause");
+}
+
+
+void Test_ComputeHistogram()
+{
+    DenseMatrix<double> Signal(100,10);
+
+    for (int_max i = 0; i < 10; ++i)
+    {
+        if (i % 2 == 1)
+        {
+            Signal.FillCol(i, i);
+        }
+        else
+        {
+            Signal.FillCol(i, 0.0);
+        }
+    }
+
+    Signal.Reshape(1, 1000);
+
+    auto Hist = ComputeHistogram(Signal, 0.0, 10.0, 10);
+
+    DisplayMatrix("Hist", Hist);
+
+    DenseMatrix<double> Kernal = { 0.05, 0.9, 0.05 };
+
+    auto SmoothedHist = SmoothHistogram(Hist, Kernal);
+
+    DisplayMatrix("SmoothedHist", SmoothedHist);
+
+    auto sum = SmoothedHist.L1Norm();
+
+    DenseMatrix<double> NormalizedHist = SmoothedHist / sum;
+
+    DisplayMatrix("NormalizedHist", NormalizedHist, 3);
 }
 
 }//namespace mdk

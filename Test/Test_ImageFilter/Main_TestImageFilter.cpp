@@ -36,7 +36,7 @@ int main()
 
     //Test_FunctionTemplate_InputFilterFunction();
 
-    Test_ConvolutionFilter_ScalarOutput();
+    //Test_ConvolutionFilter_ScalarOutput();
 
     //Test_ConvolutionFilter_VectorOutput();
 
@@ -46,4 +46,7 @@ int main()
 
     //test_IntegralImageBuider();
 
+    Test_ComputeHistogram();
+
+    std::system("pause");
 }
