@@ -37,9 +37,9 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::Clear()
 
     m_Flag_CodeInSparseMatrix_Is_Updated = false;
 
-    m_MaxNumberOfThreads = 1;
-
     m_MinNumberOfDataPerThread = 1;
+
+    m_MaxNumberOfThreads = 1;
 }
 
 
@@ -171,11 +171,17 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::SetMaxNumberOfThreads(int
 
 
 template<typename ElementType>
-int_max FeatureDictionaryBasedSparseEncoder<ElementType>::GetMaxNumberOfThreads()
+int_max FeatureDictionaryBasedSparseEncoder<ElementType>::GetNumberOfThreadsTobeCreated()
 {
-    return m_MaxNumberOfThreads;
+    return Compute_NecessaryNumberOfThreads_For_ParallelBlock(TotalDataVectorNumber, m_MaxNumberOfThreads, m_MinNumberOfDataPerThread);
 }
 
+
+template<typename ElementType>
+void FeatureDictionaryBasedSparseEncoder<ElementType>::SetMinNumberOfDataPerThread(int_max Number)
+{
+    m_MinNumberOfDataPerThread = Number;
+}
 
 
 template<typename ElementType>
@@ -186,7 +192,7 @@ int_max FeatureDictionaryBasedSparseEncoder<ElementType>::GetMinNumberOfDataPerT
 
 
 template<typename ElementType>
-int_max FeatureDictionaryBasedSparseEncoder<ElementType>::GetTotalNumberOfInputFeatureVectors()
+int_max FeatureDictionaryBasedSparseEncoder<ElementType>::GetTotalNumberOfInputFeatureDataVectors()
 {
     if (m_FeatureData != nullptr)
     {
@@ -235,32 +241,88 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::CheckInput()
         m_MaxNumberOfThreads = 1;
     }
 
+    if (m_MinNumberOfDataPerThread <= 0)
+    {
+        MDK_Warning("input m_MinNumberOfDataPerThread is invalid, set to 1 @ FeatureDictionaryBasedSparseEncoder::CheckInput()")
+
+        m_MinNumberOfDataPerThread = 1;
+    }
+
     return true;
 }
 
 
 template<typename ElementType>
-void FeatureDictionaryBasedSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFeatureDataVector_start, int_max IndexOfFeatureDataVector_end)
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::Preprocess()
 {
-    DenseMatrix<ElementType> SingleFeatureDataVector(m_FeatureData->GetRowNumber(), 1);
+    return true;
+}
 
-    for (int_max i = IndexOfFeatureDataVector_start; i <= IndexOfFeatureDataVector_end; ++i)
+
+template<typename ElementType>
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::Postprocess()
+{
+    return true;
+}
+
+
+template<typename ElementType>
+bool FeatureDictionaryBasedSparseEncoder<ElementType>::Update()
+{
+    if (this->CheckInput() == false)
     {
-        m_FeatureData->GetCol(i, SingleFeatureDataVector);
+        return false;
+    }
 
-        this->EncodingFunction(SingleFeatureDataVector, (*m_CodeInSparseColVectorSet)[i]);
+    if (this->Preprocess() == false)
+    {
+        MDK_Error("Preprocess() return false @ FeatureDictionaryBasedSparseEncoder::Update()")
+        return false;
+    }
+
+    int_max TotalDataVectorNumber = this->GetTotalNumberOfInputFeatureDataVectors();
+
+    // multi-thread -----------------------------------------------------------------
+
+    ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex){this->GenerateCode_in_a_Thread(Index_start, Index_end, ThreadIndex); },
+                  0, TotalDataVectorNumber - 1, m_MaxNumberOfThreads, m_MinNumberOfDataPerThread);
+    //------------------------------------------------------------
+
+    if (this->Postprocess() == false)
+    {
+        MDK_Error("Postprocess() return false @ FeatureDictionaryBasedSparseEncoder::Update()")
+        return false;
+    }
+
+    this->UpdatePipelineOutput();
+
+    return true;
+}
+
+
+template<typename ElementType>
+void FeatureDictionaryBasedSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadIndex)
+{
+    DenseMatrix<ElementType> DataVector(m_FeatureData->GetRowNumber(), 1);
+
+    for (int_max i = IndexOfDataVector_start; i <= IndexOfDataVector_end; ++i)
+    {
+        m_FeatureData->GetCol(i, DataVector);
+
+        this->EncodingFunction((*m_CodeInSparseColVectorSet)[i], DataVector, ThreadIndex);
     }
 }
 
 
 template<typename ElementType>
 inline
-void FeatureDictionaryBasedSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
-                                                                        DenseMatrix<ElementType>& CodeInDenseColVector)
+void FeatureDictionaryBasedSparseEncoder<ElementType>::EncodingFunction(DenseMatrix<ElementType>& CodeInDenseColVector, 
+                                                                        const DenseMatrix<ElementType>& DataColVector,
+                                                                        int_max ThreadNumber)
 {
     SparseVector<ElementType> CodeInSparseColVector;
 
-    this->EncodingFunction(DataColVector, CodeInSparseColVector);
+    this->EncodingFunction(CodeInSparseColVector, DataColVector, ThreadNumber);
 
     ConvertSparseVectorToDenseMatrixAsColVector(CodeInSparseColVector, CodeInDenseColVector);
 }
@@ -278,14 +340,13 @@ DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetO
 {
     if (m_Flag_CodeInDenseMatrix_Is_Updated == false)
     {
-        auto D = m_Dictionary->BasisMatrix();
-        auto CodeDimension = D.GetColNumber();
+        auto CodeLength = m_Dictionary->BasisMatrix().GetColNumber();
 
-        auto IsOK = m_CodeInDenseMatrix->FastResize(CodeDimension, m_FeatureData->GetColNumber());
+        auto IsOK = m_CodeInDenseMatrix->FastResize(CodeLength, m_FeatureData->GetColNumber());
 
         if (IsOK == true)
         {
-            DenseMatrix<ElementType> tempCode(CodeDimension, 1);
+            DenseMatrix<ElementType> tempCode(CodeLength, 1);
 
             for (int_max j = 0; j < m_CodeInDenseMatrix->GetColNumber(); ++j)
             {
@@ -316,9 +377,9 @@ SparseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::Get
 {
     if (m_Flag_CodeInSparseMatrix_Is_Updated == false)
     {
-        auto CodeDimension = m_Dictionary->BasisMatrix().GetColNumber();
+        auto CodeLength = m_Dictionary->BasisMatrix().GetColNumber();
 
-        m_CodeInSparseMatrix->ConstructFromSparseColVectorSetInOrder(*m_CodeInSparseColVectorSet, CodeDimension, m_FeatureData->GetColNumber());
+        m_CodeInSparseMatrix->ConstructFromSparseColVectorSetInOrder(*m_CodeInSparseColVectorSet, CodeLength, m_FeatureData->GetColNumber());
 
         if (m_CodeInSparseMatrix != &m_CodeInSparseMatrix_SharedCopy)
         {

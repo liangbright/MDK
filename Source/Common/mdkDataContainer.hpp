@@ -1,7 +1,6 @@
 #ifndef __mdkDataContainer_hpp
 #define __mdkDataContainer_hpp
 
-//#include "mdkDataContainer.h"
 
 namespace mdk
 {
@@ -321,6 +320,7 @@ bool DataContainer<ElementType>::Share(DataContainer<ElementType>& InputData)
     //--------------------------------------------------------------------------------------------------------
 
     m_Data = InputData.m_Data; // std::Shared_ptr, self assignment test is not necessary
+    m_ElementPointer = m_Data->DataArray.data();
 
     return true;
 }
@@ -352,6 +352,7 @@ void DataContainer<ElementType>::ForceShare(const DataContainer<ElementType>& In
     }
 
     m_Data = InputData.m_Data; // std::Shared_ptr, self assignment check is not necessary
+    m_ElementPointer = m_Data->DataArray.data();
 }
 
 
@@ -425,11 +426,11 @@ bool DataContainer<ElementType>::Take(DataContainer<ElementType>& InputData)
     
     //note: m_Data.swap(InputData.m_Data) will invalidate Share()
 
-    m_Data->Length = InputData.m_Data->Length;
-
     m_Data->DataArray = std::move(InputData.m_Data->DataArray);
 
-    m_Data->NaNElement = InputData.m_Data->NaNElement;
+    m_Data->Length = InputData.m_Data->Length;
+
+    m_ElementPointer = m_Data->DataArray.data();
 
     // Clear InputData to be empty
     InputData.Clear();
@@ -464,6 +465,8 @@ void DataContainer<ElementType>::SwapSmartPointer(DataContainer<ElementType>& In
     }
 
     m_Data.swap(InputData.m_Data); // shared_ptr self swap check is not necessary
+
+    m_ElementPointer = m_Data->DataArray.data();
 }
 
 
@@ -476,6 +479,8 @@ void DataContainer<ElementType>::Clear()
     m_Data->DataArray.clear();
 
     m_Data->IsSizeFixed = false;
+
+    m_ElementPointer = nullptr;
 }
 
 
@@ -495,6 +500,7 @@ try
     if (!m_Data)
     {
         m_Data = std::make_shared<DataContainerData<ElementType>>();
+        m_ElementPointer = m_Data->DataArray.data();
     }
     //-------------------------------------------------------------------------
 
@@ -513,12 +519,14 @@ try
 
     m_Data->DataArray.resize(InputLength);
     m_Data->Length = InputLength;
+    m_ElementPointer = m_Data->DataArray.data();
 }
 catch (...)
 {
     MDK_Error("Out of Memory @ DataContainer::Resize(int_max InputLength)")
 
     m_Data->Length = int_max(m_Data->DataArray.size());
+    m_ElementPointer = m_Data->DataArray.data();
 
     return false;
 }
@@ -562,12 +570,14 @@ try
     }
    
     m_Data->Length = InputLength;
+    m_ElementPointer = m_Data->DataArray.data();
 }
 catch (...)
 {
     MDK_Error("Out of Memory @ DataContainer::FastResize(int_max InputLength)")
 
     m_Data->Length = int_max(m_Data->DataArray.size());
+    m_ElementPointer = m_Data->DataArray.data();
 
     return false;
 }
@@ -588,6 +598,7 @@ try
     if (InputElementNumber > SelfLength)
     {
         m_Data->DataArray.reserve(InputElementNumber);
+        m_ElementPointer = m_Data->DataArray.data();
     }
 }
 catch (...)
@@ -605,6 +616,7 @@ inline
 void DataContainer<ElementType>::Squeeze()
 {
     m_Data->DataArray.shrink_to_fit();
+    m_ElementPointer = m_Data->DataArray.data();
 }
 
 
@@ -668,7 +680,7 @@ template<typename ElementType>
 inline
 ElementType* DataContainer<ElementType>::GetElementPointer()
 {
-    return m_Data->ElementPointer;
+    return m_Data->DataArray.data();
 }
 
 
@@ -676,21 +688,21 @@ template<typename ElementType>
 inline
 const ElementType* DataContainer<ElementType>::GetElementPointer() const
 {
-    return m_Data->ElementPointer;
+    return m_Data->DataArray.data();
 }
 
 
 template<typename ElementType>
 inline ElementType* DataContainer<ElementType>::begin()
 {// the position of the first element
-    return m_Data->ElementPointer;
+    return m_Data->DataArray.data();
 }
 
 
 template<typename ElementType>
 inline const ElementType* DataContainer<ElementType>::begin() const
 {
-    return m_Data->ElementPointer;
+    return m_Data->DataArray.data();
 }
 
 
@@ -713,7 +725,7 @@ ElementType& DataContainer<ElementType>::operator[](int_max Index)
 
 #endif //MDK_DEBUG_DataContainer_Operator_CheckBound
 
-    return (*m_Data)[Index];
+    return m_ElementPointer[Index];
 }
 
 
@@ -732,7 +744,7 @@ const ElementType& DataContainer<ElementType>::operator[](int_max Index) const
 
 #endif //MDK_DEBUG_DataContainer_Operator_CheckBound
 
-    return (*m_Data)[Index];
+    return m_ElementPointer[Index];
 }
 
 
@@ -751,7 +763,7 @@ ElementType& DataContainer<ElementType>::operator()(int_max Index)
 
 #endif //MDK_DEBUG_DataContainer_Operator_CheckBound
 
-    return (*m_Data)[Index];
+    return m_ElementPointer[Index];
 }
 
 
@@ -770,7 +782,7 @@ const ElementType& DataContainer<ElementType>::operator()(int_max Index) const
 
 #endif //MDK_DEBUG_DataContainer_Operator_CheckBound
 
-    return (*m_Data)[Index];
+    return m_ElementPointer[Index];
 }
 
 // at(): bound check
@@ -786,7 +798,7 @@ ElementType& DataContainer<ElementType>::at(int_max Index)
         return m_Data->NaNElement;
 	}
 
-    return (*m_Data)[Index];
+    return m_ElementPointer[Index];
 }
 
 
@@ -801,7 +813,7 @@ const ElementType& DataContainer<ElementType>::at(int_max Index) const
         return m_Data->NaNElement;
 	}
 
-    return (*m_Data)[Index];
+    return m_ElementPointer[Index];
 }
 
 
@@ -993,6 +1005,8 @@ bool DataContainer<ElementType>::Delete(const int_max* IndexList, int_max ListLe
         }
     }
 
+    m_ElementPointer = m_Data->DataArray.data();
+
     return true;
 }
 
@@ -1026,6 +1040,8 @@ bool DataContainer<ElementType>::Delete(int_max Index_start, int_max Index_end)
     m_Data->DataArray.erase(m_Data->DataArray.begin() + Index_start, m_Data->DataArray.begin() + Index_end + 1);
 
     m_Data->Length -= Index_end - Index_start + 1;
+
+    m_ElementPointer = m_Data->DataArray.data();
 
     return true;
 }
@@ -1114,6 +1130,8 @@ bool DataContainer<ElementType>::Insert(int_max Index, const ElementType_Input* 
     m_Data->DataArray.insert(m_Data->DataArray.begin() + Index, InputData, InputData + InputLength);
 
     m_Data->Length = InputLength;
+
+    m_ElementPointer = m_Data->DataArray.data();
 
     return true;
 }

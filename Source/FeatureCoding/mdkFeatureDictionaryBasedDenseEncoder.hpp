@@ -29,9 +29,9 @@ void FeatureDictionaryBasedDenseEncoder<ElementType>::Clear()
 
     this->SetupDefaultPipelineOutput();
 
-    m_MaxNumberOfThreads = 1;
-
     m_MinNumberOfDataPerThread = 1;
+    m_MaxNumberOfThreads = 1;
+    m_NumberOfCreatedThreads = 1;
 }
 
 
@@ -82,9 +82,16 @@ void FeatureDictionaryBasedDenseEncoder<ElementType>::SetMaxNumberOfThreads(int_
 
 
 template<typename ElementType>
-int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetMaxNumberOfThreads()
+int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetNumberOfThreadsTobeCreated()
 {
-    return m_MaxNumberOfThreads;
+    return Compute_NecessaryNumberOfThreads_For_ParallelBlock(TotalDataVectorNumber, m_MaxNumberOfThreads, m_MinNumberOfDataPerThread);
+}
+
+
+template<typename ElementType>
+void FeatureDictionaryBasedDenseEncoder<ElementType>::SetMinNumberOfDataPerThread(int_max Number)
+{
+    m_MinNumberOfDataPerThread = Number;
 }
 
 
@@ -96,7 +103,7 @@ int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetMinNumberOfDataPerTh
 
 
 template<typename ElementType>
-int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetTotalNumberOfInputFeatureVectors()
+int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetTotalNumberOfInputFeatureDataVectors()
 {
     if (m_FeatureData != nullptr)
     {
@@ -143,13 +150,13 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::CheckInput()
         m_Code = &m_Code_SharedCopy;
     }
 
-    auto CodeDimension = m_Dictionary->BasisMatrix().GetColNumber();
+    auto CodeLength = m_Dictionary->BasisMatrix().GetColNumber();
 
     auto tempSize = m_Code->GetSize();
 
-    if (tempSize.RowNumber != CodeDimension || tempSize.ColNumber != m_FeatureData->GetColNumber())
+    if (tempSize.RowNumber != CodeLength || tempSize.ColNumber != m_FeatureData->GetColNumber())
     {
-        auto IsOK = m_Code->FastResize(CodeDimension, m_FeatureData->GetColNumber());
+        auto IsOK = m_Code->FastResize(CodeLength, m_FeatureData->GetColNumber());
 
         if (IsOK == false)
         {
@@ -165,24 +172,79 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::CheckInput()
         m_MaxNumberOfThreads = 1;
     }
 
+    if (m_MinNumberOfDataPerThread <= 0)
+    {
+        MDK_Warning("input m_MinNumberOfDataPerThread is invalid, set to 1 @ FeatureDictionaryBasedDenseEncoder::CheckInput()")
+
+        m_MinNumberOfDataPerThread = 1;
+    }
+
     return true;
 }
 
 
 template<typename ElementType>
-void FeatureDictionaryBasedDenseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end)
+bool FeatureDictionaryBasedDenseEncoder<ElementType>::Preprocess()
 {
-    DenseMatrix<ElementType> SingleCode(m_Code->GetRowNumber(), 1);
+    return true;
+}
 
-    DenseMatrix<ElementType> SingleFeatureDataVector(m_FeatureData->GetRowNumber(), 1);
 
-    for (int_max i = IndexOfFeatureVector_start; i <= IndexOfFeatureVector_end; ++i)
+template<typename ElementType>
+bool FeatureDictionaryBasedDenseEncoder<ElementType>::Postprocess()
+{
+    return true;
+}
+
+
+template<typename ElementType>
+bool FeatureDictionaryBasedDenseEncoder<ElementType>::Update()
+{
+    if (this->CheckInput() == false)
     {
-        m_FeatureData->GetCol(i, SingleFeatureDataVector);
+        return false;
+    }
 
-        this->EncodingFunction(SingleFeatureDataVector, SingleCode);
+    if (this->Preprocess() == false)
+    {
+        MDK_Error("Preprocess() return false @ FeatureDictionaryBasedDenseEncoder::Update()")
+            return false;
+    }
 
-        m_Code->SetCol(i, SingleCode);
+    int_max TotalDataVectorNumber = this->GetTotalNumberOfInputFeatureDataVectors();
+
+    // multi-thread -----------------------------------------------------------------
+
+    ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex){this->GenerateCode_in_a_Thread(Index_start, Index_end, ThreadIndex); },
+                  0, TotalDataVectorNumber - 1, m_MaxNumberOfThreads, m_MinNumberOfDataPerThread);
+    //------------------------------------------------------------
+
+    if (this->Postprocess() == false)
+    {
+        MDK_Error("Postprocess() return false @ FeatureDictionaryBasedDenseEncoder::Update()")
+        return false;
+    }
+
+    this->UpdatePipelineOutput();
+
+    return true;
+}
+
+
+template<typename ElementType>
+void FeatureDictionaryBasedDenseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadIndex)
+{
+    DenseMatrix<ElementType> CodeVector(m_Code->GetRowNumber(), 1);
+
+    DenseMatrix<ElementType> DataVector(m_FeatureData->GetRowNumber(), 1);
+
+    for (int_max i = IndexOfDataVector_start; i <= IndexOfDataVector_end; ++i)
+    {
+        m_FeatureData->GetCol(i, DataVector);
+
+        this->EncodingFunction(CodeVector, DataVector, ThreadIndex);
+
+        m_Code->SetCol(i, CodeVector);
     }
 }
 

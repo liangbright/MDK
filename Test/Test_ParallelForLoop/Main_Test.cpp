@@ -26,7 +26,7 @@ int main()
     DenseMatrix<double> B(1, L);
     //B.Fill(1);
 
-    auto Function = [&](int_max i){ A[i] += B[i]; };
+    auto Function = [&](int_max i, int_max ThreadIndex){ A[i] += B[i]; };
    
     auto t0 = std::chrono::system_clock::now();
 

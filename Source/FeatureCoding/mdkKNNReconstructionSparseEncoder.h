@@ -2,6 +2,8 @@
 #define __mdkKNNReconstructionSparseEncoder_h
 
 #include <string>
+#include <limits>
+
 
 #include "mdkFeatureDictionaryBasedSparseEncoder.h"
 #include "mdkFeatureCoding_Common_Function.h"
@@ -80,7 +82,7 @@ public:
 
     using FeatureDictionaryBasedSparseEncoder::EncodingFunction;
 
-    inline void EncodingFunction(const DenseMatrix<ElementType>& DataColVector, SparseVector<ElementType>& CodeInSparseColVector);
+    inline void EncodingFunction(SparseVector<ElementType>& CodeInSparseColVector, const DenseMatrix<ElementType>& DataColVector, int_max ThreadIndex);
 
     //---------------------------------------------------------------------------------
 

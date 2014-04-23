@@ -52,9 +52,9 @@ bool SPAMSSparseEncoder<ElementType>::CheckInput()
 
 
 template<typename ElementType>
-void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end)
+void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadIndex)
 {
-    auto tempFeatureData = m_FeatureData->GetSubMatrix(ALL, span(IndexOfFeatureVector_start, IndexOfFeatureVector_end));
+    auto tempFeatureData = m_FeatureData->GetSubMatrix(ALL, span(IndexOfDataVector_start, IndexOfDataVector_end));
 
     auto CodeLength = m_Dictionary->BasisMatrix().GetColNumber();
 
@@ -121,11 +121,11 @@ void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFe
         }
     }
     
-    for (int_max i = IndexOfFeatureVector_start; i <= IndexOfFeatureVector_end; ++i)
+    for (int_max i = IndexOfDataVector_start; i <= IndexOfDataVector_end; ++i)
     {
         spams::SpVector<ElementType> tempS;
 
-        alpha.refCol(i - IndexOfFeatureVector_start, tempS);
+        alpha.refCol(i - IndexOfDataVector_start, tempS);
 
         std::vector<int_max> RowIndexList(int_max(tempS.nzmax()));
         for (int_max k = 0; k < int_max(tempS.nzmax()); ++k)
@@ -142,8 +142,9 @@ void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfFe
 
 template<typename ElementType>
 inline
-void SPAMSSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
-                                                       SparseVector<ElementType>& CodeInSparseColVector)
+void SPAMSSparseEncoder<ElementType>::EncodingFunction(SparseVector<ElementType>& CodeInSparseColVector,
+                                                       const DenseMatrix<ElementType>& DataColVector, 
+                                                       int_max ThreadIndex)
 {
     MDK_Error("This function is not implemented @ SPAMSSparseEncoder::EncodingFunction(...)")
 }

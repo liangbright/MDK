@@ -2,6 +2,8 @@
 #define __mdkLinearAlgebra_Function_DenseMatrix_Part_3_h
 
 #include <string>
+#include <limits>
+
 
 #include <Eigen/Dense>
 

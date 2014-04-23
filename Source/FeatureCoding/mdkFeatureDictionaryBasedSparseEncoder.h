@@ -40,12 +40,6 @@ protected:
 
     DataContainer<SparseVector<ElementType>>* m_CodeInSparseColVectorSet; // computed in GenerateCode_in_a_Thread(...)
 
-    //about multithreading:
-
-    int_max m_MaxNumberOfThreads; // the maximum number of threads for encoding
-
-    int_max m_MinNumberOfDataPerThread;
-
 private:
 
     DenseMatrix<ElementType>  m_CodeInDenseMatrix_SharedCopy;
@@ -61,6 +55,12 @@ private:
     std::atomic<bool> m_Flag_CodeInDenseMatrix_Is_Updated;
 
     std::atomic<bool> m_Flag_CodeInSparseMatrix_Is_Updated;
+
+    //about multithreading:
+
+    int_max m_MinNumberOfDataPerThread;
+
+    int_max m_MaxNumberOfThreads;
 
 protected:
     FeatureDictionaryBasedSparseEncoder();
@@ -87,17 +87,27 @@ public:
 
     void SetMaxNumberOfThreads(int_max Number);
 
+    void SetMinNumberOfDataPerThread(int_max Number);
+
     //-----------------------------------------
 
     virtual bool CheckInput();
 
+    virtual bool Preprocess();
+
+    virtual bool Postprocess();
+
+    virtual bool Update();
+
     //-----------------------------------------
 
-    inline virtual void EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
-                                         DenseMatrix<ElementType>& CodeInDenseColVector);
+    inline virtual void EncodingFunction(DenseMatrix<ElementType>& CodeInDenseColVector,
+                                         const DenseMatrix<ElementType>& DataColVector,
+                                         int_max ThreadNumber);
 
-    inline virtual void EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
-                                         SparseVector<ElementType>& CodeInSparseColVector) = 0;
+    inline virtual void EncodingFunction(SparseVector<ElementType>& CodeInSparseColVector,
+                                         const DenseMatrix<ElementType>& DataColVector,
+                                         int_max ThreadNumber) = 0;
 
     //----------------------------------------------------//
 
@@ -113,13 +123,13 @@ public:
 
 protected:
 
-    int_max GetMaxNumberOfThreads();
+    int_max GetNumberOfThreadsTobeCreated();
 
     int_max GetMinNumberOfDataPerThread();
 
-    int_max GetTotalNumberOfInputFeatureVectors();
+    int_max GetTotalNumberOfInputFeatureDataVectors();
 
-    virtual void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end);
+    virtual void GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadNumber);
 
     virtual void SetupDefaultPipelineOutput();
 

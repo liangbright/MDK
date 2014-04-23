@@ -1,25 +1,25 @@
-#ifndef __mdkConvolutionImage3DFilter_hpp
-#define __mdkConvolutionImage3DFilter_hpp
+#ifndef __mdkConvolutionImageFilter3D_hpp
+#define __mdkConvolutionImageFilter3D_hpp
 
 
 namespace mdk
 {
 
 template<typename PixelType_Input, typename PixelType_Output, int_max VectorPixelLength_Output>
-ConvolutionImage3DFilter<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::ConvolutionImage3DFilter()
+ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::ConvolutionImageFilter3D()
 {
 }
 
 
 template<typename PixelType_Input, typename PixelType_Output, int_max VectorPixelLength_Output>
-ConvolutionImage3DFilter<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::~ConvolutionImage3DFilter()
+ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::~ConvolutionImageFilter3D()
 {
 }
 
 
 template<typename PixelType_Input, typename PixelType_Output, int_max VectorPixelLength_Output>
 inline
-void ConvolutionImage3DFilter<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::
+void ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::
 SetOutputPixelMatrix(const DenseMatrix<PixelType_Input>* PixelMatrix)
 {
     m_OutputPixelMatrix = PixelMatrix;
@@ -28,8 +28,8 @@ SetOutputPixelMatrix(const DenseMatrix<PixelType_Input>* PixelMatrix)
 
 template<typename PixelType_Input, typename PixelType_Output, int_max VectorPixelLength_Output>
 inline
-void ConvolutionImage3DFilter<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::
-FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, PixelType_Output& OutputPixel)
+void ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::
+FilterFunctionAt3DIndex(PixelType_Output& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex)
 {
     auto VectorPixelLength = int_max(m_MaskList_3DIndex.size());
     //-----------------------------------------
@@ -44,24 +44,7 @@ FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, Pixel
 
     for (int_max i = 0; i < VectorPixelLength; ++i)
     {
-        bool EnableBoundCheckForThisPosition = false;
-
-        if (m_IsBoundCheckEnabled == true)
-        {
-            if (m_NOBoundCheckRegionList_3DIndex[i].IsEmpty == true)
-            {
-                EnableBoundCheckForThisPosition = true;
-            }
-            else
-            {
-                if (x_Index < m_NOBoundCheckRegionList_3DIndex[i].x0 || x_Index > m_NOBoundCheckRegionList_3DIndex[i].x1
-                    || y_Index < m_NOBoundCheckRegionList_3DIndex[i].y0 || y_Index > m_NOBoundCheckRegionList_3DIndex[i].y1
-                    || z_Index < m_NOBoundCheckRegionList_3DIndex[i].z0 || z_Index > m_NOBoundCheckRegionList_3DIndex[i].z1)
-                {
-                    EnableBoundCheckForThisPosition = true;
-                }
-            }
-        }
+        bool EnableBoundCheckForThisPosition = this->WhetherToCheckBoundAt3DIndex(x_Index, y_Index, z_Index, i);
 
         auto tempElementNumber = m_MaskList_3DIndex[i].GetElementNumber();
 
@@ -98,8 +81,8 @@ FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, Pixel
 
 template<typename PixelType_Input, typename PixelType_Output, int_max VectorPixelLength_Output>
 inline
-void ConvolutionImage3DFilter<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::
-FilterFunctionAt3DPosition(double x, double y, double z, PixelType_Output& OutputPixel)
+void ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::
+FilterFunctionAt3DPosition(PixelType_Output& OutputPixel, double x, double y, double z, int_max ThreadIndex)
 {
     int_max VectorPixelLength = m_MaskList_3DPosition.size();
     //-----------------------------------------
@@ -110,24 +93,7 @@ FilterFunctionAt3DPosition(double x, double y, double z, PixelType_Output& Outpu
 
     for (int_max i = 0; i < VectorPixelLength; ++i)
     {
-        bool EnableBoundCheckForThisPosition = false;
-
-        if (m_IsBoundCheckEnabled == true)
-        {           
-            if (m_NOBoundCheckRegionList_3DPosition[0].IsEmpty == true)
-            {
-                EnableBoundCheckForThisPosition = true;
-            }
-            else
-            {
-                if (x < m_NOBoundCheckRegionList_3DPosition[0].x0 || x > m_NOBoundCheckRegionList_3DPosition[0].x1
-                    || y < m_NOBoundCheckRegionList_3DPosition[0].y0 || y > m_NOBoundCheckRegionList_3DPosition[0].y1
-                    || z < m_NOBoundCheckRegionList_3DPosition[0].z0 || z > m_NOBoundCheckRegionList_3DPosition[0].z1)
-                {
-                    EnableBoundCheckForThisPosition = true;
-                }
-            }
-        }
+        bool EnableBoundCheckForThisPosition = this->WhetherToCheckBoundAt3DPosition(x, y, z, i);
 
         auto tempElementNumber = m_MaskList_3DPosition[i].GetElementNumber();
 
@@ -150,7 +116,7 @@ FilterFunctionAt3DPosition(double x, double y, double z, PixelType_Output& Outpu
                 auto temp_z = (Ptr[2] + z - m_InputImagePhysicalOrigin.z) / m_InputImagePixelSpacing.Sz;
 
                 temp_z = std::min(std::max(temp_z, 0.0), Lz - 1);
-
+                // nearest neighbor interpolation
                 tempPixel += (*m_InputImage)(int_max(temp_x), int_max(temp_y), int_max(temp_z)) * Ptr[3];
             }
         }
@@ -163,7 +129,7 @@ FilterFunctionAt3DPosition(double x, double y, double z, PixelType_Output& Outpu
                 auto temp_y = (Ptr[1] + y - m_InputImagePhysicalOrigin.y) / m_InputImagePixelSpacing.Sy;
 
                 auto temp_z = (Ptr[2] + z - m_InputImagePhysicalOrigin.z) / m_InputImagePixelSpacing.Sz;
-
+                // nearest neighbor interpolation
                 tempPixel += (*m_InputImage)(int_max(temp_x), int_max(temp_y), int_max(temp_z)) * Ptr[3];
             }
         }
@@ -176,7 +142,7 @@ FilterFunctionAt3DPosition(double x, double y, double z, PixelType_Output& Outpu
 
 template<typename PixelType_Input, typename PixelType_Output, int_max VectorPixelLength_Output>
 inline
-void ConvolutionImage3DFilter<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::
+void ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::
 OutputFunction(int_max OutputPixelIndex, const PixelType_Output& OutputPixel)
 {
     for (int_max i = 0; i < VectorPixelLength_Output; ++i)
@@ -187,13 +153,13 @@ OutputFunction(int_max OutputPixelIndex, const PixelType_Output& OutputPixel)
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-ConvolutionImage3DFilter<PixelType_Input, PixelType_Output, 1>::ConvolutionImage3DFilter()
+ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, 1>::ConvolutionImageFilter3D()
 {
 }
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-ConvolutionImage3DFilter<PixelType_Input, PixelType_Output, 1>::~ConvolutionImage3DFilter()
+ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, 1>::~ConvolutionImageFilter3D()
 {
 }
 
@@ -201,8 +167,8 @@ ConvolutionImage3DFilter<PixelType_Input, PixelType_Output, 1>::~ConvolutionImag
 
 template<typename PixelType_Input, typename PixelType_Output>
 inline
-void ConvolutionImage3DFilter<PixelType_Input, PixelType_Output, 1>::
-FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, PixelType_Output& OutputPixel)
+void ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, 1>::
+FilterFunctionAt3DIndex(PixelType_Output& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex)
 {
 	//OutputPixel = 0;
 	//return;
@@ -217,24 +183,8 @@ FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, Pixel
 	*/
 
     //-----------------------------------------
-    bool EnableBoundCheckForThisPosition = false;
+    bool EnableBoundCheckForThisPosition = this->WhetherToCheckBoundAt3DIndex(x_Index, y_Index, z_Index, 0);
     
-    if (m_IsBoundCheckEnabled == true)
-    {
-        if (m_NOBoundCheckRegionList_3DIndex[0].IsEmpty == true)
-        {
-            EnableBoundCheckForThisPosition = true;
-        }
-        else
-        {
-            if (x_Index < m_NOBoundCheckRegionList_3DIndex[0].x0 || x_Index > m_NOBoundCheckRegionList_3DIndex[0].x1
-                || y_Index < m_NOBoundCheckRegionList_3DIndex[0].y0 || y_Index > m_NOBoundCheckRegionList_3DIndex[0].y1
-                || z_Index < m_NOBoundCheckRegionList_3DIndex[0].z0 || z_Index > m_NOBoundCheckRegionList_3DIndex[0].z1)
-            {
-                EnableBoundCheckForThisPosition = true;
-            }
-        }
-    }
     //-----------------------------------------
 
     auto tempElementNumber = m_MaskList_3DIndex[0].GetElementNumber();
@@ -274,28 +224,12 @@ FilterFunctionAt3DIndex(int_max x_Index, int_max y_Index, int_max z_Index, Pixel
 
 template<typename PixelType_Input, typename PixelType_Output>
 inline
-void ConvolutionImage3DFilter<PixelType_Input, PixelType_Output, 1>::
-FilterFunctionAt3DPosition(double x, double y, double z, PixelType_Output& OutputPixel)
+void ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, 1>::
+FilterFunctionAt3DPosition(PixelType_Output& OutputPixel, double x, double y, double z, int_max ThreadIndex)
 {
     //-----------------------------------------
-    bool EnableBoundCheckForThisPosition = false;
+    bool EnableBoundCheckForThisPosition = this->WhetherToCheckBoundAt3DPosition(x, y, z, 0);
 
-    if (m_IsBoundCheckEnabled == true)
-    {
-        if (m_NOBoundCheckRegionList_3DPosition[0].IsEmpty == true)
-        {
-            EnableBoundCheckForThisPosition = true;
-        }
-        else
-        {
-            if (x < m_NOBoundCheckRegionList_3DPosition[0].x0 || x > m_NOBoundCheckRegionList_3DPosition[0].x1
-                || y < m_NOBoundCheckRegionList_3DPosition[0].y0 || y > m_NOBoundCheckRegionList_3DPosition[0].y1
-                || z < m_NOBoundCheckRegionList_3DPosition[0].z0 || z > m_NOBoundCheckRegionList_3DPosition[0].z1)
-            {
-                EnableBoundCheckForThisPosition = true;
-            }
-        }
-    }
     //-----------------------------------------
 
     auto tempElementNumber = m_MaskList_3DPosition[0].GetElementNumber();

@@ -56,8 +56,9 @@ bool KNNSoftAssignSparseEncoder<ElementType>::CheckInput()
 
 template<typename ElementType>
 inline 
-void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
-                                                               SparseVector<ElementType>& CodeInSparseColVector)
+void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(SparseVector<ElementType>& CodeInSparseColVector,
+                                                               const DenseMatrix<ElementType>& DataColVector,
+                                                               int_max ThreadNumber)
 {
     const DenseMatrix<ElementType>& D = m_Dictionary->BasisMatrix();
 

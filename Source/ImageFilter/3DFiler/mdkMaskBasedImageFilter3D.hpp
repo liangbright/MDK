@@ -1,44 +1,44 @@
-#ifndef __mdkNeighbourhoodImage3DFilter_hpp
-#define __mdkNeighbourhoodImage3DFilter_hpp
+#ifndef __mdkMaskBasedImageFilter3D_hpp
+#define __mdkMaskBasedImageFilter3D_hpp
 
 #include <thread>
 #include <algorithm>
 
-#include "mdkNeighbourhoodImage3DFilter.h"
+#include "mdkMaskBasedImageFilter3D.h"
 #include "mdkDebugConfig.h"
 
 namespace mdk
 {
 
 template<typename PixelType_Input, typename PixelType_Output>
-NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::NeighbourhoodImage3DFilter()
+MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::MaskBasedImageFilter3D()
 {
 }
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::~NeighbourhoodImage3DFilter()
+MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::~MaskBasedImageFilter3D()
 {
 	// do nothing
 }
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::SetMaskOf3DIndex(const std::vector<DenseMatrix<double>>& MaskList)
+void MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::SetMaskOf3DIndex(const std::vector<DenseMatrix<double>>& MaskList)
 {
     m_MaskList_3DIndex = MaskList;
 }
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::SetMaskOf3DPosition(const std::vector<DenseMatrix<double>>& MaskList)
+void MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::SetMaskOf3DPosition(const std::vector<DenseMatrix<double>>& MaskList)
 {
     m_MaskList_3DPosition = MaskList;
 }
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::SetMaskOf3DIndex(const DenseMatrix<double>& Mask)
+void MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::SetMaskOf3DIndex(const DenseMatrix<double>& Mask)
 {
     m_MaskList_3DIndex.resize(1);
 
@@ -47,7 +47,7 @@ void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::SetMaskOf3DI
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::SetMaskOf3DPosition(const DenseMatrix<double>& Mask)
+void MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::SetMaskOf3DPosition(const DenseMatrix<double>& Mask)
 {
     m_MaskList_3DPosition.resize(1);
 
@@ -56,7 +56,7 @@ void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::SetMaskOf3DP
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::LoadMask(const std::string& FilePathAndName)
+bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::LoadMask(const std::string& FilePathAndName)
 {
 
     return true;
@@ -64,14 +64,14 @@ bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::LoadMask(con
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::SaveMask(const std::string& FilePathAndName)
+bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::SaveMask(const std::string& FilePathAndName)
 {
     return true;
 }
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::ComputeRegionOfNOBoundCheck_3DIndex()
+void MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::ComputeRegionOfNOBoundCheck_3DIndex()
 {
     auto Length = int_max(m_MaskList_3DIndex.size());
 
@@ -154,7 +154,7 @@ void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::ComputeRegio
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::ComputeRegionOfNOBoundCheck_3DPosition()
+void MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::ComputeRegionOfNOBoundCheck_3DPosition()
 {    
     auto Length = int_max(m_MaskList_3DPosition.size());
 
@@ -245,23 +245,23 @@ void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::ComputeRegio
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::IsMaskOf3DIndexEmpty()
+bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::IsMaskOf3DIndexEmpty()
 {    
     return (m_MaskList_3DIndex.size() == 0);
 }
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::IsMaskOf3DPositionEmpty()
+bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::IsMaskOf3DPositionEmpty()
 {
     return (m_MaskList_3DPosition.size() == 0);
 }
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::CheckInput()
+bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::CheckInput()
 {
-    if (this->Image3DFilter::CheckInput() == false)
+    if (this->ImageFilter3D::CheckInput() == false)
     {
         return false;
     }
@@ -272,7 +272,7 @@ bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::CheckInput()
 
         if (Length <= 0)
         {
-            MDK_Error("Empty MaskList_3DPosition @ NeighbourhoodImage3DFilter::CheckInput()")
+            MDK_Error("Empty MaskList_3DPosition @ MaskBasedImageFilter3D::CheckInput()")
             return false;
         }
 
@@ -280,7 +280,7 @@ bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::CheckInput()
         {
             if (m_MaskList_3DPosition[i].IsEmpty() == true)
             {
-                MDK_Error("Empty MaskList_3DPosition @ NeighbourhoodImage3DFilter::CheckInput()")
+                MDK_Error("Empty MaskList_3DPosition @ MaskBasedImageFilter3D::CheckInput()")
                 return false;
             }
         }
@@ -291,7 +291,7 @@ bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::CheckInput()
 
         if (Length <= 0)
         {
-            MDK_Error("Empty MaskList_3DIndex @ NeighbourhoodImage3DFilter::CheckInput()")
+            MDK_Error("Empty MaskList_3DIndex @ MaskBasedImageFilter3D::CheckInput()")
             return false;
         }
 
@@ -299,7 +299,7 @@ bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::CheckInput()
         {
             if (m_MaskList_3DIndex[i].IsEmpty() == true)
             {
-                MDK_Error("Empty MaskList_3DIndex @ NeighbourhoodImage3DFilter::CheckInput()")
+                MDK_Error("Empty MaskList_3DIndex @ MaskBasedImageFilter3D::CheckInput()")
                 return false;
             }
         }
@@ -310,9 +310,9 @@ bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::CheckInput()
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::Preprocess()
+bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::Preprocess()
 {
-    if (this->Image3DFilter::Preprocess() == false)
+    if (this->ImageFilter3D::Preprocess() == false)
     {
         return false;
     }
@@ -338,9 +338,9 @@ bool NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::Preprocess()
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::Clear()
+void MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::Clear()
 {
-    this->Image3DFilter::Clear();
+    this->ImageFilter3D::Clear();
 
     m_MaskList_3DIndex.clear();
 
@@ -370,14 +370,98 @@ void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::Clear()
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::BuildMaskOf3DIndex()
+void MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::BuildMaskOf3DIndex()
 {
 }
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-void NeighbourhoodImage3DFilter<PixelType_Input, PixelType_Output>::BuildMaskOf3DPosition()
+void MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::BuildMaskOf3DPosition()
 {
+}
+
+
+template<typename PixelType_Input, typename PixelType_Output>
+inline
+bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::Is3DIndexInsideNOBoundCheckRegion(int_max x, int_max y, int_max z, int_max MaskIndex)
+{
+    bool IsInside = true;
+
+    if (m_NOBoundCheckRegionList_3DIndex[MaskIndex].IsEmpty == true)
+    {
+        IsInside = false;
+    }
+    else
+    {
+        if (x < m_NOBoundCheckRegionList_3DIndex[MaskIndex].x0 || x > m_NOBoundCheckRegionList_3DIndex[MaskIndex].x1
+            || y < m_NOBoundCheckRegionList_3DIndex[MaskIndex].y0 || y > m_NOBoundCheckRegionList_3DIndex[MaskIndex].y1
+            || z < m_NOBoundCheckRegionList_3DIndex[MaskIndex].z0 || z > m_NOBoundCheckRegionList_3DIndex[MaskIndex].z1)
+        {
+            IsInside = false;
+        }
+    }
+
+    return IsInside;
+}
+
+
+template<typename PixelType_Input, typename PixelType_Output>
+inline
+bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::Is3DPositionInsideNOBoundCheckRegion(double x, double y, double z, int_max MaskIndex)
+{
+    bool IsInside = true;
+
+    if (m_NOBoundCheckRegionList_3DPosition[MaskIndex].IsEmpty == true)
+    {
+        IsInside = false;
+    }
+    else
+    {
+        if (x < m_NOBoundCheckRegionList_3DPosition[MaskIndex].x0 || x > m_NOBoundCheckRegionList_3DPosition[MaskIndex].x1
+            || y < m_NOBoundCheckRegionList_3DPosition[MaskIndex].y0 || y > m_NOBoundCheckRegionList_3DPosition[MaskIndex].y1
+            || z < m_NOBoundCheckRegionList_3DPosition[MaskIndex].z0 || z > m_NOBoundCheckRegionList_3DPosition[MaskIndex].z1)
+        {
+            IsInside = false;
+        }
+    }
+
+    return IsInside;
+}
+
+
+template<typename PixelType_Input, typename PixelType_Output>
+inline 
+bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::WhetherToCheckBoundAt3DIndex(int_max x, int_max y, int_max z, int_max MaskIndex)
+{
+    bool WhetherToCheck = false;
+
+    if (this->IsBoundCheckEnabled() == true)
+    {
+        if (this->Is3DIndexInsideNOBoundCheckRegion(x, y, z, MaskIndex) == false)
+        {
+            WhetherToCheck = true;
+        }
+    }
+
+    return WhetherToCheck;
+}
+
+
+template<typename PixelType_Input, typename PixelType_Output>
+inline
+bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::WhetherToCheckBoundAt3DPosition(double x, double y, double z, int_max MaskIndex)
+{
+    bool WhetherToCheck = false;
+
+    if (this->IsBoundCheckEnabled() == true)
+    {
+        if (this->Is3DPositionInsideNOBoundCheckRegion(x, y, z, MaskIndex) == false)
+        {
+            WhetherToCheck = true;
+        }
+    }
+
+    return WhetherToCheck;
 }
 
 

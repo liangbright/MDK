@@ -299,7 +299,7 @@ ElementType ComputeCorrelationBetweenTwoVectors(const ElementType* VectorA, cons
 
     auto Correlation = ElementType(0);
 
-    auto eps_value = EPS<ElementType>();
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     if (std::abs(part_AA) > eps_value && std::abs(part_BB) > eps_value)
     { 

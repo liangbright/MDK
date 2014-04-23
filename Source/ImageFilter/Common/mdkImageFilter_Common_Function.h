@@ -30,17 +30,31 @@ DenseMatrix<int_max> ComputeHistogram(const Image3D<ElementType>& Signal, Elemen
 template<typename ElementType>
 DenseMatrix<int_max> ComputeHistogram(const ElementType* Signal, int_max SignalLength, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber);
 
+template<typename ElementType>
+bool ComputeHistogram(DenseMatrix<int_max> Histogram,
+                      const ElementType* Signal, int_max SignalLength, 
+                      ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber);
+
 // smooth a histogram by using Kernal function, such as Gaussian function (Sigma) within Radius
 // ElementType is float or double
+
+template<typename ElementType>
+DenseMatrix<ElementType> GaussianSmoothHistogram(const DenseMatrix<int_max>& Histogram, ElementType Sigma, int_max Radius);
+
+template<typename ElementType>
+bool GaussianSmoothHistogram(DenseMatrix<ElementType>& SmoothedHistogram, const DenseMatrix<int_max>& Histogram, ElementType Sigma, int_max Radius);
 
 template<typename ElementType>
 DenseMatrix<ElementType> SmoothHistogram(const DenseMatrix<int_max>& Histogram, const DenseMatrix<ElementType>& Kernal);
 
 template<typename ElementType>
-DenseMatrix<ElementType> SmoothHistogram(const DenseMatrix<int_max>& Histogram, ElementType Sigma, int_max Radius);
+bool SmoothHistogram(DenseMatrix<ElementType>& SmoothedHistogram, const DenseMatrix<int_max>& Histogram, const DenseMatrix<ElementType>& Kernal);
 
 template<typename ElementType>
 DenseMatrix<ElementType> SmoothHistogram(const int_max* Histogram, int_max HistLength, const ElementType* Kernal, int_max KernalLength);
+
+template<typename ElementType>
+bool SmoothHistogram(DenseMatrix<ElementType>& SmoothedHistogram, const int_max* Histogram, int_max HistLength, const ElementType* Kernal, int_max KernalLength);
 
 }// namespace mdk
 

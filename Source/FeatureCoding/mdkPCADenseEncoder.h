@@ -19,10 +19,9 @@ protected:
 
 public:
     
-    void EncodingFunction(const DenseMatrix<ElementType>& DataColVector,  DenseMatrix<ElementType>& CodeInDenseColVector);
+    void EncodingFunction(DenseMatrix<ElementType>& CodeInDenseColVector, const DenseMatrix<ElementType>& DataColVector, int_max ThreadIndex);
 
 private:
-//deleted:
     PCADenseEncoder(const PCADenseEncoder&) = delete;
 
     void operator=(const PCADenseEncoder&) = delete;

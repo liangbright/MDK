@@ -97,10 +97,11 @@ bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::UpdateParameterFo
 
 template<typename ElementType>
 inline
-void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
-                                                                                SparseVector<ElementType>& CodeInSparseColVector)
+void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(SparseVector<ElementType>& CodeInSparseColVector,
+                                                                                const DenseMatrix<ElementType>& DataColVector,
+                                                                                int_max ThreadIndex)
 {
-    m_ReconstructionEncoder.EncodingFunction(DataColVector, CodeInSparseColVector);
+    m_ReconstructionEncoder.EncodingFunction(CodeInSparseColVector, DataColVector, ThreadIndex);
 
     const std::vector<int_max>& NeighbourIndexList = CodeInSparseColVector.IndexList();
 
@@ -154,7 +155,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
     }
 
     // normalize (sum to 1) ???
-    auto eps_value = EPS<ElementType>();
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
     auto L1Norm_value = Membership.L1Norm();
     auto temp_value = ElementType(1) / ElementType(m_Parameter.NeighbourNumber);
     if (L1Norm_value >= eps_value*temp_value)

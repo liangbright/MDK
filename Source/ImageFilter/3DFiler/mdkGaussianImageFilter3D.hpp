@@ -1,25 +1,25 @@
-#ifndef __mdkGaussianImage3DFilter_hpp
-#define __mdkGaussianImage3DFilter_hpp
+#ifndef __mdkGaussianImageFilter3D_hpp
+#define __mdkGaussianImageFilter3D_hpp
 
 
 namespace mdk
 {
 
 template<typename PixelType_Input, typename PixelType_Output>
-GaussianImage3DFilter<PixelType_Input, PixelType_Output>::GaussianImage3DFilter()
+GaussianImageFilter3D<PixelType_Input, PixelType_Output>::GaussianImageFilter3D()
 {
     m_CutOffRatio = 3; // default: within 3 * std
 }
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-GaussianImage3DFilter<PixelType_Input, PixelType_Output>::~GaussianImage3DFilter()
+GaussianImageFilter3D<PixelType_Input, PixelType_Output>::~GaussianImageFilter3D()
 {
 }
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-void GaussianImage3DFilter<PixelType_Input, PixelType_Output>::SetSigmaList(double Sx, double Sy, double Sz)
+void GaussianImageFilter3D<PixelType_Input, PixelType_Output>::SetSigmaList(double Sx, double Sy, double Sz)
 {
     m_SigmaList.Clear();
 
@@ -34,11 +34,11 @@ void GaussianImage3DFilter<PixelType_Input, PixelType_Output>::SetSigmaList(doub
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-void GaussianImage3DFilter<PixelType_Input, PixelType_Output>::SetRotationMatrix(const DenseMatrix<double>& RotationMatrix)
+void GaussianImageFilter3D<PixelType_Input, PixelType_Output>::SetRotationMatrix(const DenseMatrix<double>& RotationMatrix)
 {
     if (RotationMatrix.GetColNumber() != 3 || RotationMatrix.GetRowNumber() != 3)
     {
-        MDK_Error("RotationMatrix is invalid @ GaussianImage3DFilter::SetRotationMatrix")
+        MDK_Error("RotationMatrix is invalid @ GaussianImageFilter3D::SetRotationMatrix")
         return;
     }
 
@@ -47,11 +47,11 @@ void GaussianImage3DFilter<PixelType_Input, PixelType_Output>::SetRotationMatrix
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-void GaussianImage3DFilter<PixelType_Input, PixelType_Output>::SetCutOffRatio(double CutOffRatio)
+void GaussianImageFilter3D<PixelType_Input, PixelType_Output>::SetCutOffRatio(double CutOffRatio)
 {
     if (CutOffRatio < 0.0)
     {
-        MDK_Error("CutOffRatio < 0.0 @ GaussianImage3DFilter::SetCutOffRatio")
+        MDK_Error("CutOffRatio < 0.0 @ GaussianImageFilter3D::SetCutOffRatio")
         return;
     }
 
@@ -60,7 +60,7 @@ void GaussianImage3DFilter<PixelType_Input, PixelType_Output>::SetCutOffRatio(do
 
 
 template<typename PixelType_Input, typename PixelType_Output>
-void GaussianImage3DFilter<PixelType_Input, PixelType_Output>::BuildMaskOf3DIndex()
+void GaussianImageFilter3D<PixelType_Input, PixelType_Output>::BuildMaskOf3DIndex()
 {
     // check to see if the Mask has been loaded from somewhere else
     if (this->IsMaskOf3DIndexEmpty() == false)
@@ -70,7 +70,7 @@ void GaussianImage3DFilter<PixelType_Input, PixelType_Output>::BuildMaskOf3DInde
 
     if (m_SigmaList.IsEmpty() == true)
     {
-        MDK_Error("m_SigmaList is empty @ GaussianImage3DFilter::BuildMaskOf3DIndex")
+        MDK_Error("m_SigmaList is empty @ GaussianImageFilter3D::BuildMaskOf3DIndex")
         return;
     }
 
@@ -86,7 +86,7 @@ void GaussianImage3DFilter<PixelType_Input, PixelType_Output>::BuildMaskOf3DInde
     {
         if (m_RotationMatrix.GetColNumber() != 3 || m_RotationMatrix.GetRowNumber() != 3)
         {
-            MDK_Error("m_RotationMatrix is invalid @ GaussianImage3DFilter::BuildMaskOf3DIndex")
+            MDK_Error("m_RotationMatrix is invalid @ GaussianImageFilter3D::BuildMaskOf3DIndex")
             return;
         }
 

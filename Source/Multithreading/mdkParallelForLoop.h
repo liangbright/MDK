@@ -11,13 +11,15 @@
 namespace mdk
 {
 
+// for performance reason, no input check is done in the following functions
+
 template<typename FunctionType>
 inline
 void ParallelForLoop(FunctionType SingleFunction, const std::vector<int_max>& LoopIndexList, int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread = 1);
 
 template<typename FunctionType>
 inline
-void ParallelForLoop_SubBlock_in_a_thread(FunctionType SingleFunction, std::vector<int_max> SubLoopIndexList);
+void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, std::vector<int_max> SubLoopIndexList);
 
 template<typename FunctionType>
 inline
@@ -26,7 +28,7 @@ void ParallelForLoop(FunctionType SingleFunction, int_max LoopIndex_start, int_m
 
 template<typename FunctionType>
 inline
-void ParallelForLoop_SubBlock_in_a_thread(FunctionType SingleFunction, int_max SubLoopIndex_start, int_max SubLoopIndex_end);
+void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, int_max SubLoopIndex_start, int_max SubLoopIndex_end);
 
 template<typename FunctionType>
 inline
@@ -36,9 +38,11 @@ template<typename FunctionType>
 inline
 void ParallelBlock(FunctionType BlockFunction, int_max DataIndex_start, int_max DataIndex_end, int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread = 1);
 
-inline void DivideData_For_ParallelComputation(std::vector<int_max>& IndexList_start, std::vector<int_max>& IndexList_end,
-                                               int_max Index_min, int_max Index_max, 
-                                               int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread = 1);
+inline int_max Compute_NecessaryNumberOfThreads_For_ParallelBlock(int_max TotalDataNumber, int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread = 1);
+
+inline void DivideData_For_ParallelBlock(std::vector<int_max>& DataIndexList_start, std::vector<int_max>& DataIndexList_end,
+                                         int_max DataIndex_min, int_max DataIndex_max, 
+                                         int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread = 1);
 
 }//namespace mdk
 

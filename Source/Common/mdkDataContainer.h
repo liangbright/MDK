@@ -82,6 +82,8 @@ private:
      
     std::shared_ptr<DataContainerData<ElementType>> m_Data;
 
+    ElementType* m_ElementPointer;
+
 public:
     typedef ElementType  ElementType;
 

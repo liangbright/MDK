@@ -26,13 +26,14 @@ protected:
 
     DenseMatrix<ElementType>* m_Code;
 
-    // other
-    int_max m_MaxNumberOfThreads;
+private:
+    DenseMatrix<ElementType> m_Code_SharedCopy;
+
+    //about multithreading:
 
     int_max m_MinNumberOfDataPerThread;
 
-private:
-    DenseMatrix<ElementType> m_Code_SharedCopy;
+    int_max m_MaxNumberOfThreads;
 
 protected:
     FeatureDictionaryBasedDenseEncoder();
@@ -53,7 +54,15 @@ public:
 
     void SetMaxNumberOfThreads(int_max Number);
 
+    void SetMinNumberOfDataPerThread(int_max Number);
+
     //-----------------------------------------
+
+    virtual bool CheckInput();
+
+    virtual bool Preprocess();
+
+    virtual bool Postprocess();
 
     virtual bool Update();
 
@@ -63,11 +72,11 @@ public:
 
 protected:
 
-    int_max GetMaximunNumberOfThreads();
+    int_max GetNumberOfThreadsTobeCreated();
 
     int_max GetMinNumberOfDataPerThread();
 
-    int_max GetFeatureVectorNumber();
+    int_max GetTotalNumberOfInputFeatureDataVectors();
 
     void SetupDefaultPipelineOutput();
 

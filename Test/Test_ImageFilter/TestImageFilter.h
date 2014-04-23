@@ -1,14 +1,14 @@
-﻿#ifndef __TestImage3DFilter_h
-#define __TestImage3DFilter_h
+﻿#ifndef __TestImageFilter3D_h
+#define __TestImageFilter3D_h
 
 #include <ctime>
 #include <cstdlib>
 #include <array>
 
 #include "mdkFileIO.h"
-#include "mdkConvolutionImage3DFilter.h"
-#include "mdkGaussianImage3DFilter.h"
-#include "mdkIntegralImage3DBuilder.h"
+#include "mdkConvolutionImageFilter3D.h"
+#include "mdkGaussianImageFilter3D.h"
+#include "mdkIntegralImageBuilder3D.h"
 
 #include "mdkImageFilter_Common_Function.h"
 
@@ -62,7 +62,7 @@ void Tempfunction(double& a, int N)
 }
 
 
-inline void FilterFunction(int64 xIndex, int64 yIndex, int64 zIndex, const Image3D<double>& InputImage, double& Output)
+inline void FilterFunction(double& Output, int64 xIndex, int64 yIndex, int64 zIndex, const Image3D<double>& InputImage)
 {
 	//std::cout << "FilterFuntion " << '\n';
 
@@ -109,7 +109,7 @@ void Test_FilterFunction()
 
 	for (int64 i = 0; i < Lx*Ly*Lz; ++i)
 	{
-		FilterFunction(0, 0, 0, InputImage, Output);
+        FilterFunction(Output, 0, 0, 0, InputImage);
 	}
 
 	std::cout << "Output " << Output << '\n';
@@ -168,13 +168,13 @@ void Test_FunctionTemplate_InputFilterFunction()
 
 	OutputImage.Fill(0);
 
-	Image3DFilter<double, double>  imfilter;
+	ImageFilter3D<double, double>  imfilter;
 
 	imfilter.SetInputImage(&InputImage);
 
 	imfilter.SetOutputImage(&OutputImage);
 
-	imfilter.SetMaxThreadNumber(1);
+	imfilter.SetMaxNumberOfThreads(1);
 
 	imfilter.SetInputFilterFunctionAt3DIndex(FilterFunction);
 
@@ -202,7 +202,7 @@ void Test_FunctionTemplate_InputFilterFunction()
 
 	for (int64 i = 0; i < Lx*Ly*Lz; ++i)
 	{
-		FilterFunction(0, 0, 0, InputImage, Output);
+        FilterFunction(Output, 0, 0, 0, InputImage);
 	}
 
 	std::cout << "Output " << Output << '\n';
@@ -233,13 +233,13 @@ void Test_MultiThread()
 
 	OutputImage.Fill(0);
 
-	Image3DFilter<double, double>  imfilter;
+	ImageFilter3D<double, double>  imfilter;
 
 	imfilter.SetInputImage(&InputImage);
 
 	imfilter.SetOutputImage(&OutputImage);
 
-	imfilter.SetMaxThreadNumber(1);
+	imfilter.SetMaxNumberOfThreads(1);
 
     imfilter.SetInputFilterFunctionAt3DIndex(FilterFunction);
 
@@ -260,7 +260,7 @@ void Test_MultiThread()
 
 	for (int64 i = 0; i < Lx*Ly*Lz; ++i)
 	{
-		FilterFunction(0, 0, 0, InputImage, Output);
+        FilterFunction(Output, 0, 0, 0, InputImage);
 	}
 
 	std::cout << "Output " << Output << '\n';
@@ -337,13 +337,13 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	OutputImage.Fill(0);
 
-	Image3DFilter<double, double>  imfilter;
+	ImageFilter3D<double, double>  imfilter;
 
 	imfilter.SetInputImage(&InputImage);
 
 	imfilter.SetOutputImage(&OutputImage);
 
-	imfilter.SetMaxThreadNumber(1);
+	imfilter.SetMaxNumberOfThreads(1);
 
     imfilter.SetInputFilterFunctionAt3DIndex(FilterFunction);
 
@@ -355,7 +355,7 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	std::cout << "imfilter time " << t1 - t0 << '\n';
 
-    ConvolutionImage3DFilter<double, double>  imconvfilter;
+    ConvolutionImageFilter3D<double, double>  imconvfilter;
 
 	imconvfilter.SetInputImage(&InputImage);
 
@@ -363,7 +363,7 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
     imconvfilter.SetInputFilterFunctionAt3DIndex(FilterFunction);
 
-	imconvfilter.SetMaxThreadNumber(1);
+	imconvfilter.SetMaxNumberOfThreads(1);
 
 	DenseMatrix<double> Mask(4, 1000 * 36 * 36 / 2);
 
@@ -387,7 +387,7 @@ void Test_ConvolutionFilter_VirtualFilterFunction()
 
 	for (int64 i = 0; i < Lx*Ly*Lz; ++i)
 	{
-		FilterFunction(0, 0, 0, InputImage, Output);
+        FilterFunction(Output, 0, 0, 0, InputImage);
 	}
 
 	std::cout << "Output " << Output << '\n';
@@ -418,13 +418,13 @@ void Test_ConvolutionFilter_ScalarOutput()
 
 	OutputImage.Fill(0);
 
-    ConvolutionImage3DFilter<double, double>  imfilter;
+    ConvolutionImageFilter3D<double, double>  imfilter;
 
 	imfilter.SetInputImage(&InputImage);
 
 	imfilter.SetOutputImage(&OutputImage);
 
-	imfilter.SetMaxThreadNumber(4);
+	imfilter.SetMaxNumberOfThreads(4);
 
 	//imfilter.EnableBoundCheck(false);
 
@@ -454,7 +454,7 @@ void Test_ConvolutionFilter_ScalarOutput()
 
     for (int64 i = 0; i < Lx*Ly*Lz; ++i)
 	{
-		FilterFunction(0, 0, 0, InputImage, Output);
+        FilterFunction(Output, 0, 0, 0, InputImage);
 	}
 
 	std::cout << "Output " << Output << '\n';
@@ -542,7 +542,7 @@ void Test_ConvolutionFilter_VectorOutput()
 
 	imfilter.SetOutputImage(&OutputImage);
 
-	imfilter.SetMaxThreadNumber(1);
+	imfilter.SetMaxNumberOfThreads(1);
 	
 	std::vector<DenseMatrix<double>> MaskList;
 	MaskList.resize(OuputVoxelSize);
@@ -584,13 +584,13 @@ void test_Valve_Filter()
 
     OutputImage.Fill(0);
 
-    ConvolutionImage3DFilter<double, double>  imfilter;
+    ConvolutionImageFilter3D<double, double>  imfilter;
 
     imfilter.SetInputImage(&InputImage);
 
     imfilter.SetOutputImage(&OutputImage);
 
-    imfilter.SetMaxThreadNumber(4);
+    imfilter.SetMaxNumberOfThreads(4);
 
     DenseMatrix<double> Mask(4, 7);
 
@@ -632,13 +632,13 @@ void test_GaussianFilter()
 
     OutputImage.Fill(0);
 
-    GaussianImage3DFilter<double, double>  imfilter;
+    GaussianImageFilter3D<double, double>  imfilter;
 
     imfilter.SetInputImage(&InputImage);
 
     imfilter.SetOutputImage(&OutputImage);
 
-    imfilter.SetMaxThreadNumber(4);
+    imfilter.SetMaxNumberOfThreads(4);
 
     imfilter.SetSigmaList(3, 4, 5);
 
@@ -677,13 +677,13 @@ void test_IntegralImageBuider()
 
     OutputImage.Fill(0);
 
-    IntegralImage3DBuilder<double, double>  imbuilder;
+    IntegralImageBuilder3D<double, double>  imbuilder;
 
     imbuilder.SetInputImage(&InputImage);
 
     imbuilder.SetOutputImage(&OutputImage);
 
-    imbuilder.SetMaxThreadNumber(4);
+    imbuilder.SetMaxNumberOfThreads(4);
 
     std::cout << "start: " << '\n';
 

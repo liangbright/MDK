@@ -17,15 +17,15 @@ protected:
     bool m_IsDenseEncoder;
     
 protected:
-    FeatureDictionaryBasedEncoder();
-    virtual ~FeatureDictionaryBasedEncoder();
+    FeatureDictionaryBasedEncoder() {}
+    virtual ~FeatureDictionaryBasedEncoder() {}
 
 public:
     //-----------------------------------------
 
-    bool IsDenseEncoder();
+    bool IsDenseEncoder() { return m_IsDenseEncoder };
 
-    bool IsSparseEncoder();
+    bool IsSparseEncoder() { return !m_IsDenseEncoder };
 
     //-----------------------------------------
 
@@ -41,40 +41,19 @@ public:
 
     //-----------------------------------------------------//
 
-    virtual bool Update();
-
-    //-----------------------------------------------------//
-
-    virtual bool CheckInput() = 0;
-
-    virtual bool Preprocess();
-
-    virtual bool Postprocess();
+    virtual bool Update() = 0;
 
     //----------------------------------------------------//
 
-    virtual inline void EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
-                                         DenseMatrix<ElementType>& CodeInDenseColVector) = 0;
+    virtual inline void EncodingFunction(DenseMatrix<ElementType>& CodeInDenseColVector,
+                                         const DenseMatrix<ElementType>& DataColVector,
+                                         int_max ThreadIndex) = 0;
 
     //----------------------------------------------------//
 
     virtual DenseMatrix<ElementType>* GetOutputCode() = 0;
 
     //----------------------------------------------------//
-
-protected:
-
-    virtual int_max GetTotalNumberOfInputFeatureVectors() = 0;
-
-    virtual int_max GetMaxNumberOfThreads() = 0;
-
-    virtual int_max GetMinNumberOfDataPerThread() = 0;
-
-    virtual void GenerateCode_in_a_Thread(int_max IndexOfFeatureDataVector_start, int_max IndexOfFeatureDataVector_end) = 0;
-
-    virtual void SetupDefaultPipelineOutput() = 0;
-
-    virtual void UpdatePipelineOutput() = 0;
 
 private:
 //deleted:
@@ -85,7 +64,5 @@ private:
 };
 
 }
-
-#include "mdkFeatureDictionaryBasedEncoder.hpp"
 
 #endif

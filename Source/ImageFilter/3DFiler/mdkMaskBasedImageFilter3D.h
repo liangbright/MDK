@@ -1,15 +1,15 @@
-﻿#ifndef __mdkNeighbourhoodImage3DFilter_h
-#define __mdkNeighbourhoodImage3DFilter_h
+﻿#ifndef __mdkMaskBasedImageFilter3D_h
+#define __mdkMaskBasedImageFilter3D_h
 
 
-#include "mdkImage3DFilter.h"
+#include "mdkImageFilter3D.h"
 
 
 namespace mdk
 {
 
 template<typename PixelType_Input, typename PixelType_Output>
-class NeighbourhoodImage3DFilter : public Image3DFilter<PixelType_Input, PixelType_Output>
+class MaskBasedImageFilter3D : public ImageFilter3D<PixelType_Input, PixelType_Output>
 {
 
 protected:
@@ -19,7 +19,7 @@ protected:
     // dy_Index
     // dz_Index
     
-    // if the filter is a convolution filter, another element (in the 4th row) in each column is 
+    // if the filter is a convolution filter, the 4th element in each column is 
     // w
     //
 	// w is the coefficient at (dx_Index, dy_Index, dz_Index) 
@@ -30,7 +30,7 @@ protected:
     // dy
     // dz
 
-    // if the filter is a convolution filter, another element (in the 4th row) in each column is 
+    // if the filter is a convolution filter, the 4th element in each column is 
     // w
     //
     // w is the coefficient at (dx, dy, dz)
@@ -48,8 +48,8 @@ protected:
     Image3DPixelSpacing   m_InputImagePixelSpacing;
 
 protected:		
-	NeighbourhoodImage3DFilter();
-	virtual ~NeighbourhoodImage3DFilter();
+	MaskBasedImageFilter3D();
+	virtual ~MaskBasedImageFilter3D();
  
 public:
 	bool LoadMask(const std::string& FilePathAndName);
@@ -83,14 +83,22 @@ protected:
 
     virtual bool Preprocess();
 
+    inline bool Is3DIndexInsideNOBoundCheckRegion(int_max x, int_max y, int_max z, int_max MaskIndex);
+
+    inline bool Is3DPositionInsideNOBoundCheckRegion(double x, double y, double z, int_max MaskIndex);
+
+    inline bool WhetherToCheckBoundAt3DIndex(int_max x, int_max y, int_max z, int_max MaskIndex);
+
+    inline bool WhetherToCheckBoundAt3DPosition(double x, double y, double z, int_max MaskIndex);
+
 private:
-	NeighbourhoodImage3DFilter(const NeighbourhoodImage3DFilter&); // Not implemented.
-	void operator=(const NeighbourhoodImage3DFilter&);   // Not implemented.
+	MaskBasedImageFilter3D(const MaskBasedImageFilter3D&) = delete;
+	void operator=(const MaskBasedImageFilter3D&) = delete;
 };
 
 }//end namespace mdk
 
 
-#include "mdkNeighbourhoodImage3DFilter.hpp"
+#include "mdkMaskBasedImageFilter3D.hpp"
 
 #endif

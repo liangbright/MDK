@@ -25,15 +25,27 @@ DenseMatrix<int_max> ComputeHistogram(const Image3D<ElementType>& Signal, Elemen
 }
 
 
+
 template<typename ElementType>
 DenseMatrix<int_max> ComputeHistogram(const ElementType* Signal, int_max SignalLength, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
 {
     DenseMatrix<int_max> Histogram;
 
+    ComputeHistogram(Histogram, Signal, SignalLength, Signal_lb, Signal_ub, BinNumber);
+
+    return Histogram;
+}
+
+
+template<typename ElementType>
+bool ComputeHistogram(DenseMatrix<int_max> Histogram,
+                      const ElementType* Signal, int_max SignalLength, 
+                      ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
+{
     if (Signal == nullptr || SignalLength <= 0 || Signal_lb >= Signal_ub || BinNumber <= 0)
     {
         MDK_Error("Invalid input @ ImageFilter_Common_Function ComputeHistogram(...)")
-        return Histogram;
+        return false;
     }
 
     Histogram.FastResize(1, BinNumber);
@@ -54,12 +66,23 @@ DenseMatrix<int_max> ComputeHistogram(const ElementType* Signal, int_max SignalL
         }
     }
 
-    return Histogram;
+    return true;
 }
 
 
 template<typename ElementType>
-DenseMatrix<ElementType> SmoothHistogram(const DenseMatrix<int_max>& Histogram, ElementType Sigma, int_max Radius)
+DenseMatrix<ElementType> GaussianSmoothHistogram(const DenseMatrix<int_max>& Histogram, ElementType Sigma, int_max Radius)
+{
+    DenseMatrix<ElementType> SmoothedHistogram;
+
+    GaussianSmoothHistogram(SmoothedHistogram, Sigma, Radius);
+
+    return SmoothedHistogram;
+}
+
+
+template<typename ElementType>
+bool GaussianSmoothHistogram(DenseMatrix<ElementType>& SmoothedHistogram, const DenseMatrix<int_max>& Histogram, ElementType Sigma, int_max Radius)
 {
     //----------- compute kernal ----------------------------//
 
@@ -78,8 +101,9 @@ DenseMatrix<ElementType> SmoothHistogram(const DenseMatrix<int_max>& Histogram, 
 
     //--------------- smooth--------------------------------//
 
-    return SmoothHistogram(Histogram.GetElementPointer(), Histogram.GetElementNumber(),
-                           Kernal.GetElementPointer(),    Kernal.GetElementNumber());
+    return SmoothHistogram(SmoothedHistogram,
+                           Histogram.GetElementPointer(), Histogram.GetElementNumber(),
+                           Kernal.GetElementPointer(), Kernal.GetElementNumber());
 }
 
 
@@ -92,14 +116,33 @@ DenseMatrix<ElementType> SmoothHistogram(const DenseMatrix<int_max>& Histogram, 
 
 
 template<typename ElementType>
+bool SmoothHistogram(DenseMatrix<ElementType>& SmoothedHistogram, const DenseMatrix<int_max>& Histogram, const DenseMatrix<ElementType>& Kernal)
+{
+    return SmoothHistogram(SmoothedHistogram, 
+                           Histogram.GetElementPointer(), Histogram.GetElementNumber(),
+                           Kernal.GetElementPointer(), Kernal.GetElementNumber());
+}
+
+
+
+template<typename ElementType>
 DenseMatrix<ElementType> SmoothHistogram(const int_max* Histogram, int_max HistLength, const ElementType* Kernal, int_max KernalLength)
 {
     DenseMatrix<ElementType> SmoothedHistogram;
 
+    SmoothHistogram(SmoothedHistogram, Histogram, HistLength, Kernal, KernalLength);
+
+    return SmoothedHistogram;
+}
+
+
+template<typename ElementType>
+bool SmoothHistogram(DenseMatrix<ElementType>& SmoothedHistogram, const int_max* Histogram, int_max HistLength, const ElementType* Kernal, int_max KernalLength)
+{
     if (Histogram == nullptr || HistLength <= 0 || Kernal == nullptr || KernalLength <= 0)
     {
         MDK_Error("Invalid input @ ImageFilter_Common_Function SmoothHistogram(...)")
-        return SmoothedHistogram;
+        return false;
     }
 
     //----------- check kernal ----------------------------//
@@ -110,13 +153,13 @@ DenseMatrix<ElementType> SmoothHistogram(const int_max* Histogram, int_max HistL
     if (rem != 1)
     {
         MDK_Error("Kernal Length must be odd (e.g., 3, 5, 7) < Kernal Length @ ImageFilter_Common_Function SmoothHistogram(...)")
-        return SmoothedHistogram;
+        return false;
     }
 
     if (HistLength < KernalLength)
     {
         MDK_Error("Histogram Length < Kernal Length @ ImageFilter_Common_Function SmoothHistogram(...)")
-        return SmoothedHistogram;
+        return false;
     }
 
     //---------------- smooth -------------------------//
@@ -148,7 +191,7 @@ DenseMatrix<ElementType> SmoothHistogram(const int_max* Histogram, int_max HistL
         SmoothedHistogram[i] = temp;
     }
 
-    return SmoothedHistogram;
+    return true;
 }
 
 

@@ -85,8 +85,9 @@ bool KNNReconstructionSparseEncoder<ElementType>::Preprocess()
 
 template<typename ElementType>
 inline
-void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& DataColVector,
-                                                                   SparseVector<ElementType>& CodeInSparseColVector)
+void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(SparseVector<ElementType>& CodeInSparseColVector,
+                                                                   const DenseMatrix<ElementType>& DataColVector,
+                                                                   int_max ThreadIndex)
 {
     const DenseMatrix<ElementType>& D = m_Dictionary->BasisMatrix(); // "auto D = " will copy
 

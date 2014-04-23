@@ -17,9 +17,11 @@ PCADenseEncoder<ElementType>::~PCADenseEncoder()
 
 
 template<typename ElementType>
-void PCADenseEncoder<ElementType>::EncodingFunction(const DenseMatrix<ElementType>& DataColVector, DenseMatrix<ElementType>& CodeInDenseColVector)
+void PCADenseEncoder<ElementType>::EncodingFunction(DenseMatrix<ElementType>& CodeInDenseColVector, 
+                                                    const DenseMatrix<ElementType>& DataColVector, 
+                                                    int_max ThreadIndex)
 {
-    auto D = m_Dictionary->BasisMatrix();
+    DenseMatrix<ElementType>& D = m_Dictionary->BasisMatrix(); // "auto D =" will copy
 
     auto CodeLength = D.GetColNumber();
 

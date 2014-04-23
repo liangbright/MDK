@@ -1,18 +1,18 @@
-﻿#ifndef __mdkGaussianImage3DFilter_h
-#define __mdkGaussianImage3DFilter_h
+﻿#ifndef __mdkGaussianImageFilter3D_h
+#define __mdkGaussianImageFilter3D_h
 
 #include <algorithm>
 #include <cmath>
 
 #include "mdkDebugConfig.h"
 #include "mdkDenseMatrix.h"
-#include "mdkConvolutionImage3DFilter.h"
+#include "mdkConvolutionImageFilter3D.h"
 
 namespace mdk
 {
 
 template<typename PixelType_Input, typename PixelType_Output>
-class GaussianImage3DFilter : public ConvolutionImage3DFilter<PixelType_Input, PixelType_Output, 1>
+class GaussianImageFilter3D : public ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, 1>
 {
 private:
 
@@ -23,8 +23,8 @@ private:
     double m_CutOffRatio;
 
 public:		
-    GaussianImage3DFilter();
-    ~GaussianImage3DFilter();
+    GaussianImageFilter3D();
+    ~GaussianImageFilter3D();
   
     void SetSigmaList(double Sx, double Sy, double Sz);
 
@@ -36,12 +36,12 @@ protected:
     void BuildMaskOf3DIndex();
 
 private:
-    GaussianImage3DFilter(const GaussianImage3DFilter&) = delete;
-    void operator=(const GaussianImage3DFilter&) = delete;
+    GaussianImageFilter3D(const GaussianImageFilter3D&) = delete;
+    void operator=(const GaussianImageFilter3D&) = delete;
 };
 
 }//end namespace mdk
 
-#include "mdkGaussianImage3DFilter.hpp"
+#include "mdkGaussianImageFilter3D.hpp"
 
 #endif

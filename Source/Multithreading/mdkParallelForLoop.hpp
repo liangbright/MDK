@@ -8,18 +8,18 @@ template<typename FunctionType>
 inline
 void ParallelForLoop(FunctionType SingleFunction, const std::vector<int_max>& LoopIndexList, int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread)
 {
-    ParallelBlock([&](std::vector<int_max> SubLoopIndexList){ParallelForLoop_SubBlock_in_a_thread(SingleFunction, SubLoopIndexList); },
+    ParallelBlock([&](std::vector<int_max> SubLoopIndexList, int_max ThreadIndex){ParallelForLoop_Block_in_a_thread(SingleFunction, SubLoopIndexList, ThreadIndex); },
                   DataIndexList, MaxNumberOfThreads, MinNumberOfDataPerThread);
 }
 
 
 template<typename FunctionType>
 inline
-void ParallelForLoop_SubBlock_in_a_thread(FunctionType SingleFunction, std::vector<int_max> SubLoopIndexList)
+void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, std::vector<int_max> SubLoopIndexList, int_max ThreadIndex)
 {
     for (int_max i = 0; i < int_max(SubLoopIndexList.size()); ++i)
     {
-        SingleFunction(SubLoopIndexList[i]);
+        SingleFunction(SubLoopIndexList[i], ThreadIndex);
     }
 }
 
@@ -29,18 +29,18 @@ inline
 void ParallelForLoop(FunctionType SingleFunction, int_max LoopIndex_start, int_max LoopIndex_end, 
                      int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread)
 {
-    ParallelBlock([&](int_max Index_start, int_max Index_end){ParallelForLoop_SubBlock_in_a_thread(SingleFunction, Index_start, Index_end); },
+    ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex){ParallelForLoop_Block_in_a_thread(SingleFunction, Index_start, Index_end, ThreadIndex); },
                   LoopIndex_start, LoopIndex_end, MaxNumberOfThreads, MinNumberOfDataPerThread);
 }
 
 
 template<typename FunctionType>
 inline
-void ParallelForLoop_SubBlock_in_a_thread(FunctionType SingleFunction, int_max LoopIndex_start, int_max LoopIndex_end)
+void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, int_max LoopIndex_start, int_max LoopIndex_end, int_max ThreadIndex)
 {
     for (int_max i = LoopIndex_start; i <= LoopIndex_end; ++i)
     {
-        SingleFunction(i);
+        SingleFunction(i, ThreadIndex);
     }
 }
 
@@ -58,7 +58,7 @@ void ParallelBlock(FunctionType BlockFunction, const std::vector<int_max>& DataI
         std::vector<int_max> IndexList_start;
         std::vector<int_max> IndexList_end;
 
-        DivideData_For_ParallelComputation(IndexList_start, IndexList_end, 0, TotalDataNumber - 1, MaxNumberOfThreads, MinNumberOfDataPerThread);
+        DivideData_For_ParallelBlock(IndexList_start, IndexList_end, 0, TotalDataNumber - 1, MaxNumberOfThreads, MinNumberOfDataPerThread);
 
         auto ThreadNumber = int_max(IndexList_start.size());
 
@@ -76,10 +76,12 @@ void ParallelBlock(FunctionType BlockFunction, const std::vector<int_max>& DataI
                 SubDataIndexList[k] = DataIndexList[IndexList_start[i] + k];
             }
 
-            ThreadList[i] = std::thread([&]{BlockFunction(std::move(SubDataIndexList)); });
+            int_max ThreadIndex = i;
 
-            // this will crash, i can be ThreadNumber
-            //ThreadList[i] = std::thread([&]{this->GenerateCode_in_a_Thread(IndexList_start[i], IndexList_end[i]); });
+            ThreadList[i] = std::thread([&]{BlockFunction(std::move(SubDataIndexList), ThreadIndex); });
+
+            // this will crash, i can be equal to ThreadNumber
+            //ThreadList[i] = std::thread([&]{BlockFunction(IndexList_start[i], IndexList_end[i], ThreadIndex); });
         }
 
         //wait for all the threads
@@ -90,7 +92,7 @@ void ParallelBlock(FunctionType BlockFunction, const std::vector<int_max>& DataI
     }
     else//single-thread
     {
-        BlockFunction(DataIndexList);
+        BlockFunction(DataIndexList, 0);
     }
 }
 
@@ -108,7 +110,7 @@ void ParallelBlock(FunctionType BlockFunction, int_max DataIndex_start, int_max 
         std::vector<int_max> IndexList_start;
         std::vector<int_max> IndexList_end;
 
-        DivideData_For_ParallelComputation(IndexList_start, IndexList_end, 0, TotalDataNumber - 1, MaxNumberOfThreads, MinNumberOfDataPerThread);
+        DivideData_For_ParallelBlock(IndexList_start, IndexList_end, 0, TotalDataNumber - 1, MaxNumberOfThreads, MinNumberOfDataPerThread);
 
         auto ThreadNumber = int_max(IndexList_start.size());
 
@@ -119,11 +121,12 @@ void ParallelBlock(FunctionType BlockFunction, int_max DataIndex_start, int_max 
         {
             auto SubDataIndex_start = IndexList_start[i];
             auto SubDataIndex_end = IndexList_end[i];
+            auto ThreadIndex = i;
 
-            ThreadList[i] = std::thread([&]{BlockFunction(SubDataIndex_start, SubDataIndex_end); });
+            ThreadList[i] = std::thread([&]{BlockFunction(SubDataIndex_start, SubDataIndex_end, ThreadIndex); });
 
-            // this will crash, i can be ThreadNumber
-            //ThreadList[i] = std::thread([&]{this->GenerateCode_in_a_Thread(IndexList_start[i], IndexList_end[i]); });
+            // this will crash, i can be equal to ThreadNumber
+            //ThreadList[i] = std::thread([&]{BlockFunction(IndexList_start[i], IndexList_end[i], ThreadIndex); });
         }
 
         //wait for all the threads
@@ -134,23 +137,17 @@ void ParallelBlock(FunctionType BlockFunction, int_max DataIndex_start, int_max 
     }
     else//single-thread
     {
-        BlockFunction(DataIndex_start, DataIndex_end);
+        BlockFunction(DataIndex_start, DataIndex_end, 0);
     }
 }
 
 
-inline void DivideData_For_ParallelComputation(std::vector<int_max>& IndexList_start, std::vector<int_max>& IndexList_end,
-                                               int_max DataIndex_min, int_max DataIndex_max, 
-                                               int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread)
+inline int_max Compute_NecessaryNumberOfThreads_For_ParallelBlock(int_max TotalDataNumber, int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread)
 {
-    if (MaxNumberOfThreads == 1)
-    {
-        IndexList_start.push_back(DataIndex_min);
-        IndexList_end.push_back(DataIndex_max);
-        return;
+    if (MaxNumberOfThreads <= 1)
+    {       
+        return 1;
     }
-
-    auto TotalDataNumber = DataIndex_max - DataIndex_min + 1;
 
     int_max ThreadNumber = 1;
 
@@ -167,28 +164,49 @@ inline void DivideData_For_ParallelComputation(std::vector<int_max>& IndexList_s
         }
     }
 
-    if (ThreadNumber == 1)
-    {//one thread is enough
+    return ThreadNumber;
+}
 
-        IndexList_start.push_back(DataIndex_min);
-        IndexList_end.push_back(DataIndex_max);
+
+inline void DivideData_For_ParallelBlock(std::vector<int_max>& DataIndexList_start, std::vector<int_max>& DataIndexList_end,
+                                         int_max DataIndex_min, int_max DataIndex_max, 
+                                         int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread)
+{
+    if (MaxNumberOfThreads <= 1)
+    {
+        DataIndexList_start.push_back(DataIndex_min);
+        DataIndexList_end.push_back(DataIndex_max);
         return;
     }
 
-    IndexList_start.resize(ThreadNumber);
-    IndexList_end.resize(ThreadNumber);
+    auto TotalDataNumber = DataIndex_max - DataIndex_min + 1;
+
+    auto ThreadNumber = Compute_NecessaryNumberOfThreads_For_ParallelBlock(TotalDataNumber, MaxNumberOfThreads, MinNumberOfDataPerThread);
+
+    if (ThreadNumber == 1)
+    {//one thread is enough
+
+        DataIndexList_start.push_back(DataIndex_min);
+        DataIndexList_end.push_back(DataIndex_max);
+        return;
+    }
+
+    DataIndexList_start.resize(ThreadNumber);
+    DataIndexList_end.resize(ThreadNumber);
+
+    int_max DataNumberPerThread = TotalDataNumber / ThreadNumber;
 
     int_max tempIndex = DataIndex_min;
 
     for (int_max i = 0; i < ThreadNumber; ++i)
     {
-        IndexList_start[i] = tempIndex;
-        IndexList_end[i] = tempIndex + DataNumberPerThread - 1;
+        DataIndexList_start[i] = tempIndex;
+        DataIndexList_end[i]   = tempIndex + DataNumberPerThread - 1;
 
         tempIndex += DataNumberPerThread;
     }
 
-    IndexList_end[ThreadNumber - 1] = DataIndex_max;
+    DataIndexList_end[ThreadNumber - 1] = DataIndex_max;
 }
 
 

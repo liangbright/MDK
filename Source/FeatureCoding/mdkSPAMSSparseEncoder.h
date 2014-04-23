@@ -91,12 +91,12 @@ public:
 
     using FeatureDictionaryBasedSparseEncoder::EncodingFunction;
 
-    inline void EncodingFunction(const DenseMatrix<ElementType>& DataColVector, SparseVector<ElementType>& CodeInSparseColVector);
+    inline void EncodingFunction(SparseVector<ElementType>& CodeInSparseColVector, const DenseMatrix<ElementType>& DataColVector, int_max ThreadIndex);
 
     //---------------------------------------------------------------------------------
 
 protected:
-    void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end);
+    void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end, int_max ThreadIndex);
 
 
 private:
