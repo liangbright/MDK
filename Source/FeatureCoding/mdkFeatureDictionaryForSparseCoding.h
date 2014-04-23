@@ -1,7 +1,7 @@
 #ifndef __mdkFeatureDictionaryForSparseCoding_h
 #define __mdkFeatureDictionaryForSparseCoding_h
 
-
+#include "mdkFileIO.h"
 #include "mdkFeatureDictionary.h"
 
 
@@ -17,11 +17,11 @@ public:
 
     DenseMatrix<ElementType> m_BasisMatrix; // D
 
-    DenseMatrix<ElementType> m_Covariance;
-    // relation between bases
+    DenseMatrix<ElementType> m_ReconstructionStd;
+    // m_ReconstructionStd(j) = sqrt(sum_i(Prob(i,j)*(FeatureData_i - D(:,j))^2))
 
-    DenseMatrix<ElementType> m_StandardDeviation;
-    // StandardDeviation(j) = sqrt(sum_i(Prob(i,j)*(FeatureData_i - D(:,j))^2))
+    // not used for now ----------------
+    DenseMatrix<ElementType> m_Covariance;  // relation between bases
 
 public:
 
@@ -48,6 +48,8 @@ public:
     void ForceShare(const FeatureDictionaryForSparseCoding& InputDictionary);
 
     bool ForceShare(const FeatureDictionaryForSparseCoding* InputDictionary);
+
+    void Take(FeatureDictionaryForSparseCoding& InputDictionary);
 
     void Clear();
 

@@ -14,9 +14,14 @@ struct Parameter_Of_KNNSoftAssignSparseEncoder
     int_max NeighbourNumber;
 
     std::string DistanceType;
+    //
+    // If a Feature vector is treated as ordinary signal
     // L1Distance
     // L2Distance
     // Correlation
+    //
+    // If a Feature vector is normalized histogram or probability mass function (PMF), i.e., discrete probability distribution
+    // KLDivergence
 
     Parameter_Of_KNNSoftAssignSparseEncoder() { this->Clear(); }
     ~Parameter_Of_KNNSoftAssignSparseEncoder() {}

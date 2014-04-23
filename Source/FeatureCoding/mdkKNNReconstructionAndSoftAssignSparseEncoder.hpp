@@ -61,9 +61,9 @@ bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::CheckInput()
         return false;
     }
   
-    if (m_Dictionary->m_StandardDeviation.IsEmpty() == true)
+    if (m_Dictionary->m_ReconstructionStd.IsEmpty() == true)
     {
-        MDK_Error("Incomplete Dictionary: m_StandardDeviation is empty @ KNNReconstructionAndSoftAssignSparseEncoder::CheckInput()")
+        MDK_Error("Incomplete Dictionary: m_ReconstructionStd is empty @ KNNReconstructionAndSoftAssignSparseEncoder::CheckInput()")
         return false;
     }
 
@@ -126,7 +126,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
 
         for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
         {
-            auto s = m_Dictionary->m_StandardDeviation[NeighbourIndexList[i]];
+            auto s = m_Dictionary->m_ReconstructionStd[NeighbourIndexList[i]];
 
             Membership[i] = std::exp(ElementType(-0.5)*(NeighbourDistanceList[i] * NeighbourDistanceList[i]) / (s*s));
         }
@@ -137,7 +137,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
 
         for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
         {
-            auto s = m_Dictionary->m_StandardDeviation[NeighbourIndexList[i]];
+            auto s = m_Dictionary->m_ReconstructionStd[NeighbourIndexList[i]];
 
             Membership[i] = std::exp(ElementType(-0.5)*(NeighbourDistanceList[i] * NeighbourDistanceList[i]) / (s*s));
         }
@@ -152,6 +152,22 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
 
             //Membership[i] = (NeighbourCorrelationList[i] + 1) / 2;
         }
+    }
+    else if (m_Parameter.DistanceTypeForSoftAssign == "KLDivergence")
+    {
+        auto NeighbourKLDivergenceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(ReconstructedDataColVector, SubRecord);
+
+        ElementType s = 10;
+
+        for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
+        {
+            Membership[i] = std::exp(ElementType(-0.5)*(NeighbourKLDivergenceList[i] * NeighbourKLDivergenceList[i]) / (s*s));
+        }
+    }
+    else
+    {
+        MDK_Error("DistanceType is invalid @ KNNReconstructionAndSoftAssignSparseEncoder::EncodingFunction(...)")
+        return;
     }
 
     // normalize (sum to 1) ???
@@ -174,7 +190,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
 
     for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
     {
-        auto s_temp = m_Dictionary->m_StandardDeviation[NeighbourIndexList[i]];
+        auto s_temp = m_Dictionary->m_ReconstructionStd[NeighbourIndexList[i]];
 
         s_max = (std::max)(s_max, s_temp); // std::max(s_max, s_temp) can not be compiled
     }

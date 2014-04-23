@@ -47,7 +47,8 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInput()
 
     if (m_Parameter.DistanceTypeForKNNSearch != "L1Distance" 
         && m_Parameter.DistanceTypeForKNNSearch != "L2Distance" 
-        && m_Parameter.DistanceTypeForKNNSearch != "Correlation")
+        && m_Parameter.DistanceTypeForKNNSearch != "Correlation"
+        && m_Parameter.DistanceTypeForKNNSearch != "KLDivergence")
     {
         MDK_Error("DistanceTypeForKNNSearch is invalid @ KNNReconstructionSparseEncoder::CheckInput()")
         return false;
@@ -104,6 +105,10 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(SparseVector<
     else if (m_Parameter.DistanceTypeForKNNSearch == "Correlation")
     {
         DistanceList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, D);
+    }
+    else if (m_Parameter.DistanceTypeForKNNSearch == "KLDivergence")
+    {
+        DistanceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, D);
     }
     else
     {

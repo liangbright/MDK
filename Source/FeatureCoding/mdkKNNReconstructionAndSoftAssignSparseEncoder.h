@@ -23,6 +23,7 @@ struct Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder
     // L1Distance
     // L2Distance  : default
     // Correlation
+    // KLDivergence
 
     // parameter only for Soft Assign ----------------------------
 
@@ -30,6 +31,7 @@ struct Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder
     // L1Distance
     // L2Distance
     // Correlation  : default
+    // KLDivergence
 
     Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder() { this->Clear(); }
     ~Parameter_Of_KNNReconstructionAndSoftAssignSparseEncoder() {}

@@ -86,6 +86,22 @@ template<typename ElementType>
 inline
 ElementType ComputeUnnormalizedCorrelationBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
 
+
+
+template<typename ElementType>
+DenseMatrix<ElementType> ComputeKLDivergenceListOfSingleVectorFromColVectorSet(const DenseMatrix<ElementType>& SingleVector,
+                                                                               const DenseMatrix<ElementType>& ColVectorSet);
+
+// D(A||B), B is considered as "ground truth", basis  
+template<typename ElementType>
+inline
+ElementType ComputeKLDivergenceOfVectorAFromVectorB(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+
+template<typename ElementType>
+inline
+ElementType ComputeKLDivergenceOfVectorAFromVectorB(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
+
+
 }
 
 #include "mdkLinearAlgebra_Function_DenseMatrix_Part_3.hpp"

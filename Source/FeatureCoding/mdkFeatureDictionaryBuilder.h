@@ -15,11 +15,11 @@ public:
     virtual ~FeatureDictionaryBuilder() {}
 
     //---------------------------------------------------//
-    // just for reminder
+    // just for reminder, must be overloaded
     void SetInputFeatureData() {MDK_Error("Empty Function @ FeatureDictionaryBuilder::SetInputFeatureData()")}
 
     //----------------------------------------------------//
-    // just for reminder
+    // just for reminder, must be overloaded
     void SetOutputDictionary() {MDK_Error("Empty Function @ FeatureDictionaryBuilder::SetOutputDictionary()")}
  
     //----------------------------------------------------//
@@ -31,7 +31,7 @@ public:
     virtual bool Update();
 
     //----------------------------------------------------//
-    // just for reminder
+    // just for reminder, must be overloaded
     void GetOutputDictionary() {MDK_Error("Empty Function @ FeatureDictionaryBuilder::SetOutputDictionary()") } 
 
 protected:

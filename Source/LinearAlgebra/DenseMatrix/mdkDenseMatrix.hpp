@@ -349,12 +349,6 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::Copy(const DenseMatrix<ElementType_Input>& InputMatrix)
 {
-    if (this == &InputMatrix)
-    {
-        MDK_Warning("A Matrix tries to Copy itself @ DenseMatrix::Copy(InputMatrix)")
-        return true;
-    }
-
     if (InputMatrix.IsEmpty() == true)
     {
         if (this->IsSizeFixed() == true)

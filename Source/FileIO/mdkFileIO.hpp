@@ -50,6 +50,265 @@ bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, 
 }
 
 
+// note:
+// do not include file type in FilePathAndName
+// i.e., FilePathAndName = "C:/Data/MatrixData", not  "C:/Data/MatrixData.data" or "C:/Data/MatrixData.json"
+//
+template<typename ScalarType>
+DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const std::string& FilePathAndName)
+{
+    DenseMatrix<ScalarType> OutputMatrix;
+
+    //----------------------------------------------------------
+
+    auto ReferenceScalar = ScalarType(0);
+
+    auto OutputScalarTypeName_temp = FindScalarTypeName(ReferenceScalar);
+
+    QString OutputScalarTypeName(OutputScalarTypeName_temp.c_str());
+
+    int_max OutputByteNumber = CalByteNumberOfScalar(ReferenceScalar);
+
+    //---------------------------------------------- Read header --------------------------------------------------------//
+
+    QString QFilePathAndName(FilePathAndName.c_str());
+
+    QFile HeaderFile(QFilePathAndName + ".json");
+
+    if (!HeaderFile.open(QIODevice::ReadOnly))
+    {
+        MDK_Error("Couldn't open Header File.")
+        return OutputMatrix;
+    }
+
+    //----------------------------------------------------------//
+    QByteArray HeaderContent = HeaderFile.readAll();
+    QJsonDocument HeaderDoc(QJsonDocument::fromJson(HeaderContent));
+    QJsonObject HeaderObject = HeaderDoc.object();
+    //-----------------------------------------------------------//
+
+    QString InputScalarTypeName = 0;
+
+    auto it = HeaderObject.find("ScalarType");
+    if (it != HeaderObject.end())
+    {
+        InputScalarTypeName = it.value().toString();
+    }
+    else
+    {
+        MDK_Error("Couldn't get ScalarType @ LoadScalarDenseMatrixFromJsonDataFile(...)")
+        HeaderFile.close();
+        return OutputMatrix;
+    }
+
+    //---------------------------------------------------
+
+    int_max RowNumber = 0;
+
+    it = HeaderObject.find("RowNumber");
+    if (it != HeaderObject.end())
+    {
+        RowNumber = it.value().toString().toLongLong();
+    }
+    else
+    {
+        MDK_Error("Couldn't get RowNumber @ LoadScalarDenseMatrixFromJsonDataFile(...)")
+            HeaderFile.close();
+        return OutputMatrix;
+    }
+
+    int_max ColNumber = 0;
+
+    it = HeaderObject.find("ColNumber");
+    if (it != HeaderObject.end())
+    {
+        ColNumber = it.value().toString().toLongLong();
+    }
+    else
+    {
+        MDK_Error("Couldn't get ColNumber @ LoadScalarDenseMatrixFromJsonDataFile(...)")
+            HeaderFile.close();
+        return OutputMatrix;
+    }
+
+    HeaderFile.close();
+
+    //-------------------------------------------------- Read data ---------------------------------------------------------//
+
+    QFile DataFile(QFilePathAndName + ".data");
+
+    if (!DataFile.open(QIODevice::ReadOnly))
+    {
+        MDK_Error("Couldn't open data file:" << FilePathAndName)
+            return OutputMatrix;
+    }
+
+    //----------------------------------------------------------------------------------------------
+
+    if (OutputScalarTypeName == InputScalarTypeName)
+    {
+        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, ScalarType>(OutputMatrix, DataFile, RowNumber, ColNumber, OutputByteNumber);
+
+        DataFile.close();
+
+        return OutputMatrix;
+    }
+
+    MDK_Warning("OutputScalarTypeName != InputScalarTypeName, Output may be inaccurate @ LoadScalarDenseMatrixFromJsonDataFile(...)")
+
+    Internal_LoadScalarDenseMatrixFromJsonDataFile(OutputMatrix, DataFile, RowNumber, ColNumber, InputScalarTypeName);
+
+    DataFile.close();
+
+    return OutputMatrix;
+}
+
+
+template<typename OutputScalarType>
+void Internal_LoadScalarDenseMatrixFromJsonDataFile(DenseMatrix<OutputScalarType>& OutputMatrix,
+                                                    QFile& DataFile, int_max RowNumber, int_max ColNumber,
+                                                    const std::string& InputScalarTypeName)
+{
+    if (InputScalarTypeName == "double")
+    {
+        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, double>(OutputMatrix, DataFile, RowNumber, ColNumber, 8);
+    }
+    else if (InputScalarTypeName == "float")
+    {
+        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, float>(OutputMatrix, DataFile, RowNumber, ColNumber, 4);
+    }
+    else if (InputScalarTypeName == "int8")
+    {
+        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, int8>(OutputMatrix, DataFile, RowNumber, ColNumber, 1);
+    }
+    else if (InputScalarTypeName == "int16")
+    {
+        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, int16>(OutputMatrix, DataFile, RowNumber, ColNumber, 2);
+    }
+    else if (InputScalarTypeName == "int32")
+    {
+        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, int32>(OutputMatrix, DataFile, RowNumber, ColNumber, 4);
+    }
+    else if (InputScalarTypeName == "int64")
+    {
+        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, int64>(OutputMatrix, DataFile, RowNumber, ColNumber, 8);
+    }
+    else if (InputScalarTypeName == "uint8")
+    {
+        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, uint8>(OutputMatrix, DataFile, RowNumber, ColNumber, 1);
+    }
+    else if (InputScalarTypeName == "uint16")
+    {
+        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, uint16>(OutputMatrix, DataFile, RowNumber, ColNumber, 2);
+    }
+    else if (InputScalarTypeName == "uint32")
+    {
+        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, uint32>(OutputMatrix, DataFile, RowNumber, ColNumber, 4);
+    }
+    else if (InputScalarTypeName == "uint64")
+    {
+        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, uint64>(OutputMatrix, DataFile, RowNumber, ColNumber, 8);
+    }
+    else
+    {
+        MDK_Error("unknown ScalarType of data file @ Internal_LoadScalarDenseMatrixFromJsonDataFile(...) ")
+    }
+}
+
+
+template<typename OutputScalarType, typename InputScalarType>
+void Internal_LoadScalarDenseMatrixFromJsonDataFile(DenseMatrix<OutputScalarType>& OutputMatrix, 
+                                                    QFile& DataFile, int_max RowNumber, int_max ColNumber, 
+                                                    int_max BytesOfInputScalarType)
+{
+    int_max BypesofDataFile = DataFile.size();
+
+    if (BypesofDataFile != RowNumber*ColNumber * BytesOfInputScalarType)
+    {
+        MDK_Error("Data file size is not equal to matrix size @ Internal_LoadScalarDenseMatrixFromJsonDataFile(...)")
+        return;
+    }
+
+    OutputMatrix.FastResize(RowNumber, ColNumber);
+
+    auto ElementPointer = OutputMatrix.GetElementPointer();
+
+    auto tempScalar = InputScalarType(0);
+
+    for (int_max i = 0; i < RowNumber*ColNumber; ++i)
+    {
+        DataFile.read((char*)(&tempScalar), BytesOfInputScalarType);
+
+        ElementPointer[i] = OutputScalarType(tempScalar);
+    }
+}
+
+// note:
+// do not include file type in FilePathAndName
+// i.e., FilePathAndName = "C:/Data/MatrixData", not  "C:/Data/MatrixData.data" or "C:/Data/MatrixData.json"
+//
+template<typename ScalarType>
+bool SaveScalarDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, const std::string& FilePathAndName)
+{
+    ScalarType tempScalar = ScalarType(0);
+
+    int_max ByteNumber = CalByteNumberOfScalar(tempScalar);
+
+    if (ByteNumber <= 0)
+    {
+        MDK_Error("Unknown type of matrix @ SaveScalarDenseMatrixAsJsonDataFile(...)")
+            return false;
+    }
+
+    //----------------------------------------------------------------------------------------
+
+    std::vector<NameValueQStringPair> PairList(4);
+
+    auto Size = InputMatrix.GetSize();
+
+    PairList[0].Name = "MatrixType";
+    PairList[0].Value = "ScalarDenseMatrix";
+
+    auto ScalarTypeName = FindScalarTypeName(tempScalar);
+    QString QScalarTypeName(ScalarTypeName.c_str());
+
+    PairList[1].Name = "ScalarType";
+    PairList[1].Value = QScalarTypeName;
+
+    PairList[2].Name = "RowNumber";
+    PairList[2].Value = QString::number(Size.RowNumber);
+
+    PairList[3].Name = "ColNumber";
+    PairList[3].Value = QString::number(Size.ColNumber);
+
+    // write header file (json) --------------------------------------------------
+
+    QString QFilePathAndName(FilePathAndName.c_str());
+
+    WritePairListAsJsonFile(PairList, QFilePathAndName);
+
+    // write data file  --------------------------------------------------
+
+    QFile DataFile(QFilePathAndName + ".data");
+
+    if (!DataFile.open(QIODevice::WriteOnly))
+    {
+        MDK_Error("Couldn't open file to write matrix data @ SaveScalarDenseMatrixAsJsonDataFile(...)")
+            return false;
+    }
+
+    int_max L = Size.ColNumber*Size.RowNumber;
+
+    auto RawPointer = (char*)InputMatrix.GetElementPointer();
+
+    DataFile.write(RawPointer, L*ByteNumber);
+
+    DataFile.flush();
+
+    return true;
+}
+
+
 template<typename ScalarType>
 Image3D<ScalarType> LoadGrayScale3DImageFromDICOMSeries(const std::string& FilePath)
 {
@@ -204,21 +463,16 @@ bool SaveGrayScale3DImageAsJsonDataFile(const Image3D<ScalarType>& InputImage, c
     DataFile.write(RawPointer, L*ByteNumber);
 
     DataFile.flush();
-
     DataFile.close();
 
     return true;
 }
 
 
-// note:
-// do not include file type in FilePathAndName
-// i.e., FilePathAndName = "C:/Data/MatrixData", not  "C:/Data/MatrixData.data" or "C:/Data/MatrixData.json"
-//
 template<typename ScalarType>
-DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const std::string& FilePathAndName)
+FeatureDictionaryForSparseCoding<ScalarType> LoadFeatureDictionaryForSparseCoding(const std::string& FilePathAndName)
 {
-    DenseMatrix<ScalarType> OutputMatrix;
+    FeatureDictionaryForSparseCoding<ScalarType> Dictionary;
 
     //----------------------------------------------------------
 
@@ -238,8 +492,8 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const std::string&
 
     if (!HeaderFile.open(QIODevice::ReadOnly))
     {
-        MDK_Error("Couldn't open Header File.")
-        return OutputMatrix;
+        MDK_Error("Couldn't open header file:" << FilePathAndName)
+        return Dictionary;
     }
 
     //----------------------------------------------------------//
@@ -247,7 +501,7 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const std::string&
     QJsonDocument HeaderDoc(QJsonDocument::fromJson(HeaderContent));
     QJsonObject HeaderObject = HeaderDoc.object();
     //-----------------------------------------------------------//
-   
+
     QString InputScalarTypeName = 0;
 
     auto it = HeaderObject.find("ScalarType");
@@ -257,9 +511,23 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const std::string&
     }
     else
     {
-        MDK_Error("Couldn't get ScalarType @ LoadScalarDenseMatrixFromJsonDataFile(...)")
+        MDK_Error("Couldn't get ScalarType @ LoadFeatureDictionaryForSparseCoding(...)")
         HeaderFile.close();
-        return OutputMatrix;
+        return Dictionary;
+    }
+
+    //---------------------------------------------------
+
+    it = HeaderObject.find("Name");
+    if (it != HeaderObject.end())
+    {
+        Dictionary.m_Name = it.value().toString().toStdString();
+    }
+    else
+    {
+        MDK_Error("Couldn't get Name @ LoadFeatureDictionaryForSparseCoding(...)")
+        HeaderFile.close();
+        return Dictionary;
     }
 
     //---------------------------------------------------
@@ -273,9 +541,9 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const std::string&
     }
     else
     {
-        MDK_Error("Couldn't get RowNumber @ LoadScalarDenseMatrixFromJsonDataFile(...)")
+        MDK_Error("Couldn't get RowNumber @ LoadFeatureDictionaryForSparseCoding(...)")
         HeaderFile.close();
-        return OutputMatrix;
+        return Dictionary;
     }
 
     int_max ColNumber = 0;
@@ -287,11 +555,11 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const std::string&
     }
     else
     {
-        MDK_Error("Couldn't get ColNumber @ LoadScalarDenseMatrixFromJsonDataFile(...)")
+        MDK_Error("Couldn't get ColNumber @ LoadFeatureDictionaryForSparseCoding(...)")
         HeaderFile.close();
-        return OutputMatrix;
+        return Dictionary;
     }
-    
+
     HeaderFile.close();
 
     //-------------------------------------------------- Read data ---------------------------------------------------------//
@@ -301,136 +569,68 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const std::string&
     if (!DataFile.open(QIODevice::ReadOnly))
     {
         MDK_Error("Couldn't open data file:" << FilePathAndName)
-        return OutputMatrix;
+        return Dictionary;
     }
 
     //----------------------------------------------------------------------------------------------
 
     if (OutputScalarTypeName == InputScalarTypeName)
     {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, ScalarType>(OutputMatrix, DataFile, RowNumber, ColNumber, OutputByteNumber);
+        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, ScalarType>(Dictionary.m_BasisMatrix, DataFile, RowNumber, ColNumber, OutputByteNumber);
+        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, ScalarType>(Dictionary.m_ReconstructionStd, DataFile, 1, ColNumber, OutputByteNumber);
 
         DataFile.close();
 
-        return OutputMatrix;
+        return Dictionary;
     }
 
-    MDK_Warning("OutputScalarTypeName != InputScalarTypeName, Output may be wrong @ LoadScalarDenseMatrixFromJsonDataFile(...)")
+    MDK_Warning("OutputScalarTypeName != InputScalarTypeName, Output may be inaccurate @ LoadFeatureDictionaryForSparseCoding(...)")
 
-
-    if (InputScalarTypeName == "double")
-    {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, double>(OutputMatrix, DataFile, RowNumber, ColNumber, 8);
-    }
-    else if (InputScalarTypeName == "float")
-    {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, float>(OutputMatrix, DataFile, RowNumber, ColNumber, 4);
-    }
-    else if (InputScalarTypeName == "int8")
-    {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, int8>(OutputMatrix, DataFile, RowNumber, ColNumber, 1);
-    }
-    else if (InputScalarTypeName == "int16")
-    {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, int16>(OutputMatrix, DataFile, RowNumber, ColNumber, 2);
-    }
-    else if (InputScalarTypeName == "int32")
-    {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, int32>(OutputMatrix, DataFile, RowNumber, ColNumber, 4);
-    }
-    else if (InputScalarTypeName == "int64")
-    {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, int64>(OutputMatrix, DataFile, RowNumber, ColNumber, 8);
-    }
-    else if (InputScalarTypeName == "uint8")
-    {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, uint8>(OutputMatrix, DataFile, RowNumber, ColNumber, 1);
-    }
-    else if (InputScalarTypeName == "uint16")
-    {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, uint16>(OutputMatrix, DataFile, RowNumber, ColNumber, 2);
-    }
-    else if (InputScalarTypeName == "uint32")
-    {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, uint32>(OutputMatrix, DataFile, RowNumber, ColNumber, 4);
-    }
-    else if (InputScalarTypeName == "uint64")
-    {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, uint64>(OutputMatrix, DataFile, RowNumber, ColNumber, 8);
-    }
-    else
-    {
-        MDK_Error("unknown ScalarType of data file @ LoadScalarDenseMatrixFromJsonDataFile(...) ")
-    }
+    Internal_LoadScalarDenseMatrixFromJsonDataFile(Dictionary.m_BasisMatrix, DataFile, RowNumber, ColNumber, InputScalarTypeName.toStdString());
+    Internal_LoadScalarDenseMatrixFromJsonDataFile(Dictionary.m_ReconstructionStd, DataFile, 1, ColNumber, InputScalarTypeName.toStdString());
 
     DataFile.close();
 
-    return OutputMatrix;
+    return Dictionary;
 }
 
 
-template<typename OutputScalarType, typename InputScalarType>
-void Internal_LoadScalarDenseMatrixFromJsonDataFile(DenseMatrix<OutputScalarType>& OutputMatrix, QFile& DataFile, int_max RowNumber, int_max ColNumber, int_max BytesOfInputScalarType)
-{
-    int_max BypesofDataFile = DataFile.size();
-
-    if (BypesofDataFile != RowNumber*ColNumber * BytesOfInputScalarType)
-    {
-        MDK_Error("Data file size is not equal to matrix size @ LoadScalarDenseMatrixFromJsonDataFile(...)")
-        return;
-    }
-
-    OutputMatrix.FastResize(RowNumber, ColNumber);
-
-    auto ElementPointer = OutputMatrix.GetElementPointer();
-
-    auto tempScalar = InputScalarType(0);
-
-    for (int_max i = 0; i < RowNumber*ColNumber; ++i)
-    {
-        DataFile.read((char*)(&tempScalar), BytesOfInputScalarType);
-
-        ElementPointer[i] = OutputScalarType(tempScalar);
-    }
-}
-
-// note:
-// do not include file type in FilePathAndName
-// i.e., FilePathAndName = "C:/Data/MatrixData", not  "C:/Data/MatrixData.data" or "C:/Data/MatrixData.json"
-//
 template<typename ScalarType>
-bool SaveScalarDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, const std::string& FilePathAndName)
+bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding<ScalarType>& Dictionary, const std::string& FilePathAndName)
 {
-    ScalarType tempScalar = ScalarType(0);
+    ScalarType ReferenceScalar = ScalarType(0);
 
-    int_max ByteNumber = CalByteNumberOfScalar(tempScalar);
+    int_max ByteNumber = CalByteNumberOfScalar(ReferenceScalar);
 
     if (ByteNumber <= 0)
     {
-        MDK_Error("Unknown type of matrix @ SaveScalarDenseMatrixAsJsonDataFile(...)")
+        MDK_Error("Unknown type of image @ SaveFeatureDictionaryForSparseCoding(...)")
         return false;
     }
 
-    //----------------------------------------------------------------------------------------
-
-    std::vector<NameValueQStringPair> PairList(4);
-
-    auto Size = InputMatrix.GetSize();
-
-    PairList[0].Name = "MatrixType";
-    PairList[0].Value = "ScalarDenseMatrix";
-
-    auto ScalarTypeName = FindScalarTypeName(tempScalar);
+    auto ScalarTypeName = FindScalarTypeName(ReferenceScalar);
     QString QScalarTypeName(ScalarTypeName.c_str());
 
-    PairList[1].Name = "ScalarType";
-    PairList[1].Value = QScalarTypeName;
+    //-------------------------------------------------------------------------------------
 
-    PairList[2].Name = "RowNumber";
-    PairList[2].Value = QString::number(Size.RowNumber);
+    std::vector<NameValueQStringPair> PairList(5);
 
-    PairList[3].Name = "ColNumber";
-    PairList[3].Value = QString::number(Size.ColNumber);
+    PairList[0].Name = "DictionaryType";
+    PairList[0].Value = "FeatureDictionaryForSparseCoding";
+
+    PairList[1].Name = "Name";
+    PairList[1].Value = Dictionary.GetName().c_str();
+
+    PairList[2].Name = "ScalarType";
+    PairList[2].Value = QScalarTypeName;
+
+    auto Size = Dictionary.GetSize();
+
+    PairList[3].Name = "RowNumber";
+    PairList[3].Value = QString::number(Size.RowNumber);
+
+    PairList[4].Name = "ColNumber";
+    PairList[4].Value = QString::number(Size.ColNumber);
 
     // write header file (json) --------------------------------------------------
 
@@ -444,17 +644,22 @@ bool SaveScalarDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMat
 
     if (!DataFile.open(QIODevice::WriteOnly))
     {
-        MDK_Error("Couldn't open file to write matrix data @ SaveScalarDenseMatrixAsJsonDataFile(...)")
-        return false;
+        MDK_Error("Couldn't open file to write data @ SaveFeatureDictionaryForSparseCoding(...)")
+            return false;
     }
 
-    int_max L = Size.ColNumber*Size.RowNumber;
+    // step 1 : write BasisMatrix
+    int_max L = Size.RowNumber * Size.ColNumber;
+    auto RawPointer = (char*)Dictionary.BasisMatrix().GetElementPointer();
+    DataFile.write(RawPointer, L*ByteNumber);
 
-    auto RawPointer = (char*)InputMatrix.GetElementPointer();
-
+    // step 2 : write ReconstructionStd
+    L = Dictionary.m_ReconstructionStd.GetElementNumber();
+    RawPointer = (char*)Dictionary.m_ReconstructionStd.GetElementPointer();
     DataFile.write(RawPointer, L*ByteNumber);
 
     DataFile.flush();
+    DataFile.close();
 
     return true;
 }

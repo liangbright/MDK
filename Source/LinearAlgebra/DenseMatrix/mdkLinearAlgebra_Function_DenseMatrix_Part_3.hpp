@@ -413,7 +413,7 @@ ElementType ComputeUncenteredCorrelationBetweenTwoVectors(const ElementType* Vec
 
     auto Correlation = ElementType(0);
 
-    auto eps_value = EPS<ElementType>();
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     if (std::abs(part_AA) > eps_value && std::abs(part_BB) > eps_value)
     {
@@ -531,6 +531,101 @@ ElementType ComputeUnnormalizedCorrelationBetweenTwoVectors(const ElementType* V
     }
 
     return Correlation;
+}
+
+
+template<typename ElementType>
+DenseMatrix<ElementType> ComputeKLDivergenceListOfSingleVectorFromColVectorSet(const DenseMatrix<ElementType>& SingleVector,
+                                                                               const DenseMatrix<ElementType>& ColVectorSet)
+{
+    DenseMatrix<ElementType> KLDivergenceList;
+
+    auto Size = ColVectorSet.GetSize();
+
+    if (Size.ColNumber == 0)
+    {
+        MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeKLDivergenceListOfSingleVectorFromColVectorSet(...)")
+        return KLDivergenceList;
+    }
+
+    if (SingleVector.IsVector() == false)
+    {
+        MDK_Error("Input vector is not a vector @ mdkLinearAlgebra_DenseMatrix ComputeKLDivergenceListOfSingleVectorFromColVectorSet(...)")
+        return KLDivergenceList;
+    }
+
+    if (SingleVector.GetElementNumber() != Size.RowNumber)
+    {
+        MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeKLDivergenceOfSingleVectorFromColVectorSet(...)")
+        return KLDivergenceList;
+    }
+
+    KLDivergenceList.FastResize(1, Size.RowNumber);
+
+    auto PointToSingleVector = SingleVector.GetElementPointer();
+
+    auto PointerToSet = ColVectorSet.GetElementPointer();
+
+    for (int_max j = 0; j < Size.ColNumber; ++j)
+    {
+        auto Vector_j = PointerToSet + j*Size.RowNumber;
+
+        KLDivergenceList[j] = ComputeKLDivergenceOfVectorAFromVectorB(PointToSingleVector, Vector_j, Size.RowNumber, false);
+    }
+
+    return KLDivergenceList;
+}
+
+
+template<typename ElementType>
+inline
+ElementType ComputeKLDivergenceOfVectorAFromVectorB(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB)
+{
+    if (VectorA.IsVector() == false || VectorB.IsVector() == false)
+    {
+        MDK_Error("Input VectorA or VectorB is not a vector @ mdkLinearAlgebra_DenseMatrix ComputeKLDivergenceOfVectorAFromVectorB(...)")
+        return ElementType(-100); // Kullback–Leibler divergence is always non-negative
+    }
+
+    auto LengthA = VectorA.GetElementNumber();
+    auto LengthB = VectorB.GetElementNumber();
+
+    if (LengthA != LengthB)
+    {
+        MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeKLDivergenceOfVectorAFromVectorB(...)")
+        return ElementType(-100);
+    }
+
+    return ComputeKLDivergenceOfVectorAFromVectorB(VectorA.GetElementPointer(), VectorB.GetElementPointer(), LengthA, false);
+}
+
+
+template<typename ElementType>
+inline
+ElementType ComputeKLDivergenceOfVectorAFromVectorB(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput)
+{
+    if (CheckInput == true)
+    {
+        if (VectorA == nullptr || VectorB == nullptr || Length <= 0)
+        {
+            MDK_Error("Invalid input @ mdkLinearAlgebra_DenseMatrix ComputeKLDivergenceOfVectorAFromVectorB(pointer ...)")
+            return ElementType(-100);
+        }
+    }
+
+    auto KLDivergence = ElementType(0);
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+
+    for (int_max i = 0; i < Length; ++i)
+    {
+        if (VectorA[i] > eps_value)
+        {
+            KLDivergence += VectorB[i] * (std::log(VectorB[i] / VectorA[i]));
+        }
+    }
+
+    return KLDivergence;
 }
 
 

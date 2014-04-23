@@ -27,6 +27,7 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
     // L1Distance
     // L2Distance
     // Correlation
+    // KLDivergence
 
     bool Nonnegative;
 
