@@ -8,12 +8,9 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ K
 
 PROJECT(Test_with_mdk)
 
-
 set(MDK_DIR "C:/Research/MDK/MDK/Source")
 
 set(Arma_DIR "C:/Research/MDK/armadillo")
-
-set(Lapack_Blas_DIR "C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release")
 
 set(Eigen_DIR "C:/Research/MDK/eigen")
 
@@ -26,14 +23,12 @@ ${MDK_DIR}/Common
 ${MDK_DIR}/LinearAlgebra/Common
 ${MDK_DIR}/LinearAlgebra/DenseMatrix
 ${Arma_DIR}
-${Lapack_Blas_DIR}
 ${Eigen_DIR}
 ${qpOASES_DIR}
 )
 
 set(MDK_CPP_FILES 
 ${MDK_DIR}/Common/mdkObject.cpp
-${MDK_DIR}/LinearAlgebra/Common/mdkMatrix_Common.cpp
 )
 
 FILE(GLOB qpOASES_CCP_FILES C:/Research/MDK/qpOASES/qpOASES/*.cpp)

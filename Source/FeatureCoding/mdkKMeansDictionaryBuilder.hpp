@@ -2,10 +2,6 @@
 #define __mdkKMeansDictionaryBuilder_hpp
 
 
-#include <opencv2/core/core.hpp>
-
-//#include "mdkKMeansDictionaryBuilder.h"
-
 namespace mdk
 {
 
@@ -49,7 +45,7 @@ void KMeansDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
 template<typename ElementType>
 void KMeansDictionaryBuilder<ElementType>::UpdatePipelineOutput()
 {
-    if (m_Dictionary != m_Dictionary_SharedCopy)
+    if (m_Dictionary != &m_Dictionary_SharedCopy)
     {
         m_Dictionary_SharedCopy.ForceShare(m_Dictionary);
     }
@@ -57,9 +53,23 @@ void KMeansDictionaryBuilder<ElementType>::UpdatePipelineOutput()
 
 
 template<typename ElementType>
-void KMeansDictionaryBuilder<ElementType>::SetInitialDictionary(const FeatureDictionary<ElementType>* InitialDictionary)
+void KMeansDictionaryBuilder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* FeatureData)
 {
-    m_InitialDictionary = InitialDictionary;
+    m_FeatureData = FeatureData;
+}
+
+
+template<typename ElementType>
+void KMeansDictionaryBuilder<ElementType>::SetInitialDictionary(const FeatureDictionary<ElementType>* Dictionary)
+{
+    m_InitialDictionary = Dictionary;
+}
+
+
+template<typename ElementType>
+void KMeansDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* Dictionary)
+{
+    m_Dictionary = Dictionary;
 }
 
 
@@ -146,9 +156,9 @@ void KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_OpenCV()
 
     cv::Mat FeatureLabel;
 
-    auto Center = cv::Mat(int(m_DictionaryLength), int(m_FeatureData->GetColNumber()), OpenCVSingleChannelMatrixElementTypeEnum::FLOAT32);
+    auto Center = cv::Mat(int(m_ClusterNumber), int(m_FeatureData->GetColNumber()), OpenCVSingleChannelMatrixElementTypeEnum::FLOAT32);
 
-    cv::kmeans(FeatureData, int(m_DictionaryLength), FeatureLabel,
+    cv::kmeans(FeatureData, int(m_ClusterNumber), FeatureLabel,
                cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 10, 1.0),
                3, cv::KMEANS_PP_CENTERS, Center);
 
@@ -175,6 +185,13 @@ void KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_VLFeat()
 template<typename ElementType>
 void KMeansDictionaryBuilder<ElementType>::KMeansOnlineUpdate()
 {
+}
+
+
+template<typename ElementType>
+FeatureDictionaryForSparseCoding<ElementType>* KMeansDictionaryBuilder<ElementType>::GetOutputDictionary()
+{
+    return &m_Dictionary_SharedCopy;
 }
 
 

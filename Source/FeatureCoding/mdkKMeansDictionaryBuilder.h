@@ -4,6 +4,10 @@
 #include <vector>
 #include <string>
 
+#include <opencv2/core/core.hpp>
+
+#include "mdkTypeToOpenCVTranslation.h"
+
 #include "mdkFeatureDictionaryBuilder.h"
 #include "mdkFeatureDictionaryForSparseCoding.h"
 
@@ -38,9 +42,9 @@ public:
   
     void SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
 
-    void SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* Dictionary);
-
     void SetInitialDictionary(const FeatureDictionary<ElementType>* InitialDictionary);
+
+    void SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* Dictionary);
 
     bool CheckInput();
 

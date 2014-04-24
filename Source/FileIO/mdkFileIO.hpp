@@ -156,7 +156,7 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const std::string&
 
     MDK_Warning("OutputScalarTypeName != InputScalarTypeName, Output may be inaccurate @ LoadScalarDenseMatrixFromJsonDataFile(...)")
 
-    Internal_LoadScalarDenseMatrixFromJsonDataFile(OutputMatrix, DataFile, RowNumber, ColNumber, InputScalarTypeName);
+    Internal_LoadScalarDenseMatrixFromJsonDataFile(OutputMatrix, DataFile, RowNumber, ColNumber, InputScalarTypeName.toStdString());
 
     DataFile.close();
 

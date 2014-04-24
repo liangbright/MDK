@@ -9,11 +9,12 @@ namespace mdk
 template<typename ElementType>
 class FeatureDictionaryBuilder : public ProcessObject
 {
+
+protected:
+    FeatureDictionaryBuilder();
+    virtual ~FeatureDictionaryBuilder();
+
 public:
-
-    FeatureDictionaryBuilder() {}
-    virtual ~FeatureDictionaryBuilder() {}
-
     //---------------------------------------------------//
     // just for reminder, must be overloaded
     void SetInputFeatureData() {MDK_Error("Empty Function @ FeatureDictionaryBuilder::SetInputFeatureData()")}
@@ -29,11 +30,12 @@ public:
     //----------------------------------------------------//
 
     virtual bool Update();
-
+  
     //----------------------------------------------------//
     // just for reminder, must be overloaded
     void GetOutputDictionary() {MDK_Error("Empty Function @ FeatureDictionaryBuilder::SetOutputDictionary()") } 
 
+    //---------------------------------------------------//
 protected:
     virtual void GenerateDictionary() = 0;
 
@@ -52,5 +54,7 @@ private:
 };
 
 }// namespace mdk
+
+#include "mdkFeatureDictionaryBuilder.hpp"
 
 #endif

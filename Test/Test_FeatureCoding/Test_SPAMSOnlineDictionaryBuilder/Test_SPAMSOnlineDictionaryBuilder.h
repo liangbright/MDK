@@ -30,31 +30,6 @@
 namespace mdk
 {
 
-template<typename ElementType>
-void DisplayMatrix(const std::string& Name, const DenseMatrix<ElementType>& InputMatrix, int_max precision = 0, bool Flag_scientific = false)
-{
-    std::cout << Name << " = " << '\n';
-
-    if (Flag_scientific == true)
-    {
-        std::cout << std::scientific << std::setprecision(precision);
-    }
-    else
-    {
-        std::cout << std::setprecision(precision) << std::fixed;
-    }
-
-    for (int_max i = 0; i < InputMatrix.GetRowNumber(); ++i)
-    {
-        for (int_max j = 0; j < InputMatrix.GetColNumber(); ++j)
-        {
-            std::cout << std::setw(6 + precision) << InputMatrix(i, j) << ' ';
-        }
-        std::cout << '\n';
-    }
-}
-
-
 void Test_DisplayMatrix()
 {
     DenseMatrix<double> A = { 1, 0.00001, 0.00001, 0.00002, 0.0000000003 };
@@ -111,11 +86,9 @@ void Test_Train()
 
     KNNReconstructionSparseEncoder<double> Encoder;
 
-    Encoder.SelectLsqLinMethod("Normal");
-
     Encoder.SetMaxNumberOfThreads(1);
 
-    Encoder.SetNeighbourNumber(3);
+    Encoder.m_Parameter.NeighbourNumber = 3;
 
     SPAMSOnlineDictionaryBuilder<double> DictionaryBuilder;
 
