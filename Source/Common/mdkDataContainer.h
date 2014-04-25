@@ -28,7 +28,9 @@ struct DataContainerData
 
     std::vector<ElementType> DataArray;
 
-    ElementType NaNElement;
+    ElementType* ElementPointer;
+
+    ElementType ErrorElement;
 
     bool IsSizeFixed;
 
@@ -37,29 +39,51 @@ struct DataContainerData
     {
         Length = 0;
         IsSizeFixed = false;
-        NaNElement = GetNaNElement(NaNElement);
+        ElementPointer = nullptr;
+        ErrorElement = GetNaNElement(ErrorElement);
     };
 
     ~DataContainerData() {};
 
+    void CopyDataToInternalDataArrayIfNecessary()
+    {
+        if (ElementPointer != DataArray.data())
+        {
+            if (ElementPointer == nullptr)
+            {
+                MDK_Error("ElementPointer is nullptr @ DataContainerData::CopyDataToInternalDataArrayIfNecessary()")
+                return;
+            }
+
+            DataArray.resize(Length);
+
+            for (int_max i = 0; i < Length; ++i)
+            {
+                DataArray[i] = ElementPointer[i];
+            }
+
+            ElementPointer = DataArray.data();
+        }
+    }
+
     ElementType& operator[](int_max Index)
     {
-        return DataArray[Index];
+        return ElementPointer[Index];
     }
 
     const ElementType& operator[](int_max Index) const
     {
-        return DataArray[Index];
+        return ElementPointer[Index];
     }
 
     ElementType& operator()(int_max Index)
     {
-        return DataArray[Index];
+        return ElementPointer[Index];
     }
 
     const ElementType& operator()(int_max Index) const
     {
-        return DataArray[Index];
+        return ElementPointer[Index];
     }
 
 private:
@@ -94,7 +118,7 @@ public:
 
     inline DataContainer(const std::initializer_list<ElementType>& InputData);
 
-    inline DataContainer(const ElementType& Element);
+    inline DataContainer(const ElementType& Element); // the first element
 
     // deep-copy or shared-copy constructor
     inline DataContainer(const DataContainer<ElementType>& InputData, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
@@ -119,16 +143,17 @@ public:
 
     //----------------------  Copy  ----------------------------------------//
 
-    template<typename ElementType_Input>  
-    inline bool Copy(const DataContainer<ElementType_Input>& InputData);
+    inline bool Copy(const DataContainer<ElementType>& InputData);
 
-    template<typename ElementType_Input>
-    inline bool Copy(const DataContainer<ElementType_Input>* InputData);
+    inline bool Copy(const DataContainer<ElementType>* InputData);
 
-    template<typename ElementType_Input>
-    inline bool Copy(const ElementType_Input* InputElementPointer, int_max InputLength);
+    inline bool Copy(const ElementType* InputElementPointer, int_max InputLength);
 
     inline bool Fill(const ElementType& Element);
+
+    //-------------------------- ShallowCopy  ---------------------------------------------- //
+
+    inline bool ShallowCopy(const ElementType* InputElementPointer, int_max InputLength);
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
 
@@ -174,23 +199,23 @@ public:
 
     inline bool IsShared() const;
 
-    inline int_max GetLength() const;
+    inline int_max GetElementNumber() const;
 
-    inline int_max GetElementNumber() const; // the same as GetLength()
+    //------------------------ Error Element -----------------------------//
 
-    //------------------------ Element Info -----------------------------//
-
-    const ElementType& GetNaNElement()  const;
+    const ElementType& GetErrorElement()  const;
 
     //--------------------- Get Data Pointer -----------------------------//
 
-    inline ElementType* GetElementPointer(); //  the position of the first element
+    inline ElementType* GetElementPointer(); //  the pointer of the first element
 
     inline const ElementType* GetElementPointer() const;
 
     inline ElementType* begin();
 
     inline const ElementType* begin() const;
+
+    inline const ElementType* end() const; // 1 + pointer of the last element
 
 	//----------- Get/Set by Index -----------------------------------//
 
@@ -214,20 +239,15 @@ public:
 
     inline bool Append(const ElementType& Element);
 
-    template<typename ElementType_Input>
-    inline bool Append(const std::initializer_list<ElementType_Input>& InputData);
+    inline bool Append(const std::initializer_list<ElementType>& InputData);
 
-    template<typename ElementType_Input>
-    inline bool Append(const std::vector<ElementType_Input>& InputData);
+    inline bool Append(const std::vector<ElementType>& InputData);
 
-    template<typename ElementType_Input>
-    inline bool Append(const DenseMatrix<ElementType_Input>& InputData);
+    inline bool Append(const DenseMatrix<ElementType>& InputData);
 
-    template<typename ElementType_Input>
-    inline bool Append(const DataContainer<ElementType_Input>& InputData);
+    inline bool Append(const DataContainer<ElementType>& InputData);
 
-    template<typename ElementType_Input>
-    inline bool Append(const ElementType_Input* InputData, int_max InputLength);
+    inline bool Append(const ElementType* InputData, int_max InputLength);
 
     inline bool Delete(int_max Index);
 
@@ -245,20 +265,15 @@ public:
 
     inline bool Insert(int_max Index, const ElementType& Element);
 
-    template<typename ElementType_Input>
-    inline bool Insert(int_max Index, const std::initializer_list<ElementType_Input>& InputData);
+    inline bool Insert(int_max Index, const std::initializer_list<ElementType>& InputData);
 
-    template<typename ElementType_Input>
-    inline bool Insert(int_max Index, const std::vector<ElementType_Input>& InputData);
+    inline bool Insert(int_max Index, const std::vector<ElementType>& InputData);
 
-    template<typename ElementType_Input>
-    inline bool Insert(int_max Index, const DenseMatrix<ElementType_Input>& InputData);
+    inline bool Insert(int_max Index, const DenseMatrix<ElementType>& InputData);
 
-    template<typename ElementType_Input>
-    inline bool Insert(int_max Index, const DataContainer<ElementType_Input>& InputData);
+    inline bool Insert(int_max Index, const DataContainer<ElementType>& InputData);
 
-    template<typename ElementType_Input>
-    inline bool Insert(int_max Index, const ElementType_Input* InputData, int_max InputLength);
+    inline bool Insert(int_max Index, const ElementType* InputData, int_max InputLength);
 
 private:
 

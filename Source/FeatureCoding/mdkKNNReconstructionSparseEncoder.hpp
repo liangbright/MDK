@@ -67,7 +67,7 @@ bool KNNReconstructionSparseEncoder<ElementType>::ComputeGramianMatrix_DtD()
         return false;
     }
 
-    auto D = m_Dictionary->BasisMatrix();
+    const DenseMatrix<ElementType>& D = m_Dictionary->BasisMatrix(); // "auto  D = " will copy
 
     m_GramianMatrix_DtD = D.Transpose()*D;
 
@@ -90,25 +90,29 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(SparseVector<
                                                                    const DenseMatrix<ElementType>& DataColVector,
                                                                    int_max ThreadIndex)
 {
-    const DenseMatrix<ElementType>& D = m_Dictionary->BasisMatrix(); // "auto D = " will copy
+    const DenseMatrix<ElementType>& BasisMatrix = m_Dictionary->BasisMatrix(); // "auto  = " will copy
+
+    const DenseMatrix<ElementType>& ReconstructionStd = m_Dictionary->ReconstructionStd();
+     
+    //---------
 
     DenseMatrix<ElementType> DistanceList;
 
     if (m_Parameter.DistanceTypeForKNNSearch == "L1Distance")
     {
-        DistanceList = ComputeL1DistanceListFromSingleVectorToColVectorSet(DataColVector, D);
+        DistanceList = ComputeL1DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
     }
     else if (m_Parameter.DistanceTypeForKNNSearch == "L2Distance")
     {
-        DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, D);
+        DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
     }
     else if (m_Parameter.DistanceTypeForKNNSearch == "Correlation")
     {
-        DistanceList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, D);
+        DistanceList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
     }
     else if (m_Parameter.DistanceTypeForKNNSearch == "KLDivergence")
     {
-        DistanceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, D);
+        DistanceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, BasisMatrix);
     }
     else
     {
@@ -118,11 +122,11 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(SparseVector<
 
     auto NeighbourIndexList = FindKNNByDistanceList(m_Parameter.NeighbourNumber, DistanceList);
 
-    auto SubRecord = D.GetSubMatrix(ALL, NeighbourIndexList);
+    auto SubRecord = BasisMatrix.GetSubMatrix(ALL, NeighbourIndexList);
 
     // use LinearLeastSquaresProblemSolver
 
-    auto CodeLength = D.GetColNumber();
+    auto CodeLength = BasisMatrix.GetColNumber();
 
     Option_Of_LinearLeastSquaresProblemSolver Option;
 
@@ -232,7 +236,7 @@ template<typename ElementType>
 bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<ElementType>& OutputCodeInDenseMatrix,
                                                         const DenseMatrix<ElementType>* FeatureData,
                                                         const FeatureDictionary<ElementType>* Dictionary,
-                                                        int_max NeighbourNumber,
+                                                        const Parameter_Of_KNNReconstructionSparseEncoder& Parameter,
                                                         int_max MaxNumberOfThreads = 1)
 {
     auto Encoder = std::make_unique<KNNReconstructionSparseEncoder<ElementType>>();
@@ -241,11 +245,11 @@ bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<ElementType>
 
     Encoder->SetInputDictionary(Dictionary);
 
-    Encoder->SetNeighbourNumber(NeighbourNumber);
-
     Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
 
     Encoder->SetOutputCodeInDenseMatrix(&OutputCodeInDenseMatrix);
+
+    Encoder->m_Parameter = Parameter;
 
     Encoder->Update();
 }
@@ -255,7 +259,7 @@ template<typename ElementType>
 bool KNNReconstructionSparseEncoder<ElementType>::Apply(SparseMatrix<ElementType>& OutputCodeInSparseMatrix,
                                                         const DenseMatrix<ElementType>* FeatureData,
                                                         const FeatureDictionary<ElementType>* Dictionary,
-                                                        int_max NeighbourNumber,
+                                                        const Parameter_Of_KNNReconstructionSparseEncoder& Parameter,
                                                         int_max MaxNumberOfThreads = 1)
 {
     auto Encoder = std::make_unique<KNNReconstructionSparseEncoder<ElementType>>();
@@ -268,7 +272,7 @@ bool KNNReconstructionSparseEncoder<ElementType>::Apply(SparseMatrix<ElementType
 
     Encoder->SetOutputCodeInSparseMatrix(&OutputCodeInSparseMatrix);;
 
-    Encoder->m_Parameter.NeighbourNumber = NeighbourNumber;
+    Encoder->m_Parameter = Parameter;
 
     Encoder->Update();
 }
@@ -278,7 +282,7 @@ template<typename ElementType>
 bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<SparseMatrix<ElementType>>& OutputCodeInSparseColVectorList,
                                                         const DenseMatrix<ElementType>* FeatureData,
                                                         const FeatureDictionary<ElementType>* Dictionary,
-                                                        int_max NeighbourNumber,
+                                                        const Parameter_Of_KNNReconstructionSparseEncoder& Parameter,
                                                         int_max MaxNumberOfThreads = 1)
 {
     auto Encoder = std::make_unique<KNNReconstructionSparseEncoder<ElementType>>();
@@ -289,9 +293,9 @@ bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<SparseMatrix
 
     Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
 
-    Encoder->SetOutputCodeInSparseColVectorList(&OutputCodeInSparseColVectorList);;
+    Encoder->SetOutputCodeInSparseColVectorSet(&OutputCodeInSparseColVectorList);;
 
-    Encoder->m_Parameter.NeighbourNumber = NeighbourNumber;
+    Encoder->m_Parameter = Parameter;
 
     Encoder->Update();
 }

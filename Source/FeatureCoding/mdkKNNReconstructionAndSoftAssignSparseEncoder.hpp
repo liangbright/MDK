@@ -61,9 +61,9 @@ bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::CheckInput()
         return false;
     }
   
-    if (m_Dictionary->m_ReconstructionStd.IsEmpty() == true)
+    if (m_Dictionary->ReconstructionStd().IsEmpty() == true)
     {
-        MDK_Error("Incomplete Dictionary: m_ReconstructionStd is empty @ KNNReconstructionAndSoftAssignSparseEncoder::CheckInput()")
+        MDK_Error("Incomplete Dictionary: ReconstructionStd is empty @ KNNReconstructionAndSoftAssignSparseEncoder::CheckInput()")
         return false;
     }
 
@@ -101,6 +101,12 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
                                                                                 const DenseMatrix<ElementType>& DataColVector,
                                                                                 int_max ThreadIndex)
 {
+    const DenseMatrix<ElementType>& BasisMatrix = m_Dictionary->BasisMatrix(); // "auto  = " will copy
+
+    const DenseMatrix<ElementType>& ReconstructionStd = m_Dictionary->ReconstructionStd();
+
+    //---------
+
     m_ReconstructionEncoder.EncodingFunction(CodeInSparseColVector, DataColVector, ThreadIndex);
 
     const std::vector<int_max>& NeighbourIndexList = CodeInSparseColVector.IndexList();
@@ -108,7 +114,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
     const std::vector<ElementType>& Alpha_v = CodeInSparseColVector.DataArray();
     DenseMatrix<ElementType> Alpha(const_cast<ElementType*>(Alpha_v.data()), m_Parameter.NeighbourNumber, 1);
 
-    auto SubRecord = m_Dictionary->BasisMatrix().GetSubMatrix(ALL, NeighbourIndexList);
+    auto SubRecord = BasisMatrix.GetSubMatrix(ALL, NeighbourIndexList);
 
     // compute ReconstructedDataColVector X_hat
     auto ReconstructedDataColVector = MatrixMultiply(SubRecord, Alpha);
@@ -126,7 +132,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
 
         for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
         {
-            auto s = m_Dictionary->m_ReconstructionStd[NeighbourIndexList[i]];
+            auto s = ReconstructionStd[NeighbourIndexList[i]];
 
             Membership[i] = std::exp(ElementType(-0.5)*(NeighbourDistanceList[i] * NeighbourDistanceList[i]) / (s*s));
         }
@@ -137,7 +143,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
 
         for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
         {
-            auto s = m_Dictionary->m_ReconstructionStd[NeighbourIndexList[i]];
+            auto s = ReconstructionStd[NeighbourIndexList[i]];
 
             Membership[i] = std::exp(ElementType(-0.5)*(NeighbourDistanceList[i] * NeighbourDistanceList[i]) / (s*s));
         }
@@ -190,7 +196,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
 
     for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
     {
-        auto s_temp = m_Dictionary->m_ReconstructionStd[NeighbourIndexList[i]];
+        auto s_temp = ReconstructionStd[NeighbourIndexList[i]];
 
         s_max = (std::max)(s_max, s_temp); // std::max(s_max, s_temp) can not be compiled
     }

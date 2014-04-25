@@ -19,6 +19,7 @@ Image3DData<PixelType>::~Image3DData()
 
 
 template<typename PixelType>
+inline
 void Image3DData<PixelType>::Clear()
 {
     m_Size[0] = 0;

@@ -22,6 +22,8 @@ FeatureDictionaryForDenseCoding<ElementType>::FeatureDictionaryForDenseCoding(co
 template<typename ElementType>
 FeatureDictionaryForDenseCoding<ElementType>::FeatureDictionaryForDenseCoding(FeatureDictionaryForDenseCoding&& InputDictionary)
 {
+    m_Name = std::move(InputDictionary.m_Name);
+
     m_BasisMatrix = std::move(InputDictionary.m_BasisMatrix);
 
     m_Covariance = std::move(InputDictionary.m_Covariance);
@@ -47,6 +49,8 @@ void FeatureDictionaryForDenseCoding<ElementType>::operator=(const FeatureDictio
 template<typename ElementType>
 void FeatureDictionaryForDenseCoding<ElementType>::operator=(FeatureDictionaryForDenseCoding&& InputDictionary)
 {
+    m_Name = std::move(InputDictionary.m_Name);
+
     m_BasisMatrix = std::move(InputDictionary.m_BasisMatrix);
 
     m_Covariance = std::move(InputDictionary.m_Covariance);
@@ -58,6 +62,8 @@ void FeatureDictionaryForDenseCoding<ElementType>::operator=(FeatureDictionaryFo
 template<typename ElementType>
 bool FeatureDictionaryForDenseCoding<ElementType>::Copy(const FeatureDictionaryForDenseCoding<ElementType>& InputDictionary)
 {
+    m_Name.Copy(InputDictionary.m_Name);
+
     m_BasisMatrix.Copy(InputDictionary.m_BasisMatrix);
 
     m_Covariance.Copy(InputDictionary.m_Covariance);
@@ -90,13 +96,15 @@ bool FeatureDictionaryForDenseCoding<ElementType>::Share(FeatureDictionaryForDen
         return true;
     }
 
+    auto IsOK_0 = m_Name.Share(InputDictionary.m_Name);
+
     auto IsOK_1 = m_BasisMatrix.Share(InputDictionary.m_BasisMatrix);
 
     auto IsOK_2 = m_Covariance.Share(InputDictionary.m_Covariance);
 
     auto IsOK_3 = m_StandardDeviation.Share(InputDictionary.m_StandardDeviation);
 
-    if (IsOK_1 == false || IsOK_2 == false || IsOK_3 == false)
+    if (IsOK_0 == false || IsOK_1 == false || IsOK_2 == false || IsOK_3 == false)
     {
         return false;
     }
@@ -128,6 +136,8 @@ void FeatureDictionaryForDenseCoding<ElementType>::ForceShare(const FeatureDicti
         return;
     }
 
+    m_Name.ForceShare(InputDictionary.m_Name);
+
     m_BasisMatrix.ForceShare(InputDictionary.m_BasisMatrix);
 
     m_Covariance.ForceShare(InputDictionary.m_Covariance);
@@ -154,6 +164,8 @@ bool FeatureDictionaryForDenseCoding<ElementType>::ForceShare(const FeatureDicti
 template<typename ElementType>
 void FeatureDictionaryForDenseCoding<ElementType>::Clear()
 {
+    m_Name.Clear();
+
     m_BasisMatrix.Clear();
 
     m_Covariance.Clear();
@@ -175,22 +187,30 @@ MatrixSize FeatureDictionaryForDenseCoding<ElementType>::GetSize() const
     return m_BasisMatrix.GetSize();
 }
 
+
 template<typename ElementType>
-bool FeatureDictionaryForDenseCoding<ElementType>::Load(const std::string& FilePathAndName)
+bool FeatureDictionaryForDenseCoding<ElementType>::Load(const CharString& FilePathAndName)
 {
     return true;
 }
 
 
 template<typename ElementType>
-bool FeatureDictionaryForDenseCoding<ElementType>::Save(const std::string& FilePathAndName) const
+bool FeatureDictionaryForDenseCoding<ElementType>::Save(const CharString& FilePathAndName) const
 {
     return true;
 }
 
 
 template<typename ElementType>
-const std::string& FeatureDictionaryForDenseCoding<ElementType>::GetName() const
+const CharString& FeatureDictionaryForDenseCoding<ElementType>::Name() const
+{
+    return m_Name;
+}
+
+
+template<typename ElementType>
+CharString& FeatureDictionaryForDenseCoding<ElementType>::Name()
 {
     return m_Name;
 }

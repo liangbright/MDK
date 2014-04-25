@@ -64,6 +64,8 @@ inline
 DataContainer<ElementType>::DataContainer(DataContainer<ElementType>&& InputData) noexcept
 {
     m_Data = std::move(InputData.m_Data);
+
+    m_ElementPointer = m_Data->ElementPointer;
 }
 
 
@@ -95,7 +97,7 @@ template<typename ElementType>
 inline
 void DataContainer<ElementType>::operator=(const ElementType& Element)
 {
-    auto ElementNumber = this->GetLength();
+    auto ElementNumber = this->GetElementNumber();
 
     if (this->IsSizeFixed() == true)
     {
@@ -145,7 +147,7 @@ void DataContainer<ElementType>::operator=(const std::initializer_list<ElementTy
         return;
     }
 
-    auto SelfLength = this->GetLength();
+    auto SelfLength = this->GetElementNumber();
 
     if (this->IsSizeFixed() == true)
     {
@@ -165,9 +167,8 @@ void DataContainer<ElementType>::operator=(const std::initializer_list<ElementTy
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
 inline
-bool DataContainer<ElementType>::Copy(const DataContainer<ElementType_Input>& InputData)
+bool DataContainer<ElementType>::Copy(const DataContainer<ElementType>& InputData)
 {
     if (this == &InputData)
     {
@@ -200,9 +201,8 @@ bool DataContainer<ElementType>::Copy(const DataContainer<ElementType_Input>& In
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
 inline
-bool DataContainer<ElementType>::Copy(const DataContainer<ElementType_Input>* InputData)
+bool DataContainer<ElementType>::Copy(const DataContainer<ElementType>* InputData)
 {
     if (InputData == nullptr)
     {
@@ -215,29 +215,28 @@ bool DataContainer<ElementType>::Copy(const DataContainer<ElementType_Input>* In
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
 inline
-bool DataContainer<ElementType>::Copy(const ElementType_Input* InputElementPointer, int_max InputLength)
+bool DataContainer<ElementType>::Copy(const ElementType* InputElementPointer, int_max InputLength)
 {
-    if (InputElementPointer == nullptr || InputRowNumber <= 0 || InputColNumber <= 0)
+    if (InputElementPointer == nullptr || InputLength <= 0)
     {
-        MDK_Error("Input pointer is nullptr @ DataContainer::Copy(ElementType_Input*, InputLength)")
+        MDK_Error("Input pointer is nullptr @ DataContainer::Copy(ElementType*, InputLength)")
         return false;
     }
 
     // if this DataContainer is not empty, check if this and Input Share the same data
     if (this->IsEmpty() == false)
     {
-        if (std::size_t(InputElementPointer) == std::size_t(this->GetElementPointer()))
+        if (InputElementPointer == this->GetElementPointer())
         {
-           // MDK_Warning("A DataContainer tries to Copy itself @ DataContainer::Copy(ElementType_Input*, RowNumber, ColNumber)")
+           // MDK_Warning("A DataContainer tries to Copy itself @ DataContainer::Copy(ElementType*, RowNumber, ColNumber)")
             return true;
         }
     }
 
     //------------------------------------------------------------------
 
-    auto SelfLength = this->GetLength();
+    auto SelfLength = this->GetElementNumber();
 
     //------------------------------------------------------------------
 
@@ -245,7 +244,7 @@ bool DataContainer<ElementType>::Copy(const ElementType_Input* InputElementPoint
     {
         if (InputLength != SelfLength)
         {
-            MDK_Error("Can not change size @ DataContainer::Copy(ElementType_Input*, InputLength)")
+            MDK_Error("Can not change size @ DataContainer::Copy(ElementType*, InputLength)")
             return false;
         }
     }
@@ -263,7 +262,7 @@ bool DataContainer<ElementType>::Copy(const ElementType_Input* InputElementPoint
 
     for (auto Ptr = BeginPointer; Ptr < BeginPointer + SelfLength; ++Ptr, ++tempPtr)
     {
-        Ptr[0] = ElementType(tempPtr[0]);
+        Ptr[0] = tempPtr[0];
     }
 
     return true;
@@ -274,7 +273,7 @@ template<typename ElementType>
 inline
 bool DataContainer<ElementType>::Fill(const ElementType& Element)
 {
-    auto SelfLength = this->GetLength();
+    auto SelfLength = this->GetElementNumber();
 
     if (SelfLength <= 0)
     {
@@ -304,9 +303,9 @@ bool DataContainer<ElementType>::Share(DataContainer<ElementType>& InputData)
         return true;
     }
 
-    auto InputLength = InputData.GetLength();
+    auto InputLength = InputData.GetElementNumber();
 
-    auto SelfLength = this->GetLength();
+    auto SelfLength = this->GetElementNumber();
 
     if (this->IsSizeFixed() == true)
     {
@@ -320,7 +319,7 @@ bool DataContainer<ElementType>::Share(DataContainer<ElementType>& InputData)
     //--------------------------------------------------------------------------------------------------------
 
     m_Data = InputData.m_Data; // std::Shared_ptr, self assignment test is not necessary
-    m_ElementPointer = m_Data->DataArray.data();
+    m_ElementPointer = m_Data->ElementPointer;
 
     return true;
 }
@@ -352,7 +351,7 @@ void DataContainer<ElementType>::ForceShare(const DataContainer<ElementType>& In
     }
 
     m_Data = InputData.m_Data; // std::Shared_ptr, self assignment check is not necessary
-    m_ElementPointer = m_Data->DataArray.data();
+    m_ElementPointer = m_Data->ElementPointer;
 }
 
 
@@ -391,9 +390,9 @@ bool DataContainer<ElementType>::Take(DataContainer<ElementType>& InputData)
         return true;
     }
 
-    auto InputLength = InputData.GetLength();
+    auto InputLength = InputData.GetElementNumber();
 
-    auto SelfLength = this->GetLength();
+    auto SelfLength = this->GetElementNumber();
 
     if (this->IsSizeFixed() == true)
     {
@@ -427,10 +426,10 @@ bool DataContainer<ElementType>::Take(DataContainer<ElementType>& InputData)
     //note: m_Data.swap(InputData.m_Data) will invalidate Share()
 
     m_Data->DataArray = std::move(InputData.m_Data->DataArray);
-
+    m_Data->ElementPointer = InputData.m_Data->ElementPointer;
     m_Data->Length = InputData.m_Data->Length;
 
-    m_ElementPointer = m_Data->DataArray.data();
+    m_ElementPointer = m_Data->ElementPointer;
 
     // Clear InputData to be empty
     InputData.Clear();
@@ -466,7 +465,7 @@ void DataContainer<ElementType>::SwapSmartPointer(DataContainer<ElementType>& In
 
     m_Data.swap(InputData.m_Data); // shared_ptr self swap check is not necessary
 
-    m_ElementPointer = m_Data->DataArray.data();
+    m_ElementPointer = m_Data->ElementPointer;
 }
 
 
@@ -474,11 +473,13 @@ template<typename ElementType>
 inline
 void DataContainer<ElementType>::Clear()
 {
+    m_Data->IsSizeFixed = false;
+
     m_Data->Length = 0;
 
     m_Data->DataArray.clear();
 
-    m_Data->IsSizeFixed = false;
+    m_Data->ElementPointer = nullptr;
 
     m_ElementPointer = nullptr;
 }
@@ -500,11 +501,11 @@ try
     if (!m_Data)
     {
         m_Data = std::make_shared<DataContainerData<ElementType>>();
-        m_ElementPointer = m_Data->DataArray.data();
+        m_ElementPointer = nullptr;
     }
     //-------------------------------------------------------------------------
 
-    auto SelfLength = this->GetLength();
+    auto SelfLength = this->GetElementNumber();
 
     if (InputLength == SelfLength)
     {
@@ -517,16 +518,20 @@ try
         return false;
     }
 
+    m_Data->CopyDataToInternalDataArrayIfNecessary();
+
     m_Data->DataArray.resize(InputLength);
+    m_Data->ElementPointer = m_Data->DataArray.data();
     m_Data->Length = InputLength;
-    m_ElementPointer = m_Data->DataArray.data();
+    m_ElementPointer = m_Data->ElementPointer;
 }
 catch (...)
 {
     MDK_Error("Out of Memory @ DataContainer::Resize(int_max InputLength)")
 
+    m_Data->ElementPointer = m_Data->DataArray.data();
     m_Data->Length = int_max(m_Data->DataArray.size());
-    m_ElementPointer = m_Data->DataArray.data();
+    m_ElementPointer = m_Data->ElementPointer;
 
     return false;
 }
@@ -544,7 +549,7 @@ bool DataContainer<ElementType>::FastResize(int_max InputLength)
         return false;    
     }
 
-    auto SelfLength = this->GetLength();
+    auto SelfLength = this->GetElementNumber();
 
     if (InputLength == SelfLength)
     {
@@ -569,15 +574,17 @@ try
         m_Data->DataArray.resize(InputLength);
     }
    
+    m_Data->ElementPointer = m_Data->DataArray.data();
     m_Data->Length = InputLength;
-    m_ElementPointer = m_Data->DataArray.data();
+    m_ElementPointer = m_Data->ElementPointer;
 }
 catch (...)
 {
     MDK_Error("Out of Memory @ DataContainer::FastResize(int_max InputLength)")
 
+    m_Data->ElementPointer = m_Data->DataArray.data();
     m_Data->Length = int_max(m_Data->DataArray.size());
-    m_ElementPointer = m_Data->DataArray.data();
+    m_ElementPointer = m_Data->ElementPointer;
 
     return false;
 }
@@ -593,12 +600,13 @@ bool DataContainer<ElementType>::ReserveCapacity(int_max InputElementNumber)
 
 try
 {
-    auto SelfLength = this->GetLength();
+    auto SelfLength = this->GetElementNumber();
 
     if (InputElementNumber > SelfLength)
     {
         m_Data->DataArray.reserve(InputElementNumber);
-        m_ElementPointer = m_Data->DataArray.data();
+        m_Data->ElementPointer = m_Data->DataArray.data();
+        m_ElementPointer = m_Data->ElementPointer;
     }
 }
 catch (...)
@@ -616,7 +624,8 @@ inline
 void DataContainer<ElementType>::Squeeze()
 {
     m_Data->DataArray.shrink_to_fit();
-    m_ElementPointer = m_Data->DataArray.data();
+    m_Data->ElementPointer = m_Data->DataArray.data();
+    m_ElementPointer = m_Data->ElementPointer;
 }
 
 
@@ -654,14 +663,6 @@ bool DataContainer<ElementType>::IsShared() const
 
 template<typename ElementType>
 inline
-int_max DataContainer<ElementType>::GetLength() const
-{
-    return m_Data->Length;
-}
-
-
-template<typename ElementType>
-inline
 int_max DataContainer<ElementType>::GetElementNumber() const
 {
     return m_Data->Length;
@@ -670,9 +671,9 @@ int_max DataContainer<ElementType>::GetElementNumber() const
 
 template<typename ElementType>
 inline
-const ElementType& DataContainer<ElementType>::GetNaNElement()  const
+const ElementType& DataContainer<ElementType>::GetErrorElement()  const
 {
-    return m_Data->NaNElement;
+    return m_Data->ErrorElement;
 }
 
 
@@ -680,7 +681,7 @@ template<typename ElementType>
 inline
 ElementType* DataContainer<ElementType>::GetElementPointer()
 {
-    return m_Data->DataArray.data();
+    return m_Data->ElementPointer;
 }
 
 
@@ -688,21 +689,28 @@ template<typename ElementType>
 inline
 const ElementType* DataContainer<ElementType>::GetElementPointer() const
 {
-    return m_Data->DataArray.data();
+    return m_Data->ElementPointer;
 }
 
 
 template<typename ElementType>
 inline ElementType* DataContainer<ElementType>::begin()
-{// the position of the first element
-    return m_Data->DataArray.data();
+{
+    return m_Data->ElementPointer; // the pointer of the first element
 }
 
 
 template<typename ElementType>
 inline const ElementType* DataContainer<ElementType>::begin() const
 {
-    return m_Data->DataArray.data();
+    return m_Data->ElementPointer;
+}
+
+
+template<typename ElementType>
+inline const ElementType* DataContainer<ElementType>::end() const
+{
+    return m_Data->ElementPointer + m_Data->Length;
 }
 
 
@@ -716,11 +724,11 @@ ElementType& DataContainer<ElementType>::operator[](int_max Index)
 {
 #if defined(MDK_DEBUG_DataContainer_Operator_CheckBound)
 
-    if (Index >= this->GetLength()|| Index < 0)
+    if (Index >= this->GetElementNumber()|| Index < 0)
     {
         MDK_Error("Invalid Input @ DataContainer::operator[](i)")
 
-        return m_Data->NaNElement;
+        return m_Data->ErrorElement;
     }
 
 #endif //MDK_DEBUG_DataContainer_Operator_CheckBound
@@ -735,11 +743,11 @@ const ElementType& DataContainer<ElementType>::operator[](int_max Index) const
 {
 #if defined(MDK_DEBUG_DataContainer_Operator_CheckBound)
 
-    if (Index >= this->GetLength() || Index < 0)
+    if (Index >= this->GetElementNumber() || Index < 0)
     {
         MDK_Error("Invalid Input @ DataContainer::operator[](i) const")
 
-        return m_Data->NaNElement;
+        return m_Data->ErrorElement;
     }
 
 #endif //MDK_DEBUG_DataContainer_Operator_CheckBound
@@ -754,11 +762,11 @@ ElementType& DataContainer<ElementType>::operator()(int_max Index)
 {
 #if defined(MDK_DEBUG_DataContainer_Operator_CheckBound)
 
-    if (Index >= this->GetLength() || Index < 0)
+    if (Index >= this->GetElementNumber() || Index < 0)
     {
         MDK_Error("Invalid Input @ DataContainer::operator()(i)")
 
-        return m_Data->NaNElement;
+        return m_Data->ErrorElement;
     }
 
 #endif //MDK_DEBUG_DataContainer_Operator_CheckBound
@@ -773,11 +781,11 @@ const ElementType& DataContainer<ElementType>::operator()(int_max Index) const
 {
 #if defined(MDK_DEBUG_DataContainer_Operator_CheckBound)
 
-    if (Index >= this->GetLength() || Index < 0)
+    if (Index >= this->GetElementNumber() || Index < 0)
     {
         MDK_Error("Invalid Input @ DataContainer::operator()(i) const")
 
-        return m_Data->NaNElement;
+        return m_Data->ErrorElement;
     }
 
 #endif //MDK_DEBUG_DataContainer_Operator_CheckBound
@@ -791,11 +799,11 @@ template<typename ElementType>
 inline
 ElementType& DataContainer<ElementType>::at(int_max Index)
 {
-    if (Index >= this->GetLength() || Index < 0)
+    if (Index >= this->GetElementNumber() || Index < 0)
 	{
 		MDK_Error("Invalid Input @ DataContainer::at(i)")
         
-        return m_Data->NaNElement;
+        return m_Data->ErrorElement;
 	}
 
     return m_ElementPointer[Index];
@@ -806,11 +814,11 @@ template<typename ElementType>
 inline
 const ElementType& DataContainer<ElementType>::at(int_max Index) const
 {
-    if (Index >= this->GetLength() || Index < 0)
+    if (Index >= this->GetElementNumber() || Index < 0)
 	{
 		MDK_Error("Invalid Input @ DataContainer::at(i) const")
         
-        return m_Data->NaNElement;
+        return m_Data->ErrorElement;
 	}
 
     return m_ElementPointer[Index];
@@ -826,31 +834,28 @@ bool DataContainer<ElementType>::Append(const ElementType& Element)
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
 inline 
-bool DataContainer<ElementType>::Append(const std::initializer_list<ElementType_Input>& InputData)
+bool DataContainer<ElementType>::Append(const std::initializer_list<ElementType>& InputData)
 {
     return this->Append(InputData.begin(), int_max(InputData.size()));
 }
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
 inline
-bool DataContainer<ElementType>::Append(const std::vector<ElementType_Input>& InputData)
+bool DataContainer<ElementType>::Append(const std::vector<ElementType>& InputData)
 {
     return this->Append(InputData.data(), int_max(InputData.size()));
 }
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
 inline
-bool DataContainer<ElementType>::Append(const DenseMatrix<ElementType_Input>& InputData)
+bool DataContainer<ElementType>::Append(const DenseMatrix<ElementType>& InputData)
 {
     if (InputData.IsVector() == false)
     {
-        MDK_Error("Input must be a vector @ DataContainer::Append(const DenseMatrix<ElementType_Input>& InputData)")
+        MDK_Error("Input must be a vector @ DataContainer::Append(const DenseMatrix<ElementType>& InputData)")
         return false;
     }
 
@@ -859,32 +864,30 @@ bool DataContainer<ElementType>::Append(const DenseMatrix<ElementType_Input>& In
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
 inline
-bool DataContainer<ElementType>::Append(const DataContainer<ElementType_Input>& InputData)
+bool DataContainer<ElementType>::Append(const DataContainer<ElementType>& InputData)
 {
-    return this->Append(InputData.GetElementPointer(), InputData.GetLength());
+    return this->Append(InputData.GetElementPointer(), InputData.GetElementNumber());
 }
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
 inline 
-bool DataContainer<ElementType>::Append(const ElementType_Input* InputData, int_max InputLength)
+bool DataContainer<ElementType>::Append(const ElementType* InputData, int_max InputLength)
 {
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error("DataContainer Size can not change @ DataContainer::Append(const ElementType_Input* InputData, int_max InputLength)")
+        MDK_Error("DataContainer Size can not change @ DataContainer::Append(const ElementType* InputData, int_max InputLength)")
         return false;
     }
 
     if (InputData == nullptr || InputLength <= 0)
     {
-        MDK_Error("Invalid Input: empty @ DataContainer::Append(const ElementType_Input* InputData, int_max InputLength)")
+        MDK_Error("Invalid Input: empty @ DataContainer::Append(const ElementType* InputData, int_max InputLength)")
         return false;
     }
 
-    auto SelfLength = this->GetLength();
+    auto SelfLength = this->GetElementNumber();
 
     this->Resize(SelfLength + InputLength);
 
@@ -939,7 +942,7 @@ template<typename ElementType>
 inline
 bool DataContainer<ElementType>::Delete(const DataContainer<int_max>& IndexList)
 {
-    return this->Delete(IndexList.GetElementPointer(), IndexList.GetLength());
+    return this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
 }
 
 
@@ -953,7 +956,7 @@ bool DataContainer<ElementType>::Delete(const int_max* IndexList, int_max ListLe
         return false;
     }
 
-    auto SelfLength = this->GetLength();
+    auto SelfLength = this->GetElementNumber();
 
     if (SelfLength == 0)
     {
@@ -969,12 +972,14 @@ bool DataContainer<ElementType>::Delete(const int_max* IndexList, int_max ListLe
 
     for (auto it = IndexList; it != IndexList + Length; ++it)
     {
-        if (*it >= SelfLength.ColNumber || *it < 0)
+        if (*it >= SelfLength || *it < 0)
         {
             MDK_Error("Out of bound Input @ DataContainer::Delete(const int_max* IndexList, int_max ListLength)")
             return false;
         }
     }
+
+    m_Data->CopyDataToInternalDataArrayIfNecessary();
 
     std::vector<int_max> IndexList_max_to_min(Length);
 
@@ -1005,7 +1010,8 @@ bool DataContainer<ElementType>::Delete(const int_max* IndexList, int_max ListLe
         }
     }
 
-    m_ElementPointer = m_Data->DataArray.data();
+    m_Data->ElementPointer = m_Data->DataArray.data();
+    m_ElementPointer = m_Data->ElementPointer;
 
     return true;
 }
@@ -1021,7 +1027,7 @@ bool DataContainer<ElementType>::Delete(int_max Index_start, int_max Index_end)
         return false;
     }
 
-    auto SelfLength = this->GetLength();
+    auto SelfLength = this->GetElementNumber();
 
     if (SelfLength == 0)
     {
@@ -1037,11 +1043,15 @@ bool DataContainer<ElementType>::Delete(int_max Index_start, int_max Index_end)
         return false;
     }
 
-    m_Data->DataArray.erase(m_Data->DataArray.begin() + Index_start, m_Data->DataArray.begin() + Index_end + 1);
+    m_Data->CopyDataToInternalDataArrayIfNecessary();
 
+    m_Data->DataArray.erase(m_Data->DataArray.begin() + Index_start, m_Data->DataArray.begin() + Index_end + 1);
+    
     m_Data->Length -= Index_end - Index_start + 1;
 
-    m_ElementPointer = m_Data->DataArray.data();
+    m_Data->ElementPointer = m_Data->DataArray.data();
+
+    m_ElementPointer = m_Data->ElementPointer;
 
     return true;
 }
@@ -1051,32 +1061,29 @@ bool DataContainer<ElementType>::Delete(int_max Index_start, int_max Index_end)
 template<typename ElementType>
 inline bool DataContainer<ElementType>::Insert(int_max Index, const ElementType& Element)
 {
-    return this->Insert(&Element, 1);
+    return this->Insert(Index, &Element, 1);
 }
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
 inline
-bool DataContainer<ElementType>::Insert(int_max Index, const std::initializer_list<ElementType_Input>& InputData)
+bool DataContainer<ElementType>::Insert(int_max Index, const std::initializer_list<ElementType>& InputData)
 {
     return this->Insert(Index, InputData.begin(), int_max(InputData.size()));
 }
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
 inline
-bool DataContainer<ElementType>::Insert(int_max Index, const std::vector<ElementType_Input>& InputData)
+bool DataContainer<ElementType>::Insert(int_max Index, const std::vector<ElementType>& InputData)
 {
     return this->Insert(Index, InputData.data(), int_max(InputData.size()));
 }
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
 inline
-bool DataContainer<ElementType>::Insert(int_max Index, const DenseMatrix<ElementType_Input>& InputData)
+bool DataContainer<ElementType>::Insert(int_max Index, const DenseMatrix<ElementType>& InputData)
 {
     if (DenseMatrix.IsVector() == false)
     {
@@ -1089,32 +1096,30 @@ bool DataContainer<ElementType>::Insert(int_max Index, const DenseMatrix<Element
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
 inline
-bool DataContainer<ElementType>::Insert(int_max Index, const DataContainer<ElementType_Input>& InputData)
+bool DataContainer<ElementType>::Insert(int_max Index, const DataContainer<ElementType>& InputData)
 {
-    return this->Insert(Index, InputData.GetElementPointer(), InputData.GetLength());
+    return this->Insert(Index, InputData.GetElementPointer(), InputData.GetElementNumber());
 }
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
 inline
-bool DataContainer<ElementType>::Insert(int_max Index, const ElementType_Input* InputData, int_max InputLength)
+bool DataContainer<ElementType>::Insert(int_max Index, const ElementType* InputData, int_max InputLength)
 {
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error("DataContainer Size can not change @ DataContainer::Insert(Index, const ElementType_Input* InputData, int_max InputLength)")
+        MDK_Error("DataContainer Size can not change @ DataContainer::Insert(Index, const ElementType* InputData, int_max InputLength)")
         return false;
     }
 
-    auto SelfLength = this->GetLength();
+    auto SelfLength = this->GetElementNumber();
 
     if (SelfLength == 0)
     {
         if (Index != 0 || InputData == nullptr || InputLength <= 0)
         {
-            MDK_Error("Invalid Input @ DataContainer::Insert(Index, const ElementType_Input* InputData, int_max InputLength)")
+            MDK_Error("Invalid Input @ DataContainer::Insert(Index, const ElementType* InputData, int_max InputLength)")
             return false;
         }
     }
@@ -1122,16 +1127,20 @@ bool DataContainer<ElementType>::Insert(int_max Index, const ElementType_Input* 
     {
         if (Index >= SelfLength || Index < 0 || InputData == nullptr || InputLength <= 0)
         {
-            MDK_Error("Invalid Input @ DataContainer::Insert(Index, const ElementType_Input* InputData, int_max InputLength)")
+            MDK_Error("Invalid Input @ DataContainer::Insert(Index, const ElementType* InputData, int_max InputLength)")
             return false;
         }
     }
+
+    m_Data->CopyDataToInternalDataArrayIfNecessary();
 
     m_Data->DataArray.insert(m_Data->DataArray.begin() + Index, InputData, InputData + InputLength);
 
     m_Data->Length = InputLength;
 
-    m_ElementPointer = m_Data->DataArray.data();
+    m_Data->ElementPointer = m_Data->DataArray.data();
+
+    m_ElementPointer = m_Data->ElementPointer;
 
     return true;
 }

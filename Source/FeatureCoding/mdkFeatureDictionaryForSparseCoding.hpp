@@ -22,6 +22,8 @@ FeatureDictionaryForSparseCoding<ElementType>::FeatureDictionaryForSparseCoding(
 template<typename ElementType>
 FeatureDictionaryForSparseCoding<ElementType>::FeatureDictionaryForSparseCoding(FeatureDictionaryForSparseCoding<ElementType>&& InputDictionary)
 {
+    m_Name = std::move(InputDictionary.m_Name);
+
     m_BasisMatrix = std::move(InputDictionary.m_BasisMatrix);
 
     m_Covariance = std::move(InputDictionary.m_Covariance);
@@ -54,6 +56,8 @@ void FeatureDictionaryForSparseCoding<ElementType>::operator=(FeatureDictionaryF
 template<typename ElementType>
 bool FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
 {
+    m_Name.Copy(InputDictionary.m_Name);
+
     m_BasisMatrix.Copy(InputDictionary.m_BasisMatrix);
 
     m_Covariance.Copy(InputDictionary.m_Covariance);
@@ -86,7 +90,7 @@ bool FeatureDictionaryForSparseCoding<ElementType>::Share(FeatureDictionaryForSp
         return true;
     }
 
-    m_Name = InputDictionary.m_Name;
+    auto IsOK_0 = m_Name.Share(InputDictionary.m_Name);
 
     auto IsOK_1 = m_BasisMatrix.Share(InputDictionary.m_BasisMatrix);
 
@@ -94,7 +98,7 @@ bool FeatureDictionaryForSparseCoding<ElementType>::Share(FeatureDictionaryForSp
 
     auto IsOK_3 = m_ReconstructionStd.Share(InputDictionary.m_ReconstructionStd);
 
-    if (IsOK_1 == false || IsOK_2 == false || IsOK_3 == false)
+    if (IsOK_0 == false || IsOK_1 == false || IsOK_2 == false || IsOK_3 == false)
     {
         return false;
     }
@@ -126,7 +130,7 @@ void FeatureDictionaryForSparseCoding<ElementType>::ForceShare(const FeatureDict
         return;
     }
 
-    m_Name = InputDictionary.m_Name;
+    m_Name.ForceShare(InputDictionary.m_Name);
 
     m_BasisMatrix.ForceShare(InputDictionary.m_BasisMatrix);
 
@@ -168,6 +172,8 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
 template<typename ElementType>
 void FeatureDictionaryForSparseCoding<ElementType>::Clear()
 {
+    m_Name.Clear();
+
     m_BasisMatrix.Clear();
 
     m_Covariance.Clear();
@@ -191,7 +197,7 @@ MatrixSize FeatureDictionaryForSparseCoding<ElementType>::GetSize() const
 
 
 template<typename ElementType>
-bool FeatureDictionaryForSparseCoding<ElementType>::Load(const std::string& FilePathAndName)
+bool FeatureDictionaryForSparseCoding<ElementType>::Load(const CharString& FilePathAndName)
 {
     auto temp = LoadFeatureDictionaryForSparseCoding<ElementType>(FilePathAndName);
     if (temp.IsEmpty() == false)
@@ -205,14 +211,21 @@ bool FeatureDictionaryForSparseCoding<ElementType>::Load(const std::string& File
 
 
 template<typename ElementType>
-bool FeatureDictionaryForSparseCoding<ElementType>::Save(const std::string& FilePathAndName) const
+bool FeatureDictionaryForSparseCoding<ElementType>::Save(const CharString& FilePathAndName) const
 {
     return SaveFeatureDictionaryForSparseCoding(*this, FilePathAndName);
 }
 
 
 template<typename ElementType>
-const std::string& FeatureDictionaryForSparseCoding<ElementType>::GetName() const
+CharString& FeatureDictionaryForSparseCoding<ElementType>::Name()
+{
+    return m_Name;
+}
+
+
+template<typename ElementType>
+const CharString& FeatureDictionaryForSparseCoding<ElementType>::Name() const
 {
     return m_Name;
 }
@@ -230,6 +243,21 @@ const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::B
 {
     return m_BasisMatrix;
 }
+
+
+template<typename ElementType>
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::ReconstructionStd()
+{
+    return m_ReconstructionStd;
+}
+
+
+template<typename ElementType>
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::ReconstructionStd() const
+{
+    return m_ReconstructionStd;
+}
+
 
 }// namespace mdk
 

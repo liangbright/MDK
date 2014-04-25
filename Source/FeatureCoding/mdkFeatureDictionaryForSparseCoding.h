@@ -11,9 +11,9 @@ namespace mdk
 template<typename ElementType>
 class FeatureDictionaryForSparseCoding : public FeatureDictionary<ElementType>
 {
-public:
+private:
 
-    std::string m_Name; // name of the dictionary
+    CharString m_Name; // name of the dictionary
 
     DenseMatrix<ElementType> m_BasisMatrix; // D
 
@@ -57,15 +57,21 @@ public:
 
     MatrixSize GetSize() const;
 
-    bool Load(const std::string& FilePathAndName);
+    bool Load(const CharString& FilePathAndName);
 
-    bool Save(const std::string& FilePathAndName) const;
+    bool Save(const CharString& FilePathAndName) const;
 
-    const std::string& GetName() const;
+    CharString& Name();
+
+    const CharString& Name() const;
 
     DenseMatrix<ElementType>& BasisMatrix();
 
     const DenseMatrix<ElementType>& BasisMatrix() const;
+
+    DenseMatrix<ElementType>& ReconstructionStd();
+
+    const DenseMatrix<ElementType>& ReconstructionStd() const;
 
 };
 

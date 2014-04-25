@@ -46,9 +46,16 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
         SumToOne         = false;
     }
 
+    void operator=(const Parameter_Of_KNNReconstructionSparseEncoder& InputParameter)
+    {
+        NeighbourNumber = InputParameter.NeighbourNumber;
+        DistanceTypeForKNNSearch = InputParameter.DistanceTypeForKNNSearch;
+        Nonnegative = InputParameter.Nonnegative;
+        SumToOne = InputParameter.SumToOne;
+    }
+
 private:
     Parameter_Of_KNNReconstructionSparseEncoder(const Parameter_Of_KNNReconstructionSparseEncoder&) = delete;
-    void operator=(const Parameter_Of_KNNReconstructionSparseEncoder&) = delete;
 };
 
 
@@ -90,19 +97,19 @@ public:
     static bool Apply(DenseMatrix<ElementType>& OutputCodeInDenseMatrix,
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
-                      int_max NeighbourNumber,
+                      const Parameter_Of_KNNReconstructionSparseEncoder& Parameter,
                       int_max MaxNumberOfThreads = 1);
 
     static bool Apply(SparseMatrix<ElementType>& OutputCodenSparseMatrix,
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
-                      int_max NeighbourNumber,
+                      const Parameter_Of_KNNReconstructionSparseEncoder& Parameter,
                       int_max MaxNumberOfThreads = 1);
 
     static bool Apply(DenseMatrix<SparseMatrix<ElementType>>& OutputCodeInSparseColVectorList,
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
-                      int_max NeighbourNumber,
+                      const Parameter_Of_KNNReconstructionSparseEncoder& Parameter,
                       int_max MaxNumberOfThreads = 1);
 
 private:

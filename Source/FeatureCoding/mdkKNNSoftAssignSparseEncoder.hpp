@@ -61,9 +61,13 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(SparseVector<Elem
                                                                const DenseMatrix<ElementType>& DataColVector,
                                                                int_max ThreadNumber)
 {
-    const DenseMatrix<ElementType>& D = m_Dictionary->BasisMatrix();
+    const DenseMatrix<ElementType>& BasisMatrix = m_Dictionary->BasisMatrix(); // "auto  = " will copy
 
-    auto CodeLength = D.GetColNumber();
+    const DenseMatrix<ElementType>& ReconstructionStd = m_Dictionary->ReconstructionStd();
+
+    //------
+
+    auto CodeLength = BasisMatrix.GetColNumber();
 
     DenseMatrix<ElementType> Membership(m_Parameter.NeighbourNumber, 1);
 
@@ -71,7 +75,7 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(SparseVector<Elem
 
     if (m_Parameter.DistanceType == "L1Distance")
     {
-        DistanceList = ComputeL1DistanceListFromSingleVectorToColVectorSet(DataColVector, D);
+        DistanceList = ComputeL1DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
 
         auto NeighbourIndexList = FindKNNByDistanceList(m_Parameter.NeighbourNumber, DistanceList);
 
@@ -79,7 +83,7 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(SparseVector<Elem
 
         for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
         {
-            auto s = m_Dictionary->m_StandardDeviation[NeighbourIndexList[i]];
+            auto s = ReconstructionStd[NeighbourIndexList[i]];
 
             Membership[i] = std::exp(ElementType(-0.5)*(NeighbourDistanceList[i] * NeighbourDistanceList[i]) / (s*s))
         }
@@ -87,7 +91,7 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(SparseVector<Elem
     }
     else if (m_Parameter.DistanceType == "L2Distance")
     {
-        DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, D);
+        DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
 
         auto NeighbourIndexList = FindKNNByDistanceList(m_Parameter.NeighbourNumber, DistanceList);
 
@@ -95,14 +99,14 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(SparseVector<Elem
 
         for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
         {
-            auto s = m_Dictionary->m_StandardDeviation[NeighbourIndexList[i]];
+            auto s = ReconstructionStd[NeighbourIndexList[i]];
 
             Membership[i] = std::exp(ElementType(-0.5)*(NeighbourDistanceList[i] * NeighbourDistanceList[i]) / (s*s))
         }
     }
     else if (m_Parameter.DistanceType == "Correlation")
     {
-        DistanceList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, D);
+        DistanceList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
 
         auto NeighbourIndexList = FindKNNByDistanceList(m_Parameter.NeighbourNumber, DistanceList);
 
@@ -117,7 +121,7 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(SparseVector<Elem
     }
     else if (m_Parameter.DistanceType == "KLDivergence")
     {
-        DistanceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, D);
+        DistanceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, BasisMatrix);
 
         auto NeighbourIndexList = FindKNNByDistanceList(m_Parameter.NeighbourNumber, DistanceList);
 

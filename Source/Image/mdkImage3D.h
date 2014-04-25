@@ -172,7 +172,9 @@ struct Image3DData
 
     ~Image3DData();
 
-    void Clear();
+    inline void Clear();
+
+    //---------------------------------
 
     inline PixelType& operator[](int_max LinearIndex);
 

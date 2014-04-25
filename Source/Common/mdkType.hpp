@@ -1,8 +1,6 @@
 #ifndef __mdkType_hpp
 #define __mdkType_hpp
 
-//#include "mdkType.h"
-#include "mdkDebugConfig.h"
 
 namespace mdk
 {
@@ -195,6 +193,36 @@ inline unsigned long long CalByteNumberOfScalar(const unsigned long long&)
     return sizeof(unsigned long long);
 }
 
+
+inline unsigned long long CalByteNumberOfScalar(const bool&)
+{
+    return sizeof(bool);
+}
+
+inline unsigned long long CalByteNumberOfScalar(const wchar_t&)
+{
+    return sizeof(wchar_t);
+}
+
+
+// unsigned short 
+//inline unsigned long long CalByteNumberOfScalar(const char16_t&)
+//{
+//    return sizeof(char16_t);
+//}
+
+
+// unsigned int
+//inline unsigned long long CalByteNumberOfScalar(const char32_t&)
+//{
+//   return sizeof(char32_t);
+//}
+
+// usinged long long
+//inline unsigned long long CalByteNumberOfScalar(const size_t&)
+//{
+//    return sizeof(size_t);
+//}
 
 }//end namespace mdk
 

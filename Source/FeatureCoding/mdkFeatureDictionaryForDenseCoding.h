@@ -13,7 +13,7 @@ class FeatureDictionaryForDenseCoding : public FeatureDictionary<ElementType>
 {
 public:
 
-    std::string m_Name;
+    CharString m_Name;
 
     DenseMatrix<ElementType> m_BasisMatrix; // D
 
@@ -57,11 +57,13 @@ public:
 
     MatrixSize GetSize() const;
 
-    bool Load(const std::string& FilePathAndName);
+    bool Load(const CharString& FilePathAndName);
 
-    bool Save(const std::string& FilePathAndName) const;
+    bool Save(const CharString& FilePathAndName) const;
 
-    const std::string& GetName() const;
+    std::string& Name();
+
+    const std::string& Name() const;
 
     DenseMatrix<ElementType>& BasisMatrix();
 

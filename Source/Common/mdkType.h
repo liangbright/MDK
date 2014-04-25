@@ -5,6 +5,8 @@
 
 
 #include "mdkOSPlatformConfig.h"
+#include "mdkDebugConfig.h"
+
 
 namespace mdk
 {
@@ -62,7 +64,6 @@ enum struct ObjectConstructionTypeEnum
     Copy,
     Share,
 };
-
 
 //-------------------------------------------------------------//
 template<typename ScalarType>
