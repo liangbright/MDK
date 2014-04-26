@@ -83,13 +83,13 @@ protected:
 
     virtual bool Preprocess();
 
-    inline bool Is3DIndexInsideNOBoundCheckRegion(int_max x, int_max y, int_max z, int_max MaskIndex);
+    inline bool IsMaskCenterInsideNOBoundCheckRegion_3DIndex(int_max x, int_max y, int_max z, int_max MaskIndex);
 
-    inline bool Is3DPositionInsideNOBoundCheckRegion(double x, double y, double z, int_max MaskIndex);
+    inline bool IsMaskCenterInsideNOBoundCheckRegion_3DPosition(double x, double y, double z, int_max MaskIndex);
 
-    inline bool WhetherToCheckBoundAt3DIndex(int_max x, int_max y, int_max z, int_max MaskIndex);
+    inline bool WhetherToCheckBoundAtMaskCenter_3DIndex(int_max x, int_max y, int_max z, int_max MaskIndex);
 
-    inline bool WhetherToCheckBoundAt3DPosition(double x, double y, double z, int_max MaskIndex);
+    inline bool WhetherToCheckBoundAtMaskCenter_3DPosition(double x, double y, double z, int_max MaskIndex);
 
 private:
 	MaskBasedImageFilter3D(const MaskBasedImageFilter3D&) = delete;

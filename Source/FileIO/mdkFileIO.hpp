@@ -327,10 +327,10 @@ bool SaveGrayScale3DImageAsJsonDataFile(const Image3D<ScalarType>& InputImage, c
 
     //-------------------------------------------------------------------------------------
 
-    std::vector<NameValueQStringPair> PairList(11);
+    std::vector<NameValueQStringPair> PairList(12);
 
-    PairList[0].Name = "ImageType";
-    PairList[0].Value = "GrayScaleImage";
+    PairList[0].Name = "Dimension";
+    PairList[0].Value = "3";
 
     PairList[1].Name = "PixelType";
     PairList[1].Value = QScalarTypeName;
@@ -367,6 +367,19 @@ bool SaveGrayScale3DImageAsJsonDataFile(const Image3D<ScalarType>& InputImage, c
 
     PairList[10].Name = "Origin_z";
     PairList[10].Value = QString::number(Origin.z);
+
+    auto Orientation = InputImage.GetOrientation();
+
+    PairList[11].Name = "Orientation";
+    PairList[11].Value =  QString::number(Orientation(0,0)) + ","
+                        + QString::number(Orientation(1,0)) + ","
+                        + QString::number(Orientation(2,0)) + ","
+                        + QString::number(Orientation(0,1)) + ","
+                        + QString::number(Orientation(1,1)) + ","
+                        + QString::number(Orientation(2,1)) + ","
+                        + QString::number(Orientation(0,2)) + ","
+                        + QString::number(Orientation(1,2)) + ","
+                        + QString::number(Orientation(2,2));
 
     // write header file (json) --------------------------------------------------
 
@@ -430,9 +443,30 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
     QJsonObject HeaderObject = HeaderDoc.object();
     //-----------------------------------------------------------//
 
+    auto it = HeaderObject.find("Dimension");
+    if (it != HeaderObject.end())
+    {
+        auto Dimension = it.value().toString().toLongLong();
+
+        if (Dimension != 3)
+        {
+            MDK_Error("Dimension is not 3 @ LoadGrayScale3DImageFromJsonDataFile(...)")
+            HeaderFile.close();
+            return OutputImage;
+        }
+    }
+    else
+    {
+        MDK_Error("Couldn't get Dimension @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        HeaderFile.close();
+        return OutputImage;
+    }
+
+    //---------------------------------------------------
+
     QString InputScalarTypeName = 0;
 
-    auto it = HeaderObject.find("PixelType");
+    it = HeaderObject.find("PixelType");
     if (it != HeaderObject.end())
     {
         InputScalarTypeName = it.value().toString();
@@ -562,6 +596,36 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
         return OutputImage;
     }
 
+    QString OrientationStr;
+
+    it = HeaderObject.find("Orientation");
+    if (it != HeaderObject.end())
+    {
+        OrientationStr = it.value().toString();
+    }
+    else
+    {
+        MDK_Error("Couldn't get Orientation @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        HeaderFile.close();
+        return OutputImage;
+    }
+
+    auto OrientationValue = OrientationStr.split(",");
+    if (OrientationValue.size() != 9)
+    {
+        MDK_Error("Orientation Matrix size is wrong @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        HeaderFile.close();
+        return OutputImage;
+    }
+
+    DenseMatrix<double> Orientation(3, 3);
+    for (int_max k = 0; k < 9; ++k)
+    {
+        Orientation[k] = OrientationValue[k].toDouble();
+    }
+
+    //-----------------------
+
     HeaderFile.close();
 
     //-------------------------------------------------- Read data ---------------------------------------------------------//
@@ -578,6 +642,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
     OutputImage.SetSize(Size);
     OutputImage.SetPixelSpacing(Spacing);
     OutputImage.SetPhysicalOrigin(Origin);
+    OutputImage.SetOrientation(Orientation);
 
     //----------------------------------------------------------------------------------------------
 
@@ -646,6 +711,8 @@ void Internal_LoadGrayScale3DImageFromJsonDataFile(Image3D<OutputScalarType>& Ou
     else
     {
         MDK_Error("unknown ScalarType of data file @ Internal_LoadGrayScale3DImageFromJsonDataFile(...) ")
+        DataFile.close();
+        OutputImage.Clear();
     }
 }
 
@@ -659,7 +726,9 @@ void Internal_LoadGrayScale3DImageFromJsonDataFile(Image3D<OutputScalarType>& Ou
 
     if (BypesofDataFile != PixelNumber * ByteNumberOfInputScalarType)
     {
-        MDK_Error("Data file size is not equal to matrix size @ Internal_LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Data file size is not equal to image size @ Internal_LoadGrayScale3DImageFromJsonDataFile(...)")
+        DataFile.close();
+        OutputImage.Clear();
         return;
     }
 
@@ -748,8 +817,19 @@ itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DImageToITK3D
     const itk::SpacePrecisionType spacing[3] = { InputSpacing.Sx, InputSpacing.Sy, InputSpacing.Sz };
     importFilter->SetSpacing(spacing);
 
-    // Orientation ???
+    ITKImportFilterType::DirectionType Direction;
+    typedef itk::SpacePrecisionType SpacePrecisionType;
 
+    DenseMatrix<double>& Orientation = InputImage->GetOrientation();
+    for (int j = 0; j < 3; ++j)
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            Direction(i, j) = SpacePrecisionType(Orientation(i, j));
+        }
+    }
+    importFilter->SetDirection(Direction);
+    
     if (SharePixelData == true)
     {       
         bool ITKImageWillOwnPixelDataArray = false;
@@ -799,10 +879,21 @@ Image3D<PixelType> ConvertITK3DImageToMDK3DImage(const itk::Image<PixelType, 3>*
     auto Size = ITKImage->GetBufferedRegion().GetSize();
     auto Spacing = ITKImage->GetSpacing();
     auto Origin = ITKImage->GetOrigin();
+    auto Direction = ITKImage->GetDirection();
 
     OutputImage.SetSize(Size[0], Size[1], Size[2]);
     OutputImage.SetPixelSpacing(Spacing[0], Spacing[1], Spacing[2]);
     OutputImage.SetPhysicalOrigin(Origin[0], Origin[1], Origin[2]);
+
+    DenseMatrix<double> Orientation(3, 3);
+    for (int j = 0; j < 3; ++j)
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            Orientation(i, j) = double(Direction(i, j));
+        }
+    }
+    OutputImage.SetOrientation(Orientation);
 
     auto RawPointerOfITKImage = ITKImage->GetBufferPointer();
 

@@ -383,7 +383,7 @@ void MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::BuildMaskOf3DPos
 
 template<typename PixelType_Input, typename PixelType_Output>
 inline
-bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::Is3DIndexInsideNOBoundCheckRegion(int_max x, int_max y, int_max z, int_max MaskIndex)
+bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::IsMaskCenterInsideNOBoundCheckRegion_3DIndex(int_max x, int_max y, int_max z, int_max MaskIndex)
 {
     bool IsInside = true;
 
@@ -407,7 +407,7 @@ bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::Is3DIndexInsideN
 
 template<typename PixelType_Input, typename PixelType_Output>
 inline
-bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::Is3DPositionInsideNOBoundCheckRegion(double x, double y, double z, int_max MaskIndex)
+bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::IsMaskCenterInsideNOBoundCheckRegion_3DPosition(double x, double y, double z, int_max MaskIndex)
 {
     bool IsInside = true;
 
@@ -431,13 +431,13 @@ bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::Is3DPositionInsi
 
 template<typename PixelType_Input, typename PixelType_Output>
 inline 
-bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::WhetherToCheckBoundAt3DIndex(int_max x, int_max y, int_max z, int_max MaskIndex)
+bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::WhetherToCheckBoundAtMaskCenter_3DIndex(int_max x, int_max y, int_max z, int_max MaskIndex)
 {
     bool WhetherToCheck = false;
 
     if (this->IsBoundCheckEnabled() == true)
     {
-        if (this->Is3DIndexInsideNOBoundCheckRegion(x, y, z, MaskIndex) == false)
+        if (this->IsMaskCenterInsideNOBoundCheckRegion_3DIndex(x, y, z, MaskIndex) == false)
         {
             WhetherToCheck = true;
         }
@@ -449,13 +449,13 @@ bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::WhetherToCheckBo
 
 template<typename PixelType_Input, typename PixelType_Output>
 inline
-bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::WhetherToCheckBoundAt3DPosition(double x, double y, double z, int_max MaskIndex)
+bool MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>::WhetherToCheckBoundAtMaskCenter_3DPosition(double x, double y, double z, int_max MaskIndex)
 {
     bool WhetherToCheck = false;
 
     if (this->IsBoundCheckEnabled() == true)
     {
-        if (this->Is3DPositionInsideNOBoundCheckRegion(x, y, z, MaskIndex) == false)
+        if (this->IsMaskCenterInsideNOBoundCheckRegion_3DPosition(x, y, z, MaskIndex) == false)
         {
             WhetherToCheck = true;
         }
