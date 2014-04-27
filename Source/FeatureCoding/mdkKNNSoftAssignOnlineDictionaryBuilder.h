@@ -140,15 +140,24 @@ protected:
 
     inline DenseMatrix<ElementType> GetProbabilityMassFunctionOfCombinedData(int_max DataVectorNumber);
 
-    inline DenseMatrix<ElementType> EstimateBasisProbabilityMassFunctionFromData(const DenseMatrix<ElementType>& SimilarityMatrix);
+    inline DataContainer<DenseMatrix<int_max>> FindKNNDataVectorIndexTableBySimilarityMatrix(const DenseMatrix<ElementType>& SimilarityMatrix);
 
-    inline DenseMatrix<ElementType> EstimateBasisProbabilityMassFunctionFromData(const DenseMatrix<ElementType>& SimilarityMatrix,
+    inline DenseMatrix<ElementType> EstimateBasisProbabilityMassFunctionFromData(const DataContainer<DenseMatrix<int_max>>& KNNDataVectorIndexTable);
+
+    inline DenseMatrix<ElementType> EstimateBasisProbabilityMassFunctionFromData(const DataContainer<DenseMatrix<int_max>>& KNNDataVectorIndexTable,
                                                                                  const DenseMatrix<ElementType>& DataProbabilityMassFunction);
 
-    inline DenseMatrix<ElementType> EstimateBasisProbabilityMassFunctionFromData(const DenseMatrix<ElementType>& SimilarityMatrix,
-                                                                                 const DenseMatrix<ElementType>& DataProbabilityMassFunction,
-                                                                                 const DenseMatrix<int_max>& DataVectorIndexList_Basis);
+    inline DataContainer<DenseMatrix<int_max>> FindKNNBasisVectorIndexTableBySimilarityMatrix(const DenseMatrix<int_max>&     DataVectorIndexList_Basis,
+                                                                                              const DenseMatrix<ElementType>& SimilarityMatrix);
+
+    inline DenseMatrix<ElementType> EstimateBasisProbabilityMassFunctionFromData(const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
+                                                                                 const DenseMatrix<ElementType>& DataProbabilityMassFunction);
     
+    inline DenseMatrix<ElementType> EsimateBasisStandardDeviation(const DenseMatrix<ElementType>& FeatureData, 
+                                                                  const DataContainer<DenseMatrix<int_max>>& KNNDataVectorIndexTable,
+                                                                  const DenseMatrix<int_max>&     DataVectorIndexList_Basis,
+                                                                  const DenseMatrix<ElementType>& BasisMatrix,                                                                                                                                  
+                                                                  const DenseMatrix<ElementType>& StandardDeviation_init);
 
 private:
     KNNSoftAssignOnlineDictionaryBuilder(const KNNSoftAssignOnlineDictionaryBuilder&) = delete;

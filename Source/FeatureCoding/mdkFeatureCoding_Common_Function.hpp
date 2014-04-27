@@ -184,7 +184,7 @@ void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType>& SimilarityMatri
     int_max tempLength = TotalVectorNumber*(TotalVectorNumber - 1) / 2;
     SimilarityMatrix.FastResize(tempLength, tempLength);
 
-    SimilarityMatrix.Fill(ElementType(0));
+    SimilarityMatrix.Fill(ElementType(0));  // SimilarityMatrix(i, i) = 0 for all i
 
     DenseMatrix<ElementType> Vector_k;
     DenseMatrix<ElementType> Vector_n;

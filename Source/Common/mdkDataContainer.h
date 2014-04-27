@@ -118,7 +118,7 @@ public:
 
     inline DataContainer(const std::initializer_list<ElementType>& InputData);
 
-    inline DataContainer(const ElementType& Element); // the first element
+    //inline DataContainer(const ElementType& Element); // the first element, confused with std::vector A(1);
 
     // deep-copy or shared-copy constructor
     inline DataContainer(const DataContainer<ElementType>& InputData, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
@@ -199,7 +199,9 @@ public:
 
     inline bool IsShared() const;
 
-    inline int_max GetElementNumber() const;
+    inline int_max GetLength() const;
+
+    inline int_max GetElementNumber() const; // the same as GetLength();
 
     //------------------------ Error Element -----------------------------//
 

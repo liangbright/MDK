@@ -30,14 +30,14 @@ DataContainer<ElementType>::DataContainer(const std::initializer_list<ElementTyp
 }
 
 
-template<typename ElementType>
-inline
-DataContainer<ElementType>::DataContainer(const ElementType& Element)
-{
-    this->Resize(1);
-
-    (*this)(0) = Element;
-}
+//template<typename ElementType>
+//inline
+//DataContainer<ElementType>::DataContainer(const ElementType& Element)
+//{
+//    this->Resize(1);
+//
+//    (*this)(0) = Element;
+//}
 
 
 template<typename ElementType>
@@ -658,6 +658,14 @@ inline
 bool DataContainer<ElementType>::IsShared() const
 {
     return (m_Data.use_count() > 1);
+}
+
+
+template<typename ElementType>
+inline
+int_max DataContainer<ElementType>::GetLength() const
+{
+    return m_Data->Length;
 }
 
 
