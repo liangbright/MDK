@@ -35,7 +35,7 @@ DenseMatrix<ElementType> ComputeL2DistanceListFromSingleVectorToColVectorSet(con
         return L2DistanceList;
     }
 
-    L2DistanceList.FastResize(1, Size.RowNumber);
+    L2DistanceList.FastResize(1, Size.ColNumber);
 
     auto PointToSingleVector = SingleVector.GetElementPointer();
 
@@ -128,7 +128,7 @@ DenseMatrix<ElementType> ComputeL1DistanceListFromSingleVectorToColVectorSet(con
         return L1DistanceList;
     }
 
-    L1DistanceList.FastResize(1, Size.RowNumber);
+    L1DistanceList.FastResize(1, Size.ColNumber);
 
     auto PointToSingleVector = SingleVector.GetElementPointer();
 
@@ -219,7 +219,7 @@ DenseMatrix<ElementType> ComputeCorrelationListFromSingleVectorToColVectorSet(co
         return CorrelationList;
     }
 
-    CorrelationList.FastResize(1, Size.RowNumber);
+    CorrelationList.FastResize(1, Size.ColNumber);
 
     auto PointerToSingleVector = SingleVector.GetElementPointer();
 
@@ -345,7 +345,7 @@ DenseMatrix<ElementType> ComputeUncenteredCorrelationListFromSingleVectorToColVe
         return CorrelationList;
     }
 
-    CorrelationList.FastResize(1, Size.RowNumber);
+    CorrelationList.FastResize(1, Size.ColNumber);
 
     auto PointerToSingleVector = SingleVector.GetElementPointer();
 
@@ -458,7 +458,7 @@ DenseMatrix<ElementType> ComputeUnnormalizedCorrelationListFromSingleVectorToCol
         return CorrelationList;
     }
 
-    CorrelationList.FastResize(1, Size.RowNumber);
+    CorrelationList.FastResize(1, Size.ColNumber);
 
     auto PointerToSingleVector = SingleVector.GetElementPointer();
 
@@ -560,7 +560,7 @@ DenseMatrix<ElementType> ComputeKLDivergenceListOfSingleVectorFromColVectorSet(c
         return KLDivergenceList;
     }
 
-    KLDivergenceList.FastResize(1, Size.RowNumber);
+    KLDivergenceList.FastResize(1, Size.ColNumber);
 
     auto PointToSingleVector = SingleVector.GetElementPointer();
 
@@ -581,6 +581,8 @@ template<typename ElementType>
 inline
 ElementType ComputeKLDivergenceOfVectorAFromVectorB(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB)
 {
+// VectorA and VectorB should >= 0
+
     if (VectorA.IsVector() == false || VectorB.IsVector() == false)
     {
         MDK_Error("Input VectorA or VectorB is not a vector @ mdkLinearAlgebra_DenseMatrix ComputeKLDivergenceOfVectorAFromVectorB(...)")
@@ -604,6 +606,8 @@ template<typename ElementType>
 inline
 ElementType ComputeKLDivergenceOfVectorAFromVectorB(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput)
 {
+// VectorA and VectorB should >= 0
+
     if (CheckInput == true)
     {
         if (VectorA == nullptr || VectorB == nullptr || Length <= 0)
@@ -619,9 +623,14 @@ ElementType ComputeKLDivergenceOfVectorAFromVectorB(const ElementType* VectorA, 
 
     for (int_max i = 0; i < Length; ++i)
     {
-        if (VectorA[i] > eps_value)
+        if (VectorA[i] > eps_value && VectorB[i] > eps_value)
         {
             KLDivergence += VectorB[i] * (std::log(VectorB[i] / VectorA[i]));
+        }
+        else if (VectorA[i] < ElementType(0) || VectorB[i] < ElementType(0))
+        {
+            MDK_Error("VectorA[i] < 0 || VectorB[i] < 0 @ mdkLinearAlgebra_DenseMatrix ComputeKLDivergenceOfVectorAFromVectorB(pointer ...)")
+            return ElementType(-100);
         }
     }
 

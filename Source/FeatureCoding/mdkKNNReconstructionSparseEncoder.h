@@ -66,8 +66,15 @@ public:
 
     Parameter_Of_KNNReconstructionSparseEncoder m_Parameter;
 
+
 protected:
-    DenseMatrix<ElementType> m_GramianMatrix_DtD; // D'*D
+    // output reconstruction error
+    DenseMatrix<ElementType>* m_ReconstructionErrorNorm;
+
+    DenseMatrix<ElementType> m_ReconstructionErrorNorm_SharedCopy;
+
+    // D'*D
+    DenseMatrix<ElementType> m_GramianMatrix_DtD; 
 
 public:
 
@@ -79,6 +86,10 @@ public:
 
     void Clear();
 
+    void SetOutputReconstructionErrorNorm(DenseMatrix<ElementType>* ErrorNorm);
+
+    DenseMatrix<ElementType>* GetOutputReconstructionErrorNorm();
+
     bool CheckInput();
 
     bool ComputeGramianMatrix_DtD();
@@ -86,11 +97,6 @@ public:
     bool Preprocess();
 
     bool Postprocess();
-    //--------------------------------------------------------------------------------
-
-    using FeatureDictionaryBasedSparseEncoder::EncodingFunction;
-
-    inline void EncodingFunction(SparseVector<ElementType>& CodeInSparseColVector, const DenseMatrix<ElementType>& DataColVector, int_max ThreadIndex);
 
     //---------------------------------------------------------------------------------
 
@@ -111,6 +117,13 @@ public:
                       const FeatureDictionary<ElementType>* Dictionary,
                       const Parameter_Of_KNNReconstructionSparseEncoder& Parameter,
                       int_max MaxNumberOfThreads = 1);
+
+protected:
+    inline void EncodingFunction(int_max DataIndex, int_max ThreadIndex);
+
+    virtual void SetupDefaultPipelineOutput();
+
+    virtual void UpdatePipelineOutput();
 
 private:
 //deleted:

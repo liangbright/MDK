@@ -12,10 +12,7 @@ namespace mdk
 template<typename ElementType>
 class FeatureDictionaryBasedEncoder : public ProcessObject
 {
-protected:
 
-    bool m_IsDenseEncoder;
-    
 protected:
     FeatureDictionaryBasedEncoder() {}
     virtual ~FeatureDictionaryBasedEncoder() {}
@@ -23,9 +20,9 @@ protected:
 public:
     //-----------------------------------------
 
-    bool IsDenseEncoder() { return m_IsDenseEncoder };
+    virtual bool IsDenseEncoder() const = 0;
 
-    bool IsSparseEncoder() { return !m_IsDenseEncoder };
+    virtual bool IsSparseEncoder() const = 0;
 
     //-----------------------------------------
 
@@ -45,13 +42,12 @@ public:
 
     //----------------------------------------------------//
 
-    virtual inline void EncodingFunction(DenseMatrix<ElementType>& CodeInDenseColVector,
-                                         const DenseMatrix<ElementType>& DataColVector,
-                                         int_max ThreadIndex) = 0;
+    virtual DenseMatrix<ElementType>* GetOutputCode() = 0;
 
     //----------------------------------------------------//
 
-    virtual DenseMatrix<ElementType>* GetOutputCode() = 0;
+    virtual inline void EncodeSingleDataVector(DenseMatrix<ElementType>& CodeInDenseColVector,
+                                               const DenseMatrix<ElementType>& DataColVector) = 0;
 
     //----------------------------------------------------//
 

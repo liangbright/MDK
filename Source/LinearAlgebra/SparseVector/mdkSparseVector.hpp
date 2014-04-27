@@ -446,6 +446,54 @@ const std::vector<ElementType>& SparseVector<ElementType>::DataArray() const
     return m_DataArray;
 }
 
+
+template<typename ElementType>
+inline
+ElementType SparseVector<ElementType>::Sum() const
+{
+    auto Value = ElementType(0);
+
+    for (int_max k = 0; k < int_max(m_DataArray.size()); ++k)
+    {
+        Value += m_DataArray[k];
+    }
+
+    return Value;
+}
+
+
+template<typename ElementType>
+inline
+ElementType SparseVector<ElementType>::L1Norm() const
+{
+    auto Value = ElementType(0);
+
+    for (int_max k = 0; k < int_max(m_DataArray.size()); ++k)
+    {
+        Value += std::abs(m_DataArray[k]);
+    }
+
+    return Value;
+}
+
+
+template<typename ElementType>
+inline
+ElementType SparseVector<ElementType>::L2Norm() const
+{
+    auto Value = ElementType(0);
+
+    for (int_max k = 0; k < int_max(m_DataArray.size()); ++k)
+    {
+        Value += m_DataArray[k] * m_DataArray[k];
+    }
+
+    Value = std::sqrt(Value);
+
+    return Value;
+}
+
+
 }//end namespace mdk
 
 #endif

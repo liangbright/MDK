@@ -6,22 +6,22 @@
 namespace mdk
 {
 
-template<typename PixelType_Input, typename PixelType_Output>
-ImageFilter3D<PixelType_Input, PixelType_Output>::ImageFilter3D()
+template<typename InputPixelType, typename OutputPixelType>
+ImageFilter3D<InputPixelType, OutputPixelType>::ImageFilter3D()
 {
     this->Clear();
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-ImageFilter3D<PixelType_Input, PixelType_Output>::~ImageFilter3D()
+template<typename InputPixelType, typename OutputPixelType>
+ImageFilter3D<InputPixelType, OutputPixelType>::~ImageFilter3D()
 {
 	// do nothing
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>::Clear()
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>::Clear()
 {
     m_InputImage = nullptr;
 
@@ -45,9 +45,9 @@ void ImageFilter3D<PixelType_Input, PixelType_Output>::Clear()
 
     m_IsInputFilterFunctionAt3DIndexObtained = false;
 
-    m_ZeroPixelOfInputImage = PixelType_Input(0);
+    m_ZeroPixelOfInputImage = InputPixelType(0);
 
-    m_ZeroPixelOfOutputImage = PixelType_Output(0);
+    m_ZeroPixelOfOutputImage = OutputPixelType(0);
 
     m_TotalOutputPixelNumber = 0;
 
@@ -57,8 +57,8 @@ void ImageFilter3D<PixelType_Input, PixelType_Output>::Clear()
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>::SetupDefaultPipelineOutput()
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>::SetupDefaultPipelineOutput()
 {
     m_OutputImage_SharedCopy.Clear();
 
@@ -70,8 +70,8 @@ void ImageFilter3D<PixelType_Input, PixelType_Output>::SetupDefaultPipelineOutpu
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>::UpdatePipelineOutput()
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>::UpdatePipelineOutput()
 {
     if (m_OutputImage != &m_OutputImage_SharedCopy)
     {
@@ -85,30 +85,30 @@ void ImageFilter3D<PixelType_Input, PixelType_Output>::UpdatePipelineOutput()
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>::EnableBoundCheck()
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>::EnableBoundCheck()
 {
 	m_IsBoundCheckEnabled = true;
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>::DisableBoundCheck()
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>::DisableBoundCheck()
 {
     m_IsBoundCheckEnabled = false;
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
+template<typename InputPixelType, typename OutputPixelType>
 inline
-bool ImageFilter3D<PixelType_Input, PixelType_Output>::IsBoundCheckEnabled()
+bool ImageFilter3D<InputPixelType, OutputPixelType>::IsBoundCheckEnabled()
 {
     return m_IsBoundCheckEnabled;
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>:: SetInputImage(const Image3D<PixelType_Input>* InputImage)
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>:: SetInputImage(const Image3D<InputPixelType>* InputImage)
 {
     if (InputImage == nullptr)
     {
@@ -118,34 +118,34 @@ void ImageFilter3D<PixelType_Input, PixelType_Output>:: SetInputImage(const Imag
 
 	m_InputImage = InputImage;
 
-    m_ZeroPixelOfInputImage = PixelType_Input(0);
+    m_ZeroPixelOfInputImage = InputPixelType(0);
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>::SetInputRegion(const DenseMatrix<int_max>* InputRegion)
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>::SetInputRegion(const DenseMatrix<int_max>* InputRegion)
 {
     m_InputRegion = InputRegion;
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>::SetInputPixel3DIndexList(const DenseMatrix<int_max>* InputPixel3DIndexList)
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>::SetInputPixel3DIndexList(const DenseMatrix<int_max>* InputPixel3DIndexList)
 {
     m_InputPixel3DIndexList = InputPixel3DIndexList;
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>::SetInput3DPositionList(const DenseMatrix<float>* Input3DPositionList)
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>::SetInput3DPositionList(const DenseMatrix<float>* Input3DPositionList)
 {
 	m_Input3DPositionList = Input3DPositionList;
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>::
-SetInputFilterFunctionAt3DIndex(std::function<void(PixelType_Output&, int_max, int_max, int_max, const Image3D<PixelType_Input>&)> InputFilterFunction)
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>::
+SetInputFilterFunctionAt3DIndex(std::function<void(OutputPixelType&, int_max, int_max, int_max, const Image3D<InputPixelType>&)> InputFilterFunction)
 {
 	m_InputFilterFunction_At3DIndex = InputFilterFunction;
 
@@ -153,9 +153,9 @@ SetInputFilterFunctionAt3DIndex(std::function<void(PixelType_Output&, int_max, i
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>::
-SetInputFilterFunctionAt3DPosition(std::function<void(PixelType_Output&, double, double, double, const Image3D<PixelType_Input>&)> InputFilterFunction)
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>::
+SetInputFilterFunctionAt3DPosition(std::function<void(OutputPixelType&, double, double, double, const Image3D<InputPixelType>&)> InputFilterFunction)
 {
 	m_InputFilterFunction_At3DPosition = InputFilterFunction;
 
@@ -163,8 +163,8 @@ SetInputFilterFunctionAt3DPosition(std::function<void(PixelType_Output&, double,
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>::SetOutputImage(Image3D<PixelType_Output>* OutputImage)
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>::SetOutputImage(Image3D<OutputPixelType>* OutputImage)
 {
     if (OutputImage == nullptr)
     {
@@ -174,14 +174,14 @@ void ImageFilter3D<PixelType_Input, PixelType_Output>::SetOutputImage(Image3D<Pi
 
 	m_OutputImage = OutputImage;
 
-    m_ZeroPixelOfOutputImage = PixelType_Output(0);
+    m_ZeroPixelOfOutputImage = OutputPixelType(0);
 
     m_Flag_OutputImage = true;
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>::SetOutputArray(DataContainer<PixelType_Output>* OutputArray)
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>::SetOutputArray(DataContainer<OutputPixelType>* OutputArray)
 {
     if (OutputArray == nullptr)
     {
@@ -195,36 +195,36 @@ void ImageFilter3D<PixelType_Input, PixelType_Output>::SetOutputArray(DataContai
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>::SetMaxNumberOfThreads(int_max MaxNumber)
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>::SetMaxNumberOfThreads(int_max MaxNumber)
 {
 	m_MaxNumberOfThreads = MaxNumber;
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-int_max ImageFilter3D<PixelType_Input, PixelType_Output>::GetNumberOfThreadsTobeCreated()
+template<typename InputPixelType, typename OutputPixelType>
+int_max ImageFilter3D<InputPixelType, OutputPixelType>::GetNumberOfThreadsTobeCreated()
 {
     return Compute_NecessaryNumberOfThreads_For_ParallelBlock(m_TotalOutputPixelNumber, m_MaxNumberOfThreads, m_MinPixelNumberPerThread);
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-bool ImageFilter3D<PixelType_Input, PixelType_Output>::Preprocess()
+template<typename InputPixelType, typename OutputPixelType>
+bool ImageFilter3D<InputPixelType, OutputPixelType>::Preprocess()
 {
 	return true;
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-bool ImageFilter3D<PixelType_Input, PixelType_Output>::Postprocess()
+template<typename InputPixelType, typename OutputPixelType>
+bool ImageFilter3D<InputPixelType, OutputPixelType>::Postprocess()
 {
     return true;
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-bool ImageFilter3D<PixelType_Input, PixelType_Output>::CheckInput()
+template<typename InputPixelType, typename OutputPixelType>
+bool ImageFilter3D<InputPixelType, OutputPixelType>::CheckInput()
 {
 	if (m_InputImage == nullptr)
 	{
@@ -339,8 +339,8 @@ bool ImageFilter3D<PixelType_Input, PixelType_Output>::CheckInput()
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-bool ImageFilter3D<PixelType_Input, PixelType_Output>::Update()
+template<typename InputPixelType, typename OutputPixelType>
+bool ImageFilter3D<InputPixelType, OutputPixelType>::Update()
 {
     //-------------------------------------------------------------------------------
 
@@ -374,8 +374,8 @@ bool ImageFilter3D<PixelType_Input, PixelType_Output>::Update()
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void ImageFilter3D<PixelType_Input, PixelType_Output>::Run_in_a_Thread(int_max OutputPixelIndex_start, int_max OutputPixelIndex_end, int_max ThreadIndex)
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilter3D<InputPixelType, OutputPixelType>::Run_in_a_Thread(int_max OutputPixelIndex_start, int_max OutputPixelIndex_end, int_max ThreadIndex)
 {
     std::cout << "PixelIndex_start " << OutputPixelIndex_start << '\n';
     std::cout << "PixelIndex_end   " << OutputPixelIndex_end << '\n';
@@ -569,14 +569,14 @@ void ImageFilter3D<PixelType_Input, PixelType_Output>::Run_in_a_Thread(int_max O
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
+template<typename InputPixelType, typename OutputPixelType>
 inline
-void ImageFilter3D<PixelType_Input, PixelType_Output>::
-FilterFunctionAt3DIndex(PixelType_Output& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex)
+void ImageFilter3D<InputPixelType, OutputPixelType>::
+FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex)
 {
 	// input (x,y,z) may be 3DIndex or 3DPosition, or 3DPosition with spacing =[1,1,1]
 	/*
-	PixelType_Input Output = 0;
+	InputPixelType Output = 0;
 
 	double N = 100;
 
@@ -598,14 +598,14 @@ FilterFunctionAt3DIndex(PixelType_Output& OutputPixel, int_max x_Index, int_max 
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
+template<typename InputPixelType, typename OutputPixelType>
 inline
-void ImageFilter3D<PixelType_Input, PixelType_Output>::
-FilterFunctionAt3DPosition(PixelType_Output& OutputPixel, double x, double y, double z, int_max ThreadIndex)
+void ImageFilter3D<InputPixelType, OutputPixelType>::
+FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex)
 {
 // input (x,y,z) may be 3DIndex or 3DPosition, or 3DPosition with spacing =[1,1,1]
 	/*
-	PixelType_Input Output = 0;
+	InputPixelType Output = 0;
 
 	double N = 100;
 
@@ -627,9 +627,9 @@ FilterFunctionAt3DPosition(PixelType_Output& OutputPixel, double x, double y, do
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
+template<typename InputPixelType, typename OutputPixelType>
 inline
-void ImageFilter3D<PixelType_Input, PixelType_Output>::OutputFunction(int_max OutputPixelIndex, const PixelType_Output& OutputPixel, int_max ThreadIndex)
+void ImageFilter3D<InputPixelType, OutputPixelType>::OutputFunction(int_max OutputPixelIndex, const OutputPixelType& OutputPixel, int_max ThreadIndex)
 {
     if (m_Flag_OutputImage == true)
     {
@@ -646,15 +646,15 @@ void ImageFilter3D<PixelType_Input, PixelType_Output>::OutputFunction(int_max Ou
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-Image3D<PixelType_Output>* ImageFilter3D<PixelType_Input, PixelType_Output>::GetOutputImage()
+template<typename InputPixelType, typename OutputPixelType>
+Image3D<OutputPixelType>* ImageFilter3D<InputPixelType, OutputPixelType>::GetOutputImage()
 {
     return &m_OutputImage_SharedCopy;
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-DataContainer<PixelType_Output>* ImageFilter3D<PixelType_Input, PixelType_Output>::GetOutputArray()
+template<typename InputPixelType, typename OutputPixelType>
+DataContainer<OutputPixelType>* ImageFilter3D<InputPixelType, OutputPixelType>::GetOutputArray()
 {
     return &m_OutputArray_SharedCopy;
 }

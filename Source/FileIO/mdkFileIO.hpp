@@ -56,16 +56,16 @@ bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, 
 // header is saved in SomeMatrix.json
 // data is saved in SomeMatrix.json.data
 //
-template<typename ScalarType>
-bool SaveScalarDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, const CharString& FilePathAndName)
+template<typename ElementType>
+bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ElementType>& InputMatrix, const CharString& FilePathAndName)
 {
-    ScalarType tempScalar = ScalarType(0);
+    ElementType tempScalar = ElementType(0);
 
     int_max ByteNumber = CalByteNumberOfScalar(tempScalar);
 
     if (ByteNumber <= 0)
     {
-        MDK_Error("Unknown type of matrix @ SaveScalarDenseMatrixAsJsonDataFile(...)")
+        MDK_Error("Unknown type of matrix @ SaveDenseMatrixAsJsonDataFile(...)")
         return false;
     }
 
@@ -76,13 +76,13 @@ bool SaveScalarDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMat
     auto Size = InputMatrix.GetSize();
 
     PairList[0].Name = "MatrixType";
-    PairList[0].Value = "ScalarDenseMatrix";
+    PairList[0].Value = "DenseMatrix";
 
-    auto ScalarTypeName = FindScalarTypeName(tempScalar);
-    QString QScalarTypeName(ScalarTypeName.StdString().c_str());
+    auto ElementTypeName = FindScalarTypeName(tempScalar);
+    QString QElementTypeName(ElementTypeName.StdString().c_str());
 
-    PairList[1].Name = "ScalarType";
-    PairList[1].Value = QScalarTypeName;
+    PairList[1].Name = "ElementType";
+    PairList[1].Value = QElementTypeName;
 
     PairList[2].Name = "RowNumber";
     PairList[2].Value = QString::number(Size.RowNumber);
@@ -102,7 +102,7 @@ bool SaveScalarDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMat
 
     if (!DataFile.open(QIODevice::WriteOnly))
     {
-        MDK_Error("Couldn't open file to write matrix data @ SaveScalarDenseMatrixAsJsonDataFile(...)")
+        MDK_Error("Couldn't open file to write matrix data @ SaveDenseMatrixAsJsonDataFile(...)")
         return false;
     }
 
@@ -118,20 +118,20 @@ bool SaveScalarDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMat
 }
 
 
-template<typename ScalarType>
-DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const CharString& FilePathAndName)
+template<typename ElementType>
+DenseMatrix<ElementType> LoadDenseMatrixFromJsonDataFile(const CharString& FilePathAndName)
 {
-    DenseMatrix<ScalarType> OutputMatrix;
+    DenseMatrix<ElementType> OutputMatrix;
 
     //----------------------------------------------------------
 
-    auto ReferenceScalar = ScalarType(0);
+    auto ReferenceScalar = ElementType(0);
 
-    auto OutputScalarTypeName_temp = FindScalarTypeName(ReferenceScalar);
+    auto OutputElementTypeName_temp = FindScalarTypeName(ReferenceScalar);
 
-    QString OutputScalarTypeName(OutputScalarTypeName_temp.c_str());
+    QString OutputElementTypeName(OutputElementTypeName_temp.c_str());
 
-    int_max ByteNumberOfOutputScalarType = CalByteNumberOfScalar(ReferenceScalar);
+    int_max ByteNumberOfOutputElementType = CalByteNumberOfScalar(ReferenceScalar);
 
     //---------------------------------------------- Read header --------------------------------------------------------//
 
@@ -151,16 +151,16 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const CharString& 
     QJsonObject HeaderObject = HeaderDoc.object();
     //-----------------------------------------------------------//
 
-    QString InputScalarTypeName = 0;
+    QString InputElementTypeName;
 
-    auto it = HeaderObject.find("ScalarType");
+    auto it = HeaderObject.find("ElementType");
     if (it != HeaderObject.end())
     {
-        InputScalarTypeName = it.value().toString();
+        InputElementTypeName = it.value().toString();
     }
     else
     {
-        MDK_Error("Couldn't get ScalarType @ LoadScalarDenseMatrixFromJsonDataFile(...)")
+        MDK_Error("Couldn't get ElementType @ LoadDenseMatrixFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputMatrix;
     }
@@ -176,7 +176,7 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const CharString& 
     }
     else
     {
-        MDK_Error("Couldn't get RowNumber @ LoadScalarDenseMatrixFromJsonDataFile(...)")
+        MDK_Error("Couldn't get RowNumber @ LoadDenseMatrixFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputMatrix;
     }
@@ -190,7 +190,7 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const CharString& 
     }
     else
     {
-        MDK_Error("Couldn't get ColNumber @ LoadScalarDenseMatrixFromJsonDataFile(...)")
+        MDK_Error("Couldn't get ColNumber @ LoadDenseMatrixFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputMatrix;
     }
@@ -211,15 +211,15 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const CharString& 
 
     OutputMatrix.FastResize(RowNumber, ColNumber);
 
-    if (OutputScalarTypeName == InputScalarTypeName)
+    if (OutputElementTypeName == InputElementTypeName)
     {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, ScalarType>(OutputMatrix, DataFile, ByteNumberOfOutputScalarType);
+        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(OutputMatrix, DataFile, ByteNumberOfOutputElementType);
     }
     else
     {
-        MDK_Warning("OutputScalarTypeName != InputScalarTypeName, Output may be inaccurate @ LoadScalarDenseMatrixFromJsonDataFile(...)")
+        MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ LoadDenseMatrixFromJsonDataFile(...)")
 
-        Internal_LoadScalarDenseMatrixFromJsonDataFile(OutputMatrix, DataFile, InputScalarTypeName);
+        Internal_LoadDenseMatrixFromJsonDataFile(OutputMatrix, DataFile, InputElementTypeName);
     }
 
     DataFile.close();
@@ -228,78 +228,78 @@ DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const CharString& 
 }
 
 
-template<typename OutputScalarType>
-void Internal_LoadScalarDenseMatrixFromJsonDataFile(DenseMatrix<OutputScalarType>& OutputMatrix, QFile& DataFile, const QString& InputScalarTypeName)
+template<typename OutputElementType>
+void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& OutputMatrix, QFile& DataFile, const QString& InputElementTypeName)
 {
-    if (InputScalarTypeName == "double")
+    if (InputElementTypeName == "double")
     {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, double>(OutputMatrix, DataFile, 8);
+        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, double>(OutputMatrix, DataFile, 8);
     }
-    else if (InputScalarTypeName == "float")
+    else if (InputElementTypeName == "float")
     {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, float>(OutputMatrix, DataFile, 4);
+        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, float>(OutputMatrix, DataFile, 4);
     }
-    else if (InputScalarTypeName == "int8")
+    else if (InputElementTypeName == "int8")
     {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, int8>(OutputMatrix, DataFile, 1);
+        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, int8>(OutputMatrix, DataFile, 1);
     }
-    else if (InputScalarTypeName == "int16")
+    else if (InputElementTypeName == "int16")
     {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, int16>(OutputMatrix, DataFile, 2);
+        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, int16>(OutputMatrix, DataFile, 2);
     }
-    else if (InputScalarTypeName == "int32")
+    else if (InputElementTypeName == "int32")
     {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, int32>(OutputMatrix, DataFile, 4);
+        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, int32>(OutputMatrix, DataFile, 4);
     }
-    else if (InputScalarTypeName == "int64")
+    else if (InputElementTypeName == "int64")
     {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, int64>(OutputMatrix, DataFile, 8);
+        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, int64>(OutputMatrix, DataFile, 8);
     }
-    else if (InputScalarTypeName == "uint8")
+    else if (InputElementTypeName == "uint8")
     {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, uint8>(OutputMatrix, DataFile, 1);
+        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, uint8>(OutputMatrix, DataFile, 1);
     }
-    else if (InputScalarTypeName == "uint16")
+    else if (InputElementTypeName == "uint16")
     {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, uint16>(OutputMatrix, DataFile, 2);
+        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, uint16>(OutputMatrix, DataFile, 2);
     }
-    else if (InputScalarTypeName == "uint32")
+    else if (InputElementTypeName == "uint32")
     {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, uint32>(OutputMatrix, DataFile, 4);
+        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, uint32>(OutputMatrix, DataFile, 4);
     }
-    else if (InputScalarTypeName == "uint64")
+    else if (InputElementTypeName == "uint64")
     {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<OutputScalarType, uint64>(OutputMatrix, DataFile, 8);
+        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, uint64>(OutputMatrix, DataFile, 8);
     }
     else
     {
-        MDK_Error("unknown ScalarType of data file @ Internal_LoadScalarDenseMatrixFromJsonDataFile(...) ")
+        MDK_Error("unknown ElementType of data file @ Internal_LoadDenseMatrixFromJsonDataFile(...) ")
     }
 }
 
 
-template<typename OutputScalarType, typename InputScalarType>
-void Internal_LoadScalarDenseMatrixFromJsonDataFile(DenseMatrix<OutputScalarType>& OutputMatrix, QFile& DataFile, int_max ByteNumberOfInputScalarType)
+template<typename OutputElementType, typename InputElementType>
+void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& OutputMatrix, QFile& DataFile, int_max ByteNumberOfInputElementType)
 {
     int_max BypesofDataFile = DataFile.size();
 
     int_max ElementNumber = OutputMatrix.GetElementNumber();
 
-    if (BypesofDataFile != ElementNumber * ByteNumberOfInputScalarType)
+    if (BypesofDataFile != ElementNumber * ByteNumberOfInputElementType)
     {
-        MDK_Error("Data file size is not equal to matrix size @ Internal_LoadScalarDenseMatrixFromJsonDataFile(...)")
+        MDK_Error("Data file size is not equal to matrix size @ Internal_LoadDenseMatrixFromJsonDataFile(...)")
         return;
     }
 
     auto ElementPointer = OutputMatrix.GetElementPointer();
 
-    auto tempScalar = InputScalarType(0);
+    auto tempScalar = InputElementType(0);
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
-        DataFile.read((char*)(&tempScalar), ByteNumberOfInputScalarType);
+        DataFile.read((char*)(&tempScalar), ByteNumberOfInputElementType);
 
-        ElementPointer[i] = OutputScalarType(tempScalar);
+        ElementPointer[i] = OutputElementType(tempScalar);
     }
 }
 
@@ -309,21 +309,21 @@ void Internal_LoadScalarDenseMatrixFromJsonDataFile(DenseMatrix<OutputScalarType
 // header is saved in SomeImage.json
 // data is saved in SomeImage.json.data
 //
-template<typename ScalarType>
-bool SaveGrayScale3DImageAsJsonDataFile(const Image3D<ScalarType>& InputImage, const CharString& FilePathAndName)
+template<typename ElementType>
+bool Save3DImageAsJsonDataFile(const Image3D<ElementType>& InputImage, const CharString& FilePathAndName)
 {
-    ScalarType ReferenceScalar = ScalarType(0);
+    ElementType ReferenceScalar = ElementType(0);
 
     int_max ByteNumber = CalByteNumberOfScalar(ReferenceScalar);
 
     if (ByteNumber <= 0)
     {
-        MDK_Error("Unknown type of image @ SaveGrayScale3DImageAsJsonDataFile(...)")
+        MDK_Error("Unknown type of image @ Save3DImageAsJsonDataFile(...)")
         return false;
     }
 
-    auto ScalarTypeName = FindScalarTypeName(ReferenceScalar);
-    QString QScalarTypeName(ScalarTypeName.c_str());
+    auto ElementTypeName = FindScalarTypeName(ReferenceScalar);
+    QString QElementTypeName(ElementTypeName.c_str());
 
     //-------------------------------------------------------------------------------------
 
@@ -333,7 +333,7 @@ bool SaveGrayScale3DImageAsJsonDataFile(const Image3D<ScalarType>& InputImage, c
     PairList[0].Value = "3";
 
     PairList[1].Name = "PixelType";
-    PairList[1].Value = QScalarTypeName;
+    PairList[1].Value = QElementTypeName;
 
     auto Size = InputImage.GetSize();
 
@@ -393,7 +393,7 @@ bool SaveGrayScale3DImageAsJsonDataFile(const Image3D<ScalarType>& InputImage, c
 
     if (!DataFile.open(QIODevice::WriteOnly))
     {
-        MDK_Error("Couldn't open file to write image data @ SaveGrayScale3DImageAsJsonDataFile(...)")
+        MDK_Error("Couldn't open file to write image data @ Save3DImageAsJsonDataFile(...)")
         return false;
     }
 
@@ -410,20 +410,20 @@ bool SaveGrayScale3DImageAsJsonDataFile(const Image3D<ScalarType>& InputImage, c
 }
 
 
-template<typename ScalarType>
-Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FilePathAndName)
+template<typename ElementType>
+Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndName)
 {
-    Image3D<ScalarType> OutputImage;
+    Image3D<ElementType> OutputImage;
 
     //----------------------------------------------------------
 
-    auto ReferenceScalar = ScalarType(0);
+    auto ReferenceScalar = ElementType(0);
 
-    auto OutputScalarTypeName_temp = FindScalarTypeName(ReferenceScalar);
+    auto OutputElementTypeName_temp = FindScalarTypeName(ReferenceScalar);
 
-    QString OutputScalarTypeName(OutputScalarTypeName_temp.c_str());
+    QString OutputElementTypeName(OutputElementTypeName_temp.c_str());
 
-    int_max ByteNumberOfOutputScalarType = CalByteNumberOfScalar(ReferenceScalar);
+    int_max ByteNumberOfOutputElementType = CalByteNumberOfScalar(ReferenceScalar);
 
     //---------------------------------------------- Read header --------------------------------------------------------//
 
@@ -433,7 +433,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
 
     if (!HeaderFile.open(QIODevice::ReadOnly))
     {
-        MDK_Error("Couldn't open Header File @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't open Header File @ Load3DImageFromJsonDataFile(...)")
         return OutputImage;
     }
 
@@ -450,30 +450,30 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
 
         if (Dimension != 3)
         {
-            MDK_Error("Dimension is not 3 @ LoadGrayScale3DImageFromJsonDataFile(...)")
+            MDK_Error("Dimension is not 3 @ Load3DImageFromJsonDataFile(...)")
             HeaderFile.close();
             return OutputImage;
         }
     }
     else
     {
-        MDK_Error("Couldn't get Dimension @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Dimension @ Load3DImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
 
     //---------------------------------------------------
 
-    QString InputScalarTypeName = 0;
+    QString InputElementTypeName = 0;
 
     it = HeaderObject.find("PixelType");
     if (it != HeaderObject.end())
     {
-        InputScalarTypeName = it.value().toString();
+        InputElementTypeName = it.value().toString();
     }
     else
     {
-        MDK_Error("Couldn't get PixelType @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get PixelType @ Load3DImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -489,7 +489,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
     }
     else
     {
-        MDK_Error("Couldn't get Size_x @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Size_x @ Load3DImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -501,7 +501,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
     }
     else
     {
-        MDK_Error("Couldn't get Size_y @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Size_y @ Load3DImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -513,7 +513,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
     }
     else
     {
-        MDK_Error("Couldn't get Size_z @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Size_z @ Load3DImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -528,7 +528,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
     }
     else
     {
-        MDK_Error("Couldn't get Spacing_x @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Spacing_x @ Load3DImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -540,7 +540,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
     }
     else
     {
-        MDK_Error("Couldn't get Spacing_y @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Spacing_y @ Load3DImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -552,7 +552,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
     }
     else
     {
-        MDK_Error("Couldn't get Spacing_z @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Spacing_z @ Load3DImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -567,7 +567,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
     }
     else
     {
-        MDK_Error("Couldn't get Origin_x @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Origin_x @ Load3DImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -579,7 +579,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
     }
     else
     {
-        MDK_Error("Couldn't get Origin_y @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Origin_y @ Load3DImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -591,7 +591,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
     }
     else
     {
-        MDK_Error("Couldn't get Origin_z @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Origin_z @ Load3DImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -605,7 +605,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
     }
     else
     {
-        MDK_Error("Couldn't get Orientation @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Orientation @ Load3DImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -613,7 +613,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
     auto OrientationValue = OrientationStr.split(",");
     if (OrientationValue.size() != 9)
     {
-        MDK_Error("Orientation Matrix size is wrong @ LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Orientation Matrix size is wrong @ Load3DImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -646,18 +646,18 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
 
     //----------------------------------------------------------------------------------------------
 
-    if (OutputScalarTypeName == InputScalarTypeName)
+    if (OutputElementTypeName == InputElementTypeName)
     {
-        Internal_LoadGrayScale3DImageFromJsonDataFile<ScalarType, ScalarType>(OutputImage, DataFile, ByteNumberOfOutputScalarType);
+        Internal_Load3DImageFromJsonDataFile<ElementType, ElementType>(OutputImage, DataFile, ByteNumberOfOutputElementType);
 
         DataFile.close();
 
         return OutputImage;
     }
 
-    MDK_Warning("OutputScalarTypeName != InputScalarTypeName, Output may be inaccurate @ LoadGrayScale3DImageFromJsonDataFile(...)")
+    MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ Load3DImageFromJsonDataFile(...)")
 
-    Internal_LoadGrayScale3DImageFromJsonDataFile(OutputImage, DataFile, InputScalarTypeName);
+    Internal_Load3DImageFromJsonDataFile(OutputImage, DataFile, InputElementTypeName);
 
     DataFile.close();
 
@@ -665,68 +665,68 @@ Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FileP
 }
 
 
-template<typename OutputScalarType>
-void Internal_LoadGrayScale3DImageFromJsonDataFile(Image3D<OutputScalarType>& OutputImage, QFile& DataFile, const QString& InputScalarTypeName)
+template<typename OutputElementType>
+void Internal_Load3DImageFromJsonDataFile(Image3D<OutputElementType>& OutputImage, QFile& DataFile, const QString& InputElementTypeName)
 {
-    if (InputScalarTypeName == "double")
+    if (InputElementTypeName == "double")
     {
-        Internal_LoadGrayScale3DImageFromJsonDataFile<OutputScalarType, double>(OutputImage, DataFile, 8);
+        Internal_Load3DImageFromJsonDataFile<OutputElementType, double>(OutputImage, DataFile, 8);
     }
-    else if (InputScalarTypeName == "float")
+    else if (InputElementTypeName == "float")
     {
-        Internal_LoadGrayScale3DImageFromJsonDataFile<OutputScalarType, float>(OutputImage, DataFile, 4);
+        Internal_Load3DImageFromJsonDataFile<OutputElementType, float>(OutputImage, DataFile, 4);
     }
-    else if (InputScalarTypeName == "int8")
+    else if (InputElementTypeName == "int8")
     {
-        Internal_LoadGrayScale3DImageFromJsonDataFile<OutputScalarType, int8>(OutputImage, DataFile, 1);
+        Internal_Load3DImageFromJsonDataFile<OutputElementType, int8>(OutputImage, DataFile, 1);
     }
-    else if (InputScalarTypeName == "int16")
+    else if (InputElementTypeName == "int16")
     {
-        Internal_LoadGrayScale3DImageFromJsonDataFile<OutputScalarType, int16>(OutputImage, DataFile, 2);
+        Internal_Load3DImageFromJsonDataFile<OutputElementType, int16>(OutputImage, DataFile, 2);
     }
-    else if (InputScalarTypeName == "int32")
+    else if (InputElementTypeName == "int32")
     {
-        Internal_LoadGrayScale3DImageFromJsonDataFile<OutputScalarType, int32>(OutputImage, DataFile, 4);
+        Internal_Load3DImageFromJsonDataFile<OutputElementType, int32>(OutputImage, DataFile, 4);
     }
-    else if (InputScalarTypeName == "int64")
+    else if (InputElementTypeName == "int64")
     {
-        Internal_LoadGrayScale3DImageFromJsonDataFile<OutputScalarType, int64>(OutputImage, DataFile, 8);
+        Internal_Load3DImageFromJsonDataFile<OutputElementType, int64>(OutputImage, DataFile, 8);
     }
-    else if (InputScalarTypeName == "uint8")
+    else if (InputElementTypeName == "uint8")
     {
-        Internal_LoadGrayScale3DImageFromJsonDataFile<OutputScalarType, uint8>(OutputImage, DataFile, 1);
+        Internal_Load3DImageFromJsonDataFile<OutputElementType, uint8>(OutputImage, DataFile, 1);
     }
-    else if (InputScalarTypeName == "uint16")
+    else if (InputElementTypeName == "uint16")
     {
-        Internal_LoadGrayScale3DImageFromJsonDataFile<OutputScalarType, uint16>(OutputImage, DataFile, 2);
+        Internal_Load3DImageFromJsonDataFile<OutputElementType, uint16>(OutputImage, DataFile, 2);
     }
-    else if (InputScalarTypeName == "uint32")
+    else if (InputElementTypeName == "uint32")
     {
-        Internal_LoadGrayScale3DImageFromJsonDataFile<OutputScalarType, uint32>(OutputImage, DataFile, 4);
+        Internal_Load3DImageFromJsonDataFile<OutputElementType, uint32>(OutputImage, DataFile, 4);
     }
-    else if (InputScalarTypeName == "uint64")
+    else if (InputElementTypeName == "uint64")
     {
-        Internal_LoadGrayScale3DImageFromJsonDataFile<OutputScalarType, uint64>(OutputImage, DataFile, 8);
+        Internal_Load3DImageFromJsonDataFile<OutputElementType, uint64>(OutputImage, DataFile, 8);
     }
     else
     {
-        MDK_Error("unknown ScalarType of data file @ Internal_LoadGrayScale3DImageFromJsonDataFile(...) ")
+        MDK_Error("unknown ElementType of data file @ Internal_Load3DImageFromJsonDataFile(...) ")
         DataFile.close();
         OutputImage.Clear();
     }
 }
 
 
-template<typename OutputScalarType, typename InputScalarType>
-void Internal_LoadGrayScale3DImageFromJsonDataFile(Image3D<OutputScalarType>& OutputImage, QFile& DataFile, int_max ByteNumberOfInputScalarType)
+template<typename OutputElementType, typename InputElementType>
+void Internal_Load3DImageFromJsonDataFile(Image3D<OutputElementType>& OutputImage, QFile& DataFile, int_max ByteNumberOfInputElementType)
 {
     int_max BypesofDataFile = DataFile.size();
 
     auto PixelNumber = OutputImage.GetPixelNumber();
 
-    if (BypesofDataFile != PixelNumber * ByteNumberOfInputScalarType)
+    if (BypesofDataFile != PixelNumber * ByteNumberOfInputElementType)
     {
-        MDK_Error("Data file size is not equal to image size @ Internal_LoadGrayScale3DImageFromJsonDataFile(...)")
+        MDK_Error("Data file size is not equal to image size @ Internal_Load3DImageFromJsonDataFile(...)")
         DataFile.close();
         OutputImage.Clear();
         return;
@@ -734,24 +734,24 @@ void Internal_LoadGrayScale3DImageFromJsonDataFile(Image3D<OutputScalarType>& Ou
 
     auto PixelPointer = OutputImage.GetPixelPointer();
 
-    auto tempScalar = InputScalarType(0);
+    auto tempScalar = InputElementType(0);
 
     for (int_max i = 0; i < PixelNumber; ++i)
     {
-        DataFile.read((char*)(&tempScalar), ByteNumberOfInputScalarType);
+        DataFile.read((char*)(&tempScalar), ByteNumberOfInputElementType);
 
-        PixelPointer[i] = OutputScalarType(tempScalar);
+        PixelPointer[i] = OutputElementType(tempScalar);
     }
 }
 
 
-template<typename ScalarType>
-Image3D<ScalarType> LoadGrayScale3DImageFromDICOMSeries(const CharString& FilePath)
+template<typename ElementType>
+Image3D<ElementType> Load3DImageFromDICOMSeries(const CharString& FilePath)
 {
-    Image3D<ScalarType> OutputImage;
+    Image3D<ElementType> OutputImage;
 
 
-    typedef itk::Image< ScalarType, 3 >               ITKImageType;
+    typedef itk::Image< ElementType, 3 >               ITKImageType;
 
     typedef itk::ImageSeriesReader< ITKImageType >    ITKImageReaderType;
 
@@ -760,7 +760,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromDICOMSeries(const CharString& FilePa
 
     ImageIOType::Pointer gdcmIO = ImageIOType::New();
     InputNamesGeneratorType::Pointer inputNames = InputNamesGeneratorType::New();
-    inputNames->SetInputDirectory(FilePath);
+    inputNames->SetInputDirectory(FilePath.StdString());
 
     const ITKImageReaderType::FileNamesContainer & filenames = inputNames->GetInputFileNames();
 
@@ -775,7 +775,7 @@ Image3D<ScalarType> LoadGrayScale3DImageFromDICOMSeries(const CharString& FilePa
     }
     catch (itk::ExceptionObject &excp)
     {
-        std::cerr << "Exception thrown while reading the dicom series @ LoadGrayScale3DImageFromDICOMSeries(...)" << std::endl;
+        std::cerr << "Exception thrown while reading the dicom series @ Load3DImageFromDICOMSeries(...)" << std::endl;
         std::cerr << excp << std::endl;
         return OutputImage;
     }
@@ -908,10 +908,10 @@ Image3D<PixelType> ConvertITK3DImageToMDK3DImage(const itk::Image<PixelType, 3>*
 
 // for example: FilePathAndName = "C:/Data/SomeDictionary.json"
 //
-template<typename ScalarType>
-bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding<ScalarType>& Dictionary, const CharString& FilePathAndName)
+template<typename ElementType>
+bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary, const CharString& FilePathAndName)
 {
-    ScalarType ReferenceScalar = ScalarType(0);
+    ElementType ReferenceScalar = ElementType(0);
 
     int_max ByteNumber = CalByteNumberOfScalar(ReferenceScalar);
 
@@ -921,8 +921,8 @@ bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding
         return false;
     }
 
-    auto ScalarTypeName = FindScalarTypeName(ReferenceScalar);
-    QString QScalarTypeName(ScalarTypeName.c_str());
+    auto ElementTypeName = FindScalarTypeName(ReferenceScalar);
+    QString QElementTypeName(ElementTypeName.c_str());
 
     //-------------------------------------------------------------------------------------
 
@@ -932,10 +932,10 @@ bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding
     PairList[0].Value = "FeatureDictionaryForSparseCoding";
 
     PairList[1].Name = "Name";
-    PairList[1].Value = Dictionary.Name().StdString().c_str();
+    PairList[1].Value = Dictionary.GetName().StdString().c_str();
 
-    PairList[2].Name = "ScalarType";
-    PairList[2].Value = QScalarTypeName;
+    PairList[2].Name = "ElementType";
+    PairList[2].Value = QElementTypeName;
 
     auto Size = Dictionary.GetSize();
 
@@ -966,9 +966,9 @@ bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding
     auto RawPointer = (char*)Dictionary.BasisMatrix().GetElementPointer();
     DataFile.write(RawPointer, L*ByteNumber);
 
-    // step 2 : write ReconstructionStd
-    L = Dictionary.ReconstructionStd().GetElementNumber();
-    RawPointer = (char*)Dictionary.ReconstructionStd().GetElementPointer();
+    // step 2 : write StandardDeviation
+    L = Dictionary.StandardDeviation().GetElementNumber();
+    RawPointer = (char*)Dictionary.StandardDeviation().GetElementPointer();
     DataFile.write(RawPointer, L*ByteNumber);
 
     DataFile.flush();
@@ -978,18 +978,18 @@ bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding
 }
 
 
-template<typename ScalarType>
-FeatureDictionaryForSparseCoding<ScalarType> LoadFeatureDictionaryForSparseCoding(const CharString& FilePathAndName)
+template<typename ElementType>
+FeatureDictionaryForSparseCoding<ElementType> LoadFeatureDictionaryForSparseCoding(const CharString& FilePathAndName)
 {
-    FeatureDictionaryForSparseCoding<ScalarType> Dictionary;
+    FeatureDictionaryForSparseCoding<ElementType> Dictionary;
 
     //----------------------------------------------------------
 
-    auto ReferenceScalar = ScalarType(0);
+    auto ReferenceScalar = ElementType(0);
 
-    auto OutputScalarTypeName_temp = FindScalarTypeName(ReferenceScalar);
+    auto OutputElementTypeName_temp = FindScalarTypeName(ReferenceScalar);
 
-    QString OutputScalarTypeName(OutputScalarTypeName_temp.c_str());
+    QString OutputElementTypeName(OutputElementTypeName_temp.c_str());
 
     int_max OutputByteNumber = CalByteNumberOfScalar(ReferenceScalar);
 
@@ -1011,16 +1011,16 @@ FeatureDictionaryForSparseCoding<ScalarType> LoadFeatureDictionaryForSparseCodin
     QJsonObject HeaderObject = HeaderDoc.object();
     //-----------------------------------------------------------//
 
-    QString InputScalarTypeName = 0;
+    QString InputElementTypeName = 0;
 
-    auto it = HeaderObject.find("ScalarType");
+    auto it = HeaderObject.find("ElementType");
     if (it != HeaderObject.end())
     {
-        InputScalarTypeName = it.value().toString();
+        InputElementTypeName = it.value().toString();
     }
     else
     {
-        MDK_Error("Couldn't get ScalarType @ LoadFeatureDictionaryForSparseCoding(...)")
+        MDK_Error("Couldn't get ElementType @ LoadFeatureDictionaryForSparseCoding(...)")
         HeaderFile.close();
         return Dictionary;
     }
@@ -1085,21 +1085,21 @@ FeatureDictionaryForSparseCoding<ScalarType> LoadFeatureDictionaryForSparseCodin
 
     //----------------------------------------------------------------------------------------------
 
-    Dictionary.Name() = Name;
+    Dictionary.SetName(Name);
     Dictionary.BasisMatrix().FastResize(RowNumber, ColNumber);
-    Dictionary.ReconstructionStd().FastResize(1, ColNumber);
+    Dictionary.StandardDeviation().FastResize(1, ColNumber);
 
-    if (OutputScalarTypeName == InputScalarTypeName)
+    if (OutputElementTypeName == InputElementTypeName)
     {
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, ScalarType>(Dictionary.BasisMatrix(), DataFile, OutputByteNumber);
-        Internal_LoadScalarDenseMatrixFromJsonDataFile<ScalarType, ScalarType>(Dictionary.ReconstructionStd(), DataFile, OutputByteNumber);
+        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.BasisMatrix(), DataFile, OutputByteNumber);
+        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.StandardDeviation(), DataFile, OutputByteNumber);
     }
     else
     {
-        MDK_Warning("OutputScalarTypeName != InputScalarTypeName, Output may be inaccurate @ LoadFeatureDictionaryForSparseCoding(...)")
+        MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ LoadFeatureDictionaryForSparseCoding(...)")
 
-        Internal_LoadScalarDenseMatrixFromJsonDataFile(Dictionary.BasisMatrix(), DataFile, InputScalarTypeName);
-        Internal_LoadScalarDenseMatrixFromJsonDataFile(Dictionary.ReconstructionStd(), DataFile, InputScalarTypeName);
+        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.BasisMatrix(), DataFile, InputElementTypeName);
+        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.StandardDeviation(), DataFile, InputElementTypeName);
     }
 
     DataFile.close();

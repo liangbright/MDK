@@ -30,6 +30,29 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::Clear()
 
 
 template<typename ElementType>
+void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::SetupDefaultPipelineOutput()
+{
+    this->FeatureDictionaryBasedSparseEncoder::SetupDefaultPipelineOutput();
+
+    m_ReconstructionErrorNorm_SharedCopy.Clear();
+
+    m_ReconstructionErrorNorm = &m_ReconstructionErrorNorm_SharedCopy;
+}
+
+
+template<typename ElementType>
+void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::UpdatePipelineOutput()
+{
+    this->FeatureDictionaryBasedSparseEncoder::UpdatePipelineOutput();
+
+    if (m_ReconstructionErrorNorm != &m_ReconstructionErrorNorm_SharedCopy)
+    {
+        m_ReconstructionErrorNorm_SharedCopy.ForceShare(m_ReconstructionErrorNorm);
+    }
+}
+
+
+template<typename ElementType>
 void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* FeatureData)
 {
     this->FeatureDictionaryBasedSparseEncoder::SetInputFeatureData(FeatureData);
@@ -48,6 +71,28 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::SetInputDictionar
 
 
 template<typename ElementType>
+void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::SetOutputReconstructionErrorNorm(DenseMatrix<ElementType>* ErrorNorm)
+{
+    if (ErrorNorm == nullptr)
+    {
+        MDK_Error("Invalid input @ KNNReconstructionAndSoftAssignSparseEncoder::SetOutputReconstructionErrorNorm(...)")
+        return;
+    }
+
+    m_ReconstructionErrorNorm = ErrorNorm;
+
+    m_ReconstructionErrorNorm_SharedCopy.ForceShare(ErrorNorm);
+}
+
+
+template<typename ElementType>
+DenseMatrix<ElementType>* KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::GetOutputReconstructionErrorNorm()
+{
+    return &m_ReconstructionErrorNorm_SharedCopy;
+}
+
+
+template<typename ElementType>
 bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::CheckInput()
 {
     if (this->FeatureDictionaryBasedSparseEncoder::CheckInput() == false)
@@ -55,17 +100,30 @@ bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::CheckInput()
         return false;
     }
 
-    if (this->UpdateParameterForKNNReconstruction() == false)
+    if (this->UpdateInputOfReconstructionEncoder() == false)
     {
         MDK_Error("Invalid Parameter for KNNReconstruction @ KNNReconstructionAndSoftAssignSparseEncoder::CheckInput()")
         return false;
     }
-  
-    if (m_Dictionary->ReconstructionStd().IsEmpty() == true)
+
+    if (m_Parameter.DistanceTypeForSoftAssign != "L1Distance"
+        && m_Parameter.DistanceTypeForSoftAssign != "L2Distance"
+        && m_Parameter.DistanceTypeForSoftAssign != "Correlation"
+        && m_Parameter.DistanceTypeForSoftAssign != "KLDivergence")
     {
-        MDK_Error("Incomplete Dictionary: ReconstructionStd is empty @ KNNReconstructionAndSoftAssignSparseEncoder::CheckInput()")
+        MDK_Error("DistanceTypeForSoftAssign is invalid @ KNNReconstructionAndSoftAssignSparseEncoder::CheckInput()")
         return false;
     }
+  
+    if (m_Dictionary->StandardDeviation().IsEmpty() == true)
+    {
+        MDK_Error("StandardDeviation in Dictionary is empty @ KNNReconstructionAndSoftAssignSparseEncoder::CheckInput()")
+        return false;
+    }
+
+    auto Size = m_Dictionary->GetSize();
+
+    m_ReconstructionErrorNorm->FastResize(1, Size.ColNumber);
 
     return true;
 }
@@ -74,17 +132,33 @@ bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::CheckInput()
 template<typename ElementType>
 bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::Preprocess()
 {
-    return this->UpdateParameterForKNNReconstruction();
+    this->FeatureDictionaryBasedSparseEncoder::Preprocess();
+
+    this->UpdateInputOfReconstructionEncoder();
+
+    return m_ReconstructionEncoder.Preprocess();
 }
 
 
 template<typename ElementType>
-bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::UpdateParameterForKNNReconstruction()
+bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::Postprocess()
+{
+    this->FeatureDictionaryBasedSparseEncoder::Postprocess();
+
+    return m_ReconstructionEncoder.Postprocess();
+}
+
+
+template<typename ElementType>
+bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::UpdateInputOfReconstructionEncoder()
 {
     m_ReconstructionEncoder.m_Parameter.NeighbourNumber = m_Parameter.NeighbourNumber;
     m_ReconstructionEncoder.m_Parameter.DistanceTypeForKNNSearch = m_Parameter.DistanceTypeForKNNSearch;
     m_ReconstructionEncoder.m_Parameter.Nonnegative = m_Parameter.Nonnegative;
     m_ReconstructionEncoder.m_Parameter.SumToOne = m_Parameter.SumToOne;
+
+    m_ReconstructionEncoder.SetInputFeatureData(m_FeatureData);
+    m_ReconstructionEncoder.SetInputDictionary(m_Dictionary);
 
     if (m_ReconstructionEncoder.CheckInput() == false)
     {
@@ -97,33 +171,62 @@ bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::UpdateParameterFo
 
 template<typename ElementType>
 inline
-void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(SparseVector<ElementType>& CodeInSparseColVector,
-                                                                                const DenseMatrix<ElementType>& DataColVector,
-                                                                                int_max ThreadIndex)
+void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex, int_max ThreadIndex)
 {
     const DenseMatrix<ElementType>& BasisMatrix = m_Dictionary->BasisMatrix(); // "auto  = " will copy
 
-    const DenseMatrix<ElementType>& ReconstructionStd = m_Dictionary->ReconstructionStd();
+    const DenseMatrix<ElementType>& StandardDeviation = m_Dictionary->StandardDeviation();
 
-    //---------
+    const DenseMatrix<ElementType> DataColVector(const_cast<ElementType*>(m_FeatureData->GetElementPointerOfCol(DataIndex)),
+                                                 m_FeatureData->GetRowNumber(), 1);
 
-    m_ReconstructionEncoder.EncodingFunction(CodeInSparseColVector, DataColVector, ThreadIndex);
+    SparseVector<ElementType>& CodeInSparseColVector = (*m_CodeInSparseColVectorSet)[DataIndex];
+
+    //-------------------------------------------------------------------------------------------------------------
+
+    m_ReconstructionEncoder.EncodeSingleDataVector(CodeInSparseColVector, DataColVector);
+
+    auto ErrorNormVectorPtr = m_ReconstructionEncoder.GetOutputReconstructionErrorNorm();
+
+    auto ReconstructionErrorNorm = (*ErrorNormVectorPtr)[0];
+
+    // compute ReconstructedDataColVector "X_hat"
 
     const std::vector<int_max>& NeighbourIndexList = CodeInSparseColVector.IndexList();
 
-    const std::vector<ElementType>& Alpha_v = CodeInSparseColVector.DataArray();
-    DenseMatrix<ElementType> Alpha(const_cast<ElementType*>(Alpha_v.data()), m_Parameter.NeighbourNumber, 1);
-
     auto SubRecord = BasisMatrix.GetSubMatrix(ALL, NeighbourIndexList);
 
-    // compute ReconstructedDataColVector X_hat
+    DenseMatrix<ElementType> Alpha(CodeInSparseColVector.DataArray().data(), m_Parameter.NeighbourNumber, 1);
+
     auto ReconstructedDataColVector = MatrixMultiply(SubRecord, Alpha);
 
-    // get reconstruction error ||X-X_hat||
-    auto ErrorVector = MatrixSubtract(DataColVector, ReconstructedDataColVector);
-    auto ReconstructionErrorL2Norm = ErrorVector.L2Norm();
+    if (m_Parameter.DistanceTypeForSoftAssign == "KLDivergence")
+    {
+        auto temp_sum = ElementType(0);
 
-    // compute Membership in [0, 1] using Reconstructed Data X_hat (not X) --------------------------------------
+        auto temp_Length = ReconstructedDataColVector.GetElementNumber();
+
+        for (int_max k = 0; k < temp_Length; ++k)
+        {
+            if (ReconstructedDataColVector[k] < ElementType(0))
+            {
+                ReconstructedDataColVector[k] = ElementType(0);
+            }
+            else
+            {
+                temp_sum += ReconstructedDataColVector[k];
+            }
+        }
+
+        if (temp_sum > ElementType(1) / ElementType(temp_Length))
+        {
+            ReconstructedDataColVector /= temp_sum;
+        }
+    }
+
+    //------------------------------------------------------------
+
+    // compute Membership in [0, 1] using ReconstructedDataColVector "X_hat" (not X) --------------------------------------
     DenseMatrix<ElementType> Membership(m_Parameter.NeighbourNumber, 1);
 
     if (m_Parameter.DistanceTypeForSoftAssign == "L1Distance")
@@ -132,7 +235,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
 
         for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
         {
-            auto s = ReconstructionStd[NeighbourIndexList[i]];
+            auto s = StandardDeviation[NeighbourIndexList[i]];
 
             Membership[i] = std::exp(ElementType(-0.5)*(NeighbourDistanceList[i] * NeighbourDistanceList[i]) / (s*s));
         }
@@ -143,7 +246,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
 
         for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
         {
-            auto s = ReconstructionStd[NeighbourIndexList[i]];
+            auto s = StandardDeviation[NeighbourIndexList[i]];
 
             Membership[i] = std::exp(ElementType(-0.5)*(NeighbourDistanceList[i] * NeighbourDistanceList[i]) / (s*s));
         }
@@ -178,7 +281,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
 
     // normalize (sum to 1) ???
     auto eps_value = std::numeric_limits<ElementType>::epsilon();
-    auto L1Norm_value = Membership.L1Norm();
+    auto L1Norm_value = Membership.Sum();
     auto temp_value = ElementType(1) / ElementType(m_Parameter.NeighbourNumber);
     if (L1Norm_value >= eps_value*temp_value)
     {
@@ -188,7 +291,7 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
     {
         Membership.Fill(temp_value);
     }
-
+    
     // update Membership based on reconstruction error
 
     // first: get the max StandardDeviation in the neighborhood
@@ -196,15 +299,16 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
 
     for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
     {
-        auto s_temp = ReconstructionStd[NeighbourIndexList[i]];
+        auto s_temp = StandardDeviation[NeighbourIndexList[i]];
 
         s_max = (std::max)(s_max, s_temp); // std::max(s_max, s_temp) can not be compiled
     }
     // second: compute ReconstructionScore in [0, 1]
-    auto ReconstructionScore = std::exp(ElementType(-0.5)*(ReconstructionErrorL2Norm *ReconstructionErrorL2Norm) / (s_max*s_max));
+    auto ReconstructionScore = std::exp(ElementType(-0.5)*(ReconstructionErrorNorm *ReconstructionErrorNorm) / (s_max*s_max));
 
     // then: update Membership
     Membership *= ReconstructionScore;
+
 
     // set the final code    
     for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
@@ -212,6 +316,36 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodingFunction(
         CodeInSparseColVector.SetElement(NeighbourIndexList[i], Membership[i]);
     }
 }
+
+
+template<typename ElementType>
+void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::PreprocessBeforeUsing_EncodeSingleDataVector()
+{
+    this->CheckInput();
+
+    this->Preprocess();
+}
+
+
+template<typename ElementType>
+void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::PostprocessAfterUsing_EncodeSingleDataVector()
+{
+    this->Postprocess();
+}
+
+
+template<typename ElementType>
+inline 
+void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector,
+                                                                                      const DenseMatrix<ElementType>& DataColVector)
+{
+    this->SetInputFeatureData(&DataColVector);
+
+    this->EncodingFunction(0, 0);
+
+    CodeInSparseColVector = std::move((*m_CodeInSparseColVectorSet)[0]);
+}
+
 
 
 template<typename ElementType>

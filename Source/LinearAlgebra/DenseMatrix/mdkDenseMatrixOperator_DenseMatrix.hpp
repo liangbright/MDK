@@ -147,16 +147,16 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(const DenseMatrix<Elemen
 
     DenseGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
 
-    if (SizeA.ColNumber != SizeB.RowNumber)
+    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
     {
-        MDK_Error("Size does not match @ mdkDenseMatrixOperator: *(MatrixA, MatrixB)")
+        MDK_Error("MatrixA or MatrixB is empty @ mdkDenseMatrixOperator: *(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.ColNumber != SizeB.RowNumber)
     {
-        MDK_Error("MatrixA or MatrixB is empty @ mdkDenseMatrixOperator: *(MatrixA, MatrixB)")
+        MDK_Error("Size does not match @ mdkDenseMatrixOperator: *(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }

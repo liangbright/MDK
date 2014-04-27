@@ -8,13 +8,15 @@ namespace mdk
 template<typename ElementType>
 FeatureDictionaryForSparseCoding<ElementType>::FeatureDictionaryForSparseCoding()
 {
-
+    m_DictionaryData = std::make_shared<DictionaryData_Of_FeatureDictionaryForSparseCoding<ElementType>>();
 }
 
 
 template<typename ElementType>
 FeatureDictionaryForSparseCoding<ElementType>::FeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
 {
+    m_DictionaryData = std::make_shared<DictionaryData_Of_FeatureDictionaryForSparseCoding<ElementType>>();
+
     this->Copy(InputDictionary)
 }
 
@@ -22,13 +24,7 @@ FeatureDictionaryForSparseCoding<ElementType>::FeatureDictionaryForSparseCoding(
 template<typename ElementType>
 FeatureDictionaryForSparseCoding<ElementType>::FeatureDictionaryForSparseCoding(FeatureDictionaryForSparseCoding<ElementType>&& InputDictionary)
 {
-    m_Name = std::move(InputDictionary.m_Name);
-
-    m_BasisMatrix = std::move(InputDictionary.m_BasisMatrix);
-
-    m_Covariance = std::move(InputDictionary.m_Covariance);
-
-    m_ReconstructionStd = std::move(InputDictionary.m_ReconstructionStd);
+    m_DictionaryData = std::move(InputDictionary.m_DictionaryData);
 }
 
 
@@ -54,18 +50,22 @@ void FeatureDictionaryForSparseCoding<ElementType>::operator=(FeatureDictionaryF
 
 
 template<typename ElementType>
-bool FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
+void FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
 {
-    m_Name.Copy(InputDictionary.m_Name);
+    if (this == &InputDictionary)
+    {
+        return;
+    }
 
-    m_BasisMatrix.Copy(InputDictionary.m_BasisMatrix);
+    m_DictionaryData->DictionaryInfo.Name.Copy(InputDictionary.m_DictionaryData->DictionaryInfo.Name);
+    m_DictionaryData->DictionaryInfo.BasisNonnegative = InputDictionary.m_DictionaryData->DictionaryInfo.BasisNonnegative;
+    m_DictionaryData->DictionaryInfo.BasisSumToOne = InputDictionary.m_DictionaryData->DictionaryInfo.BasisSumToOne;
 
-    m_Covariance.Copy(InputDictionary.m_Covariance);
+    m_DictionaryData->BasisMatrix.Copy(InputDictionary.m_DictionaryData->BasisMatrix);
 
-    m_ReconstructionStd.Copy(InputDictionary.m_ReconstructionStd);
+    m_DictionaryData->Covariance.Copy(InputDictionary.m_DictionaryData->Covariance);
 
-    return true;
-
+    m_DictionaryData->StandardDeviation.Copy(InputDictionary.m_DictionaryData->StandardDeviation);
 }
 
 
@@ -78,34 +78,21 @@ bool FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionary
         return false;
     }
 
-    return this->Copy(*InputDictionary);
+    this->Copy(*InputDictionary);
+
+    return true;
 }
 
 
 template<typename ElementType>
-bool FeatureDictionaryForSparseCoding<ElementType>::Share(FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
+void FeatureDictionaryForSparseCoding<ElementType>::Share(FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
 {
     if (this == &InputDictionary)
     {
-        return true;
+        return;
     }
 
-    auto IsOK_0 = m_Name.Share(InputDictionary.m_Name);
-
-    auto IsOK_1 = m_BasisMatrix.Share(InputDictionary.m_BasisMatrix);
-
-    auto IsOK_2 = m_Covariance.Share(InputDictionary.m_Covariance);
-
-    auto IsOK_3 = m_ReconstructionStd.Share(InputDictionary.m_ReconstructionStd);
-
-    if (IsOK_0 == false || IsOK_1 == false || IsOK_2 == false || IsOK_3 == false)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    m_DictionaryData = InputDictionary.m_DictionaryData;
 }
 
 
@@ -118,7 +105,9 @@ bool FeatureDictionaryForSparseCoding<ElementType>::Share(FeatureDictionaryForSp
         return false;
     }
 
-    return this->Share(*InputDictionary);
+    this->Share(*InputDictionary);
+
+    return true;
 }
 
 
@@ -130,13 +119,7 @@ void FeatureDictionaryForSparseCoding<ElementType>::ForceShare(const FeatureDict
         return;
     }
 
-    m_Name.ForceShare(InputDictionary.m_Name);
-
-    m_BasisMatrix.ForceShare(InputDictionary.m_BasisMatrix);
-
-    m_ReconstructionStd.ForceShare(InputDictionary.m_ReconstructionStd);
-
-    m_Covariance.ForceShare(InputDictionary.m_Covariance);
+    m_DictionaryData = InputDictionary.m_DictionaryData;
 }
 
 
@@ -158,13 +141,15 @@ bool FeatureDictionaryForSparseCoding<ElementType>::ForceShare(const FeatureDict
 template<typename ElementType>
 void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSparseCoding& InputDictionary)
 {
-    m_Name = std::move(InputDictionary.m_Name);
+    m_DictionaryData->DictionaryInfo.Name = std::move(InputDictionary.m_DictionaryData->DictionaryInfo.Name);
+    m_DictionaryData->DictionaryInfo.BasisNonnegative = InputDictionary.m_DictionaryData->DictionaryInfo.BasisNonnegative;
+    m_DictionaryData->DictionaryInfo.BasisSumToOne = InputDictionary.m_DictionaryData->DictionaryInfo.BasisSumToOne;
 
-    m_BasisMatrix = std::move(InputDictionary.m_BasisMatrix);
+    m_DictionaryData->BasisMatrix = std::move(InputDictionary.m_DictionaryData->BasisMatrix);
 
-    m_Covariance = std::move(InputDictionary.m_Covariance);
+    m_DictionaryData->Covariance = std::move(InputDictionary.m_DictionaryData->Covariance);
 
-    m_ReconstructionStd = std::move(InputDictionary.m_ReconstructionStd);
+    m_DictionaryData->StandardDeviation = std::move(InputDictionary.m_DictionaryData->StandardDeviation);
 }
 
 
@@ -172,27 +157,29 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
 template<typename ElementType>
 void FeatureDictionaryForSparseCoding<ElementType>::Clear()
 {
-    m_Name.Clear();
+    m_DictionaryData->DictionaryInfo.Name.Clear();
+    m_DictionaryData->DictionaryInfo.BasisNonnegative = false;
+    m_DictionaryData->DictionaryInfo.BasisSumToOne = false;
 
-    m_BasisMatrix.Clear();
+    m_DictionaryData->BasisMatrix.Clear();
 
-    m_Covariance.Clear();
+    m_DictionaryData->Covariance.Clear();
 
-    m_ReconstructionStd.Clear();
+    m_DictionaryData->StandardDeviation.Clear();
 }
 
 
 template<typename ElementType>
 bool FeatureDictionaryForSparseCoding<ElementType>::IsEmpty() const
 {
-    return m_BasisMatrix.IsEmpty();
+    return m_DictionaryData->BasisMatrix.IsEmpty();
 }
 
 
 template<typename ElementType>
 MatrixSize FeatureDictionaryForSparseCoding<ElementType>::GetSize() const
 {
-    return m_BasisMatrix.GetSize();
+    return m_DictionaryData->BasisMatrix.GetSize();
 }
 
 
@@ -216,46 +203,115 @@ bool FeatureDictionaryForSparseCoding<ElementType>::Save(const CharString& FileP
     return SaveFeatureDictionaryForSparseCoding(*this, FilePathAndName);
 }
 
-
 template<typename ElementType>
-CharString& FeatureDictionaryForSparseCoding<ElementType>::Name()
+inline
+const Infomation_Of_FeatureDictionaryForSparseCoding& FeatureDictionaryForSparseCoding<ElementType>::GetDictionaryInformation() const
 {
-    return m_Name;
+    return m_DictionaryData->DictionaryInfo;
 }
 
 
 template<typename ElementType>
-const CharString& FeatureDictionaryForSparseCoding<ElementType>::Name() const
+inline
+void FeatureDictionaryForSparseCoding<ElementType>::SetDictionaryInformation(const Infomation_Of_FeatureDictionaryForSparseCoding& Info)
 {
-    return m_Name;
+    m_DictionaryData->DictionaryInfo = Info;
 }
 
 
 template<typename ElementType>
+inline
+const CharString& FeatureDictionaryForSparseCoding<ElementType>::GetName() const
+{
+    return m_DictionaryData->DictionaryInfo.Name;
+}
+
+
+template<typename ElementType>
+inline
+void FeatureDictionaryForSparseCoding<ElementType>::SetName(const CharString& Name)
+{
+    m_DictionaryData->DictionaryInfo.Name = Name;
+}
+
+
+template<typename ElementType>
+inline 
+void FeatureDictionaryForSparseCoding<ElementType>::SetDictionaryInfo_BasisNonnegative(bool Nonnegative = true)
+{
+    m_DictionaryData->DictionaryInfo.BasisNonnegative = Nonnegative;
+}
+
+
+template<typename ElementType>
+inline 
+void FeatureDictionaryForSparseCoding<ElementType>::SetDictionaryInfo_BasisSumToOne(bool SumToOne)
+{
+    m_DictionaryData->DictionaryInfo.BasisSumToOne = SumToOne;
+}
+
+
+template<typename ElementType>
+inline
+bool FeatureDictionaryForSparseCoding<ElementType>::IsBasisNonnegative() const
+{
+    return m_DictionaryData->DictionaryInfo.BasisNonnegative;
+}
+
+
+template<typename ElementType>
+inline
+bool FeatureDictionaryForSparseCoding<ElementType>::IsBasisSumToOne() const
+{
+    return m_DictionaryData->DictionaryInfo.BasisSumToOne;
+}
+
+
+template<typename ElementType>
+inline
 DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisMatrix()
 {
-    return m_BasisMatrix;
+    return m_DictionaryData->BasisMatrix;
 }
 
 
 template<typename ElementType>
+inline
 const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisMatrix() const
 {
-    return m_BasisMatrix;
+    return m_DictionaryData->BasisMatrix;
 }
 
 
 template<typename ElementType>
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::ReconstructionStd()
+inline
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviation()
 {
-    return m_ReconstructionStd;
+    return m_DictionaryData->StandardDeviation;
 }
 
 
 template<typename ElementType>
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::ReconstructionStd() const
+inline
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviation() const
 {
-    return m_ReconstructionStd;
+    return m_DictionaryData->StandardDeviation;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisProbability()
+{
+    return m_DictionaryData->BasisProbability;
+}
+
+
+template<typename ElementType>
+inline
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisProbability() const
+{
+    return m_DictionaryData->BasisProbability;
 }
 
 

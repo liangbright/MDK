@@ -5,31 +5,31 @@
 namespace mdk
 {
 
-template<typename PixelType_Input, typename PixelType_Output, int_max VectorPixelLength_Output>
-ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::ConvolutionImageFilter3D()
+template<typename InputPixelType, typename OutputPixelType, int_max VectorPixelLength_Output>
+ConvolutionImageFilter3D<InputPixelType, OutputPixelType, VectorPixelLength_Output>::ConvolutionImageFilter3D()
 {
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output, int_max VectorPixelLength_Output>
-ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::~ConvolutionImageFilter3D()
+template<typename InputPixelType, typename OutputPixelType, int_max VectorPixelLength_Output>
+ConvolutionImageFilter3D<InputPixelType, OutputPixelType, VectorPixelLength_Output>::~ConvolutionImageFilter3D()
 {
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output, int_max VectorPixelLength_Output>
+template<typename InputPixelType, typename OutputPixelType, int_max VectorPixelLength_Output>
 inline
-void ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::
-SetOutputPixelMatrix(const DenseMatrix<PixelType_Input>* PixelMatrix)
+void ConvolutionImageFilter3D<InputPixelType, OutputPixelType, VectorPixelLength_Output>::
+SetOutputPixelMatrix(const DenseMatrix<InputPixelType>* PixelMatrix)
 {
     m_OutputPixelMatrix = PixelMatrix;
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output, int_max VectorPixelLength_Output>
+template<typename InputPixelType, typename OutputPixelType, int_max VectorPixelLength_Output>
 inline
-void ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::
-FilterFunctionAt3DIndex(PixelType_Output& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex)
+void ConvolutionImageFilter3D<InputPixelType, OutputPixelType, VectorPixelLength_Output>::
+FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex)
 {
     auto VectorPixelLength = int_max(m_MaskList_3DIndex.size());
     //-----------------------------------------
@@ -44,7 +44,7 @@ FilterFunctionAt3DIndex(PixelType_Output& OutputPixel, int_max x_Index, int_max 
 
     for (int_max i = 0; i < VectorPixelLength; ++i)
     {
-        bool EnableBoundCheckForThisPosition = this->WhetherToCheckBoundAt3DIndex(x_Index, y_Index, z_Index, i);
+        bool EnableBoundCheckForThisPosition = this->WhetherToCheckBoundAtMaskCenter_3DIndex(x_Index, y_Index, z_Index, i);
 
         auto tempElementNumber = m_MaskList_3DIndex[i].GetElementNumber();
 
@@ -79,10 +79,10 @@ FilterFunctionAt3DIndex(PixelType_Output& OutputPixel, int_max x_Index, int_max 
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output, int_max VectorPixelLength_Output>
+template<typename InputPixelType, typename OutputPixelType, int_max VectorPixelLength_Output>
 inline
-void ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::
-FilterFunctionAt3DPosition(PixelType_Output& OutputPixel, double x, double y, double z, int_max ThreadIndex)
+void ConvolutionImageFilter3D<InputPixelType, OutputPixelType, VectorPixelLength_Output>::
+FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex)
 {
     int_max VectorPixelLength = m_MaskList_3DPosition.size();
     //-----------------------------------------
@@ -93,7 +93,7 @@ FilterFunctionAt3DPosition(PixelType_Output& OutputPixel, double x, double y, do
 
     for (int_max i = 0; i < VectorPixelLength; ++i)
     {
-        bool EnableBoundCheckForThisPosition = this->WhetherToCheckBoundAt3DPosition(x, y, z, i);
+        bool EnableBoundCheckForThisPosition = this->WhetherToCheckBoundAtMaskCenter_3DPosition(x, y, z, i);
 
         auto tempElementNumber = m_MaskList_3DPosition[i].GetElementNumber();
 
@@ -140,10 +140,10 @@ FilterFunctionAt3DPosition(PixelType_Output& OutputPixel, double x, double y, do
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output, int_max VectorPixelLength_Output>
+template<typename InputPixelType, typename OutputPixelType, int_max VectorPixelLength_Output>
 inline
-void ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, VectorPixelLength_Output>::
-OutputFunction(int_max OutputPixelIndex, const PixelType_Output& OutputPixel)
+void ConvolutionImageFilter3D<InputPixelType, OutputPixelType, VectorPixelLength_Output>::
+OutputFunction(int_max OutputPixelIndex, const OutputPixelType& OutputPixel, int_max ThreadIndex)
 {
     for (int_max i = 0; i < VectorPixelLength_Output; ++i)
     {
@@ -152,23 +152,23 @@ OutputFunction(int_max OutputPixelIndex, const PixelType_Output& OutputPixel)
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, 1>::ConvolutionImageFilter3D()
+template<typename InputPixelType, typename OutputPixelType>
+ConvolutionImageFilter3D<InputPixelType, OutputPixelType, 1>::ConvolutionImageFilter3D()
 {
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, 1>::~ConvolutionImageFilter3D()
+template<typename InputPixelType, typename OutputPixelType>
+ConvolutionImageFilter3D<InputPixelType, OutputPixelType, 1>::~ConvolutionImageFilter3D()
 {
 }
 
 
 
-template<typename PixelType_Input, typename PixelType_Output>
+template<typename InputPixelType, typename OutputPixelType>
 inline
-void ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, 1>::
-FilterFunctionAt3DIndex(PixelType_Output& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex)
+void ConvolutionImageFilter3D<InputPixelType, OutputPixelType, 1>::
+FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex)
 {
 	//OutputPixel = 0;
 	//return;
@@ -183,7 +183,7 @@ FilterFunctionAt3DIndex(PixelType_Output& OutputPixel, int_max x_Index, int_max 
 	*/
 
     //-----------------------------------------
-    bool EnableBoundCheckForThisPosition = this->WhetherToCheckBoundAt3DIndex(x_Index, y_Index, z_Index, 0);
+    bool EnableBoundCheckForThisPosition = this->WhetherToCheckBoundAtMaskCenter_3DIndex(x_Index, y_Index, z_Index, 0);
     
     //-----------------------------------------
 
@@ -222,13 +222,13 @@ FilterFunctionAt3DIndex(PixelType_Output& OutputPixel, int_max x_Index, int_max 
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
+template<typename InputPixelType, typename OutputPixelType>
 inline
-void ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, 1>::
-FilterFunctionAt3DPosition(PixelType_Output& OutputPixel, double x, double y, double z, int_max ThreadIndex)
+void ConvolutionImageFilter3D<InputPixelType, OutputPixelType, 1>::
+FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex)
 {
     //-----------------------------------------
-    bool EnableBoundCheckForThisPosition = this->WhetherToCheckBoundAt3DPosition(x, y, z, 0);
+    bool EnableBoundCheckForThisPosition = this->WhetherToCheckBoundAtMaskCenter_3DPosition(x, y, z, 0);
 
     //-----------------------------------------
 

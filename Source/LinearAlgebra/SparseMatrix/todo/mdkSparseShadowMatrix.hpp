@@ -1,22 +1,12 @@
-#ifndef __mdkDenseShadowMatrix_hpp
-#define __mdkDenseShadowMatrix_hpp
-
-#include <string>
-#include <cmath>
-#include <algorithm>
-
-#include "mdkDebugConfig.h"
-#include "mdkLinearAlgebra.h"
-#include "mdkDenseMatrix.h"
-
-//#include "mdkDenseShadowMatrix.h"
+#ifndef __mdkSparseShadowMatrix_hpp
+#define __mdkSparseShadowMatrix_hpp
 
 namespace mdk
 {
 
 template<typename ElementType>
 inline
-mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix()
+SparseShadowMatrix<ElementType>::SparseShadowMatrix()
 {
     this->Reset();
 }
@@ -24,7 +14,7 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix()
 
 template<typename ElementType>
 inline
-mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& LinearIndexList)
+SparseShadowMatrix<ElementType>::SparseShadowMatrix(const mdkDenseMatrix<ElementType>& sourceMatrix, const std::vector<int64>& LinearIndexList)
 {
     // all the indexes in LinearIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}), A is a matrix    
@@ -32,7 +22,7 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 
     if (LinearIndexList.size() == 0)
     {
-        mdkError << "LinearIndexList is empty @ mdkDenseShadowMatrix(sourceMatrix, std::vector LinearIndexList)" << '\n';
+        mdkError << "LinearIndexList is empty @ SparseShadowMatrix(sourceMatrix, std::vector LinearIndexList)" << '\n';
 
         this->Reset();
         return;
@@ -56,7 +46,7 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 
 template<typename ElementType>
 inline
-mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
+SparseShadowMatrix<ElementType>::SparseShadowMatrix(const mdkDenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
     m_SourceMatrixSharedCopy.ForceSharedCopy(sourceMatrix);
 
@@ -99,7 +89,7 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 
 template<typename ElementType>
 inline
-mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<ElementType>& sourceMatrix,
+SparseShadowMatrix<ElementType>::SparseShadowMatrix(const mdkDenseMatrix<ElementType>& sourceMatrix,
                                                         const std::vector<int64>& RowIndexList,
                                                         const std::vector<int64>& ColIndexList)
 {
@@ -109,7 +99,7 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 
     if (RowIndexList.empty() == true || ColIndexList.empty() == true)
     {
-        mdkError << "RowIndexList or ColIndexList is empty @ mdkDenseShadowMatrix(sourceMatrix, std::vector RowIndexList, std::vector ColIndexList)" << '\n';
+        mdkError << "RowIndexList or ColIndexList is empty @ SparseShadowMatrix(sourceMatrix, std::vector RowIndexList, std::vector ColIndexList)" << '\n';
 
         this->Reset();
         return;
@@ -139,7 +129,7 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 
 template<typename ElementType>
 inline
-mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<ElementType>& sourceMatrix,
+SparseShadowMatrix<ElementType>::SparseShadowMatrix(const mdkDenseMatrix<ElementType>& sourceMatrix,
                                                         const std::vector<int64>& RowIndexList,
                                                         const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol)
 {
@@ -148,7 +138,7 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 
     if (RowIndexList.empty() == true)
     {
-        mdkError << "RowIndexList is empty @ mdkDenseShadowMatrix(sourceMatrix, std::vector RowIndexList, ALL)" << '\n';
+        mdkError << "RowIndexList is empty @ SparseShadowMatrix(sourceMatrix, std::vector RowIndexList, ALL)" << '\n';
 
         this->Reset();
         return;
@@ -185,7 +175,7 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 
 template<typename ElementType>
 inline
-mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<ElementType>& sourceMatrix,
+SparseShadowMatrix<ElementType>::SparseShadowMatrix(const mdkDenseMatrix<ElementType>& sourceMatrix,
                                                         const ALL_Symbol_For_mdkMatrix_Operator& ALL_Symbol,
                                                         const std::vector<int64>& ColIndexList)
 {
@@ -194,7 +184,7 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 
     if (ColIndexList.empty() == true)
     {
-        mdkError << "ColIndexList is empty @ mdkDenseShadowMatrix(sourceMatrix, ALL, std::vector ColIndexList)" << '\n';
+        mdkError << "ColIndexList is empty @ SparseShadowMatrix(sourceMatrix, ALL, std::vector ColIndexList)" << '\n';
 
         this->Reset();
         return;
@@ -231,7 +221,7 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(const mdkDenseMatrix<Ele
 
 template<typename ElementType>
 inline 
-mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(mdkDenseShadowMatrix<ElementType>&& ShadowMatrix)
+SparseShadowMatrix<ElementType>::SparseShadowMatrix(SparseShadowMatrix<ElementType>&& ShadowMatrix)
 {
     m_SourceMatrixSharedCopy.ForceSharedCopy(ShadowMatrix.m_SourceMatrixSharedCopy); // do not use std::move() !
 
@@ -259,13 +249,13 @@ mdkDenseShadowMatrix<ElementType>::mdkDenseShadowMatrix(mdkDenseShadowMatrix<Ele
 
 template<typename ElementType>
 inline
-mdkDenseShadowMatrix<ElementType>::~mdkDenseShadowMatrix()
+SparseShadowMatrix<ElementType>::~SparseShadowMatrix()
 {
 }
 
 
 template<typename ElementType>
-inline void mdkDenseShadowMatrix<ElementType>::Reset()
+inline void SparseShadowMatrix<ElementType>::Reset()
 {
     m_SourceMatrixSharedCopy.Reset();
 
@@ -292,7 +282,7 @@ inline void mdkDenseShadowMatrix<ElementType>::Reset()
 
 
 template<typename ElementType>
-inline bool mdkDenseShadowMatrix<ElementType>::IsLinearIndexListOnly() const
+inline bool SparseShadowMatrix<ElementType>::IsLinearIndexListOnly() const
 {
     return m_Flag_OutputVector;
 }
@@ -300,7 +290,7 @@ inline bool mdkDenseShadowMatrix<ElementType>::IsLinearIndexListOnly() const
 
 template<typename ElementType>
 inline
-int64 mdkDenseShadowMatrix<ElementType>::GetElementNumber() const
+int64 SparseShadowMatrix<ElementType>::GetElementNumber() const
 {
     return m_ElementNumber;
 }
@@ -308,7 +298,7 @@ int64 mdkDenseShadowMatrix<ElementType>::GetElementNumber() const
 
 template<typename ElementType>
 inline
-int64 mdkDenseShadowMatrix<ElementType>::GetColNumber() const
+int64 SparseShadowMatrix<ElementType>::GetColNumber() const
 {
     return m_ColNumber;
 }
@@ -316,7 +306,7 @@ int64 mdkDenseShadowMatrix<ElementType>::GetColNumber() const
 
 template<typename ElementType>
 inline
-int64 mdkDenseShadowMatrix<ElementType>::GetRowNumber() const
+int64 SparseShadowMatrix<ElementType>::GetRowNumber() const
 {
     return m_RowNumber;
 }
@@ -324,7 +314,7 @@ int64 mdkDenseShadowMatrix<ElementType>::GetRowNumber() const
 
 template<typename ElementType>
 inline
-mdkDenseMatrixSize mdkDenseShadowMatrix<ElementType>::GetSize() const
+mdkDenseMatrixSize SparseShadowMatrix<ElementType>::GetSize() const
 {
     mdkDenseMatrixSize Size;
 
@@ -337,7 +327,7 @@ mdkDenseMatrixSize mdkDenseShadowMatrix<ElementType>::GetSize() const
 
 template<typename ElementType>
 inline
-bool mdkDenseShadowMatrix<ElementType>::IsEmpty() const
+bool SparseShadowMatrix<ElementType>::IsEmpty() const
 {
     if (m_ElementNumber == 0)
     {
@@ -350,7 +340,7 @@ bool mdkDenseShadowMatrix<ElementType>::IsEmpty() const
 
 template<typename ElementType>
 inline 
-const std::vector<int64>& mdkDenseShadowMatrix<ElementType>::GetRowIndexListOfSource() const
+const std::vector<int64>& SparseShadowMatrix<ElementType>::GetRowIndexListOfSource() const
 {
     return m_RowIndexList_source;
 }
@@ -358,7 +348,7 @@ const std::vector<int64>& mdkDenseShadowMatrix<ElementType>::GetRowIndexListOfSo
 
 template<typename ElementType>
 inline 
-const std::vector<int64>& mdkDenseShadowMatrix<ElementType>::GetColIndexListOfSource() const
+const std::vector<int64>& SparseShadowMatrix<ElementType>::GetColIndexListOfSource() const
 {
     return m_ColIndexList_source;
 }
@@ -366,7 +356,7 @@ const std::vector<int64>& mdkDenseShadowMatrix<ElementType>::GetColIndexListOfSo
 
 template<typename ElementType>
 inline 
-const std::vector<int64>& mdkDenseShadowMatrix<ElementType>::GetLinearIndexListOfSource() const
+const std::vector<int64>& SparseShadowMatrix<ElementType>::GetLinearIndexListOfSource() const
 {
     return m_LinearIndexList_source;
 }
@@ -374,7 +364,7 @@ const std::vector<int64>& mdkDenseShadowMatrix<ElementType>::GetLinearIndexListO
 
 template<typename ElementType>
 inline 
-const mdkDenseMatrix<ElementType>& mdkDenseShadowMatrix<ElementType>::GetSourceMatrixSharedCopy() const
+const mdkDenseMatrix<ElementType>& SparseShadowMatrix<ElementType>::GetSourceMatrixSharedCopy() const
 {
     return m_SourceMatrixSharedCopy;
 }
@@ -382,7 +372,7 @@ const mdkDenseMatrix<ElementType>& mdkDenseShadowMatrix<ElementType>::GetSourceM
 
 template<typename ElementType>
 inline 
-mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::CreateMatrix() const
+mdkDenseMatrix<ElementType> SparseShadowMatrix<ElementType>::CreateMatrix() const
 {
     mdkDenseMatrix<ElementType> tempMatrix;
 
@@ -394,7 +384,7 @@ mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::CreateMatrix() co
 
 template<typename ElementType>
 inline
-bool mdkDenseShadowMatrix<ElementType>::CreateMatrix(mdkDenseMatrix<ElementType>& OutputMatrix) const
+bool SparseShadowMatrix<ElementType>::CreateMatrix(mdkDenseMatrix<ElementType>& OutputMatrix) const
 {
     if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
     {
@@ -413,14 +403,14 @@ bool mdkDenseShadowMatrix<ElementType>::CreateMatrix(mdkDenseMatrix<ElementType>
         }
         else
         {
-            mdkError << "Size does not match @ mdkDenseShadowMatrix::CreateMatrix(OutputMatrix)" << '\n';
+            mdkError << "Size does not match @ SparseShadowMatrix::CreateMatrix(OutputMatrix)" << '\n';
             return false;
         }
     }
 
     if (m_ElementNumber == 0)
     {
-        mdkWarning << "Self is empty @ mdkDenseShadowMatrix::CreateMatrix(OutputMatrix)" << '\n';
+        mdkWarning << "Self is empty @ SparseShadowMatrix::CreateMatrix(OutputMatrix)" << '\n';
         return true;
     }
 
@@ -459,7 +449,7 @@ bool mdkDenseShadowMatrix<ElementType>::CreateMatrix(mdkDenseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseMatrix<ElementType>& targetMatrix)
+void SparseShadowMatrix<ElementType>::operator=(const mdkDenseMatrix<ElementType>& targetMatrix)
 {
     // MatrixA = MatrixA
     if (m_SourceMatrixSharedCopy.GetElementPointer() == targetMatrix.GetElementPointer())
@@ -471,7 +461,7 @@ void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseMatrix<ElementTy
     {
         if (m_ElementNumber != targetMatrix.GetElementNumber())
         {
-            mdkError << "m_ElementNumber != targetMatrix.GetElementNumber() @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)" << '\n';
+            mdkError << "m_ElementNumber != targetMatrix.GetElementNumber() @ SparseShadowMatrix::operator=(SparseShadowMatrix)" << '\n';
             return;
         }
     }
@@ -479,7 +469,7 @@ void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseMatrix<ElementTy
     {
         if (m_RowNumber != targetMatrix.GetRowNumber() || m_ColNumber != targetMatrix.GetColNumber())
         {
-            mdkError << "Size does not match @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)" << '\n';
+            mdkError << "Size does not match @ SparseShadowMatrix::operator=(SparseShadowMatrix)" << '\n';
             return;
         }
     }
@@ -514,7 +504,7 @@ void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseMatrix<ElementTy
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator=(const ElementType& Element)
+void SparseShadowMatrix<ElementType>::operator=(const ElementType& Element)
 {
     //------------------------------------------------------------
 
@@ -543,7 +533,7 @@ void mdkDenseShadowMatrix<ElementType>::operator=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
+void SparseShadowMatrix<ElementType>::operator=(const SparseShadowMatrix<ElementType>& ShadowMatrix)
 {
     // MatrixA = MatrixA
     if (this == &ShadowMatrix)
@@ -555,7 +545,7 @@ void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseShadowMatrix<Ele
     {
         if (m_ElementNumber != ShadowMatrix.GetElementNumber())
         {
-            mdkError << "m_ElementNumber != ShadowMatrix.GetElementNumber() @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)" << '\n';
+            mdkError << "m_ElementNumber != ShadowMatrix.GetElementNumber() @ SparseShadowMatrix::operator=(SparseShadowMatrix)" << '\n';
             return;
         }
     }
@@ -563,7 +553,7 @@ void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseShadowMatrix<Ele
     {
         if (m_RowNumber != ShadowMatrix.GetRowNumber() || m_ColNumber != ShadowMatrix.GetColNumber())
         {
-            mdkError << "Size does not match @ mdkDenseShadowMatrix::operator=(mdkDenseShadowMatrix)" << '\n';
+            mdkError << "Size does not match @ SparseShadowMatrix::operator=(SparseShadowMatrix)" << '\n';
             return;
         }
     }
@@ -580,7 +570,7 @@ void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseShadowMatrix<Ele
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+void SparseShadowMatrix<ElementType>::operator=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     (*this) = GlueMatrix.CreateMatrix();
 }
@@ -588,7 +578,7 @@ void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseGlueMatrixForLin
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+void SparseShadowMatrix<ElementType>::operator=(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     (*this) = GlueMatrix.CreateMatrix();
 }
@@ -596,13 +586,13 @@ void mdkDenseShadowMatrix<ElementType>::operator=(const mdkDenseGlueMatrixForMul
 
 template<typename ElementType>
 inline
-ElementType& mdkDenseShadowMatrix<ElementType>::operator[](int64 LinearIndex)
+ElementType& SparseShadowMatrix<ElementType>::operator[](int64 LinearIndex)
 {
 #if defined(MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound)
 
     if (LinearIndex >= m_ElementNumber)
     {
-        mdkError << "Invalid input @ mdkDenseShadowMatrix::operator[i]" << '\n';
+        mdkError << "Invalid input @ SparseShadowMatrix::operator[i]" << '\n';
         return m_NaNElement;
     }
 
@@ -627,13 +617,13 @@ ElementType& mdkDenseShadowMatrix<ElementType>::operator[](int64 LinearIndex)
 
 template<typename ElementType>
 inline
-const ElementType& mdkDenseShadowMatrix<ElementType>::operator[](int64 LinearIndex) const
+const ElementType& SparseShadowMatrix<ElementType>::operator[](int64 LinearIndex) const
 {
 #if defined(MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound)
 
     if (LinearIndex >= m_ElementNumber)
     {
-        mdkError << "Invalid input @ mdkDenseShadowMatrix::operator[i] const" << '\n';
+        mdkError << "Invalid input @ SparseShadowMatrix::operator[i] const" << '\n';
         return m_NaNElement;
     }
 
@@ -658,13 +648,13 @@ const ElementType& mdkDenseShadowMatrix<ElementType>::operator[](int64 LinearInd
 
 template<typename ElementType>
 inline
-ElementType& mdkDenseShadowMatrix<ElementType>::operator()(int64 LinearIndex)
+ElementType& SparseShadowMatrix<ElementType>::operator()(int64 LinearIndex)
 {
 #if defined(MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound)
 
     if (LinearIndex >= m_ElementNumber || LinearIndex < 0)
 	{
-		mdkError << "Invalid input @ mdkDenseShadowMatrix::operator(i)" <<'\n';
+		mdkError << "Invalid input @ SparseShadowMatrix::operator(i)" <<'\n';
 		return m_NaNElement;
 	}
 
@@ -689,13 +679,13 @@ ElementType& mdkDenseShadowMatrix<ElementType>::operator()(int64 LinearIndex)
 
 template<typename ElementType>
 inline
-const ElementType& mdkDenseShadowMatrix<ElementType>::operator()(int64 LinearIndex) const
+const ElementType& SparseShadowMatrix<ElementType>::operator()(int64 LinearIndex) const
 {
 #if defined(MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound)
 
     if (LinearIndex >= m_ElementNumber || LinearIndex < 0)
     {
-        mdkError << "Invalid input @ mdkDenseShadowMatrix::operator(i) const" << '\n';
+        mdkError << "Invalid input @ SparseShadowMatrix::operator(i) const" << '\n';
         return m_NaNElement;
     }
 
@@ -720,13 +710,13 @@ const ElementType& mdkDenseShadowMatrix<ElementType>::operator()(int64 LinearInd
 
 template<typename ElementType>
 inline
-ElementType& mdkDenseShadowMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex)
+ElementType& SparseShadowMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex)
 {
 #if defined(MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound)
 
     if (RowIndex >= m_RowNumber || RowIndex < 0 || ColIndex >= m_ColNumber || ColIndex < 0)
 	{
-		mdkError << "Invalid input @ mdkDenseShadowMatrix::operator(i, j)" << '\n';
+		mdkError << "Invalid input @ SparseShadowMatrix::operator(i, j)" << '\n';
 		return m_NaNElement;
 	}
 
@@ -749,13 +739,13 @@ ElementType& mdkDenseShadowMatrix<ElementType>::operator()(int64 RowIndex, int64
 
 template<typename ElementType>
 inline
-const ElementType& mdkDenseShadowMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex) const
+const ElementType& SparseShadowMatrix<ElementType>::operator()(int64 RowIndex, int64 ColIndex) const
 {
 #if defined(MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound)
 
     if (RowIndex >= m_RowNumber || RowIndex < 0 || ColIndex >= m_ColNumber || ColIndex < 0)
 	{
-		mdkError << "Invalid input @ mdkDenseShadowMatrix::operator(i, j) const" << '\n';
+		mdkError << "Invalid input @ SparseShadowMatrix::operator(i, j) const" << '\n';
 		return m_NaNElement;
 	}
 
@@ -779,13 +769,13 @@ const ElementType& mdkDenseShadowMatrix<ElementType>::operator()(int64 RowIndex,
 
 template<typename ElementType>
 inline 
-void mdkDenseShadowMatrix<ElementType>::operator+=(const mdkDenseMatrix<ElementType>& Matrix)
+void SparseShadowMatrix<ElementType>::operator+=(const mdkDenseMatrix<ElementType>& Matrix)
 {
     auto Size = Matrix.GetSize();
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        mdkError << "Self or Matrix is empty @ mdkDenseShadowMatrix::operator+=(Matrix)" << '\n';
+        mdkError << "Self or Matrix is empty @ SparseShadowMatrix::operator+=(Matrix)" << '\n';
         return;
     }
 
@@ -798,7 +788,7 @@ void mdkDenseShadowMatrix<ElementType>::operator+=(const mdkDenseMatrix<ElementT
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        mdkError << "Size does not match @ mdkDenseShadowMatrix::operator+=(Matrix)" << '\n';
+        mdkError << "Size does not match @ SparseShadowMatrix::operator+=(Matrix)" << '\n';
         return;
     }
 
@@ -815,13 +805,13 @@ void mdkDenseShadowMatrix<ElementType>::operator+=(const mdkDenseMatrix<ElementT
 
 template<typename ElementType>
 inline 
-void mdkDenseShadowMatrix<ElementType>::operator-=(const mdkDenseMatrix<ElementType>& Matrix)
+void SparseShadowMatrix<ElementType>::operator-=(const mdkDenseMatrix<ElementType>& Matrix)
 {
     auto Size = Matrix.GetSize();
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        mdkError << "Self or Matrix is empty @ mdkDenseShadowMatrix::operator-=(Matrix)" << '\n';
+        mdkError << "Self or Matrix is empty @ SparseShadowMatrix::operator-=(Matrix)" << '\n';
         return;
     }
 
@@ -834,7 +824,7 @@ void mdkDenseShadowMatrix<ElementType>::operator-=(const mdkDenseMatrix<ElementT
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        mdkError << "Size does not match @ mdkDenseShadowMatrix::operator-=(Matrix)" << '\n';
+        mdkError << "Size does not match @ SparseShadowMatrix::operator-=(Matrix)" << '\n';
         return;
     }
 
@@ -851,13 +841,13 @@ void mdkDenseShadowMatrix<ElementType>::operator-=(const mdkDenseMatrix<ElementT
 
 template<typename ElementType>
 inline 
-void mdkDenseShadowMatrix<ElementType>::operator*=(const mdkDenseMatrix<ElementType>& Matrix)
+void SparseShadowMatrix<ElementType>::operator*=(const mdkDenseMatrix<ElementType>& Matrix)
 {
     auto Size = Matrix.GetSize();
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        mdkError << "Self or Matrix is empty @ mdkDenseShadowMatrix::operator*=(Matrix)" << '\n';
+        mdkError << "Self or Matrix is empty @ SparseShadowMatrix::operator*=(Matrix)" << '\n';
         return;
     }
 
@@ -870,7 +860,7 @@ void mdkDenseShadowMatrix<ElementType>::operator*=(const mdkDenseMatrix<ElementT
 
     if (m_ColNumber != Size.RowNumber || Size.RowNumber != Size.ColNumber)
     {
-        mdkError << "Size does not match @ mdkDenseShadowMatrix::operator*=(Matrix)" << '\n';
+        mdkError << "Size does not match @ SparseShadowMatrix::operator*=(Matrix)" << '\n';
         return;
     }
 
@@ -882,13 +872,13 @@ void mdkDenseShadowMatrix<ElementType>::operator*=(const mdkDenseMatrix<ElementT
 
 template<typename ElementType>
 inline 
-void mdkDenseShadowMatrix<ElementType>::operator/=(const mdkDenseMatrix<ElementType>& Matrix)
+void SparseShadowMatrix<ElementType>::operator/=(const mdkDenseMatrix<ElementType>& Matrix)
 {
     auto Size = Matrix.GetSize();
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        mdkError << "Self or Matrix is empty @ mdkDenseShadowMatrix::operator/=(Matrix)" << '\n';
+        mdkError << "Self or Matrix is empty @ SparseShadowMatrix::operator/=(Matrix)" << '\n';
         return;
     }
 
@@ -901,7 +891,7 @@ void mdkDenseShadowMatrix<ElementType>::operator/=(const mdkDenseMatrix<ElementT
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        mdkError << "Size does not match @ mdkDenseShadowMatrix::operator/=(Matrix)" << '\n';
+        mdkError << "Size does not match @ SparseShadowMatrix::operator/=(Matrix)" << '\n';
         return;
     }
 
@@ -919,11 +909,11 @@ void mdkDenseShadowMatrix<ElementType>::operator/=(const mdkDenseMatrix<ElementT
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator+=(const ElementType& Element)
+void SparseShadowMatrix<ElementType>::operator+=(const ElementType& Element)
 {
     if (m_RowNumber <= 0)
     {
-        mdkError << "Self is empty @ mdkDenseShadowMatrix::operator+=(Element)" << '\n';
+        mdkError << "Self is empty @ SparseShadowMatrix::operator+=(Element)" << '\n';
         return;
     }
 
@@ -938,11 +928,11 @@ void mdkDenseShadowMatrix<ElementType>::operator+=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator-=(const ElementType& Element)
+void SparseShadowMatrix<ElementType>::operator-=(const ElementType& Element)
 {
     if (m_RowNumber <= 0)
     {
-        mdkError << "Self is empty @ mdkDenseShadowMatrix::operator-=(Element)" << '\n';
+        mdkError << "Self is empty @ SparseShadowMatrix::operator-=(Element)" << '\n';
         return;
     }
 
@@ -957,11 +947,11 @@ void mdkDenseShadowMatrix<ElementType>::operator-=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator*=(const ElementType& Element)
+void SparseShadowMatrix<ElementType>::operator*=(const ElementType& Element)
 {
     if (m_RowNumber <= 0)
     {
-        mdkError << "Self is empty @ mdkDenseShadowMatrix::operator*=(Element)" << '\n';
+        mdkError << "Self is empty @ SparseShadowMatrix::operator*=(Element)" << '\n';
         return;
     }
 
@@ -976,11 +966,11 @@ void mdkDenseShadowMatrix<ElementType>::operator*=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator/=(const ElementType& Element)
+void SparseShadowMatrix<ElementType>::operator/=(const ElementType& Element)
 {
     if (m_RowNumber <= 0)
     {
-        mdkError << "Self is empty @ mdkDenseShadowMatrix::operator/=(Element)" << '\n';
+        mdkError << "Self is empty @ SparseShadowMatrix::operator/=(Element)" << '\n';
         return;
     }
 
@@ -996,7 +986,7 @@ void mdkDenseShadowMatrix<ElementType>::operator/=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator+=(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
+void SparseShadowMatrix<ElementType>::operator+=(const SparseShadowMatrix<ElementType>& ShadowMatrix)
 {
     auto Size = ShadowMatrix.GetSize();
 
@@ -1009,13 +999,13 @@ void mdkDenseShadowMatrix<ElementType>::operator+=(const mdkDenseShadowMatrix<El
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        mdkError << "Size does not match @ mdkDenseShadowMatrix::operator+=(ShadowMatrix)" << '\n';
+        mdkError << "Size does not match @ SparseShadowMatrix::operator+=(ShadowMatrix)" << '\n';
         return;
     }
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        mdkError << "Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::operator+=(ShadowMatrix)" << '\n';
+        mdkError << "Self or ShadowMatrix is empty @ SparseShadowMatrix::operator+=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -1030,7 +1020,7 @@ void mdkDenseShadowMatrix<ElementType>::operator+=(const mdkDenseShadowMatrix<El
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator-=(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
+void SparseShadowMatrix<ElementType>::operator-=(const SparseShadowMatrix<ElementType>& ShadowMatrix)
 {
     auto Size = ShadowMatrix.GetSize();
 
@@ -1043,13 +1033,13 @@ void mdkDenseShadowMatrix<ElementType>::operator-=(const mdkDenseShadowMatrix<El
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        mdkError << "Size does not match @ mdkDenseShadowMatrix::operato-=(ShadowMatrix)" << '\n';
+        mdkError << "Size does not match @ SparseShadowMatrix::operato-=(ShadowMatrix)" << '\n';
         return;
     }
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        mdkError << "Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::operator-=(ShadowMatrix)" << '\n';
+        mdkError << "Self or ShadowMatrix is empty @ SparseShadowMatrix::operator-=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -1064,7 +1054,7 @@ void mdkDenseShadowMatrix<ElementType>::operator-=(const mdkDenseShadowMatrix<El
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator*=(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
+void SparseShadowMatrix<ElementType>::operator*=(const SparseShadowMatrix<ElementType>& ShadowMatrix)
 {
     auto Size = ShadowMatrix.GetSize();
 
@@ -1077,13 +1067,13 @@ void mdkDenseShadowMatrix<ElementType>::operator*=(const mdkDenseShadowMatrix<El
 
     if (m_ColNumber != Size.RowNumber || Size.RowNumber != Size.ColNumber)
     {
-        mdkError << "Size does not match @ mdkDenseShadowMatrix::operator*=(ShadowMatrix)" << '\n';
+        mdkError << "Size does not match @ SparseShadowMatrix::operator*=(ShadowMatrix)" << '\n';
         return;
     }
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        mdkError << "Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::operator*=(ShadowMatrix)" << '\n';
+        mdkError << "Self or ShadowMatrix is empty @ SparseShadowMatrix::operator*=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -1095,7 +1085,7 @@ void mdkDenseShadowMatrix<ElementType>::operator*=(const mdkDenseShadowMatrix<El
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator/=(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix)
+void SparseShadowMatrix<ElementType>::operator/=(const SparseShadowMatrix<ElementType>& ShadowMatrix)
 {
     auto Size = ShadowMatrix.GetSize();
 
@@ -1108,13 +1098,13 @@ void mdkDenseShadowMatrix<ElementType>::operator/=(const mdkDenseShadowMatrix<El
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        mdkError << "Size does not match @ mdkDenseShadowMatrix::operato/=(ShadowMatrix)" << '\n';
+        mdkError << "Size does not match @ SparseShadowMatrix::operato/=(ShadowMatrix)" << '\n';
         return;
     }
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        mdkError << "Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::operator/=(ShadowMatrix)" << '\n';
+        mdkError << "Self or ShadowMatrix is empty @ SparseShadowMatrix::operator/=(ShadowMatrix)" << '\n';
         return;
     }
 
@@ -1130,7 +1120,7 @@ void mdkDenseShadowMatrix<ElementType>::operator/=(const mdkDenseShadowMatrix<El
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator+=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+void SparseShadowMatrix<ElementType>::operator+=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     (*this) += GlueMatrix.CreateMatrix()
 }
@@ -1138,7 +1128,7 @@ void mdkDenseShadowMatrix<ElementType>::operator+=(const mdkDenseGlueMatrixForLi
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator-=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+void SparseShadowMatrix<ElementType>::operator-=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     (*this) -= GlueMatrix.CreateMatrix()
 }
@@ -1146,7 +1136,7 @@ void mdkDenseShadowMatrix<ElementType>::operator-=(const mdkDenseGlueMatrixForLi
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator*=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+void SparseShadowMatrix<ElementType>::operator*=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     (*this) *= GlueMatrix.CreateMatrix()
 }
@@ -1154,7 +1144,7 @@ void mdkDenseShadowMatrix<ElementType>::operator*=(const mdkDenseGlueMatrixForLi
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator/=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
+void SparseShadowMatrix<ElementType>::operator/=(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     (*this) /= GlueMatrix.CreateMatrix()
 }
@@ -1163,7 +1153,7 @@ void mdkDenseShadowMatrix<ElementType>::operator/=(const mdkDenseGlueMatrixForLi
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator+=(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+void SparseShadowMatrix<ElementType>::operator+=(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     (*this) += GlueMatrix.CreateMatrix()
 }
@@ -1171,7 +1161,7 @@ void mdkDenseShadowMatrix<ElementType>::operator+=(const mdkDenseGlueMatrixForMu
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator-=(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+void SparseShadowMatrix<ElementType>::operator-=(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     (*this) -= GlueMatrix.CreateMatrix()
 }
@@ -1179,14 +1169,14 @@ void mdkDenseShadowMatrix<ElementType>::operator-=(const mdkDenseGlueMatrixForMu
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator*=(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+void SparseShadowMatrix<ElementType>::operator*=(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     (*this) *= GlueMatrix.CreateMatrix()
 }
 
 template<typename ElementType>
 inline
-void mdkDenseShadowMatrix<ElementType>::operator/=(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
+void SparseShadowMatrix<ElementType>::operator/=(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     (*this) /= GlueMatrix.CreateMatrix()
 }
@@ -1194,7 +1184,7 @@ void mdkDenseShadowMatrix<ElementType>::operator/=(const mdkDenseGlueMatrixForMu
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::ElementMultiply(const mdkDenseMatrix<ElementType>& Matrix) const
+mdkDenseMatrix<ElementType> SparseShadowMatrix<ElementType>::ElementMultiply(const mdkDenseMatrix<ElementType>& Matrix) const
 {
     auto Size = Matrix.GetSize();
 
@@ -1212,13 +1202,13 @@ mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::ElementMultiply(c
 
     if (m_RowNumber != Size.RowNumber || m_ColNumber != Size.ColNumber)
     {
-        mdkError << "Size does not match @ mdkDenseShadowMatrix::ElementMultiply(Matrix)" << '\n';
+        mdkError << "Size does not match @ SparseShadowMatrix::ElementMultiply(Matrix)" << '\n';
         return  tempMatrix;
     }
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        mdkWarning << "Self or Matrix is empty @ mdkDenseShadowMatrix::ElementMultiply(Matrix)" << '\n';
+        mdkWarning << "Self or Matrix is empty @ SparseShadowMatrix::ElementMultiply(Matrix)" << '\n';
         return  tempMatrix;
     }
 
@@ -1241,7 +1231,7 @@ mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::ElementMultiply(c
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::ElementMultiply(const ElementType& Element) const
+mdkDenseMatrix<ElementType> SparseShadowMatrix<ElementType>::ElementMultiply(const ElementType& Element) const
 {
     return (*this) * Element;
 }
@@ -1249,7 +1239,7 @@ mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::ElementMultiply(c
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::ElementMultiply(const mdkDenseShadowMatrix<ElementType>& ShadowMatrix) const
+mdkDenseMatrix<ElementType> SparseShadowMatrix<ElementType>::ElementMultiply(const SparseShadowMatrix<ElementType>& ShadowMatrix) const
 {
     auto Size = ShadowMatrix.GetSize();
 
@@ -1262,13 +1252,13 @@ mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::ElementMultiply(c
 
     if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
     {
-        mdkError << "Size does not match @ mdkDenseShadowMatrix::ElementMultiply(ShadowMatrix)" << '\n';
+        mdkError << "Size does not match @ SparseShadowMatrix::ElementMultiply(ShadowMatrix)" << '\n';
         return tempMatrix;
     }
 
     if (m_RowNumber <= 0 || Size.RowNumber <= 0)
     {
-        mdkError << "Self or ShadowMatrix is empty @ mdkDenseShadowMatrix::ElementMultiply(ShadowMatrix)" << '\n';
+        mdkError << "Self or ShadowMatrix is empty @ SparseShadowMatrix::ElementMultiply(ShadowMatrix)" << '\n';
         return tempMatrix;
     }
 
@@ -1287,7 +1277,7 @@ mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::ElementMultiply(c
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix) const
+mdkDenseMatrix<ElementType> SparseShadowMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix) const
 {
     return this->ElementMultiply(GlueMatrix.CreateMatrix());
 }
@@ -1295,7 +1285,7 @@ mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::ElementMultiply(c
 
 template<typename ElementType>
 inline
-mdkDenseMatrix<ElementType> mdkDenseShadowMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix) const
+mdkDenseMatrix<ElementType> SparseShadowMatrix<ElementType>::ElementMultiply(const mdkDenseGlueMatrixForMultiplication<ElementType>& GlueMatrix) const
 {
     return this->ElementMultiply(GlueMatrix.CreateMatrix());
 }

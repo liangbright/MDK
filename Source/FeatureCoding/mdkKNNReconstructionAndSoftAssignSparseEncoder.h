@@ -63,6 +63,11 @@ private:
 
     KNNReconstructionSparseEncoder<ElementType> m_ReconstructionEncoder;
 
+    // output reconstruction error
+    DenseMatrix<ElementType>* m_ReconstructionErrorNorm;
+
+    DenseMatrix<ElementType> m_ReconstructionErrorNorm_SharedCopy;
+
 public:
 
     KNNReconstructionAndSoftAssignSparseEncoder();
@@ -77,13 +82,20 @@ public:
 
     void SetInputDictionary(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary);
 
+    void SetOutputReconstructionErrorNorm(DenseMatrix<ElementType>* ErrorNorm);
+
+    DenseMatrix<ElementType>* GetOutputReconstructionErrorNorm();
+
     bool CheckInput();
 
-    //--------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------
 
-    using FeatureDictionaryBasedSparseEncoder::EncodingFunction;
+    void PreprocessBeforeUsing_EncodeSingleDataVector();
 
-    inline void EncodingFunction(SparseVector<ElementType>& CodeInSparseColVector, const DenseMatrix<ElementType>& DataColVector, int_max ThreadIndex);
+    void PostprocessAfterUsing_EncodeSingleDataVector();
+
+    inline void EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector,
+                                       const DenseMatrix<ElementType>& DataColVector);
 
     //---------------------------------------------------------------------------------
 
@@ -107,9 +119,17 @@ public:
 
 private:
 
-    bool Preprocess();
+    virtual void SetupDefaultPipelineOutput();
 
-    bool UpdateParameterForKNNReconstruction();
+    virtual void UpdatePipelineOutput();
+
+    virtual bool Preprocess();
+
+    virtual bool Postprocess();
+
+    bool UpdateInputOfReconstructionEncoder();
+
+    inline void EncodingFunction(int_max DataIndex, int_max ThreadIndex);
 
 private:
 //deleted:

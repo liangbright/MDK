@@ -224,6 +224,42 @@ inline unsigned long long CalByteNumberOfScalar(const wchar_t&)
 //    return sizeof(size_t);
 //}
 
+
+//---------------------------------------------------------------------------
+
+template<typename TemplateClassType>
+std::string GetTemplateClassName(const TemplateClassType& TemplateClassObject)
+{
+    std::string ObjectName = typeid(TemplateClassObject).name();
+
+    int_max Index_start = 0;
+    int_max Index_end = 0;
+
+    for (int_max k = 0; k < int_max(ObjectName.size()); ++k)
+    {
+        if (ObjectName[k] == ' ')
+        {
+            Index_start = k + 1;
+        }
+        else if (ObjectName[k] == '<')
+        {
+            Index_end = k - 1;
+        }
+    }
+
+    auto Length = Index_end - Index_start + 1;
+
+    std::string TemplateClassName;
+    TemplateClassName.resize(Length);
+
+    for (int_max k = 0; k < Length; ++k)
+    {
+        TemplateClassName[k] = ObjectName[Index_start + k];
+    }
+
+    return TemplateClassName;
+}
+
 }//end namespace mdk
 
 #endif

@@ -1277,8 +1277,8 @@ bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrixC,
 template<typename ElementType>
 inline 
 DenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName,
-                                                        const DenseMatrix<ElementType>& InputMatrixA,
-                                                        const DenseMatrix<ElementType>& InputMatrixB)
+                                                     const DenseMatrix<ElementType>& InputMatrixA,
+                                                     const DenseMatrix<ElementType>& InputMatrixB)
 {                                              
     DenseMatrix<ElementType> OutputMatrix;
 
@@ -1331,8 +1331,8 @@ bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrixC,
 template<typename ElementType, typename OperationType>
 inline 
 DenseMatrix<ElementType> MatrixElementOperation(OperationType Operation,
-                                                   const DenseMatrix<ElementType>& InputMatrixA,
-                                                   const DenseMatrix<ElementType>& InputMatrixB)
+                                                const DenseMatrix<ElementType>& InputMatrixA,
+                                                const DenseMatrix<ElementType>& InputMatrixB)
 {
     DenseMatrix<ElementType> OutputMatrix;
 

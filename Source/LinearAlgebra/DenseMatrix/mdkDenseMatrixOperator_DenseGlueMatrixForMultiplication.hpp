@@ -198,7 +198,7 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(DenseGlueMatrixForMultip
 
     //matrix -------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.ColNumber != SizeB.RowNumber)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: *(GlueMatrixA_ForMultiplication, MatrixB)")
         DenseGlueMatrixForMultiplication<ElementType> EmptyGlueMatrix_M;
@@ -417,7 +417,7 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(const DenseMatrix<Elemen
 
     //matrix -------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.ColNumber != SizeB.RowNumber)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: *(MatrixA, GlueMatrixB_ForMultiplication)")
         DenseGlueMatrixForMultiplication<ElementType> EmptyGlueMatrix_M;

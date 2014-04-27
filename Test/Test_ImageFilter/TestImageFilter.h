@@ -572,7 +572,7 @@ void test_Valve_Filter()
 {
     std::string FilePath("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0");
 
-    auto InputImage = LoadGrayScale3DImageFromDICOMSeries<double>(FilePath);
+    auto InputImage = Load3DImageFromDICOMSeries<double>(FilePath);
 
     std::string OutputFilePathAndName("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0_OutputImage");
 
@@ -611,7 +611,7 @@ void test_Valve_Filter()
 
     std::cout << "time " << t1 - t0 << '\n';
 
-    SaveGrayScale3DImageAsJsonDataFile(OutputImage, OutputFilePathAndName);
+    Save3DImageAsJsonDataFile(OutputImage, OutputFilePathAndName);
 
     std::system("pause");
 }
@@ -620,7 +620,7 @@ void test_GaussianFilter()
 {
     std::string FilePath("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0");
 
-    auto InputImage = LoadGrayScale3DImageFromDICOMSeries<double>(FilePath);
+    auto InputImage = Load3DImageFromDICOMSeries<double>(FilePath);
 
     std::string OutputFilePathAndName("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0_OutputImage");
 
@@ -638,7 +638,7 @@ void test_GaussianFilter()
 
     imfilter.SetOutputImage(&OutputImage);
 
-    imfilter.SetMaxNumberOfThreads(4);
+    imfilter.SetMaxNumberOfThreads(1);
 
     imfilter.SetSigmaList(3, 4, 5);
 
@@ -655,7 +655,7 @@ void test_GaussianFilter()
     std::cout << "time " << t1 - t0 << '\n';
 
 
-    SaveGrayScale3DImageAsJsonDataFile(OutputImage, OutputFilePathAndName);
+    Save3DImageAsJsonDataFile(OutputImage, OutputFilePathAndName);
 
     std::system("pause");
 }
@@ -665,7 +665,7 @@ void test_IntegralImageBuider()
 {
     std::string FilePath("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0");
 
-    auto InputImage = LoadGrayScale3DImageFromDICOMSeries<double>(FilePath);
+    auto InputImage = Load3DImageFromDICOMSeries<double>(FilePath);
 
     std::string OutputFilePathAndName("E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0_OutputImage");
 
@@ -683,7 +683,7 @@ void test_IntegralImageBuider()
 
     imbuilder.SetOutputImage(&OutputImage);
 
-    imbuilder.SetMaxNumberOfThreads(4);
+    imbuilder.SetMaxNumberOfThreads(1);
 
     std::cout << "start: " << '\n';
 
@@ -695,7 +695,7 @@ void test_IntegralImageBuider()
 
     std::cout << "time " << t1 - t0 << '\n';
 
-    SaveGrayScale3DImageAsJsonDataFile(OutputImage, OutputFilePathAndName);
+    Save3DImageAsJsonDataFile(OutputImage, OutputFilePathAndName);
 
     std::system("pause");
 }

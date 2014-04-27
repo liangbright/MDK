@@ -29,7 +29,7 @@ ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix)
         value += Ptr[0];
     }
 
-    value /= ElementNumber;
+    value /= ElementType(ElementNumber);
 
     return value;
 }
@@ -69,7 +69,7 @@ DenseMatrix<ElementType> MatrixMeanToRow(const DenseMatrix<ElementType>& InputMa
             ++RawPointer;
         }
 
-        tempRawPointer[j] = value / InputSize.RowNumber;
+        tempRawPointer[j] = value / ElementType(InputSize.RowNumber);
     }
 
     return tempMatrix;
@@ -110,7 +110,7 @@ DenseMatrix<ElementType> MatrixMeanToCol(const DenseMatrix<ElementType>& InputMa
             Index += InputSize.RowNumber;
         }
 
-        tempRawPointer[i] = value / InputSize.ColNumber;
+        tempRawPointer[i] = value / ElementType(InputSize.ColNumber);
     }
 
     return tempMatrix;

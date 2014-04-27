@@ -11,8 +11,8 @@
 namespace mdk
 {
 
-template<typename VoxelType_Input, typename VoxelType_Output>
-class IntegralImageBuilder3D : public ImageFilter3D<VoxelType_Input, VoxelType_Output>
+template<typename InputPixelType, typename OutputPixelType>
+class IntegralImageBuilder3D : public ImageFilter3D<InputPixelType, OutputPixelType>
 {
 
 public:		

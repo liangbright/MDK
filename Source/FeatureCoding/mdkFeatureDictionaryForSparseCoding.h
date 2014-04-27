@@ -8,20 +8,39 @@
 namespace mdk
 {
 
+struct Infomation_Of_FeatureDictionaryForSparseCoding
+{
+    CharString Name; // name of the dictionary
+
+    bool BasisNonnegative;
+
+    bool BasisSumToOne;
+};
+
+
+template<typename ElementType>
+struct DictionaryData_Of_FeatureDictionaryForSparseCoding
+{
+    Infomation_Of_FeatureDictionaryForSparseCoding DictionaryInfo;
+
+    DenseMatrix<ElementType> BasisMatrix; // D
+
+    DenseMatrix<ElementType> StandardDeviation;
+    // m_StandardDeviation(j) = sqrt(sum_i(Prob(i,j)*(FeatureData_i - D(:,j))^2))
+
+    DenseMatrix<ElementType> BasisProbability;
+
+    // not used yet ----------------
+    DenseMatrix<ElementType> Covariance;  // relation between bases
+};
+
+
 template<typename ElementType>
 class FeatureDictionaryForSparseCoding : public FeatureDictionary<ElementType>
 {
 private:
 
-    CharString m_Name; // name of the dictionary
-
-    DenseMatrix<ElementType> m_BasisMatrix; // D
-
-    DenseMatrix<ElementType> m_ReconstructionStd;
-    // m_ReconstructionStd(j) = sqrt(sum_i(Prob(i,j)*(FeatureData_i - D(:,j))^2))
-
-    // not used for now ----------------
-    DenseMatrix<ElementType> m_Covariance;  // relation between bases
+    std::shared_ptr<DictionaryData_Of_FeatureDictionaryForSparseCoding<ElementType>> m_DictionaryData;
 
 public:
 
@@ -37,11 +56,11 @@ public:
 
     void operator=(FeatureDictionaryForSparseCoding&& InputDictionary);
 
-    bool Copy(const FeatureDictionaryForSparseCoding& InputDictionary);
+    void Copy(const FeatureDictionaryForSparseCoding& InputDictionary);
 
     bool Copy(const FeatureDictionaryForSparseCoding* InputDictionary);
 
-    bool Share(FeatureDictionaryForSparseCoding& InputDictionary);
+    void Share(FeatureDictionaryForSparseCoding& InputDictionary);
 
     bool Share(FeatureDictionaryForSparseCoding* InputDictionary);
 
@@ -61,18 +80,39 @@ public:
 
     bool Save(const CharString& FilePathAndName) const;
 
-    CharString& Name();
+    // -------------- get/set info---------------------------------------------------//
 
-    const CharString& Name() const;
+    inline const Infomation_Of_FeatureDictionaryForSparseCoding& GetDictionaryInformation() const;
 
-    DenseMatrix<ElementType>& BasisMatrix();
+    inline void SetDictionaryInformation(const Infomation_Of_FeatureDictionaryForSparseCoding& Info);
 
-    const DenseMatrix<ElementType>& BasisMatrix() const;
+    inline const CharString& GetName() const;
 
-    DenseMatrix<ElementType>& ReconstructionStd();
+    inline void SetName(const CharString& Name);
 
-    const DenseMatrix<ElementType>& ReconstructionStd() const;
+    inline void SetDictionaryInfo_BasisNonnegative(bool Nonnegative = true);
 
+    inline void SetDictionaryInfo_BasisSumToOne(bool SumToOne = true);
+
+    inline bool IsBasisNonnegative() const;
+
+    inline bool IsBasisSumToOne() const;
+
+    // --------------------- get/set data --------------------------------------------//
+
+    inline DenseMatrix<ElementType>& BasisMatrix();
+
+    inline const DenseMatrix<ElementType>& BasisMatrix() const;
+
+    inline DenseMatrix<ElementType>& StandardDeviation();
+
+    inline const DenseMatrix<ElementType>& StandardDeviation() const;
+
+    inline DenseMatrix<ElementType>& BasisProbability();
+
+    inline const DenseMatrix<ElementType>& BasisProbability() const;
+
+    
 };
 
 

@@ -8,8 +8,8 @@
 namespace mdk
 {
 
-template<typename PixelType_Input, typename PixelType_Output>
-class MaskBasedImageFilter3D : public ImageFilter3D<PixelType_Input, PixelType_Output>
+template<typename InputPixelType, typename OutputPixelType>
+class MaskBasedImageFilter3D : public ImageFilter3D<InputPixelType, OutputPixelType>
 {
 
 protected:

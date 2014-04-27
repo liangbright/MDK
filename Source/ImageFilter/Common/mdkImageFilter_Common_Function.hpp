@@ -25,7 +25,6 @@ DenseMatrix<int_max> ComputeHistogram(const Image3D<ElementType>& Signal, Elemen
 }
 
 
-
 template<typename ElementType>
 DenseMatrix<int_max> ComputeHistogram(const ElementType* Signal, int_max SignalLength, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
 {
@@ -38,7 +37,7 @@ DenseMatrix<int_max> ComputeHistogram(const ElementType* Signal, int_max SignalL
 
 
 template<typename ElementType>
-bool ComputeHistogram(DenseMatrix<int_max> Histogram,
+bool ComputeHistogram(DenseMatrix<int_max>& Histogram,
                       const ElementType* Signal, int_max SignalLength, 
                       ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
 {
@@ -61,6 +60,10 @@ bool ComputeHistogram(DenseMatrix<int_max> Histogram,
         if (temp >= double(Signal_lb) && temp <= double(Signal_ub))
         {
             auto Index = int_max((temp - double(Signal_lb)) / BinLength);
+            if (Index == BinNumber)
+            {
+                Index = BinNumber - 1;
+            }
 
             Histogram[Index] += 1;
         }
@@ -84,13 +87,19 @@ DenseMatrix<ElementType> GaussianSmoothHistogram(const DenseMatrix<int_max>& His
 template<typename ElementType>
 bool GaussianSmoothHistogram(DenseMatrix<ElementType>& SmoothedHistogram, const DenseMatrix<int_max>& Histogram, ElementType Sigma, int_max Radius)
 {
+    if (Histogram.IsEmpty() == true || Sigma <= ElementType(0) || Radius <= 0)
+    {
+        MDK_Error("Invalid input @ ImageFilter_Common_Function GaussianSmoothHistogram(...)")
+        return false;
+    }
+
     //----------- compute kernal ----------------------------//
 
     DenseMatrix<ElementType> kernal(1, 2 * Radius + 1);
 
     auto sum = ElementType(0);
 
-    for (int_max k = 2; k < 2 * Radius + 1; ++k)
+    for (int_max k = 0; k < 2 * Radius + 1; ++k)
     {
         auto temp = std::exp(-0.5*(k - Radius)*(k - Radius) / (Sigma*Sigma));
         Kernal[k] = temp;

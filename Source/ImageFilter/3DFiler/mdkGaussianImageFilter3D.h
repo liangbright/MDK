@@ -11,8 +11,8 @@
 namespace mdk
 {
 
-template<typename PixelType_Input, typename PixelType_Output>
-class GaussianImageFilter3D : public ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, 1>
+template<typename InputPixelType, typename OutputPixelType>
+class GaussianImageFilter3D : public ConvolutionImageFilter3D<InputPixelType, OutputPixelType, 1>
 {
 private:
 

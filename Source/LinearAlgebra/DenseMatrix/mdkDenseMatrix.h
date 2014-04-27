@@ -158,6 +158,10 @@ public:
 
     inline DenseMatrix(const ElementType& Element);
 
+    inline DenseMatrix(const std::initializer_list<const DenseMatrix<ElementType>*>& InputList);
+
+    inline DenseMatrix(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
+
     // deep-copy or shared-copy constructor
     inline DenseMatrix(const DenseMatrix<ElementType>& InputMatrix, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
 
@@ -192,6 +196,10 @@ public:
     inline void operator=(const std::initializer_list<ElementType>& InputList);
 
     inline void operator=(const std::initializer_list<std::initializer_list<ElementType>>& InputListInList);
+
+    inline void operator=(const std::initializer_list<const DenseMatrix<ElementType>*>& InputList);
+
+    inline void operator=(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
     inline void operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix);
 
@@ -335,6 +343,8 @@ public:
     inline bool Resize(int_max InputElementNumber); // try to keep the old data, can not use this to resize a m x n matrix (m>1 or n>1)
 
     inline bool FastResize(int_max InputElementNumber); // do not care about old data, can not use this to resize a m x n matrix (m>1 or n>1)
+
+    inline bool ReserveCapacity(int_max InputRowNumber, int_max InputColNumber); // reserve memory, current matrix size does not change
 
     inline bool ReserveCapacity(int_max InputElementNumber); // reserve memory, current matrix size does not change
 
@@ -688,7 +698,7 @@ public:
     inline bool SetCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColData);
 
 	template<typename ElementType_Input>
-    inline bool SetCol(int_max ColIndex, const ElementType_Input* ColData, int_max Length);
+    inline bool SetCol(int_max ColIndex, const ElementType_Input* ColData);
 	
     inline bool FillCol(int_max ColIndex, const ElementType& Element);
 
@@ -746,7 +756,7 @@ public:
     inline bool SetRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input>
-    inline bool SetRow(int_max RowIndex, const ElementType_Input* RowData, int_max Length);
+    inline bool SetRow(int_max RowIndex, const ElementType_Input* RowData);
 
     inline bool FillRow(int_max RowIndex, const ElementType& Element);
 

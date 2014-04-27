@@ -4,7 +4,6 @@
 
 #include <opencv2/core/core.hpp>
 
-//#include "mdkSPAMSOnlineDictionaryBuilder.h"
 
 namespace mdk
 {
@@ -47,7 +46,15 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::SetInputFeatureData(const DenseM
 template<typename ElementType>
 void SPAMSOnlineDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* OutputDictionary)
 {
+    if (OutputDictionary == nullptr)
+    {
+        MDK_Error("Invalid input @ SPAMSOnlineDictionaryBuilder::SetOutputDictionary(...)")
+        return;
+    }
+
     m_Dictionary = OutputDictionary;
+
+    m_Dictionary_SharedCopy.ForceShare(OutputDictionary);
 }
 
 
@@ -104,24 +111,10 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    auto BookSize = m_Dictionary->GetSize();
-
-    if (BookSize.RowNumber > 0 && BookSize.RowNumber != DataSize.RowNumber)
-    {
-        MDK_Error("Feature dimension does not match @ SPAMSOnlineDictionaryBuilder::CheckInput()")
-        return false;
-    }
-
     if (m_SparseEncoder == nullptr)
     {
         MDK_Error("m_SparseEncoder is nullptr @ SPAMSOnlineDictionaryBuilder::CheckInput()")
         return false;
-    }
-
-    if (m_Dictionary == nullptr)
-    {
-        m_Dictionary_SharedCopy.Clear();
-        m_Dictionary = &m_Dictionary_SharedCopy;
     }
 
     return true;
@@ -194,7 +187,27 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
     }
     else
     {
-        trainer->train_extended(*X, param, m_SparseEncoder);
+        DenseMatrix<ElementType> InitialStandardDeviation(1, m_Parameter.K);
+
+        if (m_State.StandardDiviation.IsEmpty())
+        {
+            InitialStandardDeviation.Fill(ElementType(m_FeatureData->GetRowNumber()));
+
+            m_State.StandardDiviation = InitialStandardDeviation;
+        }
+        else
+        {
+            InitialStandardDeviation = m_State.StandardDiviation;
+        }        
+
+        Infomation_Of_FeatureDictionaryForSparseCoding DictionaryInfo;
+
+        if (m_Parameter.modeD == 3 && m_Parameter.gamma1 == ElementType(1))
+        {
+            DictionaryInfo.BasisSumToOne = true;
+        }
+
+        trainer->train_extended(*X, param, m_State.StandardDiviation, m_SparseEncoder, DictionaryInfo, InitialStandardDeviation);
     }
 
     //---------------------------------------------------------
@@ -221,18 +234,17 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
 template<typename ElementType>
 void SPAMSOnlineDictionaryBuilder<ElementType>::UpdatePipelineOutput()
 {
-    auto D = m_Dictionary->BasisMatrix();
+    DenseMatrix<ElementType>& D = m_Dictionary->BasisMatrix();
 
-    if (D.GetElementPointer() != m_State.D.GetElementPointer())
+    D.Share(m_State.D);
+
+    DenseMatrix<ElementType>& S = m_Dictionary->StandardDeviation();
+
+    S.Share(m_State.StandardDiviation);
+
+    if (m_Dictionary != &m_Dictionary_SharedCopy)
     {
-        if (D.GetElementPointer() == nullptr)
-        {
-            D.ForceShare(m_State.D);
-        }
-        else
-        {
-            D.Copy(m_State.D);
-        }
+        m_Dictionary_SharedCopy.Share(m_Dictionary);
     }
 }
 

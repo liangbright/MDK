@@ -1,12 +1,18 @@
 #ifndef __mdkSparseShadowMatrix_h
 #define __mdkSparseShadowMatrix_h
 
+#include <string>
+#include <cmath>
+#include <algorithm>
 #include <vector>
 #include <memory>
 #include <initializer_list>
 
+#include "mdkDebugConfig.h"
 #include "mdkObject.h"
 #include "mdkSparseMatrixOperator.h"
+//#include "mdkLinearAlgebra.h"
+#include "mdkSparseMatrix.h"
 
 
 namespace mdk

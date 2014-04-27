@@ -94,6 +94,120 @@ DenseMatrix<int_max> FindKNNByDistanceList(int_max K_NeighbourNumber, const Dens
     return NeighbourIndexList;
 }
 
+
+template<typename ElementType>
+DenseMatrix<int_max> FindKNNBySimilarityList(int_max K_NeighbourNumber, const DenseMatrix<ElementType>& SimilarityList)
+{
+    DenseMatrix<ElementType> DistanceList = SimilarityList;
+
+    DistanceList *= ElementType(-1);
+
+    return FindKNNByDistanceList(DistanceList);
+}
+
+//---------------------- Compute Similarity Matrix Between Vectors Stored in DenseMatrix<ElementType> VecorSet ----------------------------//
+
+template<typename ElementType>
+DenseMatrix<ElementType> ComputeSimilarityMatrixOfVecorSet(const DenseMatrix<ElementType>& VecorSet, const char* SimilarityFunctionName)
+{
+    std::string Name = SimilarityFunctionName;
+
+    return ComputeSimilarityMatrixOfVecorSet(VecorSet, Name);
+}
+
+
+template<typename ElementType>
+void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType>& SimilarityMatrix,
+                                       const DenseMatrix<ElementType>& VecorSet,
+                                       const char* SimilarityFunctionName)
+{
+    std::string Name = SimilarityFunctionName;
+
+    return ComputeSimilarityMatrixOfVecorSet(SimilarityMatrix, VecorSet, Name);
+}
+
+
+template<typename ElementType>
+DenseMatrix<ElementType> ComputeSimilarityMatrixOfVecorSet(const DenseMatrix<ElementType>& VecorSet, const std::string& SimilarityFunctionName)
+{
+    DenseMatrix<ElementType> SimilarityMatrix;
+
+    ComputeSimilarityMatrixOfVecorSet(SimilarityMatrix, VecorSet, SimilarityFunctionName);
+
+    return SimilarityMatrix;
+}
+
+
+template<typename ElementType>
+void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType>& SimilarityMatrix,
+                                       const DenseMatrix<ElementType>& VecorSet,
+                                       const std::string& SimilarityFunctionName)
+{
+    if (SimilarityFunctionName == "Correlation")
+    {
+        ComputeSimilarityMatrixOfVecorSet<ElementType>(SimilarityMatrix, VecorSet,
+                                                       [](const DenseMatrix<ElementType>& VecorA, const DenseMatrix<ElementType>& VecorB)
+                                                       {return ComputeCorrelationBetweenTwoVectors(VecorA, VecorB);} );
+    }
+    else if (SimilarityFunctionName == "UncenteredCorrelation")
+    {
+        ComputeSimilarityMatrixOfVecorSet<ElementType>(SimilarityMatrix, VecorSet,
+                                                       [](const DenseMatrix<ElementType>& VecorA, const DenseMatrix<ElementType>& VecorB)
+                                                       {return ComputeUncenteredCorrelationBetweenTwoVectors(VecorA, VecorB);} );
+    }
+    else if (SimilarityFunctionName == "UnnormalizedCorrelation")
+    {
+        ComputeSimilarityMatrixOfVecorSet<ElementType>(SimilarityMatrix, VecorSet,
+                                                       [](const DenseMatrix<ElementType>& VecorA, const DenseMatrix<ElementType>& VecorB)
+                                                       {return ComputeUnnormalizedCorrelationBetweenTwoVectors(VecorA, VecorB);} );
+    }
+}
+
+
+template<typename ElementType, typename SimilarityFunctionType>
+DenseMatrix<ElementType> ComputeSimilarityMatrixOfVecorSet(const DenseMatrix<ElementType>& VecorSet, SimilarityFunctionType SimilarityFunction)
+{
+    DenseMatrix<ElementType> SimilarityMatrix;
+
+    ComputeSimilarityMatrixOfVecorSet(SimilarityMatrix, VecorSet, SimilarityFunction);
+
+    return SimilarityMatrix;
+}
+
+
+template<typename ElementType, typename SimilarityFunction>
+void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType>& SimilarityMatrix,
+                                       const DenseMatrix<ElementType>& VecorSet,
+                                       SimilarityFunctionType SimilarityFunction)
+{
+    int_max TotalVectorNumber = VecorSet.GetColNumber();
+    int_max tempLength = TotalVectorNumber*(TotalVectorNumber - 1) / 2;
+    SimilarityMatrix.FastResize(tempLength, tempLength);
+
+    SimilarityMatrix.Fill(ElementType(0));
+
+    DenseMatrix<ElementType> Vector_k;
+    DenseMatrix<ElementType> Vector_n;
+
+    int_max VectorLength = VecorSet.GetRowNumber();
+
+    for (int_max k = 0; k < TotalVectorNumber - 1; ++k)
+    {
+        Vector_k.ShallowCopy(VecorSet.GetElementPointerOfCol(k), VectorLength, 1);
+
+        for (int_max n = k + 1; k < TotalVectorNumber; ++k)
+        {
+            Vector_n.ShallowCopy(VecorSet.GetElementPointerOfCol(n), VectorLength, 1);
+
+            auto Similarity = SimilarityFunction(Vector_k, Vector_n);
+
+            SimilarityMatrix(k, n) = Similarity;
+
+            SimilarityMatrix(n, k) = Similarity;
+        }
+    }
+}
+
 }
 
 

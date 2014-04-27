@@ -26,9 +26,9 @@ protected:
                                      // not only "input" data, but also "input" variable that stores output result
                                      // this is usually called in the first step of Update()
 
-    virtual void SetupDefaultPipelineOutput() = 0; // this is usually called in Clear()
+    virtual void SetupDefaultPipelineOutput() = 0; // this is called in Clear()
 
-    virtual void UpdatePipelineOutput() = 0;       // this is usually called in the last step of Update()
+    virtual void UpdatePipelineOutput() = 0;       // this is called in the last step of Update()
 
 private:
     ProcessObject(const ProcessObject&) = delete;  

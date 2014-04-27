@@ -35,9 +35,9 @@ public:
 
     //------------------------------------------------------------//
 
-    virtual CharString& Name() = 0;
+    virtual const CharString& GetName() const = 0;
 
-    virtual const CharString& Name() const = 0;
+    virtual void SetName(const CharString& Name) = 0;
 
     virtual DenseMatrix<ElementType>& BasisMatrix() = 0;
 

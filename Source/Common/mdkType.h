@@ -78,6 +78,10 @@ template<typename ScalarType>
 inline
 int_max CalByteNumberOfScalar(const ScalarType& Scalar);
 
+//----------------------------------------------------------------//
+
+template<typename TemplateClassType>
+std::string GetTemplateClassName(const TemplateClassType& TemplateClassObject);
 
 }//end namespace mdk
 

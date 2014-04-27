@@ -164,7 +164,7 @@ void KMeansDictionaryBuilder<ElementType>::KMeansFirstTimeBuild_using_OpenCV()
 
     // convert Center to mdkDenseMatrix  --------------------------------------------------------------         
     
-    auto D = m_Dictionary->BasisMatrix();
+    DenseMatrix<ElementType>& D = m_Dictionary->BasisMatrix();
 
     for (int i = 0; i < int(m_FeatureData->GetRowNumber()); ++i)
     {

@@ -40,6 +40,13 @@ protected:
     virtual ~FeatureDictionaryBasedDenseEncoder();
 
 public:
+
+    //-----------------------------------------
+
+    bool IsDenseEncoder() const { return true; }
+
+    bool IsSparseEncoder() const { return false; }
+
     //-----------------------------------------
 
     virtual void Clear();

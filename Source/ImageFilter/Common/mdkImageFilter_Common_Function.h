@@ -31,7 +31,7 @@ template<typename ElementType>
 DenseMatrix<int_max> ComputeHistogram(const ElementType* Signal, int_max SignalLength, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber);
 
 template<typename ElementType>
-bool ComputeHistogram(DenseMatrix<int_max> Histogram,
+bool ComputeHistogram(DenseMatrix<int_max>& Histogram,
                       const ElementType* Signal, int_max SignalLength, 
                       ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber);
 

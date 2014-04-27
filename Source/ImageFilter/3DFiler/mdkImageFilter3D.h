@@ -17,14 +17,14 @@
 namespace mdk
 {
 
-template<typename PixelType_Input, typename PixelType_Output>
+template<typename InputPixelType, typename OutputPixelType>
 class ImageFilter3D : public ProcessObject
 {
 protected:
 	//-------------- input ----------------------
 
 	// input_0: 
-    const Image3D<PixelType_Input>*   m_InputImage;
+    const Image3D<InputPixelType>*   m_InputImage;
 
 	// input_1:
     const Image3DBoxRegionOf3DIndex*  m_InputRegion;       // size of m_InputRegion = size of m_OutputImage or m_OutputArray
@@ -36,10 +36,10 @@ protected:
     const DenseMatrix<double>*   m_Input3DPositionList;     // compute values at these center positions
 
     // input_4:
-    std::function<void(PixelType_Output&, double, double, double, const Image3D<PixelType_Input>&)> m_InputFilterFunction_At3DPosition;
+    std::function<void(OutputPixelType&, double, double, double, const Image3D<InputPixelType>&)> m_InputFilterFunction_At3DPosition;
 
 	// input_5:
-    std::function<void(PixelType_Output&, int_max, int_max, int_max, const Image3D<PixelType_Input>&)> m_InputFilterFunction_At3DIndex;
+    std::function<void(OutputPixelType&, int_max, int_max, int_max, const Image3D<InputPixelType>&)> m_InputFilterFunction_At3DIndex;
 
     // input_6:
     int_max m_MaxNumberOfThreads;
@@ -50,16 +50,16 @@ protected:
 	//--------------------- output ---------------------
 
 	// input_output_0:
-    Image3D<PixelType_Output>* m_OutputImage;
+    Image3D<OutputPixelType>* m_OutputImage;
 
 	// input_output_1:
-    DataContainer<PixelType_Output>* m_OutputArray;
+    DataContainer<OutputPixelType>* m_OutputArray;
 
     //------------ internal variable -------------------
 
-    Image3D<PixelType_Output> m_OutputImage_SharedCopy;          // keep tracking m_OutputImage
+    Image3D<OutputPixelType> m_OutputImage_SharedCopy;          // keep tracking m_OutputImage
 
-    DataContainer<PixelType_Output> m_OutputArray_SharedCopy;    // keep tracking m_OutputArray
+    DataContainer<OutputPixelType> m_OutputArray_SharedCopy;    // keep tracking m_OutputArray
 
     bool m_Flag_OutputImage;
 
@@ -67,9 +67,9 @@ protected:
 
     bool m_Flag_OutputToOtherPlace;
 
-    PixelType_Input   m_ZeroPixelOfInputImage;
+    InputPixelType   m_ZeroPixelOfInputImage;
 
-    PixelType_Output  m_ZeroPixelOfOutputImage;
+    OutputPixelType  m_ZeroPixelOfOutputImage;
 
     bool m_IsInputFilterFunctionAt3DPositionObtained;
 
@@ -79,13 +79,17 @@ protected:
 
     int_max m_MinPixelNumberPerThread;
 
+public:
+    typedef InputPixelType  InputPixelType;
+    typedef OutputPixelType OutputPixelType;
+
 public:		
 	ImageFilter3D();
 	virtual ~ImageFilter3D();
   
     void Clear();
 
-    void SetInputImage(const Image3D<PixelType_Input>* InputImage);
+    void SetInputImage(const Image3D<InputPixelType>* InputImage);
 
     void SetInputRegion(const DenseMatrix<int_max>* InputRegion);
 
@@ -93,13 +97,13 @@ public:
 
     void SetInput3DPositionList(const DenseMatrix<float>* Input3DPositionList);
 
-    void SetInputFilterFunctionAt3DIndex(std::function<void(PixelType_Output&, int_max, int_max, int_max, const Image3D<PixelType_Input>&)> Input);
+    void SetInputFilterFunctionAt3DIndex(std::function<void(OutputPixelType&, int_max, int_max, int_max, const Image3D<InputPixelType>&)> Input);
 
-    void SetInputFilterFunctionAt3DPosition(std::function<void(PixelType_Output&, double, double, double, const Image3D<PixelType_Input>&)> Input);
+    void SetInputFilterFunctionAt3DPosition(std::function<void(OutputPixelType&, double, double, double, const Image3D<InputPixelType>&)> Input);
 
-    void SetOutputImage(Image3D<PixelType_Output>* OutputImage);
+    void SetOutputImage(Image3D<OutputPixelType>* OutputImage);
 
-    void SetOutputArray(DataContainer<PixelType_Output>* OutputArray);
+    void SetOutputArray(DataContainer<OutputPixelType>* OutputArray);
 
     void SetMaxNumberOfThreads(int_max MaxNumber);    
 
@@ -109,26 +113,26 @@ public:
 
     inline bool IsBoundCheckEnabled();
 
-    inline virtual void FilterFunctionAt3DIndex(PixelType_Output& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex);
+    inline virtual void FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex);
 
-    inline virtual void FilterFunctionAt3DPosition(PixelType_Output& OutputPixel, double x, double y, double z, int_max ThreadIndex);
+    inline virtual void FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex);
 
     virtual bool Update();
 	
-    Image3D<PixelType_Output>* GetOutputImage();
+    Image3D<OutputPixelType>* GetOutputImage();
 
-    DataContainer<PixelType_Output>* GetOutputArray();
+    DataContainer<OutputPixelType>* GetOutputArray();
 
     //----------------------------------------------------------------------------------------------------------
     // just for reference: each specific filter should provide Apply function similar to these
     /*
-    static bool Apply(Image3D<PixelType_Output>* OutputImage,
-                      const Image3D<PixelType_Input>* InputImage,                                                           
+    static bool Apply(Image3D<OutputPixelType>* OutputImage,
+                      const Image3D<InputPixelType>* InputImage,                                                           
                       std::function<XXX> FilterFunctionAt3DIndex,
                       int_max MaxThreadNumber = 1);
 
-    static bool Apply(Image3D<PixelType_Output>* OutputImage,
-                      const Image3D<PixelType_Input>* InputImage,                                                           
+    static bool Apply(Image3D<OutputPixelType>* OutputImage,
+                      const Image3D<InputPixelType>* InputImage,                                                           
                       std::function<XXX> FilterFunctionAt3DPosition,
                       int_max MaxThreadNumber = 1);
     */
@@ -145,7 +149,7 @@ protected:
 
     virtual bool Postprocess();
 
-    inline virtual void OutputFunction(int_max OutputPixelIndex, const PixelType_Output& OutputPixel, int_max ThreadIndex);
+    inline virtual void OutputFunction(int_max OutputPixelIndex, const OutputPixelType& OutputPixel, int_max ThreadIndex);
 
     virtual void Run_in_a_Thread(int_max OutputPixelIndex_start, int_max OutputPixelIndex_end, int_max ThreadIndex);
 

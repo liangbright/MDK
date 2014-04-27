@@ -5,21 +5,21 @@
 namespace mdk
 {
 
-template<typename PixelType_Input, typename PixelType_Output>
-IntegralImageBuilder3D<PixelType_Input, PixelType_Output>::IntegralImageBuilder3D()
+template<typename InputPixelType, typename OutputPixelType>
+IntegralImageBuilder3D<InputPixelType, OutputPixelType>::IntegralImageBuilder3D()
 {
 
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-IntegralImageBuilder3D<PixelType_Input, PixelType_Output>::~IntegralImageBuilder3D()
+template<typename InputPixelType, typename OutputPixelType>
+IntegralImageBuilder3D<InputPixelType, OutputPixelType>::~IntegralImageBuilder3D()
 {
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void IntegralImageBuilder3D<PixelType_Input, PixelType_Output>::Clear()
+template<typename InputPixelType, typename OutputPixelType>
+void IntegralImageBuilder3D<InputPixelType, OutputPixelType>::Clear()
 {
     this->ImageFilter3D::Clear();
 
@@ -27,8 +27,8 @@ void IntegralImageBuilder3D<PixelType_Input, PixelType_Output>::Clear()
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-bool IntegralImageBuilder3D<PixelType_Input, PixelType_Output>::CheckInput()
+template<typename InputPixelType, typename OutputPixelType>
+bool IntegralImageBuilder3D<InputPixelType, OutputPixelType>::CheckInput()
 {
     if (this->ImageFilter3D::CheckInput() == false)
     {
@@ -60,9 +60,9 @@ bool IntegralImageBuilder3D<PixelType_Input, PixelType_Output>::CheckInput()
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
+template<typename InputPixelType, typename OutputPixelType>
 inline
-void IntegralImageBuilder3D<PixelType_Input, PixelType_Output>::
+void IntegralImageBuilder3D<InputPixelType, OutputPixelType>::
 Compute2DIntegralImage(int_max z_Index_start, int_max z_Index_end)
 {
     if (z_Index_end < z_Index_start || z_Index_start < 0)
@@ -81,7 +81,7 @@ Compute2DIntegralImage(int_max z_Index_start, int_max z_Index_end)
 
             for (int_max x = 0; x < InputSize.Lx; ++x)
             {
-                tempOutoutPixel += PixelType_Output((*m_InputImage)(x, y, z));
+                tempOutoutPixel += OutputPixelType((*m_InputImage)(x, y, z));
 
                 (*m_OutputImage)(x, y, z) = tempOutoutPixel;
             }
@@ -102,8 +102,8 @@ Compute2DIntegralImage(int_max z_Index_start, int_max z_Index_end)
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void IntegralImageBuilder3D<PixelType_Input, PixelType_Output>::
+template<typename InputPixelType, typename OutputPixelType>
+void IntegralImageBuilder3D<InputPixelType, OutputPixelType>::
 ComputeSumInZDirection(int_max xy_LinearIndex_start, int_max xy_LinearIndex_end)
 {
     if (xy_LinearIndex_end < xy_LinearIndex_start || xy_LinearIndex_start < 0)
@@ -132,8 +132,8 @@ ComputeSumInZDirection(int_max xy_LinearIndex_start, int_max xy_LinearIndex_end)
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-bool IntegralImageBuilder3D<PixelType_Input, PixelType_Output>::Update()
+template<typename InputPixelType, typename OutputPixelType>
+bool IntegralImageBuilder3D<InputPixelType, OutputPixelType>::Update()
 {
     if (this->CheckInput() == false)
     {

@@ -5,21 +5,21 @@
 namespace mdk
 {
 
-template<typename PixelType_Input, typename PixelType_Output>
-GaussianImageFilter3D<PixelType_Input, PixelType_Output>::GaussianImageFilter3D()
+template<typename InputPixelType, typename OutputPixelType>
+GaussianImageFilter3D<InputPixelType, OutputPixelType>::GaussianImageFilter3D()
 {
     m_CutOffRatio = 3; // default: within 3 * std
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-GaussianImageFilter3D<PixelType_Input, PixelType_Output>::~GaussianImageFilter3D()
+template<typename InputPixelType, typename OutputPixelType>
+GaussianImageFilter3D<InputPixelType, OutputPixelType>::~GaussianImageFilter3D()
 {
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void GaussianImageFilter3D<PixelType_Input, PixelType_Output>::SetSigmaList(double Sx, double Sy, double Sz)
+template<typename InputPixelType, typename OutputPixelType>
+void GaussianImageFilter3D<InputPixelType, OutputPixelType>::SetSigmaList(double Sx, double Sy, double Sz)
 {
     m_SigmaList.Clear();
 
@@ -33,8 +33,8 @@ void GaussianImageFilter3D<PixelType_Input, PixelType_Output>::SetSigmaList(doub
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void GaussianImageFilter3D<PixelType_Input, PixelType_Output>::SetRotationMatrix(const DenseMatrix<double>& RotationMatrix)
+template<typename InputPixelType, typename OutputPixelType>
+void GaussianImageFilter3D<InputPixelType, OutputPixelType>::SetRotationMatrix(const DenseMatrix<double>& RotationMatrix)
 {
     if (RotationMatrix.GetColNumber() != 3 || RotationMatrix.GetRowNumber() != 3)
     {
@@ -46,8 +46,8 @@ void GaussianImageFilter3D<PixelType_Input, PixelType_Output>::SetRotationMatrix
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void GaussianImageFilter3D<PixelType_Input, PixelType_Output>::SetCutOffRatio(double CutOffRatio)
+template<typename InputPixelType, typename OutputPixelType>
+void GaussianImageFilter3D<InputPixelType, OutputPixelType>::SetCutOffRatio(double CutOffRatio)
 {
     if (CutOffRatio < 0.0)
     {
@@ -59,8 +59,8 @@ void GaussianImageFilter3D<PixelType_Input, PixelType_Output>::SetCutOffRatio(do
 }
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-void GaussianImageFilter3D<PixelType_Input, PixelType_Output>::BuildMaskOf3DIndex()
+template<typename InputPixelType, typename OutputPixelType>
+void GaussianImageFilter3D<InputPixelType, OutputPixelType>::BuildMaskOf3DIndex()
 {
     // check to see if the Mask has been loaded from somewhere else
     if (this->IsMaskOf3DIndexEmpty() == false)

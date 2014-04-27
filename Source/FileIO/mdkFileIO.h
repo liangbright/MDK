@@ -25,22 +25,22 @@
 namespace mdk
 {
 //---------------------------------------------//
-template<typename ScalarType>
+template<typename ElementType>
 class DenseMatrix;
 
-template<typename ScalarType>
+template<typename ElementType>
 class SparseMatrix;
 
-template<typename ScalarType>
+template<typename ElementType>
 class Image2D;
 
-template<typename ScalarType>
+template<typename ElementType>
 class Image3D;
 
-template<typename ScalarType>
+template<typename ElementType>
 class FeatureDictionaryForSparseCoding;
 
-template<typename ScalarType>
+template<typename ElementType>
 class FeatureDictionaryForDensenCoding;
 //---------------------------------------------//
 
@@ -56,39 +56,39 @@ bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, 
 
 //------------------------------------- save/load DenseMatrix from Json data file --------------------------------------------------------//
 
-template<typename ScalarType>
-bool SaveScalarDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, const CharString& FilePathAndName);
+template<typename ElementType>
+bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ElementType>& InputMatrix, const CharString& FilePathAndName);
 
-template<typename ScalarType>
-DenseMatrix<ScalarType> LoadScalarDenseMatrixFromJsonDataFile(const CharString& FilePathAndName);
+template<typename ElementType>
+DenseMatrix<ElementType> LoadDenseMatrixFromJsonDataFile(const CharString& FilePathAndName);
 
-template<typename OutputScalarType>
-void Internal_LoadScalarDenseMatrixFromJsonDataFile(DenseMatrix<OutputScalarType>& OutputMatrix, QFile& DataFile, const QString& InputScalarTypeName);
+template<typename OutputElementType>
+void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& OutputMatrix, QFile& DataFile, const QString& InputElementTypeName);
 
-template<typename OutputScalarType, typename InputScalarType>
-void Internal_LoadScalarDenseMatrixFromJsonDataFile(DenseMatrix<OutputScalarType>& OutputMatrix,  QFile& DataFile, int_max ByteNumberOfInputScalarType);
+template<typename OutputElementType, typename InputElementType>
+void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& OutputMatrix,  QFile& DataFile, int_max ByteNumberOfInputElementType);
 
 //------------------------------------- save/load SparseMatrix from Json data file -------------------------------------------------------//
 
 //------------------------------------- save/load Image2D and Image3D from Json data file --------------------------------------------//
 
-template<typename ScalarType>
-bool SaveGrayScale3DImageAsJsonDataFile(const Image3D<ScalarType>& InputImage, const CharString& FilePathAndName);
+template<typename ElementType>
+bool Save3DImageAsJsonDataFile(const Image3D<ElementType>& InputImage, const CharString& FilePathAndName);
 
-template<typename ScalarType>
-Image3D<ScalarType> LoadGrayScale3DImageFromJsonDataFile(const CharString& FilePathAndName);
+template<typename ElementType>
+Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndName);
 
-template<typename OutputScalarType>
-void Internal_LoadGrayScale3DImageFromJsonDataFile(Image3D<OutputScalarType>& OutputImage, QFile& DataFile, const QString& InputScalarTypeName);
+template<typename OutputElementType>
+void Internal_Load3DImageFromJsonDataFile(Image3D<OutputElementType>& OutputImage, QFile& DataFile, const QString& InputElementTypeName);
 
-template<typename OutputScalarType, typename InputScalarType>
-void Internal_LoadGrayScale3DImageFromJsonDataFile(Image3D<OutputScalarType>& OutputImage, QFile& DataFile, int_max ByteNumberOfInputScalarType);
+template<typename OutputElementType, typename InputElementType>
+void Internal_Load3DImageFromJsonDataFile(Image3D<OutputElementType>& OutputImage, QFile& DataFile, int_max ByteNumberOfInputElementType);
 
 
 //------------------------------------- load Image2D and Image3D from DICOM file --------------------------------------------//
 
-template<typename ScalarType>
-Image3D<ScalarType> LoadGrayScale3DImageFromDICOMSeries(const CharString& FilePath);
+template<typename ElementType>
+Image3D<ElementType> Load3DImageFromDICOMSeries(const CharString& FilePath);
 
 
 // -------------------------------------- convert mdk image to itk image--------------------------------------------------------------------//
@@ -108,11 +108,11 @@ Image3D<PixelType> ConvertITK3DImageToMDK3DImage(const itk::Image<PixelType, 3>*
 
 //----------------------------------- save/load FeatureDictionary from Json data file -----------------------------------------------------//
 
-template<typename ScalarType>
-bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding<ScalarType>& Dictionary, const CharString& FilePathAndName);
+template<typename ElementType>
+bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary, const CharString& FilePathAndName);
 
-template<typename ScalarType>
-FeatureDictionaryForSparseCoding<ScalarType> LoadFeatureDictionaryForSparseCoding(const CharString& FilePathAndName);
+template<typename ElementType>
+FeatureDictionaryForSparseCoding<ElementType> LoadFeatureDictionaryForSparseCoding(const CharString& FilePathAndName);
 
 
 }

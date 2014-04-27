@@ -7,6 +7,7 @@
 #include <Eigen/Dense>
 
 #include "mdkProcessObject.h"
+#include "mdkString.h"
 #include "mdkQuadraticProgrammingSolver.h"
 
 
@@ -28,7 +29,7 @@ namespace mdk
 
 struct Option_Of_LinearLeastSquaresProblemSolver
 {
-    std::string MethodName;
+    CharString MethodName;
     // QuadraticProgramming
     // SVD
     // QR
@@ -63,7 +64,7 @@ struct Solution_Of_LinearLeastSquaresProblem
 {
     DenseMatrix<ElementType> X;
 
-    std::string MethodName;
+    CharString MethodName;
 
 //--------------------------------------------------
     Solution_Of_LinearLeastSquaresProblem() {};
@@ -85,13 +86,13 @@ struct Solution_Of_LinearLeastSquaresProblem
     void Clear()
     {
         X.Clear();
-        MethodName.clear();
+        MethodName.Clear();
     }
 
-    void ShallowCopy(Solution_Of_LinearLeastSquaresProblem& InputSolution)
+    void Share(Solution_Of_LinearLeastSquaresProblem& InputSolution)
     {
         X.Share(InputSolution.X);
-        MethodName = InputSolution.MethodName;
+        MethodName.Share(InputSolution.MethodName);
     }
 
 private:

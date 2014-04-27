@@ -215,13 +215,9 @@ bool MatrixMultiply(mdkSparseMatrix<ElementType>& OutputMatrixC, const mdkSparse
 
     if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeB.ColNumber)
     {
-        if (OutputMatrixC.IsSizeFixed() == false)
-        {
-            OutputMatrixC.Clear();
+        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
 
-            OutputMatrixC.Resize(SizeA.RowNumber, SizeB.ColNumber);
-        }
-        else
+        if (IsOK == false)
         {
             mdkError << "OutputMatrixC Size does not match @ mdkLinearAlgebra_SparseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)" << '\n';
             return false;

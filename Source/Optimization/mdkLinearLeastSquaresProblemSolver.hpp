@@ -67,7 +67,7 @@ void LinearLeastSquaresProblemSolver<ElementType>::UpdatePipelineOutput()
 {
     if (m_Solution != &m_Solution_SharedCopy)
     {
-        m_Solution_SharedCopy.ShallowCopy(*m_Solution);
+        m_Solution_SharedCopy.Share(*m_Solution);
     }
 }
 
@@ -153,7 +153,7 @@ bool LinearLeastSquaresProblemSolver<ElementType>::SetOutputSolution(Solution_Of
 
     m_Solution = Solution;
 
-    m_Solution_SharedCopy.ShallowCopy(*Solution);
+    m_Solution_SharedCopy.Share(*Solution);
 
     return true;
 }
@@ -601,13 +601,13 @@ bool LinearLeastSquaresProblemSolver<ElementType>::CheckInput_sparse()
             if (m_lb_x_sparse->IsColVector() == false)
             {
                 MDK_Error("Input lb_x is not a column vector @ LinearLeastSquaresProblemSolver::CheckInput_sparse()")
-                    return false;
+                return false;
             }
 
             if (m_lb_x_sparse->GetElementNumber() != VaribleNumber)
             {
                 MDK_Error("Input lb_x Size is wrong @ LinearLeastSquaresProblemSolver::CheckInput_sparse()")
-                    return false;
+                return false;
             }
         }
     }
@@ -623,13 +623,13 @@ bool LinearLeastSquaresProblemSolver<ElementType>::CheckInput_sparse()
             if (m_ub_x_sparse->IsColVector() == false)
             {
                 MDK_Error("Input ub_x is not a column vector @ LinearLeastSquaresProblemSolver::CheckInput_sparse()")
-                    return false;
+                return false;
             }
 
             if (m_ub_x_sparse->GetElementNumber() != VaribleNumber)
             {
                 MDK_Error("Input ub_x Size is wrong @ LinearLeastSquaresProblemSolver::CheckInput_sparse()")
-                    return false;
+                return false;
             }
         }
     }
@@ -660,7 +660,7 @@ bool LinearLeastSquaresProblemSolver<ElementType>::CheckInput_sparse()
             if (SizeA.ColNumber != VaribleNumber)
             {
                 MDK_Error("Input A size is wrong @ LinearLeastSquaresProblemSolver::CheckInput_sparse()")
-                    return false;
+                return false;
             }
 
             ConstraintNumber = m_A_sparse->GetRowNumber();
@@ -678,13 +678,13 @@ bool LinearLeastSquaresProblemSolver<ElementType>::CheckInput_sparse()
             if (m_lb_A_sparse->IsColVector() == false)
             {
                 MDK_Error("Input lb_x is not a column vector @ LinearLeastSquaresProblemSolver::CheckInput_sparse()")
-                    return false;
+                return false;
             }
 
             if (m_lb_A_sparse->GetElementNumber() != ConstraintNumber)
             {
                 MDK_Error("Input lb_A Size is wrong @ LinearLeastSquaresProblemSolver::CheckInput_sparse()")
-                    return false;
+                return false;
             }
         }
     }
@@ -700,13 +700,13 @@ bool LinearLeastSquaresProblemSolver<ElementType>::CheckInput_sparse()
             if (m_ub_A_sparse->IsColVector() == false)
             {
                 MDK_Error("Input ub_A is not a column vector @ LinearLeastSquaresProblemSolver::CheckInput_sparse()")
-                    return false;
+                return false;
             }
 
             if (m_ub_A_sparse->GetElementNumber() != ConstraintNumber)
             {
                 MDK_Error("Input ub_A Size is wrong @ LinearLeastSquaresProblemSolver::CheckInput_sparse()")
-                    return false;
+                return false;
             }
         }
     }
@@ -718,7 +718,7 @@ bool LinearLeastSquaresProblemSolver<ElementType>::CheckInput_sparse()
     if (m_A_sparse->IsEmpty() == false && m_lb_A_sparse->IsEmpty() == true && m_ub_A_sparse->IsEmpty() == true)
     {
         MDK_Error("Input lb_A and ub_A Size are empty but A is not empty @ LinearLeastSquaresProblemSolver::CheckInput_sparse()")
-            return false;
+        return false;
     }
 
     if (m_lb_A_sparse->IsColVector() == true && m_ub_A_sparse->IsColVector() == true)
@@ -740,13 +740,13 @@ bool LinearLeastSquaresProblemSolver<ElementType>::CheckInput_sparse()
             if (m_x0_sparse->IsColVector() == false)
             {
                 MDK_Error("Input x0 is not a column vector @ LinearLeastSquaresProblemSolver::CheckInput_sparse()")
-                    return false;
+                return false;
             }
 
             if (m_x0_sparse->GetElementNumber() != VaribleNumber)
             {
                 MDK_Error("Input x0 size is wrong @ LinearLeastSquaresProblemSolver::CheckInput_sparse()")
-                    return false;
+                return false;
             }
         }
     }

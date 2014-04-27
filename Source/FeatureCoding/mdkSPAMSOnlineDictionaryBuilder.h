@@ -144,6 +144,9 @@ struct State_Of_SPAMSOnlineDictionaryBuilder  // D and model in [D model] = mexT
     DenseMatrix<ElementType> A;
     DenseMatrix<ElementType> B;
     DenseMatrix<ElementType> D;
+
+    DenseMatrix<ElementType> StandardDiviation;
+
 //-----------------------------------------------------------------------------------------------
     State_Of_SPAMSOnlineDictionaryBuilder(){};
 

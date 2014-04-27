@@ -1,8 +1,7 @@
 #ifndef __mdkKNNSoftAssignSparseEncoder_h
 #define __mdkKNNSoftAssignSparseEncoder_h
 
-#include <string>
-
+#include "mdkString.h"
 #include "mdkFeatureDictionaryBasedSparseEncoder.h"
 
 
@@ -56,9 +55,8 @@ public:
     bool CheckInput();
     //-----------------------------------------
 
-    using FeatureDictionaryBasedSparseEncoder::EncodingFunction;
-
-    inline void EncodingFunction(SparseVector<ElementType>& CodeInSparseColVector, const DenseMatrix<ElementType>& DataColVector, int_max ThreadIndex);
+protected:
+    inline void EncodingFunction(int_max DataIndex, int_max ThreadIndex);
 
 
 private:

@@ -42,11 +42,11 @@ int main()
 
     //test_Valve_Filter();
 
-    //test_GaussianFilter();
+    test_GaussianFilter();
 
     //test_IntegralImageBuider();
 
-    Test_ComputeHistogram();
+    //Test_ComputeHistogram();
 
     std::system("pause");
 }

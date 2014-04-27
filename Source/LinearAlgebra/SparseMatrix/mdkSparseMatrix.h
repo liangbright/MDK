@@ -9,17 +9,18 @@
 #include <cmath>
 #include <algorithm>
 
-#include "mdkLinearAlgebraConfig.h"
-
 #include "mdkType.h"
 #include "mdkDataContainer.h"
-#include "mdkMatrix_Common.h"
-#include "mdkSparseShadowMatrix.h"
-#include "mdkSparseGlueMatrixForMultiplication.h"
-#include "mdkSparseGlueMatrixForLinearCombination.h"
-#include "mdkSparseMatrixOperator.h"
-#include "mdkLinearAlgebra_Function_SparseMatrix.h"
+
+#include "mdkLinearAlgebraConfig.h"
 #include "mdkLinearAlgebra_Function_Common.h"
+#include "mdkMatrix_Common.h"
+
+//#include "mdkSparseShadowMatrix.h"
+//#include "mdkSparseGlueMatrixForMultiplication.h"
+//#include "mdkSparseGlueMatrixForLinearCombination.h"
+//#include "mdkSparseMatrixOperator.h"
+//#include "mdkLinearAlgebra_Function_SparseMatrix.h"
 
 
 namespace mdk

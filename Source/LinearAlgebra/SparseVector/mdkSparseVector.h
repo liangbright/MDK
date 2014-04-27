@@ -115,6 +115,13 @@ public:
 
     inline const std::vector<ElementType>& DataArray() const;
 
+    //------------------------------------------
+
+    inline ElementType Sum() const;
+
+    inline ElementType L1Norm() const;
+
+    inline ElementType L2Norm() const;
 };
 
 

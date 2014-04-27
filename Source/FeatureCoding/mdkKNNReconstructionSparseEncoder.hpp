@@ -32,6 +32,51 @@ void KNNReconstructionSparseEncoder<ElementType>::Clear()
 
 
 template<typename ElementType>
+void KNNReconstructionSparseEncoder<ElementType>::SetupDefaultPipelineOutput()
+{
+    this->FeatureDictionaryBasedSparseEncoder::SetupDefaultPipelineOutput();
+
+    m_ReconstructionErrorNorm_SharedCopy.Clear();
+
+    m_ReconstructionErrorNorm = &m_ReconstructionErrorNorm_SharedCopy;
+}
+
+
+template<typename ElementType>
+void KNNReconstructionSparseEncoder<ElementType>::UpdatePipelineOutput()
+{
+    this->FeatureDictionaryBasedSparseEncoder::UpdatePipelineOutput();
+
+    if (m_ReconstructionErrorNorm != &m_ReconstructionErrorNorm_SharedCopy)
+    {
+        m_ReconstructionErrorNorm_SharedCopy.ForceShare(m_ReconstructionErrorNorm);
+    }
+}
+
+
+template<typename ElementType>
+void KNNReconstructionSparseEncoder<ElementType>::SetOutputReconstructionErrorNorm(DenseMatrix<ElementType>* ErrorNorm)
+{
+    if (ErrorNorm == nullptr)
+    {
+        MDK_Error("Invalid input @ KNNReconstructionSparseEncoder::SetOutputReconstructionErrorNorm(...)")
+        return;
+    }
+
+    m_ReconstructionErrorNorm = ErrorNorm;
+
+    m_ReconstructionErrorNorm_SharedCopy.ForceShare(ErrorNorm);
+}
+
+
+template<typename ElementType>
+DenseMatrix<ElementType>* KNNReconstructionSparseEncoder<ElementType>::GetOutputReconstructionErrorNorm()
+{
+    return &m_ReconstructionErrorNorm_SharedCopy;
+}
+
+
+template<typename ElementType>
 bool KNNReconstructionSparseEncoder<ElementType>::CheckInput()
 {
     if (this->FeatureDictionaryBasedSparseEncoder::CheckInput() == false)
@@ -53,6 +98,10 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInput()
         MDK_Error("DistanceTypeForKNNSearch is invalid @ KNNReconstructionSparseEncoder::CheckInput()")
         return false;
     }
+
+    auto Size = m_Dictionary->GetSize();
+
+    m_ReconstructionErrorNorm->FastResize(1, Size.ColNumber);
 
     return true;
 }
@@ -86,15 +135,16 @@ bool KNNReconstructionSparseEncoder<ElementType>::Preprocess()
 
 template<typename ElementType>
 inline
-void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(SparseVector<ElementType>& CodeInSparseColVector,
-                                                                   const DenseMatrix<ElementType>& DataColVector,
-                                                                   int_max ThreadIndex)
+void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex, int_max ThreadIndex)
 {
     const DenseMatrix<ElementType>& BasisMatrix = m_Dictionary->BasisMatrix(); // "auto  = " will copy
 
-    const DenseMatrix<ElementType>& ReconstructionStd = m_Dictionary->ReconstructionStd();
-     
-    //---------
+    const DenseMatrix<ElementType> DataColVector(const_cast<ElementType*>(m_FeatureData->GetElementPointerOfCol(DataIndex)),
+                                                 m_FeatureData->GetRowNumber(), 1);
+
+    SparseVector<ElementType>& CodeInSparseColVector = (*m_CodeInSparseColVectorSet)[DataIndex];
+
+    //-------------------------------------------------------------------------------------------------
 
     DenseMatrix<ElementType> DistanceList;
 
@@ -220,6 +270,19 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(SparseVector<
 
         CodeInSparseColVector.Construct(NeighbourIndexList, Solution.X, CodeLength);
     }
+
+    // ----- update m_ReconstructionErrorNorm -------------------
+
+    DenseMatrix<ElementType> Alpha(CodeInSparseColVector.DataArray().data(), m_Parameter.NeighbourNumber, 1);
+
+    // compute ReconstructedDataColVector X_hat
+    auto ReconstructedDataColVector = MatrixMultiply(SubRecord, Alpha);
+
+    // get reconstruction error ||X-X_hat||
+    auto ErrorVector = MatrixSubtract(DataColVector, ReconstructedDataColVector);
+    auto ErrorL2Norm = ErrorVector.L2Norm();
+
+    (*m_ReconstructionErrorNorm)[DataIndex] = ErrorL2Norm;
 }
 
 

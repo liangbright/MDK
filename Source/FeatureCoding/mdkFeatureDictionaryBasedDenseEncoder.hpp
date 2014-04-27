@@ -7,8 +7,6 @@ namespace mdk
 template<typename ElementType>
 FeatureDictionaryBasedDenseEncoder<ElementType>::FeatureDictionaryBasedDenseEncoder()
 {
-    m_IsDenseEncoder = true;
-
     this->Clear();
 }
 

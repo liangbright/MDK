@@ -9,24 +9,24 @@
 namespace mdk
 {
 
-template<typename PixelType_Input, typename PixelType_Output, int_max VectorPixelLength_Output = 1>
-class ConvolutionImageFilter3D : public MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>
+template<typename InputPixelType, typename OutputPixelType, int_max VectorPixelLength_Output = 1>
+class ConvolutionImageFilter3D : public MaskBasedImageFilter3D<InputPixelType, OutputPixelType>
 {
 protected:
-    DenseMatrix<PixelType_Input>* m_OutputPixelMatrix;
+    DenseMatrix<InputPixelType>* m_OutputPixelMatrix;
 
 public:		
 	ConvolutionImageFilter3D();
 	~ConvolutionImageFilter3D();
 
-    void SetOutputPixelMatrix(const DenseMatrix<PixelType_Input>* PixelMatrix);
+    void SetOutputPixelMatrix(const DenseMatrix<InputPixelType>* PixelMatrix);
 
-    inline void FilterFunctionAt3DIndex(PixelType_Output& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex);
+    inline void FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex);
 
-    inline void FilterFunctionAt3DPosition(PixelType_Output& OutputPixel, double x, double y, double z, int_max ThreadIndex);
+    inline void FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex);
 
 protected:
-    inline void OutputFunction(int_max OutputPixelIndex, const PixelType_Output& OutputPixel, int_max ThreadIndex);
+    inline void OutputFunction(int_max OutputPixelIndex, const OutputPixelType& OutputPixel, int_max ThreadIndex);
 
 private:
     ConvolutionImageFilter3D(const ConvolutionImageFilter3D&) = delete;
@@ -34,16 +34,16 @@ private:
 };
 
 
-template<typename PixelType_Input, typename PixelType_Output>
-class ConvolutionImageFilter3D<PixelType_Input, PixelType_Output, 1> : public MaskBasedImageFilter3D<PixelType_Input, PixelType_Output>
+template<typename InputPixelType, typename OutputPixelType>
+class ConvolutionImageFilter3D<InputPixelType, OutputPixelType, 1> : public MaskBasedImageFilter3D<InputPixelType, OutputPixelType>
 {
 public:
 	ConvolutionImageFilter3D();
 	~ConvolutionImageFilter3D();
 
-    inline void FilterFunctionAt3DIndex(PixelType_Output& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex);
+    inline void FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex);
 
-    inline void FilterFunctionAt3DPosition(PixelType_Output& OutputPixel, double x, double y, double z, int_max ThreadIndex);
+    inline void FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex);
 
 private:
 	ConvolutionImageFilter3D(const ConvolutionImageFilter3D&) = delete;

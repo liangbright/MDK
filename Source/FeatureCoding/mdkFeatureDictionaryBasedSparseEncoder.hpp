@@ -7,8 +7,6 @@ namespace mdk
 template<typename ElementType>
 FeatureDictionaryBasedSparseEncoder<ElementType>::FeatureDictionaryBasedSparseEncoder()
 {
-    m_IsDenseEncoder = false;
-
     this->Clear();
 }
 
@@ -101,16 +99,9 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::SetInputDictionary(const 
 template<typename ElementType>
 void FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCode(DenseMatrix<ElementType>* Code)
 {
-    this->SetOutputCodeInDenseMatrix(Code);
-}
-
-
-template<typename ElementType>
-void FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCodeInDenseMatrix(DenseMatrix<ElementType>* Code)
-{
     if (Code == nullptr)
     {
-        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputCodeInDenseMatrix(Code)")
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputCode(...)")
         return;
     }
 
@@ -123,11 +114,11 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCodeInDenseMatri
 
 
 template<typename ElementType>
-void FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCodeInSparseMatrix(SparseMatrix<ElementType>* Code)
+void FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCode(SparseMatrix<ElementType>* Code)
 {
     if (Code == nullptr)
     {
-        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputCodeInSparseMatrix(Code)")
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputCode(...)")
         return;
     }
 
@@ -140,11 +131,11 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCodeInSparseMatr
 
 
 template<typename ElementType>
-void FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCodeInSparseColVectorSet(DenseMatrix<SparseMatrix<ElementType>>* Code)
+void FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCode(DataContainer<SparseVector<ElementType>>* Code)
 {
     if (Code == nullptr)
     {
-        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputCodeInSparseColVectorSet(Code)")
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetOutputCode(...)")
         return;
     }
 
@@ -173,6 +164,8 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::SetMaxNumberOfThreads(int
 template<typename ElementType>
 int_max FeatureDictionaryBasedSparseEncoder<ElementType>::GetNumberOfThreadsTobeCreated()
 {
+    auto TotalDataVectorNumber = GetTotalNumberOfInputFeatureDataVectors();
+
     return Compute_NecessaryNumberOfThreads_For_ParallelBlock(TotalDataVectorNumber, m_MaxNumberOfThreads, m_MinNumberOfDataPerThread);
 }
 
@@ -301,30 +294,40 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::Update()
 
 
 template<typename ElementType>
-void FeatureDictionaryBasedSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadIndex)
+void FeatureDictionaryBasedSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, 
+                                                                                int_max IndexOfDataVector_end, 
+                                                                                int_max ThreadIndex)
 {
-    DenseMatrix<ElementType> DataVector(m_FeatureData->GetRowNumber(), 1);
-
     for (int_max i = IndexOfDataVector_start; i <= IndexOfDataVector_end; ++i)
     {
-        m_FeatureData->GetCol(i, DataVector);
-
-        this->EncodingFunction((*m_CodeInSparseColVectorSet)[i], DataVector, ThreadIndex);
+        this->EncodingFunction(i, ThreadIndex);
     }
 }
 
 
 template<typename ElementType>
 inline
-void FeatureDictionaryBasedSparseEncoder<ElementType>::EncodingFunction(DenseMatrix<ElementType>& CodeInDenseColVector, 
-                                                                        const DenseMatrix<ElementType>& DataColVector,
-                                                                        int_max ThreadNumber)
+void FeatureDictionaryBasedSparseEncoder<ElementType>::EncodeSingleDataVector(DenseMatrix<ElementType>& CodeInDenseColVector,
+                                                                              const DenseMatrix<ElementType>& DataColVector)
 {
     SparseVector<ElementType> CodeInSparseColVector;
 
-    this->EncodingFunction(CodeInSparseColVector, DataColVector, ThreadNumber);
+    this->EncodeSingleDataVector(CodeInSparseColVector, DataColVector);
 
     ConvertSparseVectorToDenseMatrixAsColVector(CodeInSparseColVector, CodeInDenseColVector);
+}
+
+
+template<typename ElementType>
+inline
+void FeatureDictionaryBasedSparseEncoder<ElementType>::EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector,
+                                                                              const DenseMatrix<ElementType>& DataColVector)
+{
+    this->SetInputFeatureData(&DataColVector);
+
+    this->Update();
+
+    CodeInSparseColVector = std::move((*m_CodeInSparseColVectorSet)[0]);
 }
 
 
@@ -394,7 +397,7 @@ SparseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::Get
 
 
 template<typename ElementType>
-DenseMatrix<SparseMatrix<ElementType>>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputCodeInSparseColVectorSet()
+DataContainer<SparseVector<ElementType>>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputCodeInSparseColVectorSet()
 {
     return &m_CodeInSparseColVectorSet_SharedCopy;
 }

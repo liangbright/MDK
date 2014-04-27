@@ -16,7 +16,7 @@ int main()
     //
     // time with 1 thread is greater than time with 4 thread
     auto L = 500000;
-    int_max MaxNumberOfThreads = 4;
+    int_max MaxNumberOfThreads = 1;
     int_max OuterLoopNumber = 1000;
     //
 

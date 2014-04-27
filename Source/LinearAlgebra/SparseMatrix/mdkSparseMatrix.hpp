@@ -1,7 +1,7 @@
 #ifndef __mdkSparseMatrix_hpp
 #define __mdkSparseMatrix_hpp
 
-//#include "mdkSparseMatrix.h"
+
 
 namespace mdk
 {
