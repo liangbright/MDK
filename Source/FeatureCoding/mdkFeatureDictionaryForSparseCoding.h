@@ -27,15 +27,27 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
     // ColNumber is BasisNumber (the number of bases)
     // RowNumber is Length of Feature Data Vector
 
-    DenseMatrix<ElementType> StandardDeviation;
+    DenseMatrix<ElementType> StandardDeviationOfL1Distance;
     // Length = BasisNumber
-    // ErrorNorm_i_j = || X_i - D(:, j)||
+    // ErrorNorm_i_j = || X_i - D(:, j)||_L1
     // StandardDeviation(j) = sqrt(sum_i(Indicator_i_j * ErrorNorm_i_j))
     // if Basis_j is related to X_i, then  Indicator_i_j = 1, else it = 0
 
-    DenseMatrix<ElementType> MeanErrorNormOfReconstruction;
+    DenseMatrix<ElementType> StandardDeviationOfL2Distance;
+    // Length = BasisNumber
+    // ErrorNorm_i_j = || X_i - D(:, j)||_L2
+    // StandardDeviation(j) = sqrt(sum_i(Indicator_i_j * ErrorNorm_i_j))
+    // if Basis_j is related to X_i, then  Indicator_i_j = 1, else it = 0
+
+    DenseMatrix<ElementType> StandardDeviationOfKLDivergence;
+    // Length = BasisNumber
+    // ErrorNorm_i_j = KL( X_i, - D(:, j))
+    // StandardDeviation(j) = sqrt(sum_i(Indicator_i_j * ErrorNorm_i_j))
+    // if Basis_j is related to X_i, then  Indicator_i_j = 1, else it = 0
+
+    DenseMatrix<ElementType> StandardDeviationOfReconstruction;
     // ErrorNorm_i = || X_i - D * Alpha||
-    // MeanErrorNormOfReconstruction(j) = mean (ErrorNorm_i related to Basis_j (i.e., Alpha(j) > 0 ))
+    // StandardDeviationOfReconstruction(j) = mean (ErrorNorm_i related to Basis_j (i.e., Alpha(j) > 0 ))
 
     ElementType WeightedNumberOfTrainingSamplesInHistory; // the total weighted-number of data samples used to build the dictionary
                                                           // the "experience" of the dictionary
@@ -119,13 +131,21 @@ public:
 
     inline const DenseMatrix<ElementType>& BasisMatrix() const;
 
-    inline DenseMatrix<ElementType>& StandardDeviation();
+    inline DenseMatrix<ElementType>& StandardDeviationOfL1Distance();
 
-    inline const DenseMatrix<ElementType>& StandardDeviation() const;
+    inline const DenseMatrix<ElementType>& StandardDeviationOfL1Distance() const;
 
-    inline DenseMatrix<ElementType>& MeanErrorNormOfReconstruction();
+    inline DenseMatrix<ElementType>& StandardDeviationOfL2Distance();
 
-    inline const DenseMatrix<ElementType>& MeanErrorNormOfReconstruction() const;
+    inline const DenseMatrix<ElementType>& StandardDeviationOfL2Distance() const;
+
+    inline DenseMatrix<ElementType>& StandardDeviationOfKLDivergence();
+
+    inline const DenseMatrix<ElementType>& StandardDeviationOfKLDivergence() const;
+
+    inline DenseMatrix<ElementType>& StandardDeviationOfReconstruction();
+
+    inline const DenseMatrix<ElementType>& StandardDeviationOfReconstruction() const;
 
     inline ElementType GetWeightedNumberOfTrainingSamplesInHistory() const;
 

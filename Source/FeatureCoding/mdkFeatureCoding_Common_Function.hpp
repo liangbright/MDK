@@ -8,7 +8,7 @@ namespace mdk
 {
 
 template<typename ElementType>
-DenseMatrix<int_max> FindKNNByDistanceList(int_max K_NeighbourNumber, const DenseMatrix<ElementType>& DistanceList)
+DenseMatrix<int_max> FindKNNByDistanceList(const DenseMatrix<ElementType>& DistanceList, int_max K_NeighbourNumber)
 {
     DenseMatrix<int_max> NeighbourIndexList;
 
@@ -96,7 +96,27 @@ DenseMatrix<int_max> FindKNNByDistanceList(int_max K_NeighbourNumber, const Dens
 
 
 template<typename ElementType>
-DenseMatrix<int_max> FindKNNBySimilarityList(int_max K_NeighbourNumber, const DenseMatrix<ElementType>& SimilarityList)
+DenseMatrix<int_max> FindKNNByDistanceList(const DenseMatrix<ElementType>& DistanceList, int_max K_MaxNumberOfNeighbours, ElementType DistanceThreshold)
+{
+    DenseMatrix<int_max> tempNeighbourIndexList = FindKNNByDistanceList(DistanceList, K_MaxNumberOfNeighbours);
+
+    DenseMatrix<int_max> NeighbourIndexList;
+    NeighbourIndexList.ReserveCapacity(K_MaxNumberOfNeighbours);
+
+    for (int_max i = 0; i < K_MaxNumberOfNeighbours; ++i)
+    {
+        if (DistanceList[tempNeighbourIndexList[i]] <= DistanceThreshold)
+        {
+            NeighbourIndexList.AppendCol(tempNeighbourIndexList[i]);
+        }
+    }
+
+    return NeighbourIndexList;
+}
+
+
+template<typename ElementType>
+DenseMatrix<int_max> FindKNNBySimilarityList(const DenseMatrix<ElementType>& SimilarityList, int_max K_NeighbourNumber)
 {
     DenseMatrix<ElementType> DistanceList = SimilarityList;
 
@@ -104,6 +124,31 @@ DenseMatrix<int_max> FindKNNBySimilarityList(int_max K_NeighbourNumber, const De
 
     return FindKNNByDistanceList(DistanceList);
 }
+
+
+template<typename ElementType>
+DenseMatrix<int_max> FindKNNBySimilarityList(const DenseMatrix<ElementType>& SimilarityList, int_max K_NeighbourNumber, ElementType SimilarityThreshold)
+{
+    DenseMatrix<ElementType> DistanceList = SimilarityList;
+
+    DistanceList *= ElementType(-1);
+
+    DenseMatrix<int_max> tempNeighbourIndexList = FindKNNByDistanceList(DistanceList, K_MaxNumberOfNeighbours);
+
+    DenseMatrix<int_max> NeighbourIndexList;
+    NeighbourIndexList.ReserveCapacity(K_MaxNumberOfNeighbours);
+
+    for (int_max i = 0; i < K_MaxNumberOfNeighbours; ++i)
+    {
+        if (SimilarityList[tempNeighbourIndexList[i]] >= SimilarityThreshold)
+        {
+            NeighbourIndexList.AppendCol(tempNeighbourIndexList[i]);
+        }
+    }
+
+    return NeighbourIndexList;
+}
+
 
 //---------------------- Compute Similarity Matrix Between Vectors Stored in DenseMatrix<ElementType> VecorSet ----------------------------//
 

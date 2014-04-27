@@ -170,9 +170,9 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
         return;
     }
 
-    auto NeighbourIndexList = FindKNNByDistanceList(m_Parameter.NeighbourNumber, DistanceList);
+    auto NeighbourIndexList = FindKNNByDistanceList(DistanceList, m_Parameter.NeighbourNumber);
 
-    auto SubRecord = BasisMatrix.GetSubMatrix(ALL, NeighbourIndexList);
+    auto KNNBasisMatrix = BasisMatrix.GetSubMatrix(ALL, NeighbourIndexList);
 
     // use LinearLeastSquaresProblemSolver
 
@@ -188,16 +188,14 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
         if (m_GramianMatrix_DtD.IsEmpty() == false)
         {
-            H = std::move(m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList));
+            H = m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList);
         }
 
         DenseMatrix<ElementType> A;
 
-        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&SubRecord, &DataColVector,
+        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
                                                                             nullptr, nullptr, &A, nullptr, nullptr, nullptr,
-                                                                            &H, &Option);
-
-        CodeInSparseColVector.Construct(NeighbourIndexList, Solution.X, CodeLength);       
+                                                                            &H, &Option);         
     }
     else if (m_Parameter.Nonnegative == true && m_Parameter.SumToOne == false)
     {
@@ -210,27 +208,25 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
         if (m_GramianMatrix_DtD.IsEmpty() == false)
         {
-            H = std::move(m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList));
+            H = m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList);
         }
 
         DenseMatrix<ElementType> A;
 
-        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&SubRecord, &DataColVector,
+        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
                                                                             &lb_x, nullptr, &A, nullptr, nullptr, nullptr,
                                                                             &H, &Option);
-
-        CodeInSparseColVector.Construct(NeighbourIndexList, Solution.X, CodeLength);
     }
     else if (m_Parameter.Nonnegative == true && m_Parameter.SumToOne == true)
     {
         DenseMatrix<ElementType> lb_x(m_Parameter.NeighbourNumber, 1);
-        lb_x.Fill(0);
+        lb_x.Fill(ElementType(0));
 
         DenseMatrix<ElementType> A(1, m_Parameter.NeighbourNumber);
-        A.Fill(1);
+        A.Fill(ElementType(1));
 
-        DenseMatrix<ElementType> lb_A = 1;
-        DenseMatrix<ElementType> ub_A = 1;
+        DenseMatrix<ElementType> lb_A = ElementType(1);
+        DenseMatrix<ElementType> ub_A = ElementType(1);
 
         Option.MethodName = "QuadraticProgramming";
 
@@ -238,22 +234,20 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
         if (m_GramianMatrix_DtD.IsEmpty() == false)
         {
-            H = std::move(m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList));
+            H = m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList);
         }
 
-        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&SubRecord, &DataColVector,
+        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
                                                                             &lb_x, nullptr, &A, &lb_A, &ub_A, nullptr,
                                                                             &H, &Option);
-
-        CodeInSparseColVector.Construct(NeighbourIndexList, Solution.X, CodeLength);
     }
     else //if(m_Parameter.Nonnegative == false && m_Parameter.SumToOne == true)
     {
         DenseMatrix<ElementType> A(1, m_Parameter.NeighbourNumber);
-        A.Fill(1);
+        A.Fill(ElementType(1));
 
-        DenseMatrix<ElementType> lb_A = 1;
-        DenseMatrix<ElementType> ub_A = 1;
+        DenseMatrix<ElementType> lb_A = ElementType(1);
+        DenseMatrix<ElementType> ub_A = ElementType(1);
 
         Option.MethodName = "QuadraticProgramming";
 
@@ -261,22 +255,22 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
         if (m_GramianMatrix_DtD.IsEmpty() == false)
         {
-            H = std::move(m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList));
+            H = m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList);
         }
 
-        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&SubRecord, &DataColVector,
+        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
                                                                             nullptr, nullptr, &A, &lb_A, &ub_A, nullptr,
                                                                             &H, &Option);
-
-        CodeInSparseColVector.Construct(NeighbourIndexList, Solution.X, CodeLength);
     }
+
+    // ----- create sparse code -----
+
+    CodeInSparseColVector.Construct(NeighbourIndexList, Solution.X, CodeLength);
 
     // ----- update m_ReconstructionErrorNorm -------------------
 
-    DenseMatrix<ElementType> Alpha(CodeInSparseColVector.DataArray().data(), m_Parameter.NeighbourNumber, 1);
-
     // compute ReconstructedDataColVector X_hat
-    auto ReconstructedDataColVector = MatrixMultiply(SubRecord, Alpha);
+    auto ReconstructedDataColVector = MatrixMultiply(KNNBasisMatrix, Solution.X);
 
     // get reconstruction error ||X-X_hat||
     auto ErrorVector = MatrixSubtract(DataColVector, ReconstructedDataColVector);

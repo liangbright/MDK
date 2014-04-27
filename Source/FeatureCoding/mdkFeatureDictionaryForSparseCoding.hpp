@@ -65,7 +65,7 @@ void FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionary
 
     m_DictionaryData->StandardDeviation = InputDictionary.m_DictionaryData->StandardDeviation;
 
-    m_DictionaryData->MeanErrorNormOfReconstruction = InputDictionary.m_DictionaryData->MeanErrorNormOfReconstruction;
+    m_DictionaryData->StandardDeviationOfReconstruction = InputDictionary.m_DictionaryData->StandardDeviationOfReconstruction;
 
     m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = InputDictionary.m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory;
 
@@ -156,7 +156,7 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
 
     m_DictionaryData->StandardDeviation = std::move(InputDictionary.m_DictionaryData->StandardDeviation);
 
-    m_DictionaryData->MeanErrorNormOfReconstruction = std::move(InputDictionary.m_DictionaryData->MeanErrorNormOfReconstruction);
+    m_DictionaryData->StandardDeviationOfReconstruction = std::move(InputDictionary.m_DictionaryData->StandardDeviationOfReconstruction);
 
     m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = InputDictionary.m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory;
 
@@ -178,7 +178,7 @@ void FeatureDictionaryForSparseCoding<ElementType>::Clear()
 
     m_DictionaryData->StandardDeviation.Clear();
 
-    m_DictionaryData->MeanErrorNormOfReconstruction.Clear();
+    m_DictionaryData->StandardDeviationOfReconstruction.Clear();
 
     m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = 0;
 
@@ -305,33 +305,63 @@ const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::B
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviation()
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfL1Distance()
 {
-    return m_DictionaryData->StandardDeviation;
+    return m_DictionaryData->StandardDeviationOfL1Distance;
 }
 
 
 template<typename ElementType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviation() const
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfL1Distance() const
 {
-    return m_DictionaryData->StandardDeviation;
+    return m_DictionaryData->StandardDeviationOfL1Distance;
+}
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfL2Distance()
+{
+    return m_DictionaryData->StandardDeviationOfL2Distance;
 }
 
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::MeanErrorNormOfReconstruction()
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfL2Distance() const
 {
-    return m_DictionaryData->MeanErrorNormOfReconstruction;
+    return m_DictionaryData->StandardDeviationOfL2Distance;
+}
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfKLDivergence()
+{
+    return m_DictionaryData->StandardDeviationOfKLDivergence;
 }
 
 
 template<typename ElementType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::MeanErrorNormOfReconstruction() const
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfKLDivergence() const
 {
-    return m_DictionaryData->MeanErrorNormOfReconstruction;
+    return m_DictionaryData->StandardDeviationOfKLDivergence;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfReconstruction()
+{
+    return m_DictionaryData->StandardDeviationOfReconstruction;
+}
+
+
+template<typename ElementType>
+inline
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfReconstruction() const
+{
+    return m_DictionaryData->StandardDeviationOfReconstruction;
 }
 
 

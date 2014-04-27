@@ -9,13 +9,20 @@ namespace mdk
 {
 
 template<typename ElementType>
-DenseMatrix<int_max> FindKNNByDistanceList(int_max K_NeighbourNumber, const DenseMatrix<ElementType>& DistanceList);
+DenseMatrix<int_max> FindKNNByDistanceList(const DenseMatrix<ElementType>& DistanceList, int_max K_NeighbourNumber, );
 
+// find KNN with Distance <= DistanceThreshold
+template<typename ElementType>
+DenseMatrix<int_max> FindKNNByDistanceList(const DenseMatrix<ElementType>& DistanceList, int_max K_MaxNumberOfNeighbours, ElementType DistanceThreshold);
 
 //------------------------------------ Similarity based metric --------------------------------------------------------------//
 
 template<typename ElementType>
-DenseMatrix<int_max> FindKNNBySimilarityList(int_max K_NeighbourNumber, const DenseMatrix<ElementType>& SimilarityList);
+DenseMatrix<int_max> FindKNNBySimilarityList(const DenseMatrix<ElementType>& SimilarityList, int_max K_NeighbourNumber);
+
+// find KNN with Similarity >= SimilarityThreshold
+template<typename ElementType>
+DenseMatrix<int_max> FindKNNBySimilarityList(const DenseMatrix<ElementType>& SimilarityList, int_max K_NeighbourNumber, ElementType SimilarityThreshold);
 
 //---------------------- Compute Similarity Matrix Between Vectors Stored in DenseMatrix<ElementType> VecorSet ----------------------------//
 
