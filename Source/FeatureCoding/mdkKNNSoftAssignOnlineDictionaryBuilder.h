@@ -40,7 +40,7 @@ struct Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder
 
     // prob_basis_updated = weigth_past * prob_basis_past + weigth_current * prob_basis_data;
     ElementType weigth_past; // weight for initial dictionary, i.e., the set of FeatureData that is used long ago
-    ElementType weigth_new;  // weight for current FeatureData
+    ElementType weigth_current;  // weight for current FeatureData
 
 
     int_max NumberOfDataInEachBatch; // the number of data in each batch/thread
@@ -134,9 +134,21 @@ protected:
 
     FeatureDictionaryForSparseCoding<ElementType> ExtractDictionaryFromData(int_max BasisNumber, 
                                                                             const DenseMatrix<ElementType>& FeatureData,
-                                                                            const DenseMatrix<ElementType>& Probability);
+                                                                            const DenseMatrix<ElementType>& ProbabilityMassFunctionOfData);
 
     inline ElementType ComputeSimilarityBetweenTwoDataVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+
+    inline DenseMatrix<ElementType> GetProbabilityMassFunctionOfCombinedData(int_max DataVectorNumber);
+
+    inline DenseMatrix<ElementType> EstimateBasisProbabilityMassFunctionFromData(const DenseMatrix<ElementType>& SimilarityMatrix);
+
+    inline DenseMatrix<ElementType> EstimateBasisProbabilityMassFunctionFromData(const DenseMatrix<ElementType>& SimilarityMatrix,
+                                                                                 const DenseMatrix<ElementType>& DataProbabilityMassFunction);
+
+    inline DenseMatrix<ElementType> EstimateBasisProbabilityMassFunctionFromData(const DenseMatrix<ElementType>& SimilarityMatrix,
+                                                                                 const DenseMatrix<ElementType>& DataProbabilityMassFunction,
+                                                                                 const DenseMatrix<int_max>& DataVectorIndexList_Basis);
+    
 
 private:
     KNNSoftAssignOnlineDictionaryBuilder(const KNNSoftAssignOnlineDictionaryBuilder&) = delete;

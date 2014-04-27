@@ -52,20 +52,27 @@ void FeatureDictionaryForSparseCoding<ElementType>::operator=(FeatureDictionaryF
 template<typename ElementType>
 void FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
 {
-    if (this == &InputDictionary)
+    if (this->m_DictionaryData == InputDictionary->m_DictionaryData)
     {
         return;
     }
 
-    m_DictionaryData->DictionaryInfo.Name.Copy(InputDictionary.m_DictionaryData->DictionaryInfo.Name);
+    m_DictionaryData->DictionaryInfo.Name = InputDictionary.m_DictionaryData->DictionaryInfo.Name;
     m_DictionaryData->DictionaryInfo.BasisNonnegative = InputDictionary.m_DictionaryData->DictionaryInfo.BasisNonnegative;
     m_DictionaryData->DictionaryInfo.BasisSumToOne = InputDictionary.m_DictionaryData->DictionaryInfo.BasisSumToOne;
 
-    m_DictionaryData->BasisMatrix.Copy(InputDictionary.m_DictionaryData->BasisMatrix);
+    m_DictionaryData->BasisMatrix = InputDictionary.m_DictionaryData->BasisMatrix;
 
-    m_DictionaryData->Covariance.Copy(InputDictionary.m_DictionaryData->Covariance);
+    m_DictionaryData->StandardDeviation = InputDictionary.m_DictionaryData->StandardDeviation;
 
-    m_DictionaryData->StandardDeviation.Copy(InputDictionary.m_DictionaryData->StandardDeviation);
+    m_DictionaryData->MeanErrorNormOfReconstruction = InputDictionary.m_DictionaryData->MeanErrorNormOfReconstruction;
+
+    m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = InputDictionary.m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory;
+
+    m_DictionaryData->ProbabilityMassFunction = InputDictionary.m_DictionaryData->ProbabilityMassFunction;
+
+    m_DictionaryData->Covariance = InputDictionary.m_DictionaryData->Covariance;
+
 }
 
 
@@ -147,11 +154,17 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
 
     m_DictionaryData->BasisMatrix = std::move(InputDictionary.m_DictionaryData->BasisMatrix);
 
+    m_DictionaryData->StandardDeviation = std::move(InputDictionary.m_DictionaryData->StandardDeviation);
+
+    m_DictionaryData->MeanErrorNormOfReconstruction = std::move(InputDictionary.m_DictionaryData->MeanErrorNormOfReconstruction);
+
+    m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = InputDictionary.m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory;
+
+    m_DictionaryData->ProbabilityMassFunction = std::move(InputDictionary.m_DictionaryData->ProbabilityMassFunction);
+
     m_DictionaryData->Covariance = std::move(InputDictionary.m_DictionaryData->Covariance);
 
-    m_DictionaryData->StandardDeviation = std::move(InputDictionary.m_DictionaryData->StandardDeviation);
 }
-
 
 
 template<typename ElementType>
@@ -163,9 +176,16 @@ void FeatureDictionaryForSparseCoding<ElementType>::Clear()
 
     m_DictionaryData->BasisMatrix.Clear();
 
+    m_DictionaryData->StandardDeviation.Clear();
+
+    m_DictionaryData->MeanErrorNormOfReconstruction.Clear();
+
+    m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = 0;
+
+    m_DictionaryData->ProbabilityMassFunction.Clear();
+
     m_DictionaryData->Covariance.Clear();
 
-    m_DictionaryData->StandardDeviation.Clear();
 }
 
 
@@ -301,17 +321,49 @@ const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::S
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisProbability()
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::MeanErrorNormOfReconstruction()
 {
-    return m_DictionaryData->BasisProbability;
+    return m_DictionaryData->MeanErrorNormOfReconstruction;
 }
 
 
 template<typename ElementType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisProbability() const
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::MeanErrorNormOfReconstruction() const
 {
-    return m_DictionaryData->BasisProbability;
+    return m_DictionaryData->MeanErrorNormOfReconstruction;
+}
+
+
+template<typename ElementType>
+inline
+ElementType FeatureDictionaryForSparseCoding<ElementType>::GetWeightedNumberOfTrainingSamplesInHistory() const
+{
+    return m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory;
+}
+
+
+template<typename ElementType>
+inline
+void FeatureDictionaryForSparseCoding<ElementType>::SetWeightedNumberOfTrainingSamplesInHistory(ElementType Number)
+{
+    m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = Number;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::ProbabilityMassFunction()
+{
+    return m_DictionaryData->ProbabilityMassFunction;
+}
+
+
+template<typename ElementType>
+inline
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::ProbabilityMassFunction() const
+{
+    return m_DictionaryData->ProbabilityMassFunction;
 }
 
 

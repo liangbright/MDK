@@ -24,11 +24,26 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
     Infomation_Of_FeatureDictionaryForSparseCoding DictionaryInfo;
 
     DenseMatrix<ElementType> BasisMatrix; // D
+    // ColNumber is BasisNumber (the number of bases)
+    // RowNumber is Length of Feature Data Vector
 
     DenseMatrix<ElementType> StandardDeviation;
-    // m_StandardDeviation(j) = sqrt(sum_i(Prob(i,j)*(FeatureData_i - D(:,j))^2))
+    // Length = BasisNumber
+    // ErrorNorm_i_j = || X_i - D(:, j)||
+    // StandardDeviation(j) = sqrt(sum_i(Indicator_i_j * ErrorNorm_i_j))
+    // if Basis_j is related to X_i, then  Indicator_i_j = 1, else it = 0
 
-    DenseMatrix<ElementType> BasisProbability;
+    DenseMatrix<ElementType> MeanErrorNormOfReconstruction;
+    // ErrorNorm_i = || X_i - D * Alpha||
+    // MeanErrorNormOfReconstruction(j) = mean (ErrorNorm_i related to Basis_j (i.e., Alpha(j) > 0 ))
+
+    ElementType WeightedNumberOfTrainingSamplesInHistory; // the total weighted-number of data samples used to build the dictionary
+                                                          // the "experience" of the dictionary
+
+    DenseMatrix<ElementType> ProbabilityMassFunction; // discrete probability density function, i.e., probability mass function
+
+    // note: 
+    // Histogram = WeightedNumberOfTrainingSamplesInHistory * ProbabilityMassFunction
 
     // not used yet ----------------
     DenseMatrix<ElementType> Covariance;  // relation between bases
@@ -108,9 +123,17 @@ public:
 
     inline const DenseMatrix<ElementType>& StandardDeviation() const;
 
-    inline DenseMatrix<ElementType>& BasisProbability();
+    inline DenseMatrix<ElementType>& MeanErrorNormOfReconstruction();
 
-    inline const DenseMatrix<ElementType>& BasisProbability() const;
+    inline const DenseMatrix<ElementType>& MeanErrorNormOfReconstruction() const;
+
+    inline ElementType GetWeightedNumberOfTrainingSamplesInHistory() const;
+
+    inline void SetWeightedNumberOfTrainingSamplesInHistory(ElementType Number);
+
+    inline DenseMatrix<ElementType>& ProbabilityMassFunction();
+
+    inline const DenseMatrix<ElementType>& ProbabilityMassFunction() const;
 
     
 };

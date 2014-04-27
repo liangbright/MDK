@@ -108,40 +108,31 @@ bool KNNSoftAssignOnlineDictionaryBuilder<ElementType>::CheckInput()
 template<typename ElementType>
 void KNNSoftAssignOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 {
-    DenseMatrix<ElementType> FeatureData_ALL;
-
-    DenseMatrix<ElementType> Probability_ALL;
-
-    if (m_InitialDictionary != nullptr)
-    {
-        int_max InitalBasisNumber = m_InitialDictionary->BasisMatrix().GetColNumber();
-
-        FeatureData_ALL = { m_InitialDictionary, m_FeatureData };
-
-        Probability_ALL.FastResize(1, InitalBasisNumber + m_FeatureData->GetColNumber());
-        Probability_ALL.Fill(ElementType(0));
-        Probability_ALL(ALL, span(0, InitalBasisNumber - 1)) = m_InitialDictionary->BasisProbability();
-    }
-    else
-    {
-        FeatureData_ALL.ForceShare(m_FeatureData);
-
-        Probability_ALL.FastResize(1, m_FeatureData->GetColNumber());
-        Probability_ALL.Fill(ElementType(0));
-    }
-
-    //---------------------------------------------------------------------------------------------------------//
-
-    auto DataSize = m_FeatureData->GetSize();
+    uto DataSize = m_FeatureData->GetSize();
 
     auto DataNumber = DataSize.ColNumber;
 
     int_max BatchNumber = m_Parameter.NumberOfDataInEachBatch / DataNumber + 1;
 
     if (BatchNumber == 1)
-    {       
-        auto OutputDictionary = this->ExtractDictionaryFromData(m_Parameter.BasisNumber, FeatureData_ALL, Probability_ALL);
-        m_Dictionary->Take(OutputDictionary);
+    {
+        DenseMatrix<ElementType> FeatureData_Combined;
+
+        if (m_InitialDictionary != nullptr)
+        {
+            DenseMatrix<ElementType>& BasisMatrixOfInitialDictionary = m_InitialDictionary->BasisMatrix();
+            int_max InitalBasisNumber = BasisMatrixOfInitialDictionary.GetColNumber();
+
+            FeatureData_Combined = { &BasisMatrixOfInitialDictionary, m_FeatureData };
+        }
+        else
+        {
+            FeatureData_Combined.ForceShare(m_FeatureData);
+        }
+
+        auto Probability_Combined = GetProbabilityMassFunctionOfCombinedData(m_FeatureData->GetColNumber());
+ 
+        (*m_Dictionary) = this->ExtractDictionaryFromData(m_Parameter.BasisNumber, FeatureData_Combined, Probability_Combined);
 
         return;
     }
@@ -162,7 +153,7 @@ template<typename ElementType>
 FeatureDictionaryForSparseCoding<ElementType> 
 KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromData(int_max BasisNumber_desired,
                                                                              const DenseMatrix<ElementType>& FeatureData,
-                                                                             const DenseMatrix<ElementType>& Probability)
+                                                                             const DenseMatrix<ElementType>& ProbabilityMassFunctionOfData)
 {
     FeatureDictionaryForSparseCoding<ElementType> Dictionary;
 
@@ -174,20 +165,12 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromData(int
         return Dictionary;
     }
 
-    if (FeatureData.GetColNumber() != Probability.GetElementNumber())
+    if (FeatureData.GetColNumber() != ProbabilityMassFunctionOfData.GetElementNumber())
     {
         MDK_Error("FeatureData.GetColNumber() != Probability.GetElementNumber() @ KNNSoftAssignOnlineDictionaryBuilder::ExtractDictionaryFromData(...)")
         return Dictionary;
     }
 
-    if (BasisNumber_desired >= FeatureData.GetColNumber())
-    {
-        MDK_Warning("BasisNumber_desired >= FeatureData.GetColNumber() @ KNNSoftAssignOnlineDictionaryBuilder::ExtractDictionaryFromData(...)")
-       
-        Dictionary.BasisMatrix().Copy(FeatureData);
-        Dictionary.BasisProbability().Copy(Probability);
-        return Dictionary;
-    }
     //------------------------------------------- input check done ---------------------------------------------------------------------//
 
     // calculate similarity between feature vectors
@@ -195,6 +178,24 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromData(int
     auto SimilarityMatrix = ComputeSimilarityMatrixOfVecorSet(FeatureData,
                                                               [&](const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB)
                                                               { this->ComputeSimilarityBetweenTwoDataVectors(VectorA, VectorB); });
+
+    // estimate the probability mass function based on Probability_init
+
+    auto Probability = this->EstimateBasisProbabilityMassFunctionFromData(SimilarityMatrix, ProbabilityMassFunctionOfData);
+
+    // if the number of data samples is smaller than the number of bases
+    if (BasisNumber_desired >= FeatureData.GetColNumber())
+    {
+        MDK_Warning("BasisNumber_desired >= FeatureData.GetColNumber() @ KNNSoftAssignOnlineDictionaryBuilder::ExtractDictionaryFromData(...)")
+
+        Dictionary.BasisMatrix().Copy(FeatureData);
+        Dictionary.ProbabilityMassFunction().Copy(Probability);
+        return Dictionary;
+    }
+
+    //------------------------------------------ extract dictionary from data -----------------------------------------------------------------//
+    // the number of data samples is greater than the number of bases
+    // extract a subset from the data set to be the bases
 
     // get DataPairScoreList
 
@@ -288,16 +289,6 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromData(int
         }
     }
 
-    //----------------------- create Dictionary --------------------------------------//
-
-    DenseMatrix<ElementType>&  BasisMatrix = Dictionary.BasisMatrix();
-
-    DenseMatrix<ElementType>&  BasisProbability = Dictionary.BasisProbability();
-
-    BasisMatrix.FastResize(FeatureData->GetRowNumber(), OutputBasisNumber);
-
-    BasisProbability.FastResize(1, OutputBasisNumber);
-
     DenseMatrix<int_max> DataVectorIndexList_Basis;
     DataVectorIndexList_Basis.ReserveCapacity(OutputBasisNumber);
 
@@ -309,45 +300,24 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromData(int
         }
     }
 
+    //---------- update BasisProbability using KNN method and Similarity --------------//
+
+    auto BasisProbability = this->EstimateBasisProbabilityMassFunctionFromData(SimilarityMatrix, ProbabilityMassFunctionOfData, DataVectorIndexList_Basis);
+
+    //----------------------- create Dictionary --------------------------------------//
+
+    DenseMatrix<ElementType>&  BasisMatrix = Dictionary.BasisMatrix();
+
+    BasisMatrix.FastResize(FeatureData->GetRowNumber(), OutputBasisNumber);
+
     for (int_max k = 0; k < OutputBasisNumber; ++k)
     {
         auto DataVectorIndex = DataVectorIndexList_Basis[k];
 
         BasisMatrix.SetCol(k, FeatureData.GetElementPointerOfCol(DataVectorIndex));
-
-        BasisProbability[k] = Probability[DataVectorIndex];
     }
 
-    //------------------------------------- update BasisProbability using KNN method and Similarity -------------------------------//
-
-    DenseMatrix<ElementType> BasisProbability_From_FeatureData(1, OutputBasisNumber);
-
-    DenseMatrix<ElementType> SimilarityList(1, OutputBasisNumber);
-
-    for (int_max k = 0; k < TotalFeatureDataNumber; ++k)
-    {
-        SimilarityList.Fill(ElementType(0));
-
-        int_max DataVectorIndex = k;
-
-        for (int_max n = 0; n < OutputBasisNumber; ++n)
-        {
-            int_max DataVectorIndex_Basis = DataVectorIndexList_Basis[n];
-
-            SimilarityList[n] = SimilarityMatrix(DataVectorIndex, DataVectorIndex_Basis);
-        }
-        
-        auto KNN_IndexList = FindKNNBySimilarityList(m_Parameter.NeighbourNumber, SimilarityList);
-
-        for (int_max m = 0; m < m_Parameter.NeighbourNumber; ++m)
-        {
-            BasisProbability_From_FeatureData[KNN_IndexList[m]] += 1;
-        }
-    }
-
-    BasisProbability_From_FeatureData /= BasisProbability_From_FeatureData.Sum();
-
-    BasisProbability = m_Parameter.weigth_past * BasisProbability + m_Parameter.weigth_new * BasisProbability_From_FeatureData;
+    Dictionary.ProbabilityMassFunction().Take(BasisProbability);
 
     //---------------------------------------------- done -------------------------------------------------------//
     
@@ -403,6 +373,154 @@ ElementType KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ComputeSimilarity
     return Similarity;
 }
 
+
+template<typename ElementType>
+inline 
+DenseMatrix<ElementType>
+KNNSoftAssignOnlineDictionaryBuilder<ElementType>::GetProbabilityMassFunctionOfCombinedData(int_max FeatureDataVectorNumber)
+{
+    // CombinedData = [ BasisMatrix of m_InitialDictionary,  input FeatureData]
+
+    // if m_InitialDictionary is empty, then CombinedData = input FeatureData 
+
+    DenseMatrix<ElementType> Probability;
+
+    auto Prob = ElementType(0);
+
+    if (m_InitialDictionary == nullptr)
+    {
+        Probability.FastResize(1, FeatureDataVectorNumber);
+
+        Probability.Fill(ElementType(1));
+    }
+    else
+    {
+        auto InitialBasisNumber = m_InitialDictionary->BasisMatrix().GetColNumber();
+
+        const DenseMatrix<ElementType>& PMFOfInitialDicitonary = m_InitialDictionary->ProbabilityMassFunction();
+
+        auto SampleNumber_past = m_InitialDictionary->GetWeightedNumberOfTrainingSamplesInHistory();
+
+        Probability.FastResize(1, InitialBasisNumber + FeatureDataVectorNumber);
+
+        for (int_max k = 0; k < InitialBasisNumber; k++)
+        {
+            Probability[k] = m_Parameter.weigth_past * PMFOfInitialDicitonary[k] * SampleNumber_past;
+        }
+
+        for (int_max k = InitialBasisNumber; k < InitialBasisNumber + FeatureDataVectorNumber; k++)
+        {
+            Probability[k] = m_Parameter.weigth_current * ElementType(1);
+        }
+    }
+    
+    Probability /= Probability.Sum();
+
+    return Probability;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> 
+KNNSoftAssignOnlineDictionaryBuilder<ElementType>::EstimateBasisProbabilityMassFunctionFromData(const DenseMatrix<ElementType>& SimilarityMatrix)
+{
+    int_max TotalDataNumber = SimilarityMatrix.GetColNumber();
+
+    DenseMatrix<ElementType> Probability(1, TotalDataNumber);
+
+    DenseMatrix<ElementType> SimilarityList(1, TotalDataNumber);
+
+    for (int_max k = 0; k < TotalDataNumber; ++k)
+    {
+        SimilarityList.Fill(ElementType(0));
+
+        for (int_max n = 0; n < TotalDataNumber; ++n)
+        {
+            SimilarityList[n] = SimilarityMatrix(n, k);
+        }
+
+        auto KNN_IndexList = FindKNNBySimilarityList(m_Parameter.NeighbourNumber, SimilarityList);
+
+        for (int_max m = 0; m < m_Parameter.NeighbourNumber; ++m)
+        {
+            Probability[KNN_IndexList[m]] += 1;
+        }
+    }
+
+    Probability /= Probability.Sum();
+}
+
+
+template<typename ElementType>
+inline DenseMatrix<ElementType> EstimateBasisProbabilityMassFunctionFromData(const DenseMatrix<ElementType>& SimilarityMatrix,
+                                                                             const DenseMatrix<ElementType>& DataProbabilityMassFunction)
+{
+    int_max TotalDataNumber = SimilarityMatrix.GetColNumber();
+
+    DenseMatrix<ElementType> Probability(1, TotalDataNumber);
+
+    DenseMatrix<ElementType> SimilarityList(1, TotalDataNumber);
+
+    for (int_max k = 0; k < TotalDataNumber; ++k)
+    {
+        SimilarityList.Fill(ElementType(0));
+
+        for (int_max n = 0; n < TotalDataNumber; ++n)
+        {
+            SimilarityList[n] = SimilarityMatrix(n, k);
+        }
+
+        auto KNN_IndexList = FindKNNBySimilarityList(m_Parameter.NeighbourNumber, SimilarityList);
+
+        for (int_max m = 0; m < m_Parameter.NeighbourNumber; ++m)
+        {
+            Probability[KNN_IndexList[m]] += DataProbabilityMassFunction[k];
+        }
+    }
+
+    Probability /= Probability.Sum();
+}
+
+
+template<typename ElementType>
+inline 
+DenseMatrix<ElementType> 
+KNNSoftAssignOnlineDictionaryBuilder<ElementType>::EstimateBasisProbabilityMassFunctionFromData(const DenseMatrix<ElementType>& SimilarityMatrix,
+                                                                                                const DenseMatrix<ElementType>& DataProbabilityMassFunction,
+                                                                                                const DenseMatrix<int_max>& DataVectorIndexList_Basis)
+{
+    int_max TotalDataNumber = SimilarityMatrix.GetColNumber();
+
+    int_max SelectedDataNumber = DataVectorIndexList_Basis.GetElementNumber();
+
+    DenseMatrix<ElementType> Probability(1, SelectedDataNumber);
+
+    DenseMatrix<ElementType> SimilarityList(1, SelectedDataNumber);
+
+    for (int_max k = 0; k < TotalFeatureDataNumber; ++k)
+    {
+        SimilarityList.Fill(ElementType(0));
+
+        int_max DataVectorIndex = k;
+
+        for (int_max n = 0; n < SelectedDataNumber; ++n)
+        {
+            int_max DataVectorIndex_selected = DataVectorIndexList_Basis[n];
+
+            SimilarityList[n] = SimilarityMatrix(DataVectorIndex, DataVectorIndex_selected);
+        }
+
+        auto KNN_IndexList = FindKNNBySimilarityList(m_Parameter.NeighbourNumber, SimilarityList);
+
+        for (int_max m = 0; m < m_Parameter.NeighbourNumber; ++m)
+        {
+            Probability[KNN_IndexList[m]] += DataProbabilityMassFunction[k];
+        }
+    }
+
+    Probability /= Probability.Sum();
+}
 
 }//namespace mdk
 
