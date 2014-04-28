@@ -127,7 +127,7 @@ DenseMatrix<int_max> FindKNNBySimilarityList(const DenseMatrix<ElementType>& Sim
 
 
 template<typename ElementType>
-DenseMatrix<int_max> FindKNNBySimilarityList(const DenseMatrix<ElementType>& SimilarityList, int_max K_NeighbourNumber, ElementType SimilarityThreshold)
+DenseMatrix<int_max> FindKNNBySimilarityList(const DenseMatrix<ElementType>& SimilarityList, int_max K_MaxNumberOfNeighbours, ElementType SimilarityThreshold)
 {
     DenseMatrix<ElementType> DistanceList = SimilarityList;
 
@@ -142,7 +142,7 @@ DenseMatrix<int_max> FindKNNBySimilarityList(const DenseMatrix<ElementType>& Sim
     {
         if (SimilarityList[tempNeighbourIndexList[i]] >= SimilarityThreshold)
         {
-            NeighbourIndexList.AppendCol(tempNeighbourIndexList[i]);
+            NeighbourIndexList.AppendCol({ tempNeighbourIndexList[i] });
         }
     }
 
@@ -220,14 +220,14 @@ DenseMatrix<ElementType> ComputeSimilarityMatrixOfVecorSet(const DenseMatrix<Ele
 }
 
 
-template<typename ElementType, typename SimilarityFunction>
+template<typename ElementType, typename SimilarityFunctionType>
 void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType>& SimilarityMatrix,
                                        const DenseMatrix<ElementType>& VecorSet,
                                        SimilarityFunctionType SimilarityFunction)
 {
     int_max TotalVectorNumber = VecorSet.GetColNumber();
-    int_max tempLength = TotalVectorNumber*(TotalVectorNumber - 1) / 2;
-    SimilarityMatrix.FastResize(tempLength, tempLength);
+
+    SimilarityMatrix.FastResize(TotalVectorNumber, TotalVectorNumber);
 
     SimilarityMatrix.Fill(ElementType(0));  // SimilarityMatrix(i, i) = 0 for all i
 
@@ -238,13 +238,13 @@ void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType>& SimilarityMatri
 
     for (int_max k = 0; k < TotalVectorNumber - 1; ++k)
     {
-        Vector_k.ShallowCopy(VecorSet.GetElementPointerOfCol(k), VectorLength, 1);
+        Vector_k.ShallowCopy(const_cast<ElementType*>(VecorSet.GetElementPointerOfCol(k)), VectorLength, 1);
 
-        for (int_max n = k + 1; k < TotalVectorNumber; ++k)
+        for (int_max n = k + 1; n < TotalVectorNumber; ++n)
         {
-            Vector_n.ShallowCopy(VecorSet.GetElementPointerOfCol(n), VectorLength, 1);
+            Vector_n.ShallowCopy(const_cast<ElementType*>(VecorSet.GetElementPointerOfCol(n)), VectorLength, 1);
 
-            auto Similarity = SimilarityFunction(Vector_k, Vector_n);
+            ElementType Similarity = SimilarityFunction(Vector_k, Vector_n);
 
             SimilarityMatrix(k, n) = Similarity;
 

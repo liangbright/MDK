@@ -180,6 +180,8 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
     Option_Of_LinearLeastSquaresProblemSolver Option;
 
+    Solution_Of_LinearLeastSquaresProblem<ElementType> Solution;
+
     if (m_Parameter.Nonnegative == false && m_Parameter.SumToOne == false)
     {
         Option.MethodName = "Normal";
@@ -193,9 +195,9 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
         DenseMatrix<ElementType> A;
 
-        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
-                                                                            nullptr, nullptr, &A, nullptr, nullptr, nullptr,
-                                                                            &H, &Option);         
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
+                                                                       nullptr, nullptr, &A, nullptr, nullptr, nullptr,
+                                                                       &H, &Option);         
     }
     else if (m_Parameter.Nonnegative == true && m_Parameter.SumToOne == false)
     {
@@ -213,9 +215,9 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
         DenseMatrix<ElementType> A;
 
-        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
-                                                                            &lb_x, nullptr, &A, nullptr, nullptr, nullptr,
-                                                                            &H, &Option);
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
+                                                                       &lb_x, nullptr, &A, nullptr, nullptr, nullptr,
+                                                                       &H, &Option);
     }
     else if (m_Parameter.Nonnegative == true && m_Parameter.SumToOne == true)
     {
@@ -237,9 +239,9 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
             H = m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList);
         }
 
-        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
-                                                                            &lb_x, nullptr, &A, &lb_A, &ub_A, nullptr,
-                                                                            &H, &Option);
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
+                                                                       &lb_x, nullptr, &A, &lb_A, &ub_A, nullptr,
+                                                                       &H, &Option);
     }
     else //if(m_Parameter.Nonnegative == false && m_Parameter.SumToOne == true)
     {
@@ -258,12 +260,12 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
             H = m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList);
         }
 
-        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
-                                                                            nullptr, nullptr, &A, &lb_A, &ub_A, nullptr,
-                                                                            &H, &Option);
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
+                                                                       nullptr, nullptr, &A, &lb_A, &ub_A, nullptr,
+                                                                       &H, &Option);
     }
 
-    // ----- create sparse code -----
+    // ----- create sparse code ------------------------------------------------
 
     CodeInSparseColVector.Construct(NeighbourIndexList, Solution.X, CodeLength);
 

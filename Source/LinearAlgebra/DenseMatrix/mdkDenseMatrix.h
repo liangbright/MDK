@@ -360,6 +360,8 @@ public:
 
     inline bool IsShared() const;
 
+    inline bool IsSharedWith(const DenseMatrix& InputMatrix) const;
+
 	inline MatrixSize GetSize() const;
 
     inline int_max GetElementNumber() const;

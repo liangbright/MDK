@@ -79,7 +79,7 @@ bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ElementType>& InputMatrix, 
     PairList[0].Value = "DenseMatrix";
 
     auto ElementTypeName = FindScalarTypeName(tempScalar);
-    QString QElementTypeName(ElementTypeName.StdString().c_str());
+    QString QElementTypeName(ElementTypeName.c_str());
 
     PairList[1].Name = "ElementType";
     PairList[1].Value = QElementTypeName;
@@ -966,9 +966,9 @@ bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding
     auto RawPointer = (char*)Dictionary.BasisMatrix().GetElementPointer();
     DataFile.write(RawPointer, L*ByteNumber);
 
-    // step 2 : write StandardDeviation
-    L = Dictionary.StandardDeviation().GetElementNumber();
-    RawPointer = (char*)Dictionary.StandardDeviation().GetElementPointer();
+    // step 2 : write StandardDeviationOfL1Distance
+    L = Dictionary.StandardDeviationOfL1Distance().GetElementNumber();
+    RawPointer = (char*)Dictionary.StandardDeviationOfL1Distance().GetElementPointer();
     DataFile.write(RawPointer, L*ByteNumber);
 
     DataFile.flush();
@@ -1087,19 +1087,28 @@ FeatureDictionaryForSparseCoding<ElementType> LoadFeatureDictionaryForSparseCodi
 
     Dictionary.SetName(Name);
     Dictionary.BasisMatrix().FastResize(RowNumber, ColNumber);
-    Dictionary.StandardDeviation().FastResize(1, ColNumber);
+    Dictionary.StandardDeviationOfL1Distance().FastResize(1, ColNumber);
+    Dictionary.StandardDeviationOfL2Distance().FastResize(1, ColNumber);
+    Dictionary.StandardDeviationOfKLDivergence().FastResize(1, ColNumber);
+    Dictionary.StandardDeviationOfReconstruction().FastResize(1, ColNumber);
 
     if (OutputElementTypeName == InputElementTypeName)
     {
         Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.BasisMatrix(), DataFile, OutputByteNumber);
-        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.StandardDeviation(), DataFile, OutputByteNumber);
+        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.StandardDeviationOfL1Distance(), DataFile, OutputByteNumber);
+        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.StandardDeviationOfL2Distance(), DataFile, OutputByteNumber);
+        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.StandardDeviationOfKLDivergence(), DataFile, OutputByteNumber);
+        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.StandardDeviationOfReconstruction(), DataFile, OutputByteNumber);
     }
     else
     {
         MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ LoadFeatureDictionaryForSparseCoding(...)")
 
         Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.BasisMatrix(), DataFile, InputElementTypeName);
-        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.StandardDeviation(), DataFile, InputElementTypeName);
+        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.StandardDeviationOfL1Distance(), DataFile, InputElementTypeName);
+        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.StandardDeviationOfL2Distance(), DataFile, InputElementTypeName);
+        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.StandardDeviationOfKLDivergence(), DataFile, InputElementTypeName);
+        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.StandardDeviationOfReconstruction(), DataFile, InputElementTypeName);
     }
 
     DataFile.close();

@@ -1,15 +1,17 @@
 #ifndef __mdkFeatureCoding_Common_Function_h
 #define __mdkFeatureCoding_Common_Function_h
 
-#include "mdkFeatureDictionary.h"
 
-#include "mdkSparseMatrix.h"
 
 namespace mdk
 {
+//---------- forward declare ---------
+template<typename ElementType>
+class DenseMatrix;
+//-----------------------------------
 
 template<typename ElementType>
-DenseMatrix<int_max> FindKNNByDistanceList(const DenseMatrix<ElementType>& DistanceList, int_max K_NeighbourNumber, );
+DenseMatrix<int_max> FindKNNByDistanceList(const DenseMatrix<ElementType>& DistanceList, int_max K_NeighbourNumber);
 
 // find KNN with Distance <= DistanceThreshold
 template<typename ElementType>
@@ -46,7 +48,7 @@ template<typename ElementType, typename SimilarityFunctionType>
 DenseMatrix<ElementType> ComputeSimilarityMatrixOfVecorSet(const DenseMatrix<ElementType>& VecorSet, SimilarityFunctionType SimilarityFunction);
 
 
-template<typename ElementType, typename SimilarityFunction>
+template<typename ElementType, typename SimilarityFunctionType>
 void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType>& SimilarityMatrix, 
                                        const DenseMatrix<ElementType>& VecorSet, 
                                        SimilarityFunctionType SimilarityFunction);

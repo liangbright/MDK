@@ -1083,7 +1083,7 @@ SparseMatrix<ElementType>::SparseMatrix(SparseMatrix<ElementType>&& InputMatrix)
     m_MatrixData = std::move(InputMatrix.m_MatrixData);
 }
 
-
+/*
 template<typename ElementType>
 inline
 SparseMatrix<ElementType>::SparseMatrix(const SparseShadowMatrix<ElementType>& ShadowMatrix)
@@ -1092,7 +1092,7 @@ SparseMatrix<ElementType>::SparseMatrix(const SparseShadowMatrix<ElementType>& S
 
     this->Take(ShadowMatrix.CreateSparseMatrix());
 }
-
+*/
 
 template<typename ElementType>
 inline
@@ -1601,6 +1601,7 @@ void SparseMatrix<ElementType>::operator=(const std::initializer_list<std::initi
 }
 
 
+/*
 template<typename ElementType>
 inline
 void SparseMatrix<ElementType>::operator=(const SparseShadowMatrix<ElementType>& ShadowMatrix)
@@ -1623,7 +1624,7 @@ void SparseMatrix<ElementType>::operator=(const SparseGlueMatrixForMultiplicatio
 {
     this->Take(GlueMatrix);
 }
-
+*/
 
 template<typename ElementType>
 template<typename ElementType_Input>
@@ -1790,6 +1791,7 @@ bool SparseMatrix<ElementType>::Take(SparseMatrix<ElementType>&& InputMatrix)
 }
 
 
+/*
 template<typename ElementType>
 inline
 bool SparseMatrix<ElementType>::Take(const SparseShadowMatrix<ElementType>& ShadowMatrix)
@@ -1869,7 +1871,7 @@ bool SparseMatrix<ElementType>::Take(const SparseGlueMatrixForMultiplication<Ele
 
     return true;
 }
-
+*/
 
 template<typename ElementType>
 inline 
@@ -2664,7 +2666,7 @@ const ElementType& SparseMatrix<ElementType>::at(int_max RowIndex, int_max ColIn
 }
 
 //---------------------- Get/Set a set of elements ------------------------------------------------------//
-
+/*
 // operator(): no bound check in release mode
 //
 // note: operator[] is for single element access only, operator[{}] is not defined
@@ -5370,7 +5372,7 @@ bool SparseMatrix<ElementType>::FillDiangonal(const ElementType& Element)
 
     return true;
 }
-
+*/
 
 //=========================================== For Reference ===============================================================//
 /*
@@ -5469,7 +5471,7 @@ inline mdkSparseMatrix<ElementType> operator/(const ElementType& ElementA, const
 */
 //===========================================================================================================================//
 
-
+/*
 //---------------------- Matrix {+= -= *= /=} Matrix ----------------------------------------//
 
 template<typename ElementType>
@@ -6209,6 +6211,7 @@ SparseMatrixSVDResult<ElementType> SparseMatrix<ElementType>::SVD() const
 {
     return MatrixSVD(*this);
 }
+*/
 
 }//end namespace mdk
 

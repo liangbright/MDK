@@ -25,6 +25,7 @@ inline
 DenseMatrix<ElementType>::DenseMatrix(const Empty_Matrix_Symbol&)
 {
     this->Resize(0, 0);
+    this->FixSize();
 }
 
 
@@ -352,10 +353,13 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
 
     std::vector<int_max> ColNumberList(InputMatrixNumber);
 
-    int_max InputRowNumber = 0;
-    int_max TotalColNumber = 0;
+    int_max InputRowNumber = InputList.begin()[0]->GetRowNumber();
 
-    for (int_max k = 0; k < InputMatrixNumber; k++)
+    int_max TotalColNumber = InputList.begin()[0]->GetColNumber();
+
+    ColNumberList[0] = TotalColNumber;
+
+    for (int_max k = 1; k < InputMatrixNumber; k++)
     {
         auto InputMatrixPtr = InputList.begin()[k];
 
@@ -363,17 +367,10 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
 
         TotalColNumber += InputMatrixPtr->GetColNumber();
 
-        if (k == 1)
+        if (InputRowNumber != InputMatrixPtr->GetRowNumber())
         {
-            InputRowNumber = InputMatrixPtr->GetRowNumber();
-        }
-        else
-        {
-            if (InputRowNumber != InputMatrixPtr->GetRowNumber())
-            {
-                MDK_Error("RowNumber is not the same in the list @ DenseMatrix::operator=(initializer_list)")
-                return;
-            }
+            MDK_Error("RowNumber is not the same in the list @ DenseMatrix::operator=(initializer_list)")
+            return;        
         }
     }
 
@@ -402,7 +399,7 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
 
         for (int_max j = temp_ColNumber; j < temp_ColNumber + ColNumberList[k]; ++j, ColPtr += InputRowNumber)
         {
-            this->SetCol(j, ColPtr, InputRowNumber);
+            this->SetCol(j, ColPtr);
         }
 
         temp_ColNumber += ColNumberList[k];
@@ -1491,6 +1488,14 @@ inline
 bool DenseMatrix<ElementType>::IsShared() const
 {
     return (m_MatrixData.use_count() > 1);
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::IsSharedWith(const DenseMatrix& InputMatrix) const
+{
+    return (this->GetElementPointer() == InputMatrix.GetElementPointer());
 }
 
 
@@ -4242,7 +4247,7 @@ bool DenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColData, int_m
 
     this->Resize(Length, SelfSize.ColNumber + 1);
 
-    return this->SetCol(SelfSize.ColNumber, ColData, Length);
+    return this->SetCol(SelfSize.ColNumber, ColData);
 }
 
 

@@ -17,7 +17,7 @@ FeatureDictionaryForSparseCoding<ElementType>::FeatureDictionaryForSparseCoding(
 {
     m_DictionaryData = std::make_shared<DictionaryData_Of_FeatureDictionaryForSparseCoding<ElementType>>();
 
-    this->Copy(InputDictionary)
+    this->Copy(InputDictionary);
 }
 
 
@@ -38,7 +38,7 @@ FeatureDictionaryForSparseCoding<ElementType>::~FeatureDictionaryForSparseCoding
 template<typename ElementType>
 void FeatureDictionaryForSparseCoding<ElementType>::operator=(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
 {
-    this->Copy(InputDictionary)
+    this->Copy(InputDictionary);
 }
 
 
@@ -52,7 +52,7 @@ void FeatureDictionaryForSparseCoding<ElementType>::operator=(FeatureDictionaryF
 template<typename ElementType>
 void FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
 {
-    if (this->m_DictionaryData == InputDictionary->m_DictionaryData)
+    if (m_DictionaryData == InputDictionary.m_DictionaryData)
     {
         return;
     }
@@ -63,7 +63,11 @@ void FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionary
 
     m_DictionaryData->BasisMatrix = InputDictionary.m_DictionaryData->BasisMatrix;
 
-    m_DictionaryData->StandardDeviation = InputDictionary.m_DictionaryData->StandardDeviation;
+    m_DictionaryData->StandardDeviationOfL1Distance = InputDictionary.m_DictionaryData->StandardDeviationOfL1Distance;
+
+    m_DictionaryData->StandardDeviationOfL2Distance = InputDictionary.m_DictionaryData->StandardDeviationOfL2Distance;
+
+    m_DictionaryData->StandardDeviationOfKLDivergence = InputDictionary.m_DictionaryData->StandardDeviationOfKLDivergence;
 
     m_DictionaryData->StandardDeviationOfReconstruction = InputDictionary.m_DictionaryData->StandardDeviationOfReconstruction;
 
@@ -154,7 +158,11 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
 
     m_DictionaryData->BasisMatrix = std::move(InputDictionary.m_DictionaryData->BasisMatrix);
 
-    m_DictionaryData->StandardDeviation = std::move(InputDictionary.m_DictionaryData->StandardDeviation);
+    m_DictionaryData->StandardDeviationOfL1Distance = std::move(InputDictionary.m_DictionaryData->StandardDeviationOfL1Distance);
+
+    m_DictionaryData->StandardDeviationOfL2Distance = std::move(InputDictionary.m_DictionaryData->StandardDeviationOfL2Distance);
+
+    m_DictionaryData->StandardDeviationOfKLDivergence = std::move(InputDictionary.m_DictionaryData->StandardDeviationOfKLDivergence);
 
     m_DictionaryData->StandardDeviationOfReconstruction = std::move(InputDictionary.m_DictionaryData->StandardDeviationOfReconstruction);
 
@@ -164,6 +172,7 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
 
     m_DictionaryData->Covariance = std::move(InputDictionary.m_DictionaryData->Covariance);
 
+    InputDictionary.Clear();
 }
 
 
@@ -176,8 +185,9 @@ void FeatureDictionaryForSparseCoding<ElementType>::Clear()
 
     m_DictionaryData->BasisMatrix.Clear();
 
-    m_DictionaryData->StandardDeviation.Clear();
-
+    m_DictionaryData->StandardDeviationOfL1Distance.Clear();
+    m_DictionaryData->StandardDeviationOfL2Distance.Clear();
+    m_DictionaryData->StandardDeviationOfKLDivergence.Clear();
     m_DictionaryData->StandardDeviationOfReconstruction.Clear();
 
     m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = 0;

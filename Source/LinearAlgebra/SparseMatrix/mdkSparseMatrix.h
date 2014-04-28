@@ -212,11 +212,11 @@ public:
     // move constructor
     inline SparseMatrix(SparseMatrix<ElementType>&& InputSparseMatrix);
 
-    inline SparseMatrix(const SparseShadowMatrix<ElementType>& SparseShadowMatrix);
+    //inline SparseMatrix(const SparseShadowMatrix<ElementType>& SparseShadowMatrix);
 
-    inline SparseMatrix(const SparseGlueMatrixForLinearCombination<ElementType>& SparseGlueMatrix);
+    //inline SparseMatrix(const SparseGlueMatrixForLinearCombination<ElementType>& SparseGlueMatrix);
 
-    inline SparseMatrix(const SparseGlueMatrixForMultiplication<ElementType>& SparseGlueMatrix);
+    //inline SparseMatrix(const SparseGlueMatrixForMultiplication<ElementType>& SparseGlueMatrix);
 
 	inline ~SparseMatrix();
 
@@ -316,11 +316,11 @@ public:
 
     inline void operator=(const std::initializer_list<std::initializer_list<ElementType>>& InputListInList);
 
-    inline void operator=(const SparseShadowMatrix<ElementType>& ShadowMatrix);
+    //inline void operator=(const SparseShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline void operator=(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+    //inline void operator=(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
-    inline void operator=(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    //inline void operator=(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
     //----------------------  Copy From SparseMatrix or Element  ----------------------------------------//
 
@@ -360,11 +360,11 @@ public:
 
     //Take the the ownership of the SparseMatrix Created from ShadowSparseMatrix or SparseGlueMatrix
 
-    inline bool Take(const SparseShadowMatrix<ElementType>& ShadowMatrix);
+    //inline bool Take(const SparseShadowMatrix<ElementType>& ShadowMatrix);
 
-    inline bool Take(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+    //inline bool Take(const SparseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
-    inline bool Take(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+    //inline bool Take(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
     // clear memory no matter what, and set m_IsSizeFixed to be false
     inline void Clear();
@@ -500,11 +500,11 @@ public:
 	inline const ElementType& at(int_max RowIndex, int_max ColIndex) const;
 
     //---------------------- Get/Set a set of elements by SparseMatrix({}) or SparseMatrix.at({}) ----------------------------//
-
+    /*
     // operator(): no bound check in release mode
     //
     // note: operator[] is for single element access only, operator[{}] is not defined
-
+    
     inline SparseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& LinearIndexList);
 
     inline const SparseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& LinearIndexList) const;
@@ -1007,6 +1007,7 @@ public:
 
     inline SparseMatrixSVDResult<ElementType> SVD() const;
 
+    */
 
 	//---------------------------- private functions ---------------------------------------//
 

@@ -24,14 +24,16 @@ void KNNSoftAssignOnlineDictionaryBuilder<ElementType>::Clear()
 {
     m_Parameter.Clear();
 
-    m_SparseEncoder.Clear();
+    m_FeatureData = nullptr;
+
+    m_InitialDictionary = nullptr;
 
     this->SetupDefaultPipelineOutput();
 }
 
 
 template<typename ElementType>
-void SPAMSOnlineDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
+void KNNSoftAssignOnlineDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
 {
     m_Dictionary_SharedCopy.Clear();
     m_Dictionary = &m_Dictionary_SharedCopy;
@@ -39,7 +41,7 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
 
 
 template<typename ElementType>
-void SPAMSOnlineDictionaryBuilder<ElementType>::UpdatePipelineOutput()
+void KNNSoftAssignOnlineDictionaryBuilder<ElementType>::UpdatePipelineOutput()
 {
     if (m_Dictionary != &m_Dictionary_SharedCopy)
     {
@@ -78,7 +80,7 @@ void KNNSoftAssignOnlineDictionaryBuilder<ElementType>::SetOutputDictionary(Feat
 
 
 template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>* SPAMSOnlineDictionaryBuilder<ElementType>::GetOutputDictionary()
+FeatureDictionaryForSparseCoding<ElementType>* KNNSoftAssignOnlineDictionaryBuilder<ElementType>::GetOutputDictionary()
 {
     return &m_Dictionary_SharedCopy;
 }
@@ -93,12 +95,136 @@ bool KNNSoftAssignOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    auto DataSize = m_FeatureData->GetSize();
-
-    if (DataSize.RowNumber == 0)
+    if (m_FeatureData->IsEmpty() == true)
     {
         MDK_Error("InputFeatureData is empty @ KNNSoftAssignOnlineDictionaryBuilder::CheckInput()")
         return false;
+    }
+
+    bool IsInitialDictionaryEmpty = true;
+
+    if (m_InitialDictionary != nullptr)
+    {
+        if (m_FeatureData->GetRowNumber() != m_InitialDictionary->BasisMatrix().GetRowNumber())
+        {
+            MDK_Error("RowNumber Of FeatureData != RowNumber Of InitialDictionary @ KNNSoftAssignOnlineDictionaryBuilder::CheckInput()")
+            return false;
+        }
+
+        IsInitialDictionaryEmpty = false;
+    }
+
+    if (m_Parameter.MaxNumberOfNeighbours <= 0)
+    {
+        MDK_Error("m_NeighbourNumber <= 0 @ KNNSoftAssignOnlineDictionaryBuilder::CheckInput()")
+        return false;
+    }
+
+    if (m_Parameter.NumberOfDataInEachBatch > m_FeatureData->GetColNumber())
+    {
+        MDK_Error("NumberOfDataInEachBatch > TotalDataNumber @ KNNSoftAssignOnlineDictionaryBuilder::CheckInput()")
+        return false;
+    }
+
+    if (m_Parameter.NumberOfDataInEachBatch < m_Parameter.MaxNumberOfNeighbours)
+    {
+        MDK_Error("NumberOfDataInEachBatch < MaxNumberOfNeighbours @ KNNSoftAssignOnlineDictionaryBuilder::CheckInput()")
+        return false;
+    }
+
+    if (m_Parameter.SimilarityType != "L1Distance"
+        && m_Parameter.SimilarityType != "L2Distance"
+        && m_Parameter.SimilarityType != "Correlation"
+        && m_Parameter.SimilarityType != "KLDivergence")
+    {
+        MDK_Error("SimilarityType is invalid @ KNNSoftAssignOnlineDictionaryBuilder::CheckInput()")
+        return false;
+    }
+
+    if (m_Parameter.SimilarityThreshold < 0)
+    {
+        MDK_Error("SimilarityThreshold is invalid @ KNNSoftAssignOnlineDictionaryBuilder::CheckInput()")
+        return false;
+    }
+
+    if (m_Parameter.SimilarityType == "L1Distance")
+    {
+        if (m_Parameter.Sigma_L1 <= 0)
+        {
+            // try to find it in Initial Dictionary
+            
+            bool IsOk = false;
+
+            if (IsInitialDictionaryEmpty == false)
+            {
+                if (m_InitialDictionary->StandardDeviationOfL1Distance().IsEmpty() == false)
+                {
+                    m_Parameter.Sigma_L1 = m_Dictionary->StandardDeviationOfL1Distance().Mean();
+                    IsOk = true;
+                }
+            }
+            
+            if (IsOk == false)
+            {
+                MDK_Error("Sigma_L1 <= 0 @ KNNSoftAssignOnlineDictionaryBuilder::CheckInput()")
+                return false;
+            }
+        }
+    }
+    else if (m_Parameter.SimilarityType == "L2Distance")
+    {
+        if (m_Parameter.Sigma_L2 <= 0)
+        {
+            // try to find it in Initial Dictionary
+
+            bool IsOk = false;
+
+            if (IsInitialDictionaryEmpty == false)
+            {
+                if (m_InitialDictionary->StandardDeviationOfL2Distance().IsEmpty() == false)
+                {
+                    m_Parameter.Sigma_L2 = m_Dictionary->StandardDeviationOfL2Distance().Mean();
+                    IsOk = true;
+                }
+            }
+
+            if (IsOk == false)
+            {
+                MDK_Error("Sigma_L2 <= 0 @ KNNSoftAssignOnlineDictionaryBuilder::CheckInput()")
+                return false;
+            }
+        }
+    }
+    else if (m_Parameter.SimilarityType == "Correlation")
+    {
+        if (m_Parameter.IgnoreSign_Correlation == true)
+        {
+            MDK_Warning("IgnoreSign_Correlation is true @ KNNSoftAssignOnlineDictionaryBuilder::CheckInput()")
+        }
+    }
+    else if (m_Parameter.SimilarityType == "KLDivergence")
+    {
+        if (m_Parameter.Sigma_KL <= 0)
+        {
+            // try to find it in Initial Dictionary
+
+            bool IsOk = false;
+
+            if (IsInitialDictionaryEmpty == false)
+            {
+                if (m_InitialDictionary->StandardDeviationOfKLDivergence().IsEmpty() == false)
+                {
+                    m_Parameter.Sigma_KL = m_Dictionary->StandardDeviationOfKLDivergence().Mean();
+                    IsOk = true;
+                }
+            }
+            
+            if (IsOk == false)
+            {
+                MDK_Error("Sigma_KL <= 0 @ KNNSoftAssignOnlineDictionaryBuilder::CheckInput()")
+                return false;
+            }
+        }
     }
 
     return true;
@@ -108,20 +234,15 @@ bool KNNSoftAssignOnlineDictionaryBuilder<ElementType>::CheckInput()
 template<typename ElementType>
 void KNNSoftAssignOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 {
-    auto DataSize = m_FeatureData->GetSize();
+    int_max TotalDataNumber = m_FeatureData->GetColNumber();
 
-    auto DataNumber = DataSize.ColNumber;
-
-    int_max BatchNumber = m_Parameter.NumberOfDataInEachBatch / DataNumber + 1;
-
-    if (BatchNumber == 1)
+    if (m_Parameter.NumberOfDataInEachBatch >= TotalDataNumber)
     {
         DenseMatrix<ElementType> FeatureData_Combined;
 
         if (m_InitialDictionary != nullptr)
         {
             DenseMatrix<ElementType>& BasisMatrixOfInitialDictionary = m_InitialDictionary->BasisMatrix();
-            int_max InitalBasisNumber = BasisMatrixOfInitialDictionary.GetColNumber();
 
             FeatureData_Combined = { &BasisMatrixOfInitialDictionary, m_FeatureData };
         }
@@ -130,45 +251,82 @@ void KNNSoftAssignOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
             FeatureData_Combined.ForceShare(m_FeatureData);
         }
 
-        auto Probability_Combined = GetProbabilityMassFunctionOfCombinedData(m_FeatureData->GetColNumber());
+        auto Probability_Combined = GetProbabilityMassFunctionOfCombinedData(m_InitialDictionary, FeatureData_Combined.GetColNumber());
  
-        (*m_Dictionary) = this->ExtractDictionaryFromData(m_Parameter.BasisNumber, FeatureData_Combined, Probability_Combined);
+        (*m_Dictionary) = this->ExtractDictionaryFromDataBatch(m_Parameter.BasisNumber, FeatureData_Combined, Probability_Combined, m_InitialDictionary);
 
         return;
     }
 
-    // BatchNumber > 1
-    //------------------------------------------ run mini-batch -------------------------------------------------------//
+    // m_Parameter.MaxNumberOfIteration > 1
+    //------------------------------------------ run Data batch -------------------------------------------------------//
 
-    for (int_max IterationIndex = 0; IterationIndex < m_Parameter.MaxNumberOfIteration)
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> UniformRandomNumber(0, TotalDataNumber - 1);
+
+    FeatureDictionaryForSparseCoding<ElementType> Dictionary_temp;
+
+    if (m_InitialDictionary != nullptr)
     {
-
+        Dictionary_temp.Copy(m_InitialDictionary);
     }
 
+    DenseMatrix<ElementType> FeatureData_current(m_FeatureData->GetRowNumber(), m_Parameter.NumberOfDataInEachBatch);
 
+    for (int_max IterationIndex = 0; IterationIndex < m_Parameter.MaxNumberOfIteration; IterationIndex++)
+    {
+        // sample data with m_Parameter.NumberOfDataInEachBatch 
+        for (int_max k = 0; k < m_Parameter.NumberOfDataInEachBatch; ++k)
+        {
+            auto DataIndex = UniformRandomNumber(gen);
+
+            FeatureData_current.SetCol(k, m_FeatureData->GetElementPointerOfCol(DataIndex));
+        }
+        
+        DenseMatrix<ElementType> FeatureData_Combined;
+
+        if (Dictionary_temp.IsEmpty() == false)
+        {
+            DenseMatrix<ElementType>& BasisMatrixOfInitialDictionary = Dictionary_temp.BasisMatrix();
+
+            FeatureData_Combined = { &BasisMatrixOfInitialDictionary, &FeatureData_current };
+        }
+        else
+        {
+            FeatureData_Combined.ForceShare(FeatureData_current);
+        }
+
+        auto Probability_Combined = GetProbabilityMassFunctionOfCombinedData(&Dictionary_temp, FeatureData_Combined.GetColNumber());
+
+        Dictionary_temp = this->ExtractDictionaryFromDataBatch(m_Parameter.BasisNumber, FeatureData_Combined, Probability_Combined, &Dictionary_temp);
+    }
+
+    (*m_Dictionary) = std::move(Dictionary_temp);
 }
 
 
 template<typename ElementType>
 FeatureDictionaryForSparseCoding<ElementType> 
-KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromData(int_max BasisNumber_desired,
-                                                                             const DenseMatrix<ElementType>& FeatureData,
-                                                                             const DenseMatrix<ElementType>& ProbabilityMassFunctionOfData)
+KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromDataBatch(int_max BasisNumber_desired,
+                                                                                  const DenseMatrix<ElementType>& FeatureData,
+                                                                                  const DenseMatrix<ElementType>& ProbabilityMassFunctionOfData,
+                                                                                  const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init)
 {
     FeatureDictionaryForSparseCoding<ElementType> Dictionary;
     Dictionary.SetName(m_Parameter.DictionaryName);
 
     //------------------------------------------- check input ------------------------------------------------------------------------//
 
-    if (BasisNumber_desired <= 0 || FeatureData.IsEmpty() == true || Probability.IsVector() == false)
+    if (BasisNumber_desired <= 0 || FeatureData.IsEmpty() == true || ProbabilityMassFunctionOfData.IsVector() == false)
     {
-        MDK_Error("Invalid input @ KNNSoftAssignOnlineDictionaryBuilder::ExtractDictionaryFromData(...)")
+        MDK_Error("Invalid input @ KNNSoftAssignOnlineDictionaryBuilder::ExtractDictionaryFromDataBatch(...)")
         return Dictionary;
     }
 
     if (FeatureData.GetColNumber() != ProbabilityMassFunctionOfData.GetElementNumber())
     {
-        MDK_Error("FeatureData.GetColNumber() != Probability.GetElementNumber() @ KNNSoftAssignOnlineDictionaryBuilder::ExtractDictionaryFromData(...)")
+        MDK_Error("FeatureData.GetColNumber() != Probability.GetElementNumber() @ KNNSoftAssignOnlineDictionaryBuilder::ExtractDictionaryFromDataBatch(...)")
         return Dictionary;
     }
 
@@ -176,20 +334,26 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromData(int
 
     // calculate similarity between feature vectors
 
-    auto SimilarityMatrix = ComputeSimilarityMatrixOfVecorSet(FeatureData,
-                                                              [&](const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB)
-                                                              { this->ComputeSimilarityBetweenTwoDataVectors(VectorA, VectorB); });
+    auto SimilarityMatrix = this->ComputeSimilarityMatrix(FeatureData,
+                                                          [&](const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB)
+                                                          { return this->ComputeSimilarityBetweenTwoDataVectors(VectorA, VectorB); });
+
+    MDK_DebugCode
+    (
+        CharString FilePathAndName = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNSoftAssignOnlineDictionaryBuiler/Debug/SimilarityMatrix.json";
+        SaveDenseMatrixAsJsonDataFile(SimilarityMatrix, FilePathAndName);
+    )
 
     auto KNNDataVectorIndexTable = FindKNNDataVectorIndexTableBySimilarityMatrix(SimilarityMatrix);
 
     // estimate the probability mass function based on Probability_init
 
-    auto Probability = this->EstimateBasisProbabilityMassFunctionFromData(KNNDataVectorIndexTable, ProbabilityMassFunctionOfData);
+    auto Probability = this->EstimateBasisProbabilityMassFunction_Data(KNNDataVectorIndexTable, ProbabilityMassFunctionOfData);
 
     // if the number of data samples is smaller than the number of bases
     if (BasisNumber_desired >= FeatureData.GetColNumber())
     {
-        MDK_Warning("BasisNumber_desired >= FeatureData.GetColNumber() @ KNNSoftAssignOnlineDictionaryBuilder::ExtractDictionaryFromData(...)")
+        MDK_Warning("BasisNumber_desired >= FeatureData.GetColNumber() @ KNNSoftAssignOnlineDictionaryBuilder::ExtractDictionaryFromDataBatch(...)")
 
         Dictionary.BasisMatrix().Copy(FeatureData);
         Dictionary.ProbabilityMassFunction().Copy(Probability);
@@ -212,7 +376,7 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromData(int
     int_max Counter = 0;
     for (int_max k = 0; k < TotalFeatureDataNumber-1; ++k)
     {
-        for (int_max n = k + 1; k < TotalFeatureDataNumber; ++k)
+        for (int_max n = k + 1; n < TotalFeatureDataNumber; ++n)
         {         
             DataPairScoreList[Counter] = m_Parameter.weigth_s*SimilarityMatrix(n, k)
                                         + (1 - m_Parameter.weigth_s)*(Probability[n] + Probability[k]) / ElementType(2);
@@ -298,13 +462,13 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromData(int
     {
         if (DataFlagList[k] > 0)
         {
-            DataVectorIndexList_Basis.AppendCol(k);
+            DataVectorIndexList_Basis.AppendCol({ k });
         }
     }
 
     // ------------- create BasisMatrix--------------------------------------------------//
 
-    DenseMatrix<ElementType> BasisMatrix(FeatureData->GetRowNumber(), OutputBasisNumber);
+    DenseMatrix<ElementType> BasisMatrix(FeatureData.GetRowNumber(), OutputBasisNumber);
 
     for (int_max k = 0; k < OutputBasisNumber; ++k)
     {
@@ -319,26 +483,26 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromData(int
 
     //---------- estimate BasisProbability using KNN method and Similarity --------------//
 
-    auto BasisProbability = this->EstimateBasisProbabilityMassFunctionFromData(KNNBasisVectorIndexTable, ProbabilityMassFunctionOfData);
+    auto BasisProbability = this->EstimateBasisProbabilityMassFunction_Basis(OutputBasisNumber, KNNBasisVectorIndexTable, ProbabilityMassFunctionOfData);
 
     // ------- update WeightedNumberOfTrainingSamplesInHistory -----------------------//
 
     int_max WeightedNumberOfTrainingSamples_ALL = 0;
-    if (m_InitialDictionary == nullptr)
+    if (Dictionary_init == nullptr)
     {
         WeightedNumberOfTrainingSamples_ALL = FeatureData.GetColNumber();
     }
     else
     {
-        WeightedNumberOfTrainingSamples_ALL = m_InitialDictionary->GetWeightedNumberOfTrainingSamplesInHistory() + FeatureData.GetColNumber();
+        WeightedNumberOfTrainingSamples_ALL = Dictionary_init->GetWeightedNumberOfTrainingSamplesInHistory() + FeatureData.GetColNumber();
     }
 
         //---------- estimate StandardDeviationOfL1Distance --------------------------------------------//
      
     DenseMatrix<ElementType> StandardDeviationOfL1Distance_init;
-    if (m_InitialDictionary != nullptr)
+    if (Dictionary_init != nullptr)
     {
-        StandardDeviationOfL1Distance_init.ForceShare(m_InitialDictionary->StandardDeviationOfL1Distance());
+        StandardDeviationOfL1Distance_init.ForceShare(Dictionary_init->StandardDeviationOfL1Distance());
     }
 
     auto StandardDeviationOfL1Distance = this->EsimateBasisStandardDeviationOfL1Distance(FeatureData, 
@@ -349,9 +513,9 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromData(int
     //---------- estimate StandardDeviationOfL2Distance --------------------------------------------//
      
     DenseMatrix<ElementType> StandardDeviationOfL2Distance_init;
-    if (m_InitialDictionary != nullptr)
+    if (Dictionary_init != nullptr)
     {
-        StandardDeviationOfL2Distance_init.ForceShare(m_InitialDictionary->StandardDeviationOfL2Distance());
+        StandardDeviationOfL2Distance_init.ForceShare(Dictionary_init->StandardDeviationOfL2Distance());
     }
 
     auto StandardDeviationOfL2Distance = this->EsimateBasisStandardDeviationOfL2Distance(FeatureData, 
@@ -364,9 +528,9 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromData(int
     if (m_Parameter.WhetherToEstimateStandardDeviationOfKLDivergence == true)
     {
         DenseMatrix<ElementType> StandardDeviationOfKLDivergence_init;
-        if (m_InitialDictionary != nullptr)
+        if (Dictionary_init != nullptr)
         {
-            StandardDeviationOfKLDivergence_init.ForceShare(m_InitialDictionary->StandardDeviationOfKLDivergence());
+            StandardDeviationOfKLDivergence_init.ForceShare(Dictionary_init->StandardDeviationOfKLDivergence());
         }
 
         StandardDeviationOfKLDivergence = this->EsimateBasisStandardDeviationOfKLDivergence(FeatureData,
@@ -378,9 +542,9 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromData(int
     //---------- update StandardDeviationOfReconstruction --------------------------------//
 
     DenseMatrix<ElementType> StandardDeviationOfReconstruction_init;
-    if (m_InitialDictionary != nullptr)
+    if (Dictionary_init != nullptr)
     {
-        StandardDeviationOfReconstruction_init.ForceShare(m_InitialDictionary->StandardDeviationOfReconstruction());
+        StandardDeviationOfReconstruction_init.ForceShare(Dictionary_init->StandardDeviationOfReconstruction());
     }
 
     auto StandardDeviationOfReconstruction = this->EsimateBasisStandardDeviationOfReconstruction(FeatureData,
@@ -411,40 +575,43 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ExtractDictionaryFromData(int
 
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType>
-KNNSoftAssignOnlineDictionaryBuilder<ElementType>::GetProbabilityMassFunctionOfCombinedData(int_max FeatureDataVectorNumber)
+KNNSoftAssignOnlineDictionaryBuilder<ElementType>::
+GetProbabilityMassFunctionOfCombinedData(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init,
+                                         int_max CombinedFeatureDataVectorNumber)
 {
-    // CombinedData = [ BasisMatrix of m_InitialDictionary,  input FeatureData]
+    // CombinedData = [ BasisMatrix of Dictionary_init,  FeatureData]
 
-    // if m_InitialDictionary is empty, then CombinedData = input FeatureData 
+    // CombinedFeatureDataVectorNumber = InitialBasisNumber + FeatureDataNumber
+
+    // if Dictionary_init is empty, then CombinedData = input FeatureData 
 
     DenseMatrix<ElementType> Probability;
 
     auto Prob = ElementType(0);
 
-    if (m_InitialDictionary == nullptr)
+    if (Dictionary_init == nullptr)
     {
-        Probability.FastResize(1, FeatureDataVectorNumber);
+        Probability.FastResize(1, CombinedFeatureDataVectorNumber);
 
         Probability.Fill(ElementType(1));
     }
     else
     {
-        auto InitialBasisNumber = m_InitialDictionary->BasisMatrix().GetColNumber();
+        auto InitialBasisNumber = Dictionary_init->BasisMatrix().GetColNumber();
 
-        const DenseMatrix<ElementType>& PMFOfInitialDicitonary = m_InitialDictionary->ProbabilityMassFunction();
+        const DenseMatrix<ElementType>& PMFOfInitialDicitonary = Dictionary_init->ProbabilityMassFunction();
 
-        auto SampleNumber_past = m_InitialDictionary->GetWeightedNumberOfTrainingSamplesInHistory();
+        auto SampleNumber_past = Dictionary_init->GetWeightedNumberOfTrainingSamplesInHistory();
 
-        Probability.FastResize(1, InitialBasisNumber + FeatureDataVectorNumber);
+        Probability.FastResize(1, CombinedFeatureDataVectorNumber);
 
         for (int_max k = 0; k < InitialBasisNumber; k++)
         {
             Probability[k] = m_Parameter.weigth_past * PMFOfInitialDicitonary[k] * SampleNumber_past;
         }
 
-        for (int_max k = InitialBasisNumber; k < InitialBasisNumber + FeatureDataVectorNumber; k++)
+        for (int_max k = InitialBasisNumber; k < CombinedFeatureDataVectorNumber; k++)
         {
             Probability[k] = (1 - m_Parameter.weigth_past) * ElementType(1);
         }
@@ -457,25 +624,100 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::GetProbabilityMassFunctionOfC
 
 
 template<typename ElementType>
+template<typename SimilarityFunctionType>
+DenseMatrix<ElementType> 
+KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ComputeSimilarityMatrix(const DenseMatrix<ElementType>& FeatureData,
+                                                                           SimilarityFunctionType SimilarityFunction)
+{
+    int_max TotalDataNumber = FeatureData.GetColNumber();
+
+    DenseMatrix<ElementType> SimilarityMatrix(TotalDataNumber, TotalDataNumber);
+    SimilarityMatrix.Fill(ElementType(0));  // SimilarityMatrix(i, i) = 0 for all i
+
+    DenseMatrix<ElementType> Vector_k;
+    DenseMatrix<ElementType> Vector_n;
+
+    int_max VectorLength = FeatureData.GetRowNumber();
+
+    std::random_device rd_bool;
+    std::mt19937 gen_bool(rd_bool());
+    std::bernoulli_distribution BoolRandomNumber(0.5);
+
+    std::random_device rd_uniform;
+    std::mt19937 gen_uniform(rd_uniform());
+    std::uniform_real_distribution<ElementType> UniformRandomNumber(0, ElementType(1));
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+
+    for (int_max k = 0; k < TotalDataNumber - 1; ++k)
+    {
+        Vector_k.ShallowCopy(const_cast<ElementType*>(FeatureData.GetElementPointerOfCol(k)), VectorLength, 1);
+
+        for (int_max n = k + 1; n < TotalDataNumber; ++n)
+        {
+            Vector_n.ShallowCopy(const_cast<ElementType*>(FeatureData.GetElementPointerOfCol(n)), VectorLength, 1);
+
+            ElementType Similarity = SimilarityFunction(Vector_k, Vector_n);
+
+            // if Similarity <= m_Parameter.SimilarityThreshold and > eps_value
+            // add some random noise with abs < m_Parameter.SimilarityThreshold
+            // then,  data pair with Similarity <= eps_value will be sorted/sampled randomly
+            // It is a kind of random sampling
+            //
+            // if Similarity <= eps_value
+            // then set Similarity to zero or eps_value randomly
+
+            if (Similarity <= m_Parameter.SimilarityThreshold && Similarity > eps_value)
+            {
+                auto tempValue = UniformRandomNumber(gen_uniform);
+
+                Similarity *= tempValue;
+            }
+            
+            if (Similarity <= eps_value)
+            {
+                 bool Flag = BoolRandomNumber(gen_bool);
+
+                 if (Flag == true)
+                 {
+                     Similarity = ElementType(0);
+                 }
+                 else
+                 {
+                     Similarity = eps_value;
+                 }
+             }
+             
+            SimilarityMatrix(k, n) = Similarity;
+
+            SimilarityMatrix(n, k) = Similarity;
+        }
+    }
+
+    return SimilarityMatrix;
+}
+
+
+template<typename ElementType>
 inline
 ElementType KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ComputeSimilarityBetweenTwoDataVectors(const DenseMatrix<ElementType>& VectorA,
                                                                                                       const DenseMatrix<ElementType>& VectorB)
 {
     ElementType Similarity = ElementType(0);
 
-    if (DistanceType == "L1Distance")
+    if (m_Parameter.SimilarityType == "L1Distance")
     {
         auto L1Distance = ComputeL1DistanceBetweenTwoVectors(VectorA, VectorB);
         auto temp = L1Distance / m_Parameter.Sigma_L1;
-        Similarity = std::exp(-0.5*(temp*temp))
+        Similarity = std::exp(-0.5*(temp*temp));
     }
-    else if (DistanceType == "L2Distance")
+    else if (m_Parameter.SimilarityType == "L2Distance")
     {
         auto L2Distance = ComputeL2DistanceBetweenTwoVectors(VectorA, VectorB);
         auto temp = L2Distance / m_Parameter.Sigma_L2;
-        Similarity = std::exp(-0.5*(temp*temp))
+        Similarity = std::exp(-0.5*(temp*temp));
     }
-    else if (DistanceType == "Correlation")
+    else if (m_Parameter.SimilarityType == "Correlation")
     {
         auto Correlation = ComputeCorrelationBetweenTwoVectors(VectorA, VectorB);
         if (m_Parameter.IgnoreSign_Correlation == true)
@@ -487,14 +729,14 @@ ElementType KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ComputeSimilarity
             Similarity = (Correlation + ElementType(1)) / ElementType(2);
         }
     }
-    else if (DistanceType == "KLDivergence")
+    else if (m_Parameter.SimilarityType == "KLDivergence")
     {
         auto KLDivergence_AB = ComputeKLDivergenceOfVectorAFromVectorB(VectorA, VectorB);
         auto KLDivergence_BA = ComputeKLDivergenceOfVectorAFromVectorB(VectorB, VectorA);
         auto KLDivergence = (KLDivergence_AB + KLDivergence_BA) / ElementType(2);
 
         auto temp = KLDivergence / m_Parameter.Sigma_KL;
-        Similarity = std::exp(-(temp*temp) / ElementType(2))
+        Similarity = std::exp(-(temp*temp) / ElementType(2));
     }
     else
     {
@@ -506,12 +748,13 @@ ElementType KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ComputeSimilarity
 
 
 template<typename ElementType>
-inline
 DataContainer<DenseMatrix<int_max>>
 KNNSoftAssignOnlineDictionaryBuilder<ElementType>::FindKNNDataVectorIndexTableBySimilarityMatrix(const DenseMatrix<ElementType>& SimilarityMatrix)
 {
     // KNN does not include self in KNNDataVectorIndexTable 
     // if m_Parameter.SimilarityThreshold > 0, and   SimilarityMatrix(i, i) = 0 for all i
+
+    // Index Range in KNNDataVectorIndexTable is from 0 to TotalDataNumber-1
 
     int_max TotalDataNumber = SimilarityMatrix.GetColNumber();
 
@@ -531,7 +774,7 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::FindKNNDataVectorIndexTableBy
             SimilarityList[n] = SimilarityMatrix(n, k);
         }
 
-        KNNDataVectorIndexTable[k] = FindKNNBySimilarityList(SimilarityList, m_Parameter.NeighbourNumber, m_Parameter.SimilarityThreshold);
+        KNNDataVectorIndexTable[k] = FindKNNBySimilarityList(SimilarityList, m_Parameter.MaxNumberOfNeighbours, m_Parameter.SimilarityThreshold);
     }
 
     return KNNDataVectorIndexTable;
@@ -539,10 +782,9 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::FindKNNDataVectorIndexTableBy
 
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> 
 KNNSoftAssignOnlineDictionaryBuilder<ElementType>::
-EstimateBasisProbabilityMassFunctionFromData(const DataContainer<DenseMatrix<int_max>>& KNNDataVectorIndexTable)
+EstimateBasisProbabilityMassFunction_Data(const DataContainer<DenseMatrix<int_max>>& KNNDataVectorIndexTable)
 {
     int_max TotalDataNumber = KNNDataVectorIndexTable.GetLength();
 
@@ -565,8 +807,10 @@ EstimateBasisProbabilityMassFunctionFromData(const DataContainer<DenseMatrix<int
 
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> EstimateBasisProbabilityMassFunctionFromData(const DataContainer<DenseMatrix<int_max>>& KNNDataVectorIndexTable,
-                                                                             const DenseMatrix<ElementType>& DataProbabilityMassFunction)
+DenseMatrix<ElementType> 
+KNNSoftAssignOnlineDictionaryBuilder<ElementType>::
+EstimateBasisProbabilityMassFunction_Data(const DataContainer<DenseMatrix<int_max>>& KNNDataVectorIndexTable,
+                                          const DenseMatrix<ElementType>& DataProbabilityMassFunction)
 {
     // this is no double counting 
     // because KNN does not include self in KNNDataVectorIndexTable 
@@ -586,18 +830,31 @@ inline DenseMatrix<ElementType> EstimateBasisProbabilityMassFunctionFromData(con
         }
     }
 
-    Probability /= Probability.Sum();
+    auto SumProb = Probability.Sum();
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+    if (SumProb <= eps_value)
+    {
+        Probability.Fill(ElementType(1) / ElementType(TotalDataNumber));
+    }
+    else
+    {
+        Probability /= SumProb;
+    }
+
+    return Probability;
 }
 
 
 template<typename ElementType>
-inline 
 DataContainer<DenseMatrix<int_max>> 
 KNNSoftAssignOnlineDictionaryBuilder<ElementType>::FindKNNBasisVectorIndexTableBySimilarityMatrix(const DenseMatrix<int_max>&    DataVectorIndexList_Basis,
                                                                                                   const DenseMatrix<ElementType>& SimilarityMatrix)
 {
     // KNN does not include self in DataVectorIndexList_Basis 
     // if m_Parameter.SimilarityThreshold > 0, and   SimilarityMatrix(i, i) = 0 for all i
+
+    // Index Range in KNNBasisVectorIndexTable is from 0 to BasisNumber-1
 
     int_max TotalDataNumber = SimilarityMatrix.GetColNumber();
 
@@ -621,7 +878,7 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::FindKNNBasisVectorIndexTableB
             SimilarityList[n] = SimilarityMatrix(DataVectorIndex, DataVectorIndex_basis);
         }
 
-        KNNBasisVectorIndexTable[k] = FindKNNBySimilarityList(SimilarityList, m_Parameter.NeighbourNumber, m_Parameter.SimilarityThreshold);
+        KNNBasisVectorIndexTable[k] = FindKNNBySimilarityList(SimilarityList, m_Parameter.MaxNumberOfNeighbours, m_Parameter.SimilarityThreshold);
     }
 
     return KNNBasisVectorIndexTable;
@@ -629,18 +886,16 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::FindKNNBasisVectorIndexTableB
 
 
 template<typename ElementType>
-inline 
 DenseMatrix<ElementType> 
-KNNSoftAssignOnlineDictionaryBuilder<ElementType>::EstimateBasisProbabilityMassFunctionFromData(const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
-                                                                                                const DenseMatrix<ElementType>& DataProbabilityMassFunction)
+KNNSoftAssignOnlineDictionaryBuilder<ElementType>::EstimateBasisProbabilityMassFunction_Basis(int_max BasisNumber,
+                                                                                              const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
+                                                                                              const DenseMatrix<ElementType>& DataProbabilityMassFunction)
 {
     // this is no double counting 
     // because KNN does not include self in KNNBasisVectorIndexTable 
     // if m_Parameter.SimilarityThreshold > 0, and SimilarityMatrix(i, i) = 0 for all i
 
     int_max TotalDataNumber = KNNBasisVectorIndexTable.GetLength();
-
-    int_max BasisNumber = KNNBasisVectorIndexTable[0].GetElementNumber();
 
     DenseMatrix<ElementType> Probability(1, BasisNumber);
 
@@ -654,17 +909,113 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::EstimateBasisProbabilityMassF
         }
     }
 
-    Probability /= Probability.Sum();
+    auto SumProb = Probability.Sum();
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+    if (SumProb <= eps_value)
+    {
+        Probability.Fill(ElementType(1) / ElementType(TotalDataNumber));
+    }
+    else
+    {
+        Probability /= SumProb;
+    }
+
+    return Probability;
 }
 
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType>
-KNNSoftAssignOnlineDictionaryBuilder<ElementType>::EsimateBasisStandardDeviationOfL2Distance(const DenseMatrix<ElementType>& FeatureData,
-                                                                                             const DenseMatrix<int_max>&     KNNBasisVectorIndexTable,
-                                                                                             const DenseMatrix<ElementType>& BasisMatrix,                                                                                                                                  
-                                                                                             const DenseMatrix<ElementType>& StandardDeviation_init)
+KNNSoftAssignOnlineDictionaryBuilder<ElementType>::
+EsimateBasisStandardDeviationOfL1Distance(const DenseMatrix<ElementType>&            FeatureData,
+                                          const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
+                                          const DenseMatrix<ElementType>&            BasisMatrix,
+                                          const DenseMatrix<ElementType>&            StandardDeviation_init)
+{
+    int_max TotalDataNumber = FeatureData.GetColNumber();
+
+    int_max VectorLength = FeatureData.GetRowNumber();
+
+    int_max BasisNumber = BasisMatrix.GetColNumber();
+
+    DenseMatrix<ElementType> StandardDeviation(1, BasisNumber);
+    StandardDeviation.Fill(ElementType(0));
+
+    DenseMatrix<ElementType> DataVector;
+
+    DenseMatrix<ElementType> BasisVector;
+
+    DenseMatrix<ElementType> ErrorVector;
+
+    DenseMatrix<int_max> CounterList(1, BasisNumber);
+
+    for (int_max k = 0; k < TotalDataNumber; ++k)
+    {
+        const DenseMatrix<int_max>& KNN_IndexList = KNNBasisVectorIndexTable[k];
+
+        if (KNN_IndexList.IsEmpty() == false)
+        {
+            DataVector.ShallowCopy(const_cast<ElementType*>(FeatureData.GetElementPointerOfCol(k)), VectorLength, 1);
+
+            for (int_max m = 0; m < KNN_IndexList.GetElementNumber(); ++m)
+            {
+                auto BasisIndex = KNN_IndexList[m];
+                BasisVector.ShallowCopy(const_cast<ElementType*>(BasisMatrix.GetElementPointerOfCol(BasisIndex)), VectorLength, 1);
+
+                ErrorVector = MatrixSubtract(DataVector, BasisVector);
+
+                StandardDeviation[BasisIndex] += ErrorVector.L1Norm();
+
+                CounterList[BasisIndex] += 1;
+            }
+        }
+    }
+
+    for (int_max n = 0; n < BasisNumber; ++n)
+    {
+        if (CounterList[n] > 0)
+        {
+            StandardDeviation[n] /= CounterList[n];
+        }
+    }
+
+    if (StandardDeviation_init.IsEmpty() == false)
+    {
+        StandardDeviation = m_Parameter.weigth_past*StandardDeviation_init + (1 - m_Parameter.weigth_past)*StandardDeviation;
+    }
+
+    auto MeanStd = StandardDeviation.Mean();
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+
+    if (MeanStd <= eps_value)
+    {
+        MDK_Warning("MeanStd <= eps_value @ KNNSoftAssignOnlineDictionaryBuilder::EsimateBasisStandardDeviationOfL1Distance(...)"
+                    << '\n' << "set to std::max(eps_value, m_Parameter.Sigma_L1)")
+
+        MeanStd = std::max(eps_value, m_Parameter.Sigma_L1);
+    }
+
+    for (int_max n = 0; n < BasisNumber; ++n)
+    {
+        if (StandardDeviation[n] <= eps_value)
+        {
+            StandardDeviation[n] = MeanStd;
+        }
+    }
+
+    return StandardDeviation;
+}
+
+
+template<typename ElementType>
+DenseMatrix<ElementType>
+KNNSoftAssignOnlineDictionaryBuilder<ElementType>::
+EsimateBasisStandardDeviationOfL2Distance(const DenseMatrix<ElementType>&            FeatureData,
+                                          const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
+                                          const DenseMatrix<ElementType>&            BasisMatrix,                                                                                                                                  
+                                          const DenseMatrix<ElementType>&            StandardDeviation_init)
 {
     int_max TotalDataNumber = FeatureData.GetColNumber();
 
@@ -689,12 +1040,12 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::EsimateBasisStandardDeviation
 
         if (KNN_IndexList.IsEmpty() == false)
         {
-            DataVector.ShallowCopy(FeatureData.GetElementPointerOfCol(k), VectorLength, 1);
+            DataVector.ShallowCopy(const_cast<ElementType*>(FeatureData.GetElementPointerOfCol(k)), VectorLength, 1);
 
             for (int_max m = 0; m < KNN_IndexList.GetElementNumber(); ++m)
             {
                 auto BasisIndex = KNN_IndexList[m];
-                BasisVector.ShallowCopy(BasisMatrix.GetElementPointerOfCol(BasisIndex), VectorLength, 1);
+                BasisVector.ShallowCopy(const_cast<ElementType*>(BasisMatrix.GetElementPointerOfCol(BasisIndex)), VectorLength, 1);
 
                 ErrorVector = MatrixSubtract(DataVector, BasisVector);
 
@@ -715,7 +1066,7 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::EsimateBasisStandardDeviation
 
     if (StandardDeviation_init.IsEmpty() == false)
     {
-        StandardDeviation = weigth_past*StandardDeviation_init + (1 - weigth_past)*StandardDeviation;
+        StandardDeviation = m_Parameter.weigth_past*StandardDeviation_init + (1 - m_Parameter.weigth_past)*StandardDeviation;
     }
 
     auto MeanStd = StandardDeviation.Mean();
@@ -724,8 +1075,10 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::EsimateBasisStandardDeviation
 
     if (MeanStd <= eps_value)
     {
-        MDK_Warning("MeanStd <= eps_value @ KNNSoftAssignOnlineDictionaryBuilder::EsimateBasisStandardDeviation(...)")
-        MeanStd = eps_value;
+        MDK_Warning("MeanStd <= eps_value @ KNNSoftAssignOnlineDictionaryBuilder::EsimateBasisStandardDeviationOfL2Distance(...)"
+                    << '\n' << "set to std::max(eps_value, m_Parameter.Sigma_L2)");
+
+        MeanStd = std::max(eps_value, m_Parameter.Sigma_L2);
     }
 
     for (int_max n = 0; n < BasisNumber; ++n)
@@ -741,18 +1094,101 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::EsimateBasisStandardDeviation
 
 
 template<typename ElementType>
-inline
+DenseMatrix<ElementType>
+KNNSoftAssignOnlineDictionaryBuilder<ElementType>::
+EsimateBasisStandardDeviationOfKLDivergence(const DenseMatrix<ElementType>&            FeatureData,
+                                            const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
+                                            const DenseMatrix<ElementType>&            BasisMatrix,
+                                            const DenseMatrix<ElementType>&            StandardDeviation_init)
+{
+    int_max TotalDataNumber = FeatureData.GetColNumber();
+
+    int_max VectorLength = FeatureData.GetRowNumber();
+
+    int_max BasisNumber = BasisMatrix.GetColNumber();
+
+    DenseMatrix<ElementType> StandardDeviation(1, BasisNumber);
+    StandardDeviation.Fill(ElementType(0));
+
+    DenseMatrix<ElementType> DataVector;
+
+    DenseMatrix<ElementType> BasisVector;
+
+    DenseMatrix<ElementType> ErrorVector;
+
+    DenseMatrix<int_max> CounterList(1, BasisNumber);
+
+    for (int_max k = 0; k < TotalDataNumber; ++k)
+    {
+        const DenseMatrix<int_max>& KNN_IndexList = KNNBasisVectorIndexTable[k];
+
+        if (KNN_IndexList.IsEmpty() == false)
+        {
+            DataVector.ShallowCopy(const_cast<ElementType*>(FeatureData.GetElementPointerOfCol(k)), VectorLength, 1);
+
+            for (int_max m = 0; m < KNN_IndexList.GetElementNumber(); ++m)
+            {
+                auto BasisIndex = KNN_IndexList[m];
+                BasisVector.ShallowCopy(const_cast<ElementType*>(BasisMatrix.GetElementPointerOfCol(BasisIndex)), VectorLength, 1);
+
+                auto KLDivergence = ComputeKLDivergenceOfVectorAFromVectorB(DataVector, BasisVector);
+
+                StandardDeviation[BasisIndex] += KLDivergence;
+
+                CounterList[BasisIndex] += 1;
+            }
+        }
+    }
+
+    for (int_max n = 0; n < BasisNumber; ++n)
+    {
+        if (CounterList[n] > 0)
+        {
+            StandardDeviation[n] /= CounterList[n];
+        }
+    }
+
+    if (StandardDeviation_init.IsEmpty() == false)
+    {
+        StandardDeviation = m_Parameter.weigth_past*StandardDeviation_init + (1 - m_Parameter.weigth_past)*StandardDeviation;
+    }
+
+    auto MeanStd = StandardDeviation.Mean();
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+
+    if (MeanStd <= eps_value)
+    {
+        MDK_Warning("MeanStd <= eps_value @ KNNSoftAssignOnlineDictionaryBuilder::EsimateBasisStandardDeviationOfKLDivergence(...)"
+                     << '\n' << "set to std::max(eps_value, m_Parameter.Sigma_KL)");
+
+        MeanStd = std::max(eps_value, m_Parameter.Sigma_KL);
+    }
+
+    for (int_max n = 0; n < BasisNumber; ++n)
+    {
+        if (StandardDeviation[n] <= eps_value)
+        {
+            StandardDeviation[n] = MeanStd;
+        }
+    }
+
+    return StandardDeviation;
+}
+
+
+template<typename ElementType>
 DenseMatrix<ElementType>
 KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ReconstructDataVectorByKNNBasisMatrix(const DenseMatrix<ElementType>& DataVector,    
                                                                                          const DenseMatrix<ElementType>& KNNBasisMatrix,
                                                                                          const DenseMatrix<ElementType>& GramianMatrix_DtD,
                                                                                          const DenseMatrix<int_max>&     KNNBasisIndexList)
 {
-    DenseMatrix<ElementType> ReconstructedDataVector;
-
-    auto KNNBasisNumber = KNNBasisIndexList;
+    auto KNNBasisNumber = KNNBasisIndexList.GetElementNumber();
 
     Option_Of_LinearLeastSquaresProblemSolver Option;
+
+    Solution_Of_LinearLeastSquaresProblem<ElementType> Solution;
 
     if (m_Parameter.KNNReconstruction_CodeNonnegative == false && m_Parameter.KNNReconstruction_CodeSumToOne == false)
     {
@@ -767,29 +1203,29 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ReconstructDataVectorByKNNBas
 
         DenseMatrix<ElementType> A;
 
-        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataVector,
-                                                                            nullptr, nullptr, &A, nullptr, nullptr, nullptr,
-                                                                            &H, &Option);
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataVector,
+                                                                       nullptr, nullptr, &A, nullptr, nullptr, nullptr,
+                                                                       &H, &Option);
     }
     else if (m_Parameter.KNNReconstruction_CodeNonnegative == true && m_Parameter.KNNReconstruction_CodeSumToOne == false)
     {
-        DenseMatrix<ElementType> lb_x(m_Parameter.NeighbourNumber, 1);
+        DenseMatrix<ElementType> lb_x(KNNBasisNumber, 1);
         lb_x.Fill(0);
 
         Option.MethodName = "QuadraticProgramming";
 
         DenseMatrix<ElementType> H;
 
-        if (m_GramianMatrix_DtD.IsEmpty() == false)
+        if (GramianMatrix_DtD.IsEmpty() == false)
         {
             H = GramianMatrix_DtD.GetSubMatrix(KNNBasisIndexList, KNNBasisIndexList);
         }
 
         DenseMatrix<ElementType> A;
 
-        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataVector,
-                                                                            &lb_x, nullptr, &A, nullptr, nullptr, nullptr,
-                                                                            &H, &Option);
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataVector,
+                                                                       &lb_x, nullptr, &A, nullptr, nullptr, nullptr,
+                                                                       &H, &Option);
 
     }
     else if (m_Parameter.KNNReconstruction_CodeNonnegative == true && m_Parameter.KNNReconstruction_CodeSumToOne == true)
@@ -807,14 +1243,14 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ReconstructDataVectorByKNNBas
 
         DenseMatrix<ElementType> H;
 
-        if (m_GramianMatrix_DtD.IsEmpty() == false)
+        if (GramianMatrix_DtD.IsEmpty() == false)
         {
             H = GramianMatrix_DtD.GetSubMatrix(KNNBasisIndexList, KNNBasisIndexList);
         }
 
-        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataVector,
-                                                                            &lb_x, nullptr, &A, &lb_A, &ub_A, nullptr,
-                                                                            &H, &Option);
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataVector,
+                                                                       &lb_x, nullptr, &A, &lb_A, &ub_A, nullptr,
+                                                                       &H, &Option);
     }
     else //if(m_Parameter.KNNReconstruction_CodeNonnegative == false && m_Parameter.KNNReconstruction_CodeSumToOne == true)
     {
@@ -828,30 +1264,29 @@ KNNSoftAssignOnlineDictionaryBuilder<ElementType>::ReconstructDataVectorByKNNBas
 
         DenseMatrix<ElementType> H;
 
-        if (m_GramianMatrix_DtD.IsEmpty() == false)
+        if (GramianMatrix_DtD.IsEmpty() == false)
         {
             H = GramianMatrix_DtD.GetSubMatrix(KNNBasisIndexList, KNNBasisIndexList);
         }
 
-        auto Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataVector,
-                                                                            nullptr, nullptr, &A, &lb_A, &ub_A, nullptr,
-                                                                            &H, &Option);
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataVector,
+                                                                       nullptr, nullptr, &A, &lb_A, &ub_A, nullptr,
+                                                                       &H, &Option);
     }
 
-    ReconstructedDataVector = MatrixMultiply(KNNBasisMatrix, Solution.X);
+    auto ReconstructedDataVector = MatrixMultiply(KNNBasisMatrix, Solution.X);
 
     return ReconstructedDataVector;
 }
 
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType>
 KNNSoftAssignOnlineDictionaryBuilder<ElementType>::
-EsimateBasisStandardDeviationOfReconstruction(const DenseMatrix<ElementType>& FeatureData,
+EsimateBasisStandardDeviationOfReconstruction(const DenseMatrix<ElementType>&            FeatureData,
                                               const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
-                                              const DenseMatrix<ElementType>& BasisMatrix,
-                                              const DenseMatrix<ElementType>& StandardDeviationOfReconstruction_init)
+                                              const DenseMatrix<ElementType>&            BasisMatrix,
+                                              const DenseMatrix<ElementType>&            StandardDeviation_init)
 {
     int_max TotalDataNumber = FeatureData.GetColNumber();
 
@@ -859,8 +1294,8 @@ EsimateBasisStandardDeviationOfReconstruction(const DenseMatrix<ElementType>& Fe
 
     int_max BasisNumber = BasisMatrix.GetColNumber();
 
-    DenseMatrix<ElementType> StandardDeviationOfReconstruction(1, BasisNumber);
-    StandardDeviationOfReconstruction.Fill(ElementType(0));
+    DenseMatrix<ElementType> StandardDeviation(1, BasisNumber);
+    StandardDeviation.Fill(ElementType(0));
 
     DenseMatrix<ElementType> DataVector;
 
@@ -872,18 +1307,18 @@ EsimateBasisStandardDeviationOfReconstruction(const DenseMatrix<ElementType>& Fe
 
     DenseMatrix<int_max> CounterList(1, BasisNumber);
 
-    DenseMatrix<int_max> GramianMatrix_DtD = BasisMatrix.Transpose() *BasisMatrix;
+    DenseMatrix<ElementType> GramianMatrix_DtD = BasisMatrix.Transpose() *BasisMatrix;
 
     for (int_max k = 0; k < TotalDataNumber; ++k)
     {
-        DataVector.ShallowCopy(FeatureData.GetElementPointerOfCol(k), VectorLength, 1);
-
         const DenseMatrix<int_max>& KNN_IndexList = KNNBasisVectorIndexTable[k];
 
         if (KNN_IndexList.IsEmpty() == false)
         {
+            DataVector.ShallowCopy(const_cast<ElementType*>(FeatureData.GetElementPointerOfCol(k)), VectorLength, 1);
+
             // Reconstruct DataVector using KNN 
-            auto KNNBasisMatrix = BasisMatrix->GetSubMatrix(ALL, KNN_IndexList);
+            auto KNNBasisMatrix = BasisMatrix.GetSubMatrix(ALL, KNN_IndexList);
 
             ReconstructedDataVector = this->ReconstructDataVectorByKNNBasisMatrix(DataVector, KNNBasisMatrix, GramianMatrix_DtD, KNN_IndexList);
 
@@ -893,9 +1328,9 @@ EsimateBasisStandardDeviationOfReconstruction(const DenseMatrix<ElementType>& Fe
             for (int_max m = 0; m < KNN_IndexList.GetElementNumber(); ++m)
             {
                 auto BasisIndex = KNN_IndexList[m];
-                BasisVector.ShallowCopy(BasisMatrix.GetElementPointerOfCol(BasisIndex), VectorLength, 1);
+                BasisVector.ShallowCopy(const_cast<ElementType*>(BasisMatrix.GetElementPointerOfCol(BasisIndex)), VectorLength, 1);
 
-                StandardDeviationOfReconstruction[BasisIndex] += ErrorVectorNorm;
+                StandardDeviation[BasisIndex] += ErrorVectorNorm;
 
                 CounterList[BasisIndex] += 1;
             }
@@ -907,34 +1342,36 @@ EsimateBasisStandardDeviationOfReconstruction(const DenseMatrix<ElementType>& Fe
     {
         if (CounterList[n] > 0)
         {
-            StandardDeviationOfReconstruction[n] /= CounterList[n];
+            StandardDeviation[n] /= CounterList[n];
         }
     }
 
     if (StandardDeviation_init.IsEmpty() == false)
     {
-        StandardDeviationOfReconstruction = weigth_past*StandardDeviationOfReconstruction_init + (1 - weigth_past)*StandardDeviationOfReconstruction;
+        StandardDeviation = m_Parameter.weigth_past*StandardDeviation_init + (1 - m_Parameter.weigth_past)*StandardDeviation;
     }
 
-    auto MeanStd = StandardDeviationOfReconstruction.Mean();
+    auto MeanStd = StandardDeviation.Mean();
 
     auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     if (MeanStd <= eps_value)
     {
-        MDK_Warning("MeanStd <= eps_value @ KNNSoftAssignOnlineDictionaryBuilder::EsimateBasisStandardDeviationOfReconstruction(...)")
-        MeanStd = eps_value;
+        MDK_Warning("MeanStd <= eps_value @ KNNSoftAssignOnlineDictionaryBuilder::EsimateBasisStandardDeviationOfReconstruction(...)"
+                     << '\n' << "set to std::max(eps_value, m_Parameter.Sigma_L2)")
+
+        MeanStd = std::max(eps_value, m_Parameter.Sigma_L2);
     }
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (StandardDeviationOfReconstruction[n] <= eps_value)
+        if (StandardDeviation[n] <= eps_value)
         {
-            StandardDeviationOfReconstruction[n] = MeanStd;
+            StandardDeviation[n] = MeanStd;
         }
     }
 
-    return StandardDeviationOfReconstruction;
+    return StandardDeviation;
 }
 
 

@@ -7,7 +7,7 @@ namespace mdk
 {
 
 template<typename ElementType>
-bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementType>& OutputDataArray, DenseMatrix<ElementType>& OutputIndexList, const std::string& Order)
+bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementType>& OutputDataArray, DenseMatrix<int_max>& OutputIndexList, const std::string& Order)
 {
     // input should be a vector
 
@@ -19,38 +19,24 @@ bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementTyp
         return false;
     }
 
-    auto OutputSize = OutputDataArray.GetSize();
-
-    if ((OutputSize.RowNumber != 1 && OutputSize.ColNumber != 1) 
-        || OutputSize.RowNumber*OutputSize.ColNumber != InputSize.RowNumber*InputSize.ColNumber)
+    if (OutputDataArray.IsSharedWith(InputDataArray) == false)
     {
-        if (OutputDataArray.IsSizeFixed() == true)
+        auto IsGood = OutputDataArray.FastResize(InputSize.RowNumber, InputSize.ColNumber);
+
+        if (IsGood == false)
         {
             MDK_Error("Invalid OutputDataArray @mdkLinearAlgebra Sort(input is Matrix)")
             return false;
         }
-        else
-        {
-            OutputDataArray.FastResize(InputSize.RowNumber, InputSize.ColNumber);
-        }
     }
 
-    auto OutputIndexListSize = OutputIndexList.GetSize();
-        
-    if ((OutputIndexListSize.RowNumber != 1 && OutputIndexListSize.ColNumber != 1)
-        || OutputIndexListSize.RowNumber*OutputIndexListSize.ColNumber != InputSize.RowNumber*InputSize.ColNumber)
+    auto IsOK = OutputIndexList.FastResize(InputSize.RowNumber, InputSize.ColNumber);
+
+    if (IsOK == false)
     {
-        if (OutputIndexList.IsSizeFixed() == true)
-        {
-            MDK_Error("Invalid OutputIndexList @mdkLinearAlgebra Sort(input is Matrix)")
-            return false;
-        }
-        else
-        {
-            OutputIndexListSize.FastResize(InputSize.RowNumber, InputSize.ColNumber);
-        }
+        MDK_Error("Invalid OutputIndexList @mdkLinearAlgebra Sort(input is Matrix)")
+        return false;    
     }
-
 
     return Sort(InputDataArray.GetElementPointer(), 
                 InputSize.RowNumber*InputSize.ColNumber, 
@@ -61,7 +47,7 @@ bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementTyp
 
 
 template<typename ElementType>
-bool Sort(const std::vector<ElementType>& InputDataArray, std::vector<ElementType>& OutputDataArray, std::vector<ElementType>& OutputIndexList, const std::string& Order)
+bool Sort(const std::vector<ElementType>& InputDataArray, std::vector<ElementType>& OutputDataArray, std::vector<int_max>& OutputIndexList, const std::string& Order)
 {
     auto InputLength = int_max(InputDataArray.size());
 
@@ -74,7 +60,7 @@ bool Sort(const std::vector<ElementType>& InputDataArray, std::vector<ElementTyp
         OutputDataArray.resize(InputLength);
     }
 
-    if (OutputIndexListLength != InputLength)
+    if (OutputIndexListLength != InputLength) // note: OutputDataArray can be just the InputDataArray
     {
         OutputIndexList.resize(InputLength);
     }
@@ -84,7 +70,7 @@ bool Sort(const std::vector<ElementType>& InputDataArray, std::vector<ElementTyp
 
 
 template<typename ElementType>
-bool Sort(const ElementType* InputDataArray, int_max Length, ElementType* OutputDataArray, ElementType* OutputIndexList, const std::string& Order)
+bool Sort(const ElementType* InputDataArray, int_max Length, ElementType* OutputDataArray, int_max* OutputIndexList, const std::string& Order)
 {
     if (InputDataArray == nullptr || Length == 0 || OutputDataArray == nullptr || OutputIndexList == nullptr)
     {
@@ -98,7 +84,7 @@ bool Sort(const ElementType* InputDataArray, int_max Length, ElementType* Output
         return false;
     }
 
-    std::vector<mdkPairForSort<ElementType>> tempPairList(Length);
+    std::vector<MDK_PairForSort<ElementType>> tempPairList(Length);
 
     for (int_max i = 0; i < Length; ++i)
     {
@@ -110,12 +96,12 @@ bool Sort(const ElementType* InputDataArray, int_max Length, ElementType* Output
     if (Order == "ascend")
     {
         std::sort(tempPairList.begin(), tempPairList.end(), 
-                  [](const mdkPairForSort<ElementType>& a, const mdkPairForSort<ElementType>& b) { return a.Element < b.Element; });
+                  [](const MDK_PairForSort<ElementType>& a, const MDK_PairForSort<ElementType>& b) { return a.Element < b.Element; });
     }
     else
     {
         std::sort(tempPairList.begin(), tempPairList.end(),
-                  [](const mdkPairForSort<ElementType>& a, const mdkPairForSort<ElementType>& b) { return a.Element > b.Element; });
+                  [](const MDK_PairForSort<ElementType>& a, const MDK_PairForSort<ElementType>& b) { return a.Element > b.Element; });
     }
 
 

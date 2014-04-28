@@ -3,7 +3,7 @@
 
 #include "mdkFileIO.h"
 #include "mdkFeatureDictionary.h"
-
+#include "mdkDenseMatrix.h"
 
 namespace mdk
 {

@@ -3,7 +3,9 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
+#include "mdkType.h"
 #include "mdkObject.h"
 
 namespace mdk
