@@ -57,25 +57,24 @@ void FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionary
         return;
     }
 
-    m_DictionaryData->DictionaryInfo.Name = InputDictionary.m_DictionaryData->DictionaryInfo.Name;
-    m_DictionaryData->DictionaryInfo.BasisNonnegative = InputDictionary.m_DictionaryData->DictionaryInfo.BasisNonnegative;
-    m_DictionaryData->DictionaryInfo.BasisSumToOne = InputDictionary.m_DictionaryData->DictionaryInfo.BasisSumToOne;
+    m_DictionaryData->Name = InputDictionary.m_DictionaryData->Name;
+
+    m_DictionaryData->BasisPositive = InputDictionary.m_DictionaryData->BasisPositive;
+    m_DictionaryData->BasisNormalizedWithL1Norm = InputDictionary.m_DictionaryData->BasisNormalizedWithL1Norm;
+    m_DictionaryData->BasisNormalizedWithL2Norm = InputDictionary.m_DictionaryData->BasisNormalizedWithL2Norm;
 
     m_DictionaryData->BasisMatrix = InputDictionary.m_DictionaryData->BasisMatrix;
 
     m_DictionaryData->StandardDeviationOfL1Distance = InputDictionary.m_DictionaryData->StandardDeviationOfL1Distance;
-
     m_DictionaryData->StandardDeviationOfL2Distance = InputDictionary.m_DictionaryData->StandardDeviationOfL2Distance;
-
     m_DictionaryData->StandardDeviationOfKLDivergence = InputDictionary.m_DictionaryData->StandardDeviationOfKLDivergence;
-
     m_DictionaryData->StandardDeviationOfReconstruction = InputDictionary.m_DictionaryData->StandardDeviationOfReconstruction;
 
     m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = InputDictionary.m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory;
 
     m_DictionaryData->ProbabilityMassFunction = InputDictionary.m_DictionaryData->ProbabilityMassFunction;
 
-    m_DictionaryData->Covariance = InputDictionary.m_DictionaryData->Covariance;
+    m_DictionaryData->BasisCovariance = InputDictionary.m_DictionaryData->BasisCovariance;
 
 }
 
@@ -152,25 +151,24 @@ bool FeatureDictionaryForSparseCoding<ElementType>::ForceShare(const FeatureDict
 template<typename ElementType>
 void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSparseCoding& InputDictionary)
 {
-    m_DictionaryData->DictionaryInfo.Name = std::move(InputDictionary.m_DictionaryData->DictionaryInfo.Name);
-    m_DictionaryData->DictionaryInfo.BasisNonnegative = InputDictionary.m_DictionaryData->DictionaryInfo.BasisNonnegative;
-    m_DictionaryData->DictionaryInfo.BasisSumToOne = InputDictionary.m_DictionaryData->DictionaryInfo.BasisSumToOne;
+    m_DictionaryData->Name = std::move(InputDictionary.m_DictionaryData->Name);
+
+    m_DictionaryData->BasisPositive = InputDictionary.m_DictionaryData->BasisPositive;
+    m_DictionaryData->BasisNormalizedWithL1Norm = InputDictionary.m_DictionaryData->BasisNormalizedWithL1Norm;
+    m_DictionaryData->BasisNormalizedWithL2Norm = InputDictionary.m_DictionaryData->BasisNormalizedWithL2Norm;
 
     m_DictionaryData->BasisMatrix = std::move(InputDictionary.m_DictionaryData->BasisMatrix);
 
     m_DictionaryData->StandardDeviationOfL1Distance = std::move(InputDictionary.m_DictionaryData->StandardDeviationOfL1Distance);
-
     m_DictionaryData->StandardDeviationOfL2Distance = std::move(InputDictionary.m_DictionaryData->StandardDeviationOfL2Distance);
-
     m_DictionaryData->StandardDeviationOfKLDivergence = std::move(InputDictionary.m_DictionaryData->StandardDeviationOfKLDivergence);
-
     m_DictionaryData->StandardDeviationOfReconstruction = std::move(InputDictionary.m_DictionaryData->StandardDeviationOfReconstruction);
 
     m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = InputDictionary.m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory;
 
     m_DictionaryData->ProbabilityMassFunction = std::move(InputDictionary.m_DictionaryData->ProbabilityMassFunction);
 
-    m_DictionaryData->Covariance = std::move(InputDictionary.m_DictionaryData->Covariance);
+    m_DictionaryData->BasisCovariance = std::move(InputDictionary.m_DictionaryData->BasisCovariance);
 
     InputDictionary.Clear();
 }
@@ -179,11 +177,17 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
 template<typename ElementType>
 void FeatureDictionaryForSparseCoding<ElementType>::Clear()
 {
-    m_DictionaryData->DictionaryInfo.Name.Clear();
-    m_DictionaryData->DictionaryInfo.BasisNonnegative = false;
-    m_DictionaryData->DictionaryInfo.BasisSumToOne = false;
+    m_DictionaryData->Name.Clear();
 
     m_DictionaryData->BasisMatrix.Clear();
+
+    m_DictionaryData->BasisPositive = false;
+    m_DictionaryData->BasisNormalizedWithL1Norm = false;
+    m_DictionaryData->BasisNormalizedWithL2Norm = false;
+
+    m_DictionaryData->SimilarityTypeToComputeBasisRedundancy.Clear();
+    m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = 0;
+    m_DictionaryData->BasisRedundancy.Clear();
 
     m_DictionaryData->StandardDeviationOfL1Distance.Clear();
     m_DictionaryData->StandardDeviationOfL2Distance.Clear();
@@ -194,7 +198,7 @@ void FeatureDictionaryForSparseCoding<ElementType>::Clear()
 
     m_DictionaryData->ProbabilityMassFunction.Clear();
 
-    m_DictionaryData->Covariance.Clear();
+    m_DictionaryData->BasisCovariance.Clear();
 
 }
 
@@ -233,27 +237,12 @@ bool FeatureDictionaryForSparseCoding<ElementType>::Save(const CharString& FileP
     return SaveFeatureDictionaryForSparseCoding(*this, FilePathAndName);
 }
 
-template<typename ElementType>
-inline
-const Infomation_Of_FeatureDictionaryForSparseCoding& FeatureDictionaryForSparseCoding<ElementType>::GetDictionaryInformation() const
-{
-    return m_DictionaryData->DictionaryInfo;
-}
-
-
-template<typename ElementType>
-inline
-void FeatureDictionaryForSparseCoding<ElementType>::SetDictionaryInformation(const Infomation_Of_FeatureDictionaryForSparseCoding& Info)
-{
-    m_DictionaryData->DictionaryInfo = Info;
-}
-
 
 template<typename ElementType>
 inline
 const CharString& FeatureDictionaryForSparseCoding<ElementType>::GetName() const
 {
-    return m_DictionaryData->DictionaryInfo.Name;
+    return m_DictionaryData->Name;
 }
 
 
@@ -261,39 +250,87 @@ template<typename ElementType>
 inline
 void FeatureDictionaryForSparseCoding<ElementType>::SetName(const CharString& Name)
 {
-    m_DictionaryData->DictionaryInfo.Name = Name;
+    m_DictionaryData->Name = Name;
 }
 
 
 template<typename ElementType>
 inline 
-void FeatureDictionaryForSparseCoding<ElementType>::SetDictionaryInfo_BasisNonnegative(bool Nonnegative = true)
+void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_BasisPositive(bool YesNO)
 {
-    m_DictionaryData->DictionaryInfo.BasisNonnegative = Nonnegative;
+    m_DictionaryData->BasisPositive = YesNO;
 }
 
 
 template<typename ElementType>
 inline 
-void FeatureDictionaryForSparseCoding<ElementType>::SetDictionaryInfo_BasisSumToOne(bool SumToOne)
+void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_BasisNormalizedWithL1Norm(bool YesNO)
 {
-    m_DictionaryData->DictionaryInfo.BasisSumToOne = SumToOne;
+    m_DictionaryData->SetInfo_BasisNormalizedWithL1Norm = YesNO;
 }
 
 
 template<typename ElementType>
 inline
-bool FeatureDictionaryForSparseCoding<ElementType>::IsBasisNonnegative() const
+void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_BasisNormalizedWithL2Norm(bool YesNO)
 {
-    return m_DictionaryData->DictionaryInfo.BasisNonnegative;
+    m_DictionaryData->SetInfo_BasisNormalizedWithL2Norm = YesNO;
 }
 
 
 template<typename ElementType>
 inline
-bool FeatureDictionaryForSparseCoding<ElementType>::IsBasisSumToOne() const
+bool FeatureDictionaryForSparseCoding<ElementType>::GetInfo_BasisPositive() const
 {
-    return m_DictionaryData->DictionaryInfo.BasisSumToOne;
+    return m_DictionaryData->BasisPositive;
+}
+
+
+template<typename ElementType>
+inline
+bool FeatureDictionaryForSparseCoding<ElementType>::GetInfo_BasisNormalizedWithL1Norm() const
+{
+    return m_DictionaryData->BasisNormalizedWithL1Norm;
+}
+
+
+template<typename ElementType>
+inline
+bool FeatureDictionaryForSparseCoding<ElementType>::GetInfo_BasisNormalizedWithL2Norm() const
+{
+    return m_DictionaryData->BasisNormalizedWithL2Norm;
+}
+
+
+template<typename ElementType>
+inline
+void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_SimilarityTypeToComputeBasisRedundancy(const CharString& SimilarityType)
+{
+    m_DictionaryData->SimilarityTypeToComputeBasisRedundancy = SimilarityType;
+}
+
+
+template<typename ElementType>
+inline
+void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_SimilarityThresholdToComputeBasisRedundancy(ElementType SimilarityThreshold)
+{
+    m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = SimilarityThreshold;
+}
+
+
+template<typename ElementType>
+inline
+const CharString& FeatureDictionaryForSparseCoding<ElementType>::GetInfo_SimilarityTypeToComputeBasisRedundancy() const
+{
+    return m_DictionaryData->SimilarityTypeToComputeBasisRedundancy;
+}
+
+
+template<typename ElementType>
+inline
+ElementType FeatureDictionaryForSparseCoding<ElementType>::SetInfo_SimilarityThresholdToComputeBasisRedundancy() const
+{
+    return m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy;
 }
 
 
@@ -310,6 +347,22 @@ inline
 const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisMatrix() const
 {
     return m_DictionaryData->BasisMatrix;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisRedundancy()
+{
+    return m_DictionaryData->BasisRedundancy;
+}
+
+
+template<typename ElementType>
+inline
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisRedundancy() const
+{
+    return m_DictionaryData->BasisRedundancy;
 }
 
 

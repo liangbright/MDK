@@ -10,7 +10,7 @@ endif()
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ Kits/8.1/Lib/winv6.3/um/x64")
  
-PROJECT(MDK_Test_KNNSoftAssignOnlineDictionaryBuiler)
+PROJECT(MDK_Test_KNNSoftAssignAndAverageOnlineDictionaryBuilder)
 
 set(MDK_DIR "C:/Research/MDK/MDK/Source")
 
@@ -59,8 +59,8 @@ FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
 message(STATUS ${Test_FILES})
 
-add_executable(MDK_Test_KNNSoftAssignOnlineDictionaryBuiler ${Test_FILES} ${MDK_CPP_FILES} ${qpOASES_CCP_FILES})
+add_executable(MDK_Test_KNNSoftAssignAndAverageOnlineDictionaryBuilder ${Test_FILES} ${MDK_CPP_FILES} ${qpOASES_CCP_FILES})
 
-qt5_use_modules(MDK_Test_KNNSoftAssignOnlineDictionaryBuiler Core)
+qt5_use_modules(MDK_Test_KNNSoftAssignAndAverageOnlineDictionaryBuilder Core)
 
-target_link_libraries(MDK_Test_KNNSoftAssignOnlineDictionaryBuiler ${LinearALgebraLib_win64} ${ITK_LIBRARIES})
+target_link_libraries(MDK_Test_KNNSoftAssignAndAverageOnlineDictionaryBuilder ${LinearALgebraLib_win64} ${ITK_LIBRARIES})

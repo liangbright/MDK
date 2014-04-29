@@ -11,6 +11,8 @@
 #include "mdkFeatureDictionaryForSparseCoding.h"
 #include "mdkFeatureCoding_Common_Function.h"
 #include "mdkLinearLeastSquaresProblemSolver.h"
+#include "mdkKNNSoftAssignSparseEncoder.h"
+#include "mdkKNNReconstructionSparseEncoder.h"
 
 namespace mdk
 {
@@ -22,44 +24,13 @@ struct Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder
 
     int_max BasisNumber;
 
-    int_max MaxNumberOfNeighbours;
-
-    std::string SimilarityType;
-    //
-    // If a Feature data vector is treated as ordinary signal
-    // L1Distance
-    // L2Distance
-    // Correlation
-    //
-    // If a Feature data vector is normalized histogram or probability mass function (PMF), i.e., discrete probability distribution
-    // KLDivergence
-
-    ElementType SimilarityThreshold; // find KNN with Similarity >= SimilarityThreshold
-                                     // K in KNN can be < MaxNumberOfNeighbours
-
-    ElementType Sigma_L1; // standard deviation to convert L1Distance to Similarity
-
-    ElementType Sigma_L2; // standard deviation to convert L2Distance to Similarity
-
-    ElementType Sigma_KL; // standard deviation to convert KLDivergence to Similarity
-
-    bool IgnoreSign_Correlation; // if it is true, Similarity = abs(Correlation)
-                                 // else, Similarity = (Correlation +1)/2
+    Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> ParameterOfKNNSoftAssign;
 
     // sort the pair i, j according to score = weigth_s * Similarity(i, j) + (1-weigth_s) * 0.5*(prob(i) + prob(j))
     ElementType weigth_s;
 
     // prob_basis_updated = weigth_past * prob_basis_past + (1-weigth_past) * prob_basis_data;
     ElementType weigth_past; // weight for the past experience, i.e., the initial dictionary
-
-    // parameter for reconstruction
-
-    bool KNNReconstruction_CodeNonnegative;
-
-    bool KNNReconstruction_CodeSumToOne;
-
-    // if a Feature data vector is PMF
-    bool WhetherToEstimateStandardDeviationOfKLDivergence;
 
     // parameter for data sampling --------
 
@@ -68,6 +39,12 @@ struct Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder
     int_max MaxNumberOfIteration;
 
     int_max MaxNumberOfThreads;
+
+    // parameter for updating reconstruction information after the dictionary is built
+
+    ElementType SimilarityThresholdToComputeBasisRedundancy;
+
+    Parameter_Of_KNNReconstructionSparseEncoder ParameterOfKNNReconstruction;
 
 //--------------------------------------------------------------------------------------------------------
 
@@ -78,30 +55,20 @@ struct Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder
     {
         BasisNumber = -1;
 
-        MaxNumberOfNeighbours = -1;
-
-        SimilarityType.clear();
-
-        SimilarityThreshold = 0.1;
-
-        Sigma_L1 = 0;
-        Sigma_L2 = 0;
-        Sigma_KL = 0;
-        IgnoreSign_Correlation = false;
+        ParameterOfKNNSoftAssign.Clear();
 
         weigth_s = 0;
 
         weigth_past = 0;
 
-        KNNReconstruction_CodeNonnegative = false;
-        KNNReconstruction_CodeSumToOne = false;
-
-        WhetherToEstimateStandardDeviationOfKLDivergence = true;
-
         NumberOfDataInEachBatch = -1;
         MaxNumberOfIteration = -1;
 
         MaxNumberOfThreads = 1;
+
+        SimilarityThresholdToComputeBasisRedundancy = 0;
+
+        ParameterOfKNNReconstruction.Clear();
     }
 };
 
@@ -122,10 +89,6 @@ private:
     FeatureDictionaryForSparseCoding<ElementType>* m_Dictionary;
 
     FeatureDictionaryForSparseCoding<ElementType>  m_Dictionary_SharedCopy;
-
-    // for multi thread
-
-    DataContainer<FeatureDictionaryForSparseCoding<ElementType>> m_SubDictionaryList;
 
 public:
     KNNSoftAssignOnlineDictionaryBuilder();
@@ -151,12 +114,10 @@ protected:
 
     void GenerateDictionary();
 
-    void GenerateDictionary_in_a_thread();
-
-    FeatureDictionaryForSparseCoding<ElementType> ExtractDictionaryFromDataBatch(int_max BasisNumber_desired,
-                                                                                 const DenseMatrix<ElementType>& FeatureData,
-                                                                                 const DenseMatrix<ElementType>& ProbabilityMassFunctionOfData,
-                                                                                 const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init);
+    FeatureDictionaryForSparseCoding<ElementType> BuildDictionaryFromDataBatch(int_max BasisNumber_desired,
+                                                                               const DenseMatrix<ElementType>& FeatureData,
+                                                                               const DenseMatrix<ElementType>& ProbabilityMassFunctionOfData,
+                                                                               const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init);
 
     DenseMatrix<ElementType> GetProbabilityMassFunctionOfCombinedData(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init, 
                                                                       int_max CombinedDataVectorNumber);
@@ -179,6 +140,10 @@ protected:
     DenseMatrix<ElementType> EstimateBasisProbabilityMassFunction_Basis(int_max BasisNumber, 
                                                                         const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
                                                                         const DenseMatrix<ElementType>& DataProbabilityMassFunction);
+
+    DenseMatrix<ElementType> EstimateBasisRedundancy(const DenseMatrix<int_max>&     DataVectorIndexList_Basis,
+                                                     const DenseMatrix<ElementType>& SimilarityMatrix,
+                                                     ElementType SimilarityThreshold);   
 
     DenseMatrix<ElementType> EsimateBasisStandardDeviationOfL1Distance(const DenseMatrix<ElementType>& FeatureData,
                                                                        const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,

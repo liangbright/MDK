@@ -90,12 +90,12 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.DistanceTypeForKNNSearch != "L1Distance" 
-        && m_Parameter.DistanceTypeForKNNSearch != "L2Distance" 
-        && m_Parameter.DistanceTypeForKNNSearch != "Correlation"
-        && m_Parameter.DistanceTypeForKNNSearch != "KLDivergence")
+    if (m_Parameter.SimilarityType != "L1Distance"
+        && m_Parameter.SimilarityType != "L2Distance"
+        && m_Parameter.SimilarityType != "Correlation"
+        && m_Parameter.SimilarityType != "KLDivergence")
     {
-        MDK_Error("DistanceTypeForKNNSearch is invalid @ KNNReconstructionSparseEncoder::CheckInput()")
+        MDK_Error("SimilarityType is invalid @ KNNReconstructionSparseEncoder::CheckInput()")
         return false;
     }
 
@@ -148,25 +148,25 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
     DenseMatrix<ElementType> DistanceList;
 
-    if (m_Parameter.DistanceTypeForKNNSearch == "L1Distance")
+    if (m_Parameter.SimilarityType == "L1Distance")
     {
         DistanceList = ComputeL1DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
     }
-    else if (m_Parameter.DistanceTypeForKNNSearch == "L2Distance")
+    else if (m_Parameter.SimilarityType == "L2Distance")
     {
         DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
     }
-    else if (m_Parameter.DistanceTypeForKNNSearch == "Correlation")
+    else if (m_Parameter.SimilarityType == "Correlation")
     {
         DistanceList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
     }
-    else if (m_Parameter.DistanceTypeForKNNSearch == "KLDivergence")
+    else if (m_Parameter.SimilarityType == "KLDivergence")
     {
         DistanceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, BasisMatrix);
     }
     else
     {
-        MDK_Error("DistanceTypeForKNNSearch is invalid @ KNNReconstructionSparseEncoder::EncodingFunction(...)")
+        MDK_Error("SimilarityType is invalid @ KNNReconstructionSparseEncoder::EncodingFunction(...)")
         return;
     }
 
@@ -182,7 +182,7 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
     Solution_Of_LinearLeastSquaresProblem<ElementType> Solution;
 
-    if (m_Parameter.Nonnegative == false && m_Parameter.SumToOne == false)
+    if (m_Parameter.CodeNonnegative == false && m_Parameter.CodeSumToOne == false)
     {
         Option.MethodName = "Normal";
 
@@ -199,7 +199,7 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
                                                                        nullptr, nullptr, &A, nullptr, nullptr, nullptr,
                                                                        &H, &Option);         
     }
-    else if (m_Parameter.Nonnegative == true && m_Parameter.SumToOne == false)
+    else if (m_Parameter.CodeNonnegative == true && m_Parameter.CodeSumToOne == false)
     {
         DenseMatrix<ElementType> lb_x(m_Parameter.NeighbourNumber, 1);
         lb_x.Fill(0);
@@ -219,7 +219,7 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
                                                                        &lb_x, nullptr, &A, nullptr, nullptr, nullptr,
                                                                        &H, &Option);
     }
-    else if (m_Parameter.Nonnegative == true && m_Parameter.SumToOne == true)
+    else if (m_Parameter.CodeNonnegative == true && m_Parameter.CodeSumToOne == true)
     {
         DenseMatrix<ElementType> lb_x(m_Parameter.NeighbourNumber, 1);
         lb_x.Fill(ElementType(0));
@@ -243,7 +243,7 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
                                                                        &lb_x, nullptr, &A, &lb_A, &ub_A, nullptr,
                                                                        &H, &Option);
     }
-    else //if(m_Parameter.Nonnegative == false && m_Parameter.SumToOne == true)
+    else //if(m_Parameter.CodeNonnegative == false && m_Parameter.CodeSumToOne == true)
     {
         DenseMatrix<ElementType> A(1, m_Parameter.NeighbourNumber);
         A.Fill(ElementType(1));

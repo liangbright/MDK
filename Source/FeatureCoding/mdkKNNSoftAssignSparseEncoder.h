@@ -41,7 +41,7 @@ struct Parameter_Of_KNNSoftAssignSparseEncoder
 
     void Clear()
     {
-        MaxNumberOfNeighbours = 0;
+        NeighbourNumber = 0;
 
         SimilarityType.clear();
 

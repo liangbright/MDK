@@ -23,15 +23,17 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
 {
     int_max NeighbourNumber;
 
-    std::string DistanceTypeForKNNSearch;
+    std::string SimilarityType; // to find KNN
     // L1Distance
     // L2Distance
     // Correlation
     // KLDivergence
 
-    bool Nonnegative;
+    // L1Distance/L2Distance/Correlation/KLDivergence is directly used to find KNN, i.e., not converted to similarity
 
-    bool SumToOne;
+    bool CodeNonnegative;
+
+    bool CodeSumToOne;
 
 //------------------------------
 
@@ -40,18 +42,18 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
 
     void Clear()
     {
-        NeighbourNumber  = -1;
-        DistanceTypeForKNNSearch.clear();
-        Nonnegative      = false;
-        SumToOne         = false;
+        SimilarityType.clear();
+        NeighbourNumber = -1;
+        CodeNonnegative = false;
+        CodeSumToOne    = false;
     }
 
     void operator=(const Parameter_Of_KNNReconstructionSparseEncoder& InputParameter)
     {
+        SimilarityType = InputParameter.SimilarityType;
         NeighbourNumber = InputParameter.NeighbourNumber;
-        DistanceTypeForKNNSearch = InputParameter.DistanceTypeForKNNSearch;
-        Nonnegative = InputParameter.Nonnegative;
-        SumToOne = InputParameter.SumToOne;
+        CodeNonnegative = InputParameter.CodeNonnegative;
+        CodeSumToOne = InputParameter.CodeSumToOne;
     }
 
 private:

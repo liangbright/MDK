@@ -8,24 +8,34 @@
 namespace mdk
 {
 
-struct Infomation_Of_FeatureDictionaryForSparseCoding
-{
-    CharString Name; // name of the dictionary
-
-    bool BasisNonnegative;
-
-    bool BasisSumToOne;
-};
-
-
 template<typename ElementType>
 struct DictionaryData_Of_FeatureDictionaryForSparseCoding
 {
-    Infomation_Of_FeatureDictionaryForSparseCoding DictionaryInfo;
+    CharString Name; // name of the dictionary
 
     DenseMatrix<ElementType> BasisMatrix; // D
     // ColNumber is BasisNumber (the number of bases)
     // RowNumber is Length of Feature Data Vector
+
+    //------------ other information ---------------------------
+
+    bool BasisPositive;
+
+    bool BasisNormalizedWithL1Norm;
+
+    bool BasisNormalizedWithL2Norm;
+
+    //----------------------------------------------------------
+
+    ElementType SimilarityTypeToComputeBasisRedundancy;
+    ElementType SimilarityThresholdToComputeBasisRedundancy;
+
+    DenseMatrix<ElementType> BasisRedundancy;
+    // BasisRedundancy[j] =  the number of the other bases near the basis j ( Similarity(i, j) >= SimilarityThreshold) 
+    //                       divided by (the total number of bases - 1);
+    // range [0, 1]
+
+    //----------------------------------------------------------
 
     DenseMatrix<ElementType> StandardDeviationOfL1Distance;
     // Length = BasisNumber
@@ -58,7 +68,7 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
     // Histogram = WeightedNumberOfTrainingSamplesInHistory * ProbabilityMassFunction
 
     // not used yet ----------------
-    DenseMatrix<ElementType> Covariance;  // relation between bases
+    DenseMatrix<ElementType> BasisCovariance;  // relation between bases
 };
 
 
@@ -107,29 +117,33 @@ public:
 
     bool Save(const CharString& FilePathAndName) const;
 
-    // -------------- get/set info---------------------------------------------------//
-
-    inline const Infomation_Of_FeatureDictionaryForSparseCoding& GetDictionaryInformation() const;
-
-    inline void SetDictionaryInformation(const Infomation_Of_FeatureDictionaryForSparseCoding& Info);
+    // -------------- get/set ---------------------------------------------------//
 
     inline const CharString& GetName() const;
 
     inline void SetName(const CharString& Name);
 
-    inline void SetDictionaryInfo_BasisNonnegative(bool Nonnegative = true);
-
-    inline void SetDictionaryInfo_BasisSumToOne(bool SumToOne = true);
-
-    inline bool IsBasisNonnegative() const;
-
-    inline bool IsBasisSumToOne() const;
-
-    // --------------------- get/set data --------------------------------------------//
-
     inline DenseMatrix<ElementType>& BasisMatrix();
 
     inline const DenseMatrix<ElementType>& BasisMatrix() const;
+
+    inline void SetInfo_BasisPositive(bool YesNO);
+    inline void SetInfo_BasisNormalizedWithL1Norm(bool YesNO);
+    inline void SetInfo_BasisNormalizedWithL2Norm(bool YesNO);
+
+    inline bool GetInfo_BasisPositive() const;
+    inline bool GetInfo_BasisNormalizedWithL1Norm() const;
+    inline bool GetInfo_BasisNormalizedWithL2Norm() const;
+
+    inline void SetInfo_SimilarityTypeToComputeBasisRedundancy(const CharString& SimilarityType);
+    inline void SetInfo_SimilarityThresholdToComputeBasisRedundancy(ElementType SimilarityThreshold);
+
+    inline const CharString& SimilarityType GetInfo_SimilarityTypeToComputeBasisRedundancy() const;
+    inline ElementType SimilarityThreshold GetInfo_SimilarityThresholdToComputeBasisRedundancy() const;
+
+    inline DenseMatrix<ElementType>& BasisRedundancy();
+
+    inline const DenseMatrix<ElementType>& BasisRedundancy() const;
 
     inline DenseMatrix<ElementType>& StandardDeviationOfL1Distance();
 
