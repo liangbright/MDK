@@ -141,9 +141,8 @@ protected:
                                                                         const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
                                                                         const DenseMatrix<ElementType>& DataProbabilityMassFunction);
 
-    DenseMatrix<ElementType> EstimateBasisRedundancy(const DenseMatrix<int_max>&     DataVectorIndexList_Basis,
-                                                     const DenseMatrix<ElementType>& SimilarityMatrix,
-                                                     ElementType SimilarityThreshold);   
+    DenseMatrix<int_max> EstimateBasisRedundancy(const DenseMatrix<int_max>&     DataVectorIndexList_Basis,
+                                                 const DenseMatrix<ElementType>& SimilarityMatrix);   
 
     DenseMatrix<ElementType> EsimateBasisStandardDeviationOfL1Distance(const DenseMatrix<ElementType>& FeatureData,
                                                                        const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
