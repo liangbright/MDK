@@ -416,24 +416,19 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdateBasisMat
                                                                                     const DataContainer<SparseVector<ElementType>>& CodeTable,
                                                                                     const DenseMatrix<ElementType> WeightOfError)
 {
-    int_max TotalDataNumber = FeatureData.GetColNumber();
-    int_max Length = FeatureData.GetRowNumber();
+    int_max DataNumber = FeatureData.GetColNumber();
+    int_max VectorLength = FeatureData.GetRowNumber();
 
     DenseMatrix<ElementType> DataVector;
-
     DenseMatrix<ElementType> BasisVector;
-
-    DenseMatrix<ElementType> Product_Of_DataVector_DataVector;
-
-    DenseMatrix<ElementType> Product_Of_DataVector_BasisVector;
 
     auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
-    for (int_max k = 0; k < TotalDataNumber; ++k)
+    for (int_max k = 0; k < DataNumber; ++k)
     {
-        DataVector.ForceShare(FeatureData.GetElementPointerOfCol(k), Length, 1);
+        DataVector.ForceShare(FeatureData.GetElementPointerOfCol(k), VectorLength, 1);
 
-        auto DataVectorInnerProduct = this->ComputeVectorInnerProduct(DataVector, DataVector);
+        auto Data_Data_InnerProduct = this->ComputeVectorInnerProduct(DataVector, DataVector);
 
         const DenseMatrix<int_max>& BasisIndexList = CodeTable[k].IndexList();
 
@@ -441,17 +436,17 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdateBasisMat
         {
             auto BasisIndex = BasisIndexList[n];
 
-            BasisVector.ForceShare(BasisMatrix.GetElementPointerOfCol(BasisIndex), Length, 1);
+            BasisVector.ForceShare(BasisMatrix.GetElementPointerOfCol(BasisIndex), VectorLength, 1);
             
-            auto InnerProduct = this->ComputeVectorInnerProduct(DataVector, BasisVector);
+            auto Data_Basis_InnnerProduct = this->ComputeVectorInnerProduct(DataVector, BasisVector);
 
             auto factor = ElementType(0);
-            if (DataVectorInnerProduct > eps_value)
+            if (Data_Data_InnerProduct > eps_value && Data_Data_InnerProduct > eps_value*Data_Basis_InnnerProduct)
             {
-                factor = InnerProduct / DataVectorInnerProduct;
-            }
+                factor = Data_Basis_InnnerProduct / Data_Data_InnerProduct;
 
-            BasisVector += WeightOfError[BasisIndex] * (factor*DataVector - BasisVector);
+                BasisVector += WeightOfError[BasisIndex] * (factor*DataVector - BasisVector);
+            }            
         }        
     }
 
