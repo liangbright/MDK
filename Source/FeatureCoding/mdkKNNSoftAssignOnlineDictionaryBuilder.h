@@ -24,6 +24,10 @@ struct Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder
 
     int_max BasisNumber;
 
+    bool BasisPositive;
+    bool BasisNormalizedWithL1Norm;
+    bool BasisNormalizedWithL2Norm;
+
     Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> ParameterOfKNNSoftAssign;
 
     // sort the pair i, j according to score = weigth_s * Similarity(i, j) + (1-weigth_s) * 0.5*(prob(i) + prob(j))
@@ -40,7 +44,9 @@ struct Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder
 
     int_max MaxNumberOfThreads;
 
-    // parameter for updating reconstruction information after the dictionary is built
+    // parameter for updating dictionary information
+
+    bool UpdateDictionaryInformation_Other;
 
     ElementType SimilarityThresholdToComputeBasisRedundancy;
 
@@ -55,6 +61,10 @@ struct Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder
     {
         BasisNumber = -1;
 
+        BasisPositive = false;
+        BasisNormalizedWithL1Norm = false;
+        BasisNormalizedWithL2Norm = false;
+
         ParameterOfKNNSoftAssign.Clear();
 
         weigth_s = 0;
@@ -65,6 +75,8 @@ struct Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder
         MaxNumberOfIteration = -1;
 
         MaxNumberOfThreads = 1;
+
+        UpdateDictionaryInformation_Other = false;
 
         SimilarityThresholdToComputeBasisRedundancy = 0;
 
@@ -80,15 +92,18 @@ class KNNSoftAssignOnlineDictionaryBuilder : public FeatureDictionaryBuilder<Ele
 public:
     Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder<ElementType> m_Parameter;
 
+    typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
+
 private:
 
     const DenseMatrix<ElementType>* m_FeatureData;
 
-    FeatureDictionaryForSparseCoding<ElementType>* m_InitialDictionary;
+    const FeatureDictionaryForSparseCoding<ElementType>* m_InitialDictionary;
 
     FeatureDictionaryForSparseCoding<ElementType>* m_Dictionary;
 
     FeatureDictionaryForSparseCoding<ElementType>  m_Dictionary_SharedCopy;
+
 
 public:
     KNNSoftAssignOnlineDictionaryBuilder();
@@ -114,60 +129,83 @@ protected:
 
     void GenerateDictionary();
 
-    FeatureDictionaryForSparseCoding<ElementType> BuildDictionaryFromDataBatch(int_max BasisNumber_desired,
-                                                                               const DenseMatrix<ElementType>& FeatureData,
-                                                                               const DenseMatrix<ElementType>& ProbabilityMassFunctionOfData,
-                                                                               const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init);
+    FeatureDictionaryForSparseCoding<ElementType> BuildDictionaryFromData(int_max BasisNumber_desired,
+                                                                           const DenseMatrix<ElementType>& FeatureData,
+                                                                           const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init);
 
-    DenseMatrix<ElementType> GetProbabilityMassFunctionOfCombinedData(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init, 
-                                                                      int_max CombinedDataVectorNumber);
+    void UpdateDictionaryInformation_Necessary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
+                                               const DenseMatrix<ElementType>& FeatureData,
+                                               const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
+                                               const DenseMatrix<ElementType>& VectorSimilarityMatrix,
+                                               const DenseMatrix<int_max>& VectorIndexList_Basis,
+                                               const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init);
 
-    template<typename SimilarityFunctionType>
-    DenseMatrix<ElementType> ComputeSimilarityMatrix(const DenseMatrix<ElementType>& FeatureData, SimilarityFunctionType SimilarityFunction);
+    void UpdateDictionaryInformation_Other(FeatureDictionaryForSparseCoding<ElementType>& Dictionary, 
+                                           const DenseMatrix<ElementType>& FeatureData,
+                                           const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
+                                           const DenseMatrix<ElementType>& VectorSimilarityMatrix,
+                                           const DenseMatrix<int_max>& VectorIndexList_Basis,
+                                           const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init);
+
+    DenseMatrix<ElementType> ComputeRepresentativeAbilityOfEachDataVectorInCombinedData(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init,
+                                                                                        int_max CombinedDataVectorNumber);
+
+    DenseMatrix<ElementType> ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init,
+                                                           const DenseMatrix<ElementType>& FeatureData);
 
     inline ElementType ComputeSimilarityBetweenTwoDataVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
 
-    DataContainer<DenseMatrix<int_max>> FindKNNDataVectorIndexTableBySimilarityMatrix(const DenseMatrix<ElementType>& SimilarityMatrix);
+    DataContainer<DenseMatrix<int_max>> FindKNNVectorIndexTableByVectorSimilarityMatrix(const DenseMatrix<ElementType>& VectorSimilarityMatrix);
 
-    DenseMatrix<ElementType> EstimateBasisProbabilityMassFunction_Data(const DataContainer<DenseMatrix<int_max>>& KNNDataVectorIndexTable);
+    DenseMatrix<ElementType> EstimateKNNSmoothedProbabilityMassFunctionAtEachVector(const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable);
 
-    DenseMatrix<ElementType> EstimateBasisProbabilityMassFunction_Data(const DataContainer<DenseMatrix<int_max>>& KNNDataVectorIndexTable,
-                                                                       const DenseMatrix<ElementType>& DataProbabilityMassFunction);
+    DenseMatrix<ElementType> EstimateKNNSmoothedProbabilityMassFunctionAtEachVector(const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable,
+                                                                                    const DenseMatrix<ElementType>& RepresentativeAbilityOfEachVector);
 
-    DataContainer<DenseMatrix<int_max>> FindKNNBasisVectorIndexTableBySimilarityMatrix(const DenseMatrix<int_max>&     DataVectorIndexList_Basis,
-                                                                                       const DenseMatrix<ElementType>& SimilarityMatrix);
+    void ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix);
 
-    DenseMatrix<ElementType> EstimateBasisProbabilityMassFunction_Basis(int_max BasisNumber, 
-                                                                        const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
-                                                                        const DenseMatrix<ElementType>& DataProbabilityMassFunction);
+    DataContainer<DenseMatrix<int_max>> FindKNNBasisIndexTableOfDataByVectorSimilarityMatrix(const DenseMatrix<ElementType>& VectorSimilarityMatrix,
+                                                                                             const DenseMatrix<int_max>&     VectorIndexList_Basis,
+                                                                                             int_max BasisNumber_init);
 
-    DenseMatrix<int_max> EstimateBasisRedundancy(const DenseMatrix<int_max>&     DataVectorIndexList_Basis,
-                                                 const DenseMatrix<ElementType>& SimilarityMatrix);   
+    void UpdateProbabilityMassFunctionAtEachBasisVector(DenseMatrix<ElementType>& ProbabilityMassFunction,
+                                                        ElementType WeightedNumberOfTrainingSamplesInHistory,
+                                                        const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData);
 
-    DenseMatrix<ElementType> EsimateBasisStandardDeviationOfL1Distance(const DenseMatrix<ElementType>& FeatureData,
-                                                                       const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
-                                                                       const DenseMatrix<ElementType>& BasisMatrix,                                                                                                                                  
-                                                                       const DenseMatrix<ElementType>& StandardDeviation_init);
+    void UpdateBasisRedundancy(DenseMatrix<ElementType>&       BasisRedundancy,
+                               const DenseMatrix<int_max>&     VectorIndexList_Basis,
+                               const DenseMatrix<ElementType>& VectorSimilarityMatrix);   
 
-    DenseMatrix<ElementType> EsimateBasisStandardDeviationOfL2Distance(const DenseMatrix<ElementType>& FeatureData,
-                                                                       const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
-                                                                       const DenseMatrix<ElementType>& BasisMatrix,                                                                                                                                  
-                                                                       const DenseMatrix<ElementType>& StandardDeviation_init);
+    void UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
+                                    const DenseMatrix<ElementType>& FeatureData,
+                                    const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
+                                    const DenseMatrix<ElementType>& BasisMatrix,
+                                    const ElementType WeightedNumberOfTrainingSamplesInHistory);
 
-    DenseMatrix<ElementType> EsimateBasisStandardDeviationOfKLDivergence(const DenseMatrix<ElementType>& FeatureData,
-                                                                         const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
-                                                                         const DenseMatrix<ElementType>& BasisMatrix,                                                                                                                                  
-                                                                         const DenseMatrix<ElementType>& StandardDeviation_init);
+    void UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
+                                    const DenseMatrix<ElementType>& FeatureData,
+                                    const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
+                                    const DenseMatrix<ElementType>& BasisMatrix,
+                                    const ElementType WeightedNumberOfTrainingSamplesInHistory);
 
-    DenseMatrix<ElementType> ReconstructDataVectorByKNNBasisMatrix(const DenseMatrix<ElementType>& DataVector,    
-                                                                   const DenseMatrix<ElementType>& KNNBasisMatrix,
-                                                                   const DenseMatrix<ElementType>& GramianMatrix_DtD,
-                                                                   const DenseMatrix<int_max>&     KNNBasisIndexList);
+    void UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
+                                      const DenseMatrix<ElementType>& FeatureData,
+                                      const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
+                                      const DenseMatrix<ElementType>& BasisMatrix,
+                                      const ElementType WeightedNumberOfTrainingSamplesInHistory);
 
-    DenseMatrix<ElementType> EsimateBasisStandardDeviationOfReconstruction(const DenseMatrix<ElementType>& FeatureData,
-                                                                           const DataContainer<DenseMatrix<int_max>>& KNNBasisVectorIndexTable,
-                                                                           const DenseMatrix<ElementType>& BasisMatrix,                                                                                                                                  
-                                                                           const DenseMatrix<ElementType>& StandardDeviation_init);
+    void UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
+                                        const DenseMatrix<ElementType>& FeatureData,
+                                        const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
+                                        const DenseMatrix<ElementType>& BasisMatrix,
+                                        const ElementType WeightedNumberOfTrainingSamplesInHistory);
+    
+    void ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       ReconstructedDataVector, 
+                                               const DenseMatrix<ElementType>& DataVector,
+                                               const DenseMatrix<ElementType>& KNNBasisMatrix,
+                                               const DenseMatrix<int_max>&     KNNBasisIndexList,
+                                               const DenseMatrix<ElementType>& GramianMatrix_DtD);
+
 
 private:
     KNNSoftAssignOnlineDictionaryBuilder(const KNNSoftAssignOnlineDictionaryBuilder&) = delete;

@@ -30,12 +30,14 @@ void Test_SimpleCase()
 
     KNNSoftAssignOnlineDictionaryBuilder<double> DictionaryBuilder;
 
+    typedef KNNSoftAssignOnlineDictionaryBuilder<double>::SimilarityTypeEnum SimilarityTypeEnum;
+
     int_max NeighbourNumber = 5;
 
     DictionaryBuilder.m_Parameter.BasisNumber = 10;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = NeighbourNumber;
 
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = "L1Distance";
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = SimilarityTypeEnum::L1Distance;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.0;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Sigma_L1 = 20;
     

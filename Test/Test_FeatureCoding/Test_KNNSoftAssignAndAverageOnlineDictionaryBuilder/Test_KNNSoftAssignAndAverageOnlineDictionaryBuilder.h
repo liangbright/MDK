@@ -17,14 +17,16 @@ void Test_SimpleCase()
 
     KNNSoftAssignAndAverageOnlineDictionaryBuilder<double> DictionaryBuilder;
 
+    typedef KNNSoftAssignAndAverageOnlineDictionaryBuilder<double>::SimilarityTypeEnum SimilarityTypeEnum;
+
     int_max NeighbourNumber = 5;
 
     DictionaryBuilder.m_Parameter.BasisNumber = 10;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = NeighbourNumber;
 
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = "L1Distance";
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = SimilarityTypeEnum::L1Distance;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.0;
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Sigma_L1 = 20;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = 20;
     
     DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber = NeighbourNumber;
     DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative = false;
@@ -45,6 +47,6 @@ void Test_SimpleCase()
     DisplayMatrix("D", DictionaryPtr->BasisMatrix());
 
     SaveDenseMatrixAsJsonDataFile(DictionaryPtr->BasisMatrix(), FilePath + "BasisMatrix.json");
-    SaveDenseMatrixAsJsonDataFile(DictionaryPtr->StandardDeviationOfL1Distance(), FilePath + "L1DistanceStd.json");
+    SaveDenseMatrixAsJsonDataFile(DictionaryPtr->VarianceOfL1Distance(), FilePath + "L1DistanceStd.json");
 
 }

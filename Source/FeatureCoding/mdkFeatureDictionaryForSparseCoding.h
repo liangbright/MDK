@@ -17,7 +17,7 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
     // ColNumber is BasisNumber (the number of bases)
     // RowNumber is Length of Feature Data Vector
 
-    //------------ other information ---------------------------
+    //------------ constraint -----------------------------------
 
     bool BasisPositive;
 
@@ -25,44 +25,49 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
 
     bool BasisNormalizedWithL2Norm;
 
-    //----------------------------------------------------------
+    //---------- Similarity between bases -----------------------
 
-    ElementType SimilarityTypeToComputeBasisRedundancy;
+    MDK_SimilarityType_Enum_For_FeatureCoding SimilarityType;
+
+    DenseMatrix<ElementType> SimilarityMatrix;
+
     ElementType SimilarityThresholdToComputeBasisRedundancy;
 
     DenseMatrix<ElementType> BasisRedundancy;
+
     // BasisRedundancy[j] =  the number of the other bases near the basis j ( Similarity(i, j) >= SimilarityThreshold) 
     //                       divided by (the total number of bases - 1);
     // range [0, 1]
 
-    //----------------------------------------------------------
+    //----------------- Variance -------------------------
 
-    DenseMatrix<ElementType> StandardDeviationOfL1Distance;
+    DenseMatrix<ElementType> VarianceOfL1Distance;
     // Length = BasisNumber
-    // ErrorNorm_i_j = || X_i - D(:, j)||_L1
-    // StandardDeviation(j) = sqrt(sum_i(Indicator_i_j * ErrorNorm_i_j))
+    // Variance_i_j = || X_i - D(:, j)||^2
+    // Variance(j) = sqrt(sum_i(Indicator_i_j * Variance_i_j))
     // if Basis_j is related to X_i, then  Indicator_i_j = 1, else it = 0
 
-    DenseMatrix<ElementType> StandardDeviationOfL2Distance;
+    DenseMatrix<ElementType> VarianceOfL2Distance;
     // Length = BasisNumber
-    // ErrorNorm_i_j = || X_i - D(:, j)||_L2
-    // StandardDeviation(j) = sqrt(sum_i(Indicator_i_j * ErrorNorm_i_j))
+    // Variance_i_j = || X_i - D(:, j)||^2
+    // Variance(j) = sqrt(sum_i(Indicator_i_j * Variance_i_j))
     // if Basis_j is related to X_i, then  Indicator_i_j = 1, else it = 0
 
-    DenseMatrix<ElementType> StandardDeviationOfKLDivergence;
+    DenseMatrix<ElementType> VarianceOfKLDivergence; // not real Variance
     // Length = BasisNumber
-    // ErrorNorm_i_j = KL( X_i, - D(:, j))
-    // StandardDeviation(j) = sqrt(sum_i(Indicator_i_j * ErrorNorm_i_j))
+    // Variance_i_j = KL( X_i, - D(:, j))
+    // Variance(j) = sqrt(sum_i(Indicator_i_j * Variance_i_j))
     // if Basis_j is related to X_i, then  Indicator_i_j = 1, else it = 0
 
-    DenseMatrix<ElementType> StandardDeviationOfReconstruction;
-    // ErrorNorm_i = || X_i - D * Alpha||
-    // StandardDeviationOfReconstruction(j) = mean (ErrorNorm_i related to Basis_j (i.e., Alpha(j) > 0 ))
+    DenseMatrix<ElementType> VarianceOfReconstruction;
+    // Variance_i_j = || X_i - D * Alpha||^2
+    // VarianceOfReconstruction(j) = mean (ErrorNorm_i related to Basis_j (i.e., Alpha(j) > 0 ))
 
     ElementType WeightedNumberOfTrainingSamplesInHistory; // the total weighted-number of data samples used to build the dictionary
                                                           // the "experience" of the dictionary
 
     DenseMatrix<ElementType> ProbabilityMassFunction; // discrete probability density function, i.e., probability mass function
+                                                      // feature-data distribution on each basis
 
     // note: 
     // Histogram = WeightedNumberOfTrainingSamplesInHistory * ProbabilityMassFunction
@@ -75,6 +80,9 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
 template<typename ElementType>
 class FeatureDictionaryForSparseCoding : public FeatureDictionary<ElementType>
 {
+public:
+    typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
+
 private:
 
     std::shared_ptr<DictionaryData_Of_FeatureDictionaryForSparseCoding<ElementType>> m_DictionaryData;
@@ -135,41 +143,36 @@ public:
     inline bool GetInfo_BasisNormalizedWithL1Norm() const;
     inline bool GetInfo_BasisNormalizedWithL2Norm() const;
 
-    inline void SetInfo_SimilarityTypeToComputeBasisRedundancy(const CharString& SimilarityType);
-    inline void SetInfo_SimilarityThresholdToComputeBasisRedundancy(ElementType SimilarityThreshold);
+    inline void SetInfo_SimilarityType(MDK_SimilarityType_Enum_For_FeatureCoding SimilarityType);
+    inline MDK_SimilarityType_Enum_For_FeatureCoding GetInfo_SimilarityType() const;
 
-    inline const CharString& SimilarityType GetInfo_SimilarityTypeToComputeBasisRedundancy() const;
-    inline ElementType SimilarityThreshold GetInfo_SimilarityThresholdToComputeBasisRedundancy() const;
+    inline DenseMatrix<ElementType>& SimilarityMatrix();
+    inline const DenseMatrix<ElementType>& SimilarityMatrix() const;
+
+    inline void SetInfo_SimilarityThresholdToComputeBasisRedundancy(ElementType SimilarityThreshold);
+    inline ElementType GetInfo_SimilarityThresholdToComputeBasisRedundancy() const;
 
     inline DenseMatrix<ElementType>& BasisRedundancy();
-
     inline const DenseMatrix<ElementType>& BasisRedundancy() const;
 
-    inline DenseMatrix<ElementType>& StandardDeviationOfL1Distance();
+    inline DenseMatrix<ElementType>& VarianceOfL1Distance();
+    inline const DenseMatrix<ElementType>& VarianceOfL1Distance() const;
 
-    inline const DenseMatrix<ElementType>& StandardDeviationOfL1Distance() const;
+    inline DenseMatrix<ElementType>& VarianceOfL2Distance();
+    inline const DenseMatrix<ElementType>& VarianceOfL2Distance() const;
 
-    inline DenseMatrix<ElementType>& StandardDeviationOfL2Distance();
+    inline DenseMatrix<ElementType>& VarianceOfKLDivergence();
+    inline const DenseMatrix<ElementType>& VarianceOfKLDivergence() const;
 
-    inline const DenseMatrix<ElementType>& StandardDeviationOfL2Distance() const;
-
-    inline DenseMatrix<ElementType>& StandardDeviationOfKLDivergence();
-
-    inline const DenseMatrix<ElementType>& StandardDeviationOfKLDivergence() const;
-
-    inline DenseMatrix<ElementType>& StandardDeviationOfReconstruction();
-
-    inline const DenseMatrix<ElementType>& StandardDeviationOfReconstruction() const;
+    inline DenseMatrix<ElementType>& VarianceOfReconstruction();
+    inline const DenseMatrix<ElementType>& VarianceOfReconstruction() const;
 
     inline ElementType GetWeightedNumberOfTrainingSamplesInHistory() const;
-
     inline void SetWeightedNumberOfTrainingSamplesInHistory(ElementType Number);
 
     inline DenseMatrix<ElementType>& ProbabilityMassFunction();
-
     inline const DenseMatrix<ElementType>& ProbabilityMassFunction() const;
 
-    
 };
 
 

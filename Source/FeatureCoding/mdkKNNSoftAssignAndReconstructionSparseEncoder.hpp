@@ -23,8 +23,6 @@ void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::Clear()
 {
     this->FeatureDictionaryBasedSparseEncoder::Clear();
 
-    m_ReconstructionEncoder.Clear();
-
     m_Parameter.Clear();
 }
 
@@ -56,8 +54,6 @@ template<typename ElementType>
 void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* FeatureData)
 {
     this->FeatureDictionaryBasedSparseEncoder::SetInputFeatureData(FeatureData);
-
-    m_ReconstructionEncoder.SetInputFeatureData(m_FeatureData);
 }
 
 
@@ -65,30 +61,6 @@ template<typename ElementType>
 void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::SetInputDictionary(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary)
 {
     this->FeatureDictionaryBasedSparseEncoder::SetInputDictionary(Dictionary);
-
-    m_ReconstructionEncoder.SetInputDictionary(Dictionary);
-}
-
-
-template<typename ElementType>
-void KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::SetOutputReconstructionErrorNorm(DenseMatrix<ElementType>* ErrorNorm)
-{
-    if (ErrorNorm == nullptr)
-    {
-        MDK_Error("Invalid input @ KNNReconstructionAndSoftAssignSparseEncoder::SetOutputReconstructionErrorNorm(...)")
-        return;
-    }
-
-    m_ReconstructionErrorNorm = ErrorNorm;
-
-    m_ReconstructionErrorNorm_SharedCopy.ForceShare(ErrorNorm);
-}
-
-
-template<typename ElementType>
-DenseMatrix<ElementType>* KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::GetOutputReconstructionErrorNorm()
-{
-    return &m_ReconstructionErrorNorm_SharedCopy;
 }
 
 
@@ -135,8 +107,6 @@ bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::Preprocess()
     this->FeatureDictionaryBasedSparseEncoder::Preprocess();
 
     this->UpdateInputOfReconstructionEncoder();
-
-    return m_ReconstructionEncoder.Preprocess();
 }
 
 
@@ -144,8 +114,6 @@ template<typename ElementType>
 bool KNNReconstructionAndSoftAssignSparseEncoder<ElementType>::Postprocess()
 {
     this->FeatureDictionaryBasedSparseEncoder::Postprocess();
-
-    return m_ReconstructionEncoder.Postprocess();
 }
 
 

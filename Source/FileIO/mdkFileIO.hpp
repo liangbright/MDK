@@ -966,9 +966,9 @@ bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding
     auto RawPointer = (char*)Dictionary.BasisMatrix().GetElementPointer();
     DataFile.write(RawPointer, L*ByteNumber);
 
-    // step 2 : write StandardDeviationOfL1Distance
-    L = Dictionary.StandardDeviationOfL1Distance().GetElementNumber();
-    RawPointer = (char*)Dictionary.StandardDeviationOfL1Distance().GetElementPointer();
+    // step 2 : write VarianceOfL1Distance
+    L = Dictionary.VarianceOfL1Distance().GetElementNumber();
+    RawPointer = (char*)Dictionary.VarianceOfL1Distance().GetElementPointer();
     DataFile.write(RawPointer, L*ByteNumber);
 
     DataFile.flush();
@@ -1087,28 +1087,28 @@ FeatureDictionaryForSparseCoding<ElementType> LoadFeatureDictionaryForSparseCodi
 
     Dictionary.SetName(Name);
     Dictionary.BasisMatrix().FastResize(RowNumber, ColNumber);
-    Dictionary.StandardDeviationOfL1Distance().FastResize(1, ColNumber);
-    Dictionary.StandardDeviationOfL2Distance().FastResize(1, ColNumber);
-    Dictionary.StandardDeviationOfKLDivergence().FastResize(1, ColNumber);
-    Dictionary.StandardDeviationOfReconstruction().FastResize(1, ColNumber);
+    Dictionary.VarianceOfL1Distance().FastResize(1, ColNumber);
+    Dictionary.VarianceOfL2Distance().FastResize(1, ColNumber);
+    Dictionary.VarianceOfKLDivergence().FastResize(1, ColNumber);
+    Dictionary.VarianceOfReconstruction().FastResize(1, ColNumber);
 
     if (OutputElementTypeName == InputElementTypeName)
     {
         Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.BasisMatrix(), DataFile, OutputByteNumber);
-        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.StandardDeviationOfL1Distance(), DataFile, OutputByteNumber);
-        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.StandardDeviationOfL2Distance(), DataFile, OutputByteNumber);
-        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.StandardDeviationOfKLDivergence(), DataFile, OutputByteNumber);
-        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.StandardDeviationOfReconstruction(), DataFile, OutputByteNumber);
+        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.VarianceOfL1Distance(), DataFile, OutputByteNumber);
+        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.VarianceOfL2Distance(), DataFile, OutputByteNumber);
+        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.VarianceOfKLDivergence(), DataFile, OutputByteNumber);
+        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.VarianceOfReconstruction(), DataFile, OutputByteNumber);
     }
     else
     {
         MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ LoadFeatureDictionaryForSparseCoding(...)")
 
         Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.BasisMatrix(), DataFile, InputElementTypeName);
-        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.StandardDeviationOfL1Distance(), DataFile, InputElementTypeName);
-        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.StandardDeviationOfL2Distance(), DataFile, InputElementTypeName);
-        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.StandardDeviationOfKLDivergence(), DataFile, InputElementTypeName);
-        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.StandardDeviationOfReconstruction(), DataFile, InputElementTypeName);
+        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.VarianceOfL1Distance(), DataFile, InputElementTypeName);
+        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.VarianceOfL2Distance(), DataFile, InputElementTypeName);
+        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.VarianceOfKLDivergence(), DataFile, InputElementTypeName);
+        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.VarianceOfReconstruction(), DataFile, InputElementTypeName);
     }
 
     DataFile.close();

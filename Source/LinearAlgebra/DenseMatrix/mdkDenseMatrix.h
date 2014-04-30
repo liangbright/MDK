@@ -152,15 +152,17 @@ public:
 
     inline DenseMatrix(int_max RowNumber, int_max ColNumber);
 
+    inline DenseMatrix(const ElementType& Element);
+
     inline DenseMatrix(const std::initializer_list<ElementType>& InputList);
 
     inline DenseMatrix(const std::initializer_list<std::initializer_list<ElementType>>& InputListInList);
 
-    inline DenseMatrix(const ElementType& Element);
-
     inline DenseMatrix(const std::initializer_list<const DenseMatrix<ElementType>*>& InputList);
 
     inline DenseMatrix(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
+
+    inline DenseMatrix(const std::vector<ElementType>& InputList);
 
     // deep-copy or shared-copy constructor
     inline DenseMatrix(const DenseMatrix<ElementType>& InputMatrix, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
@@ -201,6 +203,8 @@ public:
 
     inline void operator=(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
+    inline void operator=(const std::vector<ElementType>& InputList);
+
     inline void operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix);
 
     inline void operator=(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
@@ -221,11 +225,6 @@ public:
     inline bool Copy(const ElementType_Input* InputElementPointer, int_max InputRowNumber, int_max InputColNumber);
 
     inline bool Fill(const ElementType& Element);
-
-    //----------------------  ShallowCopy Matrix of another library (e.g., eigen) ----------------------------------------//
-    // do not ShallowCopy Matrix in MDK, use Share() or ForceShare()
-    
-    inline bool ShallowCopy(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber);
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
 
@@ -298,6 +297,15 @@ public:
     //     std::vector<const mdkDenseMatrix<ElementType>*> SharedMatrixPointerArray(10);
     //     SharedMatrixPointerArray[i] = &InputMatrix;
     //------------------------------------------------------------------------------------------------------
+
+    //---------------------- Special Share: share the Matrix of another library (e.g., eigen) ----------------------------------------//
+    // It can be used it to share a Matrix in eigen library
+    // It can be used it to share a col of a MDK Matrix
+    // do not use this Share() to share a whole MDK Matrix
+
+    inline bool Share(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber);
+
+    inline bool ForceShare(const ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber);
 
     //-------------------- Take -----------------------------------------------------------//
 

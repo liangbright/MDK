@@ -39,6 +39,16 @@ DenseMatrix<ElementType>::DenseMatrix(int_max RowNumber, int_max ColNumber)
 
 template<typename ElementType>
 inline
+DenseMatrix<ElementType>::DenseMatrix(const ElementType& Element)
+{
+    this->Resize(1, 1);
+
+    (*this)(0) = Element;
+}
+
+
+template<typename ElementType>
+inline
 DenseMatrix<ElementType>::DenseMatrix(const std::initializer_list<ElementType>& InputList)
 {
     this->Resize(0, 0);
@@ -64,16 +74,6 @@ DenseMatrix<ElementType>::DenseMatrix(const std::initializer_list<std::initializ
 
 
 template<typename ElementType>
-inline
-DenseMatrix<ElementType>::DenseMatrix(const ElementType& Element)
-{
-    this->Resize(1, 1);
-
-    (*this)(0) = Element;
-}
-
-
-template<typename ElementType>
 inline DenseMatrix<ElementType>::DenseMatrix(const std::initializer_list<const DenseMatrix<ElementType>*>& InputList)
 {
     this->Resize(0, 0);
@@ -93,6 +93,19 @@ inline DenseMatrix<ElementType>::DenseMatrix(const std::initializer_list<std::in
     if (InputListInList.size() > 0)
     {
         (*this) = InputListInList;
+    }
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>::DenseMatrix(const std::vector<ElementType>& InputList)
+{
+    this->Resize(0, 0);
+
+    if (InputList.size() > 0)
+    {
+        (*this) = InputList;
     }
 }
 
@@ -162,7 +175,7 @@ DenseMatrix<ElementType>::DenseMatrix(ElementType* InputElementPointer, int_max 
 {
     this->Resize(0, 0);
 
-    this->ShallowCopy(InputElementPointer, InputRowNumber, InputColNumber);
+    this->Share(InputElementPointer, InputRowNumber, InputColNumber);
 
     m_MatrixData->IsSizeFixed = IsSizeFixed;
 }
@@ -417,6 +430,45 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<std::initia
 
 
 template<typename ElementType>
+inline 
+void DenseMatrix<ElementType>::operator=(const std::vector<ElementType>& InputList)
+{
+    //InputList is treated as a row vector
+
+    auto InputLength = int_max(InputList.size());
+
+    if (InputLength <= 0)
+    {
+        MDK_Error("Input is empty @ DenseMatrix::operator=(std::vector)")
+        return;
+    }
+
+    auto SelfSize = this->GetSize();
+
+    if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputLength)
+    {
+        this->SetRow(0, InputList);
+        return;
+    }
+    else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength)
+    {
+        this->SetCol(0, InputList);
+        return;
+    }
+
+    if (this->IsSizeFixed() == true)
+    {
+        MDK_Error("Can not change matrix size @ DenseMatrix::operator=(std::vector)")
+    }
+    else
+    {
+        this->FastResize(1, InputLength);
+        this->SetRow(0, InputList);
+    }
+}
+
+
+template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix)
 {
@@ -579,38 +631,6 @@ bool DenseMatrix<ElementType>::Fill(const ElementType& Element)
 
 
 template<typename ElementType>
-inline 
-bool DenseMatrix<ElementType>::ShallowCopy(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber)
-{
-    if (InputElementPointer == nullptr || InputRowNumber <= 0 || InputColNumber <= 0)
-    {
-        MDK_Error("Invalid input @ DenseMatrix::ShallowCopy(...)")
-        return false;
-    }
-
-    if (this->IsSizeFixed() == true)
-    {
-        if (m_MatrixData->RowNumber != InputRowNumber && m_MatrixData->ColNumber != InputColNumber)
-        {
-            MDK_Error("Size can not change @ DenseMatrix::ShallowCopy(...)")
-            return false;        
-        }
-    }
-
-    m_MatrixData->RowNumber = InputRowNumber;
-    m_MatrixData->ColNumber = InputColNumber;
-
-    m_MatrixData->DataArray.clear();
-
-    m_MatrixData->ElementPointer = InputElementPointer;
-
-    m_ElementPointer = m_MatrixData->ElementPointer;
-
-    return true;
-}
-
-
-template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::Share(DenseMatrix<ElementType>& InputMatrix)
 {
@@ -688,6 +708,48 @@ bool DenseMatrix<ElementType>::ForceShare(const DenseMatrix<ElementType>* InputM
     this->ForceShare(*InputMatrix);
 
     return true;
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::Share(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber)
+{
+    if (InputElementPointer == nullptr || InputRowNumber <= 0 || InputColNumber <= 0)
+    {
+        MDK_Error("Invalid input @ DenseMatrix::Share(...)")
+        return false;
+    }
+
+    if (this->IsSizeFixed() == true)
+    {
+        if (m_MatrixData->RowNumber != InputRowNumber && m_MatrixData->ColNumber != InputColNumber)
+        {
+            MDK_Error("Size can not change @ DenseMatrix::Share(...)")
+            return false;
+        }
+    }
+
+    m_MatrixData->RowNumber = InputRowNumber;
+    m_MatrixData->ColNumber = InputColNumber;
+
+    m_MatrixData->DataArray.clear();
+
+    m_MatrixData->ElementPointer = InputElementPointer;
+
+    m_ElementPointer = m_MatrixData->ElementPointer;
+
+    return true;
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::ForceShare(const ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber)
+{
+    auto tempPointer = const_cast<ElementType*>(InputElementPointer);
+
+    return this->Share(tempPointer, InputRowNumber, InputColNumber);
 }
 
 

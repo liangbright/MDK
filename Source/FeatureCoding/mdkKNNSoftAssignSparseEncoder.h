@@ -7,12 +7,13 @@
 
 namespace mdk
 {
+
 template<typename ElementType>
 struct Parameter_Of_KNNSoftAssignSparseEncoder
 {
     int_max NeighbourNumber;
 
-    std::string SimilarityType;
+    MDK_SimilarityType_Enum_For_FeatureCoding SimilarityType;
     //
     // If a Feature vector is treated as ordinary signal
     // L1Distance
@@ -23,15 +24,15 @@ struct Parameter_Of_KNNSoftAssignSparseEncoder
     // KLDivergence
 
     ElementType SimilarityThreshold; // find KNN with Similarity >= SimilarityThreshold
-    // K in KNN can be < MaxNumberOfNeighbours
+                                     // K in KNN can be < MaxNumberOfNeighbours
 
-    // Sigma_L1, Sigma_L2, and Sigma_KL may be carried by Dictionary 
+    // Variance_L1, Variance_L2, and Variance_KL may be carried by Dictionary 
 
-    ElementType Sigma_L1; // standard deviation to convert L1Distance to Similarity
+    ElementType Variance_L1; // variance to convert L1Distance to Similarity
 
-    ElementType Sigma_L2; // standard deviation to convert L2Distance to Similarity
+    ElementType Variance_L2; // variance to convert L2Distance to Similarity
 
-    ElementType Sigma_KL; // standard deviation to convert KLDivergence to Similarity
+    ElementType Variance_KL; // variance to convert KLDivergence to Similarity
 
     bool IgnoreSign_Correlation; // if it is true, Similarity = abs(Correlation)
     // else, Similarity = (Correlation +1)/2
@@ -43,15 +44,15 @@ struct Parameter_Of_KNNSoftAssignSparseEncoder
     {
         NeighbourNumber = 0;
 
-        SimilarityType.clear();
+        SimilarityType = MDK_SimilarityType_Enum_For_FeatureCoding::Unknown;
 
         SimilarityThreshold = 0;
 
-        Sigma_L1 = 0;
+        Variance_L1 = 0;
 
-        Sigma_L2 = 0;
+        Variance_L2 = 0;
 
-        Sigma_KL = 0;
+        Variance_KL = 0;
 
         IgnoreSign_Correlation = false;
     }
@@ -64,7 +65,9 @@ class KNNSoftAssignSparseEncoder : public FeatureDictionaryBasedSparseEncoder<El
 
 public:
 
-    Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> m_Paramter;
+    Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> m_Parameter;
+
+    typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
 
 public:
 

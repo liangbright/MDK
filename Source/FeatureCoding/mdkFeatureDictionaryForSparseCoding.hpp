@@ -59,16 +59,21 @@ void FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionary
 
     m_DictionaryData->Name = InputDictionary.m_DictionaryData->Name;
 
+    m_DictionaryData->BasisMatrix = InputDictionary.m_DictionaryData->BasisMatrix;
+
     m_DictionaryData->BasisPositive = InputDictionary.m_DictionaryData->BasisPositive;
     m_DictionaryData->BasisNormalizedWithL1Norm = InputDictionary.m_DictionaryData->BasisNormalizedWithL1Norm;
     m_DictionaryData->BasisNormalizedWithL2Norm = InputDictionary.m_DictionaryData->BasisNormalizedWithL2Norm;
 
-    m_DictionaryData->BasisMatrix = InputDictionary.m_DictionaryData->BasisMatrix;
+    m_DictionaryData->SimilarityType = InputDictionary.m_DictionaryData->SimilarityType;
+    m_DictionaryData->SimilarityMatrix = InputDictionary.m_DictionaryData->SimilarityMatrix;
+    m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = InputDictionary.m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy;
+    m_DictionaryData->BasisRedundancy = InputDictionary.m_DictionaryData->BasisRedundancy;
 
-    m_DictionaryData->StandardDeviationOfL1Distance = InputDictionary.m_DictionaryData->StandardDeviationOfL1Distance;
-    m_DictionaryData->StandardDeviationOfL2Distance = InputDictionary.m_DictionaryData->StandardDeviationOfL2Distance;
-    m_DictionaryData->StandardDeviationOfKLDivergence = InputDictionary.m_DictionaryData->StandardDeviationOfKLDivergence;
-    m_DictionaryData->StandardDeviationOfReconstruction = InputDictionary.m_DictionaryData->StandardDeviationOfReconstruction;
+    m_DictionaryData->VarianceOfL1Distance = InputDictionary.m_DictionaryData->VarianceOfL1Distance;
+    m_DictionaryData->VarianceOfL2Distance = InputDictionary.m_DictionaryData->VarianceOfL2Distance;
+    m_DictionaryData->VarianceOfKLDivergence = InputDictionary.m_DictionaryData->VarianceOfKLDivergence;
+    m_DictionaryData->VarianceOfReconstruction = InputDictionary.m_DictionaryData->VarianceOfReconstruction;
 
     m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = InputDictionary.m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory;
 
@@ -153,16 +158,21 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
 {
     m_DictionaryData->Name = std::move(InputDictionary.m_DictionaryData->Name);
 
+    m_DictionaryData->BasisMatrix = std::move(InputDictionary.m_DictionaryData->BasisMatrix);
+
     m_DictionaryData->BasisPositive = InputDictionary.m_DictionaryData->BasisPositive;
     m_DictionaryData->BasisNormalizedWithL1Norm = InputDictionary.m_DictionaryData->BasisNormalizedWithL1Norm;
     m_DictionaryData->BasisNormalizedWithL2Norm = InputDictionary.m_DictionaryData->BasisNormalizedWithL2Norm;
 
-    m_DictionaryData->BasisMatrix = std::move(InputDictionary.m_DictionaryData->BasisMatrix);
+    m_DictionaryData->SimilarityType = InputDictionary.m_DictionaryData->SimilarityType;
+    m_DictionaryData->SimilarityMatrix = std::move(InputDictionary.m_DictionaryData->SimilarityMatrix);
+    m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = InputDictionary.m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy;
+    m_DictionaryData->BasisRedundancy = std::move(InputDictionary.m_DictionaryData->BasisRedundancy);
 
-    m_DictionaryData->StandardDeviationOfL1Distance = std::move(InputDictionary.m_DictionaryData->StandardDeviationOfL1Distance);
-    m_DictionaryData->StandardDeviationOfL2Distance = std::move(InputDictionary.m_DictionaryData->StandardDeviationOfL2Distance);
-    m_DictionaryData->StandardDeviationOfKLDivergence = std::move(InputDictionary.m_DictionaryData->StandardDeviationOfKLDivergence);
-    m_DictionaryData->StandardDeviationOfReconstruction = std::move(InputDictionary.m_DictionaryData->StandardDeviationOfReconstruction);
+    m_DictionaryData->VarianceOfL1Distance = std::move(InputDictionary.m_DictionaryData->VarianceOfL1Distance);
+    m_DictionaryData->VarianceOfL2Distance = std::move(InputDictionary.m_DictionaryData->VarianceOfL2Distance);
+    m_DictionaryData->VarianceOfKLDivergence = std::move(InputDictionary.m_DictionaryData->VarianceOfKLDivergence);
+    m_DictionaryData->VarianceOfReconstruction = std::move(InputDictionary.m_DictionaryData->VarianceOfReconstruction);
 
     m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = InputDictionary.m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory;
 
@@ -185,14 +195,15 @@ void FeatureDictionaryForSparseCoding<ElementType>::Clear()
     m_DictionaryData->BasisNormalizedWithL1Norm = false;
     m_DictionaryData->BasisNormalizedWithL2Norm = false;
 
-    m_DictionaryData->SimilarityTypeToComputeBasisRedundancy.Clear();
+    m_DictionaryData->SimilarityType = MDK_SimilarityType_Enum_For_FeatureCoding::Unknown;
+    m_DictionaryData->SimilarityMatrix.Clear();
     m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = 0;
     m_DictionaryData->BasisRedundancy.Clear();
 
-    m_DictionaryData->StandardDeviationOfL1Distance.Clear();
-    m_DictionaryData->StandardDeviationOfL2Distance.Clear();
-    m_DictionaryData->StandardDeviationOfKLDivergence.Clear();
-    m_DictionaryData->StandardDeviationOfReconstruction.Clear();
+    m_DictionaryData->VarianceOfL1Distance.Clear();
+    m_DictionaryData->VarianceOfL2Distance.Clear();
+    m_DictionaryData->VarianceOfKLDivergence.Clear();
+    m_DictionaryData->VarianceOfReconstruction.Clear();
 
     m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = 0;
 
@@ -255,6 +266,22 @@ void FeatureDictionaryForSparseCoding<ElementType>::SetName(const CharString& Na
 
 
 template<typename ElementType>
+inline
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisMatrix()
+{
+    return m_DictionaryData->BasisMatrix;
+}
+
+
+template<typename ElementType>
+inline
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisMatrix() const
+{
+    return m_DictionaryData->BasisMatrix;
+}
+
+
+template<typename ElementType>
 inline 
 void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_BasisPositive(bool YesNO)
 {
@@ -304,9 +331,33 @@ bool FeatureDictionaryForSparseCoding<ElementType>::GetInfo_BasisNormalizedWithL
 
 template<typename ElementType>
 inline
-void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_SimilarityTypeToComputeBasisRedundancy(const CharString& SimilarityType)
+void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_SimilarityType(MDK_SimilarityType_Enum_For_FeatureCoding SimilarityType)
 {
-    m_DictionaryData->SimilarityTypeToComputeBasisRedundancy = SimilarityType;
+    m_DictionaryData->SimilarityType = SimilarityType;
+}
+
+
+template<typename ElementType>
+inline
+MDK_SimilarityType_Enum_For_FeatureCoding FeatureDictionaryForSparseCoding<ElementType>::GetInfo_SimilarityType() const
+{
+    return m_DictionaryData->SimilarityType;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::SimilarityMatrix()
+{
+    return m_DictionaryData->SimilarityMatrix;
+}
+
+
+template<typename ElementType>
+inline
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::SimilarityMatrix() const
+{
+    return m_DictionaryData->SimilarityMatrix;
 }
 
 
@@ -320,33 +371,9 @@ void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_SimilarityThresholdT
 
 template<typename ElementType>
 inline
-const CharString& FeatureDictionaryForSparseCoding<ElementType>::GetInfo_SimilarityTypeToComputeBasisRedundancy() const
-{
-    return m_DictionaryData->SimilarityTypeToComputeBasisRedundancy;
-}
-
-
-template<typename ElementType>
-inline
-ElementType FeatureDictionaryForSparseCoding<ElementType>::SetInfo_SimilarityThresholdToComputeBasisRedundancy() const
+ElementType FeatureDictionaryForSparseCoding<ElementType>::GetInfo_SimilarityThresholdToComputeBasisRedundancy() const
 {
     return m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy;
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisMatrix()
-{
-    return m_DictionaryData->BasisMatrix;
-}
-
-
-template<typename ElementType>
-inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisMatrix() const
-{
-    return m_DictionaryData->BasisMatrix;
 }
 
 
@@ -368,63 +395,63 @@ const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::B
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfL1Distance()
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfL1Distance()
 {
-    return m_DictionaryData->StandardDeviationOfL1Distance;
+    return m_DictionaryData->VarianceOfL1Distance;
 }
 
 
 template<typename ElementType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfL1Distance() const
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfL1Distance() const
 {
-    return m_DictionaryData->StandardDeviationOfL1Distance;
+    return m_DictionaryData->VarianceOfL1Distance;
 }
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfL2Distance()
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfL2Distance()
 {
-    return m_DictionaryData->StandardDeviationOfL2Distance;
-}
-
-
-template<typename ElementType>
-inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfL2Distance() const
-{
-    return m_DictionaryData->StandardDeviationOfL2Distance;
-}
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfKLDivergence()
-{
-    return m_DictionaryData->StandardDeviationOfKLDivergence;
+    return m_DictionaryData->VarianceOfL2Distance;
 }
 
 
 template<typename ElementType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfKLDivergence() const
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfL2Distance() const
 {
-    return m_DictionaryData->StandardDeviationOfKLDivergence;
+    return m_DictionaryData->VarianceOfL2Distance;
+}
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfKLDivergence()
+{
+    return m_DictionaryData->VarianceOfKLDivergence;
 }
 
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfReconstruction()
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfKLDivergence() const
 {
-    return m_DictionaryData->StandardDeviationOfReconstruction;
+    return m_DictionaryData->VarianceOfKLDivergence;
 }
 
 
 template<typename ElementType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::StandardDeviationOfReconstruction() const
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfReconstruction()
 {
-    return m_DictionaryData->StandardDeviationOfReconstruction;
+    return m_DictionaryData->VarianceOfReconstruction;
+}
+
+
+template<typename ElementType>
+inline
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfReconstruction() const
+{
+    return m_DictionaryData->VarianceOfReconstruction;
 }
 
 

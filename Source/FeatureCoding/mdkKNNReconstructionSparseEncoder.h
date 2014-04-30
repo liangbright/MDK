@@ -68,6 +68,7 @@ public:
 
     Parameter_Of_KNNReconstructionSparseEncoder m_Parameter;
 
+    typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
 
 protected:
     // output reconstruction error
@@ -87,10 +88,6 @@ public:
     //--------------------------------------------------------------------------------
 
     void Clear();
-
-    void SetOutputReconstructionErrorNorm(DenseMatrix<ElementType>* ErrorNorm);
-
-    DenseMatrix<ElementType>* GetOutputReconstructionErrorNorm();
 
     bool CheckInput();
 

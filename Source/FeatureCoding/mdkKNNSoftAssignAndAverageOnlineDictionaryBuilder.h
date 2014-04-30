@@ -26,6 +26,10 @@ struct Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder
 
     int_max BasisNumber;
 
+    bool BasisPositive;
+    bool BasisNormalizedWithL1Norm;
+    bool BasisNormalizedWithL2Norm;
+
     Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> ParameterOfKNNSoftAssign;
 
     // sort the pair i, j according to score = weigth_s * Similarity(i, j) + (1-weigth_s) * 0.5*(prob(i) + prob(j))
@@ -42,7 +46,9 @@ struct Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder
 
     int_max MaxNumberOfThreads;
 
-    // parameter for updating reconstruction information after the dictionary is built
+    // parameter for updating dictionary information
+
+    ElementType SimilarityThresholdToComputeBasisRedundancy;
 
     Parameter_Of_KNNReconstructionSparseEncoder ParameterOfKNNReconstruction;
 
@@ -57,14 +63,20 @@ struct Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder
 
         BasisNumber = -1;
 
-        weigth_s = 0;
+        BasisPositive = false;
+        BasisNormalizedWithL1Norm = false;
+        BasisNormalizedWithL2Norm = false;
 
-        weigth_past = 0;
+        weigth_s = -1;
+
+        weigth_past = -1;
 
         NumberOfDataInEachBatch = -1;
         MaxNumberOfIteration = -1;
 
         MaxNumberOfThreads = 1;
+
+        SimilarityThresholdToComputeBasisRedundancy = 0;
 
         ParameterOfKNNReconstruction.Clear();
     }
@@ -77,6 +89,8 @@ class KNNSoftAssignAndAverageOnlineDictionaryBuilder : public FeatureDictionaryB
 public:
     Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType> m_Parameter;
 
+    typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
+
 private:
 
     const DenseMatrix<ElementType>* m_FeatureData;
@@ -88,6 +102,8 @@ private:
     FeatureDictionaryForSparseCoding<ElementType>  m_Dictionary_SharedCopy;
 
     KNNSoftAssignOnlineDictionaryBuilder<ElementType> m_KNNSoftAssignDictionaryBuilder;
+
+    KNNSoftAssignSparseEncoder<ElementType> m_KNNSoftAssignSparseEncoder;
 
 public:
     KNNSoftAssignAndAverageOnlineDictionaryBuilder();
@@ -113,11 +129,65 @@ protected:
 
     void GenerateDictionary();
 
-    FeatureDictionaryForSparseCoding<ElementType> GenerateDictionaryFromDataBatch(int_max BasisNumber_desired,
-                                                                                  const DenseMatrix<ElementType>& FeatureData,
-                                                                                  const DenseMatrix<ElementType>& ProbabilityMassFunctionOfData,
-                                                                                  const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init);
+    void SetputParameter();
 
+    FeatureDictionaryForSparseCoding<ElementType> BuildDictionaryFromData(int_max BasisNumber_desired,
+                                                                          const DenseMatrix<ElementType>& FeatureData,
+                                                                          const DenseMatrix<ElementType>& ProbabilityMassFunctionOfData,
+                                                                          const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init);
+
+    void UpdateDictionaryAfterEncoding(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
+                                       const DenseMatrix<ElementType>& FeatureData,
+                                       const DataContainer<SparseVector<ElementType>>& CodeTable);
+
+    void UpdateDictionary_OtherInfo(FeatureDictionaryForSparseCoding<ElementType>& Dictionary);
+
+    void UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
+                           const DenseMatrix<ElementType>& FeatureData,
+                           const DataContainer<SparseVector<ElementType>>& CodeTable,
+                           const DenseMatrix<ElementType>  WeightOfError);
+
+    inline ElementType ComputeVectorInnerProduct(const DenseMatrix<ElementType>& A, const DenseMatrix<ElementType>& B);
+
+    void ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix);
+
+    void UpdateProbabilityMassFunction(DenseMatrix<ElementType>&  ProbabilityMassFunction, 
+                                       ElementType WeightedNumberOfTrainingSamplesInHistory,
+                                       const DataContainer<SparseVector<ElementType>>& CodeTable);
+
+    void UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix, const DenseMatrix<ElementType>& BasisMatrix);
+
+    void UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix);
+
+    void UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
+                                    const DenseMatrix<ElementType>& FeatureData,
+                                    const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                    const DenseMatrix<ElementType>& BasisMatrix,
+                                    const ElementType WeightedNumberOfTrainingSamplesInHistory);
+
+    void UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
+                                    const DenseMatrix<ElementType>& FeatureData,
+                                    const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                    const DenseMatrix<ElementType>& BasisMatrix,
+                                    const ElementType WeightedNumberOfTrainingSamplesInHistory);
+
+    void UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
+                                      const DenseMatrix<ElementType>& FeatureData,
+                                      const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                      const DenseMatrix<ElementType>& BasisMatrix,
+                                      const ElementType WeightedNumberOfTrainingSamplesInHistory);
+
+    void UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
+                                        const DenseMatrix<ElementType>& FeatureData,
+                                        const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                        const DenseMatrix<ElementType>& BasisMatrix,
+                                        const ElementType WeightedNumberOfTrainingSamplesInHistory);
+
+    void ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       ReconstructedDataVector,
+                                               const DenseMatrix<ElementType>& DataVector,
+                                               const DenseMatrix<ElementType>& KNNBasisMatrix,                                               
+                                               const DenseMatrix<int_max>&     KNNBasisIndexList,
+                                               const DenseMatrix<ElementType>& GramianMatrix_DtD);
 };
 
 

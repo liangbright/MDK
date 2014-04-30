@@ -55,28 +55,6 @@ void KNNReconstructionSparseEncoder<ElementType>::UpdatePipelineOutput()
 
 
 template<typename ElementType>
-void KNNReconstructionSparseEncoder<ElementType>::SetOutputReconstructionErrorNorm(DenseMatrix<ElementType>* ErrorNorm)
-{
-    if (ErrorNorm == nullptr)
-    {
-        MDK_Error("Invalid input @ KNNReconstructionSparseEncoder::SetOutputReconstructionErrorNorm(...)")
-        return;
-    }
-
-    m_ReconstructionErrorNorm = ErrorNorm;
-
-    m_ReconstructionErrorNorm_SharedCopy.ForceShare(ErrorNorm);
-}
-
-
-template<typename ElementType>
-DenseMatrix<ElementType>* KNNReconstructionSparseEncoder<ElementType>::GetOutputReconstructionErrorNorm()
-{
-    return &m_ReconstructionErrorNorm_SharedCopy;
-}
-
-
-template<typename ElementType>
 bool KNNReconstructionSparseEncoder<ElementType>::CheckInput()
 {
     if (this->FeatureDictionaryBasedSparseEncoder::CheckInput() == false)
@@ -90,18 +68,16 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.SimilarityType != "L1Distance"
-        && m_Parameter.SimilarityType != "L2Distance"
-        && m_Parameter.SimilarityType != "Correlation"
-        && m_Parameter.SimilarityType != "KLDivergence")
+    if (m_Parameter.SimilarityType != VectorSimilarityType::L1Distance
+        && m_Parameter.SimilarityType != VectorSimilarityType::L2Distance
+        && m_Parameter.SimilarityType != VectorSimilarityType::Correlation
+        && m_Parameter.SimilarityType != VectorSimilarityType::KLDivergence)
     {
         MDK_Error("SimilarityType is invalid @ KNNReconstructionSparseEncoder::CheckInput()")
         return false;
     }
 
     auto Size = m_Dictionary->GetSize();
-
-    m_ReconstructionErrorNorm->FastResize(1, Size.ColNumber);
 
     return true;
 }
@@ -148,24 +124,29 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
     DenseMatrix<ElementType> DistanceList;
 
-    if (m_Parameter.SimilarityType == "L1Distance")
+    switch (m_Parameter.SimilarityType)
     {
+    case VectorSimilarityType::L1Distance:
+
         DistanceList = ComputeL1DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
-    }
-    else if (m_Parameter.SimilarityType == "L2Distance")
-    {
+        break;
+
+    case VectorSimilarityType::L2Distance:
+
         DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
-    }
-    else if (m_Parameter.SimilarityType == "Correlation")
-    {
+        break;
+
+    case VectorSimilarityType::Correlation:
+
         DistanceList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
-    }
-    else if (m_Parameter.SimilarityType == "KLDivergence")
-    {
+        break;
+
+    case VectorSimilarityType::KLDivergence :
+
         DistanceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, BasisMatrix);
-    }
-    else
-    {
+        break;
+
+    default:
         MDK_Error("SimilarityType is invalid @ KNNReconstructionSparseEncoder::EncodingFunction(...)")
         return;
     }
