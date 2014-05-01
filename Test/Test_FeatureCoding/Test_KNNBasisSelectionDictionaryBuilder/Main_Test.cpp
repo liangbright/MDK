@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 
-#include "Test_KNNSoftAssignOnlineDictionaryBuilder.h"
+#include "Test_KNNBasisSelectionDictionaryBuilder.h"
 
 using namespace mdk;
 

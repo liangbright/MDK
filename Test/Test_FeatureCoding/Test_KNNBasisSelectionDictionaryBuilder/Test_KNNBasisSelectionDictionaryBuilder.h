@@ -1,5 +1,5 @@
 #include "mdkFileIO.h"
-#include "mdkKNNSoftAssignOnlineDictionaryBuilder.h"
+#include "mdkKNNBasisSelectionOnlineDictionaryBuilder.h"
 
 void Test_Matrix()
 {
@@ -20,7 +20,7 @@ void Test_SimpleCase()
 {
     using namespace mdk;
 
-    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNSoftAssignOnlineDictionaryBuiler/Debug/";
+    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/";
 
     CharString FeatureDataFilePathAndName = FilePath + "DataSample.json";
 
@@ -28,9 +28,9 @@ void Test_SimpleCase()
 
     int_max FeatureDataNumber = FeatureData.GetColNumber();
 
-    KNNSoftAssignOnlineDictionaryBuilder<double> DictionaryBuilder;
+    KNNBasisSelectionOnlineDictionaryBuilder<double> DictionaryBuilder;
 
-    typedef KNNSoftAssignOnlineDictionaryBuilder<double>::SimilarityTypeEnum SimilarityTypeEnum;
+    typedef KNNBasisSelectionOnlineDictionaryBuilder<double>::SimilarityTypeEnum SimilarityTypeEnum;
 
     int_max NeighbourNumber = 5;
 

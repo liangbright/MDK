@@ -1,5 +1,5 @@
-#ifndef __mdkKNNSoftAssignAndAverageOnlineDictionaryBuilder_h
-#define __mdkKNNSoftAssignAndAverageOnlineDictionaryBuilder_h
+#ifndef __mdkKNNAverageOnlineDictionaryBuilder_h
+#define __mdkKNNAverageOnlineDictionaryBuilder_h
 
 
 #include <random>
@@ -13,14 +13,13 @@
 #include "mdkFeatureCoding_Common_Function.h"
 #include "mdkLinearLeastSquaresProblemSolver.h"
 #include "mdkKNNSoftAssignSparseEncoder.h"
-#include "mdkKNNSoftAssignOnlineDictionaryBuilder.h"
 
 
 namespace mdk
 {
 
 template<typename ElementType>
-struct Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder
+struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 {
     std::string DictionaryName;
 
@@ -54,8 +53,8 @@ struct Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder
 
 //--------------------------------------------------------------------------------------------------------
 
-    Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder() { this->Clear(); }
-    ~Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder() {}
+    Parameter_Of_KNNAverageOnlineDictionaryBuilder() { this->Clear(); }
+    ~Parameter_Of_KNNAverageOnlineDictionaryBuilder() {}
 
     void Clear()
     {
@@ -84,10 +83,10 @@ struct Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder
 
 
 template<typename ElementType>
-class KNNSoftAssignAndAverageOnlineDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
+class KNNAverageOnlineDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
 {
 public:
-    Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType> m_Parameter;
+    Parameter_Of_KNNAverageOnlineDictionaryBuilder<ElementType> m_Parameter;
 
     typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
 
@@ -106,8 +105,8 @@ private:
     KNNSoftAssignSparseEncoder<ElementType> m_KNNSoftAssignSparseEncoder;
 
 public:
-    KNNSoftAssignAndAverageOnlineDictionaryBuilder();
-    ~KNNSoftAssignAndAverageOnlineDictionaryBuilder();
+    KNNAverageOnlineDictionaryBuilder();
+    ~KNNAverageOnlineDictionaryBuilder();
 
     void Clear();
 
@@ -196,6 +195,6 @@ protected:
 }// namespace mdk
 
 
-#include "mdkKNNSoftAssignAndAverageOnlineDictionaryBuilder.hpp"
+#include "mdkKNNAverageOnlineDictionaryBuilder.hpp"
 
 #endif

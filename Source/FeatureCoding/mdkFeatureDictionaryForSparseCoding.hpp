@@ -65,12 +65,19 @@ void FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionary
     m_DictionaryData->BasisNormalizedWithL1Norm = InputDictionary.m_DictionaryData->BasisNormalizedWithL1Norm;
     m_DictionaryData->BasisNormalizedWithL2Norm = InputDictionary.m_DictionaryData->BasisNormalizedWithL2Norm;
 
+    m_DictionaryData->CurrentDictionaryTime = InputDictionary.m_DictionaryData->CurrentDictionaryTime;
+
+    m_DictionaryData->BasisAge = InputDictionary.m_DictionaryData->BasisAge;
+
+    m_DictionaryData->NewBasisIndexList = InputDictionary.m_DictionaryData->NewBasisIndexList;
+
+    m_DictionaryData->BasisExperience = InputDictionary.m_DictionaryData->BasisExperience;
+
     m_DictionaryData->SimilarityType = InputDictionary.m_DictionaryData->SimilarityType;
     m_DictionaryData->SimilarityMatrix = InputDictionary.m_DictionaryData->SimilarityMatrix;
+
     m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = InputDictionary.m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy;
     m_DictionaryData->BasisRedundancy = InputDictionary.m_DictionaryData->BasisRedundancy;
-
-    m_DictionaryData->ExperienceOfRepresentingData = InputDictionary.m_DictionaryData->ExperienceOfRepresentingData;
 
     m_DictionaryData->VarianceOfL1Distance = InputDictionary.m_DictionaryData->VarianceOfL1Distance;
     m_DictionaryData->VarianceOfL2Distance = InputDictionary.m_DictionaryData->VarianceOfL2Distance;
@@ -162,12 +169,19 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
     m_DictionaryData->BasisNormalizedWithL1Norm = InputDictionary.m_DictionaryData->BasisNormalizedWithL1Norm;
     m_DictionaryData->BasisNormalizedWithL2Norm = InputDictionary.m_DictionaryData->BasisNormalizedWithL2Norm;
 
+    m_DictionaryData->CurrentDictionaryTime = InputDictionary.m_DictionaryData->CurrentDictionaryTime;
+
+    m_DictionaryData->BasisAge = std::move(InputDictionary.m_DictionaryData->BasisAge);
+
+    m_DictionaryData->NewBasisIndexList = std::move(InputDictionary.m_DictionaryData->NewBasisIndexList);
+
+    m_DictionaryData->BasisExperience = std::move(InputDictionary.m_DictionaryData->BasisExperience);
+
     m_DictionaryData->SimilarityType = InputDictionary.m_DictionaryData->SimilarityType;
     m_DictionaryData->SimilarityMatrix = std::move(InputDictionary.m_DictionaryData->SimilarityMatrix);
+
     m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = InputDictionary.m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy;
     m_DictionaryData->BasisRedundancy = std::move(InputDictionary.m_DictionaryData->BasisRedundancy);
-
-    m_DictionaryData->ExperienceOfRepresentingData = std::move(InputDictionary.m_DictionaryData->ExperienceOfRepresentingData);
 
     m_DictionaryData->VarianceOfL1Distance = std::move(InputDictionary.m_DictionaryData->VarianceOfL1Distance);
     m_DictionaryData->VarianceOfL2Distance = std::move(InputDictionary.m_DictionaryData->VarianceOfL2Distance);
@@ -191,12 +205,19 @@ void FeatureDictionaryForSparseCoding<ElementType>::Clear()
     m_DictionaryData->BasisNormalizedWithL1Norm = false;
     m_DictionaryData->BasisNormalizedWithL2Norm = false;
 
+    m_DictionaryData->CurrentDictionaryTime = 0;
+
+    m_DictionaryData->BasisAge.Clear();
+
+    m_DictionaryData->NewBasisIndexList.Clear();
+
+    m_DictionaryData->BasisExperience.Clear();
+
     m_DictionaryData->SimilarityType = MDK_SimilarityType_Enum_For_FeatureCoding::Unknown;
     m_DictionaryData->SimilarityMatrix.Clear();
+
     m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = 0;
     m_DictionaryData->BasisRedundancy.Clear();
-
-    m_DictionaryData->ExperienceOfRepresentingData.Clear();
 
     m_DictionaryData->VarianceOfL1Distance.Clear();
     m_DictionaryData->VarianceOfL2Distance.Clear();
@@ -277,7 +298,7 @@ const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::B
 
 template<typename ElementType>
 inline 
-void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_BasisPositive(bool YesNO)
+void FeatureDictionaryForSparseCoding<ElementType>::SetProperty_BasisPositive(bool YesNO)
 {
     m_DictionaryData->BasisPositive = YesNO;
 }
@@ -285,23 +306,23 @@ void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_BasisPositive(bool Y
 
 template<typename ElementType>
 inline 
-void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_BasisNormalizedWithL1Norm(bool YesNO)
+void FeatureDictionaryForSparseCoding<ElementType>::SetProperty_BasisNormalizedWithL1Norm(bool YesNO)
 {
-    m_DictionaryData->SetInfo_BasisNormalizedWithL1Norm = YesNO;
+    m_DictionaryData->SetProperty_BasisNormalizedWithL1Norm = YesNO;
 }
 
 
 template<typename ElementType>
 inline
-void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_BasisNormalizedWithL2Norm(bool YesNO)
+void FeatureDictionaryForSparseCoding<ElementType>::SetProperty_BasisNormalizedWithL2Norm(bool YesNO)
 {
-    m_DictionaryData->SetInfo_BasisNormalizedWithL2Norm = YesNO;
+    m_DictionaryData->SetProperty_BasisNormalizedWithL2Norm = YesNO;
 }
 
 
 template<typename ElementType>
 inline
-bool FeatureDictionaryForSparseCoding<ElementType>::GetInfo_BasisPositive() const
+bool FeatureDictionaryForSparseCoding<ElementType>::GetProperty_BasisPositive() const
 {
     return m_DictionaryData->BasisPositive;
 }
@@ -309,7 +330,7 @@ bool FeatureDictionaryForSparseCoding<ElementType>::GetInfo_BasisPositive() cons
 
 template<typename ElementType>
 inline
-bool FeatureDictionaryForSparseCoding<ElementType>::GetInfo_BasisNormalizedWithL1Norm() const
+bool FeatureDictionaryForSparseCoding<ElementType>::GetProperty_BasisNormalizedWithL1Norm() const
 {
     return m_DictionaryData->BasisNormalizedWithL1Norm;
 }
@@ -317,7 +338,7 @@ bool FeatureDictionaryForSparseCoding<ElementType>::GetInfo_BasisNormalizedWithL
 
 template<typename ElementType>
 inline
-bool FeatureDictionaryForSparseCoding<ElementType>::GetInfo_BasisNormalizedWithL2Norm() const
+bool FeatureDictionaryForSparseCoding<ElementType>::GetProperty_BasisNormalizedWithL2Norm() const
 {
     return m_DictionaryData->BasisNormalizedWithL2Norm;
 }
@@ -325,7 +346,71 @@ bool FeatureDictionaryForSparseCoding<ElementType>::GetInfo_BasisNormalizedWithL
 
 template<typename ElementType>
 inline
-void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_SimilarityType(MDK_SimilarityType_Enum_For_FeatureCoding SimilarityType)
+void FeatureDictionaryForSparseCoding<ElementType>::SetCurrentDictionaryTime(int_max DictionaryTime)
+{
+    m_DictionaryData->CurrentDictionaryTime = DictionaryTime;
+}
+
+
+template<typename ElementType>
+inline
+int_max FeatureDictionaryForSparseCoding<ElementType>::GetCurrentDictionaryTime() const
+{
+    return m_DictionaryData->CurrentDictionaryTime;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisAge()
+{
+    return m_DictionaryData->BasisAge;
+}
+
+
+template<typename ElementType>
+inline
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisAge() const
+{
+    return m_DictionaryData->BasisAge;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::NewBasisIndexList()
+{
+    return m_DictionaryData->NewBasisIndexList;
+}
+
+
+template<typename ElementType>
+inline
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::NewBasisIndexList() const
+{
+    return m_DictionaryData->NewBasisIndexList;
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisExperience()
+{
+    return m_DictionaryData->BasisExperience;
+}
+
+
+template<typename ElementType>
+inline
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisExperience() const
+{
+    return m_DictionaryData->BasisExperience;
+}
+
+
+template<typename ElementType>
+inline
+void FeatureDictionaryForSparseCoding<ElementType>::SetProperty_SimilarityType(MDK_SimilarityType_Enum_For_FeatureCoding SimilarityType)
 {
     m_DictionaryData->SimilarityType = SimilarityType;
 }
@@ -333,7 +418,7 @@ void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_SimilarityType(MDK_S
 
 template<typename ElementType>
 inline
-MDK_SimilarityType_Enum_For_FeatureCoding FeatureDictionaryForSparseCoding<ElementType>::GetInfo_SimilarityType() const
+MDK_SimilarityType_Enum_For_FeatureCoding FeatureDictionaryForSparseCoding<ElementType>::GetProperty_SimilarityType() const
 {
     return m_DictionaryData->SimilarityType;
 }
@@ -357,7 +442,7 @@ const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::S
 
 template<typename ElementType>
 inline
-void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_SimilarityThresholdToComputeBasisRedundancy(ElementType SimilarityThreshold)
+void FeatureDictionaryForSparseCoding<ElementType>::SetProperty_SimilarityThresholdToComputeBasisRedundancy(ElementType SimilarityThreshold)
 {
     m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = SimilarityThreshold;
 }
@@ -365,7 +450,7 @@ void FeatureDictionaryForSparseCoding<ElementType>::SetInfo_SimilarityThresholdT
 
 template<typename ElementType>
 inline
-ElementType FeatureDictionaryForSparseCoding<ElementType>::GetInfo_SimilarityThresholdToComputeBasisRedundancy() const
+ElementType FeatureDictionaryForSparseCoding<ElementType>::GetProperty_SimilarityThresholdToComputeBasisRedundancy() const
 {
     return m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy;
 }
@@ -384,22 +469,6 @@ inline
 const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisRedundancy() const
 {
     return m_DictionaryData->BasisRedundancy;
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::ExperienceOfRepresentingData()
-{
-    return m_DictionaryData->ExperienceOfRepresentingData;
-}
-
-
-template<typename ElementType>
-inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::ExperienceOfRepresentingData() const
-{
-    return m_DictionaryData->ExperienceOfRepresentingData;
 }
 
 

@@ -1,5 +1,5 @@
-#ifndef __mdkKNNSoftAssignOnlineDictionaryBuilder_h
-#define __mdkKNNSoftAssignOnlineDictionaryBuilder_h
+#ifndef __mdkKNNBasisSelectionOnlineDictionaryBuilder_h
+#define __mdkKNNBasisSelectionOnlineDictionaryBuilder_h
 
 #include <random>
 
@@ -18,7 +18,7 @@ namespace mdk
 {
 
 template<typename ElementType>
-struct Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder
+struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 {
     std::string DictionaryName;
 
@@ -58,8 +58,8 @@ struct Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder
 
 //--------------------------------------------------------------------------------------------------------
 
-    Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder() { this->Clear(); }
-    ~Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder() {}
+    Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder() { this->Clear(); }
+    ~Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder() {}
 
     void Clear()
     {
@@ -90,11 +90,11 @@ struct Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder
 
 
 template<typename ElementType>
-class KNNSoftAssignOnlineDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
+class KNNBasisSelectionOnlineDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
 {
 
 public:
-    Parameter_Of_KNNSoftAssignOnlineDictionaryBuilder<ElementType> m_Parameter;
+    Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder<ElementType> m_Parameter;
 
     typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
 
@@ -110,8 +110,8 @@ private:
 
 
 public:
-    KNNSoftAssignOnlineDictionaryBuilder();
-    ~KNNSoftAssignOnlineDictionaryBuilder();
+    KNNBasisSelectionOnlineDictionaryBuilder();
+    ~KNNBasisSelectionOnlineDictionaryBuilder();
 
     void Clear();
 
@@ -209,12 +209,12 @@ protected:
 
 
 private:
-    KNNSoftAssignOnlineDictionaryBuilder(const KNNSoftAssignOnlineDictionaryBuilder&) = delete;
-    void operator=(const KNNSoftAssignOnlineDictionaryBuilder&) = delete;
+    KNNBasisSelectionOnlineDictionaryBuilder(const KNNBasisSelectionOnlineDictionaryBuilder&) = delete;
+    void operator=(const KNNBasisSelectionOnlineDictionaryBuilder&) = delete;
 };
 
 }//namespace mdk
 
-#include "mdkKNNSoftAssignOnlineDictionaryBuilder.hpp"
+#include "mdkKNNBasisSelectionOnlineDictionaryBuilder.hpp"
 
 #endif
