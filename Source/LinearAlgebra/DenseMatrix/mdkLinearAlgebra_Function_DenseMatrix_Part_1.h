@@ -27,10 +27,16 @@ template<typename ElementType>
 inline bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
+inline bool MatrixAdd(ElementType* OutputMatrixC, const ElementType* MatrixA, const ElementType* MatrixB, int_max ElementNumber, bool CheckInput = true);
+
+template<typename ElementType>
 inline DenseMatrix<ElementType> MatrixSubtract(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
 inline bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
+
+template<typename ElementType>
+inline bool MatrixSubtract(ElementType* OutputMatrixC, const ElementType* MatrixA, const ElementType* MatrixB, int_max ElementNumber, bool CheckInput = true);
 
 template<typename ElementType>
 inline DenseMatrix<ElementType> MatrixMultiply(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
@@ -45,10 +51,18 @@ template<typename ElementType>
 inline bool MatrixElementMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
+inline bool MatrixElementMultiply(ElementType* OutputMatrixC, 
+                                  const ElementType* MatrixA, const ElementType* MatrixB, int_max ElementNumber, bool CheckInput = true);
+
+template<typename ElementType>
 inline DenseMatrix<ElementType> MatrixElementDivide(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 
 template<typename ElementType>
 inline bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
+
+template<typename ElementType>
+inline bool MatrixElementDivide(ElementType* OutputMatrixC,
+                                const ElementType* MatrixA, const ElementType* MatrixB, int_max ElementNumber, bool CheckInput = true);
 
 //------------------- OutputMatrixC = ElementA operator MatrixB --------------------------------------------
 

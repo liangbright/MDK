@@ -71,10 +71,6 @@ public:
     typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
 
 protected:
-    // output reconstruction error
-    DenseMatrix<ElementType>* m_ReconstructionErrorNorm;
-
-    DenseMatrix<ElementType> m_ReconstructionErrorNorm_SharedCopy;
 
     // D'*D
     DenseMatrix<ElementType> m_GramianMatrix_DtD; 

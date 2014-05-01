@@ -70,15 +70,13 @@ void FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionary
     m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = InputDictionary.m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy;
     m_DictionaryData->BasisRedundancy = InputDictionary.m_DictionaryData->BasisRedundancy;
 
+    m_DictionaryData->ExperienceOfRepresentingData = InputDictionary.m_DictionaryData->ExperienceOfRepresentingData;
+
     m_DictionaryData->VarianceOfL1Distance = InputDictionary.m_DictionaryData->VarianceOfL1Distance;
     m_DictionaryData->VarianceOfL2Distance = InputDictionary.m_DictionaryData->VarianceOfL2Distance;
     m_DictionaryData->VarianceOfKLDivergence = InputDictionary.m_DictionaryData->VarianceOfKLDivergence;
     m_DictionaryData->VarianceOfReconstruction = InputDictionary.m_DictionaryData->VarianceOfReconstruction;
-
-    m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = InputDictionary.m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory;
-
-    m_DictionaryData->ProbabilityMassFunction = InputDictionary.m_DictionaryData->ProbabilityMassFunction;
-
+    
     m_DictionaryData->BasisCovariance = InputDictionary.m_DictionaryData->BasisCovariance;
 
 }
@@ -169,14 +167,12 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
     m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = InputDictionary.m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy;
     m_DictionaryData->BasisRedundancy = std::move(InputDictionary.m_DictionaryData->BasisRedundancy);
 
+    m_DictionaryData->ExperienceOfRepresentingData = std::move(InputDictionary.m_DictionaryData->ExperienceOfRepresentingData);
+
     m_DictionaryData->VarianceOfL1Distance = std::move(InputDictionary.m_DictionaryData->VarianceOfL1Distance);
     m_DictionaryData->VarianceOfL2Distance = std::move(InputDictionary.m_DictionaryData->VarianceOfL2Distance);
     m_DictionaryData->VarianceOfKLDivergence = std::move(InputDictionary.m_DictionaryData->VarianceOfKLDivergence);
     m_DictionaryData->VarianceOfReconstruction = std::move(InputDictionary.m_DictionaryData->VarianceOfReconstruction);
-
-    m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = InputDictionary.m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory;
-
-    m_DictionaryData->ProbabilityMassFunction = std::move(InputDictionary.m_DictionaryData->ProbabilityMassFunction);
 
     m_DictionaryData->BasisCovariance = std::move(InputDictionary.m_DictionaryData->BasisCovariance);
 
@@ -200,14 +196,12 @@ void FeatureDictionaryForSparseCoding<ElementType>::Clear()
     m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = 0;
     m_DictionaryData->BasisRedundancy.Clear();
 
+    m_DictionaryData->ExperienceOfRepresentingData.Clear();
+
     m_DictionaryData->VarianceOfL1Distance.Clear();
     m_DictionaryData->VarianceOfL2Distance.Clear();
     m_DictionaryData->VarianceOfKLDivergence.Clear();
     m_DictionaryData->VarianceOfReconstruction.Clear();
-
-    m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = 0;
-
-    m_DictionaryData->ProbabilityMassFunction.Clear();
 
     m_DictionaryData->BasisCovariance.Clear();
 
@@ -395,6 +389,22 @@ const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::B
 
 template<typename ElementType>
 inline
+DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::ExperienceOfRepresentingData()
+{
+    return m_DictionaryData->ExperienceOfRepresentingData;
+}
+
+
+template<typename ElementType>
+inline
+const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::ExperienceOfRepresentingData() const
+{
+    return m_DictionaryData->ExperienceOfRepresentingData;
+}
+
+
+template<typename ElementType>
+inline
 DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfL1Distance()
 {
     return m_DictionaryData->VarianceOfL1Distance;
@@ -452,38 +462,6 @@ inline
 const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfReconstruction() const
 {
     return m_DictionaryData->VarianceOfReconstruction;
-}
-
-
-template<typename ElementType>
-inline
-ElementType FeatureDictionaryForSparseCoding<ElementType>::GetWeightedNumberOfTrainingSamplesInHistory() const
-{
-    return m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory;
-}
-
-
-template<typename ElementType>
-inline
-void FeatureDictionaryForSparseCoding<ElementType>::SetWeightedNumberOfTrainingSamplesInHistory(ElementType Number)
-{
-    m_DictionaryData->WeightedNumberOfTrainingSamplesInHistory = Number;
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::ProbabilityMassFunction()
-{
-    return m_DictionaryData->ProbabilityMassFunction;
-}
-
-
-template<typename ElementType>
-inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::ProbabilityMassFunction() const
-{
-    return m_DictionaryData->ProbabilityMassFunction;
 }
 
 

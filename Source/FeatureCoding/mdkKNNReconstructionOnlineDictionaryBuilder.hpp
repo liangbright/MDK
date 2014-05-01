@@ -1,26 +1,26 @@
-#ifndef __mdkKNNSoftAssignAndAverageOnlineDictionaryBuilder_hpp
-#define __mdkKNNSoftAssignAndAverageOnlineDictionaryBuilder_hpp
+#ifndef __mdkKNNReconstructionOnlineDictionaryBuilder_hpp
+#define __mdkKNNReconstructionOnlineDictionaryBuilder_hpp
 
 
 namespace mdk
 {
 
 template<typename ElementType>
-KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::KNNSoftAssignAndAverageOnlineDictionaryBuilder()
+KNNReconstructionOnlineDictionaryBuilder<ElementType>::KNNReconstructionOnlineDictionaryBuilder()
 {
     this->Clear();
 }
 
 
 template<typename ElementType>
-KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::~KNNSoftAssignAndAverageOnlineDictionaryBuilder()
+KNNReconstructionOnlineDictionaryBuilder<ElementType>::~KNNReconstructionOnlineDictionaryBuilder()
 {
 }
 
 //---------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::Clear()
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::Clear()
 {
     m_Parameter.Clear();
 
@@ -33,7 +33,7 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::Clear()
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
 {
     m_Dictionary_SharedCopy.Clear();
     m_Dictionary = &m_Dictionary_SharedCopy;
@@ -41,7 +41,7 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::SetupDefaultPi
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdatePipelineOutput()
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::UpdatePipelineOutput()
 {
     if (m_Dictionary != &m_Dictionary_SharedCopy)
     {
@@ -51,25 +51,25 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdatePipeline
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData)
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData)
 {
     m_FeatureData = InputFeatureData;
 }
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::SetInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>* InitialDictionary)
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::SetInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>* InitialDictionary)
 {
     m_InitialDictionary = InitialDictionary;
 }
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* OutputDictionary)
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* OutputDictionary)
 {
     if (OutputDictionary == nullptr)
     {
-        MDK_Error("Invalid input @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::SetOutputDictionary(...)")
+        MDK_Error("Invalid input @ KNNReconstructionOnlineDictionaryBuilder::SetOutputDictionary(...)")
         return;
     }
 
@@ -80,24 +80,24 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::SetOutputDicti
 
 
 template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>* KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::GetOutputDictionary()
+FeatureDictionaryForSparseCoding<ElementType>* KNNReconstructionOnlineDictionaryBuilder<ElementType>::GetOutputDictionary()
 {
     return &m_Dictionary_SharedCopy;
 }
 
 
 template<typename ElementType>
-bool KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
+bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
 {
     if (m_FeatureData == nullptr)
     {
-        MDK_Error("m_FeatureData is nullptr @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("m_FeatureData is nullptr @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
     if (m_FeatureData->IsEmpty() == true)
     {
-        MDK_Error("InputFeatureData is empty @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("InputFeatureData is empty @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
@@ -107,7 +107,7 @@ bool KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
     {
         if (m_FeatureData->GetRowNumber() != m_InitialDictionary->BasisMatrix().GetRowNumber())
         {
-            MDK_Error("RowNumber Of FeatureData != RowNumber Of InitialDictionary @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::CheckInput()")
+            MDK_Error("RowNumber Of FeatureData != RowNumber Of InitialDictionary @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
             return false;
         }
 
@@ -116,19 +116,19 @@ bool KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
 
     if (m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber <= 0)
     {
-        MDK_Error("NeighbourNumber <= 0 @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("NeighbourNumber <= 0 @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
     if (m_Parameter.NumberOfDataInEachBatch > m_FeatureData->GetColNumber())
     {
-        MDK_Error("NumberOfDataInEachBatch > TotalDataNumber @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("NumberOfDataInEachBatch > TotalDataNumber @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
     if (m_Parameter.NumberOfDataInEachBatch < m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber)
     {
-        MDK_Error("NumberOfDataInEachBatch < MaxNumberOfNeighbours @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("NumberOfDataInEachBatch < MaxNumberOfNeighbours @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
@@ -137,13 +137,13 @@ bool KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
         && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != SimilarityTypeEnum::Correlation
         && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != SimilarityTypeEnum::KLDivergence)
     {
-        MDK_Error("SimilarityType is invalid @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("SimilarityType is invalid @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
     if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold < 0)
     {
-        MDK_Error("SimilarityThreshold is invalid @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("SimilarityThreshold is invalid @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
@@ -166,7 +166,7 @@ bool KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
             
             if (IsOk == false)
             {
-                MDK_Error("Variance_L1 <= 0 @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::CheckInput()")
+                MDK_Error("Variance_L1 <= 0 @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
                 return false;
             }
         }
@@ -190,7 +190,7 @@ bool KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
 
             if (IsOk == false)
             {
-                MDK_Error("Variance_L2 <= 0 @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::CheckInput()")
+                MDK_Error("Variance_L2 <= 0 @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
                 return false;
             }
         }
@@ -199,7 +199,7 @@ bool KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
     {
         if (m_Parameter.ParameterOfKNNSoftAssign.IgnoreSign_Correlation == true)
         {
-            MDK_Warning("IgnoreSign_Correlation is true @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::CheckInput()")
+            MDK_Warning("IgnoreSign_Correlation is true @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         }
     }
     else if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == SimilarityTypeEnum::KLDivergence)
@@ -221,7 +221,7 @@ bool KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
             
             if (IsOk == false)
             {
-                MDK_Error("Variance_KL <= 0 @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::CheckInput()")
+                MDK_Error("Variance_KL <= 0 @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
                 return false;
             }
         }
@@ -229,13 +229,13 @@ bool KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
 
     if (m_Parameter.weigth_past < 0 || m_Parameter.weigth_past > 1)
     {
-        MDK_Error("m_Parameter.weigth_past < 0 || m_Parameter.weigth_past > 1 @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("m_Parameter.weigth_past < 0 || m_Parameter.weigth_past > 1 @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
     if (m_Parameter.weigth_s < 0 || m_Parameter.weigth_s > 1)
     {
-        MDK_Error("m_Parameter.weigth_s < 0 || m_Parameter.weigth_s > 1 @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("m_Parameter.weigth_s < 0 || m_Parameter.weigth_s > 1 @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
@@ -244,18 +244,11 @@ bool KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 {
     this->SetputParameter();
 
     FeatureDictionaryForSparseCoding<ElementType> OutputDictionary;
-
-    //--------- build the initial Dictionary -----------------------------//
-    //
-    m_KNNSoftAssignDictionaryBuilder.SetInputFeatureData(m_FeatureData);
-    m_KNNSoftAssignDictionaryBuilder.SetInitialDictionary(m_InitialDictionary);
-    m_KNNSoftAssignDictionaryBuilder.SetOutputDictionary(&OutputDictionary);
-    m_KNNSoftAssignDictionaryBuilder.Update();
 
     //----------- encode data and update dictionary ----------------------------//
 
@@ -263,11 +256,11 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::GenerateDictio
 
     if (m_Parameter.NumberOfDataInEachBatch >= TotalDataNumber)
     {
-        m_KNNSoftAssignSparseEncoder.SetInputFeatureData(m_FeatureData);
-        m_KNNSoftAssignSparseEncoder.SetInputDictionary(&OutputDictionary);
-        m_KNNSoftAssignSparseEncoder.Update();
+        m_KNNReconstructionSparseEncoder.SetInputFeatureData(m_FeatureData);
+        m_KNNReconstructionSparseEncoder.SetInputDictionary(&OutputDictionary);
+        m_KNNReconstructionSparseEncoder.Update();
 
-        this->UpdateDictionaryAfterEncoding(OutputDictionary, *m_FeatureData, *m_KNNSoftAssignSparseEncoder.GetOutputCodeInSparseColVectorSet());
+        this->UpdateDictionaryAfterEncoding(OutputDictionary, *m_FeatureData, *m_KNNReconstructionSparseEncoder.GetOutputCodeInSparseColVectorSet());
 
         this->UpdateDictionary_OtherInfo(OutputDictionary);
 
@@ -295,11 +288,11 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::GenerateDictio
             FeatureData_current.SetCol(k, m_FeatureData->GetElementPointerOfCol(DataIndex));
         }
 
-        m_KNNSoftAssignSparseEncoder.SetInputFeatureData(&FeatureData_current);
-        m_KNNSoftAssignSparseEncoder.SetInputDictionary(&OutputDictionary);
-        m_KNNSoftAssignSparseEncoder.Update();
+        m_KNNReconstructionSparseEncoder.SetInputFeatureData(&FeatureData_current);
+        m_KNNReconstructionSparseEncoder.SetInputDictionary(&OutputDictionary);
+        m_KNNReconstructionSparseEncoder.Update();
 
-        this->UpdateDictionaryAfterEncoding(OutputDictionary, FeatureData_current, *m_KNNSoftAssignSparseEncoder.GetOutputCodeInSparseColVectorSet());
+        this->UpdateDictionaryAfterEncoding(OutputDictionary, FeatureData_current, *m_KNNReconstructionSparseEncoder.GetOutputCodeInSparseColVectorSet());
     }
 
     this->UpdateDictionary_OtherInfo(OutputDictionary);
@@ -311,41 +304,17 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::GenerateDictio
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::SetputParameter()
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::SetputParameter()
 {
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.DictionaryName = m_Parameter.DictionaryName;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.BasisNumber = m_Parameter.BasisNumber;
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.BasisPositive = m_Parameter.BasisPositive;
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.BasisNormalizedWithL1Norm = m_Parameter.BasisNormalizedWithL1Norm;
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.BasisNormalizedWithL2Norm = m_Parameter.BasisNormalizedWithL2Norm;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign = m_Parameter.ParameterOfKNNSoftAssign;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.MaxNumberOfIteration = 1;
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.NumberOfDataInEachBatch = m_Parameter.NumberOfDataInEachBatch;
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.MaxNumberOfThreads = m_Parameter.MaxNumberOfThreads;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.weigth_past = m_Parameter.weigth_past;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.weigth_s = m_Parameter.weigth_s;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.UpdateDictionaryInformation_Other = false;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction = m_Parameter.ParameterOfKNNReconstruction;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.SimilarityThresholdToComputeBasisRedundancy = m_Parameter.SimilarityThresholdToComputeBasisRedundancy;
-
-    //------------------------------
-
-    m_KNNSoftAssignSparseEncoder.m_Parameter = m_Parameter.ParameterOfKNNSoftAssign;    
+    m_KNNReconstructionSparseEncoder.m_Parameter = m_Parameter.ParameterOfKNNReconstruction;
 }
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdateDictionaryAfterEncoding(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
-                                                                                                const DenseMatrix<ElementType>& FeatureData,
-                                                                                                const DataContainer<SparseVector<ElementType>>& CodeTable)
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
+UpdateDictionaryAfterEncoding(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
+                              const DenseMatrix<ElementType>& FeatureData,
+                              const DataContainer<SparseVector<ElementType>>& CodeTable)
 {
     DenseMatrix<ElementType>& BasisMatrix = Dictionary.BasisMatrix();
 
@@ -363,6 +332,12 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdateDictiona
 
     auto WeightedNumberOfTrainingSamplesInHistory = Dictionary.GetWeightedNumberOfTrainingSamplesInHistory();
 
+    // reconstruct data -----------------------------------------------------------------------------
+
+    DenseMatrix<ElementType> ReconstructedData;
+
+    this->ReconstructFeatureData(ReconstructedData, BasisMatrix, CodeTable);
+
     // update BasisMatrix -----------------------------------------------------------------------------
    
     DenseMatrix<ElementType> WeightOfError(1, BasisNumber);
@@ -372,13 +347,20 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdateDictiona
         WeightOfError[k] += WeightedNumberOfTrainingSamplesInHistory*ProbabilityMassFunction[k];
     }
 
-    this->UpdateBasisMatrix(BasisMatrix, FeatureData, CodeTable, WeightOfError);
+    this->UpdateBasisMatrix(BasisMatrix, FeatureData, CodeTable, ReconstructedData, ProbabilityMassFunction, WeightedNumberOfTrainingSamplesInHistory);
 
-    // update ProbabilityMassFunction ----------------------------------------------------------
+    // update ProbabilityMassFunction and WeightedNumberOfTrainingSamplesInHistory ----------------------
 
     this->UpdateProbabilityMassFunction(ProbabilityMassFunction,
                                         WeightedNumberOfTrainingSamplesInHistory,
                                         CodeTable);
+
+    WeightedNumberOfTrainingSamplesInHistory = m_Parameter.weigth_past*WeightedNumberOfTrainingSamplesInHistory
+                                             + (1-m_Parameter.weigth_past) * FeatureData.GetColNumber();
+
+    Dictionary.SetWeightedNumberOfTrainingSamplesInHistory(WeightedNumberOfTrainingSamplesInHistory);
+
+    // update Variance --------------------------------------------------------------------------------
 
     this->UpdateVarianceOfL1Distance(VarianceOfL1Distance, FeatureData, CodeTable, BasisMatrix, WeightedNumberOfTrainingSamplesInHistory);
 
@@ -398,7 +380,7 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdateDictiona
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdateDictionary_OtherInfo(FeatureDictionaryForSparseCoding<ElementType>& Dictionary)
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::UpdateDictionary_OtherInfo(FeatureDictionaryForSparseCoding<ElementType>& Dictionary)
 {
     //---------------------- already updated ------------------------------------
 
@@ -433,7 +415,7 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdateDictiona
         break;
 
     default:
-        MDK_Error("unknown SimilarityType @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::UpdateDictionary_OtherInfo()")
+        MDK_Error("unknown SimilarityType @ KNNReconstructionOnlineDictionaryBuilder::UpdateDictionary_OtherInfo()")
         return;
     }
 
@@ -446,37 +428,75 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdateDictiona
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
-                                                                                    const DenseMatrix<ElementType>& FeatureData,
-                                                                                    const DataContainer<SparseVector<ElementType>>& CodeTable,
-                                                                                    const DenseMatrix<ElementType> ExperienceOfRepresentingData)
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
+ReconstructFeatureData(DenseMatrix<ElementType>&        ReconstructedData,
+                       const DenseMatrix<ElementType>&  BasisMatrix,
+                       const DataContainer<SparseVector<ElementType>>& CodeTable)
+{
+    int_max DataNumber = CodeTable.GetLength();
+    int_max VectorLength = BasisMatrix.GetRowNumber();
+
+    ReconstructedData.FastResize(VectorLength, DataNumber);
+    ReconstructedData.Fill(ElementType(0));
+
+    auto TempFunction_Reconstruction = [&](int_max DataIndex)
+    {
+        const std::vector <int_max>& BasisIndexList = CodeTable[DataIndex].IndexList();
+
+        if (BasisIndexList.size() > 0)
+        {
+            DenseMatrix<ElementType> CodeVector(const_cast<ElementType*>(CodeTable[DataIndex].DataArray().data()), VectorLength, 1);
+
+            DenseMatrix<ElementType> ReconstructedDataVector(ReconstructedData.GetElementPointerOfCol(DataIndex), VectorLength, 1);
+
+            auto KNNBasisMatrix = BasisMatrix.GetSubMatrix(ALL, BasisIndexList);
+
+            MatrixMultiply(ReconstructedDataVector, KNNBasisMatrix, CodeVector);
+        }
+    };
+    
+    ParallelForLoop(TempFunction_Reconstruction, 0, DataNumber - 1, m_Parameter.MaxNumberOfThreads);
+}
+
+
+template<typename ElementType>
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
+UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
+                  const DenseMatrix<ElementType>& FeatureData,
+                  const DataContainer<SparseVector<ElementType>>& CodeTable,
+                  DenseMatrix<ElementType>&       ReconstructedData,
+                  DenseMatrix<ElementType>&       ProbabilityMassFunction,
+                  ElementType WeightedNumberOfTrainingSamplesInHistory)
 {
     int_max DataNumber = FeatureData.GetColNumber();
     int_max VectorLength = FeatureData.GetRowNumber();
 
     int_max BasisNumber = BasisMatrix.GetColNumber();
 
-    DenseMatrix<ElementType> Basis_Basis_InnerProductList(1, BasisNumber);
+    DenseMatrix<ElementType> WeightedNumberOfTrainingSamplesInHistory_ForEachBasis(1, BasisNumber);
     for (int_max k = 0; k < BasisNumber; ++k)
     {
-        auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(k);
-        Basis_Basis_InnerProductList[k] = ComputeInnerProductOfTwoVectors(BasisVectorPtr, BasisVectorPtr, VectorLength, false);
+        WeightedNumberOfTrainingSamplesInHistory_ForEachBasis[k] = WeightedNumberOfTrainingSamplesInHistory*ProbabilityMassFunction[k];
     }
+
+    DenseMatrix<ElementType> ReconstructedDataVector;
+
+    DenseMatrix<ElementType> DataReconstructionErrorVector(1, VectorLength);
+
+    DenseMatrix<ElementType> CodeVector; // reconstruction code
 
     auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
-    // temp function for basis update
+    //-------------- temp function for basis update ---------------
 
-    auto TempFunction_BasisUpdate = [](ElementType* BasisVector, const ElementType* DataVector, int_max VectorLength,
-                                       ElementType factor,  ElementType PreviousExperienceOfBasis)
+    auto TempFunction_BasisUpdate = [](ElementType* BasisVector, const ElementType* DataReconstructionErrorVector, int_max Length,
+                                       ElementType  ElementOfCodeVector_with_this_Basis, ElementType SquaredL2NormOfCodeVector,
+                                       ElementType  WeightedNumberOfTrainingSamplesInHistory_For_this_Basis)
     {
-        for (int_max m = 0; m < VectorLength; ++m)
+        for (int_max k = 0; k < Length; ++k)
         {
-            auto temp_a = (factor / (factor*factor + 1))*DataVector[k];
-
-            auto temp_b = (factor*factor / (factor*factor + 1))*BasisVector[k];
-
-            BasisVector[k] += (temp_a - temp_b) / PreviousExperienceOfBasis;
+            auto temp = ElementOfCodeVector_with_this_Basis*DataReconstructionErrorVector[k] / (SquaredL2NormOfCodeVector + 1);
+            BasisVector[k] += temp / WeightedNumberOfTrainingSamplesInHistory_For_this_Basis;
         }
     };
 
@@ -484,7 +504,20 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdateBasisMat
     {
         auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
 
-        const std::vector<int_max>& BasisIndexList = CodeTable[k].IndexList();
+        const std::vector <int_max>& BasisIndexList = CodeTable[k].IndexList();
+
+        CodeVector.ForceShare(CodeTable[k].DataArray().data(), VectorLength, 1);
+
+        ReconstructedDataVector.ForceShare(ReconstructedData.GetElementPointerOfCol(k), VectorLength, 1);
+
+        MatrixSubtract(DataReconstructionErrorVector.GetElementPointer(), 
+                       DataVector.GetElementPointer(), 
+                       ReconstructedDataVector.GetElementPointer()
+                       VectorLength, false);
+        
+        auto SquaredL2NormOfCodeVector = ComputeInnerProductOfTwoVectors(CodeVector.GetElementPointer(),
+                                                                         CodeVector.GetElementPointer(), 
+                                                                         VectorLength, false);
 
         for (int_max n = 0; n < int_max(BasisIndexList.size()); ++n)//n
         {
@@ -492,18 +525,9 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdateBasisMat
 
             auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(BasisIndex);
 
-            auto Basis_Data_InnerProduct = ComputeInnerProductOfTwoVectors(BasisVectorPtr, DataVectorPtr, VectorLength, false);
-
-            auto Basis_Basis_InnerProduct = Basis_Basis_InnerProductList[BasisIndex];
-
-            if (Basis_Basis_InnerProduct > eps_value && Basis_Basis_InnerProduct > eps_value*Basis_Data_InnerProduct)
-            {
-                auto factor = Basis_Data_InnerProduct / Basis_Basis_InnerProduct;
-
-                auto PreviousExperienceOfBasis = ExperienceOfRepresentingData[BasisIndex];
-
-                TempFunction_BasisUpdate(BasisVectorPtr, DataVectorPtr, VectorLength, factor, PreviousExperienceOfBasis);
-            }            
+            TempFunction_BasisUpdate(BasisVectorPtr, DataReconstructionErrorVector.GetElementPointer(), VectorLength,
+                                     CodeVector[n], SquaredL2NormOfCodeVector, 
+                                     WeightedNumberOfTrainingSamplesInHistory_ForEachBasis[BasisIndex]);            
         }        
     }
 
@@ -512,7 +536,7 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::UpdateBasisMat
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix)
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix)
 {
     if (m_Parameter.BasisPositive == true)
     {
@@ -581,7 +605,7 @@ void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::ApplyConstrain
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 UpdateProbabilityMassFunction(DenseMatrix<ElementType>&  ProbabilityMassFunction,
                               ElementType WeightedNumberOfTrainingSamplesInHistory,
                               const DataContainer<SparseVector<ElementType>>& CodeTable)
@@ -620,7 +644,7 @@ UpdateProbabilityMassFunction(DenseMatrix<ElementType>&  ProbabilityMassFunction
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix,
                        const DenseMatrix<ElementType>& BasisMatrix,
                        const DenseMatrix<ElementType>& VarianceList)
@@ -652,7 +676,7 @@ UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix,
 
 template<typename ElementType>
 inline
-ElementType KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::
+ElementType KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 ComputeSimilarityBetweenTwoDataVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, ElementType Variance)
 {
     ElementType Similarity = ElementType(0);
@@ -701,7 +725,7 @@ ComputeSimilarityBetweenTwoDataVectors(const ElementType* VectorA, const Element
         break;
 
     default:
-        MDK_Error("unknown type of similarity @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::ComputeSimilarityBetweenTwoDataVectors(...)")
+        MDK_Error("unknown type of similarity @ KNNReconstructionOnlineDictionaryBuilder::ComputeSimilarityBetweenTwoDataVectors(...)")
     }
 
     return Similarity;
@@ -709,7 +733,7 @@ ComputeSimilarityBetweenTwoDataVectors(const ElementType* VectorA, const Element
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix)
 {
     int_max BasisNumber = SimilarityMatrix.GetElementNumber();
@@ -742,7 +766,7 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
                            const DenseMatrix<ElementType>& FeatureData,
                            const DataContainer<SparseVector<ElementType>>& CodeTable,
@@ -809,7 +833,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
 
     if (MeanStd <= eps_value)
     {
-        MDK_Warning("MeanStd <= eps_value @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::UpdateVarianceOfL1Distance(...)"
+        MDK_Warning("MeanStd <= eps_value @ KNNReconstructionOnlineDictionaryBuilder::UpdateVarianceOfL1Distance(...)"
                     << '\n' << "set to std::max(eps_value, Variance_L1)")
 
         MeanStd = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_L1);
@@ -826,7 +850,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
                            const DenseMatrix<ElementType>& FeatureData,
                            const DataContainer<SparseVector<ElementType>>& CodeTable,
@@ -893,7 +917,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
 
     if (MeanStd <= eps_value)
     {
-        MDK_Warning("MeanStd <= eps_value @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::UpdateVarianceOfL2Distance(...)"
+        MDK_Warning("MeanStd <= eps_value @ KNNReconstructionOnlineDictionaryBuilder::UpdateVarianceOfL2Distance(...)"
                     << '\n' << "set to std::max(eps_value, Variance_L2)");
 
         MeanStd = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
@@ -910,7 +934,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
                              const DenseMatrix<ElementType>& FeatureData,
                              const DataContainer<SparseVector<ElementType>>& CodeTable,
@@ -977,7 +1001,7 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
 
     if (MeanStd <= eps_value)
     {
-        MDK_Warning("MeanStd <= eps_value @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::UpdateVarianceOfKLDivergence(...)"
+        MDK_Warning("MeanStd <= eps_value @ KNNReconstructionOnlineDictionaryBuilder::UpdateVarianceOfKLDivergence(...)"
                      << '\n' << "set to std::max(eps_value, Variance_KL)");
 
         MeanStd = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_KL);
@@ -994,7 +1018,7 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
                                const DenseMatrix<ElementType>& FeatureData,
                                const DataContainer<SparseVector<ElementType>>& CodeTable,
@@ -1073,7 +1097,7 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
 
     if (MeanStd <= eps_value)
     {
-        MDK_Warning("MeanStd <= eps_value @ KNNSoftAssignAndAverageOnlineDictionaryBuilder::UpdateVarianceOfReconstruction(...)"
+        MDK_Warning("MeanStd <= eps_value @ KNNReconstructionOnlineDictionaryBuilder::UpdateVarianceOfReconstruction(...)"
                      << '\n' << "set to std::max(eps_value, Variance_L2)")
 
         MeanStd = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
@@ -1090,7 +1114,7 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
 
 
 template<typename ElementType>
-void KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType>::
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       ReconstructedDataVector, 
                                       const DenseMatrix<ElementType>& DataVector,
                                       const DenseMatrix<ElementType>& KNNBasisMatrix,                                     

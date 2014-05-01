@@ -39,6 +39,12 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
     //                       divided by (the total number of bases - 1);
     // range [0, 1]
 
+    // ---------- basis  ExperienceOfRepresentingData ----
+
+    DenseMatrix<ElementType> ExperienceOfRepresentingData; 
+    // the weighted total number of training data samples
+    // for each basis from day 0
+
     //----------------- Variance -------------------------
 
     DenseMatrix<ElementType> VarianceOfL1Distance;
@@ -62,15 +68,6 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
     DenseMatrix<ElementType> VarianceOfReconstruction;
     // Variance_i_j = || X_i - D * Alpha||^2
     // VarianceOfReconstruction(j) = mean (ErrorNorm_i related to Basis_j (i.e., Alpha(j) > 0 ))
-
-    ElementType WeightedNumberOfTrainingSamplesInHistory; // the total weighted-number of data samples used to build the dictionary
-                                                          // the "experience" of the dictionary
-
-    DenseMatrix<ElementType> ProbabilityMassFunction; // discrete probability density function, i.e., probability mass function
-                                                      // feature-data distribution on each basis
-
-    // note: 
-    // Histogram = WeightedNumberOfTrainingSamplesInHistory * ProbabilityMassFunction
 
     // not used yet ----------------
     DenseMatrix<ElementType> BasisCovariance;  // relation between bases
@@ -155,6 +152,9 @@ public:
     inline DenseMatrix<ElementType>& BasisRedundancy();
     inline const DenseMatrix<ElementType>& BasisRedundancy() const;
 
+    inline DenseMatrix<ElementType>& ExperienceOfRepresentingData();
+    inline const DenseMatrix<ElementType>& ExperienceOfRepresentingData() const;
+
     inline DenseMatrix<ElementType>& VarianceOfL1Distance();
     inline const DenseMatrix<ElementType>& VarianceOfL1Distance() const;
 
@@ -166,13 +166,6 @@ public:
 
     inline DenseMatrix<ElementType>& VarianceOfReconstruction();
     inline const DenseMatrix<ElementType>& VarianceOfReconstruction() const;
-
-    inline ElementType GetWeightedNumberOfTrainingSamplesInHistory() const;
-    inline void SetWeightedNumberOfTrainingSamplesInHistory(ElementType Number);
-
-    inline DenseMatrix<ElementType>& ProbabilityMassFunction();
-    inline const DenseMatrix<ElementType>& ProbabilityMassFunction() const;
-
 };
 
 

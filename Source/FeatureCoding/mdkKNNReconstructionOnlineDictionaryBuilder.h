@@ -1,5 +1,5 @@
-#ifndef __mdkKNNSoftAssignAndAverageOnlineDictionaryBuilder_h
-#define __mdkKNNSoftAssignAndAverageOnlineDictionaryBuilder_h
+#ifndef __mdkKNNReconstructionOnlineDictionaryBuilder_h
+#define __mdkKNNReconstructionOnlineDictionaryBuilder_h
 
 
 #include <random>
@@ -12,15 +12,14 @@
 #include "mdkFeatureDictionaryForSparseCoding.h"
 #include "mdkFeatureCoding_Common_Function.h"
 #include "mdkLinearLeastSquaresProblemSolver.h"
-#include "mdkKNNSoftAssignSparseEncoder.h"
-#include "mdkKNNSoftAssignOnlineDictionaryBuilder.h"
+#include "mdkKNNReconstructionSparseEncoder.h"
 
 
 namespace mdk
 {
 
 template<typename ElementType>
-struct Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder
+struct Parameter_Of_KNNReconstructionOnlineDictionaryBuilder
 {
     std::string DictionaryName;
 
@@ -30,7 +29,7 @@ struct Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder
     bool BasisNormalizedWithL1Norm;
     bool BasisNormalizedWithL2Norm;
 
-    Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> ParameterOfKNNSoftAssign;
+    Parameter_Of_KNNReconstructionSparseEncoder<ElementType> ParameterOfKNNReconstruction;
 
     // sort the pair i, j according to score = weigth_s * Similarity(i, j) + (1-weigth_s) * 0.5*(prob(i) + prob(j))
     ElementType weigth_s;
@@ -50,12 +49,10 @@ struct Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder
 
     ElementType SimilarityThresholdToComputeBasisRedundancy;
 
-    Parameter_Of_KNNReconstructionSparseEncoder ParameterOfKNNReconstruction;
-
 //--------------------------------------------------------------------------------------------------------
 
-    Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder() { this->Clear(); }
-    ~Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder() {}
+    Parameter_Of_KNNReconstructionOnlineDictionaryBuilder() { this->Clear(); }
+    ~Parameter_Of_KNNReconstructionOnlineDictionaryBuilder() {}
 
     void Clear()
     {
@@ -66,6 +63,8 @@ struct Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder
         BasisPositive = false;
         BasisNormalizedWithL1Norm = false;
         BasisNormalizedWithL2Norm = false;
+
+        ParameterOfKNNReconstruction.Clear();
 
         weigth_s = 0;
 
@@ -84,10 +83,10 @@ struct Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder
 
 
 template<typename ElementType>
-class KNNSoftAssignAndAverageOnlineDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
+class KNNReconstructionOnlineDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
 {
 public:
-    Parameter_Of_KNNSoftAssignAndAverageOnlineDictionaryBuilder<ElementType> m_Parameter;
+    Parameter_Of_KNNReconstructionOnlineDictionaryBuilder<ElementType> m_Parameter;
 
     typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
 
@@ -101,13 +100,11 @@ private:
 
     FeatureDictionaryForSparseCoding<ElementType>  m_Dictionary_SharedCopy;
 
-    KNNSoftAssignOnlineDictionaryBuilder<ElementType> m_KNNSoftAssignDictionaryBuilder;
-
-    KNNSoftAssignSparseEncoder<ElementType> m_KNNSoftAssignSparseEncoder;
+    KNNSoftAssignSparseEncoder<ElementType> m_KNNReconstructionSparseEncoder;
 
 public:
-    KNNSoftAssignAndAverageOnlineDictionaryBuilder();
-    ~KNNSoftAssignAndAverageOnlineDictionaryBuilder();
+    KNNReconstructionOnlineDictionaryBuilder();
+    ~KNNReconstructionOnlineDictionaryBuilder();
 
     void Clear();
 
@@ -142,10 +139,16 @@ protected:
 
     void UpdateDictionary_OtherInfo(FeatureDictionaryForSparseCoding<ElementType>& Dictionary);
 
+    void ReconstructFeatureData(DenseMatrix<ElementType>&        ReconstructedData,
+                                const DenseMatrix<ElementType>&  BasisMatrix,
+                                const DataContainer<SparseVector<ElementType>>& CodeTable)
+
     void UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
                            const DenseMatrix<ElementType>& FeatureData,
                            const DataContainer<SparseVector<ElementType>>& CodeTable,
-                           const DenseMatrix<ElementType>  ExperienceOfRepresentingData);
+                           const DenseMatrix<ElementType>& ReconstructedData,
+                           DenseMatrix<ElementType>&       ProbabilityMassFunction,
+                           ElementType WeightedNumberOfTrainingSamplesInHistory);
 
     void ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix);
 
@@ -184,18 +187,12 @@ protected:
                                         const DataContainer<SparseVector<ElementType>>& CodeTable,
                                         const DenseMatrix<ElementType>& BasisMatrix,
                                         const ElementType WeightedNumberOfTrainingSamplesInHistory);
-
-    void ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       ReconstructedDataVector,
-                                               const DenseMatrix<ElementType>& DataVector,
-                                               const DenseMatrix<ElementType>& KNNBasisMatrix,                                               
-                                               const std::vector<int_max>&     KNNBasisIndexList,
-                                               const DenseMatrix<ElementType>& GramianMatrix_DtD);
 };
 
 
 }// namespace mdk
 
 
-#include "mdkKNNSoftAssignAndAverageOnlineDictionaryBuilder.hpp"
+#include "mdkKNNReconstructionOnlineDictionaryBuilder.hpp"
 
 #endif

@@ -1,10 +1,99 @@
 #ifndef __mdkLinearAlgebra_Function_DenseMatrix_Part_3_hpp
 #define __mdkLinearAlgebra_Function_DenseMatrix_Part_3_hpp
 
-//#include "mdkLinearAlgebra_Function_DenseMatrix_Part_3.h"
 
 namespace mdk
 {
+
+template<typename ElementType>
+DenseMatrix<ElementType> ComputeInnerProductListFromSingleVectorToColVectorSet(const DenseMatrix<ElementType>& SingleVector,
+                                                                               const DenseMatrix<ElementType>& ColVectorSet)
+{
+    DenseMatrix<ElementType> InnerProductList;
+
+    auto Size = ColVectorSet.GetSize();
+
+    if (Size.ColNumber == 0)
+    {
+        MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeInnerProductListFromSingleVectorToColVectorSet(...)")
+        return InnerProductList;
+    }
+
+    if (SingleVector.IsVector() == false)
+    {
+        MDK_Error("Input vector is not a vector @ mdkLinearAlgebra_DenseMatrix ComputeInnerProductListFromSingleVectorToColVectorSet(...)")
+        return InnerProductList;
+    }
+
+    if (SingleVector.GetElementNumber() != Size.RowNumber)
+    {
+        MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeInnerProductListFromSingleVectorToColVectorSet(...)")
+        return InnerProductList;
+    }
+
+    InnerProductList.FastResize(1, Size.ColNumber);
+
+    auto PointToSingleVector = SingleVector.GetElementPointer();
+
+    auto PointerToSet = ColVectorSet.GetElementPointer();
+
+    for (int_max j = 0; j < Size.ColNumber; ++j)
+    {
+        auto Vector_j = PointerToSet + j*Size.RowNumber;
+
+        InnerProductList[j] = ComputeInnerProductOfTwoVectors(PointToSingleVector, Vector_j, Size.RowNumber, false);
+    }
+
+    return InnerProductList;
+}
+
+
+template<typename ElementType>
+inline
+ElementType ComputeInnerProductOfTwoVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB)
+{
+    if (VectorA.IsVector() == false || VectorB.IsVector() == false)
+    {
+        MDK_Error("Input VectorA or VectorB is not a vector @ mdkLinearAlgebra_DenseMatrix ComputeInnerProductOfTwoVectors(...)")
+        return ElementType(0);
+    }
+
+    auto LengthA = VectorA.GetElementNumber();
+    auto LengthB = VectorB.GetElementNumber();
+
+    if (LengthA != LengthB)
+    {
+        MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeInnerProductOfTwoVectors(...)")
+        return ElementType(0);
+    }
+
+    return ComputeInnerProductOfTwoVectors(VectorA.GetElementPointer(), VectorB.GetElementPointer(), LengthA, false);
+}
+
+
+template<typename ElementType>
+inline
+ElementType ComputeInnerProductOfTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput)
+{
+    if (CheckInput == true)
+    {
+        if (VectorA == nullptr || VectorB == nullptr || Length <= 0)
+        {
+            MDK_Error("Invalid input @ mdkLinearAlgebra_DenseMatrix ComputeInnerProductOfTwoVectors(pointer ...)")
+            return ElementType(0);
+        }
+    }
+
+    auto InnerProduct = ElementType(0);
+
+    for (int_max i = 0; i < Length; ++i)
+    {
+        InnerProduct += VectorA[i] * VectorB[i];
+    }
+
+    return InnerProduct;
+}
+
 
 // SingleVector is a column vector
 // each column of VectorSet is a vector
@@ -102,6 +191,100 @@ ElementType ComputeL2DistanceBetweenTwoVectors(const ElementType* VectorA, const
 }
 
 
+// SingleVector is a column vector
+// each column of VectorSet is a vector
+// L2DistanceList[j] = distance between SingleVector and VectorSet(ALL, j)
+template<typename ElementType>
+DenseMatrix<ElementType> ComputeSquaredL2DistanceListFromSingleVectorToColVectorSet(const DenseMatrix<ElementType>& SingleVector,
+                                                                                    const DenseMatrix<ElementType>& ColVectorSet)
+{
+    DenseMatrix<ElementType> SquaredL2DistanceList;
+
+    auto Size = ColVectorSet.GetSize();
+
+    if (Size.ColNumber == 0)
+    {
+        MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeSquaredL2DistanceListFromSingleVectorToColVectorSet(...)")
+        return SquaredL2DistanceList;
+    }
+
+    if (SingleVector.IsVector() == false)
+    {
+        MDK_Error("Input vector is not a vector @ mdkLinearAlgebra_DenseMatrix ComputeSquaredL2DistanceListFromSingleVectorToColVectorSet(...)")
+        return SquaredL2DistanceList;
+    }
+
+    if (SingleVector.GetElementNumber() != Size.RowNumber)
+    {
+        MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeL2DistanceListFromSingleVectorToColVectorSet(...)")
+        return SquaredL2DistanceList;
+    }
+
+    SquaredL2DistanceList.FastResize(1, Size.ColNumber);
+
+    auto PointToSingleVector = SingleVector.GetElementPointer();
+
+    auto PointerToSet = ColVectorSet.GetElementPointer();
+
+    for (int_max j = 0; j < Size.ColNumber; ++j)
+    {
+        auto Vector_j = PointerToSet + j*Size.RowNumber;
+
+        SquaredL2DistanceList[j] = ComputeSquaredL2DistanceBetweenTwoVectors(PointToSingleVector, Vector_j, Size.RowNumber, false);
+    }
+
+    return SquaredL2DistanceList;
+}
+
+
+template<typename ElementType>
+inline
+ElementType ComputeSquaredL2DistanceBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB)
+{
+    if (VectorA.IsVector() == false || VectorB.IsVector() == false)
+    {
+        MDK_Error("Input VectorA or VectorB is not a vector @ mdkLinearAlgebra_DenseMatrix ComputeSquaredL2DistanceBetweenTwoVectors(...)")
+        return ElementType(-100);
+    }
+
+    auto LengthA = VectorA.GetElementNumber();
+    auto LengthB = VectorB.GetElementNumber();
+
+    if (LengthA != LengthB)
+    {
+        MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeSquaredL2DistanceBetweenTwoVectors(...)")
+        return ElementType(-100);
+    }
+
+    return ComputeSquaredL2DistanceBetweenTwoVectors(VectorA.GetElementPointer(), VectorB.GetElementPointer(), LengthA, false);
+}
+
+
+template<typename ElementType>
+inline
+ElementType ComputeSquaredL2DistanceBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput)
+{
+    if (CheckInput == true)
+    {
+        if (VectorA == nullptr || VectorB == nullptr || Length <= 0)
+        {
+            MDK_Error("Invalid input @ mdkLinearAlgebra_DenseMatrix ComputeSquaredL2DistanceBetweenTwoVectors(pointer ...)")
+            return ElementType(-100);
+        }
+    }
+
+    auto SquaredDistance = ElementType(0);
+
+    for (int_max i = 0; i < Length; ++i)
+    {
+        auto temp = VectorA[i] - VectorB[i];
+        SquaredDistance += temp*temp;
+    }
+
+    return SquaredDistance;
+}
+
+
 template<typename ElementType>
 DenseMatrix<ElementType> ComputeL1DistanceListFromSingleVectorToColVectorSet(const DenseMatrix<ElementType>& SingleVector,
                                                                              const DenseMatrix<ElementType>& ColVectorSet)
@@ -138,7 +321,7 @@ DenseMatrix<ElementType> ComputeL1DistanceListFromSingleVectorToColVectorSet(con
     {
         auto Vector_j = PointerToSet + j*Size.RowNumber;
 
-        L1DistanceList[j] = ComputeL1DistanceListBetweenTwoVectors(PointToSingleVector, Vector_j, Size.RowNumber, false);
+        L1DistanceList[j] = ComputeL1DistanceBetweenTwoVectors(PointToSingleVector, Vector_j, Size.RowNumber, false);
     }
 
     return L1DistanceList;
@@ -164,19 +347,19 @@ ElementType ComputeL1DistanceBetweenTwoVectors(const DenseMatrix<ElementType>& V
         return ElementType(-100);
     }
 
-    return ComputeL1DistanceListBetweenTwoVectors(VectorA.GetElementPointer(), VectorB.GetElementPointer(), LengthA, false);
+    return ComputeL1DistanceBetweenTwoVectors(VectorA.GetElementPointer(), VectorB.GetElementPointer(), LengthA, false);
 }
 
 
 template<typename ElementType>
 inline
-ElementType ComputeL1DistanceListBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput)
+ElementType ComputeL1DistanceBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput)
 {
     if (CheckInput == true)
     {
         if (VectorA == nullptr || VectorB == nullptr || Length <= 0)
         {
-            MDK_Error("Invalid input @ mdkLinearAlgebra_DenseMatrix ComputeL1DistanceListBetweenTwoVectors(pointer ...)")
+            MDK_Error("Invalid input @ mdkLinearAlgebra_DenseMatrix ComputeL1DistanceBetweenTwoVectors(pointer ...)")
             return ElementType(-100);
         }
     }

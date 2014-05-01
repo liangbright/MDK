@@ -1,7 +1,6 @@
 #ifndef __mdkKNNReconstructionSparseEncoder_hpp
 #define __mdkKNNReconstructionSparseEncoder_hpp
 
-//#include "mdkKNNReconstructionSparseEncoder.h"
 
 namespace mdk
 {
@@ -249,17 +248,6 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
     // ----- create sparse code ------------------------------------------------
 
     CodeInSparseColVector.Construct(NeighbourIndexList, Solution.X, CodeLength);
-
-    // ----- update m_ReconstructionErrorNorm -------------------
-
-    // compute ReconstructedDataColVector X_hat
-    auto ReconstructedDataColVector = MatrixMultiply(KNNBasisMatrix, Solution.X);
-
-    // get reconstruction error ||X-X_hat||
-    auto ErrorVector = MatrixSubtract(DataColVector, ReconstructedDataColVector);
-    auto ErrorL2Norm = ErrorVector.L2Norm();
-
-    (*m_ReconstructionErrorNorm)[DataIndex] = ErrorL2Norm;
 }
 
 

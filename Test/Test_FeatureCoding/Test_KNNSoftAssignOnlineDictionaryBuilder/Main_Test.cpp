@@ -6,9 +6,9 @@ using namespace mdk;
 
 int main()
 {
-    Test_Matrix();
+    //Test_Matrix();
 
-    Test_SimpleCase();
+    //Test_SimpleCase();
 
     std::system("pause");
 

@@ -17,6 +17,19 @@ template<typename ElementType>
 class DenseMatrix;
 //-------------------------------------//
 
+template<typename ElementType>
+DenseMatrix<ElementType> ComputeInnerProductListFromSingleVectorToColVectorSet(const DenseMatrix<ElementType>& SingleVector,
+                                                                               const DenseMatrix<ElementType>& ColVectorSet);
+
+template<typename ElementType>
+inline
+ElementType ComputeInnerProductOfTwoVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+
+template<typename ElementType>
+inline
+ElementType ComputeInnerProductOfTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
+
+
 // SingleVector is a column vector
 // each column of VectorSet is a vector
 // L2DistanceList[j] = distance between SingleVector and ColVectorSet(ALL, j)
@@ -31,6 +44,19 @@ ElementType ComputeL2DistanceBetweenTwoVectors(const DenseMatrix<ElementType>& V
 template<typename ElementType>
 inline
 ElementType ComputeL2DistanceBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
+
+
+template<typename ElementType>
+DenseMatrix<ElementType> ComputeSquaredL2DistanceListFromSingleVectorToColVectorSet(const DenseMatrix<ElementType>& SingleVector,
+                                                                                   const DenseMatrix<ElementType>& ColVectorSet);
+
+template<typename ElementType>
+inline
+ElementType ComputeSquaredL2DistanceBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+
+template<typename ElementType>
+inline
+ElementType ComputeSquaredL2DistanceBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
 
 
 template<typename ElementType>
@@ -59,6 +85,7 @@ template<typename ElementType>
 inline
 ElementType ComputeCorrelationBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
 
+
 // sum(x.*y)/(sum(x.^2)*sum(y.^2))
 // UncenteredCorrelation = angle between two vectors
 template<typename ElementType>
@@ -73,6 +100,7 @@ template<typename ElementType>
 inline
 ElementType ComputeUncenteredCorrelationBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length);
 
+
 // sum((x-mean(x)).*(y-mean(y))
 template<typename ElementType>
 DenseMatrix<ElementType> ComputeUnnormalizedCorrelationListFromSingleVectorToColVectorSet(const DenseMatrix<ElementType>& SingleVector,
@@ -85,7 +113,6 @@ ElementType ComputeUnnormalizedCorrelationBetweenTwoVectors(const DenseMatrix<El
 template<typename ElementType>
 inline
 ElementType ComputeUnnormalizedCorrelationBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
-
 
 
 template<typename ElementType>

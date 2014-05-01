@@ -7,7 +7,8 @@ namespace mdk
 {
 
 template<typename ElementType>
-bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementType>& OutputDataArray, DenseMatrix<int_max>& OutputIndexList, const std::string& Order)
+bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementType>& OutputDataArray, 
+          DenseMatrix<int_max>& OutputIndexList, const std::string& Order)
 {
     // input should be a vector
 
@@ -47,7 +48,8 @@ bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementTyp
 
 
 template<typename ElementType>
-bool Sort(const std::vector<ElementType>& InputDataArray, std::vector<ElementType>& OutputDataArray, std::vector<int_max>& OutputIndexList, const std::string& Order)
+bool Sort(const std::vector<ElementType>& InputDataArray, std::vector<ElementType>& OutputDataArray, 
+          std::vector<int_max>& OutputIndexList, const std::string& Order)
 {
     auto InputLength = int_max(InputDataArray.size());
 
@@ -70,18 +72,21 @@ bool Sort(const std::vector<ElementType>& InputDataArray, std::vector<ElementTyp
 
 
 template<typename ElementType>
-bool Sort(const ElementType* InputDataArray, int_max Length, ElementType* OutputDataArray, int_max* OutputIndexList, const std::string& Order)
+bool Sort(const ElementType* InputDataArray, int_max Length, ElementType* OutputDataArray, int_max* OutputIndexList, const std::string& Order, bool CheckInput)
 {
-    if (InputDataArray == nullptr || Length == 0 || OutputDataArray == nullptr || OutputIndexList == nullptr)
+    if (CheckInput == true)
     {
-        MDK_Error("Invalid input @mdkLinearAlgebra Sort(pointers)")
-        return false;
-    }
+        if (InputDataArray == nullptr || Length == 0 || OutputDataArray == nullptr || OutputIndexList == nullptr)
+        {
+            MDK_Error("Invalid input @mdkLinearAlgebra Sort(pointers)")
+            return false;
+        }
 
-    if (Order != "ascend" && Order != "descend")
-    {
-        MDK_Error(" unknown  Order @mdkLinearAlgebra Sort(pointers)")
-        return false;
+        if (Order != "ascend" && Order != "descend")
+        {
+            MDK_Error(" unknown  Order @mdkLinearAlgebra Sort(pointers)")
+            return false;
+        }
     }
 
     std::vector<MDK_PairForSort<ElementType>> tempPairList(Length);
