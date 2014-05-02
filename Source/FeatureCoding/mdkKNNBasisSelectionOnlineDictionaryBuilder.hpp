@@ -238,6 +238,13 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
         m_Parameter.SimilarityThresholdToComputeBasisRedundancy = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
     }
 
+    if (m_Parameter.MaxNumberOfThreads <= 0)
+    {
+        MDK_Warning("MaxNumberOfThreads <= 0, set to 1 @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
+
+        m_Parameter.MaxNumberOfThreads = 1;
+    }
+
     return true;
 }
 
@@ -331,29 +338,14 @@ void KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 
     (*m_Dictionary) = std::move(OutputDictionary);
 
-    //----------------------- just for reference: what to do if some data is re-used in training -------------//
+    //----------------------- just for reference: why not to re-use data in training -------------//
     //
     // BasisAge can not be adjusted : 
     // BasisAge[k] -= TotalDataNumberForTrainning - TotalDataNumber
     // then BasisAge[k] may be < 0
     //
-    // BasisExperience can be adjusted :
-    //
-    //if (TotalDataNumber_used > TotalDataNumber)
-    //{
-    //    DenseMatrix<ElementType>& BasisExperience = OutputDictionary.BasisExperience();
-    //
-    //    auto TotalExperience = OutputDictionary.BasisExperience().Sum();
-    //
-    //    auto TotalExperience_est = m_Parameter.ExperienceDiscountFactor * TotalExperience_init + TotalDataNumber;
-    //
-    //    if (TotalExperience_est > TotalExperience_init)
-    //    {
-    //        auto factor = TotalExperience_est / TotalExperience;
-    //
-    //       BasisExperience *= factor;
-    //    }
-    //}
+    // BasisExperience can not be adjusted :
+    // BasisExperience[k] *ExperienceDiscountFactor may be < 1
     //---------------------------------------------------------------------------------------------------------//   
 }
 
@@ -1196,11 +1188,11 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
 
     int_max DataNumber = FeatureData.GetColNumber();
 
-    //------------------- update BasisAge --------------------------------------------------------------
+    //------------------- initialize BasisAge ----------------------------------------//
 
     BasisAge.FastResize(1, BasisNumber);
 
-    BasisAge.Fill(ElementType(DataNumber)); // fill DataNumber for new basis
+    BasisAge.Fill(0); // fill 0 for new basis
 
     if (Dictionary_init.IsEmpty() == false)
     {
@@ -1212,12 +1204,19 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
             if (tempIndex < BasisNumber_init)
             {   // this basis is from Dictionary_init
 
-                BasisAge[k] = BasisAge_init[tempIndex] + DataNumber;
+                BasisAge[k] = BasisAge_init[tempIndex];
             }
         }
     }
 
-    //--------------------- initialize BasisExperience ---------------------------------------------------------    
+    //------------------- update BasisAge ---------------------------------------------------//
+
+    if (m_Parameter.Update_BasisAge == true)
+    {
+        BasisAge += DataNumber;
+    }
+
+    //--------------------- initialize BasisExperience ---------------------------------------//
     // BasisiNumber in updated BasisMatrix may be different than that in Dictionary_init
 
     BasisExperience.FastResize(1, BasisNumber);
@@ -1238,47 +1237,60 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
         }
     }
 
-    //--------------------- update Variance Information ----------------------------------------------------------------
+    //--------------------- update Variance Information ----------------------------//
     // use initial BasisExperience
     //
-    this->UpdateDictionaryInformation_Variance(Dictionary, FeatureData, KNNBasisIndexTableOfData,
-                                               VectorSimilarityMatrix, VectorIndexList_Basis, Dictionary_init);
 
-    //--------------------- update BasisExperience ----------------------------------------------------------------
+    if (m_Parameter.Update_Variance == true)
+    {
+        this->UpdateDictionaryInformation_Variance(Dictionary, FeatureData, KNNBasisIndexTableOfData,
+                                                   VectorSimilarityMatrix, VectorIndexList_Basis, Dictionary_init);
+    }
 
-    this->UpdateBasisExperience(BasisExperience, KNNBasisIndexTableOfData);
+    //--------------------- update BasisExperience -----------------------------//
+
+    if (m_Parameter.Update_BasisExperience == true)
+    {
+        this->UpdateBasisExperience(BasisExperience, KNNBasisIndexTableOfData);
+    }
 
     // ----------- update SimilarityMatrix ------------------------------------//
 
-    SimilarityMatrix.FastResize(BasisNumber, BasisNumber);
-    for (int_max k = 0; k < BasisNumber; ++k)
+    if (m_Parameter.Update_SimilarityMatrix == true)
     {
-        auto VectorIndex_k = VectorIndexList_Basis[k];
-
-        for (int_max n = 0; n < BasisNumber; ++n)
+        SimilarityMatrix.FastResize(BasisNumber, BasisNumber);
+        for (int_max k = 0; k < BasisNumber; ++k)
         {
-            auto VectorIndex_n = VectorIndexList_Basis[n];
+            auto VectorIndex_k = VectorIndexList_Basis[k];
 
-            auto Similarity = VectorSimilarityMatrix(VectorIndex_n, VectorIndex_k);
+            for (int_max n = 0; n < BasisNumber; ++n)
+            {
+                auto VectorIndex_n = VectorIndexList_Basis[n];
 
-            SimilarityMatrix(n, k) = Similarity;
-            SimilarityMatrix(k, n) = Similarity;
+                auto Similarity = VectorSimilarityMatrix(VectorIndex_n, VectorIndex_k);
+
+                SimilarityMatrix(n, k) = Similarity;
+                SimilarityMatrix(k, n) = Similarity;
+            }
         }
+
+        Dictionary.SetProperty_SimilarityType(m_Parameter.ParameterOfKNNSoftAssign.SimilarityType);
+
+        MDK_DebugCode
+        (
+            CharString FilePathAndName = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/SimilarityMatrix.json";
+           SaveDenseMatrixAsJsonDataFile(SimilarityMatrix, FilePathAndName);
+        )
     }
-
-    Dictionary.SetProperty_SimilarityType(m_Parameter.ParameterOfKNNSoftAssign.SimilarityType);
-
-    MDK_DebugCode
-    (
-        CharString FilePathAndName = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/SimilarityMatrix.json";
-        SaveDenseMatrixAsJsonDataFile(SimilarityMatrix, FilePathAndName);
-    )
 
     //---------- Update BasisRedundancy --------------------------------------------//
 
-    this->UpdateBasisRedundancy(BasisRedundancy, SimilarityMatrix);
+    if (m_Parameter.Update_BasisRedundancy == true)
+    {
+        this->UpdateBasisRedundancy(BasisRedundancy, SimilarityMatrix);
 
-    Dictionary.SetProperty_SimilarityThresholdToComputeBasisRedundancy(m_Parameter.SimilarityThresholdToComputeBasisRedundancy);
+        Dictionary.SetProperty_SimilarityThresholdToComputeBasisRedundancy(m_Parameter.SimilarityThresholdToComputeBasisRedundancy);
+    }
 }
 
 

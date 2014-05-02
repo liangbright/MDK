@@ -70,7 +70,17 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
     // parameter for updating dictionary information
 
+    bool Update_BasisAge;
+
+    bool Update_BasisExperience;
+
+    bool Update_Variance;
+
     bool Update_VarianceOfReconstruction_Using_KNNBasisMatrix;
+
+    bool Update_SimilarityMatrix;
+
+    bool Update_BasisRedundancy;
 
     ElementType SimilarityThresholdToComputeBasisRedundancy;
 
@@ -86,7 +96,7 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
     void Clear()
     {
-        BasisNumber = -1;
+        BasisNumber = 0;
 
         BasisPositive = false;
         BasisNormalizedWithL1Norm = false;
@@ -102,12 +112,22 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
         MaxNumberOfThreads = 1;
 
+        Update_BasisAge = false;
+
+        Update_Variance = false;
+
         Update_VarianceOfReconstruction_Using_KNNBasisMatrix = false;
+
+        Update_BasisExperience  = false;
+
+        Update_SimilarityMatrix = false;
+
+        Update_BasisRedundancy  = false;
 
         SimilarityThresholdToComputeBasisRedundancy = 0;
 
         ConstraintOnKNNReconstructionCode.CodeNonnegative = false;
-        ConstraintOnKNNReconstructionCode.CodeSumToOne = false;
+        ConstraintOnKNNReconstructionCode.CodeSumToOne    = false;
 
         DebugInfo.Clear();
     }
