@@ -23,6 +23,9 @@ struct Parameter_Of_KNNSoftAssignSparseEncoder
     // If a Feature vector is normalized histogram or probability mass function (PMF), i.e., discrete probability distribution
     // KLDivergence
 
+    bool IgnoreSign_Correlation; // if it is true, Similarity = abs(Correlation)
+                                 // else, Similarity = (Correlation +1)/2
+
     ElementType SimilarityThreshold; // find KNN with Similarity >= SimilarityThreshold
                                      // K in KNN can be < MaxNumberOfNeighbours
 
@@ -34,9 +37,7 @@ struct Parameter_Of_KNNSoftAssignSparseEncoder
 
     ElementType Variance_KL; // variance to convert KLDivergence to Similarity
 
-    bool IgnoreSign_Correlation; // if it is true, Similarity = abs(Correlation)
-    // else, Similarity = (Correlation +1)/2
-
+//-------------------------------------------------------------------------------
     Parameter_Of_KNNSoftAssignSparseEncoder() { this->Clear(); }
     ~Parameter_Of_KNNSoftAssignSparseEncoder() {}
 

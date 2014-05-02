@@ -31,29 +31,6 @@ void KNNReconstructionSparseEncoder<ElementType>::Clear()
 
 
 template<typename ElementType>
-void KNNReconstructionSparseEncoder<ElementType>::SetupDefaultPipelineOutput()
-{
-    this->FeatureDictionaryBasedSparseEncoder::SetupDefaultPipelineOutput();
-
-    m_ReconstructionErrorNorm_SharedCopy.Clear();
-
-    m_ReconstructionErrorNorm = &m_ReconstructionErrorNorm_SharedCopy;
-}
-
-
-template<typename ElementType>
-void KNNReconstructionSparseEncoder<ElementType>::UpdatePipelineOutput()
-{
-    this->FeatureDictionaryBasedSparseEncoder::UpdatePipelineOutput();
-
-    if (m_ReconstructionErrorNorm != &m_ReconstructionErrorNorm_SharedCopy)
-    {
-        m_ReconstructionErrorNorm_SharedCopy.ForceShare(m_ReconstructionErrorNorm);
-    }
-}
-
-
-template<typename ElementType>
 bool KNNReconstructionSparseEncoder<ElementType>::CheckInput()
 {
     if (this->FeatureDictionaryBasedSparseEncoder::CheckInput() == false)
@@ -67,10 +44,10 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.SimilarityType != VectorSimilarityType::L1Distance
-        && m_Parameter.SimilarityType != VectorSimilarityType::L2Distance
-        && m_Parameter.SimilarityType != VectorSimilarityType::Correlation
-        && m_Parameter.SimilarityType != VectorSimilarityType::KLDivergence)
+    if (m_Parameter.SimilarityType != SimilarityTypeEnum::L1Distance
+        && m_Parameter.SimilarityType != SimilarityTypeEnum::L2Distance
+        && m_Parameter.SimilarityType != SimilarityTypeEnum::Correlation
+        && m_Parameter.SimilarityType != SimilarityTypeEnum::KLDivergence)
     {
         MDK_Error("SimilarityType is invalid @ KNNReconstructionSparseEncoder::CheckInput()")
         return false;
@@ -125,22 +102,28 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
     switch (m_Parameter.SimilarityType)
     {
-    case VectorSimilarityType::L1Distance:
+    case SimilarityTypeEnum::L1Distance:
 
         DistanceList = ComputeL1DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
         break;
 
-    case VectorSimilarityType::L2Distance:
+    case SimilarityTypeEnum::L2Distance:
 
         DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
         break;
 
-    case VectorSimilarityType::Correlation:
+    case SimilarityTypeEnum::Correlation:
 
         DistanceList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
+
+        if (m_Parameter.IgnoreSign_Correlation == true)
+        {
+            DistanceList.ElementOperationInPlace("abs");
+        }
+
         break;
 
-    case VectorSimilarityType::KLDivergence :
+    case SimilarityTypeEnum::KLDivergence:
 
         DistanceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, BasisMatrix);
         break;
@@ -162,9 +145,11 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
     Solution_Of_LinearLeastSquaresProblem<ElementType> Solution;
 
+    typedef LinearLeastSquaresProblemSolver<ElementType>::MethodTypeEnum LinlsqMethodTypeEnum;
+
     if (m_Parameter.CodeNonnegative == false && m_Parameter.CodeSumToOne == false)
     {
-        Option.MethodName = "Normal";
+        Option.MethodType = LinlsqMethodTypeEnum::NormalEquation;
 
         DenseMatrix<ElementType> H;
 
@@ -184,7 +169,7 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
         DenseMatrix<ElementType> lb_x(m_Parameter.NeighbourNumber, 1);
         lb_x.Fill(0);
 
-        Option.MethodName = "QuadraticProgramming";
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
 
         DenseMatrix<ElementType> H;
 
@@ -210,7 +195,7 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
         DenseMatrix<ElementType> lb_A = ElementType(1);
         DenseMatrix<ElementType> ub_A = ElementType(1);
 
-        Option.MethodName = "QuadraticProgramming";
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
 
         DenseMatrix<ElementType> H;
 
@@ -231,7 +216,7 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
         DenseMatrix<ElementType> lb_A = ElementType(1);
         DenseMatrix<ElementType> ub_A = ElementType(1);
 
-        Option.MethodName = "QuadraticProgramming";
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
 
         DenseMatrix<ElementType> H;
 
@@ -264,7 +249,7 @@ template<typename ElementType>
 bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<ElementType>& OutputCodeInDenseMatrix,
                                                         const DenseMatrix<ElementType>* FeatureData,
                                                         const FeatureDictionary<ElementType>* Dictionary,
-                                                        const Parameter_Of_KNNReconstructionSparseEncoder& Parameter,
+                                                        const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,
                                                         int_max MaxNumberOfThreads = 1)
 {
     auto Encoder = std::make_unique<KNNReconstructionSparseEncoder<ElementType>>();
@@ -275,7 +260,7 @@ bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<ElementType>
 
     Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
 
-    Encoder->SetOutputCodeInDenseMatrix(&OutputCodeInDenseMatrix);
+    Encoder->SetOutputCode(&OutputCodeInDenseMatrix);
 
     Encoder->m_Parameter = Parameter;
 
@@ -287,7 +272,7 @@ template<typename ElementType>
 bool KNNReconstructionSparseEncoder<ElementType>::Apply(SparseMatrix<ElementType>& OutputCodeInSparseMatrix,
                                                         const DenseMatrix<ElementType>* FeatureData,
                                                         const FeatureDictionary<ElementType>* Dictionary,
-                                                        const Parameter_Of_KNNReconstructionSparseEncoder& Parameter,
+                                                        const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,
                                                         int_max MaxNumberOfThreads = 1)
 {
     auto Encoder = std::make_unique<KNNReconstructionSparseEncoder<ElementType>>();
@@ -298,7 +283,7 @@ bool KNNReconstructionSparseEncoder<ElementType>::Apply(SparseMatrix<ElementType
 
     Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
 
-    Encoder->SetOutputCodeInSparseMatrix(&OutputCodeInSparseMatrix);;
+    Encoder->SetOutputCode(&OutputCodeInSparseMatrix);;
 
     Encoder->m_Parameter = Parameter;
 
@@ -310,7 +295,7 @@ template<typename ElementType>
 bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<SparseMatrix<ElementType>>& OutputCodeInSparseColVectorList,
                                                         const DenseMatrix<ElementType>* FeatureData,
                                                         const FeatureDictionary<ElementType>* Dictionary,
-                                                        const Parameter_Of_KNNReconstructionSparseEncoder& Parameter,
+                                                        const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,
                                                         int_max MaxNumberOfThreads = 1)
 {
     auto Encoder = std::make_unique<KNNReconstructionSparseEncoder<ElementType>>();
@@ -321,7 +306,7 @@ bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<SparseMatrix
 
     Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
 
-    Encoder->SetOutputCodeInSparseColVectorSet(&OutputCodeInSparseColVectorList);;
+    Encoder->SetOutputCode(&OutputCodeInSparseColVectorList);;
 
     Encoder->m_Parameter = Parameter;
 

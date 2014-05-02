@@ -107,7 +107,7 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
             return false;
     }
 
-    if (m_InitialDictionary.IsEmpty() == true)
+    if (m_InitialDictionary->IsEmpty() == true)
     {
         MDK_Error("InitialDictionary is empty @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
             return false;
@@ -119,7 +119,7 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber <= 0)
+    if (m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber <= 0)
     {
         MDK_Error("NeighbourNumber <= 0 @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         return false;
@@ -131,24 +131,59 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.MaxNumberOfDataInEachBatch < m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber)
+    if (m_Parameter.MaxNumberOfDataInEachBatch < m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber)
     {
         MDK_Error("MaxNumberOfDataInEachBatch < MaxNumberOfNeighbours @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
-    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != SimilarityTypeEnum::L1Distance
-        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != SimilarityTypeEnum::L2Distance
-        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != SimilarityTypeEnum::Correlation
-        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != SimilarityTypeEnum::KLDivergence)
+    if (m_Parameter.ParameterOfKNNReconstruction.SimilarityType != SimilarityTypeEnum::L1Distance
+        && m_Parameter.ParameterOfKNNReconstruction.SimilarityType != SimilarityTypeEnum::L2Distance
+        && m_Parameter.ParameterOfKNNReconstruction.SimilarityType != SimilarityTypeEnum::Correlation
+        && m_Parameter.ParameterOfKNNReconstruction.SimilarityType != SimilarityTypeEnum::KLDivergence)
     {
         MDK_Error("SimilarityType is invalid @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
-    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold < 0)
+    if (m_Parameter.ParameterOfKNNReconstruction.SimilarityType == SimilarityTypeEnum::Correlation)
     {
-        MDK_Error("SimilarityThreshold is invalid @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
+        if (m_Parameter.ParameterOfKNNReconstruction.IgnoreSign_Correlation == true)
+        {
+            MDK_Warning("IgnoreSign_Correlation is true @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
+        }
+    }
+
+    if (m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber != m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber)
+    {
+        MDK_Warning("NeighbourNumber for KNNSoftAssign is NOT equal to NeighbourNumber for KNNReconstruction" << '\n'
+                    << "NeighbourNumber for KNNSoftAssign is set to NeighbourNumber for KNNReconstruction" << '\n'                    
+                    << "@ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
+
+        m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber;
+    }
+
+    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != m_Parameter.ParameterOfKNNReconstruction.SimilarityType)
+    {
+        MDK_Warning("SimilarityType for KNNSoftAssign is NOT equal to SimilarityType for KNNReconstruction" << '\n'
+                    << "SimilarityType for KNNSoftAssign is set to SimilarityType for KNNReconstruction" << '\n'                    
+                    << "@ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
+
+        m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = m_Parameter.ParameterOfKNNReconstruction.SimilarityType;
+    }
+
+    if (m_Parameter.ParameterOfKNNSoftAssign.IgnoreSign_Correlation != m_Parameter.ParameterOfKNNReconstruction.IgnoreSign_Correlation)
+    {
+        MDK_Warning("IgnoreSign_Correlation for KNNSoftAssign is NOT equal to IgnoreSign_Correlation for KNNReconstruction" << '\n'
+                    << "IgnoreSign_Correlation for KNNSoftAssign is set to IgnoreSign_Correlation for KNNReconstruction" << '\n'
+                    << "@ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
+
+        m_Parameter.ParameterOfKNNSoftAssign.IgnoreSign_Correlation = m_Parameter.ParameterOfKNNReconstruction.IgnoreSign_Correlation;
+    }
+
+    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold <= 0)
+    {
+        MDK_Error("SimilarityThreshold <= 0 @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
@@ -165,7 +200,7 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
                 m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = m_Dictionary->VarianceOfL1Distance().Mean();
                 IsOk = true;
             }
-
+            
             if (IsOk == false)
             {
                 MDK_Error("Variance_L1 <= 0 @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
@@ -185,20 +220,13 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
             {
                 m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = m_Dictionary->VarianceOfL2Distance().Mean();
                 IsOk = true;
-            }
+            }           
 
             if (IsOk == false)
             {
                 MDK_Error("Variance_L2 <= 0 @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
                 return false;
             }
-        }
-    }
-    else if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == SimilarityTypeEnum::Correlation)
-    {
-        if (m_Parameter.ParameterOfKNNSoftAssign.IgnoreSign_Correlation == true)
-        {
-            MDK_Warning("IgnoreSign_Correlation is true @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
         }
     }
     else if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == SimilarityTypeEnum::KLDivergence)
@@ -344,7 +372,7 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 
 
 template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::SetputParameter()
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::SetupParameter()
 {
     m_KNNReconstructionSparseEncoder.m_Parameter = m_Parameter.ParameterOfKNNReconstruction;
 }
@@ -379,7 +407,7 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
 
     this->UpdateVarianceOfReconstruction(VarianceOfReconstruction, FeatureData, CodeTable, ReconstructedData, BasisExperience);
     
-    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == SimilarityTypeEnum::KLDivergence)
+    if (m_Parameter.ParameterOfKNNReconstruction.SimilarityType == SimilarityTypeEnum::KLDivergence)
     {
         this->UpdateVarianceOfKLDivergence(VarianceOfKLDivergence, FeatureData, CodeTable, BasisMatrix, BasisExperience);
     }
@@ -390,7 +418,7 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
 
     // update BasisAge -------------------------
 
-    in_max DataNumber = FeatureData.GetColNumber();
+    int_max DataNumber = FeatureData.GetColNumber();
 
     BasisAge += DataNumber;
 
@@ -419,7 +447,7 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::UpdateDictionaryInfo
 
     DenseMatrix<ElementType> VarianceList;
 
-    switch (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType)
+    switch (m_Parameter.ParameterOfKNNReconstruction.SimilarityType)
     {
     case SimilarityTypeEnum::L1Distance:
         VarianceList.Share(VarianceOfL1Distance);
@@ -483,7 +511,7 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
                   const DenseMatrix<ElementType>& FeatureData,
                   const DataContainer<SparseVector<ElementType>>& CodeTable,
-                  DenseMatrix<ElementType>&       ReconstructedData,
+                  const DenseMatrix<ElementType>& ReconstructedData,
                   const DenseMatrix<ElementType>  BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
@@ -497,17 +525,19 @@ UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
 
     DenseMatrix<ElementType> DataReconstructionErrorVector(1, VectorLength);
 
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
-
     //-------------- temp function for basis update ---------------
 
     auto TempFunction_BasisUpdate = [](ElementType* BasisVector, const ElementType* DataReconstructionErrorVector, int_max Length,
                                        ElementType  ElementOfCodeVector_at_this_Basis, ElementType SquaredL2NormOfCodeVector,
                                        ElementType  ExperienceOfBasis)
     {
+        auto eps_value = std::numeric_limits<ElementType>::epsilon();
+
         for (int_max k = 0; k < Length; ++k)
         {
-            auto temp = ElementOfCodeVector_at_this_Basis / (SquaredL2NormOfCodeVector + eps_value);
+            auto temp_small = std::max(eps_value, SquaredL2NormOfCodeVector*eps_value);
+
+            auto temp = ElementOfCodeVector_at_this_Basis / (SquaredL2NormOfCodeVector + temp_small);
 
             BasisVector[k] += temp * DataReconstructionErrorVector[k] / ExperienceOfBasis;
         }
@@ -540,7 +570,7 @@ UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
 
             TempFunction_BasisUpdate(BasisVectorPtr, DataReconstructionErrorVector.GetElementPointer(), VectorLength,
                                      CodeVector[n], SquaredL2NormOfCodeVector, 
-                                     ExperienceOfBasis[BasisIndex]);
+                                     BasisExperience[BasisIndex]);
         }        
     }
 
@@ -693,7 +723,7 @@ ComputeSimilarityBetweenTwoDataVectors(const ElementType* VectorA, const Element
 {
     ElementType Similarity = ElementType(0);
 
-    switch (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType)
+    switch (m_Parameter.ParameterOfKNNReconstruction.SimilarityType)
     {
     case SimilarityTypeEnum::L1Distance:
     {
@@ -714,7 +744,7 @@ ComputeSimilarityBetweenTwoDataVectors(const ElementType* VectorA, const Element
     case SimilarityTypeEnum::Correlation:
     {
         auto Correlation = ComputeCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
-        if (m_Parameter.ParameterOfKNNSoftAssign.IgnoreSign_Correlation == true)
+        if (m_Parameter.ParameterOfKNNReconstruction.IgnoreSign_Correlation == true)
         {
             Similarity = std::abs(Correlation);
         }
@@ -792,7 +822,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
     int_max BasisNumber = BasisMatrix.GetColNumber();
 
     DenseMatrix<ElementType> Variance_current(1, BasisNumber);
-    Variance_current.Fill(ElementType(0));
+    Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L1);
 
     DenseMatrix<int_max> CounterList(1, BasisNumber);
     CounterList.Fill(0);
@@ -934,7 +964,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
     if (MeanStd <= eps_value)
     {
         MDK_Warning("MeanStd <= eps_value @ KNNReconstructionOnlineDictionaryBuilder::UpdateVarianceOfL2Distance(...)"
-                    << '\n' << "set to std::max(eps_value, Variance_L2)");
+                    << '\n' << "set to std::max(eps_value, Variance_L2)")
 
         MeanStd = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
     }
@@ -1020,7 +1050,7 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
     if (MeanStd <= eps_value)
     {
         MDK_Warning("MeanStd <= eps_value @ KNNReconstructionOnlineDictionaryBuilder::UpdateVarianceOfKLDivergence(...)"
-                     << '\n' << "set to std::max(eps_value, Variance_KL)");
+                     << '\n' << "set to std::max(eps_value, Variance_KL)")
 
         MeanStd = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_KL);
     }

@@ -1,12 +1,12 @@
 #include "mdkFileIO.h"
 #include "mdkKNNBasisSelectionOnlineDictionaryBuilder.h"
-#include "mdkKNNAverageOnlineDictionaryBuilder.h"
+#include "mdkKNNReconstructionOnlineDictionaryBuilder.h"
 
 void Test_SimpleCase()
 {
     using namespace mdk;
 
-    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDictionaryBuilder/Debug/";
+    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/KNNReconstructionOnlineDictionaryBuilder/Debug/";
 
     CharString FeatureDataFilePathAndName = FilePath + "DataSample.json";
 
@@ -50,16 +50,13 @@ void Test_SimpleCase()
 
     //--------------------------------------------------------------------------------------------
 
-    KNNAverageOnlineDictionaryBuilder<double> DictionaryBuilder;
+    KNNReconstructionOnlineDictionaryBuilder<double> DictionaryBuilder;
 
     DictionaryBuilder.m_Parameter.BasisNumber = 10;
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = NeighbourNumber;
-
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = SimilarityTypeEnum::L1Distance;
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.1;
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = 10;
-
-    DictionaryBuilder.m_Parameter.ExperienceDiscountFactor = 0;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber = NeighbourNumber;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.SimilarityType = SimilarityTypeEnum::L1Distance;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative = true;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne = false;
 
     DictionaryBuilder.m_Parameter.MaxNumberOfDataInEachBatch = 100;
 

@@ -17,6 +17,28 @@
 namespace mdk
 {
 
+struct DebugInfo_Of_KNNBasisSelectionOnlineDictionaryBuilder
+{
+    bool Flag_OutputDebugInfo;
+
+    CharString FilePathToSaveDebugInfo;
+
+    CharString JsonDataFileName_Of_VectorSimilarityMatrix;
+
+//---------------------------------------------------
+    DebugInfo_Of_KNNBasisSelectionOnlineDictionaryBuilder() { this->Clear(); }
+    ~DebugInfo_Of_KNNBasisSelectionOnlineDictionaryBuilder() {}
+
+    void Clear()
+    {
+        Flag_OutputDebugInfo = false;
+        FilePathToSaveDebugInfo.Clear();
+        JsonDataFileName_Of_VectorSimilarityMatrix.Clear();
+    }
+};
+
+
+
 template<typename ElementType>
 struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 {
@@ -52,7 +74,10 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
     ElementType SimilarityThresholdToComputeBasisRedundancy;
 
-    Parameter_Of_KNNReconstructionSparseEncoder ParameterOfKNNReconstruction;
+    Constraint_on_Code_Of_KNNReconstruction_For_FeatureCoding ConstraintOnKNNReconstructionCode;
+
+    // parameter for debug information output
+    DebugInfo_Of_KNNBasisSelectionOnlineDictionaryBuilder DebugInfo;
 
 //--------------------------------------------------------------------------------------------------------
 
@@ -81,7 +106,10 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
         SimilarityThresholdToComputeBasisRedundancy = 0;
 
-        ParameterOfKNNReconstruction.Clear();
+        ConstraintOnKNNReconstructionCode.CodeNonnegative = false;
+        ConstraintOnKNNReconstructionCode.CodeSumToOne = false;
+
+        DebugInfo.Clear();
     }
 };
 
@@ -130,9 +158,13 @@ protected:
 
     void GenerateDictionary();
 
-    FeatureDictionaryForSparseCoding<ElementType> BuildDictionaryFromData(int_max BasisNumber_desired,
-                                                                           const DenseMatrix<ElementType>& FeatureData,
-                                                                           const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init);
+    FeatureDictionaryForSparseCoding<ElementType> BuildDictionaryFromData(const int_max BasisNumber_desired,
+                                                                          const DenseMatrix<ElementType>& FeatureData,
+                                                                          const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init);
+
+    DenseMatrix<int_max> SelectBasisFromCombinedDataBySimilarityAndProbability(const int_max BasisNumber_desired,
+                                                                               const DenseMatrix<ElementType>& VectorSimilarityMatrix,
+                                                                               const DenseMatrix<ElementType>& ProbabilityOfEachVector);
 
     void UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
                                      const DenseMatrix<ElementType>& FeatureData,
@@ -158,10 +190,10 @@ protected:
 
     DataContainer<DenseMatrix<int_max>> FindKNNVectorIndexTableByVectorSimilarityMatrix(const DenseMatrix<ElementType>& VectorSimilarityMatrix);
 
-    DenseMatrix<ElementType> EstimateKNNSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable);
+    DenseMatrix<ElementType> EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable);
 
-    DenseMatrix<ElementType> EstimateKNNSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable,
-                                                                                               const DenseMatrix<ElementType>& RepresentativeAbilityOfEachVector);
+    DenseMatrix<ElementType> EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable,
+                                                                                            const DenseMatrix<ElementType>& RepresentativeAbilityOfEachVector);
 
     void ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix);
 

@@ -45,7 +45,7 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 
     ElementType SimilarityThresholdToComputeBasisRedundancy;
 
-    Parameter_Of_KNNReconstructionSparseEncoder ParameterOfKNNReconstruction;
+    Constraint_on_Code_Of_KNNReconstruction_For_FeatureCoding ConstraintOnKNNReconstructionCode;
 
 //--------------------------------------------------------------------------------------------------------
 

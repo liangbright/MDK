@@ -8,7 +8,8 @@ template<typename FunctionType>
 inline
 void ParallelForLoop(FunctionType SingleFunction, const std::vector<int_max>& LoopIndexList, int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread)
 {
-    ParallelBlock([&](std::vector<int_max> SubLoopIndexList, int_max ThreadIndex){ParallelForLoop_Block_in_a_thread(SingleFunction, SubLoopIndexList, ThreadIndex); },
+    ParallelBlock([&](std::vector<int_max> SubLoopIndexList, int_max ThreadIndex)
+                  {ParallelForLoop_Block_in_a_thread(SingleFunction, SubLoopIndexList, ThreadIndex); },
                   DataIndexList, MaxNumberOfThreads, MinNumberOfDataPerThread);
 }
 
@@ -19,17 +20,19 @@ void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, std::vector<
 {
     for (int_max i = 0; i < int_max(SubLoopIndexList.size()); ++i)
     {
-        SingleFunction(SubLoopIndexList[i], ThreadIndex);
+        SingleFunction(SubLoopIndexList[i]);
     }
 }
 
+// Attention : The range is  [LoopIndex_start, LoopIndex_end] : for(int_max k = LoopIndex_start; k <= LoopIndex_end; ++k)
 
 template<typename FunctionType>
 inline
 void ParallelForLoop(FunctionType SingleFunction, int_max LoopIndex_start, int_max LoopIndex_end, 
                      int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread)
 {
-    ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex){ParallelForLoop_Block_in_a_thread(SingleFunction, Index_start, Index_end, ThreadIndex); },
+    ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex)
+                  {ParallelForLoop_Block_in_a_thread(SingleFunction, Index_start, Index_end, ThreadIndex); },
                   LoopIndex_start, LoopIndex_end, MaxNumberOfThreads, MinNumberOfDataPerThread);
 }
 

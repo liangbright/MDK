@@ -146,9 +146,9 @@ bool KNNAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold < 0)
+    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold <= 0)
     {
-        MDK_Error("SimilarityThreshold is invalid @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("SimilarityThreshold <= 0 @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
@@ -627,7 +627,8 @@ UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix,
 
     SimilarityMatrix.FastResize(BasisNumber, BasisNumber);
 
-    for (int_max k = 0; k < BasisNumber - 1; ++k)
+    //for (int_max k = 0; k <= BasisNumber - 2; ++k)
+    auto TempFunction_ComputeSimilarity = [&](int_max k)
     {
         auto BasisVectorPtr_k = BasisMatrix.GetElementPointerOfCol(k);
 
@@ -643,7 +644,9 @@ UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix,
 
             SimilarityMatrix(n, k) = Similarity;
         }
-    }
+    };
+
+    ParallelForLoop(TempFunction_ComputeSimilarity, 0, BasisNumber - 2, m_Parameter.MaxNumberOfThreads);
 }
 
 
@@ -720,7 +723,8 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
 
     auto SimilarityThreshold = m_Parameter.SimilarityThresholdToComputeBasisRedundancy;
 
-    for (int_max k = 0; k < BasisNumber; ++k)
+    //for (int_max k = 0; k <= BasisNumber-1; ++k)
+    auto TempFunction_UpdateRedundancy = [&](int_max k)
     {
         BasisRedundancy[k] = 0;
 
@@ -734,7 +738,9 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
                 }
             }
         }
-    }
+    };
+
+    ParallelForLoop(TempFunction_UpdateRedundancy, 0, BasisNumber - 1, m_Parameter.MaxNumberOfThreads);
 }
 
 
@@ -753,7 +759,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
     int_max BasisNumber = BasisMatrix.GetColNumber();
 
     DenseMatrix<ElementType> Variance_current(1, BasisNumber);
-    Variance_current.Fill(ElementType(0));
+    Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L1);
 
     DenseMatrix<int_max> CounterList(1, BasisNumber);
     CounterList.Fill(0);
@@ -1092,9 +1098,11 @@ ComputeDataReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  FeatureDat
     int_max VectorLength = BasisMatrix.GetRowNumber();
 
     DenseMatrix<ElementType> DataReconstructionErrorL2Norm(1, DataNumber);
+    DataReconstructionErrorL2Norm.Fill(0);
 
     DenseMatrix<ElementType> GramianMatrix_DtD = BasisMatrix.Transpose() *BasisMatrix;
 
+    //for(int_max DataIndex = 0; DataIndex <= DataNumber - 1; ++DataIndex)
     auto TempFunction_Reconstruction = [&](int_max DataIndex)
     {
         const std::vector<int_max>& KNN_IndexList = CodeTable[DataIndex].IndexList();
@@ -1139,9 +1147,11 @@ ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       Reconstruc
 
     Solution_Of_LinearLeastSquaresProblem<ElementType> Solution;
 
-    if (m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative == false && m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne == false)
+    typedef LinearLeastSquaresProblemSolver<ElementType>::MethodTypeEnum LinlsqMethodTypeEnum;
+
+    if (m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative == false && m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne == false)
     {
-        Option.MethodName = "Normal";
+        Option.MethodType = LinlsqMethodTypeEnum::NormalEquation;
 
         DenseMatrix<ElementType> H;
 
@@ -1156,12 +1166,12 @@ ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       Reconstruc
                                                                        nullptr, nullptr, &A, nullptr, nullptr, nullptr,
                                                                        &H, &Option);
     }
-    else if (m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative == true && m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne == false)
+    else if (m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative == true && m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne == false)
     {
         DenseMatrix<ElementType> lb_x(KNNBasisNumber, 1);
         lb_x.Fill(0);
 
-        Option.MethodName = "QuadraticProgramming";
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
 
         DenseMatrix<ElementType> H;
 
@@ -1177,7 +1187,7 @@ ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       Reconstruc
                                                                        &H, &Option);
 
     }
-    else if (m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative == true && m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne == true)
+    else if (m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative == true && m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne == true)
     {
         DenseMatrix<ElementType> lb_x(KNNBasisNumber, 1);
         lb_x.Fill(ElementType(0));
@@ -1188,7 +1198,7 @@ ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       Reconstruc
         DenseMatrix<ElementType> lb_A = ElementType(1);
         DenseMatrix<ElementType> ub_A = ElementType(1);
 
-        Option.MethodName = "QuadraticProgramming";
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
 
         DenseMatrix<ElementType> H;
 
@@ -1201,7 +1211,7 @@ ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       Reconstruc
                                                                         &lb_x, nullptr, &A, &lb_A, &ub_A, nullptr,
                                                                         &H, &Option);
     }
-    else //if(m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative == false && m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne == true)
+    else //if(m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative == false && m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne == true)
     {
         DenseMatrix<ElementType> A(1, KNNBasisNumber);
         A.Fill(ElementType(1));
@@ -1209,7 +1219,7 @@ ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       Reconstruc
         DenseMatrix<ElementType> lb_A = ElementType(1);
         DenseMatrix<ElementType> ub_A = ElementType(1);
 
-        Option.MethodName = "QuadraticProgramming";
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
 
         DenseMatrix<ElementType> H;
 

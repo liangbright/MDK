@@ -19,17 +19,28 @@
 namespace mdk
 {
 
+struct Constraint_on_Code_Of_KNNReconstruction_For_FeatureCoding
+{
+    bool CodeNonnegative;
+
+    bool CodeSumToOne;
+};
+
+
+template<typename ElementType>
 struct Parameter_Of_KNNReconstructionSparseEncoder
 {
     int_max NeighbourNumber;
 
-    std::string SimilarityType; // to find KNN
+    MDK_SimilarityType_Enum_For_FeatureCoding SimilarityType; // to find KNN
     // L1Distance
     // L2Distance
     // Correlation
     // KLDivergence
 
     // L1Distance/L2Distance/Correlation/KLDivergence is directly used to find KNN, i.e., not converted to similarity
+
+    bool IgnoreSign_Correlation;
 
     bool CodeNonnegative;
 
@@ -42,18 +53,26 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
 
     void Clear()
     {
-        SimilarityType.clear();
         NeighbourNumber = -1;
+
+        SimilarityType  = MDK_SimilarityType_Enum_For_FeatureCoding::Unknown;
+
+        IgnoreSign_Correlation = false;
+
         CodeNonnegative = false;
         CodeSumToOne    = false;
     }
 
     void operator=(const Parameter_Of_KNNReconstructionSparseEncoder& InputParameter)
     {
-        SimilarityType = InputParameter.SimilarityType;
         NeighbourNumber = InputParameter.NeighbourNumber;
+
+        SimilarityType  = InputParameter.SimilarityType;
+
+        IgnoreSign_Correlation = false;
+
         CodeNonnegative = InputParameter.CodeNonnegative;
-        CodeSumToOne = InputParameter.CodeSumToOne;
+        CodeSumToOne    = InputParameter.CodeSumToOne;
     }
 
 private:
@@ -66,7 +85,7 @@ class KNNReconstructionSparseEncoder : public FeatureDictionaryBasedSparseEncode
 {
 public:
 
-    Parameter_Of_KNNReconstructionSparseEncoder m_Parameter;
+    Parameter_Of_KNNReconstructionSparseEncoder<ElementType> m_Parameter;
 
     typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
 
@@ -98,27 +117,23 @@ public:
     static bool Apply(DenseMatrix<ElementType>& OutputCodeInDenseMatrix,
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
-                      const Parameter_Of_KNNReconstructionSparseEncoder& Parameter,
+                      const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,
                       int_max MaxNumberOfThreads = 1);
 
-    static bool Apply(SparseMatrix<ElementType>& OutputCodenSparseMatrix,
+    static bool Apply(SparseMatrix<ElementType>& OutputCodeInSparseMatrix,
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
-                      const Parameter_Of_KNNReconstructionSparseEncoder& Parameter,
+                      const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,
                       int_max MaxNumberOfThreads = 1);
 
     static bool Apply(DenseMatrix<SparseMatrix<ElementType>>& OutputCodeInSparseColVectorList,
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
-                      const Parameter_Of_KNNReconstructionSparseEncoder& Parameter,
+                      const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,
                       int_max MaxNumberOfThreads = 1);
 
 protected:
     inline void EncodingFunction(int_max DataIndex, int_max ThreadIndex);
-
-    virtual void SetupDefaultPipelineOutput();
-
-    virtual void UpdatePipelineOutput();
 
 private:
 //deleted:

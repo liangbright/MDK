@@ -143,7 +143,7 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
     
     if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold <= 0)
     {
-        MDK_Error("SimilarityThreshold is invalid @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("SimilarityThreshold <= 0 @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
@@ -361,7 +361,7 @@ void KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 template<typename ElementType>
 FeatureDictionaryForSparseCoding<ElementType> 
 KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
-BuildDictionaryFromData(int_max BasisNumber_desired,
+BuildDictionaryFromData(const int_max BasisNumber_desired,
                         const DenseMatrix<ElementType>& FeatureData,
                         const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init)
 {
@@ -385,9 +385,7 @@ BuildDictionaryFromData(int_max BasisNumber_desired,
         }
     }
 
-    //------------------------------------------- input check done ---------------------------------------------------------------------//
-
-    // --------------------------- combine  FeatureData and BasisMatrix Of InitialDictionary and Compute VectorSimilarityMatrix -----------------
+    //--------------------------- combine FeatureData and BasisMatrix Of InitialDictionary and Compute VectorSimilarityMatrix -------------//
 
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -399,28 +397,18 @@ BuildDictionaryFromData(int_max BasisNumber_desired,
 
     int_max TotalVectorNumber = BasisNumber_init + DataNumber;
 
-    // DenseMatrix<ElementType> FeatureData_Combined;
-    // FeatureData_Combined = { &BasisMatrixOfInitialDictionary, &FeatureData };
-
-    auto RepresentativeAbilityOfEachVector = ComputeRepresentativeAbilityOfEachVectorInCombinedData(Dictionary_init, TotalVectorNumber);
-
-    // calculate similarity between feature vectors
+    // just for reference: what is CombinedData
+    // DenseMatrix<ElementType> CombinedData = { &Dictionary_init.BasisMatrix(), &FeatureData };
 
     auto VectorSimilarityMatrix = this->ComputeVectorSimilarityMatrix(Dictionary_init, FeatureData);
 
-    MDK_DebugCode
-    (
-        CharString FilePathAndName = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/VectorSimilarityMatrix.json";
+    if (m_Parameter.DebugInfo.Flag_OutputDebugInfo == true)
+    {
+        CharString FilePathAndName = m_Parameter.DebugInfo.FilePathToSaveDebugInfo + m_Parameter.DebugInfo.JsonDataFileName_Of_VectorSimilarityMatrix;
         SaveDenseMatrixAsJsonDataFile(VectorSimilarityMatrix, FilePathAndName);
-    )
+    }
 
-    auto KNNVectorIndexTable = FindKNNVectorIndexTableByVectorSimilarityMatrix(VectorSimilarityMatrix);
-
-    // estimate the probability mass function based on RepresentativeAbilityOfEachVector
-
-    auto ProbabilityOfEachVector = this->EstimateKNNSmoothedAndNormalizedRepresentativeAbilityOfEachVector(KNNVectorIndexTable, RepresentativeAbilityOfEachVector);
-
-    // if the number of data samples is smaller than the number of bases -------------------------------------
+    // ------- Output Dictionary if the number of data samples is smaller than the number of desired bases -------------------------------------//
 
     if (BasisNumber_desired >= TotalVectorNumber)
     {
@@ -457,7 +445,8 @@ BuildDictionaryFromData(int_max BasisNumber_desired,
 
         DenseMatrix<int_max> VectorIndexList_Basis = span(0, BasisMatrix.GetColNumber()-1);
 
-        auto KNNBasisIndexTableOfData = FindKNNBasisIndexTableOfDataByVectorSimilarityMatrix(VectorSimilarityMatrix, VectorIndexList_Basis, BasisNumber_init);
+        auto KNNBasisIndexTableOfData = this->FindKNNBasisIndexTableOfDataByVectorSimilarityMatrix(VectorSimilarityMatrix, 
+                                                                                                   VectorIndexList_Basis, BasisNumber_init);
 
         this->UpdateDictionaryInformation(Dictionary, FeatureData, KNNBasisIndexTableOfData,
                                           VectorSimilarityMatrix, VectorIndexList_Basis, Dictionary_init);
@@ -465,14 +454,86 @@ BuildDictionaryFromData(int_max BasisNumber_desired,
         return Dictionary;
     }
 
-    //------------------------------------------ extract  basis from data -----------------------------------------------------------------//
+    //------------------------------------------ select basis from Combined Data -----------------------------------------------------------------//
+
+    // find KNN of each vector in Combined Data
+    auto KNNVectorIndexTable = FindKNNVectorIndexTableByVectorSimilarityMatrix(VectorSimilarityMatrix);
+
+    auto RepresentativeAbilityOfEachVector = ComputeRepresentativeAbilityOfEachVectorInCombinedData(Dictionary_init, TotalVectorNumber);
+
+    // estimate the probability mass function based on RepresentativeAbilityOfEachVector
+
+    auto ProbabilityOfEachVector = this->EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(KNNVectorIndexTable, RepresentativeAbilityOfEachVector);
+    
+    DenseMatrix<int_max> VectorIndexList_Basis = this->SelectBasisFromCombinedDataBySimilarityAndProbability(BasisNumber_desired,
+                                                                                                             VectorSimilarityMatrix, 
+                                                                                                             ProbabilityOfEachVector);
+
+    int_max OutputBasisNumber = VectorIndexList_Basis.GetElementNumber();
+
+    // ------------- create BasisMatrix --------------------------------------------------//
+
+    DenseMatrix<ElementType> BasisMatrix(FeatureData.GetRowNumber(), OutputBasisNumber);
+
+    //for (int_max k = 0; k <= OutputBasisNumber-1; ++k)
+    auto TempFunction_CreateBasis = [&](int_max k)
+    {
+        auto VectorIndex = VectorIndexList_Basis[k];
+        if (VectorIndex < BasisNumber_init)
+        {
+            BasisMatrix.SetCol(k, Dictionary_init.BasisMatrix().GetElementPointerOfCol(VectorIndex));
+        }
+        else
+        {
+            int_max tempIndex_k = VectorIndex - BasisNumber_init;
+
+            BasisMatrix.SetCol(k, FeatureData.GetElementPointerOfCol(tempIndex_k));
+        }
+    };
+
+    ParallelForLoop(TempFunction_CreateBasis, 0, OutputBasisNumber-1, m_Parameter.MaxNumberOfThreads);
+
+    // ------------- Apply Constraint On Basis --------------------------------------------------//
+
+    this->ApplyConstraintOnBasis(BasisMatrix);
+    
+    // ----- Write BasisMatrix into Dictionary -----------------------------------------//
+
+    Dictionary.BasisMatrix().Take(BasisMatrix);
+
+    // -------- get KNNBasisVectorIndexTable (i.e., encode FeatureData) -----------------------//
+
+    auto KNNBasisIndexTableOfData = FindKNNBasisIndexTableOfDataByVectorSimilarityMatrix(VectorSimilarityMatrix, VectorIndexList_Basis, BasisNumber_init);
+
+    // --------------- Update DictionaryInformation ------------------------------//
+
+    this->UpdateDictionaryInformation(Dictionary, FeatureData, KNNBasisIndexTableOfData, 
+                                      VectorSimilarityMatrix, VectorIndexList_Basis, Dictionary_init);
+
+    //---------------------------------------------- done -------------------------------------------------------//
+    
+    return Dictionary;
+}
+
+
+template<typename ElementType>
+DenseMatrix<int_max>
+KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
+SelectBasisFromCombinedDataBySimilarityAndProbability(const int_max BasisNumber_desired,
+                                                      const DenseMatrix<ElementType>& VectorSimilarityMatrix,
+                                                      const DenseMatrix<ElementType>& ProbabilityOfEachVector)
+{
+    // Combined data = [Dictionary_init.BasisMatrix(), FeatureData]
+    //
     // the number of combined data is greater than the number of bases
     // extract a subset from the data set to be the bases
 
-    // get VectorPairScoreList
+    // get VectorPairScoreList ----------------------------------------------------
+
+    int_max TotalVectorNumber = ProbabilityOfEachVector.GetElementNumber();
 
     int_max NumberOfVectorPair = TotalVectorNumber*(TotalVectorNumber - 1) / 2;
-   
+
     DenseMatrix<ElementType> VectorPairScoreList(1, NumberOfVectorPair);
 
     DenseMatrix<int_max> VectorPairIndexList(2, NumberOfVectorPair);
@@ -483,15 +544,15 @@ BuildDictionaryFromData(int_max BasisNumber_desired,
 
     if (m_Parameter.WeightOnProbabiliyForBasisSelection <= ElementType(0.5))
     {
-        ScoreWeight_S  = 1 - 2*m_Parameter.WeightOnProbabiliyForBasisSelection;
+        ScoreWeight_S = 1 - 2 * m_Parameter.WeightOnProbabiliyForBasisSelection;
         ScoreWeight_PS = 2 * m_Parameter.WeightOnProbabiliyForBasisSelection;
-        ScoreWeight_P  = 0;
+        ScoreWeight_P = 0;
     }
     else
     {
-        ScoreWeight_S  = 0;
+        ScoreWeight_S = 0;
         ScoreWeight_PS = 2 - 2 * m_Parameter.WeightOnProbabiliyForBasisSelection;
-        ScoreWeight_P  = 2 * (m_Parameter.WeightOnProbabiliyForBasisSelection - ElementType(0.5));
+        ScoreWeight_P = 2 * (m_Parameter.WeightOnProbabiliyForBasisSelection - ElementType(0.5));
     }
 
     int_max Counter = 0;
@@ -504,7 +565,7 @@ BuildDictionaryFromData(int_max BasisNumber_desired,
             auto tempScore_S = 1 - VectorSimilarityMatrix(n, k);
 
             auto tempScore_PS = tempScore_P*tempScore_S;
-      
+
             VectorPairScoreList[Counter] = ScoreWeight_PS * tempScore_PS + ScoreWeight_S * tempScore_S + ScoreWeight_P * tempScore_P;
 
             VectorPairIndexList(0, Counter) = k;
@@ -527,7 +588,7 @@ BuildDictionaryFromData(int_max BasisNumber_desired,
         VectorPairIndexList(1, k) = tempPairIndexList(1, tempColIndex);
     }
 
-    //------------------------------------- select basis ---------------------------------//
+    //------------------ select basis by removing redundant vector ---------------------------------//
     // get the data pair vector_a, vector_b with the highest score in the current basis set
     // remove vector_a or vector_b (that has a lower probability) from the current basis set
     // repeat, until the number of vectors in the basis set is m_Parameter.BasisNumber 
@@ -536,8 +597,6 @@ BuildDictionaryFromData(int_max BasisNumber_desired,
     std::mt19937 gen_bool(rd_bool());
     std::bernoulli_distribution BoolRandomNumber(0.5);
 
-    int_max PairNumber = VectorPairIndexList.GetColNumber();
-
     DenseMatrix<int_max> VectorFlagList(1, TotalVectorNumber);
     VectorFlagList.Fill(1);
     // FlagList(i) is 0 : vector_i is removed from in the current basis set
@@ -545,7 +604,7 @@ BuildDictionaryFromData(int_max BasisNumber_desired,
 
     int_max OutputBasisNumber = TotalVectorNumber; // OutputBasisNumber is the number of vectors In Current Basis Set
 
-    for (int_max k = 0; k < PairNumber; ++k)
+    for (int_max k = 0; k < NumberOfVectorPair; ++k)
     {
         if (OutputBasisNumber <= BasisNumber_desired)
         {
@@ -598,45 +657,7 @@ BuildDictionaryFromData(int_max BasisNumber_desired,
         }
     }
 
-    // ------------- create BasisMatrix --------------------------------------------------//
-
-    DenseMatrix<ElementType> BasisMatrix(FeatureData.GetRowNumber(), OutputBasisNumber);
-
-    for (int_max k = 0; k < OutputBasisNumber; ++k)
-    {
-        auto VectorIndex = VectorIndexList_Basis[k];
-        if (VectorIndex < BasisNumber_init)
-        {
-            BasisMatrix.SetCol(k, Dictionary_init.BasisMatrix().GetElementPointerOfCol(VectorIndex));
-        }
-        else
-        {
-            int_max tempIndex_k = VectorIndex - BasisNumber_init;
-
-            BasisMatrix.SetCol(k, FeatureData.GetElementPointerOfCol(tempIndex_k));
-        }
-    }
-
-    // ------------- Apply Constraint On Basis --------------------------------------------------//
-
-    this->ApplyConstraintOnBasis(BasisMatrix);
-    
-    // ----- Write BasisMatrix into Dictionary -----------------------------------------//
-
-    Dictionary.BasisMatrix().Take(BasisMatrix);
-
-    // -------- get KNNBasisVectorIndexTable (i.e., encode FeatureData) -----------------------//
-
-    auto KNNBasisIndexTableOfData = FindKNNBasisIndexTableOfDataByVectorSimilarityMatrix(VectorSimilarityMatrix, VectorIndexList_Basis, BasisNumber_init);
-
-    // --------------- Update DictionaryInformation ------------------------------//
-
-    this->UpdateDictionaryInformation(Dictionary, FeatureData, KNNBasisIndexTableOfData, 
-                                      VectorSimilarityMatrix, VectorIndexList_Basis, Dictionary_init);
-
-    //---------------------------------------------- done -------------------------------------------------------//
-    
-    return Dictionary;
+    return VectorIndexList_Basis;
 }
 
 
@@ -771,7 +792,8 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
         VectorSimilarityMatrix.FastResize(TotalVectorNumber, TotalVectorNumber);
         VectorSimilarityMatrix.Fill(ElementType(0));  // VectorSimilarityMatrix(i, i) = 0 for all i
 
-        for (int_max k = 0; k < TotalVectorNumber - 1; ++k)
+        //for(int_max k = 0; k <= TotalVectorNumber - 2; ++k)
+        auto TempFunction_ComputeSimilarity = [&](int_max k)
         {
             auto VectorPtr_k = FeatureData.GetElementPointerOfCol(k);
 
@@ -787,7 +809,9 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
 
                 VectorSimilarityMatrix(n, k) = Similarity;
             }
-        }
+        };
+
+        ParallelForLoop(TempFunction_ComputeSimilarity, 0, TotalVectorNumber - 2, m_Parameter.MaxNumberOfThreads);
     }
     else
     {
@@ -804,7 +828,8 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
         VectorSimilarityMatrix.FastResize(TotalVectorNumber, TotalVectorNumber);
         VectorSimilarityMatrix.Fill(ElementType(0));  // VectorSimilarityMatrix(i, i) = 0 for all i
 
-        for (int_max k = 0; k < TotalVectorNumber - 1; ++k)
+        //for(int_max k = 0; k <= TotalVectorNumber - 2; ++k)
+        auto TempFunction_ComputeSimilarity = [&](int_max k)
         {
             const ElementType* VectorPtr_k = nullptr;
             const ElementType* VectorPtr_n = nullptr;
@@ -857,7 +882,9 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
 
                 VectorSimilarityMatrix(n, k) = Similarity;
             }
-        }
+        };
+
+        ParallelForLoop(TempFunction_ComputeSimilarity, 0, TotalVectorNumber - 2, m_Parameter.MaxNumberOfThreads);
     }
 
     return VectorSimilarityMatrix;
@@ -967,7 +994,7 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::FindKNNVectorIndexTableBy
 template<typename ElementType>
 DenseMatrix<ElementType> 
 KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
-EstimateKNNSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable)
+EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable)
 {
     //--------------------------------------------------------------------------------
     // Input:
@@ -1003,13 +1030,13 @@ EstimateKNNSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataCont
 template<typename ElementType>
 DenseMatrix<ElementType> 
 KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
-EstimateKNNSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable,
-                                                                  const DenseMatrix<ElementType>& RepresentativeAbilityOfEachVector)
+EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable,
+                                                               const DenseMatrix<ElementType>& RepresentativeAbilityOfEachVector)
 {
     //-----------------------------------------------------------------------------------------------------------------
     // Input:
     // KNNVectorIndexTable is from this->FindKNNVectorIndexTableByVectorSimilarityMatrix(...)
-    // RepresentativeAbilityOfEachVector is from this->GetRepresentativeAbilityOfEachDataVectorInCombinedData(...)
+    // RepresentativeAbilityOfEachVector is from this->ComputeRepresentativeAbilityOfEachVectorInCombinedData(...)
     // 
     // Output:
     // Probability is  the KNN-Smoothed And Normalized Representative Ability Of Each Vector
@@ -1454,7 +1481,8 @@ FindKNNBasisIndexTableOfDataByVectorSimilarityMatrix(const DenseMatrix<ElementTy
 
     DenseMatrix<ElementType> SimilarityList(1, BasisNumber);
 
-    for (int_max k = 0; k < DataNumber; ++k)
+    //for (int_max k = 0; k <= DataNumber-1; ++k)
+    auto TempFunction_FindKNN = [&](int_max k)
     {
         SimilarityList.Fill(ElementType(0));
 
@@ -1470,7 +1498,9 @@ FindKNNBasisIndexTableOfDataByVectorSimilarityMatrix(const DenseMatrix<ElementTy
         KNNBasisIndexTableOfData[k] = FindKNNBySimilarityList(SimilarityList,
                                                               m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber,
                                                               m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold);
-    }
+    };
+
+    ParallelForLoop(TempFunction_FindKNN, 0, DataNumber-1, m_Parameter.MaxNumberOfThreads);
 
     return KNNBasisIndexTableOfData;
 }
@@ -1543,7 +1573,8 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
 
     auto SimilarityThreshold = m_Parameter.SimilarityThresholdToComputeBasisRedundancy;
 
-    for (int_max k = 0; k < BasisNumber; ++k)
+    //for (int_max k = 0; k <= BasisNumber-1; ++k)
+    auto TempFunction_UpdateRedundancy = [&](int_max k)
     {
         BasisRedundancy[k] = 0;
 
@@ -1557,7 +1588,9 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
                 }
             }
         }
-    }
+    };
+
+    ParallelForLoop(TempFunction_UpdateRedundancy, 0, BasisNumber - 1, m_Parameter.MaxNumberOfThreads);
 }
 
 
@@ -1916,6 +1949,7 @@ ComputeDataReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  FeatureDat
 
     DenseMatrix<ElementType> GramianMatrix_DtD = BasisMatrix.Transpose() *BasisMatrix;
 
+    //for(int_max DataIndex = 0; DataIndex <= DataNumber - 1; ++DataIndex)
     auto TempFunction_Reconstruction = [&](int_max DataIndex)
     {
         const DenseMatrix<int_max>& KNN_IndexList = KNNBasisIndexTableOfData[DataIndex];
@@ -1960,9 +1994,11 @@ ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       Reconstruc
 
     Solution_Of_LinearLeastSquaresProblem<ElementType> Solution;
 
-    if (m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative == false && m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne == false)
+    typedef LinearLeastSquaresProblemSolver<ElementType>::MethodTypeEnum LinlsqMethodTypeEnum;
+
+    if (m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative == false && m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne == false)
     {
-        Option.MethodName = "Normal";
+        Option.MethodType = LinlsqMethodTypeEnum::NormalEquation;
 
         DenseMatrix<ElementType> H;
 
@@ -1977,12 +2013,12 @@ ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       Reconstruc
                                                                        nullptr, nullptr, &A, nullptr, nullptr, nullptr,
                                                                        &H, &Option);
     }
-    else if (m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative == true && m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne == false)
+    else if (m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative == true && m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne == false)
     {
         DenseMatrix<ElementType> lb_x(KNNBasisNumber, 1);
         lb_x.Fill(0);
 
-        Option.MethodName = "QuadraticProgramming";
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
 
         DenseMatrix<ElementType> H;
 
@@ -1998,7 +2034,7 @@ ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       Reconstruc
                                                                        &H, &Option);
 
     }
-    else if (m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative == true && m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne == true)
+    else if (m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative == true && m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne == true)
     {
         DenseMatrix<ElementType> lb_x(KNNBasisNumber, 1);
         lb_x.Fill(ElementType(0));
@@ -2009,7 +2045,7 @@ ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       Reconstruc
         DenseMatrix<ElementType> lb_A = ElementType(1);
         DenseMatrix<ElementType> ub_A = ElementType(1);
 
-        Option.MethodName = "QuadraticProgramming";
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
 
         DenseMatrix<ElementType> H;
 
@@ -2022,7 +2058,7 @@ ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       Reconstruc
                                                                        &lb_x, nullptr, &A, &lb_A, &ub_A, nullptr,
                                                                        &H, &Option);
     }
-    else //if(m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative == false && m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne == true)
+    else //if(m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative == false && m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne == true)
     {
         DenseMatrix<ElementType> A(1, KNNBasisNumber);
         A.Fill(ElementType(1));
@@ -2030,7 +2066,7 @@ ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       Reconstruc
         DenseMatrix<ElementType> lb_A = ElementType(1);
         DenseMatrix<ElementType> ub_A = ElementType(1);
 
-        Option.MethodName = "QuadraticProgramming";
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
 
         DenseMatrix<ElementType> H;
 

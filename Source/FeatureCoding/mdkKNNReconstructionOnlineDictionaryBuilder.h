@@ -41,6 +41,8 @@ struct Parameter_Of_KNNReconstructionOnlineDictionaryBuilder
 
     // parameter for updating dictionary information
 
+    Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> ParameterOfKNNSoftAssign;
+
     ElementType SimilarityThresholdToComputeBasisRedundancy;
 
 //--------------------------------------------------------------------------------------------------------
@@ -50,8 +52,6 @@ struct Parameter_Of_KNNReconstructionOnlineDictionaryBuilder
 
     void Clear()
     {
-        ParameterOfKNNSoftAssign.Clear();
-
         BasisNumber = 0;
 
         BasisPositive = false;
@@ -67,8 +67,6 @@ struct Parameter_Of_KNNReconstructionOnlineDictionaryBuilder
         MaxNumberOfThreads = 1;
 
         SimilarityThresholdToComputeBasisRedundancy = 0;
-
-        ParameterOfKNNReconstruction.Clear();
     }
 };
 
@@ -85,13 +83,13 @@ private:
 
     const DenseMatrix<ElementType>* m_FeatureData;
 
-    FeatureDictionaryForSparseCoding<ElementType>* m_InitialDictionary;
+    const FeatureDictionaryForSparseCoding<ElementType>* m_InitialDictionary;
 
     FeatureDictionaryForSparseCoding<ElementType>* m_Dictionary;
 
     FeatureDictionaryForSparseCoding<ElementType>  m_Dictionary_SharedCopy;
 
-    KNNSoftAssignSparseEncoder<ElementType> m_KNNReconstructionSparseEncoder;
+    KNNReconstructionSparseEncoder<ElementType> m_KNNReconstructionSparseEncoder;
 
 public:
     KNNReconstructionOnlineDictionaryBuilder();
@@ -129,7 +127,7 @@ protected:
 
     void ReconstructFeatureData(DenseMatrix<ElementType>&        ReconstructedData,
                                 const DenseMatrix<ElementType>&  BasisMatrix,
-                                const DataContainer<SparseVector<ElementType>>& CodeTable)
+                                const DataContainer<SparseVector<ElementType>>& CodeTable);
 
     void UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
                                      const DenseMatrix<ElementType>& FeatureData,

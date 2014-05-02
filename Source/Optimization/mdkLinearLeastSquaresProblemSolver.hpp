@@ -432,6 +432,15 @@ bool LinearLeastSquaresProblemSolver<ElementType>::CheckInput_dense()
         m_x0_dense = &m_EmptyDenseMatrix;
     }
 
+    if (m_Option.MethodType != MethodTypeEnum::QuadraticProgramming
+        && m_Option.MethodType != MethodTypeEnum::NormalEquation
+        && m_Option.MethodType != MethodTypeEnum::SVD
+        && m_Option.MethodType != MethodTypeEnum::QR)
+    {
+        MDK_Error("unkown MethodType @ LinearLeastSquaresProblemSolver::CheckInput_dense()")
+        return false;
+    }
+
     return true;
 }
 
@@ -439,7 +448,7 @@ bool LinearLeastSquaresProblemSolver<ElementType>::CheckInput_dense()
 template<typename ElementType>
 bool LinearLeastSquaresProblemSolver<ElementType>::Update_dense_unconstrained()
 {
-    if (m_x0_dense->IsEmpty() == true && m_Option.MethodName != "QuadraticProgramming")
+    if (m_x0_dense->IsEmpty() == true && m_Option.MethodType != MethodTypeEnum::QuadraticProgramming)
     {
         auto VariableNumber = m_D_dense->GetColNumber();
 
@@ -453,23 +462,23 @@ bool LinearLeastSquaresProblemSolver<ElementType>::Update_dense_unconstrained()
 
         EigenMapDynamicMatrix Output_X(m_Solution->X.GetElementPointer(), m_Solution->X.GetElementNumber(), 1);
 
-        if (m_Option.MethodName == "SVD")
+        if (m_Option.MethodType == MethodTypeEnum::SVD)
         {
-            m_Solution->MethodName = "SVD";
+            m_Solution->MethodType = MethodTypeEnum::SVD;
 
             Output_X = Input_D.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(Input_c);
 
         }
-        else if (m_Option.MethodName == "QR")
+        else if (m_Option.MethodType == MethodTypeEnum::QR)
         {
-            m_Solution->MethodName = "QR";
+            m_Solution->MethodType = MethodTypeEnum::QR;
 
             Output_X = Input_D.colPivHouseholderQr().solve(Input_c);
 
         }
-        else if (m_Option.MethodName == "Normal")
+        else if (m_Option.MethodType == MethodTypeEnum::NormalEquation)
         {
-            m_Solution->MethodName = "Normal";
+            m_Solution->MethodType = MethodTypeEnum::NormalEquation;
 
             if (m_H_dense->IsEmpty() == false)
             {
@@ -526,7 +535,7 @@ bool LinearLeastSquaresProblemSolver<ElementType>::Update_dense_QuadraticProgram
         m_Solution->X = std::move(qpSolution.X);
     }
 
-    m_Solution->MethodName = "QuadraticProgramming";
+    m_Solution->MethodType = MethodTypeEnum::QuadraticProgramming;
 
     return true;
 }
@@ -755,6 +764,15 @@ bool LinearLeastSquaresProblemSolver<ElementType>::CheckInput_sparse()
         m_x0_sparse = &m_EmptySparseMatrix;
     }
 
+    if (m_Option.MethodType != MethodTypeEnum::QuadraticProgramming
+        && m_Option.MethodType != MethodTypeEnum::NormalEquation
+        && m_Option.MethodType != MethodTypeEnum::SVD
+        && m_Option.MethodType != MethodTypeEnum::QR)
+    {
+        MDK_Error("unkown MethodType @ LinearLeastSquaresProblemSolver::CheckInput_sparse()")
+        return false;
+    }
+
     return true;
 }
 
@@ -794,7 +812,7 @@ bool LinearLeastSquaresProblemSolver<ElementType>::Update_sparse_QuadraticProgra
         m_Solution->X = std::move(qpSolution.X);
     }
 
-    m_Solution->MethodName = "QuadraticProgramming";
+    m_Solution->MethodType = "QuadraticProgramming";
 */
     return true;
 }
@@ -895,7 +913,7 @@ LinearLeastSquaresProblemSolver<ElementType>::Apply(const DenseMatrix<ElementTyp
 
     Solution.X = std::move(qpSolution->X);
 
-    Solution.MethodName = "QuadraticProgramming";
+    Solution.MethodType = "QuadraticProgramming";
     
     return Solution;
 }

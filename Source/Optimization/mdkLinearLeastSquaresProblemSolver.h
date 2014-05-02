@@ -27,13 +27,19 @@
 namespace mdk
 {
 
+enum struct MDK_MethodType_Of_LinearLeastSquaresProblemSolver
+{
+    QuadraticProgramming,
+    NormalEquation,
+    SVD,
+    QR,
+    Unknown
+};
+
+
 struct Option_Of_LinearLeastSquaresProblemSolver
 {
-    CharString MethodName;
-    // QuadraticProgramming
-    // SVD
-    // QR
-    // Normal
+    MDK_MethodType_Of_LinearLeastSquaresProblemSolver MethodType;
 
 //-------------------------------
 
@@ -46,12 +52,12 @@ struct Option_Of_LinearLeastSquaresProblemSolver
 
     void operator=(const Option_Of_LinearLeastSquaresProblemSolver& InputOption)
     {
-        MethodName = InputOption.MethodName;
+        MethodType = InputOption.MethodType;
     }
 
     void SetToDefault()
     {
-        MethodName = "QuadraticProgramming";
+        MethodType = MDK_MethodType_Of_LinearLeastSquaresProblemSolver::QuadraticProgramming;
     }
 //
 private:
@@ -64,7 +70,7 @@ struct Solution_Of_LinearLeastSquaresProblem
 {
     DenseMatrix<ElementType> X;
 
-    CharString MethodName;
+    MDK_MethodType_Of_LinearLeastSquaresProblemSolver MethodType;
 
 //--------------------------------------------------
     Solution_Of_LinearLeastSquaresProblem() {};
@@ -72,7 +78,7 @@ struct Solution_Of_LinearLeastSquaresProblem
     Solution_Of_LinearLeastSquaresProblem(Solution_Of_LinearLeastSquaresProblem&& InputSolution)
     {
         X = std::move(InputSolution.X);
-        MethodName = std::move(InputSolution.MethodName);
+        MethodType = InputSolution.MethodType;
     }
 
     ~Solution_Of_LinearLeastSquaresProblem() {};
@@ -80,19 +86,19 @@ struct Solution_Of_LinearLeastSquaresProblem
     void operator=(Solution_Of_LinearLeastSquaresProblem&& InputSolution)
     {
         X = std::move(InputSolution.X);
-        MethodName = std::move(InputSolution.MethodName);
+        MethodType = InputSolution.MethodType;
     }
 
     void Clear()
     {
         X.Clear();
-        MethodName.Clear();
+        MethodType = MDK_MethodType_Of_LinearLeastSquaresProblemSolver::Unknown;
     }
 
     void Share(Solution_Of_LinearLeastSquaresProblem& InputSolution)
     {
         X.Share(InputSolution.X);
-        MethodName.Share(InputSolution.MethodName);
+        MethodType = InputSolution.MethodType; // this is not shared, but it does not matter because Solution is output
     }
 
 private:
@@ -106,6 +112,8 @@ class LinearLeastSquaresProblemSolver : public ProcessObject
 {
 public:
     Option_Of_LinearLeastSquaresProblemSolver m_Option;
+
+    typedef MDK_MethodType_Of_LinearLeastSquaresProblemSolver MethodTypeEnum;
 
 private:
 
