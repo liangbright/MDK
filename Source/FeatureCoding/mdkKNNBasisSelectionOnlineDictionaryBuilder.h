@@ -189,10 +189,12 @@ protected:
     inline ElementType ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length);
 
     DataContainer<DenseMatrix<int_max>> FindKNNVectorIndexTableByVectorSimilarityMatrix(const DenseMatrix<ElementType>& VectorSimilarityMatrix);
-
-    DenseMatrix<ElementType> EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable);
-
-    DenseMatrix<ElementType> EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable,
+                    
+    DenseMatrix<ElementType> EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix<ElementType>& VectorSimilarityMatrix,
+                                                                                            const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable);
+        
+    DenseMatrix<ElementType> EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix<ElementType>& VectorSimilarityMatrix,
+                                                                                            const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable,
                                                                                             const DenseMatrix<ElementType>& RepresentativeAbilityOfEachVector);
 
     void ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix);

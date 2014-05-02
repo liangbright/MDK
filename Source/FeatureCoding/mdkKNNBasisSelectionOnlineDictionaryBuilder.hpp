@@ -994,10 +994,12 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::FindKNNVectorIndexTableBy
 template<typename ElementType>
 DenseMatrix<ElementType> 
 KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
-EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable)
+EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix<ElementType>& VectorSimilarityMatrix, 
+                                                               const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable)
 {
     //--------------------------------------------------------------------------------
     // Input:
+    // VectorSimilarityMatrix is from this->ComputeVectorSimilarityMatrix(...)
     // KNNVectorIndexTable is from this->FindKNNVectorIndexTableByVectorSimilarityMatrix(...)
     // 
     // Output:
@@ -1019,7 +1021,9 @@ EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContain
 
         for (int_max m = 0; m < KNN_IndexList.GetElementNumber(); ++m)
         {
-            Probability[KNN_IndexList[m]] += 1;
+            auto VectorIndex_m = KNN_IndexList[m];
+
+            Probability[VectorIndex_m] += VectorSimilarityMatrix(VectorIndex_m, k);
         }
     }
 
@@ -1028,13 +1032,15 @@ EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContain
 
 
 template<typename ElementType>
-DenseMatrix<ElementType> 
+DenseMatrix<ElementType>    
 KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
-EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable,
+EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix<ElementType>& VectorSimilarityMatrix,
+                                                               const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable,
                                                                const DenseMatrix<ElementType>& RepresentativeAbilityOfEachVector)
 {
     //-----------------------------------------------------------------------------------------------------------------
     // Input:
+    // VectorSimilarityMatrix is from this->ComputeVectorSimilarityMatrix(...)
     // KNNVectorIndexTable is from this->FindKNNVectorIndexTableByVectorSimilarityMatrix(...)
     // RepresentativeAbilityOfEachVector is from this->ComputeRepresentativeAbilityOfEachVectorInCombinedData(...)
     // 
@@ -1068,7 +1074,9 @@ EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DataContain
 
         for (int_max m = 0; m < KNN_IndexList.GetElementNumber(); ++m)
         {
-            Probability[KNN_IndexList[m]] += RepresentativeAbilityOfEachVector[k];
+            auto VectorIndex_m = KNN_IndexList[m];
+
+            Probability[VectorIndex_m] += RepresentativeAbilityOfEachVector[k] * VectorSimilarityMatrix(VectorIndex_m, k);
         }
     }
 
@@ -1550,6 +1558,11 @@ UpdateBasisExperienceForEachBasisVector(DenseMatrix<ElementType>& BasisExperienc
             BasisExperience[KNN_IndexList[m]] += ElementType(1) / ElementType(tempNeighbourNumber);
         }
     }
+
+    // do NOT use VectorSimilarityMatrix to get SimilarityList and update BasisExperience
+    // If BasisExperience is used for KNNReconstruction based dictionary builder
+    // Then reconstruction error of each data vector is weighted equally, not by its similarity with some basis
+    // BasisExperience is just the weighted number of data vectors in training history
 
     // the total Experience is
     // BasisExperience.Sum() ~ m_Parameter.ExperienceDiscountFactor * BasisExperience.Sum() + DataNumber
