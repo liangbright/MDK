@@ -37,7 +37,7 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
     // implemented in UpdateBasisExperienceForEachBasisVector(...)
 
     ElementType WeightOnProbabiliyForBasisSelection;
-    // WeightOnProbabiliyForBasisSelection to sort vector pair
+    // WeightOnProbabiliyForBasisSelection to sort vector pair    
     // range [0, 1]
 
     // parameter for data sampling --------
@@ -48,7 +48,7 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
     // parameter for updating dictionary information
 
-    bool UpdateDictionaryInformation_Variance;
+    bool Update_VarianceOfReconstruction_Using_KNNBasisMatrix;
 
     ElementType SimilarityThresholdToComputeBasisRedundancy;
 
@@ -77,7 +77,7 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
         MaxNumberOfThreads = 1;
 
-        UpdateDictionaryInformation_Variance = false;
+        Update_VarianceOfReconstruction_Using_KNNBasisMatrix = false;
 
         SimilarityThresholdToComputeBasisRedundancy = 0;
 
@@ -198,6 +198,10 @@ protected:
                                         const DenseMatrix<ElementType>& BasisMatrix,
                                         const DenseMatrix<ElementType>& BasisExperience);
     
+    DenseMatrix<ElementType> ComputeDataReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  FeatureData,
+                                                                  const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
+                                                                  const DenseMatrix<ElementType>&  BasisMatrix);
+
     void ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       ReconstructedDataVector, 
                                                const DenseMatrix<ElementType>& DataVector,
                                                const DenseMatrix<ElementType>& KNNBasisMatrix,

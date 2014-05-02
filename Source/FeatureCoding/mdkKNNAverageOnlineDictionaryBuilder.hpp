@@ -101,17 +101,22 @@ bool KNNAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    bool IsInitialDictionaryEmpty = true;
-
-    if (m_InitialDictionary != nullptr)
+    if (m_InitialDictionary == nullptr)
     {
-        if (m_FeatureData->GetRowNumber() != m_InitialDictionary->BasisMatrix().GetRowNumber())
-        {
-            MDK_Error("RowNumber Of FeatureData != RowNumber Of InitialDictionary @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
-            return false;
-        }
+        MDK_Error("InitialDictionary is empty (nullptr) @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
+        return false;
+    }
 
-        IsInitialDictionaryEmpty = false;
+    if (m_InitialDictionary->IsEmpty() == true)
+    {
+        MDK_Error("InitialDictionary is empty @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
+        return false;
+    }
+
+    if (m_FeatureData->GetRowNumber() != m_InitialDictionary->BasisMatrix().GetRowNumber())
+    {
+        MDK_Error("RowNumber Of FeatureData != RowNumber Of InitialDictionary @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
+        return false;
     }
 
     if (m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber <= 0)
@@ -120,15 +125,15 @@ bool KNNAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.NumberOfDataInEachBatch > m_FeatureData->GetColNumber())
+    if (m_Parameter.MaxNumberOfDataInEachBatch > m_FeatureData->GetColNumber())
     {
-        MDK_Error("NumberOfDataInEachBatch > TotalDataNumber @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("MaxNumberOfDataInEachBatch > TotalDataNumber @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
-    if (m_Parameter.NumberOfDataInEachBatch < m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber)
+    if (m_Parameter.MaxNumberOfDataInEachBatch < m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber)
     {
-        MDK_Error("NumberOfDataInEachBatch < MaxNumberOfNeighbours @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("MaxNumberOfDataInEachBatch < MaxNumberOfNeighbours @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
@@ -155,13 +160,10 @@ bool KNNAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
             
             bool IsOk = false;
 
-            if (IsInitialDictionaryEmpty == false)
+            if (m_InitialDictionary->VarianceOfL1Distance().IsEmpty() == false)
             {
-                if (m_InitialDictionary->VarianceOfL1Distance().IsEmpty() == false)
-                {
-                    m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = m_Dictionary->VarianceOfL1Distance().Mean();
-                    IsOk = true;
-                }
+                m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = m_Dictionary->VarianceOfL1Distance().Mean();
+                IsOk = true;
             }
             
             if (IsOk == false)
@@ -179,14 +181,11 @@ bool KNNAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
 
             bool IsOk = false;
 
-            if (IsInitialDictionaryEmpty == false)
+            if (m_InitialDictionary->VarianceOfL2Distance().IsEmpty() == false)
             {
-                if (m_InitialDictionary->VarianceOfL2Distance().IsEmpty() == false)
-                {
-                    m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = m_Dictionary->VarianceOfL2Distance().Mean();
-                    IsOk = true;
-                }
-            }
+                m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = m_Dictionary->VarianceOfL2Distance().Mean();
+                IsOk = true;
+            }           
 
             if (IsOk == false)
             {
@@ -210,15 +209,12 @@ bool KNNAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
 
             bool IsOk = false;
 
-            if (IsInitialDictionaryEmpty == false)
+            if (m_InitialDictionary->VarianceOfKLDivergence().IsEmpty() == false)
             {
-                if (m_InitialDictionary->VarianceOfKLDivergence().IsEmpty() == false)
-                {
-                    m_Parameter.ParameterOfKNNSoftAssign.Variance_KL = m_Dictionary->VarianceOfKLDivergence().Mean();
-                    IsOk = true;
-                }
+                m_Parameter.ParameterOfKNNSoftAssign.Variance_KL = m_Dictionary->VarianceOfKLDivergence().Mean();
+                IsOk = true;
             }
-            
+
             if (IsOk == false)
             {
                 MDK_Error("Variance_KL <= 0 @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
@@ -227,16 +223,15 @@ bool KNNAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
         }
     }
 
-    if (m_Parameter.weigth_past < 0 || m_Parameter.weigth_past > 1)
+    if (m_Parameter.ExperienceDiscountFactor < 0 || m_Parameter.ExperienceDiscountFactor > 1)
     {
-        MDK_Error("m_Parameter.weigth_past < 0 || m_Parameter.weigth_past > 1 @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("ExperienceDiscountFactor < 0 or > 1 @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
-    if (m_Parameter.weigth_s < 0 || m_Parameter.weigth_s > 1)
+    if (m_Parameter.SimilarityThresholdToComputeBasisRedundancy <= 0)
     {
-        MDK_Error("m_Parameter.weigth_s < 0 || m_Parameter.weigth_s > 1 @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
-        return false;
+        m_Parameter.SimilarityThresholdToComputeBasisRedundancy = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
     }
 
     return true;
@@ -246,103 +241,119 @@ bool KNNAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
 template<typename ElementType>
 void KNNAverageOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 {
-    this->SetputParameter();
+    this->SetupParameter();
 
     FeatureDictionaryForSparseCoding<ElementType> OutputDictionary;
+    OutputDictionary.Copy(m_InitialDictionary);
 
-    //----------- encode data and update dictionary ----------------------------//
+    DenseMatrix<ElementType>& BasisMatrix = OutputDictionary.BasisMatrix();
 
     int_max TotalDataNumber = m_FeatureData->GetColNumber();
 
-    if (m_Parameter.NumberOfDataInEachBatch >= TotalDataNumber)
+    //----------- encode data and update dictionary ----------------------------//
+
+    if (m_Parameter.MaxNumberOfDataInEachBatch >= TotalDataNumber)
     {
         m_KNNSoftAssignSparseEncoder.SetInputFeatureData(m_FeatureData);
         m_KNNSoftAssignSparseEncoder.SetInputDictionary(&OutputDictionary);
         m_KNNSoftAssignSparseEncoder.Update();
+        auto CodeTable = m_KNNSoftAssignSparseEncoder.GetOutputCodeInSparseColVectorSet();
 
-        this->UpdateDictionaryAfterEncoding(OutputDictionary, *m_FeatureData, *m_KNNSoftAssignSparseEncoder.GetOutputCodeInSparseColVectorSet());
+        this->UpdateBasisMatrix(BasisMatrix, *m_FeatureData, *CodeTable, OutputDictionary.BasisExperience());
 
-        this->UpdateDictionary_OtherInfo(OutputDictionary);
-
-        (*m_Dictionary) = std::move(OutputDictionary);
-
-        return;
+        this->UpdateDictionaryInformation(OutputDictionary, *m_FeatureData, *CodeTable);
     }
-
-    // m_Parameter.MaxNumberOfIteration > 1
-    //------------------------------------------ run Data batch -------------------------------------------------------//
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> UniformRandomNumber(0, TotalDataNumber - 1);
-
-    DenseMatrix<ElementType> FeatureData_current(m_FeatureData->GetRowNumber(), m_Parameter.NumberOfDataInEachBatch);
-
-    for (int_max IterationIndex = 0; IterationIndex < m_Parameter.MaxNumberOfIteration; IterationIndex++)
+    else
     {
-        // sample data with m_Parameter.NumberOfDataInEachBatch 
-        for (int_max k = 0; k < m_Parameter.NumberOfDataInEachBatch; ++k)
+        //------------------------------------------ run Data batch -------------------------------------------------------//
+        // do not re-use data
+
+        // random number for sampling
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> UniformRandomNumber(0, TotalDataNumber - 1);
+
+        DenseMatrix<int_max> DataFlagList(1, TotalDataNumber);
+        DataFlagList.Fill(1);
+        // 1 : not used yet
+        // 0 : used
+
+        DenseMatrix<ElementType> FeatureData_current;
+
+        int_max NumberOfDataInNextBatch = m_Parameter.MaxNumberOfDataInEachBatch;
+
+        int_max TotalDataNumber_used = 0;
+
+        while (true)
         {
-            auto DataIndex = UniformRandomNumber(gen);
+            // sample a subset from m_FeatureData
 
-            FeatureData_current.SetCol(k, m_FeatureData->GetElementPointerOfCol(DataIndex));
+            FeatureData_current.FastResize(m_FeatureData->GetRowNumber(), NumberOfDataInNextBatch);
+
+            int_max SampleCounter = 0;
+            while (true)
+            {
+                auto DataIndex = UniformRandomNumber(gen);
+                if (DataFlagList[DataIndex] == 1)
+                {
+                    FeatureData_current.SetCol(SampleCounter, m_FeatureData->GetElementPointerOfCol(DataIndex));
+
+                    DataFlagList[DataIndex] = 0;
+
+                    SampleCounter += 1;
+                    if (SampleCounter >= NumberOfDataInNextBatch)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            m_KNNSoftAssignSparseEncoder.SetInputFeatureData(&FeatureData_current);
+            m_KNNSoftAssignSparseEncoder.SetInputDictionary(&OutputDictionary);
+            m_KNNSoftAssignSparseEncoder.Update();
+            auto CodeTable = m_KNNSoftAssignSparseEncoder.GetOutputCodeInSparseColVectorSet();
+
+            this->UpdateBasisMatrix(BasisMatrix, FeatureData_current, *CodeTable, OutputDictionary.BasisExperience());
+
+            this->UpdateDictionaryInformation(OutputDictionary, FeatureData_current, *CodeTable);
+
+            // update NumberOfDataInNextBatch
+
+            TotalDataNumber_used += SampleCounter;
+
+            NumberOfDataInNextBatch = std::min(m_Parameter.MaxNumberOfDataInEachBatch, TotalDataNumber - TotalDataNumber_used);
+
+            if (NumberOfDataInNextBatch <= 0)
+            {
+                break;
+            }
         }
-
-        m_KNNSoftAssignSparseEncoder.SetInputFeatureData(&FeatureData_current);
-        m_KNNSoftAssignSparseEncoder.SetInputDictionary(&OutputDictionary);
-        m_KNNSoftAssignSparseEncoder.Update();
-
-        this->UpdateDictionaryAfterEncoding(OutputDictionary, FeatureData_current, *m_KNNSoftAssignSparseEncoder.GetOutputCodeInSparseColVectorSet());
     }
 
-    this->UpdateDictionary_OtherInfo(OutputDictionary);
+    this->UpdateDictionaryInformation_Other(OutputDictionary);
 
     (*m_Dictionary) = std::move(OutputDictionary);
-
-    return;
 }
 
 
 template<typename ElementType>
-void KNNAverageOnlineDictionaryBuilder<ElementType>::SetputParameter()
+void KNNAverageOnlineDictionaryBuilder<ElementType>::SetupParameter()
 {
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.DictionaryName = m_Parameter.DictionaryName;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.BasisNumber = m_Parameter.BasisNumber;
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.BasisPositive = m_Parameter.BasisPositive;
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.BasisNormalizedWithL1Norm = m_Parameter.BasisNormalizedWithL1Norm;
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.BasisNormalizedWithL2Norm = m_Parameter.BasisNormalizedWithL2Norm;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign = m_Parameter.ParameterOfKNNSoftAssign;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.MaxNumberOfIteration = 1;
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.NumberOfDataInEachBatch = m_Parameter.NumberOfDataInEachBatch;
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.MaxNumberOfThreads = m_Parameter.MaxNumberOfThreads;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.weigth_past = m_Parameter.weigth_past;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.weigth_s = m_Parameter.weigth_s;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.UpdateDictionaryInformation_Other = false;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction = m_Parameter.ParameterOfKNNReconstruction;
-
-    m_KNNSoftAssignDictionaryBuilder.m_Parameter.SimilarityThresholdToComputeBasisRedundancy = m_Parameter.SimilarityThresholdToComputeBasisRedundancy;
-
-    //------------------------------
-
     m_KNNSoftAssignSparseEncoder.m_Parameter = m_Parameter.ParameterOfKNNSoftAssign;    
 }
 
 
 template<typename ElementType>
-void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateDictionaryAfterEncoding(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
-                                                                                                const DenseMatrix<ElementType>& FeatureData,
-                                                                                                const DataContainer<SparseVector<ElementType>>& CodeTable)
+void KNNAverageOnlineDictionaryBuilder<ElementType>::
+UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
+                            const DenseMatrix<ElementType>& FeatureData,
+                            const DataContainer<SparseVector<ElementType>>& CodeTable)
 {
     DenseMatrix<ElementType>& BasisMatrix = Dictionary.BasisMatrix();
 
-    DenseMatrix<ElementType>& ProbabilityMassFunction = Dictionary.ProbabilityMassFunction();
+    DenseMatrix<ElementType>& BasisAge = Dictionary.BasisAge();
+
+    DenseMatrix<ElementType>& BasisExperience = Dictionary.BasisExperience();
 
     //DenseMatrix<ElementType>& SimilarityMatrix = Dictionary.SimilarityMatrix();
     //DenseMatrix<ElementType>& BasisRedundancy = Dictionary->BasisRedundancy();
@@ -352,46 +363,38 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateDictionaryAfterEncodi
     DenseMatrix<ElementType>& VarianceOfKLDivergence = Dictionary.VarianceOfKLDivergence();
     DenseMatrix<ElementType>& VarianceOfReconstruction = Dictionary.VarianceOfReconstruction();
 
-    int_max BasisNumber = BasisMatrix.GetColNumber();
+    //-------- update Variance ------------------------------------------------------------
 
-    auto WeightedNumberOfTrainingSamplesInHistory = Dictionary.GetWeightedNumberOfTrainingSamplesInHistory();
+    this->UpdateVarianceOfL1Distance(VarianceOfL1Distance, FeatureData, CodeTable, BasisMatrix, BasisExperience);
+    
+    this->UpdateVarianceOfL2Distance(VarianceOfL2Distance, FeatureData, CodeTable, BasisMatrix, BasisExperience);
 
-    // update BasisMatrix -----------------------------------------------------------------------------
-   
-    DenseMatrix<ElementType> WeightOfError(1, BasisNumber);
-    WeightOfError.Fill(ElementType(1));
-    for (int_max k = 0; k < BasisNumber; ++k)
+    if (m_Parameter.Update_VarianceOfReconstruction_Using_KNNBasisMatrix == true)
     {
-        WeightOfError[k] += WeightedNumberOfTrainingSamplesInHistory*ProbabilityMassFunction[k];
+        this->UpdateVarianceOfReconstruction(VarianceOfReconstruction, FeatureData, CodeTable, BasisMatrix, BasisExperience);
     }
-
-    this->UpdateBasisMatrix(BasisMatrix, FeatureData, CodeTable, WeightOfError);
-
-    // update ProbabilityMassFunction ----------------------------------------------------------
-
-    this->UpdateProbabilityMassFunction(ProbabilityMassFunction,
-                                        WeightedNumberOfTrainingSamplesInHistory,
-                                        CodeTable);
-
-    this->UpdateVarianceOfL1Distance(VarianceOfL1Distance, FeatureData, CodeTable, BasisMatrix, WeightedNumberOfTrainingSamplesInHistory);
-
-    this->UpdateVarianceOfL2Distance(VarianceOfL2Distance, FeatureData, CodeTable, BasisMatrix, WeightedNumberOfTrainingSamplesInHistory);
-
-    this->UpdateVarianceOfReconstruction(VarianceOfReconstruction, FeatureData, CodeTable, BasisMatrix, WeightedNumberOfTrainingSamplesInHistory);
 
     if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == SimilarityTypeEnum::KLDivergence)
     {
-        this->UpdateVarianceOfKLDivergence(VarianceOfKLDivergence, FeatureData, CodeTable, BasisMatrix, WeightedNumberOfTrainingSamplesInHistory);
+        this->UpdateVarianceOfKLDivergence(VarianceOfKLDivergence, FeatureData, CodeTable, BasisMatrix, BasisExperience);
     }
 
-    //this->UpdateSimilarityMatrix(SimilarityMatrix, BasisMatrix);
-    //this->UpdateBasisRedundancy(BasisRedundancy, SimilarityMatrix);    
-    //Dictionary.SetInfo_SimilarityThresholdToComputeBasisRedundancy(m_Parameter.SimilarityThresholdToComputeBasisRedundancy);
+    // update BasisExperience ----------------------------------------------------------
+
+    this->UpdateBasisExperience(BasisExperience, CodeTable);
+
+    // update BasisAge -------------------------
+
+    int_max DataNumber = FeatureData.GetColNumber();
+
+    BasisAge += DataNumber;
+
+    // update SimilarityMatrix and BasisRedundancy in UpdateDictionaryInformation_Other(...)
 }
 
 
 template<typename ElementType>
-void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateDictionary_OtherInfo(FeatureDictionaryForSparseCoding<ElementType>& Dictionary)
+void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateDictionaryInformation_Other(FeatureDictionaryForSparseCoding<ElementType>& Dictionary)
 {
     //---------------------- already updated ------------------------------------
 
@@ -434,15 +437,15 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateDictionary_OtherInfo(
 
     this->UpdateBasisRedundancy(BasisRedundancy, SimilarityMatrix);    
 
-    Dictionary.SetInfo_SimilarityThresholdToComputeBasisRedundancy(m_Parameter.SimilarityThresholdToComputeBasisRedundancy);
+    Dictionary.SetProperty_SimilarityThresholdToComputeBasisRedundancy(m_Parameter.SimilarityThresholdToComputeBasisRedundancy);
 }
 
 
 template<typename ElementType>
 void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
-                                                                                    const DenseMatrix<ElementType>& FeatureData,
-                                                                                    const DataContainer<SparseVector<ElementType>>& CodeTable,
-                                                                                    const DenseMatrix<ElementType> ExperienceOfRepresentingData)
+                                                                       const DenseMatrix<ElementType>& FeatureData,
+                                                                       const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                                                       const DenseMatrix<ElementType> BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
     int_max VectorLength = FeatureData.GetRowNumber();
@@ -461,15 +464,14 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateBasisMatrix(DenseMatr
     // temp function for basis update
 
     auto TempFunction_BasisUpdate = [](ElementType* BasisVector, const ElementType* DataVector, int_max VectorLength,
-                                       ElementType factor,  ElementType PreviousExperienceOfBasis)
+                                       ElementType Code,  ElementType ExperienceOfBasis)
     {
-        for (int_max m = 0; m < VectorLength; ++m)
+        for (int_max k = 0; k < VectorLength; ++k)
         {
-            auto temp_a = (factor / (factor*factor + 1))*DataVector[k];
-
-            auto temp_b = (factor*factor / (factor*factor + 1))*BasisVector[k];
-
-            BasisVector[k] += (temp_a - temp_b) / PreviousExperienceOfBasis;
+            auto ReconstructedElementOfDataVector = BasisVector[k] * Code;
+            auto Error = DataVector[k] - ReconstructedElementOfDataVector;
+            auto temp = 1 / Code;
+            BasisVector[k] += temp * Error / ExperienceOfBasis;
         }
     };
 
@@ -483,6 +485,8 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateBasisMatrix(DenseMatr
         {
             auto BasisIndex = BasisIndexList[n];
 
+            auto ExperienceOfBasis = BasisExperience[BasisIndex];
+
             auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(BasisIndex);
 
             auto Basis_Data_InnerProduct = ComputeInnerProductOfTwoVectors(BasisVectorPtr, DataVectorPtr, VectorLength, false);
@@ -491,12 +495,13 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateBasisMatrix(DenseMatr
 
             if (Basis_Basis_InnerProduct > eps_value && Basis_Basis_InnerProduct > eps_value*Basis_Data_InnerProduct)
             {
-                auto factor = Basis_Data_InnerProduct / Basis_Basis_InnerProduct;
+                auto Code = Basis_Data_InnerProduct / Basis_Basis_InnerProduct;
 
-                auto PreviousExperienceOfBasis = ExperienceOfRepresentingData[BasisIndex];
-
-                TempFunction_BasisUpdate(BasisVectorPtr, DataVectorPtr, VectorLength, factor, PreviousExperienceOfBasis);
-            }            
+                if (Code > eps_value && Code > eps_value * (Basis_Data_InnerProduct + Basis_Basis_InnerProduct))
+                {
+                    TempFunction_BasisUpdate(BasisVectorPtr, DataVectorPtr, VectorLength, Code, ExperienceOfBasis);
+                }
+            }// else Code = 0, and no update                        
         }        
     }
 
@@ -575,40 +580,39 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::ApplyConstraintOnBasis(Dens
 
 template<typename ElementType>
 void KNNAverageOnlineDictionaryBuilder<ElementType>::
-UpdateProbabilityMassFunction(DenseMatrix<ElementType>&  ProbabilityMassFunction,
-                              ElementType WeightedNumberOfTrainingSamplesInHistory,
-                              const DataContainer<SparseVector<ElementType>>& CodeTable)
+UpdateBasisExperience(DenseMatrix<ElementType>& BasisExperience, const DataContainer<SparseVector<ElementType>>& CodeTable)
 {
-    int_max BasisNumber = ProbabilityMassFunction.GetElementNumber();
-
-    // convert Probability to representative ability
-    ProbabilityMassFunction *= m_Parameter.weigth_past * WeightedNumberOfTrainingSamplesInHistory;
+    int_max BasisNumber = BasisExperience.GetElementNumber();
 
     int_max DataNumber = CodeTable.GetLength();
 
-    for (int_max k = 0; k < DataNumber; ++k)
+    // discount the previous Experience
+    BasisExperience *= m_Parameter.ExperienceDiscountFactor;
+    // must >= 1
+    for (int_max k = 0; k < BasisNumber; k++)
     {
-        const DenseMatrix<int_max>& KNN_IndexList = CodeTable[k].IndexList();
-
-        int_max tempNumber = KNN_IndexList.GetElementNumber();
-
-        for (int_max m = 0; m < tempNumber; ++m)
+        if (BasisExperience[k] < 1)
         {
-            ProbabilityMassFunction[KNN_IndexList[m]] += (ElementType(1) - m_Parameter.weigth_past) / ElementType(tempNumber);
+            BasisExperience[k] = 1;
         }
     }
 
-    auto tempSum = ProbabilityMassFunction.Sum();
+    for (int_max k = 0; k < DataNumber; ++k)
+    {
+        const std::vector<int_max>& KNN_IndexList = CodeTable[k].IndexList();
 
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
-    if (tempSum <= eps_value)
-    {
-        ProbabilityMassFunction.Fill(ElementType(1) / ElementType(BasisNumber));
+        auto tempNeighbourNumber = int_max(KNN_IndexList.size());
+
+        for (int_max m = 0; m < tempNeighbourNumber; ++m)
+        {
+            BasisExperience[KNN_IndexList[m]] += ElementType(1) / ElementType(tempNeighbourNumber);
+        }
     }
-    else
-    {
-        ProbabilityMassFunction /= tempSum;
-    }
+
+    // the total Experience is
+    // BasisExperience.Sum() ~ m_Parameter.ExperienceDiscountFactor * BasisExperience.Sum() + DataNumber
+    //
+    // the new "Experience" of the dictionary gained from data is DataNumber
 }
 
 
@@ -705,7 +709,7 @@ template<typename ElementType>
 void KNNAverageOnlineDictionaryBuilder<ElementType>::
 UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix)
 {
-    int_max BasisNumber = SimilarityMatrix.GetElementNumber();
+    int_max BasisNumber = SimilarityMatrix.GetColNumber();
 
     BasisRedundancy.FastResize(1, BasisNumber);
 
@@ -726,7 +730,7 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
             {
                 if (SimilarityMatrix(n, k) >= SimilarityThreshold)
                 {
-                    BasisRedundancy[k] += 1;
+                    BasisRedundancy[k] += SimilarityMatrix(n, k);
                 }
             }
         }
@@ -740,7 +744,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
                            const DenseMatrix<ElementType>& FeatureData,
                            const DataContainer<SparseVector<ElementType>>& CodeTable,
                            const DenseMatrix<ElementType>& BasisMatrix,
-                           const ElementType WeightedNumberOfTrainingSamplesInHistory)
+                           const DenseMatrix<ElementType>  BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -752,6 +756,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
     Variance_current.Fill(ElementType(0));
 
     DenseMatrix<int_max> CounterList(1, BasisNumber);
+    CounterList.Fill(0);
 
     for (int_max k = 0; k < DataNumber; ++k)
     {
@@ -786,10 +791,11 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
 
     if (Variance.IsEmpty() == false)
     {
-        Variance = m_Parameter.weigth_past*WeightedNumberOfTrainingSamplesInHistory*Variance 
-                   + (1 - m_Parameter.weigth_past)*Variance_current;
-
-        Variance /= m_Parameter.weigth_past*WeightedNumberOfTrainingSamplesInHistory + 1 - m_Parameter.weigth_past;
+        for (int_max n = 0; n < BasisNumber; ++n)
+        {
+            Variance[n]  = Variance[n] * BasisExperience[n] + Variance_current[n];
+            Variance[n] /= BasisExperience[n] + 1;
+        }
     }
     else
     {
@@ -810,7 +816,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (Variance[n] <= eps_value)
+        if (Variance[n] <= MeanStd)
         {
             Variance[n] = MeanStd;
         }
@@ -824,7 +830,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
                            const DenseMatrix<ElementType>& FeatureData,
                            const DataContainer<SparseVector<ElementType>>& CodeTable,
                            const DenseMatrix<ElementType>& BasisMatrix,
-                           const ElementType WeightedNumberOfTrainingSamplesInHistory)
+                           const DenseMatrix<ElementType>  BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -836,6 +842,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
 
     DenseMatrix<int_max> CounterList(1, BasisNumber);
+    CounterList.Fill(0);
 
     for (int_max k = 0; k < DataNumber; ++k)
     {        
@@ -870,10 +877,11 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
 
     if (Variance.IsEmpty() == false)
     {
-        Variance = m_Parameter.weigth_past*WeightedNumberOfTrainingSamplesInHistory*Variance
-                    + (1 - m_Parameter.weigth_past)*Variance_current;
-
-        Variance /= m_Parameter.weigth_past*WeightedNumberOfTrainingSamplesInHistory + 1 - m_Parameter.weigth_past;
+        for (int_max n = 0; n < BasisNumber; ++n)
+        {
+            Variance[n]  = Variance[n] * BasisExperience[n] + Variance_current[n];
+            Variance[n] /= BasisExperience[n] + 1;
+        }
     }
     else
     {
@@ -894,7 +902,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (Variance[n] <= eps_value)
+        if (Variance[n] <= MeanStd)
         {
             Variance[n] = MeanStd;
         }
@@ -908,7 +916,7 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
                              const DenseMatrix<ElementType>& FeatureData,
                              const DataContainer<SparseVector<ElementType>>& CodeTable,
                              const DenseMatrix<ElementType>& BasisMatrix,
-                             const ElementType WeightedNumberOfTrainingSamplesInHistory)
+                             const DenseMatrix<ElementType>  BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -920,6 +928,7 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_KL);
 
     DenseMatrix<int_max> CounterList(1, BasisNumber);
+    CounterList.Fill(0);
 
     for (int_max k = 0; k < DataNumber; ++k)
     {
@@ -954,10 +963,11 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
 
     if (Variance.IsEmpty() == false)
     {
-        Variance = m_Parameter.weigth_past*WeightedNumberOfTrainingSamplesInHistory*Variance
-                   + (1 - m_Parameter.weigth_past)*Variance_current;
-
-        Variance /= m_Parameter.weigth_past*WeightedNumberOfTrainingSamplesInHistory + 1 - m_Parameter.weigth_past;
+        for (int_max n = 0; n < BasisNumber; ++n)
+        {
+            Variance[n]  = Variance[n] * BasisExperience[n] + Variance_current[n];
+            Variance[n] /= BasisExperience[n] + 1;
+        }
     }
     else
     {
@@ -978,7 +988,7 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (Variance[n] <= eps_value)
+        if (Variance[n] <= MeanStd)
         {
             Variance[n] = MeanStd;
         }
@@ -992,7 +1002,7 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
                                const DenseMatrix<ElementType>& FeatureData,
                                const DataContainer<SparseVector<ElementType>>& CodeTable,
                                const DenseMatrix<ElementType>& BasisMatrix,
-                               const ElementType WeightedNumberOfTrainingSamplesInHistory)
+                               const DenseMatrix<ElementType>  BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -1006,10 +1016,9 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
 
     DenseMatrix<int_max> CounterList(1, BasisNumber);
+    CounterList.Fill(0);
 
-    DenseMatrix<ElementType> DataVector;
-
-    DenseMatrix<ElementType> ReconstructedDataVector(1, VectorLength);
+    auto DataReconstructionErrorL2Norm = this->ComputeDataReconstructionErrorL2Norm(FeatureData, CodeTable, BasisMatrix);
 
     for (int_max k = 0; k < DataNumber; ++k)
     {
@@ -1017,27 +1026,15 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
 
         if (KNN_IndexList.size() > 0)
         {
-            DataVector.ForceShare(FeatureData.GetElementPointerOfCol(k), VectorLength, 1);
-
-            // Reconstruct DataVector using KNN 
-            auto KNNBasisMatrix = BasisMatrix.GetSubMatrix(ALL, KNN_IndexList);
-
-            this->ReconstructDataVectorByKNNBasisMatrix(ReconstructedDataVector, DataVector, KNNBasisMatrix, KNN_IndexList, GramianMatrix_DtD);
-
-            auto SquaredL2Distance = ComputeSquaredL2DistanceBetweenTwoVectors(DataVector.GetElementPointer(), 
-                                                                               ReconstructedDataVector.GetElementPointer(),
-                                                                               VectorLength, false);
-
             for (int_max m = 0; m < int_max(KNN_IndexList.size()); ++m)
             {
                 auto BasisIndex = KNN_IndexList[m];
 
-                Variance_current[BasisIndex] += SquaredL2Distance;
+                Variance_current[BasisIndex] += DataReconstructionErrorL2Norm[k];
 
                 CounterList[BasisIndex] += 1;
             }
-        }
-       
+        }       
     }
 
     for (int_max n = 0; n < BasisNumber; ++n)
@@ -1050,10 +1047,11 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
 
     if (Variance.IsEmpty() == false)
     {
-        Variance = m_Parameter.weigth_past*WeightedNumberOfTrainingSamplesInHistory*Variance
-                   + (1 - m_Parameter.weigth_past)*Variance_current;
-
-        Variance /= m_Parameter.weigth_past*WeightedNumberOfTrainingSamplesInHistory + 1 - m_Parameter.weigth_past;
+        for (int_max n = 0; n < BasisNumber; ++n)
+        {
+            Variance[n]  = Variance[n] * BasisExperience[n] + Variance_current[n];
+            Variance[n] /= BasisExperience[n] + 1;
+        }
     }
     else
     {
@@ -1074,11 +1072,56 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (Variance[n] <= eps_value)
+        if (Variance[n] <= MeanStd)
         {
             Variance[n] = MeanStd;
         }
     }
+}
+
+
+template<typename ElementType>
+DenseMatrix<ElementType>
+KNNAverageOnlineDictionaryBuilder<ElementType>::
+ComputeDataReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  FeatureData,
+                                     const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                     const DenseMatrix<ElementType>&  BasisMatrix)
+{
+    int_max DataNumber = CodeTable.GetLength();
+
+    int_max VectorLength = BasisMatrix.GetRowNumber();
+
+    DenseMatrix<ElementType> DataReconstructionErrorL2Norm(1, DataNumber);
+
+    DenseMatrix<ElementType> GramianMatrix_DtD = BasisMatrix.Transpose() *BasisMatrix;
+
+    auto TempFunction_Reconstruction = [&](int_max DataIndex)
+    {
+        const std::vector<int_max>& KNN_IndexList = CodeTable[DataIndex].IndexList();
+
+        if (KNN_IndexList.size() > 0)
+        {
+            DenseMatrix<ElementType> DataVector;            
+            DataVector.ForceShare(FeatureData.GetElementPointerOfCol(DataIndex), VectorLength, 1);
+
+            DenseMatrix<ElementType> ReconstructedDataVector(1, VectorLength);
+
+            // Reconstruct DataVector using KNN 
+            auto KNNBasisMatrix = BasisMatrix.GetSubMatrix(ALL, KNN_IndexList);
+
+            this->ReconstructDataVectorByKNNBasisMatrix(ReconstructedDataVector, DataVector, KNNBasisMatrix, KNN_IndexList, GramianMatrix_DtD);
+
+            auto SquaredL2Distance = ComputeSquaredL2DistanceBetweenTwoVectors(DataVector.GetElementPointer(),
+                                                                               ReconstructedDataVector.GetElementPointer(),
+                                                                               VectorLength, false);
+
+            DataReconstructionErrorL2Norm[DataIndex] = SquaredL2Distance;
+        }
+    };
+
+    ParallelForLoop(TempFunction_Reconstruction, 0, DataNumber - 1, m_Parameter.MaxNumberOfThreads);
+
+    return DataReconstructionErrorL2Norm;
 }
 
 

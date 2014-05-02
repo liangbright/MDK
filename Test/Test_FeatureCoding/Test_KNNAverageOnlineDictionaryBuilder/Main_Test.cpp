@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 
-#include "Test_KNNSoftAssignAndAverageOnlineDictionaryBuilder.h"
+#include "Test_KNNAverageOnlineDictionaryBuilder.h"
 
 using namespace mdk;
 

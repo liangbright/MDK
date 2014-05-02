@@ -13,9 +13,9 @@ imtool(VectorSimilarityMatrix)
 FilePathAndName='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/BasisMatrix.json';
 BasisMatrix= ReadDenseMatrixFromJsonDataFile(FilePathAndName);
 %%
-FilePathAndName='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/VectorSimilarityMatrix.json';
-VectorSimilarityMatrix= ReadDenseMatrixFromJsonDataFile(FilePathAndName);
-imtool(VectorSimilarityMatrix)
+FilePathAndName='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/SimilarityMatrix.json';
+SimilarityMatrix= ReadDenseMatrixFromJsonDataFile(FilePathAndName);
+imtool(SimilarityMatrix)
 %%
 FilePathAndName='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/L1DistanceStd.json';
 L1DistanceStd= ReadDenseMatrixFromJsonDataFile(FilePathAndName);

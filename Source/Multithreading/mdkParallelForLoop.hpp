@@ -40,7 +40,7 @@ void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, int_max Loop
 {
     for (int_max i = LoopIndex_start; i <= LoopIndex_end; ++i)
     {
-        SingleFunction(i, ThreadIndex);
+        SingleFunction(i);
     }
 }
 
