@@ -10,7 +10,7 @@ endif()
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ Kits/8.1/Lib/winv6.3/um/x64")
  
-PROJECT(Test_KNNBasisSelectionDictionaryBuilder)
+PROJECT(Test_KNNBasisSelectionOnlineDictionaryBuilder)
 
 set(MDK_DIR "C:/Research/MDK/MDK/Source")
 
@@ -59,8 +59,8 @@ FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
 message(STATUS ${Test_FILES})
 
-add_executable(Test_KNNBasisSelectionDictionaryBuilder ${Test_FILES} ${MDK_CPP_FILES} ${qpOASES_CCP_FILES})
+add_executable(Test_KNNBasisSelectionOnlineDictionaryBuilder ${Test_FILES} ${MDK_CPP_FILES} ${qpOASES_CCP_FILES})
 
-qt5_use_modules(Test_KNNBasisSelectionDictionaryBuilder Core)
+qt5_use_modules(Test_KNNBasisSelectionOnlineDictionaryBuilder Core)
 
-target_link_libraries(Test_KNNBasisSelectionDictionaryBuilder ${LinearALgebraLib_win64} ${ITK_LIBRARIES})
+target_link_libraries(Test_KNNBasisSelectionOnlineDictionaryBuilder ${LinearALgebraLib_win64} ${ITK_LIBRARIES})

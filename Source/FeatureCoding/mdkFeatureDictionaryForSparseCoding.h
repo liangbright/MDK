@@ -33,10 +33,6 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
 
     DenseMatrix<ElementType> BasisAge;
 
-    //----------- New born basis in the last/previous training ------
-
-    DenseMatrix<int_max> NewBasisIndexList;
-
     // ---------- basis  Experience on Representing Data ----
 
     DenseMatrix<ElementType> BasisExperience;
@@ -156,10 +152,6 @@ public:
     inline DenseMatrix<ElementType>& BasisAge();
 
     inline const DenseMatrix<ElementType>& BasisAge() const;
-
-    inline DenseMatrix<ElementType>& NewBasisIndexList();
-
-    inline const DenseMatrix<ElementType>& NewBasisIndexList() const;
 
     inline DenseMatrix<ElementType>& BasisExperience();
     inline const DenseMatrix<ElementType>& BasisExperience() const;

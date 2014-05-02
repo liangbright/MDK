@@ -30,21 +30,19 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
     Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> ParameterOfKNNSoftAssign;
 
-    ElementType weigth_s;
-    // sort the pair i, j according to score = weigth_s * Similarity(i, j) + (1-weigth_s) * 0.5*(prob(i) + prob(j))
-
-
     ElementType ExperienceDiscountFactor; 
     // weight for the past experience when new training data is used
     // When to use the weight : 
     // discount the Experience of dictionary right after training is done on new data
-    // implemented in UpdateExperienceOfRepresentingDataForEachBasisVector(...)
+    // implemented in UpdateBasisExperienceForEachBasisVector(...)
+
+    ElementType WeightOnProbabiliyForBasisSelection;
+    // WeightOnProbabiliyForBasisSelection to sort vector pair
+    // range [0, 1]
 
     // parameter for data sampling --------
 
-    int_max NumberOfDataInEachBatch; // the number of data in each batch/thread
-
-    int_max MaxNumberOfIteration;
+    int_max MaxNumberOfDataInEachBatch; // the maximum number of data in each batch/thread
 
     int_max MaxNumberOfThreads;
 
@@ -71,12 +69,11 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
         ParameterOfKNNSoftAssign.Clear();
 
-        weigth_s = 0;
-
         ExperienceDiscountFactor = 0;
 
-        NumberOfDataInEachBatch = 0;
-        MaxNumberOfIteration = 0;
+        WeightOnProbabiliyForBasisSelection = 0;
+
+        MaxNumberOfDataInEachBatch = 0;
 
         MaxNumberOfThreads = 1;
 
@@ -135,29 +132,29 @@ protected:
 
     FeatureDictionaryForSparseCoding<ElementType> BuildDictionaryFromData(int_max BasisNumber_desired,
                                                                            const DenseMatrix<ElementType>& FeatureData,
-                                                                           const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init);
+                                                                           const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init);
 
     void UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
                                      const DenseMatrix<ElementType>& FeatureData,
                                      const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
                                      const DenseMatrix<ElementType>& VectorSimilarityMatrix,
                                      const DenseMatrix<int_max>& VectorIndexList_Basis,
-                                     const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init);
+                                     const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init);
 
     void UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
                                               const DenseMatrix<ElementType>& FeatureData,
                                               const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
                                               const DenseMatrix<ElementType>& VectorSimilarityMatrix,
                                               const DenseMatrix<int_max>& VectorIndexList_Basis,
-                                              const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init);
+                                              const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init);
 
-    DenseMatrix<ElementType> ComputeRepresentativeAbilityOfEachDataVectorInCombinedData(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init,
-                                                                                        int_max CombinedDataVectorNumber);
+    DenseMatrix<ElementType> ComputeRepresentativeAbilityOfEachVectorInCombinedData(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init,
+                                                                                    int_max CombinedDataVectorNumber);
 
-    DenseMatrix<ElementType> ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init,
+    DenseMatrix<ElementType> ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init,
                                                            const DenseMatrix<ElementType>& FeatureData);
 
-    inline ElementType ComputeSimilarityBetweenTwoDataVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length);
+    inline ElementType ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length);
 
     DataContainer<DenseMatrix<int_max>> FindKNNVectorIndexTableByVectorSimilarityMatrix(const DenseMatrix<ElementType>& VectorSimilarityMatrix);
 
@@ -172,8 +169,8 @@ protected:
                                                                                              const DenseMatrix<int_max>&     VectorIndexList_Basis,
                                                                                              int_max BasisNumber_init);
 
-    void UpdateExperienceOfRepresentingDataForEachBasisVector(DenseMatrix<ElementType>& ExperienceOfRepresentingData,
-                                                              const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData);
+    void UpdateBasisExperienceForEachBasisVector(DenseMatrix<ElementType>& BasisExperience,
+                                                 const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData);
 
     void UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix);   
 
@@ -181,25 +178,25 @@ protected:
                                     const DenseMatrix<ElementType>& FeatureData,
                                     const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
                                     const DenseMatrix<ElementType>& BasisMatrix,
-                                    const DenseMatrix<ElementType>& ExperienceOfRepresentingData);
+                                    const DenseMatrix<ElementType>& BasisExperience);
 
     void UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
                                     const DenseMatrix<ElementType>& FeatureData,
                                     const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
                                     const DenseMatrix<ElementType>& BasisMatrix,
-                                    const DenseMatrix<ElementType>& ExperienceOfRepresentingData);
+                                    const DenseMatrix<ElementType>& BasisExperience);
 
     void UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
                                       const DenseMatrix<ElementType>& FeatureData,
                                       const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
                                       const DenseMatrix<ElementType>& BasisMatrix,
-                                      const DenseMatrix<ElementType>& ExperienceOfRepresentingData);
+                                      const DenseMatrix<ElementType>& BasisExperience);
 
     void UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
                                         const DenseMatrix<ElementType>& FeatureData,
                                         const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
                                         const DenseMatrix<ElementType>& BasisMatrix,
-                                        const DenseMatrix<ElementType>& ExperienceOfRepresentingData);
+                                        const DenseMatrix<ElementType>& BasisExperience);
     
     void ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       ReconstructedDataVector, 
                                                const DenseMatrix<ElementType>& DataVector,

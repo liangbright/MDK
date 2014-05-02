@@ -69,8 +69,6 @@ void FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionary
 
     m_DictionaryData->BasisAge = InputDictionary.m_DictionaryData->BasisAge;
 
-    m_DictionaryData->NewBasisIndexList = InputDictionary.m_DictionaryData->NewBasisIndexList;
-
     m_DictionaryData->BasisExperience = InputDictionary.m_DictionaryData->BasisExperience;
 
     m_DictionaryData->SimilarityType = InputDictionary.m_DictionaryData->SimilarityType;
@@ -173,8 +171,6 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
 
     m_DictionaryData->BasisAge = std::move(InputDictionary.m_DictionaryData->BasisAge);
 
-    m_DictionaryData->NewBasisIndexList = std::move(InputDictionary.m_DictionaryData->NewBasisIndexList);
-
     m_DictionaryData->BasisExperience = std::move(InputDictionary.m_DictionaryData->BasisExperience);
 
     m_DictionaryData->SimilarityType = InputDictionary.m_DictionaryData->SimilarityType;
@@ -208,8 +204,6 @@ void FeatureDictionaryForSparseCoding<ElementType>::Clear()
     m_DictionaryData->CurrentDictionaryTime = 0;
 
     m_DictionaryData->BasisAge.Clear();
-
-    m_DictionaryData->NewBasisIndexList.Clear();
 
     m_DictionaryData->BasisExperience.Clear();
 
@@ -373,22 +367,6 @@ inline
 const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisAge() const
 {
     return m_DictionaryData->BasisAge;
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::NewBasisIndexList()
-{
-    return m_DictionaryData->NewBasisIndexList;
-}
-
-
-template<typename ElementType>
-inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::NewBasisIndexList() const
-{
-    return m_DictionaryData->NewBasisIndexList;
 }
 
 

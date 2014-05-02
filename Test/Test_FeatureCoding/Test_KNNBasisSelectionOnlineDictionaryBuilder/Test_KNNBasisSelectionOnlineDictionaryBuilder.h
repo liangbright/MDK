@@ -16,6 +16,15 @@ void Test_Matrix()
     DisplayMatrix("C", C);
 }
 
+void Test_plus_space_plus()
+{
+    int a = 1;
+
+    int b = 2;
+
+    int c = a + b + + 1;
+}
+
 void Test_SimpleCase()
 {
     using namespace mdk;
@@ -39,17 +48,17 @@ void Test_SimpleCase()
 
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = SimilarityTypeEnum::L1Distance;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.1;
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = 20;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = 10;
     
     DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber = NeighbourNumber;
     DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative = false;
     DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne = false;
 
-    DictionaryBuilder.m_Parameter.weigth_s = 1;
     DictionaryBuilder.m_Parameter.ExperienceDiscountFactor = 0;
 
-    DictionaryBuilder.m_Parameter.NumberOfDataInEachBatch = 5;
-    DictionaryBuilder.m_Parameter.MaxNumberOfIteration = 1000;
+    DictionaryBuilder.m_Parameter.WeightOnProbabiliyForBasisSelection = 0;
+
+    DictionaryBuilder.m_Parameter.MaxNumberOfDataInEachBatch = 100;
 
     DictionaryBuilder.SetInputFeatureData(&FeatureData);
 
@@ -57,7 +66,7 @@ void Test_SimpleCase()
 
     auto DictionaryPtr = DictionaryBuilder.GetOutputDictionary();
 
-    DisplayMatrix("D", DictionaryPtr->BasisMatrix());
+    DisplayMatrix("D", DictionaryPtr->BasisMatrix(), 2);
 
     SaveDenseMatrixAsJsonDataFile(DictionaryPtr->BasisMatrix(), FilePath + "BasisMatrix.json");
     SaveDenseMatrixAsJsonDataFile(DictionaryPtr->VarianceOfL1Distance(), FilePath + "VarianceOfL1Distance.json");

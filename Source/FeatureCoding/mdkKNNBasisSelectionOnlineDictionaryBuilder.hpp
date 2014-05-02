@@ -120,15 +120,15 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.NumberOfDataInEachBatch > m_FeatureData->GetColNumber())
+    if (m_Parameter.MaxNumberOfDataInEachBatch > m_FeatureData->GetColNumber())
     {
-        MDK_Error("NumberOfDataInEachBatch > TotalDataNumber @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("MaxNumberOfDataInEachBatch > TotalDataNumber @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
-    if (m_Parameter.NumberOfDataInEachBatch < m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber)
+    if (m_Parameter.MaxNumberOfDataInEachBatch < m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber)
     {
-        MDK_Error("NumberOfDataInEachBatch < MaxNumberOfNeighbours @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("MaxNumberOfDataInEachBatch < MaxNumberOfNeighbours @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
     
@@ -141,7 +141,7 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
     
-    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold < 0)
+    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold <= 0)
     {
         MDK_Error("SimilarityThreshold is invalid @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
         return false;
@@ -227,10 +227,15 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
         }
     }
 
+    if (m_Parameter.WeightOnProbabiliyForBasisSelection < 0 || m_Parameter.WeightOnProbabiliyForBasisSelection > 1)
+    {
+        MDK_Error("WeightOnProbabiliyForBasisSelection < 0 or > 1 @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
+        return false;
+    }
+
     if (m_Parameter.SimilarityThresholdToComputeBasisRedundancy <= 0)
     {
-        MDK_Error("SimilarityThresholdToComputeBasisRedundancy <= 0 @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
-        return false;
+        m_Parameter.SimilarityThresholdToComputeBasisRedundancy = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
     }
 
     return true;
@@ -240,78 +245,125 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
 template<typename ElementType>
 void KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 {
-    // compute the total ExperienceOfRepresentingData of m_InitialDictionary
+    // compute the total BasisExperience of m_InitialDictionary
 
-    auto TotalExperienceOfRepresentingData_init = ElementType(0);
+    auto TotalExperience_init = ElementType(0);
     if (m_InitialDictionary != nullptr)
     {
-        TotalExperienceOfRepresentingData_init = m_InitialDictionary->ExperienceOfRepresentingData().Sum();
+        TotalExperience_init = m_InitialDictionary->BasisExperience().Sum();
     }
 
     int_max TotalDataNumber = m_FeatureData->GetColNumber();
 
     FeatureDictionaryForSparseCoding<ElementType> OutputDictionary;
 
-    if (m_Parameter.NumberOfDataInEachBatch >= TotalDataNumber)
+    if (m_InitialDictionary != nullptr)
+    {
+        OutputDictionary.ForceShare(m_InitialDictionary);
+    }
+
+    if (m_Parameter.MaxNumberOfDataInEachBatch >= TotalDataNumber)
     {      
         // process all the data 
 
-        OutputDictionary = this->BuildDictionaryFromData(m_Parameter.BasisNumber, *m_FeatureData, m_InitialDictionary);
+        OutputDictionary = this->BuildDictionaryFromData(m_Parameter.BasisNumber, *m_FeatureData, OutputDictionary);
     }
     else
     {
-        // m_Parameter.MaxNumberOfIteration > 1
         //------------------------------------------ run Data batch -------------------------------------------------------//
+        // do not re-use data
 
         // random number for sampling
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> UniformRandomNumber(0, TotalDataNumber - 1);
 
-        DenseMatrix<ElementType> FeatureData_current(m_FeatureData->GetRowNumber(), m_Parameter.NumberOfDataInEachBatch);
+        DenseMatrix<int_max> DataFlagList(1, TotalDataNumber);
+        DataFlagList.Fill(1);
+        // 1 : not used yet
+        // 0 : used
 
-        for (int_max IterationIndex = 0; IterationIndex < m_Parameter.MaxNumberOfIteration; IterationIndex++)
+        DenseMatrix<ElementType> FeatureData_current;
+
+        int_max NumberOfDataInNextBatch = m_Parameter.MaxNumberOfDataInEachBatch;
+
+        int_max TotalDataNumber_used = 0;
+
+        while (true)
         {
-            // sample data with m_Parameter.NumberOfDataInEachBatch 
-            for (int_max k = 0; k < m_Parameter.NumberOfDataInEachBatch; ++k)
+            // sample a subset from m_FeatureData
+
+            FeatureData_current.FastResize(m_FeatureData->GetRowNumber(), NumberOfDataInNextBatch);
+
+            int_max SampleCounter = 0;
+            while (true)
             {
                 auto DataIndex = UniformRandomNumber(gen);
+                if (DataFlagList[DataIndex] == 1)
+                {
+                    FeatureData_current.SetCol(SampleCounter, m_FeatureData->GetElementPointerOfCol(DataIndex));
 
-                FeatureData_current.SetCol(k, m_FeatureData->GetElementPointerOfCol(DataIndex));
+                    DataFlagList[DataIndex] = 0;
+
+                    SampleCounter += 1;
+                    if (SampleCounter >= NumberOfDataInNextBatch)
+                    {
+                        break;
+                    }
+                }               
             }
 
-            OutputDictionary = this->BuildDictionaryFromData(m_Parameter.BasisNumber, FeatureData_current, &OutputDictionary);
+            // update Dictionary
+            OutputDictionary = this->BuildDictionaryFromData(m_Parameter.BasisNumber, FeatureData_current, OutputDictionary);
+            
+            // update NumberOfDataInNextBatch
+
+            TotalDataNumber_used += SampleCounter;
+
+            NumberOfDataInNextBatch = std::min(m_Parameter.MaxNumberOfDataInEachBatch, TotalDataNumber - TotalDataNumber_used);
+
+            if (NumberOfDataInNextBatch <= 0)
+            {
+                break;
+            }
         }
     }
 
-    //-------- adjust ExperienceOfRepresentingData in case FeatueData is re-used for training -------------//
-
-    auto TotalExperienceOfRepresentingData = OutputDictionary.ExperienceOfRepresentingData().Sum();
-    
-    auto TotalExperienceOfRepresentingData_est = m_Parameter.ExperienceDiscountFactor * TotalExperienceOfRepresentingData_init + TotalDataNumber;
-
-    if (TotalExperienceOfRepresentingData > TotalExperienceOfRepresentingData_est)
-    {
-        auto factor = TotalExperienceOfRepresentingData_est / TotalExperienceOfRepresentingData;
-
-        OutputDictionary.ExperienceOfRepresentingData() *= factor;
-    }
-
-    // ExperienceOfRepresentingData[k] should always > m_Parameter.ExperienceDiscountFactor
-    // if ExperienceOfRepresentingData[k] is too small after training on many datasets, 
-    // then, basis k should be removed
-
-    //---------------------------------------------------------------------------------//
-
     (*m_Dictionary) = std::move(OutputDictionary);
+
+    //----------------------- just for reference: what to do if some data is re-used in training -------------//
+    //
+    // BasisAge can not be adjusted : 
+    // BasisAge[k] -= TotalDataNumberForTrainning - TotalDataNumber
+    // then BasisAge[k] may be < 0
+    //
+    // BasisExperience can be adjusted :
+    //
+    //if (TotalDataNumber_used > TotalDataNumber)
+    //{
+    //    DenseMatrix<ElementType>& BasisExperience = OutputDictionary.BasisExperience();
+    //
+    //    auto TotalExperience = OutputDictionary.BasisExperience().Sum();
+    //
+    //    auto TotalExperience_est = m_Parameter.ExperienceDiscountFactor * TotalExperience_init + TotalDataNumber;
+    //
+    //    if (TotalExperience_est > TotalExperience_init)
+    //    {
+    //        auto factor = TotalExperience_est / TotalExperience;
+    //
+    //       BasisExperience *= factor;
+    //    }
+    //}
+    //---------------------------------------------------------------------------------------------------------//   
 }
 
 
 template<typename ElementType>
 FeatureDictionaryForSparseCoding<ElementType> 
-KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::BuildDictionaryFromData(int_max BasisNumber_desired,
-                                                                           const DenseMatrix<ElementType>& FeatureData,
-                                                                           const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init)
+KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
+BuildDictionaryFromData(int_max BasisNumber_desired,
+                        const DenseMatrix<ElementType>& FeatureData,
+                        const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init)
 {
     FeatureDictionaryForSparseCoding<ElementType> Dictionary;
     Dictionary.SetName(m_Parameter.DictionaryName);
@@ -324,11 +376,11 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::BuildDictionaryFromData(i
         return Dictionary;
     }
 
-    if (Dictionary_init != nullptr)
+    if (Dictionary_init.IsEmpty() == false)
     {
-        if (FeatureData.GetRowNumber() != Dictionary_init->BasisMatrix().GetRowNumber())
+        if (FeatureData.GetRowNumber() != Dictionary_init.BasisMatrix().GetRowNumber())
         {
-            MDK_Error("FeatureData.GetRowNumber() != Dictionary_init->GetRowNumber() @ KNNBasisSelectionOnlineDictionaryBuilder::BuildDictionaryFromData(...)")
+            MDK_Error("FeatureData.GetRowNumber() != Dictionary_init.GetRowNumber() @ KNNBasisSelectionOnlineDictionaryBuilder::BuildDictionaryFromData(...)")
             return Dictionary;
         }
     }
@@ -340,9 +392,9 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::BuildDictionaryFromData(i
     int_max DataNumber = FeatureData.GetColNumber();
 
     int_max BasisNumber_init = 0;
-    if (Dictionary_init != nullptr)
+    if (Dictionary_init.IsEmpty() == false)
     {
-        BasisNumber_init = Dictionary_init->BasisMatrix().GetColNumber();
+        BasisNumber_init = Dictionary_init.BasisMatrix().GetColNumber();
     }
 
     int_max TotalVectorNumber = BasisNumber_init + DataNumber;
@@ -350,16 +402,15 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::BuildDictionaryFromData(i
     // DenseMatrix<ElementType> FeatureData_Combined;
     // FeatureData_Combined = { &BasisMatrixOfInitialDictionary, &FeatureData };
 
-    auto RepresentativeAbilityOfEachVector = ComputeRepresentativeAbilityOfEachDataVectorInCombinedData(Dictionary_init, TotalVectorNumber);
+    auto RepresentativeAbilityOfEachVector = ComputeRepresentativeAbilityOfEachVectorInCombinedData(Dictionary_init, TotalVectorNumber);
 
     // calculate similarity between feature vectors
 
     auto VectorSimilarityMatrix = this->ComputeVectorSimilarityMatrix(Dictionary_init, FeatureData);
 
-
     MDK_DebugCode
     (
-        CharString FilePathAndName = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuiler/Debug/VectorSimilarityMatrix.json";
+        CharString FilePathAndName = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/VectorSimilarityMatrix.json";
         SaveDenseMatrixAsJsonDataFile(VectorSimilarityMatrix, FilePathAndName);
     )
 
@@ -377,29 +428,32 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::BuildDictionaryFromData(i
 
         DenseMatrix<ElementType>& BasisMatrix = Dictionary.BasisMatrix();
 
-        DenseMatrix<ElementType> ExperienceOfRepresentingData(1, TotalVectorNumber);
-        
-        if (Dictionary_init != nullptr)
+        DenseMatrix<ElementType>& BasisAge = Dictionary.BasisAge();
+        BasisAge.FastResize(1, TotalVectorNumber);
+
+        DenseMatrix<ElementType>& BasisExperience = Dictionary.BasisExperience(); 
+        BasisExperience.FastResize(1, TotalVectorNumber);
+
+        if (Dictionary_init.IsEmpty() == false)
         {
-            const DenseMatrix<ElementType>& BasisMatrixOfInitialDictionary = Dictionary_init->BasisMatrix();
+            const DenseMatrix<ElementType>& BasisMatrix_init = Dictionary_init.BasisMatrix();
 
-            BasisNumber_init = BasisMatrixOfInitialDictionary.GetColNumber();
+            BasisNumber_init = BasisMatrix_init.GetColNumber();
 
-            BasisMatrix = { &BasisMatrixOfInitialDictionary, &FeatureData };
+            BasisMatrix = { &BasisMatrix_init, &FeatureData };
 
-            ExperienceOfRepresentingData.Fill(ElementType(1));
-            ExperienceOfRepresentingData(span(0, BasisNumber_init - 1)) = Dictionary_init->ExperienceOfRepresentingData();
+            BasisAge.Fill(ElementType(DataNumber));
+            BasisAge(span(0, BasisNumber_init - 1)) = Dictionary_init.BasisAge();
+
+            BasisExperience.Fill(ElementType(1));
+            BasisExperience(span(0, BasisNumber_init - 1)) = Dictionary_init.BasisExperience();
         }
         else
         {
-            BasisMatrix = FeatureData;
-
-            ExperienceOfRepresentingData.Fill(ElementType(1));
+            BasisMatrix = FeatureData;            
+            BasisAge.Fill(ElementType(DataNumber));
+            BasisExperience.Fill(ElementType(1));
         }
-                        
-        Dictionary.BasisMatrix().Take(BasisMatrix);
-
-        Dictionary.ExperienceOfRepresentingData().Take(ExperienceOfRepresentingData);
 
         DenseMatrix<int_max> VectorIndexList_Basis = span(0, BasisMatrix.GetColNumber()-1);
 
@@ -423,13 +477,35 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::BuildDictionaryFromData(i
 
     DenseMatrix<int_max> VectorPairIndexList(2, NumberOfVectorPair);
 
+    auto ScoreWeight_S = ElementType(0);
+    auto ScoreWeight_PS = ElementType(0);
+    auto ScoreWeight_P = ElementType(0);
+
+    if (m_Parameter.WeightOnProbabiliyForBasisSelection <= ElementType(0.5))
+    {
+        ScoreWeight_S  = 1 - 2*m_Parameter.WeightOnProbabiliyForBasisSelection;
+        ScoreWeight_PS = 2 * m_Parameter.WeightOnProbabiliyForBasisSelection;
+        ScoreWeight_P  = 0;
+    }
+    else
+    {
+        ScoreWeight_S  = 0;
+        ScoreWeight_PS = 2 - 2 * m_Parameter.WeightOnProbabiliyForBasisSelection;
+        ScoreWeight_P  = 2 * (m_Parameter.WeightOnProbabiliyForBasisSelection - ElementType(0.5));
+    }
+
     int_max Counter = 0;
     for (int_max k = 0; k < TotalVectorNumber - 1; ++k)
     {
         for (int_max n = k + 1; n < TotalVectorNumber; ++n)
-        {         
-            VectorPairScoreList[Counter] = m_Parameter.weigth_s*VectorSimilarityMatrix(n, k)
-                                          + (ElementType(1) - m_Parameter.weigth_s)*(ProbabilityOfEachVector[n] + ProbabilityOfEachVector[k]) / ElementType(2);
+        {
+            auto tempScore_P = ProbabilityOfEachVector[n] + ProbabilityOfEachVector[k];
+
+            auto tempScore_S = 1 - VectorSimilarityMatrix(n, k);
+
+            auto tempScore_PS = tempScore_P*tempScore_S;
+      
+            VectorPairScoreList[Counter] = ScoreWeight_PS * tempScore_PS + ScoreWeight_S * tempScore_S + ScoreWeight_P * tempScore_P;
 
             VectorPairIndexList(0, Counter) = k;
             VectorPairIndexList(1, Counter) = n;
@@ -440,7 +516,7 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::BuildDictionaryFromData(i
 
     DenseMatrix<int_max> tempIndexList_sort;
 
-    Sort(VectorPairScoreList, VectorPairScoreList, tempIndexList_sort, "descend");
+    Sort(VectorPairScoreList, VectorPairScoreList, tempIndexList_sort, "ascend");
 
     DenseMatrix<int_max> tempPairIndexList = VectorPairIndexList;
 
@@ -522,7 +598,7 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::BuildDictionaryFromData(i
         }
     }
 
-    // ------------- create BasisMatrix--------------------------------------------------//
+    // ------------- create BasisMatrix --------------------------------------------------//
 
     DenseMatrix<ElementType> BasisMatrix(FeatureData.GetRowNumber(), OutputBasisNumber);
 
@@ -531,7 +607,7 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::BuildDictionaryFromData(i
         auto VectorIndex = VectorIndexList_Basis[k];
         if (VectorIndex < BasisNumber_init)
         {
-            BasisMatrix.SetCol(k, Dictionary_init->BasisMatrix().GetElementPointerOfCol(VectorIndex));
+            BasisMatrix.SetCol(k, Dictionary_init.BasisMatrix().GetElementPointerOfCol(VectorIndex));
         }
         else
         {
@@ -567,8 +643,8 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::BuildDictionaryFromData(i
 template<typename ElementType>
 DenseMatrix<ElementType>
 KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
-ComputeRepresentativeAbilityOfEachDataVectorInCombinedData(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init,
-                                                           int_max CombinedFeatureDataVectorNumber)
+ComputeRepresentativeAbilityOfEachVectorInCombinedData(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init,
+                                                       int_max CombinedFeatureDataVectorNumber)
 {
     //---------------------------------------------------------------------------------------
     // Input:    
@@ -593,15 +669,15 @@ ComputeRepresentativeAbilityOfEachDataVectorInCombinedData(const FeatureDictiona
 
     RepresentativeAbility.Fill(ElementType(1));
 
-    if (Dictionary_init != nullptr)
+    if (Dictionary_init.IsEmpty() == false)
     {
-        auto InitialBasisNumber = Dictionary_init->BasisMatrix().GetColNumber();
+        auto InitialBasisNumber = Dictionary_init.BasisMatrix().GetColNumber();
 
-        const DenseMatrix<ElementType>& ExperienceOfRepresentingData_init = Dictionary_init->ExperienceOfRepresentingData();
+        const DenseMatrix<ElementType>& BasisExperience_init = Dictionary_init.BasisExperience();
 
         for (int_max k = 0; k < InitialBasisNumber; k++)
         {
-            RepresentativeAbility[k] = ExperienceOfRepresentingData_init[k];
+            RepresentativeAbility[k] = BasisExperience_init[k];
         }
 
         for (int_max k = InitialBasisNumber; k < CombinedFeatureDataVectorNumber; k++)
@@ -616,15 +692,16 @@ ComputeRepresentativeAbilityOfEachDataVectorInCombinedData(const FeatureDictiona
 
 template<typename ElementType>
 DenseMatrix<ElementType> 
-KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init, 
-                                                                                 const DenseMatrix<ElementType>& FeatureData)
+KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
+ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init, 
+                              const DenseMatrix<ElementType>& FeatureData)
 {
     //------------------------------------------------------------------------------------------
     // Input:
     // FeatureData is a set of column data vectors
     // 
     // Output:
-    // VectorSimilarityMatrix of Combined data = [Dictionary_init->BasisMatrix(), FeatureData]
+    // VectorSimilarityMatrix of Combined data = [Dictionary_init.BasisMatrix(), FeatureData]
     // 
     // ColNumber = RowNumber = the total number of data vectors    
     // VectorSimilarityMatrix(i, j) = VectorSimilarityMatrix(j, i)
@@ -687,7 +764,7 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::ComputeVectorSimilarityMa
 
     //--------------------------------------------------------------------------------------------------------------
 
-    if (Dictionary_init == nullptr)
+    if (Dictionary_init.IsEmpty() == true)
     {
         int_max TotalVectorNumber = FeatureData.GetColNumber();
 
@@ -702,7 +779,7 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::ComputeVectorSimilarityMa
             {
                 auto VectorPtr_n = FeatureData.GetElementPointerOfCol(n);
 
-                auto Similarity = this->ComputeSimilarityBetweenTwoDataVectors(VectorPtr_k, VectorPtr_n, VectorLength);
+                auto Similarity = this->ComputeSimilarityBetweenTwoVectors(VectorPtr_k, VectorPtr_n, VectorLength);
 
                 Similarity = TempFunction_AndRandomNumberToSimilarity(Similarity);
              
@@ -714,11 +791,11 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::ComputeVectorSimilarityMa
     }
     else
     {
-        const DenseMatrix<ElementType>& BasisMatrix_init = Dictionary_init->BasisMatrix();
+        const DenseMatrix<ElementType>& BasisMatrix_init = Dictionary_init.BasisMatrix();
 
         int_max BasisNumber_init = BasisMatrix_init.GetColNumber();
         
-        const DenseMatrix<ElementType>& SimilarityMatrix_init = Dictionary_init->SimilarityMatrix();
+        const DenseMatrix<ElementType>& SimilarityMatrix_init = Dictionary_init.SimilarityMatrix();
 
         int_max DataNumber = FeatureData.GetColNumber();
 
@@ -745,8 +822,6 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::ComputeVectorSimilarityMa
 
             for (int_max n = k + 1; n < TotalVectorNumber; ++n) // start from k+1
             {
-                VectorPtr_n = FeatureData.GetElementPointerOfCol(n);
-
                 if (n < BasisNumber_init)
                 {
                     VectorPtr_n = BasisMatrix_init.GetElementPointerOfCol(n);
@@ -760,13 +835,20 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::ComputeVectorSimilarityMa
 
                 auto Similarity = ElementType(0);
 
-                if (k < BasisNumber_init && n < BasisNumber_init)
+                if (Dictionary_init.GetProperty_SimilarityType() == m_Parameter.ParameterOfKNNSoftAssign.SimilarityType)
                 {
-                    Similarity = SimilarityMatrix_init(n, k);
+                    if (k < BasisNumber_init && n < BasisNumber_init)
+                    {
+                        Similarity = SimilarityMatrix_init(n, k);
+                    }
+                    else
+                    {
+                        Similarity = this->ComputeSimilarityBetweenTwoVectors(VectorPtr_k, VectorPtr_n, VectorLength);
+                    }
                 }
                 else
                 {
-                    auto Similarity = this->ComputeSimilarityBetweenTwoDataVectors(VectorPtr_k, VectorPtr_n, VectorLength);
+                    Similarity = this->ComputeSimilarityBetweenTwoVectors(VectorPtr_k, VectorPtr_n, VectorLength);
                 }
 
                 Similarity = TempFunction_AndRandomNumberToSimilarity(Similarity);
@@ -785,7 +867,7 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::ComputeVectorSimilarityMa
 template<typename ElementType>
 inline
 ElementType KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
-ComputeSimilarityBetweenTwoDataVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length)
+ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length)
 {
     ElementType Similarity = ElementType(0);
 
@@ -833,7 +915,7 @@ ComputeSimilarityBetweenTwoDataVectors(const ElementType* VectorA, const Element
         break;
 
     default:
-        MDK_Error("unknown type of similarity @ KNNBasisSelectionOnlineDictionaryBuilder::ComputeSimilarityBetweenTwoDataVectors(...)")
+        MDK_Error("unknown type of similarity @ KNNBasisSelectionOnlineDictionaryBuilder::ComputeSimilarityBetweenTwoVectors(...)")
     }
 
     return Similarity;
@@ -1059,11 +1141,13 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
                             const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
                             const DenseMatrix<ElementType>& VectorSimilarityMatrix,
                             const DenseMatrix<int_max>& VectorIndexList_Basis,
-                            const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init)
+                            const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init)
 {
     DenseMatrix<ElementType>& BasisMatrix = Dictionary.BasisMatrix();
 
-    DenseMatrix<ElementType>& ExperienceOfRepresentingData = Dictionary.ExperienceOfRepresentingData();
+    DenseMatrix<ElementType>& BasisAge = Dictionary.BasisAge();
+
+    DenseMatrix<ElementType>& BasisExperience = Dictionary.BasisExperience();
 
     DenseMatrix<ElementType>& SimilarityMatrix = Dictionary.SimilarityMatrix();
 
@@ -1072,43 +1156,67 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
     int_max BasisNumber = Dictionary.BasisMatrix().GetColNumber();
 
     int_max BasisNumber_init = 0;
-    if (Dictionary_init != nullptr)
+    if (Dictionary_init.IsEmpty() == false)
     { 
-        BasisNumber_init = Dictionary_init->BasisMatrix().GetColNumber();
+        BasisNumber_init = Dictionary_init.BasisMatrix().GetColNumber();
     }
 
-    //--------------------- initialize ExperienceOfRepresentingData ----------------------------------------------------------------
+    int_max DataNumber = FeatureData.GetColNumber();
+
+    //------------------- update BasisAge --------------------------------------------------------------
+
+    BasisAge.FastResize(1, BasisNumber);
+
+    BasisAge.Fill(ElementType(DataNumber)); // fill DataNumber for new basis
+
+    if (Dictionary_init.IsEmpty() == false)
+    {
+        const DenseMatrix<ElementType>& BasisAge_init = Dictionary_init.BasisAge();
+
+        for (int_max k = 0; k < BasisNumber; ++k)
+        {
+            auto tempIndex = VectorIndexList_Basis[k];
+            if (tempIndex < BasisNumber_init)
+            {   // this basis is from Dictionary_init
+
+                BasisAge[k] = BasisAge_init[tempIndex] + DataNumber;
+            }
+        }
+    }
+
+    //--------------------- initialize BasisExperience ---------------------------------------------------------    
     // BasisiNumber in updated BasisMatrix may be different than that in Dictionary_init
 
-    ExperienceOfRepresentingData.FastResize(1, BasisNumber);
+    BasisExperience.FastResize(1, BasisNumber);
 
-    ExperienceOfRepresentingData.Fill(ElementType(1)); // fill 1 for new basis
+    BasisExperience.Fill(ElementType(1)); // fill 1 for new basis
 
-    if (Dictionary_init != nullptr)
+    if (Dictionary_init.IsEmpty() == false)
     {
-        const DenseMatrix<ElementType>& ExperienceOfRepresentingData_init = Dictionary_init->ExperienceOfRepresentingData();
+        const DenseMatrix<ElementType>& BasisExperience_init = Dictionary_init.BasisExperience();
 
         for (int_max k = 0; k < BasisNumber; ++k)
         {
             auto tempIndex = VectorIndexList_Basis[k];
             if (tempIndex < BasisNumber_init) 
             {   // this basis is from Dictionary_init
-                ExperienceOfRepresentingData[k] = ExperienceOfRepresentingData_init[tempIndex];
+                BasisExperience[k] = BasisExperience_init[tempIndex];
             }
         }
     }
 
     //--------------------- update Variance Information ----------------------------------------------------------------
-
+    // use initial BasisExperience
+    //
     if (m_Parameter.UpdateDictionaryInformation_Variance == true)
     {
         this->UpdateDictionaryInformation_Variance(Dictionary, FeatureData, KNNBasisIndexTableOfData,
                                                    VectorSimilarityMatrix, VectorIndexList_Basis, Dictionary_init);
     }
 
-    //--------------------- update ExperienceOfRepresentingData ----------------------------------------------------------------
+    //--------------------- update BasisExperience ----------------------------------------------------------------
 
-    this->UpdateExperienceOfRepresentingDataForEachBasisVector(ExperienceOfRepresentingData, KNNBasisIndexTableOfData);
+    this->UpdateBasisExperienceForEachBasisVector(BasisExperience, KNNBasisIndexTableOfData);
 
     // ----------- update SimilarityMatrix ------------------------------------//
 
@@ -1128,13 +1236,19 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
         }
     }
 
-    Dictionary.SetInfo_SimilarityType(m_Parameter.ParameterOfKNNSoftAssign.SimilarityType);
+    Dictionary.SetProperty_SimilarityType(m_Parameter.ParameterOfKNNSoftAssign.SimilarityType);
+
+    MDK_DebugCode
+    (
+        CharString FilePathAndName = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/SimilarityMatrix.json";
+        SaveDenseMatrixAsJsonDataFile(SimilarityMatrix, FilePathAndName);
+    )
 
     //---------- Update BasisRedundancy --------------------------------------------//
 
     this->UpdateBasisRedundancy(BasisRedundancy, SimilarityMatrix);
 
-    Dictionary.SetInfo_SimilarityThresholdToComputeBasisRedundancy(m_Parameter.SimilarityThresholdToComputeBasisRedundancy);
+    Dictionary.SetProperty_SimilarityThresholdToComputeBasisRedundancy(m_Parameter.SimilarityThresholdToComputeBasisRedundancy);
 }
 
 
@@ -1145,11 +1259,11 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
                                      const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
                                      const DenseMatrix<ElementType>& VectorSimilarityMatrix,
                                      const DenseMatrix<int_max>& VectorIndexList_Basis,
-                                     const FeatureDictionaryForSparseCoding<ElementType>* Dictionary_init)
+                                     const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init)
 {
     DenseMatrix<ElementType>& BasisMatrix = Dictionary.BasisMatrix();
 
-    DenseMatrix<ElementType>& ExperienceOfRepresentingData = Dictionary.ExperienceOfRepresentingData();
+    DenseMatrix<ElementType>& BasisExperience = Dictionary.BasisExperience();
 
     DenseMatrix<ElementType>& VarianceOfL1Distance = Dictionary.VarianceOfL1Distance();
 
@@ -1162,23 +1276,23 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
     int_max BasisNumber = BasisMatrix.GetColNumber();
 
     int_max BasisNumber_init = 0;
-    if (Dictionary_init != nullptr)
+    if (Dictionary_init.IsEmpty() == false)
     {
-        BasisNumber_init = Dictionary_init->BasisMatrix().GetColNumber();
+        BasisNumber_init = Dictionary_init.BasisMatrix().GetColNumber();
     }
 
     //---------- initialize Variance --------------------------------------------//
 
     VarianceOfL1Distance.FastResize(1, BasisNumber);
-    if (Dictionary_init != nullptr)
+    if (Dictionary_init.IsEmpty() == false)
     {
-        const DenseMatrix<ElementType>& VarianceOfL1Distance_init = Dictionary_init->VarianceOfL1Distance();
+        const DenseMatrix<ElementType>& VarianceOfL1Distance_init = Dictionary_init.VarianceOfL1Distance();
 
-        const DenseMatrix<ElementType>& VarianceOfL2Distance_init = Dictionary_init->VarianceOfL2Distance();
+        const DenseMatrix<ElementType>& VarianceOfL2Distance_init = Dictionary_init.VarianceOfL2Distance();
 
-        const DenseMatrix<ElementType>& VarianceOfKLDivergence_init = Dictionary_init->VarianceOfKLDivergence();
+        const DenseMatrix<ElementType>& VarianceOfKLDivergence_init = Dictionary_init.VarianceOfKLDivergence();
 
-        const DenseMatrix<ElementType>& VarianceOfReconstruction_init = Dictionary_init->VarianceOfReconstruction();
+        const DenseMatrix<ElementType>& VarianceOfReconstruction_init = Dictionary_init.VarianceOfReconstruction();
 
         auto MeanStd_L1Distance = ElementType(0);
         if (VarianceOfL1Distance_init.IsEmpty() == false)
@@ -1247,19 +1361,19 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
                                      FeatureData,
                                      KNNBasisIndexTableOfData,
                                      BasisMatrix,
-                                     ExperienceOfRepresentingData);
+                                     BasisExperience);
 
     this->UpdateVarianceOfL2Distance(VarianceOfL2Distance,
                                      FeatureData,
                                      KNNBasisIndexTableOfData,
                                      BasisMatrix,
-                                     ExperienceOfRepresentingData);
+                                     BasisExperience);
 
     this->UpdateVarianceOfReconstruction(VarianceOfReconstruction,
                                          FeatureData,
                                          KNNBasisIndexTableOfData,
                                          BasisMatrix,
-                                         ExperienceOfRepresentingData);
+                                         BasisExperience);
 
     if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == SimilarityTypeEnum::KLDivergence)
     {
@@ -1267,7 +1381,7 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
                                            FeatureData,
                                            KNNBasisIndexTableOfData,
                                            BasisMatrix,
-                                           ExperienceOfRepresentingData);
+                                           BasisExperience);
     }
 }
 
@@ -1328,12 +1442,12 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::FindKNNBasisIndexTableOfD
 
 template<typename ElementType>
 void KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
-UpdateExperienceOfRepresentingDataForEachBasisVector(DenseMatrix<ElementType>& ExperienceOfRepresentingData,
+UpdateBasisExperienceForEachBasisVector(DenseMatrix<ElementType>& BasisExperience,
                                                      const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData)
 {
     //--------------------------------------------------------------------------------------
     // Input:
-    // ExperienceOfRepresentingData is initialized
+    // BasisExperience is initialized
     //
     // KNNBasisIndexTableOfData is from this->FindKNNBasisIndexTableOfDataByVectorSimilarityMatrix(...)
     //
@@ -1345,9 +1459,9 @@ UpdateExperienceOfRepresentingDataForEachBasisVector(DenseMatrix<ElementType>& E
     //--------------------------------------------------------------------------------------
 
     // discount the previous Experience
-    ExperienceOfRepresentingData *= m_Parameter.ExperienceDiscountFactor;
+    BasisExperience *= m_Parameter.ExperienceDiscountFactor;
 
-    int_max BasisNumber = ExperienceOfRepresentingData.GetElementNumber();
+    int_max BasisNumber = BasisExperience.GetElementNumber();
 
     int_max DataNumber = KNNBasisIndexTableOfData.GetLength();
 
@@ -1359,12 +1473,12 @@ UpdateExperienceOfRepresentingDataForEachBasisVector(DenseMatrix<ElementType>& E
 
         for (int_max m = 0; m < tempNeighbourNumber; ++m)
         {
-            ExperienceOfRepresentingData[KNN_IndexList[m]] += ElementType(1) / ElementType(tempNeighbourNumber);
+            BasisExperience[KNN_IndexList[m]] += ElementType(1) / ElementType(tempNeighbourNumber);
         }
     }
 
     // the total Experience is
-    // ExperienceOfRepresentingData.Sum() ~ m_Parameter.ExperienceDiscountFactor * ExperienceOfRepresentingData.Sum() + DataNumber
+    // BasisExperience.Sum() ~ m_Parameter.ExperienceDiscountFactor * BasisExperience.Sum() + DataNumber
     //
     // the new "Experience" of the dictionary gained from data is DataNumber
 }
@@ -1374,7 +1488,7 @@ template<typename ElementType>
 void KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
 UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix)
 {
-    int_max BasisNumber = SimilarityMatrix.GetElementNumber();
+    int_max BasisNumber = SimilarityMatrix.GetColNumber();
 
     BasisRedundancy.FastResize(1, BasisNumber);
 
@@ -1395,7 +1509,7 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
             {
                 if (SimilarityMatrix(n, k) >= SimilarityThreshold)
                 {
-                    BasisRedundancy[k] += 1;
+                    BasisRedundancy[k] += SimilarityMatrix(n, k);
                 }
             }
         }
@@ -1409,7 +1523,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
                            const DenseMatrix<ElementType>& FeatureData,
                            const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
                            const DenseMatrix<ElementType>& BasisMatrix,
-                           const DenseMatrix<ElementType>& ExperienceOfRepresentingData)
+                           const DenseMatrix<ElementType>& BasisExperience)
 {
    int_max DataNumber = FeatureData.GetColNumber();
 
@@ -1457,7 +1571,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
     {
         for (int_max n = 0; n < BasisNumber; ++n)
         {
-            Variance[n] = ExperienceOfRepresentingData[n] * Variance[n] + Variance_current[n];
+            Variance[n] = Variance[n] + Variance_current[n] / BasisExperience[n];
         }
     }
     else
@@ -1493,7 +1607,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
                            const DenseMatrix<ElementType>& FeatureData,
                            const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
                            const DenseMatrix<ElementType>& BasisMatrix,
-                           const DenseMatrix<ElementType>& ExperienceOfRepresentingData)
+                           const DenseMatrix<ElementType>& BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -1541,7 +1655,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
     {
         for (int_max n = 0; n < BasisNumber; ++n)
         {
-            Variance[n] = ExperienceOfRepresentingData[n] * Variance[n] + Variance_current[n];
+            Variance[n] = Variance[n] + Variance_current[n] / BasisExperience[n];
         }
     }
     else
@@ -1577,7 +1691,7 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
                              const DenseMatrix<ElementType>& FeatureData,
                              const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
                              const DenseMatrix<ElementType>& BasisMatrix,
-                             const DenseMatrix<ElementType>& ExperienceOfRepresentingData)
+                             const DenseMatrix<ElementType>& BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -1625,7 +1739,7 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
     {
         for (int_max n = 0; n < BasisNumber; ++n)
         {
-            Variance[n] = ExperienceOfRepresentingData[n] * Variance[n] + Variance_current[n];
+            Variance[n] = Variance[n] + Variance_current[n] / BasisExperience[n];
         }
     }
     else
@@ -1661,7 +1775,7 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
                                const DenseMatrix<ElementType>& FeatureData,
                                const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
                                const DenseMatrix<ElementType>& BasisMatrix,
-                               const DenseMatrix<ElementType>& ExperienceOfRepresentingData)
+                               const DenseMatrix<ElementType>& BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -1721,7 +1835,7 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
     {
         for (int_max n = 0; n < BasisNumber; ++n)
         {
-            Variance[n] = ExperienceOfRepresentingData[n] * Variance[n] + Variance_current[n];
+            Variance[n] = Variance[n] + Variance_current[n] / BasisExperience[n];
         }
     }
     else

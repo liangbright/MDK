@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 
-#include "Test_KNNBasisSelectionDictionaryBuilder.h"
+#include "Test_KNNBasisSelectionOnlineDictionaryBuilder.h"
 
 using namespace mdk;
 
@@ -8,7 +8,9 @@ int main()
 {
     //Test_Matrix();
 
-    //Test_SimpleCase();
+    Test_plus_space_plus();
+
+    Test_SimpleCase();
 
     std::system("pause");
 
