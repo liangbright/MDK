@@ -121,7 +121,7 @@ protected:
                            const DenseMatrix<ElementType>& FeatureData,
                            const DataContainer<SparseVector<ElementType>>& CodeTable,
                            const DenseMatrix<ElementType>& ReconstructedData,
-                           const DenseMatrix<ElementType>  BasisExperience);
+                           const DenseMatrix<ElementType>& BasisExperience);
 
     void ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix);
 
@@ -150,25 +150,25 @@ protected:
                                     const DenseMatrix<ElementType>& FeatureData,
                                     const DataContainer<SparseVector<ElementType>>& CodeTable,
                                     const DenseMatrix<ElementType>& BasisMatrix,
-                                    const DenseMatrix<ElementType>  BasisExperience);
+                                    const DenseMatrix<ElementType>& BasisExperience);
 
     void UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
                                     const DenseMatrix<ElementType>& FeatureData,
                                     const DataContainer<SparseVector<ElementType>>& CodeTable,
                                     const DenseMatrix<ElementType>& BasisMatrix,
-                                    const DenseMatrix<ElementType>  BasisExperience);
+                                    const DenseMatrix<ElementType>& BasisExperience);
 
     void UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
                                       const DenseMatrix<ElementType>& FeatureData,
                                       const DataContainer<SparseVector<ElementType>>& CodeTable,
                                       const DenseMatrix<ElementType>& BasisMatrix,
-                                      const DenseMatrix<ElementType>  BasisExperience);
+                                      const DenseMatrix<ElementType>& BasisExperience);
 
     void UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
                                         const DenseMatrix<ElementType>& FeatureData,
                                         const DataContainer<SparseVector<ElementType>>& CodeTable,
                                         const DenseMatrix<ElementType>& ReconstructedData,
-                                        const DenseMatrix<ElementType>  BasisExperience);
+                                        const DenseMatrix<ElementType>& BasisExperience);
 };
 
 

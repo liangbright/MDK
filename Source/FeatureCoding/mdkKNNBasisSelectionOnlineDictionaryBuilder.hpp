@@ -463,7 +463,9 @@ BuildDictionaryFromData(const int_max BasisNumber_desired,
 
     // estimate the probability mass function based on RepresentativeAbilityOfEachVector
 
-    auto ProbabilityOfEachVector = this->EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(KNNVectorIndexTable, RepresentativeAbilityOfEachVector);
+    auto ProbabilityOfEachVector = this->EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(VectorSimilarityMatrix,
+                                                                                                        KNNVectorIndexTable, 
+                                                                                                        RepresentativeAbilityOfEachVector);
     
     DenseMatrix<int_max> VectorIndexList_Basis = this->SelectBasisFromCombinedDataBySimilarityAndProbability(BasisNumber_desired,
                                                                                                              VectorSimilarityMatrix, 
@@ -1244,7 +1246,7 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
 
     //--------------------- update BasisExperience ----------------------------------------------------------------
 
-    this->UpdateBasisExperienceForEachBasisVector(BasisExperience, KNNBasisIndexTableOfData);
+    this->UpdateBasisExperience(BasisExperience, KNNBasisIndexTableOfData);
 
     // ----------- update SimilarityMatrix ------------------------------------//
 
@@ -1516,8 +1518,8 @@ FindKNNBasisIndexTableOfDataByVectorSimilarityMatrix(const DenseMatrix<ElementTy
 
 template<typename ElementType>
 void KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
-UpdateBasisExperienceForEachBasisVector(DenseMatrix<ElementType>& BasisExperience,
-                                        const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData)
+UpdateBasisExperience(DenseMatrix<ElementType>& BasisExperience,
+                      const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData)
 {
     //--------------------------------------------------------------------------------------
     // Input:

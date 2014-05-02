@@ -512,7 +512,7 @@ UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
                   const DenseMatrix<ElementType>& FeatureData,
                   const DataContainer<SparseVector<ElementType>>& CodeTable,
                   const DenseMatrix<ElementType>& ReconstructedData,
-                  const DenseMatrix<ElementType>  BasisExperience)
+                  const DenseMatrix<ElementType>& BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
     int_max VectorLength = FeatureData.GetRowNumber();
@@ -520,8 +520,6 @@ UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
     int_max BasisNumber = BasisMatrix.GetColNumber();
 
     DenseMatrix<ElementType> CodeVector; // reconstruction code
-
-    DenseMatrix<ElementType> ReconstructedDataVector;
 
     DenseMatrix<ElementType> DataReconstructionErrorVector(1, VectorLength);
 
@@ -533,13 +531,15 @@ UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
     {
         auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
-        for (int_max k = 0; k < Length; ++k)
+        auto temp_small = std::max(eps_value, SquaredL2NormOfCodeVector*eps_value);
+
+        auto temp = ElementOfCodeVector_at_this_Basis / (SquaredL2NormOfCodeVector + temp_small);
+        if (temp > eps_value)
         {
-            auto temp_small = std::max(eps_value, SquaredL2NormOfCodeVector*eps_value);
-
-            auto temp = ElementOfCodeVector_at_this_Basis / (SquaredL2NormOfCodeVector + temp_small);
-
-            BasisVector[k] += temp * DataReconstructionErrorVector[k] / ExperienceOfBasis;
+            for (int_max k = 0; k < Length; ++k)
+            {
+                BasisVector[k] += temp * DataReconstructionErrorVector[k] / ExperienceOfBasis;
+            }
         }
     };
 
@@ -549,29 +549,34 @@ UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
 
         const std::vector <int_max>& BasisIndexList = CodeTable[k].IndexList();
 
-        CodeVector.ForceShare(CodeTable[k].DataArray().data(), VectorLength, 1);
+        int_max NeighbourNumber_k = int_max(BasisIndexList.size());
 
-        auto ReconstructedDataVectorPtr = ReconstructedData.GetElementPointerOfCol(k);
-
-        MatrixSubtract(DataReconstructionErrorVector.GetElementPointer(), 
-                       DataVectorPtr,
-                       ReconstructedDataVectorPtr,
-                       VectorLength, false);
-        
-        auto SquaredL2NormOfCodeVector = ComputeInnerProductOfTwoVectors(CodeVector.GetElementPointer(),
-                                                                         CodeVector.GetElementPointer(), 
-                                                                         VectorLength, false);
-
-        for (int_max n = 0; n < int_max(BasisIndexList.size()); ++n)//n
+        if (NeighbourNumber_k > 0)
         {
-            auto BasisIndex = BasisIndexList[n];
+            CodeVector.ForceShare(CodeTable[k].DataArray().data(), VectorLength, 1);
 
-            auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(BasisIndex);
+            auto ReconstructedDataVectorPtr = ReconstructedData.GetElementPointerOfCol(k);
 
-            TempFunction_BasisUpdate(BasisVectorPtr, DataReconstructionErrorVector.GetElementPointer(), VectorLength,
-                                     CodeVector[n], SquaredL2NormOfCodeVector, 
-                                     BasisExperience[BasisIndex]);
-        }        
+            MatrixSubtract(DataReconstructionErrorVector.GetElementPointer(),
+                           DataVectorPtr,
+                           ReconstructedDataVectorPtr,
+                           VectorLength, false);
+
+            auto SquaredL2NormOfCodeVector = ComputeInnerProductOfTwoVectors(CodeVector.GetElementPointer(),
+                                                                             CodeVector.GetElementPointer(),
+                                                                             VectorLength, false);
+
+            for (int_max n = 0; n < int_max(BasisIndexList.size()); ++n)//n
+            {
+                auto BasisIndex = BasisIndexList[n];
+
+                auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(BasisIndex);
+
+                TempFunction_BasisUpdate(BasisVectorPtr, DataReconstructionErrorVector.GetElementPointer(), VectorLength,
+                                         CodeVector[n], SquaredL2NormOfCodeVector,
+                                         BasisExperience[BasisIndex]);
+            }
+        }
     }
 
     this->ApplyConstraintOnBasis(BasisMatrix);
@@ -813,7 +818,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
                            const DenseMatrix<ElementType>& FeatureData,
                            const DataContainer<SparseVector<ElementType>>& CodeTable,
                            const DenseMatrix<ElementType>& BasisMatrix,
-                           const DenseMatrix<ElementType>  BasisExperience)
+                           const DenseMatrix<ElementType>& BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -899,7 +904,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
                            const DenseMatrix<ElementType>& FeatureData,
                            const DataContainer<SparseVector<ElementType>>& CodeTable,
                            const DenseMatrix<ElementType>& BasisMatrix,
-                           const DenseMatrix<ElementType>  BasisExperience)
+                           const DenseMatrix<ElementType>& BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -985,7 +990,7 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
                              const DenseMatrix<ElementType>& FeatureData,
                              const DataContainer<SparseVector<ElementType>>& CodeTable,
                              const DenseMatrix<ElementType>& BasisMatrix,
-                             const DenseMatrix<ElementType>  BasisExperience)
+                             const DenseMatrix<ElementType>& BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -1071,7 +1076,7 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
                                const DenseMatrix<ElementType>& FeatureData,
                                const DataContainer<SparseVector<ElementType>>& CodeTable,
                                const DenseMatrix<ElementType>& ReconstructedData,
-                               const DenseMatrix<ElementType>  BasisExperience)
+                               const DenseMatrix<ElementType>& BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 

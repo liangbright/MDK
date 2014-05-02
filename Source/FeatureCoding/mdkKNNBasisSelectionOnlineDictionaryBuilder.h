@@ -203,8 +203,8 @@ protected:
                                                                                              const DenseMatrix<int_max>&     VectorIndexList_Basis,
                                                                                              int_max BasisNumber_init);
 
-    void UpdateBasisExperienceForEachBasisVector(DenseMatrix<ElementType>& BasisExperience,
-                                                 const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData);
+    void UpdateBasisExperience(DenseMatrix<ElementType>& BasisExperience,
+                               const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData);
 
     void UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix);   
 
