@@ -1016,45 +1016,89 @@ void Test_GetSubMatrix()
 {
     DenseMatrix<double> A(5, 6);
 
-    A = { 1,     2,     3,     4,     5,     6,
-          10,    20,    30,    40,    50,    60, 
-          100,   200,   300,   40,    500,   600, 
-          1000,  2000,  3000,  4000,  5000,  6000,
-          10000, 20000, 30000, 40000, 50000, 60000, };
+    A = { {1,     2,     3,     4,     5,     6},
+          {10,    20,    30,    40,    50,    60}, 
+          {100,   200,   300,   40,    500,   600}, 
+          {1000,  2000,  3000,  4000,  5000,  6000},
+          {10000, 20000, 30000, 40000, 50000, 60000}};
 
     DisplayMatrix("A", A);
 
-   // auto subA1 = A.GetSubMatrix(span(0, 3), span(2, 5));
+    auto subA1 = A.GetSubMatrix({ 1 }, {0});
+    DisplayMatrix("subA1", subA1);
 
-   // DisplayMatrix("subA1", subA1);
-
-    auto subA2 = A.GetSubMatrix({ 1 }, {0, 1});
-
+    auto subA2 = A.GetSubMatrix({ 1 }, { 0, 1 });
     DisplayMatrix("subA2", subA2);
 
     auto subA3 = A.GetSubMatrix({ 1, 2, 3}, { 0, 1 , 2});
-
     DisplayMatrix("subA3", subA3);
 
-    auto subAa = A.GetSubMatrix(ALL, { 0, 1, 2 });
+    subA3.Clear();
+    A.GetSubMatrix(subA3, { 1, 2, 3 }, { 0, 1, 2 });
+    DisplayMatrix("subA3", subA3);
 
-    DisplayMatrix("subAa", subAa);
+    auto subA4 = A.GetSubMatrix(ALL, { 0, 1, 2 });
+    DisplayMatrix("subA4", subA4);
 
-    auto subAb = A.GetSubMatrix({ 0, 1, 2 }, ALL);
+    subA4.Clear();
+    A.GetSubMatrix(subA4, ALL, { 0, 1, 2 });
+    DisplayMatrix("subA4", subA4);
 
-    DisplayMatrix("subAb", subAb);
+    auto subA5 = A.GetSubMatrix({ 0, 1, 2 }, ALL);
+    DisplayMatrix("subAb", subA5);
 
-    DenseMatrix<double> B1;
+    subA5.Clear();
+    A.GetSubMatrix(subA5, { 0, 1, 2 }, ALL);
+    DisplayMatrix("subAb", subA5);
 
-    A.GetSubMatrix(B1, { 0, 1, 2 }, { 0, 1, 2, 3, 4 });
+    // std::vector 
 
-    DisplayMatrix("B1", B1);
+    auto subB1 = A.GetSubMatrix(span(0, 3), span(2, 5));
+    DisplayMatrix("subB1", subB1);
 
-    DenseMatrix<double> B2;
+    subB1.Clear();
+    A.GetSubMatrix(subB1, span(0, 3), span(2, 5));
+    DisplayMatrix("subB1", subB1);
 
-    A.GetSubMatrix(B2, {0, 1, 2, 3, 4}, { 0, 1, 2 });
+    auto subB2 = A.GetSubMatrix(ALL, span(2, 5));
+    DisplayMatrix("subB2", subB2);
 
-    DisplayMatrix("B2", B2);
+    subB2.Clear();
+    A.GetSubMatrix(subB2, ALL, span(2, 5));
+    DisplayMatrix("subB2", subB2);
+
+    auto subB3 = A.GetSubMatrix(span(0, 3), ALL);
+    DisplayMatrix("subB3", subB3);
+
+    subB3.Clear();
+    A.GetSubMatrix(subB3, span(0, 3), ALL);
+    DisplayMatrix("subB3", subB3);
+
+    // DenseMatrix
+
+    DenseMatrix<int_max> RowIndexList = { 0, 1, 2, 3 };
+    DenseMatrix<int_max> ColIndexList = { 2, 3, 4, 5 };
+
+    auto subC1 = A.GetSubMatrix(RowIndexList, ColIndexList);
+    DisplayMatrix("subC1", subC1);
+
+    subC1.Clear();
+    A.GetSubMatrix(subC1, RowIndexList, ColIndexList);
+    DisplayMatrix("subC1", subC1);
+
+    auto subC2 = A.GetSubMatrix(ALL, ColIndexList);
+    DisplayMatrix("subC2", subC2);
+
+    subC2.Clear();
+    A.GetSubMatrix(subC2, ALL, ColIndexList);
+    DisplayMatrix("subC2", subC2);
+
+    auto subC3 = A.GetSubMatrix(RowIndexList, ALL);
+    DisplayMatrix("subC3", subC3);
+
+    subC3.Clear();
+    A.GetSubMatrix(subC3, RowIndexList, ALL);
+    DisplayMatrix("subC3", subC3);
 }
 
 

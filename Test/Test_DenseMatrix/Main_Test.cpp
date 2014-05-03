@@ -68,7 +68,7 @@ int aaa_main()
 
 int main()
 {
-    Test_Operator_With_ElementPointer();
+    //Test_Operator_With_ElementPointer();
 
     //Test_MatrixMutiply();
 
@@ -104,7 +104,7 @@ int main()
 
    // Test_Set_Get_Append_Delete_Insert_Row();
 
-   // Test_GetSubMatrix();
+    Test_GetSubMatrix();
 
     // Test_Share();
 

@@ -637,7 +637,7 @@ public:
 
     //inline const DenseMatrix RefCol(int_max ColIndex) const;
 
-    // return SubMatrix as DenseMatrix ---------------------------------------------------------------
+    // ----------------------- Get SubMatrix as DenseMatrix --------------------------------------------
 
     inline DenseMatrix GetSubMatrix(const std::initializer_list<int_max>& LinearIndexList) const;
 
@@ -655,34 +655,66 @@ public:
     inline DenseMatrix GetSubMatrix(const std::initializer_list<int_max>& RowIndexList,
                                     const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
+    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+                             const std::initializer_list<int_max>& RowIndexList,
+                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+
     inline DenseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
                                     const std::initializer_list<int_max>& ColIndexList) const;
+
+    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                             const std::initializer_list<int_max>& ColIndexList) const;
 
     inline DenseMatrix GetSubMatrix(const std::vector<int_max>& RowIndexList,
                                     const std::vector<int_max>& ColIndexList) const;
 
-    inline bool GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix,
+    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
                              const std::vector<int_max>& RowIndexList,
                              const std::vector<int_max>& ColIndexList) const;
 
     inline DenseMatrix GetSubMatrix(const std::vector<int_max>& RowIndexList,
                                     const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
+    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+                             const std::vector<int_max>& RowIndexList,
+                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+
     inline DenseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
                                     const std::vector<int_max>& ColIndexList) const;
+
+    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                             const std::vector<int_max>& ColIndexList) const;
 
     inline DenseMatrix GetSubMatrix(const DenseMatrix<int_max>& RowIndexList,
                                     const DenseMatrix<int_max>& ColIndexList) const;
 
-    inline bool GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix, 
+    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
                              const DenseMatrix<int_max>& RowIndexList, 
                              const DenseMatrix<int_max>& ColIndexList) const;
 
     inline DenseMatrix GetSubMatrix(const DenseMatrix<int_max>& RowIndexList,
                                     const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
+    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+                             const DenseMatrix<int_max>& RowIndexList,
+                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+
     inline DenseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
                                     const DenseMatrix<int_max>& ColIndexList) const;
+
+    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                             const DenseMatrix<int_max>& ColIndexList) const;
+
+    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
+                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
+                             const int_max* ColIndexList, int_max OutputColNumber) const;
+
+    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
+                             const int_max* RowIndexList, int_max OutputRowNumber,
+                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix, 
                              const int_max* RowIndexList, int_max OutputRowNumber,

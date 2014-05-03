@@ -205,7 +205,7 @@ DenseMatrix<ElementType> MatrixMultiply(const DenseMatrix<ElementType>& MatrixA,
 
 template<typename ElementType>
 inline
-bool MatrixMultiplySlow(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
+bool MatrixMultiply_slow(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
 {
     auto SizeA = MatrixA.GetSize();
 

@@ -3721,11 +3721,14 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseMatri
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const std::initializer_list<int_max>& RowIndexList, const std::initializer_list<int_max>& ColIndexList) const
+DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const std::initializer_list<int_max>& RowIndexList, 
+                                                                const std::initializer_list<int_max>& ColIndexList) const
 {
-    DenseMatrix<ElementType> tempMatrix; // empty matrix
+    DenseMatrix<ElementType> tempMatrix;
 
-    GetSubMatrix(tempMatrix, RowIndexList, ColIndexList);
+    this->GetSubMatrix(tempMatrix,
+                       RowIndexList.begin(), int_max(RowIndexList.size()),
+                       ColIndexList.begin(), int_max(ColIndexList.size()));
 
     return tempMatrix;
 }
@@ -3737,91 +3740,63 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
                                             const std::initializer_list<int_max>& RowIndexList,
                                             const std::initializer_list<int_max>& ColIndexList) const
 {
-    if (this == &OutputMatrix)
-    {
-        MDK_Error("A Matrix tries to get a SubMatrix of itself @ DenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)")
-        return false;
-    }
-
-    auto OutputRowNumber = int_max(RowIndexList.size());
-
-    auto OutputColNumber = int_max(ColIndexList.size());
-
-    if (OutputRowNumber <= 0 || OutputColNumber <= 0)
-    {
-        MDK_Error("RowIndexList or ColIndexList is empty @ DenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)")
-        return false;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    for (auto it = ColIndexList.begin(); it != ColIndexList.end(); ++it)
-    {
-        if (*it >= SelfSize.ColNumber || *it < 0)
-        {
-            MDK_Error("Invalid ColIndexList @ DenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)")
-            return false;
-        }
-    }
-
-    for (auto it = RowIndexList.begin(); it != RowIndexList.end(); ++it)
-    {
-        if (*it >= SelfSize.RowNumber || *it < 0)
-        {
-            MDK_Error("Invalid RowIndexList @ DenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)")
-            return false;
-        }
-    }
-
-    if (OutputMatrix.GetColNumber() != OutputColNumber || OutputMatrix.GetRowNumber() != OutputRowNumber)
-    {
-        if (OutputMatrix.IsSizeFixed() == false)
-        {
-            OutputMatrix.FastResize(OutputRowNumber, OutputColNumber);
-        }
-        else
-        {
-            MDK_Error("Invalid OutputMatrix @ DenseMatrix::GetSubMatrix(OutputMatrix, RowIndexList, ColIndexList)")
-            return false;
-        }
-    }
-
     return this->GetSubMatrix(OutputMatrix,
-                              ColIndexList.begin(), int_max(RowIndexList.size()),
+                              RowIndexList.begin(), int_max(RowIndexList.size()),
                               ColIndexList.begin(), int_max(ColIndexList.size()));
 }
 
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const std::initializer_list<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
+DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const std::initializer_list<int_max>& RowIndexList, 
+                                                                const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
 {
-    auto SelfSize = this->GetSize();
+    DenseMatrix<ElementType> tempMatrix;
 
-    std::vector<int_max> ColIndexList(SelfSize.ColNumber);
+    this->GetSubMatrix(tempMatrix, 
+                       RowIndexList.begin(), int_max(RowIndexList.size()),
+                       ALL_Symbol);
 
-    for (int_max i = 0; i < SelfSize.ColNumber; ++i)
-    {
-        ColIndexList[i] = i;
-    }
-
-    return this->GetSubMatrix(RowIndexList, ColIndexList);
+    return tempMatrix;
 }
+
+
+template<typename ElementType>
+inline 
+bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
+                                            const std::initializer_list<int_max>& RowIndexList,
+                                            const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
+{
+    return this->GetSubMatrix(OutputMatrix,
+                              RowIndexList.begin(), int_max(RowIndexList.size()),
+                              ALL_Symbol);
+}
+
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::initializer_list<int_max>& ColIndexList) const
+DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
+                                                                const std::initializer_list<int_max>& ColIndexList) const
 {
-    auto SelfSize = this->GetSize();
+    DenseMatrix<ElementType> tempMatrix;
 
-    std::vector<int_max> RowIndexList(SelfSize.RowNumber);
+    this->GetSubMatrix(tempMatrix,
+                       ALL_Symbol,
+                       ColIndexList.begin(), int_max(ColIndexList.size()));
 
-    for (int_max i = 0; i < SelfSize.RowNumber; ++i)
-    {
-        RowIndexList[i] = i;
-    }
+    return tempMatrix;
+}
 
-    return this->GetSubMatrix(RowIndexList, ColIndexList);
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
+                                            const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                                            const std::initializer_list<int_max>& ColIndexList) const
+{
+    return this->GetSubMatrix(OutputMatrix,
+                              ALL_Symbol,
+                              ColIndexList.begin(), int_max(ColIndexList.size()));
 }
 
 
@@ -3829,12 +3804,15 @@ template<typename ElementType>
 inline
 DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const std::vector<int_max>& RowIndexList, const std::vector<int_max>& ColIndexList) const
 {
-    DenseMatrix<ElementType> tempMatrix; // empty matrix
+    DenseMatrix<ElementType> tempMatrix;
 
-    GetSubMatrix(tempMatrix, RowIndexList, ColIndexList);
+    this->GetSubMatrix(tempMatrix,
+                       RowIndexList.data(), int_max(RowIndexList.size()),
+                       ColIndexList.data(), int_max(ColIndexList.size()));
 
     return tempMatrix;
 }
+
 
 template<typename ElementType>
 inline
@@ -3842,40 +3820,63 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
                                             const std::vector<int_max>& RowIndexList, 
                                             const std::vector<int_max>& ColIndexList) const
 {
-    return this->GetSubMatrix(OutputMatrix, RowIndexList.data(), int_max(RowIndexList.size()), ColIndexList.data(), int_max(ColIndexList.size()));
+    return this->GetSubMatrix(OutputMatrix, 
+                              RowIndexList.data(), int_max(RowIndexList.size()), 
+                              ColIndexList.data(), int_max(ColIndexList.size()));
 }
 
 
 template<typename ElementType>
 inline 
-DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const std::vector<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
+DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const std::vector<int_max>& RowIndexList, 
+                                                                const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
 {
-    auto SelfSize = this->GetSize();
+    DenseMatrix<ElementType> tempMatrix;
 
-    std::vector<int_max> ColIndexList(SelfSize.ColNumber);
+    this->GetSubMatrix(tempMatrix, 
+                       RowIndexList.data(), int_max(RowIndexList.size()),
+                       ALL_Symbol);
 
-    for (int_max i = 0; i < SelfSize.ColNumber; ++i)
-    {
-        ColIndexList[i] = i;
-    }
-
-    return this->GetSubMatrix(RowIndexList, ColIndexList);
+    return tempMatrix;
 }
+
+
+template<typename ElementType>
+inline 
+bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
+                                            const std::vector<int_max>& RowIndexList,
+                                            const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
+{
+    return this->GetSubMatrix(OutputMatrix,
+                              RowIndexList.data(), int_max(RowIndexList.size()),
+                              ALL_Symbol);
+}
+
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::vector<int_max>& ColIndexList) const
+DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
+                                                                const std::vector<int_max>& ColIndexList) const
 {
-    auto SelfSize = this->GetSize();
+    DenseMatrix<ElementType> tempMatrix;
 
-    std::vector<int_max> RowIndexList(SelfSize.RowNumber);
+    this->GetSubMatrix(tempMatrix,
+                       ALL_Symbol,
+                       ColIndexList.data(), int_max(ColIndexList.size()));
 
-    for (int_max i = 0; i < SelfSize.RowNumber; ++i)
-    {
-        RowIndexList[i] = i;
-    }
+    return tempMatrix;
+}
 
-    return this->GetSubMatrix(RowIndexList, ColIndexList);
+
+template<typename ElementType>
+inline 
+bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
+                                            const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                                            const std::vector<int_max>& ColIndexList) const
+{
+    return this->GetSubMatrix(OutputMatrix,
+                              ALL_Symbol,
+                              ColIndexList.data(), int_max(ColIndexList.size()));
 }
 
 
@@ -3885,9 +3886,9 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseMatri
 {
     DenseMatrix<ElementType> tempMatrix;
 
-    if (ColIndexList.IsVector() == false || RowIndexList.IsVector() == false)
+    if (RowIndexList.IsVector() == false || ColIndexList.IsVector() == false)
     {
-        MDK_Error("Input is NOT a vector @ DenseMatrix::GetSubMatrix(DenseMatrix: RowIndexList, ColIndexList)")
+        MDK_Error("RowIndexList or ColIndexList is NOT a vector @ DenseMatrix::GetSubMatrix(DenseMatrix: RowIndexList, ColIndexList)")
         return tempMatrix;
     }
 
@@ -3905,10 +3906,10 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
                                             const DenseMatrix<int_max>& RowIndexList,
                                             const DenseMatrix<int_max>& ColIndexList) const
 {
-    if (ColIndexList.IsVector() == false || RowIndexList.IsVector() == false)
+    if (RowIndexList.IsVector() == false || ColIndexList.IsVector() == false)
     {
-        MDK_Error("Input is NOT a vector @ DenseMatrix::GetSubMatrix(OutputMatrix, DenseMatrix: RowIndexList, ColIndexList)")
-        return tempMatrix;
+        MDK_Error("RowIndexList or ColIndexList is NOT a vector @ DenseMatrix::GetSubMatrix(OutputMatrix, DenseMatrix: RowIndexList, ColIndexList)")
+        return false;
     }
 
     return this->GetSubMatrix(OutputMatrix,
@@ -3919,28 +3920,20 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseMatrix<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
+DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseMatrix<int_max>& RowIndexList, 
+                                                                const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
 {
     DenseMatrix<ElementType> tempMatrix;
 
     if (RowIndexList.IsVector() == false)
     {
-        MDK_Error("Input is NOT a vector @ DenseMatrix::GetSubMatrix(DenseMatrix: RowIndexList, ALL)")
+        MDK_Error("RowIndexList is NOT a vector @ DenseMatrix::GetSubMatrix(DenseMatrix: RowIndexList, ALL)")
         return tempMatrix;
-    }
-
-    auto SelfSize = this->GetSize();
-
-    std::vector<int_max> ColIndexList(SelfSize.ColNumber);
-
-    for (int_max i = 0; i < SelfSize.ColNumber; ++i)
-    {
-        ColIndexList[i] = i;
     }
 
     this->GetSubMatrix(tempMatrix,
                        RowIndexList.GetElementPointer(), RowIndexList.GetElementNumber(),
-                       ColIndexList.data(), int_max(ColIndexList.size()));
+                       ALL_Symbol);
 
     return tempMatrix;
 }
@@ -3948,30 +3941,194 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseMatri
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const DenseMatrix<int_max>& ColIndexList) const
+bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+                                            const DenseMatrix<int_max>& RowIndexList,
+                                            const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
+{
+    if (RowIndexList.IsVector() == false)
+    {
+        MDK_Error("RowIndexList is NOT a vector @ DenseMatrix::GetSubMatrix(DenseMatrix: RowIndexList, ALL)")
+        return false;
+    }
+
+    return this->GetSubMatrix(OutputMatrix,
+                              RowIndexList.GetElementPointer(), RowIndexList.GetElementNumber(),
+                              ALL_Symbol);
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
+                                                                const DenseMatrix<int_max>& ColIndexList) const
 {
     DenseMatrix<ElementType> tempMatrix;
 
     if (ColIndexList.IsVector() == false)
     {
-        MDK_Error("Input is NOT a vector @ DenseMatrix::GetSubMatrix(ALL, DenseMatrix: ColIndexList)")
+        MDK_Error("ColIndexList is NOT a vector @ DenseMatrix::GetSubMatrix(OutputMatrix, ALL, DenseMatrix: ColIndexList)")
         return tempMatrix;
     }
 
-    auto SelfSize = this->GetSize();
-
-    std::vector<int_max> RowIndexList(SelfSize.RowNumber);
-
-    for (int_max i = 0; i < SelfSize.RowNumber; ++i)
-    {
-        RowIndexList[i] = i;
-    }
-
     this->GetSubMatrix(tempMatrix,
-                       RowIndexList.data(), int_max(RowIndexList.size()),
+                       ALL_Symbol,
                        ColIndexList.GetElementPointer(), ColIndexList.GetElementNumber());
 
     return tempMatrix;
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+                                            const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                                            const DenseMatrix<int_max>& ColIndexList) const
+{
+    if (ColIndexList.IsVector() == false)
+    {
+        MDK_Error("ColIndexList is NOT a vector @ DenseMatrix::GetSubMatrix(OutputMatrix, ALL, DenseMatrix: ColIndexList)")
+        return false;
+    }
+
+    this->GetSubMatrix(OutputMatrix,
+                       ALL_Symbol,
+                       ColIndexList.GetElementPointer(), ColIndexList.GetElementNumber());
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
+                                            const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
+                                            const int_max* ColIndexList, int_max OutputColNumber) const
+{
+    auto SelfSize = this->GetSize();
+
+    if (SelfSize.ColNumber == 0)
+    {
+        MDK_Error("Self is empty @ DenseMatrix::GetSubMatrix(OutputMatrix, ALL, pointer...)")
+        return false;
+    }
+
+    if (this->GetElementPointer() == OutputMatrix.GetElementPointer())
+    {
+        MDK_Error("A Matrix tries to change to be a SubMatrix of itself @ DenseMatrix::GetSubMatrix(OutputMatrix, ALL, pointer...)")
+        return false;
+    }
+
+    if (ColIndexList == nullptr || OutputColNumber <= 0)
+    {
+        MDK_Error("ColIndexList is empty @ DenseMatrix::GetSubMatrix(OutputMatrix, ALL, pointer...)")
+        return false;
+    }
+
+    for (int_max j = 0; j < OutputColNumber; ++j)
+    {
+        auto ColIndex = ColIndexList[j];
+
+        if (ColIndex < 0 || ColIndex >= SelfSize.ColNumber)
+        {
+            MDK_Error("Invalid ColIndex @ DenseMatrix::GetSubMatrix(OutputMatrix, ALL, pointer...)")
+            return false;
+        }
+    }
+
+    auto IsOK = OutputMatrix.FastResize(SelfSize.RowNumber, OutputColNumber);
+    if (IsOK == false)
+    {
+        MDK_Error("Invalid OutputMatrix @ DenseMatrix::GetSubMatrix(OutputMatrix, ALL, pointer...)")
+        return false;
+    }
+
+    auto OutputPointer = OutputMatrix.GetElementPointer();
+
+    auto RawPointer = this->GetElementPointer();
+
+    for (int_max j = 0; j < OutputColNumber; ++j)
+    {
+        auto ColIndex = ColIndexList[j];
+
+        auto Offset = ColIndex * SelfSize.RowNumber;
+
+        for (int_max i = 0; i < SelfSize.RowNumber; ++i)
+        {
+            int_max LinearIndex = Offset + i;
+
+            OutputPointer[0] = RawPointer[LinearIndex];
+
+            ++OutputPointer;
+        }
+    }
+
+    return true;
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
+                                            const int_max* RowIndexList, int_max OutputRowNumber,
+                                            const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
+{
+    auto SelfSize = this->GetSize();
+
+    if (SelfSize.RowNumber == 0)
+    {
+        MDK_Error("Self is empty @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer, ALL)")
+        return false;
+    }
+
+    if (this->GetElementPointer() == OutputMatrix.GetElementPointer())
+    {
+        MDK_Error("A Matrix tries to change to be a SubMatrix of itself @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer, ALL)")
+        return false;
+    }
+
+    if (RowIndexList == nullptr || OutputRowNumber <= 0)
+    {
+        MDK_Error("RowIndexList is empty @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer, ALL)")
+        return false;
+    }
+
+    for (int_max i = 0; i < OutputRowNumber; ++i)
+    {
+        auto RowIndex = RowIndexList[i];
+
+        if (RowIndex < 0 || RowIndex >= SelfSize.RowNumber)
+        {
+            MDK_Error("Invalid RowIndex @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer, ALL)")
+            return false;
+        }
+    }
+
+    auto IsOK = OutputMatrix.FastResize(OutputRowNumber, SelfSize.ColNumber);
+    if (IsOK ==false)
+    {
+        MDK_Error("Invalid OutputMatrix @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer, ALL)")
+        return false;
+    }
+
+    auto OutputPointer = OutputMatrix.GetElementPointer();
+
+    auto RawPointer = this->GetElementPointer();
+
+    for (int_max j = 0; j < SelfSize.ColNumber; ++j)
+    {
+        auto Offset = j * SelfSize.RowNumber;
+
+        for (int_max i = 0; i < OutputRowNumber; ++i)
+        {
+            auto RowIndex = RowIndexList[i];
+           
+            int_max LinearIndex = Offset + RowIndex;
+
+            OutputPointer[0] = RawPointer[LinearIndex];
+
+            ++OutputPointer;
+        }
+    }
+
+    return true;
 }
 
 
@@ -3991,64 +4148,64 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
 
     if (this->GetElementPointer() == OutputMatrix.GetElementPointer())
     {
-        MDK_Error("A Matrix tries to change to be a SubMatrix of itself @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer...)")
+        MDK_Error("A Matrix tries to change to be a SubMatrix of itself @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer,..., pointer,...)")
         return false;
     }
 
     if (RowIndexList == nullptr || OutputRowNumber <= 0 || ColIndexList== nullptr || OutputColNumber <= 0)
     {
-        MDK_Error("RowIndexList or ColIndexList is empty @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer...)")
+        MDK_Error("RowIndexList or ColIndexList is empty @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer,..., pointer,...)")
         return false;
     }
 
-   
-    for (auto it = ColIndexList; it != ColIndexList + OutputColNumber; ++it)
+    for (int_max i = 0; i < OutputRowNumber; ++i)
     {
-        if (*it >= SelfSize.ColNumber || *it < 0)
+        auto RowIndex = RowIndexList[i];
+
+        if (RowIndex < 0 || RowIndex >= SelfSize.RowNumber)
         {
-            MDK_Error("Invalid ColIndexList @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer...)")
+            MDK_Error("Invalid RowIndex @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer,..., pointer,...)")
             return false;
         }
     }
 
-    for (auto it = RowIndexList; it != RowIndexList + OutputRowNumber; ++it)
+    for (int_max j = 0; j < OutputColNumber; ++j)
     {
-        if (*it >= SelfSize.RowNumber || *it < 0)
+        auto ColIndex = ColIndexList[j];
+
+        if (ColIndex < 0 || ColIndex >= SelfSize.ColNumber)
         {
-            MDK_Error("Invalid RowIndexList @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer...)")
+            MDK_Error("Invalid ColIndex @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer,..., pointer,...)")
             return false;
         }
     }
 
-    if (OutputMatrix.GetColNumber() != OutputColNumber || OutputMatrix.GetRowNumber() != OutputRowNumber)
+    auto IsOK = OutputMatrix.FastResize(OutputRowNumber, OutputColNumber);
+    if (IsOK == false)        
     {
-        if (OutputMatrix.IsSizeFixed() == false)
-        {
-            OutputMatrix.FastResize(OutputRowNumber, OutputColNumber);
-        }
-        else
-        {
-            MDK_Error("Invalid OutputMatrix @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer...)")
-            return false;
-        }
+        MDK_Error("Invalid OutputMatrix @ DenseMatrix::GetSubMatrix(OutputMatrix, pointer,..., pointer,...)")
+        return false;
     }
 
-
-    auto tempRawPointer = OutputMatrix.GetElementPointer();
+    auto OutputPointer = OutputMatrix.GetElementPointer();
 
     auto RawPointer = this->GetElementPointer();
 
     for (int_max j = 0; j < OutputColNumber; ++j)
     {
-        auto Index = ColIndexList[j] * SelfSize.RowNumber;
+        auto ColIndex = ColIndexList[j];
+
+        auto Offset = ColIndex * SelfSize.RowNumber;
 
         for (int_max i = 0; i < OutputRowNumber; ++i)
         {
-            int_max LinearIndex = Index + RowIndexList[i];
+            auto RowIndex = RowIndexList[i];
 
-            tempRawPointer[0] = RawPointer[LinearIndex];
+            int_max LinearIndex = Offset + RowIndex;
 
-            ++tempRawPointer;
+            OutputPointer[0] = RawPointer[LinearIndex];
+
+            ++OutputPointer;
         }
     }
 
@@ -4755,7 +4912,7 @@ bool DenseMatrix<ElementType>::AppendRow(const ElementType_Input* RowData, int_m
 
     this->Resize(SelfSize.RowNumber + 1, Length);
 
-    return this->SetRow(SelfSize.RowNumber, RowData, Length);
+    return this->SetRow(SelfSize.RowNumber, RowData);
 }
 
 
