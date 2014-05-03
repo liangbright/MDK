@@ -50,9 +50,8 @@ void Test_SimpleCase()
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.1;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = 10;
     
-    DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber = NeighbourNumber;
-    DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative = false;
-    DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne = false;
+    DictionaryBuilder.m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative = false;
+    DictionaryBuilder.m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne = false;
 
     DictionaryBuilder.m_Parameter.ExperienceDiscountFactor = 0;
 

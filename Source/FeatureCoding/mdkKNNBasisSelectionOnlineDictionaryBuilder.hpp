@@ -591,16 +591,18 @@ SelectBasisFromCombinedDataBySimilarityAndProbability(const int_max BasisNumber_
     std::mt19937 gen_bool(rd_bool());
     std::bernoulli_distribution BoolRandomNumber(0.5);
 
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+
     DenseMatrix<int_max> VectorFlagList(1, TotalVectorNumber);
     VectorFlagList.Fill(1);
-    // FlagList(i) is 0 : vector_i is removed from in the current basis set
+    // FlagList(i) is 0 : vector_i is removed from the current basis set
     // FlagList(i) is 1 : vector_i is still in the current basis set
 
-    int_max OutputBasisNumber = TotalVectorNumber; // OutputBasisNumber is the number of vectors In Current Basis Set
+    int_max CurrentBasisNumber = TotalVectorNumber; // CurrentBasisNumber is the number of vectors In Current Basis Set
 
     for (int_max k = 0; k < NumberOfVectorPair; ++k)
     {
-        if (OutputBasisNumber <= BasisNumber_desired)
+        if (CurrentBasisNumber <= BasisNumber_desired)
         {
             break;
         }
@@ -613,7 +615,7 @@ SelectBasisFromCombinedDataBySimilarityAndProbability(const int_max BasisNumber_
             auto Prob_a = ProbabilityOfEachVector[Index_a];
             auto Prob_b = ProbabilityOfEachVector[Index_b];
 
-            if (Prob_a == Prob_b)
+            if (std::abs(Prob_a - Prob_b) <= eps_value)
             {
                 bool temp_bool = BoolRandomNumber(gen_bool);
                 // randomly discard vector a or vector b
@@ -636,12 +638,12 @@ SelectBasisFromCombinedDataBySimilarityAndProbability(const int_max BasisNumber_
                 VectorFlagList[Index_a] = 0;
             }
 
-            OutputBasisNumber -= 1;
+            CurrentBasisNumber -= 1;
         }
     }
 
     DenseMatrix<int_max> VectorIndexList_Basis;
-    VectorIndexList_Basis.ReserveCapacity(OutputBasisNumber);
+    VectorIndexList_Basis.ReserveCapacity(CurrentBasisNumber);
 
     for (int_max k = 0; k < TotalVectorNumber; ++k)
     {
@@ -744,15 +746,31 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
     //-------------------------------------------------------------------------------------------------------------
     auto TempFunction_AndRandomNumberToSimilarity = [&](ElementType Similarity)
     {
-        // if Similarity <= SimilarityThreshold and > eps_value
-        // add some random noise with abs < SimilarityThreshold
-        // then,  data pair with Similarity <= eps_value will be sorted/sampled randomly
-        // It is a kind of random sampling
+        // (1) if Similarity >=  SimilarityThreshold + eps_value
+        //     add eps_value noise to similarity of every pair in case there are two pairs with the same similarity
         //
-        // if Similarity <= eps_value
-        // then set Similarity to zero or eps_value randomly
+        // (2) if Similarity < SimilarityThreshold + eps_value
+        //     add some random noise, and make sure Similarity < SimilarityThreshold + eps_value
+        //     then,  data pair with Similarity < SimilarityThreshold + eps_value will be sorted/sampled randomly
+        //     It is a kind of random sampling
+        //     note: when Similarity is small, the Similarity metric it self is not accurate
+        //
+        // (3) make sure Similarity in the range [0, 1]
 
-        if (Similarity <= SimilarityThreshold && Similarity > eps_value)
+        if (Similarity >= SimilarityThreshold + eps_value)
+        {
+            bool Flag = BoolRandomNumber(gen_bool);
+
+            if (Flag == true)
+            {
+                Similarity += eps_value;
+            }
+            else
+            {
+                Similarity -= eps_value;
+            }
+        }
+        else
         {
             auto tempValue = UniformRandomNumber(gen_uniform);
 
@@ -760,18 +778,13 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
 
         }
 
-        if (Similarity <= eps_value)
+        if (Similarity < ElementType(0))
         {
-            bool Flag = BoolRandomNumber(gen_bool);
-
-            if (Flag == true)
-            {
-                Similarity = ElementType(0);
-            }
-            else
-            {
-                Similarity = eps_value;
-            }
+            Similarity = ElementType(0);
+        }
+        else if (Similarity > ElementType(1))
+        {
+            Similarity = ElementType(1);
         }
 
         return Similarity;
