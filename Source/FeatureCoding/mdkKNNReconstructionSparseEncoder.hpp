@@ -162,6 +162,29 @@ bool KNNReconstructionSparseEncoder<ElementType>::Postprocess()
 
 
 template<typename ElementType>
+ElementType 
+KNNReconstructionSparseEncoder<ElementType>::
+ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum SimilarityType,
+                                   const DenseMatrix<ElementType>& VectorA,
+                                   const DenseMatrix<ElementType>& VectorB,
+                                   ElementType Variance)
+{
+    return KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(SimilarityType, VectorA, VectorB, Variance);
+}
+
+
+template<typename ElementType>
+ElementType
+KNNReconstructionSparseEncoder<ElementType>::
+ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum SimilarityType,
+                                   const ElementType* VectorA, const ElementType* VectorB, int_max Length,
+                                   ElementType Variance, bool CheckInput = true)
+{
+    return KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(SimilarityType, VectorA, VectorB, Length, Variance, CheckInput);
+}
+
+
+template<typename ElementType>
 DenseMatrix<ElementType> 
 KNNReconstructionSparseEncoder<ElementType>::
 ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,

@@ -246,22 +246,30 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
 template<typename ElementType>
 void KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 {
-    // compute the total BasisExperience of m_InitialDictionary
-
-    auto TotalExperience_init = ElementType(0);
-    if (m_InitialDictionary != nullptr)
-    {
-        TotalExperience_init = m_InitialDictionary->BasisExperience().Sum();
-    }
-
-    int_max TotalDataNumber = m_FeatureData->GetColNumber();
-
     FeatureDictionaryForSparseCoding<ElementType> OutputDictionary;
 
     if (m_InitialDictionary != nullptr)
     {
-        OutputDictionary.ForceShare(m_InitialDictionary);
+        if (m_InitialDictionary->IsEmpty() == false)
+        {
+            OutputDictionary.Copy(m_InitialDictionary);
+
+            DenseMatrix<ElementType>& BasisExperience = OutputDictionary.BasisExperience();
+
+            // discount the previous Experience
+            BasisExperience *= m_Parameter.ExperienceDiscountFactor;
+            // must >= 1
+            for (int_max k = 0; k < BasisExperience.GetElementNumber(); k++)
+            {
+                if (BasisExperience[k] < 1)
+                {
+                    BasisExperience[k] = 1;
+                }
+            }
+        }
     }
+
+    int_max TotalDataNumber = m_FeatureData->GetColNumber();
 
     if (m_Parameter.MaxNumberOfDataInEachBatch >= TotalDataNumber)
     {      
@@ -728,6 +736,30 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
 
     auto SimilarityThreshold = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
 
+    //---------------------------------------------------------------------------------------------
+    // get the Variance to compute Similarity
+
+    auto SimilarityTypeOfKNNSoftAssign = m_Parameter.ParameterOfKNNSoftAssign.SimilarityType;
+
+    auto Variance = ElementType(0);
+
+    switch (SimilarityTypeOfKNNSoftAssign)
+    {
+    case VectorSimilarityTypeEnum::L1Distance :
+        Variance = m_Parameter.ParameterOfKNNSoftAssign.Variance_L1;
+
+    case VectorSimilarityTypeEnum::L2Distance:
+        Variance = m_Parameter.ParameterOfKNNSoftAssign.Variance_L2;
+
+    case VectorSimilarityTypeEnum::KLDivergence:
+        Variance = m_Parameter.ParameterOfKNNSoftAssign.Variance_KL;
+
+    default:
+        Variance = 0;
+    }
+
+    //---------------------------------------------------------------------------------------------
+
     std::random_device rd_bool;
     std::mt19937 gen_bool(rd_bool());
     std::bernoulli_distribution BoolRandomNumber(0.5);
@@ -801,7 +833,11 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
             {
                 auto VectorPtr_n = FeatureData.GetElementPointerOfCol(n);
 
-                auto Similarity = this->ComputeSimilarityBetweenTwoVectors(VectorPtr_k, VectorPtr_n, VectorLength);
+                auto Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(SimilarityTypeOfKNNSoftAssign,
+                                                                                                              VectorPtr_k,
+                                                                                                              VectorPtr_n, 
+                                                                                                              VectorLength,
+                                                                                                              Variance, false);
 
                 Similarity = TempFunction_AndRandomNumberToSimilarity(Similarity);
              
@@ -868,12 +904,20 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
                     }
                     else
                     {
-                        Similarity = this->ComputeSimilarityBetweenTwoVectors(VectorPtr_k, VectorPtr_n, VectorLength);
+                        Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(SimilarityTypeOfKNNSoftAssign,
+                                                                                                                 VectorPtr_k,
+                                                                                                                 VectorPtr_n, 
+                                                                                                                 VectorLength,
+                                                                                                                 Variance, false);
                     }
                 }
                 else
                 {
-                    Similarity = this->ComputeSimilarityBetweenTwoVectors(VectorPtr_k, VectorPtr_n, VectorLength);
+                    Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(SimilarityTypeOfKNNSoftAssign,
+                                                                                                             VectorPtr_k,
+                                                                                                             VectorPtr_n, 
+                                                                                                             VectorLength,
+                                                                                                             Variance, false);
                 }
 
                 Similarity = TempFunction_AndRandomNumberToSimilarity(Similarity);
@@ -888,66 +932,6 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
     }
 
     return VectorSimilarityMatrix;
-}
-
-
-template<typename ElementType>
-inline
-ElementType KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
-ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length)
-{
-    ElementType Similarity = ElementType(0);
-
-    switch (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType)
-    {
-    case VectorSimilarityTypeEnum::L1Distance:
-    {
-        auto L1Distance = ComputeL1DistanceBetweenTwoVectors(VectorA, VectorB, Length, false);
-        auto temp = (L1Distance*L1Distance) / m_Parameter.ParameterOfKNNSoftAssign.Variance_L1;
-        Similarity = std::exp(-temp / ElementType(2));
-    }
-        break;
-
-    case VectorSimilarityTypeEnum::L2Distance:
-    {
-        auto L2Distance = ComputeL2DistanceBetweenTwoVectors(VectorA, VectorB, Length, false);
-        auto temp = (L2Distance*L2Distance) / m_Parameter.ParameterOfKNNSoftAssign.Variance_L2;
-        Similarity = std::exp(-temp / ElementType(2));
-    }
-        break;
-
-    case VectorSimilarityTypeEnum::Correlation:
-    {
-        auto Correlation = ComputeCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
-
-        Similarity = (Correlation + ElementType(1)) / ElementType(2);
-    }
-        break;
-
-    case VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation:
-    {
-        auto Correlation = ComputeCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
-
-        Similarity = std::abs(Correlation);
-    }
-        break;
-
-    case VectorSimilarityTypeEnum::KLDivergence:
-    {
-        auto KLDivergence_AB = ComputeKLDivergenceOfVectorAFromVectorB(VectorA, VectorB, Length, false);
-        auto KLDivergence_BA = ComputeKLDivergenceOfVectorAFromVectorB(VectorB, VectorA, Length, false);
-        auto KLDivergence = (KLDivergence_AB + KLDivergence_BA) / ElementType(2);
-
-        auto temp = (KLDivergence*KLDivergence) / m_Parameter.ParameterOfKNNSoftAssign.Variance_KL;
-        Similarity = std::exp(-temp / ElementType(2));
-    }
-        break;
-
-    default:
-        MDK_Error("unknown type of similarity @ KNNBasisSelectionOnlineDictionaryBuilder::ComputeSimilarityBetweenTwoVectors(...)")
-    }
-
-    return Similarity;
 }
 
 
@@ -1602,17 +1586,6 @@ UpdateBasisExperience(DenseMatrix<ElementType>& BasisExperience, const DataConta
 
     int_max DataNumber = CodeTable.GetLength();
 
-    // discount the previous Experience
-    BasisExperience *= m_Parameter.ExperienceDiscountFactor;
-    // must >= 1
-    for (int_max k = 0; k < BasisNumber; k++)
-    {
-        if (BasisExperience[k] < 1)
-        {
-            BasisExperience[k] = 1;
-        }
-    }
-
     auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     DenseMatrix<ElementType> Membership;
@@ -1638,7 +1611,7 @@ UpdateBasisExperience(DenseMatrix<ElementType>& BasisExperience, const DataConta
     }
 
     // the total Experience is
-    // BasisExperience.Sum() ~ m_Parameter.ExperienceDiscountFactor * BasisExperience.Sum() + DataNumber
+    // BasisExperience.Sum() <- BasisExperience.Sum() + DataNumber
     //
     // the new "Experience" of the dictionary gained from data is DataNumber
 }

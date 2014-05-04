@@ -74,7 +74,18 @@ public:
     void Clear();
 
     bool CheckInput();
-    //-----------------------------------------
+    //--------------------------------------------------------------------------------------------------
+        
+    static ElementType ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum SimilarityType,
+                                                          const DenseMatrix<ElementType>& VectorA, 
+                                                          const DenseMatrix<ElementType>& VectorB,
+                                                          ElementType Variance);
+
+    static ElementType ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum SimilarityType, 
+                                                          const ElementType* VectorA, const ElementType* VectorB, int_max Length, 
+                                                          ElementType Variance, bool CheckInput = true);
+
+    //----------------------------------------------------------------------------------------------------
 
 protected:
     inline void EncodingFunction(int_max DataIndex, int_max ThreadIndex);

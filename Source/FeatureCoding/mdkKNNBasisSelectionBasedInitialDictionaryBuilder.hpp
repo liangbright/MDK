@@ -131,6 +131,12 @@ bool KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::CheckInput()
 
     //---------------------------------------------------------------------------------
 
+    if (m_Parameter.MaxNumberOfNewBases < 0)
+    {
+        MDK_Error("MaxNumberOfNewBases < 0 @ KNNBasisSelectionBasedInitialDictionaryBuilder::CheckInput()")
+        return false;
+    }
+
     if (m_Parameter.MaxNumberOfNewBases <= 0 && IsInputDictionaryEmpty == true)
     {
         MDK_Error("MaxNumberOfNewBases <= 0 and InputDictionary is empty @ KNNBasisSelectionBasedInitialDictionaryBuilder::CheckInput()")
@@ -146,6 +152,7 @@ bool KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::CheckInput()
 template<typename ElementType>
 void KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::GenerateDictionary()
 {
+    // check InputDictionary
     bool IsInputDictionaryEmpty = true;
 
     if (m_InputDictionary != nullptr)
@@ -158,6 +165,7 @@ void KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::GenerateDictio
 
     if (IsInputDictionaryEmpty == true)
     {
+        m_KNNBasisSelectionDictionaryBuilder.Clear();
         m_KNNBasisSelectionDictionaryBuilder.m_Parameter = m_Parameter.Get_Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder();
         m_KNNBasisSelectionDictionaryBuilder.SetInputFeatureData(m_FeatureData);
         m_KNNBasisSelectionDictionaryBuilder.SetInitialDictionary(m_InputDictionary);
@@ -168,7 +176,7 @@ void KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::GenerateDictio
     else
     {
         // encode data, code element is similarity
-
+        m_KNNSoftAssignSparseEncoder.Clear();
         m_KNNSoftAssignSparseEncoder.SetInputFeatureData(m_FeatureData);
         m_KNNSoftAssignSparseEncoder.SetInputDictionary(m_InputDictionary);
         m_KNNSoftAssignSparseEncoder.Update();
@@ -207,18 +215,16 @@ void KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::GenerateDictio
 
         int_max BasisNumber_to_keep = m_Parameter.BasisNumber - BasisNumber_new;
 
-        // check if we need to retire old basis in input dictionary
+        // check if we need to retire old basis of input dictionary
 
-        if (BasisNumber_to_keep >= BasisNumber_input) // keep all the bases in input dictionary
+        FeatureDictionaryForSparseCoding<ElementType> InputDictionary_Modified;
+
+        if (BasisNumber_to_keep >= BasisNumber_input) // keep all the bases of input dictionary
         {
-            this->CombineInputDictionaryAndNewDictionary(*m_Dictionary, *m_InputDictionary, *NewDicitonaryFromOutClass);
-            
-            return;            
+            InputDictionary_Modified.Copy(m_InputDictionary);
         }
         else// if (BasisNumber_to_keep < BasisNumber_input)
-        {
-            FeatureDictionaryForSparseCoding<ElementType> InputDictionary_Modified;
-
+        {            
             if (m_Parameter.DirectlyRetireOldAndInexperiencedBasis == true)
             {               
                 this->DirectlyRetireBasisInInputDictionary(InputDictionary_Modified, *m_InputDictionary, BasisNumber_to_keep);
@@ -239,11 +245,16 @@ void KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::GenerateDictio
 
                 InputDictionary_Modified.Take(*m_KNNBasisSelectionDictionaryBuilder.GetOutputDictionary());
             }
-
-            this->CombineInputDictionaryAndNewDictionary(*m_Dictionary, InputDictionary_Modified, *NewDicitonaryFromOutClass);
-
-            return;
         }
+
+        // check if SimilarityType and SimilarityThresholdToComputeBasisRedundancy are the same
+        // if not, SimilarityMatrix and BasisRedundancy need to be updated        
+
+        this->UpdateDictionaryInformationInModifiedInputDictionary(InputDictionary_Modified);
+
+        this->CombineModifiedInputDictionaryAndNewDictionary(*m_Dictionary, InputDictionary_Modified, *NewDicitonaryFromOutClass);
+
+        return;
     }
 
 }
@@ -334,9 +345,140 @@ DirectlyRetireBasisInInputDictionary(FeatureDictionaryForSparseCoding<ElementTyp
 
 template<typename ElementType>
 void KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::
-CombineInputDictionaryAndNewDictionary(FeatureDictionaryForSparseCoding<ElementType>& CombinedDictionary,
-                                       const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary,
-                                       const FeatureDictionaryForSparseCoding<ElementType>& NewDictionary)
+UpdateDictionaryInformationInModifiedInputDictionary(FeatureDictionaryForSparseCoding<ElementType>& InputDictionary_Modified)
+{
+    if (InputDictionary_Modified.GetProperty_SimilarityType() != m_Parameter.ParameterOfKNNSoftAssign.SimilarityType)
+    {
+        // update SimilarityMatrix
+
+        DenseMatrix<ElementType> BasisMatrix = InputDictionary_Modified.BasisMatrix();
+
+        DenseMatrix<ElementType> SimilarityMatrix = InputDictionary_Modified.SimilarityMatrix();
+
+        DenseMatrix<ElementType> VarianceList;
+
+        switch (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType)
+        {
+        case VectorSimilarityTypeEnum::L1Distance:
+            VarianceList.Share(InputDictionary_Modified.VarianceOfL1Distance());
+            break;
+
+        case VectorSimilarityTypeEnum::L2Distance:
+            VarianceList.Share(InputDictionary_Modified.VarianceOfL2Distance());
+            break;
+
+        case VectorSimilarityTypeEnum::KLDivergence:
+            VarianceList.Share(InputDictionary_Modified.VarianceOfKLDivergence());
+            break;
+
+        default:
+            MDK_Error("unknown SimilarityType @ KNNBasisSelectionBasedInitialDictionaryBuilder::UpdateDictionaryInformationInModifiedInputDictionary(...)")
+            return;
+        }
+
+        this->UpdateSimilarityMatrix(SimilarityMatrix, BasisMatrix, VarianceList);
+    }
+
+    // update BasisRedundancy ---------------------------------------------------------------------------
+
+    if (InputDictionary_Modified.GetProperty_SimilarityType() != m_Parameter.ParameterOfKNNSoftAssign.SimilarityType
+        || InputDictionary_Modified.GetProperty_SimilarityThresholdToComputeBasisRedundancy() != m_Parameter.SimilarityThresholdToComputeBasisRedundancy)
+    {
+        DenseMatrix<ElementType> BasisRedundancy = InputDictionary_Modified.BasisRedundancy();
+
+        DenseMatrix<ElementType> SimilarityMatrix = InputDictionary_Modified.SimilarityMatrix();
+
+        this->UpdateBasisRedundancy(BasisRedundancy, SimilarityMatrix);
+    }
+
+    InputDictionary_Modified.SetProperty_SimilarityType(m_Parameter.ParameterOfKNNSoftAssign.SimilarityType);
+
+    InputDictionary_Modified.SetProperty_SimilarityThresholdToComputeBasisRedundancy(m_Parameter.SimilarityThresholdToComputeBasisRedundancy);
+}
+
+
+template<typename ElementType>
+void KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::
+UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix,
+                       const DenseMatrix<ElementType>& BasisMatrix,
+                       const DenseMatrix<ElementType>& VarianceList)
+{
+    int_max BasisNumber = BasisMatrix.GetColNumber();
+    int_max VectorLength = BasisMatrix.GetRowNumber();
+
+    auto SimilarityTypeOfKNNSoftAssign = m_Parameter.ParameterOfKNNSoftAssign.SimilarityType;
+
+    SimilarityMatrix.FastResize(BasisNumber, BasisNumber);
+
+    //for (int_max k = 0; k <= BasisNumber - 2; ++k)
+    auto TempFunction_ComputeSimilarity = [&](int_max k)
+    {
+        auto BasisVectorPtr_k = BasisMatrix.GetElementPointerOfCol(k);
+
+        for (int_max n = k + 1; n < BasisNumber; ++n) // start from k+1
+        {
+            auto BasisVectorPtr_n = BasisMatrix.GetElementPointerOfCol(n);
+
+            auto Variance = std::max(VarianceList[k], VarianceList[n]);
+
+            auto Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(SimilarityTypeOfKNNSoftAssign,
+                                                                                                          BasisVectorPtr_k,
+                                                                                                          BasisVectorPtr_n,
+                                                                                                          VectorLength,
+                                                                                                          Variance, false);
+
+            SimilarityMatrix(k, n) = Similarity;
+
+            SimilarityMatrix(n, k) = Similarity;
+        }
+    };
+
+    ParallelForLoop(TempFunction_ComputeSimilarity, 0, BasisNumber - 2, m_Parameter.MaxNumberOfThreads);
+}
+
+
+
+template<typename ElementType>
+void KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::
+UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix)
+{
+    int_max BasisNumber = SimilarityMatrix.GetColNumber();
+
+    BasisRedundancy.FastResize(1, BasisNumber);
+
+    if (BasisNumber == 1)
+    {
+        BasisRedundancy[0] = 0;
+    }
+
+    auto SimilarityThreshold = m_Parameter.SimilarityThresholdToComputeBasisRedundancy;
+
+    //for (int_max k = 0; k <= BasisNumber-1; ++k)
+    auto TempFunction_UpdateRedundancy = [&](int_max k)
+    {
+        BasisRedundancy[k] = 0;
+
+        for (int_max n = 0; n < BasisNumber; ++n)
+        {
+            if (k != n)
+            {
+                if (SimilarityMatrix(n, k) >= SimilarityThreshold)
+                {
+                    BasisRedundancy[k] += SimilarityMatrix(n, k);
+                }
+            }
+        }
+    };
+
+    ParallelForLoop(TempFunction_UpdateRedundancy, 0, BasisNumber - 1, m_Parameter.MaxNumberOfThreads);
+}
+
+
+template<typename ElementType>
+void KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::
+CombineModifiedInputDictionaryAndNewDictionary(FeatureDictionaryForSparseCoding<ElementType>& CombinedDictionary,
+                                               const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary,
+                                               const FeatureDictionaryForSparseCoding<ElementType>& NewDictionary)
 {
     // check input
     if (InputDictionary.IsEmpty() || NewDictionary.IsEmpty())
@@ -372,18 +514,43 @@ UpdateSimilarityMatrixInCombinedDictionary(FeatureDictionaryForSparseCoding<Elem
 
     int_max BasisNumber_new = BasisNumber_combined - BasisNumber_input;
 
+    //---------------------------------------------------------------------------------------------
+    // get the Variance to compute Similarity
+
+    auto SimilarityTypeOfKNNSoftAssign = m_Parameter.ParameterOfKNNSoftAssign.SimilarityType;
+
+    auto Variance = ElementType(0);
+
+    switch (SimilarityTypeOfKNNSoftAssign)
+    {
+    case VectorSimilarityTypeEnum::L1Distance:
+        Variance = m_Parameter.ParameterOfKNNSoftAssign.Variance_L1;
+
+    case VectorSimilarityTypeEnum::L2Distance:
+        Variance = m_Parameter.ParameterOfKNNSoftAssign.Variance_L2;
+
+    case VectorSimilarityTypeEnum::KLDivergence:
+        Variance = m_Parameter.ParameterOfKNNSoftAssign.Variance_KL;
+
+    default:
+        Variance = 0;
+    }
+    //----------------------------------------------------------------------------------------
+
     //for (int_max k = 0; k <= BasisNumber_input-1; ++k)
     auto TempFunction_ComputeSimilarity = [&](int_max k)
     {
         auto VectorPtr_input = BasisMatrix_combined.GetElementPointerOfCol(k);
 
-        for (int_max n = 0; n < BasisNumber_new; ++k)
+        for (int_max n = 0; n < BasisNumber_new; ++n)
         {
             auto tempIndex = BasisNumber_input + k;
 
             auto VectorPtr_new = BasisMatrix_combined.GetElementPointerOfCol(tempIndex);
 
-            auto Similarity = this->ComputeSimilarityBetweenTwoVectors(VectorPtr_input, VectorPtr_new, VectorLength);
+            auto Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(SimilarityTypeOfKNNSoftAssign,
+                                                                                                          VectorPtr_input, VectorPtr_new, VectorLength,
+                                                                                                          Variance, false);
 
             SimilarityMatrix_combined(tempIndex, k);
             SimilarityMatrix_combined(k, tempIndex);
@@ -393,65 +560,6 @@ UpdateSimilarityMatrixInCombinedDictionary(FeatureDictionaryForSparseCoding<Elem
     ParallelForLoop(TempFunction_ComputeSimilarity, 0, BasisNumber_input - 1, m_Parameter.MaxNumberOfThreads);
 }
 
-
-template<typename ElementType>
-inline
-ElementType KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::
-ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length)
-{
-    ElementType Similarity = ElementType(0);
-
-    switch (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType)
-    {
-    case VectorSimilarityTypeEnum::L1Distance:
-    {
-        auto L1Distance = ComputeL1DistanceBetweenTwoVectors(VectorA, VectorB, Length, false);
-        auto temp = (L1Distance*L1Distance) / m_Parameter.ParameterOfKNNSoftAssign.Variance_L1;
-        Similarity = std::exp(-temp / ElementType(2));
-    }
-        break;
-
-    case VectorSimilarityTypeEnum::L2Distance:
-    {
-        auto L2Distance = ComputeL2DistanceBetweenTwoVectors(VectorA, VectorB, Length, false);
-        auto temp = (L2Distance*L2Distance) / m_Parameter.ParameterOfKNNSoftAssign.Variance_L2;
-        Similarity = std::exp(-temp / ElementType(2));
-    }
-        break;
-
-    case VectorSimilarityTypeEnum::Correlation:
-    {
-        auto Correlation = ComputeCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
-
-        Similarity = (Correlation + ElementType(1)) / ElementType(2);
-    }
-        break;
-
-    case VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation:
-    {
-        auto Correlation = ComputeCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
-
-        Similarity = std::abs(Correlation);
-    }
-        break;
-
-    case VectorSimilarityTypeEnum::KLDivergence:
-    {
-        auto KLDivergence_AB = ComputeKLDivergenceOfVectorAFromVectorB(VectorA, VectorB, Length, false);
-        auto KLDivergence_BA = ComputeKLDivergenceOfVectorAFromVectorB(VectorB, VectorA, Length, false);
-        auto KLDivergence = (KLDivergence_AB + KLDivergence_BA) / ElementType(2);
-
-        auto temp = (KLDivergence*KLDivergence) / m_Parameter.ParameterOfKNNSoftAssign.Variance_KL;
-        Similarity = std::exp(-temp / ElementType(2));
-    }
-        break;
-
-    default:
-        MDK_Error("unknown type of similarity @ KNNBasisSelectionBasedInitialDictionaryBuilder::ComputeSimilarityBetweenTwoVectors(...)")
-    }
-
-    return Similarity;
-}
 
 }//namespace mdk
 

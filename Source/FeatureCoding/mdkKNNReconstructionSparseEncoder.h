@@ -8,6 +8,7 @@
 #include "mdkFeatureCoding_Common_Function.h"
 #include "mdkFeatureDictionaryBasedSparseEncoder.h"
 #include "mdkLinearLeastSquaresProblemSolver.h"
+#include "mdkKNNSoftAssignSparseEncoder.h"
 
 // find K Nearest Neighbor [d_1, d_2, ..., d_k] from D by using KNNDistanceType
 // find Alpha that minimizes||X - [d_1, d_2, d_k ]*Alpha||, by using Linear least suqares (Lsqlin) method
@@ -104,7 +105,18 @@ public:
 
     bool Postprocess();
 
-    //---------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------
+
+    static ElementType ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum SimilarityType,
+                                                          const DenseMatrix<ElementType>& VectorA, 
+                                                          const DenseMatrix<ElementType>& VectorB,
+                                                          ElementType Variance);
+
+    static ElementType ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum SimilarityType, 
+                                                          const ElementType* VectorA, const ElementType* VectorB, int_max Length, 
+                                                          ElementType Variance, bool CheckInput = true);
+
+    //---------------------------------------------------------------------------------------------------
 
     static DenseMatrix<ElementType> ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,
                                                       const DenseMatrix<ElementType>& KNNBasisMatrix,
@@ -113,7 +125,7 @@ public:
                                                       bool CodeNonnegative,
                                                       bool CodeSumToOne);
 
-    //---------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------------
 
     static bool Apply(DenseMatrix<ElementType>& OutputCodeInDenseMatrix,
                       const DenseMatrix<ElementType>* FeatureData,

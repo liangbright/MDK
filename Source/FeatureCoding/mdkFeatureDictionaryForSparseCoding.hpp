@@ -333,7 +333,6 @@ FeatureDictionaryForSparseCoding<ElementType>::GetSubDictionary(const DenseMatri
     //------------------------------------------------------
 
     return SubDictionary;
-
 }
 
 

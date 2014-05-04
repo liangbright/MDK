@@ -141,8 +141,6 @@ protected:
                                 const DenseMatrix<ElementType>& BasisMatrix, 
                                 const DenseMatrix<ElementType>& VarianceList);
 
-    ElementType ComputeSimilarityBetweenTwoDataVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, ElementType Variance);
-
     void UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix);
 
     void UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,

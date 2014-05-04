@@ -64,9 +64,9 @@ struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_O
 
         ExperienceDiscountFactor = 0;
 
-        WeightOnProbabiliyForBasisSelection = 0;
+        WeightOnProbabiliyForBasisSelection = 0.5;
 
-        MaxNumberOfDataInEachBatch = 0;
+        MaxNumberOfDataInEachBatch = 512;
 
         MaxNumberOfThreads = 1;
 
@@ -200,13 +200,19 @@ protected:
                                               const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary, 
                                               int_max BasisNumber_to_keep);
 
-    void CombineInputDictionaryAndNewDictionary(FeatureDictionaryForSparseCoding<ElementType>& CombinedDictionary,
-                                                const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary,
-                                                const FeatureDictionaryForSparseCoding<ElementType>& NewDictionary);
+    void UpdateDictionaryInformationInModifiedInputDictionary(FeatureDictionaryForSparseCoding<ElementType>& InputDictionary_Modified);
+
+    void UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix,
+                                const DenseMatrix<ElementType>& BasisMatrix,
+                                const DenseMatrix<ElementType>& VarianceList);
+
+    void UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix);
+
+    void CombineModifiedInputDictionaryAndNewDictionary(FeatureDictionaryForSparseCoding<ElementType>& CombinedDictionary,
+                                                        const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary,
+                                                        const FeatureDictionaryForSparseCoding<ElementType>& NewDictionary);
 
     void UpdateSimilarityMatrixInCombinedDictionary(FeatureDictionaryForSparseCoding<ElementType>& CombinedDictionary, int_max BasisNumber_input);
-
-    ElementType ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length);
 
 private:
     KNNBasisSelectionBasedInitialDictionaryBuilder(const KNNBasisSelectionBasedInitialDictionaryBuilder&) = delete;

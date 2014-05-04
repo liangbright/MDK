@@ -260,6 +260,134 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex
     CodeInSparseColVector.Construct(NeighbourIndexList, SimilarityList, CodeLength);
 }
 
+
+template<typename ElementType>
+inline
+ElementType
+KNNSoftAssignSparseEncoder<ElementType>::
+ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum SimilarityType, 
+                                   const DenseMatrix<ElementType>& VectorA, 
+                                   const DenseMatrix<ElementType>& VectorB, 
+                                   ElementType Variance)
+{
+
+    if (VectorA.IsVector() == false || VectorB.IsVector() == false)
+    {
+        MDK_Error("Input VectorA or VectorB is not a vector @ KNNSoftAssignSparseEncoder::ComputeSimilarityBetweenTwoVectors(...)")
+        return ElementType(0);
+    }
+
+    auto LengthA = VectorA.GetElementNumber();
+    auto LengthB = VectorB.GetElementNumber();
+
+    if (LengthA != LengthB)
+    {
+        MDK_Error("Size does not match @ KNNSoftAssignSparseEncoder::ComputeSimilarityBetweenTwoVectors(...)")
+        return ElementType(0);
+    }
+
+    return this->ComputeSimilarityBetweenTwoVectors(SimilarityType, VectorA.GetElementPointer(), VectorB.GetElementPointer(), LengthA, Variance, false);
+}
+
+
+template<typename ElementType>
+inline
+ElementType 
+KNNSoftAssignSparseEncoder<ElementType>::
+ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum SimilarityType,
+                                   const ElementType* VectorA, const ElementType* VectorB, int_max Length,
+                                   ElementType Variance, bool CheckInput)
+{
+    ElementType Similarity = ElementType(0);
+
+    switch (SimilarityType)
+    {
+    case VectorSimilarityTypeEnum::L1Distance:
+    {
+        auto L1Distance = ComputeL1DistanceBetweenTwoVectors(VectorA, VectorB, Length, CheckInput);
+        auto temp = (L1Distance*L1Distance) / Variance;
+        Similarity = std::exp(-temp / ElementType(2));
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::L2Distance:
+    {
+        auto L2Distance = ComputeL2DistanceBetweenTwoVectors(VectorA, VectorB, Length, CheckInput);
+        auto temp = (L2Distance*L2Distance) / Variance;
+        Similarity = std::exp(-temp / ElementType(2));
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::Correlation:
+    {
+        auto Correlation = ComputeCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+
+        Similarity = (Correlation + ElementType(1)) / ElementType(2);
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation:
+    {
+        auto Correlation = ComputeCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+
+        Similarity = std::abs(Correlation);
+
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::UncenteredCorrelation:
+    {
+        auto Correlation = ComputeUncenteredCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+
+        Similarity = (Correlation + ElementType(1)) / ElementType(2);
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::AbsoluteValueOfUncenteredCorrelation:
+    {
+        auto Correlation = ComputeUncenteredCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+
+        Similarity = std::abs(Correlation);
+
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::UnnormalizedCorrelation:
+    {
+        auto Correlation = ComputeUnnormalizedCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+
+        Similarity = (Correlation + ElementType(1)) / ElementType(2);
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::AbsoluteValueOfUnnormalizedCorrelation:
+    {
+        auto Correlation = ComputeUnnormalizedCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+
+        Similarity = std::abs(Correlation);
+
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::KLDivergence:
+    {
+        auto KLDivergence_AB = ComputeKLDivergenceOfVectorAFromVectorB(VectorA, VectorB, Length, CheckInput);
+        auto KLDivergence_BA = ComputeKLDivergenceOfVectorAFromVectorB(VectorB, VectorA, Length, CheckInput);
+        auto KLDivergence = (KLDivergence_AB + KLDivergence_BA) / ElementType(2);
+
+        auto temp = (KLDivergence*KLDivergence) / Variance;
+        Similarity = std::exp(-temp / ElementType(2));
+    }
+        break;
+
+    default:
+        MDK_Error("unknown type of similarity @ KNNSoftAssignSparseEncoder::ComputeSimilarityBetweenTwoVectors(...)")
+    }
+
+    return Similarity;
+}
+
+
 }// namespace mdk
 
 
