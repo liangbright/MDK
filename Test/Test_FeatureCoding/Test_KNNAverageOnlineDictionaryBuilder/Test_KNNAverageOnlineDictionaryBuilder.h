@@ -33,7 +33,6 @@ void Test_SimpleCase()
 
     InitialDictionaryBuilder.m_Parameter.DebugInfo.Flag_OutputDebugInfo = true;
     InitialDictionaryBuilder.m_Parameter.DebugInfo.FilePathToSaveDebugInfo = FilePath;
-    InitialDictionaryBuilder.m_Parameter.DebugInfo.JsonDataFileName_Of_VectorSimilarityMatrix = "VectorSimilarityMatrix.json";
 
     InitialDictionaryBuilder.SetInputFeatureData(&FeatureData);
 

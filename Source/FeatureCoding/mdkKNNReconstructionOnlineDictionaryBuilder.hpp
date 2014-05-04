@@ -480,9 +480,11 @@ ReconstructFeatureData(DenseMatrix<ElementType>&        ReconstructedData,
     {
         const std::vector <int_max>& BasisIndexList = CodeTable[DataIndex].IndexList();
 
-        if (BasisIndexList.size() > 0)
+        auto tempNeighbourNumber = int_max(BasisIndexList.size());
+
+        if (tempNeighbourNumber > 0)
         {
-            DenseMatrix<ElementType> CodeVector(const_cast<ElementType*>(CodeTable[DataIndex].DataArray().data()), VectorLength, 1);
+            DenseMatrix<ElementType> CodeVector(const_cast<ElementType*>(CodeTable[DataIndex].DataArray().data()), tempNeighbourNumber, 1);
 
             DenseMatrix<ElementType> ReconstructedDataVector(ReconstructedData.GetElementPointerOfCol(DataIndex), VectorLength, 1);
 
@@ -508,8 +510,6 @@ UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
     int_max VectorLength = FeatureData.GetRowNumber();
 
     int_max BasisNumber = BasisMatrix.GetColNumber();
-
-    DenseMatrix<ElementType> CodeVector; // reconstruction code
 
     DenseMatrix<ElementType> DataReconstructionErrorVector(1, VectorLength);
 
@@ -537,26 +537,21 @@ UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
     {
         auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
 
-        const std::vector <int_max>& BasisIndexList = CodeTable[k].IndexList();
+        const std::vector<int_max>& BasisIndexList = CodeTable[k].IndexList();
+
+        const std::vector<ElementType>& CodeVector = CodeTable[k].DataArray();
 
         int_max NeighbourNumber_k = int_max(BasisIndexList.size());
 
         if (NeighbourNumber_k > 0)
         {
-            CodeVector.ForceShare(CodeTable[k].DataArray().data(), VectorLength, 1);
-
             auto ReconstructedDataVectorPtr = ReconstructedData.GetElementPointerOfCol(k);
 
-            MatrixSubtract(DataReconstructionErrorVector.GetElementPointer(),
-                           DataVectorPtr,
-                           ReconstructedDataVectorPtr,
-                           VectorLength, false);
+            MatrixSubtract(DataReconstructionErrorVector.GetElementPointer(), DataVectorPtr, ReconstructedDataVectorPtr, VectorLength, false);
 
-            auto SquaredL2NormOfCodeVector = ComputeInnerProductOfTwoVectors(CodeVector.GetElementPointer(),
-                                                                             CodeVector.GetElementPointer(),
-                                                                             VectorLength, false);
+            auto SquaredL2NormOfCodeVector = ComputeInnerProductOfTwoVectors(CodeVector.data(), CodeVector.data(), NeighbourNumber_k, false);
 
-            for (int_max n = 0; n < int_max(BasisIndexList.size()); ++n)//n
+            for (int_max n = 0; n < NeighbourNumber_k; ++n)//n
             {
                 auto BasisIndex = BasisIndexList[n];
 
@@ -663,12 +658,6 @@ UpdateBasisExperience(DenseMatrix<ElementType>&  BasisExperience, const DataCont
 
     auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
-    DenseMatrix<ElementType> NormalizedCodeVector;
-    // it looks like membership, but it is not
-    // reconstruction code is not as stable as soft-assign code (i.e., similarity)
-    // By normalizing similarity, we can get membership
-    // but the normalized reconstruction code is not membership
-
     for (int_max k = 0; k < DataNumber; ++k)
     {
         const std::vector<int_max>& KNN_IndexList = CodeTable[k].IndexList();
@@ -679,12 +668,13 @@ UpdateBasisExperience(DenseMatrix<ElementType>&  BasisExperience, const DataCont
 
         if (tempNeighbourNumber > 0)
         {
-            NormalizedCodeVector = CodeVector;
-            NormalizedCodeVector /= NormalizedCodeVector.L1Norm() + eps_value;
+            auto SquaredL2NormOfCodeVector = ComputeInnerProductOfTwoVectors(CodeVector.data(), CodeVector.data(), tempNeighbourNumber, false);
+
+            SquaredL2NormOfCodeVector += eps_value;
 
             for (int_max m = 0; m < tempNeighbourNumber; ++m)
             {
-                BasisExperience[KNN_IndexList[m]] += NormalizedCodeVector[m];
+                BasisExperience[KNN_IndexList[m]] += CodeVector[m] * CodeVector[m] / SquaredL2NormOfCodeVector;
             }
         }
     }

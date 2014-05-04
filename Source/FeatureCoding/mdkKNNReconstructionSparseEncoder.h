@@ -106,6 +106,15 @@ public:
 
     //---------------------------------------------------------------------------------
 
+    static DenseMatrix<ElementType> ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,
+                                                      const DenseMatrix<ElementType>& KNNBasisMatrix,
+                                                      const DenseMatrix<int_max>&     KNNBasisIndexList,
+                                                      const DenseMatrix<ElementType>& GramianMatrix_DtD,
+                                                      bool CodeNonnegative,
+                                                      bool CodeSumToOne);
+
+    //---------------------------------------------------------------------------------
+
     static bool Apply(DenseMatrix<ElementType>& OutputCodeInDenseMatrix,
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,

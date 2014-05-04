@@ -137,106 +137,18 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
         return;
     }
 
-    auto NeighbourIndexList = FindKNNByDistanceList(DistanceList, m_Parameter.NeighbourNumber);
+    auto KNNBasisIndexList = FindKNNByDistanceList(DistanceList, m_Parameter.NeighbourNumber);
 
-    auto KNNBasisMatrix = BasisMatrix.GetSubMatrix(ALL, NeighbourIndexList);
+    auto KNNBasisMatrix = BasisMatrix.GetSubMatrix(ALL, KNNBasisIndexList);
 
     // use LinearLeastSquaresProblemSolver
 
-    auto CodeLength = BasisMatrix.GetColNumber();
-
-    Option_Of_LinearLeastSquaresProblemSolver Option;
-
-    Solution_Of_LinearLeastSquaresProblem<ElementType> Solution;
-
-    typedef LinearLeastSquaresProblemSolver<ElementType>::MethodTypeEnum LinlsqMethodTypeEnum;
-
-    if (m_Parameter.CodeNonnegative == false && m_Parameter.CodeSumToOne == false)
-    {
-        Option.MethodType = LinlsqMethodTypeEnum::NormalEquation;
-
-        DenseMatrix<ElementType> H;
-
-        if (m_GramianMatrix_DtD.IsEmpty() == false)
-        {
-            H = m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList);
-        }
-
-        DenseMatrix<ElementType> A;
-
-        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
-                                                                       nullptr, nullptr, &A, nullptr, nullptr, nullptr,
-                                                                       &H, &Option);         
-    }
-    else if (m_Parameter.CodeNonnegative == true && m_Parameter.CodeSumToOne == false)
-    {
-        DenseMatrix<ElementType> lb_x(m_Parameter.NeighbourNumber, 1);
-        lb_x.Fill(0);
-
-        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
-
-        DenseMatrix<ElementType> H;
-
-        if (m_GramianMatrix_DtD.IsEmpty() == false)
-        {
-            H = m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList);
-        }
-
-        DenseMatrix<ElementType> A;
-
-        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
-                                                                       &lb_x, nullptr, &A, nullptr, nullptr, nullptr,
-                                                                       &H, &Option);
-    }
-    else if (m_Parameter.CodeNonnegative == true && m_Parameter.CodeSumToOne == true)
-    {
-        DenseMatrix<ElementType> lb_x(m_Parameter.NeighbourNumber, 1);
-        lb_x.Fill(ElementType(0));
-
-        DenseMatrix<ElementType> A(1, m_Parameter.NeighbourNumber);
-        A.Fill(ElementType(1));
-
-        DenseMatrix<ElementType> lb_A = ElementType(1);
-        DenseMatrix<ElementType> ub_A = ElementType(1);
-
-        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
-
-        DenseMatrix<ElementType> H;
-
-        if (m_GramianMatrix_DtD.IsEmpty() == false)
-        {
-            H = m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList);
-        }
-
-        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
-                                                                       &lb_x, nullptr, &A, &lb_A, &ub_A, nullptr,
-                                                                       &H, &Option);
-    }
-    else //if(m_Parameter.CodeNonnegative == false && m_Parameter.CodeSumToOne == true)
-    {
-        DenseMatrix<ElementType> A(1, m_Parameter.NeighbourNumber);
-        A.Fill(ElementType(1));
-
-        DenseMatrix<ElementType> lb_A = ElementType(1);
-        DenseMatrix<ElementType> ub_A = ElementType(1);
-
-        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
-
-        DenseMatrix<ElementType> H;
-
-        if (m_GramianMatrix_DtD.IsEmpty() == false)
-        {
-            H = m_GramianMatrix_DtD.GetSubMatrix(NeighbourIndexList, NeighbourIndexList);
-        }
-
-        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
-                                                                       nullptr, nullptr, &A, &lb_A, &ub_A, nullptr,
-                                                                       &H, &Option);
-    }
+    auto CodeVector = this->ComputeCodeVector(DataColVector, KNNBasisMatrix, KNNBasisIndexList, m_GramianMatrix_DtD,
+                                              m_Parameter.CodeNonnegative, m_Parameter.CodeSumToOne);
 
     // ----- create sparse code ------------------------------------------------
 
-    CodeInSparseColVector.Construct(NeighbourIndexList, Solution.X, CodeLength);
+    CodeInSparseColVector.Construct(KNNBasisIndexList, CodeVector, CodeVector.GetElementNumber());
 }
 
 
@@ -246,6 +158,112 @@ bool KNNReconstructionSparseEncoder<ElementType>::Postprocess()
     m_GramianMatrix_DtD.Clear();
 
     return true;
+}
+
+
+template<typename ElementType>
+DenseMatrix<ElementType> 
+KNNReconstructionSparseEncoder<ElementType>::
+ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,
+                  const DenseMatrix<ElementType>& KNNBasisMatrix,
+                  const DenseMatrix<int_max>&     KNNBasisIndexList,
+                  const DenseMatrix<ElementType>& GramianMatrix_DtD,
+                  bool CodeNonnegative,
+                  bool CodeSumToOne)
+{
+    auto KNNBasisNumber = KNNBasisIndexList.GetElementNumber();
+
+    Option_Of_LinearLeastSquaresProblemSolver Option;
+
+    Solution_Of_LinearLeastSquaresProblem<ElementType> Solution;
+
+    typedef LinearLeastSquaresProblemSolver<ElementType>::MethodTypeEnum LinlsqMethodTypeEnum;
+
+    if (CodeNonnegative == false && CodeSumToOne == false)
+    {
+        Option.MethodType = LinlsqMethodTypeEnum::NormalEquation;
+
+        DenseMatrix<ElementType> H;
+
+        if (GramianMatrix_DtD.IsEmpty() == false)
+        {
+            H = GramianMatrix_DtD.GetSubMatrix(KNNBasisIndexList, KNNBasisIndexList);
+        }
+
+        DenseMatrix<ElementType> A;
+
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
+                                                                       nullptr, nullptr, &A, nullptr, nullptr, nullptr,
+                                                                       &H, &Option);
+    }
+    else if (CodeNonnegative == true && CodeSumToOne == false)
+    {
+        DenseMatrix<ElementType> lb_x(KNNBasisNumber, 1);
+        lb_x.Fill(0);
+
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
+
+        DenseMatrix<ElementType> H;
+
+        if (GramianMatrix_DtD.IsEmpty() == false)
+        {
+            H = GramianMatrix_DtD.GetSubMatrix(KNNBasisIndexList, KNNBasisIndexList);
+        }
+
+        DenseMatrix<ElementType> A;
+
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
+                                                                       &lb_x, nullptr, &A, nullptr, nullptr, nullptr,
+                                                                       &H, &Option);
+
+    }
+    else if (CodeNonnegative == true && CodeSumToOne == true)
+    {
+        DenseMatrix<ElementType> lb_x(KNNBasisNumber, 1);
+        lb_x.Fill(ElementType(0));
+
+        DenseMatrix<ElementType> A(1, KNNBasisNumber);
+        A.Fill(ElementType(1));
+
+        DenseMatrix<ElementType> lb_A = ElementType(1);
+        DenseMatrix<ElementType> ub_A = ElementType(1);
+
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
+
+        DenseMatrix<ElementType> H;
+
+        if (GramianMatrix_DtD.IsEmpty() == false)
+        {
+            H = GramianMatrix_DtD.GetSubMatrix(KNNBasisIndexList, KNNBasisIndexList);
+        }
+
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
+                                                                       &lb_x, nullptr, &A, &lb_A, &ub_A, nullptr,
+                                                                       &H, &Option);
+    }
+    else //if(CodeNonnegative == false && CodeSumToOne == true)
+    {
+        DenseMatrix<ElementType> A(1, KNNBasisNumber);
+        A.Fill(ElementType(1));
+
+        DenseMatrix<ElementType> lb_A = ElementType(1);
+        DenseMatrix<ElementType> ub_A = ElementType(1);
+
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
+
+        DenseMatrix<ElementType> H;
+
+        if (GramianMatrix_DtD.IsEmpty() == false)
+        {
+            H = GramianMatrix_DtD.GetSubMatrix(KNNBasisIndexList, KNNBasisIndexList);
+        }
+
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
+                                                                       nullptr, nullptr, &A, &lb_A, &ub_A, nullptr,
+                                                                       &H, &Option);
+    }
+
+    return Solution.X;
 }
 
 

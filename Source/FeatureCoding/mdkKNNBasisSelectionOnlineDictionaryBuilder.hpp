@@ -2110,99 +2110,11 @@ ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       Reconstruc
                                       const DenseMatrix<int_max>&     KNNBasisIndexList,
                                       const DenseMatrix<ElementType>& GramianMatrix_DtD)
 {
-    auto KNNBasisNumber = KNNBasisIndexList.GetElementNumber();
-
-    Option_Of_LinearLeastSquaresProblemSolver Option;
-
-    Solution_Of_LinearLeastSquaresProblem<ElementType> Solution;
-
-    typedef LinearLeastSquaresProblemSolver<ElementType>::MethodTypeEnum LinlsqMethodTypeEnum;
-
-    if (m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative == false && m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne == false)
-    {
-        Option.MethodType = LinlsqMethodTypeEnum::NormalEquation;
-
-        DenseMatrix<ElementType> H;
-
-        if (GramianMatrix_DtD.IsEmpty() == false)
-        {
-            H = GramianMatrix_DtD.GetSubMatrix(KNNBasisIndexList, KNNBasisIndexList);
-        }
-
-        DenseMatrix<ElementType> A;
-
-        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataVector,
-                                                                       nullptr, nullptr, &A, nullptr, nullptr, nullptr,
-                                                                       &H, &Option);
-    }
-    else if (m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative == true && m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne == false)
-    {
-        DenseMatrix<ElementType> lb_x(KNNBasisNumber, 1);
-        lb_x.Fill(0);
-
-        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
-
-        DenseMatrix<ElementType> H;
-
-        if (GramianMatrix_DtD.IsEmpty() == false)
-        {
-            H = GramianMatrix_DtD.GetSubMatrix(KNNBasisIndexList, KNNBasisIndexList);
-        }
-
-        DenseMatrix<ElementType> A;
-
-        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataVector,
-                                                                       &lb_x, nullptr, &A, nullptr, nullptr, nullptr,
-                                                                       &H, &Option);
-
-    }
-    else if (m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative == true && m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne == true)
-    {
-        DenseMatrix<ElementType> lb_x(KNNBasisNumber, 1);
-        lb_x.Fill(ElementType(0));
-
-        DenseMatrix<ElementType> A(1, KNNBasisNumber);
-        A.Fill(ElementType(1));
-
-        DenseMatrix<ElementType> lb_A = ElementType(1);
-        DenseMatrix<ElementType> ub_A = ElementType(1);
-
-        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
-
-        DenseMatrix<ElementType> H;
-
-        if (GramianMatrix_DtD.IsEmpty() == false)
-        {
-            H = GramianMatrix_DtD.GetSubMatrix(KNNBasisIndexList, KNNBasisIndexList);
-        }
-
-        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataVector,
-                                                                       &lb_x, nullptr, &A, &lb_A, &ub_A, nullptr,
-                                                                       &H, &Option);
-    }
-    else //if(m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative == false && m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne == true)
-    {
-        DenseMatrix<ElementType> A(1, KNNBasisNumber);
-        A.Fill(ElementType(1));
-
-        DenseMatrix<ElementType> lb_A = ElementType(1);
-        DenseMatrix<ElementType> ub_A = ElementType(1);
-
-        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
-
-        DenseMatrix<ElementType> H;
-
-        if (GramianMatrix_DtD.IsEmpty() == false)
-        {
-            H = GramianMatrix_DtD.GetSubMatrix(KNNBasisIndexList, KNNBasisIndexList);
-        }
-
-        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataVector,
-                                                                       nullptr, nullptr, &A, &lb_A, &ub_A, nullptr,
-                                                                       &H, &Option);
-    }
-
-    MatrixMultiply(ReconstructedDataVector, KNNBasisMatrix, Solution.X);
+    auto CodeVector = KNNReconstructionSparseEncoder<ElementType>::ComputeCodeVector(DataVector, KNNBasisMatrix, KNNBasisIndexList, GramianMatrix_DtD,
+                                                                                     m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative,
+                                                                                     m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne);
+      
+    MatrixMultiply(ReconstructedDataVector, KNNBasisMatrix, CodeVector);
 }
 
 
