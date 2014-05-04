@@ -111,6 +111,8 @@ DenseMatrix<int_max> FindKNNByDistanceList(const DenseMatrix<ElementType>& Dista
         }
     }
 
+    NeighbourIndexList.Squeeze();
+
     return NeighbourIndexList;
 }
 

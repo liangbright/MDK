@@ -188,14 +188,14 @@ protected:
 
     void UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
                                      const DenseMatrix<ElementType>& FeatureData,
-                                     const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
+                                     const DataContainer<SparseVector<ElementType>>& CodeTable,
                                      const DenseMatrix<ElementType>& VectorSimilarityMatrix,
                                      const DenseMatrix<int_max>& VectorIndexList_Basis,
                                      const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init);
 
     void UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
                                               const DenseMatrix<ElementType>& FeatureData,
-                                              const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
+                                              const DataContainer<SparseVector<ElementType>>& CodeTable,
                                               const DenseMatrix<ElementType>& VectorSimilarityMatrix,
                                               const DenseMatrix<int_max>& VectorIndexList_Basis,
                                               const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init);
@@ -219,41 +219,40 @@ protected:
 
     void ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix);
 
-    DataContainer<DenseMatrix<int_max>> FindKNNBasisIndexTableOfDataByVectorSimilarityMatrix(const DenseMatrix<ElementType>& VectorSimilarityMatrix,
-                                                                                             const DenseMatrix<int_max>&     VectorIndexList_Basis,
-                                                                                             int_max BasisNumber_init);
+    DataContainer<SparseVector<ElementType>> EncodeFeatureData(const DenseMatrix<ElementType>& VectorSimilarityMatrix,
+                                                               const DenseMatrix<int_max>&     VectorIndexList_Basis,
+                                                               int_max BasisNumber_init);
 
-    void UpdateBasisExperience(DenseMatrix<ElementType>& BasisExperience,
-                               const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData);
+    void UpdateBasisExperience(DenseMatrix<ElementType>& BasisExperience, const DataContainer<SparseVector<ElementType>>& CodeTable);
 
     void UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix);   
 
     void UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
                                     const DenseMatrix<ElementType>& FeatureData,
-                                    const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
+                                    const DataContainer<SparseVector<ElementType>>& CodeTable,
                                     const DenseMatrix<ElementType>& BasisMatrix,
                                     const DenseMatrix<ElementType>& BasisExperience);
 
     void UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
                                     const DenseMatrix<ElementType>& FeatureData,
-                                    const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
+                                    const DataContainer<SparseVector<ElementType>>& CodeTable,
                                     const DenseMatrix<ElementType>& BasisMatrix,
                                     const DenseMatrix<ElementType>& BasisExperience);
 
     void UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
                                       const DenseMatrix<ElementType>& FeatureData,
-                                      const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
+                                      const DataContainer<SparseVector<ElementType>>& CodeTable,
                                       const DenseMatrix<ElementType>& BasisMatrix,
                                       const DenseMatrix<ElementType>& BasisExperience);
 
     void UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
                                         const DenseMatrix<ElementType>& FeatureData,
-                                        const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
+                                        const DataContainer<SparseVector<ElementType>>& CodeTable,
                                         const DenseMatrix<ElementType>& BasisMatrix,
                                         const DenseMatrix<ElementType>& BasisExperience);
     
     DenseMatrix<ElementType> ComputeDataReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  FeatureData,
-                                                                  const DataContainer<DenseMatrix<int_max>>& KNNBasisIndexTableOfData,
+                                                                  const DataContainer<SparseVector<ElementType>>& CodeTable,
                                                                   const DenseMatrix<ElementType>&  BasisMatrix);
 
     void ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       ReconstructedDataVector, 

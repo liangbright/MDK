@@ -671,15 +671,31 @@ UpdateBasisExperience(DenseMatrix<ElementType>&  BasisExperience, const DataCont
         }
     }
 
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+
+    DenseMatrix<ElementType> NormalizedCodeVector;
+    // it looks like membership, but it is not
+    // reconstruction code is not as stable as soft-assign code (i.e., similarity)
+    // By normalizing similarity, we can get membership
+    // but the normalized reconstruction code is not membership
+
     for (int_max k = 0; k < DataNumber; ++k)
     {
         const std::vector<int_max>& KNN_IndexList = CodeTable[k].IndexList();
 
+        const std::vector<ElementType>& CodeVector = CodeTable[k].DataArray();
+
         auto tempNeighbourNumber = int_max(KNN_IndexList.size());
 
-        for (int_max m = 0; m < tempNeighbourNumber; ++m)
+        if (tempNeighbourNumber > 0)
         {
-            BasisExperience[KNN_IndexList[m]] += ElementType(1) / ElementType(tempNeighbourNumber);
+            NormalizedCodeVector = CodeVector;
+            NormalizedCodeVector /= NormalizedCodeVector.L1Norm() + eps_value;
+
+            for (int_max m = 0; m < tempNeighbourNumber; ++m)
+            {
+                BasisExperience[KNN_IndexList[m]] += NormalizedCodeVector[m];
+            }
         }
     }
 

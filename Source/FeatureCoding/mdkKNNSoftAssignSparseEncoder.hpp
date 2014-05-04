@@ -241,18 +241,17 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex
         return;
     }
 
-    // get Membership by normalizing SimilarityList
-
-    auto tempSum = SimilarityList.Sum();
-
-    if (tempSum >= m_Parameter.SimilarityThreshold)
-    {
-        SimilarityList /= tempSum;
-    }
-    else
-    {
-        SimilarityList.Fill(ElementType(0));
-    }
+    // Output Similarity, not membership from 0 to 1
+    //auto tempSum = SimilarityList.Sum();
+    //
+    //if (tempSum >= m_Parameter.SimilarityThreshold)
+    //{
+    //    SimilarityList /= tempSum;
+    //}
+    //else
+    //{
+    //   SimilarityList.Fill(ElementType(0));
+    //}
    
     CodeInSparseColVector.Construct(NeighbourIndexList, SimilarityList, CodeLength);
 }

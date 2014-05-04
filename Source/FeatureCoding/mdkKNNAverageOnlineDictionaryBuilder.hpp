@@ -634,15 +634,27 @@ UpdateBasisExperience(DenseMatrix<ElementType>& BasisExperience, const DataConta
         }
     }
 
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+
+    DenseMatrix<ElementType> Membership;
+
     for (int_max k = 0; k < DataNumber; ++k)
     {
         const std::vector<int_max>& KNN_IndexList = CodeTable[k].IndexList();
 
+        const std::vector<ElementType>& KNN_Similarity = CodeTable[k].DataArray(); // code from SoftAssignSparseEncorder is Similarity, not membership 
+
         auto tempNeighbourNumber = int_max(KNN_IndexList.size());
 
-        for (int_max m = 0; m < tempNeighbourNumber; ++m)
+        if (tempNeighbourNumber > 0)
         {
-            BasisExperience[KNN_IndexList[m]] += ElementType(1) / ElementType(tempNeighbourNumber);
+            Membership  = KNN_Similarity;
+            Membership /= Membership.Sum() + eps_value;
+
+            for (int_max m = 0; m < tempNeighbourNumber; ++m)
+            {
+                BasisExperience[KNN_IndexList[m]] += Membership[m];
+            }
         }
     }
 
@@ -798,15 +810,26 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
     DenseMatrix<ElementType> Variance_current(1, BasisNumber);
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L1);
 
-    DenseMatrix<int_max> CounterList(1, BasisNumber);
-    CounterList.Fill(0);
+    DenseMatrix<ElementType> WeightList(1, BasisNumber);
+    WeightList.Fill(0);
+
+    DenseMatrix<ElementType> Membership;
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     for (int_max k = 0; k < DataNumber; ++k)
     {
         const std::vector<int_max>& KNN_IndexList = CodeTable[k].IndexList();
 
-        if (KNN_IndexList.size() > 0)
+        const std::vector<ElementType>& KNN_Similarity = CodeTable[k].DataArray(); // code from SoftAssignSparseEncorder is Similarity, not membership 
+
+        auto tempNeighbourNumber = int_max(KNN_IndexList.size());
+
+        if (tempNeighbourNumber > 0)
         {
+            Membership  = KNN_Similarity;
+            Membership /= Membership.Sum() + eps_value;
+
             auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
 
             for (int_max m = 0; m < int_max(KNN_IndexList.size()); ++m)
@@ -817,18 +840,18 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
 
                 auto L1Distance = ComputeL1DistanceBetweenTwoVectors(DataVectorPtr, BasisVectorPtr, VectorLength, false);
 
-                Variance_current[BasisIndex] += L1Distance*L1Distance;
+                Variance_current[BasisIndex] += L1Distance*L1Distance*Membership[m];
 
-                CounterList[BasisIndex] += 1;
+                WeightList[BasisIndex] += Membership[m];
             }
         }
     }
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (CounterList[n] > 0)
+        if (WeightList[n] > eps_value)
         {
-            Variance_current[n] /= CounterList[n];
+            Variance_current[n] /= WeightList[n];
         }
     }
 
@@ -846,8 +869,6 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
     }
 
     auto MeanStd = Variance.Mean();
-
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     if (MeanStd <= eps_value)
     {
@@ -884,15 +905,26 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
     DenseMatrix<ElementType> Variance_current(1, BasisNumber);
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
 
-    DenseMatrix<int_max> CounterList(1, BasisNumber);
-    CounterList.Fill(0);
+    DenseMatrix<ElementType> WeightList(1, BasisNumber);
+    WeightList.Fill(0);
+
+    DenseMatrix<ElementType> Membership;
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     for (int_max k = 0; k < DataNumber; ++k)
-    {        
+    {
         const std::vector<int_max>& KNN_IndexList = CodeTable[k].IndexList();
 
-        if (KNN_IndexList.size() > 0)
+        const std::vector<ElementType>& KNN_Similarity = CodeTable[k].DataArray(); // code from SoftAssignSparseEncorder is Similarity, not membership 
+
+        auto tempNeighbourNumber = int_max(KNN_IndexList.size());
+
+        if (tempNeighbourNumber > 0)
         {
+            Membership  = KNN_Similarity;
+            Membership /= Membership.Sum() + eps_value;
+
             auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
 
             for (int_max m = 0; m < int_max(KNN_IndexList.size()); ++m)
@@ -903,18 +935,18 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
 
                 auto SquaredL2Distance = ComputeSquaredL2DistanceBetweenTwoVectors(DataVectorPtr, BasisVectorPtr, VectorLength, false);
 
-                Variance_current[BasisIndex] += SquaredL2Distance;
+                Variance_current[BasisIndex] += SquaredL2Distance*Membership[m];
 
-                CounterList[BasisIndex] += 1;
+                WeightList[BasisIndex] += Membership[m];
             }
         }
     }
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (CounterList[n] > 0)
+        if (WeightList[n] > eps_value)
         {
-            Variance_current[n] /= CounterList[n];
+            Variance_current[n] /= WeightList[n];
         }
     }
 
@@ -932,8 +964,6 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
     }
 
     auto MeanStd = Variance.Mean();
-
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     if (MeanStd <= eps_value)
     {
@@ -970,15 +1000,26 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
     DenseMatrix<ElementType> Variance_current(1, BasisNumber);
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_KL);
 
-    DenseMatrix<int_max> CounterList(1, BasisNumber);
-    CounterList.Fill(0);
+    DenseMatrix<ElementType> WeightList(1, BasisNumber);
+    WeightList.Fill(0);
+
+    DenseMatrix<ElementType> Membership;
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     for (int_max k = 0; k < DataNumber; ++k)
     {
         const std::vector<int_max>& KNN_IndexList = CodeTable[k].IndexList();
 
-        if (KNN_IndexList.size() > 0)
+        const std::vector<ElementType>& KNN_Similarity = CodeTable[k].DataArray(); // code from SoftAssignSparseEncorder is Similarity, not membership 
+
+        auto tempNeighbourNumber = int_max(KNN_IndexList.size());
+
+        if (tempNeighbourNumber > 0)
         {
+            Membership  = KNN_Similarity;
+            Membership /= Membership.Sum() + eps_value;
+
             auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
 
             for (int_max m = 0; m < int_max(KNN_IndexList.size()); ++m)
@@ -989,18 +1030,18 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
 
                 auto KLDivergence = ComputeKLDivergenceOfVectorAFromVectorB(DataVectorPtr, BasisVectorPtr, VectorLength, false);
 
-                Variance_current[BasisIndex] += KLDivergence*KLDivergence;
+                Variance_current[BasisIndex] += KLDivergence*KLDivergence*Membership[m];
 
-                CounterList[BasisIndex] += 1;
+                WeightList[BasisIndex] += Membership[m];
             }
         }
     }
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (CounterList[n] > 0)
+        if (WeightList[n] > eps_value)
         {
-            Variance_current[n] /= CounterList[n];
+            Variance_current[n] /= WeightList[n];
         }
     }
 
@@ -1018,8 +1059,6 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
     }
 
     auto MeanStd = Variance.Mean();
-
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     if (MeanStd <= eps_value)
     {
@@ -1053,38 +1092,47 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
 
     int_max BasisNumber = BasisMatrix.GetColNumber();
 
-    DenseMatrix<ElementType> GramianMatrix_DtD = BasisMatrix.Transpose() *BasisMatrix;
+    auto DataReconstructionErrorL2Norm = this->ComputeDataReconstructionErrorL2Norm(FeatureData, CodeTable, BasisMatrix);
 
     DenseMatrix<ElementType> Variance_current(1, BasisNumber);
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
 
-    DenseMatrix<int_max> CounterList(1, BasisNumber);
-    CounterList.Fill(0);
+    DenseMatrix<ElementType> WeightList(1, BasisNumber);
+    WeightList.Fill(0);
 
-    auto DataReconstructionErrorL2Norm = this->ComputeDataReconstructionErrorL2Norm(FeatureData, CodeTable, BasisMatrix);
+    DenseMatrix<ElementType> Membership;
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     for (int_max k = 0; k < DataNumber; ++k)
     {
         const std::vector<int_max>& KNN_IndexList = CodeTable[k].IndexList();
 
-        if (KNN_IndexList.size() > 0)
+        const std::vector<ElementType>& KNN_Similarity = CodeTable[k].DataArray(); // code from SoftAssignSparseEncorder is Similarity, not membership 
+
+        auto tempNeighbourNumber = int_max(KNN_IndexList.size());
+
+        if (tempNeighbourNumber > 0)
         {
+            Membership  = KNN_Similarity;
+            Membership /= Membership.Sum() + eps_value;
+
             for (int_max m = 0; m < int_max(KNN_IndexList.size()); ++m)
             {
                 auto BasisIndex = KNN_IndexList[m];
 
-                Variance_current[BasisIndex] += DataReconstructionErrorL2Norm[k];
+                Variance_current[BasisIndex] += DataReconstructionErrorL2Norm[k] * Membership[m];
 
-                CounterList[BasisIndex] += 1;
+                WeightList[BasisIndex] += Membership[m];
             }
         }       
     }
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (CounterList[n] > 0)
+        if (WeightList[n] > eps_value)
         {
-            Variance[n] /= CounterList[n];
+            Variance[n] /= WeightList[n];
         }
     }
 
@@ -1102,8 +1150,6 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
     }
 
     auto MeanStd = Variance.Mean();
-
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     if (MeanStd <= eps_value)
     {
