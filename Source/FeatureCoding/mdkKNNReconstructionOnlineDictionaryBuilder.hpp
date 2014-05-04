@@ -486,6 +486,7 @@ ReconstructFeatureData(DenseMatrix<ElementType>&        ReconstructedData,
     ReconstructedData.FastResize(VectorLength, DataNumber);
     ReconstructedData.Fill(ElementType(0));
 
+    //for(int_max DataIndex = 0; DataIndex <= DataNumber - 1; ++DataIndex)
     auto TempFunction_Reconstruction = [&](int_max DataIndex)
     {
         const std::vector <int_max>& BasisIndexList = CodeTable[DataIndex].IndexList();
@@ -717,7 +718,8 @@ UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix,
 
     SimilarityMatrix.FastResize(BasisNumber, BasisNumber);
 
-    for (int_max k = 0; k < BasisNumber - 1; ++k)
+    //for (int_max k = 0; k <= BasisNumber - 2; ++k)
+    auto TempFunction_ComputeSimilarity = [&](int_max k)    
     {
         auto BasisVectorPtr_k = BasisMatrix.GetElementPointerOfCol(k);
 
@@ -733,7 +735,9 @@ UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix,
 
             SimilarityMatrix(n, k) = Similarity;
         }
-    }
+    };
+
+    ParallelForLoop(TempFunction_ComputeSimilarity, 0, BasisNumber - 2, m_Parameter.MaxNumberOfThreads);
 }
 
 
@@ -810,7 +814,8 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
 
     auto SimilarityThreshold = m_Parameter.SimilarityThresholdToComputeBasisRedundancy;
 
-    for (int_max k = 0; k < BasisNumber; ++k)
+    //for (int_max k = 0; k <= BasisNumber-1; ++k)
+    auto TempFunction_UpdateRedundancy = [&](int_max k)
     {
         BasisRedundancy[k] = 0;
 
@@ -824,7 +829,9 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
                 }
             }
         }
-    }
+    };
+
+    ParallelForLoop(TempFunction_UpdateRedundancy, 0, BasisNumber - 1, m_Parameter.MaxNumberOfThreads);
 }
 
 
