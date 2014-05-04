@@ -14,21 +14,9 @@ class DenseMatrix;
 struct MatrixSize;
 //---------------------------------------//
 
-enum class MDK_SimilarityType_Enum_For_FeatureCoding
-{
-    L1Distance,
-    L2Distance,
-    Correlation,
-    KLDivergence,
-    Unknown
-};
-
-
 template<typename ElementType>
 class FeatureDictionary : Object
 {
-public:
-    typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
 
 protected:
     FeatureDictionary() {}

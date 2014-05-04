@@ -1,9 +1,12 @@
 #ifndef __mdkFeatureDictionaryForSparseCoding_h
 #define __mdkFeatureDictionaryForSparseCoding_h
 
+#include <atomic>
+
 #include "mdkFileIO.h"
 #include "mdkFeatureDictionary.h"
 #include "mdkDenseMatrix.h"
+#include "mdkFeatureCoding_Common_Type.h"
 
 namespace mdk
 {
@@ -16,6 +19,13 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
     DenseMatrix<ElementType> BasisMatrix; // D
     // ColNumber is BasisNumber (the number of bases)
     // RowNumber is Length of Feature Data Vector
+
+    //------------ basis unique ID -----------------------------------
+    // row vector
+
+    DenseMatrix<int_max> BasisID;
+
+    std::atomic<int_max> SeedForNewBasisIDGeneration;
 
     //------------ constraint on basis -----------------------------------
 
@@ -30,10 +40,12 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
     int_max CurrentDictionaryTime; // Measured By Total Number Of Samples In Training History;
 
     //------------ Age of each basis ----------------------------
+    // row vector
 
     DenseMatrix<ElementType> BasisAge;
 
     // ---------- basis  Experience on Representing Data ----
+    // row vector
 
     DenseMatrix<ElementType> BasisExperience;
     // the weighted total number of training data samples
@@ -41,7 +53,7 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
 
     //---------- Similarity between bases -----------------------
 
-    MDK_SimilarityType_Enum_For_FeatureCoding SimilarityType;
+    VectorSimilarityTypeEnum SimilarityType;
 
     DenseMatrix<ElementType> SimilarityMatrix;
 
@@ -52,8 +64,9 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
     // range [0, BasisNumber-1]
 
     //----------------- Variance -------------------------
+    // row vector
 
-    DenseMatrix<ElementType> VarianceOfL1Distance;
+    DenseMatrix<ElementType> VarianceOfL1Distance; 
     // Length = BasisNumber
     // Variance_i_j = || X_i - D(:, j)||^2
     // Variance(j) = sqrt(sum_i(Indicator_i_j * Variance_i_j))
@@ -77,15 +90,18 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
 
     // not used yet ----------------
     DenseMatrix<ElementType> BasisCovariance;  // relation between bases
+
+    //---------------------------------------------------------------------//
+
+    // add another Dictionary
+    void CombineDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary);
+
 };
 
 
 template<typename ElementType>
 class FeatureDictionaryForSparseCoding : public FeatureDictionary<ElementType>
 {
-public:
-    typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
-
 private:
 
     std::shared_ptr<DictionaryData_Of_FeatureDictionaryForSparseCoding<ElementType>> m_DictionaryData;
@@ -128,6 +144,10 @@ public:
 
     bool Save(const CharString& FilePathAndName) const;
 
+    FeatureDictionaryForSparseCoding<ElementType> GetSubDictionary(const DenseMatrix<int_max>& BasisIndexList_to_keep) const;
+
+    void CombineDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary);
+
     // -------------- get/set ---------------------------------------------------//
 
     inline const CharString& GetName() const;
@@ -137,6 +157,16 @@ public:
     inline DenseMatrix<ElementType>& BasisMatrix();
 
     inline const DenseMatrix<ElementType>& BasisMatrix() const;
+
+    inline int_max GenerateNewBasisID();
+
+    inline int_max GetCurrentSeedForNewBasisIDGeneration() const;
+
+    inline void SetCurrentSeedForNewBasisIDGeneration(int_max Seed);
+
+    inline DenseMatrix<int_max>& BasisID();
+
+    inline const DenseMatrix<int_max>& BasisID() const;
 
     inline void SetProperty_BasisPositive(bool YesNO);
     inline void SetProperty_BasisNormalizedWithL1Norm(bool YesNO);
@@ -159,8 +189,8 @@ public:
     inline DenseMatrix<ElementType>& BasisRedundancy();
     inline const DenseMatrix<ElementType>& BasisRedundancy() const;
 
-    inline void SetProperty_SimilarityType(MDK_SimilarityType_Enum_For_FeatureCoding SimilarityType);
-    inline MDK_SimilarityType_Enum_For_FeatureCoding GetProperty_SimilarityType() const;
+    inline void SetProperty_SimilarityType(VectorSimilarityTypeEnum SimilarityType);
+    inline VectorSimilarityTypeEnum GetProperty_SimilarityType() const;
 
     inline DenseMatrix<ElementType>& SimilarityMatrix();
     inline const DenseMatrix<ElementType>& SimilarityMatrix() const;

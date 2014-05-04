@@ -20,12 +20,10 @@ void Test_SimpleCase()
 
     KNNBasisSelectionOnlineDictionaryBuilder<double> InitialDictionaryBuilder;
 
-    typedef KNNBasisSelectionOnlineDictionaryBuilder<double>::SimilarityTypeEnum SimilarityTypeEnum;
-
     InitialDictionaryBuilder.m_Parameter.BasisNumber = 10;
     InitialDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = NeighbourNumber;
 
-    InitialDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = SimilarityTypeEnum::L1Distance;
+    InitialDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = VectorSimilarityTypeEnum::L1Distance;
     InitialDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.1;
     InitialDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = 10;
 
@@ -54,7 +52,7 @@ void Test_SimpleCase()
 
     DictionaryBuilder.m_Parameter.BasisNumber = 10;
     DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber = NeighbourNumber;
-    DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.SimilarityType = SimilarityTypeEnum::L1Distance;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.SimilarityType = VectorSimilarityTypeEnum::L1Distance;
     DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative = true;
     DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne = false;
 

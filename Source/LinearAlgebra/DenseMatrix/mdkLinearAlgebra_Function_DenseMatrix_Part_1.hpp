@@ -843,14 +843,14 @@ DenseMatrix<ElementType> MatrixElementDivide(const ElementType& ElementA, const 
 
 template<typename ElementType>
 inline 
-void MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB)
+bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& ElementA, const DenseMatrix<ElementType>& MatrixB)
 {
     auto SizeB = MatrixB.GetSize();
 
     if (SizeB.RowNumber == 0)
     {
         MDK_Error("MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, ElementA, MatrixB)")
-        return;
+        return false;
     }
 
     auto SizeC = OutputMatrixC.GetSize();

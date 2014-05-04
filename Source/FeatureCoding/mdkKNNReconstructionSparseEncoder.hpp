@@ -44,12 +44,13 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.SimilarityType != SimilarityTypeEnum::L1Distance
-        && m_Parameter.SimilarityType != SimilarityTypeEnum::L2Distance
-        && m_Parameter.SimilarityType != SimilarityTypeEnum::Correlation
-        && m_Parameter.SimilarityType != SimilarityTypeEnum::KLDivergence)
+    if (m_Parameter.SimilarityType != VectorSimilarityTypeEnum::L1Distance
+        && m_Parameter.SimilarityType != VectorSimilarityTypeEnum::L2Distance
+        && m_Parameter.SimilarityType != VectorSimilarityTypeEnum::Correlation
+        && m_Parameter.SimilarityType != VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation
+        && m_Parameter.SimilarityType != VectorSimilarityTypeEnum::KLDivergence)
     {
-        MDK_Error("SimilarityType is invalid @ KNNReconstructionSparseEncoder::CheckInput()")
+        MDK_Error("SimilarityType is not supported @ KNNReconstructionSparseEncoder::CheckInput()")
         return false;
     }
 
@@ -102,28 +103,31 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
     switch (m_Parameter.SimilarityType)
     {
-    case SimilarityTypeEnum::L1Distance:
+    case VectorSimilarityTypeEnum::L1Distance:
 
         DistanceList = ComputeL1DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
         break;
 
-    case SimilarityTypeEnum::L2Distance:
+    case VectorSimilarityTypeEnum::L2Distance:
 
         DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
         break;
 
-    case SimilarityTypeEnum::Correlation:
+    case VectorSimilarityTypeEnum::Correlation:
 
         DistanceList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
 
-        if (m_Parameter.IgnoreSign_Correlation == true)
-        {
-            DistanceList.ElementOperationInPlace("abs");
-        }
+        break;
+
+    case VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation:
+
+        DistanceList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
+
+        DistanceList.ElementOperationInPlace("abs");
 
         break;
 
-    case SimilarityTypeEnum::KLDivergence:
+    case VectorSimilarityTypeEnum::KLDivergence:
 
         DistanceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, BasisMatrix);
         break;

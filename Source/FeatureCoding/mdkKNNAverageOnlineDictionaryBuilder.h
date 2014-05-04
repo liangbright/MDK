@@ -84,8 +84,6 @@ class KNNAverageOnlineDictionaryBuilder : public FeatureDictionaryBuilder<Elemen
 public:
     Parameter_Of_KNNAverageOnlineDictionaryBuilder<ElementType> m_Parameter;
 
-    typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
-
 private:
 
     const DenseMatrix<ElementType>* m_FeatureData;

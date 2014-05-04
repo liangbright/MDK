@@ -132,12 +132,13 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
     
-    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != SimilarityTypeEnum::L1Distance
-        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != SimilarityTypeEnum::L2Distance
-        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != SimilarityTypeEnum::Correlation
-        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != SimilarityTypeEnum::KLDivergence)
+    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::L1Distance
+        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::L2Distance
+        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::Correlation
+        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation
+        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::KLDivergence)
     {
-        MDK_Error("SimilarityType is invalid @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("SimilarityType is not supported @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
     
@@ -147,7 +148,7 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == SimilarityTypeEnum::L1Distance)
+    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == VectorSimilarityTypeEnum::L1Distance)
     {
         if (m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 <= 0)
         {
@@ -171,7 +172,7 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
             }
         }
     }
-    else if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == SimilarityTypeEnum::L2Distance)
+    else if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == VectorSimilarityTypeEnum::L2Distance)
     {
         if (m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 <= 0)
         {
@@ -195,14 +196,7 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
             }
         }
     }
-    else if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == SimilarityTypeEnum::Correlation)
-    {
-        if (m_Parameter.ParameterOfKNNSoftAssign.IgnoreSign_Correlation == true)
-        {
-            MDK_Warning("IgnoreSign_Correlation is true @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
-        }
-    }
-    else if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == SimilarityTypeEnum::KLDivergence)
+    else if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == VectorSimilarityTypeEnum::KLDivergence)
     {
         if (m_Parameter.ParameterOfKNNSoftAssign.Variance_KL <= 0)
         {
@@ -396,7 +390,7 @@ BuildDictionaryFromData(const int_max BasisNumber_desired,
 
     if (m_Parameter.DebugInfo.Flag_OutputDebugInfo == true)
     {
-        CharString FilePathAndName = m_Parameter.DebugInfo.FilePathToSaveDebugInfo + m_Parameter.DebugInfo.JsonDataFileName_Of_VectorSimilarityMatrix;
+        CharString FilePathAndName = m_Parameter.DebugInfo.FilePathToSaveDebugInfo + "VectorSimilarityMatrix.json";
         SaveDenseMatrixAsJsonDataFile(VectorSimilarityMatrix, FilePathAndName);
     }
 
@@ -448,9 +442,9 @@ BuildDictionaryFromData(const int_max BasisNumber_desired,
     //------------------------------------------ select basis from Combined Data -----------------------------------------------------------------//
 
     // find KNN of each vector in Combined Data
-    auto KNNVectorIndexTable = FindKNNVectorIndexTableByVectorSimilarityMatrix(VectorSimilarityMatrix);
+    auto KNNVectorIndexTable = this->FindKNNVectorIndexTableByVectorSimilarityMatrix(VectorSimilarityMatrix);
 
-    auto RepresentativeAbilityOfEachVector = ComputeRepresentativeAbilityOfEachVectorInCombinedData(Dictionary_init, TotalVectorNumber);
+    auto RepresentativeAbilityOfEachVector = this->ComputeRepresentativeAbilityOfEachVectorInCombinedData(Dictionary_init, TotalVectorNumber);
 
     // estimate the probability mass function based on RepresentativeAbilityOfEachVector
 
@@ -496,7 +490,7 @@ BuildDictionaryFromData(const int_max BasisNumber_desired,
 
     // -------- get KNNBasisVectorIndexTable (i.e., encode FeatureData) -----------------------//
 
-    auto CodeTable = EncodeFeatureData(VectorSimilarityMatrix, VectorIndexList_Basis, BasisNumber_init);
+    auto CodeTable = this->EncodeFeatureData(VectorSimilarityMatrix, VectorIndexList_Basis, BasisNumber_init);
 
     // --------------- Update DictionaryInformation ------------------------------//
 
@@ -906,7 +900,7 @@ ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType
 
     switch (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType)
     {
-    case SimilarityTypeEnum::L1Distance:
+    case VectorSimilarityTypeEnum::L1Distance:
     {
         auto L1Distance = ComputeL1DistanceBetweenTwoVectors(VectorA, VectorB, Length, false);
         auto temp = (L1Distance*L1Distance) / m_Parameter.ParameterOfKNNSoftAssign.Variance_L1;
@@ -914,7 +908,7 @@ ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType
     }
         break;
 
-    case SimilarityTypeEnum::L2Distance:
+    case VectorSimilarityTypeEnum::L2Distance:
     {
         auto L2Distance = ComputeL2DistanceBetweenTwoVectors(VectorA, VectorB, Length, false);
         auto temp = (L2Distance*L2Distance) / m_Parameter.ParameterOfKNNSoftAssign.Variance_L2;
@@ -922,21 +916,23 @@ ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType
     }
         break;
 
-    case SimilarityTypeEnum::Correlation:
+    case VectorSimilarityTypeEnum::Correlation:
     {
         auto Correlation = ComputeCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
-        if (m_Parameter.ParameterOfKNNSoftAssign.IgnoreSign_Correlation == true)
-        {
-            Similarity = std::abs(Correlation);
-        }
-        else
-        {
-            Similarity = (Correlation + ElementType(1)) / ElementType(2);
-        }
+
+        Similarity = (Correlation + ElementType(1)) / ElementType(2);
     }
         break;
 
-    case SimilarityTypeEnum::KLDivergence:
+    case VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation:
+    {
+        auto Correlation = ComputeCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+
+        Similarity = std::abs(Correlation);
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::KLDivergence:
     {
         auto KLDivergence_AB = ComputeKLDivergenceOfVectorAFromVectorB(VectorA, VectorB, Length, false);
         auto KLDivergence_BA = ComputeKLDivergenceOfVectorAFromVectorB(VectorB, VectorA, Length, false);
@@ -1180,7 +1176,10 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
                             const DenseMatrix<int_max>& VectorIndexList_Basis,
                             const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init)
 {
+    // BasisMatrix has been updated
     DenseMatrix<ElementType>& BasisMatrix = Dictionary.BasisMatrix();
+
+    DenseMatrix<int_max>& BasisID = Dictionary.BasisID();
 
     DenseMatrix<ElementType>& BasisAge = Dictionary.BasisAge();
 
@@ -1199,6 +1198,49 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
     }
 
     int_max DataNumber = FeatureData.GetColNumber();
+
+    //---------------------- copy SeedForNewBasisIDGeneration ---------------------------//
+    
+    if (Dictionary_init.IsEmpty() == false)
+    {
+        Dictionary.SetCurrentSeedForNewBasisIDGeneration(Dictionary_init.GetCurrentSeedForNewBasisIDGeneration());
+    }
+
+    //--------------------- initialize BasisID --------------------------------------------//
+
+    BasisID.FastResize(1, BasisNumber);
+    BasisID.Fill(0); // BasisID is always > 0, fill 0 to mark new basis
+
+    if (Dictionary_init.IsEmpty() == false)
+    {
+        const DenseMatrix<int_max>& BasisID_init = Dictionary_init.BasisID();
+
+        for (int_max k = 0; k < BasisNumber; ++k)
+        {
+            auto tempIndex = VectorIndexList_Basis[k];
+            if (tempIndex < BasisNumber_init)
+            {   // this basis is from Dictionary_init
+
+                BasisID[k] = BasisID_init[tempIndex];
+            }
+        }
+    }
+
+    //--------------------- update BasisID for new basis --------------------------------------------//
+
+    if (m_Parameter.Update_BasisID == true)
+    {
+        for (int_max k = 0; k < BasisNumber; ++k)
+        {
+            auto tempIndex = VectorIndexList_Basis[k];
+            if (tempIndex >= BasisNumber_init)
+            {
+                // this basis is from data
+
+                BasisID[k] = Dictionary.GenerateNewBasisID();
+            }
+        }
+    }
 
     //------------------- initialize BasisAge ----------------------------------------//
 
@@ -1400,7 +1442,7 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
 
         //----- initialize VarianceOfKLDivergence
 
-        if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == SimilarityTypeEnum::KLDivergence)
+        if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == VectorSimilarityTypeEnum::KLDivergence)
         {
             auto MeanStd_KLDivergence = ElementType(0);
             if (VarianceOfKLDivergence_init.IsEmpty() == false)
@@ -1470,7 +1512,7 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
 
     this->UpdateVarianceOfL2Distance(VarianceOfL2Distance, FeatureData, CodeTable, BasisMatrix, BasisExperience);
 
-    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == SimilarityTypeEnum::KLDivergence)
+    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == VectorSimilarityTypeEnum::KLDivergence)
     {
         this->UpdateVarianceOfKLDivergence(VarianceOfKLDivergence, FeatureData, CodeTable, BasisMatrix, BasisExperience);
     }

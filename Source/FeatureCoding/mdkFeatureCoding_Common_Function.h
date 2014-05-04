@@ -1,7 +1,7 @@
 #ifndef __mdkFeatureCoding_Common_Function_h
 #define __mdkFeatureCoding_Common_Function_h
 
-
+#include "mdkFeatureCoding_Common_Type.h"
 
 namespace mdk
 {
@@ -29,29 +29,30 @@ DenseMatrix<int_max> FindKNNBySimilarityList(const DenseMatrix<ElementType>& Sim
 //---------------------- Compute Similarity Matrix Between Vectors Stored in DenseMatrix<ElementType> VecorSet ----------------------------//
 
 template<typename ElementType>
-DenseMatrix<ElementType> ComputeSimilarityMatrixOfVecorSet(const DenseMatrix<ElementType>& VecorSet, const char* SimilarityFunctionName);
+DenseMatrix<ElementType> ComputeSimilarityMatrixOfVectorSet(const DenseMatrix<ElementType>& VecorSet, const char* SimilarityFunctionName);
 
 template<typename ElementType>
-void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType> & SimilarityMatrix, 
-                                       const DenseMatrix<ElementType>& VecorSet, 
-                                       const char* SimilarityFunctionName);
+void ComputeSimilarityMatrixOfVectorSet(DenseMatrix<ElementType> & SimilarityMatrix, 
+                                        const DenseMatrix<ElementType>& VecorSet, 
+                                        const char* SimilarityFunctionName);
 
 template<typename ElementType>
-DenseMatrix<ElementType> ComputeSimilarityMatrixOfVecorSet(const DenseMatrix<ElementType>& VecorSet, const std::string& SimilarityFunctionName);
+DenseMatrix<ElementType> ComputeSimilarityMatrixOfVectorSet(const DenseMatrix<ElementType>& VecorSet, const std::string& SimilarityFunctionName);
 
 template<typename ElementType>
-void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType>& SimilarityMatrix, 
-                                       const DenseMatrix<ElementType>& VecorSet, 
-                                       const std::string& SimilarityFunctionName);
+void ComputeSimilarityMatrixOfVectorSet(DenseMatrix<ElementType>& SimilarityMatrix, 
+                                        const DenseMatrix<ElementType>& VecorSet, 
+                                        const std::string& SimilarityFunctionName);
 
 template<typename ElementType, typename SimilarityFunctionType>
-DenseMatrix<ElementType> ComputeSimilarityMatrixOfVecorSet(const DenseMatrix<ElementType>& VecorSet, SimilarityFunctionType SimilarityFunction);
+DenseMatrix<ElementType> ComputeSimilarityMatrixOfVectorSet(const DenseMatrix<ElementType>& VecorSet, SimilarityFunctionType SimilarityFunction);
 
 
 template<typename ElementType, typename SimilarityFunctionType>
-void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType>& SimilarityMatrix, 
-                                       const DenseMatrix<ElementType>& VecorSet, 
-                                       SimilarityFunctionType SimilarityFunction);
+void ComputeSimilarityMatrixOfVectorSet(DenseMatrix<ElementType>& SimilarityMatrix, 
+                                        const DenseMatrix<ElementType>& VecorSet, 
+                                        SimilarityFunctionType SimilarityFunction);
+
 
 }
 

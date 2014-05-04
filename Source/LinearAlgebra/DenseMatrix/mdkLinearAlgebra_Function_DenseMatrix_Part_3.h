@@ -129,7 +129,8 @@ inline
 ElementType ComputeKLDivergenceOfVectorAFromVectorB(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
 
 
-}
+}// namespace mdk
+
 
 #include "mdkLinearAlgebra_Function_DenseMatrix_Part_3.hpp"
 

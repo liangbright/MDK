@@ -4,9 +4,9 @@
 #include <string>
 #include <limits>
 
-
-#include "mdkFeatureDictionaryBasedSparseEncoder.h"
+#include "mdkFeatureCoding_Common_Type.h"
 #include "mdkFeatureCoding_Common_Function.h"
+#include "mdkFeatureDictionaryBasedSparseEncoder.h"
 #include "mdkLinearLeastSquaresProblemSolver.h"
 
 // find K Nearest Neighbor [d_1, d_2, ..., d_k] from D by using KNNDistanceType
@@ -32,15 +32,13 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
 {
     int_max NeighbourNumber;
 
-    MDK_SimilarityType_Enum_For_FeatureCoding SimilarityType; // to find KNN
+    VectorSimilarityTypeEnum SimilarityType; // to find KNN
     // L1Distance
     // L2Distance
     // Correlation
     // KLDivergence
 
     // L1Distance/L2Distance/Correlation/KLDivergence is directly used to find KNN, i.e., not converted to similarity
-
-    bool IgnoreSign_Correlation;
 
     bool CodeNonnegative;
 
@@ -55,9 +53,7 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
     {
         NeighbourNumber = -1;
 
-        SimilarityType  = MDK_SimilarityType_Enum_For_FeatureCoding::Unknown;
-
-        IgnoreSign_Correlation = false;
+        SimilarityType = VectorSimilarityTypeEnum::Unknown;
 
         CodeNonnegative = false;
         CodeSumToOne    = false;
@@ -68,8 +64,6 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
         NeighbourNumber = InputParameter.NeighbourNumber;
 
         SimilarityType  = InputParameter.SimilarityType;
-
-        IgnoreSign_Correlation = false;
 
         CodeNonnegative = InputParameter.CodeNonnegative;
         CodeSumToOne    = InputParameter.CodeSumToOne;
@@ -86,8 +80,6 @@ class KNNReconstructionSparseEncoder : public FeatureDictionaryBasedSparseEncode
 public:
 
     Parameter_Of_KNNReconstructionSparseEncoder<ElementType> m_Parameter;
-
-    typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
 
 protected:
 

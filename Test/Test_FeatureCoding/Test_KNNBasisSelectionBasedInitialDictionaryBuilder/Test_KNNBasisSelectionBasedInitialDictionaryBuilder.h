@@ -1,5 +1,5 @@
 #include "mdkFileIO.h"
-#include "mdkKNNBasisSelectionOnlineDictionaryBuilder.h"
+#include "mdkKNNBasisSelectionBasedInitialDictionaryBuilder.h"
 
 void Test_Matrix()
 {
@@ -29,7 +29,7 @@ void Test_SimpleCase()
 {
     using namespace mdk;
 
-    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/";
+    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionBasedInitialDictionaryBuilder/Debug/";
 
     CharString FeatureDataFilePathAndName = FilePath + "DataSample.json";
 
@@ -37,7 +37,7 @@ void Test_SimpleCase()
 
     int_max FeatureDataNumber = FeatureData.GetColNumber();
 
-    KNNBasisSelectionOnlineDictionaryBuilder<double> DictionaryBuilder;
+    KNNBasisSelectionBasedInitialDictionaryBuilder<double> DictionaryBuilder;
 
     int_max NeighbourNumber = 5;
 
@@ -61,7 +61,6 @@ void Test_SimpleCase()
 
     DictionaryBuilder.m_Parameter.DebugInfo.Flag_OutputDebugInfo = true;
     DictionaryBuilder.m_Parameter.DebugInfo.FilePathToSaveDebugInfo = FilePath;
-    DictionaryBuilder.m_Parameter.DebugInfo.JsonDataFileName_Of_VectorSimilarityMatrix = "VectorSimilarityMatrix.json";
 
     DictionaryBuilder.SetInputFeatureData(&FeatureData);
 

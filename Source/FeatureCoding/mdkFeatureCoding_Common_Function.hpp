@@ -155,7 +155,7 @@ DenseMatrix<int_max> FindKNNBySimilarityList(const DenseMatrix<ElementType>& Sim
 //---------------------- Compute Similarity Matrix Between Vectors Stored in DenseMatrix<ElementType> VecorSet ----------------------------//
 
 template<typename ElementType>
-DenseMatrix<ElementType> ComputeSimilarityMatrixOfVecorSet(const DenseMatrix<ElementType>& VecorSet, const char* SimilarityFunctionName)
+DenseMatrix<ElementType> ComputeSimilarityMatrixOfVectorSet(const DenseMatrix<ElementType>& VecorSet, const char* SimilarityFunctionName)
 {
     std::string Name = SimilarityFunctionName;
 
@@ -164,22 +164,22 @@ DenseMatrix<ElementType> ComputeSimilarityMatrixOfVecorSet(const DenseMatrix<Ele
 
 
 template<typename ElementType>
-void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType>& SimilarityMatrix,
+void ComputeSimilarityMatrixOfVectorSet(DenseMatrix<ElementType>& SimilarityMatrix,
                                        const DenseMatrix<ElementType>& VecorSet,
                                        const char* SimilarityFunctionName)
 {
     std::string Name = SimilarityFunctionName;
 
-    return ComputeSimilarityMatrixOfVecorSet(SimilarityMatrix, VecorSet, Name);
+    return ComputeSimilarityMatrixOfVectorSet(SimilarityMatrix, VecorSet, Name);
 }
 
 
 template<typename ElementType>
-DenseMatrix<ElementType> ComputeSimilarityMatrixOfVecorSet(const DenseMatrix<ElementType>& VecorSet, const std::string& SimilarityFunctionName)
+DenseMatrix<ElementType> ComputeSimilarityMatrixOfVectorSet(const DenseMatrix<ElementType>& VecorSet, const std::string& SimilarityFunctionName)
 {
     DenseMatrix<ElementType> SimilarityMatrix;
 
-    ComputeSimilarityMatrixOfVecorSet(SimilarityMatrix, VecorSet, SimilarityFunctionName);
+    ComputeSimilarityMatrixOfVectorSet(SimilarityMatrix, VecorSet, SimilarityFunctionName);
 
     return SimilarityMatrix;
 }
@@ -192,40 +192,40 @@ void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType>& SimilarityMatri
 {
     if (SimilarityFunctionName == "Correlation")
     {
-        ComputeSimilarityMatrixOfVecorSet<ElementType>(SimilarityMatrix, VecorSet,
-                                                       [](const DenseMatrix<ElementType>& VecorA, const DenseMatrix<ElementType>& VecorB)
-                                                       {return ComputeCorrelationBetweenTwoVectors(VecorA, VecorB);} );
+        ComputeSimilarityMatrixOfVectorSet<ElementType>(SimilarityMatrix, VecorSet,
+                                                        [](const DenseMatrix<ElementType>& VecorA, const DenseMatrix<ElementType>& VecorB)
+                                                        {return ComputeCorrelationBetweenTwoVectors(VecorA, VecorB);} );
     }
     else if (SimilarityFunctionName == "UncenteredCorrelation")
     {
-        ComputeSimilarityMatrixOfVecorSet<ElementType>(SimilarityMatrix, VecorSet,
-                                                       [](const DenseMatrix<ElementType>& VecorA, const DenseMatrix<ElementType>& VecorB)
-                                                       {return ComputeUncenteredCorrelationBetweenTwoVectors(VecorA, VecorB);} );
+        ComputeSimilarityMatrixOfVectorSet<ElementType>(SimilarityMatrix, VecorSet,
+                                                        [](const DenseMatrix<ElementType>& VecorA, const DenseMatrix<ElementType>& VecorB)
+                                                        {return ComputeUncenteredCorrelationBetweenTwoVectors(VecorA, VecorB);} );
     }
     else if (SimilarityFunctionName == "UnnormalizedCorrelation")
     {
-        ComputeSimilarityMatrixOfVecorSet<ElementType>(SimilarityMatrix, VecorSet,
-                                                       [](const DenseMatrix<ElementType>& VecorA, const DenseMatrix<ElementType>& VecorB)
-                                                       {return ComputeUnnormalizedCorrelationBetweenTwoVectors(VecorA, VecorB);} );
+        ComputeSimilarityMatrixOfVectorSet<ElementType>(SimilarityMatrix, VecorSet,
+                                                        [](const DenseMatrix<ElementType>& VecorA, const DenseMatrix<ElementType>& VecorB)
+                                                        {return ComputeUnnormalizedCorrelationBetweenTwoVectors(VecorA, VecorB);} );
     }
 }
 
 
 template<typename ElementType, typename SimilarityFunctionType>
-DenseMatrix<ElementType> ComputeSimilarityMatrixOfVecorSet(const DenseMatrix<ElementType>& VecorSet, SimilarityFunctionType SimilarityFunction)
+DenseMatrix<ElementType> ComputeSimilarityMatrixOfVectorSet(const DenseMatrix<ElementType>& VecorSet, SimilarityFunctionType SimilarityFunction)
 {
     DenseMatrix<ElementType> SimilarityMatrix;
 
-    ComputeSimilarityMatrixOfVecorSet(SimilarityMatrix, VecorSet, SimilarityFunction);
+    ComputeSimilarityMatrixOfVectorSet(SimilarityMatrix, VecorSet, SimilarityFunction);
 
     return SimilarityMatrix;
 }
 
 
 template<typename ElementType, typename SimilarityFunctionType>
-void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType>& SimilarityMatrix,
-                                       const DenseMatrix<ElementType>& VecorSet,
-                                       SimilarityFunctionType SimilarityFunction)
+void ComputeSimilarityMatrixOfVectorSet(DenseMatrix<ElementType>& SimilarityMatrix,
+                                        const DenseMatrix<ElementType>& VecorSet,
+                                        SimilarityFunctionType SimilarityFunction)
 {
     int_max TotalVectorNumber = VecorSet.GetColNumber();
 
@@ -240,11 +240,11 @@ void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType>& SimilarityMatri
 
     for (int_max k = 0; k < TotalVectorNumber - 1; ++k)
     {
-        Vector_k.ShallowCopy(const_cast<ElementType*>(VecorSet.GetElementPointerOfCol(k)), VectorLength, 1);
+        Vector_k.ForceShare(VecorSet.GetElementPointerOfCol(k), VectorLength, 1);
 
         for (int_max n = k + 1; n < TotalVectorNumber; ++n)
         {
-            Vector_n.ShallowCopy(const_cast<ElementType*>(VecorSet.GetElementPointerOfCol(n)), VectorLength, 1);
+            Vector_n.ForceShare(VecorSet.GetElementPointerOfCol(n), VectorLength, 1);
 
             ElementType Similarity = SimilarityFunction(Vector_k, Vector_n);
 
@@ -255,7 +255,131 @@ void ComputeSimilarityMatrixOfVecorSet(DenseMatrix<ElementType>& SimilarityMatri
     }
 }
 
+
+template<typename ElementType>
+inline
+ElementType ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum SimilarityType,
+                                               const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB,
+                                               ElementType Variance)
+{
+    if (VectorA.IsVector() == false || VectorB.IsVector() == false)
+    {
+        MDK_Error("Input VectorA or VectorB is not a vector @ mdkFeatureCoding_Common_Function ComputeSimilarityBetweenTwoVectors(...)")
+        return ElementType(0);
+    }
+
+    auto LengthA = VectorA.GetElementNumber();
+    auto LengthB = VectorB.GetElementNumber();
+
+    if (LengthA != LengthB)
+    {
+        MDK_Error("Size does not match @ mdkFeatureCoding_Common_Function ComputeSimilarityBetweenTwoVectors(...)")
+        return ElementType(0);
+    }
+
+    return ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum,
+                                              VectorA.GetElementPointer(), VectorB.GetElementPointer(), LengthA, 
+                                              Variance, false);
 }
+
+
+template<typename ElementType>
+inline
+ElementType ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum SimilarityType,
+                                               const ElementType* VectorA, const ElementType* VectorB, int_max Length,
+                                               ElementType Variance, bool CheckInput)
+{
+    ElementType Similarity = ElementType(0);
+
+    switch (SimilarityType)
+    {
+    case VectorSimilarityTypeEnum::L1Distance:
+    {
+        auto L1Distance = ComputeL1DistanceBetweenTwoVectors(VectorA, VectorB, Length, CheckInput);
+        auto temp = (L1Distance*L1Distance) / Variance;
+        Similarity = std::exp(-temp / ElementType(2));
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::L2Distance:
+    {
+        auto L2Distance = ComputeL2DistanceBetweenTwoVectors(VectorA, VectorB, Length, CheckInput);
+        auto temp = (L2Distance*L2Distance) / Variance;
+        Similarity = std::exp(-temp / ElementType(2));
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::Correlation:
+    {
+        auto Correlation = ComputeCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+
+        Similarity = (Correlation + ElementType(1)) / ElementType(2);
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation:
+    {
+        auto Correlation = ComputeCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+
+        Similarity = std::abs(Correlation);
+
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::UncenteredCorrelation:
+    {
+        auto Correlation = ComputeUncenteredCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+
+        Similarity = (Correlation + ElementType(1)) / ElementType(2);
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::AbsoluteValueOfUncenteredCorrelation:
+    {
+        auto Correlation = ComputeUncenteredCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+
+        Similarity = std::abs(Correlation);
+
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::UnnormalizedCorrelation:
+    {
+        auto Correlation = ComputeUnnormalizedCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+
+        Similarity = (Correlation + ElementType(1)) / ElementType(2);
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::AbsoluteValueOfUnnormalizedCorrelation:
+    {
+        auto Correlation = ComputeUnnormalizedCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+
+        Similarity = std::abs(Correlation);
+
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::KLDivergence:
+    {
+        auto KLDivergence_AB = ComputeKLDivergenceOfVectorAFromVectorB(VectorA, VectorB, Length, CheckInput);
+        auto KLDivergence_BA = ComputeKLDivergenceOfVectorAFromVectorB(VectorB, VectorA, Length, CheckInput);
+        auto KLDivergence = (KLDivergence_AB + KLDivergence_BA) / ElementType(2);
+
+        auto temp = (KLDivergence*KLDivergence) / Variance;
+        Similarity = std::exp(-temp / ElementType(2));
+    }
+        break;
+
+    default:
+        MDK_Error("unknown type of similarity @ mdkFeatureCoding_Common_Function ComputeSimilarityBetweenTwoDataVectors(...)")
+    }
+
+    return Similarity;
+}
+
+
+}//namespace mdk
 
 
 #endif

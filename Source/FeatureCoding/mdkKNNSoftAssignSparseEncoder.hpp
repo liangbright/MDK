@@ -41,12 +41,13 @@ bool KNNSoftAssignSparseEncoder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.SimilarityType != SimilarityTypeEnum::L1Distance
-        && m_Parameter.SimilarityType != SimilarityTypeEnum::L2Distance
-        && m_Parameter.SimilarityType != SimilarityTypeEnum::Correlation
-        && m_Parameter.SimilarityType != SimilarityTypeEnum::KLDivergence)
+    if (m_Parameter.SimilarityType != VectorSimilarityTypeEnum::L1Distance
+        && m_Parameter.SimilarityType != VectorSimilarityTypeEnum::L2Distance
+        && m_Parameter.SimilarityType != VectorSimilarityTypeEnum::Correlation
+        && m_Parameter.SimilarityType != VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation
+        && m_Parameter.SimilarityType != VectorSimilarityTypeEnum::KLDivergence)
     {
-        MDK_Error("SimilarityType is invalid @ KNNSoftAssignSparseEncoder::CheckInput()")
+        MDK_Error("SimilarityType is not supported @ KNNSoftAssignSparseEncoder::CheckInput()")
         return false;
     }
 
@@ -56,7 +57,7 @@ bool KNNSoftAssignSparseEncoder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.SimilarityType == SimilarityTypeEnum::L1Distance)
+    if (m_Parameter.SimilarityType == VectorSimilarityTypeEnum::L1Distance)
     {
         if (m_Parameter.Variance_L1 <= 0)
         {
@@ -73,7 +74,7 @@ bool KNNSoftAssignSparseEncoder<ElementType>::CheckInput()
             }
         }
     }
-    else if (m_Parameter.SimilarityType == SimilarityTypeEnum::L2Distance)
+    else if (m_Parameter.SimilarityType == VectorSimilarityTypeEnum::L2Distance)
     {
         if (m_Parameter.Variance_L2 <= 0)
         {
@@ -90,14 +91,7 @@ bool KNNSoftAssignSparseEncoder<ElementType>::CheckInput()
             }
         }
     }
-    else if (m_Parameter.SimilarityType == SimilarityTypeEnum::Correlation)
-    {
-        if (m_Parameter.IgnoreSign_Correlation == true)
-        {
-            MDK_Warning("IgnoreSign_Correlation is true @ KNNSoftAssignSparseEncoder::CheckInput()")                    
-        }
-    }
-    else if (m_Parameter.SimilarityType == SimilarityTypeEnum::KLDivergence)
+    else if (m_Parameter.SimilarityType == VectorSimilarityTypeEnum::KLDivergence)
     {
         if (m_Parameter.Variance_KL <= 0)
         {
@@ -137,15 +131,13 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex
     DenseMatrix<ElementType> SimilarityList(m_Parameter.NeighbourNumber, 1);
     SimilarityList.Fill(ElementType(0));
 
-    DenseMatrix<ElementType> DistanceList;
-
     DenseMatrix<int_max> NeighbourIndexList;
 
     switch (m_Parameter.SimilarityType)
     {
-    case SimilarityTypeEnum::L1Distance:
+    case VectorSimilarityTypeEnum::L1Distance:
     {
-        DistanceList = ComputeL1DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
+        auto DistanceList = ComputeL1DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
 
         NeighbourIndexList = FindKNNByDistanceList(DistanceList, m_Parameter.NeighbourNumber);
 
@@ -164,9 +156,9 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex
     }
         break;
 
-    case SimilarityTypeEnum::L2Distance:
+    case VectorSimilarityTypeEnum::L2Distance:
     {
-        DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
+        auto DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
 
         NeighbourIndexList = FindKNNByDistanceList(DistanceList, m_Parameter.NeighbourNumber);
 
@@ -185,26 +177,17 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex
     }
         break;
 
-    case SimilarityTypeEnum::Correlation:
+    case VectorSimilarityTypeEnum::Correlation:
     {
-        DistanceList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
+        auto CorrelationList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
 
-        NeighbourIndexList = FindKNNByDistanceList(DistanceList, m_Parameter.NeighbourNumber);
+        NeighbourIndexList = FindKNNByDistanceList(CorrelationList, m_Parameter.NeighbourNumber);
 
-        auto NeighbourDistanceList = DistanceList.GetSubMatrix(NeighbourIndexList);
+        auto NeighbourCorrelationList = CorrelationList.GetSubMatrix(NeighbourIndexList);
 
         for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
         {
-            auto Similarity = ElementType(0);
-
-            if (m_Parameter.IgnoreSign_Correlation == true)
-            {
-                Similarity = std::abs(NeighbourDistanceList[i]); // [-1, 0] => [0, 1]
-            }
-            else
-            {
-                Similarity = (NeighbourDistanceList[i] + 1) / 2;   // [-1, 1] => [0, 1]
-            }
+            auto  Similarity = (NeighbourCorrelationList[i] + 1) / 2;   // [-1, 1] => [0, 1]
 
             if (Similarity >= m_Parameter.SimilarityThreshold)
             {
@@ -214,9 +197,29 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex
     }
         break;
 
-    case SimilarityTypeEnum::KLDivergence:
+    case VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation :
     {
-        DistanceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, BasisMatrix);
+        auto CorrelationList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
+
+        NeighbourIndexList = FindKNNByDistanceList(CorrelationList, m_Parameter.NeighbourNumber);
+
+        auto NeighbourCorrelationList = CorrelationList.GetSubMatrix(NeighbourIndexList);
+
+        for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
+        {
+            auto Similarity = std::abs(NeighbourCorrelationList[i]); // [-1, 0] => [0, 1]           
+
+            if (Similarity >= m_Parameter.SimilarityThreshold)
+            {
+                SimilarityList[i] = Similarity;
+            }
+        }
+    }
+        break;
+
+    case VectorSimilarityTypeEnum::KLDivergence:
+    {
+        auto DistanceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, BasisMatrix);
 
         NeighbourIndexList = FindKNNByDistanceList(DistanceList, m_Parameter.NeighbourNumber);
 
@@ -227,6 +230,7 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex
             auto temp = (NeighbourDistanceList[i] * NeighbourDistanceList[i]) / m_Parameter.Variance_KL;
 
             auto Similarity = std::exp(-temp / ElementType(2));
+
             if (Similarity >= m_Parameter.SimilarityThreshold)
             {
                 SimilarityList[i] = Similarity;
@@ -237,7 +241,7 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex
 
     default:
 
-        MDK_Error("SimilarityType is invalid @ KNNSoftAssignSparseEncoder::EncodingFunction(...)")
+        MDK_Error("SimilarityType is not supported @ KNNSoftAssignSparseEncoder::EncodingFunction(...)")
         return;
     }
 

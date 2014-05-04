@@ -8,10 +8,8 @@
 namespace mdk
 {
 template<typename ElementType>
-struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder 
+struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder<ElementType>
 {
-    Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder<ElementType> ParameterOfKNNBasisSelection;
-
     ElementType SimilarityThreshold_For_Classification;
     // Similarity(i,j) between data vector i and basis vector j in the input dictionary (m_InputDictionary)
     // if Similarity(i,j) >= SimilarityThreshold_For_Classification for some j
@@ -45,19 +43,116 @@ struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder
     // compute the Experience to Age ratio, BasisExperience / BasisAge
     // sort the ratio list in ascend order, and start to retire 
 
-    // If we want to keep all the input bases, set DoNotRetireAnyBasis to true
+    // If we want to keep all the input bases,
+    // set m_Parameter.ParameterOfKNNBasisSelection.BasisNumber = MaxNumberOfNewBases + BasisNumber Of Input Dictionary
 
-    bool DoNotRetireAnyBasis;
+//---------------------------------------------------
+    Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder() { this->Clear(); }
+    ~Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder() {}
+
+    void Clear()
+    {
+        // Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder ------
+
+        BasisNumber = 0;
+
+        BasisPositive = false;
+        BasisNormalizedWithL1Norm = false;
+        BasisNormalizedWithL2Norm = false;
+
+        ParameterOfKNNSoftAssign.Clear();
+
+        ExperienceDiscountFactor = 0;
+
+        WeightOnProbabiliyForBasisSelection = 0;
+
+        MaxNumberOfDataInEachBatch = 0;
+
+        MaxNumberOfThreads = 1;
+
+        Update_BasisID = true;
+
+        Update_BasisAge = false;
+
+        Update_Variance = false;
+
+        Update_VarianceOfReconstruction_Using_KNNBasisMatrix = false;
+
+        Update_BasisExperience = false;
+
+        Update_SimilarityMatrix = true;
+
+        Update_BasisRedundancy = true;
+
+        SimilarityThresholdToComputeBasisRedundancy = 0;
+
+        ConstraintOnKNNReconstructionCode.CodeNonnegative = false;
+        ConstraintOnKNNReconstructionCode.CodeSumToOne = false;
+
+        DebugInfo.Clear();
+        
+        //------------------------------------------------------------//
+
+        SimilarityThreshold_For_Classification = 0;
+
+        MaxNumberOfNewBases = 0;
+
+        DirectlyRetireOldAndInexperiencedBasis = false;
+    }
+
+    Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder<ElementType> Get_Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder()
+    {
+        Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder<ElementType> SubParameter;
+
+        SubParameter.DictionaryName = DictionaryName;
+        
+        SubParameter.BasisNumber = BasisNumber;
+        
+        SubParameter.BasisPositive = BasisPositive;
+        SubParameter.BasisNormalizedWithL1Norm = BasisNormalizedWithL1Norm;
+        SubParameter.BasisNormalizedWithL2Norm = BasisNormalizedWithL2Norm;
+
+        SubParameter.ParameterOfKNNSoftAssign = ParameterOfKNNSoftAssign;
+
+        SubParameter.ExperienceDiscountFactor = ExperienceDiscountFactor;
+
+        SubParameter.WeightOnProbabiliyForBasisSelection = WeightOnProbabiliyForBasisSelection;
+
+        SubParameter.MaxNumberOfDataInEachBatch = MaxNumberOfDataInEachBatch;
+
+        SubParameter.MaxNumberOfThreads = MaxNumberOfThreads;
+
+        SubParameter.Update_BasisID = Update_BasisID;
+
+        SubParameter.Update_BasisAge = Update_BasisAge;
+
+        SubParameter.Update_BasisExperience = Update_BasisExperience;
+
+        SubParameter.Update_Variance = Update_Variance;
+
+        SubParameter.Update_VarianceOfReconstruction_Using_KNNBasisMatrix = Update_VarianceOfReconstruction_Using_KNNBasisMatrix;
+
+        SubParameter.Update_SimilarityMatrix = Update_SimilarityMatrix;
+
+        SubParameter.Update_BasisRedundancy = Update_BasisRedundancy;
+
+        SubParameter.SimilarityThresholdToComputeBasisRedundancy = SimilarityThresholdToComputeBasisRedundancy;
+
+        SubParameter.ConstraintOnKNNReconstructionCode = ConstraintOnKNNReconstructionCode;
+
+        SubParameter.DebugInfo = DebugInfo;
+
+        return SubParameter;
+    }
 
 };
+
 
 template<typename ElementType>
 class KNNBasisSelectionBasedInitialDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
 {
 public:
-    Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder<ElementType> m_Parameter;
-
-    typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
+    Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType> m_Parameter;
 
 private:
 
@@ -97,6 +192,21 @@ protected:
 
     void GenerateDictionary();
 
+    void ClassifyFeatureDataBySimilarityThreshold(DenseMatrix<int_max>& IndexList_InClass, 
+                                                  DenseMatrix<int_max>& IndexList_OutClass, 
+                                                  const DataContainer<SparseVector<ElementType>>& CodeTable);
+
+    void DirectlyRetireBasisInInputDictionary(FeatureDictionaryForSparseCoding<ElementType>& InputDictionary_Modified,
+                                              const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary, 
+                                              int_max BasisNumber_to_keep);
+
+    void CombineInputDictionaryAndNewDictionary(FeatureDictionaryForSparseCoding<ElementType>& CombinedDictionary,
+                                                const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary,
+                                                const FeatureDictionaryForSparseCoding<ElementType>& NewDictionary);
+
+    void UpdateSimilarityMatrixInCombinedDictionary(FeatureDictionaryForSparseCoding<ElementType>& CombinedDictionary, int_max BasisNumber_input);
+
+    ElementType ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length);
 
 private:
     KNNBasisSelectionBasedInitialDictionaryBuilder(const KNNBasisSelectionBasedInitialDictionaryBuilder&) = delete;

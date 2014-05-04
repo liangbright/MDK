@@ -364,6 +364,8 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
         return;
     }
 
+    bool IsSelfInInputList = false;
+
     std::vector<int_max> ColNumberList(InputMatrixNumber);
 
     int_max InputRowNumber = InputList.begin()[0]->GetRowNumber();
@@ -385,39 +387,68 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
             MDK_Error("RowNumber is not the same in the list @ DenseMatrix::operator=(initializer_list)")
             return;        
         }
+
+        if (this->GetElementPointer() == InputMatrixPtr->GetElementPointer())
+        {
+            IsSelfInInputList = true;
+        }
     }
 
-    if (this->IsSizeFixed() == true)
+    if (TotalColNumber <= 0)
     {
-        auto SelfSize = this->GetSize();
+        MDK_Error("TotalColNumber is 0 @ DenseMatrix::operator=(initializer_list)")
+        return;
+    }
 
-        if (SelfSize.RowNumber != InputRowNumber || SelfSize.ColNumber != TotalColNumber)
+    auto SelfSize = this->GetSize();
+
+    if (IsSelfInInputList == false)
+    {
+        if (this->IsSizeFixed() == true)
         {
-            MDK_Error("Can not change matrix size @ DenseMatrix::operator=(initializer_list)")
+            if (SelfSize.RowNumber != InputRowNumber || SelfSize.ColNumber != TotalColNumber)
+            {
+                MDK_Error("Can not change matrix size @ DenseMatrix::operator=(initializer_list)")
+                return;
+            }
+        }
+        else
+        {
+            this->FastResize(InputRowNumber, TotalColNumber);
+        }
+
+        int_max temp_ColNumber = 0;
+
+        for (int_max k = 0; k < InputMatrixNumber; k++)
+        {
+            auto InputMatrixPtr = InputList.begin()[k];
+
+            auto ColPtr = InputMatrixPtr->GetElementPointer();
+
+            for (int_max j = temp_ColNumber; j < temp_ColNumber + ColNumberList[k]; ++j, ColPtr += InputRowNumber)
+            {
+                this->SetCol(j, ColPtr);
+            }
+
+            temp_ColNumber += ColNumberList[k];
+        }
+    }
+    else // Self is in InputList 
+    {
+        if (TotalColNumber == SelfSize.ColNumber)
+        {
+            MDK_Warning("Self = {&Self} @  @ DenseMatrix::operator=(initializer_list)")
+            return;
+        }
+        else
+        {
+            DenseMatrix<ElementType> tempMatrix = InputList;
+
+            this->Take(tempMatrix);
+
             return;
         }
     }
-    else
-    {
-        this->FastResize(InputRowNumber, TotalColNumber);
-    }
-
-    int_max temp_ColNumber = 0;
-
-    for (int_max k = 0; k < InputMatrixNumber; k++)
-    {
-        auto InputMatrixPtr = InputList.begin()[k];
-
-        auto ColPtr = InputMatrixPtr->GetElementPointer();
-
-        for (int_max j = temp_ColNumber; j < temp_ColNumber + ColNumberList[k]; ++j, ColPtr += InputRowNumber)
-        {
-            this->SetCol(j, ColPtr);
-        }
-
-        temp_ColNumber += ColNumberList[k];
-    }
-
 }
 
 

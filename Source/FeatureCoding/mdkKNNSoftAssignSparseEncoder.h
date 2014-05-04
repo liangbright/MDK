@@ -2,8 +2,8 @@
 #define __mdkKNNSoftAssignSparseEncoder_h
 
 #include "mdkString.h"
+#include "mdkFeatureCoding_Common_Type.h"
 #include "mdkFeatureDictionaryBasedSparseEncoder.h"
-
 
 namespace mdk
 {
@@ -13,18 +13,15 @@ struct Parameter_Of_KNNSoftAssignSparseEncoder
 {
     int_max NeighbourNumber;
 
-    MDK_SimilarityType_Enum_For_FeatureCoding SimilarityType;
+    VectorSimilarityTypeEnum SimilarityType;
     //
     // If a Feature vector is treated as ordinary signal
     // L1Distance
     // L2Distance
-    // Correlation
+    // many kinds of Correlation
     //
     // If a Feature vector is normalized histogram or probability mass function (PMF), i.e., discrete probability distribution
     // KLDivergence
-
-    bool IgnoreSign_Correlation; // if it is true, Similarity = abs(Correlation)
-                                 // else, Similarity = (Correlation +1)/2
 
     ElementType SimilarityThreshold; // find KNN with Similarity >= SimilarityThreshold
                                      // K in KNN can be < MaxNumberOfNeighbours
@@ -45,7 +42,7 @@ struct Parameter_Of_KNNSoftAssignSparseEncoder
     {
         NeighbourNumber = 0;
 
-        SimilarityType = MDK_SimilarityType_Enum_For_FeatureCoding::Unknown;
+        SimilarityType = VectorSimilarityTypeEnum::Unknown;
 
         SimilarityThreshold = 0;
 
@@ -54,8 +51,6 @@ struct Parameter_Of_KNNSoftAssignSparseEncoder
         Variance_L2 = 0;
 
         Variance_KL = 0;
-
-        IgnoreSign_Correlation = false;
     }
 };
 
@@ -67,8 +62,6 @@ class KNNSoftAssignSparseEncoder : public FeatureDictionaryBasedSparseEncoder<El
 public:
 
     Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> m_Parameter;
-
-    typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
 
 public:
 

@@ -77,8 +77,6 @@ class KNNReconstructionOnlineDictionaryBuilder : public FeatureDictionaryBuilder
 public:
     Parameter_Of_KNNReconstructionOnlineDictionaryBuilder<ElementType> m_Parameter;
 
-    typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
-
 private:
 
     const DenseMatrix<ElementType>* m_FeatureData;
@@ -142,7 +140,7 @@ protected:
                                 const DenseMatrix<ElementType>& BasisMatrix, 
                                 const DenseMatrix<ElementType>& VarianceList);
 
-    ElementType ComputeSimilarityBetweenTwoDataVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, ElementType Variance);
+    ElementType ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, ElementType Variance);
 
     void UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix);
 

@@ -23,8 +23,6 @@ struct DebugInfo_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
     CharString FilePathToSaveDebugInfo;
 
-    CharString JsonDataFileName_Of_VectorSimilarityMatrix;
-
 //---------------------------------------------------
     DebugInfo_Of_KNNBasisSelectionOnlineDictionaryBuilder() { this->Clear(); }
     ~DebugInfo_Of_KNNBasisSelectionOnlineDictionaryBuilder() {}
@@ -33,7 +31,6 @@ struct DebugInfo_Of_KNNBasisSelectionOnlineDictionaryBuilder
     {
         Flag_OutputDebugInfo = false;
         FilePathToSaveDebugInfo.Clear();
-        JsonDataFileName_Of_VectorSimilarityMatrix.Clear();
     }
 };
 
@@ -69,6 +66,8 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
     int_max MaxNumberOfThreads;
 
     // parameter for updating dictionary information
+
+    bool Update_BasisID;
 
     bool Update_BasisAge;
 
@@ -112,6 +111,8 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
         MaxNumberOfThreads = 1;
 
+        Update_BasisID  = false;
+
         Update_BasisAge = false;
 
         Update_Variance = false;
@@ -120,9 +121,9 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
         Update_BasisExperience  = false;
 
-        Update_SimilarityMatrix = false;
+        Update_SimilarityMatrix = true;
 
-        Update_BasisRedundancy  = false;
+        Update_BasisRedundancy = true;
 
         SimilarityThresholdToComputeBasisRedundancy = 0;
 
@@ -140,8 +141,6 @@ class KNNBasisSelectionOnlineDictionaryBuilder : public FeatureDictionaryBuilder
 
 public:
     Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder<ElementType> m_Parameter;
-
-    typedef MDK_SimilarityType_Enum_For_FeatureCoding SimilarityTypeEnum;
 
 private:
 
@@ -205,6 +204,7 @@ protected:
 
     DenseMatrix<ElementType> ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init,
                                                            const DenseMatrix<ElementType>& FeatureData);
+
 
     inline ElementType ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length);
 
