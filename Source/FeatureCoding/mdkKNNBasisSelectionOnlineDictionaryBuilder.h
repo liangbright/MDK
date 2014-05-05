@@ -206,6 +206,8 @@ protected:
 
     void GenerateDictionary();
 
+    FeatureDictionaryForSparseCoding<ElementType> CopyInitialDictionaryAndDiscountBasisExperience();
+
     FeatureDictionaryForSparseCoding<ElementType> BuildDictionaryFromData(const int_max BasisNumber_desired,
                                                                           const DenseMatrix<ElementType>& FeatureData,
                                                                           const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init);

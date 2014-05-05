@@ -252,20 +252,7 @@ void KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
     {
         if (m_InitialDictionary->IsEmpty() == false)
         {
-            OutputDictionary.Copy(m_InitialDictionary);
-
-            DenseMatrix<ElementType>& BasisExperience = OutputDictionary.BasisExperience();
-
-            // discount the previous Experience
-            BasisExperience *= m_Parameter.ExperienceDiscountFactor;
-            // must >= 1
-            for (int_max k = 0; k < BasisExperience.GetElementNumber(); k++)
-            {
-                if (BasisExperience[k] < 1)
-                {
-                    BasisExperience[k] = 1;
-                }
-            }
+            OutputDictionary = this->CopyInitialDictionaryAndDiscountBasisExperience();
         }
     }
 
@@ -349,6 +336,33 @@ void KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
     // BasisExperience can not be adjusted :
     // BasisExperience[k] *ExperienceDiscountFactor may be < 1
     //---------------------------------------------------------------------------------------------------------//   
+}
+
+
+template<typename ElementType>
+FeatureDictionaryForSparseCoding<ElementType>
+KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CopyInitialDictionaryAndDiscountBasisExperience()
+{
+    // m_InitialDictionary is not empty
+
+    FeatureDictionaryForSparseCoding<ElementType> OutputDictionary;
+
+    OutputDictionary.Copy(m_InitialDictionary); 
+
+    DenseMatrix<ElementType>& BasisExperience = OutputDictionary.BasisExperience();
+
+    // discount the previous Experience
+    BasisExperience *= m_Parameter.ExperienceDiscountFactor;
+    // must >= 1
+    for (int_max k = 0; k < BasisExperience.GetElementNumber(); k++)
+    {
+        if (BasisExperience[k] < 1)
+        {
+            BasisExperience[k] = 1;
+        }
+    }
+
+    return OutputDictionary;
 }
 
 

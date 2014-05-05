@@ -117,6 +117,8 @@ protected:
 
     void SetupParameter();
 
+    FeatureDictionaryForSparseCoding<ElementType> CopyInitialDictionaryAndDiscountBasisExperience();
+
     void UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
                            const DenseMatrix<ElementType>& FeatureData,
                            const DataContainer<SparseVector<ElementType>>& CodeTable,

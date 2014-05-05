@@ -42,11 +42,11 @@ void Test_SimpleCase()
     int_max NeighbourNumber = 5;
 
     DictionaryBuilder.m_Parameter.BasisNumber = 10;
-    DictionaryBuilder.m_Parameter.NeighbourNumber = NeighbourNumber;
 
-    DictionaryBuilder.m_Parameter.SimilarityType = VectorSimilarityTypeEnum::L1Distance;
-    DictionaryBuilder.m_Parameter.SimilarityThreshold = 0.1;
-    DictionaryBuilder.m_Parameter.Variance_L1 = 10;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = NeighbourNumber;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = VectorSimilarityTypeEnum::L1Distance;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.1;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = 10;
     
     DictionaryBuilder.m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative = false;
     DictionaryBuilder.m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne = false;

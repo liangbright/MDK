@@ -198,28 +198,7 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 {
     this->SetupParameter();
 
-    FeatureDictionaryForSparseCoding<ElementType> OutputDictionary;
-
-    if (m_InitialDictionary != nullptr)
-    {
-        if (m_InitialDictionary->IsEmpty() == false)
-        {
-            OutputDictionary.Copy(m_InitialDictionary);
-
-            DenseMatrix<ElementType>& BasisExperience = OutputDictionary.BasisExperience();
-
-            // discount the previous Experience
-            BasisExperience *= m_Parameter.ExperienceDiscountFactor;
-            // must >= 1
-            for (int_max k = 0; k < BasisExperience.GetElementNumber(); k++)
-            {
-                if (BasisExperience[k] < 1)
-                {
-                    BasisExperience[k] = 1;
-                }
-            }
-        }
-    }
+    FeatureDictionaryForSparseCoding<ElementType> OutputDictionary = this->CopyInitialDictionaryAndDiscountBasisExperience();
 
     DenseMatrix<ElementType>& BasisMatrix = OutputDictionary.BasisMatrix();
 
@@ -315,6 +294,31 @@ template<typename ElementType>
 void KNNAverageOnlineDictionaryBuilder<ElementType>::SetupParameter()
 {
     m_KNNSoftAssignSparseEncoder.m_Parameter = m_Parameter.ParameterOfKNNSoftAssign;    
+}
+
+
+template<typename ElementType>
+FeatureDictionaryForSparseCoding<ElementType>
+KNNAverageOnlineDictionaryBuilder<ElementType>::CopyInitialDictionaryAndDiscountBasisExperience()
+{
+    FeatureDictionaryForSparseCoding<ElementType> OutputDictionary;
+
+    OutputDictionary.Copy(m_InitialDictionary); // m_InitialDictionary is not empty
+
+    DenseMatrix<ElementType>& BasisExperience = OutputDictionary.BasisExperience();
+
+    // discount the previous Experience
+    BasisExperience *= m_Parameter.ExperienceDiscountFactor;
+    // must >= 1
+    for (int_max k = 0; k < BasisExperience.GetElementNumber(); k++)
+    {
+        if (BasisExperience[k] < 1)
+        {
+            BasisExperience[k] = 1;
+        }
+    }
+
+    return OutputDictionary;
 }
 
 
