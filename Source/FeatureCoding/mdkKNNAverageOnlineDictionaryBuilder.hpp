@@ -769,7 +769,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L1);
 
     DenseMatrix<ElementType> WeightList(1, BasisNumber);
-    WeightList.Fill(0);
+    WeightList.Fill(1);
 
     DenseMatrix<ElementType> Membership;
 
@@ -790,7 +790,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
 
             auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
 
-            for (int_max m = 0; m < int_max(KNN_IndexList.size()); ++m)
+            for (int_max m = 0; m < tempNeighbourNumber; ++m)
             {
                 auto BasisIndex = KNN_IndexList[m];
 
@@ -864,7 +864,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
 
     DenseMatrix<ElementType> WeightList(1, BasisNumber);
-    WeightList.Fill(0);
+    WeightList.Fill(1);
 
     DenseMatrix<ElementType> Membership;
 
@@ -885,7 +885,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
 
             auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
 
-            for (int_max m = 0; m < int_max(KNN_IndexList.size()); ++m)
+            for (int_max m = 0; m < tempNeighbourNumber; ++m)
             {
                 auto BasisIndex = KNN_IndexList[m];
 
@@ -959,7 +959,7 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_KL);
 
     DenseMatrix<ElementType> WeightList(1, BasisNumber);
-    WeightList.Fill(0);
+    WeightList.Fill(1);
 
     DenseMatrix<ElementType> Membership;
 
@@ -980,7 +980,7 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
 
             auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
 
-            for (int_max m = 0; m < int_max(KNN_IndexList.size()); ++m)
+            for (int_max m = 0; m < tempNeighbourNumber; ++m)
             {
                 auto BasisIndex = KNN_IndexList[m];
 
@@ -1056,7 +1056,7 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
 
     DenseMatrix<ElementType> WeightList(1, BasisNumber);
-    WeightList.Fill(0);
+    WeightList.Fill(1);
 
     DenseMatrix<ElementType> Membership;
 
@@ -1075,7 +1075,7 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
             Membership  = KNN_Similarity;
             Membership /= Membership.Sum() + eps_value;
 
-            for (int_max m = 0; m < int_max(KNN_IndexList.size()); ++m)
+            for (int_max m = 0; m < tempNeighbourNumber; ++m)
             {
                 auto BasisIndex = KNN_IndexList[m];
 

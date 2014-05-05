@@ -868,8 +868,7 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
         auto TempFunction_ComputeSimilarity = [&](int_max k)
         {
             const ElementType* VectorPtr_k = nullptr;
-            const ElementType* VectorPtr_n = nullptr;
-
+            
             if (k < BasisNumber_init)
             {
                 VectorPtr_k = BasisMatrix_init.GetElementPointerOfCol(k);
@@ -883,6 +882,8 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
 
             for (int_max n = k + 1; n < TotalVectorNumber; ++n) // start from k+1
             {
+                const ElementType* VectorPtr_n = nullptr;
+
                 if (n < BasisNumber_init)
                 {
                     VectorPtr_n = BasisMatrix_init.GetElementPointerOfCol(n);
@@ -896,7 +897,7 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
 
                 auto Similarity = ElementType(0);
 
-                if (Dictionary_init.GetProperty_SimilarityType() == m_Parameter.ParameterOfKNNSoftAssign.SimilarityType)
+                if (Dictionary_init.GetProperty_SimilarityType() == SimilarityTypeOfKNNSoftAssign)
                 {
                     if (k < BasisNumber_init && n < BasisNumber_init)
                     {
@@ -957,21 +958,19 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::FindKNNVectorIndexTableBy
     DataContainer<DenseMatrix<int_max>> KNNVectorIndexTable;
     KNNVectorIndexTable.FastResize(TotalDataNumber);
 
-    DenseMatrix<ElementType> SimilarityList(1, TotalDataNumber);
-
-    for (int_max k = 0; k < TotalDataNumber; ++k)
+    //for (int_max k = 0; k <= TotalDataNumber-1; ++k)
+    auto TempFunction_FindKNN = [&](int_max k)
     {
-        SimilarityList.Fill(ElementType(0));
+        DenseMatrix<ElementType> SimilarityList;
 
-        for (int_max n = 0; n < TotalDataNumber; ++n)
-        {
-            SimilarityList[n] = VectorSimilarityMatrix(n, k);
-        }
+        SimilarityList.ForceShare(VectorSimilarityMatrix.GetElementPointerOfCol(k), TotalDataNumber, 1);
 
         KNNVectorIndexTable[k] = FindKNNBySimilarityList(SimilarityList,
                                                          m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber,
                                                          m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold);
-    }
+    };
+
+    ParallelForLoop(TempFunction_FindKNN, 0, TotalDataNumber - 1, m_Parameter.MaxNumberOfThreads);
 
     return KNNVectorIndexTable;
 }
@@ -1052,7 +1051,9 @@ EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix
 
     DenseMatrix<ElementType> Probability(1, TotalDataNumber);
 
-    Probability.Fill(ElementType(0)); // do not need to fill 1, self is already counted in RepresentativeAbilityOfEachVector
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+
+    Probability.Fill(eps_value); // do not need to fill 1, self is already counted in RepresentativeAbilityOfEachVector
 
     for (int_max k = 0; k < TotalDataNumber; ++k)
     {
@@ -1066,17 +1067,7 @@ EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix
         }
     }
 
-    auto SumProb = Probability.Sum();
-
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
-    if (SumProb <= eps_value)
-    {
-        Probability.Fill(ElementType(1) / ElementType(TotalDataNumber));
-    }
-    else
-    {
-        Probability /= SumProb;
-    }
+    Probability /= Probability.Sum();
 
     return Probability;
 }
@@ -1313,12 +1304,6 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
         }
 
         Dictionary.SetProperty_SimilarityType(m_Parameter.ParameterOfKNNSoftAssign.SimilarityType);
-
-        MDK_DebugCode
-        (
-            CharString FilePathAndName = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/SimilarityMatrix.json";
-           SaveDenseMatrixAsJsonDataFile(SimilarityMatrix, FilePathAndName);
-        )
     }
 
     //---------- Update BasisRedundancy --------------------------------------------//
@@ -1524,13 +1509,10 @@ EncodeFeatureData(const DenseMatrix<ElementType>& VectorSimilarityMatrix,
     DataContainer<SparseVector<ElementType>> CodeTable;
     CodeTable.FastResize(DataNumber);
 
-    DenseMatrix<ElementType> SimilarityList(1, BasisNumber);
-
-    DenseMatrix<ElementType> KNNBasisSimilarityList;
-
     //for (int_max k = 0; k <= DataNumber-1; ++k)
     auto TempFunction_EncodeDataVector = [&](int_max k)
     {
+        DenseMatrix<ElementType> SimilarityList(1, BasisNumber);
         SimilarityList.Fill(ElementType(0));
 
         int_max VectorIndex_Data = BasisNumber_init + k;
@@ -1550,7 +1532,9 @@ EncodeFeatureData(const DenseMatrix<ElementType>& VectorSimilarityMatrix,
 
         if (tempNeighbourNumber > 0)
         {            
+            DenseMatrix<ElementType> KNNBasisSimilarityList;
             KNNBasisSimilarityList.FastResize(1, tempNeighbourNumber);
+
             for (int_max m = 0; m < tempNeighbourNumber; ++m)
             {
                 KNNBasisSimilarityList[m] = SimilarityList[KNNBasisIndexList[m]];
@@ -1671,7 +1655,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L1);
 
     DenseMatrix<ElementType> WeightList(1, BasisNumber);
-    WeightList.Fill(0);
+    WeightList.Fill(1);
 
     DenseMatrix<ElementType> Membership;
 
@@ -1692,7 +1676,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
 
             auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
 
-            for (int_max m = 0; m < int_max(KNN_IndexList.size()); ++m)
+            for (int_max m = 0; m < tempNeighbourNumber; ++m)
             {
                 auto BasisIndex = KNN_IndexList[m];
 
@@ -1766,7 +1750,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
 
     DenseMatrix<ElementType> WeightList(1, BasisNumber);
-    WeightList.Fill(0);
+    WeightList.Fill(1);
 
     DenseMatrix<ElementType> Membership;
 
@@ -1787,7 +1771,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
 
             auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
 
-            for (int_max m = 0; m < int_max(KNN_IndexList.size()); ++m)
+            for (int_max m = 0; m < tempNeighbourNumber; ++m)
             {
                 auto BasisIndex = KNN_IndexList[m];
 
@@ -1861,7 +1845,7 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_KL);
 
     DenseMatrix<ElementType> WeightList(1, BasisNumber);
-    WeightList.Fill(0);
+    WeightList.Fill(1);
 
     DenseMatrix<ElementType> Membership;
 
@@ -1882,7 +1866,7 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
 
             auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
 
-            for (int_max m = 0; m < int_max(KNN_IndexList.size()); ++m)
+            for (int_max m = 0; m < tempNeighbourNumber; ++m)
             {
                 auto BasisIndex = KNN_IndexList[m];
 
@@ -1958,7 +1942,7 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
 
     DenseMatrix<ElementType> WeightList(1, BasisNumber);
-    WeightList.Fill(0);
+    WeightList.Fill(1);
 
     DenseMatrix<ElementType> Membership;
 
@@ -1977,7 +1961,7 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
             Membership  = KNN_Similarity;
             Membership /= Membership.Sum() + eps_value;
 
-            for (int_max m = 0; m < int_max(KNN_IndexList.size()); ++m)
+            for (int_max m = 0; m < tempNeighbourNumber; ++m)
             {
                 auto BasisIndex = KNN_IndexList[m];
 

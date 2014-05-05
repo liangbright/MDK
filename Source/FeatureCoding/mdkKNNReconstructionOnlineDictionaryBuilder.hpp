@@ -788,8 +788,10 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
     DenseMatrix<ElementType> Variance_current(1, BasisNumber);
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L1);
 
-    DenseMatrix<int_max> CounterList(1, BasisNumber);
-    CounterList.Fill(0);
+    DenseMatrix<ElementType> WeightList(1, BasisNumber);
+    WeightList.Fill(1);
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     for (int_max k = 0; k < DataNumber; ++k)
     {
@@ -809,16 +811,16 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
 
                 Variance_current[BasisIndex] += L1Distance*L1Distance;
 
-                CounterList[BasisIndex] += 1;
+                WeightList[BasisIndex] += 1;
             }
         }
     }
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (CounterList[n] > 0)
+        if (WeightList[n] > eps_value)
         {
-            Variance_current[n] /= CounterList[n];
+            Variance_current[n] /= WeightList[n];
         }
     }
 
@@ -836,8 +838,6 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
     }
 
     auto MeanStd = Variance.Mean();
-
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     if (MeanStd <= eps_value)
     {
@@ -874,8 +874,10 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
     DenseMatrix<ElementType> Variance_current(1, BasisNumber);
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
 
-    DenseMatrix<int_max> CounterList(1, BasisNumber);
-    CounterList.Fill(0);
+    DenseMatrix<ElementType> WeightList(1, BasisNumber);
+    WeightList.Fill(1);
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     for (int_max k = 0; k < DataNumber; ++k)
     {        
@@ -895,16 +897,16 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
 
                 Variance_current[BasisIndex] += SquaredL2Distance;
 
-                CounterList[BasisIndex] += 1;
+                WeightList[BasisIndex] += 1;
             }
         }
     }
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (CounterList[n] > 0)
+        if (WeightList[n] > eps_value)
         {
-            Variance_current[n] /= CounterList[n];
+            Variance_current[n] /= WeightList[n];
         }
     }
 
@@ -922,8 +924,6 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
     }
 
     auto MeanStd = Variance.Mean();
-
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     if (MeanStd <= eps_value)
     {
@@ -960,8 +960,10 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
     DenseMatrix<ElementType> Variance_current(1, BasisNumber);
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_KL);
 
-    DenseMatrix<int_max> CounterList(1, BasisNumber);
-    CounterList.Fill(0);
+    DenseMatrix<int_max> WeightList(1, BasisNumber);
+    WeightList.Fill(1);
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     for (int_max k = 0; k < DataNumber; ++k)
     {
@@ -981,16 +983,16 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
 
                 Variance_current[BasisIndex] += KLDivergence*KLDivergence;
 
-                CounterList[BasisIndex] += 1;
+                WeightList[BasisIndex] += 1;
             }
         }
     }
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (CounterList[n] > 0)
+        if (WeightList[n] > eps_value)
         {
-            Variance_current[n] /= CounterList[n];
+            Variance_current[n] /= WeightList[n];
         }
     }
 
@@ -1008,8 +1010,6 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
     }
 
     auto MeanStd = Variance.Mean();
-
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     if (MeanStd <= eps_value)
     {
@@ -1046,8 +1046,10 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
     DenseMatrix<ElementType> Variance_current(1, BasisNumber);
     Variance_current.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
 
-    DenseMatrix<int_max> CounterList(1, BasisNumber);
-    CounterList.Fill(0);
+    DenseMatrix<ElementType> WeightList(1, BasisNumber);
+    WeightList.Fill(1);
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     for (int_max k = 0; k < DataNumber; ++k)
     {
@@ -1069,7 +1071,7 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
 
                 Variance_current[BasisIndex] += SquaredL2Distance;
 
-                CounterList[BasisIndex] += 1;
+                WeightList[BasisIndex] += 1;
             }
         }
        
@@ -1077,9 +1079,9 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (CounterList[n] > 0)
+        if (WeightList[n] > eps_value)
         {
-            Variance[n] /= CounterList[n];
+            Variance[n] /= WeightList[n];
         }
     }
 
@@ -1097,8 +1099,6 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
     }
 
     auto MeanStd = Variance.Mean();
-
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     if (MeanStd <= eps_value)
     {
