@@ -44,7 +44,7 @@ bool KNNSoftAssignSparseEncoder<ElementType>::CheckInput()
     if (m_Parameter.SimilarityThreshold < 0 || m_Parameter.SimilarityThreshold > 1)
     {
         MDK_Error("SimilarityThreshold is invalid @ KNNSoftAssignSparseEncoder::CheckInput()")
-        return false;
+            return false;
     }
 
     // set input to m_KNNSimilaritySparseEncoder
