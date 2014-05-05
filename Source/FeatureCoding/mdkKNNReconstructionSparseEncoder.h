@@ -105,23 +105,17 @@ public:
 
     bool Postprocess();
 
-    //-------------------------------------------------------------------------------------------------
-
-    static ElementType ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum SimilarityType,
-                                                          const DenseMatrix<ElementType>& VectorA, 
-                                                          const DenseMatrix<ElementType>& VectorB,
-                                                          ElementType Variance);
-
-    static ElementType ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum SimilarityType, 
-                                                          const ElementType* VectorA, const ElementType* VectorB, int_max Length, 
-                                                          ElementType Variance, bool CheckInput = true);
-
     //---------------------------------------------------------------------------------------------------
 
     static DenseMatrix<ElementType> ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,
                                                       const DenseMatrix<ElementType>& KNNBasisMatrix,
                                                       const DenseMatrix<int_max>&     KNNBasisIndexList,
                                                       const DenseMatrix<ElementType>& GramianMatrix_DtD,
+                                                      bool CodeNonnegative,
+                                                      bool CodeSumToOne);
+
+    static DenseMatrix<ElementType> ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,
+                                                      const DenseMatrix<ElementType>& KNNBasisMatrix,
                                                       bool CodeNonnegative,
                                                       bool CodeSumToOne);
 

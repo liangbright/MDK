@@ -43,7 +43,7 @@ struct Parameter_Of_KNNReconstructionOnlineDictionaryBuilder
 
     Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> ParameterOfKNNSoftAssign;
 
-    ElementType SimilarityThresholdToComputeBasisRedundancy;
+    ElementType SimilarityThreshold_For_ComputingBasisRedundancy;
 
 //--------------------------------------------------------------------------------------------------------
 
@@ -66,7 +66,9 @@ struct Parameter_Of_KNNReconstructionOnlineDictionaryBuilder
 
         MaxNumberOfThreads = 1;
 
-        SimilarityThresholdToComputeBasisRedundancy = 0;
+        SimilarityThreshold_For_ComputingBasisRedundancy = 0;
+
+        ParameterOfKNNSoftAssign.Clear();
     }
 };
 

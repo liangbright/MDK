@@ -13,17 +13,7 @@ struct Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder
 {
     int_max NeighbourNumber;
 
-    std::string SimilarityTypeForKNNSearch;
-    // L1Distance
-    // L2Distance
-    // Correlation
-    // KLDivergence
-
-    bool ConvertDistanceToSimilarityForKNNSearch;
-    // if it is false, then L1Distance/L2Distance/KLDivergence is directly used for KNN search
-    // if it is true,  then ...... is converted to similarity for KNN search 
-
-    std::string SimilarityTypeForEncoding;
+    std::string SimilarityType;
     // L1Distance
     // L2Distance
     // Correlation
@@ -34,23 +24,13 @@ struct Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder
     ElementType SimilarityThreshold; // find KNN with Similarity >= SimilarityThreshold
                                      // K in KNN can be < NeighbourNumber
 
-    // Sigma_L1, Sigma_L2, and Sigma_KL may be carried by Dictionary 
-
-    ElementType Sigma_L1; // standard deviation to convert L1Distance to Similarity
-
-    ElementType Sigma_L2; // standard deviation to convert L2Distance to Similarity
-
-    ElementType Sigma_KL; // standard deviation to convert KLDivergence to Similarity
-
-    bool IgnoreSign_Correlation; // if it is true, Similarity = abs(Correlation)
-                                 // else, Similarity = (Correlation +1)/2
-
     // parameter for Reconstruction ----------------------------
 
     bool CodePositive;
 
     bool CodeSumToOne;
 
+//--------------------------------------------------------------------------------------------
     Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder() { this->Clear(); }
     ~Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder() {}
 
@@ -58,15 +38,7 @@ struct Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder
     {
         NeighbourNumber  = 0;
 
-        SimilarityTypeForKNNSearch.clear();
-        ConvertDistanceToSimilarityForKNNSearch = true;
-
-        SimilarityTypeForEncoding.clear();
-
-        Sigma_L1 = 0;
-        Sigma_L2 = 0;
-        Sigma_KL = 0;
-        IgnoreSign_Correlation = false;
+        SimilarityType.clear();
 
         CodePositive = false;
         CodeSumToOne = false;
@@ -85,6 +57,12 @@ public:
 
     Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder m_Parameter;
 
+
+private:
+    DenseMatrix<ElementType> m_GramianMatrix_DtD;
+
+    KNNSoftAssignSparseEncoder<ElementType> m_KNNSoftAssignSparseEncoder;
+
 public:
 
     KNNSoftAssignAndReconstructionSparseEncoder();
@@ -97,16 +75,11 @@ public:
 
     bool CheckInput();
 
-    //---------------------------------------------------------------------------------
+    bool ComputeGramianMatrix_DtD();
 
-    void PreprocessBeforeUsing_EncodeSingleDataVector();
+    bool Preprocess();
 
-    void PostprocessAfterUsing_EncodeSingleDataVector();
-
-    using FeatureDictionaryBasedSparseEncoder::EncodeSingleDataVector;
-
-    inline void EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector,
-                                       const DenseMatrix<ElementType>& DataColVector);
+    bool Postprocess();
 
     //---------------------------------------------------------------------------------
 
@@ -130,17 +103,13 @@ public:
 
 private:
 
-    virtual void SetupDefaultPipelineOutput();
-
-    virtual void UpdatePipelineOutput();
-
-    virtual bool Preprocess();
-
-    virtual bool Postprocess();
-
-    bool UpdateInputOfReconstructionEncoder();
-
     inline void EncodingFunction(int_max DataIndex, int_max ThreadIndex);
+
+    inline DenseMatrix<ElementType> ReconstructDataColVector(const DenseMatrix<ElementType>& KNNBasisMatrix,
+                                                             const DenseMatrix<ElementType>& CodeVector);
+
+    inline DenseMatrix<ElementType> ComputeMembershipUsingReconstructedDataColVector(const DenseMatrix<ElementType>& ReconstructedDataColVector,
+                                                                                     const DenseMatrix<ElementType>& KNNBasisMatrix);
 
 private:
 //deleted:

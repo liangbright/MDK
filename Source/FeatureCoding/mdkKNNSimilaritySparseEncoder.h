@@ -1,16 +1,15 @@
-#ifndef __mdkKNNSoftAssignSparseEncoder_h
-#define __mdkKNNSoftAssignSparseEncoder_h
+#ifndef __mdkKNNSimilaritySparseEncoder_h
+#define __mdkKNNSimilaritySparseEncoder_h
 
 #include "mdkString.h"
 #include "mdkFeatureCoding_Common_Type.h"
 #include "mdkFeatureDictionaryBasedSparseEncoder.h"
-#include "mdkKNNSimilaritySparseEncoder.h"
 
 namespace mdk
 {
 
 template<typename ElementType>
-struct Parameter_Of_KNNSoftAssignSparseEncoder
+struct Parameter_Of_KNNSimilaritySparseEncoder
 {
     int_max NeighbourNumber;
 
@@ -24,39 +23,32 @@ struct Parameter_Of_KNNSoftAssignSparseEncoder
     // If a Feature vector is normalized histogram or probability mass function (PMF), i.e., discrete probability distribution
     // KLDivergence
 
-    ElementType SimilarityThreshold; // set Similarity to 0 if it is < SimilarityThreshold
-
 //-------------------------------------------------------------------------------
-    Parameter_Of_KNNSoftAssignSparseEncoder() { this->Clear(); }
-    ~Parameter_Of_KNNSoftAssignSparseEncoder() {}
+    Parameter_Of_KNNSimilaritySparseEncoder() { this->Clear(); }
+    ~Parameter_Of_KNNSimilaritySparseEncoder() {}
 
     void Clear()
     {
         NeighbourNumber = 0;
 
         SimilarityType = VectorSimilarityTypeEnum::Unknown;
-
-        SimilarityThreshold = 0;
     }
 };
 
 
 template<typename ElementType>
-class KNNSoftAssignSparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
+class KNNSimilaritySparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
 {
 
 public:
 
-    Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> m_Parameter;
-
-private:
-    KNNSimilaritySparseEncoder<ElementType> m_KNNSimilaritySparseEncoder;
+    Parameter_Of_KNNSimilaritySparseEncoder<ElementType> m_Parameter;
 
 public:
 
-    KNNSoftAssignSparseEncoder();
+    KNNSimilaritySparseEncoder();
 
-    ~KNNSoftAssignSparseEncoder();
+    ~KNNSimilaritySparseEncoder();
 
     //-----------------------------------------
 
@@ -68,18 +60,17 @@ public:
                                        const DenseMatrix<ElementType>& DataColVector);
 
     //--------------------------------------------------------------------------------------------------
-
+       
     static DenseMatrix<ElementType> ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,
                                                       const DenseMatrix<ElementType>& KNNBasisMatrix,
                                                       const VectorSimilarityTypeEnum  SimilarityType,
-                                                      const ElementType SimilarityThreshold,
                                                       const DenseMatrix<ElementType>& VarianceList);
 
     //--------------------------------------------------------------------------------------------------
-        
+
     static ElementType ComputeSimilarityBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, 
                                                           const DenseMatrix<ElementType>& VectorB,
-                                                          VectorSimilarityTypeEnum SimilarityType, 
+                                                          VectorSimilarityTypeEnum SimilarityType,
                                                           ElementType Variance);
 
     static ElementType ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, 
@@ -88,19 +79,19 @@ public:
     //----------------------------------------------------------------------------------------------------
 
 protected:
-
     inline void EncodingFunction(int_max DataIndex, int_max ThreadIndex);
+
 
 private:
 //deleted:
-    KNNSoftAssignSparseEncoder(const KNNSoftAssignSparseEncoder&) = delete;
+    KNNSimilaritySparseEncoder(const KNNSimilaritySparseEncoder&) = delete;
 
-    void operator=(const KNNSoftAssignSparseEncoder&) = delete;
+    void operator=(const KNNSimilaritySparseEncoder&) = delete;
 
 };
 
 }
 
-#include "mdkKNNSoftAssignSparseEncoder.hpp"
+#include "mdkKNNSimilaritySparseEncoder.hpp"
 
 #endif

@@ -2,7 +2,7 @@
 #define __mdkKNNBasisSelectionBasedInitialDictionaryBuilder_h
 
 #include "mdkKNNBasisSelectionOnlineDictionaryBuilder.h"
-#include "mdkKNNSoftAssignSparseEncoder.h"
+#include "mdkKNNSimilaritySparseEncoder.h"
 
 
 namespace mdk
@@ -60,7 +60,12 @@ struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_O
         BasisNormalizedWithL1Norm = false;
         BasisNormalizedWithL2Norm = false;
 
-        ParameterOfKNNSoftAssign.Clear();
+        ParameterOfKNNSoftAssign.NeighbourNumber = 0;
+        ParameterOfKNNSoftAssign.SimilarityType = VectorSimilarityTypeEnum::Unknown;
+        ParameterOfKNNSoftAssign.SimilarityThreshold = 0;
+        ParameterOfKNNSoftAssign.Variance_L1 = 0;
+        ParameterOfKNNSoftAssign.Variance_L2 = 0;
+        ParameterOfKNNSoftAssign.Variance_KL = 0;
 
         ExperienceDiscountFactor = 0;
 
@@ -84,7 +89,7 @@ struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_O
 
         Update_BasisRedundancy = true;
 
-        SimilarityThresholdToComputeBasisRedundancy = 0;
+        SimilarityThreshold_For_ComputingBasisRedundancy = 0;
 
         ConstraintOnKNNReconstructionCode.CodeNonnegative = false;
         ConstraintOnKNNReconstructionCode.CodeSumToOne = false;
@@ -112,7 +117,12 @@ struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_O
         SubParameter.BasisNormalizedWithL1Norm = BasisNormalizedWithL1Norm;
         SubParameter.BasisNormalizedWithL2Norm = BasisNormalizedWithL2Norm;
 
-        SubParameter.ParameterOfKNNSoftAssign = ParameterOfKNNSoftAssign;
+        SubParameter.ParameterOfKNNSoftAssign.NeighbourNumber = ParameterOfKNNSoftAssign.NeighbourNumber;
+        SubParameter.ParameterOfKNNSoftAssign.SimilarityType = ParameterOfKNNSoftAssign.SimilarityType;
+        SubParameter.ParameterOfKNNSoftAssign.SimilarityThreshold = ParameterOfKNNSoftAssign.SimilarityThreshold;
+        SubParameter.ParameterOfKNNSoftAssign.Variance_L1 = ParameterOfKNNSoftAssign.Variance_L1;
+        SubParameter.ParameterOfKNNSoftAssign.Variance_L2 = ParameterOfKNNSoftAssign.Variance_L2;
+        SubParameter.ParameterOfKNNSoftAssign.Variance_KL = ParameterOfKNNSoftAssign.Variance_KL;
 
         SubParameter.ExperienceDiscountFactor = ExperienceDiscountFactor;
 
@@ -136,7 +146,7 @@ struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_O
 
         SubParameter.Update_BasisRedundancy = Update_BasisRedundancy;
 
-        SubParameter.SimilarityThresholdToComputeBasisRedundancy = SimilarityThresholdToComputeBasisRedundancy;
+        SubParameter.SimilarityThreshold_For_ComputingBasisRedundancy = SimilarityThreshold_For_ComputingBasisRedundancy;
 
         SubParameter.ConstraintOnKNNReconstructionCode = ConstraintOnKNNReconstructionCode;
 
@@ -144,7 +154,6 @@ struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_O
 
         return SubParameter;
     }
-
 };
 
 
@@ -166,7 +175,7 @@ private:
 
     KNNBasisSelectionOnlineDictionaryBuilder<ElementType> m_KNNBasisSelectionDictionaryBuilder;
 
-    KNNSoftAssignSparseEncoder<ElementType> m_KNNSoftAssignSparseEncoder;
+    KNNSimilaritySparseEncoder<ElementType> m_KNNSimilaritySparseEncoder;
 
 public:
     KNNBasisSelectionBasedInitialDictionaryBuilder();

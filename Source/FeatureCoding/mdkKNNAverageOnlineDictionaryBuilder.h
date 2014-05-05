@@ -43,7 +43,7 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 
     bool Update_VarianceOfReconstruction_Using_KNNBasisMatrix;
 
-    ElementType SimilarityThresholdToComputeBasisRedundancy;
+    ElementType SimilarityThreshold_For_ComputingBasisRedundancy;
 
     Constraint_on_Code_Of_KNNReconstruction_For_FeatureCoding ConstraintOnKNNReconstructionCode;
 
@@ -70,7 +70,7 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 
         Update_VarianceOfReconstruction_Using_KNNBasisMatrix = false;
 
-        SimilarityThresholdToComputeBasisRedundancy = 0;
+        SimilarityThreshold_For_ComputingBasisRedundancy = 0;
 
         ConstraintOnKNNReconstructionCode.CodeNonnegative = false;
         ConstraintOnKNNReconstructionCode.CodeSumToOne    = false;

@@ -113,19 +113,6 @@ public:
 
     DataContainer<SparseVector<ElementType>>* GetOutputCodeInSparseColVectorSet();
 
-    //-------------------------------------------------------//
-    // use the two functions if you only need to encode a data vector after input the dictionary
-
-    virtual inline void PreprocessBeforeUsing_EncodeSingleDataVector() {}
-
-    virtual inline void PostprocessAfterUsing_EncodeSingleDataVector() {}
-
-    virtual inline void EncodeSingleDataVector(DenseMatrix<ElementType>& CodeInDenseColVector,
-                                               const DenseMatrix<ElementType>& DataColVector);
-
-    virtual inline void EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector,
-                                               const DenseMatrix<ElementType>& DataColVector);
-
 protected:
 
     int_max GetNumberOfThreadsTobeCreated();

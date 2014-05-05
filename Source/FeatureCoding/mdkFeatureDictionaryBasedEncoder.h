@@ -46,11 +46,6 @@ public:
 
     //----------------------------------------------------//
 
-    virtual inline void EncodeSingleDataVector(DenseMatrix<ElementType>& CodeInDenseColVector,
-                                               const DenseMatrix<ElementType>& DataColVector) = 0;
-
-    //----------------------------------------------------//
-
 private:
 //deleted:
     FeatureDictionaryBasedEncoder(const FeatureDictionaryBasedEncoder&) = delete;
