@@ -144,7 +144,7 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
     
     if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold <= 0)
     {
-        MDK_Error("SimilarityThreshold <= 0 @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("ParameterOfKNNSoftAssign.SimilarityThreshold <= 0 @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
@@ -160,14 +160,14 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
             {
                 if (m_InitialDictionary->VarianceOfL1Distance().IsEmpty() == false)
                 {
-                    m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = m_Dictionary->VarianceOfL1Distance().Mean();
+                    m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = m_InitialDictionary->VarianceOfL1Distance().Mean();
                     IsOk = true;
                 }
             }
             
             if (IsOk == false)
             {
-                MDK_Error("Variance_L1 <= 0 @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
+                MDK_Error("ParameterOfKNNSoftAssign.Variance_L1 <= 0 @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
                 return false;
             }
         }
@@ -184,14 +184,14 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
             {
                 if (m_InitialDictionary->VarianceOfL2Distance().IsEmpty() == false)
                 {
-                    m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = m_Dictionary->VarianceOfL2Distance().Mean();
+                    m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = m_InitialDictionary->VarianceOfL2Distance().Mean();
                     IsOk = true;
                 }
             }
 
             if (IsOk == false)
             {
-                MDK_Error("Variance_L2 <= 0 @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
+                MDK_Error("ParameterOfKNNSoftAssign.Variance_L2 <= 0 @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
                 return false;
             }
         }
@@ -208,14 +208,14 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
             {
                 if (m_InitialDictionary->VarianceOfKLDivergence().IsEmpty() == false)
                 {
-                    m_Parameter.ParameterOfKNNSoftAssign.Variance_KL = m_Dictionary->VarianceOfKLDivergence().Mean();
+                    m_Parameter.ParameterOfKNNSoftAssign.Variance_KL = m_InitialDictionary->VarianceOfKLDivergence().Mean();
                     IsOk = true;
                 }
             }
             
             if (IsOk == false)
             {
-                MDK_Error("Variance_KL <= 0 @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
+                MDK_Error("ParameterOfKNNSoftAssign.Variance_KL <= 0 @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
                 return false;
             }
         }
@@ -227,9 +227,9 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.SimilarityThresholdToComputeBasisRedundancy <= 0)
+    if (m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy <= 0)
     {
-        m_Parameter.SimilarityThresholdToComputeBasisRedundancy = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
+        m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
     }
 
     if (m_Parameter.MaxNumberOfThreads <= 0)
@@ -739,11 +739,11 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
     //---------------------------------------------------------------------------------------------
     // get the Variance to compute Similarity
 
-    auto SimilarityTypeOfKNNSoftAssign = m_Parameter.ParameterOfKNNSoftAssign.SimilarityType;
+    auto SimilarityType = m_Parameter.ParameterOfKNNSoftAssign.SimilarityType;
 
     auto Variance = ElementType(0);
 
-    switch (SimilarityTypeOfKNNSoftAssign)
+    switch (SimilarityType)
     {
     case VectorSimilarityTypeEnum::L1Distance :
         Variance = m_Parameter.ParameterOfKNNSoftAssign.Variance_L1;
@@ -833,11 +833,8 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
             {
                 auto VectorPtr_n = FeatureData.GetElementPointerOfCol(n);
 
-                auto Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(SimilarityTypeOfKNNSoftAssign,
-                                                                                                              VectorPtr_k,
-                                                                                                              VectorPtr_n, 
-                                                                                                              VectorLength,
-                                                                                                              Variance, false);
+                auto Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(VectorPtr_k, VectorPtr_n, VectorLength,
+                                                                                                              SimilarityType, Variance, false);
 
                 Similarity = TempFunction_AndRandomNumberToSimilarity(Similarity);
              
@@ -897,7 +894,7 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
 
                 auto Similarity = ElementType(0);
 
-                if (Dictionary_init.GetProperty_SimilarityType() == SimilarityTypeOfKNNSoftAssign)
+                if (Dictionary_init.GetProperty_SimilarityType() == SimilarityType)
                 {
                     if (k < BasisNumber_init && n < BasisNumber_init)
                     {
@@ -905,20 +902,14 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
                     }
                     else
                     {
-                        Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(SimilarityTypeOfKNNSoftAssign,
-                                                                                                                 VectorPtr_k,
-                                                                                                                 VectorPtr_n, 
-                                                                                                                 VectorLength,
-                                                                                                                 Variance, false);
+                        Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(VectorPtr_k, VectorPtr_n, VectorLength,
+                                                                                                                 SimilarityType, Variance, false);
                     }
                 }
                 else
                 {
-                    Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(SimilarityTypeOfKNNSoftAssign,
-                                                                                                             VectorPtr_k,
-                                                                                                             VectorPtr_n, 
-                                                                                                             VectorLength,
-                                                                                                             Variance, false);
+                    Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(VectorPtr_k, VectorPtr_n, VectorLength,
+                                                                                                             SimilarityType, Variance, false);
                 }
 
                 Similarity = TempFunction_AndRandomNumberToSimilarity(Similarity);
@@ -1312,7 +1303,7 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
     {
         this->UpdateBasisRedundancy(BasisRedundancy, SimilarityMatrix);
 
-        Dictionary.SetProperty_SimilarityThresholdToComputeBasisRedundancy(m_Parameter.SimilarityThresholdToComputeBasisRedundancy);
+        Dictionary.SetProperty_SimilarityThresholdForComputingBasisRedundancy(m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy);
     }
 }
 
@@ -1614,7 +1605,7 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
         BasisRedundancy[0] = 0;
     }
 
-    auto SimilarityThreshold = m_Parameter.SimilarityThresholdToComputeBasisRedundancy;
+    auto SimilarityThreshold = m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy;
 
     //for (int_max k = 0; k <= BasisNumber-1; ++k)
     auto TempFunction_UpdateRedundancy = [&](int_max k)
@@ -1717,7 +1708,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
     if (MeanStd <= eps_value)
     {
         MDK_Warning("MeanStd <= eps_value @ KNNBasisSelectionOnlineDictionaryBuilder::UpdateVarianceOfL1Distance(...)"
-                    << '\n' << "set to std::max(eps_value, Variance_L1)")
+                    << '\n' << "set to std::max(eps_value, ParameterOfKNNSoftAssign.Variance_L1)")
 
         MeanStd = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_L1);
     }
@@ -1812,7 +1803,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
     if (MeanStd <= eps_value)
     {
         MDK_Warning("MeanStd <= eps_value @ KNNBasisSelectionOnlineDictionaryBuilder::UpdateVarianceOfL2Distance(...)"
-                    << '\n' << "set to std::max(eps_value, Variance_L2)");
+                    << '\n' << "set to std::max(eps_value, ParameterOfKNNSoftAssign.Variance_L2)");
 
         MeanStd = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
     }
@@ -1907,7 +1898,7 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
     if (MeanStd <= eps_value)
     {
         MDK_Warning("MeanStd <= eps_value @ KNNBasisSelectionOnlineDictionaryBuilder::UpdateVarianceOfKLDivergence(...)"
-                     << '\n' << "set to std::max(eps_value, Variance_KL)");
+                     << '\n' << "set to std::max(eps_value, ParameterOfKNNSoftAssign.Variance_KL)");
 
         MeanStd = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_KL);
     }
@@ -1998,7 +1989,7 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
     if (MeanStd <= eps_value)
     {
         MDK_Warning("MeanStd <= eps_value @ KNNBasisSelectionOnlineDictionaryBuilder::UpdateVarianceOfReconstruction(...)"
-                     << '\n' << "set to std::max(eps_value, Variance_L2)")
+                     << '\n' << "set to std::max(eps_value, ParameterOfKNNSoftAssign.Variance_L2)")
 
         MeanStd = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
     }

@@ -78,7 +78,7 @@ void FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionary
     m_DictionaryData->SimilarityType = InputDictionary.m_DictionaryData->SimilarityType;
     m_DictionaryData->SimilarityMatrix = InputDictionary.m_DictionaryData->SimilarityMatrix;
 
-    m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = InputDictionary.m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy;
+    m_DictionaryData->SimilarityThreshold_For_ComputingBasisRedundancy = InputDictionary.m_DictionaryData->SimilarityThreshold_For_ComputingBasisRedundancy;
     m_DictionaryData->BasisRedundancy = InputDictionary.m_DictionaryData->BasisRedundancy;
 
     m_DictionaryData->VarianceOfL1Distance = InputDictionary.m_DictionaryData->VarianceOfL1Distance;
@@ -184,7 +184,7 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
     m_DictionaryData->SimilarityType = InputDictionary.m_DictionaryData->SimilarityType;
     m_DictionaryData->SimilarityMatrix = std::move(InputDictionary.m_DictionaryData->SimilarityMatrix);
 
-    m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = InputDictionary.m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy;
+    m_DictionaryData->SimilarityThreshold_For_ComputingBasisRedundancy = InputDictionary.m_DictionaryData->SimilarityThreshold_For_ComputingBasisRedundancy;
     m_DictionaryData->BasisRedundancy = std::move(InputDictionary.m_DictionaryData->BasisRedundancy);
 
     m_DictionaryData->VarianceOfL1Distance = std::move(InputDictionary.m_DictionaryData->VarianceOfL1Distance);
@@ -222,7 +222,7 @@ void FeatureDictionaryForSparseCoding<ElementType>::Clear()
     m_DictionaryData->SimilarityType = VectorSimilarityTypeEnum::Unknown;
     m_DictionaryData->SimilarityMatrix.Clear();
 
-    m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = 0;
+    m_DictionaryData->SimilarityThreshold_For_ComputingBasisRedundancy = 0;
     m_DictionaryData->BasisRedundancy.Clear();
 
     m_DictionaryData->VarianceOfL1Distance.Clear();
@@ -317,7 +317,7 @@ FeatureDictionaryForSparseCoding<ElementType>::GetSubDictionary(const DenseMatri
     SubDictionary.m_DictionaryData->SimilarityType = m_DictionaryData->SimilarityType;
     SubDictionary.m_DictionaryData->SimilarityMatrix = m_DictionaryData->SimilarityMatrix.GetSubMatrix(BasisIndexList_to_keep, BasisIndexList_to_keep);
 
-    SubDictionary.m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy;
+    SubDictionary.m_DictionaryData->SimilarityThreshold_For_ComputingBasisRedundancy = m_DictionaryData->SimilarityThreshold_For_ComputingBasisRedundancy;
     SubDictionary.m_DictionaryData->BasisRedundancy = m_DictionaryData->BasisRedundancy.GetSubMatrix(BasisIndexList_to_keep);
 
     SubDictionary.m_DictionaryData->VarianceOfL1Distance = m_DictionaryData->VarianceOfL1Distance.GetSubMatrix(BasisIndexList_to_keep);
@@ -384,10 +384,10 @@ void FeatureDictionaryForSparseCoding<ElementType>::CombineDictionary(const Feat
         return;
     }
 
-    // check SimilarityThresholdToComputeBasisRedundancy
-    if (m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy != InputDictionary.m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy)
+    // check SimilarityThreshold_For_ComputingBasisRedundancy
+    if (m_DictionaryData->SimilarityThreshold_For_ComputingBasisRedundancy != InputDictionary.m_DictionaryData->SimilarityThreshold_For_ComputingBasisRedundancy)
     {
-        MDK_Error("SimilarityThresholdToComputeBasisRedundancy is not the same @ FeatureDictionaryForSparseCoding::CombineDictionary(...)")
+        MDK_Error("SimilarityThreshold_For_ComputingBasisRedundancy is not the same @ FeatureDictionaryForSparseCoding::CombineDictionary(...)")
         return;
     }
 
@@ -657,17 +657,17 @@ const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::S
 
 template<typename ElementType>
 inline
-void FeatureDictionaryForSparseCoding<ElementType>::SetProperty_SimilarityThresholdToComputeBasisRedundancy(ElementType SimilarityThreshold)
+void FeatureDictionaryForSparseCoding<ElementType>::SetProperty_SimilarityThresholdForComputingBasisRedundancy(ElementType SimilarityThreshold)
 {
-    m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy = SimilarityThreshold;
+    m_DictionaryData->SimilarityThreshold_For_ComputingBasisRedundancy = SimilarityThreshold;
 }
 
 
 template<typename ElementType>
 inline
-ElementType FeatureDictionaryForSparseCoding<ElementType>::GetProperty_SimilarityThresholdToComputeBasisRedundancy() const
+ElementType FeatureDictionaryForSparseCoding<ElementType>::GetProperty_SimilarityThresholdForComputingBasisRedundancy() const
 {
-    return m_DictionaryData->SimilarityThresholdToComputeBasisRedundancy;
+    return m_DictionaryData->SimilarityThreshold_For_ComputingBasisRedundancy;
 }
 
 

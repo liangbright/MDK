@@ -55,6 +55,8 @@ void Test_SimpleCase()
     DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative = true;
     DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne = false;
 
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.1;
+
     DictionaryBuilder.m_Parameter.MaxNumberOfDataInEachBatch = 100;
 
     DictionaryBuilder.SetInputFeatureData(&FeatureData);

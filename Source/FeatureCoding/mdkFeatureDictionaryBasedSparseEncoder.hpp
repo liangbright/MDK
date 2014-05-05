@@ -306,32 +306,6 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::GenerateCode_in_a_Thread(
 
 
 template<typename ElementType>
-inline
-void FeatureDictionaryBasedSparseEncoder<ElementType>::EncodeSingleDataVector(DenseMatrix<ElementType>& CodeInDenseColVector,
-                                                                              const DenseMatrix<ElementType>& DataColVector)
-{
-    SparseVector<ElementType> CodeInSparseColVector;
-
-    this->EncodeSingleDataVector(CodeInSparseColVector, DataColVector);
-
-    ConvertSparseVectorToDenseMatrixAsColVector(CodeInSparseColVector, CodeInDenseColVector);
-}
-
-
-template<typename ElementType>
-inline
-void FeatureDictionaryBasedSparseEncoder<ElementType>::EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector,
-                                                                              const DenseMatrix<ElementType>& DataColVector)
-{
-    this->SetInputFeatureData(&DataColVector);
-
-    this->Update();
-
-    CodeInSparseColVector = std::move((*m_CodeInSparseColVectorSet)[0]);
-}
-
-
-template<typename ElementType>
 DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputCode() // InDenseMatrix
 {
     return this->GetOutputCodeInDenseMatrix();

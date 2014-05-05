@@ -87,6 +87,15 @@ bool KNNReconstructionSparseEncoder<ElementType>::Preprocess()
 
 
 template<typename ElementType>
+bool KNNReconstructionSparseEncoder<ElementType>::Postprocess()
+{
+    m_GramianMatrix_DtD.Clear();
+
+    return true;
+}
+
+
+template<typename ElementType>
 inline
 void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex, int_max ThreadIndex)
 {
@@ -153,38 +162,6 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
 
 template<typename ElementType>
-bool KNNReconstructionSparseEncoder<ElementType>::Postprocess()
-{
-    m_GramianMatrix_DtD.Clear();
-
-    return true;
-}
-
-
-template<typename ElementType>
-ElementType 
-KNNReconstructionSparseEncoder<ElementType>::
-ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum SimilarityType,
-                                   const DenseMatrix<ElementType>& VectorA,
-                                   const DenseMatrix<ElementType>& VectorB,
-                                   ElementType Variance)
-{
-    return KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(SimilarityType, VectorA, VectorB, Variance);
-}
-
-
-template<typename ElementType>
-ElementType
-KNNReconstructionSparseEncoder<ElementType>::
-ComputeSimilarityBetweenTwoVectors(VectorSimilarityTypeEnum SimilarityType,
-                                   const ElementType* VectorA, const ElementType* VectorB, int_max Length,
-                                   ElementType Variance, bool CheckInput = true)
-{
-    return KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(SimilarityType, VectorA, VectorB, Length, Variance, CheckInput);
-}
-
-
-template<typename ElementType>
 DenseMatrix<ElementType> 
 KNNReconstructionSparseEncoder<ElementType>::
 ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,
@@ -194,7 +171,7 @@ ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,
                   bool CodeNonnegative,
                   bool CodeSumToOne)
 {
-    auto KNNBasisNumber = KNNBasisIndexList.GetElementNumber();
+    auto KNNBasisNumber = KNNBasisMatrix.GetColNumber();
 
     Option_Of_LinearLeastSquaresProblemSolver Option;
 
@@ -285,6 +262,96 @@ ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,
                                                                        nullptr, nullptr, &A, &lb_A, &ub_A, nullptr,
                                                                        &H, &Option);
     }
+
+    // change to column vector
+    Solution.X.Reshape(KNNBasisNumber, 1);
+
+    return Solution.X;
+}
+
+
+template<typename ElementType>
+DenseMatrix<ElementType> 
+KNNReconstructionSparseEncoder<ElementType>::
+ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,
+                  const DenseMatrix<ElementType>& KNNBasisMatrix,
+                  bool CodeNonnegative,
+                  bool CodeSumToOne)
+{
+    auto KNNBasisNumber = KNNBasisMatrix.GetColNumber();
+
+    Option_Of_LinearLeastSquaresProblemSolver Option;
+
+    Solution_Of_LinearLeastSquaresProblem<ElementType> Solution;
+
+    typedef LinearLeastSquaresProblemSolver<ElementType>::MethodTypeEnum LinlsqMethodTypeEnum;
+
+    if (CodeNonnegative == false && CodeSumToOne == false)
+    {
+        Option.MethodType = LinlsqMethodTypeEnum::NormalEquation;
+
+        DenseMatrix<ElementType> H = MatrixMultiply(KNNBasisMatrix.Transpose(), KNNBasisMatrix);
+
+        DenseMatrix<ElementType> A;
+
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
+                                                                        nullptr, nullptr, &A, nullptr, nullptr, nullptr,
+                                                                        &H, &Option);
+    }
+    else if (CodeNonnegative == true && CodeSumToOne == false)
+    {
+        DenseMatrix<ElementType> lb_x(KNNBasisNumber, 1);
+        lb_x.Fill(0);
+
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
+
+        DenseMatrix<ElementType> H = MatrixMultiply(KNNBasisMatrix.Transpose(), KNNBasisMatrix);
+
+        DenseMatrix<ElementType> A;
+
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
+                                                                       &lb_x, nullptr, &A, nullptr, nullptr, nullptr,
+                                                                       &H, &Option);
+
+    }
+    else if (CodeNonnegative == true && CodeSumToOne == true)
+    {
+        DenseMatrix<ElementType> lb_x(KNNBasisNumber, 1);
+        lb_x.Fill(ElementType(0));
+
+        DenseMatrix<ElementType> A(1, KNNBasisNumber);
+        A.Fill(ElementType(1));
+
+        DenseMatrix<ElementType> lb_A = ElementType(1);
+        DenseMatrix<ElementType> ub_A = ElementType(1);
+
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
+
+        DenseMatrix<ElementType> H = MatrixMultiply(KNNBasisMatrix.Transpose(), KNNBasisMatrix);
+
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
+                                                                       &lb_x, nullptr, &A, &lb_A, &ub_A, nullptr,
+                                                                       &H, &Option);
+    }
+    else //if(CodeNonnegative == false && CodeSumToOne == true)
+    {
+        DenseMatrix<ElementType> A(1, KNNBasisNumber);
+        A.Fill(ElementType(1));
+
+        DenseMatrix<ElementType> lb_A = ElementType(1);
+        DenseMatrix<ElementType> ub_A = ElementType(1);
+
+        Option.MethodType = LinlsqMethodTypeEnum::QuadraticProgramming;
+
+        DenseMatrix<ElementType> H = MatrixMultiply(KNNBasisMatrix.Transpose(), KNNBasisMatrix);
+
+        Solution = LinearLeastSquaresProblemSolver<ElementType>::Apply(&KNNBasisMatrix, &DataColVector,
+                                                                       nullptr, nullptr, &A, &lb_A, &ub_A, nullptr,
+                                                                       &H, &Option);
+    }
+
+    // change to column vector
+    Solution.X.Reshape(KNNBasisNumber, 1);
 
     return Solution.X;
 }

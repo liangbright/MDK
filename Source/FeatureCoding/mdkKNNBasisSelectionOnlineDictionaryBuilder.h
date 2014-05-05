@@ -35,6 +35,24 @@ struct DebugInfo_Of_KNNBasisSelectionOnlineDictionaryBuilder
 };
 
 
+template<typename ElementType>
+struct SoftAssign_Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
+{
+    int_max NeighbourNumber;
+
+    VectorSimilarityTypeEnum SimilarityType;
+
+    ElementType SimilarityThreshold; // find KNN with Similarity >= SimilarityThreshold
+
+    // initial values of Variance_L1, Variance_L2, and Variance_KL
+
+    ElementType Variance_L1; // variance to convert L1Distance to Similarity
+
+    ElementType Variance_L2; // variance to convert L2Distance to Similarity
+
+    ElementType Variance_KL; // variance to convert KLDivergence to Similarity
+};
+
 
 template<typename ElementType>
 struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
@@ -47,7 +65,11 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
     bool BasisNormalizedWithL1Norm;
     bool BasisNormalizedWithL2Norm;
 
-    Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> ParameterOfKNNSoftAssign;
+    //----------------- parameter for soft assign --------------------------------------------------//
+
+    SoftAssign_Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder<ElementType> ParameterOfKNNSoftAssign;
+         
+    //------------------- parameter for basis selection --------------------------------------//
 
     ElementType ExperienceDiscountFactor; 
     // weight for the past experience when new training data is used
@@ -59,13 +81,13 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
     // WeightOnProbabiliyForBasisSelection to sort vector pair    
     // range [0, 1]
 
-    // parameter for data sampling --------
+    //----------------------- parameter for data processing ------------------------------//
 
     int_max MaxNumberOfDataInEachBatch; // the maximum number of data in each batch/thread
 
     int_max MaxNumberOfThreads;
 
-    // parameter for updating dictionary information
+    //--------------------- parameter for updating dictionary information -------------//
 
     bool Update_BasisID;
 
@@ -81,11 +103,13 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
     bool Update_BasisRedundancy;
 
-    ElementType SimilarityThresholdToComputeBasisRedundancy;
+    ElementType SimilarityThreshold_For_ComputingBasisRedundancy;
 
     Constraint_on_Code_Of_KNNReconstruction_For_FeatureCoding ConstraintOnKNNReconstructionCode;
 
-    // parameter for debug information output
+
+    //-------------- parameter for debug information output ----------------------------//
+
     DebugInfo_Of_KNNBasisSelectionOnlineDictionaryBuilder DebugInfo;
 
 //--------------------------------------------------------------------------------------------------------
@@ -101,7 +125,12 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
         BasisNormalizedWithL1Norm = false;
         BasisNormalizedWithL2Norm = false;
 
-        ParameterOfKNNSoftAssign.Clear();
+        ParameterOfKNNSoftAssign.NeighbourNumber = 0;
+        ParameterOfKNNSoftAssign.SimilarityType = VectorSimilarityTypeEnum::Unknown;
+        ParameterOfKNNSoftAssign.SimilarityThreshold = 0;
+        ParameterOfKNNSoftAssign.Variance_L1 = 0;
+        ParameterOfKNNSoftAssign.Variance_L2 = 0;
+        ParameterOfKNNSoftAssign.Variance_KL = 0;
 
         ExperienceDiscountFactor = 0;
 
@@ -125,7 +154,7 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
         Update_BasisRedundancy = true;
 
-        SimilarityThresholdToComputeBasisRedundancy = 0;
+        SimilarityThreshold_For_ComputingBasisRedundancy = 0;
 
         ConstraintOnKNNReconstructionCode.CodeNonnegative = false;
         ConstraintOnKNNReconstructionCode.CodeSumToOne    = false;
