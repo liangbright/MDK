@@ -57,7 +57,7 @@ void Test_SimpleCase()
 
     DictionaryBuilder.m_Parameter.MaxNumberOfDataInEachBatch = 100;
 
-    DictionaryBuilder.m_Parameter.MaxNumberOfThreads = 4;
+    DictionaryBuilder.m_Parameter.MaxNumberOfThreads = 1;
 
     DictionaryBuilder.m_Parameter.DebugInfo.Flag_OutputDebugInfo = true;
     DictionaryBuilder.m_Parameter.DebugInfo.FilePathToSaveDebugInfo = FilePath;
