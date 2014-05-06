@@ -9,6 +9,8 @@ template<typename ElementType>
 FeatureDictionaryForSparseCoding<ElementType>::FeatureDictionaryForSparseCoding()
 {
     m_DictionaryData = std::make_shared<DictionaryData_Of_FeatureDictionaryForSparseCoding<ElementType>>();
+
+    this->Clear();
 }
 
 

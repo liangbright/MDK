@@ -74,3 +74,52 @@ void Test_SimpleCase()
     SaveDenseMatrixAsJsonDataFile(DictionaryPtr->VarianceOfL1Distance(), FilePath + "VarianceOfL1Distance.json");
 
 }
+
+
+void Test_GaussianObjectImage()
+{
+    using namespace mdk;
+
+    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/";
+
+    CharString FeatureDataFilePathAndName = FilePath + "GaussianObjectImage.json";
+
+    auto FeatureData = LoadDenseMatrixFromJsonDataFile<double>(FeatureDataFilePathAndName);
+
+    int_max FeatureDataNumber = FeatureData.GetColNumber();
+
+    KNNBasisSelectionOnlineDictionaryBuilder<double> DictionaryBuilder;
+
+    int_max NeighbourNumber = 5;
+
+    DictionaryBuilder.m_Parameter.BasisNumber = 10;
+
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = NeighbourNumber;
+
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = VectorSimilarityTypeEnum::L1Distance;
+    
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.1;
+
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = 100;
+
+    DictionaryBuilder.m_Parameter.ExperienceDiscountFactor = 0;
+
+    DictionaryBuilder.m_Parameter.WeightOnProbabiliyForBasisSelection = 0.5;
+
+    DictionaryBuilder.m_Parameter.MaxNumberOfDataInEachBatch = 100;
+
+    DictionaryBuilder.m_Parameter.MaxNumberOfThreads = 1;
+
+    DictionaryBuilder.m_Parameter.DebugInfo.Flag_OutputDebugInfo = true;
+    DictionaryBuilder.m_Parameter.DebugInfo.FilePathToSaveDebugInfo = FilePath;
+
+    DictionaryBuilder.SetInputFeatureData(&FeatureData);
+
+    DictionaryBuilder.Update();
+
+    auto DictionaryPtr = DictionaryBuilder.GetOutputDictionary();
+
+    SaveDenseMatrixAsJsonDataFile(DictionaryPtr->BasisMatrix(), FilePath + "GaussianObjectImage_BasisMatrix.json");
+//    SaveDenseMatrixAsJsonDataFile(DictionaryPtr->VarianceOfL1Distance(), FilePath + "VarianceOfL1Distance.json");
+
+}

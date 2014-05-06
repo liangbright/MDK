@@ -484,7 +484,9 @@ BuildDictionaryFromData(const int_max BasisNumber_desired,
 
     // ------------- create BasisMatrix --------------------------------------------------//
 
-    DenseMatrix<ElementType> BasisMatrix(FeatureData.GetRowNumber(), OutputBasisNumber);
+    DenseMatrix<ElementType>& BasisMatrix = Dictionary.BasisMatrix();
+     
+    BasisMatrix.FastResize(FeatureData.GetRowNumber(), OutputBasisNumber);
 
     //for (int_max k = 0; k <= OutputBasisNumber-1; ++k)
     auto TempFunction_CreateBasis = [&](int_max k)
@@ -504,13 +506,9 @@ BuildDictionaryFromData(const int_max BasisNumber_desired,
 
     ParallelForLoop(TempFunction_CreateBasis, 0, OutputBasisNumber-1, m_Parameter.MaxNumberOfThreads);
 
-    // ------------- Apply Constraint On Basis --------------------------------------------------//
+    // Apply Constraint On Basis
 
     this->ApplyConstraintOnBasis(BasisMatrix);
-    
-    // ----- Write BasisMatrix into Dictionary -------------------------------------------------//
-
-    Dictionary.BasisMatrix().Take(BasisMatrix);
 
     // -------- encode FeatureData : code element is Similarity, not membership ------------------//
 
@@ -763,12 +761,15 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
     {
     case VectorSimilarityTypeEnum::L1Distance :
         Variance = m_Parameter.ParameterOfKNNSoftAssign.Variance_L1;
+        break;
 
     case VectorSimilarityTypeEnum::L2Distance:
         Variance = m_Parameter.ParameterOfKNNSoftAssign.Variance_L2;
+        break;
 
     case VectorSimilarityTypeEnum::KLDivergence:
         Variance = m_Parameter.ParameterOfKNNSoftAssign.Variance_KL;
+        break;
 
     default:
         Variance = 0;
@@ -1015,7 +1016,9 @@ EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix
         {
             auto VectorIndex_m = KNN_IndexList[m];
 
-            Probability[VectorIndex_m] += VectorSimilarityMatrix(VectorIndex_m, k);
+            // the exact value of Similarity is not very accurate
+            //Probability[VectorIndex_m] += VectorSimilarityMatrix(VectorIndex_m, k);
+            Probability[VectorIndex_m] += 1;
         }
     }
 
@@ -1070,7 +1073,9 @@ EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix
         {
             auto VectorIndex_m = KNN_IndexList[m];
 
-            Probability[VectorIndex_m] += RepresentativeAbilityOfEachVector[k] * VectorSimilarityMatrix(VectorIndex_m, k);
+            // the exact value of Similarity is not very accurate
+            //Probability[VectorIndex_m] += RepresentativeAbilityOfEachVector[k] * VectorSimilarityMatrix(VectorIndex_m, k);
+            Probability[VectorIndex_m] += RepresentativeAbilityOfEachVector[k];
         }
     }
 
@@ -1691,9 +1696,11 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
 
                 auto L1Distance = ComputeL1DistanceBetweenTwoVectors(DataVectorPtr, BasisVectorPtr, VectorLength, false);
 
-                Variance_current[BasisIndex] += L1Distance*L1Distance*Membership[m];
+                //Variance_current[BasisIndex] += L1Distance*L1Distance*Membership[m];
+                //WeightList[BasisIndex] += Membership[m];
 
-                WeightList[BasisIndex] += Membership[m];
+                Variance_current[BasisIndex] += L1Distance*L1Distance;
+                WeightList[BasisIndex] += 1;
             }
         }
     }
@@ -1786,9 +1793,11 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
 
                 auto SquaredL2Distance = ComputeSquaredL2DistanceBetweenTwoVectors(DataVectorPtr, BasisVectorPtr, VectorLength, false);
 
-                Variance_current[BasisIndex] += SquaredL2Distance*Membership[m];
+                //Variance_current[BasisIndex] += SquaredL2Distance*Membership[m];
+                //WeightList[BasisIndex] += Membership[m];
 
-                WeightList[BasisIndex] += Membership[m];
+                Variance_current[BasisIndex] += SquaredL2Distance;
+                WeightList[BasisIndex] += 1;
             }
         }
     }
@@ -1881,9 +1890,11 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
 
                 auto KLDivergence = ComputeKLDivergenceOfVectorAFromVectorB(DataVectorPtr, BasisVectorPtr, VectorLength, false);
 
-                Variance_current[BasisIndex] += KLDivergence*KLDivergence*Membership[m];
+                //Variance_current[BasisIndex] += KLDivergence*KLDivergence*Membership[m];
+                //WeightList[BasisIndex] += Membership[m];
 
-                WeightList[BasisIndex] += Membership[m];
+                Variance_current[BasisIndex] += KLDivergence*KLDivergence;
+                WeightList[BasisIndex] += 1;
             }
         }
     }
@@ -1972,9 +1983,11 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
             {
                 auto BasisIndex = KNN_IndexList[m];
 
-                Variance_current[BasisIndex] += DataReconstructionErrorL2Norm[k] * Membership[m];
+                //Variance_current[BasisIndex] += DataReconstructionErrorL2Norm[k] * Membership[m];
+                //WeightList[BasisIndex] += Membership[m];
 
-                WeightList[BasisIndex] += Membership[m];
+                Variance_current[BasisIndex] += DataReconstructionErrorL2Norm[k];
+                WeightList[BasisIndex] += 1;
             }
         }
     }
@@ -2027,58 +2040,18 @@ ComputeDataReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  FeatureDat
                                      const DataContainer<SparseVector<ElementType>>& CodeTable,
                                      const DenseMatrix<ElementType>&  BasisMatrix)
 {
-    int_max DataNumber = CodeTable.GetLength();
+    auto ReconstructionCodeSet = KNNReconstructionSparseEncoder<ElementType>::
+                                 ComputeReconstructionCodeFromSimilarityCode(FeatureData,
+                                                                             CodeTable,
+                                                                             BasisMatrix,
+                                                                             m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative,
+                                                                             m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne,
+                                                                             m_Parameter.MaxNumberOfThreads);
 
-    int_max VectorLength = BasisMatrix.GetRowNumber();
+    auto ErrorL2NormList = KNNReconstructionSparseEncoder<ElementType>::
+                           ComputeReconstructionErrorL2Norm(FeatureData, ReconstructionCodeSet, BasisMatrix, m_Parameter.MaxNumberOfThreads);
 
-    DenseMatrix<ElementType> DataReconstructionErrorL2Norm(1, DataNumber);
-
-    DenseMatrix<ElementType> GramianMatrix_DtD = BasisMatrix.Transpose() *BasisMatrix;
-
-    //for(int_max DataIndex = 0; DataIndex <= DataNumber - 1; ++DataIndex)
-    auto TempFunction_Reconstruction = [&](int_max DataIndex)
-    {
-        const std::vector<int_max>& KNN_IndexList = CodeTable[DataIndex].IndexList();
-
-        if (KNN_IndexList.size() > 0)
-        {
-            DenseMatrix<ElementType> DataVector;            
-            DataVector.ForceShare(FeatureData.GetElementPointerOfCol(DataIndex), VectorLength, 1);
-
-            DenseMatrix<ElementType> ReconstructedDataVector(1, VectorLength);
-
-            // Reconstruct DataVector using KNN 
-            auto KNNBasisMatrix = BasisMatrix.GetSubMatrix(ALL, KNN_IndexList);
-
-            this->ReconstructDataVectorByKNNBasisMatrix(ReconstructedDataVector, DataVector, KNNBasisMatrix, KNN_IndexList, GramianMatrix_DtD);
-
-            auto SquaredL2Distance = ComputeSquaredL2DistanceBetweenTwoVectors(DataVector.GetElementPointer(),
-                                                                               ReconstructedDataVector.GetElementPointer(),
-                                                                               VectorLength, false);
-
-            DataReconstructionErrorL2Norm[DataIndex] = SquaredL2Distance;
-        }
-    };
-
-    ParallelForLoop(TempFunction_Reconstruction, 0, DataNumber - 1, m_Parameter.MaxNumberOfThreads);
-
-    return DataReconstructionErrorL2Norm;
-}
-
-
-template<typename ElementType>
-void KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
-ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       ReconstructedDataVector,
-                                      const DenseMatrix<ElementType>& DataVector,    
-                                      const DenseMatrix<ElementType>& KNNBasisMatrix,
-                                      const DenseMatrix<int_max>&     KNNBasisIndexList,
-                                      const DenseMatrix<ElementType>& GramianMatrix_DtD)
-{
-    auto CodeVector = KNNReconstructionSparseEncoder<ElementType>::ComputeCodeVector(DataVector, KNNBasisMatrix, KNNBasisIndexList, GramianMatrix_DtD,
-                                                                                     m_Parameter.ConstraintOnKNNReconstructionCode.CodeNonnegative,
-                                                                                     m_Parameter.ConstraintOnKNNReconstructionCode.CodeSumToOne);
-      
-    MatrixMultiply(ReconstructedDataVector, KNNBasisMatrix, CodeVector);
+    return ErrorL2NormList;
 }
 
 

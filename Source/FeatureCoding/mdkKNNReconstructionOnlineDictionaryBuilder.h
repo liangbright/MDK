@@ -119,32 +119,23 @@ protected:
 
     FeatureDictionaryForSparseCoding<ElementType> CopyInitialDictionaryAndDiscountBasisExperience();
 
-    void UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
-                           const DenseMatrix<ElementType>& FeatureData,
-                           const DataContainer<SparseVector<ElementType>>& CodeTable,
-                           const DenseMatrix<ElementType>& ReconstructedData,
-                           const DenseMatrix<ElementType>& BasisExperience);
+    void UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
+                          const DenseMatrix<ElementType>& FeatureData,
+                          const DataContainer<SparseVector<ElementType>>& CodeTable);
+
+    void UpdateBasisMatrixAndBasisExperience(DenseMatrix<ElementType>&       BasisMatrix,
+                                             DenseMatrix<ElementType>&       BasisExperience,
+                                             const DenseMatrix<ElementType>& FeatureData,
+                                             const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                             const DenseMatrix<ElementType>& ReconstructedData);
 
     void ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix);
 
-    void ReconstructFeatureData(DenseMatrix<ElementType>&        ReconstructedData,
-                                const DenseMatrix<ElementType>&  BasisMatrix,
-                                const DataContainer<SparseVector<ElementType>>& CodeTable);
-
-    void UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
-                                     const DenseMatrix<ElementType>& FeatureData,
-                                     const DataContainer<SparseVector<ElementType>>& CodeTable,
-                                     const DenseMatrix<ElementType>& ReconstructedData);
-
-    void UpdateDictionaryInformation_Other(FeatureDictionaryForSparseCoding<ElementType>& Dictionary);
-
-    void UpdateBasisExperience(DenseMatrix<ElementType>&  BasisExperience, const DataContainer<SparseVector<ElementType>>& CodeTable);
+    void UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary);
 
     void UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix, 
                                 const DenseMatrix<ElementType>& BasisMatrix, 
                                 const DenseMatrix<ElementType>& VarianceList);
-
-    ElementType ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, ElementType Variance);
 
     void UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix);
 
@@ -152,25 +143,25 @@ protected:
                                     const DenseMatrix<ElementType>& FeatureData,
                                     const DataContainer<SparseVector<ElementType>>& CodeTable,
                                     const DenseMatrix<ElementType>& BasisMatrix,
-                                    const DenseMatrix<ElementType>& BasisExperience);
+                                    const DenseMatrix<ElementType>& BasisExperience_init);
 
     void UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
                                     const DenseMatrix<ElementType>& FeatureData,
                                     const DataContainer<SparseVector<ElementType>>& CodeTable,
                                     const DenseMatrix<ElementType>& BasisMatrix,
-                                    const DenseMatrix<ElementType>& BasisExperience);
+                                    const DenseMatrix<ElementType>& BasisExperience_init);
 
     void UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
                                       const DenseMatrix<ElementType>& FeatureData,
                                       const DataContainer<SparseVector<ElementType>>& CodeTable,
                                       const DenseMatrix<ElementType>& BasisMatrix,
-                                      const DenseMatrix<ElementType>& BasisExperience);
+                                      const DenseMatrix<ElementType>& BasisExperience_init);
 
     void UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
                                         const DenseMatrix<ElementType>& FeatureData,
                                         const DataContainer<SparseVector<ElementType>>& CodeTable,
                                         const DenseMatrix<ElementType>& ReconstructedData,
-                                        const DenseMatrix<ElementType>& BasisExperience);
+                                        const DenseMatrix<ElementType>& BasisExperience_init);
 };
 
 

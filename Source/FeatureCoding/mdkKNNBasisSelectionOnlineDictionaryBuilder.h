@@ -283,13 +283,6 @@ protected:
                                                                   const DataContainer<SparseVector<ElementType>>& CodeTable,
                                                                   const DenseMatrix<ElementType>&  BasisMatrix);
 
-    void ReconstructDataVectorByKNNBasisMatrix(DenseMatrix<ElementType>&       ReconstructedDataVector, 
-                                               const DenseMatrix<ElementType>& DataVector,
-                                               const DenseMatrix<ElementType>& KNNBasisMatrix,
-                                               const DenseMatrix<int_max>&     KNNBasisIndexList,
-                                               const DenseMatrix<ElementType>& GramianMatrix_DtD);
-
-
 private:
     KNNBasisSelectionOnlineDictionaryBuilder(const KNNBasisSelectionOnlineDictionaryBuilder&) = delete;
     void operator=(const KNNBasisSelectionOnlineDictionaryBuilder&) = delete;

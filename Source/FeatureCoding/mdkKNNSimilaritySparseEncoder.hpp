@@ -53,7 +53,7 @@ bool KNNSimilaritySparseEncoder<ElementType>::CheckInput()
 
     if (m_Parameter.SimilarityType == VectorSimilarityTypeEnum::L1Distance)
     {
-        if (m_Dictionary->VarianceOfL1Distance().IsEmpty() == false)
+        if (m_Dictionary->VarianceOfL1Distance().IsEmpty() == true)
         {
             MDK_Error("VarianceOfL1Distance in Input Dictionary is empty @ KNNSimilaritySparseEncoder::CheckInput()")
             return false;
@@ -61,7 +61,7 @@ bool KNNSimilaritySparseEncoder<ElementType>::CheckInput()
     }
     else if (m_Parameter.SimilarityType == VectorSimilarityTypeEnum::L2Distance)
     {
-        if (m_Dictionary->VarianceOfL2Distance().IsEmpty() == false)
+        if (m_Dictionary->VarianceOfL2Distance().IsEmpty() == true)
         {
             MDK_Error("VarianceOfL2Distance in Input Dictionary is empty @ KNNSimilaritySparseEncoder::CheckInput()")
             return false;
@@ -69,7 +69,7 @@ bool KNNSimilaritySparseEncoder<ElementType>::CheckInput()
     }
     else if (m_Parameter.SimilarityType == VectorSimilarityTypeEnum::KLDivergence)
     {
-        if (m_Dictionary->VarianceOfKLDivergence().IsEmpty() == false)
+        if (m_Dictionary->VarianceOfKLDivergence().IsEmpty() == true)
         {
             MDK_Error("VarianceOfKLDivergence in Input Dictionary is empty @ KNNSimilaritySparseEncoder::CheckInput()")
             return false;
