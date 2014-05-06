@@ -33,6 +33,10 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 
     ElementType ExperienceDiscountFactor;
 
+    // ------ whether or not use scale factor --------
+
+    bool WhetherToUseScaleFactor;
+
     // parameter for data sampling --------
 
     int_max MaxNumberOfDataInEachBatch; // the number of data in each batch/thread
@@ -63,6 +67,8 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
         BasisNormalizedWithL2Norm = false;
 
         ExperienceDiscountFactor = 0;
+
+        WhetherToUseScaleFactor = false;
 
         MaxNumberOfDataInEachBatch = 0;
 
@@ -114,7 +120,7 @@ public:
 
 protected:
 
-    void SetupDefaultPipelineOutput();
+    void ClearPipelineOutput();
 
     void UpdatePipelineOutput();
 
@@ -128,6 +134,16 @@ protected:
                            const DenseMatrix<ElementType>& FeatureData,
                            const DataContainer<SparseVector<ElementType>>& CodeTable,
                            const DenseMatrix<ElementType>& BasisExperience);
+
+    void UpdateBasisMatrix_UseScaleFactor(DenseMatrix<ElementType>&       BasisMatrix,
+                                          const DenseMatrix<ElementType>& FeatureData,
+                                          const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                          const DenseMatrix<ElementType>& BasisExperience);
+
+    void UpdateBasisMatrix_NoScaleFactor(DenseMatrix<ElementType>&       BasisMatrix,
+                                         const DenseMatrix<ElementType>& FeatureData,
+                                         const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                         const DenseMatrix<ElementType>& BasisExperience);
 
     void ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix);
 

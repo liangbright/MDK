@@ -145,7 +145,7 @@ struct State_Of_SPAMSOnlineDictionaryBuilder  // D and model in [D model] = mexT
     DenseMatrix<ElementType> B;
     DenseMatrix<ElementType> D;
 
-    DenseMatrix<ElementType> StandardDiviation;
+    DenseMatrix<ElementType> VarianceOfReconstruction;
 
 //-----------------------------------------------------------------------------------------------
     State_Of_SPAMSOnlineDictionaryBuilder(){};
@@ -233,7 +233,7 @@ protected:
 
     void GenerateDictionary();
 
-    void SetupDefaultPipelineOutput();
+    void ClearPipelineOutput();
 
     void UpdatePipelineOutput();
 

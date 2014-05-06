@@ -214,7 +214,7 @@ public:
 
 private:
 
-    void SetupDefaultPipelineOutput();
+    void ClearPipelineOutput();
     void UpdatePipelineOutput();
 
     bool CheckInput_dense();

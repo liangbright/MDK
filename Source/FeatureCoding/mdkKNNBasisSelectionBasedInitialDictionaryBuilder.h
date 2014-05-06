@@ -195,7 +195,7 @@ public:
 
 protected:
 
-    void SetupDefaultPipelineOutput();
+    void ClearPipelineOutput();
 
     void UpdatePipelineOutput();
 

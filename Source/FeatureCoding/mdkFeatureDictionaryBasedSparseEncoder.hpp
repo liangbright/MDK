@@ -25,7 +25,7 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::Clear()
 
     m_Dictionary  = nullptr;
 
-    this->SetupDefaultPipelineOutput();
+    this->ClearPipelineOutput();
 
     m_Flag_Output_CodeInDenseMatrix = false;
 
@@ -42,7 +42,7 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::Clear()
 
 
 template<typename ElementType>
-void FeatureDictionaryBasedSparseEncoder<ElementType>::SetupDefaultPipelineOutput()
+void FeatureDictionaryBasedSparseEncoder<ElementType>::ClearPipelineOutput()
 {
     m_CodeInDenseMatrix_SharedCopy.Clear();
 

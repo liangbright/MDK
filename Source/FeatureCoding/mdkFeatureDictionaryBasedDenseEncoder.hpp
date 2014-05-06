@@ -25,18 +25,18 @@ void FeatureDictionaryBasedDenseEncoder<ElementType>::Clear()
 
     m_Dictionary = nullptr;
 
-    this->SetupDefaultPipelineOutput();
+    this->ClearPipelineOutput();
 
     m_MinNumberOfDataPerThread = 1;
     m_MaxNumberOfThreads = 1;
-    m_NumberOfCreatedThreads = 1;
 }
 
 
 template<typename ElementType>
-void FeatureDictionaryBasedDenseEncoder<ElementType>::SetupDefaultPipelineOutput()
+void FeatureDictionaryBasedDenseEncoder<ElementType>::ClearPipelineOutput()
 {
     m_Code_SharedCopy.Clear();
+
     m_Code = &m_Code_SharedCopy;
 }
 

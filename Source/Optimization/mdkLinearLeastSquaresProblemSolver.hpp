@@ -44,7 +44,7 @@ void LinearLeastSquaresProblemSolver<ElementType>::Clear()
 
     m_IsInputDense = true;
 
-    this->SetupDefaultPipelineOutput();
+    this->ClearPipelineOutput();
 
     m_EmptyDenseMatrix.Clear();
     m_EmptyDenseMatrix.FixSize();
@@ -55,7 +55,7 @@ void LinearLeastSquaresProblemSolver<ElementType>::Clear()
 
 
 template<typename ElementType>
-void LinearLeastSquaresProblemSolver<ElementType>::SetupDefaultPipelineOutput()
+void LinearLeastSquaresProblemSolver<ElementType>::ClearPipelineOutput()
 {
     m_Solution_SharedCopy.Clear();
     m_Solution = &m_Solution_SharedCopy;

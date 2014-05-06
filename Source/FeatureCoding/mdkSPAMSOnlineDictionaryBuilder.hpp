@@ -31,7 +31,7 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::Clear()
 
     m_State.Clear();
 
-    this->SetupDefaultPipelineOutput();
+    this->ClearPipelineOutput();
 }
 
 
@@ -187,17 +187,17 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
     }
     else
     {
-        DenseMatrix<ElementType> InitialStandardDeviation(1, m_Parameter.K);
+        DenseMatrix<ElementType> InitialVarianceOfReconstruction(1, m_Parameter.K);
 
         if (m_State.StandardDiviation.IsEmpty())
         {
-            InitialStandardDeviation.Fill(ElementType(m_FeatureData->GetRowNumber()));
+            InitialVarianceOfReconstruction.Fill(ElementType(m_FeatureData->GetRowNumber()));
 
-            m_State.StandardDiviation = InitialStandardDeviation;
+            m_State.StandardDiviation = InitialVarianceOfReconstruction;
         }
         else
         {
-            InitialStandardDeviation = m_State.StandardDiviation;
+            InitialVarianceOfReconstruction = m_State.VarianceOfReconstruction;
         }        
 
         Infomation_Of_FeatureDictionaryForSparseCoding DictionaryInfo;
@@ -207,7 +207,7 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
             DictionaryInfo.BasisSumToOne = true;
         }
 
-        trainer->train_extended(*X, param, m_State.StandardDiviation, m_SparseEncoder, DictionaryInfo, InitialStandardDeviation);
+        trainer->train_extended(*X, param, m_State.VarianceOfReconstruction, m_SparseEncoder, DictionaryInfo, InitialVarianceOfReconstruction);
     }
 
     //---------------------------------------------------------
@@ -224,7 +224,7 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 
 
 template<typename ElementType>
-void SPAMSOnlineDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
+void SPAMSOnlineDictionaryBuilder<ElementType>::ClearPipelineOutput()
 {
     m_Dictionary_SharedCopy.Clear();
     m_Dictionary = &m_Dictionary_SharedCopy;
@@ -238,9 +238,9 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::UpdatePipelineOutput()
 
     D.Share(m_State.D);
 
-    DenseMatrix<ElementType>& S = m_Dictionary->StandardDeviation();
+    DenseMatrix<ElementType>& V = m_Dictionary->VarianceOfReconstruction();
 
-    S.Share(m_State.StandardDiviation);
+    V.Share(m_State.VarianceOfReconstruction);
 
     if (m_Dictionary != &m_Dictionary_SharedCopy)
     {

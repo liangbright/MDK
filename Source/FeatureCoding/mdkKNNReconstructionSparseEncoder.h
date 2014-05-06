@@ -121,19 +121,53 @@ public:
 
     //----------------------------------------------------------------------------------------------------
 
-    static bool Apply(DenseMatrix<ElementType>& OutputCodeInDenseMatrix,
+    static DenseMatrix<ElementType> ReconstructDataVector(const SparseVector<ElementType>& CodeInSparseColVector,
+                                                          const DenseMatrix<ElementType>&  BasisMatrix);
+
+    static void ReconstructDataVector(DenseMatrix<ElementType>& ReconstructedDataVector,
+                                      const SparseVector<ElementType>& CodeInSparseColVector,
+                                      const DenseMatrix<ElementType>&  BasisMatrix);
+
+
+    static DenseMatrix<ElementType> ReconstructDataMatrix(const DataContainer<SparseVector<ElementType>>& CodeInSparseColVectorSet,
+                                                          const DenseMatrix<ElementType>&  BasisMatrix,
+                                                          int_max MaxNumberOfThreads = 1);
+
+    static void ReconstructDataMatrix(DenseMatrix<ElementType>& ReconstructedDataMatrix,
+                                      const DataContainer<SparseVector<ElementType>>& CodeInSparseColVectorSet,
+                                      const DenseMatrix<ElementType>&  BasisMatrix,
+                                      int_max MaxNumberOfThreads = 1);
+
+    static ElementType ComputeReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  DataColVector, 
+                                                        const SparseVector<ElementType>& CodeInSparseColVectorSet,
+                                                        const DenseMatrix<ElementType>&  BasisMatrix);
+
+    static DenseMatrix<ElementType> ComputeReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  FeatureData,
+                                                                     const DataContainer<SparseVector<ElementType>>& CodeInSparseColVectorSet,
+                                                                     const DenseMatrix<ElementType>&  BasisMatrix,
+                                                                     int_max MaxNumberOfThreads = 1);
+
+    static void ComputeReconstructionErrorL2Norm(DenseMatrix<ElementType>& ErrorL2NormList,
+                                                 const DenseMatrix<ElementType>&  FeatureData,
+                                                 const DataContainer<SparseVector<ElementType>>& CodeInSparseColVectorSet,
+                                                 const DenseMatrix<ElementType>&  BasisMatrix,
+                                                 int_max MaxNumberOfThreads = 1);
+
+    //----------------------------------------------------------------------------------------------------
+
+    static void Apply(DenseMatrix<ElementType>& OutputCodeInDenseMatrix,
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
                       const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,
                       int_max MaxNumberOfThreads = 1);
 
-    static bool Apply(SparseMatrix<ElementType>& OutputCodeInSparseMatrix,
+    static void Apply(SparseMatrix<ElementType>& OutputCodeInSparseMatrix,
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
                       const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,
                       int_max MaxNumberOfThreads = 1);
 
-    static bool Apply(DenseMatrix<SparseMatrix<ElementType>>& OutputCodeInSparseColVectorList,
+    static void Apply(DenseMatrix<SparseMatrix<ElementType>>& OutputCodeInSparseColVectorSet,
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
                       const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,

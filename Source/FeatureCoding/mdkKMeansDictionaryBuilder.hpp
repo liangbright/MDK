@@ -30,12 +30,12 @@ void KMeansDictionaryBuilder<ElementType>::Clear()
 
     m_InitialDictionary = nullptr;
 
-    this->SetupDefaultPipelineOutput();
+    this->ClearPipelineOutput();
 }
 
 
 template<typename ElementType>
-void KMeansDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
+void KMeansDictionaryBuilder<ElementType>::ClearPipelineOutput()
 {
     m_Dictionary_SharedCopy.Clear();
     m_Dictionary = &m_Dictionary_SharedCopy;

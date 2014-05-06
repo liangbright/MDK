@@ -196,7 +196,7 @@ void SparseVector<ElementType>::Resize(int_max InputLength)
     if (InputLength < 0)
     {
         MDK_Error("Invalid InputLength @ SparseVector::Resize(...)")
-            return;
+        return;
     }
 
     if (InputLength == m_Length)

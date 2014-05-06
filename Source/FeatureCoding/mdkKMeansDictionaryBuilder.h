@@ -54,7 +54,7 @@ private:
 
     void GenerateDictionary();
 
-    void SetupDefaultPipelineOutput();
+    void ClearPipelineOutput();
 
     void UpdatePipelineOutput();
 

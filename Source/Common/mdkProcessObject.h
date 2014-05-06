@@ -15,7 +15,7 @@ protected:
     virtual ~ProcessObject() {}
 
 public:
-    virtual void Clear() = 0; // set to default/initial state
+    virtual void Clear() = 0;  // set to default/initial state
 
     virtual bool Update() = 0; // run the process and update output
 
@@ -23,12 +23,12 @@ protected:
     // this may have different names in different operation modes, e.g., CheckInput_Mode_1(), CheckInput_Mode_2()
     // put it here just for reminder
     //virtual bool CheckInput() = 0; // check the inputs to the process
-                                     // not only "input" data, but also "input" variable that stores output result
-                                     // this is usually called in the first step of Update()
+                                     // not only "input" data, but also "input" variables that store output results
+                                     // this is called in the first step of Update()
 
-    virtual void SetupDefaultPipelineOutput() = 0; // this is called in Clear()
+    virtual void ClearPipelineOutput() = 0;  // this is called in Clear()
 
-    virtual void UpdatePipelineOutput() = 0;       // this is called in the last step of Update()
+    virtual void UpdatePipelineOutput() = 0; // this is called in the last step of Update()
 
 private:
     ProcessObject(const ProcessObject&) = delete;  

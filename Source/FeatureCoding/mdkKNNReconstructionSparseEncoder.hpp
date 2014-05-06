@@ -358,11 +358,135 @@ ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,
 
 
 template<typename ElementType>
-bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<ElementType>& OutputCodeInDenseMatrix,
+DenseMatrix<ElementType> 
+KNNReconstructionSparseEncoder<ElementType>::
+ReconstructDataVector(const SparseVector<ElementType>& CodeInSparseColVector, const DenseMatrix<ElementType>& BasisMatrix)
+{
+    DenseMatrix<ElementType> ReconstructedDataVector;
+
+    KNNReconstructionSparseEncoder<ElementType>::ReconstructDataVector(ReconstructedDataVector, CodeInSparseColVector, BasisMatrix);
+}
+
+
+template<typename ElementType>
+void KNNReconstructionSparseEncoder<ElementType>::
+ReconstructDataVector(DenseMatrix<ElementType>&        ReconstructedDataVector,
+                      const SparseVector<ElementType>& CodeInSparseColVector, 
+                      const DenseMatrix<ElementType>&  BasisMatrix)
+{
+    int_max VectorLength = CodeInSparseColVector.GetLength();
+
+    const DenseMatrix<ElementType> CodeVector(const_cast<ElementType*>(CodeInSparseColVector.DataArray().data()), VectorLength, 1);
+
+    DenseMatrix<ElementType> KNNBasisMatrix = BasisMatrix.GetSubMatrix(ALL, CodeInSparseColVector.IndexList());
+
+    MatrixMultiply(ReconstructedDataVector, KNNBasisMatrix, CodeVector);
+}
+
+
+template<typename ElementType>
+DenseMatrix<ElementType>
+KNNReconstructionSparseEncoder<ElementType>::
+ReconstructDataMatrix(const DataContainer<SparseVector<ElementType>>& CodeInSparseColVectorSet, 
+                      const DenseMatrix<ElementType>&  BasisMatrix,
+                      int_max MaxNumberOfThreads)
+{
+    DenseMatrix<ElementType> ReconstructedDataMatrix;
+
+    KNNReconstructionSparseEncoder<ElementType>::ReconstructDataMatrix(ReconstructedDataMatrix, CodeInSparseColVectorSet, BasisMatrix, MaxNumberOfThreads);
+}
+
+
+template<typename ElementType>
+void KNNReconstructionSparseEncoder<ElementType>::
+ReconstructDataMatrix(DenseMatrix<ElementType>& ReconstructedDataMatrix,
+                      const DataContainer<SparseVector<ElementType>>& CodeInSparseColVectorSet, 
+                      const DenseMatrix<ElementType>&  BasisMatrix,
+                      int_max MaxNumberOfThreads)
+{
+    int_max DataNumber = CodeInSparseColVectorSet.GetLength();
+
+    int_max VectorLength = BasisMatrix.GetRowNumber();
+
+    ReconstructedDataMatrix.FastResize(VectorLength, DataNumber);
+
+    //for (int_max k = 0; k <= DataNumber-1; ++k)
+    auto TempFunction_ReconstructDataMatrix = [&](int_max k)
+    {
+        DenseMatrix<ElementType> ReconstructedDataVector;
+
+        ReconstructedDataVector.Share(ReconstructedDataMatrix.GetElementPointerOfCol(k), VectorLength, 1);
+
+        KNNReconstructionSparseEncoder<ElementType>::ReconstructDataVector(ReconstructedDataVector, CodeInSparseColVectorSet[k], BasisMatrix);
+    };
+
+    ParallelForLoop(TempFunction_ReconstructDataMatrix, 0, DataNumber - 1, MaxNumberOfThreads);
+}
+
+
+template<typename ElementType>
+ElementType 
+KNNReconstructionSparseEncoder<ElementType>::
+ComputeReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  DataColVector,
+                                 const SparseVector<ElementType>& CodeInSparseColVectorSet,
+                                 const DenseMatrix<ElementType>&  BasisMatrix)
+{
+    auto ReconstructedDataVector = KNNReconstructionSparseEncoder<ElementType>::ReconstructDataVector(CodeInSparseColVectorSet, BasisMatrix);
+
+    ReconstructedDataVector -= DataColVector;
+
+    return ReconstructedDataVector.L2Norm();
+}
+
+
+template<typename ElementType>
+DenseMatrix<ElementType>
+KNNReconstructionSparseEncoder<ElementType>::
+ComputeReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  FeatureData,
+                                 const DataContainer<SparseVector<ElementType>>& CodeInSparseColVectorSet,
+                                 const DenseMatrix<ElementType>&  BasisMatrix,
+                                 int_max MaxNumberOfThreads)
+{
+    DenseMatrix<ElementType> ErrorL2NormList;
+
+    KNNReconstructionSparseEncoder<ElementType>::ComputeReconstructionErrorL2Norm(ErrorL2NormList, FeatureData, 
+                                                                                  CodeInSparseColVectorSet, BasisMatrix, MaxNumberOfThreads);
+}
+
+
+template<typename ElementType>
+void KNNReconstructionSparseEncoder<ElementType>::
+ComputeReconstructionErrorL2Norm(DenseMatrix<ElementType>& ErrorL2NormList, 
+                                 const DenseMatrix<ElementType>&  FeatureData,
+                                 const DataContainer<SparseVector<ElementType>>& CodeInSparseColVectorSet,
+                                 const DenseMatrix<ElementType>&  BasisMatrix,
+                                 int_max MaxNumberOfThreads)
+{
+    int_max DataNumber = FeatureData.GetColNumber();
+    int_max VectorLength = FeatureData.GetRowNumber();
+
+    ErrorL2NormList.FastResize(1, DataNumber);
+
+    //for (int_max k = 0; k <= DataNumber-1; ++k)
+    auto TempFunction_ComputeReconstructionErrorL2Norm = [&](int_max k)
+    {
+        DenseMatrix<ElementType> DataColVector;
+
+        DataColVector.Share(FeatureData.GetElementPointerOfCol(k), VectorLength, 1);
+
+        ErrorL2NormList[k] = ComputeReconstructionErrorL2Norm(DataColVector, CodeInSparseColVectorSet[k], BasisMatrix);
+    };
+
+    ParallelForLoop(TempFunction_ComputeReconstructionErrorL2Norm, 0, DataNumber - 1, MaxNumberOfThreads);
+}
+
+
+template<typename ElementType>
+void KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<ElementType>& OutputCodeInDenseMatrix,
                                                         const DenseMatrix<ElementType>* FeatureData,
                                                         const FeatureDictionary<ElementType>* Dictionary,
                                                         const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,
-                                                        int_max MaxNumberOfThreads = 1)
+                                                        int_max MaxNumberOfThreads)
 {
     auto Encoder = std::make_unique<KNNReconstructionSparseEncoder<ElementType>>();
 
@@ -381,11 +505,11 @@ bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<ElementType>
 
 
 template<typename ElementType>
-bool KNNReconstructionSparseEncoder<ElementType>::Apply(SparseMatrix<ElementType>& OutputCodeInSparseMatrix,
+void KNNReconstructionSparseEncoder<ElementType>::Apply(SparseMatrix<ElementType>& OutputCodeInSparseMatrix,
                                                         const DenseMatrix<ElementType>* FeatureData,
                                                         const FeatureDictionary<ElementType>* Dictionary,
                                                         const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,
-                                                        int_max MaxNumberOfThreads = 1)
+                                                        int_max MaxNumberOfThreads)
 {
     auto Encoder = std::make_unique<KNNReconstructionSparseEncoder<ElementType>>();
 
@@ -404,11 +528,11 @@ bool KNNReconstructionSparseEncoder<ElementType>::Apply(SparseMatrix<ElementType
 
 
 template<typename ElementType>
-bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<SparseMatrix<ElementType>>& OutputCodeInSparseColVectorList,
+void KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<SparseMatrix<ElementType>>& OutputCodeInSparseColVectorSet,
                                                         const DenseMatrix<ElementType>* FeatureData,
                                                         const FeatureDictionary<ElementType>* Dictionary,
                                                         const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,
-                                                        int_max MaxNumberOfThreads = 1)
+                                                        int_max MaxNumberOfThreads)
 {
     auto Encoder = std::make_unique<KNNReconstructionSparseEncoder<ElementType>>();
 
@@ -418,7 +542,7 @@ bool KNNReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<SparseMatrix
 
     Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
 
-    Encoder->SetOutputCode(&OutputCodeInSparseColVectorList);;
+    Encoder->SetOutputCode(&OutputCodeInSparseColVectorSet);;
 
     Encoder->m_Parameter = Parameter;
 

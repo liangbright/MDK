@@ -28,12 +28,12 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::Clear()
 
     m_InitialDictionary = nullptr;
 
-    this->SetupDefaultPipelineOutput();
+    this->ClearPipelineOutput();
 }
 
 
 template<typename ElementType>
-void KNNAverageOnlineDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
+void KNNAverageOnlineDictionaryBuilder<ElementType>::ClearPipelineOutput()
 {
     m_Dictionary_SharedCopy.Clear();
     m_Dictionary = &m_Dictionary_SharedCopy;
@@ -428,10 +428,29 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateDictionaryInformation
 
 
 template<typename ElementType>
-void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
-                                                                       const DenseMatrix<ElementType>& FeatureData,
-                                                                       const DataContainer<SparseVector<ElementType>>& CodeTable,
-                                                                       const DenseMatrix<ElementType>& BasisExperience)
+void KNNAverageOnlineDictionaryBuilder<ElementType>::
+UpdateBasisMatrix(DenseMatrix<ElementType>&       BasisMatrix,
+                  const DenseMatrix<ElementType>& FeatureData,
+                  const DataContainer<SparseVector<ElementType>>& CodeTable,
+                  const DenseMatrix<ElementType>& BasisExperience)
+{
+    if (m_Parameter.WhetherToUseScaleFactor == true)
+    {
+        this->UpdateBasisMatrix_UseScaleFactor(BasisMatrix, FeatureData, CodeTable, BasisExperience);
+    }
+    else
+    {
+        this->UpdateBasisMatrix_NoScaleFactor(BasisMatrix, FeatureData, CodeTable, BasisExperience);
+    }
+}
+
+
+template<typename ElementType>
+void KNNAverageOnlineDictionaryBuilder<ElementType>::
+UpdateBasisMatrix_UseScaleFactor(DenseMatrix<ElementType>&       BasisMatrix,
+                                 const DenseMatrix<ElementType>& FeatureData,
+                                 const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                 const DenseMatrix<ElementType>& BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
     int_max VectorLength = FeatureData.GetRowNumber();
@@ -513,17 +532,70 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateBasisMatrix(DenseMatr
                 {
                     auto BasisIndex = BasisIndexList[n];
 
-                    auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(BasisIndex);
-
-                    auto CodeElement = ReconstructionCodeVector[n];
-
-                    if (CodeElement > eps_value && CodeElement > eps_value*SquaredL2NormOfReconstructionCodeVector)
+                    if (SquaredL2NormOfReconstructionCodeVector > eps_value*Basis_Basis_InnerProductList[BasisIndex])
                     {
-                        TempFunction_BasisUpdate(BasisVectorPtr, DataVectorPtr, VectorLength, 
-                                                 CodeElement, SquaredL2NormOfReconstructionCodeVector, 
-                                                 BasisExperience[BasisIndex]);
-                    }// else CodeElement = 0, no update
+                        auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(BasisIndex);
+
+                        auto CodeElement = ReconstructionCodeVector[n];
+
+                        if (CodeElement > eps_value)
+                        {
+                            TempFunction_BasisUpdate(BasisVectorPtr, DataVectorPtr, VectorLength,
+                                                     CodeElement, SquaredL2NormOfReconstructionCodeVector,
+                                                     BasisExperience[BasisIndex]);
+                        }// else CodeElement = 0, no update
+                    }
                 }
+            }
+        }
+    }
+
+    this->ApplyConstraintOnBasis(BasisMatrix);
+}
+
+
+template<typename ElementType>
+void KNNAverageOnlineDictionaryBuilder<ElementType>::
+UpdateBasisMatrix_NoScaleFactor(DenseMatrix<ElementType>&       BasisMatrix,
+                                const DenseMatrix<ElementType>& FeatureData,
+                                const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                const DenseMatrix<ElementType>& BasisExperience)
+{
+    int_max DataNumber = FeatureData.GetColNumber();
+    int_max VectorLength = FeatureData.GetRowNumber();
+
+    int_max BasisNumber = BasisMatrix.GetColNumber();
+
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+
+    // temp function for basis update
+
+    auto TempFunction_BasisUpdate = [](ElementType* BasisVector, const ElementType* DataVector, int_max VectorLength, ElementType ExperienceOfBasis)
+    {
+        for (int_max k = 0; k < VectorLength; ++k)
+        {
+            auto Error = DataVector[k] - BasisVector[k];
+            BasisVector[k] += Error / ExperienceOfBasis;
+        }
+    };
+
+    for (int_max k = 0; k < DataNumber; ++k)//k
+    {
+        auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
+
+        const std::vector<int_max>& BasisIndexList = CodeTable[k].IndexList();
+
+        int_max NeighbourNumber_k = int_max(BasisIndexList.size());
+
+        if (NeighbourNumber_k > 0)
+        {
+            for (int_max n = 0; n < NeighbourNumber_k; ++n)//n
+            {
+                auto BasisIndex = BasisIndexList[n];
+
+                auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(BasisIndex);
+
+                TempFunction_BasisUpdate(BasisVectorPtr, DataVectorPtr, VectorLength, BasisExperience[BasisIndex]);
             }
         }
     }

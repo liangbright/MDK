@@ -39,7 +39,7 @@ public:
 protected:
     virtual void GenerateDictionary() = 0;
 
-    virtual void SetupDefaultPipelineOutput() = 0;
+    virtual void ClearPipelineOutput() = 0;
 
     virtual void UpdatePipelineOutput() = 0;
 

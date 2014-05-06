@@ -85,7 +85,7 @@ protected:
 
     int_max GetTotalNumberOfInputFeatureDataVectors();
 
-    void SetupDefaultPipelineOutput();
+    void ClearPipelineOutput();
 
     void UpdatePipelineOutput();
 

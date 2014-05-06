@@ -18,7 +18,7 @@ namespace mdk
 {
 
 // This is a memory efficient implementation of Sparse Vector
-// It can be used in sparse coding
+// It is used in sparse coding
 
 template<typename ElementType>
 class SparseVector : public Object

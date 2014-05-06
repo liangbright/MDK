@@ -28,12 +28,12 @@ void KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::Clear()
 
     m_InitialDictionary = nullptr;
 
-    this->SetupDefaultPipelineOutput();
+    this->ClearPipelineOutput();
 }
 
 
 template<typename ElementType>
-void KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
+void KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::ClearPipelineOutput()
 {
     m_Dictionary_SharedCopy.Clear();
     m_Dictionary = &m_Dictionary_SharedCopy;
@@ -451,9 +451,11 @@ BuildDictionaryFromData(const int_max BasisNumber_desired,
             BasisExperience.Fill(ElementType(1));
         }
 
+        this->ApplyConstraintOnBasis(BasisMatrix);
+
         DenseMatrix<int_max> VectorIndexList_Basis = span(0, BasisMatrix.GetColNumber()-1);
 
-        auto CodeTable = this->EncodeFeatureData(VectorSimilarityMatrix, VectorIndexList_Basis, BasisNumber_init);
+        auto CodeTable = this->EncodeFeatureDataBySimilarity(VectorSimilarityMatrix, VectorIndexList_Basis, BasisNumber_init);
 
         this->UpdateDictionaryInformation(Dictionary, FeatureData, CodeTable,
                                           VectorSimilarityMatrix, VectorIndexList_Basis, Dictionary_init);
@@ -506,15 +508,15 @@ BuildDictionaryFromData(const int_max BasisNumber_desired,
 
     this->ApplyConstraintOnBasis(BasisMatrix);
     
-    // ----- Write BasisMatrix into Dictionary -----------------------------------------//
+    // ----- Write BasisMatrix into Dictionary -------------------------------------------------//
 
     Dictionary.BasisMatrix().Take(BasisMatrix);
 
-    // -------- get KNNBasisVectorIndexTable (i.e., encode FeatureData) -----------------------//
+    // -------- encode FeatureData : code element is Similarity, not membership ------------------//
 
-    auto CodeTable = this->EncodeFeatureData(VectorSimilarityMatrix, VectorIndexList_Basis, BasisNumber_init);
+    auto CodeTable = this->EncodeFeatureDataBySimilarity(VectorSimilarityMatrix, VectorIndexList_Basis, BasisNumber_init);
 
-    // --------------- Update DictionaryInformation ------------------------------//
+    // --------------- Update DictionaryInformation --------------------------------------------//
 
     this->UpdateDictionaryInformation(Dictionary, FeatureData, CodeTable, 
                                       VectorSimilarityMatrix, VectorIndexList_Basis, Dictionary_init);
@@ -831,7 +833,7 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
 
     //--------------------------------------------------------------------------------------------------------------
 
-    if (Dictionary_init.IsEmpty() == true)
+    if (Dictionary_init.SimilarityMatrix().IsEmpty() == true)
     {
         int_max TotalVectorNumber = FeatureData.GetColNumber();
 
@@ -1273,13 +1275,10 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
 
     //--------------------- update Variance Information ----------------------------//
     // use initial BasisExperience
-    //
-
-    if (m_Parameter.Update_Variance == true)
-    {
-        this->UpdateDictionaryInformation_Variance(Dictionary, FeatureData, CodeTable,
-                                                   VectorSimilarityMatrix, VectorIndexList_Basis, Dictionary_init);
-    }
+    
+    this->UpdateDictionaryInformation_Variance(Dictionary, FeatureData, CodeTable,
+                                               VectorSimilarityMatrix, VectorIndexList_Basis, Dictionary_init);
+    
 
     //--------------------- update BasisExperience -----------------------------//
 
@@ -1364,14 +1363,14 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
 
         //----- initialize VarianceOfL1Distance 
 
-        auto MeanStd_L1Distance = ElementType(0);
+        auto MeanVar_L1Distance = ElementType(0);
         if (VarianceOfL1Distance_init.IsEmpty() == false)
         {
-            MeanStd_L1Distance = VarianceOfL1Distance_init.Mean();
+            MeanVar_L1Distance = VarianceOfL1Distance_init.Mean();
         }
         else
         {
-            MeanStd_L1Distance = m_Parameter.ParameterOfKNNSoftAssign.Variance_L1;
+            MeanVar_L1Distance = m_Parameter.ParameterOfKNNSoftAssign.Variance_L1;
         }
 
         for (int_max k = 0; k < BasisNumber; ++k)
@@ -1384,20 +1383,20 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
             }
             else
             {
-                VarianceOfL1Distance[k] = MeanStd_L1Distance;
+                VarianceOfL1Distance[k] = MeanVar_L1Distance;
             }
         }
 
         //----- initialize VarianceOfL2Distance 
 
-        auto MeanStd_L2Distance = ElementType(0);
+        auto MeanVar_L2Distance = ElementType(0);
         if (VarianceOfL2Distance_init.IsEmpty() == false)
         {
-            MeanStd_L2Distance = VarianceOfL2Distance_init.Mean();
+            MeanVar_L2Distance = VarianceOfL2Distance_init.Mean();
         }
         else
         {
-            MeanStd_L2Distance = m_Parameter.ParameterOfKNNSoftAssign.Variance_L2;
+            MeanVar_L2Distance = m_Parameter.ParameterOfKNNSoftAssign.Variance_L2;
         }
 
         for (int_max k = 0; k < BasisNumber; ++k)
@@ -1410,7 +1409,7 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
             }
             else
             {
-                VarianceOfL2Distance[k] = MeanStd_L2Distance;
+                VarianceOfL2Distance[k] = MeanVar_L2Distance;
             }
         }
 
@@ -1418,14 +1417,14 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
 
         if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == VectorSimilarityTypeEnum::KLDivergence)
         {
-            auto MeanStd_KLDivergence = ElementType(0);
+            auto MeanVar_KLDivergence = ElementType(0);
             if (VarianceOfKLDivergence_init.IsEmpty() == false)
             {
-                MeanStd_KLDivergence = VarianceOfKLDivergence_init.Mean();
+                MeanVar_KLDivergence = VarianceOfKLDivergence_init.Mean();
             }
             else
             {
-                MeanStd_KLDivergence = m_Parameter.ParameterOfKNNSoftAssign.Variance_KL;
+                MeanVar_KLDivergence = m_Parameter.ParameterOfKNNSoftAssign.Variance_KL;
             }
 
             for (int_max k = 0; k < BasisNumber; ++k)
@@ -1438,7 +1437,7 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
                 }
                 else
                 {
-                    VarianceOfKLDivergence[k] = MeanStd_KLDivergence;
+                    VarianceOfKLDivergence[k] = MeanVar_KLDivergence;
                 }
             }
         }
@@ -1447,14 +1446,14 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
 
         if (m_Parameter.Update_VarianceOfReconstruction_Using_KNNBasisMatrix == true)
         {
-            auto MeanStd_Reconstruction = ElementType(0);
+            auto MeanVar_Reconstruction = ElementType(0);
             if (VarianceOfReconstruction_init.IsEmpty() == false)
             {
-                MeanStd_Reconstruction = VarianceOfReconstruction_init.Mean();
+                MeanVar_Reconstruction = VarianceOfReconstruction_init.Mean();
             }
             else
             {
-                MeanStd_Reconstruction = m_Parameter.ParameterOfKNNSoftAssign.Variance_L2;
+                MeanVar_Reconstruction = m_Parameter.ParameterOfKNNSoftAssign.Variance_L2;
             }
 
             for (int_max k = 0; k < BasisNumber; ++k)
@@ -1467,33 +1466,36 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
                 }
                 else
                 {
-                    VarianceOfReconstruction[k] = MeanStd_Reconstruction;
+                    VarianceOfReconstruction[k] = MeanVar_Reconstruction;
                 }
             }
         }
     }
     else// Dictionary_init is empty
     {
-        VarianceOfL1Distance.Clear();
-        VarianceOfL2Distance.Clear();
-        VarianceOfKLDivergence.Clear();
-        VarianceOfReconstruction.Clear();
+        VarianceOfL1Distance.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L1);
+        VarianceOfL2Distance.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
+        VarianceOfKLDivergence.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_KL);
+        VarianceOfReconstruction.Fill(m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
     }
 
     //----------- update Variance ----------------------------------------------------//
 
-    this->UpdateVarianceOfL1Distance(VarianceOfL1Distance, FeatureData, CodeTable, BasisMatrix, BasisExperience);
-
-    this->UpdateVarianceOfL2Distance(VarianceOfL2Distance, FeatureData, CodeTable, BasisMatrix, BasisExperience);
-
-    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == VectorSimilarityTypeEnum::KLDivergence)
+    if (m_Parameter.Update_Variance == true)
     {
-        this->UpdateVarianceOfKLDivergence(VarianceOfKLDivergence, FeatureData, CodeTable, BasisMatrix, BasisExperience);
-    }
+        this->UpdateVarianceOfL1Distance(VarianceOfL1Distance, FeatureData, CodeTable, BasisMatrix, BasisExperience);
 
-    if (m_Parameter.Update_VarianceOfReconstruction_Using_KNNBasisMatrix == true)
-    {
-        this->UpdateVarianceOfReconstruction(VarianceOfReconstruction, FeatureData, CodeTable, BasisMatrix, BasisExperience);
+        this->UpdateVarianceOfL2Distance(VarianceOfL2Distance, FeatureData, CodeTable, BasisMatrix, BasisExperience);
+
+        if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == VectorSimilarityTypeEnum::KLDivergence)
+        {
+            this->UpdateVarianceOfKLDivergence(VarianceOfKLDivergence, FeatureData, CodeTable, BasisMatrix, BasisExperience);
+        }
+
+        if (m_Parameter.Update_VarianceOfReconstruction_Using_KNNBasisMatrix == true)
+        {
+            this->UpdateVarianceOfReconstruction(VarianceOfReconstruction, FeatureData, CodeTable, BasisMatrix, BasisExperience);
+        }
     }
 }
 
@@ -1501,9 +1503,9 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
 template<typename ElementType>
 DataContainer<SparseVector<ElementType>> 
 KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
-EncodeFeatureData(const DenseMatrix<ElementType>& VectorSimilarityMatrix,
-                  const DenseMatrix<int_max>&     VectorIndexList_Basis,
-                  int_max BasisNumber_init)
+EncodeFeatureDataBySimilarity(const DenseMatrix<ElementType>& VectorSimilarityMatrix,
+                              const DenseMatrix<int_max>&     VectorIndexList_Basis,
+                              int_max BasisNumber_init)
 {
     int_max BasisNumber = VectorIndexList_Basis.GetElementNumber();
 
@@ -1717,21 +1719,21 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
         Variance.Take(Variance_current);
     }
 
-    auto MeanStd = Variance.Mean();
+    auto MeanVar = Variance.Mean();
 
-    if (MeanStd <= eps_value)
+    if (MeanVar <= eps_value)
     {
-        MDK_Warning("MeanStd <= eps_value @ KNNBasisSelectionOnlineDictionaryBuilder::UpdateVarianceOfL1Distance(...)"
+        MDK_Warning("MeanVar <= eps_value @ KNNBasisSelectionOnlineDictionaryBuilder::UpdateVarianceOfL1Distance(...)"
                     << '\n' << "set to std::max(eps_value, ParameterOfKNNSoftAssign.Variance_L1)")
 
-        MeanStd = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_L1);
+        MeanVar = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_L1);
     }
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (Variance[n] <= MeanStd)
+        if (Variance[n] <= MeanVar)
         {
-            Variance[n] = MeanStd;
+            Variance[n] = MeanVar;
         }
     }
 }
@@ -1812,21 +1814,21 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
         Variance.Take(Variance_current);
     }
 
-    auto MeanStd = Variance.Mean();
+    auto MeanVar = Variance.Mean();
 
-    if (MeanStd <= eps_value)
+    if (MeanVar <= eps_value)
     {
-        MDK_Warning("MeanStd <= eps_value @ KNNBasisSelectionOnlineDictionaryBuilder::UpdateVarianceOfL2Distance(...)"
+        MDK_Warning("MeanVar <= eps_value @ KNNBasisSelectionOnlineDictionaryBuilder::UpdateVarianceOfL2Distance(...)"
                     << '\n' << "set to std::max(eps_value, ParameterOfKNNSoftAssign.Variance_L2)");
 
-        MeanStd = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
+        MeanVar = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
     }
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (Variance[n] <= MeanStd)
+        if (Variance[n] <= MeanVar)
         {
-            Variance[n] = MeanStd;
+            Variance[n] = MeanVar;
         }
     }
 }
@@ -1907,21 +1909,21 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
         Variance.Take(Variance_current);
     }
 
-    auto MeanStd = Variance.Mean();
+    auto MeanVar = Variance.Mean();
 
-    if (MeanStd <= eps_value)
+    if (MeanVar <= eps_value)
     {
-        MDK_Warning("MeanStd <= eps_value @ KNNBasisSelectionOnlineDictionaryBuilder::UpdateVarianceOfKLDivergence(...)"
+        MDK_Warning("MeanVar <= eps_value @ KNNBasisSelectionOnlineDictionaryBuilder::UpdateVarianceOfKLDivergence(...)"
                      << '\n' << "set to std::max(eps_value, ParameterOfKNNSoftAssign.Variance_KL)");
 
-        MeanStd = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_KL);
+        MeanVar = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_KL);
     }
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (Variance[n] <= MeanStd)
+        if (Variance[n] <= MeanVar)
         {
-            Variance[n] = MeanStd;
+            Variance[n] = MeanVar;
         }
     }
 }
@@ -1998,21 +2000,21 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
         Variance.Take(Variance_current);
     }
 
-    auto MeanStd = Variance.Mean();
+    auto MeanVar = Variance.Mean();
 
-    if (MeanStd <= eps_value)
+    if (MeanVar <= eps_value)
     {
-        MDK_Warning("MeanStd <= eps_value @ KNNBasisSelectionOnlineDictionaryBuilder::UpdateVarianceOfReconstruction(...)"
+        MDK_Warning("MeanVar <= eps_value @ KNNBasisSelectionOnlineDictionaryBuilder::UpdateVarianceOfReconstruction(...)"
                      << '\n' << "set to std::max(eps_value, ParameterOfKNNSoftAssign.Variance_L2)")
 
-        MeanStd = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
+        MeanVar = std::max(eps_value, m_Parameter.ParameterOfKNNSoftAssign.Variance_L2);
     }
 
     for (int_max n = 0; n < BasisNumber; ++n)
     {
-        if (Variance[n] <= MeanStd)
+        if (Variance[n] <= MeanVar)
         {
-            Variance[n] = MeanStd;
+            Variance[n] = MeanVar;
         }
     }
 }

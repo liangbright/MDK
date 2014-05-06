@@ -28,12 +28,12 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::Clear()
 
     m_InitialDictionary = nullptr;
 
-    this->SetupDefaultPipelineOutput();
+    this->ClearPipelineOutput();
 }
 
 
 template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
+void KNNReconstructionOnlineDictionaryBuilder<ElementType>::ClearPipelineOutput()
 {
     m_Dictionary_SharedCopy.Clear();
     m_Dictionary = &m_Dictionary_SharedCopy;

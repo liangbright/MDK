@@ -125,7 +125,7 @@ protected:
 
     virtual void GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadIndex);
 
-    virtual void SetupDefaultPipelineOutput();
+    virtual void ClearPipelineOutput();
 
     virtual void UpdatePipelineOutput();
 

@@ -28,12 +28,12 @@ void KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::Clear()
 
     m_InputDictionary = nullptr;
 
-    this->SetupDefaultPipelineOutput();
+    this->ClearPipelineOutput();
 }
 
 
 template<typename ElementType>
-void KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::SetupDefaultPipelineOutput()
+void KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::ClearPipelineOutput()
 {
     m_Dictionary_SharedCopy.Clear();
     m_Dictionary = &m_Dictionary_SharedCopy;

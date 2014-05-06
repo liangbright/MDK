@@ -140,15 +140,15 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
         MaxNumberOfThreads = 1;
 
-        Update_BasisID  = false;
+        Update_BasisID  = false; // new basis ID = 0
 
-        Update_BasisAge = false;
+        Update_BasisAge = false; // new basis age = 0
 
-        Update_Variance = false;
+        Update_Variance = false; // Variance at new basis is initial value from ParameterOfKNNSoftAssign
 
         Update_VarianceOfReconstruction_Using_KNNBasisMatrix = false;
 
-        Update_BasisExperience  = false;
+        Update_BasisExperience  = false; // new basis Experience = 1
 
         Update_SimilarityMatrix = true;
 
@@ -200,7 +200,7 @@ public:
 
 protected:
 
-    void SetupDefaultPipelineOutput();
+    void ClearPipelineOutput();
 
     void UpdatePipelineOutput();
 
@@ -247,9 +247,9 @@ protected:
 
     void ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix);
 
-    DataContainer<SparseVector<ElementType>> EncodeFeatureData(const DenseMatrix<ElementType>& VectorSimilarityMatrix,
-                                                               const DenseMatrix<int_max>&     VectorIndexList_Basis,
-                                                               int_max BasisNumber_init);
+    DataContainer<SparseVector<ElementType>> EncodeFeatureDataBySimilarity(const DenseMatrix<ElementType>& VectorSimilarityMatrix,
+                                                                           const DenseMatrix<int_max>&     VectorIndexList_Basis,
+                                                                           int_max BasisNumber_init);
 
     void UpdateBasisExperience(DenseMatrix<ElementType>& BasisExperience, const DataContainer<SparseVector<ElementType>>& CodeTable);
 
