@@ -43,7 +43,7 @@ void Test_FindKNNByDistanceList()
 
     int_max K = 10;
 
-    auto NeighbourIndexList = FindKNNByDistanceList(K, DistanceList);
+    auto NeighbourIndexList = FindKNNByDistanceList(DistanceList, K);
 
     DisplayMatrix<int_max>("NeighbourIndexList", NeighbourIndexList);
 

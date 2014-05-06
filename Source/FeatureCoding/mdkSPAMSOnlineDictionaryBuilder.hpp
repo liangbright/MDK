@@ -44,6 +44,13 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::SetInputFeatureData(const DenseM
 //---------------------------------------------------//
 
 template<typename ElementType>
+void SPAMSOnlineDictionaryBuilder<ElementType>::SetInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary)
+{
+    m_InitialDictionary = Dictionary;
+}
+
+
+template<typename ElementType>
 void SPAMSOnlineDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* OutputDictionary)
 {
     if (OutputDictionary == nullptr)
@@ -117,6 +124,39 @@ bool SPAMSOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
+    if (m_Parameter.mode < 0) // use MDK sparse encoder (e.g., KNNReconstructionSparseEncoder)
+    {
+        if (m_InitialDictionary == nullptr)
+        {
+            MDK_Error("m_InitialDictionary is empty (nullptr) and m_Parameter.mode < 0 @ SPAMSOnlineDictionaryBuilder::CheckInput()")
+            return false;
+        }
+
+        if (m_InitialDictionary->IsEmpty() == true)
+        {
+            MDK_Error("m_InitialDictionary is empty and m_Parameter.mode < 0 @ SPAMSOnlineDictionaryBuilder::CheckInput()")
+            return false;
+        }
+
+        if (m_Parameter.modeD == 3 && m_Parameter.gamma1 == ElementType(1))
+        {
+            if (m_InitialDictionary->GetProperty_BasisNormalizedWithL1Norm() == false)
+            {
+                MDK_Error("Basis is NOT Normalized With L1 Norm in m_InitialDictionary" << '\n'
+                          << "and m_Parameter.mode < 0 and m_Parameter.modeD == 3 and m_Parameter.gamma1 == 1" << '\n'
+                          << "@ SPAMSOnlineDictionaryBuilder::CheckInput()")
+                return false;
+            }
+        }
+
+        if (m_Parameter.posD != m_InitialDictionary->GetProperty_BasisPositive())
+        {
+            MDK_Error("m_Parameter.posD != m_InitialDictionary->GetProperty_BasisPositive()" << '\n'               
+                      << "@ SPAMSOnlineDictionaryBuilder::CheckInput()")
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -187,27 +227,7 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
     }
     else
     {
-        DenseMatrix<ElementType> InitialVarianceOfReconstruction(1, m_Parameter.K);
-
-        if (m_State.StandardDiviation.IsEmpty())
-        {
-            InitialVarianceOfReconstruction.Fill(ElementType(m_FeatureData->GetRowNumber()));
-
-            m_State.StandardDiviation = InitialVarianceOfReconstruction;
-        }
-        else
-        {
-            InitialVarianceOfReconstruction = m_State.VarianceOfReconstruction;
-        }        
-
-        Infomation_Of_FeatureDictionaryForSparseCoding DictionaryInfo;
-
-        if (m_Parameter.modeD == 3 && m_Parameter.gamma1 == ElementType(1))
-        {
-            DictionaryInfo.BasisSumToOne = true;
-        }
-
-        trainer->train_extended(*X, param, m_State.VarianceOfReconstruction, m_SparseEncoder, DictionaryInfo, InitialVarianceOfReconstruction);
+        trainer->train_extended(*X, param, m_SparseEncoder, *m_InitialDictionary);
     }
 
     //---------------------------------------------------------
@@ -234,13 +254,7 @@ void SPAMSOnlineDictionaryBuilder<ElementType>::ClearPipelineOutput()
 template<typename ElementType>
 void SPAMSOnlineDictionaryBuilder<ElementType>::UpdatePipelineOutput()
 {
-    DenseMatrix<ElementType>& D = m_Dictionary->BasisMatrix();
-
-    D.Share(m_State.D);
-
-    DenseMatrix<ElementType>& V = m_Dictionary->VarianceOfReconstruction();
-
-    V.Share(m_State.VarianceOfReconstruction);
+    m_Dictionary->BasisMatrix().Copy(m_State.D);
 
     if (m_Dictionary != &m_Dictionary_SharedCopy)
     {

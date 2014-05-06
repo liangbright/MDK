@@ -145,8 +145,6 @@ struct State_Of_SPAMSOnlineDictionaryBuilder  // D and model in [D model] = mexT
     DenseMatrix<ElementType> B;
     DenseMatrix<ElementType> D;
 
-    DenseMatrix<ElementType> VarianceOfReconstruction;
-
 //-----------------------------------------------------------------------------------------------
     State_Of_SPAMSOnlineDictionaryBuilder(){};
 
@@ -199,6 +197,8 @@ protected:
 
     State_Of_SPAMSOnlineDictionaryBuilder<ElementType> m_State;
 
+    const FeatureDictionaryForSparseCoding<ElementType>* m_InitialDictionary;
+
     FeatureDictionaryForSparseCoding<ElementType>* m_Dictionary;
 
     FeatureDictionaryForSparseCoding<ElementType> m_Dictionary_SharedCopy;
@@ -214,6 +214,8 @@ public:
     void SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
 
     void SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* Dictionary);
+
+    void SetInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary);
 
     void SetInitialState(State_Of_SPAMSOnlineDictionaryBuilder<ElementType> InitialState); //copy value
 

@@ -22,35 +22,44 @@ set(Eigen_DIR "C:/Research/MDK/eigen")
 
 set(Spams_DIR "C:/Research/MDK/spams")
 
+set(qpOASES_DIR "C:/Research/MDK/qpOASES")
+
 include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR} 
 ${MDK_DIR}/Debug
 ${MDK_DIR}/Common
+${MDK_DIR}/String
+${MDK_DIR}/FileIO
+${MDK_DIR}/Multithreading
 ${MDK_DIR}/LinearAlgebra/Common
 ${MDK_DIR}/LinearAlgebra/DenseMatrix
 ${MDK_DIR}/LinearAlgebra/SparseMatrix
+${MDK_DIR}/LinearAlgebra/SparseVector
+${MDK_DIR}/Optimization
 ${MDK_DIR}/FeatureCoding
 ${Arma_DIR} 
 ${Lapack_Blas_DIR}
 ${Eigen_DIR}
 ${Spams_DIR}
+${qpOASES_DIR}
 )
 
 set(MDK_CPP_FILES 
 ${MDK_DIR}/Common/mdkObject.cpp
-${MDK_DIR}/LinearAlgebra/Common/mdkMatrix_Common.cpp
 )
+
+FILE(GLOB qpOASES_CCP_FILES C:/Research/MDK/qpOASES/qpOASES/*.cpp)
 
 set(LinearALgebraLib_win64 
 C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/lapack_win64_MT.lib  
 C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/blas_win64_MT.lib
 )
 
-set(VTK_DIR C:/Programs/VTK/VTK_6.1_VC2013_Build)
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
+find_package(ITK REQUIRED)
+include(${ITK_USE_FILE})
 
-find_package(Qt5Widgets)
+set(CMAKE_AUTOMOC ON)
+find_package(Qt5Widgets REQUIRED QUIET)
 
 set(OpenCV_DIR C:/Programs/OpenCV/VC2013_build)
 find_package(OpenCV REQUIRED)
@@ -59,6 +68,8 @@ FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
 message(STATUS ${Test_FILES})
 
-add_executable(MDK_Test_SPAMSSparseEncoder ${Test_FILES} ${MDK_CPP_FILES})
+add_executable(MDK_Test_SPAMSSparseEncoder ${Test_FILES} ${MDK_CPP_FILES} ${qpOASES_CCP_FILES})
 
-target_link_libraries(MDK_Test_SPAMSSparseEncoder ${LinearALgebraLib_win64} ${VTK_LIBRARIES} ${OpenCV_LIBS})
+qt5_use_modules(MDK_Test_SPAMSSparseEncoder Core)
+
+target_link_libraries(MDK_Test_SPAMSSparseEncoder ${LinearALgebraLib_win64} ${ITK_LIBRARIES} ${OpenCV_LIBS})

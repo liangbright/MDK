@@ -141,7 +141,7 @@ public:
 protected:
     bool CheckInput();
 
-    void SetupDefaultPipelineOutput();
+    void ClearPipelineOutput();
 
     void UpdatePipelineOutput();
 

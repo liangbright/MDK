@@ -1,7 +1,6 @@
 #ifndef __mdkSPAMSSparseEncoder_hpp
 #define __mdkSPAMSSparseEncoder_hpp
 
-//#include "mdkSPAMSSparseEncoder.h"
 
 namespace mdk
 {
@@ -135,16 +134,14 @@ void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfDa
 
         std::vector<ElementType> DataArray(tempS.rawX(), tempS.rawX() + int_max(tempS.nzmax()));
 
-        (*m_CodeInSparseColVectorSet)[i].ConstructWithOrder(std::move(RowIndexList), std::move(DataArray), CodeLength);
+        (*m_CodeInSparseColVectorSet)[i].ConstructFromSortedData(std::move(RowIndexList), std::move(DataArray), CodeLength);
     }
 }
 
 
 template<typename ElementType>
 inline
-void SPAMSSparseEncoder<ElementType>::EncodingFunction(SparseVector<ElementType>& CodeInSparseColVector,
-                                                       const DenseMatrix<ElementType>& DataColVector, 
-                                                       int_max ThreadIndex)
+void SPAMSSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex, int_max ThreadIndex)
 {
     MDK_Error("This function is not implemented @ SPAMSSparseEncoder::EncodingFunction(...)")
 }

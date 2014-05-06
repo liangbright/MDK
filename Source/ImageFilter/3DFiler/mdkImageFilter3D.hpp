@@ -31,7 +31,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Clear()
 
 	m_Input3DPositionList = nullptr;
 
-    this->SetupDefaultPipelineOutput();
+    this->ClearPipelineOutput();
 
     m_Flag_OutputImage = true; // default to output image with the same size 
 
@@ -58,7 +58,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Clear()
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::SetupDefaultPipelineOutput()
+void ImageFilter3D<InputPixelType, OutputPixelType>::ClearPipelineOutput()
 {
     m_OutputImage_SharedCopy.Clear();
 

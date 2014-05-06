@@ -87,17 +87,12 @@ public:
 
     bool CheckInput();
 
-    //--------------------------------------------------------------------------------
-
-    using FeatureDictionaryBasedSparseEncoder::EncodingFunction;
-
-    inline void EncodingFunction(SparseVector<ElementType>& CodeInSparseColVector, const DenseMatrix<ElementType>& DataColVector, int_max ThreadIndex);
-
     //---------------------------------------------------------------------------------
 
 protected:
-    void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end, int_max ThreadIndex);
+    void GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadIndex);
 
+    inline void EncodingFunction(int_max DataIndex, int_max ThreadIndex);
 
 private:
 //deleted:
