@@ -143,6 +143,12 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
+    if (m_Parameter.MaxNumberOfInterations < 0)
+    {
+        MDK_Error("MaxNumberOfInterations < 0 @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
+        return false;
+    }
+
     if (m_Parameter.ParameterOfKNNReconstruction.SimilarityType != VectorSimilarityTypeEnum::L1Distance
         && m_Parameter.ParameterOfKNNReconstruction.SimilarityType != VectorSimilarityTypeEnum::L2Distance
         && m_Parameter.ParameterOfKNNReconstruction.SimilarityType != VectorSimilarityTypeEnum::Correlation
@@ -233,12 +239,15 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 
     if (m_Parameter.MaxNumberOfDataInEachBatch >= TotalDataNumber)
     {
-        m_KNNReconstructionSparseEncoder.SetInputFeatureData(m_FeatureData);
-        m_KNNReconstructionSparseEncoder.SetInputDictionary(&OutputDictionary);
-        m_KNNReconstructionSparseEncoder.Update();
-        auto CodeTable = m_KNNReconstructionSparseEncoder.GetOutputCodeInSparseColVectorSet();
+        for (int_max k = 0; k < m_Parameter.MaxNumberOfInterations; ++k)
+        {
+            m_KNNReconstructionSparseEncoder.SetInputFeatureData(m_FeatureData);
+            m_KNNReconstructionSparseEncoder.SetInputDictionary(&OutputDictionary);
+            m_KNNReconstructionSparseEncoder.Update();
+            auto CodeTable = m_KNNReconstructionSparseEncoder.GetOutputCodeInSparseColVectorSet();
 
-        this->UpdateDictionary(OutputDictionary, *m_FeatureData, *CodeTable);
+            this->UpdateDictionary(OutputDictionary, *m_FeatureData, *CodeTable);
+        }
     }
     else
     {
@@ -256,8 +265,6 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
         // 0 : used
 
         DenseMatrix<ElementType> FeatureData_current;
-
-        DenseMatrix<ElementType> ReconstructedData_current;
 
         int_max NumberOfDataInNextBatch = m_Parameter.MaxNumberOfDataInEachBatch;
 
@@ -287,12 +294,15 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
                 }
             }
 
-            m_KNNReconstructionSparseEncoder.SetInputFeatureData(&FeatureData_current);
-            m_KNNReconstructionSparseEncoder.SetInputDictionary(&OutputDictionary);
-            m_KNNReconstructionSparseEncoder.Update();
-            auto CodeTable = m_KNNReconstructionSparseEncoder.GetOutputCodeInSparseColVectorSet();
+            for (int_max k = 0; k < m_Parameter.MaxNumberOfInterations; ++k)
+            {
+                m_KNNReconstructionSparseEncoder.SetInputFeatureData(&FeatureData_current);
+                m_KNNReconstructionSparseEncoder.SetInputDictionary(&OutputDictionary);
+                m_KNNReconstructionSparseEncoder.Update();
+                auto CodeTable = m_KNNReconstructionSparseEncoder.GetOutputCodeInSparseColVectorSet();
 
-            this->UpdateDictionary(OutputDictionary, FeatureData_current, *CodeTable);
+                this->UpdateDictionary(OutputDictionary, FeatureData_current, *CodeTable);
+            }
 
             // update NumberOfDataInNextBatch
 

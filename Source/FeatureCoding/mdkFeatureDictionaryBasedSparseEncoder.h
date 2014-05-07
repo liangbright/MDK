@@ -41,7 +41,7 @@ protected:
 
     DataContainer<SparseVector<ElementType>>* m_CodeInSparseColVectorSet; // computed in GenerateCode_in_a_Thread(...)
 
-private:
+protected:
 
     DenseMatrix<ElementType>  m_CodeInDenseMatrix_SharedCopy;
 
@@ -97,10 +97,6 @@ public:
 
     virtual bool CheckInput();
 
-    virtual bool Preprocess();
-
-    virtual bool Postprocess();
-
     virtual bool Update();
 
     //----------------------------------------------------//
@@ -120,6 +116,10 @@ protected:
     int_max GetMinNumberOfDataPerThread();
 
     int_max GetTotalNumberOfInputFeatureDataVectors();
+
+    virtual bool Preprocess();
+
+    virtual bool Postprocess();
 
     virtual void EncodingFunction(int_max DataIndex, int_max ThreadIndex) {}
 

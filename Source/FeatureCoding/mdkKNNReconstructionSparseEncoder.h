@@ -101,6 +101,8 @@ public:
 
     bool UpdateWithPreviousKNNSearchResult();
 
+    void GetReconstructedData(DenseMatrix<ElementType>& ReconstructedDataSet);
+
     //---------------------------------------------------------------------------------------------------
 
     static DenseMatrix<ElementType> ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,

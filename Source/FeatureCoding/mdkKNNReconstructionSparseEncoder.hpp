@@ -173,7 +173,7 @@ bool KNNReconstructionSparseEncoder<ElementType>::UpdateWithPreviousKNNSearchRes
 
     if (m_CodeInSparseColVectorSet->GetLength() != m_FeatureData->GetColNumber())
     {
-        MDK_Error(" number of code vectors != number of input data vectors @ KNNReconstructionSparseEncoder::UpdateWithPreviousKNNSearchResult()")
+        MDK_Error(" number of code vectors != number of input data vectors @ KNNReconstructionSparseEncoder::UpdateWithPreviousKNNSearchResult(...)")
         return false;
     }
 
@@ -181,7 +181,29 @@ bool KNNReconstructionSparseEncoder<ElementType>::UpdateWithPreviousKNNSearchRes
                                                                           *m_FeatureData,
                                                                           m_Dictionary->BasisMatrix(), 
                                                                           m_Parameter.CodeNonnegative, 
-                                                                          m_Parameter.CodeSumToOne);
+                                                                          m_Parameter.CodeSumToOne,
+                                                                          m_MaxNumberOfThreads);
+}
+
+
+template<typename ElementType>
+void KNNReconstructionSparseEncoder<ElementType>::GetReconstructedData(DenseMatrix<ElementType>& ReconstructedDataSet)
+{
+    if (this->CheckInput() == false)
+    {
+        return;
+    }
+
+    if (m_CodeInSparseColVectorSet->GetLength() != m_FeatureData->GetColNumber())
+    {
+        MDK_Error(" number of code vectors != number of input data vectors @ KNNReconstructionSparseEncoder::GetReconstructedData(...)")
+        return false;
+    }
+
+    KNNReconstructionSparseEncoder<ElementType>::ReconstructData(ReconstructedDataSet,
+                                                                 *m_CodeInSparseColVectorSet,
+                                                                 m_Dictionary->BasisMatrix(),
+                                                                 m_MaxNumberOfThreads);
 }
 
 //--------------------------------------------------- static function --------------------------------------------------------------------//

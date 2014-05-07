@@ -89,7 +89,11 @@ void Test_GaussianObjectImage()
 
     int_max NeighbourNumber = 5;
 
-    double Variance_L1 = 100;
+    auto SimilarityType = VectorSimilarityTypeEnum::L2Distance;
+
+    double Variance_L1 = 1;
+
+    double Variance_L2 = 1;
 
     int_max BasisNumber = 10;
 
@@ -100,9 +104,10 @@ void Test_GaussianObjectImage()
     InitialDictionaryBuilder.m_Parameter.BasisNumber = BasisNumber;
 
     InitialDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = NeighbourNumber;
-    InitialDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = VectorSimilarityTypeEnum::Correlation;
+    InitialDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = SimilarityType;
     InitialDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.1;
     InitialDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = Variance_L1;
+    InitialDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = Variance_L2;
 
     InitialDictionaryBuilder.m_Parameter.ExperienceDiscountFactor = 0;
 
@@ -128,8 +133,8 @@ void Test_GaussianObjectImage()
 
     DictionaryBuilder.m_Parameter.BasisNumber = BasisNumber;
 
-    DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber = NeighbourNumber;
-    DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.SimilarityType  = VectorSimilarityTypeEnum::L1Distance;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber = 3;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.SimilarityType = SimilarityType;
 
     DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative = true;
     DictionaryBuilder.m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne    = false;

@@ -98,8 +98,7 @@ void KNNSimilaritySparseEncoder<ElementType>::EncodingFunction(int_max DataIndex
 template<typename ElementType>
 inline
 void KNNSimilaritySparseEncoder<ElementType>::
-EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector,
-const DenseMatrix<ElementType>& DataColVector)
+EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const DenseMatrix<ElementType>& DataColVector)
 {
     const DenseMatrix<ElementType>& BasisMatrix = m_Dictionary->BasisMatrix(); // "auto  = " will copy
 
@@ -107,7 +106,7 @@ const DenseMatrix<ElementType>& DataColVector)
     const DenseMatrix<ElementType>& VarianceOfL2Distance = m_Dictionary->VarianceOfL2Distance();
     const DenseMatrix<ElementType>& VarianceOfKLDivergence = m_Dictionary->VarianceOfKLDivergence();
 
-    auto CodeLength = BasisMatrix.GetColNumber();
+    auto BasisNumber = BasisMatrix.GetColNumber();
 
     //----------------------------------------------------------------------------------------------------
 
@@ -227,18 +226,19 @@ const DenseMatrix<ElementType>& DataColVector)
         return;
     }
 
-    CodeInSparseColVector.Construct(NeighbourIndexList, SimilarityList, CodeLength);
+    CodeInSparseColVector.Construct(NeighbourIndexList, SimilarityList, BasisNumber);
 }
 
+//------------------------------------------------------------ static function --------------------------------------------------------//
 
 template<typename ElementType>
 inline
 DenseMatrix<ElementType>
 KNNSimilaritySparseEncoder<ElementType>::
-ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,
-                  const DenseMatrix<ElementType>& KNNBasisMatrix,
-                  const VectorSimilarityTypeEnum  SimilarityType,
-                  const DenseMatrix<ElementType>& VarianceList)
+ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
+               const DenseMatrix<ElementType>& KNNBasisMatrix,
+               const VectorSimilarityTypeEnum  SimilarityType,
+               const DenseMatrix<ElementType>& VarianceList)
 {
     int_max KNNBasisNumber = KNNBasisMatrix.GetColNumber();
 
@@ -429,7 +429,7 @@ ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType
 
     }
         break;
-
+    /*
     case VectorSimilarityTypeEnum::UnnormalizedCorrelation:
     {
         auto Correlation = ComputeUnnormalizedCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
@@ -446,7 +446,7 @@ ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType
 
     }
         break;
-
+    */
     case VectorSimilarityTypeEnum::KLDivergence:
     {
         auto KLDivergence_AB = ComputeKLDivergenceOfVectorAFromVectorB(VectorA, VectorB, Length, CheckInput);
@@ -459,7 +459,7 @@ ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType
         break;
 
     default:
-        MDK_Error("unknown type of similarity @ KNNSimilaritySparseEncoder::ComputeSimilarityBetweenTwoVectors(...)")
+        MDK_Error("unsupported type of similarity @ KNNSimilaritySparseEncoder::ComputeSimilarityBetweenTwoVectors(...)")
     }
 
     return Similarity;

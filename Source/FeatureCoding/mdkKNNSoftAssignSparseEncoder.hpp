@@ -84,8 +84,7 @@ void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex
 template<typename ElementType>
 inline
 void KNNSoftAssignSparseEncoder<ElementType>::
-EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector,
-                       const DenseMatrix<ElementType>& DataColVector)
+EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const DenseMatrix<ElementType>& DataColVector)
 {
     m_KNNSimilaritySparseEncoder.EncodeSingleDataVector(CodeInSparseColVector, DataColVector);
 
@@ -118,15 +117,15 @@ EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector,
 template<typename ElementType>
 DenseMatrix<ElementType> 
 KNNSoftAssignSparseEncoder<ElementType>::
-ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,
-                  const DenseMatrix<ElementType>& KNNBasisMatrix,
-                  const VectorSimilarityTypeEnum  SimilarityType,
-                  const ElementType SimilarityThreshold,
-                  const DenseMatrix<ElementType>& VarianceList)
+ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
+               const DenseMatrix<ElementType>& KNNBasisMatrix,
+               const VectorSimilarityTypeEnum  SimilarityType,
+               const ElementType SimilarityThreshold,
+               const DenseMatrix<ElementType>& VarianceList)
 {
     int_max BasisNumber = KNNBasisMatrix.GetColNumber();
 
-    auto Membership = KNNSimilaritySparseEncoder<ElementType>::ComputeCodeVector(DataColVector, KNNBasisMatrix, SimilarityType, VarianceList);
+    auto Membership = KNNSimilaritySparseEncoder<ElementType>::ComputeKNNCode(DataColVector, KNNBasisMatrix, SimilarityType, VarianceList);
 
     auto eps_value = std::numeric_limits<ElementType>::epsilon();
 

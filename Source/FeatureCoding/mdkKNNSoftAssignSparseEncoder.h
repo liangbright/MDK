@@ -69,11 +69,11 @@ public:
 
     //--------------------------------------------------------------------------------------------------
 
-    static DenseMatrix<ElementType> ComputeCodeVector(const DenseMatrix<ElementType>& DataColVector,
-                                                      const DenseMatrix<ElementType>& KNNBasisMatrix,
-                                                      const VectorSimilarityTypeEnum  SimilarityType,
-                                                      const ElementType SimilarityThreshold,
-                                                      const DenseMatrix<ElementType>& VarianceList);
+    static DenseMatrix<ElementType> ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
+                                                   const DenseMatrix<ElementType>& KNNBasisMatrix,
+                                                   const VectorSimilarityTypeEnum  SimilarityType,
+                                                   const ElementType SimilarityThreshold,
+                                                   const DenseMatrix<ElementType>& VarianceList);
 
     //--------------------------------------------------------------------------------------------------
         

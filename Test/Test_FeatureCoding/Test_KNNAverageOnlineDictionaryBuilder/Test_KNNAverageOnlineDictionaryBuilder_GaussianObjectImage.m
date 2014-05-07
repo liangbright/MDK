@@ -18,10 +18,15 @@ for k=1:100
     index = ceil(k/10);
     
     tempI=Iobj(:,:,index) + NoiseStd*randn(20, 20);
-    % convert I to zero mean and unit variance
+    % convert I to zero mean and unit L1/L2 norm
+    
     M=mean(tempI(:));
     tempI = tempI-M; 
+
     L2Norm= sqrt(sum(tempI(:).^2));    
+    
+    L1Norm= sum(abs(tempI(:)));    
+
     tempI=tempI/L2Norm;
     
     I(:,:,k)=tempI;

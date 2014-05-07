@@ -37,6 +37,8 @@ struct Parameter_Of_KNNReconstructionOnlineDictionaryBuilder
 
     int_max MaxNumberOfDataInEachBatch; // the number of data in each batch/thread
 
+    int_max MaxNumberOfInterations;
+
     int_max MaxNumberOfThreads;
 
     // parameter for updating dictionary information
@@ -63,6 +65,8 @@ struct Parameter_Of_KNNReconstructionOnlineDictionaryBuilder
         ExperienceDiscountFactor = 0;
 
         MaxNumberOfDataInEachBatch = 0;
+
+        MaxNumberOfInterations = 1;
 
         MaxNumberOfThreads = 1;
 

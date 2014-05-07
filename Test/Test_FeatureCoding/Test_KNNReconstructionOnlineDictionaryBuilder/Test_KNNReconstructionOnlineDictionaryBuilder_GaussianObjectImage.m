@@ -21,7 +21,11 @@ for k=1:100
     % convert I to zero mean and unit variance
     M=mean(tempI(:));
     tempI = tempI-M; 
+
+    L1Norm= sum(abs(tempI(:)));    
+
     L2Norm= sqrt(sum(tempI(:).^2));    
+
     tempI=tempI/L2Norm;
     
     I(:,:,k)=tempI;
