@@ -477,6 +477,28 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLD
         return false;
     }
 
+    //---------------------------------------------------------
+
+    switch (m_Option.MessageOutputOption)
+    {
+    case MessageOutputOption_Of_QuadraticProgramming::Nothing:
+
+        m_Option_qpOASES.printLevel = qpOASES::PL_NONE;
+        break;
+
+    case MessageOutputOption_Of_QuadraticProgramming::ErrorMessageOnly:
+
+        m_Option_qpOASES.printLevel = qpOASES::PL_LOW;
+        break;
+
+    case MessageOutputOption_Of_QuadraticProgramming::ALLMessage:
+
+        m_Option_qpOASES.printLevel = qpOASES::PL_HIGH;
+        break;
+    }
+
+    //---------------------------------------------------------
+
     bool SimpleBound = false;
     if (m_A_dense->IsEmpty() == true)
     {

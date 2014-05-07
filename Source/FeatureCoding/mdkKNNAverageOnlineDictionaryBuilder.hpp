@@ -200,7 +200,8 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 
     FeatureDictionaryForSparseCoding<ElementType> OutputDictionary = this->CopyInitialDictionaryAndDiscountBasisExperience();
 
-    DenseMatrix<ElementType>& BasisMatrix = OutputDictionary.BasisMatrix();
+    DenseMatrix<ElementType> BasisExperience_init;
+    BasisExperience_init.Copy(OutputDictionary.BasisExperience());
 
     int_max TotalDataNumber = m_FeatureData->GetColNumber();
 
@@ -280,7 +281,7 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
         }
     }
 
-    this->UpdateDictionary_OtherInformation(OutputDictionary);
+    this->UpdateDictionary_OtherInformation(OutputDictionary, BasisExperience_init, TotalDataNumber);
 
     (*m_Dictionary) = std::move(OutputDictionary);
 }
@@ -337,28 +338,21 @@ UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
     DenseMatrix<ElementType> BasisExperience_init;
     BasisExperience_init.Copy(Dictionary.BasisExperience());
 
-    // update BasisMatrix and BasisExperience
+    // update BasisMatrix and BasisExperience ----------------------------------------
 
     this->UpdateBasisMatrixAndBasisExperience(Dictionary.BasisMatrix(), Dictionary.BasisExperience(), FeatureData, CodeTable);
     
-    // update information ---------------------------------------------------------------------
+    // update other information ---------------------------------------------------------------------------------
 
-    //SeedForNewBasisIDGeneration has been copied (see GenerateDictionary)
+    // SeedForNewBasisIDGeneration has been copied in this->CopyInitialDictionaryAndDiscountBasisExperience(...)
 
-    // do not need to update BasisID : No new basis is added, and not old basis is retired
-    // DenseMatrix<ElementType>& BasisID = Dictionary.BasisID();
+    // BasisID does not need to be updated : No new basis is added, and not old basis is retired
 
-    // update BasisAge -------------------------
+    // BasisAge updated in this->UpdateDictionary_OtherInformation(...)
 
-    int_max DataNumber = FeatureData.GetColNumber();
+    // SimilarityMatrix and BasisRedundancy updated in this->UpdateDictionary_OtherInformation(...)
 
-    Dictionary.BasisAge() += DataNumber;
-
-    // update SimilarityMatrix and BasisRedundancy in UpdateDictionary_Other(...)
-    //DenseMatrix<ElementType>& SimilarityMatrix = Dictionary.SimilarityMatrix();
-    //DenseMatrix<ElementType>& BasisRedundancy = Dictionary->BasisRedundancy();
-
-    //-------- update Variance ------------------------------------------------------------
+    //-------- update Variance -----------------------------------------------------------------------------------
 
     this->UpdateVarianceOfL1Distance(Dictionary.VarianceOfL1Distance(), FeatureData, CodeTable, Dictionary.BasisMatrix(), BasisExperience_init);
     
@@ -377,7 +371,10 @@ UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
 
 
 template<typename ElementType>
-void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary)
+void KNNAverageOnlineDictionaryBuilder<ElementType>::
+UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
+                                  const DenseMatrix<ElementType>& BasisExperience_init,
+                                  int_max TotalDataNumber)
 {
     //---------------------- already updated ------------------------------------
 
@@ -389,6 +386,14 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateDictionary_OtherInfor
     DenseMatrix<ElementType>& VarianceOfReconstruction = Dictionary.VarianceOfReconstruction();
 
     int_max BasisNumber = BasisMatrix.GetColNumber();
+
+    //-------------------------- update BasisAge -----------------------------
+
+    Dictionary.BasisAge() += TotalDataNumber;
+
+    //----------------- adjust BasisExperience if Data is re-used ------------
+
+    this->AdjustBasisExperience(Dictionary.BasisExperience(), BasisExperience_init, TotalDataNumber);
 
     //---------------------- to be updated ------------------------------------
 
@@ -492,6 +497,7 @@ UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ElementType>&    
     
 
     int_max DataNumber = FeatureData.GetColNumber();
+
     int_max VectorLength = FeatureData.GetRowNumber();
 
     int_max BasisNumber = BasisMatrix.GetColNumber();
@@ -769,9 +775,26 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::ApplyConstraintOnBasis(Dens
 
 template<typename ElementType>
 void KNNAverageOnlineDictionaryBuilder<ElementType>::
-UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix,
-                       const DenseMatrix<ElementType>& BasisMatrix,
-                       const DenseMatrix<ElementType>& VarianceList)
+AdjustBasisExperience(DenseMatrix<ElementType>& BasisExperience, const DenseMatrix<ElementType>& BasisExperience_init, int_max TotalDataNumber)
+{
+    int_max BasisNumber = BasisExperience.GetElementNumber();
+
+    DenseMatrix<ElementType> BasisExperience_Diff = MatrixSubtract(BasisExperience, BasisExperience_init);
+
+    auto TotalGain = int_max(BasisExperience_Diff.Sum());
+
+    if (TotalGain > TotalDataNumber)
+    {
+        BasisExperience_Diff *= TotalDataNumber / TotalGain;
+
+        MatrixAdd(BasisExperience, BasisExperience_init, BasisExperience_Diff);
+    }
+}
+
+
+template<typename ElementType>
+void KNNAverageOnlineDictionaryBuilder<ElementType>::
+UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix, const DenseMatrix<ElementType>& BasisMatrix, const DenseMatrix<ElementType>& VarianceList)
 {
     int_max BasisNumber = BasisMatrix.GetColNumber();
     int_max VectorLength = BasisMatrix.GetRowNumber();

@@ -152,26 +152,49 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
     // use LinearLeastSquaresProblemSolver
 
-    auto CodeVector = this->ComputeCode(DataColVector, KNNBasisMatrix, KNNBasisIndexList, m_GramianMatrix_DtD,
-                                        m_Parameter.CodeNonnegative, m_Parameter.CodeSumToOne);
+    auto KNNCodeVector = this->ComputeKNNCode(DataColVector, KNNBasisMatrix, KNNBasisIndexList, m_GramianMatrix_DtD,
+                                              m_Parameter.CodeNonnegative, m_Parameter.CodeSumToOne);
 
     // ----- create sparse code ------------------------------------------------
 
     int_max CodeLength = BasisMatrix.GetColNumber();
 
-    CodeInSparseColVector.Construct(KNNBasisIndexList, CodeVector, CodeLength);
+    CodeInSparseColVector.Construct(KNNBasisIndexList, KNNCodeVector, CodeLength);
 }
 
 
 template<typename ElementType>
+bool KNNReconstructionSparseEncoder<ElementType>::UpdateWithPreviousKNNSearchResult()
+{
+    if (this->CheckInput() == false)
+    {
+        return false;
+    }
+
+    if (m_CodeInSparseColVectorSet->GetLength() != m_FeatureData->GetColNumber())
+    {
+        MDK_Error(" number of code vectors != number of input data vectors @ KNNReconstructionSparseEncoder::UpdateWithPreviousKNNSearchResult()")
+        return false;
+    }
+
+    KNNReconstructionSparseEncoder<ElementType>::UpdateReconstructionCode(*m_CodeInSparseColVectorSet,
+                                                                          *m_FeatureData,
+                                                                          m_Dictionary->BasisMatrix(), 
+                                                                          m_Parameter.CodeNonnegative, 
+                                                                          m_Parameter.CodeSumToOne);
+}
+
+//--------------------------------------------------- static function --------------------------------------------------------------------//
+
+template<typename ElementType>
 DenseMatrix<ElementType> 
 KNNReconstructionSparseEncoder<ElementType>::
-ComputeCode(const DenseMatrix<ElementType>& DataColVector,
-            const DenseMatrix<ElementType>& KNNBasisMatrix,
-            const DenseMatrix<int_max>&     KNNBasisIndexList,
-            const DenseMatrix<ElementType>& GramianMatrix_DtD,
-            bool CodeNonnegative,
-            bool CodeSumToOne)
+ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
+               const DenseMatrix<ElementType>& KNNBasisMatrix,
+               const DenseMatrix<int_max>&     KNNBasisIndexList,
+               const DenseMatrix<ElementType>& GramianMatrix_DtD,
+               bool CodeNonnegative,
+               bool CodeSumToOne)
 {
     // Output code vector is NOT the full code vector
     // the length of the output code vector is the length of KNNBasisIndexList
@@ -278,10 +301,7 @@ ComputeCode(const DenseMatrix<ElementType>& DataColVector,
 template<typename ElementType>
 DenseMatrix<ElementType> 
 KNNReconstructionSparseEncoder<ElementType>::
-ComputeCode(const DenseMatrix<ElementType>& DataColVector,
-            const DenseMatrix<ElementType>& KNNBasisMatrix,
-            bool CodeNonnegative,
-            bool CodeSumToOne)
+ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector, const DenseMatrix<ElementType>& KNNBasisMatrix, bool CodeNonnegative, bool CodeSumToOne)
 {
     auto KNNBasisNumber = KNNBasisMatrix.GetColNumber();
 
@@ -363,29 +383,25 @@ ComputeCode(const DenseMatrix<ElementType>& DataColVector,
 
 
 template<typename ElementType>
-DataContainer<SparseVector<ElementType>>
-KNNReconstructionSparseEncoder<ElementType>::
-ComputeReconstructionCodeFromSimilarityCode(const DenseMatrix<ElementType>&  FeatureData, 
-                                            const DataContainer<SparseVector<ElementType>>& SimilarityCodeSet,
-                                            const DenseMatrix<ElementType>&  BasisMatrix,
-                                            bool CodeNonnegative,
-                                            bool CodeSumToOne,
-                                            int_max MaxNumberOfThreads)
+void KNNReconstructionSparseEncoder<ElementType>::
+UpdateReconstructionCode(DataContainer<SparseVector<ElementType>>& ReconstructionCodeSet, 
+                         const DenseMatrix<ElementType>&  FeatureData,                          
+                         const DenseMatrix<ElementType>&  BasisMatrix,
+                         bool CodeNonnegative,
+                         bool CodeSumToOne,
+                         int_max MaxNumberOfThreads = 1)
 {
     int_max DataNumber = FeatureData.GetColNumber();
     int_max VectorLength = FeatureData.GetRowNumber();
 
     int_max BasisNumber = BasisMatrix.GetColNumber();
 
-    DataContainer<SparseVector<ElementType>> ReconstructionCodeSet;
-    ReconstructionCodeSet.FastResize(DataNumber);
-
     DenseMatrix<ElementType> GramianMatrix_DtD = BasisMatrix.Transpose() *BasisMatrix;
 
     //for (int_max k = 0; k <= DataNumber-1; ++k)
     auto TempFunction_ComputeReconstructionCode = [&](int_max k)
     {
-        const std::vector<int_max> KNNBasisIndexList = SimilarityCodeSet[k].IndexList();
+        const std::vector<int_max> KNNBasisIndexList = ReconstructionCodeSet[k].IndexList();
 
         int_max KNNBasisNumber = int_max(KNNBasisIndexList.size());
 
@@ -396,19 +412,39 @@ ComputeReconstructionCodeFromSimilarityCode(const DenseMatrix<ElementType>&  Fea
             DenseMatrix<ElementType> DataColVector;
             DataColVector.ForceShare(FeatureData.GetElementPointerOfCol(k), VectorLength, 1);
 
-            auto CodeVector = KNNReconstructionSparseEncoder<ElementType>::ComputeCode(DataColVector,
-                                                                                       KNNBasisMatrix, 
-                                                                                       KNNBasisIndexList, 
-                                                                                       GramianMatrix_DtD, 
-                                                                                       CodeNonnegative, 
-                                                                                       CodeSumToOne);
+            auto KNNCodeVector = KNNReconstructionSparseEncoder<ElementType>::ComputeKNNCode(DataColVector,
+                                                                                             KNNBasisMatrix,
+                                                                                             KNNBasisIndexList,
+                                                                                             GramianMatrix_DtD,
+                                                                                             CodeNonnegative,
+                                                                                             CodeSumToOne);
 
-            ReconstructionCodeSet[k].Construct(KNNBasisIndexList, CodeVector, BasisNumber);
+            ReconstructionCodeSet[k].Construct(KNNBasisIndexList, KNNCodeVector, BasisNumber);
         }
     };
 
     ParallelForLoop(TempFunction_ComputeReconstructionCode, 0, DataNumber - 1, MaxNumberOfThreads);
+}
 
+
+template<typename ElementType>
+DataContainer<SparseVector<ElementType>>
+KNNReconstructionSparseEncoder<ElementType>::
+ComputeReconstructionCodeFromSimilarityCode(const DenseMatrix<ElementType>&  FeatureData, 
+                                            const DataContainer<SparseVector<ElementType>>& SimilarityCodeSet,
+                                            const DenseMatrix<ElementType>&  BasisMatrix,
+                                            bool CodeNonnegative,
+                                            bool CodeSumToOne,
+                                            int_max MaxNumberOfThreads)
+{
+    DataContainer<SparseVector<ElementType>> ReconstructionCodeSet = SimilarityCodeSet;
+
+    KNNReconstructionSparseEncoder<ElementType>::UpdateReconstructionCode(ReconstructionCodeSet,
+                                                                          FeatureData,
+                                                                          BasisMatrix,
+                                                                          CodeNonnegative,
+                                                                          CodeSumToOne,
+                                                                          MaxNumberOfThreads);
     return ReconstructionCodeSet;
 }
 
@@ -423,12 +459,15 @@ ComputeReconstructionCodeFromSoftAssignCode(const DenseMatrix<ElementType>&  Fea
                                             bool CodeSumToOne,
                                             int_max MaxNumberOfThreads)
 {
-    return KNNReconstructionSparseEncoder<ElementType>::ComputeReconstructionCodeFromSimilarityCode(FeatureData,
-                                                                                                    SoftAssignCodeSet,
-                                                                                                    BasisMatrix,
-                                                                                                    CodeNonnegative,
-                                                                                                    CodeSumToOne,
-                                                                                                    MaxNumberOfThreads);
+    DataContainer<SparseVector<ElementType>> ReconstructionCodeSet = SoftAssignCodeSet;
+
+    KNNReconstructionSparseEncoder<ElementType>::UpdateReconstructionCode(ReconstructionCodeSet,
+                                                                          FeatureData,
+                                                                          BasisMatrix,
+                                                                          CodeNonnegative,
+                                                                          CodeSumToOne,
+                                                                          MaxNumberOfThreads);
+    return ReconstructionCodeSet;
 }
 
 
@@ -447,26 +486,24 @@ ReconstructData(const SparseVector<ElementType>& ReconstructionCode, const Dense
 
 template<typename ElementType>
 void KNNReconstructionSparseEncoder<ElementType>::
-ReconstructData(DenseMatrix<ElementType>&        ReconstructedDataVector,
+ReconstructData(DenseMatrix<ElementType>&        ReconstructedDataVector, 
                 const SparseVector<ElementType>& ReconstructionCode, 
                 const DenseMatrix<ElementType>&  BasisMatrix)
 {
-    int_max VectorLength = ReconstructionCode.GetLength();
+    int_max KNNBasisNumber = int_max(ReconstructionCode.IndexList().size());
 
-    const DenseMatrix<ElementType> CodeVector(const_cast<ElementType*>(ReconstructionCode.DataArray().data()), VectorLength, 1);
+    const DenseMatrix<ElementType> SubCodeVector(const_cast<ElementType*>(ReconstructionCode.DataArray().data()), KNNBasisNumber, 1);
 
     DenseMatrix<ElementType> KNNBasisMatrix = BasisMatrix.GetSubMatrix(ALL, ReconstructionCode.IndexList());
 
-    MatrixMultiply(ReconstructedDataVector, KNNBasisMatrix, CodeVector);
+    MatrixMultiply(ReconstructedDataVector, KNNBasisMatrix, SubCodeVector);
 }
 
 
 template<typename ElementType>
 DenseMatrix<ElementType>
 KNNReconstructionSparseEncoder<ElementType>::
-ReconstructData(const DataContainer<SparseVector<ElementType>>& ReconstructionCodeSet,
-                const DenseMatrix<ElementType>&  BasisMatrix,
-                int_max MaxNumberOfThreads)
+ReconstructData(const DataContainer<SparseVector<ElementType>>& ReconstructionCodeSet, const DenseMatrix<ElementType>& BasisMatrix, int_max MaxNumberOfThreads)
 {
     DenseMatrix<ElementType> ReconstructedDataSet;
 

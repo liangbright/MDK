@@ -99,27 +99,30 @@ public:
 
     bool CheckInput();
 
-    bool ComputeGramianMatrix_DtD();
-
-    bool Preprocess();
-
-    bool Postprocess();
+    bool UpdateWithPreviousKNNSearchResult();
 
     //---------------------------------------------------------------------------------------------------
 
-    static DenseMatrix<ElementType> ComputeCode(const DenseMatrix<ElementType>& DataColVector,
-                                                const DenseMatrix<ElementType>& KNNBasisMatrix,
-                                                const DenseMatrix<int_max>&     KNNBasisIndexList,
-                                                const DenseMatrix<ElementType>& GramianMatrix_DtD,
-                                                bool CodeNonnegative,
-                                                bool CodeSumToOne);
+    static DenseMatrix<ElementType> ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
+                                                   const DenseMatrix<ElementType>& KNNBasisMatrix,
+                                                   const DenseMatrix<int_max>&     KNNBasisIndexList,
+                                                   const DenseMatrix<ElementType>& GramianMatrix_DtD,
+                                                   bool CodeNonnegative,
+                                                   bool CodeSumToOne);
 
-    static DenseMatrix<ElementType> ComputeCode(const DenseMatrix<ElementType>& DataColVector,
-                                                const DenseMatrix<ElementType>& KNNBasisMatrix,
-                                                bool CodeNonnegative,
-                                                bool CodeSumToOne);
+    static DenseMatrix<ElementType> ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
+                                                   const DenseMatrix<ElementType>& KNNBasisMatrix,
+                                                   bool CodeNonnegative,
+                                                   bool CodeSumToOne);
 
     //----------------------------------------------------------------------------------------------------
+
+    static void UpdateReconstructionCode(DataContainer<SparseVector<ElementType>>& ReconstructionCodeSet, 
+                                         const DenseMatrix<ElementType>&  FeatureData,                                                                                
+                                         const DenseMatrix<ElementType>&  BasisMatrix,
+                                         bool CodeNonnegative,
+                                         bool CodeSumToOne,
+                                         int_max MaxNumberOfThreads = 1);
 
     static DataContainer<SparseVector<ElementType>> 
         ComputeReconstructionCodeFromSimilarityCode(const DenseMatrix<ElementType>&  FeatureData, 
@@ -192,7 +195,14 @@ public:
                       int_max MaxNumberOfThreads = 1);
 
 protected:
+    bool Preprocess();
+
+    bool Postprocess();
+
+    bool ComputeGramianMatrix_DtD();
+
     inline void EncodingFunction(int_max DataIndex, int_max ThreadIndex);
+
 
 private:
 //deleted:

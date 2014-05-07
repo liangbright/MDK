@@ -196,7 +196,7 @@ bool DataContainer<ElementType>::Copy(const DataContainer<ElementType>& InputDat
     }
 
     // copy data
-    return this->Copy(InputData.GetElementPointer(), InputData.GetRowNumber(), InputData.GetColNumber());
+    return this->Copy(InputData.GetElementPointer(), InputData.GetLength());
 }
 
 

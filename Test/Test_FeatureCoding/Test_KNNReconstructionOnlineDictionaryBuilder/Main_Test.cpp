@@ -6,7 +6,9 @@ using namespace mdk;
 
 int main()
 {
-    Test_SimpleCase();
+    //Test_SimpleCase();
+
+    Test_GaussianObjectImage();
 
     std::system("pause");
 

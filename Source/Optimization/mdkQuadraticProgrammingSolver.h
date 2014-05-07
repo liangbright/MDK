@@ -35,6 +35,14 @@ enum struct HessianType_Of_QuadraticProgramming
     Indentity,
 };
 
+enum struct MessageOutputOption_Of_QuadraticProgramming
+{
+    Nothing,
+    ErrorMessageOnly,
+    ALLMessage
+};
+
+
 struct Option_Of_QuadraticProgramming
 {
     std::string Mode;
@@ -54,6 +62,10 @@ struct Option_Of_QuadraticProgramming
     // if it is false, then copy H and A, and perform in place transpose
     //                 clear copy of H and A after computation
     
+
+    MessageOutputOption_Of_QuadraticProgramming MessageOutputOption;
+
+//-------------------------------------------------------------------------
     Option_Of_QuadraticProgramming()
     {
         this->SetToDefault();
@@ -68,6 +80,7 @@ struct Option_Of_QuadraticProgramming
         MaxIterNumber = InputOption.MaxIterNumber;
         HessianType = InputOption.HessianType;
         InputDataWillNotbeUsedByAnyOtherProcessDuringOptimization = InputOption.InputDataWillNotbeUsedByAnyOtherProcessDuringOptimization;
+        MessageOutputOption = InputOption.MessageOutputOption;
     }
 
     void SetToDefault()
@@ -77,6 +90,7 @@ struct Option_Of_QuadraticProgramming
         MaxIterNumber = -1;
         HessianType = HessianType_Of_QuadraticProgramming::Unknown;
         InputDataWillNotbeUsedByAnyOtherProcessDuringOptimization = false;
+        MessageOutputOption = MessageOutputOption_Of_QuadraticProgramming::ErrorMessageOnly;
     }
 
 
