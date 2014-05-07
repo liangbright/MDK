@@ -1,5 +1,8 @@
 %% Test_2D_Image_GaussianObject
 
+FilePath='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDictionaryBuilder/Debug/';
+
+
 SignalPeak=100;
 NoiseStd=10;
 BgIntensity=0;
@@ -24,37 +27,18 @@ for k=1:100
     I(:,:,k)=tempI;
 end
 
-I_ALL=zeros(50, 150);
-for k=1:10
-
-    index=(k-1)*10 + 1;
-    
-    temp=I(:,:,index);    
-    temp=reshape(temp, [20, 20]);
-
-    if k == 1
-        I_ALL(1:20, 1:20)=temp;
-    elseif k <= 5    
-        Index_s = (k-1)*30;
-        I_ALL(1:20, Index_s:Index_s+19)=temp;
-    elseif k==6
-        I_ALL(31:50, 1:20)=temp;
-    else        
-        Index_s = (k-6)*30;
-        I_ALL(31:50, Index_s:Index_s+19)=temp;
-    end    
-end
-
-imtool(I_ALL)
-
 % convert I to Matrix FeatureData
 FeatureData=zeros(400, 100);
 for k=1:100
     temp=I(:,:,k);
     FeatureData(:,k)=temp(:);
 end
-% save FeatureData
-FilePath='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDictionaryBuilder/Debug/';
+%%
+tmp = displayPatches(FeatureData);
+imtool(tmp)
+
+%% save FeatureData
+
 WriteDenseMatrixAsJsonDataFile(FeatureData, [FilePath 'GaussianObjectImage.json'])
 %%
 R = corrcoef(FeatureData);

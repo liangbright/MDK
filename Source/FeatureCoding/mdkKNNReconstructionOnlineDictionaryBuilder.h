@@ -131,7 +131,8 @@ protected:
 
     void ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix);
 
-    void UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary);
+    void UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
+                                           int_max TotalDataNumber);
 
     void UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix, 
                                 const DenseMatrix<ElementType>& BasisMatrix, 

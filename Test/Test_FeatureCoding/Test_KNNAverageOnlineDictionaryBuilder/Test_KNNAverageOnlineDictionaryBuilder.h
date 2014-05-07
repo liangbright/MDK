@@ -92,11 +92,13 @@ void Test_GaussianObjectImage()
 
     double Variance_L1 = 100;
 
+    int_max BasisNumber = 10;
+
     //-------------------------------------------------------------------------------------------
 
     KNNBasisSelectionOnlineDictionaryBuilder<double> InitialDictionaryBuilder;
 
-    InitialDictionaryBuilder.m_Parameter.BasisNumber = 10;
+    InitialDictionaryBuilder.m_Parameter.BasisNumber = BasisNumber;
     InitialDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = NeighbourNumber;
 
     InitialDictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = VectorSimilarityTypeEnum::L1Distance;
@@ -124,7 +126,7 @@ void Test_GaussianObjectImage()
 
     KNNAverageOnlineDictionaryBuilder<double> DictionaryBuilder;
 
-    DictionaryBuilder.m_Parameter.BasisNumber = 10;
+    DictionaryBuilder.m_Parameter.BasisNumber = BasisNumber;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = NeighbourNumber;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = VectorSimilarityTypeEnum::L1Distance;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.0000001;

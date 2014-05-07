@@ -340,7 +340,7 @@ UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
     // update BasisMatrix and BasisExperience
 
     this->UpdateBasisMatrixAndBasisExperience(Dictionary.BasisMatrix(), Dictionary.BasisExperience(), FeatureData, CodeTable);
-
+    
     // update information ---------------------------------------------------------------------
 
     //SeedForNewBasisIDGeneration has been copied (see GenerateDictionary)
@@ -388,6 +388,8 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateDictionary_OtherInfor
     DenseMatrix<ElementType>& VarianceOfKLDivergence = Dictionary.VarianceOfKLDivergence();
     DenseMatrix<ElementType>& VarianceOfReconstruction = Dictionary.VarianceOfReconstruction();
 
+    int_max BasisNumber = BasisMatrix.GetColNumber();
+
     //---------------------- to be updated ------------------------------------
 
     DenseMatrix<ElementType>& SimilarityMatrix = Dictionary.SimilarityMatrix();
@@ -412,8 +414,9 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::UpdateDictionary_OtherInfor
         break;
 
     default:
-        MDK_Error("unknown SimilarityType @ KNNAverageOnlineDictionaryBuilder::UpdateDictionary_OtherInfo()")
-        return;
+        VarianceList.FastResize(1, BasisNumber);
+        VarianceList.Fill(0);
+        break;
     }
 
     this->UpdateSimilarityMatrix(SimilarityMatrix, BasisMatrix, VarianceList);
@@ -451,6 +454,43 @@ UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ElementType>&    
                                                    const DenseMatrix<ElementType>& FeatureData,
                                                    const DataContainer<SparseVector<ElementType>>& CodeTable)
 {
+    // temp function for basis_change update
+
+    auto TempFunction_UpdateBasisChange = [](ElementType* BasisChange, const ElementType* BasisVector, const ElementType* DataVector, int_max VectorLength,
+                                             ElementType CodeElement,  ElementType SquaredL2NormOfReconstructionCodeVector)
+    {
+        auto eps_value = std::numeric_limits<ElementType>::epsilon();
+
+        auto temp = CodeElement / (SquaredL2NormOfReconstructionCodeVector + eps_value);
+
+        if (temp > eps_value)
+        {
+            for (int_max k = 0; k < VectorLength; ++k)
+            {
+                auto Error = DataVector[k] - BasisVector[k] * CodeElement;
+
+                BasisChange[k] += temp * Error;
+            }
+        }
+    };
+
+    // temp function for basis update
+    //
+    //auto TempFunction_UpdateBasis = [](ElementType* BasisVector, const ElementType* DataVector, int_max VectorLength,
+    //                                   ElementType CodeElement, ElementType SquaredL2NormOfReconstructionCodeVector,
+    //                                   ElementType ExperienceOfBasis)
+    //{
+    //    auto temp = CodeElement / SquaredL2NormOfReconstructionCodeVector;
+    //
+    //    for (int_max k = 0; k < VectorLength; ++k)
+    //    {
+    //        auto Error = DataVector[k] - BasisVector[k] * CodeElement;
+    //
+    //        BasisVector[k] += temp * Error / ExperienceOfBasis;
+    //    }
+    //};
+    
+
     int_max DataNumber = FeatureData.GetColNumber();
     int_max VectorLength = FeatureData.GetRowNumber();
 
@@ -465,20 +505,8 @@ UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ElementType>&    
 
     auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
-    // temp function for basis update
-
-    auto TempFunction_BasisUpdate = [](ElementType* BasisVector, const ElementType* DataVector, int_max VectorLength,
-                                       ElementType CodeElement,  ElementType SquaredL2NormOfReconstructionCodeVector,
-                                       ElementType ExperienceOfBasis)
-    {
-        auto temp = CodeElement / SquaredL2NormOfReconstructionCodeVector;
-
-        for (int_max k = 0; k < VectorLength; ++k)
-        {
-            auto Error = DataVector[k] - BasisVector[k] * CodeElement;
-            BasisVector[k] += temp * Error / ExperienceOfBasis;
-        }
-    };
+    DenseMatrix<ElementType> BasisMatrix_Change(VectorLength, BasisNumber);
+    BasisMatrix_Change.Fill(0);
 
     DenseMatrix<ElementType> ReconstructionCodeVector;
 
@@ -486,13 +514,13 @@ UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ElementType>&    
     {
         auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
 
-        const std::vector<int_max>& BasisIndexList = CodeTable[k].IndexList();
+        const std::vector<int_max>& KNNBasisIndexList = CodeTable[k].IndexList();
 
-        int_max NeighbourNumber_k = int_max(BasisIndexList.size());
+        int_max KNNBasisNumber = int_max(KNNBasisIndexList.size());
 
-        if (NeighbourNumber_k > 0)
+        if (KNNBasisNumber > 0)
         {
-            ReconstructionCodeVector.FastResize(NeighbourNumber_k, 1);
+            ReconstructionCodeVector.FastResize(KNNBasisNumber, 1);
             // compute reconstruction code Vector
             //
             // use KNN-basis to reconstruct each Data vector (pretend we are doing KNN-reconstruction)
@@ -501,9 +529,9 @@ UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ElementType>&    
             // ReconstructionError[n] = ||DataVector - ReconstructionCodeVector[n]*BasisVector||
             //
 
-            for (int_max n = 0; n < NeighbourNumber_k; ++n)//n
+            for (int_max n = 0; n < KNNBasisNumber; ++n)//n
             {
-                auto BasisIndex = BasisIndexList[n];
+                auto BasisIndex = KNNBasisIndexList[n];
 
                 auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(BasisIndex);
 
@@ -523,26 +551,31 @@ UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ElementType>&    
 
             auto SquaredL2NormOfReconstructionCodeVector = ComputeInnerProductOfTwoVectors(ReconstructionCodeVector.GetElementPointer(),
                                                                                            ReconstructionCodeVector.GetElementPointer(), 
-                                                                                           NeighbourNumber_k, false);
+                                                                                           KNNBasisNumber, false);
 
             if (SquaredL2NormOfReconstructionCodeVector > eps_value)
             {
-                for (int_max n = 0; n < NeighbourNumber_k; ++n)//n
+                for (int_max n = 0; n < KNNBasisNumber; ++n)//n
                 {
-                    auto BasisIndex = BasisIndexList[n];
+                    auto BasisIndex = KNNBasisIndexList[n];
 
                     if (SquaredL2NormOfReconstructionCodeVector > eps_value*Basis_Basis_InnerProductList[BasisIndex])
                     {
                         auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(BasisIndex);
 
+                        auto BasisVectorChangePtr = BasisMatrix_Change.GetElementPointerOfCol(BasisIndex);
+
                         auto CodeElement = ReconstructionCodeVector[n];
 
                         if (CodeElement > eps_value)
                         {
-                            TempFunction_BasisUpdate(BasisVectorPtr, DataVectorPtr, VectorLength,
-                                                     CodeElement, SquaredL2NormOfReconstructionCodeVector,
-                                                     BasisExperience[BasisIndex]);
-
+                            TempFunction_UpdateBasisChange(BasisVectorChangePtr, BasisVectorPtr, DataVectorPtr, VectorLength,
+                                                           CodeElement, SquaredL2NormOfReconstructionCodeVector);
+                            
+                            //TempFunction_UpdateBasis(BasisVectorPtr, DataVectorPtr, VectorLength,
+                            //                         CodeElement, SquaredL2NormOfReconstructionCodeVector,
+                            //                         BasisExperience[BasisIndex]);
+                            
                             BasisExperience[BasisIndex] += CodeElement*CodeElement / SquaredL2NormOfReconstructionCodeVector;
 
                         }// else CodeElement = 0, no update
@@ -552,6 +585,25 @@ UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ElementType>&    
         }
     }
 
+    
+    // update Basis
+    //for (int_max k = 0; k <= BasisNumber-1; ++k)
+    auto TempFunction_UpdateBasisMatrix = [&](int_max k)
+    {
+        auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(k);
+
+        auto BasisVectorChangePtr = BasisMatrix_Change.GetElementPointerOfCol(k);
+        
+        auto Experience = BasisExperience[k];
+
+        for (int_max n = 0; n < VectorLength; ++n)
+        {
+            BasisVectorPtr[n] += BasisVectorChangePtr[n] / Experience;
+        }
+    };
+
+    ParallelForLoop(TempFunction_UpdateBasisMatrix, 0, BasisNumber - 1, m_Parameter.MaxNumberOfThreads);
+    
     this->ApplyConstraintOnBasis(BasisMatrix);
 
     // the total Experience is
@@ -568,6 +620,20 @@ UpdateBasisMatrixAndBasisExperience_NoScaleFactor(DenseMatrix<ElementType>&     
                                                   const DenseMatrix<ElementType>& FeatureData,
                                                   const DataContainer<SparseVector<ElementType>>& CodeTable)
 {
+    // temp function for basis_change update
+
+    auto TempFunction_UpdateBasisChange = [](ElementType* BasisChange, const ElementType* BasisVector, const ElementType* DataVector, int_max VectorLength,
+                                             ElementType Membership)
+    {
+        for (int_max k = 0; k < VectorLength; ++k)
+        {
+            auto Error = DataVector[k] - BasisVector[k];
+            BasisChange[k] += Membership * Error;
+        }
+    };
+
+    //------------------------------------------------------
+
     int_max DataNumber = FeatureData.GetColNumber();
     int_max VectorLength = FeatureData.GetRowNumber();
 
@@ -575,42 +641,53 @@ UpdateBasisMatrixAndBasisExperience_NoScaleFactor(DenseMatrix<ElementType>&     
 
     auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
-    // temp function for basis update
-
-    auto TempFunction_BasisUpdate = [](ElementType* BasisVector, const ElementType* DataVector, int_max VectorLength, 
-                                       ElementType Membership, ElementType ExperienceOfBasis)
-    {
-        for (int_max k = 0; k < VectorLength; ++k)
-        {
-            auto Error = DataVector[k] - BasisVector[k];
-            BasisVector[k] += Membership * Error / ExperienceOfBasis;
-        }
-    };
+    DenseMatrix<ElementType> BasisMatrix_Change(VectorLength, BasisNumber);
+    BasisMatrix_Change.Fill(0);
 
     for (int_max k = 0; k < DataNumber; ++k)//k
     {
         auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
 
-        const std::vector<int_max>& BasisIndexList = CodeTable[k].IndexList();
+        const std::vector<int_max>& KNNBasisIndexList = CodeTable[k].IndexList();
 
         const std::vector<ElementType>& MembershipList = CodeTable[k].DataArray(); // code from SoftAssignSparseEncorder is membership, not raw Similarity
 
-        int_max NeighbourNumber_k = int_max(BasisIndexList.size());
+        int_max KNNBasisNumber = int_max(KNNBasisIndexList.size());
 
-        if (NeighbourNumber_k > 0)
+        if (KNNBasisNumber > 0)
         {
-            for (int_max n = 0; n < NeighbourNumber_k; ++n)//n
+            for (int_max n = 0; n < KNNBasisNumber; ++n)//n
             {
-                auto BasisIndex = BasisIndexList[n];
+                auto BasisIndex = KNNBasisIndexList[n];
 
                 auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(BasisIndex);
 
-                TempFunction_BasisUpdate(BasisVectorPtr, DataVectorPtr, VectorLength, MembershipList[n], BasisExperience[BasisIndex]);
+                auto BasisVectorChangePtr = BasisMatrix_Change.GetElementPointerOfCol(BasisIndex);
+
+                TempFunction_UpdateBasisChange(BasisVectorChangePtr, BasisVectorPtr, DataVectorPtr, VectorLength, MembershipList[n]);
 
                 BasisExperience[BasisIndex] += MembershipList[n];
             }
         }
     }
+
+    // update Basis
+    //for (int_max k = 0; k <= BasisNumber-1; ++k)
+    auto TempFunction_UpdateBasisMatrix = [&](int_max k)
+    {
+        auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(k);
+
+        auto BasisVectorChangePtr = BasisMatrix_Change.GetElementPointerOfCol(k);
+
+        auto Experience = BasisExperience[k];
+
+        for (int_max n = 0; n < VectorLength; ++n)
+        {
+            BasisVectorPtr[n] += BasisVectorChangePtr[n] / Experience;
+        }
+    };
+
+    ParallelForLoop(TempFunction_UpdateBasisMatrix, 0, BasisNumber - 1, m_Parameter.MaxNumberOfThreads);
 
     this->ApplyConstraintOnBasis(BasisMatrix);
 
