@@ -193,9 +193,9 @@ bool KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy <= 0)
+    if (m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy <= 0)
     {
-        m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
+        m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
     }
 
     if (m_Parameter.MaxNumberOfThreads <= 0)
@@ -481,7 +481,7 @@ UpdateDictionaryInformationInModifiedInputDictionary(FeatureDictionaryForSparseC
     // update BasisRedundancy ---------------------------------------------------------------------------
 
     if (InputDictionary_Modified.GetProperty_SimilarityType() != SimilarityType
-        || InputDictionary_Modified.GetProperty_SimilarityThresholdForComputingBasisRedundancy() != m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy)
+        || InputDictionary_Modified.GetProperty_SimilarityThresholdForComputeBasisRedundancy() != m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy)
     {
         DenseMatrix<ElementType> BasisRedundancy = InputDictionary_Modified.BasisRedundancy();
 
@@ -492,7 +492,7 @@ UpdateDictionaryInformationInModifiedInputDictionary(FeatureDictionaryForSparseC
 
     InputDictionary_Modified.SetProperty_SimilarityType(SimilarityType);
 
-    InputDictionary_Modified.SetProperty_SimilarityThresholdForComputingBasisRedundancy(m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy);
+    InputDictionary_Modified.SetProperty_SimilarityThresholdForComputeBasisRedundancy(m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy);
 }
 
 
@@ -547,7 +547,7 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
         BasisRedundancy[0] = 0;
     }
 
-    auto SimilarityThreshold = m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy;
+    auto SimilarityThreshold = m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy;
 
     //for (int_max k = 0; k <= BasisNumber-1; ++k)
     auto TempFunction_UpdateRedundancy = [&](int_max k)

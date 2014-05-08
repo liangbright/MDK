@@ -68,8 +68,15 @@ struct DenseMatrixData
         {
             if (ElementPointer == nullptr)
             {
-                MDK_Error("ElementPointer is nullptr @ DenseMatrixData::CopyDataToInternalDataArrayIfNecessary()")
-                return;
+                if (RowNumber != 0 || ColNumber != 0)
+                {
+                    MDK_Error("ElementPointer is nullptr but Self is not empty matrix @ DenseMatrixData::CopyDataToInternalDataArrayIfNecessary()")
+                    return;
+                }
+                else // self is empty matrix
+                {
+                    return;
+                }
             }
 
             auto ElementNumber = RowNumber*ColNumber;

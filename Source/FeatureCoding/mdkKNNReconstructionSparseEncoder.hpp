@@ -44,11 +44,9 @@ bool KNNReconstructionSparseEncoder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.SimilarityType != VectorSimilarityTypeEnum::L1Distance
-        && m_Parameter.SimilarityType != VectorSimilarityTypeEnum::L2Distance
-        && m_Parameter.SimilarityType != VectorSimilarityTypeEnum::Correlation
-        && m_Parameter.SimilarityType != VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation
-        && m_Parameter.SimilarityType != VectorSimilarityTypeEnum::KLDivergence)
+    auto IsSimilarityTypeSupported = KNNSimilaritySparseEncoder<ElementType>::CheckIfSimilarityTypeSupported(m_Parameter.SimilarityType);
+
+    if (IsSimilarityTypeSupported == false)
     {
         MDK_Error("SimilarityType is not supported @ KNNReconstructionSparseEncoder::CheckInput()")
         return false;
@@ -141,6 +139,11 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
         DistanceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, BasisMatrix);
         break;
 
+    case VectorSimilarityTypeEnum::JSDivergence:
+
+        DistanceList = ComputeJSDivergenceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
+        break;
+
     default:
         MDK_Error("SimilarityType is invalid @ KNNReconstructionSparseEncoder::EncodingFunction(...)")
         return;
@@ -207,6 +210,14 @@ void KNNReconstructionSparseEncoder<ElementType>::GetReconstructedData(DenseMatr
 }
 
 //--------------------------------------------------- static function --------------------------------------------------------------------//
+
+template<typename ElementType>
+inline
+bool KNNReconstructionSparseEncoder<ElementType>::CheckIfSimilarityTypeSupported(VectorSimilarityTypeEnum SimilarityType)
+{
+    return KNNSimilaritySparseEncoder<ElementType>::CheckIfSimilarityTypeSupported(SimilarityType);
+}
+
 
 template<typename ElementType>
 DenseMatrix<ElementType> 

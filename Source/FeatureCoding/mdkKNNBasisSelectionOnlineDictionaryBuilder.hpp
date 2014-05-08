@@ -120,23 +120,16 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.MaxNumberOfDataInEachBatch > m_FeatureData->GetColNumber())
-    {
-        MDK_Error("MaxNumberOfDataInEachBatch > TotalDataNumber @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
-        return false;
-    }
-
     if (m_Parameter.MaxNumberOfDataInEachBatch < m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber)
     {
         MDK_Error("MaxNumberOfDataInEachBatch < MaxNumberOfNeighbours @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
     
-    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::L1Distance
-        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::L2Distance
-        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::Correlation
-        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation
-        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::KLDivergence)
+    auto IsSimilarityTypeSupported = KNNSoftAssignSparseEncoder<ElementType>::
+                                     CheckIfSimilarityTypeSupported(m_Parameter.ParameterOfKNNSoftAssign.SimilarityType);    
+
+    if (IsSimilarityTypeSupported == false)
     {
         MDK_Error("SimilarityType is not supported @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
         return false;
@@ -227,9 +220,9 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy <= 0)
+    if (m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy <= 0)
     {
-        m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
+        m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
     }
 
     if (m_Parameter.MaxNumberOfThreads <= 0)
@@ -1215,7 +1208,7 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
 
     //--------------------- update BasisID for new basis --------------------------------------------//
 
-    if (m_Parameter.Update_BasisID == true)
+    if (m_Parameter.Flag_Update_BasisID == true)
     {
         for (int_max k = 0; k < BasisNumber; ++k)
         {
@@ -1252,7 +1245,7 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
 
     //------------------- update BasisAge ---------------------------------------------------//
 
-    if (m_Parameter.Update_BasisAge == true)
+    if (m_Parameter.Flag_Update_BasisAge == true)
     {
         BasisAge += DataNumber;
     }
@@ -1287,14 +1280,14 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
 
     //--------------------- update BasisExperience -----------------------------//
 
-    if (m_Parameter.Update_BasisExperience == true)
+    if (m_Parameter.Flag_Update_BasisExperience == true)
     {
         this->UpdateBasisExperience(BasisExperience, CodeTable);
     }
 
     // ----------- update SimilarityMatrix ------------------------------------//
 
-    if (m_Parameter.Update_SimilarityMatrix == true)
+    if (m_Parameter.Flag_Update_SimilarityMatrix == true)
     {
         SimilarityMatrix.FastResize(BasisNumber, BasisNumber);
         for (int_max k = 0; k < BasisNumber; ++k)
@@ -1317,11 +1310,11 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
 
     //---------- Update BasisRedundancy --------------------------------------------//
 
-    if (m_Parameter.Update_BasisRedundancy == true)
+    if (m_Parameter.Flag_Update_BasisRedundancy == true)
     {
         this->UpdateBasisRedundancy(BasisRedundancy, SimilarityMatrix);
 
-        Dictionary.SetProperty_SimilarityThresholdForComputingBasisRedundancy(m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy);
+        Dictionary.SetProperty_SimilarityThresholdForComputeBasisRedundancy(m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy);
     }
 }
 
@@ -1449,7 +1442,7 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
 
         //----- initialize VarianceOfReconstruction
 
-        if (m_Parameter.Update_VarianceOfReconstruction_Using_KNNBasisMatrix == true)
+        if (m_Parameter.Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix == true)
         {
             auto MeanVar_Reconstruction = ElementType(0);
             if (VarianceOfReconstruction_init.IsEmpty() == false)
@@ -1486,7 +1479,7 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
 
     //----------- update Variance ----------------------------------------------------//
 
-    if (m_Parameter.Update_Variance == true)
+    if (m_Parameter.Flag_Update_Variance == true)
     {
         this->UpdateVarianceOfL1Distance(VarianceOfL1Distance, FeatureData, CodeTable, BasisMatrix, BasisExperience);
 
@@ -1497,7 +1490,7 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementTyp
             this->UpdateVarianceOfKLDivergence(VarianceOfKLDivergence, FeatureData, CodeTable, BasisMatrix, BasisExperience);
         }
 
-        if (m_Parameter.Update_VarianceOfReconstruction_Using_KNNBasisMatrix == true)
+        if (m_Parameter.Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix == true)
         {
             this->UpdateVarianceOfReconstruction(VarianceOfReconstruction, FeatureData, CodeTable, BasisMatrix, BasisExperience);
         }
@@ -1626,7 +1619,7 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
         BasisRedundancy[0] = 0;
     }
 
-    auto SimilarityThreshold = m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy;
+    auto SimilarityThreshold = m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy;
 
     //for (int_max k = 0; k <= BasisNumber-1; ++k)
     auto TempFunction_UpdateRedundancy = [&](int_max k)

@@ -113,6 +113,15 @@ EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const D
     }
 }
 
+//------------------------------------------------------- static function --------------------------------------------------------------------//
+
+template<typename ElementType>
+inline
+bool KNNSoftAssignSparseEncoder<ElementType>::CheckIfSimilarityTypeSupported(VectorSimilarityTypeEnum SimilarityType)
+{
+    return KNNSimilaritySparseEncoder<ElementType>::CheckIfSimilarityTypeSupported(SimilarityType);
+}
+
 
 template<typename ElementType>
 DenseMatrix<ElementType> 

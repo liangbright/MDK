@@ -131,12 +131,6 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.MaxNumberOfDataInEachBatch > m_FeatureData->GetColNumber())
-    {
-        MDK_Error("MaxNumberOfDataInEachBatch > TotalDataNumber @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
-        return false;
-    }
-
     if (m_Parameter.MaxNumberOfDataInEachBatch < m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber)
     {
         MDK_Error("MaxNumberOfDataInEachBatch < MaxNumberOfNeighbours @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
@@ -149,17 +143,20 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.ParameterOfKNNReconstruction.SimilarityType != VectorSimilarityTypeEnum::L1Distance
-        && m_Parameter.ParameterOfKNNReconstruction.SimilarityType != VectorSimilarityTypeEnum::L2Distance
-        && m_Parameter.ParameterOfKNNReconstruction.SimilarityType != VectorSimilarityTypeEnum::Correlation
-        && m_Parameter.ParameterOfKNNReconstruction.SimilarityType != VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation
-        && m_Parameter.ParameterOfKNNReconstruction.SimilarityType != VectorSimilarityTypeEnum::KLDivergence)
+    auto IsSimilarityTypeSupported = KNNReconstructionSparseEncoder<ElementType>::
+                                     CheckIfSimilarityTypeSupported(m_Parameter.ParameterOfKNNSoftAssign.SimilarityType);
+
+    if (IsSimilarityTypeSupported == false)
     {
-        MDK_Error("SimilarityType is invalid @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
-        return false;
+        MDK_Error("SimilarityType is not supported @ KNNReconstructionOnlineDictionaryBuilder::CheckInput()")
+            return false;
     }
 
-    if (m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber != m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber)
+    if (m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber == 0)
+    {
+        m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber;
+    }
+    else if (m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber != m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber)
     {
         MDK_Warning("NeighbourNumber for KNNSoftAssign is NOT equal to NeighbourNumber for KNNReconstruction" << '\n'
                     << "NeighbourNumber for KNNSoftAssign is set to NeighbourNumber for KNNReconstruction" << '\n'                    
@@ -168,7 +165,11 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
         m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = m_Parameter.ParameterOfKNNReconstruction.NeighbourNumber;
     }
 
-    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != m_Parameter.ParameterOfKNNReconstruction.SimilarityType)
+    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == VectorSimilarityTypeEnum::Unknown)
+    {
+        m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = m_Parameter.ParameterOfKNNReconstruction.SimilarityType;
+    }
+    else if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != m_Parameter.ParameterOfKNNReconstruction.SimilarityType)
     {
         MDK_Warning("SimilarityType for KNNSoftAssign is NOT equal to SimilarityType for KNNReconstruction" << '\n'
                     << "SimilarityType for KNNSoftAssign is set to SimilarityType for KNNReconstruction" << '\n'                    
@@ -183,7 +184,7 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == VectorSimilarityTypeEnum::L1Distance)
+    if (m_Parameter.ParameterOfKNNReconstruction.SimilarityType == VectorSimilarityTypeEnum::L1Distance)
     {
         if (m_InitialDictionary->VarianceOfL1Distance().IsEmpty() == true)
         {
@@ -191,7 +192,7 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
             return false;
         }       
     }
-    else if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == VectorSimilarityTypeEnum::L2Distance)
+    else if (m_Parameter.ParameterOfKNNReconstruction.SimilarityType == VectorSimilarityTypeEnum::L2Distance)
     {
         if (m_InitialDictionary->VarianceOfL2Distance().IsEmpty() == true)
         {
@@ -199,7 +200,7 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
             return false;
         }
     }
-    else if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType == VectorSimilarityTypeEnum::KLDivergence)
+    else if (m_Parameter.ParameterOfKNNReconstruction.SimilarityType == VectorSimilarityTypeEnum::KLDivergence)
     {
         if (m_InitialDictionary->VarianceOfKLDivergence().IsEmpty() == true)
         {
@@ -214,9 +215,9 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy <= 0)
+    if (m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy <= 0)
     {
-        m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
+        m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
     }
 
     return true;
@@ -484,7 +485,7 @@ UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ElementType>&
 
     Dictionary.SetProperty_SimilarityType(m_Parameter.ParameterOfKNNSoftAssign.SimilarityType);
 
-    Dictionary.SetProperty_SimilarityThresholdForComputingBasisRedundancy(m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy);
+    Dictionary.SetProperty_SimilarityThresholdForComputeBasisRedundancy(m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy);
 }
 
 
@@ -735,7 +736,7 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
         BasisRedundancy[0] = 0;
     }
 
-    auto SimilarityThreshold = m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy;
+    auto SimilarityThreshold = m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy;
 
     //for (int_max k = 0; k <= BasisNumber-1; ++k)
     auto TempFunction_UpdateRedundancy = [&](int_max k)

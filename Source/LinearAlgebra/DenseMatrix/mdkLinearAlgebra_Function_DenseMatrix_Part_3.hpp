@@ -784,7 +784,7 @@ ElementType ComputeKLDivergenceOfVectorAFromVectorB(const DenseMatrix<ElementTyp
     return ComputeKLDivergenceOfVectorAFromVectorB(VectorA.GetElementPointer(), VectorB.GetElementPointer(), LengthA, false);
 }
 
-
+// D(B||A)
 template<typename ElementType>
 inline
 ElementType ComputeKLDivergenceOfVectorAFromVectorB(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput)
@@ -820,6 +820,117 @@ ElementType ComputeKLDivergenceOfVectorAFromVectorB(const ElementType* VectorA, 
     return KLDivergence;
 }
 
+
+template<typename ElementType>
+DenseMatrix<ElementType> ComputeJSDivergenceListFromSingleVectorToColVectorSet(const DenseMatrix<ElementType>& SingleVector,
+                                                                               const DenseMatrix<ElementType>& ColVectorSet)
+{
+    DenseMatrix<ElementType> JSDivergenceList;
+
+    auto Size = ColVectorSet.GetSize();
+
+    if (Size.ColNumber == 0)
+    {
+        MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeJSDivergenceListFromSingleVectorToColVectorSet(...)")
+        return JSDivergenceList;
+    }
+
+    if (SingleVector.IsVector() == false)
+    {
+        MDK_Error("Input vector is not a vector @ mdkLinearAlgebra_DenseMatrix ComputeJSDivergenceListFromSingleVectorToColVectorSet(...)")
+        return JSDivergenceList;
+    }
+
+    if (SingleVector.GetElementNumber() != Size.RowNumber)
+    {
+        MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeKLDivergenceOfSingleVectorFromColVectorSet(...)")
+        return JSDivergenceList;
+    }
+
+    JSDivergenceList.FastResize(1, Size.ColNumber);
+
+    auto PointToSingleVector = SingleVector.GetElementPointer();
+
+    auto PointerToSet = ColVectorSet.GetElementPointer();
+
+    for (int_max j = 0; j < Size.ColNumber; ++j)
+    {
+        auto Vector_j = PointerToSet + j*Size.RowNumber;
+
+        JSDivergenceList[j] = ComputeJSDivergenceBetweenTwoVectors(PointToSingleVector, Vector_j, Size.RowNumber, false);
+    }
+
+    return JSDivergenceList;
+}
+
+
+template<typename ElementType>
+inline
+ElementType ComputeJSDivergenceBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB)
+{
+    // VectorA and VectorB should >= 0
+
+    if (VectorA.IsVector() == false || VectorB.IsVector() == false)
+    {
+        MDK_Error("Input VectorA or VectorB is not a vector @ mdkLinearAlgebra_DenseMatrix ComputeJSDivergenceBetweenTwoVectors(...)")
+        return ElementType(-100); // Jensen–Shannon divergence is always non-negative
+    }
+
+    auto LengthA = VectorA.GetElementNumber();
+    auto LengthB = VectorB.GetElementNumber();
+
+    if (LengthA != LengthB)
+    {
+        MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeJSDivergenceBetweenTwoVectors(...)")
+        return ElementType(-100);
+    }
+
+    return ComputeJSDivergenceBetweenTwoVectors(VectorA.GetElementPointer(), VectorB.GetElementPointer(), LengthA, false);
+}
+
+
+template<typename ElementType>
+inline
+ElementType ComputeJSDivergenceBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput)
+{
+    // VectorA and VectorB should >= 0
+
+    if (CheckInput == true)
+    {
+        if (VectorA == nullptr || VectorB == nullptr || Length <= 0)
+        {
+            MDK_Error("Invalid input @ mdkLinearAlgebra_DenseMatrix ComputeJSDivergenceBetweenTwoVectors(pointer ...)")
+            return ElementType(-100);
+        }
+    }
+
+    std::vector<ElementType> MeanVector;
+    MeanVector.resize(Length);
+
+    for (int_max i = 0; i < Length; ++i)
+    {
+        MeanVector[i] = (VectorA[i] + VectorB[i]) / ElementType(2);
+    }
+
+    auto KLDivergence_M_from_A = ComputeKLDivergenceOfVectorAFromVectorB(MeanVector.data(), VectorA, Length, CheckInput);
+
+    auto KLDivergence_M_from_B = ComputeKLDivergenceOfVectorAFromVectorB(MeanVector.data(), VectorB, Length, CheckInput);
+
+    auto JSDivergence = (KLDivergence_M_from_A + KLDivergence_M_from_B) / ElementType(2);
+
+    JSDivergence /= std::log(ElementType(2));
+
+    if (JSDivergence < 0)
+    {
+        JSDivergence = 0;
+    }
+    else if (JSDivergence > 1)
+    {
+        JSDivergence = 1;
+    }
+
+    return JSDivergence;
+}
 
 }
 

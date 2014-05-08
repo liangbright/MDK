@@ -477,7 +477,8 @@ void DataContainer<ElementType>::Clear()
 
     m_Data->Length = 0;
 
-    m_Data->DataArray.clear();
+    m_Data->DataArray.clear();         // change size
+    m_Data->DataArray.shrink_to_fit(); // release memory
 
     m_Data->ElementPointer = nullptr;
 

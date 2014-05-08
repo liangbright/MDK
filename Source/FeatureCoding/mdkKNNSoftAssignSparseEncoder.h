@@ -69,6 +69,10 @@ public:
 
     //--------------------------------------------------------------------------------------------------
 
+    static inline bool CheckIfSimilarityTypeSupported(VectorSimilarityTypeEnum SimilarityType);
+
+    //--------------------------------------------------------------------------------------------------
+
     static DenseMatrix<ElementType> ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
                                                    const DenseMatrix<ElementType>& KNNBasisMatrix,
                                                    const VectorSimilarityTypeEnum  SimilarityType,

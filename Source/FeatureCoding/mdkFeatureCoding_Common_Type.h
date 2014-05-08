@@ -22,6 +22,8 @@ enum struct VectorSimilarityTypeEnum
 
     KLDivergence,
 
+    JSDivergence,
+
     Unknown
 };
 

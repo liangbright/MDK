@@ -75,21 +75,21 @@ struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_O
 
         MaxNumberOfThreads = 1;
 
-        Update_BasisID = true;
+        Flag_Update_BasisID = true;
 
-        Update_BasisAge = false;
+        Flag_Update_BasisAge = false;
 
-        Update_Variance = false;
+        Flag_Update_Variance = false;
 
-        Update_VarianceOfReconstruction_Using_KNNBasisMatrix = false;
+        Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix = false;
 
-        Update_BasisExperience = false;
+        Flag_Update_BasisExperience = false;
 
-        Update_SimilarityMatrix = true;
+        Flag_Update_SimilarityMatrix = true;
 
-        Update_BasisRedundancy = true;
+        Flag_Update_BasisRedundancy = true;
 
-        SimilarityThreshold_For_ComputingBasisRedundancy = 0;
+        SimilarityThreshold_For_ComputeBasisRedundancy = 0;
 
         ConstraintOnKNNReconstructionCode.CodeNonnegative = false;
         ConstraintOnKNNReconstructionCode.CodeSumToOne = false;
@@ -132,21 +132,21 @@ struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_O
 
         SubParameter.MaxNumberOfThreads = MaxNumberOfThreads;
 
-        SubParameter.Update_BasisID = Update_BasisID;
+        SubParameter.Flag_Update_BasisID = Flag_Update_BasisID;
 
-        SubParameter.Update_BasisAge = Update_BasisAge;
+        SubParameter.Flag_Update_BasisAge = Flag_Update_BasisAge;
 
-        SubParameter.Update_BasisExperience = Update_BasisExperience;
+        SubParameter.Flag_Update_BasisExperience = Flag_Update_BasisExperience;
 
-        SubParameter.Update_Variance = Update_Variance;
+        SubParameter.Flag_Update_Variance = Flag_Update_Variance;
 
-        SubParameter.Update_VarianceOfReconstruction_Using_KNNBasisMatrix = Update_VarianceOfReconstruction_Using_KNNBasisMatrix;
+        SubParameter.Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix = Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix;
 
-        SubParameter.Update_SimilarityMatrix = Update_SimilarityMatrix;
+        SubParameter.Flag_Update_SimilarityMatrix = Flag_Update_SimilarityMatrix;
 
-        SubParameter.Update_BasisRedundancy = Update_BasisRedundancy;
+        SubParameter.Flag_Update_BasisRedundancy = Flag_Update_BasisRedundancy;
 
-        SubParameter.SimilarityThreshold_For_ComputingBasisRedundancy = SimilarityThreshold_For_ComputingBasisRedundancy;
+        SubParameter.SimilarityThreshold_For_ComputeBasisRedundancy = SimilarityThreshold_For_ComputeBasisRedundancy;
 
         SubParameter.ConstraintOnKNNReconstructionCode = ConstraintOnKNNReconstructionCode;
 

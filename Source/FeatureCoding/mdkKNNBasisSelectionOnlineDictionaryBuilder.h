@@ -89,21 +89,21 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
     //--------------------- parameter for updating dictionary information -------------//
 
-    bool Update_BasisID;
+    bool Flag_Update_BasisID;
 
-    bool Update_BasisAge;
+    bool Flag_Update_BasisAge;
 
-    bool Update_BasisExperience;
+    bool Flag_Update_BasisExperience;
 
-    bool Update_Variance;
+    bool Flag_Update_Variance;
 
-    bool Update_VarianceOfReconstruction_Using_KNNBasisMatrix;
+    bool Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix;
 
-    bool Update_SimilarityMatrix;
+    bool Flag_Update_SimilarityMatrix;
 
-    bool Update_BasisRedundancy;
+    bool Flag_Update_BasisRedundancy;
 
-    ElementType SimilarityThreshold_For_ComputingBasisRedundancy;
+    ElementType SimilarityThreshold_For_ComputeBasisRedundancy;
 
     Constraint_on_Code_Of_KNNReconstruction_For_FeatureCoding ConstraintOnKNNReconstructionCode;
 
@@ -140,21 +140,21 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
         MaxNumberOfThreads = 1;
 
-        Update_BasisID  = false; // new basis ID = 0
+        Flag_Update_BasisID  = false; // new basis ID = 0
 
-        Update_BasisAge = false; // new basis age = 0
+        Flag_Update_BasisAge = false; // new basis age = 0
 
-        Update_Variance = false; // Variance at new basis is initial value from ParameterOfKNNSoftAssign
+        Flag_Update_Variance = false; // Variance at new basis is initial value from ParameterOfKNNSoftAssign
 
-        Update_VarianceOfReconstruction_Using_KNNBasisMatrix = false;
+        Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix = false;
 
-        Update_BasisExperience  = false; // new basis Experience = 1
+        Flag_Update_BasisExperience  = false; // new basis Experience = 1
 
-        Update_SimilarityMatrix = true;
+        Flag_Update_SimilarityMatrix = true;
 
-        Update_BasisRedundancy = true;
+        Flag_Update_BasisRedundancy = true;
 
-        SimilarityThreshold_For_ComputingBasisRedundancy = 0;
+        SimilarityThreshold_For_ComputeBasisRedundancy = 0;
 
         ConstraintOnKNNReconstructionCode.CodeNonnegative = false;
         ConstraintOnKNNReconstructionCode.CodeSumToOne    = false;

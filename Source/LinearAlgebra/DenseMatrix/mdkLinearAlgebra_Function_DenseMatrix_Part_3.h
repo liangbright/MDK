@@ -119,7 +119,7 @@ template<typename ElementType>
 DenseMatrix<ElementType> ComputeKLDivergenceListOfSingleVectorFromColVectorSet(const DenseMatrix<ElementType>& SingleVector,
                                                                                const DenseMatrix<ElementType>& ColVectorSet);
 
-// D(A||B), B is considered as "ground truth", basis  
+// D(B||A) is divergence of A from B, and  B is considered as "ground truth"
 template<typename ElementType>
 inline
 ElementType ComputeKLDivergenceOfVectorAFromVectorB(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
@@ -127,6 +127,20 @@ ElementType ComputeKLDivergenceOfVectorAFromVectorB(const DenseMatrix<ElementTyp
 template<typename ElementType>
 inline
 ElementType ComputeKLDivergenceOfVectorAFromVectorB(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
+
+
+// Jensen–Shannon divergence is in the range [0, 1]
+template<typename ElementType>
+DenseMatrix<ElementType> ComputeJSDivergenceListFromSingleVectorToColVectorSet(const DenseMatrix<ElementType>& SingleVector,
+                                                                               const DenseMatrix<ElementType>& ColVectorSet);
+
+template<typename ElementType>
+inline
+ElementType ComputeJSDivergenceBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+
+template<typename ElementType>
+inline
+ElementType ComputeJSDivergenceBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
 
 
 }// namespace mdk

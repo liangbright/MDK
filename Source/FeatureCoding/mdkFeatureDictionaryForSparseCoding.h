@@ -57,7 +57,7 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
 
     DenseMatrix<ElementType> SimilarityMatrix;
 
-    ElementType SimilarityThreshold_For_ComputingBasisRedundancy;
+    ElementType SimilarityThreshold_For_ComputeBasisRedundancy;
 
     DenseMatrix<ElementType> BasisRedundancy;
     // BasisRedundancy[j] =  the number of the other bases near the basis j ( Similarity(i, j) >= SimilarityThreshold) 
@@ -195,8 +195,8 @@ public:
     inline DenseMatrix<ElementType>& SimilarityMatrix();
     inline const DenseMatrix<ElementType>& SimilarityMatrix() const;
 
-    inline void SetProperty_SimilarityThresholdForComputingBasisRedundancy(ElementType SimilarityThreshold);
-    inline ElementType GetProperty_SimilarityThresholdForComputingBasisRedundancy() const;
+    inline void SetProperty_SimilarityThresholdForComputeBasisRedundancy(ElementType SimilarityThreshold);
+    inline ElementType GetProperty_SimilarityThresholdForComputeBasisRedundancy() const;
 
     inline DenseMatrix<ElementType>& VarianceOfL1Distance();
     inline const DenseMatrix<ElementType>& VarianceOfL1Distance() const;

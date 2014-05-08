@@ -8,9 +8,11 @@ int main()
 {
     //Test_Matrix();
 
-    Test_plus_space_plus();
+    //Test_plus_space_plus();
 
-    Test_SimpleCase();
+    //Test_SimpleCase();
+
+    Test_GaussianObjectImage();
 
     std::system("pause");
 

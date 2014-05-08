@@ -354,7 +354,7 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::operator=(const std::initializer_list<const DenseMatrix<ElementType>*>& InputList)
 {
-    //InputList is treated as a row vector
+    //InputList is treated as a row vector, and each element in this vector is a matrix
 
     auto InputMatrixNumber = int_max(InputList.size());
 
@@ -366,15 +366,14 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
 
     bool IsSelfInInputList = false;
 
-    std::vector<int_max> ColNumberList(InputMatrixNumber);
+    std::vector<int_max> ColNumberList;
+    ColNumberList.resize(InputMatrixNumber);
 
     int_max InputRowNumber = InputList.begin()[0]->GetRowNumber();
 
-    int_max TotalColNumber = InputList.begin()[0]->GetColNumber();
+    int_max TotalColNumber = 0;
 
-    ColNumberList[0] = TotalColNumber;
-
-    for (int_max k = 1; k < InputMatrixNumber; k++)
+    for (int_max k = 0; k < InputMatrixNumber; k++)
     {
         auto InputMatrixPtr = InputList.begin()[k];
 
@@ -445,8 +444,6 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
             DenseMatrix<ElementType> tempMatrix = InputList;
 
             this->Take(tempMatrix);
-
-            return;
         }
     }
 }
@@ -1088,7 +1085,8 @@ void DenseMatrix<ElementType>::Clear()
 
     m_MatrixData->ColNumber = 0;
 
-    m_MatrixData->DataArray.clear();
+    m_MatrixData->DataArray.clear();         // change size
+    m_MatrixData->DataArray.shrink_to_fit(); // release memory
 
     m_MatrixData->ElementPointer = nullptr;
 
@@ -1230,7 +1228,7 @@ try
         return true;
     }
 
-    // RowNumber != SelfSize.RowNumber and self is not empty -----------------------------------------------------------------------------
+    // InputRowNumber != SelfSize.RowNumber and self is not empty -----------------------------------------------------------------------------
 
     auto tempDataArray = std::vector<ElementType>(InputRowNumber*InputColNumber);
 
@@ -1240,6 +1238,7 @@ try
 
     auto RowNumber_min = std::min(SelfSize.RowNumber, InputRowNumber);
 
+    // try to keep old data as much as possible
     for (int_max j = 0; j < ColNumber_min; ++j)
     {
         auto tempIndex = j*InputRowNumber;
@@ -1258,7 +1257,6 @@ try
 
     m_MatrixData->ColNumber = InputColNumber;
 
-    m_MatrixData->DataArray.clear();
     m_MatrixData->DataArray = std::move(tempDataArray);
 
     m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
@@ -1303,7 +1301,17 @@ bool DenseMatrix<ElementType>::FastResize(int_max InputRowNumber, int_max InputC
 
     if (InputRowNumber == 0 || InputColNumber == 0)
     {
-        this->Clear();
+        m_MatrixData->RowNumber = 0;
+        m_MatrixData->ColNumber = 0;
+
+        m_MatrixData->DataArray.clear();         // change size, but not release memory
+
+        m_MatrixData->ElementPointer = nullptr;
+
+        m_MatrixData->IsSizeFixed = false;
+
+        m_ElementPointer = nullptr;
+
         return true;
     }
 
@@ -1384,17 +1392,17 @@ try
 
     m_ElementPointer = m_MatrixData->ElementPointer;
 
-    if (Size.RowNumber == 0)// empty -> row vector
+    if (Size.RowNumber == 0) // empty -> row vector
     {
         m_MatrixData->RowNumber = 1;
         m_MatrixData->ColNumber = InputElementNumber;
     }
-    else if (Size.RowNumber == 1)
+    else if (Size.RowNumber == 1) // row vector -> row vector
     {
         m_MatrixData->RowNumber = 1;
         m_MatrixData->ColNumber = InputElementNumber;
     }
-    else if (Size.ColNumber == 1)
+    else if (Size.ColNumber == 1) // col vector -> col vector
     {
         m_MatrixData->RowNumber = InputElementNumber;
         m_MatrixData->ColNumber = 1;
@@ -1424,67 +1432,23 @@ bool DenseMatrix<ElementType>::FastResize(int_max InputElementNumber) // do not 
 
     auto Size = this->GetSize();
 
-    if (Size.RowNumber > 1 && Size.ColNumber > 1)
+    if (Size.RowNumber == 0) // empty -> row vector
     {
-        MDK_Error("Self is not empty and not a vector @ DenseMatrix::FastResize(int_max InputElementNumber)")
+        return this->FastResize(1, InputElementNumber);
+    }
+    else if (Size.RowNumber == 1) // row vector -> row vector
+    {
+        return this->FastResize(1, InputElementNumber);
+    }
+    else if (Size.ColNumber == 1) // col vector -> col vector
+    {
+        return this->FastResize(InputElementNumber, 1);
+    }
+    else
+    {
+        MDK_Error("Self is not empty or not a vector @ DenseMatrix::FastResize(int_max InputElementNumber)")
         return false;
-    }
-
-    if (Size.RowNumber*Size.ColNumber == InputElementNumber)
-    {
-        return true;
-    }
-
-    if (this->IsSizeFixed() == true)
-    {
-        MDK_Error("Can not change size @ DenseMatrix::FastResize(int_max InputElementNumber)")
-        return false;
-    }
-
-    if (InputElementNumber == 0)
-    {
-        this->Clear();
-        return true;
-    }
-
-try
-{
-    if (InputElementNumber > int_max(m_MatrixData->DataArray.capacity()))
-    {
-        m_MatrixData->DataArray.clear();
-    }
-
-    m_MatrixData->DataArray.resize(InputElementNumber);
-
-    m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
-
-    m_ElementPointer = m_MatrixData->ElementPointer;
-
-    if (Size.RowNumber == 0)// empty -> row vector
-    {
-        m_MatrixData->RowNumber = 1;
-        m_MatrixData->ColNumber = InputElementNumber;
-    }
-    else if (Size.RowNumber == 1)
-    {
-        m_MatrixData->RowNumber = 1;
-        m_MatrixData->ColNumber = InputElementNumber;
-    }
-    else if (Size.ColNumber == 1)
-    {
-        m_MatrixData->RowNumber = InputElementNumber;
-        m_MatrixData->ColNumber = 1;
-    }
-}
-catch (...)
-{
-    MDK_Error("Out of Memory @ DenseMatrix::FastResize(int_max InputElementNumber)")
-
-    this->Clear();
-
-    return false;
-}
-    return true;
+    }    
 }
 
 

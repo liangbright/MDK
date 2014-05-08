@@ -125,23 +125,16 @@ bool KNNAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.MaxNumberOfDataInEachBatch > m_FeatureData->GetColNumber())
-    {
-        MDK_Error("MaxNumberOfDataInEachBatch > TotalDataNumber @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
-        return false;
-    }
-
     if (m_Parameter.MaxNumberOfDataInEachBatch < m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber)
     {
         MDK_Error("MaxNumberOfDataInEachBatch < MaxNumberOfNeighbours @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
-    if (m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::L1Distance
-        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::L2Distance
-        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::Correlation
-        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation
-        && m_Parameter.ParameterOfKNNSoftAssign.SimilarityType != VectorSimilarityTypeEnum::KLDivergence)
+    auto IsSimilarityTypeSupported = KNNSoftAssignSparseEncoder<ElementType>::
+                                     CheckIfSimilarityTypeSupported(m_Parameter.ParameterOfKNNSoftAssign.SimilarityType);    
+
+    if (IsSimilarityTypeSupported == false)
     {
         MDK_Error("SimilarityType is not supported @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
         return false;
@@ -184,9 +177,9 @@ bool KNNAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy <= 0)
+    if (m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy <= 0)
     {
-        m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
+        m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
     }
 
     return true;
@@ -430,7 +423,7 @@ UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ElementType>&
 
     Dictionary.SetProperty_SimilarityType(m_Parameter.ParameterOfKNNSoftAssign.SimilarityType);
 
-    Dictionary.SetProperty_SimilarityThresholdForComputingBasisRedundancy(m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy);
+    Dictionary.SetProperty_SimilarityThresholdForComputeBasisRedundancy(m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy);
 }
 
 
@@ -840,7 +833,7 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
         BasisRedundancy[0] = 0;
     }
 
-    auto SimilarityThreshold = m_Parameter.SimilarityThreshold_For_ComputingBasisRedundancy;
+    auto SimilarityThreshold = m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy;
 
     //for (int_max k = 0; k <= BasisNumber-1; ++k)
     auto TempFunction_UpdateRedundancy = [&](int_max k)
