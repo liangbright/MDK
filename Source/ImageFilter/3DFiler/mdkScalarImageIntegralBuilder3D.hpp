@@ -1,43 +1,43 @@
-#ifndef __mdkIntegralImageBuilder3D_hpp
-#define __mdkIntegralImageBuilder3D_hpp
+#ifndef __mdkIntegralScalarImageBuilder3D_hpp
+#define __mdkIntegralScalarImageBuilder3D_hpp
 
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType>
-IntegralImageBuilder3D<InputPixelType, OutputPixelType>::IntegralImageBuilder3D()
+IntegralScalarImageBuilder3D<InputPixelType, OutputPixelType>::IntegralScalarImageBuilder3D()
 {
 
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-IntegralImageBuilder3D<InputPixelType, OutputPixelType>::~IntegralImageBuilder3D()
+IntegralScalarImageBuilder3D<InputPixelType, OutputPixelType>::~IntegralScalarImageBuilder3D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void IntegralImageBuilder3D<InputPixelType, OutputPixelType>::Clear()
+void IntegralScalarImageBuilder3D<InputPixelType, OutputPixelType>::Clear()
 {
-    this->ImageFilter3D::Clear();
+    this->ScalarImageFilter3D::Clear();
 
     m_Flag_OutputImage = true;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool IntegralImageBuilder3D<InputPixelType, OutputPixelType>::CheckInput()
+bool IntegralScalarImageBuilder3D<InputPixelType, OutputPixelType>::CheckInput()
 {
-    if (this->ImageFilter3D::CheckInput() == false)
+    if (this->ScalarImageFilter3D::CheckInput() == false)
     {
         return false;
     }
 
     if (m_Flag_OutputImage == false)
     {
-        MDK_Error("OutputImage is invalid @ IntegralImageBuilder3D::CheckInput()")
+        MDK_Error("OutputImage is invalid @ IntegralScalarImageBuilder3D::CheckInput()")
         return false;
     }
 
@@ -47,7 +47,7 @@ bool IntegralImageBuilder3D<InputPixelType, OutputPixelType>::CheckInput()
 
     if (InputSize.Lx != OutputSize.Lx || InputSize.Ly != OutputSize.Ly || InputSize.Lz != OutputSize.Lz)
     {
-        MDK_Error("Size does not match @ IntegralImageBuilder3D::CheckInput()")
+        MDK_Error("Size does not match @ IntegralScalarImageBuilder3D::CheckInput()")
         return false;
     }
 
@@ -62,12 +62,12 @@ bool IntegralImageBuilder3D<InputPixelType, OutputPixelType>::CheckInput()
 
 template<typename InputPixelType, typename OutputPixelType>
 inline
-void IntegralImageBuilder3D<InputPixelType, OutputPixelType>::
-Compute2DIntegralImage(int_max z_Index_start, int_max z_Index_end)
+void IntegralScalarImageBuilder3D<InputPixelType, OutputPixelType>::
+Compute2DIntegralScalarImage(int_max z_Index_start, int_max z_Index_end)
 {
     if (z_Index_end < z_Index_start || z_Index_start < 0)
     {
-        MDK_Error("Invalid input @ IntegralImageBuilder3D::Compute2DIntegralImage")
+        MDK_Error("Invalid input @ IntegralScalarImageBuilder3D::Compute2DIntegralScalarImage")
         return;
     }
 
@@ -103,12 +103,12 @@ Compute2DIntegralImage(int_max z_Index_start, int_max z_Index_end)
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void IntegralImageBuilder3D<InputPixelType, OutputPixelType>::
+void IntegralScalarImageBuilder3D<InputPixelType, OutputPixelType>::
 ComputeSumInZDirection(int_max xy_LinearIndex_start, int_max xy_LinearIndex_end)
 {
     if (xy_LinearIndex_end < xy_LinearIndex_start || xy_LinearIndex_start < 0)
     {
-        MDK_Error("Invalid input @ IntegralImageBuilder3D::ComputeSumInZDirection")
+        MDK_Error("Invalid input @ IntegralScalarImageBuilder3D::ComputeSumInZDirection")
         return;
     }
 
@@ -133,18 +133,18 @@ ComputeSumInZDirection(int_max xy_LinearIndex_start, int_max xy_LinearIndex_end)
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool IntegralImageBuilder3D<InputPixelType, OutputPixelType>::Update()
+bool IntegralScalarImageBuilder3D<InputPixelType, OutputPixelType>::Update()
 {
     if (this->CheckInput() == false)
     {
         return false;
     }
 
-    // compute each 2D IntegralImage -------------------------------------------------------------------------------------
+    // compute each 2D IntegralScalarImage -------------------------------------------------------------------------------------
    
     auto InputSize = m_InputImage->GetSize();
 
-    ParallelBlock([&](int_max z_Index_start, int_max z_Index_end, int_max){this->Compute2DIntegralImage(z_Index_start, z_Index_end); },
+    ParallelBlock([&](int_max z_Index_start, int_max z_Index_end, int_max){this->Compute2DIntegralScalarImage(z_Index_start, z_Index_end); },
                   0, InputSize.Lz - 1, m_MaxNumberOfThreads, 1);
 
     // sum in z-direction ------------------------------------------------------------------------------------------------------------

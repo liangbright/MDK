@@ -151,7 +151,6 @@ ElementType& DenseVectorWithVariableSize<ElementType>::operator[](int_max Index)
     if (Index >= Length || Index < 0)
     {
         MDK_Error("Invalid input @ DenseVectorWithVariableSize::operator[](Index)")
-        return m_DataArray[0];
     }
 
 #endif // MDK_DEBUG_DenseVectorWithVariableSize_Operator_CheckBound    
@@ -171,7 +170,6 @@ const ElementType& DenseVectorWithVariableSize<ElementType>::operator[](int_max 
     if (Index >= Length || Index < 0)
     {
         MDK_Error("Invalid input @ DenseVectorWithVariableSize::operator[](Index) const")
-        return m_DataArray[0];
     }
 
 #endif // MDK_DEBUG_3DImageDenseVectorWithVariableSize_Operator_CheckBound    
@@ -191,7 +189,6 @@ ElementType& DenseVectorWithVariableSize<ElementType>::operator()(int_max Index)
     if (Index >= Length || Index < 0)
     {
         MDK_Error("Invalid input @ DenseVectorWithVariableSize::operator()(Index)")
-        return m_DataArray[0];
     }
 
 #endif // MDK_DEBUG_3DImageDenseVectorWithVariableSize_Operator_CheckBound    
@@ -211,7 +208,6 @@ const ElementType& DenseVectorWithVariableSize<ElementType>::operator()(int_max 
     if (Index >= Length || Index < 0)
     {
         MDK_Error("Invalid input @ DenseVectorWithVariableSize::operator()(Index) const")
-        return m_DataArray[0];
     }
 
 #endif // MDK_DEBUG_3DImageDenseVectorWithVariableSize_Operator_CheckBound    
@@ -229,7 +225,6 @@ ElementType& DenseVectorWithVariableSize<ElementType>::at(int_max Index)
     if (Index >= Length || Index < 0)
     {
         MDK_Error("Invalid input @ DenseVectorWithVariableSize::at(Index)")
-        return m_DataArray[0];
     }
 
     return m_DataArray[Index];
@@ -245,7 +240,6 @@ const ElementType& DenseVectorWithVariableSize<ElementType>::at(int_max Index) c
     if (Index >= Length || Index < 0)
     {
         MDK_Error("Invalid input @ DenseVectorWithVariableSize::at(Index)")
-        return m_DataArray[0];
     }
 
     return m_DataArray[Index];

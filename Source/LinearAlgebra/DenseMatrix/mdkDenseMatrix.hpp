@@ -1648,9 +1648,9 @@ bool DenseMatrix<ElementType>::IsIdentityMatrix(ElementType Threshold) const
 
     for (int_max i = 0; i < SelfSize.RowNumber; ++i)
     {
-        auto DiangonalElement_j = RawPointer[Index + i];
+        auto DiagonalElement_j = RawPointer[Index + i];
 
-        if (std::abs(DiangonalElement_j - ElementType(1)) > Threshold) // must use ">" becuause ElementType may be int and Threshold is 0
+        if (std::abs(DiagonalElement_j - ElementType(1)) > Threshold) // must use ">" becuause ElementType may be int and Threshold is 0
         {
             return false;
         }
@@ -3496,13 +3496,13 @@ DenseMatrix<ElementType>::Row(const DenseMatrix<int_max>& RowIndexList)
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Diangonal()
+DenseMatrix<ElementType>::Diagonal()
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error(" Self is empty or not square @ DenseMatrix::Diangonal()")
+        MDK_Error(" Self is empty or not square @ DenseMatrix::Diagonal()")
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return  tempShadowMatrix;
     }
@@ -3527,13 +3527,13 @@ DenseMatrix<ElementType>::Diangonal()
 template<typename ElementType>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Diangonal() const
+DenseMatrix<ElementType>::Diagonal() const
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error(" Self is empty or not square @ DenseMatrix::Diangonal() const")
+        MDK_Error(" Self is empty or not square @ DenseMatrix::Diagonal() const")
         DenseShadowMatrix<ElementType> tempShadowMatrix;
         return  tempShadowMatrix;
     }
@@ -5125,7 +5125,7 @@ bool DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const ElementType_Inp
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::GetDiangonal() const
+DenseMatrix<ElementType> DenseMatrix<ElementType>::GetDiagonal() const
 {
     DenseMatrix<ElementType> tempMatrix; 
 
@@ -5133,7 +5133,7 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetDiangonal() const
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error(" Self is empty or not square @ DenseMatrix::GetDiangonal()")
+        MDK_Error(" Self is empty or not square @ DenseMatrix::GetDiagonal()")
         
         return  tempMatrix;
     }
@@ -5142,7 +5142,7 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetDiangonal() const
 
     auto tempRawPointer = tempMatrix.GetElementPointer();
 
-    this->GetDiangonal(tempRawPointer);
+    this->GetDiagonal(tempRawPointer);
 
     return tempMatrix;
 }
@@ -5150,31 +5150,31 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetDiangonal() const
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::GetDiangonal(std::vector<ElementType>& DiangonalData) const
+bool DenseMatrix<ElementType>::GetDiagonal(std::vector<ElementType>& DiagonalData) const
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error(" Self is empty or not square @ DenseMatrix::GetDiangonal(std::vector)")
+        MDK_Error(" Self is empty or not square @ DenseMatrix::GetDiagonal(std::vector)")
         return  false;
     }
 
-    DiangonalData.resize(SelfSize.RowNumber);
+    DiagonalData.resize(SelfSize.RowNumber);
 
-    auto outputRawPointer = DiangonalData.data();
+    auto outputRawPointer = DiagonalData.data();
 
-    return this->GetDiangonal(outputRawPointer);
+    return this->GetDiagonal(outputRawPointer);
 }
 
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) const
+bool DenseMatrix<ElementType>::GetDiagonal(ElementType* DiagonalData) const
 {
-    if (DiangonalData == nullptr)
+    if (DiagonalData == nullptr)
     {
-        MDK_Error(" Input is nullptr @ DenseMatrix::GetDiangonal(ElementType* DiangonalData)")
+        MDK_Error(" Input is nullptr @ DenseMatrix::GetDiagonal(ElementType* DiagonalData)")
         return  false;
     }
 
@@ -5182,7 +5182,7 @@ bool DenseMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) const
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error(" Self is empty or not square @ DenseMatrix::GetDiangonal(ElementType* DiangonalData)")
+        MDK_Error(" Self is empty or not square @ DenseMatrix::GetDiagonal(ElementType* DiagonalData)")
         return  false;
     }
 
@@ -5192,7 +5192,7 @@ bool DenseMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) const
 
     for (int_max i = 0; i < SelfSize.RowNumber; ++i)
     {
-        DiangonalData[j] = RawPointer[Index + i];
+        DiagonalData[j] = RawPointer[Index + i];
 
         Index += SelfSize.RowNumber;
     }
@@ -5204,59 +5204,59 @@ bool DenseMatrix<ElementType>::GetDiangonal(ElementType* DiangonalData) const
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool DenseMatrix<ElementType>::SetDiangonal(const std::initializer_list<ElementType_Input>& DiangonalData)
+bool DenseMatrix<ElementType>::SetDiagonal(const std::initializer_list<ElementType_Input>& DiagonalData)
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error("Self is empty or not square @ DenseMatrix::SetDiangonal(std::initializer_list)")
+        MDK_Error("Self is empty or not square @ DenseMatrix::SetDiagonal(std::initializer_list)")
         return false;
     }
 
-    if (DiangonalData.size() != SelfSize.RowNumber)
+    if (DiagonalData.size() != SelfSize.RowNumber)
     {
-        MDK_Error("Invalid Input @ DenseMatrix::SetDiangonal(std::initializer_list)")
+        MDK_Error("Invalid Input @ DenseMatrix::SetDiagonal(std::initializer_list)")
         return false;
     }
 
-    return this->SetDiangonal(DiangonalData.begin());
+    return this->SetDiagonal(DiagonalData.begin());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool DenseMatrix<ElementType>::SetDiangonal(const std::vector<ElementType_Input>& DiangonalData)
+bool DenseMatrix<ElementType>::SetDiagonal(const std::vector<ElementType_Input>& DiagonalData)
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
 	{
-		MDK_Error(" Self is empty or not square @ DenseMatrix::SetDiangonal(std::vector)")
+		MDK_Error(" Self is empty or not square @ DenseMatrix::SetDiagonal(std::vector)")
 		return false;
 	}
 
-    if (DiangonalData.size() != SelfSize.RowNumber)
+    if (DiagonalData.size() != SelfSize.RowNumber)
     {
-        MDK_Error(" Input is invalid @ DenseMatrix::SetDiangonal(std::vector)")
+        MDK_Error(" Input is invalid @ DenseMatrix::SetDiagonal(std::vector)")
         return false;
     }
 
-	return this->SetDiangonal(DiangonalData.data());
+	return this->SetDiagonal(DiagonalData.data());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool DenseMatrix<ElementType>::SetDiangonal(const DenseMatrix<ElementType_Input>& DiangonalData)
+bool DenseMatrix<ElementType>::SetDiagonal(const DenseMatrix<ElementType_Input>& DiagonalData)
 {
-    auto InputSize = DiangonalData.GetSize();
+    auto InputSize = DiagonalData.GetSize();
 
     if (InputSize.ColNumber != 1 || InputSize.RowNumber != 1)
     {
-        MDK_Error("Invalid Input @ DenseMatrix::SetDiangonal(Matrix)")
+        MDK_Error("Invalid Input @ DenseMatrix::SetDiagonal(Matrix)")
         return false;
     }
 
@@ -5264,24 +5264,24 @@ bool DenseMatrix<ElementType>::SetDiangonal(const DenseMatrix<ElementType_Input>
 
     if (InputSize.RowNumber > 1 && InputSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error("Invalid Input @ DenseMatrix::SetDiangonal(Matrix)")
+        MDK_Error("Invalid Input @ DenseMatrix::SetDiagonal(Matrix)")
         return false;
     }
 
     if (InputSize.ColNumber > 1 && InputSize.ColNumber != SelfSize.ColNumber)
     {
-        MDK_Error("Invalid Input @ DenseMatrix::SetDiangonal(Matrix)")
+        MDK_Error("Invalid Input @ DenseMatrix::SetDiagonal(Matrix)")
         return false;
     }
 
     if (InputSize.RowNumber == 1 && InputSize.ColNumber == 1)
     {
-        MDK_Warning("Input matrix is 1x1 and treated as a scalar @ DenseMatrix::SetDiangonal(Matrix)")
-        return this->FillDiangonal(ElementType(DiangonalData(0)));
+        MDK_Warning("Input matrix is 1x1 and treated as a scalar @ DenseMatrix::SetDiagonal(Matrix)")
+        return this->FillDiagonal(ElementType(DiagonalData(0)));
     }
     else
     {
-        return this->SetDiangonal(DiangonalData.GetElementPointer());
+        return this->SetDiagonal(DiagonalData.GetElementPointer());
     }
 }
 
@@ -5289,11 +5289,11 @@ bool DenseMatrix<ElementType>::SetDiangonal(const DenseMatrix<ElementType_Input>
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-bool DenseMatrix<ElementType>::SetDiangonal(const ElementType_Input* DiangonalData)
+bool DenseMatrix<ElementType>::SetDiagonal(const ElementType_Input* DiagonalData)
 {
-    if (DiangonalData == nullptr)
+    if (DiagonalData == nullptr)
     {
-        MDK_Error(" Input is nullptr @ DenseMatrix::SetDiangonal(const ElementType_Input* DiangonalData)")
+        MDK_Error(" Input is nullptr @ DenseMatrix::SetDiagonal(const ElementType_Input* DiagonalData)")
         return false;
     }
 
@@ -5301,7 +5301,7 @@ bool DenseMatrix<ElementType>::SetDiangonal(const ElementType_Input* DiangonalDa
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error(" Self is empty or not square @ DenseMatrix::SetDiangonal(const ElementType_Input* DiangonalData)")
+        MDK_Error(" Self is empty or not square @ DenseMatrix::SetDiagonal(const ElementType_Input* DiagonalData)")
         return false;
     }
 
@@ -5311,7 +5311,7 @@ bool DenseMatrix<ElementType>::SetDiangonal(const ElementType_Input* DiangonalDa
 
     for (int_max i = 0; i < SelfSize.RowNumber; ++i)
     {
-        RawPointer[Index + i] = ElementType(DiangonalData[i]);
+        RawPointer[Index + i] = ElementType(DiagonalData[i]);
 
         Index += SelfSize.RowNumber;
     }
@@ -5322,13 +5322,13 @@ bool DenseMatrix<ElementType>::SetDiangonal(const ElementType_Input* DiangonalDa
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::FillDiangonal(const ElementType& Element)
+bool DenseMatrix<ElementType>::FillDiagonal(const ElementType& Element)
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
     {
-        MDK_Error(" Self is empty or not square @ DenseMatrix::FillDiangonal")
+        MDK_Error(" Self is empty or not square @ DenseMatrix::FillDiagonal")
         return false;
     }
 

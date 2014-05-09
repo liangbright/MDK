@@ -309,16 +309,16 @@ void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& Ou
 // header is saved in SomeImage.json
 // data is saved in SomeImage.json.data
 //
-template<typename ElementType>
-bool Save3DImageAsJsonDataFile(const Image3D<ElementType>& InputImage, const CharString& FilePathAndName)
+template<typename PixelType>
+bool Save3DScalarImageAsJsonDataFile(const ScalarImage3D<PixelType>& InputImage, const CharString& FilePathAndName)
 {
-    ElementType ReferenceScalar = ElementType(0);
+    auto ReferenceScalar = PixelType(0);
 
     int_max ByteNumber = CalByteNumberOfScalar(ReferenceScalar);
 
     if (ByteNumber <= 0)
     {
-        MDK_Error("Unknown type of image @ Save3DImageAsJsonDataFile(...)")
+        MDK_Error("Unknown type of image @ Save3DScalarImageAsJsonDataFile(...)")
         return false;
     }
 
@@ -393,7 +393,7 @@ bool Save3DImageAsJsonDataFile(const Image3D<ElementType>& InputImage, const Cha
 
     if (!DataFile.open(QIODevice::WriteOnly))
     {
-        MDK_Error("Couldn't open file to write image data @ Save3DImageAsJsonDataFile(...)")
+        MDK_Error("Couldn't open file to write image data @ Save3DScalarImageAsJsonDataFile(...)")
         return false;
     }
 
@@ -410,14 +410,14 @@ bool Save3DImageAsJsonDataFile(const Image3D<ElementType>& InputImage, const Cha
 }
 
 
-template<typename ElementType>
-Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndName)
+template<typename PixelType>
+ScalarImage3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathAndName)
 {
-    Image3D<ElementType> OutputImage;
+    ScalarImage3D<PixelType> OutputImage;
 
     //----------------------------------------------------------
 
-    auto ReferenceScalar = ElementType(0);
+    auto ReferenceScalar = PixelType(0);
 
     auto OutputElementTypeName_temp = FindScalarTypeName(ReferenceScalar);
 
@@ -433,7 +433,7 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
 
     if (!HeaderFile.open(QIODevice::ReadOnly))
     {
-        MDK_Error("Couldn't open Header File @ Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't open Header File @ Load3DScalarImageFromJsonDataFile(...)")
         return OutputImage;
     }
 
@@ -450,14 +450,14 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
 
         if (Dimension != 3)
         {
-            MDK_Error("Dimension is not 3 @ Load3DImageFromJsonDataFile(...)")
+            MDK_Error("Dimension is not 3 @ Load3DScalarImageFromJsonDataFile(...)")
             HeaderFile.close();
             return OutputImage;
         }
     }
     else
     {
-        MDK_Error("Couldn't get Dimension @ Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Dimension @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -473,7 +473,7 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
     }
     else
     {
-        MDK_Error("Couldn't get PixelType @ Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get PixelType @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -489,7 +489,7 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
     }
     else
     {
-        MDK_Error("Couldn't get Size_x @ Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Size_x @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -501,7 +501,7 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
     }
     else
     {
-        MDK_Error("Couldn't get Size_y @ Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Size_y @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -513,7 +513,7 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
     }
     else
     {
-        MDK_Error("Couldn't get Size_z @ Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Size_z @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -528,7 +528,7 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
     }
     else
     {
-        MDK_Error("Couldn't get Spacing_x @ Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Spacing_x @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -540,7 +540,7 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
     }
     else
     {
-        MDK_Error("Couldn't get Spacing_y @ Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Spacing_y @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -552,7 +552,7 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
     }
     else
     {
-        MDK_Error("Couldn't get Spacing_z @ Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Spacing_z @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -567,7 +567,7 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
     }
     else
     {
-        MDK_Error("Couldn't get Origin_x @ Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Origin_x @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -579,7 +579,7 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
     }
     else
     {
-        MDK_Error("Couldn't get Origin_y @ Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Origin_y @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -591,7 +591,7 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
     }
     else
     {
-        MDK_Error("Couldn't get Origin_z @ Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Origin_z @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -605,7 +605,7 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
     }
     else
     {
-        MDK_Error("Couldn't get Orientation @ Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Orientation @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -613,7 +613,7 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
     auto OrientationValue = OrientationStr.split(",");
     if (OrientationValue.size() != 9)
     {
-        MDK_Error("Orientation Matrix size is wrong @ Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Orientation Matrix size is wrong @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
@@ -648,16 +648,16 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
 
     if (OutputElementTypeName == InputElementTypeName)
     {
-        Internal_Load3DImageFromJsonDataFile<ElementType, ElementType>(OutputImage, DataFile, ByteNumberOfOutputElementType);
+        Internal_Load3DScalarImageFromJsonDataFile<PixelType, PixelType>(OutputImage, DataFile, ByteNumberOfOutputElementType);
 
         DataFile.close();
 
         return OutputImage;
     }
 
-    MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ Load3DImageFromJsonDataFile(...)")
+    MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ Load3DScalarImageFromJsonDataFile(...)")
 
-    Internal_Load3DImageFromJsonDataFile(OutputImage, DataFile, InputElementTypeName);
+    Internal_Load3DScalarImageFromJsonDataFile(OutputImage, DataFile, InputElementTypeName);
 
     DataFile.close();
 
@@ -665,60 +665,60 @@ Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndNa
 }
 
 
-template<typename OutputElementType>
-void Internal_Load3DImageFromJsonDataFile(Image3D<OutputElementType>& OutputImage, QFile& DataFile, const QString& InputElementTypeName)
+template<typename OutputPixelType>
+void Internal_Load3DScalarImageFromJsonDataFile(ScalarImage3D<OutputPixelType>& OutputImage, QFile& DataFile, const QString& InputElementTypeName)
 {
     if (InputElementTypeName == "double")
     {
-        Internal_Load3DImageFromJsonDataFile<OutputElementType, double>(OutputImage, DataFile, 8);
+        Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, double>(OutputImage, DataFile, 8);
     }
     else if (InputElementTypeName == "float")
     {
-        Internal_Load3DImageFromJsonDataFile<OutputElementType, float>(OutputImage, DataFile, 4);
+        Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, float>(OutputImage, DataFile, 4);
     }
     else if (InputElementTypeName == "int8")
     {
-        Internal_Load3DImageFromJsonDataFile<OutputElementType, int8>(OutputImage, DataFile, 1);
+        Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, int8>(OutputImage, DataFile, 1);
     }
     else if (InputElementTypeName == "int16")
     {
-        Internal_Load3DImageFromJsonDataFile<OutputElementType, int16>(OutputImage, DataFile, 2);
+        Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, int16>(OutputImage, DataFile, 2);
     }
     else if (InputElementTypeName == "int32")
     {
-        Internal_Load3DImageFromJsonDataFile<OutputElementType, int32>(OutputImage, DataFile, 4);
+        Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, int32>(OutputImage, DataFile, 4);
     }
     else if (InputElementTypeName == "int64")
     {
-        Internal_Load3DImageFromJsonDataFile<OutputElementType, int64>(OutputImage, DataFile, 8);
+        Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, int64>(OutputImage, DataFile, 8);
     }
     else if (InputElementTypeName == "uint8")
     {
-        Internal_Load3DImageFromJsonDataFile<OutputElementType, uint8>(OutputImage, DataFile, 1);
+        Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, uint8>(OutputImage, DataFile, 1);
     }
     else if (InputElementTypeName == "uint16")
     {
-        Internal_Load3DImageFromJsonDataFile<OutputElementType, uint16>(OutputImage, DataFile, 2);
+        Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, uint16>(OutputImage, DataFile, 2);
     }
     else if (InputElementTypeName == "uint32")
     {
-        Internal_Load3DImageFromJsonDataFile<OutputElementType, uint32>(OutputImage, DataFile, 4);
+        Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, uint32>(OutputImage, DataFile, 4);
     }
     else if (InputElementTypeName == "uint64")
     {
-        Internal_Load3DImageFromJsonDataFile<OutputElementType, uint64>(OutputImage, DataFile, 8);
+        Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, uint64>(OutputImage, DataFile, 8);
     }
     else
     {
-        MDK_Error("unknown ElementType of data file @ Internal_Load3DImageFromJsonDataFile(...) ")
+        MDK_Error("unknown ElementType of data file @ Internal_Load3DScalarImageFromJsonDataFile(...) ")
         DataFile.close();
         OutputImage.Clear();
     }
 }
 
 
-template<typename OutputElementType, typename InputElementType>
-void Internal_Load3DImageFromJsonDataFile(Image3D<OutputElementType>& OutputImage, QFile& DataFile, int_max ByteNumberOfInputElementType)
+template<typename OutputPixelType, typename InputPixelType>
+void Internal_Load3DScalarImageFromJsonDataFile(ScalarImage3D<OutputPixelType>& OutputImage, QFile& DataFile, int_max ByteNumberOfInputElementType)
 {
     int_max BypesofDataFile = DataFile.size();
 
@@ -726,7 +726,7 @@ void Internal_Load3DImageFromJsonDataFile(Image3D<OutputElementType>& OutputImag
 
     if (BypesofDataFile != PixelNumber * ByteNumberOfInputElementType)
     {
-        MDK_Error("Data file size is not equal to image size @ Internal_Load3DImageFromJsonDataFile(...)")
+        MDK_Error("Data file size is not equal to image size @ Internal_Load3DScalarImageFromJsonDataFile(...)")
         DataFile.close();
         OutputImage.Clear();
         return;
@@ -734,24 +734,24 @@ void Internal_Load3DImageFromJsonDataFile(Image3D<OutputElementType>& OutputImag
 
     auto PixelPointer = OutputImage.GetPixelPointer();
 
-    auto tempScalar = InputElementType(0);
+    auto tempScalar = InputPixelType(0);
 
     for (int_max i = 0; i < PixelNumber; ++i)
     {
         DataFile.read((char*)(&tempScalar), ByteNumberOfInputElementType);
 
-        PixelPointer[i] = OutputElementType(tempScalar);
+        PixelPointer[i] = OutputPixelType(tempScalar);
     }
 }
 
 
-template<typename ElementType>
-Image3D<ElementType> Load3DImageFromDICOMSeries(const CharString& FilePath)
+template<typename PixelType>
+ScalarImage3D<PixelType> Load3DScalarImageFromDICOMSeries(const CharString& FilePath)
 {
-    Image3D<ElementType> OutputImage;
+    ScalarImage3D<PixelType> OutputImage;
 
 
-    typedef itk::Image< ElementType, 3 >               ITKImageType;
+    typedef itk::Image< PixelType, 3 >                ITKImageType;
 
     typedef itk::ImageSeriesReader< ITKImageType >    ITKImageReaderType;
 
@@ -775,19 +775,19 @@ Image3D<ElementType> Load3DImageFromDICOMSeries(const CharString& FilePath)
     }
     catch (itk::ExceptionObject &excp)
     {
-        std::cerr << "Exception thrown while reading the dicom series @ Load3DImageFromDICOMSeries(...)" << std::endl;
+        std::cerr << "Exception thrown while reading the dicom series @ Load3DScalarImageFromDICOMSeries(...)" << std::endl;
         std::cerr << excp << std::endl;
         return OutputImage;
     }
 
-    OutputImage = ConvertITK3DImageToMDK3DImage(ITKImageReader->GetOutput());
+    OutputImage = ConvertITK3DScalarImageToMDK3DScalarImage(ITKImageReader->GetOutput());
 
     return OutputImage;
 }
 
 
 template<typename PixelType>
-itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DImageToITK3DImage(Image3D<PixelType>& InputImage, bool SharePixelData)
+itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(ScalarImage3D<PixelType>& InputImage, bool SharePixelData)
 {
     auto InputSize = InputImage.GetSize();
     auto InputOrigin = InputImage.GetPhysicalOrigin();
@@ -854,10 +854,10 @@ itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DImageToITK3D
 
 
 template<typename PixelType>
-itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DImageToITK3DImage(Image3D<PixelType>& InputImage)
+itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(ScalarImage3D<PixelType>& InputImage)
 {
     bool SharePixelData = false;
-    auto importFilter = ConvertMDK3DImageToITK3DImage(InputImage, SharePixelData);
+    auto importFilter = ConvertMDK3DScalarImageToITK3DScalarImage(InputImage, SharePixelData);
 
     itk::SmartPointer<itk::Image<PixelType, 3>> ITKImage = importFilter->GetOutput();
 
@@ -866,13 +866,13 @@ itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DImageToITK3DImage(Image3
 
 
 template<typename PixelType>
-Image3D<PixelType> ConvertITK3DImageToMDK3DImage(const itk::Image<PixelType, 3>* ITKImage)
+ScalarImage3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage)
 {
-    Image3D<PixelType> OutputImage;
+    ScalarImage3D<PixelType> OutputImage;
 
     if (ITKImage == nullptr)
     {
-        MDK_Error("Invalid input @ ConvertITK3DImageToMDK3DImage(...)")
+        MDK_Error("Invalid input @ ConvertITK3DScalarImageToMDK3DScalarImage(...)")
         return OutputImage;
     }
 

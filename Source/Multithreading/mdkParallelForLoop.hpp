@@ -145,7 +145,7 @@ void ParallelBlock(FunctionType BlockFunction, int_max DataIndex_start, int_max 
 }
 
 
-inline int_max Compute_NecessaryNumberOfThreads_For_ParallelBlock(int_max TotalDataNumber, int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread)
+inline int_max Compute_NumberOfThreadsTobeCreated_For_ParallelBlock(int_max TotalDataNumber, int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread)
 {
     if (MaxNumberOfThreads <= 1)
     {       
@@ -184,7 +184,7 @@ inline void DivideData_For_ParallelBlock(std::vector<int_max>& DataIndexList_sta
 
     auto TotalDataNumber = DataIndex_max - DataIndex_min + 1;
 
-    auto ThreadNumber = Compute_NecessaryNumberOfThreads_For_ParallelBlock(TotalDataNumber, MaxNumberOfThreads, MinNumberOfDataPerThread);
+    auto ThreadNumber = Compute_NumberOfThreadsTobeCreated_For_ParallelBlock(TotalDataNumber, MaxNumberOfThreads, MinNumberOfDataPerThread);
 
     if (ThreadNumber == 1)
     {//one thread is enough

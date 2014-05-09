@@ -632,9 +632,9 @@ public:
     inline DenseShadowMatrix<ElementType> Row(const DenseMatrix<int_max>& RowIndexList);
 
     //
-    inline DenseShadowMatrix<ElementType> Diangonal();
+    inline DenseShadowMatrix<ElementType> Diagonal();
 
-    inline const DenseShadowMatrix<ElementType> Diangonal() const;
+    inline const DenseShadowMatrix<ElementType> Diagonal() const;
 
     // -------------------------- special col reference ---------------------------------------------
 
@@ -845,25 +845,25 @@ public:
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 
-    inline DenseMatrix GetDiangonal() const;
+    inline DenseMatrix GetDiagonal() const;
 
-    inline bool GetDiangonal(std::vector<ElementType>& DiangonalData) const;
+    inline bool GetDiagonal(std::vector<ElementType>& DiagonalData) const;
 
-    inline bool GetDiangonal(ElementType* DiangonalData) const;
-
-    template<typename ElementType_Input>
-    inline bool SetDiangonal(const std::initializer_list<ElementType_Input>& DiangonalData);
+    inline bool GetDiagonal(ElementType* DiagonalData) const;
 
     template<typename ElementType_Input>
-    inline bool SetDiangonal(const std::vector<ElementType_Input>& DiangonalData);
+    inline bool SetDiagonal(const std::initializer_list<ElementType_Input>& DiagonalData);
 
     template<typename ElementType_Input>
-    inline bool SetDiangonal(const DenseMatrix<ElementType_Input>& DiangonalData);
+    inline bool SetDiagonal(const std::vector<ElementType_Input>& DiagonalData);
+
+    template<typename ElementType_Input>
+    inline bool SetDiagonal(const DenseMatrix<ElementType_Input>& DiagonalData);
 
 	template<typename ElementType_Input>
-	inline bool SetDiangonal(const ElementType_Input* DiangonalData);
+	inline bool SetDiagonal(const ElementType_Input* DiagonalData);
 
-    inline bool FillDiangonal(const ElementType& Element);
+    inline bool FillDiagonal(const ElementType& Element);
 
 	//---------------------- Matrix {+= -= *= /=} Matrix ----------------------------------------//
 

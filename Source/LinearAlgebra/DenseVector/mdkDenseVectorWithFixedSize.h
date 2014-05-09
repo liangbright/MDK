@@ -32,6 +32,9 @@ private:
     std::array<ElementType, Length> m_DataArray;
 
 public:
+    typedef ElementType ElementType;
+
+public:
     
     inline DenseVectorWithFixedSize();
 

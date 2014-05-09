@@ -1,27 +1,27 @@
-#ifndef __mdkImageFilter3D_hpp
-#define __mdkImageFilter3D_hpp
+#ifndef __mdkScalarImageFilter3D_hpp
+#define __mdkScalarImageFilter3D_hpp
 
-//#include "ImageFilter3D.h"
+//#include "ScalarImageFilter3D.h"
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType>
-ImageFilter3D<InputPixelType, OutputPixelType>::ImageFilter3D()
+ScalarImageFilter3D<InputPixelType, OutputPixelType>::ScalarImageFilter3D()
 {
     this->Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-ImageFilter3D<InputPixelType, OutputPixelType>::~ImageFilter3D()
+ScalarImageFilter3D<InputPixelType, OutputPixelType>::~ScalarImageFilter3D()
 {
 	// do nothing
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::Clear()
+void ScalarImageFilter3D<InputPixelType, OutputPixelType>::Clear()
 {
     m_InputImage = nullptr;
 
@@ -29,7 +29,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Clear()
 
     m_InputPixel3DIndexList = nullptr;
 
-	m_Input3DPositionList = nullptr;
+    m_InputPixel3DPositionList = nullptr;
 
     this->ClearPipelineOutput();
 
@@ -38,16 +38,6 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Clear()
     m_Flag_OutputArray = false;
 
     m_Flag_OutputToOtherPlace = false;
-
-    m_IsBoundCheckEnabled = true;
-
-    m_IsInputFilterFunctionAt3DPositionObtained = false;
-
-    m_IsInputFilterFunctionAt3DIndexObtained = false;
-
-    m_ZeroPixelOfInputImage = InputPixelType(0);
-
-    m_ZeroPixelOfOutputImage = OutputPixelType(0);
 
     m_TotalOutputPixelNumber = 0;
 
@@ -58,7 +48,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Clear()
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::ClearPipelineOutput()
+void ScalarImageFilter3D<InputPixelType, OutputPixelType>::ClearPipelineOutput()
 {
     m_OutputImage_SharedCopy.Clear();
 
@@ -71,7 +61,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::ClearPipelineOutput()
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::UpdatePipelineOutput()
+void ScalarImageFilter3D<InputPixelType, OutputPixelType>::UpdatePipelineOutput()
 {
     if (m_OutputImage != &m_OutputImage_SharedCopy)
     {
@@ -86,155 +76,117 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::UpdatePipelineOutput()
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::EnableBoundCheck()
+void ScalarImageFilter3D<InputPixelType, OutputPixelType>::SetInputImage(const ScalarImage3D<InputPixelType>* InputImage)
 {
-	m_IsBoundCheckEnabled = true;
-}
-
-
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::DisableBoundCheck()
-{
-    m_IsBoundCheckEnabled = false;
-}
-
-
-template<typename InputPixelType, typename OutputPixelType>
-inline
-bool ImageFilter3D<InputPixelType, OutputPixelType>::IsBoundCheckEnabled()
-{
-    return m_IsBoundCheckEnabled;
-}
-
-
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>:: SetInputImage(const Image3D<InputPixelType>* InputImage)
-{
-    if (InputImage == nullptr)
-    {
-        MDK_Error("Input is nullptr @ ImageFilter3D::SetInputImage")
-        return;
-    }
-
 	m_InputImage = InputImage;
-
-    m_ZeroPixelOfInputImage = InputPixelType(0);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::SetInputRegion(const DenseMatrix<int_max>* InputRegion)
+void ScalarImageFilter3D<InputPixelType, OutputPixelType>::SetInputRegion(const DenseMatrix<int_max>* InputRegion)
 {
     m_InputRegion = InputRegion;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::SetInputPixel3DIndexList(const DenseMatrix<int_max>* InputPixel3DIndexList)
+void ScalarImageFilter3D<InputPixelType, OutputPixelType>::SetInputPixel3DIndexList(const DenseMatrix<int_max>* InputPixel3DIndexList)
 {
     m_InputPixel3DIndexList = InputPixel3DIndexList;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::SetInput3DPositionList(const DenseMatrix<float>* Input3DPositionList)
+void ScalarImageFilter3D<InputPixelType, OutputPixelType>::SetInputPixel3DPositionList(const DenseMatrix<float>* InputPixel3DPositionList)
 {
-	m_Input3DPositionList = Input3DPositionList;
+    m_InputPixel3DPositionList = InputPixel3DPositionList;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::
-SetInputFilterFunctionAt3DIndex(std::function<void(OutputPixelType&, int_max, int_max, int_max, const Image3D<InputPixelType>&)> InputFilterFunction)
-{
-	m_InputFilterFunction_At3DIndex = InputFilterFunction;
-
-    m_IsInputFilterFunctionAt3DIndexObtained = true;
-}
-
-
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::
-SetInputFilterFunctionAt3DPosition(std::function<void(OutputPixelType&, double, double, double, const Image3D<InputPixelType>&)> InputFilterFunction)
-{
-	m_InputFilterFunction_At3DPosition = InputFilterFunction;
-
-    m_IsInputFilterFunctionAt3DPositionObtained = true;
-}
-
-
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::SetOutputImage(Image3D<OutputPixelType>* OutputImage)
+void ScalarImageFilter3D<InputPixelType, OutputPixelType>::SetOutputImage(ScalarImage3D<OutputPixelType>* OutputImage)
 {
     if (OutputImage == nullptr)
     {
-        MDK_Error("Input is nullptr @ ImageFilter3D::SetOutputImage")
+        MDK_Error("Input is nullptr @ ScalarImageFilter3D::SetOutputImage")
         return;
     }
 
 	m_OutputImage = OutputImage;
 
-    m_ZeroPixelOfOutputImage = OutputPixelType(0);
+    m_OutputImage_SharedCopy.Share(OutputImage);
 
     m_Flag_OutputImage = true;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::SetOutputArray(DataContainer<OutputPixelType>* OutputArray)
+void ScalarImageFilter3D<InputPixelType, OutputPixelType>::SetOutputArray(DataContainer<OutputPixelType>* OutputArray)
 {
     if (OutputArray == nullptr)
     {
-        MDK_Error("Input is nullptr @ ImageFilter3D::OutputArray")
+        MDK_Error("Input is nullptr @ ScalarImageFilter3D::OutputArray")
         return;
     }
 
 	m_OutputArray = OutputArray;
+
+    m_OutputArray_SharedCopy.Share(OutputArray);
 
     m_Flag_OutputArray = true;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::SetMaxNumberOfThreads(int_max MaxNumber)
+void ScalarImageFilter3D<InputPixelType, OutputPixelType>::
+SetImageInterpolationMethodAndOption(ImageInterpolation3DMethodTypeEnum Method, const Option_Of_ImageInterpolator3D<OutputPixelType>& Option)
+{
+    m_InterpolationMethod = Method;
+
+    m_InterpolationOption = Option;
+}
+
+
+template<typename InputPixelType, typename OutputPixelType>
+void ScalarImageFilter3D<InputPixelType, OutputPixelType>::SetMaxNumberOfThreads(int_max MaxNumber)
 {
 	m_MaxNumberOfThreads = MaxNumber;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-int_max ImageFilter3D<InputPixelType, OutputPixelType>::GetNumberOfThreadsTobeCreated()
+int_max ScalarImageFilter3D<InputPixelType, OutputPixelType>::GetNumberOfThreadsTobeCreated()
 {
-    return Compute_NecessaryNumberOfThreads_For_ParallelBlock(m_TotalOutputPixelNumber, m_MaxNumberOfThreads, m_MinPixelNumberPerThread);
+    return Compute_NumberOfThreadsTobeCreated_For_ParallelBlock(m_TotalOutputPixelNumber, m_MaxNumberOfThreads, m_MinPixelNumberPerThread);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool ImageFilter3D<InputPixelType, OutputPixelType>::Preprocess()
+bool ScalarImageFilter3D<InputPixelType, OutputPixelType>::Preprocess()
 {
 	return true;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool ImageFilter3D<InputPixelType, OutputPixelType>::Postprocess()
+bool ScalarImageFilter3D<InputPixelType, OutputPixelType>::Postprocess()
 {
     return true;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool ImageFilter3D<InputPixelType, OutputPixelType>::CheckInput()
+bool ScalarImageFilter3D<InputPixelType, OutputPixelType>::CheckInput()
 {
 	if (m_InputImage == nullptr)
 	{
-		MDK_Error("Input image is Empty (nullptr) @ ImageFilter3D::CheckInput()")
+		MDK_Error("Input image is Empty (nullptr) @ ScalarImageFilter3D::CheckInput()")
 		return false;
 	}
 
 	if (m_InputImage->IsEmpty() == true)
 	{
-		MDK_Error("Input image is Empty @ ImageFilter3D::CheckInput()")
+		MDK_Error("Input image is Empty @ ScalarImageFilter3D::CheckInput()")
 		return false;
 	}
 
@@ -244,13 +196,13 @@ bool ImageFilter3D<InputPixelType, OutputPixelType>::CheckInput()
     {
         if (m_Flag_OutputImage == true && m_Flag_OutputArray == true)
         {
-            MDK_Error("Can not output image and array at the same time @ ImageFilter3D::CheckInput()")
+            MDK_Error("Can not output image and array at the same time @ ScalarImageFilter3D::CheckInput()")
             return false;
         }
 
         if (m_Flag_OutputImage == false && m_Flag_OutputArray == false)
         {
-            MDK_Error("NO output is selected @ ImageFilter3D::CheckInput()")
+            MDK_Error("NO output is selected @ ScalarImageFilter3D::CheckInput()")
             return false;
         }
     }
@@ -258,7 +210,7 @@ bool ImageFilter3D<InputPixelType, OutputPixelType>::CheckInput()
     {
         if (m_Flag_OutputImage == true || m_Flag_OutputArray == true)
         {
-            MDK_Error("Can not output image or array when m_Flag_OutputToOtherPlace is true  @ ImageFilter3D::CheckInput()")
+            MDK_Error("Can not output image or array when m_Flag_OutputToOtherPlace is true  @ ScalarImageFilter3D::CheckInput()")
             return false;
         }
     }
@@ -266,27 +218,27 @@ bool ImageFilter3D<InputPixelType, OutputPixelType>::CheckInput()
     //-------------------------------------------------------------------------------------------------------------
     m_TotalOutputPixelNumber = 0;
 
-    if (m_InputRegion == nullptr && m_InputPixel3DIndexList == nullptr && m_Input3DPositionList == nullptr)
+    if (m_InputRegion == nullptr && m_InputPixel3DIndexList == nullptr && m_InputPixel3DPositionList == nullptr)
     {
         auto InputSize = m_InputImage->GetSize();
 
         m_TotalOutputPixelNumber = InputSize.Lx*InputSize.Ly*InputSize.Lz;
     }
-    else if (m_InputRegion != nullptr && m_InputPixel3DIndexList == nullptr && m_Input3DPositionList == nullptr)
+    else if (m_InputRegion != nullptr && m_InputPixel3DIndexList == nullptr && m_InputPixel3DPositionList == nullptr)
     {
         m_TotalOutputPixelNumber = m_InputRegion->Lx()*m_InputRegion->Ly()*m_InputRegion->Lz();             
     }
-    else if (m_InputRegion == nullptr && m_InputPixel3DIndexList != nullptr && m_Input3DPositionList == nullptr)
+    else if (m_InputRegion == nullptr && m_InputPixel3DIndexList != nullptr && m_InputPixel3DPositionList == nullptr)
     {
         m_TotalOutputPixelNumber = m_InputPixel3DIndexList->GetColNumber();
     }
-    else if (m_InputRegion == nullptr && m_InputPixel3DIndexList == nullptr && m_Input3DPositionList != nullptr)
+    else if (m_InputRegion == nullptr && m_InputPixel3DIndexList == nullptr && m_InputPixel3DPositionList != nullptr)
 	{
-		m_TotalOutputPixelNumber = m_Input3DPositionList->GetColNumber();
+		m_TotalOutputPixelNumber = m_InputPixel3DPositionList->GetColNumber();
 	}    
 	else
 	{
-		MDK_Error("Invalid input @ ImageFilter3D::CheckInput()")
+		MDK_Error("Invalid input @ ScalarImageFilter3D::CheckInput()")
 		return false;
 	}
 
@@ -340,7 +292,7 @@ bool ImageFilter3D<InputPixelType, OutputPixelType>::CheckInput()
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool ImageFilter3D<InputPixelType, OutputPixelType>::Update()
+bool ScalarImageFilter3D<InputPixelType, OutputPixelType>::Update()
 {
     //-------------------------------------------------------------------------------
 
@@ -358,7 +310,7 @@ bool ImageFilter3D<InputPixelType, OutputPixelType>::Update()
 
 	// multi-thread -----------------------------------------------------------------
    
-    ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex){this->Run_in_a_Thread(Index_start, Index_end, ThreadIndex); },
+    ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex){this->Update_in_a_Thread(Index_start, Index_end, ThreadIndex); },
                   0, m_TotalOutputPixelNumber - 1, m_MaxNumberOfThreads, m_MinPixelNumberPerThread);
 
     //---------------------------------------------------------------------------
@@ -375,14 +327,14 @@ bool ImageFilter3D<InputPixelType, OutputPixelType>::Update()
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::Run_in_a_Thread(int_max OutputPixelIndex_start, int_max OutputPixelIndex_end, int_max ThreadIndex)
+void ScalarImageFilter3D<InputPixelType, OutputPixelType>::Update_in_a_Thread(int_max OutputPixelIndex_start, int_max OutputPixelIndex_end, int_max ThreadIndex)
 {
     std::cout << "PixelIndex_start " << OutputPixelIndex_start << '\n';
     std::cout << "PixelIndex_end   " << OutputPixelIndex_end << '\n';
 	
     if (m_Flag_OutputToOtherPlace == false)
     {
-		if (m_InputRegion == nullptr && m_InputPixel3DIndexList == nullptr  && m_Input3DPositionList == nullptr)
+		if (m_InputRegion == nullptr && m_InputPixel3DIndexList == nullptr  && m_InputPixel3DPositionList == nullptr)
         {
 			int_max FilterCenter3DIndex[3];  // [xc, yc, zc]
 
@@ -393,7 +345,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Run_in_a_Thread(int_max Out
                 this->FilterFunctionAt3DIndex((*m_OutputImage)(PixelIndex), FilterCenter3DIndex[0], FilterCenter3DIndex[1], FilterCenter3DIndex[2], ThreadIndex);
             }
         }
-		else if (m_InputRegion != nullptr && m_InputPixel3DIndexList == nullptr  && m_Input3DPositionList == nullptr)
+		else if (m_InputRegion != nullptr && m_InputPixel3DIndexList == nullptr  && m_InputPixel3DPositionList == nullptr)
         {
 			int_max RegionOrigin[3]; // [x0, y0, z0]
             RegionOrigin[0] = m_InputRegion->x0;
@@ -431,7 +383,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Run_in_a_Thread(int_max Out
                 }
             }
         }
-		else if (m_InputRegion == nullptr && m_InputPixel3DIndexList != nullptr  && m_Input3DPositionList == nullptr)
+		else if (m_InputRegion == nullptr && m_InputPixel3DIndexList != nullptr  && m_InputPixel3DPositionList == nullptr)
         {
 			int_max FilterCenter3DIndex[3];  // [xc, yc, zc]
 
@@ -458,7 +410,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Run_in_a_Thread(int_max Out
 				}
             }
         }
-		else if (m_InputRegion == nullptr && m_InputPixel3DIndexList == nullptr && m_Input3DPositionList != nullptr)
+		else if (m_InputRegion == nullptr && m_InputPixel3DIndexList == nullptr && m_InputPixel3DPositionList != nullptr)
 		{
 			if (m_Flag_OutputImage == true)
 			{
@@ -466,9 +418,9 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Run_in_a_Thread(int_max Out
 
 				for (int_max PixelIndex = OutputPixelIndex_start; PixelIndex <= OutputPixelIndex_end; ++PixelIndex)
 				{					
-					FilterCenter3DPosition[0] = (*m_Input3DPositionList)(0, PixelIndex);
-					FilterCenter3DPosition[1] = (*m_Input3DPositionList)(1, PixelIndex);
-					FilterCenter3DPosition[2] = (*m_Input3DPositionList)(2, PixelIndex);
+					FilterCenter3DPosition[0] = (*m_InputPixel3DPositionList)(0, PixelIndex);
+					FilterCenter3DPosition[1] = (*m_InputPixel3DPositionList)(1, PixelIndex);
+					FilterCenter3DPosition[2] = (*m_InputPixel3DPositionList)(2, PixelIndex);
 
                     this->FilterFunctionAt3DPosition((*m_OutputImage)(PixelIndex), FilterCenter3DPosition[0], FilterCenter3DPosition[1], FilterCenter3DPosition[2], ThreadIndex);
 				}
@@ -479,9 +431,9 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Run_in_a_Thread(int_max Out
 
 				for (int_max PixelIndex = OutputPixelIndex_start; PixelIndex <= OutputPixelIndex_end; ++PixelIndex)
 				{					
-					FilterCenter3DPosition[0] = (*m_Input3DPositionList)(0, PixelIndex);
-					FilterCenter3DPosition[1] = (*m_Input3DPositionList)(1, PixelIndex);
-					FilterCenter3DPosition[2] = (*m_Input3DPositionList)(2, PixelIndex);
+					FilterCenter3DPosition[0] = (*m_InputPixel3DPositionList)(0, PixelIndex);
+					FilterCenter3DPosition[1] = (*m_InputPixel3DPositionList)(1, PixelIndex);
+					FilterCenter3DPosition[2] = (*m_InputPixel3DPositionList)(2, PixelIndex);
 
                     this->FilterFunctionAt3DPosition((*m_OutputArray)[PixelIndex], FilterCenter3DPosition[0], FilterCenter3DPosition[1], FilterCenter3DPosition[2], ThreadIndex);
 				}
@@ -489,14 +441,14 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Run_in_a_Thread(int_max Out
 		}
         else
         {
-            MDK_Error("Invalid Input @ ImageFilter3D::Run_in_a_Thread")
+            MDK_Error("Invalid Input @ ScalarImageFilter3D::Update_in_a_Thread")
         }
     }
     else // output to another place
     {
-        auto tempOutputPixel = m_ZeroPixelOfOutputImage;
+        auto tempOutputPixel = OutputPixelType(0);
 
-		if (m_InputRegion == nullptr && m_InputPixel3DIndexList == nullptr && m_Input3DPositionList == nullptr)
+		if (m_InputRegion == nullptr && m_InputPixel3DIndexList == nullptr && m_InputPixel3DPositionList == nullptr)
         {
 			int_max FilterCenter3DIndex[3];
 
@@ -509,7 +461,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Run_in_a_Thread(int_max Out
                 this->OutputFunction(PixelIndex, tempOutputPixel, ThreadIndex);
             }
         }
-		else if (m_InputRegion != nullptr && m_InputPixel3DIndexList == nullptr && m_Input3DPositionList == nullptr)
+		else if (m_InputRegion != nullptr && m_InputPixel3DIndexList == nullptr && m_InputPixel3DPositionList == nullptr)
         {
 			int_max FilterCenter3DIndex[3];
 
@@ -531,7 +483,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Run_in_a_Thread(int_max Out
                 this->OutputFunction(PixelIndex, tempOutputPixel, ThreadIndex);
             }
         }
-		else if (m_InputRegion == nullptr && m_InputPixel3DIndexList != nullptr && m_Input3DPositionList == nullptr)
+		else if (m_InputRegion == nullptr && m_InputPixel3DIndexList != nullptr && m_InputPixel3DPositionList == nullptr)
         {
 			int_max FilterCenter3DIndex[3];
 
@@ -546,15 +498,15 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Run_in_a_Thread(int_max Out
                 this->OutputFunction(PixelIndex, tempOutputPixel, ThreadIndex);
             }
         }
-		else if (m_InputRegion == nullptr && m_InputPixel3DIndexList == nullptr  && m_Input3DPositionList != nullptr)
+		else if (m_InputRegion == nullptr && m_InputPixel3DIndexList == nullptr  && m_InputPixel3DPositionList != nullptr)
 		{
 			double FilterCenter3DPosition[3];
 
 			for (int_max PixelIndex = OutputPixelIndex_start; PixelIndex <= OutputPixelIndex_end; ++PixelIndex)
 			{				
-				FilterCenter3DPosition[0] = (*m_Input3DPositionList)(0, PixelIndex);
-				FilterCenter3DPosition[1] = (*m_Input3DPositionList)(1, PixelIndex);
-				FilterCenter3DPosition[2] = (*m_Input3DPositionList)(2, PixelIndex);
+				FilterCenter3DPosition[0] = (*m_InputPixel3DPositionList)(0, PixelIndex);
+				FilterCenter3DPosition[1] = (*m_InputPixel3DPositionList)(1, PixelIndex);
+				FilterCenter3DPosition[2] = (*m_InputPixel3DPositionList)(2, PixelIndex);
 
                 this->FilterFunctionAt3DPosition(tempOutputPixel, FilterCenter3DPosition[0], FilterCenter3DPosition[1], FilterCenter3DPosition[2], ThreadIndex);
 
@@ -563,7 +515,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Run_in_a_Thread(int_max Out
 		}
         else
         {
-            MDK_Error("Invalid Input @ ImageFilter3D::Run_in_a_Thread")
+            MDK_Error("Invalid Input @ ScalarImageFilter3D::Update_in_a_Thread")
         }
     }
 }
@@ -571,65 +523,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Run_in_a_Thread(int_max Out
 
 template<typename InputPixelType, typename OutputPixelType>
 inline
-void ImageFilter3D<InputPixelType, OutputPixelType>::
-FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex)
-{
-	// input (x,y,z) may be 3DIndex or 3DPosition, or 3DPosition with spacing =[1,1,1]
-	/*
-	InputPixelType Output = 0;
-
-	double N = 100;
-
-	for (double i = 0; i < N; ++i)
-	{
-	Output += i * (*m_InputImage)(xIndex_center, yIndex_center, zIndex_center);
-	}
-	*/
-
-    if (m_IsInputFilterFunctionAt3DIndexObtained == true)
-	{
-        m_InputFilterFunction_At3DIndex(OutputPixel, x_Index, y_Index, z_Index, *m_InputImage);
-	}
-    else
-    {
-        MDK_Warning("m_IsInputFilterFunctionAt3DIndexObtained == false @ ImageFilter3D::FilterFunctionAt3DIndex")
-    }
-
-}
-
-
-template<typename InputPixelType, typename OutputPixelType>
-inline
-void ImageFilter3D<InputPixelType, OutputPixelType>::
-FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex)
-{
-// input (x,y,z) may be 3DIndex or 3DPosition, or 3DPosition with spacing =[1,1,1]
-	/*
-	InputPixelType Output = 0;
-
-	double N = 100;
-
-	for (double i = 0; i < N; ++i)
-	{
-		Output += i * (*m_InputImage)(xIndex_center, yIndex_center, zIndex_center);
-	}
-	*/
-
-    if (m_IsInputFilterFunctionAt3DPositionObtained == true)
-	{
-        m_InputFilterFunction_At3DPosition(OutputPixel, x, y, z, *m_InputImage);
-	}
-    else
-    {
-        MDK_Warning("m_IsInputFilterFunctionAt3DPositionObtained == false @ ImageFilter3D::FilterFunctionAt3DPosition")
-    }
-
-}
-
-
-template<typename InputPixelType, typename OutputPixelType>
-inline
-void ImageFilter3D<InputPixelType, OutputPixelType>::OutputFunction(int_max OutputPixelIndex, const OutputPixelType& OutputPixel, int_max ThreadIndex)
+void ScalarImageFilter3D<InputPixelType, OutputPixelType>::OutputFunction(int_max OutputPixelIndex, const OutputPixelType& OutputPixel, int_max ThreadIndex)
 {
     if (m_Flag_OutputImage == true)
     {
@@ -641,20 +535,20 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::OutputFunction(int_max Outp
     }
     else
     {
-        MDK_Warning("OutputFunction is empty @ ImageFilter3D::OutputFunction")
+        MDK_Warning("OutputFunction is empty @ ScalarImageFilter3D::OutputFunction")
     }
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-Image3D<OutputPixelType>* ImageFilter3D<InputPixelType, OutputPixelType>::GetOutputImage()
+ScalarImage3D<OutputPixelType>* ScalarImageFilter3D<InputPixelType, OutputPixelType>::GetOutputImage()
 {
     return &m_OutputImage_SharedCopy;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-DataContainer<OutputPixelType>* ImageFilter3D<InputPixelType, OutputPixelType>::GetOutputArray()
+DataContainer<OutputPixelType>* ScalarImageFilter3D<InputPixelType, OutputPixelType>::GetOutputArray()
 {
     return &m_OutputArray_SharedCopy;
 }

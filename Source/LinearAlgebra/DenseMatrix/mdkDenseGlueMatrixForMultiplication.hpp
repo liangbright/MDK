@@ -212,13 +212,12 @@ bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatri
 
     auto MatrixPointerList = std::vector<const DenseMatrix<ElementType>*>(MatrixNumber);
 
-    for (int_max i = 0; i < MatrixNumber - 1; ++i)
+    for (int_max i = 0; i < MatrixNumber; ++i)
     {
         MatrixPointerList[i] = &m_SourceMatrixSharedCopyList[i];
     }
 
     auto ResultMatrixList = std::vector<DenseMatrix<ElementType>>(MatrixNumber);
-
    
     while (true)
     {
@@ -257,7 +256,7 @@ bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatri
 
         ResultMatrixList.erase(ResultMatrixList.begin() + RelativeIndex_BestMatrixPair);
 
-        ResultMatrixList[RelativeIndex_BestMatrixPair].Take(tempMatrix);
+        ResultMatrixList[RelativeIndex_BestMatrixPair].ForceShare(tempMatrix); 
 
         MatrixPointerList.erase(MatrixPointerList.begin() + RelativeIndex_BestMatrixPair);
 

@@ -13,7 +13,7 @@ namespace mdk
 {
 //-------------------------------------------------------------------------------------------------------//
 // 3D Image Class
-// Pixel = an array of scalars
+// Pixel is Scalar or vector
 // Lx: number of Pixels in x-direction
 // Ly: number of Pixels in y-direction
 // Lz: number of Pixels in z-direction
@@ -31,7 +31,7 @@ namespace mdk
 // ITK can register images with non-isotropic Pixels
 //
 // note: 
-// use std::array as PixelType if Pixel is a vector with known length, and do not use std::vector
+// use std::array as PixelType if Pixel is a  with known length, and do not use std::
 //
 // --------------------------------------------------------------------------------------------------------//
 
@@ -196,7 +196,7 @@ struct Image3DData
 
     inline void Transform3DIndexTo3DPhysicalPosition(int_max xIndex, int_max yIndex, int_max zIndex, double& x, double& y, double& z) const;
 
-    inline void Transform3DPhysicalPositionToContinuous3DIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const;
+    inline void Transform3DPhysicalPositionTo3DContinuousIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const;
 
 private:
 //deleted:
@@ -211,23 +211,20 @@ private:
 template<typename PixelType>
 class Image3D : public Object
 {
-private:
+protected:
 
     std::shared_ptr<Image3DData<PixelType>> m_ImageData;
 
     PixelType* m_PixelPointer; // keep tracking m_ImageData->m_DataArray.data();
 
-public:		
-	
+protected:
     Image3D();
-
-    Image3D(const Image3D& InputImage) = delete;
 
     Image3D(Image3D&& InputImage);
 
     ~Image3D();
 
-    void operator=(const Image3D& InputImage) = delete;
+public:
 
     void operator=(Image3D&& InputImage);
 
@@ -237,13 +234,13 @@ public:
 
     //---------------------------------------------------------//
 
-    // Copy can be used to convert an image from double (PixelType_Input) to float (PixelType), etc
+    // Copy can be used to convert an image from double (Type_Input) to float (PixelType), etc
 
-    template<typename PixelType_Input>
-    void Copy(const Image3D<PixelType_Input>& InputImage);
+    template<typename Type_Input>
+    void Copy(const Image3D<Type_Input>& InputImage);
 
-    template<typename PixelType_Input>
-    bool Copy(const Image3D<PixelType_Input>* InputImage);
+    template<typename Type_Input>
+    bool Copy(const Image3D<Type_Input>* InputImage);
 
     inline bool Fill(const PixelType& Pixel);
 
@@ -305,8 +302,8 @@ public:
 
     inline int_max GetPixelNumber() const;
 
-    template<typename PixelType_Input>
-    bool CopyData(const PixelType_Input* InputPixelPointer, int_max InputPixelNumber);
+    template<typename Type_Input>
+    bool CopyData(const Type_Input* InputPixelPointer, int_max InputPixelNumber);
 
     //--------------------------- Get Pixel Pointer ------------------------------//
 
@@ -324,7 +321,7 @@ public:
 
     inline void Transform3DIndexTo3DPhysicalPosition(int_max xIndex, int_max yIndex, int_max zIndex, double& x, double& y, double& z) const;
 
-    inline void Transform3DPhysicalPositionToContinuous3DIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const;
+    inline void Transform3DPhysicalPositionTo3DContinuousIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const;
 
 	//--------------------------- Get/Set Pixel      ------------------------------//
 
@@ -348,33 +345,16 @@ public:
 
 	inline const PixelType& at(int_max xIndex, int_max yIndex, int_max zIndex) const;
 
-	//-------------------------- Get SubImage -------------------------------//
-
-    Image3D GetSubImage(int_max xIndex_s, int_max xIndex_e, int_max yIndex_s, int_max yIndex_e, int_max zIndex_s, int_max zIndex_e) const;
-
-	//-------------------------- Pad, UnPad -------------------------------//
-
-    Image3D  Pad(const std::string& Option, int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) const;
-
-    Image3D  Pad(PixelType Pixel, int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) const;
-
-    Image3D  UnPad(int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) const;
-
 	//------------------------- Get LinearIndex In Region -------------------//
 
     DenseMatrix<int_max> GetLinearIndexListOfRegion(int_max xIndex_s,     int_max Region_Lx,
 	                                                int_max yIndex_s,     int_max Region_Ly,
                                                     int_max zIndex_s,     int_max Region_Lz) const;
 
-    //-------------------------- Sum, Mean, Max, Min -------------------------------//
-
-    PixelType Sum() const;
-
-    PixelType Mean() const;
-
-    PixelType Max() const;
-
-    PixelType Min() const;
+//--------------------------------------------------------------------------------------
+private:
+    Image3D(const Image3D& InputImage) = delete;
+    void operator=(const Image3D& InputImage) = delete;
 
 };
 

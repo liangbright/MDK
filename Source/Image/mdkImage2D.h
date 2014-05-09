@@ -170,20 +170,18 @@ private:
     std::shared_ptr<Image2DData<PixelType>> m_ImageData;
 
     PixelType* m_PixelPointer; // keep tracking m_ImageData->m_DataArray.data();
-
-public:		
 	
-    Image2D();
+protected:
 
-    Image2D(const Image2D& InputImage) = delete;
+    Image2D();
 
     Image2D(Image2D&& InputImage);
 
     ~Image2D();
 
-    void operator=(const Image2D& InputImage) = delete;
-
     void operator=(Image2D&& InputImage);
+
+public:
 
     //-----------------------------------------------------------------//
 
@@ -268,7 +266,6 @@ public:
 
     inline const PixelType* GetPixelPointer() const;
 
-  
     // ------------------------ Index and Position ------------------------------------------------------------------------//
 
     inline int_max Transform2DIndexToLinearIndex(int_max xIndex, int_max yIndex) const;
@@ -329,6 +326,10 @@ public:
     PixelType Max() const;
 
     PixelType Min() const;
+
+private:
+    Image2D(const Image2D& InputImage) = delete;
+    void operator=(const Image2D& InputImage) = delete;
 
 };
 

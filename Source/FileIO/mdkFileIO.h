@@ -32,10 +32,10 @@ template<typename ElementType>
 class SparseMatrix;
 
 template<typename ElementType>
-class Image2D;
+class ScalarImage2D;
 
 template<typename ElementType>
-class Image3D;
+class ScalarImage3D;
 
 template<typename ElementType>
 class FeatureDictionaryForSparseCoding;
@@ -70,41 +70,41 @@ void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& Ou
 
 //------------------------------------- save/load SparseMatrix from Json data file -------------------------------------------------------//
 
-//------------------------------------- save/load Image2D and Image3D from Json data file --------------------------------------------//
+//------------------------------------- save/load ScalarImage2D and ScalarImage3D from Json data file --------------------------------------------//
 
-template<typename ElementType>
-bool Save3DImageAsJsonDataFile(const Image3D<ElementType>& InputImage, const CharString& FilePathAndName);
+template<typename PixelType>
+bool Save3DScalarImageAsJsonDataFile(const ScalarImage3D<PixelType>& InputImage, const CharString& FilePathAndName);
 
-template<typename ElementType>
-Image3D<ElementType> Load3DImageFromJsonDataFile(const CharString& FilePathAndName);
+template<typename PixelType>
+ScalarImage3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathAndName);
 
-template<typename OutputElementType>
-void Internal_Load3DImageFromJsonDataFile(Image3D<OutputElementType>& OutputImage, QFile& DataFile, const QString& InputElementTypeName);
+template<typename OutputPixelType>
+void Internal_Load3DScalarImageFromJsonDataFile(ScalarImage3D<OutputPixelType>& OutputImage, QFile& DataFile, const QString& InputElementTypeName);
 
-template<typename OutputElementType, typename InputElementType>
-void Internal_Load3DImageFromJsonDataFile(Image3D<OutputElementType>& OutputImage, QFile& DataFile, int_max ByteNumberOfInputElementType);
+template<typename OutputPixelType, typename InputPixelType>
+void Internal_Load3DScalarImageFromJsonDataFile(ScalarImage3D<OutputPixelType>& OutputImage, QFile& DataFile, int_max ByteNumberOfInputElementType);
 
 
-//------------------------------------- load Image2D and Image3D from DICOM file --------------------------------------------//
+//------------------------------------- load ScalarImage2D and ScalarImage3D from DICOM file --------------------------------------------//
 
-template<typename ElementType>
-Image3D<ElementType> Load3DImageFromDICOMSeries(const CharString& FilePath);
-
+template<typename PixelType>
+ScalarImage3D<PixelType> Load3DScalarImageFromDICOMSeries(const CharString& FilePath);
 
 // -------------------------------------- convert mdk image to itk image--------------------------------------------------------------------//
 
 //copy or share data
 template<typename PixelType>
-itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DImageToITK3DImage(const Image3D<PixelType>& InputImage, bool SharePixelData);
+itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DImage(const ScalarImage3D<PixelType>& InputImage, bool SharePixelData);
 
 //copy data
 template<typename PixelType>
-itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DImageToITK3DImage(const Image3D<PixelType>& InputImage);
+itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DImage(const ScalarImage3D<PixelType>& InputImage);
 
 // -------------------------------------- convert itk image to mdk image--------------------------------------------------------------------//
+
 //copy data
 template<typename PixelType>
-Image3D<PixelType> ConvertITK3DImageToMDK3DImage(const itk::Image<PixelType, 3>* ITKImage);
+ScalarImage3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage);
 
 //----------------------------------- save/load FeatureDictionary from Json data file -----------------------------------------------------//
 

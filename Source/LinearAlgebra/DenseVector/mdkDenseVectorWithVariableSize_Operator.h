@@ -9,10 +9,12 @@ namespace mdk
 {
 
 template<typename ElementType>
-inline DenseVectorWithVariableSize<ElementType> operator+(const DenseVectorWithVariableSize<ElementType>& VectorA, const DenseVectorWithVariableSize<ElementType>& VectorB);
+inline DenseVectorWithVariableSize<ElementType> operator+(const DenseVectorWithVariableSize<ElementType>& VectorA,
+                                                          const DenseVectorWithVariableSize<ElementType>& VectorB);
 
 template<typename ElementType>
-inline DenseVectorWithVariableSize<ElementType> operator-(const DenseVectorWithVariableSize<ElementType>& VectorA, const DenseVectorWithVariableSize<ElementType>& VectorB);
+inline DenseVectorWithVariableSize<ElementType> operator-(const DenseVectorWithVariableSize<ElementType>& VectorA,
+                                                          const DenseVectorWithVariableSize<ElementType>& VectorB);
 
 //---------------------------------------------------------------------------------------------------------------//
 

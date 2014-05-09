@@ -27,6 +27,9 @@ private:
     std::vector<ElementType> m_DataArray;
 
 public:
+    typedef ElementType ElementType;
+
+public:
     
     inline DenseVectorWithVariableSize();
 

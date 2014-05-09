@@ -1,5 +1,5 @@
-﻿#ifndef __mdkMaskBasedImageFilter3D_h
-#define __mdkMaskBasedImageFilter3D_h
+﻿#ifndef __mdkMaskBasedScalarImageToVectorImageFilter3D_h
+#define __mdkMaskBasedScalarImageToVectorImageFilter3D_h
 
 
 #include "mdkImageFilter3D.h"
@@ -9,7 +9,7 @@ namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType>
-class MaskBasedImageFilter3D : public ImageFilter3D<InputPixelType, OutputPixelType>
+class MaskBasedScalarImageToVectorImageFilter3D : public ImageFilter3D<InputPixelType, OutputPixelType>
 {
 
 protected:
@@ -48,8 +48,8 @@ protected:
     Image3DPixelSpacing   m_InputImagePixelSpacing;
 
 protected:		
-	MaskBasedImageFilter3D();
-	virtual ~MaskBasedImageFilter3D();
+	MaskBasedScalarImageToVectorImageFilter3D();
+	virtual ~MaskBasedScalarImageToVectorImageFilter3D();
  
 public:
 	bool LoadMask(const std::string& FilePathAndName);
@@ -92,13 +92,13 @@ protected:
     inline bool WhetherToCheckBoundAtMaskCenter_3DPosition(double x, double y, double z, int_max MaskIndex);
 
 private:
-	MaskBasedImageFilter3D(const MaskBasedImageFilter3D&) = delete;
-	void operator=(const MaskBasedImageFilter3D&) = delete;
+	MaskBasedScalarImageToVectorImageFilter3D(const MaskBasedScalarImageToVectorImageFilter3D&) = delete;
+	void operator=(const MaskBasedScalarImageToVectorImageFilter3D&) = delete;
 };
 
 }//end namespace mdk
 
 
-#include "mdkMaskBasedImageFilter3D.hpp"
+#include "mdkMaskBasedScalarImageToVectorImageFilter3D.hpp"
 
 #endif
