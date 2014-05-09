@@ -8,12 +8,30 @@ namespace mdk
 template<typename InputPixelType, typename OutputPixelType>
 ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::ScalarImageGaussianFilter3D()
 {
+    this->Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
 ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::~ScalarImageGaussianFilter3D()
 {
+}
+
+
+template<typename InputPixelType, typename OutputPixelType>
+void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::Clear()
+{
+    this->ScalarImageConvolutionFilter3D::Clear();
+
+    m_SigmaList.Clear();
+
+    m_RotationMatrix.Clear();
+
+    m_CutOffRatio = 0;
+
+    m_Mask_3DIndex_Gaussian.Clear();
+
+    m_Mask_3DPosition_Gaussian.Clear();
 }
 
 
@@ -55,6 +73,24 @@ SetMaskParameter(double Sx, double Sy, double Sz, const DenseMatrix<double>& Rot
 template<typename InputPixelType, typename OutputPixelType>
 void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::BuildMaskOf3DIndex()
 {
+    m_Mask_3DIndex_Gaussian = this->BuildGaussianMask();
+
+    this->SetMaskOf3DIndex(&m_Mask_3DIndex_Gaussian);
+}
+
+
+template<typename InputPixelType, typename OutputPixelType>
+void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::BuildMaskOf3DPosition()
+{
+    m_Mask_3DPosition_Gaussian = this->BuildGaussianMask();
+
+    this->SetMaskOf3DPosition(&m_Mask_3DPosition_Gaussian);
+}
+
+
+template<typename InputPixelType, typename OutputPixelType>
+DenseMatrix<double> ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::BuildGaussianMask()
+{
     DenseMatrix<double> InverseCovarianceMatrix(3, 3);
 
     InverseCovarianceMatrix.Fill(0);
@@ -73,7 +109,8 @@ void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::BuildMaskOf3D
     // at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
     // add the points within the m_CutOffRatio to Mask
     
-    DenseMatrix<double> Mask;
+    DenseMatrix<double> GaussianMask;
+    GaussianMask.ReserveCapacity(Radius*Radius*Radius);
 
     DenseMatrix<double> Relative3DIndex(3, 1);
     DenseMatrix<double> Relative3DIndex_Transpose(1, 3);
@@ -100,24 +137,27 @@ void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::BuildMaskOf3D
                 {
                     auto tempValue = std::exp(-0.5*tempRatio);
 
-                    Mask.AppendCol({double(x), double(y), double(z), tempValue});
+                    GaussianMask.AppendCol({ double(x), double(y), double(z), tempValue });
                 }
             }
         }
     }
 
+    GaussianMask.Squeeze();
+
     // ----------- normalize coefficient in Mask ---------
 
-    auto tempRow = Mask.GetRow(3);
+    auto tempRow = GaussianMask.GetRow(3);
 
     auto tempSum = tempRow.Sum();
 
-    Mask.RowOperationInPlace(3, '/', tempSum);
+    GaussianMask.RowOperationInPlace(3, '/', tempSum);
 
-    //---------------------------------
+    //--------------------------------------------------
 
-    this->SetMaskOf3DIndex(Mask);
+    return GaussianMask;
 }
+
 
 
 }//end namespace mdk

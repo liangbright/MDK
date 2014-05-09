@@ -3,21 +3,27 @@
 
 #include <algorithm>
 
-#include "mdkMaskBasedScalarImageToVectorImageFilter3D.h"
+
+#include "mdkScalarImageToVectorImageFilterWithMask3D.h"
 
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType>
-class ScalarImageToVectorImageConvolutionFilter3D : public MaskBasedScalarImageToVectorImageFilter3D<InputPixelType, OutputPixelType>
+class ScalarImageToVectorImageConvolutionFilter3D : public ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>
 {
-protected:
-    DenseMatrix<InputPixelType>* m_OutputPixelMatrix;
+public:
+    typedef OutputPixelType::ElementType  ElementTypeInOutputPixel;
+
+private:
+    DenseMatrix<ElementTypeInOutputPixel>* m_OutputPixelMatrix;
 
 public:		
 	ScalarImageToVectorImageConvolutionFilter3D();
 	~ScalarImageToVectorImageConvolutionFilter3D();
+
+    virtual void Clear();
 
     void SetOutputPixelMatrix(const DenseMatrix<InputPixelType>* PixelMatrix);
 
@@ -25,7 +31,7 @@ public:
 
     inline void FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex);
 
-protected:
+private:
     inline void OutputFunction(int_max OutputPixelIndex, const OutputPixelType& OutputPixel, int_max ThreadIndex);
 
 private:

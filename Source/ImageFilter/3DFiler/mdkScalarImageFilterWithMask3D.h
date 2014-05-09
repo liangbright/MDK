@@ -13,7 +13,9 @@ class ScalarImageFilterWithMask3D : public ScalarImageFilter3D<InputPixelType, O
 {
 
 protected:
-    DenseMatrix<double> m_Mask_3DIndex;
+
+    // input_0:
+    const DenseMatrix<double>* m_Mask_3DIndex;
 	// each column has at least 3 elements
     // dx_Index
     // dy_Index
@@ -24,7 +26,8 @@ protected:
     //
 	// w is the coefficient at (dx_Index, dy_Index, dz_Index) 
 
-    DenseMatrix<double> m_Mask_3DPosition;
+    // input_1:
+    const DenseMatrix<double>* m_Mask_3DPosition;
     // each column has at least 3 elements
     // dx
     // dy
@@ -45,15 +48,15 @@ protected:
  
 public:
 
-    void SetMaskOf3DIndex(const DenseMatrix<double>& Mask);
-
-    void SetMaskOf3DPosition(const DenseMatrix<double>& Mask);
-
-    const DenseMatrix<double>& GetMaskOf3DIndex() const;
-
-    const DenseMatrix<double>& GetMaskOf3DPosition() const;
-
     virtual void Clear();
+
+    void SetMaskOf3DIndex(const DenseMatrix<double>* Mask);
+
+    void SetMaskOf3DPosition(const DenseMatrix<double>* Mask);
+
+    const DenseMatrix<double>* GetMaskOf3DIndex() const;
+
+    const DenseMatrix<double>* GetMaskOf3DPosition() const;
 
 protected:
 
@@ -70,6 +73,7 @@ protected:
     virtual bool Preprocess();
 
 private:
+
     void ComputeRegionOfNOBoundCheck_3DIndex();
 
     void ComputeRegionOfNOBoundCheck_3DPosition();

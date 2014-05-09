@@ -1,5 +1,5 @@
-#ifndef __mdkDenseVectorWithVariableSize_Operator_hpp
-#define __mdkDenseVectorWithVariableSize_Operator_hpp
+#ifndef __mdkDenseVectorWithVariableLength_Operator_hpp
+#define __mdkDenseVectorWithVariableLength_Operator_hpp
 
 
 namespace mdk
@@ -7,8 +7,8 @@ namespace mdk
 
 template<typename ElementType>
 inline 
-DenseVectorWithVariableSize<ElementType> 
-operator+(const DenseVectorWithVariableSize<ElementType>& VectorA, const DenseVectorWithVariableSize<ElementType>& VectorB)
+DenseVectorWithVariableLength<ElementType> 
+operator+(const DenseVectorWithVariableLength<ElementType>& VectorA, const DenseVectorWithVariableLength<ElementType>& VectorB)
 {
     auto Length_A = VectorA.GetLength();
 
@@ -26,13 +26,13 @@ operator+(const DenseVectorWithVariableSize<ElementType>& VectorA, const DenseVe
 
     if (Length_A != Length_B)
     {
-        MDK_Error << "VectorA.size() != VectorB.size() @ DenseVectorWithVariableSize_Function operator+(VectorA, VectorB)" << '\n';
+        MDK_Error << "VectorA.size() != VectorB.size() @ DenseVectorWithVariableLength_Function operator+(VectorA, VectorB)" << '\n';
 
-        DenseVectorWithVariableSize<ElementType> EmptyVector;
+        DenseVectorWithVariableLength<ElementType> EmptyVector;
         return EmptyVector;
     }
 
-    DenseVectorWithVariableSize<ElementType> tempVector;
+    DenseVectorWithVariableLength<ElementType> tempVector;
 
     tempVector.Resize(Length_A);
 
@@ -47,8 +47,8 @@ operator+(const DenseVectorWithVariableSize<ElementType>& VectorA, const DenseVe
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType> 
-operator-(const DenseVectorWithVariableSize<ElementType>& VectorA, const DenseVectorWithVariableSize<ElementType>& VectorB)
+DenseVectorWithVariableLength<ElementType> 
+operator-(const DenseVectorWithVariableLength<ElementType>& VectorA, const DenseVectorWithVariableLength<ElementType>& VectorB)
 {
     auto Length_A = VectorA.GetLength();
 
@@ -66,12 +66,12 @@ operator-(const DenseVectorWithVariableSize<ElementType>& VectorA, const DenseVe
 
     if (Length_A != Length_B)
     {
-        MDK_Error << "VectorA.size() != VectorB.size() @ DenseVectorWithVariableSize_Function operator-(VectorA, VectorB)" << '\n';
-        DenseVectorWithVariableSize<ElementType> EmptyVector;
+        MDK_Error << "VectorA.size() != VectorB.size() @ DenseVectorWithVariableLength_Function operator-(VectorA, VectorB)" << '\n';
+        DenseVectorWithVariableLength<ElementType> EmptyVector;
         return EmptyVector;
     }
 
-    DenseVectorWithVariableSize<ElementType> tempVector;
+    DenseVectorWithVariableLength<ElementType> tempVector;
 
     tempVector.Resize(Length_A);
 
@@ -86,8 +86,8 @@ operator-(const DenseVectorWithVariableSize<ElementType>& VectorA, const DenseVe
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType>
-operator*(const DenseVectorWithVariableSize<ElementType>& VectorA, const DenseVectorWithVariableSize<ElementType>& VectorB)
+DenseVectorWithVariableLength<ElementType>
+operator*(const DenseVectorWithVariableLength<ElementType>& VectorA, const DenseVectorWithVariableLength<ElementType>& VectorB)
 {
     auto Length_A = VectorA.GetLength();
 
@@ -105,12 +105,12 @@ operator*(const DenseVectorWithVariableSize<ElementType>& VectorA, const DenseVe
 
     if (Length_A != Length_B)
     {
-        MDK_Error << "VectorA.size() != VectorB.size() @ DenseVectorWithVariableSize_Function operator*(VectorA, VectorB)" << '\n';
-        DenseVectorWithVariableSize<ElementType> EmptyVector;
+        MDK_Error << "VectorA.size() != VectorB.size() @ DenseVectorWithVariableLength_Function operator*(VectorA, VectorB)" << '\n';
+        DenseVectorWithVariableLength<ElementType> EmptyVector;
         return EmptyVector;
     }
 
-    DenseVectorWithVariableSize<ElementType> tempVector;
+    DenseVectorWithVariableLength<ElementType> tempVector;
 
     tempVector.Resize(Length_A);
 
@@ -125,8 +125,8 @@ operator*(const DenseVectorWithVariableSize<ElementType>& VectorA, const DenseVe
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType>
-operator/(const DenseVectorWithVariableSize<ElementType>& VectorA, const DenseVectorWithVariableSize<ElementType>& VectorB)
+DenseVectorWithVariableLength<ElementType>
+operator/(const DenseVectorWithVariableLength<ElementType>& VectorA, const DenseVectorWithVariableLength<ElementType>& VectorB)
 {
     auto Length_A = VectorA.GetLength();
 
@@ -144,12 +144,12 @@ operator/(const DenseVectorWithVariableSize<ElementType>& VectorA, const DenseVe
 
     if (Length_A != Length_B)
     {
-        MDK_Error << "VectorA.size() != VectorB.size() @ DenseVectorWithVariableSize_Function operator/(VectorA, VectorB)" << '\n';
-        DenseVectorWithVariableSize<ElementType> EmptyVector;
+        MDK_Error << "VectorA.size() != VectorB.size() @ DenseVectorWithVariableLength_Function operator/(VectorA, VectorB)" << '\n';
+        DenseVectorWithVariableLength<ElementType> EmptyVector;
         return EmptyVector;
     }
 
-    DenseVectorWithVariableSize<ElementType> tempVector;
+    DenseVectorWithVariableLength<ElementType> tempVector;
 
     tempVector.Resize(Length_A);
 
@@ -165,10 +165,10 @@ operator/(const DenseVectorWithVariableSize<ElementType>& VectorA, const DenseVe
 
 template<typename ElementType>
 inline 
-DenseVectorWithVariableSize<ElementType> 
-operator+(const DenseVectorWithVariableSize<ElementType>& Vector, const ElementType& Element)
+DenseVectorWithVariableLength<ElementType> 
+operator+(const DenseVectorWithVariableLength<ElementType>& Vector, const ElementType& Element)
 {
-    DenseVectorWithVariableSize<ElementType> tempVector;
+    DenseVectorWithVariableLength<ElementType> tempVector;
 
     tempVector.Resize(Vector.GetLength());
 
@@ -183,10 +183,10 @@ operator+(const DenseVectorWithVariableSize<ElementType>& Vector, const ElementT
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType> 
-operator-(const DenseVectorWithVariableSize<ElementType>& Vector, const ElementType& Element)
+DenseVectorWithVariableLength<ElementType> 
+operator-(const DenseVectorWithVariableLength<ElementType>& Vector, const ElementType& Element)
 {
-    DenseVectorWithVariableSize<ElementType> tempVector;
+    DenseVectorWithVariableLength<ElementType> tempVector;
 
     tempVector.Resize(Vector.GetLength());
 
@@ -201,10 +201,10 @@ operator-(const DenseVectorWithVariableSize<ElementType>& Vector, const ElementT
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType> 
-operator*(const DenseVectorWithVariableSize<ElementType>& Vector, const ElementType& Element)
+DenseVectorWithVariableLength<ElementType> 
+operator*(const DenseVectorWithVariableLength<ElementType>& Vector, const ElementType& Element)
 {
-    DenseVectorWithVariableSize<ElementType> tempVector;
+    DenseVectorWithVariableLength<ElementType> tempVector;
 
     tempVector.Resize(Vector.GetLength());
 
@@ -219,10 +219,10 @@ operator*(const DenseVectorWithVariableSize<ElementType>& Vector, const ElementT
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType> 
-operator/(const DenseVectorWithVariableSize<ElementType>& Vector, const ElementType& Element)
+DenseVectorWithVariableLength<ElementType> 
+operator/(const DenseVectorWithVariableLength<ElementType>& Vector, const ElementType& Element)
 {
-    DenseVectorWithVariableSize<ElementType> tempVector;
+    DenseVectorWithVariableLength<ElementType> tempVector;
 
     tempVector.Resize(Vector.GetLength());
 
@@ -238,10 +238,10 @@ operator/(const DenseVectorWithVariableSize<ElementType>& Vector, const ElementT
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType> 
-operator+(const ElementType& Element, const DenseVectorWithVariableSize<ElementType>& Vector)
+DenseVectorWithVariableLength<ElementType> 
+operator+(const ElementType& Element, const DenseVectorWithVariableLength<ElementType>& Vector)
 {
-    DenseVectorWithVariableSize<ElementType> tempVector;
+    DenseVectorWithVariableLength<ElementType> tempVector;
 
     tempVector.Resize(Vector.GetLength());
 
@@ -256,10 +256,10 @@ operator+(const ElementType& Element, const DenseVectorWithVariableSize<ElementT
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType> 
-operator-(const ElementType& Element, const DenseVectorWithVariableSize<ElementType>& Vector)
+DenseVectorWithVariableLength<ElementType> 
+operator-(const ElementType& Element, const DenseVectorWithVariableLength<ElementType>& Vector)
 {
-    DenseVectorWithVariableSize<ElementType> tempVector;
+    DenseVectorWithVariableLength<ElementType> tempVector;
 
     tempVector.Resize(Vector.GetLength());
 
@@ -274,10 +274,10 @@ operator-(const ElementType& Element, const DenseVectorWithVariableSize<ElementT
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType> 
-operator*(const ElementType& Element, const DenseVectorWithVariableSize<ElementType>& Vector)
+DenseVectorWithVariableLength<ElementType> 
+operator*(const ElementType& Element, const DenseVectorWithVariableLength<ElementType>& Vector)
 {
-    DenseVectorWithVariableSize<ElementType> tempVector;
+    DenseVectorWithVariableLength<ElementType> tempVector;
 
     tempVector.Resize(Vector.GetLength());
 
@@ -292,10 +292,10 @@ operator*(const ElementType& Element, const DenseVectorWithVariableSize<ElementT
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType> 
-operator/(const ElementType& Element, const DenseVectorWithVariableSize<ElementType>& Vector)
+DenseVectorWithVariableLength<ElementType> 
+operator/(const ElementType& Element, const DenseVectorWithVariableLength<ElementType>& Vector)
 {
-    DenseVectorWithVariableSize<ElementType> tempVector;
+    DenseVectorWithVariableLength<ElementType> tempVector;
 
     tempVector.Resize(Vector.GetLength());
 

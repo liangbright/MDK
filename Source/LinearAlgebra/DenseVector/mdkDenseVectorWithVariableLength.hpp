@@ -1,5 +1,5 @@
-﻿#ifndef __mdkDenseVectorWithVariableSize_hpp
-#define __mdkDenseVectorWithVariableSize_hpp
+﻿#ifndef __mdkDenseVectorWithVariableLength_hpp
+#define __mdkDenseVectorWithVariableLength_hpp
 
 
 namespace mdk
@@ -7,7 +7,7 @@ namespace mdk
  
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType>::DenseVectorWithVariableSize()
+DenseVectorWithVariableLength<ElementType>::DenseVectorWithVariableLength()
 {
     this->Clear();
 }
@@ -15,7 +15,7 @@ DenseVectorWithVariableSize<ElementType>::DenseVectorWithVariableSize()
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType>::DenseVectorWithVariableSize(const ElementType& Element)
+DenseVectorWithVariableLength<ElementType>::DenseVectorWithVariableLength(const ElementType& Element)
 {
     m_DataArray.resize(1);
 
@@ -25,7 +25,7 @@ DenseVectorWithVariableSize<ElementType>::DenseVectorWithVariableSize(const Elem
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType>::DenseVectorWithVariableSize(DenseVectorWithVariableSize<ElementType>&& InputVector)
+DenseVectorWithVariableLength<ElementType>::DenseVectorWithVariableLength(DenseVectorWithVariableLength<ElementType>&& InputVector)
 {
     m_DataArray = std::move(InputVector.m_DataArray);
 }
@@ -33,7 +33,7 @@ DenseVectorWithVariableSize<ElementType>::DenseVectorWithVariableSize(DenseVecto
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType>::~DenseVectorWithVariableSize()
+DenseVectorWithVariableLength<ElementType>::~DenseVectorWithVariableLength()
 {
 
 }
@@ -41,14 +41,14 @@ DenseVectorWithVariableSize<ElementType>::~DenseVectorWithVariableSize()
 
 template<typename ElementType>
 inline
-void DenseVectorWithVariableSize<ElementType>::
-operator=(const DenseVectorWithVariableSize<ElementType>& InputVector);
+void DenseVectorWithVariableLength<ElementType>::
+operator=(const DenseVectorWithVariableLength<ElementType>& InputVector);
 {
     auto Length = this->GetLength();
 
     if (Length != InputVector.GetLength())
     {
-        MDK_Error("Size does not match @ DenseVectorWithVariableSize::operator=(& Voxel)")
+        MDK_Error("Size does not match @ DenseVectorWithVariableLength::operator=(& Voxel)")
         return;
     }
 
@@ -61,8 +61,8 @@ operator=(const DenseVectorWithVariableSize<ElementType>& InputVector);
 
 template<typename ElementType>
 inline
-void DenseVectorWithVariableSize<ElementType>::
-operator=(DenseVectorWithVariableSize<ElementType>&& InputVector);
+void DenseVectorWithVariableLength<ElementType>::
+operator=(DenseVectorWithVariableLength<ElementType>&& InputVector);
 {
     m_DataArray = std::move(InputVector.m_DataArray);
 }
@@ -70,7 +70,7 @@ operator=(DenseVectorWithVariableSize<ElementType>&& InputVector);
 
 template<typename ElementType>
 inline
-void DenseVectorWithVariableSize<ElementType>::Clear()
+void DenseVectorWithVariableLength<ElementType>::Clear()
 {
     m_DataArray.clear(); 
 }
@@ -78,11 +78,11 @@ void DenseVectorWithVariableSize<ElementType>::Clear()
 
 template<typename ElementType>
 inline
-void DenseVectorWithVariableSize<ElementType>::Resize(int_max Length)
+void DenseVectorWithVariableLength<ElementType>::Resize(int_max Length)
 {
     if (Length < 0)
     {
-        MDK_Error("Invalid input @ DenseVectorWithVariableSize::Resize(...)")
+        MDK_Error("Invalid input @ DenseVectorWithVariableLength::Resize(...)")
         return;
     }
 
@@ -92,7 +92,7 @@ try
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ DenseVectorWithVariableSize::Resize(...)")
+    MDK_Error("Out of Memory @ DenseVectorWithVariableLength::Resize(...)")
 
     m_DataArray.clear();
 }
@@ -102,7 +102,7 @@ catch (...)
 
 template<typename ElementType>
 inline
-void DenseVectorWithVariableSize<ElementType>::Fill(const ElementType& Element)
+void DenseVectorWithVariableLength<ElementType>::Fill(const ElementType& Element)
 {
     auto Length = this->GetLength();
 
@@ -115,17 +115,32 @@ void DenseVectorWithVariableSize<ElementType>::Fill(const ElementType& Element)
 
 template<typename ElementType>
 inline
-int_max DenseVectorWithVariableSize<ElementType>::GetLength()
+int_max DenseVectorWithVariableLength<ElementType>::GetLength() const
 {
     return int_max(m_DataArray.size());
 }
 
 
+template<typename ElementType>
+inline
+bool DenseVectorWithVariableLength<ElementType>::IsLengthFixed() const
+{
+    return false;
+}
+
+
+template<typename ElementType>
+inline
+bool DenseVectorWithVariableLength<ElementType>::IsLengthVariable() const
+{
+    return true;
+}
+
 //-----------element access------------------//
 
 template<typename ElementType>
 inline
-ElementType* DenseVectorWithVariableSize<ElementType>::GetElementPointer()
+ElementType* DenseVectorWithVariableLength<ElementType>::GetElementPointer()
 {
     return m_DataArray->data();
 }
@@ -133,7 +148,7 @@ ElementType* DenseVectorWithVariableSize<ElementType>::GetElementPointer()
 
 template<typename ElementType>
 inline
-const ElementType* DenseVectorWithVariableSize<ElementType>::GetElementPointer() const
+const ElementType* DenseVectorWithVariableLength<ElementType>::GetElementPointer() const
 {
     return m_DataArray->data();
 }
@@ -142,18 +157,18 @@ const ElementType* DenseVectorWithVariableSize<ElementType>::GetElementPointer()
 
 template<typename ElementType>
 inline
-ElementType& DenseVectorWithVariableSize<ElementType>::operator[](int_max Index)
+ElementType& DenseVectorWithVariableLength<ElementType>::operator[](int_max Index)
 {
-#if defined MDK_DEBUG_DenseVectorWithVariableSize_Operator_CheckBound
+#if defined MDK_DEBUG_DenseVectorWithVariableLength_Operator_CheckBound
 
     auto Length = this->GetLength();
 
     if (Index >= Length || Index < 0)
     {
-        MDK_Error("Invalid input @ DenseVectorWithVariableSize::operator[](Index)")
+        MDK_Error("Invalid input @ DenseVectorWithVariableLength::operator[](Index)")
     }
 
-#endif // MDK_DEBUG_DenseVectorWithVariableSize_Operator_CheckBound    
+#endif // MDK_DEBUG_DenseVectorWithVariableLength_Operator_CheckBound    
 
     return m_DataArray[Index];
 }
@@ -161,18 +176,18 @@ ElementType& DenseVectorWithVariableSize<ElementType>::operator[](int_max Index)
 
 template<typename ElementType>
 inline
-const ElementType& DenseVectorWithVariableSize<ElementType>::operator[](int_max Index) const
+const ElementType& DenseVectorWithVariableLength<ElementType>::operator[](int_max Index) const
 {
-#if defined MDK_DEBUG_DenseVectorWithVariableSize_Operator_CheckBound
+#if defined MDK_DEBUG_DenseVectorWithVariableLength_Operator_CheckBound
 
     auto Length = this->GetLength();
 
     if (Index >= Length || Index < 0)
     {
-        MDK_Error("Invalid input @ DenseVectorWithVariableSize::operator[](Index) const")
+        MDK_Error("Invalid input @ DenseVectorWithVariableLength::operator[](Index) const")
     }
 
-#endif // MDK_DEBUG_3DImageDenseVectorWithVariableSize_Operator_CheckBound    
+#endif // MDK_DEBUG_3DImageDenseVectorWithVariableLength_Operator_CheckBound    
 
     return m_DataArray[Index];
 }
@@ -180,18 +195,18 @@ const ElementType& DenseVectorWithVariableSize<ElementType>::operator[](int_max 
 
 template<typename ElementType>
 inline
-ElementType& DenseVectorWithVariableSize<ElementType>::operator()(int_max Index)
+ElementType& DenseVectorWithVariableLength<ElementType>::operator()(int_max Index)
 {
-#if defined MDK_DEBUG_DenseVectorWithVariableSize_Operator_CheckBound
+#if defined MDK_DEBUG_DenseVectorWithVariableLength_Operator_CheckBound
 
     auto Length = this->GetLength();
 
     if (Index >= Length || Index < 0)
     {
-        MDK_Error("Invalid input @ DenseVectorWithVariableSize::operator()(Index)")
+        MDK_Error("Invalid input @ DenseVectorWithVariableLength::operator()(Index)")
     }
 
-#endif // MDK_DEBUG_3DImageDenseVectorWithVariableSize_Operator_CheckBound    
+#endif // MDK_DEBUG_3DImageDenseVectorWithVariableLength_Operator_CheckBound    
 
     return m_DataArray[Index];
 }
@@ -199,18 +214,18 @@ ElementType& DenseVectorWithVariableSize<ElementType>::operator()(int_max Index)
 
 template<typename ElementType>
 inline
-const ElementType& DenseVectorWithVariableSize<ElementType>::operator()(int_max Index) const
+const ElementType& DenseVectorWithVariableLength<ElementType>::operator()(int_max Index) const
 {
-#if defined MDK_DEBUG_DenseVectorWithVariableSize_Operator_CheckBound
+#if defined MDK_DEBUG_DenseVectorWithVariableLength_Operator_CheckBound
 
     auto Length = this->GetLength();
 
     if (Index >= Length || Index < 0)
     {
-        MDK_Error("Invalid input @ DenseVectorWithVariableSize::operator()(Index) const")
+        MDK_Error("Invalid input @ DenseVectorWithVariableLength::operator()(Index) const")
     }
 
-#endif // MDK_DEBUG_3DImageDenseVectorWithVariableSize_Operator_CheckBound    
+#endif // MDK_DEBUG_3DImageDenseVectorWithVariableLength_Operator_CheckBound    
 
     return m_DataArray[Index];
 }
@@ -218,13 +233,13 @@ const ElementType& DenseVectorWithVariableSize<ElementType>::operator()(int_max 
 
 template<typename ElementType>
 inline
-ElementType& DenseVectorWithVariableSize<ElementType>::at(int_max Index)
+ElementType& DenseVectorWithVariableLength<ElementType>::at(int_max Index)
 {
     auto Length = this->GetLength();
 
     if (Index >= Length || Index < 0)
     {
-        MDK_Error("Invalid input @ DenseVectorWithVariableSize::at(Index)")
+        MDK_Error("Invalid input @ DenseVectorWithVariableLength::at(Index)")
     }
 
     return m_DataArray[Index];
@@ -233,13 +248,13 @@ ElementType& DenseVectorWithVariableSize<ElementType>::at(int_max Index)
 
 template<typename ElementType>
 inline
-const ElementType& DenseVectorWithVariableSize<ElementType>::at(int_max Index) const
+const ElementType& DenseVectorWithVariableLength<ElementType>::at(int_max Index) const
 {
     auto Length = this->GetLength();
 
     if (Index >= Length || Index < 0)
     {
-        MDK_Error("Invalid input @ DenseVectorWithVariableSize::at(Index)")
+        MDK_Error("Invalid input @ DenseVectorWithVariableLength::at(Index)")
     }
 
     return m_DataArray[Index];
@@ -248,7 +263,7 @@ const ElementType& DenseVectorWithVariableSize<ElementType>::at(int_max Index) c
 // ------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-DenseMatrix<ElementType> DenseVectorWithVariableSize<ElementType>::CreateDenseMatrixAsRowVector() const
+DenseMatrix<ElementType> DenseVectorWithVariableLength<ElementType>::CreateDenseMatrixAsRowVector() const
 {
     DenseMatrix<ElementType> OutputVector;
 
@@ -259,7 +274,7 @@ DenseMatrix<ElementType> DenseVectorWithVariableSize<ElementType>::CreateDenseMa
 
 
 template<typename ElementType, int_max Length>
-void DenseVectorWithVariableSize<ElementType, Length>::CreateDenseMatrixAsRowVector(DenseMatrix<ElementType>& OutputVector) const
+void DenseVectorWithVariableLength<ElementType, Length>::CreateDenseMatrixAsRowVector(DenseMatrix<ElementType>& OutputVector) const
 {
     auto Length = this->GetLength();
 
@@ -273,7 +288,7 @@ void DenseVectorWithVariableSize<ElementType, Length>::CreateDenseMatrixAsRowVec
 
 
 template<typename ElementType>
-DenseMatrix<ElementType> DenseVectorWithVariableSize<ElementType>::CreateDenseMatrixAsColVector() const
+DenseMatrix<ElementType> DenseVectorWithVariableLength<ElementType>::CreateDenseMatrixAsColVector() const
 {
     DenseMatrix<ElementType> OutputVector;
 
@@ -284,7 +299,7 @@ DenseMatrix<ElementType> DenseVectorWithVariableSize<ElementType>::CreateDenseMa
 
 
 template<typename ElementType>
-void DenseVectorWithVariableSize<ElementType>::CreateDenseMatrixAsColVector(DenseMatrix<ElementType>& OutputVector) const
+void DenseVectorWithVariableLength<ElementType>::CreateDenseMatrixAsColVector(DenseMatrix<ElementType>& OutputVector) const
 {
     auto Length = this->GetLength();
 
@@ -300,7 +315,7 @@ void DenseVectorWithVariableSize<ElementType>::CreateDenseMatrixAsColVector(Dens
 
 template<typename ElementType>
 inline 
-void DenseVectorWithVariableSize<ElementType>::operator+=(const DenseVectorWithVariableSize<ElementType>& InputVector)
+void DenseVectorWithVariableLength<ElementType>::operator+=(const DenseVectorWithVariableLength<ElementType>& InputVector)
 {
     auto Length_A = this->GetLength();
 
@@ -314,7 +329,7 @@ void DenseVectorWithVariableSize<ElementType>::operator+=(const DenseVectorWithV
 
     if (Length_A != Length_B)
     {
-        MDK_Error("Length_A != Length_B @ DenseVectorWithVariableSize::operator+=(InputVector)")
+        MDK_Error("Length_A != Length_B @ DenseVectorWithVariableLength::operator+=(InputVector)")
     }
 
     for (int_max i = 0; i < Length_A; ++i)
@@ -326,7 +341,7 @@ void DenseVectorWithVariableSize<ElementType>::operator+=(const DenseVectorWithV
 
 template<typename ElementType>
 inline 
-void DenseVectorWithVariableSize<ElementType>::operator-=(const DenseVectorWithVariableSize<ElementType>& InputVector)
+void DenseVectorWithVariableLength<ElementType>::operator-=(const DenseVectorWithVariableLength<ElementType>& InputVector)
 {
     auto Length_A = this->GetLength();
 
@@ -340,7 +355,7 @@ void DenseVectorWithVariableSize<ElementType>::operator-=(const DenseVectorWithV
 
     if (Length_A != Length_B)
     {
-        MDK_Error("Length_A != Length_B @ DenseVectorWithVariableSize::operator-=(InputVector)")
+        MDK_Error("Length_A != Length_B @ DenseVectorWithVariableLength::operator-=(InputVector)")
     }
 
     for (int_max i = 0; i < Length_A; ++i)
@@ -352,7 +367,7 @@ void DenseVectorWithVariableSize<ElementType>::operator-=(const DenseVectorWithV
 
 template<typename ElementType>
 inline
-void DenseVectorWithVariableSize<ElementType>::operator*=(const DenseVectorWithVariableSize<ElementType>& InputVector)
+void DenseVectorWithVariableLength<ElementType>::operator*=(const DenseVectorWithVariableLength<ElementType>& InputVector)
 {
     auto Length_A = this->GetLength();
 
@@ -366,7 +381,7 @@ void DenseVectorWithVariableSize<ElementType>::operator*=(const DenseVectorWithV
 
     if (Length_A != Length_B)
     {
-        MDK_Error("Length_A != Length_B @ DenseVectorWithVariableSize::operator*=(InputVector)")
+        MDK_Error("Length_A != Length_B @ DenseVectorWithVariableLength::operator*=(InputVector)")
     }
 
     for (int_max i = 0; i < Length_A; ++i)
@@ -378,7 +393,7 @@ void DenseVectorWithVariableSize<ElementType>::operator*=(const DenseVectorWithV
 
 template<typename ElementType>
 inline
-void DenseVectorWithVariableSize<ElementType>::operator/=(const DenseVectorWithVariableSize<ElementType>& InputVector)
+void DenseVectorWithVariableLength<ElementType>::operator/=(const DenseVectorWithVariableLength<ElementType>& InputVector)
 {
     auto Length_A = this->GetLength();
 
@@ -392,7 +407,7 @@ void DenseVectorWithVariableSize<ElementType>::operator/=(const DenseVectorWithV
 
     if (Length_A != Length_B)
     {
-        MDK_Error("Length_A != Length_B @ DenseVectorWithVariableSize::operator/=(InputVector)")
+        MDK_Error("Length_A != Length_B @ DenseVectorWithVariableLength::operator/=(InputVector)")
     }
 
     for (int_max i = 0; i < Length_A; ++i)
@@ -405,7 +420,7 @@ void DenseVectorWithVariableSize<ElementType>::operator/=(const DenseVectorWithV
 
 template<typename ElementType>
 inline 
-void DenseVectorWithVariableSize<ElementType>::operator+=(const ElementType& Element)
+void DenseVectorWithVariableLength<ElementType>::operator+=(const ElementType& Element)
 {
     for (int_max i = 0; i < this->GetLength(); ++i)
     {
@@ -416,7 +431,7 @@ void DenseVectorWithVariableSize<ElementType>::operator+=(const ElementType& Ele
 
 template<typename ElementType>
 inline 
-void DenseVectorWithVariableSize<ElementType>::operator-=(const ElementType& Element)
+void DenseVectorWithVariableLength<ElementType>::operator-=(const ElementType& Element)
 {
     for (int_max i = 0; i < this->GetLength(); ++i)
     {
@@ -426,7 +441,7 @@ void DenseVectorWithVariableSize<ElementType>::operator-=(const ElementType& Ele
 
 
 template<typename ElementType>
-inline void DenseVectorWithVariableSize<ElementType>::operator*=(const ElementType& Element)
+inline void DenseVectorWithVariableLength<ElementType>::operator*=(const ElementType& Element)
 {
     for (int_max i = 0; i < this->GetLength(); ++i)
     {
@@ -437,7 +452,7 @@ inline void DenseVectorWithVariableSize<ElementType>::operator*=(const ElementTy
 
 template<typename ElementType>
 inline 
-void DenseVectorWithVariableSize<ElementType>::operator/=(const ElementType& Element)
+void DenseVectorWithVariableLength<ElementType>::operator/=(const ElementType& Element)
 {
     for (int_max i = 0; i < this->GetLength(); ++i)
     {

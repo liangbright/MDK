@@ -1,5 +1,5 @@
-#ifndef __mdkDenseVectorWithVariableSize_Function_hpp
-#define __mdkDenseVectorWithVariableSize_Function_hpp
+#ifndef __mdkDenseVectorWithVariableLength_Function_hpp
+#define __mdkDenseVectorWithVariableLength_Function_hpp
 
 
 namespace mdk
@@ -7,16 +7,16 @@ namespace mdk
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableSize<ElementType> 
-VectorLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<const DenseVectorWithVariableSize<ElementType>*>& VectorSet)
+DenseVectorWithVariableLength<ElementType> 
+VectorLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<const DenseVectorWithVariableLength<ElementType>*>& VectorSet)
 {
-    typedef DenseVectorWithVariableSize<ElementType> VectorType;
+    typedef DenseVectorWithVariableLength<ElementType> VectorType;
 
     VectorType EmptyVector;
 
     if (CoefList.size() != VectorSet.size())
     {
-        MDK_Error("CoefList.size() != VectorSet.size() @ DenseVectorWithVariableSize_Function VectorLinearCombine(...)")
+        MDK_Error("CoefList.size() != VectorSet.size() @ DenseVectorWithVariableLength_Function VectorLinearCombine(...)")
 
         return EmptyVector;
     } 
@@ -29,7 +29,7 @@ VectorLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<
     {
         if (VectorSet[k]->GetLength() != Length)
         {
-            MDK_Error("Size is not the same in VectorSet @ DenseVectorWithVariableSize_Function VectorLinearCombine(...)")
+            MDK_Error("Size is not the same in VectorSet @ DenseVectorWithVariableLength_Function VectorLinearCombine(...)")
 
             return EmptyVector;
         }
