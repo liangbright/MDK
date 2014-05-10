@@ -1,6 +1,6 @@
 %% Test_2D_Image_GaussianObject
 
-FilePath='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNReconstructionOnlineDictionaryBuilder/Debug/';
+FilePath='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBSABasedOnlineDictionaryBuilder/Debug/';
 
 I=double(imread([FilePath 'Lena.tif']));
 
@@ -62,7 +62,11 @@ imtool(BasisMatrix_patch)
 BasisExperience= ReadDenseMatrixFromJsonDataFile([FilePath 'NoisyImage_BasisExperience.json']);
 %
 figure; plot(BasisExperience, '-o'); grid on
-
+%% Matlab Kmeans : fail to converge
+[Label, Center] = kmeans(FeatureData', 500);
+Center=Center';
+tmp = displayPatches(Center);
+imtool(tmp)
 %% read reconstructed data
 ReconstructedFeatureData = ReadDenseMatrixFromJsonDataFile([FilePath 'NoisyImage_ReconstructedPatch.json']);
 %
@@ -72,34 +76,6 @@ for k=1:Num
     ReconstructedFeatureData(:,k) = ReconstructedFeatureData(:,k)+MeanOfFeatureData(k);
 end
 
-ReconstructedPatch = displayPatches(ReconstructedFeatureData);
-imtool(ReconstructedPatch)
-%% use spams
-
-param.K=256; 
-param.lambda=0.15;
-param.numThreads=-1;
-param.batchsize=400;
-param.verbose=false;
-
-param.iter=1000; 
-
-D=mexTrainDL(FeatureData, param);
-%%
-D_Patch = displayPatches(D);
-imtool(D_Patch)
-%%
-alpha=mexLasso(FeatureData,D,param);
-alpha=full(alpha);
-ReconstructedFeatureData=D*alpha;
-%%
-[~, Num]=size(ReconstructedFeatureData);
-
-for k=1:Num
-    ReconstructedFeatureData(:,k) = ReconstructedFeatureData(:,k)+MeanOfFeatureData(k);
-end
-
-ReconstructedPatch = displayPatches(ReconstructedFeatureData);
-imtool(ReconstructedPatch)
-
+tmp = displayPatches(ReconstructedFeatureData);
+imtool(tmp)
 

@@ -111,10 +111,13 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
 
     if (m_InitialDictionary != nullptr)
     {
-        if (m_FeatureData->GetRowNumber() != m_InitialDictionary->BasisMatrix().GetRowNumber())
+        if (m_InitialDictionary->IsEmpty() == false)
         {
-            MDK_Error("RowNumber Of FeatureData != RowNumber Of InitialDictionary @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
-            return false;
+            if (m_FeatureData->GetRowNumber() != m_InitialDictionary->BasisMatrix().GetRowNumber())
+            {
+                MDK_Error("RowNumber Of FeatureData != RowNumber Of InitialDictionary @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
+                return false;
+            }
         }
 
         IsInitialDictionaryEmpty = false;
@@ -1017,6 +1020,7 @@ EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix
 
             // the exact value of Similarity is not very accurate
             //Probability[VectorIndex_m] += VectorSimilarityMatrix(VectorIndex_m, k);
+
             Probability[VectorIndex_m] += 1;
         }
     }
@@ -1072,8 +1076,9 @@ EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix
         {
             auto VectorIndex_m = KNN_IndexList[m];
 
-            // the exact value of Similarity is not very accurate
+            // Similarity has already been considered in RepresentativeAbilityOfEachVector when updating BasisExperience
             //Probability[VectorIndex_m] += RepresentativeAbilityOfEachVector[k] * VectorSimilarityMatrix(VectorIndex_m, k);
+
             Probability[VectorIndex_m] += RepresentativeAbilityOfEachVector[k];
         }
     }
@@ -1286,11 +1291,8 @@ UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dicti
 
     //--------------------- update BasisExperience -----------------------------//
 
-    if (m_Parameter.Flag_Update_BasisExperience == true)
-    {
-        this->UpdateBasisExperience(BasisExperience, CodeTable);
-    }
-
+    this->UpdateBasisExperience(BasisExperience, CodeTable);
+    
     // ----------- update SimilarityMatrix ------------------------------------//
 
     if (m_Parameter.Flag_Update_SimilarityMatrix == true)

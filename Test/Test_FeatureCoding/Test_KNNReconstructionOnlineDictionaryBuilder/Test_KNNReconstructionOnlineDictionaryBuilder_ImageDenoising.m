@@ -76,9 +76,9 @@ ReconstructedPatch = displayPatches(ReconstructedFeatureData);
 imtool(ReconstructedPatch)
 %% use spams
 
-param.K=256;  % learns a dictionary with 100 elements
+param.K=256; 
 param.lambda=0.15;
-param.numThreads=-1; % number of threads
+param.numThreads=-1;
 param.batchsize=400;
 param.verbose=false;
 

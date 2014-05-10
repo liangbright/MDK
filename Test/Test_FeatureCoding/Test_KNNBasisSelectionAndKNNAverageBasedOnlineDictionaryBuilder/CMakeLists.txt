@@ -10,7 +10,7 @@ endif()
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ Kits/8.1/Lib/winv6.3/um/x64")
  
-PROJECT(Test_KNNReconstructionSparseEncoder)
+PROJECT(Test_KNNBSABasedOnlineDictionaryBuilder)
 
 set(MDK_DIR "C:/Research/MDK/MDK/Source")
 
@@ -60,8 +60,8 @@ FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
 message(STATUS ${Test_FILES})
 
-add_executable(Test_KNNReconstructionSparseEncoder ${Test_FILES} ${MDK_CPP_FILES} ${qpOASES_CCP_FILES})
+add_executable(Test_KNNBSABasedOnlineDictionaryBuilder ${Test_FILES} ${MDK_CPP_FILES} ${qpOASES_CCP_FILES})
 
-qt5_use_modules(Test_KNNReconstructionSparseEncoder Core)
+qt5_use_modules(Test_KNNBSABasedOnlineDictionaryBuilder Core)
 
-target_link_libraries(Test_KNNReconstructionSparseEncoder ${LinearALgebraLib_win64} ${ITK_LIBRARIES})
+target_link_libraries(Test_KNNBSABasedOnlineDictionaryBuilder ${LinearALgebraLib_win64} ${ITK_LIBRARIES})

@@ -47,7 +47,9 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 
     // parameter for updating dictionary information
 
-    bool Update_VarianceOfReconstruction_Using_KNNBasisMatrix;
+    bool Flag_Update_BasisAge;
+
+    bool Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix;
 
     ElementType SimilarityThreshold_For_ComputeBasisRedundancy;
 
@@ -78,7 +80,9 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 
         MaxNumberOfThreads = 1;
 
-        Update_VarianceOfReconstruction_Using_KNNBasisMatrix = false;
+        Flag_Update_BasisAge = true;
+
+        Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix = false;
 
         SimilarityThreshold_For_ComputeBasisRedundancy = 0;
 

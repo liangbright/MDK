@@ -105,10 +105,13 @@ bool KNNBasisSelectionBasedInitialDictionaryBuilder<ElementType>::CheckInput()
 
     if (m_InputDictionary != nullptr)
     {
-        if (m_FeatureData->GetRowNumber() != m_InputDictionary->BasisMatrix().GetRowNumber())
+        if (m_InputDictionary->IsEmpty() == false)
         {
-            MDK_Error("RowNumber Of FeatureData != RowNumber Of InputDictionary @ KNNBasisSelectionBasedInitialDictionaryBuilder::CheckInput()")
-            return false;
+            if (m_FeatureData->GetRowNumber() != m_InputDictionary->BasisMatrix().GetRowNumber())
+            {
+                MDK_Error("RowNumber Of FeatureData != RowNumber Of InputDictionary @ KNNBasisSelectionBasedInitialDictionaryBuilder::CheckInput()")
+                return false;
+            }
         }
 
         IsInputDictionaryEmpty = false;

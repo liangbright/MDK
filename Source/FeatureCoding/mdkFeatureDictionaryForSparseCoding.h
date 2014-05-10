@@ -134,6 +134,8 @@ public:
 
     void Take(FeatureDictionaryForSparseCoding& InputDictionary);
 
+    void Take(FeatureDictionaryForSparseCoding* InputDictionary);
+
     void Clear();
 
     bool IsEmpty() const;

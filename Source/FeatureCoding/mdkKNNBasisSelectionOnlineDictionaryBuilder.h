@@ -36,7 +36,7 @@ struct DebugInfo_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
 
 template<typename ElementType>
-struct SoftAssign_Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
+struct ParameterOfKNNSoftAssign_For_KNNBasisSelectionOnlineDictionaryBuilder
 {
     int_max NeighbourNumber;
 
@@ -67,7 +67,7 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
     //----------------- parameter for soft assign --------------------------------------------------//
 
-    SoftAssign_Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder<ElementType> ParameterOfKNNSoftAssign;
+    ParameterOfKNNSoftAssign_For_KNNBasisSelectionOnlineDictionaryBuilder<ElementType> ParameterOfKNNSoftAssign;
          
     //------------------- parameter for basis selection --------------------------------------//
 
@@ -92,8 +92,6 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
     bool Flag_Update_BasisID;
 
     bool Flag_Update_BasisAge;
-
-    bool Flag_Update_BasisExperience;
 
     bool Flag_Update_Variance;
 
@@ -147,8 +145,6 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
         Flag_Update_Variance = false; // Variance at new basis is initial value from ParameterOfKNNSoftAssign
 
         Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix = false;
-
-        Flag_Update_BasisExperience  = false; // new basis Experience = 1
 
         Flag_Update_SimilarityMatrix = true;
 

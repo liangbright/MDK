@@ -163,7 +163,7 @@ bool FeatureDictionaryForSparseCoding<ElementType>::ForceShare(const FeatureDict
 
 
 template<typename ElementType>
-void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSparseCoding& InputDictionary)
+void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
 {
     m_DictionaryData->Name = std::move(InputDictionary.m_DictionaryData->Name);
 
@@ -197,6 +197,18 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
     m_DictionaryData->BasisCovariance = std::move(InputDictionary.m_DictionaryData->BasisCovariance);
 
     InputDictionary.Clear();
+}
+
+
+template<typename ElementType>
+void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSparseCoding<ElementType>* InputDictionary)
+{
+    if (InputDictionary == nullptr)
+    {
+        MDK_Error("InputDictionary is nullptr @ FeatureDictionaryForSparseCoding::Take(...)")
+    }
+
+    this->Take(*InputDictionary);
 }
 
 

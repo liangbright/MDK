@@ -368,7 +368,7 @@ UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
     
     this->UpdateVarianceOfL2Distance(Dictionary.VarianceOfL2Distance(), FeatureData, CodeTable, Dictionary.BasisMatrix(), BasisExperience_init);
 
-    if (m_Parameter.Update_VarianceOfReconstruction_Using_KNNBasisMatrix == true)
+    if (m_Parameter.Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix == true)
     {
         this->UpdateVarianceOfReconstruction(Dictionary.VarianceOfReconstruction(), FeatureData, CodeTable, Dictionary.BasisMatrix(), BasisExperience_init);
     }
@@ -399,7 +399,10 @@ UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ElementType>&
 
     //-------------------------- update BasisAge -----------------------------
 
-    Dictionary.BasisAge() += TotalDataNumber;
+    if (m_Parameter.Flag_Update_BasisAge == true)
+    {
+        Dictionary.BasisAge() += TotalDataNumber;
+    }
 
     //----------------- adjust BasisExperience if Data is re-used ------------
 
