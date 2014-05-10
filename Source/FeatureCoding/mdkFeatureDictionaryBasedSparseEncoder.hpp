@@ -38,6 +38,9 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::Clear()
     m_MinNumberOfDataPerThread = 1;
 
     m_MaxNumberOfThreads = 1;
+
+    m_ThreadStatus.Clear();
+    m_ThreadStatus.FastResize(1, 1);
 }
 
 
@@ -166,7 +169,7 @@ int_max FeatureDictionaryBasedSparseEncoder<ElementType>::GetNumberOfThreadsTobe
 {
     auto TotalDataVectorNumber = GetTotalNumberOfInputFeatureDataVectors();
 
-    return Compute_NecessaryNumberOfThreads_For_ParallelBlock(TotalDataVectorNumber, m_MaxNumberOfThreads, m_MinNumberOfDataPerThread);
+    return Compute_NumberOfThreadsTobeCreated_For_ParallelBlock(TotalDataVectorNumber, m_MaxNumberOfThreads, m_MinNumberOfDataPerThread);
 }
 
 
@@ -275,6 +278,9 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::Update()
 
     int_max TotalDataVectorNumber = this->GetTotalNumberOfInputFeatureDataVectors();
 
+    m_ThreadStatus.Resize(1, this->GetNumberOfThreadsTobeCreated());
+    m_ThreadStatus.Fill(0);
+
     // multi-thread -----------------------------------------------------------------
 
     ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex){this->GenerateCode_in_a_Thread(Index_start, Index_end, ThreadIndex); },
@@ -287,9 +293,28 @@ bool FeatureDictionaryBasedSparseEncoder<ElementType>::Update()
         return false;
     }
 
+    this->CheckThreadStatus();
+
     this->UpdatePipelineOutput();
 
     return true;
+}
+
+
+template<typename ElementType>
+void FeatureDictionaryBasedSparseEncoder<ElementType>::CheckThreadStatus()
+{
+    for (int_max k = 0; k < m_ThreadStatus.GetElementNumber(); ++k)
+    {
+        if (m_ThreadStatus[k] == 0)
+        {
+            MDK_Error("m_ThreadStatus: " << k << " is 0 @ FeatureDictionaryBasedSparseEncoder::CheckThreadStatus()")
+        }
+        else if (m_ThreadStatus[k] == 1)
+        {
+            MDK_Error("m_ThreadStatus: " << k << " is 1 @ FeatureDictionaryBasedSparseEncoder::CheckThreadStatus()")
+        }
+    }
 }
 
 
@@ -298,10 +323,18 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::GenerateCode_in_a_Thread(
                                                                                 int_max IndexOfDataVector_end, 
                                                                                 int_max ThreadIndex)
 {
+    //std::cout << "FeatureDictionaryBasedSparseEncoder" << '\n';
+    //std::cout << "id: " << ThreadIndex << ", s: " << IndexOfDataVector_start << ", e: " << IndexOfDataVector_end << '\n';
+    //std::cout << ThreadIndex;
+
+    m_ThreadStatus[ThreadIndex] = 1;
+
     for (int_max i = IndexOfDataVector_start; i <= IndexOfDataVector_end; ++i)
     {
         this->EncodingFunction(i, ThreadIndex);
     }
+
+    m_ThreadStatus[ThreadIndex] = 2;
 }
 
 
@@ -317,13 +350,13 @@ DenseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetO
 {
     if (m_Flag_CodeInDenseMatrix_Is_Updated == false)
     {
-        auto CodeLength = m_Dictionary->BasisMatrix().GetColNumber();
+        auto BasisNumber = m_Dictionary->BasisMatrix().GetColNumber();
 
-        auto IsOK = m_CodeInDenseMatrix->FastResize(CodeLength, m_FeatureData->GetColNumber());
+        auto IsOK = m_CodeInDenseMatrix->FastResize(BasisNumber, m_FeatureData->GetColNumber());
 
         if (IsOK == true)
         {
-            DenseMatrix<ElementType> tempCode(CodeLength, 1);
+            DenseMatrix<ElementType> tempCode(BasisNumber, 1);
 
             for (int_max j = 0; j < m_CodeInDenseMatrix->GetColNumber(); ++j)
             {
@@ -354,9 +387,9 @@ SparseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::Get
 {
     if (m_Flag_CodeInSparseMatrix_Is_Updated == false)
     {
-        auto CodeLength = m_Dictionary->BasisMatrix().GetColNumber();
+        auto BasisNumber = m_Dictionary->BasisMatrix().GetColNumber();
 
-        m_CodeInSparseMatrix->ConstructFromSparseColVectorSetInOrder(*m_CodeInSparseColVectorSet, CodeLength, m_FeatureData->GetColNumber());
+        m_CodeInSparseMatrix->ConstructFromSparseColVectorSetInOrder(*m_CodeInSparseColVectorSet, BasisNumber, m_FeatureData->GetColNumber());
 
         if (m_CodeInSparseMatrix != &m_CodeInSparseMatrix_SharedCopy)
         {

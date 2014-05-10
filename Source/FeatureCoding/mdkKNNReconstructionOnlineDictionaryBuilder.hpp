@@ -253,67 +253,67 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
     else
     {
         //------------------------------------------ run Data batch -------------------------------------------------------//
-        // do not re-use data
+        
 
         // random number for sampling
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> UniformRandomNumber(0, TotalDataNumber - 1);
 
-        DenseMatrix<int_max> DataFlagList(1, TotalDataNumber);
-        DataFlagList.Fill(1);
-        // 1 : not used yet
-        // 0 : used
-
-        DenseMatrix<ElementType> FeatureData_current;
-
-        int_max NumberOfDataInNextBatch = m_Parameter.MaxNumberOfDataInEachBatch;
-
-        int_max TotalDataNumber_used = 0;
-
-        while (true)
+        for (int_max k = 0; k < m_Parameter.MaxNumberOfInterations; ++k)
         {
-            // sample a subset from m_FeatureData
+            DenseMatrix<int_max> DataFlagList(1, TotalDataNumber);
+            DataFlagList.Fill(1);
+            // 1 : not used yet
+            // 0 : used
 
-            FeatureData_current.FastResize(m_FeatureData->GetRowNumber(), NumberOfDataInNextBatch);
+            DenseMatrix<ElementType> FeatureData_current;
 
-            int_max SampleCounter = 0;
+            int_max NumberOfDataInNextBatch = m_Parameter.MaxNumberOfDataInEachBatch;
+
+            int_max TotalDataNumber_used = 0;
+
             while (true)
             {
-                auto DataIndex = UniformRandomNumber(gen);
-                if (DataFlagList[DataIndex] == 1)
+                // sample a subset from m_FeatureData
+
+                FeatureData_current.FastResize(m_FeatureData->GetRowNumber(), NumberOfDataInNextBatch);
+
+                int_max SampleCounter = 0;
+                while (true)
                 {
-                    FeatureData_current.SetCol(SampleCounter, m_FeatureData->GetElementPointerOfCol(DataIndex));
-
-                    DataFlagList[DataIndex] = 0;
-
-                    SampleCounter += 1;
-                    if (SampleCounter >= NumberOfDataInNextBatch)
+                    auto DataIndex = UniformRandomNumber(gen);
+                    if (DataFlagList[DataIndex] == 1)
                     {
-                        break;
+                        FeatureData_current.SetCol(SampleCounter, m_FeatureData->GetElementPointerOfCol(DataIndex));
+
+                        DataFlagList[DataIndex] = 0;
+
+                        SampleCounter += 1;
+                        if (SampleCounter >= NumberOfDataInNextBatch)
+                        {
+                            break;
+                        }
                     }
                 }
-            }
 
-            for (int_max k = 0; k < m_Parameter.MaxNumberOfInterations; ++k)
-            {
                 m_KNNReconstructionSparseEncoder.SetInputFeatureData(&FeatureData_current);
                 m_KNNReconstructionSparseEncoder.SetInputDictionary(&OutputDictionary);
                 m_KNNReconstructionSparseEncoder.Update();
                 auto CodeTable = m_KNNReconstructionSparseEncoder.GetOutputCodeInSparseColVectorSet();
 
                 this->UpdateDictionary(OutputDictionary, FeatureData_current, *CodeTable);
-            }
 
-            // update NumberOfDataInNextBatch
+                // update NumberOfDataInNextBatch
 
-            TotalDataNumber_used += SampleCounter;
+                TotalDataNumber_used += SampleCounter;
 
-            NumberOfDataInNextBatch = std::min(m_Parameter.MaxNumberOfDataInEachBatch, TotalDataNumber - TotalDataNumber_used);
+                NumberOfDataInNextBatch = std::min(m_Parameter.MaxNumberOfDataInEachBatch, TotalDataNumber - TotalDataNumber_used);
 
-            if (NumberOfDataInNextBatch <= 0)
-            {
-                break;
+                if (NumberOfDataInNextBatch <= 0)
+                {
+                    break;
+                }
             }
         }
     }
@@ -328,6 +328,8 @@ template<typename ElementType>
 void KNNReconstructionOnlineDictionaryBuilder<ElementType>::SetupParameter()
 {
     m_KNNReconstructionSparseEncoder.m_Parameter = m_Parameter.ParameterOfKNNReconstruction;
+
+    m_KNNReconstructionSparseEncoder.SetMaxNumberOfThreads(m_Parameter.MaxNumberOfThreads);
 }
 
 

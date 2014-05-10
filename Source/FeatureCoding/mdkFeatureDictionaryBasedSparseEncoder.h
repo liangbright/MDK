@@ -63,6 +63,8 @@ protected:
 
     int_max m_MaxNumberOfThreads;
 
+    DenseMatrix<int_max> m_ThreadStatus;
+
 protected:
     FeatureDictionaryBasedSparseEncoder();
     virtual ~FeatureDictionaryBasedSparseEncoder();
@@ -128,6 +130,8 @@ protected:
     virtual void ClearPipelineOutput();
 
     virtual void UpdatePipelineOutput();
+
+    void CheckThreadStatus();
 
 private:
     FeatureDictionaryBasedSparseEncoder(const FeatureDictionaryBasedSparseEncoder&) = delete;

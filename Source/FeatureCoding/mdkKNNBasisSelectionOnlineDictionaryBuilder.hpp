@@ -101,6 +101,12 @@ bool KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
+    if (m_Parameter.BasisNumber > m_FeatureData->GetColNumber())
+    {
+        MDK_Error("BasisNumber > DataNumber @ KNNBasisSelectionOnlineDictionaryBuilder::CheckInput()")
+        return false;
+    }
+
     bool IsInitialDictionaryEmpty = true;
 
     if (m_InitialDictionary != nullptr)

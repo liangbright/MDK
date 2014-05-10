@@ -160,9 +160,14 @@ void KNNReconstructionSparseEncoder<ElementType>::EncodingFunction(int_max DataI
 
     // ----- create sparse code ------------------------------------------------
 
-    int_max CodeLength = BasisMatrix.GetColNumber();
+    if (KNNBasisIndexList.GetElementNumber() == 0)
+    {
+        MDK_Error("ABCDEF!!!!!!!!!!!!!!!!!")
+    }
 
-    CodeInSparseColVector.Construct(KNNBasisIndexList, KNNCodeVector, CodeLength);
+    int_max BasisNumber = BasisMatrix.GetColNumber();
+
+    CodeInSparseColVector.Construct(KNNBasisIndexList, KNNCodeVector, BasisNumber);
 }
 
 
@@ -200,7 +205,7 @@ void KNNReconstructionSparseEncoder<ElementType>::GetReconstructedData(DenseMatr
     if (m_CodeInSparseColVectorSet->GetLength() != m_FeatureData->GetColNumber())
     {
         MDK_Error(" number of code vectors != number of input data vectors @ KNNReconstructionSparseEncoder::GetReconstructedData(...)")
-        return false;
+        return;
     }
 
     KNNReconstructionSparseEncoder<ElementType>::ReconstructData(ReconstructedDataSet,

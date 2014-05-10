@@ -115,25 +115,42 @@ void ParallelBlock(FunctionType BlockFunction, int_max DataIndex_start, int_max 
 
         DivideData_For_ParallelBlock(IndexList_start, IndexList_end, 0, TotalDataNumber - 1, MaxNumberOfThreads, MinNumberOfDataPerThread);
 
-        auto ThreadNumber = int_max(IndexList_start.size());
+        int_max ThreadNumber = int_max(IndexList_start.size());
 
         // create and start the threads
-        std::vector<std::thread> ThreadList(ThreadNumber);
+        std::vector<std::thread> ThreadList;
+        ThreadList.reserve(ThreadNumber);
 
         for (int_max i = 0; i < ThreadNumber; ++i)
         {
-            auto SubDataIndex_start = IndexList_start[i];
-            auto SubDataIndex_end = IndexList_end[i];
-            auto ThreadIndex = i;
+            int_max Index_start = IndexList_start[i];
+            int_max Index_end   = IndexList_end[i];
+            int_max ThreadIndex = i;
 
-            ThreadList[i] = std::thread([&]{BlockFunction(SubDataIndex_start, SubDataIndex_end, ThreadIndex); });
+            try
+            {
+                // This has problem
+                //ThreadList.emplace_back([&]{BlockFunction(Index_start, Index_end, ThreadIndex); });
+
+                //This seems fine
+                ThreadList.emplace_back(BlockFunction, Index_start, Index_end, ThreadIndex);
+            }
+            catch (...)
+            {
+                MDK_Error("The thread: " << ThreadIndex << " could not be started")
+            }
 
             // this will crash, i can be equal to ThreadNumber
             //ThreadList[i] = std::thread([&]{BlockFunction(IndexList_start[i], IndexList_end[i], ThreadIndex); });
         }
 
+        if (ThreadList.size() < ThreadNumber)
+        {
+            MDK_Error("ThreadList.size() < ThreadNumber @ ParallelBlock(...)")
+        }
+
         //wait for all the threads
-        for (int_max i = 0; i < ThreadNumber; ++i)
+        for (int_max i = 0; i < int_max(ThreadList.size()); ++i)
         {
             ThreadList[i].join();
         }

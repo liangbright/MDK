@@ -41,6 +41,8 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 
     int_max MaxNumberOfDataInEachBatch; // the number of data in each batch/thread
 
+    int_max MaxNumberOfInterations;
+
     int_max MaxNumberOfThreads;
 
     // parameter for updating dictionary information
@@ -71,6 +73,8 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
         WhetherToUseScaleFactor = false;
 
         MaxNumberOfDataInEachBatch = 0;
+
+        MaxNumberOfInterations = 1;
 
         MaxNumberOfThreads = 1;
 

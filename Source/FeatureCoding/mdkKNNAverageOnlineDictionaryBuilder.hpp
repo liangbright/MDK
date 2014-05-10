@@ -131,6 +131,12 @@ bool KNNAverageOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
+    if (m_Parameter.MaxNumberOfInterations <= 0)
+    {
+        MDK_Error("MaxNumberOfInterations <= 0 @ KNNAverageOnlineDictionaryBuilder::CheckInput()")
+        return false;
+    }
+
     auto IsSimilarityTypeSupported = KNNSoftAssignSparseEncoder<ElementType>::
                                      CheckIfSimilarityTypeSupported(m_Parameter.ParameterOfKNNSoftAssign.SimilarityType);    
 
@@ -202,75 +208,84 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 
     if (m_Parameter.MaxNumberOfDataInEachBatch >= TotalDataNumber)
     {
-        m_KNNSoftAssignSparseEncoder.SetInputFeatureData(m_FeatureData);
-        m_KNNSoftAssignSparseEncoder.SetInputDictionary(&OutputDictionary);
-        m_KNNSoftAssignSparseEncoder.Update();
-        auto CodeTable = m_KNNSoftAssignSparseEncoder.GetOutputCodeInSparseColVectorSet();
+        for (int_max k = 0; k < m_Parameter.MaxNumberOfInterations; ++k)
+        {
+            m_KNNSoftAssignSparseEncoder.SetInputFeatureData(m_FeatureData);
+            m_KNNSoftAssignSparseEncoder.SetInputDictionary(&OutputDictionary);
+            m_KNNSoftAssignSparseEncoder.Update();
+            auto CodeTable = m_KNNSoftAssignSparseEncoder.GetOutputCodeInSparseColVectorSet();
 
-        this->UpdateDictionary(OutputDictionary, *m_FeatureData, *CodeTable);
+            this->UpdateDictionary(OutputDictionary, *m_FeatureData, *CodeTable);
+        }
     }
     else
     {
         //------------------------------------------ run Data batch -------------------------------------------------------//
-        // do not re-use data
-
+        
         // random number for sampling
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> UniformRandomNumber(0, TotalDataNumber - 1);
 
-        DenseMatrix<int_max> DataFlagList(1, TotalDataNumber);
-        DataFlagList.Fill(1);
-        // 1 : not used yet
-        // 0 : used
-
-        DenseMatrix<ElementType> FeatureData_current;
-
-        int_max NumberOfDataInNextBatch = m_Parameter.MaxNumberOfDataInEachBatch;
-
-        int_max TotalDataNumber_used = 0;
-
-        while (true)
+        for (int_max k = 0; k < m_Parameter.MaxNumberOfInterations; ++k)
         {
-            // sample a subset from m_FeatureData
 
-            FeatureData_current.FastResize(m_FeatureData->GetRowNumber(), NumberOfDataInNextBatch);
+            DenseMatrix<int_max> DataFlagList(1, TotalDataNumber);
+            DataFlagList.Fill(1);
+            // 1 : not used yet
+            // 0 : used
 
-            int_max SampleCounter = 0;
+            DenseMatrix<ElementType> FeatureData_current;
+
+            int_max NumberOfDataInNextBatch = m_Parameter.MaxNumberOfDataInEachBatch;
+
+            int_max TotalDataNumber_used = 0;
+
             while (true)
             {
-                auto DataIndex = UniformRandomNumber(gen);
-                if (DataFlagList[DataIndex] == 1)
+                // sample a subset from m_FeatureData
+
+                FeatureData_current.FastResize(m_FeatureData->GetRowNumber(), NumberOfDataInNextBatch);
+
+                int_max SampleCounter = 0;
+                while (true)
                 {
-                    FeatureData_current.SetCol(SampleCounter, m_FeatureData->GetElementPointerOfCol(DataIndex));
-
-                    DataFlagList[DataIndex] = 0;
-
-                    SampleCounter += 1;
-                    if (SampleCounter >= NumberOfDataInNextBatch)
+                    auto DataIndex = UniformRandomNumber(gen);
+                    if (DataFlagList[DataIndex] == 1)
                     {
-                        break;
+                        FeatureData_current.SetCol(SampleCounter, m_FeatureData->GetElementPointerOfCol(DataIndex));
+
+                        DataFlagList[DataIndex] = 0;
+
+                        SampleCounter += 1;
+                        if (SampleCounter >= NumberOfDataInNextBatch)
+                        {
+                            break;
+                        }
                     }
+                }
+
+                m_KNNSoftAssignSparseEncoder.SetInputFeatureData(&FeatureData_current);
+                m_KNNSoftAssignSparseEncoder.SetInputDictionary(&OutputDictionary);
+                m_KNNSoftAssignSparseEncoder.Update();
+                auto CodeTable = m_KNNSoftAssignSparseEncoder.GetOutputCodeInSparseColVectorSet();
+
+                this->UpdateDictionary(OutputDictionary, FeatureData_current, *CodeTable);
+
+                // update NumberOfDataInNextBatch
+
+                TotalDataNumber_used += SampleCounter;
+
+                NumberOfDataInNextBatch = std::min(m_Parameter.MaxNumberOfDataInEachBatch, TotalDataNumber - TotalDataNumber_used);
+
+                if (NumberOfDataInNextBatch <= 0)
+                {
+                    break;
                 }
             }
 
-            m_KNNSoftAssignSparseEncoder.SetInputFeatureData(&FeatureData_current);
-            m_KNNSoftAssignSparseEncoder.SetInputDictionary(&OutputDictionary);
-            m_KNNSoftAssignSparseEncoder.Update();
-            auto CodeTable = m_KNNSoftAssignSparseEncoder.GetOutputCodeInSparseColVectorSet();
-
-            this->UpdateDictionary(OutputDictionary, FeatureData_current, *CodeTable);
-
-            // update NumberOfDataInNextBatch
-
-            TotalDataNumber_used += SampleCounter;
-
-            NumberOfDataInNextBatch = std::min(m_Parameter.MaxNumberOfDataInEachBatch, TotalDataNumber - TotalDataNumber_used);
-
-            if (NumberOfDataInNextBatch <= 0)
-            {
-                break;
-            }
+            // do need to use this->UpdateDictionary_OtherInformation(...)
+            this->AdjustBasisExperience(OutputDictionary.BasisExperience(), BasisExperience_init, TotalDataNumber);
         }
     }
 
@@ -283,7 +298,9 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 template<typename ElementType>
 void KNNAverageOnlineDictionaryBuilder<ElementType>::SetupParameter()
 {
-    m_KNNSoftAssignSparseEncoder.m_Parameter = m_Parameter.ParameterOfKNNSoftAssign;    
+    m_KNNSoftAssignSparseEncoder.m_Parameter = m_Parameter.ParameterOfKNNSoftAssign;   
+
+    m_KNNSoftAssignSparseEncoder.SetMaxNumberOfThreads(m_Parameter.MaxNumberOfThreads);
 }
 
 

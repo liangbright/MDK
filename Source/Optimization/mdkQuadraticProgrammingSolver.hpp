@@ -460,7 +460,7 @@ bool QuadraticProgrammingSolver<ElementType>::CheckInput_ALLDense()
         m_x0_dense = &m_EmptyDenseMatrix;
     }
 
-    if (m_Option.MaxIterNumber < 0)
+    if (m_Option.MaxIterNumber <= 0)
     {
         m_Option.MaxIterNumber = 5 * (VaribleNumber + ConstraintNumber);
     }
@@ -511,6 +511,8 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLD
 
         qpOASES::QProblemB<ElementType> tempQProblemB(VaribleNumber);
 
+        tempQProblemB.setOptions(m_Option_qpOASES);
+
         //----------------------------------------------------------------------------------------
 
         DenseMatrix<ElementType> H_Copy;
@@ -541,8 +543,6 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLD
             CPUTime = ElementType(m_Option.CPUTime);
             ptrCPUTime = &CPUTime;
         }
-
-        tempQProblemB.setOptions(m_Option_qpOASES);
 
         if (m_x0_dense->IsEmpty() == true)
         {
@@ -578,6 +578,8 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLD
 
         qpOASES::QProblem<ElementType> tempQProblem(VaribleNumber, ConstraintNumber);
 
+        tempQProblem.setOptions(m_Option_qpOASES);
+
         //----------------------------------------------------------------------------------------
 
         DenseMatrix<ElementType> H_Copy, A_Copy;
@@ -612,9 +614,7 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLD
         {
             CPUTime = ElementType(m_Option.CPUTime);
             ptrCPUTime = &CPUTime;
-        }
-
-        tempQProblem.setOptions(m_Option_qpOASES);
+        }       
 
         if (m_x0_dense->IsEmpty() == true)
         {

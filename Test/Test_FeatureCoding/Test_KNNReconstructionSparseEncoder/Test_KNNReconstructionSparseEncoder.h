@@ -23,7 +23,7 @@ void Test_ComputeKNNCode()
 
     bool CodeNonnegative = true;
 
-    bool CodeSumToOne = true;
+    bool CodeSumToOne = false;
 
     //-------------------------------------------------------------------------------------------------
 

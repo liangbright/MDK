@@ -52,9 +52,9 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
 
     void Clear()
     {
-        NeighbourNumber = -1;
+        NeighbourNumber = 0;
 
-        SimilarityType = VectorSimilarityTypeEnum::Unknown;
+        SimilarityType  = VectorSimilarityTypeEnum::Unknown;
 
         CodeNonnegative = false;
         CodeSumToOne    = false;
