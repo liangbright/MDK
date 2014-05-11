@@ -678,11 +678,11 @@ AdjustBasisExperience(DenseMatrix<ElementType>& BasisExperience, const DenseMatr
 
     DenseMatrix<ElementType> BasisExperience_Diff = MatrixSubtract(BasisExperience, BasisExperience_init);
 
-    auto TotalGain = int_max(BasisExperience_Diff.Sum());
+    ElementType TotalGain = BasisExperience_Diff.Sum();
 
     if (TotalGain > TotalDataNumber)
     {
-        BasisExperience_Diff *= TotalDataNumber / TotalGain;
+        BasisExperience_Diff *= ElementType(TotalDataNumber) / TotalGain;
 
         MatrixAdd(BasisExperience, BasisExperience_init, BasisExperience_Diff);
     }

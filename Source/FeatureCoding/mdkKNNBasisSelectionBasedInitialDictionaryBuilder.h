@@ -7,9 +7,79 @@
 
 namespace mdk
 {
+
+// This is an extended version of KNNBasisSelectionOnlineDictionaryBuilder
+// It is used to build an initial dictionary and pass this initial dictionary to other dictionary-builder
+
+
 template<typename ElementType>
 struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder<ElementType>
 {
+    //---------------------------------------- Strategy --------------------------------------------------------------------//
+    // select some new bases and keep some old bases and retire some old bases
+    // Step-1
+    // Select some new bases by using StrategyForNewBasisGeneration
+    //
+    // new bases are from OutClass data, the number is BasisNumber
+    // use old/input bases to vote new bases by using KNN method : one old basis can only vote its KNN neighbour
+    // keep the new bases that have the least number of votes,     
+    // the maximum number of new bases to keep = BasisNumber - BasisNumber_Of_InputDictionary
+    //
+    // Step-2
+    // combine old bases and new bases by using StrategyForDictionaryCombination
+    //
+    // repeat from Step-1 to Step-2 in each data batch
+    //-----------------------------------------------------------------------------------------------------------------------//
+
+    //----------------- StrategyForNewBasisGeneration (memory efficient) ----------------------------------------------------//
+    // Step-1
+    // divide the data into two classes, InClass and OutClass
+    // InClass:  the class represented by the input bases
+    // OutClass: the class not represented by the input bases    
+    // Step-2
+    // Select new bases from OutClass by using KNNBasisSelectionOnlineDictionaryBuilder
+    //------------------------------------------------------------------------------------------------------------------------//
+
+    //----------------- StrategyForNewBasisGeneration (not memory efficient, just put here for reference) --------------------//
+    // Step-1
+    // divide the data into two classes, InClass and OutClass
+    // InClass:  the class represented by the input bases
+    // OutClass: the class not represented by the input bases    
+    // Step-2
+    // divide the InClass data to sub datasets, each dataset should be as large as possible    
+    // do NOT Mix the input bases and any sub dataset
+    // Step-3
+    // Select new bases from each sub dataset, i.e., build a new dictionary from a sub dataset
+    // Step-4
+    // treat all the new bases as input data, try to select bases from these "input data"
+    // if the number of the "input data" is too large to compute the similarity matrix,
+    // then repeat from Step-1 to Step-3
+    //------------------------------------------------------------------------------------------------------------------------//
+  
+    //--------------------------------------- StrategyForDictionaryCombination ------------------------------------------------------------------//
+    // Strategy_0:
+    // keep all the new bases and old bases
+    // directly combine the input dictionary and the new dictionary: every basis will be used  
+    //
+    // use Strategy_0 by set: BasisNumber = BasisNumber_Of_InputDictionary + MaxNumberOfNewBases
+    // 
+    // Strategy_1:
+    // keep all the new bases and select some old bases
+    // directly retire old bases: using Experience/Age ratio
+    // BasisNumber_Of_InputDictionary - (MaxNumberOfTotalBases - NumberOfNewBases) = the number of input bases that are retired
+    //
+    // use Strategy_1 by set DirectlyRetireOldAndInexperiencedBasis = true
+    // 
+    // Strategy_2:
+    // keep all the new bases and select some old bases
+    // indirectly retire old bases: 
+    // mix input bases and data vectors of InClass to get combined dataset, select bases from the combined dataset
+    // Selection is done by using KNNBasisSelectionOnlineDictionaryBuilder
+    //
+    // use Strategy_2 by set DirectlyRetireOldAndInexperiencedBasis = false
+    //-----------------------------------------------------------------------------------------------------------------------------------------//
+
+    //
     ElementType SimilarityThreshold_For_Classification;
     // Similarity(i,j) between data vector i and basis vector j in the input dictionary (m_InputDictionary)
     // if Similarity(i,j) >= SimilarityThreshold_For_Classification for some j
@@ -20,7 +90,7 @@ struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_O
     // and therefore, new bases are needed:
     // select new bases from the data vectors that can not be represented by any basis in the input dictionary (m_InputDictionary)
 
-    int_max MaxNumberOfNewBases;
+    bool DirectlyRetireOldAndInexperiencedBasis;
 
     // if we want to keep the total number of bases to be a constant, 
     // then we need to retire some bases of the input dictionary (m_InputDictionary)
@@ -37,14 +107,9 @@ struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_O
     // (3) can not be used if the number of data vectors (classified as in the Class) is very small
     // at least DataNumber >= NeightbourNumber (K in KNN)
 
-    bool DirectlyRetireOldAndInexperiencedBasis;
-
     // to directly retire some bases in the input dictionary
     // compute the Experience to Age ratio, BasisExperience / BasisAge
     // sort the ratio list in ascend order, and start to retire 
-
-    // If we want to keep all the input bases,
-    // set m_Parameter.ParameterOfKNNBasisSelection.BasisNumber = MaxNumberOfNewBases + BasisNumber Of Input Dictionary
 
 //---------------------------------------------------
     Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder() { this->Clear(); }
@@ -75,15 +140,13 @@ struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_O
 
         MaxNumberOfThreads = 1;
 
-        Flag_Update_BasisID = true;
+        Flag_Update_BasisID = false;
 
         Flag_Update_BasisAge = false;
 
         Flag_Update_Variance = false;
 
         Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix = false;
-
-        Flag_Update_BasisExperience = false;
 
         Flag_Update_SimilarityMatrix = true;
 
@@ -99,8 +162,6 @@ struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_O
         //------------------------------------------------------------//
 
         SimilarityThreshold_For_Classification = 0;
-
-        MaxNumberOfNewBases = 0;
 
         DirectlyRetireOldAndInexperiencedBasis = false;
     }
@@ -135,8 +196,6 @@ struct Parameter_Of_KNNBasisSelectionBasedInitialDictionaryBuilder : Parameter_O
         SubParameter.Flag_Update_BasisID = Flag_Update_BasisID;
 
         SubParameter.Flag_Update_BasisAge = Flag_Update_BasisAge;
-
-        SubParameter.Flag_Update_BasisExperience = Flag_Update_BasisExperience;
 
         SubParameter.Flag_Update_Variance = Flag_Update_Variance;
 
@@ -201,27 +260,37 @@ protected:
 
     void GenerateDictionary();
 
-    void ClassifyFeatureDataBySimilarityThreshold(DenseMatrix<int_max>& IndexList_InClass, 
-                                                  DenseMatrix<int_max>& IndexList_OutClass, 
+    DenseMatrix<int_max> ComputeDataNumberInEachBatch(int_max TotalDataNumber);
+
+    void UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary, 
+                          const DenseMatrix<ElementType>& FeatureData);
+
+    FeatureDictionaryForSparseCoding<ElementType> CopyDictionaryAndDiscountBasisExperience(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary);
+
+
+    void ClassifyFeatureDataBySimilarityThreshold(DenseMatrix<int_max>& DataIndexList_InClass, 
+                                                  DenseMatrix<int_max>& DataIndexList_OutClass, 
                                                   const DataContainer<SparseVector<ElementType>>& CodeTable);
 
-    void DirectlyRetireBasisInInputDictionary(FeatureDictionaryForSparseCoding<ElementType>& InputDictionary_Modified,
-                                              const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary, 
-                                              int_max BasisNumber_to_keep);
+    FeatureDictionaryForSparseCoding<ElementType> CombineInputDictionaryAndNewDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary,
+                                                                                         const FeatureDictionaryForSparseCoding<ElementType>& NewDictionary);
 
-    void UpdateDictionaryInformationInModifiedInputDictionary(FeatureDictionaryForSparseCoding<ElementType>& InputDictionary_Modified);
+    void AdjustBasisExperience(DenseMatrix<ElementType>& BasisExperience, int_max DataNumber, ElementType TotalExperience_init);
 
-    void UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix,
-                                const DenseMatrix<ElementType>& BasisMatrix,
-                                const DenseMatrix<ElementType>& VarianceList);
+    void UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ElementType>& CombinedDictionary, int_max DataNumber);
 
+    DenseMatrix<ElementType> ComputeVectorSimilarityMatrix(const DenseMatrix<ElementType>& BasisMatrix_input,
+                                                           const DenseMatrix<ElementType>& BasisMatrix_new);
+
+    DenseMatrix<ElementType> ComputeVectorProbabilityList(const DenseMatrix<ElementType>& BasisExperience_input,
+                                                          const DenseMatrix<ElementType>& BasisExperience_new);
+
+    DenseMatrix<int_max> SelectBasis(int_max BasisNumber_desired,
+                                     const DenseMatrix<ElementType>& VectorSimilarityMatrix,
+                                     const DenseMatrix<ElementType>& VectorProbabilityList);
+
+    
     void UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix);
-
-    void CombineModifiedInputDictionaryAndNewDictionary(FeatureDictionaryForSparseCoding<ElementType>& CombinedDictionary,
-                                                        const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary,
-                                                        const FeatureDictionaryForSparseCoding<ElementType>& NewDictionary);
-
-    void UpdateSimilarityMatrixInCombinedDictionary(FeatureDictionaryForSparseCoding<ElementType>& CombinedDictionary, int_max BasisNumber_input);
 
 private:
     KNNBasisSelectionBasedInitialDictionaryBuilder(const KNNBasisSelectionBasedInitialDictionaryBuilder&) = delete;

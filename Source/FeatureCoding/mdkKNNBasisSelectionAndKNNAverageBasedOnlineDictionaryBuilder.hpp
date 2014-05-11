@@ -346,7 +346,7 @@ UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary, cons
 
     // output
 
-    Dictionary.Share(m_KNNAverageOnlineDictionaryBuilder.GetOutputDictionary());
+    Dictionary.Take(m_KNNAverageOnlineDictionaryBuilder.GetOutputDictionary());
 }
 
 
@@ -382,7 +382,7 @@ UpdateDictionary_Final(FeatureDictionaryForSparseCoding<ElementType>& Dictionary
 
     // output
 
-    Dictionary.Share(m_KNNAverageOnlineDictionaryBuilder.GetOutputDictionary());
+    Dictionary.Take(m_KNNAverageOnlineDictionaryBuilder.GetOutputDictionary());
 }
 
 

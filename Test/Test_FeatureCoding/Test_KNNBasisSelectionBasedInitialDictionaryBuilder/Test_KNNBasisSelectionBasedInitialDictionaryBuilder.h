@@ -90,19 +90,16 @@ void Test_GaussianObjectImage()
 
     KNNBasisSelectionBasedInitialDictionaryBuilder<double> DictionaryBuilder;
 
-
     DictionaryBuilder.m_Parameter.BasisNumber = 10;
 
-    DictionaryBuilder.m_Parameter.MaxNumberOfNewBases = 10;
-
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = 5;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = 3;
 
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = VectorSimilarityTypeEnum::L2Distance;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.1;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = 1;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = 1;
 
-    DictionaryBuilder.m_Parameter.ExperienceDiscountFactor = 0;
+    DictionaryBuilder.m_Parameter.ExperienceDiscountFactor = 1;
 
     DictionaryBuilder.m_Parameter.WeightOnProbabiliyForBasisSelection = 0.5;
 
@@ -122,10 +119,9 @@ void Test_GaussianObjectImage()
     SaveDenseMatrixAsJsonDataFile(DictionaryPtrA->BasisMatrix(), FilePath + "GaussianObjectImage_BasisMatrix_init.json");
     //----------------------------------------------------------------------------------------------------------------------
 
-    DictionaryBuilder.m_Parameter.BasisNumber = 20;
-    DictionaryBuilder.m_Parameter.MaxNumberOfNewBases = 10;
+    DictionaryBuilder.m_Parameter.BasisNumber = 10;
 
-    DictionaryBuilder.m_Parameter.SimilarityThreshold_For_Classification = 0.8;
+    DictionaryBuilder.m_Parameter.SimilarityThreshold_For_Classification = 0.5;
 
     DictionaryBuilder.SetInputDictionary(DictionaryPtrA);
 

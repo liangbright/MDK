@@ -359,15 +359,21 @@ void FeatureDictionaryForSparseCoding<ElementType>::CombineDictionary(const Feat
         return;
     }
 
+    if (this->IsEmpty() == true)
+    {
+        this->Copy(InputDictionary);
+        return;
+    }
+
     // check size
 
     auto InputSize = InputDictionary.GetSize();
 
     auto SelfSize = this->GetSize();
 
-    if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
+    if (InputSize.RowNumber != SelfSize.RowNumber)
     {
-        MDK_Error("Size does not match @ FeatureDictionaryForSparseCoding::CombineDictionary(...)")
+        MDK_Error("RowNumber is no the same @ FeatureDictionaryForSparseCoding::CombineDictionary(...)")
         return;
     }
 

@@ -85,6 +85,8 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 
     int_max MaxNumberOfDataInEachBatch; // the maximum number of data in each batch/thread
 
+    int_max MaxNumberOfInterations;
+
     int_max MaxNumberOfThreads;
 
     //--------------------- parameter for updating dictionary information -------------//
@@ -135,6 +137,8 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
         WeightOnProbabiliyForBasisSelection = 0;
 
         MaxNumberOfDataInEachBatch = 0;
+
+        MaxNumberOfInterations = 1;
 
         MaxNumberOfThreads = 1;
 
@@ -204,13 +208,19 @@ protected:
 
     FeatureDictionaryForSparseCoding<ElementType> CopyInitialDictionaryAndDiscountBasisExperience();
 
+    void MakePlanForDataBatchBasedUpdate(DenseMatrix<int_max>& DataNumberInEachBatch,
+                                         DenseMatrix<int_max>& BasisNumberInEachBatch,
+                                         int_max TotalDataNumber,
+                                         int_max OuputBasisNumber,
+                                         int_max BasisNumber_init);
+
     FeatureDictionaryForSparseCoding<ElementType> BuildDictionaryFromData(const int_max BasisNumber_desired,
                                                                           const DenseMatrix<ElementType>& FeatureData,
                                                                           const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init);
 
-    DenseMatrix<int_max> SelectBasisFromCombinedDataBySimilarityAndProbability(const int_max BasisNumber_desired,
-                                                                               const DenseMatrix<ElementType>& VectorSimilarityMatrix,
-                                                                               const DenseMatrix<ElementType>& ProbabilityOfEachVector);
+    DenseMatrix<int_max> SelectBasis(const int_max BasisNumber_desired,
+                                     const DenseMatrix<ElementType>& VectorSimilarityMatrix,
+                                     const DenseMatrix<ElementType>& ProbabilityOfEachVector);
 
     void UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
                                      const DenseMatrix<ElementType>& FeatureData,
@@ -218,6 +228,8 @@ protected:
                                      const DenseMatrix<ElementType>& VectorSimilarityMatrix,
                                      const DenseMatrix<int_max>& VectorIndexList_Basis,
                                      const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init);
+
+    void UpdateDictionaryInformation_Other(FeatureDictionaryForSparseCoding<ElementType>& Dictionary, int_max DataNumber);
 
     void UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
                                               const DenseMatrix<ElementType>& FeatureData,
@@ -242,6 +254,8 @@ protected:
                                                                                             const DenseMatrix<ElementType>& RepresentativeAbilityOfEachVector);
 
     void ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix);
+
+    void AdjustBasisExperience(DenseMatrix<ElementType>& BasisExperience, int_max DataNumber, ElementType TotalExperience_init);
 
     DataContainer<SparseVector<ElementType>> EncodeFeatureDataBySimilarity(const DenseMatrix<ElementType>& VectorSimilarityMatrix,
                                                                            const DenseMatrix<int_max>&     VectorIndexList_Basis,

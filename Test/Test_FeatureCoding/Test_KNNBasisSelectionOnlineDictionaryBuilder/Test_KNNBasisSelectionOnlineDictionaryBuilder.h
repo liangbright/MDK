@@ -96,11 +96,11 @@ void Test_GaussianObjectImage()
 
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = NeighbourNumber;
 
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = VectorSimilarityTypeEnum::L1Distance;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = VectorSimilarityTypeEnum::L2Distance;
     
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.1;
 
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = 100;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = 1;
 
     DictionaryBuilder.m_Parameter.ExperienceDiscountFactor = 0;
 

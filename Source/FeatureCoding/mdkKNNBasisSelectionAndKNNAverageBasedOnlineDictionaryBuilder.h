@@ -122,7 +122,7 @@ struct Parameter_Of_KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder
         ParameterOfKNNSoftAssign.Variance_L2 = 0;
         ParameterOfKNNSoftAssign.Variance_KL = 0;
 
-        ParameterOfKNNBasisSelection.ExperienceDiscountFactor = 0;
+        ParameterOfKNNBasisSelection.ExperienceDiscountFactor = 1;
         ParameterOfKNNBasisSelection.WeightOnProbabiliyForBasisSelection = 0.5;
 
         ParameterOfKNNAverage.ExperienceDiscountFactor = 0;

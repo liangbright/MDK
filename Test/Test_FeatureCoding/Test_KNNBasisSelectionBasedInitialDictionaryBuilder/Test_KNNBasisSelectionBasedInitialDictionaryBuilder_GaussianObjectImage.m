@@ -2,7 +2,7 @@
 
 FilePath='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionBasedInitialDictionaryBuilder/Debug/';
 
-
+%%
 SignalPeak=100;
 NoiseStd=10;
 BgIntensity=0;
@@ -55,26 +55,9 @@ imtool(VectorSimilarityMatrix)
 %% read BasisMatrix_init
 BasisMatrix_init= ReadDenseMatrixFromJsonDataFile([FilePath 'GaussianObjectImage_BasisMatrix_init.json']);
 %
-Basis_init_ALL=zeros(50, 150);
-for k=1:10
 
-    temp=BasisMatrix_init(:,k);    
-    temp=reshape(temp, [20, 20]);
-
-    if k == 1
-        Basis_init_ALL(1:20, 1:20)=temp;
-    elseif k <= 5    
-        Index_s = (k-1)*30;
-        Basis_init_ALL(1:20, Index_s:Index_s+19)=temp;
-    elseif k==6
-        Basis_init_ALL(31:50, 1:20)=temp;
-    else        
-        Index_s = (k-6)*30;
-        Basis_init_ALL(31:50, Index_s:Index_s+19)=temp;
-    end    
-end
-
-imtool(Basis_init_ALL)
+tmp = displayPatches(BasisMatrix_init);
+imtool(tmp)
 %% read BasisMatrix
 BasisMatrix= ReadDenseMatrixFromJsonDataFile([FilePath 'GaussianObjectImage_BasisMatrix.json']);
 %

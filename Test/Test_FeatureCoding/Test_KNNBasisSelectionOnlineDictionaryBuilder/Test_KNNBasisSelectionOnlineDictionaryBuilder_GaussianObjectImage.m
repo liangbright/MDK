@@ -1,5 +1,7 @@
 %% Test_2D_Image_GaussianObject
 
+FilePath='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/';
+%%
 SignalPeak=100;
 NoiseStd=10;
 BgIntensity=0;
@@ -54,7 +56,7 @@ for k=1:100
     FeatureData(:,k)=temp(:);
 end
 % save FeatureData
-FilePath='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/';
+
 WriteDenseMatrixAsJsonDataFile(FeatureData, [FilePath 'GaussianObjectImage.json'])
 %%
 R = corrcoef(FeatureData);
