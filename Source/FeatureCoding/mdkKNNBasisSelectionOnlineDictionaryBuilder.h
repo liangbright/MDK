@@ -206,17 +206,12 @@ protected:
 
     void GenerateDictionary();
 
-    FeatureDictionaryForSparseCoding<ElementType> CopyInitialDictionaryAndDiscountBasisExperience();
+    FeatureDictionaryForSparseCoding<ElementType> PreprocessInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InitialDictionary);
+    
+    DenseMatrix<int_max> ComputeDataNumberInEachBatch(int_max TotalDataNumber);
 
-    void MakePlanForDataBatchBasedUpdate(DenseMatrix<int_max>& DataNumberInEachBatch,
-                                         DenseMatrix<int_max>& BasisNumberInEachBatch,
-                                         int_max TotalDataNumber,
-                                         int_max OuputBasisNumber,
-                                         int_max BasisNumber_init);
-
-    FeatureDictionaryForSparseCoding<ElementType> BuildDictionaryFromData(const int_max BasisNumber_desired,
-                                                                          const DenseMatrix<ElementType>& FeatureData,
-                                                                          const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init);
+    FeatureDictionaryForSparseCoding<ElementType> BuildDictionaryFromDataBatch(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init,
+                                                                               const DenseMatrix<ElementType>& FeatureData);
 
     DenseMatrix<int_max> SelectBasis(const int_max BasisNumber_desired,
                                      const DenseMatrix<ElementType>& VectorSimilarityMatrix,

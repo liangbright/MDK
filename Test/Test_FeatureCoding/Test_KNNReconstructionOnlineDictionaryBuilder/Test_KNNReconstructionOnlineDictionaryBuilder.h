@@ -205,8 +205,6 @@ void Test_ImageDenoising()
 
     InitialDictionaryBuilder.m_Parameter.MaxNumberOfDataInEachBatch = NeighbourNumber * BasisNumber;
 
-    InitialDictionaryBuilder.m_Parameter.Flag_Update_BasisExperience = true;
-
     InitialDictionaryBuilder.m_Parameter.DebugInfo.Flag_OutputDebugInfo = true;
     InitialDictionaryBuilder.m_Parameter.DebugInfo.FilePathToSaveDebugInfo = FilePath;
 

@@ -178,7 +178,7 @@ void Test_ImageDenoising()
 
     double Variance_L1 = 1;
 
-    double Variance_L2 = 1;
+    double Variance_L2 = std::sqrt(2.0);
 
     int_max BasisNumber = 256;
 
@@ -200,9 +200,7 @@ void Test_ImageDenoising()
 
     InitialDictionaryBuilder.m_Parameter.WeightOnProbabiliyForBasisSelection = 0.0;
 
-    InitialDictionaryBuilder.m_Parameter.MaxNumberOfDataInEachBatch = NeighbourNumber * BasisNumber;
-
-    InitialDictionaryBuilder.m_Parameter.Flag_Update_BasisExperience = true;
+    InitialDictionaryBuilder.m_Parameter.MaxNumberOfDataInEachBatch = 10000;
 
     InitialDictionaryBuilder.m_Parameter.DebugInfo.Flag_OutputDebugInfo = true;
     InitialDictionaryBuilder.m_Parameter.DebugInfo.FilePathToSaveDebugInfo = FilePath;
@@ -219,6 +217,7 @@ void Test_ImageDenoising()
 
     SaveDenseMatrixAsJsonDataFile(InitialDictionaryPtr->BasisExperience(), FilePath + "NoisyImage_BasisExperience_init.json");
 
+    SaveDenseMatrixAsJsonDataFile(InitialDictionaryPtr->SimilarityMatrix(), FilePath + "NoisyImage_SimilarityMatrix_init.json");
     //--------------------------------------------------------------------------------------------
 
     KNNAverageOnlineDictionaryBuilder<double> DictionaryBuilder;
@@ -250,6 +249,8 @@ void Test_ImageDenoising()
     SaveDenseMatrixAsJsonDataFile(DictionaryPtr->BasisMatrix(), FilePath + "NoisyImage_BasisMatrix.json");
 
     SaveDenseMatrixAsJsonDataFile(DictionaryPtr->BasisExperience(), FilePath + "NoisyImage_BasisExperience.json");
+
+    SaveDenseMatrixAsJsonDataFile(DictionaryPtr->SimilarityMatrix(), FilePath + "NoisyImage_SimilarityMatrix.json");
 
     //---------------------------------------------------------------------------------------------------
 

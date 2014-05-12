@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 
-#include "Test_KNNBasisSelectionBasedInitialDictionaryBuilder.h"
+#include "Test_KNNBasisSelectMergeOnlineDictionaryBuilder.h"
 
 using namespace mdk;
 

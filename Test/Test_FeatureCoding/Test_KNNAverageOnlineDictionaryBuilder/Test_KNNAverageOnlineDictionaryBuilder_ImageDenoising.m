@@ -4,7 +4,9 @@ FilePath='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDic
 
 I=double(imread([FilePath 'Lena.tif']));
 
-In = I+ 10*randn(size(I));
+NoiseStd=10;
+
+In = I+ NoiseStd*randn(size(I));
 %%
 PatchData = im2col(I, [7 7], 'sliding');
 PatchData_ALL = displayPatches(PatchData);
@@ -14,7 +16,7 @@ NoisyPatchData = im2col(In, [7 7], 'sliding');
 
 FeatureData=NoisyPatchData;
 
-[~, Num]=size(FeatureData);
+[VL, Num]=size(FeatureData);
 
 MeanOfFeatureData=zeros(1, Num);
 
@@ -25,6 +27,13 @@ for k=1:Num
     
     temp=temp-MeanOfFeatureData(k);
     
+    %temp = wthresh(temp, 's', NoiseStd);
+    %temp=temp+eps;
+    
+    if sum(abs(temp)<=NoiseStd) > 0.6*VL
+        temp(:)=1;
+    end
+    
     L2Norm = sqrt(sum(temp.^2));
 
     temp=temp/L2Norm;
@@ -34,8 +43,8 @@ end
 %%
 Similarity_1_2=exp(-0.5*sum((FeatureData(:,1)-FeatureData(:,2)).^2));
 %%
-NoisyPatchData_ALL = displayPatches(NoisyPatchData);
-imtool(NoisyPatchData_ALL)
+FeatureData_ALL = displayPatches(FeatureData);
+imtool(FeatureData_ALL)
 
 %% save FeatureData
 

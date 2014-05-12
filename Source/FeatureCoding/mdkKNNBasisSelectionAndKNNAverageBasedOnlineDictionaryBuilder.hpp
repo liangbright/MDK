@@ -303,7 +303,7 @@ void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::Ge
 
     this->UpdateDictionary_Final_OtherInformation(OutputDictionary, TotalDataNumber);
 
-    (*m_Dictionary) = std::move(OutputDictionary);
+    m_Dictionary->Take(OutputDictionary);
 }
 
 

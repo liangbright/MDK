@@ -90,7 +90,7 @@ void Test_GaussianObjectImage()
 
     KNNBasisSelectionOnlineDictionaryBuilder<double> DictionaryBuilder;
 
-    int_max NeighbourNumber = 5;
+    int_max NeighbourNumber = 3;
 
     DictionaryBuilder.m_Parameter.BasisNumber = 10;
 
@@ -100,9 +100,9 @@ void Test_GaussianObjectImage()
     
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.1;
 
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = 1;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = std::sqrt(2.0);
 
-    DictionaryBuilder.m_Parameter.ExperienceDiscountFactor = 0;
+    DictionaryBuilder.m_Parameter.ExperienceDiscountFactor = 1;
 
     DictionaryBuilder.m_Parameter.WeightOnProbabiliyForBasisSelection = 0.5;
 

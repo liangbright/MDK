@@ -121,7 +121,7 @@ protected:
 
     void SetupParameter();
 
-    FeatureDictionaryForSparseCoding<ElementType> CopyInitialDictionaryAndDiscountBasisExperience();
+    FeatureDictionaryForSparseCoding<ElementType> PreprocessInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InitialDictionary);
 
     void UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
                           const DenseMatrix<ElementType>& FeatureData,

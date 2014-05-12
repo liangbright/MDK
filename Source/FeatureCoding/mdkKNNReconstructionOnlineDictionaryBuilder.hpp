@@ -229,7 +229,7 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
 {
     this->SetupParameter();
 
-    FeatureDictionaryForSparseCoding<ElementType> OutputDictionary = this->CopyInitialDictionaryAndDiscountBasisExperience();
+    auto OutputDictionary = this->PreprocessInitialDictionary(*m_InitialDictionary);
 
     DenseMatrix<ElementType> BasisExperience_init;
     BasisExperience_init.Copy(OutputDictionary.BasisExperience());
@@ -335,11 +335,11 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::SetupParameter()
 
 template<typename ElementType>
 FeatureDictionaryForSparseCoding<ElementType>
-KNNReconstructionOnlineDictionaryBuilder<ElementType>::CopyInitialDictionaryAndDiscountBasisExperience()
+KNNReconstructionOnlineDictionaryBuilder<ElementType>::PreprocessInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InitialDictionary)
 {
     FeatureDictionaryForSparseCoding<ElementType> OutputDictionary;
 
-    OutputDictionary.Copy(m_InitialDictionary); // m_InitialDictionary is not empty
+    OutputDictionary.Copy(InitialDictionary);
 
     DenseMatrix<ElementType>& BasisExperience = OutputDictionary.BasisExperience();
 

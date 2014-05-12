@@ -10,7 +10,7 @@ endif()
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ Kits/8.1/Lib/winv6.3/um/x64")
  
-PROJECT(Test_KNNBasisSelectionBasedInitialDictionaryBuilder)
+PROJECT(KNNBasisSelectMergeOnlineDictionaryBuilder)
 
 set(MDK_DIR "C:/Research/MDK/MDK/Source")
 
@@ -49,6 +49,7 @@ C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/lapack_win64_MT.lib
 C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/blas_win64_MT.lib
 )
 
+set(ITK_DIR C:/Programs/ITK/ITK_4.5.2_VC2013_Build)
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
 
@@ -59,8 +60,8 @@ FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
 message(STATUS ${Test_FILES})
 
-add_executable(Test_KNNBasisSelectionBasedInitialDictionaryBuilder ${Test_FILES} ${MDK_CPP_FILES} ${qpOASES_CCP_FILES})
+add_executable(KNNBasisSelectMergeOnlineDictionaryBuilder ${Test_FILES} ${MDK_CPP_FILES} ${qpOASES_CCP_FILES})
 
-qt5_use_modules(Test_KNNBasisSelectionBasedInitialDictionaryBuilder Core)
+qt5_use_modules(KNNBasisSelectMergeOnlineDictionaryBuilder Core)
 
-target_link_libraries(Test_KNNBasisSelectionBasedInitialDictionaryBuilder ${LinearALgebraLib_win64} ${ITK_LIBRARIES})
+target_link_libraries(KNNBasisSelectMergeOnlineDictionaryBuilder ${LinearALgebraLib_win64} ${ITK_LIBRARIES})
