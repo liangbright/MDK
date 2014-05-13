@@ -6,7 +6,7 @@ I=double(imread([FilePath 'Lena.tif']));
 
 NoiseStd=10;
 
-In = I+ NoiseStd*randn(size(I));
+In =0*I+ NoiseStd*randn(size(I));
 %%
 PatchData = im2col(I, [7 7], 'sliding');
 PatchData_ALL = displayPatches(PatchData);
@@ -30,9 +30,11 @@ for k=1:Num
     %temp = wthresh(temp, 's', NoiseStd);
     %temp=temp+eps;
     
-    if sum(abs(temp)<=NoiseStd) > 0.6*VL
-        temp(:)=1;
-    end
+    %if sum(abs(temp)<=NoiseStd) > 0.6*VL
+    %    temp(:)=1;
+    %end
+    
+    L1Norm = sum(abs(temp));
     
     L2Norm = sqrt(sum(temp.^2));
 

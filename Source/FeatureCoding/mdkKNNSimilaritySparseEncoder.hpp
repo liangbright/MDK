@@ -135,7 +135,7 @@ EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const D
         {
             auto temp = (NeighbourDistanceList[i] * NeighbourDistanceList[i]) / Variance;
 
-            SimilarityList[i] = std::exp(-temp / ElementType(2));
+            SimilarityList[i] = std::exp(-temp * ElementType(0.1));
         }
     }
         break;
@@ -159,7 +159,7 @@ EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const D
         {
             auto temp = (NeighbourDistanceList[i] * NeighbourDistanceList[i]) / Variance;
 
-            SimilarityList[i] = std::exp(-temp / ElementType(2));
+            SimilarityList[i] = std::exp(-temp * ElementType(0.1));
         }
     }
         break;
@@ -213,7 +213,7 @@ EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const D
         {
             auto temp = (NeighbourKLDivergenceList[i] * NeighbourKLDivergenceList[i]) / Variance;
 
-            SimilarityList[i] = std::exp(-temp / ElementType(2));
+            SimilarityList[i] = std::exp(-temp * ElementType(0.1));
         }
     }
         break;
@@ -290,7 +290,7 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
         {
             auto temp = (DistanceList[i] * DistanceList[i]) / Variance;
 
-            SimilarityList[i] = std::exp(-temp / ElementType(2));
+            SimilarityList[i] = std::exp(-temp * ElementType(0.1));
         }
     }
         break;
@@ -310,7 +310,7 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
         {
             auto temp = (DistanceList[i] * DistanceList[i]) / Variance;
 
-            SimilarityList[i] = std::exp(-temp / ElementType(2));
+            SimilarityList[i] = std::exp(-temp * ElementType(0.1));
         }
     }
         break;
@@ -352,7 +352,7 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
         {
             auto temp = (DistanceList[i] * DistanceList[i]) / Variance;
 
-            SimilarityList[i] = std::exp(-temp / ElementType(2));
+            SimilarityList[i] = std::exp(-temp * ElementType(0.1));
         }
     }
         break;
@@ -411,7 +411,7 @@ ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType
     {
         auto L1Distance = ComputeL1DistanceBetweenTwoVectors(VectorA, VectorB, Length, CheckInput);
         auto temp = (L1Distance*L1Distance) / Variance;
-        Similarity = std::exp(-temp / ElementType(2));
+        Similarity = std::exp(-temp * ElementType(0.1));
     }
         break;
 
@@ -419,7 +419,7 @@ ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType
     {
         auto L2Distance = ComputeL2DistanceBetweenTwoVectors(VectorA, VectorB, Length, CheckInput);
         auto temp = (L2Distance*L2Distance) / Variance;
-        Similarity = std::exp(-temp / ElementType(2));
+        Similarity = std::exp(-temp * ElementType(0.1));
     }
         break;
 
@@ -478,10 +478,10 @@ ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType
     {
         auto KLDivergence_AB = ComputeKLDivergenceOfVectorAFromVectorB(VectorA, VectorB, Length, CheckInput);
         auto KLDivergence_BA = ComputeKLDivergenceOfVectorAFromVectorB(VectorB, VectorA, Length, CheckInput);
-        auto KLDivergence = (KLDivergence_AB + KLDivergence_BA) / ElementType(2);
+        auto KLDivergence = (KLDivergence_AB + KLDivergence_BA) * ElementType(0.1);
 
         auto temp = (KLDivergence*KLDivergence) / Variance;
-        Similarity = std::exp(-temp / ElementType(2));
+        Similarity = std::exp(-temp * ElementType(0.1));
     }
         break;
 
