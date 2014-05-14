@@ -509,13 +509,13 @@ BuildDictionaryFromDataBatch(const FeatureDictionaryForSparseCoding<ElementType>
     // find KNN of each vector in Combined Data
     auto KNNVectorIndexTable = this->FindKNNVectorIndexTableByVectorSimilarityMatrix(VectorSimilarityMatrix);
 
-    auto RepresentativeAbilityOfEachVector = this->ComputeRepresentativeAbilityOfEachVectorInCombinedData(Dictionary_init, TotalVectorNumber);
+    auto RepresentativeAbilityOfEachVector_init = this->ComputeInitialRepresentativeAbilityOfEachVector(Dictionary_init, TotalVectorNumber);
 
-    // estimate the probability mass function based on RepresentativeAbilityOfEachVector
+    // estimate the probability mass function
 
     auto ProbabilityOfEachVector = this->EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(VectorSimilarityMatrix,
                                                                                                         KNNVectorIndexTable, 
-                                                                                                        RepresentativeAbilityOfEachVector);
+                                                                                                        RepresentativeAbilityOfEachVector_init);
     
     DenseMatrix<int_max> VectorIndexList_Basis = this->SelectBasis(BasisNumber_desired, VectorSimilarityMatrix, ProbabilityOfEachVector);
 
@@ -713,44 +713,37 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::SelectBasis(const int_max
 template<typename ElementType>
 DenseMatrix<ElementType>
 KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
-ComputeRepresentativeAbilityOfEachVectorInCombinedData(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init,
-                                                       int_max CombinedFeatureDataVectorNumber)
+ComputeInitialRepresentativeAbilityOfEachVector(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init,
+                                                int_max TotalVectorNumber)
 {
-    //---------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------------
     // Input:    
     // CombinedData = [ BasisMatrix of Dictionary_init,  FeatureData]
     //
-    // CombinedFeatureDataVectorNumber = InitialBasisNumber + FeatureDataNumber
+    // TotalVectorNumber = BasisNumber_init + DataNumber
     //
     // if Dictionary_init is empty, then CombinedData = input FeatureData 
     //
     // Output:
-    // RepresentativeAbility is the ability to represent many data vectors
-    //
-    // 
-    // If a data vector k in CombinedData is from Dictionary_init, then it can represent many data vectors in history
-    // Therefore, RepresentativeAbility[k] = m_Parameter.weigth_past * the number of data in history that it represents 
-    //     
-    // If a data vector n in CombinedData is from FeatureData, then it only represents itself
-    // Therefore RepresentativeAbility[n] =  (1 - m_Parameter.weigth_past) * 1 (only itself)
-    //----------------------------------------------------------------------------------------
+    // RepresentativeAbility is the ability to represent many data vectors (including self, so it is >= 1)
+    //----------------------------------------------------------------------------------------------------
 
-    DenseMatrix<ElementType> RepresentativeAbility(1, CombinedFeatureDataVectorNumber);
+    DenseMatrix<ElementType> RepresentativeAbility(1, TotalVectorNumber);
 
     RepresentativeAbility.Fill(ElementType(1));
 
     if (Dictionary_init.IsEmpty() == false)
     {
-        auto InitialBasisNumber = Dictionary_init.BasisMatrix().GetColNumber();
+        auto BasisNumber_init = Dictionary_init.BasisMatrix().GetColNumber();
 
         const DenseMatrix<ElementType>& BasisExperience_init = Dictionary_init.BasisExperience();
 
-        for (int_max k = 0; k < InitialBasisNumber; k++)
+        for (int_max k = 0; k < BasisNumber_init; k++)
         {
             RepresentativeAbility[k] = BasisExperience_init[k];
         }
 
-        for (int_max k = InitialBasisNumber; k < CombinedFeatureDataVectorNumber; k++)
+        for (int_max k = BasisNumber_init; k < TotalVectorNumber; k++)
         {
             RepresentativeAbility[k] = ElementType(1);
         }
@@ -1036,28 +1029,45 @@ EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix
     // Output:
     // Probability is the KNN-Smoothed And Normalized Representative Ability Of Each Vector
     //
-    // assume each data vector can be a basis
-    // then estimate the PMF of each data vector by counting the number of KNN-neighbors
+    // assume each vector can be a basis
+    // then estimate the PMF of each vector by counting the normalized number of KNN-neighbors
     //--------------------------------------------------------------------------------
 
-    int_max TotalDataNumber = KNNVectorIndexTable.GetLength();
+    int_max TotalVectorNumber = KNNVectorIndexTable.GetLength();
 
-    DenseMatrix<ElementType> Probability(1, TotalDataNumber);
+    DenseMatrix<ElementType> Probability(1, TotalVectorNumber);
 
-    Probability.Fill(ElementType(1)); // KNN does not include self, so add 1 to count self
+    Probability.Fill(0); // (self represent self is not counted here)
+    
+    DenseMatrix<ElementType> MembershipList;
 
-    for (int_max k = 0; k < TotalDataNumber; ++k)
+    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+
+    for (int_max k = 0; k < TotalVectorNumber; ++k)
     {
         const DenseMatrix<int_max>& KNN_IndexList = KNNVectorIndexTable[k];
 
-        for (int_max m = 0; m < int_max(KNN_IndexList.size()); ++m)
+        int_max tempNeighbourNumber = KNN_IndexList.GetElementNumber();
+
+        MembershipList.FastResize(1, tempNeighbourNumber);
+
+        for (int_max m = 0; m < tempNeighbourNumber; ++m)
+        {
+            auto VectorIndex_m = KNN_IndexList[m];
+
+            MembershipList[m] = VectorSimilarityMatrix(VectorIndex_m, k) + eps_value;
+        }
+
+        MembershipList /= MembershipList.Sum();
+
+        for (int_max m = 0; m < tempNeighbourNumber; ++m)
         {
             auto VectorIndex_m = KNN_IndexList[m];
 
             // the exact value of Similarity is not very accurate
             //Probability[VectorIndex_m] += VectorSimilarityMatrix(VectorIndex_m, k);
 
-            Probability[VectorIndex_m] += 1;
+            Probability[VectorIndex_m] += MembershipList[m];
         }
     }
 
@@ -1066,7 +1076,7 @@ EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix
     if (m_Parameter.DebugInfo.Flag_OutputDebugInfo == true)
     {
         CharString FilePathAndName = m_Parameter.DebugInfo.FilePathToSaveDebugInfo + "VectorProbabilityList.json";
-        SaveDenseMatrixAsJsonDataFile(Probability, FilePathAndName);
+        //SaveDenseMatrixAsJsonDataFile(Probability, FilePathAndName);
     }
 
     return Probability;
@@ -1078,52 +1088,70 @@ DenseMatrix<ElementType>
 KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::
 EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix<ElementType>& VectorSimilarityMatrix,
                                                                const DataContainer<DenseMatrix<int_max>>& KNNVectorIndexTable,
-                                                               const DenseMatrix<ElementType>& RepresentativeAbilityOfEachVector)
+                                                               const DenseMatrix<ElementType>& InitialRepresentativeAbilityOfEachVector)
 {
     //-----------------------------------------------------------------------------------------------------------------
     // Input:
     // VectorSimilarityMatrix is from this->ComputeVectorSimilarityMatrix(...)
     // KNNVectorIndexTable is from this->FindKNNVectorIndexTableByVectorSimilarityMatrix(...)
-    // RepresentativeAbilityOfEachVector is from this->ComputeRepresentativeAbilityOfEachVectorInCombinedData(...)
+    // InitialRepresentativeAbilityOfEachVector is from this->ComputeInitialRepresentativeAbilityOfEachVector(...)
     // 
     // Output:
-    // Probability is  the KNN-Smoothed And Normalized Representative Ability Of Each Vector
+    // Probability is the KNN-Smoothed And Normalized Representative Ability Of Each Vector
     // 
-    // assume each data vector can be a basis
-    // then estimate the Representative Ability of each data vector by counting the normalized number of KNN-neighbors
+    // assume each vector can be a basis
+    // then estimate the Representative Ability of each vector by counting the normalized number of KNN-neighbors
     //
     // this is no self-counting 
     // because KNN does not include self in KNNVectorIndexTable 
     //
     // note: 
-    // If a data vector is from initial dictionary, and one of its KNN-neighbors is also from initial dictionary
-    // Then, the Representative Ability of this data vector is significantly increased
+    // If a vector is from initial dictionary, and one of its KNN-neighbors is also from initial dictionary
+    // Then, the Representative Ability of this vector is significantly increased
     // (i.e., it has more neighbors "2*K", compared to a real data vector)
     // Therefore: The estimation accuracy may be decreased
     // But: the previous basis will have a higher chance to be re-selected, and this is good   
     // 
     //-----------------------------------------------------------------------------------------------------------------
 
-    int_max TotalDataNumber = KNNVectorIndexTable.GetLength();
+    int_max TotalVectorNumber = KNNVectorIndexTable.GetLength();
 
-    DenseMatrix<ElementType> Probability(1, TotalDataNumber);
+    DenseMatrix<ElementType> Probability = InitialRepresentativeAbilityOfEachVector;
+
+    DenseMatrix<ElementType> MembershipList;
 
     auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
-    Probability.Fill(eps_value); // do not need to fill 1, self is already counted in RepresentativeAbilityOfEachVector
-
-    for (int_max k = 0; k < TotalDataNumber; ++k)
+    for (int_max k = 0; k < TotalVectorNumber; ++k)
     {
         const DenseMatrix<int_max>& KNN_IndexList = KNNVectorIndexTable[k];
 
-        for (int_max m = 0; m < KNN_IndexList.GetElementNumber(); ++m)
+        int_max tempNeighbourNumber = KNN_IndexList.GetElementNumber();
+
+        
+        MembershipList.FastResize(1, tempNeighbourNumber);
+        for (int_max m = 0; m < tempNeighbourNumber; ++m)
+        {
+            MembershipList[m] = VectorSimilarityMatrix(KNN_IndexList[m], k) + eps_value;
+        }
+        MembershipList /= MembershipList.Sum();
+        
+
+        for (int_max m = 0; m < tempNeighbourNumber; ++m)
         {
             auto VectorIndex_m = KNN_IndexList[m];
 
-            // Similarity has already been considered in RepresentativeAbilityOfEachVector when updating BasisExperience
-            //Probability[VectorIndex_m] += RepresentativeAbilityOfEachVector[k] * VectorSimilarityMatrix(VectorIndex_m, k);
+            // method_0
+            //Probability[VectorIndex_m] += InitialRepresentativeAbilityOfEachVector[k] * VectorSimilarityMatrix(VectorIndex_m, k);
 
-            Probability[VectorIndex_m] += RepresentativeAbilityOfEachVector[k];
+            // method_1
+            //Probability[VectorIndex_m] += InitialRepresentativeAbilityOfEachVector[k];
+
+            // method_2
+            //Probability[VectorIndex_m] += InitialRepresentativeAbilityOfEachVector[k] * MembershipList[m];
+
+            // method_3
+            Probability[VectorIndex_m] += MembershipList[m];
         }
     }
 
@@ -1131,7 +1159,7 @@ EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix
 
     if (m_Parameter.DebugInfo.Flag_OutputDebugInfo == true)
     {
-        CharString FilePathAndName = m_Parameter.DebugInfo.FilePathToSaveDebugInfo + "VectorProbabilityList.json";
+        //CharString FilePathAndName = m_Parameter.DebugInfo.FilePathToSaveDebugInfo + "VectorProbabilityList.json";
         //SaveDenseMatrixAsJsonDataFile(Probability, FilePathAndName);
        // std::system("pause");
     }

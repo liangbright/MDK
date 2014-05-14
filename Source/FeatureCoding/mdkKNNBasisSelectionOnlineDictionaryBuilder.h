@@ -233,8 +233,8 @@ protected:
                                               const DenseMatrix<int_max>& VectorIndexList_Basis,
                                               const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init);
 
-    DenseMatrix<ElementType> ComputeRepresentativeAbilityOfEachVectorInCombinedData(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init,
-                                                                                    int_max CombinedDataVectorNumber);
+    DenseMatrix<ElementType> ComputeInitialRepresentativeAbilityOfEachVector(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init,
+                                                                             int_max TotalVectorNumber);
 
     DenseMatrix<ElementType> ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init,
                                                            const DenseMatrix<ElementType>& FeatureData);

@@ -100,7 +100,7 @@ void Test_GaussianObjectImage()
     
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.1;
 
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = std::sqrt(2.0);
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = 0.287;
 
     DictionaryBuilder.m_Parameter.ExperienceDiscountFactor = 1;
 

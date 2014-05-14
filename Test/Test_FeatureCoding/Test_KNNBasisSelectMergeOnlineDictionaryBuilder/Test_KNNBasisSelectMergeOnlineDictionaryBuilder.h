@@ -22,12 +22,12 @@ void Test_GaussianObjectImage()
 
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = VectorSimilarityTypeEnum::L2Distance;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.1;
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = 1;
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = std::sqrt(2.0);
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L1 = 0.287;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = 0.287;
 
     DictionaryBuilder.m_Parameter.ExperienceDiscountFactor = 1;
 
-    DictionaryBuilder.m_Parameter.WeightOnProbabiliyForBasisSelection = 0.5;
+    DictionaryBuilder.m_Parameter.WeightOnProbabiliyForBasisSelection = 0.0;
 
     DictionaryBuilder.m_Parameter.MaxNumberOfDataInEachBatch = 100;
 

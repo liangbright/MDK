@@ -5,7 +5,7 @@ FilePath='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectMerge
 
 %%
 SignalPeak=100;
-NoiseStd=10;
+NoiseStd=0.001;
 BgIntensity=0;
 
 Iobj=zeros(20, 20, 10);

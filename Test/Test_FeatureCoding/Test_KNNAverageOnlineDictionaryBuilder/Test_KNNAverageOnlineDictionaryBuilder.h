@@ -182,9 +182,11 @@ void Test_ImageDenoising()
 
     int_max BasisNumber = 256;
 
-    int_max MaxNumberOfThreads = 4;
+    int_max MaxNumberOfThreads = 8;
 
     //-------------------------------------------------------------------------------------------
+
+    std::cout << "run KNNBasisSelectionOnlineDictionaryBuilder" << '\n';
 
     KNNBasisSelectionOnlineDictionaryBuilder<double> InitialDictionaryBuilder;
 
@@ -198,11 +200,11 @@ void Test_ImageDenoising()
 
     InitialDictionaryBuilder.m_Parameter.ExperienceDiscountFactor = 0;
 
-    InitialDictionaryBuilder.m_Parameter.WeightOnProbabiliyForBasisSelection = 0.0;
+    InitialDictionaryBuilder.m_Parameter.WeightOnProbabiliyForBasisSelection = 0.5;
 
     InitialDictionaryBuilder.m_Parameter.MaxNumberOfDataInEachBatch = 5000;
 
-    InitialDictionaryBuilder.m_Parameter.DebugInfo.Flag_OutputDebugInfo = true;
+    InitialDictionaryBuilder.m_Parameter.DebugInfo.Flag_OutputDebugInfo = false;
     InitialDictionaryBuilder.m_Parameter.DebugInfo.FilePathToSaveDebugInfo = FilePath;
 
     InitialDictionaryBuilder.m_Parameter.MaxNumberOfThreads = MaxNumberOfThreads;
@@ -219,8 +221,9 @@ void Test_ImageDenoising()
 
     SaveDenseMatrixAsJsonDataFile(InitialDictionaryPtr->SimilarityMatrix(), FilePath + "NoisyImage_SimilarityMatrix_init.json");
     
-    return ;
     //--------------------------------------------------------------------------------------------
+
+    std::cout << "run KNNAverageOnlineDictionaryBuilder" << '\n';
 
     KNNAverageOnlineDictionaryBuilder<double> DictionaryBuilder;
 

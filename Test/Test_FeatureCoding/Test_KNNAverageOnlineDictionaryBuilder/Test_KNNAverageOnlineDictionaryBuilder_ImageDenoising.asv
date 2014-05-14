@@ -33,7 +33,7 @@ for k=1:Num
     %temp = wthresh(temp, 's', NoiseStd);
     %temp=temp+eps;
     
-    if sum(abs(temp)<=NoiseStd) > 0.5*VL
+    if sum(abs(temp)<=NoiseStd) > 0.6*VL
         temp(:)=1;
     end
     
