@@ -9,8 +9,11 @@ namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType>
-class ScalarImageToVectorImageFilterWithMask3D : public ScalarImageToVectorImageFilter3D<InputPixelType, OutputPixelType>
+class ScalarImageToVectorImageFilterWithMask3D : public ImageFilter3D<InputPixelType, OutputPixelType>
 {
+
+public:
+    typedef OutputPixelType::ElementType  ElementTypeInOutputPixel;
 
 protected:
     DataContainer<DenseMatrix<double>>* m_MaskList_3DIndex;

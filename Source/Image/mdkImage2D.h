@@ -171,17 +171,19 @@ private:
 
     PixelType* m_PixelPointer; // keep tracking m_ImageData->m_DataArray.data();
 	
-protected:
+public:
 
     Image2D();
+
+    Image2D(const Image2D& InputImage);
 
     Image2D(Image2D&& InputImage);
 
     ~Image2D();
 
-    void operator=(Image2D&& InputImage);
+    void operator=(const Image2D& InputImage);
 
-public:
+    void operator=(Image2D&& InputImage);
 
     //-----------------------------------------------------------------//
 
@@ -326,10 +328,6 @@ public:
     PixelType Max() const;
 
     PixelType Min() const;
-
-private:
-    Image2D(const Image2D& InputImage) = delete;
-    void operator=(const Image2D& InputImage) = delete;
 
 };
 

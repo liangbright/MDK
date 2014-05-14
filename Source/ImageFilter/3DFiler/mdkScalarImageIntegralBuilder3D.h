@@ -5,14 +5,14 @@
 #include <cmath>
 
 
-#include "mdkScalarImageFilter3D.h"
+#include "mdkImageFilter3D.h"
 
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType>
-class IntegralScalarImageBuilder3D : public ScalarImageFilter3D<InputPixelType, OutputPixelType>
+class IntegralScalarImageBuilder3D : public ImageFilter3D<InputPixelType, OutputPixelType>
 {
 
 public:		

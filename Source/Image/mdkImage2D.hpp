@@ -159,8 +159,13 @@ Image2D<PixelType>::Image2D()
 
 
 template<typename PixelType>
-Image2D<PixelType>::~Image2D()
+Image2D<PixelType>::Image2D(const Image2D& InputImage)
 {
+    m_ImageData = std::make_shared<Image2DData<PixelType>>();
+
+    this->Clear();
+
+    this->Copy(InputImage);
 }
 
 
@@ -170,6 +175,19 @@ Image2D<PixelType>::Image2D(Image2D<PixelType>&& InputImage)
     m_ImageData = std::move(InputImage.m_ImageData);
 
     m_PixelPointer = m_ImageData->m_DataArray.data();
+}
+
+
+template<typename PixelType>
+Image2D<PixelType>::~Image2D()
+{
+}
+
+
+template<typename PixelType>
+void Image2D<PixelType>::operator=(const Image2D<PixelType>& InputImage)
+{
+    this->Copy(InputImage);
 }
 
 

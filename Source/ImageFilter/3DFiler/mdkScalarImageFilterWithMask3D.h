@@ -2,14 +2,14 @@
 #define __mdkScalarImageFilterWithMask3D_h
 
 
-#include "mdkScalarImageFilter3D.h"
+#include "mdkImageFilter3D.h"
 
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType>
-class ScalarImageFilterWithMask3D : public ScalarImageFilter3D<InputPixelType, OutputPixelType>
+class ScalarImageFilterWithMask3D : public ImageFilter3D<InputPixelType, OutputPixelType>
 {
 
 protected:

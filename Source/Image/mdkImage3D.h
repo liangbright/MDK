@@ -217,14 +217,16 @@ protected:
 
     PixelType* m_PixelPointer; // keep tracking m_ImageData->m_DataArray.data();
 
-protected:
+public:
     Image3D();
+
+    Image3D(const Image3D& InputImage);
 
     Image3D(Image3D&& InputImage);
 
     ~Image3D();
 
-public:
+    void operator=(const Image3D& InputImage);
 
     void operator=(Image3D&& InputImage);
 
@@ -350,11 +352,28 @@ public:
     DenseMatrix<int_max> GetLinearIndexListOfRegion(int_max xIndex_s,     int_max Region_Lx,
 	                                                int_max yIndex_s,     int_max Region_Ly,
                                                     int_max zIndex_s,     int_max Region_Lz) const;
+    
+    //-------------------------- Get SubImage -------------------------------//
 
-//--------------------------------------------------------------------------------------
-private:
-    Image3D(const Image3D& InputImage) = delete;
-    void operator=(const Image3D& InputImage) = delete;
+    Image3D GetSubImage(int_max xIndex_s, int_max xIndex_e, int_max yIndex_s, int_max yIndex_e, int_max zIndex_s, int_max zIndex_e) const;
+
+    //-------------------------- Pad, UnPad -------------------------------//
+
+    Image3D  Pad(const std::string& Option, int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) const;
+
+    Image3D  Pad(PixelType Pixel, int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) const;
+
+    Image3D  UnPad(int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) const;
+
+    //-------------------------- Sum, Mean, Max, Min -------------------------------//
+
+    PixelType Sum() const;
+
+    PixelType Mean() const;
+
+    PixelType Max() const;
+
+    PixelType Min() const;
 
 };
 

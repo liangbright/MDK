@@ -1,5 +1,9 @@
-#ifndef __mdkScalarImageToVectorImageFilter3D_h
-#define __mdkScalarImageToVectorImageFilter3D_h
+#ifndef __mdkImageFilter3D_h
+#define __mdkImageFilter3D_h
+
+#include <vector>
+#include <functional>
+#include <thread>
 
 
 #include "mdkDebugConfig.h"
@@ -7,51 +11,44 @@
 #include "mdkProcessObject.h"
 #include "mdkDataContainer.h"
 #include "mdkDenseMatrix.h"
-#include "mdkScalarImage3D.h"
-#include "mdkVectorImage3D.h"
-#include "mdkScalarImageInterpolator3D.h"
+#include "mdkImage3D.h"
+
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType>
-class ScalarImageToVectorImageFilter3D : public ProcessObject
+class ImageFilter3D : public ProcessObject
 {
 protected:
 	//-------------- input ----------------------
 
 	// input_0: 
-    const ScalarImage3D<InputPixelType>*   m_InputImage;
+    const Image3D<InputPixelType>*   m_InputImage;
 
 	// input_1:
-    const Image3DBoxRegionOf3DIndex*  m_InputRegion;  // size of m_InputRegion = size of m_OutputImage or m_OutputArray
+    const Image3DBoxRegionOf3DIndex*  m_InputRegion;       // size of m_InputRegion = size of m_OutputImage or m_OutputArray
 	                                 
 	// input_2:
-    const DenseMatrix<int_max>*  m_InputPixel3DIndexList;    // compute values at these center positions (discrete index)
+    const DenseMatrix<int_max>*  m_InputPixel3DIndexList;        // compute values at these center positions
 
 	// input_3:
-    const DenseMatrix<double>*   m_InputPixel3DPositionList; // compute values at these center positions (physical position)
+    const DenseMatrix<double>*   m_InputPixel3DPositionList;     // compute values at these center positions
 
     // input_4:
-    ImageInterpolation3DMethodTypeEnum m_InterpolationMethod;
-
-    // input_5:
-    Option_Of_ImageInterpolator3D<OutputPixelType> m_InterpolationOption;
-
-    // input_6:
     int_max m_MaxNumberOfThreads;
 
 	//--------------------- output ---------------------
 
-	// output_0:
-    VectorImage3D<OutputPixelType>* m_OutputImage;
+	// input_output_0:
+    Image3D<OutputPixelType>* m_OutputImage;
 
-	// output_1:
+	// input_output_1:
     DataContainer<OutputPixelType>* m_OutputArray;
 
     //------------ internal variable -------------------
 
-    VectorImage3D<OutputPixelType> m_OutputImage_SharedCopy;    // keep tracking m_OutputImage
+    Image3D<OutputPixelType> m_OutputImage_SharedCopy;          // keep tracking m_OutputImage
 
     DataContainer<OutputPixelType> m_OutputArray_SharedCopy;    // keep tracking m_OutputArray
 
@@ -67,31 +64,26 @@ protected:
 
 public:
     typedef InputPixelType  InputPixelType;
-    
     typedef OutputPixelType OutputPixelType;
 
-    typedef OutputPixelType::ElementType  ElementTypeInOutputPixel;
-
 protected:
-	ScalarImageToVectorImageFilter3D();
-	virtual ~ScalarImageToVectorImageFilter3D();
+	ImageFilter3D();
+	virtual ~ImageFilter3D();
   
 public:
     virtual void Clear();
 
-    void SetInputImage(const ScalarImage3D<InputPixelType>* InputImage);
+    void SetInputImage(const Image3D<InputPixelType>* InputImage);
 
     void SetInputRegion(const DenseMatrix<int_max>* InputRegion);
 
     void SetInputPixel3DIndexList(const DenseMatrix<int_max>* InputPixel3DIndexList);
 
-    void SetInputPixel3DPositionList(const DenseMatrix<double>* InputPixel3DPositionList);
+    void SetInputPixel3DPositionList(const DenseMatrix<float>* InputPixel3DPositionList);
 
-    void SetOutputImage(VectorImage3D<OutputPixelType>* OutputImage);
+    void SetOutputImage(Image3D<OutputPixelType>* OutputImage);
 
     void SetOutputArray(DataContainer<OutputPixelType>* OutputArray);
-
-    void SetImageInterpolationMethodAndOption(ImageInterpolation3DMethodTypeEnum Method, const Option_Of_ImageInterpolator3D<OutputPixelType>& Option);
 
     void SetMaxNumberOfThreads(int_max MaxNumber);    
 
@@ -103,9 +95,24 @@ public:
 
     virtual bool Update();
 	
-    VectorImage3D<OutputPixelType>* GetOutputImage();
+    Image3D<OutputPixelType>* GetOutputImage();
 
     DataContainer<OutputPixelType>* GetOutputArray();
+
+    //----------------------------------------------------------------------------------------------------------
+    // just for reference: each specific filter should provide Apply function similar to these
+    /*
+    static bool Apply(Image3D<OutputPixelType>* OutputImage,
+                      const Image3D<InputPixelType>* InputImage,                                                           
+                      std::function<XXX> FilterFunctionAt3DIndex,
+                      int_max MaxThreadNumber = 1);
+
+    static bool Apply(Image3D<OutputPixelType>* OutputImage,
+                      const Image3D<InputPixelType>* InputImage,                                                           
+                      std::function<XXX> FilterFunctionAt3DPosition,
+                      int_max MaxThreadNumber = 1);
+    */
+    //----------------------------------------------------------------------------------------------------------
 
 protected:
 
@@ -124,12 +131,12 @@ protected:
     int_max GetNumberOfThreadsTobeCreated();
 
 private:
-	ScalarImageToVectorImageFilter3D(const ScalarImageToVectorImageFilter3D&)    = delete;
-	void operator=(const ScalarImageToVectorImageFilter3D&)   = delete;
+	ImageFilter3D(const ImageFilter3D&)    = delete;
+	void operator=(const ImageFilter3D&)   = delete;
 };
 
 }// namespace mdk
 
-#include "mdkScalarImageToVectorImageFilter3D.hpp"
+#include "mdkImageFilter3D.hpp"
 
 #endif

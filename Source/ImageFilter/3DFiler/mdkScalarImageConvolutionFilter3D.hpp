@@ -18,6 +18,16 @@ ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::~ScalarImageCon
 
 
 template<typename InputPixelType, typename OutputPixelType>
+void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
+SetImageInterpolationMethodAndOption(ImageInterpolation3DMethodTypeEnum Method, const Option_Of_ImageInterpolator3D<OutputPixelType>& Option)
+{
+    m_InterpolationMethod = Method;
+
+    m_InterpolationOption = Option;
+}
+
+
+template<typename InputPixelType, typename OutputPixelType>
 inline
 void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
 FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex)

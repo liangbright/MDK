@@ -3,7 +3,7 @@
 
 namespace mdk
 {
-double InterpolateImageAtContinuousIndex(const ScalarImage3D<char>& InputImage,
+double InterpolateImageAtContinuousIndex(const Image3D<char>& InputImage,
                                          double x, double y, double z, 
                                          ImageInterpolation3DMethodTypeEnum InterpolationMethod,
                                          const Option_Of_ImageInterpolator3D<char>& Option)
@@ -13,7 +13,7 @@ double InterpolateImageAtContinuousIndex(const ScalarImage3D<char>& InputImage,
 }
 
 
-double InterpolateImageAtContinuousIndex(const ScalarImage3D<unsigned char>& InputImage,
+double InterpolateImageAtContinuousIndex(const Image3D<unsigned char>& InputImage,
                                          double x, double y, double z,
                                          ImageInterpolation3DMethodTypeEnum InterpolationMethod,
                                          const Option_Of_ImageInterpolator3D<unsigned char>& Option)
@@ -23,7 +23,7 @@ double InterpolateImageAtContinuousIndex(const ScalarImage3D<unsigned char>& Inp
 }
 
 
-double InterpolateImageAtContinuousIndex(const ScalarImage3D<short>& InputImage,
+double InterpolateImageAtContinuousIndex(const Image3D<short>& InputImage,
                                          double x, double y, double z, 
                                          ImageInterpolation3DMethodTypeEnum InterpolationMethod,
                                          const Option_Of_ImageInterpolator3D<short>& Option)
@@ -33,7 +33,7 @@ double InterpolateImageAtContinuousIndex(const ScalarImage3D<short>& InputImage,
 }
 
 
-double InterpolateImageAtContinuousIndex(const ScalarImage3D<unsigned short>& InputImage,
+double InterpolateImageAtContinuousIndex(const Image3D<unsigned short>& InputImage,
                                          double x, double y, double z,
                                          ImageInterpolation3DMethodTypeEnum InterpolationMethod,
                                          const Option_Of_ImageInterpolator3D<unsigned short>& Option)
@@ -43,7 +43,7 @@ double InterpolateImageAtContinuousIndex(const ScalarImage3D<unsigned short>& In
 }
 
 
-double InterpolateImageAtContinuousIndex(const ScalarImage3D<int>& InputImage,
+double InterpolateImageAtContinuousIndex(const Image3D<int>& InputImage,
                                          double x, double y, double z, 
                                          ImageInterpolation3DMethodTypeEnum InterpolationMethod,
                                          const Option_Of_ImageInterpolator3D<int>& Option)
@@ -53,7 +53,7 @@ double InterpolateImageAtContinuousIndex(const ScalarImage3D<int>& InputImage,
 }
 
 
-double InterpolateImageAtContinuousIndex(const ScalarImage3D<unsigned int>& InputImage,
+double InterpolateImageAtContinuousIndex(const Image3D<unsigned int>& InputImage,
                                          double x, double y, double z,
                                          ImageInterpolation3DMethodTypeEnum InterpolationMethod,
                                          const Option_Of_ImageInterpolator3D<unsigned int>& Option)
@@ -63,7 +63,7 @@ double InterpolateImageAtContinuousIndex(const ScalarImage3D<unsigned int>& Inpu
 }
 
 
-double InterpolateImageAtContinuousIndex(const ScalarImage3D<long>& InputImage,
+double InterpolateImageAtContinuousIndex(const Image3D<long>& InputImage,
                                          double x, double y, double z,
                                          ImageInterpolation3DMethodTypeEnum InterpolationMethod,
                                          const Option_Of_ImageInterpolator3D<long>& Option)
@@ -73,7 +73,7 @@ double InterpolateImageAtContinuousIndex(const ScalarImage3D<long>& InputImage,
 }
 
 
-double InterpolateImageAtContinuousIndex(const ScalarImage3D<unsigned long>& InputImage,
+double InterpolateImageAtContinuousIndex(const Image3D<unsigned long>& InputImage,
                                          double x, double y, double z,
                                          ImageInterpolation3DMethodTypeEnum InterpolationMethod,
                                          const Option_Of_ImageInterpolator3D<unsigned long>& Option)
@@ -83,7 +83,7 @@ double InterpolateImageAtContinuousIndex(const ScalarImage3D<unsigned long>& Inp
 }
 
 
-double InterpolateImageAtContinuousIndex(const ScalarImage3D<long long>& InputImage,
+double InterpolateImageAtContinuousIndex(const Image3D<long long>& InputImage,
                                          double x, double y, double z,
                                          ImageInterpolation3DMethodTypeEnum InterpolationMethod,
                                          const Option_Of_ImageInterpolator3D<long long>& Option)
@@ -93,7 +93,7 @@ double InterpolateImageAtContinuousIndex(const ScalarImage3D<long long>& InputIm
 }
 
 
-double InterpolateImageAtContinuousIndex(const ScalarImage3D<unsigned long long>& InputImage,
+double InterpolateImageAtContinuousIndex(const Image3D<unsigned long long>& InputImage,
                                          double x, double y, double z,
                                          ImageInterpolation3DMethodTypeEnum InterpolationMethod,
                                          const Option_Of_ImageInterpolator3D<unsigned long long>& Option)

@@ -16,7 +16,7 @@ void test_ScalarImageGaussianFilter3D()
 {
     CharString FilePath = "C:/Research/MDK_Build/Test/Test_ImageFilter/Test_ScalarImageFilter/Debug/";
 
-    ScalarImage3D<double> InputImage;
+    Image3D<double> InputImage;
 
     InputImage = Load3DScalarImageFromJsonDataFile<double>(FilePath + "TestImage.json");
 

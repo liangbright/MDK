@@ -26,7 +26,7 @@ ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::~ScalarImageFilter
 template<typename InputPixelType, typename OutputPixelType>
 void ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::Clear()
 {
-    this->ScalarImageFilter3D::Clear();
+    this->ImageFilter3D::Clear();
 
     m_Mask_3DIndex = nullptr;
 
@@ -231,7 +231,7 @@ void ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::ComputeRegion
 template<typename InputPixelType, typename OutputPixelType>
 bool ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::CheckInput()
 {
-    if (this->ScalarImageFilter3D::CheckInput() == false)
+    if (this->ImageFilter3D::CheckInput() == false)
     {
         return false;
     }
@@ -297,7 +297,7 @@ bool ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::CheckInput()
 template<typename InputPixelType, typename OutputPixelType>
 bool ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::Preprocess()
 {
-    if (this->ScalarImageFilter3D::Preprocess() == false)
+    if (this->ImageFilter3D::Preprocess() == false)
     {
         return false;
     }

@@ -310,7 +310,7 @@ void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& Ou
 // data is saved in SomeImage.json.data
 //
 template<typename PixelType>
-bool Save3DScalarImageAsJsonDataFile(const ScalarImage3D<PixelType>& InputImage, const CharString& FilePathAndName)
+bool Save3DScalarImageAsJsonDataFile(const Image3D<PixelType>& InputImage, const CharString& FilePathAndName)
 {
     auto ReferenceScalar = PixelType(0);
 
@@ -411,9 +411,9 @@ bool Save3DScalarImageAsJsonDataFile(const ScalarImage3D<PixelType>& InputImage,
 
 
 template<typename PixelType>
-ScalarImage3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathAndName)
+Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathAndName)
 {
-    ScalarImage3D<PixelType> OutputImage;
+    Image3D<PixelType> OutputImage;
 
     //----------------------------------------------------------
 
@@ -666,7 +666,7 @@ ScalarImage3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& Fil
 
 
 template<typename OutputPixelType>
-void Internal_Load3DScalarImageFromJsonDataFile(ScalarImage3D<OutputPixelType>& OutputImage, QFile& DataFile, const QString& InputElementTypeName)
+void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& OutputImage, QFile& DataFile, const QString& InputElementTypeName)
 {
     if (InputElementTypeName == "double")
     {
@@ -718,7 +718,7 @@ void Internal_Load3DScalarImageFromJsonDataFile(ScalarImage3D<OutputPixelType>& 
 
 
 template<typename OutputPixelType, typename InputPixelType>
-void Internal_Load3DScalarImageFromJsonDataFile(ScalarImage3D<OutputPixelType>& OutputImage, QFile& DataFile, int_max ByteNumberOfInputElementType)
+void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& OutputImage, QFile& DataFile, int_max ByteNumberOfInputElementType)
 {
     int_max BypesofDataFile = DataFile.size();
 
@@ -746,9 +746,9 @@ void Internal_Load3DScalarImageFromJsonDataFile(ScalarImage3D<OutputPixelType>& 
 
 
 template<typename PixelType>
-ScalarImage3D<PixelType> Load3DScalarImageFromDICOMSeries(const CharString& FilePath)
+Image3D<PixelType> Load3DScalarImageFromDICOMSeries(const CharString& FilePath)
 {
-    ScalarImage3D<PixelType> OutputImage;
+    Image3D<PixelType> OutputImage;
 
 
     typedef itk::Image< PixelType, 3 >                ITKImageType;
@@ -787,7 +787,7 @@ ScalarImage3D<PixelType> Load3DScalarImageFromDICOMSeries(const CharString& File
 
 
 template<typename PixelType>
-itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(ScalarImage3D<PixelType>& InputImage, bool SharePixelData)
+itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(Image3D<PixelType>& InputImage, bool SharePixelData)
 {
     auto InputSize = InputImage.GetSize();
     auto InputOrigin = InputImage.GetPhysicalOrigin();
@@ -854,7 +854,7 @@ itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageT
 
 
 template<typename PixelType>
-itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(ScalarImage3D<PixelType>& InputImage)
+itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(Image3D<PixelType>& InputImage)
 {
     bool SharePixelData = false;
     auto importFilter = ConvertMDK3DScalarImageToITK3DScalarImage(InputImage, SharePixelData);
@@ -866,9 +866,9 @@ itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalar
 
 
 template<typename PixelType>
-ScalarImage3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage)
+Image3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage)
 {
-    ScalarImage3D<PixelType> OutputImage;
+    Image3D<PixelType> OutputImage;
 
     if (ITKImage == nullptr)
     {
