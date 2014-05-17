@@ -481,7 +481,7 @@ void Image3D<PixelType>::GetSize(int_max& Lx, int_max& Ly, int_max& Lz) const
 
 template<typename PixelType>
 inline
-bool Image3D<PixelType>::SetSize(const Image3DSize& Size)
+bool Image3D<PixelType>::SetSize(const ImageSize3D& Size)
 {
     return this->SetSize(Size.Lx, Size.Ly, Size.Lz);
 }

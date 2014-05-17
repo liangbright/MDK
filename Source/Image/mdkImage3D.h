@@ -274,7 +274,7 @@ public:
 
     inline void GetSize(int_max& Lx, int_max& Ly, int_max& Lz) const;
 
-    inline bool SetSize(const Image3DSize& Size);
+    inline bool SetSize(const ImageSize3D& Size);
 
     inline bool SetSize(int_max Lx, int_max Ly, int_max Lz);
 
@@ -292,7 +292,7 @@ public:
 
     inline void SetOrigin(const ImageOrigin3D& Origin);
 
-    inline void SetPhysicalOrigin(double Origin_x, double Origin_y, double Origin_z);
+    inline void SetOrigin(double Origin_x, double Origin_y, double Origin_z);
 
     inline const DenseMatrix<double>& GetOrientation() const;
 

@@ -4,11 +4,15 @@
 #include <string>
 
 
-#include "itkGDCMImageIO.h"
-#include "itkGDCMSeriesFileNames.h"
-#include "itkNumericSeriesFileNames.h"
-#include "itkImageSeriesReader.h"
-#include "itkImportImageFilter.h"
+#include <itkGDCMImageIO.h>
+#include <itkGDCMSeriesFileNames.h>
+#include <itkNumericSeriesFileNames.h>
+#include <itkImageSeriesReader.h>
+#include <itkImportImageFilter.h>
+
+
+#include <vtkSmartPointer.h>
+#include <vtkImageData.h>
 
 
 #include <QString.h>
@@ -24,7 +28,7 @@
 
 namespace mdk
 {
-//---------------------------------------------//
+//------------- forward declare-------------------//
 template<typename ElementType>
 class DenseMatrix;
 
@@ -84,11 +88,13 @@ void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& Output
 template<typename OutputPixelType, typename InputPixelType>
 void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& OutputImage, QFile& DataFile, int_max ByteNumberOfInputElementType);
 
-
 //------------------------------------- load ScalarImage2D and ScalarImage3D from DICOM file --------------------------------------------//
 
 template<typename PixelType>
 Image3D<PixelType> Load3DScalarImageFromDICOMSeries(const CharString& FilePath);
+
+template<typename PixelType>
+Image3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const CharString& FilePathAndName);
 
 // -------------------------------------- convert mdk image to itk image--------------------------------------------------------------------//
 
@@ -105,6 +111,18 @@ itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalar
 //copy data
 template<typename PixelType>
 Image3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage);
+
+
+// -------------------------------------- convert mdk image to vtk image--------------------------------------------------------------------//
+//copy data
+template<typename PixelType>
+vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const Image3D<PixelType>& InputImage);
+
+// -------------------------------------- convert vtk image to mdk image--------------------------------------------------------------------//
+//copy data
+template<typename PixelType>
+Image3D<PixelType> ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage);
+
 
 //----------------------------------- save/load FeatureDictionary from Json data file -----------------------------------------------------//
 

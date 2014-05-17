@@ -2,6 +2,8 @@
 #define __TestFileIO_h
 
 #include "mdkFileIO.h"
+#include "mdkImage3D.h"
+#include "mdkDenseMatrix.h"
 
 namespace mdk
 {
@@ -20,13 +22,13 @@ void Test_ImageIO()
     //FilePath = "C:/Research/Test_ITK/SpineData/1";
 
 
-    auto InputImage = LoadGrayScale3DImageFromDICOMSeries<double>(FilePath);
+    auto InputImage = Load3DScalarImageFromDICOMSeries<double>(FilePath);
 
     std::string OutputFilePathAndName = "H:/Heart_backup/Data/Yale_CT/P1940650/phase0_temp";
 
     Image3D<double>& OutputImage = InputImage;
 
-    SaveGrayScale3DImageAsJsonDataFile(OutputImage, OutputFilePathAndName);
+    Save3DScalarImageAsJsonDataFile(OutputImage, OutputFilePathAndName);
 }
 
 
@@ -34,7 +36,7 @@ void Test_MatrixIO()
 {
     std::string FilePath = "E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/Test_InputMatrix";
 
-    auto InputMatrix = LoadScalarDenseMatrixFromJsonDataFile<float>(FilePath);
+    auto InputMatrix = LoadDenseMatrixFromJsonDataFile<float>(FilePath);
 
     DisplayMatrix("InputMatrix", InputMatrix);
 
@@ -42,11 +44,11 @@ void Test_MatrixIO()
 
     OutputMatrix.Fill(0);
 
-    OutputMatrix.FillDiangonal(1);
+    OutputMatrix.FillDiagonal(1);
 
     std::string OutputFilePathAndName ="E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/Test_OutputMatrix";
 
-    SaveScalarDenseMatrixAsJsonDataFile(OutputMatrix, OutputFilePathAndName);
+    SaveDenseMatrixAsJsonDataFile(OutputMatrix, OutputFilePathAndName);
 
 
 }
@@ -58,7 +60,7 @@ void Test_Image_Matrix_IO()
 
     FilePath = "H:/Heart_backup/Data/Yale_CT/P1940650/phase0/";
 
-    auto InputImage = LoadGrayScale3DImageFromDICOMSeries<double>(FilePath);
+    auto InputImage = Load3DScalarImageFromDICOMSeries<double>(FilePath);
 
     auto Size = InputImage.GetSize();
 
@@ -84,7 +86,7 @@ void Test_Image_Matrix_IO()
 
     std::string OutputFilePathAndName = "H:/Heart_backup/Data/Yale_CT/P1940650/phase0_mean";
 
-    SaveScalarDenseMatrixAsJsonDataFile(Mean, OutputFilePathAndName);
+    SaveDenseMatrixAsJsonDataFile(Mean, OutputFilePathAndName);
 }
 
 }//end of namespace

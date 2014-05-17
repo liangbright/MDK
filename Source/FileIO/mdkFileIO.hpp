@@ -22,10 +22,10 @@ bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, 
 
     QTextStream out(&JsonFile);
 
-    uint_max s = PairList.size();
+    auto s = int_max(PairList.size());
 
     out << "{\n";
-    for (uint_max i = 0; i < s; ++i)
+    for (int_max i = 0; i < s; ++i)
     {
         out << "\"" << PairList[i].Name << "\"" << " : " << "\"" << PairList[i].Value << "\"";
 
@@ -741,6 +741,35 @@ Image3D<PixelType> Load3DScalarImageFromDICOMSeries(const CharString& FilePath)
 
 
 template<typename PixelType>
+Image3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const CharString& FilePathAndName)
+{
+    Image3D<PixelType> OutputImage;
+
+    typedef itk::Image<PixelType, 3>  ITKImageType;
+    typedef itk::ImageFileReader<ImageType> ITKImageReaderType;
+
+    ITKImageReaderType::Pointer  ITKImageReader = ITKImageReaderType::New();
+
+    ITKImageReader->SetFileName(FilePathAndName.StdString());
+
+    try
+    {
+        ITKImageReader->Update();
+    }
+    catch (itk::ExceptionObject & err)
+    {
+        std::cerr << "ExceptionObject caught while reading the dicom file @ Load3DScalarImageFromSingleDICOMFile(...)" << std::endl;
+        std::cerr << err << std::endl;
+        return OutputImage;
+    }
+
+    OutputImage = ConvertITK3DScalarImageToMDK3DScalarImage(ITKImageReader->GetOutput());
+
+    return OutputImage;
+}
+
+
+template<typename PixelType>
 itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(Image3D<PixelType>& InputImage, bool SharePixelData)
 {
     auto InputSize = InputImage.GetSize();
@@ -854,6 +883,263 @@ Image3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<Pi
     for (int_max i = 0; i < OutputImage.GetPixelNumber(); ++i)
     {
         OutputImage[i] = RawPointerOfITKImage[i];
+    }
+
+    return OutputImage;
+}
+
+
+template<typename PixelType>
+vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const Image3D<PixelType>& InputImage)
+{
+    auto VTKImage = vtkSmartPointer<vtkImageData>::New();
+
+    auto Size = InputImage.GetSize();
+    auto Origin = InputImage.GetOrigin();
+    auto Spacing = InputImage.GetSpacing();
+
+    auto PtrOfInputImage = InputImage.GetPixelPointer();
+
+    VTKImage->SetExtent(0, Size.Lx - 1, 0, Size.Ly - 1, 0, Size.Lz - 1);
+    VTKImage->SetOrigin(Origin.x, Origin.y, Origin.z);    
+    VTKImage->SetSpacing(Spacing.Sx, Spacing.Sy, Spacing.Sz);
+
+    auto ReferenceScalar = PixelType(0);
+    auto ScalarTypeName = FindScalarTypeName(ReferenceScalar);
+
+    if (ScalarTypeName == "double")
+    {
+        VTKImage->AllocateScalars(VTK_DOUBLE, 1);
+
+        auto PtrOfVTKImage = static_cast<double*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfVTKImage[k] = PtrOfInputImage[k];
+        }
+    }
+    else if (ScalarTypeName == "float")
+    {
+        VTKImage->AllocateScalars(VTK_FLOAT, 1);
+
+        auto PtrOfVTKImage = static_cast<float*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfVTKImage[k] = PtrOfInputImage[k];
+        }
+    }
+    else if (ScalarTypeName == "int8")
+    {
+        VTKImage->AllocateScalars(VTK_CHAR, 1);
+
+        auto PtrOfVTKImage = static_cast<int8*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfVTKImage[k] = PtrOfInputImage[k];
+        }
+    }
+    else if (ScalarTypeName == "int16")
+    {
+        VTKImage->AllocateScalars(VTK_SHORT, 1);
+
+        auto PtrOfVTKImage = static_cast<int16*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfVTKImage[k] = PtrOfInputImage[k];
+        }
+    }
+    else if (ScalarTypeName == "int32")
+    {
+        VTKImage->AllocateScalars(VTK_INT, 1);
+
+        auto PtrOfVTKImage = static_cast<int32*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfVTKImage[k] = PtrOfInputImage[k];
+        }
+    }
+    else if (ScalarTypeName == "int64")
+    {
+        VTKImage->AllocateScalars(VTK_LONG_LONG, 1);
+
+        auto PtrOfVTKImage = static_cast<int64*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfVTKImage[k] = PtrOfInputImage[k];
+        }
+    }
+    else if (ScalarTypeName == "uint8")
+    {
+        VTKImage->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
+
+        auto PtrOfVTKImage = static_cast<uint8*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfVTKImage[k] = PtrOfInputImage[k];
+        }
+    }
+    else if (ScalarTypeName == "uint16")
+    {
+        VTKImage->AllocateScalars(VTK_UNSIGNED_SHORT, 1);
+
+        auto PtrOfVTKImage = static_cast<uint16*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfVTKImage[k] = PtrOfInputImage[k];
+        }
+    }
+    else if (ScalarTypeName == "uint32")
+    {
+        VTKImage->AllocateScalars(VTK_UNSIGNED_INT, 1);
+
+        auto PtrOfVTKImage = static_cast<uint32*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfVTKImage[k] = PtrOfInputImage[k];
+        }
+    }
+    else if (ScalarTypeName == "uint64")
+    {
+        VTKImage->AllocateScalars(VTK_UNSIGNED_LONG_LONG, 1);
+
+        auto PtrOfVTKImage = static_cast<uint64*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfVTKImage[k] = PtrOfInputImage[k];
+        }
+    }
+    else
+    {
+        MDK_Error("unknown ScalarType @ ConvertMDK3DScalarImageToVTK3DScalarImage(...) ")
+    }
+
+    return VTKImage;
+}
+
+
+template<typename PixelType>
+Image3D<PixelType> ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage)
+{
+    int Extent[6];
+    VTKImage->GetExtent(Extent);
+
+    double Spacing[3];
+    VTKImage->GetSpacing(Spacing);
+
+    double Origin[3];
+    VTKImage->GetOrigin(Origin);
+
+    auto VTKScalarType = VTKImage->GetScalarType();
+
+    Image3D<PixelType> OutputImage;
+    OutputImage.SetSize(Extent[1] + 1, Extent[3] + 1, Extent[5] + 1);
+    OutputImage.SetOrigin(Origin[0], Origin[1], Origin[2]);
+    OutputImage.SetSpacing(Spacing[0], Spacing[1], Spacing[2]);
+
+    auto PtrOfOutputImage = OutputImage.GetPixelPointer();
+
+    if (VTKScalarType == "double")
+    {
+        auto PtrOfVTKImage = static_cast<double*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfOutputImage[k] = PtrOfVTKImage[k];
+        }
+    }
+    else if (ScalarTypeName == "float")
+    {
+        auto PtrOfVTKImage = static_cast<float*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfOutputImage[k] = PtrOfVTKImage[k];
+        }
+    }
+    else if (ScalarTypeName == "int8")
+    {
+        auto PtrOfVTKImage = static_cast<int8*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfOutputImage[k] = PtrOfVTKImage[k];
+        }
+    }
+    else if (ScalarTypeName == "int16")
+    {
+        auto PtrOfVTKImage = static_cast<int16*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfOutputImage[k] = PtrOfVTKImage[k];
+        }
+    }
+    else if (ScalarTypeName == "int32")
+    {
+        auto PtrOfVTKImage = static_cast<int32*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfOutputImage[k] = PtrOfVTKImage[k];
+        }
+    }
+    else if (ScalarTypeName == "int64")
+    {
+        auto PtrOfVTKImage = static_cast<int64*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfOutputImage[k] = PtrOfVTKImage[k];
+        }
+    }
+    else if (ScalarTypeName == "uint8")
+    {
+        auto PtrOfVTKImage = static_cast<uint8*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfOutputImage[k] = PtrOfVTKImage[k];
+        }
+    }
+    else if (ScalarTypeName == "uint16")
+    {
+        auto PtrOfVTKImage = static_cast<uint16*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfOutputImage[k] = PtrOfVTKImage[k];
+        }
+    }
+    else if (ScalarTypeName == "uint32")
+    {
+        auto PtrOfVTKImage = static_cast<uint32*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfOutputImage[k] = PtrOfVTKImage[k];
+        }
+    }
+    else if (ScalarTypeName == "uint64")
+    {
+        auto PtrOfVTKImage = static_cast<uint64*>(VTKImage->GetScalarPointer());
+
+        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
+        {
+            PtrOfOutputImage[k] = PtrOfVTKImage[k];
+        }
+    }
+    else
+    {
+        MDK_Error("unknown ScalarType @ ConvertVTK3DScalarImageToMDK3DScalarImage(...) ")
     }
 
     return OutputImage;

@@ -8,12 +8,6 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files\ \(x86\)/Windows\ K
 
 PROJECT(MDK_Test_FileIO)
 
-find_package(ITK REQUIRED)
-include(${ITK_USE_FILE})
-
-set(CMAKE_AUTOMOC ON)
-find_package(Qt5Widgets REQUIRED QUIET)
-
 set(MDK_DIR "C:/Research/MDK/MDK/Source")
 
 set(Arma_DIR "C:/Research/MDK/armadillo")
@@ -26,6 +20,7 @@ include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR} 
 ${MDK_DIR}/Debug
 ${MDK_DIR}/Common
+${MDK_DIR}/String
 ${MDK_DIR}/FileIO
 ${MDK_DIR}/LinearAlgebra/Common
 ${MDK_DIR}/LinearAlgebra/DenseMatrix
@@ -49,10 +44,18 @@ C:/Research/MDK/LinearALgebraLib_win64/Lapack_win64_release/blas_win64_MT.lib
 )
 
 message(STATUS ${Test_FILES})
-
 message(STATUS ${Source_FILES})
-
 message(STATUS ${Arma_FILES})
+
+find_package(ITK REQUIRED)
+include(${ITK_USE_FILE})
+
+set(VTK_DIR C:/Programs/VTK/VTK_6.1_VC2013_Build)
+find_package(VTK REQUIRED)
+include(${VTK_USE_FILE})
+
+set(CMAKE_AUTOMOC ON)
+find_package(Qt5Widgets REQUIRED QUIET)
 
 add_executable(MDK_Test_FileIO ${Test_FILES} ${MDK_CPP_FILES})
 
