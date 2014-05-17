@@ -327,51 +327,37 @@ bool Save3DScalarImageAsJsonDataFile(const Image3D<PixelType>& InputImage, const
 
     //-------------------------------------------------------------------------------------
 
-    std::vector<NameValueQStringPair> PairList(12);
+    std::vector<NameValueQStringPair> PairList;
+    PairList.resize(6);
 
-    PairList[0].Name = "Dimension";
-    PairList[0].Value = "3";
+    PairList[0].Name = "ObjectType";
+    PairList[0].Value = "Image";
 
-    PairList[1].Name = "PixelType";
-    PairList[1].Value = QElementTypeName;
+    PairList[1].Name = "Dimension";
+    PairList[1].Value = "3";
+
+    PairList[2].Name = "PixelType";
+    PairList[2].Value = QElementTypeName;
 
     auto Size = InputImage.GetSize();
 
-    PairList[2].Name = "Size_x";
-    PairList[2].Value = QString::number(Size.Lx);
+    PairList[3].Name = "Size";
+    PairList[3].Value = QString::number(Size.Lx) + ", " + QString::number(Size.Ly) + ", " + QString::number(Size.Lz);
 
-    PairList[3].Name = "Size_y";
-    PairList[3].Value = QString::number(Size.Ly);
+    auto Spacing = InputImage.GetSpacing();
 
-    PairList[4].Name = "Size_z";
-    PairList[4].Value = QString::number(Size.Lz);
+    PairList[4].Name = "Spacing";
+    PairList[4].Value = QString::number(Spacing.Sx) + ", " + QString::number(Spacing.Sy) + ", " + QString::number(Spacing.Sz);
 
-    auto Spacing = InputImage.GetPixelSpacing();
+    auto Origin = InputImage.GetOrigin();
 
-    PairList[5].Name = "Spacing_x";
-    PairList[5].Value = QString::number(Spacing.Sx);
-
-    PairList[6].Name = "Spacing_y";
-    PairList[6].Value = QString::number(Spacing.Sy);
-
-    PairList[7].Name = "Spacing_z";
-    PairList[7].Value = QString::number(Spacing.Sz);
-
-    auto Origin = InputImage.GetPhysicalOrigin();
-
-    PairList[8].Name = "Origin_x";
-    PairList[8].Value = QString::number(Origin.x);
-
-    PairList[9].Name = "Origin_y";
-    PairList[9].Value = QString::number(Origin.y);
-
-    PairList[10].Name = "Origin_z";
-    PairList[10].Value = QString::number(Origin.z);
+    PairList[5].Name = "Origin";
+    PairList[5].Value = QString::number(Origin.x) + ", " + QString::number(Origin.y) + ", " + QString::number(Origin.z);
 
     auto Orientation = InputImage.GetOrientation();
 
-    PairList[11].Name = "Orientation";
-    PairList[11].Value =  QString::number(Orientation(0,0)) + ","
+    PairList[6].Name = "Orientation";
+    PairList[6].Value =   QString::number(Orientation(0,0)) + ","
                         + QString::number(Orientation(1,0)) + ","
                         + QString::number(Orientation(2,0)) + ","
                         + QString::number(Orientation(0,1)) + ","
@@ -480,121 +466,89 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathA
 
     //---------------------------------------------------
 
-    Image3DSize Size;
+    QString SizeStr;
 
-    it = HeaderObject.find("Size_x");
+    it = HeaderObject.find("Size");
     if (it != HeaderObject.end())
     {
-        Size.Lx = it.value().toString().toLongLong();
+        SizeStr = it.value().toString();
     }
     else
     {
-        MDK_Error("Couldn't get Size_x @ Load3DScalarImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Size @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
 
-    it = HeaderObject.find("Size_y");
-    if (it != HeaderObject.end())
+    auto SizeValue = SizeStr.split(",");
+    if (SizeValue.size() != 3)
     {
-        Size.Ly = it.value().toString().toLongLong();
-    }
-    else
-    {
-        MDK_Error("Couldn't get Size_y @ Load3DScalarImageFromJsonDataFile(...)")
+        MDK_Error("Size vector is wrong @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
 
-    it = HeaderObject.find("Size_z");
+    ImageSize3D Size;
+    Size.Lx = SizeValue[0].toLongLong();
+    Size.Ly = SizeValue[1].toLongLong();
+    Size.Lz = SizeValue[2].toLongLong();
+
+   
+    QString SpacingStr;
+
+    it = HeaderObject.find("Spacing");
     if (it != HeaderObject.end())
     {
-        Size.Lz = it.value().toString().toLongLong();
+        SpacingStr = it.value().toString();
     }
     else
     {
-        MDK_Error("Couldn't get Size_z @ Load3DScalarImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Spacing @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
 
-
-    Image3DPixelSpacing Spacing;
-
-    it = HeaderObject.find("Spacing_x");
-    if (it != HeaderObject.end())
+    auto SpacingValue = SpacingStr.split(",");
+    if (SpacingValue.size() != 3)
     {
-        Spacing.Sx = it.value().toString().toDouble();
-    }
-    else
-    {
-        MDK_Error("Couldn't get Spacing_x @ Load3DScalarImageFromJsonDataFile(...)")
+        MDK_Error("Spacing vector is wrong @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
 
-    it = HeaderObject.find("Spacing_y");
+    ImageSpacing3D Spacing;
+    Spacing.Sx = SpacingValue[0].toDouble();
+    Spacing.Sy = SpacingValue[1].toDouble();
+    Spacing.Sz = SpacingValue[2].toDouble();
+
+
+    QString OriginStr;
+
+    it = HeaderObject.find("Origin");
     if (it != HeaderObject.end())
     {
-        Spacing.Sy = it.value().toString().toDouble();
+        OriginStr = it.value().toString();
     }
     else
     {
-        MDK_Error("Couldn't get Spacing_y @ Load3DScalarImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Origin @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
 
-    it = HeaderObject.find("Spacing_z");
-    if (it != HeaderObject.end())
+    auto OriginValue = OriginStr.split(",");
+    if (OriginValue.size() != 3)
     {
-        Spacing.Sz = it.value().toString().toDouble();
-    }
-    else
-    {
-        MDK_Error("Couldn't get Spacing_z @ Load3DScalarImageFromJsonDataFile(...)")
+        MDK_Error("Origin vector is wrong @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
         return OutputImage;
     }
 
+    ImageOrigin3D Origin;
+    Origin.x = OriginValue[0].toDouble();
+    Origin.y = OriginValue[1].toDouble();
+    Origin.z = OriginValue[2].toDouble();
 
-    Image3DPhysicalOrigin Origin;
-
-    it = HeaderObject.find("Origin_x");
-    if (it != HeaderObject.end())
-    {
-        Origin.x = it.value().toString().toDouble();
-    }
-    else
-    {
-        MDK_Error("Couldn't get Origin_x @ Load3DScalarImageFromJsonDataFile(...)")
-        HeaderFile.close();
-        return OutputImage;
-    }
-
-    it = HeaderObject.find("Origin_y");
-    if (it != HeaderObject.end())
-    {
-        Origin.y = it.value().toString().toDouble();
-    }
-    else
-    {
-        MDK_Error("Couldn't get Origin_y @ Load3DScalarImageFromJsonDataFile(...)")
-        HeaderFile.close();
-        return OutputImage;
-    }
-
-    it = HeaderObject.find("Origin_z");
-    if (it != HeaderObject.end())
-    {
-        Origin.z = it.value().toString().toDouble();
-    }
-    else
-    {
-        MDK_Error("Couldn't get Origin_z @ Load3DScalarImageFromJsonDataFile(...)")
-        HeaderFile.close();
-        return OutputImage;
-    }
 
     QString OrientationStr;
 
@@ -640,8 +594,8 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathA
 
     // allocate memory
     OutputImage.SetSize(Size);
-    OutputImage.SetPixelSpacing(Spacing);
-    OutputImage.SetPhysicalOrigin(Origin);
+    OutputImage.SetSpacing(Spacing);
+    OutputImage.SetOrigin(Origin);
     OutputImage.SetOrientation(Orientation);
 
     //----------------------------------------------------------------------------------------------
@@ -790,8 +744,8 @@ template<typename PixelType>
 itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(Image3D<PixelType>& InputImage, bool SharePixelData)
 {
     auto InputSize = InputImage.GetSize();
-    auto InputOrigin = InputImage.GetPhysicalOrigin();
-    auto InputSpacing = InputImage.GetPixelSpacing();
+    auto InputOrigin = InputImage.GetOrigin();
+    auto InputSpacing = InputImage.GetSpacing();
     auto InputPixelNumber = InputImage.GetPixelNumber();
 
     typedef itk::Image<PixelType, 3> ITKImageType;
@@ -882,8 +836,8 @@ Image3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<Pi
     auto Direction = ITKImage->GetDirection();
 
     OutputImage.SetSize(Size[0], Size[1], Size[2]);
-    OutputImage.SetPixelSpacing(Spacing[0], Spacing[1], Spacing[2]);
-    OutputImage.SetPhysicalOrigin(Origin[0], Origin[1], Origin[2]);
+    OutputImage.SetSpacing(Spacing[0], Spacing[1], Spacing[2]);
+    OutputImage.SetOrigin(Origin[0], Origin[1], Origin[2]);
 
     DenseMatrix<double> Orientation(3, 3);
     for (int j = 0; j < 3; ++j)

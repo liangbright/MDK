@@ -6,35 +6,36 @@ namespace mdk
 {
 
 template<typename PixelType>
-Image2DData<PixelType>::Image2DData()
+ImageData2D<PixelType>::ImageData2D()
 {
     this->Clear();
 }
 
 
 template<typename PixelType>
-Image2DData<PixelType>::~Image2DData()
+ImageData2D<PixelType>::~ImageData2D()
 {
 }
 
 
 template<typename PixelType>
-void Image2DData<PixelType>::Clear()
+void ImageData2D<PixelType>::Clear()
 {
     m_Size[0] = 0;
     m_Size[1] = 0;
 
-    m_PhysicalOrigin[0] = 0;
-    m_PhysicalOrigin[1] = 0;
+    m_Origin[0] = 0;
+    m_Origin[1] = 0;
 
-    m_PixelSpacing[0] = 0;
-    m_PixelSpacing[1] = 0;
+    m_Spacing[0] = 0;
+    m_Spacing[1] = 0;
 
     m_Orientation.FastResize(2, 2);
     m_Orientation.FixSize();
     m_Orientation.FillDiangonal(1.0);
 
     m_DataArray.clear();
+    m_DataArray.shrink_to_fit();
 
     m_NaNPixel = GetNaNElement(m_NaNPixel);
 }
@@ -42,7 +43,7 @@ void Image2DData<PixelType>::Clear()
 
 template<typename PixelType>
 inline 
-PixelType& Image2DData<PixelType>::operator[](int_max LinearIndex)
+PixelType& ImageData2D<PixelType>::operator[](int_max LinearIndex)
 { 
     return m_DataArray[LinearIndex];
 }
@@ -50,7 +51,7 @@ PixelType& Image2DData<PixelType>::operator[](int_max LinearIndex)
 
 template<typename PixelType>
 inline
-const PixelType& Image2DData<PixelType>::operator[](int_max LinearIndex) const
+const PixelType& ImageData2D<PixelType>::operator[](int_max LinearIndex) const
 {
     return m_DataArray[LinearIndex];
 }
@@ -58,7 +59,7 @@ const PixelType& Image2DData<PixelType>::operator[](int_max LinearIndex) const
 
 template<typename PixelType>
 inline
-PixelType& Image2DData<PixelType>::operator()(int_max LinearIndex)
+PixelType& ImageData2D<PixelType>::operator()(int_max LinearIndex)
 {
     return m_DataArray[LinearIndex];
 }
@@ -66,7 +67,7 @@ PixelType& Image2DData<PixelType>::operator()(int_max LinearIndex)
 
 template<typename PixelType>
 inline
-const PixelType& Image2DData<PixelType>::operator()(int_max LinearIndex) const
+const PixelType& ImageData2D<PixelType>::operator()(int_max LinearIndex) const
 {
     return m_DataArray[LinearIndex];
 }
@@ -74,7 +75,7 @@ const PixelType& Image2DData<PixelType>::operator()(int_max LinearIndex) const
 
 template<typename PixelType>
 inline
-PixelType& Image2DData<PixelType>::operator()(int_max xIndex, int_max yIndex)
+PixelType& ImageData2D<PixelType>::operator()(int_max xIndex, int_max yIndex)
 {
     auto LinearIndex = yIndex*m_Size[0] + xIndex;
  
@@ -84,7 +85,7 @@ PixelType& Image2DData<PixelType>::operator()(int_max xIndex, int_max yIndex)
 
 template<typename PixelType>
 inline
-const PixelType& Image2DData<PixelType>::operator()(int_max xIndex, int_max yIndex) const
+const PixelType& ImageData2D<PixelType>::operator()(int_max xIndex, int_max yIndex) const
 {
     auto LinearIndex = yIndex*m_Size[0] + xIndex;
 
@@ -94,7 +95,7 @@ const PixelType& Image2DData<PixelType>::operator()(int_max xIndex, int_max yInd
 
 template<typename PixelType>
 inline
-int_max Image2DData<PixelType>::Transform2DIndexToLinearIndex(int_max xIndex, int_max yIndex) const
+int_max ImageData2D<PixelType>::Transform2DIndexToLinearIndex(int_max xIndex, int_max yIndex) const
 {
     return yIndex*m_Size[0] + xIndex;    
 }
@@ -102,7 +103,7 @@ int_max Image2DData<PixelType>::Transform2DIndexToLinearIndex(int_max xIndex, in
 
 template<typename PixelType>
 inline 
-void Image2DData<PixelType>::TransformLinearIndexTo2DIndex(int_max LinearIndex, int_max& xIndex, int_max& yIndex) const
+void ImageData2D<PixelType>::TransformLinearIndexTo2DIndex(int_max LinearIndex, int_max& xIndex, int_max& yIndex) const
 {
     std::lldiv_t divresult = div(LinearIndex, m_Size[0]);
 
@@ -114,7 +115,7 @@ void Image2DData<PixelType>::TransformLinearIndexTo2DIndex(int_max LinearIndex, 
 
 template<typename PixelType>
 inline 
-void Image2DData<PixelType>::TransformLinearIndexTo2DPhysicalPosition(int_max LinearIndex, double& x, double& y) const
+void ImageData2D<PixelType>::TransformLinearIndexTo2DPhysicalPosition(int_max LinearIndex, double& x, double& y) const
 {       
     std::lldiv_t divresult = div(LinearIndex, m_Size[0]);
 
@@ -122,29 +123,29 @@ void Image2DData<PixelType>::TransformLinearIndexTo2DPhysicalPosition(int_max Li
 
     x = double(divresult.rem);
 
-    x = m_PhysicalOrigin[0] + x * m_PixelSpacing[0];
+    x = m_Origin[0] + x * m_Spacing[0];
 
-    y = m_PhysicalOrigin[1] + y * m_PixelSpacing[1];
+    y = m_Origin[1] + y * m_Spacing[1];
 }
 
 
 template<typename PixelType>
 inline
-void Image2DData<PixelType>::Transform2DIndexTo2DPhysicalPosition(int_max xIndex, int_max yIndex, double& x, double& y) const
+void ImageData2D<PixelType>::Transform2DIndexTo2DPhysicalPosition(int_max xIndex, int_max yIndex, double& x, double& y) const
 {
-    x = m_PhysicalOrigin[0] + double(xIndex) * m_PixelSpacing[0];
+    x = m_Origin[0] + double(xIndex) * m_Spacing[0];
 
-    y = m_PhysicalOrigin[1] + double(yIndex) * m_PixelSpacing[1];
+    y = m_Origin[1] + double(yIndex) * m_Spacing[1];
 }
 
 
 template<typename PixelType>
 inline 
-void Image2DData<PixelType>::Transform2DPhysicalPositionToContinuous2DIndex(double x, double y, double& xIndex, double& yIndex) const
+void ImageData2D<PixelType>::Transform2DPhysicalPositionToContinuous2DIndex(double x, double y, double& xIndex, double& yIndex) const
 {
-    xIndex = (x - m_PhysicalOrigin[0]) / m_PixelSpacing[0];
+    xIndex = (x - m_Origin[0]) / m_Spacing[0];
 
-    yIndex = (y - m_PhysicalOrigin[1]) / m_PixelSpacing[1];
+    yIndex = (y - m_Origin[1]) / m_Spacing[1];
 }
 
 //========================================================== Image ========================================================================//
@@ -152,7 +153,7 @@ void Image2DData<PixelType>::Transform2DPhysicalPositionToContinuous2DIndex(doub
 template<typename PixelType>
 Image2D<PixelType>::Image2D()
 {
-    m_ImageData = std::make_shared<Image2DData<PixelType>>();
+    m_ImageData = std::make_shared<ImageData2D<PixelType>>();
 
     this->Clear();
 }
@@ -161,7 +162,7 @@ Image2D<PixelType>::Image2D()
 template<typename PixelType>
 Image2D<PixelType>::Image2D(const Image2D& InputImage)
 {
-    m_ImageData = std::make_shared<Image2DData<PixelType>>();
+    m_ImageData = std::make_shared<ImageData2D<PixelType>>();
 
     this->Clear();
 
@@ -225,8 +226,8 @@ void Image2D<PixelType>::Copy(const Image2D<PixelType_Input>& InputImage)
 
     this->CopyData(InputImage.GetPixelPointer(), InputImage.GetPixelNumber());
     this->SetSize(InputImage.GetSize());
-    this->SetPixelSpacing(InputImage.GetPixelSpacing());
-    this->SetPhysicalOrigin(InputImage.GetPhysicalOrigin);
+    this->SetSpacing(InputImage.GetSpacing());
+    this->SetOrigin(InputImage.GetOrigin);
     this->SetOrientation(InputImage.GetOrientation());
 }
 
@@ -362,11 +363,11 @@ void Image2D<PixelType>::Take(Image2D<PixelType>& InputImage)
     m_ImageData->m_Size[0] = InputImage.m_ImageData->m_Size[0];
     m_ImageData->m_Size[1] = InputImage.m_ImageData->m_Size[1];
     
-    m_ImageData->m_PixelSpacing[0] = InputImage.m_ImageData->m_PixelSpacing[0];
-    m_ImageData->m_PixelSpacing[1] = InputImage.m_ImageData->m_PixelSpacing[1];
+    m_ImageData->m_Spacing[0] = InputImage.m_ImageData->m_Spacing[0];
+    m_ImageData->m_Spacing[1] = InputImage.m_ImageData->m_Spacing[1];
   
-    m_ImageData->m_PhysicalOrigin[0] = InputImage.m_ImageData->m_PhysicalOrigin[0];
-    m_ImageData->m_PhysicalOrigin[1] = InputImage.m_ImageData->m_PhysicalOrigin[1];
+    m_ImageData->m_Origin[0] = InputImage.m_ImageData->m_Origin[0];
+    m_ImageData->m_Origin[1] = InputImage.m_ImageData->m_Origin[1];
     
     m_ImageData->m_Orientation = std::move(InputImage.m_ImageData->m_Orientation);
 
@@ -428,9 +429,9 @@ const PixelType* Image2D<PixelType>::GetPixelPointer() const
 
 template<typename PixelType>
 inline
-Image2DSize Image2D<PixelType>::GetSize() const
+ImageSize2D Image2D<PixelType>::GetSize() const
 {
-    Image2DSize Size;
+    ImageSize2D Size;
 
     Size.Lx = m_ImageData->m_Size[0];
     Size.Ly = m_ImageData->m_Size[1];
@@ -499,12 +500,12 @@ catch (...)
 
 template<typename PixelType>
 inline
-Image2DPixelSpacing Image2D<PixelType>::GetPixelSpacing() const
+ImageSpacing2D Image2D<PixelType>::GetSpacing() const
 {
-    Image2DPixelSpacing Size;
+    ImageSpacing2D Size;
 
-    Size.Sx = m_ImageData->m_PixelSpacing[0];
-    Size.Sy = m_ImageData->m_PixelSpacing[1];
+    Size.Sx = m_ImageData->m_Spacing[0];
+    Size.Sy = m_ImageData->m_Spacing[1];
 
     return Size;
 }
@@ -512,44 +513,44 @@ Image2DPixelSpacing Image2D<PixelType>::GetPixelSpacing() const
 
 template<typename PixelType>
 inline
-void Image2D<PixelType>::GetPixelSpacing(double& Spacing_x, double& Spacing_y) const
+void Image2D<PixelType>::GetSpacing(double& Spacing_x, double& Spacing_y) const
 {
-    Spacing_x = m_ImageData->m_PixelSpacing[0];
-    Spacing_y = m_ImageData->m_PixelSpacing[1];
+    Spacing_x = m_ImageData->m_Spacing[0];
+    Spacing_y = m_ImageData->m_Spacing[1];
 }
 
 
 template<typename PixelType>
 inline
-void Image2D<PixelType>::SetPixelSpacing(const Image2DPixelSpacing& Spacing)
+void Image2D<PixelType>::SetSpacing(const Image2DSpacing& Spacing)
 {
-    this->SetPixelSpacing(Spacing.Sx, Spacing.Sy);
+    this->SetSpacing(Spacing.Sx, Spacing.Sy);
 }
 
 
 template<typename PixelType>
 inline
-void Image2D<PixelType>::SetPixelSpacing(double Spacing_x, double Spacing_y)
+void Image2D<PixelType>::SetSpacing(double Spacing_x, double Spacing_y)
 {
     if (Spacing_x <= 0 || Spacing_y <= 0)
     {
-        MDK_Error("Invalid input @ 2DImage::SetPixelSpacing(...)")
+        MDK_Error("Invalid input @ 2DImage::SetSpacing(...)")
         return;
     }
 
-    m_ImageData->m_PixelSpacing[0] = Spacing_x;
-    m_ImageData->m_PixelSpacing[1] = Spacing_y;
+    m_ImageData->m_Spacing[0] = Spacing_x;
+    m_ImageData->m_Spacing[1] = Spacing_y;
 }
 
 
 template<typename PixelType>
 inline
-Image2DPhysicalOrigin Image2D<PixelType>::GetPhysicalOrigin() const
+ImageOrigin2D Image2D<PixelType>::GetOrigin() const
 {
-    Image2DPhysicalOrigin Origin;
+    ImageOrigin2D Origin;
 
-    Origin.x = m_ImageData->m_PhysicalOrigin[0];
-    Origin.y = m_ImageData->m_PhysicalOrigin[1];
+    Origin.x = m_ImageData->m_Origin[0];
+    Origin.y = m_ImageData->m_Origin[1];
 
     return Origin;
 }
@@ -557,27 +558,27 @@ Image2DPhysicalOrigin Image2D<PixelType>::GetPhysicalOrigin() const
 
 template<typename PixelType>
 inline
-void Image2D<PixelType>::GetPhysicalOrigin(double& Origin_x, double& Origin_y) const
+void Image2D<PixelType>::GetOrigin(double& Origin_x, double& Origin_y) const
 {
-    Origin_x = m_ImageData->m_PhysicalOrigin[0];
-    Origin_y = m_ImageData->m_PhysicalOrigin[1];
+    Origin_x = m_ImageData->m_Origin[0];
+    Origin_y = m_ImageData->m_Origin[1];
 }
 
 
 template<typename PixelType>
 inline
-void Image2D<PixelType>::SetPhysicalOrigin(const Image2DPhysicalOrigin& Origin)
+void Image2D<PixelType>::SetOrigin(const Image2DOrigin& Origin)
 {
-    this->SetPhysicalOrigin(Origin.x, Origin.y);
+    this->SetOrigin(Origin.x, Origin.y);
 }
 
 
 template<typename PixelType>
 inline
-void Image2D<PixelType>::SetPhysicalOrigin(double Origin_x, double Origin_y)
+void Image2D<PixelType>::SetOrigin(double Origin_x, double Origin_y)
 {
-    m_ImageData->m_PhysicalOrigin[0] = Origin_x;
-    m_ImageData->m_PhysicalOrigin[1] = Origin_y;
+    m_ImageData->m_Origin[0] = Origin_x;
+    m_ImageData->m_Origin[1] = Origin_y;
 }
 
 
@@ -609,13 +610,13 @@ void Image2D<PixelType>::SetOrientation(const DenseMatrix<double>& Orientation)
 
 template<typename PixelType>
 inline
-Image2DPhysicalSize Image2D<PixelType>::GetPhysicalSize() const
+ImagePhysicalSize2D Image2D<PixelType>::GetPhysicalSize() const
 {
-    Image2DPhysicalSize Size;
+    ImagePhysicalSize2D Size;
 
-    Size.Lx = m_ImageData->m_Size[0] * m_ImageData->m_PixelSpacing[0];
+    Size.Lx = m_ImageData->m_Size[0] * m_ImageData->m_Spacing[0];
 
-    Size.Ly = m_ImageData->m_Size[1] * m_ImageData->m_PixelSpacing[1];
+    Size.Ly = m_ImageData->m_Size[1] * m_ImageData->m_Spacing[1];
 
     return Size;
 }
@@ -625,9 +626,9 @@ template<typename PixelType>
 inline 
 void Image2D<PixelType>::GetPhysicalSize(double& PhysicalSize_x, double& PhysicalSize_y) const
 {
-    PhysicalSize_x = m_ImageData->m_Size[0] * m_ImageData->m_PixelSpacing[0];
+    PhysicalSize_x = m_ImageData->m_Size[0] * m_ImageData->m_Spacing[0];
 
-    PhysicalSize_y = m_ImageData->m_Size[1] * m_ImageData->m_PixelSpacing[1];
+    PhysicalSize_y = m_ImageData->m_Size[1] * m_ImageData->m_Spacing[1];
 }
 
 
@@ -883,12 +884,12 @@ Image2D<PixelType> Image2D<PixelType>::GetSubImage(int_max xIndex_s, int_max xIn
 		return tempImage;
 	}
 
-	Lx = xIndex_e - xIndex_s + 1;
-	Ly = yIndex_e - yIndex_s + 1;
+	auto Lx = xIndex_e - xIndex_s + 1;
+	auto Ly = yIndex_e - yIndex_s + 1;
 
     tempImage.SetSize(Lx, Ly);
-    tempImage.SetPixelSpacing(this->GetPixelSpacing());
-    tempImage.SetPhysicalOrigin(this->GetPhysicalOrigin());
+    tempImage.SetSpacing(this->GetSpacing());
+    tempImage.SetOrigin(this->GetOrigin());
 
     auto tempRawPtr = tempImage.GetPixelPointer();
 
@@ -945,8 +946,8 @@ Image2D<PixelType>::Pad(const std::string& Option, int_max Pad_Lx, int_max Pad_L
     auto Ly = Size.Ly + Pad_Ly;
 
     tempImage.SetSize(Lx, Ly);
-    tempImage.SetPixelSpacing(this->GetPixelSpacing());
-    tempImage.SetPhysicalOrigin(this->GetPhysicalOrigin());
+    tempImage.SetSpacing(this->GetSpacing());
+    tempImage.SetOrigin(this->GetOrigin());
 
 	if (Option == "zero")
 	{
@@ -1009,8 +1010,8 @@ Image2D<PixelType>::Pad(PixelType Pixel, int_max Pad_Lx, int_max Pad_Ly) const
     auto Ly = Size.Ly + Pad_Ly;
 
     tempImage.SetSize(Lx, Ly);
-    tempImage.SetPixelSpacing(this->GetPixelSpacing());
-    tempImage.SetPhysicalOrigin(this->GetPhysicalOrigin());
+    tempImage.SetSpacing(this->GetSpacing());
+    tempImage.SetOrigin(this->GetOrigin());
 
     tempImage.Fill(Pixel);
 

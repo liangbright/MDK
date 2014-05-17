@@ -15,25 +15,25 @@ namespace mdk
 // 2D Image Class
 // --------------------------------------------------------------------------------------------------------//
 
-struct Image2DSize
+struct ImageSize2D
 {
 	int_max Lx;
 	int_max Ly;
 };
 
-struct Image2DPixelSpacing
+struct ImageSpacing2D
 {
     double Sx;
     double Sy;
 };
 
-struct Image2DPhysicalSize
+struct ImagePhysicalSize2D
 {
     double Lx;
     double Ly;
 };
 
-struct Image2DPhysicalOrigin
+struct ImageOrigin2D
 {
     double x;
     double y;
@@ -106,16 +106,16 @@ struct Image2DBoxRegionOf2DPhysicalPosition
 };
 
 //===================================================================================================================//
-//--------------------------------------------------- Image2DData struct --------------------------------------------//
+//--------------------------------------------------- ImageData2D struct --------------------------------------------//
 
 template<typename PixelType>
-struct Image2DData
+struct ImageData2D
 {
     int_max m_Size[2];                  // {Lx, Ly} number of Pixels in each direction
 
-    double m_PixelSpacing[2];           // i.e., Spacing in DICOM image (ITK, VTK)
+    double m_Spacing[2];                // i.e., Pixel Spacing in DICOM image (ITK, VTK)
 
-    double m_PhysicalOrigin[2];         // i.e., Origin in DICOM image (ITK, VTK) {x0, y0, z0} in world coordinate system (x,y,z) (unit: mm)
+    double m_Origin[2];                 // i.e., Origin in DICOM image (ITK, VTK) {x0, y0, z0} in world coordinate system (x,y,z) (unit: mm)
 
     DenseMatrix<double> m_Orientation;  // 2x2 Matrix
 
@@ -124,9 +124,9 @@ struct Image2DData
     PixelType m_NaNPixel;
 //-----------------------------------------------------------
 
-    Image2DData();
+    ImageData2D();
 
-    ~Image2DData();
+    ~ImageData2D();
 
     void Clear();
 
@@ -154,10 +154,10 @@ struct Image2DData
 
 private:
 //deleted:
-    Image2DData(const Image2DData&) = delete;
-    Image2DData(Image2DData&&) = delete;
-    void operator=(const Image2DData&) = delete;
-    void operator=(Image2DData&&) = delete;
+    ImageData2D(const ImageData2D&) = delete;
+    ImageData2D(ImageData2D&&) = delete;
+    void operator=(const ImageData2D&) = delete;
+    void operator=(ImageData2D&&) = delete;
 };
 
 //===================================================================================================================//
@@ -167,7 +167,7 @@ class Image2D: public Object
 {
 private:
 
-    std::shared_ptr<Image2DData<PixelType>> m_ImageData;
+    std::shared_ptr<ImageData2D<PixelType>> m_ImageData;
 
     PixelType* m_PixelPointer; // keep tracking m_ImageData->m_DataArray.data();
 	
@@ -225,7 +225,7 @@ public:
 
     //--------------------------- Get/Set Info and Data ------------------------------//
 
-    inline Image2DSize GetSize() const;
+    inline ImageSize2D GetSize() const;
 
     inline void GetSize(int_max& Lx, int_max& Ly) const;
 
@@ -233,27 +233,27 @@ public:
 
     inline bool SetSize(int_max Lx, int_max Ly);
 
-    inline Image2DPixelSpacing GetPixelSpacing() const;
+    inline ImageSpacing2D GetSpacing() const;
 
-    inline void GetPixelSpacing(double& Spacing_x, double& Spacing_y) const;
+    inline void GetSpacing(double& Spacing_x, double& Spacing_y) const;
 
-    inline void SetPixelSpacing(const Image2DPixelSpacing& Spacing);
+    inline void SetSpacing(const Image2DSpacing& Spacing);
 
-    inline void SetPixelSpacing(double Spacing_x, double Spacing_y);
+    inline void SetSpacing(double Spacing_x, double Spacing_y);
 
-    inline Image2DPhysicalOrigin GetPhysicalOrigin() const;
+    inline ImageOrigin2D GetOrigin() const;
 
-    inline void GetPhysicalOrigin(double& Origin_x, double& Origin_y) const;
+    inline void GetOrigin(double& Origin_x, double& Origin_y) const;
 
-    inline void SetPhysicalOrigin(const Image2DPhysicalOrigin& Origin);
+    inline void SetOrigin(const Image2DOrigin& Origin);
 
-    inline void SetPhysicalOrigin(double Origin_x, double Origin_y);
+    inline void SetOrigin(double Origin_x, double Origin_y);
 
     inline const DenseMatrix<double>& GetOrientation() const;
 
     inline void SetOrientation(const DenseMatrix<double>& Orientation);
 
-    inline Image2DPhysicalSize GetPhysicalSize() const;
+    inline ImagePhysicalSize2D GetPhysicalSize() const;
 
     inline void GetPhysicalSize(double& PhysicalSize_x, double& PhysicalSize_y) const;
 

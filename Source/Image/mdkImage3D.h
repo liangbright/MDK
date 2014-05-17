@@ -35,28 +35,28 @@ namespace mdk
 //
 // --------------------------------------------------------------------------------------------------------//
 
-struct Image3DSize
+struct ImageSize3D
 {
 	int_max Lx;
 	int_max Ly;
 	int_max Lz;
 };
 
-struct Image3DPixelSpacing
+struct ImageSpacing3D
 {
     double Sx;
     double Sy;
     double Sz;
 };
 
-struct Image3DPhysicalSize
+struct ImagePhysicalSize3D
 {
     double Lx;
     double Ly;
     double Lz;
 };
 
-struct Image3DPhysicalOrigin
+struct ImageOrigin3D
 {
     double x;
     double y;
@@ -148,18 +148,18 @@ struct Image3DBoxRegionOf3DPhysicalPosition
 };
 
 //===================================================================================================================//
-//--------------------------------------------------- Image3DData struct --------------------------------------------//
+//--------------------------------------------------- ImageData3D struct --------------------------------------------//
 
 template<typename PixelType>
-struct Image3DData
+struct ImageData3D
 {
     int_max m_Size[3];                  // {Lx, Ly, Lz} number of Pixels in each direction
 
     int_max m_PixelNumberPerZSlice;     // total number of Pixels in each z-slice  = m_ImageSize[2]*m_ImageSize[1]
 
-    double m_PixelSpacing[3];           // i.e., Spacing in DICOM image (ITK, VTK)
+    double m_Spacing[3];                // i.e., Pixel Spacing in DICOM image (ITK, VTK)
 
-    double m_PhysicalOrigin[3];         // i.e., Origin in DICOM image (ITK, VTK) {x0, y0, z0} in world coordinate system (x,y,z) (unit: mm)
+    double m_Origin[3];                // i.e., Origin in DICOM image (ITK, VTK) {x0, y0, z0} in world coordinate system (x,y,z) (unit: mm)
 
     DenseMatrix<double> m_Orientation;  // 3x3 Matrix
 
@@ -168,9 +168,9 @@ struct Image3DData
     PixelType m_NaNPixel;
 //-----------------------------------------------------------
 
-    Image3DData();
+    ImageData3D();
 
-    ~Image3DData();
+    ~ImageData3D();
 
     inline void Clear();
 
@@ -200,10 +200,10 @@ struct Image3DData
 
 private:
 //deleted:
-    Image3DData(const Image3DData&) = delete;
-    Image3DData(Image3DData&&) = delete;
-    void operator=(const Image3DData&) = delete;
-    void operator=(Image3DData&&) = delete;
+    ImageData3D(const ImageData3D&) = delete;
+    ImageData3D(ImageData3D&&) = delete;
+    void operator=(const ImageData3D&) = delete;
+    void operator=(ImageData3D&&) = delete;
 };
 
 //===================================================================================================================//
@@ -213,7 +213,7 @@ class Image3D : public Object
 {
 protected:
 
-    std::shared_ptr<Image3DData<PixelType>> m_ImageData;
+    std::shared_ptr<ImageData3D<PixelType>> m_ImageData;
 
     PixelType* m_PixelPointer; // keep tracking m_ImageData->m_DataArray.data();
 
@@ -270,7 +270,7 @@ public:
 
     //--------------------------- Get/Set Info and Data ------------------------------//
 
-    inline Image3DSize GetSize() const;
+    inline ImageSize3D GetSize() const;
 
     inline void GetSize(int_max& Lx, int_max& Ly, int_max& Lz) const;
 
@@ -278,19 +278,19 @@ public:
 
     inline bool SetSize(int_max Lx, int_max Ly, int_max Lz);
 
-    inline Image3DPixelSpacing GetPixelSpacing() const;
+    inline ImageSpacing3D GetSpacing() const;
 
-    inline void GetPixelSpacing(double& Spacing_x, double& Spacing_y, double& Spacing_z) const;
+    inline void GetSpacing(double& Spacing_x, double& Spacing_y, double& Spacing_z) const;
 
-    inline void SetPixelSpacing(const Image3DPixelSpacing& Spacing);
+    inline void SetSpacing(const ImageSpacing3D& Spacing);
 
-    inline void SetPixelSpacing(double Spacing_x, double Spacing_y, double Spacing_z);
+    inline void SetSpacing(double Spacing_x, double Spacing_y, double Spacing_z);
 
-    inline Image3DPhysicalOrigin GetPhysicalOrigin() const;
+    inline ImageOrigin3D GetOrigin() const;
 
-    inline void GetPhysicalOrigin(double& Origin_x, double& Origin_y, double& Origin_z) const;
+    inline void GetOrigin(double& Origin_x, double& Origin_y, double& Origin_z) const;
 
-    inline void SetPhysicalOrigin(const Image3DPhysicalOrigin& Origin);
+    inline void SetOrigin(const ImageOrigin3D& Origin);
 
     inline void SetPhysicalOrigin(double Origin_x, double Origin_y, double Origin_z);
 
@@ -298,7 +298,7 @@ public:
 
     inline void SetOrientation(const DenseMatrix<double>& Orientation);
 
-    inline Image3DPhysicalSize GetPhysicalSize() const;
+    inline ImagePhysicalSize3D GetPhysicalSize() const;
 
     inline void GetPhysicalSize(double& PhysicalSize_x, double& PhysicalSize_y, double& PhysicalSize_z) const;
 
