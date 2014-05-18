@@ -9,7 +9,7 @@
 #include <itkNumericSeriesFileNames.h>
 #include <itkImageSeriesReader.h>
 #include <itkImportImageFilter.h>
-
+#include <itkImageDuplicator.h>
 
 #include <vtkSmartPointer.h>
 #include <vtkImageData.h>

@@ -328,7 +328,7 @@ bool Save3DScalarImageAsJsonDataFile(const Image3D<PixelType>& InputImage, const
     //-------------------------------------------------------------------------------------
 
     std::vector<NameValueQStringPair> PairList;
-    PairList.resize(6);
+    PairList.resize(7);
 
     PairList[0].Name = "ObjectType";
     PairList[0].Value = "Image";
@@ -803,7 +803,7 @@ itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageT
     ITKImportFilterType::DirectionType Direction;
     typedef itk::SpacePrecisionType SpacePrecisionType;
 
-    DenseMatrix<double>& Orientation = InputImage->GetOrientation();
+    const DenseMatrix<double>& Orientation = InputImage.GetOrientation();
     for (int j = 0; j < 3; ++j)
     {
         for (int i = 0; i < 3; ++i)
@@ -820,14 +820,14 @@ itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageT
     }
     else
     {
-        PixelType * localBuffer = new PixelType[InputPixelNumber];
+        PixelType* PixelDataArray = new PixelType[InputPixelNumber];
         for (int_max i = 0; i < InputPixelNumber; ++i)
         {
-            localBuffer[i] = InputImage[i];
+            PixelDataArray[i] = InputImage[i];
         }
 
         bool ITKImageWillOwnPixelDataArray = true;
-        importFilter->SetImportPointer(localBuffer, InputPixelNumber, true);
+        importFilter->SetImportPointer(PixelDataArray, InputPixelNumber, ITKImageWillOwnPixelDataArray);
     }
 
     importFilter->Update();
@@ -839,10 +839,16 @@ itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageT
 template<typename PixelType>
 itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(Image3D<PixelType>& InputImage)
 {
-    bool SharePixelData = false;
+    bool SharePixelData = true;
     auto importFilter = ConvertMDK3DScalarImageToITK3DScalarImage(InputImage, SharePixelData);
 
-    itk::SmartPointer<itk::Image<PixelType, 3>> ITKImage = importFilter->GetOutput();
+    typedef itk::Image<PixelType, 3>  ITKImageType;
+    typedef itk::ImageDuplicator<ITKImageType> DuplicatorType;
+    DuplicatorType::Pointer duplicator = DuplicatorType::New();
+    duplicator->SetInputImage(importFilter->GetOutput());
+    duplicator->Update();
+
+    ITKImageType::Pointer ITKImage = duplicator->GetOutput();
 
     return ITKImage;
 }
