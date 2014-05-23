@@ -101,14 +101,14 @@ void Test_Lasso()
         FeatureData.Row(i) = value;
     }
 
-    FeatureDictionary<double> Dictionary;
+    FeatureDictionaryForSparseCoding<double> Dictionary;
 
-    Dictionary.m_Record.FastResize(FeatureDimension, 3);
+    Dictionary.BasisMatrix().FastResize(FeatureDimension, 3);
 
     for (int_max i = 0; i < 3; ++i)
     {
-        Dictionary.m_Record.Col(i) = i;
-        Dictionary.m_Record.Row(i) = i;
+        Dictionary.BasisMatrix().Col(i) = i;
+        Dictionary.BasisMatrix().Row(i) = i;
     }
 
     SPAMSSparseEncoder<double> Encoder;
@@ -134,7 +134,7 @@ void Test_Lasso()
 
     DisplayMatrix("X", FeatureData, 6);
 
-    DisplayMatrix("D", Dictionary.m_Record, 6);
+    DisplayMatrix("D", Dictionary.BasisMatrix(), 6);
 
     DisplayMatrix("Alpha", *Code, 6);
 

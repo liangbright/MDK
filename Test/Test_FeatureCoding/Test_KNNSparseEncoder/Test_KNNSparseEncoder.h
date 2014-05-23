@@ -27,7 +27,7 @@
 #include "mdkFeatureDictionaryBasedSparseEncoder.h"
 #include "mdkKNNReconstructionSparseEncoder.h"
 #include "mdkKNNSoftAssignSparseEncoder.h"
-#include "mdkKNNReconstructionAndSoftAssignSparseEncoder.h"
+#include "mdkKNNSoftAssignAndReconstructionSparseEncoder.h"
 
 #include "mdkSPAMSOnlineDictionaryBuilder.h"
 #include "mdkSPAMSSparseEncoder.h"
@@ -72,14 +72,14 @@ void Test_KNNReconstructionSparseEncoder()
 
     int_max K = 10;
 
-    Dictionary.m_BasisMatrix.FastResize(FeatureDimension, K);
+    Dictionary.BasisMatrix().FastResize(FeatureDimension, K);
 
     for (int_max i = 0; i < K; ++i)
     {
-        Dictionary.m_BasisMatrix.Col(i) = i;
+        Dictionary.BasisMatrix().Col(i) = i;
     }
 
-    DenseMatrix<float> DtD = Dictionary.m_BasisMatrix.Transpose()*Dictionary.m_BasisMatrix;
+    DenseMatrix<float> DtD = Dictionary.BasisMatrix().Transpose()*Dictionary.BasisMatrix();
 
     DisplayMatrix("DtD", DtD, 0);
 
@@ -87,8 +87,8 @@ void Test_KNNReconstructionSparseEncoder()
 
     Encoder.m_Parameter.NeighbourNumber = 3;
 
-    Encoder.m_Parameter.Nonnegative = true;
-    Encoder.m_Parameter.SumToOne = true;
+    Encoder.m_Parameter.CodeNonnegative = true;
+    Encoder.m_Parameter.CodeSumToOne = true;
 
     Encoder.SetInputDictionary(&Dictionary);
 
@@ -113,7 +113,7 @@ void Test_KNNReconstructionSparseEncoder()
 
     DisplayMatrix("X", FeatureData, 6);
 
-    DisplayMatrix("D", Dictionary.m_BasisMatrix, 6);
+    DisplayMatrix("D", Dictionary.BasisMatrix(), 6);
 
     DisplayMatrix("Alpha", *Code, 6);
 
@@ -147,28 +147,28 @@ void Test_KNNReconstructionAndSoftAssignSparseEncoder()
 
     int_max K = 10;
 
-    Dictionary.m_BasisMatrix.FastResize(FeatureDimension, K);
+    Dictionary.BasisMatrix().FastResize(FeatureDimension, K);
 
-    Dictionary.m_StandardDeviation.FastResize(1, K);
+    Dictionary.VarianceOfL2Distance().FastResize(1, K);
 
     for (int_max i = 0; i < K; ++i)
     {
-        Dictionary.m_BasisMatrix.Col(i) = i;
-        Dictionary.m_StandardDeviation[i] = 1;
+        Dictionary.BasisMatrix().Col(i) = i;
+        Dictionary.VarianceOfL2Distance()[i] = 1;
     }
 
-    DenseMatrix<float> DtD = Dictionary.m_BasisMatrix.Transpose()*Dictionary.m_BasisMatrix;
+    DenseMatrix<float> DtD = Dictionary.BasisMatrix().Transpose()*Dictionary.BasisMatrix();
 
     DisplayMatrix("DtD", DtD, 0);
 
-    KNNReconstructionAndSoftAssignSparseEncoder<float> Encoder;
+    KNNSoftAssignAndReconstructionSparseEncoder<float> Encoder;
 
     Encoder.m_Parameter.NeighbourNumber = 3;
 
-    Encoder.m_Parameter.Nonnegative = true;
-    Encoder.m_Parameter.SumToOne = true;
+    Encoder.m_Parameter.CodePositive = true;
+    Encoder.m_Parameter.CodeSumToOne = true;
 
-    Encoder.m_Parameter.DistanceTypeForSoftAssign = "L2Distance";
+    Encoder.m_Parameter.SimilarityType = VectorSimilarityTypeEnum::L2Distance;
 
     Encoder.SetInputDictionary(&Dictionary);
 

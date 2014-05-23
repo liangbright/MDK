@@ -7,8 +7,6 @@ using namespace mdk;
 int main()
 {
 
-    Test_DisplayMatrix();
-
     //Test_FindKNNByDistanceList();
 
    // Test_OMP();

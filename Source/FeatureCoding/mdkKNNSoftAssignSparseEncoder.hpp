@@ -156,6 +156,8 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
     {
         Membership[i] /= tempSum;
     }
+
+    return Membership;
 }
 
 

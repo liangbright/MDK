@@ -279,12 +279,7 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
 
         // calculate mean variance
 
-        auto Variance = ElementType(0);
-        for (int_max i = 0; i < KNNBasisNumber; ++i)
-        {
-            Variance += VarianceList[i];
-        }
-        Variance /= KNNBasisNumber;
+        auto Variance = VarianceList.Mean();
 
         for (int_max i = 0; i < KNNBasisNumber; ++i)
         {
@@ -297,14 +292,9 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
 
     case VectorSimilarityTypeEnum::L2Distance:
     {
-        auto DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
+        auto DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, KNNBasisMatrix);
 
-        auto Variance = ElementType(0);
-        for (int_max i = 0; i < KNNBasisNumber; ++i)
-        {
-            Variance += VarianceList[i];
-        }
-        Variance /= VarianceList;
+        auto Variance = VarianceList.Mean();
 
         for (int_max i = 0; i < KNNBasisNumber; ++i)
         {
@@ -317,7 +307,7 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
 
     case VectorSimilarityTypeEnum::Correlation:
     {
-        auto CorrelationList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
+        auto CorrelationList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, KNNBasisMatrix);
 
         for (int_max i = 0; i < KNNBasisNumber; ++i)
         {
@@ -328,7 +318,7 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
 
     case VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation:
     {
-        auto CorrelationList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
+        auto CorrelationList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, KNNBasisMatrix);
 
         for (int_max i = 0; i < KNNBasisNumber; ++i)
         {
@@ -339,14 +329,9 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
 
     case VectorSimilarityTypeEnum::KLDivergence:
     {
-        auto DistanceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, BasisMatrix);
+        auto DistanceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, KNNBasisMatrix);
 
-        auto Variance = ElementType(0);
-        for (int_max i = 0; i < KNNBasisNumber; ++i)
-        {
-            Variance += VarianceList[i];
-        }
-        Variance /= KNNBasisNumber;
+        auto Variance = VarianceList.Mean();
 
         for (int_max i = 0; i < KNNBasisNumber; ++i)
         {
@@ -360,7 +345,6 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
     default:
 
         MDK_Error("SimilarityType is not supported @ KNNSimilaritySparseEncoder::ComputeCodeVector(...)")
-        return;
     }
 
     return SimilarityList;

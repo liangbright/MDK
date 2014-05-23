@@ -8,12 +8,12 @@
 
 namespace mdk
 {
-
+template<typename ElementType>
 struct Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder
 {
     int_max NeighbourNumber;
 
-    std::string SimilarityType;
+    VectorSimilarityTypeEnum SimilarityType;
     // L1Distance
     // L2Distance
     // Correlation
@@ -38,7 +38,7 @@ struct Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder
     {
         NeighbourNumber  = 0;
 
-        SimilarityType.clear();
+        SimilarityType = VectorSimilarityTypeEnum::Unknown;
 
         CodePositive = false;
         CodeSumToOne = false;
@@ -55,8 +55,7 @@ class KNNSoftAssignAndReconstructionSparseEncoder : public FeatureDictionaryBase
 {
 public:
 
-    Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder m_Parameter;
-
+    Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder<ElementType> m_Parameter;
 
 private:
     DenseMatrix<ElementType> m_GramianMatrix_DtD;
@@ -95,7 +94,7 @@ public:
                       int_max NeighbourNumber,
                       int_max MaxNumberOfThreads = 1);
 
-    static bool Apply(DenseMatrix<SparseVector<ElementType>>& OutputCodeInSparseColVectorSet,
+    static bool Apply(DataContainer<SparseVector<ElementType>>& OutputCodeInSparseColVectorSet,
                       const DenseMatrix<ElementType>* FeatureData,
                       const FeatureDictionary<ElementType>* Dictionary,
                       int_max NeighbourNumber,

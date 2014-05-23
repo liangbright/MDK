@@ -28,20 +28,6 @@ void KNNSoftAssignAndReconstructionSparseEncoder<ElementType>::Clear()
 
 
 template<typename ElementType>
-void KNNSoftAssignAndReconstructionSparseEncoder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* FeatureData)
-{
-    this->FeatureDictionaryBasedSparseEncoder::SetInputFeatureData(FeatureData);
-}
-
-
-template<typename ElementType>
-void KNNSoftAssignAndReconstructionSparseEncoder<ElementType>::SetInputDictionary(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary)
-{
-    this->FeatureDictionaryBasedSparseEncoder::SetInputDictionary(Dictionary);
-}
-
-
-template<typename ElementType>
 bool KNNSoftAssignAndReconstructionSparseEncoder<ElementType>::CheckInput()
 {
     if (this->FeatureDictionaryBasedSparseEncoder::CheckInput() == false)
@@ -107,6 +93,8 @@ void KNNSoftAssignAndReconstructionSparseEncoder<ElementType>::EncodingFunction(
 {
     const DenseMatrix<ElementType>& BasisMatrix = m_Dictionary->BasisMatrix(); // "auto  = " will copy
 
+    const DenseMatrix<ElementType>& VarianceOfReconstruction = m_Dictionary->VarianceOfReconstruction();
+
     const DenseMatrix<ElementType> DataColVector(const_cast<ElementType*>(m_FeatureData->GetElementPointerOfCol(DataIndex)),
                                                  m_FeatureData->GetRowNumber(), 1);
 
@@ -128,12 +116,12 @@ void KNNSoftAssignAndReconstructionSparseEncoder<ElementType>::EncodingFunction(
 
     auto KNNBasisMatrix = BasisMatrix.GetSubMatrix(ALL, KNNBasisIndexList);
 
-    auto CodeVector = KNNReconstructionSparseEncoder<ElementType>::ComputeCodeVector(DataColVector, 
-                                                                                     KNNBasisMatrix, 
-                                                                                     KNNBasisIndexList,
-                                                                                     m_GramianMatrix_DtD, 
-                                                                                     m_Parameter.CodeNonnegative,
-                                                                                     m_Parameter.CodeSumToOne);
+    auto CodeVector = KNNReconstructionSparseEncoder<ElementType>::ComputeKNNCode(DataColVector, 
+                                                                                  KNNBasisMatrix, 
+                                                                                  KNNBasisIndexList,
+                                                                                  m_GramianMatrix_DtD, 
+                                                                                  m_Parameter.CodePositive,
+                                                                                  m_Parameter.CodeSumToOne);
 
     auto ReconstructedDataColVector = this->ReconstructDataColVector(KNNBasisMatrix, CodeVector);
 
@@ -218,8 +206,9 @@ KNNSoftAssignAndReconstructionSparseEncoder<ElementType>::
 ComputeMembershipUsingReconstructedDataColVector(const DenseMatrix<ElementType>& ReconstructedDataColVector,
                                                  const DenseMatrix<ElementType>& KNNBasisMatrix)
 {
-
-    const DenseMatrix<ElementType>& VarianceOfReconstruction = m_Dictionary->VarianceOfReconstruction();
+    const DenseMatrix<ElementType>& VarianceOfL1Distance   = m_Dictionary->VarianceOfL1Distance();
+    const DenseMatrix<ElementType>& VarianceOfL2Distance   = m_Dictionary->VarianceOfL2Distance();
+    const DenseMatrix<ElementType>& VarianceOfKLDivergence = m_Dictionary->VarianceOfKLDivergence();
     
     DenseMatrix<ElementType> VarianceList;
     
@@ -233,7 +222,7 @@ ComputeMembershipUsingReconstructedDataColVector(const DenseMatrix<ElementType>&
         VarianceList.ForceShare(VarianceOfL2Distance);
         break;
 
-    case VectorSimilarityTypeEnum::KLDivergence
+    case VectorSimilarityTypeEnum::KLDivergence:
         VarianceList.ForceShare(VarianceOfKLDivergence);
         break;
 
@@ -241,10 +230,11 @@ ComputeMembershipUsingReconstructedDataColVector(const DenseMatrix<ElementType>&
         break;
     }
 
-    return KNNSoftAssignSparseEncoder<ElementType>::ComputeCodeVector(ReconstructedDataColVector, KNNBasisMatrix,
-                                                                      m_Parameter.SimilarityType,
-                                                                      m_Parameter.SimilarityThreshold,
-                                                                      VarianceList);
+    return KNNSoftAssignSparseEncoder<ElementType>::ComputeKNNCode(ReconstructedDataColVector, 
+                                                                   KNNBasisMatrix,
+                                                                   m_Parameter.SimilarityType,
+                                                                   m_Parameter.SimilarityThreshold,
+                                                                   VarianceList);
   
 }
 
@@ -264,7 +254,7 @@ bool KNNSoftAssignAndReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix
 
     Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
 
-    Encoder->SetOutputCodeInDenseMatrix(&OutputCodeInDenseMatrix);
+    Encoder->SetOutputCode(&OutputCodeInDenseMatrix);
 
     Encoder->m_Parameter.NeighbourNumber = NeighbourNumber;
 
@@ -287,7 +277,7 @@ bool KNNSoftAssignAndReconstructionSparseEncoder<ElementType>::Apply(SparseMatri
 
     Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
 
-    Encoder->SetOutputCodeInSparseMatrix(&OutputCodeInSparseMatrix);;
+    Encoder->SetOutputCode(&OutputCodeInSparseMatrix);;
 
     Encoder->m_Parameter.NeighbourNumber = NeighbourNumber;
 
@@ -296,7 +286,7 @@ bool KNNSoftAssignAndReconstructionSparseEncoder<ElementType>::Apply(SparseMatri
 
 
 template<typename ElementType>
-bool KNNSoftAssignAndReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix<SparseVector<ElementType>>& OutputCodeInSparseColVectorSet,
+bool KNNSoftAssignAndReconstructionSparseEncoder<ElementType>::Apply(DataContainer<SparseVector<ElementType>>& OutputCodeInSparseColVectorSet,
                                                                      const DenseMatrix<ElementType>* FeatureData,
                                                                      const FeatureDictionary<ElementType>* Dictionary,
                                                                      int_max NeighbourNumber,
@@ -310,7 +300,7 @@ bool KNNSoftAssignAndReconstructionSparseEncoder<ElementType>::Apply(DenseMatrix
 
     Encoder->SetMaxNumberOfThreads(MaxNumberOfThreads);
 
-    Encoder->SetOutputCodeInSparseColVectorSet(&OutputCodeInSparseColVectorSet);;
+    Encoder->SetOutputCode(&OutputCodeInSparseColVectorSet);;
 
     Encoder->m_Parameter.NeighbourNumber = NeighbourNumber;
 

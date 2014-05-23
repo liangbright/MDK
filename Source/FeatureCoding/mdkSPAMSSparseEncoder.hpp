@@ -53,6 +53,10 @@ bool SPAMSSparseEncoder<ElementType>::CheckInput()
 template<typename ElementType>
 void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadIndex)
 {
+    //-------------------------------------//
+    m_ThreadStatus[ThreadIndex] = 1;
+    //-------------------------------------//
+
     auto tempFeatureData = m_FeatureData->GetSubMatrix(ALL, span(IndexOfDataVector_start, IndexOfDataVector_end));
 
     auto CodeLength = m_Dictionary->BasisMatrix().GetColNumber();
@@ -136,6 +140,10 @@ void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfDa
 
         (*m_CodeInSparseColVectorSet)[i].ConstructFromSortedData(std::move(RowIndexList), std::move(DataArray), CodeLength);
     }
+
+    //-------------------------------------//
+    m_ThreadStatus[ThreadIndex] = 2;
+    //-------------------------------------//
 }
 
 
