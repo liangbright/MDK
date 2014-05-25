@@ -836,9 +836,23 @@ const ElementType& DataContainer<ElementType>::at(int_max Index) const
 
 template<typename ElementType>
 inline
-bool DataContainer<ElementType>::Append(const ElementType& Element)
+bool DataContainer<ElementType>::Append(ElementType Element)
 {
-    return this->Append(&Element, 1);
+    if (this->IsSizeFixed() == true)
+    {
+        MDK_Error("DataContainer Size can not change @ DataContainer::Append(ElementType Element)")
+        return false;
+    }
+
+    m_Data->CopyDataToInternalDataArrayIfNecessary();
+
+    auto SelfLength = this->GetElementNumber();
+
+    this->Resize(SelfLength + 1);
+
+    (*this)[SelfLength] = std::move(Element);
+
+    return true;
 }
 
 
@@ -895,6 +909,8 @@ bool DataContainer<ElementType>::Append(const ElementType* InputData, int_max In
         MDK_Error("Invalid Input: empty @ DataContainer::Append(const ElementType* InputData, int_max InputLength)")
         return false;
     }
+
+    m_Data->CopyDataToInternalDataArrayIfNecessary();
 
     auto SelfLength = this->GetElementNumber();
 
@@ -973,13 +989,13 @@ bool DataContainer<ElementType>::Delete(const int_max* IndexList, int_max ListLe
         return false;
     }
 
-    if (IndexList == nullptr || Length <= 0)
+    if (IndexList == nullptr || ListLength <= 0)
     {
         MDK_Error("Empty Input @ DataContainer::Delete(const int_max* IndexList, int_max ListLength)")
         return false;
     }
 
-    for (auto it = IndexList; it != IndexList + Length; ++it)
+    for (auto it = IndexList; it != IndexList + ListLength; ++it)
     {
         if (*it >= SelfLength || *it < 0)
         {
@@ -990,37 +1006,51 @@ bool DataContainer<ElementType>::Delete(const int_max* IndexList, int_max ListLe
 
     m_Data->CopyDataToInternalDataArrayIfNecessary();
 
-    std::vector<int_max> IndexList_max_to_min(Length);
-
-    for (int_max i = 0; i < Length; ++i)
+    if (ListLength == 1)
     {
-        IndexList_max_to_min[i] = IndexList[i];
+        m_Data->DataArray.erase(m_Data->DataArray.begin() + IndexList[0], m_Data->DataArray.begin() + IndexList[0] + 1);
+
+        m_Data->Length -= 1;
+
+        m_Data->ElementPointer = m_Data->DataArray.data();
+
+        m_ElementPointer = m_Data->ElementPointer;
     }
-
-    std::sort(IndexList_max_to_min.begin(), IndexList_max_to_min.end(), [](int_max a, int_max b) { return a > b; });
-
-    int_max Index_prev = -1;
-
-    for (int_max i = 0; i < int_max(IndexList_max_to_min.size()); ++i)
+    else
     {
-        auto Index_i = IndexList_max_to_min[i];
+        std::vector<int_max> IndexList_max_to_min(Length);
 
-        if (Index_i == Index_prev)
+        for (int_max i = 0; i < Length; ++i)
         {
-            MDK_Warning("duplicate Input @ DataContainer::Delete(const int_max* IndexPtr, int_max Length)")
+            IndexList_max_to_min[i] = IndexList[i];
         }
-        else
+
+        std::sort(IndexList_max_to_min.begin(), IndexList_max_to_min.end(), [](int_max a, int_max b) { return a > b; });
+
+        int_max Index_prev = -1;
+
+        for (int_max i = 0; i < int_max(IndexList_max_to_min.size()); ++i)
         {
-            m_Data->DataArray.erase(m_Data->DataArray.begin() + Index_i, m_Data->DataArray.begin() + Index_i + 1);
+            auto Index_i = IndexList_max_to_min[i];
 
-            Index_prev = Index_i;
+            if (Index_i == Index_prev)
+            {
+                MDK_Warning("duplicate Input @ DataContainer::Delete(const int_max* IndexPtr, int_max Length)")
+            }
+            else
+            {
+                m_Data->DataArray.erase(m_Data->DataArray.begin() + Index_i, m_Data->DataArray.begin() + Index_i + 1);
 
-            m_Data->Length -= 1;
+                Index_prev = Index_i;
+
+                m_Data->Length -= 1;
+            }
         }
+
+        m_Data->ElementPointer = m_Data->DataArray.data();
+
+        m_ElementPointer = m_Data->ElementPointer;
     }
-
-    m_Data->ElementPointer = m_Data->DataArray.data();
-    m_ElementPointer = m_Data->ElementPointer;
 
     return true;
 }
@@ -1152,6 +1182,37 @@ bool DataContainer<ElementType>::Insert(int_max Index, const ElementType* InputD
     m_ElementPointer = m_Data->ElementPointer;
 
     return true;
+}
+
+
+template<typename ElementType>
+inline 
+bool DataContainer<ElementType>::Push(ElementType Element)
+{
+    return this->Append(std::move(Element));
+}
+
+
+template<typename ElementType>
+inline
+ElementType DataContainer<ElementType>::Pop()
+{
+    auto OutputElement = ElementType(0);
+
+    if (this->IsEmpty() == false)
+    {
+        auto tempIndex = this->GetElementNumber() - 1;
+
+        OutputElement = (*this)[tempIndex];
+
+        this->Delete(tempIndex);
+    }
+    else
+    {
+        MDK_Error("Self is empty @ DataContainer::Pop()")
+    }
+   
+    return OutputElement;
 }
 
 

@@ -239,7 +239,7 @@ public:
 
     //-------------------------------------------------------------------------------
 
-    inline bool Append(const ElementType& Element);
+    inline bool Append(ElementType Element);
 
     inline bool Append(const std::initializer_list<ElementType>& InputData);
 
@@ -276,6 +276,12 @@ public:
     inline bool Insert(int_max Index, const DataContainer<ElementType>& InputData);
 
     inline bool Insert(int_max Index, const ElementType* InputData, int_max InputLength);
+
+    //------------- use DataContainer as a stack ----------------------------//
+
+    inline bool Push(ElementType Element);
+
+    inline ElementType Pop();
 
 private:
 
