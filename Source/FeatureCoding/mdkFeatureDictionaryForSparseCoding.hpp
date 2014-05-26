@@ -47,6 +47,13 @@ void FeatureDictionaryForSparseCoding<ElementType>::operator=(const FeatureDicti
 template<typename ElementType>
 void FeatureDictionaryForSparseCoding<ElementType>::operator=(FeatureDictionaryForSparseCoding<ElementType>&& InputDictionary)
 {
+    if (!m_DictionaryData)
+    {
+        m_DictionaryData = std::make_shared<DictionaryData_Of_FeatureDictionaryForSparseCoding<ElementType>>();
+
+        this->Clear();
+    }
+
     this->Take(std::forward<FeatureDictionaryForSparseCoding<ElementType>&>(InputDictionary));
 }
 

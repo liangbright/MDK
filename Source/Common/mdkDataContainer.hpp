@@ -66,6 +66,9 @@ DataContainer<ElementType>::DataContainer(DataContainer<ElementType>&& InputData
     m_Data = std::move(InputData.m_Data);
 
     m_ElementPointer = m_Data->ElementPointer;
+
+    // the InputData may not be destructed
+    InputData.m_ElementPointer = nullptr;
 }
 
 
@@ -89,6 +92,11 @@ template<typename ElementType>
 inline
 void DataContainer<ElementType>::operator=(DataContainer<ElementType>&& InputData)
 {
+    if (!m_Data)
+    {
+        this->Resize(0);
+    }
+
     this->Take(std::forward<DataContainer<ElementType>&>(InputData));
 }
 
@@ -703,21 +711,32 @@ const ElementType* DataContainer<ElementType>::GetElementPointer() const
 
 
 template<typename ElementType>
-inline ElementType* DataContainer<ElementType>::begin()
+inline 
+ElementType* DataContainer<ElementType>::begin()
 {
     return m_Data->ElementPointer; // the pointer of the first element
 }
 
 
 template<typename ElementType>
-inline const ElementType* DataContainer<ElementType>::begin() const
+inline 
+const ElementType* DataContainer<ElementType>::begin() const
 {
     return m_Data->ElementPointer;
 }
 
 
 template<typename ElementType>
-inline const ElementType* DataContainer<ElementType>::end() const
+inline
+ElementType* DataContainer<ElementType>::end()
+{
+    return m_Data->ElementPointer + m_Data->Length;
+}
+
+
+template<typename ElementType>
+inline
+const ElementType* DataContainer<ElementType>::end() const
 {
     return m_Data->ElementPointer + m_Data->Length;
 }

@@ -1463,6 +1463,11 @@ template<typename ElementType>
 inline
 void SparseMatrix<ElementType>::operator=(SparseMatrix<ElementType>&& InputMatrix)
 {
+    if (!m_MatrixData)
+    {
+        this->Resize(0, 0);
+    }
+
     this->Take(InputMatrix);
 }
 

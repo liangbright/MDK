@@ -1,6 +1,7 @@
 #ifndef __mdkTriangleMesh_h
 #define __mdkTriangleMesh_h
 
+
 #include "mdkObject.h"
 #include "mdkDenseMatrix.h"
 #include "mdkDataContainer.h"
@@ -11,26 +12,23 @@ namespace mdk
 template<typename ScalarType = double>
 struct TriangleMeshData
 {
+    DenseMatrix<int_max> VertexGlobalIndexList;
+
+    DenseMatrix<int_max> TriangleGlobalIndexList;
+
     DenseMatrix<ScalarType> Vertex;    
     // row_0: x
     // row_1: y
     // row_2: z
 
-    DenseMatrix<ScalarType> Triangle; // also known as cell, face, facet, element
+    DenseMatrix<int_max> Triangle; // also known as cell, face, facet, element
     // row_0: VertexIndex_0
     // row_1: VertexIndex_1
     // row_2: VertexIndex_2
-    // row_3: EdgeIndex_0
-    // row_4: EdgeIndex_1
-    // row_5: EdgeIndex_2
     //
     // VertexIndex_0 < VertexIndex_1 < VerteIndex_2 always
-    //
-    // Edge of EdgeIndex_0 : VertexIndex_0 <-> VertexIndex_1
-    // Edge of EdgeIndex_1 : VertexIndex_1 <-> VertexIndex_2
-    // Edge of EdgeIndex_2 : VertexIndex_0 <-> VertexIndex_2
-
-    DenseMatrix<ScalarType> Edge;
+    
+    DenseMatrix<int_max> Edge;
     // row_0: VertexIndex_0
     // row_1: VertexIndex_1
     // row_2: TriangleIndex_0  
@@ -45,19 +43,32 @@ struct TriangleMeshData
     // VertexIndex_0    < VertexIndex_1   always
     // TriangleIndex_0  < TriangleIndex_1 always
 
-    DenseMatrix<int_max> VertexGlobalIndexList;
+    DataContainer<DenseMatrix<int_max>> Link_VertexToEdge;
+    // Link_VertexToEdge[k] is { EdgeIndex_0, EdgeIndex_1, EdgeIndex_2, ...}
+    // share the same Vertex (VertexIndex is k) 
 
-    DenseMatrix<int_max> TriangleGlobalIndexList;
+    DataContainer<DenseMatrix<int_max>> Link_VertexToTriangle;
+    // Link_VertexToTriangle[k] is { TriangleIndex_0, TriangleIndex_1, TriangleIndex_2, ...}
+    // share the same Vertex (VertexIndex is k) 
 
-    DataContainer<DenseMatrix<int_max>> Link_VertexToEdge;    // Vertex of Edge
-
-    DataContainer<DenseMatrix<int_max>> Link_VertexToTriangle; // Vertex of Triangle
+    DataContainer<DenseMatrix<int_max>> Link_TriangleToEdge;
+    // Link_TriangleToEdge[k] is { EdgeIndex_0, EdgeIndex_1, EdgeIndex_2} in the same triangle (TriangleIndex is k)
+    //
+    // Triangle(:,k) : VertexIndex_0, VertexIndex_1, VertexIndex_2
+    // Edge of EdgeIndex_0 : VertexIndex_0 <-> VertexIndex_1
+    // Edge of EdgeIndex_1 : VertexIndex_1 <-> VertexIndex_2
+    // Edge of EdgeIndex_2 : VertexIndex_0 <-> VertexIndex_2
 
     DataContainer<DenseMatrix<int_max>> Ajacency_VertexToVertex;
+    // Ajacency_VertexToVertex[k] is { VertexIndex_0, VertexIndex_1, VertexIndex_2, ...}
+    // share the same neighbour Vertex (VertexIndex is k) 
 
+    //DataContainer<DenseMatrix<int_max>> Ajacency_EdgeToEdge; can be directly derived from Edge and Link_VertexToEdge
+    // Ajacency_EdgeToEdge[k] is { Link_VertexToEdge[Edge(0, k)], Link_VertexToEdge[Edge(1, k)] } 
+     
     DataContainer<DenseMatrix<int_max>> Ajacency_TriangleToTriangle;
-
-    DataContainer<DenseMatrix<int_max>> Ajacency_TriangleToEdge; // not include any Edge of Triangle
+    // Ajacency_TriangleToTriangle[k] is { TriangleIndex_0, TriangleIndex_1, TriangleIndex_2, ...}
+    // share the same neighbour Triangle (TriangleIndex is k) 
 
     //----------------- attribute ----------------------------
 
@@ -74,6 +85,11 @@ private:
     std::shared_ptr<TriangleMeshData<ScalarType>> m_MeshData;
 
 public:
+    typedef ScalarType ScalarType;
+
+    typedef int_max IndexType;
+
+public:
     TriangleMesh();
 
     TriangleMesh(const TriangleMesh& InputMesh);
@@ -88,12 +104,7 @@ public:
 
     //---------------------------------------------------------------------------
 
-    bool Construct(const DenseMatrix<ScalarType>& InputVertex,
-                   const DenseMatrix<int_max>& InputTriangle,
-                   bool Flag_UpdateAttribute = true);
-
-    // InputVertex is a 3-row matrix
-    // InputTriangle is a 3-row matrix
+    bool Construct(DenseMatrix<ScalarType> InputVertex, DenseMatrix<int_max> InputTriangle, bool Flag_BuildLinkAndAjacency = true);
 
     //---------------------------------------------------------------------------
 
@@ -129,42 +140,73 @@ public:
 
     inline int_max GetEdgeNumber() const;
 
+    //----------------------------------------------------------------------------
+    
+    void BuildLinkAndAjacency();
+
+    void BuildLink();
+
+    void BuildLink_VertexToEdge();
+
+    void BuildLink_VertexToTriangle();
+
+    void BuildLink_TriangleToEdge();
+
+    void BuildAjacency();
+
+    void BuildAjacency_VertexToVertex();
+
+    void BuildAjacency_TriangleToTriangle();
+
+    //-----------------------------------------------------------------------
+
+    void UpdateAttribute();
+
+    void UpdateAttribute_NormalAtVertex();
+
+    void UpdateAttribute_NormalAtTriangle();
+
     //-------------------------------------------------------------------
+
+    inline DenseMatrix<int_max>& VertexGlobalIndexList();
+
+    inline const DenseMatrix<int_max>& VertexGlobalIndexList() const;
+
+    inline DenseMatrix<int_max>& TriangleGlobalIndexList();
+
+    inline const DenseMatrix<int_max>& TriangleGlobalIndexList() const;
 
     inline DenseMatrix<ScalarType>& Vertex();
 
     inline const DenseMatrix<ScalarType>& Vertex() const;
 
-    inline const DenseMatrix<ScalarType>& Triangle() const;
+    inline const DenseMatrix<int_max>& Triangle() const;
 
-    inline const DenseMatrix<ScalarType>& Edge() const;
+    inline const DenseMatrix<int_max>& Edge() const;
 
-    inline DenseMatrix<ScalarType>& VertexGlobalIndexList();
+    inline const DataContainer<DenseMatrix<int_max>>& Link_VertexToEdge() const;
 
-    inline const DenseMatrix<ScalarType>& VertexGlobalIndexList() const;
+    inline const DataContainer<DenseMatrix<int_max>>& Link_VertexToTriangle() const;
 
-    inline DenseMatrix<ScalarType>& TriangleGlobalIndexList();
-
-    inline const DenseMatrix<ScalarType>& TriangleGlobalIndexList() const;
+    inline const DataContainer<DenseMatrix<int_max>>& Link_TriangleToEdge() const;
 
     inline const DataContainer<DenseMatrix<int_max>>& Ajacency_VertexToVertex() const;
-
-    inline const DataContainer<DenseMatrix<int_max>>& Ajacency_VertexToEdge() const;
-
-    inline const DataContainer<DenseMatrix<int_max>>& Ajacency_VertexToTriangle() const;
 
     inline const DataContainer<DenseMatrix<int_max>>& Ajacency_TriangleToTriangle() const;
 
     //----------------------------------------------------------------------------
 
-    void UpdateAttribute();
+    inline DenseMatrix<ScalarType>& NormalAtVertex();
+
+    inline const DenseMatrix<ScalarType>& NormalAtVertex() const;
+
+    inline DenseMatrix<ScalarType>& NormalAtTriangle();
+
+    inline const DenseMatrix<ScalarType>& NormalAtTriangle() const;
 
 private:
-    bool ConstructEdge(const DenseMatrix<int_max>& InputTriangle);
+    bool ConstructEdge();
 
-    void ConstructTriangle(const DenseMatrix<int_max>& InputTriangle);
-
-    void BuildLinkAndAjacency();
 };
 
 }// namespace mdk

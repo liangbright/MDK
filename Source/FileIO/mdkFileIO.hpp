@@ -127,9 +127,7 @@ DenseMatrix<ElementType> LoadDenseMatrixFromJsonDataFile(const CharString& FileP
 
     auto ReferenceScalar = ElementType(0);
 
-    auto OutputElementTypeName_temp = FindScalarTypeName(ReferenceScalar);
-
-    QString OutputElementTypeName(OutputElementTypeName_temp.c_str());
+    auto OutputElementTypeName = FindScalarTypeName(ReferenceScalar);
 
     int_max ByteNumberOfOutputElementType = CalByteNumberOfScalar(ReferenceScalar);
 
@@ -151,12 +149,12 @@ DenseMatrix<ElementType> LoadDenseMatrixFromJsonDataFile(const CharString& FileP
     QJsonObject HeaderObject = HeaderDoc.object();
     //-----------------------------------------------------------//
 
-    QString InputElementTypeName;
+    std::string InputElementTypeName;
 
     auto it = HeaderObject.find("ElementType");
     if (it != HeaderObject.end())
     {
-        InputElementTypeName = it.value().toString();
+        InputElementTypeName = it.value().toString().toStdString();
     }
     else
     {
@@ -229,7 +227,7 @@ DenseMatrix<ElementType> LoadDenseMatrixFromJsonDataFile(const CharString& FileP
 
 
 template<typename OutputElementType>
-void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& OutputMatrix, QFile& DataFile, const QString& InputElementTypeName)
+void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& OutputMatrix, QFile& DataFile, const std::string& InputElementTypeName)
 {
     if (InputElementTypeName == "double")
     {
@@ -405,11 +403,9 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathA
 
     auto ReferenceScalar = PixelType(0);
 
-    auto OutputElementTypeName_temp = FindScalarTypeName(ReferenceScalar);
+    auto OutputPixelTypeName = FindScalarTypeName(ReferenceScalar);
 
-    QString OutputElementTypeName(OutputElementTypeName_temp.c_str());
-
-    int_max ByteNumberOfOutputElementType = CalByteNumberOfScalar(ReferenceScalar);
+    int_max ByteNumberOfOutputPixelType = CalByteNumberOfScalar(ReferenceScalar);
 
     //---------------------------------------------- Read header --------------------------------------------------------//
 
@@ -450,12 +446,12 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathA
 
     //---------------------------------------------------
 
-    QString InputElementTypeName = 0;
+    std::string InputPixelTypeName;
 
     it = HeaderObject.find("PixelType");
     if (it != HeaderObject.end())
     {
-        InputElementTypeName = it.value().toString();
+        InputPixelTypeName = it.value().toString().toStdString();
     }
     else
     {
@@ -600,9 +596,9 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathA
 
     //----------------------------------------------------------------------------------------------
 
-    if (OutputElementTypeName == InputElementTypeName)
+    if (OutputPixelTypeName == InputPixelTypeName)
     {
-        Internal_Load3DScalarImageFromJsonDataFile<PixelType, PixelType>(OutputImage, DataFile, ByteNumberOfOutputElementType);
+        Internal_Load3DScalarImageFromJsonDataFile<PixelType, PixelType>(OutputImage, DataFile, ByteNumberOfOutputPixelType);
 
         DataFile.close();
 
@@ -611,7 +607,7 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathA
 
     MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ Load3DScalarImageFromJsonDataFile(...)")
 
-    Internal_Load3DScalarImageFromJsonDataFile(OutputImage, DataFile, InputElementTypeName);
+    Internal_Load3DScalarImageFromJsonDataFile(OutputImage, DataFile, InputPixelTypeName);
 
     DataFile.close();
 
@@ -620,51 +616,51 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathA
 
 
 template<typename OutputPixelType>
-void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& OutputImage, QFile& DataFile, const QString& InputElementTypeName)
+void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& OutputImage, QFile& DataFile, const std::string& InputPixelTypeName)
 {
-    if (InputElementTypeName == "double")
+    if (InputPixelTypeName == "double")
     {
         Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, double>(OutputImage, DataFile, 8);
     }
-    else if (InputElementTypeName == "float")
+    else if (InputPixelTypeName == "float")
     {
         Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, float>(OutputImage, DataFile, 4);
     }
-    else if (InputElementTypeName == "int8")
+    else if (InputPixelTypeName == "int8")
     {
         Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, int8>(OutputImage, DataFile, 1);
     }
-    else if (InputElementTypeName == "int16")
+    else if (InputPixelTypeName == "int16")
     {
         Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, int16>(OutputImage, DataFile, 2);
     }
-    else if (InputElementTypeName == "int32")
+    else if (InputPixelTypeName == "int32")
     {
         Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, int32>(OutputImage, DataFile, 4);
     }
-    else if (InputElementTypeName == "int64")
+    else if (InputPixelTypeName == "int64")
     {
         Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, int64>(OutputImage, DataFile, 8);
     }
-    else if (InputElementTypeName == "uint8")
+    else if (InputPixelTypeName == "uint8")
     {
         Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, uint8>(OutputImage, DataFile, 1);
     }
-    else if (InputElementTypeName == "uint16")
+    else if (InputPixelTypeName == "uint16")
     {
         Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, uint16>(OutputImage, DataFile, 2);
     }
-    else if (InputElementTypeName == "uint32")
+    else if (InputPixelTypeName == "uint32")
     {
         Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, uint32>(OutputImage, DataFile, 4);
     }
-    else if (InputElementTypeName == "uint64")
+    else if (InputPixelTypeName == "uint64")
     {
         Internal_Load3DScalarImageFromJsonDataFile<OutputPixelType, uint64>(OutputImage, DataFile, 8);
     }
     else
     {
-        MDK_Error("unknown ElementType of data file @ Internal_Load3DScalarImageFromJsonDataFile(...) ")
+        MDK_Error("unknown PixelType of data file @ Internal_Load3DScalarImageFromJsonDataFile(...) ")
         DataFile.close();
         OutputImage.Clear();
     }
@@ -672,13 +668,13 @@ void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& Output
 
 
 template<typename OutputPixelType, typename InputPixelType>
-void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& OutputImage, QFile& DataFile, int_max ByteNumberOfInputElementType)
+void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& OutputImage, QFile& DataFile, int_max ByteNumberOfOutputPixelType)
 {
     int_max BypesofDataFile = DataFile.size();
 
     auto PixelNumber = OutputImage.GetPixelNumber();
 
-    if (BypesofDataFile != PixelNumber * ByteNumberOfInputElementType)
+    if (BypesofDataFile != PixelNumber * ByteNumberOfOutputPixelType)
     {
         MDK_Error("Data file size is not equal to image size @ Internal_Load3DScalarImageFromJsonDataFile(...)")
         DataFile.close();
@@ -692,7 +688,7 @@ void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& Output
 
     for (int_max i = 0; i < PixelNumber; ++i)
     {
-        DataFile.read((char*)(&tempScalar), ByteNumberOfInputElementType);
+        DataFile.read((char*)(&tempScalar), ByteNumberOfOutputPixelType);
 
         PixelPointer[i] = OutputPixelType(tempScalar);
     }
@@ -769,386 +765,269 @@ Image3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const CharString& FilePa
 }
 
 
-template<typename PixelType>
-itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(Image3D<PixelType>& InputImage, bool SharePixelData)
+template<typename ScalarType>
+bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<ScalarType>& InputMesh, const CharString& FilePathAndName)
 {
-    auto InputSize = InputImage.GetSize();
-    auto InputOrigin = InputImage.GetOrigin();
-    auto InputSpacing = InputImage.GetSpacing();
-    auto InputPixelNumber = InputImage.GetPixelNumber();
-
-    typedef itk::Image<PixelType, 3> ITKImageType;
-    typedef itk::ImportImageFilter<PixelType, 3> ITKImportFilterType;
-
-    ITKImportFilterType::Pointer importFilter = ITKImportFilterType::New();
-
-    ITKImportFilterType::SizeType size;
-    size[0] = InputSize.Lx;
-    size[1] = InputSize.Ly;
-    size[2] = InputSize.Lz;
-
-    ITKImportFilterType::IndexType start;
-    start.Fill(0);
-    ITKImportFilterType::RegionType region;
-    region.SetIndex(start);
-    region.SetSize(size);
-    importFilter->SetRegion(region);
-
-    const itk::SpacePrecisionType origin[3] = { InputOrigin.x, InputOrigin.y, InputOrigin.z };
-    importFilter->SetOrigin(origin);
-
-    const itk::SpacePrecisionType spacing[3] = { InputSpacing.Sx, InputSpacing.Sy, InputSpacing.Sz };
-    importFilter->SetSpacing(spacing);
-
-    ITKImportFilterType::DirectionType Direction;
-    typedef itk::SpacePrecisionType SpacePrecisionType;
-
-    const DenseMatrix<double>& Orientation = InputImage.GetOrientation();
-    for (int j = 0; j < 3; ++j)
+    if (CalByteNumberOfScalar(ScalarType(0)) <= 0)
     {
-        for (int i = 0; i < 3; ++i)
-        {
-            Direction(i, j) = SpacePrecisionType(Orientation(i, j));
-        }
+        MDK_Error("Unknown ScalarType @ SaveTriangleMeshAsJsonDataFile(...)")
+        return false;
     }
-    importFilter->SetDirection(Direction);
+
+    auto ScalarTypeName = FindScalarTypeName(ScalarType(0));
+    QString QScalarTypeName(ScalarTypeName.c_str());
+
+    auto IndexTypeName = FindScalarTypeName(int_max(0));
+    QString QIndexTypeName(IndexTypeName.c_str());
+
+    //-------------------------------------------------------------------------------------
+
+    std::vector<NameValueQStringPair> PairList;
+    PairList.resize(6);
+
+    PairList[0].Name = "ObjectType";
+    PairList[0].Value = "TriangleMesh";
+
+    PairList[1].Name = "Dimension";
+    PairList[1].Value = QString::number(3);
+
+    PairList[2].Name = "ScalarType";
+    PairList[2].Value = QScalarTypeName;
+
+    PairList[3].Name = "IndexType";
+    PairList[3].Value = QIndexTypeName;
+
+    auto VertexNumber = InputMesh.GetVertexNumber();
+
+    PairList[4].Name = "VertexNumber";
+    PairList[4].Value = QString::number(VertexNumber);
+
+    auto TriangleNumber = InputMesh.GetTriangleNumber();
+
+    PairList[5].Name = "TriangleNumber";
+    PairList[5].Value = QString::number(TriangleNumber);
+
+    // write header file (json) --------------------------------------------------
+
+    QString QFilePathAndName(FilePathAndName.StdString().c_str());
+
+    WritePairListAsJsonFile(PairList, QFilePathAndName);
+
+    // write vertex to data file  --------------------------------------------------
+
+    QFile VertexDataFile(QFilePathAndName + ".data.vertex");
+
+    if (!VertexDataFile.open(QIODevice::WriteOnly))
+    {
+        MDK_Error("Couldn't open file to write vertex data @ SaveTriangleMeshAsJsonDataFile(...)")
+        return false;
+    }
+
+    VertexDataFile.write((char*)InputMesh.Vertex().GetElementPointer(), InputMesh.Vertex().GetElementNumber()*CalByteNumberOfScalar(ScalarType(0)));
+
+    VertexDataFile.flush();
+    VertexDataFile.close();
+
+    //write triangle to data file -----------------------------------------------------
+
+    QFile TriangleDataFile(QFilePathAndName + ".data.triangle");
+
+    if (!TriangleDataFile.open(QIODevice::WriteOnly))
+    {
+        MDK_Error("Couldn't open file to write triangle data @ SaveTriangleMeshAsJsonDataFile(...)")
+        return false;
+    }
+
+    TriangleDataFile.write((char*)InputMesh.Triangle().GetElementPointer(), InputMesh.Triangle().GetElementNumber()*CalByteNumberOfScalar(int_max(0)));
+
+    TriangleDataFile.flush();
+    TriangleDataFile.close();
+
+    return true;
+}
+
+
+template<typename ScalarType>
+TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAjacency)
+{
+    TriangleMesh<ScalarType> OutputMesh;
+
+    //----------------------------------------------------------
+
+    auto OutputScalarTypeName = FindScalarTypeName(ScalarType(0));
+
+    //---------------------------------------------- Read header --------------------------------------------------------//
+
+    QString QFilePathAndName(FilePathAndName.StdString().c_str());
+
+    QFile HeaderFile(QFilePathAndName);
+
+    if (!HeaderFile.open(QIODevice::ReadOnly))
+    {
+        MDK_Error("Couldn't open Header File @ LoadTriangleMeshFromJsonDataFile(...)")
+        return OutputMesh;
+    }
+
+    //----------------------------------------------------------//
+    QByteArray HeaderContent = HeaderFile.readAll();
+    QJsonDocument HeaderDoc(QJsonDocument::fromJson(HeaderContent));
+    QJsonObject HeaderObject = HeaderDoc.object();
+    //-----------------------------------------------------------//
+
+    //---------------------------------------------------
+
+    std::string InputScalarTypeTypeName;
+
+    it = HeaderObject.find("ScalarType");
+    if (it != HeaderObject.end())
+    {
+        InputPixelTypeName = it.value().toString().toStdString();
+    }
+    else
+    {
+        MDK_Error("Couldn't get ScalarType @ LoadTriangleMeshFromJsonDataFile(...)")
+        HeaderFile.close();
+        return OutputMesh;
+    }
+
+    std::string InputIndexTypeTypeName;
+
+    it = HeaderObject.find("IndexType");
+    if (it != HeaderObject.end())
+    {
+        InputIndexTypeTypeName = it.value().toString().toStdString();
+    }
+    else
+    {
+        MDK_Error("Couldn't get IndexType @ LoadTriangleMeshFromJsonDataFile(...)")
+        HeaderFile.close();
+        return OutputMesh;
+    }
+
+    int_max VertexNumber = 0;
+
+    it = HeaderObject.find("VertexNumber");
+    if (it != HeaderObject.end())
+    {
+        VertexNumber = it.value().toString().toLongLong();
+    }
+    else
+    {
+        MDK_Error("Couldn't get VertexNumber @ LoadTriangleMeshFromJsonDataFile(...)")
+        HeaderFile.close();
+        return OutputMesh;
+    }
+
+    int_max TriangleNumber = 0;
+
+    it = HeaderObject.find("TriangleNumber");
+    if (it != HeaderObject.end())
+    {
+        TriangleNumber = it.value().toString().toLongLong();
+    }
+    else
+    {
+        MDK_Error("Couldn't get TriangleNumber @ LoadTriangleMeshFromJsonDataFile(...)")
+        HeaderFile.close();
+        return OutputMesh;
+    }
+
+    //--------------------------------- read data --------------------------------------------------------//
+
+    // read Vertex from *.data.vertex file
+
+    QFile VertexDataFile(QFilePathAndName + ".data.vertex");
+
+    if (!DataFile.open(QIODevice::ReadOnly))
+    {
+        MDK_Error("Couldn't open vertex data file:" << FilePathAndName)
+        return OutputMatrix;
+    }
+
+    DenseMatrix<ScalarType> Vertex(3, VertexNumber);
+
+    if (OutputScalarTypeName != InputScalarTypeTypeName)
+    {
+        MDK_Warning("OutputScalarTypeName != InputScalarTypeTypeName, Output may be inaccurate @ LoadTriangleMeshFromJsonDataFile(...)")            
+    }
+
+    Internal_LoadDenseMatrixFromJsonDataFile(Vertex, VertexDataFile, InputScalarTypeTypeName);
+
+    VertexDataFile.close();
+
+    // read Triangle from *.data.triangle file
+
+    QFile TriangleDataFile(QFilePathAndName + ".data.triangle");
+
+    if (!DataFile.open(QIODevice::ReadOnly))
+    {
+        MDK_Error("Couldn't open triangle data file:" << FilePathAndName)
+        return OutputMatrix;
+    }
+
+    DenseMatrix<int_max> Triangle(3, TriangleNumber);
+
+    if (InputIndexTypeTypeName != FindScalarTypeName(int_max(0)))
+    {
+        MDK_Warning("InputIndexTypeTypeName != int_max, Output may be inaccurate @ LoadTriangleMeshFromJsonDataFile(...)")
+    }
+
+    Internal_LoadDenseMatrixFromJsonDataFile(Triangle, TriangleDataFile, InputIndexTypeTypeName);
+
+    TriangleDataFile.close();
+
+    //--------------------------------------------------------------------------
+
+    OutputMesh.Construct(std::move(Vertex), std::move(Triangle), Flag_BuildLinkAndAjacency);
+
+    return OutputMesh;
+}
+
+
+template<typename ScalarType>
+bool SaveTriangleMeshAsVTKFile(const TriangleMesh<ScalarType>& InputMesh, const CharString& FilePathAndName)
+{
+    auto VTKMesh = ConvertMDKTriangleMeshToVTKPolyData(InputMesh);
+
+    auto writer = vtkSmartPointer<vtkPolyDataWriter>::New();
+    writer->SetFileName(FilePathAndName.StdString().c_str());
+    writer->SetInputData(VTKMesh);
+
+    try
+    {
+        writer->Write();
+    }
+    catch (...)
+    {
+        MDK_Error(" Can not write data @ SaveTriangleMeshAsVTKFile(...) ")
+        return false;
+    }    
+
+    return true;
+}
+
+
+template<typename ScalarType>
+TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAjacency)
+{
+    auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
+    Reader->SetFileName(FilePathAndName.StdString().c_str());
     
-    if (SharePixelData == true)
-    {       
-        bool ITKImageWillOwnPixelDataArray = false;
-        importFilter->SetImportPointer(InputImage.GetPixelPointer(), InputPixelNumber, ITKImageWillOwnPixelDataArray);
-    }
-    else
+    try
     {
-        PixelType* PixelDataArray = new PixelType[InputPixelNumber];
-        for (int_max i = 0; i < InputPixelNumber; ++i)
-        {
-            PixelDataArray[i] = InputImage[i];
-        }
-
-        bool ITKImageWillOwnPixelDataArray = true;
-        importFilter->SetImportPointer(PixelDataArray, InputPixelNumber, ITKImageWillOwnPixelDataArray);
+        Reader->Update();
     }
-
-    importFilter->Update();
-
-    return importFilter;
-}
-
-
-template<typename PixelType>
-itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(Image3D<PixelType>& InputImage)
-{
-    bool SharePixelData = true;
-    auto importFilter = ConvertMDK3DScalarImageToITK3DScalarImage(InputImage, SharePixelData);
-
-    typedef itk::Image<PixelType, 3>  ITKImageType;
-    typedef itk::ImageDuplicator<ITKImageType> DuplicatorType;
-    DuplicatorType::Pointer duplicator = DuplicatorType::New();
-    duplicator->SetInputImage(importFilter->GetOutput());
-    duplicator->Update();
-
-    ITKImageType::Pointer ITKImage = duplicator->GetOutput();
-
-    return ITKImage;
-}
-
-
-template<typename PixelType>
-Image3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage)
-{
-    Image3D<PixelType> OutputImage;
-
-    if (ITKImage == nullptr)
+    catch (...)
     {
-        MDK_Error("Invalid input @ ConvertITK3DScalarImageToMDK3DScalarImage(...)")
-        return OutputImage;
+        MDK_Error(" Can not write data @ SaveTriangleMeshAsVTKFile(...) ")
+
+        TriangleMesh<ScalarType> EmptyMesh;
+        return EmptyMesh;
     }
 
-    auto Size = ITKImage->GetBufferedRegion().GetSize();
-    auto Spacing = ITKImage->GetSpacing();
-    auto Origin = ITKImage->GetOrigin();
-    auto Direction = ITKImage->GetDirection();
+    auto VTKPolyMesh = Reader->GetOutput();
 
-    OutputImage.SetSize(Size[0], Size[1], Size[2]);
-    OutputImage.SetSpacing(Spacing[0], Spacing[1], Spacing[2]);
-    OutputImage.SetOrigin(Origin[0], Origin[1], Origin[2]);
-
-    DenseMatrix<double> Orientation(3, 3);
-    for (int j = 0; j < 3; ++j)
-    {
-        for (int i = 0; i < 3; ++i)
-        {
-            Orientation(i, j) = double(Direction(i, j));
-        }
-    }
-    OutputImage.SetOrientation(Orientation);
-
-    auto RawPointerOfITKImage = ITKImage->GetBufferPointer();
-
-    for (int_max i = 0; i < OutputImage.GetPixelNumber(); ++i)
-    {
-        OutputImage[i] = RawPointerOfITKImage[i];
-    }
-
-    return OutputImage;
-}
-
-
-template<typename PixelType>
-vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const Image3D<PixelType>& InputImage)
-{
-    auto VTKImage = vtkSmartPointer<vtkImageData>::New();
-
-    auto Size = InputImage.GetSize();
-    auto Origin = InputImage.GetOrigin();
-    auto Spacing = InputImage.GetSpacing();
-
-    auto PtrOfInputImage = InputImage.GetPixelPointer();
-
-    VTKImage->SetExtent(0, Size.Lx - 1, 0, Size.Ly - 1, 0, Size.Lz - 1);
-    VTKImage->SetOrigin(Origin.x, Origin.y, Origin.z);    
-    VTKImage->SetSpacing(Spacing.Sx, Spacing.Sy, Spacing.Sz);
-
-    auto ReferenceScalar = PixelType(0);
-    auto ScalarTypeName = FindScalarTypeName(ReferenceScalar);
-
-    if (ScalarTypeName == "double")
-    {
-        VTKImage->AllocateScalars(VTK_DOUBLE, 1);
-
-        auto PtrOfVTKImage = static_cast<double*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfVTKImage[k] = PtrOfInputImage[k];
-        }
-    }
-    else if (ScalarTypeName == "float")
-    {
-        VTKImage->AllocateScalars(VTK_FLOAT, 1);
-
-        auto PtrOfVTKImage = static_cast<float*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfVTKImage[k] = PtrOfInputImage[k];
-        }
-    }
-    else if (ScalarTypeName == "int8")
-    {
-        VTKImage->AllocateScalars(VTK_CHAR, 1);
-
-        auto PtrOfVTKImage = static_cast<int8*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfVTKImage[k] = PtrOfInputImage[k];
-        }
-    }
-    else if (ScalarTypeName == "int16")
-    {
-        VTKImage->AllocateScalars(VTK_SHORT, 1);
-
-        auto PtrOfVTKImage = static_cast<int16*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfVTKImage[k] = PtrOfInputImage[k];
-        }
-    }
-    else if (ScalarTypeName == "int32")
-    {
-        VTKImage->AllocateScalars(VTK_INT, 1);
-
-        auto PtrOfVTKImage = static_cast<int32*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfVTKImage[k] = PtrOfInputImage[k];
-        }
-    }
-    else if (ScalarTypeName == "int64")
-    {
-        VTKImage->AllocateScalars(VTK_LONG_LONG, 1);
-
-        auto PtrOfVTKImage = static_cast<int64*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfVTKImage[k] = PtrOfInputImage[k];
-        }
-    }
-    else if (ScalarTypeName == "uint8")
-    {
-        VTKImage->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
-
-        auto PtrOfVTKImage = static_cast<uint8*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfVTKImage[k] = PtrOfInputImage[k];
-        }
-    }
-    else if (ScalarTypeName == "uint16")
-    {
-        VTKImage->AllocateScalars(VTK_UNSIGNED_SHORT, 1);
-
-        auto PtrOfVTKImage = static_cast<uint16*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfVTKImage[k] = PtrOfInputImage[k];
-        }
-    }
-    else if (ScalarTypeName == "uint32")
-    {
-        VTKImage->AllocateScalars(VTK_UNSIGNED_INT, 1);
-
-        auto PtrOfVTKImage = static_cast<uint32*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfVTKImage[k] = PtrOfInputImage[k];
-        }
-    }
-    else if (ScalarTypeName == "uint64")
-    {
-        VTKImage->AllocateScalars(VTK_UNSIGNED_LONG_LONG, 1);
-
-        auto PtrOfVTKImage = static_cast<uint64*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < InputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfVTKImage[k] = PtrOfInputImage[k];
-        }
-    }
-    else
-    {
-        MDK_Error("unknown ScalarType @ ConvertMDK3DScalarImageToVTK3DScalarImage(...) ")
-    }
-
-    return VTKImage;
-}
-
-
-template<typename PixelType>
-Image3D<PixelType> ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage)
-{
-    int Extent[6];
-    VTKImage->GetExtent(Extent);
-
-    double Spacing[3];
-    VTKImage->GetSpacing(Spacing);
-
-    double Origin[3];
-    VTKImage->GetOrigin(Origin);
-
-    auto VTKScalarType = VTKImage->GetScalarType();
-
-    Image3D<PixelType> OutputImage;
-    OutputImage.SetSize(Extent[1] + 1, Extent[3] + 1, Extent[5] + 1);
-    OutputImage.SetOrigin(Origin[0], Origin[1], Origin[2]);
-    OutputImage.SetSpacing(Spacing[0], Spacing[1], Spacing[2]);
-
-    auto PtrOfOutputImage = OutputImage.GetPixelPointer();
-
-    if (VTKScalarType == "double")
-    {
-        auto PtrOfVTKImage = static_cast<double*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfOutputImage[k] = PtrOfVTKImage[k];
-        }
-    }
-    else if (ScalarTypeName == "float")
-    {
-        auto PtrOfVTKImage = static_cast<float*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfOutputImage[k] = PtrOfVTKImage[k];
-        }
-    }
-    else if (ScalarTypeName == "int8")
-    {
-        auto PtrOfVTKImage = static_cast<int8*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfOutputImage[k] = PtrOfVTKImage[k];
-        }
-    }
-    else if (ScalarTypeName == "int16")
-    {
-        auto PtrOfVTKImage = static_cast<int16*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfOutputImage[k] = PtrOfVTKImage[k];
-        }
-    }
-    else if (ScalarTypeName == "int32")
-    {
-        auto PtrOfVTKImage = static_cast<int32*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfOutputImage[k] = PtrOfVTKImage[k];
-        }
-    }
-    else if (ScalarTypeName == "int64")
-    {
-        auto PtrOfVTKImage = static_cast<int64*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfOutputImage[k] = PtrOfVTKImage[k];
-        }
-    }
-    else if (ScalarTypeName == "uint8")
-    {
-        auto PtrOfVTKImage = static_cast<uint8*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfOutputImage[k] = PtrOfVTKImage[k];
-        }
-    }
-    else if (ScalarTypeName == "uint16")
-    {
-        auto PtrOfVTKImage = static_cast<uint16*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfOutputImage[k] = PtrOfVTKImage[k];
-        }
-    }
-    else if (ScalarTypeName == "uint32")
-    {
-        auto PtrOfVTKImage = static_cast<uint32*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfOutputImage[k] = PtrOfVTKImage[k];
-        }
-    }
-    else if (ScalarTypeName == "uint64")
-    {
-        auto PtrOfVTKImage = static_cast<uint64*>(VTKImage->GetScalarPointer());
-
-        for (int_max k = 0; k < OutputImage.GetPixelNumber(); ++k)
-        {
-            PtrOfOutputImage[k] = PtrOfVTKImage[k];
-        }
-    }
-    else
-    {
-        MDK_Error("unknown ScalarType @ ConvertVTK3DScalarImageToMDK3DScalarImage(...) ")
-    }
-
-    return OutputImage;
+    return ConvertVTKPolyDataToMDKTriangleMesh<ScalarType>(VTKPolyMesh, Flag_BuildLinkAndAjacency);
 }
 
 

@@ -136,6 +136,9 @@ DenseMatrix<ElementType>::DenseMatrix(DenseMatrix<ElementType>&& InputMatrix) no
     m_MatrixData = std::move(InputMatrix.m_MatrixData);
 
     m_ElementPointer = m_MatrixData->ElementPointer;
+
+    // InputMatrix may not be destructed, e.g., sort a list of DenseMatrix in DataContainer
+    InputMatrix.m_ElementPointer = nullptr;
 }
 
 
@@ -201,6 +204,11 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::operator=(DenseMatrix<ElementType>&& InputMatrix)
 {
+    if (!m_MatrixData)
+    {
+        this->Resize(0, 0);
+    }
+
     this->Take(std::forward<DenseMatrix<ElementType>&>(InputMatrix));
 }
 

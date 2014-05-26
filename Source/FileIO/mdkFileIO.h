@@ -11,8 +11,11 @@
 #include <itkImportImageFilter.h>
 #include <itkImageDuplicator.h>
 
+
 #include <vtkSmartPointer.h>
 #include <vtkImageData.h>
+#include <vtkPolyDataReader.h>
+#include <vtkPolyDataWriter.h>
 
 
 #include <QString.h>
@@ -21,9 +24,11 @@
 #include <QTextStream>
 #include <QJsonObject>
 
+
 #include "mdkType.h"
 #include "mdkDebugConfig.h"
 #include "mdkString.h"
+#include "mdkDataStructureConversion.h"
 
 
 namespace mdk
@@ -35,11 +40,14 @@ class DenseMatrix;
 template<typename ElementType>
 class SparseMatrix;
 
-template<typename ElementType>
+template<typename PixelType>
 class Image2D;
 
-template<typename ElementType>
+template<typename PixelType>
 class Image3D;
+
+template<typename ScalarType>
+class TriangleMesh;
 
 template<typename ElementType>
 class FeatureDictionaryForSparseCoding;
@@ -67,7 +75,7 @@ template<typename ElementType>
 DenseMatrix<ElementType> LoadDenseMatrixFromJsonDataFile(const CharString& FilePathAndName);
 
 template<typename OutputElementType>
-void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& OutputMatrix, QFile& DataFile, const QString& InputElementTypeName);
+void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& OutputMatrix, QFile& DataFile, const std::string& InputElementTypeName);
 
 template<typename OutputElementType, typename InputElementType>
 void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& OutputMatrix,  QFile& DataFile, int_max ByteNumberOfInputElementType);
@@ -83,10 +91,10 @@ template<typename PixelType>
 Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathAndName);
 
 template<typename OutputPixelType>
-void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& OutputImage, QFile& DataFile, const QString& InputElementTypeName);
+void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& OutputImage, QFile& DataFile, const std::string& InputPixelTypeName);
 
 template<typename OutputPixelType, typename InputPixelType>
-void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& OutputImage, QFile& DataFile, int_max ByteNumberOfInputElementType);
+void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& OutputImage, QFile& DataFile, int_max ByteNumberOfInputPixelType);
 
 //------------------------------------- load ScalarImage2D and ScalarImage3D from DICOM file --------------------------------------------//
 
@@ -96,33 +104,19 @@ Image3D<PixelType> Load3DScalarImageFromDICOMSeries(const CharString& FilePath);
 template<typename PixelType>
 Image3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const CharString& FilePathAndName);
 
-// -------------------------------------- convert mdk image to itk image--------------------------------------------------------------------//
+//------------------------------------- save/load TriangleMesh from Json data file --------------------------------------------------------//
 
-//copy or share data
-template<typename PixelType>
-itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(const Image3D<PixelType>& InputImage, bool SharePixelData);
+template<typename ScalarType>
+bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
 
-//copy data
-template<typename PixelType>
-itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(const Image3D<PixelType>& InputImage);
+template<typename ScalarType = double>
+TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAjacency = true);
 
-// -------------------------------------- convert itk image to mdk image--------------------------------------------------------------------//
+template<typename ScalarType>
+bool SaveTriangleMeshAsVTKFile(const TriangleMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
 
-//copy data
-template<typename PixelType>
-Image3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage);
-
-
-// -------------------------------------- convert mdk image to vtk image--------------------------------------------------------------------//
-//copy data
-template<typename PixelType>
-vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const Image3D<PixelType>& InputImage);
-
-// -------------------------------------- convert vtk image to mdk image--------------------------------------------------------------------//
-//copy data
-template<typename PixelType>
-Image3D<PixelType> ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage);
-
+template<typename ScalarType = double>
+TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAjacency = true);
 
 //----------------------------------- save/load FeatureDictionary from Json data file -----------------------------------------------------//
 

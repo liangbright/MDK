@@ -200,6 +200,9 @@ Image3D<PixelType>::Image3D(Image3D<PixelType>&& InputImage)
     m_ImageData = std::move(InputImage.m_ImageData);
 
     m_PixelPointer = m_ImageData->m_DataArray.data();
+
+    // InputImage may not be destructed
+    InputImage.m_PixelPointer = nullptr;
 }
 
 
@@ -219,6 +222,13 @@ void Image3D<PixelType>::operator=(const Image3D<PixelType>& InputImage)
 template<typename PixelType>
 void Image3D<PixelType>::operator=(Image3D<PixelType>&& InputImage)
 {
+    if (!m_ImageData)
+    {
+        m_ImageData = std::make_shared<ImageData3D<PixelType>>();
+
+        this->Clear();
+    }
+
     this->Take(InputImage);
 
     InputImage.Clear();

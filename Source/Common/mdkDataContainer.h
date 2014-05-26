@@ -217,6 +217,8 @@ public:
 
     inline const ElementType* begin() const;
 
+    inline ElementType* end(); // 1 + pointer of the last element
+
     inline const ElementType* end() const; // 1 + pointer of the last element
 
 	//----------- Get/Set by Index -----------------------------------//
