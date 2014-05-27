@@ -27,54 +27,69 @@ struct TriangleMeshData
     // row_2: VertexIndex_2
     //
     // VertexIndex_0 < VertexIndex_1 < VerteIndex_2 always
-    
+
     DenseMatrix<int_max> Edge;
     // row_0: VertexIndex_0
     // row_1: VertexIndex_1
     // row_2: TriangleIndex_0  
     // row_3: TriangleIndex_1  
     //
-    // Edge = VertexIndex_0 <-> VertexIndex_1
+    // Edge(:,k) = VertexIndex_0 <-> VertexIndex_1
     //
-    // Edge is shared by TriangleIndex_0 and TriangleIndex_1
+    // Edge(:,k) is shared by TriangleIndex_0 and TriangleIndex_1
     //
-    // if TriangleIndex_0 is -1, then edge is part of boundary
+    // if TriangleIndex_0 is -1, then Edge(:,k) is part of boundary
     //
     // VertexIndex_0    < VertexIndex_1   always
     // TriangleIndex_0  < TriangleIndex_1 always
 
-    DataContainer<DenseMatrix<int_max>> Link_VertexToEdge;
-    // Link_VertexToEdge[k] is { EdgeIndex_0, EdgeIndex_1, EdgeIndex_2, ...}
+    // note: std::vector is just a simple data contianer
+
+    DataContainer<std::vector<int_max>> Link_VertexToEdge;
+    // Link_VertexToEdge[k] is { EdgeIndex_0, EdgeIndex_1, EdgeIndex_2, ...}, the length is not a constant
     // share the same Vertex (VertexIndex is k) 
 
-    DataContainer<DenseMatrix<int_max>> Link_VertexToTriangle;
-    // Link_VertexToTriangle[k] is { TriangleIndex_0, TriangleIndex_1, TriangleIndex_2, ...}
+    DataContainer<std::vector<int_max>> Link_VertexToTriangle;
+    // Link_VertexToTriangle[k] is { TriangleIndex_0, TriangleIndex_1, TriangleIndex_2, ...}, the length is not a constant
     // share the same Vertex (VertexIndex is k) 
 
-    DataContainer<DenseMatrix<int_max>> Link_TriangleToEdge;
-    // Link_TriangleToEdge[k] is { EdgeIndex_0, EdgeIndex_1, EdgeIndex_2} in the same triangle (TriangleIndex is k)
-    //
-    // Triangle(:,k) : VertexIndex_0, VertexIndex_1, VertexIndex_2
+    // DataContainer<DenseMatrix<int_max>> Link_EdgeToTriangle;
+    // This link is directly stored in Edge
+
+    DataContainer<std::vector<int_max>> Link_TriangleToEdge;
+    // Link_TriangleToEdge[k] is {EdgeIndex_0, EdgeIndex_1, EdgeIndex_2}
+    // Triangle(:,k) is {VertexIndex_0, VertexIndex_1, VertexIndex_2}    
     // Edge of EdgeIndex_0 : VertexIndex_0 <-> VertexIndex_1
     // Edge of EdgeIndex_1 : VertexIndex_1 <-> VertexIndex_2
     // Edge of EdgeIndex_2 : VertexIndex_0 <-> VertexIndex_2
 
-    DataContainer<DenseMatrix<int_max>> Ajacency_VertexToVertex;
-    // Ajacency_VertexToVertex[k] is { VertexIndex_0, VertexIndex_1, VertexIndex_2, ...}
+    //---------------------- Adjacency ----------------------------------
+
+    DataContainer<std::vector<int_max>> Adjacency_VertexToVertex;
+    // Adjacency_VertexToVertex[k] is { VertexIndex_0, VertexIndex_1, VertexIndex_2, ...}
     // share the same neighbour Vertex (VertexIndex is k) 
 
-    //DataContainer<DenseMatrix<int_max>> Ajacency_EdgeToEdge; can be directly derived from Edge and Link_VertexToEdge
-    // Ajacency_EdgeToEdge[k] is { Link_VertexToEdge[Edge(0, k)], Link_VertexToEdge[Edge(1, k)] } 
+    //std::vector<DenseMatrix<int_max>> Adjacency_EdgeToEdge; can be directly derived from Edge and Link_VertexToEdge
+    // Adjacency_EdgeToEdge[k] is { Link_VertexToEdge[Edge(0, k)], Link_VertexToEdge[Edge(1, k)] } 
      
-    DataContainer<DenseMatrix<int_max>> Ajacency_TriangleToTriangle;
-    // Ajacency_TriangleToTriangle[k] is { TriangleIndex_0, TriangleIndex_1, TriangleIndex_2, ...}
+    DataContainer<std::vector<int_max>> Adjacency_TriangleToTriangle;
+    // Adjacency_TriangleToTriangle[k] is { TriangleIndex_0, TriangleIndex_1, TriangleIndex_2, ...}
     // share the same neighbour Triangle (TriangleIndex is k) 
 
-    //----------------- attribute ----------------------------
+    //-------------------- Normal Vector ---------------------------------
 
-    DenseMatrix<ScalarType> NormalAtVertex;
+    DenseMatrix<ScalarType> NormalAtVertex; // size: 3 x ?
 
-    DenseMatrix<ScalarType> NormalAtTriangle;
+    DenseMatrix<ScalarType> NormalAtTriangleCenter;  // size: 3 x ?
+
+    //----------------- attribute at Vertex ----------------------------
+
+    //----------------- attribute at Triangle ----------------------------
+
+    //DenseMatrix<ScalarType> AngleInTriangle;
+
+    //DenseMatrix<ScalarType> AeraOfTriangle;
+    
 };
 
 
@@ -104,7 +119,7 @@ public:
 
     //---------------------------------------------------------------------------
 
-    bool Construct(DenseMatrix<ScalarType> InputVertex, DenseMatrix<int_max> InputTriangle, bool Flag_BuildLinkAndAjacency = true);
+    bool Construct(DenseMatrix<ScalarType> InputVertex, DenseMatrix<int_max> InputTriangle, bool Flag_BuildLinkAndAdjacency = true);
 
     //---------------------------------------------------------------------------
 
@@ -142,7 +157,7 @@ public:
 
     //----------------------------------------------------------------------------
     
-    void BuildLinkAndAjacency();
+    void BuildLinkAndAdjacency();
 
     void BuildLink();
 
@@ -152,19 +167,21 @@ public:
 
     void BuildLink_TriangleToEdge();
 
-    void BuildAjacency();
+    void BuildAdjacency();
 
-    void BuildAjacency_VertexToVertex();
+    void BuildAdjacency_VertexToVertex();
 
-    void BuildAjacency_TriangleToTriangle();
+    void BuildAdjacency_TriangleToTriangle();
 
     //-----------------------------------------------------------------------
 
+    void UpdateNormalAtVertex();
+
+    void UpdateNormalAtTriangleCenter();
+
+    //-------------------------------------------------------------------
+
     void UpdateAttribute();
-
-    void UpdateAttribute_NormalAtVertex();
-
-    void UpdateAttribute_NormalAtTriangle();
 
     //-------------------------------------------------------------------
 
@@ -184,15 +201,15 @@ public:
 
     inline const DenseMatrix<int_max>& Edge() const;
 
-    inline const DataContainer<DenseMatrix<int_max>>& Link_VertexToEdge() const;
+    inline const DataContainer<std::vector<int_max>>& Link_VertexToEdge() const;
 
-    inline const DataContainer<DenseMatrix<int_max>>& Link_VertexToTriangle() const;
+    inline const DataContainer<std::vector<int_max>>& Link_VertexToTriangle() const;
 
-    inline const DataContainer<DenseMatrix<int_max>>& Link_TriangleToEdge() const;
+    inline const DataContainer<std::vector<int_max>>& Link_TriangleToEdge() const;
 
-    inline const DataContainer<DenseMatrix<int_max>>& Ajacency_VertexToVertex() const;
+    inline const DataContainer<std::vector<int_max>>& Adjacency_VertexToVertex() const;
 
-    inline const DataContainer<DenseMatrix<int_max>>& Ajacency_TriangleToTriangle() const;
+    inline const DataContainer<std::vector<int_max>>& Adjacency_TriangleToTriangle() const;
 
     //----------------------------------------------------------------------------
 

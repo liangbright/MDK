@@ -848,7 +848,7 @@ bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<ScalarType>& InputMesh, c
 
 
 template<typename ScalarType>
-TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAjacency)
+TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency)
 {
     TriangleMesh<ScalarType> OutputMesh;
 
@@ -978,7 +978,7 @@ TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& File
 
     //--------------------------------------------------------------------------
 
-    OutputMesh.Construct(std::move(Vertex), std::move(Triangle), Flag_BuildLinkAndAjacency);
+    OutputMesh.Construct(std::move(Vertex), std::move(Triangle), Flag_BuildLinkAndAdjacency);
 
     return OutputMesh;
 }
@@ -1008,7 +1008,7 @@ bool SaveTriangleMeshAsVTKFile(const TriangleMesh<ScalarType>& InputMesh, const 
 
 
 template<typename ScalarType>
-TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAjacency)
+TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency)
 {
     auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
     Reader->SetFileName(FilePathAndName.StdString().c_str());
@@ -1027,7 +1027,7 @@ TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathA
 
     auto VTKPolyMesh = Reader->GetOutput();
 
-    return ConvertVTKPolyDataToMDKTriangleMesh<ScalarType>(VTKPolyMesh, Flag_BuildLinkAndAjacency);
+    return ConvertVTKPolyDataToMDKTriangleMesh<ScalarType>(VTKPolyMesh, Flag_BuildLinkAndAdjacency);
 }
 
 

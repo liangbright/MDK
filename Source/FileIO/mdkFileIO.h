@@ -110,13 +110,13 @@ template<typename ScalarType>
 bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
 
 template<typename ScalarType = double>
-TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAjacency = true);
+TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency = true);
 
 template<typename ScalarType>
 bool SaveTriangleMeshAsVTKFile(const TriangleMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
 
 template<typename ScalarType = double>
-TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAjacency = true);
+TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency = true);
 
 //----------------------------------- save/load FeatureDictionary from Json data file -----------------------------------------------------//
 

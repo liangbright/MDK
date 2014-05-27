@@ -57,7 +57,7 @@ void TriangleMesh<ScalarType>::operator=(TriangleMesh<ScalarType>&& InputMesh)
 template<typename ScalarType>
 bool TriangleMesh<ScalarType>::Construct(DenseMatrix<ScalarType> InputVertex, 
                                          DenseMatrix<int_max> InputTriangle,
-                                         bool Flag_BuildLinkAndAjacency)
+                                         bool Flag_BuildLinkAndAdjacency)
 {
     if (InputVertex.IsEmpty() == true || InputTriangle.IsEmpty() == true)
     {
@@ -97,11 +97,11 @@ bool TriangleMesh<ScalarType>::Construct(DenseMatrix<ScalarType> InputVertex,
 
     //----------------------------------------------------------------------------
 
-    if (Flag_BuildLinkAndAjacency == true)
+    if (Flag_BuildLinkAndAdjacency == true)
     {
         this->BuildLink();
 
-        this->BuildAjacency();
+        this->BuildAdjacency();
     }
 
     //----------------------------------------------------------------------------
@@ -115,7 +115,7 @@ bool TriangleMesh<ScalarType>::ConstructEdge()
 {
     auto TriangleNumber = m_MeshData->Triangle.GetColNumber();
 
-    DataContainer<DenseMatrix<int_max>> HalfEdge;
+    DataContainer<std::vector<int_max>> HalfEdge;
     // HalfEdge[k] is a half edge
     // HalfEdge[k][0] : TriangleIndex
     // HalfEdge[k][1] : VertexIndex_0
@@ -124,7 +124,7 @@ bool TriangleMesh<ScalarType>::ConstructEdge()
 
     int_max HalfEdgeNumber = 3 * TriangleNumber;
 
-    HalfEdge.FastResize(HalfEdgeNumber);
+    HalfEdge.Resize(HalfEdgeNumber);
 
     for (int_max k = 0; k < TriangleNumber; ++k)
     {
@@ -171,7 +171,7 @@ bool TriangleMesh<ScalarType>::ConstructEdge()
 
     // sort HalfEdge
 
-    HalfEdge.SortInPlace([](const DenseMatrix<int_max>& A, const DenseMatrix<int_max>& B)        
+    std::sort(HalfEdge.begin(), HalfEdge.end(), [](const std::vector<int_max>& A, const std::vector<int_max>& B)
     {
         if (A[1] == B[1]) // VertexIndex_0 of A == VertexIndex_0 of B
         {
@@ -188,7 +188,7 @@ bool TriangleMesh<ScalarType>::ConstructEdge()
     DenseMatrix<int_max> UniqueEdgeFlagList(1, HalfEdgeNumber);
     UniqueEdgeFlagList.Fill(0);
 
-    auto TempFunction_SameEdge = [](const DenseMatrix<int_max>& A, const DenseMatrix<int_max>& B)
+    auto TempFunction_SameEdge = [](const std::vector<int_max>& A, const std::vector<int_max>& B)
     {
         if (A[1] == B[1])
         {
@@ -265,11 +265,11 @@ bool TriangleMesh<ScalarType>::ConstructEdge()
 
 
 template<typename ScalarType>
-void TriangleMesh<ScalarType>::BuildLinkAndAjacency()
+void TriangleMesh<ScalarType>::BuildLinkAndAdjacency()
 {
     this->BuildLink();
 
-    this->BuildAjacency();
+    this->BuildAdjacency();
 }
 
 
@@ -297,8 +297,8 @@ void TriangleMesh<ScalarType>::BuildLink_VertexToEdge()
 
     for (int_max k = 0; k < VertexNumber; ++k)
     {
-        m_MeshData->Link_VertexToEdge[k].FastResize(0, 0);
-        m_MeshData->Link_VertexToEdge[k].ReserveCapacity(10);
+        m_MeshData->Link_VertexToEdge[k].resize(0);
+        m_MeshData->Link_VertexToEdge[k].reserve(10);
     }
 
     for (int_max k = 0; k < EdgeNumber; ++k)
@@ -306,13 +306,13 @@ void TriangleMesh<ScalarType>::BuildLink_VertexToEdge()
         auto VertexIndex_0 = m_MeshData->Edge(0, k);
         auto VertexIndex_1 = m_MeshData->Edge(1, k);
 
-        m_MeshData->Link_VertexToEdge[VertexIndex_0].AppendCol({ k });
-        m_MeshData->Link_VertexToEdge[VertexIndex_1].AppendCol({ k });
+        m_MeshData->Link_VertexToEdge[VertexIndex_0].push_back(k);
+        m_MeshData->Link_VertexToEdge[VertexIndex_1].push_back(k);
     }
 
     for (int_max k = 0; k < VertexNumber; ++k)
     {
-        m_MeshData->Link_VertexToEdge[k].Squeeze();
+        m_MeshData->Link_VertexToEdge[k].shrink_to_fit();
     }
 }
 
@@ -330,8 +330,8 @@ void TriangleMesh<ScalarType>::BuildLink_VertexToTriangle()
 
     for (int_max k = 0; k < VertexNumber; ++k)
     {
-        m_MeshData->Link_VertexToTriangle[k].FastResize(0, 0);
-        m_MeshData->Link_VertexToTriangle[k].ReserveCapacity(10);
+        m_MeshData->Link_VertexToTriangle[k].resize(0);
+        m_MeshData->Link_VertexToTriangle[k].reserve(10);
     }
 
     for (int_max k = 0; k < TriangleNumber; ++k)
@@ -340,14 +340,14 @@ void TriangleMesh<ScalarType>::BuildLink_VertexToTriangle()
         auto VertexIndex_1 = m_MeshData->Triangle(1, k);
         auto VertexIndex_2 = m_MeshData->Triangle(2, k);
 
-        m_MeshData->Link_VertexToTriangle[VertexIndex_0].AppendCol({ k });
-        m_MeshData->Link_VertexToTriangle[VertexIndex_1].AppendCol({ k });
-        m_MeshData->Link_VertexToTriangle[VertexIndex_2].AppendCol({ k });
+        m_MeshData->Link_VertexToTriangle[VertexIndex_0].push_back(k);
+        m_MeshData->Link_VertexToTriangle[VertexIndex_1].push_back(k);
+        m_MeshData->Link_VertexToTriangle[VertexIndex_2].push_back(k);
     }
 
     for (int_max k = 0; k < VertexNumber; ++k)
     {
-        m_MeshData->Link_VertexToTriangle[k].Squeeze();
+        m_MeshData->Link_VertexToTriangle[k].shrink_to_fit();
     }
 }
 
@@ -361,7 +361,7 @@ void TriangleMesh<ScalarType>::BuildLink_TriangleToEdge()
 
     for (int_max k = 0; k < TriangleNumber; ++k)
     {
-        m_MeshData->Link_TriangleToEdge[k].FastResize(1, 3);
+        m_MeshData->Link_TriangleToEdge[k].resize(3);
     }
 
     for (int_max k = 0; k < m_MeshData->Edge.GetColNumber(); ++k)
@@ -394,16 +394,16 @@ void TriangleMesh<ScalarType>::BuildLink_TriangleToEdge()
 
 
 template<typename ScalarType>
-void TriangleMesh<ScalarType>::BuildAjacency()
+void TriangleMesh<ScalarType>::BuildAdjacency()
 {
-    this->BuildAjacency_VertexToVertex();
+    this->BuildAdjacency_VertexToVertex();
 
-    this->BuildAjacency_TriangleToTriangle();
+    this->BuildAdjacency_TriangleToTriangle();
 }
 
 
 template<typename ScalarType>
-void TriangleMesh<ScalarType>::BuildAjacency_VertexToVertex()
+void TriangleMesh<ScalarType>::BuildAdjacency_VertexToVertex()
 {
     int_max VertexNumber = m_MeshData->Vertex.GetColNumber();
 
@@ -411,12 +411,12 @@ void TriangleMesh<ScalarType>::BuildAjacency_VertexToVertex()
 
     int_max TriangleNumber = m_MeshData->Triangle.GetColNumber();
 
-    m_MeshData->Ajacency_VertexToVertex.FastResize(VertexNumber);
+    m_MeshData->Adjacency_VertexToVertex.FastResize(VertexNumber);
 
     for (int_max k = 0; k < VertexNumber; ++k)
     {
-        m_MeshData->Ajacency_VertexToVertex[k].FastResize(0, 0);
-        m_MeshData->Ajacency_VertexToVertex[k].ReserveCapacity(10);
+        m_MeshData->Adjacency_VertexToVertex[k].resize(0);
+        m_MeshData->Adjacency_VertexToVertex[k].reserve(10);
     }
 
     for (int_max k = 0; k < EdgeNumber; ++k)
@@ -424,19 +424,19 @@ void TriangleMesh<ScalarType>::BuildAjacency_VertexToVertex()
         auto VertexIndex_0 = m_MeshData->Edge(0, k);
         auto VertexIndex_1 = m_MeshData->Edge(1, k);
 
-        m_MeshData->Ajacency_VertexToVertex[VertexIndex_0].AppendCol({ VertexIndex_1 });
-        m_MeshData->Ajacency_VertexToVertex[VertexIndex_1].AppendCol({ VertexIndex_0 });
+        m_MeshData->Adjacency_VertexToVertex[VertexIndex_0].push_back(VertexIndex_1);
+        m_MeshData->Adjacency_VertexToVertex[VertexIndex_1].push_back(VertexIndex_0);
     }
 
     for (int_max k = 0; k < VertexNumber; ++k)
     {
-        m_MeshData->Ajacency_VertexToVertex[k].Squeeze();
+        m_MeshData->Adjacency_VertexToVertex[k].shrink_to_fit();
     }
 }
 
 
 template<typename ScalarType>
-void TriangleMesh<ScalarType>::BuildAjacency_TriangleToTriangle()
+void TriangleMesh<ScalarType>::BuildAdjacency_TriangleToTriangle()
 {
     int_max VertexNumber = m_MeshData->Vertex.GetColNumber();
 
@@ -444,12 +444,12 @@ void TriangleMesh<ScalarType>::BuildAjacency_TriangleToTriangle()
 
     int_max TriangleNumber = m_MeshData->Triangle.GetColNumber();
 
-    m_MeshData->Ajacency_TriangleToTriangle.FastResize(TriangleNumber);
+    m_MeshData->Adjacency_TriangleToTriangle.FastResize(TriangleNumber);
 
     for (int_max k = 0; k < TriangleNumber; ++k)
     {
-        m_MeshData->Ajacency_TriangleToTriangle[k].FastResize(0, 0);
-        m_MeshData->Ajacency_TriangleToTriangle[k].ReserveCapacity(10);
+        m_MeshData->Adjacency_TriangleToTriangle[k].resize(0);
+        m_MeshData->Adjacency_TriangleToTriangle[k].reserve(10);
     }
 
     for (int_max k = 0; k < EdgeNumber; ++k)
@@ -459,14 +459,14 @@ void TriangleMesh<ScalarType>::BuildAjacency_TriangleToTriangle()
 
         if (TriangleIndex_0 >= 0 && TriangleIndex_1 >= 0)
         {
-            m_MeshData->Ajacency_TriangleToTriangle[TriangleIndex_0].AppendCol({ TriangleIndex_1 });
-            m_MeshData->Ajacency_TriangleToTriangle[TriangleIndex_1].AppendCol({ TriangleIndex_0 });
+            m_MeshData->Adjacency_TriangleToTriangle[TriangleIndex_0].push_back(TriangleIndex_1);
+            m_MeshData->Adjacency_TriangleToTriangle[TriangleIndex_1].push_back(TriangleIndex_0);
         }
     }
 
     for (int_max k = 0; k < TriangleNumber; ++k)
     {
-        m_MeshData->Ajacency_TriangleToTriangle[k].Squeeze();
+        m_MeshData->Adjacency_TriangleToTriangle[k].shrink_to_fit();
     }
 }
 
@@ -479,10 +479,12 @@ void TriangleMesh<ScalarType>::Clear()
     m_MeshData->Triangle.Clear();
     m_MeshData->Edge.Clear();
     
-    m_MeshData->Ajacency_VertexToVertex.Clear();
-    m_MeshData->Ajacency_VertexToEdge.Clear();
-    m_MeshData->Ajacency_VertexToTriangle.Clear();
-    m_MeshData->Ajacency_TriangleToTriangle.Clear();
+    m_MeshData->Link_VertexToEdge.Clear();
+    m_MeshData->Link_VertexToTriangle.Clear();
+    m_MeshData->Link_TriangleToEdge.Clear();
+
+    m_MeshData->Adjacency_VertexToVertex.Clear();
+    m_MeshData->Adjacency_TriangleToTriangle.Clear();
 
     m_MeshData->NormalAtTriangle.Clear();
     m_MeshData->NormalAtVertex.Clear();
@@ -501,10 +503,12 @@ void TriangleMesh<ScalarType>::Copy(const TriangleMesh<ScalarType_Input>& InputM
     this->m_MeshData->VertexGlobalIndexList.Copy(InputMesh.m_MeshData->VertexGlobalIndexList);
     this->m_MeshData->TriangleGlobalIndexList.Copy(InputMesh.m_MeshData->TriangleGlobalIndexList);
 
-    this->m_MeshData->Ajacency_VertexToVertex.Copy(InputMesh.m_MeshData->Ajacency_VertexToVertex);
-    this->m_MeshData->Ajacency_VertexToEdge.Copy(InputMesh.m_MeshData->Ajacency_VertexToEdge);
-    this->m_MeshData->Ajacency_VertexToTriangle.Copy(InputMesh.m_MeshData->Ajacency_VertexToTriangle);
-    this->m_MeshData->Ajacency_TriangleToTriangle.Copy(InputMesh.m_MeshData->Ajacency_TriangleToTriangle);
+    this->m_MeshData->Link_VertexToEdge.Copy(InputMesh.m_MeshData->Link_VertexToEdge);
+    this->m_MeshData->Link_VertexToTriangle.Copy(InputMesh.m_MeshData->Link_VertexToTriangle);
+    this->m_MeshData->Link_TriangleToEdge.Copy(InputMesh.m_MeshData->Link_TriangleToEdge);
+
+    this->m_MeshData->Adjacency_VertexToVertex.Copy(InputMesh.m_MeshData->Adjacency_VertexToVertex);
+    this->m_MeshData->Adjacency_TriangleToTriangle.Copy(InputMesh.m_MeshData->Adjacency_TriangleToTriangle);
 
     this->m_MeshData->NormalAtVertex.Copy(InputMesh.m_MeshData->NormalAtVertex);
     this->m_MeshData->NormalAtTriangle.Copy(InputMesh.m_MeshData->NormalAtTriangle);
@@ -595,10 +599,12 @@ bool TriangleMesh<ScalarType>::Take(TriangleMesh<ScalarType>& InputMesh)
     this->m_MeshData->VertexGlobalIndexList = std::move(InputMesh.m_MeshData->VertexGlobalIndexList);
     this->m_MeshData->TriangleGlobalIndexList = std::move(InputMesh.m_MeshData->TriangleGlobalIndexList);
 
-    this->m_MeshData->Ajacency_VertexToVertex = std::move(InputMesh.m_MeshData->Ajacency_VertexToVertex);
-    this->m_MeshData->Ajacency_VertexToEdge = std::move(InputMesh.m_MeshData->Ajacency_VertexToEdge);
-    this->m_MeshData->Ajacency_VertexToTriangle = std::move(InputMesh.m_MeshData->Ajacency_VertexToTriangle);
-    this->m_MeshData->Ajacency_TriangleToTriangle = std::move(InputMesh.m_MeshData->Ajacency_TriangleToTriangle);
+    this->m_MeshData->Link_VertexToEdge = std::move(InputMesh.m_MeshData->Link_VertexToEdge);
+    this->m_MeshData->Link_VertexToTriangle = std::move(InputMesh.m_MeshData->Link_VertexToTriangle);
+    this->m_MeshData->Link_TriangleToEdge = std::move(InputMesh.m_MeshData->Link_TriangleToEdge);
+
+    this->m_MeshData->Adjacency_VertexToVertex = std::move(InputMesh.m_MeshData->Adjacency_VertexToVertex);
+    this->m_MeshData->Adjacency_TriangleToTriangle = std::move(InputMesh.m_MeshData->Adjacency_TriangleToTriangle);
 
     this->m_MeshData->NormalAtVertex = std::move(InputMesh.m_MeshData->NormalAtVertex);
     this->m_MeshData->NormalAtTriangle = std::move(InputMesh.m_MeshData->NormalAtTriangle);
@@ -718,7 +724,7 @@ const DenseMatrix<int_max>& TriangleMesh<ScalarType>::Edge() const
 
 template<typename ScalarType>
 inline
-const DataContainer<DenseMatrix<int_max>>& TriangleMesh<ScalarType>::Link_VertexToEdge() const
+const DataContainer<std::vector<int_max>>& TriangleMesh<ScalarType>::Link_VertexToEdge() const
 {
     return m_MeshData->Link_VertexToEdge;
 }
@@ -726,7 +732,7 @@ const DataContainer<DenseMatrix<int_max>>& TriangleMesh<ScalarType>::Link_Vertex
 
 template<typename ScalarType>
 inline
-const DataContainer<DenseMatrix<int_max>>& TriangleMesh<ScalarType>::Link_VertexToTriangle() const
+const DataContainer<std::vector<int_max>>& TriangleMesh<ScalarType>::Link_VertexToTriangle() const
 {
     return m_MeshData->Link_VertexToTriangle;
 }
@@ -734,7 +740,7 @@ const DataContainer<DenseMatrix<int_max>>& TriangleMesh<ScalarType>::Link_Vertex
 
 template<typename ScalarType>
 inline
-const DataContainer<DenseMatrix<int_max>>& TriangleMesh<ScalarType>::Link_TriangleToEdge() const
+const DataContainer<std::vector<int_max>>& TriangleMesh<ScalarType>::Link_TriangleToEdge() const
 {
     return m_MeshData->Link_TriangleToEdge;
 }
@@ -742,17 +748,17 @@ const DataContainer<DenseMatrix<int_max>>& TriangleMesh<ScalarType>::Link_Triang
 
 template<typename ScalarType>
 inline 
-const DataContainer<DenseMatrix<int_max>>& TriangleMesh<ScalarType>::Ajacency_VertexToVertex() const
+const DataContainer<std::vector<int_max>>& TriangleMesh<ScalarType>::Adjacency_VertexToVertex() const
 {
-    return m_MeshData->Ajacency_VertexToVertex;
+    return m_MeshData->Adjacency_VertexToVertex;
 }
 
 
 template<typename ScalarType>
 inline 
-const DataContainer<DenseMatrix<int_max>>& TriangleMesh<ScalarType>::Ajacency_TriangleToTriangle() const
+const DataContainer<std::vector<int_max>>& TriangleMesh<ScalarType>::Adjacency_TriangleToTriangle() const
 {
-    return m_MeshData->Ajacency_TriangleToTriangle;
+    return m_MeshData->Adjacency_TriangleToTriangle;
 }
 
 //----------------------------------------------------------------------------
@@ -791,24 +797,25 @@ const DenseMatrix<ScalarType>& TriangleMesh<ScalarType>::NormalAtTriangle() cons
 //----------------------------------------------------------------------------
 
 template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateNormalAtVertex()
+{
+}
+
+
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateNormalAtTriangleCenter()
+{
+}
+
+//----------------------------------------------------------------------------
+
+template<typename ScalarType>
 void TriangleMesh<ScalarType>::UpdateAttribute()
 {
-    this->UpdateAttribute_NormalAtVertex();
-
-    this->UpdateAttribute_NormalAtTriangle();
 }
 
 
-template<typename ScalarType>
-void TriangleMesh<ScalarType>::UpdateAttribute_NormalAtVertex()
-{
-}
 
-
-template<typename ScalarType>
-void TriangleMesh<ScalarType>::UpdateAttribute_NormalAtTriangle()
-{
-}
 
 }// namespace mdk
 

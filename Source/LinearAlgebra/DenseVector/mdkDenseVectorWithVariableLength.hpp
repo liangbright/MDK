@@ -101,6 +101,23 @@ catch (...)
 
 
 template<typename ElementType>
+inline 
+void DenseVectorWithVariableLength<ElementType>::ReservCapacity(int_max Length);
+{
+    try
+    {
+        m_DataArray.reserve(Length);
+    }
+    catch (...)
+    {
+        MDK_Error("Out of Memory @ DenseVectorWithVariableLength::Resize(...)")
+
+        m_DataArray.clear();
+    }
+}
+
+
+template<typename ElementType>
 inline
 void DenseVectorWithVariableLength<ElementType>::Fill(const ElementType& Element)
 {
@@ -123,6 +140,14 @@ int_max DenseVectorWithVariableLength<ElementType>::GetLength() const
 
 template<typename ElementType>
 inline
+int_max DenseVectorWithVariableLength<ElementType>::GetElementNumber() const
+{
+    return int_max(m_DataArray.size());
+}
+
+
+template<typename ElementType>
+inline
 bool DenseVectorWithVariableLength<ElementType>::IsLengthFixed() const
 {
     return false;
@@ -131,9 +156,9 @@ bool DenseVectorWithVariableLength<ElementType>::IsLengthFixed() const
 
 template<typename ElementType>
 inline
-bool DenseVectorWithVariableLength<ElementType>::IsLengthVariable() const
+bool DenseVectorWithVariableLength<ElementType>::IsSizeFixed() const
 {
-    return true;
+    return false;
 }
 
 //-----------element access------------------//

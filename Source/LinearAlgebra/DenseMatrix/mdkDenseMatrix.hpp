@@ -6585,6 +6585,16 @@ DenseMatrix<ElementType>::FindCol(int_max MaxOutputColNumber, MatchFunctionType 
     return FindColInMatrix(*this, MaxOutputColNumber, MatchFunction);
 }
 
+
+template<typename ElementType>
+template<typename MatchFunctionType>
+inline
+DenseMatrix<int_max>
+DenseMatrix<ElementType>::FindCol(int_max MaxOutputColNumber, int_max ColIndex_start, int_max ColIndex_end, MatchFunctionType MatchFunction) const
+{
+    return FindColInMatrix(*this, MaxOutputColNumber, ColIndex_start, ColIndex_end, MatchFunction);
+}
+
 //-------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
@@ -6599,6 +6609,16 @@ DenseMatrix<ElementType>::SortCol(CompareFunctionType CompareFunction) const
 
 template<typename ElementType>
 template<typename CompareFunctionType>
+inline
+DenseMatrix<int_max>
+DenseMatrix<ElementType>::SortCol(int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction) const
+{
+    return SortColInMatrix(*this, ColIndex_start, ColIndex_end, CompareFunction);
+}
+
+
+template<typename ElementType>
+template<typename CompareFunctionType>
 inline 
 DenseMatrix<int_max>
 DenseMatrix<ElementType>::SortColInPlace(CompareFunctionType CompareFunction)
@@ -6606,6 +6626,15 @@ DenseMatrix<ElementType>::SortColInPlace(CompareFunctionType CompareFunction)
     return SortColInMatrix(*this, *this, CompareFunction);
 }
 
+
+template<typename ElementType>
+template<typename CompareFunctionType>
+inline
+DenseMatrix<int_max>
+DenseMatrix<ElementType>::SortColInPlace(int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction)
+{
+    return SortColInMatrix(*this, *this, ColIndex_start, ColIndex_end, CompareFunction);
+}
 
 //-----------------------------------------------------------------------------------------------------------//
 

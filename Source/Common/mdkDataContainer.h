@@ -24,9 +24,9 @@ class DenseMatrix;
 template<typename ElementType>
 struct DataContainerData
 {
-    int_max Length; 
-
     std::vector<ElementType> DataArray;
+
+    int_max Length;
 
     ElementType* ElementPointer;
 
@@ -38,8 +38,8 @@ struct DataContainerData
     DataContainerData() 
     {
         Length = 0;
-        IsSizeFixed = false;
         ElementPointer = nullptr;
+        IsSizeFixed = false;
         ErrorElement = GetNaNElement(ErrorElement);
     };
 
@@ -285,10 +285,27 @@ public:
 
     inline ElementType Pop();
 
+    //----------------------- Get a subset ------------------------------//
+
+    inline DataContainer<ElementType> GetSubSet(int_max Index_start, int_max Index_end);
+
+    inline DataContainer<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList);
+
+    inline DataContainer<ElementType> GetSubSet(const std::vector<int_max>& IndexList);
+
+    inline DataContainer<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList);
+
+    inline DataContainer<ElementType> GetSubSet(const DataContainer<int_max>& IndexList);
+
+    inline DataContainer<ElementType> GetSubSet(const int_max* IndexList, int_max ListLength);
+
     //-------------------- find ---------------------------------------//
 
     template<typename MatchFunctionType>
     inline DenseMatrix<int_max> Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction);
+
+    template<typename MatchFunctionType>
+    inline DenseMatrix<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction);
 
     //--------------------- sort ---------------------------------------//
 
@@ -296,7 +313,13 @@ public:
     inline DenseMatrix<int_max> Sort(CompareFunctionType CompareFunction) const;
 
     template<typename CompareFunctionType>
+    inline DenseMatrix<int_max> Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const;
+
+    template<typename CompareFunctionType>
     inline void SortInPlace(CompareFunctionType CompareFunction);
+
+    template<typename CompareFunctionType>
+    inline void SortInPlace(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction);
 
 private:
 

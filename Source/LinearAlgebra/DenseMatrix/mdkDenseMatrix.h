@@ -1105,13 +1105,22 @@ public:
     template<typename MatchFunctionType>
     inline DenseMatrix<int_max> FindCol(int_max MaxOutputColNumber, MatchFunctionType MatchFunction) const;
 
+    template<typename MatchFunctionType>
+    inline DenseMatrix<int_max> FindCol(int_max MaxOutputColNumber, int_max ColIndex_start, int_max ColIndex_end, MatchFunctionType MatchFunction) const;
+
     //----------------------- sort col -----------------------------------------------------------//
 
     template<typename CompareFunctionType>
     inline DenseMatrix<int_max> SortCol(CompareFunctionType CompareFunction) const;
 
     template<typename CompareFunctionType>
+    inline DenseMatrix<int_max> SortCol(int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction) const;
+
+    template<typename CompareFunctionType>
     inline DenseMatrix<int_max> SortColInPlace(CompareFunctionType CompareFunction);
+
+    template<typename CompareFunctionType>
+    inline DenseMatrix<int_max> SortColInPlace(int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction);
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 

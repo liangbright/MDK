@@ -676,7 +676,7 @@ bool DataContainer<ElementType>::IsSizeFixed() const
 {
     if (!m_Data)
     {
-       return false
+        return false;
     }
     else
     {
@@ -1321,9 +1321,120 @@ ElementType DataContainer<ElementType>::Pop()
 
 
 template<typename ElementType>
+inline
+DataContainer<ElementType> DataContainer<ElementType>::GetSubSet(int_max Index_start, int_max Index_end)
+{
+    DataContainer<ElementType> Subset;
+
+    auto ElementNumber = this->GetElementNumber();
+
+    if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
+    {
+        MDK_Error("Index_start is invalid @ DataContainer::GetSubSet(...)")
+        return Subset;
+    }
+
+    if (Index_end < 0 || Index_end >= ElementNumber)
+    {
+        MDK_Error("Index_end is invalid @ DataContainer::GetSubSet(...)")
+        return Subset;
+    }
+
+    if (ElementNumber == 0)
+    {
+        return Subset;
+    }
+
+    Subset.FastResize(Index_end - Index_start + 1);
+
+    for (int_max i = Index_end; i <= Index_start; ++i)
+    {
+        Subset[i - Index_end] = (*this)[i];
+    }
+
+    return Subset;
+}
+
+
+template<typename ElementType>
+inline 
+DataContainer<ElementType> DataContainer<ElementType>::GetSubSet(const std::initializer_list<int_max>& IndexList)
+{
+    return this->GetSubSet(initializer_list.begin(), int_max(IndexList.size()));
+}
+
+
+template<typename ElementType>
+inline 
+DataContainer<ElementType> DataContainer<ElementType>::GetSubSet(const std::vector<int_max>& IndexList)
+{
+    return this->GetSubSet(initializer_list.begin(), int_max(IndexList.size()));
+}
+
+
+template<typename ElementType>
+inline
+DataContainer<ElementType> DataContainer<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList)
+{
+    return this->GetSubSet(initializer_list.begin(), int_max(IndexList.GetElementNumber()));
+}
+
+
+template<typename ElementType>
+inline
+DataContainer<ElementType> DataContainer<ElementType>::GetSubSet(const DataContainer<int_max>& IndexList)
+{
+    return this->GetSubSet(initializer_list.begin(), int_max(IndexList.GetElementNumber()));
+}
+
+
+template<typename ElementType>
+inline
+DataContainer<ElementType> DataContainer<ElementType>::GetSubSet(const int_max* IndexList, int_max ListLength)
+{
+    DataContainer<ElementType> SubSet;
+
+    auto ElementNumber = this->GetElementNumber();
+
+    if (IndexList == nullptr || ListLength < 0 || ListLength >= ElementNumber)
+    {
+        MDK_Error("Invalid input @ DataContainer::GetSubSet(...)")
+        return SubSet;
+    }
+
+    SubSet.FastResize(ListLength);
+
+    for (int_max k = 0; k < ListLength; ++k)
+    {
+        auto tempIndex = IndexList[k];
+
+        if (tempIndex < 0 || tempIndex >= ElementNumber)
+        {
+            MDK_Error("Invalid index @ DataContainer::GetSubSet(...)")
+            SubSet.Clear();
+            return SubSet;
+        }
+
+        SubSet[k] = (*this)[tempIndex];
+    }
+
+    return SubSet;
+}
+
+
+template<typename ElementType>
 template<typename MatchFunctionType>
 inline
 DenseMatrix<int_max> DataContainer<ElementType>::Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction)
+{
+    return this->Find(MaxOutputNumber, 0, this->GetLength(), MatchFunction);
+}
+
+
+template<typename ElementType>
+template<typename MatchFunctionType>
+inline
+DenseMatrix<int_max> DataContainer<ElementType>::Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction)
 {
     DenseMatrix<int_max> IndexList;
 
@@ -1331,7 +1442,19 @@ DenseMatrix<int_max> DataContainer<ElementType>::Find(int_max MaxOutputNumber, M
 
     if (MaxOutputNumber <= 0 || MaxOutputNumber > ElementNumber)
     {
-        MDK_Error("Input MaxOutputNumber is invalid @ DataContainer::Find(...)")
+        MDK_Error("MaxOutputNumber is invalid @ DataContainer::Find(...)")
+        return IndexList;
+    }
+
+    if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
+    {
+        MDK_Error("Index_start is invalid @ DataContainer::Find(...)")
+        return IndexList;
+    }
+
+    if (Index_end < 0 || Index_end >= ElementNumber)
+    {
+        MDK_Error("Index_end is invalid @ DataContainer::Find(...)")
         return IndexList;
     }
 
@@ -1340,11 +1463,17 @@ DenseMatrix<int_max> DataContainer<ElementType>::Find(int_max MaxOutputNumber, M
         return IndexList;
     }
 
+    if (Index_start == Index_end)
+    {
+        IndexList.AppendCol({ Index_start });
+        return IndexList;
+    }
+
     IndexList.ReserveCapacity(MaxOutputNumber);
 
     DenseMatrix<ElementType> ColVector;
 
-    for (int_max i = 0; i < ElementNumber; ++i)
+    for (int_max i = Index_start; i <= Index_end; ++i)
     {
         if (MatchFunction((*this)[i]) == true)
         {
@@ -1364,26 +1493,58 @@ DenseMatrix<int_max> DataContainer<ElementType>::Find(int_max MaxOutputNumber, M
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline
-DenseMatrix<int_max> DataContainer<ElementType>::Sort(CompareFunctionType CompareFunction)
+DenseMatrix<int_max> DataContainer<ElementType>::Sort(CompareFunctionType CompareFunction) const
+{
+    return this->Sort(0, this->GetLength(), CompareFunction);
+}
+
+
+template<typename ElementType>
+template<typename CompareFunctionType>
+inline
+DenseMatrix<int_max> DataContainer<ElementType>::Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const
 {
     DenseMatrix<int_max> IndexList;
 
     auto ElementNumber = this->GetElementNumber();
+
+    if (MaxOutputNumber <= 0 || MaxOutputNumber > ElementNumber)
+    {
+        MDK_Error("MaxOutputNumber is invalid @ DataContainer::Find(...)")
+        return IndexList;
+    }
+
+    if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
+    {
+        MDK_Error("Index_start is invalid @ DataContainer::Find(...)")
+        return IndexList;
+    }
+
+    if (Index_end < 0 || Index_end >= ElementNumber)
+    {
+        MDK_Error("Index_end is invalid @ DataContainer::Find(...)")
+        return IndexList;
+    }
 
     if (ElementNumber == 0)
     {
         return IndexList;
     }
 
+    if (Index_start == Index_end)
+    {
+        IndexList.AppendCol({ Index_start });
+        return IndexList;
+    }
+
     IndexList.FastResize(1, ElementNumber);
 
-    for (int_max i = 0; i < ElementNumber; ++i)
+    for (int_max i = Index_start; i <= Index_end; ++i)
     {
         IndexList[i] = i;
     }
 
-    std::sort(IndexList.begin(), IndexList.end(),
-        [&](int_max a, int_max b)
+    std::sort(IndexList.begin(), IndexList.end(), [&](int_max a, int_max b)
     {
         return CompareFunction((*this)[a], (*this)[b]);
     });
@@ -1405,6 +1566,19 @@ void DataContainer<ElementType>::SortInPlace(CompareFunctionType CompareFunction
     std::sort(this->begin(), this->end(), CompareFunction);
 }
 
+
+template<typename ElementType>
+template<typename CompareFunctionType>
+inline
+void DataContainer<ElementType>::SortInPlace(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction)
+{
+    if (this->IsEmpty() == true)
+    {
+        return;
+    }
+
+    std::sort(this->begin() + Index_start, this->begin() + Index_end + 1, CompareFunction);
+}
 
 }//end namespace mdk
 

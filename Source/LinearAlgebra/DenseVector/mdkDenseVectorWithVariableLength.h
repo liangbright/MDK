@@ -12,7 +12,7 @@
 #include "mdkDenseVectorWithVariableLength_Function.h"
 
 // this is a memory efficient implementation of Dense Vector
-// Only use it if memory is not enough
+//
 // for example, use it as a voxel in a 3D vector image
 
 
@@ -48,13 +48,17 @@ public:
 
     inline void Resize(int_max Length);
 
+    inline void ReservCapacity(int_max Length);
+
     inline void Fill(const ElementType& Element);
 
     inline int_max GetLength() const;
 
+    inline int_max GetElementNumber() const;
+
     inline bool IsLengthFixed() const;
 
-    inline bool IsLengthVariable() const;
+    inline bool IsSizeFixed() const;
 
     //-----------element access------------------//
 
