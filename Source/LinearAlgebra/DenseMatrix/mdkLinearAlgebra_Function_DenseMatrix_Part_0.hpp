@@ -89,32 +89,23 @@ bool Sort(const ElementType* InputDataArray, int_max Length, ElementType* Output
         }
     }
 
-    std::vector<MDK_PairForSort<ElementType>> tempPairList(Length);
-
     for (int_max i = 0; i < Length; ++i)
     {
-        tempPairList[i].Element = InputDataArray[i];
-
-        tempPairList[i].Index = i;
+        OutputIndexList[i] = i;
     }
 
     if (Order == "ascend")
     {
-        std::sort(tempPairList.begin(), tempPairList.end(), 
-                  [](const MDK_PairForSort<ElementType>& a, const MDK_PairForSort<ElementType>& b) { return a.Element < b.Element; });
+        std::sort(OutputIndexList, OutputIndexList + Length, [&](int_max a, int_max b) { return InputDataArray[a] < InputDataArray[b]; });
     }
     else
     {
-        std::sort(tempPairList.begin(), tempPairList.end(),
-                  [](const MDK_PairForSort<ElementType>& a, const MDK_PairForSort<ElementType>& b) { return a.Element > b.Element; });
+        std::sort(OutputIndexList, OutputIndexList + Length, [&](int_max a, int_max b) { return InputDataArray[a] > InputDataArray[b]; });
     }
-
 
     for (int_max i = 0; i < Length; ++i)
     {
-        OutputDataArray[i] = tempPairList[i].Element;
-
-        OutputIndexList[i] = tempPairList[i].Index;
+        OutputDataArray[i] = InputDataArray[OutputIndexList[i]];
     }
 
     return true;

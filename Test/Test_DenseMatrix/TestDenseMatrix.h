@@ -1905,6 +1905,61 @@ void Test_MatrixMutiply()
     std::cout << "diff  = " << diff << '\n';
 }
 
+void Test_FindCol()
+{
+    DenseMatrix<int_max> A;
+
+     A = { { 1, 4, 7 },
+          { 2, 5, 8 },
+          { 3, 6, 9 } };
+
+     auto ColIndexList = A.FindCol(1, [](const DenseMatrix<int_max>& ColVector)
+                            {
+                            if (ColVector.Sum() == 15)
+                             {
+                                 return true;
+                              }
+
+                            return false;
+                            });
+}
+
+
+void Test_SortCol()
+{
+    DenseMatrix<int_max> A;
+
+    A = { { 1, 4, 7 },
+          { 2, 5, 8 },
+          { 3, 6, 9 } };
+
+    auto ColIndexList_1 = A.SortCol([](const DenseMatrix<int_max>& ColVector_a, const DenseMatrix<int_max>& ColVector_b)
+    {
+        if (ColVector_a[0] > ColVector_b[0])
+        {
+            return true;
+        }
+
+        return false;
+    });
+
+
+    auto ColIndexList_2 = A.SortColInPlace([](const DenseMatrix<int_max>& ColVector_a, const DenseMatrix<int_max>& ColVector_b)
+    {
+        if (ColVector_a[0] > ColVector_b[0])
+        {
+            return true;
+        }
+
+        return false;
+    });
+
+    DisplayMatrix("ColIndexList_1", ColIndexList_1);
+
+    DisplayMatrix("ColIndexList_2", ColIndexList_2);
+
+    DisplayMatrix("A", A);
+}
 
 }//namespace mdk
 

@@ -204,11 +204,6 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::operator=(DenseMatrix<ElementType>&& InputMatrix)
 {
-    if (!m_MatrixData)
-    {
-        this->Resize(0, 0);
-    }
-
     this->Take(std::forward<DenseMatrix<ElementType>&>(InputMatrix));
 }
 
@@ -226,8 +221,10 @@ void DenseMatrix<ElementType>::operator=(const ElementType& Element)
             MDK_Error("Can not change matrix size @ DenseMatrix::operator=(Element)")
             return;
         }
-
-        (*this)[0] = Element;
+        else
+        {
+            (*this)[0] = Element;
+        }
     }
     else
     {
@@ -300,8 +297,6 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<std::initia
 {
 //InputList is a matrix, each sub list is a row vector
 
-    auto SelfSize = this->GetSize();
-
     auto InputRowNumber = int_max(InputListInList.size());
 
     if (InputRowNumber <= 0)
@@ -323,6 +318,8 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<std::initia
             return;
         }
     }
+
+    auto SelfSize = this->GetSize();
 
     if (this->IsSizeFixed() == true)
     {
@@ -368,7 +365,7 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
 
     if (InputMatrixNumber <= 0)
     {
-        MDK_Error("Input is empty @ DenseMatrix::operator=(initializer_list)")
+        MDK_Error("Input is empty @ DenseMatrix::operator=(initializer_list of matrix pointer)")
         return;
     }
 
@@ -377,7 +374,7 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
     std::vector<int_max> ColNumberList;
     ColNumberList.resize(InputMatrixNumber);
 
-    int_max InputRowNumber = InputList.begin()[0]->GetRowNumber();
+    int_max InputRowNumber = 0;
 
     int_max TotalColNumber = 0;
 
@@ -385,14 +382,25 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
     {
         auto InputMatrixPtr = InputList.begin()[k];
 
+        if (InputMatrixPtr == nullptr)
+        {
+            MDK_Error("nullptr in InputList @ @ DenseMatrix::operator=(initializer_list of matrix pointer)")
+            return;
+        }
+
+        if (InputRowNumber == 0)
+        {
+            InputRowNumber = InputMatrixPtr->GetRowNumber();
+        }
+
         ColNumberList[k] = InputMatrixPtr->GetColNumber();
 
         TotalColNumber += InputMatrixPtr->GetColNumber();
 
         if (InputRowNumber != InputMatrixPtr->GetRowNumber())
         {
-            MDK_Error("RowNumber is not the same in the list @ DenseMatrix::operator=(initializer_list)")
-            return;        
+            MDK_Error("RowNumber is not the same in the list @ DenseMatrix::operator=(initializer_list of matrix pointer)")
+            return;
         }
 
         if (this->GetElementPointer() == InputMatrixPtr->GetElementPointer())
@@ -461,7 +469,7 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::operator=(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList)
 {
-    MDK_Error("Not implemented yet @ DenseMatrix::operator=(InputListInList)")
+    MDK_Error("Not implemented yet @ DenseMatrix::operator=(InputListInList of matrix pointer)")
 }
 
 
@@ -677,12 +685,18 @@ bool DenseMatrix<ElementType>::Share(DenseMatrix<ElementType>& InputMatrix)
         return true;
     }
 
-    auto InputSize = InputMatrix.GetSize();
-
-    auto SelfSize = this->GetSize();
+    if (InputMatrix.IsPureEmpty() == true)
+    {
+        MDK_Error("InputMatrix is pure empty (m_MatrixData is empty) @ DenseMatrix::Share(InputMatrix)")
+        return false;
+    }
 
     if (this->IsSizeFixed() == true)
     {
+        auto InputSize = InputMatrix.GetSize();
+
+        auto SelfSize = this->GetSize();
+
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
             MDK_Error("Matrix size can not be changed @ DenseMatrix::Share(InputMatrix)")
@@ -727,7 +741,14 @@ void DenseMatrix<ElementType>::ForceShare(const DenseMatrix<ElementType>& InputM
 
     m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment check is not necessary
 
-    m_ElementPointer = m_MatrixData->ElementPointer;
+    if (!m_MatrixData)
+    {
+        m_ElementPointer = m_MatrixData->ElementPointer;    
+    }
+    else
+    {
+        m_ElementPointer = nullptr;
+    }
 }
 
 
@@ -755,6 +776,11 @@ bool DenseMatrix<ElementType>::Share(ElementType* InputElementPointer, int_max I
     {
         MDK_Error("Invalid input @ DenseMatrix::Share(...)")
         return false;
+    }
+
+    if (!m_MatrixData)
+    {
+        this->Resize(0, 0);
     }
 
     if (this->IsSizeFixed() == true)
@@ -806,6 +832,11 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>& InputMatrix)
     {
         MDK_Warning("A Matrix tries to take itself @ DenseMatrix::take(InputMatrix)")
         return true;
+    }
+
+    if (!m_MatrixData)
+    {
+        this->Resize(0, 0);
     }
 
     auto InputSize = InputMatrix.GetSize();
@@ -876,19 +907,20 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>* InputMatrix)
 }
 
 
-/*
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputVector)
+bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputRowVector)
 {
+    //InputVector is treated as a row vector
+
     // MatrixA = MatrixA
-    if (this->GetElementPointer() == InputVector.data())
+    if (this->GetElementPointer() == InputRowVector.data())
     {
         MDK_Warning("A Matrix tries to take itself @ DenseMatrix::Take(std::vector)")
         return true;
     }
 
-    auto InputLength = int_max(InputVector.size());
+    auto InputLength = int_max(InputRowVector.size());
 
     auto SelfSize = this->GetSize();
 
@@ -896,25 +928,25 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputVector)
     {
         if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputLength)
         {
-            m_MatrixData->DataArray = std::move(InputVector);
+            m_MatrixData->DataArray = std::move(InputRowVector);
             m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
             m_ElementPointer = m_MatrixData->ElementPointer;
-            m_MatrixData->NaNElement = InputMatrix.m_MatrixData->NaNElement;
+
+            return true;
         }
         else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength)
         {
-            m_MatrixData->DataArray = std::move(InputVector);
+            m_MatrixData->DataArray = std::move(InputRowVector);
             m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
             m_ElementPointer = m_MatrixData->ElementPointer;
-            m_MatrixData->NaNElement = InputMatrix.m_MatrixData->NaNElement;
+
+            return true;
         }
         else
         {
             MDK_Error("Size does not match @ DenseMatrix::Take(InputVector)")
             return false;
         }
-
-        return true;
     }
     else
     {
@@ -922,55 +954,60 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputVector)
         {
             if (SelfSize.RowNumber > 0)
             {
-                MDK_Warning("InputVector is empty, and this matrix is set to be empty @ DenseMatrix::Take(std::vector)")
+                MDK_Warning("InputRowVector is empty, and this matrix is set to be empty @ DenseMatrix::Take(std::vector)")
                 this->Clear();
             }
 
             return true;
         }
 
-        // now, InputMatrix is not empty
+        // now, InputRowVector is not empty
 
         if (SelfSize.RowNumber == 1)
         {            
-            m_MatrixData->DataArray = std::move(InputVector);
+            m_MatrixData->DataArray = std::move(InputRowVector);
             m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
             m_MatrixData->ColNumber = InputLength;
-            m_MatrixData->NaNElement = InputMatrix.m_MatrixData->NaNElement;
+
             m_ElementPointer = m_MatrixData->ElementPointer;
         }
         else if (SelfSize.ColNumber == 1)
         {
-            m_MatrixData->DataArray = std::move(InputVector);
+            m_MatrixData->DataArray = std::move(InputRowVector);
             m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
             m_MatrixData->RowNumber = InputLength;
-            m_MatrixData->NaNElement = InputMatrix.m_MatrixData->NaNElement;
+
             m_ElementPointer = m_MatrixData->ElementPointer;
         }
         else
         {
-            m_MatrixData->DataArray = std::move(InputVector);
+            if (!m_MatrixData)
+            {
+                this->Resize(0, 0);
+            }
+
+            m_MatrixData->DataArray = std::move(InputRowVector);
             m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
             m_MatrixData->RowNumber = InputLength;
             m_MatrixData->ColNumber = 1;
-            m_MatrixData->NaNElement = InputMatrix.m_MatrixData->NaNElement;
+
             m_ElementPointer = m_MatrixData->ElementPointer;
         }
 
-        // Clear InputVector to be empty
-        InputVector.clear();
-
         return true;
     }
-    
 }
-*/
 
 
 template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::Take(const DenseShadowMatrix<ElementType>& ShadowMatrix)
 {
+    if (!m_MatrixData)
+    {
+        this->Resize(0, 0);
+    }
+
     auto InputSize = ShadowMatrix.GetSize();
 
     auto SelfSize = this->GetSize();
@@ -998,6 +1035,11 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::Take(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
+    if (!m_MatrixData)
+    {
+        this->Resize(0, 0);
+    }
+
     auto InputSize = GlueMatrix.GetSize();
 
     auto SelfSize = this->GetSize();
@@ -1025,6 +1067,11 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::Take(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
+    if (!m_MatrixData)
+    {
+        this->Resize(0, 0);
+    }
+
     auto InputSize = GlueMatrix.GetSize();
 
     auto SelfSize = this->GetSize();
@@ -1089,6 +1136,11 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::Clear()
 {
+    if (!m_MatrixData)
+    {
+        return;
+    }
+
     m_MatrixData->RowNumber = 0;
 
     m_MatrixData->ColNumber = 0;
@@ -1121,6 +1173,8 @@ bool DenseMatrix<ElementType>::Reshape(int_max InputRowNumber, int_max InputColN
             MDK_Error("Self is empty and Size does not match @ DenseMatrix::Reshape()")
             return false;
         }
+
+        return true;
     }
 
     if (InputRowNumber*InputColNumber != this->GetElementNumber())
@@ -1294,6 +1348,11 @@ bool DenseMatrix<ElementType>::FastResize(int_max InputRowNumber, int_max InputC
         return false;    
     }
 
+    if (!m_MatrixData)
+    {
+        this->Resize(0, 0);
+    }
+
     auto Size = this->GetSize();
 
     if (Size.RowNumber == InputRowNumber && Size.ColNumber == InputColNumber)
@@ -1367,6 +1426,11 @@ bool DenseMatrix<ElementType>::Resize(int_max InputElementNumber) // try to keep
         return false;
     }
 
+    if (!m_MatrixData)
+    {
+        this->Resize(0, 0);
+    }
+
     auto Size = this->GetSize();
 
     if (Size.RowNumber > 1 && Size.ColNumber > 1)
@@ -1438,6 +1502,11 @@ bool DenseMatrix<ElementType>::FastResize(int_max InputElementNumber) // do not 
         return false;
     }
 
+    if (!m_MatrixData)
+    {
+        this->Resize(0, 0);
+    }
+
     auto Size = this->GetSize();
 
     if (Size.RowNumber == 0) // empty -> row vector
@@ -1472,6 +1541,10 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::ReserveCapacity(int_max InputElementNumber)
 {
+    if (!m_MatrixData)
+    {
+        this->Resize(0, 0);
+    }
 
 try
 {
@@ -1502,6 +1575,11 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::Squeeze()
 {
+    if (!m_MatrixData)
+    {
+        return;
+    }
+
     if (m_MatrixData->DataArray.data() != nullptr)
     {
         m_MatrixData->DataArray.shrink_to_fit();
@@ -1515,6 +1593,11 @@ template<typename ElementType>
 inline 
 void DenseMatrix<ElementType>::FixSize()
 {
+    if (!m_MatrixData)
+    {
+        this->Resize(0, 0);
+    }
+
     m_MatrixData->IsSizeFixed = true;
 }
 
@@ -1523,6 +1606,11 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::IsSizeFixed() const
 {
+    if (!m_MatrixData)
+    {
+        return false;
+    }
+
     return m_MatrixData->IsSizeFixed;
 }
 
@@ -1570,9 +1658,18 @@ MatrixSize DenseMatrix<ElementType>::GetSize() const
 {
     MatrixSize Size;
 
-    Size.RowNumber = m_MatrixData->RowNumber;
+    if (!m_MatrixData)
+    {
+        Size.RowNumber = 0;
 
-    Size.ColNumber = m_MatrixData->ColNumber;
+        Size.ColNumber = 0;
+    }
+    else
+    {
+        Size.RowNumber = m_MatrixData->RowNumber;
+
+        Size.ColNumber = m_MatrixData->ColNumber;
+    }
 
     return Size;
 }
@@ -1582,7 +1679,14 @@ template<typename ElementType>
 inline
 int_max DenseMatrix<ElementType>::GetElementNumber() const
 {
-    return m_MatrixData->RowNumber * m_MatrixData->ColNumber;
+    if (!m_MatrixData)
+    {
+        return 0;
+    }
+    else
+    {
+        return m_MatrixData->RowNumber * m_MatrixData->ColNumber;
+    }
 }
 
 
@@ -1590,7 +1694,14 @@ template<typename ElementType>
 inline 
 int_max DenseMatrix<ElementType>::GetColNumber() const
 {
-    return m_MatrixData->ColNumber;
+    if (!m_MatrixData)
+    {
+        return 0;
+    }
+    else
+    {
+        return m_MatrixData->ColNumber;
+    }
 }
 
 
@@ -1598,7 +1709,14 @@ template<typename ElementType>
 inline 
 int_max DenseMatrix<ElementType>::GetRowNumber() const
 {
-    return m_MatrixData->RowNumber;
+    if (!m_MatrixData)
+    {
+        return 0;
+    }
+    else
+    {
+        return m_MatrixData->RowNumber;
+    }
 }
 
 
@@ -1606,7 +1724,14 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::IsVector() const
 {
-    return (m_MatrixData->RowNumber == 1 || m_MatrixData->ColNumber == 1);
+    if (!m_MatrixData)
+    {
+        return false;
+    }
+    else
+    {
+        return (m_MatrixData->RowNumber == 1 || m_MatrixData->ColNumber == 1);
+    }
 }
 
 
@@ -1614,7 +1739,14 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::IsRowVector() const
 {
-    return (m_MatrixData->RowNumber == 1);
+    if (!m_MatrixData)
+    {
+        return false;
+    }
+    else
+    {
+        return (m_MatrixData->RowNumber == 1);
+    }
 }
 
 
@@ -1622,7 +1754,14 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::IsColVector() const
 {
-    return (m_MatrixData->ColNumber == 1);
+    if (!m_MatrixData)
+    {
+        return false;
+    }
+    else
+    {
+        return (m_MatrixData->ColNumber == 1);
+    }
 }
 
 
@@ -1630,7 +1769,14 @@ template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::IsSquare() const
 {
-    return (m_MatrixData->RowNumber > 0 && m_MatrixData->RowNumber == m_MatrixData->ColNumber);
+    if (!m_MatrixData)
+    {
+        return false;
+    }
+    else
+    {
+        return (m_MatrixData->RowNumber > 0 && m_MatrixData->RowNumber == m_MatrixData->ColNumber);
+    }
 }
 
 
@@ -1674,6 +1820,11 @@ template<typename ElementType>
 inline
 const ElementType& DenseMatrix<ElementType>::GetNaNElement()  const
 {
+    if (!m_MatrixData)
+    {
+        MDK_Error("Something is wrong here @ DenseMatrix::GetNaNElement()")
+    }
+
     return m_MatrixData->NaNElement;
 }
 
@@ -1682,6 +1833,11 @@ template<typename ElementType>
 inline
 MatrixElementTypeEnum DenseMatrix<ElementType>::GetElementType() const
 {
+    if (!m_MatrixData)
+    {
+        MDK_Error("Something is wrong here @ DenseMatrix::GetNaNElement()")
+    }
+
     return FindMatrixElementType(m_MatrixData->NaNElement);
 }
 
@@ -1690,7 +1846,14 @@ template<typename ElementType>
 inline
 ElementType* DenseMatrix<ElementType>::GetElementPointer()
 {
-    return m_MatrixData->ElementPointer;
+    if (!m_MatrixData)
+    {
+        return nullptr;
+    }
+    else
+    {
+        return m_MatrixData->ElementPointer;
+    }
 }
 
 
@@ -1698,32 +1861,53 @@ template<typename ElementType>
 inline
 const ElementType* DenseMatrix<ElementType>::GetElementPointer() const
 {
-    return m_MatrixData->ElementPointer;
+    if (!m_MatrixData)
+    {
+        return nullptr;
+    }
+    else
+    {
+        return m_MatrixData->ElementPointer;
+    }
 }
 
 
 template<typename ElementType>
 inline ElementType* DenseMatrix<ElementType>::begin()
-{// the position of the first element
-    return m_MatrixData->ElementPointer;
+{
+    return this->GetElementPointer();
 }
 
 
 template<typename ElementType>
 inline const ElementType* DenseMatrix<ElementType>::begin() const
 {
-    return m_MatrixData->ElementPointer;
+    return this->GetElementPointer();
+}
+
+
+template<typename ElementType>
+inline ElementType* DenseMatrix<ElementType>::end()
+{
+    auto endPtr = this->GetElementPointer();
+
+    if (endPtr != nullptr)
+    {
+        endPtr += this->GetElementNumber();
+    }
+
+    return endPtr;
 }
 
 
 template<typename ElementType>
 inline const ElementType* DenseMatrix<ElementType>::end() const
 {
-    auto endPtr = m_MatrixData->ElementPointer;
+    auto endPtr = this->GetElementPointer();
 
     if (endPtr != nullptr)
     {
-        endPtr += 1;
+        endPtr += this->GetElementNumber();
     }
 
     return endPtr;
@@ -1734,6 +1918,11 @@ template<typename ElementType>
 inline 
 ElementType* DenseMatrix<ElementType>::GetElementPointerOfCol(int_max ColIndex) //  the position of the first element in Col # ColIndex
 {
+    if (!m_MatrixData)
+    {
+        return nullptr;
+    }
+
     auto Size = this->GetSize();
 
     if (ColIndex >= Size.ColNumber || ColIndex < 0)
@@ -1752,6 +1941,11 @@ template<typename ElementType>
 inline
 const ElementType* DenseMatrix<ElementType>::GetElementPointerOfCol(int_max ColIndex) const
 {
+    if (!m_MatrixData)
+    {
+        return nullptr;
+    }
+
     auto Size = this->GetSize();
 
     if (ColIndex >= Size.ColNumber || ColIndex < 0)
@@ -2111,7 +2305,7 @@ DenseMatrix<ElementType>::operator()(const DenseMatrix<int_max>& LinearIndexList
 {
 #if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
-    if (LinearIndexList.IsNonemptyVector() == false)
+    if (LinearIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::operator()(DenseMatrix: LinearIndexList)")
 
@@ -2133,7 +2327,7 @@ DenseMatrix<ElementType>::operator()(const DenseMatrix<int_max>& LinearIndexList
 {
 #if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
-    if (LinearIndexList.IsNonemptyVector() == false)
+    if (LinearIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::operator()(DenseMatrix: LinearIndexList)")
 
@@ -2297,7 +2491,7 @@ inline
 DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& LinearIndexList)
 {
-    if (LinearIndexList.IsNonemptyVector() == false)
+    if (LinearIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: LinearIndexList)")
 
@@ -2315,7 +2509,7 @@ inline
 const DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& LinearIndexList) const
 {
-    if (LinearIndexList.IsNonemptyVector() == false)
+    if (LinearIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: LinearIndexList)")
 
@@ -2817,7 +3011,7 @@ DenseMatrix<ElementType>::operator()(const DenseMatrix<int_max>& RowIndexList, c
 {
 #if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
-    if (RowIndexList.IsNonemptyVector() == false || ColIndexList.IsNonemptyVector() == false)
+    if (RowIndexList.IsVector() == false || ColIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::operator()(DenseMatrix: RowIndexList, ColIndexList)")
 
@@ -2839,7 +3033,7 @@ DenseMatrix<ElementType>::operator()(const DenseMatrix<int_max>& RowIndexList, c
 {
 #if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
-    if (RowIndexList.IsNonemptyVector() == false || ColIndexList.IsNonemptyVector() == false)
+    if (RowIndexList.IsVector() == false || ColIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::operator()(DenseMatrix: RowIndexList, ColIndexList)")
 
@@ -2861,7 +3055,7 @@ DenseMatrix<ElementType>::operator()(const DenseMatrix<int_max>& RowIndexList, c
 {
 #if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
-    if (RowIndexList.IsNonemptyVector() == false)
+    if (RowIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::operator()(DenseMatrix: RowIndexList, ALL)")
 
@@ -2883,7 +3077,7 @@ DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_S
 {
 #if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
-    if (ColIndexList.IsNonemptyVector() == false)
+    if (ColIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::operator()(DenseMatrix: ALL, ColIndexList)")
 
@@ -2905,7 +3099,7 @@ DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_S
 {
 #if defined(MDK_DEBUG_DenseMatrix_Operator_CheckBound)
 
-    if (ColIndexList.IsNonemptyVector() == false)
+    if (ColIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::operator()(DenseMatrix: ALL, ColIndexList)")
 
@@ -3326,7 +3520,7 @@ inline
 DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& RowIndexList, const DenseMatrix<int_max>& ColIndexList)
 {
-    if (RowIndexList.IsNonemptyVector() == false || ColIndexList.IsNonemptyVector() == false)
+    if (RowIndexList.IsVector() == false || ColIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: RowIndexList, ColIndexList)")
 
@@ -3344,7 +3538,7 @@ inline
 const DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& RowIndexList, const DenseMatrix<int_max>& ColIndexList) const
 {
-    if (RowIndexList.IsNonemptyVector() == false || ColIndexList.IsNonemptyVector() == false)
+    if (RowIndexList.IsVector() == false || ColIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: RowIndexList, ColIndexList) const")
 
@@ -3362,7 +3556,7 @@ inline
 DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
 {
-    if (RowIndexList.IsNonemptyVector() == false)
+    if (RowIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: RowIndexList, ALL)")
 
@@ -3380,7 +3574,7 @@ inline
 const DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
 {
-    if (RowIndexList.IsNonemptyVector() == false)
+    if (RowIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: RowIndexList, ALL) const")
 
@@ -3398,7 +3592,7 @@ inline
 DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const DenseMatrix<int_max>& ColIndexList)
 {
-    if (ColIndexList.IsNonemptyVector() == false)
+    if (ColIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: ALL, ColIndexList)")
 
@@ -3416,7 +3610,7 @@ inline
 const DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const DenseMatrix<int_max>& ColIndexList) const
 {
-    if (ColIndexList.IsNonemptyVector() == false)
+    if (ColIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: ALL, ColIndexList) const")
 
@@ -3993,9 +4187,9 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
         return false;
     }
 
-    this->GetSubMatrix(OutputMatrix,
-                       ALL_Symbol,
-                       ColIndexList.GetElementPointer(), ColIndexList.GetElementNumber());
+    return this->GetSubMatrix(OutputMatrix,
+                              ALL_Symbol,
+                              ColIndexList.GetElementPointer(), ColIndexList.GetElementNumber());
 }
 
 
@@ -4646,6 +4840,11 @@ bool DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Inp
             MDK_Error("Invalid Input @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int_max Length)")
             return false;
         }
+    }
+
+    if (!m_MatrixData)
+    {
+        this->Resize(0, 0);
     }
 
     m_MatrixData->CopyDataToInternalDataArrayIfNecessary();
@@ -6374,6 +6573,39 @@ DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationType Op
 {
     return MatrixRowOperation(*this, RowIndex, Operation, *this, RowIndex, Element, EnableBoundCheck);
 }
+
+//--------------------------------------------------------------------------------------------//
+
+template<typename ElementType>
+template<typename MatchFunctionType>
+inline
+DenseMatrix<int_max> 
+DenseMatrix<ElementType>::FindCol(int_max MaxOutputColNumber, MatchFunctionType MatchFunction) const
+{
+    return FindColInMatrix(*this, MaxOutputColNumber, MatchFunction);
+}
+
+//-------------------------------------------------------------------------------------------//
+
+template<typename ElementType>
+template<typename CompareFunctionType>
+inline
+DenseMatrix<int_max> 
+DenseMatrix<ElementType>::SortCol(CompareFunctionType CompareFunction) const
+{
+    return SortColInMatrix(*this, CompareFunction);
+}
+
+
+template<typename ElementType>
+template<typename CompareFunctionType>
+inline 
+DenseMatrix<int_max>
+DenseMatrix<ElementType>::SortColInPlace(CompareFunctionType CompareFunction)
+{
+    return SortColInMatrix(*this, *this, CompareFunction);
+}
+
 
 //-----------------------------------------------------------------------------------------------------------//
 

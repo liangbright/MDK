@@ -1,10 +1,103 @@
 #ifndef __mdkLinearAlgebra_Function_DenseMatrix_Part_2_hpp
 #define __mdkLinearAlgebra_Function_DenseMatrix_Part_2_hpp
 
-//#include "mdkLinearAlgebra_DenseMatrix_Part_2.h"
+
 
 namespace mdk
 {
+
+//================================================================================================================================//
+
+template<typename ElementType, typename MatchFunctionType>
+DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputColNumber, MatchFunctionType MatchFunction)
+{
+    DenseMatrix<int_max> ColIndexList;
+
+    auto InputSize = InputMatrix.GetSize();
+
+    if (MaxOutputColNumber <= 0 || MaxOutputColNumber > InputSize.ColNumber)
+    {
+        MDK_Error("Input MaxOutputColNumber is invalid @ mdkLinearAlgebra_DenseMatrix FindColInMatrix(...)")
+        return ColIndexList;
+    }
+
+    if (InputSize.ColNumber == 0)
+    {
+        return ColIndexList;
+    }
+
+    ColIndexList.ReserveCapacity(MaxOutputColNumber);
+
+    DenseMatrix<ElementType> ColVector;
+
+    for (int_max i = 0; i < InputSize.ColNumber; ++i)
+    {
+        ColVector.ForceShare(InputMatrix.GetElementPointerOfCol(i), InputSize.RowNumber, 1);
+
+        if (MatchFunction(ColVector) == true)
+        {
+            ColIndexList.AppendCol({ i });
+
+            auto CurrentNumber = ColIndexList.GetElementNumber();
+
+            if (CurrentNumber == MaxOutputColNumber)
+            {
+                break;
+            }
+        }
+    }
+
+    return ColIndexList;
+}
+
+
+template<typename ElementType, typename CompareFunctionType>
+DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix, CompareFunctionType CompareFunction)
+{
+    DenseMatrix<int_max> ColIndexList;
+
+    auto InputSize = InputMatrix.GetSize();
+
+    if (InputSize.ColNumber == 0)
+    {
+        return ColIndexList;
+    }
+
+    ColIndexList.FastResize(1, InputSize.ColNumber);
+
+    for (int_max i = 0; i < InputSize.ColNumber; ++i)
+    {
+        ColIndexList[i] = i;
+    }
+
+    DenseMatrix<ElementType> ColVector_a, ColVector_b;
+
+    std::sort(ColIndexList.begin(), ColIndexList.end(),
+        [&](int_max a, int_max b)
+    {
+        ColVector_a.ForceShare(InputMatrix.GetElementPointerOfCol(a), InputSize.RowNumber, 1);
+        ColVector_b.ForceShare(InputMatrix.GetElementPointerOfCol(b), InputSize.RowNumber, 1);
+        return CompareFunction(ColVector_a, ColVector_b);
+    });
+
+    return ColIndexList;
+}
+
+
+template<typename ElementType, typename CompareFunctionType>
+DenseMatrix<int_max> SortColInMatrix(DenseMatrix<ElementType>& OutputMatrix, const DenseMatrix<ElementType>& InputMatrix, CompareFunctionType CompareFunction)
+{
+    auto ColIndexList = SortColInMatrix(InputMatrix, CompareFunction);
+
+    if (ColIndexList.IsEmpty() == true)
+    {
+        return ColIndexList;
+    }
+
+    OutputMatrix = InputMatrix(ALL, ColIndexList);
+
+    return ColIndexList;
+}
 
 //================================================================================================================================//
 
@@ -826,7 +919,7 @@ DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Inpu
 
     arma::svd(U, S, V, X);
 
-    Result.S.SetDiangonal(S.memptr());
+    Result.S.SetDiagonal(S.memptr());
 
     return Result;
 }

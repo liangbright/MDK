@@ -104,7 +104,7 @@ int main()
 
    // Test_Set_Get_Append_Delete_Insert_Row();
 
-    Test_GetSubMatrix();
+   // Test_GetSubMatrix();
 
     // Test_Share();
 
@@ -133,6 +133,10 @@ int main()
     //Test_Mutiplication_Speed();
 
     //Test_Arma();
+
+    //Test_FindCol();
+
+    Test_SortCol();
 
     std::system("pause");
 

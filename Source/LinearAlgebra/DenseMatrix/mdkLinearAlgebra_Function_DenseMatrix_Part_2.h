@@ -18,6 +18,17 @@ class DenseMatrix;
 
 //-----------------------------------------------------------------------------------------------//
 
+template<typename ElementType, typename MatchFunctionType>
+DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxNumber, MatchFunctionType MatchFunction);
+
+template<typename ElementType, typename CompareFunctionType>
+DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix, CompareFunctionType CompareFunction);
+
+template<typename ElementType, typename CompareFunctionType>
+DenseMatrix<int_max> SortColInMatrix(DenseMatrix<ElementType>& OutputMatrix, const DenseMatrix<ElementType>& InputMatrix, CompareFunctionType CompareFunction);
+
+//-----------------------------------------------------------------------------------------------//
+
 template<typename ElementType>
 inline
 ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix);

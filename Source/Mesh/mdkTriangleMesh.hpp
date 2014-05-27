@@ -171,8 +171,7 @@ bool TriangleMesh<ScalarType>::ConstructEdge()
 
     // sort HalfEdge
 
-    std::sort(HalfEdge.begin(), HalfEdge.end(),
-        [](const DenseMatrix<int_max>& A, const DenseMatrix<int_max>& B)        
+    HalfEdge.SortInPlace([](const DenseMatrix<int_max>& A, const DenseMatrix<int_max>& B)        
     {
         if (A[1] == B[1]) // VertexIndex_0 of A == VertexIndex_0 of B
         {

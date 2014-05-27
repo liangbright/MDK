@@ -326,7 +326,7 @@ public:
 
     inline bool Take(DenseMatrix<ElementType>* InputMatrix);
 
-    //inline bool Take(std::vector<ElementType>& InputRowVector);
+    inline bool Take(std::vector<ElementType>& InputRowVector);
 
     //Take the Matrix Created from ShadowMatrix or GlueMatrix
 
@@ -412,6 +412,8 @@ public:
     inline ElementType* begin(); // the position of the first element
 
     inline const ElementType* begin() const;
+
+    inline ElementType* end(); // the last position + 1
 
     inline const ElementType* end() const; // the last position + 1
 
@@ -1097,6 +1099,19 @@ public:
 
     template<typename OperationType>
     inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
+
+    //------------------------ find col ---------------------------------------------------------//
+
+    template<typename MatchFunctionType>
+    inline DenseMatrix<int_max> FindCol(int_max MaxOutputColNumber, MatchFunctionType MatchFunction) const;
+
+    //----------------------- sort col -----------------------------------------------------------//
+
+    template<typename CompareFunctionType>
+    inline DenseMatrix<int_max> SortCol(CompareFunctionType CompareFunction) const;
+
+    template<typename CompareFunctionType>
+    inline DenseMatrix<int_max> SortColInPlace(CompareFunctionType CompareFunction);
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 

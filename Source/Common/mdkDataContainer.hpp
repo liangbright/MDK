@@ -92,11 +92,6 @@ template<typename ElementType>
 inline
 void DataContainer<ElementType>::operator=(DataContainer<ElementType>&& InputData)
 {
-    if (!m_Data)
-    {
-        this->Resize(0);
-    }
-
     this->Take(std::forward<DataContainer<ElementType>&>(InputData));
 }
 
@@ -429,6 +424,11 @@ bool DataContainer<ElementType>::Take(DataContainer<ElementType>& InputData)
         return true;
     }
 
+    if (!m_Data)
+    {
+        this->Resize(0);
+    }
+
     // now, InputData is not empty, and is not self
     
     //note: m_Data.swap(InputData.m_Data) will invalidate Share()
@@ -481,6 +481,11 @@ template<typename ElementType>
 inline
 void DataContainer<ElementType>::Clear()
 {
+    if (!m_Data)
+    {
+        return;
+    }
+
     m_Data->IsSizeFixed = false;
 
     m_Data->Length = 0;
@@ -571,6 +576,11 @@ bool DataContainer<ElementType>::FastResize(int_max InputLength)
         return false;
     }
 
+    if (!m_Data)
+    {
+        this->Resize(0);
+    }
+
 try
 {
     if (InputLength != SelfLength)
@@ -606,6 +616,10 @@ template<typename ElementType>
 inline
 bool DataContainer<ElementType>::ReserveCapacity(int_max InputElementNumber)
 {
+    if (!m_Data)
+    {
+        this->Resize(0);
+    }
 
 try
 {
@@ -632,6 +646,11 @@ template<typename ElementType>
 inline
 void DataContainer<ElementType>::Squeeze()
 {
+    if (!m_Data)
+    {
+        return;
+    }
+
     m_Data->DataArray.shrink_to_fit();
     m_Data->ElementPointer = m_Data->DataArray.data();
     m_ElementPointer = m_Data->ElementPointer;
@@ -642,6 +661,11 @@ template<typename ElementType>
 inline 
 void DataContainer<ElementType>::FixSize()
 {
+    if (!m_Data)
+    {
+        this->Resize(0);
+    }
+
     m_Data->IsSizeFixed = true;
 }
 
@@ -650,7 +674,14 @@ template<typename ElementType>
 inline
 bool DataContainer<ElementType>::IsSizeFixed() const
 {
-    return m_Data->IsSizeFixed;
+    if (!m_Data)
+    {
+       return false
+    }
+    else
+    {
+        return m_Data->IsSizeFixed;
+    }
 }
 
 
@@ -658,7 +689,14 @@ template<typename ElementType>
 inline
 bool DataContainer<ElementType>::IsEmpty() const
 {
-    return (m_Data->Length <= 0);
+    if (!m_Data)
+    {
+        return true;
+    }
+    else
+    {
+        return (m_Data->Length <= 0);
+    }
 }
 
 
@@ -674,7 +712,14 @@ template<typename ElementType>
 inline
 int_max DataContainer<ElementType>::GetLength() const
 {
-    return m_Data->Length;
+    if (!m_Data)
+    {
+        return 0;
+    }
+    else
+    {
+        return m_Data->Length;
+    }
 }
 
 
@@ -682,7 +727,7 @@ template<typename ElementType>
 inline
 int_max DataContainer<ElementType>::GetElementNumber() const
 {
-    return m_Data->Length;
+    return this->GetLength();
 }
 
 
@@ -690,6 +735,11 @@ template<typename ElementType>
 inline
 const ElementType& DataContainer<ElementType>::GetErrorElement()  const
 {
+    if (!m_Data)
+    {
+        MDK_Error("m_Data is empty @ DataContainer::GetErrorElement()")
+    }
+
     return m_Data->ErrorElement;
 }
 
@@ -698,7 +748,14 @@ template<typename ElementType>
 inline
 ElementType* DataContainer<ElementType>::GetElementPointer()
 {
-    return m_Data->ElementPointer;
+    if (!m_Data)
+    {
+        return nullptr;
+    }
+    else
+    {
+        return m_Data->ElementPointer;
+    }
 }
 
 
@@ -706,7 +763,14 @@ template<typename ElementType>
 inline
 const ElementType* DataContainer<ElementType>::GetElementPointer() const
 {
-    return m_Data->ElementPointer;
+    if (!m_Data)
+    {
+        return nullptr;
+    }
+    else
+    {
+        return m_Data->ElementPointer;
+    }
 }
 
 
@@ -714,7 +778,7 @@ template<typename ElementType>
 inline 
 ElementType* DataContainer<ElementType>::begin()
 {
-    return m_Data->ElementPointer; // the pointer of the first element
+    return this->GetElementPointer();
 }
 
 
@@ -722,7 +786,7 @@ template<typename ElementType>
 inline 
 const ElementType* DataContainer<ElementType>::begin() const
 {
-    return m_Data->ElementPointer;
+    return this->GetElementPointer();
 }
 
 
@@ -730,7 +794,14 @@ template<typename ElementType>
 inline
 ElementType* DataContainer<ElementType>::end()
 {
-    return m_Data->ElementPointer + m_Data->Length;
+    auto EndPtr = this->GetElementPointer();
+
+    if (EndPtr != nullptr)
+    {
+        EndPtr += this->GetElementNumber();
+    }
+
+    return EndPtr;
 }
 
 
@@ -738,7 +809,14 @@ template<typename ElementType>
 inline
 const ElementType* DataContainer<ElementType>::end() const
 {
-    return m_Data->ElementPointer + m_Data->Length;
+    auto EndPtr = this->GetElementPointer();
+
+    if (EndPtr != nullptr)
+    {
+        EndPtr += this->GetElementNumber();
+    }
+
+    return EndPtr;
 }
 
 
@@ -1190,6 +1268,11 @@ bool DataContainer<ElementType>::Insert(int_max Index, const ElementType* InputD
         }
     }
 
+    if (!m_Data)
+    {
+        this->Resize(0);
+    }
+
     m_Data->CopyDataToInternalDataArrayIfNecessary();
 
     m_Data->DataArray.insert(m_Data->DataArray.begin() + Index, InputData, InputData + InputLength);
@@ -1218,9 +1301,11 @@ ElementType DataContainer<ElementType>::Pop()
 {
     auto OutputElement = ElementType(0);
 
-    if (this->IsEmpty() == false)
+    auto CurrentElementNumber = this->GetElementNumber();
+
+    if (CurrentElementNumber > 0)
     {
-        auto tempIndex = this->GetElementNumber() - 1;
+        auto tempIndex = CurrentElementNumber - 1;
 
         OutputElement = (*this)[tempIndex];
 
@@ -1232,6 +1317,92 @@ ElementType DataContainer<ElementType>::Pop()
     }
    
     return OutputElement;
+}
+
+
+template<typename ElementType>
+template<typename MatchFunctionType>
+inline
+DenseMatrix<int_max> DataContainer<ElementType>::Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction)
+{
+    DenseMatrix<int_max> IndexList;
+
+    auto ElementNumber = this->GetElementNumber();
+
+    if (MaxOutputNumber <= 0 || MaxOutputNumber > ElementNumber)
+    {
+        MDK_Error("Input MaxOutputNumber is invalid @ DataContainer::Find(...)")
+        return IndexList;
+    }
+
+    if (ElementNumber == 0)
+    {
+        return IndexList;
+    }
+
+    IndexList.ReserveCapacity(MaxOutputNumber);
+
+    DenseMatrix<ElementType> ColVector;
+
+    for (int_max i = 0; i < ElementNumber; ++i)
+    {
+        if (MatchFunction((*this)[i]) == true)
+        {
+            IndexList.AppendCol({ i });
+
+            if (IndexList.GetElementNumber() == MaxOutputNumber)
+            {
+                break;
+            }
+        }
+    }
+
+    return IndexList;
+}
+
+
+template<typename ElementType>
+template<typename CompareFunctionType>
+inline
+DenseMatrix<int_max> DataContainer<ElementType>::Sort(CompareFunctionType CompareFunction)
+{
+    DenseMatrix<int_max> IndexList;
+
+    auto ElementNumber = this->GetElementNumber();
+
+    if (ElementNumber == 0)
+    {
+        return IndexList;
+    }
+
+    IndexList.FastResize(1, ElementNumber);
+
+    for (int_max i = 0; i < ElementNumber; ++i)
+    {
+        IndexList[i] = i;
+    }
+
+    std::sort(IndexList.begin(), IndexList.end(),
+        [&](int_max a, int_max b)
+    {
+        return CompareFunction((*this)[a], (*this)[b]);
+    });
+
+    return IndexList;
+}
+
+
+template<typename ElementType>
+template<typename CompareFunctionType>
+inline
+void DataContainer<ElementType>::SortInPlace(CompareFunctionType CompareFunction)
+{
+    if (this->IsEmpty() == true)
+    {
+        return;
+    }
+
+    std::sort(this->begin(), this->end(), CompareFunction);
 }
 
 

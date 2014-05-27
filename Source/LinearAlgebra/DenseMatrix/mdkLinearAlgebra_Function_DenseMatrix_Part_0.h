@@ -16,14 +16,6 @@ namespace mdk
 template<typename ElementType>
 class DenseMatrix;
 
-template<typename ElementType>
-struct MDK_PairForSort
-{
-    ElementType Element;
-
-    int_max Index;
-};
-
 //only sort 1-D array
 template<typename ElementType>
 bool Sort(const DenseMatrix<ElementType>& InputDataArray, DenseMatrix<ElementType>& OutputDataArray, 

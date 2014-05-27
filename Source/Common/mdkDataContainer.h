@@ -285,6 +285,19 @@ public:
 
     inline ElementType Pop();
 
+    //-------------------- find ---------------------------------------//
+
+    template<typename MatchFunctionType>
+    inline DenseMatrix<int_max> Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction);
+
+    //--------------------- sort ---------------------------------------//
+
+    template<typename CompareFunctionType>
+    inline DenseMatrix<int_max> Sort(CompareFunctionType CompareFunction) const;
+
+    template<typename CompareFunctionType>
+    inline void SortInPlace(CompareFunctionType CompareFunction);
+
 private:
 
 };
