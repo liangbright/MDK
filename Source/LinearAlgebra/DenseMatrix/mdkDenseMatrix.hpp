@@ -6579,6 +6579,48 @@ DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationType Op
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
+DenseMatrix<int_max>
+DenseMatrix<ElementType>::FindElement(MatchFunctionType MatchFunction) const
+{
+    return FindElementInMatrix(*this, MatchFunction);
+}
+
+
+
+template<typename ElementType>
+template<typename MatchFunctionType>
+inline
+DenseMatrix<int_max>
+DenseMatrix<ElementType>::FindElement(int_max MaxOutputNumber, MatchFunctionType MatchFunction) const
+{
+    return FindElementInMatrix(*this, MaxOutputColNumber, MatchFunction);
+}
+
+
+template<typename ElementType>
+template<typename MatchFunctionType>
+inline
+DenseMatrix<int_max>
+DenseMatrix<ElementType>::FindElement(int_max MaxOutputNumber, int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction) const
+{
+    return FindElementInMatrix(*this, MaxOutputNumber, LinearIndex_start, LinearIndex_end, MatchFunction);
+}
+
+//--------------------------------------------------------------------------------------------//
+
+template<typename ElementType>
+template<typename MatchFunctionType>
+inline
+DenseMatrix<int_max>
+DenseMatrix<ElementType>::FindCol(MatchFunctionType MatchFunction) const
+{
+    return FindColInMatrix(*this, MatchFunction);
+}
+
+
+template<typename ElementType>
+template<typename MatchFunctionType>
+inline
 DenseMatrix<int_max> 
 DenseMatrix<ElementType>::FindCol(int_max MaxOutputColNumber, MatchFunctionType MatchFunction) const
 {

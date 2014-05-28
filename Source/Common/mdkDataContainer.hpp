@@ -1425,6 +1425,15 @@ DataContainer<ElementType> DataContainer<ElementType>::GetSubSet(const int_max* 
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
+DenseMatrix<int_max> DataContainer<ElementType>::Find(MatchFunctionType MatchFunction)
+{
+    return this->Find(this->GetLength(), 0, this->GetLength(), MatchFunction);
+}
+
+
+template<typename ElementType>
+template<typename MatchFunctionType>
+inline
 DenseMatrix<int_max> DataContainer<ElementType>::Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction)
 {
     return this->Find(MaxOutputNumber, 0, this->GetLength(), MatchFunction);

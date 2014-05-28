@@ -302,6 +302,9 @@ public:
     //-------------------- find ---------------------------------------//
 
     template<typename MatchFunctionType>
+    inline DenseMatrix<int_max> Find(MatchFunctionType MatchFunction);
+
+    template<typename MatchFunctionType>
     inline DenseMatrix<int_max> Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction);
 
     template<typename MatchFunctionType>

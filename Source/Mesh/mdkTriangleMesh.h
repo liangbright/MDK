@@ -9,6 +9,7 @@
 
 namespace mdk
 {
+
 template<typename ScalarType = double>
 struct TriangleMeshData
 {
@@ -69,9 +70,14 @@ struct TriangleMeshData
     // Adjacency_VertexToVertex[k] is { VertexIndex_0, VertexIndex_1, VertexIndex_2, ...}
     // share the same neighbour Vertex (VertexIndex is k) 
 
-    //std::vector<DenseMatrix<int_max>> Adjacency_EdgeToEdge; can be directly derived from Edge and Link_VertexToEdge
-    // Adjacency_EdgeToEdge[k] is { Link_VertexToEdge[Edge(0, k)], Link_VertexToEdge[Edge(1, k)] } 
-     
+    //DataContainer<std::vector<int_max>> Adjacency_EdgeToEdge_0;
+    // Adjacency_EdgeToEdge_0[k] is Link_VertexToEdge[VertexIndex_0] without k
+    // Edge(:,k)  is {VertexIndex_0, VertexIndex_1}
+
+    //DataContainer<std::vector<int_max>> Adjacency_EdgeToEdge_1;
+    // Adjacency_EdgeToEdge_0[k] is Link_VertexToEdge[VertexIndex_1] without k
+    // Edge(:,k)  is {VertexIndex_0, VertexIndex_1}
+
     DataContainer<std::vector<int_max>> Adjacency_TriangleToTriangle;
     // Adjacency_TriangleToTriangle[k] is { TriangleIndex_0, TriangleIndex_1, TriangleIndex_2, ...}
     // share the same neighbour Triangle (TriangleIndex is k) 

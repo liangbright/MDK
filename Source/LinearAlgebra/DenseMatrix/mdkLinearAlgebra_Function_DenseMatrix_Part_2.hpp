@@ -9,6 +9,85 @@ namespace mdk
 //================================================================================================================================//
 
 template<typename ElementType, typename MatchFunctionType>
+DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction)
+{
+    return FindElementInMatrix(InputMatrix, InputMatrix.GetElementNumber(), 0, InputMatrix.GetElementNumber(), MatchFunction);
+}
+
+
+template<typename ElementType, typename MatchFunctionType>
+DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputNumber, MatchFunctionType MatchFunction)
+{
+    return FindElementInMatrix(InputMatrix, MaxOutputNumber, 0, InputMatrix.GetElementNumber(), MatchFunction);
+}
+
+
+template<typename ElementType, typename MatchFunctionType>
+DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputNumber, 
+                                         int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction)
+{
+    DenseMatrix<int_max> LinearIndexList;
+
+    auto InputElementNumber = InputMatrix.GetElementNumber();
+
+    if (MaxOutputNumber <= 0 || MaxOutputNumber > InputElementNumber)
+    {
+        MDK_Error("MaxOutputNumber is invalid @ mdkLinearAlgebra_DenseMatrix FindElementInMatrix(...)")
+        return LinearIndexList;
+    }
+
+    if (LinearIndex_start < 0 || LinearIndex_start >= InputElementNumber || LinearIndex_start > LinearIndex_end)
+    {
+        MDK_Error("LinearIndex_start is invalid @ mdkLinearAlgebra_DenseMatrix FindElementInMatrix(...)")
+        return LinearIndexList;
+    }
+
+    if (LinearIndex_end < 0 || LinearIndex_end >= InputElementNumber)
+    {
+        MDK_Error("LinearIndex_end is invalid @ mdkLinearAlgebra_DenseMatrix FindElementInMatrix(...)")
+        return LinearIndexList;
+    }
+
+    if (InputElementNumber == 0)
+    {
+        return LinearIndexList;
+    }
+
+    if (LinearIndex_start == LinearIndex_end)
+    {
+        LinearIndex_end.AppendCol({ LinearIndex_start });
+        return LinearIndexList;
+    }
+
+    LinearIndexList.ReserveCapacity(MaxOutputNumber);
+
+    for (int_max i = LinearIndex_start; i <= LinearIndex_end; ++i)
+    {
+        if (MatchFunction(InputMatrix[i]) == true)
+        {
+            LinearIndexList.AppendCol({ i });
+
+            auto CurrentNumber = LinearIndexList.GetElementNumber();
+
+            if (CurrentNumber == MaxOutputNumber)
+            {
+                break;
+            }
+        }
+    }
+
+    return LinearIndexList;
+}
+
+
+template<typename ElementType, typename MatchFunctionType>
+DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction)
+{
+    return FindColInMatrix(InputMatrix, InputMatrix.GetColNumber(), 0, InputMatrix.GetColNumber(), MatchFunction);
+}
+
+
+template<typename ElementType, typename MatchFunctionType>
 DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputColNumber, MatchFunctionType MatchFunction)
 {
     return FindColInMatrix(InputMatrix, MaxOutputColNumber, 0, InputMatrix.GetColNumber(), MatchFunction);

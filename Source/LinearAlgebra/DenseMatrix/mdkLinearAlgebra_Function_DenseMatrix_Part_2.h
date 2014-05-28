@@ -19,18 +19,31 @@ class DenseMatrix;
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType, typename MatchFunctionType>
-DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxNumber, MatchFunctionType MatchFunction);
+DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction);
 
 template<typename ElementType, typename MatchFunctionType>
-DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxNumber, int_max ColIndex_start, int_max ColIndex_end, 
-                                     MatchFunctionType MatchFunction);
+DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputNumber, MatchFunctionType MatchFunction);
+
+template<typename ElementType, typename MatchFunctionType>
+DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputNumber,
+                                         int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction);
+
+template<typename ElementType, typename MatchFunctionType>
+DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction);
+
+template<typename ElementType, typename MatchFunctionType>
+DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputColNumber, MatchFunctionType MatchFunction);
+
+template<typename ElementType, typename MatchFunctionType>
+DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputColNumber,
+                                     int_max ColIndex_start, int_max ColIndex_end, MatchFunctionType MatchFunction);
 
 template<typename ElementType, typename CompareFunctionType>
 DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix, CompareFunctionType CompareFunction);
 
 template<typename ElementType, typename CompareFunctionType>
-DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max ColIndex_start, int_max ColIndex_end,
-                                     CompareFunctionType CompareFunction);
+DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix, 
+                                     int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction);
 
 template<typename ElementType, typename CompareFunctionType>
 DenseMatrix<int_max> SortColInMatrix(DenseMatrix<ElementType>& OutputMatrix, const DenseMatrix<ElementType>& InputMatrix, CompareFunctionType CompareFunction);

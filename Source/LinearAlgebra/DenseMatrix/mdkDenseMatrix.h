@@ -1100,7 +1100,21 @@ public:
     template<typename OperationType>
     inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
 
+    //------------------------ find element ---------------------------------------------------------//
+
+    template<typename MatchFunctionType>
+    inline DenseMatrix<int_max> FindElement(MatchFunctionType MatchFunction) const;
+
+    template<typename MatchFunctionType>
+    inline DenseMatrix<int_max> FindElement(int_max MaxOutputNumber, MatchFunctionType MatchFunction) const;
+
+    template<typename MatchFunctionType>
+    inline DenseMatrix<int_max> FindElement(int_max MaxOutputNumber, int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction) const;
+
     //------------------------ find col ---------------------------------------------------------//
+
+    template<typename MatchFunctionType>
+    inline DenseMatrix<int_max> FindCol(MatchFunctionType MatchFunction) const;
 
     template<typename MatchFunctionType>
     inline DenseMatrix<int_max> FindCol(int_max MaxOutputColNumber, MatchFunctionType MatchFunction) const;
