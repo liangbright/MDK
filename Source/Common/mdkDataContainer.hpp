@@ -910,21 +910,22 @@ bool DataContainer<ElementType>::Append(ElementType Element)
     return true;
 }
 
-
+/*
 template<typename ElementType>
 inline 
 bool DataContainer<ElementType>::Append(const std::initializer_list<ElementType>& InputData)
 {
     return this->Append(InputData.begin(), int_max(InputData.size()));
 }
-
-
+*/
+/*
 template<typename ElementType>
 inline
 bool DataContainer<ElementType>::Append(const std::vector<ElementType>& InputData)
 {
     return this->Append(InputData.data(), int_max(InputData.size()));
 }
+*/
 
 /*
 template<typename ElementType>
@@ -941,13 +942,14 @@ bool DataContainer<ElementType>::Append(const DenseMatrix<ElementType>& InputDat
 }
 */
 
+/*
 template<typename ElementType>
 inline
 bool DataContainer<ElementType>::Append(const DataContainer<ElementType>& InputData)
 {
     return this->Append(InputData.GetElementPointer(), InputData.GetElementNumber());
 }
-
+*/
 
 template<typename ElementType>
 inline 

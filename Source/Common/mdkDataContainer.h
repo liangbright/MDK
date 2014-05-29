@@ -241,14 +241,14 @@ public:
 
     inline bool Append(ElementType Element);
 
-    inline bool Append(const std::initializer_list<ElementType>& InputData);
+    //inline bool Append(const std::initializer_list<ElementType>& InputData);
 
-    inline bool Append(const std::vector<ElementType>& InputData);
+    //inline bool Append(const std::vector<ElementType>& InputData);
 
     // error if ElementType is std::vector
     //inline bool Append(const DenseMatrix<ElementType>& InputData);
 
-    inline bool Append(const DataContainer<ElementType>& InputData);
+    //inline bool Append(const DataContainer<ElementType>& InputData);
 
     inline bool Append(const ElementType* InputData, int_max InputLength);
 
