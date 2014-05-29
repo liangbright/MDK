@@ -78,13 +78,13 @@ private:
 
     inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::initializer_list<int_max>& ColIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int_max>& LinearIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, std::vector<int_max> LinearIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int_max>& RowIndexList, const std::vector<int_max>& ColIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, std::vector<int_max> RowIndexList, std::vector<int_max> ColIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::vector<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, std::vector<int_max> RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::vector<int_max>& ColIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, std::vector<int_max> ColIndexList);
 
     inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int_max>& LinearIndexList);
 

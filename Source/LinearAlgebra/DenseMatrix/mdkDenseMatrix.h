@@ -607,31 +607,41 @@ public:
     inline const DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
                                                    const DenseMatrix<int_max>& ColIndexList) const;
 
-    // Col(...) is just at(ALL, ...)
+    // Col(...) is just operator()(ALL, ...)
 
     inline DenseShadowMatrix<ElementType> Col(int_max ColIndex);
 
-    // do not use const in Col(const std::initializer_list<int_max>& ColIndexList); 
-    // it leads to ambiguous call (vs2013), 
-    // e.g., Col({0})  it can initialize Col(int_max) or Col(std::vector);
-    //
-    // so: use std::initializer_list<int_max> without const 
-    //
+    inline const DenseShadowMatrix<ElementType> Col(int_max ColIndex) const;
+
     inline DenseShadowMatrix<ElementType> Col(const std::initializer_list<int_max>& ColIndexList);
+
+    inline const DenseShadowMatrix<ElementType> Col(const std::initializer_list<int_max>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> Col(const std::vector<int_max>& ColIndexList);
 
+    inline const DenseShadowMatrix<ElementType> Col(const std::vector<int_max>& ColIndexList) const;
+
     inline DenseShadowMatrix<ElementType> Col(const DenseMatrix<int_max>& ColIndexList);
 
-    // Row(...) is just at(..., ALL)
+    inline const DenseShadowMatrix<ElementType> Col(const DenseMatrix<int_max>& ColIndexList) const;
+
+    // Row(...) is just operator()(..., ALL)
 
     inline DenseShadowMatrix<ElementType> Row(int_max RowIndex);
 
+    inline const DenseShadowMatrix<ElementType> Row(int_max RowIndex) const;
+
     inline DenseShadowMatrix<ElementType> Row(const std::initializer_list<int_max>& RowIndexList);
+
+    inline const DenseShadowMatrix<ElementType> Row(const std::initializer_list<int_max>& RowIndexList) const;
 
     inline DenseShadowMatrix<ElementType> Row(const std::vector<int_max>& RowIndexList);
 
+    inline const DenseShadowMatrix<ElementType> Row(const std::vector<int_max>& RowIndexList) const;
+
     inline DenseShadowMatrix<ElementType> Row(const DenseMatrix<int_max>& RowIndexList);
+
+    inline const DenseShadowMatrix<ElementType> Row(const DenseMatrix<int_max>& RowIndexList) const;
 
     //
     inline DenseShadowMatrix<ElementType> Diagonal();
@@ -639,12 +649,13 @@ public:
     inline const DenseShadowMatrix<ElementType> Diagonal() const;
 
     // -------------------------- special col reference ---------------------------------------------
+    // faster than Col(int_max ColIndex)
+    // side effect: A.RefCol(k) = constant => error ( Matrix = constant ), but A.Col(k) = constant is good
+    // use A.RefCol(k).Fill(constant);
 
-    // side effect: A.RefCol(0)=0; // Matrix = 0
+    inline DenseMatrix RefCol(int_max ColIndex);
 
-    //inline DenseMatrix RefCol(int_max ColIndex);
-
-    //inline const DenseMatrix RefCol(int_max ColIndex) const;
+    inline const DenseMatrix RefCol(int_max ColIndex) const;
 
     // ----------------------- Get SubMatrix as DenseMatrix --------------------------------------------
 
@@ -1150,11 +1161,15 @@ public:
 
     inline DenseMatrix SumToCol() const;
 
+    inline int_max LinearIndexOfMax() const;
+
     inline ElementType Max() const;
 
     inline DenseMatrix MaxToRow() const;
 
     inline DenseMatrix MaxToCol() const;
+
+    inline int_max LinearIndexOfMin() const;
 
     inline ElementType Min() const;
 

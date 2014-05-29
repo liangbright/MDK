@@ -55,7 +55,7 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
 
     if (LinearIndex_start == LinearIndex_end)
     {
-        LinearIndex_end.AppendCol({ LinearIndex_start });
+        LinearIndexList.AppendCol({ LinearIndex_start });
         return LinearIndexList;
     }
 
@@ -359,26 +359,43 @@ DenseMatrix<ElementType> MatrixMeanToCol(const DenseMatrix<ElementType>& InputMa
 
 template<typename ElementType>
 inline
-ElementType MatrixMax(const DenseMatrix<ElementType>& InputMatrix)
+int_max FindLinearIndexOfMaxInMatrix(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto Input_ElementNumber = InputMatrix.GetElementNumber();
 
     if (Input_ElementNumber <= 0)
     {
-        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMax(InputMatrix)")
-        return InputMatrix.GetNaNElement();
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix FindLinearIndexOfMaxInMatrix(InputMatrix)")
+
+        return -1;
     }
 
-    auto RawPointer = InputMatrix.GetElementPointer();
+    auto BeginPointer = InputMatrix.GetElementPointer();
 
-    ElementType value = RawPointer[0];
+    auto MaxValue = BeginPointer[0];
 
-    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Input_ElementNumber; ++Ptr)
+    int_max LinearIndex = 0;
+
+    for (auto Ptr = BeginPointer + 1; Ptr < BeginPointer + Input_ElementNumber; ++Ptr)
     {
-        value = std::max(value, Ptr[0]);
+        if (Ptr[0] > MaxValue)
+        {
+            MaxValue = Ptr[0];
+            LinearIndex += 1;
+        }
     }
 
-    return value;
+    return LinearIndex;
+}
+
+
+template<typename ElementType>
+inline
+ElementType MatrixMax(const DenseMatrix<ElementType>& InputMatrix)
+{    
+    int_max LinearIndex = FindLinearIndexOfMaxInMatrix(InputMatrix);
+
+    return InputMatrix[LinearIndex];
 }
 
 
@@ -465,27 +482,42 @@ DenseMatrix<ElementType> MatrixMaxToCol(const DenseMatrix<ElementType>& InputMat
 
 
 template<typename ElementType>
-inline
-ElementType MatrixMin(const DenseMatrix<ElementType>& InputMatrix)
+int_max FindLinearIndexOfMinInMatrix(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto Input_ElementNumber = InputMatrix.GetElementNumber();
 
     if (Input_ElementNumber <= 0)
     {
-        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMin(InputMatrix)")
-        return InputMatrix.GetNaNElement();
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix FindLinearIndexOfMinInMatrix(InputMatrix)")
+        return -1;
     }
 
-    auto RawPointer = InputMatrix.GetElementPointer();
+    auto BeginPointer = InputMatrix.GetElementPointer();
 
-    ElementType value = RawPointer[0];
+    ElementType MinValue = BeginPointer[0];
 
-    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Input_ElementNumber; ++Ptr)
+    int_max LinearIndex = 0;
+
+    for (auto Ptr = BeginPointer + 1; Ptr < BeginPointer + Input_ElementNumber; ++Ptr)
     {
-        value = std::min(value, Ptr[0]);
+        if (Ptr[0] < MinValue)
+        {
+            MinValue = Ptr[0];
+            LinearIndex += 1;
+        }
     }
 
-    return value;
+    return LinearIndex;
+}
+
+
+template<typename ElementType>
+inline
+ElementType MatrixMin(const DenseMatrix<ElementType>& InputMatrix)
+{
+    auto LinearIndex = FindLinearIndexOfMinInMatrix(InputMatrix);
+
+    return InputMatrix[LinearIndex];
 }
 
 

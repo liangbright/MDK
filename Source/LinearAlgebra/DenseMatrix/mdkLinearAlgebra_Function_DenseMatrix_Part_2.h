@@ -67,6 +67,9 @@ inline
 DenseMatrix<ElementType> MatrixMeanToCol(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
+int_max FindLinearIndexOfMaxInMatrix(const DenseMatrix<ElementType>& InputMatrix);
+
+template<typename ElementType>
 inline
 ElementType MatrixMax(const DenseMatrix<ElementType>& InputMatrix);
 
@@ -77,6 +80,9 @@ DenseMatrix<ElementType> MatrixMaxToRow(const DenseMatrix<ElementType>& InputMat
 template<typename ElementType>
 inline
 DenseMatrix<ElementType> MatrixMaxToCol(const DenseMatrix<ElementType>& InputMatrix);
+
+template<typename ElementType>
+int_max FindLinearIndexOfMinInMatrix(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
 inline

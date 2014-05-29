@@ -98,48 +98,6 @@ void DataContainer<ElementType>::operator=(DataContainer<ElementType>&& InputDat
 
 template<typename ElementType>
 inline
-void DataContainer<ElementType>::operator=(const ElementType& Element)
-{
-    auto ElementNumber = this->GetElementNumber();
-
-    if (this->IsSizeFixed() == true)
-    {
-        if (ElementNumber != 1)
-        {
-            MDK_Error("Can not change size @ DataContainer::operator=(Element)")
-            return;
-        }
-
-        (*this)[0] = Element;
-    }
-    else
-    {
-        if (ElementNumber == 0)
-        {
-            this->Resize(1);
-
-            (*this)[0] = Element;
-        }
-        else if (ElementNumber == 1)
-        {
-            (*this)[0] = Element;
-        }
-        else
-        {
-            MDK_Warning("The size changes to 1x1 @ DataContainer::operator=(Element)")
-
-            this->Clear();
-
-            this->Resize(1);
-
-            (*this)[0] = Element;
-        }
-    }
-}
-
-
-template<typename ElementType>
-inline
 void DataContainer<ElementType>::operator=(const std::initializer_list<ElementType>& InputData)
 {
     auto InputLength = int_max(InputData.size());
@@ -968,7 +926,7 @@ bool DataContainer<ElementType>::Append(const std::vector<ElementType>& InputDat
     return this->Append(InputData.data(), int_max(InputData.size()));
 }
 
-
+/*
 template<typename ElementType>
 inline
 bool DataContainer<ElementType>::Append(const DenseMatrix<ElementType>& InputData)
@@ -981,7 +939,7 @@ bool DataContainer<ElementType>::Append(const DenseMatrix<ElementType>& InputDat
 
     return this->Append(InputData.GetElementPointer(), InputData.GetElementNumber());
 }
-
+*/
 
 template<typename ElementType>
 inline

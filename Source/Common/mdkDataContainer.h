@@ -137,8 +137,6 @@ public:
 
     inline void operator=(DataContainer<ElementType>&& InputData);
 
-    inline void operator=(const ElementType& Element);
-
     inline void operator=(const std::initializer_list<ElementType>& InputList);
 
     //----------------------  Copy  ----------------------------------------//
@@ -247,7 +245,8 @@ public:
 
     inline bool Append(const std::vector<ElementType>& InputData);
 
-    inline bool Append(const DenseMatrix<ElementType>& InputData);
+    // error if ElementType is std::vector
+    //inline bool Append(const DenseMatrix<ElementType>& InputData);
 
     inline bool Append(const DataContainer<ElementType>& InputData);
 

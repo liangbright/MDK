@@ -3628,7 +3628,16 @@ inline
 DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::Col(int_max ColIndex)
 {
-    return this->at(ALL, { ColIndex });
+    return (*this)(ALL, { ColIndex });
+}
+
+
+template<typename ElementType>
+inline
+const DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Col(int_max ColIndex) const
+{
+    return (*this)(ALL, { ColIndex });
 }
 
 
@@ -3637,7 +3646,16 @@ inline
 DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::Col(const std::initializer_list<int_max>& ColIndexList)
 {
-    return this->at(ALL, ColIndexList);
+    return (*this)(ALL, ColIndexList);
+}
+
+
+template<typename ElementType>
+inline
+const DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Col(const std::initializer_list<int_max>& ColIndexList) const
+{
+    return (*this)(ALL, ColIndexList);
 }
 
 
@@ -3646,7 +3664,16 @@ inline
 DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::Col(const std::vector<int_max>& ColIndexList)
 {
-    return this->at(ALL, ColIndexList);
+    return (*this)(ALL, ColIndexList);
+}
+
+
+template<typename ElementType>
+inline
+const DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Col(const std::vector<int_max>& ColIndexList) const
+{
+    return (*this)(ALL, ColIndexList);
 }
 
 
@@ -3655,7 +3682,16 @@ inline
 DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::Col(const DenseMatrix<int_max>& ColIndexList)
 {
-    return this->at(ALL, ColIndexList);
+    return (*this)(ALL, ColIndexList);
+}
+
+
+template<typename ElementType>
+inline
+const DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Col(const DenseMatrix<int_max>& ColIndexList) const
+{
+    return (*this)(ALL, ColIndexList);
 }
 
 
@@ -3664,7 +3700,16 @@ inline
 DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::Row(int_max RowIndex)
 {
-    return this->at({ RowIndex }, ALL);
+    return (*this)({ RowIndex }, ALL);
+}
+
+
+template<typename ElementType>
+inline
+const DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Row(int_max RowIndex) const
+{
+    return (*this)({ RowIndex }, ALL);
 }
 
 
@@ -3673,7 +3718,16 @@ inline
 DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::Row(const std::initializer_list<int_max>& RowIndexList)
 {
-    return this->at(RowIndexList, ALL);
+    return (*this)(RowIndexList, ALL);
+}
+
+
+template<typename ElementType>
+inline
+const DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Row(const std::initializer_list<int_max>& RowIndexList) const
+{
+    return (*this)(RowIndexList, ALL);
 }
 
 
@@ -3682,7 +3736,16 @@ inline
 DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::Row(const std::vector<int_max>& RowIndexList)
 {
-    return this->at(RowIndexList, ALL);
+    return (*this)(RowIndexList, ALL);
+}
+
+
+template<typename ElementType>
+inline
+const DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Row(const std::vector<int_max>& RowIndexList) const
+{
+    return (*this)(RowIndexList, ALL);
 }
 
 
@@ -3691,7 +3754,16 @@ inline
 DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::Row(const DenseMatrix<int_max>& RowIndexList)
 {
-    return this->at(RowIndexList, ALL);
+    return (*this)(RowIndexList, ALL);
+}
+
+
+template<typename ElementType>
+inline
+const DenseShadowMatrix<ElementType>
+DenseMatrix<ElementType>::Row(const DenseMatrix<int_max>& RowIndexList) const
+{
+    return (*this)(RowIndexList, ALL);
 }
 
 
@@ -3757,23 +3829,11 @@ DenseMatrix<ElementType>::Diagonal() const
 }
 
 
-/*
 template<typename ElementType>
 inline 
 DenseMatrix<ElementType> DenseMatrix<ElementType>::RefCol(int_max ColIndex)
 {
-    auto Size = this->GetSize();
-
-    if (ColIndex >= Size.ColNumber || ColIndex < 0)
-    {
-        MDK_Error("Invalid input @ DenseMatrix::RefCol(int_max ColIndex)")
-        DenseMatrix<ElementType> tempCol;
-        return tempCol;
-    }
-
-    auto Pointer_Col = this->GetElementPointer() + ColIndex*Size.RowNumber;
-
-    DenseMatrix<ElementType> tempCol(Pointer_Col, Size.RowNumber, 1, true);
+    DenseMatrix<ElementType> tempCol(this->GetElementPointerOfCol(ColIndex), this->GetRowNumber(), 1, true);
 
     return tempCol;
 }
@@ -3783,22 +3843,11 @@ template<typename ElementType>
 inline 
 const DenseMatrix<ElementType> DenseMatrix<ElementType>::RefCol(int_max ColIndex) const
 {
-    auto Size = this->GetSize();
-
-    if (ColIndex >= Size.ColNumber || ColIndex < 0)
-    {
-        MDK_Error("Invalid input @ DenseMatrix::RefCol(int_max ColIndex) const")
-        DenseMatrix<ElementType> tempCol;
-        return tempCol;
-    }
-
-    auto Pointer_Col = this->GetElementPointer() + ColIndex*Size.RowNumber;
-
-    DenseMatrix<ElementType> tempCol(const_cast<ElementType*>(Pointer_Col), Size.RowNumber, 1, true);
+    DenseMatrix<ElementType> tempCol(this->GetElementPointerOfCol(ColIndex), this->GetRowNumber(), 1, true);
 
     return tempCol;
 }
-*/
+
 
 // return SubMatrix as DenseMatrix -----------------------------------------------------------------------------------------------------------------
 
@@ -6723,6 +6772,13 @@ inline DenseMatrix<ElementType> DenseMatrix<ElementType>::SumToCol() const
 
 
 template<typename ElementType>
+inline int_max DenseMatrix<ElementType>::LinearIndexOfMax() const
+{
+    return FindLinearIndexOfMaxInMatrix(*this);
+}
+
+
+template<typename ElementType>
 inline ElementType DenseMatrix<ElementType>::Max() const
 {
     return MatrixMax(*this);
@@ -6740,6 +6796,13 @@ template<typename ElementType>
 inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MaxToCol() const
 {
     return MatrixMaxToCol(*this);
+}
+
+
+template<typename ElementType>
+inline int_max DenseMatrix<ElementType>::LinearIndexOfMin() const
+{
+    return FindLinearIndexOfMinInMatrix(*this);
 }
 
 
