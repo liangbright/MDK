@@ -828,6 +828,20 @@ bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<ScalarType>& InputMesh, c
     VertexDataFile.flush();
     VertexDataFile.close();
 
+    QFile VertexDataFile_idx(QFilePathAndName + ".data.vertex_idx");
+
+    if (!VertexDataFile_idx.open(QIODevice::WriteOnly))
+    {
+        MDK_Error("Couldn't open file to write vertex data @ SaveTriangleMeshAsJsonDataFile(...)")
+        return false;
+    }
+
+    VertexDataFile_idx.write((char*)InputMesh.VertexGlobalIndexList().GetElementPointer(), 
+                             InputMesh.VertexGlobalIndexList().GetElementNumber()*CalByteNumberOfScalar(int_max(0)));
+
+    VertexDataFile_idx.flush();
+    VertexDataFile_idx.close();
+
     //write triangle to data file -----------------------------------------------------
 
     QFile TriangleDataFile(QFilePathAndName + ".data.triangle");
@@ -842,6 +856,20 @@ bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<ScalarType>& InputMesh, c
 
     TriangleDataFile.flush();
     TriangleDataFile.close();
+
+    QFile TriangleDataFile_idx(QFilePathAndName + ".data.triangle_idx");
+
+    if (!TriangleDataFile_idx.open(QIODevice::WriteOnly))
+    {
+        MDK_Error("Couldn't open file to write triangle data @ SaveTriangleMeshAsJsonDataFile(...)")
+        return false;
+    }
+
+    TriangleDataFile_idx.write((char*)InputMesh.TriangleGlobalIndexList().GetElementPointer(),
+                               InputMesh.TriangleGlobalIndexList().GetElementNumber()*CalByteNumberOfScalar(int_max(0)));
+
+    TriangleDataFile_idx.flush();
+    TriangleDataFile_idx.close();
 
     return true;
 }
@@ -1029,6 +1057,334 @@ TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathA
 
     return ConvertVTKPolyDataToMDKTriangleMesh<ScalarType>(VTKPolyMesh, Flag_BuildLinkAndAdjacency);
 }
+
+
+template<typename ScalarType>
+bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, const CharString& FilePathAndName)
+{
+    if (CalByteNumberOfScalar(ScalarType(0)) <= 0)
+    {
+        MDK_Error("Unknown ScalarType @ SavePolygonMeshAsJsonDataFile(...)")
+        return false;
+    }
+
+    auto ScalarTypeName = FindScalarTypeName(ScalarType(0));
+    QString QScalarTypeName(ScalarTypeName.c_str());
+
+    auto IndexTypeName = FindScalarTypeName(int_max(0));
+    QString QIndexTypeName(IndexTypeName.c_str());
+
+    //-------------------------------------------------------------------------------------
+
+    std::vector<NameValueQStringPair> PairList;
+    PairList.resize(6);
+
+    PairList[0].Name = "ObjectType";
+    PairList[0].Value = "PolygonMesh";
+
+    PairList[1].Name = "Dimension";
+    PairList[1].Value = QString::number(3);
+
+    PairList[2].Name = "ScalarType";
+    PairList[2].Value = QScalarTypeName;
+
+    PairList[3].Name = "IndexType";
+    PairList[3].Value = QIndexTypeName;
+
+    auto VertexNumber = InputMesh.GetVertexNumber();
+
+    PairList[4].Name = "VertexNumber";
+    PairList[4].Value = QString::number(VertexNumber);
+
+    auto PolygonNumber = InputMesh.GetPolygonNumber();
+
+    PairList[5].Name = "PolygonNumber";
+    PairList[5].Value = QString::number(PolygonNumber);
+
+    // write header file (json) --------------------------------------------------
+
+    QString QFilePathAndName(FilePathAndName.StdString().c_str());
+
+    WritePairListAsJsonFile(PairList, QFilePathAndName);
+
+    // write vertex to data file  --------------------------------------------------
+
+    QFile VertexDataFile(QFilePathAndName + ".data.vertex");
+
+    if (!VertexDataFile.open(QIODevice::WriteOnly))
+    {
+        MDK_Error("Couldn't open file to write vertex data @ SavePolygonMeshAsJsonDataFile(...)")
+        return false;
+    }
+
+    VertexDataFile.write((char*)InputMesh.Vertex().GetElementPointer(), InputMesh.Vertex().GetElementNumber()*CalByteNumberOfScalar(ScalarType(0)));
+
+    VertexDataFile.flush();
+    VertexDataFile.close();
+
+    QFile VertexDataFile_idx(QFilePathAndName + ".data.vertex_idx");
+
+    if (!VertexDataFile_idx.open(QIODevice::WriteOnly))
+    {
+        MDK_Error("Couldn't open file to write triangle data @ SavePolygonMeshAsJsonDataFile(...)")
+        return false;
+    }
+
+    VertexDataFile_idx.write((char*)InputMesh.VertexGlobalIndexList().GetElementPointer(),
+                             InputMesh.VertexGlobalIndexList().GetElementNumber()*CalByteNumberOfScalar(int_max(0)));
+
+    VertexDataFile_idx.flush();
+    VertexDataFile_idx.close();
+
+    //write Polygon to data file -----------------------------------------------------
+
+    QFile PolygonDataFile(QFilePathAndName + ".data.polygon");
+
+    if (!PolygonDataFile.open(QIODevice::WriteOnly))
+    {
+        MDK_Error("Couldn't open file to write triangle data @ SavePolygonMeshAsJsonDataFile(...)")
+        return false;
+    }
+
+    QTextStream Stream_out(&PolygonDataFile);
+
+    for (int_max i = 0; i < InputMesh.GetPolygonNumber(); ++i)
+    {
+        const SimpleDataContainer<int_max>& Polygon_i = InputMesh.Polygon()[i];
+
+        for (int_max n = 0; n < Polygon_i.GetLength(); ++n)
+        {
+            Stream_out << QString::number(Polygon_i[n]);
+            
+            if (n < Polygon_i.GetLength() - 1)
+            {
+                Stream_out  << ", ";
+            }
+        }
+
+        if (i < InputMesh.GetPolygonNumber() - 1)
+        {
+            Stream_out << "\n";
+        }
+    }
+
+    Stream_out.flush();
+
+    PolygonDataFile.flush();
+    PolygonDataFile.close();
+
+    QFile PolygonDataFile_idx(QFilePathAndName + ".data.polygon_idx");
+
+    if (!PolygonDataFile_idx.open(QIODevice::WriteOnly))
+    {
+        MDK_Error("Couldn't open file to write triangle data @ SavePolygonMeshAsJsonDataFile(...)")
+        return false;
+    }
+
+    PolygonDataFile_idx.write((char*)InputMesh.PolygonGlobalIndexList().GetElementPointer(),
+                              InputMesh.PolygonGlobalIndexList().GetElementNumber()*CalByteNumberOfScalar(int_max(0)));
+
+    PolygonDataFile_idx.flush();
+    PolygonDataFile_idx.close();
+
+    return true;
+}
+
+
+template<typename ScalarType>
+PolygonMesh<ScalarType> LoadPolygonMeshFromJsonDataFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency)
+{
+    PolygonMesh<ScalarType> OutputMesh;
+
+    //----------------------------------------------------------
+
+    auto OutputScalarTypeName = FindScalarTypeName(ScalarType(0));
+
+    //---------------------------------------------- Read header --------------------------------------------------------//
+
+    QString QFilePathAndName(FilePathAndName.StdString().c_str());
+
+    QFile HeaderFile(QFilePathAndName);
+
+    if (!HeaderFile.open(QIODevice::ReadOnly))
+    {
+        MDK_Error("Couldn't open Header File @ LoadPolygonMeshFromJsonDataFile(...)")
+        return OutputMesh;
+    }
+
+    //----------------------------------------------------------//
+    QByteArray HeaderContent = HeaderFile.readAll();
+    QJsonDocument HeaderDoc(QJsonDocument::fromJson(HeaderContent));
+    QJsonObject HeaderObject = HeaderDoc.object();
+    //-----------------------------------------------------------//
+
+    //---------------------------------------------------
+
+    std::string InputScalarTypeTypeName;
+
+    it = HeaderObject.find("ScalarType");
+    if (it != HeaderObject.end())
+    {
+        InputPixelTypeName = it.value().toString().toStdString();
+    }
+    else
+    {
+        MDK_Error("Couldn't get ScalarType @ LoadPolygoneMeshFromJsonDataFile(...)")
+        HeaderFile.close();
+        return OutputMesh;
+    }
+
+    std::string InputIndexTypeTypeName;
+
+    it = HeaderObject.find("IndexType");
+    if (it != HeaderObject.end())
+    {
+        InputIndexTypeTypeName = it.value().toString().toStdString();
+    }
+    else
+    {
+        MDK_Error("Couldn't get IndexType @ LoadPolygonMeshFromJsonDataFile(...)")
+        HeaderFile.close();
+        return OutputMesh;
+    }
+
+    int_max VertexNumber = 0;
+
+    it = HeaderObject.find("VertexNumber");
+    if (it != HeaderObject.end())
+    {
+        VertexNumber = it.value().toString().toLongLong();
+    }
+    else
+    {
+        MDK_Error("Couldn't get VertexNumber @ LoadPolygonMeshFromJsonDataFile(...)")
+        HeaderFile.close();
+        return OutputMesh;
+    }
+
+    int_max PolygonNumber = 0;
+
+    it = HeaderObject.find("PolygonNumber");
+    if (it != HeaderObject.end())
+    {
+        PolygonNumber = it.value().toString().toLongLong();
+    }
+    else
+    {
+        MDK_Error("Couldn't get PolygonNumber @ LoadPolygonMeshFromJsonDataFile(...)")
+        HeaderFile.close();
+        return OutputMesh;
+    }
+
+    //--------------------------------- read data --------------------------------------------------------//
+
+    // read Vertex from *.data.vertex file
+
+    QFile VertexDataFile(QFilePathAndName + ".data.vertex");
+
+    if (!DataFile.open(QIODevice::ReadOnly))
+    {
+        MDK_Error("Couldn't open vertex data file:" << FilePathAndName)
+        return OutputMatrix;
+    }
+
+    DenseMatrix<ScalarType> Vertex(3, VertexNumber);
+
+    if (OutputScalarTypeName != InputScalarTypeTypeName)
+    {
+        MDK_Warning("OutputScalarTypeName != InputScalarTypeTypeName, Output may be inaccurate @ LoadTriangleMeshFromJsonDataFile(...)")
+    }
+
+    Internal_LoadDenseMatrixFromJsonDataFile(Vertex, VertexDataFile, InputScalarTypeTypeName);
+
+    VertexDataFile.close();
+
+    // read Polygon from *.data.polygon file
+
+    QFile PolygonDataFile(QFilePathAndName + ".data.polygon");
+
+    if (!DataFile.open(QIODevice::ReadOnly))
+    {
+        MDK_Error("Couldn't open triangle data file:" << FilePathAndName)
+        return OutputMatrix;
+    }
+
+    DataContainer<SimpleDataContainer<int_max>> Polygon;
+    Polygon.FastResize(PolygonNumber);
+
+    QTextStream stream_in(&PolygonDataFile);
+
+    for (int_max i = 0; i < InputMesh.GetPolygonNumber(); ++i)
+    {
+        SimpleDataContainer<int_max>& Polygon_i = Polygon[i];
+
+        auto ValueList = stream_in.readLine().split(",");
+        
+        auto tempsize = ValueList.size();
+
+        for (int_max n = 0; n < tempsize; ++n)
+        {
+            auto tempIndex = ValueList[n].toLongLong();
+            Polygon_i.Append(tempIndex);
+        }
+    }
+
+    PolygonDataFile.close();
+
+    //--------------------------------------------------------------------------
+
+    OutputMesh.Construct(std::move(Vertex), std::move(Polygon), Flag_BuildLinkAndAdjacency);
+
+    return OutputMesh;
+}
+
+
+template<typename ScalarType>
+bool SavePolygonMeshAsVTKFile(const PolygonMesh<ScalarType>& InputMesh, const CharString& FilePathAndName)
+{
+    auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+
+    auto writer = vtkSmartPointer<vtkPolyDataWriter>::New();
+    writer->SetFileName(FilePathAndName.StdString().c_str());
+    writer->SetInputData(VTKMesh);
+
+    try
+    {
+        writer->Write();
+    }
+    catch (...)
+    {
+        MDK_Error(" Can not write data @ SavePolygonMeshAsVTKFile(...) ")
+        return false;
+    }
+
+    return true;
+}
+
+
+template<typename ScalarType>
+PolygonMesh<ScalarType> LoadPolygonMeshFromVTKFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency)
+{
+    auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
+    Reader->SetFileName(FilePathAndName.StdString().c_str());
+
+    try
+    {
+        Reader->Update();
+    }
+    catch (...)
+    {
+        MDK_Error(" Can not write data @ SaveTriangleMeshAsVTKFile(...) ")
+
+        PolygonMesh<ScalarType> EmptyMesh;
+        return EmptyMesh;
+    }
+
+    auto VTKPolyMesh = Reader->GetOutput();
+
+    return ConvertVTKPolyDataToMDKPolygonMesh<ScalarType>(VTKPolyMesh, Flag_BuildLinkAndAdjacency);
+}
+
 
 
 // for example: FilePathAndName = "C:/Data/SomeDictionary.json"

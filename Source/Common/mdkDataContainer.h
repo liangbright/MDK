@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "mdkObject.h"
 #include "mdkConstant.h"
@@ -118,7 +119,7 @@ public:
 
     inline DataContainer(const std::initializer_list<ElementType>& InputData);
 
-    //inline DataContainer(const ElementType& Element); // the first element, confused with std::vector A(1);
+    inline DataContainer(const std::vector<ElementType>& InputData);
 
     // deep-copy or shared-copy constructor
     inline DataContainer(const DataContainer<ElementType>& InputData, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
@@ -127,6 +128,12 @@ public:
     inline DataContainer(DataContainer<ElementType>&& InputData) noexcept;
 
 	inline ~DataContainer();
+
+    //-------------------- get/set std vector -----------------------------------//
+
+    inline std::vector<ElementType>& StdVector();
+
+    inline const std::vector<ElementType>& StdVector() const;
 
     //----------------------  operator=  ----------------------------------------//
 
@@ -139,6 +146,8 @@ public:
 
     inline void operator=(const std::initializer_list<ElementType>& InputList);
 
+    inline void operator=(const std::vector<ElementType>& InputList);
+
     //----------------------  Copy  ----------------------------------------//
 
     inline bool Copy(const DataContainer<ElementType>& InputData);
@@ -149,10 +158,6 @@ public:
 
     inline bool Fill(const ElementType& Element);
 
-    //-------------------------- ShallowCopy  ---------------------------------------------- //
-
-    inline bool ShallowCopy(const ElementType* InputElementPointer, int_max InputLength);
-
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
 
     inline bool Share(DataContainer<ElementType>& InputData);
@@ -162,6 +167,12 @@ public:
     inline void ForceShare(const DataContainer<ElementType>& InputData);
 
     inline bool ForceShare(const DataContainer<ElementType>* InputData);
+
+    //-------------------------- special Share  ---------------------------------------------- //
+
+    inline bool Share(ElementType* InputElementPointer, int_max InputLength, bool IsSizeFixed = true);
+
+    inline bool ForceShare(const ElementType* InputElementPointer, int_max InputLength, bool IsSizeFixed = true);
 
     //-------------------- Take -----------------------------------------------------------//
 

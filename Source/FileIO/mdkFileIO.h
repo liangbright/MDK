@@ -49,6 +49,9 @@ class Image3D;
 template<typename ScalarType>
 class TriangleMesh;
 
+template<typename ScalarType>
+class PolygonMesh;
+
 template<typename ElementType>
 class FeatureDictionaryForSparseCoding;
 
@@ -104,7 +107,7 @@ Image3D<PixelType> Load3DScalarImageFromDICOMSeries(const CharString& FilePath);
 template<typename PixelType>
 Image3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const CharString& FilePathAndName);
 
-//------------------------------------- save/load TriangleMesh from Json data file --------------------------------------------------------//
+//------------------------------------- save/load TriangleMesh from Json data file or vtk file -------------------------------------------//
 
 template<typename ScalarType>
 bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
@@ -117,6 +120,21 @@ bool SaveTriangleMeshAsVTKFile(const TriangleMesh<ScalarType>& InputMesh, const 
 
 template<typename ScalarType = double>
 TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency = true);
+
+//------------------------------------- save/load PolygonMesh from Json data file or vtk file -------------------------------------------//
+
+template<typename ScalarType>
+bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
+
+template<typename ScalarType = double>
+PolygonMesh<ScalarType> LoadPolygonMeshFromJsonDataFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency = true);
+
+template<typename ScalarType>
+bool SavePolygonMeshAsVTKFile(const PolygonMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
+
+template<typename ScalarType = double>
+PolygonMesh<ScalarType> LoadPolygonMeshMeshFromVTKFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency = true);
+
 
 //----------------------------------- save/load FeatureDictionary from Json data file -----------------------------------------------------//
 

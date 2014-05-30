@@ -1,68 +1,67 @@
-#ifndef __mdkTriangleMesh_h
-#define __mdkTriangleMesh_h
+#ifndef __mdkPolygonMesh_h
+#define __mdkPolygonMesh_h
 
 
-#include "mdkType.h"
 #include "mdkObject.h"
-#include "mdkDataContainer.h"
-#include "mdkSimpleDataContainer.h"
 #include "mdkDenseMatrix.h"
-
+#include "mdkSimpleDataContainer.h"
+#include "mdkDataContainer.h"
 
 namespace mdk
 {
 
 template<typename ScalarType = double>
-struct TriangleMeshData
+struct PolygonMeshData
 {
     DenseMatrix<int_max> VertexGlobalIndexList;
 
-    DenseMatrix<int_max> TriangleGlobalIndexList;
+    DenseMatrix<int_max> PolygonGlobalIndexList;
 
     DenseMatrix<ScalarType> Vertex;    
     // row_0: x
     // row_1: y
     // row_2: z
 
-    DenseMatrix<int_max> Triangle; // also known as cell, face, facet, element
-    // row_0: VertexIndex_0
-    // row_1: VertexIndex_1
-    // row_2: VertexIndex_2
+    DataContainer<SimpleDataContainer<int_max>> Polygon; // also known as cell, face, facet, element
     //
-    // VertexIndex_0 < VertexIndex_1 < VerteIndex_2 always
+    // VertexIndex_0 < VertexIndex_1 < ... < VerteIndex_end always
 
     DenseMatrix<int_max> Edge;
     // row_0: VertexIndex_0
     // row_1: VertexIndex_1
-    // row_2: TriangleIndex_0  
-    // row_3: TriangleIndex_1  
+    // row_2: PolygonIndex_0  
+    // row_3: PolygonIndex_1  
     //
     // Edge(:,k) = VertexIndex_0 <-> VertexIndex_1
     //
-    // Edge(:,k) is shared by TriangleIndex_0 and TriangleIndex_1
+    // Edge(:,k) is shared by PolygonIndex_0 and PolygonIndex_1
     //
-    // if TriangleIndex_0 is -1, then Edge(:,k) is part of boundary
+    // if PolygonIndex_0 is -1, then Edge(:,k) is part of boundary
     //
     // VertexIndex_0    < VertexIndex_1   always
-    // TriangleIndex_0  < TriangleIndex_1 always
+    // PolygonIndex_0  < PolygonIndex_1 always
+
+    // note: SimpleDataContainer is just a simple data contianer
 
     DataContainer<SimpleDataContainer<int_max>> Link_VertexToEdge;
     // Link_VertexToEdge[k] is { EdgeIndex_0, EdgeIndex_1, EdgeIndex_2, ...}, the length is not a constant
     // share the same Vertex (VertexIndex is k) 
 
-    DataContainer<SimpleDataContainer<int_max>> Link_VertexToTriangle;
-    // Link_VertexToTriangle[k] is { TriangleIndex_0, TriangleIndex_1, TriangleIndex_2, ...}, the length is not a constant
+    DataContainer<SimpleDataContainer<int_max>> Link_VertexToPolygon;
+    // Link_VertexToPolygon[k] is { PolygonIndex_0, PolygonIndex_1, PolygonIndex_2, ...}, the length is not a constant
     // share the same Vertex (VertexIndex is k) 
 
-    // DataContainer<DenseMatrix<int_max>> Link_EdgeToTriangle;
+    // DataContainer<DenseMatrix<int_max>> Link_EdgeToPolygon;
     // This link is directly stored in Edge
 
-    DataContainer<SimpleDataContainer<int_max>> Link_TriangleToEdge;
-    // Link_TriangleToEdge[k] is {EdgeIndex_0, EdgeIndex_1, EdgeIndex_2}
-    // Triangle(:,k) is {VertexIndex_0, VertexIndex_1, VertexIndex_2}    
+    DataContainer<SimpleDataContainer<int_max>> Link_PolygonToEdge;
+    // Link_PolygonToEdge[k] is {EdgeIndex_0, EdgeIndex_1, EdgeIndex_2, ..., EdgeIndex_end}
+    // Polygon(:,k) is {VertexIndex_0, VertexIndex_1, VertexIndex_2}    
     // Edge of EdgeIndex_0 : VertexIndex_0 <-> VertexIndex_1
     // Edge of EdgeIndex_1 : VertexIndex_1 <-> VertexIndex_2
-    // Edge of EdgeIndex_2 : VertexIndex_0 <-> VertexIndex_2
+    // Edge of EdgeIndex_2 : VertexIndex_2 <-> VertexIndex_3
+    // ...
+    // Edge of EdgeIndex_end : VertexIndex_0 <-> VertexIndex_end
 
     //---------------------- Adjacency ----------------------------------
 
@@ -78,32 +77,32 @@ struct TriangleMeshData
     // Adjacency_EdgeToEdge_0[k] is Link_VertexToEdge[VertexIndex_1] without k
     // Edge(:,k)  is {VertexIndex_0, VertexIndex_1}
 
-    DataContainer<SimpleDataContainer<int_max>> Adjacency_TriangleToTriangle;
-    // Adjacency_TriangleToTriangle[k] is { TriangleIndex_0, TriangleIndex_1, TriangleIndex_2, ...}
-    // share the same neighbour Triangle (TriangleIndex is k) 
+    DataContainer<SimpleDataContainer<int_max>> Adjacency_PolygonToPolygon;
+    // Adjacency_PolygonToPolygon[k] is { PolygonIndex_0, PolygonIndex_1, PolygonIndex_2, ...}
+    // share the same neighbour Polygon (PolygonIndex is k) 
 
     //-------------------- Normal Vector ---------------------------------
 
     DenseMatrix<ScalarType> NormalAtVertex; // size: 3 x ?
 
-    DenseMatrix<ScalarType> NormalAtTriangleCenter;  // size: 3 x ?
+    DenseMatrix<ScalarType> NormalAtPolygonCenter;  // size: 3 x ?
 
     //----------------- attribute at Vertex ----------------------------
 
-    //----------------- attribute at Triangle ----------------------------
+    //----------------- attribute at Polygon ----------------------------
 
-    //DenseMatrix<ScalarType> AngleInTriangle;
+    //DenseMatrix<ScalarType> AngleInPolygon;
 
-    //DenseMatrix<ScalarType> AeraOfTriangle;
+    //DenseMatrix<ScalarType> AeraOfPolygon;
     
 };
 
 
 template<typename ScalarType = double>
-class TriangleMesh : public Object
+class PolygonMesh : public Object
 {
 private:
-    std::shared_ptr<TriangleMeshData<ScalarType>> m_MeshData;
+    std::shared_ptr<PolygonMeshData<ScalarType>> m_MeshData;
 
 public:
     typedef ScalarType ScalarType;
@@ -111,45 +110,45 @@ public:
     typedef int_max IndexType;
 
 public:
-    TriangleMesh();
+    PolygonMesh();
 
-    TriangleMesh(const TriangleMesh& InputMesh);
+    PolygonMesh(const PolygonMesh& InputMesh);
 
-    TriangleMesh(TriangleMesh&& InputMesh);
+    PolygonMesh(PolygonMesh&& InputMesh);
 
-    ~TriangleMesh();
+    ~PolygonMesh();
 
-    inline void operator=(const TriangleMesh& InputMesh);
+    inline void operator=(const PolygonMesh& InputMesh);
 
-    inline void operator=(TriangleMesh&& InputMesh);
+    inline void operator=(PolygonMesh&& InputMesh);
 
     //---------------------------------------------------------------------------
 
-    bool Construct(DenseMatrix<ScalarType> InputVertex, DenseMatrix<int_max> InputTriangle, bool Flag_BuildLinkAndAdjacency = true);
+    bool Construct(DenseMatrix<ScalarType> InputVertex, DataContainer<SimpleDataContainer<int_max>> InputPolygon, bool Flag_BuildLinkAndAdjacency = true);
 
     //---------------------------------------------------------------------------
 
     inline void Clear();
 
     template<typename ScalarType_Input>
-    inline void Copy(const TriangleMesh<ScalarType_Input>& InputMesh);
+    inline void Copy(const PolygonMesh<ScalarType_Input>& InputMesh);
 
     template<typename ScalarType_Input>
-    inline bool Copy(const TriangleMesh<ScalarType_Input>* InputMesh);
+    inline bool Copy(const PolygonMesh<ScalarType_Input>* InputMesh);
 
-    inline void Share(TriangleMesh& InputMesh);
+    inline void Share(PolygonMesh& InputMesh);
 
-    inline bool Share(TriangleMesh* InputMesh);
+    inline bool Share(PolygonMesh* InputMesh);
 
-    inline void ForceShare(const TriangleMesh& InputMesh);
+    inline void ForceShare(const PolygonMesh& InputMesh);
 
-    inline bool ForceShare(const TriangleMesh* InputMesh);
+    inline bool ForceShare(const PolygonMesh* InputMesh);
 
-    inline void Take(TriangleMesh&& InputMesh);
+    inline void Take(PolygonMesh&& InputMesh);
 
-    inline bool Take(TriangleMesh& InputMesh);
+    inline bool Take(PolygonMesh& InputMesh);
 
-    inline bool Take(TriangleMesh* InputMesh);
+    inline bool Take(PolygonMesh* InputMesh);
 
     //-------------------------------------------------------------------
 
@@ -157,7 +156,7 @@ public:
 
     inline int_max GetVertexNumber() const;
 
-    inline int_max GetTriangleNumber() const;
+    inline int_max GetPolygonNumber() const;
 
     inline int_max GetEdgeNumber() const;
 
@@ -169,21 +168,21 @@ public:
 
     void BuildLink_VertexToEdge();
 
-    void BuildLink_VertexToTriangle();
+    void BuildLink_VertexToPolygon();
 
-    void BuildLink_TriangleToEdge();
+    void BuildLink_PolygonToEdge();
 
     void BuildAdjacency();
 
     void BuildAdjacency_VertexToVertex();
 
-    void BuildAdjacency_TriangleToTriangle();
+    void BuildAdjacency_PolygonToPolygon();
 
     //-----------------------------------------------------------------------
 
     void UpdateNormalAtVertex();
 
-    void UpdateNormalAtTriangleCenter();
+    void UpdateNormalAtPolygonCenter();
 
     //-------------------------------------------------------------------
 
@@ -195,27 +194,27 @@ public:
 
     inline const DenseMatrix<int_max>& VertexGlobalIndexList() const;
 
-    inline DenseMatrix<int_max>& TriangleGlobalIndexList();
+    inline DenseMatrix<int_max>& PolygonGlobalIndexList();
 
-    inline const DenseMatrix<int_max>& TriangleGlobalIndexList() const;
+    inline const DenseMatrix<int_max>& PolygonGlobalIndexList() const;
 
     inline DenseMatrix<ScalarType>& Vertex();
 
     inline const DenseMatrix<ScalarType>& Vertex() const;
 
-    inline const DenseMatrix<int_max>& Triangle() const;
+    inline const DataContainer<SimpleDataContainer<int_max>>& Polygon() const;
 
     inline const DenseMatrix<int_max>& Edge() const;
 
     inline const DataContainer<SimpleDataContainer<int_max>>& Link_VertexToEdge() const;
 
-    inline const DataContainer<SimpleDataContainer<int_max>>& Link_VertexToTriangle() const;
+    inline const DataContainer<SimpleDataContainer<int_max>>& Link_VertexToPolygon() const;
 
-    inline const DataContainer<SimpleDataContainer<int_max>>& Link_TriangleToEdge() const;
+    inline const DataContainer<SimpleDataContainer<int_max>>& Link_PolygonToEdge() const;
 
     inline const DataContainer<SimpleDataContainer<int_max>>& Adjacency_VertexToVertex() const;
 
-    inline const DataContainer<SimpleDataContainer<int_max>>& Adjacency_TriangleToTriangle() const;
+    inline const DataContainer<SimpleDataContainer<int_max>>& Adjacency_PolygonToPolygon() const;
 
     //----------------------------------------------------------------------------
 
@@ -223,9 +222,9 @@ public:
 
     inline const DenseMatrix<ScalarType>& NormalAtVertex() const;
 
-    inline DenseMatrix<ScalarType>& NormalAtTriangle();
+    inline DenseMatrix<ScalarType>& NormalAtPolygon();
 
-    inline const DenseMatrix<ScalarType>& NormalAtTriangle() const;
+    inline const DenseMatrix<ScalarType>& NormalAtPolygon() const;
 
 private:
     bool ConstructEdge();
@@ -234,6 +233,6 @@ private:
 
 }// namespace mdk
 
-#include "mdkTriangleMesh.hpp"
+#include "mdkPolygonMesh.hpp"
 
 #endif

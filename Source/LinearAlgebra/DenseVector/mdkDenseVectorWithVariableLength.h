@@ -36,13 +36,13 @@ public:
 
     inline DenseVectorWithVariableLength(const DenseVectorWithVariableLength<ElementType>& InputVector);
 
-    inline DenseVectorWithVariableLength(DenseVectorWithVariableLength<ElementType, Length>&& InputVector);
+    inline DenseVectorWithVariableLength(DenseVectorWithVariableLength<ElementType>&& InputVector);
 
     inline ~DenseVectorWithVariableLength();
 
-    inline void operator=(const DenseVectorWithVariableLength<ElementType, Length>& InputVector);
+    inline void operator=(const DenseVectorWithVariableLength<ElementType>& InputVector);
 
-    inline void operator=(DenseVectorWithVariableLength<ElementType, Length>&& InputVector);
+    inline void operator=(DenseVectorWithVariableLength<ElementType>&& InputVector);
 
     inline void Clear(); // set to empty (length = 0)
 

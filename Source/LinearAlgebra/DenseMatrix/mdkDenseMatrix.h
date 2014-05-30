@@ -11,6 +11,8 @@
 #include <limits> 
 
 #include "mdkObject.h"
+#include "mdkDataContainer.h"
+#include "mdkSimpleDataContainer.h"
 #include "mdkLinearAlgebraConfig.h"
 #include "mdkMatrix_Common.h"
 #include "mdkDenseShadowMatrix.h"
@@ -171,6 +173,10 @@ public:
 
     inline DenseMatrix(const std::vector<ElementType>& InputList);
 
+    inline DenseMatrix(const DataContainer<ElementType>& InputList);
+
+    inline DenseMatrix(const SimpleDataContainer<ElementType>& InputList);
+
     // deep-copy or shared-copy constructor
     inline DenseMatrix(const DenseMatrix<ElementType>& InputMatrix, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
 
@@ -211,6 +217,10 @@ public:
     inline void operator=(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
     inline void operator=(const std::vector<ElementType>& InputList);
+
+    inline void operator=(const DataContainer<ElementType>& InputList);
+
+    inline void operator=(const SimpleDataContainer<ElementType>& InputList);
 
     inline void operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix);
 
@@ -310,9 +320,9 @@ public:
     // It can be used it to share a col of a MDK Matrix
     // do not use this Share() to share a whole MDK Matrix
 
-    inline bool Share(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber);
+    inline bool Share(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed = true);
 
-    inline bool ForceShare(const ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber);
+    inline bool ForceShare(const ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed = true);
 
     //-------------------- Take -----------------------------------------------------------//
 
@@ -867,6 +877,47 @@ public:
 
     template<typename ElementType_Input>
     inline bool InsertRow(int_max RowIndex, const ElementType_Input* RowData);
+
+    //---------------------- Append, delete, insert when matrix is vector -----------------//
+    // if matrix is empty, then it will become row vector
+
+    inline bool Append(const ElementType& Element);
+
+    template<typename ElementType_Input>
+    inline bool Append(const std::initializer_list<ElementType_Input>& ElementData);
+
+    template<typename ElementType_Input>
+    inline bool Append(const std::vector<ElementType_Input>& ElementData);
+
+    template<typename ElementType_Input>
+    inline bool Append(const DenseMatrix<ElementType_Input>& ElementData);
+
+    template<typename ElementType_Input>
+    inline bool Append(const ElementType_Input* ElementData, int_max Length);
+
+    inline bool Delete(int_max LinearIndex);
+
+    inline bool Delete(const std::initializer_list<int_max>& LinearIndexList);
+
+    inline bool Delete(const std::vector<int_max>& LinearIndexList);
+
+    inline bool Delete(const DenseMatrix<int_max>& LinearIndexList);
+
+    inline bool Delete(const int_max* LinearIndexList, int_max Length);
+
+    inline bool Insert(int_max LinearIndex, const ElementType& Element);
+
+    template<typename ElementType_Input>
+    inline bool Insert(int_max LinearIndex, const std::initializer_list<ElementType_Input>& ElementData);
+
+    template<typename ElementType_Input>
+    inline bool Insert(int_max LinearIndex, const std::vector<ElementType_Input>& ElementData);
+
+    template<typename ElementType_Input>
+    inline bool Insert(int_max LinearIndex, const DenseMatrix<ElementType_Input>& ElementData);
+
+    template<typename ElementType_Input>
+    inline bool Insert(int_max LinearIndex, const ElementType_Input* ElementData, int_max Length);
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 

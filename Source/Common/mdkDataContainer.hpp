@@ -30,20 +30,9 @@ DataContainer<ElementType>::DataContainer(const std::initializer_list<ElementTyp
 }
 
 
-//template<typename ElementType>
-//inline
-//DataContainer<ElementType>::DataContainer(const ElementType& Element)
-//{
-//    this->Resize(1);
-//
-//    (*this)(0) = Element;
-//}
-
-
 template<typename ElementType>
 inline
-DataContainer<ElementType>::DataContainer(const DataContainer<ElementType>& InputData, 
-                                          ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy)
+DataContainer<ElementType>::DataContainer(const DataContainer<ElementType>& InputData, ObjectConstructionTypeEnum Method)
 {
     if (Method == ObjectConstructionTypeEnum::Copy)
     {
@@ -76,6 +65,22 @@ template<typename ElementType>
 inline
 DataContainer<ElementType>::~DataContainer()
 {
+}
+
+
+template<typename ElementType>
+inline
+std::vector<ElementType>& DataContainer<ElementType>::StdVector()
+{
+    return m_Data->DataArray;
+}
+
+
+template<typename ElementType>
+inline
+const std::vector<ElementType>& DataContainer<ElementType>::StdVector() const
+{
+    return m_Data->DataArray;
 }
 
 
@@ -122,7 +127,38 @@ void DataContainer<ElementType>::operator=(const std::initializer_list<ElementTy
     else
     {
         this->Clear();    
-        this->Append(InputData);
+        this->Append(InputData.begin(), InputLength);
+    }
+}
+
+
+template<typename ElementType>
+inline
+void DataContainer<ElementType>::operator=(const std::vector<ElementType>& InputData)
+{
+    auto InputLength = int_max(InputData.size());
+
+    if (InputLength <= 0)
+    {
+        MDK_Error("Input is empty @ DataContainer::operator=(initializer_list)")
+            return;
+    }
+
+    auto SelfLength = this->GetElementNumber();
+
+    if (this->IsSizeFixed() == true)
+    {
+        if (SelfLength != InputLength)
+        {
+            MDK_Error("Can not change size @ DataContainer::operator=(initializer_list)")
+        }
+
+        return;
+    }
+    else
+    {
+        this->Clear();
+        this->Append(InputData.data(), InputLength);
     }
 }
 
@@ -329,6 +365,48 @@ bool DataContainer<ElementType>::ForceShare(const DataContainer<ElementType>* In
     this->ForceShare(*InputData);
 
     return true;
+}
+
+
+template<typename ElementType>
+inline 
+bool DataContainer<ElementType>::Share(ElementType* InputElementPointer, int_max InputLength, bool IsSizeFixed)
+{
+    if (InputElementPointer == nullptr || InputLength <= 0)
+    {
+        MDK_Error("Invalid input @ DataContainer::Share(...)")
+        return false;
+    }
+
+    if (this->IsSizeFixed() == true)
+    {
+        if (this->GetLength() != InputLength)
+        {
+            MDK_Error("Size can not change @ DataContainer::Share(...)")
+            return false;
+        }
+    }
+
+    m_Data->IsSizeFixed = IsSizeFixed;
+
+    m_Data->Length = InputLength;
+
+    m_Data->DataArray.clear();
+    m_Data->DataArray.shrink_to_fit();
+
+    m_Data->ElementPointer = InputElementPointer;
+
+    m_ElementPointer = m_MatrixData->ElementPointer;
+
+    return true;
+}
+
+
+template<typename ElementType>
+inline
+bool DataContainer<ElementType>::ForceShare(const ElementType* InputElementPointer, int_max InputLength, bool IsSizeFixed)
+{
+    return this->Share(const_cast<ElementType*>(InputElementPointer), InputLength, IsSizeFixed);
 }
 
 

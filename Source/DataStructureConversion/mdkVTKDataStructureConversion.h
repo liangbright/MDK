@@ -28,6 +28,10 @@ class Image3D;
 
 template<typename ScalarType>
 class TriangleMesh;
+
+template<typename ScalarType>
+class PolygonMesh;
+
 //-------------------------------------------------//
 
 //-------------------------------------- convert mdk image to vtk image--------------------------------------------------------------------//
@@ -47,6 +51,14 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 //--------------------------------------- convert vtk PolyData to mdk TriangleMesh ------------------------------------------------//
 template<typename ScalarType>
 TriangleMesh<ScalarType> ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKPolyMesh, bool Flag_BuildLinkAndAjacency = true);
+
+//--------------------------------------- convert mdk PolygonMesh to vtk PolyData -----------------------------------------------//
+template<typename ScalarType>
+vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<ScalarType>& InputMesh);
+
+//--------------------------------------- convert vtk PolyData to mdk PolygonMesh ------------------------------------------------//
+template<typename ScalarType>
+PolygonMesh<ScalarType> ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKPolyMesh, bool Flag_BuildLinkAndAjacency = true);
 
 
 }// namespace mdk
