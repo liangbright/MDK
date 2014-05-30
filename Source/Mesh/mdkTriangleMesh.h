@@ -29,7 +29,13 @@ struct TriangleMeshData
     // row_1: VertexIndex_1
     // row_2: VertexIndex_2
     //
-    // VertexIndex_0 < VertexIndex_1 < VerteIndex_2 always
+    // the order VertexIndex_0 -> VertexIndex_1 -> VerteIndex_2  determin the direction of normal
+
+    //DenseMatrix<int_max> HalfEdge;
+    // row_0 : VertexIndex_0
+    // row_1 : VertexIndex_1
+    // row_2 : TriangleIndex
+    // HalfEdge: from VertexIndex_0 to VertexIndex_1 on Triangle(:, TriangleIndex)
 
     DenseMatrix<int_max> Edge;
     // row_0: VertexIndex_0
@@ -62,7 +68,7 @@ struct TriangleMeshData
     // Triangle(:,k) is {VertexIndex_0, VertexIndex_1, VertexIndex_2}    
     // Edge of EdgeIndex_0 : VertexIndex_0 <-> VertexIndex_1
     // Edge of EdgeIndex_1 : VertexIndex_1 <-> VertexIndex_2
-    // Edge of EdgeIndex_2 : VertexIndex_0 <-> VertexIndex_2
+    // Edge of EdgeIndex_2 : VertexIndex_2 <-> VertexIndex_0
 
     //---------------------- Adjacency ----------------------------------
 

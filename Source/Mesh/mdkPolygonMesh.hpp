@@ -79,15 +79,6 @@ bool PolygonMesh<ScalarType>::Construct(DenseMatrix<ScalarType> InputVertex,
 
     m_MeshData->Polygon = std::move(InputPolygon);
 
-    // re-order vertex
-
-    for (int_max k = 0; k < m_MeshData->Polygon.GetLength(); ++k)
-    {
-        SimpleDataContainer<int_max>& ColPtr = m_MeshData->Polygon[k];
-
-        std::sort(ColPtr.begin(), ColPtr.end());
-    }
-
     //-------------------------------------
 
     if (this->ConstructEdge() == false)
@@ -346,11 +337,19 @@ void PolygonMesh<ScalarType>::BuildLink_PolygonToEdge()
 
     m_MeshData->Link_PolygonToEdge.FastResize(PolygonNumber);
 
+    int_max MeanEdgeNumberPerPolygon = 0;
+
+    for (int_max k = 0; k < PolygonNumber; ++k)
+    {
+        MeanEdgeNumberPerPolygon += m_MeshData->Polygon[k].GetLength();
+    }
+
+    MeanEdgeNumberPerPolygon /= PolygonNumber;
+
     for (int_max k = 0; k < PolygonNumber; ++k)
     {
         m_MeshData->Link_PolygonToEdge[k].Resize(0);
-        m_MeshData->Link_PolygonToEdge[k].ReserveCapacity(3);
-
+        m_MeshData->Link_PolygonToEdge[k].ReserveCapacity(MeanEdgeNumberPerPolygon);
     }
 
     for (int_max k = 0; k < m_MeshData->Edge.GetColNumber(); ++k)
@@ -361,7 +360,7 @@ void PolygonMesh<ScalarType>::BuildLink_PolygonToEdge()
         for (int_max n = 2; n <= 3; ++n)
         {
             auto PolygonIndex_n = m_MeshData->Edge(n, k);
-            
+
             if (PolygonIndex_n >= 0)
             {
                 const SimpleDataContainer<int_max>& Polygon_n = m_MeshData->Polygon[PolygonIndex_n];
@@ -372,21 +371,28 @@ void PolygonMesh<ScalarType>::BuildLink_PolygonToEdge()
                 {
                     auto VertexIndex_m = Polygon_n[m];
 
-                    if (VertexIndex_0 == VertexIndex_m)
+                    if (m == 0)
                     {
-                        if (m < VertexNumberInPolygon - 1)
+                        if (VertexIndex_0 == VertexIndex_m && VertexIndex_1 == Polygon_n[VertexNumberInPolygon - 1]
+                            || VertexIndex_1 == VertexIndex_m && VertexIndex_0 == Polygon_n[VertexNumberInPolygon - 1])
                         {
-                            if (VertexIndex_1 == Polygon_n[m + 1])
-                            {
-                                m_MeshData->Link_PolygonToEdge[PolygonIndex_n].Append(k);
-                            }
-                            else if (VertexIndex_1 == Polygon_n[VertexNumberInPolygon-1])
-                            {
-                                m_MeshData->Link_PolygonToEdge[PolygonIndex_n].Append(k);
-                            }
+                            m_MeshData->Link_PolygonToEdge[PolygonIndex_n].Append(k);
+                            break; // for m
                         }
                     }
-                }              
+                    
+                    if (m < VertexNumberInPolygon - 1)
+                    {
+                        VertexIndex_1 == Polygon_n[m + 1];
+
+                        if (VertexIndex_0 == VertexIndex_m && VertexIndex_1 == Polygon_n[m + 1]
+                            || VertexIndex_1 == VertexIndex_m && VertexIndex_0 == Polygon_n[m + 1])
+                        {
+                            m_MeshData->Link_PolygonToEdge[PolygonIndex_n].Append(k);
+                            break; // for m
+                        }                        
+                    }
+                }
             }
         }
     }

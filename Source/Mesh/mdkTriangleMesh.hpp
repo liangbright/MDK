@@ -79,15 +79,6 @@ bool TriangleMesh<ScalarType>::Construct(DenseMatrix<ScalarType> InputVertex,
 
     m_MeshData->Triangle = std::move(InputTriangle);
 
-    // re-order vertex
-
-    for (int_max k = 0; k < m_MeshData->Triangle.GetColNumber(); ++k)
-    {
-        auto ColPtr = m_MeshData->Triangle.GetElementPointerOfCol(k);
-
-        std::sort(ColPtr, ColPtr + 3);
-    }
-
     //-------------------------------------
 
     if (this->ConstructEdge() == false)
@@ -375,15 +366,18 @@ void TriangleMesh<ScalarType>::BuildLink_TriangleToEdge()
 
             if (TriangleIndex >= 0)
             {
-                if (VertexIndex_0 == m_MeshData->Triangle(0, TriangleIndex) && VertexIndex_1 == m_MeshData->Triangle(1, TriangleIndex))
+                if (VertexIndex_0 == m_MeshData->Triangle(0, TriangleIndex) && VertexIndex_1 == m_MeshData->Triangle(1, TriangleIndex)
+                   || VertexIndex_1 == m_MeshData->Triangle(0, TriangleIndex) && VertexIndex_0 == m_MeshData->Triangle(1, TriangleIndex))
                 {
                     m_MeshData->Link_TriangleToEdge[TriangleIndex][0] = k;
                 }
-                else if (VertexIndex_0 == m_MeshData->Triangle(1, TriangleIndex) && VertexIndex_1 == m_MeshData->Triangle(2, TriangleIndex))
+                else if (VertexIndex_0 == m_MeshData->Triangle(1, TriangleIndex) && VertexIndex_1 == m_MeshData->Triangle(2, TriangleIndex)
+                      || VertexIndex_1 == m_MeshData->Triangle(1, TriangleIndex) && VertexIndex_0 == m_MeshData->Triangle(2, TriangleIndex))
                 {
                     m_MeshData->Link_TriangleToEdge[TriangleIndex][1] = k;
                 }
-                else if (VertexIndex_0 == m_MeshData->Triangle(0, TriangleIndex) && VertexIndex_1 == m_MeshData->Triangle(2, TriangleIndex))
+                else if (VertexIndex_0 == m_MeshData->Triangle(2, TriangleIndex) && VertexIndex_1 == m_MeshData->Triangle(0, TriangleIndex)
+                      || VertexIndex_1 == m_MeshData->Triangle(2, TriangleIndex) && VertexIndex_0 == m_MeshData->Triangle(0, TriangleIndex))
                 {
                     m_MeshData->Link_TriangleToEdge[TriangleIndex][2] = k;
                 }

@@ -24,7 +24,7 @@ struct PolygonMeshData
 
     DataContainer<SimpleDataContainer<int_max>> Polygon; // also known as cell, face, facet, element
     //
-    // VertexIndex_0 < VertexIndex_1 < ... < VerteIndex_end always
+    // VertexIndex_0 -> VertexIndex_1 -> ... -> VerteIndex_end determin the direction of normal
 
     DenseMatrix<int_max> Edge;
     // row_0: VertexIndex_0
@@ -41,8 +41,6 @@ struct PolygonMeshData
     // VertexIndex_0    < VertexIndex_1   always
     // PolygonIndex_0  < PolygonIndex_1 always
 
-    // note: SimpleDataContainer is just a simple data contianer
-
     DataContainer<SimpleDataContainer<int_max>> Link_VertexToEdge;
     // Link_VertexToEdge[k] is { EdgeIndex_0, EdgeIndex_1, EdgeIndex_2, ...}, the length is not a constant
     // share the same Vertex (VertexIndex is k) 
@@ -55,7 +53,7 @@ struct PolygonMeshData
     // This link is directly stored in Edge
 
     DataContainer<SimpleDataContainer<int_max>> Link_PolygonToEdge;
-    // Link_PolygonToEdge[k] is {EdgeIndex_0, EdgeIndex_1, EdgeIndex_2, ..., EdgeIndex_end}
+    // Link_PolygonToEdge[k] is {EdgeIndex_0, EdgeIndex_1, EdgeIndex_2, ..., EdgeIndex_end}, the length is not a constant
     // Polygon(:,k) is {VertexIndex_0, VertexIndex_1, VertexIndex_2}    
     // Edge of EdgeIndex_0 : VertexIndex_0 <-> VertexIndex_1
     // Edge of EdgeIndex_1 : VertexIndex_1 <-> VertexIndex_2
