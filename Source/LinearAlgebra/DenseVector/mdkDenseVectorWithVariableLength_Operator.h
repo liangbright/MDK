@@ -9,40 +9,38 @@ namespace mdk
 {
 
 template<typename ElementType>
-inline DenseVectorWithVariableLength<ElementType> operator+(const DenseVectorWithVariableLength<ElementType>& VectorA,
-                                                            const DenseVectorWithVariableLength<ElementType>& VectorB);
+inline DenseVector<ElementType> operator+(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType>& VectorB);
 
 template<typename ElementType>
-inline DenseVectorWithVariableLength<ElementType> operator-(const DenseVectorWithVariableLength<ElementType>& VectorA,
-                                                            const DenseVectorWithVariableLength<ElementType>& VectorB);
+inline DenseVector<ElementType> operator-(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType>& VectorB);
 
 //---------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline DenseVectorWithVariableLength<ElementType> operator+(const DenseVectorWithVariableLength<ElementType>& Vector, const ElementType& Element);
+inline DenseVector<ElementType> operator+(const DenseVector<ElementType>& Vector, const ElementType& Element);
 
 template<typename ElementType>
-inline DenseVectorWithVariableLength<ElementType> operator-(const DenseVectorWithVariableLength<ElementType>& Vector, const ElementType& Element);
+inline DenseVector<ElementType> operator-(const DenseVector<ElementType>& Vector, const ElementType& Element);
 
 template<typename ElementType>
-inline DenseVectorWithVariableLength<ElementType> operator*(const DenseVectorWithVariableLength<ElementType>& Vector, const ElementType& Element);
+inline DenseVector<ElementType> operator*(const DenseVector<ElementType>& Vector, const ElementType& Element);
 
 template<typename ElementType>
-inline DenseVectorWithVariableLength<ElementType> operator/(const DenseVectorWithVariableLength<ElementType>& Vector, const ElementType& Element);
+inline DenseVector<ElementType> operator/(const DenseVector<ElementType>& Vector, const ElementType& Element);
 
 //---------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline DenseVectorWithVariableLength<ElementType> operator+(const ElementType& Element, const DenseVectorWithVariableLength<ElementType>& Vector);
+inline DenseVector<ElementType> operator+(const ElementType& Element, const DenseVector<ElementType>& Vector);
 
 template<typename ElementType>
-inline DenseVectorWithVariableLength<ElementType> operator-(const ElementType& Element, const DenseVectorWithVariableLength<ElementType>& Vector);
+inline DenseVector<ElementType> operator-(const ElementType& Element, const DenseVector<ElementType>& Vector);
 
 template<typename ElementType>
-inline DenseVectorWithVariableLength<ElementType> operator*(const ElementType& Element, const DenseVectorWithVariableLength<ElementType>& Vector);
+inline DenseVector<ElementType> operator*(const ElementType& Element, const DenseVector<ElementType>& Vector);
 
 template<typename ElementType>
-inline DenseVectorWithVariableLength<ElementType> operator/(const ElementType& Element, const DenseVectorWithVariableLength<ElementType>& Vector);
+inline DenseVector<ElementType> operator/(const ElementType& Element, const DenseVector<ElementType>& Vector);
 
 //---------------------------------------------------------------------------------------------------------------//
 

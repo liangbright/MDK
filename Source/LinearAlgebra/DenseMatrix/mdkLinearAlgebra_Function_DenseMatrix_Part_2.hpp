@@ -11,14 +11,14 @@ namespace mdk
 template<typename ElementType, typename MatchFunctionType>
 DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction)
 {
-    return FindElementInMatrix(InputMatrix, InputMatrix.GetElementNumber(), 0, InputMatrix.GetElementNumber(), MatchFunction);
+    return FindElementInMatrix(InputMatrix, InputMatrix.GetElementNumber(), 0, InputMatrix.GetElementNumber()-1, MatchFunction);
 }
 
 
 template<typename ElementType, typename MatchFunctionType>
 DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputNumber, MatchFunctionType MatchFunction)
 {
-    return FindElementInMatrix(InputMatrix, MaxOutputNumber, 0, InputMatrix.GetElementNumber(), MatchFunction);
+    return FindElementInMatrix(InputMatrix, MaxOutputNumber, 0, InputMatrix.GetElementNumber()-1, MatchFunction);
 }
 
 
@@ -83,14 +83,14 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
 template<typename ElementType, typename MatchFunctionType>
 DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction)
 {
-    return FindColInMatrix(InputMatrix, InputMatrix.GetColNumber(), 0, InputMatrix.GetColNumber(), MatchFunction);
+    return FindColInMatrix(InputMatrix, InputMatrix.GetColNumber(), 0, InputMatrix.GetColNumber()-1, MatchFunction);
 }
 
 
 template<typename ElementType, typename MatchFunctionType>
 DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputColNumber, MatchFunctionType MatchFunction)
 {
-    return FindColInMatrix(InputMatrix, MaxOutputColNumber, 0, InputMatrix.GetColNumber(), MatchFunction);
+    return FindColInMatrix(InputMatrix, MaxOutputColNumber, 0, InputMatrix.GetColNumber()-1, MatchFunction);
 }
 
 
@@ -159,12 +159,12 @@ DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix
 template<typename ElementType, typename CompareFunctionType>
 DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix, CompareFunctionType CompareFunction)
 {
-    return SortColInMatrix(InputMatrix, 0, InputMatrix.GetColNumber(), CompareFunction);
+    return SortColInMatrix(InputMatrix, 0, InputMatrix.GetColNumber()-1, CompareFunction);
 }
 
 
 template<typename ElementType, typename CompareFunctionType>
-DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix, 
+DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix,
                                      int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction)
 {
     DenseMatrix<int_max> ColIndexList;
@@ -207,6 +207,7 @@ DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix
     {
         ColVector_a.ForceShare(InputMatrix.GetElementPointerOfCol(a), InputSize.RowNumber, 1);
         ColVector_b.ForceShare(InputMatrix.GetElementPointerOfCol(b), InputSize.RowNumber, 1);
+
         return CompareFunction(ColVector_a, ColVector_b);
     });
 
@@ -214,36 +215,93 @@ DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix
 }
 
 
-template<typename ElementType, typename CompareFunctionType>
-DenseMatrix<int_max> SortColInMatrix(DenseMatrix<ElementType>& OutputMatrix, const DenseMatrix<ElementType>& InputMatrix, CompareFunctionType CompareFunction)
+template<typename ElementType>
+DenseMatrix<int_max> FindUniqueElementInMatrix(const DenseMatrix<ElementType>& InputMatrix)
 {
-    auto ColIndexList = SortColInMatrix(InputMatrix, CompareFunction);
+    DenseMatrix<int_max> LinearIndexList_unique;
 
-    if (ColIndexList.IsEmpty() == true)
+    if (InputMatrix.IsEmpty() == true)
     {
-        return ColIndexList;
+        return LinearIndexList_unique;
     }
 
-    OutputMatrix = InputMatrix(ALL, ColIndexList);
+    auto LinearIndexList_sort = InputMatrix.Sort([](const ElementType& a, const ElementType& b){ return a < b; });
 
-    return ColIndexList;
+    LinearIndexList_unique.ReserveCapacity(LinearIndexList_sort.GetElementNumber());
+
+    LinearIndexList_unique.Append(LinearIndexList_sort[0]);
+
+    auto Element_prev = InputMatrix[LinearIndexList_sort[0]];
+
+    for (int_max k = 1; k < LinearIndexList_sort.GetElementNumber(); ++k)
+    {
+        auto Element = InputMatrix[LinearIndexList_sort[k]];
+
+        if (Element != Element_prev)
+        {
+            LinearIndexList_unique.Append(LinearIndexList_sort[k]);
+
+            Element_prev = Element;
+        }
+    }
+
+    return LinearIndexList_unique;
 }
 
 
-template<typename ElementType, typename CompareFunctionType>
-DenseMatrix<int_max> SortColInMatrix(DenseMatrix<ElementType>& OutputMatrix, const DenseMatrix<ElementType>& InputMatrix, 
-                                     int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction)
+template<typename ElementType>
+DenseMatrix<int_max> FindUniqueColInMatrix(const DenseMatrix<ElementType>& InputMatrix)
 {
-    auto ColIndexList = SortColInMatrix(InputMatrix, ColIndex_start, ColIndex_end, CompareFunction);
+    DenseMatrix<int_max> ColIndexList_unique;
 
-    if (ColIndexList.IsEmpty() == true)
+    if (InputMatrix.IsEmpty() == true)
     {
-        return ColIndexList;
+        return ColIndexList_unique;
     }
 
-    OutputMatrix = InputMatrix(span(ColIndex_start, ColIndex_end), ColIndexList);
+    auto TempFunction_CompareCol = [](const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB)
+    {
+        auto RowNumber = VectorA.GetElementNumber();
 
-    return ColIndexList;
+        for (int_max k = 0; k < RowNumber; ++k)
+        {
+            if (VectorA[k] < VectorB[k])
+            {
+                return true;
+            }
+            else if (VectorA[k] > VectorB[k])
+            {
+                return false;
+            }
+        }
+
+        // default value must be false, true will cause assert failure
+        return false;
+    };
+
+    auto ColIndexList_sort = SortColInMatrix(InputMatrix, TempFunction_CompareCol);
+
+    ColIndexList_unique.ReserveCapacity(ColIndexList_sort.GetElementNumber());
+
+    ColIndexList_unique.Append(ColIndexList_sort[0]);
+
+    DenseMatrix<ElementType> Vector_prev, Vector_k;
+
+    Vector_prev.ForceShare(InputMatrix.GetElementPointerOfCol(ColIndexList_sort[0]), InputMatrix.GetRowNumber(), 1);
+
+    for (int_max k = 1; k < ColIndexList_sort.GetElementNumber(); ++k)
+    {
+        Vector_k.ForceShare(InputMatrix.GetElementPointerOfCol(ColIndexList_sort[k]), InputMatrix.GetRowNumber(), 1);
+
+        if (TempFunction_CompareCol(Vector_prev, Vector_k) == true)
+        {
+            ColIndexList_unique.Append(ColIndexList_sort[k]);
+
+            Vector_prev.ForceShare(InputMatrix.GetElementPointerOfCol(ColIndexList_sort[k]), InputMatrix.GetRowNumber(), 1);
+        }
+    }
+
+    return ColIndexList_unique;
 }
 
 //================================================================================================================================//

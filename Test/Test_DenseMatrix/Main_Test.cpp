@@ -136,7 +136,11 @@ int main()
 
     //Test_FindCol();
 
-    Test_SortCol();
+    //Test_Matrix_Operator_with_DenseVector();
+
+    Test_unique();
+
+ //   Test_SortCol();
 
     std::system("pause");
 

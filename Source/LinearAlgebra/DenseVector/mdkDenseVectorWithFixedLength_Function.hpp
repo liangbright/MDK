@@ -7,10 +7,10 @@ namespace mdk
 
 template<typename ElementType, int_max Length>
 inline
-DenseVectorWithFixedSize<ElementType, Length> 
-VectorLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<const DenseVectorWithFixedSize<ElementType, Length>*>& VectorSet)
+DenseVector<ElementType, Length> 
+VectorLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<const DenseVector<ElementType, Length>*>& VectorSet)
 {
-    typedef DenseVectorWithFixedSize<ElementType, Length> VectorType;
+    typedef DenseVector<ElementType, Length> VectorType;
 
     VectorType tempVector; // all elements have been set to zero
 

@@ -7,10 +7,10 @@ namespace mdk
 
 template<typename ElementType, int_max Length>
 inline 
-DenseVectorWithFixedLength<ElementType, Length> 
-operator+(const DenseVectorWithFixedLength<ElementType, Length>& VectorA, const DenseVectorWithFixedLength<ElementType, Length>& VectorB)
+DenseVector<ElementType, Length> 
+operator+(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType, Length>& VectorB)
 {
-	DenseVectorWithFixedLength<ElementType, Length> tempVector;
+	DenseVector<ElementType, Length> tempVector;
 
 	for (int_max i = 0; i < Length; ++i)
 	{
@@ -23,10 +23,10 @@ operator+(const DenseVectorWithFixedLength<ElementType, Length>& VectorA, const 
 
 template<typename ElementType, int_max Length>
 inline
-DenseVectorWithFixedLength<ElementType, Length> 
-operator-(const DenseVectorWithFixedLength<ElementType, Length>& VectorA, const DenseVectorWithFixedLength<ElementType, Length>& VectorB)
+DenseVector<ElementType, Length> 
+operator-(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType, Length>& VectorB)
 {
-	DenseVectorWithFixedLength<ElementType, Length> tempVector;
+	DenseVector<ElementType, Length> tempVector;
 
 	for (int_max i = 0; i < Length; ++i)
 	{
@@ -39,10 +39,10 @@ operator-(const DenseVectorWithFixedLength<ElementType, Length>& VectorA, const 
 
 template<typename ElementType, int_max Length>
 inline
-DenseVectorWithFixedLength<ElementType, Length>
-operator*(const DenseVectorWithFixedLength<ElementType, Length>& VectorA, const DenseVectorWithFixedLength<ElementType, Length>& VectorB)
+DenseVector<ElementType, Length>
+operator*(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType, Length>& VectorB)
 {
-    DenseVectorWithFixedLength<ElementType, Length> tempVector;
+    DenseVector<ElementType, Length> tempVector;
 
     for (int_max i = 0; i < Length; ++i)
     {
@@ -55,10 +55,10 @@ operator*(const DenseVectorWithFixedLength<ElementType, Length>& VectorA, const 
 
 template<typename ElementType, int_max Length>
 inline
-DenseVectorWithFixedLength<ElementType, Length>
-operator/(const DenseVectorWithFixedLength<ElementType, Length>& VectorA, const DenseVectorWithFixedLength<ElementType, Length>& VectorB)
+DenseVector<ElementType, Length>
+operator/(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType, Length>& VectorB)
 {
-    DenseVectorWithFixedLength<ElementType, Length> tempVector;
+    DenseVector<ElementType, Length> tempVector;
 
     for (int_max i = 0; i < Length; ++i)
     {
@@ -72,10 +72,236 @@ operator/(const DenseVectorWithFixedLength<ElementType, Length>& VectorA, const 
 
 template<typename ElementType, int_max Length>
 inline 
-DenseVectorWithFixedLength<ElementType, Length> 
-operator+(const DenseVectorWithFixedLength<ElementType, Length>& Vector, const ElementType& Element)
+DenseVector<ElementType, Length> operator+(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType>& VectorB)
 {
-	DenseVectorWithFixedLength<ElementType, Length> tempVector;
+    auto LengthB = VectorB.GetLength();
+
+    if (LengthB == 1)
+    {
+        return VectorA + VectorB[0];
+    }
+
+    DenseVector<ElementType, Length> OutputVector;
+
+    if (Length != LengthB)
+    {
+        MDK_Error("Length != LengthB @ DenseVectorWithFixedLength_Operator +(VectorA, VectorB) ")
+        return OutputVector;
+    }
+
+    for (int_max i = 0; i < Length; ++i)
+    {
+        OutputVector[i] = VectorA[i] + VectorB[i];
+    }
+
+    return OutputVector;
+}
+
+
+template<typename ElementType, int_max Length>
+inline 
+DenseVector<ElementType, Length> operator-(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType>& VectorB)
+{
+    auto LengthB = VectorB.GetLength();
+
+    if (LengthB == 1)
+    {
+        return VectorA - VectorB[0];
+    }
+
+    DenseVector<ElementType, Length> OutputVector;
+
+    if (Length != LengthB)
+    {
+        MDK_Error("Length != LengthB @ DenseVectorWithFixedLength_Operator -(VectorA, VectorB) ")
+        return OutputVector;
+    }
+
+    for (int_max i = 0; i < Length; ++i)
+    {
+        OutputVector[i] = VectorA[i] - VectorB[i];
+    }
+
+    return OutputVector;
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+DenseVector<ElementType, Length> operator*(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType>& VectorB)
+{
+    auto LengthB = VectorB.GetLength();
+
+    if (LengthB == 1)
+    {
+        return VectorA * VectorB[0];
+    }
+
+    DenseVector<ElementType, Length> OutputVector;
+
+    if (Length != LengthB)
+    {
+        MDK_Error("Length != LengthB @ DenseVectorWithFixedLength_Operator *(VectorA, VectorB) ")
+        return OutputVector;
+    }
+
+    for (int_max i = 0; i < Length; ++i)
+    {
+        OutputVector[i] = VectorA[i] * VectorB[i];
+    }
+
+    return OutputVector;
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+DenseVector<ElementType, Length> operator/(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType>& VectorB)
+{
+    auto LengthB = VectorB.GetLength();
+
+    if (LengthB == 1)
+    {
+        return VectorA / VectorB[0];
+    }
+
+    DenseVector<ElementType, Length> OutputVector;
+
+    if (Length != LengthB)
+    {
+        MDK_Error("Length != LengthB @ DenseVectorWithFixedLength_Operator +(VectorA, VectorB) ")
+        return OutputVector;
+    }
+
+    for (int_max i = 0; i < Length; ++i)
+    {
+        OutputVector[i] = VectorA[i] / VectorB[i];
+    }
+
+    return OutputVector;
+}
+
+//----------------------------------------------------------------------------------------------------------------//
+
+template<typename ElementType, int_max Length>
+inline
+DenseVector<ElementType, Length> operator+(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, Length>& VectorB)
+{
+    auto LengthA = VectorA.GetLength();
+
+    if (LengthA == 1)
+    {
+        return VectorA[0] + VectorB;
+    }
+
+    DenseVector<ElementType, Length> OutputVector;
+
+    if (Length != LengthA)
+    {
+        MDK_Error("Length != LengthA @ DenseVectorWithFixedLength_Operator +(VectorA, VectorB) ")
+        return OutputVector;
+    }
+
+    for (int_max i = 0; i < Length; ++i)
+    {
+        OutputVector[i] = VectorA[i] + VectorB[i];
+    }
+
+    return OutputVector;
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+DenseVector<ElementType, Length> operator-(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, Length>& VectorB)
+{
+    auto LengthA = VectorA.GetLength();
+
+    if (LengthA == 1)
+    {
+        return VectorA[0] - VectorB;
+    }
+
+    DenseVector<ElementType, Length> OutputVector;
+
+    if (Length != LengthA)
+    {
+        MDK_Error("Length != LengthA @ DenseVectorWithFixedLength_Operator -(VectorA, VectorB) ")
+        return OutputVector;
+    }
+
+    for (int_max i = 0; i < Length; ++i)
+    {
+        OutputVector[i] = VectorA[i] - VectorB[i];
+    }
+
+    return OutputVector;
+}
+
+
+template<typename ElementType, int_max Length>
+inline 
+DenseVector<ElementType, Length> operator*(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, Length>& VectorB)
+{
+    auto LengthA = VectorA.GetLength();
+
+    if (LengthA == 1)
+    {
+        return VectorA[0] * VectorB;
+    }
+
+    DenseVector<ElementType, Length> OutputVector;
+
+    if (Length != LengthA)
+    {
+        MDK_Error("Length != LengthA @ DenseVectorWithFixedLength_Operator *(VectorA, VectorB) ")
+        return OutputVector;
+    }
+
+    for (int_max i = 0; i < Length; ++i)
+    {
+        OutputVector[i] = VectorA[i] * VectorB[i];
+    }
+
+    return OutputVector;
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+DenseVector<ElementType, Length> operator/(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, Length>& VectorB)
+{
+    auto LengthA = VectorA.GetLength();
+
+    if (LengthA == 1)
+    {
+        return VectorA[0] / VectorB;
+    }
+
+    DenseVector<ElementType, Length> OutputVector;
+
+    if (Length != LengthA)
+    {
+        MDK_Error("Length != LengthA @ DenseVectorWithFixedLength_Operator +(VectorA, VectorB) ")
+        return OutputVector;
+    }
+
+    for (int_max i = 0; i < Length; ++i)
+    {
+        OutputVector[i] = VectorA[i] / VectorB[i];
+    }
+
+    return OutputVector;
+}
+
+//---------------------------------------------------------------------------------------------------------------//
+
+template<typename ElementType, int_max Length>
+inline 
+DenseVector<ElementType, Length> 
+operator+(const DenseVector<ElementType, Length>& Vector, const ElementType& Element)
+{
+	DenseVector<ElementType, Length> tempVector;
 
     for (int_max i = 0; i < Length; ++i)
 	{
@@ -88,10 +314,10 @@ operator+(const DenseVectorWithFixedLength<ElementType, Length>& Vector, const E
 
 template<typename ElementType, int_max Length>
 inline
-DenseVectorWithFixedLength<ElementType, Length> 
-operator-(const DenseVectorWithFixedLength<ElementType, Length>& Vector, const ElementType& Element)
+DenseVector<ElementType, Length> 
+operator-(const DenseVector<ElementType, Length>& Vector, const ElementType& Element)
 {
-	DenseVectorWithFixedLength<ElementType, Length> tempVector;
+	DenseVector<ElementType, Length> tempVector;
 
     for (int_max i = 0; i < Length; ++i)
 	{
@@ -104,10 +330,10 @@ operator-(const DenseVectorWithFixedLength<ElementType, Length>& Vector, const E
 
 template<typename ElementType, int_max Length>
 inline
-DenseVectorWithFixedLength<ElementType, Length> 
-operator*(const DenseVectorWithFixedLength<ElementType, Length>& Vector, const ElementType& Element)
+DenseVector<ElementType, Length> 
+operator*(const DenseVector<ElementType, Length>& Vector, const ElementType& Element)
 {
-	DenseVectorWithFixedLength<ElementType, Length> tempVector;
+	DenseVector<ElementType, Length> tempVector;
 
 	for (int_max i = 0; i < Length; ++i)
 	{
@@ -120,10 +346,10 @@ operator*(const DenseVectorWithFixedLength<ElementType, Length>& Vector, const E
 
 template<typename ElementType, int_max Length>
 inline
-DenseVectorWithFixedLength<ElementType, Length> 
-operator/(const DenseVectorWithFixedLength<ElementType, Length>& Vector, const ElementType& Element)
+DenseVector<ElementType, Length> 
+operator/(const DenseVector<ElementType, Length>& Vector, const ElementType& Element)
 {
-	DenseVectorWithFixedLength<ElementType, Length> tempVector;
+	DenseVector<ElementType, Length> tempVector;
 
 	for (int_max i = 0; i < Length; ++i)
 	{
@@ -137,10 +363,10 @@ operator/(const DenseVectorWithFixedLength<ElementType, Length>& Vector, const E
 
 template<typename ElementType, int_max Length>
 inline
-DenseVectorWithFixedLength<ElementType, Length> 
-operator+(const ElementType& Element, const DenseVectorWithFixedLength<ElementType, Length>& Voxel)
+DenseVector<ElementType, Length> 
+operator+(const ElementType& Element, const DenseVector<ElementType, Length>& Voxel)
 {
-	DenseVectorWithFixedLength<ElementType, Length> tempVector;
+	DenseVector<ElementType, Length> tempVector;
 
 	for (int_max i = 0; i < Length; ++i)
 	{
@@ -153,10 +379,10 @@ operator+(const ElementType& Element, const DenseVectorWithFixedLength<ElementTy
 
 template<typename ElementType, int_max Length>
 inline
-DenseVectorWithFixedLength<ElementType, Length> 
-operator-(const ElementType& Element, const DenseVectorWithFixedLength<ElementType, Length>& Vector)
+DenseVector<ElementType, Length> 
+operator-(const ElementType& Element, const DenseVector<ElementType, Length>& Vector)
 {
-	DenseVectorWithFixedLength<ElementType, Length> tempVector;
+	DenseVector<ElementType, Length> tempVector;
 
 	for (int_max i = 0; i < Length; ++i)
 	{
@@ -169,10 +395,10 @@ operator-(const ElementType& Element, const DenseVectorWithFixedLength<ElementTy
 
 template<typename ElementType, int_max Length>
 inline
-DenseVectorWithFixedLength<ElementType, Length> 
-operator*(const ElementType& Element, const DenseVectorWithFixedLength<ElementType, Length>& Vector)
+DenseVector<ElementType, Length> 
+operator*(const ElementType& Element, const DenseVector<ElementType, Length>& Vector)
 {
-	DenseVectorWithFixedLength<ElementType, Length> tempVector;
+	DenseVector<ElementType, Length> tempVector;
 
 	for (int_max i = 0; i < Length; ++i)
 	{
@@ -185,10 +411,10 @@ operator*(const ElementType& Element, const DenseVectorWithFixedLength<ElementTy
 
 template<typename ElementType, int_max Length>
 inline
-DenseVectorWithFixedLength<ElementType, Length> 
-operator/(const ElementType& Element, const DenseVectorWithFixedLength<ElementType, Length>& Vector)
+DenseVector<ElementType, Length> 
+operator/(const ElementType& Element, const DenseVector<ElementType, Length>& Vector)
 {
-	DenseVectorWithFixedLength<ElementType, Length> tempVector;
+	DenseVector<ElementType, Length> tempVector;
 
 	for (int_max i = 0; i < Length; ++i)
 	{

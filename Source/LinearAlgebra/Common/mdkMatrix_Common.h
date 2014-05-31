@@ -155,12 +155,6 @@ static Empty_Matrix_Symbol This_Empty_Matrix_Symbol(This_Is_InputStruct_For_Empt
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
-template<typename ElementType>
-class DenseMatrix;
-
-template<typename ElementType>
-class SparseMatrix;
-
 //------------------------------------------------------------//
 
 template<typename ElementType>
@@ -169,11 +163,6 @@ MatrixElementTypeEnum FindMatrixElementType(ElementType Element);
 
 //------------------------------------------------------------//
 
-template<typename ElementType>
-void DisplayMatrix(const std::string& Name, const DenseMatrix<ElementType>& InputMatrix, int_max precision = 0, bool Flag_scientific = false);
-
-template<typename ElementType>
-void DisplayMatrix(const std::string& Name, const SparseMatrix<ElementType>& InputMatrix, int_max precision = 0, bool Flag_scientific = false);
 
 
 }//end namespace mdk

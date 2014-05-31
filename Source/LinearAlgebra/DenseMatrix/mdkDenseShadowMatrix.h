@@ -104,15 +104,16 @@ public:
 	inline ~DenseShadowMatrix();
 
 	//---------------------- mdkDenseShadowMatrix = mdkDenseShadowMatrix or Matrix or Element or GlueMatrix ----------------------------------------//
-private:
-    inline void operator=(DenseShadowMatrix<ElementType>&&) = delete;
-
+    
 public:
     inline void operator=(const DenseMatrix<ElementType>& InputMatrix);
 
     inline void operator=(const ElementType& Element);
 
     inline void operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix);
+
+    // just use =(const)
+    //inline void operator=(DenseShadowMatrix<ElementType>&&);
 
     inline void operator=(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 

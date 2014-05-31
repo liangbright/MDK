@@ -4,7 +4,7 @@ if(POLICY CMP0020)
   cmake_policy(SET CMP0020 NEW)
 endif()
  
-PROJECT(Test_DenseMatrix)
+PROJECT(Test_DenseVector)
 
 set(MDK_DIR "C:/Research/MDK")
 find_package(MDK REQUIRED)
@@ -13,6 +13,6 @@ FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
 message(STATUS ${Test_FILES})
 
-add_executable(Test_DenseMatrix ${Test_FILES})
+add_executable(Test_DenseVector ${Test_FILES})
 
-target_link_libraries(Test_DenseMatrix MDK_LIB)
+target_link_libraries(Test_DenseVector MDK_LIB)

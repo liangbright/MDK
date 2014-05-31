@@ -56,7 +56,7 @@ void PolygonMesh<ScalarType>::operator=(PolygonMesh<ScalarType>&& InputMesh)
 
 template<typename ScalarType>
 bool PolygonMesh<ScalarType>::Construct(DenseMatrix<ScalarType> InputVertex, 
-                                        DataContainer<SimpleDataContainer<int_max>> InputPolygon,
+                                        DataContainer<DenseVector<int_max>> InputPolygon,
                                         bool Flag_BuildLinkAndAdjacency)
 {
     if (InputVertex.IsEmpty() == true || InputPolygon.IsEmpty() == true)
@@ -112,7 +112,7 @@ bool PolygonMesh<ScalarType>::ConstructEdge()
 {
     auto PolygonNumber = m_MeshData->Polygon.GetLength();
 
-    DataContainer<SimpleDataContainer<int_max>> HalfEdge;
+    DataContainer<DenseVector<int_max>> HalfEdge;
     // HalfEdge[k] is a half edge
     // HalfEdge[k][0] : PolygonIndex
     // HalfEdge[k][1] : VertexIndex_0
@@ -127,7 +127,7 @@ bool PolygonMesh<ScalarType>::ConstructEdge()
     {
         auto VertexNumber_k = m_MeshData->Polygon[k].GetElementNumber();
 
-        const SimpleDataContainer<int_max>& Polygon_k = m_MeshData->Polygon[k];
+        const DenseVector<int_max>& Polygon_k = m_MeshData->Polygon[k];
 
         for (int_max n = 0; n <VertexNumber_k - 1; ++n)
         {
@@ -151,7 +151,7 @@ bool PolygonMesh<ScalarType>::ConstructEdge()
 
     // sort HalfEdge
 
-    std::sort(HalfEdge.begin(), HalfEdge.end(), [](const SimpleDataContainer<int_max>& A, const SimpleDataContainer<int_max>& B)
+    std::sort(HalfEdge.begin(), HalfEdge.end(), [](const DenseVector<int_max>& A, const DenseVector<int_max>& B)
     {
         if (A[1] == B[1]) // VertexIndex_0 of A == VertexIndex_0 of B
         {
@@ -168,7 +168,7 @@ bool PolygonMesh<ScalarType>::ConstructEdge()
     DenseMatrix<int_max> UniqueEdgeFlagList(1, HalfEdgeNumber);
     UniqueEdgeFlagList.Fill(0);
 
-    auto TempFunction_SameEdge = [](const SimpleDataContainer<int_max>& A, const SimpleDataContainer<int_max>& B)
+    auto TempFunction_SameEdge = [](const DenseVector<int_max>& A, const DenseVector<int_max>& B)
     {
         if (A[1] == B[1])
         {
@@ -314,7 +314,7 @@ void PolygonMesh<ScalarType>::BuildLink_VertexToPolygon()
     {
         auto VertexNumber_k = m_MeshData->Polygon[k].GetLength();
 
-        const SimpleDataContainer<int_max>& Polygon_k = m_MeshData->Polygon[k];
+        const DenseVector<int_max>& Polygon_k = m_MeshData->Polygon[k];
 
         for (int_max n = 0; n < VertexNumber_k; ++n)
         {
@@ -363,7 +363,7 @@ void PolygonMesh<ScalarType>::BuildLink_PolygonToEdge()
 
             if (PolygonIndex_n >= 0)
             {
-                const SimpleDataContainer<int_max>& Polygon_n = m_MeshData->Polygon[PolygonIndex_n];
+                const DenseVector<int_max>& Polygon_n = m_MeshData->Polygon[PolygonIndex_n];
 
                 auto VertexNumberInPolygon = Polygon_n.GetLength();
 
@@ -383,8 +383,6 @@ void PolygonMesh<ScalarType>::BuildLink_PolygonToEdge()
                     
                     if (m < VertexNumberInPolygon - 1)
                     {
-                        VertexIndex_1 == Polygon_n[m + 1];
-
                         if (VertexIndex_0 == VertexIndex_m && VertexIndex_1 == Polygon_n[m + 1]
                             || VertexIndex_1 == VertexIndex_m && VertexIndex_0 == Polygon_n[m + 1])
                         {
@@ -715,7 +713,7 @@ const DenseMatrix<ScalarType>& PolygonMesh<ScalarType>::Vertex() const
 
 template<typename ScalarType>
 inline
-const DataContainer<SimpleDataContainer<int_max>>& PolygonMesh<ScalarType>::Polygon() const
+const DataContainer<DenseVector<int_max>>& PolygonMesh<ScalarType>::Polygon() const
 {
     return m_MeshData->Polygon;
 }
@@ -731,7 +729,7 @@ const DenseMatrix<int_max>& PolygonMesh<ScalarType>::Edge() const
 
 template<typename ScalarType>
 inline
-const DataContainer<SimpleDataContainer<int_max>>& PolygonMesh<ScalarType>::Link_VertexToEdge() const
+const DataContainer<DenseVector<int_max>>& PolygonMesh<ScalarType>::Link_VertexToEdge() const
 {
     return m_MeshData->Link_VertexToEdge;
 }
@@ -739,7 +737,7 @@ const DataContainer<SimpleDataContainer<int_max>>& PolygonMesh<ScalarType>::Link
 
 template<typename ScalarType>
 inline
-const DataContainer<SimpleDataContainer<int_max>>& PolygonMesh<ScalarType>::Link_VertexToPolygon() const
+const DataContainer<DenseVector<int_max>>& PolygonMesh<ScalarType>::Link_VertexToPolygon() const
 {
     return m_MeshData->Link_VertexToPolygon;
 }
@@ -747,7 +745,7 @@ const DataContainer<SimpleDataContainer<int_max>>& PolygonMesh<ScalarType>::Link
 
 template<typename ScalarType>
 inline
-const DataContainer<SimpleDataContainer<int_max>>& PolygonMesh<ScalarType>::Link_PolygonToEdge() const
+const DataContainer<DenseVector<int_max>>& PolygonMesh<ScalarType>::Link_PolygonToEdge() const
 {
     return m_MeshData->Link_PolygonToEdge;
 }
@@ -755,7 +753,7 @@ const DataContainer<SimpleDataContainer<int_max>>& PolygonMesh<ScalarType>::Link
 
 template<typename ScalarType>
 inline 
-const DataContainer<SimpleDataContainer<int_max>>& PolygonMesh<ScalarType>::Adjacency_VertexToVertex() const
+const DataContainer<DenseVector<int_max>>& PolygonMesh<ScalarType>::Adjacency_VertexToVertex() const
 {
     return m_MeshData->Adjacency_VertexToVertex;
 }
@@ -763,7 +761,7 @@ const DataContainer<SimpleDataContainer<int_max>>& PolygonMesh<ScalarType>::Adja
 
 template<typename ScalarType>
 inline 
-const DataContainer<SimpleDataContainer<int_max>>& PolygonMesh<ScalarType>::Adjacency_PolygonToPolygon() const
+const DataContainer<DenseVector<int_max>>& PolygonMesh<ScalarType>::Adjacency_PolygonToPolygon() const
 {
     return m_MeshData->Adjacency_PolygonToPolygon;
 }

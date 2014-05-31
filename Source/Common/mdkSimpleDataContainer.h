@@ -61,6 +61,8 @@ public:
 
     inline void operator=(const std::vector<ElementType>& InputList);
 
+    inline void operator=(const DenseMatrix<ElementType>& InputList);
+
     //----------------------  Copy  ----------------------------------------//
 
     inline bool Copy(const SimpleDataContainer<ElementType>& InputData);
@@ -123,6 +125,32 @@ public:
 
     inline const ElementType& at(int_max Index) const;
 
+    //----------------------- Get subset ------------------------------//
+
+    inline SimpleDataContainer<ElementType> GetSubSet(int_max Index_start, int_max Index_end);
+
+    inline SimpleDataContainer<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList);
+
+    inline SimpleDataContainer<ElementType> GetSubSet(const std::vector<int_max>& IndexList);
+
+    inline SimpleDataContainer<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList);
+
+    inline SimpleDataContainer<ElementType> GetSubSet(const SimpleDataContainer<int_max>& IndexList);
+
+    inline SimpleDataContainer<ElementType> GetSubSet(const int_max* IndexList, int_max ListLength);
+
+    //----------------------- Set subset ------------------------------//
+
+    inline bool SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSetData);
+
+    inline bool SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSetData);
+
+    inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubSetData);
+
+    inline bool SetSubSet(const SimpleDataContainer<int_max>& IndexList, const SimpleDataContainer<ElementType>& SubSetData);
+
+    inline bool SetSubSet(const int_max* IndexList, const ElementType* SubSetData, int_max DataNumber);
+
     //-------------------------------------------------------------------------------
 
     inline bool Append(ElementType Element);
@@ -157,23 +185,9 @@ public:
 
     //------------- use SimpleDataContainer as a stack ----------------------------//
 
-    inline bool Push(ElementType Element);
+    inline bool PushBack(ElementType Element);
 
-    inline ElementType Pop();
-
-    //----------------------- Get a subset ------------------------------//
-
-    inline SimpleDataContainer<ElementType> GetSubSet(int_max Index_start, int_max Index_end);
-
-    inline SimpleDataContainer<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList);
-
-    inline SimpleDataContainer<ElementType> GetSubSet(const std::vector<int_max>& IndexList);
-
-    inline SimpleDataContainer<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList);
-
-    inline SimpleDataContainer<ElementType> GetSubSet(const SimpleDataContainer<int_max>& IndexList);
-
-    inline SimpleDataContainer<ElementType> GetSubSet(const int_max* IndexList, int_max ListLength);
+    inline ElementType PopBack();
 
     //-------------------- find ---------------------------------------//
 

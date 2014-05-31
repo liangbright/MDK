@@ -7,59 +7,76 @@
 
 namespace mdk
 {
-    
-// forward declare----------------------------------
-template<typename ElementType, int_max Length>
-class DenseVectorWithFixedLength;
-/------------------------------------------------------
-
 
 //---------------------------------------------------- Vector {+ - * /} Vector ---------------------------------------------// 
 
 template<typename ElementType, int_max Length>
-inline DenseVectorWithFixedLength<ElementType, Length> operator+(const DenseVectorWithFixedLength<ElementType, Length>& VoxelA, 
-                                                                 const DenseVectorWithFixedLength<ElementType, Length>& VoxelB);
+inline DenseVector<ElementType, Length> operator+(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType, Length>& VectorB);
 
 template<typename ElementType, int_max Length>
-inline DenseVectorWithFixedLength<ElementType, Length> operator-(const DenseVectorWithFixedLength<ElementType, Length>& VoxelA, 
-                                                                 const DenseVectorWithFixedLength<ElementType, Length>& VoxelB);
+inline DenseVector<ElementType, Length> operator-(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType, Length>& VectorB);
 
 template<typename ElementType, int_max Length>
-inline DenseVectorWithFixedLength<ElementType, Length> operator*(const DenseVectorWithFixedLength<ElementType, Length>& VoxelA, 
-                                                                 const DenseVectorWithFixedLength<ElementType, Length>& VoxelB);
+inline DenseVector<ElementType, Length> operator*(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType, Length>& VectorB);
 
 template<typename ElementType, int_max Length>
-inline DenseVectorWithFixedLength<ElementType, Length> operator/(const DenseVectorWithFixedLength<ElementType, Length>& VoxelA, 
-                                                                 const DenseVectorWithFixedLength<ElementType, Length>& VoxelB);
+inline DenseVector<ElementType, Length> operator/(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType, Length>& VectorB);
+
+//-------------------- fixed + -/ * unfixed-----------------------------
+
+template<typename ElementType, int_max Length>
+inline DenseVector<ElementType, Length> operator+(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType>& VectorB);
+
+template<typename ElementType, int_max Length>
+inline DenseVector<ElementType, Length> operator-(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType>& VectorB);
+
+template<typename ElementType, int_max Length>
+inline DenseVector<ElementType, Length> operator*(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType>& VectorB);
+
+template<typename ElementType, int_max Length>
+inline DenseVector<ElementType, Length> operator/(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType>& VectorB);
+
+//-------------------- unfixed + -/ * fixed -----------------------------
+
+template<typename ElementType, int_max Length>
+inline DenseVector<ElementType, Length> operator+(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, Length>& VectorB);
+
+template<typename ElementType, int_max Length>
+inline DenseVector<ElementType, Length> operator-(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, Length>& VectorB);
+
+template<typename ElementType, int_max Length>
+inline DenseVector<ElementType, Length> operator*(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, Length>& VectorB);
+
+template<typename ElementType, int_max Length>
+inline DenseVector<ElementType, Length> operator/(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, Length>& VectorB);
 
 //---------------------------------------------------- Vector {+ - * /} Element ---------------------------------------------// 
 
 template<typename ElementType, int_max Length>
-inline DenseVectorWithFixedLength<ElementType, Length> operator+(const DenseVectorWithFixedLength<ElementType, Length>& Voxel, const ElementType& Element);
+inline DenseVector<ElementType, Length> operator+(const DenseVector<ElementType, Length>& Vector, const ElementType& Element);
 
 template<typename ElementType, int_max Length>
-inline DenseVectorWithFixedLength<ElementType, Length> operator-(const DenseVectorWithFixedLength<ElementType, Length>& Voxel, const ElementType& Element);
+inline DenseVector<ElementType, Length> operator-(const DenseVector<ElementType, Length>& Vector, const ElementType& Element);
 
 template<typename ElementType, int_max Length>
-inline DenseVectorWithFixedLength<ElementType, Length> operator*(const DenseVectorWithFixedLength<ElementType, Length>& Voxel, const ElementType& Element);
+inline DenseVector<ElementType, Length> operator*(const DenseVector<ElementType, Length>& Vector, const ElementType& Element);
 
 template<typename ElementType, int_max Length>
-inline DenseVectorWithFixedLength<ElementType, Length> operator/(const DenseVectorWithFixedLength<ElementType, Length>& Voxel, const ElementType& Element);
+inline DenseVector<ElementType, Length> operator/(const DenseVector<ElementType, Length>& Vector, const ElementType& Element);
 
 //----------------------------------------------------  Element {+ - * /} Vector ---------------------------------------------// 
 
 template<typename ElementType, int_max Length>
-inline DenseVectorWithFixedLength<ElementType, Length> operator+(const ElementType& Element, const DenseVectorWithFixedLength<ElementType, Length>& Voxel);
+inline DenseVector<ElementType, Length> operator+(const ElementType& Element, const DenseVector<ElementType, Length>& Vector);
 
 template<typename ElementType, int_max Length>
-inline DenseVectorWithFixedLength<ElementType, Length> operator-(const ElementType& Element, const DenseVectorWithFixedLength<ElementType, Length>& Voxel);
+inline DenseVector<ElementType, Length> operator-(const ElementType& Element, const DenseVector<ElementType, Length>& Vector);
 
 template<typename ElementType, int_max Length>
-inline DenseVectorWithFixedLength<ElementType, Length> operator*(const ElementType& Element, const DenseVectorWithFixedLength<ElementType, Length>& Voxel);
+inline DenseVector<ElementType, Length> operator*(const ElementType& Element, const DenseVector<ElementType, Length>& Vector);
 
 template<typename ElementType, int_max Length>
-inline DenseVectorWithFixedLength<ElementType, Length> operator/(const ElementType& Element, const DenseVectorWithFixedLength<ElementType, Length>& Voxel);
-
+inline DenseVector<ElementType, Length> operator/(const ElementType& Element, const DenseVector<ElementType, Length>& Vector);
 
 }
 

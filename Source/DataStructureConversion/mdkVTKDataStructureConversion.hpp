@@ -518,7 +518,7 @@ PolygonMesh<ScalarType> ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKPolyM
 
     auto CellNumber = int_max(VTKPolyMesh->GetNumberOfCells());
 
-    DataContainer<SimpleDataContainer<int_max>> Polygon;
+    DataContainer<DenseVector<int_max>> Polygon;
     Polygon.FastResize(CellNumber);
 
     for (int_max k = 0; k < CellNumber; ++k)

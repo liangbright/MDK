@@ -106,7 +106,7 @@ bool TriangleMesh<ScalarType>::ConstructEdge()
 {
     auto TriangleNumber = m_MeshData->Triangle.GetColNumber();
 
-    DataContainer<SimpleDataContainer<int_max>> HalfEdge;
+    DataContainer<DenseVector<int_max>> HalfEdge;
     // HalfEdge[k] is a half edge
     // HalfEdge[k][0] : TriangleIndex
     // HalfEdge[k][1] : VertexIndex_0
@@ -162,7 +162,7 @@ bool TriangleMesh<ScalarType>::ConstructEdge()
 
     // sort HalfEdge
 
-    std::sort(HalfEdge.begin(), HalfEdge.end(), [](const SimpleDataContainer<int_max>& A, const SimpleDataContainer<int_max>& B)
+    std::sort(HalfEdge.begin(), HalfEdge.end(), [](const DenseVector<int_max>& A, const DenseVector<int_max>& B)
     {
         if (A[1] == B[1]) // VertexIndex_0 of A == VertexIndex_0 of B
         {
@@ -179,7 +179,7 @@ bool TriangleMesh<ScalarType>::ConstructEdge()
     DenseMatrix<int_max> UniqueEdgeFlagList(1, HalfEdgeNumber);
     UniqueEdgeFlagList.Fill(0);
 
-    auto TempFunction_SameEdge = [](const SimpleDataContainer<int_max>& A, const SimpleDataContainer<int_max>& B)
+    auto TempFunction_SameEdge = [](const DenseVector<int_max>& A, const DenseVector<int_max>& B)
     {
         if (A[1] == B[1])
         {
@@ -654,7 +654,7 @@ int_max TriangleMesh<ScalarType>::GetEdgeNumber() const
 
 template<typename ScalarType>
 inline
-DenseMatrix<int_max>& TriangleMesh<ScalarType>::VertexGlobalIndexList()
+DenseVector<int_max>& TriangleMesh<ScalarType>::VertexGlobalIndexList()
 {
     return m_MeshData->VertexGlobalIndexList;
 }
@@ -662,7 +662,7 @@ DenseMatrix<int_max>& TriangleMesh<ScalarType>::VertexGlobalIndexList()
 
 template<typename ScalarType>
 inline
-const DenseMatrix<int_max>& TriangleMesh<ScalarType>::VertexGlobalIndexList() const
+const DenseVector<int_max>& TriangleMesh<ScalarType>::VertexGlobalIndexList() const
 {
     return m_MeshData->VertexGlobalIndexList;
 }
@@ -670,7 +670,7 @@ const DenseMatrix<int_max>& TriangleMesh<ScalarType>::VertexGlobalIndexList() co
 
 template<typename ScalarType>
 inline
-DenseMatrix<int_max>& TriangleMesh<ScalarType>::TriangleGlobalIndexList()
+DenseVector<int_max>& TriangleMesh<ScalarType>::TriangleGlobalIndexList()
 {
     return m_MeshData->TriangleGlobalIndexList;
 }
@@ -678,7 +678,7 @@ DenseMatrix<int_max>& TriangleMesh<ScalarType>::TriangleGlobalIndexList()
 
 template<typename ScalarType>
 inline
-const DenseMatrix<int_max>& TriangleMesh<ScalarType>::TriangleGlobalIndexList() const
+const DenseVector<int_max>& TriangleMesh<ScalarType>::TriangleGlobalIndexList() const
 {
     return m_MeshData->TriangleGlobalIndexList;
 }
@@ -718,7 +718,7 @@ const DenseMatrix<int_max>& TriangleMesh<ScalarType>::Edge() const
 
 template<typename ScalarType>
 inline
-const DataContainer<SimpleDataContainer<int_max>>& TriangleMesh<ScalarType>::Link_VertexToEdge() const
+const DataContainer<DenseVector<int_max>>& TriangleMesh<ScalarType>::Link_VertexToEdge() const
 {
     return m_MeshData->Link_VertexToEdge;
 }
@@ -726,7 +726,7 @@ const DataContainer<SimpleDataContainer<int_max>>& TriangleMesh<ScalarType>::Lin
 
 template<typename ScalarType>
 inline
-const DataContainer<SimpleDataContainer<int_max>>& TriangleMesh<ScalarType>::Link_VertexToTriangle() const
+const DataContainer<DenseVector<int_max>>& TriangleMesh<ScalarType>::Link_VertexToTriangle() const
 {
     return m_MeshData->Link_VertexToTriangle;
 }
@@ -734,7 +734,7 @@ const DataContainer<SimpleDataContainer<int_max>>& TriangleMesh<ScalarType>::Lin
 
 template<typename ScalarType>
 inline
-const DataContainer<SimpleDataContainer<int_max>>& TriangleMesh<ScalarType>::Link_TriangleToEdge() const
+const DataContainer<DenseVector<int_max>>& TriangleMesh<ScalarType>::Link_TriangleToEdge() const
 {
     return m_MeshData->Link_TriangleToEdge;
 }
@@ -742,7 +742,7 @@ const DataContainer<SimpleDataContainer<int_max>>& TriangleMesh<ScalarType>::Lin
 
 template<typename ScalarType>
 inline 
-const DataContainer<SimpleDataContainer<int_max>>& TriangleMesh<ScalarType>::Adjacency_VertexToVertex() const
+const DataContainer<DenseVector<int_max>>& TriangleMesh<ScalarType>::Adjacency_VertexToVertex() const
 {
     return m_MeshData->Adjacency_VertexToVertex;
 }
@@ -750,7 +750,7 @@ const DataContainer<SimpleDataContainer<int_max>>& TriangleMesh<ScalarType>::Adj
 
 template<typename ScalarType>
 inline 
-const DataContainer<SimpleDataContainer<int_max>>& TriangleMesh<ScalarType>::Adjacency_TriangleToTriangle() const
+const DataContainer<DenseVector<int_max>>& TriangleMesh<ScalarType>::Adjacency_TriangleToTriangle() const
 {
     return m_MeshData->Adjacency_TriangleToTriangle;
 }

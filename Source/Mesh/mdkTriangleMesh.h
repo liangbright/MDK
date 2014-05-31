@@ -5,7 +5,6 @@
 #include "mdkType.h"
 #include "mdkObject.h"
 #include "mdkDataContainer.h"
-#include "mdkSimpleDataContainer.h"
 #include "mdkDenseMatrix.h"
 
 
@@ -15,9 +14,9 @@ namespace mdk
 template<typename ScalarType = double>
 struct TriangleMeshData
 {
-    DenseMatrix<int_max> VertexGlobalIndexList;
+    DenseVector<int_max> VertexGlobalIndexList;
 
-    DenseMatrix<int_max> TriangleGlobalIndexList;
+    DenseVector<int_max> TriangleGlobalIndexList;
 
     DenseMatrix<ScalarType> Vertex;    
     // row_0: x
@@ -52,18 +51,18 @@ struct TriangleMeshData
     // VertexIndex_0    < VertexIndex_1   always
     // TriangleIndex_0  < TriangleIndex_1 always
 
-    DataContainer<SimpleDataContainer<int_max>> Link_VertexToEdge;
+    DataContainer<DenseVector<int_max>> Link_VertexToEdge;
     // Link_VertexToEdge[k] is { EdgeIndex_0, EdgeIndex_1, EdgeIndex_2, ...}, the length is not a constant
     // share the same Vertex (VertexIndex is k) 
 
-    DataContainer<SimpleDataContainer<int_max>> Link_VertexToTriangle;
+    DataContainer<DenseVector<int_max>> Link_VertexToTriangle;
     // Link_VertexToTriangle[k] is { TriangleIndex_0, TriangleIndex_1, TriangleIndex_2, ...}, the length is not a constant
     // share the same Vertex (VertexIndex is k) 
 
     // DataContainer<DenseMatrix<int_max>> Link_EdgeToTriangle;
     // This link is directly stored in Edge
 
-    DataContainer<SimpleDataContainer<int_max>> Link_TriangleToEdge;
+    DataContainer<DenseVector<int_max>> Link_TriangleToEdge;
     // Link_TriangleToEdge[k] is {EdgeIndex_0, EdgeIndex_1, EdgeIndex_2}
     // Triangle(:,k) is {VertexIndex_0, VertexIndex_1, VertexIndex_2}    
     // Edge of EdgeIndex_0 : VertexIndex_0 <-> VertexIndex_1
@@ -72,19 +71,19 @@ struct TriangleMeshData
 
     //---------------------- Adjacency ----------------------------------
 
-    DataContainer<SimpleDataContainer<int_max>> Adjacency_VertexToVertex;
+    DataContainer<DenseVector<int_max>> Adjacency_VertexToVertex;
     // Adjacency_VertexToVertex[k] is { VertexIndex_0, VertexIndex_1, VertexIndex_2, ...}
     // share the same neighbour Vertex (VertexIndex is k) 
 
-    //DataContainer<SimpleDataContainer<int_max>> Adjacency_EdgeToEdge_0;
+    //DataContainer<DenseVector<int_max>> Adjacency_EdgeToEdge_0;
     // Adjacency_EdgeToEdge_0[k] is Link_VertexToEdge[VertexIndex_0] without k
     // Edge(:,k)  is {VertexIndex_0, VertexIndex_1}
 
-    //DataContainer<SimpleDataContainer<int_max>> Adjacency_EdgeToEdge_1;
+    //DataContainer<DenseVector<int_max>> Adjacency_EdgeToEdge_1;
     // Adjacency_EdgeToEdge_0[k] is Link_VertexToEdge[VertexIndex_1] without k
     // Edge(:,k)  is {VertexIndex_0, VertexIndex_1}
 
-    DataContainer<SimpleDataContainer<int_max>> Adjacency_TriangleToTriangle;
+    DataContainer<DenseVector<int_max>> Adjacency_TriangleToTriangle;
     // Adjacency_TriangleToTriangle[k] is { TriangleIndex_0, TriangleIndex_1, TriangleIndex_2, ...}
     // share the same neighbour Triangle (TriangleIndex is k) 
 
@@ -92,7 +91,7 @@ struct TriangleMeshData
 
     DenseMatrix<ScalarType> NormalAtVertex; // size: 3 x ?
 
-    DenseMatrix<ScalarType> NormalAtTriangleCenter;  // size: 3 x ?
+    DenseMatrix<ScalarType> NormalAtTriangle;  // size: 3 x ?
 
     //----------------- attribute at Vertex ----------------------------
 
@@ -197,13 +196,13 @@ public:
 
     //-------------------------------------------------------------------
 
-    inline DenseMatrix<int_max>& VertexGlobalIndexList();
+    inline DenseVector<int_max>& VertexGlobalIndexList();
 
-    inline const DenseMatrix<int_max>& VertexGlobalIndexList() const;
+    inline const DenseVector<int_max>& VertexGlobalIndexList() const;
 
-    inline DenseMatrix<int_max>& TriangleGlobalIndexList();
+    inline DenseVector<int_max>& TriangleGlobalIndexList();
 
-    inline const DenseMatrix<int_max>& TriangleGlobalIndexList() const;
+    inline const DenseVector<int_max>& TriangleGlobalIndexList() const;
 
     inline DenseMatrix<ScalarType>& Vertex();
 
@@ -213,15 +212,15 @@ public:
 
     inline const DenseMatrix<int_max>& Edge() const;
 
-    inline const DataContainer<SimpleDataContainer<int_max>>& Link_VertexToEdge() const;
+    inline const DataContainer<DenseVector<int_max>>& Link_VertexToEdge() const;
 
-    inline const DataContainer<SimpleDataContainer<int_max>>& Link_VertexToTriangle() const;
+    inline const DataContainer<DenseVector<int_max>>& Link_VertexToTriangle() const;
 
-    inline const DataContainer<SimpleDataContainer<int_max>>& Link_TriangleToEdge() const;
+    inline const DataContainer<DenseVector<int_max>>& Link_TriangleToEdge() const;
 
-    inline const DataContainer<SimpleDataContainer<int_max>>& Adjacency_VertexToVertex() const;
+    inline const DataContainer<DenseVector<int_max>>& Adjacency_VertexToVertex() const;
 
-    inline const DataContainer<SimpleDataContainer<int_max>>& Adjacency_TriangleToTriangle() const;
+    inline const DataContainer<DenseVector<int_max>>& Adjacency_TriangleToTriangle() const;
 
     //----------------------------------------------------------------------------
 

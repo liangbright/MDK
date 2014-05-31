@@ -1150,7 +1150,7 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, con
 
     for (int_max i = 0; i < InputMesh.GetPolygonNumber(); ++i)
     {
-        const SimpleDataContainer<int_max>& Polygon_i = InputMesh.Polygon()[i];
+        const DenseVector<int_max>& Polygon_i = InputMesh.Polygon()[i];
 
         for (int_max n = 0; n < Polygon_i.GetLength(); ++n)
         {
@@ -1309,14 +1309,14 @@ PolygonMesh<ScalarType> LoadPolygonMeshFromJsonDataFile(const CharString& FilePa
         return OutputMatrix;
     }
 
-    DataContainer<SimpleDataContainer<int_max>> Polygon;
+    DataContainer<DenseVector<int_max>> Polygon;
     Polygon.FastResize(PolygonNumber);
 
     QTextStream stream_in(&PolygonDataFile);
 
     for (int_max i = 0; i < InputMesh.GetPolygonNumber(); ++i)
     {
-        SimpleDataContainer<int_max>& Polygon_i = Polygon[i];
+        DenseVector<int_max>& Polygon_i = Polygon[i];
 
         auto ValueList = stream_in.readLine().split(",");
         

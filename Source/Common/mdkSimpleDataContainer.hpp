@@ -103,6 +103,21 @@ void SimpleDataContainer<ElementType>::operator=(const std::vector<ElementType>&
 
 template<typename ElementType>
 inline
+void SimpleDataContainer<ElementType>::operator=(const DenseMatrix<ElementType>& InputData)
+{
+    auto InputLength = InputData.GetElementNumber();
+
+    m_DataArray.resize(InputLength);
+
+    for (int_max k = 0; k < InputLength; ++k)
+    {
+        m_DataArray[k] = InputData[k];
+    }
+}
+
+
+template<typename ElementType>
+inline
 bool SimpleDataContainer<ElementType>::Copy(const SimpleDataContainer<ElementType>& InputData)
 {
     if (this == &InputData)
@@ -453,6 +468,199 @@ const ElementType& SimpleDataContainer<ElementType>::at(int_max Index) const
 
 template<typename ElementType>
 inline
+SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(int_max Index_start, int_max Index_end)
+{
+    SimpleDataContainer<ElementType> Subset;
+
+    auto ElementNumber = this->GetElementNumber();
+
+    if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
+    {
+        MDK_Error("Index_start is invalid @ SimpleDataContainer::GetSubSet(...)")
+            return Subset;
+    }
+
+    if (Index_end < 0 || Index_end >= ElementNumber)
+    {
+        MDK_Error("Index_end is invalid @ SimpleDataContainer::GetSubSet(...)")
+            return Subset;
+    }
+
+    if (ElementNumber == 0)
+    {
+        return Subset;
+    }
+
+    Subset.FastResize(Index_end - Index_start + 1);
+
+    for (int_max i = Index_end; i <= Index_start; ++i)
+    {
+        Subset[i - Index_end] = (*this)[i];
+    }
+
+    return Subset;
+}
+
+
+template<typename ElementType>
+inline
+SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const std::initializer_list<int_max>& IndexList)
+{
+    return this->GetSubSet(IndexList.begin(), int_max(IndexList.size()));
+}
+
+
+template<typename ElementType>
+inline
+SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const std::vector<int_max>& IndexList)
+{
+    return this->GetSubSet(IndexList.data(), int_max(IndexList.size()));
+}
+
+
+template<typename ElementType>
+inline
+SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList)
+{
+    return this->GetSubSet(IndexList.GetElementPointer(), int_max(IndexList.GetElementNumber()));
+}
+
+
+template<typename ElementType>
+inline
+SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const SimpleDataContainer<int_max>& IndexList)
+{
+    return this->GetSubSet(IndexList.GetElementPointer(), int_max(IndexList.GetElementNumber()));
+}
+
+
+template<typename ElementType>
+inline
+SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const int_max* IndexList, int_max ListLength)
+{
+    SimpleDataContainer<ElementType> SubSet;
+
+    auto ElementNumber = this->GetElementNumber();
+
+    if (IndexList == nullptr || ListLength < 0 || ListLength >= ElementNumber)
+    {
+        MDK_Error("Invalid input @ SimpleDataContainer::GetSubSet(...)")
+            return SubSet;
+    }
+
+    SubSet.FastResize(ListLength);
+
+    for (int_max k = 0; k < ListLength; ++k)
+    {
+        auto tempIndex = IndexList[k];
+
+        if (tempIndex < 0 || tempIndex >= ElementNumber)
+        {
+            MDK_Error("Invalid index @ SimpleDataContainer::GetSubSet(...)")
+                SubSet.Clear();
+            return SubSet;
+        }
+
+        SubSet[k] = (*this)[tempIndex];
+    }
+
+    return SubSet;
+}
+
+
+template<typename ElementType>
+inline
+bool SimpleDataContainer<ElementType>::SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSetData)
+{
+    if (IndexList.size() != SubSetData.size())
+    {
+        MDK_Error("IndexList.size() != SubSetData.size() @ SimpleDataContainer::SetSubSet(...)")
+            return false;
+    }
+
+    return this->SetSubSet(IndexList.begin(), SubSetData.begin(), int_max(SubSetData.size()));
+}
+
+
+template<typename ElementType>
+inline
+bool SimpleDataContainer<ElementType>::SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSetData)
+{
+    if (IndexList.size() != SubSetData.size())
+    {
+        MDK_Error("IndexList.size() != SubSetData.size() @ SimpleDataContainer::SetSubSet(...)")
+            return false;
+    }
+
+    return this->SetSubSet(IndexList.data(), SubSetData.data(), int_max(SubSetData.size()));
+}
+
+
+template<typename ElementType>
+inline
+bool SimpleDataContainer<ElementType>::SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubSetData)
+{
+    if (IndexList.GetElementNumber() != SubSetData.GetElementNumber())
+    {
+        MDK_Error("IndexList.size() != SubSetData.size() @ SimpleDataContainer::SetSubSet(...)")
+            return false;
+    }
+
+    return this->SetSubSet(IndexList.GetElementPointer(), SubSetData.GetElementPointer(), int_max(SubSetData.GetElementNumber()));
+}
+
+
+template<typename ElementType>
+inline
+bool SimpleDataContainer<ElementType>::SetSubSet(const SimpleDataContainer<int_max>& IndexList, const SimpleDataContainer<ElementType>& SubSetData)
+{
+    if (IndexList.GetElementNumber() != SubSetData.GetElementNumber())
+    {
+        MDK_Error("IndexList.size() != SubSetData.size() @ SimpleDataContainer::SetSubSet(...)")
+            return false;
+    }
+
+    return this->SetSubSet(IndexList.GetElementPointer(), SubSetData.GetElementPointer(), int_max(SubSetData.GetElementNumber()));
+}
+
+
+template<typename ElementType>
+inline
+bool SimpleDataContainer<ElementType>::SetSubSet(const int_max* IndexList, const ElementType* SubSetData, int_max DataNumber)
+{
+    if (IndexList == nullptr || SubSetData == nullptr || DataNumber <= 0)
+    {
+        MDK_Error("Invalid input @ SimpleDataContainer::SetSubSet(...)")
+            return false;
+    }
+
+    auto ElementNumber = this->GetElementNumber();
+
+    if (ElementNumber == 0)
+    {
+        MDK_Error("Self is empty @ SimpleDataContainer::SetSubSet(...)")
+            return false;
+    }
+
+    for (int_max k = 0; k < DataNumber; ++k)
+    {
+        auto Index = IndexList[k];
+
+        if (Index < 0 || Index >= ElementNumber)
+        {
+            MDK_Error("Invalid Index @ SimpleDataContainer::SetSubSet(...)")
+                return false;
+        }
+
+        (*this)[Index] = SubSetData[k];
+    }
+
+    return true;
+}
+
+
+template<typename ElementType>
+inline
 bool SimpleDataContainer<ElementType>::Append(ElementType Element)
 {
     auto SelfLength = this->GetElementNumber();
@@ -481,7 +689,7 @@ bool SimpleDataContainer<ElementType>::Append(const ElementType* InputData, int_
 
     for (int_max i = SelfLength; i < SelfLength + InputLength; ++i)
     {
-        m_Data->DataArray[i] = InputData[i - SelfLength];
+        m_DataArray[i] = InputData[i - SelfLength];
     }
 
     return true;
@@ -701,7 +909,7 @@ bool SimpleDataContainer<ElementType>::Insert(int_max Index, const ElementType* 
 
 template<typename ElementType>
 inline 
-bool SimpleDataContainer<ElementType>::Push(ElementType Element)
+bool SimpleDataContainer<ElementType>::PushBack(ElementType Element)
 {
     m_DataArray.push_back(std::move(Element));
 }
@@ -709,111 +917,9 @@ bool SimpleDataContainer<ElementType>::Push(ElementType Element)
 
 template<typename ElementType>
 inline
-ElementType SimpleDataContainer<ElementType>::Pop()
+ElementType SimpleDataContainer<ElementType>::PopBack()
 {
     return m_DataArray.pop_back();
-}
-
-
-template<typename ElementType>
-inline
-SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(int_max Index_start, int_max Index_end)
-{
-    SimpleDataContainer<ElementType> Subset;
-
-    auto ElementNumber = this->GetElementNumber();
-
-    if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
-    {
-        MDK_Error("Index_start is invalid @ SimpleDataContainer::GetSubSet(...)")
-        return Subset;
-    }
-
-    if (Index_end < 0 || Index_end >= ElementNumber)
-    {
-        MDK_Error("Index_end is invalid @ SimpleDataContainer::GetSubSet(...)")
-        return Subset;
-    }
-
-    if (ElementNumber == 0)
-    {
-        return Subset;
-    }
-
-    Subset.FastResize(Index_end - Index_start + 1);
-
-    for (int_max i = Index_end; i <= Index_start; ++i)
-    {
-        Subset[i - Index_end] = (*this)[i];
-    }
-
-    return Subset;
-}
-
-
-template<typename ElementType>
-inline 
-SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const std::initializer_list<int_max>& IndexList)
-{
-    return this->GetSubSet(initializer_list.begin(), int_max(IndexList.size()));
-}
-
-
-template<typename ElementType>
-inline 
-SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const std::vector<int_max>& IndexList)
-{
-    return this->GetSubSet(initializer_list.begin(), int_max(IndexList.size()));
-}
-
-
-template<typename ElementType>
-inline
-SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList)
-{
-    return this->GetSubSet(initializer_list.begin(), int_max(IndexList.GetElementNumber()));
-}
-
-
-template<typename ElementType>
-inline
-SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const SimpleDataContainer<int_max>& IndexList)
-{
-    return this->GetSubSet(initializer_list.begin(), int_max(IndexList.GetElementNumber()));
-}
-
-
-template<typename ElementType>
-inline
-SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const int_max* IndexList, int_max ListLength)
-{
-    SimpleDataContainer<ElementType> SubSet;
-
-    auto ElementNumber = this->GetElementNumber();
-
-    if (IndexList == nullptr || ListLength < 0 || ListLength >= ElementNumber)
-    {
-        MDK_Error("Invalid input @ SimpleDataContainer::GetSubSet(...)")
-        return SubSet;
-    }
-
-    SubSet.FastResize(ListLength);
-
-    for (int_max k = 0; k < ListLength; ++k)
-    {
-        auto tempIndex = IndexList[k];
-
-        if (tempIndex < 0 || tempIndex >= ElementNumber)
-        {
-            MDK_Error("Invalid index @ SimpleDataContainer::GetSubSet(...)")
-            SubSet.Clear();
-            return SubSet;
-        }
-
-        SubSet[k] = (*this)[tempIndex];
-    }
-
-    return SubSet;
 }
 
 
@@ -900,7 +1006,7 @@ template<typename CompareFunctionType>
 inline
 SimpleDataContainer<int_max> SimpleDataContainer<ElementType>::Sort(CompareFunctionType CompareFunction) const
 {
-    return this->Sort(0, this->GetLength(), CompareFunction);
+    return this->Sort(0, this->GetLength()-1, CompareFunction);
 }
 
 
@@ -913,21 +1019,15 @@ SimpleDataContainer<int_max> SimpleDataContainer<ElementType>::Sort(int_max Inde
 
     auto ElementNumber = this->GetElementNumber();
 
-    if (MaxOutputNumber <= 0 || MaxOutputNumber > ElementNumber)
-    {
-        MDK_Error("MaxOutputNumber is invalid @ SimpleDataContainer::Find(...)")
-        return IndexList;
-    }
-
     if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
     {
-        MDK_Error("Index_start is invalid @ SimpleDataContainer::Find(...)")
+        MDK_Error("Index_start is invalid @ SimpleDataContainer::Sort(...)")
         return IndexList;
     }
 
     if (Index_end < 0 || Index_end >= ElementNumber)
     {
-        MDK_Error("Index_end is invalid @ SimpleDataContainer::Find(...)")
+        MDK_Error("Index_end is invalid @ SimpleDataContainer::Sort(...)")
         return IndexList;
     }
 

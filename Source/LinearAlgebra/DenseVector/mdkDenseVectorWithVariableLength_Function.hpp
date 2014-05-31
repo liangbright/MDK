@@ -7,10 +7,10 @@ namespace mdk
 
 template<typename ElementType>
 inline
-DenseVectorWithVariableLength<ElementType> 
-VectorLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<const DenseVectorWithVariableLength<ElementType>*>& VectorSet)
+DenseVector<ElementType> 
+VectorLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<const DenseVector<ElementType>*>& VectorSet)
 {
-    typedef DenseVectorWithVariableLength<ElementType> VectorType;
+    typedef DenseVector<ElementType> VectorType;
 
     VectorType EmptyVector;
 

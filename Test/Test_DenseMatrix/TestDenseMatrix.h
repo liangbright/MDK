@@ -13,6 +13,7 @@
 
 #include "mdkDenseMatrix.h"
 
+
 namespace mdk
 {
 
@@ -495,6 +496,37 @@ void Test_Matrix_Operator()
    // A({ 0, 1 }) = 1;
 
     DisplayMatrix("A", A);
+}
+
+
+void Test_Matrix_Operator_with_DenseVector()
+{
+    std::cout << "Test_Matrix_Operator_with_DenseVector()" << '\n';
+
+    DenseMatrix<double> A(2, 4);
+
+    A = { { 1, 2, 3, 4 },
+          { 5, 6, 7, 8 } };
+
+    DisplayMatrix("A", A);
+
+    DenseVector<int_max> IndexList = { 0, 1};
+
+    DenseMatrix<double> subA1 = A(IndexList);
+
+    DisplayMatrix("subA1", subA1);
+
+    DenseMatrix<double> subA2 = A(IndexList, IndexList);
+
+    DisplayMatrix("subA2", subA2);
+
+    DenseMatrix<double> subA3 = A(ALL, IndexList);
+
+    DisplayMatrix("subA3", subA3);
+
+    DenseMatrix<double> subA4 = A(IndexList, ALL);
+
+    DisplayMatrix("subA4", subA4);
 }
 
 
@@ -1959,6 +1991,38 @@ void Test_SortCol()
     DisplayMatrix("ColIndexList_2", ColIndexList_2);
 
     DisplayMatrix("A", A);
+}
+
+void Test_unique()
+{
+    DenseMatrix<int_max> A;
+
+    A = { { 1, 2, 3, 1, 2},
+          { 2, 1, 4, 2, 1},
+          { 5, 6, 1, 5, 6} };
+
+    auto A1 = A.Unique();
+
+    DisplayMatrix("A1", A1);
+
+    auto A2 = A.UniqueCol();
+    DisplayMatrix("A2", A2);
+
+    auto A3 = A.IndexListOfUniqueCol();
+
+    DisplayMatrix("A3", A3);
+
+    DenseVector<int_max> B;
+
+    B = { 1, 2, 3, 2, 1, 4, 5, 6, 1};
+
+    auto B1 = B.Unique();
+
+    DisplayMatrix<int_max>("B1", B1);
+
+    auto B2 = B.IndexListOfUnique();
+
+    DisplayMatrix<int_max>("B2", B2);
 }
 
 }//namespace mdk

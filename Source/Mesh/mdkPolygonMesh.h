@@ -3,9 +3,8 @@
 
 
 #include "mdkObject.h"
-#include "mdkDenseMatrix.h"
-#include "mdkSimpleDataContainer.h"
 #include "mdkDataContainer.h"
+#include "mdkDenseMatrix.h"
 
 namespace mdk
 {
@@ -22,7 +21,7 @@ struct PolygonMeshData
     // row_1: y
     // row_2: z
 
-    DataContainer<SimpleDataContainer<int_max>> Polygon; // also known as cell, face, facet, element
+    DataContainer<DenseVector<int_max>> Polygon; // also known as cell, face, facet, element
     //
     // VertexIndex_0 -> VertexIndex_1 -> ... -> VerteIndex_end determin the direction of normal
 
@@ -41,18 +40,18 @@ struct PolygonMeshData
     // VertexIndex_0    < VertexIndex_1   always
     // PolygonIndex_0  < PolygonIndex_1 always
 
-    DataContainer<SimpleDataContainer<int_max>> Link_VertexToEdge;
+    DataContainer<DenseVector<int_max>> Link_VertexToEdge;
     // Link_VertexToEdge[k] is { EdgeIndex_0, EdgeIndex_1, EdgeIndex_2, ...}, the length is not a constant
     // share the same Vertex (VertexIndex is k) 
 
-    DataContainer<SimpleDataContainer<int_max>> Link_VertexToPolygon;
+    DataContainer<DenseVector<int_max>> Link_VertexToPolygon;
     // Link_VertexToPolygon[k] is { PolygonIndex_0, PolygonIndex_1, PolygonIndex_2, ...}, the length is not a constant
     // share the same Vertex (VertexIndex is k) 
 
     // DataContainer<DenseMatrix<int_max>> Link_EdgeToPolygon;
     // This link is directly stored in Edge
 
-    DataContainer<SimpleDataContainer<int_max>> Link_PolygonToEdge;
+    DataContainer<DenseVector<int_max>> Link_PolygonToEdge;
     // Link_PolygonToEdge[k] is {EdgeIndex_0, EdgeIndex_1, EdgeIndex_2, ..., EdgeIndex_end}, the length is not a constant
     // Polygon(:,k) is {VertexIndex_0, VertexIndex_1, VertexIndex_2}    
     // Edge of EdgeIndex_0 : VertexIndex_0 <-> VertexIndex_1
@@ -63,19 +62,19 @@ struct PolygonMeshData
 
     //---------------------- Adjacency ----------------------------------
 
-    DataContainer<SimpleDataContainer<int_max>> Adjacency_VertexToVertex;
+    DataContainer<DenseVector<int_max>> Adjacency_VertexToVertex;
     // Adjacency_VertexToVertex[k] is { VertexIndex_0, VertexIndex_1, VertexIndex_2, ...}
     // share the same neighbour Vertex (VertexIndex is k) 
 
-    //DataContainer<SimpleDataContainer<int_max>> Adjacency_EdgeToEdge_0;
+    //DataContainer<DenseVector<int_max>> Adjacency_EdgeToEdge_0;
     // Adjacency_EdgeToEdge_0[k] is Link_VertexToEdge[VertexIndex_0] without k
     // Edge(:,k)  is {VertexIndex_0, VertexIndex_1}
 
-    //DataContainer<SimpleDataContainer<int_max>> Adjacency_EdgeToEdge_1;
+    //DataContainer<DenseVector<int_max>> Adjacency_EdgeToEdge_1;
     // Adjacency_EdgeToEdge_0[k] is Link_VertexToEdge[VertexIndex_1] without k
     // Edge(:,k)  is {VertexIndex_0, VertexIndex_1}
 
-    DataContainer<SimpleDataContainer<int_max>> Adjacency_PolygonToPolygon;
+    DataContainer<DenseVector<int_max>> Adjacency_PolygonToPolygon;
     // Adjacency_PolygonToPolygon[k] is { PolygonIndex_0, PolygonIndex_1, PolygonIndex_2, ...}
     // share the same neighbour Polygon (PolygonIndex is k) 
 
@@ -83,7 +82,7 @@ struct PolygonMeshData
 
     DenseMatrix<ScalarType> NormalAtVertex; // size: 3 x ?
 
-    DenseMatrix<ScalarType> NormalAtPolygonCenter;  // size: 3 x ?
+    DenseMatrix<ScalarType> NormalAtPolygon;  // size: 3 x ?
 
     //----------------- attribute at Vertex ----------------------------
 
@@ -122,7 +121,7 @@ public:
 
     //---------------------------------------------------------------------------
 
-    bool Construct(DenseMatrix<ScalarType> InputVertex, DataContainer<SimpleDataContainer<int_max>> InputPolygon, bool Flag_BuildLinkAndAdjacency = true);
+    bool Construct(DenseMatrix<ScalarType> InputVertex, DataContainer<DenseVector<int_max>> InputPolygon, bool Flag_BuildLinkAndAdjacency = true);
 
     //---------------------------------------------------------------------------
 
@@ -200,19 +199,19 @@ public:
 
     inline const DenseMatrix<ScalarType>& Vertex() const;
 
-    inline const DataContainer<SimpleDataContainer<int_max>>& Polygon() const;
+    inline const DataContainer<DenseVector<int_max>>& Polygon() const;
 
     inline const DenseMatrix<int_max>& Edge() const;
 
-    inline const DataContainer<SimpleDataContainer<int_max>>& Link_VertexToEdge() const;
+    inline const DataContainer<DenseVector<int_max>>& Link_VertexToEdge() const;
 
-    inline const DataContainer<SimpleDataContainer<int_max>>& Link_VertexToPolygon() const;
+    inline const DataContainer<DenseVector<int_max>>& Link_VertexToPolygon() const;
 
-    inline const DataContainer<SimpleDataContainer<int_max>>& Link_PolygonToEdge() const;
+    inline const DataContainer<DenseVector<int_max>>& Link_PolygonToEdge() const;
 
-    inline const DataContainer<SimpleDataContainer<int_max>>& Adjacency_VertexToVertex() const;
+    inline const DataContainer<DenseVector<int_max>>& Adjacency_VertexToVertex() const;
 
-    inline const DataContainer<SimpleDataContainer<int_max>>& Adjacency_PolygonToPolygon() const;
+    inline const DataContainer<DenseVector<int_max>>& Adjacency_PolygonToPolygon() const;
 
     //----------------------------------------------------------------------------
 
