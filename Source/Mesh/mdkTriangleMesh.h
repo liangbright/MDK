@@ -14,9 +14,9 @@ namespace mdk
 template<typename ScalarType = double>
 struct TriangleMeshData
 {
-    DenseVector<int_max> VertexGlobalIndexList;
+    DenseMatrix<int_max> VertexGlobalIndexList;
 
-    DenseVector<int_max> TriangleGlobalIndexList;
+    DenseMatrix<int_max> TriangleGlobalIndexList;
 
     DenseMatrix<ScalarType> Vertex;    
     // row_0: x
@@ -196,13 +196,13 @@ public:
 
     //-------------------------------------------------------------------
 
-    inline DenseVector<int_max>& VertexGlobalIndexList();
+    inline DenseMatrix<int_max>& VertexGlobalIndexList();
 
-    inline const DenseVector<int_max>& VertexGlobalIndexList() const;
+    inline const DenseMatrix<int_max>& VertexGlobalIndexList() const;
 
-    inline DenseVector<int_max>& TriangleGlobalIndexList();
+    inline DenseMatrix<int_max>& TriangleGlobalIndexList();
 
-    inline const DenseVector<int_max>& TriangleGlobalIndexList() const;
+    inline const DenseMatrix<int_max>& TriangleGlobalIndexList() const;
 
     inline DenseMatrix<ScalarType>& Vertex();
 

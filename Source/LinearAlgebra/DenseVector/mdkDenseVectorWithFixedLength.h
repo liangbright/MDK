@@ -7,6 +7,7 @@
 #include "mdkDebugConfig.h"
 #include "mdkType.h"
 #include "mdkObject.h"
+#include "mdkLinearAlgebra_Function_DenseVector.h"
 
 // this is a memory efficient implementation of Dense Vector
 // Only use it if memory is not enough
@@ -40,6 +41,8 @@ public:
     
     inline DenseVector(const ElementType& Element);
 
+    inline DenseVector(const std::initializer_list<ElementType>& InputVector);
+
     inline DenseVector(const DenseVector<ElementType, Length>& InputVector);
 
     inline DenseVector(DenseVector<ElementType, Length>&& InputVector);
@@ -50,14 +53,23 @@ public:
 
     inline void operator=(const DenseVector<ElementType, Length>& InputVector);
 
-    template<int_max InputLength>
-    inline void operator=(const DenseVector<ElementType, InputLength>& InputVector);
-
     inline void operator=(DenseVector<ElementType, Length>&& InputVector);
+
+    inline void operator=(const std::initializer_list<ElementType>& InputVector);
+
+    inline void operator=(const std::vector<ElementType>& InputVector);
+
+    inline void operator=(const DenseVector<ElementType>& InputVector);
+
+    inline void operator=(const DenseMatrix<ElementType>& InputVector);
 
     //------------------------------------------------------------
 
-    inline void Copy(const DenseVector<ElementType, Length>& InputVector);
+    template<typename ElementType_input>
+    inline void Copy(const DenseVector<ElementType_input, Length>& InputVector);
+
+    template<typename ElementType_input>
+    inline void Copy(const ElementType_input* InputVector);
 
     //------------------------------------------------------------
 
@@ -103,9 +115,7 @@ public:
 
     //-------------------Get std array -------------------------------
 
-    std::array<ElementType, Length> StdArray();
-
-    const std::array<ElementType, Length> StdArray() const;
+    std::array<ElementType, Length> CreateStdArray() const;
 
     //---------- convert to regular vector represented by DenseMatrix ----------------//
 
@@ -119,20 +129,20 @@ public:
 
     //---------------------- GetSubSet --------------------------------------
 
-    inline DenseVector<ElementType> GetSubSet(int_max Index_start, int_max Index_end);
+    inline DenseVector<ElementType> GetSubSet(int_max Index_start, int_max Index_end) const;
 
-    inline DenseVector<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList);
+    inline DenseVector<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList) const;
 
-    inline DenseVector<ElementType> GetSubSet(const std::vector<int_max>& IndexList);
+    inline DenseVector<ElementType> GetSubSet(const std::vector<int_max>& IndexList) const;
 
-    inline DenseVector<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList);
+    inline DenseVector<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList) const;
 
-    inline DenseVector<ElementType> GetSubSet(const SimpleDataContainer<int_max>& IndexList);
+    inline DenseVector<ElementType> GetSubSet(const SimpleDataContainer<int_max>& IndexList) const;
 
-    inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max>& IndexList);
+    inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max>& IndexList) const;
 
     template<int_max InputLength>
-    inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max, InputLength>& IndexList);
+    inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max, InputLength>& IndexList) const;
 
     //---------------------- SetSubSet --------------------------------------
 
@@ -152,17 +162,19 @@ public:
     inline bool SetSubSet(const DenseVector<int_max, InputLength>& IndexList, const DenseVector<int_max, InputLength>& SubVector);
 
     //-------------------- find ---------------------------------------//
+    // return index list
 
     template<typename MatchFunctionType>
-    inline DenseVector<int_max> Find(MatchFunctionType MatchFunction);
+    inline DenseVector<int_max> Find(MatchFunctionType MatchFunction) const;
 
     template<typename MatchFunctionType>
-    inline DenseVector<int_max> Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction);
+    inline DenseVector<int_max> Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction) const;
 
     template<typename MatchFunctionType>
-    inline DenseVector<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction);
+    inline DenseVector<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction) const;
 
     //--------------------- sort ---------------------------------------//
+    // return index list
 
     template<typename CompareFunctionType>
     inline DenseVector<int_max> Sort(CompareFunctionType CompareFunction) const;
@@ -175,6 +187,14 @@ public:
 
     template<typename CompareFunctionType>
     inline void SortInPlace(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction);
+
+    //------------------------- unique --------------------------------//
+    // return index list of unique element
+    inline DenseVector<int_max> FindUnique() const;
+
+    //SpecialCompareFunction(a, b) return {-1, 0, 1} as {a < b, a = b, a > b}
+    template<typename SpecialCompareFunctionType>
+    inline DenseVector<int_max> FindUnique(SpecialCompareFunctionType SpecialCompareFunction) const;
 
     //---------------------------------------------------- Self {+= -= *= /=} Vector ---------------------------------------------// 
 
@@ -202,26 +222,24 @@ public:
 
     //------------------------------------------------------------------------------------------------------------------------------//
 
-    inline ElementType Sum();
+    inline ElementType Sum() const;
 
-    inline ElementType Mean();
+    inline ElementType Mean() const;
 
-    inline ElementType Std();
+    inline ElementType Std() const;
 
-    inline ElementType Max();
+    inline ElementType Max() const;
 
-    inline ElementType Min();
+    inline ElementType Min() const;
 
-    inline ElementType L1Norm();
+    inline ElementType L1Norm() const;
 
-    inline ElementType L2Norm();
+    inline ElementType L2Norm() const;
     
 };
 
 
 }// namespace mdk
-
-#include "mdkDenseVectorWithVariableLength.h"
 
 #include "mdkDenseVectorWithFixedLength.hpp"
 #include "mdkDenseVectorWithFixedLength_Operator.h"

@@ -1976,19 +1976,12 @@ void Test_SortCol()
     });
 
 
-    auto ColIndexList_2 = A.SortColInPlace([](const DenseMatrix<int_max>& ColVector_a, const DenseMatrix<int_max>& ColVector_b)
+    A.SortColInPlace([](const DenseMatrix<int_max>& ColVector_a, const DenseMatrix<int_max>& ColVector_b)  
     {
-        if (ColVector_a[0] > ColVector_b[0])
-        {
-            return true;
-        }
-
-        return false;
+        return (ColVector_a[0] > ColVector_b[0]);
     });
 
     DisplayMatrix("ColIndexList_1", ColIndexList_1);
-
-    DisplayMatrix("ColIndexList_2", ColIndexList_2);
 
     DisplayMatrix("A", A);
 }
@@ -2001,28 +1994,30 @@ void Test_unique()
           { 2, 1, 4, 2, 1},
           { 5, 6, 1, 5, 6} };
 
-    auto A1 = A.Unique();
+    auto LinearIndexListA1 = A.FindUnique();
 
+    DisplayMatrix("LinearIndexListA1", LinearIndexListA1);
+
+    auto A1 = A.GetSubMatrix(LinearIndexListA1);
     DisplayMatrix("A1", A1);
 
-    auto A2 = A.UniqueCol();
+    auto ColIndexListA2 = A.FindUniqueCol();
+    DisplayMatrix("ColIndexListA2", ColIndexListA2);
+
+    auto A2 = A.GetSubMatrix(ALL, ColIndexListA2);
     DisplayMatrix("A2", A2);
-
-    auto A3 = A.IndexListOfUniqueCol();
-
-    DisplayMatrix("A3", A3);
 
     DenseVector<int_max> B;
 
     B = { 1, 2, 3, 2, 1, 4, 5, 6, 1};
 
-    auto B1 = B.Unique();
+    auto IndexListB1 = B.FindUnique();
+
+    DisplayMatrix<int_max>("IndexListB1", IndexListB1);
+
+    auto B1 = B.GetSubSet(IndexListB1);
 
     DisplayMatrix<int_max>("B1", B1);
-
-    auto B2 = B.IndexListOfUnique();
-
-    DisplayMatrix<int_max>("B2", B2);
 }
 
 }//namespace mdk

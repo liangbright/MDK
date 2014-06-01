@@ -129,13 +129,20 @@ bool PolygonMesh<ScalarType>::ConstructEdge()
 
         const DenseVector<int_max>& Polygon_k = m_MeshData->Polygon[k];
 
-        for (int_max n = 0; n <VertexNumber_k - 1; ++n)
+        for (int_max n = 0; n < VertexNumber_k - 1; ++n)
         {
             //VertexIndex_0 < VertexIndex_1
             int_max VertexIndex_a = Polygon_k[n];
             int_max VertexIndex_b = Polygon_k[n + 1];
             
-            HalfEdge.Append({ k, VertexIndex_a, VertexIndex_b });
+            if (VertexIndex_a < VertexIndex_b)
+            {
+                HalfEdge.Append({ k, VertexIndex_a, VertexIndex_b });
+            }
+            else
+            {
+                HalfEdge.Append({ k, VertexIndex_b, VertexIndex_a });
+            }
 
             HalfEdgeNumber += 1;
         }
@@ -144,8 +151,14 @@ bool PolygonMesh<ScalarType>::ConstructEdge()
         int_max VertexIndex_0 = Polygon_k[0];
         int_max VertexIndex_end = Polygon_k[VertexNumber_k-1];
 
-        HalfEdge.Append({ k, VertexIndex_0, VertexIndex_end });
-
+        if (VertexIndex_0 < VertexIndex_end)
+        {
+            HalfEdge.Append({ k, VertexIndex_0, VertexIndex_end });
+        }
+        else
+        {
+            HalfEdge.Append({ k, VertexIndex_end, VertexIndex_0 });
+        }
         HalfEdgeNumber += 1;
     }
 

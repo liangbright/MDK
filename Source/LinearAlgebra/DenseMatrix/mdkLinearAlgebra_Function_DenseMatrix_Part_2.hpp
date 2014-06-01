@@ -249,6 +249,51 @@ DenseMatrix<int_max> FindUniqueElementInMatrix(const DenseMatrix<ElementType>& I
 }
 
 
+template<typename ElementType, typename SpecialCompareFunctionType>
+DenseMatrix<int_max> FindUniqueElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, SpecialCompareFunctionType SpecialCompareFunction)
+{
+    // Result = SpecialCompareFunction(const ElementType& a, const ElementType& b)
+    // Result: integer type
+    // Result: -1: a < b
+    // Result: 0:  a = b 
+    // Result: 1:  a > b
+    //
+
+    DenseMatrix<int_max> LinearIndexList_unique;
+
+    if (InputMatrix.IsEmpty() == true)
+    {
+        return LinearIndexList_unique;
+    }
+
+    auto LinearIndexList_sort = InputMatrix.Sort([&](const ElementType& a, const ElementType& b)
+    { 
+        auto Result = SpecialCompareFunction(a, b);
+        return (Result < 0);
+    });
+
+    LinearIndexList_unique.ReserveCapacity(LinearIndexList_sort.GetElementNumber());
+
+    LinearIndexList_unique.Append(LinearIndexList_sort[0]);
+
+    auto Element_prev = InputMatrix[LinearIndexList_sort[0]];
+
+    for (int_max k = 1; k < LinearIndexList_sort.GetElementNumber(); ++k)
+    {
+        auto Element = InputMatrix[LinearIndexList_sort[k]];
+
+        if (SpecialCompareFunction(Element, Element_prev) == 0)
+        {
+            LinearIndexList_unique.Append(LinearIndexList_sort[k]);
+
+            Element_prev = Element;
+        }
+    }
+
+    return LinearIndexList_unique;
+}
+
+
 template<typename ElementType>
 DenseMatrix<int_max> FindUniqueColInMatrix(const DenseMatrix<ElementType>& InputMatrix)
 {
@@ -294,6 +339,53 @@ DenseMatrix<int_max> FindUniqueColInMatrix(const DenseMatrix<ElementType>& Input
         Vector_k.ForceShare(InputMatrix.GetElementPointerOfCol(ColIndexList_sort[k]), InputMatrix.GetRowNumber(), 1);
 
         if (TempFunction_CompareCol(Vector_prev, Vector_k) == true)
+        {
+            ColIndexList_unique.Append(ColIndexList_sort[k]);
+
+            Vector_prev.ForceShare(InputMatrix.GetElementPointerOfCol(ColIndexList_sort[k]), InputMatrix.GetRowNumber(), 1);
+        }
+    }
+
+    return ColIndexList_unique;
+}
+
+
+template<typename ElementType, typename SpecialCompareFunctionType>
+DenseMatrix<int_max> FindUniqueColInMatrix(const DenseMatrix<ElementType>& InputMatrix, SpecialCompareFunctionType SpecialCompareFunction)
+{
+    // Result = SpecialCompareFunction(const DenseMatrix<ElementType>& a, const const DenseMatrix<ElementType>& b)
+    // Result: integer type
+    // Result: -1: a < b
+    // Result: 0:  a = b 
+    // Result: 1:  a > b
+    //
+
+    DenseMatrix<int_max> ColIndexList_unique;
+
+    if (InputMatrix.IsEmpty() == true)
+    {
+        return ColIndexList_unique;
+    }
+
+    auto ColIndexList_sort = SortColInMatrix(InputMatrix, [&](const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB)
+    {
+        auto Result = SpecialCompareFunction(VectorA, VectorB);
+        return (Result < 0);
+    });
+
+    ColIndexList_unique.ReserveCapacity(ColIndexList_sort.GetElementNumber());
+
+    ColIndexList_unique.Append(ColIndexList_sort[0]);
+
+    DenseMatrix<ElementType> Vector_prev, Vector_k;
+
+    Vector_prev.ForceShare(InputMatrix.GetElementPointerOfCol(ColIndexList_sort[0]), InputMatrix.GetRowNumber(), 1);
+
+    for (int_max k = 1; k < ColIndexList_sort.GetElementNumber(); ++k)
+    {
+        Vector_k.ForceShare(InputMatrix.GetElementPointerOfCol(ColIndexList_sort[k]), InputMatrix.GetRowNumber(), 1);
+
+        if (SpecialCompareFunction(Vector_prev, Vector_k) != 0)
         {
             ColIndexList_unique.Append(ColIndexList_sort[k]);
 
@@ -428,18 +520,18 @@ int_max FindLinearIndexOfMaxInMatrix(const DenseMatrix<ElementType>& InputMatrix
         return -1;
     }
 
-    auto BeginPointer = InputMatrix.GetElementPointer();
+    auto InputPtr = InputMatrix.GetElementPointer();
 
-    auto MaxValue = BeginPointer[0];
+    ElementType MaxValue = InputPtr[0];
 
     int_max LinearIndex = 0;
 
-    for (auto Ptr = BeginPointer + 1; Ptr < BeginPointer + Input_ElementNumber; ++Ptr)
+    for (int_max k = 1; k < Input_ElementNumber; ++k)
     {
-        if (Ptr[0] > MaxValue)
+        if (InputPtr[k] > MaxValue)
         {
-            MaxValue = Ptr[0];
-            LinearIndex += 1;
+            MaxValue = InputPtr[k];
+            LinearIndex = k;
         }
     }
 
@@ -450,7 +542,13 @@ int_max FindLinearIndexOfMaxInMatrix(const DenseMatrix<ElementType>& InputMatrix
 template<typename ElementType>
 inline
 ElementType MatrixMax(const DenseMatrix<ElementType>& InputMatrix)
-{    
+{   
+    if (InputMatrix.IsEmpty() == true)
+    { 
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMax(InputMatrix)")
+        return InputMatrix.GetNaNElement();
+    }
+
     int_max LinearIndex = FindLinearIndexOfMaxInMatrix(InputMatrix);
 
     return InputMatrix[LinearIndex];
@@ -550,18 +648,18 @@ int_max FindLinearIndexOfMinInMatrix(const DenseMatrix<ElementType>& InputMatrix
         return -1;
     }
 
-    auto BeginPointer = InputMatrix.GetElementPointer();
+    auto InputPtr = InputMatrix.GetElementPointer();
 
-    ElementType MinValue = BeginPointer[0];
+    ElementType MinValue = InputPtr[0];
 
     int_max LinearIndex = 0;
 
-    for (auto Ptr = BeginPointer + 1; Ptr < BeginPointer + Input_ElementNumber; ++Ptr)
+    for (int_max k = 1; k < Input_ElementNumber; ++k)
     {
-        if (Ptr[0] < MinValue)
+        if (InputPtr[k] < MinValue)
         {
-            MinValue = Ptr[0];
-            LinearIndex += 1;
+            MinValue = InputPtr[k];
+            LinearIndex = k;
         }
     }
 
@@ -573,6 +671,12 @@ template<typename ElementType>
 inline
 ElementType MatrixMin(const DenseMatrix<ElementType>& InputMatrix)
 {
+    if (InputMatrix.IsEmpty() == true)
+    {
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMin(InputMatrix)")
+        return InputMatrix.GetNaNElement();
+    }
+
     auto LinearIndex = FindLinearIndexOfMinInMatrix(InputMatrix);
 
     return InputMatrix[LinearIndex];

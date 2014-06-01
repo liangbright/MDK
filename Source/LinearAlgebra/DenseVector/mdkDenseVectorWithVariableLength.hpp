@@ -76,17 +76,7 @@ template<typename ElementType>
 inline
 void DenseVector<ElementType>::operator=(const DenseVector<ElementType>& InputVector)
 {
-    auto InputLength = InputVector.GetLength();
-
-    if (InputLength != this->GetLength())
-    {
-        this->FastResize(InputLength);
-    }
-
-    for (int_max i = 0; i < InputLength; ++i)
-    {
-        m_DataArray[i] = InputVector[i];
-    }
+    this->Copy(InputVector);
 }
 
 
@@ -95,15 +85,7 @@ template<int_max InputLength>
 inline 
 void DenseVector<ElementType>::operator=(const DenseVector<ElementType, InputLength>& InputVector)
 {
-    if (InputLength != this->GetLength())
-    {
-        this->FastResize(InputLength);
-    }
-
-    for (int_max i = 0; i < InputLength; ++i)
-    {
-        m_DataArray[i] = InputVector[i];
-    }
+    this->Copy(InputVector.GetElementPointer(), InputVector.GetLength());
 }
 
 
@@ -197,29 +179,55 @@ template<typename ElementType>
 inline
 void DenseVector<ElementType>::operator=(const std::vector<ElementType>& InputVector)
 {
-    m_DataArray = InputVector;
+    this->Copy(InputVector.data(), int_max(InputVector.size()));
 }
 
 
 template<typename ElementType>
-inline 
+inline
 void DenseVector<ElementType>::operator=(const DenseMatrix<ElementType>& InputVector)
 {
-    auto InputLength = InputVector.GetElementNumber();
-
-    m_DataArray.resize(InputLength);
-
-    for (int_max k = 0; k < InputLength; k++)
-    {
-        m_DataArray[k] = InputVector[k];
-    }
+    this->Copy(InputVector.GetElementPointer(), InputVector.GetLength());
 }
 
 
 template<typename ElementType>
-inline void DenseVector<ElementType>::Copy(const DenseVector<ElementType>& InputVector)
+template<typename ElementType_input>
+inline 
+void DenseVector<ElementType>::Copy(const DenseVector<ElementType_input>& InputVector)
 {
-    m_DataArray = InputVector.StdVector();
+    this->Copy(InputVector.GetElementPointer(), InputVector.GetLength());
+}
+
+
+template<typename ElementType>
+template<typename ElementType_input>
+inline
+void DenseVector<ElementType>::Copy(const ElementType_input* InputVector, int_max InputLength)
+{
+    if (InputVector == nullptr || InputLength <= 0)
+    {
+        MDK_Warning("Empty input and clear self @ DenseVector::Copy(...)")
+        this->Clear();
+        return;
+    }
+
+    if (size_t(this->GetElementPointer()) == size_t(InputVector))
+    {
+        if (InputLength != this->GetLength())
+        {
+            MDK_Error("Something is wrong here @ DenseVector::Copy(...)")
+        }
+
+        return;
+    }
+
+    this->FastResize(InputLength);
+
+    for (int_max k = 0; k < InputLength; ++k)
+    {
+        m_DataArray[k] = ElementType(InputVector[k]);
+    }
 }
 
 
@@ -228,6 +236,7 @@ inline
 void DenseVector<ElementType>::Clear()
 {
     m_DataArray.clear(); 
+    m_DataArray.shrink_to_fit();
 }
 
 
@@ -256,8 +265,6 @@ try
 catch (...)
 {
     MDK_Error("Out of Memory @ DenseVector::Resize(...)")
-
-    m_DataArray.clear();
 }
    
 }
@@ -273,16 +280,19 @@ void DenseVector<ElementType>::FastResize(int_max Length)
         return;
     }
 
-    try
+try
+{
+    if (Length > int_max(m_DataArray.capacity()))
     {
-        m_DataArray.resize(Length);
-    }
-    catch (...)
-    {
-        MDK_Error("Out of Memory @ DenseVector::FastResize(...)")
-
         m_DataArray.clear();
     }
+
+    m_DataArray.resize(Length);
+}
+catch (...)
+{
+    MDK_Error("Out of Memory @ DenseVector::FastResize(...)")
+}
 
 }
 
@@ -291,16 +301,14 @@ template<typename ElementType>
 inline 
 void DenseVector<ElementType>::ReserveCapacity(int_max Length)
 {
-    try
-    {
-        m_DataArray.reserve(Length);
-    }
-    catch (...)
-    {
-        MDK_Error("Out of Memory @ DenseVector::Resize(...)")
-
-        m_DataArray.clear();
-    }
+try
+{
+    m_DataArray.reserve(Length);
+}
+catch (...)
+{
+    MDK_Error("Out of Memory @ DenseVector::ReserveCapacity(...)")
+}
 }
 
 
@@ -528,14 +536,7 @@ const ElementType& DenseVector<ElementType>::at(int_max Index) const
 // ------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-std::vector<ElementType> DenseVector<ElementType>::StdVector()
-{
-    return m_DataArray;
-}
-
-
-template<typename ElementType>
-const std::vector<ElementType> DenseVector<ElementType>::StdVector() const
+std::vector<ElementType> DenseVector<ElementType>::CreateStdVector() const
 {
     return m_DataArray;
 }
@@ -595,7 +596,7 @@ void DenseVector<ElementType>::CreateDenseMatrixAsColVector(DenseMatrix<ElementT
 
 template<typename ElementType>
 inline
-DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(int_max Index_start, int_max Index_end)
+DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(int_max Index_start, int_max Index_end) const
 {
     DenseVector<ElementType> SubSet;
     
@@ -626,7 +627,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(int_max Index_start
 
 template<typename ElementType>
 inline
-DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const std::initializer_list<int_max>& IndexList)
+DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const std::initializer_list<int_max>& IndexList) const
 {
     DenseVector<ElementType> SubSet;
     
@@ -668,7 +669,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const std::initiali
 
 template<typename ElementType>
 inline
-DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const std::vector<int_max>& IndexList)
+DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const std::vector<int_max>& IndexList) const
 {
     DenseVector<ElementType> SubSet;
 
@@ -710,7 +711,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const std::vector<i
 
 template<typename ElementType>
 inline
-DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList)
+DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList) const
 {
     DenseVector<ElementType> SubSet;
     
@@ -752,7 +753,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseMatrix<i
 
 template<typename ElementType>
 inline
-DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const SimpleDataContainer<int_max>& IndexList)
+DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const SimpleDataContainer<int_max>& IndexList) const
 {
     DenseVector<ElementType> SubSet;
     
@@ -794,7 +795,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const SimpleDataCon
 
 template<typename ElementType>
 inline
-DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseVector<int_max>& IndexList)
+DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseVector<int_max>& IndexList) const
 {
     DenseVector<ElementType> SubSet;
 
@@ -837,7 +838,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseVector<i
 template<typename ElementType>
 template<int_max Length>
 inline
-DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseVector<int_max, Length>& IndexList)
+DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseVector<int_max, Length>& IndexList) const
 {
     DenseVector<ElementType> SubSet;
     
@@ -1199,17 +1200,17 @@ template<typename ElementType>
 inline
 bool DenseVector<ElementType>::Delete(const int_max* IndexList, int_max ListLength)
 {
+    if (IndexList == nullptr || ListLength <= 0)
+    {
+        //MDK_Warning("Empty Input @ DenseVector::Delete(const int_max* IndexList, int_max ListLength)")
+        return true;
+    }
+
     auto SelfLength = this->GetElementNumber();
 
     if (SelfLength == 0)
     {
         MDK_Error("Self is empty @ DenseVector::Delete(const int_max* IndexList, int_max ListLength)")
-        return false;
-    }
-
-    if (IndexList == nullptr || ListLength <= 0)
-    {
-        MDK_Error("Empty Input @ DenseVector::Delete(const int_max* IndexList, int_max ListLength)")
         return false;
     }
 
@@ -1228,9 +1229,9 @@ bool DenseVector<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
     }
     else
     {
-        std::vector<int_max> IndexList_max_to_min(Length);
+        std::vector<int_max> IndexList_max_to_min(ListLength);
 
-        for (int_max i = 0; i < Length; ++i)
+        for (int_max i = 0; i < ListLength; ++i)
         {
             IndexList_max_to_min[i] = IndexList[i];
         }
@@ -1399,18 +1400,18 @@ ElementType DenseVector<ElementType>::PopBack()
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
-DenseVector<int_max> DenseVector<ElementType>::Find(MatchFunctionType MatchFunction)
+DenseVector<int_max> DenseVector<ElementType>::Find(MatchFunctionType MatchFunction) const
 {
-    return this->Find(this->GetLength(), 0, this->GetLength(), MatchFunction);
+    return this->Find(this->GetLength(), 0, this->GetLength()-1, MatchFunction);
 }
 
 
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
-DenseVector<int_max> DenseVector<ElementType>::Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction)
+DenseVector<int_max> DenseVector<ElementType>::Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction) const
 {
-    return this->Find(MaxOutputNumber, 0, this->GetLength(), MatchFunction);
+    return this->Find(MaxOutputNumber, 0, this->GetLength()-1, MatchFunction);
 }
 
 
@@ -1418,7 +1419,7 @@ template<typename ElementType>
 template<typename MatchFunctionType>
 inline
 DenseVector<int_max> DenseVector<ElementType>::
-Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction)
+Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction) const
 {
     DenseVector<int_max> IndexList;
 
@@ -1454,8 +1455,6 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
     }
 
     IndexList.ReserveCapacity(MaxOutputNumber);
-
-    DenseMatrix<ElementType> ColVector;
 
     for (int_max i = Index_start; i <= Index_end; ++i)
     {
@@ -1561,49 +1560,20 @@ void DenseVector<ElementType>::SortInPlace(int_max Index_start, int_max Index_en
 // ------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline
-DenseVector<ElementType> DenseVector<ElementType>::Unique()
+inline 
+DenseVector<int_max> DenseVector<ElementType>::FindUnique() const
 {
-    auto IndexList_unique = this->IndexListOfUnique();
-
-    return this->GetSubSet(IndexList_unique);
+    return FindUniqueElementInVector(*this);
 }
 
 
 template<typename ElementType>
-inline 
-DenseVector<int_max> DenseVector<ElementType>::IndexListOfUnique()
+template<typename SpecialCompareFunctionType>
+inline
+DenseVector<int_max> DenseVector<ElementType>::FindUnique(SpecialCompareFunctionType SpecialCompareFunction) const
 {
-    DenseVector<int_max> IndexList_unique;
-
-    auto IndexList_sort = this->Sort([](const ElementType& a, const ElementType& b){ return a < b; });
-
-    if (IndexList_sort.IsEmpty() == true)
-    {
-        return IndexList_unique;
-    }
-
-    IndexList_unique.ReserveCapacity(IndexList_sort.GetLength());
-
-    auto Element_prev = m_DataArray[IndexList_sort[0]];
-
-    IndexList_unique.Append(IndexList_sort[0]);
-
-    for (int_max k = 1; k < IndexList_sort.GetLength(); ++k)
-    {
-        auto Element = m_DataArray[IndexList_sort[k]];
-
-        if (Element != Element_prev)
-        {
-            IndexList_unique.Append(IndexList_sort[k]);
-
-            Element_prev = Element;
-        }
-    }
-
-    return IndexList_unique;
+    return FindUniqueElementInVector(*this, SpecialCompareFunction);
 }
-
 
 // ------------------------------------------------------------------------------------------------------------//
 
@@ -1859,7 +1829,7 @@ void DenseVector<ElementType>::operator/=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-ElementType DenseVector<ElementType>::Sum()
+ElementType DenseVector<ElementType>::Sum() const
 {
     auto Value = ElementType(0);
 
@@ -1874,7 +1844,7 @@ ElementType DenseVector<ElementType>::Sum()
 
 template<typename ElementType>
 inline
-ElementType DenseVector<ElementType>::Mean()
+ElementType DenseVector<ElementType>::Mean() const
 {
     auto Value = this->Sum();
 
@@ -1886,7 +1856,7 @@ ElementType DenseVector<ElementType>::Mean()
 
 template<typename ElementType>
 inline
-ElementType DenseVector<ElementType>::Std()
+ElementType DenseVector<ElementType>::Std() const
 {
     auto MeanValue = this->Mean();
 
@@ -1909,7 +1879,7 @@ ElementType DenseVector<ElementType>::Std()
 
 template<typename ElementType>
 inline
-ElementType DenseVector<ElementType>::Max()
+ElementType DenseVector<ElementType>::Max() const
 {
     if (this->IsEmpty() == true)
     {
@@ -1917,20 +1887,42 @@ ElementType DenseVector<ElementType>::Max()
         return 0;
     }
 
-    auto Value = m_DataArray[0];
+    auto Index = this->IndexOfMax();
 
-    for (int_max i = 1; i < this->GetLength(); ++i)
-    {
-        Value  = std::max(Value , m_DataArray[i]);
-    }
-
-    return Value;
+    return m_DataArray[Index];
 }
 
 
 template<typename ElementType>
 inline
-ElementType DenseVector<ElementType>::Min()
+int_max DenseVector<ElementType>::IndexOfMax() const
+{
+    if (this->IsEmpty() == true)
+    {
+        MDK_Error("Self is empty @ DenseVector::Max()")
+        return -1;
+    }
+
+    auto Index = int_max(0);
+
+    auto Value = m_DataArray[0];
+
+    for (int_max i = 1; i < this->GetLength(); ++i)
+    {
+        if (m_DataArray[i] > Value)
+        {
+            Value = m_DataArray[i];
+            Index = i;
+        }
+    }
+
+    return Index;
+}
+
+
+template<typename ElementType>
+inline
+ElementType DenseVector<ElementType>::Min() const
 {
     if (this->IsEmpty() == true)
     {
@@ -1938,19 +1930,41 @@ ElementType DenseVector<ElementType>::Min()
         return 0;
     }
 
-    auto Value = m_DataArray[0];
+    auto Index = this->IndexOfMin();
 
-    for (int_max i = 1; i < this->GetLength(); ++i)
-    {
-        Value = std::min(Value, m_DataArray[i]);
-    }
-
-    return Value;
+    return m_DataArray[Index];
 }
 
 
 template<typename ElementType>
-ElementType DenseVector<ElementType>::L1Norm()
+inline
+int_max DenseVector<ElementType>::IndexOfMin() const
+{
+    if (this->IsEmpty() == true)
+    {
+        MDK_Error("Self is empty @ DenseVector::Min()")
+        return 0;
+    }
+
+    auto Index = int_max(0);
+
+    auto Value = m_DataArray[0];
+
+    for (int_max i = 1; i < this->GetLength(); ++i)
+    {
+        if (m_DataArray[i] < Value)
+        {
+            Value = m_DataArray[i];
+            Index = i;
+        }
+    }
+
+    return Index;
+}
+
+
+template<typename ElementType>
+ElementType DenseVector<ElementType>::L1Norm() const
 {
     if (this->IsEmpty() == true)
     {
@@ -1971,7 +1985,7 @@ ElementType DenseVector<ElementType>::L1Norm()
 
 template<typename ElementType>
 inline
-ElementType DenseVector<ElementType>::L2Norm()
+ElementType DenseVector<ElementType>::L2Norm() const
 {
     if (this->IsEmpty() == true)
     {

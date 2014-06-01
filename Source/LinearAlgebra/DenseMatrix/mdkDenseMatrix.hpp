@@ -2453,18 +2453,18 @@ DenseMatrix<ElementType>::operator()(std::vector<int_max> LinearIndexList) const
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(DenseVector<int_max> LinearIndexList)
+DenseMatrix<ElementType>::operator()(const DenseVector<int_max>& LinearIndexList)
 {
-    return (*this)(std::move(LinearIndexList.StdVector()));
+    return (*this)(LinearIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(DenseVector<int_max> LinearIndexList) const
+DenseMatrix<ElementType>::operator()(const DenseVector<int_max>& LinearIndexList) const
 {
-    return (*this)(std::move(LinearIndexList.StdVector()));
+    return (*this)(LinearIndexList.CreateStdVector());
 }
 
 
@@ -2682,18 +2682,18 @@ DenseMatrix<ElementType>::at(std::vector<int_max> LinearIndexList) const
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(DenseVector<int_max> LinearIndexList)
+DenseMatrix<ElementType>::at(const DenseVector<int_max>& LinearIndexList)
 {
-    return this->at(std::move(LinearIndexList.StdVector()));
+    return this->at(LinearIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(DenseVector<int_max> LinearIndexList) const
+DenseMatrix<ElementType>::at(const DenseVector<int_max>& LinearIndexList) const
 {
-    return this->at(std::move(LinearIndexList.StdVector()));
+    return this->at(LinearIndexList.CreateStdVector());
 }
 
 
@@ -3251,54 +3251,54 @@ DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_S
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(DenseVector<int_max> RowIndexList, DenseVector<int_max> ColIndexList)
+DenseMatrix<ElementType>::operator()(const DenseVector<int_max>& RowIndexList, const DenseVector<int_max>& ColIndexList)
 {
-    return (*this)(std::move(RowIndexList.StdVector()), std::move(ColIndexList.StdVector()));
+    return (*this)(RowIndexList.CreateStdVector(), ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(DenseVector<int_max> RowIndexList, DenseVector<int_max> ColIndexList) const
+DenseMatrix<ElementType>::operator()(const DenseVector<int_max>& RowIndexList, const DenseVector<int_max>& ColIndexList) const
 {
-    return (*this)(std::move(RowIndexList.StdVector()), std::move(ColIndexList.StdVector()));
+    return (*this)(RowIndexList.CreateStdVector(), ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(DenseVector<int_max> RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
+DenseMatrix<ElementType>::operator()(const DenseVector<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
 {
-    return (*this)(std::move(RowIndexList.StdVector()), ALL_Symbol);
+    return (*this)(RowIndexList.CreateStdVector(), ALL_Symbol);
 }
 
 
 template<typename ElementType>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(DenseVector<int_max> RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
+DenseMatrix<ElementType>::operator()(const DenseVector<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
 {
-    return (*this)(std::move(RowIndexList.StdVector()), ALL_Symbol);
+    return (*this)(RowIndexList.CreateStdVector(), ALL_Symbol);
 }
 
 
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, DenseVector<int_max> ColIndexList)
+DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const DenseVector<int_max>& ColIndexList)
 {
-    return (*this)(ALL_Symbol, std::move(ColIndexList.StdVector()));
+    return (*this)(ALL_Symbol, ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, DenseVector<int_max> ColIndexList) const
+DenseMatrix<ElementType>::operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const DenseVector<int_max>& ColIndexList) const
 {
-    return (*this)(ALL_Symbol, std::move(ColIndexList.StdVector()));
+    return (*this)(ALL_Symbol, ColIndexList.CreateStdVector());
 }
 
 
@@ -3938,54 +3938,54 @@ DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, s
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(DenseVector<int_max> RowIndexList, DenseVector<int_max> ColIndexList)
+DenseMatrix<ElementType>::at(const DenseVector<int_max>& RowIndexList, const DenseVector<int_max>& ColIndexList)
 {
-    return this->at(std::move(RowIndexList.StdVector()), std::move(ColIndexList.StdVector()));
+    return this->at(RowIndexList.CreateStdVector(), ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(DenseVector<int_max> RowIndexList, DenseVector<int_max> ColIndexList) const
+DenseMatrix<ElementType>::at(const DenseVector<int_max>& RowIndexList, const DenseVector<int_max>& ColIndexList) const
 {
-    return this->at(std::move(RowIndexList.StdVector()), std::move(ColIndexList.StdVector()));
+    return this->at(RowIndexList.CreateStdVector(), ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(DenseVector<int_max> RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
+DenseMatrix<ElementType>::at(const DenseVector<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
 {
-    return this->at(std::move(RowIndexList.StdVector()), ALL_Symbol);
+    return this->at(RowIndexList.CreateStdVector(), ALL_Symbol);
 }
 
 
 template<typename ElementType>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(DenseVector<int_max> RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
+DenseMatrix<ElementType>::at(const DenseVector<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const
 {
-    return this->at(std::move(RowIndexList.StdVector()), ColIndexList.StdVector());
+    return this->at(RowIndexList.CreateStdVector(), ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, DenseVector<int_max> ColIndexList)
+DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const DenseVector<int_max>& ColIndexList)
 {
-    return this->at(ALL_Symbol, std::move(ColIndexList.StdVector()));
+    return this->at(ALL_Symbol, ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, DenseVector<int_max> ColIndexList) const
+DenseMatrix<ElementType>::at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const DenseVector<int_max>& ColIndexList) const
 {
-    return this->at(ALL_Symbol, std::move(ColIndexList.StdVector()));
+    return this->at(ALL_Symbol, ColIndexList.CreateStdVector());
 }
 
 
@@ -4258,18 +4258,18 @@ DenseMatrix<ElementType>::Col(std::vector<int_max> ColIndexList) const
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Col(DenseVector<int_max> ColIndexList)
+DenseMatrix<ElementType>::Col(const DenseVector<int_max>& ColIndexList)
 {
-    return (*this)(ALL, std::move(ColIndexList.StdVector()));
+    return (*this)(ALL, ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Col(DenseVector<int_max> ColIndexList) const
+DenseMatrix<ElementType>::Col(const DenseVector<int_max>& ColIndexList) const
 {
-    return (*this)(ALL, std::move(ColIndexList.StdVector()));
+    return (*this)(ALL, ColIndexList.CreateStdVector());
 }
 
 
@@ -4348,18 +4348,18 @@ DenseMatrix<ElementType>::Row(std::vector<int_max> RowIndexList) const
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Row(DenseVector<int_max> RowIndexList)
+DenseMatrix<ElementType>::Row(const DenseVector<int_max>& RowIndexList)
 {
-    return (*this)(std::move(RowIndexList.StdVector()), ALL);
+    return (*this)(RowIndexList.CreateStdVector(), ALL);
 }
 
 
 template<typename ElementType>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Row(DenseVector<int_max> RowIndexList) const
+DenseMatrix<ElementType>::Row(const DenseVector<int_max>& RowIndexList) const
 {
-    return (*this)(std::move(RowIndexList.StdVector()), ALL);
+    return (*this)(RowIndexList.CreateStdVector(), ALL);
 }
 
 
@@ -5535,11 +5535,17 @@ bool DenseMatrix<ElementType>::DeleteCol(const DenseMatrix<int_max>& ColIndexLis
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::DeleteCol(const int_max* ColIndexList, int_max Length)
+bool DenseMatrix<ElementType>::DeleteCol(const int_max* ColIndexList, int_max ListLength)
 {
+    if (ColIndexList == nullptr || ListLength <= 0)
+    {
+        //MDK_Warning("Empty Input @ DenseMatrix::DeleteCol(const int_max* ColIndexList, int_max ListLength)")
+        return true;
+    }
+
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error("Matrix Size can not change @ DenseMatrix::DeleteCol(const int_max* ColIndexList, int_max Length)")
+        MDK_Error("Matrix Size can not change @ DenseMatrix::DeleteCol(const int_max* ColIndexList, int_max ListLength)")
         return false;
     }
 
@@ -5547,30 +5553,24 @@ bool DenseMatrix<ElementType>::DeleteCol(const int_max* ColIndexList, int_max Le
 
     if (SelfSize.ColNumber == 0)
     {
-        MDK_Error("Self is empty @ DenseMatrix::DeleteCol(const int_max* ColIndexList, int_max Length)")
+        MDK_Error("Self is empty @ DenseMatrix::DeleteCol(const int_max* ColIndexList, int_max ListLength)")
         return false;
     }
 
-    if (ColIndexList == nullptr || Length <= 0)
-    {
-        MDK_Error("Empty Input @ DenseMatrix::DeleteCol(const int_max* ColIndexList, int_max Length)")
-        return false;
-    }
-
-    for (auto it = ColIndexList; it != ColIndexList + Length; ++it)
+    for (auto it = ColIndexList; it != ColIndexList + ListLength; ++it)
     {
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
-            MDK_Error("Out of bound Input @ DenseMatrix::DeleteCol(const int_max* ColIndexList, int_max Length)")
+            MDK_Error("Out of bound Input @ DenseMatrix::DeleteCol(const int_max* ColIndexList, int_max ListLength)")
             return false;
         }
     }
 
     m_MatrixData->CopyDataToInternalDataArrayIfNecessary();
 
-    std::vector<int_max> ColIndexList_max_to_min(Length);
+    std::vector<int_max> ColIndexList_max_to_min(ListLength);
 
-    for (int_max i = 0; i < Length; ++i)
+    for (int_max i = 0; i < ListLength; ++i)
     {
         ColIndexList_max_to_min[i] = ColIndexList[i];
     }
@@ -5585,7 +5585,7 @@ bool DenseMatrix<ElementType>::DeleteCol(const int_max* ColIndexList, int_max Le
 
         if (Index_i == Index_prev)
         {
-            MDK_Warning("duplicate Input @ DenseMatrix::DeleteCol(const int_max* ColIndexPtr, int_max Length)")
+            MDK_Warning("duplicate Input @ DenseMatrix::DeleteCol(const int_max* ColIndexPtr, int_max ListLength)")
         }
         else
         {
@@ -6069,11 +6069,17 @@ bool DenseMatrix<ElementType>::DeleteRow(const DenseMatrix<int_max>& RowIndexLis
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::DeleteRow(const int_max* RowIndexList, int_max Length)
+bool DenseMatrix<ElementType>::DeleteRow(const int_max* RowIndexList, int_max ListLength)
 {
+    if (RowIndexList == nullptr || ListLength <= 0)
+    {
+        //MDK_Warning("Empty Input @ DenseMatrix::DeleteRow(const int_max* RowIndexList, int_max ListLength)")
+        return true;
+    }
+
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error("Size can not change @ DenseMatrix::DeleteRow(const int_max* RowIndexList, int_max Length)")
+        MDK_Error("Size can not change @ DenseMatrix::DeleteRow(const int_max* RowIndexList, int_max ListLength)")
         return false;
     }
 
@@ -6081,21 +6087,15 @@ bool DenseMatrix<ElementType>::DeleteRow(const int_max* RowIndexList, int_max Le
 
     if (SelfSize.RowNumber == 0)
     {
-        MDK_Error("Self is empty @ DenseMatrix::DeleteRow(const int_max* RowIndexList, int_max Length)")
+        MDK_Error("Self is empty @ DenseMatrix::DeleteRow(const int_max* RowIndexList, int_max ListLength)")
         return false;
     }
 
-    if (RowIndexList == nullptr || Length <= 0)
-    {
-        MDK_Error("Invalid Input @ DenseMatrix::DeleteRow(const int_max* RowIndexList, int_max Length)")
-        return false;
-    }
-
-    for (auto it = RowIndexList; it != RowIndexList + Length; ++it)
+    for (auto it = RowIndexList; it != RowIndexList + ListLength; ++it)
     {
         if (*it >= SelfSize.RowNumber || *it < 0)
         {
-            MDK_Error("Invalid Input @ DenseMatrix::DeleteRow(const int_max* RowIndexList, int_max Length)")
+            MDK_Error("Invalid Input @ DenseMatrix::DeleteRow(const int_max* RowIndexList, int_max ListLength)")
             return false;
         }
     }
@@ -6107,7 +6107,7 @@ bool DenseMatrix<ElementType>::DeleteRow(const int_max* RowIndexList, int_max Le
         CounterList[i] = 0;
     }
 
-    for (int_max i = 0; i < Length; ++i)
+    for (int_max i = 0; i < ListLength; ++i)
     {
         CounterList[RowIndexList[i]] = 1;
     }
@@ -6548,15 +6548,21 @@ bool DenseMatrix<ElementType>::Delete(const DenseMatrix<int_max>& LinearIndexLis
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::Delete(const int_max* LinearIndexList, int_max Length)
+bool DenseMatrix<ElementType>::Delete(const int_max* LinearIndexList, int_max ListLength)
 {
+    if (LinearIndexList == nullptr || Length <= 0)
+    {
+        //MDK_Warning("Empty input @ DenseMatrix::Delete(...)")
+        return true;
+    }
+
     if (this->IsRowVector() == true)
     {
-        return this->DeleteCol(LinearIndexList, int_max Length);
+        return this->DeleteCol(LinearIndexList, int_max ListLength);
     }
     else if (this->IsColVector() == true)
     {
-        return this->DeleteRow(LinearIndexList, int_max Length);
+        return this->DeleteRow(LinearIndexList, int_max ListLength);
     }
     else
     {
@@ -8081,7 +8087,7 @@ DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(int_max LinearIndex_start, i
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline 
-DenseMatrix<int_max> DenseMatrix<ElementType>::SortInPlace(CompareFunctionType CompareFunction)
+void DenseMatrix<ElementType>::SortInPlace(CompareFunctionType CompareFunction)
 {
     auto LinearIndexList = this->Sort(CompareFunction);
 
@@ -8091,15 +8097,13 @@ DenseMatrix<int_max> DenseMatrix<ElementType>::SortInPlace(CompareFunctionType C
     }
 
     (*this) = (*this)(LinearIndexList);
-
-    return LinearIndexList;
 }
 
 
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline 
-DenseMatrix<int_max> DenseMatrix<ElementType>::SortInPlace(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction)
+void DenseMatrix<ElementType>::SortInPlace(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction)
 {
     auto LinearIndexList = this->Sort(LinearIndex_start, LinearIndex_end, CompareFunction);
 
@@ -8109,8 +8113,6 @@ DenseMatrix<int_max> DenseMatrix<ElementType>::SortInPlace(int_max LinearIndex_s
     }
 
     (*this)(span(LinearIndex_start, LinearIndex_end)) = (*this)(LinearIndexList);
-
-    return LinearIndexList;
 }
 
 //-------------------------------------------------------------------------------------------//
@@ -8138,69 +8140,49 @@ DenseMatrix<ElementType>::SortCol(int_max ColIndex_start, int_max ColIndex_end, 
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline 
-DenseMatrix<int_max>
-DenseMatrix<ElementType>::SortColInPlace(CompareFunctionType CompareFunction)
+void DenseMatrix<ElementType>::SortColInPlace(CompareFunctionType CompareFunction)
 {
-    return this->SortColInPlace(0, this->GetElementNumber()-1, CompareFunction);
+    this->SortColInPlace(0, this->GetElementNumber()-1, CompareFunction);
 }
 
 
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline
-DenseMatrix<int_max>
-DenseMatrix<ElementType>::SortColInPlace(int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction)
+void DenseMatrix<ElementType>::SortColInPlace(int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction)
 {
     auto ColIndexList = SortColInMatrix(*this, ColIndex_start, ColIndex_end, CompareFunction);
 
     if (ColIndexList.IsEmpty() == true)
     {
-        return ColIndexList;
+        return;
     }
 
     (*this)(ALL, span(ColIndex_start, ColIndex_end)) = (*this)(ALL, ColIndexList);
-
-    return ColIndexList;
 }
 
 
 //-----------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline 
-DenseMatrix<ElementType> DenseMatrix<ElementType>::Unique()
-{
-    auto LinearIndexList = FindUniqueElementInMatrix(*this);
-
-    return this->GetSubMatrix(LinearIndexList);
-}
-
-
-template<typename ElementType>
 inline
-DenseMatrix<int_max> DenseMatrix<ElementType>::LinearIndexListOfUnique()
+DenseMatrix<int_max> DenseMatrix<ElementType>::FindUnique() const
 {
     return FindUniqueElementInMatrix(*this);
 }
 
 
 template<typename ElementType>
-inline 
-DenseMatrix<ElementType> DenseMatrix<ElementType>::UniqueCol()
+template<typename SpecialCompareFunctionType>
+inline
+DenseMatrix<int_max> DenseMatrix<ElementType>::FindUnique(SpecialCompareFunctionType SpecialCompareFunction) const
 {
-    if (this->IsVector() == true)
-    {
-        return this->Unique();
-    }
-
-    auto ColIndexList = FindUniqueColInMatrix(*this);
-
-    return this->GetSubMatrix(ALL, ColIndexList);
+    return FindUniqueElementInMatrix(*this, SpecialCompareFunction);
 }
 
 
 template<typename ElementType>
-inline DenseMatrix<int_max> DenseMatrix<ElementType>::IndexListOfUniqueCol()
+inline DenseMatrix<int_max> DenseMatrix<ElementType>::FindUniqueCol() const
 {
     if (this->IsVector() == true)
     {
@@ -8208,6 +8190,14 @@ inline DenseMatrix<int_max> DenseMatrix<ElementType>::IndexListOfUniqueCol()
     }
 
     return FindUniqueColInMatrix(*this);
+}
+
+
+template<typename ElementType>
+template<typename SpecialCompareFunctionType>
+inline DenseMatrix<int_max> DenseMatrix<ElementType>::FindUniqueCol(SpecialCompareFunctionType SpecialCompareFunction) const
+{
+    return FindUniqueColInMatrix(*this, SpecialCompareFunction);
 }
 
 //-----------------------------------------------------------------------------------------------------------//
@@ -8255,7 +8245,7 @@ inline DenseMatrix<ElementType> DenseMatrix<ElementType>::SumToCol() const
 
 
 template<typename ElementType>
-inline int_max DenseMatrix<ElementType>::LinearIndexOfMax() const
+inline int_max DenseMatrix<ElementType>::IndexOfMax() const
 {
     return FindLinearIndexOfMaxInMatrix(*this);
 }
@@ -8283,7 +8273,7 @@ inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MaxToCol() const
 
 
 template<typename ElementType>
-inline int_max DenseMatrix<ElementType>::LinearIndexOfMin() const
+inline int_max DenseMatrix<ElementType>::IndexOfMin() const
 {
     return FindLinearIndexOfMinInMatrix(*this);
 }

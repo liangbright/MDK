@@ -654,7 +654,7 @@ int_max TriangleMesh<ScalarType>::GetEdgeNumber() const
 
 template<typename ScalarType>
 inline
-DenseVector<int_max>& TriangleMesh<ScalarType>::VertexGlobalIndexList()
+DenseMatrix<int_max>& TriangleMesh<ScalarType>::VertexGlobalIndexList()
 {
     return m_MeshData->VertexGlobalIndexList;
 }
@@ -662,7 +662,7 @@ DenseVector<int_max>& TriangleMesh<ScalarType>::VertexGlobalIndexList()
 
 template<typename ScalarType>
 inline
-const DenseVector<int_max>& TriangleMesh<ScalarType>::VertexGlobalIndexList() const
+const DenseMatrix<int_max>& TriangleMesh<ScalarType>::VertexGlobalIndexList() const
 {
     return m_MeshData->VertexGlobalIndexList;
 }
@@ -670,7 +670,7 @@ const DenseVector<int_max>& TriangleMesh<ScalarType>::VertexGlobalIndexList() co
 
 template<typename ScalarType>
 inline
-DenseVector<int_max>& TriangleMesh<ScalarType>::TriangleGlobalIndexList()
+DenseMatrix<int_max>& TriangleMesh<ScalarType>::TriangleGlobalIndexList()
 {
     return m_MeshData->TriangleGlobalIndexList;
 }
@@ -678,7 +678,7 @@ DenseVector<int_max>& TriangleMesh<ScalarType>::TriangleGlobalIndexList()
 
 template<typename ScalarType>
 inline
-const DenseVector<int_max>& TriangleMesh<ScalarType>::TriangleGlobalIndexList() const
+const DenseMatrix<int_max>& TriangleMesh<ScalarType>::TriangleGlobalIndexList() const
 {
     return m_MeshData->TriangleGlobalIndexList;
 }

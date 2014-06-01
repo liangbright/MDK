@@ -42,14 +42,22 @@ template<typename ElementType, typename CompareFunctionType>
 DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix, CompareFunctionType CompareFunction);
 
 template<typename ElementType, typename CompareFunctionType>
-DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix, 
+DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix,
                                      int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction);
 
 template<typename ElementType>
 DenseMatrix<int_max> FindUniqueElementInMatrix(const DenseMatrix<ElementType>& InputMatrix);
 
+//SpecialCompareFunction(a, b) return {-1, 0, 1} as {a < b, a = b, a > b}
+template<typename ElementType, typename SpecialCompareFunctionType>
+DenseMatrix<int_max> FindUniqueElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, SpecialCompareFunctionType SpecialCompareFunction);
+
 template<typename ElementType>
 DenseMatrix<int_max> FindUniqueColInMatrix(const DenseMatrix<ElementType>& InputMatrix);
+
+//SpecialCompareFunction(VectorA, VectorB) return {-1, 0, 1} as {VectorA < VectorB, VectorA = VectorB, VectorA > VectorB}
+template<typename ElementType, typename SpecialCompareFunctionType>
+DenseMatrix<int_max> FindUniqueColInMatrix(const DenseMatrix<ElementType>& InputMatrix, SpecialCompareFunctionType SpecialCompareFunction);
 
 //-----------------------------------------------------------------------------------------------//
 

@@ -1,5 +1,5 @@
-#ifndef __mdkDenseVectorWithFixedSize_Function_hpp
-#define __mdkDenseVectorWithFixedSize_Function_hpp
+#ifndef __mdkDenseVectorWithFixedLength_Function_hpp
+#define __mdkDenseVectorWithFixedLength_Function_hpp
 
 
 namespace mdk

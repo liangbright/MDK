@@ -112,13 +112,13 @@ Image3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const CharString& FilePa
 template<typename ScalarType>
 bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
 
-template<typename ScalarType = double>
+template<typename ScalarType>
 TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency = true);
 
 template<typename ScalarType>
 bool SaveTriangleMeshAsVTKFile(const TriangleMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
 
-template<typename ScalarType = double>
+template<typename ScalarType>
 TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency = true);
 
 //------------------------------------- save/load PolygonMesh from Json data file or vtk file -------------------------------------------//
@@ -126,13 +126,13 @@ TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathA
 template<typename ScalarType>
 bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
 
-template<typename ScalarType = double>
+template<typename ScalarType>
 PolygonMesh<ScalarType> LoadPolygonMeshFromJsonDataFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency = true);
 
 template<typename ScalarType>
 bool SavePolygonMeshAsVTKFile(const PolygonMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
 
-template<typename ScalarType = double>
+template<typename ScalarType>
 PolygonMesh<ScalarType> LoadPolygonMeshMeshFromVTKFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency = true);
 
 

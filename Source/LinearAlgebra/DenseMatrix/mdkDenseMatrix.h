@@ -483,9 +483,9 @@ public:
 
     inline const DenseShadowMatrix<ElementType> operator()(std::vector<int_max> LinearIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(DenseVector<int_max> LinearIndexList);
+    inline DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max>& LinearIndexList);
 
-    inline const DenseShadowMatrix<ElementType> operator()(DenseVector<int_max> LinearIndexList) const;
+    inline const DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max>& LinearIndexList) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& LinearIndexList);
 
@@ -505,9 +505,9 @@ public:
 
     inline const DenseShadowMatrix<ElementType> at(std::vector<int_max> LinearIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> at(DenseVector<int_max> LinearIndexList);
+    inline DenseShadowMatrix<ElementType> at(const DenseVector<int_max>& LinearIndexList);
 
-    inline const DenseShadowMatrix<ElementType> at(DenseVector<int_max> LinearIndexList) const;
+    inline const DenseShadowMatrix<ElementType> at(const DenseVector<int_max>& LinearIndexList) const;
 
     inline DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& LinearIndexList);
 
@@ -561,23 +561,23 @@ public:
 
     //-----------------------------------
 
-    inline DenseShadowMatrix<ElementType> operator()(DenseVector<int_max> RowIndexList,
-                                                     DenseVector<int_max> ColIndexList);
+    inline DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max>& RowIndexList,
+                                                     const DenseVector<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> operator()(DenseVector<int_max> RowIndexList,
-                                                           DenseVector<int_max> ColIndexList) const;
+    inline const DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max>& RowIndexList,
+                                                           const DenseVector<int_max>& ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(DenseVector<int_max> RowIndexList,
+    inline DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max>& RowIndexList,
                                                      const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const DenseShadowMatrix<ElementType> operator()(DenseVector<int_max> RowIndexList,
+    inline const DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max>& RowIndexList,
                                                            const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                     DenseVector<int_max> ColIndexList);
+                                                     const DenseVector<int_max>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                           DenseVector<int_max> ColIndexList) const;
+                                                           const DenseVector<int_max>& ColIndexList) const;
     //-----------------------------------
 
     inline DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& RowIndexList,
@@ -639,23 +639,23 @@ public:
                                                    std::vector<int_max> ColIndexList) const;
      //----------------------------------
 
-    inline DenseShadowMatrix<ElementType> at(DenseVector<int_max> RowIndexList,
-                                             DenseVector<int_max> ColIndexList);
+    inline DenseShadowMatrix<ElementType> at(const DenseVector<int_max>& RowIndexList,
+                                             const DenseVector<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> at(DenseVector<int_max> RowIndexList,
-                                                   DenseVector<int_max> ColIndexList) const;
+    inline const DenseShadowMatrix<ElementType> at(const DenseVector<int_max>& RowIndexList,
+                                                   const DenseVector<int_max>& ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> at(DenseVector<int_max> RowIndexList,
+    inline DenseShadowMatrix<ElementType> at(const DenseVector<int_max>& RowIndexList,
                                              const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline const DenseShadowMatrix<ElementType> at(DenseVector<int_max> RowIndexList,
+    inline const DenseShadowMatrix<ElementType> at(const DenseVector<int_max>& RowIndexList,
                                                    const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     inline DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                             DenseVector<int_max> ColIndexList);
+                                             const DenseVector<int_max>& ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
-                                                   DenseVector<int_max> ColIndexList) const;
+                                                   const DenseVector<int_max>& ColIndexList) const;
 
     //----------------------------------
 
@@ -691,9 +691,9 @@ public:
 
     inline const DenseShadowMatrix<ElementType> Col(std::vector<int_max> ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> Col(DenseVector<int_max> ColIndexList);
+    inline DenseShadowMatrix<ElementType> Col(const DenseVector<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> Col(DenseVector<int_max> ColIndexList) const;
+    inline const DenseShadowMatrix<ElementType> Col(const DenseVector<int_max>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> Col(const DenseMatrix<int_max>& ColIndexList);
 
@@ -713,9 +713,9 @@ public:
 
     inline const DenseShadowMatrix<ElementType> Row(std::vector<int_max> RowIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> Row(DenseVector<int_max> RowIndexList);
+    inline DenseShadowMatrix<ElementType> Row(const DenseVector<int_max>& RowIndexList);
 
-    inline const DenseShadowMatrix<ElementType> Row(DenseVector<int_max> RowIndexList) const;
+    inline const DenseShadowMatrix<ElementType> Row(const DenseVector<int_max>& RowIndexList) const;
 
     inline DenseShadowMatrix<ElementType> Row(const DenseMatrix<int_max>& RowIndexList);
 
@@ -913,7 +913,7 @@ public:
 
     inline bool DeleteCol(const DenseMatrix<int_max>& ColIndexList);
 
-    inline bool DeleteCol(const int_max* ColIndexList, int_max Length);
+    inline bool DeleteCol(const int_max* ColIndexList, int_max ListLength);
 
     template<typename ElementType_Input>
     inline bool InsertCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData);
@@ -990,7 +990,7 @@ public:
 
     inline bool DeleteRow(const DenseMatrix<int_max>& RowIndexList);
 
-    inline bool DeleteRow(const int_max* RowIndexList, int_max Length);
+    inline bool DeleteRow(const int_max* RowIndexList, int_max ListLength);
 
     template<typename ElementType_Input>
     inline bool InsertRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData);
@@ -1041,7 +1041,7 @@ public:
 
     inline bool Delete(const DenseMatrix<int_max>& LinearIndexList);
 
-    inline bool Delete(const int_max* LinearIndexList, int_max Length);
+    inline bool Delete(const int_max* LinearIndexList, int_max ListLength);
 
     inline bool Insert(int_max LinearIndex, const ElementType& Element);
 
@@ -1320,7 +1320,7 @@ public:
     template<typename OperationType>
     inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
 
-    //------------------------ find element : return linear index --------------------------------//
+    //------------------------ find element : return linear index list ----------------------------//
 
     template<typename MatchFunctionType>
     inline DenseMatrix<int_max> Find(MatchFunctionType MatchFunction) const;
@@ -1331,7 +1331,7 @@ public:
     template<typename MatchFunctionType>
     inline DenseMatrix<int_max> Find(int_max MaxOutputNumber, int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction) const;
 
-    //------------------------ find col ---------------------------------------------------------//
+    //------------------------ find col : return col index list ------------------------------------//
 
     template<typename MatchFunctionType>
     inline DenseMatrix<int_max> FindCol(MatchFunctionType MatchFunction) const;
@@ -1351,10 +1351,10 @@ public:
     inline DenseMatrix<int_max> Sort(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction) const;
 
     template<typename CompareFunctionType>
-    inline DenseMatrix<int_max> SortInPlace(CompareFunctionType CompareFunction);
+    inline void SortInPlace(CompareFunctionType CompareFunction);
 
     template<typename CompareFunctionType>
-    inline DenseMatrix<int_max> SortInPlace(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction);
+    inline void SortInPlace(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction);
 
     //----------------------- sort col : return sorted col index list ----------------------------------//
 
@@ -1365,22 +1365,26 @@ public:
     inline DenseMatrix<int_max> SortCol(int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction) const;
 
     template<typename CompareFunctionType>
-    inline DenseMatrix<int_max> SortColInPlace(CompareFunctionType CompareFunction);
+    inline void SortColInPlace(CompareFunctionType CompareFunction);
 
     template<typename CompareFunctionType>
-    inline DenseMatrix<int_max> SortColInPlace(int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction);
+    inline void SortColInPlace(int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction);
 
-    //------------------------- unique : return list of unique element ---------------------------//
+    //------------------------- unique : return linear index list of unique element ------------------------------------//
 
-    inline DenseMatrix<ElementType> Unique();
+    inline DenseMatrix<int_max> FindUnique() const;
 
-    inline DenseMatrix<int_max> LinearIndexListOfUnique();
+    //SpecialCompareFunction(a, b) return {-1, 0, 1} as {a < b, a = b, a > b}
+    template<typename SpecialCompareFunctionType>
+    inline DenseMatrix<int_max> FindUnique(SpecialCompareFunctionType SpecialCompareFunction) const;
 
-    //------------------------- unique col : return sub matrix of unique col ---------------------------//
+    //------------------------- unique col : return col index list of unique col ---------------------------//
 
-    inline DenseMatrix<ElementType> UniqueCol();
+    inline DenseMatrix<int_max> FindUniqueCol() const;
 
-    inline DenseMatrix<int_max> IndexListOfUniqueCol();
+    //SpecialCompareFunction(a, b) return {-1, 0, 1} as {a < b, a = b, a > b}
+    template<typename SpecialCompareFunctionType>
+    inline DenseMatrix<int_max> FindUniqueCol(SpecialCompareFunctionType SpecialCompareFunction) const;
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 
@@ -1396,7 +1400,7 @@ public:
 
     inline DenseMatrix SumToCol() const;
 
-    inline int_max LinearIndexOfMax() const;
+    inline int_max IndexOfMax() const;
 
     inline ElementType Max() const;
 
@@ -1404,7 +1408,7 @@ public:
 
     inline DenseMatrix MaxToCol() const;
 
-    inline int_max LinearIndexOfMin() const;
+    inline int_max IndexOfMin() const;
 
     inline ElementType Min() const;
 

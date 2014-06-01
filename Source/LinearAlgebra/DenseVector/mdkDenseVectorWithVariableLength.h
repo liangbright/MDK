@@ -6,6 +6,7 @@
 
 #include "mdkType.h"
 #include "mdkObject.h"
+#include "mdkLinearAlgebra_Function_DenseVector.h"
 
 // this is a memory efficient implementation of Dense Vector
 //
@@ -67,7 +68,11 @@ public:
 
     //-------------------------------------------//
 
-    inline void Copy(const DenseVector<ElementType>& InputVector);
+    template<typename ElementType_input>
+    inline void Copy(const DenseVector<ElementType_input>& InputVector);
+
+    template<typename ElementType_input>
+    inline void Copy(const ElementType_input* InputVector, int_max InputLength);
 
     //------------------------------------------------------------
 
@@ -119,11 +124,9 @@ public:
 
     const ElementType& at(int_max Index) const;
 
-    //-------------------Get std vector -------------------------------
+    //----------------------- Convert to std vector -------------------------------
 
-    std::vector<ElementType> StdVector();
-
-    const std::vector<ElementType> StdVector() const;
+    std::vector<ElementType> CreateStdVector() const;
 
     //---------- convert to regular vector represented by DenseMatrix ----------------//
 
@@ -137,20 +140,20 @@ public:
 
     //---------------------- GetSubSet --------------------------------------
 
-    inline DenseVector<ElementType> GetSubSet(int_max Index_start, int_max Index_end);
+    inline DenseVector<ElementType> GetSubSet(int_max Index_start, int_max Index_end) const;
 
-    inline DenseVector<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList);
+    inline DenseVector<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList) const;
 
-    inline DenseVector<ElementType> GetSubSet(const std::vector<int_max>& IndexList);
+    inline DenseVector<ElementType> GetSubSet(const std::vector<int_max>& IndexList) const;
 
-    inline DenseVector<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList);
+    inline DenseVector<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList) const;
 
-    inline DenseVector<ElementType> GetSubSet(const SimpleDataContainer<int_max>& IndexList);
+    inline DenseVector<ElementType> GetSubSet(const SimpleDataContainer<int_max>& IndexList) const;
 
-    inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max>& IndexList);
+    inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max>& IndexList) const;
 
     template<int_max InputLength>
-    inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max, InputLength>& IndexList);
+    inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max, InputLength>& IndexList) const;
 
     //---------------------- SetSubSet --------------------------------------
 
@@ -218,17 +221,19 @@ public:
     inline ElementType PopBack();
 
     //-------------------- find ---------------------------------------//
+    // return index list
 
     template<typename MatchFunctionType>
-    inline DenseVector<int_max> Find(MatchFunctionType MatchFunction);
+    inline DenseVector<int_max> Find(MatchFunctionType MatchFunction) const;
 
     template<typename MatchFunctionType>
-    inline DenseVector<int_max> Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction);
+    inline DenseVector<int_max> Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction) const;
 
     template<typename MatchFunctionType>
-    inline DenseVector<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction);
+    inline DenseVector<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction) const;
 
     //--------------------- sort ---------------------------------------//
+    // return index list
 
     template<typename CompareFunctionType>
     inline DenseVector<int_max> Sort(CompareFunctionType CompareFunction) const;
@@ -243,10 +248,12 @@ public:
     inline void SortInPlace(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction);
 
     //------------------------- unique --------------------------------//
-    // return unique element
-    inline DenseVector<ElementType> Unique();
+    // return index list of unique element
+    inline DenseVector<int_max> FindUnique() const;
 
-    inline DenseVector<int_max> IndexListOfUnique();
+    //SpecialCompareFunction(a, b) return {-1, 0, 1} as {a < b, a = b, a > b}
+    template<typename SpecialCompareFunctionType>
+    inline DenseVector<int_max> FindUnique(SpecialCompareFunctionType SpecialCompareFunction) const;
 
     // -------------------------------------- Self {+= -= *= /=} Vector -----------------------------------------------------//
 
@@ -282,19 +289,23 @@ public:
 
     //-------------------------------------------------------------------------------------------------------------------------//
 
-    inline ElementType Sum();
+    inline ElementType Sum() const;
 
-    inline ElementType Mean();
+    inline ElementType Mean() const;
 
-    inline ElementType Std();
+    inline ElementType Std() const;
 
-    inline ElementType Max();
+    inline ElementType Max() const;
 
-    inline ElementType Min();
+    inline int_max IndexOfMax() const;
 
-    inline ElementType L1Norm();
+    inline ElementType Min() const;
 
-    inline ElementType L2Norm();
+    inline int_max IndexOfMin() const;
+
+    inline ElementType L1Norm() const;
+
+    inline ElementType L2Norm() const;
 };
 
 
