@@ -743,8 +743,19 @@ bool DenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer
 {
     if (InputElementPointer == nullptr || InputRowNumber <= 0 || InputColNumber <= 0)
     {
-        MDK_Error("Input pointer is nullptr @ DenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)")
-        return false;
+        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)")
+        
+        if (this->IsSizeFixed() == true)
+        {
+            if (this->IsEmpty() == false)
+            {
+                MDK_Error("Can not change matrix size @ DenseMatrix::Copy(ElementType_Input*, InputRowNumber, InputColNumber)")
+                return false;
+            }
+        }
+
+        this->Clear();
+        return true;
     }
 
     auto tempElementType = FindMatrixElementType(InputElementPointer[0]);
@@ -2028,6 +2039,22 @@ const ElementType* DenseMatrix<ElementType>::GetElementPointer() const
 
 
 template<typename ElementType>
+inline
+ElementType* DenseMatrix<ElementType>::GetPointer()
+{
+    return this->GetElementPointer();
+}
+
+
+template<typename ElementType>
+inline
+const ElementType* DenseMatrix<ElementType>::GetPointer() const
+{
+    return this->GetElementPointer();
+}
+
+
+template<typename ElementType>
 inline ElementType* DenseMatrix<ElementType>::begin()
 {
     return this->GetElementPointer();
@@ -2045,12 +2072,10 @@ template<typename ElementType>
 inline ElementType* DenseMatrix<ElementType>::end()
 {
     auto endPtr = this->GetElementPointer();
-
     if (endPtr != nullptr)
     {
         endPtr += this->GetElementNumber();
     }
-
     return endPtr;
 }
 
@@ -2059,12 +2084,10 @@ template<typename ElementType>
 inline const ElementType* DenseMatrix<ElementType>::end() const
 {
     auto endPtr = this->GetElementPointer();
-
     if (endPtr != nullptr)
     {
         endPtr += this->GetElementNumber();
     }
-
     return endPtr;
 }
 
@@ -2080,15 +2103,15 @@ ElementType* DenseMatrix<ElementType>::GetElementPointerOfCol(int_max ColIndex) 
 
     auto Size = this->GetSize();
 
-    if (ColIndex >= Size.ColNumber || ColIndex < 0)
+    if (ColIndex < 0 || ColIndex >= Size.ColNumber)
     {
-        MDK_Error("Invalid Input @ DenseMatrix::GetElementPointerOfCol(...)")
+        MDK_Error("Invalid ColIndex @ DenseMatrix::GetElementPointerOfCol(...)")
         return nullptr;
     }
 
-    auto BeginPointer = this->GetElementPointer();
+    auto PointerOfCol = this->GetElementPointer() + ColIndex*Size.RowNumber;
 
-    return  BeginPointer + ColIndex*Size.RowNumber;
+    return PointerOfCol;
 }
 
 
@@ -2103,17 +2126,32 @@ const ElementType* DenseMatrix<ElementType>::GetElementPointerOfCol(int_max ColI
 
     auto Size = this->GetSize();
 
-    if (ColIndex >= Size.ColNumber || ColIndex < 0)
+    if (ColIndex < 0 || ColIndex >= Size.ColNumber)
     {
-        MDK_Error("Invalid Input @ DenseMatrix::GetElementPointerOfCol(...) const")
+        MDK_Error("Invalid ColIndex @ DenseMatrix::GetElementPointerOfCol(...) const")
         return nullptr;
     }
 
-    auto BeginPointer = this->GetElementPointer();
+    auto PointerOfCol = this->GetElementPointer() + ColIndex*Size.RowNumber;
 
-    return  BeginPointer + ColIndex*Size.RowNumber;
+    return PointerOfCol;
 }
 
+
+template<typename ElementType>
+inline
+ElementType* DenseMatrix<ElementType>::GetPointerOfCol(int_max ColIndex) //  the position of the first element in Col # ColIndex
+{
+    return this->GetElementPointerOfCol(ColIndex);
+}
+
+
+template<typename ElementType>
+inline
+const ElementType* DenseMatrix<ElementType>::GetPointerOfCol(int_max ColIndex) const
+{
+    return this->GetElementPointerOfCol(ColIndex);
+}
 
 //----------- Get/Set Matrix(LinearIndex) -----------------------------------//
 

@@ -336,7 +336,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 
         for (int n = 0; n < 3; ++n)
         {
-            auto PointIndex = InputMesh.Triangle(n, i);
+            auto PointIndex = InputMesh.Triangle()(n, i);
 
             CellData->InsertCellPoint(PointIndex);
         }

@@ -422,37 +422,36 @@ public:
     //--------------------- Get Data Pointer -----------------------------//
 
     inline ElementType* GetElementPointer(); //  the position of the first element
-
     inline const ElementType* GetElementPointer() const;
 
-    inline ElementType* begin(); // the position of the first element
+    inline ElementType* GetPointer(); //  the position of the first element
+    inline const ElementType* GetPointer() const;
 
+    inline ElementType* begin(); // the position of the first element
     inline const ElementType* begin() const;
 
     inline ElementType* end(); // the last position + 1
-
     inline const ElementType* end() const; // the last position + 1
 
     inline ElementType* GetElementPointerOfCol(int_max ColIndex); //  the position of the first element in Col # ColIndex
-
     inline const ElementType* GetElementPointerOfCol(int_max ColIndex) const;
+
+    inline ElementType* GetPointerOfCol(int_max ColIndex); //  the position of the first element in Col # ColIndex
+    inline const ElementType* GetPointerOfCol(int_max ColIndex) const;
 
 	//----------- Get/Set Matrix(LinearIndex) -----------------------------------//
 
     // operator[] or () : no bound check in release mode
 
     inline ElementType& operator[](int_max LinearIndex);
-
     inline const ElementType& operator[](int_max LinearIndex) const;
 
 	inline ElementType& operator()(int_max LinearIndex);
-
     inline const ElementType& operator()(int_max LinearIndex) const;
     
     // at(): bound check
 
 	inline ElementType& at(int_max LinearIndex);
-
 	inline const ElementType& at(int_max LinearIndex) const;
 
 	//----------- Get/Set Matrix(i,j)  ---------------------------------------------//
@@ -466,7 +465,6 @@ public:
     // at(): bound check
 
 	inline ElementType& at(int_max RowIndex, int_max ColIndex);
-
 	inline const ElementType& at(int_max RowIndex, int_max ColIndex) const;
 
     //----------- Get/Set a set of elements by Matrix({}), Matrix.at({}) -------------------------------------//
@@ -476,45 +474,35 @@ public:
     // note: operator[] is for single element access only, operator[{}] is not defined
 
     inline DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& LinearIndexList);
-
     inline const DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& LinearIndexList) const;
 
     inline DenseShadowMatrix<ElementType> operator()(std::vector<int_max> LinearIndexList);
-
     inline const DenseShadowMatrix<ElementType> operator()(std::vector<int_max> LinearIndexList) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max>& LinearIndexList);
-
     inline const DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max>& LinearIndexList) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& LinearIndexList);
-
     inline const DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& LinearIndexList) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
-
     inline const DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     // at(): bound check -----------------
 
     inline DenseShadowMatrix<ElementType> at(const std::initializer_list<int_max>& LinearIndexList);
-
     inline const DenseShadowMatrix<ElementType> at(const std::initializer_list<int_max>& LinearIndexList) const;
 
     inline DenseShadowMatrix<ElementType> at(std::vector<int_max> LinearIndexList);
-
     inline const DenseShadowMatrix<ElementType> at(std::vector<int_max> LinearIndexList) const;
 
     inline DenseShadowMatrix<ElementType> at(const DenseVector<int_max>& LinearIndexList);
-
     inline const DenseShadowMatrix<ElementType> at(const DenseVector<int_max>& LinearIndexList) const;
 
     inline DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& LinearIndexList);
-
     inline const DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& LinearIndexList) const;
 
     inline DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol); // convert matrix to col-vector
-
     inline const DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
     //---------- Get/Set SubMatrix by Matrix({...},{...}), Matrix.at({...}, {...}), Matrix.Col({...}), Matrix.Row({...}), Matrix.Diagnal() -------//
@@ -680,50 +668,39 @@ public:
     // Col(...) is just operator()(ALL, ...)
 
     inline DenseShadowMatrix<ElementType> Col(int_max ColIndex);
-
     inline const DenseShadowMatrix<ElementType> Col(int_max ColIndex) const;
 
     inline DenseShadowMatrix<ElementType> Col(const std::initializer_list<int_max>& ColIndexList);
-
     inline const DenseShadowMatrix<ElementType> Col(const std::initializer_list<int_max>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> Col(std::vector<int_max> ColIndexList);
-
     inline const DenseShadowMatrix<ElementType> Col(std::vector<int_max> ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> Col(const DenseVector<int_max>& ColIndexList);
-
     inline const DenseShadowMatrix<ElementType> Col(const DenseVector<int_max>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> Col(const DenseMatrix<int_max>& ColIndexList);
-
     inline const DenseShadowMatrix<ElementType> Col(const DenseMatrix<int_max>& ColIndexList) const;
 
     // Row(...) is just operator()(..., ALL)
 
     inline DenseShadowMatrix<ElementType> Row(int_max RowIndex);
-
     inline const DenseShadowMatrix<ElementType> Row(int_max RowIndex) const;
 
     inline DenseShadowMatrix<ElementType> Row(const std::initializer_list<int_max>& RowIndexList);
-
     inline const DenseShadowMatrix<ElementType> Row(const std::initializer_list<int_max>& RowIndexList) const;
 
     inline DenseShadowMatrix<ElementType> Row(std::vector<int_max> RowIndexList);
-
     inline const DenseShadowMatrix<ElementType> Row(std::vector<int_max> RowIndexList) const;
 
     inline DenseShadowMatrix<ElementType> Row(const DenseVector<int_max>& RowIndexList);
-
     inline const DenseShadowMatrix<ElementType> Row(const DenseVector<int_max>& RowIndexList) const;
 
     inline DenseShadowMatrix<ElementType> Row(const DenseMatrix<int_max>& RowIndexList);
-
     inline const DenseShadowMatrix<ElementType> Row(const DenseMatrix<int_max>& RowIndexList) const;
 
     //
     inline DenseShadowMatrix<ElementType> Diagonal();
-
     inline const DenseShadowMatrix<ElementType> Diagonal() const;
 
     // -------------------------- special col reference ---------------------------------------------
@@ -732,7 +709,6 @@ public:
     // use A.RefCol(k).Fill(constant);
 
     inline DenseMatrix RefCol(int_max ColIndex);
-
     inline const DenseMatrix RefCol(int_max ColIndex) const;
 
     // ----------------------- Get SubMatrix as DenseMatrix --------------------------------------------
