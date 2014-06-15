@@ -1,5 +1,5 @@
-﻿#ifndef __mdkDataContainer_h
-#define __mdkDataContainer_h
+﻿#ifndef __mdkDataArray_h
+#define __mdkDataArray_h
 
 #include <vector>
 #include <string>
@@ -12,7 +12,7 @@ namespace mdk
 {
 
 #if defined MDK_DEBUG_MODE
-    #define MDK_DEBUG_DataContainer_Operator_CheckBound
+    #define MDK_DEBUG_DataArray_Operator_CheckBound
 #endif
 
 //------------------------------
@@ -20,10 +20,10 @@ template<typename ElementType>
 class DenseMatrix;
 //------------------------------
 
-// ----------------------------- DataContainerData struct -------------------------------------------------------------//
+// ----------------------------- DataArrayData struct -------------------------------------------------------------//
 
 template<typename ElementType>
-struct DataContainerData
+struct DataArrayData
 {
     std::vector<ElementType> DataArray;
 
@@ -36,7 +36,7 @@ struct DataContainerData
     bool IsSizeFixed;
 
 //-------------------------------------------------------------
-    DataContainerData() 
+    DataArrayData() 
     {
         Length = 0;
         ElementPointer = nullptr;
@@ -44,7 +44,7 @@ struct DataContainerData
         ErrorElement = GetNaNElement(ErrorElement);
     };
 
-    ~DataContainerData() {};
+    ~DataArrayData() {};
 
     void CopyDataToInternalDataArrayIfNecessary()
     {
@@ -52,7 +52,7 @@ struct DataContainerData
         {
             if (ElementPointer == nullptr)
             {
-                MDK_Error("ElementPointer is nullptr @ DataContainerData::CopyDataToInternalDataArrayIfNecessary()")
+                MDK_Error("ElementPointer is nullptr @ DataArrayData::CopyDataToInternalDataArrayIfNecessary()")
                 return;
             }
 
@@ -89,23 +89,23 @@ struct DataContainerData
 
 private:
 //deleted: -------------------------------------------------
-    DataContainerData(const DataContainerData&) = delete;
+    DataArrayData(const DataArrayData&) = delete;
 
-    DataContainerData(DataContainerData&&) = delete;
+    DataArrayData(DataArrayData&&) = delete;
 
-    void operator=(const DataContainerData&) = delete;
+    void operator=(const DataArrayData&) = delete;
 
-    void operator=(DataContainerData&&) = delete;
+    void operator=(DataArrayData&&) = delete;
 };
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-class DataContainer : public Object
+class DataArray : public Object
 {
 private:
      
-    std::shared_ptr<DataContainerData<ElementType>> m_Data;
+    std::shared_ptr<DataArrayData<ElementType>> m_Data;
 
     ElementType* m_ElementPointer;
 
@@ -115,19 +115,19 @@ public:
 public:			
 	//------------------- constructor and destructor ------------------------------------//
 
-    inline DataContainer();
+    inline DataArray();
 
-    inline DataContainer(const std::initializer_list<ElementType>& InputData);
+    inline DataArray(const std::initializer_list<ElementType>& InputData);
 
-    inline DataContainer(const std::vector<ElementType>& InputData);
+    inline DataArray(const std::vector<ElementType>& InputData);
 
     // deep-copy or shared-copy constructor
-    inline DataContainer(const DataContainer<ElementType>& InputData, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
+    inline DataArray(const DataArray<ElementType>& InputData, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
 
     // move constructor
-    inline DataContainer(DataContainer<ElementType>&& InputData) noexcept;
+    inline DataArray(DataArray<ElementType>&& InputData) noexcept;
 
-	inline ~DataContainer();
+	inline ~DataArray();
 
     //-------------------- get/set std vector -----------------------------------//
 
@@ -140,9 +140,9 @@ public:
     // copy assignment operator
     // do not use function template for this function
     // otherwise, compiler will create a new one
-    inline void operator=(const DataContainer<ElementType>& InputData);
+    inline void operator=(const DataArray<ElementType>& InputData);
 
-    inline void operator=(DataContainer<ElementType>&& InputData);
+    inline void operator=(DataArray<ElementType>&& InputData);
 
     inline void operator=(const std::initializer_list<ElementType>& InputList);
 
@@ -150,9 +150,9 @@ public:
 
     //----------------------  Copy  ----------------------------------------//
 
-    inline bool Copy(const DataContainer<ElementType>& InputData);
+    inline bool Copy(const DataArray<ElementType>& InputData);
 
-    inline bool Copy(const DataContainer<ElementType>* InputData);
+    inline bool Copy(const DataArray<ElementType>* InputData);
 
     inline bool Copy(const ElementType* InputElementPointer, int_max InputLength);
 
@@ -160,13 +160,13 @@ public:
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
 
-    inline bool Share(DataContainer<ElementType>& InputData);
+    inline bool Share(DataArray<ElementType>& InputData);
 
-    inline bool Share(DataContainer<ElementType>* InputData);
+    inline bool Share(DataArray<ElementType>* InputData);
 
-    inline void ForceShare(const DataContainer<ElementType>& InputData);
+    inline void ForceShare(const DataArray<ElementType>& InputData);
 
-    inline bool ForceShare(const DataContainer<ElementType>* InputData);
+    inline bool ForceShare(const DataArray<ElementType>* InputData);
 
     //-------------------------- special Share  ---------------------------------------------- //
 
@@ -176,15 +176,15 @@ public:
 
     //-------------------- Take -----------------------------------------------------------//
 
-    inline void Take(DataContainer<ElementType>&& InputData);
+    inline void Take(DataArray<ElementType>&& InputData);
 
-    inline bool Take(DataContainer<ElementType>& InputData);
+    inline bool Take(DataArray<ElementType>& InputData);
 
-    inline bool Take(DataContainer<ElementType>* InputData);
+    inline bool Take(DataArray<ElementType>* InputData);
 
     //------------------------- Swap shared_ptr m_Data -------------------------------------------//
 
-    inline void SwapSmartPointer(DataContainer<ElementType>& InputData);
+    inline void SwapSmartPointer(DataArray<ElementType>& InputData);
 
     //------------------------- Clear -------------------------------------------//
 
@@ -219,15 +219,15 @@ public:
     //--------------------- Get Data Pointer -----------------------------//
 
     inline ElementType* GetElementPointer(); //  the pointer of the first element
-
     inline const ElementType* GetElementPointer() const;
 
-    inline ElementType* begin();
+    inline ElementType* GetPointer(); //  the pointer of the first element
+    inline const ElementType* GetPointer() const;
 
+    inline ElementType* begin();
     inline const ElementType* begin() const;
 
     inline ElementType* end(); // 1 + pointer of the last element
-
     inline const ElementType* end() const; // 1 + pointer of the last element
 
 	//----------- Get/Set by Index -----------------------------------//
@@ -235,17 +235,14 @@ public:
     // operator[] or () : no bound check in release mode
 
     inline ElementType& operator[](int_max Index);
-
     inline const ElementType& operator[](int_max Index) const;
 
     inline ElementType& operator()(int_max Index);
-
     inline const ElementType& operator()(int_max Index) const;
     
     // at(): bound check
 
     inline ElementType& at(int_max Index);
-
     inline const ElementType& at(int_max Index) const;
 
     //-------------------------------------------------------------------------------
@@ -259,7 +256,7 @@ public:
     // error if ElementType is std::vector
     //inline bool Append(const DenseMatrix<ElementType>& InputData);
 
-    //inline bool Append(const DataContainer<ElementType>& InputData);
+    //inline bool Append(const DataArray<ElementType>& InputData);
 
     inline bool Append(const ElementType* InputData, int_max InputLength);
 
@@ -271,7 +268,7 @@ public:
 
     inline bool Delete(const DenseMatrix<int_max>& IndexList);
 
-    inline bool Delete(const DataContainer<int_max>& IndexList);
+    inline bool Delete(const DataArray<int_max>& IndexList);
 
     inline bool Delete(const int_max* ColIndexList, int_max ListLength);
 
@@ -285,11 +282,11 @@ public:
 
     inline bool Insert(int_max Index, const DenseMatrix<ElementType>& InputData);
 
-    inline bool Insert(int_max Index, const DataContainer<ElementType>& InputData);
+    inline bool Insert(int_max Index, const DataArray<ElementType>& InputData);
 
     inline bool Insert(int_max Index, const ElementType* InputData, int_max InputLength);
 
-    //------------- use DataContainer as a stack ----------------------------//
+    //------------- use DataArray as a stack ----------------------------//
 
     inline bool Push(ElementType Element);
 
@@ -297,17 +294,17 @@ public:
 
     //----------------------- Get a subset ------------------------------//
 
-    inline DataContainer<ElementType> GetSubSet(int_max Index_start, int_max Index_end);
+    inline DataArray<ElementType> GetSubSet(int_max Index_start, int_max Index_end);
 
-    inline DataContainer<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList);
+    inline DataArray<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList);
 
-    inline DataContainer<ElementType> GetSubSet(const std::vector<int_max>& IndexList);
+    inline DataArray<ElementType> GetSubSet(const std::vector<int_max>& IndexList);
 
-    inline DataContainer<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList);
+    inline DataArray<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList);
 
-    inline DataContainer<ElementType> GetSubSet(const DataContainer<int_max>& IndexList);
+    inline DataArray<ElementType> GetSubSet(const DataArray<int_max>& IndexList);
 
-    inline DataContainer<ElementType> GetSubSet(const int_max* IndexList, int_max ListLength);
+    inline DataArray<ElementType> GetSubSet(const int_max* IndexList, int_max ListLength);
 
     //-------------------- find ---------------------------------------//
 
@@ -341,6 +338,6 @@ private:
 
 }//end namespace mdk
 
-#include "mdkDataContainer.hpp"
+#include "mdkDataArray.hpp"
 
 #endif

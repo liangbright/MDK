@@ -1117,8 +1117,9 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, con
         return false;
     }
 
-    VertexDataFile.write((char*)InputMesh.Vertex().GetElementPointer(), InputMesh.Vertex().GetElementNumber()*CalByteNumberOfScalar(ScalarType(0)));
+    const const DenseMatrix<ScalarType>& VertexData = InputMesh.GetVertexPositionTable();
 
+    VertexDataFile.write((char*)VertexData().GetElementPointer(), VertexData.GetElementNumber()*CalByteNumberOfScalar(ScalarType(0)));
     VertexDataFile.flush();
     VertexDataFile.close();
 
@@ -1148,9 +1149,11 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, con
 
     QTextStream Stream_out(&PolygonDataFile);
 
+    const DataArray<DenseVector<int_max>>& PolygonData = InputMesh.GetVertexPositionTable();
+
     for (int_max i = 0; i < InputMesh.GetPolygonNumber(); ++i)
     {
-        const DenseVector<int_max>& Polygon_i = InputMesh.Polygon()[i];
+        const DenseVector<int_max>& Polygon_i = PolygonData[i];
 
         for (int_max n = 0; n < Polygon_i.GetLength(); ++n)
         {

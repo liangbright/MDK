@@ -15,7 +15,7 @@ PolygonMesh<ScalarType>::PolygonMesh()
 template<typename ScalarType>
 PolygonMesh<ScalarType>::PolygonMesh(const PolygonMesh<ScalarType>& InputMesh)
 {
-    this->Copy(InputMesh);
+    Copy(InputMesh);
 }
 
 
@@ -29,7 +29,6 @@ PolygonMesh<ScalarType>::PolygonMesh(PolygonMesh<ScalarType>&& InputMesh)
 template<typename ScalarType>
 PolygonMesh<ScalarType>::~PolygonMesh()
 {
-
 }
 
 
@@ -37,7 +36,7 @@ template<typename ScalarType>
 inline
 void PolygonMesh<ScalarType>::operator=(const PolygonMesh<ScalarType>& InputMesh)
 {
-    this->Copy(InputMesh);
+    Copy(InputMesh);
 }
 
 
@@ -50,121 +49,139 @@ void PolygonMesh<ScalarType>::operator=(PolygonMesh<ScalarType>&& InputMesh)
         m_MeshData = std::make_shared<PolygonMeshData<ScalarType>>();
     }
 
-    this->Take(std::forward<PolygonMesh<ScalarType>&>(InputMesh));
+    Take(std::forward<PolygonMesh<ScalarType>&>(InputMesh));
 }
 
 
 template<typename ScalarType>
-bool PolygonMesh<ScalarType>::Construct(DenseMatrix<ScalarType> InputVertex, 
-                                        DataContainer<DenseVector<int_max>> InputPolygon,
-                                        bool Flag_BuildLinkAndAdjacency)
+bool PolygonMesh<ScalarType>::Construct(DenseMatrix<ScalarType> InputVertexPositionTable, DataArray<DenseVector<int_max>> InputVertexIndexTable)
 {
-    if (InputVertex.IsEmpty() == true || InputPolygon.IsEmpty() == true)
+    if (InputVertexPositionTable.IsEmpty() == true || InputVertexIndexTable.IsEmpty() == true)
     {
-        MDK_Error("InputVertex or InputPolygon is empty @ PolygonMesh::Construct(...)")
+        MDK_Error("InputVertexPositionTable or InputVertexIndexTable is empty @ PolygonMesh::Construct(...)")
         return false;
     }
 
-    if (InputVertex.GetRowNumber() != 3 || 3 * InputPolygon.GetElementNumber() < InputVertex.GetColNumber())
+    if (InputVertexPositionTable.GetRowNumber() != 3 || 3 * InputVertexIndexTable.GetElementNumber() < InputVertexPositionTable.GetColNumber())
     {
-        MDK_Error("InputVertex or InputPolygon is invalid @ PolygonMesh::Construct(...)")
+        MDK_Error("InputVertex or InputVertexIndexTable is invalid @ PolygonMesh::Construct(...)")
         return false;
     }
 
-    //----------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------------------------//
 
-    m_MeshData->Vertex = std::move(InputVertex);
+    m_MeshData->VertexPositionTable = std::move(InputVertexPositionTable);
+    m_MeshData->VertexIndexTable = std::move(InputVertexIndexTable);
 
-    //-------------------------------------
+    const DataArray<DenseVector<int_max>>& TempPolygonList = m_MeshData->VertexIndexTable;
+    auto PolygonNumber = TempPolygonList.GetElementNumber();
 
-    m_MeshData->Polygon = std::move(InputPolygon);
-
-    //-------------------------------------
-
-    if (this->ConstructEdge() == false)
+    DataArray<DenseVector<int_max>> TempHalfEdgeList, HalfEdgeIndexListOfEachPolygon;
+    this->ConstructTempHalfEdgeList(TempHalfEdgeList, HalfEdgeIndexListOfEachPolygon);
+    if (TempHalfEdgeList.IsEmpty() == true)
     {
         return false;
     }
 
-    //----------------------------------------------------------------------------
-
-    if (Flag_BuildLinkAndAdjacency == true)
+    if (this->ConstructPolygonList(TempHalfEdgeList, HalfEdgeIndexListOfEachPolygon) == false)
     {
-        this->BuildLink();
-
-        this->BuildAdjacency();
+        return false;
     }
 
-    //----------------------------------------------------------------------------
+    if (this->ConstructEdgeList(TempHalfEdgeList) == false)
+    {
+        return false;
+    }
 
-    m_MeshData->VertexGlobalIndexList = span(0, this->GetVertexNumber()-1);
+    if (this->ConstructHalfEdgeList(TempHalfEdgeList) == false)
+    {
+        return false;
+    }
 
-    m_MeshData->PolygonGlobalIndexList = span(0, this->GetPolygonNumber()-1);
-
-    //----------------------------------------------------------------------------
+    if (this->ConstructVertexList() == false)
+    {
+        return false;
+    }
 
     return true;
 }
 
 
 template<typename ScalarType>
-bool PolygonMesh<ScalarType>::ConstructEdge()
+void PolygonMesh<ScalarType>::
+ConstructTempHalfEdgeList(DataArray<DenseVector<int_max>>& TempHalfEdgeList, DataArray<DenseVector<int_max>>& HalfEdgeIndexListOfEachPolygon)
 {
-    auto PolygonNumber = m_MeshData->Polygon.GetLength();
-
-    DataContainer<DenseVector<int_max>> HalfEdge;
-    // HalfEdge[k] is a half edge
-    // HalfEdge[k][0] : PolygonIndex
-    // HalfEdge[k][1] : VertexIndex_0
-    // HalfEdge[k][2] : VertexIndex_1
+    //---------------------------------------------------------------------------------------//
+    // Output: TempHalfEdgeList
+    // TempHalfEdgeList[k] is a half edge, and k is HalfEdgeIndex
+    // TempHalfEdgeList[k][0] : PolygonIndex
+    // TempHalfEdgeList[k][1] : VertexIndex_0
+    // TempHalfEdgeList[k][2] : VertexIndex_1
     // VertexIndex_0 < VertexIndex_1 always
+    //----------------------------------------------------------------------------------------//
+    // Output: HalfEdgeIndexListOfEachPolygon
+    // HalfEdgeIndexListOfEachPolygon[k] is HalfEdgeIndexList of Polygon, and k is PolygonIndex
+    //------------------------------------------------------------------------------------------//
 
-    int_max HalfEdgeNumber = 0;
+    const DataArray<DenseVector<int_max>>& TempPolygonList = m_MeshData->VertexIndexTable;
 
-    HalfEdge.ReserveCapacity(HalfEdgeNumber);
+    auto PolygonNumber = TempPolygonList.GetElementNumber();
+
+    TempHalfEdgeList.FastResize(0);
+    TempHalfEdgeList.ReserveCapacity(PolygonNumber * 3);
+
+    DataArray<DenseVector<int_max>> HalfEdgeIndexListOfEachPolygon;
+    HalfEdgeIndexListOfEachPolygon.FastResize(PolygonNumber);
+
+    int_max HalfEdgeIndex = 0;
 
     for (int_max k = 0; k < PolygonNumber; ++k)
     {
-        auto VertexNumber_k = m_MeshData->Polygon[k].GetElementNumber();
+        auto VertexNumber_k = TempPolygonList[k].GetElementNumber();
 
-        const DenseVector<int_max>& Polygon_k = m_MeshData->Polygon[k];
+        DenseVector<int_max>& HalfEdgeIndexList_k = HalfEdgeIndexListOfEachPolygon[k];
+        HalfEdgeIndexList_k.FastResize(VertexNumber_k);
+
+        const DenseVector<int_max>& Polygon_k = TempPolygonList[k];
 
         for (int_max n = 0; n < VertexNumber_k - 1; ++n)
         {
-            //VertexIndex_0 < VertexIndex_1
             int_max VertexIndex_a = Polygon_k[n];
             int_max VertexIndex_b = Polygon_k[n + 1];
-            
+
             if (VertexIndex_a < VertexIndex_b)
             {
-                HalfEdge.Append({ k, VertexIndex_a, VertexIndex_b });
+                TempHalfEdgeList.Append({ k, VertexIndex_a, VertexIndex_b });
             }
             else
             {
-                HalfEdge.Append({ k, VertexIndex_b, VertexIndex_a });
+                TempHalfEdgeList.Append({ k, VertexIndex_b, VertexIndex_a });
             }
 
-            HalfEdgeNumber += 1;
+            HalfEdgeIndexList_k[n] = HalfEdgeIndex;
+
+            HalfEdgeIndex += 1;
         }
 
-        //VertexIndex_0 < VertexIndex_1
+        // HalfEdge between VertexIndex_0 and VertexIndex_end
         int_max VertexIndex_0 = Polygon_k[0];
-        int_max VertexIndex_end = Polygon_k[VertexNumber_k-1];
+        int_max VertexIndex_end = Polygon_k[VertexNumber_k - 1];
 
         if (VertexIndex_0 < VertexIndex_end)
         {
-            HalfEdge.Append({ k, VertexIndex_0, VertexIndex_end });
+            TempHalfEdgeList.Append({ k, VertexIndex_0, VertexIndex_end });
         }
         else
         {
-            HalfEdge.Append({ k, VertexIndex_end, VertexIndex_0 });
+            TempHalfEdgeList.Append({ k, VertexIndex_end, VertexIndex_0 });
         }
-        HalfEdgeNumber += 1;
+
+        HalfEdgeIndexList_k[VertexNumber_k - 1] = HalfEdgeIndex;
+
+        HalfEdgeIndex += 1;
     }
 
-    // sort HalfEdge
-
-    std::sort(HalfEdge.begin(), HalfEdge.end(), [](const DenseVector<int_max>& A, const DenseVector<int_max>& B)
+    auto tempRelativeIndexList = TempHalfEdgeList.Sort([](const DenseVector<int_max>& A, const DenseVector<int_max>& B)
     {
         if (A[1] == B[1]) // VertexIndex_0 of A == VertexIndex_0 of B
         {
@@ -175,12 +192,89 @@ bool PolygonMesh<ScalarType>::ConstructEdge()
             return A[1] < B[1];
         }
     });
-    
-    // get unique edge from halfedge
 
-    DenseMatrix<int_max> UniqueEdgeFlagList(1, HalfEdgeNumber);
-    UniqueEdgeFlagList.Fill(0);
+    TempHalfEdgeList = TempHalfEdgeList.GetSubSet(tempRelativeIndexList);
 
+    HalfEdgeIndexListOfEachPolygon = HalfEdgeIndexListOfEachPolygon.GetSubSet(tempRelativeIndexList);
+}
+
+
+template<typename ScalarType>
+bool PolygonMesh<ScalarType>::
+ConstructPolygonList(const DataArray<DenseVector<int_max>>& TempHalfEdgeList, const DataArray<DenseVector<int_max>>& HalfEdgeIndexListOfEachPolygon)
+{
+    const DataArray<DenseVector<int_max>>& TempPolygonList = m_MeshData->VertexIndexTable;
+
+    auto PolygonNumber = TempPolygonList.GetLength();
+
+    m_MeshData->PolygonList.FastResize(PolygonNumber);
+
+    for (int_max PolygonIndex = 0; PolygonIndex < PolygonNumber; ++PolygonIndex)
+    {      
+        const DenseVector<int_max>& HalfEdgeIndexList = HalfEdgeIndexListOfEachPolygon[PolygonIndex];
+
+        DenseVector<int_max> HalfEdgeIndexList_reorder;
+        HalfEdgeIndexList_reorder.FastResize(HalfEdgeIndexList.GetLength());
+        HalfEdgeIndexList_reorder.Fill(-1);
+
+        const DenseVector<int_max>& VertexIndexList = TempPolygonList[PolygonIndex];
+
+        DenseVector<int_max> FlagList;
+
+        for (int_max k = 0; k < VertexIndexList.GetLength(); ++k)
+        {
+            auto VertexIndex_0 = VertexIndexList[k];
+
+            int_max VertexIndex_1;
+            if (k < VertexIndexListOfPolygon.GetLength() - 1)
+            {
+                VertexIndex_1 = VertexIndexList[k + 1];
+            }
+            else
+            {
+                VertexIndex_1 = VertexIndexList[0];
+            }
+
+            FlagList.FastResize(HalfEdgeIndexList.GetLength())
+            FlagList.Fill(1);
+
+            int_max HalfEdgeIndex_k = -1;
+
+            for (int_max m = 0; m < HalfEdgeIndexList.GetLength(); ++m)
+            {
+                if (FlagList[m] > 0)
+                {
+                    if ((TempHalfEdgeList[HalfEdgeIndexList[k]][1] == VertexIndex_0 && TempHalfEdgeList[HalfEdgeIndexList[k]][2] == VertexIndex_1)
+                        || (TempHalfEdgeList[HalfEdgeIndexList[k]][1] == VertexIndex_1 && TempHalfEdgeList[HalfEdgeIndexList[k]][2] == VertexIndex_0))
+                    {
+                        FlagList[m] = 0;
+                        HalfEdgeIndex_k = m;
+                        break;
+                    }
+                }
+            }
+
+            if (HalfEdgeIndex_k < 0)
+            {
+                MDK_Error("HalfEdgeIndex_k < 0 @ PolygonMesh<ScalarType>::ConstructPolygonList(...)")
+                return false;
+            }
+
+            HalfEdgeIndexList_reorder[k] = HalfEdgeIndex_k;
+        }
+
+        m_MeshData->PolygonList[PolygonIndex].SetParentMesh(this);
+        m_MeshData->PolygonList[PolygonIndex].SetIndex(PolygonIndex);
+        m_MeshData->PolygonList[PolygonIndex].SetHalfEdgeIndexList(std::move(HalfEdgeIndexList_reorder));
+    }
+
+    return true;
+}
+
+
+template<typename ScalarType>
+bool PolygonMesh<ScalarType>::ConstructEdgeList(const DataArray<DenseVector<int_max>>& TempHalfEdgeList)
+{
     auto TempFunction_SameEdge = [](const DenseVector<int_max>& A, const DenseVector<int_max>& B)
     {
         if (A[1] == B[1])
@@ -190,15 +284,19 @@ bool PolygonMesh<ScalarType>::ConstructEdge()
                 return true;
             }
         }
-
         return false;
     };
+
+    auto HalfEdgeNumber = TempHalfEdgeList.GetElementNumber();
+
+    DenseMatrix<int_max> UniqueEdgeFlagList(1, HalfEdgeNumber);
+    UniqueEdgeFlagList.Fill(0);
 
     UniqueEdgeFlagList[0] = 1;
 
     for (int_max k = 1; k < HalfEdgeNumber; ++k)
     {
-        if (TempFunction_SameEdge(HalfEdge[k - 1], HalfEdge[k]) == false)
+        if (TempFunction_SameEdge(TempHalfEdgeList[k - 1], TempHalfEdgeList[k]) == false)
         {
             UniqueEdgeFlagList[k] = 1;
         }
@@ -206,9 +304,9 @@ bool PolygonMesh<ScalarType>::ConstructEdge()
         {
             if (k < HalfEdgeNumber - 1)
             {
-                if (TempFunction_SameEdge(HalfEdge[k], HalfEdge[k + 1]) == true)
+                if (TempFunction_SameEdge(TempHalfEdgeList[k], TempHalfEdgeList[k + 1]) == true)
                 {
-                    MDK_Error("Polygon Data is invalid @ PolygonMesh::ConstructEdge()")
+                    MDK_Error("Polygon Data is invalid @ PolygonMesh::ConstructEdgeList()")
                     return false;
                 }
             }
@@ -217,23 +315,30 @@ bool PolygonMesh<ScalarType>::ConstructEdge()
 
     int_max UniqueEdgeNumber = UniqueEdgeFlagList.Sum();
 
-    m_MeshData->Edge.FastResize(4, UniqueEdgeNumber);
+    m_MeshData->EdgeList.FastResize(4, UniqueEdgeNumber);
 
-    int_max EdgeIndex = 0;
+    DenseVector<int_max> Map_HalfEdgeIndexToEdgeIndex;
+    Map_HalfEdgeIndexToEdgeIndex.FastResize(HalfEdgeNumber)
 
-    for (int_max k = 0; k < HalfEdgeNumber; ++k)
+    int_max EdgeIndex_current = 0;
+
+    for (int_max HalfEdgeIndex = 0; HalfEdgeIndex < HalfEdgeNumber; ++HalfEdgeIndex)
     {
-        if (UniqueEdgeFlagList[k] == 1)
+        if (UniqueEdgeFlagList[HalfEdgeIndex] == 1)
         {
-            auto PolygonIndex_0 = HalfEdge[k][0];
+            int_max HalfEdgeIndex_opposite = -1;
+
+            auto PolygonIndex_0 = TempHalfEdgeList[HalfEdgeIndex][0];
 
             int_max PolygonIndex_1 = -1;
 
-            if (k < HalfEdgeNumber - 1)
+            if (HalfEdgeIndex < HalfEdgeNumber - 1)
             {
-                if (TempFunction_SameEdge(HalfEdge[k], HalfEdge[k + 1]) == true)
+                if (TempFunction_SameEdge(TempHalfEdgeList[HalfEdgeIndex], TempHalfEdgeList[HalfEdgeIndex + 1]) == true)
                 {
-                    PolygonIndex_1 = HalfEdge[k + 1][0];
+                    PolygonIndex_1 = TempHalfEdgeList[HalfEdgeIndex + 1][0];
+
+                    HalfEdgeIndex_opposite = HalfEdgeIndex + 1;
                 }
             }
 
@@ -244,12 +349,14 @@ bool PolygonMesh<ScalarType>::ConstructEdge()
                 PolygonIndex_1 = temp_0;
             }
 
-            m_MeshData->Edge(0, EdgeIndex) = HalfEdge[k][1];
-            m_MeshData->Edge(1, EdgeIndex) = HalfEdge[k][2];
-            m_MeshData->Edge(2, EdgeIndex) = PolygonIndex_0;
-            m_MeshData->Edge(3, EdgeIndex) = PolygonIndex_1;
+            m_MeshData->EdgeList[EdgeIndex_current].SetHalfEdgeIndexList(HalfEdgeIndex, HalfEdgeIndex_opposite);
+            Map_HalfEdgeIndexToEdgeIndex[HalfEdgeIndex] = EdgeIndex_current;
+            if (HalfEdgeIndex_opposite >= 0)
+            {
+                Map_HalfEdgeIndexToEdgeIndex[HalfEdgeIndex_opposite] = EdgeIndex_current;
+            }
 
-            EdgeIndex += 1;
+            EdgeIndex_current += 1;
         }
     }
 
@@ -258,233 +365,169 @@ bool PolygonMesh<ScalarType>::ConstructEdge()
 
 
 template<typename ScalarType>
-void PolygonMesh<ScalarType>::BuildLinkAndAdjacency()
+bool PolygonMesh<ScalarType>::ConstructHalfEdgeList(const DataArray<DenseVector<int_max>>& TempHalfEdgeList)
 {
-    this->BuildLink();
-
-    this->BuildAdjacency();
-}
-
-
-template<typename ScalarType>
-void PolygonMesh<ScalarType>::BuildLink()
-{
-    this->BuildLink_VertexToEdge();
-    
-    this->BuildLink_VertexToPolygon();
-
-    this->BuildLink_PolygonToEdge();
-}
-
-
-template<typename ScalarType>
-void PolygonMesh<ScalarType>::BuildLink_VertexToEdge()
-{
-    int_max VertexNumber = m_MeshData->Vertex.GetColNumber();
-
-    int_max EdgeNumber = m_MeshData->Edge.GetColNumber();
-
-    m_MeshData->Link_VertexToEdge.FastResize(VertexNumber);
-
-    for (int_max k = 0; k < VertexNumber; ++k)
+    auto TempFunction_SameEdge = [](const DenseVector<int_max>& A, const DenseVector<int_max>& B)
     {
-        m_MeshData->Link_VertexToEdge[k].Resize(0);
-        m_MeshData->Link_VertexToEdge[k].ReserveCapacity(10);
-    }
-
-    for (int_max k = 0; k < EdgeNumber; ++k)
-    {
-        auto VertexIndex_0 = m_MeshData->Edge(0, k);
-        auto VertexIndex_1 = m_MeshData->Edge(1, k);
-
-        m_MeshData->Link_VertexToEdge[VertexIndex_0].Append(k);
-        m_MeshData->Link_VertexToEdge[VertexIndex_1].Append(k);
-    }
-
-    for (int_max k = 0; k < VertexNumber; ++k)
-    {
-        m_MeshData->Link_VertexToEdge[k].Squeeze();
-    }
-}
-
-
-template<typename ScalarType>
-void PolygonMesh<ScalarType>::BuildLink_VertexToPolygon()
-{
-    int_max VertexNumber = m_MeshData->Vertex.GetColNumber();
-
-    int_max PolygonNumber = m_MeshData->Polygon.GetElementNumber();
-
-    m_MeshData->Link_VertexToPolygon.FastResize(VertexNumber);
-
-    for (int_max k = 0; k < VertexNumber; ++k)
-    {
-        m_MeshData->Link_VertexToPolygon[k].Resize(0);
-        m_MeshData->Link_VertexToPolygon[k].ReserveCapacity(10);
-    }
-
-    for (int_max k = 0; k < PolygonNumber; ++k)
-    {
-        auto VertexNumber_k = m_MeshData->Polygon[k].GetLength();
-
-        const DenseVector<int_max>& Polygon_k = m_MeshData->Polygon[k];
-
-        for (int_max n = 0; n < VertexNumber_k; ++n)
+        if (A[1] == B[1])
         {
-            auto VertexIndex_n = Polygon_k[n];
-            m_MeshData->Link_VertexToPolygon[VertexIndex_n].Append(k);
-        }
-    }
-
-    for (int_max k = 0; k < VertexNumber; ++k)
-    {
-        m_MeshData->Link_VertexToPolygon[k].Squeeze();
-    }
-}
-
-
-template<typename ScalarType>
-void PolygonMesh<ScalarType>::BuildLink_PolygonToEdge()
-{
-    auto PolygonNumber = m_MeshData->Polygon.GetLength();
-
-    m_MeshData->Link_PolygonToEdge.FastResize(PolygonNumber);
-
-    int_max MeanEdgeNumberPerPolygon = 0;
-
-    for (int_max k = 0; k < PolygonNumber; ++k)
-    {
-        MeanEdgeNumberPerPolygon += m_MeshData->Polygon[k].GetLength();
-    }
-
-    MeanEdgeNumberPerPolygon /= PolygonNumber;
-
-    for (int_max k = 0; k < PolygonNumber; ++k)
-    {
-        m_MeshData->Link_PolygonToEdge[k].Resize(0);
-        m_MeshData->Link_PolygonToEdge[k].ReserveCapacity(MeanEdgeNumberPerPolygon);
-    }
-
-    for (int_max k = 0; k < m_MeshData->Edge.GetColNumber(); ++k)
-    {
-        auto VertexIndex_0 = m_MeshData->Edge(0, k);
-        auto VertexIndex_1 = m_MeshData->Edge(1, k);
-
-        for (int_max n = 2; n <= 3; ++n)
-        {
-            auto PolygonIndex_n = m_MeshData->Edge(n, k);
-
-            if (PolygonIndex_n >= 0)
+            if (A[2] == B[2])
             {
-                const DenseVector<int_max>& Polygon_n = m_MeshData->Polygon[PolygonIndex_n];
-
-                auto VertexNumberInPolygon = Polygon_n.GetLength();
-
-                for (int_max m = 0; m < VertexNumberInPolygon; ++m)
-                {
-                    auto VertexIndex_m = Polygon_n[m];
-
-                    if (m == 0)
-                    {
-                        if (VertexIndex_0 == VertexIndex_m && VertexIndex_1 == Polygon_n[VertexNumberInPolygon - 1]
-                            || VertexIndex_1 == VertexIndex_m && VertexIndex_0 == Polygon_n[VertexNumberInPolygon - 1])
-                        {
-                            m_MeshData->Link_PolygonToEdge[PolygonIndex_n].Append(k);
-                            break; // for m
-                        }
-                    }
-                    
-                    if (m < VertexNumberInPolygon - 1)
-                    {
-                        if (VertexIndex_0 == VertexIndex_m && VertexIndex_1 == Polygon_n[m + 1]
-                            || VertexIndex_1 == VertexIndex_m && VertexIndex_0 == Polygon_n[m + 1])
-                        {
-                            m_MeshData->Link_PolygonToEdge[PolygonIndex_n].Append(k);
-                            break; // for m
-                        }                        
-                    }
-                }
+                return true;
             }
         }
-    }
+        return false;
+    };
 
-    for (int_max k = 0; k < PolygonNumber; ++k)
+    auto HalfEdgeNumber = TempHalfEdgeList.GetElementNumber();
+
+    m_MeshData->HalfEdgeList.FastResize(HalfEdgeNumber);
+    for (int_max HalfEdgeIndex = 0; HalfEdgeIndex < HalfEdgeNumber; ++HalfEdgeIndex)
     {
-        m_MeshData->Link_PolygonToEdge[k].Squeeze();
-    }
-}
+        auto DenseVector<int_max>& tempHalfEdge = TempHalfEdgeList[HalfEdgeIndex];
 
-
-template<typename ScalarType>
-void PolygonMesh<ScalarType>::BuildAdjacency()
-{
-    this->BuildAdjacency_VertexToVertex();
-
-    this->BuildAdjacency_PolygonToPolygon();
-}
-
-
-template<typename ScalarType>
-void PolygonMesh<ScalarType>::BuildAdjacency_VertexToVertex()
-{
-    int_max VertexNumber = m_MeshData->Vertex.GetColNumber();
-
-    int_max EdgeNumber = m_MeshData->Edge.GetColNumber();
-
-    m_MeshData->Adjacency_VertexToVertex.FastResize(VertexNumber);
-
-    for (int_max k = 0; k < VertexNumber; ++k)
-    {
-        m_MeshData->Adjacency_VertexToVertex[k].Resize(0);
-        m_MeshData->Adjacency_VertexToVertex[k].ReserveCapacity(10);
-    }
-
-    for (int_max k = 0; k < EdgeNumber; ++k)
-    {
-        auto VertexIndex_0 = m_MeshData->Edge(0, k);
-        auto VertexIndex_1 = m_MeshData->Edge(1, k);
-
-        m_MeshData->Adjacency_VertexToVertex[VertexIndex_0].Append(VertexIndex_1);
-        m_MeshData->Adjacency_VertexToVertex[VertexIndex_1].Append(VertexIndex_0);
-    }
-
-    for (int_max k = 0; k < VertexNumber; ++k)
-    {
-        m_MeshData->Adjacency_VertexToVertex[k].Squeeze();
-    }
-}
-
-
-template<typename ScalarType>
-void PolygonMesh<ScalarType>::BuildAdjacency_PolygonToPolygon()
-{
-    int_max EdgeNumber = m_MeshData->Edge.GetColNumber();
-
-    int_max PolygonNumber = m_MeshData->Polygon.GetElementNumber();
-
-    m_MeshData->Adjacency_PolygonToPolygon.FastResize(PolygonNumber);
-
-    for (int_max k = 0; k < PolygonNumber; ++k)
-    {
-        m_MeshData->Adjacency_PolygonToPolygon[k].Resize(0);
-        m_MeshData->Adjacency_PolygonToPolygon[k].ReserveCapacity(10);
-    }
-
-    for (int_max k = 0; k < EdgeNumber; ++k)
-    {
-        auto PolygonIndex_0 = m_MeshData->Edge(2, k);
-        auto PolygonIndex_1 = m_MeshData->Edge(3, k);
-
-        if (PolygonIndex_0 >= 0 && PolygonIndex_1 >= 0)
+        int_max HalfEdgeIndex_opposite = -1;
+        if (HalfEdgeIndex == 0)
         {
-            m_MeshData->Adjacency_PolygonToPolygon[PolygonIndex_0].Append(PolygonIndex_1);
-            m_MeshData->Adjacency_PolygonToPolygon[PolygonIndex_1].Append(PolygonIndex_0);
+            if (TempFunction_SameEdge(TempHalfEdgeList[HalfEdgeIndex], TempHalfEdgeList[HalfEdgeIndex + 1]) == true)
+            {
+                HalfEdgeIndex_opposite = HalfEdgeIndex + 1;
+            }
         }
+        else if (HalfEdgeIndex == HalfEdgeNumber - 1)
+        {
+            if (TempFunction_SameEdge(TempHalfEdgeList[HalfEdgeIndex], TempHalfEdgeList[HalfEdgeIndex - 1]) == true)
+            {
+                HalfEdgeIndex_opposite = HalfEdgeIndex - 1;
+            }
+        }
+        else // if (HalfEdgeIndex > 0 && HalfEdgeIndex < HalfEdgeNumber - 1)
+        {
+            if (TempFunction_SameEdge(TempHalfEdgeList[HalfEdgeIndex], TempHalfEdgeList[HalfEdgeIndex + 1]) == true)
+            {
+                HalfEdgeIndex_opposite = HalfEdgeIndex + 1;
+            }
+            else if (TempFunction_SameEdge(TempHalfEdgeList[HalfEdgeIndex], TempHalfEdgeList[HalfEdgeIndex - 1]) == true)
+            {
+                HalfEdgeIndex_opposite = HalfEdgeIndex - 1;
+            }
+        }
+
+        auto tempPolygonIndexOfHalfEdge = tempHalfEdge[0];
+
+        const DenseVector<int_max>& VertexIndexListOfPolygon = TempPolygonList[tempPolygonIndexOfHalfEdge];
+
+        const DenseVector<int_max>& HalfEdgeIndexListOfPolygon = m_MeshData->PolygonList[tempPolygonIndexOfHalfEdge].GetHalfEdgeIndexList();
+
+        int_max tempRelativeIndex = -1;
+        for (int_max k = 0; k < HalfEdgeIndexListOfPolygon.GetLength(); ++k)
+        {
+            if (HalfEdgeIndexListOfPolygon[k] == HalfEdgeIndex)
+            {
+                tempRelativeIndex = k;
+                break;
+            }
+        }
+
+        auto VertexIndex_start_of_halfedge = VertexIndexListOfPolygon[tempRelativeIndex];
+
+        int_max VertexIndex_end_of_halfedge = -1;
+        int_max HalfEdgeIndex_next = -1;
+        if (tempRelativeIndex < HalfEdgeIndexListOfPolygon.GetLength() - 1)
+        {
+            HalfEdgeIndex_next = HalfEdgeIndexListOfPolygon[tempRelativeIndex + 1];
+            VertexIndex_end_of_halfedge = VertexIndexListOfPolygon[tempRelativeIndex + 1];
+        }
+        else
+        {
+            HalfEdgeIndex_next = HalfEdgeIndexListOfPolygon[0];
+            VertexIndex_end_of_halfedge = VertexIndexListOfPolygon[0];
+        }
+
+        int_max HalfEdgeIndex_prev = -1;
+        if (tempRelativeIndex >= 1)
+        {
+            HalfEdgeIndex_prev = HalfEdgeIndexListOfPolygon[tempRelativeIndex - 1];
+        }
+        else
+        {
+            HalfEdgeIndex_prev = HalfEdgeIndexListOfPolygon[HalfEdgeIndexListOfPolygon.GetLength() - 1];
+        }
+
+        m_MeshData->HalfEdgeList[k].SetParentMesh(this);
+        m_MeshData->HalfEdgeList[k].SetIndex(HalfEdgeIndex);
+        m_MeshData->HalfEdgeList[k].SetStartVertexIndex(VertexIndex_start_of_halfedge);
+        m_MeshData->HalfEdgeList[k].SetEndVertexIndex(VertexIndex_end_of_halfedge);
+        m_MeshData->HalfEdgeList[k].SetEdgeIndex(Map_HalfEdgeIndexToEdgeIndex[HalfEdgeIndex]);
+        m_MeshData->HalfEdgeList[k].SetPolygonIndex(tempHalfEdge[0]);
+        m_MeshData->HalfEdgeList[k].SetOppositeHalfEdgeIndex(HalfEdgeIndex_opposite);
+        m_MeshData->HalfEdgeList[k].SetNextHalfEdgeIndex(HalfEdgeIndex_next);
+        m_MeshData->HalfEdgeList[k].SetPreviousHalfEdgeIndex(HalfEdgeIndex_prev);
     }
 
-    for (int_max k = 0; k < PolygonNumber; ++k)
+    return true;
+}
+
+
+template<typename ScalarType>
+bool PolygonMesh<ScalarType>::ConstructVertexList()
+{
+    auto VertexNumber = m_MeshData->VertexPositionTable.GetColNumber();
+
+    int_max EdgeNumber = m_MeshData->EdgeList.GetLength();
+
+    int_max HalfEdgeNumber = m_MeshData->HalfEdgeList.GetLength();
+
+    int_max PolygonNumber = m_MeshData->PolygonList.GetLength();
+
+    m_MeshData->VertexList.FastResize(VertexNumber);
+
+    for (int_max VertexIndex = 0; VertexIndex < VertexNumber; ++VertexIndex)
     {
-        m_MeshData->Adjacency_PolygonToPolygon[k].Squeeze();
+        m_MeshData->VertexList[k].SetParentMesh(this);
+        m_MeshData->VertexList[k].SetIndex(VertexIndex);
+    }
+   
+    DataArray<DenseVector<int_max>> Adjacency_VertexToHalfEdge;
+    Adjacency_VertexToHalfEdge.FastResize(VertexNumber);
+    for (int_max k = 0; k < VertexNumber; ++k)
+    {
+        Adjacency_VertexToHalfEdge[k].ReserveCapacity(10);
+    }
+
+    for (int_max k = 0; k < HalfEdgeNumber; ++k)
+    {
+        auto VertexIndex_k_start = m_MeshData->HalfEdgeList[k].GetStartVertexIndex();
+        Adjacency_VertexToHalfEdge[VertexIndex_k_start].Append(k);
+    }
+
+    for (int_max k = 0; k < VertexNumber; ++k)
+    {
+        const DenseVector<int_max>& AdjacentHalfEdgeIndexList = Adjacency_VertexToHalfEdge[k];
+        AdjacentHalfEdgeIndexList.Squeeze();
+
+        DenseVector<int_max> AdjacenctVertexIndexList;
+        AdjacenctVertexIndexList.FastResize(AdjacentHalfEdgeIndexList.GetLength());
+
+        DenseVector<int_max> AdjacenctEdgeIndexList;
+        AdjacenctEdgeIndexList.FastResize(AdjacentHalfEdgeIndexList.GetLength());
+
+        DenseVector<int_max> AdjacenctPolygonIndexList;
+        AdjacenctPolygonIndexList.FastResize(AdjacentHalfEdgeIndexList.GetLength());
+
+        for (int_max m = 0; m < AdjacentHalfEdgeIndexList.GetLength(); ++m)
+        {
+            AdjacenctVertexIndexList[m] = m_MeshData->HalfEdgeList[AdjacentHalfEdgeIndexList[m]].GetEndVertexIndex();
+            AdjacenctEdgeIndexList[m] = m_MeshData->HalfEdgeList[AdjacentHalfEdgeIndexList[m]].GetEdgeIndex();
+            AdjacenctPolygonIndexList[m] = m_MeshData->HalfEdgeList[AdjacentHalfEdgeIndexList[m]].GetPolygonIndex();
+        }
+
+        AdjacenctPolygonIndexList = AdjacenctPolygonIndexList.GetSubSet(AdjacenctPolygonIndexList.FindUnique());
+
+        m_MeshData->VertexList[k].SetAdjacentHalfEdgeIndexList(std::move(AdjacentHalfEdgeIndexList));
+        m_MeshData->VertexList[k].SetAdjacentVertexIndexList(std::move(AdjacenctVertexIndexList));
+        m_MeshData->VertexList[k].SetAdjacentEdgeIndexList(std::move(AdjacenctEdgeIndexList));
+        m_MeshData->VertexList[k].SetAdjacentPolygonIndexList(std::move(AdjacenctPolygonIndexList));
     }
 }
 
@@ -493,19 +536,20 @@ template<typename ScalarType>
 inline 
 void PolygonMesh<ScalarType>::Clear()
 {
-    m_MeshData->Vertex.Clear();
-    m_MeshData->Polygon.Clear();
-    m_MeshData->Edge.Clear();
+    m_MeshData->IsTriangleMesh = false;
+
+    m_MeshData->VertexGlobalIDList.Clear();
+    m_MeshData->PolygonGlobalIDList.Clear();
     
-    m_MeshData->Link_VertexToEdge.Clear();
-    m_MeshData->Link_VertexToPolygon.Clear();
-    m_MeshData->Link_PolygonToEdge.Clear();
+    m_MeshData->VertexPositionTable.Clear();
 
-    m_MeshData->Adjacency_VertexToVertex.Clear();
-    m_MeshData->Adjacency_PolygonToPolygon.Clear();
+    m_MeshData->VertexList.Clear();
+    m_MeshData->PolygonList.Clear();
+    m_MeshData->EdgeList.Clear();
+    m_MeshData->HalfEdgeList.Clear();
 
-    m_MeshData->NormalAtPolygon.Clear();
-    m_MeshData->NormalAtVertex.Clear();
+    m_MeshData->MeshAttribute.NormalAtVertex.Clear();
+    m_MeshData->MeshAttribute.NormalAtPolygon.Clear();
 }
 
 
@@ -514,22 +558,20 @@ template<typename ScalarType_Input>
 inline 
 void PolygonMesh<ScalarType>::Copy(const PolygonMesh<ScalarType_Input>& InputMesh)
 {
-    this->m_MeshData->Vertex.Copy(InputMesh.m_MeshData->Vertex);
-    this->m_MeshData->Polygon.Copy(InputMesh.m_MeshData->Polygon);
-    this->m_MeshData->Edge.Copy(InputMesh.m_MeshData->Edge);
+    m_MeshData->IsTriangleMesh = InputMesh.m_MeshData->IsTriangleMesh;
 
-    this->m_MeshData->VertexGlobalIndexList.Copy(InputMesh.m_MeshData->VertexGlobalIndexList);
-    this->m_MeshData->PolygonGlobalIndexList.Copy(InputMesh.m_MeshData->PolygonGlobalIndexList);
+    m_MeshData->VertexGlobalIndexList = InputMesh.m_MeshData->VertexGlobalIndexList;
+    m_MeshData->PolygonGlobalIndexList = InputMesh.m_MeshData->PolygonGlobalIndexList;
 
-    this->m_MeshData->Link_VertexToEdge.Copy(InputMesh.m_MeshData->Link_VertexToEdge);
-    this->m_MeshData->Link_VertexToPolygon.Copy(InputMesh.m_MeshData->Link_VertexToPolygon);
-    this->m_MeshData->Link_PolygonToEdge.Copy(InputMesh.m_MeshData->Link_PolygonToEdge);
+    m_MeshData->VertexPositionTable = InputMesh.m_MeshData->VertexPositionTable;
 
-    this->m_MeshData->Adjacency_VertexToVertex.Copy(InputMesh.m_MeshData->Adjacency_VertexToVertex);
-    this->m_MeshData->Adjacency_PolygonToPolygon.Copy(InputMesh.m_MeshData->Adjacency_PolygonToPolygon);
+    m_MeshData->VertexList = InputMesh.m_MeshData->VertexList;
+    m_MeshData->PolygonList = InputMesh.m_MeshData->PolygonList;
+    m_MeshData->EdgeList = InputMesh.m_MeshData->EdgeList;
+    m_MeshData->HalfEdgeList = InputMesh.m_MeshData->HalfEdgeList;
 
-    this->m_MeshData->NormalAtVertex.Copy(InputMesh.m_MeshData->NormalAtVertex);
-    this->m_MeshData->NormalAtPolygon.Copy(InputMesh.m_MeshData->NormalAtPolygon);
+    m_MeshData->MeshAttribute.NormalAtVertex = InputMesh.m_MeshData->MeshAttribute.NormalAtVertex;
+    m_MeshData->MeshAttribute.NormalAtPolygon = InputMesh.m_MeshData->MeshAttribute.NormalAtPolygon;
 }
 
 
@@ -544,7 +586,7 @@ bool PolygonMesh<ScalarType>::Copy(const PolygonMesh<ScalarType_Input>* InputMes
         return false;
     }
 
-    this->Copy(*InputMesh);
+    Copy(*InputMesh);
 
     return true;
 }
@@ -568,7 +610,7 @@ bool PolygonMesh<ScalarType>::Share(PolygonMesh* InputMesh)
         return false;
     }
 
-    this->Share(*InputMesh);
+    Share(*InputMesh);
 
     return true;
 }
@@ -592,7 +634,7 @@ bool PolygonMesh<ScalarType>::ForceShare(const PolygonMesh<ScalarType>* InputMes
         return false;
     }
 
-    this->ForceShare(*InputMesh);
+    ForceShare(*InputMesh);
 
     return true;
 }
@@ -602,7 +644,7 @@ template<typename ScalarType>
 inline
 void PolygonMesh<ScalarType>::Take(PolygonMesh<ScalarType>&& InputMesh)
 {
-    this->Take(std::forward<PolygonMesh<ScalarType>&>(InputMesh));
+    Take(std::forward<PolygonMesh<ScalarType>&>(InputMesh));
 }
 
 
@@ -610,22 +652,20 @@ template<typename ScalarType>
 inline 
 bool PolygonMesh<ScalarType>::Take(PolygonMesh<ScalarType>& InputMesh)
 {
-    this->m_MeshData->Vertex = std::move(InputMesh.m_MeshData->Vertex);
-    this->m_MeshData->Polygon = std::move(InputMesh.m_MeshData->Polygon);
-    this->m_MeshData->Edge = std::move(InputMesh.m_MeshData->Edge);
+    m_MeshData->IsTriangleMesh = InputMesh.m_MeshData->IsTriangleMesh;
 
-    this->m_MeshData->VertexGlobalIndexList = std::move(InputMesh.m_MeshData->VertexGlobalIndexList);
-    this->m_MeshData->PolygonGlobalIndexList = std::move(InputMesh.m_MeshData->PolygonGlobalIndexList);
+    m_MeshData->VertexGlobalIndexList = std::move(InputMesh.m_MeshData->VertexGlobalIndexList);
+    m_MeshData->PolygonGlobalIndexList = std::move(InputMesh.m_MeshData->PolygonGlobalIndexList);
 
-    this->m_MeshData->Link_VertexToEdge = std::move(InputMesh.m_MeshData->Link_VertexToEdge);
-    this->m_MeshData->Link_VertexToPolygon = std::move(InputMesh.m_MeshData->Link_VertexToPolygon);
-    this->m_MeshData->Link_PolygonToEdge = std::move(InputMesh.m_MeshData->Link_PolygonToEdge);
+    m_MeshData->VertexPositionTable = std::move(InputMesh.m_MeshData->VertexPositionTable);
 
-    this->m_MeshData->Adjacency_VertexToVertex = std::move(InputMesh.m_MeshData->Adjacency_VertexToVertex);
-    this->m_MeshData->Adjacency_PolygonToPolygon = std::move(InputMesh.m_MeshData->Adjacency_PolygonToPolygon);
+    m_MeshData->VertexList = std::move(InputMesh.m_MeshData->VertexList);
+    m_MeshData->PolygonList = std::move(InputMesh.m_MeshData->PolygonList);
+    m_MeshData->EdgeList = std::move(InputMesh.m_MeshData->EdgeList);
+    m_MeshData->HalfEdgeList = std::move(InputMesh.m_MeshData->HalfEdgeList);
 
-    this->m_MeshData->NormalAtVertex = std::move(InputMesh.m_MeshData->NormalAtVertex);
-    this->m_MeshData->NormalAtPolygon = std::move(InputMesh.m_MeshData->NormalAtPolygon);
+    m_MeshData->MeshAttribute.NormalAtVertex = std::move(InputMesh.m_MeshData->MeshAttribute.NormalAtVertex);
+    m_MeshData->MeshAttribute.NormalAtPolygon = std::move(InputMesh.m_MeshData->MeshAttribute.NormalAtPolygon);
 }
 
 
@@ -639,7 +679,7 @@ bool PolygonMesh<ScalarType>::Take(PolygonMesh<ScalarType>* InputMesh)
         return false;
     }
 
-    return this->Take(*InputMesh);
+    return Take(*InputMesh);
 }
 
 //-------------------------------------------------------------------
@@ -647,7 +687,7 @@ bool PolygonMesh<ScalarType>::Take(PolygonMesh<ScalarType>* InputMesh)
 template<typename ScalarType>
 inline bool PolygonMesh<ScalarType>::IsEmpty() const
 {
-    return m_MeshData->Vertex.IsEmpty();
+    return m_MeshData->VertexPositionTable.IsEmpty();
 }
 
 
@@ -655,7 +695,7 @@ template<typename ScalarType>
 inline 
 int_max PolygonMesh<ScalarType>::GetVertexNumber() const
 {
-    return m_MeshData->Vertex.GetColNumber();
+    return m_MeshData->VertexList.GetLength();
 }
 
 
@@ -663,7 +703,7 @@ template<typename ScalarType>
 inline
 int_max PolygonMesh<ScalarType>::GetPolygonNumber() const
 {
-    return m_MeshData->Polygon.GetElementNumber();
+    return m_MeshData->PolygonList.GetLength();
 }
 
 
@@ -671,112 +711,40 @@ template<typename ScalarType>
 inline 
 int_max PolygonMesh<ScalarType>::GetEdgeNumber() const
 {
-    return m_MeshData->Edge.GetColNumber();
+    return m_MeshData->EdgeList.GetLength();
 }
 
 //-------------------------------------------------------------------
 
 template<typename ScalarType>
 inline
-DenseMatrix<int_max>& PolygonMesh<ScalarType>::VertexGlobalIndexList()
+const DenseVector<int_max>& PolygonMesh<ScalarType>::GetVertexGlobalIDList() const
 {
-    return m_MeshData->VertexGlobalIndexList;
+    return m_MeshData->VertexGlobalIDList;
 }
 
 
 template<typename ScalarType>
 inline
-const DenseMatrix<int_max>& PolygonMesh<ScalarType>::VertexGlobalIndexList() const
+const DenseVector<int_max>& PolygonMesh<ScalarType>::GetPolygonGlobalIDList() const
 {
-    return m_MeshData->VertexGlobalIndexList;
-}
-
-
-template<typename ScalarType>
-inline
-DenseMatrix<int_max>& PolygonMesh<ScalarType>::PolygonGlobalIndexList()
-{
-    return m_MeshData->PolygonGlobalIndexList;
-}
-
-
-template<typename ScalarType>
-inline
-const DenseMatrix<int_max>& PolygonMesh<ScalarType>::PolygonGlobalIndexList() const
-{
-    return m_MeshData->PolygonGlobalIndexList;
+    return m_MeshData->PolygonGlobalIDList;
 }
 
 
 template<typename ScalarType>
 inline 
-DenseMatrix<ScalarType>& PolygonMesh<ScalarType>::Vertex()
+const DenseMatrix<ScalarType>& PolygonMesh<ScalarType>::GetVertexPositionTable() const
 {
-    return m_MeshData->Vertex;
+    return m_MeshData->VertexPositionTable;
 }
 
 
 template<typename ScalarType>
 inline 
-const DenseMatrix<ScalarType>& PolygonMesh<ScalarType>::Vertex() const
+const DataArray<DenseVector<int_max>>& PolygonMesh<ScalarType>::GetVertexIndexTable() const
 {
-    return m_MeshData->Vertex;
-}
-
-
-template<typename ScalarType>
-inline
-const DataContainer<DenseVector<int_max>>& PolygonMesh<ScalarType>::Polygon() const
-{
-    return m_MeshData->Polygon;
-}
-
-
-template<typename ScalarType>
-inline 
-const DenseMatrix<int_max>& PolygonMesh<ScalarType>::Edge() const
-{
-    return m_MeshData->Edge;
-}
-
-
-template<typename ScalarType>
-inline
-const DataContainer<DenseVector<int_max>>& PolygonMesh<ScalarType>::Link_VertexToEdge() const
-{
-    return m_MeshData->Link_VertexToEdge;
-}
-
-
-template<typename ScalarType>
-inline
-const DataContainer<DenseVector<int_max>>& PolygonMesh<ScalarType>::Link_VertexToPolygon() const
-{
-    return m_MeshData->Link_VertexToPolygon;
-}
-
-
-template<typename ScalarType>
-inline
-const DataContainer<DenseVector<int_max>>& PolygonMesh<ScalarType>::Link_PolygonToEdge() const
-{
-    return m_MeshData->Link_PolygonToEdge;
-}
-
-
-template<typename ScalarType>
-inline 
-const DataContainer<DenseVector<int_max>>& PolygonMesh<ScalarType>::Adjacency_VertexToVertex() const
-{
-    return m_MeshData->Adjacency_VertexToVertex;
-}
-
-
-template<typename ScalarType>
-inline 
-const DataContainer<DenseVector<int_max>>& PolygonMesh<ScalarType>::Adjacency_PolygonToPolygon() const
-{
-    return m_MeshData->Adjacency_PolygonToPolygon;
+    return m_MeshData->VertexIndexTable;
 }
 
 //----------------------------------------------------------------------------
@@ -821,7 +789,7 @@ void PolygonMesh<ScalarType>::UpdateNormalAtVertex()
 
 
 template<typename ScalarType>
-void PolygonMesh<ScalarType>::UpdateNormalAtPolygonCenter()
+void PolygonMesh<ScalarType>::UpdateNormalAtPolygon()
 {
 }
 

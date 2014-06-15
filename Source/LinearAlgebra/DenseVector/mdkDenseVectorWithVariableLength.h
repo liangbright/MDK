@@ -17,7 +17,7 @@
 //class DenseMatrix;
 
 //template<typename ElementType>
-//class SimpleDataContainer;
+//class SimpleDataArray;
 //---------------------------------------------
 
 namespace mdk
@@ -101,28 +101,31 @@ public:
     //-----------element access------------------//
 
     inline ElementType* GetElementPointer();
-
     inline const ElementType* GetElementPointer() const;
 
-    inline ElementType* begin();
+    inline ElementType* GetPointer();
+    inline const ElementType* GetPointer() const;
 
+    inline ElementType* begin();
     inline const ElementType* begin() const;
 
     inline ElementType* end();
-
     inline const ElementType* end() const;
 
     inline ElementType& operator[](int_max Index);
-
     inline const ElementType& operator[](int_max Index) const;
 
-    ElementType& operator()(int_max Index);
+    inline ElementType& operator()(int_max Index);
+    inline const ElementType& operator()(int_max Index) const;
 
-    const ElementType& operator()(int_max Index) const;
+    inline ElementType& at(int_max Index);
+    inline const ElementType& at(int_max Index) const;
 
-    ElementType& at(int_max Index);
+    //----------------------- get/set std vector -------------------------------
 
-    const ElementType& at(int_max Index) const;
+    std::vector<ElementType>& StdVector();
+
+    const std::vector<ElementType>& StdVector() const;
 
     //----------------------- Convert to std vector -------------------------------
 
@@ -148,7 +151,7 @@ public:
 
     inline DenseVector<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList) const;
 
-    inline DenseVector<ElementType> GetSubSet(const SimpleDataContainer<int_max>& IndexList) const;
+    inline DenseVector<ElementType> GetSubSet(const SimpleDataArray<int_max>& IndexList) const;
 
     inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max>& IndexList) const;
 
@@ -165,7 +168,7 @@ public:
 
     inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector);
 
-    inline bool SetSubSet(const SimpleDataContainer<int_max>& IndexList, const SimpleDataContainer<ElementType>& SubVector);
+    inline bool SetSubSet(const SimpleDataArray<int_max>& IndexList, const SimpleDataArray<ElementType>& SubVector);
 
     inline bool SetSubSet(const DenseVector<int_max>& IndexList, const DenseVector<int_max>& SubVector);
 
@@ -186,7 +189,7 @@ public:
 
     inline bool Delete(const DenseMatrix<int_max>& IndexList);
 
-    inline bool Delete(const SimpleDataContainer<int_max>& IndexList);
+    inline bool Delete(const SimpleDataArray<int_max>& IndexList);
 
     inline bool Delete(const DenseVector<int_max>& IndexList);
 
@@ -205,7 +208,7 @@ public:
 
     inline bool Insert(int_max Index, const DenseMatrix<ElementType>& InputData);
 
-    inline bool Insert(int_max Index, const SimpleDataContainer<ElementType>& InputData);
+    inline bool Insert(int_max Index, const SimpleDataArray<ElementType>& InputData);
 
     inline bool Insert(int_max Index, const DenseVector<ElementType>& InputData);
 

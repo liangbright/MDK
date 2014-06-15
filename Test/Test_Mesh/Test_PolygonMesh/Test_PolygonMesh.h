@@ -5,11 +5,13 @@ void Test_MeshConstruction()
 {
     using namespace mdk;
 
-    CharString FilePathAndName = "H:/AorticValve/Data/Yale_CT/P1940650/P1940650_Leaflet_A-new-phase2.vtk";
+    PolygonMesh<double> Mesh;
+
+   // CharString FilePathAndName = "H:/AorticValve/Data/Yale_CT/P1940650/P1940650_Leaflet_A-new-phase2.vtk";
 
     //CharString FilePathAndName = "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Triangle.vtk";
 
-    auto LeafletMesh = LoadPolygonMeshFromVTKFile<double>(FilePathAndName, true);
+    //auto LeafletMesh = LoadPolygonMeshFromVTKFile<double>(FilePathAndName, true);
 
-    SavePolygonMeshAsJsonDataFile(LeafletMesh, "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Polygon.json");
+   // SavePolygonMeshAsJsonDataFile(LeafletMesh, "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Polygon.json");
 }

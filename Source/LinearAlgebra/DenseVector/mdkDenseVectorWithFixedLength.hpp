@@ -242,6 +242,22 @@ const ElementType* DenseVector<ElementType, Length>::GetElementPointer() const
 
 template<typename ElementType, int_max Length>
 inline
+ElementType* DenseVector<ElementType, Length>::GetPointer()
+{
+    return m_DataArray->data();
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+const ElementType* DenseVector<ElementType, Length>::GetPointer() const
+{
+    return m_DataArray->data();
+}
+
+
+template<typename ElementType, int_max Length>
+inline
 ElementType* DenseVector<ElementType, Length>::begin()
 {
     return m_DataArray->data();
@@ -601,7 +617,7 @@ DenseVector<ElementType> DenseVector<ElementType, Length>::GetSubSet(const Dense
 
 template<typename ElementType, int_max Length>
 inline 
-DenseVector<ElementType> DenseVector<ElementType, Length>::GetSubSet(const SimpleDataContainer<int_max>& IndexList) const
+DenseVector<ElementType> DenseVector<ElementType, Length>::GetSubSet(const SimpleDataArray<int_max>& IndexList) const
 {
     DenseVector<ElementType> SubSet;
     
@@ -767,7 +783,7 @@ bool DenseVector<ElementType, Length>::SetSubSet(const DenseMatrix<int_max>& Ind
 
 template<typename ElementType, int_max Length>
 inline
-bool DenseVector<ElementType, Length>::SetSubSet(const SimpleDataContainer<int_max>& IndexList, const SimpleDataContainer<ElementType>& SubSet)
+bool DenseVector<ElementType, Length>::SetSubSet(const SimpleDataArray<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSet)
 {
     if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
     {

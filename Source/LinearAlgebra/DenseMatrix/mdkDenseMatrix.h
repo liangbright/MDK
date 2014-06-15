@@ -11,8 +11,8 @@
 #include <limits> 
 
 #include "mdkObject.h"
-#include "mdkDataContainer.h"
-#include "mdkSimpleDataContainer.h"
+#include "mdkDataArray.h"
+#include "mdkSimpleDataArray.h"
 #include "mdkLinearAlgebraConfig.h"
 #include "mdkMatrix_Common.h"
 #include "mdkDenseVector.h"
@@ -177,9 +177,9 @@ public:
 
     inline DenseMatrix(const DenseVector<ElementType>& InputList);
 
-    inline DenseMatrix(const DataContainer<ElementType>& InputList);
+    inline DenseMatrix(const DataArray<ElementType>& InputList);
 
-    inline DenseMatrix(const SimpleDataContainer<ElementType>& InputList);
+    inline DenseMatrix(const SimpleDataArray<ElementType>& InputList);
 
     // deep-copy or shared-copy constructor
     inline DenseMatrix(const DenseMatrix<ElementType>& InputMatrix, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
@@ -207,7 +207,7 @@ public:
     // otherwise, compiler will create a new one
     inline void operator=(const DenseMatrix<ElementType>& InputMatrix);
 
-    // move assignment operator
+    // move assignment operator (Take)
     inline void operator=(DenseMatrix<ElementType>&& InputMatrix);
 
     inline void operator=(const ElementType& Element);
@@ -224,9 +224,9 @@ public:
 
     inline void operator=(const DenseVector<ElementType>& InputList);
 
-    inline void operator=(const DataContainer<ElementType>& InputList);
+    inline void operator=(const DataArray<ElementType>& InputList);
 
-    inline void operator=(const SimpleDataContainer<ElementType>& InputList);
+    inline void operator=(const SimpleDataArray<ElementType>& InputList);
 
     inline void operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix);
 
@@ -332,8 +332,7 @@ public:
 
     //-------------------- Take -----------------------------------------------------------//
 
-    //Take the the data of the InputMatrix and Clear InputMatrix
-
+    //Take the data of the InputMatrix and Clear InputMatrix
     // m_MatrixData->DataArray = std::move(InputMatrix.m_MatrixData->DataArray);
 
     inline void Take(DenseMatrix<ElementType>&& InputMatrix);
@@ -342,7 +341,17 @@ public:
 
     inline bool Take(DenseMatrix<ElementType>* InputMatrix);
 
+    //Take the data of the InputRowVector and Clear InputRowVector
+
+    inline bool Take(std::vector<ElementType>&& InputRowVector);
+
     inline bool Take(std::vector<ElementType>& InputRowVector);
+
+    inline bool Take(DenseVector<ElementType>& InputRowVector);
+
+    inline bool Take(DataArray<ElementType>& InputRowVector);
+
+    inline bool Take(SimpleDataArray<ElementType>& InputRowVector);
 
     //Take the Matrix Created from ShadowMatrix or GlueMatrix
 
@@ -726,6 +735,8 @@ public:
 
     inline DenseMatrix GetSubMatrix(const DenseMatrix<int_max>& LinearIndexList) const;
 
+    inline DenseMatrix GetSubMatrix(const int_max* LinearIndexList, int_max ListLength) const;
+
     //-----------------------------
 
     inline DenseMatrix GetSubMatrix(const std::initializer_list<int_max>& RowIndexList,
@@ -820,17 +831,26 @@ public:
 
     //----------------------
 
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
-                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
-                             const int_max* ColIndexList, int_max OutputColNumber) const;
-
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
-                             const int_max* RowIndexList, int_max OutputRowNumber,
-                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+    inline DenseMatrix GetSubMatrix(const int_max* RowIndexList, int_max OutputRowNumber,
+                                    const int_max* ColIndexList, int_max OutputColNumber) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix, 
                              const int_max* RowIndexList, int_max OutputRowNumber,
                              const int_max* ColIndexList, int_max OutputColNumber) const;
+
+    inline DenseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
+                                    const int_max* ColIndexList, int_max OutputColNumber) const;
+
+    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
+                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
+                             const int_max* ColIndexList, int_max OutputColNumber) const;
+
+    inline DenseMatrix GetSubMatrix(const int_max* RowIndexList, int_max OutputRowNumber,
+                                    const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+
+    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
+                             const int_max* RowIndexList, int_max OutputRowNumber,
+                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
 
 	//---------------------- Get/Set/Fill/Append/Insert A Single Column, Delete multi-Columns ----------------------------------------//
 	

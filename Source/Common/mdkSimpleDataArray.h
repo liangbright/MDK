@@ -1,5 +1,5 @@
-﻿#ifndef __mdkSimpleDataContainer_h
-#define __mdkSimpleDataContainer_h
+﻿#ifndef __mdkSimpleDataArray_h
+#define __mdkSimpleDataArray_h
 
 #include <vector>
 #include <string>
@@ -15,10 +15,14 @@ template<typename ElementType>
 class DenseMatrix;
 //------------------------------
 
+#if defined MDK_DEBUG_MODE
+#define MDK_DEBUG_SimpleDataArray_Operator_CheckBound
+#endif
+
 //----------------------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-class SimpleDataContainer : public Object
+class SimpleDataArray : public Object
 {     
     std::vector<ElementType> m_DataArray;
 
@@ -28,19 +32,19 @@ public:
 public:			
 	//------------------- constructor and destructor ------------------------------------//
 
-    inline SimpleDataContainer();
+    inline SimpleDataArray();
 
-    inline SimpleDataContainer(const std::initializer_list<ElementType>& InputData);
+    inline SimpleDataArray(const std::initializer_list<ElementType>& InputData);
 
-    inline SimpleDataContainer(const std::vector<ElementType>& InputData);
+    inline SimpleDataArray(const std::vector<ElementType>& InputData);
 
     // deep-copy or shared-copy constructor
-    inline SimpleDataContainer(const SimpleDataContainer<ElementType>& InputData);
+    inline SimpleDataArray(const SimpleDataArray<ElementType>& InputData);
 
     // move constructor
-    inline SimpleDataContainer(SimpleDataContainer<ElementType>&& InputData) noexcept;
+    inline SimpleDataArray(SimpleDataArray<ElementType>&& InputData) noexcept;
 
-	inline ~SimpleDataContainer();
+	inline ~SimpleDataArray();
 
     //-------------------- get/set std vector -----------------------------------//
 
@@ -53,9 +57,9 @@ public:
     // copy assignment operator
     // do not use function template for this function
     // otherwise, compiler will create a new one
-    inline void operator=(const SimpleDataContainer<ElementType>& InputData);
+    inline void operator=(const SimpleDataArray<ElementType>& InputData);
 
-    inline void operator=(SimpleDataContainer<ElementType>&& InputData);
+    inline void operator=(SimpleDataArray<ElementType>&& InputData);
 
     inline void operator=(const std::initializer_list<ElementType>& InputList);
 
@@ -65,9 +69,9 @@ public:
 
     //----------------------  Copy  ----------------------------------------//
 
-    inline bool Copy(const SimpleDataContainer<ElementType>& InputData);
+    inline bool Copy(const SimpleDataArray<ElementType>& InputData);
 
-    inline bool Copy(const SimpleDataContainer<ElementType>* InputData);
+    inline bool Copy(const SimpleDataArray<ElementType>* InputData);
 
     inline bool Copy(const ElementType* InputElementPointer, int_max InputLength);
 
@@ -96,15 +100,15 @@ public:
     //--------------------- Get Data Pointer -----------------------------//
 
     inline ElementType* GetElementPointer(); //  the pointer of the first element
-
     inline const ElementType* GetElementPointer() const;
 
-    inline ElementType* begin();
+    inline ElementType* GetPointer(); //  the pointer of the first element
+    inline const ElementType* GetPointer() const;
 
+    inline ElementType* begin();
     inline const ElementType* begin() const;
 
     inline ElementType* end(); // 1 + pointer of the last element
-
     inline const ElementType* end() const; // 1 + pointer of the last element
 
 	//----------- Get/Set by Index -----------------------------------//
@@ -112,32 +116,29 @@ public:
     // operator[] or () : no bound check
 
     inline ElementType& operator[](int_max Index);
-
     inline const ElementType& operator[](int_max Index) const;
 
     inline ElementType& operator()(int_max Index);
-
     inline const ElementType& operator()(int_max Index) const;
     
     // at(): bound check
 
     inline ElementType& at(int_max Index);
-
     inline const ElementType& at(int_max Index) const;
 
     //----------------------- Get subset ------------------------------//
 
-    inline SimpleDataContainer<ElementType> GetSubSet(int_max Index_start, int_max Index_end);
+    inline SimpleDataArray<ElementType> GetSubSet(int_max Index_start, int_max Index_end);
 
-    inline SimpleDataContainer<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList);
+    inline SimpleDataArray<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList);
 
-    inline SimpleDataContainer<ElementType> GetSubSet(const std::vector<int_max>& IndexList);
+    inline SimpleDataArray<ElementType> GetSubSet(const std::vector<int_max>& IndexList);
 
-    inline SimpleDataContainer<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList);
+    inline SimpleDataArray<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList);
 
-    inline SimpleDataContainer<ElementType> GetSubSet(const SimpleDataContainer<int_max>& IndexList);
+    inline SimpleDataArray<ElementType> GetSubSet(const SimpleDataArray<int_max>& IndexList);
 
-    inline SimpleDataContainer<ElementType> GetSubSet(const int_max* IndexList, int_max ListLength);
+    inline SimpleDataArray<ElementType> GetSubSet(const int_max* IndexList, int_max ListLength);
 
     //----------------------- Set subset ------------------------------//
 
@@ -147,7 +148,7 @@ public:
 
     inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubSetData);
 
-    inline bool SetSubSet(const SimpleDataContainer<int_max>& IndexList, const SimpleDataContainer<ElementType>& SubSetData);
+    inline bool SetSubSet(const SimpleDataArray<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSetData);
 
     inline bool SetSubSet(const int_max* IndexList, const ElementType* SubSetData, int_max DataNumber);
 
@@ -165,7 +166,7 @@ public:
 
     inline bool Delete(const DenseMatrix<int_max>& IndexList);
 
-    inline bool Delete(const SimpleDataContainer<int_max>& IndexList);
+    inline bool Delete(const SimpleDataArray<int_max>& IndexList);
 
     inline bool Delete(const int_max* ColIndexList, int_max ListLength);
 
@@ -179,11 +180,11 @@ public:
 
     inline bool Insert(int_max Index, const DenseMatrix<ElementType>& InputData);
 
-    inline bool Insert(int_max Index, const SimpleDataContainer<ElementType>& InputData);
+    inline bool Insert(int_max Index, const SimpleDataArray<ElementType>& InputData);
 
     inline bool Insert(int_max Index, const ElementType* InputData, int_max InputLength);
 
-    //------------- use SimpleDataContainer as a stack ----------------------------//
+    //------------- use SimpleDataArray as a stack ----------------------------//
 
     inline bool PushBack(ElementType Element);
 
@@ -192,21 +193,21 @@ public:
     //-------------------- find ---------------------------------------//
 
     template<typename MatchFunctionType>
-    inline SimpleDataContainer<int_max> Find(MatchFunctionType MatchFunction);
+    inline SimpleDataArray<int_max> Find(MatchFunctionType MatchFunction);
 
     template<typename MatchFunctionType>
-    inline SimpleDataContainer<int_max> Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction);
+    inline SimpleDataArray<int_max> Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction);
 
     template<typename MatchFunctionType>
-    inline SimpleDataContainer<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction);
+    inline SimpleDataArray<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction);
 
     //--------------------- sort ---------------------------------------//
 
     template<typename CompareFunctionType>
-    inline SimpleDataContainer<int_max> Sort(CompareFunctionType CompareFunction) const;
+    inline SimpleDataArray<int_max> Sort(CompareFunctionType CompareFunction) const;
 
     template<typename CompareFunctionType>
-    inline SimpleDataContainer<int_max> Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const;
+    inline SimpleDataArray<int_max> Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const;
 
     template<typename CompareFunctionType>
     inline void SortInPlace(CompareFunctionType CompareFunction);
@@ -221,6 +222,6 @@ private:
 
 }//end namespace mdk
 
-#include "mdkSimpleDataContainer.hpp"
+#include "mdkSimpleDataArray.hpp"
 
 #endif

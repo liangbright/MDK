@@ -1,5 +1,5 @@
-#ifndef __mdkSimpleDataContainer_hpp
-#define __mdkSimpleDataContainer_hpp
+#ifndef __mdkSimpleDataArray_hpp
+#define __mdkSimpleDataArray_hpp
 
 
 namespace mdk
@@ -7,22 +7,14 @@ namespace mdk
  
 template<typename ElementType>
 inline
-SimpleDataContainer<ElementType>::SimpleDataContainer()
+SimpleDataArray<ElementType>::SimpleDataArray()
 {
 }
 
 
 template<typename ElementType>
 inline
-SimpleDataContainer<ElementType>::SimpleDataContainer(const std::initializer_list<ElementType>& InputList)
-{
-    (*this) = InputList;
-}
-
-
-template<typename ElementType>
-inline
-SimpleDataContainer<ElementType>::SimpleDataContainer(const std::vector<ElementType>& InputList)
+SimpleDataArray<ElementType>::SimpleDataArray(const std::initializer_list<ElementType>& InputList)
 {
     (*this) = InputList;
 }
@@ -30,7 +22,15 @@ SimpleDataContainer<ElementType>::SimpleDataContainer(const std::vector<ElementT
 
 template<typename ElementType>
 inline
-SimpleDataContainer<ElementType>::SimpleDataContainer(const SimpleDataContainer<ElementType>& InputData)
+SimpleDataArray<ElementType>::SimpleDataArray(const std::vector<ElementType>& InputList)
+{
+    (*this) = InputList;
+}
+
+
+template<typename ElementType>
+inline
+SimpleDataArray<ElementType>::SimpleDataArray(const SimpleDataArray<ElementType>& InputData)
 {
     this->Copy(InputData);
 }
@@ -39,7 +39,7 @@ SimpleDataContainer<ElementType>::SimpleDataContainer(const SimpleDataContainer<
 // move constructor
 template<typename ElementType>
 inline
-SimpleDataContainer<ElementType>::SimpleDataContainer(SimpleDataContainer<ElementType>&& InputData) noexcept
+SimpleDataArray<ElementType>::SimpleDataArray(SimpleDataArray<ElementType>&& InputData) noexcept
 {
     m_DataArray = std::move(InputData.m_DataArray);
 }
@@ -47,14 +47,14 @@ SimpleDataContainer<ElementType>::SimpleDataContainer(SimpleDataContainer<Elemen
 
 template<typename ElementType>
 inline
-SimpleDataContainer<ElementType>::~SimpleDataContainer()
+SimpleDataArray<ElementType>::~SimpleDataArray()
 {
 }
 
 
 template<typename ElementType>
 inline 
-std::vector<ElementType>& SimpleDataContainer<ElementType>::StdVector()
+std::vector<ElementType>& SimpleDataArray<ElementType>::StdVector()
 {
     return m_DataArray;
 }
@@ -62,7 +62,7 @@ std::vector<ElementType>& SimpleDataContainer<ElementType>::StdVector()
 
 template<typename ElementType>
 inline
-const std::vector<ElementType>& SimpleDataContainer<ElementType>::StdVector() const
+const std::vector<ElementType>& SimpleDataArray<ElementType>::StdVector() const
 {
     return m_DataArray;
 }
@@ -70,7 +70,7 @@ const std::vector<ElementType>& SimpleDataContainer<ElementType>::StdVector() co
 
 template<typename ElementType>
 inline
-void SimpleDataContainer<ElementType>::operator=(const SimpleDataContainer<ElementType>& InputData)
+void SimpleDataArray<ElementType>::operator=(const SimpleDataArray<ElementType>& InputData)
 {
     this->Copy(InputData);
 }
@@ -79,7 +79,7 @@ void SimpleDataContainer<ElementType>::operator=(const SimpleDataContainer<Eleme
 // move assignment operator
 template<typename ElementType>
 inline
-void SimpleDataContainer<ElementType>::operator=(SimpleDataContainer<ElementType>&& InputData)
+void SimpleDataArray<ElementType>::operator=(SimpleDataArray<ElementType>&& InputData)
 {
     m_DataArray = std::move(InputData.m_DataArray);
 }
@@ -87,7 +87,7 @@ void SimpleDataContainer<ElementType>::operator=(SimpleDataContainer<ElementType
 
 template<typename ElementType>
 inline
-void SimpleDataContainer<ElementType>::operator=(const std::initializer_list<ElementType>& InputData)
+void SimpleDataArray<ElementType>::operator=(const std::initializer_list<ElementType>& InputData)
 {
     m_DataArray = InputData;
 }
@@ -95,7 +95,7 @@ void SimpleDataContainer<ElementType>::operator=(const std::initializer_list<Ele
 
 template<typename ElementType>
 inline
-void SimpleDataContainer<ElementType>::operator=(const std::vector<ElementType>& InputData)
+void SimpleDataArray<ElementType>::operator=(const std::vector<ElementType>& InputData)
 {
     m_DataArray = InputData;
 }
@@ -103,7 +103,7 @@ void SimpleDataContainer<ElementType>::operator=(const std::vector<ElementType>&
 
 template<typename ElementType>
 inline
-void SimpleDataContainer<ElementType>::operator=(const DenseMatrix<ElementType>& InputData)
+void SimpleDataArray<ElementType>::operator=(const DenseMatrix<ElementType>& InputData)
 {
     auto InputLength = InputData.GetElementNumber();
 
@@ -118,11 +118,11 @@ void SimpleDataContainer<ElementType>::operator=(const DenseMatrix<ElementType>&
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Copy(const SimpleDataContainer<ElementType>& InputData)
+bool SimpleDataArray<ElementType>::Copy(const SimpleDataArray<ElementType>& InputData)
 {
     if (this == &InputData)
     {
-        MDK_Warning("A SimpleDataContainer tries to Copy itself @ SimpleDataContainer::Copy(InputData)")
+        MDK_Warning("A SimpleDataArray tries to Copy itself @ SimpleDataArray::Copy(InputData)")
         return true;
     }
 
@@ -139,11 +139,11 @@ bool SimpleDataContainer<ElementType>::Copy(const SimpleDataContainer<ElementTyp
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Copy(const SimpleDataContainer<ElementType>* InputData)
+bool SimpleDataArray<ElementType>::Copy(const SimpleDataArray<ElementType>* InputData)
 {
     if (InputData == nullptr)
     {
-        MDK_Error("Input is nullptr @ SimpleDataContainer::Copy(SimpleDataContainer* InputData)")
+        MDK_Error("Input is nullptr @ SimpleDataArray::Copy(SimpleDataArray* InputData)")
         return false;
     }
 
@@ -153,20 +153,20 @@ bool SimpleDataContainer<ElementType>::Copy(const SimpleDataContainer<ElementTyp
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Copy(const ElementType* InputElementPointer, int_max InputLength)
+bool SimpleDataArray<ElementType>::Copy(const ElementType* InputElementPointer, int_max InputLength)
 {
     if (InputElementPointer == nullptr || InputLength <= 0)
     {
-        MDK_Error("Input pointer is nullptr @ SimpleDataContainer::Copy(ElementType*, InputLength)")
+        MDK_Error("Input pointer is nullptr @ SimpleDataArray::Copy(ElementType*, InputLength)")
         return false;
     }
 
-    // if this SimpleDataContainer is not empty, check if this and Input Share the same data
+    // if this SimpleDataArray is not empty, check if this and Input Share the same data
     if (this->IsEmpty() == false)
     {
         if (InputElementPointer == this->GetElementPointer())
         {
-           // MDK_Warning("A SimpleDataContainer tries to Copy itself @ SimpleDataContainer::Copy(ElementType*, RowNumber, ColNumber)")
+           // MDK_Warning("A SimpleDataArray tries to Copy itself @ SimpleDataArray::Copy(ElementType*, RowNumber, ColNumber)")
             return true;
         }
     }
@@ -192,13 +192,13 @@ bool SimpleDataContainer<ElementType>::Copy(const ElementType* InputElementPoint
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Fill(const ElementType& Element)
+bool SimpleDataArray<ElementType>::Fill(const ElementType& Element)
 {
     auto SelfLength = this->GetElementNumber();
 
     if (SelfLength <= 0)
     {
-        MDK_Error("Self is empty @ SimpleDataContainer::Fill")
+        MDK_Error("Self is empty @ SimpleDataArray::Fill")
         return false;
     }
 
@@ -215,7 +215,7 @@ bool SimpleDataContainer<ElementType>::Fill(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void SimpleDataContainer<ElementType>::Clear()
+void SimpleDataArray<ElementType>::Clear()
 {
     m_DataArray.clear();         // change size
     m_DataArray.shrink_to_fit(); // release memory
@@ -224,11 +224,11 @@ void SimpleDataContainer<ElementType>::Clear()
 
 template<typename ElementType>
 inline 
-bool SimpleDataContainer<ElementType>::Resize(int_max InputLength)
+bool SimpleDataArray<ElementType>::Resize(int_max InputLength)
 {
     if (InputLength < 0)
     {
-        MDK_Error("Invalid Input: negtive @ SimpleDataContainer::Resize(int_max InputLength)")
+        MDK_Error("Invalid Input: negtive @ SimpleDataArray::Resize(int_max InputLength)")
         return false;
     }
 
@@ -247,7 +247,7 @@ try
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ SimpleDataContainer::Resize(int_max InputLength)")
+    MDK_Error("Out of Memory @ SimpleDataArray::Resize(int_max InputLength)")
 
     return false;
 }
@@ -257,11 +257,11 @@ catch (...)
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::FastResize(int_max InputLength)
+bool SimpleDataArray<ElementType>::FastResize(int_max InputLength)
 {
     if (InputLength < 0)
     {
-        MDK_Error("Invalid input @ SimpleDataContainer::FastResize(int_max InputLength)")
+        MDK_Error("Invalid input @ SimpleDataArray::FastResize(int_max InputLength)")
         return false;    
     }
 
@@ -287,7 +287,7 @@ try
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ SimpleDataContainer::FastResize(int_max InputLength)")
+    MDK_Error("Out of Memory @ SimpleDataArray::FastResize(int_max InputLength)")
 
     return false;
 }
@@ -298,7 +298,7 @@ catch (...)
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::ReserveCapacity(int_max InputElementNumber)
+bool SimpleDataArray<ElementType>::ReserveCapacity(int_max InputElementNumber)
 {
 try
 {
@@ -311,7 +311,7 @@ try
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ SimpleDataContainer::ReserveCapacity(int_max InputElementNumber)")
+    MDK_Error("Out of Memory @ SimpleDataArray::ReserveCapacity(int_max InputElementNumber)")
     return false;
 }
     
@@ -321,7 +321,7 @@ catch (...)
 
 template<typename ElementType>
 inline
-void SimpleDataContainer<ElementType>::Squeeze()
+void SimpleDataArray<ElementType>::Squeeze()
 {
     m_DataArray.shrink_to_fit();
 }
@@ -329,7 +329,7 @@ void SimpleDataContainer<ElementType>::Squeeze()
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::IsEmpty() const
+bool SimpleDataArray<ElementType>::IsEmpty() const
 {
     return (m_DataArray.size() <= 0);
 }
@@ -337,7 +337,7 @@ bool SimpleDataContainer<ElementType>::IsEmpty() const
 
 template<typename ElementType>
 inline
-int_max SimpleDataContainer<ElementType>::GetLength() const
+int_max SimpleDataArray<ElementType>::GetLength() const
 {
     return int_max(m_DataArray.size());
 }
@@ -345,7 +345,7 @@ int_max SimpleDataContainer<ElementType>::GetLength() const
 
 template<typename ElementType>
 inline
-int_max SimpleDataContainer<ElementType>::GetElementNumber() const
+int_max SimpleDataArray<ElementType>::GetElementNumber() const
 {
     return int_max(m_DataArray.size());
 }
@@ -353,7 +353,7 @@ int_max SimpleDataContainer<ElementType>::GetElementNumber() const
 
 template<typename ElementType>
 inline
-ElementType* SimpleDataContainer<ElementType>::GetElementPointer()
+ElementType* SimpleDataArray<ElementType>::GetElementPointer()
 {
     return m_DataArray.data();
 }
@@ -361,23 +361,7 @@ ElementType* SimpleDataContainer<ElementType>::GetElementPointer()
 
 template<typename ElementType>
 inline
-const ElementType* SimpleDataContainer<ElementType>::GetElementPointer() const
-{
-    return m_DataArray.data();
-}
-
-
-template<typename ElementType>
-inline 
-ElementType* SimpleDataContainer<ElementType>::begin()
-{
-    return m_DataArray.data();
-}
-
-
-template<typename ElementType>
-inline 
-const ElementType* SimpleDataContainer<ElementType>::begin() const
+const ElementType* SimpleDataArray<ElementType>::GetElementPointer() const
 {
     return m_DataArray.data();
 }
@@ -385,7 +369,39 @@ const ElementType* SimpleDataContainer<ElementType>::begin() const
 
 template<typename ElementType>
 inline
-ElementType* SimpleDataContainer<ElementType>::end()
+ElementType* SimpleDataArray<ElementType>::GetPointer()
+{
+    return m_DataArray.data();
+}
+
+
+template<typename ElementType>
+inline
+const ElementType* SimpleDataArray<ElementType>::GetPointer() const
+{
+    return m_DataArray.data();
+}
+
+
+template<typename ElementType>
+inline 
+ElementType* SimpleDataArray<ElementType>::begin()
+{
+    return m_DataArray.data();
+}
+
+
+template<typename ElementType>
+inline 
+const ElementType* SimpleDataArray<ElementType>::begin() const
+{
+    return m_DataArray.data();
+}
+
+
+template<typename ElementType>
+inline
+ElementType* SimpleDataArray<ElementType>::end()
 {
     auto EndPtr = m_DataArray.data();
 
@@ -400,7 +416,7 @@ ElementType* SimpleDataContainer<ElementType>::end()
 
 template<typename ElementType>
 inline
-const ElementType* SimpleDataContainer<ElementType>::end() const
+const ElementType* SimpleDataArray<ElementType>::end() const
 {
     auto EndPtr = m_DataArray.data();
 
@@ -413,38 +429,78 @@ const ElementType* SimpleDataContainer<ElementType>::end() const
 }
 
 
-//----------- Get/Set SimpleDataContainer(Index) -----------------------------------//
+//----------- Get/Set SimpleDataArray(Index) -----------------------------------//
 
 // operator[] (): no bound check in release mode
 
 template<typename ElementType>
 inline
-ElementType& SimpleDataContainer<ElementType>::operator[](int_max Index)
+ElementType& SimpleDataArray<ElementType>::operator[](int_max Index)
 {
+#if defined(MDK_DEBUG_SimpleDataArray_Operator_CheckBound)
+
+    if (Index >= this->GetElementNumber() || Index < 0)
+    {
+        MDK_Error("Invalid Input @ SimpleDataArray::operator[](i)")
+        return m_DataArray[0];
+    }
+
+#endif //MDK_DEBUG_SimpleDataArray_Operator_CheckBound
+
     return m_DataArray[Index];
 }
 
 
 template<typename ElementType>
 inline
-const ElementType& SimpleDataContainer<ElementType>::operator[](int_max Index) const
+const ElementType& SimpleDataArray<ElementType>::operator[](int_max Index) const
 {
+#if defined(MDK_DEBUG_SimpleDataArray_Operator_CheckBound)
+
+    if (Index >= this->GetElementNumber() || Index < 0)
+    {
+        MDK_Error("Invalid Input @ SimpleDataArray::operator[](i)")
+        return m_DataArray[0];
+    }
+
+#endif //MDK_DEBUG_SimpleDataArray_Operator_CheckBound
+
     return m_DataArray[Index];
 }
 
 
 template<typename ElementType>
 inline
-ElementType& SimpleDataContainer<ElementType>::operator()(int_max Index)
+ElementType& SimpleDataArray<ElementType>::operator()(int_max Index)
 {
+#if defined(MDK_DEBUG_SimpleDataArray_Operator_CheckBound)
+
+    if (Index >= this->GetElementNumber() || Index < 0)
+    {
+        MDK_Error("Invalid Input @ SimpleDataArray::operator[](i)")
+        return m_DataArray[0];
+    }
+
+#endif //MDK_DEBUG_SimpleDataArray_Operator_CheckBound
+
     return m_DataArray[Index];
 }
 
 
 template<typename ElementType>
 inline
-const ElementType& SimpleDataContainer<ElementType>::operator()(int_max Index) const
+const ElementType& SimpleDataArray<ElementType>::operator()(int_max Index) const
 {
+#if defined(MDK_DEBUG_SimpleDataArray_Operator_CheckBound)
+
+    if (Index >= this->GetElementNumber() || Index < 0)
+    {
+        MDK_Error("Invalid Input @ SimpleDataArray::operator[](i)")
+        return m_DataArray[0];
+    }
+
+#endif //MDK_DEBUG_SimpleDataArray_Operator_CheckBound
+
     return m_DataArray[Index];
 }
 
@@ -452,38 +508,50 @@ const ElementType& SimpleDataContainer<ElementType>::operator()(int_max Index) c
 
 template<typename ElementType>
 inline
-ElementType& SimpleDataContainer<ElementType>::at(int_max Index)
+ElementType& SimpleDataArray<ElementType>::at(int_max Index)
 {
+    if (Index >= this->GetElementNumber() || Index < 0)
+    {
+        MDK_Error("Invalid Input @ SimpleDataArray::operator[](i)")
+        return m_DataArray[0];
+    }
+
     return m_DataArray.at(Index);
 }
 
 
 template<typename ElementType>
 inline
-const ElementType& SimpleDataContainer<ElementType>::at(int_max Index) const
+const ElementType& SimpleDataArray<ElementType>::at(int_max Index) const
 {
+    if (Index >= this->GetElementNumber() || Index < 0)
+    {
+        MDK_Error("Invalid Input @ SimpleDataArray::operator[](i)")
+        return m_DataArray[0];
+    }
+
     return m_DataArray.at(Index);
 }
 
 
 template<typename ElementType>
 inline
-SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(int_max Index_start, int_max Index_end)
+SimpleDataArray<ElementType> SimpleDataArray<ElementType>::GetSubSet(int_max Index_start, int_max Index_end)
 {
-    SimpleDataContainer<ElementType> Subset;
+    SimpleDataArray<ElementType> Subset;
 
     auto ElementNumber = this->GetElementNumber();
 
     if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
     {
-        MDK_Error("Index_start is invalid @ SimpleDataContainer::GetSubSet(...)")
-            return Subset;
+        MDK_Error("Index_start is invalid @ SimpleDataArray::GetSubSet(...)")
+        return Subset;
     }
 
     if (Index_end < 0 || Index_end >= ElementNumber)
     {
-        MDK_Error("Index_end is invalid @ SimpleDataContainer::GetSubSet(...)")
-            return Subset;
+        MDK_Error("Index_end is invalid @ SimpleDataArray::GetSubSet(...)")
+        return Subset;
     }
 
     if (ElementNumber == 0)
@@ -504,7 +572,7 @@ SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(int
 
 template<typename ElementType>
 inline
-SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const std::initializer_list<int_max>& IndexList)
+SimpleDataArray<ElementType> SimpleDataArray<ElementType>::GetSubSet(const std::initializer_list<int_max>& IndexList)
 {
     return this->GetSubSet(IndexList.begin(), int_max(IndexList.size()));
 }
@@ -512,7 +580,7 @@ SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(con
 
 template<typename ElementType>
 inline
-SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const std::vector<int_max>& IndexList)
+SimpleDataArray<ElementType> SimpleDataArray<ElementType>::GetSubSet(const std::vector<int_max>& IndexList)
 {
     return this->GetSubSet(IndexList.data(), int_max(IndexList.size()));
 }
@@ -520,7 +588,7 @@ SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(con
 
 template<typename ElementType>
 inline
-SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList)
+SimpleDataArray<ElementType> SimpleDataArray<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList)
 {
     return this->GetSubSet(IndexList.GetElementPointer(), int_max(IndexList.GetElementNumber()));
 }
@@ -528,7 +596,7 @@ SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(con
 
 template<typename ElementType>
 inline
-SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const SimpleDataContainer<int_max>& IndexList)
+SimpleDataArray<ElementType> SimpleDataArray<ElementType>::GetSubSet(const SimpleDataArray<int_max>& IndexList)
 {
     return this->GetSubSet(IndexList.GetElementPointer(), int_max(IndexList.GetElementNumber()));
 }
@@ -536,16 +604,21 @@ SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(con
 
 template<typename ElementType>
 inline
-SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(const int_max* IndexList, int_max ListLength)
+SimpleDataArray<ElementType> SimpleDataArray<ElementType>::GetSubSet(const int_max* IndexList, int_max ListLength)
 {
-    SimpleDataContainer<ElementType> SubSet;
+    SimpleDataArray<ElementType> SubSet;
+
+    if (IndexList == nullptr || ListLength <= 0)
+    {
+        return SubSet;
+    }
 
     auto ElementNumber = this->GetElementNumber();
 
-    if (IndexList == nullptr || ListLength < 0 || ListLength >= ElementNumber)
+    if (ListLength >= ElementNumber)
     {
-        MDK_Error("Invalid input @ SimpleDataContainer::GetSubSet(...)")
-            return SubSet;
+        MDK_Error("Invalid ListLength @ SimpleDataArray::GetSubSet(...)")
+        return SubSet;
     }
 
     SubSet.FastResize(ListLength);
@@ -556,7 +629,7 @@ SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(con
 
         if (tempIndex < 0 || tempIndex >= ElementNumber)
         {
-            MDK_Error("Invalid index @ SimpleDataContainer::GetSubSet(...)")
+            MDK_Error("Invalid index @ SimpleDataArray::GetSubSet(...)")
                 SubSet.Clear();
             return SubSet;
         }
@@ -570,12 +643,12 @@ SimpleDataContainer<ElementType> SimpleDataContainer<ElementType>::GetSubSet(con
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSetData)
+bool SimpleDataArray<ElementType>::SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSetData)
 {
     if (IndexList.size() != SubSetData.size())
     {
-        MDK_Error("IndexList.size() != SubSetData.size() @ SimpleDataContainer::SetSubSet(...)")
-            return false;
+        MDK_Error("IndexList.size() != SubSetData.size() @ SimpleDataArray::SetSubSet(...)")
+        return false;
     }
 
     return this->SetSubSet(IndexList.begin(), SubSetData.begin(), int_max(SubSetData.size()));
@@ -584,12 +657,12 @@ bool SimpleDataContainer<ElementType>::SetSubSet(const std::initializer_list<int
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSetData)
+bool SimpleDataArray<ElementType>::SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSetData)
 {
     if (IndexList.size() != SubSetData.size())
     {
-        MDK_Error("IndexList.size() != SubSetData.size() @ SimpleDataContainer::SetSubSet(...)")
-            return false;
+        MDK_Error("IndexList.size() != SubSetData.size() @ SimpleDataArray::SetSubSet(...)")
+        return false;
     }
 
     return this->SetSubSet(IndexList.data(), SubSetData.data(), int_max(SubSetData.size()));
@@ -598,12 +671,12 @@ bool SimpleDataContainer<ElementType>::SetSubSet(const std::vector<int_max>& Ind
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubSetData)
+bool SimpleDataArray<ElementType>::SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubSetData)
 {
     if (IndexList.GetElementNumber() != SubSetData.GetElementNumber())
     {
-        MDK_Error("IndexList.size() != SubSetData.size() @ SimpleDataContainer::SetSubSet(...)")
-            return false;
+        MDK_Error("IndexList.size() != SubSetData.size() @ SimpleDataArray::SetSubSet(...)")
+        return false;
     }
 
     return this->SetSubSet(IndexList.GetElementPointer(), SubSetData.GetElementPointer(), int_max(SubSetData.GetElementNumber()));
@@ -612,12 +685,12 @@ bool SimpleDataContainer<ElementType>::SetSubSet(const DenseMatrix<int_max>& Ind
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::SetSubSet(const SimpleDataContainer<int_max>& IndexList, const SimpleDataContainer<ElementType>& SubSetData)
+bool SimpleDataArray<ElementType>::SetSubSet(const SimpleDataArray<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSetData)
 {
     if (IndexList.GetElementNumber() != SubSetData.GetElementNumber())
     {
-        MDK_Error("IndexList.size() != SubSetData.size() @ SimpleDataContainer::SetSubSet(...)")
-            return false;
+        MDK_Error("IndexList.size() != SubSetData.size() @ SimpleDataArray::SetSubSet(...)")
+        return false;
     }
 
     return this->SetSubSet(IndexList.GetElementPointer(), SubSetData.GetElementPointer(), int_max(SubSetData.GetElementNumber()));
@@ -626,20 +699,26 @@ bool SimpleDataContainer<ElementType>::SetSubSet(const SimpleDataContainer<int_m
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::SetSubSet(const int_max* IndexList, const ElementType* SubSetData, int_max DataNumber)
+bool SimpleDataArray<ElementType>::SetSubSet(const int_max* IndexList, const ElementType* SubSetData, int_max DataNumber)
 {
     if (IndexList == nullptr || SubSetData == nullptr || DataNumber <= 0)
     {
-        MDK_Error("Invalid input @ SimpleDataContainer::SetSubSet(...)")
-            return false;
+        MDK_Warning("Empty input @ SimpleDataArray::SetSubSet(...)")
+        return true;
     }
 
     auto ElementNumber = this->GetElementNumber();
 
     if (ElementNumber == 0)
     {
-        MDK_Error("Self is empty @ SimpleDataContainer::SetSubSet(...)")
-            return false;
+        MDK_Error("Self is empty @ SimpleDataArray::SetSubSet(...)")
+        return false;
+    }
+
+    if (DataNumber > ElementNumber)
+    {
+        MDK_Error("Invalid DataNumber @ SimpleDataArray::SetSubSet(...)")
+        return false;
     }
 
     for (int_max k = 0; k < DataNumber; ++k)
@@ -648,8 +727,8 @@ bool SimpleDataContainer<ElementType>::SetSubSet(const int_max* IndexList, const
 
         if (Index < 0 || Index >= ElementNumber)
         {
-            MDK_Error("Invalid Index @ SimpleDataContainer::SetSubSet(...)")
-                return false;
+            MDK_Error("Invalid Index @ SimpleDataArray::SetSubSet(...)")
+            return false;
         }
 
         (*this)[Index] = SubSetData[k];
@@ -661,7 +740,7 @@ bool SimpleDataContainer<ElementType>::SetSubSet(const int_max* IndexList, const
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Append(ElementType Element)
+bool SimpleDataArray<ElementType>::Append(ElementType Element)
 {
     auto SelfLength = this->GetElementNumber();
 
@@ -675,11 +754,11 @@ bool SimpleDataContainer<ElementType>::Append(ElementType Element)
 
 template<typename ElementType>
 inline 
-bool SimpleDataContainer<ElementType>::Append(const ElementType* InputData, int_max InputLength)
+bool SimpleDataArray<ElementType>::Append(const ElementType* InputData, int_max InputLength)
 {
     if (InputData == nullptr || InputLength <= 0)
     {
-        MDK_Error("Invalid Input: empty @ SimpleDataContainer::Append(const ElementType* InputData, int_max InputLength)")
+        MDK_Error("Invalid Input: empty @ SimpleDataArray::Append(const ElementType* InputData, int_max InputLength)")
         return false;
     }
 
@@ -698,7 +777,7 @@ bool SimpleDataContainer<ElementType>::Append(const ElementType* InputData, int_
 
 template<typename ElementType>
 inline 
-bool SimpleDataContainer<ElementType>::Delete(int_max Index)
+bool SimpleDataArray<ElementType>::Delete(int_max Index)
 {
     return Delete(&Index, 1);
 }
@@ -706,7 +785,7 @@ bool SimpleDataContainer<ElementType>::Delete(int_max Index)
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Delete(const std::initializer_list<int_max>& IndexList)
+bool SimpleDataArray<ElementType>::Delete(const std::initializer_list<int_max>& IndexList)
 {
     return this->Delete(IndexList.begin(), int_max(IndexList.size()));
 }
@@ -714,7 +793,7 @@ bool SimpleDataContainer<ElementType>::Delete(const std::initializer_list<int_ma
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Delete(const std::vector<int_max>& IndexList)
+bool SimpleDataArray<ElementType>::Delete(const std::vector<int_max>& IndexList)
 {    
     return this->Delete(IndexList.data(), int_max(IndexList.size()));
 }
@@ -722,11 +801,11 @@ bool SimpleDataContainer<ElementType>::Delete(const std::vector<int_max>& IndexL
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Delete(const DenseMatrix<int_max>& IndexList)
+bool SimpleDataArray<ElementType>::Delete(const DenseMatrix<int_max>& IndexList)
 {
     if (IndexList.IsVector() == false)
     {
-        MDK_Error("Input must be a vector @ SimpleDataContainer::Delete(const DenseMatrix<int_max>& IndexList)")
+        MDK_Error("Input must be a vector @ SimpleDataArray::Delete(const DenseMatrix<int_max>& IndexList)")
         return false;
     }
 
@@ -736,7 +815,7 @@ bool SimpleDataContainer<ElementType>::Delete(const DenseMatrix<int_max>& IndexL
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Delete(const SimpleDataContainer<int_max>& IndexList)
+bool SimpleDataArray<ElementType>::Delete(const SimpleDataArray<int_max>& IndexList)
 {
     return this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
 }
@@ -744,19 +823,19 @@ bool SimpleDataContainer<ElementType>::Delete(const SimpleDataContainer<int_max>
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Delete(const int_max* IndexList, int_max ListLength)
+bool SimpleDataArray<ElementType>::Delete(const int_max* IndexList, int_max ListLength)
 {
     auto SelfLength = this->GetElementNumber();
 
     if (SelfLength == 0)
     {
-        MDK_Error("Self is empty @ SimpleDataContainer::Delete(const int_max* IndexList, int_max ListLength)")
+        MDK_Error("Self is empty @ SimpleDataArray::Delete(const int_max* IndexList, int_max ListLength)")
         return false;
     }
 
     if (IndexList == nullptr || ListLength <= 0)
     {
-        MDK_Error("Empty Input @ SimpleDataContainer::Delete(const int_max* IndexList, int_max ListLength)")
+        MDK_Error("Empty Input @ SimpleDataArray::Delete(const int_max* IndexList, int_max ListLength)")
         return false;
     }
 
@@ -764,7 +843,7 @@ bool SimpleDataContainer<ElementType>::Delete(const int_max* IndexList, int_max 
     {
         if (*it >= SelfLength || *it < 0)
         {
-            MDK_Error("Out of bound Input @ SimpleDataContainer::Delete(const int_max* IndexList, int_max ListLength)")
+            MDK_Error("Out of bound Input @ SimpleDataArray::Delete(const int_max* IndexList, int_max ListLength)")
             return false;
         }
     }
@@ -792,7 +871,7 @@ bool SimpleDataContainer<ElementType>::Delete(const int_max* IndexList, int_max 
 
             if (Index_i == Index_prev)
             {
-                MDK_Warning("duplicate Input @ SimpleDataContainer::Delete(const int_max* IndexPtr, int_max Length)")
+                MDK_Warning("duplicate Input @ SimpleDataArray::Delete(const int_max* IndexPtr, int_max Length)")
             }
             else
             {
@@ -809,13 +888,13 @@ bool SimpleDataContainer<ElementType>::Delete(const int_max* IndexList, int_max 
 
 template<typename ElementType>
 inline 
-bool SimpleDataContainer<ElementType>::Delete(int_max Index_start, int_max Index_end)
+bool SimpleDataArray<ElementType>::Delete(int_max Index_start, int_max Index_end)
 {
     auto SelfLength = this->GetElementNumber();
 
     if (SelfLength == 0)
     {
-        MDK_Error("Self is empty @ SimpleDataContainer::Delete(int_max Index_start, int_max Index_end)")
+        MDK_Error("Self is empty @ SimpleDataArray::Delete(int_max Index_start, int_max Index_end)")
         return false;
     }
 
@@ -823,7 +902,7 @@ bool SimpleDataContainer<ElementType>::Delete(int_max Index_start, int_max Index
         || Index_start >= SelfLength || Index_start < 0
         || Index_end >= SelfLength || Index_end < 0 )
     {
-        MDK_Error("Invalid Input @ SimpleDataContainer::Delete(int_max Index_start, int_max Index_end)")
+        MDK_Error("Invalid Input @ SimpleDataArray::Delete(int_max Index_start, int_max Index_end)")
         return false;
     }
 
@@ -834,7 +913,7 @@ bool SimpleDataContainer<ElementType>::Delete(int_max Index_start, int_max Index
 
 
 template<typename ElementType>
-inline bool SimpleDataContainer<ElementType>::Insert(int_max Index, const ElementType& Element)
+inline bool SimpleDataArray<ElementType>::Insert(int_max Index, const ElementType& Element)
 {
     return this->Insert(Index, &Element, 1);
 }
@@ -842,7 +921,7 @@ inline bool SimpleDataContainer<ElementType>::Insert(int_max Index, const Elemen
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Insert(int_max Index, const std::initializer_list<ElementType>& InputData)
+bool SimpleDataArray<ElementType>::Insert(int_max Index, const std::initializer_list<ElementType>& InputData)
 {
     return this->Insert(Index, InputData.begin(), int_max(InputData.size()));
 }
@@ -850,7 +929,7 @@ bool SimpleDataContainer<ElementType>::Insert(int_max Index, const std::initiali
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Insert(int_max Index, const std::vector<ElementType>& InputData)
+bool SimpleDataArray<ElementType>::Insert(int_max Index, const std::vector<ElementType>& InputData)
 {
     return this->Insert(Index, InputData.data(), int_max(InputData.size()));
 }
@@ -858,11 +937,11 @@ bool SimpleDataContainer<ElementType>::Insert(int_max Index, const std::vector<E
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Insert(int_max Index, const DenseMatrix<ElementType>& InputData)
+bool SimpleDataArray<ElementType>::Insert(int_max Index, const DenseMatrix<ElementType>& InputData)
 {
     if (DenseMatrix.IsVector() == false)
     {
-        MDK_Error("Input is NOT a vector @ SimpleDataContainer::Insert(Index, DenseMatrix)")
+        MDK_Error("Input is NOT a vector @ SimpleDataArray::Insert(Index, DenseMatrix)")
         return false;
     }
 
@@ -872,7 +951,7 @@ bool SimpleDataContainer<ElementType>::Insert(int_max Index, const DenseMatrix<E
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Insert(int_max Index, const SimpleDataContainer<ElementType>& InputData)
+bool SimpleDataArray<ElementType>::Insert(int_max Index, const SimpleDataArray<ElementType>& InputData)
 {
     return this->Insert(Index, InputData.GetElementPointer(), InputData.GetElementNumber());
 }
@@ -880,7 +959,7 @@ bool SimpleDataContainer<ElementType>::Insert(int_max Index, const SimpleDataCon
 
 template<typename ElementType>
 inline
-bool SimpleDataContainer<ElementType>::Insert(int_max Index, const ElementType* InputData, int_max InputLength)
+bool SimpleDataArray<ElementType>::Insert(int_max Index, const ElementType* InputData, int_max InputLength)
 {
     auto SelfLength = this->GetElementNumber();
 
@@ -888,7 +967,7 @@ bool SimpleDataContainer<ElementType>::Insert(int_max Index, const ElementType* 
     {
         if (Index != 0 || InputData == nullptr || InputLength <= 0)
         {
-            MDK_Error("Invalid Input @ SimpleDataContainer::Insert(Index, const ElementType* InputData, int_max InputLength)")
+            MDK_Error("Invalid Input @ SimpleDataArray::Insert(Index, const ElementType* InputData, int_max InputLength)")
             return false;
         }
     }
@@ -896,7 +975,7 @@ bool SimpleDataContainer<ElementType>::Insert(int_max Index, const ElementType* 
     {
         if (Index >= SelfLength || Index < 0 || InputData == nullptr || InputLength <= 0)
         {
-            MDK_Error("Invalid Input @ SimpleDataContainer::Insert(Index, const ElementType* InputData, int_max InputLength)")
+            MDK_Error("Invalid Input @ SimpleDataArray::Insert(Index, const ElementType* InputData, int_max InputLength)")
             return false;
         }
     }
@@ -909,7 +988,7 @@ bool SimpleDataContainer<ElementType>::Insert(int_max Index, const ElementType* 
 
 template<typename ElementType>
 inline 
-bool SimpleDataContainer<ElementType>::PushBack(ElementType Element)
+bool SimpleDataArray<ElementType>::PushBack(ElementType Element)
 {
     m_DataArray.push_back(std::move(Element));
 }
@@ -917,7 +996,7 @@ bool SimpleDataContainer<ElementType>::PushBack(ElementType Element)
 
 template<typename ElementType>
 inline
-ElementType SimpleDataContainer<ElementType>::PopBack()
+ElementType SimpleDataArray<ElementType>::PopBack()
 {
     return m_DataArray.pop_back();
 }
@@ -926,7 +1005,7 @@ ElementType SimpleDataContainer<ElementType>::PopBack()
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
-SimpleDataContainer<int_max> SimpleDataContainer<ElementType>::Find(MatchFunctionType MatchFunction)
+SimpleDataArray<int_max> SimpleDataArray<ElementType>::Find(MatchFunctionType MatchFunction)
 {
     return this->Find(this->GetLength(), 0, this->GetLength(), MatchFunction);
 }
@@ -935,7 +1014,7 @@ SimpleDataContainer<int_max> SimpleDataContainer<ElementType>::Find(MatchFunctio
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
-SimpleDataContainer<int_max> SimpleDataContainer<ElementType>::Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction)
+SimpleDataArray<int_max> SimpleDataArray<ElementType>::Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction)
 {
     return this->Find(MaxOutputNumber, 0, this->GetLength(), MatchFunction);
 }
@@ -944,28 +1023,28 @@ SimpleDataContainer<int_max> SimpleDataContainer<ElementType>::Find(int_max MaxO
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
-SimpleDataContainer<int_max> SimpleDataContainer<ElementType>::
+SimpleDataArray<int_max> SimpleDataArray<ElementType>::
 Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction)
 {
-    SimpleDataContainer<int_max> IndexList;
+    SimpleDataArray<int_max> IndexList;
 
     auto ElementNumber = this->GetElementNumber();
 
     if (MaxOutputNumber <= 0 || MaxOutputNumber > ElementNumber)
     {
-        MDK_Error("MaxOutputNumber is invalid @ SimpleDataContainer::Find(...)")
+        MDK_Error("MaxOutputNumber is invalid @ SimpleDataArray::Find(...)")
         return IndexList;
     }
 
     if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
     {
-        MDK_Error("Index_start is invalid @ SimpleDataContainer::Find(...)")
+        MDK_Error("Index_start is invalid @ SimpleDataArray::Find(...)")
         return IndexList;
     }
 
     if (Index_end < 0 || Index_end >= ElementNumber)
     {
-        MDK_Error("Index_end is invalid @ SimpleDataContainer::Find(...)")
+        MDK_Error("Index_end is invalid @ SimpleDataArray::Find(...)")
         return IndexList;
     }
 
@@ -1004,7 +1083,7 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline
-SimpleDataContainer<int_max> SimpleDataContainer<ElementType>::Sort(CompareFunctionType CompareFunction) const
+SimpleDataArray<int_max> SimpleDataArray<ElementType>::Sort(CompareFunctionType CompareFunction) const
 {
     return this->Sort(0, this->GetLength()-1, CompareFunction);
 }
@@ -1013,21 +1092,21 @@ SimpleDataContainer<int_max> SimpleDataContainer<ElementType>::Sort(CompareFunct
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline
-SimpleDataContainer<int_max> SimpleDataContainer<ElementType>::Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const
+SimpleDataArray<int_max> SimpleDataArray<ElementType>::Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const
 {
-    SimpleDataContainer<int_max> IndexList;
+    SimpleDataArray<int_max> IndexList;
 
     auto ElementNumber = this->GetElementNumber();
 
     if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
     {
-        MDK_Error("Index_start is invalid @ SimpleDataContainer::Sort(...)")
+        MDK_Error("Index_start is invalid @ SimpleDataArray::Sort(...)")
         return IndexList;
     }
 
     if (Index_end < 0 || Index_end >= ElementNumber)
     {
-        MDK_Error("Index_end is invalid @ SimpleDataContainer::Sort(...)")
+        MDK_Error("Index_end is invalid @ SimpleDataArray::Sort(...)")
         return IndexList;
     }
 
@@ -1061,7 +1140,7 @@ SimpleDataContainer<int_max> SimpleDataContainer<ElementType>::Sort(int_max Inde
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline
-void SimpleDataContainer<ElementType>::SortInPlace(CompareFunctionType CompareFunction)
+void SimpleDataArray<ElementType>::SortInPlace(CompareFunctionType CompareFunction)
 {
     if (this->IsEmpty() == true)
     {
@@ -1075,7 +1154,7 @@ void SimpleDataContainer<ElementType>::SortInPlace(CompareFunctionType CompareFu
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline
-void SimpleDataContainer<ElementType>::SortInPlace(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction)
+void SimpleDataArray<ElementType>::SortInPlace(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction)
 {
     if (this->IsEmpty() == true)
     {
