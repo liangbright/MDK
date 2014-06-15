@@ -1471,9 +1471,7 @@ FeatureDictionaryForSparseCoding<ElementType> LoadFeatureDictionaryForSparseCodi
 
     auto ReferenceScalar = ElementType(0);
 
-    auto OutputElementTypeName_temp = FindScalarTypeName(ReferenceScalar);
-
-    QString OutputElementTypeName(OutputElementTypeName_temp.c_str());
+    auto OutputElementTypeName = FindScalarTypeName(ReferenceScalar);
 
     int_max OutputByteNumber = CalByteNumberOfScalar(ReferenceScalar);
 
@@ -1495,12 +1493,12 @@ FeatureDictionaryForSparseCoding<ElementType> LoadFeatureDictionaryForSparseCodi
     QJsonObject HeaderObject = HeaderDoc.object();
     //-----------------------------------------------------------//
 
-    QString InputElementTypeName = 0;
+    std::string InputElementTypeName;
 
     auto it = HeaderObject.find("ElementType");
     if (it != HeaderObject.end())
     {
-        InputElementTypeName = it.value().toString();
+        InputElementTypeName = it.value().toString().toStdString();
     }
     else
     {

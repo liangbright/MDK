@@ -7,7 +7,7 @@
 
 
 #include "mdkString.h"
-#include "mdkDataContainer.h"
+#include "mdkDataArray.h"
 #include "mdkSparseMatrix.h"
 #include "mdkSparseVector.h"
 #include "mdkFeatureDictionaryBasedEncoder.h"
@@ -39,7 +39,7 @@ protected:
 
     // output code as separated sparse vectors:
 
-    DataContainer<SparseVector<ElementType>>* m_CodeInSparseColVectorSet; // computed in GenerateCode_in_a_Thread(...)
+    DataArray<SparseVector<ElementType>>* m_CodeInSparseColVectorSet; // computed in GenerateCode_in_a_Thread(...)
 
 protected:
 
@@ -47,7 +47,7 @@ protected:
 
     SparseMatrix<ElementType>  m_CodeInSparseMatrix_SharedCopy;
 
-    DataContainer<SparseVector<ElementType>> m_CodeInSparseColVectorSet_SharedCopy;
+    DataArray<SparseVector<ElementType>> m_CodeInSparseColVectorSet_SharedCopy;
 
     bool m_Flag_Output_CodeInDenseMatrix;
 
@@ -89,7 +89,7 @@ public:
 
     void SetOutputCode(SparseMatrix<ElementType>* Code);
 
-    void SetOutputCode(DataContainer<SparseVector<ElementType>>* Code); // CodeInSparseColVectorSet
+    void SetOutputCode(DataArray<SparseVector<ElementType>>* Code); // CodeInSparseColVectorSet
 
     void SetMaxNumberOfThreads(int_max Number);
 
@@ -109,7 +109,7 @@ public:
 
     SparseMatrix<ElementType>* GetOutputCodeInSparseMatrix();
 
-    DataContainer<SparseVector<ElementType>>* GetOutputCodeInSparseColVectorSet();
+    DataArray<SparseVector<ElementType>>* GetOutputCodeInSparseColVectorSet();
 
 protected:
 

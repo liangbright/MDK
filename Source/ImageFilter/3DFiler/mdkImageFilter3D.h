@@ -9,7 +9,7 @@
 #include "mdkDebugConfig.h"
 #include "mdkParallelForLoop.h"
 #include "mdkProcessObject.h"
-#include "mdkDataContainer.h"
+#include "mdkDataArray.h"
 #include "mdkDenseMatrix.h"
 #include "mdkImage3D.h"
 
@@ -44,13 +44,13 @@ protected:
     Image3D<OutputPixelType>* m_OutputImage;
 
 	// input_output_1:
-    DataContainer<OutputPixelType>* m_OutputArray;
+    DataArray<OutputPixelType>* m_OutputArray;
 
     //------------ internal variable -------------------
 
     Image3D<OutputPixelType> m_OutputImage_SharedCopy;          // keep tracking m_OutputImage
 
-    DataContainer<OutputPixelType> m_OutputArray_SharedCopy;    // keep tracking m_OutputArray
+    DataArray<OutputPixelType> m_OutputArray_SharedCopy;    // keep tracking m_OutputArray
 
     bool m_Flag_OutputImage;
 
@@ -83,7 +83,7 @@ public:
 
     void SetOutputImage(Image3D<OutputPixelType>* OutputImage);
 
-    void SetOutputArray(DataContainer<OutputPixelType>* OutputArray);
+    void SetOutputArray(DataArray<OutputPixelType>* OutputArray);
 
     void SetMaxNumberOfThreads(int_max MaxNumber);    
 
@@ -97,7 +97,7 @@ public:
 	
     Image3D<OutputPixelType>* GetOutputImage();
 
-    DataContainer<OutputPixelType>* GetOutputArray();
+    DataArray<OutputPixelType>* GetOutputArray();
 
     //----------------------------------------------------------------------------------------------------------
     // just for reference: each specific filter should provide Apply function similar to these

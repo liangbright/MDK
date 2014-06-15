@@ -422,7 +422,7 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector, const DenseMatrix<
 
 template<typename ElementType>
 void KNNReconstructionSparseEncoder<ElementType>::
-UpdateReconstructionCode(DataContainer<SparseVector<ElementType>>& ReconstructionCodeSet, 
+UpdateReconstructionCode(DataArray<SparseVector<ElementType>>& ReconstructionCodeSet, 
                          const DenseMatrix<ElementType>&  FeatureData,                          
                          const DenseMatrix<ElementType>&  BasisMatrix,
                          bool CodeNonnegative,
@@ -466,16 +466,16 @@ UpdateReconstructionCode(DataContainer<SparseVector<ElementType>>& Reconstructio
 
 
 template<typename ElementType>
-DataContainer<SparseVector<ElementType>>
+DataArray<SparseVector<ElementType>>
 KNNReconstructionSparseEncoder<ElementType>::
 ComputeReconstructionCodeFromSimilarityCode(const DenseMatrix<ElementType>&  FeatureData, 
-                                            const DataContainer<SparseVector<ElementType>>& SimilarityCodeSet,
+                                            const DataArray<SparseVector<ElementType>>& SimilarityCodeSet,
                                             const DenseMatrix<ElementType>&  BasisMatrix,
                                             bool CodeNonnegative,
                                             bool CodeSumToOne,
                                             int_max MaxNumberOfThreads)
 {
-    DataContainer<SparseVector<ElementType>> ReconstructionCodeSet = SimilarityCodeSet;
+    DataArray<SparseVector<ElementType>> ReconstructionCodeSet = SimilarityCodeSet;
 
     KNNReconstructionSparseEncoder<ElementType>::UpdateReconstructionCode(ReconstructionCodeSet,
                                                                           FeatureData,
@@ -488,16 +488,16 @@ ComputeReconstructionCodeFromSimilarityCode(const DenseMatrix<ElementType>&  Fea
 
 
 template<typename ElementType>
-DataContainer<SparseVector<ElementType>>
+DataArray<SparseVector<ElementType>>
 KNNReconstructionSparseEncoder<ElementType>::
 ComputeReconstructionCodeFromSoftAssignCode(const DenseMatrix<ElementType>&  FeatureData, 
-                                            const DataContainer<SparseVector<ElementType>>& SoftAssignCodeSet,
+                                            const DataArray<SparseVector<ElementType>>& SoftAssignCodeSet,
                                             const DenseMatrix<ElementType>&  BasisMatrix,
                                             bool CodeNonnegative,
                                             bool CodeSumToOne,
                                             int_max MaxNumberOfThreads)
 {
-    DataContainer<SparseVector<ElementType>> ReconstructionCodeSet = SoftAssignCodeSet;
+    DataArray<SparseVector<ElementType>> ReconstructionCodeSet = SoftAssignCodeSet;
 
     KNNReconstructionSparseEncoder<ElementType>::UpdateReconstructionCode(ReconstructionCodeSet,
                                                                           FeatureData,
@@ -541,7 +541,7 @@ ReconstructData(DenseMatrix<ElementType>&        ReconstructedDataVector,
 template<typename ElementType>
 DenseMatrix<ElementType>
 KNNReconstructionSparseEncoder<ElementType>::
-ReconstructData(const DataContainer<SparseVector<ElementType>>& ReconstructionCodeSet, const DenseMatrix<ElementType>& BasisMatrix, int_max MaxNumberOfThreads)
+ReconstructData(const DataArray<SparseVector<ElementType>>& ReconstructionCodeSet, const DenseMatrix<ElementType>& BasisMatrix, int_max MaxNumberOfThreads)
 {
     DenseMatrix<ElementType> ReconstructedDataSet;
 
@@ -554,7 +554,7 @@ ReconstructData(const DataContainer<SparseVector<ElementType>>& ReconstructionCo
 template<typename ElementType>
 void KNNReconstructionSparseEncoder<ElementType>::
 ReconstructData(DenseMatrix<ElementType>& ReconstructedDataSet,
-                const DataContainer<SparseVector<ElementType>>& ReconstructionCodeSet, 
+                const DataArray<SparseVector<ElementType>>& ReconstructionCodeSet, 
                 const DenseMatrix<ElementType>&  BasisMatrix,
                 int_max MaxNumberOfThreads)
 {
@@ -597,7 +597,7 @@ template<typename ElementType>
 DenseMatrix<ElementType>
 KNNReconstructionSparseEncoder<ElementType>::
 ComputeReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  FeatureData,
-                                 const DataContainer<SparseVector<ElementType>>& ReconstructionCodeSet,
+                                 const DataArray<SparseVector<ElementType>>& ReconstructionCodeSet,
                                  const DenseMatrix<ElementType>&  BasisMatrix,
                                  int_max MaxNumberOfThreads)
 {
@@ -614,7 +614,7 @@ template<typename ElementType>
 void KNNReconstructionSparseEncoder<ElementType>::
 ComputeReconstructionErrorL2Norm(DenseMatrix<ElementType>& ErrorL2NormList, 
                                  const DenseMatrix<ElementType>&  FeatureData,
-                                 const DataContainer<SparseVector<ElementType>>& ReconstructionCodeSet,
+                                 const DataArray<SparseVector<ElementType>>& ReconstructionCodeSet,
                                  const DenseMatrix<ElementType>&  BasisMatrix,
                                  int_max MaxNumberOfThreads)
 {

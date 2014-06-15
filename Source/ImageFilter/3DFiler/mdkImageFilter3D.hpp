@@ -121,7 +121,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::SetOutputImage(Image3D<Outp
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilter3D<InputPixelType, OutputPixelType>::SetOutputArray(DataContainer<OutputPixelType>* OutputArray)
+void ImageFilter3D<InputPixelType, OutputPixelType>::SetOutputArray(DataArray<OutputPixelType>* OutputArray)
 {
     if (OutputArray == nullptr)
     {
@@ -245,8 +245,8 @@ bool ImageFilter3D<InputPixelType, OutputPixelType>::CheckInput()
             if (OutputSize.Lx != InputSize.Lx || OutputSize.Ly != InputSize.Ly || OutputSize.Lz != InputSize.Lz)
             {
                 m_OutputImage->SetSize(m_InputImage->GetSize());
-                m_OutputImage->SetPixelSpacing(m_InputImage->GetPixelSpacing());
-                m_OutputImage->SetPhysicalOrigin(m_InputImage->GetPhysicalOrigin());
+                m_OutputImage->SetSpacing(m_InputImage->GetSpacing());
+                m_OutputImage->SetOrigin(m_InputImage->GetOrigin());
             }
         }
         else
@@ -260,8 +260,8 @@ bool ImageFilter3D<InputPixelType, OutputPixelType>::CheckInput()
                 OutputSize.Lz = m_InputRegion->Lz();
 
                 m_OutputImage->SetSize(OutputSize);
-                m_OutputImage->SetPixelSpacing(m_InputImage->GetPixelSpacing());
-                m_OutputImage->SetPhysicalOrigin(m_InputImage->GetPhysicalOrigin());
+                m_OutputImage->SetSpacing(m_InputImage->GetSpacing());
+                m_OutputImage->SetOrigin(m_InputImage->GetOrigin());
             }
         }        
     }
@@ -539,7 +539,7 @@ Image3D<OutputPixelType>* ImageFilter3D<InputPixelType, OutputPixelType>::GetOut
 
 
 template<typename InputPixelType, typename OutputPixelType>
-DataContainer<OutputPixelType>* ImageFilter3D<InputPixelType, OutputPixelType>::GetOutputArray()
+DataArray<OutputPixelType>* ImageFilter3D<InputPixelType, OutputPixelType>::GetOutputArray()
 {
     return &m_OutputArray_SharedCopy;
 }

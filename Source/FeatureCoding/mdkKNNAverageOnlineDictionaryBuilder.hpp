@@ -333,7 +333,7 @@ template<typename ElementType>
 void KNNAverageOnlineDictionaryBuilder<ElementType>::
 UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
                  const DenseMatrix<ElementType>& FeatureData,
-                 const DataContainer<SparseVector<ElementType>>& CodeTable)
+                 const DataArray<SparseVector<ElementType>>& CodeTable)
 {
     //------------------------------------------------------------------------------
     // Input:
@@ -452,7 +452,7 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::
 UpdateBasisMatrixAndBasisExperience(DenseMatrix<ElementType>&       BasisMatrix,
                                     DenseMatrix<ElementType>&       BasisExperience,
                                     const DenseMatrix<ElementType>& FeatureData,
-                                    const DataContainer<SparseVector<ElementType>>& CodeTable)
+                                    const DataArray<SparseVector<ElementType>>& CodeTable)
 {
     if (m_Parameter.WhetherToUseScaleFactor == true)
     {
@@ -470,7 +470,7 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::
 UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ElementType>&       BasisMatrix,
                                                    DenseMatrix<ElementType>&       BasisExperience,
                                                    const DenseMatrix<ElementType>& FeatureData,
-                                                   const DataContainer<SparseVector<ElementType>>& CodeTable)
+                                                   const DataArray<SparseVector<ElementType>>& CodeTable)
 {
     // temp function for basis_change update
 
@@ -637,7 +637,7 @@ void KNNAverageOnlineDictionaryBuilder<ElementType>::
 UpdateBasisMatrixAndBasisExperience_NoScaleFactor(DenseMatrix<ElementType>&       BasisMatrix,
                                                   DenseMatrix<ElementType>&       BasisExperience,
                                                   const DenseMatrix<ElementType>& FeatureData,
-                                                  const DataContainer<SparseVector<ElementType>>& CodeTable)
+                                                  const DataArray<SparseVector<ElementType>>& CodeTable)
 {
     // temp function for basis_change update
 
@@ -880,7 +880,7 @@ template<typename ElementType>
 void KNNAverageOnlineDictionaryBuilder<ElementType>::
 UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
                            const DenseMatrix<ElementType>& FeatureData,
-                           const DataContainer<SparseVector<ElementType>>& CodeTable,
+                           const DataArray<SparseVector<ElementType>>& CodeTable,
                            const DenseMatrix<ElementType>& BasisMatrix,
                            const DenseMatrix<ElementType>& BasisExperience_init)
 {
@@ -950,7 +950,7 @@ template<typename ElementType>
 void KNNAverageOnlineDictionaryBuilder<ElementType>::
 UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
                            const DenseMatrix<ElementType>& FeatureData,
-                           const DataContainer<SparseVector<ElementType>>& CodeTable,
+                           const DataArray<SparseVector<ElementType>>& CodeTable,
                            const DenseMatrix<ElementType>& BasisMatrix,
                            const DenseMatrix<ElementType>& BasisExperience_init)
 {
@@ -1020,7 +1020,7 @@ template<typename ElementType>
 void KNNAverageOnlineDictionaryBuilder<ElementType>::
 UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
                              const DenseMatrix<ElementType>& FeatureData,
-                             const DataContainer<SparseVector<ElementType>>& CodeTable,
+                             const DataArray<SparseVector<ElementType>>& CodeTable,
                              const DenseMatrix<ElementType>& BasisMatrix,
                              const DenseMatrix<ElementType>& BasisExperience_init)
 {
@@ -1090,7 +1090,7 @@ template<typename ElementType>
 void KNNAverageOnlineDictionaryBuilder<ElementType>::
 UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
                                const DenseMatrix<ElementType>& FeatureData,
-                               const DataContainer<SparseVector<ElementType>>& CodeTable,
+                               const DataArray<SparseVector<ElementType>>& CodeTable,
                                const DenseMatrix<ElementType>& BasisMatrix,
                                const DenseMatrix<ElementType>& BasisExperience_init)
 {
@@ -1156,7 +1156,7 @@ template<typename ElementType>
 DenseMatrix<ElementType>
 KNNAverageOnlineDictionaryBuilder<ElementType>::
 ComputeDataReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  FeatureData,
-                                     const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                     const DataArray<SparseVector<ElementType>>& CodeTable,
                                      const DenseMatrix<ElementType>&  BasisMatrix)
 {
     auto ReconstructionCodeSet = KNNReconstructionSparseEncoder<ElementType>::

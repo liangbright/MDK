@@ -123,24 +123,24 @@ public:
 
     //----------------------------------------------------------------------------------------------------
 
-    static void UpdateReconstructionCode(DataContainer<SparseVector<ElementType>>& ReconstructionCodeSet, 
+    static void UpdateReconstructionCode(DataArray<SparseVector<ElementType>>& ReconstructionCodeSet, 
                                          const DenseMatrix<ElementType>&  FeatureData,                                                                                
                                          const DenseMatrix<ElementType>&  BasisMatrix,
                                          bool CodeNonnegative,
                                          bool CodeSumToOne,
                                          int_max MaxNumberOfThreads = 1);
 
-    static DataContainer<SparseVector<ElementType>> 
+    static DataArray<SparseVector<ElementType>> 
         ComputeReconstructionCodeFromSimilarityCode(const DenseMatrix<ElementType>&  FeatureData, 
-                                                    const DataContainer<SparseVector<ElementType>>& SimilarityCodeSet,
+                                                    const DataArray<SparseVector<ElementType>>& SimilarityCodeSet,
                                                     const DenseMatrix<ElementType>&  BasisMatrix,
                                                     bool CodeNonnegative,
                                                     bool CodeSumToOne,
                                                     int_max MaxNumberOfThreads = 1);
 
-    static DataContainer<SparseVector<ElementType>> 
+    static DataArray<SparseVector<ElementType>> 
         ComputeReconstructionCodeFromSoftAssignCode(const DenseMatrix<ElementType>&  FeatureData, 
-                                                    const DataContainer<SparseVector<ElementType>>& SoftAssignCodeSet,
+                                                    const DataArray<SparseVector<ElementType>>& SoftAssignCodeSet,
                                                     const DenseMatrix<ElementType>&  BasisMatrix,
                                                     bool CodeNonnegative,
                                                     bool CodeSumToOne,
@@ -156,12 +156,12 @@ public:
                                 const DenseMatrix<ElementType>&  BasisMatrix);
 
 
-    static DenseMatrix<ElementType> ReconstructData(const DataContainer<SparseVector<ElementType>>& ReconstructionCodeSet,
+    static DenseMatrix<ElementType> ReconstructData(const DataArray<SparseVector<ElementType>>& ReconstructionCodeSet,
                                                     const DenseMatrix<ElementType>&  BasisMatrix,
                                                     int_max MaxNumberOfThreads = 1);
 
     static void ReconstructData(DenseMatrix<ElementType>& ReconstructedDataSet,
-                                const DataContainer<SparseVector<ElementType>>& ReconstructionCodeSet,
+                                const DataArray<SparseVector<ElementType>>& ReconstructionCodeSet,
                                 const DenseMatrix<ElementType>&  BasisMatrix,
                                 int_max MaxNumberOfThreads = 1);
 
@@ -170,13 +170,13 @@ public:
                                                         const DenseMatrix<ElementType>&  BasisMatrix);
 
     static DenseMatrix<ElementType> ComputeReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  FeatureData,
-                                                                     const DataContainer<SparseVector<ElementType>>& ReconstructionCodeSet,
+                                                                     const DataArray<SparseVector<ElementType>>& ReconstructionCodeSet,
                                                                      const DenseMatrix<ElementType>&  BasisMatrix,
                                                                      int_max MaxNumberOfThreads = 1);
 
     static void ComputeReconstructionErrorL2Norm(DenseMatrix<ElementType>& ErrorL2NormList,
                                                  const DenseMatrix<ElementType>&  FeatureData,
-                                                 const DataContainer<SparseVector<ElementType>>& ReconstructionCodeSet,
+                                                 const DataArray<SparseVector<ElementType>>& ReconstructionCodeSet,
                                                  const DenseMatrix<ElementType>&  BasisMatrix,
                                                  int_max MaxNumberOfThreads = 1);
 

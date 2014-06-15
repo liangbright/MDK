@@ -7,7 +7,7 @@
 
 #include "mdkFileIO.h"
 #include "mdkString.h"
-#include "mdkDataContainer.h"
+#include "mdkDataArray.h"
 #include "mdkFeatureDictionaryBuilder.h"
 #include "mdkFeatureDictionaryForSparseCoding.h"
 #include "mdkFeatureCoding_Common_Function.h"
@@ -140,22 +140,22 @@ protected:
 
     void UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary, 
                           const DenseMatrix<ElementType>& FeatureData,
-                          const DataContainer<SparseVector<ElementType>>& CodeTable);
+                          const DataArray<SparseVector<ElementType>>& CodeTable);
 
     void UpdateBasisMatrixAndBasisExperience(DenseMatrix<ElementType>&       BasisMatrix,
                                              DenseMatrix<ElementType>&       BasisExperience,
                                              const DenseMatrix<ElementType>& FeatureData,
-                                             const DataContainer<SparseVector<ElementType>>& CodeTable);
+                                             const DataArray<SparseVector<ElementType>>& CodeTable);
 
     void UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ElementType>&       BasisMatrix,
                                                             DenseMatrix<ElementType>&       BasisExperience,
                                                             const DenseMatrix<ElementType>& FeatureData,
-                                                            const DataContainer<SparseVector<ElementType>>& CodeTable);
+                                                            const DataArray<SparseVector<ElementType>>& CodeTable);
 
     void UpdateBasisMatrixAndBasisExperience_NoScaleFactor(DenseMatrix<ElementType>&       BasisMatrix,
                                                            DenseMatrix<ElementType>&       BasisExperience,
                                                            const DenseMatrix<ElementType>& FeatureData,
-                                                           const DataContainer<SparseVector<ElementType>>& CodeTable);
+                                                           const DataArray<SparseVector<ElementType>>& CodeTable);
 
     void ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix);
 
@@ -175,30 +175,30 @@ protected:
 
     void UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
                                     const DenseMatrix<ElementType>& FeatureData,
-                                    const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                    const DataArray<SparseVector<ElementType>>& CodeTable,
                                     const DenseMatrix<ElementType>& BasisMatrix,
                                     const DenseMatrix<ElementType>& BasisExperience_init);
 
     void UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
                                     const DenseMatrix<ElementType>& FeatureData,
-                                    const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                    const DataArray<SparseVector<ElementType>>& CodeTable,
                                     const DenseMatrix<ElementType>& BasisMatrix,
                                     const DenseMatrix<ElementType>& BasisExperience_init);
 
     void UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
                                       const DenseMatrix<ElementType>& FeatureData,
-                                      const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                      const DataArray<SparseVector<ElementType>>& CodeTable,
                                       const DenseMatrix<ElementType>& BasisMatrix,
                                       const DenseMatrix<ElementType>& BasisExperience_init);
 
     void UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
                                         const DenseMatrix<ElementType>& FeatureData,
-                                        const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                        const DataArray<SparseVector<ElementType>>& CodeTable,
                                         const DenseMatrix<ElementType>& BasisMatrix,
                                         const DenseMatrix<ElementType>& BasisExperience_init);
 
     DenseMatrix<ElementType> ComputeDataReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  FeatureData,
-                                                                  const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                                                  const DataArray<SparseVector<ElementType>>& CodeTable,
                                                                   const DenseMatrix<ElementType>&  BasisMatrix);
 
 };

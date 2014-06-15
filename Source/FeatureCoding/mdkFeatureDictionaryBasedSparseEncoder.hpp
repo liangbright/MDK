@@ -134,7 +134,7 @@ void FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCode(SparseMatri
 
 
 template<typename ElementType>
-void FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCode(DataContainer<SparseVector<ElementType>>* Code)
+void FeatureDictionaryBasedSparseEncoder<ElementType>::SetOutputCode(DataArray<SparseVector<ElementType>>* Code)
 {
     if (Code == nullptr)
     {
@@ -404,7 +404,7 @@ SparseMatrix<ElementType>* FeatureDictionaryBasedSparseEncoder<ElementType>::Get
 
 
 template<typename ElementType>
-DataContainer<SparseVector<ElementType>>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputCodeInSparseColVectorSet()
+DataArray<SparseVector<ElementType>>* FeatureDictionaryBasedSparseEncoder<ElementType>::GetOutputCodeInSparseColVectorSet()
 {
     return &m_CodeInSparseColVectorSet_SharedCopy;
 }

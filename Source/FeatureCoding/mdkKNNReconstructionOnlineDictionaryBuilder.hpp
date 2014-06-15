@@ -362,7 +362,7 @@ template<typename ElementType>
 void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
                  const DenseMatrix<ElementType>& FeatureData,
-                 const DataContainer<SparseVector<ElementType>>& CodeTable)
+                 const DataArray<SparseVector<ElementType>>& CodeTable)
 {
     // copy initial BasisExperience from Dictionary
     DenseMatrix<ElementType> BasisExperience_init;
@@ -378,7 +378,7 @@ UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
 
     //----------------------- Refine loop ----------------------------------------------------------------------
     /*
-    DataContainer<SparseVector<ElementType>> CodeTable_update = CodeTable;
+    DataArray<SparseVector<ElementType>> CodeTable_update = CodeTable;
 
     for (int_max k = 0; k < 10; ++k)
     {        
@@ -496,7 +496,7 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 UpdateBasisMatrixAndBasisExperience(DenseMatrix<ElementType>&       BasisMatrix,
                                     DenseMatrix<ElementType>&       BasisExperience,
                                     const DenseMatrix<ElementType>& FeatureData,
-                                    const DataContainer<SparseVector<ElementType>>& CodeTable,
+                                    const DataArray<SparseVector<ElementType>>& CodeTable,
                                     const DenseMatrix<ElementType>& ReconstructedData)
 {
     //-------------- temp function for basis_change update ---------------
@@ -765,7 +765,7 @@ template<typename ElementType>
 void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
                            const DenseMatrix<ElementType>& FeatureData,
-                           const DataContainer<SparseVector<ElementType>>& CodeTable,
+                           const DataArray<SparseVector<ElementType>>& CodeTable,
                            const DenseMatrix<ElementType>& BasisMatrix,
                            const DenseMatrix<ElementType>& BasisExperience)
 {
@@ -833,7 +833,7 @@ template<typename ElementType>
 void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
                            const DenseMatrix<ElementType>& FeatureData,
-                           const DataContainer<SparseVector<ElementType>>& CodeTable,
+                           const DataArray<SparseVector<ElementType>>& CodeTable,
                            const DenseMatrix<ElementType>& BasisMatrix,
                            const DenseMatrix<ElementType>& BasisExperience)
 {
@@ -901,7 +901,7 @@ template<typename ElementType>
 void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
                              const DenseMatrix<ElementType>& FeatureData,
-                             const DataContainer<SparseVector<ElementType>>& CodeTable,
+                             const DataArray<SparseVector<ElementType>>& CodeTable,
                              const DenseMatrix<ElementType>& BasisMatrix,
                              const DenseMatrix<ElementType>& BasisExperience)
 {
@@ -969,7 +969,7 @@ template<typename ElementType>
 void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
 UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
                                const DenseMatrix<ElementType>& FeatureData,
-                               const DataContainer<SparseVector<ElementType>>& CodeTable,
+                               const DataArray<SparseVector<ElementType>>& CodeTable,
                                const DenseMatrix<ElementType>& ReconstructedData,
                                const DenseMatrix<ElementType>& BasisExperience)
 {

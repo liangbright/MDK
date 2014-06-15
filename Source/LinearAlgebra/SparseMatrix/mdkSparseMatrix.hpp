@@ -1408,7 +1408,7 @@ bool SparseMatrix<ElementType>::ConstructFromSparseColVectorSetInOrder(const Den
 
 template<typename ElementType>
 inline
-bool SparseMatrix<ElementType>::ConstructFromSparseColVectorSetInOrder(const DataContainer<SparseVector<ElementType>>& SparseVectorSet,
+bool SparseMatrix<ElementType>::ConstructFromSparseColVectorSetInOrder(const DataArray<SparseVector<ElementType>>& SparseVectorSet,
                                                                        int_max RowNumber,
                                                                        int_max ColNumber)
 {

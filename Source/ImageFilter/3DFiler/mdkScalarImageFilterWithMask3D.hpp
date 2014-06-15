@@ -153,11 +153,11 @@ void ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::ComputeRegion
         return;
     }
 
-    auto PhysicalOrigin = m_InputImage->GetPhysicalOrigin();
+    auto PhysicalOrigin = m_InputImage->GetOrigin();
 
     auto PhysicalSize = m_InputImage->GetPhysicalSize();
 
-    auto PixelSpacing = m_InputImage->GetPixelSpacing();
+    auto PixelSpacing = m_InputImage->GetSpacing();
 
     auto SafeDistance_x = 2 * PixelSpacing.Sx;
 
