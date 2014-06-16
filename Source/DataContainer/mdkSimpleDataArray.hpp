@@ -615,7 +615,7 @@ SimpleDataArray<ElementType> SimpleDataArray<ElementType>::GetSubSet(const int_m
 
     auto ElementNumber = this->GetElementNumber();
 
-    if (ListLength >= ElementNumber)
+    if (ListLength > ElementNumber)
     {
         MDK_Error("Invalid ListLength @ SimpleDataArray::GetSubSet(...)")
         return SubSet;
@@ -1007,7 +1007,7 @@ template<typename MatchFunctionType>
 inline
 SimpleDataArray<int_max> SimpleDataArray<ElementType>::Find(MatchFunctionType MatchFunction)
 {
-    return this->Find(this->GetLength(), 0, this->GetLength(), MatchFunction);
+    return this->Find(this->GetLength(), 0, this->GetLength()-1, MatchFunction);
 }
 
 
@@ -1016,7 +1016,7 @@ template<typename MatchFunctionType>
 inline
 SimpleDataArray<int_max> SimpleDataArray<ElementType>::Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction)
 {
-    return this->Find(MaxOutputNumber, 0, this->GetLength(), MatchFunction);
+    return this->Find(MaxOutputNumber, 0, this->GetLength()-1, MatchFunction);
 }
 
 
@@ -1060,8 +1060,6 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
     }
 
     IndexList.ReserveCapacity(MaxOutputNumber);
-
-    DenseMatrix<ElementType> ColVector;
 
     for (int_max i = Index_start; i <= Index_end; ++i)
     {
@@ -1121,7 +1119,7 @@ SimpleDataArray<int_max> SimpleDataArray<ElementType>::Sort(int_max Index_start,
         return IndexList;
     }
 
-    IndexList.FastResize(1, ElementNumber);
+    IndexList.FastResize(ElementNumber);
 
     for (int_max i = Index_start; i <= Index_end; ++i)
     {

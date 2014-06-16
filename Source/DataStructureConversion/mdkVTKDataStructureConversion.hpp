@@ -282,9 +282,9 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 
         for (int i = 0; i < PointNumber; ++i)
         {
-            pos[0] = InputMesh.Vertex()(0, i);
-            pos[1] = InputMesh.Vertex()(1, i);
-            pos[2] = InputMesh.Vertex()(2, i);
+            pos[0] = InputMesh.VertexPositionTable()(0, i);
+            pos[1] = InputMesh.VertexPositionTable()(1, i);
+            pos[2] = InputMesh.VertexPositionTable()(2, i);
 
             PointData->InsertPoint(i, pos);
         }
@@ -297,9 +297,9 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 
         for (int i = 0; i < PointNumber; ++i)
         {
-            pos[0] = float(InputMesh.Vertex()(0, i));
-            pos[1] = float(InputMesh.Vertex()(1, i));
-            pos[2] = float(InputMesh.Vertex()(2, i));
+            pos[0] = float(InputMesh.VertexPositionTable()(0, i));
+            pos[1] = float(InputMesh.VertexPositionTable()(1, i));
+            pos[2] = float(InputMesh.VertexPositionTable()(2, i));
 
             PointData->InsertPoint(i, pos);
         }
@@ -314,9 +314,9 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 
         for (int i = 0; i < PointNumber; ++i)
         {
-            pos[0] = float(InputMesh.Vertex()(0, i));
-            pos[1] = float(InputMesh.Vertex()(1, i));
-            pos[2] = float(InputMesh.Vertex()(2, i));
+            pos[0] = float(InputMesh.VertexPositionTable()(0, i));
+            pos[1] = float(InputMesh.VertexPositionTable()(1, i));
+            pos[2] = float(InputMesh.VertexPositionTable()(2, i));
 
             PointData->InsertPoint(i, pos);
         }
@@ -336,7 +336,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 
         for (int n = 0; n < 3; ++n)
         {
-            auto PointIndex = InputMesh.Triangle()(n, i);
+            auto PointIndex = InputMesh.VertexIndexTable()[i][n];
 
             CellData->InsertCellPoint(PointIndex);
         }
@@ -384,13 +384,16 @@ TriangleMesh<ScalarType> ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKPol
 
     auto CellNumber = VTKTriangleMesh->GetNumberOfCells();
 
-    DenseMatrix<int_max> Triangle(3, CellNumber);
+    DataArray<DenseVector<int_max>> Triangle;
+    Triangle.FastResize(CellNumber);
 
     for (int_max k = 0; k < CellNumber; ++k)
     {
-        auto Cell = VTKTriangleMesh->GetCell(k);
-        
-        Triangle.SetCol(k, { Cell->GetPointId(0), Cell->GetPointId(1), Cell->GetPointId(2) });
+        auto Cell = VTKPolyMesh->GetCell(k);
+
+        Triangle[k].Append(int_max(Cell->GetPointId(0)));
+        Triangle[k].Append(int_max(Cell->GetPointId(1)));
+        Triangle[k].Append(int_max(Cell->GetPointId(2)));
     }
 
     OutputMesh.Construct(std::move(Vertex), std::move(Triangle), Flag_BuildLinkAndAjacency);
@@ -419,9 +422,9 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
 
         for (int i = 0; i < PointNumber; ++i)
         {
-            pos[0] = InputMesh.Vertex()(0, i);
-            pos[1] = InputMesh.Vertex()(1, i);
-            pos[2] = InputMesh.Vertex()(2, i);
+            pos[0] = InputMesh.VertexPositionTable()(0, i);
+            pos[1] = InputMesh.VertexPositionTable()(1, i);
+            pos[2] = InputMesh.VertexPositionTable()(2, i);
 
             PointData->InsertPoint(i, pos);
         }
@@ -434,9 +437,9 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
 
         for (int i = 0; i < PointNumber; ++i)
         {
-            pos[0] = float(InputMesh.Vertex()(0, i));
-            pos[1] = float(InputMesh.Vertex()(1, i));
-            pos[2] = float(InputMesh.Vertex()(2, i));
+            pos[0] = float(InputMesh.VertexPositionTable()(0, i));
+            pos[1] = float(InputMesh.VertexPositionTable()(1, i));
+            pos[2] = float(InputMesh.VertexPositionTable()(2, i));
 
             PointData->InsertPoint(i, pos);
         }
@@ -451,9 +454,9 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
 
         for (int i = 0; i < PointNumber; ++i)
         {
-            pos[0] = float(InputMesh.Vertex()(0, i));
-            pos[1] = float(InputMesh.Vertex()(1, i));
-            pos[2] = float(InputMesh.Vertex()(2, i));
+            pos[0] = float(InputMesh.VertexPositionTable()(0, i));
+            pos[1] = float(InputMesh.VertexPositionTable()(1, i));
+            pos[2] = float(InputMesh.VertexPositionTable()(2, i));
 
             PointData->InsertPoint(i, pos);
         }
@@ -469,13 +472,13 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
 
     for (int i = 0; i < CellNumber; ++i)
     {
-        auto PointNumberInCell = InputMesh.Polygon()[i].GetElementNumber();
+        auto PointNumberInCell = InputMesh.VertexIndexTable()[i].GetElementNumber();
 
         CellData->InsertNextCell(PointNumberInCell);
 
         for (int n = 0; n < PointNumberInCell; ++n)
         {
-            auto PointIndex = InputMesh.Polygon()[i][n];
+            auto PointIndex = InputMesh.VertexIndexTable()[i][n];
 
             CellData->InsertCellPoint(PointIndex);
         }
@@ -518,7 +521,7 @@ PolygonMesh<ScalarType> ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKPolyM
 
     auto CellNumber = int_max(VTKPolyMesh->GetNumberOfCells());
 
-    DataContainer<DenseVector<int_max>> Polygon;
+    DataArray<DenseVector<int_max>> Polygon;
     Polygon.FastResize(CellNumber);
 
     for (int_max k = 0; k < CellNumber; ++k)
@@ -533,7 +536,7 @@ PolygonMesh<ScalarType> ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKPolyM
         }
     }
 
-    OutputMesh.Construct(std::move(Vertex), std::move(Polygon), Flag_BuildLinkAndAjacency);
+    OutputMesh.Construct(std::move(Vertex), std::move(Polygon));
 
     return OutputMesh;
 }

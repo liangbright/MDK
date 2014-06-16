@@ -309,21 +309,21 @@ public:
     //-------------------- find ---------------------------------------//
 
     template<typename MatchFunctionType>
-    inline DenseMatrix<int_max> Find(MatchFunctionType MatchFunction);
+    inline DataArray<int_max> Find(MatchFunctionType MatchFunction);
 
     template<typename MatchFunctionType>
-    inline DenseMatrix<int_max> Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction);
+    inline DataArray<int_max> Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction);
 
     template<typename MatchFunctionType>
-    inline DenseMatrix<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction);
+    inline DataArray<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction);
 
     //--------------------- sort ---------------------------------------//
 
     template<typename CompareFunctionType>
-    inline DenseMatrix<int_max> Sort(CompareFunctionType CompareFunction) const;
+    inline DataArray<int_max> Sort(CompareFunctionType CompareFunction) const;
 
     template<typename CompareFunctionType>
-    inline DenseMatrix<int_max> Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const;
+    inline DataArray<int_max> Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const;
 
     template<typename CompareFunctionType>
     inline void SortInPlace(CompareFunctionType CompareFunction);

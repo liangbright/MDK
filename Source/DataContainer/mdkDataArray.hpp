@@ -1418,7 +1418,7 @@ template<typename ElementType>
 inline 
 DataArray<ElementType> DataArray<ElementType>::GetSubSet(const std::initializer_list<int_max>& IndexList)
 {
-    return this->GetSubSet(initializer_list.begin(), int_max(IndexList.size()));
+    return this->GetSubSet(IndexList.begin(), int_max(IndexList.size()));
 }
 
 
@@ -1426,7 +1426,7 @@ template<typename ElementType>
 inline 
 DataArray<ElementType> DataArray<ElementType>::GetSubSet(const std::vector<int_max>& IndexList)
 {
-    return this->GetSubSet(initializer_list.begin(), int_max(IndexList.size()));
+    return this->GetSubSet(IndexList.begin(), int_max(IndexList.size()));
 }
 
 
@@ -1434,7 +1434,7 @@ template<typename ElementType>
 inline
 DataArray<ElementType> DataArray<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList)
 {
-    return this->GetSubSet(initializer_list.begin(), int_max(IndexList.GetElementNumber()));
+    return this->GetSubSet(IndexList.begin(), int_max(IndexList.GetElementNumber()));
 }
 
 
@@ -1442,7 +1442,7 @@ template<typename ElementType>
 inline
 DataArray<ElementType> DataArray<ElementType>::GetSubSet(const DataArray<int_max>& IndexList)
 {
-    return this->GetSubSet(initializer_list.begin(), int_max(IndexList.GetElementNumber()));
+    return this->GetSubSet(IndexList.begin(), int_max(IndexList.GetElementNumber()));
 }
 
 
@@ -1459,7 +1459,7 @@ DataArray<ElementType> DataArray<ElementType>::GetSubSet(const int_max* IndexLis
 
     auto ElementNumber = this->GetElementNumber();
 
-    if (ListLength >= ElementNumber)
+    if (ListLength > ElementNumber)
     {
         MDK_Error("Invalid ListLength @ DataArray::GetSubSet(...)")
         return SubSet;
@@ -1488,27 +1488,27 @@ DataArray<ElementType> DataArray<ElementType>::GetSubSet(const int_max* IndexLis
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
-DenseMatrix<int_max> DataArray<ElementType>::Find(MatchFunctionType MatchFunction)
+DataArray<int_max> DataArray<ElementType>::Find(MatchFunctionType MatchFunction)
 {
-    return this->Find(this->GetLength(), 0, this->GetLength(), MatchFunction);
+    return this->Find(this->GetLength(), 0, this->GetLength()-1, MatchFunction);
 }
 
 
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
-DenseMatrix<int_max> DataArray<ElementType>::Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction)
+DataArray<int_max> DataArray<ElementType>::Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction)
 {
-    return this->Find(MaxOutputNumber, 0, this->GetLength(), MatchFunction);
+    return this->Find(MaxOutputNumber, 0, this->GetLength()-1, MatchFunction);
 }
 
 
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
-DenseMatrix<int_max> DataArray<ElementType>::Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction)
+DataArray<int_max> DataArray<ElementType>::Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction)
 {
-    DenseMatrix<int_max> IndexList;
+    DataArray<int_max> IndexList;
 
     auto ElementNumber = this->GetElementNumber();
 
@@ -1537,19 +1537,17 @@ DenseMatrix<int_max> DataArray<ElementType>::Find(int_max MaxOutputNumber, int_m
 
     if (Index_start == Index_end)
     {
-        IndexList.AppendCol({ Index_start });
+        IndexList.Append(Index_start);
         return IndexList;
     }
 
     IndexList.ReserveCapacity(MaxOutputNumber);
 
-    DenseMatrix<ElementType> ColVector;
-
     for (int_max i = Index_start; i <= Index_end; ++i)
     {
         if (MatchFunction((*this)[i]) == true)
         {
-            IndexList.AppendCol({ i });
+            IndexList.Append(i);
 
             if (IndexList.GetElementNumber() == MaxOutputNumber)
             {
@@ -1565,26 +1563,20 @@ DenseMatrix<int_max> DataArray<ElementType>::Find(int_max MaxOutputNumber, int_m
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline
-DenseMatrix<int_max> DataArray<ElementType>::Sort(CompareFunctionType CompareFunction) const
+DataArray<int_max> DataArray<ElementType>::Sort(CompareFunctionType CompareFunction) const
 {
-    return this->Sort(0, this->GetLength(), CompareFunction);
+    return this->Sort(0, this->GetLength()-1, CompareFunction);
 }
 
 
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline
-DenseMatrix<int_max> DataArray<ElementType>::Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const
+DataArray<int_max> DataArray<ElementType>::Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const
 {
-    DenseMatrix<int_max> IndexList;
+    DataArray<int_max> IndexList;
 
     auto ElementNumber = this->GetElementNumber();
-
-    if (MaxOutputNumber <= 0 || MaxOutputNumber > ElementNumber)
-    {
-        MDK_Error("MaxOutputNumber is invalid @ DataArray::Find(...)")
-        return IndexList;
-    }
 
     if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
     {
@@ -1605,11 +1597,11 @@ DenseMatrix<int_max> DataArray<ElementType>::Sort(int_max Index_start, int_max I
 
     if (Index_start == Index_end)
     {
-        IndexList.AppendCol({ Index_start });
+        IndexList.Append(Index_start);
         return IndexList;
     }
 
-    IndexList.FastResize(1, ElementNumber);
+    IndexList.FastResize(ElementNumber);
 
     for (int_max i = Index_start; i <= Index_end; ++i)
     {

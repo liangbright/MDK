@@ -22,6 +22,9 @@ class Image3D;
 
 template<typename ScalarType>
 class TriangleMesh;
+
+template<typename ScalarType>
+class PolygonMesh;
 //-------------------------------------------------//
 
 

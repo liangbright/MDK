@@ -35,11 +35,27 @@ struct PolygonMeshData
 
     DataArray<Vertex_Of_PolygonMesh<ScalarType>> VertexList;
 
+    DenseVector<int_max> VertexValidityFlagList;
+    // 1: vertex is an element of the mesh 
+    // 0: vertex is deleted
+
     DataArray<Polygon_Of_PolygonMesh<ScalarType>> PolygonList; // also known as cell, face, facet, element
-    
+
+    DenseVector<int_max> PolygonValidityFlagList;
+    // 1: Polygon is an element of the mesh 
+    // 0: Polygon is deleted
+
     DataArray<Edge_Of_PolygonMesh<ScalarType>> EdgeList;
 
+    DenseVector<int_max> EdgeValidityFlagList;
+    // 1: Edge is an element of the mesh 
+    // 0: Edge is deleted
+
     DataArray<HalfEdge_Of_PolygonMesh<ScalarType>> HalfEdgeList;
+
+    DenseVector<int_max> HalfEdgeValidityFlagList;
+    // 1: HalfEdge is an element of the mesh 
+    // 0: HalfEdge is deleted
 
     //---------------- Mesh Attribute -----------------------------//
 
@@ -62,6 +78,18 @@ class PolygonMesh : public Object
 protected:
     std::shared_ptr<PolygonMeshData<ScalarType>> m_MeshData;
 
+    template<typename T>
+    friend class Vertex_Of_PolygonMesh;
+
+    template<typename T>
+    friend class Edge_Of_PolygonMesh;
+
+    template<typename T>
+    friend class HalfEdge_Of_PolygonMesh;
+
+    template<typename T>
+    friend class Polygon_Of_PolygonMesh;
+
 public:
     typedef ScalarType ScalarType;
     typedef int_max IndexType;
@@ -79,6 +107,14 @@ public:
 
     bool Construct(DenseMatrix<ScalarType> InputVertexPositionTable, DataArray<DenseVector<int_max>> InputVertexIndexTable);
     // index order in each VertexIndexList should be consistent
+
+    bool CheckIfTriangleMesh() const;
+
+    //---------------------------------------------------------------------------
+    // attention: after this function is called, every index will be changed
+    // and there will be no "dead/deleted" item in any object list (e.g., m_MeshData->VertexList)
+    
+    void CleanDataStructure();
 
     //---------------------------------------------------------------------------
 
@@ -107,24 +143,37 @@ public:
     inline int_max GetPolygonNumber() const;
     inline int_max GetEdgeNumber() const;
 
-    //-----------------------------------------------------------------------
+    // GlobalID -------------------------------------------------------------
 
-    void UpdateNormalAtVertex();
-    void UpdateNormalAtPolygon();
+    inline DenseVector<int_max>& VertexGlobalIDList();
+    inline const DenseVector<int_max>& VertexGlobalIDList() const;
 
-    //-------------------------------------------------------------------
+    inline DenseVector<int_max>& PolygonGlobalIDList();
+    inline const DenseVector<int_max>& PolygonGlobalIDList() const;
 
-    void UpdateAttribute();
+    // 3D Position -----------------------------------------------------------
 
-    //-------------------------------------------------------------------
+    inline DenseMatrix<ScalarType>& VertexPositionTable();
+    inline const DenseMatrix<ScalarType>& VertexPositionTable() const;
 
-    inline const DenseVector<int_max>& GetVertexGlobalIDList() const;
-    inline const DenseVector<int_max>& GetPolygonGlobalIDList() const;
+    // mesh item --------------------------------------------------------------
 
-    inline const DenseMatrix<ScalarType>& GetVertexPositionTable() const;
-    inline const DataArray<DenseVector<int_max>>& GetVertexIndexTable() const;
+    inline DataArray<DenseVector<int_max>>& VertexIndexTable();
+    inline const DataArray<DenseVector<int_max>>& VertexIndexTable() const;
 
-    //----------------------------------------------------------------------------
+    inline DataArray<Vertex_Of_PolygonMesh<ScalarType>>& VertexList();
+    inline const DataArray<Vertex_Of_PolygonMesh<ScalarType>>& VertexList() const;
+
+    inline DataArray<Edge_Of_PolygonMesh<ScalarType>>& EdgeList();
+    inline const DataArray<Edge_Of_PolygonMesh<ScalarType>>& EdgeList() const;
+
+    inline DataArray<HalfEdge_Of_PolygonMesh<ScalarType>>& HalfEdgeList();
+    inline const DataArray<HalfEdge_Of_PolygonMesh<ScalarType>>& HalfEdgeList() const;
+
+    inline DataArray<Polygon_Of_PolygonMesh<ScalarType>>& PolygonList();
+    inline const DataArray<Polygon_Of_PolygonMesh<ScalarType>>& PolygonList() const;
+
+    // Attribute -------------------------------------------------------
 
     inline DenseMatrix<ScalarType>& NormalAtVertex();
     inline const DenseMatrix<ScalarType>& NormalAtVertex() const;
@@ -132,9 +181,15 @@ public:
     inline DenseMatrix<ScalarType>& NormalAtPolygon();
     inline const DenseMatrix<ScalarType>& NormalAtPolygon() const;
 
+    //-----------------------------------------------------------------------
+
+    void UpdateNormalAtVertex();
+    void UpdateNormalAtPolygon();
+    void UpdateAttribute();
+
 private:
-    void ConstructTempHalfEdgeList(DataArray<DenseVector<int_max>>& TempHalfEdgeList, DataArray<DenseVector<int_max>>& HalfEdgeIndexListOfEachPolygon);
-    bool ConstructPolygonList(const DataArray<DenseVector<int_max>>& TempHalfEdgeList, const DataArray<DenseVector<int_max>>& HalfEdgeIndexListOfEachPolygon);
+    DataArray<DenseVector<int_max>> ConstructTempHalfEdgeList();
+    bool ConstructPolygonList(const DataArray<DenseVector<int_max>>& TempHalfEdgeList);
     bool ConstructEdgeList(const DataArray<DenseVector<int_max>>& TempHalfEdgeList);
     bool ConstructHalfEdgeList(const DataArray<DenseVector<int_max>>& TempHalfEdgeList);
     bool ConstructVertexList();

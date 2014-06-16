@@ -11,21 +11,29 @@ template<typename ScalarType>
 class PolygonMesh;
 //---------------------------------------------------//
 
+//====================================== Vertex_Of_PolygonMesh ==============================================================//
+
+template<typename ScalarType>
+struct Data_Of_Vertex_Of_PolygonMesh
+{
+    PolygonMesh<ScalarType>* Mesh;
+
+    int_max Index;      // VertexIndex : index of this vertex in m_Mesh->m_MeshData->VertexList
+
+    DenseVector<int_max> AdjacentHalfEdgeIndexList; // the vertex is the starting point of a HalfEdge (in m_HalfEdgeIndexList)
+
+    // these can be derived from AdjacentHalfEdgeIndexList
+    // create them to speedup computation
+    DenseVector<int_max> AdjacentVertexIndexList;
+    DenseVector<int_max> AdjacentEdgeIndexList;
+    DenseVector<int_max> AdjacentPolygonIndexList;
+};
+
 template<typename ScalarType>
 class Vertex_Of_PolygonMesh : public Object
 {
 private:
-    PolygonMesh<ScalarType>* m_Mesh;
-
-    int_max m_Index;      // VertexIndex : index of this vertex in m_Mesh->m_MeshData->VertexList
-
-    DenseVector<int_max> m_AdjacentHalfEdgeIndexList; // the vertex is the starting point of a HalfEdge (in m_HalfEdgeIndexList)
-
-    // these can be derived from m_AdjacentHalfEdgeIndexList
-    // create them to speedup computation
-    DenseVector<int_max> m_AdjacentVertexIndexList;
-    DenseVector<int_max> m_AdjacentEdgeIndexList;
-    DenseVector<int_max> m_AdjacentPolygonIndexList;
+    std::unique_ptr<Data_Of_Vertex_Of_PolygonMesh<ScalarType>> m_Data;
 
 public:
     inline Vertex_Of_PolygonMesh(PolygonMesh<ScalarType>* ParentMesh = nullptr);
@@ -37,6 +45,11 @@ public:
     inline void operator=(Vertex_Of_PolygonMesh<ScalarType>&& InputVertex);
 
     inline void Clear();
+    inline void Create();
+    inline void Delete();
+
+    inline bool IsValid() const;
+    inline bool IsDeleted() const;
 
 private:
     inline void Copy(const Vertex_Of_PolygonMesh<ScalarType>& InputVertex);
@@ -70,16 +83,27 @@ public:
     inline void GetAdjacentPolygonIndexList(DenseVector<int_max>& OutputIndexList) const;
 };
 
+//====================================== Edge_Of_PolygonMesh ==============================================================//
+
+template<typename ScalarType>
+struct Data_Of_Edge_Of_PolygonMesh
+{
+    PolygonMesh<ScalarType>* Mesh;
+    
+    int_max Index; // EdgeIndex: index of this Edge  in m_Mesh->MeshData->EdgeList
+
+    //int_max VertexIndex0; // starting vertex of the halfedge: HalfEdgeIndex0
+    //int_max VertexIndex1; // starting vertex of the halfedge: HalfEdgeIndex1
+
+    int_max HalfEdgeIndex0;
+    int_max HalfEdgeIndex1;
+};
+
 template<typename ScalarType>
 class Edge_Of_PolygonMesh : public Object
 {
 private:
-    PolygonMesh<ScalarType>* m_Mesh;
-
-    int_max m_Index; // EdgeIndex: index of this Edge  in m_Mesh->MeshData->EdgeList
-
-    int_max m_HalfEdgeIndex0;
-    int_max m_HalfEdgeIndex1;
+    std::unique_ptr<Data_Of_Edge_Of_PolygonMesh<ScalarType>> m_Data;
 
 public:
     inline Edge_Of_PolygonMesh(PolygonMesh<ScalarType>* ParentMesh = nullptr);
@@ -87,7 +111,14 @@ public:
     inline ~Edge_Of_PolygonMesh();
 
     inline void operator=(const Edge_Of_PolygonMesh<ScalarType>& InputEdge);
+    
     inline void Clear();
+    inline void Create();
+    inline void Delete();
+
+    inline bool IsValid() const;
+    inline bool IsDeleted() const;
+
     //--------------------------------------------------------------//
     inline void SetParentMesh(PolygonMesh<ScalarType>* ParentMesh);
     inline PolygonMesh<ScalarType>* GetParentMesh();
@@ -99,10 +130,12 @@ public:
     inline DenseVector<int_max> GetHalfEdgeIndexList() const;
     inline void GetHalfEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
     inline void GetHalfEdgeIndexList(int_max& HalfEdgeIndex0, int_max& HalfEdgeIndex1) const;
+    inline void GetHalfEdgeIndexList(int_max OutputIndexList[2]) const;
 
     inline DenseVector<int_max> GetVertexIndexList() const;
     inline void GetVertexIndexList(DenseVector<int_max>& OutputIndexList) const;
     inline void GetVertexIndexList(int_max& VertexIndex0, int_max& VertexIndex1) const;
+    inline void GetVertexIndexList(int_max OutputIndexList[2]) const;
 
     inline DenseVector<int_max> GetAdjacentEdgeIndexList() const;
     inline void GetAdjacentEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
@@ -111,20 +144,29 @@ public:
     inline void GetAdjacentPolygonIndexList(DenseVector<int_max>& OutputIndexList) const;
 };
 
+//====================================== HalfEdge_Of_PolygonMesh ==============================================================//
+
+template<typename ScalarType>
+struct Data_Of_HalfEdge_Of_PolygonMesh
+{
+    PolygonMesh<ScalarType>* Mesh;
+
+    int_max Index;                  // HalfEdgeIndex: index of this HalfEdge in m_Mesh->m_MeshData->HalfEdgeList
+
+    int_max VertexIndex_start;      // index of the start vertex point of the HalfEdge
+    int_max VertexIndex_end;        // index of the end vertex point of the HalfEdge
+    int_max EdgeIndex;              // index of Edge in m_Mesh->m_MeshData->EdgeList
+    int_max PolygonIndex;           // index of Polygon in m_Mesh->m_MeshData->PolygonList
+    int_max OppositeHalfEdgeIndex;  // index of the Opposite HalfEdge in m_Mesh->m_MeshData->HalfEdgeList
+    int_max NextHalfEdgeIndex;      // index of the Next HalfEdge in m_Mesh->m_MeshData->HalfEdgeList
+    int_max PreviousHalfEdgeIndex;  // index of the Previous HalfEdge in m_Mesh->m_MeshData->HalfEdgeList
+};
+
 template<typename ScalarType>
 class HalfEdge_Of_PolygonMesh : public Object
 {
 private:
-    PolygonMesh<ScalarType>* m_Mesh;
-
-    int_max m_Index;                  // HalfEdgeIndex: index of this HalfEdge in m_Mesh->m_MeshData->HalfEdgeList
-    int_max m_VertexIndex_start;      // index of the start vertex point of the HalfEdge
-    int_max m_VertexIndex_end;        // index of the end vertex point of the HalfEdge
-    int_max m_EdgeIndex;              // index of Edge in m_Mesh->m_MeshData->EdgeList
-    int_max m_PolygonIndex;           // index of Polygon in m_Mesh->m_MeshData->PolygonList
-    int_max m_OppositeHalfEdgeIndex;  // index of the Opposite HalfEdge in m_Mesh->m_MeshData->HalfEdgeList
-    int_max m_NextHalfEdgeIndex;      // index of the Next HalfEdge in m_Mesh->m_MeshData->HalfEdgeList
-    int_max m_PreviousHalfEdgeIndex;  // index of the Previous HalfEdge in m_Mesh->m_MeshData->HalfEdgeList
+    std::unique_ptr<Data_Of_HalfEdge_Of_PolygonMesh<ScalarType>> m_Data;
 
 public:
     HalfEdge_Of_PolygonMesh(PolygonMesh<ScalarType>* ParentMesh = nullptr);
@@ -133,7 +175,12 @@ public:
 
     void operator=(const HalfEdge_Of_PolygonMesh<ScalarType>& InputHalfEdge);
 
-    void Clear();
+    inline void Clear();
+    inline void Create();
+    inline void Delete();
+
+    inline bool IsValid() const;
+    inline bool IsDeleted() const;
 
     //--------------------------------------------------------------------------------//
     void SetParentMesh(PolygonMesh<ScalarType>* ParentMesh);
@@ -169,16 +216,23 @@ public:
     inline void GetAdjacentPolygonIndexList(int_max& PolygonIndex0, int_max& PolygonIndex1) const;
 };
 
+//====================================== Polygon_Of_PolygonMesh ==============================================================//
+
+template<typename ScalarType>
+struct Data_Of_Polygon_Of_PolygonMesh
+{
+    PolygonMesh<ScalarType>* Mesh;
+
+    int_max Index; // PolygonIndex: index of the Polygon in m_Mesh->m_MeshData->PolygonList
+
+    DenseVector<int_max> HalfEdgeIndexList;
+};
 
 template<typename ScalarType>
 class Polygon_Of_PolygonMesh : public Object
 {
 private:
-    PolygonMesh<ScalarType>* m_Mesh;
-
-    int_max m_Index; // PolygonIndex: index of the Polygon in m_Mesh->m_MeshData->PolygonList
-
-    DenseVector<int_max> m_HalfEdgeIndexList;
+    std::unique_ptr<Data_Of_Polygon_Of_PolygonMesh<ScalarType>> m_Data;
  
 public:
     Polygon_Of_PolygonMesh(PolygonMesh<ScalarType>* ParentMesh = nullptr);
@@ -189,7 +243,14 @@ public:
     void operator=(const Polygon_Of_PolygonMesh<ScalarType>& InputPolygon);
     void operator=(Polygon_Of_PolygonMesh<ScalarType>&& InputPolygon);
 
-    void Clear();
+    inline void Clear();
+    inline void Create();
+    inline void Delete();
+
+    inline bool IsValid() const;
+    inline bool IsDeleted() const;
+
+    inline bool IsTriangle() const;
     //--------------------------------------------------------------------------------//
 
     inline void SetParentMesh(PolygonMesh<ScalarType>* ParentMesh);
