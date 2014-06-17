@@ -1784,7 +1784,7 @@ catch (...)
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::Squeeze()
+void DenseMatrix<ElementType>::ReleaseUnusedCapacity()
 {
     if (!m_MatrixData)
     {
@@ -1797,6 +1797,14 @@ void DenseMatrix<ElementType>::Squeeze()
         m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
         m_ElementPointer = m_MatrixData->ElementPointer;
     }
+}
+
+
+template<typename ElementType>
+inline
+void DenseMatrix<ElementType>::Squeeze()
+{
+    this->ReleaseUnusedCapacity();
 }
 
 

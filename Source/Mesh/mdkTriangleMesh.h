@@ -8,7 +8,7 @@ namespace mdk
 {
 
 template<typename ScalarType = double>
-class TriangleMesh : private PolygonMesh<ScalarType>
+class TriangleMesh : protected PolygonMesh<ScalarType>
 {
 public:
     typedef ScalarType ScalarType;
@@ -84,14 +84,26 @@ public:
     inline DataArray<Vertex_Of_PolygonMesh<ScalarType>>& VertexList();
     inline const DataArray<Vertex_Of_PolygonMesh<ScalarType>>& VertexList() const;
 
+    inline DenseVector<int_max>& VertexValidityFlagList();
+    inline const DenseVector<int_max>& VertexValidityFlagList() const;
+
     inline DataArray<Edge_Of_PolygonMesh<ScalarType>>& EdgeList();
     inline const DataArray<Edge_Of_PolygonMesh<ScalarType>>& EdgeList() const;
+
+    inline DenseVector<int_max>& EdgeValidityFlagList();
+    inline const DenseVector<int_max>& EdgeValidityFlagList() const;
 
     inline DataArray<HalfEdge_Of_PolygonMesh<ScalarType>>& HalfEdgeList();
     inline const DataArray<HalfEdge_Of_PolygonMesh<ScalarType>>& HalfEdgeList() const;
 
+    inline DenseVector<int_max>& HalfEdgeValidityFlagList();
+    inline const DenseVector<int_max>& HalfEdgeValidityFlagList() const;
+
     inline DataArray<Polygon_Of_PolygonMesh<ScalarType>>& TriangleList();
     inline const DataArray<Polygon_Of_PolygonMesh<ScalarType>>& TriangleList() const;
+
+    inline DenseVector<int_max>& PolygonValidityFlagList();
+    inline const DenseVector<int_max>& PolygonValidityFlagList() const;
 
     // Attribute -------------------------------------------------------
 

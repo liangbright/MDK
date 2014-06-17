@@ -907,7 +907,7 @@ bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<ScalarType>& InputMesh, c
 
 
 template<typename ScalarType>
-TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency)
+TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& FilePathAndName)
 {
     TriangleMesh<ScalarType> OutputMesh;
 
@@ -1083,8 +1083,10 @@ bool SaveTriangleMeshAsVTKFile(const TriangleMesh<ScalarType>& InputMesh, const 
 
 
 template<typename ScalarType>
-TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency)
+TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathAndName)
 {
+    TriangleMesh<ScalarType> OutputMesh;
+
     auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
     Reader->SetFileName(FilePathAndName.StdString().c_str());
     
@@ -1095,14 +1097,12 @@ TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathA
     catch (...)
     {
         MDK_Error(" Can not write data @ SaveTriangleMeshAsVTKFile(...) ")
-
-        TriangleMesh<ScalarType> EmptyMesh;
-        return EmptyMesh;
+        return OutputMesh;
     }
 
     auto VTKPolyMesh = Reader->GetOutput();
-
-    return ConvertVTKPolyDataToMDKTriangleMesh<ScalarType>(VTKPolyMesh, Flag_BuildLinkAndAdjacency);
+    OutputMesh = ConvertVTKPolyDataToMDKTriangleMesh<ScalarType>(VTKPolyMesh);
+    return OutputMesh;
 }
 
 
@@ -1423,8 +1423,10 @@ bool SavePolygonMeshAsVTKFile(const PolygonMesh<ScalarType>& InputMesh, const Ch
 
 
 template<typename ScalarType>
-PolygonMesh<ScalarType> LoadPolygonMeshFromVTKFile(const CharString& FilePathAndName, bool Flag_BuildLinkAndAdjacency)
+PolygonMesh<ScalarType> LoadPolygonMeshFromVTKFile(const CharString& FilePathAndName)
 {
+    PolygonMesh<ScalarType> OutputMesh;
+
     auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
     Reader->SetFileName(FilePathAndName.StdString().c_str());
 
@@ -1434,15 +1436,13 @@ PolygonMesh<ScalarType> LoadPolygonMeshFromVTKFile(const CharString& FilePathAnd
     }
     catch (...)
     {
-        MDK_Error(" Can not write data @ SaveTriangleMeshAsVTKFile(...) ")
-
-        PolygonMesh<ScalarType> EmptyMesh;
-        return EmptyMesh;
+        MDK_Error(" Can not write data @ SaveTriangleMeshAsVTKFile(...) ")        
+        return OutputMesh;
     }
 
     auto VTKPolyMesh = Reader->GetOutput();
-
-    return ConvertVTKPolyDataToMDKPolygonMesh<ScalarType>(VTKPolyMesh, Flag_BuildLinkAndAdjacency);
+    OutputMesh = ConvertVTKPolyDataToMDKPolygonMesh<ScalarType>(VTKPolyMesh);
+    return OutputMesh;
 }
 
 

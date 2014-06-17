@@ -89,7 +89,9 @@ public:
 
     inline bool ReserveCapacity(int_max InputElementNumber); // reserve memory, current Length does not change
 
-    inline void Squeeze();
+    inline void ReleaseUnusedCapacity();
+
+    inline void Squeeze(); // same as ReleaseUnusedCapacity()
 
     inline bool IsEmpty() const;
 

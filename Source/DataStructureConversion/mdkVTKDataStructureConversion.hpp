@@ -355,7 +355,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 
 
 template<typename ScalarType>
-TriangleMesh<ScalarType> ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKPolyMesh, bool Flag_BuildLinkAndAjacency)
+TriangleMesh<ScalarType> ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKPolyMesh)
 {
     TriangleMesh<ScalarType> OutputMesh;
 
@@ -396,7 +396,7 @@ TriangleMesh<ScalarType> ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKPol
         Triangle[k].Append(int_max(Cell->GetPointId(2)));
     }
 
-    OutputMesh.Construct(std::move(Vertex), std::move(Triangle), Flag_BuildLinkAndAjacency);
+    OutputMesh.Construct(std::move(Vertex), std::move(Triangle));
 
     return OutputMesh;
 }
@@ -497,7 +497,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
 
 
 template<typename ScalarType>
-PolygonMesh<ScalarType> ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKPolyMesh, bool Flag_BuildLinkAndAjacency)
+PolygonMesh<ScalarType> ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKPolyMesh)
 {
     PolygonMesh<ScalarType> OutputMesh;
     

@@ -78,13 +78,15 @@ public:
 
     inline void Clear(); // set to empty (length = 0)
 
-    inline void Squeeze();
-
     inline void Resize(int_max Length);
 
     inline void FastResize(int_max Length);
 
     inline void ReserveCapacity(int_max Length);
+
+    inline void ReleaseUnusedCapacity();
+
+    inline void Squeeze(); // same as ReleaseUnusedCapacity()
 
     inline void Fill(const ElementType& Element);
 

@@ -388,7 +388,9 @@ public:
 
     inline bool ReserveCapacity(int_max InputElementNumber); // reserve memory, current matrix size does not change
 
-    inline void Squeeze();
+    inline void ReleaseUnusedCapacity();
+
+    inline void Squeeze(); // same as ReleaseUnusedCapacity()
 
     inline void FixSize();
     

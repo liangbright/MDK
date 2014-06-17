@@ -204,7 +204,7 @@ void DenseVector<ElementType>::Copy(const ElementType_input* InputVector, int_ma
 {
     if (InputVector == nullptr || InputLength <= 0)
     {
-        MDK_Warning("Empty input and clear self @ DenseVector::Copy(...)")
+        //MDK_Warning("Empty input and clear self @ DenseVector::Copy(...)")
         this->Clear();
         return;
     }
@@ -232,14 +232,6 @@ inline
 void DenseVector<ElementType>::Clear()
 {
     m_DataArray.clear(); 
-    m_DataArray.shrink_to_fit();
-}
-
-
-template<typename ElementType>
-inline
-void DenseVector<ElementType>::Squeeze()
-{
     m_DataArray.shrink_to_fit();
 }
 
@@ -311,6 +303,22 @@ catch (...)
 {
     MDK_Error("Out of Memory @ DenseVector::ReserveCapacity(...)")
 }
+}
+
+
+template<typename ElementType>
+inline
+void DenseVector<ElementType>::ReleaseUnusedCapacity()
+{
+    m_DataArray.shrink_to_fit();
+}
+
+
+template<typename ElementType>
+inline
+void DenseVector<ElementType>::Squeeze()
+{
+    this->ReleaseUnusedCapacity();
 }
 
 
@@ -1445,9 +1453,14 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
 {
     DenseVector<int_max> IndexList;
 
+    if (MaxOutputNumber == 0)
+    {
+        return IndexList;
+    }
+
     auto ElementNumber = this->GetElementNumber();
 
-    if (MaxOutputNumber <= 0 || MaxOutputNumber > ElementNumber)
+    if (MaxOutputNumber < 0 || MaxOutputNumber > ElementNumber)
     {
         MDK_Error("MaxOutputNumber is invalid @ DenseVector::Find(...)")
         return IndexList;

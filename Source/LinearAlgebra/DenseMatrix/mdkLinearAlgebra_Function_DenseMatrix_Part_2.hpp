@@ -28,9 +28,14 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
 {
     DenseMatrix<int_max> LinearIndexList;
 
+    if (MaxOutputNumber == 0)
+    {
+        return LinearIndexList;
+    }
+
     auto InputElementNumber = InputMatrix.GetElementNumber();
 
-    if (MaxOutputNumber <= 0 || MaxOutputNumber > InputElementNumber)
+    if (MaxOutputNumber < 0 || MaxOutputNumber > InputElementNumber)
     {
         MDK_Error("MaxOutputNumber is invalid @ mdkLinearAlgebra_DenseMatrix FindElementInMatrix(...)")
         return LinearIndexList;
@@ -100,9 +105,14 @@ DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix
 {
     DenseMatrix<int_max> ColIndexList;
 
+    if (MaxOutputColNumber == 0)
+    {
+        return ColIndexList;
+    }
+
     auto InputSize = InputMatrix.GetSize();
 
-    if (MaxOutputColNumber <= 0 || MaxOutputColNumber > InputSize.ColNumber)
+    if (MaxOutputColNumber < 0 || MaxOutputColNumber > InputSize.ColNumber)
     {
         MDK_Error("MaxOutputColNumber is invalid @ mdkLinearAlgebra_DenseMatrix FindColInMatrix(...)")
         return ColIndexList;

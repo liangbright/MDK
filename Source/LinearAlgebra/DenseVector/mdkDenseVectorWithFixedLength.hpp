@@ -899,9 +899,14 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
 {
     DenseVector<int_max> IndexList;
 
+    if (MaxOutputNumber == 0)
+    {
+        return IndexList;
+    }
+
     auto ElementNumber = this->GetElementNumber();
 
-    if (MaxOutputNumber <= 0 || MaxOutputNumber > ElementNumber)
+    if (MaxOutputNumber < 0 || MaxOutputNumber > ElementNumber)
     {
         MDK_Error("MaxOutputNumber is invalid @ DenseVector::Find(...)")
         return IndexList;

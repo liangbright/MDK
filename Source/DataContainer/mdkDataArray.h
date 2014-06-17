@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 
+#include "mdkType.h"
 #include "mdkObject.h"
 #include "mdkConstant.h"
 
@@ -198,7 +199,9 @@ public:
 
     inline bool ReserveCapacity(int_max InputElementNumber); // reserve memory, current Length does not change
 
-    inline void Squeeze();
+    inline void ReleaseUnusedCapacity();
+
+    inline void Squeeze(); // same as ReleaseUnusedCapacity()
 
     inline void FixSize();
 

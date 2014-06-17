@@ -12,6 +12,10 @@ PolygonMesh<ScalarType>::PolygonMesh()
     m_MeshData->IsTriangleMesh = false;
 }
 
+template<typename ScalarType>
+PolygonMesh<ScalarType>::PolygonMesh(const Pure_Empty_PolygonMesh_Symbol&)
+{
+}
 
 template<typename ScalarType>
 PolygonMesh<ScalarType>::PolygonMesh(const PolygonMesh<ScalarType>& InputMesh)
@@ -50,7 +54,7 @@ void PolygonMesh<ScalarType>::operator=(PolygonMesh<ScalarType>&& InputMesh)
         m_MeshData = std::make_shared<PolygonMeshData<ScalarType>>();
     }
 
-    Take(std::forward<PolygonMesh<ScalarType>&>(InputMesh));
+    this->Take(std::forward<PolygonMesh<ScalarType>&>(InputMesh));
 }
 
 
@@ -256,7 +260,8 @@ ConstructPolygonList(const DataArray<DenseVector<int_max>>& TempHalfEdgeList)
             HalfEdgeIndexList_reorder[k] = HalfEdgeIndex_k;
         }
 
-        m_MeshData->PolygonList[PolygonIndex].SetParentMesh(this);
+        m_MeshData->PolygonList[PolygonIndex].Create();
+        m_MeshData->PolygonList[PolygonIndex].SetParentMesh(*this);
         m_MeshData->PolygonList[PolygonIndex].SetIndex(PolygonIndex);
         m_MeshData->PolygonList[PolygonIndex].SetHalfEdgeIndexList(std::move(HalfEdgeIndexList_reorder));
     }
@@ -331,7 +336,8 @@ bool PolygonMesh<ScalarType>::ConstructEdgeList(const DataArray<DenseVector<int_
                 }
             }
 
-            m_MeshData->EdgeList[EdgeIndex_current].SetParentMesh(this);
+            m_MeshData->EdgeList[EdgeIndex_current].Create();
+            m_MeshData->EdgeList[EdgeIndex_current].SetParentMesh(*this);
             m_MeshData->EdgeList[EdgeIndex_current].SetIndex(EdgeIndex_current);
             m_MeshData->EdgeList[EdgeIndex_current].SetHalfEdgeIndexList(HalfEdgeIndex, HalfEdgeIndex_opposite);
             EdgeIndex_current += 1;
@@ -450,7 +456,8 @@ ConstructHalfEdgeList(const DataArray<DenseVector<int_max>>& TempHalfEdgeList)
             HalfEdgeIndex_prev = HalfEdgeIndexListOfPolygon[HalfEdgeIndexListOfPolygon.GetLength() - 1];
         }
 
-        m_MeshData->HalfEdgeList[HalfEdgeIndex].SetParentMesh(this);
+        m_MeshData->HalfEdgeList[HalfEdgeIndex].Create();
+        m_MeshData->HalfEdgeList[HalfEdgeIndex].SetParentMesh(*this);
         m_MeshData->HalfEdgeList[HalfEdgeIndex].SetIndex(HalfEdgeIndex);
         m_MeshData->HalfEdgeList[HalfEdgeIndex].SetStartVertexIndex(VertexIndex_start_of_halfedge);
         m_MeshData->HalfEdgeList[HalfEdgeIndex].SetEndVertexIndex(VertexIndex_end_of_halfedge);
@@ -480,51 +487,129 @@ bool PolygonMesh<ScalarType>::ConstructVertexList()
 
     for (int_max VertexIndex = 0; VertexIndex < VertexNumber; ++VertexIndex)
     {
-        m_MeshData->VertexList[VertexIndex].SetParentMesh(this);
+        m_MeshData->VertexList[VertexIndex].Create();
+        m_MeshData->VertexList[VertexIndex].SetParentMesh(*this);
         m_MeshData->VertexList[VertexIndex].SetIndex(VertexIndex);
     }
    
-    DataArray<DenseVector<int_max>> Adjacency_VertexToHalfEdge;
-    Adjacency_VertexToHalfEdge.FastResize(VertexNumber);
+    //------------------------ Adjacency_VertexToVertex --------------------------------//
+
+    DataArray<DenseVector<int_max>> Adjacency_VertexToVertex;
+    Adjacency_VertexToVertex.FastResize(VertexNumber);
     for (int_max k = 0; k < VertexNumber; ++k)
     {
-        Adjacency_VertexToHalfEdge[k].ReserveCapacity(10);
+        Adjacency_VertexToVertex[k].ReserveCapacity(10);
+    }
+
+    for (int_max k = 0; k < EdgeNumber; ++k)
+    {
+        int_max tempVertexIndexList[2];
+        m_MeshData->EdgeList[k].GetVertexIndexList(tempVertexIndexList);
+        Adjacency_VertexToVertex[tempVertexIndexList[0]].Append(tempVertexIndexList[1]);
+        Adjacency_VertexToVertex[tempVertexIndexList[1]].Append(tempVertexIndexList[0]);
+    }
+
+    for (int_max k = 0; k < VertexNumber; ++k)
+    {
+        DenseVector<int_max>& VertexIndexList = Adjacency_VertexToVertex[k];
+        VertexIndexList.ReleaseUnusedCapacity();
+        m_MeshData->VertexList[k].SetAdjacentVertexIndexList(std::move(VertexIndexList));
+    }
+
+    //------------------------ Adjacency_VertexToOutgoingHalfEdge --------------------------------//
+
+    DataArray<DenseVector<int_max>> Adjacency_VertexToOutgoingHalfEdge;
+    Adjacency_VertexToOutgoingHalfEdge.FastResize(VertexNumber);
+    for (int_max k = 0; k < VertexNumber; ++k)
+    {
+        Adjacency_VertexToOutgoingHalfEdge[k].ReserveCapacity(10);
     }
 
     for (int_max k = 0; k < HalfEdgeNumber; ++k)
     {
         auto VertexIndex_k_start = m_MeshData->HalfEdgeList[k].GetStartVertexIndex();
-        Adjacency_VertexToHalfEdge[VertexIndex_k_start].Append(k);
+        Adjacency_VertexToOutgoingHalfEdge[VertexIndex_k_start].Append(k);
     }
 
     for (int_max k = 0; k < VertexNumber; ++k)
     {
-        DenseVector<int_max>& AdjacentHalfEdgeIndexList = Adjacency_VertexToHalfEdge[k];
-        AdjacentHalfEdgeIndexList.Squeeze();
-
-        DenseVector<int_max> AdjacenctVertexIndexList;
-        AdjacenctVertexIndexList.FastResize(AdjacentHalfEdgeIndexList.GetLength());
-
-        DenseVector<int_max> AdjacenctEdgeIndexList;
-        AdjacenctEdgeIndexList.FastResize(AdjacentHalfEdgeIndexList.GetLength());
-
-        DenseVector<int_max> AdjacenctPolygonIndexList;
-        AdjacenctPolygonIndexList.FastResize(AdjacentHalfEdgeIndexList.GetLength());
-
-        for (int_max m = 0; m < AdjacentHalfEdgeIndexList.GetLength(); ++m)
-        {
-            AdjacenctVertexIndexList[m] = m_MeshData->HalfEdgeList[AdjacentHalfEdgeIndexList[m]].GetEndVertexIndex();
-            AdjacenctEdgeIndexList[m] = m_MeshData->HalfEdgeList[AdjacentHalfEdgeIndexList[m]].GetEdgeIndex();
-            AdjacenctPolygonIndexList[m] = m_MeshData->HalfEdgeList[AdjacentHalfEdgeIndexList[m]].GetPolygonIndex();
-        }
-
-        AdjacenctPolygonIndexList = AdjacenctPolygonIndexList.GetSubSet(AdjacenctPolygonIndexList.FindUnique());
-
-        m_MeshData->VertexList[k].SetAdjacentHalfEdgeIndexList(std::move(AdjacentHalfEdgeIndexList));
-        m_MeshData->VertexList[k].SetAdjacentVertexIndexList(std::move(AdjacenctVertexIndexList));
-        m_MeshData->VertexList[k].SetAdjacentEdgeIndexList(std::move(AdjacenctEdgeIndexList));
-        m_MeshData->VertexList[k].SetAdjacentPolygonIndexList(std::move(AdjacenctPolygonIndexList));
+        DenseVector<int_max>& OutgoingHalfEdgeIndexList = Adjacency_VertexToOutgoingHalfEdge[k];
+        OutgoingHalfEdgeIndexList.ReleaseUnusedCapacity();
+        m_MeshData->VertexList[k].SetOutgoingHalfEdgeIndexList(std::move(OutgoingHalfEdgeIndexList));
     }
+
+    //------------------------ Adjacency_VertexToIncomingHalfEdge --------------------------------//
+
+    DataArray<DenseVector<int_max>> Adjacency_VertexToIncomingHalfEdge;
+    Adjacency_VertexToIncomingHalfEdge.FastResize(VertexNumber);
+    for (int_max k = 0; k < VertexNumber; ++k)
+    {
+        Adjacency_VertexToIncomingHalfEdge[k].ReserveCapacity(10);
+    }
+
+    for (int_max k = 0; k < HalfEdgeNumber; ++k)
+    {
+        auto VertexIndex_k_end = m_MeshData->HalfEdgeList[k].GetEndVertexIndex();
+        Adjacency_VertexToIncomingHalfEdge[VertexIndex_k_end].Append(k);
+    }
+
+    for (int_max k = 0; k < VertexNumber; ++k)
+    {
+        DenseVector<int_max>& IncomingHalfEdgeIndexList = Adjacency_VertexToIncomingHalfEdge[k];
+        IncomingHalfEdgeIndexList.ReleaseUnusedCapacity();
+        m_MeshData->VertexList[k].SetOutgoingHalfEdgeIndexList(std::move(IncomingHalfEdgeIndexList));
+    }
+
+    //--------------------------- Adjacency_VertexToEdge -------------------------------------//
+
+    DataArray<DenseVector<int_max>> Adjacency_VertexToEdge;
+    Adjacency_VertexToEdge.FastResize(VertexNumber);
+    for (int_max k = 0; k < VertexNumber; ++k)
+    {
+        Adjacency_VertexToEdge[k].ReserveCapacity(10);
+    }
+
+    for (int_max k = 0; k < EdgeNumber; ++k)
+    {
+        int_max tempIndexList[2];
+        m_MeshData->EdgeList[k].GetVertexIndexList(tempIndexList);
+        Adjacency_VertexToEdge[tempIndexList[0]].Append(k);
+        Adjacency_VertexToEdge[tempIndexList[1]].Append(k);
+    }
+
+    for (int_max k = 0; k < VertexNumber; ++k)
+    {
+        DenseVector<int_max>& EdgeIndexList = Adjacency_VertexToEdge[k];
+        EdgeIndexList.ReleaseUnusedCapacity();
+        m_MeshData->VertexList[k].SetAdjacentEdgeIndexList(std::move(EdgeIndexList));
+    }
+
+    //--------------------------- Adjacency_VertexToPolygon -------------------------------------//
+
+    DataArray<DenseVector<int_max>> Adjacency_VertexToPolygon;
+    Adjacency_VertexToPolygon.FastResize(VertexNumber);
+    for (int_max k = 0; k < VertexNumber; ++k)
+    {
+        Adjacency_VertexToPolygon[k].ReserveCapacity(10);
+    }
+
+    for (int_max k = 0; k < PolygonNumber; ++k)
+    {
+        auto tempIndexList = m_MeshData->PolygonList[k].GetVertexIndexList();
+        for (int_max m = 0; m < tempIndexList.GetLength(); ++m)
+        {
+            Adjacency_VertexToPolygon[tempIndexList[m]].Append(k);
+        }
+    }
+
+    for (int_max k = 0; k < VertexNumber; ++k)
+    {
+        DenseVector<int_max>& PolygonIndexList = Adjacency_VertexToPolygon[k];
+        PolygonIndexList.ReleaseUnusedCapacity();
+        m_MeshData->VertexList[k].SetAdjacentPolygonIndexList(std::move(PolygonIndexList));
+    }
+
+    //---------------------------------------------------------------------------------//
 
     m_MeshData->VertexValidityFlagList.FastResize(VertexNumber);
     m_MeshData->VertexValidityFlagList.Fill(1);
@@ -602,11 +687,21 @@ void PolygonMesh<ScalarType>::Copy(const PolygonMesh<ScalarType_Input>& InputMes
     m_MeshData->PolygonGlobalIDList = InputMesh.m_MeshData->PolygonGlobalIDList;
 
     m_MeshData->VertexPositionTable = InputMesh.m_MeshData->VertexPositionTable;
+    m_MeshData->VertexIndexTable    = InputMesh.m_MeshData->VertexIndexTable;
 
-    m_MeshData->VertexList   = InputMesh.m_MeshData->VertexList;
-    m_MeshData->PolygonList  = InputMesh.m_MeshData->PolygonList;
-    m_MeshData->EdgeList     = InputMesh.m_MeshData->EdgeList;
+    m_MeshData->VertexList = InputMesh.m_MeshData->VertexList;
+    m_MeshData->VertexValidityFlagList = InputMesh.m_MeshData->VertexValidityFlagList;
+
+    m_MeshData->PolygonList = InputMesh.m_MeshData->PolygonList;
+    m_MeshData->PolygonValidityFlagList = InputMesh.m_MeshData->PolygonValidityFlagList;
+
+    m_MeshData->EdgeList = InputMesh.m_MeshData->EdgeList;
+    m_MeshData->EdgeValidityFlagList = InputMesh.m_MeshData->EdgeValidityFlagList;
+
     m_MeshData->HalfEdgeList = InputMesh.m_MeshData->HalfEdgeList;
+    m_MeshData->HalfEdgeValidityFlagList = InputMesh.m_MeshData->HalfEdgeValidityFlagList;
+    
+    this->UpdateParentMeshPointerInMeshItem();
 
     m_MeshData->MeshAttribute.NormalAtVertex  = InputMesh.m_MeshData->MeshAttribute.NormalAtVertex;
     m_MeshData->MeshAttribute.NormalAtPolygon = InputMesh.m_MeshData->MeshAttribute.NormalAtPolygon;
@@ -696,14 +791,40 @@ bool PolygonMesh<ScalarType>::Take(PolygonMesh<ScalarType>& InputMesh)
     m_MeshData->PolygonGlobalIDList = std::move(InputMesh.m_MeshData->PolygonGlobalIDList);
 
     m_MeshData->VertexPositionTable = std::move(InputMesh.m_MeshData->VertexPositionTable);
+    m_MeshData->VertexIndexTable    = std::move(InputMesh.m_MeshData->VertexIndexTable);
 
-    m_MeshData->VertexList   = std::move(InputMesh.m_MeshData->VertexList);
-    m_MeshData->PolygonList  = std::move(InputMesh.m_MeshData->PolygonList);
-    m_MeshData->EdgeList     = std::move(InputMesh.m_MeshData->EdgeList);
+    m_MeshData->VertexList = std::move(InputMesh.m_MeshData->VertexList);
+    m_MeshData->VertexValidityFlagList = std::move(InputMesh.m_MeshData->VertexValidityFlagList);
+    for (int_max k = 0; k < m_MeshData->VertexList.GetLength(); ++k)
+    {
+        m_MeshData->VertexList[k].SetParentMesh(*this);
+    }
+
+    m_MeshData->EdgeList = std::move(InputMesh.m_MeshData->EdgeList);
+    m_MeshData->EdgeValidityFlagList = std::move(InputMesh.m_MeshData->EdgeValidityFlagList);
+    for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k)
+    {
+        m_MeshData->EdgeList[k].SetParentMesh(*this);
+    }
+
     m_MeshData->HalfEdgeList = std::move(InputMesh.m_MeshData->HalfEdgeList);
+    m_MeshData->HalfEdgeValidityFlagList = std::move(InputMesh.m_MeshData->HalfEdgeValidityFlagList);
+    for (int_max k = 0; k < m_MeshData->HalfEdgeList.GetLength(); ++k)
+    {
+        m_MeshData->HalfEdgeList[k].SetParentMesh(*this);
+    }
+
+    m_MeshData->PolygonList = std::move(InputMesh.m_MeshData->PolygonList);
+    m_MeshData->PolygonValidityFlagList = std::move(InputMesh.m_MeshData->PolygonValidityFlagList);
+    for (int_max k = 0; k < m_MeshData->PolygonList.GetLength(); ++k)
+    {
+        m_MeshData->PolygonList[k].SetParentMesh(*this);
+    }
 
     m_MeshData->MeshAttribute.NormalAtVertex  = std::move(InputMesh.m_MeshData->MeshAttribute.NormalAtVertex);
     m_MeshData->MeshAttribute.NormalAtPolygon = std::move(InputMesh.m_MeshData->MeshAttribute.NormalAtPolygon);
+
+    return true;
 }
 
 
@@ -827,6 +948,20 @@ const DataArray<Vertex_Of_PolygonMesh<ScalarType>>& PolygonMesh<ScalarType>::Ver
 
 template<typename ScalarType>
 inline
+DenseVector<int_max>& PolygonMesh<ScalarType>::VertexValidityFlagList()
+{
+    return m_MeshData->VertexValidityFlagList;
+}
+
+template<typename ScalarType>
+inline
+const DenseVector<int_max>& PolygonMesh<ScalarType>::VertexValidityFlagList() const
+{
+    return m_MeshData->VertexValidityFlagList;
+}
+
+template<typename ScalarType>
+inline
 DataArray<Edge_Of_PolygonMesh<ScalarType>>& PolygonMesh<ScalarType>::EdgeList()
 {
     return m_MeshData->EdgeList;
@@ -837,6 +972,20 @@ inline
 const DataArray<Edge_Of_PolygonMesh<ScalarType>>& PolygonMesh<ScalarType>::EdgeList() const
 {
     return m_MeshData->EdgeList;
+}
+
+template<typename ScalarType>
+inline
+DenseVector<int_max>& PolygonMesh<ScalarType>::EdgeValidityFlagList()
+{
+    return m_MeshData->EdgeValidityFlagList;
+}
+
+template<typename ScalarType>
+inline
+const DenseVector<int_max>& PolygonMesh<ScalarType>::EdgeValidityFlagList() const
+{
+    return m_MeshData->EdgeValidityFlagList;
 }
 
 template<typename ScalarType>
@@ -855,6 +1004,20 @@ const DataArray<HalfEdge_Of_PolygonMesh<ScalarType>>& PolygonMesh<ScalarType>::H
 
 template<typename ScalarType>
 inline
+DenseVector<int_max>& PolygonMesh<ScalarType>::HalfEdgeValidityFlagList()
+{
+    return m_MeshData->HalfEdgeValidityFlagList;
+}
+
+template<typename ScalarType>
+inline
+const DenseVector<int_max>& PolygonMesh<ScalarType>::HalfEdgeValidityFlagList() const
+{
+    return m_MeshData->HalfEdgeValidityFlagList;
+}
+
+template<typename ScalarType>
+inline
 DataArray<Polygon_Of_PolygonMesh<ScalarType>>& PolygonMesh<ScalarType>::PolygonList()
 {
     return m_MeshData->PolygonList;
@@ -865,6 +1028,20 @@ inline
 const DataArray<Polygon_Of_PolygonMesh<ScalarType>>& PolygonMesh<ScalarType>::PolygonList() const
 {
     return m_MeshData->PolygonList;
+}
+
+template<typename ScalarType>
+inline 
+DenseVector<int_max>& PolygonMesh<ScalarType>::PolygonValidityFlagList()
+{
+    return m_MeshData->PolygonValidityFlagList;
+}
+
+template<typename ScalarType>
+inline
+const DenseVector<int_max>& PolygonMesh<ScalarType>::PolygonValidityFlagList() const
+{
+    return m_MeshData->PolygonValidityFlagList;
 }
 
 //----------------------------- Mesh Attribute -----------------------------------------

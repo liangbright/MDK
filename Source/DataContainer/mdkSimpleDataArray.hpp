@@ -321,9 +321,16 @@ catch (...)
 
 template<typename ElementType>
 inline
-void SimpleDataArray<ElementType>::Squeeze()
+void SimpleDataArray<ElementType>::ReleaseUnusedCapacity()
 {
     m_DataArray.shrink_to_fit();
+}
+
+template<typename ElementType>
+inline
+void SimpleDataArray<ElementType>::Squeeze()
+{
+    this->ReleaseUnusedCapacity();
 }
 
 

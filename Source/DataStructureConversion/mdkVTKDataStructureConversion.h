@@ -50,7 +50,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 
 //--------------------------------------- convert vtk PolyData to mdk TriangleMesh ------------------------------------------------//
 template<typename ScalarType>
-TriangleMesh<ScalarType> ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKPolyMesh, bool Flag_BuildLinkAndAjacency = true);
+TriangleMesh<ScalarType> ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKPolyMesh);
 
 //--------------------------------------- convert mdk PolygonMesh to vtk PolyData -----------------------------------------------//
 template<typename ScalarType>
@@ -58,7 +58,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
 
 //--------------------------------------- convert vtk PolyData to mdk PolygonMesh ------------------------------------------------//
 template<typename ScalarType>
-PolygonMesh<ScalarType> ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKPolyMesh, bool Flag_BuildLinkAndAjacency = true);
+PolygonMesh<ScalarType> ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKPolyMesh);
 
 
 }// namespace mdk

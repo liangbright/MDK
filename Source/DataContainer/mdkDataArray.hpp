@@ -686,6 +686,14 @@ template<typename ElementType>
 inline
 void DataArray<ElementType>::Squeeze()
 {
+    this->ReleaseUnusedCapacity();
+}
+
+
+template<typename ElementType>
+inline
+void DataArray<ElementType>::ReleaseUnusedCapacity()
+{
     if (!m_Data)
     {
         return;
