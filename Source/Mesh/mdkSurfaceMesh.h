@@ -1,6 +1,8 @@
 #ifndef __mdkSurfaceMesh_h
 #define __mdkSurfaceMesh_h
 
+#include <unordered_map>
+
 #include "mdkSurfaceMeshItem.h"
 
 namespace mdk
@@ -14,9 +16,15 @@ struct SurfaceMeshAttribute;
 template<typename ScalarType>
 struct SurfaceMeshData
 {
-    DenseVector<int_max> VertexGlobalIDList; // Length = Length of VertexList
+    DenseVector<int_max> PointIDList;  // Length = Length of PointList
+    DenseVector<int_max> VertexIDList; // Length = Length of VertexList
+    DenseVector<int_max> EdgeIDList;   // Length = Length of EdgeList
+    DenseVector<int_max> CellIDList;   // Length = Length of CellList
 
-    DenseVector<int_max> CellGlobalIDList; // Length = Length of CellList
+    std::unordered_map<int_max, int_max> Map_PointID_to_PointIndex;
+    std::unordered_map<int_max, int_max> Map_VertexID_to_VertexIndex;
+    std::unordered_map<int_max, int_max> Map_EdgeID_to_EdgeIndex;
+    std::unordered_map<int_max, int_max> Map_CellID_to_CellIndex;
 
     DenseMatrix<ScalarType> PointPositionTable;
     // row_0: x
@@ -36,7 +44,7 @@ struct SurfaceMeshData
     // 1: vertex is an element of the mesh 
     // 0: vertex is deleted
 
-    DataArray<Cell_Of_SurfaceMesh<ScalarType>> CellList; // also known as cell, face, facet, element
+    DataArray<Cell_Of_SurfaceMesh<ScalarType>> CellList; // also known as face, facet, element
 
     DenseVector<int_max>  CellValidityFlagList;
     // 1: Cell is an element of the mesh 
@@ -115,113 +123,99 @@ public:
 
     //-------------------------------------------------------------------
     inline bool IsEmpty() const;
-    inline int_max GetValidPointNumber() const;
-    inline int_max GetValidVertexNumber() const;
-    inline int_max GetValidCellNumber() const;
-    inline int_max GetValidEdgeNumber() const;
-
-    // GlobalID -------------------------------------------------------------
-    inline DenseVector<int_max>& VertexGlobalIDList();
-    inline const DenseVector<int_max>& VertexGlobalIDList() const;
-
-    inline DenseVector<int_max>& CellGlobalIDList();
-    inline const DenseVector<int_max>& CellGlobalIDList() const;
+    inline int_max GetPointNumber() const;
+    inline int_max GetVertexNumber() const;
+    inline int_max GetCellNumber() const;
+    inline int_max GetEdgeNumber() const;
 
     // 3D Position -----------------------------------------------------------
-    inline DenseMatrix<ScalarType>& PointPositionTable();
-    inline const DenseMatrix<ScalarType>& PointPositionTable() const;
 
-    // mesh item --------------------------------------------------------------
+    inline DenseMatrix<ScalarType> GetPointPosition(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList) const;
+    inline void GetPointPosition(DenseMatrix<ScalarType>& PointPositionMatrix, const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList) const;
 
-    inline DataArray<Point_Of_SurfaceMesh<ScalarType>>& PointList();
-    inline const DataArray<Point_Of_SurfaceMesh<ScalarType>>& PointList() const;
+    inline SetPointPosition(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList, const DenseMatrix<ScalarType> PointPositionMatrix) const;
 
-    inline DenseVector<int_max>& PointValidityFlagList();
-    inline const DenseVector<int_max>& PointValidityFlagList() const;
+    //----- Get/Set  Mesh Item {Point, Vertex, Edge, DirectedEdge, Cell} ------//
 
-    inline DataArray<Vertex_Of_SurfaceMesh<ScalarType>>& VertexList();
-    inline const DataArray<Vertex_Of_SurfaceMesh<ScalarType>>& VertexList() const;
+    inline Point_Of_SurfaceMesh<ScalarType>& Point(Handle_Of_Point_Of_SurfaceMesh PointHandle);
+    inline const Point_Of_SurfaceMesh<ScalarType>& Point(Handle_Of_Point_Of_SurfaceMesh PointHandle) const;
 
-    inline DenseVector<int_max>& VertexValidityFlagList();
-    inline const DenseVector<int_max>& VertexValidityFlagList() const;
+    inline Vertex_Of_SurfaceMesh<ScalarType>& Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle);
+    inline const Vertex_Of_SurfaceMesh<ScalarType>& Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle) const;
 
-    inline DataArray<Edge_Of_SurfaceMesh<ScalarType>>& EdgeList();
-    inline const DataArray<Edge_Of_SurfaceMesh<ScalarType>>& EdgeList() const;
+    inline Edge_Of_SurfaceMesh<ScalarType>& Edge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle);
+    inline const Edge_Of_SurfaceMesh<ScalarType>& Edge(andle_Of_Edge_Of_SurfaceMesh EdgeHandle) const;
 
-    inline DataArray<DirectedEdge_Of_SurfaceMesh<ScalarType>>& DirectedEdgePairList();
-    inline const DataArray<DirectedEdge_Of_SurfaceMesh<ScalarType>>& DirectedEdgePairList() const;
+    inline DirectedEdge_Of_SurfaceMesh<ScalarType>& DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle);
+    inline const DirectedEdge_Of_SurfaceMesh<ScalarType>& DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle) const;
 
-    inline DenseVector<int_max>& EdgeValidityFlagList();
-    inline const DenseVector<int_max>& EdgeValidityFlagList() const;
+    inline Cell_Of_SurfaceMesh<ScalarType>& Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle);
+    inline const Cell_Of_SurfaceMesh<ScalarType>& Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle) const;
 
-    inline DataArray<Cell_Of_SurfaceMesh<ScalarType>>& CellList();
-    inline const DataArray<Cell_Of_SurfaceMesh<ScalarType>>& CellList() const;
+    // get handle -----------------------------------------------------------------------------//
 
-    inline DenseVector<int_max>& CellValidityFlagList();
-    inline const DenseVector<int_max>& CellValidityFlagList() const;
-
-    //----- Convenient function to Get/Set  Mesh Item {Point, Vertex, Edge, DirectedEdge, Cell} ------//
-
-    inline Point_Of_SurfaceMesh<ScalarType>& Point(int_max PointIndex);
-    inline const Point_Of_SurfaceMesh<ScalarType>& Point(int_max PointIndex) const;
-
-    inline Vertex_Of_SurfaceMesh<ScalarType>& Vertex(int_max VertexIndex);
-    inline const Vertex_Of_SurfaceMesh<ScalarType>& Vertex(int_max VertexIndex) const;
-
-    inline Edge_Of_SurfaceMesh<ScalarType>& Edge(int_max EdgeIndex, int_max RelativeIndex);
-    inline const Edge_Of_SurfaceMesh<ScalarType>& Edge(int_max EdgeIndex, int_max RelativeIndex) const;
-
-    inline DirectedEdge_Of_SurfaceMesh<ScalarType>& DirectedEdge(int_max EdgeIndex, int_max RelativeIndex);
-    inline const DirectedEdge_Of_SurfaceMesh<ScalarType>& DirectedEdge(int_max EdgeIndex, int_max RelativeIndex) const;
-
-    inline DirectedEdge_Of_SurfaceMesh<ScalarType>& DirectedEdge(DirectedEdgeIndex_Of_SurfaceMesh DirectedEdgeIndex);
-    inline const DirectedEdge_Of_SurfaceMesh<ScalarType>& DirectedEdge(DirectedEdgeIndex_Of_SurfaceMesh DirectedEdgeIndex) const;
-
-    inline Cell_Of_SurfaceMesh<ScalarType>& Cell(int_max CellIndex);
-    inline const Cell_Of_SurfaceMesh<ScalarType>& Cell(int_max CellIndex) const;
+    inline Handle_Of_Point_Of_SurfaceMesh  GetPointHandle(int_max PointID) const;
+    inline Handle_Of_Vertex_Of_SurfaceMesh GetVertexHandle(int_max VertexID) const;
+    inline Handle_Of_Edge_Of_SurfaceMesh   GetEdgeHandle(int_max EdgeID) const;
+    inline Handle_Of_DirectedEdge_Of_SurfaceMesh GetDirectedEdgeHandle(int_max EdgeID, int_max RelativeIndex) const;
+    inline Handle_Of_Cell_Of_SurfaceMesh   GetCellHandle(int_max CellID) const;
 
     // Add Mesh Item -------------------------------------------------------------------------//
     // add an item and return index (-1 if input is invalid)
 
-    // add a Point and return PointIndex in m_MeshData->PointList
-    int_max AddPoint(ScalarType Position[3]);
-    int_max AddPoint(ScalarType x, ScalarType y, ScalarType z);
+    // add a Point and return PointHandle -> PointIndex in m_MeshData->PointList
+    Handle_Of_Point_Of_SurfaceMesh AddPoint(ScalarType Position[3]);
+    Handle_Of_Point_Of_SurfaceMesh AddPoint(ScalarType x, ScalarType y, ScalarType z);
     
-    // add a point set and return PointIndexList
-    DenseVector<int_max> AddPoint(const DenseMatrix<ScalarType>& PointSet);
+    // add a set of points and return PointHandleList
+    DenseVector<Handle_Of_Point_Of_SurfaceMesh> AddPoint(const DenseMatrix<ScalarType>& PointSet);
 
-    // add a Vertex and return VertexIndex in m_MeshData->VertexList
+private:
+    // add a Vertex and return VertexHandle -> VertexIndex in m_MeshData->VertexList
+    // called in AddEdge() if necessary, so set to private
     int_max AddVertex(int_max PointIndex);
-    DenseVector<int_max> AddVertexSet(DenseVector<int_max> PointIndexList);
 
+public:
     // add an Edge and return EdgeIndex in m_MeshData->EdgeList
     // also create invalid DirectedEdge to hold place at  m_MeshData->DirectedEdgeList[EdgeIndex]
-    int_max AddEdge(int_max VertexIndex0, int_max VertexIndex1, DenseVector<int_max> PointIndexList);
+    // PointHandleList[0] and PointHandleList[1] are two vertex of the Edge
+    // new vertex is added if necessary, so AddVertex is called in this function if necessary
+    Handle_Of_Edge_Of_SurfaceMesh AddEdge(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList);
 
     // add a cell and return CellIndex in m_MeshData->CellList
     // add DirectedEdge of the cell
-    // the order of Edge in EdgeIndexList determine the order of DirectedEdge
-    int_max AddCell(const DenseVector<int_max>& EdgeIndexList);
+    // the order of Edge in EdgeHandleList determine the order of DirectedEdge
+    Handle_Of_Cell_Of_SurfaceMesh AddCell(const DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& EdgeHandleList);
 
     // Delete Mesh Item ----------------------------------------------------------------------------//
 
     // m_MeshData->CellList(CellIndex).Clear() only clear memory
-    // this function will remove mesh item related to the cell
-    void DeleteCell(int_max CellIndex);
+    // this function will remove/modify any mesh item related to the cell, including DirectedEdge of the Cell
+    bool DeleteCell(Handle_Of_Cell_Of_SurfaceMesh CellHandle);
 
     // m_MeshData->EdgeList[EdgeIndex].Clear() only clear memory
     // this function will remove mesh item related to the Edge
-    void DeleteEdge(int_max EdgeIndex);
+    // If the edge is adjacent to a cell, then the Edge can not be deleted before the cell is deleted
+    bool DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle);
 
-    // the same as m_MeshData->PointPositionTable.DeleteCol(...)
-    void DeletePoint(int_max PointIndex);
-    void DeletePoint(const DenseVector<int_max>& PointIndexList);
+private:
+    // m_MeshData->VertexList[VertexIndex].Cear() only clear memory
+    // this function will remove mesh item related to the Vertex
+    // a vertex will be removed if it has no adjacent edge
+    // so this function is called in DeleteEdge() if necessary, and set to private
+    bool DeleteVertex(int_max VertexIndex);
+
+public:
+    // m_MeshData->PointList[PointIndex].Cear() only clear memory
+    // If the Point is on an edge, then the Point can not be deleted before the Edge is deleted
+    bool DeletePoint(Handle_Of_Point_Of_SurfaceMesh PointHandle);
+    bool DeletePoint(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList);
 
     // remove deleted item from object list ----------------------------------------------------------//
-    // attention: after this function is called, every index will be changed
-    // and there will be no "dead/deleted" item in any object list (e.g., m_MeshData->EdgeList)
+    // attention: after this function is called, every index and every handle will be changed
+    //            but, ID will not change
     void CleanDataStructure();
-    //---------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------------
 
 };
 
