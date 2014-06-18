@@ -22,7 +22,7 @@ void Test_Constructor()
     DisplayVector("B", B);
 }
 
-void Test_GetSubVector()
+void Test_GetSubSet()
 {
 
     using namespace mdk;
@@ -30,21 +30,21 @@ void Test_GetSubVector()
     DenseVector<double, 10> A;
     A.Fill(1);
 
-    auto subA = A.GetSubVector(0, 1);
+    auto subA = A.GetSubSet(0, 1);
 
 
     DenseVector<double> B;
 
     B = A;
 
-    auto subB = B.GetSubVector(0, 1);
+    auto subB = B.GetSubSet(0, 1);
 
 
     DenseVector<double, 10> C;
 
     C = B;
 
-    auto subC = C.GetSubVector(0, 1);
+    auto subC = C.GetSubSet(0, 1);
 
     DisplayVector("subA", subA);
 
@@ -74,4 +74,13 @@ void Test_Operator()
     auto B1 = B * 2.0;
 
 
+}
+
+void Test_DataArray_Vector()
+{
+    using namespace mdk;
+
+    DataArray<DenseVector<int_max, 2>> List;
+
+    List.FastResize(10);
 }

@@ -1017,12 +1017,18 @@ inline
 void Polygon_Of_PolygonMesh<ScalarType>::GetAdjacentPolygonIndexList(DenseVector<int_max>& OutputIndexList) const
 {
     int_max HalfEdgeNumber = m_Data->HalfEdgeIndexList.GetLength();
-    OutputIndexList.FastResize(HalfEdgeNumber);
+    OutputIndexList.FastResize(0);
+    OutputIndexList.ReserveCapacity(HalfEdgeNumber);
     for (int_max k = 0; k < HalfEdgeNumber; ++k)
     {
-        int_max OppositeHalfEdgeIndex = m_Data->Mesh.m_MeshData->HalfEdgeList[m_Data->HalfEdgeIndexList[k]].GetOppositeHalfEdgeIndex();
-        OutputIndexList[k] = m_Data->Mesh.m_MeshData->HalfEdgeList[OppositeHalfEdgeIndex].GetPolygonIndex();
+        auto OppositeHalfEdgeIndex = m_Data->Mesh.m_MeshData->HalfEdgeList[m_Data->HalfEdgeIndexList[k]].GetOppositeHalfEdgeIndex();
+        if (OppositeHalfEdgeIndex >= 0)
+        {
+            auto tempIndex = m_Data->Mesh.m_MeshData->HalfEdgeList[OppositeHalfEdgeIndex].GetPolygonIndex();
+            OutputIndexList.Append(tempIndex);
+        }
     }
+    OutputIndexList.ReleaseUnusedCapacity();
 }
 
 }// namespace mdk

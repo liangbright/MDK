@@ -11,9 +11,11 @@ int main()
 {
     //Test_Constructor();
 
-    //Test_GetSubVector();
+    //Test_GetSubSet();
 
     Test_Operator();
+
+    Test_DataArray_Vector();
 
     std::system("pause");
 

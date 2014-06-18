@@ -228,7 +228,7 @@ template<typename ElementType, int_max Length>
 inline
 ElementType* DenseVector<ElementType, Length>::GetElementPointer()
 {
-    return m_DataArray->data();
+    return m_DataArray.data();
 }
 
 
@@ -236,7 +236,7 @@ template<typename ElementType, int_max Length>
 inline
 const ElementType* DenseVector<ElementType, Length>::GetElementPointer() const
 {
-    return m_DataArray->data();
+    return m_DataArray.data();
 }
 
 
@@ -244,7 +244,7 @@ template<typename ElementType, int_max Length>
 inline
 ElementType* DenseVector<ElementType, Length>::GetPointer()
 {
-    return m_DataArray->data();
+    return m_DataArray.data();
 }
 
 
@@ -252,7 +252,7 @@ template<typename ElementType, int_max Length>
 inline
 const ElementType* DenseVector<ElementType, Length>::GetPointer() const
 {
-    return m_DataArray->data();
+    return m_DataArray.data();
 }
 
 
@@ -260,7 +260,7 @@ template<typename ElementType, int_max Length>
 inline
 ElementType* DenseVector<ElementType, Length>::begin()
 {
-    return m_DataArray->data();
+    return m_DataArray.data();
 }
 
 
@@ -268,7 +268,7 @@ template<typename ElementType, int_max Length>
 inline
 const ElementType* DenseVector<ElementType, Length>::begin() const
 {
-    return m_DataArray->data();
+    return m_DataArray.data();
 }
 
 

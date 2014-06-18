@@ -12,10 +12,12 @@ PolygonMesh<ScalarType>::PolygonMesh()
     m_MeshData->IsTriangleMesh = false;
 }
 
+
 template<typename ScalarType>
 PolygonMesh<ScalarType>::PolygonMesh(const Pure_Empty_PolygonMesh_Symbol&)
 {
 }
+
 
 template<typename ScalarType>
 PolygonMesh<ScalarType>::PolygonMesh(const PolygonMesh<ScalarType>& InputMesh)

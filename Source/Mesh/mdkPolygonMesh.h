@@ -40,19 +40,16 @@ struct PolygonMeshData
     // 0: vertex is deleted
 
     DataArray<Polygon_Of_PolygonMesh<ScalarType>> PolygonList; // also known as cell, face, facet, element
-
     DenseVector<int_max> PolygonValidityFlagList;
     // 1: Polygon is an element of the mesh 
     // 0: Polygon is deleted
 
     DataArray<Edge_Of_PolygonMesh<ScalarType>> EdgeList;
-
     DenseVector<int_max> EdgeValidityFlagList;
     // 1: Edge is an element of the mesh 
     // 0: Edge is deleted
 
     DataArray<HalfEdge_Of_PolygonMesh<ScalarType>> HalfEdgeList;
-
     DenseVector<int_max> HalfEdgeValidityFlagList;
     // 1: HalfEdge is an element of the mesh 
     // 0: HalfEdge is deleted
