@@ -9,11 +9,11 @@
 namespace mdk
 {
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 struct SurfaceMeshData
 {
     //-------------------------------------------------------------------------------------------//
-    typedef typename MeshType::ScalarType  ScalarType;
+    typedef typename MeshAttributeType::ScalarType  ScalarType;
     //-------------------------------------------------------------------------------------------//
 
     // Attention: ID must >= 0
@@ -33,27 +33,27 @@ struct SurfaceMeshData
     // row_2: z
     // a point is a vertex of an Edge or a point on Edge Edge
 
-    DataArray<Point_Of_SurfaceMesh<MeshType>> PointList;
+    DataArray<Point_Of_SurfaceMesh<MeshAttributeType>> PointList;
 
     DenseVector<int_max> PointValidityFlagList;
     // 1: point is an element of the mesh 
     // 0: point is deleted
 
-    DataArray<Vertex_Of_SurfaceMesh<MeshType>> VertexList;
+    DataArray<Vertex_Of_SurfaceMesh<MeshAttributeType>> VertexList;
 
     DenseVector<int_max> VertexValidityFlagList;
     // 1: vertex is an element of the mesh 
     // 0: vertex is deleted
 
-    DataArray<Edge_Of_SurfaceMesh<MeshType>> EdgeList;
+    DataArray<Edge_Of_SurfaceMesh<MeshAttributeType>> EdgeList;
 
-    DataArray<DenseVector<DirectedEdge_Of_SurfaceMesh<MeshType>, 2>> DirectedEdgePairList;
+    DataArray<DenseVector<DirectedEdge_Of_SurfaceMesh<MeshAttributeType>, 2>> DirectedEdgePairList;
 
     DenseVector<int_max> EdgeValidityFlagList;
     // 1: Edge is an element of the mesh 
     // 0: Edge is deleted
 
-    DataArray<Cell_Of_SurfaceMesh<MeshType>> CellList; // also known as face, facet, element
+    DataArray<Cell_Of_SurfaceMesh<MeshAttributeType>> CellList; // also known as face, facet, element
 
     DenseVector<int_max>  CellValidityFlagList;
     // 1: Cell is an element of the mesh 
@@ -61,22 +61,36 @@ struct SurfaceMeshData
 };
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 class SurfaceMesh : public Object
 {
 public:
     //-------------------------------------------------------------------------------------------//
-    typedef typename MeshType::ScalarType                ScalarType;
-    typedef typename MeshType::PointAttributeType        PointAttributeType;
-    typedef typename MeshType::VertexAttributeType       VertexAttributeType;
-    typedef typename MeshType::EdgeAttributeType         EdgeAttributeType;
-    typedef typename MeshType::DirectedEdgeAttributeType DirectedEdgeAttributeType;
-    typedef typename MeshType::CellAttributeType         CellAttributeType;
+    typedef typename MeshAttributeType::ScalarType                ScalarType;
+    typedef typename MeshAttributeType::PointAttributeType        PointAttributeType;
+    typedef typename MeshAttributeType::VertexAttributeType       VertexAttributeType;
+    typedef typename MeshAttributeType::EdgeAttributeType         EdgeAttributeType;
+    typedef typename MeshAttributeType::DirectedEdgeAttributeType DirectedEdgeAttributeType;
+    typedef typename MeshAttributeType::CellAttributeType         CellAttributeType;
     //-------------------------------------------------------------------------------------------//
     typedef int_max IndexType;
+    //--------------------------------------------------------------------------------------------//
+    typedef Vertex_Of_SurfaceMesh<MeshAttributeType>          VertexType;
+    typedef Edge_Of_SurfaceMesh<MeshAttributeType>            EdgeType;
+    typedef DirectedEdge_Of_SurfaceMesh<MeshAttributeType>    DirectedEdgeType;
+    typedef Cell_Of_SurfaceMesh<MeshAttributeType>            CellType;
 
+    typedef Handle_Of_Vertex_Of_SurfaceMesh         VertexHandleType;
+    typedef Handle_Of_Edge_Of_SurfaceMesh           EdgeHandleType;
+    typedef Handle_Of_DirectedEdge_Of_SurfaceMesh   DirectedEdgeHandleType;
+    typedef Handle_Of_Cell_Of_SurfaceMesh           CellHandleType;
+
+    typedef Iterator_Of_Vertex_Of_SurfaceMesh<MeshAttributeType>     VertexIteratorType;
+    typedef Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType>       EdgeIteratorType;
+    typedef Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>       CellIteratorType;
+    //--------------------------------------------------------------------------------------------------//
 private:
-    std::shared_ptr<SurfaceMeshData<MeshType>> m_MeshData;
+    std::shared_ptr<SurfaceMeshData<MeshAttributeType>> m_MeshData;
 
 private:
     template<typename T>
@@ -155,27 +169,27 @@ public:
 
     //----- Get/Set  Mesh Item {Point, Vertex, Edge, DirectedEdge, Cell} ------//
 
-    inline Point_Of_SurfaceMesh<MeshType>& Point(Handle_Of_Point_Of_SurfaceMesh PointHandle);
-    inline const Point_Of_SurfaceMesh<MeshType>& Point(Handle_Of_Point_Of_SurfaceMesh PointHandle) const;
+    inline Point_Of_SurfaceMesh<MeshAttributeType>& Point(Handle_Of_Point_Of_SurfaceMesh PointHandle);
+    inline const Point_Of_SurfaceMesh<MeshAttributeType>& Point(Handle_Of_Point_Of_SurfaceMesh PointHandle) const;
 
-    inline Vertex_Of_SurfaceMesh<MeshType>& Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle);
-    inline const Vertex_Of_SurfaceMesh<MeshType>& Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle) const;
+    inline Vertex_Of_SurfaceMesh<MeshAttributeType>& Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle);
+    inline const Vertex_Of_SurfaceMesh<MeshAttributeType>& Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle) const;
 
-    inline Edge_Of_SurfaceMesh<MeshType>& Edge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle);
-    inline const Edge_Of_SurfaceMesh<MeshType>& Edge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle) const;
+    inline Edge_Of_SurfaceMesh<MeshAttributeType>& Edge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle);
+    inline const Edge_Of_SurfaceMesh<MeshAttributeType>& Edge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle) const;
 
-    inline DirectedEdge_Of_SurfaceMesh<MeshType>& DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle);
-    inline const DirectedEdge_Of_SurfaceMesh<MeshType>& DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle) const;
+    inline DirectedEdge_Of_SurfaceMesh<MeshAttributeType>& DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle);
+    inline const DirectedEdge_Of_SurfaceMesh<MeshAttributeType>& DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle) const;
 
-    inline Cell_Of_SurfaceMesh<MeshType>& Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle);
-    inline const Cell_Of_SurfaceMesh<MeshType>& Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle) const;
+    inline Cell_Of_SurfaceMesh<MeshAttributeType>& Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle);
+    inline const Cell_Of_SurfaceMesh<MeshAttributeType>& Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle) const;
 
     //------------- Iterator --------------------------------------------------------------//
 
-    inline Iterator_Of_Point_Of_SurfaceMesh<MeshType>  GetIteratorOfPoint() const;
-    inline Iterator_Of_Vertex_Of_SurfaceMesh<MeshType> GetIteratorOfVertex() const;
-    inline Iterator_Of_Edge_Of_SurfaceMesh<MeshType>   GetIteratorOfEdge() const;
-    inline Iterator_Of_Cell_Of_SurfaceMesh<MeshType>   GetIteratorOfCell() const;
+    inline Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType>  GetIteratorOfPoint() const;
+    inline Iterator_Of_Vertex_Of_SurfaceMesh<MeshAttributeType> GetIteratorOfVertex() const;
+    inline Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType>   GetIteratorOfEdge() const;
+    inline Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>   GetIteratorOfCell() const;
 
     // use this function and GetIteratorOfEdge as DirectedEdge Iterator
     inline Handle_Of_DirectedEdge_Of_SurfaceMesh GetDirectedEdgeHandle(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle, int_max RelativeIndex) const;

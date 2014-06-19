@@ -1,5 +1,5 @@
-#ifndef __mdkmdkPolygonMeshAttribute_hpp
-#define __mdkmdkPolygonMeshAttribute_hpp
+#ifndef __mdkPolygonMeshAttribute_hpp
+#define __smdkPolygonMeshAttribute_hpp
 
 namespace mdk
 {

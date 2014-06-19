@@ -26,10 +26,10 @@ class Image2D;
 template<typename PixelType>
 class Image3D;
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 class TriangleMesh;
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 class PolygonMesh;
 
 //-------------------------------------------------//
@@ -45,20 +45,20 @@ template<typename PixelType>
 Image3D<PixelType> ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage);
 
 //--------------------------------------- convert mdk TriangleMesh to vtk PolyData -----------------------------------------------//
-template<typename ScalarType>
-vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<ScalarType>& InputMesh);
+template<typename MeshAttributeType>
+vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& InputMesh);
 
 //--------------------------------------- convert vtk PolyData to mdk TriangleMesh ------------------------------------------------//
-template<typename ScalarType>
-TriangleMesh<ScalarType> ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKPolyMesh);
+template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKPolyMesh);
 
 //--------------------------------------- convert mdk PolygonMesh to vtk PolyData -----------------------------------------------//
-template<typename ScalarType>
-vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<ScalarType>& InputMesh);
+template<typename MeshAttributeType>
+vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& InputMesh);
 
 //--------------------------------------- convert vtk PolyData to mdk PolygonMesh ------------------------------------------------//
-template<typename ScalarType>
-PolygonMesh<ScalarType> ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKPolyMesh);
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType> ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKPolyMesh);
 
 
 }// namespace mdk

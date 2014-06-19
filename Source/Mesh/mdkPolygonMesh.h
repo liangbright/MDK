@@ -7,50 +7,63 @@
 namespace mdk
 {
 //------- forward declare -------//
-template<typename ScalarType>
+template<typename MeshAttributeType>
 class PolygonMesh;
 //--------------------------------//
 
 template<typename ScalarType>
-struct PolygonMeshData
+struct PolygonMeshAttributeType
 {
-    bool IsTriangleMesh;
-
-    SurfaceMesh<PolygonMesh<ScalarType>>  PolygonSurfaceMesh;
-};
-
-template<typename ScalarType>
-class PolygonMesh : public Object
-{
-protected:
-    std::shared_ptr<PolygonMeshData<ScalarType>> m_MeshData;
-
-public:
-    typedef PolygonMesh<ScalarType> MeshType;
-
-    typedef ScalarType ScalarType;
-    typedef int_max IndexType;
-
+    typedef ScalarType  ScalarType;
     typedef bool PointAttributeType;
-
     typedef VertexAttribute_Of_PolygonMesh<ScalarType>         VertexAttributeType;
     typedef EdgeAttribute_Of_PolygonMesh<ScalarType>           EdgeAttributeType;
     typedef DirectedEdgeAttribute_Of_PolygonMesh<ScalarType>   DirectedEdgeAttributeType;
     typedef CellAttribute_Of_PolygonMesh<ScalarType>           CellAttributeType;
+};
 
-    typedef Vertex_Of_SurfaceMesh<MeshType>          VertexType;
-    typedef Edge_Of_SurfaceMesh<MeshType>            EdgeType;
-    typedef DirectedEdge_Of_SurfaceMesh<MeshType>    DirectedEdgeType;
-    typedef Cell_Of_SurfaceMesh<MeshType>            CellType;
+template<typename MeshAttributeType>
+struct PolygonMeshData
+{
+    bool IsTriangleMesh;
+
+    SurfaceMesh<MeshAttributeType>  PolygonSurfaceMesh;
+};
+
+template<typename MeshAttributeType>
+class PolygonMesh : public Object
+{
+public:
+    typedef PolygonMesh<MeshAttributeType> MeshType;
+
+    typedef MeshAttributeType MeshAttributeType;
+
+    typedef int_max IndexType;
+
+    typedef typename MeshAttributeType::ScalarType ScalarType;
+
+    //typedef typename MeshAttributeType::PointAttributeType          PointAttributeType;
+    typedef typename MeshAttributeType::VertexAttributeType         VertexAttributeType;
+    typedef typename MeshAttributeType::EdgeAttributeType           EdgeAttributeType;
+    typedef typename MeshAttributeType::DirectedEdgeAttributeType   DirectedEdgeAttributeType;
+    typedef typename MeshAttributeType::CellAttributeType           CellAttributeType;
+
+    typedef Vertex_Of_SurfaceMesh<MeshAttributeType>          VertexType;
+    typedef Edge_Of_SurfaceMesh<MeshAttributeType>            EdgeType;
+    typedef DirectedEdge_Of_SurfaceMesh<MeshAttributeType>    DirectedEdgeType;
+    typedef Cell_Of_SurfaceMesh<MeshAttributeType>            CellType;
 
     typedef Handle_Of_Vertex_Of_SurfaceMesh         VertexHandleType;
     typedef Handle_Of_Edge_Of_SurfaceMesh           EdgeHandleType;
     typedef Handle_Of_DirectedEdge_Of_SurfaceMesh   DirectedEdgeHandleType;
     typedef Handle_Of_Cell_Of_SurfaceMesh           CellHandleType;
 
-    typedef Iterator_Of_Vertex_Of_SurfaceMesh<MeshType>     VertexIteratorType;
-    typedef Iterator_Of_Edge_Of_SurfaceMesh<MeshType>       EdgeIteratorType;
-    typedef Iterator_Of_Cell_Of_SurfaceMesh<MeshType>       CellIteratorType;
+    typedef Iterator_Of_Vertex_Of_SurfaceMesh<MeshAttributeType>     VertexIteratorType;
+    typedef Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType>       EdgeIteratorType;
+    typedef Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>       CellIteratorType;
+
+protected:
+    std::shared_ptr<PolygonMeshData<MeshAttributeType>> m_MeshData;
 
 public:
     PolygonMesh();
@@ -63,9 +76,9 @@ public:
 
     inline void Clear();
 
-    inline void Copy(const PolygonMesh<ScalarType>& InputMesh);
+    inline void Copy(const PolygonMesh& InputMesh);
 
-    inline bool Copy(const PolygonMesh<ScalarType>* InputMesh);
+    inline bool Copy(const PolygonMesh* InputMesh);
 
     inline void Share(PolygonMesh& InputMesh);
     inline bool Share(PolygonMesh* InputMesh);
@@ -149,7 +162,7 @@ public:
     bool Construct(const DenseMatrix<ScalarType>& InputVertexPositionTable, const DataArray<DenseVector<int_max>>& InputCellTable);
     // index order in each VertexIndexList should be consistent
 
-    bool Construct(SurfaceMesh<PolygonMesh<ScalarType>> InputSurfaceMesh);
+    bool Construct(SurfaceMesh<MeshAttributeType> InputSurfaceMesh);
 
     bool CheckIfTriangleMesh() const;
 

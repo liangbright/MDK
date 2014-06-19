@@ -1,5 +1,5 @@
-#ifndef __mdkmdkPolygonMeshAttribute_h
-#define __mdkmdkPolygonMeshAttribute_h
+#ifndef __mdkPolygonMeshAttribute_h
+#define __mdkPolygonMeshAttribute_h
 
 
 #include "mdkDenseMatrix.h"
@@ -29,7 +29,7 @@ class Cell_Of_PolygonMesh;
 //---------------------------------------------------//
 
 //============================================== VertexAttribute_Of_PolygonMesh ===========================================//
-enum class VertexAttributeEnum
+enum class PolygonMeshVertexAttributeEnum
 {
     MeanCurvature,
     Normal
@@ -59,7 +59,7 @@ public:
 };
 
 //============================================== EdgeAttribute_Of_PolygonMesh ===========================================//
-enum class EdgeAttributeEnum
+enum class PolygonMeshEdgeAttributeEnum
 {
     PhysicalLength,
 };
@@ -86,7 +86,7 @@ public:
 };
 
 //============================================== DirectedEdgeAttribute_Of_PolygonMesh ===========================================//
-enum class DirectedEdgeAttributeEnum
+enum class PolygonMeshDirectedEdgeAttributeEnum
 {
     Orientation,
 };
@@ -113,7 +113,7 @@ public:
 };
 
 //============================================== CellAttribute_Of_PolygonMesh ===========================================//
-enum class CellAttributeEnum
+enum class PolygonMeshCellAttributeEnum
 {
     Area,
 };

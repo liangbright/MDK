@@ -46,10 +46,10 @@ class Image2D;
 template<typename PixelType>
 class Image3D;
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 class TriangleMesh;
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 class PolygonMesh;
 
 template<typename ElementType>
@@ -109,31 +109,31 @@ Image3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const CharString& FilePa
 
 //------------------------------------- save/load TriangleMesh from Json data file or vtk file -------------------------------------------//
 
-template<typename ScalarType>
-bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
+template<typename MeshAttributeType>
+bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& InputMesh, const CharString& FilePathAndName);
 
-template<typename ScalarType>
-TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& FilePathAndName);
+template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> LoadTriangleMeshFromJsonDataFile(const CharString& FilePathAndName);
 
-template<typename ScalarType>
-bool SaveTriangleMeshAsVTKFile(const TriangleMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
+template<typename MeshAttributeType>
+bool SaveTriangleMeshAsVTKFile(const TriangleMesh<MeshAttributeType>& InputMesh, const CharString& FilePathAndName);
 
-template<typename ScalarType>
-TriangleMesh<ScalarType> LoadTriangleMeshFromVTKFile(const CharString& FilePathAndName);
+template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> LoadTriangleMeshFromVTKFile(const CharString& FilePathAndName);
 
 //------------------------------------- save/load PolygonMesh from Json data file or vtk file -------------------------------------------//
 
-template<typename ScalarType>
-bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
+template<typename MeshAttributeType>
+bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMesh, const CharString& FilePathAndName);
 
-template<typename ScalarType>
-PolygonMesh<ScalarType> LoadPolygonMeshFromJsonDataFile(const CharString& FilePathAndName);
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile(const CharString& FilePathAndName);
 
-template<typename ScalarType>
-bool SavePolygonMeshAsVTKFile(const PolygonMesh<ScalarType>& InputMesh, const CharString& FilePathAndName);
+template<typename MeshAttributeType>
+bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, const CharString& FilePathAndName);
 
-template<typename ScalarType>
-PolygonMesh<ScalarType> LoadPolygonMeshMeshFromVTKFile(const CharString& FilePathAndName);
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType> LoadPolygonMeshMeshFromVTKFile(const CharString& FilePathAndName);
 
 //----------------------------------- save/load FeatureDictionary from Json data file -----------------------------------------------------//
 

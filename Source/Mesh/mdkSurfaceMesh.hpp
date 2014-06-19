@@ -4,63 +4,63 @@
 namespace mdk
 {
 
-template<typename MeshType>
-SurfaceMesh<MeshType>::SurfaceMesh()
+template<typename MeshAttributeType>
+SurfaceMesh<MeshAttributeType>::SurfaceMesh()
 {
-    m_MeshData = std::make_shared<SurfaceMeshData<MeshType>>();
+    m_MeshData = std::make_shared<SurfaceMeshData<MeshAttributeType>>();
 }
 
 
-template<typename MeshType>
-SurfaceMesh<MeshType>::SurfaceMesh(const Pure_Empty_SurfaceMesh_Symbol&)
+template<typename MeshAttributeType>
+SurfaceMesh<MeshAttributeType>::SurfaceMesh(const Pure_Empty_SurfaceMesh_Symbol&)
 {
 }
 
 
-template<typename MeshType>
-SurfaceMesh<MeshType>::SurfaceMesh(const SurfaceMesh<MeshType>& InputMesh)
+template<typename MeshAttributeType>
+SurfaceMesh<MeshAttributeType>::SurfaceMesh(const SurfaceMesh<MeshAttributeType>& InputMesh)
 {
     this->Copy(InputMesh);
 }
 
 
-template<typename MeshType>
-SurfaceMesh<MeshType>::SurfaceMesh(SurfaceMesh<MeshType>&& InputMesh)
+template<typename MeshAttributeType>
+SurfaceMesh<MeshAttributeType>::SurfaceMesh(SurfaceMesh<MeshAttributeType>&& InputMesh)
 {
     m_MeshData = std::move(InputMesh.m_MeshData);
 }
 
 
-template<typename MeshType>
-SurfaceMesh<MeshType>::~SurfaceMesh()
+template<typename MeshAttributeType>
+SurfaceMesh<MeshAttributeType>::~SurfaceMesh()
 {
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshType>::operator=(const SurfaceMesh<MeshType>& InputMesh)
+void SurfaceMesh<MeshAttributeType>::operator=(const SurfaceMesh<MeshAttributeType>& InputMesh)
 {
     this->Copy(InputMesh);
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshType>::operator=(SurfaceMesh<MeshType>&& InputMesh)
+void SurfaceMesh<MeshAttributeType>::operator=(SurfaceMesh<MeshAttributeType>&& InputMesh)
 {
     if (!m_MeshData)
     {
-        m_MeshData = std::make_shared<SurfaceMeshData<MeshType>>();
+        m_MeshData = std::make_shared<SurfaceMeshData<MeshAttributeType>>();
     }
 
-    this->Take(std::forward<SurfaceMesh<MeshType>&>(InputMesh));
+    this->Take(std::forward<SurfaceMesh<MeshAttributeType>&>(InputMesh));
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshType>::Clear()
+void SurfaceMesh<MeshAttributeType>::Clear()
 {
     if (!m_MeshData)
     {
@@ -99,13 +99,13 @@ void SurfaceMesh<MeshType>::Clear()
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshType>::Copy(const SurfaceMesh<MeshType>& InputMesh)
+void SurfaceMesh<MeshAttributeType>::Copy(const SurfaceMesh<MeshAttributeType>& InputMesh)
 {
     if (!m_MeshData)
     {
-        m_MeshData = std::make_shared<SurfaceMeshData<MeshType>>();
+        m_MeshData = std::make_shared<SurfaceMeshData<MeshAttributeType>>();
     }
 
     if (!InputMesh.m_MeshData)
@@ -139,9 +139,9 @@ void SurfaceMesh<MeshType>::Copy(const SurfaceMesh<MeshType>& InputMesh)
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-bool SurfaceMesh<MeshType>::Copy(const SurfaceMesh<MeshType>* InputMesh)
+bool SurfaceMesh<MeshAttributeType>::Copy(const SurfaceMesh<MeshAttributeType>* InputMesh)
 {
     if (InputMesh == nullptr)
     {
@@ -155,17 +155,17 @@ bool SurfaceMesh<MeshType>::Copy(const SurfaceMesh<MeshType>* InputMesh)
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshType>::Share(SurfaceMesh& InputMesh)
+void SurfaceMesh<MeshAttributeType>::Share(SurfaceMesh& InputMesh)
 {
     m_MeshData = InputMesh.m_MeshData;
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-bool SurfaceMesh<MeshType>::Share(SurfaceMesh* InputMesh)
+bool SurfaceMesh<MeshAttributeType>::Share(SurfaceMesh* InputMesh)
 {
     if (InputMesh == nullptr)
     {
@@ -179,17 +179,17 @@ bool SurfaceMesh<MeshType>::Share(SurfaceMesh* InputMesh)
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshType>::ForceShare(const SurfaceMesh<MeshType>& InputMesh)
+void SurfaceMesh<MeshAttributeType>::ForceShare(const SurfaceMesh<MeshAttributeType>& InputMesh)
 {
     m_MeshData = InputMesh.m_MeshData;
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-bool SurfaceMesh<MeshType>::ForceShare(const SurfaceMesh<MeshType>* InputMesh)
+bool SurfaceMesh<MeshAttributeType>::ForceShare(const SurfaceMesh<MeshAttributeType>* InputMesh)
 {
     if (InputMesh == nullptr)
     {
@@ -203,17 +203,17 @@ bool SurfaceMesh<MeshType>::ForceShare(const SurfaceMesh<MeshType>* InputMesh)
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshType>::Take(SurfaceMesh<MeshType>&& InputMesh)
+void SurfaceMesh<MeshAttributeType>::Take(SurfaceMesh<MeshAttributeType>&& InputMesh)
 {
-    Take(std::forward<SurfaceMesh<MeshType>&>(InputMesh));
+    Take(std::forward<SurfaceMesh<MeshAttributeType>&>(InputMesh));
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshType>::Take(SurfaceMesh<MeshType>& InputMesh)
+void SurfaceMesh<MeshAttributeType>::Take(SurfaceMesh<MeshAttributeType>& InputMesh)
 {
     m_MeshData->PointIDList = std::move(InputMesh.m_MeshData->PointIDList);
     m_MeshData->VertexIDList = std::move(InputMesh.m_MeshData->VertexIDList);
@@ -278,9 +278,9 @@ void SurfaceMesh<MeshType>::Take(SurfaceMesh<MeshType>& InputMesh)
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-bool SurfaceMesh<MeshType>::Take(SurfaceMesh<MeshType>* InputMesh)
+bool SurfaceMesh<MeshAttributeType>::Take(SurfaceMesh<MeshAttributeType>* InputMesh)
 {
     if (InputMesh == nullptr)
     {
@@ -295,47 +295,47 @@ bool SurfaceMesh<MeshType>::Take(SurfaceMesh<MeshType>* InputMesh)
 
 //-------------------------------------------------------------------
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline 
-bool SurfaceMesh<MeshType>::IsEmpty() const
+bool SurfaceMesh<MeshAttributeType>::IsEmpty() const
 {
     return m_MeshData->PointPositionTable.IsEmpty();
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-int_max SurfaceMesh<MeshType>::GetPointNumber() const
+int_max SurfaceMesh<MeshAttributeType>::GetPointNumber() const
 {
     return m_MeshData->PointValidityFlagList.Sum();
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-int_max SurfaceMesh<MeshType>::GetVertexNumber() const
+int_max SurfaceMesh<MeshAttributeType>::GetVertexNumber() const
 {
     return m_MeshData->VertexValidityFlagList.Sum();
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-int_max SurfaceMesh<MeshType>::GetCellNumber() const
+int_max SurfaceMesh<MeshAttributeType>::GetCellNumber() const
 {
     return m_MeshData->CellValidityFlagList.Sum();
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-int_max SurfaceMesh<MeshType>::GetEdgeNumber() const
+int_max SurfaceMesh<MeshAttributeType>::GetEdgeNumber() const
 {
     return m_MeshData->EdgeValidityFlagList.Sum();
 }
 
 //------------------------- Mesh 3D Position --------------------------------------
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshType>::
-SetPointPosition(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList, const DenseMatrix<typename MeshType::ScalarType>& PointPositionMatrix)
+void SurfaceMesh<MeshAttributeType>::
+SetPointPosition(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList, const DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix)
 {
     if (PointHandleList.IsEmpty() == true && PointPositionMatrix.IsEmpty() == true)
     {
@@ -365,21 +365,21 @@ SetPointPosition(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleL
     }
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-DenseMatrix<typename MeshType::ScalarType> 
-SurfaceMesh<MeshType>::GetPointPosition(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList) const
+DenseMatrix<typename MeshAttributeType::ScalarType> 
+SurfaceMesh<MeshAttributeType>::GetPointPosition(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList) const
 {
-    DenseMatrix<MeshType::ScalarType> PointPositionMatrix;
+    DenseMatrix<MeshAttributeType::ScalarType> PointPositionMatrix;
 
     this->GetPointPosition(PointPositionMatrix, PointHandleList);
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshType>::
-GetPointPosition(DenseMatrix<typename MeshType::ScalarType>& PointPositionMatrix, const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList) const
+void SurfaceMesh<MeshAttributeType>::
+GetPointPosition(DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix, const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList) const
 {
     if (PointHandleList.IsEmpty() == true)
     {
@@ -402,10 +402,10 @@ GetPointPosition(DenseMatrix<typename MeshType::ScalarType>& PointPositionMatrix
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshType>::
-SetVertexPosition(const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList, const DenseMatrix<typename MeshType::ScalarType>& VertexPositionMatrix)
+void SurfaceMesh<MeshAttributeType>::
+SetVertexPosition(const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList, const DenseMatrix<typename MeshAttributeType::ScalarType>& VertexPositionMatrix)
 {
     if (VertexHandleList.IsEmpty() == true && VertexPositionMatrix.IsEmpty() == true)
     {
@@ -437,10 +437,10 @@ SetVertexPosition(const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHand
     }
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-DenseMatrix<typename MeshType::ScalarType>
-SurfaceMesh<MeshType>::GetVertexPosition(const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList) const
+DenseMatrix<typename MeshAttributeType::ScalarType>
+SurfaceMesh<MeshAttributeType>::GetVertexPosition(const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList) const
 {
     DenseMatrix<ScalarType> VertexPositionMatrix;
 
@@ -448,10 +448,10 @@ SurfaceMesh<MeshType>::GetVertexPosition(const DenseVector<Handle_Of_Vertex_Of_S
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshType>::
-GetVertexPosition(DenseMatrix<typename MeshType::ScalarType>& VertexPositionMatrix, const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList) const
+void SurfaceMesh<MeshAttributeType>::
+GetVertexPosition(DenseMatrix<typename MeshAttributeType::ScalarType>& VertexPositionMatrix, const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList) const
 {
     if (VertexHandleList.IsEmpty() == true)
     {
@@ -476,60 +476,60 @@ GetVertexPosition(DenseMatrix<typename MeshType::ScalarType>& VertexPositionMatr
 
 //------------------------- Mesh Element ----------------------------------------------
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-Point_Of_SurfaceMesh<MeshType>& SurfaceMesh<MeshType>::Point(Handle_Of_Point_Of_SurfaceMesh PointHandle)
+Point_Of_SurfaceMesh<MeshAttributeType>& SurfaceMesh<MeshAttributeType>::Point(Handle_Of_Point_Of_SurfaceMesh PointHandle)
 {
     return m_MeshData->PointList[PointHandle.GetIndex()];
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-const Point_Of_SurfaceMesh<MeshType>& SurfaceMesh<MeshType>::Point(Handle_Of_Point_Of_SurfaceMesh PointHandle) const
+const Point_Of_SurfaceMesh<MeshAttributeType>& SurfaceMesh<MeshAttributeType>::Point(Handle_Of_Point_Of_SurfaceMesh PointHandle) const
 {
     return m_MeshData->PointList[PointHandle.GetIndex()];
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-Vertex_Of_SurfaceMesh<MeshType>& SurfaceMesh<MeshType>::Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle)
+Vertex_Of_SurfaceMesh<MeshAttributeType>& SurfaceMesh<MeshAttributeType>::Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle)
 {
     return m_MeshData->VertexList[VertexHandle.GetIndex()];
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-const Vertex_Of_SurfaceMesh<MeshType>& SurfaceMesh<MeshType>::Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle) const
+const Vertex_Of_SurfaceMesh<MeshAttributeType>& SurfaceMesh<MeshAttributeType>::Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle) const
 {
     return m_MeshData->VertexList[VertexHandle.GetIndex()];
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-Edge_Of_SurfaceMesh<MeshType>& SurfaceMesh<MeshType>::Edge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle)
+Edge_Of_SurfaceMesh<MeshAttributeType>& SurfaceMesh<MeshAttributeType>::Edge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle)
 {
     return m_MeshData->EdgeList[EdgeHandle.GetIndex()];
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-const Edge_Of_SurfaceMesh<MeshType>& SurfaceMesh<MeshType>::Edge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle) const
+const Edge_Of_SurfaceMesh<MeshAttributeType>& SurfaceMesh<MeshAttributeType>::Edge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle) const
 {
     return m_MeshData->EdgeList[EdgeHandle.GetIndex()];
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-DirectedEdge_Of_SurfaceMesh<MeshType>& SurfaceMesh<MeshType>::DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle)
+DirectedEdge_Of_SurfaceMesh<MeshAttributeType>& SurfaceMesh<MeshAttributeType>::DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle)
 {
     auto EdgeIndex = DirectedEdgeHandle.GetEdgeIndex;
     auto RelativeIndex = DirectedEdgeHandle.GetRelativeIndex();
     return m_MeshData->DirectedEdgePairList[EdgeIndex][RelativeIndex];
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-const DirectedEdge_Of_SurfaceMesh<MeshType>& SurfaceMesh<MeshType>::DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle) const
+const DirectedEdge_Of_SurfaceMesh<MeshAttributeType>& SurfaceMesh<MeshAttributeType>::DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle) const
 {
     auto EdgeIndex = DirectedEdgeHandle.GetEdgeIndex;
     auto RelativeIndex = DirectedEdgeHandle.GetRelativeIndex();
@@ -537,56 +537,56 @@ const DirectedEdge_Of_SurfaceMesh<MeshType>& SurfaceMesh<MeshType>::DirectedEdge
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-Cell_Of_SurfaceMesh<MeshType>& SurfaceMesh<MeshType>::Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle)
+Cell_Of_SurfaceMesh<MeshAttributeType>& SurfaceMesh<MeshAttributeType>::Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle)
 {
     return m_MeshData->CellList[CellHandle.GetIndex()];
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-const Cell_Of_SurfaceMesh<MeshType>& SurfaceMesh<MeshType>::Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle) const
+const Cell_Of_SurfaceMesh<MeshAttributeType>& SurfaceMesh<MeshAttributeType>::Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle) const
 {
     return m_MeshData->CellList[CellHandle.GetIndex()];
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline 
-Iterator_Of_Point_Of_SurfaceMesh<MeshType> SurfaceMesh<MeshType>::GetIteratorOfPoint() const
+Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType> SurfaceMesh<MeshAttributeType>::GetIteratorOfPoint() const
 {
-    Iterator_Of_Point_Of_SurfaceMesh<MeshType> it(const_cast<SurfaceMesh<MeshType>&>(*this));
+    Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType> it(const_cast<SurfaceMesh<MeshAttributeType>&>(*this));
     return it;
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-Iterator_Of_Vertex_Of_SurfaceMesh<MeshType> SurfaceMesh<MeshType>::GetIteratorOfVertex() const
+Iterator_Of_Vertex_Of_SurfaceMesh<MeshAttributeType> SurfaceMesh<MeshAttributeType>::GetIteratorOfVertex() const
 {
-    Iterator_Of_Vertex_Of_SurfaceMesh<MeshType> it(const_cast<SurfaceMesh<MeshType>&>(*this));
+    Iterator_Of_Vertex_Of_SurfaceMesh<MeshAttributeType> it(const_cast<SurfaceMesh<MeshAttributeType>&>(*this));
     return it;
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-Iterator_Of_Edge_Of_SurfaceMesh<MeshType> SurfaceMesh<MeshType>::GetIteratorOfEdge() const
+Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType> SurfaceMesh<MeshAttributeType>::GetIteratorOfEdge() const
 {
-    Iterator_Of_Edge_Of_SurfaceMesh<MeshType> it(const_cast<SurfaceMesh<MeshType>&>(*this));
+    Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType> it(const_cast<SurfaceMesh<MeshAttributeType>&>(*this));
     return it;
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-Iterator_Of_Cell_Of_SurfaceMesh<MeshType> SurfaceMesh<MeshType>::GetIteratorOfCell() const
+Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType> SurfaceMesh<MeshAttributeType>::GetIteratorOfCell() const
 {
-    Iterator_Of_Cell_Of_SurfaceMesh<MeshType> it(const_cast<SurfaceMesh<MeshType>&>(*this));
+    Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType> it(const_cast<SurfaceMesh<MeshAttributeType>&>(*this));
     return it;
 }
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshType>::GetPointHandle(int_max PointID) const
+Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::GetPointHandle(int_max PointID) const
 {
     Handle_Of_Point_Of_SurfaceMesh PointHandle;
 
@@ -609,9 +609,9 @@ Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshType>::GetPointHandle(int_max Poi
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline 
-Handle_Of_Vertex_Of_SurfaceMesh SurfaceMesh<MeshType>::GetVertexHandle(int_max VertexID) const
+Handle_Of_Vertex_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::GetVertexHandle(int_max VertexID) const
 {
     Handle_Of_Vertex_Of_SurfaceMesh VertexHandle;
 
@@ -633,9 +633,9 @@ Handle_Of_Vertex_Of_SurfaceMesh SurfaceMesh<MeshType>::GetVertexHandle(int_max V
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-Handle_Of_Edge_Of_SurfaceMesh  SurfaceMesh<MeshType>::GetEdgeHandle(int_max EdgeID) const
+Handle_Of_Edge_Of_SurfaceMesh  SurfaceMesh<MeshAttributeType>::GetEdgeHandle(int_max EdgeID) const
 {
     Handle_Of_Edge_Of_SurfaceMesh EdgeHandle;
 
@@ -657,9 +657,9 @@ Handle_Of_Edge_Of_SurfaceMesh  SurfaceMesh<MeshType>::GetEdgeHandle(int_max Edge
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline
-Handle_Of_DirectedEdge_Of_SurfaceMesh SurfaceMesh<MeshType>::GetDirectedEdgeHandle(int_max EdgeID, int_max RelativeIndex) const
+Handle_Of_DirectedEdge_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::GetDirectedEdgeHandle(int_max EdgeID, int_max RelativeIndex) const
 {
     Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle;
 
@@ -677,9 +677,9 @@ Handle_Of_DirectedEdge_Of_SurfaceMesh SurfaceMesh<MeshType>::GetDirectedEdgeHand
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 inline 
-Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshType>::GetCellHandle(int_max CellID) const
+Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::GetCellHandle(int_max CellID) const
 {
     Handle_Of_Vertex_Of_SurfaceMesh CellHandle;
 
@@ -701,21 +701,21 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshType>::GetCellHandle(int_max CellI
 }
 
 //------------------------------ Add Mesh Item -------------------------------------------------------------------------//
-template<typename MeshType>
-Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshType>::AddPoint(const typename MeshType::ScalarType Position[3])
+template<typename MeshAttributeType>
+Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddPoint(const typename MeshAttributeType::ScalarType Position[3])
 {
     return this->AddPoint(Position[0], Position[1], Position[2]);
 }
 
 
-template<typename MeshType>
+template<typename MeshAttributeType>
 Handle_Of_Point_Of_SurfaceMesh
-SurfaceMesh<MeshType>::AddPoint(typename MeshType::ScalarType x, typename MeshType::ScalarType y, typename MeshType::ScalarType z)
+SurfaceMesh<MeshAttributeType>::AddPoint(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z)
 {
     m_MeshData->PointPositionTable.AppendCol({x, y, z});
     auto PointIndex = m_MeshData->PointPositionTable.GetColNumber() - 1;
 
-    Point_Of_SurfaceMesh<MeshType> Point;
+    Point_Of_SurfaceMesh<MeshAttributeType> Point;
     Point.Create();
     Point.SetParentMesh(*this);
     Point.SetIndex(PointIndex);
@@ -735,8 +735,8 @@ SurfaceMesh<MeshType>::AddPoint(typename MeshType::ScalarType x, typename MeshTy
 }
 
 
-template<typename MeshType>
-DenseVector<Handle_Of_Point_Of_SurfaceMesh> SurfaceMesh<MeshType>::AddPoint(const DenseMatrix<typename MeshType::ScalarType>& PointSet)
+template<typename MeshAttributeType>
+DenseVector<Handle_Of_Point_Of_SurfaceMesh> SurfaceMesh<MeshAttributeType>::AddPoint(const DenseMatrix<typename MeshAttributeType::ScalarType>& PointSet)
 {
     DenseVector<Handle_Of_Point_Of_SurfaceMesh> PointHandleList;
 
@@ -755,8 +755,8 @@ DenseVector<Handle_Of_Point_Of_SurfaceMesh> SurfaceMesh<MeshType>::AddPoint(cons
 }
 
 
-template<typename MeshType>
-Handle_Of_Vertex_Of_SurfaceMesh SurfaceMesh<MeshType>::AddVertex(Handle_Of_Point_Of_SurfaceMesh PointHandle)
+template<typename MeshAttributeType>
+Handle_Of_Vertex_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddVertex(Handle_Of_Point_Of_SurfaceMesh PointHandle)
 {
     Handle_Of_Vertex_Of_SurfaceMesh VertexHandle;
 
@@ -786,7 +786,7 @@ Handle_Of_Vertex_Of_SurfaceMesh SurfaceMesh<MeshType>::AddVertex(Handle_Of_Point
     //----------------------------------------------------------------------------
     auto VertexIndex = m_MeshData->VertexList.GetLength();
 
-    Vertex_Of_SurfaceMesh<MeshType> Vertex;
+    Vertex_Of_SurfaceMesh<MeshAttributeType> Vertex;
     Vertex.Create();
     Vertex.SetParentMesh(*this);
     Vertex.SetIndex(VertexIndex);
@@ -807,8 +807,8 @@ Handle_Of_Vertex_Of_SurfaceMesh SurfaceMesh<MeshType>::AddVertex(Handle_Of_Point
 }
 
 
-template<typename MeshType>
-Handle_Of_Edge_Of_SurfaceMesh SurfaceMesh<MeshType>::AddEdge(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList)
+template<typename MeshAttributeType>
+Handle_Of_Edge_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddEdge(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList)
 {
     Handle_Of_Edge_Of_SurfaceMesh EdgeHandle;
 
@@ -887,6 +887,15 @@ Handle_Of_Edge_Of_SurfaceMesh SurfaceMesh<MeshType>::AddEdge(const DenseVector<H
             return EdgeHandle;
         }
     }
+    else
+    {
+        if (m_MeshData->PointList[PointHandleList[0].GetIndex()].IsOnEdge() == true)
+        {
+            MDK_Error("The point : PointHandleList[0] is not a veterx, but is already on an edge @ SurfaceMesh::AddEdge(...)")
+            EdgeHandle.SetIndex(-1);
+            return EdgeHandle;
+        }
+    }
     
     if (VertexIndex1 >= 0)
     {
@@ -898,8 +907,16 @@ Handle_Of_Edge_Of_SurfaceMesh SurfaceMesh<MeshType>::AddEdge(const DenseVector<H
             return EdgeHandle;
         }
     }
-
-    //-------------------------------------------------------------------------------------
+    else
+    {
+        if (m_MeshData->PointList[PointHandleList[PointHandleList.GetLength() - 1].GetIndex()].IsOnEdge() == true)
+        {
+            MDK_Error("The point : PointHandleList[end] is not a veterx, but is already on an edge @ SurfaceMesh::AddEdge(...)")
+            EdgeHandle.SetIndex(-1);
+            return EdgeHandle;
+        }
+    }
+    //------------------------------------------------------------------------------------------------------------------//
     // add new vertex if necessary    
     bool VertexIndex0_is_new = false;
     bool VertexIndex1_is_new = false;
@@ -920,7 +937,7 @@ Handle_Of_Edge_Of_SurfaceMesh SurfaceMesh<MeshType>::AddEdge(const DenseVector<H
     //----------------------------------------------------------------
     auto EdgeIndex = m_MeshData->EdgeList.GetLength();
 
-    Edge_Of_SurfaceMesh<MeshType> Edge;
+    Edge_Of_SurfaceMesh<MeshAttributeType> Edge;
     Edge.Create();
     Edge.SetParentMesh(*this);
     Edge.SetIndex(EdgeIndex);
@@ -934,7 +951,7 @@ Handle_Of_Edge_Of_SurfaceMesh SurfaceMesh<MeshType>::AddEdge(const DenseVector<H
     m_MeshData->EdgeList.Append(std::move(Edge));
 
     // add empty DirectedEdgePair to hold place
-    DenseVector<DirectedEdge_Of_SurfaceMesh<MeshType>, 2> DirectedEdgePair;
+    DenseVector<DirectedEdge_Of_SurfaceMesh<MeshAttributeType>, 2> DirectedEdgePair;
     m_MeshData->DirectedEdgePairList.Append(std::move(DirectedEdgePair));
     m_MeshData->DirectedEdgePairList[EdgeIndex][0].Clear();
     m_MeshData->DirectedEdgePairList[EdgeIndex][1].Clear();
@@ -958,6 +975,7 @@ Handle_Of_Edge_Of_SurfaceMesh SurfaceMesh<MeshType>::AddEdge(const DenseVector<H
     }
 
     // update information in m_MeshData->PointList
+    // information about the first point and the last point have already been set when AddVertex()
     if (PointHandleList.GetLength() > 2)
     {
         for (int_max k = 1; k < PointHandleList.GetLength() - 1; ++k)
@@ -972,8 +990,8 @@ Handle_Of_Edge_Of_SurfaceMesh SurfaceMesh<MeshType>::AddEdge(const DenseVector<H
 }
 
 
-template<typename MeshType>
-Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshType>::AddCell(const DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& EdgeHandleList)
+template<typename MeshAttributeType>
+Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& EdgeHandleList)
 {
     Handle_Of_Cell_Of_SurfaceMesh CellHandle;
 
@@ -1109,7 +1127,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshType>::AddCell(const DenseVector<H
 
     // create cell --------------------------------------------------------------
 
-    Cell_Of_SurfaceMesh<MeshType> Cell;
+    Cell_Of_SurfaceMesh<MeshAttributeType> Cell;
     Cell.Create();
     Cell.SetParentMesh(*this);
     Cell.SetIndex(CellIndex);
@@ -1144,8 +1162,8 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshType>::AddCell(const DenseVector<H
 
 //------------------- Delete Mesh Item ----------------------------------------------------------------------------//
 
-template<typename MeshType>
-bool SurfaceMesh<MeshType>::DeleteCell(Handle_Of_Cell_Of_SurfaceMesh CellHandle)
+template<typename MeshAttributeType>
+bool SurfaceMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_SurfaceMesh CellHandle)
 {
     auto CellIndex = CellHandle.Index;
 
@@ -1215,8 +1233,8 @@ bool SurfaceMesh<MeshType>::DeleteCell(Handle_Of_Cell_Of_SurfaceMesh CellHandle)
 }
 
 
-template<typename MeshType>
-bool SurfaceMesh<MeshType>::DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle)
+template<typename MeshAttributeType>
+bool SurfaceMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle)
 {
     auto EdgeIndex = EdgeHandle.GetIndex();
 
@@ -1285,8 +1303,8 @@ bool SurfaceMesh<MeshType>::DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle)
 }
 
 
-template<typename MeshType>
-bool SurfaceMesh<MeshType>::DeleteVertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle)
+template<typename MeshAttributeType>
+bool SurfaceMesh<MeshAttributeType>::DeleteVertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle)
 {
     auto VertexIndex = VertexHandle.GetIndex();
 
@@ -1328,8 +1346,8 @@ bool SurfaceMesh<MeshType>::DeleteVertex(Handle_Of_Vertex_Of_SurfaceMesh VertexH
 }
 
 
-template<typename MeshType>
-bool SurfaceMesh<MeshType>::DeletePoint(Handle_Of_Point_Of_SurfaceMesh PointHandle)
+template<typename MeshAttributeType>
+bool SurfaceMesh<MeshAttributeType>::DeletePoint(Handle_Of_Point_Of_SurfaceMesh PointHandle)
 {
     auto PointIndex = PointHandle.GetIndex();
 
@@ -1364,8 +1382,8 @@ bool SurfaceMesh<MeshType>::DeletePoint(Handle_Of_Point_Of_SurfaceMesh PointHand
 }
 
 
-template<typename MeshType>
-bool SurfaceMesh<MeshType>::DeletePoint(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList)
+template<typename MeshAttributeType>
+bool SurfaceMesh<MeshAttributeType>::DeletePoint(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList)
 {
     if (PointHandleList.IsEmpty() == true)
     {
@@ -1387,8 +1405,8 @@ bool SurfaceMesh<MeshType>::DeletePoint(const DenseVector<Handle_Of_Point_Of_Sur
 //----------------- remove deleted item from object list ----------------------------------------------------------//
 // attention: after this function is called, every index will be changed
 // and there will be no "dead/deleted" item in any object list (e.g., m_MeshData->EdgeList)
-template<typename MeshType>
-void SurfaceMesh<MeshType>::CleanDataStructure()
+template<typename MeshAttributeType>
+void SurfaceMesh<MeshAttributeType>::CleanDataStructure()
 {
 
 }

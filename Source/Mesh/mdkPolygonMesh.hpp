@@ -5,58 +5,58 @@
 namespace mdk
 {
 
-template<typename ScalarType>
-PolygonMesh<ScalarType>::PolygonMesh()
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType>::PolygonMesh()
 {
-    m_MeshData = std::make_shared<PolygonMeshData<ScalarType>>();
+    m_MeshData = std::make_shared<PolygonMeshData<MeshAttributeType>>();
     m_MeshData->IsTriangleMesh = false;
 }
 
 
-template<typename ScalarType>
-PolygonMesh<ScalarType>::PolygonMesh(const PolygonMesh<ScalarType>& InputMesh)
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType>::PolygonMesh(const PolygonMesh<MeshAttributeType>& InputMesh)
 {
     this->Copy(InputMesh);
 }
 
 
-template<typename ScalarType>
-PolygonMesh<ScalarType>::PolygonMesh(PolygonMesh<ScalarType>&& InputMesh)
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType>::PolygonMesh(PolygonMesh<MeshAttributeType>&& InputMesh)
 {
     m_MeshData = std::move(InputMesh.m_MeshData);
 }
 
 
-template<typename ScalarType>
-PolygonMesh<ScalarType>::~PolygonMesh()
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType>::~PolygonMesh()
 {
 }
 
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline
-void PolygonMesh<ScalarType>::operator=(const PolygonMesh<ScalarType>& InputMesh)
+void PolygonMesh<MeshAttributeType>::operator=(const PolygonMesh<MeshAttributeType>& InputMesh)
 {
     this->Copy(InputMesh);
 }
 
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline
-void PolygonMesh<ScalarType>::operator=(PolygonMesh<ScalarType>&& InputMesh)
+void PolygonMesh<MeshAttributeType>::operator=(PolygonMesh<MeshAttributeType>&& InputMesh)
 {
     if (!m_MeshData)
     {
-        m_MeshData = std::make_shared<PolygonMeshData<ScalarType>>();
+        m_MeshData = std::make_shared<PolygonMeshData<MeshAttributeType>>();
     }
 
-    this->Take(std::forward<PolygonMesh<ScalarType>&>(InputMesh));
+    this->Take(std::forward<PolygonMesh<MeshAttributeType>&>(InputMesh));
 }
 
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-void PolygonMesh<ScalarType>::Clear()
+void PolygonMesh<MeshAttributeType>::Clear()
 {
     if (!m_MeshData)
     {
@@ -68,13 +68,13 @@ void PolygonMesh<ScalarType>::Clear()
 }
 
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-void PolygonMesh<ScalarType>::Copy(const PolygonMesh<ScalarType>& InputMesh)
+void PolygonMesh<MeshAttributeType>::Copy(const PolygonMesh<MeshAttributeType>& InputMesh)
 {
     if (!m_MeshData)
     {
-        m_MeshData = std::make_shared<PolygonMeshData<ScalarType>>();
+        m_MeshData = std::make_shared<PolygonMeshData<MeshAttributeType>>();
     }
 
     m_MeshData->IsTriangleMesh = InputMesh.m_MeshData->IsTriangleMesh;
@@ -82,9 +82,9 @@ void PolygonMesh<ScalarType>::Copy(const PolygonMesh<ScalarType>& InputMesh)
 }
 
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-bool PolygonMesh<ScalarType>::Copy(const PolygonMesh<ScalarType>* InputMesh)
+bool PolygonMesh<MeshAttributeType>::Copy(const PolygonMesh<MeshAttributeType>* InputMesh)
 {
     if (InputMesh == nullptr)
     {
@@ -98,17 +98,17 @@ bool PolygonMesh<ScalarType>::Copy(const PolygonMesh<ScalarType>* InputMesh)
 }
 
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-void PolygonMesh<ScalarType>::Share(PolygonMesh<ScalarType>& InputMesh)
+void PolygonMesh<MeshAttributeType>::Share(PolygonMesh<MeshAttributeType>& InputMesh)
 {
     m_MeshData = InputMesh.m_MeshData;
 }
 
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline
-bool PolygonMesh<ScalarType>::Share(PolygonMesh<ScalarType>* InputMesh)
+bool PolygonMesh<MeshAttributeType>::Share(PolygonMesh<MeshAttributeType>* InputMesh)
 {
     if (InputMesh == nullptr)
     {
@@ -122,17 +122,17 @@ bool PolygonMesh<ScalarType>::Share(PolygonMesh<ScalarType>* InputMesh)
 }
 
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-void PolygonMesh<ScalarType>::ForceShare(const PolygonMesh<ScalarType>& InputMesh)
+void PolygonMesh<MeshAttributeType>::ForceShare(const PolygonMesh<MeshAttributeType>& InputMesh)
 {
     m_MeshData = InputMesh.m_MeshData;
 }
 
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-bool PolygonMesh<ScalarType>::ForceShare(const PolygonMesh<ScalarType>* InputMesh)
+bool PolygonMesh<MeshAttributeType>::ForceShare(const PolygonMesh<MeshAttributeType>* InputMesh)
 {
     if (InputMesh == nullptr)
     {
@@ -146,17 +146,17 @@ bool PolygonMesh<ScalarType>::ForceShare(const PolygonMesh<ScalarType>* InputMes
 }
 
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline
-void PolygonMesh<ScalarType>::Take(PolygonMesh<ScalarType>&& InputMesh)
+void PolygonMesh<MeshAttributeType>::Take(PolygonMesh<MeshAttributeType>&& InputMesh)
 {
-    Take(std::forward<PolygonMesh<ScalarType>&>(InputMesh));
+    Take(std::forward<PolygonMesh<MeshAttributeType>&>(InputMesh));
 }
 
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-bool PolygonMesh<ScalarType>::Take(PolygonMesh<ScalarType>& InputMesh)
+bool PolygonMesh<MeshAttributeType>::Take(PolygonMesh<MeshAttributeType>& InputMesh)
 {
     m_MeshData->IsTriangleMesh = InputMesh.m_MeshData->IsTriangleMesh;
     m_MeshData->PolygonSurfaceMesh = std::move(InputMesh.m_MeshData->PolygonSurfaceMesh);
@@ -164,9 +164,9 @@ bool PolygonMesh<ScalarType>::Take(PolygonMesh<ScalarType>& InputMesh)
 }
 
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-bool PolygonMesh<ScalarType>::Take(PolygonMesh<ScalarType>* InputMesh)
+bool PolygonMesh<MeshAttributeType>::Take(PolygonMesh<MeshAttributeType>* InputMesh)
 {
     if (InputMesh == nullptr)
     {
@@ -179,180 +179,183 @@ bool PolygonMesh<ScalarType>::Take(PolygonMesh<ScalarType>* InputMesh)
 
 //-------------------------------------------------------------------
 
-template<typename ScalarType>
-inline bool PolygonMesh<ScalarType>::IsEmpty() const
+template<typename MeshAttributeType>
+inline bool PolygonMesh<MeshAttributeType>::IsEmpty() const
 {
     return m_MeshData->PolygonSurfaceMesh.IsEmpty();
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-int_max PolygonMesh<ScalarType>::GetVertexNumber() const
+int_max PolygonMesh<MeshAttributeType>::GetVertexNumber() const
 {
     return m_MeshData->PolygonSurfaceMesh.GetVertexNumber();
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline
-int_max PolygonMesh<ScalarType>::GetCellNumber() const
+int_max PolygonMesh<MeshAttributeType>::GetCellNumber() const
 {
     return m_MeshData->PolygonSurfaceMesh.GetCellNumber();
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-int_max PolygonMesh<ScalarType>::GetEdgeNumber() const
+int_max PolygonMesh<MeshAttributeType>::GetEdgeNumber() const
 {
     return return m_MeshData->PolygonSurfaceMesh.GetEdgeNumber();
 }
 
 //------------------------- Mesh 3D Position --------------------------------------
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-void PolygonMesh<ScalarType>::
-SetVertexPosition(const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList, const DenseMatrix<ScalarType>& VertexPositionMatrix)
+void PolygonMesh<MeshAttributeType>::
+SetVertexPosition(const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList, 
+                  const DenseMatrix<typename MeshAttributeType::ScalarType>& VertexPositionMatrix)
 {
     m_MeshData->PolygonSurfaceMesh.SetVertexPosition(VertexHandleList, VertexPositionMatrix);
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-DenseMatrix<ScalarType> PolygonMesh<ScalarType>::GetVertexPosition(const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList) const
+DenseMatrix<typename MeshAttributeType::ScalarType> 
+PolygonMesh<MeshAttributeType>::GetVertexPosition(const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList) const
 {
    return m_MeshData->PolygonSurfaceMesh.GetVertexPosition(VertexHandleList);
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-void PolygonMesh<ScalarType>::
-GetVertexPosition(DenseMatrix<ScalarType>& VertexPositionMatrix, const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList) const
+void PolygonMesh<MeshAttributeType>::
+GetVertexPosition(DenseMatrix<typename MeshAttributeType::ScalarType>& VertexPositionMatrix, 
+                 const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList) const
 {
     m_MeshData->PolygonSurfaceMesh.GetVertexPosition(VertexPositionMatrix, VertexHandleList);
 }
 
 //------------------------- Mesh Element ----------------------------------------------
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-Vertex_Of_SurfaceMesh<PolygonMesh<ScalarType>>& 
-PolygonMesh<ScalarType>::Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle)
+Vertex_Of_SurfaceMesh<MeshAttributeType>&
+PolygonMesh<MeshAttributeType>::Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle)
 {
     return m_MeshData->PolygonSurfaceMesh.Vertex(VertexHandle);
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-const Vertex_Of_SurfaceMesh<PolygonMesh<ScalarType>>&
-PolygonMesh<ScalarType>::Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle) const
+const Vertex_Of_SurfaceMesh<MeshAttributeType>&
+PolygonMesh<MeshAttributeType>::Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle) const
 {
     return m_MeshData->PolygonSurfaceMesh.Vertex(VertexHandle);
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline
-Edge_Of_SurfaceMesh<PolygonMesh<ScalarType>>&
-PolygonMesh<ScalarType>::Edge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle)
+Edge_Of_SurfaceMesh<MeshAttributeType>&
+PolygonMesh<MeshAttributeType>::Edge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle)
 {
     return m_MeshData->PolygonSurfaceMesh.Edge(EdgeHandle);
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline
-const Edge_Of_SurfaceMesh<PolygonMesh<ScalarType>>&
-PolygonMesh<ScalarType>::Edge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle) const
+const Edge_Of_SurfaceMesh<MeshAttributeType>&
+PolygonMesh<MeshAttributeType>::Edge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle) const
 {
     return m_MeshData->PolygonSurfaceMesh.Edge(EdgeHandle);
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-DirectedEdge_Of_SurfaceMesh<PolygonMesh<ScalarType>>&
-PolygonMesh<ScalarType>::DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle)
+DirectedEdge_Of_SurfaceMesh<MeshAttributeType>&
+PolygonMesh<MeshAttributeType>::DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle)
 {
     return m_MeshData->PolygonSurfaceMesh.DirectedEdge(DirectedEdgeHandle);
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline
-const DirectedEdge_Of_SurfaceMesh<PolygonMesh<ScalarType>>&
-PolygonMesh<ScalarType>::DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle) const
+const DirectedEdge_Of_SurfaceMesh<MeshAttributeType>&
+PolygonMesh<MeshAttributeType>::DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle) const
 {
     return m_MeshData->PolygonSurfaceMesh.DirectedEdge(DirectedEdgeHandle);
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline
-Cell_Of_SurfaceMesh<PolygonMesh<ScalarType>>&
-PolygonMesh<ScalarType>::Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle)
+Cell_Of_SurfaceMesh<MeshAttributeType>&
+PolygonMesh<MeshAttributeType>::Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle)
 {
     return m_MeshData->PolygonSurfaceMesh.Cell(CellHandle);
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-const Cell_Of_SurfaceMesh<PolygonMesh<ScalarType>>&
-PolygonMesh<ScalarType>::Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle) const
+const Cell_Of_SurfaceMesh<MeshAttributeType>&
+PolygonMesh<MeshAttributeType>::Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle) const
 {
     return m_MeshData->PolygonSurfaceMesh.Cell(CellHandle);
 }
 
 //------------- Iterator --------------------------------------------------------------//
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-Iterator_Of_Vertex_Of_SurfaceMesh<PolygonMesh<ScalarType>> PolygonMesh<ScalarType>::GetIteratorOfVertex() const
+Iterator_Of_Vertex_Of_SurfaceMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetIteratorOfVertex() const
 {
     return m_MeshData->PolygonSurfaceMesh.GetIteratorOfVertex();
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-Iterator_Of_Edge_Of_SurfaceMesh<PolygonMesh<ScalarType>> PolygonMesh<ScalarType>::GetIteratorOfEdge() const
+Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetIteratorOfEdge() const
 {
     return m_MeshData->PolygonSurfaceMesh.GetIteratorOfEdge();
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-Iterator_Of_Cell_Of_SurfaceMesh<PolygonMesh<ScalarType>>  PolygonMesh<ScalarType>::GetIteratorOfCell() const
+Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>  PolygonMesh<MeshAttributeType>::GetIteratorOfCell() const
 {
     return m_MeshData->PolygonSurfaceMesh.GetIteratorOfCell();
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-Handle_Of_DirectedEdge_Of_SurfaceMesh PolygonMesh<ScalarType>::GetDirectedEdgeHandle(EdgeHandleType EdgeHandle, int_max RelativeIndex) const
+Handle_Of_DirectedEdge_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::GetDirectedEdgeHandle(EdgeHandleType EdgeHandle, int_max RelativeIndex) const
 {
     return m_MeshData->PolygonSurfaceMesh.GetDirectedEdgeHandle(EdgeHandle, RelativeIndex);
 }
 
 // get handle by ID -----------------------------------------------------------------------//
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline
-Handle_Of_Vertex_Of_SurfaceMesh PolygonMesh<ScalarType>::GetVertexHandle(int_max VertexID) const
+Handle_Of_Vertex_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::GetVertexHandle(int_max VertexID) const
 {
     return m_MeshData->PolygonSurfaceMesh.GetVertexHandle(VertexID);
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-Handle_Of_Edge_Of_SurfaceMesh PolygonMesh<ScalarType>::GetEdgeHandle(int_max EdgeID) const
+Handle_Of_Edge_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::GetEdgeHandle(int_max EdgeID) const
 {
     return m_MeshData->PolygonSurfaceMesh.GetEdgeHandle(EdgeID);
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-Handle_Of_DirectedEdge_Of_SurfaceMesh PolygonMesh<ScalarType>::GetDirectedEdgeHandle(int_max EdgeID, int_max RelativeIndex) const
+Handle_Of_DirectedEdge_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::GetDirectedEdgeHandle(int_max EdgeID, int_max RelativeIndex) const
 {
     return m_MeshData->PolygonSurfaceMesh.GetDirectedEdgeHandle(EdgeID, RelativeIndex);
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline 
-Handle_Of_Cell_Of_SurfaceMesh PolygonMesh<ScalarType>::GetCellHandle(int_max CellID) const
+Handle_Of_Cell_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::GetCellHandle(int_max CellID) const
 {
     return m_MeshData->PolygonSurfaceMesh.GetCellHandle(CellID);
 }
@@ -360,22 +363,23 @@ Handle_Of_Cell_Of_SurfaceMesh PolygonMesh<ScalarType>::GetCellHandle(int_max Cel
 // Add Mesh Item -------------------------------------------------------------------------//
 // add an item and return index (-1 if input is invalid)
 
-template<typename ScalarType>
-Handle_Of_Vertex_Of_SurfaceMesh PolygonMesh<ScalarType>::AddVertex(ScalarType Position[3])
+template<typename MeshAttributeType>
+Handle_Of_Vertex_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::AddVertex(typename MeshAttributeType::ScalarType Position[3])
 {
     auto PointHandle = m_MeshData->PolygonSurfaceMesh.AddPoint(Position[3]);
     m_MeshData->PolygonSurfaceMesh.AddVertex(PointHandle);
 }
 
-template<typename ScalarType>
-Handle_Of_Vertex_Of_SurfaceMesh PolygonMesh<ScalarType>::AddVertex(ScalarType x, ScalarType y, ScalarType z)
+template<typename MeshAttributeType>
+Handle_Of_Vertex_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::
+AddVertex(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z)
 {
     ScalarType Position[3] = { x, y, z };
     return this->AddVertex(Position);
 }
 
-template<typename ScalarType>
-DenseVector<Handle_Of_Vertex_Of_SurfaceMesh> PolygonMesh<ScalarType>::AddVertex(const DenseMatrix<ScalarType>& PointSet)
+template<typename MeshAttributeType>
+DenseVector<Handle_Of_Vertex_Of_SurfaceMesh> PolygonMesh<MeshAttributeType>::AddVertex(const DenseMatrix<typename MeshAttributeType::ScalarType>& PointSet)
 {
     DenseVector<Handle_Of_Vertex_Of_SurfaceMesh> VertexHandleList;
     VertexHandleList.Resize(PointSet.GetColNumber());
@@ -389,8 +393,9 @@ DenseVector<Handle_Of_Vertex_Of_SurfaceMesh> PolygonMesh<ScalarType>::AddVertex(
     return VertexHandleList;
 }
 
-template<typename ScalarType>
-Handle_Of_Edge_Of_SurfaceMesh PolygonMesh<ScalarType>::AddEdge(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle0, Handle_Of_Vertex_Of_SurfaceMesh VertexHandle1)
+template<typename MeshAttributeType>
+Handle_Of_Edge_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::
+AddEdge(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle0, Handle_Of_Vertex_Of_SurfaceMesh VertexHandle1)
 {
     auto PointHandle0 = m_MeshData->PolygonSurfaceMesh.Vertex(VertexHandle0).GetPointHandle();
     auto PointHandle1 = m_MeshData->PolygonSurfaceMesh.Vertex(VertexHandle1).GetPointHandle();
@@ -403,28 +408,28 @@ Handle_Of_Edge_Of_SurfaceMesh PolygonMesh<ScalarType>::AddEdge(Handle_Of_Vertex_
     return m_MeshData->PolygonSurfaceMesh.AddEdge(PointHandleList);
 }
 
-template<typename ScalarType>
-Handle_Of_Cell_Of_SurfaceMesh PolygonMesh<ScalarType>::AddCell(const DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& EdgeHandleList)
+template<typename MeshAttributeType>
+Handle_Of_Cell_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::AddCell(const DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& EdgeHandleList)
 {
     return m_MeshData->PolygonSurfaceMesh.AddCell(EdgeHandleList);
 }
 
 //Delete Mesh Item ----------------------------------------------------------------------//
 
-template<typename ScalarType>
-bool PolygonMesh<ScalarType>::DeleteCell(Handle_Of_Cell_Of_SurfaceMesh CellHandle)
+template<typename MeshAttributeType>
+bool PolygonMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_SurfaceMesh CellHandle)
 {
     return m_MeshData->PolygonSurfaceMesh.DeleteCell(CellHandle);
 }
 
-template<typename ScalarType>
-bool PolygonMesh<ScalarType>::DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle)
+template<typename MeshAttributeType>
+bool PolygonMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle)
 {
     return m_MeshData->PolygonSurfaceMesh.DeleteEdge(EdgeHandle);
 }
 
-template<typename ScalarType>
-bool PolygonMesh<ScalarType>::DeleteVertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle)
+template<typename MeshAttributeType>
+bool PolygonMesh<MeshAttributeType>::DeleteVertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle)
 {
     if (m_MeshData->PolygonSurfaceMesh.DeleteVertex(VertexHandle) == false)
     {
@@ -440,8 +445,8 @@ bool PolygonMesh<ScalarType>::DeleteVertex(Handle_Of_Vertex_Of_SurfaceMesh Verte
     return true;
 }
 
-template<typename ScalarType>
-bool PolygonMesh<ScalarType>::DeleteVertex(const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList)
+template<typename MeshAttributeType>
+bool PolygonMesh<MeshAttributeType>::DeleteVertex(const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList)
 {
     for (int_max k = 0; k < VertexHandleList.GetLength(); ++k)
     {
@@ -453,16 +458,17 @@ bool PolygonMesh<ScalarType>::DeleteVertex(const DenseVector<Handle_Of_Vertex_Of
 }
 
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline
-void PolygonMesh<ScalarType>::CleanDataStructure()
+void PolygonMesh<MeshAttributeType>::CleanDataStructure()
 {
     m_MeshData->PolygonSurfaceMesh.CleanDataStructure();
 }
 
 //------------ Construct from input data ------------------------------------//
-template<typename ScalarType>
-bool PolygonMesh<ScalarType>::Construct(const DenseMatrix<ScalarType>& InputVertexPositionTable, const DataArray<DenseVector<int_max>>& InputCellTable)
+template<typename MeshAttributeType>
+bool PolygonMesh<MeshAttributeType>::Construct(const DenseMatrix<typename MeshAttributeType::ScalarType>& InputVertexPositionTable, 
+                                               const DataArray<DenseVector<int_max>>& InputCellTable)
 {
     if (InputVertexPositionTable.IsEmpty() == true || InputCellTable.IsEmpty() == true)
     {
@@ -529,8 +535,8 @@ bool PolygonMesh<ScalarType>::Construct(const DenseMatrix<ScalarType>& InputVert
 }
 
 
-template<typename ScalarType>
-bool PolygonMesh<ScalarType>::Construct(SurfaceMesh<PolygonMesh<ScalarType>> InputSurfaceMesh)
+template<typename MeshAttributeType>
+bool PolygonMesh<MeshAttributeType>::Construct(SurfaceMesh<MeshAttributeType> InputSurfaceMesh)
 {
     m_MeshData->PolygonSurfaceMesh = std::move(InputSurfaceMesh);
 
@@ -539,9 +545,9 @@ bool PolygonMesh<ScalarType>::Construct(SurfaceMesh<PolygonMesh<ScalarType>> Inp
     return true;
 }
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline
-bool PolygonMesh<ScalarType>::CheckIfTriangleMesh() const
+bool PolygonMesh<MeshAttributeType>::CheckIfTriangleMesh() const
 {
     if (this->IsEmpty() == true)
     {
@@ -569,10 +575,11 @@ bool PolygonMesh<ScalarType>::CheckIfTriangleMesh() const
 }
 
 
-template<typename ScalarType>
+template<typename MeshAttributeType>
 inline
-void PolygonMesh<ScalarType>::
-GetVertexPositionTableAndCellTable(DenseMatrix<ScalarType>& VertexPositionTable, DataArray<DenseVector<int_max>>& CellTable) const
+void PolygonMesh<MeshAttributeType>::
+GetVertexPositionTableAndCellTable(DenseMatrix<typename MeshAttributeType::ScalarType>& VertexPositionTable, 
+                                   DataArray<DenseVector<int_max>>& CellTable) const
 {
     auto VertexNumber = this->GetVertexNumber();
     auto CellNumber = this->GetCellNumber();
@@ -624,14 +631,14 @@ GetVertexPositionTableAndCellTable(DenseMatrix<ScalarType>& VertexPositionTable,
 }
 
 
-template<typename ScalarType>
-void PolygonMesh<ScalarType>::UpdateNormalAtVertex()
+template<typename MeshAttributeType>
+void PolygonMesh<MeshAttributeType>::UpdateNormalAtVertex()
 {
 }
 
 
-template<typename ScalarType>
-void PolygonMesh<ScalarType>::UpdateNormalAtCell()
+template<typename MeshAttributeType>
+void PolygonMesh<MeshAttributeType>::UpdateNormalAtCell()
 {
 }
 
