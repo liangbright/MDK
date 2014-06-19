@@ -7,7 +7,7 @@
 namespace mdk
 {
 //----------------- forward declare ------------------//
-template<typename ScalarType>
+template<typename MeshType>
 class SurfaceMesh;
 //---------------------------------------------------//
 
@@ -44,6 +44,16 @@ static Pure_Empty_SurfaceMesh_Symbol This_Pure_Empty_SurfaceMesh_Symbol(This_Is_
 
 #define MDK_PURE_EMPTY_SURFACEMESH This_Pure_Empty_SurfaceMesh_Symbol
 
+//------------------------------------------------- forward declare --------------------------------------------------------//
+struct Handle_Of_Vertex_Of_SurfaceMesh;
+struct Handle_Of_Edge_Of_SurfaceMesh;
+struct Handle_Of_DirectedEdge_Of_SurfaceMesh;
+struct Handle_Of_Cell_Of_SurfaceMesh;
+
+template<typename T>
+class Cell_Of_SurfaceMesh;
+//----------------------------------------------------------------------------------------------------------------------------//
+
 //====================================== Point_Of_SurfaceMesh ==============================================================//
 
 struct Handle_Of_Point_Of_SurfaceMesh
@@ -51,30 +61,17 @@ struct Handle_Of_Point_Of_SurfaceMesh
 private:
     int_max Index; // PointIndex in Mesh.m_MeshData->PointList
 
-    template<typename T>
-    friend class SurfaceMesh;
-
-    template<typename T>
-    friend class Point_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Vertex_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Edge_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class DirectedEdge_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Cell_Of_SurfaceMesh;
-
 public:
     Handle_Of_Point_Of_SurfaceMesh() { Index = -1; }
     Handle_Of_Point_Of_SurfaceMesh(const Handle_Of_Point_Of_SurfaceMesh& InputHandle) { Index = InputHandle.Index; }
     ~Handle_Of_Point_Of_SurfaceMesh() {}
 
     void operator=(const Handle_Of_Point_Of_SurfaceMesh& InputHandle) { Index = InputHandle.Index; }
+
+    void SetIndex(int_max PointIndex)
+    {
+        Index = PointIndex;
+    }
 
     int_max GetIndex() const
     {
@@ -85,12 +82,16 @@ public:
     {
         return (Index >= 0);
     }
-}
+};
 
-template<typename ScalarType>
+
+template<typename MeshType>
 struct Data_Of_Point_Of_SurfaceMesh
 {
-    SurfaceMesh<ScalarType> Mesh;
+    typedef typename MeshType::ScalarType         ScalarType;
+    typedef typename MeshType::PointAttributeType PointAttributeType;
+
+    SurfaceMesh<MeshType> Mesh;
 
     int_max Index;       // PointIndex : index of this point in Mesh.m_MeshData->PointList
 
@@ -102,38 +103,51 @@ struct Data_Of_Point_Of_SurfaceMesh
     // if this point is not a vertex, point is only on the Edge (EdgeIndex)
     // if this point is a vertex, then EdgeIndex is set to -1
 
+    //----------------------------------------------------------------------
+
+    PointAttributeType Attribute;
+
     //------------------------------------------------------------------------
     Data_Of_Point_Of_SurfaceMesh() : Mesh(MDK_PURE_EMPTY_SURFACEMESH) {}
+
     ~Data_Of_Point_Of_SurfaceMesh() {};
 };
 
-template<typename ScalarType>
+template<typename MeshType>
 class Point_Of_SurfaceMesh : public Object
 {
+public:
+    typedef typename MeshType::ScalarType         ScalarType;
+    typedef typename MeshType::PointAttributeType PointAttributeType;
+
 private:
-    std::unique_ptr<Data_Of_Point_Of_SurfaceMesh<ScalarType>> m_Data;
+    std::unique_ptr<Data_Of_Point_Of_SurfaceMesh<MeshType>> m_Data;
 
     template<typename T>
     friend class SurfaceMesh;
 
 public:
     inline Point_Of_SurfaceMesh();
-    inline Point_Of_SurfaceMesh(const Point_Of_SurfaceMesh<ScalarType>& InputVertex);
-    inline Point_Of_SurfaceMesh(Point_Of_SurfaceMesh<ScalarType>&& InputVertex);
+    inline Point_Of_SurfaceMesh(const Point_Of_SurfaceMesh<MeshType>& InputVertex);
+    inline Point_Of_SurfaceMesh(Point_Of_SurfaceMesh<MeshType>&& InputVertex);
     inline ~Point_Of_SurfaceMesh();
 
-    inline void operator=(const Point_Of_SurfaceMesh<ScalarType>& InputVertex);
-    inline void operator=(Point_Of_SurfaceMesh<ScalarType>&& InputVertex);
+    inline void operator=(const Point_Of_SurfaceMesh<MeshType>& InputVertex);
+    inline void operator=(Point_Of_SurfaceMesh<MeshType>&& InputVertex);
 
 private:
     inline void Create();
     inline void Clear();
 
-    inline void SetParentMesh(SurfaceMesh<ScalarType>& ParentMesh); 
+    inline void SetParentMesh(SurfaceMesh<MeshType>& ParentMesh);
     inline void SetIndex(int_max PointIndex);   
     inline void SetVertexIndex(int_max VertexIndex);
     inline void SetEdgeIndex(int_max EdgeIndex);    
     inline void MarkAsNonVertex();
+
+    int_max GetIndex() const;
+    int_max GetVertexIndex() const;
+    int_max GetEdgeIndex() const;
 
     //--------------------------------------------------------------------------//
 public:
@@ -142,20 +156,23 @@ public:
     inline bool IsOnEdge() const;
     inline bool IsOnBoundaryEdge() const;
 
-    inline SurfaceMesh<ScalarType>& GetParentMesh();
-    inline const SurfaceMesh<ScalarType>& GetParentMesh() const;
+    inline SurfaceMesh<MeshType>& GetParentMesh();
+    inline const SurfaceMesh<MeshType>& GetParentMesh() const;
     inline Handle_Of_Point_Of_SurfaceMesh GetHandle() const;
     inline Handle_Of_Vertex_Of_SurfaceMesh GetVertexHandle() const;
     inline Handle_Of_Edge_Of_SurfaceMesh GetEdgeHandle() const;
 
-    inline void SetID(int_max PointID) const;
-    inline int_max GetID();
+    inline void SetID(int_max PointID);
+    inline int_max GetID() const;
 
     inline void SetPosition(const ScalarType* Pos);
     inline void SetPosition(ScalarType x, ScalarType y, ScalarType z);
 
     inline void GetPosition(ScalarType* Pos) const;
     inline void GetPosition(ScalarType& x, ScalarType& y, ScalarType& z) const;
+
+    inline PointAttributeType& Attribute();
+    inline const PointAttributeType& Attribute() const;
 };
 
 //====================================== Vertex_Of_SurfaceMesh ==============================================================//
@@ -169,30 +186,17 @@ struct Handle_Of_Vertex_Of_SurfaceMesh
 private:
     int_max Index; // VertexIndex in Mesh.m_MeshData->VertexList
 
-    template<typename T>
-    friend class SurfaceMesh;
-
-    template<typename T>
-    friend class Point_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Vertex_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Edge_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class DirectedEdge_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Cell_Of_SurfaceMesh;
-
 public:
     Handle_Of_Vertex_Of_SurfaceMesh() { Index = -1; }
     Handle_Of_Vertex_Of_SurfaceMesh(const Handle_Of_Vertex_Of_SurfaceMesh& InputHandle) { Index = InputHandle.Index; }
     ~Handle_Of_Vertex_Of_SurfaceMesh() {}
 
     void operator=(const Handle_Of_Vertex_Of_SurfaceMesh& InputHandle) { Index = InputHandle.Index; }
+
+    void SetIndex(int_max VertexIndex)
+    {
+        Index = VertexIndex;
+    }
 
     int_max GetIndex() const
     {
@@ -203,12 +207,16 @@ public:
     {
         return (Index >= 0);
     }
-}
+};
 
-template<typename ScalarType>
+
+template<typename MeshType>
 struct Data_Of_Vertex_Of_SurfaceMesh
 {
-    SurfaceMesh<ScalarType> Mesh;
+    typedef typename MeshType::ScalarType           ScalarType;
+    typedef typename MeshType::VertexAttributeType  VertexAttributeType;
+
+    SurfaceMesh<MeshType> Mesh;
 
     int_max Index;       // VertexIndex : index of this vertex in Mesh.m_MeshData->VertexList
 
@@ -222,37 +230,48 @@ struct Data_Of_Vertex_Of_SurfaceMesh
     
     DenseVector<int_max> AdjacentCellIndexList;     // index in Mesh.m_MeshData->CellList
 
+    //------------------------------------------------
+
+    VertexAttributeType Attribute;
+
 //------------------------------------------------------------------------
     Data_Of_Vertex_Of_SurfaceMesh() : Mesh(MDK_PURE_EMPTY_SURFACEMESH) {}
     ~Data_Of_Vertex_Of_SurfaceMesh() {};
 };
 
-template<typename ScalarType>
+template<typename MeshType>
 class Vertex_Of_SurfaceMesh : public Object
 {
+public:
+    typedef typename MeshType::ScalarType           ScalarType;
+    typedef typename MeshType::VertexAttributeType  VertexAttributeType;
+
 private:
-    std::unique_ptr<Data_Of_Vertex_Of_SurfaceMesh<ScalarType>> m_Data;
+    std::unique_ptr<Data_Of_Vertex_Of_SurfaceMesh<MeshType>> m_Data;
 
     template<typename T>
     friend class SurfaceMesh;
 
-private:
+public:
     inline Vertex_Of_SurfaceMesh();
-    inline Vertex_Of_SurfaceMesh(const Vertex_Of_SurfaceMesh<ScalarType>& InputVertex);
-    inline Vertex_Of_SurfaceMesh(Vertex_Of_SurfaceMesh<ScalarType>&& InputVertex);
+    inline Vertex_Of_SurfaceMesh(const Vertex_Of_SurfaceMesh<MeshType>& InputVertex);
+    inline Vertex_Of_SurfaceMesh(Vertex_Of_SurfaceMesh<MeshType>&& InputVertex);
     inline ~Vertex_Of_SurfaceMesh();
 
-    inline void operator=(const Vertex_Of_SurfaceMesh<ScalarType>& InputVertex);
-    inline void operator=(Vertex_Of_SurfaceMesh<ScalarType>&& InputVertex);
+    inline void operator=(const Vertex_Of_SurfaceMesh<MeshType>& InputVertex);
+    inline void operator=(Vertex_Of_SurfaceMesh<MeshType>&& InputVertex);
 
+private:
     inline void Create();
     inline void Clear();
 
-    inline void SetParentMesh(SurfaceMesh<ScalarType>& ParentMesh);
-    inline void SetIndex(int_max VertexIndex);
-    inline void SetPointIndex(int_max PointIndex);
+    inline void SetParentMesh(SurfaceMesh<MeshType>& ParentMesh);
     
-    inline void SetGlobalID(int_max VertexGlobalID);
+    inline void SetIndex(int_max VertexIndex);
+    inline int_max GetIndex() const;
+
+    inline void SetPointIndex(int_max PointIndex);
+    inline int_max GetPointIndex() const;
 
     inline DenseVector<int_max>& AdjacentVertexIndexList();
     inline DenseVector<int_max>& AdjacentEdgeIndexList();
@@ -265,10 +284,13 @@ public:
     inline bool IsValid() const;
     bool IsBoundary() const;
 
-    inline SurfaceMesh<ScalarType>& GetParentMesh();
-    inline const SurfaceMesh<ScalarType>& GetParentMesh() const;
-    inline int_max GetIndex() const;
-    inline int_max GetPointIndex() const;
+    inline SurfaceMesh<MeshType>& GetParentMesh();
+    inline const SurfaceMesh<MeshType>& GetParentMesh() const;
+    inline Handle_Of_Vertex_Of_SurfaceMesh GetHandle() const;
+    inline Handle_Of_Point_Of_SurfaceMesh GetPointHandle() const;
+
+    inline void SetID(int_max VertexID);
+    inline int_max GetID() const;
 
     inline void SetPosition(const ScalarType* Pos);
     inline void SetPosition(ScalarType x, ScalarType y, ScalarType z);
@@ -276,19 +298,23 @@ public:
     inline void GetPosition(ScalarType* Pos) const;
     inline void GetPosition(ScalarType& x, ScalarType& y, ScalarType& z) const;
 
-    inline const DenseVector<int_max>& GetAdjacentVertexIndexList() const;
-    inline void GetAdjacentVertexIndexList(DenseVector<int_max>& OutputIndexList) const;
+    inline DenseVector<Handle_Of_Vertex_Of_SurfaceMesh> GetAdjacentVertexHandleList() const;
+    inline void GetAdjacentVertexHandleList(DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& OutputHandleList) const;
 
-    inline void GetAdjacentEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
+    inline DenseVector<Handle_Of_Edge_Of_SurfaceMesh> GetAdjacentEdgeHandleList() const;
+    inline void GetAdjacentEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const;
 
-    inline const DenseVector<DirectedEdgeIndex_Of_SurfaceMesh>& GetOutgoingDirectedEdgeIndexList() const;
-    inline void GetOutgoingDirectedEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
+    inline DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> GetOutgoingDirectedEdgeHandleList() const;
+    inline void GetOutgoingDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const;
 
-    inline const DenseVector<DirectedEdgeIndex_Of_SurfaceMesh>& GetIncomingDirectedEdgeIndexList() const;
-    inline void GetIncomingDirectedEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
+    inline DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> GetIncomingDirectedEdgeHandleList() const;
+    inline void GetIncomingDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const;
 
-    inline const DenseVector<int_max>& GetAdjacentCellIndexList() const;
-    inline void GetAdjacentCellIndexList(DenseVector<int_max>& OutputIndexList) const;
+    inline DenseVector<Handle_Of_Cell_Of_SurfaceMesh> GetAdjacentCellHandleList() const;
+    inline void GetAdjacentCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const;
+
+    inline VertexAttributeType& Attribute();
+    inline const VertexAttributeType& Attribute() const;
 };
 
 //====================================== Edge_Of_SurfaceMesh (Cell Wall) ==============================================================//
@@ -298,30 +324,17 @@ struct Handle_Of_Edge_Of_SurfaceMesh
 private:
     int_max Index; // EdgeIndex in Mesh.m_MeshData->EdgeList
 
-    template<typename T>
-    friend class SurfaceMesh;
-
-    template<typename T>
-    friend class Point_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Vertex_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Edge_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class DirectedEdge_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Cell_Of_SurfaceMesh;
-
 public:
     Handle_Of_Edge_Of_SurfaceMesh() { Index = -1; }
     Handle_Of_Edge_Of_SurfaceMesh(const Handle_Of_Edge_Of_SurfaceMesh& InputHandle) { Index = InputHandle.Index; }
     ~Handle_Of_Edge_Of_SurfaceMesh() {}
 
     void operator=(const Handle_Of_Edge_Of_SurfaceMesh& InputHandle) { Index = InputHandle.Index; }
+
+    void SetIndex(int_max EdgeIndex)
+    {
+        Index = EdgeIndex;
+    }
 
     int_max GetIndex() const
     {
@@ -332,12 +345,15 @@ public:
     {
         return (Index >= 0);
     }
-}
+};
 
-template<typename ScalarType>
+template<typename MeshType>
 struct Data_Of_Edge_Of_SurfaceMesh
 {
-    SurfaceMesh<ScalarType> Mesh;
+    typedef typename MeshType::ScalarType         ScalarType;
+    typedef typename MeshType::EdgeAttributeType  EdgeAttributeType;
+
+    SurfaceMesh<MeshType> Mesh;
     
     int_max Index; // EdgeIndex: index of this Edge in Mesh.MeshData->EdgeList
 
@@ -348,37 +364,51 @@ struct Data_Of_Edge_Of_SurfaceMesh
     // for PointIndex0 to PointIndex1
     DenseVector<int_max> PointIndexList;
 
+    //--------------------------------
+
+    EdgeAttributeType Attribute;
+
 //------------------------------------------------------------------------
     Data_Of_Edge_Of_SurfaceMesh() : Mesh(MDK_PURE_EMPTY_SURFACEMESH) {}
     ~Data_Of_Edge_Of_SurfaceMesh() {};
 };
 
-template<typename ScalarType>
+template<typename MeshType>
 class Edge_Of_SurfaceMesh : public Object
 {
+public:
+    typedef typename MeshType::ScalarType         ScalarType;
+    typedef typename MeshType::EdgeAttributeType  EdgeAttributeType;
+
 private:
-    std::unique_ptr<Data_Of_Edge_Of_SurfaceMesh<ScalarType>> m_Data;
+    std::unique_ptr<Data_Of_Edge_Of_SurfaceMesh<MeshType>> m_Data;
 
     template<typename T>
     friend class SurfaceMesh;
 
-private:
+public:
     inline Edge_Of_SurfaceMesh();
-    inline Edge_Of_SurfaceMesh(const Edge_Of_SurfaceMesh<ScalarType>& InputEdge);
-    inline Edge_Of_SurfaceMesh(Edge_Of_SurfaceMesh<ScalarType>&& InputEdge);
+    inline Edge_Of_SurfaceMesh(const Edge_Of_SurfaceMesh<MeshType>& InputEdge);
+    inline Edge_Of_SurfaceMesh(Edge_Of_SurfaceMesh<MeshType>&& InputEdge);
     inline ~Edge_Of_SurfaceMesh();
 
-    inline void operator=(const Edge_Of_SurfaceMesh<ScalarType>& InputEdge);
-    inline void operator=(Edge_Of_SurfaceMesh<ScalarType>&& InputEdge);
+    inline void operator=(const Edge_Of_SurfaceMesh<MeshType>& InputEdge);
+    inline void operator=(Edge_Of_SurfaceMesh<MeshType>&& InputEdge);
     
+private:
     inline void Create();
     inline void Clear();
 
-    inline void SetParentMesh(SurfaceMesh<ScalarType>& ParentMesh);
+    inline void SetParentMesh(SurfaceMesh<MeshType>& ParentMesh);
     inline void SetIndex(int_max EdgeIndex);
+
+    inline int_max GetIndex() const;
 
     inline void SetVertexIndexList(const int_max VertexIndexList[2]);
     inline void SetVertexIndexList(int_max VertexIndex0, int_max VertexIndex1);
+
+    inline void GetVertexIndexList(int_max VertexIndexList[2]) const;
+    inline void GetVertexIndexList(int_max& VertexIndex0, int_max& VertexIndex1) const;
 
     inline DenseVector<int_max>& PointIndexList();
 
@@ -389,28 +419,34 @@ public:
 
     bool IsBoundary() const;
 
-    inline SurfaceMesh<ScalarType>& GetParentMesh();
-    inline const SurfaceMesh<ScalarType>& GetParentMesh() const;
-    inline int_max GetIndex() const;
+    inline SurfaceMesh<MeshType>& GetParentMesh();
+    inline const SurfaceMesh<MeshType>& GetParentMesh() const;
+    inline Handle_Of_Edge_Of_SurfaceMesh GetHandle() const;
 
-    inline void GetVertexIndexList(DenseVector<int_max>& OutputIndexList) const;
-    inline DenseVector<int_max> GetVertexIndexList() const;
-    inline void GetVertexIndexList(DenseVector<int_max>& OutputIndexList) const;
-    inline void GetVertexIndexList(int_max OutputIndexList[2]) const;
-    inline void GetVertexIndexList(int_max& VertexIndex0, int_max& VertexIndex1) const;
+    inline void SetID(int_max EdgeID);
+    inline int_max GetID() const;
+   
+    inline DenseVector<Handle_Of_Vertex_Of_SurfaceMesh> GetVertexHandleList() const;
+    inline void GetVertexHandleList(DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& OutputHandleList) const;
+    inline void GetVertexHandleList(Handle_Of_Vertex_Of_SurfaceMesh OutputHandleList[2]) const;
+    inline void GetVertexHandleList(Handle_Of_Vertex_Of_SurfaceMesh& VertexHandle0, Handle_Of_Vertex_Of_SurfaceMesh& VertexHandle1) const;
 
-    inline const DenseVector<int_max>& GetPointIndexList() const;
+    inline DenseVector<Handle_Of_Point_Of_SurfaceMesh> GetPointHandleList() const;
+    inline void GetPointHandleList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputHandleList) const;
 
-    inline DenseVector<int_max> GetAdjacentEdgeIndexList() const;
-    inline void GetAdjacentEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
+    inline DenseVector<Handle_Of_Edge_Of_SurfaceMesh> GetAdjacentEdgeHandleList() const;
+    inline void GetAdjacentEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const;
 
     // Cell share this edge
-    inline DenseVector<int_max> GetAdjacentCellIndexList() const;
-    inline void GetAdjacentCellIndexList(DenseVector<int_max>& OutputIndexList) const;
+    inline DenseVector<Handle_Of_Cell_Of_SurfaceMesh> GetAdjacentCellHandleList() const;
+    inline void GetAdjacentCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const;
 
     // Cell share any vertex of this edge
-    inline DenseVector<int_max> GetNeighbourCellIndexList() const;
-    inline void GetNeighbourCellIndexList(DenseVector<int_max>& OutputIndexList) const;
+    inline DenseVector<Handle_Of_Cell_Of_SurfaceMesh> GetNeighbourCellHandleList() const;
+    inline void GetNeighbourCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const;
+
+    inline EdgeAttributeType& Attribute();
+    inline const EdgeAttributeType& Attribute() const;
 };
 
 //====================================== DirectedEdge_Of_SurfaceMesh (Cell Plasma Membrane) ===================================================//
@@ -428,46 +464,52 @@ struct Handle_Of_DirectedEdge_Of_SurfaceMesh
 private:
     DirectedEdgeIndex_Of_SurfaceMesh Index; // DirectedEdgeIndex
 
-    template<typename T>
-    friend class SurfaceMesh;
-
-    template<typename T>
-    friend class Point_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Vertex_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Edge_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class DirectedEdge_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Cell_Of_SurfaceMesh;
-
 public:
-    Handle_Of_DirectedEdge_Of_SurfaceMesh() { Index = -1; }
-    void Handle_Of_DirectedEdge_Of_SurfaceMesh(const Handle_Of_DirectedEdge_Of_SurfaceMesh& InputHandle) { Index = InputHandle.Index; }
+    Handle_Of_DirectedEdge_Of_SurfaceMesh() { Index.EdgeIndex = -1; Index.RelativeIndex = -1; }
+    Handle_Of_DirectedEdge_Of_SurfaceMesh(const Handle_Of_DirectedEdge_Of_SurfaceMesh& InputHandle) { Index = InputHandle.Index; }
     ~Handle_Of_DirectedEdge_Of_SurfaceMesh() {}
 
     void operator=(const Handle_Of_DirectedEdge_Of_SurfaceMesh& InputHandle) { Index = InputHandle.Index; }
+
+    void SetIndex(DirectedEdgeIndex_Of_SurfaceMesh DirectedEdgeIndex)
+    {
+        Index = DirectedEdgeIndex;
+    }
+
+    void SetIndex(int_max EdgeIndex, int_max RelativeIndex)
+    {
+        Index.EdgeIndex = EdgeIndex;
+        Index.RelativeIndex = RelativeIndex;
+    }
 
     DirectedEdgeIndex_Of_SurfaceMesh GetIndex() const
     {
         return Index;
     }
 
+    int_max GetEdgeIndex() const
+    {
+        return Index.EdgeIndex;
+    }
+
+    int_max GetRelativeIndex() const
+    {
+        return Index.RelativeIndex;
+    }
+
     bool IsValid() const
     {
         return (Index.EdgeIndex >= 0 && Index.RelativeIndex >= 0);
     }
-}
+};
 
-template<typename ScalarType>
-struct Data_Of_DirectedEdgeIndex_Of_SurfaceMesh
+template<typename MeshType>
+struct Data_Of_DirectedEdge_Of_SurfaceMesh
 {
-    SurfaceMesh<ScalarType> Mesh;
+    typedef typename MeshType::ScalarType                 ScalarType;
+    typedef typename MeshType::DirectedEdgeAttributeType  DirectedEdgeAttributeType;
+
+    SurfaceMesh<MeshType> Mesh;
 
     DirectedEdgeIndex_Of_SurfaceMesh Index; // DirectedEdgeIndex of this DirectedEdge
 
@@ -482,33 +524,45 @@ struct Data_Of_DirectedEdgeIndex_Of_SurfaceMesh
     DirectedEdgeIndex_Of_SurfaceMesh NextDirectedEdgeIndex;      // index of the Next DirectedEdge in Mesh.m_MeshData->DirectedEdgePairList
     DirectedEdgeIndex_Of_SurfaceMesh PreviousDirectedEdgeIndex;  // index of the Previous DirectedEdge in Mesh.m_MeshData->DirectedEdgePairList
 
+    //--------------------------------------
+    
+    DirectedEdgeAttributeType Attribute;
+
 //------------------------------------------------------------------------
     Data_Of_DirectedEdge_Of_SurfaceMesh() : Mesh(MDK_PURE_EMPTY_SURFACEMESH) {}
     ~Data_Of_DirectedEdge_Of_SurfaceMesh() {};
 };
 
-template<typename ScalarType>
+template<typename MeshType>
 class DirectedEdge_Of_SurfaceMesh : public Object
 {
+public:
+    typedef typename MeshType::ScalarType                 ScalarType;
+    typedef typename MeshType::DirectedEdgeAttributeType  DirectedEdgeAttributeType;
+
 private:
-    std::unique_ptr<Data_Of_DirectedEdge_Of_SurfaceMesh<ScalarType>> m_Data;
+    std::unique_ptr<Data_Of_DirectedEdge_Of_SurfaceMesh<MeshType>> m_Data;
 
     template<typename T>
     friend class SurfaceMesh;
 
-private:
+    template<typename T>
+    friend class Cell_Of_SurfaceMesh;
+
+public:
     DirectedEdge_Of_SurfaceMesh();
-    DirectedEdge_Of_SurfaceMesh(const DirectedEdge_Of_SurfaceMesh<ScalarType>& InputDirectedEdge);
-    DirectedEdge_Of_SurfaceMesh(DirectedEdge_Of_SurfaceMesh<ScalarType>&& InputDirectedEdge);
+    DirectedEdge_Of_SurfaceMesh(const DirectedEdge_Of_SurfaceMesh<MeshType>& InputDirectedEdge);
+    DirectedEdge_Of_SurfaceMesh(DirectedEdge_Of_SurfaceMesh<MeshType>&& InputDirectedEdge);
     ~DirectedEdge_Of_SurfaceMesh();
 
-    void operator=(const DirectedEdge_Of_SurfaceMesh<ScalarType>& InputDirectedEdge);
-    void operator=(DirectedEdge_Of_SurfaceMesh<ScalarType>&& InputDirectedEdge);
+    void operator=(const DirectedEdge_Of_SurfaceMesh<MeshType>& InputDirectedEdge);
+    void operator=(DirectedEdge_Of_SurfaceMesh<MeshType>&& InputDirectedEdge);
 
+private:
     inline void Create();
     inline void Clear();
 
-    inline void SetParentMesh(SurfaceMesh<ScalarType>& ParentMesh);
+    inline void SetParentMesh(SurfaceMesh<MeshType>& ParentMesh);
     inline void SetIndex(DirectedEdgeIndex_Of_SurfaceMesh DirectedEdgeIndex);
     inline void SetIndex(int_max EdgeIndex, int_max RelativeIndex);
 
@@ -523,8 +577,8 @@ private:
     inline void SetPreviousDirectedEdgeIndex(DirectedEdgeIndex_Of_SurfaceMesh DirectedEdgeIndex);
     inline void SetPreviousDirectedEdgeIndex(int_max EdgeIndex, int_max RelativeIndex);
    
-private:
-    inline DirectedEdgeIndex_Of_SurfaceMesh GetIndex() const;
+    //-----------------------------------------------------------------------------------//
+    inline int_max GetIndex() const;
     inline int_max GetStartVertexIndex() const;
     inline int_max GetEndVertexIndex() const;
     inline int_max GetEdgeIndex() const;
@@ -544,22 +598,27 @@ public:
 
     inline bool IsBoundary() const;
 
-    inline SurfaceMesh<ScalarType>& GetParentMesh();
-    inline const SurfaceMesh<ScalarType>& GetParentMesh() const;
-    inline DirectedEdgeIndex_Of_SurfaceMesh GetHandle() const;
-    inline int_max GetStartVertexHandle() const;
-    inline int_max GetEndVertexHandle() const;
-    inline int_max GetEdgeHandle() const;
-    inline int_max GetCellHandle() const;
+    inline SurfaceMesh<MeshType>& GetParentMesh();
+    inline const SurfaceMesh<MeshType>& GetParentMesh() const;
+    inline Handle_Of_DirectedEdge_Of_SurfaceMesh GetHandle() const;
+    inline Handle_Of_Cell_Of_SurfaceMesh GetCellHandle() const;
+    inline Handle_Of_Vertex_Of_SurfaceMesh GetStartVertexHandle() const;
+    inline Handle_Of_Vertex_Of_SurfaceMesh GetEndVertexHandle() const;
+    inline Handle_Of_Edge_Of_SurfaceMesh GetEdgeHandle() const;
+    inline int_max GetEdgeID() const;
+    inline int_max GetRelativeIndex() const;
 
-    inline DirectedEdgeIndex_Of_SurfaceMesh GetFirendDirectedEdgeHandle() const;
-    inline DirectedEdgeIndex_Of_SurfaceMesh GetNextDirectedEdgeHandle() const;
-    inline DirectedEdgeIndex_Of_SurfaceMesh GetPreviousDirectedEdgeHandle() const;
+    inline Handle_Of_DirectedEdge_Of_SurfaceMesh GetFirendDirectedEdgeHandle() const;
+    inline Handle_Of_DirectedEdge_Of_SurfaceMesh GetNextDirectedEdgeHandle() const;
+    inline Handle_Of_DirectedEdge_Of_SurfaceMesh GetPreviousDirectedEdgeHandle() const;
 
-    inline int_max GetFirendCellHandle() const;
+    inline Handle_Of_Cell_Of_SurfaceMesh GetFirendCellHandle() const;
 
-    inline DenseVector<int_max> GetNeighbourCellHandleList() const;
-    inline void GetNeighbourCellHandleList(DenseVector<int_max>& OutputHandleList) const;
+    inline DenseVector<Handle_Of_Cell_Of_SurfaceMesh> GetNeighbourCellHandleList() const;
+    inline void GetNeighbourCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const;
+
+    inline DirectedEdgeAttributeType& Attribute();
+    inline const DirectedEdgeAttributeType& Attribute() const;
 };
 
 //====================================== Cell_Of_SurfaceMesh ==============================================================//
@@ -569,30 +628,17 @@ struct Handle_Of_Cell_Of_SurfaceMesh
 private:
     int_max Index; // CellIndex:  index of the Cell in Mesh.m_MeshData->CellList
 
-    template<typename T>
-    friend class SurfaceMesh;
-
-    template<typename T>
-    friend class Point_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Vertex_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Edge_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class DirectedEdge_Of_SurfaceMesh;
-
-    template<typename T>
-    friend class Cell_Of_SurfaceMesh;
-
 public:
     Handle_Of_Cell_Of_SurfaceMesh() { Index = -1; }
     Handle_Of_Cell_Of_SurfaceMesh(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle) { Index = InputHandle.Index; }
     ~Handle_Of_Cell_Of_SurfaceMesh() {}
 
     void operator=(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle) { Index = InputHandle.Index; }
+
+    void SetIndex(int_max CellIndex)
+    {
+        Index = CellIndex;
+    }
 
     int_max GetIndex() const
     {
@@ -603,52 +649,61 @@ public:
     {
         return (Index >= 0);
     }
-}
+};
 
-template<typename ScalarType>
+template<typename MeshType>
 struct Data_Of_Cell_Of_SurfaceMesh
 {
-    SurfaceMesh<ScalarType> Mesh;
+    typedef typename MeshType::ScalarType           ScalarType;
+    typedef typename MeshType::CellAttributeType    CellAttributeType;
+
+    SurfaceMesh<MeshType> Mesh;
 
     int_max Index; // CellIndex: index of the Cell in Mesh.m_MeshData->CellList
 
-    DenseVector<int_max> DirectedEdgeIndexList; // index in Mesh.m_MeshData->DirectedEdgeList
+    DenseVector<DirectedEdgeIndex_Of_SurfaceMesh> DirectedEdgeIndexList;
+
+    //--------------------------------------
+
+    CellAttributeType Attribute;
 
 //------------------------------------------------------------------------
     Data_Of_Cell_Of_SurfaceMesh() : Mesh(MDK_PURE_EMPTY_SURFACEMESH) {}
     ~Data_Of_Cell_Of_SurfaceMesh() {};
 };
 
-template<typename ScalarType>
+template<typename MeshType>
 class Cell_Of_SurfaceMesh : public Object
 {
+public:
+    typedef typename MeshType::ScalarType           ScalarType;
+    typedef typename MeshType::CellAttributeType    CellAttributeType;
+
 private:
-    std::unique_ptr<Data_Of_Cell_Of_SurfaceMesh<ScalarType>> m_Data;
+    std::unique_ptr<Data_Of_Cell_Of_SurfaceMesh<MeshType>> m_Data;
 
     template<typename T>
     friend class SurfaceMesh;
 
-private:
+public:
     Cell_Of_SurfaceMesh();
-    Cell_Of_SurfaceMesh(const Cell_Of_SurfaceMesh<ScalarType>& InputCell);
-    Cell_Of_SurfaceMesh(Cell_Of_SurfaceMesh<ScalarType>&& InputCell);
+    Cell_Of_SurfaceMesh(const Cell_Of_SurfaceMesh<MeshType>& InputCell);
+    Cell_Of_SurfaceMesh(Cell_Of_SurfaceMesh<MeshType>&& InputCell);
     ~Cell_Of_SurfaceMesh();
 
-    void operator=(const Cell_Of_SurfaceMesh<ScalarType>& InputCell);
-    void operator=(Cell_Of_SurfaceMesh<ScalarType>&& InputCell);
+    void operator=(const Cell_Of_SurfaceMesh<MeshType>& InputCell);
+    void operator=(Cell_Of_SurfaceMesh<MeshType>&& InputCell);
 
+private:
     inline void Create();
     inline void Clear();
 
-    inline void SetParentMesh(SurfaceMesh<ScalarType>& ParentMesh);
-    inline void SetIndex(int_max CellIndex);
+    inline void SetParentMesh(SurfaceMesh<MeshType>& ParentMesh);
+    inline void SetIndex(int_max CellIndex);   
+    inline DenseVector<DirectedEdgeIndex_Of_SurfaceMesh>& DirectedEdgeIndexList();
 
-    inline DenseVector<int_max>& DirectedEdgeIndexList();
-
-private:
-
-    inline const DenseVector<int_max>& GetDirectedEdgeIndexList() const;
-    inline void GetDirectedEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
+    //----------------------------------------------------------------------------//    
+    inline int_max GetIndex() const;
 
     inline DenseVector<int_max> GetVertexIndexList() const;
     inline void GetVertexIndexList(DenseVector<int_max>& OutputIndexList) const;
@@ -664,11 +719,12 @@ private:
 public:
     inline bool IsValid() const;
 
-    inline SurfaceMesh<ScalarType>& GetParentMesh();
-    inline const SurfaceMesh<ScalarType>& GetParentMesh() const;
-    inline int_max GetIndex() const;
+    inline SurfaceMesh<MeshType>& GetParentMesh();
+    inline const SurfaceMesh<MeshType>& GetParentMesh() const;
+    inline Handle_Of_Cell_Of_SurfaceMesh GetHandle() const;
 
-    inline void SetGlobalID(int_max CellGlobalID);
+    inline void SetID(int_max CellID);
+    inline int_max GetID() const;
 
     inline DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> GetDirectedEdgeHandleList() const;
     inline void GetDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const;
@@ -687,7 +743,10 @@ public:
 
     // Cell share any Edge of this cell, not include this cell
     inline DenseVector<Handle_Of_Cell_Of_SurfaceMesh> GetAdjacentCellHandleList() const;
-    inline void GetAdjacentCellIndexList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const;
+    inline void GetAdjacentCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const;
+
+    inline CellAttributeType& Attribute();
+    inline const CellAttributeType& Attribute() const;
 };
 
 }// namespace mdk

@@ -11,7 +11,9 @@ void Test_MeshConstruction()
 
     CharString FilePathAndName = "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Triangle.vtk";
 
-    auto LeafletMesh = LoadPolygonMeshFromVTKFile<double>(FilePathAndName, true);
+    auto LeafletMesh = LoadPolygonMeshFromVTKFile<double>(FilePathAndName);
 
-    SavePolygonMeshAsJsonDataFile(LeafletMesh, "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Polygon.json");
+   // SavePolygonMeshAsJsonDataFile(LeafletMesh, "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Polygon.json");
+
+    SavePolygonMeshAsVTKFile(LeafletMesh, "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Polygon.vtk");
 }

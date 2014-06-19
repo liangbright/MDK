@@ -12,9 +12,7 @@ DenseVector<ElementType, Length>::DenseVector()
     if (Length <= 0)
     {
         MDK_Error("Length <= 0 @ DenseVector::DenseVector()")
-    }
-
-    this->Fill(ElementType(0));   
+    }  
 }
 
 
@@ -63,7 +61,6 @@ template<typename ElementType, int_max Length>
 inline
 DenseVector<ElementType, Length>::~DenseVector()
 {
-
 }
 
 
@@ -167,7 +164,6 @@ template<typename ElementType, int_max Length>
 inline
 void DenseVector<ElementType, Length>::Clear()
 {
-    this->Fill(ElementType(0));
 }
 
 

@@ -6,130 +6,169 @@ namespace mdk
 {
 //=========================================================== Point_Of_SurfaceMesh ===========================================================//
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Point_Of_SurfaceMesh<ScalarType>::Point_Of_SurfaceMesh()
+Point_Of_SurfaceMesh<MeshType>::Point_Of_SurfaceMesh()
 {
-    this->Create();
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Point_Of_SurfaceMesh<ScalarType>::Point_Of_SurfaceMesh(const Point_Of_SurfaceMesh<ScalarType>& InputVertex)
+Point_Of_SurfaceMesh<MeshType>::Point_Of_SurfaceMesh(const Point_Of_SurfaceMesh<MeshType>& InputVertex)
 {
-    this->Create();
     (*this) = InputVertex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Point_Of_SurfaceMesh<ScalarType>::Point_Of_SurfaceMesh(Point_Of_SurfaceMesh<ScalarType>&& InputVertex)
+Point_Of_SurfaceMesh<MeshType>::Point_Of_SurfaceMesh(Point_Of_SurfaceMesh<MeshType>&& InputVertex)
 {
     m_Data = std::move(InputVertex.m_Data);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Point_Of_SurfaceMesh<ScalarType>::~Point_Of_SurfaceMesh()
+Point_Of_SurfaceMesh<MeshType>::~Point_Of_SurfaceMesh()
 {
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Point_Of_SurfaceMesh<ScalarType>::operator=(const Point_Of_SurfaceMesh<ScalarType>& InputVertex)
+void Point_Of_SurfaceMesh<MeshType>::operator=(const Point_Of_SurfaceMesh<MeshType>& InputVertex)
 {
+    if (!InputVertex.m_Data)
+    {
+        return;
+    }
+
+    this->Create();
     m_Data->Mesh.ForceShare(InputVertex.m_Data->Mesh);
     m_Data->Index = InputVertex.m_Data->Index;
     m_Data->VertexIndex = InputVertex.m_Data->VertexIndex;
     m_Data->EdgeIndex = InputVertex.m_Data->EdgeIndex;
+    m_Data->Attribute = InputVertex.m_Data->Attribute;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Point_Of_SurfaceMesh<ScalarType>::operator=(Point_Of_SurfaceMesh<ScalarType>&& InputVertex)
+void Point_Of_SurfaceMesh<MeshType>::operator=(Point_Of_SurfaceMesh<MeshType>&& InputVertex)
 {
     m_Data = std::move(InputVertex.m_Data);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Point_Of_SurfaceMesh<ScalarType>::Create()
+void Point_Of_SurfaceMesh<MeshType>::Create()
 {
     if (!m_Data)
     {
-        m_Data = std::make_unique<Data_Of_Point_Of_SurfaceMesh<ScalarType>>();
+        m_Data = std::make_unique<Data_Of_Point_Of_SurfaceMesh<MeshType>>();
         m_Data->Index = -1;
         m_Data->VertexIndex = -1;
         m_Data->EdgeIndex = -1;
     }    
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Point_Of_SurfaceMesh<ScalarType>::Clear()
+void Point_Of_SurfaceMesh<MeshType>::Clear()
 {
     m_Data.reset();
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Point_Of_SurfaceMesh<ScalarType>::SetParentMesh(SurfaceMesh<ScalarType>& InputMesh)
+void Point_Of_SurfaceMesh<MeshType>::SetParentMesh(SurfaceMesh<MeshType>& InputMesh)
 {
     m_Data->Mesh.Share(InputMesh);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Point_Of_SurfaceMesh<ScalarType>::SetIndex(int_max PointIndex)
+void Point_Of_SurfaceMesh<MeshType>::SetIndex(int_max PointIndex)
 {
     m_Data->Index = PointIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Point_Of_SurfaceMesh<ScalarType>::SetVertexIndex(int_max VertexIndex)
+void Point_Of_SurfaceMesh<MeshType>::SetVertexIndex(int_max VertexIndex)
 {
     m_Data->VertexIndex = VertexIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Point_Of_SurfaceMesh<ScalarType>::SetEdgeIndex(int_max EdgeIndex)
+void Point_Of_SurfaceMesh<MeshType>::SetEdgeIndex(int_max EdgeIndex)
 {
     m_Data->EdgeIndex = EdgeIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline 
-void Point_Of_SurfaceMesh<ScalarType>::MarkAsNonVertex()
+void Point_Of_SurfaceMesh<MeshType>::MarkAsNonVertex()
 {
     m_Data->VertexIndex = -1;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-bool Point_Of_SurfaceMesh<ScalarType>::IsValid() const
+int_max Point_Of_SurfaceMesh<MeshType>::GetIndex() const
 {
-    return bool(m_Data);
+    return m_Data->Index;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-bool Point_Of_SurfaceMesh<ScalarType>::IsVertex() const
+int_max Point_Of_SurfaceMesh<MeshType>::GetVertexIndex() const
+{
+    return m_Data->VertexIndex;
+}
+
+template<typename MeshType>
+inline
+int_max Point_Of_SurfaceMesh<MeshType>::GetEdgeIndex() const
+{
+    return m_Data->EdgeIndex;
+}
+
+
+template<typename MeshType>
+inline
+bool Point_Of_SurfaceMesh<MeshType>::IsValid() const
+{
+    if (!m_Data)
+    {
+        return false;
+    }
+    else
+    {
+        if (m_Data->Index < 0)
+        {
+            return false;
+        }
+    }
+
+    return true;    
+}
+
+template<typename MeshType>
+inline
+bool Point_Of_SurfaceMesh<MeshType>::IsVertex() const
 {
     return (m_Data->VertexIndex >= 0);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-bool Point_Of_SurfaceMesh<ScalarType>::IsOnEdge() const
+bool Point_Of_SurfaceMesh<MeshType>::IsOnEdge() const
 {
     return (m_Data->EdgeIndex >= 0);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-bool Point_Of_SurfaceMesh<ScalarType>::IsOnBoundaryEdge() const
+bool Point_Of_SurfaceMesh<MeshType>::IsOnBoundaryEdge() const
 {
     if (m_Data->EdgeIndex < 0)
     {
@@ -141,85 +180,115 @@ bool Point_Of_SurfaceMesh<ScalarType>::IsOnBoundaryEdge() const
     }
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-SurfaceMesh<ScalarType>& Point_Of_SurfaceMesh<ScalarType>::GetParentMesh()
+SurfaceMesh<MeshType>& Point_Of_SurfaceMesh<MeshType>::GetParentMesh()
 {
     return m_Data->Mesh;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-const SurfaceMesh<ScalarType>& Point_Of_SurfaceMesh<ScalarType>::GetParentMesh() const
+const SurfaceMesh<MeshType>& Point_Of_SurfaceMesh<MeshType>::GetParentMesh() const
 {
     return m_Data->Mesh;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Handle_Of_Point_Of_SurfaceMesh Point_Of_SurfaceMesh<ScalarType>::GetHandle() const
+Handle_Of_Point_Of_SurfaceMesh Point_Of_SurfaceMesh<MeshType>::GetHandle() const
 {
     Handle_Of_Point_Of_SurfaceMesh PointHandle;
-    PointHandle.Index = m_Data->Index;
+    PointHandle.SetIndex(m_Data->Index);
     return PointHandle;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Handle_Of_Vertex_Of_SurfaceMesh Point_Of_SurfaceMesh<ScalarType>::GetVertexHandle() const
+Handle_Of_Vertex_Of_SurfaceMesh Point_Of_SurfaceMesh<MeshType>::GetVertexHandle() const
 {
     Handle_Of_Vertex_Of_SurfaceMesh VertexHandle;
-    VertexHandle.Index = m_Data->VertexIndex;
+    VertexHandle.SetIndex(m_Data->VertexIndex);
     return VertexHandle;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Handle_Of_Edge_Of_SurfaceMesh Point_Of_SurfaceMesh<ScalarType>::GetEdgeIndex() const
+Handle_Of_Edge_Of_SurfaceMesh Point_Of_SurfaceMesh<MeshType>::GetEdgeHandle() const
 {
     Handle_Of_Edge_Of_SurfaceMesh Edgehandle;
-    Edgehandle.Index = m_Data->EdgeIndex;
+    Edgehandle.SetIndex(m_Data->EdgeIndex);
     return Edgehandle;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Point_Of_SurfaceMesh<ScalarType>::SetID(int_max PointID) const
+void Point_Of_SurfaceMesh<MeshType>::SetID(int_max PointID)
 {
-    m_Data->Mesh.m_MeshData->PointIDList[m_Data->Index] = PointID;
+    if (PointID < 0)
+    {
+        MDK_Error("PointID < 0 @ Point_Of_SurfaceMesh::SetID(...)")
+        return;
+    }
+
+    // check record
+    auto PointID_old = m_Data->Mesh.m_MeshData->PointIDList[m_Data->Index];
+    if (PointID_old != PointID)
+    {
+        auto it = m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.find(PointID);
+        if (it != m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.end())
+        {
+            MDK_Error("Input PointID has already been used for another point @ Point_Of_SurfaceMesh::SetID(...)")
+            return;
+        }
+
+        it = m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.find(PointID_old);
+        if (it != m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.end())
+        {
+            m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.erase(it);
+        }
+        else
+        {
+            MDK_Error("Map_PointID_to_PointIndex is invalid @ Point_Of_SurfaceMesh::SetID(...)")
+            return;
+        }
+
+        m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex[PointID] = m_Data->Index;
+        m_Data->Mesh.m_MeshData->PointIDList[m_Data->Index] = PointID;
+    }
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-int_max Point_Of_SurfaceMesh<ScalarType>::GetID() const
+int_max Point_Of_SurfaceMesh<MeshType>::GetID() const
 {
     return m_Data->Mesh.m_MeshData->PointIDList[m_Data->Index];
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Point_Of_SurfaceMesh<ScalarType>::SetPosition(const ScalarType* Pos)
+void Point_Of_SurfaceMesh<MeshType>::SetPosition(const typename MeshType::ScalarType* Pos)
 {
     m_Data->Mesh.m_MeshData->VertexPositionTable.SetCol(m_Data->Index, Pos);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Point_Of_SurfaceMesh<ScalarType>::SetPosition(ScalarType x, ScalarType y, ScalarType z)
+void Point_Of_SurfaceMesh<MeshType>::SetPosition(typename MeshType::ScalarType x, typename MeshType::ScalarType y, typename MeshType::ScalarType z)
 {
     m_Data->Mesh.m_MeshData->VertexPositionTable.SetCol(m_Data->Index, { x, y, z });
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline 
-void Point_Of_SurfaceMesh<ScalarType>::GetPosition(ScalarType* Pos) const
+void Point_Of_SurfaceMesh<MeshType>::GetPosition(typename MeshType::ScalarType* Pos) const
 {
     m_Data->Mesh.m_MeshData->VertexPositionTable.GetCol(m_Data->Index, Pos);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline 
-void Point_Of_SurfaceMesh<ScalarType>::GetPosition(ScalarType& x, ScalarType& y, ScalarType& z) const
+void Point_Of_SurfaceMesh<MeshType>::GetPosition(typename MeshType::ScalarType& x, typename MeshType::ScalarType& y, typename MeshType::ScalarType& z) const
 {
     ScalarType Pos[3] = { 0, 0, 0 };   
     this->GetPosition(Pos);
@@ -228,40 +297,58 @@ void Point_Of_SurfaceMesh<ScalarType>::GetPosition(ScalarType& x, ScalarType& y,
     z = Pos[2];
 }
 
-//=========================================================== Vertex_Of_SurfaceMesh ===========================================================//
-
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Vertex_Of_SurfaceMesh<ScalarType>::Vertex_Of_SurfaceMesh()
+typename MeshType::PointAttributeType& Point_Of_SurfaceMesh<MeshType>::Attribute()
 {
-    this->Create();
+    return m_Data->Attribute;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Vertex_Of_SurfaceMesh<ScalarType>::Vertex_Of_SurfaceMesh(const Vertex_Of_SurfaceMesh<ScalarType>& InputVertex)
+const typename MeshType::PointAttributeType& Point_Of_SurfaceMesh<MeshType>::Attribute() const
 {
-    this->Create();
+    return m_Data->Attribute;
+}
+
+//=========================================================== Vertex_Of_SurfaceMesh ===========================================================//
+
+template<typename MeshType>
+inline
+Vertex_Of_SurfaceMesh<MeshType>::Vertex_Of_SurfaceMesh()
+{
+}
+
+template<typename MeshType>
+inline
+Vertex_Of_SurfaceMesh<MeshType>::Vertex_Of_SurfaceMesh(const Vertex_Of_SurfaceMesh<MeshType>& InputVertex)
+{
     (*this) = InputVertex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Vertex_Of_SurfaceMesh<ScalarType>::Vertex_Of_SurfaceMesh(Vertex_Of_SurfaceMesh<ScalarType>&& InputVertex)
+Vertex_Of_SurfaceMesh<MeshType>::Vertex_Of_SurfaceMesh(Vertex_Of_SurfaceMesh<MeshType>&& InputVertex)
 {
     m_Data = std::move(InputVertex.m_Data);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Vertex_Of_SurfaceMesh<ScalarType>::~Vertex_Of_SurfaceMesh() 
+Vertex_Of_SurfaceMesh<MeshType>::~Vertex_Of_SurfaceMesh()
 {
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::operator=(const Vertex_Of_SurfaceMesh<ScalarType>& InputVertex) 
+void Vertex_Of_SurfaceMesh<MeshType>::operator=(const Vertex_Of_SurfaceMesh<MeshType>& InputVertex)
 {
+    if (!InputVertex.m_Data)
+    {
+        return;
+    }
+
+    this->Create();
     m_Data->Mesh.ForceShare(InputVertex.m_Data->Mesh);
     m_Data->Index = InputVertex.m_Data->Index;
     m_Data->PointIndex = InputVertex.m_Data->PointIndex;
@@ -270,99 +357,127 @@ void Vertex_Of_SurfaceMesh<ScalarType>::operator=(const Vertex_Of_SurfaceMesh<Sc
     m_Data->OutgoingDirectedEdgeIndexList = InputVertex.m_Data->OutgoingDirectedEdgeIndexList;
     m_Data->IncomingDirectedEdgeIndexList = InputVertex.m_Data->IncomingDirectedEdgeIndexList;
     m_Data->AdjacentCellIndexList = InputVertex.m_Data->AdjacentCellIndexList;
+    m_Data->Attribute = InputVertex.m_Data->Attribute;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::operator=(Vertex_Of_SurfaceMesh<ScalarType>&& InputVertex) 
+void Vertex_Of_SurfaceMesh<MeshType>::operator=(Vertex_Of_SurfaceMesh<MeshType>&& InputVertex)
 {
     m_Data = std::move(InputVertex.m_Data);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::Create()
+void Vertex_Of_SurfaceMesh<MeshType>::Create()
 {
     if (!m_Data)
     {
-        m_Data = std::make_unique<Data_Of_Vertex_Of_SurfaceMesh<ScalarType>>();
+        m_Data = std::make_unique<Data_Of_Vertex_Of_SurfaceMesh<MeshType>>();
         m_Data->Index = -1;
         m_Data->PointIndex = -1;
     }
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::Clear()
+void Vertex_Of_SurfaceMesh<MeshType>::Clear()
 {
     m_Data.reset();
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::SetParentMesh(SurfaceMesh<ScalarType>& InputMesh)
+void Vertex_Of_SurfaceMesh<MeshType>::SetParentMesh(SurfaceMesh<MeshType>& InputMesh)
 {
     m_Data->Mesh.Share(InputMesh);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::SetIndex(int_max VertexIndex)
+void Vertex_Of_SurfaceMesh<MeshType>::SetIndex(int_max VertexIndex)
 {
     m_Data->Index = VertexIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::SetPointIndex(int_max PointIndex)
+int_max Vertex_Of_SurfaceMesh<MeshType>::GetIndex() const
 {
-    m_Data->Index = PointIndex;
+    return m_Data->Index;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
+inline
+void Vertex_Of_SurfaceMesh<MeshType>::SetPointIndex(int_max PointIndex)
+{
+    m_Data->PointIndex = PointIndex;
+}
+
+template<typename MeshType>
+inline
+int_max Vertex_Of_SurfaceMesh<MeshType>::GetPointIndex() const
+{
+    return m_Data->PointIndex;
+}
+
+template<typename MeshType>
 inline 
-DenseVector<int_max>& Vertex_Of_SurfaceMesh<ScalarType>::AdjacentVertexIndexList()
+DenseVector<int_max>& Vertex_Of_SurfaceMesh<MeshType>::AdjacentVertexIndexList()
 {
     return m_Data->AdjacentVertexIndexList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline 
-DenseVector<int_max>& Vertex_Of_SurfaceMesh<ScalarType>::AdjacentEdgeIndexList()
+DenseVector<int_max>& Vertex_Of_SurfaceMesh<MeshType>::AdjacentEdgeIndexList()
 {
     return m_Data->AdjacentEdgeIndexList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline 
-DenseVector<DirectedEdgeIndex_Of_SurfaceMesh>& Vertex_Of_SurfaceMesh<ScalarType>::OutgoingDirectedEdgeIndexList()
+DenseVector<DirectedEdgeIndex_Of_SurfaceMesh>& Vertex_Of_SurfaceMesh<MeshType>::OutgoingDirectedEdgeIndexList()
 {
     return m_Data->OutgoingDirectedEdgeIndexList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DenseVector<DirectedEdgeIndex_Of_SurfaceMesh>& Vertex_Of_SurfaceMesh<ScalarType>::IncomingDirectedEdgeIndexList()
+DenseVector<DirectedEdgeIndex_Of_SurfaceMesh>& Vertex_Of_SurfaceMesh<MeshType>::IncomingDirectedEdgeIndexList()
 {
     return m_Data->IncomingDirectedEdgeIndexList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DenseVector<int_max>& Vertex_Of_SurfaceMesh<ScalarType>::AdjacentCellIndexList()
+DenseVector<int_max>& Vertex_Of_SurfaceMesh<MeshType>::AdjacentCellIndexList()
 {
     return m_Data->AdjacentCellIndexList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-bool Vertex_Of_SurfaceMesh<ScalarType>::IsValid() const
+bool Vertex_Of_SurfaceMesh<MeshType>::IsValid() const
 {
-    return bool(m_Data);
+    if (!m_Data)
+    {
+        return false;
+    }
+    else
+    {
+        if (m_Data->Index < 0)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
-template<typename ScalarType>
-inline Vertex_Of_SurfaceMesh<ScalarType>::IsBoundary() const
+template<typename MeshType>
+inline
+bool Vertex_Of_SurfaceMesh<MeshType>::IsBoundary() const
 {
     for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
     {
@@ -375,58 +490,106 @@ inline Vertex_Of_SurfaceMesh<ScalarType>::IsBoundary() const
     return false;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-SurfaceMesh<ScalarType>& Vertex_Of_SurfaceMesh<ScalarType>::GetParentMesh()
+SurfaceMesh<MeshType>& Vertex_Of_SurfaceMesh<MeshType>::GetParentMesh()
 {
     return m_Data->Mesh;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-const SurfaceMesh<ScalarType>& Vertex_Of_SurfaceMesh<ScalarType>::GetParentMesh() const
+const SurfaceMesh<MeshType>& Vertex_Of_SurfaceMesh<MeshType>::GetParentMesh() const
 {
     return m_Data->Mesh;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-int_max Vertex_Of_SurfaceMesh<ScalarType>::GetIndex() const
+Handle_Of_Vertex_Of_SurfaceMesh Vertex_Of_SurfaceMesh<MeshType>::GetHandle() const
 {
-    return m_Data->Index;
+    Handle_Of_Vertex_Of_SurfaceMesh VertexHandle;
+    VertexHandle.SetIndex(m_Data->Index);
+    return VertexHandle;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::SetGlobalID(int_max VertexGlobalID)
+Handle_Of_Point_Of_SurfaceMesh Vertex_Of_SurfaceMesh<MeshType>::GetPointHandle() const
 {
-    m_Data->Mesh.m_MeshData->VertexGlobalIDList[m_Data->Index] = VertexGlobalID;
+    Handle_Of_Point_Of_SurfaceMesh PointHandle;
+    PointHandle.SetIndex(m_Data->PointIndex);
+    return PointHandle;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::SetPosition(const ScalarType* Pos)
+void Vertex_Of_SurfaceMesh<MeshType>::SetID(int_max VertexID)
+{
+    if (VertexID < 0)
+    {
+        MDK_Error("VertexID < 0 @ Vertex_Of_SurfaceMesh::SetID(...)")
+        return;
+    }
+
+    // check record
+    auto VertexID_old = m_Data->Mesh.m_MeshData->VertexIDList[m_Data->Index];
+    if (VertexID_old != VertexID)
+    {
+        auto it = m_Data->Mesh.m_MeshData->Map_VertexID_to_VertexIndex.find(VertexID);
+        if (it != m_Data->Mesh.m_MeshData->Map_VertexID_to_VertexIndex.end())
+        {
+            MDK_Error("Input VertexID has already been used for another vertex @ Vertex_Of_SurfaceMesh::SetID(...)")
+            return;
+        }
+
+        it = m_Data->Mesh.m_MeshData->Map_VertexID_to_VertexIndex.find(VertexID_old);
+        if (it != m_Data->Mesh.m_MeshData->Map_VertexID_to_VertexIndex.end())
+        {
+            m_Data->Mesh.m_MeshData->Map_VertexID_to_VertexIndex.erase(it);
+        }
+        else
+        {
+            MDK_Error("Map_VertexID_to_VertexIndex is invalid @ Vertex_Of_SurfaceMesh::SetID(...)")
+            return;
+        }
+
+        m_Data->Mesh.m_MeshData->Map_VertexID_to_VertexIndex[VertexID] = m_Data->Index;
+        m_Data->Mesh.m_MeshData->VertexIDList[m_Data->Index] = VertexID;
+    }
+}
+
+template<typename MeshType>
+inline
+int_max Vertex_Of_SurfaceMesh<MeshType>::GetID() const
+{
+    return m_Data->Mesh.m_MeshData->VertexIDList[m_Data->Index];
+}
+
+template<typename MeshType>
+inline
+void Vertex_Of_SurfaceMesh<MeshType>::SetPosition(const typename MeshType::ScalarType* Pos)
 {
     m_Data->Mesh.m_MeshData->VertexPositionTable.SetCol(m_Data->Index, Pos);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::SetPosition(ScalarType x, ScalarType y, ScalarType z)
+void Vertex_Of_SurfaceMesh<MeshType>::SetPosition(typename MeshType::ScalarType x, typename MeshType::ScalarType y, typename MeshType::ScalarType z)
 {
-    m_Data->Mesh.m_MeshData->VertexPositionTable.SetCol(m_Data->Index, {x, y, z});
+    m_Data->Mesh.m_MeshData->PointPositionTable.SetCol(m_Data->PointIndex, { x, y, z });
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::GetPosition(ScalarType* Pos) const
+void Vertex_Of_SurfaceMesh<MeshType>::GetPosition(typename MeshType::ScalarType* Pos) const
 {
-    m_Data->Mesh.m_MeshData->VertexPositionTable.GetCol(m_Index, Pos);
+    m_Data->Mesh.m_MeshData->PointPositionTable.GetCol(m_Data->PointIndex, Pos);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::GetPosition(ScalarType& x, ScalarType& y, ScalarType& z) const
+void Vertex_Of_SurfaceMesh<MeshType>::GetPosition(typename MeshType::ScalarType& x, typename MeshType::ScalarType& y, typename MeshType::ScalarType& z) const
 {
     ScalarType Pos[3] = { 0, 0, 0 };
     this->GetPosition(Pos);
@@ -435,187 +598,270 @@ void Vertex_Of_SurfaceMesh<ScalarType>::GetPosition(ScalarType& x, ScalarType& y
     z = Pos[2];
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-const DenseVector<int_max>& Vertex_Of_SurfaceMesh<ScalarType>::GetAdjacentVertexIndexList() const
+DenseVector<Handle_Of_Vertex_Of_SurfaceMesh> Vertex_Of_SurfaceMesh<MeshType>::GetAdjacentVertexHandleList() const
 {
-    return m_Data->AdjacentVertexIndexList;
+    DenseVector<Handle_Of_Vertex_Of_SurfaceMesh> OutputHandleList;
+    this->GetAdjacentVertexHandleList(OutputHandleList);
+    return OutputHandleList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::GetAdjacentVertexIndexList(DenseVector<int_max>& OutputIndexList) const
+void Vertex_Of_SurfaceMesh<MeshType>::GetAdjacentVertexHandleList(DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& OutputHandleList) const
 {
-    OutputIndexList = m_Data->AdjacentVertexIndexList;
+    OutputHandleList.FastResize(m_Data->AdjacentVertexIndexList.GetLength());
+    for (int_max k = 0; k < m_Data->AdjacentVertexIndexList.GetLength(); ++k)
+    {
+        OutputHandleList[k].Index = m_Data->AdjacentVertexIndexList[k];
+    }
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-const DenseVector<int_max>& Vertex_Of_SurfaceMesh<ScalarType>::GetAdjacentEdgeIndexList() const
+DenseVector<Handle_Of_Edge_Of_SurfaceMesh> Vertex_Of_SurfaceMesh<MeshType>::GetAdjacentEdgeHandleList() const
 {
-    return m_Data->AdjacentEdgeIndexList;
+    DenseVector<Handle_Of_Edge_Of_SurfaceMesh> OutputHandleList;
+    this->GetAdjacentEdgeHandleList(OutputHandleList);
+    return OutputHandleList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::GetAdjacentEdgeIndexList(DenseVector<int_max>& OutputIndexList) const
+void Vertex_Of_SurfaceMesh<MeshType>::GetAdjacentEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const
 {
-    OutputIndexList = m_Data->AdjacentEdgeIndexList;
+    OutputHandleList.FastResize(m_Data->AdjacentEdgeIndexList.GetLength());
+    for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
+    {
+        OutputHandleList[k].Index = m_Data->AdjacentEdgeIndexList[k];
+    }
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-const DenseVector<int_max>& Vertex_Of_SurfaceMesh<ScalarType>::GetOutgoingDirectedEdgeIndexList() const
+DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> Vertex_Of_SurfaceMesh<MeshType>::GetOutgoingDirectedEdgeHandleList() const
 {
-    return m_Data->OutgoingDirectedEdgeIndexList;
+    DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> OutputHandleList;
+    this->GetOutgoingDirectedEdgeHandleList(OutputHandleList);
+    return OutputHandleList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::GetOutgoingDirectedEdgeIndexList(DenseVector<int_max>& OutputIndexList) const
+void Vertex_Of_SurfaceMesh<MeshType>::GetOutgoingDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const
 {
-    OutputIndexList = m_Data->OutgoingDirectedEdgeIndexList;
+    OutputHandleList.FastResize(m_Data->OutgoingDirectedEdgeIndexList.GetLength());
+    for (int_max k = 0; k < m_Data->OutgoingDirectedEdgeIndexList.GetLength(); ++k)
+    {
+        OutputHandleList[k].Index = m_Data->OutgoingDirectedEdgeIndexList[k];
+    }
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-const DenseVector<int_max>& Vertex_Of_SurfaceMesh<ScalarType>::GetIncomingDirectedEdgeIndexList() const
+DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> Vertex_Of_SurfaceMesh<MeshType>::GetIncomingDirectedEdgeHandleList() const
 {
-    return m_Data->IncomingDirectedEdgeIndexList;
+    DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> OutputHandleList;
+    this->GetIncomingDirectedEdgeHandleList(OutputHandleList);
+    return OutputHandleList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::GetIncomingDirectedEdgeIndexList(DenseVector<int_max>& OutputIndexList) const
+void Vertex_Of_SurfaceMesh<MeshType>::GetIncomingDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const
 {
-    OutputIndexList = m_Data->IncomingDirectedEdgeIndexList;
+    OutputHandleList.FastResize(m_Data->IncomingDirectedEdgeIndexList.GetLength());
+    for (int_max k = 0; k < m_Data->IncomingDirectedEdgeIndexList.GetLength(); ++k)
+    {
+        OutputHandleList[k].Index = m_Data->IncomingDirectedEdgeIndexList[k];
+    }
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-const DenseVector<int_max>& Vertex_Of_SurfaceMesh<ScalarType>::GetAdjacentCellIndexList() const
+DenseVector<Handle_Of_Cell_Of_SurfaceMesh> Vertex_Of_SurfaceMesh<MeshType>::GetAdjacentCellHandleList() const
 {
-    return m_Data->AdjacentCellIndexList;
+    DenseVector<Handle_Of_Cell_Of_SurfaceMesh> OutputHandleList;
+    this->GetAdjacentCellHandleList(OutputHandleList);
+    return OutputHandleList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::GetAdjacentCellIndexList(DenseVector<int_max>& OutputIndexList) const
+void Vertex_Of_SurfaceMesh<MeshType>::GetAdjacentCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const
 {
-    OutputIndexList = m_Data->AdjacentCellIndexList;
+    OutputHandleList.FastResize(m_Data->AdjacentCellIndexList.GetLength());
+    for (int_max k = 0; k < m_Data->AdjacentCellIndexList.GetLength(); ++k)
+    {
+        OutputHandleList[k].Index = m_Data->AdjacentCellIndexList[k];
+    }
+}
+
+template<typename MeshType>
+inline 
+typename MeshType::VertexAttributeType& Vertex_Of_SurfaceMesh<MeshType>::Attribute()
+{
+    return m_Data->Attribute;
+}
+
+template<typename MeshType>
+inline
+const typename MeshType::VertexAttributeType& Vertex_Of_SurfaceMesh<MeshType>::Attribute() const
+{
+    return m_Data->Attribute;
 }
 
 //=========================================================== Edge_Of_SurfaceMesh ===========================================================//
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Edge_Of_SurfaceMesh<ScalarType>::Edge_Of_SurfaceMesh()
+Edge_Of_SurfaceMesh<MeshType>::Edge_Of_SurfaceMesh()
 {
-    this->Create();
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Edge_Of_SurfaceMesh<ScalarType>::Edge_Of_SurfaceMesh(const Edge_Of_SurfaceMesh<ScalarType>& InputEdge)
+Edge_Of_SurfaceMesh<MeshType>::Edge_Of_SurfaceMesh(const Edge_Of_SurfaceMesh<MeshType>& InputEdge)
 {
-    this->Create();
     (*this) = InputEdge;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Edge_Of_SurfaceMesh<ScalarType>::Edge_Of_SurfaceMesh(Edge_Of_SurfaceMesh<ScalarType>&& InputEdge)
+Edge_Of_SurfaceMesh<MeshType>::Edge_Of_SurfaceMesh(Edge_Of_SurfaceMesh<MeshType>&& InputEdge)
 {
     m_Data = std::move(InputEdge.m_Data);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Edge_Of_SurfaceMesh<ScalarType>::~Edge_Of_SurfaceMesh()
+Edge_Of_SurfaceMesh<MeshType>::~Edge_Of_SurfaceMesh()
 {
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Edge_Of_SurfaceMesh<ScalarType>::operator=(const Edge_Of_SurfaceMesh<ScalarType>& InputEdge)
+void Edge_Of_SurfaceMesh<MeshType>::operator=(const Edge_Of_SurfaceMesh<MeshType>& InputEdge)
 {
+    if (!InputEdge.m_Data)
+    {
+        return;
+    }
+
+    this->Create();
     m_Data->Mesh.ForceShare(InputEdge.m_Data->Mesh);
     m_Data->VertexIndex0 = InputEdge.m_Data->VertexIndex0;
     m_Data->VertexIndex1 = InputEdge.m_Data->VertexIndex1;
     m_Data->PointIndexList = InputEdge.m_Data->PointIndexList;
+    m_Data->Attribute = InputEdge.m_Data->Attribute;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Edge_Of_SurfaceMesh<ScalarType>::operator=(Edge_Of_SurfaceMesh<ScalarType>&& InputEdge)
+void Edge_Of_SurfaceMesh<MeshType>::operator=(Edge_Of_SurfaceMesh<MeshType>&& InputEdge)
 {
     m_Data = std::move(InputEdge.m_Data);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Edge_Of_SurfaceMesh<ScalarType>::Create()
+void Edge_Of_SurfaceMesh<MeshType>::Create()
 {
     if (!m_Data)
     {
-        m_Data = std::make_unique<Data_Of_Edge_Of_SurfaceMesh<ScalarType>>();
+        m_Data = std::make_unique<Data_Of_Edge_Of_SurfaceMesh<MeshType>>();
         m_Data->VertexIndex0 = -1;
         m_Data->VertexIndex1 = -1;
     }    
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Edge_Of_SurfaceMesh<ScalarType>::Clear()
+void Edge_Of_SurfaceMesh<MeshType>::Clear()
 {
     m_Data.reset();
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Edge_Of_SurfaceMesh<ScalarType>::SetParentMesh(SurfaceMesh<ScalarType>& InputMesh)
+void Edge_Of_SurfaceMesh<MeshType>::SetParentMesh(SurfaceMesh<MeshType>& InputMesh)
 {
     m_Data->Mesh.Share(InputMesh);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Edge_Of_SurfaceMesh<ScalarType>::SetIndex(int_max EdgeIndex)
+void Edge_Of_SurfaceMesh<MeshType>::SetIndex(int_max EdgeIndex)
 {
     m_Data->Index = EdgeIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Edge_Of_SurfaceMesh<ScalarType>::SetVertexIndexList(const int_max VertexIndexList[2])
+int_max Edge_Of_SurfaceMesh<MeshType>::GetIndex() const
+{
+    return m_Data->Index;
+}
+
+template<typename MeshType>
+inline
+void Edge_Of_SurfaceMesh<MeshType>::SetVertexIndexList(const int_max VertexIndexList[2])
 {
     this->SetVertexIndexList(VertexIndexList[0], VertexIndexList[1]);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Edge_Of_SurfaceMesh<ScalarType>::SetVertexIndexList(int_max VertexIndex0, int_max VertexIndex1)
+void Edge_Of_SurfaceMesh<MeshType>::GetVertexIndexList(int_max& VertexIndex0, int_max& VertexIndex1) const
+{
+    VertexIndex0 = m_Data->VertexIndex0;
+    VertexIndex1 = m_Data->VertexIndex1;
+}
+
+template<typename MeshType>
+inline
+void Edge_Of_SurfaceMesh<MeshType>::GetVertexIndexList(int_max VertexIndexList[2]) const
+{
+    this->GetVertexIndexList(VertexIndexList[0], VertexIndexList[1]);
+}
+
+template<typename MeshType>
+inline
+void Edge_Of_SurfaceMesh<MeshType>::SetVertexIndexList(int_max VertexIndex0, int_max VertexIndex1)
 {
     m_Data->VertexIndex0 = VertexIndex0;
     m_Data->VertexIndex1 = VertexIndex1;
 }
 
-template<typename ScalarType>
-inline DenseVector<int_max>& Edge_Of_SurfaceMesh<ScalarType>::PointIndexList()
+template<typename MeshType>
+inline DenseVector<int_max>& Edge_Of_SurfaceMesh<MeshType>::PointIndexList()
 {
     return m_Data->PointIndexList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-bool Edge_Of_SurfaceMesh<ScalarType>::IsValid() const
+bool Edge_Of_SurfaceMesh<MeshType>::IsValid() const
 {
-    return bool(m_Data);
+    if (!m_Data)
+    {
+        return false;
+    }
+    else
+    {
+        if (m_Data->Index < 0)
+        {
+            return false
+        }
+    }
+
+    return true;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-bool Edge_Of_SurfaceMesh<ScalarType>::IsBoundary() const
+bool Edge_Of_SurfaceMesh<MeshType>::IsBoundary() const
 {
     if (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][0].IsValid() == false)
     {
@@ -631,100 +877,153 @@ bool Edge_Of_SurfaceMesh<ScalarType>::IsBoundary() const
     }
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-SurfaceMesh<ScalarType>& Edge_Of_SurfaceMesh<ScalarType>::GetParentMesh()
+SurfaceMesh<MeshType>& Edge_Of_SurfaceMesh<MeshType>::GetParentMesh()
 {
     return m_Data->Mesh;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-const SurfaceMesh<ScalarType>& Edge_Of_SurfaceMesh<ScalarType>::GetParentMesh() const
+const SurfaceMesh<MeshType>& Edge_Of_SurfaceMesh<MeshType>::GetParentMesh() const
 {
     return m_Data->Mesh;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-int_max Edge_Of_SurfaceMesh<ScalarType>::GetIndex() const
+Handle_Of_Edge_Of_SurfaceMesh Edge_Of_SurfaceMesh<MeshType>::GetHandle() const
 {
-    return m_Data->Index;
+    Handle_Of_Edge_Of_SurfaceMesh EdgeHandle;
+    EdgeHandle.SetIndex(m_Data->Index);
+    return EdgeHandle;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DenseVector<int_max> Edge_Of_SurfaceMesh<ScalarType>::GetDirectedEdgeIndexList() const
+void Edge_Of_SurfaceMesh<MeshType>::SetID(int_max EdgeID)
 {
-    DenseVector<int_max> OutputIndexList;
-    this->GetDirectedEdgeIndexList(OutputIndexList);
-    return OutputIndexList;
+    if (EdgeID < 0)
+    {
+        MDK_Error("EdgeID < 0 @ Edge_Of_SurfaceMesh::SetID(...)")
+        return;
+    }
+
+    // check record
+    auto EdgeID_old = m_Data->Mesh.m_MeshData->EdgeIDList[m_Data->Index];
+    if (EdgeID_old != EdgeID)
+    {
+        auto it = m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.find(EdgeID);
+        if (it != m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.end())
+        {
+            MDK_Error("Input EdgeID has already been used for another edge @ Edge_Of_SurfaceMesh::SetID(...)")
+            return;
+        }
+
+        it = m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.find(EdgeID_old);
+        if (it != m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.end())
+        {
+            m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.erase(it);
+        }
+        else
+        {
+            MDK_Error("Map_EdgeID_to_EdgeIndex is invalid @ Edge_Of_SurfaceMesh::SetID(...)")
+            return;
+        }
+
+        m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex[EdgeID] = m_Data->Index;
+        m_Data->Mesh.m_MeshData->EdgeIDList[m_Data->Index] = EdgeID;
+    }
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DenseVector<int_max> Edge_Of_SurfaceMesh<ScalarType>::GetVertexIndexList() const
+int_max Edge_Of_SurfaceMesh<MeshType>::GetID() const
 {
-    DenseVector<int_max> OutputIndexList;
-    this->GetVertexIndexList(OutputIndexList);
-    return OutputIndexList;
+    return m_Data->Mesh.m_MeshData->EdgeIDList[m_Data->Index];
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Edge_Of_SurfaceMesh<ScalarType>::GetVertexIndexList(DenseVector<int_max>& OutputIndexList) const
+DenseVector<Handle_Of_Vertex_Of_SurfaceMesh> Edge_Of_SurfaceMesh<MeshType>::GetVertexHandleList() const
 {
-    OutputIndexList.FastResize(2);
-    this->GetVertexIndexList(OutputIndexList.GetPointer());
+    DenseVector<Handle_Of_Vertex_Of_SurfaceMesh> OutputHandleList;
+    this->GetVertexHandleList(OutputHandleList);
+    return OutputHandleList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Edge_Of_SurfaceMesh<ScalarType>::GetVertexIndexList(int_max OutputIndexList[2]) const
+void Edge_Of_SurfaceMesh<MeshType>::GetVertexHandleList(DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& OutputHandleList) const
 {
-    this->GetVertexIndexList(OutputIndexList[0], OutputIndexList[1]);
+    OutputHandleList.FastResize(2);
+    this->GetVertexHandleList(OutputHandleList[0], OutputHandleList[1]);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Edge_Of_SurfaceMesh<ScalarType>::GetVertexIndexList(int_max& VertexIndex0, int_max& VertexIndex1) const
+void Edge_Of_SurfaceMesh<MeshType>::GetVertexHandleList(Handle_Of_Vertex_Of_SurfaceMesh OutputHandleList[2]) const
 {
-    VertexIndex0 = m_Data->VertexIndex0;
-    VertexIndex1 = m_Data->VertexIndex1;
+    this->GetVertexHandleList(OutputHandleList[0], OutputHandleList[1]);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
+inline
+void Edge_Of_SurfaceMesh<MeshType>::GetVertexHandleList(Handle_Of_Vertex_Of_SurfaceMesh& VertexHandle0, Handle_Of_Vertex_Of_SurfaceMesh& VertexHandle1) const
+{
+    VertexHandle0.SetIndex(m_Data->VertexIndex0);
+    VertexHandle1.SetIndex(m_Data->VertexIndex1);
+}
+
+template<typename MeshType>
 inline 
-const DenseVector<int_max>& Edge_Of_SurfaceMesh<ScalarType>::GetPointIndexList() const
+DenseVector<Handle_Of_Point_Of_SurfaceMesh> Edge_Of_SurfaceMesh<MeshType>::GetPointHandleList() const
 {
-    return m_Data->PointIndexList;
+    DenseVector<Handle_Of_Point_Of_SurfaceMesh> OutputHandleList;
+    this->GetPointHandleList(OutputHandleList);
+    return OutputHandleList;
 }
 
-template<typename ScalarType>
-inline
-DenseVector<int_max> Edge_Of_SurfaceMesh<ScalarType>::GetAdjacentEdgeIndexList() const
+template<typename MeshType>
+inline 
+void Edge_Of_SurfaceMesh<MeshType>::GetPointHandleList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputHandleList) const
 {
-    DenseVector<int_max> OutputIndexList;
-    this->GetAdjacentEdgeIndexList(OutputIndexList);
+    OutputHandleList.FastResize(m_Data->PointIndexList.GetLength());
+    for (int_max k = 0; k < m_Data->PointIndexList.GetLength(); ++k)
+    {
+        OutputHandleList[k].SetIndex(m_Data->PointIndexList[k]);
+    }
+}
+
+template<typename MeshType>
+inline
+DenseVector<Handle_Of_Edge_Of_SurfaceMesh> Edge_Of_SurfaceMesh<MeshType>::GetAdjacentEdgeHandleList() const
+{
+    DenseVector<Handle_Of_Edge_Of_SurfaceMesh> OutputHandleList;
+    this->GetAdjacentEdgeHandleList(OutputHandleList);
     return OutputIndexList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Edge_Of_SurfaceMesh<ScalarType>::GetAdjacentEdgeIndexList(DenseVector<int_max>& OutputIndexList) const
+void Edge_Of_SurfaceMesh<MeshType>::GetAdjacentEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const
 {
     const auto& AdjacentEdgeIndexList0 = m_Data->Mesh.m_MeshData->VertexList[m_Data->VertexIndex0].GetAdjacentEdgeIndexList();
     const auto& AdjacentEdgeIndexList1 = m_Data->Mesh.m_MeshData->VertexList[m_Data->VertexIndex1].GetAdjacentEdgeIndexList();
 
-    OutputIndexList.FastResize(0);
-    OutputIndexList.ReserveCapacity(AdjacentEdgeIndexList0.GetLength() + AdjacentEdgeIndexList1.GetLength() - 2);
+    OutputHandleList.FastResize(0);
+    OutputHandleList.ReserveCapacity(AdjacentEdgeIndexList0.GetLength() + AdjacentEdgeIndexList1.GetLength() - 2);
+
+    Handle_Of_Edge_Of_SurfaceMesh EdgeHandle;
 
     for (int_max k = 0; k < AdjacentEdgeIndexList0.GetLength(); ++k)
     {
         auto tempIndex = AdjacentEdgeIndexList0[k];
         if (tempIndex != m_Data->Index)
         {
-            OutputIndexList.Append(tempIndex);
+            EdgeHandle.SetIndex(tempIndex);
+            OutputHandleList.Append(EdgeHandle);
         }
     }
 
@@ -733,49 +1032,54 @@ void Edge_Of_SurfaceMesh<ScalarType>::GetAdjacentEdgeIndexList(DenseVector<int_m
         auto tempIndex = AdjacentEdgeIndexList1[k];
         if (tempIndex != m_Data->Index)
         {
-            OutputIndexList.Append(tempIndex);
+            EdgeHandle.SetIndex(tempIndex);
+            OutputHandleList.Append(EdgeHandle);
         }
     }
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DenseVector<int_max> Edge_Of_SurfaceMesh<ScalarType>::GetAdjacentCellIndexList() const
+DenseVector<Handle_Of_Cell_Of_SurfaceMesh> Edge_Of_SurfaceMesh<MeshType>::GetAdjacentCellHandleList() const
 {
-    DenseVector<int_max> OutputIndexList;
-    this->GetAdjacentCellIndexList(OutputIndexList);
-    return OutputIndexList;
+    DenseVector<int_max> OutputHandleList;
+    this->GetAdjacentCellHandleList(OutputHandleList);
+    return OutputHandleList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Edge_Of_SurfaceMesh<ScalarType>::GetAdjacentCellIndexList(DenseVector<int_max>& OutputIndexList) const
+void Edge_Of_SurfaceMesh<MeshType>::GetAdjacentCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const
 {    
-    OutputIndexList.FastResize(0);
-    OutputIndexList.ReserveCapacity(2);
+    OutputHandleList.FastResize(0);
+    OutputHandleList.ReserveCapacity(2);
+
+    Handle_Of_Cell_Of_SurfaceMesh CellHandle;
 
     if (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][0].IsValid() == true)
     {
-        OutputIndexList.Append(m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][0].GetCellIndex());
+        CellHandle.SetIndex(m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][0].GetCellIndex());
+        OutputHandleList.Append(CellHandle);
     }
     else if (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][1].IsValid() == true)
     {
-        OutputIndexList.Append(m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][1].GetCellIndex());
+        CellHandle.SetIndex(m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][1].GetCellIndex());
+        OutputHandleList.Append(CellHandle);
     }
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DenseVector<int_max> Edge_Of_SurfaceMesh<ScalarType>::GetNeighbourCellIndexList() const
+DenseVector<Handle_Of_Cell_Of_SurfaceMesh> Edge_Of_SurfaceMesh<MeshType>::GetNeighbourCellHandleList() const
 {
-    DenseVector<int_max> OutputIndexList;
-    this->GetNeighbourCellIndexList(OutputIndexList);
-    return OutputIndexList;
+    DenseVector<Handle_Of_Cell_Of_SurfaceMesh> OutputHandleList;
+    this->GetNeighbourCellHandleList(OutputHandleList);
+    return OutputHandleList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Edge_Of_SurfaceMesh<ScalarType>::GetNeighbourCellIndexList(DenseVector<int_max>& OutputIndexList) const
+void Edge_Of_SurfaceMesh<MeshType>::GetNeighbourCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const
 {
     const auto& AdjacentCellIndexList0 = m_Data->Mesh.m_MeshData->VertexList[m_Data->VertexIndex0].GetAdjacentCellIndexList();
     const auto& AdjacentCellIndexList1 = m_Data->Mesh.m_MeshData->VertexList[m_Data->VertexIndex0].GetAdjacentCellIndexList();
@@ -787,57 +1091,78 @@ void Edge_Of_SurfaceMesh<ScalarType>::GetNeighbourCellIndexList(DenseVector<int_
         return;
     }
 
-    OutputIndexList.ReserveCapacity(AdjacentCellIndexList0.GetLength() + AdjacentCellIndexList1.GetLength());
+    Handle_Of_Cell_Of_SurfaceMesh CellHandle;
+
+    OutputHandleList.ReserveCapacity(AdjacentCellIndexList0.GetLength() + AdjacentCellIndexList1.GetLength());
 
     for (int_max k = 0; k < AdjacentCellIndexList0.GetLength(); ++k)
     {
-        OutputIndexList.Append(tempIndex);
+        CellHandle.SetIndex(AdjacentCellIndexList0[k]);
+        OutputHandleList.Append(CellHandle);
     }
 
     for (int_max k = 0; k < AdjacentCellIndexList1.GetLength(); ++k)
     {
-        OutputIndexList.Append(tempIndex);
+        CellHandle.SetIndex(AdjacentCellIndexList1[k]);
+        OutputHandleList.Append(CellHandle);
     }
 
-    auto tempIndexList = OutputIndexList.FindUnique();
-    OutputIndexList = OutputIndexList.GetSubSet(tempIndexList);
+    auto tempIndexList = OutputHandleList.FindUnique();
+    OutputHandleList = OutputHandleList.GetSubSet(tempIndexList);
 }
 
+template<typename MeshType>
+inline 
+typename MeshType::EdgeAttributeType& Edge_Of_SurfaceMesh<MeshType>::Attribute()
+{
+    return m_Data->Attribute;
+}
+
+template<typename MeshType>
+inline
+const typename MeshType::EdgeAttributeType& Edge_Of_SurfaceMesh<MeshType>::Attribute() const
+{
+    return m_Data->Attribute;
+}
 
 //=========================================================== DirectedEdge_Of_SurfaceMesh ===========================================================//
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DirectedEdge_Of_SurfaceMesh<ScalarType>::DirectedEdge_Of_SurfaceMesh()
+DirectedEdge_Of_SurfaceMesh<MeshType>::DirectedEdge_Of_SurfaceMesh()
 {
-    this->Create();
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DirectedEdge_Of_SurfaceMesh<ScalarType>::DirectedEdge_Of_SurfaceMesh(const DirectedEdge_Of_SurfaceMesh<ScalarType>& InputDirectedEdge)
+DirectedEdge_Of_SurfaceMesh<MeshType>::DirectedEdge_Of_SurfaceMesh(const DirectedEdge_Of_SurfaceMesh<MeshType>& InputDirectedEdge)
 {
-    this->Create();
     (*this) = InputDirectedEdge;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DirectedEdge_Of_SurfaceMesh<ScalarType>::DirectedEdge_Of_SurfaceMesh(DirectedEdge_Of_SurfaceMesh<ScalarType>&& InputDirectedEdge)
+DirectedEdge_Of_SurfaceMesh<MeshType>::DirectedEdge_Of_SurfaceMesh(DirectedEdge_Of_SurfaceMesh<MeshType>&& InputDirectedEdge)
 {
     m_Data = std::move(InputDirectedEdge.m_Data);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DirectedEdge_Of_SurfaceMesh<ScalarType>::~DirectedEdge_Of_SurfaceMesh()
+DirectedEdge_Of_SurfaceMesh<MeshType>::~DirectedEdge_Of_SurfaceMesh()
 {
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::operator=(const DirectedEdge_Of_SurfaceMesh<ScalarType>& InputDirectedEdge)
+void DirectedEdge_Of_SurfaceMesh<MeshType>::operator=(const DirectedEdge_Of_SurfaceMesh<MeshType>& InputDirectedEdge)
 {
+    if (!InputDirectedEdge.m_Data)
+    {
+        return;
+    }
+
+    this->Create();
     m_Data->Mesh.ForceShare(InputDirectedEdge.m_Data->Mesh);
     m_Data->Index = InputDirectedEdge.m_Data->Index;
     m_Data->CellIndex = InputDirectedEdge.m_Data->CellIndex;
@@ -845,179 +1170,147 @@ void DirectedEdge_Of_SurfaceMesh<ScalarType>::operator=(const DirectedEdge_Of_Su
     m_Data->VertexIndex_end = InputDirectedEdge.m_Data->VertexIndex_end;
     m_Data->NextDirectedEdgeIndex = InputDirectedEdge.m_Data->NextDirectedEdgeIndex;
     m_Data->PreviousDirectedEdgeIndex = InputDirectedEdge.m_Data->PreviousDirectedEdgeIndex;
+    m_Data->Attribute = InputDirectedEdge.m_Data->Attribute;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::operator=(DirectedEdge_Of_SurfaceMesh<ScalarType>&& InputDirectedEdge)
+void DirectedEdge_Of_SurfaceMesh<MeshType>::operator=(DirectedEdge_Of_SurfaceMesh<MeshType>&& InputDirectedEdge)
 {
     m_Data = std::move(InputDirectedEdge.m_Data);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::Create()
+void DirectedEdge_Of_SurfaceMesh<MeshType>::Create()
 {
     if (!m_Data)
     {
-        m_Data = std::make_unique<Data_Of_DirectedEdge_Of_SurfaceMesh<ScalarType>>();
+        m_Data = std::make_unique<Data_Of_DirectedEdge_Of_SurfaceMesh<MeshType>>();
         
-        m_Data->Index = -1;
+        m_Data->Index.EdgeIndex = -1;
+        m_Data->Index.RelativeIndex = -1;
         m_Data->CellIndex = -1;
         m_Data->VertexIndex_start = -1;
         m_Data->VertexIndex_end = -1;
-        m_Data->NextDirectedEdgeIndex = -1;
-        m_Data->PreviousDirectedEdgeIndex = -1;
+        m_Data->NextDirectedEdgeIndex.EdgeIndex = -1;
+        m_Data->NextDirectedEdgeIndex.RelativeIndex = -1;
+        m_Data->PreviousDirectedEdgeIndex.EdgeIndex = -1;
+        m_Data->PreviousDirectedEdgeIndex.RelativeIndex = -1;
     }    
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::Clear()
+void DirectedEdge_Of_SurfaceMesh<MeshType>::Clear()
 {
     m_Data.reset();
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::SetParentMesh(SurfaceMesh<ScalarType>& InputMesh)
+void DirectedEdge_Of_SurfaceMesh<MeshType>::SetParentMesh(SurfaceMesh<MeshType>& InputMesh)
 {
     m_Data->Mesh.Share(InputMesh);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::SetIndex(DirectedEdgeIndex_Of_SurfaceMesh DirectedEdgeIndex)
+void DirectedEdge_Of_SurfaceMesh<MeshType>::SetIndex(DirectedEdgeIndex_Of_SurfaceMesh DirectedEdgeIndex)
 {
     m_Data->Index = DirectedEdgeIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::SetIndex(int_max EdgeIndex, int_max RelativeIndex)
+void DirectedEdge_Of_SurfaceMesh<MeshType>::SetIndex(int_max EdgeIndex, int_max RelativeIndex)
 {
     m_Data->Index.EdgeIndex = EdgeIndex;
     m_Data->Index.RelativeIndex = RelativeIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::SetCellIndex(int_max CellIndex)
+void DirectedEdge_Of_SurfaceMesh<MeshType>::SetCellIndex(int_max CellIndex)
 {
     m_Data->CellIndex = CellIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::SetStartVertexIndex(int_max VertexIndex)
+void DirectedEdge_Of_SurfaceMesh<MeshType>::SetStartVertexIndex(int_max VertexIndex)
 {
     m_Data->VertexIndex_start = VertexIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::SetEndVertexIndex(int_max VertexIndex)
+void DirectedEdge_Of_SurfaceMesh<MeshType>::SetEndVertexIndex(int_max VertexIndex)
 {
     m_Data->VertexIndex_end = VertexIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::SetNextDirectedEdgeIndex(DirectedEdgeIndex_Of_SurfaceMesh DirectedEdgeIndex)
+void DirectedEdge_Of_SurfaceMesh<MeshType>::SetNextDirectedEdgeIndex(DirectedEdgeIndex_Of_SurfaceMesh DirectedEdgeIndex)
 {
     m_Data->NextDirectedEdgeIndex = DirectedEdgeIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::SetNextDirectedEdgeIndex(int_max EdgeIndex, int_max RelativeIndex)
+void DirectedEdge_Of_SurfaceMesh<MeshType>::SetNextDirectedEdgeIndex(int_max EdgeIndex, int_max RelativeIndex)
 {
     m_Data->NextDirectedEdgeIndex.EdgeIndex = EdgeIndex;
     m_Data->NextDirectedEdgeIndex.RelativeIndex = RelativeIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::SetPreviousDirectedEdgeIndex(DirectedEdgeIndex_Of_SurfaceMesh DirectedEdgeIndex)
+void DirectedEdge_Of_SurfaceMesh<MeshType>::SetPreviousDirectedEdgeIndex(DirectedEdgeIndex_Of_SurfaceMesh DirectedEdgeIndex)
 {
     m_Data->PreviousDirectedEdgeIndex = DirectedEdgeIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::SetPreviousDirectedEdgeIndex(int_max EdgeIndex, int_max RelativeIndex)
+void DirectedEdge_Of_SurfaceMesh<MeshType>::SetPreviousDirectedEdgeIndex(int_max EdgeIndex, int_max RelativeIndex)
 {
     m_Data->PreviousDirectedEdgeIndex.EdgeIndex = EdgeIndex;
     m_Data->PreviousDirectedEdgeIndex.RelativeIndex = RelativeIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-bool DirectedEdge_Of_SurfaceMesh<ScalarType>::IsValid() const
-{
-    return bool(m_Data);
-}
-
-template<typename ScalarType>
-inline
-bool DirectedEdge_Of_SurfaceMesh<ScalarType>::IsBoundary() const
-{
-    return (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index.EdgeIndex][1 - m_Data->Index.RelativeIndex].IsValid() == false);
-}
-
-template<typename ScalarType>
-inline
-SurfaceMesh<ScalarType>& DirectedEdge_Of_SurfaceMesh<ScalarType>::GetParentMesh()
-{
-    return m_Data->Mesh;
-}
-
-template<typename ScalarType>
-inline
-const SurfaceMesh<ScalarType>& DirectedEdge_Of_SurfaceMesh<ScalarType>::GetParentMesh() const
-{
-    return m_Data->Mesh;
-}
-
-template<typename ScalarType>
-inline
-DirectedEdgeIndex_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<ScalarType>::GetIndex() const
+int_max DirectedEdge_Of_SurfaceMesh<MeshType>::GetIndex() const
 {
     return m_Data->Index;
 }
 
-
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Vertex_Of_SurfaceMesh<ScalarType>::SetGlobalID(int_max CellGlobalID)
-{
-    m_Data->Mesh.m_MeshData->CellGlobalIDList[m_Data->Index] = CellGlobalID;
-}
-
-template<typename ScalarType>
-inline
-int_max DirectedEdge_Of_SurfaceMesh<ScalarType>::GetCellIndex() const
+int_max DirectedEdge_Of_SurfaceMesh<MeshType>::GetCellIndex() const
 {
     return m_Data->CellIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-int_max DirectedEdge_Of_SurfaceMesh<ScalarType>::GetStartVertexIndex() const
+int_max DirectedEdge_Of_SurfaceMesh<MeshType>::GetStartVertexIndex() const
 {
     return m_Data->VertexIndex_start;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-int_max DirectedEdge_Of_SurfaceMesh<ScalarType>::GetEndVertexIndex() const
+int_max DirectedEdge_Of_SurfaceMesh<MeshType>::GetEndVertexIndex() const
 {
     return m_Data->VertexIndex_end;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DirectedEdgeIndex_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<ScalarType>::GetFirendDirectedEdgeIndex() const
+DirectedEdgeIndex_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<MeshType>::GetFirendDirectedEdgeIndex() const
 {
     DirectedEdgeIndex_Of_SurfaceMesh  DirectedEdgeIndex;
     DirectedEdgeIndex.EdgeIndex = m_Data->Index.EdgeIndex;
@@ -1025,23 +1318,23 @@ DirectedEdgeIndex_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<ScalarType>::GetFir
     return DirectedEdgeIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DirectedEdgeIndex_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<ScalarType>::GetNextDirectedEdgeIndex() const
+DirectedEdgeIndex_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<MeshType>::GetNextDirectedEdgeIndex() const
 {
     return m_Data->NextDirectedEdgeIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DirectedEdgeIndex_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<ScalarType>::GetPreviousDirectedEdgeIndex() const
+DirectedEdgeIndex_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<MeshType>::GetPreviousDirectedEdgeIndex() const
 {
     return m_Data->PreviousDirectedEdgeIndex;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-int_max DirectedEdge_Of_SurfaceMesh<ScalarType>::GetFirendCellIndex() const
+int_max DirectedEdge_Of_SurfaceMesh<MeshType>::GetFirendCellIndex() const
 {
     const auto& FirendDirectedEdge = m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index.EdgeIndex][1 - m_Data->Index.RelativeIndex];
     if (FirendDirectedEdge.IsValid() == true)
@@ -1052,166 +1345,308 @@ int_max DirectedEdge_Of_SurfaceMesh<ScalarType>::GetFirendCellIndex() const
     return -1;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DenseVector<int_max> DirectedEdge_Of_SurfaceMesh<ScalarType>::GetNeighbourCellIndexList() const
+DenseVector<int_max> DirectedEdge_Of_SurfaceMesh<MeshType>::GetNeighbourCellIndexList() const
 {
     DenseVector<int_max> OutputIndexList;
     this->GetAdjacentCellIndexList(OutputIndexList);
     return OutputIndexList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void DirectedEdge_Of_SurfaceMesh<ScalarType>::GetNeighbourCellIndexList(DenseVector<int_max>& OutputIndexList) const
+void DirectedEdge_Of_SurfaceMesh<MeshType>::GetNeighbourCellIndexList(DenseVector<int_max>& OutputIndexList) const
 {
     return m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].GetNeighbourCellIndexList();
 }
 
-//=========================================================== Cell_Of_SurfaceMesh ===========================================================//
-
-template<typename ScalarType>
+template<typename MeshType>
 inline
-Cell_Of_SurfaceMesh<ScalarType>::Cell_Of_SurfaceMesh()
-{
-    this->Create();
-}
-
-template<typename ScalarType>
-inline
-Cell_Of_SurfaceMesh<ScalarType>::Cell_Of_SurfaceMesh(const Cell_Of_SurfaceMesh<ScalarType>& InputCell)
-{
-    this->Create();
-    (*this) = InputCell;
-}
-
-template<typename ScalarType>
-inline
-Cell_Of_SurfaceMesh<ScalarType>::Cell_Of_SurfaceMesh(Cell_Of_SurfaceMesh<ScalarType>&& InputCell)
-{
-    m_Data = std::move(InputCell.m_Data);
-}
-
-template<typename ScalarType>
-inline
-Cell_Of_SurfaceMesh<ScalarType>::~Cell_Of_SurfaceMesh()
-{
-}
-
-template<typename ScalarType>
-inline
-void Cell_Of_SurfaceMesh<ScalarType>::operator=(const Cell_Of_SurfaceMesh<ScalarType>& InputCell)
-{
-    m_Data->Mesh.ForceShare(InputCell.m_Data->Mesh);
-    m_Data->Index = InputCell.m_Data->Index;
-    m_Data->DirectedEdgeIndexList = InputCell.m_Data->DirectedEdgeIndexList;
-}
-
-template<typename ScalarType>
-inline
-void Cell_Of_SurfaceMesh<ScalarType>::operator=(Cell_Of_SurfaceMesh<ScalarType>&& InputCell)
-{
-    m_Data = std::move(InputCell.m_Data);
-}
-
-template<typename ScalarType>
-inline
-void Cell_Of_SurfaceMesh<ScalarType>::Create()
+bool DirectedEdge_Of_SurfaceMesh<MeshType>::IsValid() const
 {
     if (!m_Data)
     {
-        m_Data = std::make_unique<Data_Of_Cell_Of_SurfaceMesh<ScalarType>>();
+        return false;
+    }
+    else
+    {
+        if (m_Data->Index.EdgeIndex < 0 || m_Data->Index.RelativeIndex < 0)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+template<typename MeshType>
+inline
+bool DirectedEdge_Of_SurfaceMesh<MeshType>::IsBoundary() const
+{
+    return (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index.EdgeIndex][1 - m_Data->Index.RelativeIndex].IsValid() == false);
+}
+
+template<typename MeshType>
+inline
+SurfaceMesh<MeshType>& DirectedEdge_Of_SurfaceMesh<MeshType>::GetParentMesh()
+{
+    return m_Data->Mesh;
+}
+
+template<typename MeshType>
+inline
+const SurfaceMesh<MeshType>& DirectedEdge_Of_SurfaceMesh<MeshType>::GetParentMesh() const
+{
+    return m_Data->Mesh;
+}
+
+template<typename MeshType>
+inline 
+Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<MeshType>::GetHandle() const
+{
+    Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle;
+    DirectedEdgeHandle.SetIndex(m_Data->Index);
+    return DirectedEdgeHandle;
+}
+
+template<typename MeshType>
+inline
+Handle_Of_Cell_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<MeshType>::GetCellHandle() const
+{
+    Handle_Of_Cell_Of_SurfaceMesh CellHandle;
+    CellHandle.SetIndex(m_Data->CellIndex);
+    return CellHandle;
+}
+
+template<typename MeshType>
+inline
+Handle_Of_Vertex_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<MeshType>::GetStartVertexHandle() const
+{
+    Handle_Of_Vertex_Of_SurfaceMesh VertexHandle;
+    VertexHandle.SetIndex(m_Data->VertexIndex_start);
+    return VertexHandle;
+}
+
+template<typename MeshType>
+inline
+Handle_Of_Vertex_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<MeshType>::GetEndVertexHandle() const
+{
+    Handle_Of_Vertex_Of_SurfaceMesh VertexHandle;
+    VertexHandle.SetIndex(m_Data->VertexIndex_end);
+    return VertexHandle;
+}
+
+template<typename MeshType>
+inline
+Handle_Of_Edge_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<MeshType>::GetEdgeHandle() const
+{
+    Handle_Of_Edge_Of_SurfaceMesh EdgeHandle;
+    EdgeHandle.SetIndex(m_Data->Index.EdgeIndex);
+    return EdgeHandle;
+}
+
+template<typename MeshType>
+inline
+int_max DirectedEdge_Of_SurfaceMesh<MeshType>::GetEdgeID() const
+{
+    auto EdgeIndex = m_Data->Index.EdgeIndex;
+    return m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex].GetID() :
+}
+
+template<typename MeshType>
+inline
+int_max DirectedEdge_Of_SurfaceMesh<MeshType>::GetRelativeIndex() const
+{
+    return m_Data->Index.RelativeIndex;
+}
+
+template<typename MeshType>
+inline
+Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<MeshType>::GetFirendDirectedEdgeHandle() const
+{
+    DirectedEdgeIndex_Of_SurfaceMesh DirectedEdgeIndex;
+    DirectedEdgeIndex.EdgeIndex = m_Data->Index.EdgeIndex;
+    DirectedEdgeIndex.RelativeIndex = 1 - m_Data->Index.RelativeIndex;
+
+    Handle_Of_DirectedEdge_Of_SurfaceMesh  DirectedEdgeHandle;
+    DirectedEdgeHandle.SetIndex(DirectedEdgeIndex);
+    return DirectedEdgeHandle;
+}
+
+template<typename MeshType>
+inline
+Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<MeshType>::GetNextDirectedEdgeHandle() const
+{
+    Handle_Of_DirectedEdge_Of_SurfaceMesh  DirectedEdgeHandle;
+    DirectedEdgeHandle.SetIndex(m_Data->NextDirectedEdgeIndex);
+    return DirectedEdgeHandle;
+}
+
+template<typename MeshType>
+inline
+Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<MeshType>::GetPreviousDirectedEdgeHandle() const
+{
+    Handle_Of_DirectedEdge_Of_SurfaceMesh  DirectedEdgeHandle;
+    DirectedEdgeHandle.SetIndex(m_Data->PreviousDirectedEdgeIndex);
+    return DirectedEdgeHandle;
+}
+
+template<typename MeshType>
+inline
+Handle_Of_Cell_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<MeshType>::GetFirendCellHandle() const
+{
+    Handle_Of_Cell_Of_SurfaceMesh CellHandle;
+    CellHandle.SetIndex(-1);
+
+    const auto& FirendDirectedEdge = m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index.EdgeIndex][1 - m_Data->Index.RelativeIndex];
+    if (FirendDirectedEdge.IsValid() == true)
+    {
+        CellHandle.SetIndex(FirendDirectedEdge.GetCellIndex());
+    }
+
+    return CellHandle;
+}
+
+template<typename MeshType>
+inline
+DenseVector<Handle_Of_Cell_Of_SurfaceMesh> DirectedEdge_Of_SurfaceMesh<MeshType>::GetNeighbourCellHandleList() const
+{
+    DenseVector<int_max> OutputHandleList;
+    this->GetNeighbourCellHandleList(OutputHandleList);
+    return OutputHandleList;
+}
+
+template<typename MeshType>
+inline
+void DirectedEdge_Of_SurfaceMesh<MeshType>::GetNeighbourCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const
+{
+    return m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].GetNeighbourCellHandleList();
+}
+
+template<typename MeshType>
+inline 
+typename MeshType::DirectedEdgeAttributeType& DirectedEdge_Of_SurfaceMesh<MeshType>::Attribute()
+{
+    return m_Data->Attribute;
+}
+
+template<typename MeshType>
+inline 
+const typename MeshType::DirectedEdgeAttributeType& DirectedEdge_Of_SurfaceMesh<MeshType>::Attribute() const
+{
+    return m_Data->Attribute;
+}
+
+//=========================================================== Cell_Of_SurfaceMesh ===========================================================//
+
+template<typename MeshType>
+inline
+Cell_Of_SurfaceMesh<MeshType>::Cell_Of_SurfaceMesh()
+{
+}
+
+template<typename MeshType>
+inline
+Cell_Of_SurfaceMesh<MeshType>::Cell_Of_SurfaceMesh(const Cell_Of_SurfaceMesh<MeshType>& InputCell)
+{
+    (*this) = InputCell;
+}
+
+template<typename MeshType>
+inline
+Cell_Of_SurfaceMesh<MeshType>::Cell_Of_SurfaceMesh(Cell_Of_SurfaceMesh<MeshType>&& InputCell)
+{
+    m_Data = std::move(InputCell.m_Data);
+}
+
+template<typename MeshType>
+inline
+Cell_Of_SurfaceMesh<MeshType>::~Cell_Of_SurfaceMesh()
+{
+}
+
+template<typename MeshType>
+inline
+void Cell_Of_SurfaceMesh<MeshType>::operator=(const Cell_Of_SurfaceMesh<MeshType>& InputCell)
+{
+    if (!InputCell.m_Data)
+    {
+        return;
+    }
+
+    this->Create();
+    m_Data->Mesh.ForceShare(InputCell.m_Data->Mesh);
+    m_Data->Index = InputCell.m_Data->Index;
+    m_Data->DirectedEdgeIndexList = InputCell.m_Data->DirectedEdgeIndexList;
+    m_Data->Attribute = InputCell.m_Data->Attribute;
+}
+
+template<typename MeshType>
+inline
+void Cell_Of_SurfaceMesh<MeshType>::operator=(Cell_Of_SurfaceMesh<MeshType>&& InputCell)
+{
+    m_Data = std::move(InputCell.m_Data);
+}
+
+template<typename MeshType>
+inline
+void Cell_Of_SurfaceMesh<MeshType>::Create()
+{
+    if (!m_Data)
+    {
+        m_Data = std::make_unique<Data_Of_Cell_Of_SurfaceMesh<MeshType>>();
         m_Data->Index = -1;
     }    
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Cell_Of_SurfaceMesh<ScalarType>::Clear()
+void Cell_Of_SurfaceMesh<MeshType>::Clear()
 {
     m_Data.reset();
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Cell_Of_SurfaceMesh<ScalarType>::SetParentMesh(SurfaceMesh<ScalarType>& InputMesh)
+void Cell_Of_SurfaceMesh<MeshType>::SetParentMesh(SurfaceMesh<MeshType>& InputMesh)
 {
     m_Data->Mesh.Share(InputMesh);
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Cell_Of_SurfaceMesh<ScalarType>::SetIndex(int_max CellIndex)
+void Cell_Of_SurfaceMesh<MeshType>::SetIndex(int_max CellIndex)
 {
     m_Data->Index = CellIndex;
 }
 
-template<typename ScalarType>
-inline DenseVector<int_max>& Cell_Of_SurfaceMesh<ScalarType>::DirectedEdgeIndexList()
+template<typename MeshType>
+inline DenseVector<DirectedEdgeIndex_Of_SurfaceMesh>& Cell_Of_SurfaceMesh<MeshType>::DirectedEdgeIndexList()
 {
     return m_Data->DirectedEdgeIndexList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-bool Cell_Of_SurfaceMesh<ScalarType>::IsValid() const
-{
-    return bool(m_Data);
-}
-
-template<typename ScalarType>
-inline
-SurfaceMesh<ScalarType>& Cell_Of_SurfaceMesh<ScalarType>::GetParentMesh()
-{
-    return m_Data->Mesh;
-}
-
-template<typename ScalarType>
-inline
-const SurfaceMesh<ScalarType>& Cell_Of_SurfaceMesh<ScalarType>::GetParentMesh() const
-{
-    return m_Data->Mesh;
-}
-
-template<typename ScalarType>
-inline
-int_max Cell_Of_SurfaceMesh<ScalarType>::GetIndex() const
+int_max Cell_Of_SurfaceMesh<MeshType>::GetIndex() const
 {
     return m_Data->Index;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-const DenseVector<int_max>& Cell_Of_SurfaceMesh<ScalarType>::GetDirectedEdgeIndexList() const
-{
-    return m_Data->DirectedEdgeIndexList;
-}
-
-template<typename ScalarType>
-inline
-void Cell_Of_SurfaceMesh<ScalarType>::GetDirectedEdgeIndexList(DenseVector<int_max>& OutputIndexList) const
-{
-    OutputIndexList = m_Data->DirectedEdgeIndexList;
-}
-
-template<typename ScalarType>
-inline int_max Cell_Of_SurfaceMesh<ScalarType>::GetDirectedEdgeNumber() const
-{
-    return m_Data->DirectedEdgeIndexList.GetLength();
-}
-
-template<typename ScalarType>
-inline
-const DenseVector<int_max>& Cell_Of_SurfaceMesh<ScalarType>::GetVertexIndexList() const
+DenseVector<int_max> Cell_Of_SurfaceMesh<MeshType>::GetVertexIndexList() const
 {
     DenseVector<int_max> VertexIndexList;
     this->GetVertexIndexList(VertexIndexList);
+    return VertexIndexList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Cell_Of_SurfaceMesh<ScalarType>::GetVertexIndexList(DenseVector<int_max>& OutputIndexList) const
-{    
+void Cell_Of_SurfaceMesh<MeshType>::GetVertexIndexList(DenseVector<int_max>& OutputIndexList) const
+{
     VertexIndexList.FastResize(m_Data->DirectedEdgeIndexList.GetLength());
     for (int_max k = 0; k < VertexIndexList.GetLength(); ++k)
     {
@@ -1220,25 +1655,18 @@ void Cell_Of_SurfaceMesh<ScalarType>::GetVertexIndexList(DenseVector<int_max>& O
     }
 }
 
-template<typename ScalarType>
-inline 
-int_max Cell_Of_SurfaceMesh<ScalarType>::GetVertexNumber() const
-{
-    return m_Data->DirectedEdgeIndexList.GetLength();
-}
-
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DenseVector<int_max> Cell_Of_SurfaceMesh<ScalarType>::GetEdgeIndexList() const
+DenseVector<int_max> Cell_Of_SurfaceMesh<MeshType>::GetEdgeIndexList() const
 {
     DenseVector<int_max> OutputIndexList;
     this->GetEdgeIndexList(OutputIndexList);
     return OutputIndexList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Cell_Of_SurfaceMesh<ScalarType>::GetEdgeIndexList(DenseVector<int_max>& OutputIndexList) const
+void Cell_Of_SurfaceMesh<MeshType>::GetEdgeIndexList(DenseVector<int_max>& OutputIndexList) const
 {
     int_max EdgeNumber = m_Data->DirectedEdgeIndexList.GetLength();
     OutputIndexList.FastResize(EdgeNumber);
@@ -1248,24 +1676,18 @@ void Cell_Of_SurfaceMesh<ScalarType>::GetEdgeIndexList(DenseVector<int_max>& Out
     }
 }
 
-template<typename ScalarType>
-inline int_max Cell_Of_SurfaceMesh<ScalarType>::GetEdgeNumber() const
-{
-    return m_Data->DirectedEdgeIndexList.GetLength();
-}
-
-template<typename ScalarType>
+template<typename MeshType>
 inline
-DenseVector<int_max> Cell_Of_SurfaceMesh<ScalarType>::GetAdjacentCellIndexList() const
+DenseVector<int_max> Cell_Of_SurfaceMesh<MeshType>::GetAdjacentCellIndexList() const
 {
     DenseVector<int_max> OutputIndexList;
     this->GetAdjacentCellIndexList(OutputIndexList);
     return OutputIndexList;
 }
 
-template<typename ScalarType>
+template<typename MeshType>
 inline
-void Cell_Of_SurfaceMesh<ScalarType>::GetAdjacentCellIndexList(DenseVector<int_max>& OutputIndexList) const
+void Cell_Of_SurfaceMesh<MeshType>::GetAdjacentCellIndexList(DenseVector<int_max>& OutputIndexList) const
 {
     int_max DirectedEdgeNumber = m_Data->DirectedEdgeIndexList.GetLength();
     OutputIndexList.FastResize(0);
@@ -1280,6 +1702,217 @@ void Cell_Of_SurfaceMesh<ScalarType>::GetAdjacentCellIndexList(DenseVector<int_m
         }
     }
     OutputIndexList.ReleaseUnusedCapacity();
+}
+
+template<typename MeshType>
+inline
+bool Cell_Of_SurfaceMesh<MeshType>::IsValid() const
+{
+    if (!m_Data)
+    {
+        return false;
+    }
+    else
+    {
+        if (m_Data->Index < 0)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+template<typename MeshType>
+inline
+SurfaceMesh<MeshType>& Cell_Of_SurfaceMesh<MeshType>::GetParentMesh()
+{
+    return m_Data->Mesh;
+}
+
+template<typename MeshType>
+inline
+const SurfaceMesh<MeshType>& Cell_Of_SurfaceMesh<MeshType>::GetParentMesh() const
+{
+    return m_Data->Mesh;
+}
+
+template<typename MeshType>
+inline
+Handle_Of_Cell_Of_SurfaceMesh Cell_Of_SurfaceMesh<MeshType>::GetHandle() const
+{
+    Handle_Of_Cell_Of_SurfaceMesh CellHandle;
+    CellHandle.SetIndex(m_Data->Index);
+    return CellHandle;
+}
+
+template<typename MeshType>
+inline
+void Cell_Of_SurfaceMesh<MeshType>::SetID(int_max CellID)
+{
+    if (CellID < 0)
+    {
+        MDK_Error("CellID < 0 @ Cell_Of_SurfaceMesh::SetID(...)")
+        return;
+    }
+
+    // check record
+    auto CellID_old = m_Data->Mesh.m_MeshData->CellIDList[m_Data->Index];
+    if (CellID_old != CellID)
+    {
+        auto it = m_Data->Mesh.m_MeshData->Map_CellID_to_CellIndex.find(CellID);
+        if (it != m_Data->Mesh.m_MeshData->Map_CellID_to_CellIndex.end())
+        {
+            MDK_Error("Input CellID has already been used for another cell @ Cell_Of_SurfaceMesh::SetID(...)")
+                return;
+        }
+
+        it = m_Data->Mesh.m_MeshData->Map_CellID_to_CellIndex.find(CellID_old);
+        if (it != m_Data->Mesh.m_MeshData->Map_CellID_to_CellIndex.end())
+        {
+            m_Data->Mesh.m_MeshData->Map_CellID_to_CellIndex.erase(it);
+        }
+        else
+        {
+            MDK_Error("Map_CellID_to_CellIndex is invalid @ Cell_Of_SurfaceMesh::SetID(...)")
+            return;
+        }
+
+        m_Data->Mesh.m_MeshData->Map_CellID_to_CellIndex[CellID] = m_Data->Index;
+        m_Data->Mesh.m_MeshData->CellIDList[m_Data->Index] = CellID;
+    }
+}
+
+template<typename MeshType>
+inline 
+int_max Cell_Of_SurfaceMesh<MeshType>::GetID() const
+{
+    return m_Data->Mesh.m_MeshData->CellIDList[m_Data->Index];
+}
+
+template<typename MeshType>
+inline
+DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> Cell_Of_SurfaceMesh<MeshType>::GetDirectedEdgeHandleList() const
+{
+    DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> OutputHandleList;
+    this->GetDirectedEdgeHandleList(OutputHandleList);
+    return OutputHandleList;
+}
+
+template<typename MeshType>
+inline
+void Cell_Of_SurfaceMesh<MeshType>::GetDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const
+{
+    OutputHandleList.FastResize(m_Data->DirectedEdgeIndexList.GetLength());
+    for (int_max k = 0; k < m_Data->DirectedEdgeIndexList.GetLength(); ++k)
+    {
+        OutputHandleList[k].SetIndex(m_Data->DirectedEdgeIndexList[k]);
+    }
+}
+
+template<typename MeshType>
+inline int_max Cell_Of_SurfaceMesh<MeshType>::GetDirectedEdgeNumber() const
+{
+    return m_Data->DirectedEdgeIndexList.GetLength();
+}
+
+template<typename MeshType>
+inline
+DenseVector<Handle_Of_Vertex_Of_SurfaceMesh> Cell_Of_SurfaceMesh<MeshType>::GetVertexHandleList() const
+{
+    DenseVector<Handle_Of_Vertex_Of_SurfaceMesh> OutputHandleList;
+    this->GetVertexHandleList(OutputHandleList);
+    return OutputHandleList;
+}
+
+template<typename MeshType>
+inline
+void Cell_Of_SurfaceMesh<MeshType>::GetVertexHandleList(DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& OutputHandleList) const
+{    
+    OutputHandleList.FastResize(m_Data->DirectedEdgeIndexList.GetLength());
+    for (int_max k = 0; k < OutputHandleList.GetLength(); ++k)
+    {
+        auto tempIndex = m_Data->DirectedEdgeIndexList[k];
+        OutputHandleList[k].SetIndex(m_Data->Mesh.m_MeshData->DirectedEdgePairList[tempIndex.EdgeIndex][tempIndex.RelativeIndex].GetStartVertexIndex());
+    }
+}
+
+template<typename MeshType>
+inline 
+int_max Cell_Of_SurfaceMesh<MeshType>::GetVertexNumber() const
+{
+    return m_Data->DirectedEdgeIndexList.GetLength();
+}
+
+template<typename MeshType>
+inline
+DenseVector<Handle_Of_Edge_Of_SurfaceMesh> Cell_Of_SurfaceMesh<MeshType>::GetEdgeHandleList() const
+{
+    DenseVector<int_max> OutputHandleList;
+    this->GetEdgeHandleList(OutputHandleList);
+    return OutputHandleList;
+}
+
+template<typename MeshType>
+inline
+void Cell_Of_SurfaceMesh<MeshType>::GetEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const
+{
+    int_max EdgeNumber = m_Data->DirectedEdgeIndexList.GetLength();
+    OutputHandleList.FastResize(EdgeNumber);
+    for (int_max k = 0; k < EdgeNumber; ++k)
+    {
+        OutputHandleList[k].SetIndex(m_Data->DirectedEdgeIndexList[k].EdgeIndex);
+    }
+}
+
+template<typename MeshType>
+inline int_max Cell_Of_SurfaceMesh<MeshType>::GetEdgeNumber() const
+{
+    return m_Data->DirectedEdgeIndexList.GetLength();
+}
+
+template<typename MeshType>
+inline
+DenseVector<Handle_Of_Cell_Of_SurfaceMesh> Cell_Of_SurfaceMesh<MeshType>::GetAdjacentCellHandleList() const
+{
+    DenseVector<Handle_Of_Cell_Of_SurfaceMesh> OutputHandleList;
+    this->GetAdjacentCellHandleList(OutputHandleList);
+    return OutputHandleList;
+}
+
+template<typename MeshType>
+inline
+void Cell_Of_SurfaceMesh<MeshType>::GetAdjacentCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const
+{
+    Handle_Of_Cell_Of_SurfaceMesh CellHandle;
+
+    int_max DirectedEdgeNumber = m_Data->DirectedEdgeIndexList.GetLength();
+    OutputHandleList.FastResize(0);
+    OutputHandleList.ReserveCapacity(DirectedEdgeNumber);
+    for (int_max k = 0; k < DirectedEdgeNumber; ++k)
+    {
+        const auto& FriendDirectedEdge = m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index.EdgeIndex][1 - m_Data->Index.RelativeIndex];
+        if (FriendDirectedEdge.IsValid() == true)
+        {
+            CellHandle.SetIndex(FriendDirectedEdge.GetCellIndex());
+            OutputHandleList.Append(CellHandle);
+        }
+    }
+    OutputHandleList.ReleaseUnusedCapacity();
+}
+
+template<typename MeshType>
+inline 
+typename MeshType::CellAttributeType& Cell_Of_SurfaceMesh<MeshType>::Attribute()
+{
+    return m_Data->Attribute;
+}
+
+template<typename MeshType>
+inline
+const typename MeshType::CellAttributeType& Cell_Of_SurfaceMesh<MeshType>::Attribute() const
+{
+    return m_Data->Attribute;
 }
 
 }// namespace mdk

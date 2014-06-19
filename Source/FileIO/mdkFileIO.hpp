@@ -1140,10 +1140,10 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, con
     PairList[3].Name = "VertexNumber";
     PairList[3].Value = QString::number(VertexNumber);
 
-    auto PolygonNumber = InputMesh.GetPolygonNumber();
+    auto CellNumber = InputMesh.GetCellNumber();
 
-    PairList[4].Name = "PolygonNumber";
-    PairList[4].Value = QString::number(PolygonNumber);
+    PairList[4].Name = "CellNumber";
+    PairList[4].Value = QString::number(CellNumber);
 
     // write header file (json) --------------------------------------------------
 
@@ -1156,6 +1156,11 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, con
         return true;
     }
 
+    // get data --------------------------------------------------------------------
+    DataArray<DenseVector<int_max>> PolygonData;
+    DenseMatrix<ScalarType> VertexData;
+    InputMesh.GetVertexPositionTableAndCellTable(VertexData, PolygonData);
+
     // write vertex to data file  --------------------------------------------------
 
     QFile VertexDataFile(QFilePathAndName + ".data.vertex");
@@ -1166,11 +1171,11 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, con
         return false;
     }
 
-    VertexDataFile.write((char*)InputMesh.VertexPositionTable().GetElementPointer(),
-                         InputMesh.VertexPositionTable().GetElementNumber()*CalByteNumberOfScalar(ScalarType(0)));
+    VertexDataFile.write((char*)VertexData.GetElementPointer(), VertexData.GetElementNumber()*CalByteNumberOfScalar(ScalarType(0)));
     VertexDataFile.flush();
     VertexDataFile.close();
 
+    /*
     if (InputMesh.VertexGlobalIDList().IsEmpty() == false)
     {
         QFile VertexDataFile_id(QFilePathAndName + ".data.vertex_id");
@@ -1181,11 +1186,12 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, con
             return false;
         }
 
-        VertexDataFile_id.write((char*)InputMesh.VertexGlobalIDList().GetElementPointer(),
-                                InputMesh.VertexGlobalIDList().GetElementNumber()*CalByteNumberOfScalar(int_max(0)));
+        VertexDataFile_id.write((char*)VertexData.GetElementPointer(),
+                                VertexData.GetColNumber()*CalByteNumberOfScalar(int_max(0)));
         VertexDataFile_id.flush();
         VertexDataFile_id.close();
     }
+    */
 
     //write Polygon to data file -----------------------------------------------------
 
@@ -1199,9 +1205,7 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, con
 
     QTextStream Stream_out(&PolygonDataFile);
 
-    const DataArray<DenseVector<int_max>>& PolygonData = InputMesh.VertexIndexTable();
-
-    for (int_max i = 0; i < InputMesh.GetPolygonNumber(); ++i)
+    for (int_max i = 0; i < PolygonData.GetLength(); ++i)
     {
         const DenseVector<int_max>& Polygon_i = PolygonData[i];
 
@@ -1215,7 +1219,7 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, con
             }
         }
 
-        if (i < InputMesh.GetPolygonNumber() - 1)
+        if (i < PolygonData.GetLength() - 1)
         {
             Stream_out << "\n";
         }
@@ -1225,7 +1229,7 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, con
 
     PolygonDataFile.flush();
     PolygonDataFile.close();
-
+    /*
     if (InputMesh.PolygonGlobalIDList().IsEmpty() == false)
     {
         QFile PolygonDataFile_id(QFilePathAndName + ".data.polygon_id");
@@ -1241,7 +1245,7 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, con
         PolygonDataFile_id.flush();
         PolygonDataFile_id.close();
     }
-
+    */
     return true;
 }
 
@@ -1317,12 +1321,12 @@ PolygonMesh<ScalarType> LoadPolygonMeshFromJsonDataFile(const CharString& FilePa
         return OutputMesh;
     }
 
-    int_max PolygonNumber = 0;
+    int_max CellNumber = 0;
 
-    it = HeaderObject.find("PolygonNumber");
+    it = HeaderObject.find("CellNumber");
     if (it != HeaderObject.end())
     {
-        PolygonNumber = it.value().toString().toLongLong();
+        CellNumber = it.value().toString().toLongLong();
     }
     else
     {
@@ -1331,7 +1335,7 @@ PolygonMesh<ScalarType> LoadPolygonMeshFromJsonDataFile(const CharString& FilePa
         return OutputMesh;
     }
 
-    if (VertexNumber <= 0 || PolygonNumber <= 0)
+    if (VertexNumber <= 0 || CellNumber <= 0)
     {
         return OutputMesh;
     }
@@ -1370,11 +1374,11 @@ PolygonMesh<ScalarType> LoadPolygonMeshFromJsonDataFile(const CharString& FilePa
     }
 
     DataArray<DenseVector<int_max>> Polygon;
-    Polygon.FastResize(PolygonNumber);
+    Polygon.FastResize(CellNumber);
 
     QTextStream stream_in(&PolygonDataFile);
 
-    for (int_max i = 0; i < OutputMesh.GetPolygonNumber(); ++i)
+    for (int_max i = 0; i < CellNumber; ++i)
     {
         DenseVector<int_max>& Polygon_i = Polygon[i];
 
@@ -1393,7 +1397,7 @@ PolygonMesh<ScalarType> LoadPolygonMeshFromJsonDataFile(const CharString& FilePa
 
     //--------------------------------------------------------------------------
 
-    OutputMesh.Construct(std::move(Vertex), std::move(Polygon));
+    OutputMesh.Construct(Vertex, Polygon);
 
     return OutputMesh;
 }
@@ -1407,7 +1411,7 @@ bool SavePolygonMeshAsVTKFile(const PolygonMesh<ScalarType>& InputMesh, const Ch
     auto writer = vtkSmartPointer<vtkPolyDataWriter>::New();
     writer->SetFileName(FilePathAndName.StdString().c_str());
     writer->SetInputData(VTKMesh);
-
+    
     try
     {
         writer->Write();
