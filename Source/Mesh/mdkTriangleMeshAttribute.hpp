@@ -4,38 +4,38 @@
 namespace mdk
 {
 
-//============================================== VertexAttribute_Of_TriangleMesh ===========================================//
+//============================================== PointAttribute_Of_TriangleMesh ===========================================//
 
 template<typename ScalarType>
-VertexAttribute_Of_TriangleMesh<ScalarType>::VertexAttribute_Of_TriangleMesh()
+PointAttribute_Of_TriangleMesh<ScalarType>::PointAttribute_Of_TriangleMesh()
 {
-    m_Data = std::make_unique<Data_Of_VertexAttribute_Of_TriangleMesh<ScalarType>>();
+    m_Data = std::make_unique<Data_Of_PointAttribute_Of_TriangleMesh<ScalarType>>();
 }
 
 template<typename ScalarType>
-VertexAttribute_Of_TriangleMesh<ScalarType>::VertexAttribute_Of_TriangleMesh(const VertexAttribute_Of_TriangleMesh& InputAttribute)
+PointAttribute_Of_TriangleMesh<ScalarType>::PointAttribute_Of_TriangleMesh(const PointAttribute_Of_TriangleMesh& InputAttribute)
 {
-    m_Data = std::make_unique<Data_Of_VertexAttribute_Of_TriangleMesh<ScalarType>>();
+    m_Data = std::make_unique<Data_Of_PointAttribute_Of_TriangleMesh<ScalarType>>();
     (*this) = InputAttribute;
 }
 
 template<typename ScalarType>
-VertexAttribute_Of_TriangleMesh<ScalarType>::VertexAttribute_Of_TriangleMesh(VertexAttribute_Of_TriangleMesh&& InputAttribute)
+PointAttribute_Of_TriangleMesh<ScalarType>::PointAttribute_Of_TriangleMesh(PointAttribute_Of_TriangleMesh&& InputAttribute)
 {
     m_Data = std::move(InputAttribute.m_Data);
 }
 
 template<typename ScalarType>
-VertexAttribute_Of_TriangleMesh<ScalarType>::~VertexAttribute_Of_TriangleMesh()
+PointAttribute_Of_TriangleMesh<ScalarType>::~PointAttribute_Of_TriangleMesh()
 {
 }
 
 template<typename ScalarType>
-void VertexAttribute_Of_TriangleMesh<ScalarType>::operator=(const VertexAttribute_Of_TriangleMesh<ScalarType>& InputAttribute)
+void PointAttribute_Of_TriangleMesh<ScalarType>::operator=(const PointAttribute_Of_TriangleMesh<ScalarType>& InputAttribute)
 {
     if (!m_Data)
     {
-        m_Data = std::make_unique<Data_Of_VertexAttribute_Of_TriangleMesh<ScalarType>>();
+        m_Data = std::make_unique<Data_Of_PointAttribute_Of_TriangleMesh<ScalarType>>();
     }
 
     m_Data->MeanCurvature = InputAttribute.m_Data->MeanCurvature;
@@ -43,7 +43,7 @@ void VertexAttribute_Of_TriangleMesh<ScalarType>::operator=(const VertexAttribut
 }
 
 template<typename ScalarType>
-void VertexAttribute_Of_TriangleMesh<ScalarType>::operator=(VertexAttribute_Of_TriangleMesh<ScalarType>&& InputAttribute)
+void PointAttribute_Of_TriangleMesh<ScalarType>::operator=(PointAttribute_Of_TriangleMesh<ScalarType>&& InputAttribute)
 {
     m_Data = std::move(InputAttribute.m_Data);
 }

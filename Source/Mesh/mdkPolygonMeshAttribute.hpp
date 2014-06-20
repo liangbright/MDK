@@ -4,38 +4,38 @@
 namespace mdk
 {
 
-//============================================== VertexAttribute_Of_PolygonMesh ===========================================//
+//============================================== PointAttributeType_Of_PolygonMesh ===========================================//
 
 template<typename ScalarType>
-VertexAttribute_Of_PolygonMesh<ScalarType>::VertexAttribute_Of_PolygonMesh()
+PointAttributeType_Of_PolygonMesh<ScalarType>::PointAttributeType_Of_PolygonMesh()
 {
-    m_Data = std::make_unique<Data_Of_VertexAttribute_Of_PolygonMesh<ScalarType>>();
+    m_Data = std::make_unique<Data_Of_PointAttributeType_Of_PolygonMesh<ScalarType>>();
 }
 
 template<typename ScalarType>
-VertexAttribute_Of_PolygonMesh<ScalarType>::VertexAttribute_Of_PolygonMesh(const VertexAttribute_Of_PolygonMesh& InputAttribute)
+PointAttributeType_Of_PolygonMesh<ScalarType>::PointAttributeType_Of_PolygonMesh(const PointAttributeType_Of_PolygonMesh& InputAttribute)
 {
-    m_Data = std::make_unique<Data_Of_VertexAttribute_Of_PolygonMesh<ScalarType>>();
+    m_Data = std::make_unique<Data_Of_PointAttributeType_Of_PolygonMesh<ScalarType>>();
     (*this) = InputAttribute;
 }
 
 template<typename ScalarType>
-VertexAttribute_Of_PolygonMesh<ScalarType>::VertexAttribute_Of_PolygonMesh(VertexAttribute_Of_PolygonMesh&& InputAttribute)
+PointAttributeType_Of_PolygonMesh<ScalarType>::PointAttributeType_Of_PolygonMesh(PointAttributeType_Of_PolygonMesh&& InputAttribute)
 {
     m_Data = std::move(InputAttribute.m_Data);
 }
 
 template<typename ScalarType>
-VertexAttribute_Of_PolygonMesh<ScalarType>::~VertexAttribute_Of_PolygonMesh()
+PointAttributeType_Of_PolygonMesh<ScalarType>::~PointAttributeType_Of_PolygonMesh()
 {
 }
 
 template<typename ScalarType>
-void VertexAttribute_Of_PolygonMesh<ScalarType>::operator=(const VertexAttribute_Of_PolygonMesh<ScalarType>& InputAttribute)
+void PointAttributeType_Of_PolygonMesh<ScalarType>::operator=(const PointAttributeType_Of_PolygonMesh<ScalarType>& InputAttribute)
 {
     if (!m_Data)
     {
-        m_Data = std::make_unique<Data_Of_VertexAttribute_Of_PolygonMesh<ScalarType>>();
+        m_Data = std::make_unique<Data_Of_PointAttributeType_Of_PolygonMesh<ScalarType>>();
     }
 
     m_Data->MeanCurvature = InputAttribute.m_Data->MeanCurvature;
@@ -43,7 +43,7 @@ void VertexAttribute_Of_PolygonMesh<ScalarType>::operator=(const VertexAttribute
 }
 
 template<typename ScalarType>
-void VertexAttribute_Of_PolygonMesh<ScalarType>::operator=(VertexAttribute_Of_PolygonMesh<ScalarType>&& InputAttribute)
+void PointAttributeType_Of_PolygonMesh<ScalarType>::operator=(PointAttributeType_Of_PolygonMesh<ScalarType>&& InputAttribute)
 {
     m_Data = std::move(InputAttribute.m_Data);
 }

@@ -171,22 +171,12 @@ bool TriangleMesh<MeshAttributeType>::IsEmpty() const
     return this->PolygonMesh::IsEmpty();
 }
 
-
 template<typename MeshAttributeType>
 inline 
-int_max TriangleMesh<MeshAttributeType>::GetVertexNumber() const
+int_max TriangleMesh<MeshAttributeType>::GetPointNumber() const
 {
-    return this->PolygonMesh::GetVertexNumber();
+    return this->PolygonMesh::GetPointNumber();
 }
-
-
-template<typename MeshAttributeType>
-inline
-int_max TriangleMesh<MeshAttributeType>::GetCellNumber() const
-{
-    return this->PolygonMesh::GetCellNumber();
-}
-
 
 template<typename MeshAttributeType>
 inline 
@@ -195,50 +185,56 @@ int_max TriangleMesh<MeshAttributeType>::GetEdgeNumber() const
     return this->PolygonMesh::GetEdgeNumber();
 }
 
+template<typename MeshAttributeType>
+inline
+int_max TriangleMesh<MeshAttributeType>::GetCellNumber() const
+{
+    return this->PolygonMesh::GetCellNumber();
+}
 //------------------------- Mesh 3D Position --------------------------------------
 
 template<typename MeshAttributeType>
 inline
 void TriangleMesh<MeshAttributeType>::
-SetVertexPosition(const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList,
-                  const DenseMatrix<typename MeshAttributeType::ScalarType>& VertexPositionMatrix)
+SetPointPosition(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList,
+                  const DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix)
 {
-    return this->PolygonMesh::SetVertexPostion(VertexHandleList, VertexPositionMatrix);
+    return this->PolygonMesh::SetPointPostion(PointHandleList, PointPositionMatrix);
 }
 
 template<typename MeshAttributeType>
 inline
 DenseMatrix<typename MeshAttributeType::ScalarType>
-TriangleMesh<MeshAttributeType>::GetVertexPosition(const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList) const
+TriangleMesh<MeshAttributeType>::GetPointPosition(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList) const
 {
-    return this->PolygonMesh::GetVertexPosition(VertexHandleList);
+    return this->PolygonMesh::GetPointPosition(PointHandleList);
 }
 
 template<typename MeshAttributeType>
 inline
 void TriangleMesh<MeshAttributeType>::
-GetVertexPosition(DenseMatrix<typename MeshAttributeType::ScalarType>& VertexPositionMatrix,
-                  const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList) const
+GetPointPosition(DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix,
+                  const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList) const
 {
-    this->PolygonMesh::GetVertexPosition(VertexPositionMatrix, VertexHandleList);
+    this->PolygonMesh::GetPointPosition(PointPositionMatrix, PointHandleList);
 }
 
 //------------------------- Mesh Element ----------------------------------------------
 
 template<typename MeshAttributeType>
 inline
-Vertex_Of_SurfaceMesh<MeshAttributeType>&
-TriangleMesh<MeshAttributeType>::Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle)
+Point_Of_SurfaceMesh<MeshAttributeType>&
+TriangleMesh<MeshAttributeType>::Point(Handle_Of_Point_Of_SurfaceMesh PointHandle)
 {
-    return this->PolygonMesh::Vertex(VertexHandle);
+    return this->PolygonMesh::Point(PointHandle);
 }
 
 template<typename MeshAttributeType>
 inline
-const Vertex_Of_SurfaceMesh<MeshAttributeType>&
-TriangleMesh<MeshAttributeType>::Vertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle) const
+const Point_Of_SurfaceMesh<MeshAttributeType>&
+TriangleMesh<MeshAttributeType>::Point(Handle_Of_Point_Of_SurfaceMesh PointHandle) const
 {
-    return this->PolygonMesh::Vertex(VertexHandle);
+    return this->PolygonMesh::Point(PointHandle);
 }
 
 template<typename MeshAttributeType>
@@ -289,13 +285,71 @@ TriangleMesh<MeshAttributeType>::Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle) 
     return this->PolygonMesh::Cell(CellHandle);
 }
 
+//--------- get HandleList ------------------------------------------------------------//
+
+template<typename MeshAttributeType>
+inline
+DenseVector<Handle_Of_Point_Of_SurfaceMesh> TriangleMesh<MeshAttributeType>::GetPointHandleList() const
+{
+    return this->PolygonMesh::GetPointHandleList();
+}
+
+template<typename MeshAttributeType>
+inline
+void TriangleMesh<MeshAttributeType>::GetPointHandleList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputHandleList) const
+{
+    this->PolygonMesh::GetPointHandleList(OutputHandleList);
+}
+
+template<typename MeshAttributeType>
+inline
+DenseVector<Handle_Of_Edge_Of_SurfaceMesh> TriangleMesh<MeshAttributeType>::GetEdgeHandleList() const
+{
+    return this->PolygonMesh::GetEdgeHandleList()
+}
+
+template<typename MeshAttributeType>
+inline
+void TriangleMesh<MeshAttributeType>::GetEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const
+{
+    this->PolygonMesh::GetEdgeHandleList(OutputHandleList);
+}
+
+template<typename MeshAttributeType>
+inline
+DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> TriangleMesh<MeshAttributeType>::GetDirectedEdgeHandleList() const
+{
+    return this->PolygonMesh::GetDirectedEdgeHandleList();
+}
+
+template<typename MeshAttributeType>
+inline
+void TriangleMesh<MeshAttributeType>::GetDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const
+{
+    this->PolygonMesh::GetDirectedEdgeHandleList(OutputHandleList);
+}
+
+template<typename MeshAttributeType>
+inline
+DenseVector<Handle_Of_Cell_Of_SurfaceMesh> TriangleMesh<MeshAttributeType>::GetCellHandleList() const
+{
+    return this->PolygonMesh::GetCellHandleList();
+}
+
+template<typename MeshAttributeType>
+inline
+void TriangleMesh<MeshAttributeType>::GetCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const
+{
+    this->PolygonMesh::GetCellHandleList(OutputHandleList);
+}
+
 //------------- Iterator --------------------------------------------------------------//
 
 template<typename MeshAttributeType>
 inline
-Iterator_Of_Vertex_Of_SurfaceMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetIteratorOfVertex() const
+Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetIteratorOfPoint() const
 {
-    return this->PolygonMesh::GetIteratorOfVertex();
+    return this->PolygonMesh::GetIteratorOfPoint();
 }
 
 template<typename MeshAttributeType>
@@ -323,9 +377,9 @@ Handle_Of_DirectedEdge_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::GetDirect
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Vertex_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::GetVertexHandle(int_max VertexID) const
+Handle_Of_Point_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::GetPointHandle(int_max PointID) const
 {
-    return this->PolygonMesh::GetVertexHandle(VertexID);
+    return this->PolygonMesh::GetPointHandle(PointID);
 }
 
 template<typename MeshAttributeType>
@@ -349,33 +403,59 @@ Handle_Of_Cell_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::GetCellHandle(int
     return this->PolygonMesh::GetCellHandle(CellID);
 }
 
+//-------------- check handle -------------------------------------------------------//
+
+template<typename MeshAttributeType>
+bool TriangleMesh<MeshAttributeType>::IsValidHandle(Handle_Of_Point_Of_SurfaceMesh PointHandle) const
+{
+    return this->PolygonMesh::IsValidHandle(PointHandle);
+}
+
+template<typename MeshAttributeType>
+bool TriangleMesh<MeshAttributeType>::IsValidHandle(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle) const
+{
+    return this->PolygonMesh::IsValidHandle(EdgeHandle);
+}
+
+template<typename MeshAttributeType>
+bool TriangleMesh<MeshAttributeType>::IsValidHandle(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle) const
+{
+    return this->PolygonMesh::IsValidHandle(DirectedEdgeHandle);
+}
+
+template<typename MeshAttributeType>
+bool TriangleMesh<MeshAttributeType>::IsValidHandle(Handle_Of_Cell_Of_SurfaceMesh CellHandle) const
+{
+    return this->PolygonMesh::IsValidHandle(CellHandle);
+}
+
 // Add Mesh Item -------------------------------------------------------------------------//
 // add an item and return index (-1 if input is invalid)
 
 template<typename MeshAttributeType>
-Handle_Of_Vertex_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::AddVertex(typename MeshAttributeType::ScalarType Position[3])
+Handle_Of_Point_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::AddPoint(typename MeshAttributeType::ScalarType Position[3])
 {
-    return this->PolygonMesh::AddVertex(Position);
+    return this->PolygonMesh::AddPoint(Position);
 }
 
 template<typename MeshAttributeType>
-Handle_Of_Vertex_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::
-AddVertex(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z)
+Handle_Of_Point_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::
+AddPoint(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z)
 {
-    return this->PolygonMesh::AddVertex(x, y, z);
+    return this->PolygonMesh::AddPoint(x, y, z);
 }
 
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Vertex_Of_SurfaceMesh> TriangleMesh<MeshAttributeType>::AddVertex(const DenseMatrix<typename MeshAttributeType::ScalarType>& PointSet)
+DenseVector<Handle_Of_Point_Of_SurfaceMesh> TriangleMesh<MeshAttributeType>::AddPoint(const DenseMatrix<typename MeshAttributeType::ScalarType>& PointSet)
 {
-    return this->PolygonMesh::AddVertex(PointSet);
+    return this->PolygonMesh::AddPoint(PointSet);
 }
 
 template<typename MeshAttributeType>
 Handle_Of_Edge_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::
-AddEdge(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle0, Handle_Of_Vertex_Of_SurfaceMesh VertexHandle1)
+AddEdge(Handle_Of_Point_Of_SurfaceMesh PointHandle0, Handle_Of_Point_Of_SurfaceMesh PointHandle1)
 {
-    return this->PolygonMesh::AddEdge(VertexHandle0, VertexHandle1);
+    return this->PolygonMesh::AddEdge(PointHandle0, PointHandle1);
 }
 
 template<typename MeshAttributeType>
@@ -399,15 +479,15 @@ bool TriangleMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh E
 }
 
 template<typename MeshAttributeType>
-bool TriangleMesh<MeshAttributeType>::DeleteVertex(Handle_Of_Vertex_Of_SurfaceMesh VertexHandle)
+bool TriangleMesh<MeshAttributeType>::DeletePoint(Handle_Of_Point_Of_SurfaceMesh PointHandle)
 {
-    return this->PolygonMesh::DeleteVertex(VertexHandle);
+    return this->PolygonMesh::DeletePoint(PointHandle);
 }
 
 template<typename MeshAttributeType>
-bool TriangleMesh<MeshAttributeType>::DeleteVertex(const DenseVector<Handle_Of_Vertex_Of_SurfaceMesh>& VertexHandleList)
+bool TriangleMesh<MeshAttributeType>::DeletePoint(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList)
 {
-    return this->PolygonMesh::DeleteVertex(VertexHandleList);
+    return this->PolygonMesh::DeletePoint(PointHandleList);
 }
 
 
@@ -420,10 +500,10 @@ void TriangleMesh<MeshAttributeType>::CleanDataStructure()
 
 //------------ Construct from input data ------------------------------------//
 template<typename MeshAttributeType>
-bool TriangleMesh<MeshAttributeType>::Construct(const DenseMatrix<typename MeshAttributeType::ScalarType>& InputVertexPositionTable,
+bool TriangleMesh<MeshAttributeType>::Construct(const DenseMatrix<typename MeshAttributeType::ScalarType>& InputPointPositionTable,
                                                 const DataArray<DenseVector<int_max>>& InputCellTable)
 {
-    return this->PolygonMesh::Construct(InputVertexPositionTable, InputCellTable);
+    return this->PolygonMesh::Construct(InputPointPositionTable, InputCellTable);
 }
 
 
@@ -449,17 +529,26 @@ bool TriangleMesh<MeshAttributeType>::CheckIfTriangleMesh() const
 
 template<typename MeshAttributeType>
 inline
+std::pair<DenseMatrix<typename MeshAttributeType::ScalarType>, DataArray<DenseVector<int_max>>>
+TriangleMesh<MeshAttributeType>::GetPointPositionMatrixAndCellTable() const
+{
+    return this->PolygonMesh::GetPointPositionMatrixAndCellTable();
+}
+
+
+template<typename MeshAttributeType>
+inline
 void TriangleMesh<MeshAttributeType>::
-GetVertexPositionTableAndCellTable(DenseMatrix<typename MeshAttributeType::ScalarType>& VertexPositionTable,
+GetPointPositionMatrixAndCellTable(DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionTable,
                                    DataArray<DenseVector<int_max>>& CellTable) const
 {
-    this->PolygonMesh::GetVertexPositionTableAndCellTable(VertexPositionTable, CellTable);
+    this->PolygonMesh::GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
 }
 
 //-------------------------------------------------------------------
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateNormalAtVertex()
+void TriangleMesh<MeshAttributeType>::UpdateNormalAtPoint()
 {
 }
 

@@ -9,52 +9,49 @@ namespace mdk
 
 //----------------- forward declare ------------------//
 
-template<typename ScalarType>
+template<typename MeshAttribute>
 class PolygonMesh;
 
-template<typename ScalarType>
-struct Point_Of_PolygonMesh;
+template<typename MeshAttribute>
+class Point_Of_SurfaceMesh;
 
-template<typename ScalarType>
-class Vertex_Of_PolygonMesh;
+template<typename MeshAttribute>
+class Edge_Of_SurfaceMesh;
 
-template<typename ScalarType>
-class Edge_Of_PolygonMesh;
+template<typename MeshAttribute>
+class DirectedEdge_Of_SurfaceMesh;
 
-template<typename ScalarType>
-class DirectedEdge_Of_PolygonMesh;
-
-template<typename ScalarType>
-class Cell_Of_PolygonMesh;
+template<typename MeshAttribute>
+class Cell_Of_SurfaceMesh;
 //---------------------------------------------------//
 
-//============================================== VertexAttribute_Of_TriangleMesh ===========================================//
-enum class TriangleMeshVertexAttributeEnum
+//============================================== PointAttribute_Of_TriangleMesh ===========================================//
+enum class TriangleMeshPointAttributeTypeEnum
 {
     MeanCurvature,
     Normal
 };
 
 template<typename ScalarType>
-struct Data_Of_VertexAttribute_Of_TriangleMesh
+struct Data_Of_PointAttribute_Of_TriangleMesh
 {
     ScalarType MeanCurvature;
     DenseVector<ScalarType, 3> Normal;
 };
 
 template<typename ScalarType>
-class VertexAttribute_Of_TriangleMesh
+class PointAttribute_Of_TriangleMesh
 {
 private:
-    std::unique_ptr<Data_Of_VertexAttribute_Of_TriangleMesh<ScalarType>> m_Data;
+    std::unique_ptr<Data_Of_PointAttribute_Of_TriangleMesh<ScalarType>> m_Data;
 public:
-    VertexAttribute_Of_TriangleMesh();
-    VertexAttribute_Of_TriangleMesh(const VertexAttribute_Of_TriangleMesh& InputAttribute);
-    VertexAttribute_Of_TriangleMesh(VertexAttribute_Of_TriangleMesh&& InputAttribute);
-    ~VertexAttribute_Of_TriangleMesh();
+    PointAttribute_Of_TriangleMesh();
+    PointAttribute_Of_TriangleMesh(const PointAttribute_Of_TriangleMesh& InputAttribute);
+    PointAttribute_Of_TriangleMesh(PointAttribute_Of_TriangleMesh&& InputAttribute);
+    ~PointAttribute_Of_TriangleMesh();
 
-    void operator=(const VertexAttribute_Of_TriangleMesh& InputAttribute);
-    void operator=(VertexAttribute_Of_TriangleMesh&& InputAttribute);
+    void operator=(const PointAttribute_Of_TriangleMesh& InputAttribute);
+    void operator=(PointAttribute_Of_TriangleMesh&& InputAttribute);
 
 };
 

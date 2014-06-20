@@ -13,10 +13,7 @@ template<typename ScalarType>
 class PolygonMesh;
 
 template<typename ScalarType>
-struct Point_Of_PolygonMesh;
-
-template<typename ScalarType>
-class Vertex_Of_PolygonMesh;
+class Point_Of_PolygonMesh;
 
 template<typename ScalarType>
 class Edge_Of_PolygonMesh;
@@ -28,33 +25,33 @@ template<typename ScalarType>
 class Cell_Of_PolygonMesh;
 //---------------------------------------------------//
 
-//============================================== VertexAttribute_Of_PolygonMesh ===========================================//
-enum class PolygonMeshVertexAttributeEnum
+//============================================== PointAttributeType_Of_PolygonMesh ===========================================//
+enum class PolygonMeshPointAttributeTypeEnum
 {
     MeanCurvature,
     Normal
 };
 
 template<typename ScalarType>
-struct Data_Of_VertexAttribute_Of_PolygonMesh
+struct Data_Of_PointAttributeType_Of_PolygonMesh
 {
     ScalarType MeanCurvature;
     DenseVector<ScalarType, 3> Normal;
 };
 
 template<typename ScalarType>
-class VertexAttribute_Of_PolygonMesh
+class PointAttributeType_Of_PolygonMesh
 {
 private:
-    std::unique_ptr<Data_Of_VertexAttribute_Of_PolygonMesh<ScalarType>> m_Data;
+    std::unique_ptr<Data_Of_PointAttributeType_Of_PolygonMesh<ScalarType>> m_Data;
 public:
-    VertexAttribute_Of_PolygonMesh();
-    VertexAttribute_Of_PolygonMesh(const VertexAttribute_Of_PolygonMesh& InputAttribute);
-    VertexAttribute_Of_PolygonMesh(VertexAttribute_Of_PolygonMesh&& InputAttribute);
-    ~VertexAttribute_Of_PolygonMesh();
+    PointAttributeType_Of_PolygonMesh();
+    PointAttributeType_Of_PolygonMesh(const PointAttributeType_Of_PolygonMesh& InputAttribute);
+    PointAttributeType_Of_PolygonMesh(PointAttributeType_Of_PolygonMesh&& InputAttribute);
+    ~PointAttributeType_Of_PolygonMesh();
 
-    void operator=(const VertexAttribute_Of_PolygonMesh& InputAttribute);
-    void operator=(VertexAttribute_Of_PolygonMesh&& InputAttribute);
+    void operator=(const PointAttributeType_Of_PolygonMesh& InputAttribute);
+    void operator=(PointAttributeType_Of_PolygonMesh&& InputAttribute);
 
 };
 
