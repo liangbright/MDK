@@ -278,7 +278,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 
     DenseMatrix<ScalarType> PointPositionTable;
     DataArray<DenseVector<int_max>> CellTable;
-    InputMesh.GetPointPositionTableAndCellTable(PointPositionTable, CellTable);
+    InputMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
 
     if (ScalarTypeName == "double")
     {
@@ -425,7 +425,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
 
     DenseMatrix<ScalarType> PointPositionTable;
     DataArray<DenseVector<int_max>> CellTable;
-    InputMesh.GetPointPositionTableAndCellTable(PointPositionTable, CellTable);
+    InputMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
 
     if (ScalarTypeName == "double")
     {

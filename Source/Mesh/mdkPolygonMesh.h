@@ -58,9 +58,10 @@ public:
     typedef Handle_Of_DirectedEdge_Of_SurfaceMesh   DirectedEdgeHandleType;
     typedef Handle_Of_Cell_Of_SurfaceMesh           CellHandleType;
 
-    typedef Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType>     PointIteratorType;
-    typedef Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType>       EdgeIteratorType;
-    typedef Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>       CellIteratorType;
+    typedef Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType>         PointIteratorType;
+    typedef Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType>          EdgeIteratorType;
+    typedef Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttributeType>  DirectedEdgeIteratorType;
+    typedef Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>          CellIteratorType;
 
 protected:
     std::shared_ptr<PolygonMeshData<MeshAttributeType>> m_MeshData;
@@ -116,6 +117,12 @@ public:
     inline CellType& Cell(CellHandleType CellHandle);
     inline const CellType& Cell(CellHandleType CellHandle) const;
 
+    //-------------- check handle -------------------------------------------------------//
+    bool IsValidHandle(PointHandleType PointHandle) const;
+    bool IsValidHandle(EdgeHandleType EdgeHandle) const;
+    bool IsValidHandle(DirectedEdgeHandleType DirectedEdgeHandle) const;
+    bool IsValidHandle(CellHandleType CellHandle) const;
+
     //--------- get HandleList ------------------------------------------------------------//
     inline DenseVector<PointHandleType> GetPointHandleList() const;
     inline void GetPointHandleList(DenseVector<PointHandleType>& OutputHandleList) const;
@@ -129,25 +136,36 @@ public:
     inline DenseVector<CellHandleType> GetCellHandleList() const;
     inline void GetCellHandleList(DenseVector<CellHandleType>& OutputHandleList) const;
 
-    //------------- Iterator --------------------------------------------------------------//
-    inline PointIteratorType  GetIteratorOfPoint() const;
-    inline EdgeIteratorType   GetIteratorOfEdge() const;
-    inline CellIteratorType   GetIteratorOfCell() const;
-
-    // use this function and GetIteratorOfEdge as DirectedEdge Iterator
-    inline DirectedEdgeHandleType GetDirectedEdgeHandle(EdgeHandleType EdgeHandle, int_max RelativeIndex) const;
-
     // get handle by ID -----------------------------------------------------------------------//
     inline PointHandleType GetPointHandle(int_max PointID) const;
     inline EdgeHandleType   GetEdgeHandle(int_max EdgeID) const;
-    inline DirectedEdgeHandleType GetDirectedEdgeHandle(int_max EdgeID, int_max RelativeIndex) const;
+    inline DirectedEdgeHandleType GetDirectedEdgeHandle(int_max DirectedEdgeID) const;
     inline CellHandleType   GetCellHandle(int_max CellID) const;
 
-    //-------------- check handle -------------------------------------------------------//
-    bool IsValidHandle(PointHandleType PointHandle) const;
-    bool IsValidHandle(EdgeHandleType EdgeHandle) const;
-    bool IsValidHandle(DirectedEdgeHandleType DirectedEdgeHandle) const;
-    bool IsValidHandle(CellHandleType CellHandle) const;
+    //----------- get PointHandle by position ----------------------------------------------//
+    inline PointHandleType GetPointHandle(ScalarType Position[3]) const;
+    inline PointHandleType GetPointHandle(ScalarType x, ScalarType y, ScalarType z) const;
+
+    //----------- get EdgeHandle and DirectedEdgeHandle by PointHandleList ---------------------//
+    inline EdgeHandleType GetEdgeHandle(PointHandleType VertexPointHandle0, PointHandleType VertexPointHandle1) const;
+    inline EdgeHandleType GetEdgeHandle(const DenseVector<PointHandleType>& PointHandleList) const;
+    inline DirectedEdgeHandleType GetDirectedEdgeHandle(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
+
+    //----------- get CellHandle by EdgeHandleList ------------------------------------------//
+    inline CellHandleType GetCellHandle(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
+
+    //------------- Iterator --------------------------------------------------------------//
+    inline PointIteratorType  GetIteratorOfPoint();
+    inline const PointIteratorType  GetIteratorOfPoint() const;
+
+    inline EdgeIteratorType   GetIteratorOfEdge();
+    inline const EdgeIteratorType   GetIteratorOfEdge() const;
+
+    inline DirectedEdgeIteratorType   GetIteratorOfDirectedEdge();
+    inline const DirectedEdgeIteratorType   GetIteratorOfDirectedEdge() const;
+
+    inline CellIteratorType   GetIteratorOfCell();
+    inline const CellIteratorType   GetIteratorOfCell() const;
 
     // Add Mesh Item -------------------------------------------------------------------------//
     PointHandleType AddPoint(ScalarType Position[3]);

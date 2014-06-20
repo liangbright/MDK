@@ -820,7 +820,7 @@ bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& Input
     // get data --------------------------------------------------------------------
     DataArray<DenseVector<int_max>> CellData;
     DenseMatrix<ScalarType> PointData;
-    InputMesh.GetPointPositionTableAndCellTable(PointData, CellData);
+    InputMesh.GetPointPositionMatrixAndCellTable(PointData, CellData);
 
     // write point to data file  --------------------------------------------------
 
@@ -1134,7 +1134,7 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
     // get data --------------------------------------------------------------------
     DataArray<DenseVector<int_max>> CellData;
     DenseMatrix<ScalarType> PointData;
-    InputMesh.GetPointPositionTableAndCellTable(PointData, CellData);
+    InputMesh.GetPointPositionMatrixAndCellTable(PointData, CellData);
 
     // write point to data file  --------------------------------------------------
 

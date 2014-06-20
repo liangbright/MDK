@@ -44,6 +44,7 @@ void Point_Of_SurfaceMesh<MeshAttributeType>::operator=(const Point_Of_SurfaceMe
     this->Create();
     m_Data->Mesh.ForceShare(InputPoint.m_Data->Mesh);
     m_Data->Index = InputPoint.m_Data->Index; 
+    m_Data->ID = InputPoint.m_Data->ID;
     m_Data->AdjacentPointIndexList = InputPoint.m_Data->AdjacentPointIndexList;
     m_Data->AdjacentEdgeIndexList = InputPoint.m_Data->AdjacentEdgeIndexList;
     m_Data->OutgoingDirectedEdgeIndexList = InputPoint.m_Data->OutgoingDirectedEdgeIndexList;
@@ -67,6 +68,7 @@ void Point_Of_SurfaceMesh<MeshAttributeType>::Create()
     {
         m_Data = std::make_unique<Data_Of_Point_Of_SurfaceMesh<MeshAttributeType>>();
         m_Data->Index = -1;
+        m_Data->ID = -1;
     }
 }
 
@@ -215,7 +217,7 @@ void Point_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max PointID)
     }
 
     // check record
-    auto PointID_old = m_Data->Mesh.m_MeshData->PointIDList[m_Data->Index];
+    auto PointID_old = m_Data->ID;
     if (PointID_old != PointID)
     {
         auto it = m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.find(PointID);
@@ -230,14 +232,9 @@ void Point_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max PointID)
         {
             m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.erase(it);
         }
-        else
-        {
-            MDK_Error("Map_PointID_to_PointIndex is invalid @ Point_Of_SurfaceMesh::SetID(...)")
-            return;
-        }
 
         m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex[PointID] = m_Data->Index;
-        m_Data->Mesh.m_MeshData->PointIDList[m_Data->Index] = PointID;
+        m_Data->ID = PointID;
     }
 }
 
@@ -245,7 +242,7 @@ template<typename MeshAttributeType>
 inline
 int_max Point_Of_SurfaceMesh<MeshAttributeType>::GetID() const
 {
-    return m_Data->Mesh.m_MeshData->PointIDList[m_Data->Index];
+    return m_Data->ID;
 }
 
 template<typename MeshAttributeType>
@@ -264,7 +261,7 @@ void Point_Of_SurfaceMesh<MeshAttributeType>::SetPosition(typename MeshAttribute
 
 template<typename MeshAttributeType>
 inline
-DenseVector<ScalarType, 3> Point_Of_SurfaceMesh<MeshAttributeType>::GetPosition() const
+DenseVector<typename MeshAttributeType::ScalarType, 3> Point_Of_SurfaceMesh<MeshAttributeType>::GetPosition() const
 {
     DenseVector<ScalarType, 3> Pos;
     this->GetPosition(Pos.GetPointer());
@@ -443,6 +440,8 @@ void Edge_Of_SurfaceMesh<MeshAttributeType>::operator=(const Edge_Of_SurfaceMesh
 
     this->Create();
     m_Data->Mesh.ForceShare(InputEdge.m_Data->Mesh);
+    m_Data->Index = InputEdge.m_Data->Index;
+    m_Data->ID = InputEdge.m_Data->ID;
     m_Data->VertexPointIndex0 = InputEdge.m_Data->VertexPointIndex0;
     m_Data->VertexPointIndex1 = InputEdge.m_Data->VertexPointIndex1;
     m_Data->PointIndexList = InputEdge.m_Data->PointIndexList;
@@ -463,6 +462,8 @@ void Edge_Of_SurfaceMesh<MeshAttributeType>::Create()
     if (!m_Data)
     {
         m_Data = std::make_unique<Data_Of_Edge_Of_SurfaceMesh<MeshAttributeType>>();
+        m_Data->Index = -1;
+        m_Data->ID = -1;
         m_Data->VertexPointIndex0 = -1;
         m_Data->VertexPointIndex1 = -1;
     }    
@@ -500,7 +501,7 @@ template<typename MeshAttributeType>
 inline
 void Edge_Of_SurfaceMesh<MeshAttributeType>::SetVertexPointIndexList(const int_max VertexPointIndexList[2])
 {
-    this->SetVertexIndexList(VertexPointIndexList[0], VertexPointIndexList[1]);
+    this->SetVertexPointIndexList(VertexPointIndexList[0], VertexPointIndexList[1]);
 }
 
 template<typename MeshAttributeType>
@@ -530,6 +531,113 @@ template<typename MeshAttributeType>
 inline DenseVector<int_max>& Edge_Of_SurfaceMesh<MeshAttributeType>::PointIndexList()
 {
     return m_Data->PointIndexList;
+}
+
+template<typename MeshAttributeType>
+inline 
+DenseVector<int_max> Edge_Of_SurfaceMesh<MeshAttributeType>::GetAdjacentEdgeIndexList() const
+{
+    DenseVector<int_max> OutputIndexList;
+    this->GetAdjacentEdgeIndexList(OutputIndexList);
+    return OutputIndexList;
+}
+
+template<typename MeshAttributeType>
+inline
+void Edge_Of_SurfaceMesh<MeshAttributeType>::GetAdjacentEdgeIndexList(DenseVector<int_max>& OutputIndexList) const
+{
+    const auto& AdjacentEdgeIndexList0 = m_Data->Mesh.m_MeshData->VertexList[m_Data->VertexPointIndex0].GetAdjacentEdgeIndexList();
+    const auto& AdjacentEdgeIndexList1 = m_Data->Mesh.m_MeshData->VertexList[m_Data->VertexPointIndex1].GetAdjacentEdgeIndexList();
+
+    OutputIndexList.FastResize(0);
+    OutputIndexList.ReserveCapacity(AdjacentEdgeIndexList0.GetLength() + AdjacentEdgeIndexList1.GetLength() - 2);
+
+    Handle_Of_Edge_Of_SurfaceMesh EdgeHandle;
+
+    for (int_max k = 0; k < AdjacentEdgeIndexList0.GetLength(); ++k)
+    {
+        auto tempIndex = AdjacentEdgeIndexList0[k];
+        if (tempIndex != m_Data->Index)
+        {
+            OutputIndexList.Append(tempIndex);
+        }
+    }
+
+    for (int_max k = 0; k < AdjacentEdgeIndexList1.GetLength(); ++k)
+    {
+        auto tempIndex = AdjacentEdgeIndexList1[k];
+        if (tempIndex != m_Data->Index)
+        {
+            OutputIndexList.Append(tempIndex);
+        }
+    }
+}
+
+// Cell share this edge
+template<typename MeshAttributeType>
+inline
+DenseVector<int_max> Edge_Of_SurfaceMesh<MeshAttributeType>::GetAdjacentCellIndexList() const
+{
+    DenseVector<int_max> OutputIndexList;
+    this->GetAdjacentCellIndexList(OutputIndexList);
+    return OutputIndexList;
+}
+
+template<typename MeshAttributeType>
+inline 
+void Edge_Of_SurfaceMesh<MeshAttributeType>::GetAdjacentCellIndexList(DenseVector<int_max>& OutputIndexList) const
+{
+    OutputIndexList.FastResize(0);
+    OutputIndexList.ReserveCapacity(2);
+
+    if (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][0].IsValid() == true)
+    {
+        OutputIndexList.Append(m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][0].GetCellIndex());
+    }
+    else if (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][1].IsValid() == true)
+    {
+        OutputIndexList.Append(m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][1].GetCellIndex());
+    }
+}
+
+// Cell share any vertex point of this edge
+template<typename MeshAttributeType>
+inline
+DenseVector<int_max> Edge_Of_SurfaceMesh<MeshAttributeType>::GetNeighbourCellIndexList() const
+{
+    DenseVector<int_max> OutputIndexList;
+    this->GetNeighbourCellIndexList(OutputIndexList);
+    return OutputIndexList;
+}
+
+template<typename MeshAttributeType>
+inline 
+void Edge_Of_SurfaceMesh<MeshAttributeType>::GetNeighbourCellIndexList(DenseVector<int_max>& OutputIndexList) const
+{
+    const auto& AdjacentCellIndexList0 = m_Data->Mesh.m_MeshData->VertexList[m_Data->VertexPointIndex0].GetAdjacentCellIndexList();
+    const auto& AdjacentCellIndexList1 = m_Data->Mesh.m_MeshData->VertexList[m_Data->VertexPointIndex0].GetAdjacentCellIndexList();
+
+    OutputIndexList.FastResize(0);
+
+    if (AdjacentCellIndexList0.IsEmpty() == true && AdjacentCellIndexList1.IsEmpty() == true)
+    {
+        return;
+    }
+
+    OutputIndexList.ReserveCapacity(AdjacentCellIndexList0.GetLength() + AdjacentCellIndexList1.GetLength());
+
+    for (int_max k = 0; k < AdjacentCellIndexList0.GetLength(); ++k)
+    {
+        OutputIndexList.Append(AdjacentCellIndexList0[k]);
+    }
+
+    for (int_max k = 0; k < AdjacentCellIndexList1.GetLength(); ++k)
+    {
+        OutputIndexList.Append(AdjacentCellIndexList1[k]);
+    }
+
+    auto tempIndexList = OutputIndexList.FindUnique();
+    OutputIndexList = OutputIndexList.GetSubSet(tempIndexList);
 }
 
 template<typename MeshAttributeType>
@@ -602,7 +710,7 @@ void Edge_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max EdgeID)
     }
 
     // check record
-    auto EdgeID_old = m_Data->Mesh.m_MeshData->EdgeIDList[m_Data->Index];
+    auto EdgeID_old = m_Data->ID;
     if (EdgeID_old != EdgeID)
     {
         auto it = m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.find(EdgeID);
@@ -617,14 +725,9 @@ void Edge_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max EdgeID)
         {
             m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.erase(it);
         }
-        else
-        {
-            MDK_Error("Map_EdgeID_to_EdgeIndex is invalid @ Edge_Of_SurfaceMesh::SetID(...)")
-            return;
-        }
 
         m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex[EdgeID] = m_Data->Index;
-        m_Data->Mesh.m_MeshData->EdgeIDList[m_Data->Index] = EdgeID;
+        m_Data->ID = EdgeID;
     }
 }
 
@@ -632,7 +735,7 @@ template<typename MeshAttributeType>
 inline
 int_max Edge_Of_SurfaceMesh<MeshAttributeType>::GetID() const
 {
-    return m_Data->Mesh.m_MeshData->EdgeIDList[m_Data->Index];
+    return m_Data->ID;
 }
 
 template<typename MeshAttributeType>
@@ -783,7 +886,7 @@ void Edge_Of_SurfaceMesh<MeshAttributeType>::GetNeighbourCellHandleList(DenseVec
     const auto& AdjacentCellIndexList0 = m_Data->Mesh.m_MeshData->VertexList[m_Data->VertexPointIndex0].GetAdjacentCellIndexList();
     const auto& AdjacentCellIndexList1 = m_Data->Mesh.m_MeshData->VertexList[m_Data->VertexPointIndex0].GetAdjacentCellIndexList();
 
-    OutputIndexList.FastResize(0);
+    OutputHandleList.FastResize(0);
 
     if (AdjacentCellIndexList0.IsEmpty() == true && AdjacentCellIndexList1.IsEmpty() == true)
     {
@@ -864,6 +967,7 @@ void DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::operator=(const DirectedEdg
     this->Create();
     m_Data->Mesh.ForceShare(InputDirectedEdge.m_Data->Mesh);
     m_Data->Index = InputDirectedEdge.m_Data->Index;
+    m_Data->ID = InputDirectedEdge.m_Data->ID;
     m_Data->CellIndex = InputDirectedEdge.m_Data->CellIndex;
     m_Data->PointIndex_start = InputDirectedEdge.m_Data->PointIndex_start;
     m_Data->PointIndex_end = InputDirectedEdge.m_Data->PointIndex_end;
@@ -887,6 +991,7 @@ void DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::Create()
     {
         m_Data = std::make_unique<Data_Of_DirectedEdge_Of_SurfaceMesh<MeshAttributeType>>();
         
+        m_Data->ID = -1;
         m_Data->Index.EdgeIndex = -1;
         m_Data->Index.RelativeIndex = -1;
         m_Data->CellIndex = -1;
@@ -1184,17 +1289,41 @@ Handle_Of_Edge_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::Ge
 
 template<typename MeshAttributeType>
 inline
-int_max DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::GetEdgeID() const
+void DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max DirectedEdgeID)
 {
-    auto EdgeIndex = m_Data->Index.EdgeIndex;
-    return m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex].GetID() :
+    if (DirectedEdgeID < 0)
+    {
+        MDK_Error("DirectedEdgeID < 0 @ DirectedEdge_Of_SurfaceMesh::SetID(...)")
+        return;
+    }
+
+    // check record
+    auto DirectedEdgeID_old = m_Data->ID;
+    if (DirectedEdgeID_old != DirectedEdgeID)
+    {
+        auto it = m_Data->Mesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.find(DirectedEdgeID);
+        if (it != m_Data->Mesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.end())
+        {
+            MDK_Error("Input DirectedEdgeID has already been used for another edge @ DirectedEdge_Of_SurfaceMesh::SetID(...)")
+            return;
+        }
+
+        it = m_Data->Mesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.find(DirectedEdgeID_old);
+        if (it != m_Data->Mesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.end())
+        {
+            m_Data->Mesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.erase(it);
+        }
+
+        m_Data->Mesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex[DirectedEdgeID] = m_Data->Index;
+        m_Data->ID = DirectedEdgeID;
+    }
 }
 
 template<typename MeshAttributeType>
 inline
-int_max DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::GetRelativeIndex() const
+int_max DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::GetID() const
 {
-    return m_Data->Index.RelativeIndex;
+    return m_Data->ID;
 }
 
 template<typename MeshAttributeType>
@@ -1590,14 +1719,14 @@ void Cell_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max CellID)
     }
 
     // check record
-    auto CellID_old = m_Data->Mesh.m_MeshData->CellIDList[m_Data->Index];
+    auto CellID_old = m_Data->ID;
     if (CellID_old != CellID)
     {
         auto it = m_Data->Mesh.m_MeshData->Map_CellID_to_CellIndex.find(CellID);
         if (it != m_Data->Mesh.m_MeshData->Map_CellID_to_CellIndex.end())
         {
             MDK_Error("Input CellID has already been used for another cell @ Cell_Of_SurfaceMesh::SetID(...)")
-                return;
+            return;
         }
 
         it = m_Data->Mesh.m_MeshData->Map_CellID_to_CellIndex.find(CellID_old);
@@ -1605,14 +1734,9 @@ void Cell_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max CellID)
         {
             m_Data->Mesh.m_MeshData->Map_CellID_to_CellIndex.erase(it);
         }
-        else
-        {
-            MDK_Error("Map_CellID_to_CellIndex is invalid @ Cell_Of_SurfaceMesh::SetID(...)")
-            return;
-        }
 
         m_Data->Mesh.m_MeshData->Map_CellID_to_CellIndex[CellID] = m_Data->Index;
-        m_Data->Mesh.m_MeshData->CellIDList[m_Data->Index] = CellID;
+        m_Data->ID = CellID;
     }
 }
 
@@ -1620,7 +1744,7 @@ template<typename MeshAttributeType>
 inline 
 int_max Cell_Of_SurfaceMesh<MeshAttributeType>::GetID() const
 {
-    return m_Data->Mesh.m_MeshData->CellIDList[m_Data->Index];
+    return m_Data->ID;
 }
 
 template<typename MeshAttributeType>

@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include "mdkSurfaceMeshItem.h"
-#include "mdkSurfaceMeshIterator.h"
+#include "mdkSurfaceMeshItemIterator.h"
 
 namespace mdk
 {
@@ -15,15 +15,6 @@ struct SurfaceMeshData
     //-------------------------------------------------------------------------------------------//
     typedef typename MeshAttributeType::ScalarType  ScalarType;
     //-------------------------------------------------------------------------------------------//
-
-    // Attention: ID must >= 0
-    DenseVector<int_max> PointIDList;  // Length = Length of PointList
-    DenseVector<int_max> EdgeIDList;   // Length = Length of EdgeList
-    DenseVector<int_max> CellIDList;   // Length = Length of CellList
-
-    std::unordered_map<int_max, int_max> Map_PointID_to_PointIndex;
-    std::unordered_map<int_max, int_max> Map_EdgeID_to_EdgeIndex;
-    std::unordered_map<int_max, int_max> Map_CellID_to_CellIndex;
 
     DenseMatrix<ScalarType> PointPositionTable;
     // row_0: x
@@ -50,6 +41,12 @@ struct SurfaceMeshData
     DenseVector<int_max>  CellValidityFlagList;
     // 1: Cell is an element of the mesh 
     // 0: Cell is deleted
+
+    // Attention: ID must >= 0
+    std::unordered_map<int_max, int_max> Map_PointID_to_PointIndex;
+    std::unordered_map<int_max, int_max> Map_EdgeID_to_EdgeIndex;
+    std::unordered_map<int_max, DirectedEdgeIndex_Of_SurfaceMesh> Map_DirectedEdgeID_to_DirectedEdgeIndex;
+    std::unordered_map<int_max, int_max> Map_CellID_to_CellIndex;
 };
 
 
@@ -76,9 +73,10 @@ public:
     typedef Handle_Of_DirectedEdge_Of_SurfaceMesh   DirectedEdgeHandleType;
     typedef Handle_Of_Cell_Of_SurfaceMesh           CellHandleType;
 
-    typedef Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType>      PointIteratorType;
-    typedef Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType>       EdgeIteratorType;
-    typedef Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>       CellIteratorType;
+    typedef Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType>           PointIteratorType;
+    typedef Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType>            EdgeIteratorType;
+    typedef Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttributeType>    DirectedEdgeIteratorType;
+    typedef Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>            CellIteratorType;
     //--------------------------------------------------------------------------------------------------//
 private:
     std::shared_ptr<SurfaceMeshData<MeshAttributeType>> m_MeshData;
@@ -161,6 +159,12 @@ public:
     inline CellType& Cell(CellHandleType CellHandle);
     inline const CellType& Cell(CellHandleType CellHandle) const;
 
+    //-------------- check handle -------------------------------------------------------//
+    bool IsValidHandle(PointHandleType PointHandle) const;
+    bool IsValidHandle(EdgeHandleType EdgeHandle) const;
+    bool IsValidHandle(DirectedEdgeHandleType DirectedEdgeHandle) const;
+    bool IsValidHandle(CellHandleType CellHandle) const;
+
     //--------- get HandleList ------------------------------------------------------------//
 
     inline DenseVector<PointHandleType> GetPointHandleList() const;
@@ -175,26 +179,37 @@ public:
     inline DenseVector<CellHandleType> GetCellHandleList() const;
     inline void GetCellHandleList(DenseVector<CellHandleType>& OutputHandleList) const;
 
-    //------------- Iterator --------------------------------------------------------------//
-
-    inline PointIteratorType  GetIteratorOfPoint() const;
-    inline EdgeIteratorType   GetIteratorOfEdge() const;
-    inline CellIteratorType   GetIteratorOfCell() const;
-
-    // use this function and GetIteratorOfEdge as DirectedEdge Iterator
-    inline DirectedEdgeHandleType GetDirectedEdgeHandle(EdgeHandleType EdgeHandle, int_max RelativeIndex) const;
-
     //----------- get handle by ID -----------------------------------------------------------//
     inline PointHandleType  GetPointHandle(int_max PointID) const;
     inline EdgeHandleType   GetEdgeHandle(int_max EdgeID) const;
-    inline DirectedEdgeHandleType GetDirectedEdgeHandle(int_max EdgeID, int_max RelativeIndex) const;
+    inline DirectedEdgeHandleType GetDirectedEdgeHandle(int_max DirectedEdgeID) const;
     inline CellHandleType   GetCellHandle(int_max CellID) const;
 
-    //-------------- check handle -------------------------------------------------------//
-    bool IsValidHandle(PointHandleType PointHandle) const;
-    bool IsValidHandle(EdgeHandleType EdgeHandle) const;
-    bool IsValidHandle(DirectedEdgeHandleType DirectedEdgeHandle) const;
-    bool IsValidHandle(CellHandleType CellHandle) const;
+    //----------- get PointHandle by position ----------------------------------------------//
+    inline PointHandleType GetPointHandle(ScalarType Position[3]) const;
+    inline PointHandleType GetPointHandle(ScalarType x, ScalarType y, ScalarType z) const;
+
+    //----------- get EdgeHandle and DirectedEdgeHandle by PointHandleList ---------------------//
+    inline EdgeHandleType GetEdgeHandle(PointHandleType VertexPointHandle0, PointHandleType VertexPointHandle1) const;
+    inline EdgeHandleType GetEdgeHandle(const DenseVector<PointHandleType>& PointHandleList) const;
+    inline DirectedEdgeHandleType GetDirectedEdgeHandle(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
+    
+    //----------- get CellHandle by EdgeHandleList ------------------------------------------//
+    inline CellHandleType GetCellHandle(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
+
+    //------------- Iterator --------------------------------------------------------------//
+
+    inline PointIteratorType  GetIteratorOfPoint();
+    inline const PointIteratorType  GetIteratorOfPoint() const;
+
+    inline EdgeIteratorType   GetIteratorOfEdge();
+    inline const EdgeIteratorType   GetIteratorOfEdge() const;
+
+    inline DirectedEdgeIteratorType   GetIteratorOfDirectedEdge();
+    inline const DirectedEdgeIteratorType   GetIteratorOfDirectedEdge() const;
+
+    inline CellIteratorType   GetIteratorOfCell();
+    inline const CellIteratorType   GetIteratorOfCell() const;
 
     // Add Mesh Item -------------------------------------------------------------------------//
     // add an item and return index (-1 if input is invalid)

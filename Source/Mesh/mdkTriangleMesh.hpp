@@ -285,6 +285,32 @@ TriangleMesh<MeshAttributeType>::Cell(Handle_Of_Cell_Of_SurfaceMesh CellHandle) 
     return this->PolygonMesh::Cell(CellHandle);
 }
 
+//-------------- check handle -------------------------------------------------------//
+
+template<typename MeshAttributeType>
+bool TriangleMesh<MeshAttributeType>::IsValidHandle(Handle_Of_Point_Of_SurfaceMesh PointHandle) const
+{
+    return this->PolygonMesh::IsValidHandle(PointHandle);
+}
+
+template<typename MeshAttributeType>
+bool TriangleMesh<MeshAttributeType>::IsValidHandle(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle) const
+{
+    return this->PolygonMesh::IsValidHandle(EdgeHandle);
+}
+
+template<typename MeshAttributeType>
+bool TriangleMesh<MeshAttributeType>::IsValidHandle(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle) const
+{
+    return this->PolygonMesh::IsValidHandle(DirectedEdgeHandle);
+}
+
+template<typename MeshAttributeType>
+bool TriangleMesh<MeshAttributeType>::IsValidHandle(Handle_Of_Cell_Of_SurfaceMesh CellHandle) const
+{
+    return this->PolygonMesh::IsValidHandle(CellHandle);
+}
+
 //--------- get HandleList ------------------------------------------------------------//
 
 template<typename MeshAttributeType>
@@ -343,36 +369,6 @@ void TriangleMesh<MeshAttributeType>::GetCellHandleList(DenseVector<Handle_Of_Ce
     this->PolygonMesh::GetCellHandleList(OutputHandleList);
 }
 
-//------------- Iterator --------------------------------------------------------------//
-
-template<typename MeshAttributeType>
-inline
-Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetIteratorOfPoint() const
-{
-    return this->PolygonMesh::GetIteratorOfPoint();
-}
-
-template<typename MeshAttributeType>
-inline
-Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetIteratorOfEdge() const
-{
-    return this->PolygonMesh::GetIteratorOfEdge();
-}
-
-template<typename MeshAttributeType>
-inline
-Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>  TriangleMesh<MeshAttributeType>::GetIteratorOfCell() const
-{
-    return this->PolygonMesh::GetIteratorOfCell();
-}
-
-template<typename MeshAttributeType>
-inline
-Handle_Of_DirectedEdge_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::GetDirectedEdgeHandle(EdgeHandleType EdgeHandle, int_max RelativeIndex) const
-{
-    return this->PolygonMesh::GetDirectedEdgeHandle(EdgeHandle, RelativeIndex);
-}
-
 // get handle by ID -----------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
@@ -391,9 +387,9 @@ Handle_Of_Edge_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::GetEdgeHandle(int
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_DirectedEdge_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::GetDirectedEdgeHandle(int_max EdgeID, int_max RelativeIndex) const
+Handle_Of_DirectedEdge_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::GetDirectedEdgeHandle(int_max DirectedEdgeID) const
 {
-    return this->PolygonMesh::GetDirectedEdgeHandle(EdgeID, RelativeIndex);
+    return this->PolygonMesh::GetDirectedEdgeHandle(DirectedEdgeID);
 }
 
 template<typename MeshAttributeType>
@@ -403,30 +399,98 @@ Handle_Of_Cell_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::GetCellHandle(int
     return this->PolygonMesh::GetCellHandle(CellID);
 }
 
-//-------------- check handle -------------------------------------------------------//
-
+//----------- get PointHandle by position ----------------------------------------------//
 template<typename MeshAttributeType>
-bool TriangleMesh<MeshAttributeType>::IsValidHandle(Handle_Of_Point_Of_SurfaceMesh PointHandle) const
+inline
+Handle_Of_Point_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::GetPointHandle(typename MeshAttributeType::ScalarType Position[3]) const
 {
-    return this->PolygonMesh::IsValidHandle(PointHandle);
+    return this->PolygonMesh::GetPointHandle(Position);
 }
 
 template<typename MeshAttributeType>
-bool TriangleMesh<MeshAttributeType>::IsValidHandle(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle) const
+inline
+Handle_Of_Point_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::
+GetPointHandle(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z) const
 {
-    return this->PolygonMesh::IsValidHandle(EdgeHandle);
+    return this->PolygonMesh::GetPointHandle(x, y, z);
+}
+
+//----------- get EdgeHandle and DirectedEdgeHandle by PointHandleList ----------------------------------------------//
+
+template<typename MeshAttributeType>
+inline
+Handle_Of_Edge_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::
+GetEdgeHandle(Handle_Of_Point_Of_SurfaceMesh VertexPointHandle0, Handle_Of_Point_Of_SurfaceMesh VertexPointHandle1) const
+{
+    return this->PolygonMesh::GetEdgeHandle(VertexPointHandle0, VertexPointHandle1);
 }
 
 template<typename MeshAttributeType>
-bool TriangleMesh<MeshAttributeType>::IsValidHandle(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle) const
+inline
+Handle_Of_Edge_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::
+GetEdgeHandle(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList) const
 {
-    return this->PolygonMesh::IsValidHandle(DirectedEdgeHandle);
+    return this->PolygonMesh::GetEdgeHandle(PointHandleList);
 }
 
 template<typename MeshAttributeType>
-bool TriangleMesh<MeshAttributeType>::IsValidHandle(Handle_Of_Cell_Of_SurfaceMesh CellHandle) const
+inline
+Handle_Of_DirectedEdge_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::
+GetDirectedEdgeHandle(Handle_Of_Point_Of_SurfaceMesh PointHandle_start, Handle_Of_Point_Of_SurfaceMesh PointHandle_end) const
 {
-    return this->PolygonMesh::IsValidHandle(CellHandle);
+    return this->PolygonMesh::GetDirectedEdgeHandle(PointHandle_start, PointHandle_end);
+}
+
+//----------- get CellHandle by EdgeHandleList ------------------------------------------//
+template<typename MeshAttributeType>
+inline
+Handle_Of_Cell_Of_SurfaceMesh TriangleMesh<MeshAttributeType>::GetCellHandle(const DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& EdgeHandleList) const
+{
+    return this->PolygonMesh::GetCellHandle(EdgeHandleList);
+}
+
+//------------- Iterator --------------------------------------------------------------//
+
+template<typename MeshAttributeType>
+inline
+Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetIteratorOfPoint()
+{
+    return this->PolygonMesh::GetIteratorOfPoint();
+}
+
+template<typename MeshAttributeType>
+inline
+const Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetIteratorOfPoint() const
+{
+    return this->PolygonMesh::GetIteratorOfPoint();
+}
+
+template<typename MeshAttributeType>
+inline
+Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetIteratorOfEdge()
+{
+    return this->PolygonMesh::GetIteratorOfEdge();
+}
+
+template<typename MeshAttributeType>
+inline
+const Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetIteratorOfEdge() const
+{
+    return this->PolygonMesh::GetIteratorOfEdge();
+}
+
+template<typename MeshAttributeType>
+inline
+Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>  TriangleMesh<MeshAttributeType>::GetIteratorOfCell()
+{
+    return this->PolygonMesh::GetIteratorOfCell();
+}
+
+template<typename MeshAttributeType>
+inline
+const Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>  TriangleMesh<MeshAttributeType>::GetIteratorOfCell() const
+{
+    return this->PolygonMesh::GetIteratorOfCell();
 }
 
 // Add Mesh Item -------------------------------------------------------------------------//

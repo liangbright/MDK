@@ -5,6 +5,7 @@
 #include "mdkDenseMatrix.h"
 #include "mdkSurfaceMeshItemHandle.h"
 
+
 namespace mdk
 {
 //----------------- forward declare ------------------//
@@ -71,7 +72,9 @@ struct Data_Of_Point_Of_SurfaceMesh
 
     SurfaceMesh<MeshAttributeType> Mesh;
 
-    int_max Index;  // PointIndex : index in Mesh.m_MeshData->PointList;
+    int_max Index;  // PointIndex : index in Mesh.m_MeshData->PointList; it may change after Mesh.ClearDataStructure()
+
+    int_max ID; // unique identifier, it will not change after Mesh.ClearDataStructure()
 
     DenseVector<int_max> AdjacentPointIndexList;   // index in Mesh.m_MeshData->PointList
 
@@ -180,7 +183,9 @@ struct Data_Of_Edge_Of_SurfaceMesh
 
     SurfaceMesh<MeshAttributeType> Mesh;
     
-    int_max Index; // EdgeIndex: index of this Edge in Mesh.MeshData->EdgeList
+    int_max Index; // EdgeIndex: index of this Edge in Mesh.MeshData->EdgeList, it may change after Mesh.ClearDataStructure()
+
+    int_max ID; // unique identifier, it will not change after Mesh.ClearDataStructure()
 
     int_max VertexPointIndex0;
     int_max VertexPointIndex1;
@@ -240,6 +245,17 @@ private:
 
     inline DenseVector<int_max>& PointIndexList();
 
+    inline DenseVector<int_max> GetAdjacentEdgeIndexList() const;
+    inline void GetAdjacentEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
+
+    // Cell share this edge
+    inline DenseVector<int_max> GetAdjacentCellIndexList() const;
+    inline void GetAdjacentCellIndexList(DenseVector<int_max>& OutputIndexList) const;
+
+    // Cell share any vertex point of this edge
+    inline DenseVector<int_max> GetNeighbourCellIndexList() const;
+    inline void GetNeighbourCellIndexList(DenseVector<int_max>& OutputIndexList) const;
+
     //--------------------------------------------------------------------------//
 public:
 
@@ -289,7 +305,9 @@ struct Data_Of_DirectedEdge_Of_SurfaceMesh
 
     SurfaceMesh<MeshAttributeType> Mesh;
 
-    DirectedEdgeIndex_Of_SurfaceMesh Index; // DirectedEdgeIndex of this DirectedEdge
+    DirectedEdgeIndex_Of_SurfaceMesh Index; // DirectedEdgeIndex of this DirectedEdge, it may change after Mesh.ClearDataStructure()
+
+    int_max ID; // unique identifier, it will not change after Mesh.ClearDataStructure()
 
     int_max CellIndex;           // index in Mesh.m_MeshData->CellList,  It is -1 if this is a boundary Edge
 
@@ -320,6 +338,9 @@ public:
 
     template<typename T>
     friend class SurfaceMesh;
+
+    template<typename T>
+    friend class Edge_Of_SurfaceMesh;
 
     template<typename T>
     friend class Cell_Of_SurfaceMesh;
@@ -386,8 +407,9 @@ public:
     inline Handle_Of_Point_Of_SurfaceMesh GetStartPointHandle() const;
     inline Handle_Of_Point_Of_SurfaceMesh GetEndPointHandle() const;
     inline Handle_Of_Edge_Of_SurfaceMesh GetEdgeHandle() const;
-    inline int_max GetEdgeID() const;
-    inline int_max GetRelativeIndex() const;
+
+    inline void SetID(int_max DirectedEdgeID);
+    inline int_max GetID() const;
 
     inline Handle_Of_DirectedEdge_Of_SurfaceMesh GetFirendDirectedEdgeHandle() const;
     inline Handle_Of_DirectedEdge_Of_SurfaceMesh GetNextDirectedEdgeHandle() const;
@@ -417,7 +439,9 @@ struct Data_Of_Cell_Of_SurfaceMesh
 
     SurfaceMesh<MeshAttributeType> Mesh;
 
-    int_max Index; // CellIndex: index of the Cell in Mesh.m_MeshData->CellList
+    int_max Index; // CellIndex: index of the Cell in Mesh.m_MeshData->CellList, it may change after Mesh.ClearDataStructure()
+
+    int_max ID; // unique identifier, it will not change after Mesh.ClearDataStructure()
 
     DenseVector<DirectedEdgeIndex_Of_SurfaceMesh> DirectedEdgeIndexList;
 
