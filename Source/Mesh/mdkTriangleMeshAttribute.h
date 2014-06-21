@@ -53,6 +53,8 @@ public:
     void operator=(const PointAttribute_Of_TriangleMesh& InputAttribute);
     void operator=(PointAttribute_Of_TriangleMesh&& InputAttribute);
 
+    void Clear();
+
 };
 
 //============================================== EdgeAttribute_Of_TriangleMesh ===========================================//
@@ -80,6 +82,9 @@ public:
 
     void operator=(const EdgeAttribute_Of_TriangleMesh& InputAttribute);
     void operator=(EdgeAttribute_Of_TriangleMesh&& InputAttribute);
+
+    void Clear();
+
 };
 
 //============================================== DirectedEdgeAttribute_Of_TriangleMesh ===========================================//
@@ -107,6 +112,9 @@ public:
 
     void operator=(const DirectedEdgeAttribute_Of_TriangleMesh& InputAttribute);
     void operator=(DirectedEdgeAttribute_Of_TriangleMesh&& InputAttribute);
+
+    void Clear();
+
 };
 
 //============================================== CellAttribute_Of_TriangleMesh ===========================================//
@@ -134,6 +142,9 @@ public:
 
     void operator=(const CellAttribute_Of_TriangleMesh& InputAttribute);
     void operator=(CellAttribute_Of_TriangleMesh&& InputAttribute);
+
+    void Clear();
+
 };
 
 }// namespace mdk

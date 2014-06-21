@@ -48,6 +48,13 @@ void PointAttributeType_Of_PolygonMesh<ScalarType>::operator=(PointAttributeType
     m_Data = std::move(InputAttribute.m_Data);
 }
 
+template<typename ScalarType>
+void PointAttributeType_Of_PolygonMesh<ScalarType>::Clear()
+{
+    m_Data->MeanCurvature = 0;
+    m_Data->Normal.Fill(0);
+}
+
 //============================================== EdgeAttribute_Of_PolygonMesh ===========================================//
 
 template<typename ScalarType>
@@ -89,6 +96,12 @@ template<typename ScalarType>
 void EdgeAttribute_Of_PolygonMesh<ScalarType>::operator=(EdgeAttribute_Of_PolygonMesh<ScalarType>&& InputAttribute)
 {
     m_Data = std::move(InputAttribute.m_Data);
+}
+
+template<typename ScalarType>
+void EdgeAttribute_Of_PolygonMesh<ScalarType>::Clear()
+{
+    m_Data->PhysicalLength = 0;
 }
 
 //============================================== DirectedEdgeAttribute_Of_PolygonMesh ===========================================//
@@ -134,6 +147,12 @@ void DirectedEdgeAttribute_Of_PolygonMesh<ScalarType>::operator=(DirectedEdgeAtt
     m_Data = std::move(InputAttribute.m_Data);
 }
 
+template<typename ScalarType>
+void DirectedEdgeAttribute_Of_PolygonMesh<ScalarType>::Clear()
+{
+    m_Data->Orientation.Fill(0);
+}
+
 //============================================== CellAttribute_Of_PolygonMesh ===========================================//
 
 template<typename ScalarType>
@@ -175,6 +194,12 @@ template<typename ScalarType>
 void CellAttribute_Of_PolygonMesh<ScalarType>::operator=(CellAttribute_Of_PolygonMesh<ScalarType>&& InputAttribute)
 {
     m_Data = std::move(InputAttribute.m_Data);
+}
+
+template<typename ScalarType>
+void CellAttribute_Of_PolygonMesh<ScalarType>::Clear()
+{
+    m_Data->Area = 0;
 }
 
 }// namespace mdk

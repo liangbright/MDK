@@ -20,7 +20,7 @@ struct SurfaceMeshData
     // row_0: x
     // row_1: y
     // row_2: z
-    // a point is a vertex of an Edge or a point on Edge Edge
+    // a point is a  of an Edge or a point on Edge Edge
 
     DataArray<Point_Of_SurfaceMesh<MeshAttributeType>> PointList;
 
@@ -138,64 +138,135 @@ public:
     inline int_max GetDirectedEdgeNumber() const;
     inline int_max GetCellNumber() const;
  
-    // 3D Position ---------------------------------------------------------------------------//
+    // Get/Set 3D Position by PointHandleList or PointIDList --------------------------------------------------------------------------//
 
     inline void SetPointPosition(const DenseVector<PointHandleType>& PointHandleList, const DenseMatrix<ScalarType>& PointPositionMatrix);
+
+    inline void SetPointPosition(const DenseVector<int_max>& PointIDList, const DenseMatrix<ScalarType>& PointPositionMatrix);
 
     inline DenseMatrix<ScalarType> GetPointPosition(const DenseVector<PointHandleType>& PointHandleList) const;
     inline void GetPointPosition(DenseMatrix<ScalarType>& PointPositionMatrix, const DenseVector<PointHandleType>& PointHandleList) const;
 
-    //----- Get/Set Mesh Item {Point, Vertex, Edge, DirectedEdge, Cell} by using Handle ------//
+    inline DenseMatrix<ScalarType> GetPointPosition(const DenseVector<int_max>& PointIDList) const;
+    inline void GetPointPosition(DenseMatrix<ScalarType>& PointPositionMatrix, const DenseVector<int_max>& PointIDList) const;
+
+    //----- Get/Set Mesh Item {Point, , Edge, DirectedEdge, Cell} by using Handle or ID ------//
 
     inline PointType& Point(PointHandleType PointHandle);
     inline const PointType& Point(PointHandleType PointHandle) const;
 
+    inline PointType& Point(int_max PointID);
+    inline const PointType& Point(int_max PointID) const;
+
     inline EdgeType& Edge(EdgeHandleType EdgeHandle);
     inline const EdgeType& Edge(EdgeHandleType EdgeHandle) const;
+
+    inline EdgeType& Edge(int_max EdgeID);
+    inline const EdgeType& Edge(int_max EdgeID) const;
 
     inline DirectedEdgeType& DirectedEdge(DirectedEdgeHandleType DirectedEdgeHandle);
     inline const DirectedEdgeType& DirectedEdge(DirectedEdgeHandleType DirectedEdgeHandle) const;
 
+    inline DirectedEdgeType& DirectedEdge(int_max DirectedEdgeID);
+    inline const DirectedEdgeType& DirectedEdge(int_max DirectedEdgeID) const;
+
     inline CellType& Cell(CellHandleType CellHandle);
     inline const CellType& Cell(CellHandleType CellHandle) const;
 
+    inline CellType& Cell(int_max CellID);
+    inline const CellType& Cell(int_max CellID) const;
+
     //-------------- check handle -------------------------------------------------------//
-    bool IsValidHandle(PointHandleType PointHandle) const;
-    bool IsValidHandle(EdgeHandleType EdgeHandle) const;
-    bool IsValidHandle(DirectedEdgeHandleType DirectedEdgeHandle) const;
-    bool IsValidHandle(CellHandleType CellHandle) const;
+
+    inline bool IsValidHandle(PointHandleType PointHandle) const;
+    inline bool IsValidHandle(EdgeHandleType EdgeHandle) const;
+    inline bool IsValidHandle(DirectedEdgeHandleType DirectedEdgeHandle) const;
+    inline bool IsValidHandle(CellHandleType CellHandle) const;
 
     //--------- get HandleList ------------------------------------------------------------//
 
-    inline DenseVector<PointHandleType> GetPointHandleList() const;
-    inline void GetPointHandleList(DenseVector<PointHandleType>& OutputHandleList) const;
+    inline DenseVector<PointHandleType> GetValidPointHandleList() const;
+    inline void GetValidPointHandleList(DenseVector<PointHandleType>& OutputHandleList) const;
 
-    inline DenseVector<EdgeHandleType> GetEdgeHandleList() const;
-    inline void GetEdgeHandleList(DenseVector<EdgeHandleType>& OutputHandleList) const;
+    inline DenseVector<EdgeHandleType> GetValidEdgeHandleList() const;
+    inline void GetValidEdgeHandleList(DenseVector<EdgeHandleType>& OutputHandleList) const;
 
-    inline DenseVector<DirectedEdgeHandleType> GetDirectedEdgeHandleList() const;
-    inline void GetDirectedEdgeHandleList(DenseVector<DirectedEdgeHandleType>& OutputHandleList) const;
+    inline DenseVector<DirectedEdgeHandleType> GetValidDirectedEdgeHandleList() const;
+    inline void GetValidDirectedEdgeHandleList(DenseVector<DirectedEdgeHandleType>& OutputHandleList) const;
 
-    inline DenseVector<CellHandleType> GetCellHandleList() const;
-    inline void GetCellHandleList(DenseVector<CellHandleType>& OutputHandleList) const;
+    inline DenseVector<CellHandleType> GetValidCellHandleList() const;
+    inline void GetValidCellHandleList(DenseVector<CellHandleType>& OutputHandleList) const;
+
+    //----------- get PointHandle by position ----------------------------------------------//
+
+    inline PointHandleType GetPointHandle(ScalarType Position[3]) const;
+    inline PointHandleType GetPointHandle(ScalarType x, ScalarType y, ScalarType z) const;
 
     //----------- get handle by ID -----------------------------------------------------------//
+
     inline PointHandleType  GetPointHandle(int_max PointID) const;
     inline EdgeHandleType   GetEdgeHandle(int_max EdgeID) const;
     inline DirectedEdgeHandleType GetDirectedEdgeHandle(int_max DirectedEdgeID) const;
     inline CellHandleType   GetCellHandle(int_max CellID) const;
 
-    //----------- get PointHandle by position ----------------------------------------------//
-    inline PointHandleType GetPointHandle(ScalarType Position[3]) const;
-    inline PointHandleType GetPointHandle(ScalarType x, ScalarType y, ScalarType z) const;
+    //----------- get EdgeHandle and DirectedEdgeHandle by PointHandleList or PointIDList ---------------------//
 
-    //----------- get EdgeHandle and DirectedEdgeHandle by PointHandleList ---------------------//
-    inline EdgeHandleType GetEdgeHandle(PointHandleType VertexPointHandle0, PointHandleType VertexPointHandle1) const;
-    inline EdgeHandleType GetEdgeHandle(const DenseVector<PointHandleType>& PointHandleList) const;
+    inline EdgeHandleType GetEdgeHandle(PointHandleType PointHandle0, PointHandleType PointHandle1) const;
+    inline EdgeHandleType GetEdgeHandle(int_max PointID0, int_max PointID1) const;
+
     inline DirectedEdgeHandleType GetDirectedEdgeHandle(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
-    
-    //----------- get CellHandle by EdgeHandleList ------------------------------------------//
+    inline DirectedEdgeHandleType GetDirectedEdgeHandle(int_max PointID_start, int_max PointID_end) const;
+
+    //----------- get CellHandle by EdgeHandleList or EdgeIDList ------------------------------------------//
+
     inline CellHandleType GetCellHandle(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
+    inline CellHandleType GetCellHandle(const DenseVector<int_max>& EdgeIDList) const;
+
+    //-------------- check ID -------------------------------------------------------//
+
+    inline bool IsValidPointID(int_max PointID) const;
+    inline bool IsValidEdgeID(int_max EdgeID) const;
+    inline bool IsValidDirectedEdgeID(int_max DirectedEdgeID) const;
+    inline bool IsValidCellID(int_max CellID) const;
+
+    //--------- get IDList ------------------------------------------------------------//
+
+    inline DenseVector<int_max> GetValidPointIDList() const;
+    inline void GetValidPointIDList(DenseVector<int_max>& OutputIDList) const;
+
+    inline DenseVector<int_max> GetValidEdgeIDList() const;
+    inline void GetValidEdgeIDList(DenseVector<int_max>& OutputIDList) const;
+
+    inline DenseVector<int_max> GetValidDirectedEdgeIDList() const;
+    inline void GetValidDirectedEdgeIDList(DenseVector<int_max>& OutputIDList) const;
+
+    inline DenseVector<int_max> GetValidCellIDList() const;
+    inline void GetValidCellIDList(DenseVector<int_max>& OutputIDList) const;
+
+    //----------- get ID by handle -----------------------------------------------------------//
+
+    inline int_max GetPointID(PointHandleType PointHandle) const;
+    inline int_max GetEdgeID(EdgeHandleType EdgeHandle) const;
+    inline int_max GetDirectedEdgeID(DirectedEdgeHandleType DirectedEdgeHandle) const;
+    inline int_max GetCellID(CellHandleType CellHandle) const;
+
+    //----------- get PointID by position ----------------------------------------------//
+
+    inline int_max GetPointID(ScalarType Position[3]) const;
+    inline int_max GetPointID(ScalarType x, ScalarType y, ScalarType z) const;
+
+    //----------- get EdgeID and DirectedEdgeID by PointHandleList or PointIDList ---------------------//
+
+    inline int_max GetEdgeID(PointHandleType PointHandle0, PointHandleType PointHandle1) const;
+    inline int_max GetEdgeID(int_max PointID0, int_max PointID1) const;
+
+    inline int_max GetDirectedEdgeID(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
+    inline int_max GetDirectedEdgeID(int_max PointID_start, int_max PointID_end) const;
+
+    //----------- get CellID by EdgeHandleList or EdgeIDList ------------------------------------------//
+
+    inline int_max GetCellID(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
+    inline int_max GetCellID(const DenseVector<int_max>& EdgeIDList) const;
 
     //------------- Iterator --------------------------------------------------------------//
 
@@ -223,52 +294,42 @@ public:
 
     // add an Edge and return EdgeIndex in m_MeshData->EdgeList
     // also create invalid DirectedEdge to hold place at  m_MeshData->DirectedEdgeList[EdgeIndex]
-    // PointHandleList[0] and PointHandleList[1] are two vertex of the Edge
-    // new vertex is added if necessary, so AddVertex is called in this function if necessary
-    EdgeHandleType AddEdge(const DenseVector<PointHandleType>& PointHandleList);
+    // PointHandleList[0] and PointHandleList[1] are two  of the Edge
+    // new  is added if necessary, so Add is called in this function if necessary
+    EdgeHandleType AddEdge(PointHandleType PointHandle0, PointHandleType PointHandle1);
+    EdgeHandleType AddEdge(int_max PointID0, int_max PointID1);
 
     // add a cell and return CellIndex in m_MeshData->CellList
     // add DirectedEdge of the cell
     // the order of Edge in EdgeHandleList determine the order of DirectedEdge
     CellHandleType AddCell(const DenseVector<EdgeHandleType>& EdgeHandleList);
+    CellHandleType AddCell(const DenseVector<int_max>& EdgeIDList);
 
     // Delete Mesh Item ----------------------------------------------------------------------------//
 
     // m_MeshData->CellList(CellIndex).Clear() only clear memory
     // this function will remove/modify any mesh item related to the cell, including DirectedEdge of the Cell
     bool DeleteCell(CellHandleType CellHandle);
+    bool DeleteCell(int_max CellID);
 
     // m_MeshData->EdgeList[EdgeIndex].Clear() only clear memory
     // this function will remove mesh item related to the Edge
     // If the edge is adjacent to a cell, then the Edge can not be deleted before the cell is deleted
     bool DeleteEdge(EdgeHandleType EdgeHandle);
+    bool DeleteEdge(int_max EdgeID);
 
     // m_MeshData->PointList[PointIndex].Cear() only clear memory
     // If the Point is on an edge, then the Point can not be deleted before the Edge is deleted
     bool DeletePoint(PointHandleType PointHandle);
     bool DeletePoint(const DenseVector<PointHandleType>& PointHandleList);
 
-    /*
-    //Signal to derived class After Add or Delete -----------------------------------------------------//
-protected:
-    virtual inline bool AddPoint_Postprocessing(int_max PointIndex);
-    virtual inline bool AddVertex_Postprocessing(int_max VertexIndex);
-    virtual inline bool AddEdge_Postprocessing(int_max EdgeIndex);
-    virtual inline bool AddCell_Postprocessing(int_max CellIndex);
-    virtual inline bool AddDirectedEdge_Postprocessing(int_max CellIndex);
+    bool DeletePoint(int_max PointID);
+    bool DeletePoint(const DenseVector<int_max>& PointIDList);
 
-    virtual inline bool DeletePoint_Postprocessing(int_max PointIndex);
-    virtual inline bool DeleteVertex_Postprocessing(int_max VertexIndex);
-    virtual inline bool DeleteEdge_Postprocessing(int_max EdgeIndex);
-    virtual inline bool DeleteCell_Postprocessing(int_max CellIndex);
-    virtual inline bool DeleteDirectedEdge_Postprocessing(int_max CellIndex);
-    */
-
-public:
     // remove deleted item from object list ----------------------------------------------------------//
-    // attention: after this function is called, every index and every handle will be changed
-    //            but, ID will not change
+    // attention: after this function is called, handle may become invalid, but, ID will not change
     void CleanDataStructure();
+    
     //---------------------------------------------------------------------------------------------------
 
 };

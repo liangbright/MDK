@@ -19,7 +19,7 @@ struct TriangleMeshAttributeType
 
 
 template<typename MeshAttributeType>
-class TriangleMesh : protected PolygonMesh<MeshAttributeType>
+class TriangleMesh : public PolygonMesh<MeshAttributeType>
 {
 public:
     typedef TriangleMesh<MeshAttributeType> MeshType;
@@ -45,9 +45,10 @@ public:
     typedef Handle_Of_DirectedEdge_Of_SurfaceMesh   DirectedEdgeHandleType;
     typedef Handle_Of_Cell_Of_SurfaceMesh           CellHandleType;
 
-    typedef Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType>      PointIteratorType;
-    typedef Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType>       EdgeIteratorType;
-    typedef Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>       CellIteratorType;
+    typedef Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType>         PointIteratorType;
+    typedef Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType>          EdgeIteratorType;
+    typedef Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttributeType>  DirectedEdgeIteratorType;
+    typedef Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>          CellIteratorType;
 
 public:
     TriangleMesh();
@@ -73,125 +74,7 @@ public:
     inline bool Take(TriangleMesh& InputMesh);
     inline bool Take(TriangleMesh* InputMesh);
 
-    //-------------------------------------------------------------------
-    inline bool IsEmpty() const;
-    inline int_max GetPointNumber() const;
-    inline int_max GetEdgeNumber() const;
-    inline int_max GetDirectedEdgeNumber() const;
-    inline int_max GetCellNumber() const;
-
-    // 3D Position -----------------------------------------------------------
-
-    inline void SetPointPosition(const DenseVector<PointHandleType>& PointHandleList, const DenseMatrix<ScalarType>& PointPositionMatrix);
-
-    inline DenseMatrix<ScalarType> GetPointPosition(const DenseVector<PointHandleType>& PointHandleList) const;
-    inline void GetPointPosition(DenseMatrix<ScalarType>& PointPositionMatrix, const DenseVector<PointHandleType>& PointHandleList) const;
-
-    //----- Get/Set  Mesh Item {Point, Point, Edge, DirectedEdge, Cell} ------//
-
-    inline PointType& Point(PointHandleType PointHandle);
-    inline const PointType& Point(PointHandleType PointHandle) const;
-
-    inline EdgeType& Edge(EdgeHandleType EdgeHandle);
-    inline const EdgeType& Edge(EdgeHandleType EdgeHandle) const;
-
-    inline DirectedEdgeType& DirectedEdge(DirectedEdgeHandleType DirectedEdgeHandle);
-    inline const DirectedEdgeType& DirectedEdge(DirectedEdgeHandleType DirectedEdgeHandle) const;
-
-    inline CellType& Cell(CellHandleType CellHandle);
-    inline const CellType& Cell(CellHandleType CellHandle) const;
-
-    //-------------- check handle -------------------------------------------------------//
-    bool IsValidHandle(PointHandleType PointHandle) const;
-    bool IsValidHandle(EdgeHandleType EdgeHandle) const;
-    bool IsValidHandle(DirectedEdgeHandleType DirectedEdgeHandle) const;
-    bool IsValidHandle(CellHandleType CellHandle) const;
-
-    //--------- get HandleList ------------------------------------------------------------//
-    inline DenseVector<PointHandleType> GetPointHandleList() const;
-    inline void GetPointHandleList(DenseVector<PointHandleType>& OutputHandleList) const;
-
-    inline DenseVector<EdgeHandleType> GetEdgeHandleList() const;
-    inline void GetEdgeHandleList(DenseVector<EdgeHandleType>& OutputHandleList) const;
-
-    inline DenseVector<DirectedEdgeHandleType> GetDirectedEdgeHandleList() const;
-    inline void GetDirectedEdgeHandleList(DenseVector<DirectedEdgeHandleType>& OutputHandleList) const;
-
-    inline DenseVector<CellHandleType> GetCellHandleList() const;
-    inline void GetCellHandleList(DenseVector<CellHandleType>& OutputHandleList) const;
-
-    // get handle by ID -----------------------------------------------------------------------//
-    inline PointHandleType  GetPointHandle(int_max PointID) const;
-    inline EdgeHandleType   GetEdgeHandle(int_max EdgeID) const;
-    inline DirectedEdgeHandleType GetDirectedEdgeHandle(int_max DirectedEdgeID) const;
-    inline CellHandleType   GetCellHandle(int_max CellID) const;
-
-    //----------- get PointHandle by position ----------------------------------------------//
-    inline PointHandleType GetPointHandle(ScalarType Position[3]) const;
-    inline PointHandleType GetPointHandle(ScalarType x, ScalarType y, ScalarType z) const;
-
-    //----------- get EdgeHandle and DirectedEdgeHandle by PointHandleList ---------------------//
-    inline EdgeHandleType GetEdgeHandle(PointHandleType VertexPointHandle0, PointHandleType VertexPointHandle1) const;
-    inline EdgeHandleType GetEdgeHandle(const DenseVector<PointHandleType>& PointHandleList) const;
-    inline DirectedEdgeHandleType GetDirectedEdgeHandle(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
-
-    //----------- get CellHandle by EdgeHandleList ------------------------------------------//
-    inline CellHandleType GetCellHandle(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
-
-    //------------- Iterator --------------------------------------------------------------//
-    inline PointIteratorType  GetIteratorOfPoint();
-    inline const PointIteratorType  GetIteratorOfPoint() const;
-
-    inline EdgeIteratorType   GetIteratorOfEdge();
-    inline const EdgeIteratorType   GetIteratorOfEdge() const;
-
-    inline DirectedEdgeIteratorType   GetIteratorOfDirectedEdge();
-    inline const DirectedEdgeIteratorType   GetIteratorOfDirectedEdge() const;
-
-    inline CellIteratorType   GetIteratorOfCell();
-    inline const CellIteratorType   GetIteratorOfCell() const;
-
-    // Add Mesh Item -------------------------------------------------------------------------//
-    // add an item and return index (-1 if input is invalid)
-
-    PointHandleType AddPoint(ScalarType Position[3]);
-    PointHandleType AddPoint(ScalarType x, ScalarType y, ScalarType z);
-    DenseVector<PointHandleType> AddPoint(const DenseMatrix<ScalarType>& PointSet);
-
-    EdgeHandleType AddEdge(PointHandleType PointHandle0, PointHandleType PointHandle1);
-    CellHandleType AddCell(const DenseVector<EdgeHandleType>& EdgeHandleList);
-
-    //Delete Mesh Item ----------------------------------------------------------------------//
-
-    bool DeleteCell(CellHandleType CellHandle);
-    bool DeleteEdge(EdgeHandleType EdgeHandle);
-
-    bool DeletePoint(PointHandleType PointHandle);
-    bool DeletePoint(const DenseVector<PointHandleType>& PointHandleList);
-
-    //---------------------------------------------------------------------------//
-    // attention: after this function is called, every index and handle will be changed
-    // and there will be no "dead/deleted" item in any object list (e.g., m_MeshData->PointList)
-    void CleanDataStructure();
-
-    //------------ Construct from input data ------------------------------------//
-
-    bool Construct(const DenseMatrix<ScalarType>& InputPointPositionTable, const DataArray<DenseVector<int_max>>& InputCellTable);
-    // index order in each PointIndexList should be consistent
-
-    bool Construct(SurfaceMesh<MeshAttributeType> InputSurfaceMesh);
-
-    bool Construct(PolygonMesh<MeshAttributeType> InputPolygonMesh);
-
-    bool CheckIfTriangleMesh() const;
-
-    //--------------------- output -------------------------------------------------//
-
-    std::pair<DenseMatrix<ScalarType>, DataArray<DenseVector<int_max>>> GetPointPositionMatrixAndCellTable() const;
-
-    void GetPointPositionMatrixAndCellTable(DenseMatrix<ScalarType>& PointPositionTable, DataArray<DenseVector<int_max>>& CellTable) const;
-
-    //------------- Mesh Attribute --------------------------------------------------//
+    //------------- Function optimized For TriangleMesh --------------------------------------------------//
 
     void UpdateNormalAtPoint();
     void UpdateNormalAtCell();

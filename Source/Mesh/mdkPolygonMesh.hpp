@@ -330,59 +330,75 @@ bool PolygonMesh<MeshAttributeType>::IsValidHandle(Handle_Of_Cell_Of_SurfaceMesh
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Point_Of_SurfaceMesh> PolygonMesh<MeshAttributeType>::GetPointHandleList() const
+DenseVector<Handle_Of_Point_Of_SurfaceMesh> PolygonMesh<MeshAttributeType>::GetValidPointHandleList() const
 {
-    return m_MeshData->PolygonSurfaceMesh.GetPointHandleList();
+    return m_MeshData->PolygonSurfaceMesh.GetValidPointHandleList();
 }
 
 template<typename MeshAttributeType>
 inline
-void PolygonMesh<MeshAttributeType>::GetPointHandleList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputHandleList) const
+void PolygonMesh<MeshAttributeType>::GetValidPointHandleList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputHandleList) const
 {
-    m_MeshData->PolygonSurfaceMesh.GetPointHandleList(OutputHandleList);
+    m_MeshData->PolygonSurfaceMesh.GetValidPointHandleList(OutputHandleList);
 }
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Edge_Of_SurfaceMesh> PolygonMesh<MeshAttributeType>::GetEdgeHandleList() const
+DenseVector<Handle_Of_Edge_Of_SurfaceMesh> PolygonMesh<MeshAttributeType>::GetValidEdgeHandleList() const
 {
-    return m_MeshData->PolygonSurfaceMesh.GetEdgeHandleList()
+    return m_MeshData->PolygonSurfaceMesh.GetValidEdgeHandleList()
 }
 
 template<typename MeshAttributeType>
 inline
-void PolygonMesh<MeshAttributeType>::GetEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const
+void PolygonMesh<MeshAttributeType>::GetValidEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const
 {
-    m_MeshData->PolygonSurfaceMesh.GetEdgeHandleList(OutputHandleList);
+    m_MeshData->PolygonSurfaceMesh.GetValidEdgeHandleList(OutputHandleList);
 }
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> PolygonMesh<MeshAttributeType>::GetDirectedEdgeHandleList() const
+DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> PolygonMesh<MeshAttributeType>::GetValidDirectedEdgeHandleList() const
 {
-    return m_MeshData->PolygonSurfaceMesh.GetDirectedEdgeHandleList();
+    return m_MeshData->PolygonSurfaceMesh.GetValidDirectedEdgeHandleList();
 }
 
 template<typename MeshAttributeType>
 inline
-void PolygonMesh<MeshAttributeType>::GetDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const
+void PolygonMesh<MeshAttributeType>::GetValidDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const
 {
-    m_MeshData->PolygonSurfaceMesh.GetDirectedEdgeHandleList(OutputHandleList);
+    m_MeshData->PolygonSurfaceMesh.GetValidDirectedEdgeHandleList(OutputHandleList);
 }
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Cell_Of_SurfaceMesh> PolygonMesh<MeshAttributeType>::GetCellHandleList() const
+DenseVector<Handle_Of_Cell_Of_SurfaceMesh> PolygonMesh<MeshAttributeType>::GetValidCellHandleList() const
 {
-    return m_MeshData->PolygonSurfaceMesh.GetCellHandleList();
+    return m_MeshData->PolygonSurfaceMesh.GetValidCellHandleList();
 }
-
 
 template<typename MeshAttributeType>
 inline
-void PolygonMesh<MeshAttributeType>::GetCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const
+void PolygonMesh<MeshAttributeType>::GetValidCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const
 {
-    m_MeshData->PolygonSurfaceMesh.GetCellHandleList(OutputHandleList);
+    m_MeshData->PolygonSurfaceMesh.GetValidCellHandleList(OutputHandleList);
+}
+
+//----------- get PointHandle by position ----------------------------------------------//
+
+template<typename MeshAttributeType>
+inline
+Handle_Of_Point_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::GetPointHandle(typename MeshAttributeType::ScalarType Position[3]) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetPointHandle(Position);
+}
+
+template<typename MeshAttributeType>
+inline
+Handle_Of_Point_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::
+GetPointHandle(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetPointHandle(x, y, z);
 }
 
 // get handle by ID -----------------------------------------------------------------------//
@@ -415,38 +431,22 @@ Handle_Of_Cell_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::GetCellHandle(int_
     return m_MeshData->PolygonSurfaceMesh.GetCellHandle(CellID);
 }
 
-//----------- get PointHandle by position ----------------------------------------------//
-template<typename MeshAttributeType>
-inline
-Handle_Of_Point_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::GetPointHandle(typename MeshAttributeType::ScalarType Position[3]) const
-{
-    return m_MeshData->PolygonSurfaceMesh.GetPointHandle(Position);
-}
-
-template<typename MeshAttributeType>
-inline
-Handle_Of_Point_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::
-GetPointHandle(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z) const
-{
-    return m_MeshData->PolygonSurfaceMesh.GetPointHandle(x, y, z);
-}
-
-//----------- get EdgeHandle and DirectedEdgeHandle by PointHandleList ----------------------------------------------//
+//----------- get EdgeHandle and DirectedEdgeHandle by PointHandleList or PointIDList ----------------------------------------------//
 
 template<typename MeshAttributeType>
 inline
 Handle_Of_Edge_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::
-GetEdgeHandle(Handle_Of_Point_Of_SurfaceMesh VertexPointHandle0, Handle_Of_Point_Of_SurfaceMesh VertexPointHandle1) const
+GetEdgeHandle(Handle_Of_Point_Of_SurfaceMesh PointHandle0, Handle_Of_Point_Of_SurfaceMesh PointHandle1) const
 {
-    return m_MeshData->PolygonSurfaceMesh.GetEdgeHandle(VertexPointHandle0, VertexPointHandle1);
+    return m_MeshData->PolygonSurfaceMesh.GetEdgeHandle(PointHandle0, PointHandle1);
 }
 
 template<typename MeshAttributeType>
 inline
 Handle_Of_Edge_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::
-GetEdgeHandle(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList) const
+GetEdgeHandle(int_max PointID0, int_max PointID1) const
 {
-    return m_MeshData->PolygonSurfaceMesh.GetEdgeHandle(PointHandleList);
+    return m_MeshData->PolygonSurfaceMesh.GetEdgeHandle(PointID0, PointID1);
 }
 
 template<typename MeshAttributeType>
@@ -457,12 +457,179 @@ GetDirectedEdgeHandle(Handle_Of_Point_Of_SurfaceMesh PointHandle_start, Handle_O
     return m_MeshData->PolygonSurfaceMesh.GetDirectedEdgeHandle(PointHandle_start, PointHandle_end);
 }
 
-//----------- get CellHandle by EdgeHandleList ------------------------------------------//
+template<typename MeshAttributeType>
+inline
+Handle_Of_DirectedEdge_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::
+GetDirectedEdgeHandle(int_max PointID_start, int_max PointID_end) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetDirectedEdgeHandle(PointID_start, PointID_end);
+}
+
+//----------- get CellHandle by EdgeHandleList or EdgeIDList ------------------------------------------//
+
 template<typename MeshAttributeType>
 inline
 Handle_Of_Cell_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::GetCellHandle(const DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& EdgeHandleList) const
 {
     return m_MeshData->PolygonSurfaceMesh.GetCellHandle(EdgeHandleList);
+}
+
+template<typename MeshAttributeType>
+inline
+Handle_Of_Cell_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::GetCellHandle(const DenseVector<int_max>& EdgeIDList) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetCellHandle(EdgeIDList);
+}
+
+//--------- get IDList ------------------------------------------------------------//
+
+template<typename MeshAttributeType>
+inline
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetValidPointIDList() const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetValidPointIDList();
+}
+
+template<typename MeshAttributeType>
+inline 
+void PolygonMesh<MeshAttributeType>::GetValidPointIDList(DenseVector<int_max>& OutputIDList) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetValidPointIDList(OutputIDList);
+}
+
+template<typename MeshAttributeType>
+inline 
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetValidEdgeIDList() const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetValidEdgeIDList();
+}
+
+template<typename MeshAttributeType>
+inline 
+void PolygonMesh<MeshAttributeType>::GetValidEdgeIDList(DenseVector<int_max>& OutputIDList) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetValidEdgeIDList(OutputIDList);
+}
+
+template<typename MeshAttributeType>
+inline
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetValidDirectedEdgeIDList() const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetValidDirectedEdgeIDList();
+}
+
+template<typename MeshAttributeType>
+inline 
+void PolygonMesh<MeshAttributeType>::GetValidDirectedEdgeIDList(DenseVector<int_max>& OutputIDList) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetValidDirectedEdgeIDList(OutputIDList);
+}
+
+template<typename MeshAttributeType>
+inline 
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetValidCellIDList() const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetValidCellIDList();
+}
+
+template<typename MeshAttributeType>
+inline
+void PolygonMesh<MeshAttributeType>::GetValidCellIDList(DenseVector<int_max>& OutputIDList) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetValidCellIDList(OutputIDList);
+}
+
+//----------- get ID by handle -----------------------------------------------------------//
+
+template<typename MeshAttributeType>
+inline 
+int_max PolygonMesh<MeshAttributeType>::GetPointID(PointHandleType PointHandle) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetPointID(PointHandle);
+}
+
+template<typename MeshAttributeType>
+inline 
+int_max PolygonMesh<MeshAttributeType>::GetEdgeID(EdgeHandleType EdgeHandle) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetEdgeID(PointHandle);
+}
+
+template<typename MeshAttributeType>
+inline 
+int_max PolygonMesh<MeshAttributeType>::GetDirectedEdgeID(DirectedEdgeHandleType DirectedEdgeHandle) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetDirectedEdgeID(DirectedEdgeHandle);
+}
+
+template<typename MeshAttributeType>
+inline 
+int_max PolygonMesh<MeshAttributeType>::GetCellID(CellHandleType CellHandle) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetCellID(CellHandle);
+}
+
+//----------- get PointID by position ----------------------------------------------//
+
+template<typename MeshAttributeType>
+inline 
+int_max PolygonMesh<MeshAttributeType>::GetPointID(typename MeshAttributeType::ScalarType Position[3]) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetPointID(Position);
+}
+
+template<typename MeshAttributeType>
+inline
+int_max PolygonMesh<MeshAttributeType>::
+GetPointID(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetPointID(x, y, z);
+}
+
+//----------- get EdgeID and DirectedEdgeID by PointHandleList or PointIDList ---------------------//
+
+template<typename MeshAttributeType>
+inline 
+int_max PolygonMesh<MeshAttributeType>::GetEdgeID(PointHandleType PointHandle0, PointHandleType PointHandle1) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetEdgeID(PointHandle0, PointHandle1);
+}
+
+template<typename MeshAttributeType>
+inline
+int_max PolygonMesh<MeshAttributeType>::GetEdgeID(int_max PointID0, int_max PointID1) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetEdgeID(PointID0, PointID1);
+}
+
+template<typename MeshAttributeType>
+inline
+int_max PolygonMesh<MeshAttributeType>::GetDirectedEdgeID(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetDirectedEdgeID(PointHandle_start, PointHandle_end);
+}
+
+template<typename MeshAttributeType>
+inline 
+int_max PolygonMesh<MeshAttributeType>::GetDirectedEdgeID(int_max PointID_start, int_max PointID_end) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetDirectedEdgeID(PointID_start, PointID_end);
+}
+
+//----------- get CellID by EdgeHandleList or EdgeIDList ------------------------------------------//
+
+template<typename MeshAttributeType>
+inline
+int_max PolygonMesh<MeshAttributeType>::GetCellID(const DenseVector<EdgeHandleType>& EdgeHandleList) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetCellID(EdgeHandleList);
+}
+
+template<typename MeshAttributeType>
+inline 
+int_max PolygonMesh<MeshAttributeType>::GetCellID(const DenseVector<int_max>& EdgeIDList) const
+{
+    return m_MeshData->PolygonSurfaceMesh.GetCellID(EdgeIDList);
 }
 
 //------------- Iterator --------------------------------------------------------------//
@@ -536,18 +703,26 @@ template<typename MeshAttributeType>
 Handle_Of_Edge_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::
 AddEdge(Handle_Of_Point_Of_SurfaceMesh PointHandle0, Handle_Of_Point_Of_SurfaceMesh PointHandle1)
 {
-    DenseVector<Handle_Of_Point_Of_SurfaceMesh> PointHandleList;
-    PointHandleList.Resize(2);
-    PointHandleList[0] = PointHandle0;
-    PointHandleList[1] = PointHandle1;
+    return m_MeshData->PolygonSurfaceMesh.AddEdge(PointHandle0, PointHandle1);
+}
 
-    return m_MeshData->PolygonSurfaceMesh.AddEdge(PointHandleList);
+template<typename MeshAttributeType>
+Handle_Of_Edge_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::
+AddEdge(int_max PointID0, int_max PointID1)
+{
+    return m_MeshData->PolygonSurfaceMesh.AddEdge(PointID0, PointID1);
 }
 
 template<typename MeshAttributeType>
 Handle_Of_Cell_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::AddCell(const DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& EdgeHandleList)
 {
     return m_MeshData->PolygonSurfaceMesh.AddCell(EdgeHandleList);
+}
+
+template<typename MeshAttributeType>
+Handle_Of_Cell_Of_SurfaceMesh PolygonMesh<MeshAttributeType>::AddCell(const DenseVector<int_max>& EdgeIDList)
+{
+    return m_MeshData->PolygonSurfaceMesh.AddCell(EdgeIDList);
 }
 
 //Delete Mesh Item ----------------------------------------------------------------------//
@@ -559,40 +734,46 @@ bool PolygonMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_SurfaceMesh Ce
 }
 
 template<typename MeshAttributeType>
+bool PolygonMesh<MeshAttributeType>::DeleteCell(int_max CellID)
+{
+    return m_MeshData->PolygonSurfaceMesh.DeleteCell(CellID);
+}
+
+template<typename MeshAttributeType>
 bool PolygonMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle)
 {
     return m_MeshData->PolygonSurfaceMesh.DeleteEdge(EdgeHandle);
 }
 
 template<typename MeshAttributeType>
+bool PolygonMesh<MeshAttributeType>::DeleteEdge(int_max EdgeID)
+{
+    return m_MeshData->PolygonSurfaceMesh.DeleteEdge(EdgeID);
+}
+
+template<typename MeshAttributeType>
 bool PolygonMesh<MeshAttributeType>::DeletePoint(Handle_Of_Point_Of_SurfaceMesh PointHandle)
 {
-    if (m_MeshData->PolygonSurfaceMesh.DeletePoint(PointHandle) == false)
-    {
-        return false;
-    }
-
-    auto PointHandle = m_MeshData->PolygonSurfaceMesh.Point(PointHandle).GetPointHandle();
-    if (m_MeshData->PolygonSurfaceMesh.DeletePoint(PointHandle) == false)
-    {
-        return false;
-    }
-
-    return true;
+    return m_MeshData->PolygonSurfaceMesh.DeletePoint(PointHandle);
 }
 
 template<typename MeshAttributeType>
 bool PolygonMesh<MeshAttributeType>::DeletePoint(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList)
 {
-    for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
-    {
-        if (this->DeletePoint(PointHandleList[k]) == false)
-        {
-            return false;
-        }
-    }
+    return m_MeshData->PolygonSurfaceMesh.DeletePoint(PointHandleList);
 }
 
+template<typename MeshAttributeType>
+bool PolygonMesh<MeshAttributeType>::DeletePoint(int_max PointID)
+{
+    return m_MeshData->PolygonSurfaceMesh.DeletePoint(PointID);
+}
+
+template<typename MeshAttributeType>
+bool PolygonMesh<MeshAttributeType>::DeletePoint(const DenseVector<int_max>& PointIDList)
+{
+    return m_MeshData->PolygonSurfaceMesh.DeletePoint(PointIDList);
+}
 
 template<typename MeshAttributeType>
 inline

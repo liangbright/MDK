@@ -106,9 +106,6 @@ private:
     template<typename T>
     friend class SurfaceMesh;
 
-    template<typename T>
-    friend class Point_Of_SurfaceMesh;
-
 public:
     inline Point_Of_SurfaceMesh();
     inline Point_Of_SurfaceMesh(const Point_Of_SurfaceMesh<MeshAttributeType>& InputPoint);
@@ -136,7 +133,6 @@ private:
     //-------------------------------------------------------------------------------------//
 public:
     inline bool IsValid() const;
-    bool IsVertex() const;
     bool IsOnEdge() const;
     bool IsOnBoundaryEdge() const;
 
@@ -157,17 +153,42 @@ public:
     inline DenseVector<Handle_Of_Point_Of_SurfaceMesh> GetAdjacentPointHandleList() const;
     inline void GetAdjacentPointHandleList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputHandleList) const;
 
+    inline DenseVector<int_max> GetAdjacentPointIDList() const;
+    inline void GetAdjacentPointIDList(DenseVector<int_max>& OutputIDList) const;
+
+    inline int_max GetAdjacentPointNumber() const;
+
     inline DenseVector<Handle_Of_Edge_Of_SurfaceMesh> GetAdjacentEdgeHandleList() const;
     inline void GetAdjacentEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const;
+
+    inline DenseVector<int_max> GetAdjacentEdgeIDList() const;
+    inline void GetAdjacentEdgeIDList(DenseVector<int_max>& OutputIDList) const;
+
+    inline int_max GetAdjacentEdgeNumber() const;
 
     inline DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> GetOutgoingDirectedEdgeHandleList() const;
     inline void GetOutgoingDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const;
 
+    inline DenseVector<int_max> GetOutgoingDirectedEdgeIDList() const;
+    inline void GetOutgoingDirectedEdgeIDList(DenseVector<int_max>& OutputIDList) const;
+
+    inline int_max GetOutgoingDirectedEdgeNumber() const;
+
     inline DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> GetIncomingDirectedEdgeHandleList() const;
     inline void GetIncomingDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const;
 
+    inline DenseVector<int_max> GetIncomingDirectedEdgeIDList() const;
+    inline void GetIncomingDirectedEdgeIDList(DenseVector<int_max>& OutputHandleList) const;
+
+    inline int_max GetIncomingDirectedEdgeNumber() const;
+
     inline DenseVector<Handle_Of_Cell_Of_SurfaceMesh> GetAdjacentCellHandleList() const;
     inline void GetAdjacentCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const;
+
+    inline DenseVector<int_max> GetAdjacentCellIDList() const;
+    inline void GetAdjacentCellIDList(DenseVector<int_max>& OutputHandleList) const;
+
+    inline int_max GetAdjacentCellNumber() const;
 
     inline PointAttributeType& Attribute();
     inline const PointAttributeType& Attribute() const;
@@ -187,12 +208,8 @@ struct Data_Of_Edge_Of_SurfaceMesh
 
     int_max ID; // unique identifier, it will not change after Mesh.ClearDataStructure()
 
-    int_max VertexPointIndex0;
-    int_max VertexPointIndex1;
-
-    // index of point on the Edge
-    // for PointIndex0 to PointIndex1
-    DenseVector<int_max> PointIndexList;
+    int_max PointIndex0;
+    int_max PointIndex1;
 
     //--------------------------------
 
@@ -212,6 +229,9 @@ public:
 
     template<typename T>
     friend class SurfaceMesh;
+
+    template<typename T>
+    friend class Point_Of_SurfaceMesh;
 
     template<typename T>
     friend class Cell_Of_SurfaceMesh;
@@ -237,13 +257,11 @@ private:
 
     inline int_max GetIndex() const;
 
-    inline void SetVertexPointIndexList(const int_max VertexPointIndexList[2]);
-    inline void SetVertexPointIndexList(int_max VertexPointIndex0, int_max VertexPointIndex1);
+    inline void SetPointIndexList(const int_max PointIndexList[2]);
+    inline void SetPointIndexList(int_max PointIndex0, int_max PointIndex1);
 
-    inline void GetVertexPointIndexList(int_max VertexPointIndexList[2]) const;
-    inline void GetVertexPointIndexList(int_max& VertexPointIndex0, int_max& VertexPointIndex1) const;
-
-    inline DenseVector<int_max>& PointIndexList();
+    inline void GetPointIndexList(int_max PointIndexList[2]) const;
+    inline void GetPointIndexList(int_max& PointIndex0, int_max& PointIndex1) const;
 
     inline DenseVector<int_max> GetAdjacentEdgeIndexList() const;
     inline void GetAdjacentEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
@@ -270,26 +288,39 @@ public:
     inline void SetID(int_max EdgeID);
     inline int_max GetID() const;
    
-    inline DenseVector<Handle_Of_Point_Of_SurfaceMesh> GetVertexPointHandleList() const;
-    inline void GetVertexPointHandleList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputHandleList) const;
-    inline void GetVertexPointHandleList(Handle_Of_Point_Of_SurfaceMesh OutputHandleList[2]) const;
-    inline void GetVertexPointHandleList(Handle_Of_Point_Of_SurfaceMesh& VertexHandle0, Handle_Of_Point_Of_SurfaceMesh& VertexHandle1) const;
+    inline DenseVector<Handle_Of_Point_Of_SurfaceMesh, 2> GetPointHandleList() const;
+    inline void GetPointHandleList(Handle_Of_Point_Of_SurfaceMesh OutputHandleList[2]) const;
+    inline void GetPointHandleList(Handle_Of_Point_Of_SurfaceMesh& PointHandle0, Handle_Of_Point_Of_SurfaceMesh& PointHandle1) const;
 
-    inline DenseVector<Handle_Of_Point_Of_SurfaceMesh> GetPointHandleList() const;
-    inline void GetPointHandleList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputHandleList) const;
-
-    inline int_max GetPointNumber() const;
+    inline DenseVector<int_max, 2> GetPointIDList() const;
+    inline void GetPointIDList(int_max OutputIDList[2]) const;
+    inline void GetPointIDList(int_max& PointID0, int_max& PointID1) const;
 
     inline DenseVector<Handle_Of_Edge_Of_SurfaceMesh> GetAdjacentEdgeHandleList() const;
     inline void GetAdjacentEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const;
+
+    inline DenseVector<int_max> GetAdjacentEdgeIDList() const;
+    inline void GetAdjacentEdgeIDList(DenseVector<int_max>& OutputIDList) const;
+
+    inline int_max GetAdjacentEdgeNumber() const;
 
     // Cell share this edge
     inline DenseVector<Handle_Of_Cell_Of_SurfaceMesh> GetAdjacentCellHandleList() const;
     inline void GetAdjacentCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const;
 
+    inline DenseVector<int_max> GetAdjacentCellIDList() const;
+    inline void GetAdjacentCellIDList(DenseVector<int_max>& OutputIDList) const;
+
+    inline int_max GetAdjacentCellNumber() const;
+
     // Cell share any vertex point of this edge
     inline DenseVector<Handle_Of_Cell_Of_SurfaceMesh> GetNeighbourCellHandleList() const;
     inline void GetNeighbourCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const;
+
+    inline DenseVector<int_max> GetNeighbourCellIDList() const;
+    inline void GetNeighbourCellIDList(DenseVector<int_max>& OutputHandleList) const;
+
+    inline int_max GetNeighbourCellNumber() const;
 
     inline EdgeAttributeType& Attribute();
     inline const EdgeAttributeType& Attribute() const;
@@ -392,8 +423,6 @@ private:
     inline DenseVector<int_max> GetNeighbourCellIndexList() const;
     inline void GetNeighbourCellIndexList(DenseVector<int_max>& OutputIndexList) const;
 
-    inline DenseVector<int_max> GetPointIndexList() const;
-    inline void GetPointIndexList(DenseVector<int_max>& OutputHandleList) const;
     //-----------------------------------------------------------------------------------//
 public:
     inline bool IsValid() const;
@@ -403,27 +432,41 @@ public:
     inline SurfaceMesh<MeshAttributeType>& GetParentMesh();
     inline const SurfaceMesh<MeshAttributeType>& GetParentMesh() const;
     inline Handle_Of_DirectedEdge_Of_SurfaceMesh GetHandle() const;
-    inline Handle_Of_Cell_Of_SurfaceMesh GetCellHandle() const;
-    inline Handle_Of_Point_Of_SurfaceMesh GetStartPointHandle() const;
-    inline Handle_Of_Point_Of_SurfaceMesh GetEndPointHandle() const;
-    inline Handle_Of_Edge_Of_SurfaceMesh GetEdgeHandle() const;
 
     inline void SetID(int_max DirectedEdgeID);
     inline int_max GetID() const;
 
+    inline Handle_Of_Cell_Of_SurfaceMesh GetCellHandle() const;
+    inline int_max GetCellID() const;
+
+    inline Handle_Of_Point_Of_SurfaceMesh GetStartPointHandle() const;
+    inline int_max GetStartPointID() const;
+
+    inline Handle_Of_Point_Of_SurfaceMesh GetEndPointHandle() const;
+    inline int_max GetEndPointID() const;
+
+    inline Handle_Of_Edge_Of_SurfaceMesh GetEdgeHandle() const;
+    inline int_max GetEdgeID() const;
+
     inline Handle_Of_DirectedEdge_Of_SurfaceMesh GetFirendDirectedEdgeHandle() const;
+    inline int_max GetFirendDirectedEdgeID() const;
+
     inline Handle_Of_DirectedEdge_Of_SurfaceMesh GetNextDirectedEdgeHandle() const;
+    inline int_max GetNextDirectedEdgeID() const;
+
     inline Handle_Of_DirectedEdge_Of_SurfaceMesh GetPreviousDirectedEdgeHandle() const;
+    inline int_max GetPreviousDirectedEdgeID() const;
 
     inline Handle_Of_Cell_Of_SurfaceMesh GetFirendCellHandle() const;
+    inline int_max GetFirendCellID() const;
 
     inline DenseVector<Handle_Of_Cell_Of_SurfaceMesh> GetNeighbourCellHandleList() const;
     inline void GetNeighbourCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const;
 
-    inline DenseVector<Handle_Of_Point_Of_SurfaceMesh> GetPointHandleList() const;
-    inline void GetPointHandleList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputHandleList) const;
+    inline DenseVector<int_max> GetNeighbourCellIDList() const;
+    inline void GetNeighbourCellIDList(DenseVector<int_max>& OutputHandleList) const;
 
-    inline int_max GetPointNumber() const; // the number of point
+    inline int_max GetNeighbourCellNumber() const;
 
     inline DirectedEdgeAttributeType& Attribute();
     inline const DirectedEdgeAttributeType& Attribute() const;
@@ -487,14 +530,11 @@ private:
     //----------------------------------------------------------------------------//    
     inline int_max GetIndex() const;
 
-    inline DenseVector<int_max> GetVertexPointIndexList() const;
-    inline void GetVertexPointIndexList(DenseVector<int_max>& OutputIndexList) const;
+    inline DenseVector<int_max> GetPointIndexList() const;
+    inline void GetPointIndexList(DenseVector<int_max>& OutputIndexList) const;
 
     inline DenseVector<int_max> GetEdgeIndexList() const;
     inline void GetEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
-
-    inline DenseVector<int_max> GetPointIndexList() const;
-    inline void GetPointIndexList(DenseVector<int_max>& OutputIndexList) const;
 
     // Cell share any Edge of this cell, not include this cell
     inline DenseVector<int_max> GetAdjacentCellIndexList() const;
@@ -506,6 +546,7 @@ public:
 
     inline SurfaceMesh<MeshAttributeType>& GetParentMesh();
     inline const SurfaceMesh<MeshAttributeType>& GetParentMesh() const;
+
     inline Handle_Of_Cell_Of_SurfaceMesh GetHandle() const;
 
     inline void SetID(int_max CellID);
@@ -514,26 +555,35 @@ public:
     inline DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> GetDirectedEdgeHandleList() const;
     inline void GetDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const;
 
+    inline DenseVector<int_max> GetDirectedEdgeIDList() const;
+    inline void GetDirectedEdgeIDList(DenseVector<int_max>& OutputIDList) const;
+
     inline int_max GetDirectedEdgeNumber() const; // the number of Directed Edge
-
-    inline DenseVector<Handle_Of_Point_Of_SurfaceMesh> GetVertexPointHandleList() const;
-    inline void GetVertexPointHandleList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputHandleList) const;
-
-    inline int_max GetVertexPointNumber() const; // the number of vertex point
-
-    inline DenseVector<Handle_Of_Edge_Of_SurfaceMesh> GetEdgeHandleList() const;
-    inline void GetEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const;
-
-    inline int_max GetEdgeNumber() const;  // the number of Edge
 
     inline DenseVector<Handle_Of_Point_Of_SurfaceMesh> GetPointHandleList() const;
     inline void GetPointHandleList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputHandleList) const;
 
-    inline int_max GetPointNumber() const; // the number of point
+    inline DenseVector<int_max> GetPointIDList() const;
+    inline void GetPointIDList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputIDList) const;
+
+    inline int_max GetPointNumber() const; // the number of vertex point
+
+    inline DenseVector<Handle_Of_Edge_Of_SurfaceMesh> GetEdgeHandleList() const;
+    inline void GetEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const;
+
+    inline DenseVector<int_max> GetEdgeIDList() const;
+    inline void GetEdgeIDList(DenseVector<int_max>& OutputIDList) const;
+
+    inline int_max GetEdgeNumber() const;  // the number of Edge
 
     // Cell share any Edge of this cell, not include this cell
     inline DenseVector<Handle_Of_Cell_Of_SurfaceMesh> GetAdjacentCellHandleList() const;
     inline void GetAdjacentCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const;
+
+    inline DenseVector<int_max> GetAdjacentCellIDList() const;
+    inline void GetAdjacentCellIDList(DenseVector<int_max>& OutputIDList) const;
+
+    inline int_max GetAdjacentCellNumber() const;
 
     inline CellAttributeType& Attribute();
     inline const CellAttributeType& Attribute() const;

@@ -53,6 +53,7 @@ public:
     void operator=(const PointAttributeType_Of_PolygonMesh& InputAttribute);
     void operator=(PointAttributeType_Of_PolygonMesh&& InputAttribute);
 
+    void Clear();
 };
 
 //============================================== EdgeAttribute_Of_PolygonMesh ===========================================//
@@ -80,6 +81,8 @@ public:
 
     void operator=(const EdgeAttribute_Of_PolygonMesh& InputAttribute);
     void operator=(EdgeAttribute_Of_PolygonMesh&& InputAttribute);
+
+    void Clear();
 };
 
 //============================================== DirectedEdgeAttribute_Of_PolygonMesh ===========================================//
@@ -107,6 +110,8 @@ public:
 
     void operator=(const DirectedEdgeAttribute_Of_PolygonMesh& InputAttribute);
     void operator=(DirectedEdgeAttribute_Of_PolygonMesh&& InputAttribute);
+
+    void Clear();
 };
 
 //============================================== CellAttribute_Of_PolygonMesh ===========================================//
@@ -134,6 +139,8 @@ public:
 
     void operator=(const CellAttribute_Of_PolygonMesh& InputAttribute);
     void operator=(CellAttribute_Of_PolygonMesh&& InputAttribute);
+
+    void Clear();
 };
 
 }// namespace mdk

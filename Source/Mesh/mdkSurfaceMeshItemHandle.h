@@ -22,6 +22,8 @@ public:
     inline void SetIndex(int_max PointIndex);
     inline int_max GetIndex() const;
 
+    inline void SetToInvalid();
+
     inline bool operator==(const Handle_Of_Point_Of_SurfaceMesh& InputHandle);
     inline bool operator!=(const Handle_Of_Point_Of_SurfaceMesh& InputHandle);
 };
@@ -42,6 +44,8 @@ public:
 
     inline void SetIndex(int_max EdgeIndex);
     inline int_max GetIndex() const;
+
+    inline void SetToInvalid();
 
     inline bool operator==(const Handle_Of_Edge_Of_SurfaceMesh& InputHandle);
     inline bool operator!=(const Handle_Of_Edge_Of_SurfaceMesh& InputHandle);
@@ -74,6 +78,8 @@ public:
     inline int_max GetEdgeIndex() const;
     inline int_max GetRelativeIndex() const;
 
+    inline void SetToInvalid();
+
     inline bool operator==(const Handle_Of_DirectedEdge_Of_SurfaceMesh& InputHandle);
     inline bool operator!=(const Handle_Of_DirectedEdge_Of_SurfaceMesh& InputHandle);
 };
@@ -93,8 +99,9 @@ public:
     inline void operator=(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle);
 
     inline void SetIndex(int_max CellIndex);
-
     inline int_max GetIndex() const;
+
+    inline void SetToInvalid();
 
     inline bool operator==(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle);
     inline bool operator!=(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle);
@@ -107,7 +114,7 @@ public:
 
 inline Handle_Of_Point_Of_SurfaceMesh::Handle_Of_Point_Of_SurfaceMesh()
 {
-    m_Index = -1;
+    this->SetToInvalid();
 }
 
 inline Handle_Of_Point_Of_SurfaceMesh::Handle_Of_Point_Of_SurfaceMesh(const Handle_Of_Point_Of_SurfaceMesh& InputHandle)
@@ -134,6 +141,11 @@ inline int_max Handle_Of_Point_Of_SurfaceMesh::GetIndex() const
     return m_Index;
 }
 
+inline void Handle_Of_Point_Of_SurfaceMesh::SetToInvalid()
+{
+    m_Index = -1;
+}
+
 inline bool Handle_Of_Point_Of_SurfaceMesh::operator==(const Handle_Of_Point_Of_SurfaceMesh& InputHandle)
 {
     return m_Index == InputHandle.m_Index;
@@ -148,7 +160,7 @@ inline bool Handle_Of_Point_Of_SurfaceMesh::operator!=(const Handle_Of_Point_Of_
 
 inline Handle_Of_Edge_Of_SurfaceMesh::Handle_Of_Edge_Of_SurfaceMesh()
 {
-    m_Index = -1;
+    this->SetToInvalid();
 }
 
 inline Handle_Of_Edge_Of_SurfaceMesh::Handle_Of_Edge_Of_SurfaceMesh(const Handle_Of_Edge_Of_SurfaceMesh& InputHandle)
@@ -175,6 +187,11 @@ inline int_max Handle_Of_Edge_Of_SurfaceMesh::GetIndex() const
     return m_Index;
 }
 
+inline void Handle_Of_Edge_Of_SurfaceMesh::SetToInvalid()
+{
+    m_Index = -1;
+}
+
 inline bool Handle_Of_Edge_Of_SurfaceMesh::operator==(const Handle_Of_Edge_Of_SurfaceMesh& InputHandle)
 {
     return m_Index == InputHandle.m_Index;
@@ -189,8 +206,7 @@ inline bool Handle_Of_Edge_Of_SurfaceMesh::operator!=(const Handle_Of_Edge_Of_Su
 
 inline Handle_Of_DirectedEdge_Of_SurfaceMesh::Handle_Of_DirectedEdge_Of_SurfaceMesh()
 {
-    m_Index.EdgeIndex = -1;
-    m_Index.RelativeIndex = -1;
+    this->SetToInvalid();
 }
 
 inline Handle_Of_DirectedEdge_Of_SurfaceMesh::Handle_Of_DirectedEdge_Of_SurfaceMesh(const Handle_Of_DirectedEdge_Of_SurfaceMesh& InputHandle)
@@ -219,6 +235,12 @@ inline void Handle_Of_DirectedEdge_Of_SurfaceMesh::SetIndex(int_max EdgeIndex, i
 {
     m_Index.EdgeIndex = EdgeIndex;
     m_Index.RelativeIndex = RelativeIndex;
+}
+
+inline void Handle_Of_DirectedEdge_Of_SurfaceMesh::SetToInvalid()
+{
+    m_Index.EdgeIndex = -1;
+    m_Index.RelativeIndex = -1;
 }
 
 inline DirectedEdgeIndex_Of_SurfaceMesh Handle_Of_DirectedEdge_Of_SurfaceMesh::GetIndex() const
@@ -250,7 +272,7 @@ inline bool Handle_Of_DirectedEdge_Of_SurfaceMesh::operator!=(const Handle_Of_Di
 
 inline Handle_Of_Cell_Of_SurfaceMesh::Handle_Of_Cell_Of_SurfaceMesh()
 {
-    m_Index = -1;
+    this->SetToInvalid();
 }
 
 inline Handle_Of_Cell_Of_SurfaceMesh::Handle_Of_Cell_Of_SurfaceMesh(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle)
@@ -275,6 +297,11 @@ inline void Handle_Of_Cell_Of_SurfaceMesh::SetIndex(int_max CellIndex)
 inline int_max Handle_Of_Cell_Of_SurfaceMesh::GetIndex() const
 {
     return m_Index;
+}
+
+inline void Handle_Of_Cell_Of_SurfaceMesh::SetToInvalid()
+{
+    m_Index = -1;
 }
 
 inline bool Handle_Of_Cell_Of_SurfaceMesh::operator==(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle)
