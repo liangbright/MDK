@@ -24,8 +24,8 @@ public:
 
     inline void SetToInvalid();
 
-    inline bool operator==(const Handle_Of_Point_Of_SurfaceMesh& InputHandle);
-    inline bool operator!=(const Handle_Of_Point_Of_SurfaceMesh& InputHandle);
+    inline bool operator==(const Handle_Of_Point_Of_SurfaceMesh& InputHandle) const;
+    inline bool operator!=(const Handle_Of_Point_Of_SurfaceMesh& InputHandle) const;
 };
 
 //====================================== Handle_Of_Edge_Of_SurfaceMesh ==============================================================//
@@ -47,8 +47,8 @@ public:
 
     inline void SetToInvalid();
 
-    inline bool operator==(const Handle_Of_Edge_Of_SurfaceMesh& InputHandle);
-    inline bool operator!=(const Handle_Of_Edge_Of_SurfaceMesh& InputHandle);
+    inline bool operator==(const Handle_Of_Edge_Of_SurfaceMesh& InputHandle)  const;
+    inline bool operator!=(const Handle_Of_Edge_Of_SurfaceMesh& InputHandle)  const;
 };
 
 //====================================== DirectedEdge_Of_SurfaceMesh (Cell Plasma Membrane) ===================================================//
@@ -57,6 +57,28 @@ struct DirectedEdgeIndex_Of_SurfaceMesh
 {
     int_max EdgeIndex = -1;
     int_max RelativeIndex = -1; // 0 or 1
+//------------------------------------------
+    DirectedEdgeIndex_Of_SurfaceMesh() {}
+    DirectedEdgeIndex_Of_SurfaceMesh(const DirectedEdgeIndex_Of_SurfaceMesh& InputIndex)
+    {
+        (*this) = InputIndex;
+    }
+    ~DirectedEdgeIndex_Of_SurfaceMesh() {}
+    void operator=(const DirectedEdgeIndex_Of_SurfaceMesh& InputIndex)
+    {
+        EdgeIndex = InputIndex.EdgeIndex;
+        RelativeIndex = InputIndex.RelativeIndex;
+    }
+
+    bool operator==(const DirectedEdgeIndex_Of_SurfaceMesh& InputHandle) const
+    {
+        return (EdgeIndex == InputHandle.EdgeIndex) && (RelativeIndex == InputHandle.RelativeIndex);
+    }
+
+    bool operator!=(const DirectedEdgeIndex_Of_SurfaceMesh& InputHandle) const
+    {
+        return (EdgeIndex != InputHandle.EdgeIndex) || (RelativeIndex == InputHandle.RelativeIndex);
+    }
 };
 
 struct Handle_Of_DirectedEdge_Of_SurfaceMesh
@@ -80,8 +102,8 @@ public:
 
     inline void SetToInvalid();
 
-    inline bool operator==(const Handle_Of_DirectedEdge_Of_SurfaceMesh& InputHandle);
-    inline bool operator!=(const Handle_Of_DirectedEdge_Of_SurfaceMesh& InputHandle);
+    inline bool operator==(const Handle_Of_DirectedEdge_Of_SurfaceMesh& InputHandle)  const;
+    inline bool operator!=(const Handle_Of_DirectedEdge_Of_SurfaceMesh& InputHandle)  const;
 };
 
 //====================================== Cell_Of_SurfaceMesh ==============================================================//
@@ -103,8 +125,8 @@ public:
 
     inline void SetToInvalid();
 
-    inline bool operator==(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle);
-    inline bool operator!=(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle);
+    inline bool operator==(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle) const;
+    inline bool operator!=(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle) const;
 
 };
 
@@ -146,12 +168,12 @@ inline void Handle_Of_Point_Of_SurfaceMesh::SetToInvalid()
     m_Index = -1;
 }
 
-inline bool Handle_Of_Point_Of_SurfaceMesh::operator==(const Handle_Of_Point_Of_SurfaceMesh& InputHandle)
+inline bool Handle_Of_Point_Of_SurfaceMesh::operator==(const Handle_Of_Point_Of_SurfaceMesh& InputHandle) const
 {
     return m_Index == InputHandle.m_Index;
 }
 
-inline bool Handle_Of_Point_Of_SurfaceMesh::operator!=(const Handle_Of_Point_Of_SurfaceMesh& InputHandle)
+inline bool Handle_Of_Point_Of_SurfaceMesh::operator!=(const Handle_Of_Point_Of_SurfaceMesh& InputHandle) const
 {
     return m_Index != InputHandle.m_Index;
 }
@@ -192,12 +214,12 @@ inline void Handle_Of_Edge_Of_SurfaceMesh::SetToInvalid()
     m_Index = -1;
 }
 
-inline bool Handle_Of_Edge_Of_SurfaceMesh::operator==(const Handle_Of_Edge_Of_SurfaceMesh& InputHandle)
+inline bool Handle_Of_Edge_Of_SurfaceMesh::operator==(const Handle_Of_Edge_Of_SurfaceMesh& InputHandle) const
 {
     return m_Index == InputHandle.m_Index;
 }
 
-inline bool Handle_Of_Edge_Of_SurfaceMesh::operator!=(const Handle_Of_Edge_Of_SurfaceMesh& InputHandle)
+inline bool Handle_Of_Edge_Of_SurfaceMesh::operator!=(const Handle_Of_Edge_Of_SurfaceMesh& InputHandle) const
 {
     return m_Index != InputHandle.m_Index;
 }
@@ -258,12 +280,12 @@ inline int_max Handle_Of_DirectedEdge_Of_SurfaceMesh::GetRelativeIndex() const
     return m_Index.RelativeIndex;
 }
 
-inline bool Handle_Of_DirectedEdge_Of_SurfaceMesh::operator==(const Handle_Of_DirectedEdge_Of_SurfaceMesh& InputHandle)
+inline bool Handle_Of_DirectedEdge_Of_SurfaceMesh::operator==(const Handle_Of_DirectedEdge_Of_SurfaceMesh& InputHandle) const
 {
     return m_Index.EdgeIndex == InputHandle.m_Index.EdgeIndex && m_Index.RelativeIndex == InputHandle.m_Index.RelativeIndex;
 }
 
-inline bool Handle_Of_DirectedEdge_Of_SurfaceMesh::operator!=(const Handle_Of_DirectedEdge_Of_SurfaceMesh& InputHandle)
+inline bool Handle_Of_DirectedEdge_Of_SurfaceMesh::operator!=(const Handle_Of_DirectedEdge_Of_SurfaceMesh& InputHandle) const
 {
     return m_Index.EdgeIndex != InputHandle.m_Index.EdgeIndex || m_Index.RelativeIndex != InputHandle.m_Index.RelativeIndex;
 }
@@ -304,12 +326,12 @@ inline void Handle_Of_Cell_Of_SurfaceMesh::SetToInvalid()
     m_Index = -1;
 }
 
-inline bool Handle_Of_Cell_Of_SurfaceMesh::operator==(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle)
+inline bool Handle_Of_Cell_Of_SurfaceMesh::operator==(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle) const
 {
     return m_Index == InputHandle.m_Index;
 }
 
-inline bool Handle_Of_Cell_Of_SurfaceMesh::operator!=(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle)
+inline bool Handle_Of_Cell_Of_SurfaceMesh::operator!=(const Handle_Of_Cell_Of_SurfaceMesh& InputHandle) const
 {
     return m_Index != InputHandle.m_Index;
 }

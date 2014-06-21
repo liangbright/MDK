@@ -25,8 +25,6 @@ class TriangleMesh : public PolygonMesh<MeshAttributeType>
 public:
     typedef TriangleMesh<MeshAttributeType> MeshType;
 
-    typedef int_max IndexType;
-
     typedef MeshAttributeType MeshAttributeType;
 
     typedef typename MeshAttributeType::ScalarType                  ScalarType;

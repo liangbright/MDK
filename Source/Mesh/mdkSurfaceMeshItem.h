@@ -408,7 +408,7 @@ private:
     inline void SetPreviousDirectedEdgeIndex(int_max EdgeIndex, int_max RelativeIndex);
    
     //-----------------------------------------------------------------------------------//
-    inline int_max GetIndex() const;
+    inline DirectedEdgeIndex_Of_SurfaceMesh GetIndex() const;
     inline int_max GetStartPointIndex() const;
     inline int_max GetEndPointIndex() const;
     inline int_max GetEdgeIndex() const;

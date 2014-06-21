@@ -8,10 +8,6 @@
 
 namespace mdk
 {
-//------- forward declare -------//
-template<typename MeshAttributeType>
-class PolygonMesh;
-//--------------------------------//
 
 //------------------------------- standard/default PolygonMeshAttribute -------------------------------//
 template<typename ScalarType>
@@ -31,8 +27,6 @@ class PolygonMesh : public SurfaceMesh<MeshAttributeType>
 {
 public:
     typedef PolygonMesh<MeshAttributeType> MeshType;
-
-    typedef int_max IndexType;
 
     typedef MeshAttributeType MeshAttributeType;
 

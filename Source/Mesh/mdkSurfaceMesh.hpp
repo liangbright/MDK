@@ -451,7 +451,7 @@ SetPointPosition(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleL
 
     for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
     {
-        auto PointIndex = PointHandleList[k].Index;
+        auto PointIndex = PointHandleList[k].GetIndex();
         if (PointIndex < 0 || PointIndex >= m_MeshData->PointPositionTable.GetColNumber())
         {
             MDK_Error("Invalid PointIndex @ SurfaceMesh::SetPointPosition(...)")
@@ -516,7 +516,7 @@ GetPointPosition(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleL
     PointPositionMatrix.FastResize(3, PointHandleList.GetLength());
     for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
     {
-        auto PointIndex = PointHandleList[k].Index;
+        auto PointIndex = PointHandleList[k].GetIndex();
         if (PointIndex < 0 || PointIndex >= m_MeshData->PointPositionTable.GetColNumber())
         {
             MDK_Error("Invalid PointIndex @ SurfaceMesh::GetPointPosition(...)")
@@ -727,85 +727,84 @@ bool SurfaceMesh<MeshAttributeType>::IsValidHandle(Handle_Of_Cell_Of_SurfaceMesh
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Point_Of_SurfaceMesh> SurfaceMesh<MeshAttributeType>::GetValidPointHandleList() const
+DenseVector<Handle_Of_Point_Of_SurfaceMesh> SurfaceMesh<MeshAttributeType>::GetPointHandleList() const
 {
     DenseVector<Handle_Of_Point_Of_SurfaceMesh> OutputHandleList;
-    this->GetValidPointHandleList(OutputHandleList);
+    this->GetPointHandleList(OutputHandleList);
     return OutputHandleList;
 }
 
 template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshAttributeType>::GetValidPointHandleList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputHandleList) const
+void SurfaceMesh<MeshAttributeType>::GetPointHandleList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputHandleList) const
 {
-    OutputHandleList.FastResize(this->GetPointNumber());
-    int_max Counter = 0;
-    for (int_max k = 0; k < m_MeshData->PointValidityFlagList[k]; ++k)
+    OutputHandleList.ReserveCapacity(m_MeshData->PointList.GetLength());
+    Handle_Of_Point_Of_SurfaceMesh PointHandle;
+    for (int_max k = 0; k < m_MeshData->PointList.GetLength(); ++k)
     {
         if (m_MeshData->PointValidityFlagList[k] == 1)
         {
-            OutputHandleList[Counter].SetIndex(k);
-            Counter += 1;
+            PointHandle.SetIndex(k);
+            OutputHandleList.Append(PointHandle);
         }
     }
 }
 
 template<typename MeshAttributeType>
 inline 
-DenseVector<Handle_Of_Edge_Of_SurfaceMesh> SurfaceMesh<MeshAttributeType>::GetValidEdgeHandleList() const
+DenseVector<Handle_Of_Edge_Of_SurfaceMesh> SurfaceMesh<MeshAttributeType>::GetEdgeHandleList() const
 {
     DenseVector<Handle_Of_Edge_Of_SurfaceMesh> OutputHandleList;
-    this->GetValidEdgeHandleList(OutputHandleList);
+    this->GetEdgeHandleList(OutputHandleList);
     return OutputHandleList;
 }
 
 template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshAttributeType>::GetValidEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const
+void SurfaceMesh<MeshAttributeType>::GetEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const
 {
-    OutputHandleList.FastResize(this->GetEdgeNumber());
-    int_max Counter = 0;
-    for (int_max k = 0; k < m_MeshData->EdgeValidityFlagList[k]; ++k)
+    OutputHandleList.ReserveCapacity(m_MeshData->EdgeList.GetLength());
+    Handle_Of_Edge_Of_SurfaceMesh EdgeHandle;
+    for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k)
     {
         if (m_MeshData->EdgeValidityFlagList[k] == 1)
         {
-            OutputHandleList[Counter].SetIndex(k);
-            Counter += 1;
+            EdgeHandle.SetIndex(k);
+            OutputHandleList.Append(EdgeHandle);
         }
     }
 }
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> SurfaceMesh<MeshAttributeType>::GetValidDirectedEdgeHandleList() const
+DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> SurfaceMesh<MeshAttributeType>::GetDirectedEdgeHandleList() const
 {
     DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> OutputHandleList;
-    this->GetValidDirectedEdgeHandleList(OutputHandleList);
+    this->GetDirectedEdgeHandleList(OutputHandleList);
     return OutputHandleList;
 }
 
 template<typename MeshAttributeType>
 inline
 void SurfaceMesh<MeshAttributeType>::
-GetValidDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const
+GetDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const
 {
-    OutputHandleList.ReserveCapacity(this->GetEdgeNumber()*2);
-    for (int_max k = 0; k < m_MeshData->EdgeValidityFlagList[k]; ++k)
+    OutputHandleList.ReserveCapacity(2*m_MeshData->DirectedEdgePairList.GetLength());
+    Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle;
+    for (int_max k = 0; k < m_MeshData->DirectedEdgePairList.GetLength(); ++k)
     {
         if (m_MeshData->EdgeValidityFlagList[k] == 1)
         {
-            Handle_Of_DirectedEdge_Of_SurfaceMesh tempHandle;
-
             if (m_MeshData->DirectedEdgePairList[k][0].IsValid() == true)
             {
-                tempHandle.SetIndex(k, 0);
-                OutputHandleList.Append(tempHandle);
+                DirectedEdgeHandle.SetIndex(k, 0);
+                OutputHandleList.Append(DirectedEdgeHandle);
             }
 
             if (m_MeshData->DirectedEdgePairList[k][1].IsValid() == true)
             {
-                tempHandle.SetIndex(k, 1);
-                OutputHandleList.Append(tempHandle);
+                DirectedEdgeHandle.SetIndex(k, 1);
+                OutputHandleList.Append(DirectedEdgeHandle);
             }
         }
     }
@@ -813,26 +812,26 @@ GetValidDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Cell_Of_SurfaceMesh> SurfaceMesh<MeshAttributeType>::GetValidCellHandleList() const
+DenseVector<Handle_Of_Cell_Of_SurfaceMesh> SurfaceMesh<MeshAttributeType>::GetCellHandleList() const
 {
     DenseVector<Handle_Of_Cell_Of_SurfaceMesh> OutputHandleList;
-    this->GetValidCellHandleList(OutputHandleList);
+    this->GetCellHandleList(OutputHandleList);
     return OutputHandleList;
 }
 
 
 template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshAttributeType>::GetValidCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const
+void SurfaceMesh<MeshAttributeType>::GetCellHandleList(DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& OutputHandleList) const
 {
-    OutputHandleList.FastResize(this->GetCellNumber());
-    int_max Counter = 0;
-    for (int_max k = 0; k < m_MeshData->CellValidityFlagList[k]; ++k)
+    OutputHandleList.ReserveCapacity(m_MeshData->CellList.GetLength());
+    Handle_Of_Cell_Of_SurfaceMesh CellHandle;
+    for (int_max k = 0; k < m_MeshData->CellList.GetLength(); ++k)
     {
         if (m_MeshData->CellValidityFlagList[k] == 1)
         {
-            OutputHandleList[Counter].SetIndex(k);
-            Counter += 1;
+            CellHandle.SetIndex(k);
+            OutputHandleList.Append(CellHandle);
         }
     }
 }
@@ -1235,16 +1234,16 @@ bool SurfaceMesh<MeshAttributeType>::IsValidCellID(int_max CellID) const
 
 template<typename MeshAttributeType>
 inline
-DenseVector<int_max> SurfaceMesh<MeshAttributeType>::GetValidPointIDList() const
+DenseVector<int_max> SurfaceMesh<MeshAttributeType>::GetPointIDList() const
 {
     DenseVector<int_max> OutputIDList;
-    this->GetValidPointIDList(OutputIDList);
+    this->GetPointIDList(OutputIDList);
     return OutputIDList;
 }
 
 template<typename MeshAttributeType>
 inline 
-void SurfaceMesh<MeshAttributeType>::GetValidPointIDList(DenseVector<int_max>& OutputIDList) const
+void SurfaceMesh<MeshAttributeType>::GetPointIDList(DenseVector<int_max>& OutputIDList) const
 {
     OutputIDList.ReserveCapacity(int_max(m_MeshData->Map_PointID_to_PointIndex.size()));
     for (auto it = m_MeshData->Map_PointID_to_PointIndex.begin(); it != m_MeshData->Map_PointID_to_PointIndex.end(); ++it)
@@ -1255,16 +1254,16 @@ void SurfaceMesh<MeshAttributeType>::GetValidPointIDList(DenseVector<int_max>& O
 
 template<typename MeshAttributeType>
 inline 
-DenseVector<int_max> SurfaceMesh<MeshAttributeType>::GetValidEdgeIDList() const
+DenseVector<int_max> SurfaceMesh<MeshAttributeType>::GetEdgeIDList() const
 {
     DenseVector<int_max> OutputIDList;
-    this->GetValidEdgeIDList(OutputIDList);
+    this->GetEdgeIDList(OutputIDList);
     return OutputIDList;
 }
 
 template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshAttributeType>::GetValidEdgeIDList(DenseVector<int_max>& OutputIDList) const
+void SurfaceMesh<MeshAttributeType>::GetEdgeIDList(DenseVector<int_max>& OutputIDList) const
 {
     OutputIDList.ReserveCapacity(int_max(m_MeshData->Map_EdgeID_to_EdgeIndex.size()));
     for (auto it = m_MeshData->Map_EdgeID_to_EdgeIndex.begin(); it != m_MeshData->Map_EdgeID_to_EdgeIndex.end(); ++it)
@@ -1275,16 +1274,16 @@ void SurfaceMesh<MeshAttributeType>::GetValidEdgeIDList(DenseVector<int_max>& Ou
 
 template<typename MeshAttributeType>
 inline
-DenseVector<int_max> SurfaceMesh<MeshAttributeType>::GetValidDirectedEdgeIDList() const
+DenseVector<int_max> SurfaceMesh<MeshAttributeType>::GetDirectedEdgeIDList() const
 {
     DenseVector<int_max> OutputIDList;
-    this->GetValidDirectedEdgeIDList(OutputIDList);
+    this->GetDirectedEdgeIDList(OutputIDList);
     return OutputIDList;
 }
 
 template<typename MeshAttributeType>
 inline 
-void SurfaceMesh<MeshAttributeType>::GetValidDirectedEdgeIDList(DenseVector<int_max>& OutputIDList) const
+void SurfaceMesh<MeshAttributeType>::GetDirectedEdgeIDList(DenseVector<int_max>& OutputIDList) const
 {
     OutputIDList.ReserveCapacity(int_max(m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.size()));
     for (auto it = m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.begin(); it != m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.end(); ++it)
@@ -1295,16 +1294,16 @@ void SurfaceMesh<MeshAttributeType>::GetValidDirectedEdgeIDList(DenseVector<int_
 
 template<typename MeshAttributeType>
 inline
-DenseVector<int_max> SurfaceMesh<MeshAttributeType>::GetValidCellIDList() const
+DenseVector<int_max> SurfaceMesh<MeshAttributeType>::GetCellIDList() const
 {
     DenseVector<int_max> OutputIDList;
-    this->GetValidCellIDList(OutputIDList);
+    this->GetCellIDList(OutputIDList);
     return OutputIDList;
 }
 
 template<typename MeshAttributeType>
 inline 
-void SurfaceMesh<MeshAttributeType>::GetValidCellIDList(DenseVector<int_max>& OutputIDList) const
+void SurfaceMesh<MeshAttributeType>::GetCellIDList(DenseVector<int_max>& OutputIDList) const
 {
     OutputIDList.ReserveCapacity(int_max(m_MeshData->Map_CellID_to_CellIndex.size()));
     for (auto it = m_MeshData->Map_CellID_to_CellIndex.begin(); it != m_MeshData->Map_CellID_to_CellIndex.end(); ++it)
@@ -1602,6 +1601,7 @@ AddEdge(Handle_Of_Point_Of_SurfaceMesh PointHandle0, Handle_Of_Point_Of_SurfaceM
     Edge.SetPointIndexList(PointIndex0, PointIndex1);
 
     m_MeshData->EdgeList.Append(std::move(Edge));
+    m_MeshData->EdgeValidityFlagList.Append(1);
 
     // add empty DirectedEdgePair to hold place
     DenseVector<DirectedEdge_Of_SurfaceMesh<MeshAttributeType>, 2> DirectedEdgePair;
@@ -1609,23 +1609,11 @@ AddEdge(Handle_Of_Point_Of_SurfaceMesh PointHandle0, Handle_Of_Point_Of_SurfaceM
     m_MeshData->DirectedEdgePairList[EdgeIndex][0].Clear();
     m_MeshData->DirectedEdgePairList[EdgeIndex][1].Clear();
 
-    m_MeshData->EdgeValidityFlagList.Append(1);
-
     // update AdjacentPoint information in m_MeshData->PointList
-    auto tempIndex0 = m_MeshData->PointList[PointIndex0].AdjacentPointIndexList().Find([&](int_max Index) {return Index == PointIndex1;});
-    if (tempIndex0.IsEmpty() == true)
-    {
-        m_MeshData->PointList[PointIndex0].AdjacentPointIndexList().Append(PointIndex1);
-    }   
-
-    auto tempIndex1 = m_MeshData->PointList[PointIndex1].AdjacentPointIndexList().Find([&](int_max Index) {return Index == PointIndex0; });
-    if (tempIndex1.IsEmpty() == true)
-    {
-        m_MeshData->PointList[PointIndex1].AdjacentPointIndexList().Append(PointIndex0);
-    }
-
-    // update AdjacentEdge information in m_MeshData->PointList
+    m_MeshData->PointList[PointIndex0].AdjacentPointIndexList().Append(PointIndex1);
     m_MeshData->PointList[PointIndex0].AdjacentEdgeIndexList().Append(EdgeIndex);
+
+    m_MeshData->PointList[PointIndex1].AdjacentPointIndexList().Append(PointIndex0);
     m_MeshData->PointList[PointIndex1].AdjacentEdgeIndexList().Append(EdgeIndex);
     
     //------------
@@ -1646,7 +1634,9 @@ Handle_Of_Edge_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddEdge(int_max Po
 template<typename MeshAttributeType>
 Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& EdgeHandleList)
 {
-    // the input EdgeIndexList must have been ordered
+    // Input: the input EdgeIndexList must have been ordered
+    // the order determine the direction/sign of the normal vector
+    // it also determine the direction of each DirectedEdge
 
     Handle_Of_Cell_Of_SurfaceMesh CellHandle;
 
@@ -1675,7 +1665,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const Dens
         return CellHandle;
     }
 
-    //------------------------------------------------------------------------------------------------//
+    // get PointIndexList from EdgeHandleList ---------------------------------------------------------------------------//
        
     DenseVector<int_max> PointIndexList;
     PointIndexList.Resize(EdgeHandleList.GetLength());
@@ -1748,6 +1738,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const Dens
         DirectedEdgeIndexList[k].EdgeIndex = EdgeHandleList[k].GetIndex();
     }
 
+    // Create each DirectedEdge
     for (int_max k = 0; k < DirectedEdgeIndexList.GetLength(); ++k)
     {
         auto tempEdgeIndex = DirectedEdgeIndexList[k].EdgeIndex;
@@ -1789,7 +1780,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const Dens
         }
     }
 
-    // create cell --------------------------------------------------------------
+    // create cell --------------------------------------------------------------------------------------------------
 
     Cell_Of_SurfaceMesh<MeshAttributeType> Cell;
     Cell.Create();
@@ -1829,14 +1820,6 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const Dens
     for (int_max k = 0; k < EdgeIDList.GetLength(); ++k)
     {
         EdgeHandleList[k] = this->GetEdgeHandle(EdgeIDList[k]);
-
-        if (this->IsValidHandle(EdgeHandleList[k]) == false)
-        {
-            MDK_Error("EdgeIDList is invalid @  SurfaceMesh::AddCell(...)")
-            Handle_Of_Cell_Of_SurfaceMesh CellHandle;
-            CellHandle.SetToInvalid();
-            return CellHandle;
-        }
     }
 
     return this->AddCell(EdgeIDList);    
@@ -1847,21 +1830,19 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const Dens
 template<typename MeshAttributeType>
 bool SurfaceMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_SurfaceMesh CellHandle)
 {
-    auto CellIndex = CellHandle.Index;
+    // this function will remove each DirectedEdge of the Cell, and modify any information related to the cell
+    // CellHandle and CellID of the cell become invalid after the cell is deleted
 
-    if (CellIndex < 0 || CellIndex >= m_MeshData->CellList.GetLength())
+    // check input 
+    if (this->IsValidHandle(CellHandle) == false)
     {
-        MKD_Error("Invalid CellIndex @ SurfaceMesh::DeleteCell(...)")
+        MKD_Error("Invalid CellHandle @ SurfaceMesh::DeleteCell(...)")
         return false;
     }
 
-    if (m_MeshData->CellValidityFlagList[CellIndex] == 0)
-    {
-        MKD_Warning("The cell has been deleted already, CellIndex = " << CellIndex  << "@ SurfaceMesh::DeleteCell(...)")
-        return true;
-    }
-
     //--------------------------------------------------------------------------------------
+    auto CellIndex = CellHandle.GetIndex();
+
     // auto& will get reference
     const auto& DirectedEdgeIndexList = m_MeshData->CellList[CellIndex].DirectedEdgeIndexList();
     const auto& PointIndexList = m_MeshData->CellList[CellIndex].GetPointIndexList();
@@ -1870,21 +1851,20 @@ bool SurfaceMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_SurfaceMesh Ce
 
     for (int_max k = 0; k < DirectedEdgeIndexList.GetLength(); ++k)
     {
-        auto tempEdgeIndex = DirectedEdgeIndexList[k].EdgeIndex;
-        auto tempRelativeIndex = DirectedEdgeIndexList[k].RelativeIndex;
-        const auto& tempDirectedEdge = m_MeshData->DirectedEdgePairList[tempEdgeIndex][tempRelativeIndex];
+        auto tempDirectedEdgeIndex = DirectedEdgeIndexList[k];
+        const auto& tempDirectedEdge = m_MeshData->DirectedEdgePairList[tempDirectedEdgeIndex.EdgeIndex][tempDirectedEdgeIndex.RelativeIndex];
         auto tempPointIndex_start = tempDirectedEdge.GetStartPointIndex();
         auto tempPointIndex_end = tempDirectedEdge.GetEndPointIndex();
 
         auto tempIndex_a = m_MeshData->PointList[tempPointIndex_start].OutgoingDirectedEdgeIndexList().Find([&](DirectedEdgeIndex_Of_SurfaceMesh Index)
         {
-            return (Index.EdgeIndex == tempEdgeIndex && Index.RelativeIndex == tempRelativeIndex);
+            return (Index == tempDirectedEdgeIndex);
         });
         m_MeshData->PointList[tempPointIndex_start].OutgoingDirectedEdgeIndexList().Delete(tempIndex_a);
 
         auto tempIndex_b = m_MeshData->PointList[tempPointIndex_end].IncomingDirectedEdgeIndexList().Find([&](DirectedEdgeIndex_Of_SurfaceMesh Index)
         {
-            return (Index.EdgeIndex == tempEdgeIndex && Index.RelativeIndex == tempRelativeIndex);
+            return (Index == tempDirectedEdgeIndex);
         });
         m_MeshData->PointList[tempPointIndex_end].IncomingDirectedEdgeIndexList().Delete(tempIndex_b);
     }
@@ -1895,15 +1875,18 @@ bool SurfaceMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_SurfaceMesh Ce
         m_MeshData->PointList[PointIndexList[k]].AdjacentCellIndexList().Delete(tempIndex);
     }
 
-    // Delete DirectedEdge: only clear memory, not remove from DirectedEdgePairList
+    // Delete DirectedEdge: only release memory, not remove from DirectedEdgePairList
     for (int_max k = 0; k < DirectedEdgeIndexList.GetLength(); k++)
     {
         auto tempEdgeIndex = DirectedEdgeIndexList[k].EdgeIndex;
         auto tempRelativeIndex = DirectedEdgeIndexList[k].RelativeIndex;
-        // delete DirectedEdgeID
+        // delete DirectedEdgeID record if the map has it
         auto it = m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.find(m_MeshData->DirectedEdgePairList[tempEdgeIndex][tempRelativeIndex].GetID());
-        m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.erase(it);
-        // clear
+        if (it != m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.end())
+        {
+            m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.erase(it);
+        }
+        // release memory
         m_MeshData->DirectedEdgePairList[tempEdgeIndex][tempRelativeIndex].Clear();
     }
 
@@ -1930,20 +1913,16 @@ bool SurfaceMesh<MeshAttributeType>::DeleteCell(int_max CellID)
 
 template<typename MeshAttributeType>
 bool SurfaceMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle)
-{
-    auto EdgeIndex = EdgeHandle.GetIndex();
-
-    if (EdgeIndex < 0 || EdgeIndex >= m_MeshData->EdgeList.GetLength())
+{    
+    if (this->IsValidHandle(EdgeHandle) == false)
     {
-        MDK_Error("Invalid EdgeIndex @ SurfaceMesh::DeleteEdge(...)")
+        MDK_Error("Invalid EdgeHandle @ SurfaceMesh::DeleteEdge(...)")
         return false;
     }
 
-    if (m_MeshData->EdgeValidityFlagList[EdgeIndex] == 0)
-    {
-        MDK_Warning("The edge has been deleted already @ SurfaceMesh::DeleteEdge(...)")
-        return true;
-    }
+    // check AdjacentCell: the edge can not be deleted if any adjacent cell exit
+
+    auto EdgeIndex = EdgeHandle.GetIndex();
 
     const auto& AdjacentCellIndexList = m_MeshData->EdgeList[EdgeIndex].GetAdjacentCellIndexList();
     if (AdjacentCellIndexList.IsEmpty() == false)
@@ -1951,18 +1930,7 @@ bool SurfaceMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh Ed
         MDK_Error("AdjacentCellIndexList is not empty, so this edge can not be deleted @ SurfaceMesh::DeleteEdge(...)")
         return false;
     }
-
-    //---------------------------------------------------------------------------------------------
-    const auto& PointIndexList = m_MeshData->EdgeList[EdgeIndex].GetPointIndexList();
-
-    // update AdjacentEdge information in m_MeshData->PointList
-    for (int_max k = 1; k < PointIndexList.GetLength() - ; ++k)
-    {
-        auto tempIndex = m_MeshData->PointList[PointIndexList[k]].AdjacentEdgeIndexList().Find([&](int_max Index) { return (Index == EdgeIndex); });
-        m_MeshData->PointList[PointIndexList[k]].AdjacentEdgeIndexList().Delete(tempIndex);
-    }
-
-    // update AdjacentPoint information in m_MeshData->PointList
+    // -------------------------------------------------------------------------------
 
     int_max PointIndexList[2];
     m_MeshData->EdgeList[EdgeIndex].GetPointIndexList(PointIndexList);
@@ -1970,45 +1938,29 @@ bool SurfaceMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh Ed
     auto PointIndex0 = PointIndexList[0];
     auto PointIndex1 = PointIndexList[1];
 
+    // update AdjacentEdge information in m_MeshData->PointList
     for (int_max k = 0; k < 2; ++k)
     {
-        bool tempFlag_0_1_connected = false;
-
-        const auto& tempIndexList = m_MeshData->PointList[PointIndexList[k]].AdjacentEdgeIndexList();
-        for (int_max n = 0; n < tempIndexList.GetLength(); ++n)
-        {
-            int_max tempPointIndex0 = -1;
-            int_max tempPointIndex1 = -1;
-            m_MeshData->EdgeList[PointIndexList[k]].GetPointIndexList(tempPointIndex0, tempPointIndex1);
-            if (tempPointIndex0 == PointIndex0 && tempPointIndex1 == PointIndex1)
-            {
-                tempFlag_0_1_connected = true;
-                break;
-            }
-            else if (tempPointIndex0 == PointIndex1 && tempPointIndex1 == PointIndex0)
-            {
-                tempFlag_0_1_connected = true;
-                break;
-            }
-        }
-
-        if (tempFlag_0_1_connected == false)
-        {            
-            auto tempIndex0 = m_MeshData->PointList[PointIndex0].AdjacentPointIndexList().Find([&](int_max Index){return Index == PointIndex1;});
-            m_MeshData->PointList[PointIndex0].AdjacentEdgeIndexList().Delete(tempIndex0);
-
-            auto tempIndex1 = m_MeshData->PointList[PointIndex1].AdjacentPointIndexList().Find([&](int_max Index){return Index == PointIndex0;});
-            m_MeshData->PointList[PointIndex1].AdjacentEdgeIndexList().Delete(tempIndex1);
-
-            break;
-        }
+        auto tempIndex = m_MeshData->PointList[PointIndexList[k]].AdjacentEdgeIndexList().Find([&](int_max Index) { return (Index == EdgeIndex); });
+        m_MeshData->PointList[PointIndexList[k]].AdjacentEdgeIndexList().Delete(tempIndex);
     }
 
-    // Delete EdgeID
-    auto it = m_MeshData->Map_EdgeID_to_EdgeIndex.find(m_MeshData->EdgeList[EdgeIndex].GetID());
-    m_MeshData->Map_EdgeID_to_EdgeIndex.erase(it);
+    // update AdjacentPoint information in m_MeshData->PointList    
 
-    // Delete Edge: only clear memory, not remove from EdgeList
+    auto tempIndex_a = m_MeshData->PointList[PointIndex0].AdjacentPointIndexList().Find([&](int_max Index){return Index == PointIndex1; });
+    m_MeshData->PointList[PointIndex0].AdjacentEdgeIndexList().Delete(tempIndex_a);
+
+    auto tempIndex_b = m_MeshData->PointList[PointIndex1].AdjacentPointIndexList().Find([&](int_max Index){return Index == PointIndex0; });
+    m_MeshData->PointList[PointIndex1].AdjacentEdgeIndexList().Delete(tempIndex_b);
+
+    // Delete EdgeID record if the map has it 
+    auto it = m_MeshData->Map_EdgeID_to_EdgeIndex.find(m_MeshData->EdgeList[EdgeIndex].GetID());
+    if (it != m_MeshData->Map_EdgeID_to_EdgeIndex.end())
+    {
+        m_MeshData->Map_EdgeID_to_EdgeIndex.erase(it);
+    }
+
+    // Delete Edge: only release memory, not remove from EdgeList
     m_MeshData->EdgeList[EdgeIndex].Clear();
     m_MeshData->EdgeValidityFlagList[EdgeIndex] = 0;
     //--------------------------------------------------------
@@ -2028,19 +1980,13 @@ bool SurfaceMesh<MeshAttributeType>::DeleteEdge(int_max EdgeID)
 template<typename MeshAttributeType>
 bool SurfaceMesh<MeshAttributeType>::DeletePoint(Handle_Of_Point_Of_SurfaceMesh PointHandle)
 {
-    auto PointIndex = PointHandle.GetIndex();
-
-    if (PointIndex < 0 || PointIndex >= m_MeshData->PointList.GetLength())
+    if (this->IsValidHandle(PointHandle) == false)
     {
-        MDK_Error("Invalid PointIndex @ SurfaceMesh::DeletePoint(...)")
+        MDK_Error("Invalid PointHandle @ SurfaceMesh::DeletePoint(...)")
         return false;
     }
 
-    if (m_MeshData->PointValidityFlagList[PointIndex] == 0)
-    {
-        MDK_Warning("The point has been deleted alreay @ SurfaceMesh::DeletePoint(...)")
-        return true;
-    }
+    auto PointIndex = PointHandle.GetIndex();
 
     if (m_MeshData->PointList[PointIndex].IsOnEdge() == true)
     {
@@ -2049,8 +1995,11 @@ bool SurfaceMesh<MeshAttributeType>::DeletePoint(Handle_Of_Point_Of_SurfaceMesh 
     }
 
     //--------------------------------------------------------------------
-    auto it = m_MeshData->Map_PointID_to_PointIndex.find(m_MeshData->PointIDList[PointIndex].GetID());
-    m_MeshData->Map_PointID_to_PointIndex.erase(it);
+    auto it = m_MeshData->Map_PointID_to_PointIndex.find(m_MeshData->PointList[PointIndex].GetID());
+    if (it != m_MeshData->Map_PointID_to_PointIndex.end())
+    {
+        m_MeshData->Map_PointID_to_PointIndex.erase(it);
+    }
 
     m_MeshData->PointPositionTable.FillCol(PointIndex, 0);
 
@@ -2102,15 +2051,335 @@ bool SurfaceMesh<MeshAttributeType>::DeletePoint(const DenseVector<int_max>& Poi
     return true;
 }
 
-//----------------- remove deleted item from object list ----------------------------------------------------------//
-// attention: after this function is called, every index will be changed
+//----------------- remove deleted item from Point/Edge/DirectedEdgePair/Cell list ----------------------------------------------------------//
+// attention: 
+// after CleanDataStructure() is called, the size of each list will change, index and handle may become invalid,
+// but every valid ID will still be valid
 // and there will be no "dead/deleted" item in any object list (e.g., m_MeshData->EdgeList)
+// Only use CleanDataStructure() if memory is an issue, when InvalidPointHandleNumber/ValidPointNumber( GetPointNumber() ) > 0.5
+
+template<typename MeshAttributeType>
+int_max SurfaceMesh<MeshAttributeType>::GetInvalidPointHandleNumber() const
+{
+    return m_MeshData->PointList.GetLength() - this->GetPointNumber();
+}
+
 template<typename MeshAttributeType>
 void SurfaceMesh<MeshAttributeType>::CleanDataStructure()
 {
+    //-------------------------- clean PolintList and update Map_PointID_to_PointIndex -----------------------------------------------------------//
+    DenseVector<int_max> ValidPointIndexList;
+    ValidPointIndexList.ReserveCapacity(m_MeshData->PointList.GetLength());
 
+    for (int_max k = 0; k < m_MeshData->PointList.GetLength(); ++k) // k is PointIndex
+    {
+        if (m_MeshData->PointValidityFlagList[k] == 1)
+        {
+            ValidPointIndexList.Append(k);
+
+            auto PointIndex_k_new = ValidPointIndexList.GetLength() - 1;
+            if (PointIndex_k_new != k)
+            {// need to modify information related to the point
+                // modify AdjacentPoint information in m_MeshData->PointList
+                const auto& AdjacentPointIndexList_k = m_MeshData->PointList[k].AdjacentPointIndexList();
+                for (int_max n = 0; n < AdjacentPointIndexList_k.GetLength(); ++k)
+                {
+                    // auto&: get reference and modify
+                    auto& AdjacentPointIndexList_n = m_MeshData->PointList[AdjacentPointIndexList_k[n]].AdjacentPointIndexList();
+                    auto tempIndex_n = AdjacentPointIndexList_n.Find([&](int_max Index) { return Index == k; });
+                    
+                    if (tempIndex_n.GetLength() != 1)
+                    {
+                        MDK_Error("Something is wrong about AdjacentPointIndexList_n @ SurfaceMesh::CleanDataStructure()")
+                        return;
+                    }
+
+                    AdjacentPointIndexList_n[tempIndex_n[0]] = PointIndex_k_new;
+                }
+
+                // modify PointIndex information in m_MeshData->EdgeList
+                const auto& AdjacentEdgeIndexList_k = m_MeshData->PointList[k].AdjacentEdgeIndexList();
+                for (int_max n = 0; n < AdjacentEdgeIndexList_k.GetLength(); ++k)
+                {
+                    // auto&: get reference and modify
+                    auto& AdjacentEdge_n = m_MeshData->EdgeList[AdjacentEdgeIndexList_k[n]];
+                    int_max PointIndex0, PointIndex1;                    
+                    AdjacentEdge_n.GetPointIndexList(PointIndex0, PointIndex1);
+                    if (PointIndex0 == k)
+                    {   // keep the order in the PointIndexList
+                        AdjacentEdge_n.SetPointIndexList(PointIndex_k_new, PointIndex1);
+                    }
+                    else if (PointIndex1 == k)
+                    {
+                        AdjacentEdge_n.SetPointIndexList(PointIndex0, PointIndex_k_new);
+                    }
+                    else
+                    {
+                        MDK_Error("Something is wrong about AdjacentEdge_n @ SurfaceMesh::CleanDataStructure()")
+                        return;
+                    }
+                }
+
+                // modify PointIndex information in m_MeshData->DirectedEdgePairList
+                const auto& OutgoingDirectedEdgeIndexList_k = m_MeshData->PointList[k].OutgoingDirectedEdgeIndexList();
+                for (int_max n = 0; n < OutgoingDirectedEdgeIndexList_k.GetLength(); ++k)
+                {
+                    auto EdgeIndex_n = OutgoingDirectedEdgeIndexList_k[n].EdgeIndex;
+                    auto RelativeIndex_n = OutgoingDirectedEdgeIndexList_k[n].RelativeIndex;
+                    auto PointIndex_start_n = m_MeshData->DirectedEdgePairList[EdgeIndex_n][RelativeIndex_n].GetStartPointIndex();
+                    if (PointIndex_start_n != k)
+                    {
+                        MDK_Error("Something is wrong about OutgoingDirectedEdgeIndexList_k @ SurfaceMesh::CleanDataStructure()")
+                        return;
+                    }
+                    m_MeshData->DirectedEdgePairList[EdgeIndex_n][RelativeIndex_n].SetStartPointIndex(PointIndex_k_new);
+                }
+
+                const auto& IncomingDirectedEdgeIndexList_k = m_MeshData->PointList[k].IncomingDirectedEdgeIndexList();
+                for (int_max n = 0; n < IncomingDirectedEdgeIndexList_k.GetLength(); ++k)
+                {
+                    auto EdgeIndex_n = IncomingDirectedEdgeIndexList_k[n].EdgeIndex;
+                    auto RelativeIndex_n = IncomingDirectedEdgeIndexList_k[n].RelativeIndex;
+                    auto PointIndex_end_n = m_MeshData->DirectedEdgePairList[EdgeIndex_n][RelativeIndex_n].GetEndPointIndex();
+                    if (PointIndex_end_n != k)
+                    {
+                        MDK_Error("Something is wrong about IncomingDirectedEdgeIndexList_k @ SurfaceMesh::CleanDataStructure()")
+                        return;
+                    }
+                    m_MeshData->DirectedEdgePairList[EdgeIndex_n][RelativeIndex_n].SetEndPointIndex(PointIndex_k_new);
+                }
+            }
+        }
+    }// for each PoinIndex k
+    
+    if (ValidPointIndexList.GetLength() != m_MeshData->PointList.GetLength())
+    {
+        // remove deleted item from PointList
+        DataArray<Point_Of_SurfaceMesh<MeshAttributeType>> PointList_new;
+        PointList_new.Resize(ValidPointIndexList.GetLength());
+        for (int_max k = 0; k < ValidPointIndexList.GetLength(); ++k)
+        {
+            PointList_new[k] = std::move(m_MeshData->PointList[ValidPointIndexList[k]]);
+            PointList_new[k].SetIndex(k);
+        }
+        m_MeshData->PointList = std::move(PointList_new);
+
+        m_MeshData->PointValidityFlagList.FastResize(ValidPointIndexList.GetLength());
+        m_MeshData->PointValidityFlagList.Fill(1);
+
+        // update Map_PointID_to_PointIndex
+        m_MeshData->Map_PointID_to_PointIndex.clear();
+        for (int_max k = 0; k < m_MeshData->PointList.GetLength(); ++k)
+        {
+            auto PointID_k = m_MeshData->PointList[k].GetID();
+            if (PointID_k >= 0) // ID is invalid if < 0 
+            {
+                m_MeshData->Map_PointID_to_PointIndex[k] = PointID_k;
+            }
+        }
+    }
+    //ValidPointIndexList.Clear();
+
+    //--------------------- done clean PolintList and update Map_PointID_to_PointIndex ------------------------------------------------------------//
+
+    //---- clean EdgeList and DirectedEdgePairList and update Map_EdgeID_to_EdgeIndex and Map_DirectedEdgeID_to_DirectedEdgeIndex -----------------//
+
+    DenseVector<int_max> ValidEdgeIndexList;
+    ValidEdgeIndexList.ReserveCapacity(m_MeshData->EdgeList.GetLength());
+
+    for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k) // k is EdgeIndex
+    {
+        if (m_MeshData->EdgeValidityFlagList[k] == 1)
+        {
+            ValidEdgeIndexList.Append(k);
+
+            auto EdgeIndex_k_new = ValidEdgeIndexList.GetLength() - 1;
+            if (EdgeIndex_k_new != k)
+            {// need to modify information related to the edge
+
+                // modify AdjacentEdge information in m_MeshData->PointList
+                int_max PointIndexList_k[2];
+                m_MeshData->EdgeList[k].GetPointIndexList(PointIndexList_k);
+                for (int_max n = 0; n < 2; ++n)
+                {
+                    // auto& : get reference and modify
+                    auto& AdjacentEdgeIndexList_n = m_MeshData->PointList[PointIndexList_k[n]].AdjacentEdgeIndexList();
+                    auto tempIndex = AdjacentEdgeIndexList_n.Find([&](int_max Index){return Index == k; });
+                    if (tempIndex.GetLength() != 1)
+                    {
+                        MDK_Error("Something is wrong about PointIndexList_k @ SurfaceMesh::CleanDataStructure()")
+                        return;
+                    }
+                    AdjacentEdgeIndexList_n[tempIndex[0]] = EdgeIndex_k_new;
+                }
+
+                // modify DirectedEdgeIndex information in m_MeshData->CellList
+                for (int_max n = 0; n < 2; ++n)
+                {
+                    if (m_MeshData->DirectedEdgePairList[k][n].IsValid() == true)
+                    {
+                        auto CellIndex_n = m_MeshData->DirectedEdgePairList[k][n].GetCellIndex();
+                        // auto& : get reference and modify
+                        auto& DirectedEdgeIndexList_n = m_MeshData->CellList[CellIndex_n].DirectedEdgeIndexList();
+                        auto tempIndex = DirectedEdgeIndexList_n.Find([&](DirectedEdgeIndex_Of_SurfaceMesh Index) {return Index.EdgeIndex == k; });
+                        if (tempIndex.GetLength() != 1)
+                        {
+                            MDK_Error("Something is wrong about DirectedEdgeIndexList @ SurfaceMesh::CleanDataStructure()")
+                            return;
+                        }
+                        DirectedEdgeIndexList_n[tempIndex[0]].EdgeIndex = EdgeIndex_k_new;
+                    }
+                }
+            }
+        }
+    }// for each EdgeIndex k
+
+    if (ValidEdgeIndexList.GetLength() != m_MeshData->EdgeList.GetLength())
+    {
+        // remove deleted item from EdgeList and DirectedEdgePairList
+
+        DataArray<Edge_Of_SurfaceMesh<MeshAttributeType>> EdgeList_new;
+        EdgeList_new.Resize(ValidEdgeIndexList.GetLength());
+
+        DataArray<DenseVector<DirectedEdge_Of_SurfaceMesh<MeshAttributeType>, 2>> DirectedEdgePairList_new;
+        DirectedEdgePairList_new.Resize(ValidEdgeIndexList.GetLength());
+
+        for (int_max k = 0; k < ValidEdgeIndexList.GetLength(); ++k)
+        {
+            EdgeList_new[k] = std::move(m_MeshData->EdgeList[ValidEdgeIndexList[k]]);
+            EdgeList_new[k].SetIndex(k);
+
+            DirectedEdgePairList_new[k] = std::move(m_MeshData->DirectedEdgePairList[ValidEdgeIndexList[k]]);
+            
+            if (DirectedEdgePairList_new[k][0].IsValid() == true)
+            {
+                DirectedEdgePairList_new[k][0].SetIndex(k, 0);
+            }            
+           
+            if (DirectedEdgePairList_new[k][1].IsValid() == true)
+            {
+                DirectedEdgePairList_new[k][1].SetIndex(k, 1);
+            }
+        }
+
+        m_MeshData->EdgeList = std::move(EdgeList_new);
+        m_MeshData->DirectedEdgePairList = std::move(DirectedEdgePairList_new);
+
+        m_MeshData->EdgeValidityFlagList.FastResize(ValidEdgeIndexList.GetLength());
+        m_MeshData->EdgeValidityFlagList.Fill(1);
+
+        // update Map_EdgeID_to_EdgeIndex and Map_DirectedEdgeID_to_DirectedEdgeIndex
+        m_MeshData->Map_EdgeID_to_EdgeIndex.clear();
+        m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.clear();
+        for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k)
+        {
+            auto EdgeID_k = m_MeshData->EdgeList[k].GetID();
+            if (EdgeID_k >= 0) // ID is invalid if < 0 
+            {
+                m_MeshData->Map_EdgeID_to_EdgeIndex[EdgeID_k] = k;
+            }
+
+            // auto& : get reference and modify
+            auto& DirectedEdge_0 = m_MeshData->DirectedEdgePairList[k][0];
+            if (DirectedEdge_0.IsValid() == true)
+            {
+                auto DirectedEdgeID_k_0 = DirectedEdge_0.GetID();
+                if (DirectedEdgeID_k_0 >= 0) // ID is invalid if < 0 
+                {
+                    m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex[DirectedEdgeID_k_0] = DirectedEdge_0.GetIndex();
+                }
+            }
+
+            // auto& : get reference and modify
+            auto& DirectedEdge_1 = m_MeshData->DirectedEdgePairList[k][1];
+            if (DirectedEdge_1.IsValid() == true)
+            {
+                auto DirectedEdgeID_k_1 = DirectedEdge_1.GetID();
+                if (DirectedEdgeID_k_1 >= 0) // ID is invalid if < 0 
+                {
+                    m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex[DirectedEdgeID_k_1] = DirectedEdge_1.GetIndex();
+                }
+            }
+        }
+    }
+    //ValidEdgeIndexList.Clear();
+
+    //---- done clean EdgeList and DirectedEdgePairList and update Map_EdgeID_to_EdgeIndex and Map_DirectedEdgeID_to_DirectedEdgeIndex --------//
+
+    //------------------ clean CellList and Update Map_CellID_to_CellIndex ---------------------------------------------------------------------//
+
+    DenseVector<int_max> ValidCellIndexList;
+    ValidCellIndexList.ReserveCapacity(m_MeshData->CellList.GetLength());
+
+    for (int_max k = 0; k < m_MeshData->CellList.GetLength(); ++k) // k is CellIndex
+    {
+        if (m_MeshData->CellValidityFlagList[k] == 1)
+        {
+            ValidCellIndexList.Append(k);
+
+            auto CellIndex_k_new = ValidCellIndexList.GetLength() - 1;
+            if (CellIndex_k_new != k)
+            {// need to modify information related to the cell
+
+                // modify AdjacentCell information in m_MeshData->PointList
+                auto PointIndexList_k = m_MeshData->CellList[k].GetPointIndexList();
+                for (int_max n = 0; n < PointIndexList_k.GetLength(); ++n)
+                {
+                    // auto& : get reference and modify
+                    auto& tempAdjacentCellIndexList = m_MeshData->PointList[PointIndexList_k[n]].AdjacentCellIndexList();
+                    auto tempIndex = tempAdjacentCellIndexList.Find([&](int_max Index) {return Index == k; });
+                    if (tempIndex.GetLength() != 1)
+                    {
+                        MDK_Error("Something is wrong about AdjacentCellIndexList @ SurfaceMesh::CleanDataStructure()")
+                        return;
+                    }
+                    tempAdjacentCellIndexList[tempIndex[0]] = CellIndex_k_new;
+                }
+
+                // modify CellIndex Information in m_MeshData->DirectedEdgePairList 
+                const auto& DirectedEdgeIndexList_k = m_MeshData->CellList[k].DirectedEdgeIndexList();
+                for (int_max n = 0; n < DirectedEdgeIndexList_k.GetLength(); ++n)
+                {
+                    auto tempEdgeIndex = DirectedEdgeIndexList_k[n].EdgeIndex;
+                    auto tempRelativeIndex = DirectedEdgeIndexList_k[n].RelativeIndex;
+                    m_MeshData->DirectedEdgePairList[tempEdgeIndex][tempRelativeIndex].SetCellIndex(CellIndex_k_new);
+                }
+            }
+        }
+    }// for each CellIndex k
+
+    // remove deleted item from CellList
+    if (ValidCellIndexList.GetLength() != m_MeshData->CellList.GetLength())
+    {
+        DataArray<Cell_Of_SurfaceMesh<MeshAttributeType>> CellList_new;
+        CellList_new.Resize(ValidCellIndexList.GetLength());
+        for (int_max k = 0; k < ValidCellIndexList.GetLength(); ++k)
+        {
+            CellList_new[k] = std::move(m_MeshData->CellList[ValidCellIndexList[k]]);
+            CellList_new[k].SetIndex(k);
+        }
+        m_MeshData->CellList = std::move(CellList_new);
+
+        m_MeshData->CellValidityFlagList.FastResize(ValidCellIndexList.GetLength());
+        m_MeshData->CellValidityFlagList.Fill(1);
+
+        // update Map_CellID_to_CellIndex
+        m_MeshData->Map_CellID_to_CellIndex.clear();
+        for (int_max k = 0; k < m_MeshData->CellList.GetLength(); ++k)
+        {
+            auto CellID_k = m_MeshData->CellList[k].GetID();
+            if (CellID_k >= 0) // ID is invalid if < 0 
+            {
+                m_MeshData->Map_CellID_to_CellIndex[k] = CellID_k;
+            }
+        }
+    }
+    //ValidCellIndexList.Clear();
+
+    //--------------- done clean CellList and Update Map_CellID_to_CellIndex ----------------------------------------------------//
 }
-//---------------------------------------------------------------------------
+
+
 
 }// namespace mdk
 

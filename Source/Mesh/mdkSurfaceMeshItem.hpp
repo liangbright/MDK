@@ -1357,7 +1357,7 @@ void DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::SetPreviousDirectedEdgeInde
 
 template<typename MeshAttributeType>
 inline
-int_max DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::GetIndex() const
+DirectedEdgeIndex_Of_SurfaceMesh DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::GetIndex() const
 {
     return m_Data->Index;
 }
@@ -1840,11 +1840,11 @@ template<typename MeshAttributeType>
 inline
 void Cell_Of_SurfaceMesh<MeshAttributeType>::GetPointIndexList(DenseVector<int_max>& OutputIndexList) const
 {
-    IndexList.FastResize(m_Data->DirectedEdgeIndexList.GetLength());
-    for (int_max k = 0; k < IndexList.GetLength(); ++k)
+    OutputIndexList.FastResize(m_Data->DirectedEdgeIndexList.GetLength());
+    for (int_max k = 0; k < OutputIndexList.GetLength(); ++k)
     {
         auto tempIndex = m_Data->DirectedEdgeIndexList[k];
-        IndexList[k] = m_Data->Mesh.m_MeshData->DirectedEdgePairList[tempIndex.EdgeIndex][tempIndex.RelativeIndex].GetStartPointIndex();
+        OutputIndexList[k] = m_Data->Mesh.m_MeshData->DirectedEdgePairList[tempIndex.EdgeIndex][tempIndex.RelativeIndex].GetStartPointIndex();
     }
 }
 

@@ -11,6 +11,11 @@ void Test_MeshConstruction()
     
     auto LeafletMesh = LoadPolygonMeshFromVTKFile<PolygonMeshAttributeType<double>>(FilePathAndName);
 
+    auto PointHandle = LeafletMesh.AddPoint(0, 0, 0);
+
+    LeafletMesh.DeletePoint(PointHandle);
+    LeafletMesh.CleanDataStructure();
+
    // SavePolygonMeshAsJsonDataFile(LeafletMesh, "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Polygon.json");
 
     SavePolygonMeshAsVTKFile(LeafletMesh, "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Polygon.vtk");
