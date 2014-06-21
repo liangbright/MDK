@@ -147,16 +147,17 @@ GetPointPositionMatrixAndCellTable(DenseMatrix<typename MeshAttributeType::Scala
     PointPositionTable.FastResize(3, PointNumber);    
     CellTable.FastResize(CellNumber);
 
-    std::unordered_map<int_max, int_max> Map_PointIndex_to_OutputIndex;
+    // Map PointIndex (PointHandle.GetIndex()) to OutputIndex (col index) in PointPositionTable
+    std::unordered_map<int_max, int_max> Map_PointIndex_to_OutputIndex; 
 
     int_max PointCounter = 0;
 
     auto it_v = this->GetIteratorOfPoint();
     it_v.SetToBegin();
-    while (it_v.IsInRange())
+    while (it_v.IsNotEnd())
     {
         auto PointHandle = it_v.GetPointHandle();
-        this->Point(PointHandle).GetPosition(PointPositionTable.GetPointerOfCol(PointCounter));
+        it_v.Point().GetPosition(PointPositionTable.GetPointerOfCol(PointCounter));
         Map_PointIndex_to_OutputIndex[PointHandle.GetIndex()] = PointCounter;
         PointCounter += 1;
         ++it_v;
@@ -166,10 +167,9 @@ GetPointPositionMatrixAndCellTable(DenseMatrix<typename MeshAttributeType::Scala
 
     auto it = this->GetIteratorOfCell();
     it.SetToBegin();
-    while (it.IsInRange())
+    while (it.IsNotEnd())
     {
-        auto CellHandle = it.GetCellHandle();
-        auto PointHandleList = this->Cell(CellHandle).GetPointHandleList();
+        auto PointHandleList = it.Cell().GetPointHandleList();
         CellTable[CellCounter].FastResize(PointHandleList.GetLength());
         for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
         {
