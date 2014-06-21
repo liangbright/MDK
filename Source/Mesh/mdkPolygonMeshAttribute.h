@@ -7,25 +7,38 @@
 namespace mdk
 {
 
-//----------------- forward declare ------------------//
+//============================================== GlobalAttribute_Of_PolygonMesh ===========================================//
+enum class PolygonMeshGlobalAttributeTypeEnum
+{
+    MeanCellArea,
+    MeanEdgePhysicalLength
+};
 
 template<typename ScalarType>
-class PolygonMesh;
+struct GlobalAttribute_Of_PolygonMesh
+{
+    ScalarType MeanCellArea;
+    ScalarType MeanEdgePhysicalLength;
 
-template<typename ScalarType>
-class Point_Of_PolygonMesh;
+//--------------------------------------------------------------
+    GlobalAttribute_Of_PolygonMesh() { this->Clear(); }
+    GlobalAttribute_Of_PolygonMesh(const GlobalAttribute_Of_PolygonMesh& InputAttribute) { (*this) = InputAttribute; }
+    ~GlobalAttribute_Of_PolygonMesh() {}
 
-template<typename ScalarType>
-class Edge_Of_PolygonMesh;
+    void operator=(const GlobalAttribute_Of_PolygonMesh& InputAttribute)
+    {
+        MeanCellArea = InputAttribute.MeanCellArea;
+        MeanEdgePhysicalLength = InputAttribute.MeanCellArea;
+    }
 
-template<typename ScalarType>
-class DirectedEdge_Of_PolygonMesh;
+    void Clear()
+    {
+        MeanCellArea = 0;
+        MeanEdgePhysicalLength = 0;
+    }
+};
 
-template<typename ScalarType>
-class Cell_Of_PolygonMesh;
-//---------------------------------------------------//
-
-//============================================== PointAttributeType_Of_PolygonMesh ===========================================//
+//============================================== PointAttribute_Of_PolygonMesh ===========================================//
 enum class PolygonMeshPointAttributeTypeEnum
 {
     MeanCurvature,
@@ -33,27 +46,27 @@ enum class PolygonMeshPointAttributeTypeEnum
 };
 
 template<typename ScalarType>
-struct Data_Of_PointAttributeType_Of_PolygonMesh
+struct PointAttribute_Of_PolygonMesh
 {
     ScalarType MeanCurvature;
     DenseVector<ScalarType, 3> Normal;
-};
 
-template<typename ScalarType>
-class PointAttributeType_Of_PolygonMesh
-{
-private:
-    std::unique_ptr<Data_Of_PointAttributeType_Of_PolygonMesh<ScalarType>> m_Data;
-public:
-    PointAttributeType_Of_PolygonMesh();
-    PointAttributeType_Of_PolygonMesh(const PointAttributeType_Of_PolygonMesh& InputAttribute);
-    PointAttributeType_Of_PolygonMesh(PointAttributeType_Of_PolygonMesh&& InputAttribute);
-    ~PointAttributeType_Of_PolygonMesh();
+//-----------------------------------------------
+    PointAttribute_Of_PolygonMesh() { this->Clear(); }
+    PointAttribute_Of_PolygonMesh(const PointAttribute_Of_PolygonMesh& InputAttribute) { (*this) = InputAttribute; }
+    ~PointAttribute_Of_PolygonMesh() {}
 
-    void operator=(const PointAttributeType_Of_PolygonMesh& InputAttribute);
-    void operator=(PointAttributeType_Of_PolygonMesh&& InputAttribute);
+    void operator=(const PointAttribute_Of_PolygonMesh& InputAttribute)
+    {
+        MeanCurvature = InputAttribute.MeanCurvature;
+        Normal = InputAttribute.Normal;
+    }
 
-    void Clear();
+    void Clear()
+    {
+        MeanCurvature = 0;
+        Normal.Fill(0);
+    }
 };
 
 //============================================== EdgeAttribute_Of_PolygonMesh ===========================================//
@@ -62,27 +75,26 @@ enum class PolygonMeshEdgeAttributeEnum
     PhysicalLength,
 };
 
+
 template<typename ScalarType>
-struct Data_Of_EdgeAttribute_Of_PolygonMesh
+struct EdgeAttribute_Of_PolygonMesh
 {
     ScalarType PhysicalLength;
-};
 
-template<typename ScalarType>
-class EdgeAttribute_Of_PolygonMesh
-{
-private:
-    std::unique_ptr<Data_Of_EdgeAttribute_Of_PolygonMesh<ScalarType>> m_Data;
-public:
-    EdgeAttribute_Of_PolygonMesh();
-    EdgeAttribute_Of_PolygonMesh(const EdgeAttribute_Of_PolygonMesh& InputAttribute);
-    EdgeAttribute_Of_PolygonMesh(EdgeAttribute_Of_PolygonMesh&& InputAttribute);
-    ~EdgeAttribute_Of_PolygonMesh();
+//----------------------------------------------------------------------
+    EdgeAttribute_Of_PolygonMesh() { this->Clear(); }
+    EdgeAttribute_Of_PolygonMesh(const EdgeAttribute_Of_PolygonMesh& InputAttribute) { (*this) = InputAttribute; }
+    ~EdgeAttribute_Of_PolygonMesh() {}
 
-    void operator=(const EdgeAttribute_Of_PolygonMesh& InputAttribute);
-    void operator=(EdgeAttribute_Of_PolygonMesh&& InputAttribute);
+    void operator=(const EdgeAttribute_Of_PolygonMesh& InputAttribute)
+    {
+        PhysicalLength = InputAttribute.PhysicalLength;
+    }
 
-    void Clear();
+    void Clear()
+    {
+        PhysicalLength = 0;
+    }
 };
 
 //============================================== DirectedEdgeAttribute_Of_PolygonMesh ===========================================//
@@ -92,26 +104,24 @@ enum class PolygonMeshDirectedEdgeAttributeEnum
 };
 
 template<typename ScalarType>
-struct Data_Of_DirectedEdgeAttribute_Of_PolygonMesh
+struct DirectedEdgeAttribute_Of_PolygonMesh
 {
     DenseVector<ScalarType, 3> Orientation;
-};
+//-------------------------------------------------------
+    DirectedEdgeAttribute_Of_PolygonMesh() { this->Clear(); }
+    DirectedEdgeAttribute_Of_PolygonMesh(const DirectedEdgeAttribute_Of_PolygonMesh& InputAttribute) { (*this) = InputAttribute; }
+    ~DirectedEdgeAttribute_Of_PolygonMesh() {}
 
-template<typename ScalarType>
-class DirectedEdgeAttribute_Of_PolygonMesh
-{
-private:
-    std::unique_ptr<Data_Of_DirectedEdgeAttribute_Of_PolygonMesh<ScalarType>> m_Data;
-public:
-    DirectedEdgeAttribute_Of_PolygonMesh();
-    DirectedEdgeAttribute_Of_PolygonMesh(const DirectedEdgeAttribute_Of_PolygonMesh& InputAttribute);
-    DirectedEdgeAttribute_Of_PolygonMesh(DirectedEdgeAttribute_Of_PolygonMesh&& InputAttribute);
-    ~DirectedEdgeAttribute_Of_PolygonMesh();
+    void operator=(const DirectedEdgeAttribute_Of_PolygonMesh& InputAttribute)
+    {
+        Orientation = InputAttribute.Orientation;
+    }
 
-    void operator=(const DirectedEdgeAttribute_Of_PolygonMesh& InputAttribute);
-    void operator=(DirectedEdgeAttribute_Of_PolygonMesh&& InputAttribute);
+    void Clear()
+    {
+        Orientation.Fill(0);
+    }
 
-    void Clear();
 };
 
 //============================================== CellAttribute_Of_PolygonMesh ===========================================//
@@ -121,30 +131,27 @@ enum class PolygonMeshCellAttributeEnum
 };
 
 template<typename ScalarType>
-struct Data_Of_CellAttribute_Of_PolygonMesh
+struct CellAttribute_Of_PolygonMesh
 {
     ScalarType Area;
-};
 
-template<typename ScalarType>
-class CellAttribute_Of_PolygonMesh
-{
-private:
-    std::unique_ptr<Data_Of_CellAttribute_Of_PolygonMesh<ScalarType>> m_Data;
-public:
-    CellAttribute_Of_PolygonMesh();
-    CellAttribute_Of_PolygonMesh(const CellAttribute_Of_PolygonMesh& InputAttribute);
-    CellAttribute_Of_PolygonMesh(CellAttribute_Of_PolygonMesh&& InputAttribute);
-    ~CellAttribute_Of_PolygonMesh();
+//---------------------------------------
+    CellAttribute_Of_PolygonMesh() { this->Clear(); }
+    CellAttribute_Of_PolygonMesh(const CellAttribute_Of_PolygonMesh& InputAttribute) { (*this) = InputAttribute; }
+    ~CellAttribute_Of_PolygonMesh() {}
 
-    void operator=(const CellAttribute_Of_PolygonMesh& InputAttribute);
-    void operator=(CellAttribute_Of_PolygonMesh&& InputAttribute);
+    void operator=(const CellAttribute_Of_PolygonMesh& InputAttribute)
+    {
+        Area = InputAttribute.Area;
+    }
 
-    void Clear();
+    void Clear()
+    {
+        Area = 0;
+    }
 };
 
 }// namespace mdk
 
-#include "mdkPolygonMeshAttribute.hpp"
 
 #endif

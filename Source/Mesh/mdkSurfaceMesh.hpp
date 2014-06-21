@@ -67,20 +67,6 @@ void SurfaceMesh<MeshAttributeType>::Clear()
         return;
     }
 
-    m_MeshData->IsTriangleMesh = false;
-
-    Map_PointID_to_PointIndex.clear();
-    Map_PointID_to_PointIndex.shrink_to_fit();
-
-    Map_EdgeID_to_EdgeIndex.clear();
-    Map_EdgeID_to_EdgeIndex.shrink_to_fit();
-
-    Map_DirectedEdgeID_to_DirectedEdgeIndex.clear();
-    Map_DirectedEdgeID_to_DirectedEdgeIndex.shrink_to_fit();
-
-    Map_CellID_to_CellIndex.clear();
-    Map_CellID_to_CellIndex.shrink_to_fit();
-
     m_MeshData->PointPositionTable.Clear();
     m_MeshData->PointList.Clear();
     m_MeshData->PointValidityFlagList.Clear();
@@ -91,6 +77,20 @@ void SurfaceMesh<MeshAttributeType>::Clear()
 
     m_MeshData->CellList.Clear();
     m_MeshData->CellValidityFlagList.Clear();
+
+    m_MeshData->Map_PointID_to_PointIndex.clear();
+    m_MeshData->Map_PointID_to_PointIndex.shrink_to_fit();
+
+    m_MeshData->Map_EdgeID_to_EdgeIndex.clear();
+    m_MeshData->Map_EdgeID_to_EdgeIndex.shrink_to_fit();
+
+    m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.clear();
+    m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.shrink_to_fit();
+
+    m_MeshData->Map_CellID_to_CellIndex.clear();
+    m_MeshData->Map_CellID_to_CellIndex.shrink_to_fit();
+
+    m_MeshData->Attribute.Clear();
 }
 
 
@@ -108,11 +108,6 @@ void SurfaceMesh<MeshAttributeType>::Copy(const SurfaceMesh<MeshAttributeType>& 
         return;
     }
 
-    m_MeshData->Map_PointID_to_PointIndex = InputMesh.m_MeshData->Map_PointID_to_PointIndex;
-    m_MeshData->Map_EdgeID_to_EdgeIndex = InputMesh.m_MeshData->Map_EdgeID_to_EdgeIndex;
-    m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex = InputMesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex;
-    m_MeshData->Map_CellID_to_CellIndex = InputMesh.m_MeshData->Map_CellID_to_CellIndex;
-
     m_MeshData->PointPositionTable = InputMesh.m_MeshData->PointPositionTable;
     m_MeshData->PointList = InputMesh.m_MeshData->PointList;
     m_MeshData->PointValidityFlagList = InputMesh.m_MeshData->PointValidityFlagList;
@@ -123,6 +118,13 @@ void SurfaceMesh<MeshAttributeType>::Copy(const SurfaceMesh<MeshAttributeType>& 
 
     m_MeshData->CellList = InputMesh.m_MeshData->CellList;
     m_MeshData->CellValidityFlagList = InputMesh.m_MeshData->CellValidityFlagList;
+
+    m_MeshData->Map_PointID_to_PointIndex = InputMesh.m_MeshData->Map_PointID_to_PointIndex;
+    m_MeshData->Map_EdgeID_to_EdgeIndex = InputMesh.m_MeshData->Map_EdgeID_to_EdgeIndex;
+    m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex = InputMesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex;
+    m_MeshData->Map_CellID_to_CellIndex = InputMesh.m_MeshData->Map_CellID_to_CellIndex;
+
+    m_MeshData->Attribute = InputMesh.m_MeshData->Attribute;
 }
 
 
@@ -202,12 +204,6 @@ template<typename MeshAttributeType>
 inline
 void SurfaceMesh<MeshAttributeType>::Take(SurfaceMesh<MeshAttributeType>& InputMesh)
 {
-
-    m_MeshData->Map_PointID_to_PointIndex = std::move(InputMesh.m_MeshData->Map_PointID_to_PointIndex);
-    m_MeshData->Map_EdgeID_to_EdgeIndex = std::move(InputMesh.m_MeshData->Map_EdgeID_to_EdgeIndex);
-    m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex = std::move(InputMesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex);
-    m_MeshData->Map_CellID_to_CellIndex = std::move(InputMesh.m_MeshData->Map_CellID_to_CellIndex);
-
     m_MeshData->PointPositionTable = std::move(InputMesh.m_MeshData->PointPositionTable);
     m_MeshData->PointValidityFlagList = std::move(InputMesh.m_MeshData->PointValidityFlagList);
     m_MeshData->PointList = std::move(InputMesh.m_MeshData->PointList);
@@ -247,6 +243,13 @@ void SurfaceMesh<MeshAttributeType>::Take(SurfaceMesh<MeshAttributeType>& InputM
             m_MeshData->CellList[k].SetParentMesh(*this);
         }
     }    
+
+    m_MeshData->Map_PointID_to_PointIndex = std::move(InputMesh.m_MeshData->Map_PointID_to_PointIndex);
+    m_MeshData->Map_EdgeID_to_EdgeIndex = std::move(InputMesh.m_MeshData->Map_EdgeID_to_EdgeIndex);
+    m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex = std::move(InputMesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex);
+    m_MeshData->Map_CellID_to_CellIndex = std::move(InputMesh.m_MeshData->Map_CellID_to_CellIndex);
+
+    m_MeshData->Attribute = std::move(InputMesh.m_MeshData->Attribute);
 }
 
 
@@ -319,7 +322,111 @@ int_max SurfaceMesh<MeshAttributeType>::GetCellNumber() const
     return m_MeshData->CellValidityFlagList.Sum();
 }
 
-//---- Get/Set 3D Position by PointHandleList or PointIDList --------------------------------------------------------------------------//
+//------ Get/Set GlobalAttribute -----------------------------------//
+
+template<typename MeshAttributeType>
+inline
+typename MeshAttributeType::GlobalAttribute& SurfaceMesh<MeshAttributeType>::Attribute()
+{
+    return m_MeshData->Attribute;
+}
+
+template<typename MeshAttributeType>
+inline
+const typename MeshAttributeType::GlobalAttribute& SurfaceMesh<MeshAttributeType>::Attribute() const
+{
+    return m_MeshData->Attribute;
+}
+
+//---- Get/Set 3D Position by PointHandle or PointID --------------------------------------------------------------------------//
+
+template<typename MeshAttributeType>
+inline
+void SurfaceMesh<MeshAttributeType>::
+SetPointPosition(Handle_Of_Point_Of_SurfaceMesh PointHandle, 
+                typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z)
+{
+    m_MeshData->PointPositionTable.SetCol(PointHandle.GetIndex(), { x, y, z });
+}
+
+template<typename MeshAttributeType>
+inline 
+void SurfaceMesh<MeshAttributeType>::SetPointPosition(Handle_Of_Point_Of_SurfaceMesh PointHandle, const typename MeshAttributeType::ScalarType Position[3])
+{
+    m_MeshData->PointPositionTable.SetCol(PointHandle.GetIndex(), Position);
+}
+
+template<typename MeshAttributeType>
+inline 
+void SurfaceMesh<MeshAttributeType>::
+SetPointPosition(int_max PointID, typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z)
+{
+    auto PointHandle = this->GetPointHandle(PointID);
+    this->SetPointPosition(PointHandle, x, y, z);
+}
+
+template<typename MeshAttributeType>
+inline
+void SurfaceMesh<MeshAttributeType>::SetPointPosition(int_max PointID, const typename MeshAttributeType::ScalarType Position[3])
+{
+    auto PointHandle = this->GetPointHandle(PointID);
+    this->SetPointPosition(PointHandle, Position);
+}
+
+template<typename MeshAttributeType>
+inline
+DenseVector<typename MeshAttributeType::ScalarType, 3> 
+SurfaceMesh<MeshAttributeType>::GetPointPosition(Handle_Of_Point_Of_SurfaceMesh PointHandle)
+{
+    DenseVector<ScalarType, 3> Position;
+    m_MeshData->PointPositionTable.GetCol(PointHandle.GetIndex(), Position.GetPointer());
+    return Position;
+}
+
+template<typename MeshAttributeType>
+inline 
+void SurfaceMesh<MeshAttributeType>::
+GetPointPosition(Handle_Of_Point_Of_SurfaceMesh PointHandle, 
+                 typename MeshAttributeType::ScalarType& x, typename MeshAttributeType::ScalarType& y, typename MeshAttributeType::ScalarType& z)
+{
+    ScalarType Position[3];
+    m_MeshData->PointPositionTable.GetCol(PointHandle.GetIndex(), Position);
+    x = Position[0];
+    y = Position[1];
+    z = Position[2];
+}
+
+template<typename MeshAttributeType>
+inline 
+void SurfaceMesh<MeshAttributeType>::GetPointPosition(Handle_Of_Point_Of_SurfaceMesh PointHandle, typename MeshAttributeType::ScalarType Position[3])
+{
+    m_MeshData->PointPositionTable.GetCol(PointHandle.GetIndex(), Position);
+}
+
+template<typename MeshAttributeType>
+inline
+DenseVector<typename MeshAttributeType::ScalarType, 3>
+SurfaceMesh<MeshAttributeType>::GetPointPosition(int_max PointID)
+{
+    auto PointHandle = this->GetPointHandle(PointID);
+    return this->GetPointPosition(PointHandle);
+}
+
+template<typename MeshAttributeType>
+inline 
+void SurfaceMesh<MeshAttributeType>::GetPointPosition(int_max PointID, ScalarType& x, ScalarType& y, ScalarType& z)
+{
+    auto PointHandle = this->GetPointHandle(PointID);
+    this->GetPointPosition(PointHandle, x, y, z);
+}
+
+template<typename MeshAttributeType>
+inline 
+void SurfaceMesh<MeshAttributeType>::GetPointPosition(int_max PointID, ScalarType Position[3])
+{
+    auto PointHandle = this->GetPointHandle(PointID);
+    this->GetPointPosition(PointHandle, Position);
+}
 
 template<typename MeshAttributeType>
 inline
@@ -359,8 +466,7 @@ SetPointPosition(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleL
 template<typename MeshAttributeType>
 inline
 void SurfaceMesh<MeshAttributeType>::
-SetPointPosition(const DenseVector<int_max>& PointIDList,
-                 const DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix)
+SetPointPosition(const DenseVector<int_max>& PointIDList, const DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix)
 {
     if (PointIDList.IsEmpty() == true)
     {
@@ -398,8 +504,8 @@ SurfaceMesh<MeshAttributeType>::GetPointPosition(const DenseVector<Handle_Of_Poi
 template<typename MeshAttributeType>
 inline
 void SurfaceMesh<MeshAttributeType>::
-GetPointPosition(DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix, 
-                 const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList) const
+GetPointPosition(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList,
+                 DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix) const
 {
     if (PointHandleList.IsEmpty() == true)
     {
@@ -434,8 +540,8 @@ SurfaceMesh<MeshAttributeType>::GetPointPosition(const DenseVector<int_max>& Poi
 
 template<typename MeshAttributeType>
 inline
-void SurfaceMesh<MeshAttributeType>::GetPointPosition(DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix,
-                                                      const DenseVector<int_max>& PointIDList) const
+void SurfaceMesh<MeshAttributeType>::
+GetPointPosition(const DenseVector<int_max>& PointIDList, DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix) const
 {
     if (PointIDList.IsEmpty() == true)
     {

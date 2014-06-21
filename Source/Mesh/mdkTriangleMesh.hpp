@@ -14,15 +14,15 @@ TriangleMesh<MeshAttributeType>::TriangleMesh()
 
 template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType>::TriangleMesh(const TriangleMesh<MeshAttributeType>& InputMesh)
+: PolygonMesh(InputMesh)
 {
-    this->Copy(InputMesh);
 }
 
 
 template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType>::TriangleMesh(TriangleMesh<MeshAttributeType>&& InputMesh)
+: PolygonMesh(std::forward<TriangleMesh<MeshAttributeType>&&>(InputMesh))
 {
-    m_MeshData = std::move(InputMesh.m_MeshData);
 }
 
 
@@ -36,7 +36,7 @@ template<typename MeshAttributeType>
 inline
 void TriangleMesh<MeshAttributeType>::operator=(const TriangleMesh<MeshAttributeType>& InputMesh)
 {
-    this->Copy(InputMesh);
+    this->PolygonMesh::operator=(InputMesh);
 }
 
 
@@ -44,122 +44,38 @@ template<typename MeshAttributeType>
 inline
 void TriangleMesh<MeshAttributeType>::operator=(TriangleMesh<MeshAttributeType>&& InputMesh)
 {
-    if (!m_MeshData)
+    this->PolygonMesh::operator=(std::forward<TriangleMesh<MeshAttributeType>&&>(InputMesh));
+}
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::Construct(PolygonMesh<MeshAttributeType> InputPolygonMesh)
+{
+    (*this) = std::move(InputPolygonMesh);
+}
+
+
+template<typename MeshAttributeType>
+bool TriangleMesh<MeshAttributeType>::CheckIfTriangleMesh() const
+{
+    if (this->IsEmpty() == true)
     {
-        m_MeshData = std::make_shared<PolygonMeshData<MeshAttributeType>>();
-    }
-
-    this->Take(std::forward<TriangleMesh<MeshAttributeType>&>(InputMesh));
-}
-
-
-template<typename MeshAttributeType>
-inline 
-void TriangleMesh<MeshAttributeType>::Clear()
-{
-    this->PolygonMesh::Clear();
-}
-
-
-template<typename MeshAttributeType>
-inline 
-void TriangleMesh<MeshAttributeType>::Copy(const TriangleMesh<MeshAttributeType>& InputMesh)
-{
-    this->PolygonMesh::Copy(InputMesh);
-}
-
-
-template<typename MeshAttributeType>
-inline 
-bool TriangleMesh<MeshAttributeType>::Copy(const TriangleMesh<MeshAttributeType>* InputMesh)
-{
-    if (InputMesh == nullptr)
-    {
-        MDK_Error("Input is nullptr @ TriangleMesh::Copy(...)")
         return false;
     }
 
-    this->Copy(*InputMesh);
+    auto it = this->GetIteratorOfCell();
+    it.SetToBegin();
+    while (it.IsNotEnd())
+    {
+        auto CellHandle = it.GetCellHandle();
+        auto PointNumber = this->Cell(CellHandle).GetPointNumber();
+        if (PointNumber != 3)
+        {
+            return false;
+        }
+        ++it;
+    }
 
     return true;
-}
-
-
-template<typename MeshAttributeType>
-inline 
-void TriangleMesh<MeshAttributeType>::Share(TriangleMesh<MeshAttributeType>& InputMesh)
-{
-    m_MeshData = InputMesh.m_MeshData;
-}
-
-
-template<typename MeshAttributeType>
-inline
-bool TriangleMesh<MeshAttributeType>::Share(TriangleMesh<MeshAttributeType>* InputMesh)
-{
-    if (InputMesh == nullptr)
-    {
-        MDK_Error("Input is nullptr @ TriangleMesh::Share(...)")
-        return false;
-    }
-
-    this->Share(*InputMesh);
-
-    return true;
-}
-
-
-template<typename MeshAttributeType>
-inline 
-void TriangleMesh<MeshAttributeType>::ForceShare(const TriangleMesh<MeshAttributeType>& InputMesh)
-{
-    m_MeshData = InputMesh.m_MeshData;
-}
-
-
-template<typename MeshAttributeType>
-inline 
-bool TriangleMesh<MeshAttributeType>::ForceShare(const TriangleMesh<MeshAttributeType>* InputMesh)
-{
-    if (InputMesh == nullptr)
-    {
-        MDK_Error("Input is nullptr @ TriangleMesh::ForceShare(...)")
-        return false;
-    }
-
-    this->ForceShare(*InputMesh);
-
-    return true;
-}
-
-
-template<typename MeshAttributeType>
-inline
-void TriangleMesh<MeshAttributeType>::Take(TriangleMesh<MeshAttributeType>&& InputMesh)
-{
-    this->Take(std::forward<TriangleMesh<MeshAttributeType>&>(InputMesh));
-}
-
-
-template<typename MeshAttributeType>
-inline 
-bool TriangleMesh<MeshAttributeType>::Take(TriangleMesh<MeshAttributeType>& InputMesh)
-{
-    return this->PolygonMesh::Take(InputMesh);
-}
-
-
-template<typename MeshAttributeType>
-inline 
-bool TriangleMesh<MeshAttributeType>::Take(TriangleMesh<MeshAttributeType>* InputMesh)
-{
-    if (InputMesh == nullptr)
-    {
-        MDK_Error("Input is nullptr @ TriangleMesh::Take(...)")
-        return false;
-    }
-
-    return this->Take(*InputMesh);
 }
 
 //------------- Function optimized TriangleMesh --------------------------------------------------//

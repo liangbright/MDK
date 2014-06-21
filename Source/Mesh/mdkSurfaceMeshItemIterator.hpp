@@ -46,6 +46,13 @@ Handle_Of_Point_Of_SurfaceMesh Iterator_Of_Point_Of_SurfaceMesh<MeshAttribute>::
 
 template<typename MeshAttribute>
 inline
+int_max Iterator_Of_Point_Of_SurfaceMesh<MeshAttribute>::GetPointID() const
+{
+    return m_Mesh.GetPointID(m_PointHandle);
+}
+
+template<typename MeshAttribute>
+inline
 Point_Of_SurfaceMesh<MeshAttribute>& Iterator_Of_Point_Of_SurfaceMesh<MeshAttribute>::Point()
 {
     return m_Mesh.Point(m_PointHandle);
@@ -156,7 +163,7 @@ void Iterator_Of_Point_Of_SurfaceMesh<MeshAttribute>::operator--() const
 
 template<typename MeshAttribute>
 inline
-bool Iterator_Of_Point_Of_SurfaceMesh<MeshAttribute>::IsInRange() const
+bool Iterator_Of_Point_Of_SurfaceMesh<MeshAttribute>::IsNotEnd() const
 {
     auto PointIndex = m_PointHandle.GetIndex();
     return (PointIndex >= 0 && PointIndex < m_Mesh.m_MeshData->PointList.GetLength());
@@ -215,6 +222,13 @@ inline
 Handle_Of_Edge_Of_SurfaceMesh Iterator_Of_Edge_Of_SurfaceMesh<MeshAttribute>::GetEdgeHandle() const
 {
     return m_EdgeHandle;
+}
+
+template<typename MeshAttribute>
+inline
+int_max Iterator_Of_Edge_Of_SurfaceMesh<MeshAttribute>::GetEdgeID() const
+{
+    return m_Mesh.GetEdgeID(m_EdgeHandle);
 }
 
 template<typename MeshAttribute>
@@ -329,7 +343,7 @@ void Iterator_Of_Edge_Of_SurfaceMesh<MeshAttribute>::operator--() const
 
 template<typename MeshAttribute>
 inline
-bool Iterator_Of_Edge_Of_SurfaceMesh<MeshAttribute>::IsInRange() const
+bool Iterator_Of_Edge_Of_SurfaceMesh<MeshAttribute>::IsNotEnd() const
 {
     auto EdgeIndex = m_EdgeHandle.GetIndex();
     return (EdgeIndex >= 0 && EdgeIndex < m_Mesh.m_MeshData->EdgeList.GetLength());
@@ -389,6 +403,13 @@ inline
 Handle_Of_DirectedEdge_Of_SurfaceMesh Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttribute>::GetDirectedEdgeHandle() const
 {
     return m_DirectedEdgeHandle;
+}
+
+template<typename MeshAttribute>
+inline
+int_max Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttribute>::GetDirectedEdgeID() const
+{
+    return m_Mesh.GetDirectedEdgeID(m_DirectedEdgeHandle);
 }
 
 template<typename MeshAttribute>
@@ -548,7 +569,7 @@ void Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttribute>::operator--() const
 
 template<typename MeshAttribute>
 inline
-bool Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttribute>::IsInRange() const
+bool Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttribute>::IsNotEnd() const
 {
     auto EdgeIndex = m_DirectedEdgeHandle.GetEdgeIndex();
     auto RelativeIndex = m_DirectedEdgeHandle.GetRelativeIndex();
@@ -617,6 +638,13 @@ inline
 Handle_Of_Cell_Of_SurfaceMesh Iterator_Of_Cell_Of_SurfaceMesh<MeshAttribute>::GetCellHandle() const
 {
     return m_CellHandle;
+}
+
+template<typename MeshAttribute>
+inline
+int_max Iterator_Of_Cell_Of_SurfaceMesh<MeshAttribute>::GetCellID() const
+{
+    return m_Mesh.GetCellID(m_CellHandle);
 }
 
 template<typename MeshAttribute>
@@ -731,7 +759,7 @@ void Iterator_Of_Cell_Of_SurfaceMesh<MeshAttribute>::operator--() const
 
 template<typename MeshAttribute>
 inline
-bool Iterator_Of_Cell_Of_SurfaceMesh<MeshAttribute>::IsInRange() const
+bool Iterator_Of_Cell_Of_SurfaceMesh<MeshAttribute>::IsNotEnd() const
 {
     auto CellIndex = m_CellHandle.GetIndex();
     return (CellIndex >= 0 && CellIndex < m_Mesh.m_MeshData->CellList.GetLength());

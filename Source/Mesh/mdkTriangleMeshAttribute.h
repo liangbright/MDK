@@ -1,29 +1,38 @@
 #ifndef __mdkTriangleMeshAttribute_h
 #define __mdkTriangleMeshAttribute_h
 
-
-#include "mdkDenseMatrix.h"
+#include "mdkPolygonMeshAttribute.h"
 
 namespace mdk
 {
+//============================================== GlobalAttribute_Of_TriangleMesh ===========================================//
+enum class TriangleMeshGlobalAttributeTypeEnum
+{
+    MeanCellArea,
+    MeanEdgePhysicalLength
+};
 
-//----------------- forward declare ------------------//
+template<typename ScalarType>
+struct GlobalAttribute_Of_TriangleMesh : public GlobalAttribute_Of_PolygonMesh<ScalarType>
+{
 
-template<typename MeshAttribute>
-class PolygonMesh;
+//--------------------------------------------------------------
+    GlobalAttribute_Of_TriangleMesh() { this->Clear(); }
+    GlobalAttribute_Of_TriangleMesh(const GlobalAttribute_Of_TriangleMesh& InputAttribute) { (*this) = InputAttribute; }
+    ~GlobalAttribute_Of_TriangleMesh() {}
 
-template<typename MeshAttribute>
-class Point_Of_SurfaceMesh;
+    void operator=(const GlobalAttribute_Of_TriangleMesh& InputAttribute)
+    {
+        this->GlobalAttribute_Of_PolygonMesh::operator=(InputAttribute);
+    }
 
-template<typename MeshAttribute>
-class Edge_Of_SurfaceMesh;
-
-template<typename MeshAttribute>
-class DirectedEdge_Of_SurfaceMesh;
-
-template<typename MeshAttribute>
-class Cell_Of_SurfaceMesh;
-//---------------------------------------------------//
+    void Clear()
+    {
+        this->GlobalAttribute_Of_PolygonMesh::Clear();
+        MeanCellArea = 0;
+        MeanEdgePhysicalLength = 0;
+    }
+};
 
 //============================================== PointAttribute_Of_TriangleMesh ===========================================//
 enum class TriangleMeshPointAttributeTypeEnum
@@ -33,28 +42,23 @@ enum class TriangleMeshPointAttributeTypeEnum
 };
 
 template<typename ScalarType>
-struct Data_Of_PointAttribute_Of_TriangleMesh
+struct PointAttribute_Of_TriangleMesh : PointAttribute_Of_PolygonMesh<ScalarType>
 {
-    ScalarType MeanCurvature;
-    DenseVector<ScalarType, 3> Normal;
-};
 
-template<typename ScalarType>
-class PointAttribute_Of_TriangleMesh
-{
-private:
-    std::unique_ptr<Data_Of_PointAttribute_Of_TriangleMesh<ScalarType>> m_Data;
-public:
-    PointAttribute_Of_TriangleMesh();
-    PointAttribute_Of_TriangleMesh(const PointAttribute_Of_TriangleMesh& InputAttribute);
-    PointAttribute_Of_TriangleMesh(PointAttribute_Of_TriangleMesh&& InputAttribute);
-    ~PointAttribute_Of_TriangleMesh();
+//-----------------------------------------------
+    PointAttribute_Of_TriangleMesh() { this->Clear(); }
+    PointAttribute_Of_TriangleMesh(const PointAttribute_Of_TriangleMesh& InputAttribute) { (*this) = InputAttribute; }
+    ~PointAttribute_Of_TriangleMesh() {}
 
-    void operator=(const PointAttribute_Of_TriangleMesh& InputAttribute);
-    void operator=(PointAttribute_Of_TriangleMesh&& InputAttribute);
+    void operator=(const PointAttribute_Of_TriangleMesh& InputAttribute)
+    {
+        this->PointAttribute_Of_PolygonMesh::operator=(InputAttribute);
+    }
 
-    void Clear();
-
+    void Clear()
+    {
+        this->PointAttribute_Of_TriangleMesh::Clear();
+    }
 };
 
 //============================================== EdgeAttribute_Of_TriangleMesh ===========================================//
@@ -63,28 +67,24 @@ enum class TriangleMeshEdgeAttributeEnum
     PhysicalLength,
 };
 
-template<typename ScalarType>
-struct Data_Of_EdgeAttribute_Of_TriangleMesh
-{
-    ScalarType PhysicalLength;
-};
 
 template<typename ScalarType>
-class EdgeAttribute_Of_TriangleMesh
+struct EdgeAttribute_Of_TriangleMesh : public EdgeAttribute_Of_PolygonMesh<ScalarType>
 {
-private:
-    std::unique_ptr<Data_Of_EdgeAttribute_Of_TriangleMesh<ScalarType>> m_Data;
-public:
-    EdgeAttribute_Of_TriangleMesh();
-    EdgeAttribute_Of_TriangleMesh(const EdgeAttribute_Of_TriangleMesh& InputAttribute);
-    EdgeAttribute_Of_TriangleMesh(EdgeAttribute_Of_TriangleMesh&& InputAttribute);
-    ~EdgeAttribute_Of_TriangleMesh();
+//----------------------------------------------------------------------
+    EdgeAttribute_Of_TriangleMesh() { this->Clear(); }
+    EdgeAttribute_Of_TriangleMesh(const EdgeAttribute_Of_TriangleMesh& InputAttribute) { (*this) = InputAttribute; }
+    ~EdgeAttribute_Of_TriangleMesh() {}
 
-    void operator=(const EdgeAttribute_Of_TriangleMesh& InputAttribute);
-    void operator=(EdgeAttribute_Of_TriangleMesh&& InputAttribute);
+    void operator=(const EdgeAttribute_Of_TriangleMesh& InputAttribute)
+    {
+        this->EdgeAttribute_Of_PolygonMesh::operator=(InputAttribute);
+    }
 
-    void Clear();
-
+    void Clear()
+    {
+        this->EdgeAttribute_Of_PolygonMesh::Clear();
+    }
 };
 
 //============================================== DirectedEdgeAttribute_Of_TriangleMesh ===========================================//
@@ -94,26 +94,23 @@ enum class TriangleMeshDirectedEdgeAttributeEnum
 };
 
 template<typename ScalarType>
-struct Data_Of_DirectedEdgeAttribute_Of_TriangleMesh
+struct DirectedEdgeAttribute_Of_TriangleMesh : public DirectedEdgeAttribute_Of_PolygonMesh<ScalarType>
 {
     DenseVector<ScalarType, 3> Orientation;
-};
+//-------------------------------------------------------
+    DirectedEdgeAttribute_Of_TriangleMesh() { this->Clear(); }
+    DirectedEdgeAttribute_Of_TriangleMesh(const DirectedEdgeAttribute_Of_TriangleMesh& InputAttribute) { (*this) = InputAttribute; }
+    ~DirectedEdgeAttribute_Of_TriangleMesh() {}
 
-template<typename ScalarType>
-class DirectedEdgeAttribute_Of_TriangleMesh
-{
-private:
-    std::unique_ptr<Data_Of_DirectedEdgeAttribute_Of_TriangleMesh<ScalarType>> m_Data;
-public:
-    DirectedEdgeAttribute_Of_TriangleMesh();
-    DirectedEdgeAttribute_Of_TriangleMesh(const DirectedEdgeAttribute_Of_TriangleMesh& InputAttribute);
-    DirectedEdgeAttribute_Of_TriangleMesh(DirectedEdgeAttribute_Of_TriangleMesh&& InputAttribute);
-    ~DirectedEdgeAttribute_Of_TriangleMesh();
+    void operator=(const DirectedEdgeAttribute_Of_TriangleMesh& InputAttribute)
+    {
+        this->DirectedEdgeAttribute_Of_PolygonMesh::operator=(InputAttribute);
+    }
 
-    void operator=(const DirectedEdgeAttribute_Of_TriangleMesh& InputAttribute);
-    void operator=(DirectedEdgeAttribute_Of_TriangleMesh&& InputAttribute);
-
-    void Clear();
+    void Clear()
+    {
+        this->DirectedEdgeAttribute_Of_PolygonMesh::Clear();
+    }
 
 };
 
@@ -124,31 +121,27 @@ enum class TriangleMeshCellAttributeEnum
 };
 
 template<typename ScalarType>
-struct Data_Of_CellAttribute_Of_TriangleMesh
+struct CellAttribute_Of_TriangleMesh : public CellAttribute_Of_PolygonMesh<ScalarType>
 {
     ScalarType Area;
-};
 
-template<typename ScalarType>
-class CellAttribute_Of_TriangleMesh
-{
-private:
-    std::unique_ptr<Data_Of_CellAttribute_Of_TriangleMesh<ScalarType>> m_Data;
-public:
-    CellAttribute_Of_TriangleMesh();
-    CellAttribute_Of_TriangleMesh(const CellAttribute_Of_TriangleMesh& InputAttribute);
-    CellAttribute_Of_TriangleMesh(CellAttribute_Of_TriangleMesh&& InputAttribute);
-    ~CellAttribute_Of_TriangleMesh();
+//---------------------------------------
+    CellAttribute_Of_TriangleMesh() { this->Clear(); }
+    CellAttribute_Of_TriangleMesh(const CellAttribute_Of_TriangleMesh& InputAttribute) { (*this) = InputAttribute; }
+    ~CellAttribute_Of_TriangleMesh() {}
 
-    void operator=(const CellAttribute_Of_TriangleMesh& InputAttribute);
-    void operator=(CellAttribute_Of_TriangleMesh&& InputAttribute);
+    void operator=(const CellAttribute_Of_TriangleMesh& InputAttribute)
+    {
+        this->CellAttribute_Of_PolygonMesh::operator=(InputAttribute);
+    }
 
-    void Clear();
-
+    void Clear()
+    {
+        this->CellAttribute_Of_PolygonMesh::Clear();
+    }
 };
 
 }// namespace mdk
 
-#include "mdkTriangleMeshAttribute.hpp"
 
 #endif

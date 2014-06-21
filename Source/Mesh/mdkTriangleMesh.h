@@ -6,17 +6,18 @@
 
 namespace mdk
 {
-
+//------------------------------- standard/default TriangleMeshAttribute -------------------------------//
 template<typename ScalarType>
 struct TriangleMeshAttributeType
 {
     typedef ScalarType  ScalarType;
+    typedef GlobalAttribute_Of_TriangleMesh<ScalarType>         GlobalAttribute;
     typedef PointAttribute_Of_TriangleMesh<ScalarType>          PointAttributeType;
     typedef EdgeAttribute_Of_TriangleMesh<ScalarType>           EdgeAttributeType;
     typedef DirectedEdgeAttribute_Of_TriangleMesh<ScalarType>   DirectedEdgeAttributeType;
     typedef CellAttribute_Of_TriangleMesh<ScalarType>           CellAttributeType;
 };
-
+//-----------------------------------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
 class TriangleMesh : public PolygonMesh<MeshAttributeType>
@@ -24,12 +25,13 @@ class TriangleMesh : public PolygonMesh<MeshAttributeType>
 public:
     typedef TriangleMesh<MeshAttributeType> MeshType;
 
-    typedef MeshAttributeType MeshAttributeType;
-
     typedef int_max IndexType;
 
-    typedef typename MeshAttributeType::ScalarType ScalarType;
+    typedef MeshAttributeType MeshAttributeType;
 
+    typedef typename MeshAttributeType::ScalarType                  ScalarType;
+    typedef typename MeshAttributeType::GlobalAttribute             GlobalAttribute;
+    typedef typename MeshAttributeType::GlobalAttribute             GlobalAttribute;
     typedef typename MeshAttributeType::PointAttributeType          PointAttributeType;
     typedef typename MeshAttributeType::EdgeAttributeType           EdgeAttributeType;
     typedef typename MeshAttributeType::DirectedEdgeAttributeType   DirectedEdgeAttributeType;
@@ -59,20 +61,15 @@ public:
     inline void operator=(const TriangleMesh& InputMesh);
     inline void operator=(TriangleMesh&& InputMesh);
 
-    inline void Clear();
+    //------------ Construct from input data ------------------------------------//
 
-    inline void Copy(const TriangleMesh& InputMesh);
-    inline bool Copy(const TriangleMesh* InputMesh);
+    using PolygonMesh::Construct;
 
-    inline void Share(TriangleMesh& InputMesh);
-    inline bool Share(TriangleMesh* InputMesh);
+    void Construct(PolygonMesh<MeshAttributeType> InputPolygonMesh);
 
-    inline void ForceShare(const TriangleMesh& InputMesh);
-    inline bool ForceShare(const TriangleMesh* InputMesh);
+    //--- check --------------------------
 
-    inline void Take(TriangleMesh&& InputMesh);
-    inline bool Take(TriangleMesh& InputMesh);
-    inline bool Take(TriangleMesh* InputMesh);
+    bool CheckIfTriangleMesh() const;
 
     //------------- Function optimized For TriangleMesh --------------------------------------------------//
 

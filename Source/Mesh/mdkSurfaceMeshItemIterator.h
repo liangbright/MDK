@@ -27,6 +27,8 @@ public:
 
     inline Handle_Of_Point_Of_SurfaceMesh GetPointHandle() const;
 
+    inline int_max GetPointID() const;
+
     inline Point_Of_SurfaceMesh<MeshAttribute>& Point();
     inline const Point_Of_SurfaceMesh<MeshAttribute>& Point() const;
 
@@ -37,7 +39,7 @@ public:
 
     inline void SetToBegin() const;
 
-    inline bool IsInRange() const;
+    inline bool IsNotEnd() const;
 };
 
 //================================================= Iterator_Of_Edge_Of_SurfaceMesh ==================================//
@@ -61,6 +63,8 @@ public:
 
     inline Handle_Of_Edge_Of_SurfaceMesh GetEdgeHandle() const;
 
+    inline int_max GetEdgeID() const;
+
     inline Edge_Of_SurfaceMesh<MeshAttribute>& Edge();
     inline const Edge_Of_SurfaceMesh<MeshAttribute>& Edge() const;
 
@@ -71,7 +75,7 @@ public:
 
     inline void SetToBegin() const;
 
-    inline bool IsInRange() const;
+    inline bool IsNotEnd() const;
 };
 
 //================================================= Iterator_Of_DirectedEdge_Of_SurfaceMesh ==================================//
@@ -95,6 +99,8 @@ public:
 
     inline Handle_Of_DirectedEdge_Of_SurfaceMesh GetDirectedEdgeHandle() const;
 
+    inline int_max GetDirectedEdgeID() const;
+
     inline DirectedEdge_Of_SurfaceMesh<MeshAttribute>& DirectedEdge();
     inline const DirectedEdge_Of_SurfaceMesh<MeshAttribute>& DirectedEdge() const;
 
@@ -105,7 +111,7 @@ public:
 
     inline void SetToBegin() const;
 
-    inline bool IsInRange() const;
+    inline bool IsNotEnd() const;
 };
 
 //================================================= Iterator_Of_Cell_Of_SurfaceMesh ==================================//
@@ -129,6 +135,8 @@ public:
 
     inline Handle_Of_Cell_Of_SurfaceMesh GetCellHandle() const;
 
+    inline int_max GetCellID() const;
+
     inline Cell_Of_SurfaceMesh<MeshAttribute>& Cell();
     inline const Cell_Of_SurfaceMesh<MeshAttribute>& Cell() const;
 
@@ -139,7 +147,7 @@ public:
 
     inline void SetToBegin() const;
 
-    inline bool IsInRange() const;
+    inline bool IsNotEnd() const;
 };
 
 }// namespace mdk

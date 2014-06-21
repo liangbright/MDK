@@ -13,7 +13,8 @@ template<typename MeshAttributeType>
 struct SurfaceMeshData
 {
     //-------------------------------------------------------------------------------------------//
-    typedef typename MeshAttributeType::ScalarType  ScalarType;
+    typedef typename MeshAttributeType::ScalarType      ScalarType;
+    typedef typename MeshAttributeType::GlobalAttribute GlobalAttribute;
     //-------------------------------------------------------------------------------------------//
 
     DenseMatrix<ScalarType> PointPositionTable;
@@ -47,6 +48,9 @@ struct SurfaceMeshData
     std::unordered_map<int_max, int_max> Map_EdgeID_to_EdgeIndex;
     std::unordered_map<int_max, DirectedEdgeIndex_Of_SurfaceMesh> Map_DirectedEdgeID_to_DirectedEdgeIndex;
     std::unordered_map<int_max, int_max> Map_CellID_to_CellIndex;
+
+    //Mesh Attribute
+    GlobalAttribute Attribute;
 };
 
 
@@ -56,6 +60,7 @@ class SurfaceMesh : public Object
 public:
     //-------------------------------------------------------------------------------------------//
     typedef typename MeshAttributeType::ScalarType                ScalarType;
+    typedef typename MeshAttributeType::GlobalAttribute           GlobalAttribute;
     typedef typename MeshAttributeType::PointAttributeType        PointAttributeType;
     typedef typename MeshAttributeType::EdgeAttributeType         EdgeAttributeType;
     typedef typename MeshAttributeType::DirectedEdgeAttributeType DirectedEdgeAttributeType;
@@ -78,10 +83,11 @@ public:
     typedef Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttributeType>    DirectedEdgeIteratorType;
     typedef Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>            CellIteratorType;
     //--------------------------------------------------------------------------------------------------//
-private:
+
+protected:
     std::shared_ptr<SurfaceMeshData<MeshAttributeType>> m_MeshData;
 
-private:
+protected:
     template<typename T>
     friend class Point_Of_SurfaceMesh;
 
@@ -138,17 +144,36 @@ public:
     inline int_max GetDirectedEdgeNumber() const;
     inline int_max GetCellNumber() const;
  
-    // Get/Set 3D Position by PointHandleList or PointIDList --------------------------------------------------------------------------//
+    //------ Get/Set GlobalAttribute -----------------------------------//
+
+    inline GlobalAttribute& Attribute();
+    inline const GlobalAttribute& Attribute() const;
+
+    // Get/Set 3D Position by PointHandle or PointID --------------------------------------------------------------------------//
+
+    inline void SetPointPosition(PointHandleType PointHandle, ScalarType x, ScalarType y, ScalarType z);
+    inline void SetPointPosition(PointHandleType PointHandle, const ScalarType Position[3]);
+
+    inline void SetPointPosition(int_max PointID, ScalarType x, ScalarType y, ScalarType z);
+    inline void SetPointPosition(int_max PointID, const ScalarType Position[3]);
+
+    inline DenseVector<ScalarType, 3> GetPointPosition(PointHandleType PointHandle);
+    inline void GetPointPosition(PointHandleType PointHandle, ScalarType& x, ScalarType& y, ScalarType& z);
+    inline void GetPointPosition(PointHandleType PointHandle, ScalarType Position[3]);
+
+    inline DenseVector<ScalarType, 3> GetPointPosition(int_max PointID);
+    inline void GetPointPosition(int_max PointID, ScalarType& x, ScalarType& y, ScalarType& z);
+    inline void GetPointPosition(int_max PointID, ScalarType Position[3]);
 
     inline void SetPointPosition(const DenseVector<PointHandleType>& PointHandleList, const DenseMatrix<ScalarType>& PointPositionMatrix);
 
     inline void SetPointPosition(const DenseVector<int_max>& PointIDList, const DenseMatrix<ScalarType>& PointPositionMatrix);
 
     inline DenseMatrix<ScalarType> GetPointPosition(const DenseVector<PointHandleType>& PointHandleList) const;
-    inline void GetPointPosition(DenseMatrix<ScalarType>& PointPositionMatrix, const DenseVector<PointHandleType>& PointHandleList) const;
+    inline void GetPointPosition(const DenseVector<PointHandleType>& PointHandleList, DenseMatrix<ScalarType>& PointPositionMatrix) const;
 
     inline DenseMatrix<ScalarType> GetPointPosition(const DenseVector<int_max>& PointIDList) const;
-    inline void GetPointPosition(DenseMatrix<ScalarType>& PointPositionMatrix, const DenseVector<int_max>& PointIDList) const;
+    inline void GetPointPosition(const DenseVector<int_max>& PointIDList, DenseMatrix<ScalarType>& PointPositionMatrix) const;
 
     //----- Get/Set Mesh Item {Point, , Edge, DirectedEdge, Cell} by using Handle or ID ------//
 
