@@ -18,6 +18,17 @@ struct TriangleMeshAttributeType
     typedef CellAttribute_Of_TriangleMesh<ScalarType>           CellAttributeType;
 };
 //-----------------------------------------------------------------------------------------------------//
+template<typename ScalarType>
+struct TriangleMeshAttributeType_Empty
+{
+    typedef ScalarType  ScalarType;
+    typedef bool        GlobalAttribute;
+    typedef bool        PointAttributeType;
+    typedef bool        EdgeAttributeType;
+    typedef bool        DirectedEdgeAttributeType;
+    typedef bool        CellAttributeType;
+};
+//-----------------------------------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
 class TriangleMesh : public PolygonMesh<MeshAttributeType>
@@ -58,6 +69,12 @@ public:
 
     inline void operator=(const TriangleMesh& InputMesh);
     inline void operator=(TriangleMesh&& InputMesh);
+
+    //------------------------ AddCell() ---------------------------------------//
+    using PolygonMesh::AddCell;
+
+    // direction of DirectedEdge: A->B->C
+    inline CellHandleType AddCell(EdgeHandleType EdgeHandleA, EdgeHandleType EdgeHandleB, EdgeHandleType EdgeHandleC);
 
     //------------ Construct from input data ------------------------------------//
 

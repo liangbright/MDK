@@ -48,6 +48,15 @@ void TriangleMesh<MeshAttributeType>::operator=(TriangleMesh<MeshAttributeType>&
 }
 
 template<typename MeshAttributeType>
+inline 
+typename MeshAttributeType::CellHandleType
+TriangleMesh<MeshAttributeType>::AddCell(EdgeHandleType EdgeHandleA, EdgeHandleType EdgeHandleB, EdgeHandleType EdgeHandleC)
+{
+    DenseVector<EdgeHandleType> EdgeHandleList = { EdgeHandleA, EdgeHandleB, EdgeHandleC };
+    return this->PolygonMesh::AddCell(EdgeHandleList);
+}
+
+template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::Construct(PolygonMesh<MeshAttributeType> InputPolygonMesh)
 {
     (*this) = std::move(InputPolygonMesh);
@@ -62,9 +71,7 @@ bool TriangleMesh<MeshAttributeType>::CheckIfTriangleMesh() const
         return false;
     }
 
-    auto it = this->GetIteratorOfCell();
-    it.SetToBegin();
-    while (it.IsNotEnd())
+    for (auto it = this->GetIteratorOfCell(); it.IsNotEnd(); ++it)
     {
         auto CellHandle = it.GetCellHandle();
         auto PointNumber = this->Cell(CellHandle).GetPointNumber();
@@ -72,7 +79,6 @@ bool TriangleMesh<MeshAttributeType>::CheckIfTriangleMesh() const
         {
             return false;
         }
-        ++it;
     }
 
     return true;

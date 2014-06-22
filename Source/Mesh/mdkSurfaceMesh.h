@@ -172,7 +172,7 @@ public:
 
     inline DenseMatrix<ScalarType> GetPointPosition(const DenseVector<int_max>& PointIDList) const;
     inline void GetPointPosition(const DenseVector<int_max>& PointIDList, DenseMatrix<ScalarType>& PointPositionMatrix) const;
-
+    
     //----- Get/Set Mesh Item {Point, , Edge, DirectedEdge, Cell} by using Handle or ID ------//
 
     inline PointType& Point(PointHandleType PointHandle);
@@ -309,11 +309,14 @@ public:
     // add an item and return index (-1 if input is invalid)
 
     // add a Point and return PointHandle -> PointIndex in m_MeshData->PointList
+    PointHandleType AddPoint(const DenseVector<ScalarType, 3>& Position);
+    PointHandleType AddPoint(const DenseVector<ScalarType>& Position);
+    PointHandleType AddPoint(const DenseMatrix<ScalarType>& Position);
     PointHandleType AddPoint(const ScalarType Position[3]);
     PointHandleType AddPoint(ScalarType x, ScalarType y, ScalarType z);
     
     // add a set of points and return PointHandleList
-    DenseVector<PointHandleType> AddPoint(const DenseMatrix<ScalarType>& PointSet);
+    DenseVector<PointHandleType> AddPointSet(const DenseMatrix<ScalarType>& PointSet);
 
     // add an Edge and return EdgeHandle -> EdgeIndex in m_MeshData->EdgeList
     // also create invalid DirectedEdge to hold place at m_MeshData->DirectedEdgeList[EdgeIndex]

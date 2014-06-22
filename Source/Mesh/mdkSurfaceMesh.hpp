@@ -1517,6 +1517,57 @@ const Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType> SurfaceMesh<MeshAttribu
 }
 
 //------------------------------ Add Mesh Item -------------------------------------------------------------------------//
+
+template<typename MeshAttributeType>
+Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::
+AddPoint(const DenseVector<typename MeshAttributeType::ScalarType, 3>& Position)
+{
+    return this->AddPoint(Position[0], Position[1], Position[2]);
+}
+
+
+template<typename MeshAttributeType>
+Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::
+AddPoint(const DenseVector<typename MeshAttributeType::ScalarType>& Position)
+{
+    if (PointSet.GetLength() != 3)
+    {
+        MDK_Error("Position is a vector but length != 3 @ SurfaceMesh::AddPoint(...)")
+        Handle_Of_Point_Of_SurfaceMesh PointHandle;
+        PointHandle.SetToInvalid();
+        return PointHandle;
+    }
+
+    return this->AddPoint(Position[0], Position[1], Position[2]);
+}
+
+
+template<typename MeshAttributeType>
+Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::
+AddPoint(const DenseMatrix<typename MeshAttributeType::ScalarType>& Position)
+{
+    if (Position.IsVector() == true)
+    {
+        if (Position.GetElementNumber() != 3)
+        {
+            MDK_Error("Position is a vector but length != 3 @ SurfaceMesh::AddPoint(...)")
+            Handle_Of_Point_Of_SurfaceMesh PointHandle;
+            PointHandle.SetToInvalid();
+            return PointHandle;
+        }
+    }
+    else
+    {
+        MDK_Error("Position is a not a vector @ SurfaceMesh::AddPoint(...)")
+        Handle_Of_Point_Of_SurfaceMesh PointHandle;
+        PointHandle.SetToInvalid();
+        return PointHandle;
+    }
+
+    return this->AddPoint(Position[0], Position[1], Position[2]);
+}
+
+
 template<typename MeshAttributeType>
 Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddPoint(const typename MeshAttributeType::ScalarType Position[3])
 {
@@ -1548,13 +1599,27 @@ AddPoint(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::S
 
 
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_SurfaceMesh> SurfaceMesh<MeshAttributeType>::AddPoint(const DenseMatrix<typename MeshAttributeType::ScalarType>& PointSet)
+DenseVector<Handle_Of_Point_Of_SurfaceMesh> SurfaceMesh<MeshAttributeType>::
+AddPointSet(const DenseMatrix<typename MeshAttributeType::ScalarType>& PointSet)
 {
     DenseVector<Handle_Of_Point_Of_SurfaceMesh> PointHandleList;
 
+    if (PointSet.IsVector() == true)
+    {
+        if (PointSet.GetElementNumber() != 3)
+        {
+            MDK_Error("PointSet is a vector but length != 3 @ SurfaceMesh::AddPoint(...)")
+            return PointHandleList;
+        }
+
+        PointHandleList.Resize(1);
+        PointHandleList[0] = this->AddPoint(PointSet.GetPointer(k));
+        return PointHandleList;
+    }
+
     if (PointSet.GetRowNumber() != 3)
     {
-        MDK_Error("PointSet.GetRowNumber() != 3 @ SurfaceMesh::AddPoint(...)")
+        MDK_Error("PointSet is a matrix but RowNumber != 3 @ SurfaceMesh::AddPoint(...)")
         return PointHandleList;
     }
 
