@@ -327,8 +327,13 @@ public:
     // add a cell and return CellHandle -> CellIndex in m_MeshData->CellList
     // add DirectedEdge of the cell
     // the order of Edge in EdgeHandleList determine the direction of each DirectedEdge and the direction/sign of the normal vector
-    CellHandleType AddCell(const DenseVector<EdgeHandleType>& EdgeHandleList);
-    CellHandleType AddCell(const DenseVector<int_max>& EdgeIDList);
+    CellHandleType AddCellByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList);
+    CellHandleType AddCellByEdge(const DenseVector<int_max>& EdgeIDList);
+
+    // Add Cell with PointHandleList, Point0 <- Edge0 -> Point1  <- Edge1 -> ... Point_end <- Edge_end -> Point0
+    // in this function, AddCellByEdge() is called if necessary
+    CellHandleType AddCelByPoint(DenseVector<PointHandleType> PointHandleList);
+    CellHandleType AddCelByPoint(DenseVector<int_max> PointIDList);
 
     // Delete Mesh Item ----------------------------------------------------------------------------//
 
@@ -363,6 +368,10 @@ public:
     int_max GetInvalidPointHandleNumber() const; // the number of invalid point handles
 
     //---------------------------------------------------------------------------------------------------
+
+    // get a sub mesh by CellHandleList or CellIDList
+    SurfaceMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList);
+    SurfaceMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<int_max>& CellIDList);
 
 };
 

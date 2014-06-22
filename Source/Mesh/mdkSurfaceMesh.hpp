@@ -1697,7 +1697,7 @@ Handle_Of_Edge_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddEdge(int_max Po
 
 
 template<typename MeshAttributeType>
-Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& EdgeHandleList)
+Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByEdge(const DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& EdgeHandleList)
 {
     // Input: the input EdgeIndexList must have been ordered
     // the order determine the direction/sign of the normal vector
@@ -1707,7 +1707,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const Dens
 
     if (EdgeHandleList.GetLength() < 2)
     {
-        MDK_Error("length of EdgeHandleList < 2 @ SurfaceMesh::AddCell(...)")
+        MDK_Error("length of EdgeHandleList < 2 @ SurfaceMesh::AddCellByEdge(...)")
         CellHandle.SetToInvalid();
         return CellHandle;
     }
@@ -1716,7 +1716,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const Dens
     {
         if (this->IsValidHandle(EdgeHandleList[k]) == false)
         {
-            MDK_Error("Invalid EdgeHandleList @ SurfaceMesh::AddCell(...)")
+            MDK_Error("Invalid EdgeHandleList @ SurfaceMesh::AddCellByEdge(...)")
             CellHandle.SetToInvalid();
             return CellHandle;
         }
@@ -1725,7 +1725,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const Dens
     auto CellHandle_temp = this->GetCellHandle(EdgeHandleList);
     if (this->IsValidHandle(CellHandle_temp) == true)
     {
-        MDK_Warning("The cell has been added already @ SurfaceMesh::AddCell(...)")
+        MDK_Warning("The cell has been added already @ SurfaceMesh::AddCellByEdge(...)")
         CellHandle = CellHandle_temp;
         return CellHandle;
     }
@@ -1768,7 +1768,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const Dens
         }
         else
         {
-            MDK_Error("EdgeIndexList is not ordered or invalid @ SurfaceMesh::AddCell(...)")
+            MDK_Error("EdgeIndexList is not ordered or invalid @ SurfaceMesh::AddCellByEdge(...)")
             CellHandle.SetIndex(-1);
             return CellHandle;
         }
@@ -1795,7 +1795,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const Dens
         }
         else
         {
-            MDK_Error("A cell with a DirectedEdge has been added already @ SurfaceMesh::AddCell(...)")
+            MDK_Error("A cell with a DirectedEdge has been added already @ SurfaceMesh::AddCellByEdge(...)")
             CellHandle.SetToInvalid();
             return CellHandle;
         }
@@ -1878,7 +1878,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const Dens
 }
 
 template<typename MeshAttributeType>
-Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const DenseVector<int_max>& EdgeIDList)
+Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByEdge(const DenseVector<int_max>& EdgeIDList)
 {
     DenseVector<Handle_Of_Edge_Of_SurfaceMesh> EdgeHandleList;
     EdgeHandleList.Resize(EdgeIDList.GetLength());
@@ -1887,9 +1887,51 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCell(const Dens
         EdgeHandleList[k] = this->GetEdgeHandle(EdgeIDList[k]);
     }
 
-    return this->AddCell(EdgeIDList);    
+    return this->AddCellByEdge(EdgeIDList);    
 }
 
+
+template<typename MeshAttributeType>
+Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByEdge(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList)
+{
+    if (PointHandleList.GetLength() < 3)
+    {
+        MDK_Error("PointHandleList length < 3 @ SurfaceMesh::AddCellByEdge(...)")
+        Handle_Of_Cell_Of_SurfaceMesh CellHandle;
+        CellHandle.SetToInvalid();
+        return CellHandle;
+    }
+
+    DenseVector<Handle_Of_Edge_Of_SurfaceMesh> EdgeHandleList;
+    EdgeHandleList.Resize(PointHandleList.GetLength());
+    for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
+    {
+        if (k < PointHandleList.GetLength() - 1)
+        {
+            EdgeHandleList[k] = this->AddEdge(PointHandleList[k], PointHandleList[k + 1]);
+        }
+        else
+        {
+            EdgeHandleList[k] = this->AddEdge(PointHandleList[k], PointHandleList[0]);
+        }
+    }
+
+    return this->AddCellByEdge(EdgeHandleList);
+}
+
+
+template<typename MeshAttributeType>
+Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByPoint(const DenseVector<int_max>& PointIDList)
+{
+    DenseVector<Handle_Of_Point_Of_SurfaceMesh> PointHandleList;
+    PointHandleList.Resize(PointIDList.GetLength());
+    for (int_max k = 0; k < PointIDList.GetLength(); ++k)
+    {
+        PointHandleList[k] = this->GetPointHandle(PointIDList[k]);
+    }
+
+    return this->AddCellByPoint(PointHandleList);
+}
 //------------------- Delete Mesh Item ----------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
@@ -2445,6 +2487,68 @@ void SurfaceMesh<MeshAttributeType>::CleanDataStructure()
 }
 
 
+template<typename MeshAttributeType>
+SurfaceMesh<MeshAttributeType> 
+SurfaceMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<typename MeshAttributeTypeCellHandleType>& CellHandleList)
+{
+    SurfaceMesh<MeshAttributeType> OutputMesh;
+    
+    if (CellHandleList.IsEmpty() == true)
+    {
+        return OutputMesh;
+    }
+
+    if (this->IsEmpty() == true)
+    {
+        MDK_Error("Self is empty @ SurfaceMesh::GetSubMeshByCell(...)")
+        return OutputMesh;
+    }
+
+    for (int_max k = 0; k < CellHandleList.GetLength(); ++k)
+    {
+        if (this->IsValidHandle(CellHandleList[k]) == false)
+        {
+            MDK_Error("CellHandleList is invalid @ SurfaceMesh::GetSubMeshByCell(...)")
+            return OutputMesh;
+        }
+    }
+    //-----------------------------------------------------------
+
+    // add cell one by one
+    for (int_max k = 0; k < CellHandleList.GetLength(); ++k)
+    {
+        auto CellIndex_k = CellHandleList[k];
+        auto PointIndexList_k = m_MeshData->CellList[CellIndex_k].GetPointIndexList();
+        
+        // add point
+        DenseVector<PointHandleType> PointHandleList_OutputMesh;
+        PointHandleList_OutputMesh.Resize(PointIndexList_k.GetLength());
+        for (int_max n = 0; n < PointIndexList_k.GetLength(); ++n)
+        {
+            ScalarType Pos[3];
+            m_MeshData->PointPositionTable.GetCol(n, Pos);
+            PointHandleList_OutputMesh[k] = OutputMesh.AddPoint(Pos);
+        }
+
+        // add cell
+        OutputMesh.AddCelByPoint(PointHandleList_OutputMesh);
+    }
+
+    return OutputMesh;
+}
+
+
+template<typename MeshAttributeType>
+SurfaceMesh<MeshAttributeType> 
+SurfaceMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<int_max>& CellIDList)
+{
+    DenseVector<CellHandleType> CellHandleList;
+    for (int_max k = 0; k < CellIDList.GetLength(); ++k)
+    {
+        CellHandleList[k] = this->GetCellHandle(CellIDList[k]);
+    }
+    return this->GetSubMeshByCell(CellHandleList);
+}
 
 }// namespace mdk
 

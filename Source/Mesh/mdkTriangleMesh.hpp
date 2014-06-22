@@ -50,10 +50,41 @@ void TriangleMesh<MeshAttributeType>::operator=(TriangleMesh<MeshAttributeType>&
 template<typename MeshAttributeType>
 inline 
 typename MeshAttributeType::CellHandleType
-TriangleMesh<MeshAttributeType>::AddCell(EdgeHandleType EdgeHandleA, EdgeHandleType EdgeHandleB, EdgeHandleType EdgeHandleC)
+TriangleMesh<MeshAttributeType>::AddCellByEdge(typename MeshAttributeType::EdgeHandleType EdgeHandle0, 
+                                               typename MeshAttributeType::EdgeHandleType EdgeHandle1, 
+                                               typename MeshAttributeType::EdgeHandleType EdgeHandle2)
 {
-    DenseVector<EdgeHandleType> EdgeHandleList = { EdgeHandleA, EdgeHandleB, EdgeHandleC };
-    return this->PolygonMesh::AddCell(EdgeHandleList);
+    DenseVector<EdgeHandleType> EdgeHandleList = { EdgeHandle0, EdgeHandle1, EdgeHandle2 };
+    return this->PolygonMesh::AddCellByEdge(EdgeHandleList);
+}
+
+template<typename MeshAttributeType>
+inline
+typename MeshAttributeType::CellHandleType
+TriangleMesh<MeshAttributeType>::AddCellByEdge(int_max EdgeID0, int_max EdgeID1, int_max EdgeID2)
+{
+    DenseVector<int_max> EdgeIDList = { EdgeID0, EdgeID1, EdgeID2 };
+    return this->PolygonMesh::AddCellByEdge(EdgeIDList);
+}
+
+template<typename MeshAttributeType>
+inline
+typename MeshAttributeType::CellHandleType
+TriangleMesh<MeshAttributeType>::AddCellByPoint(typename MeshAttributeType::PointHandleType PointHandle0, 
+                                                typename MeshAttributeType::PointHandleType PointHandle1, 
+                                                typename MeshAttributeType::PointHandleType PointHandle2)
+{
+    DenseVector<PointHandleType> PointHandleList = { PointHandle0, PointHandle1, PointHandle2 };
+    return this->PolygonMesh::AddCellByPoint(PointHandleList);
+}
+
+template<typename MeshAttributeType>
+inline
+typename MeshAttributeType::CellHandleType
+TriangleMesh<MeshAttributeType>::AddCellByPoint(int_max PointID0, int_max PointID1, int_max PointID2)
+{
+    DenseVector<int_max> PointIDList = { PointID0, PointID1, PointID2 };
+    return this->PolygonMesh::AddCellByPoint(PointIDList);
 }
 
 template<typename MeshAttributeType>

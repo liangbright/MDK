@@ -296,6 +296,9 @@ public:
     inline void GetPointIDList(int_max OutputIDList[2]) const;
     inline void GetPointIDList(int_max& PointID0, int_max& PointID1) const;
 
+    inline DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> GetDirectedEdgeHandleList() const;
+    inline void GetDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const;
+
     inline DenseVector<Handle_Of_Edge_Of_SurfaceMesh> GetAdjacentEdgeHandleList() const;
     inline void GetAdjacentEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const;
 

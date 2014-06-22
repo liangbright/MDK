@@ -928,6 +928,37 @@ void Edge_Of_SurfaceMesh<MeshAttributeType>::GetPointIDList(int_max& PointID0, i
 }
 
 template<typename MeshAttributeType>
+inline 
+DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> Edge_Of_SurfaceMesh<MeshAttributeType>::GetDirectedEdgeHandleList() const
+{
+    DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> OutputHandleList;
+    this->GetDirectedEdgeHandleList(OutputHandleList);
+    return OutputHandleList;
+}
+
+template<typename MeshAttributeType>
+inline
+void Edge_Of_SurfaceMesh<MeshAttributeType>::GetDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const
+{
+    OutputHandleList.FastResize(0);
+    OutputHandleList.ReserveCapacity(2);
+
+    if (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][0].IsValid() == true)
+    {
+        Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle;
+        DirectedEdgeHandle.SetIndex(m_Data->Index, 0);
+        OutputHandleList.Append(DirectedEdgeHandle);
+    }
+
+    if (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][1].IsValid() == true)
+    {
+        Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle;
+        DirectedEdgeHandle.SetIndex(m_Data->Index, 1);
+        OutputHandleList.Append(DirectedEdgeHandle);
+    }
+}
+
+template<typename MeshAttributeType>
 inline
 DenseVector<Handle_Of_Edge_Of_SurfaceMesh> Edge_Of_SurfaceMesh<MeshAttributeType>::GetAdjacentEdgeHandleList() const
 {

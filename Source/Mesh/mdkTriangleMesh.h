@@ -70,11 +70,17 @@ public:
     inline void operator=(const TriangleMesh& InputMesh);
     inline void operator=(TriangleMesh&& InputMesh);
 
-    //------------------------ AddCell() ---------------------------------------//
-    using PolygonMesh::AddCell;
+    //------------------------ Add Cell ---------------------------------------//
+    using PolygonMesh::AddCellByEdge;
+    using PolygonMesh::AddCellByPoint;
 
-    // direction of DirectedEdge: A->B->C
-    inline CellHandleType AddCell(EdgeHandleType EdgeHandleA, EdgeHandleType EdgeHandleB, EdgeHandleType EdgeHandleC);
+    // direction of DirectedEdge: 0->1->2
+    inline CellHandleType AddCellByEdge(EdgeHandleType EdgeHandle0, EdgeHandleType EdgeHandle1, EdgeHandleType EdgeHandle2);
+    inline CellHandleType AddCellByEdge(int_max EdgeID0, int_max EdgeID1, int_max EdgeID2);
+
+    // direction of DirectedEdge: 0->1->2
+    inline CellHandleType AddCellByPoint(PointHandleType PointHandle0, PointHandleType PointHandle1, PointHandleType PointHandle2);
+    inline CellHandleType AddCellByPoint(int_max PointID0, int_max PointID1, int_max PointID2);
 
     //------------ Construct from input data ------------------------------------//
 
