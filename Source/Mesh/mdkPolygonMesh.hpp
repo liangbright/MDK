@@ -21,7 +21,7 @@ PolygonMesh<MeshAttributeType>::PolygonMesh(const PolygonMesh<MeshAttributeType>
 
 template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType>::PolygonMesh(PolygonMesh<MeshAttributeType>&& InputMesh)
-: SurfaceMesh(std::forward<PolygonMesh<MeshAttributeType>&&>(InputMesh))
+: SurfaceMesh(std::forward<SurfaceMesh<MeshAttributeType>&&>(InputMesh))
 {
 }
 
@@ -44,7 +44,7 @@ template<typename MeshAttributeType>
 inline
 void PolygonMesh<MeshAttributeType>::operator=(PolygonMesh<MeshAttributeType>&& InputMesh)
 {
-    this->SurfaceMesh::operator=(std::forward<PolygonMesh<MeshAttributeType>&&>(InputMesh));
+    this->SurfaceMesh::operator=(std::forward<SurfaceMesh<MeshAttributeType>&&>(InputMesh));
 }
 
 
@@ -67,7 +67,7 @@ bool PolygonMesh<MeshAttributeType>::Construct(const DenseMatrix<typename MeshAt
     }
     //--------------------------------------------------------------------------------------------------
 
-    auto PointHandleList = this->AddPoint(InputPointPositionTable);
+    auto PointHandleList = this->AddPointSet(InputPointPositionTable);
 
     for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
     {
@@ -77,40 +77,10 @@ bool PolygonMesh<MeshAttributeType>::Construct(const DenseMatrix<typename MeshAt
         }
     }
 
-    DenseVector<EdgeHandleType> EdgeHandleList;
-
     for (int_max k = 0; k < InputCellTable.GetLength(); ++k)
-    {
-        const DenseVector<int_max>& Cell_k = InputCellTable[k];
-        
-        EdgeHandleList.FastResize(Cell_k.GetElementNumber());
-
-        for (int_max n = 0; n < Cell_k.GetElementNumber(); ++n)
-        {
-            auto tempIndex_a = Cell_k[n];
-
-            int_max tempIndex_b = -1;
-            if (n < Cell_k.GetElementNumber() - 1)
-            {
-                tempIndex_b = Cell_k[n + 1];
-            }
-            else
-            {
-                tempIndex_b = Cell_k[0];
-            }
-
-            EdgeHandleList[n] = this->AddEdge(PointHandleList[tempIndex_a], PointHandleList[tempIndex_b]);
-        }
-
-        for (int_max k = 0; k < EdgeHandleList.GetLength(); ++k)
-        {
-            if (this->IsValidHandle(EdgeHandleList[k]) == false)
-            {
-                return false;
-            }
-        }
-
-        this->AddCell(EdgeHandleList);
+    {        
+        auto PointHandleList_k = PointHandleList.GetSubSet(InputCellTable[k]);
+        this->AddCellByPoint(PointHandleList_k);
     }
 
     return true;
@@ -120,7 +90,8 @@ bool PolygonMesh<MeshAttributeType>::Construct(const DenseMatrix<typename MeshAt
 template<typename MeshAttributeType>
 void PolygonMesh<MeshAttributeType>::Construct(SurfaceMesh<MeshAttributeType> InputSurfaceMesh)
 {
-    (*this) = std::move(InputSurfaceMesh);
+    auto InputMeshPtr = static_cast<PolygonMesh<MeshAttributeType>*>(&InputSurfaceMesh);
+    m_MeshData = std::move(InputMeshPtr->m_MeshData);
 }
 
 
@@ -152,22 +123,17 @@ GetPointPositionMatrixAndCellTable(DenseMatrix<typename MeshAttributeType::Scala
 
     int_max PointCounter = 0;
 
-    auto it_v = this->GetIteratorOfPoint();
-    it_v.SetToBegin();
-    while (it_v.IsNotEnd())
+    for( auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
     {
-        auto PointHandle = it_v.GetPointHandle();
-        it_v.Point().GetPosition(PointPositionTable.GetPointerOfCol(PointCounter));
+        auto PointHandle = it.GetPointHandle();
+        it.Point().GetPosition(PointPositionTable.GetPointerOfCol(PointCounter));
         Map_PointIndex_to_OutputIndex[PointHandle.GetIndex()] = PointCounter;
         PointCounter += 1;
-        ++it_v;
     }
 
     int_max CellCounter = 0;
 
-    auto it = this->GetIteratorOfCell();
-    it.SetToBegin();
-    while (it.IsNotEnd())
+    for(auto it = this->GetIteratorOfCell(); it.IsNotEnd(); ++it)
     {
         auto PointHandleList = it.Cell().GetPointHandleList();
         CellTable[CellCounter].FastResize(PointHandleList.GetLength());
@@ -186,10 +152,24 @@ GetPointPositionMatrixAndCellTable(DenseMatrix<typename MeshAttributeType::Scala
             }
         }
         CellCounter += 1;
-        ++it;
     }
 }
 
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const
+{
+    PolygonMesh<MeshAttributeType> OutputMesh;
+    OutputMesh.Construct(this->SurfaceMesh::GetSubMeshByCell(CellHandleList));
+    return OutputMesh;
+}
+
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const
+{
+    PolygonMesh<MeshAttributeType> OutputMesh;
+    OutputMesh.Construct(this->SurfaceMesh::GetSubMeshByCell(CellIDList));
+    return OutputMesh;
+}
 
 template<typename MeshAttributeType>
 void PolygonMesh<MeshAttributeType>::UpdateNormalAtPoint(PointHandleType PointHandle)

@@ -68,6 +68,10 @@ public:
 
     void Construct(SurfaceMesh<MeshAttributeType> InputSurfaceMesh);
 
+    // get a sub mesh by CellHandleList or CellIDList ----------------------------//
+    PolygonMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const;
+    PolygonMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const;
+
     //--------------------- output -------------------------------------------------//
 
     std::pair<DenseMatrix<ScalarType>, DataArray<DenseVector<int_max>>> GetPointPositionMatrixAndCellTable() const;

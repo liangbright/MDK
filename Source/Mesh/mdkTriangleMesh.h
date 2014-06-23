@@ -17,18 +17,7 @@ struct TriangleMeshAttributeType
     typedef DirectedEdgeAttribute_Of_TriangleMesh<ScalarType>   DirectedEdgeAttributeType;
     typedef CellAttribute_Of_TriangleMesh<ScalarType>           CellAttributeType;
 };
-//-----------------------------------------------------------------------------------------------------//
-template<typename ScalarType>
-struct TriangleMeshAttributeType_Empty
-{
-    typedef ScalarType  ScalarType;
-    typedef bool        GlobalAttribute;
-    typedef bool        PointAttributeType;
-    typedef bool        EdgeAttributeType;
-    typedef bool        DirectedEdgeAttributeType;
-    typedef bool        CellAttributeType;
-};
-//-----------------------------------------------------------------------------------------------------//
+//---------------------------------------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
 class TriangleMesh : public PolygonMesh<MeshAttributeType>
@@ -88,9 +77,12 @@ public:
 
     void Construct(PolygonMesh<MeshAttributeType> InputPolygonMesh);
 
-    //--- check --------------------------
-
+    //--- check --------------------------//
     bool CheckIfTriangleMesh() const;
+
+    // get a sub mesh by CellHandleList or CellIDList ----------------------------//
+    TriangleMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const;
+    TriangleMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const;
 
     //------------- Function optimized For TriangleMesh --------------------------------------------------//
 

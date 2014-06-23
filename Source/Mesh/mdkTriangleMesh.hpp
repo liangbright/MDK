@@ -21,7 +21,7 @@ TriangleMesh<MeshAttributeType>::TriangleMesh(const TriangleMesh<MeshAttributeTy
 
 template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType>::TriangleMesh(TriangleMesh<MeshAttributeType>&& InputMesh)
-: PolygonMesh(std::forward<TriangleMesh<MeshAttributeType>&&>(InputMesh))
+: PolygonMesh(std::forward<PolygonMesh<MeshAttributeType>&&>(InputMesh))
 {
 }
 
@@ -44,15 +44,15 @@ template<typename MeshAttributeType>
 inline
 void TriangleMesh<MeshAttributeType>::operator=(TriangleMesh<MeshAttributeType>&& InputMesh)
 {
-    this->PolygonMesh::operator=(std::forward<TriangleMesh<MeshAttributeType>&&>(InputMesh));
+    this->PolygonMesh::operator=(std::forward<PolygonMesh<MeshAttributeType>&&>(InputMesh));
 }
 
 template<typename MeshAttributeType>
 inline 
-typename MeshAttributeType::CellHandleType
-TriangleMesh<MeshAttributeType>::AddCellByEdge(typename MeshAttributeType::EdgeHandleType EdgeHandle0, 
-                                               typename MeshAttributeType::EdgeHandleType EdgeHandle1, 
-                                               typename MeshAttributeType::EdgeHandleType EdgeHandle2)
+Handle_Of_Cell_Of_SurfaceMesh
+TriangleMesh<MeshAttributeType>::AddCellByEdge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle0,
+                                               Handle_Of_Edge_Of_SurfaceMesh EdgeHandle1, 
+                                               Handle_Of_Edge_Of_SurfaceMesh EdgeHandle2)
 {
     DenseVector<EdgeHandleType> EdgeHandleList = { EdgeHandle0, EdgeHandle1, EdgeHandle2 };
     return this->PolygonMesh::AddCellByEdge(EdgeHandleList);
@@ -60,7 +60,7 @@ TriangleMesh<MeshAttributeType>::AddCellByEdge(typename MeshAttributeType::EdgeH
 
 template<typename MeshAttributeType>
 inline
-typename MeshAttributeType::CellHandleType
+Handle_Of_Cell_Of_SurfaceMesh
 TriangleMesh<MeshAttributeType>::AddCellByEdge(int_max EdgeID0, int_max EdgeID1, int_max EdgeID2)
 {
     DenseVector<int_max> EdgeIDList = { EdgeID0, EdgeID1, EdgeID2 };
@@ -69,10 +69,10 @@ TriangleMesh<MeshAttributeType>::AddCellByEdge(int_max EdgeID0, int_max EdgeID1,
 
 template<typename MeshAttributeType>
 inline
-typename MeshAttributeType::CellHandleType
-TriangleMesh<MeshAttributeType>::AddCellByPoint(typename MeshAttributeType::PointHandleType PointHandle0, 
-                                                typename MeshAttributeType::PointHandleType PointHandle1, 
-                                                typename MeshAttributeType::PointHandleType PointHandle2)
+Handle_Of_Cell_Of_SurfaceMesh
+TriangleMesh<MeshAttributeType>::AddCellByPoint(Handle_Of_Point_Of_SurfaceMesh PointHandle0,
+                                                Handle_Of_Point_Of_SurfaceMesh PointHandle1, 
+                                                Handle_Of_Point_Of_SurfaceMesh PointHandle2)
 {
     DenseVector<PointHandleType> PointHandleList = { PointHandle0, PointHandle1, PointHandle2 };
     return this->PolygonMesh::AddCellByPoint(PointHandleList);
@@ -80,7 +80,7 @@ TriangleMesh<MeshAttributeType>::AddCellByPoint(typename MeshAttributeType::Poin
 
 template<typename MeshAttributeType>
 inline
-typename MeshAttributeType::CellHandleType
+Handle_Of_Cell_Of_SurfaceMesh
 TriangleMesh<MeshAttributeType>::AddCellByPoint(int_max PointID0, int_max PointID1, int_max PointID2)
 {
     DenseVector<int_max> PointIDList = { PointID0, PointID1, PointID2 };
@@ -90,7 +90,8 @@ TriangleMesh<MeshAttributeType>::AddCellByPoint(int_max PointID0, int_max PointI
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::Construct(PolygonMesh<MeshAttributeType> InputPolygonMesh)
 {
-    (*this) = std::move(InputPolygonMesh);
+    auto InputMeshPtr = static_cast<TriangleMesh<MeshAttributeType>*>(&InputPolygonMesh);
+    m_MeshData = std::move(InputMeshPtr->m_MeshData);
 }
 
 
@@ -113,6 +114,24 @@ bool TriangleMesh<MeshAttributeType>::CheckIfTriangleMesh() const
     }
 
     return true;
+}
+
+// get a sub mesh by CellHandleList or CellIDList----------------------------//
+
+template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const
+{
+    TriangleMesh<MeshAttributeType> OutputMesh;
+    OutputMesh.Construct(this->PolygonMesh<MeshAttributeType>::GetSubMeshByCell(CellHandleList));
+    return OutputMesh;
+}
+
+template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const
+{
+    TriangleMesh<MeshAttributeType> OutputMesh;
+    OutputMesh.Construct(this->PolygonMesh<MeshAttributeType>::GetSubMeshByCell(CellIDList));
+    return OutputMesh;
 }
 
 //------------- Function optimized TriangleMesh --------------------------------------------------//

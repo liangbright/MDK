@@ -141,6 +141,7 @@ public:
     inline Handle_Of_Point_Of_SurfaceMesh GetHandle() const;
 
     inline void SetID(int_max PointID);
+    inline void RemoveID();
     inline int_max GetID() const;
 
     inline void SetPosition(const ScalarType* Pos);
@@ -286,6 +287,7 @@ public:
     inline Handle_Of_Edge_Of_SurfaceMesh GetHandle() const;
 
     inline void SetID(int_max EdgeID);
+    inline void RemoveID();
     inline int_max GetID() const;
    
     inline DenseVector<Handle_Of_Point_Of_SurfaceMesh, 2> GetPointHandleList() const;
@@ -437,6 +439,7 @@ public:
     inline Handle_Of_DirectedEdge_Of_SurfaceMesh GetHandle() const;
 
     inline void SetID(int_max DirectedEdgeID);
+    inline void RemoveID();
     inline int_max GetID() const;
 
     inline Handle_Of_Cell_Of_SurfaceMesh GetCellHandle() const;
@@ -553,6 +556,7 @@ public:
     inline Handle_Of_Cell_Of_SurfaceMesh GetHandle() const;
 
     inline void SetID(int_max CellID);
+    inline void RemoveID();
     inline int_max GetID() const;
 
     inline DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> GetDirectedEdgeHandleList() const;

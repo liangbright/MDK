@@ -241,6 +241,22 @@ void Point_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max PointID)
 
 template<typename MeshAttributeType>
 inline
+void Point_Of_SurfaceMesh<MeshAttributeType>::RemoveID()
+{   
+    if (m_Data->ID >= 0)
+    {
+        auto it = m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.find(m_Data->ID);
+        if (it != m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.end())
+        {
+            m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.erase(it);
+        }
+
+        m_Data->ID = -1;
+    }
+}
+
+template<typename MeshAttributeType>
+inline
 int_max Point_Of_SurfaceMesh<MeshAttributeType>::GetID() const
 {
     return m_Data->ID;
@@ -802,12 +818,12 @@ bool Edge_Of_SurfaceMesh<MeshAttributeType>::IsBoundary() const
 {
     if (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][0].IsValid() == false)
     {
-        return true
+        return true;
     }
     
     if (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][1].IsValid() == false)
     {
-        return true
+        return true;
     }
 
     return false;
@@ -865,6 +881,22 @@ void Edge_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max EdgeID)
 
         m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex[EdgeID] = m_Data->Index;
         m_Data->ID = EdgeID;
+    }
+}
+
+template<typename MeshAttributeType>
+inline
+void Edge_Of_SurfaceMesh<MeshAttributeType>::RemoveID()
+{
+    if (m_Data->ID >= 0)
+    {
+        auto it = m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.find(m_Data->ID);
+        if (it != m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.end())
+        {
+            m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.erase(it);
+        }
+
+        m_Data->ID = -1;
     }
 }
 
@@ -1550,6 +1582,22 @@ void DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max DirectedEdgeI
 
 template<typename MeshAttributeType>
 inline
+void DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::RemoveID()
+{
+    if (m_Data->ID >= 0)
+    {
+        auto it = m_Data->Mesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.find(m_Data->ID);
+        if (it != m_Data->Mesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.end())
+        {
+            m_Data->Mesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.erase(it);
+        }
+
+        m_Data->ID = -1;
+    }
+}
+
+template<typename MeshAttributeType>
+inline
 int_max DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::GetID() const
 {
     return m_Data->ID;
@@ -2003,6 +2051,22 @@ void Cell_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max CellID)
 }
 
 template<typename MeshAttributeType>
+inline
+void Cell_Of_SurfaceMesh<MeshAttributeType>::RemoveID()
+{
+    if (m_Data->ID >= 0)
+    {
+        auto it = m_Data->Mesh.m_MeshData->Map_CellID_to_CellIndex.find(m_Data->ID);
+        if (it != m_Data->Mesh.m_MeshData->Map_CellID_to_CellIndex.end())
+        {
+            m_Data->Mesh.m_MeshData->Map_CellID_to_CellIndex.erase(it);
+        }
+
+        m_Data->ID = -1;
+    }
+}
+
+template<typename MeshAttributeType>
 inline 
 int_max Cell_Of_SurfaceMesh<MeshAttributeType>::GetID() const
 {
@@ -2110,7 +2174,7 @@ template<typename MeshAttributeType>
 inline
 DenseVector<Handle_Of_Edge_Of_SurfaceMesh> Cell_Of_SurfaceMesh<MeshAttributeType>::GetEdgeHandleList() const
 {
-    DenseVector<int_max> OutputHandleList;
+    DenseVector<Handle_Of_Edge_Of_SurfaceMesh> OutputHandleList;
     this->GetEdgeHandleList(OutputHandleList);
     return OutputHandleList;
 }

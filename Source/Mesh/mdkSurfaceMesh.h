@@ -5,9 +5,23 @@
 
 #include "mdkSurfaceMeshItem.h"
 #include "mdkSurfaceMeshItemIterator.h"
+#include "mdkSurfaceMeshAttribute.h"
 
 namespace mdk
 {
+
+//------------------------------- standard/default/empty SurfaceMeshAttribute -----------------------//
+template<typename ScalarType>
+struct SurfaceMeshAttributeType
+{
+    typedef ScalarType  ScalarType;
+    typedef GlobalAttribute_Of_SurfaceMesh<ScalarType>         GlobalAttribute;
+    typedef PointAttribute_Of_SurfaceMesh<ScalarType>          PointAttributeType;
+    typedef EdgeAttribute_Of_SurfaceMesh<ScalarType>           EdgeAttributeType;
+    typedef DirectedEdgeAttribute_Of_SurfaceMesh<ScalarType>   DirectedEdgeAttributeType;
+    typedef CellAttribute_Of_SurfaceMesh<ScalarType>           CellAttributeType;
+};
+//------------------------------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
 struct SurfaceMeshData
@@ -330,10 +344,10 @@ public:
     CellHandleType AddCellByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList);
     CellHandleType AddCellByEdge(const DenseVector<int_max>& EdgeIDList);
 
-    // Add Cell with PointHandleList, Point0 <- Edge0 -> Point1  <- Edge1 -> ... Point_end <- Edge_end -> Point0
+    // Add Cell with PointHandleList, Point0 <- Edge0 -> Point1 <- Edge1 -> Point2 ... Point_end <- Edge_end -> Point0
     // in this function, AddCellByEdge() is called if necessary
-    CellHandleType AddCelByPoint(DenseVector<PointHandleType> PointHandleList);
-    CellHandleType AddCelByPoint(DenseVector<int_max> PointIDList);
+    CellHandleType AddCellByPoint(const DenseVector<PointHandleType>& PointHandleList);
+    CellHandleType AddCellByPoint(const DenseVector<int_max>& PointIDList);
 
     // Delete Mesh Item ----------------------------------------------------------------------------//
 
@@ -370,8 +384,8 @@ public:
     //---------------------------------------------------------------------------------------------------
 
     // get a sub mesh by CellHandleList or CellIDList
-    SurfaceMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList);
-    SurfaceMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<int_max>& CellIDList);
+    SurfaceMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const;
+    SurfaceMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const;
 
 };
 

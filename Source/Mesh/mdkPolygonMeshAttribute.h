@@ -1,8 +1,8 @@
 #ifndef __mdkPolygonMeshAttribute_h
 #define __mdkPolygonMeshAttribute_h
 
-
 #include "mdkDenseMatrix.h"
+#include "mdkSurfaceMeshAttribute.h"
 
 namespace mdk
 {
@@ -15,7 +15,7 @@ enum class PolygonMeshGlobalAttributeTypeEnum
 };
 
 template<typename ScalarType>
-struct GlobalAttribute_Of_PolygonMesh
+struct GlobalAttribute_Of_PolygonMesh : GlobalAttribute_Of_SurfaceMesh<ScalarType>
 {
     ScalarType MeanCellArea;
     ScalarType MeanEdgePhysicalLength;
@@ -46,7 +46,7 @@ enum class PolygonMeshPointAttributeTypeEnum
 };
 
 template<typename ScalarType>
-struct PointAttribute_Of_PolygonMesh
+struct PointAttribute_Of_PolygonMesh : PointAttribute_Of_SurfaceMesh<ScalarType>
 {
     ScalarType MeanCurvature;
     DenseVector<ScalarType, 3> Normal;
@@ -77,7 +77,7 @@ enum class PolygonMeshEdgeAttributeEnum
 
 
 template<typename ScalarType>
-struct EdgeAttribute_Of_PolygonMesh
+struct EdgeAttribute_Of_PolygonMesh : EdgeAttribute_Of_SurfaceMesh<ScalarType>
 {
     ScalarType PhysicalLength;
 
@@ -104,7 +104,7 @@ enum class PolygonMeshDirectedEdgeAttributeEnum
 };
 
 template<typename ScalarType>
-struct DirectedEdgeAttribute_Of_PolygonMesh
+struct DirectedEdgeAttribute_Of_PolygonMesh : DirectedEdgeAttribute_Of_SurfaceMesh<ScalarType>
 {
     DenseVector<ScalarType, 3> Orientation;
 //-------------------------------------------------------
@@ -131,7 +131,7 @@ enum class PolygonMeshCellAttributeEnum
 };
 
 template<typename ScalarType>
-struct CellAttribute_Of_PolygonMesh
+struct CellAttribute_Of_PolygonMesh : CellAttribute_Of_SurfaceMesh<ScalarType>
 {
     ScalarType Area;
 

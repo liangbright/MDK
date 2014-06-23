@@ -79,16 +79,9 @@ void SurfaceMesh<MeshAttributeType>::Clear()
     m_MeshData->CellValidityFlagList.Clear();
 
     m_MeshData->Map_PointID_to_PointIndex.clear();
-    m_MeshData->Map_PointID_to_PointIndex.shrink_to_fit();
-
     m_MeshData->Map_EdgeID_to_EdgeIndex.clear();
-    m_MeshData->Map_EdgeID_to_EdgeIndex.shrink_to_fit();
-
     m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.clear();
-    m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.shrink_to_fit();
-
     m_MeshData->Map_CellID_to_CellIndex.clear();
-    m_MeshData->Map_CellID_to_CellIndex.shrink_to_fit();
 
     m_MeshData->Attribute.Clear();
 }
@@ -599,6 +592,8 @@ template<typename MeshAttributeType>
 inline
 DirectedEdge_Of_SurfaceMesh<MeshAttributeType>& SurfaceMesh<MeshAttributeType>::DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle)
 {
+    auto EdgeIndex = DirectedEdgeHandle.GetEdgeIndex();
+    auto RelativeIndex = DirectedEdgeHandle.GetRelativeIndex();
     return m_MeshData->DirectedEdgePairList[EdgeIndex][RelativeIndex];
 }
 
@@ -607,7 +602,7 @@ inline
 const DirectedEdge_Of_SurfaceMesh<MeshAttributeType>& 
 SurfaceMesh<MeshAttributeType>::DirectedEdge(Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle) const
 {
-    auto EdgeIndex = DirectedEdgeHandle.GetEdgeIndex;
+    auto EdgeIndex = DirectedEdgeHandle.GetEdgeIndex();
     auto RelativeIndex = DirectedEdgeHandle.GetRelativeIndex();
     return m_MeshData->DirectedEdgePairList[EdgeIndex][RelativeIndex];
 }
@@ -1613,7 +1608,7 @@ AddPointSet(const DenseMatrix<typename MeshAttributeType::ScalarType>& PointSet)
         }
 
         PointHandleList.Resize(1);
-        PointHandleList[0] = this->AddPoint(PointSet.GetPointer(k));
+        PointHandleList[0] = this->AddPoint(PointSet.GetPointer());
         return PointHandleList;
     }
 
@@ -1892,11 +1887,11 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByEdge(cons
 
 
 template<typename MeshAttributeType>
-Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByEdge(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList)
+Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByPoint(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList)
 {
     if (PointHandleList.GetLength() < 3)
     {
-        MDK_Error("PointHandleList length < 3 @ SurfaceMesh::AddCellByEdge(...)")
+        MDK_Error("PointHandleList length < 3 @ SurfaceMesh::AddCellByPoint(...)")
         Handle_Of_Cell_Of_SurfaceMesh CellHandle;
         CellHandle.SetToInvalid();
         return CellHandle;
@@ -2486,10 +2481,11 @@ void SurfaceMesh<MeshAttributeType>::CleanDataStructure()
     //--------------- done clean CellList and Update Map_CellID_to_CellIndex ----------------------------------------------------//
 }
 
+//-------------------- get a sub mesh by CellHandleList or CellIDList -----------------------------------------//
 
 template<typename MeshAttributeType>
 SurfaceMesh<MeshAttributeType> 
-SurfaceMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<typename MeshAttributeTypeCellHandleType>& CellHandleList)
+SurfaceMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<Handle_Of_Cell_Of_SurfaceMesh>& CellHandleList) const
 {
     SurfaceMesh<MeshAttributeType> OutputMesh;
     
@@ -2517,21 +2513,57 @@ SurfaceMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<typename Mesh
     // add cell one by one
     for (int_max k = 0; k < CellHandleList.GetLength(); ++k)
     {
-        auto CellIndex_k = CellHandleList[k];
-        auto PointIndexList_k = m_MeshData->CellList[CellIndex_k].GetPointIndexList();
-        
+        auto CellID_k = this->Cell(CellHandleList[k]).GetID();
+        const auto& CellAttribute_k = this->Cell(CellHandleList[k]).Attribute();
+        auto PointHandleList_k = this->Cell(CellHandleList[k]).GetPointHandleList();
+        auto EdgeHandleList_k = this->Cell(CellHandleList[k]).GetEdgeHandleList();
+        auto DirectedEdgeHandleList_k = this->Cell(CellHandleList[k]).GetDirectedEdgeHandleList();
+
         // add point
         DenseVector<PointHandleType> PointHandleList_OutputMesh;
-        PointHandleList_OutputMesh.Resize(PointIndexList_k.GetLength());
-        for (int_max n = 0; n < PointIndexList_k.GetLength(); ++n)
+        PointHandleList_OutputMesh.Resize(PointHandleList_k.GetLength());
+        for (int_max n = 0; n < PointHandleList_k.GetLength(); ++n)
         {
-            ScalarType Pos[3];
-            m_MeshData->PointPositionTable.GetCol(n, Pos);
-            PointHandleList_OutputMesh[k] = OutputMesh.AddPoint(Pos);
+            auto PointHandle_n = PointHandleList_k[n];
+
+            // add Point Position
+            ScalarType Position_n[3];
+            this->Point(PointHandle_n).GetPosition(Position_n);
+            PointHandleList_OutputMesh[k] = OutputMesh.AddPoint(Position_n);
+            // copy PointID and Attribute
+            auto PointID_n = this->Point(PointHandle_n).GetID();
+            const auto& PointAttribute_n = this->Point(PointHandle_n).Attribute();
+            OutputMesh.Point(PointHandleList_OutputMesh[k]).SetID(PointID_n);
+            OutputMesh.Point(PointHandleList_OutputMesh[k]).Attribute() = PointAttribute_n;
         }
 
         // add cell
-        OutputMesh.AddCelByPoint(PointHandleList_OutputMesh);
+        auto CellHandle_OutputMesh = OutputMesh.AddCellByPoint(PointHandleList_OutputMesh);
+        // copy cell ID and Attribute
+        OutputMesh.Cell(CellHandle_OutputMesh).SetID(CellID_k);
+        OutputMesh.Cell(CellHandle_OutputMesh).Attribute() = CellAttribute_k;
+
+        // copy Edge ID and Attribute
+        auto EdgeHandleList_OutputMesh = OutputMesh.Cell(CellHandle_OutputMesh).GetEdgeHandleList();
+        for (int_max n = 0; n < EdgeHandleList_OutputMesh.GetLength(); ++n)
+        {
+            auto EdgeID_n = this->Edge(EdgeHandleList_k[n]).GetID();
+            const auto& EdgeAttribute_n = this->Edge(EdgeHandleList_k[n]).Attribute();
+
+            OutputMesh.Edge(EdgeHandleList_OutputMesh[n]).SetID(EdgeID_n);
+            OutputMesh.Edge(EdgeHandleList_OutputMesh[n]).Attribute() = EdgeAttribute_n;
+        }
+
+        // copy DirectedEdge ID and Attribute
+        auto DirectedEdgeHandleList_OutputMesh = OutputMesh.Cell(CellHandle_OutputMesh).GetDirectedEdgeHandleList();
+        for (int_max n = 0; n < DirectedEdgeHandleList_OutputMesh.GetLength(); ++n)
+        {
+            auto DirectedEdgeID_n = this->DirectedEdge(DirectedEdgeHandleList_k[n]).GetID();
+            const auto& DirectedEdgeAttribute_n = this->DirectedEdge(DirectedEdgeHandleList_k[n]).Attribute();
+
+            OutputMesh.DirectedEdge(DirectedEdgeHandleList_OutputMesh[n]).SetID(DirectedEdgeID_n);
+            OutputMesh.DirectedEdge(DirectedEdgeHandleList_OutputMesh[n]).Attribute() = DirectedEdgeAttribute_n;
+        }
     }
 
     return OutputMesh;
@@ -2540,7 +2572,7 @@ SurfaceMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<typename Mesh
 
 template<typename MeshAttributeType>
 SurfaceMesh<MeshAttributeType> 
-SurfaceMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<int_max>& CellIDList)
+SurfaceMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const
 {
     DenseVector<CellHandleType> CellHandleList;
     for (int_max k = 0; k < CellIDList.GetLength(); ++k)
