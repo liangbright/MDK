@@ -224,7 +224,7 @@ void Point_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max PointID)
         auto it = m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.find(PointID);
         if (it != m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.end())
         {
-            MDK_Error("Input PointID has already been used for another  @ Point_Of_SurfaceMesh::SetID(...)")
+            MDK_Error("Input PointID has already been used for another point @ Point_Of_SurfaceMesh::SetID(...)")
             return;
         }
 
@@ -264,14 +264,24 @@ int_max Point_Of_SurfaceMesh<MeshAttributeType>::GetID() const
 
 template<typename MeshAttributeType>
 inline
-void Point_Of_SurfaceMesh<MeshAttributeType>::SetPosition(const typename MeshAttributeType::ScalarType* Pos)
+void Point_Of_SurfaceMesh<MeshAttributeType>::SetPosition(const DenseVector<typename MeshAttributeType::ScalarType, 3>& Pos)
+{
+    m_Data->Mesh.m_MeshData->PointPositionTable.SetCol(m_Data->Index, Pos.GetPointer());
+}
+
+
+template<typename MeshAttributeType>
+inline
+void Point_Of_SurfaceMesh<MeshAttributeType>::SetPosition(const typename MeshAttributeType::ScalarType Pos[3])
 {
     m_Data->Mesh.m_MeshData->PointPositionTable.SetCol(m_Data->Index, Pos);
 }
 
 template<typename MeshAttributeType>
 inline
-void Point_Of_SurfaceMesh<MeshAttributeType>::SetPosition(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z)
+void Point_Of_SurfaceMesh<MeshAttributeType>::SetPosition(typename MeshAttributeType::ScalarType x,
+                                                          typename MeshAttributeType::ScalarType y, 
+                                                          typename MeshAttributeType::ScalarType z)
 {
     m_Data->Mesh.m_MeshData->PointPositionTable.SetCol(m_Data->Index, { x, y, z });
 }
@@ -287,13 +297,6 @@ DenseVector<typename MeshAttributeType::ScalarType, 3> Point_Of_SurfaceMesh<Mesh
 
 template<typename MeshAttributeType>
 inline
-void Point_Of_SurfaceMesh<MeshAttributeType>::GetPosition(typename MeshAttributeType::ScalarType* Pos) const
-{
-    m_Data->Mesh.m_MeshData->PointPositionTable.GetCol(m_Data->Index, Pos);
-}
-
-template<typename MeshAttributeType>
-inline
 void Point_Of_SurfaceMesh<MeshAttributeType>::
 GetPosition(typename MeshAttributeType::ScalarType& x, typename MeshAttributeType::ScalarType& y, typename MeshAttributeType::ScalarType& z) const
 {
@@ -302,6 +305,13 @@ GetPosition(typename MeshAttributeType::ScalarType& x, typename MeshAttributeTyp
     x = Pos[0];
     y = Pos[1];
     z = Pos[2];
+}
+
+template<typename MeshAttributeType>
+inline
+void Point_Of_SurfaceMesh<MeshAttributeType>::GetPosition(typename MeshAttributeType::ScalarType Pos[3]) const
+{
+    m_Data->Mesh.m_MeshData->PointPositionTable.GetCol(m_Data->Index, Pos);
 }
 
 template<typename MeshAttributeType>
@@ -1336,6 +1346,8 @@ void DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::Create()
     m_Data->NextDirectedEdgeIndex.RelativeIndex = -1;
     m_Data->PreviousDirectedEdgeIndex.EdgeIndex = -1;
     m_Data->PreviousDirectedEdgeIndex.RelativeIndex = -1;
+
+    m_Data->Attribute.Clear();
 }
 
 template<typename MeshAttributeType>
@@ -1565,7 +1577,7 @@ void DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max DirectedEdgeI
         auto it = m_Data->Mesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.find(DirectedEdgeID);
         if (it != m_Data->Mesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.end())
         {
-            MDK_Error("Input DirectedEdgeID has already been used for another edge @ DirectedEdge_Of_SurfaceMesh::SetID(...)")
+            MDK_Error("Input DirectedEdgeID has already been used for another directed-edge @ DirectedEdge_Of_SurfaceMesh::SetID(...)")
             return;
         }
 

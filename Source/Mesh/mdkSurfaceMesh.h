@@ -45,7 +45,10 @@ struct SurfaceMeshData
 
     DataArray<Edge_Of_SurfaceMesh<MeshAttributeType>> EdgeList;
 
-    DataArray<DenseVector<DirectedEdge_Of_SurfaceMesh<MeshAttributeType>, 2>> DirectedEdgePairList;
+    DataArray<DenseVector<DirectedEdge_Of_SurfaceMesh<MeshAttributeType>>> DirectedEdgePairList;
+
+    // do not use this, DirectedEdge_Of_SurfaceMesh::operator(&&) will not work when append to the list
+    //DataArray<DenseVector<DirectedEdge_Of_SurfaceMesh<MeshAttributeType>, 2>> DirectedEdgePairList;
 
     DenseVector<int_max> EdgeValidityFlagList;
     // 1: Edge is an element of the mesh 
@@ -234,30 +237,30 @@ public:
     inline DenseVector<CellHandleType> GetCellHandleList() const;
     inline void GetCellHandleList(DenseVector<CellHandleType>& OutputHandleList) const;
 
-    //----------- get PointHandle by position ----------------------------------------------//
+    //----------- get PointHandle by Position, ID, ----------------------------------------------//
 
-    inline PointHandleType GetPointHandle(ScalarType Position[3]) const;
-    inline PointHandleType GetPointHandle(ScalarType x, ScalarType y, ScalarType z) const;
+    inline PointHandleType GetPointHandleByPosition(ScalarType x, ScalarType y, ScalarType z) const;
+    inline PointHandleType  GetPointHandleByID(int_max PointID) const;
 
-    //----------- get handle by ID -----------------------------------------------------------//
+    //----------- get EdgeHandle by ID, PointHandleList, PointIDList -------------------------------------//
 
-    inline PointHandleType  GetPointHandle(int_max PointID) const;
-    inline EdgeHandleType   GetEdgeHandle(int_max EdgeID) const;
-    inline DirectedEdgeHandleType GetDirectedEdgeHandle(int_max DirectedEdgeID) const;
-    inline CellHandleType   GetCellHandle(int_max CellID) const;
+    inline EdgeHandleType GetEdgeHandleByID(int_max EdgeID) const;
+    inline EdgeHandleType GetEdgeHandleByPoint(PointHandleType PointHandle0, PointHandleType PointHandle1) const;
+    inline EdgeHandleType GetEdgeHandleByPoint(int_max PointID0, int_max PointID1) const;
 
-    //----------- get EdgeHandle and DirectedEdgeHandle by PointHandleList or PointIDList ---------------------//
+    //----------- get DirectedEdgeHandle by ID, PointHandleList, PointIDList -------------------------------//
 
-    inline EdgeHandleType GetEdgeHandle(PointHandleType PointHandle0, PointHandleType PointHandle1) const;
-    inline EdgeHandleType GetEdgeHandle(int_max PointID0, int_max PointID1) const;
+    inline DirectedEdgeHandleType GetDirectedEdgeHandleByID(int_max DirectedEdgeID) const;
+    inline DirectedEdgeHandleType GetDirectedEdgeHandleByPoint(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
+    inline DirectedEdgeHandleType GetDirectedEdgeHandleByPoint(int_max PointID_start, int_max PointID_end) const;
 
-    inline DirectedEdgeHandleType GetDirectedEdgeHandle(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
-    inline DirectedEdgeHandleType GetDirectedEdgeHandle(int_max PointID_start, int_max PointID_end) const;
+    //----------- get CellHandle by ID, PointHandleList or PointIDList EdgeHandleList or EdgeIDList ----------//
 
-    //----------- get CellHandle by EdgeHandleList or EdgeIDList ------------------------------------------//
-
-    inline CellHandleType GetCellHandle(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
-    inline CellHandleType GetCellHandle(const DenseVector<int_max>& EdgeIDList) const;
+    inline CellHandleType GetCellHandleByID(int_max CellID) const;
+    inline CellHandleType GetCellHandleByPoint(const DenseVector<PointHandleType>& PointHandleList) const;
+    inline CellHandleType GetCellHandleByPoint(const DenseVector<int_max>& PointIDList) const;
+    inline CellHandleType GetCellHandleByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
+    inline CellHandleType GetCellHandleByEdge(const DenseVector<int_max>& EdgeIDList) const;
 
     //-------------- check ID -------------------------------------------------------//
 
@@ -280,30 +283,31 @@ public:
     inline DenseVector<int_max> GetCellIDList() const;
     inline void GetCellIDList(DenseVector<int_max>& OutputIDList) const;
 
-    //----------- get ID by handle -----------------------------------------------------------//
+    //----------- get Point ID by Handle, Position -----------------------------------------------------------//
 
-    inline int_max GetPointID(PointHandleType PointHandle) const;
-    inline int_max GetEdgeID(EdgeHandleType EdgeHandle) const;
-    inline int_max GetDirectedEdgeID(DirectedEdgeHandleType DirectedEdgeHandle) const;
-    inline int_max GetCellID(CellHandleType CellHandle) const;
+    inline int_max GetPointIDByHandle(PointHandleType PointHandle) const;
+    inline int_max GetPointIDByPosition(ScalarType Position[3]) const;
+    inline int_max GetPointIDByPosition(ScalarType x, ScalarType y, ScalarType z) const;
 
-    //----------- get PointID by position ----------------------------------------------//
+    //----------- get Edge ID by EdgeHandle, PointHandleList, PointIDList ------------------------------------------------------//
 
-    inline int_max GetPointID(ScalarType Position[3]) const;
-    inline int_max GetPointID(ScalarType x, ScalarType y, ScalarType z) const;
+    inline int_max GetEdgeIDByHandle(EdgeHandleType EdgeHandle) const;
+    inline int_max GetEdgeIDByPoint(PointHandleType PointHandle0, PointHandleType PointHandle1) const;
+    inline int_max GetEdgeIDByPoint(int_max PointID0, int_max PointID1) const;
 
-    //----------- get EdgeID and DirectedEdgeID by PointHandleList or PointIDList ---------------------//
+    //----------- get DirectedEdge ID by DirectedEdgeHandle, PointHandle, PointID -------------------------------------------//
 
-    inline int_max GetEdgeID(PointHandleType PointHandle0, PointHandleType PointHandle1) const;
-    inline int_max GetEdgeID(int_max PointID0, int_max PointID1) const;
+    inline int_max GetDirectedEdgeIDByHandle(DirectedEdgeHandleType DirectedEdgeHandle) const;
+    inline int_max GetDirectedEdgeIDByPoint(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
+    inline int_max GetDirectedEdgeIDByPoint(int_max PointID_start, int_max PointID_end) const;
 
-    inline int_max GetDirectedEdgeID(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
-    inline int_max GetDirectedEdgeID(int_max PointID_start, int_max PointID_end) const;
+    //----------- get CellID by CellHandle, EdgeHandleList, EdgeIDList, PointHandleList, PointIDList --------------------------//
 
-    //----------- get CellID by EdgeHandleList or EdgeIDList ------------------------------------------//
-
-    inline int_max GetCellID(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
-    inline int_max GetCellID(const DenseVector<int_max>& EdgeIDList) const;
+    inline int_max GetCellIDByHandle(CellHandleType CellHandle) const;
+    inline int_max GetCellIDByPoint(const DenseVector<PointHandleType>& PointHandleList) const;
+    inline int_max GetCellIDByPoint(const DenseVector<int_max>& PointIDList) const;
+    inline int_max GetCellIDByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
+    inline int_max GetCellIDByEdge(const DenseVector<int_max>& EdgeIDList) const;
 
     //------------- Iterator --------------------------------------------------------------//
 
@@ -386,6 +390,8 @@ public:
     // get a sub mesh by CellHandleList or CellIDList
     SurfaceMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const;
     SurfaceMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const;
+
+    //---------------------------------------------------------------------------------------------------
 
 };
 

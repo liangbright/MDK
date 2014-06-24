@@ -57,7 +57,7 @@ struct PointAttribute_Of_TriangleMesh : PointAttribute_Of_PolygonMesh<ScalarType
 
     void Clear()
     {
-        this->PointAttribute_Of_TriangleMesh::Clear();
+        this->PointAttribute_Of_PolygonMesh::Clear();
     }
 };
 

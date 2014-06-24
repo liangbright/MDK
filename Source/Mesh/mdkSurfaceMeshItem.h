@@ -144,12 +144,13 @@ public:
     inline void RemoveID();
     inline int_max GetID() const;
 
-    inline void SetPosition(const ScalarType* Pos);
+    inline void SetPosition(const DenseVector<ScalarType, 3>& Pos);
+    inline void SetPosition(const ScalarType Pos[3]);
     inline void SetPosition(ScalarType x, ScalarType y, ScalarType z);
 
     inline DenseVector<ScalarType, 3> GetPosition() const;
-    inline void GetPosition(ScalarType* Pos) const;
     inline void GetPosition(ScalarType& x, ScalarType& y, ScalarType& z) const;
+    inline void GetPosition(ScalarType Pos[3]) const;
 
     inline DenseVector<Handle_Of_Point_Of_SurfaceMesh> GetAdjacentPointHandleList() const;
     inline void GetAdjacentPointHandleList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputHandleList) const;
