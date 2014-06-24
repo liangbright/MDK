@@ -875,6 +875,22 @@ void SurfaceMesh<MeshAttributeType>::GetCellHandleList(DenseVector<Handle_Of_Cel
 template<typename MeshAttributeType>
 inline
 Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::
+GetPointHandleByPosition(const DenseVector<typename MeshAttributeType::ScalarType, 3>& Position) const
+{
+    return this->GetPointHandleByPosition(Position[0], Position[1], Position[2]);
+}
+
+template<typename MeshAttributeType>
+inline
+Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::
+GetPointHandleByPosition(const typename MeshAttributeType::ScalarType Position[3]) const
+{
+    return this->GetPointHandleByPosition(Position[0], Position[1], Position[2]);
+}
+
+template<typename MeshAttributeType>
+inline
+Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::
 GetPointHandleByPosition(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z) const
 {
     Handle_Of_Point_Of_SurfaceMesh PointHandle;
@@ -1050,35 +1066,28 @@ GetDirectedEdgeHandleByPoint(Handle_Of_Point_Of_SurfaceMesh PointHandle_start, H
 {
     Handle_Of_DirectedEdge_Of_SurfaceMesh DirectedEdgeHandle;
 
-    auto EdgeHandle = this->GetEdgeHandle(PointHandle_start, PointHandle_end);
-    if (EdgeHandle.GetIndex() < 0)
+    if (this->IsValidHandle(PointHandle_start) == false || this->IsValidHandle(PointHandle_end) == false)
     {
         DirectedEdgeHandle.SetToInvalid();
         return DirectedEdgeHandle;
     }
+    
+    auto PointIndex_start = PointHandle_start.GetIndex();
+    auto PointIndex_end = PointHandle_end.GetIndex();
 
-    if (m_MeshData->DirectedEdgePairList[EdgeHandle.GetIndex()][0].IsValid() == true)
+    const auto& OutgoingDirectedEdgeIndexList_0 = m_MeshData->PointList[PointIndex_start].OutgoingDirectedEdgeIndexList();
+    for (int_max k = 0; k < OutgoingDirectedEdgeIndexList_0.GetLength(); ++k)
     {
-        auto StartPointIndex = m_MeshData->DirectedEdgePairList[EdgeHandle.GetIndex()][0].GetStartPointIndex();
-        auto EndPointIndex = m_MeshData->DirectedEdgePairList[EdgeHandle.GetIndex()][0].GetEndPointIndex();
-        if (StartPointIndex == PointHandle_start.GetIndex() && EndPointIndex == PointHandle_end.GetIndex())
+        auto tempEdgeIndex = OutgoingDirectedEdgeIndexList_0[k].EdgeIndex;
+        auto tempRelativeIndex = OutgoingDirectedEdgeIndexList_0[k].RelativeIndex;
+        auto tempPointIndex_end = m_MeshData->DirectedEdgePairList[tempEdgeIndex][tempRelativeIndex].GetEndPointIndex();
+        if (tempPointIndex_end == PointIndex_end)
         {
-            DirectedEdgeHandle.SetIndex(EdgeHandle.GetIndex(), 0);
+            DirectedEdgeHandle.SetIndex(tempEdgeIndex, tempRelativeIndex);
             return DirectedEdgeHandle;
         }
     }
-
-    if (m_MeshData->DirectedEdgePairList[EdgeHandle.GetIndex()][1].IsValid() == true)
-    {
-        auto StartPointIndex = m_MeshData->DirectedEdgePairList[EdgeHandle.GetIndex()][1].GetStartPointIndex();
-        auto EndPointIndex = m_MeshData->DirectedEdgePairList[EdgeHandle.GetIndex()][1].GetEndPointIndex();
-        if (StartPointIndex == PointHandle_start.GetIndex() && EndPointIndex == PointHandle_end.GetIndex())
-        {
-            DirectedEdgeHandle.SetIndex(EdgeHandle.GetIndex(), 1);
-            return DirectedEdgeHandle;
-        }
-    }
-
+  
     DirectedEdgeHandle.SetToInvalid();
     return DirectedEdgeHandle;
 }
@@ -1753,6 +1762,8 @@ template<typename MeshAttributeType>
 Handle_Of_Edge_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::
 AddEdge(Handle_Of_Point_Of_SurfaceMesh PointHandle0, Handle_Of_Point_Of_SurfaceMesh PointHandle1)
 {
+    // pay attention to MDK_Error or MDK_Warning, they are made on purpose
+
     Handle_Of_Edge_Of_SurfaceMesh EdgeHandle;
 
     if (this->IsValidHandle(PointHandle0) == false || this->IsValidHandle(PointHandle1) == false)
@@ -1820,6 +1831,8 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByEdge(cons
     // Input: the input EdgeIndexList must have been ordered
     // the order determine the direction/sign of the normal vector
     // it also determine the direction of each DirectedEdge
+    //
+    // pay attention to MDK_Error or MDK_Warning, they are made on purpose
 
     Handle_Of_Cell_Of_SurfaceMesh CellHandle;
 
@@ -1926,7 +1939,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByEdge(cons
         }
         else
         {
-            MDK_Error("A cell with a DirectedEdge has been added already @ SurfaceMesh::AddCellByEdge(...)")
+            MDK_Error("Can not add a DirectedEdge for this cell, the DirectedEdge has been added already @ SurfaceMesh::AddCellByEdge(...)")
             CellHandle.SetToInvalid();
             return CellHandle;
         }
@@ -2026,7 +2039,7 @@ template<typename MeshAttributeType>
 Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByPoint(const DenseVector<Handle_Of_Point_Of_SurfaceMesh>& PointHandleList)
 {
     if (PointHandleList.GetLength() < 3)
-    {
+    {        
         MDK_Error("PointHandleList length < 3 @ SurfaceMesh::AddCellByPoint(...)")
         Handle_Of_Cell_Of_SurfaceMesh CellHandle;
         CellHandle.SetToInvalid();
@@ -2110,7 +2123,7 @@ bool SurfaceMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_SurfaceMesh Ce
 
     for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
     {
-        auto tempIndex = m_MeshData->PointList[PointIndexList[k]].AdjacentCellIndexList().Find([&](int_max Index) {return Index == CellIndex});
+        auto tempIndex = m_MeshData->PointList[PointIndexList[k]].AdjacentCellIndexList().Find([&](int_max Index) {return Index == CellIndex; });
         m_MeshData->PointList[PointIndexList[k]].AdjacentCellIndexList().Delete(tempIndex);
     }
 
@@ -2190,10 +2203,10 @@ bool SurfaceMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh Ed
     // update AdjacentPoint information in m_MeshData->PointList    
 
     auto tempIndex_a = m_MeshData->PointList[PointIndex0].AdjacentPointIndexList().Find([&](int_max Index){return Index == PointIndex1; });
-    m_MeshData->PointList[PointIndex0].AdjacentEdgeIndexList().Delete(tempIndex_a);
+    m_MeshData->PointList[PointIndex0].AdjacentPointIndexList().Delete(tempIndex_a);
 
     auto tempIndex_b = m_MeshData->PointList[PointIndex1].AdjacentPointIndexList().Find([&](int_max Index){return Index == PointIndex0; });
-    m_MeshData->PointList[PointIndex1].AdjacentEdgeIndexList().Delete(tempIndex_b);
+    m_MeshData->PointList[PointIndex1].AdjacentPointIndexList().Delete(tempIndex_b);
 
     // Delete EdgeID record if the map has it 
     auto it = m_MeshData->Map_EdgeID_to_EdgeIndex.find(m_MeshData->EdgeList[EdgeIndex].GetID());

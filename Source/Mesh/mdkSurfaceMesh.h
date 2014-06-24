@@ -239,6 +239,8 @@ public:
 
     //----------- get PointHandle by Position, ID, ----------------------------------------------//
 
+    inline PointHandleType GetPointHandleByPosition(const DenseVector<ScalarType, 3>& Position) const;
+    inline PointHandleType GetPointHandleByPosition(const ScalarType Position[3]) const;
     inline PointHandleType GetPointHandleByPosition(ScalarType x, ScalarType y, ScalarType z) const;
     inline PointHandleType  GetPointHandleByID(int_max PointID) const;
 
