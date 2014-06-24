@@ -903,7 +903,7 @@ GetPointHandleByPosition(typename MeshAttributeType::ScalarType x, typename Mesh
         }
     }
 
-    MDK_Warning("Invalid Position @ SurfaceMesh::GetPointHandle(...)")
+    //MDK_Warning("Invalid Position @ SurfaceMesh::GetPointHandle(...)")
     return PointHandle;
 }
 
@@ -916,7 +916,7 @@ Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::GetPointHandleByI
 
     if (PointID < 0)
     {
-        MDK_Warning("Invalid PointID (< 0) @ SurfaceMesh::GetPointHandle(...)")
+        //MDK_Warning("Invalid PointID (< 0) @ SurfaceMesh::GetPointHandle(...)")
         PointHandle.SetToInvalid();
         return PointHandle;
     }
@@ -928,7 +928,7 @@ Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::GetPointHandleByI
     }
     else
     {
-        MDK_Warning("Invalid PointID @ SurfaceMesh::GetPointHandle(...)")
+        //MDK_Warning("Invalid PointID @ SurfaceMesh::GetPointHandle(...)")
         PointHandle.SetToInvalid();
     }
         
@@ -945,7 +945,7 @@ Handle_Of_Edge_Of_SurfaceMesh  SurfaceMesh<MeshAttributeType>::GetEdgeHandleByID
 
     if (EdgeID < 0)
     {
-        MDK_Warning("Invalid EdgeID (< 0) @ SurfaceMesh::GetEdgeHandleByID(...)")
+        //MDK_Warning("Invalid EdgeID (< 0) @ SurfaceMesh::GetEdgeHandleByID(...)")
         EdgeHandle.SetToInvalid();
         return EdgeHandle;
     }
@@ -957,7 +957,7 @@ Handle_Of_Edge_Of_SurfaceMesh  SurfaceMesh<MeshAttributeType>::GetEdgeHandleByID
     }
     else
     {
-        MDK_Warning("Invalid EdgeID @ SurfaceMesh::GetEdgeHandleByID(...)")
+        //MDK_Warning("Invalid EdgeID @ SurfaceMesh::GetEdgeHandleByID(...)")
         EdgeHandle.SetToInvalid();
     }
 
@@ -974,7 +974,7 @@ GetEdgeHandleByPoint(Handle_Of_Point_Of_SurfaceMesh PointHandle0, Handle_Of_Poin
 
     if (this->IsValidHandle(PointHandle0) == false || this->IsValidHandle(PointHandle1) == false)
     {
-        MDK_Warning("PointHandle0 or PointHandle1 is invalid @ SurfaceMesh::GetEdgeHandleByPoint(...)")
+        //MDK_Warning("PointHandle0 or PointHandle1 is invalid @ SurfaceMesh::GetEdgeHandleByPoint(...)")
         EdgeHandle.SetToInvalid();
         return EdgeHandle;
     }
@@ -997,7 +997,7 @@ GetEdgeHandleByPoint(Handle_Of_Point_Of_SurfaceMesh PointHandle0, Handle_Of_Poin
         }
     }
 
-    MDK_Warning("No Edge between PointHandle0 and PointHandle1 @ SurfaceMesh::GetEdgeHandleByPoint(...)")
+    //MDK_Warning("No Edge between PointHandle0 and PointHandle1 @ SurfaceMesh::GetEdgeHandleByPoint(...)")
     EdgeHandle.SetToInvalid();
     return EdgeHandle;
 }
@@ -1023,7 +1023,7 @@ Handle_Of_DirectedEdge_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::GetDirecte
 
     if (DirectedEdgeID < 0)
     {
-        MDK_Warning("Invalid DirectedEdgeID (< 0) @ SurfaceMesh::GetDirectedEdgeHandle(...)")
+        //MDK_Warning("Invalid DirectedEdgeID (< 0) @ SurfaceMesh::GetDirectedEdgeHandle(...)")
         DirectedEdgeHandle.SetToInvalid();
         return DirectedEdgeHandle;
     }
@@ -1035,7 +1035,7 @@ Handle_Of_DirectedEdge_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::GetDirecte
     }
     else
     {
-        MDK_Warning("Invalid DirectedEdgeID @ SurfaceMesh::GetDirectedEdgeHandle(...)")
+        //MDK_Warning("Invalid DirectedEdgeID @ SurfaceMesh::GetDirectedEdgeHandle(...)")
         DirectedEdgeHandle.SetToInvalid();
     }
 
@@ -1102,7 +1102,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::GetCellHandleByID(
 
     if (CellID < 0)
     {
-        MDK_Warning("Invalid CellID (< 0) @ SurfaceMesh::GetCellHandle(...)")
+        //MDK_Warning("Invalid CellID (< 0) @ SurfaceMesh::GetCellHandle(...)")
         CellHandle.SetToInvalid();
         return CellHandle;
     }
@@ -1114,7 +1114,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::GetCellHandleByID(
     }
     else
     {
-        MDK_Warning("Invalid CellID @ SurfaceMesh::GetCellHandle(...)")
+        //MDK_Warning("Invalid CellID @ SurfaceMesh::GetCellHandle(...)")
         CellHandle.SetToInvalid();
     }
 
@@ -1132,7 +1132,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::GetCellHandleByEdg
     {
         if (this->IsValidHandle(EdgeHandleList[k]) == false)
         {
-            MDK_Warning("EdgeHandleList is invalid @ SurfaceMesh::GetCellHandleByEdge(...)")
+            //MDK_Warning("EdgeHandleList is invalid @ SurfaceMesh::GetCellHandleByEdge(...)")
             CellHandle.SetToInvalid();
             return CellHandle;
         }
@@ -1172,7 +1172,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::GetCellHandleByEdg
     auto tempList = CellIndexList.FindUnique();
     if (tempList.GetLength() != 1)
     {
-        MDK_Warning("EdgeHandleList is invalid @ SurfaceMesh::GetCellHandleByEdge(...)")
+        //MDK_Warning("EdgeHandleList is invalid @ SurfaceMesh::GetCellHandleByEdge(...)")
         CellHandle.SetToInvalid();
         return CellHandle;
     }
@@ -1216,7 +1216,7 @@ SurfaceMesh<MeshAttributeType>::GetCellHandleByPoint(const DenseVector<Handle_Of
     {
         if (this->IsValidHandle(PointHandleList[k]) == false)
         {
-            MDK_Warning("PointHandleList is invalid @ SurfaceMesh::GetCellHandleByPoint(...)")
+            //MDK_Warning("PointHandleList is invalid @ SurfaceMesh::GetCellHandleByPoint(...)")
             CellHandle.SetToInvalid();
             return CellHandle;
         }
@@ -1256,7 +1256,7 @@ SurfaceMesh<MeshAttributeType>::GetCellHandleByPoint(const DenseVector<Handle_Of
     auto tempList = CellIndexList.FindUnique();
     if (tempList.GetLength() != 1)
     {
-        MDK_Warning("PointHandleList is invalid @ SurfaceMesh::GetCellHandleByPoint(...)")
+        //MDK_Warning("PointHandleList is invalid @ SurfaceMesh::GetCellHandleByPoint(...)")
         CellHandle.SetToInvalid();
         return CellHandle;
     }
@@ -1765,7 +1765,7 @@ AddEdge(Handle_Of_Point_Of_SurfaceMesh PointHandle0, Handle_Of_Point_Of_SurfaceM
     auto EdgeHandle_temp = this->GetEdgeHandleByPoint(PointHandle0, PointHandle1);
     if (this->IsValidHandle(EdgeHandle_temp) == true)
     {
-        MDK_Warning("The edge has been added already @ SurfaceMesh::AddEdge(...)")
+        //MDK_Warning("The edge has been added already @ SurfaceMesh::AddEdge(...)")
         EdgeHandle = EdgeHandle_temp;
         return EdgeHandle;
     }
@@ -1843,7 +1843,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByEdge(cons
     auto CellHandle_temp = this->GetCellHandleByEdge(EdgeHandleList);
     if (this->IsValidHandle(CellHandle_temp) == true)
     {
-        MDK_Warning("The cell has been added already @ SurfaceMesh::AddCellByEdge(...)")
+        //MDK_Warning("The cell has been added already @ SurfaceMesh::AddCellByEdge(...)")
         CellHandle = CellHandle_temp;
         return CellHandle;
     }
@@ -2063,6 +2063,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByPoint(con
 
     return this->AddCellByPoint(PointHandleList);
 }
+
 //------------------- Delete Mesh Item ----------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
@@ -2074,8 +2075,8 @@ bool SurfaceMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_SurfaceMesh Ce
     // check input 
     if (this->IsValidHandle(CellHandle) == false)
     {
-        MKD_Error("Invalid CellHandle @ SurfaceMesh::DeleteCell(...)")
-        return false;
+        //MDK_Warning("Invalid CellHandle @ SurfaceMesh::DeleteCell(...)")
+        return true;
     }
 
     //--------------------------------------------------------------------------------------
@@ -2128,9 +2129,12 @@ bool SurfaceMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_SurfaceMesh Ce
         m_MeshData->DirectedEdgePairList[tempEdgeIndex][tempRelativeIndex].Clear();
     }
 
-    // delete CellID
+    // delete CellID record if the map has it 
     auto it = m_MeshData->Map_CellID_to_CellIndex.find(m_MeshData->CellList[CellIndex].GetID());
-    m_MeshData->Map_CellID_to_CellIndex.erase(it);
+    if (it != m_MeshData->Map_CellID_to_CellIndex.end())
+    {
+        m_MeshData->Map_CellID_to_CellIndex.erase(it);
+    }
 
     // Delete Cell : only clear memory, not remove from CellList
     m_MeshData->CellList[CellIndex].Clear();
@@ -2154,8 +2158,8 @@ bool SurfaceMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh Ed
 {    
     if (this->IsValidHandle(EdgeHandle) == false)
     {
-        MDK_Error("Invalid EdgeHandle @ SurfaceMesh::DeleteEdge(...)")
-        return false;
+        //MDK_Warning("Invalid EdgeHandle @ SurfaceMesh::DeleteEdge(...)")
+        return true;
     }
 
     // check AdjacentCell: the edge can not be deleted if any adjacent cell exit
@@ -2220,8 +2224,8 @@ bool SurfaceMesh<MeshAttributeType>::DeletePoint(Handle_Of_Point_Of_SurfaceMesh 
 {
     if (this->IsValidHandle(PointHandle) == false)
     {
-        MDK_Error("Invalid PointHandle @ SurfaceMesh::DeletePoint(...)")
-        return false;
+        //MDK_Warning("Invalid PointHandle @ SurfaceMesh::DeletePoint(...)")
+        return true;
     }
 
     auto PointIndex = PointHandle.GetIndex();
@@ -2253,7 +2257,7 @@ bool SurfaceMesh<MeshAttributeType>::DeletePoint(const DenseVector<Handle_Of_Poi
 {
     if (PointHandleList.IsEmpty() == true)
     {
-        MDK_Warning("PointHandleList is empty @ SurfaceMesh::DeletePoint(...)")
+        //MDK_Warning("PointHandleList is empty @ SurfaceMesh::DeletePoint(...)")
         return true;
     }
 
@@ -2299,7 +2303,9 @@ bool SurfaceMesh<MeshAttributeType>::DeletePoint(const DenseVector<int_max>& Poi
 template<typename MeshAttributeType>
 int_max SurfaceMesh<MeshAttributeType>::GetInvalidPointHandleNumber() const
 {
-    return m_MeshData->PointList.GetLength() - this->GetPointNumber();
+    auto ValidPointNumber = this->GetPointNumber();
+    auto PointNumberOfList = m_MeshData->PointList.GetLength();
+    return  ValidPointNumber - PointNumberOfList;
 }
 
 template<typename MeshAttributeType>
