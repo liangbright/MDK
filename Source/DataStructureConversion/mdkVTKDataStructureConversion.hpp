@@ -396,7 +396,7 @@ TriangleMesh<MeshAttributeType> ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData*
 
     for (int_max k = 0; k < CellNumber; ++k)
     {
-        auto Cell = VTKPolyMesh->GetCell(k);
+        auto Cell = VTKTriangleMesh->GetCell(k);
 
         CellData[k].Append(int_max(Cell->GetPointId(0)));
         CellData[k].Append(int_max(Cell->GetPointId(1)));
