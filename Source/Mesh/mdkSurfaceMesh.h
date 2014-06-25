@@ -239,9 +239,12 @@ public:
 
     //----------- get PointHandle by Position, ID, ----------------------------------------------//
 
-    inline PointHandleType GetPointHandleByPosition(const DenseVector<ScalarType, 3>& Position) const;
-    inline PointHandleType GetPointHandleByPosition(const ScalarType Position[3]) const;
-    inline PointHandleType GetPointHandleByPosition(ScalarType x, ScalarType y, ScalarType z) const;
+    inline PointHandleType GetPointHandleByPosition(const DenseVector<ScalarType, 3>& Position,
+                                                    ScalarType DistanceThreshold = std::numeric_limits<ScalarType>::epsilon()) const;
+    inline PointHandleType GetPointHandleByPosition(const ScalarType Position[3], 
+                                                    ScalarType DistanceThreshold = std::numeric_limits<ScalarType>::epsilon()) const;
+    inline PointHandleType GetPointHandleByPosition(ScalarType x, ScalarType y, ScalarType z,
+                                                    ScalarType DistanceThreshold = std::numeric_limits<ScalarType>::epsilon()) const;
     inline PointHandleType  GetPointHandleByID(int_max PointID) const;
 
     //----------- get EdgeHandle by ID, PointHandleList, PointIDList -------------------------------------//

@@ -875,23 +875,30 @@ void SurfaceMesh<MeshAttributeType>::GetCellHandleList(DenseVector<Handle_Of_Cel
 template<typename MeshAttributeType>
 inline
 Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::
-GetPointHandleByPosition(const DenseVector<typename MeshAttributeType::ScalarType, 3>& Position) const
+GetPointHandleByPosition(const DenseVector<typename MeshAttributeType::ScalarType, 3>& Position, 
+                         typename MeshAttributeType::ScalarType DistanceThreshold) const
 {
     return this->GetPointHandleByPosition(Position[0], Position[1], Position[2]);
 }
 
-template<typename MeshAttributeType>
-inline
-Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::
-GetPointHandleByPosition(const typename MeshAttributeType::ScalarType Position[3]) const
-{
-    return this->GetPointHandleByPosition(Position[0], Position[1], Position[2]);
-}
 
 template<typename MeshAttributeType>
 inline
 Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::
-GetPointHandleByPosition(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z) const
+GetPointHandleByPosition(const typename MeshAttributeType::ScalarType Position[3],
+                         typename MeshAttributeType::ScalarType DistanceThreshold) const
+{
+    return this->GetPointHandleByPosition(Position[0], Position[1], Position[2]);
+}
+
+
+template<typename MeshAttributeType>
+inline
+Handle_Of_Point_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::
+GetPointHandleByPosition(typename MeshAttributeType::ScalarType x, 
+                         typename MeshAttributeType::ScalarType y, 
+                         typename MeshAttributeType::ScalarType z,
+                         typename MeshAttributeType::ScalarType DistanceThreshold) const
 {
     Handle_Of_Point_Of_SurfaceMesh PointHandle;
     PointHandle.SetToInvalid();
@@ -901,7 +908,19 @@ GetPointHandleByPosition(typename MeshAttributeType::ScalarType x, typename Mesh
         return PointHandle;
     }
 
+    if (DistanceThreshold < 0)
+    {
+        MDK_Error("DistanceThreshold < 0 @ SurfaceMesh::GetPointHandleByPosition(...)")
+        return PointHandle;
+    }
+
     auto eps_value = std::numeric_limits<ScalarType>::epsilon();
+
+    ScalarType Threshold_sq = DistanceThreshold*DistanceThreshold;
+    ScalarType LowerLimit_sq = std::min(eps_value, Threshold_sq);
+
+    ScalarType Distance_sq_min = 0;
+    int_max PointIndex_min = -1;
 
     for (int_max k = 0; k < m_MeshData->PointPositionTable.GetColNumber(); ++k)
     {
@@ -910,13 +929,31 @@ GetPointHandleByPosition(typename MeshAttributeType::ScalarType x, typename Mesh
             ScalarType Pos[3];
             m_MeshData->PointPositionTable.GetCol(k, Pos);
 
-            auto Distance = std::abs(Pos[0] - x) + std::abs(Pos[1] - y) + std::abs(Pos[2] - z);
-            if (Distance <=  eps_value)
+            auto Distance_sq = (Pos[0] - x)*(Pos[0] - x) + (Pos[1] - y)*(Pos[1] - y) + (Pos[2] - z)*(Pos[2] - z);
+
+            if (Distance_sq <= LowerLimit_sq)
             {
                 PointHandle.SetIndex(k);
                 return PointHandle;
             }
+
+            if (PointIndex_min == -1) // set initial value
+            {
+                Distance_sq_min = Distance_sq;
+                PointIndex_min = k;
+            }
+
+            if (Distance_sq <= Distance_sq_min)
+            {
+                Distance_sq_min = Distance_sq;
+                PointIndex_min = k;
+            }                                
         }
+    }
+
+    if (Distance_sq_min <= Threshold_sq)
+    {
+        PointHandle.SetIndex(PointIndex_min);
     }
 
     //MDK_Warning("Invalid Position @ SurfaceMesh::GetPointHandle(...)")
