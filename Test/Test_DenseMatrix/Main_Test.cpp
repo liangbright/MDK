@@ -110,7 +110,7 @@ int main()
 
     //Test_SubMatrix();
 
-    //Test_ShadowMatrix();
+    Test_ShadowMatrix();
    
    // Test_ShadowMatrix_Const();
 
@@ -138,7 +138,7 @@ int main()
 
     //Test_Matrix_Operator_with_DenseVector();
 
-    Test_unique();
+    //Test_unique();
 
  //   Test_SortCol();
 

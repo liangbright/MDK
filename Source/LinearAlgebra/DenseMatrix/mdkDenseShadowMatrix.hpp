@@ -554,35 +554,59 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
     m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 }
 
+/*
+// this function is not useful
+template<typename ElementType>
+inline 
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseShadowMatrix<ElementType>& InputShadowMatrix)
+{
+    // copy matrix data, not share
+    m_SourceMatrixSharedCopy = InputShadowMatrix.CreateDenseMatrix();
+
+    m_RowNumber = m_SourceMatrixSharedCopy.GetRowNumber();
+    m_ColNumber = m_SourceMatrixSharedCopy.GetColNumber();
+    m_ElementNumber = m_RowNumber*m_ColNumber;
+
+    m_Flag_All_Row = true;
+    m_Flag_All_Col = true;
+
+    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+}
+*/
 
 template<typename ElementType>
 inline 
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(DenseShadowMatrix<ElementType>&& ShadowMatrix)
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(DenseShadowMatrix<ElementType>&& InputShadowMatrix)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
-    m_SourceMatrixSharedCopy.ForceShare(ShadowMatrix.m_SourceMatrixSharedCopy); // std::move will move the data, i.e., std::move = Take
+    m_SourceMatrixSharedCopy.ForceShare(InputShadowMatrix.m_SourceMatrixSharedCopy); // std::move will move the data, i.e., std::move = Take
 
-    m_RowIndexList_source = std::move(ShadowMatrix.m_RowIndexList_source);
+    m_RowIndexList_source = std::move(InputShadowMatrix.m_RowIndexList_source);
 
-    m_ColIndexList_source = std::move(ShadowMatrix.m_ColIndexList_source);
+    m_ColIndexList_source = std::move(InputShadowMatrix.m_ColIndexList_source);
 
-    m_LinearIndexList_source = std::move(ShadowMatrix.m_LinearIndexList_source);
+    m_LinearIndexList_source = std::move(InputShadowMatrix.m_LinearIndexList_source);
 
-    m_Flag_OutputVector = ShadowMatrix.m_Flag_OutputVector;
+    m_Flag_OutputVector = InputShadowMatrix.m_Flag_OutputVector;
 
     //-----------------------------------------------------
 
-    m_RowNumber = ShadowMatrix.m_RowNumber;
+    m_RowNumber = InputShadowMatrix.m_RowNumber;
 
-    m_ColNumber = ShadowMatrix.m_ColNumber;
+    m_ColNumber = InputShadowMatrix.m_ColNumber;
 
-    m_ElementNumber = ShadowMatrix.m_ElementNumber;
+    m_ElementNumber = InputShadowMatrix.m_ElementNumber;
 
-    m_Flag_All_Row = ShadowMatrix.m_Flag_All_Row;
+    m_Flag_All_Row = InputShadowMatrix.m_Flag_All_Row;
 
-    m_Flag_All_Col = ShadowMatrix.m_Flag_All_Col;
+    m_Flag_All_Col = InputShadowMatrix.m_Flag_All_Col;
 
     m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+
+    // clear InputShadowMatrix
+    // Do NOT Use InputShadowMatrix.m_SourceMatrixSharedCopy.clear() -> this will clear m_SourceMatrixSharedCopy of this ShadowMatrix
+    DenseMatrix<ElementType> EmptyMatrix(MDK_PURE_EMPTY_MATRIX);
+    InputShadowMatrix.m_SourceMatrixSharedCopy.SwapSmartPointer(EmptyMatrix);
 }
 
 
@@ -848,25 +872,25 @@ void DenseShadowMatrix<ElementType>::operator=(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void DenseShadowMatrix<ElementType>::operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix)
+void DenseShadowMatrix<ElementType>::operator=(const DenseShadowMatrix<ElementType>& InputShadowMatrix)
 {
     // MatrixA = MatrixA
-    if (this == &ShadowMatrix)
+    if (this == &InputShadowMatrix)
     {
         return;
     }
 
     if (m_Flag_OutputVector == true)
     {
-        if (m_ElementNumber != ShadowMatrix.GetElementNumber())
+        if (m_ElementNumber != InputShadowMatrix.GetElementNumber())
         {
-            MDK_Error("m_ElementNumber != ShadowMatrix.GetElementNumber() @ DenseShadowMatrix::operator=(mdkDenseShadowMatrix)")
+            MDK_Error("m_ElementNumber != InputShadowMatrix.GetElementNumber() @ DenseShadowMatrix::operator=(mdkDenseShadowMatrix)")
             return;
         }
     }
     else
     {
-        if (m_RowNumber != ShadowMatrix.GetRowNumber() || m_ColNumber != ShadowMatrix.GetColNumber())
+        if (m_RowNumber != InputShadowMatrix.GetRowNumber() || m_ColNumber != InputShadowMatrix.GetColNumber())
         {
             MDK_Error("Size does not match @ DenseShadowMatrix::operator=(mdkDenseShadowMatrix)")
             return;
@@ -875,15 +899,15 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseShadowMatrix<ElementTy
 
     //--------------------------------------------
 
-    if (m_SourceMatrixSharedCopy.GetElementPointer() == ShadowMatrix.m_SourceMatrixSharedCopy.GetElementPointer())
+    if (m_SourceMatrixSharedCopy.GetElementPointer() == InputShadowMatrix.m_SourceMatrixSharedCopy.GetElementPointer())
     {
-        (*this) = ShadowMatrix.CreateDenseMatrix();
+        (*this) = InputShadowMatrix.CreateDenseMatrix();
     }
     else
     {
         for (int_max i = 0; i < m_ElementNumber; ++i)
         {
-            (*this)[i] = ShadowMatrix[i];
+            (*this)[i] = InputShadowMatrix[i];
         }
     }
 }

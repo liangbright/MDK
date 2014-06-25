@@ -96,23 +96,28 @@ private:
 
     inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
 
-    inline DenseShadowMatrix(const DenseShadowMatrix<ElementType>& ShadowMatrix) = delete;
+    inline DenseShadowMatrix(const DenseShadowMatrix<ElementType>& InputShadowMatrix) = delete;
 
-    inline DenseShadowMatrix(DenseShadowMatrix<ElementType>&& ShadowMatrix);
+    // move every member of InputShadowMatrix to this ShadowMatrix
+    // reset the smart pointer of InputShadowMatrix.m_SourceMatrixSharedCopy
+    // do not make this function public:
+    // for example,  auto B = A(ALL, {0}); B should be a copy of a colume, but this function is called 
+    inline DenseShadowMatrix(DenseShadowMatrix<ElementType>&& InputShadowMatrix);
 
 public:
 	inline ~DenseShadowMatrix();
 
-	//---------------------- mdkDenseShadowMatrix = mdkDenseShadowMatrix or Matrix or Element or GlueMatrix ----------------------------------------//
+	//---------------------- DenseShadowMatrix = DenseShadowMatrix or Matrix or Element or GlueMatrix ----------------------------------------//
     
 public:
     inline void operator=(const DenseMatrix<ElementType>& InputMatrix);
 
     inline void operator=(const ElementType& Element);
 
-    inline void operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix);
+    inline void operator=(const DenseShadowMatrix<ElementType>& InputShadowMatrix);
 
-    // just use =(const)
+    // it is no possible to move only a part of a matrix
+    // so just use the above operator to copy data
     //inline void operator=(DenseShadowMatrix<ElementType>&&);
 
     inline void operator=(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);

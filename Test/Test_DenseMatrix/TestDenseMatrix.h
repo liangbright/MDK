@@ -1199,6 +1199,12 @@ void Test_ShadowMatrix()
 
     DenseMatrix<double> D = A(ALL);
 
+    // this is wrong
+    //auto SubA = A(ALL, { 0, 1 });
+
+    // this is right
+    DenseMatrix<double> SubA = A(ALL, { 0, 1 });
+
     std::system("pause");
 }
 
