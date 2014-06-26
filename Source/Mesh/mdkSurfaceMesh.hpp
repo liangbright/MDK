@@ -120,14 +120,8 @@ void SurfaceMesh<MeshAttributeType>::Copy(const SurfaceMesh<MeshAttributeType>& 
         if (m_MeshData->EdgeValidityFlagList[k] == 1)
         {
             m_MeshData->EdgeList[k].SetParentMesh(*this);
-            if (m_MeshData->DirectedEdgePairList[k][0].IsValid() == true)
-            {
-                m_MeshData->DirectedEdgePairList[k][0].SetParentMesh(*this);
-            }
-            if (m_MeshData->DirectedEdgePairList[k][1].IsValid() == true)
-            {
-                m_MeshData->DirectedEdgePairList[k][1].SetParentMesh(*this);
-            }
+            m_MeshData->DirectedEdgePairList[k][0].SetParentMesh(*this);
+            m_MeshData->DirectedEdgePairList[k][1].SetParentMesh(*this);
         }
     }
 
@@ -255,14 +249,8 @@ void SurfaceMesh<MeshAttributeType>::Take(SurfaceMesh<MeshAttributeType>& InputM
         if (m_MeshData->EdgeValidityFlagList[k] == 1)
         {
             m_MeshData->EdgeList[k].SetParentMesh(*this);
-            if (m_MeshData->DirectedEdgePairList[k][0].IsValid() == true)
-            {
-                m_MeshData->DirectedEdgePairList[k][0].SetParentMesh(*this);
-            }
-            if (m_MeshData->DirectedEdgePairList[k][1].IsValid() == true)
-            {
-                m_MeshData->DirectedEdgePairList[k][1].SetParentMesh(*this);
-            }
+            m_MeshData->DirectedEdgePairList[k][0].SetParentMesh(*this);
+            m_MeshData->DirectedEdgePairList[k][1].SetParentMesh(*this);
         }
     }    
 
@@ -327,23 +315,7 @@ template<typename MeshAttributeType>
 inline
 int_max SurfaceMesh<MeshAttributeType>::GetDirectedEdgeNumber() const
 {
-    int_max Counter = 0;
-    for (int_max k = 0; k < m_MeshData->EdgeValidityFlagList[k]; ++k)
-    {
-        if (m_MeshData->EdgeValidityFlagList[k] == 1)
-        {
-            if (m_MeshData->DirectedEdgePairList[k][0].IsValid() == true)
-            {
-                Counter += 1;
-            }
-
-            if (m_MeshData->DirectedEdgePairList[k][1].IsValid() == true)
-            {
-                Counter += 1;
-            }
-        }
-    }
-    return Counter;
+    return 2 * m_MeshData->EdgeValidityFlagList.Sum();
 }
 
 
@@ -722,14 +694,7 @@ bool SurfaceMesh<MeshAttributeType>::IsValidHandle(Handle_Of_DirectedEdge_Of_Sur
     }
     else
     {
-        if (m_MeshData->EdgeValidityFlagList[EdgeIndex] == 0)
-        {
-            return false;
-        }
-        else
-        {
-            return m_MeshData->DirectedEdgePairList[EdgeIndex][RelativeIndex].IsValid();
-        }
+        return(m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1);
     }
 }
 
@@ -829,17 +794,11 @@ GetDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& Ou
     {
         if (m_MeshData->EdgeValidityFlagList[k] == 1)
         {
-            if (m_MeshData->DirectedEdgePairList[k][0].IsValid() == true)
-            {
-                DirectedEdgeHandle.SetIndex(k, 0);
-                OutputHandleList.Append(DirectedEdgeHandle);
-            }
+            DirectedEdgeHandle.SetIndex(k, 0);
+            OutputHandleList.Append(DirectedEdgeHandle);
 
-            if (m_MeshData->DirectedEdgePairList[k][1].IsValid() == true)
-            {
-                DirectedEdgeHandle.SetIndex(k, 1);
-                OutputHandleList.Append(DirectedEdgeHandle);
-            }
+            DirectedEdgeHandle.SetIndex(k, 1);
+            OutputHandleList.Append(DirectedEdgeHandle);
         }
     }
 }
@@ -1833,12 +1792,14 @@ AddEdge(Handle_Of_Point_Of_SurfaceMesh PointHandle0, Handle_Of_Point_Of_SurfaceM
     m_MeshData->EdgeList.Append(std::move(Edge));
     m_MeshData->EdgeValidityFlagList.Append(1);
 
-    // add empty DirectedEdgePair to hold place
+    // add DirectedEdgePair
     DenseVector<DirectedEdge_Of_SurfaceMesh<MeshAttributeType>> DirectedEdgePair;
     DirectedEdgePair.Resize(2);
     m_MeshData->DirectedEdgePairList.Append(std::move(DirectedEdgePair));
-    m_MeshData->DirectedEdgePairList[EdgeIndex][0].Clear();
-    m_MeshData->DirectedEdgePairList[EdgeIndex][1].Clear();
+    m_MeshData->DirectedEdgePairList[EdgeIndex][0].SetParentMesh(*this);
+    m_MeshData->DirectedEdgePairList[EdgeIndex][0].SetIndex(EdgeIndex, 0);
+    m_MeshData->DirectedEdgePairList[EdgeIndex][1].SetParentMesh(*this);
+    m_MeshData->DirectedEdgePairList[EdgeIndex][1].SetIndex(EdgeIndex, 1);
 
     // update AdjacentPoint information in m_MeshData->PointList
     m_MeshData->PointList[PointIndex0].AdjacentPointIndexList().Append(PointIndex1);
@@ -1966,17 +1927,17 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByEdge(cons
         auto& DirectedEdge0 = m_MeshData->DirectedEdgePairList[EdgeIndexList[k]][0];
         auto& DirectedEdge1 = m_MeshData->DirectedEdgePairList[EdgeIndexList[k]][1];
 
-        if (DirectedEdge0.IsValid() == false)
+        if (DirectedEdge0.GetCellIndex() < 0)
         {
             DirectedEdgeIndexList[k].RelativeIndex = 0;
         }
-        else if (DirectedEdge1.IsValid() == false)
+        else if (DirectedEdge1.GetCellIndex() < 0)
         {
             DirectedEdgeIndexList[k].RelativeIndex = 1;
         }
         else
         {
-            MDK_Error("Can not add a DirectedEdge for this cell, the DirectedEdge has been added already @ SurfaceMesh::AddCellByEdge(...)")
+            MDK_Error("Can not assign a DirectedEdge for this cell, the DirectedEdge has been assigned already @ SurfaceMesh::AddCellByEdge(...)")
             CellHandle.SetToInvalid();
             return CellHandle;
         }
@@ -1992,9 +1953,6 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByEdge(cons
         // attention: auto& will get reference, auto will copy
         auto& tempDirectedEdge = m_MeshData->DirectedEdgePairList[tempEdgeIndex][tempRelativeIndex];
 
-        tempDirectedEdge.Create();
-        tempDirectedEdge.SetParentMesh(*this);
-        tempDirectedEdge.SetIndex(DirectedEdgeIndexList[k]);
         tempDirectedEdge.SetCellIndex(CellIndex);
         tempDirectedEdge.SetStartPointIndex(PointIndexList[k]);
 
@@ -2119,7 +2077,7 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::AddCellByPoint(con
 template<typename MeshAttributeType>
 bool SurfaceMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_SurfaceMesh CellHandle)
 {
-    // this function will remove each DirectedEdge of the Cell, and modify any information related to the cell
+    // this function will modify each DirectedEdge of the Cell, and modify any information related to the cell
     // CellHandle and CellID of the cell become invalid after the cell is deleted
 
     // check input 
@@ -2164,19 +2122,14 @@ bool SurfaceMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_SurfaceMesh Ce
         m_MeshData->PointList[PointIndexList[k]].AdjacentCellIndexList().Delete(tempIndex);
     }
 
-    // Delete DirectedEdge: only release memory, not remove from DirectedEdgePairList
+    // Update DirectedEdge in m_MeshData->DirectedEdgePairList
     for (int_max k = 0; k < DirectedEdgeIndexList.GetLength(); k++)
     {
         auto tempEdgeIndex = DirectedEdgeIndexList[k].EdgeIndex;
         auto tempRelativeIndex = DirectedEdgeIndexList[k].RelativeIndex;
-        // delete DirectedEdgeID record if the map has it
-        auto it = m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.find(m_MeshData->DirectedEdgePairList[tempEdgeIndex][tempRelativeIndex].GetID());
-        if (it != m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.end())
-        {
-            m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.erase(it);
-        }
-        // release memory
-        m_MeshData->DirectedEdgePairList[tempEdgeIndex][tempRelativeIndex].Clear();
+        // auto& : take reference
+        auto& tempDirectedEdge = m_MeshData->DirectedEdgePairList[tempEdgeIndex][tempRelativeIndex];
+        tempDirectedEdge.EraseInformationRelatedToCell();
     }
 
     // delete CellID record if the map has it 
@@ -2216,8 +2169,8 @@ bool SurfaceMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh Ed
 
     auto EdgeIndex = EdgeHandle.GetIndex();
 
-    const auto& AdjacentCellIndexList = m_MeshData->EdgeList[EdgeIndex].GetAdjacentCellIndexList();
-    if (AdjacentCellIndexList.IsEmpty() == false)
+    auto AdjacentCellNumber = m_MeshData->EdgeList[EdgeIndex].GetAdjacentCellNumber();
+    if (AdjacentCellNumber > 0)
     {
         MDK_Error("AdjacentCellIndexList is not empty, so this edge can not be deleted @ SurfaceMesh::DeleteEdge(...)")
         return false;
@@ -2244,6 +2197,21 @@ bool SurfaceMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_SurfaceMesh Ed
 
     auto tempIndex_b = m_MeshData->PointList[PointIndex1].AdjacentPointIndexList().Find([&](int_max Index){return Index == PointIndex0; });
     m_MeshData->PointList[PointIndex1].AdjacentPointIndexList().Delete(tempIndex_b);
+
+    // Delete DirectedEdge: erase ID and release memory
+    auto it_0 = m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.find(m_MeshData->DirectedEdgePairList[EdgeIndex][0].GetID());
+    if (it_0 != m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.end())
+    {
+        m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.erase(it_0);
+    }
+    m_MeshData->DirectedEdgePairList[EdgeIndex][0].Clear();
+    
+    auto it_1 = m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.find(m_MeshData->DirectedEdgePairList[EdgeIndex][1].GetID());
+    if (it_1 != m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.end())
+    {
+        m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.erase(it_1);
+    }
+    m_MeshData->DirectedEdgePairList[EdgeIndex][1].Clear();
 
     // Delete EdgeID record if the map has it 
     auto it = m_MeshData->Map_EdgeID_to_EdgeIndex.find(m_MeshData->EdgeList[EdgeIndex].GetID());
@@ -2510,9 +2478,9 @@ void SurfaceMesh<MeshAttributeType>::CleanDataStructure()
                 // modify DirectedEdgeIndex information in m_MeshData->CellList
                 for (int_max n = 0; n < 2; ++n)
                 {
-                    if (m_MeshData->DirectedEdgePairList[k][n].IsValid() == true)
+                    auto CellIndex_n = m_MeshData->DirectedEdgePairList[k][n].GetCellIndex();
+                    if (CellIndex_n >= 0)
                     {
-                        auto CellIndex_n = m_MeshData->DirectedEdgePairList[k][n].GetCellIndex();
                         // auto& : get reference and modify
                         auto& DirectedEdgeIndexList_n = m_MeshData->CellList[CellIndex_n].DirectedEdgeIndexList();
                         auto tempIndex = DirectedEdgeIndexList_n.Find([&](DirectedEdgeIndex_Of_SurfaceMesh Index) {return Index.EdgeIndex == k; });
@@ -2545,15 +2513,9 @@ void SurfaceMesh<MeshAttributeType>::CleanDataStructure()
 
             DirectedEdgePairList_new[k] = std::move(m_MeshData->DirectedEdgePairList[ValidEdgeIndexList[k]]);
             
-            if (DirectedEdgePairList_new[k][0].IsValid() == true)
-            {
-                DirectedEdgePairList_new[k][0].SetIndex(k, 0);
-            }            
+            DirectedEdgePairList_new[k][0].SetIndex(k, 0);
            
-            if (DirectedEdgePairList_new[k][1].IsValid() == true)
-            {
-                DirectedEdgePairList_new[k][1].SetIndex(k, 1);
-            }
+            DirectedEdgePairList_new[k][1].SetIndex(k, 1);
         }
 
         m_MeshData->EdgeList = std::move(EdgeList_new);
@@ -2575,24 +2537,18 @@ void SurfaceMesh<MeshAttributeType>::CleanDataStructure()
 
             // auto& : get reference and modify
             auto& DirectedEdge_0 = m_MeshData->DirectedEdgePairList[k][0];
-            if (DirectedEdge_0.IsValid() == true)
+            auto DirectedEdgeID_k_0 = DirectedEdge_0.GetID();
+            if (DirectedEdgeID_k_0 >= 0) // ID is invalid if < 0 
             {
-                auto DirectedEdgeID_k_0 = DirectedEdge_0.GetID();
-                if (DirectedEdgeID_k_0 >= 0) // ID is invalid if < 0 
-                {
-                    m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex[DirectedEdgeID_k_0] = DirectedEdge_0.GetIndex();
-                }
+                m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex[DirectedEdgeID_k_0] = DirectedEdge_0.GetIndex();
             }
 
             // auto& : get reference and modify
             auto& DirectedEdge_1 = m_MeshData->DirectedEdgePairList[k][1];
-            if (DirectedEdge_1.IsValid() == true)
+            auto DirectedEdgeID_k_1 = DirectedEdge_1.GetID();
+            if (DirectedEdgeID_k_1 >= 0) // ID is invalid if < 0 
             {
-                auto DirectedEdgeID_k_1 = DirectedEdge_1.GetID();
-                if (DirectedEdgeID_k_1 >= 0) // ID is invalid if < 0 
-                {
-                    m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex[DirectedEdgeID_k_1] = DirectedEdge_1.GetIndex();
-                }
+                m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex[DirectedEdgeID_k_1] = DirectedEdge_1.GetIndex();
             }
         }
     }

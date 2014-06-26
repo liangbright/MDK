@@ -361,7 +361,7 @@ public:
     // Delete Mesh Item ----------------------------------------------------------------------------//
 
     // m_MeshData->CellList[CellIndex].Clear() only release memory
-    // this function will remove each DirectedEdge of the Cell, and modify any information related to the cell
+    // this function will modify each DirectedEdge of the Cell, and modify any information related to the cell
     // CellHandle and CellID of the cell become invalid after the cell is deleted
     bool DeleteCell(CellHandleType CellHandle);
     bool DeleteCell(int_max CellID);

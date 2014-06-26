@@ -439,25 +439,30 @@ void Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttribute>::operator+=(int_max 
         auto EdgeIndex = m_DirectedEdgeHandle.GetEdgeIndex();
         auto RelativeIndex = m_DirectedEdgeHandle.GetRelativeIndex();
 
-        if (RelativeIndex == 0 && Offset == 1)
-        {
-            if (m_Mesh.m_MeshData->DirectedEdgePairList[EdgeIndex][1].IsValid() == true)
-            {
-                m_DirectedEdgeHandle.SetIndex(EdgeIndex, 1);
-                return;
-            }
-        }
-
-        if (EdgeIndex == m_Mesh.m_MeshData->DirectedEdgePairList.GetLength() - 1)
+        if (EdgeIndex == m_Mesh.m_MeshData->DirectedEdgePairList.GetLength() - 1 && RelativeIndex == 1)
         {
             m_DirectedEdgeHandle.SetIndex(-1, -1);
             return;
         }
 
         int_max Counter = 0;
+
+        if (RelativeIndex == 0)
+        {
+            if (m_Mesh.m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
+            {
+                Counter += 1;
+                if (Counter == Offset)
+                {
+                    m_DirectedEdgeHandle.SetIndex(EdgeIndex, 1);
+                    return;
+                }
+            }
+        }
+        
         for (int_max k = EdgeIndex + 1; k < m_Mesh.m_MeshData->DirectedEdgePairList.GetLength(); ++k)
         {
-            if (m_Mesh.m_MeshData->DirectedEdgePairList[k][0].IsValid() == true)
+            if (m_Mesh.m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
             {
                 Counter += 1;
 
@@ -468,7 +473,13 @@ void Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttribute>::operator+=(int_max 
                 }
             }
 
-            if (m_Mesh.m_MeshData->DirectedEdgePairList[k][1].IsValid() == true)
+            if (Counter > Offset)
+            {
+                m_DirectedEdgeHandle.SetIndex(-1, -1);
+                return;
+            }
+
+            if (m_Mesh.m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
             {
                 Counter += 1;
 
@@ -494,25 +505,30 @@ void Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttribute>::operator+=(int_max 
         auto EdgeIndex = m_DirectedEdgeHandle.GetEdgeIndex();
         auto RelativeIndex = m_DirectedEdgeHandle.GetRelativeIndex();
 
-        if (RelativeIndex == 1 && Offset == -1)
-        {
-            if (m_Mesh.m_MeshData->DirectedEdgePairList[EdgeIndex][0].IsValid() == true)
-            {
-                m_DirectedEdgeHandle.SetIndex(EdgeIndex, 0);
-                return;
-            }
-        }
-
-        if (EdgeIndex == 0)
+        if (EdgeIndex == 0 && RelativeIndex == 0)
         {
             m_DirectedEdgeHandle.SetIndex(-1, 1);
             return;
         }
 
         int_max Counter = 0;
+
+        if (RelativeIndex == 1)
+        {
+            if (m_Mesh.m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
+            {
+                Counter += 1;
+                if (Counter == -Offset)
+                {
+                    m_DirectedEdgeHandle.SetIndex(EdgeIndex, 0);
+                    return;
+                }
+            }
+        }
+        
         for (int_max k = EdgeIndex - 1; k >= 0; --k)
         {
-            if (m_Mesh.m_MeshData->DirectedEdgePairList[k][0].IsValid() == true)
+            if (m_Mesh.m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
             {
                 Counter += 1;
 
@@ -523,7 +539,7 @@ void Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttribute>::operator+=(int_max 
                 }
             }
 
-            if (m_Mesh.m_MeshData->DirectedEdgePairList[k][1].IsValid() == true)
+            if (m_Mesh.m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
             {
                 Counter += 1;
 
@@ -582,18 +598,11 @@ void Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttribute>::SetToBegin() const
 {
     for (int_max k = 0; k < m_Mesh.m_MeshData->DirectedEdgePairList.GetLength(); ++k)
     {
-        if (m_Mesh.m_MeshData->DirectedEdgePairList[k][0].IsValid() == true)
+        if (m_Mesh.m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
         {
             m_DirectedEdgeHandle.SetIndex(k, 0);
             return;
         }
-
-        if (m_Mesh.m_MeshData->DirectedEdgePairList[k][1].IsValid() == true)
-        {
-            m_DirectedEdgeHandle.SetIndex(k, 1);
-            return;
-        }
-
     }
 
     m_DirectedEdgeHandle.SetIndex(-1, -1);

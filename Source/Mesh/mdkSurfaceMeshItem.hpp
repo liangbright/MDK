@@ -71,7 +71,6 @@ void Point_Of_SurfaceMesh<MeshAttributeType>::Create()
 
     m_Data->Index = -1;
     m_Data->ID = -1;
-
     m_Data->AdjacentPointIndexList.Clear();
     m_Data->AdjacentEdgeIndexList.Clear();
     m_Data->OutgoingDirectedEdgeIndexList.Clear();
@@ -241,7 +240,7 @@ void Point_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max PointID)
 
 template<typename MeshAttributeType>
 inline
-void Point_Of_SurfaceMesh<MeshAttributeType>::RemoveID()
+void Point_Of_SurfaceMesh<MeshAttributeType>::EraseID()
 {   
     if (m_Data->ID >= 0)
     {
@@ -826,12 +825,12 @@ template<typename MeshAttributeType>
 inline
 bool Edge_Of_SurfaceMesh<MeshAttributeType>::IsBoundary() const
 {
-    if (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][0].IsValid() == false)
+    if (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][0].GetCellIndex() < 0)
     {
         return true;
     }
     
-    if (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][1].IsValid() == false)
+    if (m_Data->Mesh.m_MeshData->DirectedEdgePairList[m_Data->Index][1].GetCellIndex() < 0)
     {
         return true;
     }
@@ -896,7 +895,7 @@ void Edge_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max EdgeID)
 
 template<typename MeshAttributeType>
 inline
-void Edge_Of_SurfaceMesh<MeshAttributeType>::RemoveID()
+void Edge_Of_SurfaceMesh<MeshAttributeType>::EraseID()
 {
     if (m_Data->ID >= 0)
     {
@@ -1388,6 +1387,19 @@ void DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::SetCellIndex(int_max CellIn
 
 template<typename MeshAttributeType>
 inline
+void DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::EraseInformationRelatedToCell()
+{
+    m_Data->CellIndex = -1;
+    m_Data->PointIndex_start = -1;
+    m_Data->PointIndex_end = -1;
+    m_Data->NextDirectedEdgeIndex.EdgeIndex = -1;
+    m_Data->NextDirectedEdgeIndex.RelativeIndex = -1;
+    m_Data->PreviousDirectedEdgeIndex.EdgeIndex = -1;
+    m_Data->PreviousDirectedEdgeIndex.RelativeIndex = -1;
+}
+
+template<typename MeshAttributeType>
+inline
 void DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::SetStartPointIndex(int_max PointIndex)
 {
     m_Data->PointIndex_start = PointIndex;
@@ -1521,7 +1533,7 @@ bool DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::IsValid() const
     }
     else
     {
-        if (m_Data->Index.EdgeIndex < 0 || m_Data->Index.RelativeIndex < 0)
+        if (m_Data->Index.EdgeIndex < 0 || m_Data->Index.RelativeIndex < 0 || m_Data->Index.RelativeIndex > 1)
         {
             return false;
         }
@@ -1594,7 +1606,7 @@ void DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max DirectedEdgeI
 
 template<typename MeshAttributeType>
 inline
-void DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::RemoveID()
+void DirectedEdge_Of_SurfaceMesh<MeshAttributeType>::EraseID()
 {
     if (m_Data->ID >= 0)
     {
@@ -2064,7 +2076,7 @@ void Cell_Of_SurfaceMesh<MeshAttributeType>::SetID(int_max CellID)
 
 template<typename MeshAttributeType>
 inline
-void Cell_Of_SurfaceMesh<MeshAttributeType>::RemoveID()
+void Cell_Of_SurfaceMesh<MeshAttributeType>::EraseID()
 {
     if (m_Data->ID >= 0)
     {
