@@ -45,8 +45,6 @@ struct SurfaceMeshData
 
     DataArray<Edge_Of_SurfaceMesh<MeshAttributeType>> EdgeList;
 
-    DataArray<DenseVector<DirectedEdge_Of_SurfaceMesh<MeshAttributeType>>> DirectedEdgePairList;
-
     // do not use this, DirectedEdge_Of_SurfaceMesh::operator(&&) will not work when append to the list
     //DataArray<DenseVector<DirectedEdge_Of_SurfaceMesh<MeshAttributeType>, 2>> DirectedEdgePairList;
 

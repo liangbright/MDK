@@ -213,6 +213,8 @@ struct Data_Of_Edge_Of_SurfaceMesh
     int_max PointIndex0;
     int_max PointIndex1;
 
+    DenseVector<DirectedEdge_Of_SurfaceMesh<MeshAttributeType>, 2> DirectedEdgePair;
+
     //--------------------------------
 
     EdgeAttributeType Attribute;
@@ -236,6 +238,9 @@ public:
     friend class Point_Of_SurfaceMesh;
 
     template<typename T>
+    friend class DirectedEdge_Of_SurfaceMesh;
+
+    template<typename T>
     friend class Cell_Of_SurfaceMesh;
 
 private:
@@ -257,10 +262,13 @@ private:
     inline void SetParentMesh(SurfaceMesh<MeshAttributeType>& ParentMesh);
     inline void SetIndex(int_max EdgeIndex);
 
-    inline int_max GetIndex() const;
-
     inline void SetPointIndexList(const int_max PointIndexList[2]);
     inline void SetPointIndexList(int_max PointIndex0, int_max PointIndex1);
+
+    inline DenseVector<DirectedEdge_Of_SurfaceMesh<MeshAttributeType>, 2>& DirectedEdgePair();
+    inline const DenseVector<DirectedEdge_Of_SurfaceMesh<MeshAttributeType>, 2>& DirectedEdgePair() const;
+
+    inline int_max GetIndex() const;
 
     inline void GetPointIndexList(int_max PointIndexList[2]) const;
     inline void GetPointIndexList(int_max& PointIndex0, int_max& PointIndex1) const;
