@@ -137,14 +137,428 @@ TriangleMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetSubMeshByCel
 //------------- Function optimized TriangleMesh --------------------------------------------------//
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateNormalAtPoint()
-{
+void TriangleMesh<MeshAttributeType>::UpdateNormalAtCell() // all
+{ 
+    for (auto it = this->GetIteratorOfCell(); it.IsNotEnd(); ++it)
+    {
+        this->UpdateNormalAtCell(it->GetCellHandle());
+    }
 }
 
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateNormalAtCell()
+void TriangleMesh<MeshAttributeType>::UpdateNormalAtCell(CellHandleType CellHandle)
 {
+    if (this->IsValidHandle(CellHandle) == false)
+    {
+        MDK_Warning("CellHandle is invalid @ TriangleMesh::UpdateNormalAtCell()")
+        return;
+    }
+
+    auto PointHandleList = this->Cell(CellHandle).GetPointHandleList();
+    auto PointPositionA = this->Point(PointHandleList[0]).GetPosition();
+    auto PointPositionB = this->Point(PointHandleList[1]).GetPosition();
+    auto PointPositionC = this->Point(PointHandleList[2]).GetPosition();
+
+    this->Cell(CellHandle).Attribute().Normal = ComputeUnitNormalOfTriangleIn3D(PointPositionA, PointPositionB, PointPositionC);
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateNormalAtCell(int_max CellID)
+{
+    this->UpdateNormalAtCell(this->GetCellHandleByID(CellID));
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateAreaOfCell() // all
+{
+    for (auto it = this->GetIteratorOfCell(); it.IsNotEnd(); ++it)
+    {
+        this->UpdateAreaOfCell(it->GetCellHandle());
+    }
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateAreaOfCell(CellHandleType CellHandle)
+{
+    if (this->IsValidHandle(CellHandle) == false)
+    {
+        MDK_Warning("CellHandle is invalid @ TriangleMesh::UpdateAreaOfCell()")
+        return;
+    }
+
+    auto PointHandleList = this->Cell(CellHandle).GetPointHandleList();
+    auto PointPositionA = this->Point(PointHandleList[0]).GetPosition();
+    auto PointPositionB = this->Point(PointHandleList[1]).GetPosition();
+    auto PointPositionC = this->Point(PointHandleList[2]).GetPosition();
+
+    this->Cell(CellHandle).Attribute().Area = ComputeTriangleAreaIn3D(PointPositionA, PointPositionB, PointPositionC);
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateAreaOfCell(int_max CellID)
+{
+    this->UpdateAreaOfCell(this->GetCellHandleByID(CellID));
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfCell() // all
+{
+    for (auto it = this->GetIteratorOfCell(); it.IsNotEnd(); ++it)
+    {
+        this->UpdateCornerAngleOfCell(it->GetCellHandle());
+    }
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfCell(CellHandleType CellHandle)
+{
+    if (this->IsValidHandle(CellHandle) == false)
+    {
+        MDK_Warning("CellHandle is invalid @ TriangleMesh::UpdateCornerAngleOfCell()")
+        return;
+    }
+
+    auto PointHandleList = this->Cell(CellHandle).GetPointHandleList();
+    auto PointPositionA = this->Point(PointHandleList[0]).GetPosition();
+    auto PointPositionB = this->Point(PointHandleList[1]).GetPosition();
+    auto PointPositionC = this->Point(PointHandleList[2]).GetPosition();
+
+    auto eps_value = std::numeric_limits<ScalarType>::epsilon();
+
+    DenseVector<ScalarType, 3> CornerAngle;
+    CornerAngle.Fill(0);
+    //----------------------------------------------
+    auto Vector_AB = PointPositionB - PointPositionA;
+    auto Vector_AC = PointPositionC - PointPositionA;
+    CornerAngle[0] = ComputeAngleBetweenTwoVectorIn3D(Vector_AB, Vector_AC);
+    //----------------------------------------------
+    auto Vector_BA = PointPositionA - PointPositionB;
+    auto Vector_BC = PointPositionC - PointPositionB;
+    CornerAngle[1] = ComputeAngleBetweenTwoVectorIn3D(Vector_BA, Vector_BC);
+    //---------------------------------    
+    auto Vector_CA = PointPositionA - PointPositionC;
+    auto Vector_CB = PointPositionB - PointPositionC;
+    CornerAngle[2] = ComputeAngleBetweenTwoVectorIn3D(Vector_CA, Vector_CB);
+    //---------------------------------
+
+    this->Cell(CellHandle).Attribute().CornerAngle = CornerAngle;
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfCell(int_max CellID)
+{
+    this->UpdateCornerAngleOfCell(this->GetCellHandleByID(CellID));
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateNormalAtPoint() // all
+{
+    for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+    {
+        this->UpdateNormalAtPoint(it->GetPointHandle());
+    }
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateNormalAtPoint(PointHandleType PointHandle)
+{
+    if (this->IsValidHandle(PointHandle) == false)
+    {
+        MDK_Warning("PointHandle is invalid @ TriangleMesh::UpdateNormalAtPoint()")
+        return;
+    }
+
+    // compute angle weighted Normal
+
+    auto AdjacentPointNumber = this->Point(PointHandle).GetAdjacentPointNumber();
+    if (AdjacentPointNumber <= 1)
+    {
+        MDK_Error("This point only has one or zero adjacent point @ TriangleMesh::UpdateNormalAtPoint()")
+        return;
+    }
+
+    auto PointPosition = this->Point(PointHandle).GetPosition();
+
+    DenseVector<ScalarType> CornerAngleList;
+    CornerAngleList.ReserveCapacity(AdjacentPointNumber);
+
+    DataArray<DenseVector<ScalarType>> NormalTable;
+    NormalTable.ReserveCapacity(AdjacentPointNumber);
+
+    auto AdjacentCellHandleList = this->Point(PointHandle).GetAdjacentCellHandleList();
+    for (int_max k = 0; k < AdjacentCellHandleList.GetLength(); ++k)
+    {
+        auto PointRelativeIndex_k = this->Cell(AdjacentCellHandleList[k]).GetPointRelativeIndex();
+        CornerAngleList[k] = this->Cell(AdjacentCellHandleList[k]).Attribute().CornerAngle[PointRelativeIndex_k];
+        NormalTable[k] = this->Cell(AdjacentCellHandleList[k]).Attribute().Normal;
+    }
+
+    // calculate angle weighted normal at point
+    DenseVector<ScalarType, 3> Normal;
+    Normal.Fill(0);
+    ScalarType AngleSum = 0;
+    for (int_max k = 0; k < AdjacentCellHandleList.GetLength(); ++k)
+    {
+        Normal[0] += CornerAngleList[k] * NormalTable[k][0];
+        Normal[1] += CornerAngleList[k] * NormalTable[k][1];
+        Normal[2] += CornerAngleList[k] * NormalTable[k][2];
+        AngleSum  += CornerAngleList[k];
+    }
+    Normal /= AngleSum;
+   //--------------------
+    this->Point(PointHandle).Attribute().Normal = Normal;
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateNormalAtPoint(int_max PointID)
+{
+    this->UpdateNormalAtPoint(this->GetPointHandleByID(PointID));
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint() // all
+{
+    for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+    {
+        this->UpdateGaussianCurvatureAtPoint(it->GetPointHandle());
+    }
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandleType PointHandle)
+{
+    if (this->IsValidHandle(PointHandle) == false)
+    {
+        MDK_Warning("PointHandle is invalid @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
+        return;
+    }
+
+    auto AdjacentPointNumber = this->Point(PointHandle).GetAdjacentPointNumber();
+    if (AdjacentPointNumber <= 1)
+    {
+        MDK_Error("This point only has one or zero adjacent point @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
+        return;
+    }
+
+    DenseVector<ScalarType> AreaList;
+    AreaList.FastResize(AdjacentPointNumber);
+
+    DenseVector<ScalarType> CornerAngleList;
+    CornerAngleList.FastResize(AdjacentPointNumber);
+
+    auto AdjacentCellHandleList = this->Point(PointHandle).GetAdjacentCellHandleList();
+    for (int_max k = 0; k < AdjacentCellHandleList.GetLength(); ++k)
+    {
+        auto PointRelativeIndex_k = this->Cell(AdjacentCellHandleList[k]).GetPointRelativeIndex();
+        CornerAngleList[k] = this->Cell(AdjacentCellHandleList[k]).Attribute().CornerAngle[PointRelativeIndex_k];
+        AreaList[k] = this->Cell(AdjacentCellHandleList[k]).Attribute().Area;
+    }
+
+    if (AdjacentCellHandleList.GetLength() != AdjacentPointNumber)
+    {
+        if (AdjacentCellHandleList.GetLength() != AdjacentPointNumber -1)
+        {
+            MDK_Error("AdjacentCellHandleList.GetLength() != AdjacentPointNumber -1 @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
+            return;
+        }
+
+        // check if any edge boundary
+        DenseVector<PointHandleType> AdjacentBoundaryPointHandleList;
+
+        auto AdjacentEdgeHandleList = this->Point(PointHandle).GetAdjacentEdgeHandleList();
+        for (int_max k = 0; k < AdjacentEdgeHandleList.GetLength(); ++k)
+        {
+            if (this->Edge(AdjacentEdgeHandleList[k]).IsBoundary() == true)
+            {
+                PointHandleType tempPointHandle_0, tempPointHandle_1;
+                this->Edge(AdjacentEdgeHandleList[k]).GetPointHandleList(tempPointHandle_0, tempPointHandle_1);
+                if (tempPointHandle_0 == PointHandle)
+                {
+                    AdjacentBoundaryPointHandleList.Append(tempPointHandle_1);
+                }
+                else
+                {
+                    AdjacentBoundaryPointHandleList.Append(tempPointHandle_0);
+                }
+            }
+        }
+
+        if (AdjacentBoundaryPointHandleList.IsEmpty() == false)
+        {
+            if (AdjacentBoundaryPointHandleList.GetLength() != 2)
+            {
+                MDK_Error("AdjacentBoundaryPointHandleList is not empty , length is not 2 @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
+                return;
+            }
+
+            auto PointPosition = this->Point(PointHandle).GetPosition();
+            auto Position_a = this->Point(AdjacentBoundaryPointHandleList[0]).GetPosition();
+            auto Position_b = this->Point(AdjacentBoundaryPointHandleList[1]).GetPosition();
+            auto Vector_a = Position_a - PointPosition;
+            auto Vector_b = Position_b - PointPosition;
+            CornerAngleList[AdjacentPointNumber - 1] = ComputeAngleBetweenTwoVectorIn3D(Vector_a, Vector_b);
+            AreaList[AdjacentPointNumber - 1] = ComputeTriangleAreaIn3D(PointPosition, Position_a, Position_b);
+        }
+    }
+
+    // calculate Gaussian curvature
+    auto constant_pi = std::acos(-1);
+    auto UnweightedGaussianCurvature = 2 * constant_pi - CornerAngleList.Sum();
+        
+    this.Point(PointHandle).Attribute().GaussianCurvature = UnweightedGaussianCurvature / AreaList.Sum();
+    this.Point(PointHandle).Attribute().UnweightedGaussianCurvature = UnweightedGaussianCurvature;
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(int_max PointID)
+{
+    this->UpdateGaussianCurvatureAtPoint(this->GetPointHandleByID(PointID));
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint() // all
+{
+    for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+    {
+        this->UpdateMeanCurvatureAtPoint(it->GetPointHandle());
+    }
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(PointHandleType PointHandle)
+{
+    if (this->IsValidHandle(PointHandle) == false)
+    {
+        MDK_Warning("PointHandle is invalid @ TriangleMesh::UpdateMeanCurvatureAtPoint()")
+        return;
+    }
+
+    // cotangent Laplace Beltrami Operator
+
+    auto AdjacentPointNumber = this->Point(PointHandle).GetAdjacentPointNumber();
+    if (AdjacentPointNumber < 3)
+    {
+        return;
+    }
+
+    auto PointPosition = this - Point(PointHandle).GetPosition();
+
+    DenseVector<ScalarType, 3> MeanCurvatureNormal;
+    MeanCurvatureNormal.Fill(0);
+
+    DenseVector<ScalarType> AreaList;
+    AreaList.ReserveCapacity(AdjacentPointNumber);
+
+    auto AdjacentEdgeHandleList = this->Point(PointHandle).GetAdjacentEdgeHandleList();
+    for (int_max k = 0; k < AdjacentEdgeHandleList.GetLength(); ++k)
+    {
+        auto AdjacentCellHandleList_k = this->Edge(AdjacentEdgeHandleList[k]).GetAdjacentCellHandleList();
+        if (AdjacentCellHandleList_k.GetLength() == 2)
+        {
+            auto CellHandle_a = AdjacentCellHandleList_k[0];
+            auto CellHandle_b = AdjacentCellHandleList_k[1];
+
+            PointHandleType tempPointHandle_0, tempPointHandle_1, PointHandle_k;
+            this->Edge(AdjacentEdgeHandleList[k]).GetPointHandleList(tempPointHandle_0, tempPointHandle_1);
+            if (tempPointHandle_0 == PointHandle)
+            {
+                PointHandle_k = tempPointHandle_1;
+            }
+            else
+            {
+                PointHandle_k = tempPointHandle_0;
+            }
+
+            auto Position_k = this->Point(PointHandle_k).GetPosition();
+
+            // get cotangent of the angle at PointHandle_a in CellHandle_a
+            PointHandleType PointHandle_a;
+            int_max PointRelativeIndex_a;
+            auto PointHandleList_a = this->Cell(CellHandle_a).GetPointHandleList();
+            if (PointHandleList_a[0] != PointHandle && PointHandleList_a[0] != PointHandle_k)
+            {
+                PointHandle_a = PointHandleList_a[0];
+                PointRelativeIndex_a = 0;
+            }
+            else if (PointHandleList_a[1] != PointHandle && PointHandleList_a[1] != PointHandle_k)
+            {
+                PointHandle_a = PointHandleList_a[1];
+                PointRelativeIndex_a = 1;
+            }
+            else
+            {
+                PointHandle_a = PointHandleList_a[2];
+                PointRelativeIndex_a = 2;
+            }
+
+            auto CornerAngle_a = this->Cell(CellHandle_a).Attribute().CornerAngle[PointRelativeIndex_a];
+            auto constant_pi_half = ScalarType(3.141592654) / ScalarType(2);
+            auto Cot_a = std::tan(constant_pi_half - CornerAngle_a);
+
+            // get cotangent of the angle at PointHandle_b in CellHandle_b
+            PointHandleType PointHandle_b;
+            int_max PointRelativeIndex_b;
+            auto PointHandleList_b = this->Cell(CellHandle_b).GetPointHandleList();
+            if (PointHandleList_b[0] != PointHandle && PointHandleList_b[0] != PointHandle_k)
+            {
+                PointHandle_b = PointHandleList_b[0];
+                PointRelativeIndex_b = 0;
+            }
+            else if (PointHandleList_b[1] != PointHandle && PointHandleList_b[1] != PointHandle_k)
+            {
+                PointHandle_b = PointHandleList_b[1];
+                PointRelativeIndex_b = 1;
+            }
+            else
+            {
+                PointHandle_b = PointHandleList_b[2];
+                PointRelativeIndex_b = 2;
+            }
+
+            auto CornerAngle_b = this->Cell(CellHandle_b).Attribute().CornerAngle[PointRelativeIndex_b];
+            auto Cot_b = std::tan(constant_pi_half - CornerAngle_b);
+
+            auto SumOfCot = Cot_a + Cot_b;// read "Polygon Mesh Processing: page 46"
+            if (SumOfCot > 0)
+            {
+                MeanCurvatureNormal += SumOfCot * (Position_k - PointPosition);
+                AreaList.Append(this->Cell(CellHandle_a).Attribute().Area);
+                AreaList.Append(this->Cell(CellHandle_b).Attribute().Area);
+            }
+        }
+    }
+
+    if (AreaList.GetLength() > 0)
+    {
+        // note: theoretically, mixed region should be used instead of the total region
+        auto MeanCurvature = MeanCurvatureNormal.L2Norm() / AreaList.Sum();
+        //-------------------
+        this->Point(PointHandle).Attribute().MeanCurvatureNormal = MeanCurvatureNormal;
+        this->Point(PointHandle).Attribute().MeanCurvature = MeanCurvature;
+    }
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(int_max PointID)
+{
+    this->UpdateMeanCurvatureAtPoint(this->GetPointHandleByID(PointID));
 }
 
 }// namespace mdk

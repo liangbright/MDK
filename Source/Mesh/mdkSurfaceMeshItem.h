@@ -300,15 +300,14 @@ public:
     inline int_max GetID() const;
    
     inline DenseVector<Handle_Of_Point_Of_SurfaceMesh, 2> GetPointHandleList() const;
-    inline void GetPointHandleList(Handle_Of_Point_Of_SurfaceMesh OutputHandleList[2]) const;
     inline void GetPointHandleList(Handle_Of_Point_Of_SurfaceMesh& PointHandle0, Handle_Of_Point_Of_SurfaceMesh& PointHandle1) const;
 
     inline DenseVector<int_max, 2> GetPointIDList() const;
-    inline void GetPointIDList(int_max OutputIDList[2]) const;
     inline void GetPointIDList(int_max& PointID0, int_max& PointID1) const;
 
-    inline DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh> GetDirectedEdgeHandleList() const;
-    inline void GetDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh>& OutputHandleList) const;
+    inline DenseVector<Handle_Of_DirectedEdge_Of_SurfaceMesh, 2> GetDirectedEdgeHandleList() const;
+    inline void GetDirectedEdgeHandleList(Handle_Of_DirectedEdge_Of_SurfaceMesh& DirectedEdgeHandle0, 
+                                          Handle_Of_DirectedEdge_Of_SurfaceMesh& DirectedEdgeHandle1) const;
 
     inline DenseVector<Handle_Of_Edge_Of_SurfaceMesh> GetAdjacentEdgeHandleList() const;
     inline void GetAdjacentEdgeHandleList(DenseVector<Handle_Of_Edge_Of_SurfaceMesh>& OutputHandleList) const;
@@ -584,6 +583,9 @@ public:
     inline DenseVector<int_max> GetPointIDList() const;
     inline void GetPointIDList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputIDList) const;
 
+    inline int_max GetPointRelativeIndex(Handle_Of_Point_Of_SurfaceMesh PointHandle) const;
+    inline int_max GetPointRelativeIndex(int_max PointID) const;
+
     inline int_max GetPointNumber() const; // the number of vertex point
 
     inline DenseVector<Handle_Of_Edge_Of_SurfaceMesh> GetEdgeHandleList() const;
@@ -591,6 +593,9 @@ public:
 
     inline DenseVector<int_max> GetEdgeIDList() const;
     inline void GetEdgeIDList(DenseVector<int_max>& OutputIDList) const;
+
+    inline DenseVector<int_max> GetEdgeRelativeIndexList() const;
+    inline void GetEdgeRelativeIndexList(DenseVector<int_max>& RelativeIndexList) const;
 
     inline int_max GetEdgeNumber() const;  // the number of Edge
 

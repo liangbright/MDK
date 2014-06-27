@@ -123,8 +123,6 @@ enum class TriangleMeshCellAttributeEnum
 template<typename ScalarType>
 struct CellAttribute_Of_TriangleMesh : public CellAttribute_Of_PolygonMesh<ScalarType>
 {
-    ScalarType Area;
-
 //---------------------------------------
     CellAttribute_Of_TriangleMesh() { this->Clear(); }
     CellAttribute_Of_TriangleMesh(const CellAttribute_Of_TriangleMesh& InputAttribute) { (*this) = InputAttribute; }
@@ -138,6 +136,8 @@ struct CellAttribute_Of_TriangleMesh : public CellAttribute_Of_PolygonMesh<Scala
     void Clear()
     {
         this->CellAttribute_Of_PolygonMesh::Clear();
+        CornerAngle.FastResize(3);
+        CornerAngle.Fill(0);
     }
 };
 

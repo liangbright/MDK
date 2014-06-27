@@ -86,8 +86,30 @@ public:
 
     //------------- Function optimized For TriangleMesh --------------------------------------------------//
 
-    void UpdateNormalAtPoint();
-    void UpdateNormalAtCell();
+    void UpdateNormalAtCell(); // all
+    void UpdateNormalAtCell(CellHandleType CellHandle);
+    void UpdateNormalAtCell(int_max CellID);
+
+    void UpdateAreaOfCell(); // all
+    void UpdateAreaOfCell(CellHandleType CellHandle);
+    void UpdateAreaOfCell(int_max CellID);
+
+    void UpdateCornerAngleOfCell(); // all
+    void UpdateCornerAngleOfCell(CellHandleType CellHandle);
+    void UpdateCornerAngleOfCell(int_max CellID);
+
+    void UpdateNormalAtPoint(); // all
+    void UpdateNormalAtPoint(PointHandleType PointHandle);
+    void UpdateNormalAtPoint(int_max PointID);
+
+    void UpdateGaussianCurvatureAtPoint(); // all
+    void UpdateGaussianCurvatureAtPoint(PointHandleType PointHandle);
+    void UpdateGaussianCurvatureAtPoint(int_max PointID);
+
+    void UpdateMeanCurvatureAtPoint(); // all
+    void UpdateMeanCurvatureAtPoint(PointHandleType PointHandle);
+    void UpdateMeanCurvatureAtPoint(int_max PointID);
+
 };
 
 }// namespace mdk

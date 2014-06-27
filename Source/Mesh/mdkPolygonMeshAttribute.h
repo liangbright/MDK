@@ -41,15 +41,21 @@ struct GlobalAttribute_Of_PolygonMesh : GlobalAttribute_Of_SurfaceMesh<ScalarTyp
 //============================================== PointAttribute_Of_PolygonMesh ===========================================//
 enum class PolygonMeshPointAttributeTypeEnum
 {
+    GaussianCurvature,
+    UnweightedGaussianCurvature,
     MeanCurvature,
+    MeanCurvatureNormal,
     Normal
 };
 
 template<typename ScalarType>
 struct PointAttribute_Of_PolygonMesh : PointAttribute_Of_SurfaceMesh<ScalarType>
 {
-    ScalarType MeanCurvature;
-    DenseVector<ScalarType, 3> Normal;
+    ScalarType GaussianCurvature;
+    ScalarType UnweightedGaussianCurvature; //[-pi, pi]
+    ScalarType MeanCurvature; // > 0
+    DenseVector<ScalarType, 3> MeanCurvatureNormal; // may have different/opposite direction compared to Normal
+    DenseVector<ScalarType, 3> Normal; // unit normal
 
 //-----------------------------------------------
     PointAttribute_Of_PolygonMesh() { this->Clear(); }
@@ -58,13 +64,19 @@ struct PointAttribute_Of_PolygonMesh : PointAttribute_Of_SurfaceMesh<ScalarType>
 
     void operator=(const PointAttribute_Of_PolygonMesh& InputAttribute)
     {
+        GaussianCurvature = InputAttribute.GaussianCurvature;
+        UnweightedGaussianCurvature = InputAttribute.UnweightedGaussianCurvature;
         MeanCurvature = InputAttribute.MeanCurvature;
+        MeanCurvatureNormal = InputAttribute.MeanCurvatureNormal;
         Normal = InputAttribute.Normal;
     }
 
     void Clear()
     {
+        GaussianCurvature = 0;
+        UnweightedGaussianCurvature = 0;
         MeanCurvature = 0;
+        MeanCurvatureNormal.Fill(0);
         Normal.Fill(0);
     }
 };
@@ -134,6 +146,8 @@ template<typename ScalarType>
 struct CellAttribute_Of_PolygonMesh : CellAttribute_Of_SurfaceMesh<ScalarType>
 {
     ScalarType Area;
+    DenseVector<ScalarType> CornerAngle;
+    DenseVector<ScalarType, 3> Normal;
 
 //---------------------------------------
     CellAttribute_Of_PolygonMesh() { this->Clear(); }
@@ -143,11 +157,15 @@ struct CellAttribute_Of_PolygonMesh : CellAttribute_Of_SurfaceMesh<ScalarType>
     void operator=(const CellAttribute_Of_PolygonMesh& InputAttribute)
     {
         Area = InputAttribute.Area;
+        CornerAngle = InputAttribute.CornerAngle;
+        Normal = InputAttribute.Normal;
     }
 
     void Clear()
     {
         Area = 0;
+        CornerAngle.Clear();
+        Normal.Fill(0);
     }
 };
 
