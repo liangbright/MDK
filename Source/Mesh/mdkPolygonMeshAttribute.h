@@ -148,7 +148,7 @@ struct CellAttribute_Of_PolygonMesh : CellAttribute_Of_SurfaceMesh<ScalarType>
     ScalarType Area;
     DenseVector<ScalarType> CornerAngle;
     DenseVector<ScalarType, 3> Normal;
-
+    bool Flag_ReverseNormalDirection;
 //---------------------------------------
     CellAttribute_Of_PolygonMesh() { this->Clear(); }
     CellAttribute_Of_PolygonMesh(const CellAttribute_Of_PolygonMesh& InputAttribute) { (*this) = InputAttribute; }
@@ -159,6 +159,7 @@ struct CellAttribute_Of_PolygonMesh : CellAttribute_Of_SurfaceMesh<ScalarType>
         Area = InputAttribute.Area;
         CornerAngle = InputAttribute.CornerAngle;
         Normal = InputAttribute.Normal;
+        Flag_ReverseNormalDirection = InputAttribute.Flag_ReverseNormalDirection;
     }
 
     void Clear()
@@ -166,6 +167,7 @@ struct CellAttribute_Of_PolygonMesh : CellAttribute_Of_SurfaceMesh<ScalarType>
         Area = 0;
         CornerAngle.Clear();
         Normal.Fill(0);
+        Flag_ReverseNormalDirection = false;
     }
 };
 

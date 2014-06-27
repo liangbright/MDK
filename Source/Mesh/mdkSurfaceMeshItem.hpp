@@ -2184,7 +2184,7 @@ void Cell_Of_SurfaceMesh<MeshAttributeType>::GetPointIDList(DenseVector<Handle_O
 
 template<typename MeshAttributeType>
 inline
-int_max Cell_Of_SurfaceMesh<MeshAttributeType>::GetPointRelativeIndex(Handle_Of_Point_Of_SurfaceMesh PointHandle) const
+int_max Cell_Of_SurfaceMesh<MeshAttributeType>::GetRelativeIndexOfPoint(Handle_Of_Point_Of_SurfaceMesh PointHandle) const
 {
     DenseVector<int_max> PointIndexList = this->GetPointIndexList();
     for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
@@ -2201,7 +2201,7 @@ int_max Cell_Of_SurfaceMesh<MeshAttributeType>::GetPointRelativeIndex(Handle_Of_
 
 template<typename MeshAttributeType>
 inline 
-int_max Cell_Of_SurfaceMesh<MeshAttributeType>::GetPointRelativeIndex(int_max PointID) const
+int_max Cell_Of_SurfaceMesh<MeshAttributeType>::GetRelativeIndexOfPoint(int_max PointID) const
 {
     DenseVector<int_max> PointIDList = this->GetPointIDList();
     for (int_max k = 0; k < PointIDList.GetLength(); ++k)

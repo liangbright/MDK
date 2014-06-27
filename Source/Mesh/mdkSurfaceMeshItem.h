@@ -583,8 +583,8 @@ public:
     inline DenseVector<int_max> GetPointIDList() const;
     inline void GetPointIDList(DenseVector<Handle_Of_Point_Of_SurfaceMesh>& OutputIDList) const;
 
-    inline int_max GetPointRelativeIndex(Handle_Of_Point_Of_SurfaceMesh PointHandle) const;
-    inline int_max GetPointRelativeIndex(int_max PointID) const;
+    inline int_max GetRelativeIndexOfPoint(Handle_Of_Point_Of_SurfaceMesh PointHandle) const;
+    inline int_max GetRelativeIndexOfPoint(int_max PointID) const;
 
     inline int_max GetPointNumber() const; // the number of vertex point
 

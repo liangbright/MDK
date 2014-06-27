@@ -159,8 +159,14 @@ void TriangleMesh<MeshAttributeType>::UpdateNormalAtCell(CellHandleType CellHand
     auto PointPositionA = this->Point(PointHandleList[0]).GetPosition();
     auto PointPositionB = this->Point(PointHandleList[1]).GetPosition();
     auto PointPositionC = this->Point(PointHandleList[2]).GetPosition();
-
-    this->Cell(CellHandle).Attribute().Normal = ComputeUnitNormalOfTriangleIn3D(PointPositionA, PointPositionB, PointPositionC);
+    auto Normal = ComputeUnitNormalOfTriangleIn3D(PointPositionA, PointPositionB, PointPositionC);
+    if (this->Cell(CellHandle).Attribute().Flag_ReverseNormalDirection == true)
+    {
+        Normal[0] = -Normal[0];
+        Normal[1] = -Normal[1];
+        Normal[2] = -Normal[2];
+    }
+    this->Cell(CellHandle).Attribute().Normal = Normal;
 }
 
 
@@ -194,7 +200,6 @@ void TriangleMesh<MeshAttributeType>::UpdateAreaOfCell(CellHandleType CellHandle
     auto PointPositionA = this->Point(PointHandleList[0]).GetPosition();
     auto PointPositionB = this->Point(PointHandleList[1]).GetPosition();
     auto PointPositionC = this->Point(PointHandleList[2]).GetPosition();
-
     this->Cell(CellHandle).Attribute().Area = ComputeTriangleAreaIn3D(PointPositionA, PointPositionB, PointPositionC);
 }
 
@@ -230,10 +235,7 @@ void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfCell(CellHandleType Cel
     auto PointPositionB = this->Point(PointHandleList[1]).GetPosition();
     auto PointPositionC = this->Point(PointHandleList[2]).GetPosition();
 
-    auto eps_value = std::numeric_limits<ScalarType>::epsilon();
-
     DenseVector<ScalarType, 3> CornerAngle;
-    CornerAngle.Fill(0);
     //----------------------------------------------
     auto Vector_AB = PointPositionB - PointPositionA;
     auto Vector_AC = PointPositionC - PointPositionA;
@@ -280,27 +282,27 @@ void TriangleMesh<MeshAttributeType>::UpdateNormalAtPoint(PointHandleType PointH
 
     // compute angle weighted Normal
 
-    auto AdjacentPointNumber = this->Point(PointHandle).GetAdjacentPointNumber();
-    if (AdjacentPointNumber <= 1)
+    auto AdjacentCellHandleList = this->Point(PointHandle).GetAdjacentCellHandleList();
+    if (AdjacentCellHandleList.IsEmpty() == true)
     {
-        MDK_Error("This point only has one or zero adjacent point @ TriangleMesh::UpdateNormalAtPoint()")
+        MDK_Warning("This point has not adjacent cell @ TriangleMesh::UpdateNormalAtPoint()")
+        this->Point(PointHandle).Attribute().Normal.Fill(0);
         return;
     }
 
     auto PointPosition = this->Point(PointHandle).GetPosition();
 
     DenseVector<ScalarType> CornerAngleList;
-    CornerAngleList.ReserveCapacity(AdjacentPointNumber);
+    CornerAngleList.Resize(AdjacentCellHandleList.GetLength());
 
-    DataArray<DenseVector<ScalarType>> NormalTable;
-    NormalTable.ReserveCapacity(AdjacentPointNumber);
+    DataArray<DenseVector<ScalarType>> CellNormalTable;
+    CellNormalTable.Resize(AdjacentCellHandleList.GetLength());
 
-    auto AdjacentCellHandleList = this->Point(PointHandle).GetAdjacentCellHandleList();
     for (int_max k = 0; k < AdjacentCellHandleList.GetLength(); ++k)
     {
-        auto PointRelativeIndex_k = this->Cell(AdjacentCellHandleList[k]).GetPointRelativeIndex();
+        auto PointRelativeIndex_k = this->Cell(AdjacentCellHandleList[k]).GetRelativeIndexOfPoint(PointHandle);
         CornerAngleList[k] = this->Cell(AdjacentCellHandleList[k]).Attribute().CornerAngle[PointRelativeIndex_k];
-        NormalTable[k] = this->Cell(AdjacentCellHandleList[k]).Attribute().Normal;
+        CellNormalTable[k] = this->Cell(AdjacentCellHandleList[k]).Attribute().Normal;
     }
 
     // calculate angle weighted normal at point
@@ -309,12 +311,17 @@ void TriangleMesh<MeshAttributeType>::UpdateNormalAtPoint(PointHandleType PointH
     ScalarType AngleSum = 0;
     for (int_max k = 0; k < AdjacentCellHandleList.GetLength(); ++k)
     {
-        Normal[0] += CornerAngleList[k] * NormalTable[k][0];
-        Normal[1] += CornerAngleList[k] * NormalTable[k][1];
-        Normal[2] += CornerAngleList[k] * NormalTable[k][2];
+        Normal[0] += CornerAngleList[k] * CellNormalTable[k][0];
+        Normal[1] += CornerAngleList[k] * CellNormalTable[k][1];
+        Normal[2] += CornerAngleList[k] * CellNormalTable[k][2];
         AngleSum  += CornerAngleList[k];
     }
     Normal /= AngleSum;
+
+    if (AngleSum <= std::numeric_limits<ScalarType>::epsilon())
+    {
+        Normal.Fill(0);
+    }
    //--------------------
     this->Point(PointHandle).Attribute().Normal = Normal;
 }
@@ -346,10 +353,13 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandle
         return;
     }
 
-    auto AdjacentPointNumber = this->Point(PointHandle).GetAdjacentPointNumber();
-    if (AdjacentPointNumber <= 1)
+    auto AdjacentCellHandleList = this->Point(PointHandle).GetAdjacentCellHandleList();
+    auto AdjacentCellNumber = AdjacentCellHandleList.GetLength();
+    if (AdjacentCellNumber <= 1)
     {
-        MDK_Error("This point only has one or zero adjacent point @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
+        //MDK_Warning("This point only has one or zero adjacent cell @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
+        this.Point(PointHandle).Attribute().GaussianCurvature = 0;
+        this.Point(PointHandle).Attribute().UnweightedGaussianCurvature = 0;
         return;
     }
 
@@ -359,23 +369,22 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandle
     DenseVector<ScalarType> CornerAngleList;
     CornerAngleList.FastResize(AdjacentPointNumber);
 
-    auto AdjacentCellHandleList = this->Point(PointHandle).GetAdjacentCellHandleList();
-    for (int_max k = 0; k < AdjacentCellHandleList.GetLength(); ++k)
+    for (int_max k = 0; k < AdjacentCellNumber; ++k)
     {
         auto PointRelativeIndex_k = this->Cell(AdjacentCellHandleList[k]).GetPointRelativeIndex();
         CornerAngleList[k] = this->Cell(AdjacentCellHandleList[k]).Attribute().CornerAngle[PointRelativeIndex_k];
         AreaList[k] = this->Cell(AdjacentCellHandleList[k]).Attribute().Area;
     }
 
-    if (AdjacentCellHandleList.GetLength() != AdjacentPointNumber)
+    if (AdjacentCellNumber != AdjacentPointNumber)
     {
-        if (AdjacentCellHandleList.GetLength() != AdjacentPointNumber -1)
+        if (AdjacentCellNumber != AdjacentPointNumber - 1)
         {
-            MDK_Error("AdjacentCellHandleList.GetLength() != AdjacentPointNumber -1 @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
+            MDK_Error("AdjacentCellNumber != AdjacentPointNumber -1 @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
             return;
         }
 
-        // check if any edge boundary
+        // check any edge boundary
         DenseVector<PointHandleType> AdjacentBoundaryPointHandleList;
 
         auto AdjacentEdgeHandleList = this->Point(PointHandle).GetAdjacentEdgeHandleList();
@@ -396,28 +405,25 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandle
             }
         }
 
-        if (AdjacentBoundaryPointHandleList.IsEmpty() == false)
+        if (AdjacentBoundaryPointHandleList.GetLength() != 2)
         {
-            if (AdjacentBoundaryPointHandleList.GetLength() != 2)
-            {
-                MDK_Error("AdjacentBoundaryPointHandleList is not empty , length is not 2 @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
-                return;
-            }
-
-            auto PointPosition = this->Point(PointHandle).GetPosition();
-            auto Position_a = this->Point(AdjacentBoundaryPointHandleList[0]).GetPosition();
-            auto Position_b = this->Point(AdjacentBoundaryPointHandleList[1]).GetPosition();
-            auto Vector_a = Position_a - PointPosition;
-            auto Vector_b = Position_b - PointPosition;
-            CornerAngleList[AdjacentPointNumber - 1] = ComputeAngleBetweenTwoVectorIn3D(Vector_a, Vector_b);
-            AreaList[AdjacentPointNumber - 1] = ComputeTriangleAreaIn3D(PointPosition, Position_a, Position_b);
+            MDK_Error("AdjacentBoundaryPointHandleList is not empty , length is not 2 @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
+            return;
         }
+
+        auto PointPosition = this->Point(PointHandle).GetPosition();
+        auto Position_a = this->Point(AdjacentBoundaryPointHandleList[0]).GetPosition();
+        auto Position_b = this->Point(AdjacentBoundaryPointHandleList[1]).GetPosition();
+        auto Vector_a = Position_a - PointPosition;
+        auto Vector_b = Position_b - PointPosition;
+        CornerAngleList[AdjacentPointNumber - 1] = ComputeAngleBetweenTwoVectorIn3D(Vector_a, Vector_b);
+        AreaList[AdjacentPointNumber - 1] = ComputeTriangleAreaIn3D(PointPosition, Position_a, Position_b);
     }
 
     // calculate Gaussian curvature
     auto constant_pi = std::acos(-1);
     auto UnweightedGaussianCurvature = 2 * constant_pi - CornerAngleList.Sum();
-        
+    //------------------------------    
     this.Point(PointHandle).Attribute().GaussianCurvature = UnweightedGaussianCurvature / AreaList.Sum();
     this.Point(PointHandle).Attribute().UnweightedGaussianCurvature = UnweightedGaussianCurvature;
 }
@@ -454,6 +460,8 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(PointHandleType
     auto AdjacentPointNumber = this->Point(PointHandle).GetAdjacentPointNumber();
     if (AdjacentPointNumber < 3)
     {
+        this->Point(PointHandle).Attribute().MeanCurvatureNormal.Fill(0);
+        this->Point(PointHandle).Attribute().MeanCurvature = 0;
         return;
     }
 
@@ -551,6 +559,11 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(PointHandleType
         //-------------------
         this->Point(PointHandle).Attribute().MeanCurvatureNormal = MeanCurvatureNormal;
         this->Point(PointHandle).Attribute().MeanCurvature = MeanCurvature;
+    }
+    else
+    {
+        this->Point(PointHandle).Attribute().MeanCurvatureNormal.Fill(0);
+        this->Point(PointHandle).Attribute().MeanCurvature = 0;
     }
 }
 
