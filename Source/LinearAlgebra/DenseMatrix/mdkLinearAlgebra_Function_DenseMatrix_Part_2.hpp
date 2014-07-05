@@ -86,6 +86,24 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
 
 
 template<typename ElementType, typename MatchFunctionType>
+int_max MatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction)
+{
+    int_max Index_output = -1;
+
+    for (int_max i = 0; i < InputMatrix.GetElementNumber(); ++i)
+    {
+        if (MatchFunction(InputMatrix[i]) == true)
+        {
+            Index_output = i;
+            break;
+        }
+    }
+
+    return Index_output;
+}
+
+
+template<typename ElementType, typename MatchFunctionType>
 DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction)
 {
     return FindColInMatrix(InputMatrix, InputMatrix.GetColNumber(), 0, InputMatrix.GetColNumber()-1, MatchFunction);

@@ -29,6 +29,9 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
                                          int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction);
 
 template<typename ElementType, typename MatchFunctionType>
+int_max MatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction);
+
+template<typename ElementType, typename MatchFunctionType>
 DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction);
 
 template<typename ElementType, typename MatchFunctionType>

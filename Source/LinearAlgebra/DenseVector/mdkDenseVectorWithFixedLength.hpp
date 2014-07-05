@@ -953,6 +953,28 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
 
 
 template<typename ElementType, int_max Length>
+template<typename MatchFunctionType>
+inline
+int_max DenseVector<ElementType, Length>::Match(MatchFunctionType MatchFunction) const
+{
+    // find with MaxOutputNumber = 1 
+
+    int_max Index_output = -1;
+
+    for (int_max i = 0; i < this->GetElementNumber(); ++i)
+    {
+        if (MatchFunction((*this)[i]) == true)
+        {
+            Index_output = i;
+            break;
+        }
+    }
+
+    return Index_output;
+}
+
+
+template<typename ElementType, int_max Length>
 template<typename CompareFunctionType>
 inline
 DenseVector<int_max> DenseVector<ElementType, Length>::Sort(CompareFunctionType CompareFunction) const

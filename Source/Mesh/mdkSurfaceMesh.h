@@ -396,6 +396,38 @@ public:
 
     //---------------------------------------------------------------------------------------------------
 
+    CellHandleType DilatePointToCell(PointHandleType PointHandle);
+    CellHandleType DilatePointToCell(int_max PointID);
+
+    // Position  = (Position_0 + Position_1) / 2
+    PointHandleType ShrinkEdgeToPoint(EdgeHandleType EdgeHandle);
+    PointHandleType ShrinkEdgeToPoint(int_max EdgeID);
+
+    EdgeHandleType MergeTwoAdjacentEdge(EdgeHandleType EdgeHandleA, EdgeHandleType EdgeHandleB);
+    EdgeHandleType MergeTwoAdjacentEdge(int_max EdgeIDA, int_max EdgeIDB);
+
+    std::pair<EdgeHandleType, EdgeHandleType> SplitEdge(PointHandleType PointHandle);
+    std::pair<EdgeHandleType, EdgeHandleType> SplitEdge(int_max PointID);
+
+    // Position  = sum(Position_i) / sum(i)
+    PointHandleType ShrinkCellToPoint(CellHandleType CellHandle);
+    PointHandleType ShrinkCellToPoint(int_max CellID);
+
+    CellHandleType MergeTwoAdjacentCell(CellHandleType CellHandleA, CellHandleType CellHandleB);
+    CellHandleType MergeTwoAdjacentCell(int_max CellIDA, int_max CellIDB);
+
+    std::pair<CellHandleType, CellHandleType> SplitCellByTwoPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
+    std::pair<CellHandleType, CellHandleType> SplitCellByTwoPoint(int_max PointIDA, int_max PointIDB);
+
+    std::pair<CellHandleType, CellHandleType> SplitCellByEdge(EdgeHandleType EdgeHandle);
+    std::pair<CellHandleType, CellHandleType> SplitCellByEdge(int_max EdgeID);
+
+    //-----------------------------------------------------------------------------------------------------
+
+private:
+    void InternalFuction_DeletePoint(int_max PointIndex);
+    void InternalFuction_DeleteEdge(int_max EdgeIndex);
+    void InternalFuction_DeleteCell(int_max CellIndex);
 };
 
 }// namespace mdk

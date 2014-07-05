@@ -237,6 +237,10 @@ public:
     template<typename MatchFunctionType>
     inline DenseVector<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction) const;
 
+    // find with MaxOutputNumber = 1 
+    template<typename MatchFunctionType>
+    inline int_max Match(MatchFunctionType MatchFunction) const;
+
     //--------------------- sort ---------------------------------------//
     // return index list
 

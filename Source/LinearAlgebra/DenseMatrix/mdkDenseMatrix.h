@@ -1329,6 +1329,10 @@ public:
     template<typename MatchFunctionType>
     inline DenseMatrix<int_max> Find(int_max MaxOutputNumber, int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction) const;
 
+    // find with MaxOutputNumber = 1 
+    template<typename MatchFunctionType>
+    inline int_max Match(MatchFunctionType MatchFunction) const;
+
     //------------------------ find col : return col index list ------------------------------------//
 
     template<typename MatchFunctionType>

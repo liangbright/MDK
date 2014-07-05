@@ -8013,6 +8013,15 @@ DenseMatrix<ElementType>::Find(int_max MaxOutputNumber, int_max LinearIndex_star
     return FindElementInMatrix(*this, MaxOutputNumber, LinearIndex_start, LinearIndex_end, MatchFunction);
 }
 
+
+template<typename ElementType>
+template<typename MatchFunctionType>
+inline 
+int_max DenseMatrix<ElementType>::Match(MatchFunctionType MatchFunction) const
+{
+    return MatchElementInMatrix(*this, MatchFunction);
+}
+
 //--------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
