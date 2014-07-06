@@ -394,7 +394,7 @@ public:
     SurfaceMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const;
     SurfaceMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const;
 
-    //---------------------------------------------------------------------------------------------------
+    // Change Topology ----------------------------------------------------------------------------------------
 
     CellHandleType DilatePointToCell(PointHandleType PointHandle);
     CellHandleType DilatePointToCell(int_max PointID);
@@ -415,9 +415,6 @@ public:
 
     CellHandleType MergeTwoAdjacentCell(CellHandleType CellHandleA, CellHandleType CellHandleB);
     CellHandleType MergeTwoAdjacentCell(int_max CellIDA, int_max CellIDB);
-
-    std::pair<CellHandleType, CellHandleType> SplitCellByTwoPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
-    std::pair<CellHandleType, CellHandleType> SplitCellByTwoPoint(int_max PointIDA, int_max PointIDB);
 
     std::pair<CellHandleType, CellHandleType> SplitCellByEdge(EdgeHandleType EdgeHandle);
     std::pair<CellHandleType, CellHandleType> SplitCellByEdge(int_max EdgeID);

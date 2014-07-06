@@ -34,25 +34,27 @@ ElementType ComputeAngleBetweenTwoVectorIn3D(const ElementType* VectorA, const E
 // ref: http://mathworld.wolfram.com/CrossProduct.html
 template<typename ElementType>
 inline
-DenseVector<ElementType, 3> ComputeUnitNormalOfTriangleIn3D(const DenseMatrix<ElementType>& PointPositionA,
-                                                            const DenseMatrix<ElementType>& PointPositionB, 
-                                                            const DenseMatrix<ElementType>& PointPositionC);
+DenseVector<ElementType, 3> ComputeTriangleNormalIn3D(const DenseMatrix<ElementType>& PointPositionA,
+                                                      const DenseMatrix<ElementType>& PointPositionB, 
+                                                      const DenseMatrix<ElementType>& PointPositionC);
 
 template<typename ElementType>
 inline
-DenseVector<ElementType, 3> ComputeUnitNormalOfTriangleIn3D(const DenseVector<ElementType, 3>& PointPositionA,
-                                                            const DenseVector<ElementType, 3>& PointPositionB, 
-                                                            const DenseVector<ElementType, 3>& PointPositionC);
+DenseVector<ElementType, 3> ComputeTriangleNormalIn3D(const DenseVector<ElementType, 3>& PointPositionA,
+                                                      const DenseVector<ElementType, 3>& PointPositionB, 
+                                                      const DenseVector<ElementType, 3>& PointPositionC);
 
 template<typename ElementType>
 inline
-DenseVector<ElementType, 3> ComputeUnitNormalOfTriangleIn3D(const ElementType* PointPositionA, const ElementType* PointPositionB, const ElementType* PointPositionC);
+DenseVector<ElementType, 3> ComputeTriangleNormalIn3D(const ElementType* PointPositionA,
+                                                      const ElementType* PointPositionB, 
+                                                      const ElementType* PointPositionC);
 
 template<typename ElementType>
 inline
 ElementType ComputeTriangleAreaIn3D(const DenseMatrix<ElementType>& PointPositionA,
-                                                    const DenseMatrix<ElementType>& PointPositionB,
-                                                    const DenseMatrix<ElementType>& PointPositionC);
+                                    const DenseMatrix<ElementType>& PointPositionB,
+                                    const DenseMatrix<ElementType>& PointPositionC);
 
 template<typename ElementType>
 inline

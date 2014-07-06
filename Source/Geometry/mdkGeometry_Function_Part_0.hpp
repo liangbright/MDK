@@ -36,8 +36,8 @@ DenseVector<ElementType, 3> ComputeVectorCrossProductIn3D(const ElementType* Vec
     if (VectorA == nullptr || VectorB == nullptr)
     {
         MDK_Error("Input is nullptr @ mdkGeometry ComputeVectorCrossProductIn3D(...)")
-        Normal.Fill(0);
-        return Normal;
+        Vector_AxB.Fill(0);
+        return Vector_AxB;
     }
 
     Vector_AxB[0] = VectorA[1] * VectorB[2] - VectorA[2] * VectorB[1];

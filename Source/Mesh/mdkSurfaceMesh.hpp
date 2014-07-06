@@ -2703,7 +2703,7 @@ SurfaceMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<int_max>& Cel
 }
 
 
-//---------------------------------------------------------------------------------------------------
+// Change Topology ----------------------------------------------------------------------------------------
 
 template<typename MeshAttributeType>
 Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::DilatePointToCell(Handle_Of_Point_Of_SurfaceMesh PointHandle)
@@ -3312,24 +3312,6 @@ Handle_Of_Cell_Of_SurfaceMesh SurfaceMesh<MeshAttributeType>::MergeTwoAdjacentCe
 
 template<typename MeshAttributeType>
 std::pair<Handle_Of_Cell_Of_SurfaceMesh, Handle_Of_Cell_Of_SurfaceMesh> 
-SurfaceMesh<MeshAttributeType>::SplitCellByTwoPoint(Handle_Of_Point_Of_SurfaceMesh PointHandleA, Handle_Of_Point_Of_SurfaceMesh PointHandleB)
-{
-
-}
-
-
-template<typename MeshAttributeType>
-std::pair<Handle_Of_Cell_Of_SurfaceMesh, Handle_Of_Cell_Of_SurfaceMesh> 
-SurfaceMesh<MeshAttributeType>::SplitCellByTwoPoint(int_max PointIDA, int_max PointIDB)
-{
-    auto PointHandleA = this->GetPointHandleByID(PointIDA);
-    auto PointHandleB = this->GetPointHandleByID(PointIDB);
-    return this->SplitCellByTwoPoint(PointHandleA, PointHandleB);
-}
-
-
-template<typename MeshAttributeType>
-std::pair<Handle_Of_Cell_Of_SurfaceMesh, Handle_Of_Cell_Of_SurfaceMesh> 
 SurfaceMesh<MeshAttributeType>::SplitCellByEdge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle)
 {
     if (this->IsValidHandle(EdgeHandle) == false)
@@ -3338,8 +3320,7 @@ SurfaceMesh<MeshAttributeType>::SplitCellByEdge(Handle_Of_Edge_Of_SurfaceMesh Ed
         std::pair<CellHandleType, CellHandleType> InvalidOutput;
         return InvalidOutput;
     }
-    auto PointHandleList = this->Edge(EdgeHandle).GetPointHandleList();
-    return this->SplitCellByTwoPoint(PointHandleList[0], PointHandleList[1]);
+
 }
 
 
@@ -3351,6 +3332,7 @@ SurfaceMesh<MeshAttributeType>::SplitCellByEdge(int_max EdgeID)
     return this->SplitCellByEdge(EdgeHandle);
 }
 
+//----------------------------------- private InternalFunction ---------------------------------------------------------//
 
 template<typename MeshAttributeType>
 void SurfaceMesh<MeshAttributeType>::InternalFuction_DeletePoint(int_max PointIndex)
