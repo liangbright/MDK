@@ -7,21 +7,21 @@ namespace mdk
 
 template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType>::PolygonMesh()
-: SurfaceMesh()
+: MembraneMesh()
 {
 }
 
 
 template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType>::PolygonMesh(const PolygonMesh<MeshAttributeType>& InputMesh)
-: SurfaceMesh(InputMesh)
+: MembraneMesh(InputMesh)
 {
 }
 
 
 template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType>::PolygonMesh(PolygonMesh<MeshAttributeType>&& InputMesh)
-: SurfaceMesh(std::forward<SurfaceMesh<MeshAttributeType>&&>(InputMesh))
+: MembraneMesh(std::forward<MembraneMesh<MeshAttributeType>&&>(InputMesh))
 {
 }
 
@@ -36,7 +36,7 @@ template<typename MeshAttributeType>
 inline
 void PolygonMesh<MeshAttributeType>::operator=(const PolygonMesh<MeshAttributeType>& InputMesh)
 {
-    this->SurfaceMesh::operator=(InputMesh);
+    this->MembraneMesh::operator=(InputMesh);
 }
 
 
@@ -44,7 +44,7 @@ template<typename MeshAttributeType>
 inline
 void PolygonMesh<MeshAttributeType>::operator=(PolygonMesh<MeshAttributeType>&& InputMesh)
 {
-    this->SurfaceMesh::operator=(std::forward<SurfaceMesh<MeshAttributeType>&&>(InputMesh));
+    this->MembraneMesh::operator=(std::forward<MembraneMesh<MeshAttributeType>&&>(InputMesh));
 }
 
 
@@ -88,9 +88,9 @@ bool PolygonMesh<MeshAttributeType>::Construct(const DenseMatrix<typename MeshAt
 
 
 template<typename MeshAttributeType>
-void PolygonMesh<MeshAttributeType>::Construct(SurfaceMesh<MeshAttributeType> InputSurfaceMesh)
+void PolygonMesh<MeshAttributeType>::Construct(MembraneMesh<MeshAttributeType> InputMembraneMesh)
 {
-    auto InputMeshPtr = static_cast<PolygonMesh<MeshAttributeType>*>(&InputSurfaceMesh);
+    auto InputMeshPtr = static_cast<PolygonMesh<MeshAttributeType>*>(&InputMembraneMesh);
     m_MeshData = std::move(InputMeshPtr->m_MeshData);
 }
 
@@ -159,7 +159,7 @@ template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const
 {
     PolygonMesh<MeshAttributeType> OutputMesh;
-    OutputMesh.Construct(this->SurfaceMesh::GetSubMeshByCell(CellHandleList));
+    OutputMesh.Construct(this->MembraneMesh::GetSubMeshByCell(CellHandleList));
     return OutputMesh;
 }
 
@@ -167,7 +167,7 @@ template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const
 {
     PolygonMesh<MeshAttributeType> OutputMesh;
-    OutputMesh.Construct(this->SurfaceMesh::GetSubMeshByCell(CellIDList));
+    OutputMesh.Construct(this->MembraneMesh::GetSubMeshByCell(CellIDList));
     return OutputMesh;
 }
 

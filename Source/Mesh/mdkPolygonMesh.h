@@ -4,7 +4,7 @@
 #include <utility>
 #include <cmath>
 
-#include "mdkSurfaceMesh.h"
+#include "mdkMembraneMesh.h"
 #include "mdkPolygonMeshAttribute.h"
 #include "mdkGeometry.h"
 
@@ -25,7 +25,7 @@ struct PolygonMeshAttributeType
 //------------------------------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
-class PolygonMesh : public SurfaceMesh<MeshAttributeType>
+class PolygonMesh : public MembraneMesh<MeshAttributeType>
 {
 public:
     typedef PolygonMesh<MeshAttributeType> MeshType;
@@ -39,20 +39,20 @@ public:
     typedef typename MeshAttributeType::DirectedEdgeAttributeType   DirectedEdgeAttributeType;
     typedef typename MeshAttributeType::CellAttributeType           CellAttributeType;
 
-    typedef Point_Of_SurfaceMesh<MeshAttributeType>           PointType;
-    typedef Edge_Of_SurfaceMesh<MeshAttributeType>            EdgeType;
-    typedef DirectedEdge_Of_SurfaceMesh<MeshAttributeType>    DirectedEdgeType;
-    typedef Cell_Of_SurfaceMesh<MeshAttributeType>            CellType;
+    typedef Point_Of_MembraneMesh<MeshAttributeType>           PointType;
+    typedef Edge_Of_MembraneMesh<MeshAttributeType>            EdgeType;
+    typedef DirectedEdge_Of_MembraneMesh<MeshAttributeType>    DirectedEdgeType;
+    typedef Cell_Of_MembraneMesh<MeshAttributeType>            CellType;
 
-    typedef Handle_Of_Point_Of_SurfaceMesh          PointHandleType;
-    typedef Handle_Of_Edge_Of_SurfaceMesh           EdgeHandleType;
-    typedef Handle_Of_DirectedEdge_Of_SurfaceMesh   DirectedEdgeHandleType;
-    typedef Handle_Of_Cell_Of_SurfaceMesh           CellHandleType;
+    typedef Handle_Of_Point_Of_MembraneMesh          PointHandleType;
+    typedef Handle_Of_Edge_Of_MembraneMesh           EdgeHandleType;
+    typedef Handle_Of_DirectedEdge_Of_MembraneMesh   DirectedEdgeHandleType;
+    typedef Handle_Of_Cell_Of_MembraneMesh           CellHandleType;
 
-    typedef Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType>         PointIteratorType;
-    typedef Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType>          EdgeIteratorType;
-    typedef Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttributeType>  DirectedEdgeIteratorType;
-    typedef Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>          CellIteratorType;
+    typedef Iterator_Of_Point_Of_MembraneMesh<MeshAttributeType>         PointIteratorType;
+    typedef Iterator_Of_Edge_Of_MembraneMesh<MeshAttributeType>          EdgeIteratorType;
+    typedef Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttributeType>  DirectedEdgeIteratorType;
+    typedef Iterator_Of_Cell_Of_MembraneMesh<MeshAttributeType>          CellIteratorType;
 
 public:
     PolygonMesh();
@@ -68,7 +68,7 @@ public:
     bool Construct(const DenseMatrix<ScalarType>& InputPointPositionTable, const DataArray<DenseVector<int_max>>& InputCellTable);
     // index order in each PointIndexList should be consistent
 
-    void Construct(SurfaceMesh<MeshAttributeType> InputSurfaceMesh);
+    void Construct(MembraneMesh<MeshAttributeType> InputMembraneMesh);
 
     // get a sub mesh by CellHandleList or CellIDList ----------------------------//
     PolygonMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const;

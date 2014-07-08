@@ -1,30 +1,30 @@
-#ifndef __mdkSurfaceMesh_h
-#define __mdkSurfaceMesh_h
+#ifndef __mdkMembraneMesh_h
+#define __mdkMembraneMesh_h
 
 #include <unordered_map>
 
-#include "mdkSurfaceMeshItem.h"
-#include "mdkSurfaceMeshItemIterator.h"
-#include "mdkSurfaceMeshAttribute.h"
+#include "mdkMembraneMeshItem.h"
+#include "mdkMembraneMeshItemIterator.h"
+#include "mdkMembraneMeshAttribute.h"
 
 namespace mdk
 {
 
-//------------------------------- standard/default/empty SurfaceMeshAttribute -----------------------//
+//------------------------------- standard/default/empty MembraneMeshAttribute -----------------------//
 template<typename ScalarType>
-struct SurfaceMeshAttributeType
+struct MembraneMeshAttributeType
 {
     typedef ScalarType  ScalarType;
-    typedef GlobalAttribute_Of_SurfaceMesh<ScalarType>         GlobalAttribute;
-    typedef PointAttribute_Of_SurfaceMesh<ScalarType>          PointAttributeType;
-    typedef EdgeAttribute_Of_SurfaceMesh<ScalarType>           EdgeAttributeType;
-    typedef DirectedEdgeAttribute_Of_SurfaceMesh<ScalarType>   DirectedEdgeAttributeType;
-    typedef CellAttribute_Of_SurfaceMesh<ScalarType>           CellAttributeType;
+    typedef GlobalAttribute_Of_MembraneMesh<ScalarType>         GlobalAttribute;
+    typedef PointAttribute_Of_MembraneMesh<ScalarType>          PointAttributeType;
+    typedef EdgeAttribute_Of_MembraneMesh<ScalarType>           EdgeAttributeType;
+    typedef DirectedEdgeAttribute_Of_MembraneMesh<ScalarType>   DirectedEdgeAttributeType;
+    typedef CellAttribute_Of_MembraneMesh<ScalarType>           CellAttributeType;
 };
 //------------------------------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
-struct SurfaceMeshData
+struct MembraneMeshData
 {
     //-------------------------------------------------------------------------------------------//
     typedef typename MeshAttributeType::ScalarType      ScalarType;
@@ -37,22 +37,22 @@ struct SurfaceMeshData
     // row_2: z
     // a point is a  of an Edge or a point on Edge Edge
 
-    DataArray<Point_Of_SurfaceMesh<MeshAttributeType>> PointList;
+    DataArray<Point_Of_MembraneMesh<MeshAttributeType>> PointList;
 
     DenseVector<int_max> PointValidityFlagList;
     // 1: point is an element of the mesh 
     // 0: point is deleted
 
-    DataArray<Edge_Of_SurfaceMesh<MeshAttributeType>> EdgeList;
+    DataArray<Edge_Of_MembraneMesh<MeshAttributeType>> EdgeList;
 
-    // do not use this, DirectedEdge_Of_SurfaceMesh::operator(&&) will not work when append to the list
-    //DataArray<DenseVector<DirectedEdge_Of_SurfaceMesh<MeshAttributeType>, 2>> DirectedEdgePairList;
+    // do not use this, DirectedEdge_Of_MembraneMesh::operator(&&) will not work when append to the list
+    //DataArray<DenseVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>, 2>> DirectedEdgePairList;
 
     DenseVector<int_max> EdgeValidityFlagList;
     // 1: Edge is an element of the mesh 
     // 0: Edge is deleted
 
-    DataArray<Cell_Of_SurfaceMesh<MeshAttributeType>> CellList; // also known as face, facet, element
+    DataArray<Cell_Of_MembraneMesh<MeshAttributeType>> CellList; // also known as face, facet, element
 
     DenseVector<int_max>  CellValidityFlagList;
     // 1: Cell is an element of the mesh 
@@ -61,7 +61,7 @@ struct SurfaceMeshData
     // Attention: ID must >= 0
     std::unordered_map<int_max, int_max> Map_PointID_to_PointIndex;
     std::unordered_map<int_max, int_max> Map_EdgeID_to_EdgeIndex;
-    std::unordered_map<int_max, DirectedEdgeIndex_Of_SurfaceMesh> Map_DirectedEdgeID_to_DirectedEdgeIndex;
+    std::unordered_map<int_max, DirectedEdgeIndex_Of_MembraneMesh> Map_DirectedEdgeID_to_DirectedEdgeIndex;
     std::unordered_map<int_max, int_max> Map_CellID_to_CellIndex;
 
     //Mesh Attribute
@@ -70,7 +70,7 @@ struct SurfaceMeshData
 
 
 template<typename MeshAttributeType>
-class SurfaceMesh : public Object
+class MembraneMesh : public Object
 {
 public:
     //-------------------------------------------------------------------------------------------//
@@ -81,74 +81,74 @@ public:
     typedef typename MeshAttributeType::DirectedEdgeAttributeType DirectedEdgeAttributeType;
     typedef typename MeshAttributeType::CellAttributeType         CellAttributeType;
     //--------------------------------------------------------------------------------------------//
-    typedef Point_Of_SurfaceMesh<MeshAttributeType>           PointType;
-    typedef Edge_Of_SurfaceMesh<MeshAttributeType>            EdgeType;
-    typedef DirectedEdge_Of_SurfaceMesh<MeshAttributeType>    DirectedEdgeType;
-    typedef Cell_Of_SurfaceMesh<MeshAttributeType>            CellType;
+    typedef Point_Of_MembraneMesh<MeshAttributeType>           PointType;
+    typedef Edge_Of_MembraneMesh<MeshAttributeType>            EdgeType;
+    typedef DirectedEdge_Of_MembraneMesh<MeshAttributeType>    DirectedEdgeType;
+    typedef Cell_Of_MembraneMesh<MeshAttributeType>            CellType;
 
-    typedef Handle_Of_Point_Of_SurfaceMesh          PointHandleType;
-    typedef Handle_Of_Edge_Of_SurfaceMesh           EdgeHandleType;
-    typedef Handle_Of_DirectedEdge_Of_SurfaceMesh   DirectedEdgeHandleType;
-    typedef Handle_Of_Cell_Of_SurfaceMesh           CellHandleType;
+    typedef Handle_Of_Point_Of_MembraneMesh          PointHandleType;
+    typedef Handle_Of_Edge_Of_MembraneMesh           EdgeHandleType;
+    typedef Handle_Of_DirectedEdge_Of_MembraneMesh   DirectedEdgeHandleType;
+    typedef Handle_Of_Cell_Of_MembraneMesh           CellHandleType;
 
-    typedef Iterator_Of_Point_Of_SurfaceMesh<MeshAttributeType>           PointIteratorType;
-    typedef Iterator_Of_Edge_Of_SurfaceMesh<MeshAttributeType>            EdgeIteratorType;
-    typedef Iterator_Of_DirectedEdge_Of_SurfaceMesh<MeshAttributeType>    DirectedEdgeIteratorType;
-    typedef Iterator_Of_Cell_Of_SurfaceMesh<MeshAttributeType>            CellIteratorType;
+    typedef Iterator_Of_Point_Of_MembraneMesh<MeshAttributeType>           PointIteratorType;
+    typedef Iterator_Of_Edge_Of_MembraneMesh<MeshAttributeType>            EdgeIteratorType;
+    typedef Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttributeType>    DirectedEdgeIteratorType;
+    typedef Iterator_Of_Cell_Of_MembraneMesh<MeshAttributeType>            CellIteratorType;
     //--------------------------------------------------------------------------------------------------//
 
 protected:
-    std::shared_ptr<SurfaceMeshData<MeshAttributeType>> m_MeshData;
+    std::shared_ptr<MembraneMeshData<MeshAttributeType>> m_MeshData;
 
 protected:
     template<typename T>
-    friend class Point_Of_SurfaceMesh;
+    friend class Point_Of_MembraneMesh;
 
     template<typename T>
-    friend struct Iterator_Of_Point_Of_SurfaceMesh;
+    friend struct Iterator_Of_Point_Of_MembraneMesh;
 
     template<typename T>
-    friend class Edge_Of_SurfaceMesh;
+    friend class Edge_Of_MembraneMesh;
 
     template<typename T>
-    friend struct Iterator_Of_Edge_Of_SurfaceMesh;
+    friend struct Iterator_Of_Edge_Of_MembraneMesh;
 
     template<typename T>
-    friend class DirectedEdge_Of_SurfaceMesh;
+    friend class DirectedEdge_Of_MembraneMesh;
 
     template<typename T>
-    friend struct Iterator_Of_DirectedEdge_Of_SurfaceMesh;
+    friend struct Iterator_Of_DirectedEdge_Of_MembraneMesh;
 
     template<typename T>
-    friend class Cell_Of_SurfaceMesh;    
+    friend class Cell_Of_MembraneMesh;    
 
     template<typename T>
-    friend struct Iterator_Of_Cell_Of_SurfaceMesh;
+    friend struct Iterator_Of_Cell_Of_MembraneMesh;
 
 public:
-    SurfaceMesh();
-    SurfaceMesh(const Pure_Empty_SurfaceMesh_Symbol&);
-    SurfaceMesh(const SurfaceMesh& InputMesh);
-    SurfaceMesh(SurfaceMesh&& InputMesh);
-    ~SurfaceMesh();
+    MembraneMesh();
+    MembraneMesh(const Pure_Empty_MembraneMesh_Symbol&);
+    MembraneMesh(const MembraneMesh& InputMesh);
+    MembraneMesh(MembraneMesh&& InputMesh);
+    ~MembraneMesh();
 
-    inline void operator=(const SurfaceMesh& InputMesh);
-    inline void operator=(SurfaceMesh&& InputMesh);
+    inline void operator=(const MembraneMesh& InputMesh);
+    inline void operator=(MembraneMesh&& InputMesh);
 
     inline void Clear();
 
-    inline void Copy(const SurfaceMesh& InputMesh);
-    inline bool Copy(const SurfaceMesh* InputMesh);
+    inline void Copy(const MembraneMesh& InputMesh);
+    inline bool Copy(const MembraneMesh* InputMesh);
 
-    inline void Share(SurfaceMesh& InputMesh);
-    inline bool Share(SurfaceMesh* InputMesh);
+    inline void Share(MembraneMesh& InputMesh);
+    inline bool Share(MembraneMesh* InputMesh);
 
-    inline void ForceShare(const SurfaceMesh& InputMesh);
-    inline bool ForceShare(const SurfaceMesh* InputMesh);
+    inline void ForceShare(const MembraneMesh& InputMesh);
+    inline bool ForceShare(const MembraneMesh* InputMesh);
 
-    inline void Take(SurfaceMesh&& InputMesh);
-    inline void Take(SurfaceMesh& InputMesh);
-    inline bool Take(SurfaceMesh* InputMesh);
+    inline void Take(MembraneMesh&& InputMesh);
+    inline void Take(MembraneMesh& InputMesh);
+    inline bool Take(MembraneMesh* InputMesh);
 
     //-------------------------------------------------------------------
     inline bool IsEmpty() const;
@@ -391,8 +391,8 @@ public:
     //---------------------------------------------------------------------------------------------------
 
     // get a sub mesh by CellHandleList or CellIDList
-    SurfaceMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const;
-    SurfaceMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const;
+    MembraneMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const;
+    MembraneMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const;
 
     // Change Topology ----------------------------------------------------------------------------------------
 
@@ -429,6 +429,6 @@ private:
 
 }// namespace mdk
 
-#include "mdkSurfaceMesh.hpp"
+#include "mdkMembraneMesh.hpp"
 
 #endif

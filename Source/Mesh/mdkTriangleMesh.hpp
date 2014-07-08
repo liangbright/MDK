@@ -49,10 +49,10 @@ void TriangleMesh<MeshAttributeType>::operator=(TriangleMesh<MeshAttributeType>&
 
 template<typename MeshAttributeType>
 inline 
-Handle_Of_Cell_Of_SurfaceMesh
-TriangleMesh<MeshAttributeType>::AddCellByEdge(Handle_Of_Edge_Of_SurfaceMesh EdgeHandle0,
-                                               Handle_Of_Edge_Of_SurfaceMesh EdgeHandle1, 
-                                               Handle_Of_Edge_Of_SurfaceMesh EdgeHandle2)
+Handle_Of_Cell_Of_MembraneMesh
+TriangleMesh<MeshAttributeType>::AddCellByEdge(Handle_Of_Edge_Of_MembraneMesh EdgeHandle0,
+                                               Handle_Of_Edge_Of_MembraneMesh EdgeHandle1, 
+                                               Handle_Of_Edge_Of_MembraneMesh EdgeHandle2)
 {
     DenseVector<EdgeHandleType> EdgeHandleList = { EdgeHandle0, EdgeHandle1, EdgeHandle2 };
     return this->PolygonMesh::AddCellByEdge(EdgeHandleList);
@@ -60,7 +60,7 @@ TriangleMesh<MeshAttributeType>::AddCellByEdge(Handle_Of_Edge_Of_SurfaceMesh Edg
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Cell_Of_SurfaceMesh
+Handle_Of_Cell_Of_MembraneMesh
 TriangleMesh<MeshAttributeType>::AddCellByEdge(int_max EdgeID0, int_max EdgeID1, int_max EdgeID2)
 {
     DenseVector<int_max> EdgeIDList = { EdgeID0, EdgeID1, EdgeID2 };
@@ -69,10 +69,10 @@ TriangleMesh<MeshAttributeType>::AddCellByEdge(int_max EdgeID0, int_max EdgeID1,
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Cell_Of_SurfaceMesh
-TriangleMesh<MeshAttributeType>::AddCellByPoint(Handle_Of_Point_Of_SurfaceMesh PointHandle0,
-                                                Handle_Of_Point_Of_SurfaceMesh PointHandle1, 
-                                                Handle_Of_Point_Of_SurfaceMesh PointHandle2)
+Handle_Of_Cell_Of_MembraneMesh
+TriangleMesh<MeshAttributeType>::AddCellByPoint(Handle_Of_Point_Of_MembraneMesh PointHandle0,
+                                                Handle_Of_Point_Of_MembraneMesh PointHandle1, 
+                                                Handle_Of_Point_Of_MembraneMesh PointHandle2)
 {
     DenseVector<PointHandleType> PointHandleList = { PointHandle0, PointHandle1, PointHandle2 };
     return this->PolygonMesh::AddCellByPoint(PointHandleList);
@@ -80,7 +80,7 @@ TriangleMesh<MeshAttributeType>::AddCellByPoint(Handle_Of_Point_Of_SurfaceMesh P
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Cell_Of_SurfaceMesh
+Handle_Of_Cell_Of_MembraneMesh
 TriangleMesh<MeshAttributeType>::AddCellByPoint(int_max PointID0, int_max PointID1, int_max PointID2)
 {
     DenseVector<int_max> PointIDList = { PointID0, PointID1, PointID2 };
