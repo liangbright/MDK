@@ -477,17 +477,14 @@ DenseMatrix<ElementType> MatrixMeanToRow(const DenseMatrix<ElementType>& InputMa
     for (int_max j = 0; j < InputSize.ColNumber; ++j)
     {
         auto value = RawPointer[0];
-
-        ++RawPointer;
-
         for (int_max i = 1; i < InputSize.RowNumber; ++i)
         {
-            value += RawPointer[0];
-
-            ++RawPointer;
+            value += RawPointer[i];
         }
 
         tempRawPointer[j] = value / ElementType(InputSize.RowNumber);
+
+        RawPointer += InputSize.RowNumber;
     }
 
     return tempMatrix;
@@ -509,7 +506,7 @@ DenseMatrix<ElementType> MatrixMeanToCol(const DenseMatrix<ElementType>& InputMa
         return tempMatrix;
     }
 
-    tempMatrix.Resize(InputSize.ColNumber, 1);
+    tempMatrix.Resize(InputSize.RowNumber, 1);
 
     auto tempRawPointer = tempMatrix.GetElementPointer();
 
@@ -517,7 +514,7 @@ DenseMatrix<ElementType> MatrixMeanToCol(const DenseMatrix<ElementType>& InputMa
 
     for (int_max i = 0; i < InputSize.RowNumber; ++i)
     {
-        auto value = RawPointer[0];
+        auto value = RawPointer[i];
 
         int_max Index = InputSize.RowNumber;
 
@@ -939,11 +936,11 @@ ElementType MatrixNorm_L2(const DenseMatrix<ElementType>& InputMatrix)
         return InputMatrix.GetNaNElement();
     }
 
-    ElementType Value = ElementType(0);
-
     auto BeginPointer = InputMatrix.GetElementPointer();
 
-    for (auto Ptr = BeginPointer; Ptr < BeginPointer + ElementNumber; ++Ptr)
+    auto Value = BeginPointer[0] * BeginPointer[0];
+
+    for (auto Ptr = BeginPointer + 1; Ptr < BeginPointer + ElementNumber; ++Ptr)
     {
         Value += Ptr[0] * Ptr[0];
     }

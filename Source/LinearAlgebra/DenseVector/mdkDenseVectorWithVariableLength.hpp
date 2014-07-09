@@ -1589,6 +1589,38 @@ DenseVector<int_max> DenseVector<ElementType>::Sort(int_max Index_start, int_max
 
 
 template<typename ElementType>
+inline
+DenseVector<int_max> DenseVector<ElementType>::Sort(const char* Order)
+{
+    std::string Order_str(Order);
+    return this->Sort(Order_str);
+}
+
+
+template<typename ElementType>
+inline
+DenseVector<int_max> DenseVector<ElementType>::Sort(const std::string& Order)
+{
+    // Order: ascend or descend
+
+    if (Order == "ascend")
+    {
+        return this->Sort(0, this->GetLength() - 1, [](const ElementType& ElementA, const ElementType& ElementB) { return ElementA < ElementB; });
+    }
+    else if (Order == "descend")
+    {
+        return this->Sort(0, this->GetLength() - 1, [](const ElementType& ElementA, const ElementType& ElementB) { return ElementA > ElementB; });
+    }
+    else
+    {
+        MDK_Error("invalid input string @ DenseVector::Sort(Order)")
+        DenseVector<int_max> EmptyIndexList;
+        return EmptyIndexList;
+    }
+}
+
+
+template<typename ElementType>
 template<typename CompareFunctionType>
 inline
 void DenseVector<ElementType>::SortInPlace(CompareFunctionType CompareFunction)
@@ -1613,6 +1645,36 @@ void DenseVector<ElementType>::SortInPlace(int_max Index_start, int_max Index_en
     }
 
     std::sort(this->begin() + Index_start, this->begin() + Index_end + 1, CompareFunction);
+}
+
+
+template<typename ElementType>
+inline
+void DenseVector<ElementType>::SortInPlace(const char* Order)
+{
+    std::string Order_str(Order);
+    this->SortInPlace(Order_str);
+}
+
+
+template<typename ElementType>
+inline
+void DenseVector<ElementType>::SortInPlace(const std::string& Order)
+{
+    // Order: ascend or descend
+
+    if (Order == "ascend")
+    {
+        this->SortInPlace(0, this->GetLength() - 1, [](const ElementType& ElementA, const ElementType& ElementB) { return ElementA < ElementB; });
+    }
+    else if (Order == "descend")
+    {
+        this->SortInPlace(0, this->GetLength() - 1, [](const ElementType& ElementA, const ElementType& ElementB) { return ElementA > ElementB; });
+    }
+    else
+    {
+        MDK_Error("invalid input string @ DenseVector::SortInPlace(Order)")
+    }
 }
 
 // ------------------------------------------------------------------------------------------------------------//
@@ -2051,9 +2113,9 @@ ElementType DenseVector<ElementType>::L2Norm() const
         return 0;
     }
 
-    auto Value = ElementType(0);
+    auto Value = m_DataArray[0] * m_DataArray[0];
 
-    for (int_max i = 0; i < this->GetLength(); ++i)
+    for (int_max i = 1; i < this->GetLength(); ++i)
     {
         Value += m_DataArray[i] * m_DataArray[i];
     }

@@ -494,7 +494,8 @@ DenseMatrix<typename MeshAttributeType::ScalarType>
 MembraneMesh<MeshAttributeType>::GetPointPosition(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandleList) const
 {
     DenseMatrix<MeshAttributeType::ScalarType> PointPositionMatrix;
-    this->GetPointPosition(PointPositionMatrix, PointHandleList);
+    this->GetPointPosition(PointHandleList, PointPositionMatrix);
+    return PointPositionMatrix;
 }
 
 
@@ -520,7 +521,7 @@ GetPointPosition(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandle
             PointPositionMatrix.FastResize(0, 0);
             return;
         }
-        PointPositionMatrix.SetCol(k, m_MeshData->PointPositionTable.GetPointerOfCol(PointIndex))
+        PointPositionMatrix.SetCol(k, m_MeshData->PointPositionTable.GetPointerOfCol(PointIndex));
     }
 }
 
@@ -531,7 +532,8 @@ DenseMatrix<typename MeshAttributeType::ScalarType>
 MembraneMesh<MeshAttributeType>::GetPointPosition(const DenseVector<int_max>& PointIDList) const
 {
     DenseMatrix<ScalarType> PointPositionMatrix;
-    this->GetPointPosition(PointPositionMatrix, PointIDList);
+    this->GetPointPosition(PointIDList, PointPositionMatrix);
+    return PointPositionMatrix;
 }
 
 
