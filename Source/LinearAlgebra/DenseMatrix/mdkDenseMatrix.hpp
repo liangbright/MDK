@@ -99,52 +99,66 @@ inline DenseMatrix<ElementType>::DenseMatrix(const std::initializer_list<std::in
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>::DenseMatrix(const std::vector<ElementType>& InputList)
+DenseMatrix<ElementType>::DenseMatrix(const std::vector<ElementType>& InputVector)
 {
     this->Resize(0, 0);
 
-    if (InputList.size() > 0)
+    if (InputVector.size() > 0)
     {
-        (*this) = InputList;
+        (*this) = InputVector;
+    }
+}
+
+
+template<typename ElementType>
+template<int_max Length>
+inline
+DenseMatrix<ElementType>::DenseMatrix(const DenseVector<ElementType, Length>& InputVector)
+{
+    this->Resize(0, 0);
+
+    if (InputVector.GetElementNumber() > 0)
+    {
+        (*this) = InputVector;
+    }
+}
+
+/*
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>::DenseMatrix(const DenseVector<ElementType>& InputVector)
+{
+    this->Resize(0, 0);
+
+    if (InputVector.GetElementNumber() > 0)
+    {
+        (*this) = InputVector;
+    }
+}
+*/
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType>::DenseMatrix(const DataArray<ElementType>& InputVector)
+{
+    this->Resize(0, 0);
+
+    if (InputVector.GetElementNumber() > 0)
+    {
+        (*this) = InputVector;
     }
 }
 
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>::DenseMatrix(const DenseVector<ElementType>& InputList)
+DenseMatrix<ElementType>::DenseMatrix(const SimpleDataArray<ElementType>& InputVector)
 {
     this->Resize(0, 0);
 
-    if (InputList.GetElementNumber() > 0)
+    if (InputVector.GetElementNumber() > 0)
     {
-        (*this) = InputList;
-    }
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>::DenseMatrix(const DataArray<ElementType>& InputList)
-{
-    this->Resize(0, 0);
-
-    if (InputList.GetElementNumber() > 0)
-    {
-        (*this) = InputList;
-    }
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>::DenseMatrix(const SimpleDataArray<ElementType>& InputList)
-{
-    this->Resize(0, 0);
-
-    if (InputList.GetElementNumber() > 0)
-    {
-        (*this) = InputList;
+        (*this) = InputVector;
     }
 }
 
@@ -513,13 +527,13 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<std::initia
 
 template<typename ElementType>
 inline 
-void DenseMatrix<ElementType>::operator=(const std::vector<ElementType>& InputList)
+void DenseMatrix<ElementType>::operator=(const std::vector<ElementType>& InputVector)
 {
-    //InputList is treated as a row vector
+    //InputVector is treated as a row vector
 
-    auto InputLength = int_max(InputList.size());
+    auto InputVectorLength = int_max(InputVector.size());
 
-    if (InputLength <= 0)
+    if (InputVectorLength <= 0)
     {
         MDK_Error("Input is empty @ DenseMatrix::operator=(std::vector)")
         return;
@@ -527,14 +541,14 @@ void DenseMatrix<ElementType>::operator=(const std::vector<ElementType>& InputLi
 
     auto SelfSize = this->GetSize();
 
-    if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputLength)
+    if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputVectorLength)
     {
-        this->SetRow(0, InputList);
+        this->SetRow(0, InputVector);
         return;
     }
-    else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength)
+    else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputVectorLength)
     {
-        this->SetCol(0, InputList);
+        this->SetCol(0, InputVector);
         return;
     }
 
@@ -544,21 +558,23 @@ void DenseMatrix<ElementType>::operator=(const std::vector<ElementType>& InputLi
     }
     else
     {
-        this->FastResize(1, InputLength);
-        this->SetRow(0, InputList);
+        this->FastResize(1, InputVectorLength);
+        this->SetRow(0, InputVector);
     }
 }
 
 
 template<typename ElementType>
+template<int_max Length>
 inline
-void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType>& InputList)
+void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType, Length>& InputVector)
 {
-    //InputList is treated as a row vector
+    //InputVector is treated as a row vector
 
-    auto InputLength = InputList.GetLength();
+    // do not use template parameter Length, it can be -1 for DenseVector with variable length
+    auto InputVectorLength = InputVector.GetLength();
 
-    if (InputLength <= 0)
+    if (InputVectorLength <= 0)
     {
         MDK_Error("Input is empty @ DenseMatrix::operator=(DenseVector)")
         return;
@@ -566,14 +582,14 @@ void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType>& InputLi
 
     auto SelfSize = this->GetSize();
 
-    if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputLength)
+    if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputVectorLength)
     {
-        this->SetRow(0, InputList.GetElementPointer());
+        this->SetRow(0, InputVector.GetElementPointer());
         return;
     }
-    else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength)
+    else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputVectorLength)
     {
-        this->SetCol(0, InputList.GetElementPointer());
+        this->SetCol(0, InputVector.GetElementPointer());
         return;
     }
 
@@ -583,21 +599,60 @@ void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType>& InputLi
     }
     else
     {
-        this->FastResize(1, InputLength);
-        this->SetRow(0, InputList.GetElementPointer());
+        this->FastResize(1, InputVectorLength);
+        this->SetRow(0, InputVector.GetElementPointer());
     }
 }
 
+/*
+template<typename ElementType>
+inline
+void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType>& InputVector)
+{
+    //InputVector is treated as a row vector
+
+    auto InputVectorLength = InputVector.GetLength();
+
+    if (InputVectorLength <= 0)
+    {
+        MDK_Error("Input is empty @ DenseMatrix::operator=(DenseVector)")
+        return;
+    }
+
+    auto SelfSize = this->GetSize();
+
+    if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputVectorLength)
+    {
+        this->SetRow(0, InputVector.GetElementPointer());
+        return;
+    }
+    else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputVectorLength)
+    {
+        this->SetCol(0, InputVector.GetElementPointer());
+        return;
+    }
+
+    if (this->IsSizeFixed() == true)
+    {
+        MDK_Error("Can not change matrix size @ DenseMatrix::operator=(DenseVector)")
+    }
+    else
+    {
+        this->FastResize(1, InputVectorLength);
+        this->SetRow(0, InputVector.GetElementPointer());
+    }
+}
+*/
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::operator=(const DataArray<ElementType>& InputList)
+void DenseMatrix<ElementType>::operator=(const DataArray<ElementType>& InputVector)
 {
-    //InputList is treated as a row vector
+    //InputVector is treated as a row vector
 
-    auto InputLength = InputList.GetLength();
+    auto InputVectorLength = InputVector.GetLength();
 
-    if (InputLength <= 0)
+    if (InputVectorLength <= 0)
     {
         MDK_Error("Input is empty @ DenseMatrix::operator=(DataArray)")
         return;
@@ -605,14 +660,14 @@ void DenseMatrix<ElementType>::operator=(const DataArray<ElementType>& InputList
 
     auto SelfSize = this->GetSize();
 
-    if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputLength)
+    if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputVectorLength)
     {
-        this->SetRow(0, InputList.GetElementPointer());
+        this->SetRow(0, InputVector.GetElementPointer());
         return;
     }
-    else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength)
+    else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputVectorLength)
     {
-        this->SetCol(0, InputList.GetElementPointer());
+        this->SetCol(0, InputVector.GetElementPointer());
         return;
     }
 
@@ -622,21 +677,21 @@ void DenseMatrix<ElementType>::operator=(const DataArray<ElementType>& InputList
     }
     else
     {
-        this->FastResize(1, InputLength);
-        this->SetRow(0, InputList.GetElementPointer());
+        this->FastResize(1, InputVectorLength);
+        this->SetRow(0, InputVector.GetElementPointer());
     }
 }
 
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::operator=(const SimpleDataArray<ElementType>& InputList)
+void DenseMatrix<ElementType>::operator=(const SimpleDataArray<ElementType>& InputVector)
 {
-    //InputList is treated as a row vector
+    //InputVector is treated as a row vector
 
-    auto InputLength = InputList.GetLength();
+    auto InputVectorLength = InputVector.GetLength();
 
-    if (InputLength <= 0)
+    if (InputVectorLength <= 0)
     {
         MDK_Error("Input is empty @ DenseMatrix::operator=(DataArray)")
         return;
@@ -644,14 +699,14 @@ void DenseMatrix<ElementType>::operator=(const SimpleDataArray<ElementType>& Inp
 
     auto SelfSize = this->GetSize();
 
-    if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputLength)
+    if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputVectorLength)
     {
-        this->SetRow(0, InputList.GetElementPointer());
+        this->SetRow(0, InputVector.GetElementPointer());
         return;
     }
-    else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength)
+    else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputVectorLength)
     {
-        this->SetCol(0, InputList.GetElementPointer());
+        this->SetCol(0, InputVector.GetElementPointer());
         return;
     }
 
@@ -661,8 +716,8 @@ void DenseMatrix<ElementType>::operator=(const SimpleDataArray<ElementType>& Inp
     }
     else
     {
-        this->FastResize(1, InputLength);
-        this->SetRow(0, InputList.GetElementPointer());
+        this->FastResize(1, InputVectorLength);
+        this->SetRow(0, InputVector.GetElementPointer());
     }
 }
 
@@ -909,11 +964,11 @@ void DenseMatrix<ElementType>::ForceShare(const DenseMatrix<ElementType>& InputM
 
     if (!m_MatrixData)
     {
-        m_ElementPointer = m_MatrixData->ElementPointer;    
+        m_ElementPointer = nullptr;
     }
     else
     {
-        m_ElementPointer = nullptr;
+        m_ElementPointer = m_MatrixData->ElementPointer;
     }
 }
 

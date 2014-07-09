@@ -603,10 +603,10 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(DenseShadowMatrix<ElementType>
 
     m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
 
-    // clear InputShadowMatrix
+    // clear InputShadowMatrix :  not necessary
     // Do NOT Use InputShadowMatrix.m_SourceMatrixSharedCopy.clear() -> this will clear m_SourceMatrixSharedCopy of this ShadowMatrix
-    DenseMatrix<ElementType> EmptyMatrix(MDK_PURE_EMPTY_MATRIX);
-    InputShadowMatrix.m_SourceMatrixSharedCopy.SwapSmartPointer(EmptyMatrix);
+    //DenseMatrix<ElementType> EmptyMatrix(MDK_PURE_EMPTY_MATRIX);
+    //InputShadowMatrix.m_SourceMatrixSharedCopy.SwapSmartPointer(EmptyMatrix);
 }
 
 
@@ -800,19 +800,29 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseMatrix<ElementType>& I
     {
         if (m_ElementNumber != InputMatrix.GetElementNumber())
         {
-            MDK_Error("m_ElementNumber != InputMatrix.GetElementNumber() @ DenseShadowMatrix::operator=(mdkDenseShadowMatrix)")
+            MDK_Error("m_ElementNumber != InputMatrix.GetElementNumber() @ DenseShadowMatrix::operator=(DenseMatrix)")
             return;
         }
     }
     else
     {
-        if (m_RowNumber != InputMatrix.GetRowNumber() || m_ColNumber != InputMatrix.GetColNumber())
+        if (InputMatrix.IsVector() == true)
         {
-            MDK_Error("Size does not match @ DenseShadowMatrix::operator=(mdkDenseShadowMatrix)")
-            return;
+            if (m_RowNumber != InputMatrix.GetElementNumber() && m_ColNumber != InputMatrix.GetElementNumber())
+            {
+                MDK_Error("Size does not match @ DenseShadowMatrix::operator=(DenseMatrix)")
+                return;
+            }
+        }
+        else
+        {
+            if (m_RowNumber != InputMatrix.GetRowNumber() || m_ColNumber != InputMatrix.GetColNumber())
+            {
+                MDK_Error("Size does not match @ DenseShadowMatrix::operator=(DenseMatrix)")
+                return;
+            }
         }
     }
-
 
     //-------------------------------------------------
 
@@ -820,12 +830,12 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseMatrix<ElementType>& I
     {        
         if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) = InputMatrix
         {
-            m_SourceMatrixSharedCopy.SetRow(m_RowIndexList_source[0], InputMatrix);
+            m_SourceMatrixSharedCopy.SetRow(m_RowIndexList_source[0], InputMatrix.GetElementPointer());
             return;
         }
         else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) = InputMatrix
         {
-            m_SourceMatrixSharedCopy.SetCol(m_ColIndexList_source[0], InputMatrix);
+            m_SourceMatrixSharedCopy.SetCol(m_ColIndexList_source[0], InputMatrix.GetElementPointer());
             return;
         }
     }
@@ -833,6 +843,63 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseMatrix<ElementType>& I
     //-------------------------------------------------
 
     auto ptrMatrix = InputMatrix.GetElementPointer();
+
+    for (int_max i = 0; i < m_ElementNumber; ++i)
+    {
+        (*this)[i] = ptrMatrix[i];
+    }
+}
+
+
+template<typename ElementType>
+template<int_max Length>
+inline
+void DenseShadowMatrix<ElementType>::operator=(const DenseVector<ElementType, Length>& InputVector)
+{
+    // note: template parameter Length may not = InputVector.GetElementNumber()
+
+    // MatrixA = MatrixA
+    if (m_SourceMatrixSharedCopy.GetElementPointer() == InputVector.GetElementPointer())
+    {
+        return;
+    }
+
+    if (m_Flag_OutputVector == true)
+    {
+        if (m_ElementNumber != InputVector.GetElementNumber())
+        {
+            MDK_Error("m_ElementNumber != InputVector.GetElementNumber() @ DenseShadowMatrix::operator=(DenseVector)")
+            return;
+        }
+    }
+    else
+    {
+        if (m_RowNumber != InputVector.GetElementNumber() && m_ColNumber != InputVector.GetElementNumber())
+        {
+            MDK_Error("Size does not match @ DenseShadowMatrix::operator=(DenseVector)")
+            return;
+        }
+    }
+
+    //-------------------------------------------------
+
+    if (m_LinearIndexList_source.empty() == true)
+    {
+        if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) = InputVector
+        {
+            m_SourceMatrixSharedCopy.SetRow(m_RowIndexList_source[0], InputVector.GetElementPointer());
+            return;
+        }
+        else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) = InputVector
+        {
+            m_SourceMatrixSharedCopy.SetCol(m_ColIndexList_source[0], InputVector.GetElementPointer());
+            return;
+        }
+    }
+
+    //-------------------------------------------------
+
+    auto ptrMatrix = InputVector.GetElementPointer();
 
     for (int_max i = 0; i < m_ElementNumber; ++i)
     {

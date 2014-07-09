@@ -266,13 +266,7 @@ template<typename MeshAttributeType>
 vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& InputMesh)
 {
     typedef TriangleMesh<MeshAttributeType>::ScalarType ScalarType;
-
-    int_max PointNumber = InputMesh.GetPointNumber();
-
-    auto PointData = vtkSmartPointer<vtkPoints>::New();
-
-    PointData->SetNumberOfPoints(PointNumber);
-
+   
     auto ReferenceScalar = ScalarType(0);
     auto ScalarTypeName = FindScalarTypeName(ReferenceScalar);
 
@@ -280,9 +274,15 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
     DataArray<DenseVector<int_max>> CellTable;
     InputMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
 
+    int_max PointNumber = PointPositionTable.GetColNumber();
+    int_max CellNumber = CellTable.GetLength();
+
+    auto PointData = vtkSmartPointer<vtkPoints>::New();
+
     if (ScalarTypeName == "double")
     {
-        PointData->SetDataType(VTK_DOUBLE);
+        PointData->SetDataType(VTK_DOUBLE); // this will clear internal memory of PointData
+        PointData->SetNumberOfPoints(PointNumber);
 
         double pos[3] = { 0, 0, 0 };
 
@@ -292,12 +292,13 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
             pos[1] = PointPositionTable(1, i);
             pos[2] = PointPositionTable(2, i);
 
-            PointData->InsertPoint(i, pos);
+            PointData->SetPoint(i, pos);
         }
     }
     else if (ScalarTypeName == "float")
     {
         PointData->SetDataType(VTK_FLOAT);
+        PointData->SetNumberOfPoints(PointNumber);
 
         float pos[3] = { 0, 0, 0 };
 
@@ -307,7 +308,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
             pos[1] = float(PointPositionTable(1, i));
             pos[2] = float(PointPositionTable(2, i));
 
-            PointData->InsertPoint(i, pos);
+            PointData->SetPoint(i, pos);
         }
     }
     else
@@ -315,6 +316,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
         MDK_Warning("ScalarTypeName is not double or float @ ConvertMDKPolygonMeshToVTKPolyData(...)")
 
         PointData->SetDataType(VTK_FLOAT);
+        PointData->SetNumberOfPoints(PointNumber);
 
         float pos[3] = { 0, 0, 0 };
 
@@ -324,17 +326,13 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
             pos[1] = float(PointPositionTable(1, i));
             pos[2] = float(PointPositionTable(2, i));
 
-            PointData->InsertPoint(i, pos);
+            PointData->SetPoint(i, pos);
         }
     }
 
     //------------------------------------------
 
-    int_max CellNumber = CellTable.GetLength();
-
     auto CellData = vtkSmartPointer<vtkCellArray>::New();
-
-    CellData->SetNumberOfCells(CellNumber);
 
     for (int i = 0; i < CellNumber; ++i)
     {
@@ -351,11 +349,11 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
     }
 
     //---------------------------------------------------
-    auto MeshData = vtkSmartPointer<vtkPolyData>::New();
-    MeshData->SetPoints(PointData);
-    MeshData->SetPolys(CellData);
+    auto VTKMeshData = vtkSmartPointer<vtkPolyData>::New();
+    VTKMeshData->SetPoints(PointData);
+    VTKMeshData->SetPolys(CellData);
 
-    return MeshData;
+    return VTKMeshData;
 }
 
 
@@ -414,12 +412,6 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
 {
     typedef PolygonMesh<MeshAttributeType>::ScalarType ScalarType;
 
-    int_max PointNumber = InputMesh.GetPointNumber();
-
-    auto PointData = vtkSmartPointer<vtkPoints>::New();
-
-    PointData->SetNumberOfPoints(PointNumber);
-
     auto ReferenceScalar = ScalarType(0);
     auto ScalarTypeName = FindScalarTypeName(ReferenceScalar);
 
@@ -427,9 +419,15 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
     DataArray<DenseVector<int_max>> CellTable;
     InputMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
 
+    int_max PointNumber = PointPositionTable.GetColNumber();
+    int_max CellNumber = CellTable.GetLength();
+
+    auto PointData = vtkSmartPointer<vtkPoints>::New();
+
     if (ScalarTypeName == "double")
     {
         PointData->SetDataType(VTK_DOUBLE);
+        PointData->SetNumberOfPoints(PointNumber);
 
         double pos[3] = { 0, 0, 0 };
 
@@ -439,12 +437,13 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
             pos[1] = PointPositionTable(1, i);
             pos[2] = PointPositionTable(2, i);
 
-            PointData->InsertPoint(i, pos);
+            PointData->SetPoint(i, pos);
         }
     }
     else if (ScalarTypeName == "float")
     {
         PointData->SetDataType(VTK_FLOAT);
+        PointData->SetNumberOfPoints(PointNumber);
 
         float pos[3] = { 0, 0, 0 };
 
@@ -454,7 +453,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
             pos[1] = float(PointPositionTable(1, i));
             pos[2] = float(PointPositionTable(2, i));
 
-            PointData->InsertPoint(i, pos);
+            PointData->SetPoint(i, pos);
         }
     }
     else
@@ -462,6 +461,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
         MDK_Warning("ScalarTypeName is not double or float @ ConvertMDKPolygonMeshToVTKPolyData(...)")
 
         PointData->SetDataType(VTK_FLOAT);
+        PointData->SetNumberOfPoints(PointNumber);
 
         float pos[3] = { 0, 0, 0 };
 
@@ -471,17 +471,13 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
             pos[1] = float(PointPositionTable(1, i));
             pos[2] = float(PointPositionTable(2, i));
 
-            PointData->InsertPoint(i, pos);
+            PointData->SetPoint(i, pos);
         }
     }
 
     //------------------------------------------
 
-    int_max CellNumber = CellTable.GetLength();
-
     auto CellData = vtkSmartPointer<vtkCellArray>::New();
-
-    CellData->SetNumberOfCells(CellNumber);
 
     for (int i = 0; i < CellNumber; ++i)
     {
@@ -498,11 +494,11 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
     }
 
     //---------------------------------------------------
-    auto MeshData = vtkSmartPointer<vtkPolyData>::New();
-    MeshData->SetPoints(PointData);
-    MeshData->SetPolys(CellData);
+    auto VTKMeshData = vtkSmartPointer<vtkPolyData>::New();
+    VTKMeshData->SetPoints(PointData);
+    VTKMeshData->SetPolys(CellData);
 
-    return MeshData;
+    return VTKMeshData;
 }
 
 

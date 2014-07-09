@@ -173,13 +173,14 @@ public:
 
     inline DenseMatrix(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
-    inline DenseMatrix(const std::vector<ElementType>& InputList);
+    inline DenseMatrix(const std::vector<ElementType>& InputVector);
 
-    inline DenseMatrix(const DenseVector<ElementType>& InputList);
+    template<int_max Length>
+    inline DenseMatrix(const DenseVector<ElementType, Length>& InputVector);
 
-    inline DenseMatrix(const DataArray<ElementType>& InputList);
+    inline DenseMatrix(const DataArray<ElementType>& InputVector);
 
-    inline DenseMatrix(const SimpleDataArray<ElementType>& InputList);
+    inline DenseMatrix(const SimpleDataArray<ElementType>& InputVector);
 
     // deep-copy or shared-copy constructor
     inline DenseMatrix(const DenseMatrix<ElementType>& InputMatrix, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
@@ -220,13 +221,14 @@ public:
 
     inline void operator=(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
-    inline void operator=(const std::vector<ElementType>& InputList);
+    inline void operator=(const std::vector<ElementType>& InputVector);
 
-    inline void operator=(const DenseVector<ElementType>& InputList);
+    template<int_max Length>
+    inline void operator=(const DenseVector<ElementType, Length>& InputVector);
 
-    inline void operator=(const DataArray<ElementType>& InputList);
+    inline void operator=(const DataArray<ElementType>& InputVector);
 
-    inline void operator=(const SimpleDataArray<ElementType>& InputList);
+    inline void operator=(const SimpleDataArray<ElementType>& InputVector);
 
     inline void operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix);
 

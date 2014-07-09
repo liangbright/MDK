@@ -15,9 +15,8 @@ namespace mdk
 {
 
 //------------------------------ forward-declare -----------//
-
-template<typename ElementType>
-class DenseMatrix;
+//template<typename ElementType>
+//class DenseMatrix;
 
 template<typename ElementType>
 class DenseGlueMatrixForLinearCombination;
@@ -25,9 +24,8 @@ class DenseGlueMatrixForLinearCombination;
 template<typename ElementType>
 class DenseGlueMatrixForMultiplication;
 
-struct ALL_Symbol_For_Matrix_Operator;
-
-struct MatrixSize;
+//struct ALL_Symbol_For_Matrix_Operator;
+//struct MatrixSize;
 //--------------------------- end of forward-declare -------//
 
 
@@ -111,6 +109,9 @@ public:
     
 public:
     inline void operator=(const DenseMatrix<ElementType>& InputMatrix);
+
+    template<int_max Length>
+    inline void operator=(const DenseVector<ElementType, Length>& InputVector);
 
     inline void operator=(const ElementType& Element);
 
