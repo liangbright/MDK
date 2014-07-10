@@ -12,6 +12,9 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const Triang
                                                                     Handle_Of_Point_Of_MembraneMesh PointHandle_start);
 
 template<typename MeshAttributeType>
+DataArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh);
+
+template<typename MeshAttributeType>
 Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const TriangleMesh<MeshAttributeType>& TargetMesh, 
                                                        const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition);
 

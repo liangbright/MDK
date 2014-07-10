@@ -106,6 +106,59 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const Polygo
 
 
 template<typename MeshAttributeType>
+DataArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh)
+{
+    typedef Handle_Of_Point_Of_MembraneMesh PointHandleType;
+
+    // find boundary point
+    DenseVector<PointHandleType> BoundaryPointHandleList;
+    for (auto it = TargetMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+    {
+        if (it.Point().IsOnBoundaryEdge() == true)
+        {
+            BoundaryPointHandleList.Append(it.GetPointHandle());
+        }
+    }
+    auto BoundaryPointNumber = BoundaryPointHandleList.GetLength();
+
+    DenseVector<int_max> FlagList;
+    FlagList.Resize(BoundaryPointNumber);
+    FlagList.Fill(0);
+    // 0: not checked
+    // 1: checked
+
+    DataArray<DenseVector<PointHandleType>> BoundaryCurveTable;
+
+    while (true)
+    {
+        // pick a boundary point and track boundary
+        PointHandleType BoundaryPointHandle;
+        for (int_max k = 0; k < FlagList.GetLength(); ++k)
+        {
+            if (FlagList[k] == 0)
+            {
+                BoundaryPointHandle = BoundaryPointHandleList[k];
+                break;
+            }
+        }
+
+        auto BoundaryCurve = TraceMeshBoundaryCurve(TargetMesh, BoundaryPointHandle);
+
+        // set flag
+        for (int_max k = 0; k < BoundaryCurve.GetLength(); ++k)
+        {
+            auto tempHandle = BoundaryCurve[k];
+            auto tempIndex = BoundaryPointHandleList.Match([&](PointHandleType Handle){ return Handle == tempHandle; });
+            FlagList[tempIndex] = 1;
+        }
+
+        BoundaryCurveTable.Append(std::move(BoundaryCurve));
+    }
+
+    return BoundaryCurveTable;
+}
+
+template<typename MeshAttributeType>
 Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& TargetMesh,
                                                        const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition)
 {
