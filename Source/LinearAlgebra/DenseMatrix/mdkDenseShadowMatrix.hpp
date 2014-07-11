@@ -96,7 +96,7 @@ template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   const std::initializer_list<int_max>& RowIndexList,
-                                                  const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
+                                                  const MDK_Symbol_ALL& ALL_Symbol)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
@@ -138,7 +138,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                  const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                                                  const MDK_Symbol_ALL& ALL_Symbol,
                                                   const std::initializer_list<int_max>& ColIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
@@ -250,7 +250,7 @@ template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   std::vector<int_max> RowIndexList,
-                                                  const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
+                                                  const MDK_Symbol_ALL& ALL_Symbol)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
@@ -292,7 +292,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                  const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                                                  const MDK_Symbol_ALL& ALL_Symbol,
                                                   std::vector<int_max> ColIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
@@ -420,7 +420,7 @@ template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
                                                   const DenseMatrix<int_max>& RowIndexList,
-                                                  const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
+                                                  const MDK_Symbol_ALL& ALL_Symbol)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // all the indexes in RowIndexList and ColIndexList are within bound
@@ -467,7 +467,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 template<typename ElementType>
 inline
 DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                  const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                                                  const MDK_Symbol_ALL& ALL_Symbol,
                                                   const DenseMatrix<int_max>& ColIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
@@ -515,7 +515,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol)
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const MDK_Symbol_ALL& ALL_Symbol)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);

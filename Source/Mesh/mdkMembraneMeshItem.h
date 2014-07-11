@@ -13,38 +13,7 @@ template<typename MeshAttributeType>
 class MembraneMesh;
 //---------------------------------------------------//
 
-//======================================  Pure_Empty_MembraneMesh_Symbol =========================================================//
-
-struct InputStruct_For_Pure_Empty_MembraneMesh_Symbol
-{
-    std::string Name = "InputStruct_For_Pure_Empty_MembraneMesh_Symbol";
-};
-
-struct Pure_Empty_MembraneMesh_Symbol
-{
-    Pure_Empty_MembraneMesh_Symbol(const InputStruct_For_Pure_Empty_MembraneMesh_Symbol& InputStruct)
-    {
-        if (InputStruct.Name != "InputStruct_For_Pure_Empty_MembraneMesh_Symbol")
-        {
-            MDK_Error("Symbol error @ Pure_Empty_MembraneMesh_Symbol")
-        }
-    }
-
-    ~Pure_Empty_MembraneMesh_Symbol() {}
-
-    // deleted:
-    Pure_Empty_MembraneMesh_Symbol() = delete;
-    Pure_Empty_MembraneMesh_Symbol(const Pure_Empty_MembraneMesh_Symbol&) = delete;
-    Pure_Empty_MembraneMesh_Symbol(Pure_Empty_MembraneMesh_Symbol&&) = delete;
-    void operator=(const Pure_Empty_MembraneMesh_Symbol&) = delete;
-    void operator=(Pure_Empty_MembraneMesh_Symbol&&) = delete;
-};
-
-static InputStruct_For_Pure_Empty_MembraneMesh_Symbol This_Is_InputStruct_For_Pure_Empty_MembraneMesh_Symbol;
-
-static Pure_Empty_MembraneMesh_Symbol This_Pure_Empty_MembraneMesh_Symbol(This_Is_InputStruct_For_Pure_Empty_MembraneMesh_Symbol);
-
-#define MDK_PURE_EMPTY_MembraneMESH This_Pure_Empty_MembraneMesh_Symbol
+#define MDK_PURE_EMPTY_MembraneMesh StaticGlobalObject_MDK_Symbol_PureEmpty
 
 //------------------------------------------------- forward declare --------------------------------------------------------//
 template<typename T>
@@ -89,7 +58,7 @@ struct Data_Of_Point_Of_MembraneMesh
     PointAttributeType Attribute;
 
 //------------------------------------------------------------------------
-    Data_Of_Point_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY_MembraneMESH) {}
+    Data_Of_Point_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY_MembraneMesh) {}
     ~Data_Of_Point_Of_MembraneMesh() {};
 };
 
@@ -220,7 +189,7 @@ struct Data_Of_Edge_Of_MembraneMesh
     EdgeAttributeType Attribute;
 
 //------------------------------------------------------------------------
-    Data_Of_Edge_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY_MembraneMESH) {}
+    Data_Of_Edge_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY_MembraneMesh) {}
     ~Data_Of_Edge_Of_MembraneMesh() {};
 };
 
@@ -369,7 +338,7 @@ struct Data_Of_DirectedEdge_Of_MembraneMesh
     DirectedEdgeAttributeType Attribute;
 
 //------------------------------------------------------------------------
-    Data_Of_DirectedEdge_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY_MembraneMESH) {}
+    Data_Of_DirectedEdge_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY_MembraneMesh) {}
     ~Data_Of_DirectedEdge_Of_MembraneMesh() {};
 };
 
@@ -509,7 +478,7 @@ struct Data_Of_Cell_Of_MembraneMesh
     CellAttributeType Attribute;
 
 //------------------------------------------------------------------------
-    Data_Of_Cell_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY_MembraneMESH) {}
+    Data_Of_Cell_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY_MembraneMesh) {}
     ~Data_Of_Cell_Of_MembraneMesh() {};
 };
 

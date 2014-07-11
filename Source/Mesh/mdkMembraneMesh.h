@@ -127,7 +127,7 @@ protected:
 
 public:
     MembraneMesh();
-    MembraneMesh(const Pure_Empty_MembraneMesh_Symbol&);
+    MembraneMesh(const MDK_Symbol_PureEmpty&);
     MembraneMesh(const MembraneMesh& InputMesh);
     MembraneMesh(MembraneMesh&& InputMesh);
     ~MembraneMesh();

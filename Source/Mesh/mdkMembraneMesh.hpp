@@ -12,7 +12,7 @@ MembraneMesh<MeshAttributeType>::MembraneMesh()
 
 
 template<typename MeshAttributeType>
-MembraneMesh<MeshAttributeType>::MembraneMesh(const Pure_Empty_MembraneMesh_Symbol&)
+MembraneMesh<MeshAttributeType>::MembraneMesh(const MDK_Symbol_PureEmpty&)
 {
 }
 

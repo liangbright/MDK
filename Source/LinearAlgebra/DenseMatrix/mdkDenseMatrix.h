@@ -157,9 +157,9 @@ public:
 
     inline DenseMatrix();
 
-    inline DenseMatrix(const Pure_Empty_Matrix_Symbol&);
+    inline DenseMatrix(const MDK_Symbol_PureEmpty&);
 
-    inline DenseMatrix(const Empty_Matrix_Symbol&);
+    inline DenseMatrix(const MDK_Symbol_Empty&);
 
     inline DenseMatrix(int_max RowNumber, int_max ColNumber);
 
@@ -498,8 +498,8 @@ public:
     inline DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& LinearIndexList);
     inline const DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& LinearIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
-    inline const DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+    inline DenseShadowMatrix<ElementType> operator()(const MDK_Symbol_ALL& ALL_Symbol);
+    inline const DenseShadowMatrix<ElementType> operator()(const MDK_Symbol_ALL& ALL_Symbol) const;
 
     // at(): bound check -----------------
 
@@ -515,8 +515,8 @@ public:
     inline DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& LinearIndexList);
     inline const DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& LinearIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol); // convert matrix to col-vector
-    inline const DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+    inline DenseShadowMatrix<ElementType> at(const MDK_Symbol_ALL& ALL_Symbol); // convert matrix to col-vector
+    inline const DenseShadowMatrix<ElementType> at(const MDK_Symbol_ALL& ALL_Symbol) const;
 
     //---------- Get/Set SubMatrix by Matrix({...},{...}), Matrix.at({...}, {...}), Matrix.Col({...}), Matrix.Row({...}), Matrix.Diagnal() -------//
 
@@ -529,15 +529,15 @@ public:
                                                            const std::initializer_list<int_max>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& RowIndexList, 
-                                                     const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+                                                     const MDK_Symbol_ALL& ALL_Symbol);
 
     inline const DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& RowIndexList, 
-                                                           const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                                           const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline DenseShadowMatrix<ElementType> operator()(const MDK_Symbol_ALL& ALL_Symbol,
                                                      const std::initializer_list<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline const DenseShadowMatrix<ElementType> operator()(const MDK_Symbol_ALL& ALL_Symbol,
                                                            const std::initializer_list<int_max>& ColIndexList) const;
 
     //-----------------------------------
@@ -549,15 +549,15 @@ public:
                                                            std::vector<int_max> ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> operator()(std::vector<int_max> RowIndexList,
-                                                     const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+                                                     const MDK_Symbol_ALL& ALL_Symbol);
 
     inline const DenseShadowMatrix<ElementType> operator()(std::vector<int_max> RowIndexList,
-                                                           const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                                           const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline DenseShadowMatrix<ElementType> operator()(const MDK_Symbol_ALL& ALL_Symbol,
                                                      std::vector<int_max> ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline const DenseShadowMatrix<ElementType> operator()(const MDK_Symbol_ALL& ALL_Symbol,
                                                            std::vector<int_max> ColIndexList) const;
 
     //-----------------------------------
@@ -569,15 +569,15 @@ public:
                                                            const DenseVector<int_max>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max>& RowIndexList,
-                                                     const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+                                                     const MDK_Symbol_ALL& ALL_Symbol);
 
     inline const DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max>& RowIndexList,
-                                                           const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                                           const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline DenseShadowMatrix<ElementType> operator()(const MDK_Symbol_ALL& ALL_Symbol,
                                                      const DenseVector<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline const DenseShadowMatrix<ElementType> operator()(const MDK_Symbol_ALL& ALL_Symbol,
                                                            const DenseVector<int_max>& ColIndexList) const;
     //-----------------------------------
 
@@ -588,15 +588,15 @@ public:
                                                            const DenseMatrix<int_max>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& RowIndexList,
-                                                     const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+                                                     const MDK_Symbol_ALL& ALL_Symbol);
 
     inline const DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& RowIndexList,
-                                                           const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                                           const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline DenseShadowMatrix<ElementType> operator()(const MDK_Symbol_ALL& ALL_Symbol,
                                                      const DenseMatrix<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> operator()(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline const DenseShadowMatrix<ElementType> operator()(const MDK_Symbol_ALL& ALL_Symbol,
                                                            const DenseMatrix<int_max>& ColIndexList) const;
 
     // at(): bound check -----------------
@@ -608,15 +608,15 @@ public:
                                                    const std::initializer_list<int_max>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> at(const std::initializer_list<int_max>& RowIndexList,
-                                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+                                             const MDK_Symbol_ALL& ALL_Symbol);
 
     inline const DenseShadowMatrix<ElementType> at(const std::initializer_list<int_max>& RowIndexList,
-                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                                   const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline DenseShadowMatrix<ElementType> at(const MDK_Symbol_ALL& ALL_Symbol,
                                              const std::initializer_list<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline const DenseShadowMatrix<ElementType> at(const MDK_Symbol_ALL& ALL_Symbol,
                                                    const std::initializer_list<int_max>& ColIndexList) const;
 
     //----------------------------------
@@ -628,15 +628,15 @@ public:
                                                    std::vector<int_max> ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> at(std::vector<int_max> RowIndexList,
-                                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+                                             const MDK_Symbol_ALL& ALL_Symbol);
 
     inline const DenseShadowMatrix<ElementType> at(std::vector<int_max> RowIndexList,
-                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                                   const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline DenseShadowMatrix<ElementType> at(const MDK_Symbol_ALL& ALL_Symbol,
                                              std::vector<int_max> ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline const DenseShadowMatrix<ElementType> at(const MDK_Symbol_ALL& ALL_Symbol,
                                                    std::vector<int_max> ColIndexList) const;
      //----------------------------------
 
@@ -647,15 +647,15 @@ public:
                                                    const DenseVector<int_max>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> at(const DenseVector<int_max>& RowIndexList,
-                                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+                                             const MDK_Symbol_ALL& ALL_Symbol);
 
     inline const DenseShadowMatrix<ElementType> at(const DenseVector<int_max>& RowIndexList,
-                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                                   const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline DenseShadowMatrix<ElementType> at(const MDK_Symbol_ALL& ALL_Symbol,
                                              const DenseVector<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline const DenseShadowMatrix<ElementType> at(const MDK_Symbol_ALL& ALL_Symbol,
                                                    const DenseVector<int_max>& ColIndexList) const;
 
     //----------------------------------
@@ -667,15 +667,15 @@ public:
                                                    const DenseMatrix<int_max>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& RowIndexList,
-                                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+                                             const MDK_Symbol_ALL& ALL_Symbol);
 
     inline const DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& RowIndexList,
-                                                   const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                                   const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline DenseShadowMatrix<ElementType> at(const MDK_Symbol_ALL& ALL_Symbol,
                                              const DenseMatrix<int_max>& ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> at(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+    inline const DenseShadowMatrix<ElementType> at(const MDK_Symbol_ALL& ALL_Symbol,
                                                    const DenseMatrix<int_max>& ColIndexList) const;
 
     // Col(...) is just operator()(ALL, ...)
@@ -751,17 +751,17 @@ public:
                              const std::initializer_list<int_max>& ColIndexList) const;
 
     inline DenseMatrix GetSubMatrix(const std::initializer_list<int_max>& RowIndexList,
-                                    const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                    const MDK_Symbol_ALL& ALL_Symbol) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
                              const std::initializer_list<int_max>& RowIndexList,
-                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                             const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline DenseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
+    inline DenseMatrix GetSubMatrix(const MDK_Symbol_ALL& ALL_Symbol, 
                                     const std::initializer_list<int_max>& ColIndexList) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
-                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                             const MDK_Symbol_ALL& ALL_Symbol,
                              const std::initializer_list<int_max>& ColIndexList) const;
 
     //-----------------------------
@@ -774,17 +774,17 @@ public:
                              const std::vector<int_max>& ColIndexList) const;
 
     inline DenseMatrix GetSubMatrix(const std::vector<int_max>& RowIndexList,
-                                    const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                    const MDK_Symbol_ALL& ALL_Symbol) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
                              const std::vector<int_max>& RowIndexList,
-                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                             const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline DenseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
+    inline DenseMatrix GetSubMatrix(const MDK_Symbol_ALL& ALL_Symbol, 
                                     const std::vector<int_max>& ColIndexList) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
-                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                             const MDK_Symbol_ALL& ALL_Symbol,
                              const std::vector<int_max>& ColIndexList) const;
 
     //-----------------------------
@@ -797,17 +797,17 @@ public:
                              const DenseVector<int_max>& ColIndexList) const;
 
     inline DenseMatrix GetSubMatrix(const DenseVector<int_max>& RowIndexList,
-                                    const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                    const MDK_Symbol_ALL& ALL_Symbol) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
                              const DenseVector<int_max>& RowIndexList,
-                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                             const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline DenseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
+    inline DenseMatrix GetSubMatrix(const MDK_Symbol_ALL& ALL_Symbol, 
                                     const DenseVector<int_max>& ColIndexList) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
-                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                             const MDK_Symbol_ALL& ALL_Symbol,
                              const DenseVector<int_max>& ColIndexList) const;
 
     //----------------------
@@ -820,17 +820,17 @@ public:
                              const DenseMatrix<int_max>& ColIndexList) const;
 
     inline DenseMatrix GetSubMatrix(const DenseMatrix<int_max>& RowIndexList,
-                                    const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                    const MDK_Symbol_ALL& ALL_Symbol) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
                              const DenseMatrix<int_max>& RowIndexList,
-                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                             const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline DenseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
+    inline DenseMatrix GetSubMatrix(const MDK_Symbol_ALL& ALL_Symbol, 
                                     const DenseMatrix<int_max>& ColIndexList) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
-                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol,
+                             const MDK_Symbol_ALL& ALL_Symbol,
                              const DenseMatrix<int_max>& ColIndexList) const;
 
     //----------------------
@@ -842,19 +842,19 @@ public:
                              const int_max* RowIndexList, int_max OutputRowNumber,
                              const int_max* ColIndexList, int_max OutputColNumber) const;
 
-    inline DenseMatrix GetSubMatrix(const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
+    inline DenseMatrix GetSubMatrix(const MDK_Symbol_ALL& ALL_Symbol, 
                                     const int_max* ColIndexList, int_max OutputColNumber) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
-                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, 
+                             const MDK_Symbol_ALL& ALL_Symbol, 
                              const int_max* ColIndexList, int_max OutputColNumber) const;
 
     inline DenseMatrix GetSubMatrix(const int_max* RowIndexList, int_max OutputRowNumber,
-                                    const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                                    const MDK_Symbol_ALL& ALL_Symbol) const;
 
     inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
                              const int_max* RowIndexList, int_max OutputRowNumber,
-                             const ALL_Symbol_For_Matrix_Operator& ALL_Symbol) const;
+                             const MDK_Symbol_ALL& ALL_Symbol) const;
 
 	//---------------------- Get/Set/Fill/Append/Insert A Single Column, Delete multi-Columns ----------------------------------------//
 	

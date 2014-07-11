@@ -24,7 +24,7 @@ class DenseGlueMatrixForLinearCombination;
 template<typename ElementType>
 class DenseGlueMatrixForMultiplication;
 
-//struct ALL_Symbol_For_Matrix_Operator;
+//struct MDK_Symbol_ALL;
 //struct MatrixSize;
 //--------------------------- end of forward-declare -------//
 
@@ -72,27 +72,27 @@ private:
 
     inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::initializer_list<int_max>& RowIndexList, const std::initializer_list<int_max>& ColIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::initializer_list<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::initializer_list<int_max>& RowIndexList, const MDK_Symbol_ALL& ALL_Symbol);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const std::initializer_list<int_max>& ColIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const MDK_Symbol_ALL& ALL_Symbol, const std::initializer_list<int_max>& ColIndexList);
 
     inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, std::vector<int_max> LinearIndexList);
 
     inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, std::vector<int_max> RowIndexList, std::vector<int_max> ColIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, std::vector<int_max> RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, std::vector<int_max> RowIndexList, const MDK_Symbol_ALL& ALL_Symbol);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, std::vector<int_max> ColIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const MDK_Symbol_ALL& ALL_Symbol, std::vector<int_max> ColIndexList);
 
     inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int_max>& LinearIndexList);
 
     inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int_max>& RowIndexList, const DenseMatrix<int_max>& ColIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int_max>& RowIndexList, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int_max>& RowIndexList, const MDK_Symbol_ALL& ALL_Symbol);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol, const DenseMatrix<int_max>& ColIndexList);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const MDK_Symbol_ALL& ALL_Symbol, const DenseMatrix<int_max>& ColIndexList);
 
-    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const ALL_Symbol_For_Matrix_Operator& ALL_Symbol);
+    inline DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const MDK_Symbol_ALL& ALL_Symbol);
 
     inline DenseShadowMatrix(const DenseShadowMatrix<ElementType>& InputShadowMatrix) = delete;
 

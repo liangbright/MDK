@@ -8,7 +8,7 @@ namespace mdk
 template<typename MeshAttribute>
 inline
 Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Point_Of_MembraneMesh(const MembraneMesh<MeshAttribute>& ParentMesh)
-: m_Mesh(MDK_PURE_EMPTY_MembraneMESH)
+: m_Mesh(MDK_PURE_EMPTY_MembraneMesh)
 {
     m_Mesh.ForceShare(ParentMesh);
     this->SetToBegin();
@@ -17,7 +17,7 @@ Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Point_Of_MembraneM
 template<typename MeshAttribute>
 inline
 Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Point_Of_MembraneMesh(const Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>& InputIterator)
-: m_Mesh(MDK_PURE_EMPTY_MembraneMESH)
+: m_Mesh(MDK_PURE_EMPTY_MembraneMesh)
 {
     (*this) = InputIterator;
 }
@@ -188,7 +188,7 @@ void Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
 
 template<typename MeshAttribute>
 inline Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Edge_Of_MembraneMesh(const MembraneMesh<MeshAttribute>& ParentMesh)
-: m_Mesh(MDK_PURE_EMPTY_MembraneMESH)
+: m_Mesh(MDK_PURE_EMPTY_MembraneMesh)
 {
     m_Mesh.ForceShare(ParentMesh);
     this->SetToBegin();
@@ -197,7 +197,7 @@ inline Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Edge_Of_Memb
 template<typename MeshAttribute>
 inline
 Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Edge_Of_MembraneMesh(const Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>& InputIterator)
-: m_Mesh(MDK_PURE_EMPTY_MembraneMESH)
+: m_Mesh(MDK_PURE_EMPTY_MembraneMesh)
 {
     (*this) = InputIterator;
 }
@@ -368,7 +368,7 @@ void Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
 
 template<typename MeshAttribute>
 inline Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::Iterator_Of_DirectedEdge_Of_MembraneMesh(const MembraneMesh<MeshAttribute>& ParentMesh)
-: m_Mesh(MDK_PURE_EMPTY_MembraneMESH)
+: m_Mesh(MDK_PURE_EMPTY_MembraneMesh)
 {
     m_Mesh.ForceShare(ParentMesh);
     this->SetToBegin();
@@ -378,7 +378,7 @@ template<typename MeshAttribute>
 inline
 Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::
 Iterator_Of_DirectedEdge_Of_MembraneMesh(const Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>& InputIterator)
-: m_Mesh(MDK_PURE_EMPTY_MembraneMESH)
+: m_Mesh(MDK_PURE_EMPTY_MembraneMesh)
 {
     (*this) = InputIterator;
 }
@@ -613,7 +613,7 @@ void Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
 template<typename MeshAttribute>
 inline 
 Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Cell_Of_MembraneMesh(const MembraneMesh<MeshAttribute>& ParentMesh)
-: m_Mesh(MDK_PURE_EMPTY_MembraneMESH)
+: m_Mesh(MDK_PURE_EMPTY_MembraneMesh)
 {
     m_Mesh.ForceShare(ParentMesh);
     this->SetToBegin();
@@ -622,7 +622,7 @@ Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Cell_Of_MembraneMes
 template<typename MeshAttribute>
 inline
 Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Cell_Of_MembraneMesh(const Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>& InputIterator)
-: m_Mesh(MDK_PURE_EMPTY_MembraneMESH)
+: m_Mesh(MDK_PURE_EMPTY_MembraneMesh)
 {
     (*this) = InputIterator;
 }
