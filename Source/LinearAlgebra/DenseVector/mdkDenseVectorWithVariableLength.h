@@ -181,6 +181,8 @@ public:
 
     inline bool Append(ElementType Element);
 
+    inline bool Append(const DenseVector<ElementType>& InputData);
+
     inline bool Append(const ElementType* InputData, int_max InputLength);
 
     inline bool Delete(int_max Index);

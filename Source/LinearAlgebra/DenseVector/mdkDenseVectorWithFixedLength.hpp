@@ -37,7 +37,10 @@ DenseVector<ElementType, Length>::DenseVector(const std::initializer_list<Elemen
         return;
     }
 
-    m_DataArray = InputVector;
+    for (int_max k = 0; k < Length; ++k)
+    {
+        m_DataArray[k] = InputVector.begin()[k];
+    }
 }
 
 

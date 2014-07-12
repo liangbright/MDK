@@ -9,6 +9,8 @@ namespace mdk
 {
 
 //---------------------------------------------------- Vector {+ - * /} Vector ---------------------------------------------// 
+// * : element by element, i.e., dot product
+// / : element by element
 
 template<typename ElementType, int_max Length>
 inline DenseVector<ElementType, Length> operator+(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType, Length>& VectorB);

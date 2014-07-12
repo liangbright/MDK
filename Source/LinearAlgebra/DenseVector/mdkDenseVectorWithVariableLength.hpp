@@ -327,6 +327,11 @@ inline
 void DenseVector<ElementType>::Fill(const ElementType& Element)
 {
     auto Length = this->GetLength();
+    if (Length == 0)
+    {
+        MDK_Error("Self is empty @ DenseVector::Fill(Element)")
+    }
+
     for (int_max i = 0; i < Length; ++i)
     {
         m_DataArray[i] = Element;
@@ -1125,7 +1130,6 @@ bool DenseVector<ElementType>::SetSubSet(const DenseVector<int_max, InputLength>
 
 // ------------------------------------------------------------------------------------------------------------//
 
-
 template<typename ElementType>
 inline
 bool DenseVector<ElementType>::Append(ElementType Element)
@@ -1137,6 +1141,14 @@ bool DenseVector<ElementType>::Append(ElementType Element)
     m_DataArray[SelfLength] = std::move(Element);
 
     return true;
+}
+
+
+template<typename ElementType>
+inline 
+bool DenseVector<ElementType>::Append(const DenseVector<ElementType>& InputData)
+{
+    return this->Append(InputData.GetElementPointer(), InputData.GetElementNumber());
 }
 
 

@@ -142,6 +142,11 @@ DataArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(c
             }
         }
 
+        if (BoundaryPointHandle.GetIndex() < 0)
+        {
+            break;
+        }
+
         auto BoundaryCurve = TraceMeshBoundaryCurve(TargetMesh, BoundaryPointHandle);
 
         // set flag
