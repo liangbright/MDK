@@ -1419,14 +1419,34 @@ ElementType DenseVector<ElementType, Length>::Max() const
         return 0;
     }
 
-    auto Value = m_DataArray[0];
+    auto Index = this->IndexOfMax();
+    return m_DataArray[Index];
+}
 
-    for (int_max i = 1; i < Length; ++i)
+
+template<typename ElementType, int_max Length>
+inline
+int_max DenseVector<ElementType, Length>::IndexOfMax() const
+{
+    if (Length <= 0)
     {
-        Value = std::max(Value, m_DataArray[i]);
+        MDK_Error("Self is empty @ DenseVector::IndexOfMax()")
+        return 0;
     }
 
-    return Value;
+    auto Index = int_max(0);
+    auto Value = m_DataArray[0];
+
+    for (int_max i = 1; i < this->GetLength(); ++i)
+    {
+        if (m_DataArray[i] > Value)
+        {
+            Value = m_DataArray[i];
+            Index = i;
+        }
+    }
+
+    return Index;
 }
 
 
@@ -1434,20 +1454,40 @@ template<typename ElementType, int_max Length>
 inline
 ElementType DenseVector<ElementType, Length>::Min() const
 {
-    if (Length <= 0)
+    if (this->IsEmpty() == true)
     {
         MDK_Error("Self is empty @ DenseVector::Min()")
         return 0;
     }
 
+    auto Index = this->IndexOfMin();
+    return m_DataArray[Index];
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+int_max DenseVector<ElementType, Length>::IndexOfMin() const
+{
+    if (Length <= 0)
+    {
+        MDK_Error("Self is empty @ DenseVector::IndexOfMin()")
+        return 0;
+    }
+
+    auto Index = int_max(0);
     auto Value = m_DataArray[0];
 
     for (int_max i = 1; i < Length; ++i)
     {
-        Value = std::min(Value, m_DataArray[i]);
+        if (m_DataArray[i] < Value)
+        {
+            Value = m_DataArray[i];
+            Index = i;
+        }
     }
 
-    return Value;
+    return Index;
 }
 
 

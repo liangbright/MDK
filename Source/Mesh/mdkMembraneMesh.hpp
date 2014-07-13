@@ -1856,7 +1856,7 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByEdge(co
     auto tempList_unique = EdgeIndexList.FindUnique();
     if (tempList_unique.GetLength() != EdgeHandleList.GetLength())
     {
-        MDK_Warning("EdgeHandleList is invalid : more than one copy of a handle @ MembraneMesh::AddCellByEdge(...)")
+        MDK_Error("EdgeHandleList is invalid : more than one copy of a handle @ MembraneMesh::AddCellByEdge(...)")
         CellHandle.SetToInvalid();
         return CellHandle;
     }

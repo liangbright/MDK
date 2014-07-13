@@ -239,7 +239,11 @@ public:
 
     inline ElementType Max() const;
 
+    inline int_max IndexOfMax() const;
+
     inline ElementType Min() const;
+
+    inline int_max IndexOfMin() const;
 
     inline ElementType L1Norm() const;
 

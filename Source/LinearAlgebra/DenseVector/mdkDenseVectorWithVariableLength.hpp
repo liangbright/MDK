@@ -2020,7 +2020,6 @@ ElementType DenseVector<ElementType>::Max() const
     }
 
     auto Index = this->IndexOfMax();
-
     return m_DataArray[Index];
 }
 
@@ -2036,7 +2035,6 @@ int_max DenseVector<ElementType>::IndexOfMax() const
     }
 
     auto Index = int_max(0);
-
     auto Value = m_DataArray[0];
 
     for (int_max i = 1; i < this->GetLength(); ++i)
@@ -2063,7 +2061,6 @@ ElementType DenseVector<ElementType>::Min() const
     }
 
     auto Index = this->IndexOfMin();
-
     return m_DataArray[Index];
 }
 
@@ -2079,7 +2076,6 @@ int_max DenseVector<ElementType>::IndexOfMin() const
     }
 
     auto Index = int_max(0);
-
     auto Value = m_DataArray[0];
 
     for (int_max i = 1; i < this->GetLength(); ++i)
