@@ -49,7 +49,7 @@ DenseVector<ElementType>::DenseVector(const DenseVector<ElementType, InputLength
 
         for (int_max i = 0; i < InputLength; ++i)
         {
-            m_DataArray[i] = InputVector.m_DataArray[i];
+            m_DataArray[i] = InputVector[i];
         }
     }
 }

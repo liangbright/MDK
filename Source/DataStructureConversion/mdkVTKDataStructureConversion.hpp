@@ -428,11 +428,11 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
     {
         PointData->SetDataType(VTK_DOUBLE);
         PointData->SetNumberOfPoints(PointNumber);
-
-        double pos[3] = { 0, 0, 0 };
-
+       
         for (int i = 0; i < PointNumber; ++i)
         {
+            double pos[3] = { 0, 0, 0 };
+
             pos[0] = PointPositionTable(0, i);
             pos[1] = PointPositionTable(1, i);
             pos[2] = PointPositionTable(2, i);
@@ -443,12 +443,11 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
     else if (ScalarTypeName == "float")
     {
         PointData->SetDataType(VTK_FLOAT);
-        PointData->SetNumberOfPoints(PointNumber);
-
-        float pos[3] = { 0, 0, 0 };
+        PointData->SetNumberOfPoints(PointNumber);        
 
         for (int i = 0; i < PointNumber; ++i)
         {
+            float pos[3] = { 0, 0, 0 };
             pos[0] = float(PointPositionTable(0, i));
             pos[1] = float(PointPositionTable(1, i));
             pos[2] = float(PointPositionTable(2, i));
@@ -463,10 +462,9 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
         PointData->SetDataType(VTK_FLOAT);
         PointData->SetNumberOfPoints(PointNumber);
 
-        float pos[3] = { 0, 0, 0 };
-
         for (int i = 0; i < PointNumber; ++i)
         {
+            float pos[3] = { 0, 0, 0 };
             pos[0] = float(PointPositionTable(0, i));
             pos[1] = float(PointPositionTable(1, i));
             pos[2] = float(PointPositionTable(2, i));

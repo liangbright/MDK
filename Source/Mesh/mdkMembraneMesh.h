@@ -170,13 +170,13 @@ public:
     inline void SetPointPosition(int_max PointID, ScalarType x, ScalarType y, ScalarType z);
     inline void SetPointPosition(int_max PointID, const ScalarType Position[3]);
 
-    inline DenseVector<ScalarType, 3> GetPointPosition(PointHandleType PointHandle);
-    inline void GetPointPosition(PointHandleType PointHandle, ScalarType& x, ScalarType& y, ScalarType& z);
-    inline void GetPointPosition(PointHandleType PointHandle, ScalarType Position[3]);
+    inline DenseVector<ScalarType, 3> GetPointPosition(PointHandleType PointHandle) const;
+    inline void GetPointPosition(PointHandleType PointHandle, ScalarType& x, ScalarType& y, ScalarType& z) const;
+    inline void GetPointPosition(PointHandleType PointHandle, ScalarType Position[3]) const;
 
-    inline DenseVector<ScalarType, 3> GetPointPosition(int_max PointID);
-    inline void GetPointPosition(int_max PointID, ScalarType& x, ScalarType& y, ScalarType& z);
-    inline void GetPointPosition(int_max PointID, ScalarType Position[3]);
+    inline DenseVector<ScalarType, 3> GetPointPosition(int_max PointID) const;
+    inline void GetPointPosition(int_max PointID, ScalarType& x, ScalarType& y, ScalarType& z) const;
+    inline void GetPointPosition(int_max PointID, ScalarType Position[3]) const;
 
     inline void SetPointPosition(const DenseVector<PointHandleType>& PointHandleList, const DenseMatrix<ScalarType>& PointPositionMatrix);
 

@@ -373,7 +373,7 @@ void MembraneMesh<MeshAttributeType>::SetPointPosition(int_max PointID, const ty
 template<typename MeshAttributeType>
 inline
 DenseVector<typename MeshAttributeType::ScalarType, 3> 
-MembraneMesh<MeshAttributeType>::GetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle)
+MembraneMesh<MeshAttributeType>::GetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle) const
 {
     DenseVector<ScalarType, 3> Position;
     m_MeshData->PointPositionTable.GetCol(PointHandle.GetIndex(), Position.GetPointer());
@@ -384,7 +384,7 @@ template<typename MeshAttributeType>
 inline 
 void MembraneMesh<MeshAttributeType>::
 GetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle, 
-                 typename MeshAttributeType::ScalarType& x, typename MeshAttributeType::ScalarType& y, typename MeshAttributeType::ScalarType& z)
+                 typename MeshAttributeType::ScalarType& x, typename MeshAttributeType::ScalarType& y, typename MeshAttributeType::ScalarType& z) const
 {
     ScalarType Position[3];
     m_MeshData->PointPositionTable.GetCol(PointHandle.GetIndex(), Position);
@@ -395,7 +395,7 @@ GetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle,
 
 template<typename MeshAttributeType>
 inline 
-void MembraneMesh<MeshAttributeType>::GetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle, typename MeshAttributeType::ScalarType Position[3])
+void MembraneMesh<MeshAttributeType>::GetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle, typename MeshAttributeType::ScalarType Position[3]) const
 {
     m_MeshData->PointPositionTable.GetCol(PointHandle.GetIndex(), Position);
 }
@@ -403,7 +403,7 @@ void MembraneMesh<MeshAttributeType>::GetPointPosition(Handle_Of_Point_Of_Membra
 template<typename MeshAttributeType>
 inline
 DenseVector<typename MeshAttributeType::ScalarType, 3>
-MembraneMesh<MeshAttributeType>::GetPointPosition(int_max PointID)
+MembraneMesh<MeshAttributeType>::GetPointPosition(int_max PointID) const
 {
     auto PointHandle = this->GetPointHandle(PointID);
     return this->GetPointPosition(PointHandle);
@@ -411,7 +411,7 @@ MembraneMesh<MeshAttributeType>::GetPointPosition(int_max PointID)
 
 template<typename MeshAttributeType>
 inline 
-void MembraneMesh<MeshAttributeType>::GetPointPosition(int_max PointID, ScalarType& x, ScalarType& y, ScalarType& z)
+void MembraneMesh<MeshAttributeType>::GetPointPosition(int_max PointID, ScalarType& x, ScalarType& y, ScalarType& z) const
 {
     auto PointHandle = this->GetPointHandle(PointID);
     this->GetPointPosition(PointHandle, x, y, z);
@@ -419,7 +419,7 @@ void MembraneMesh<MeshAttributeType>::GetPointPosition(int_max PointID, ScalarTy
 
 template<typename MeshAttributeType>
 inline 
-void MembraneMesh<MeshAttributeType>::GetPointPosition(int_max PointID, ScalarType Position[3])
+void MembraneMesh<MeshAttributeType>::GetPointPosition(int_max PointID, ScalarType Position[3]) const
 {
     auto PointHandle = this->GetPointHandle(PointID);
     this->GetPointPosition(PointHandle, Position);
