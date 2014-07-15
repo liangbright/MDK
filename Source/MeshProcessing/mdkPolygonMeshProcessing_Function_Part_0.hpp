@@ -163,6 +163,7 @@ DataArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(c
     return BoundaryCurveTable;
 }
 
+
 template<typename MeshAttributeType>
 Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& TargetMesh,
                                                        const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition)

@@ -611,6 +611,7 @@ void Edge_Of_MembraneMesh<MeshAttributeType>::operator=(const Edge_Of_MembraneMe
     m_Data->ID = InputEdge.m_Data->ID;
     m_Data->PointIndex0 = InputEdge.m_Data->PointIndex0;
     m_Data->PointIndex1 = InputEdge.m_Data->PointIndex1;
+    m_Data->DirectedEdgePair = InputEdge.m_Data->DirectedEdgePair;
     m_Data->Attribute = InputEdge.m_Data->Attribute;
 }
 
