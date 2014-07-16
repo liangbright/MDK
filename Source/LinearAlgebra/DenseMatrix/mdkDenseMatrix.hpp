@@ -314,7 +314,19 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<ElementType
 
     if (InputLength <= 0)
     {
-        MDK_Error("Input is empty @ DenseMatrix::operator=(initializer_list)")
+        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(initializer_list)")
+
+        if (this->IsSizeFixed() == true)
+        {
+            if (this->IsEmpty() == false)
+            {
+                MDK_Error("Can not change matrix size @ DenseMatrix::operator=(initializer_list)")
+            }
+        }
+        else
+        {
+            this->Clear();
+        }
         return;
     }
 
@@ -353,7 +365,19 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<std::initia
 
     if (InputRowNumber <= 0)
     {
-        MDK_Error("Input is empty @ DenseMatrix::operator=(InputListInList)")
+        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(InputListInList)")
+        
+        if (this->IsSizeFixed() == true)
+        {
+            if (this->IsEmpty() == false)
+            {
+                MDK_Error("Can not change matrix size @ DenseMatrix::operator=(InputListInList)")
+            }
+        }
+        else
+        {
+            this->Clear();
+        }
         return;
     }
 
@@ -417,7 +441,19 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
 
     if (InputMatrixNumber <= 0)
     {
-        MDK_Error("Input is empty @ DenseMatrix::operator=(initializer_list of matrix pointer)")
+        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(initializer_list of matrix pointer)")
+
+        if (this->IsSizeFixed() == true)
+        {
+            if (this->IsEmpty() == false)
+            {
+                MDK_Error("Can not change matrix size @ DenseMatrix::operator=(initializer_list of matrix pointer)")
+            }
+        }
+        else
+        {
+            this->Clear();
+        }
         return;
     }
 
@@ -427,43 +463,52 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
     ColNumberList.resize(InputMatrixNumber);
 
     int_max InputRowNumber = 0;
-
     int_max TotalColNumber = 0;
 
     for (int_max k = 0; k < InputMatrixNumber; k++)
     {
+        ColNumberList[k] = 0;
+
         auto InputMatrixPtr = InputList.begin()[k];
-
-        if (InputMatrixPtr == nullptr)
+        if (InputMatrixPtr != nullptr)
         {
-            MDK_Error("nullptr in InputList @ @ DenseMatrix::operator=(initializer_list of matrix pointer)")
-            return;
-        }
+            if (InputRowNumber == 0)
+            {
+                InputRowNumber = InputMatrixPtr->GetRowNumber();
+            }
 
-        if (InputRowNumber == 0)
-        {
-            InputRowNumber = InputMatrixPtr->GetRowNumber();
-        }
+            ColNumberList[k] = InputMatrixPtr->GetColNumber();
 
-        ColNumberList[k] = InputMatrixPtr->GetColNumber();
+            TotalColNumber += InputMatrixPtr->GetColNumber();
 
-        TotalColNumber += InputMatrixPtr->GetColNumber();
+            if (InputRowNumber != InputMatrixPtr->GetRowNumber())
+            {
+                MDK_Error("RowNumber is not the same in the list @ DenseMatrix::operator=(initializer_list of matrix pointer)")
+                return;
+            }
 
-        if (InputRowNumber != InputMatrixPtr->GetRowNumber())
-        {
-            MDK_Error("RowNumber is not the same in the list @ DenseMatrix::operator=(initializer_list of matrix pointer)")
-            return;
-        }
-
-        if (this->GetElementPointer() == InputMatrixPtr->GetElementPointer())
-        {
-            IsSelfInInputList = true;
+            if (this->GetElementPointer() == InputMatrixPtr->GetElementPointer())
+            {
+                IsSelfInInputList = true;
+            }
         }
     }
 
-    if (TotalColNumber <= 0)
+    if (TotalColNumber == 0)
     {
-        MDK_Error("TotalColNumber is 0 @ DenseMatrix::operator=(initializer_list)")
+        MDK_Warning("TotalColNumber is 0, try to clear self @ DenseMatrix::operator=(initializer_list of matrix pointer)")
+        
+        if (this->IsSizeFixed() == true)
+        {
+            if (this->IsEmpty() == false)
+            {
+                MDK_Error("Can not change matrix size @ DenseMatrix::operator=(initializer_list of matrix pointerr)")
+            }
+        }
+        else
+        {
+            this->Clear();
+        }
         return;
     }
 
@@ -489,15 +534,17 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
         for (int_max k = 0; k < InputMatrixNumber; k++)
         {
             auto InputMatrixPtr = InputList.begin()[k];
-
-            auto ColPtr = InputMatrixPtr->GetElementPointer();
-
-            for (int_max j = temp_ColNumber; j < temp_ColNumber + ColNumberList[k]; ++j, ColPtr += InputRowNumber)
+            if (InputMatrixPtr != nullptr)
             {
-                this->SetCol(j, ColPtr);
-            }
+                auto ColPtr = InputMatrixPtr->GetElementPointer();
 
-            temp_ColNumber += ColNumberList[k];
+                for (int_max j = temp_ColNumber; j < temp_ColNumber + ColNumberList[k]; ++j, ColPtr += InputRowNumber)
+                {
+                    this->SetCol(j, ColPtr);
+                }
+
+                temp_ColNumber += ColNumberList[k];
+            }
         }
     }
     else // Self is in InputList 
@@ -510,7 +557,6 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
         else
         {
             DenseMatrix<ElementType> tempMatrix = InputList;
-
             this->Take(tempMatrix);
         }
     }
@@ -535,7 +581,19 @@ void DenseMatrix<ElementType>::operator=(const std::vector<ElementType>& InputVe
 
     if (InputVectorLength <= 0)
     {
-        MDK_Error("Input is empty @ DenseMatrix::operator=(std::vector)")
+        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(std::vector)")
+        
+        if (this->IsSizeFixed() == true)
+        {
+            if (this->IsEmpty() == false)
+            {
+                MDK_Error("Can not change matrix size @ DenseMatrix::operator=(std::vector)")
+            }
+        }
+        else
+        {
+            this->Clear();
+        }
         return;
     }
 
@@ -571,12 +629,24 @@ void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType, Length>&
 {
     //InputVector is treated as a row vector
 
-    // do not use template parameter Length, it can be -1 for DenseVector with variable length
+    // Attention: do not use template parameter Length, it can be -1 for DenseVector with variable length
     auto InputVectorLength = InputVector.GetLength();
 
     if (InputVectorLength <= 0)
     {
-        MDK_Error("Input is empty @ DenseMatrix::operator=(DenseVector)")
+        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(DenseVector)")
+        
+        if (this->IsSizeFixed() == true)
+        {
+            if (this->IsEmpty() == false)
+            {
+                MDK_Error("Can not change matrix size @ DenseMatrix::operator=(DenseVector)")
+            }
+        }
+        else
+        {
+            this->Clear();
+        }
         return;
     }
 
@@ -654,7 +724,19 @@ void DenseMatrix<ElementType>::operator=(const DataArray<ElementType>& InputVect
 
     if (InputVectorLength <= 0)
     {
-        MDK_Error("Input is empty @ DenseMatrix::operator=(DataArray)")
+        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(DataArray)")
+        
+        if (this->IsSizeFixed() == true)
+        {
+            if (this->IsEmpty() == false)
+            {
+                MDK_Error("Can not change matrix size @ DenseMatrix::operator=(DataArray)")
+            }
+        }
+        else
+        {
+            this->Clear();
+        }
         return;
     }
 
@@ -693,7 +775,19 @@ void DenseMatrix<ElementType>::operator=(const SimpleDataArray<ElementType>& Inp
 
     if (InputVectorLength <= 0)
     {
-        MDK_Error("Input is empty @ DenseMatrix::operator=(DataArray)")
+        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(SimpleDataArray)")
+        
+        if (this->IsSizeFixed() == true)
+        {
+            if (this->IsEmpty() == false)
+            {
+                MDK_Error("Can not change matrix size @ DenseMatrix::operator=(SimpleDataArray)")
+            }
+        }
+        else
+        {
+            this->Clear();
+        }
         return;
     }
 
@@ -712,7 +806,7 @@ void DenseMatrix<ElementType>::operator=(const SimpleDataArray<ElementType>& Inp
 
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error("Can not change matrix size @ DenseMatrix::operator=(std::vector)")
+        MDK_Error("Can not change matrix size @ DenseMatrix::operator=(SimpleDataArray)")
     }
     else
     {
@@ -808,8 +902,10 @@ bool DenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer
                 return false;
             }
         }
-
-        this->Clear();
+        else
+        {
+            this->Clear();
+        }
         return true;
     }
 
@@ -1408,7 +1504,6 @@ void DenseMatrix<ElementType>::Clear()
     }
 
     m_MatrixData->RowNumber = 0;
-
     m_MatrixData->ColNumber = 0;
 
     m_MatrixData->DataArray.clear();         // change size
@@ -6367,26 +6462,33 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetDiagonal() const
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::Append(const ElementType& Element)
+bool DenseMatrix<ElementType>::Append(ElementType Element)
 {
     if (this->IsEmpty() == true)
     {
-        return this->AppendRow({ Element });
+        this->Resize(1, 1);
+        (*this)[0] = std::move(Element);
+        return true;
     }
+
+    auto SelfSize = this->GetSize();
 
     if (this->IsRowVector() == true)
     {
-        return this->AppendCol({ Element });
+        this->Resize(1, SelfSize.ColNumber + 1);
+        (*this)[SelfSize.ColNumber] = std::move(Element);
+        return true;
     }
-    else if (this->IsColVector() == true)
+    
+    if (this->IsColVector() == true)
     {
-        return this->AppendRow({ Element });
+        this->Resize(SelfSize.RowNumber + 1, 1);
+        (*this)[SelfSize.RowNumber] = std::move(Element);
+        return true;
     }
-    else
-    {
-        MDK_Error("Self is not a vector @ DenseMatrix::Append(...)")
-        return false;
-    }
+
+    MDK_Error("Self is not empty and not a vector @ DenseMatrix::Append(Element)")
+    return false;
 }
 
 

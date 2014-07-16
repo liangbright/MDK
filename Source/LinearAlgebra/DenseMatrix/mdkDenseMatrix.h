@@ -1014,7 +1014,7 @@ public:
     // if matrix is empty, then it will become row vector
     // if matrix is not vector, then MDK_Error
 
-    inline bool Append(const ElementType& Element);
+    inline bool Append(ElementType Element);
 
     template<typename ElementType_Input>
     inline bool Append(const std::initializer_list<ElementType_Input>& ElementData);
