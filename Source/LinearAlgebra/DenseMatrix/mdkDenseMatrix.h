@@ -40,9 +40,11 @@ namespace mdk
 
 // ----------------------------- mdkDenseMatrixData struct -------------------------------------------------------------//
 
-template<typename ElementType>
+template<typename Element_Type>
 struct DenseMatrixData
 {
+	typedef Element_Type  ElementType;
+
     int_max RowNumber;  // RowNumber = the Number of Rows 
     int_max ColNumber;  // ColNumber = the Number of Columns
 
@@ -139,9 +141,11 @@ private:
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
-template<typename ElementType>
+template<typename Element_Type>
 class DenseMatrix : public Object
 {
+public:
+	typedef Element_Type  ElementType;
 
 private:
      
@@ -149,8 +153,6 @@ private:
 
     ElementType* m_ElementPointer; // pointer to the first element, keep tracking m_MatrixData->ElementPointer
                                    // to accelerate operator () and [], e.g., A(k)=value, or A[k]=value
-public:
-    typedef ElementType  ElementType;
 
 public:			
 	//------------------- constructor and destructor ------------------------------------//

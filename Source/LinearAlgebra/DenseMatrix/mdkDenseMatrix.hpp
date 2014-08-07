@@ -621,9 +621,9 @@ template<int_max Length>
 inline
 void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType, Length>& InputVector)
 {
-    //InputVector is treated as a row vector
+    // InputVector is treated as a row vector
 
-    // Attention: do not use template parameter Length, it can be -1 for DenseVector with variable length
+    // Attention: do not use template parameter Length, it is -1 for DenseVector with variable length
     auto InputVectorLength = InputVector.GetLength();
 
     if (InputVectorLength <= 0)
