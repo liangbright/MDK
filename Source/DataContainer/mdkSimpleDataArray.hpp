@@ -861,9 +861,9 @@ bool SimpleDataArray<ElementType>::Delete(const int_max* IndexList, int_max List
     }
     else
     {
-        std::vector<int_max> IndexList_max_to_min(Length);
+		std::vector<int_max> IndexList_max_to_min(ListLength);
 
-        for (int_max i = 0; i < Length; ++i)
+		for (int_max i = 0; i < ListLength; ++i)
         {
             IndexList_max_to_min[i] = IndexList[i];
         }
@@ -878,7 +878,7 @@ bool SimpleDataArray<ElementType>::Delete(const int_max* IndexList, int_max List
 
             if (Index_i == Index_prev)
             {
-                MDK_Warning("duplicate Input @ SimpleDataArray::Delete(const int_max* IndexPtr, int_max Length)")
+                MDK_Warning("duplicate Input @ SimpleDataArray::Delete(const int_max* IndexPtr, int_max ListLength)")
             }
             else
             {

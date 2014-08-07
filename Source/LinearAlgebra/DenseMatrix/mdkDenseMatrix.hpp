@@ -42,7 +42,6 @@ inline
 DenseMatrix<ElementType>::DenseMatrix(const ElementType& Element)
 {
     this->Resize(1, 1);
-
     (*this)(0) = Element;
 }
 
@@ -199,7 +198,6 @@ inline
 DenseMatrix<ElementType>::DenseMatrix(const DenseShadowMatrix<ElementType>& ShadowMatrix)
 {
     this->Resize(0, 0);
-
     this->Take(ShadowMatrix.CreateDenseMatrix());
 }
 
@@ -209,7 +207,6 @@ inline
 DenseMatrix<ElementType>::DenseMatrix(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix)
 {
     this->Resize(0, 0);
-
     this->Take(GlueMatrix.CreateDenseMatrix());
 }
 
@@ -219,7 +216,6 @@ inline
 DenseMatrix<ElementType>::DenseMatrix(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix)
 {
     this->Resize(0, 0);
-
     this->Take(GlueMatrix.CreateDenseMatrix());
 }
 
@@ -295,9 +291,7 @@ void DenseMatrix<ElementType>::operator=(const ElementType& Element)
             MDK_Warning("The size of the matrix changes to 1x1 @ DenseMatrix::operator=(Element)")
 
             this->Clear();
-
             this->Resize(1, 1);
-
             (*this)[0] = Element;
         }
     }
@@ -2165,7 +2159,7 @@ bool DenseMatrix<ElementType>::IsIdentityMatrix(ElementType Threshold) const
         return false;
     }
 
-    auto RawPointer this->GetElementPointer();
+    auto RawPointer = this->GetElementPointer();
 
     int_max Index = 0;
 
@@ -6931,7 +6925,7 @@ bool DenseMatrix<ElementType>::GetDiagonal(ElementType* DiagonalData) const
         return  false;
     }
 
-    auto RawPointer this->GetElementPointer();
+    auto RawPointer = this->GetElementPointer();
 
     int_max Index = 0;
 
@@ -7280,7 +7274,7 @@ void DenseMatrix<ElementType>::operator+=(const DenseShadowMatrix<ElementType>& 
         return;
     }
 
-    auto RawPointer this->GetElementPointer();
+    auto RawPointer = this->GetElementPointer();
 
     for (int_max i = 0; i < Self_ElementNumber; ++i)
     {
@@ -7318,7 +7312,7 @@ void DenseMatrix<ElementType>::operator-=(const DenseShadowMatrix<ElementType>& 
         return;
     }
 
-    auto RawPointer this->GetElementPointer();
+    auto RawPointer = this->GetElementPointer();
 
     for (int_max i = 0; i < Self_ElementNumber; ++i)
     {
@@ -7364,7 +7358,7 @@ void DenseMatrix<ElementType>::operator/=(const DenseShadowMatrix<ElementType>& 
         return;
     }
 
-    auto RawPointer this->GetElementPointer();
+    auto RawPointer = this->GetElementPointer();
 
     for (int_max i = 0; i < Self_ElementNumber; ++i)
     {
@@ -7751,7 +7745,7 @@ bool DenseMatrix<ElementType>::ElementOperationInPlace(OperationType Operation, 
 template<typename ElementType>
 inline
 DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationName, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationName, bool EnableBoundCheck) const
 {
     return MatrixColNamedOperation(OperationName, *this, ColIndex, EnableBoundCheck);
 }
@@ -7760,7 +7754,7 @@ DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationNa
 template<typename ElementType>
 inline
 DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const std::string& OperationName, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const std::string& OperationName, bool EnableBoundCheck) const
 {    
     return MatrixColNamedOperation(OperationName, *this, ColIndex, EnableBoundCheck);
 }
@@ -7770,7 +7764,7 @@ template<typename ElementType>
 template<typename OperationType>
 inline
 DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation, bool EnableBoundCheck) const
 {
     return MatrixColOperation(OperationName, *this, ColIndex, EnableBoundCheck);
 }
@@ -7779,7 +7773,7 @@ DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation
 template<typename ElementType>
 inline
 DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck) const
 {
     return MatrixColNamedOperation(OperationName, *this, ColIndex, InputMatrix, EnableBoundCheck);
 }
@@ -7788,7 +7782,7 @@ DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char OperationNam
 template<typename ElementType>
 inline
 DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck) const
 {
     return MatrixColNamedOperation(OperationName, *this, ColIndex, InputMatrix, EnableBoundCheck);
 }
@@ -7797,7 +7791,7 @@ DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationNa
 template<typename ElementType>
 inline 
 DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck) const
 {
     return MatrixColNamedOperation(OperationName, *this, ColIndex, InputMatrix, EnableBoundCheck);
 }
@@ -7807,7 +7801,7 @@ template<typename ElementType>
 template<typename OperationType>
 inline
 DenseMatrix<ElementType> 
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck) const
 {
     return MatrixColOperation(Operation, *this, ColIndex, InputMatrix, EnableBoundCheck);
 }
@@ -7816,7 +7810,7 @@ DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation
 template<typename ElementType>
 inline 
 DenseMatrix<ElementType> 
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck) const
 {
     return MatrixColNamedOperation(OperationName, *this, ColIndex, Element, EnableBoundCheck);
 }
@@ -7825,7 +7819,7 @@ DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char OperationNam
 template<typename ElementType>
 inline
 DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck) const
 {
     return MatrixColNamedOperation(OperationName, *this, ColIndex, Element, EnableBoundCheck);
 }
@@ -7834,7 +7828,7 @@ DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationNa
 template<typename ElementType>
 inline
 DenseMatrix<ElementType> 
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck) const
 {
     return MatrixColNamedOperation(OperationName, *this, ColIndex, Element, EnableBoundCheck);
 }
@@ -7844,7 +7838,7 @@ template<typename ElementType>
 template<typename OperationType>
 inline 
 DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck) const
 {
     return MatrixColOperation(Operation, *this, ColIndex, Element, EnableBoundCheck);
 }
@@ -7853,7 +7847,7 @@ DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char* OperationName, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char* OperationName, bool EnableBoundCheck)
 {
     return MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, EnableBoundCheck);
 }
@@ -7861,7 +7855,7 @@ bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char*
 
 template<typename ElementType>
 inline 
-bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const std::string& OperationName, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const std::string& OperationName, bool EnableBoundCheck)
 {
     return MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, EnableBoundCheck);
 }
@@ -7870,7 +7864,7 @@ bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const std::
 template<typename ElementType>
 template<typename OperationType>
 inline
-bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationType Operation, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationType Operation, bool EnableBoundCheck)
 {
     return MatrixColOperation(*this, ColIndex, Operation, *this, ColIndex, EnableBoundCheck);
 }
@@ -7878,7 +7872,7 @@ bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationTy
 
 template<typename ElementType>
 inline 
-bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck)
 {
     return MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, InputMatrix, EnableBoundCheck);
 }
@@ -7886,7 +7880,7 @@ bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char 
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck)
 {
     return MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, InputMatrix, EnableBoundCheck);
 }
@@ -7894,7 +7888,7 @@ bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char*
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck)
 {
     return MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, InputMatrix, EnableBoundCheck);
 }
@@ -7903,7 +7897,7 @@ bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const std::
 template<typename ElementType>
 template<typename OperationType>
 inline
-bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck)
 {
     return MatrixColOperation(*this, ColIndex, Operation, *this, ColIndex, InputMatrix, EnableBoundCheck);
 }
@@ -7911,7 +7905,7 @@ bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationTy
 
 template<typename ElementType>
 inline 
-bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck)
 {
     return MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, Element, EnableBoundCheck);
 }
@@ -7919,7 +7913,7 @@ bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char 
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck)
 {
     return MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, Element, EnableBoundCheck);
 }
@@ -7927,7 +7921,7 @@ bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char*
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck)
 {
     return MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, Element, EnableBoundCheck);
 }
@@ -7936,7 +7930,7 @@ bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const std::
 template<typename ElementType>
 template<typename OperationType>
 inline
-bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck)
 {
     return MatrixColOperation(*this, ColIndex, Operation, *this, ColIndex, Element, EnableBoundCheck);
 }
@@ -7946,7 +7940,7 @@ bool DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationTy
 template<typename ElementType>
 inline
 DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationName, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationName, bool EnableBoundCheck) const
 {
     return MatrixRowNamedOperation(OperationName, *this, RowIndex, EnableBoundCheck);
 }
@@ -7955,7 +7949,7 @@ DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationNa
 template<typename ElementType>
 inline 
 DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const std::string& OperationName, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const std::string& OperationName, bool EnableBoundCheck) const
 {
     return MatrixRowNamedOperation(OperationName, *this, RowIndex, EnableBoundCheck);
 }
@@ -7965,7 +7959,7 @@ template<typename ElementType>
 template<typename OperationType>
 inline 
 DenseMatrix<ElementType> 
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation, bool EnableBoundCheck) const
 {
     return MatrixRowOperation(Operation, *this, RowIndex, EnableBoundCheck);
 }
@@ -7974,7 +7968,7 @@ DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation
 template<typename ElementType>
 inline 
 DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck) const
 {
     return MatrixRowNamedOperation(OperationName, *this, RowIndex, InputMatrix, EnableBoundCheck);
 }
@@ -7983,7 +7977,7 @@ DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char OperationNam
 template<typename ElementType>
 inline
 DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck) const
 {
     return MatrixRowNamedOperation(OperationName, *this, RowIndex, InputMatrix, EnableBoundCheck);
 }
@@ -7992,7 +7986,7 @@ DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationNa
 template<typename ElementType>
 inline 
 DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck) const
 {
     return MatrixRowNamedOperation(OperationName, *this, RowIndex, InputMatrix, EnableBoundCheck);
 }
@@ -8002,7 +7996,7 @@ template<typename ElementType>
 template<typename OperationType>
 inline 
 DenseMatrix<ElementType> 
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck) const
 {
     return MatrixRowOperation(Operation, *this, RowIndex, InputMatrix, EnableBoundCheck);
 }
@@ -8011,7 +8005,7 @@ DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation
 template<typename ElementType>
 inline 
 DenseMatrix<ElementType> 
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck) const
 {
     return MatrixRowNamedOperation(OperationName, *this, RowIndex, Element, EnableBoundCheck);
 }
@@ -8020,7 +8014,7 @@ DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char OperationNam
 template<typename ElementType>
 inline
 DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck) const
 {
     return MatrixRowNamedOperation(OperationName, *this, RowIndex, Element, EnableBoundCheck);
 }
@@ -8029,7 +8023,7 @@ DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationNa
 template<typename ElementType>
 inline 
 DenseMatrix<ElementType> 
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck) const
 {
     return MatrixRowNamedOperation(OperationName, *this, RowIndex, Element, EnableBoundCheck);
 }
@@ -8039,7 +8033,7 @@ template<typename ElementType>
 template<typename OperationType>
 inline
 DenseMatrix<ElementType> 
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true) const
+DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck) const
 {
     return MatrixRowOperation(Operation, *this, RowIndex, Element, EnableBoundCheck);
 }
@@ -8048,7 +8042,7 @@ DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char* OperationName, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char* OperationName, bool EnableBoundCheck)
 {
     return MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, EnableBoundCheck);
 }
@@ -8056,7 +8050,7 @@ bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char*
 
 template<typename ElementType>
 inline 
-bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const std::string& OperationName, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const std::string& OperationName, bool EnableBoundCheck)
 {
     return MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, EnableBoundCheck);
 }
@@ -8065,7 +8059,7 @@ bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const std::
 template<typename ElementType>
 template<typename OperationType>
 inline 
-bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationType Operation, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationType Operation, bool EnableBoundCheck)
 {
     return MatrixRowOperation(*this, RowIndex, Operation, *this, RowIndex, EnableBoundCheck);
 }
@@ -8073,7 +8067,7 @@ bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationTy
 
 template<typename ElementType>
 inline 
-bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck)
 {
     return MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, InputMatrix, EnableBoundCheck);
 }
@@ -8081,7 +8075,7 @@ bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char 
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck)
 {
     return MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, InputMatrix, EnableBoundCheck);
 }
@@ -8089,7 +8083,7 @@ bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char*
 
 template<typename ElementType>
 inline 
-bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck)
 {
     return MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, InputMatrix, EnableBoundCheck);
 }
@@ -8098,7 +8092,7 @@ bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const std::
 template<typename ElementType>
 template<typename OperationType>
 inline 
-bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck)
 {
     return MatrixRowOperation(*this, RowIndex, Operation, *this, RowIndex, InputMatrix, EnableBoundCheck);
 }
@@ -8106,7 +8100,7 @@ bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationTy
 
 template<typename ElementType>
 inline 
-bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck)
 {
     return MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, Element, EnableBoundCheck);
 }
@@ -8114,7 +8108,7 @@ bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char 
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true)
+bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck)
 {
     return MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, Element, EnableBoundCheck);
 }
@@ -8123,7 +8117,7 @@ bool DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char*
 template<typename ElementType>
 inline 
 bool
-DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true)
+DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck)
 {
     return MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, Element, EnableBoundCheck);
 }
@@ -8133,7 +8127,7 @@ template<typename ElementType>
 template<typename OperationType>
 inline
 bool
-DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true)
+DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck)
 {
     return MatrixRowOperation(*this, RowIndex, Operation, *this, RowIndex, Element, EnableBoundCheck);
 }

@@ -400,7 +400,7 @@ bool DataArray<ElementType>::Share(ElementType* InputElementPointer, int_max Inp
 
     m_Data->ElementPointer = InputElementPointer;
 
-    m_ElementPointer = m_MatrixData->ElementPointer;
+    m_ElementPointer = m_Data->ElementPointer;
 
     return true;
 }
@@ -1181,9 +1181,9 @@ bool DataArray<ElementType>::Delete(const int_max* IndexList, int_max ListLength
     }
     else
     {
-        std::vector<int_max> IndexList_max_to_min(Length);
+		std::vector<int_max> IndexList_max_to_min(ListLength);
 
-        for (int_max i = 0; i < Length; ++i)
+		for (int_max i = 0; i < ListLength; ++i)
         {
             IndexList_max_to_min[i] = IndexList[i];
         }
@@ -1198,7 +1198,7 @@ bool DataArray<ElementType>::Delete(const int_max* IndexList, int_max ListLength
 
             if (Index_i == Index_prev)
             {
-                MDK_Warning("duplicate Input @ DataArray::Delete(const int_max* IndexPtr, int_max Length)")
+                MDK_Warning("duplicate Input @ DataArray::Delete(const int_max* IndexPtr, int_max ListLength)")
             }
             else
             {
