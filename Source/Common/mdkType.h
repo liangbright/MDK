@@ -2,11 +2,10 @@
 #define __mdkType_h
 
 #include <string>
-
+#include <typeinfo>
 
 #include "mdkOSPlatformConfig.h"
 #include "mdkDebugConfig.h"
-
 
 namespace mdk
 {
@@ -68,15 +67,15 @@ enum struct ObjectConstructionTypeEnum
 //-------------------------------------------------------------//
 template<typename ScalarType>
 inline
-ScalarTypeEnum FindScalarType(ScalarType Scalar);
+ScalarTypeEnum GetScalarType(ScalarType Scalar);
 
 template<typename ScalarType>
 inline
-std::string FindScalarTypeName(ScalarType Scalar);
+std::string GetScalarTypeName(ScalarType Scalar);
 
 template<typename ScalarType>
 inline
-int_max CalByteNumberOfScalar(const ScalarType& Scalar);
+int_max GetByteNumberOfScalar(const ScalarType& Scalar);
 
 //----------------------------------------------------------------//
 

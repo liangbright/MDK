@@ -1200,8 +1200,8 @@ void Test_ShadowMatrix()
     //auto SubA = A(ALL, { 0, 1 });
     
     // why should not enable the expression "auto SubA = A(ALL, { 0, 1 });", i.e., why should private ShadowMatrix constructor 
-    // (1) SubA should be a "copy" of A(ALL, { 0, 1 }) becuase "=" is used, but in fact it is a ShadowMatrix
-    // (2) SubA(0)=1 should only affect the "copy", but it will change A
+    // (1) SubA should be a "copy" of A(ALL, { 0, 1 }) becuase "=" is used, but in fact it is a ShadowMatrix of A
+    // (2) SubA(0)=1 should only affect the "copy", but it will change A as well
     // suggestion: use GetSubMatrix to get the real copy
     //             auto SubA = A.GetSubMatrix(ALL, { 0, 1 });
     //             or place type (not auto) like the expression below

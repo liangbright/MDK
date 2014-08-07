@@ -7,7 +7,7 @@ namespace mdk
 
 template<typename ObjectType>
 inline
-ScalarTypeEnum FindScalarType(ObjectType Scalar)
+ScalarTypeEnum GetScalarType(ObjectType Scalar)
 {
     std::string TypeName(typeid(Scalar).name());
 
@@ -58,7 +58,7 @@ ScalarTypeEnum FindScalarType(ObjectType Scalar)
 
 template<typename ScalarType>
 inline
-std::string FindScalarTypeName(ScalarType Scalar)
+std::string GetScalarTypeName(ScalarType Scalar)
 {
     std::string Name;
 
@@ -115,111 +115,111 @@ std::string FindScalarTypeName(ScalarType Scalar)
 
 template<typename ScalarType>
 inline
-int_max CalByteNumberOfScalar(const ScalarType& Scalar)
+int_max GetByteNumberOfScalar(const ScalarType& Scalar)
 {
-    MDK_Error("Unknown ScalarType @ CalByteNumberOfScalar(ScalarType Scalar)")
+    MDK_Error("Unknown ScalarType @ GetByteNumberOfScalar(ScalarType Scalar)")
     return 0;
 }
  
 
-inline double CalByteNumberOfScalar(const double&)
+inline double GetByteNumberOfScalar(const double&)
 {
     return sizeof(double);
 }
 
 
-inline float CalByteNumberOfScalar(const float&)
+inline float GetByteNumberOfScalar(const float&)
 {
     return sizeof(float);
 }
 
 
-inline char CalByteNumberOfScalar(const char&)
+inline char GetByteNumberOfScalar(const char&)
 {
     return sizeof(char);
 }
 
 
-inline short CalByteNumberOfScalar(const short&)
+inline short GetByteNumberOfScalar(const short&)
 {
     return sizeof(short);
 }
 
 
-inline int CalByteNumberOfScalar(const int&)
+inline int GetByteNumberOfScalar(const int&)
 {
     return sizeof(int);
 }
 
 
-inline long CalByteNumberOfScalar(const long&)
+inline long GetByteNumberOfScalar(const long&)
 {
     return sizeof(long);
 }
 
 
-inline long long CalByteNumberOfScalar(const long long&)
+inline long long GetByteNumberOfScalar(const long long&)
 {
     return sizeof(long long);
 }
 
 
-inline unsigned char CalByteNumberOfScalar(const unsigned char&)
+inline unsigned char GetByteNumberOfScalar(const unsigned char&)
 {
     return sizeof(unsigned char);
 }
 
 
-inline unsigned short CalByteNumberOfScalar(const unsigned short&)
+inline unsigned short GetByteNumberOfScalar(const unsigned short&)
 {
     return sizeof(unsigned short);
 }
 
 
-inline unsigned int CalByteNumberOfScalar(const unsigned int&)
+inline unsigned int GetByteNumberOfScalar(const unsigned int&)
 {
     return sizeof(unsigned int);
 }
 
 
-inline unsigned long CalByteNumberOfScalar(const unsigned long&)
+inline unsigned long GetByteNumberOfScalar(const unsigned long&)
 {
     return sizeof(unsigned long);
 }
 
 
-inline unsigned long long CalByteNumberOfScalar(const unsigned long long&)
+inline unsigned long long GetByteNumberOfScalar(const unsigned long long&)
 {
     return sizeof(unsigned long long);
 }
 
 
-inline unsigned long long CalByteNumberOfScalar(const bool&)
+inline unsigned long long GetByteNumberOfScalar(const bool&)
 {
     return sizeof(bool);
 }
 
-inline unsigned long long CalByteNumberOfScalar(const wchar_t&)
+inline unsigned long long GetByteNumberOfScalar(const wchar_t&)
 {
     return sizeof(wchar_t);
 }
 
 
 // unsigned short 
-//inline unsigned long long CalByteNumberOfScalar(const char16_t&)
+//inline unsigned long long GetByteNumberOfScalar(const char16_t&)
 //{
 //    return sizeof(char16_t);
 //}
 
 
 // unsigned int
-//inline unsigned long long CalByteNumberOfScalar(const char32_t&)
+//inline unsigned long long GetByteNumberOfScalar(const char32_t&)
 //{
 //   return sizeof(char32_t);
 //}
 
 // usinged long long
-//inline unsigned long long CalByteNumberOfScalar(const size_t&)
+//inline unsigned long long GetByteNumberOfScalar(const size_t&)
 //{
 //    return sizeof(size_t);
 //}
