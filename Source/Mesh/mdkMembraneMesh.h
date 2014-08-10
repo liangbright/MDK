@@ -69,10 +69,11 @@ struct MembraneMeshData
 };
 
 
-template<typename MeshAttributeType>
+template<typename MeshAttribute_Type>
 class MembraneMesh : public Object
 {
 public:
+	typedef MeshAttribute_Type MeshAttributeType;
     //-------------------------------------------------------------------------------------------//
     typedef typename MeshAttributeType::ScalarType                ScalarType;
     typedef typename MeshAttributeType::GlobalAttribute           GlobalAttribute;

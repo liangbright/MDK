@@ -3,27 +3,34 @@
 
 #include <algorithm>
 
-
 #include "mdkScalarImageToVectorImageFilterWithMask3D.h"
-
+#include "mdkScalarImageInterpolator3D.h"
 
 namespace mdk
 {
 
-template<typename InputPixelType, typename OutputPixelType>
-class ScalarImageToVectorImageConvolutionFilter3D : public ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>
+template<typename InputPixel_Type, typename OutputPixel_Type>
+class ScalarImageToVectorImageConvolutionFilter3D : public ScalarImageToVectorImageFilterWithMask3D<InputPixel_Type, OutputPixel_Type>
 {
 public:
-    typedef OutputPixelType::ElementType  ElementTypeInOutputPixel;
+	typedef InputPixel_Type InputPixelType;
+	typedef OutputPixel_Type OutputPixelType;
+	typedef OutputPixelType::ElementType  ElementTypeOfOutputPixel;
 
 private:
-    DenseMatrix<ElementTypeInOutputPixel>* m_OutputPixelMatrix;
+	ScalarImage3DInterpolationMethodEnum m_InterpolationMethod;
+	Option_Of_ScalarImageInterpolator3D<OutputPixelType> m_InterpolationOption;
+
+private:
+	DenseMatrix<ElementTypeOfOutputPixel>* m_OutputPixelMatrix;
 
 public:		
 	ScalarImageToVectorImageConvolutionFilter3D();
 	~ScalarImageToVectorImageConvolutionFilter3D();
 
     virtual void Clear();
+
+	void SetImageInterpolationMethodAndOption(ScalarImage3DInterpolationMethodEnum Method, const Option_Of_ScalarImageInterpolator3D<OutputPixelType>& Option);
 
     void SetOutputPixelMatrix(const DenseMatrix<InputPixelType>* PixelMatrix);
 

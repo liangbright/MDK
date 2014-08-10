@@ -64,11 +64,13 @@ struct Lasso_Paramter_Of_SPAMSSparseEncoder
 };
 
 
-template<typename ElementType>
-class SPAMSSparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
+template<typename Element_Type>
+class SPAMSSparseEncoder : public FeatureDictionaryBasedSparseEncoder<Element_Type>
 {
 public:
+	typedef Element_Type ElementType;
 
+public:
     std::string m_MethodName; // "OMP" or "Lasso"
 
     OMP_Paramter_Of_SPAMSSparseEncoder<ElementType> m_Parameter_OMP;
@@ -78,13 +80,11 @@ public:
 public:
 
     SPAMSSparseEncoder();
-
     ~SPAMSSparseEncoder();
 
     //--------------------------------------------------------------------------------
 
     void Clear();
-
     bool CheckInput();
 
     //---------------------------------------------------------------------------------
@@ -97,9 +97,7 @@ protected:
 private:
 //deleted:
     SPAMSSparseEncoder(const SPAMSSparseEncoder&) = delete;
-
     void operator=(const SPAMSSparseEncoder&) = delete;
-
 };
 
 }

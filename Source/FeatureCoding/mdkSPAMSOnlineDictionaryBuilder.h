@@ -183,9 +183,12 @@ private:
 };
 
 
-template<typename ElementType>
-class SPAMSOnlineDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
+template<typename Element_Type>
+class SPAMSOnlineDictionaryBuilder : public FeatureDictionaryBuilder<Element_Type>
 {
+public:
+	typedef Element_Type ElementType;
+
 public:
     Parameter_Of_SPAMSOnlineDictionaryBuilder<ElementType> m_Parameter;
 

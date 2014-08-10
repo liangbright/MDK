@@ -164,9 +164,11 @@ struct Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder
 };
 
 
-template<typename ElementType>
-class KNNBasisSelectionOnlineDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
+template<typename Element_Type>
+class KNNBasisSelectionOnlineDictionaryBuilder : public FeatureDictionaryBuilder<Element_Type>
 {
+public:
+	typedef Element_Type ElementType;
 
 public:
     Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder<ElementType> m_Parameter;

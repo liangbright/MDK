@@ -24,13 +24,13 @@ struct PolygonMeshAttributeType
 };
 //------------------------------------------------------------------------------------------------//
 
-template<typename MeshAttributeType>
-class PolygonMesh : public MembraneMesh<MeshAttributeType>
+template<typename MeshAttribute_Type>
+class PolygonMesh : public MembraneMesh<MeshAttribute_Type>
 {
 public:
-    typedef PolygonMesh<MeshAttributeType> MeshType;
+	typedef MeshAttribute_Type MeshAttributeType;
 
-    typedef MeshAttributeType MeshAttributeType;
+    typedef PolygonMesh<MeshAttributeType> MeshType;
 
     typedef typename MeshAttributeType::ScalarType                  ScalarType;
     typedef typename MeshAttributeType::GlobalAttribute             GlobalAttribute;

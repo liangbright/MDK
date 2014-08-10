@@ -5,9 +5,8 @@
 #include <memory>
 #include <cstdlib>
 
-
-#include "mdkImageConfig.h"
 #include "mdkDenseMatrix.h"
+#include "mdkImageConfig.h"
 
 namespace mdk
 {
@@ -208,9 +207,12 @@ private:
 
 //===================================================================================================================//
 
-template<typename PixelType>
+template<typename Pixel_Type>
 class Image3D : public Object
 {
+public:
+	typedef Pixel_Type PixelType;
+
 protected:
 
     std::shared_ptr<ImageData3D<PixelType>> m_ImageData;

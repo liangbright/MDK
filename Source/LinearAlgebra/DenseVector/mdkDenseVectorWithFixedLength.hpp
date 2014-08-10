@@ -20,10 +20,16 @@ template<typename ElementType, int_max Length>
 inline
 DenseVector<ElementType, Length>::DenseVector(const ElementType& Element)
 {
-    for (int_max i = 0; i < Length; ++i)
-    {
-        m_DataArray[i] = Element;
-    }
+	if (Length <= 0)
+	{
+		MDK_Error("Length <= 0 @ DenseVector::DenseVector(Element)")
+	}
+	else if (Length > 1)
+	{
+		MDK_Warning("Length > 1 @ DenseVector::DenseVector(Element)")
+	}
+
+	this->Fill(Element);
 }
 
 

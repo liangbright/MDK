@@ -5,7 +5,6 @@
 #include <functional>
 #include <thread>
 
-
 #include "mdkDebugConfig.h"
 #include "mdkParallelForLoop.h"
 #include "mdkProcessObject.h"
@@ -13,13 +12,16 @@
 #include "mdkDenseMatrix.h"
 #include "mdkImage3D.h"
 
-
 namespace mdk
 {
 
-template<typename InputPixelType, typename OutputPixelType>
+template<typename InputPixel_Type, typename OutputPixel_Type>
 class ImageFilter3D : public ProcessObject
 {
+public:
+	typedef InputPixel_Type InputPixelType;
+	typedef OutputPixel_Type OutputPixelType;
+
 protected:
 	//-------------- input ----------------------
 
@@ -61,10 +63,6 @@ protected:
     int_max m_TotalOutputPixelNumber;
 
     int_max m_MinPixelNumberPerThread;
-
-public:
-    typedef InputPixelType  InputPixelType;
-    typedef OutputPixelType OutputPixelType;
 
 protected:
 	ImageFilter3D();

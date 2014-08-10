@@ -20,9 +20,12 @@ namespace mdk
 // This is a memory efficient implementation of Sparse Vector
 // It is used in sparse coding
 
-template<typename ElementType>
+template<typename Element_Type>
 class SparseVector : public Object
 {
+public:
+	typedef Element_Type ElementType;
+
 private:
     int_max m_Length;                      // length of the vector
 

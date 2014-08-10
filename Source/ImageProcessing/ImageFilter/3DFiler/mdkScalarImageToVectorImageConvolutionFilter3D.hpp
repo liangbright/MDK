@@ -53,71 +53,59 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y
     auto Ly = InputImageSize.Ly;
     auto Lz = InputImageSize.Lz;
 
-    for (int_max i = 0; i < VectorLength; ++i)
-    {
-        bool CheckBoundAtThisCenter = this->WhetherToCheckBoundAtMaskCenter_3DIndex(x_Index, y_Index, z_Index, i);
+	for (int_max i = 0; i < VectorLength; ++i)
+	{
+		bool CheckBoundAtThisCenter = this->WhetherToCheckBoundAtMaskCenter_3DIndex(x_Index, y_Index, z_Index, i);
 
-        auto PointNumberInMask = (*m_MaskList_3DIndex)[i].GetElementNumber();
+		auto PointNumberInMask = (*m_MaskList_3DIndex)[i].GetElementNumber();
 
-        auto BeginPointerOfMask = (*m_MaskList_3DIndex)[i].GetElementPointer();
+		auto BeginPointerOfMask = (*m_MaskList_3DIndex)[i].GetElementPointer();
 
-        auto tempElementInOutputPixel = ElementTypeInOutputPixel(0);
+		auto tempElementInOutputPixel = ElementTypeOfOutputPixel(0);
 
-        if (CheckBoundAtThisCenter == true)
-        {
-            for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
-            {
-                auto temp_x = int_max(Ptr[0]) + x_Index;
+		if (m_InterpolationMethod == ScalarImage3DInterpolationMethodEnum::Nearest)
+		{
+			if (CheckBoundAtThisCenter == true)
+			{
+				for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
+				{
+					auto temp_x = Ptr[0] + double(x_Index);
+					auto temp_y = Ptr[1] + double(y_Index);
+					auto temp_z = Ptr[2] + double(z_Index);
 
-                if (temp_x < 0)
-                {
-                    temp_x = 0;
-                }
-                else if (temp_x >= Lx)
-                {
-                    temp_x = Lx - 1;
-                }
+					auto tempValue = InterpolateScalarImageAtContinuousIndex_Nearest(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
 
-                auto temp_y = int_max(Ptr[1]) + y_Index;
+					tempElementInOutputPixel += ElementTypeOfOutputPixel(tempValue * Ptr[3]);
+				}
+			}
+			else
+			{
+				for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
+				{
+					auto temp_x = int_max(Ptr[0]) + x_Index;
+					auto temp_y = int_max(Ptr[1]) + y_Index;
+					auto temp_z = int_max(Ptr[2]) + z_Index;
 
-                if (temp_y < 0)
-                {
-                    temp_y = 0;
-                }
-                else if (temp_y >= Ly)
-                {
-                    temp_y = Ly - 1;
-                }
+					tempElementInOutputPixel += ElementTypeOfOutputPixel((*m_InputImage)(temp_x, temp_y, temp_z) * Ptr[3]);
+				}
+			}
+		}
+		else
+		{
+			for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
+			{
+				auto temp_x = Ptr[0] + double(x_Index);
+				auto temp_y = Ptr[1] + double(y_Index);
+				auto temp_z = Ptr[2] + double(z_Index);
 
-                auto temp_z = int_max(Ptr[2]) + z_Index;
+				auto tempValue = InterpolateScalarImageAtContinuousIndex(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
 
-                if (temp_z < 0)
-                {
-                    temp_z = 0;
-                }
-                else if (temp_z >= Lz)
-                {
-                    temp_z = Lz - 1;
-                }
+				tempElementInOutputPixel += ElementTypeOfOutputPixel(tempValue * Ptr[3]);
+			}
+		}
 
-                tempElementInOutputPixel += ElementTypeInOutputPixel((*m_InputImage)(temp_x, temp_y, temp_z) * Ptr[3]);
-            }
-        }
-        else
-        {
-            for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
-            {
-                auto temp_x = int_max(Ptr[0]) + x_Index;
-                auto temp_y = int_max(Ptr[1]) + y_Index;
-                auto temp_z = int_max(Ptr[2]) + z_Index;
-
-                tempElementInOutputPixel += ElementTypeInOutputPixel((*m_InputImage)(temp_x, temp_y, temp_z) * Ptr[3]);
-            }
-        }
-
-        OutputPixel[i] = tempElementInOutputPixel;
-    }
-
+		OutputPixel[i] = tempElementInOutputPixel;
+	}
 }
 
 
@@ -128,11 +116,6 @@ FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, dou
 {
     auto VectorLength = m_MaskList_3DPosition->GetLength();
  
-    auto InputImageSize = m_InputImage->GetSize();
-    auto Lx = InputImageSize.Lx;
-    auto Ly = InputImageSize.Ly;
-    auto Lz = InputImageSize.Lz;
-
     for (int_max i = 0; i < VectorLength; ++i)
     {
         bool EnableBoundCheckAtThisCenter = this->WhetherToCheckBoundAtMaskCenter_3DPosition(x, y, z, i);
@@ -141,13 +124,17 @@ FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, dou
 
         auto BeginPointerOfMask = (*m_MaskList_3DPosition)[i].GetElementPointer();
 
-        auto tempElementInOutputPixel = ElementTypeInOutputPixel(0);
+        auto tempElementInOutputPixel = ElementTypeOfOutputPixel(0);
 
         for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
         {
-            auto tempValue = InterpolateImageAtPhysicalPosition(*m_InputImage, Ptr[0], Ptr[1], Ptr[2], m_InterpolationMethod, m_InterpolationOption);
+			auto temp_x = Ptr[0] + x;
+			auto temp_y = Ptr[1] + y;
+			auto temp_z = Ptr[2] + z;
 
-            tempElementInOutputPixel += ElementTypeInOutputPixel(tempValue * Ptr[3]);
+			auto tempValue = InterpolateScalarImageAtPhysicalPosition(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
+
+            tempElementInOutputPixel += ElementTypeOfOutputPixel(tempValue * Ptr[3]);
         }
 
         OutputPixel[i] = tempElementInOutputPixel;

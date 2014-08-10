@@ -182,16 +182,14 @@ private:
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
-template<typename ElementType>
+template<typename Element_Type>
 class SparseMatrix : public Object
 {
-
-private:
-    
-    std::shared_ptr<SparseMatrixDataInCSCFormat<ElementType>> m_MatrixData;    
-
 public:
-    typedef ElementType  ElementType;
+	typedef Element_Type  ElementType;
+
+private:    
+    std::shared_ptr<SparseMatrixDataInCSCFormat<ElementType>> m_MatrixData;    
 
 public:			
 	//------------------- constructor and destructor ------------------------------------//

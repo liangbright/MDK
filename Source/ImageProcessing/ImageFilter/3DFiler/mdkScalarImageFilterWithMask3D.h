@@ -1,16 +1,17 @@
 ﻿#ifndef __mdkScalarImageFilterWithMask3D_h
 #define __mdkScalarImageFilterWithMask3D_h
 
-
 #include "mdkImageFilter3D.h"
-
 
 namespace mdk
 {
 
-template<typename InputPixelType, typename OutputPixelType>
-class ScalarImageFilterWithMask3D : public ImageFilter3D<InputPixelType, OutputPixelType>
+template<typename InputPixel_Type, typename OutputPixel_Type>
+class ScalarImageFilterWithMask3D : public ImageFilter3D<InputPixel_Type, OutputPixel_Type>
 {
+public:
+	typedef InputPixel_Type InputPixelType;
+	typedef OutputPixel_Type OutputPixelType;
 
 protected:
 
@@ -20,11 +21,9 @@ protected:
     // dx_Index
     // dy_Index
     // dz_Index
-    
-    // if the filter is a convolution filter, the 4th element in each column is 
-    // w
     //
-	// w is the coefficient at (dx_Index, dy_Index, dz_Index) 
+    // if the filter is a convolution filter, the 4th element in each column is 
+	// w : the coefficient at (dx_Index, dy_Index, dz_Index) 
 
     // input_1:
     const DenseMatrix<double>* m_Mask_3DPosition;
@@ -32,11 +31,9 @@ protected:
     // dx
     // dy
     // dz
-
-    // if the filter is a convolution filter, the 4th element in each column is 
-    // w
     //
-    // w is the coefficient at (dx, dy, dz)
+    // if the filter is a convolution filter, the 4th element in each column is 
+    // w : the coefficient at (dx, dy, dz)
 
     Image3DBoxRegionOf3DIndex            m_NOBoundCheckRegion_3DIndex;
 

@@ -162,9 +162,12 @@ private:
 
 //===================================================================================================================//
 
-template<typename PixelType>
+template<typename Pixel_Type>
 class Image2D: public Object
 {
+public:
+	typedef Pixel_Type PixelType;
+
 private:
 
     std::shared_ptr<ImageData2D<PixelType>> m_ImageData;

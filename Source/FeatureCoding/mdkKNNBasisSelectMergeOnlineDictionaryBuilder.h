@@ -8,10 +8,12 @@ namespace mdk
 
 // This is a modified version of KNNBasisSelectionOnlineDictionaryBuilder
 
-
-template<typename ElementType>
-class KNNBasisSelectMergeOnlineDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
+template<typename Element_Type>
+class KNNBasisSelectMergeOnlineDictionaryBuilder : public FeatureDictionaryBuilder<Element_Type>
 {
+public:
+	typedef Element_Type ElementType;
+
 public:
     Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder<ElementType> m_Parameter;
 

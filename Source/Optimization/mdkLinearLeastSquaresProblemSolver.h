@@ -111,9 +111,10 @@ template<typename ElementType>
 class LinearLeastSquaresProblemSolver : public ProcessObject
 {
 public:
-    Option_Of_LinearLeastSquaresProblemSolver m_Option;
+	typedef MDK_MethodType_Of_LinearLeastSquaresProblemSolver MethodTypeEnum;
 
-    typedef MDK_MethodType_Of_LinearLeastSquaresProblemSolver MethodTypeEnum;
+public:
+    Option_Of_LinearLeastSquaresProblemSolver m_Option;
 
 private:
 

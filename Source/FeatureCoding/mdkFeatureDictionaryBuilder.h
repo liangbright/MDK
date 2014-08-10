@@ -6,9 +6,11 @@
 namespace mdk
 {
 
-template<typename ElementType>
+template<typename Element_Type>
 class FeatureDictionaryBuilder : public ProcessObject
 {
+public:
+	typedef Element_Type ElementType;
 
 protected:
     FeatureDictionaryBuilder();

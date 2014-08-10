@@ -92,9 +92,12 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 };
 
 
-template<typename ElementType>
-class KNNAverageOnlineDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
+template<typename Element_Type>
+class KNNAverageOnlineDictionaryBuilder : public FeatureDictionaryBuilder<Element_Type>
 {
+public:
+	typedef Element_Type ElementType;
+
 public:
     Parameter_Of_KNNAverageOnlineDictionaryBuilder<ElementType> m_Parameter;
 

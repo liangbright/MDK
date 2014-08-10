@@ -99,15 +99,16 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
 };
 
 
-template<typename ElementType>
-class FeatureDictionaryForSparseCoding : public FeatureDictionary<ElementType>
+template<typename Element_Type>
+class FeatureDictionaryForSparseCoding : public FeatureDictionary<Element_Type>
 {
-private:
+public:
+	typedef Element_Type ElementType;
 
+private:
     std::shared_ptr<DictionaryData_Of_FeatureDictionaryForSparseCoding<ElementType>> m_DictionaryData;
 
 public:
-
     FeatureDictionaryForSparseCoding();
 
     FeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding& InputDictionary);

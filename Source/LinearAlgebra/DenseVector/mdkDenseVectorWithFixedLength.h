@@ -26,14 +26,14 @@ namespace mdk
 //------------------------------
 
 
-template<typename ElementType, int_max Length = -1>
+template<typename Element_Type, int_max Length = -1>
 class DenseVector : public Object
 {
+public:
+	typedef Element_Type ElementType;
+
 private:
     std::array<ElementType, Length> m_DataArray;
-
-public:
-    typedef ElementType ElementType;
 
 public:
     

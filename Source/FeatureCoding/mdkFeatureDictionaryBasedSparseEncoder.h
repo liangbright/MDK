@@ -16,9 +16,12 @@
 namespace mdk
 {
 
-template<typename ElementType>
-class FeatureDictionaryBasedSparseEncoder : public FeatureDictionaryBasedEncoder<ElementType>
+template<typename Element_Type>
+class FeatureDictionaryBasedSparseEncoder : public FeatureDictionaryBasedEncoder<Element_Type>
 {
+public:
+	typedef Element_Type ElementType;
+
 protected:
 
     // input data:

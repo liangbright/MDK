@@ -19,7 +19,7 @@ ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::~ScalarImageCon
 
 template<typename InputPixelType, typename OutputPixelType>
 void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
-SetImageInterpolationMethodAndOption(ImageInterpolation3DMethodTypeEnum Method, const Option_Of_ImageInterpolator3D<OutputPixelType>& Option)
+SetImageInterpolationMethodAndOption(ScalarImage3DInterpolationMethodEnum Method, const Option_Of_ScalarImageInterpolator3D<OutputPixelType>& Option)
 {
     m_InterpolationMethod = Method;
 
@@ -42,59 +42,44 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y
 
     bool CheckBoundAtThisCenter = this->WhetherToCheckBoundAtMaskCenter_3DIndex(x_Index, y_Index, z_Index);
 
-    if (CheckBoundAtThisCenter == true)
-    {
-        auto Lx = InputImageSize.Lx;
-        auto Ly = InputImageSize.Ly;
-        auto Lz = InputImageSize.Lz;
-
-        for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
+	if (m_InterpolationMethod == ScalarImage3DInterpolationMethodEnum::Nearest)
+	{
+		if (CheckBoundAtThisCenter == true)
 		{
-            auto temp_x = int_max(Ptr[0]) + x_Index;
+			for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
+			{
+				auto temp_x = Ptr[0] + double(x_Index);
+				auto temp_y = Ptr[1] + double(y_Index);
+				auto temp_z = Ptr[2] + double(z_Index);
 
-            if (temp_x < 0)
-            {
-                temp_x = 0;
-            }
-            else if (temp_x >= Lx)
-            {
-                temp_x = Lx - 1;
-            }
+				auto tempValue = InterpolateScalarImageAtContinuousIndex_Nearest(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
 
-            auto temp_y = int_max(Ptr[1]) + y_Index;
+				tempPixel += OutputPixelType(tempValue * Ptr[3]);
+			}
+		}
+		else
+		{
+			for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
+			{
+				auto temp_x = int_max(Ptr[0]) + x_Index;
+				auto temp_y = int_max(Ptr[1]) + y_Index;
+				auto temp_z = int_max(Ptr[2]) + z_Index;
 
-            if (temp_y < 0)
-            {
-                temp_y = 0;
-            }
-            else if (temp_y >= Ly)
-            {
-                temp_y = Ly - 1;
-            }
-
-            auto temp_z = int_max(Ptr[2]) + z_Index;
-
-            if (temp_z < 0)
-            {
-                temp_z = 0;
-            }
-            else if (temp_z >= Lz)
-            {
-                temp_z = Lz - 1;
-            }
-
-            tempPixel += OutputPixelType((*m_InputImage)(temp_x, temp_y, temp_z) * Ptr[3]);
+				tempPixel += OutputPixelType((*m_InputImage)(temp_x, temp_y, temp_z) * Ptr[3]);
+			}
 		}
 	}
 	else
 	{
-        for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
+		for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
 		{
-            auto temp_x = int_max(Ptr[0]) + x_Index;
-            auto temp_y = int_max(Ptr[1]) + y_Index;
-            auto temp_z = int_max(Ptr[2]) + z_Index;
+			auto temp_x = Ptr[0] + double(x_Index);
+			auto temp_y = Ptr[1] + double(y_Index);
+			auto temp_z = Ptr[2] + double(z_Index);
 
-            tempPixel += OutputPixelType((*m_InputImage)(temp_x, temp_y, temp_z) * Ptr[3]);
+			auto tempValue = InterpolateScalarImageAtContinuousIndex(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
+
+			tempPixel += OutputPixelType(tempValue * Ptr[3]);
 		}
 	}
 
@@ -115,7 +100,11 @@ FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, dou
 
     for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
     {
-        auto tempValue = InterpolateImageAtPhysicalPosition(*m_InputImage, Ptr[0], Ptr[1], Ptr[2], m_InterpolationMethod, m_InterpolationOption);
+		auto temp_x = Ptr[0] + x;
+		auto temp_y = Ptr[1] + y;
+		auto temp_z = Ptr[2] + z;
+
+		auto tempValue = InterpolateScalarImageAtPhysicalPosition(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
 
         tempPixel += OutputPixelType(tempValue * Ptr[3]);
     }

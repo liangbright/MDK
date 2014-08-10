@@ -21,7 +21,7 @@ ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::~Scal
 template<typename InputPixelType, typename OutputPixelType>
 void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::Clear()
 {
-    this->ScalarImageToVectorImageFilter3D::Clear();
+	this->ImageFilter3D::Clear();
 
     m_MaskList_3DIndex = nullptr;
 
@@ -34,14 +34,14 @@ void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::SetMaskOf3DIndex(const DataContainer<DenseMatrix<double>>* MaskList)
+void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::SetMaskOf3DIndex(const DataArray<DenseMatrix<double>>* MaskList)
 {
     m_MaskList_3DIndex = MaskList;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::SetMaskOf3DPosition(const DataContainer<DenseMatrix<double>>* MaskList)
+void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::SetMaskOf3DPosition(const DataArray<DenseMatrix<double>>* MaskList)
 {
     m_MaskList_3DPosition = MaskList;
 }
@@ -145,11 +145,11 @@ void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::
 
     m_NOBoundCheckRegionList_3DPosition.resize(Length);
 
-    auto PhysicalOrigin = m_InputImage->GetPhysicalOrigin();
+    auto PhysicalOrigin = m_InputImage->GetOrigin();
 
     auto PhysicalSize = m_InputImage->GetPhysicalSize();
 
-    auto PixelSpacing   = m_InputImage->GetPixelSpacing();
+    auto PixelSpacing   = m_InputImage->GetSpacing();
 
     auto SafeDistance_x = 2 * PixelSpacing.Sx;
 
@@ -228,7 +228,7 @@ void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::
 template<typename InputPixelType, typename OutputPixelType>
 bool ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::CheckInput()
 {
-    if (this->ScalarImageToVectorImageFilter3D::CheckInput() == false)
+    if (this->ImageFilter3D::CheckInput() == false)
     {
         return false;
     }
@@ -313,7 +313,7 @@ bool ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::
 template<typename InputPixelType, typename OutputPixelType>
 bool ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::Preprocess()
 {
-    if (this->ScalarImageToVectorImageFilter3D::Preprocess() == false)
+    if (this->ImageFilter3D::Preprocess() == false)
     {
         return false;
     }

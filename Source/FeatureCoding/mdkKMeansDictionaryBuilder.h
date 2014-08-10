@@ -14,9 +14,12 @@
 namespace mdk
 {
 
-template<typename ElementType>
-class KMeansDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
+template<typename Element_Type>
+class KMeansDictionaryBuilder : public FeatureDictionaryBuilder<Element_Type>
 {
+public:
+	typedef Element_Type ElementType;
+
 public:
     int_max m_ClusterNumber;
 

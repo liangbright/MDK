@@ -8,11 +8,13 @@
 namespace mdk
 {
 
-template<typename ElementType>
-class FeatureDictionaryForDenseCoding : public FeatureDictionary<ElementType>
+template<typename Element_Type>
+class FeatureDictionaryForDenseCoding : public FeatureDictionary<Element_Type>
 {
 public:
+	typedef Element_Type ElementType;
 
+public:
     CharString m_Name;
 
     DenseMatrix<ElementType> m_BasisMatrix; // D

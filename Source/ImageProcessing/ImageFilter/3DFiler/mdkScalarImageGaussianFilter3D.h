@@ -11,14 +11,18 @@
 namespace mdk
 {
 
-template<typename InputPixelType, typename OutputPixelType>
-class ScalarImageGaussianFilter3D : public ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>
+template<typename InputPixel_Type, typename OutputPixel_Type>
+class ScalarImageGaussianFilter3D : public ScalarImageConvolutionFilter3D<InputPixel_Type, OutputPixel_Type>
 {
+public:
+	typedef InputPixel_Type InputPixelType;
+	typedef OutputPixel_Type OutputPixelType;
+
 private:
 
-    DenseMatrix<double> m_SigmaList;
+    DenseMatrix<double> m_SigmaList; // [sigma_x, sigma_y, sigma_z]
 
-    DenseMatrix<double> m_RotationMatrix;
+    DenseMatrix<double> m_RotationMatrix; // 3 x 3
 
     double m_CutOffRatio;
 

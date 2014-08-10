@@ -1,22 +1,21 @@
 ﻿#ifndef __mdkScalarImageToVectorImageFilterWithMask3D_h
 #define __mdkScalarImageToVectorImageFilterWithMask3D_h
 
-
-#include "mdkScalarImageToVectorImageFilter3D.h"
-
+#include "mdkImageFilter3D.h"
 
 namespace mdk
 {
 
-template<typename InputPixelType, typename OutputPixelType>
-class ScalarImageToVectorImageFilterWithMask3D : public ImageFilter3D<InputPixelType, OutputPixelType>
+template<typename InputPixel_Type, typename OutputPixel_Type>
+class ScalarImageToVectorImageFilterWithMask3D : public ImageFilter3D<InputPixel_Type, OutputPixel_Type>
 {
-
 public:
-    typedef OutputPixelType::ElementType  ElementTypeInOutputPixel;
+	typedef InputPixel_Type InputPixelType;
+	typedef OutputPixel_Type OutputPixelType;
+    typedef OutputPixelType::ElementType  ElementTypeOfOutputPixel;
 
 protected:
-    DataContainer<DenseMatrix<double>>* m_MaskList_3DIndex;
+    DataArray<DenseMatrix<double>>* m_MaskList_3DIndex;
 	// each column has at least 3 elements
     // dx_Index
     // dy_Index
@@ -27,7 +26,7 @@ protected:
     //
 	// w is the coefficient at (dx_Index, dy_Index, dz_Index) 
 
-    DataContainer<DenseMatrix<double>>* m_MaskList_3DPosition;
+    DataArray<DenseMatrix<double>>* m_MaskList_3DPosition;
     // each column has at least 3 elements
     // dx
     // dy
@@ -38,9 +37,9 @@ protected:
     //
     // w is the coefficient at (dx, dy, dz)
 
-    DataContainer<Image3DBoxRegionOf3DIndex>            m_NOBoundCheckRegionList_3DIndex;
+    DataArray<Image3DBoxRegionOf3DIndex>            m_NOBoundCheckRegionList_3DIndex;
 
-    DataContainer<Image3DBoxRegionOf3DPhysicalPosition> m_NOBoundCheckRegionList_3DPosition;
+    DataArray<Image3DBoxRegionOf3DPhysicalPosition> m_NOBoundCheckRegionList_3DPosition;
 
 protected:		
 	ScalarImageToVectorImageFilterWithMask3D();
@@ -50,13 +49,13 @@ public:
 
     virtual void Clear();
 
-    void SetMaskOf3DIndex(const DataContainer<DenseMatrix<double>>* MaskList);
+    void SetMaskOf3DIndex(const DataArray<DenseMatrix<double>>* MaskList);
 
-    void SetMaskOf3DPosition(const DataContainer<DenseMatrix<double>>* MaskList);
+    void SetMaskOf3DPosition(const DataArray<DenseMatrix<double>>* MaskList);
 
-    void GetMaskOf3DIndex(const DataContainer<DenseMatrix<double>>* MaskList) const;
+    void GetMaskOf3DIndex(const DataArray<DenseMatrix<double>>* MaskList) const;
 
-    void GetMaskOf3DPosition(const DataContainer<DenseMatrix<double>>* MaskList) const;
+    void GetMaskOf3DPosition(const DataArray<DenseMatrix<double>>* MaskList) const;
 
     virtual bool CheckInput();
 

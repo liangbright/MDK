@@ -50,11 +50,13 @@ private:
 };
 
 
-template<typename ElementType>
-class KNNSoftAssignAndReconstructionSparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
+template<typename Element_Type>
+class KNNSoftAssignAndReconstructionSparseEncoder : public FeatureDictionaryBasedSparseEncoder<Element_Type>
 {
 public:
+	typedef Element_Type ElementType;
 
+public:
     Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder<ElementType> m_Parameter;
 
 private:

@@ -9,9 +9,11 @@
 namespace mdk
 {
 
-template<typename ElementType>
+template<typename Element_Type>
 class FeatureDictionaryBasedEncoder : public ProcessObject
 {
+public:
+	typedef Element_Type ElementType;
 
 protected:
     FeatureDictionaryBasedEncoder() {}

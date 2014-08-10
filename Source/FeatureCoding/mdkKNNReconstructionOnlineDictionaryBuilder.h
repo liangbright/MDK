@@ -1,9 +1,7 @@
 #ifndef __mdkKNNReconstructionOnlineDictionaryBuilder_h
 #define __mdkKNNReconstructionOnlineDictionaryBuilder_h
 
-
 #include <random>
-
 
 #include "mdkFileIO.h"
 #include "mdkString.h"
@@ -13,7 +11,6 @@
 #include "mdkFeatureCoding_Common_Function.h"
 #include "mdkLinearLeastSquaresProblemSolver.h"
 #include "mdkKNNReconstructionSparseEncoder.h"
-
 
 namespace mdk
 {
@@ -77,9 +74,12 @@ struct Parameter_Of_KNNReconstructionOnlineDictionaryBuilder
 };
 
 
-template<typename ElementType>
-class KNNReconstructionOnlineDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
+template<typename Element_Type>
+class KNNReconstructionOnlineDictionaryBuilder : public FeatureDictionaryBuilder<Element_Type>
 {
+public:
+	typedef Element_Type ElementType;
+
 public:
     Parameter_Of_KNNReconstructionOnlineDictionaryBuilder<ElementType> m_Parameter;
 

@@ -6,24 +6,25 @@
 #include "mdkScalarImageFilterWithMask3D.h"
 #include "mdkScalarImageInterpolator3D.h"
 
-
 namespace mdk
 {
 
-template<typename InputPixelType, typename OutputPixelType>
-class ScalarImageConvolutionFilter3D : public ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>
+template<typename InputPixel_Type, typename OutputPixel_Type>
+class ScalarImageConvolutionFilter3D : public ScalarImageFilterWithMask3D<InputPixel_Type, OutputPixel_Type>
 {
+public:
+	typedef InputPixel_Type InputPixelType;
+	typedef OutputPixel_Type OutputPixelType;
 
 private:
-    ImageInterpolation3DMethodTypeEnum m_InterpolationMethod;
-
-    Option_Of_ImageInterpolator3D<OutputPixelType> m_InterpolationOption;
+	ScalarImage3DInterpolationMethodEnum m_InterpolationMethod;
+	Option_Of_ScalarImageInterpolator3D<OutputPixelType> m_InterpolationOption;
 
 public:
 	ScalarImageConvolutionFilter3D();
 	~ScalarImageConvolutionFilter3D();
 
-    void SetImageInterpolationMethodAndOption(ImageInterpolation3DMethodTypeEnum Method, const Option_Of_ImageInterpolator3D<OutputPixelType>& Option);
+	void SetImageInterpolationMethodAndOption(ScalarImage3DInterpolationMethodEnum Method, const Option_Of_ScalarImageInterpolator3D<OutputPixelType>& Option);
 
     inline void FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex);
 

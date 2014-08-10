@@ -9,21 +9,19 @@
 namespace mdk
 {
 
-template<typename ElementType>
-class FeatureDictionaryBasedDenseEncoder : public FeatureDictionaryBasedEncoder<ElementType>
+template<typename Element_Type>
+class FeatureDictionaryBasedDenseEncoder : public FeatureDictionaryBasedEncoder<Element_Type>
 {
+public:
+	typedef Element_Type ElementType;
+
 protected:
-
     // input:
-
     const DenseMatrix<ElementType>* m_FeatureData;
-
-    // input 
 
     const FeatureDictionaryForDenseCoding<ElementType>* m_Dictionary;
 
     // output:
-
     DenseMatrix<ElementType>* m_Code;
 
 private:

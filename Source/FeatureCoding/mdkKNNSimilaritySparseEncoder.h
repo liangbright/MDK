@@ -36,12 +36,13 @@ struct Parameter_Of_KNNSimilaritySparseEncoder
 };
 
 
-template<typename ElementType>
-class KNNSimilaritySparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
+template<typename Element_Type>
+class KNNSimilaritySparseEncoder : public FeatureDictionaryBasedSparseEncoder<Element_Type>
 {
+public:
+	typedef Element_Type ElementType;
 
 public:
-
     Parameter_Of_KNNSimilaritySparseEncoder<ElementType> m_Parameter;
 
 public:

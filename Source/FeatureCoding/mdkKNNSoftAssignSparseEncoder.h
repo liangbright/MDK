@@ -41,12 +41,13 @@ struct Parameter_Of_KNNSoftAssignSparseEncoder
 };
 
 
-template<typename ElementType>
-class KNNSoftAssignSparseEncoder : public FeatureDictionaryBasedSparseEncoder<ElementType>
+template<typename Element_Type>
+class KNNSoftAssignSparseEncoder : public FeatureDictionaryBasedSparseEncoder<Element_Type>
 {
+public:
+	typedef Element_Type ElementType;
 
 public:
-
     Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> m_Parameter;
 
 private:

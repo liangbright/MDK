@@ -23,14 +23,14 @@
 namespace mdk
 {
   
-template<typename ElementType>
-class DenseVector<ElementType, -1> : public Object
+template<typename Element_Type>
+class DenseVector<Element_Type, -1> : public Object
 {
+public:
+	typedef Element_Type ElementType;
+
 private:
     std::vector<ElementType> m_DataArray;
-
-public:
-    typedef ElementType ElementType;
 
 public:
     

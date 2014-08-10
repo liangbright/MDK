@@ -21,13 +21,14 @@ class DenseMatrix;
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
-template<typename ElementType>
+template<typename Element_Type>
 class SimpleDataArray : public Object
 {     
-    std::vector<ElementType> m_DataArray;
-
 public:
-    typedef ElementType  ElementType;
+	typedef Element_Type  ElementType;
+
+private:
+    std::vector<ElementType> m_DataArray;
 
 public:			
 	//------------------- constructor and destructor ------------------------------------//

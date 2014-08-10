@@ -148,9 +148,12 @@ struct Parameter_Of_KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder
 };
 
 
-template<typename ElementType>
-class KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder : public FeatureDictionaryBuilder<ElementType>
+template<typename Element_Type>
+class KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder : public FeatureDictionaryBuilder<Element_Type>
 {
+public:
+	typedef Element_Type ElementType;
+
 public:
     Parameter_Of_KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType> m_Parameter;
 

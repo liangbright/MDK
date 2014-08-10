@@ -9,23 +9,22 @@
 namespace mdk
 {
 
-template<typename ElementType>
-class PCADenseEncoder : public FeatureDictionaryBasedDenseEncoder<ElementType>
+template<typename Element_Type>
+class PCADenseEncoder : public FeatureDictionaryBasedDenseEncoder<Element_Type>
 {
+public:
+	typedef Element_Type ElementType;
 
-protected:
+public:
     PCADenseEncoder();
     ~PCADenseEncoder();
 
-public:
-    
+public:    
     void EncodingFunction(DenseMatrix<ElementType>& CodeInDenseColVector, const DenseMatrix<ElementType>& DataColVector, int_max ThreadIndex);
 
 private:
     PCADenseEncoder(const PCADenseEncoder&) = delete;
-
     void operator=(const PCADenseEncoder&) = delete;
-
 };
 
 }

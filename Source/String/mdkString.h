@@ -63,15 +63,14 @@ void MDK_Check_ElementType_Of_String(char32_t)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------//
-template<typename ElementType>
+template<typename Element_Type>
 class String : public Object
 {
-private:
-     
-    std::shared_ptr<std::basic_string<ElementType>> m_StringData;
-
 public:
-    typedef ElementType  ElementType;
+	typedef Element_Type  ElementType;
+
+private:     
+    std::shared_ptr<std::basic_string<ElementType>> m_StringData;
 
 public:			
 	//------------------- constructor and destructor ------------------------------------//

@@ -101,17 +101,16 @@ private:
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
-template<typename ElementType>
+template<typename Element_Type>
 class DataArray : public Object
 {
-private:
-     
+public:
+	typedef Element_Type ElementType;
+
+private:     
     std::shared_ptr<DataArrayData<ElementType>> m_Data;
 
     ElementType* m_ElementPointer;
-
-public:
-    typedef ElementType  ElementType;
 
 public:			
 	//------------------- constructor and destructor ------------------------------------//

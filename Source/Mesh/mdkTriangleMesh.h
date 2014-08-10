@@ -19,13 +19,13 @@ struct TriangleMeshAttributeType
 };
 //---------------------------------------------------------------------------------------------------------//
 
-template<typename MeshAttributeType>
-class TriangleMesh : public PolygonMesh<MeshAttributeType>
+template<typename MeshAttribute_Type>
+class TriangleMesh : public PolygonMesh<MeshAttribute_Type>
 {
 public:
-    typedef TriangleMesh<MeshAttributeType> MeshType;
+	typedef MeshAttribute_Type MeshAttributeType;
 
-    typedef MeshAttributeType MeshAttributeType;
+    typedef TriangleMesh<MeshAttributeType> MeshType;
 
     typedef typename MeshAttributeType::ScalarType                  ScalarType;
     typedef typename MeshAttributeType::GlobalAttribute             GlobalAttribute;
