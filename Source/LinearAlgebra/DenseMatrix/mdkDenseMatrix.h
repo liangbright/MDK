@@ -5,7 +5,6 @@
 #include <memory>
 #include <string>
 #include <initializer_list>
-#include <functional>
 #include <cmath>
 #include <algorithm>
 #include <limits> 
@@ -393,8 +392,6 @@ public:
     inline bool ReserveCapacity(int_max InputElementNumber); // reserve memory, current matrix size does not change
 
     inline void ReleaseUnusedCapacity();
-
-    inline void Squeeze(); // same as ReleaseUnusedCapacity()
 
     inline void FixSize();
     
@@ -1013,7 +1010,7 @@ public:
     inline bool InsertRow(int_max RowIndex, const ElementType_Input* RowData);
 
     //---------------------- Append, delete, insert element when matrix is vector -----------------//
-    // if matrix is empty, then it will become row vector
+    // if matrix is empty or has one element, then it will become row vector
     // if matrix is not vector, then MDK_Error
 
     inline bool Append(ElementType Element);
@@ -1333,9 +1330,9 @@ public:
     template<typename MatchFunctionType>
     inline DenseMatrix<int_max> Find(int_max MaxOutputNumber, int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction) const;
 
-    // find with MaxOutputNumber = 1 
-    template<typename MatchFunctionType>
-    inline int_max Match(MatchFunctionType MatchFunction) const;
+	// find the first/last that match the condition
+	template<typename MatchFunctionType>
+	inline int_max Find(const std::string& first_or_last, MatchFunctionType MatchFunction) const;
 
     //------------------------ find col : return col index list ------------------------------------//
 
@@ -1348,6 +1345,9 @@ public:
     template<typename MatchFunctionType>
     inline DenseMatrix<int_max> FindCol(int_max MaxOutputColNumber, int_max ColIndex_start, int_max ColIndex_end, MatchFunctionType MatchFunction) const;
 
+	template<typename MatchFunctionType>
+	inline int_max FindCol(const std::string& first_or_last, MatchFunctionType MatchFunction) const;
+
     //----------------------- sort element : return sorted linear index list ----------//
 
     template<typename CompareFunctionType>
@@ -1356,11 +1356,23 @@ public:
     template<typename CompareFunctionType>
     inline DenseMatrix<int_max> Sort(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction) const;
 
+	template<typename CompareFunctionType>
+	inline DenseMatrix<int_max> Sort(const char* ascend_or_descend) const;
+
+	template<typename CompareFunctionType>
+	inline DenseMatrix<int_max> Sort(const std::string& ascend_or_descend) const;
+
     template<typename CompareFunctionType>
     inline void SortInPlace(CompareFunctionType CompareFunction);
 
     template<typename CompareFunctionType>
     inline void SortInPlace(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction);
+
+	template<typename CompareFunctionType>
+	inline void SortInPlace(const char* ascend_or_descend);
+
+	template<typename CompareFunctionType>
+	inline void SortInPlace(const std::string& ascend_or_descend);
 
     //----------------------- sort col : return sorted col index list ----------------------------------//
 

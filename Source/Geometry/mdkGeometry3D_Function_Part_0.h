@@ -1,5 +1,5 @@
-#ifndef __mdkGeometry_Function_Part_0_h
-#define __mdkGeometry_Function_Part_0_h
+#ifndef __mdkGeometry3D_Function_Part_0_h
+#define __mdkGeometry3D_Function_Part_0_h
 
 namespace mdk
 {
@@ -69,6 +69,6 @@ ElementType ComputeTriangleAreaIn3D(const ElementType* PointPositionA, const Ele
 
 }// namespace mdk
 
-#include "mdkGeometry_Function_Part_0.hpp"
+#include "mdkGeometry3D_Function_Part_0.hpp"
 
 #endif

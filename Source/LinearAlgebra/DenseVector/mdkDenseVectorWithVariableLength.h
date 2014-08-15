@@ -4,8 +4,10 @@
 #include <utility>
 #include <vector>
 
+#include "mdkDebugConfig.h"
 #include "mdkType.h"
 #include "mdkObject.h"
+#include "mdkDenseVectorWithFixedLength.h"
 #include "mdkLinearAlgebra_Function_DenseVector.h"
 
 // this is a memory efficient implementation of Dense Vector
@@ -85,8 +87,6 @@ public:
     inline void ReserveCapacity(int_max Length);
 
     inline void ReleaseUnusedCapacity();
-
-    inline void Squeeze(); // same as ReleaseUnusedCapacity()
 
     inline void Fill(const ElementType& Element);
 
@@ -221,7 +221,7 @@ public:
 
     inline bool Insert(int_max Index, const ElementType* InputData, int_max InputLength);
 
-    //------------------- push pop the last element ----------------------//
+    //------------------- push/ pop the last element ----------------------//
 
     inline bool PushBack(ElementType Element);
 
@@ -239,9 +239,9 @@ public:
     template<typename MatchFunctionType>
     inline DenseVector<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction) const;
 
-    // find with MaxOutputNumber = 1 
-    template<typename MatchFunctionType>
-    inline int_max Match(MatchFunctionType MatchFunction) const;
+	// find the first/last that match the condition
+	template<typename MatchFunctionType>
+	inline int_max Find(const std::string& first_or_last, MatchFunctionType MatchFunction) const;
 
     //--------------------- sort ---------------------------------------//
     // return index list
@@ -332,6 +332,5 @@ public:
 
 #include "mdkDenseVectorWithVariableLength.hpp"
 #include "mdkDenseVectorWithVariableLength_Operator.h"
-#include "mdkDenseVectorWithVariableLength_Function.h"
 
 #endif

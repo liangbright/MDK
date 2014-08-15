@@ -6,9 +6,6 @@
 #include <memory>
 #include <string>
 
-
-//#include "mdkDenseMatrix.h"
-
 namespace mdk
 {
 

@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "mdkType.h"
+
 namespace mdk
 {
 //------------- forward declare-----------------------//

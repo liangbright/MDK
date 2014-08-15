@@ -29,7 +29,8 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
                                          int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction);
 
 template<typename ElementType, typename MatchFunctionType>
-int_max MatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction);
+int_max FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, MatchFunctionType MatchFunction);
+
 
 template<typename ElementType, typename MatchFunctionType>
 DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction);
@@ -41,12 +42,17 @@ template<typename ElementType, typename MatchFunctionType>
 DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputColNumber,
                                      int_max ColIndex_start, int_max ColIndex_end, MatchFunctionType MatchFunction);
 
+template<typename ElementType, typename MatchFunctionType>
+int_max FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, MatchFunctionType MatchFunction);
+
+
 template<typename ElementType, typename CompareFunctionType>
 DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix, CompareFunctionType CompareFunction);
 
 template<typename ElementType, typename CompareFunctionType>
 DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix,
                                      int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction);
+
 
 template<typename ElementType>
 DenseMatrix<int_max> FindUniqueElementInMatrix(const DenseMatrix<ElementType>& InputMatrix);

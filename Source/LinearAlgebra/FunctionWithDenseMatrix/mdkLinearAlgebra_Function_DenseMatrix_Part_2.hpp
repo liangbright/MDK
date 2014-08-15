@@ -86,18 +86,36 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
 
 
 template<typename ElementType, typename MatchFunctionType>
-int_max MatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction)
+int_max FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, MatchFunctionType MatchFunction)
 {
     int_max Index_output = -1;
 
-    for (int_max i = 0; i < InputMatrix.GetElementNumber(); ++i)
-    {
-        if (MatchFunction(InputMatrix[i]) == true)
-        {
-            Index_output = i;
-            break;
-        }
-    }
+	if (first_or_last == "first")
+	{
+		for (int_max i = 0; i < InputMatrix.GetElementNumber(); ++i)
+		{
+			if (MatchFunction(InputMatrix[i]) == true)
+			{
+				Index_output = i;
+				break;
+			}
+		}
+	}
+	else if (first_or_last == "last")
+	{
+		for (int_max i = InputMatrix.GetElementNumber()-1; i >= 0; --i)
+		{
+			if (MatchFunction(InputMatrix[i]) == true)
+			{
+				Index_output = i;
+				break;
+			}
+		}
+	}
+	else
+	{
+		MDK_Error("Wrong option @ mdkLinearAlgebra_DenseMatrix FindElementInMatrix(...)")
+	}
 
     return Index_output;
 }
@@ -155,7 +173,7 @@ DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix
 
     if (ColIndex_start == ColIndex_end)
     {
-        ColIndexList.AppendCol({ ColIndex_start });
+        ColIndexList.Append(ColIndex_start);
         return ColIndexList;
     }
 
@@ -163,24 +181,88 @@ DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix
 
     DenseMatrix<ElementType> ColVector;
 
-    for (int_max i = ColIndex_start; i <= ColIndex_end; ++i)
-    {
-        ColVector.ForceShare(InputMatrix.GetElementPointerOfCol(i), InputSize.RowNumber, 1);
+	if (ColIndex_start < ColIndex_end)
+	{
+		for (int_max i = ColIndex_start; i <= ColIndex_end; ++i)
+		{
+			ColVector.ForceShare(InputMatrix.GetElementPointerOfCol(i), InputSize.RowNumber, 1);
 
-        if (MatchFunction(ColVector) == true)
-        {
-            ColIndexList.AppendCol({ i });
+			if (MatchFunction(ColVector) == true)
+			{
+				ColIndexList.Append(i);
 
-            auto CurrentNumber = ColIndexList.GetElementNumber();
+				auto CurrentNumber = ColIndexList.GetElementNumber();
 
-            if (CurrentNumber == MaxOutputColNumber)
-            {
-                break;
-            }
-        }
-    }
+				if (CurrentNumber == MaxOutputColNumber)
+				{
+					break;
+				}
+			}
+		}
+	}
+	else // if (ColIndex_start > ColIndex_end)
+	{
+		for (int_max i = ColIndex_start; i >= ColIndex_end; --i)
+		{
+			ColVector.ForceShare(InputMatrix.GetElementPointerOfCol(i), InputSize.RowNumber, 1);
+
+			if (MatchFunction(ColVector) == true)
+			{
+				ColIndexList.Append(i);
+
+				auto CurrentNumber = ColIndexList.GetElementNumber();
+
+				if (CurrentNumber == MaxOutputColNumber)
+				{
+					break;
+				}
+			}
+		}
+	}
 
     return ColIndexList;
+}
+
+
+template<typename ElementType, typename MatchFunctionType>
+DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, MatchFunctionType MatchFunction)
+{
+	int_max ColIndex_output = -1;
+
+	auto InputSize = InputMatrix.GetSize();
+
+	if (first_or_last == "first")
+	{
+		for (int_max i = 0; i <= InputSize.ColNumber - 1; ++i)
+		{
+			ColVector.ForceShare(InputMatrix.GetElementPointerOfCol(i), InputSize.RowNumber, 1);
+
+			if (MatchFunction(ColVector) == true)
+			{
+				ColIndex_output = i;
+				break;
+			}
+		}
+	}
+	else if (first_or_last == "last")
+	{
+		for (int_max i = InputSize.ColNumber - 1; i >= 0;  --i)
+		{
+			ColVector.ForceShare(InputMatrix.GetElementPointerOfCol(i), InputSize.RowNumber, 1);
+
+			if (MatchFunction(ColVector) == true)
+			{
+				ColIndex_output = i;
+				break;
+			}
+		}
+	}
+	else
+	{
+		MDK_Error("Wrong option @ mdkLinearAlgebra_DenseMatrix FindElementInMatrix(...)")
+	}	
+
+	return ColIndex_output;
 }
 
 

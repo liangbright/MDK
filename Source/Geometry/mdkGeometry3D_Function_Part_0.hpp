@@ -1,5 +1,5 @@
-#ifndef __mdkGeometry_Function_Part_0_hpp
-#define __mdkGeometry_Function_Part_0_hpp
+#ifndef __mdkGeometry3D_Function_Part_0_hpp
+#define __mdkGeometry3D_Function_Part_0_hpp
 
 namespace mdk
 {
@@ -12,7 +12,7 @@ DenseVector<ElementType, 3> ComputeVectorCrossProductIn3D(const DenseMatrix<Elem
 
     if (VectorA.GetElementNumber() != 3 || VectorB.GetElementNumber() != 3)
     {
-        MDK_Error("Input is not 3D vector @ mdkGeometry ComputeVectorCrossProductIn3D(...)")
+        MDK_Error("Input is not 3D vector @ mdkGeometry3D ComputeVectorCrossProductIn3D(...)")
         Vector_AxB.Fill(0);
         return Vector_AxB();
     }
@@ -35,7 +35,7 @@ DenseVector<ElementType, 3> ComputeVectorCrossProductIn3D(const ElementType* Vec
     DenseVector<ElementType, 3> Vector_AxB;
     if (VectorA == nullptr || VectorB == nullptr)
     {
-        MDK_Error("Input is nullptr @ mdkGeometry ComputeVectorCrossProductIn3D(...)")
+        MDK_Error("Input is nullptr @ mdkGeometry3D ComputeVectorCrossProductIn3D(...)")
         Vector_AxB.Fill(0);
         return Vector_AxB;
     }
@@ -53,7 +53,7 @@ ElementType ComputeAngleBetweenTwoVectorIn3D(const DenseMatrix<ElementType>& Vec
 {
     if (VectorA.GetElementNumber() != 3 || VectorB.GetElementNumber() != 3)
     {
-        MDK_Error("Input is not 3D vector @ mdkGeometry ComputeAngleBetweenTwoVectorIn3D(...)")
+        MDK_Error("Input is not 3D vector @ mdkGeometry3D ComputeAngleBetweenTwoVectorIn3D(...)")
         return 0;
     }
 
@@ -73,7 +73,7 @@ ElementType ComputeAngleBetweenTwoVectorIn3D(const ElementType* VectorA, const E
 {
     if (VectorA == nullptr || VectorB == nullptr)
     {
-        MDK_Error("Input is nullptr @ mdkGeometry ComputeAngleBetweenTwoVectorIn3D(...)")
+        MDK_Error("Input is nullptr @ mdkGeometry3D ComputeAngleBetweenTwoVectorIn3D(...)")
         return 0;
     }
 
@@ -102,7 +102,7 @@ DenseVector<ElementType, 3> ComputeTriangleNormalIn3D(const DenseMatrix<ElementT
 
     if (PointPositionA.GetElementNumber() != 3 || PointPositionB.GetElementNumber() != 3 || PointPositionC.GetElementNumber() != 3)
     {
-        MDK_Error("Input is not position vector in 3D @ mdkGeometry ComputeTriangleNormalIn3D(...)")
+        MDK_Error("Input is not position vector in 3D @ mdkGeometry3D ComputeTriangleNormalIn3D(...)")
         Normal.Fill(0);
         return Normal;
     }
@@ -127,7 +127,7 @@ DenseVector<ElementType, 3> ComputeTriangleNormalIn3D(const ElementType* PointPo
     DenseVector<ElementType, 3> Normal;
     if (PointPositionA == nullptr || PointPositionB == nullptr || PointPositionC == nullptr)
     {
-        MDK_Error("Input is nullptr @ mdkGeometry ComputeTriangleNormalIn3D(...)")
+        MDK_Error("Input is nullptr @ mdkGeometry3D ComputeTriangleNormalIn3D(...)")
         Normal.Fill(0);
         return Normal;
     }
@@ -161,7 +161,7 @@ ElementType ComputeTriangleAreaIn3D(const DenseMatrix<ElementType>& PointPositio
 {
     if (PointPositionA.GetElementNumber() != 3 || PointPositionB.GetElementNumber() != 3 || PointPositionC.GetElementNumber() != 3)
     {
-        MDK_Error("Input is not position vector in 3D @ mdkGeometry ComputeTriangleAreaIn3D(...)")
+        MDK_Error("Input is not position vector in 3D @ mdkGeometry3D ComputeTriangleAreaIn3D(...)")
         return 0;
     }
 

@@ -7,6 +7,7 @@
 #include "mdkDebugConfig.h"
 #include "mdkType.h"
 #include "mdkObject.h"
+#include "mdkDenseVector_ForwardDeclare.h"
 #include "mdkLinearAlgebra_Function_DenseVector.h"
 
 // this is a memory efficient implementation of Dense Vector
@@ -25,8 +26,7 @@ namespace mdk
 
 //------------------------------
 
-
-template<typename Element_Type, int_max Length = -1>
+template<typename Element_Type, int_max Length>
 class DenseVector : public Object
 {
 public:
@@ -170,9 +170,9 @@ public:
     template<typename MatchFunctionType>
     inline DenseVector<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction) const;
 
-    // find with MaxOutputNumber = 1 
-    template<typename MatchFunctionType>
-    inline int_max Match(MatchFunctionType MatchFunction) const;
+	// find the first/last that match the condition
+	template<typename MatchFunctionType>
+	inline int_max Find(const std::string& first_or_last, MatchFunctionType MatchFunction) const;
 
     //--------------------- sort ---------------------------------------//
     // return index list
@@ -256,6 +256,5 @@ public:
 
 #include "mdkDenseVectorWithFixedLength.hpp"
 #include "mdkDenseVectorWithFixedLength_Operator.h"
-#include "mdkDenseVectorWithFixedLength_Function.h"
 
 #endif

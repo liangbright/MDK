@@ -1945,14 +1945,6 @@ void DenseMatrix<ElementType>::ReleaseUnusedCapacity()
 
 
 template<typename ElementType>
-inline
-void DenseMatrix<ElementType>::Squeeze()
-{
-    this->ReleaseUnusedCapacity();
-}
-
-
-template<typename ElementType>
 inline 
 void DenseMatrix<ElementType>::FixSize()
 {
@@ -8168,9 +8160,9 @@ DenseMatrix<ElementType>::Find(int_max MaxOutputNumber, int_max LinearIndex_star
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline 
-int_max DenseMatrix<ElementType>::Match(MatchFunctionType MatchFunction) const
+int_max DenseMatrix<ElementType>::Find(const std::string& first_or_last, MatchFunctionType MatchFunction) const
 {
-    return MatchElementInMatrix(*this, MatchFunction);
+	return FindElementInMatrix(*this, first_or_last, MatchFunction);
 }
 
 //--------------------------------------------------------------------------------------------//
@@ -8202,6 +8194,15 @@ DenseMatrix<int_max>
 DenseMatrix<ElementType>::FindCol(int_max MaxOutputColNumber, int_max ColIndex_start, int_max ColIndex_end, MatchFunctionType MatchFunction) const
 {
     return FindColInMatrix(*this, MaxOutputColNumber, ColIndex_start, ColIndex_end, MatchFunction);
+}
+
+
+template<typename ElementType>
+template<typename MatchFunctionType>
+inline
+int_max DenseMatrix<ElementType>::FindCol(const std::string& first_or_last, MatchFunctionType MatchFunction) const
+{
+	return FindColInMatrix(*this, first_or_last, MatchFunction);
 }
 
 //-------------------------------------------------------------------------------------------//
@@ -8265,6 +8266,38 @@ DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(int_max LinearIndex_start, i
 
 template<typename ElementType>
 template<typename CompareFunctionType>
+inline
+DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(const char* ascend_or_descend) const
+{
+	std::string Order(ascend_or_descend);
+	return this->Sort(Order);
+}
+
+
+template<typename ElementType>
+template<typename CompareFunctionType>
+inline
+DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(const std::string& ascend_or_descend) const
+{
+	if (ascend_or_descend == "ascend")
+	{
+		return this->Sort([](const ElementType& ElementA, const ElementType& ElementB){ return ElementA < ElementB; });
+	}
+	else if (ascend_or_descend == "descend")
+	{
+		return this->Sort([](const ElementType& ElementA, const ElementType& ElementB){ return ElementA > ElementB; });
+	}
+	else
+	{
+		MDK_Error("Invalid order name @ DenseMatrix<ElementType>::Sort(...)")
+		DenseMatrix<int_max> IndexList;
+		return IndexList;
+	}
+}
+
+
+template<typename ElementType>
+template<typename CompareFunctionType>
 inline 
 void DenseMatrix<ElementType>::SortInPlace(CompareFunctionType CompareFunction)
 {
@@ -8292,6 +8325,36 @@ void DenseMatrix<ElementType>::SortInPlace(int_max LinearIndex_start, int_max Li
     }
 
     (*this)(span(LinearIndex_start, LinearIndex_end)) = (*this)(LinearIndexList);
+}
+
+
+template<typename ElementType>
+template<typename CompareFunctionType>
+inline
+void DenseMatrix<ElementType>::SortInPlace(const char* ascend_or_descend)
+{
+	std::string Order(ascend_or_descend);
+	this->SortInPlace(Order);
+}
+
+
+template<typename ElementType>
+template<typename CompareFunctionType>
+inline
+void DenseMatrix<ElementType>::SortInPlace(const std::string& ascend_or_descend)
+{
+	if (ascend_or_descend == "ascend")
+	{
+		this->SortInPlace([](const ElementType& ElementA, const ElementType& ElementB){ return ElementA < ElementB; });
+	}
+	else if (ascend_or_descend == "descend")
+	{
+		this->SortInPlace([](const ElementType& ElementA, const ElementType& ElementB){ return ElementA > ElementB; });
+	}
+	else
+	{
+		MDK_Error("Invalid order name @ DenseMatrix<ElementType>::SortInPlace(...)")
+	}
 }
 
 //-------------------------------------------------------------------------------------------//

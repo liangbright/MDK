@@ -942,20 +942,36 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
 
     IndexList.ReserveCapacity(MaxOutputNumber);
 
-    DenseMatrix<ElementType> ColVector;
+	if (Index_start < Index_end)
+	{
+		for (int_max i = Index_start; i <= Index_end; ++i)
+		{
+			if (MatchFunction((*this)[i]) == true)
+			{
+				IndexList.Append(i);
 
-    for (int_max i = Index_start; i <= Index_end; ++i)
-    {
-        if (MatchFunction((*this)[i]) == true)
-        {
-            IndexList.Append(i);
+				if (IndexList.GetElementNumber() == MaxOutputNumber)
+				{
+					break;
+				}
+			}
+		}
+	}
+	else //if (Index_start > Index_end)
+	{
+		for (int_max i = Index_start; i >= Index_end; --i)
+		{
+			if (MatchFunction((*this)[i]) == true)
+			{
+				IndexList.Append(i);
 
-            if (IndexList.GetElementNumber() == MaxOutputNumber)
-            {
-                break;
-            }
-        }
-    }
+				if (IndexList.GetElementNumber() == MaxOutputNumber)
+				{
+					break;
+				}
+			}
+		}
+	}
 
     return IndexList;
 }
@@ -964,22 +980,38 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
 template<typename ElementType, int_max Length>
 template<typename MatchFunctionType>
 inline
-int_max DenseVector<ElementType, Length>::Match(MatchFunctionType MatchFunction) const
+int_max DenseVector<ElementType, Length>::Find(const std::string& first_or_last, MatchFunctionType MatchFunction) const
 {
-    // find with MaxOutputNumber = 1 
+	int_max Index_output = -1;
 
-    int_max Index_output = -1;
+	if (first_or_last == "first")
+	{
+		for (int_max i = 0; i < this->GetElementNumber(); ++i)
+		{
+			if (MatchFunction((*this)[i]) == true)
+			{
+				Index_output = i;
+				break;
+			}
+		}
+	}
+	else if (first_or_last == "last")
+	{
+		for (int_max i = this->GetElementNumber() - 1; i >= 0; --i)
+		{
+			if (MatchFunction((*this)[i]) == true)
+			{
+				Index_output = i;
+				break;
+			}
+		}
+	}
+	else
+	{
+		MDK_Error("Wrong option @  DenseVector::Find(...)")
+	}
 
-    for (int_max i = 0; i < this->GetElementNumber(); ++i)
-    {
-        if (MatchFunction((*this)[i]) == true)
-        {
-            Index_output = i;
-            break;
-        }
-    }
-
-    return Index_output;
+	return Index_output;
 }
 
 

@@ -4,7 +4,6 @@
 #include <string>
 #include <limits>
 
-
 #include <Eigen/Dense>
 
 #include "mdkType.h"
@@ -23,11 +22,11 @@ DenseMatrix<ElementType> ComputeInnerProductListFromSingleVectorToColVectorSet(c
 
 template<typename ElementType>
 inline
-ElementType ComputeInnerProductOfTwoVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+ElementType ComputeInnerProductOfTwoVector(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
 
 template<typename ElementType>
 inline
-ElementType ComputeInnerProductOfTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
+ElementType ComputeInnerProductOfTwoVector(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
 
 
 // SingleVector is a column vector
@@ -39,11 +38,11 @@ DenseMatrix<ElementType> ComputeL2DistanceListFromSingleVectorToColVectorSet(con
 
 template<typename ElementType>
 inline
-ElementType ComputeL2DistanceBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+ElementType ComputeL2DistanceBetweenTwoVector(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
 
 template<typename ElementType>
 inline
-ElementType ComputeL2DistanceBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
+ElementType ComputeL2DistanceBetweenTwoVector(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
 
 
 template<typename ElementType>
@@ -52,11 +51,11 @@ DenseMatrix<ElementType> ComputeSquaredL2DistanceListFromSingleVectorToColVector
 
 template<typename ElementType>
 inline
-ElementType ComputeSquaredL2DistanceBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+ElementType ComputeSquaredL2DistanceBetweenTwoVector(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
 
 template<typename ElementType>
 inline
-ElementType ComputeSquaredL2DistanceBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
+ElementType ComputeSquaredL2DistanceBetweenTwoVector(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
 
 
 template<typename ElementType>
@@ -65,11 +64,11 @@ DenseMatrix<ElementType> ComputeL1DistanceListFromSingleVectorToColVectorSet(con
 
 template<typename ElementType>
 inline
-ElementType ComputeL1DistanceBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+ElementType ComputeL1DistanceBetweenTwoVector(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
 
 template<typename ElementType>
 inline
-ElementType ComputeL1DistanceBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
+ElementType ComputeL1DistanceBetweenTwoVector(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
 
 
 // sum((x-mean(x)).*(y-mean(y))/(sum((x-mean(x)).^2)*sum((y-mean(y)).^2))
@@ -79,11 +78,11 @@ DenseMatrix<ElementType> ComputeCorrelationListFromSingleVectorToColVectorSet(co
 
 template<typename ElementType>
 inline
-ElementType ComputeCorrelationBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+ElementType ComputeCorrelationBetweenTwoVector(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
 
 template<typename ElementType>
 inline
-ElementType ComputeCorrelationBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
+ElementType ComputeCorrelationBetweenTwoVector(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
 
 
 // sum(x.*y)/(sum(x.^2)*sum(y.^2))
@@ -94,11 +93,11 @@ DenseMatrix<ElementType> ComputeUncenteredCorrelationListFromSingleVectorToColVe
 
 template<typename ElementType>
 inline
-ElementType ComputeUncenteredCorrelationBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+ElementType ComputeUncenteredCorrelationBetweenTwoVector(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
 
 template<typename ElementType>
 inline
-ElementType ComputeUncenteredCorrelationBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length);
+ElementType ComputeUncenteredCorrelationBetweenTwoVector(const ElementType* VectorA, const ElementType* VectorB, int_max Length);
 
 
 // sum((x-mean(x)).*(y-mean(y))
@@ -108,11 +107,11 @@ DenseMatrix<ElementType> ComputeUnnormalizedCorrelationListFromSingleVectorToCol
 
 template<typename ElementType>
 inline
-ElementType ComputeUnnormalizedCorrelationBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+ElementType ComputeUnnormalizedCorrelationBetweenTwoVector(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
 
 template<typename ElementType>
 inline
-ElementType ComputeUnnormalizedCorrelationBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
+ElementType ComputeUnnormalizedCorrelationBetweenTwoVector(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
 
 
 template<typename ElementType>
@@ -136,11 +135,11 @@ DenseMatrix<ElementType> ComputeJSDivergenceListFromSingleVectorToColVectorSet(c
 
 template<typename ElementType>
 inline
-ElementType ComputeJSDivergenceBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+ElementType ComputeJSDivergenceBetweenTwoVector(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
 
 template<typename ElementType>
 inline
-ElementType ComputeJSDivergenceBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
+ElementType ComputeJSDivergenceBetweenTwoVector(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
 
 
 }// namespace mdk

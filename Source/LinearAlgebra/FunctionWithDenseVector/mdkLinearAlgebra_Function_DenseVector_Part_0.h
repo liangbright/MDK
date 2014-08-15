@@ -1,17 +1,8 @@
-﻿#ifndef __mdkDenseVectorWithFixedLength_Function_h
-#define __mdkDenseVectorWithFixedLength_Function_h
-
-#include <array>
-
-#include "mdkType.h"
+﻿#ifndef __mdkLinearAlgebra_Function_DenseVector_Part_0_h
+#define __mdkLinearAlgebra_Function_DenseVector_Part_0_h
 
 namespace mdk
 {
-    
-// forward declare----------------------------------
-template<typename ElementType, int_max Length>
-class DenseVector;
-//------------------------------------------------------
 
 //---------------------------------------------- LinearCombine ------------------------------------------------------------------//
 
@@ -20,8 +11,13 @@ inline
 DenseVector<ElementType, Length>
 VectorLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<const DenseVector<ElementType, Length>*>& VectorSet);
 
+template<typename ElementType>
+inline
+DenseVector<ElementType>
+VectorLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<const DenseVector<ElementType>*>& VectorSet);
+
 }
 
-#include "mdkDenseVectorWithFixedLength_Function.hpp"
+#include "mdkLinearAlgebra_Function_DenseVector_Part_0.hpp"
 
 #endif
