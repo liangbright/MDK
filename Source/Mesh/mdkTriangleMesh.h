@@ -2,20 +2,20 @@
 #define __mdkTriangleMesh_h
 
 #include "mdkPolygonMesh.h"
-#include "mdkTriangleMeshAttribute.h"
+#include "mdkTriangleMeshStandardAttribute.h"
 
 namespace mdk
 {
-//------------------------------- standard/default TriangleMeshAttribute -------------------------------//
+//------------------------------- standard/default MeshAttributeType -------------------------------//
 template<typename ScalarType>
-struct TriangleMeshAttributeType
+struct TriangleMeshStandardAttributeType
 {
     typedef ScalarType  ScalarType;
-    typedef GlobalAttribute_Of_TriangleMesh<ScalarType>         GlobalAttribute;
-    typedef PointAttribute_Of_TriangleMesh<ScalarType>          PointAttributeType;
-    typedef EdgeAttribute_Of_TriangleMesh<ScalarType>           EdgeAttributeType;
-    typedef DirectedEdgeAttribute_Of_TriangleMesh<ScalarType>   DirectedEdgeAttributeType;
-    typedef CellAttribute_Of_TriangleMesh<ScalarType>           CellAttributeType;
+	typedef GlobalStandardAttribute_Of_TriangleMesh<ScalarType>             GlobalAttribute;
+	typedef StandardAttribute_Of_Point_Of_TriangleMesh<ScalarType>          PointAttributeType;
+	typedef StandardAttribute_Of_Edge_Of_TriangleMesh<ScalarType>           EdgeAttributeType;
+	typedef StandardAttribute_Of_DirectedEdge_Of_TriangleMesh<ScalarType>   DirectedEdgeAttributeType;
+	typedef StandardAttribute_Of_Cell_Of_TriangleMesh<ScalarType>           CellAttributeType;
 };
 //---------------------------------------------------------------------------------------------------------//
 

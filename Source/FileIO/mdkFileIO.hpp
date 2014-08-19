@@ -78,7 +78,7 @@ bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ElementType>& InputMatrix, 
     PairList[0].Name = "MatrixType";
     PairList[0].Value = "DenseMatrix";
 
-    auto ElementTypeName = FindScalarTypeName(tempScalar);
+    auto ElementTypeName = GetScalarTypeName(tempScalar);
     QString QElementTypeName(ElementTypeName.c_str());
 
     PairList[1].Name = "ElementType";
@@ -127,7 +127,7 @@ DenseMatrix<ElementType> LoadDenseMatrixFromJsonDataFile(const CharString& FileP
 
     auto ReferenceScalar = ElementType(0);
 
-    auto OutputElementTypeName = FindScalarTypeName(ReferenceScalar);
+    auto OutputElementTypeName = GetScalarTypeName(ReferenceScalar);
 
     int_max ByteNumberOfOutputElementType = CalByteNumberOfScalar(ReferenceScalar);
 
@@ -320,7 +320,7 @@ bool Save3DScalarImageAsJsonDataFile(const Image3D<PixelType>& InputImage, const
         return false;
     }
 
-    auto ElementTypeName = FindScalarTypeName(ReferenceScalar);
+    auto ElementTypeName = GetScalarTypeName(ReferenceScalar);
     QString QElementTypeName(ElementTypeName.c_str());
 
     //-------------------------------------------------------------------------------------
@@ -403,7 +403,7 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathA
 
     auto ReferenceScalar = PixelType(0);
 
-    auto OutputPixelTypeName = FindScalarTypeName(ReferenceScalar);
+    auto OutputPixelTypeName = GetScalarTypeName(ReferenceScalar);
 
     int_max ByteNumberOfOutputPixelType = CalByteNumberOfScalar(ReferenceScalar);
 
@@ -776,10 +776,10 @@ bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& Input
         return false;
     }
 
-    auto ScalarTypeName = FindScalarTypeName(ScalarType(0));
+    auto ScalarTypeName = GetScalarTypeName(ScalarType(0));
     QString QScalarTypeName(ScalarTypeName.c_str());
 
-    auto IndexTypeName = FindScalarTypeName(int_max(0));
+    auto IndexTypeName = GetScalarTypeName(int_max(0));
     QString QIndexTypeName(IndexTypeName.c_str());
 
     //-------------------------------------------------------------------------------------
@@ -886,7 +886,7 @@ TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& File
 
     //----------------------------------------------------------
 
-    auto OutputScalarTypeName = FindScalarTypeName(ScalarType(0));
+    auto OutputScalarTypeName = GetScalarTypeName(ScalarType(0));
 
     //---------------------------------------------- Read header --------------------------------------------------------//
 
@@ -1090,10 +1090,10 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
         return false;
     }
 
-    auto ScalarTypeName = FindScalarTypeName(ScalarType(0));
+    auto ScalarTypeName = GetScalarTypeName(ScalarType(0));
     QString QScalarTypeName(ScalarTypeName.c_str());
 
-    auto IndexTypeName = FindScalarTypeName(int_max(0));
+    auto IndexTypeName = GetScalarTypeName(int_max(0));
     QString QIndexTypeName(IndexTypeName.c_str());
 
     //-------------------------------------------------------------------------------------
@@ -1200,7 +1200,7 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile(const CharString&
 
     //----------------------------------------------------------
 
-    auto OutputScalarTypeName = FindScalarTypeName(ScalarType(0));
+    auto OutputScalarTypeName = GetScalarTypeName(ScalarType(0));
 
     //---------------------------------------------- Read header --------------------------------------------------------//
 
@@ -1411,7 +1411,7 @@ bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding
         return false;
     }
 
-    auto ElementTypeName = FindScalarTypeName(ReferenceScalar);
+    auto ElementTypeName = GetScalarTypeName(ReferenceScalar);
     QString QElementTypeName(ElementTypeName.c_str());
 
     //-------------------------------------------------------------------------------------
@@ -1477,7 +1477,7 @@ FeatureDictionaryForSparseCoding<ElementType> LoadFeatureDictionaryForSparseCodi
 
     auto ReferenceScalar = ElementType(0);
 
-    auto OutputElementTypeName = FindScalarTypeName(ReferenceScalar);
+    auto OutputElementTypeName = GetScalarTypeName(ReferenceScalar);
 
     int_max OutputByteNumber = CalByteNumberOfScalar(ReferenceScalar);
 

@@ -21,7 +21,7 @@ vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const Im
     VTKImage->SetSpacing(Spacing.Sx, Spacing.Sy, Spacing.Sz);
 
     auto ReferenceScalar = PixelType(0);
-    auto ScalarTypeName = FindScalarTypeName(ReferenceScalar);
+	auto ScalarTypeName = GetScalarTypeName(ReferenceScalar);
 
     if (ScalarTypeName == "double")
     {
@@ -268,7 +268,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
     typedef TriangleMesh<MeshAttributeType>::ScalarType ScalarType;
    
     auto ReferenceScalar = ScalarType(0);
-    auto ScalarTypeName = FindScalarTypeName(ReferenceScalar);
+	auto ScalarTypeName = GetScalarTypeName(ReferenceScalar);
 
     DenseMatrix<ScalarType> PointPositionTable;
     DataArray<DenseVector<int_max>> CellTable;
@@ -413,7 +413,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
     typedef PolygonMesh<MeshAttributeType>::ScalarType ScalarType;
 
     auto ReferenceScalar = ScalarType(0);
-    auto ScalarTypeName = FindScalarTypeName(ReferenceScalar);
+	auto ScalarTypeName = GetScalarTypeName(ReferenceScalar);
 
     DenseMatrix<ScalarType> PointPositionTable;
     DataArray<DenseVector<int_max>> CellTable;

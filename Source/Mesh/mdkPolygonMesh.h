@@ -5,22 +5,22 @@
 #include <cmath>
 
 #include "mdkMembraneMesh.h"
-#include "mdkPolygonMeshAttribute.h"
-#include "mdkGeometry.h"
+#include "mdkPolygonMeshStandardAttribute.h"
+#include "mdkGeometry3D.h"
 
 namespace mdk
 {
 
-//------------------------------- standard/default PolygonMeshAttribute -------------------------------//
+//------------------------------- standard/default MeshAttributeType -------------------------------//
 template<typename ScalarType>
-struct PolygonMeshAttributeType
+struct PolygonMeshStandardAttributeType
 {
     typedef ScalarType  ScalarType;
-    typedef GlobalAttribute_Of_PolygonMesh<ScalarType>         GlobalAttribute;
-    typedef PointAttribute_Of_PolygonMesh<ScalarType>          PointAttributeType;
-    typedef EdgeAttribute_Of_PolygonMesh<ScalarType>           EdgeAttributeType;
-    typedef DirectedEdgeAttribute_Of_PolygonMesh<ScalarType>   DirectedEdgeAttributeType;
-    typedef CellAttribute_Of_PolygonMesh<ScalarType>           CellAttributeType;
+	typedef GlobalStandardAttribute_Of_PolygonMesh<ScalarType>             GlobalAttribute;
+	typedef StandardAttribute_Of_Point_Of_PolygonMesh<ScalarType>          PointAttributeType;
+	typedef StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType>           EdgeAttributeType;
+	typedef StandardAttribute_Of_DirectedEdge_Of_PolygonMesh<ScalarType>   DirectedEdgeAttributeType;
+	typedef StandardAttribute_Of_Cell_Of_PolygonMesh<ScalarType>           CellAttributeType;
 };
 //------------------------------------------------------------------------------------------------//
 

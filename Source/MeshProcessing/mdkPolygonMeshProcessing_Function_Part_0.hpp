@@ -153,7 +153,7 @@ DataArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(c
         for (int_max k = 0; k < BoundaryCurve.GetLength(); ++k)
         {
             auto tempHandle = BoundaryCurve[k];
-            auto tempIndex = BoundaryPointHandleList.Match([&](PointHandleType Handle){ return Handle == tempHandle; });
+			auto tempIndex = BoundaryPointHandleList.Find("first", [&](PointHandleType Handle){ return Handle == tempHandle; });
             FlagList[tempIndex] = 1;
         }
 

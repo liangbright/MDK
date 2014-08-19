@@ -9,7 +9,7 @@ void Test_MeshConstruction()
 
     CharString FilePathAndName = "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Triangle.vtk";
     
-    auto LeafletMesh = LoadPolygonMeshFromVTKFile<PolygonMeshAttributeType<double>>(FilePathAndName);
+    auto LeafletMesh = LoadPolygonMeshFromVTKFile<PolygonMeshStandardAttributeType<double>>(FilePathAndName);
 
     auto PointHandle = LeafletMesh.AddPoint(0, 0, 0);
 

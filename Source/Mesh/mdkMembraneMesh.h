@@ -5,21 +5,21 @@
 
 #include "mdkMembraneMeshItem.h"
 #include "mdkMembraneMeshItemIterator.h"
-#include "mdkMembraneMeshAttribute.h"
+#include "mdkMembraneMeshStandardAttribute.h"
 
 namespace mdk
 {
 
-//------------------------------- standard/default/empty MembraneMeshAttribute -----------------------//
+//------------------------------- standard/default/empty MeshAttributeType -----------------------//
 template<typename ScalarType>
-struct MembraneMeshAttributeType
+struct MembraneMeshStandardAttributeType
 {
     typedef ScalarType  ScalarType;
-    typedef GlobalAttribute_Of_MembraneMesh<ScalarType>         GlobalAttribute;
-    typedef PointAttribute_Of_MembraneMesh<ScalarType>          PointAttributeType;
-    typedef EdgeAttribute_Of_MembraneMesh<ScalarType>           EdgeAttributeType;
-    typedef DirectedEdgeAttribute_Of_MembraneMesh<ScalarType>   DirectedEdgeAttributeType;
-    typedef CellAttribute_Of_MembraneMesh<ScalarType>           CellAttributeType;
+	typedef GlobalStandardAttribute_Of_MembraneMesh<ScalarType>             GlobalAttribute;
+	typedef StandardAttribute_Of_Point_Of_MembraneMesh<ScalarType>          PointAttributeType;
+	typedef StandardAttribute_Of_Edge_Of_MembraneMesh<ScalarType>           EdgeAttributeType;
+	typedef StandardAttribute_Of_DirectedEdge_Of_MembraneMesh<ScalarType>   DirectedEdgeAttributeType;
+	typedef StandardAttribute_Of_Cell_Of_MembraneMesh<ScalarType>           CellAttributeType;
 };
 //------------------------------------------------------------------------------------------------//
 
