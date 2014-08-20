@@ -1454,7 +1454,7 @@ public:
 
     inline DenseMatrix Inv() const;
 
-    inline DenseMatrix PseudoInv() const;
+    inline DenseMatrix PInv() const; // Pseudo Inverse
 
 	//----------------------------------- SVD -----------------------------------------//
 

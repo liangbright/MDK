@@ -8586,17 +8586,15 @@ template<typename ElementType>
 inline 
 DenseMatrix<ElementType> DenseMatrix<ElementType>::Inv() const
 {
-    return MatrixInv(*this);
+	return MatrixInverse(*this);
 }
 
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::PseudoInv() const
+DenseMatrix<ElementType> DenseMatrix<ElementType>::PInv() const
 {
-	// call Armadillo 
-
-
+	return MatrixPseudoInverse(*this);
 }
 
 

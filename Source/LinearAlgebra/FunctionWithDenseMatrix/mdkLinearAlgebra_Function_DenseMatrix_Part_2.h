@@ -151,10 +151,15 @@ template<typename ElementType>
 inline int_max MatrixRank(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
+template<typename ElementType>
+inline DenseMatrix<ElementType> MatrixInverse(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixInv(const DenseMatrix<ElementType>& InputMatrix);
-
+inline DenseMatrix<ElementType> MatrixPseudoInverse(const DenseMatrix<ElementType>& InputMatrix);
+//-----------------------------------------------------------------------------------------------//
+// solve A*X=B
+template<typename ElementType>
+inline DenseMatrix<ElementType> SolveMatrixLinearEquation(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>

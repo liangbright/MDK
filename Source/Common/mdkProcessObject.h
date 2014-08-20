@@ -4,7 +4,6 @@
 #include "mdkObject.h"
 #include "mdkDebugConfig.h"
 
-
 namespace mdk
 {
 
@@ -26,9 +25,9 @@ protected:
                                      // not only "input" data, but also "input" variables that store output results
                                      // this is called in the first step of Update()
 
-    virtual void ClearPipelineOutput() = 0;  // this is called in Clear()
+	virtual void ClearProcessOutput() = 0;  // this should be called in Clear()
 
-    virtual void UpdatePipelineOutput() = 0; // this is called in the last step of Update()
+	virtual void UpdateProcessOutput() = 0; // this should be called in the last step of Update()
 
 private:
     ProcessObject(const ProcessObject&) = delete;  
@@ -38,3 +37,4 @@ private:
 }//end namespace mdk
 
 #endif
+

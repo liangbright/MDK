@@ -1139,41 +1139,104 @@ int_max MatrixRank(const DenseMatrix<ElementType>& InputMatrix)
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixInv(const DenseMatrix<ElementType>& InputMatrix)
+DenseMatrix<ElementType> MatrixInverse(const DenseMatrix<ElementType>& InputMatrix)
 {
-    DenseMatrix<ElementType> tempMatrix;
+    DenseMatrix<ElementType> OutputMatrix;
 
     auto Size = InputMatrix.GetSize();
 
     if (Size.RowNumber == 0)
     {
-        MDK_Error("InputMatrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixInv(InputMatrix)")
-
-        return tempMatrix;
+		MDK_Warning("InputMatrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixInverse(InputMatrix)")
+        return OutputMatrix;
     }
 
     if (Size.RowNumber != Size.ColNumber)
     {
-        MDK_Error("InputMatrix is not square @ mdkLinearAlgebra_DenseMatrix MatrixInv(InputMatrix)")
-
-        return tempMatrix;
+        MDK_Error("InputMatrix is not square @ mdkLinearAlgebra_DenseMatrix MatrixInverse(InputMatrix)")
+        return OutputMatrix;
     }
 
-    tempMatrix.FastResize(Size.RowNumber, Size.ColNumber);
+	OutputMatrix.FastResize(Size.RowNumber, Size.ColNumber);
 
     auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
     // call Armadillo 
-
     arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);
-
-    arma::Mat<ElementType> tempInv(tempMatrix.GetElementPointer(), arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);
-
+	arma::Mat<ElementType> tempInv(OutputMatrix.GetElementPointer(), arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);
     tempInv = arma::inv(tempMat);
 
-    return tempMatrix;
+	return OutputMatrix;
 }
 
+
+template<typename ElementType>
+inline
+DenseMatrix<ElementType> MatrixPseudoInverse(const DenseMatrix<ElementType>& InputMatrix)
+{
+	DenseMatrix<ElementType> OutputMatrix;
+
+	auto Size = InputMatrix.GetSize();
+
+	if (Size.RowNumber == 0)
+	{
+		MDK_Warning("InputMatrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixPseudoInverse(InputMatrix)")
+	    return OutputMatrix;
+	}
+
+	OutputMatrix.FastResize(Size.RowNumber, Size.ColNumber);
+
+	auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
+
+	// call Armadillo 
+	arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);
+	arma::Mat<ElementType> tempInv(OutputMatrix.GetElementPointer(), arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);
+	tempInv = arma::pinv(tempMat);
+
+	return OutputMatrix;
+}
+
+
+template<typename ElementType>
+inline 
+DenseMatrix<ElementType> SolveMatrixLinearEquation(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
+{
+	// A*X=B
+	DenseMatrix<ElementType> MatrixX;
+
+	auto SizeA = MatrixA.GetSize();
+	auto SizeB = MatrixB.GetSize();
+
+	if (SizeA.RowNumber != SizeB.RowNumber)
+	{
+		MDK_Error("A RowNumber != B RowNumber @ mdkLinearAlgebra_DenseMatrix SolveMatrixLinearEquation(MatrixA, MatrixB)")
+ 	    return MatrixX;
+	}
+
+	if (SizeA.RowNumber == 0)
+	{
+		MDK_Warning("MatrixA is empty @ mdkLinearAlgebra_DenseMatrix SolveMatrixLinearEquation(MatrixA, MatrixB)")
+	    return MatrixX;
+	}
+
+	MatrixX.Resize(SizeA.ColNumber, SizeB.ColNumber);
+
+	auto ptrX = const_cast<ElementType*>(MatrixX.GetElementPointer());
+	auto ptrA = const_cast<ElementType*>(MatrixA.GetElementPointer());
+	auto ptrB = const_cast<ElementType*>(MatrixB.GetElementPointer());
+
+	// call Armadillo 
+	arma::Mat<ElementType> tempX(ptrX, arma::uword(SizeA.ColNumber), arma::uword(SizeB.ColNumber), false);
+	arma::Mat<ElementType> tempA(ptrA, arma::uword(SizeA.RowNumber), arma::uword(SizeA.ColNumber), false);
+	arma::Mat<ElementType> tempB(ptrB, arma::uword(SizeB.RowNumber), arma::uword(SizeB.ColNumber), false);
+	auto Flag = arma::solve(tempX, tempA, tempB);
+	if (Flag == false)
+	{
+		MDK_Error("No solution @ mdkLinearAlgebra_DenseMatrix SolveMatrixLinearEquation(MatrixA, MatrixB)")
+	}
+
+	return MatrixX;
+}
 
 template<typename ElementType>
 inline 
