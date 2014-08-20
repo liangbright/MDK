@@ -8,17 +8,29 @@ namespace mdk
 
 //For example: FilePathAndName is "C:/Data/something.json"
 //
-bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, const QString& FilePathAndName)
+bool SaveNameValuePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, const QString& FilePathAndName, bool Flag_Append)
 {    
-    QFile::remove(FilePathAndName + "~temp~");
+	QFile JsonFile;
+	if (Flag_Append == false)
+	{
+		QFile::remove(FilePathAndName + "~temp~");
+		JsonFile.setFileName(FilePathAndName + "~temp~");
 
-    QFile JsonFile(FilePathAndName + "~temp~");
-
-    if (!JsonFile.open(QIODevice::WriteOnly))
-    {
-        MDK_Error("Couldn't open file to save result @ WritePairListAsJsonFile(...)")
-        return false;
-    }
+		if (!JsonFile.open(QIODevice::WriteOnly))
+		{
+			MDK_Error("Couldn't open file to save result @ SaveNameValuePairListAsJsonFile(...)")
+			return false;
+		}
+	}
+	else
+	{
+		JsonFile.setFileName(FilePathAndName);
+		if (!JsonFile.open(QIODevice::Append))
+		{
+			MDK_Error("Couldn't open file to save result @ SaveNameValuePairListAsJsonFile(...)")
+			return false;
+		}
+	}
 
     QTextStream out(&JsonFile);
 
@@ -42,13 +54,75 @@ bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, 
 
     out.flush();
 
-    QFile::remove(FilePathAndName);
-
-    JsonFile.rename(FilePathAndName);
+	if (Flag_Append == false)
+	{
+		QFile::remove(FilePathAndName);
+		JsonFile.rename(FilePathAndName);
+	}
 
     JsonFile.close();
 
     return true;
+}
+
+
+bool SaveNameValuePairListAsJsonFile(const std::vector<NameValueStdStringPair>& PairList, const std::string& FilePathAndName, bool Flag_Append)
+{
+	QFile JsonFile;
+	QString QFilePathAndName(FilePathAndName.c_str());
+	if (Flag_Append == false)
+	{		
+		QFile::remove(QFilePathAndName + "~temp~");
+		JsonFile.setFileName(QFilePathAndName + "~temp~");
+		if (!JsonFile.open(QIODevice::WriteOnly))
+		{
+			MDK_Error("Couldn't open file to save result @ SaveNameValuePairListAsJsonFile(...)")
+			return false;
+		}
+	}
+	else
+	{
+		JsonFile.setFileName(QFilePathAndName);
+		if (!JsonFile.open(QIODevice::Append))
+		{
+			MDK_Error("Couldn't open file to save result @ SaveNameValuePairListAsJsonFile(...)")
+			return false;
+		}
+	}
+
+	QTextStream out(&JsonFile);
+
+	auto s = int_max(PairList.size());
+
+	out << "{\n";
+	for (int_max i = 0; i < s; ++i)
+	{
+		QString QName(PairList[i].Name.c_str());
+		QString QValue(PairList[i].Value.c_str());
+
+		out << "\"" << QName << "\"" << " : " << "\"" << QValue << "\"";
+
+		if (i < s - 1)
+		{
+			out << "," << "\n";
+		}
+		else
+		{
+			out << "\n";
+		}
+	}
+	out << "}\n";
+
+	out.flush();
+
+	if (Flag_Append == false)
+	{
+		QFile::remove(QFilePathAndName);
+		JsonFile.rename(QFilePathAndName);
+	}
+	JsonFile.close();
+
+	return true;
 }
 
 
@@ -57,90 +131,125 @@ bool WritePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, 
 // data is saved in SomeMatrix.json.data
 //
 template<typename ElementType>
-bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ElementType>& InputMatrix, const CharString& FilePathAndName)
+bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ElementType>& InputMatrix, const std::string& JsonFilePathAndName)
 {
-    ElementType tempScalar = ElementType(0);
+	if (SaveDenseMatrixAsJsonDataFile_Header(InputMatrix, JsonFilePathAndName) == false)
+	{
+		return false;
+	}
 
-    int_max ByteNumber = CalByteNumberOfScalar(tempScalar);
-
-    if (ByteNumber <= 0)
-    {
-        MDK_Error("Unknown type of matrix @ SaveDenseMatrixAsJsonDataFile(...)")
-        return false;
-    }
-
-    //----------------------------------------------------------------------------------------
-
-    std::vector<NameValueQStringPair> PairList(4);
-
-    auto Size = InputMatrix.GetSize();
-
-    PairList[0].Name = "MatrixType";
-    PairList[0].Value = "DenseMatrix";
-
-    auto ElementTypeName = GetScalarTypeName(tempScalar);
-    QString QElementTypeName(ElementTypeName.c_str());
-
-    PairList[1].Name = "ElementType";
-    PairList[1].Value = QElementTypeName;
-
-    PairList[2].Name = "RowNumber";
-    PairList[2].Value = QString::number(Size.RowNumber);
-
-    PairList[3].Name = "ColNumber";
-    PairList[3].Value = QString::number(Size.ColNumber);
-
-    // write header file (json) --------------------------------------------------
-
-    QString QFilePathAndName(FilePathAndName.StdString().c_str());
-
-    WritePairListAsJsonFile(PairList, QFilePathAndName);
-
-    // write data file  --------------------------------------------------
-
-    QFile DataFile(QFilePathAndName + ".data");
-
-    if (!DataFile.open(QIODevice::WriteOnly))
-    {
-        MDK_Error("Couldn't open file to write matrix data @ SaveDenseMatrixAsJsonDataFile(...)")
-        return false;
-    }
-
-    int_max L = Size.ColNumber*Size.RowNumber;
-
-    auto RawPointer = (char*)InputMatrix.GetElementPointer();
-
-    DataFile.write(RawPointer, L*ByteNumber);
-
-    DataFile.flush();
-
-    return true;
+	std::string DataFilePathAndName = JsonFilePathAndName + ".data";
+	return SaveDenseMatrixAsJsonDataFile_Data(InputMatrix, DataFilePathAndName);
 }
 
 
 template<typename ElementType>
-DenseMatrix<ElementType> LoadDenseMatrixFromJsonDataFile(const CharString& FilePathAndName)
+bool SaveDenseMatrixAsJsonDataFile_Header(const DenseMatrix<ElementType>& InputMatrix, const std::string& JsonFilePathAndName)
+{
+	std::vector<NameValueQStringPair> PairList(4);
+
+	auto Size = InputMatrix.GetSize();
+
+	PairList[0].Name = "MatrixType";
+	PairList[0].Value = "DenseMatrix";
+
+	auto ElementTypeName = GetScalarTypeName(ElementType(0));
+	QString QElementTypeName(ElementTypeName.c_str());
+
+	PairList[1].Name = "ElementType";
+	PairList[1].Value = QElementTypeName;
+
+	PairList[2].Name = "RowNumber";
+	PairList[2].Value = QString::number(Size.RowNumber);
+
+	PairList[3].Name = "ColNumber";
+	PairList[3].Value = QString::number(Size.ColNumber);
+
+	// write header file (json) --------------------------------------------------
+	QString QFilePathAndName(JsonFilePathAndName.c_str());
+	return SaveNameValuePairListAsJsonFile(PairList, JsonFilePathAndName);
+}
+
+
+template<typename ElementType>
+bool SaveDenseMatrixAsJsonDataFile_Data(const DenseMatrix<ElementType>& InputMatrix, const std::string& DataFilePathAndName)
+{
+	int_max ByteNumber = GetByteNumberOfScalar(ElementType(0));
+	if (ByteNumber <= 0)
+	{
+		MDK_Error("Unknown type of matrix @ SaveDenseMatrixAsJsonDataFile_Data(...)")
+		return false;
+	}
+
+	QString QFilePathAndName(DataFilePathAndName.c_str());
+	QFile DataFile(DataFilePathAndName);
+
+	if (!DataFile.open(QIODevice::WriteOnly))
+	{
+		MDK_Error("Couldn't open file " << DataFilePathAndName << " @ SaveDenseMatrixAsJsonDataFile_Data(...)")
+		return false;
+	}
+
+	DataFile.write((char*)InputMatrix.GetElementPointer(), Size.ColNumber*Size.RowNumber*ByteNumber);
+	DataFile.flush();
+	return true;
+}
+
+
+template<typename ElementType>
+DenseMatrix<ElementType> LoadDenseMatrixFromJsonDataFile(const std::string& JsonFilePathAndName)
 {
     DenseMatrix<ElementType> OutputMatrix;
 
-    //----------------------------------------------------------
+    // Read header
+	auto HeaderInfo = LoadDenseMatrixFromJsonDataFile_Header(JsonFilePathAndName);
+	auto RowNumber = HeaderInfo.first.RowNumber;
+	auto ColNumber = HeaderInfo.first.ColNumber;
+	auto InputElementTypeName = HeaderInfo.second;
 
-    auto ReferenceScalar = ElementType(0);
+	if (RowNumber == 0 || ColNumber == 0)
+	{
+		return;
+	}
 
-    auto OutputElementTypeName = GetScalarTypeName(ReferenceScalar);
+    // Read data
 
-    int_max ByteNumberOfOutputElementType = CalByteNumberOfScalar(ReferenceScalar);
+    OutputMatrix.FastResize(RowNumber, ColNumber);
 
-    //---------------------------------------------- Read header --------------------------------------------------------//
+	std::string DataFilePathAndName = JsonFilePathAndName + ".data";
 
-    QString QFilePathAndName(FilePathAndName.StdString().c_str());
+	auto OutputElementTypeName = GetScalarTypeName(ElementType(0));
 
+    if (OutputElementTypeName == InputElementTypeName)
+    {
+		LoadDenseMatrixFromJsonDataFile_Data<ElementType, ElementType>(OutputMatrix, DataFilePathAndName);
+    }
+    else
+    {
+        MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ LoadDenseMatrixFromJsonDataFile(...)")
+
+		LoadDenseMatrixFromJsonDataFile_Data(OutputMatrix, InputElementTypeName, DataFilePathAndName);
+    }
+
+    DataFile.close();
+
+    return OutputMatrix;
+}
+
+
+template<typename ElementType>
+std::pair<MatrixSize, std::string> LoadDenseMatrixFromJsonDataFile_Header(const std::string& FilePathAndName)
+{
+	std::pair<MatrixSize, std::string> HeaderInfo;
+	HeaderInfo.first.RowNumber = 0;
+	HeaderInfo.first.ColNumber = 0;
+
+	QString QFilePathAndName(FilePathAndName.c_str());
     QFile HeaderFile(QFilePathAndName);
-
     if (!HeaderFile.open(QIODevice::ReadOnly))
     {
-        MDK_Error("Couldn't open Header File.")
-        return OutputMatrix;
+        MDK_Error("Couldn't open Header File @ LoadDenseMatrixFromJsonDataFile_Header(...)")
+        return HeaderInfo;
     }
 
     //----------------------------------------------------------//
@@ -158,9 +267,9 @@ DenseMatrix<ElementType> LoadDenseMatrixFromJsonDataFile(const CharString& FileP
     }
     else
     {
-        MDK_Error("Couldn't get ElementType @ LoadDenseMatrixFromJsonDataFile(...)")
+        MDK_Error("Couldn't get ElementType @ LoadDenseMatrixFromJsonDataFile_Header(...)")
         HeaderFile.close();
-        return OutputMatrix;
+		return HeaderInfo;
     }
 
     //---------------------------------------------------
@@ -174,9 +283,9 @@ DenseMatrix<ElementType> LoadDenseMatrixFromJsonDataFile(const CharString& FileP
     }
     else
     {
-        MDK_Error("Couldn't get RowNumber @ LoadDenseMatrixFromJsonDataFile(...)")
+        MDK_Error("Couldn't get RowNumber @ LoadDenseMatrixFromJsonDataFile_Header(...)")
         HeaderFile.close();
-        return OutputMatrix;
+		return HeaderInfo;
     }
 
     int_max ColNumber = 0;
@@ -188,117 +297,112 @@ DenseMatrix<ElementType> LoadDenseMatrixFromJsonDataFile(const CharString& FileP
     }
     else
     {
-        MDK_Error("Couldn't get ColNumber @ LoadDenseMatrixFromJsonDataFile(...)")
+        MDK_Error("Couldn't get ColNumber @ LoadDenseMatrixFromJsonDataFile_Header(...)")
         HeaderFile.close();
-        return OutputMatrix;
+		return HeaderInfo;
     }
 
     HeaderFile.close();
 
-    //-------------------------------------------------- Read data ---------------------------------------------------------//
+	HeaderInfo.first.RowNumber = RowNumber;
+	HeaderInfo.first.ColNumber = ColNumber;
+	HeaderInfo.second = InputElementTypeName;
 
-    QFile DataFile(QFilePathAndName + ".data");
-
-    if (!DataFile.open(QIODevice::ReadOnly))
-    {
-        MDK_Error("Couldn't open data file:" << FilePathAndName)
-        return OutputMatrix;
-    }
-
-    //----------------------------------------------------------------------------------------------
-
-    OutputMatrix.FastResize(RowNumber, ColNumber);
-
-    if (OutputElementTypeName == InputElementTypeName)
-    {
-        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(OutputMatrix, DataFile, ByteNumberOfOutputElementType);
-    }
-    else
-    {
-        MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ LoadDenseMatrixFromJsonDataFile(...)")
-
-        Internal_LoadDenseMatrixFromJsonDataFile(OutputMatrix, DataFile, InputElementTypeName);
-    }
-
-    DataFile.close();
-
-    return OutputMatrix;
+	return HeaderInfo;
 }
 
 
 template<typename OutputElementType>
-void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& OutputMatrix, QFile& DataFile, const std::string& InputElementTypeName)
+DenseMatrix<OutputElementType> 
+LoadDenseMatrixFromJsonDataFile_Data(MatrixSize OutputMatrixSize, const std::string& InputElementTypeName, const std::string& DataFilePathAndName)
 {
+	DenseMatrix<OutputElementType> OutputMatrix;
+
     if (InputElementTypeName == "double")
     {
-        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, double>(OutputMatrix, DataFile, 8);
+		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, double>(OutputMatrixSize, DataFilePathAndName);
     }
     else if (InputElementTypeName == "float")
     {
-        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, float>(OutputMatrix, DataFile, 4);
+		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, float>(OutputMatrixSize, DataFilePathAndName);
     }
     else if (InputElementTypeName == "int8")
     {
-        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, int8>(OutputMatrix, DataFile, 1);
+		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, int8>(OutputMatrixSize, DataFilePathAndName);
     }
     else if (InputElementTypeName == "int16")
     {
-        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, int16>(OutputMatrix, DataFile, 2);
+		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, int16>(OutputMatrixSize, DataFilePathAndName);
     }
     else if (InputElementTypeName == "int32")
     {
-        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, int32>(OutputMatrix, DataFile, 4);
+		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, int32>(OutputMatrixSize, DataFilePathAndName);
     }
     else if (InputElementTypeName == "int64")
     {
-        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, int64>(OutputMatrix, DataFile, 8);
+		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, int64>(OutputMatrixSize, DataFilePathAndName);
     }
     else if (InputElementTypeName == "uint8")
     {
-        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, uint8>(OutputMatrix, DataFile, 1);
+		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, uint8>(OutputMatrixSize, DataFilePathAndName);
     }
     else if (InputElementTypeName == "uint16")
     {
-        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, uint16>(OutputMatrix, DataFile, 2);
+		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, uint16>(OutputMatrix, DataFilePathAndName);
     }
     else if (InputElementTypeName == "uint32")
     {
-        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, uint32>(OutputMatrix, DataFile, 4);
+		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, uint32>(OutputMatrix, DataFilePathAndName);
     }
     else if (InputElementTypeName == "uint64")
     {
-        Internal_LoadDenseMatrixFromJsonDataFile<OutputElementType, uint64>(OutputMatrix, DataFile, 8);
+		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, uint64>(OutputMatrix, DataFilePathAndName);
     }
     else
     {
-        MDK_Error("unknown ElementType of data file @ Internal_LoadDenseMatrixFromJsonDataFile(...) ")
+        MDK_Error("unknown ElementType of data file @ LoadDenseMatrixFromJsonDataFile_Data(...) ")
     }
+
+	return OutputMatrix;
 }
 
 
 template<typename OutputElementType, typename InputElementType>
-void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& OutputMatrix, QFile& DataFile, int_max ByteNumberOfInputElementType)
+DenseMatrix<OutputElementType> LoadDenseMatrixFromJsonDataFile_Data(MatrixSize OutputMatrixSize, const std::string& DataFilePathAndName)
 {
-    int_max BypesofDataFile = DataFile.size();
+	DenseMatrix<OutputElementType> OutputMatrix;
 
-    int_max ElementNumber = OutputMatrix.GetElementNumber();
+	QString QFilePathAndName(DataFilePathAndName.c_str());
+	QFile DataFile(QFilePathAndName);
+	if (!DataFile.open(QIODevice::ReadOnly))
+	{
+		MDK_Error("Couldn't open data file:" << FilePathAndName)
+		return OutputMatrix;
+	}
+
+	OutputMatrix.Resize(OutputMatrixSize.RowNumber, OutputMatrixSize.ColNumber);
+	int_max ElementNumber = OutputMatrix.GetElementNumber();
+
+	int_max ByteNumberOfInputElementType = GetByteNumberOfScalar(InputElementType(0));
+
+    int_max BypesofDataFile = DataFile.size();
 
     if (BypesofDataFile != ElementNumber * ByteNumberOfInputElementType)
     {
-        MDK_Error("Data file size is not equal to matrix size @ Internal_LoadDenseMatrixFromJsonDataFile(...)")
+        MDK_Error("Data file size is not equal to matrix size @ LoadDenseMatrixFromJsonDataFile_Data(...)")
+		DataFile.close();
         return;
     }
 
-    auto ElementPointer = OutputMatrix.GetElementPointer();
-
-    auto tempScalar = InputElementType(0);
-
     for (int_max i = 0; i < ElementNumber; ++i)
     {
+		auto tempScalar = InputElementType(0);
+
         DataFile.read((char*)(&tempScalar), ByteNumberOfInputElementType);
 
-        ElementPointer[i] = OutputElementType(tempScalar);
+		OutputMatrix[i] = OutputElementType(tempScalar);
     }
+	DataFile.close();
 }
 
 
@@ -308,11 +412,11 @@ void Internal_LoadDenseMatrixFromJsonDataFile(DenseMatrix<OutputElementType>& Ou
 // data is saved in SomeImage.json.data
 //
 template<typename PixelType>
-bool Save3DScalarImageAsJsonDataFile(const Image3D<PixelType>& InputImage, const CharString& FilePathAndName)
+bool Save3DScalarImageAsJsonDataFile(const Image3D<PixelType>& InputImage, const std::string& JsonFilePathAndName)
 {
     auto ReferenceScalar = PixelType(0);
 
-    int_max ByteNumber = CalByteNumberOfScalar(ReferenceScalar);
+    int_max ByteNumber = GetByteNumberOfScalar(ReferenceScalar);
 
     if (ByteNumber <= 0)
     {
@@ -367,9 +471,9 @@ bool Save3DScalarImageAsJsonDataFile(const Image3D<PixelType>& InputImage, const
 
     // write header file (json) --------------------------------------------------
 
-    QString QFilePathAndName(FilePathAndName.StdString().c_str());
+	QString QFilePathAndName(JsonFilePathAndName.c_str());
 
-    WritePairListAsJsonFile(PairList, QFilePathAndName);
+	SaveNameValuePairListAsJsonFile(PairList, JsonFilePathAndName);
 
     // write data file  --------------------------------------------------
 
@@ -395,7 +499,7 @@ bool Save3DScalarImageAsJsonDataFile(const Image3D<PixelType>& InputImage, const
 
 
 template<typename PixelType>
-Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathAndName)
+Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& FilePathAndName)
 {
     Image3D<PixelType> OutputImage;
 
@@ -405,11 +509,11 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const CharString& FilePathA
 
     auto OutputPixelTypeName = GetScalarTypeName(ReferenceScalar);
 
-    int_max ByteNumberOfOutputPixelType = CalByteNumberOfScalar(ReferenceScalar);
+    int_max ByteNumberOfOutputPixelType = GetByteNumberOfScalar(ReferenceScalar);
 
     //---------------------------------------------- Read header --------------------------------------------------------//
 
-    QString QFilePathAndName(FilePathAndName.StdString().c_str());
+    QString QFilePathAndName(FilePathAndName.c_str());
 
     QFile HeaderFile(QFilePathAndName);
 
@@ -696,7 +800,7 @@ void Internal_Load3DScalarImageFromJsonDataFile(Image3D<OutputPixelType>& Output
 
 
 template<typename PixelType>
-Image3D<PixelType> Load3DScalarImageFromDICOMSeries(const CharString& FilePath)
+Image3D<PixelType> Load3DScalarImageFromDICOMSeries(const std::string& FilePath)
 {
     Image3D<PixelType> OutputImage;
 
@@ -737,7 +841,7 @@ Image3D<PixelType> Load3DScalarImageFromDICOMSeries(const CharString& FilePath)
 
 
 template<typename PixelType>
-Image3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const CharString& FilePathAndName)
+Image3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const std::string& FilePathAndName)
 {
     Image3D<PixelType> OutputImage;
 
@@ -766,11 +870,11 @@ Image3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const CharString& FilePa
 
 
 template<typename MeshAttributeType>
-bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& InputMesh, const CharString& FilePathAndName)
+bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& InputMesh, const std::string& FilePathAndName)
 {
     typedef TriangleMesh<MeshAttributeType>::ScalarType ScalarType;
 
-    if (CalByteNumberOfScalar(ScalarType(0)) <= 0)
+    if (GetByteNumberOfScalar(ScalarType(0)) <= 0)
     {
         MDK_Error("Unknown ScalarType @ SaveTriangleMeshAsJsonDataFile(...)")
         return false;
@@ -805,34 +909,42 @@ bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& Input
 
     PairList[4].Name = "CellNumber";
     PairList[4].Value = QString::number(CellNumber);
+	//--------------------------------------------------
 
-    // write header file (json) --------------------------------------------------
+    // write header file (json)
+    QString QFilePathAndName(FilePathAndName.c_str());
+    SaveNameValuePairListAsJsonFile(PairList, QFilePathAndName);
 
-    QString QFilePathAndName(FilePathAndName.StdString().c_str());
+    // write point and cell to data file
+	return SaveTriangleMeshAsJsonDataFile_PointAndCell(InputMesh, FilePathAndName);
+}
 
-    WritePairListAsJsonFile(PairList, QFilePathAndName);
 
-    if (InputMesh.IsEmpty() == true)
-    {
-        return true;
-    }
+template<typename MeshAttributeType>
+bool SaveTriangleMeshAsJsonDataFile_Data(const TriangleMesh<MeshAttributeType>& InputMesh, const std::string& FilePathAndName)
+{
+	if (InputMesh.IsEmpty() == true)
+	{
+		MDK_Warning("InputMesh is empty @ SaveTriangleMeshAsJsonDataFile_Data(...)")
+		return true;
+	}
 
-    // get data --------------------------------------------------------------------
+	// get data --------------------------------------------------------------------
     DataArray<DenseVector<int_max>> CellData;
     DenseMatrix<ScalarType> PointData;
     InputMesh.GetPointPositionMatrixAndCellTable(PointData, CellData);
 
     // write point to data file  --------------------------------------------------
-
+	QString QFilePathAndName(FilePathAndName.c_str());
     QFile PointDataFile(QFilePathAndName + ".data.point");
 
     if (!PointDataFile.open(QIODevice::WriteOnly))
     {
-        MDK_Error("Couldn't open file to write point data @ SaveTriangleMeshAsJsonDataFile(...)")
+        MDK_Error("Couldn't open file to write point data @ SaveTriangleMeshAsJsonDataFile_Data(...)")
         return false;
     }
 
-    PointDataFile.write((char*)PointData.GetElementPointer(), PointData.GetElementNumber()*CalByteNumberOfScalar(ScalarType(0)));
+    PointDataFile.write((char*)PointData.GetElementPointer(), PointData.GetElementNumber()*GetByteNumberOfScalar(ScalarType(0)));
     PointDataFile.flush();
     PointDataFile.close();
 
@@ -842,7 +954,7 @@ bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& Input
 
     if (!CellDataFile.open(QIODevice::WriteOnly))
     {
-        MDK_Error("Couldn't open file to write cell data @ SaveTriangleMeshAsJsonDataFile(...)")
+        MDK_Error("Couldn't open file to write cell data @ SaveTriangleMeshAsJsonDataFile_Data(...)")
         return false;
     }
 
@@ -878,7 +990,7 @@ bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& Input
 
 
 template<typename ScalarType>
-TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& FilePathAndName)
+TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const std::string& FilePathAndName)
 {
     typedef TriangleMesh<MeshAttributeType>::ScalarType ScalarType;
 
@@ -890,7 +1002,7 @@ TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& File
 
     //---------------------------------------------- Read header --------------------------------------------------------//
 
-    QString QFilePathAndName(FilePathAndName.StdString().c_str());
+    QString QFilePathAndName(FilePathAndName.c_str());
 
     QFile HeaderFile(QFilePathAndName);
 
@@ -922,12 +1034,12 @@ TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& File
         return OutputMesh;
     }
 
-    std::string InputIndexTypeTypeName;
+    std::string InputIndexType_TypeName;
 
     it = HeaderObject.find("IndexType");
     if (it != HeaderObject.end())
     {
-        InputIndexTypeTypeName = it.value().toString().toStdString();
+		InputIndexType_TypeName = it.value().toString().toStdString();
     }
     else
     {
@@ -988,7 +1100,7 @@ TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& File
         MDK_Warning("OutputScalarTypeName != InputScalarTypeTypeName, Output may be inaccurate @ LoadTriangleMeshFromJsonDataFile(...)")
     }
 
-    Internal_LoadDenseMatrixFromJsonDataFile(PointData, PointDataFile, InputScalarTypeTypeName);
+    LoadDenseMatrixFromJsonDataFile_Data(PointData, PointDataFile, InputScalarTypeTypeName);
 
     PointDataFile.close();
 
@@ -1033,12 +1145,12 @@ TriangleMesh<ScalarType> LoadTriangleMeshFromJsonDataFile(const CharString& File
 
 
 template<typename MeshAttributeType>
-bool SaveTriangleMeshAsVTKFile(const TriangleMesh<MeshAttributeType>& InputMesh, const CharString& FilePathAndName)
+bool SaveTriangleMeshAsVTKFile(const TriangleMesh<MeshAttributeType>& InputMesh, const std::string& FilePathAndName)
 {
     auto VTKMesh = ConvertMDKTriangleMeshToVTKPolyData(InputMesh);
 
     auto writer = vtkSmartPointer<vtkPolyDataWriter>::New();
-    writer->SetFileName(FilePathAndName.StdString().c_str());
+    writer->SetFileName(FilePathAndName.c_str());
     writer->SetInputData(VTKMesh);
 
     try
@@ -1056,12 +1168,12 @@ bool SaveTriangleMeshAsVTKFile(const TriangleMesh<MeshAttributeType>& InputMesh,
 
 
 template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> LoadTriangleMeshFromVTKFile(const CharString& FilePathAndName)
+TriangleMesh<MeshAttributeType> LoadTriangleMeshFromVTKFile(const std::string& FilePathAndName)
 {
     TriangleMesh<MeshAttributeType> OutputMesh;
 
     auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
-    Reader->SetFileName(FilePathAndName.StdString().c_str());
+    Reader->SetFileName(FilePathAndName.c_str());
     
     try
     {
@@ -1080,11 +1192,11 @@ TriangleMesh<MeshAttributeType> LoadTriangleMeshFromVTKFile(const CharString& Fi
 
 
 template<typename MeshAttributeType>
-bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMesh, const CharString& FilePathAndName)
+bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMesh, const std::string& FilePathAndName)
 {
     typedef PolygonMesh<MeshAttributeType>::ScalarType  ScalarType;
 
-    if (CalByteNumberOfScalar(ScalarType(0)) <= 0)
+    if (GetByteNumberOfScalar(ScalarType(0)) <= 0)
     {
         MDK_Error("Unknown ScalarType @ SavePolygonMeshAsJsonDataFile(...)")
         return false;
@@ -1122,9 +1234,9 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
 
     // write header file (json) --------------------------------------------------
 
-    QString QFilePathAndName(FilePathAndName.StdString().c_str());
+    QString QFilePathAndName(FilePathAndName.c_str());
 
-    WritePairListAsJsonFile(PairList, QFilePathAndName);
+    SaveNameValuePairListAsJsonFile(PairList, QFilePathAndName);
 
     if (InputMesh.IsEmpty() == true)
     {
@@ -1146,7 +1258,7 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
         return false;
     }
 
-    PointDataFile.write((char*)PointData.GetElementPointer(), PointData.GetElementNumber()*CalByteNumberOfScalar(ScalarType(0)));
+    PointDataFile.write((char*)PointData.GetElementPointer(), PointData.GetElementNumber()*GetByteNumberOfScalar(ScalarType(0)));
     PointDataFile.flush();
     PointDataFile.close();
 
@@ -1192,7 +1304,7 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
 
 
 template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile(const CharString& FilePathAndName)
+PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile(const std::string& FilePathAndName)
 {
     typedef PolygonMesh<MeshAttributeType>::ScalarType ScalarType;
 
@@ -1204,7 +1316,7 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile(const CharString&
 
     //---------------------------------------------- Read header --------------------------------------------------------//
 
-    QString QFilePathAndName(FilePathAndName.StdString().c_str());
+    QString QFilePathAndName(FilePathAndName.c_str());
 
     QFile HeaderFile(QFilePathAndName);
 
@@ -1302,7 +1414,7 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile(const CharString&
         MDK_Warning("OutputScalarTypeName != InputScalarTypeTypeName, Output may be inaccurate @ LoadTriangleMeshFromJsonDataFile(...)")
     }
 
-    Internal_LoadDenseMatrixFromJsonDataFile(PointData, PointDataFile, InputScalarTypeTypeName);
+    LoadDenseMatrixFromJsonDataFile_Data(PointData, PointDataFile, InputScalarTypeTypeName);
 
     PointDataFile.close();
 
@@ -1347,12 +1459,12 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile(const CharString&
 
 
 template<typename MeshAttributeType>
-bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, const CharString& FilePathAndName)
+bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, const std::string& FilePathAndName)
 {
     auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
 
     auto writer = vtkSmartPointer<vtkPolyDataWriter>::New();
-    writer->SetFileName(FilePathAndName.StdString().c_str());
+    writer->SetFileName(FilePathAndName.c_str());
     writer->SetInputData(VTKMesh);
     
     try
@@ -1370,14 +1482,14 @@ bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, c
 
 
 template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> LoadPolygonMeshFromVTKFile(const CharString& FilePathAndName)
+PolygonMesh<MeshAttributeType> LoadPolygonMeshFromVTKFile(const std::string& FilePathAndName)
 {
     typedef PolygonMesh<MeshAttributeType>::ScalarType ScalarType;
 
     PolygonMesh<MeshAttributeType> OutputMesh;
 
     auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
-    Reader->SetFileName(FilePathAndName.StdString().c_str());
+    Reader->SetFileName(FilePathAndName.c_str());
 
     try
     {
@@ -1399,11 +1511,11 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromVTKFile(const CharString& File
 // for example: FilePathAndName = "C:/Data/SomeDictionary.json"
 //
 template<typename ElementType>
-bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary, const CharString& FilePathAndName)
+bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary, const std::string& FilePathAndName)
 {
     ElementType ReferenceScalar = ElementType(0);
 
-    int_max ByteNumber = CalByteNumberOfScalar(ReferenceScalar);
+    int_max ByteNumber = GetByteNumberOfScalar(ReferenceScalar);
 
     if (ByteNumber <= 0)
     {
@@ -1422,7 +1534,7 @@ bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding
     PairList[0].Value = "FeatureDictionaryForSparseCoding";
 
     PairList[1].Name = "Name";
-    PairList[1].Value = Dictionary.GetName().StdString().c_str();
+    PairList[1].Value = Dictionary.GetName().c_str();
 
     PairList[2].Name = "ElementType";
     PairList[2].Value = QElementTypeName;
@@ -1437,9 +1549,9 @@ bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding
 
     // write header file (json) --------------------------------------------------
 
-    QString QFilePathAndName(FilePathAndName.StdString().c_str());
+    QString QFilePathAndName(FilePathAndName.c_str());
 
-    WritePairListAsJsonFile(PairList, QFilePathAndName);
+    SaveNameValuePairListAsJsonFile(PairList, QFilePathAndName);
 
     // write data file  --------------------------------------------------
 
@@ -1469,7 +1581,7 @@ bool SaveFeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding
 
 
 template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType> LoadFeatureDictionaryForSparseCoding(const CharString& FilePathAndName)
+FeatureDictionaryForSparseCoding<ElementType> LoadFeatureDictionaryForSparseCoding(const std::string& FilePathAndName)
 {
     FeatureDictionaryForSparseCoding<ElementType> Dictionary;
 
@@ -1479,11 +1591,11 @@ FeatureDictionaryForSparseCoding<ElementType> LoadFeatureDictionaryForSparseCodi
 
     auto OutputElementTypeName = GetScalarTypeName(ReferenceScalar);
 
-    int_max OutputByteNumber = CalByteNumberOfScalar(ReferenceScalar);
+    int_max OutputByteNumber = GetByteNumberOfScalar(ReferenceScalar);
 
     //---------------------------------------------- Read header --------------------------------------------------------//
 
-    QString QFilePathAndName(FilePathAndName.StdString().c_str());
+    QString QFilePathAndName(FilePathAndName.c_str());
 
     QFile HeaderFile(QFilePathAndName);
 
@@ -1582,21 +1694,21 @@ FeatureDictionaryForSparseCoding<ElementType> LoadFeatureDictionaryForSparseCodi
 
     if (OutputElementTypeName == InputElementTypeName)
     {
-        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.BasisMatrix(), DataFile, OutputByteNumber);
-        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.VarianceOfL1Distance(), DataFile, OutputByteNumber);
-        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.VarianceOfL2Distance(), DataFile, OutputByteNumber);
-        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.VarianceOfKLDivergence(), DataFile, OutputByteNumber);
-        Internal_LoadDenseMatrixFromJsonDataFile<ElementType, ElementType>(Dictionary.VarianceOfReconstruction(), DataFile, OutputByteNumber);
+        LoadDenseMatrixFromJsonDataFile_Data<ElementType, ElementType>(Dictionary.BasisMatrix(), DataFile, OutputByteNumber);
+        LoadDenseMatrixFromJsonDataFile_Data<ElementType, ElementType>(Dictionary.VarianceOfL1Distance(), DataFile, OutputByteNumber);
+        LoadDenseMatrixFromJsonDataFile_Data<ElementType, ElementType>(Dictionary.VarianceOfL2Distance(), DataFile, OutputByteNumber);
+        LoadDenseMatrixFromJsonDataFile_Data<ElementType, ElementType>(Dictionary.VarianceOfKLDivergence(), DataFile, OutputByteNumber);
+        LoadDenseMatrixFromJsonDataFile_Data<ElementType, ElementType>(Dictionary.VarianceOfReconstruction(), DataFile, OutputByteNumber);
     }
     else
     {
         MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ LoadFeatureDictionaryForSparseCoding(...)")
 
-        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.BasisMatrix(), DataFile, InputElementTypeName);
-        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.VarianceOfL1Distance(), DataFile, InputElementTypeName);
-        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.VarianceOfL2Distance(), DataFile, InputElementTypeName);
-        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.VarianceOfKLDivergence(), DataFile, InputElementTypeName);
-        Internal_LoadDenseMatrixFromJsonDataFile(Dictionary.VarianceOfReconstruction(), DataFile, InputElementTypeName);
+        LoadDenseMatrixFromJsonDataFile_Data(Dictionary.BasisMatrix(), DataFile, InputElementTypeName);
+        LoadDenseMatrixFromJsonDataFile_Data(Dictionary.VarianceOfL1Distance(), DataFile, InputElementTypeName);
+        LoadDenseMatrixFromJsonDataFile_Data(Dictionary.VarianceOfL2Distance(), DataFile, InputElementTypeName);
+        LoadDenseMatrixFromJsonDataFile_Data(Dictionary.VarianceOfKLDivergence(), DataFile, InputElementTypeName);
+        LoadDenseMatrixFromJsonDataFile_Data(Dictionary.VarianceOfReconstruction(), DataFile, InputElementTypeName);
     }
 
     DataFile.close();

@@ -203,9 +203,9 @@ void ThinPlateSplineTransform3D<ScalarType>::UpdateParameter()
 	//m_Parameter = SolveMatrixLinearEquation(L, B); // this is not good
 	m_Parameter = MatrixMultiply(L.PInv(), B); // use Pseudo Inverse, this is good
 
-	DisplayMatrix("L", L, 4);
-	DisplayMatrix("B", B, 4);
-	DisplayMatrix("m_Parameter", m_Parameter, 4);
+	//DisplayMatrix("L", L, 4);
+	//DisplayMatrix("B", B, 4);
+	//DisplayMatrix("m_Parameter", m_Parameter, 4);
 }
 
 template<typename ScalarType>
