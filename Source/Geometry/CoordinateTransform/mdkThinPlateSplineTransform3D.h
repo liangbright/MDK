@@ -5,7 +5,9 @@
 
 namespace mdk
 {
-// reference MDK_Document: Thin-Plate Spline Transformation.doc and TPS3D.m
+// reference MDK_Document
+//	Thin-Plate Spline Transformation.doc and TPS3D.m
+// "A physics based coordinate transform for 3D image match" at TMI 1997
 
 // ScalarType is float or double
 template<typename Scalar_Type>
@@ -26,17 +28,17 @@ public:
 	void Clear();
 
 	void SetSourceControlPointSet(const DenseMatrix<ScalarType>& SourcePointSet);
-	DenseMatrix<ScalarType>* GetSourceControlPointSet();
+	const DenseMatrix<ScalarType>& GetSourceControlPointSet() const;
 
 	void SetTargetControlPointSet(const DenseMatrix<ScalarType>& TargetPointSet);
-	DenseMatrix<ScalarType>* GetTargetControlPointSet();
+	const DenseMatrix<ScalarType>& GetTargetControlPointSet() const;
 
 	void SetParameter(const DenseMatrix<ScalarType>& Parameter);
-	DenseMatrix<ScalarType> CopyParameter();
+	const DenseMatrix<ScalarType>& GetParameter() const;
 
 	void UpdateParameter();
 
-	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z);
+	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
 
 private:
 	ThinPlateSplineTransform3D(const ThinPlateSplineTransform3D&) = delete;

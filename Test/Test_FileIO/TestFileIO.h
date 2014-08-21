@@ -1,92 +1,76 @@
 #ifndef __TestFileIO_h
 #define __TestFileIO_h
 
+#include <iostream>
+
 #include "mdkFileIO.h"
 #include "mdkImage3D.h"
 #include "mdkDenseMatrix.h"
+#include "mdkPolygonMesh.h"
+#include "mdkTriangleMesh.h"
 
 namespace mdk
 {
 
-void Test_ImageIO()
-{
-
-    DenseMatrix<double> A = {};
-
-    std::string FilePath;
-    
-    //FilePath = "E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/phase0";
-
-    FilePath = "H:/Heart_backup/Data/Yale_CT/P1940650/phase0";
-
-    //FilePath = "C:/Research/Test_ITK/SpineData/1";
-
-
-    auto InputImage = Load3DScalarImageFromDICOMSeries<double>(FilePath);
-
-    std::string OutputFilePathAndName = "H:/Heart_backup/Data/Yale_CT/P1940650/phase0_temp";
-
-    Image3D<double>& OutputImage = InputImage;
-
-    Save3DScalarImageAsJsonDataFile(OutputImage, OutputFilePathAndName);
-}
-
-
 void Test_MatrixIO()
 {
-    std::string FilePath = "E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/Test_InputMatrix";
+	DenseMatrix<double> InputMatrix(3, 4);
+	InputMatrix = { { 1.01, 2.02, 3.03, 4.04 },
+					{ 5.05, 6.06, 7.07, 8.08 },
+				    { 9.09, 10.1, 11.1, 12.2 } };
 
-    auto InputMatrix = LoadDenseMatrixFromJsonDataFile<float>(FilePath);
+    std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/Matrix.json";
 
-    DisplayMatrix("InputMatrix", InputMatrix);
+	SaveDenseMatrixAsJsonDataFile(InputMatrix, FilePathAndName);
 
-    DenseMatrix<double> OutputMatrix(10, 10);
+	auto OutputMatrix = LoadDenseMatrixFromJsonDataFile<float>(FilePathAndName);
 
-    OutputMatrix.Fill(0);
-
-    OutputMatrix.FillDiagonal(1);
-
-    std::string OutputFilePathAndName ="E:/HeartData/P1943091-im_6-phase10-close-leaflet/im_6/Test_OutputMatrix";
-
-    SaveDenseMatrixAsJsonDataFile(OutputMatrix, OutputFilePathAndName);
-
-
+	DisplayMatrix("InputMatrix", InputMatrix, 4);
+	DisplayMatrix("OutputMatrix", OutputMatrix, 4);
 }
 
 
-void Test_Image_Matrix_IO()
+void Test_ImageIO()
 {
-    std::string FilePath;
+	std::string FilePath = "H:/AorticValveData/2014_7_25/P2115937/phase0";
 
-    FilePath = "H:/Heart_backup/Data/Yale_CT/P1940650/phase0/";
+	auto InputImage = Load3DScalarImageFromDICOMSeries<double>(FilePath);
 
-    auto InputImage = Load3DScalarImageFromDICOMSeries<double>(FilePath);
+	std::string OutputFilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/Image.json";
 
-    auto Size = InputImage.GetSize();
+	Save3DScalarImageAsJsonDataFile(InputImage, OutputFilePathAndName);
+}
 
-    DenseMatrix<double> Mean(1, Size.Lz);
-    Mean.Fill(0);
+void Test_PolygonMeshIO()
+{
+	std::string VTKFileNameAndPath_input = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/PolygonMesh.vtk";
+	std::string JsonFileNameAndPath_input = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/PolygonMesh.json";
 
-    for (int_max z = 0; z < Size.Lz; ++z)
-    {
-        double temp = 0;
+	auto InputMesh = LoadPolygonMeshFromVTKFile<PolygonMeshStandardAttributeType<double>>(VTKFileNameAndPath_input);
 
-        for (int_max y = 0; y < Size.Ly; ++y)
-        {
-            for (int_max x = 0; x < Size.Lx; ++x)
-            {
-                temp += InputImage(x, y, z);
-            }
-        }
+	SavePolygonMeshAsJsonDataFile(InputMesh, JsonFileNameAndPath_input);
 
-        temp /= Size.Lx*Size.Ly;
+	auto OutputMesh = LoadPolygonMeshFromJsonDataFile<PolygonMeshStandardAttributeType<double>>(JsonFileNameAndPath_input);
 
-        Mean[z] = temp;
-    }
+	std::string VTKFileNameAndPath_output = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/PolygonMesh_output.vtk";
 
-    std::string OutputFilePathAndName = "H:/Heart_backup/Data/Yale_CT/P1940650/phase0_mean";
+	SavePolygonMeshAsVTKFile(OutputMesh, VTKFileNameAndPath_output);
+}
 
-    SaveDenseMatrixAsJsonDataFile(Mean, OutputFilePathAndName);
+void Test_TriangleMeshIO()
+{
+	std::string VTKFileNameAndPath_input = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/PolygonMesh.vtk";
+	std::string JsonFileNameAndPath_input = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/TriangleMesh.json";
+
+	auto InputMesh = LoadTriangleMeshFromVTKFile<PolygonMeshStandardAttributeType<double>>(VTKFileNameAndPath_input);
+
+	SaveTriangleMeshAsJsonDataFile(InputMesh, JsonFileNameAndPath_input);
+
+	auto OutputMesh = LoadTriangleMeshFromJsonDataFile<PolygonMeshStandardAttributeType<double>>(JsonFileNameAndPath_input);
+
+	std::string VTKFileNameAndPath_output = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/TriangleMesh_output.vtk";
+
+	SaveTriangleMeshAsVTKFile(OutputMesh, VTKFileNameAndPath_output);
 }
 
 }//end of namespace

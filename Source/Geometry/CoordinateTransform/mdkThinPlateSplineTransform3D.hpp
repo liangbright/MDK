@@ -28,9 +28,9 @@ void ThinPlateSplineTransform3D<ScalarType>::SetSourceControlPointSet(const Dens
 }
 
 template<typename ScalarType>
-DenseMatrix<ScalarType>* ThinPlateSplineTransform3D<ScalarType>::GetSourceControlPointSet()
+const DenseMatrix<ScalarType>& ThinPlateSplineTransform3D<ScalarType>::GetSourceControlPointSet() const
 {
-	return &m_SourceControlPointSet;
+	return m_SourceControlPointSet;
 }
 
 template<typename ScalarType>
@@ -40,9 +40,9 @@ void ThinPlateSplineTransform3D<ScalarType>::SetTargetControlPointSet(const Dens
 }
 
 template<typename ScalarType>
-DenseMatrix<ScalarType>* ThinPlateSplineTransform3D<ScalarType>::GetTargetControlPointSet()
+const DenseMatrix<ScalarType>& ThinPlateSplineTransform3D<ScalarType>::GetTargetControlPointSet() const
 {
-	return &m_TargetControlPointSet;
+	return m_TargetControlPointSet;
 }
 
 template<typename ScalarType>
@@ -52,7 +52,7 @@ void ThinPlateSplineTransform3D<ScalarType>::SetParameter(const DenseMatrix<Scal
 }
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> ThinPlateSplineTransform3D<ScalarType>::CopyParameter()
+const DenseMatrix<ScalarType>& ThinPlateSplineTransform3D<ScalarType>::GetParameter() const
 {
 	return m_Parameter;
 }
@@ -209,7 +209,7 @@ void ThinPlateSplineTransform3D<ScalarType>::UpdateParameter()
 }
 
 template<typename ScalarType>
-DenseVector<ScalarType, 3> ThinPlateSplineTransform3D<ScalarType>::TransformPoint(ScalarType x, ScalarType y, ScalarType z)
+DenseVector<ScalarType, 3> ThinPlateSplineTransform3D<ScalarType>::TransformPoint(ScalarType x, ScalarType y, ScalarType z) const
 {
 	DenseVector<ScalarType, 3> OutputPosition;
 	OutputPosition[0] = 0;

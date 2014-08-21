@@ -1,17 +1,16 @@
-#include <iostream>
-
 #include "TestFileIO.h"
-
-using namespace mdk;
 
 int main()
 {
+	using namespace mdk;
+
+	//Test_MatrixIO();
 
     //Test_ImageIO();
 
-    //Test_MatrixIO();
+	//Test_PolygonMeshIO();
 
-    Test_Image_Matrix_IO();
+	Test_TriangleMeshIO();
 
     std::system("pause");
 
