@@ -410,7 +410,7 @@ public:
     std::pair<EdgeHandleType, EdgeHandleType> SplitEdge(PointHandleType PointHandle);
     std::pair<EdgeHandleType, EdgeHandleType> SplitEdge(int_max PointID);
 
-    // Position  = sum(Position_i) / sum(i)
+    // MiddlePointPosition  = sum(Position_i) / sum(i)
     PointHandleType ShrinkCellToPoint(CellHandleType CellHandle);
     PointHandleType ShrinkCellToPoint(int_max CellID);
 

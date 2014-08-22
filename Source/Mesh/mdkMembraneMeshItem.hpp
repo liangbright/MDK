@@ -210,6 +210,11 @@ template<typename MeshAttributeType>
 inline
 void Point_Of_MembraneMesh<MeshAttributeType>::SetID(int_max PointID)
 {
+	if (!m_Data)
+	{
+		MDK_Error("this point has been deleted @ Point_Of_MembraneMesh::SetID(...)")
+	}
+
     if (PointID < 0)
     {
         MDK_Error("PointID < 0 @ Point_Of_MembraneMesh::SetID(...)")
