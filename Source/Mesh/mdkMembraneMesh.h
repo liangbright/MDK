@@ -10,11 +10,22 @@
 namespace mdk
 {
 
-//------------------------------- standard/default/empty MeshAttributeType -----------------------//
+//------------------------------- standard/empty MeshAttributeType -----------------------//
 template<typename ScalarType>
 struct MembraneMeshStandardAttributeType
 {
     typedef ScalarType  ScalarType;
+	typedef GlobalStandardAttribute_Of_MembraneMesh<ScalarType>             GlobalAttribute;
+	typedef StandardAttribute_Of_Point_Of_MembraneMesh<ScalarType>          PointAttributeType;
+	typedef StandardAttribute_Of_Edge_Of_MembraneMesh<ScalarType>           EdgeAttributeType;
+	typedef StandardAttribute_Of_DirectedEdge_Of_MembraneMesh<ScalarType>   DirectedEdgeAttributeType;
+	typedef StandardAttribute_Of_Cell_Of_MembraneMesh<ScalarType>           CellAttributeType;
+};
+
+template<typename ScalarType>
+struct MembraneMeshEmptyAttributeType
+{
+	typedef ScalarType  ScalarType;
 	typedef GlobalStandardAttribute_Of_MembraneMesh<ScalarType>             GlobalAttribute;
 	typedef StandardAttribute_Of_Point_Of_MembraneMesh<ScalarType>          PointAttributeType;
 	typedef StandardAttribute_Of_Edge_Of_MembraneMesh<ScalarType>           EdgeAttributeType;
