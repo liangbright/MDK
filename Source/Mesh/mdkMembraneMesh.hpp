@@ -832,7 +832,7 @@ Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::
 GetPointHandleByPosition(const DenseVector<typename MeshAttributeType::ScalarType, 3>& Position, 
                          typename MeshAttributeType::ScalarType DistanceThreshold) const
 {
-    return this->GetPointHandleByPosition(Position[0], Position[1], Position[2]);
+    return this->GetPointHandleByPosition(Position[0], Position[1], Position[2], DistanceThreshold);
 }
 
 
@@ -842,7 +842,7 @@ Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::
 GetPointHandleByPosition(const typename MeshAttributeType::ScalarType Position[3],
                          typename MeshAttributeType::ScalarType DistanceThreshold) const
 {
-    return this->GetPointHandleByPosition(Position[0], Position[1], Position[2]);
+    return this->GetPointHandleByPosition(Position[0], Position[1], Position[2], DistanceThreshold);
 }
 
 
