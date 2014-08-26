@@ -899,12 +899,60 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseVector<ElementType, Le
 
     //-------------------------------------------------
 
-    auto ptrMatrix = InputVector.GetElementPointer();
+	auto ptrVector = InputVector.GetElementPointer();
 
     for (int_max i = 0; i < m_ElementNumber; ++i)
     {
-        (*this)[i] = ptrMatrix[i];
+		(*this)[i] = ptrVector[i];
     }
+}
+
+
+template<typename ElementType>
+inline 
+void DenseShadowMatrix<ElementType>::operator=(const std::initializer_list<ElementType>& InputVector)
+{
+	int_max InputElementNumber = int_max(InputVector.size());
+
+	if (m_Flag_OutputVector == true)
+	{
+		if (m_ElementNumber != InputElementNumber)
+		{
+			MDK_Error("m_ElementNumber != InputElementNumber @ DenseShadowMatrix::operator=(std::initializer_list)")
+			return;
+		}
+	}
+	else
+	{
+		if (m_RowNumber != InputElementNumber && m_ColNumber != InputElementNumber)
+		{
+			MDK_Error("Size does not match @ DenseShadowMatrix::operator=(std::initializer_list)")
+			return;
+		}
+	}
+
+	//-------------------------------------------------
+
+	if (m_LinearIndexList_source.empty() == true)
+	{
+		if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) = InputVector
+		{
+			m_SourceMatrixSharedCopy.SetRow(m_RowIndexList_source[0], InputVector.begin());
+			return;
+		}
+		else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) = InputVector
+		{
+			m_SourceMatrixSharedCopy.SetCol(m_ColIndexList_source[0], InputVector.begin());
+			return;
+		}
+	}
+
+	//-------------------------------------------------
+
+	for (int_max i = 0; i < m_ElementNumber; ++i)
+	{
+		(*this)[i] = InputVector.begin()[i];
+	}
 }
 
 

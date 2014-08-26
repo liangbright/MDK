@@ -113,6 +113,8 @@ public:
     template<int_max Length>
     inline void operator=(const DenseVector<ElementType, Length>& InputVector);
 
+	inline void operator=(const std::initializer_list<ElementType>& InputVector);
+
     inline void operator=(const ElementType& Element);
 
     inline void operator=(const DenseShadowMatrix<ElementType>& InputShadowMatrix);
