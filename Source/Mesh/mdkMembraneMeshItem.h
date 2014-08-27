@@ -43,7 +43,7 @@ struct Data_Of_Point_Of_MembraneMesh
 
     int_max Index;  // PointIndex : index in Mesh.m_MeshData->PointList; it may change after Mesh.ClearDataStructure()
 
-    int_max ID; // unique identifier, it will not change after Mesh.ClearDataStructure()
+    int_max ID; // unique identifier, it will not change after Mesh.ClearDataStructure(), must >= 0
 
     DenseVector<int_max> AdjacentPointIndexList;   // index in Mesh.m_MeshData->PointList
 
