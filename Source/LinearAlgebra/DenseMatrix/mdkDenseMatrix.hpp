@@ -5593,15 +5593,15 @@ template<typename ElementType_Input>
 inline 
 bool DenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColData, int_max Length)
 {
+	if (ColData == nullptr || Length <= 0)
+	{
+		MDK_Warning("Input is empty @ DenseMatrix::AppendCol(const ElementType_Input* ColData, int_max Length)")
+		return true;
+	}
+
     if (this->IsSizeFixed() == true)
     {
         MDK_Error("Matrix Size can not change @ DenseMatrix::AppendCol(const ElementType_Input* ColData, int_max Length)")
-        return false;
-    }
-
-    if (ColData == nullptr || Length <= 0)
-    {
-        MDK_Error("Invalid Input: empty @ DenseMatrix::AppendCol(const ElementType_Input* ColData, int_max Length)")
         return false;
     }
 
@@ -6127,15 +6127,15 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::AppendRow(const ElementType_Input* RowData, int_max Length)
 {
+	if (RowData == nullptr || Length <= 0)
+	{
+		MDK_Warning("Input is empty @ DenseMatrix::AppendRow(const ElementType_Input* RowData, int_max Length)")
+		return true;
+	}
+
     if (this->IsSizeFixed() == true)
     {
         MDK_Error("Size can not change @ DenseMatrix::AppendRow(const ElementType_Input* RowData, int_max Length)")
-        return false;
-    }
-
-    if (RowData == nullptr || Length <= 0)
-    {
-        MDK_Error("Invalid Input: empty @ DenseMatrix::AppendRow(const ElementType_Input* RowData, int_max Length)")
         return false;
     }
 
@@ -8163,6 +8163,21 @@ inline
 int_max DenseMatrix<ElementType>::Find(const std::string& first_or_last, MatchFunctionType MatchFunction) const
 {
 	return FindElementInMatrix(*this, first_or_last, MatchFunction);
+}
+
+template<typename ElementType>
+inline
+DenseMatrix<int_max> DenseMatrix<ElementType>::ExactMatch(const ElementType& InputElement) const
+{
+	return ExactMatchElementInMatrix(*this, InputElement);
+}
+
+
+template<typename ElementType>
+inline
+int_max DenseMatrix<ElementType>::ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const
+{
+	return ExactMatchElementInMatrix(*this, first_or_last, InputElement);
 }
 
 //--------------------------------------------------------------------------------------------//

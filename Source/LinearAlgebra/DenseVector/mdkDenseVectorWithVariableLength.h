@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <vector>
+#include <limits>
 
 #include "mdkDebugConfig.h"
 #include "mdkType.h"
@@ -242,6 +243,12 @@ public:
 	// find the first/last that match the condition
 	template<typename MatchFunctionType>
 	inline int_max Find(const std::string& first_or_last, MatchFunctionType MatchFunction) const;
+
+	//-------------------- ExactMatch (use operator == ) ---------------------------------------//
+
+	inline DenseVector<int_max> ExactMatch(const ElementType& InputElement) const;
+
+	inline int_max ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const;
 
     //--------------------- sort ---------------------------------------//
     // return index list

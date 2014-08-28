@@ -1016,6 +1016,22 @@ int_max DenseVector<ElementType, Length>::Find(const std::string& first_or_last,
 
 
 template<typename ElementType, int_max Length>
+inline
+DenseVector<int_max> DenseVector<ElementType, Length>::ExactMatch(const ElementType& InputElement) const
+{
+	return this->Find([&](const ElementType& Element){return Element == InputElement; });
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+int_max DenseVector<ElementType, Length>::ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const
+{
+	return this->Find(first_or_last, [&](const ElementType& Element){return Element == InputElement; });
+}
+
+
+template<typename ElementType, int_max Length>
 template<typename CompareFunctionType>
 inline
 DenseVector<int_max> DenseVector<ElementType, Length>::Sort(CompareFunctionType CompareFunction) const

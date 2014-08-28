@@ -2,7 +2,6 @@
 #define __mdkLinearAlgebra_Function_DenseMatrix_Part_2_hpp
 
 
-
 namespace mdk
 {
 
@@ -121,6 +120,22 @@ int_max FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const s
 }
 
 
+template<typename ElementType>
+inline
+DenseMatrix<int_max> ExactMatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const ElementType& InputElement)
+{
+	return FindElementInMatrix(*this, InputElement, [&](const ElementType& Element){return Element == InputElement; });
+}
+
+
+template<typename ElementType>
+inline
+DenseMatrix<int_max> ExactMatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, const ElementType& InputElement)
+{
+	return FindElementInMatrix(*this, first_or_last, InputElement, [&](const ElementType& Element){return Element == InputElement; });
+}
+
+
 template<typename ElementType, typename MatchFunctionType>
 DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction)
 {
@@ -185,6 +200,7 @@ DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix
 	{
 		for (int_max i = ColIndex_start; i <= ColIndex_end; ++i)
 		{
+			DenseMatrix<ElementType> ColVector;
 			ColVector.ForceShare(InputMatrix.GetElementPointerOfCol(i), InputSize.RowNumber, 1);
 
 			if (MatchFunction(ColVector) == true)
@@ -204,6 +220,7 @@ DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix
 	{
 		for (int_max i = ColIndex_start; i >= ColIndex_end; --i)
 		{
+			DenseMatrix<ElementType> ColVector;
 			ColVector.ForceShare(InputMatrix.GetElementPointerOfCol(i), InputSize.RowNumber, 1);
 
 			if (MatchFunction(ColVector) == true)
@@ -235,6 +252,7 @@ DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix
 	{
 		for (int_max i = 0; i <= InputSize.ColNumber - 1; ++i)
 		{
+			DenseMatrix<ElementType> ColVector;
 			ColVector.ForceShare(InputMatrix.GetElementPointerOfCol(i), InputSize.RowNumber, 1);
 
 			if (MatchFunction(ColVector) == true)
@@ -248,6 +266,7 @@ DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix
 	{
 		for (int_max i = InputSize.ColNumber - 1; i >= 0;  --i)
 		{
+			DenseMatrix<ElementType> ColVector;
 			ColVector.ForceShare(InputMatrix.GetElementPointerOfCol(i), InputSize.RowNumber, 1);
 
 			if (MatchFunction(ColVector) == true)

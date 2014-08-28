@@ -1150,8 +1150,8 @@ bool DenseVector<ElementType>::Append(const ElementType* InputData, int_max Inpu
 {
     if (InputData == nullptr || InputLength <= 0)
     {
-        MDK_Error("Invalid Input: empty @ DenseVector::Append(const ElementType* InputData, int_max InputLength)")
-        return false;
+        MDK_Warning("Input is empty @ DenseVector::Append(const ElementType* InputData, int_max InputLength)")
+        return true;
     }
 
     auto SelfLength = this->GetElementNumber();
@@ -1566,6 +1566,22 @@ int_max DenseVector<ElementType>::Find(const std::string& first_or_last, MatchFu
 	}
 
     return Index_output;
+}
+
+
+template<typename ElementType>
+inline 
+DenseVector<int_max> DenseVector<ElementType>::ExactMatch(const ElementType& InputElement) const
+{
+	return this->Find([&](const ElementType& Element){return Element == InputElement; });
+}
+
+
+template<typename ElementType>
+inline 
+int_max DenseVector<ElementType>::ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const
+{
+	return this->Find(first_or_last, [&](const ElementType& Element){return Element == InputElement; });
 }
 
 

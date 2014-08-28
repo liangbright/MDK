@@ -1319,7 +1319,7 @@ public:
     template<typename OperationType>
     inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
 
-    //------------------------ find element : return linear index list ----------------------------//
+    //------------------------ find element : return linear index ----------------------------//
 
     template<typename MatchFunctionType>
     inline DenseMatrix<int_max> Find(MatchFunctionType MatchFunction) const;
@@ -1333,6 +1333,12 @@ public:
 	// find the first/last that match the condition
 	template<typename MatchFunctionType>
 	inline int_max Find(const std::string& first_or_last, MatchFunctionType MatchFunction) const;
+
+	//-------------------- Match element (use == operater) : return linear index -----------------------------------//
+
+	inline DenseMatrix<int_max> ExactMatch(const ElementType& InputElement) const;
+
+	inline int_max ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const;
 
     //------------------------ find col : return col index list ------------------------------------//
 
