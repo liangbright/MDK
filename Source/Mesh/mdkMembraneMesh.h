@@ -48,13 +48,13 @@ struct MembraneMeshData
     // row_2: z
     // a point is a  of an Edge or a point on Edge Edge
 
-    DataArray<Point_Of_MembraneMesh<MeshAttributeType>> PointList;
+	SimpleDataArray<Point_Of_MembraneMesh<MeshAttributeType>> PointList;
 
     DenseVector<int_max> PointValidityFlagList;
     // 1: point is an element of the mesh 
     // 0: point is deleted
 
-    DataArray<Edge_Of_MembraneMesh<MeshAttributeType>> EdgeList;
+	SimpleDataArray<Edge_Of_MembraneMesh<MeshAttributeType>> EdgeList;
 
     // do not use this, DirectedEdge_Of_MembraneMesh::operator(&&) will not work when append to the list
     //DataArray<DenseVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>, 2>> DirectedEdgePairList;
@@ -63,7 +63,7 @@ struct MembraneMeshData
     // 1: Edge is an element of the mesh 
     // 0: Edge is deleted
 
-    DataArray<Cell_Of_MembraneMesh<MeshAttributeType>> CellList; // also known as face, facet, element
+	SimpleDataArray<Cell_Of_MembraneMesh<MeshAttributeType>> CellList; // also known as face, facet, element
 
     DenseVector<int_max>  CellValidityFlagList;
     // 1: Cell is an element of the mesh 
@@ -415,8 +415,8 @@ public:
     PointHandleType ShrinkEdgeToPoint(EdgeHandleType EdgeHandle);
     PointHandleType ShrinkEdgeToPoint(int_max EdgeID);
 
-    EdgeHandleType MergeTwoAdjacentEdge(EdgeHandleType EdgeHandleA, EdgeHandleType EdgeHandleB);
-    EdgeHandleType MergeTwoAdjacentEdge(int_max EdgeIDA, int_max EdgeIDB);
+    //EdgeHandleType MergeTwoAdjacentEdge(EdgeHandleType EdgeHandleA, EdgeHandleType EdgeHandleB);
+    //EdgeHandleType MergeTwoAdjacentEdge(int_max EdgeIDA, int_max EdgeIDB);
 
     std::pair<EdgeHandleType, EdgeHandleType> SplitEdge(PointHandleType PointHandle);
     std::pair<EdgeHandleType, EdgeHandleType> SplitEdge(int_max PointID);
