@@ -2271,8 +2271,8 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
             ValidPointIndexList.Append(k);
 
             auto PointIndex_k_new = ValidPointIndexList.GetLength() - 1;
-            if (PointIndex_k_new != k)
-            {// need to modify information related to the point
+            if (PointIndex_k_new != k)// need to modify information related to the point
+            {
                 // modify AdjacentPoint information in m_MeshData->PointList
                 const auto& AdjacentPointIndexList_k = m_MeshData->PointList[k].AdjacentPointIndexList();
                 for (int_max n = 0; n < AdjacentPointIndexList_k.GetLength(); ++k)
@@ -2367,7 +2367,7 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
             auto PointID_k = m_MeshData->PointList[k].GetID();
             if (PointID_k >= 0) // ID is invalid if < 0 
             {
-                m_MeshData->Map_PointID_to_PointIndex[k] = PointID_k;
+				m_MeshData->Map_PointID_to_PointIndex[PointID_k] = k;
             }
         }
     }
@@ -2387,9 +2387,8 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
             ValidEdgeIndexList.Append(k);
 
             auto EdgeIndex_k_new = ValidEdgeIndexList.GetLength() - 1;
-            if (EdgeIndex_k_new != k)
-            {// need to modify information related to the edge
-
+            if (EdgeIndex_k_new != k)// need to modify information related to the edge
+            {
                 // modify AdjacentEdge information in m_MeshData->PointList
                 int_max PointIndexList_k[2];
                 m_MeshData->EdgeList[k].GetPointIndexList(PointIndexList_k);
@@ -2431,8 +2430,7 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
     }// for each EdgeIndex k
 
     if (ValidEdgeIndexList.GetLength() != m_MeshData->EdgeList.GetLength())
-    {
-        // remove deleted item from EdgeList
+    {   // remove deleted item from EdgeList
 
 		SimpleDataArray<Edge_Of_MembraneMesh<MeshAttributeType>> EdgeList_new;
         EdgeList_new.Resize(ValidEdgeIndexList.GetLength());
@@ -2490,9 +2488,8 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
             ValidCellIndexList.Append(k);
 
             auto CellIndex_k_new = ValidCellIndexList.GetLength() - 1;
-            if (CellIndex_k_new != k)
-            {// need to modify information related to the cell
-
+            if (CellIndex_k_new != k)// need to modify information related to the cell
+            {
                 // modify AdjacentCell information in m_MeshData->PointList
                 auto PointIndexList_k = m_MeshData->CellList[k].GetPointIndexList();
                 for (int_max n = 0; n < PointIndexList_k.GetLength(); ++n)
@@ -2542,13 +2539,109 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
             auto CellID_k = m_MeshData->CellList[k].GetID();
             if (CellID_k >= 0) // ID is invalid if < 0 
             {
-                m_MeshData->Map_CellID_to_CellIndex[k] = CellID_k;
+				m_MeshData->Map_CellID_to_CellIndex[CellID_k] = k;
             }
         }
     }
     //ValidCellIndexList.Clear();
 
     //--------------- done clean CellList and Update Map_CellID_to_CellIndex ----------------------------------------------------//
+
+	//--------------- clean DirectedEdgeList and update Map_DirectedEdgeID_to_DirectedEdgeIndex ---------------------------------//
+
+	for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k) // k is EdgeIndex_new
+	{
+		auto& DirectedEdgeList_old = m_MeshData->EdgeList[k].DirectedEdgeList();
+
+		DenseVector<int_max> ValidDirectedEdgeRelativeIndexList;
+		ValidDirectedEdgeRelativeIndexList.ReserveCapacity(DirectedEdgeList_old.GetLength());
+
+		for (int_max n = 0; n < DirectedEdgeList_old.GetLength(); ++n)// n is RelativeIndex_old
+		{
+			DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex_old;
+			DirectedEdgeIndex_old.EdgeIndex = k;
+			DirectedEdgeIndex_old.RelativeIndex = n;
+
+			if (DirectedEdgeList_old[n].IsValid() == true)
+			{
+				ValidDirectedEdgeRelativeIndexList.Append(n);
+				auto RelativeIndex_new = ValidDirectedEdgeRelativeIndexList.GetLength() - 1;
+				if (RelativeIndex_new != k)// need to modify information related to DirectedEdgeList_old[n]
+				{
+					DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex_new;
+					DirectedEdgeIndex_new.EdgeIndex = k;
+					DirectedEdgeIndex_new.RelativeIndex = RelativeIndex_new;
+
+					// modify information in m_MeshData->PointList --------------------
+					{
+						auto StartPointIndex = DirectedEdgeList_old[n].GetStartPointIndex();
+						// auto& take reference
+						auto& OutgoingDirectedEdgeIndexList_n = m_MeshData->PointList[StartPointIndex].OutgoingDirectedEdgeIndexList();
+						for (int_max m = 0; m < OutgoingDirectedEdgeIndexList_n.GetLength(); ++m)
+						{
+							auto tempIndex_m = OutgoingDirectedEdgeIndexList_n.ExactMatch("first", DirectedEdgeIndex_old);
+							OutgoingDirectedEdgeIndexList_n[tempIndex_m] = DirectedEdgeIndex_new;
+						}
+
+						auto EndPointIndex = DirectedEdgeList_old[n].GetEndPointIndex();
+						// auto& take reference
+						auto& IncomingDirectedEdgeIndexList_n = m_MeshData->PointList[EndPointIndex].IncomingDirectedEdgeIndexList();
+						for (int_max m = 0; m < IncomingDirectedEdgeIndexList_n.GetLength(); ++m)
+						{
+							auto tempIndex_m = IncomingDirectedEdgeIndexList_n.ExactMatch("first", DirectedEdgeIndex_old);
+							IncomingDirectedEdgeIndexList_n[tempIndex_m] = DirectedEdgeIndex_new;
+						}
+					}
+					// modify information in m_MeshData->EdgeList.DirectedEdgeList
+					{
+						auto NextDirectedEdgeIndex = DirectedEdgeList_old[n].GetNextDirectedEdgeIndex();
+						auto tempEdgeIndex_a = NextDirectedEdgeIndex.EdgeIndex;
+						auto tempRelativeIndex_a = NextDirectedEdgeIndex.RelativeIndex;
+						m_MeshData->EdgeList[tempEdgeIndex_a].DirectedEdgeList()[tempRelativeIndex_a].SetPreviousDirectedEdgeIndex(DirectedEdgeIndex_new);
+
+						auto PreviousDirectedEdgeIndex = DirectedEdgeList_old[n].GetPreviousDirectedEdgeIndex();
+						auto tempEdgeIndex_b = PreviousDirectedEdgeIndex.EdgeIndex;
+						auto tempRelativeIndex_b = PreviousDirectedEdgeIndex.RelativeIndex;
+						m_MeshData->EdgeList[tempEdgeIndex_b].DirectedEdgeList()[tempRelativeIndex_b].SetNextDirectedEdgeIndex(DirectedEdgeIndex_new);
+					}
+					// modify information in m_MeshData->CellList
+					{
+						auto CellIndex_n = DirectedEdgeList_old[n].GetCellIndex();
+						// auto& take reference
+						auto& DirectedEdgeIndexList = m_MeshData->CellList[CellIndex_n].DirectedEdgeIndexList();
+						auto tempIndex_m = DirectedEdgeIndexList.ExactMatch("first", DirectedEdgeIndex_old);
+						DirectedEdgeIndexList[tempIndex_m] = DirectedEdgeIndex_new;
+					}
+				}
+			}
+		}
+		
+		if (ValidDirectedEdgeRelativeIndexList.GetLength() != DirectedEdgeList_old.GetLength())
+		{
+			// remove deleted item
+			SimpleDataArray<DirectedEdge_Of_MembraneMesh<MeshAttributeType>> DirectedEdgeList_new;
+			DirectedEdgeList_new.Resize(ValidDirectedEdgeRelativeIndexList.GetLength());
+			for (int_max n = 0; n < ValidCellIndexList.GetLength(); ++n)
+			{
+				DirectedEdgeList_new[n] = std::move(DirectedEdgeList_old[ValidDirectedEdgeRelativeIndexList[n]]);
+				DirectedEdgeList_new[n].SetIndex(k, n);// EdgeIndex is k, RelativeIndex is n
+			}
+			m_MeshData->EdgeList[k].DirectedEdgeList() = std::move(DirectedEdgeList_new);
+
+			// update m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex
+			for (int_max n = 0; n < m_MeshData->EdgeList[k].DirectedEdgeList().GetLength(); ++n)
+			{
+				// const auto& : get reference
+				const auto& tempDirectedEdge = m_MeshData->EdgeList[k].DirectedEdgeList()[n];
+				auto tempDirectedEdgeID = tempDirectedEdge.GetID();
+				if (tempDirectedEdgeID >= 0) // ID is invalid if < 0 
+				{
+					m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex[tempDirectedEdgeID] = tempDirectedEdge.GetIndex();
+				}
+			}
+		}
+	}
+	//---------------- done clean DirectedEdgeList and update Map_DirectedEdgeID_to_DirectedEdgeIndex ----------------------------//
 }
 
 //-------------------- get a sub mesh by CellHandleList or CellIDList -----------------------------------------//

@@ -307,9 +307,7 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<ElementType
     auto InputLength = int_max(InputList.size());
 
     if (InputLength <= 0)
-    {
-        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(initializer_list)")
-
+    {        
         if (this->IsSizeFixed() == true)
         {
             if (this->IsEmpty() == false)
@@ -319,6 +317,7 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<ElementType
         }
         else
         {
+			MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(initializer_list)")
             this->Clear();
         }
         return;

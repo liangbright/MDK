@@ -6,14 +6,18 @@
 #include <memory>
 
 #include "mdkObject.h"
+#include "mdkDenseVector_ForwardDeclare.h"
 
 namespace mdk
 {
 
-//------------------------------
+// forward declare ------------------------------
 template<typename ElementType>
 class DenseMatrix;
-//------------------------------
+
+template<typename ElementType>
+class DataArray;
+//------------------------------------------------
 
 #if defined MDK_DEBUG_MODE
 #define MDK_DEBUG_SimpleDataArray_Operator_CheckBound
@@ -39,7 +43,8 @@ public:
 
     inline SimpleDataArray(const std::vector<ElementType>& InputData);
 
-    // deep-copy or shared-copy constructor
+	inline SimpleDataArray(const DataArray<ElementType>& InputData);
+
     inline SimpleDataArray(const SimpleDataArray<ElementType>& InputData);
 
     // move constructor
@@ -62,17 +67,21 @@ public:
 
     inline void operator=(SimpleDataArray<ElementType>&& InputData);
 
+	inline void operator=(const DataArray<ElementType>& InputData);
+
     inline void operator=(const std::initializer_list<ElementType>& InputList);
 
     inline void operator=(const std::vector<ElementType>& InputList);
-
-    inline void operator=(const DenseMatrix<ElementType>& InputList);
 
     //----------------------  Copy  ----------------------------------------//
 
     inline bool Copy(const SimpleDataArray<ElementType>& InputData);
 
     inline bool Copy(const SimpleDataArray<ElementType>* InputData);
+
+	inline bool Copy(const DataArray<ElementType>& InputData);
+
+	inline bool Copy(const DataArray<ElementType>* InputData);
 
     inline bool Copy(const ElementType* InputElementPointer, int_max InputLength);
 
@@ -91,8 +100,6 @@ public:
     inline bool ReserveCapacity(int_max InputElementNumber); // reserve memory, current Length does not change
 
     inline void ReleaseUnusedCapacity();
-
-    inline void Squeeze(); // same as ReleaseUnusedCapacity()
 
     inline bool IsEmpty() const;
 
@@ -137,9 +144,13 @@ public:
 
     inline SimpleDataArray<ElementType> GetSubSet(const std::vector<int_max>& IndexList);
 
-    inline SimpleDataArray<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList);
-
     inline SimpleDataArray<ElementType> GetSubSet(const SimpleDataArray<int_max>& IndexList);
+
+	inline SimpleDataArray<ElementType> GetSubSet(const DataArray<int_max>& IndexList);
+
+	inline SimpleDataArray<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList);
+
+	inline SimpleDataArray<ElementType> GetSubSet(const DenseVector<int_max>& IndexList);
 
     inline SimpleDataArray<ElementType> GetSubSet(const int_max* IndexList, int_max ListLength);
 
@@ -149,9 +160,17 @@ public:
 
     inline bool SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSetData);
 
-    inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubSetData);
+	inline bool SetSubSet(const std::initializer_list<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSetData);
+
+	inline bool SetSubSet(const std::vector<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSetData);
 
     inline bool SetSubSet(const SimpleDataArray<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSetData);
+
+	inline bool SetSubSet(const DataArray<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSetData);
+
+	inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSetData);
+
+	inline bool SetSubSet(const DenseVector<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSetData);
 
     inline bool SetSubSet(const int_max* IndexList, const ElementType* SubSetData, int_max DataNumber);
 
@@ -203,6 +222,12 @@ public:
 
     template<typename MatchFunctionType>
     inline SimpleDataArray<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction);
+
+	//-------------------- ExactMatch (use operator == ) ---------------------------------------//
+
+	inline SimpleDataArray<int_max> ExactMatch(const ElementType& InputElement) const;
+
+	inline int_max ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const;
 
     //--------------------- sort ---------------------------------------//
 

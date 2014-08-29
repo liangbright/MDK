@@ -381,9 +381,7 @@ TriangleMesh<MeshAttributeType> ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData*
     for (int_max k = 0; k < PointNumber; ++k)
     {
         double pos[3];
-
         VTKTriangleMesh->GetPoint(k, pos);
-
         PointData.SetCol(k, pos);
     }
 

@@ -103,16 +103,9 @@ void SimpleDataArray<ElementType>::operator=(const std::vector<ElementType>& Inp
 
 template<typename ElementType>
 inline
-void SimpleDataArray<ElementType>::operator=(const DenseMatrix<ElementType>& InputData)
+void SimpleDataArray<ElementType>::operator=(const DataArray<ElementType>& InputData)
 {
-    auto InputLength = InputData.GetElementNumber();
-
-    m_DataArray.resize(InputLength);
-
-    for (int_max k = 0; k < InputLength; ++k)
-    {
-        m_DataArray[k] = InputData[k];
-    }
+	this->copy(InputData);
 }
 
 
@@ -157,8 +150,8 @@ bool SimpleDataArray<ElementType>::Copy(const ElementType* InputElementPointer, 
 {
     if (InputElementPointer == nullptr || InputLength <= 0)
     {
-        MDK_Error("Input pointer is nullptr @ SimpleDataArray::Copy(ElementType*, InputLength)")
-        return false;
+		this->Clear();
+        return true;
     }
 
     // if this SimpleDataArray is not empty, check if this and Input Share the same data
@@ -195,7 +188,6 @@ inline
 bool SimpleDataArray<ElementType>::Fill(const ElementType& Element)
 {
     auto SelfLength = this->GetElementNumber();
-
     if (SelfLength <= 0)
     {
         MDK_Error("Self is empty @ SimpleDataArray::Fill")
@@ -203,12 +195,10 @@ bool SimpleDataArray<ElementType>::Fill(const ElementType& Element)
     }
 
     auto BeginPointer = this->GetElementPointer();
-
     for (auto Ptr = BeginPointer; Ptr < BeginPointer + SelfLength; ++Ptr)
     {
         Ptr[0] = Element;
     }
-
     return true;
 }
 
@@ -324,13 +314,6 @@ inline
 void SimpleDataArray<ElementType>::ReleaseUnusedCapacity()
 {
     m_DataArray.shrink_to_fit();
-}
-
-template<typename ElementType>
-inline
-void SimpleDataArray<ElementType>::Squeeze()
-{
-    this->ReleaseUnusedCapacity();
 }
 
 
@@ -673,20 +656,6 @@ bool SimpleDataArray<ElementType>::SetSubSet(const std::vector<int_max>& IndexLi
     }
 
     return this->SetSubSet(IndexList.data(), SubSetData.data(), int_max(SubSetData.size()));
-}
-
-
-template<typename ElementType>
-inline
-bool SimpleDataArray<ElementType>::SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubSetData)
-{
-    if (IndexList.GetElementNumber() != SubSetData.GetElementNumber())
-    {
-        MDK_Error("IndexList.size() != SubSetData.size() @ SimpleDataArray::SetSubSet(...)")
-        return false;
-    }
-
-    return this->SetSubSet(IndexList.GetElementPointer(), SubSetData.GetElementPointer(), int_max(SubSetData.GetElementNumber()));
 }
 
 
@@ -1082,6 +1051,22 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
     }
 
     return IndexList;
+}
+
+
+template<typename ElementType>
+inline
+SimpleDataArray<int_max> SimpleDataArray<ElementType>::ExactMatch(const ElementType& InputElement) const
+{
+	return this->Find([&](const ElementType& Element){return Element == InputElement; });
+}
+
+
+template<typename ElementType>
+inline
+int_max SimpleDataArray<ElementType>::ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const
+{
+	return this->Find(first_or_last, [&](const ElementType& Element){return Element == InputElement; });
 }
 
 

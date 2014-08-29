@@ -9,7 +9,6 @@
 #include <algorithm>
 #include <limits> 
 
-#include "mdkObject.h"
 #include "mdkDataArray.h"
 #include "mdkSimpleDataArray.h"
 #include "mdkLinearAlgebraConfig.h"

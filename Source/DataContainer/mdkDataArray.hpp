@@ -17,18 +17,25 @@ template<typename ElementType>
 inline
 DataArray<ElementType>::DataArray(const std::initializer_list<ElementType>& InputList)
 {
-    if (InputList.size() == 0)
-    {
-        this->Resize(0);
-    }
-    else
-    {
-        this->Resize(0);
-
-        (*this) = InputList;
-    }
+	this->Resize(0);
+	(*this) = InputList;
 }
 
+
+template<typename ElementType>
+inline DataArray<ElementType>::DataArray(const std::vector<ElementType>& InputData)
+{
+	this->Resize(0);
+	this->Copy(InputData);
+}
+
+
+template<typename ElementType>
+inline DataArray<ElementType>::DataArray(const SimpleDataArray<ElementType>& InputData)
+{
+	this->Resize(0);
+	this->Copy(InputData);
+}
 
 template<typename ElementType>
 inline
@@ -37,7 +44,6 @@ DataArray<ElementType>::DataArray(const DataArray<ElementType>& InputData, Objec
     if (Method == ObjectConstructionTypeEnum::Copy)
     {
         this->Resize(0);
-
         this->Copy(InputData);
     }
     else
@@ -107,32 +113,47 @@ void DataArray<ElementType>::operator=(DataArray<ElementType>&& InputData)
 
 template<typename ElementType>
 inline
+void DataArray<ElementType>::operator=(const SimpleDataArray<ElementType>& InputData)
+{
+	this->Copy(InputData);
+}
+
+
+template<typename ElementType>
+inline
 void DataArray<ElementType>::operator=(const std::initializer_list<ElementType>& InputData)
 {
     auto InputLength = int_max(InputData.size());
+	auto SelfLength = this->GetElementNumber();
 
-    if (InputLength <= 0)
-    {
-        MDK_Error("Input is empty @ DataArray::operator=(initializer_list)")
-        return;
-    }
-
-    auto SelfLength = this->GetElementNumber();
+	if (InputLength <= 0)
+	{
+		if (this->IsSizeFixed() == true)
+		{
+			if (this->IsEmpty() == false)
+			{
+				MDK_Error("Can not change matrix size @ DataArray::operator=(initializer_list)")
+			}
+		}
+		else
+		{
+			MDK_Warning("Input is empty, try to clear self @ DataArray::operator=(initializer_list)")
+			this->Clear();
+		}
+		return;
+	}
 
     if (this->IsSizeFixed() == true)
     {
         if (SelfLength != InputLength)
         {
             MDK_Error("Can not change size @ DataArray::operator=(initializer_list)")
-        }
+			return;
+        }		
+    }
 
-        return;
-    }
-    else
-    {
-        this->Clear();    
-        this->Append(InputData.begin(), InputLength);
-    }
+	this->FastResize(0);
+	this->Append(InputData.begin(), InputLength);
 }
 
 
@@ -140,30 +161,35 @@ template<typename ElementType>
 inline
 void DataArray<ElementType>::operator=(const std::vector<ElementType>& InputData)
 {
-    auto InputLength = int_max(InputData.size());
+	this->Copy(InputData);
+}
 
-    if (InputLength <= 0)
-    {
-        MDK_Error("Input is empty @ DataArray::operator=(initializer_list)")
-            return;
-    }
 
-    auto SelfLength = this->GetElementNumber();
+template<typename ElementType>
+inline
+bool Copy(const std::vector<ElementType>& InputData)
+{
+	return this->Copy(InputData.begin(), int_max(InputData.size()));
+}
 
-    if (this->IsSizeFixed() == true)
-    {
-        if (SelfLength != InputLength)
-        {
-            MDK_Error("Can not change size @ DataArray::operator=(initializer_list)")
-        }
 
-        return;
-    }
-    else
-    {
-        this->Clear();
-        this->Append(InputData.data(), InputLength);
-    }
+template<typename ElementType>
+inline
+bool Copy(const SimpleDataArray<ElementType>& InputData)
+{
+	return this->Copy(InputData.GetElementPointer(), InputData.GetLength());
+}
+
+
+template<typename ElementType>
+inline bool Copy(const SimpleDataArray<ElementType>* InputData)
+{
+	if (InputData == nullptr)
+	{
+		MDK_Error("Input is nullptr @ DataArray::Copy(const SimpleDataArray* InputData)")
+		return false;
+	}
+	return this->Copy(InputData->GetElementPointer(), InputData->GetLength());
 }
 
 
@@ -171,32 +197,6 @@ template<typename ElementType>
 inline
 bool DataArray<ElementType>::Copy(const DataArray<ElementType>& InputData)
 {
-    if (this == &InputData)
-    {
-        MDK_Warning("A DataArray tries to Copy itself @ DataArray::Copy(InputData)")
-        return true;
-    }
-
-    if (InputData.IsEmpty() == true)
-    {
-        if (this->IsSizeFixed() == true)
-        {
-            if (this->IsEmpty() == false)
-            {
-                MDK_Error("Can not change size @ DataArray::Copy(InputData)")
-                return false;
-            }
-
-            return true;
-        }
-        else
-        {            
-            this->Clear();
-            return true;
-        }       
-    }
-
-    // copy data
     return this->Copy(InputData.GetElementPointer(), InputData.GetLength());
 }
 
@@ -221,8 +221,21 @@ bool DataArray<ElementType>::Copy(const ElementType* InputElementPointer, int_ma
 {
     if (InputElementPointer == nullptr || InputLength <= 0)
     {
-        MDK_Error("Input pointer is nullptr @ DataArray::Copy(ElementType*, InputLength)")
-        return false;
+		if (this->IsEmpty() == true)
+		{
+			return true;
+		}        
+		else
+		{
+			if (this->IsSizeFixed() == true)
+			{
+				MDK_Error("Can not change size @ DataArray::Copy(ElementType*, InputLength)")
+				return false;
+			}
+
+			this->Clear();
+			return true;
+		}
     }
 
     // if this DataArray is not empty, check if this and Input Share the same data
@@ -234,12 +247,9 @@ bool DataArray<ElementType>::Copy(const ElementType* InputElementPointer, int_ma
             return true;
         }
     }
-
     //------------------------------------------------------------------
 
     auto SelfLength = this->GetElementNumber();
-
-    //------------------------------------------------------------------
 
     if (this->IsSizeFixed() == true)
     {
@@ -275,7 +285,6 @@ inline
 bool DataArray<ElementType>::Fill(const ElementType& Element)
 {
     auto SelfLength = this->GetElementNumber();
-
     if (SelfLength <= 0)
     {
         MDK_Error("Self is empty @ DataArray::Fill")
@@ -283,12 +292,10 @@ bool DataArray<ElementType>::Fill(const ElementType& Element)
     }
 
     auto BeginPointer = this->GetElementPointer();
-
     for (auto Ptr = BeginPointer; Ptr < BeginPointer + SelfLength; ++Ptr)
     {
         Ptr[0] = Element;
     }
-
     return true;
 }
 
@@ -684,14 +691,6 @@ catch (...)
 
 template<typename ElementType>
 inline
-void DataArray<ElementType>::Squeeze()
-{
-    this->ReleaseUnusedCapacity();
-}
-
-
-template<typename ElementType>
-inline
 void DataArray<ElementType>::ReleaseUnusedCapacity()
 {
     if (!m_Data)
@@ -1048,14 +1047,22 @@ bool DataArray<ElementType>::Append(const DenseMatrix<ElementType>& InputData)
 }
 */
 
-/*
+
+template<typename ElementType>
+inline
+bool DataArray<ElementType>::Append(const SimpleDataArray<ElementType>& InputData)
+{
+	return this->Append(InputData.GetElementPointer(), InputData.GetElementNumber());
+}
+
+
 template<typename ElementType>
 inline
 bool DataArray<ElementType>::Append(const DataArray<ElementType>& InputData)
 {
     return this->Append(InputData.GetElementPointer(), InputData.GetElementNumber());
 }
-*/
+
 
 template<typename ElementType>
 inline 
@@ -1131,6 +1138,14 @@ inline
 bool DataArray<ElementType>::Delete(const DataArray<int_max>& IndexList)
 {
     return this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
+}
+
+
+template<typename ElementType>
+inline
+bool DataArray<ElementType>::Delete(const SimpleDataArray<int_max>& IndexList)
+{
+	return this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
 }
 
 
@@ -1285,15 +1300,9 @@ bool DataArray<ElementType>::Insert(int_max Index, const std::vector<ElementType
 
 template<typename ElementType>
 inline
-bool DataArray<ElementType>::Insert(int_max Index, const DenseMatrix<ElementType>& InputData)
+bool DataArray<ElementType>::Insert(int_max Index, const SimpleDataArray<ElementType>& InputData)
 {
-    if (DenseMatrix.IsVector() == false)
-    {
-        MDK_Error("Input is NOT a vector @ DataArray::Insert(Index, DenseMatrix)")
-        return false;
-    }
-
-    return this->Insert(Index, InputData.GetElementPointer(), InputData.GetElementNumber());
+	return this->Insert(Index, InputData.GetElementPointer(), InputData.GetElementNumber());
 }
 
 
@@ -1440,9 +1449,9 @@ DataArray<ElementType> DataArray<ElementType>::GetSubSet(const std::vector<int_m
 
 template<typename ElementType>
 inline
-DataArray<ElementType> DataArray<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList)
+DataArray<ElementType> DataArray<ElementType>::GetSubSet(const SimpleDataArray<int_max>& IndexList)
 {
-    return this->GetSubSet(IndexList.begin(), int_max(IndexList.GetElementNumber()));
+	return this->GetSubSet(IndexList.begin(), int_max(IndexList.GetElementNumber()));
 }
 
 
@@ -1451,6 +1460,22 @@ inline
 DataArray<ElementType> DataArray<ElementType>::GetSubSet(const DataArray<int_max>& IndexList)
 {
     return this->GetSubSet(IndexList.begin(), int_max(IndexList.GetElementNumber()));
+}
+
+
+template<typename ElementType>
+inline
+DataArray<ElementType> DataArray<ElementType>::GetSubSet(const DenseVector<int_max>& IndexList)
+{
+	return this->GetSubSet(IndexList.begin(), int_max(IndexList.GetElementNumber()));
+}
+
+
+template<typename ElementType>
+inline
+DataArray<ElementType> DataArray<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList)
+{
+	return this->GetSubSet(IndexList.begin(), int_max(IndexList.GetElementNumber()));
 }
 
 
@@ -1567,6 +1592,21 @@ DataArray<int_max> DataArray<ElementType>::Find(int_max MaxOutputNumber, int_max
     return IndexList;
 }
 
+
+template<typename ElementType>
+inline
+DataArray<int_max> DataArray<ElementType>::ExactMatch(const ElementType& InputElement) const
+{
+	return this->Find([&](const ElementType& Element){return Element == InputElement; });
+}
+
+
+template<typename ElementType>
+inline
+int_max DataArray<ElementType>::ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const
+{
+	return this->Find(first_or_last, [&](const ElementType& Element){return Element == InputElement; });
+}
 
 template<typename ElementType>
 template<typename CompareFunctionType>
