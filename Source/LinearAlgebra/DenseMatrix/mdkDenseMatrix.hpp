@@ -51,7 +51,6 @@ inline
 DenseMatrix<ElementType>::DenseMatrix(const std::initializer_list<ElementType>& InputList)
 {
     this->Resize(0, 0);
-
     if (InputList.size() > 0)
     {
         (*this) = InputList;
@@ -64,7 +63,6 @@ inline
 DenseMatrix<ElementType>::DenseMatrix(const std::initializer_list<std::initializer_list<ElementType>>& InputListInList)
 {
     this->Resize(0, 0);
-
     if (InputListInList.size() > 0)
     {
         (*this) = InputListInList;
@@ -76,7 +74,6 @@ template<typename ElementType>
 inline DenseMatrix<ElementType>::DenseMatrix(const std::initializer_list<const DenseMatrix<ElementType>*>& InputList)
 {
     this->Resize(0, 0);
-
     if (InputList.size() > 0)
     {
         (*this) = InputList;
@@ -88,7 +85,6 @@ template<typename ElementType>
 inline DenseMatrix<ElementType>::DenseMatrix(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList)
 {
     this->Resize(0, 0);
-
     if (InputListInList.size() > 0)
     {
         (*this) = InputListInList;
@@ -101,7 +97,6 @@ inline
 DenseMatrix<ElementType>::DenseMatrix(const std::vector<ElementType>& InputVector)
 {
     this->Resize(0, 0);
-
     if (InputVector.size() > 0)
     {
         (*this) = InputVector;
@@ -110,12 +105,11 @@ DenseMatrix<ElementType>::DenseMatrix(const std::vector<ElementType>& InputVecto
 
 
 template<typename ElementType>
-template<int_max Length>
+template<int_max TemplateVectorLength>
 inline
-DenseMatrix<ElementType>::DenseMatrix(const DenseVector<ElementType, Length>& InputVector)
-{
+DenseMatrix<ElementType>::DenseMatrix(const DenseVector<ElementType, TemplateVectorLength>& InputVector)
+{//TemplateVectorLength is -1 for variable length DenseVector
     this->Resize(0, 0);
-
     if (InputVector.GetElementNumber() > 0)
     {
         (*this) = InputVector;
@@ -128,7 +122,6 @@ inline
 DenseMatrix<ElementType>::DenseMatrix(const DenseVector<ElementType>& InputVector)
 {
     this->Resize(0, 0);
-
     if (InputVector.GetElementNumber() > 0)
     {
         (*this) = InputVector;
@@ -616,25 +609,22 @@ void DenseMatrix<ElementType>::operator=(const std::vector<ElementType>& InputVe
 
 
 template<typename ElementType>
-template<int_max Length>
+template<int_max TemplateVectorLength>
 inline
-void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType, Length>& InputVector)
+void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType, TemplateVectorLength>& InputVector)
 {
     // InputVector is treated as a row vector
 
-    // Attention: do not use template parameter Length, it is -1 for DenseVector with variable length
+    // Attention: do not use TemplateVectorLength, it is -1 for DenseVector with variable length
     auto InputVectorLength = InputVector.GetLength();
 
     if (InputVectorLength <= 0)
     {
-        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(DenseVector)")
+        //MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(DenseVector)")
         
-        if (this->IsSizeFixed() == true)
+        if (this->IsSizeFixed() == true && this->IsEmpty() == false)
         {
-            if (this->IsEmpty() == false)
-            {
-                MDK_Error("Can not change matrix size @ DenseMatrix::operator=(DenseVector)")
-            }
+			MDK_Error("Can not change matrix size @ DenseMatrix::operator=(DenseVector)")
         }
         else
         {
@@ -648,23 +638,23 @@ void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType, Length>&
     if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputVectorLength)
     {
         this->SetRow(0, InputVector.GetElementPointer());
-        return;
     }
     else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputVectorLength)
     {
         this->SetCol(0, InputVector.GetElementPointer());
-        return;
     }
-
-    if (this->IsSizeFixed() == true)
-    {
-        MDK_Error("Can not change matrix size @ DenseMatrix::operator=(DenseVector)")
-    }
-    else
-    {
-        this->FastResize(1, InputVectorLength);
-        this->SetRow(0, InputVector.GetElementPointer());
-    }
+	else
+	{
+		if (this->IsSizeFixed() == true)
+		{
+			MDK_Error("Can not change matrix size @ DenseMatrix::operator=(DenseVector)")
+		}
+		else
+		{
+			this->FastResize(1, InputVectorLength);
+			this->SetRow(0, InputVector.GetElementPointer());
+		}
+	}
 }
 
 /*
@@ -2677,18 +2667,20 @@ DenseMatrix<ElementType>::operator()(std::vector<int_max> LinearIndexList) const
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(const DenseVector<int_max>& LinearIndexList)
+DenseMatrix<ElementType>::operator()(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList)
 {
     return (*this)(LinearIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(const DenseVector<int_max>& LinearIndexList) const
+DenseMatrix<ElementType>::operator()(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList) const
 {
     return (*this)(LinearIndexList.CreateStdVector());
 }
@@ -2906,18 +2898,20 @@ DenseMatrix<ElementType>::at(std::vector<int_max> LinearIndexList) const
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(const DenseVector<int_max>& LinearIndexList)
+DenseMatrix<ElementType>::at(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList)
 {
     return this->at(LinearIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(const DenseVector<int_max>& LinearIndexList) const
+DenseMatrix<ElementType>::at(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList) const
 {
     return this->at(LinearIndexList.CreateStdVector());
 }
@@ -3475,54 +3469,62 @@ DenseMatrix<ElementType>::operator()(const MDK_Symbol_ALL& ALL_Symbol, std::vect
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLengthA, int_max TemplateVectorLengthB>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(const DenseVector<int_max>& RowIndexList, const DenseVector<int_max>& ColIndexList)
+DenseMatrix<ElementType>::operator()(const DenseVector<int_max, TemplateVectorLengthA>& RowIndexList, 
+                                     const DenseVector<int_max, TemplateVectorLengthB>& ColIndexList)
 {
     return (*this)(RowIndexList.CreateStdVector(), ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLengthA, int_max TemplateVectorLengthB>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(const DenseVector<int_max>& RowIndexList, const DenseVector<int_max>& ColIndexList) const
+DenseMatrix<ElementType>::operator()(const DenseVector<int_max, TemplateVectorLengthA>& RowIndexList,
+                                     const DenseVector<int_max, TemplateVectorLengthB>& ColIndexList) const
 {
     return (*this)(RowIndexList.CreateStdVector(), ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(const DenseVector<int_max>& RowIndexList, const MDK_Symbol_ALL& ALL_Symbol)
+DenseMatrix<ElementType>::operator()(const DenseVector<int_max, TemplateVectorLength>& RowIndexList, const MDK_Symbol_ALL& ALL_Symbol)
 {
     return (*this)(RowIndexList.CreateStdVector(), ALL_Symbol);
 }
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(const DenseVector<int_max>& RowIndexList, const MDK_Symbol_ALL& ALL_Symbol) const
+DenseMatrix<ElementType>::operator()(const DenseVector<int_max, TemplateVectorLength>& RowIndexList, const MDK_Symbol_ALL& ALL_Symbol) const
 {
     return (*this)(RowIndexList.CreateStdVector(), ALL_Symbol);
 }
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(const MDK_Symbol_ALL& ALL_Symbol, const DenseVector<int_max>& ColIndexList)
+DenseMatrix<ElementType>::operator()(const MDK_Symbol_ALL& ALL_Symbol, const DenseVector<int_max, TemplateVectorLength>& ColIndexList)
 {
     return (*this)(ALL_Symbol, ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::operator()(const MDK_Symbol_ALL& ALL_Symbol, const DenseVector<int_max>& ColIndexList) const
+DenseMatrix<ElementType>::operator()(const MDK_Symbol_ALL& ALL_Symbol, const DenseVector<int_max, TemplateVectorLength>& ColIndexList) const
 {
     return (*this)(ALL_Symbol, ColIndexList.CreateStdVector());
 }
@@ -4162,54 +4164,62 @@ DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol, std::vector<int_m
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLengthA, int_max TemplateVectorLengthB>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(const DenseVector<int_max>& RowIndexList, const DenseVector<int_max>& ColIndexList)
+DenseMatrix<ElementType>::at(const DenseVector<int_max, TemplateVectorLengthA>& RowIndexList,
+							 const DenseVector<int_max, TemplateVectorLengthB>& ColIndexList)
 {
     return this->at(RowIndexList.CreateStdVector(), ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLengthA, int_max TemplateVectorLengthB>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(const DenseVector<int_max>& RowIndexList, const DenseVector<int_max>& ColIndexList) const
+DenseMatrix<ElementType>::at(const DenseVector<int_max, TemplateVectorLengthA>& RowIndexList, 
+						     const DenseVector<int_max, TemplateVectorLengthB>& ColIndexList) const
 {
     return this->at(RowIndexList.CreateStdVector(), ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(const DenseVector<int_max>& RowIndexList, const MDK_Symbol_ALL& ALL_Symbol)
+DenseMatrix<ElementType>::at(const DenseVector<int_max, TemplateVectorLength>& RowIndexList, const MDK_Symbol_ALL& ALL_Symbol)
 {
     return this->at(RowIndexList.CreateStdVector(), ALL_Symbol);
 }
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(const DenseVector<int_max>& RowIndexList, const MDK_Symbol_ALL& ALL_Symbol) const
+DenseMatrix<ElementType>::at(const DenseVector<int_max, TemplateVectorLength>& RowIndexList, const MDK_Symbol_ALL& ALL_Symbol) const
 {
     return this->at(RowIndexList.CreateStdVector(), ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol, const DenseVector<int_max>& ColIndexList)
+DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol, const DenseVector<int_max, TemplateVectorLength>& ColIndexList)
 {
     return this->at(ALL_Symbol, ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol, const DenseVector<int_max>& ColIndexList) const
+DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol, const DenseVector<int_max, TemplateVectorLength>& ColIndexList) const
 {
     return this->at(ALL_Symbol, ColIndexList.CreateStdVector());
 }
@@ -4482,18 +4492,20 @@ DenseMatrix<ElementType>::Col(std::vector<int_max> ColIndexList) const
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Col(const DenseVector<int_max>& ColIndexList)
+DenseMatrix<ElementType>::Col(const DenseVector<int_max, TemplateVectorLength>& ColIndexList)
 {
     return (*this)(ALL, ColIndexList.CreateStdVector());
 }
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Col(const DenseVector<int_max>& ColIndexList) const
+DenseMatrix<ElementType>::Col(const DenseVector<int_max, TemplateVectorLength>& ColIndexList) const
 {
     return (*this)(ALL, ColIndexList.CreateStdVector());
 }
@@ -4572,18 +4584,20 @@ DenseMatrix<ElementType>::Row(std::vector<int_max> RowIndexList) const
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Row(const DenseVector<int_max>& RowIndexList)
+DenseMatrix<ElementType>::Row(const DenseVector<int_max, TemplateVectorLength>& RowIndexList)
 {
     return (*this)(RowIndexList.CreateStdVector(), ALL);
 }
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 const DenseShadowMatrix<ElementType>
-DenseMatrix<ElementType>::Row(const DenseVector<int_max>& RowIndexList) const
+DenseMatrix<ElementType>::Row(const DenseVector<int_max, TemplateVectorLength>& RowIndexList) const
 {
     return (*this)(RowIndexList.CreateStdVector(), ALL);
 }
@@ -4706,9 +4720,10 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const std::vecto
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseVector<int_max>& LinearIndexList) const
-{
+DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList) const
+{//TemplateVectorLength is -1 for variable length DenseVector
     return this->GetSubMatrix(LinearIndexList.GetElementPointer(), LinearIndexList.GetElementNumber());
 }
 
@@ -4905,8 +4920,10 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLengthA, int_max TemplateVectorLengthB>
 inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseVector<int_max>& RowIndexList, const DenseVector<int_max>& ColIndexList) const
+DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseVector<int_max, TemplateVectorLengthA>& RowIndexList,
+													            const DenseVector<int_max, TemplateVectorLengthB>& ColIndexList) const
 {
     DenseMatrix<ElementType> tempMatrix;
 
@@ -4919,10 +4936,11 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseVecto
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLengthA, int_max TemplateVectorLengthB>
 inline
 bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
-                                            const DenseVector<int_max>& RowIndexList,
-                                            const DenseVector<int_max>& ColIndexList) const
+                                            const DenseVector<int_max, TemplateVectorLengthA>& RowIndexList,
+											const DenseVector<int_max, TemplateVectorLengthB>& ColIndexList) const
 {
     return this->GetSubMatrix(OutputMatrix,
                               RowIndexList.GetElementPointer(), RowIndexList.GetElementNumber(), 
@@ -4931,8 +4949,9 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseVector<int_max>& RowIndexList,
+DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseVector<int_max, TemplateVectorLength>& RowIndexList,
                                                                 const MDK_Symbol_ALL& ALL_Symbol) const
 {
     DenseMatrix<ElementType> tempMatrix;
@@ -4944,9 +4963,10 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const DenseVecto
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
-                                            const DenseVector<int_max>& RowIndexList,
+                                            const DenseVector<int_max, TemplateVectorLength>& RowIndexList,
                                             const MDK_Symbol_ALL& ALL_Symbol) const
 {
     return this->GetSubMatrix(OutputMatrix, RowIndexList.GetElementPointer(), RowIndexList.GetElementNumber(), ALL_Symbol);
@@ -4954,9 +4974,10 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const MDK_Symbol_ALL& ALL_Symbol, 
-                                                                const DenseVector<int_max>& ColIndexList) const
+                                                                const DenseVector<int_max, TemplateVectorLength>& ColIndexList) const
 {
     DenseMatrix<ElementType> tempMatrix;
 
@@ -4967,10 +4988,11 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const MDK_Symbol
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
 bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
                                             const MDK_Symbol_ALL& ALL_Symbol,
-                                            const DenseVector<int_max>& ColIndexList) const
+											const DenseVector<int_max, TemplateVectorLength>& ColIndexList) const
 {
     return this->GetSubMatrix(OutputMatrix, ALL_Symbol, ColIndexList.GetElementPointer(), ColIndexList.GetElementNumber());
 }
@@ -5358,12 +5380,25 @@ bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, std::vector<ElementType>
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
+inline
+bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseVector<ElementType, TemplateVectorLength>& ColData) const
+{ // this is for fixed length DenseVector
+	if (TemplateVectorLength != this->GetRowNumber())
+	{
+		MDK_Error("Size not match @ DenseMatrix::GetCol(ColIndex, fixed length DenseVector)")
+		return false;
+	}
+    return this->GetCol(ColIndex, ColData.GetElementPointer());
+}
+
+
+template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseVector<ElementType>& ColData) const
-{
-    ColData.FastResize(this->GetRowNumber(), 1);
-
-    return this->GetCol(ColIndex, ColData.GetElementPointer());
+{ // this is for variable length DenseVector
+	ColData.FastResize(this->GetRowNumber());
+	return this->GetCol(ColIndex, ColData.GetElementPointer());
 }
 
 
@@ -5439,16 +5474,15 @@ bool DenseMatrix<ElementType>::SetCol(int_max ColIndex, const std::vector<Elemen
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
+template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-bool DenseMatrix<ElementType>::SetCol(int_max ColIndex, const DenseVector<ElementType_Input>& ColData)
-{
+bool DenseMatrix<ElementType>::SetCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColData)
+{// TemplateVectorLength is -1 for variable length DenseVector
     if (ColData.GetElementNumber() != this->GetRowNumber())
     {
         MDK_Error("Invalid Input size @ DenseMatrix::SetCol(ColIndex, DenseVector)")
         return false;
     }
-
     return this->SetCol(ColIndex, ColData.GetElementPointer());
 }
 
@@ -5564,10 +5598,10 @@ bool DenseMatrix<ElementType>::AppendCol(const std::vector<ElementType_Input>& C
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
+template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-bool DenseMatrix<ElementType>::AppendCol(const DenseVector<ElementType_Input>& ColData)
-{
+bool DenseMatrix<ElementType>::AppendCol(const DenseVector<ElementType_Input, TemplateVectorLength>& ColData)
+{// TemplateVectorLength is -1 for variable length DenseVector
     return this->AppendCol(ColData.GetElementPointer(), ColData.GetElementNumber());
 }
 
@@ -5666,9 +5700,10 @@ bool DenseMatrix<ElementType>::DeleteCol(const std::vector<int_max>& ColIndexLis
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
-bool DenseMatrix<ElementType>::DeleteCol(const DenseVector<int_max>& ColIndexList)
-{
+bool DenseMatrix<ElementType>::DeleteCol(const DenseVector<int_max, TemplateVectorLength>& ColIndexList)
+{// TemplateVectorLength is -1 for variable length DenseVector
     return this->DeleteCol(ColIndexList.GetElementPointer(), ColIndexList.GetElementNumber());
 }
 
@@ -5779,10 +5814,10 @@ bool DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const std::vector<Ele
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
+template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-bool DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const DenseVector<ElementType_Input>& ColData)
-{
+bool DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColData)
+{// TemplateVectorLength is -1 for variable length DenseVector
     return this->InsertCol(ColIndex, ColData.GetElementPointer(), ColData.GetElementNumber());
 }
 
@@ -5894,12 +5929,24 @@ bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, std::vector<ElementType>
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
+inline
+bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseVector<ElementType, TemplateVectorLength>& RowData) const
+{// this is for fixed length DenseVector
+	if (TemplateVectorLength != this->GetColNumber())
+	{
+		MDK_Error("Size not match @ DenseMatrix::GetRow(RowIndex, ixed length DenseVector)")
+	}
+    return this->GetRow(RowIndex, RowData.GetElementPointer());
+}
+
+
+template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseVector<ElementType>& RowData) const
-{
-    RowData.FastResize(1, this->GetColNumber());
-
-    return this->GetRow(RowIndex, RowData.GetElementPointer());
+{// this is  for variable length DenseVector
+	RowData.FastResize(this->GetColNumber());
+	return this->GetRow(RowIndex, RowData.GetElementPointer());
 }
 
 
@@ -5908,7 +5955,6 @@ inline
 bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseMatrix<ElementType>& RowData) const
 {
     RowData.FastResize(1, this->GetColNumber());
-
     return this->GetRow(RowIndex, RowData.GetElementPointer());
 }
 
@@ -5977,16 +6023,15 @@ bool DenseMatrix<ElementType>::SetRow(int_max RowIndex, const std::vector<Elemen
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
+template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-bool DenseMatrix<ElementType>::SetRow(int_max RowIndex, const DenseVector<ElementType_Input>& RowData)
-{
+bool DenseMatrix<ElementType>::SetRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowData)
+{//TemplateVectorLength is -1 for variable length DenseVector
     if (RowData.GetElementNumber() != this->GetColNumber())
     {
         MDK_Error("Input size is wrong @ DenseMatrix::SetRow(int_max RowIndex, DenseVector)")
         return false;
     }
-
     return this->SetRow(RowIndex, RowData.GetElementPointer());
 }
 
@@ -6098,10 +6143,10 @@ bool  DenseMatrix<ElementType>::AppendRow(const std::vector<ElementType_Input>& 
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
+template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-bool DenseMatrix<ElementType>::AppendRow(const DenseVector<ElementType_Input>& RowData)
-{
+bool DenseMatrix<ElementType>::AppendRow(const DenseVector<ElementType_Input, TemplateVectorLength>& RowData)
+{// TemplateVectorLength is -1 for variable length DenseVector
     return this->AppendRow(RowData.GetElementPointer(), RowData.GetElementNumber());
 }
 
@@ -6200,9 +6245,10 @@ bool DenseMatrix<ElementType>::DeleteRow(const std::vector<int_max>& RowIndexLis
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
-bool DenseMatrix<ElementType>::DeleteRow(const DenseVector<int_max>& RowIndexList)
-{
+bool DenseMatrix<ElementType>::DeleteRow(const DenseVector<int_max, TemplateVectorLength>& RowIndexList)
+{// TemplateVectorLength is -1 for variable length DenseVector
     return this->DeleteRow(RowIndexList.GetElementPointer(), RowIndexList.GetElementNumber());
 }
 
@@ -6308,10 +6354,10 @@ bool DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const std::vector<Ele
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
+template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-bool DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const DenseVector<ElementType_Input>& RowData)
-{
+bool DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowData)
+{// TemplateVectorLength is -1 for variable length DenseVector
     return this->InsertRow(RowIndex, RowData.GetElementPointer(), RowData.GetElementNumber());
 }
 
@@ -6393,13 +6439,9 @@ bool DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const ElementType_Inp
             tempRawPointer[tempIndex + j + i] = RawPointer[tempIndex + i - 1];
         }
     }
-
     //---------------------------------------------------
-
     this->Take(tempMatrix);
-
     //-------------------------------------------------------
-
     return true;
 }
 
@@ -6530,10 +6572,10 @@ bool DenseMatrix<ElementType>::Append(const std::vector<ElementType_Input>& Elem
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
+template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-bool DenseMatrix<ElementType>::Append(const DenseVector<ElementType_Input>& ElementData)
-{
+bool DenseMatrix<ElementType>::Append(const DenseVector<ElementType_Input, TemplateVectorLength>& ElementData)
+{// TemplateVectorLength is -1 for variable length DenseVector
     if (this->IsEmpty() == true)
     {
         return this->AppendRow(ElementData);
@@ -6668,9 +6710,10 @@ bool DenseMatrix<ElementType>::Delete(const std::vector<int_max>& LinearIndexLis
 
 
 template<typename ElementType>
+template<int_max TemplateVectorLength>
 inline
-bool DenseMatrix<ElementType>::Delete(const DenseVector<int_max>& LinearIndexList)
-{
+bool DenseMatrix<ElementType>::Delete(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList)
+{// TemplateVectorLength is -1 for variable length DenseVector
     if (this->IsRowVector() == true)
     {
         return this->DeleteCol(LinearIndexList);
@@ -6681,8 +6724,12 @@ bool DenseMatrix<ElementType>::Delete(const DenseVector<int_max>& LinearIndexLis
     }
     else
     {
-        MDK_Error("Self is not a vector @ DenseMatrix::Delete(...)")
-        return false;
+		if (LinearIndexList.IsEmpty() == false)
+		{
+			MDK_Error("Self is not a vector @ DenseMatrix::Delete(...)")
+			return false;
+		}
+		return true;
     }
 }
 
@@ -6796,10 +6843,10 @@ bool DenseMatrix<ElementType>::Insert(int_max LinearIndex, const std::vector<Ele
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
+template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-bool DenseMatrix<ElementType>::Insert(int_max LinearIndex, const DenseVector<ElementType_Input>& ElementData)
-{
+bool DenseMatrix<ElementType>::Insert(int_max LinearIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ElementData)
+{// TemplateVectorLength is -1 for variable length DenseVector
     if (this->IsRowVector() == true)
     {
         return this->InsertCol(LinearIndex, ElementData);
@@ -6978,20 +7025,17 @@ bool DenseMatrix<ElementType>::SetDiagonal(const std::vector<ElementType_Input>&
 
 
 template<typename ElementType>
-template<typename ElementType_Input>
+template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-bool DenseMatrix<ElementType>::SetDiagonal(const DenseVector<ElementType_Input>& DiagonalData)
-{
+bool DenseMatrix<ElementType>::SetDiagonal(const DenseVector<ElementType_Input, TemplateVectorLength>& DiagonalData)
+{// TemplateVectorLength is -1 for variable length DenseVector
     auto InputLength = DiagonalData.GetLength();
-
     if (InputLength <= 0)
     {
         MDK_Error("Empty input @ DenseMatrix::SetDiagonal(DenseVector)")
+		return false;
     }
-
-    auto SelfSize = this->GetSize();
-
-    if (InputSize == 1)
+	else if (InputSize == 1)
     {
         MDK_Warning("Input matrix is 1x1 and treated as a scalar @ DenseMatrix::SetDiagonal(DenseVector)")
         return this->FillDiagonal(ElementType(DiagonalData(0)));

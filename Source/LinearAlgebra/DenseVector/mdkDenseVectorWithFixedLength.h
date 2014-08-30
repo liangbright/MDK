@@ -111,9 +111,11 @@ public:
     inline ElementType& at(int_max Index);
     inline const ElementType& at(int_max Index) const;
 
-    //-------------------Get std array -------------------------------
+    //-------------------Get std vector-------------------------------
 
-    std::array<ElementType, Length> CreateStdArray() const;
+    //std::array<ElementType, Length> CreateStdArray() const;
+
+	std::vector<ElementType> CreateStdVector() const;
 
     //---------- convert to regular vector represented by DenseMatrix ----------------//
 

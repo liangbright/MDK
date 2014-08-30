@@ -409,9 +409,15 @@ const ElementType& DenseVector<ElementType, Length>::at(int_max Index) const
 // ------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType, int_max Length>
-std::array<ElementType, Length> DenseVector<ElementType, Length>::CreateStdArray() const
+std::vector<ElementType> DenseVector<ElementType, Length>::CreateStdVector() const
 {
-    return m_DataArray;
+	std::vector<ElementType> StdVector;
+	StdVector.resize(m_DataArray.size());
+	for (int_max k = 0; k < int_max(m_DataArray.size()); ++k)
+	{
+		StdVector[k] = m_DataArray[k]
+	}
+	return StdVector;
 }
 
 // ------------------------------------------------------------------------------------------------------------//

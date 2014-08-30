@@ -1208,10 +1208,14 @@ DenseMatrix<ElementType> MatrixPseudoInverse(const DenseMatrix<ElementType>& Inp
 	auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
 	// call Armadillo 
+	auto tolerance = ElementType(std::max(Size.RowNumber, Size.ColNumber))*InputMatrix.L1Norm()*std::numeric_limits<ElementType>::epsilon();
 	arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);
-	arma::Mat<ElementType> tempInv(OutputMatrix.GetElementPointer(), arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);
-	tempInv = arma::pinv(tempMat);
-
+	arma::Mat<ElementType> tempInv(OutputMatrix.GetElementPointer(), arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);	
+	bool Flag = arma::pinv(tempInv, tempMat, tolerance, "std"); // do not use "dc", it has problem
+	if (Flag == false)
+	{
+		MDK_Error("Armadillo pinv failed @ @ mdkLinearAlgebra_DenseMatrix MatrixPseudoInverse(InputMatrix)")
+	}
 	return OutputMatrix;
 }
 

@@ -22,9 +22,9 @@ void ThinPlateSplineTransform3D<ScalarType>::Clear()
 }
 
 template<typename ScalarType>
-void ThinPlateSplineTransform3D<ScalarType>::SetSourceControlPointSet(const DenseMatrix<ScalarType>& SourcePointSet)
+void ThinPlateSplineTransform3D<ScalarType>::SetSourceControlPointSet(DenseMatrix<ScalarType> SourcePointSet)
 {
-	m_SourceControlPointSet = SourcePointSet; // copy value
+	m_SourceControlPointSet = std::move(SourcePointSet);
 }
 
 template<typename ScalarType>
@@ -34,9 +34,9 @@ const DenseMatrix<ScalarType>& ThinPlateSplineTransform3D<ScalarType>::GetSource
 }
 
 template<typename ScalarType>
-void ThinPlateSplineTransform3D<ScalarType>::SetTargetControlPointSet(const DenseMatrix<ScalarType>& TargetPointSet)
+void ThinPlateSplineTransform3D<ScalarType>::SetTargetControlPointSet(DenseMatrix<ScalarType> TargetPointSet)
 {
-	m_TargetControlPointSet = TargetPointSet; // copy value
+	m_TargetControlPointSet = std::move(TargetPointSet);
 }
 
 template<typename ScalarType>
@@ -237,6 +237,13 @@ DenseVector<ScalarType, 3> ThinPlateSplineTransform3D<ScalarType>::TransformPoin
 	}
 
 	return OutputPosition;
+}
+
+
+template<typename ScalarType>
+DenseVector<ScalarType, 3> ThinPlateSplineTransform3D<ScalarType>::TransformPoint(const DenseVector<ScalarType, 3>& SourcePosition) const
+{
+	return this->TransformPoint(SourcePosition[0], SourcePosition[1], SourcePosition[2]);
 }
 
 }//namespace mdk

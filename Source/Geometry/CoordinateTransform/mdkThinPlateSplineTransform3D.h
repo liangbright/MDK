@@ -9,6 +9,8 @@ namespace mdk
 //	Thin-Plate Spline Transformation.doc and TPS3D.m
 // "A physics based coordinate transform for 3D image match" at TMI 1997
 
+// TargetPoint = TPSTransform(SourcePoint)
+
 // ScalarType is float or double
 template<typename Scalar_Type>
 class ThinPlateSplineTransform3D : public Object
@@ -27,10 +29,10 @@ public:
 
 	void Clear();
 
-	void SetSourceControlPointSet(const DenseMatrix<ScalarType>& SourcePointSet);
+	void SetSourceControlPointSet(DenseMatrix<ScalarType> SourcePointSet);
 	const DenseMatrix<ScalarType>& GetSourceControlPointSet() const;
 
-	void SetTargetControlPointSet(const DenseMatrix<ScalarType>& TargetPointSet);
+	void SetTargetControlPointSet(DenseMatrix<ScalarType> TargetPointSet);
 	const DenseMatrix<ScalarType>& GetTargetControlPointSet() const;
 
 	void SetParameter(const DenseMatrix<ScalarType>& Parameter);
@@ -39,6 +41,7 @@ public:
 	void UpdateParameter();
 
 	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
+	DenseVector<ScalarType, 3> TransformPoint(const DenseVector<ScalarType, 3>& SourcePosition) const;
 
 private:
 	ThinPlateSplineTransform3D(const ThinPlateSplineTransform3D&) = delete;
