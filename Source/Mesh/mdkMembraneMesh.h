@@ -436,6 +436,7 @@ public:
 private:
     void InternalFuction_DeletePoint(int_max PointIndex);
     void InternalFuction_DeleteEdge(int_max EdgeIndex);
+	void InternalFuction_DeleteDirectedEdge(DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex);
     void InternalFuction_DeleteCell(int_max CellIndex);
 };
 

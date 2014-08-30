@@ -1031,7 +1031,6 @@ bool DataArray<ElementType>::Append(const std::vector<ElementType>& InputData)
     return this->Append(InputData.data(), int_max(InputData.size()));
 }
 */
-
 /*
 template<typename ElementType>
 inline
@@ -1046,23 +1045,22 @@ bool DataArray<ElementType>::Append(const DenseMatrix<ElementType>& InputData)
     return this->Append(InputData.GetElementPointer(), InputData.GetElementNumber());
 }
 */
-
-
+/*
 template<typename ElementType>
 inline
 bool DataArray<ElementType>::Append(const SimpleDataArray<ElementType>& InputData)
 {
 	return this->Append(InputData.GetElementPointer(), InputData.GetElementNumber());
 }
-
-
+*/
+/*
 template<typename ElementType>
 inline
 bool DataArray<ElementType>::Append(const DataArray<ElementType>& InputData)
 {
     return this->Append(InputData.GetElementPointer(), InputData.GetElementNumber());
 }
-
+*/
 
 template<typename ElementType>
 inline 

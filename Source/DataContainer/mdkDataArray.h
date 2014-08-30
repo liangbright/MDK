@@ -263,16 +263,12 @@ public:
 
     inline bool Append(ElementType Element);
 
+	// and Append({1, 2, 3}} error if ElementType is DenseVector<int_max> or std::vector<int>, 
     //inline bool Append(const std::initializer_list<ElementType>& InputData);
-
-    //inline bool Append(const std::vector<ElementType>& InputData);
-
-    // error if ElementType is std::vector
+    //inline bool Append(const std::vector<ElementType>& InputData);    
     //inline bool Append(const DenseMatrix<ElementType>& InputData);
-
-	inline bool Append(const SimpleDataArray<ElementType>& InputData);
-
-    inline bool Append(const DataArray<ElementType>& InputData);
+	//inline bool Append(const SimpleDataArray<ElementType>& InputData);
+    //inline bool Append(const DataArray<ElementType>& InputData);
 
     inline bool Append(const ElementType* InputData, int_max InputLength);
 
