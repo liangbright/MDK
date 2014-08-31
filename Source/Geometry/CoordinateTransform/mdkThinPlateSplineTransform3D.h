@@ -19,8 +19,12 @@ public:
 	typedef Scalar_Type ScalarType;
 
 private:
-	DenseMatrix<ScalarType> m_SourceControlPointSet; // 3 x N
-	DenseMatrix<ScalarType> m_TargetControlPointSet; // 3 x N
+	// m_SourceControlPointSet must be valid when TransformPoint() is called
+	const DenseMatrix<ScalarType>* m_SourceControlPointSet; // 3 x N
+
+	// m_TargetControlPointSet must be valid when UpdateParameter() is called
+	const DenseMatrix<ScalarType>* m_TargetControlPointSet; // 3 x N
+	
 	DenseMatrix<ScalarType> m_Parameter;  // (N+4) x 3
 
 public:
@@ -29,11 +33,9 @@ public:
 
 	void Clear();
 
-	void SetSourceControlPointSet(DenseMatrix<ScalarType> SourcePointSet);
-	const DenseMatrix<ScalarType>& GetSourceControlPointSet() const;
+	void SetSourceControlPointSet(const DenseMatrix<ScalarType>* SourcePointSet);
 
-	void SetTargetControlPointSet(DenseMatrix<ScalarType> TargetPointSet);
-	const DenseMatrix<ScalarType>& GetTargetControlPointSet() const;
+	void SetTargetControlPointSet(const DenseMatrix<ScalarType>* TargetPointSet);
 
 	void SetParameter(const DenseMatrix<ScalarType>& Parameter);
 	const DenseMatrix<ScalarType>& GetParameter() const;

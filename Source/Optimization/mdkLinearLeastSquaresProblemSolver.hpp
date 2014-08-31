@@ -44,7 +44,7 @@ void LinearLeastSquaresProblemSolver<ElementType>::Clear()
 
     m_IsInputDense = true;
 
-    this->ClearPipelineOutput();
+    this->ClearProcessOutput();
 
     m_EmptyDenseMatrix.Clear();
     m_EmptyDenseMatrix.FixSize();
@@ -55,7 +55,7 @@ void LinearLeastSquaresProblemSolver<ElementType>::Clear()
 
 
 template<typename ElementType>
-void LinearLeastSquaresProblemSolver<ElementType>::ClearPipelineOutput()
+void LinearLeastSquaresProblemSolver<ElementType>::ClearProcessOutput()
 {
     m_Solution_SharedCopy.Clear();
     m_Solution = &m_Solution_SharedCopy;
@@ -63,7 +63,7 @@ void LinearLeastSquaresProblemSolver<ElementType>::ClearPipelineOutput()
 
 
 template<typename ElementType>
-void LinearLeastSquaresProblemSolver<ElementType>::UpdatePipelineOutput()
+void LinearLeastSquaresProblemSolver<ElementType>::UpdateProcessOutput()
 {
     if (m_Solution != &m_Solution_SharedCopy)
     {
@@ -201,7 +201,7 @@ bool LinearLeastSquaresProblemSolver<ElementType>::Update()
 
     if (IsOK == true)
     {
-        this->UpdatePipelineOutput();
+        this->UpdateProcessOutput();
         return true;
     }
     else

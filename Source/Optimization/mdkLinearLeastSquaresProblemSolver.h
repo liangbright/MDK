@@ -155,7 +155,7 @@ public:
     void Clear();
 
     void SetInputData(const DenseMatrix<ElementType>* D,                      
-                      const DenseMatrix<ElementType>* c    = nullptr,
+                      const DenseMatrix<ElementType>* c,
                       const DenseMatrix<ElementType>* lb_x = nullptr,
                       const DenseMatrix<ElementType>* ub_x = nullptr,
                       const DenseMatrix<ElementType>* A    = nullptr,
@@ -165,7 +165,7 @@ public:
                       const DenseMatrix<ElementType>* H    = nullptr);
 
     void SetInputData(const SparseMatrix<ElementType>*  D,                     
-                      const SparseMatrix<ElementType>*  c    = nullptr,
+                      const SparseMatrix<ElementType>*  c,
                       const SparseMatrix<ElementType>*  lb_x = nullptr,
                       const SparseMatrix<ElementType>*  ub_x = nullptr,
                       const SparseMatrix<ElementType>*  A    = nullptr,
@@ -182,7 +182,7 @@ public:
 
     //--------------------------------------------------------------------------------------------------------//
     static Solution_Of_LinearLeastSquaresProblem<ElementType> Apply(const DenseMatrix<ElementType>* D,
-                                                                    const DenseMatrix<ElementType>* c    = nullptr,
+                                                                    const DenseMatrix<ElementType>* c,
                                                                     const DenseMatrix<ElementType>* lb_x = nullptr,
                                                                     const DenseMatrix<ElementType>* ub_x = nullptr,
                                                                     const DenseMatrix<ElementType>* A    = nullptr,
@@ -193,7 +193,7 @@ public:
                                                                     const Option_Of_LinearLeastSquaresProblemSolver* Option = nullptr);
         
     static Solution_Of_LinearLeastSquaresProblem<ElementType> Apply(const SparseMatrix<ElementType>*  D,
-                                                                    const SparseMatrix<ElementType>*  c    = nullptr,
+                                                                    const SparseMatrix<ElementType>*  c,
                                                                     const SparseMatrix<ElementType>*  lb_x = nullptr,
                                                                     const SparseMatrix<ElementType>*  ub_x = nullptr,
                                                                     const SparseMatrix<ElementType>*  A    = nullptr,
@@ -215,8 +215,8 @@ public:
 
 private:
 
-    void ClearPipelineOutput();
-    void UpdatePipelineOutput();
+	void ClearProcessOutput();
+	void UpdateProcessOutput();
 
     bool CheckInput_dense();
     bool Update_dense_unconstrained();

@@ -16,33 +16,21 @@ ThinPlateSplineTransform3D<ScalarType>::~ThinPlateSplineTransform3D()
 template<typename ScalarType>
 void ThinPlateSplineTransform3D<ScalarType>::Clear()
 {
-	m_SourceControlPointSet.Clear();
-	m_TargetControlPointSet.Clear();
+	m_SourceControlPointSet = nullptr;
+	m_TargetControlPointSet = nullptr;
 	m_Parameter.Clear();
 }
 
 template<typename ScalarType>
-void ThinPlateSplineTransform3D<ScalarType>::SetSourceControlPointSet(DenseMatrix<ScalarType> SourcePointSet)
+void ThinPlateSplineTransform3D<ScalarType>::SetSourceControlPointSet(const DenseMatrix<ScalarType>* SourcePointSet)
 {
-	m_SourceControlPointSet = std::move(SourcePointSet);
+	m_SourceControlPointSet = SourcePointSet;
 }
 
 template<typename ScalarType>
-const DenseMatrix<ScalarType>& ThinPlateSplineTransform3D<ScalarType>::GetSourceControlPointSet() const
+void ThinPlateSplineTransform3D<ScalarType>::SetTargetControlPointSet(const DenseMatrix<ScalarType>* TargetPointSet)
 {
-	return m_SourceControlPointSet;
-}
-
-template<typename ScalarType>
-void ThinPlateSplineTransform3D<ScalarType>::SetTargetControlPointSet(DenseMatrix<ScalarType> TargetPointSet)
-{
-	m_TargetControlPointSet = std::move(TargetPointSet);
-}
-
-template<typename ScalarType>
-const DenseMatrix<ScalarType>& ThinPlateSplineTransform3D<ScalarType>::GetTargetControlPointSet() const
-{
-	return m_TargetControlPointSet;
+	m_TargetControlPointSet = TargetPointSet;
 }
 
 template<typename ScalarType>
@@ -62,19 +50,19 @@ template<typename ScalarType>
 void ThinPlateSplineTransform3D<ScalarType>::UpdateParameter()
 {
 	// check input 
-	if (m_SourceControlPointSet.IsEmpty() || m_TargetControlPointSet.IsEmpty())
+	if (m_SourceControlPointSet == nullptr || m_TargetControlPointSet == nullptr)
 	{
-		MDK_Error("SourcePointSet or TargetPointSet is empty @ ThinPlateSplineTransform3D::UpdateParameter()")
+		MDK_Error("SourcePointSet or TargetPointSet is empty (nullptr) @ ThinPlateSplineTransform3D::UpdateParameter()")
 	    return;
 	}
 
-	if (m_SourceControlPointSet.GetRowNumber() != 3 || m_TargetControlPointSet.GetRowNumber() != 3)
+	if (m_SourceControlPointSet->GetRowNumber() != 3 || m_TargetControlPointSet->GetRowNumber() != 3)
 	{
 		MDK_Error("RowNumber of SourcePointSet or TargetPointSet is not 3 @ ThinPlateSplineTransform3D::UpdateParameter()")
 	    return;
 	}
 
-	if (m_SourceControlPointSet.GetColNumber() != m_TargetControlPointSet.GetColNumber())
+	if (m_SourceControlPointSet->GetColNumber() != m_TargetControlPointSet->GetColNumber())
 	{
 		MDK_Error("ControlPointNumber is not the same @ ThinPlateSplineTransform3D::UpdateParameter()")
 	    return;
@@ -83,18 +71,18 @@ void ThinPlateSplineTransform3D<ScalarType>::UpdateParameter()
 	
 	//------------------- Construct L matrix as in the literature --------------------------------------------------//
 	/*
-	auto ControlPointNumber = m_SourceControlPointSet.GetColNumber();
+	auto ControlPointNumber = m_SourceControlPointSet->GetColNumber();
 
     // compute K matrix K(i,j)= distance between point_i and point_j in SourcePointSet
 	DenseMatrix<ScalarType> K;
 	K.Resize(ControlPointNumber, ControlPointNumber);
 	for (int_max i = 0; i < ControlPointNumber - 1; ++i)
 	{
-		auto Point_i = m_SourceControlPointSet.GetPointerOfCol(i);
+		auto Point_i = m_SourceControlPointSet->GetPointerOfCol(i);
 
 		for (int_max j = i + 1; j < ControlPointNumber; ++j)
 		{
-			auto Point_j = m_SourceControlPointSet.GetPointerOfCol(j);
+			auto Point_j = m_SourceControlPointSet->GetPointerOfCol(j);
 
 			auto Distance =  (Point_i[0] - Point_j[0])*(Point_i[0] - Point_j[0]) 
 				            +(Point_i[1] - Point_j[1])*(Point_i[1] - Point_j[1])
@@ -112,9 +100,9 @@ void ThinPlateSplineTransform3D<ScalarType>::UpdateParameter()
 	for (int_max i = 0; i < ControlPointNumber; ++i)
 	{
 		P(i, 0) = 1;
-		P(i, 1) = m_SourceControlPointSet(0, i); // x
-		P(i, 2) = m_SourceControlPointSet(1, i); // y
-		P(i, 3) = m_SourceControlPointSet(2, i); // z
+		P(i, 1) = (*m_SourceControlPointSet)(0, i); // x
+		P(i, 2) = (*m_SourceControlPointSet)(1, i); // y
+		P(i, 3) = (*m_SourceControlPointSet)(2, i); // z
 	}
 
 	// get transpose of P
@@ -132,7 +120,7 @@ void ThinPlateSplineTransform3D<ScalarType>::UpdateParameter()
 
 	// construct L matrix directly
 
-	auto ControlPointNumber = m_SourceControlPointSet.GetColNumber();
+	auto ControlPointNumber = m_SourceControlPointSet->GetColNumber();
 
 	DenseMatrix<ScalarType> L;
 	L.Resize(ControlPointNumber + 4, ControlPointNumber + 4);
@@ -140,11 +128,11 @@ void ThinPlateSplineTransform3D<ScalarType>::UpdateParameter()
 	// add K in L
 	for (int_max i = 0; i < ControlPointNumber - 1; ++i)
 	{
-		auto Point_i = m_SourceControlPointSet.GetPointerOfCol(i);
+		auto Point_i = m_SourceControlPointSet->GetPointerOfCol(i);
 
 		for (int_max j = i + 1; j < ControlPointNumber; ++j)
 		{
-			auto Point_j = m_SourceControlPointSet.GetPointerOfCol(j);
+			auto Point_j = m_SourceControlPointSet->GetPointerOfCol(j);
 
 			auto Distance =  (Point_i[0] - Point_j[0])*(Point_i[0] - Point_j[0]) 
 				            +(Point_i[1] - Point_j[1])*(Point_i[1] - Point_j[1])
@@ -160,18 +148,18 @@ void ThinPlateSplineTransform3D<ScalarType>::UpdateParameter()
 	for (int_max i = 0; i < ControlPointNumber; ++i)
 	{
 		L(i, ControlPointNumber) = 1;
-		L(i, ControlPointNumber + 1) = m_SourceControlPointSet(0, i); // x
-		L(i, ControlPointNumber + 2) = m_SourceControlPointSet(1, i); // y
-		L(i, ControlPointNumber + 3) = m_SourceControlPointSet(2, i); // z
+		L(i, ControlPointNumber + 1) = (*m_SourceControlPointSet)(0, i); // x
+		L(i, ControlPointNumber + 2) = (*m_SourceControlPointSet)(1, i); // y
+		L(i, ControlPointNumber + 3) = (*m_SourceControlPointSet)(2, i); // z
 	}
 
 	// add P' in L
 	for (int_max j = 0; j < ControlPointNumber; ++j)
 	{
 		L(ControlPointNumber, j) = 1;
-		L(ControlPointNumber + 1, j) = m_SourceControlPointSet(0, j); // x
-		L(ControlPointNumber + 2, j) = m_SourceControlPointSet(1, j); // y
-		L(ControlPointNumber + 3, j) = m_SourceControlPointSet(2, j); // z
+		L(ControlPointNumber + 1, j) = (*m_SourceControlPointSet)(0, j); // x
+		L(ControlPointNumber + 2, j) = (*m_SourceControlPointSet)(1, j); // y
+		L(ControlPointNumber + 3, j) = (*m_SourceControlPointSet)(2, j); // z
 	}
 
 	// add ZeroMatrix in L
@@ -188,9 +176,9 @@ void ThinPlateSplineTransform3D<ScalarType>::UpdateParameter()
 	B.Resize(ControlPointNumber + 4, 3);
 	for (int_max i = 0; i < ControlPointNumber; ++i)
 	{
-		B(i, 0) = m_TargetControlPointSet(0, i); // x
-		B(i, 1) = m_TargetControlPointSet(1, i); // y
-		B(i, 2) = m_TargetControlPointSet(2, i); // z
+		B(i, 0) = (*m_TargetControlPointSet)(0, i); // x
+		B(i, 1) = (*m_TargetControlPointSet)(1, i); // y
+		B(i, 2) = (*m_TargetControlPointSet)(2, i); // z
 	}
 	for (int_max i = ControlPointNumber; i < ControlPointNumber + 4; ++i)
 	{
@@ -216,11 +204,11 @@ DenseVector<ScalarType, 3> ThinPlateSplineTransform3D<ScalarType>::TransformPoin
 	OutputPosition[1] = 0;
 	OutputPosition[2] = 0;
 
-	auto ControlPointNumber = m_SourceControlPointSet.GetColNumber();
+	auto ControlPointNumber = m_SourceControlPointSet->GetColNumber();
 	
 	for (int_max k = 0; k < ControlPointNumber; ++k)
 	{
-		auto Point_k = m_SourceControlPointSet.GetPointerOfCol(k);
+		auto Point_k = m_SourceControlPointSet->GetPointerOfCol(k);
 		auto Distance = (x - Point_k[0])*(x - Point_k[0]) + (y - Point_k[1])*(y - Point_k[1]) + (z - Point_k[2])*(z - Point_k[2]);	
 		Distance = std::sqrt(Distance);
 		OutputPosition[0] += m_Parameter(k, 0)*Distance;

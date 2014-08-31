@@ -48,7 +48,7 @@ void QuadraticProgrammingSolver<ElementType>::Clear()
     m_VaribleNumber_In_Mode_Online_Varying_H_A = 0;
     m_ConstraintNumber_In_Mode_Online_Varying_H_A = 0;
 
-    this->ClearPipelineOutput();
+	this->ClearProcessOutput();
 
     m_QProblem_Online.reset();
     m_QProblemB_Online.reset();
@@ -63,7 +63,7 @@ void QuadraticProgrammingSolver<ElementType>::Clear()
 
 
 template<typename ElementType>
-void QuadraticProgrammingSolver<ElementType>::ClearPipelineOutput()
+void QuadraticProgrammingSolver<ElementType>::ClearProcessOutput()
 {
     m_Solution_SharedCopy.Clear();
     m_Solution = &m_Solution_SharedCopy;
@@ -71,7 +71,7 @@ void QuadraticProgrammingSolver<ElementType>::ClearPipelineOutput()
 
 
 template<typename ElementType>
-void QuadraticProgrammingSolver<ElementType>::UpdatePipelineOutput()
+void QuadraticProgrammingSolver<ElementType>::UpdateProcessOutput()
 {
     if (m_Solution != &m_Solution_SharedCopy)
     {
@@ -240,7 +240,7 @@ bool QuadraticProgrammingSolver<ElementType>::Update()
 
     if (IsOK = true)
     {
-        this->UpdatePipelineOutput();
+        this->UpdateProcessOutput();
 
         return true;
     }

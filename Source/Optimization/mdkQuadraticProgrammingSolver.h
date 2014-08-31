@@ -279,8 +279,8 @@ public:
 
 private:
 
-    void ClearPipelineOutput();
-    void UpdatePipelineOutput();
+	void ClearProcessOutput();
+	void UpdateProcessOutput();
 
     bool CheckInput_ALLDense();
     bool Update_Mode_OneTimeOnly_Input_ALLDense();
