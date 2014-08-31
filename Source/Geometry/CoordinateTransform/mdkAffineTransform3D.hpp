@@ -118,7 +118,7 @@ bool AffineTransform3D<ScalarType>::CheckInput()
 
 	if (m_SourceControlPointSet->GetColNumber() != m_TargetControlPointSet->GetColNumber())
 	{
-		MDK_Error("Source size and Target size do not match @  AffineTransform3D::CheckInput()")
+		MDK_Error("m_SourceControlPointSet size and m_TargetControlPointSet size do not match @  AffineTransform3D::CheckInput()")
 		return false;
 	}
 	//-------------------------------------------------------------------------------------------
@@ -147,7 +147,11 @@ void AffineTransform3D<ScalarType>::UpdateParameter()
 		Data(k, 3) = Pos[2];
 	}
 
-	// Get XData_new, YData_new, ZData_new and estimate m_Parameter(:,i)
+	m_Parameter = MatrixMultiply(Data.PInv(), m_TargetControlPointSet->Transpose());
+
+	/*
+	// use LinearLeastSquaresProblemSolver
+	// Get XData_new, YData_new, ZData_new and estimate m_Parameter
 	m_Parameter.Resize(4, 3);
 	for (int_max i = 0; i < 3; ++i)
 	{
@@ -162,6 +166,7 @@ void AffineTransform3D<ScalarType>::UpdateParameter()
 
 		m_Parameter(ALL, i) = Solution->X;
 	}
+	*/
 }
 
 

@@ -6,7 +6,7 @@
 
 namespace mdk
 {
-// TargetPoint = TPSTransformationMatrix*SourcePoint
+// TargetPoint = AffineTransform(SourcePoint)
 // 
 //	x_new = a0 + a1 * x + a2 * y + a3 * z;
 //	y_new = b0 + b1 * x + b2 * y + b3 * z;
@@ -37,9 +37,7 @@ namespace mdk
 //  YData=Data*Parameter(:, 2)
 //  ZData=Data*Parameter(:, 3)
 //
-//  Estimate Parameter: linear least square method (SVD)
-//
-//  Attention: this is wrong : Parameter = pinv(Data)*Data_new; Data is not a square matrix
+//  Parameter = pinv(Data)*Data_new;
 
 // ScalarType is float or double
 template<typename Scalar_Type>

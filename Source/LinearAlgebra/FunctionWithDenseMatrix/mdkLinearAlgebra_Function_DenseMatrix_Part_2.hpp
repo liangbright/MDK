@@ -1203,7 +1203,7 @@ DenseMatrix<ElementType> MatrixPseudoInverse(const DenseMatrix<ElementType>& Inp
 	    return OutputMatrix;
 	}
 
-	OutputMatrix.FastResize(Size.RowNumber, Size.ColNumber);
+	OutputMatrix.FastResize(Size.ColNumber, Size.RowNumber);// switch size
 
 	auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
