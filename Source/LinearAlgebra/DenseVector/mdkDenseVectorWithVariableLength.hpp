@@ -184,7 +184,7 @@ template<typename ElementType>
 inline
 void DenseVector<ElementType>::operator=(const DenseMatrix<ElementType>& InputVector)
 {
-    this->Copy(InputVector.GetElementPointer(), InputVector.GetLength());
+	this->Copy(InputVector.GetElementPointer(), InputVector.GetElementNumber());
 }
 
 

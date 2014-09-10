@@ -13,11 +13,11 @@ ScalarTypeEnum GetScalarType(ObjectType Scalar)
 
     if (TypeName == "double")
     {
-        return ScalarTypeEnum::DOUBLE64;
+        return ScalarTypeEnum::DOUBLE;
     }
     else if (TypeName == "float")
     {
-        return ScalarTypeEnum::FLOAT32;
+        return ScalarTypeEnum::FLOAT;
     }
     else if (TypeName == "signed char")
     {
@@ -60,56 +60,56 @@ template<typename ScalarType>
 inline
 std::string GetScalarTypeName(ScalarType Scalar)
 {
-    std::string Name;
+    std::string OutputName;
 
     std::string TypeName(typeid(Scalar).name());
 
     if (TypeName == "double")
     {
-        Name = "double";
+		OutputName = "double";
     }
     else if (TypeName == "float")
     {
-        Name = "float";
+		OutputName = "float";
     }
     else if (TypeName == "signed char")
     {
-        Name = "int8";
+		OutputName = "int8";
     }
     else if (TypeName == "short")
     {
-        Name = "int16";
+		OutputName = "int16";
     }
     else if (TypeName == "int")
     {
-        Name = "int32";
+		OutputName = "int32";
     }
     else if (TypeName == "__int64") // OS is Windows
     {
-        Name = "int64";
+		OutputName = "int64";
     }
     else if (TypeName == "unsigned char")
     {
-        Name = "uint8";
+		OutputName = "uint8";
     }
     else if (TypeName == "unsigned short")
     {
-        Name = "uint16";
+		OutputName = "uint16";
     }
     else if (TypeName == "unsigned int")
     {
-        Name = "uint32";
+		OutputName = "uint32";
     }
     else if (TypeName == "unsigned __int64") // OS is Windows
     {
-        Name = "uint64";
+		OutputName = "uint64";
     }
     else
     {
-        Name = "unknown";
+		OutputName = "unknown";
     }
 
-    return Name;
+	return OutputName;
 }
 
 
@@ -121,111 +121,97 @@ int_max GetByteNumberOfScalar(const ScalarType& Scalar)
     return 0;
 }
  
-
-inline double GetByteNumberOfScalar(const double&)
+inline int_max GetByteNumberOfScalar(const double&)
 {
     return sizeof(double);
 }
 
-
-inline float GetByteNumberOfScalar(const float&)
+inline int_max GetByteNumberOfScalar(const float&)
 {
     return sizeof(float);
 }
 
-
-inline char GetByteNumberOfScalar(const char&)
+inline int_max GetByteNumberOfScalar(const char&)
 {
     return sizeof(char);
 }
 
-
-inline short GetByteNumberOfScalar(const short&)
+inline int_max GetByteNumberOfScalar(const short&)
 {
     return sizeof(short);
 }
 
-
-inline int GetByteNumberOfScalar(const int&)
+inline int_max GetByteNumberOfScalar(const int&)
 {
     return sizeof(int);
 }
 
-
-inline long GetByteNumberOfScalar(const long&)
+inline int_max GetByteNumberOfScalar(const long&)
 {
     return sizeof(long);
 }
 
 
-inline long long GetByteNumberOfScalar(const long long&)
+inline int_max GetByteNumberOfScalar(const long long&)
 {
     return sizeof(long long);
 }
 
 
-inline unsigned char GetByteNumberOfScalar(const unsigned char&)
+inline int_max GetByteNumberOfScalar(const unsigned char&)
 {
     return sizeof(unsigned char);
 }
 
-
-inline unsigned short GetByteNumberOfScalar(const unsigned short&)
+inline int_max GetByteNumberOfScalar(const unsigned short&)
 {
     return sizeof(unsigned short);
 }
 
-
-inline unsigned int GetByteNumberOfScalar(const unsigned int&)
+inline int_max GetByteNumberOfScalar(const unsigned int&)
 {
     return sizeof(unsigned int);
 }
 
-
-inline unsigned long GetByteNumberOfScalar(const unsigned long&)
+inline int_max GetByteNumberOfScalar(const unsigned long&)
 {
     return sizeof(unsigned long);
 }
 
-
-inline unsigned long long GetByteNumberOfScalar(const unsigned long long&)
+inline int_max GetByteNumberOfScalar(const unsigned long long&)
 {
     return sizeof(unsigned long long);
 }
 
-
-inline unsigned long long GetByteNumberOfScalar(const bool&)
+inline int_max GetByteNumberOfScalar(const bool&)
 {
     return sizeof(bool);
 }
 
-inline unsigned long long GetByteNumberOfScalar(const wchar_t&)
+inline int_max GetByteNumberOfScalar(const wchar_t&)
 {
     return sizeof(wchar_t);
 }
 
-
 // unsigned short 
-//inline unsigned long long GetByteNumberOfScalar(const char16_t&)
+//inline int_max GetByteNumberOfScalar(const char16_t&)
 //{
 //    return sizeof(char16_t);
 //}
 
-
 // unsigned int
-//inline unsigned long long GetByteNumberOfScalar(const char32_t&)
+//inline int_max GetByteNumberOfScalar(const char32_t&)
 //{
 //   return sizeof(char32_t);
 //}
 
-// usinged long long
-//inline unsigned long long GetByteNumberOfScalar(const size_t&)
+// unsigned long long
+//inline int_max GetByteNumberOfScalar(const size_t&)
 //{
 //    return sizeof(size_t);
 //}
 
-
-//---------------------------------------------------------------------------
+//-------------------------------------------------------------//
 
 template<typename TemplateClassType>
 std::string GetTemplateClassName(const TemplateClassType& TemplateClassObject)

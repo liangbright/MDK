@@ -3,48 +3,36 @@
 
 #include <string>
 #include <typeinfo>
+#include <stdint.h>
 
 #include "mdkOSPlatformConfig.h"
 #include "mdkDebugConfig.h"
 
 namespace mdk
 {
-
+//---------------------------------------------
 #if defined(OS_Windows_x64)
-
-    typedef signed char int8;
-
-	typedef signed short int16;
-
-	typedef signed int int32;
-
-	typedef signed long long int64;
-
-    typedef signed long long int_max;
-
-	typedef unsigned char uint8;
-
-	typedef unsigned short uint16;
-
-	typedef unsigned int uint32;
-
-	typedef unsigned long long uint64;
-
-    typedef unsigned long long uint_max;
-
-#endif
-
-
-#if defined(OS_Windows_x64)
-#ifdef _MSC_VER
+  #ifdef _MSC_VER
     #define noexcept throw() 
+  #endif
 #endif
-#endif
-
+//-------------------------------------------------------------//
+// use stdint.h
+typedef int8_t  int8;
+typedef int16_t int16;
+typedef int32_t int32;
+typedef int64_t int64;
+typedef signed long long int_max;
+typedef uint8_t  uint8;
+typedef uint16_t uint16;
+typedef uint32_t uint32;
+typedef uint64_t uint64;
+typedef unsigned long long uint_max;
+//----------------------------------
 enum struct ScalarTypeEnum
 {
-	DOUBLE64,
-	FLOAT32,
+	DOUBLE,
+	FLOAT,
 	INT8,
 	INT16,
 	INT32,
@@ -56,14 +44,12 @@ enum struct ScalarTypeEnum
 
 	UNKNOWN,
 };
-
-
+//-------------------------------------------------------------//
 enum struct ObjectConstructionTypeEnum
 {
     Copy,
     Share,
 };
-
 //-------------------------------------------------------------//
 template<typename ScalarType>
 inline
@@ -76,9 +62,7 @@ std::string GetScalarTypeName(ScalarType Scalar);
 template<typename ScalarType>
 inline
 int_max GetByteNumberOfScalar(const ScalarType& Scalar);
-
 //----------------------------------------------------------------//
-
 template<typename TemplateClassType>
 std::string GetTemplateClassName(const TemplateClassType& TemplateClassObject);
 
