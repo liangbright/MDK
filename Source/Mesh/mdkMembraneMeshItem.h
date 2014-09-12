@@ -182,7 +182,7 @@ struct Data_Of_Edge_Of_MembraneMesh
     int_max PointIndex0;
     int_max PointIndex1;
 
-	SimpleDataArray<DirectedEdge_Of_MembraneMesh<MeshAttributeType>> DirectedEdgeList;
+	SimpleObjectArray<DirectedEdge_Of_MembraneMesh<MeshAttributeType>> DirectedEdgeList;
 
     //--------------------------------
 
@@ -234,8 +234,8 @@ private:
     inline void SetPointIndexList(const int_max PointIndexList[2]);
     inline void SetPointIndexList(int_max PointIndex0, int_max PointIndex1);
 
-	inline SimpleDataArray<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>& DirectedEdgeList();
-	inline const SimpleDataArray<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>& DirectedEdgeList() const;
+	inline SimpleObjectArray<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>& DirectedEdgeList();
+	inline const SimpleObjectArray<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>& DirectedEdgeList() const;
 
     inline int_max GetIndex() const;
 

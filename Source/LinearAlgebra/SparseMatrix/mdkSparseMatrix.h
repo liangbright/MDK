@@ -10,7 +10,7 @@
 #include <algorithm>
 
 #include "mdkType.h"
-#include "mdkDataArray.h"
+#include "mdkObjectArray.h"
 
 #include "mdkLinearAlgebraConfig.h"
 #include "mdkLinearAlgebra_Function_Common.h"
@@ -294,7 +294,7 @@ public:
                                                        int_max RowNumber,
                                                        int_max ColNumber);
 
-    inline bool ConstructFromSparseColVectorSetInOrder(const DataArray<SparseVector<ElementType>>& SparseVectorSet,
+	inline bool ConstructFromSparseColVectorSetInOrder(const ObjectArray<SparseVector<ElementType>>& SparseVectorSet,
                                                        int_max RowNumber,
                                                        int_max ColNumber);
 

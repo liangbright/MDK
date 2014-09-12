@@ -52,7 +52,7 @@ void PolygonMesh<MeshAttributeType>::operator=(PolygonMesh<MeshAttributeType>&& 
 
 template<typename MeshAttributeType>
 bool PolygonMesh<MeshAttributeType>::Construct(const DenseMatrix<typename MeshAttributeType::ScalarType>& InputPointPositionMatrix, 
-                                               const DataArray<DenseVector<int_max>>& InputCellTable)
+                                               const ObjectArray<DenseVector<int_max>>& InputCellTable)
 {
 	if (InputPointPositionMatrix.IsEmpty() == true || InputCellTable.IsEmpty() == true)
     {
@@ -98,10 +98,10 @@ void PolygonMesh<MeshAttributeType>::Construct(MembraneMesh<MeshAttributeType> I
 
 template<typename MeshAttributeType>
 inline
-std::pair<DenseMatrix<typename MeshAttributeType::ScalarType>, DataArray<DenseVector<int_max>>>
+std::pair<DenseMatrix<typename MeshAttributeType::ScalarType>, ObjectArray<DenseVector<int_max>>>
 PolygonMesh<MeshAttributeType>::GetPointPositionMatrixAndCellTable() const
 {
-    std::pair<DenseMatrix<ScalarType>, DataArray<DenseVector<int_max>>> Output;
+	std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>> Output;
     this->GetPointPositionMatrixAndCellTable(Output.first, Output.second);
     return Output;
 }
@@ -111,7 +111,7 @@ template<typename MeshAttributeType>
 inline
 void PolygonMesh<MeshAttributeType>::
 GetPointPositionMatrixAndCellTable(DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionTable,
-                                   DataArray<DenseVector<int_max>>& CellTable) const
+                                   ObjectArray<DenseVector<int_max>>& CellTable) const
 {
     auto PointNumber = this->GetPointNumber();
     auto CellNumber = this->GetCellNumber();

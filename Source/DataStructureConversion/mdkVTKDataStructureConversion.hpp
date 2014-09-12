@@ -271,7 +271,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 	auto ScalarTypeName = GetScalarTypeName(ReferenceScalar);
 
     DenseMatrix<ScalarType> PointPositionTable;
-    DataArray<DenseVector<int_max>> CellTable;
+	ObjectArray<DenseVector<int_max>> CellTable;
     InputMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
 
     int_max PointNumber = PointPositionTable.GetColNumber();
@@ -387,7 +387,7 @@ TriangleMesh<MeshAttributeType> ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData*
 
     auto CellNumber = VTKTriangleMesh->GetNumberOfCells();
 
-    DataArray<DenseVector<int_max>> CellData;
+	ObjectArray<DenseVector<int_max>> CellData;
     CellData.FastResize(CellNumber);
 
     for (int_max k = 0; k < CellNumber; ++k)
@@ -414,7 +414,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
 	auto ScalarTypeName = GetScalarTypeName(ReferenceScalar);
 
     DenseMatrix<ScalarType> PointPositionTable;
-    DataArray<DenseVector<int_max>> CellTable;
+	ObjectArray<DenseVector<int_max>> CellTable;
     InputMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
 
     int_max PointNumber = PointPositionTable.GetColNumber();
@@ -523,7 +523,7 @@ PolygonMesh<MeshAttributeType> ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* V
 
     auto CellNumber = int_max(VTKPolyMesh->GetNumberOfCells());
 
-    DataArray<DenseVector<int_max>> CellData;
+	ObjectArray<DenseVector<int_max>> CellData;
     CellData.FastResize(CellNumber);
 
     for (int_max k = 0; k < CellNumber; ++k)

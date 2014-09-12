@@ -16,11 +16,15 @@
 // for example, use it as a voxel in a 3D vector image
 
 //------------ forward declare ----------------------
+// "ambiguous symbol"
 //template<typename ElementType>
 //class DenseMatrix;
 
 //template<typename ElementType>
-//class SimpleDataArray;
+//class SimpleObjectArray;
+
+//template<typename ElementType>
+//class ObjectArray;
 //---------------------------------------------
 
 namespace mdk
@@ -33,7 +37,7 @@ public:
 	typedef Element_Type ElementType;
 
 private:
-    std::vector<ElementType> m_DataArray;
+    std::vector<ElementType> m_StdVector;
 
 public:
     
@@ -43,10 +47,8 @@ public:
 
     inline DenseVector(const std::initializer_list<ElementType>& InputVector);
 
-    inline DenseVector(const DenseVector<ElementType>& InputVector);
-
-    template<int_max InputLength>
-    inline DenseVector(const DenseVector<ElementType, InputLength>& InputVector);
+	template<int_max LengthParameter>
+	inline DenseVector(const DenseVector<ElementType, LengthParameter>& InputVector);
 
     inline DenseVector(DenseVector<ElementType>&& InputVector);
 
@@ -56,8 +58,8 @@ public:
 
     inline void operator=(const DenseVector<ElementType>& InputVector);
 
-    template<int_max Length>
-    inline void operator=(const DenseVector<ElementType, Length>& InputVector);
+	template<int_max LengthParameter>
+	inline void operator=(const DenseVector<ElementType, LengthParameter>& InputVector);
 
     inline void operator=(DenseVector<ElementType>&& InputVector);
 
@@ -152,37 +154,65 @@ public:
 
     inline DenseVector<ElementType> GetSubSet(const std::vector<int_max>& IndexList) const;
 
+	inline DenseVector<ElementType> GetSubSet(const SimpleObjectArray<int_max>& IndexList) const;
+
+	inline DenseVector<ElementType> GetSubSet(const ObjectArray<int_max>& IndexList) const;
+
     inline DenseVector<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList) const;
 
-    inline DenseVector<ElementType> GetSubSet(const SimpleDataArray<int_max>& IndexList) const;
-
-    inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max>& IndexList) const;
-
-    template<int_max InputLength>
-    inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max, InputLength>& IndexList) const;
+	template<int_max LengthParameter>
+	inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max, LengthParameter>& IndexList) const;
 
     //---------------------- SetSubSet --------------------------------------
 
+	// SetSubSet(Index_start, Index_end, SubVector),  Index_start >= or <= Index_end
+
     inline bool SetSubSet(int_max Index_start, int_max Index_end, const std::initializer_list<ElementType>& SubVector);
+
+	inline bool SetSubSet(int_max Index_start, int_max Index_end, const std::vector<ElementType>& SubVector);
+
+	inline bool SetSubSet(int_max Index_start, int_max Index_end, const SimpleObjectArray<ElementType>& SubVector);
+
+	inline bool SetSubSet(int_max Index_start, int_max Index_end, const ObjectArray<ElementType>& SubVector);
+
+	inline bool SetSubSet(int_max Index_start, int_max Index_end, const DenseMatrix<ElementType>& SubVector);
+
+	template<int_max LengthParameter>
+	inline bool SetSubSet(int_max Index_start, int_max Index_end, const DenseVector<ElementType, LengthParameter>& SubVector);
+
+	inline bool SetSubSet(int_max Index_start, int_max Index_end, const ElementType* SubVector);
+
+	// SetSubSet(IndexList, SubVector)
 
     inline bool SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubVector);
 
     inline bool SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubVector);
 
-    inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector);
+	inline bool SetSubSet(const SimpleObjectArray<int_max>& IndexList, const SimpleObjectArray<ElementType>& SubVector);
 
-    inline bool SetSubSet(const SimpleDataArray<int_max>& IndexList, const SimpleDataArray<ElementType>& SubVector);
+	inline bool SetSubSet(const ObjectArray<int_max>& IndexList, const ObjectArray<ElementType>& SubVector);
 
-    inline bool SetSubSet(const DenseVector<int_max>& IndexList, const DenseVector<int_max>& SubVector);
+	inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector);
 
-    template<int_max InputLength>
-    inline bool SetSubSet(const DenseVector<int_max, InputLength>& IndexList, const DenseVector<int_max, InputLength>& SubVector);
+	template<int_max LengthParameterA, int_max LengthParameterB>
+	inline bool SetSubSet(const DenseVector<int_max, LengthParameterA>& IndexList, const DenseVector<ElementType, LengthParameterB>& SubVector);
+
+	// SetSubSet(span(a, b), SubVector)
+	
+	inline bool SetSubSet(const std::vector<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector);
+
+	template<int_max LengthParameter>
+	inline bool SetSubSet(const std::vector<int_max>& IndexList, const DenseVector<ElementType, LengthParameter>& SubVector);
+
+	// base function
+	inline bool SetSubSet(const int_max* IndexList, const ElementType* SubVector, int_max SubVectorLength);
 
     //-------------------------------------------------------------------------------
 
     inline bool Append(ElementType Element);
 
-    inline bool Append(const DenseVector<ElementType>& InputData);
+	template<int_max LengthParameter>
+	inline bool Append(const DenseVector<ElementType, LengthParameter>& InputData);
 
     inline bool Append(const ElementType* InputData, int_max InputLength);
 
@@ -194,12 +224,12 @@ public:
 
     inline bool Delete(const DenseMatrix<int_max>& IndexList);
 
-    inline bool Delete(const SimpleDataArray<int_max>& IndexList);
+	inline bool Delete(const SimpleObjectArray<int_max>& IndexList);
 
     inline bool Delete(const DenseVector<int_max>& IndexList);
 
-    template<int_max InputLength>
-    inline bool Delete(const DenseVector<int_max, InputLength>& IndexList);
+	template<int_max LengthParameter>
+	inline bool Delete(const DenseVector<int_max, LengthParameter>& IndexList);
 
     inline bool Delete(const int_max* ColIndexList, int_max ListLength);
 
@@ -213,12 +243,12 @@ public:
 
     inline bool Insert(int_max Index, const DenseMatrix<ElementType>& InputData);
 
-    inline bool Insert(int_max Index, const SimpleDataArray<ElementType>& InputData);
+	inline bool Insert(int_max Index, const SimpleObjectArray<ElementType>& InputData);
 
     inline bool Insert(int_max Index, const DenseVector<ElementType>& InputData);
 
-    template<int_max InputLength>
-    inline bool Insert(int_max Index, const DenseVector<ElementType, InputLength>& InputData);
+	template<int_max LengthParameter>
+	inline bool Insert(int_max Index, const DenseVector<ElementType, LengthParameter>& InputData);
 
     inline bool Insert(int_max Index, const ElementType* InputData, int_max InputLength);
 
@@ -283,25 +313,18 @@ public:
 
     // -------------------------------------- Self {+= -= *= /=} Vector -----------------------------------------------------//
 
-    inline void operator+=(const DenseVector<ElementType>& InputVector);
+	template<int_max LengthParameter>
+	inline void operator+=(const DenseVector<ElementType, LengthParameter>& InputVector);
 
-    template<int_max InputLength>
-    inline void operator+=(const DenseVector<ElementType, InputLength>& InputVector);
+	template<int_max LengthParameter>
+	inline void operator-=(const DenseVector<ElementType, LengthParameter>& InputVector);
 
-    inline void operator-=(const DenseVector<ElementType>& InputVector);
+	// vector * vector is ambiguous
+	//template<int_max LengthParameter>
+	//inline void operator*=(const DenseVector<ElementType, LengthParameter>& InputVector);
 
-    template<int_max InputLength>
-    inline void operator-=(const DenseVector<ElementType, InputLength>& InputVector);
-
-    inline void operator*=(const DenseVector<ElementType>& InputVector);
-
-    template<int_max InputLength>
-    inline void operator*=(const DenseVector<ElementType, InputLength>& InputVector);
-
-    inline void operator/=(const DenseVector<ElementType>& InputVector);
-
-    template<int_max InputLength>
-    inline void operator/=(const DenseVector<ElementType, InputLength>& InputVector);
+	template<int_max LengthParameter>
+	inline void operator/=(const DenseVector<ElementType, LengthParameter>& InputVector);
 
     //---------------------------------------- Self {+= -= *= /=} Element ---------------------------------------------------//
 

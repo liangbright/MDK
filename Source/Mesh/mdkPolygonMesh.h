@@ -78,7 +78,7 @@ public:
 
     //------------ Construct from input data ------------------------------------//
 
-    bool Construct(const DenseMatrix<ScalarType>& InputPointPositionTable, const DataArray<DenseVector<int_max>>& InputCellTable);
+    bool Construct(const DenseMatrix<ScalarType>& InputPointPositionTable, const ObjectArray<DenseVector<int_max>>& InputCellTable);
     // index order in each PointIndexList should be consistent
 
     void Construct(MembraneMesh<MeshAttributeType> InputMembraneMesh);
@@ -89,9 +89,9 @@ public:
 
     //--------------------- output -------------------------------------------------//
 
-    std::pair<DenseMatrix<ScalarType>, DataArray<DenseVector<int_max>>> GetPointPositionMatrixAndCellTable() const;
+    std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>> GetPointPositionMatrixAndCellTable() const;
 
-    void GetPointPositionMatrixAndCellTable(DenseMatrix<ScalarType>& PointPositionTable, DataArray<DenseVector<int_max>>& CellTable) const;
+	void GetPointPositionMatrixAndCellTable(DenseMatrix<ScalarType>& PointPositionTable, ObjectArray<DenseVector<int_max>>& CellTable) const;
 
     //------------- Mesh Attribute --------------------------------------------------//
 

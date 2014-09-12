@@ -1365,8 +1365,8 @@ bool SparseMatrix<ElementType>::ConstructFromSparseColVectorSetInOrder(const std
 template<typename ElementType>
 inline 
 bool SparseMatrix<ElementType>::ConstructFromSparseColVectorSetInOrder(const DenseMatrix<SparseVector<ElementType>>& SparseVectorSet,
-                                                                        int_max RowNumber,
-                                                                        int_max ColNumber)
+                                                                       int_max RowNumber,
+                                                                       int_max ColNumber)
 {
     if (ColNumber != SparseVectorSet.GetElementNumber())
     {
@@ -1408,7 +1408,7 @@ bool SparseMatrix<ElementType>::ConstructFromSparseColVectorSetInOrder(const Den
 
 template<typename ElementType>
 inline
-bool SparseMatrix<ElementType>::ConstructFromSparseColVectorSetInOrder(const DataArray<SparseVector<ElementType>>& SparseVectorSet,
+bool SparseMatrix<ElementType>::ConstructFromSparseColVectorSetInOrder(const ObjectArray<SparseVector<ElementType>>& SparseVectorSet,
                                                                        int_max RowNumber,
                                                                        int_max ColNumber)
 {

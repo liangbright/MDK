@@ -12,7 +12,7 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const Polygo
                                                                     Handle_Of_Point_Of_MembraneMesh PointHandle_start);
 
 template<typename MeshAttributeType>
-DataArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh);
+ObjectArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh);
 
 template<typename MeshAttributeType>
 Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& TargetMesh,

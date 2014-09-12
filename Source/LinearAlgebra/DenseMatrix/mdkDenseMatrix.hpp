@@ -131,7 +131,7 @@ DenseMatrix<ElementType>::DenseMatrix(const DenseVector<ElementType>& InputVecto
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>::DenseMatrix(const DataArray<ElementType>& InputVector)
+DenseMatrix<ElementType>::DenseMatrix(const ObjectArray<ElementType>& InputVector)
 {
     this->Resize(0, 0);
 
@@ -144,7 +144,7 @@ DenseMatrix<ElementType>::DenseMatrix(const DataArray<ElementType>& InputVector)
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>::DenseMatrix(const SimpleDataArray<ElementType>& InputVector)
+DenseMatrix<ElementType>::DenseMatrix(const SimpleObjectArray<ElementType>& InputVector)
 {
     this->Resize(0, 0);
 
@@ -181,7 +181,7 @@ DenseMatrix<ElementType>::DenseMatrix(DenseMatrix<ElementType>&& InputMatrix) no
 
     m_ElementPointer = m_MatrixData->ElementPointer;
 
-    // InputMatrix may not be destructed, e.g., sort a list of DenseMatrix in DataArray
+    // InputMatrix may not be destructed, e.g., sort a list of DenseMatrix in ObjectArray
     InputMatrix.m_ElementPointer = nullptr;
 }
 
@@ -699,7 +699,7 @@ void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType>& InputVe
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::operator=(const DataArray<ElementType>& InputVector)
+void DenseMatrix<ElementType>::operator=(const ObjectArray<ElementType>& InputVector)
 {
     //InputVector is treated as a row vector
 
@@ -707,13 +707,13 @@ void DenseMatrix<ElementType>::operator=(const DataArray<ElementType>& InputVect
 
     if (InputVectorLength <= 0)
     {
-        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(DataArray)")
+        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(ObjectArray)")
         
         if (this->IsSizeFixed() == true)
         {
             if (this->IsEmpty() == false)
             {
-                MDK_Error("Can not change matrix size @ DenseMatrix::operator=(DataArray)")
+                MDK_Error("Can not change matrix size @ DenseMatrix::operator=(ObjectArray)")
             }
         }
         else
@@ -738,7 +738,7 @@ void DenseMatrix<ElementType>::operator=(const DataArray<ElementType>& InputVect
 
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error("Can not change matrix size @ DenseMatrix::operator=(DataArray)")
+        MDK_Error("Can not change matrix size @ DenseMatrix::operator=(ObjectArray)")
     }
     else
     {
@@ -750,7 +750,7 @@ void DenseMatrix<ElementType>::operator=(const DataArray<ElementType>& InputVect
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::operator=(const SimpleDataArray<ElementType>& InputVector)
+void DenseMatrix<ElementType>::operator=(const SimpleObjectArray<ElementType>& InputVector)
 {
     //InputVector is treated as a row vector
 
@@ -758,13 +758,13 @@ void DenseMatrix<ElementType>::operator=(const SimpleDataArray<ElementType>& Inp
 
     if (InputVectorLength <= 0)
     {
-        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(SimpleDataArray)")
+        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(SimpleObjectArray)")
         
         if (this->IsSizeFixed() == true)
         {
             if (this->IsEmpty() == false)
             {
-                MDK_Error("Can not change matrix size @ DenseMatrix::operator=(SimpleDataArray)")
+                MDK_Error("Can not change matrix size @ DenseMatrix::operator=(SimpleObjectArray)")
             }
         }
         else
@@ -789,7 +789,7 @@ void DenseMatrix<ElementType>::operator=(const SimpleDataArray<ElementType>& Inp
 
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error("Can not change matrix size @ DenseMatrix::operator=(SimpleDataArray)")
+        MDK_Error("Can not change matrix size @ DenseMatrix::operator=(SimpleObjectArray)")
     }
     else
     {
@@ -1097,7 +1097,7 @@ bool DenseMatrix<ElementType>::Share(ElementType* InputElementPointer, int_max I
     m_MatrixData->RowNumber = InputRowNumber;
     m_MatrixData->ColNumber = InputColNumber;
 
-    m_MatrixData->DataArray.clear();
+    m_MatrixData->StdVector.clear();
 
     m_MatrixData->ElementPointer = InputElementPointer;
 
@@ -1178,7 +1178,7 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>& InputMatrix)
 
     m_MatrixData->ColNumber = InputMatrix.m_MatrixData->ColNumber;
 
-    m_MatrixData->DataArray = std::move(InputMatrix.m_MatrixData->DataArray);
+    m_MatrixData->StdVector = std::move(InputMatrix.m_MatrixData->StdVector);
 
     m_MatrixData->ElementPointer = InputMatrix.m_MatrixData->ElementPointer;
 
@@ -1234,16 +1234,16 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputRowVector)
     {
         if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputLength)
         {
-            m_MatrixData->DataArray = std::move(InputRowVector);
-            m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+            m_MatrixData->StdVector = std::move(InputRowVector);
+            m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
             m_ElementPointer = m_MatrixData->ElementPointer;
 
             return true;
         }
         else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength)
         {
-            m_MatrixData->DataArray = std::move(InputRowVector);
-            m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+            m_MatrixData->StdVector = std::move(InputRowVector);
+            m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
             m_ElementPointer = m_MatrixData->ElementPointer;
 
             return true;
@@ -1271,16 +1271,16 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputRowVector)
 
         if (SelfSize.RowNumber == 1)
         {            
-            m_MatrixData->DataArray = std::move(InputRowVector);
-            m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+            m_MatrixData->StdVector = std::move(InputRowVector);
+            m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
             m_MatrixData->ColNumber = InputLength;
 
             m_ElementPointer = m_MatrixData->ElementPointer;
         }
         else if (SelfSize.ColNumber == 1)
         {
-            m_MatrixData->DataArray = std::move(InputRowVector);
-            m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+            m_MatrixData->StdVector = std::move(InputRowVector);
+            m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
             m_MatrixData->RowNumber = InputLength;
 
             m_ElementPointer = m_MatrixData->ElementPointer;
@@ -1292,8 +1292,8 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputRowVector)
                 this->Resize(0, 0);
             }
 
-            m_MatrixData->DataArray = std::move(InputRowVector);
-            m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+            m_MatrixData->StdVector = std::move(InputRowVector);
+            m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
             m_MatrixData->RowNumber = InputLength;
             m_MatrixData->ColNumber = 1;
 
@@ -1320,7 +1320,7 @@ bool DenseMatrix<ElementType>::Take(DenseVector<ElementType>& InputRowVector)
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::Take(DataArray<ElementType>& InputRowVector)
+bool DenseMatrix<ElementType>::Take(ObjectArray<ElementType>& InputRowVector)
 {
     if (this->Take(InputRowVector.StdVector()) == false)
     {
@@ -1333,7 +1333,7 @@ bool DenseMatrix<ElementType>::Take(DataArray<ElementType>& InputRowVector)
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::Take(SimpleDataArray<ElementType>& InputRowVector)
+bool DenseMatrix<ElementType>::Take(SimpleObjectArray<ElementType>& InputRowVector)
 {
     if (this->Take(InputRowVector.StdVector()) == false)
     {
@@ -1489,8 +1489,8 @@ void DenseMatrix<ElementType>::Clear()
     m_MatrixData->RowNumber = 0;
     m_MatrixData->ColNumber = 0;
 
-    m_MatrixData->DataArray.clear();         // change size
-    m_MatrixData->DataArray.shrink_to_fit(); // release memory
+    m_MatrixData->StdVector.clear();         // change size
+    m_MatrixData->StdVector.shrink_to_fit(); // release memory
 
     m_MatrixData->ElementPointer = nullptr;
 
@@ -1575,7 +1575,7 @@ try
 
         m_MatrixData->ColNumber = 0;
 
-        m_MatrixData->DataArray.resize(0);
+        m_MatrixData->StdVector.resize(0);
 
         m_MatrixData->ElementPointer = nullptr;
 
@@ -1591,9 +1591,9 @@ try
 
         m_MatrixData->ColNumber = InputColNumber;
 
-        m_MatrixData->DataArray.resize(InputRowNumber*InputColNumber);
+        m_MatrixData->StdVector.resize(InputRowNumber*InputColNumber);
 
-        m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+        m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 
         m_ElementPointer = m_MatrixData->ElementPointer;
 
@@ -1606,28 +1606,28 @@ try
     {
         auto Self_ElementNumber = SelfSize.RowNumber * SelfSize.ColNumber;
 
-        //m_MatrixData->CopyDataToInternalDataArrayIfNecessary();
-        if (m_MatrixData->ElementPointer != m_MatrixData->DataArray.data())
+        //m_MatrixData->CopyDataToInternalArrayIfNecessary();
+        if (m_MatrixData->ElementPointer != m_MatrixData->StdVector.data())
         {
             auto ElementNumber_min = std::min(Self_ElementNumber, InputColNumber*InputRowNumber);
 
-            m_MatrixData->DataArray.resize(ElementNumber_min);
+            m_MatrixData->StdVector.resize(ElementNumber_min);
 
             for (int_max i = 0; i < ElementNumber_min; ++i)
             {
-                m_MatrixData->DataArray[i] = m_MatrixData->ElementPointer[i];
+                m_MatrixData->StdVector[i] = m_MatrixData->ElementPointer[i];
             }
 
-            m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+            m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
         }
 
         m_MatrixData->RowNumber = InputRowNumber;
 
         m_MatrixData->ColNumber = InputColNumber;
 
-        m_MatrixData->DataArray.resize(InputRowNumber*InputColNumber);
+        m_MatrixData->StdVector.resize(InputRowNumber*InputColNumber);
 
-        m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+        m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 
         m_ElementPointer = m_MatrixData->ElementPointer;
 
@@ -1653,7 +1653,7 @@ try
 
         for (int_max i = 0; i < RowNumber_min; ++i)
         {
-            tempDataArray[tempIndex + i] = RawPointer[Index + i];
+			tempDataArray[tempIndex + i] = RawPointer[Index + i];
         }
     }
 
@@ -1663,9 +1663,9 @@ try
 
     m_MatrixData->ColNumber = InputColNumber;
 
-    m_MatrixData->DataArray = std::move(tempDataArray);
+	m_MatrixData->StdVector = std::move(tempDataArray);
 
-    m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+    m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 
     m_ElementPointer = m_MatrixData->ElementPointer;
 }
@@ -1715,7 +1715,7 @@ bool DenseMatrix<ElementType>::FastResize(int_max InputRowNumber, int_max InputC
         m_MatrixData->RowNumber = 0;
         m_MatrixData->ColNumber = 0;
 
-        m_MatrixData->DataArray.clear();         // change size, but not release memory
+        m_MatrixData->StdVector.clear();         // change size, but not release memory
 
         m_MatrixData->ElementPointer = nullptr;
 
@@ -1732,14 +1732,14 @@ try
 
     if (InputElementNumber != Size.RowNumber *  Size.ColNumber)
     {
-        if (InputElementNumber > int_max(m_MatrixData->DataArray.capacity()))
+        if (InputElementNumber > int_max(m_MatrixData->StdVector.capacity()))
         {
-            m_MatrixData->DataArray.clear();
+            m_MatrixData->StdVector.clear();
         }
 
-        m_MatrixData->DataArray.resize(InputElementNumber);
+        m_MatrixData->StdVector.resize(InputElementNumber);
 
-        m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+        m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 
         m_ElementPointer = m_MatrixData->ElementPointer;
     }
@@ -1802,9 +1802,9 @@ bool DenseMatrix<ElementType>::Resize(int_max InputElementNumber) // try to keep
 
 try
 {
-    m_MatrixData->DataArray.resize(InputElementNumber);
+    m_MatrixData->StdVector.resize(InputElementNumber);
 
-    m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+    m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 
     m_ElementPointer = m_MatrixData->ElementPointer;
 
@@ -1896,11 +1896,11 @@ try
 
     if (InputElementNumber > Self_ElementNumber)
     {
-        m_MatrixData->CopyDataToInternalDataArrayIfNecessary();
+        m_MatrixData->CopyDataToInternalArrayIfNecessary();
 
-        m_MatrixData->DataArray.reserve(InputElementNumber);
+        m_MatrixData->StdVector.reserve(InputElementNumber);
 
-        m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+        m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 
         m_ElementPointer = m_MatrixData->ElementPointer;
     }
@@ -1924,10 +1924,10 @@ void DenseMatrix<ElementType>::ReleaseUnusedCapacity()
         return;
     }
 
-    if (m_MatrixData->DataArray.data() != nullptr)
+    if (m_MatrixData->StdVector.data() != nullptr)
     {
-        m_MatrixData->DataArray.shrink_to_fit();
-        m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+        m_MatrixData->StdVector.shrink_to_fit();
+        m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
         m_ElementPointer = m_MatrixData->ElementPointer;
     }
 }
@@ -5755,7 +5755,7 @@ bool DenseMatrix<ElementType>::DeleteCol(const int_max* ColIndexList, int_max Li
         }
     }
 
-    m_MatrixData->CopyDataToInternalDataArrayIfNecessary();
+    m_MatrixData->CopyDataToInternalArrayIfNecessary();
 
     std::vector<int_max> ColIndexList_max_to_min(ListLength);
 
@@ -5778,8 +5778,8 @@ bool DenseMatrix<ElementType>::DeleteCol(const int_max* ColIndexList, int_max Li
         }
         else
         {
-            m_MatrixData->DataArray.erase(m_MatrixData->DataArray.begin() + Index_i * SelfSize.RowNumber,
-                                          m_MatrixData->DataArray.begin() + (Index_i + 1)* SelfSize.RowNumber);
+            m_MatrixData->StdVector.erase(m_MatrixData->StdVector.begin() + Index_i * SelfSize.RowNumber,
+                                          m_MatrixData->StdVector.begin() + (Index_i + 1)* SelfSize.RowNumber);
 
             Index_prev = Index_i;
 
@@ -5787,7 +5787,7 @@ bool DenseMatrix<ElementType>::DeleteCol(const int_max* ColIndexList, int_max Li
         }
     }
 
-    m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+    m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 
     m_ElementPointer = m_MatrixData->ElementPointer;
 
@@ -5872,15 +5872,15 @@ bool DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Inp
         this->Resize(0, 0);
     }
 
-    m_MatrixData->CopyDataToInternalDataArrayIfNecessary();
+    m_MatrixData->CopyDataToInternalArrayIfNecessary();
 
-    m_MatrixData->DataArray.insert(m_MatrixData->DataArray.begin() + ColIndex*SelfSize.RowNumber, ColData, ColData + Length);
+    m_MatrixData->StdVector.insert(m_MatrixData->StdVector.begin() + ColIndex*SelfSize.RowNumber, ColData, ColData + Length);
 
     m_MatrixData->RowNumber = Length;
 
     m_MatrixData->ColNumber += 1;
 
-    m_MatrixData->ElementPointer = m_MatrixData->DataArray.data();
+    m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 
     m_ElementPointer = m_MatrixData->ElementPointer;
 

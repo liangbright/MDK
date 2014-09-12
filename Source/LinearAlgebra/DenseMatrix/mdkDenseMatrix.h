@@ -9,8 +9,8 @@
 #include <algorithm>
 #include <limits> 
 
-#include "mdkDataArray.h"
-#include "mdkSimpleDataArray.h"
+#include "mdkObjectArray.h"
+#include "mdkSimpleObjectArray.h"
 #include "mdkLinearAlgebraConfig.h"
 #include "mdkMatrix_Common.h"
 #include "mdkDenseVector.h"
@@ -46,9 +46,9 @@ struct DenseMatrixData
     int_max RowNumber;  // RowNumber = the Number of Rows 
     int_max ColNumber;  // ColNumber = the Number of Columns
 
-    ElementType* ElementPointer;
+    ElementType* ElementPointer; // point to InternalArray/StdVector or external array 
 
-    std::vector<ElementType> DataArray;
+    std::vector<ElementType> StdVector; // InternalArray
 
     ElementType NaNElement;
 
@@ -66,15 +66,15 @@ struct DenseMatrixData
 
     ~DenseMatrixData() {};
 
-    void CopyDataToInternalDataArrayIfNecessary()
+    void CopyDataToInternalArrayIfNecessary()
     {
-        if (ElementPointer != DataArray.data())
+		if (ElementPointer != StdVector.data())
         {
             if (ElementPointer == nullptr)
             {
                 if (RowNumber != 0 || ColNumber != 0)
                 {
-                    MDK_Error("ElementPointer is nullptr but Self is not empty matrix @ DenseMatrixData::CopyDataToInternalDataArrayIfNecessary()")
+                    MDK_Error("ElementPointer is nullptr but Self is not empty matrix @ DenseMatrixData::CopyDataToInternalArrayIfNecessary()")
                     return;
                 }
                 else // self is empty matrix
@@ -85,14 +85,14 @@ struct DenseMatrixData
 
             auto ElementNumber = RowNumber*ColNumber;
 
-            DataArray.resize(ElementNumber);
+			StdVector.resize(ElementNumber);
 
             for (int_max i = 0; i < ElementNumber; ++i)
             {
-                DataArray[i] = ElementPointer[i];
+				StdVector[i] = ElementPointer[i];
             }
 
-            ElementPointer = DataArray.data();
+			ElementPointer = StdVector.data();
         }
     }
 
@@ -180,9 +180,9 @@ public:
 	// the above function can be used for variable length DenseVector
 	//inline DenseMatrix(const DenseVector<ElementType>& InputVector);
 
-    inline DenseMatrix(const DataArray<ElementType>& InputVector);
+    inline DenseMatrix(const ObjectArray<ElementType>& InputVector);
 
-    inline DenseMatrix(const SimpleDataArray<ElementType>& InputVector);
+    inline DenseMatrix(const SimpleObjectArray<ElementType>& InputVector);
 
     // deep-copy or shared-copy constructor
     inline DenseMatrix(const DenseMatrix<ElementType>& InputMatrix, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
@@ -230,9 +230,9 @@ public:
 	// the above function can be used for variable length DenseVector
 	//inline void operator=(const DenseVector<ElementType>& InputVector);
 
-    inline void operator=(const DataArray<ElementType>& InputVector);
+    inline void operator=(const ObjectArray<ElementType>& InputVector);
 
-    inline void operator=(const SimpleDataArray<ElementType>& InputVector);
+    inline void operator=(const SimpleObjectArray<ElementType>& InputVector);
 
     inline void operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix);
 
@@ -339,7 +339,7 @@ public:
     //-------------------- Take -----------------------------------------------------------//
 
     //Take the data of the InputMatrix and Clear InputMatrix
-    // m_MatrixData->DataArray = std::move(InputMatrix.m_MatrixData->DataArray);
+    // m_MatrixData->ObjectArray = std::move(InputMatrix.m_MatrixData->ObjectArray);
 
     inline void Take(DenseMatrix<ElementType>&& InputMatrix);
 
@@ -355,9 +355,9 @@ public:
 
     inline bool Take(DenseVector<ElementType>& InputRowVector);
 
-    inline bool Take(DataArray<ElementType>& InputRowVector);
+    inline bool Take(ObjectArray<ElementType>& InputRowVector);
 
-    inline bool Take(SimpleDataArray<ElementType>& InputRowVector);
+    inline bool Take(SimpleObjectArray<ElementType>& InputRowVector);
 
     //Take the Matrix Created from ShadowMatrix or GlueMatrix
 

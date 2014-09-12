@@ -1,5 +1,5 @@
-﻿#ifndef __mdkSimpleDataArray_h
-#define __mdkSimpleDataArray_h
+﻿#ifndef __mdkSimpleObjectArray_h
+#define __mdkSimpleObjectArray_h
 
 #include <vector>
 #include <string>
@@ -16,41 +16,41 @@ template<typename ElementType>
 class DenseMatrix;
 
 template<typename ElementType>
-class DataArray;
+class ObjectArray;
 //------------------------------------------------
 
 #if defined MDK_DEBUG_MODE
-#define MDK_DEBUG_SimpleDataArray_Operator_CheckBound
+#define MDK_DEBUG_SimpleObjectArray_Operator_CheckBound
 #endif
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
 template<typename Element_Type>
-class SimpleDataArray : public Object
+class SimpleObjectArray : public Object
 {     
 public:
 	typedef Element_Type  ElementType;
 
 private:
-    std::vector<ElementType> m_DataArray;
+    std::vector<ElementType> m_StdVector;
 
 public:			
 	//------------------- constructor and destructor ------------------------------------//
 
-    inline SimpleDataArray();
+    inline SimpleObjectArray();
 
-    inline SimpleDataArray(const std::initializer_list<ElementType>& InputData);
+    inline SimpleObjectArray(const std::initializer_list<ElementType>& InputArray);
 
-    inline SimpleDataArray(const std::vector<ElementType>& InputData);
+    inline SimpleObjectArray(const std::vector<ElementType>& InputArray);
 
-	inline SimpleDataArray(const DataArray<ElementType>& InputData);
+	inline SimpleObjectArray(const ObjectArray<ElementType>& InputArray);
 
-    inline SimpleDataArray(const SimpleDataArray<ElementType>& InputData);
+    inline SimpleObjectArray(const SimpleObjectArray<ElementType>& InputArray);
 
     // move constructor
-    inline SimpleDataArray(SimpleDataArray<ElementType>&& InputData) noexcept;
+    inline SimpleObjectArray(SimpleObjectArray<ElementType>&& InputArray) noexcept;
 
-	inline ~SimpleDataArray();
+	inline ~SimpleObjectArray();
 
     //-------------------- get/set std vector -----------------------------------//
 
@@ -63,11 +63,11 @@ public:
     // copy assignment operator
     // do not use function template for this function
     // otherwise, compiler will create a new one
-    inline void operator=(const SimpleDataArray<ElementType>& InputData);
+    inline void operator=(const SimpleObjectArray<ElementType>& InputArray);
 
-    inline void operator=(SimpleDataArray<ElementType>&& InputData);
+    inline void operator=(SimpleObjectArray<ElementType>&& InputArray);
 
-	inline void operator=(const DataArray<ElementType>& InputData);
+	inline void operator=(const ObjectArray<ElementType>& InputArray);
 
     inline void operator=(const std::initializer_list<ElementType>& InputList);
 
@@ -75,13 +75,13 @@ public:
 
     //----------------------  Copy  ----------------------------------------//
 
-    inline bool Copy(const SimpleDataArray<ElementType>& InputData);
+    inline bool Copy(const SimpleObjectArray<ElementType>& InputArray);
 
-    inline bool Copy(const SimpleDataArray<ElementType>* InputData);
+    inline bool Copy(const SimpleObjectArray<ElementType>* InputArray);
 
-	inline bool Copy(const DataArray<ElementType>& InputData);
+	inline bool Copy(const ObjectArray<ElementType>& InputArray);
 
-	inline bool Copy(const DataArray<ElementType>* InputData);
+	inline bool Copy(const ObjectArray<ElementType>* InputArray);
 
     inline bool Copy(const ElementType* InputElementPointer, int_max InputLength);
 
@@ -138,47 +138,47 @@ public:
 
     //----------------------- Get subset ------------------------------//
 
-    inline SimpleDataArray<ElementType> GetSubSet(int_max Index_start, int_max Index_end);
+    inline SimpleObjectArray<ElementType> GetSubSet(int_max Index_start, int_max Index_end);
 
-    inline SimpleDataArray<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList);
+    inline SimpleObjectArray<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList);
 
-    inline SimpleDataArray<ElementType> GetSubSet(const std::vector<int_max>& IndexList);
+    inline SimpleObjectArray<ElementType> GetSubSet(const std::vector<int_max>& IndexList);
 
-    inline SimpleDataArray<ElementType> GetSubSet(const SimpleDataArray<int_max>& IndexList);
+    inline SimpleObjectArray<ElementType> GetSubSet(const SimpleObjectArray<int_max>& IndexList);
 
-	inline SimpleDataArray<ElementType> GetSubSet(const DataArray<int_max>& IndexList);
+	inline SimpleObjectArray<ElementType> GetSubSet(const ObjectArray<int_max>& IndexList);
 
-	inline SimpleDataArray<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList);
+	inline SimpleObjectArray<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList);
 
-	inline SimpleDataArray<ElementType> GetSubSet(const DenseVector<int_max>& IndexList);
+	inline SimpleObjectArray<ElementType> GetSubSet(const DenseVector<int_max>& IndexList);
 
-    inline SimpleDataArray<ElementType> GetSubSet(const int_max* IndexList, int_max ListLength);
+    inline SimpleObjectArray<ElementType> GetSubSet(const int_max* IndexList, int_max ListLength);
 
     //----------------------- Set subset ------------------------------//
 
-    inline bool SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSetData);
+	inline bool SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSet);
 
-    inline bool SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSetData);
+	inline bool SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSet);
 
-	inline bool SetSubSet(const std::initializer_list<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSetData);
+	inline bool SetSubSet(const std::initializer_list<int_max>& IndexList, const SimpleObjectArray<ElementType>& SubSet);
 
-	inline bool SetSubSet(const std::vector<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSetData);
+	inline bool SetSubSet(const std::vector<int_max>& IndexList, const SimpleObjectArray<ElementType>& SubSet);
 
-    inline bool SetSubSet(const SimpleDataArray<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSetData);
+	inline bool SetSubSet(const SimpleObjectArray<int_max>& IndexList, const SimpleObjectArray<ElementType>& SubSet);
 
-	inline bool SetSubSet(const DataArray<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSetData);
+	inline bool SetSubSet(const ObjectArray<int_max>& IndexList, const SimpleObjectArray<ElementType>& SubSet);
 
-	inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSetData);
+	inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const SimpleObjectArray<ElementType>& SubSet);
 
-	inline bool SetSubSet(const DenseVector<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSetData);
+	inline bool SetSubSet(const DenseVector<int_max>& IndexList, const SimpleObjectArray<ElementType>& SubSet);
 
-    inline bool SetSubSet(const int_max* IndexList, const ElementType* SubSetData, int_max DataNumber);
+	inline bool SetSubSet(const int_max* IndexList, const ElementType* SubSet, int_max DataNumber);
 
     //-------------------------------------------------------------------------------
 
     inline bool Append(ElementType Element);
 
-    inline bool Append(const ElementType* InputData, int_max InputLength);
+    inline bool Append(const ElementType* InputArray, int_max InputLength);
 
     inline bool Delete(int_max Index);
 
@@ -188,7 +188,7 @@ public:
 
     inline bool Delete(const DenseMatrix<int_max>& IndexList);
 
-    inline bool Delete(const SimpleDataArray<int_max>& IndexList);
+    inline bool Delete(const SimpleObjectArray<int_max>& IndexList);
 
     inline bool Delete(const int_max* ColIndexList, int_max ListLength);
 
@@ -196,17 +196,17 @@ public:
 
     inline bool Insert(int_max Index, const ElementType& Element);
 
-    inline bool Insert(int_max Index, const std::initializer_list<ElementType>& InputData);
+    inline bool Insert(int_max Index, const std::initializer_list<ElementType>& InputArray);
 
-    inline bool Insert(int_max Index, const std::vector<ElementType>& InputData);
+    inline bool Insert(int_max Index, const std::vector<ElementType>& InputArray);
 
-    inline bool Insert(int_max Index, const DenseMatrix<ElementType>& InputData);
+    inline bool Insert(int_max Index, const DenseMatrix<ElementType>& InputArray);
 
-    inline bool Insert(int_max Index, const SimpleDataArray<ElementType>& InputData);
+    inline bool Insert(int_max Index, const SimpleObjectArray<ElementType>& InputArray);
 
-    inline bool Insert(int_max Index, const ElementType* InputData, int_max InputLength);
+    inline bool Insert(int_max Index, const ElementType* InputArray, int_max InputLength);
 
-    //------------- use SimpleDataArray as a stack ----------------------------//
+    //------------- use SimpleObjectArray as a stack ----------------------------//
 
     inline bool PushBack(ElementType Element);
 
@@ -215,27 +215,27 @@ public:
     //-------------------- find ---------------------------------------//
 
     template<typename MatchFunctionType>
-    inline SimpleDataArray<int_max> Find(MatchFunctionType MatchFunction);
+    inline SimpleObjectArray<int_max> Find(MatchFunctionType MatchFunction);
 
     template<typename MatchFunctionType>
-    inline SimpleDataArray<int_max> Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction);
+    inline SimpleObjectArray<int_max> Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction);
 
     template<typename MatchFunctionType>
-    inline SimpleDataArray<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction);
+    inline SimpleObjectArray<int_max> Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction);
 
 	//-------------------- ExactMatch (use operator == ) ---------------------------------------//
 
-	inline SimpleDataArray<int_max> ExactMatch(const ElementType& InputElement) const;
+	inline SimpleObjectArray<int_max> ExactMatch(const ElementType& InputElement) const;
 
 	inline int_max ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const;
 
     //--------------------- sort ---------------------------------------//
 
     template<typename CompareFunctionType>
-    inline SimpleDataArray<int_max> Sort(CompareFunctionType CompareFunction) const;
+    inline SimpleObjectArray<int_max> Sort(CompareFunctionType CompareFunction) const;
 
     template<typename CompareFunctionType>
-    inline SimpleDataArray<int_max> Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const;
+    inline SimpleObjectArray<int_max> Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const;
 
     template<typename CompareFunctionType>
     inline void SortInPlace(CompareFunctionType CompareFunction);
@@ -250,6 +250,6 @@ private:
 
 }//end namespace mdk
 
-#include "mdkSimpleDataArray.hpp"
+#include "mdkSimpleObjectArray.hpp"
 
 #endif

@@ -13,7 +13,7 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const Triang
 }
 
 template<typename MeshAttributeType>
-DataArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh)
+ObjectArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh)
 {
     const PolygonMesh<MeshAttributeType>& TargetMesh_ref = TargetMesh;
     return TraceMeshBoundaryCurve(TargetMesh_ref);

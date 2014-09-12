@@ -688,7 +688,7 @@ void Edge_Of_MembraneMesh<MeshAttributeType>::SetPointIndexList(const int_max Po
 
 template<typename MeshAttributeType>
 inline 
-SimpleDataArray<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>&
+SimpleObjectArray<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>&
 Edge_Of_MembraneMesh<MeshAttributeType>::DirectedEdgeList()
 {
 	return m_Data->DirectedEdgeList;
@@ -696,7 +696,7 @@ Edge_Of_MembraneMesh<MeshAttributeType>::DirectedEdgeList()
 
 template<typename MeshAttributeType>
 inline
-const SimpleDataArray<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>&
+const SimpleObjectArray<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>&
 Edge_Of_MembraneMesh<MeshAttributeType>::DirectedEdgeList() const
 {
 	return m_Data->DirectedEdgeList;

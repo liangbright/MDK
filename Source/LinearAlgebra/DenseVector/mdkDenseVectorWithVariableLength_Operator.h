@@ -17,8 +17,8 @@ inline DenseVector<ElementType> operator+(const DenseVector<ElementType>& Vector
 template<typename ElementType>
 inline DenseVector<ElementType> operator-(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType>& VectorB);
 
-template<typename ElementType>
-inline DenseVector<ElementType> operator*(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType>& VectorB);
+//template<typename ElementType>
+//inline DenseVector<ElementType> operator*(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType>& VectorB);
 
 template<typename ElementType>
 inline DenseVector<ElementType> operator/(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType>& VectorB);

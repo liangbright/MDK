@@ -17,14 +17,16 @@
 
 namespace mdk
 {
- 
 //-------------------------------
+// "ambiguous symbol"
 //template<typename ElementType>
 //class DenseMatrix;
 
 //template<typename ElementType>
-//class SimpleDataArray;
+//class SimpleObjectArray;
 
+//template<typename ElementType>
+//class ObjectArray;
 //------------------------------
 
 template<typename Element_Type, int_max Length>
@@ -34,7 +36,7 @@ public:
 	typedef Element_Type ElementType;
 
 private:
-    std::array<ElementType, Length> m_DataArray;
+    std::array<ElementType, Length> m_StdArray;
 
 public:
     
@@ -60,7 +62,7 @@ public:
 
     inline void operator=(const std::vector<ElementType>& InputVector);
 
-    inline void operator=(const DenseVector<ElementType>& InputVector);
+	inline void operator=(const DenseVector<ElementType>& InputVector);
 
     inline void operator=(const DenseMatrix<ElementType>& InputVector);
 
@@ -135,14 +137,14 @@ public:
 
     inline DenseVector<ElementType> GetSubSet(const std::vector<int_max>& IndexList) const;
 
-    inline DenseVector<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList) const;
+	inline DenseVector<ElementType> GetSubSet(const SimpleObjectArray<int_max>& IndexList) const;
 
-    inline DenseVector<ElementType> GetSubSet(const SimpleDataArray<int_max>& IndexList) const;
+	inline DenseVector<ElementType> GetSubSet(const ObjectArray<int_max>& IndexList) const;
 
-    inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max>& IndexList) const;
+	inline DenseVector<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList) const;
 
-    template<int_max InputLength>
-    inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max, InputLength>& IndexList) const;
+    template<int_max InputLengthParameter>
+	inline DenseVector<ElementType> GetSubSet(const DenseVector<int_max, InputLengthParameter>& IndexList) const;
 
     //---------------------- SetSubSet --------------------------------------
 
@@ -152,9 +154,11 @@ public:
 
     inline bool SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubVector);
 
-    inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector);
+    inline bool SetSubSet(const SimpleObjectArray<int_max>& IndexList, const SimpleObjectArray<ElementType>& SubVector);
 
-    inline bool SetSubSet(const SimpleDataArray<int_max>& IndexList, const SimpleDataArray<ElementType>& SubVector);
+	inline bool SetSubSet(const ObjectArray<int_max>& IndexList, const ObjectArray<ElementType>& SubVector);
+
+	inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector);
 
     inline bool SetSubSet(const DenseVector<int_max>& IndexList, const DenseVector<int_max>& SubVector);
 

@@ -17,8 +17,8 @@ template<typename ElementType>
 inline
 DenseVector<ElementType>::DenseVector(const ElementType& Element)
 {
-    m_DataArray.resize(1);
-    m_DataArray[0] = Element;
+    m_StdVector.resize(1);
+    m_StdVector[0] = Element;
 }
 
 
@@ -26,30 +26,23 @@ template<typename ElementType>
 inline
 DenseVector<ElementType>::DenseVector(const std::initializer_list<ElementType>& InputVector)
 {
-    m_DataArray = InputVector;
+    m_StdVector = InputVector;
 }
 
 
 template<typename ElementType>
+template<int_max LengthParameter>
 inline
-DenseVector<ElementType>::DenseVector(const DenseVector<ElementType>& InputVector)
+DenseVector<ElementType>::DenseVector(const DenseVector<ElementType, LengthParameter>& InputVector)
 {
-    m_DataArray = InputVector.m_DataArray;
-}
-
-
-template<typename ElementType>
-template<int_max InputLength>
-inline
-DenseVector<ElementType>::DenseVector(const DenseVector<ElementType, InputLength>& InputVector)
-{
+	auto InputLength = InputVector.GetLength();
     if (InputLength > 0)
     {
-        m_DataArray.resize(InputLength);
+        m_StdVector.resize(InputLength);
 
         for (int_max i = 0; i < InputLength; ++i)
         {
-            m_DataArray[i] = InputVector[i];
+            m_StdVector[i] = InputVector[i];
         }
     }
 }
@@ -59,7 +52,7 @@ template<typename ElementType>
 inline
 DenseVector<ElementType>::DenseVector(DenseVector<ElementType>&& InputVector)
 {
-    m_DataArray = std::move(InputVector.m_DataArray);
+    m_StdVector = std::move(InputVector.m_StdVector);
 }
 
 
@@ -79,9 +72,9 @@ void DenseVector<ElementType>::operator=(const DenseVector<ElementType>& InputVe
 
 
 template<typename ElementType>
-template<int_max InputLength>
+template<int_max LengthParameter>
 inline 
-void DenseVector<ElementType>::operator=(const DenseVector<ElementType, InputLength>& InputVector)
+void DenseVector<ElementType>::operator=(const DenseVector<ElementType, LengthParameter>& InputVector)
 {
     this->Copy(InputVector.GetElementPointer(), InputVector.GetLength());
 }
@@ -90,7 +83,7 @@ void DenseVector<ElementType>::operator=(const DenseVector<ElementType, InputLen
 template<typename ElementType>
 inline void DenseVector<ElementType>::operator=(DenseVector<ElementType>&& InputVector)
 {
-    m_DataArray = std::move(InputVector.m_DataArray);
+    m_StdVector = std::move(InputVector.m_StdVector);
 }
 
 
@@ -132,7 +125,7 @@ void DenseVector<ElementType>::operator=(const std::initializer_list<const Dense
 
     if (IsSelfInInputList == false)
     {
-        m_DataArray.clear();
+        m_StdVector.clear();
 
         for (int_max k = 0; k < InputVectorNumber; k++)
         {            
@@ -158,7 +151,7 @@ void DenseVector<ElementType>::operator=(const std::initializer_list<const Dense
             
             tempVector = InputList;
 
-            m_DataArray = std::move(tempVector.m_DataArray);
+            m_StdVector = std::move(tempVector.m_StdVector);
         }
     }
 }
@@ -168,7 +161,7 @@ template<typename ElementType>
 inline 
 void DenseVector<ElementType>::operator=(const std::initializer_list<ElementType>& InputVector)
 {
-    m_DataArray = InputVector;
+    m_StdVector = InputVector;
 }
 
 
@@ -222,7 +215,7 @@ void DenseVector<ElementType>::Copy(const ElementType_input* InputVector, int_ma
 
     for (int_max k = 0; k < InputLength; ++k)
     {
-        m_DataArray[k] = ElementType(InputVector[k]);
+        m_StdVector[k] = ElementType(InputVector[k]);
     }
 }
 
@@ -231,8 +224,8 @@ template<typename ElementType>
 inline
 void DenseVector<ElementType>::Clear()
 {
-    m_DataArray.clear(); 
-    m_DataArray.shrink_to_fit();
+    m_StdVector.clear(); 
+    m_StdVector.shrink_to_fit();
 }
 
 
@@ -248,7 +241,7 @@ void DenseVector<ElementType>::Resize(int_max Length)
 
 try
 {
-    m_DataArray.resize(Length);
+    m_StdVector.resize(Length);
 }
 catch (...)
 {
@@ -270,12 +263,12 @@ void DenseVector<ElementType>::FastResize(int_max Length)
 
 try
 {
-    if (Length > int_max(m_DataArray.capacity()))
+    if (Length > int_max(m_StdVector.capacity()))
     {
-        m_DataArray.clear();
+        m_StdVector.clear();
     }
 
-    m_DataArray.resize(Length);
+    m_StdVector.resize(Length);
 }
 catch (...)
 {
@@ -297,7 +290,7 @@ void DenseVector<ElementType>::ReserveCapacity(int_max Length)
 
 try
 {
-    m_DataArray.reserve(Length);
+    m_StdVector.reserve(Length);
 }
 catch (...)
 {
@@ -310,7 +303,7 @@ template<typename ElementType>
 inline
 void DenseVector<ElementType>::ReleaseUnusedCapacity()
 {
-    m_DataArray.shrink_to_fit();
+    m_StdVector.shrink_to_fit();
 }
 
 
@@ -318,15 +311,15 @@ template<typename ElementType>
 inline
 void DenseVector<ElementType>::Fill(const ElementType& Element)
 {
-    auto Length = this->GetLength();
-    if (Length == 0)
+	auto SelfLength = this->GetLength();
+	if (SelfLength == 0)
     {
         MDK_Error("Self is empty @ DenseVector::Fill(Element)")
     }
 
-    for (int_max i = 0; i < Length; ++i)
+	for (int_max i = 0; i < SelfLength; ++i)
     {
-        m_DataArray[i] = Element;
+        m_StdVector[i] = Element;
     }
 }
  
@@ -335,7 +328,7 @@ template<typename ElementType>
 inline
 int_max DenseVector<ElementType>::GetLength() const
 {
-    return int_max(m_DataArray.size());
+    return int_max(m_StdVector.size());
 }
 
 
@@ -343,7 +336,7 @@ template<typename ElementType>
 inline
 int_max DenseVector<ElementType>::GetElementNumber() const
 {
-    return int_max(m_DataArray.size());
+    return int_max(m_StdVector.size());
 }
 
 
@@ -351,7 +344,7 @@ template<typename ElementType>
 inline
 bool DenseVector<ElementType>::IsEmpty() const
 {
-    return (m_DataArray.size() == 0);
+    return (m_StdVector.size() == 0);
 }
 
 
@@ -376,7 +369,7 @@ template<typename ElementType>
 inline
 ElementType* DenseVector<ElementType>::GetElementPointer()
 {
-    return m_DataArray.data();
+    return m_StdVector.data();
 }
 
 
@@ -384,7 +377,7 @@ template<typename ElementType>
 inline
 const ElementType* DenseVector<ElementType>::GetElementPointer() const
 {
-    return m_DataArray.data();
+    return m_StdVector.data();
 }
 
 
@@ -392,7 +385,7 @@ template<typename ElementType>
 inline
 ElementType* DenseVector<ElementType>::GetPointer()
 {
-    return m_DataArray.data();
+    return m_StdVector.data();
 }
 
 
@@ -400,14 +393,14 @@ template<typename ElementType>
 inline
 const ElementType* DenseVector<ElementType>::GetPointer() const
 {
-    return m_DataArray.data();
+    return m_StdVector.data();
 }
 
 template<typename ElementType>
 inline
 ElementType* DenseVector<ElementType>::begin()
 {
-    return m_DataArray.data();
+    return m_StdVector.data();
 }
 
 
@@ -415,7 +408,7 @@ template<typename ElementType>
 inline
 const ElementType* DenseVector<ElementType>::begin() const
 {
-    return m_DataArray.data();
+    return m_StdVector.data();
 }
 
 
@@ -423,10 +416,10 @@ template<typename ElementType>
 inline
 ElementType* DenseVector<ElementType>::end()
 {
-    auto EndPtr = m_DataArray.data();
+    auto EndPtr = m_StdVector.data();
     if (EndPtr != nullptr)
     {
-        EndPtr += m_DataArray.size();
+        EndPtr += m_StdVector.size();
     }
     return EndPtr;
 }
@@ -436,10 +429,10 @@ template<typename ElementType>
 inline
 const ElementType* DenseVector<ElementType>::end() const
 {
-    auto EndPtr = m_DataArray.data();
+    auto EndPtr = m_StdVector.data();
     if (EndPtr != nullptr)
     {
-        EndPtr += m_DataArray.size();
+        EndPtr += m_StdVector.size();
     }
     return EndPtr;
 }
@@ -451,15 +444,15 @@ ElementType& DenseVector<ElementType>::operator[](int_max Index)
 {
 #if defined MDK_DEBUG_DenseVectorWithVariableLength_Operator_CheckBound
 
-    auto Length = this->GetLength();
-    if (Index >= Length || Index < 0)
+	auto SelfLength = this->GetLength();
+	if (Index >= SelfLength || Index < 0)
     {
         MDK_Error("Invalid input @ DenseVector::operator[](Index)")
     }
 
 #endif // MDK_DEBUG_DenseVectorWithVariableLength_Operator_CheckBound    
 
-    return m_DataArray[Index];
+    return m_StdVector[Index];
 }
 
 
@@ -469,15 +462,15 @@ const ElementType& DenseVector<ElementType>::operator[](int_max Index) const
 {
 #if defined MDK_DEBUG_DenseVectorWithVariableLength_Operator_CheckBound
 
-    auto Length = this->GetLength();
-    if (Index >= Length || Index < 0)
+	auto SelfLength = this->GetLength();
+	if (Index >= SelfLength || Index < 0)
     {
         MDK_Error("Invalid input @ DenseVector::operator[](Index) const")
     }
 
 #endif // MDK_DEBUG_3DImageDenseVectorWithVariableLength_Operator_CheckBound    
 
-    return m_DataArray[Index];
+    return m_StdVector[Index];
 }
 
 
@@ -487,16 +480,16 @@ ElementType& DenseVector<ElementType>::operator()(int_max Index)
 {
 #if defined MDK_DEBUG_DenseVectorWithVariableLength_Operator_CheckBound
 
-    auto Length = this->GetLength();
-    if (Index >= Length || Index < 0)
+	auto SelfLength = this->GetLength();
+	if (Index >= SelfLength || Index < 0)
     {
         MDK_Error("Invalid input @ DenseVector::operator()(Index)")
-        return m_DataArray[0];
+        return m_StdVector[0];
     }
 
 #endif // MDK_DEBUG_3DImageDenseVectorWithVariableLength_Operator_CheckBound    
 
-    return m_DataArray[Index];
+    return m_StdVector[Index];
 }
 
 
@@ -506,16 +499,16 @@ const ElementType& DenseVector<ElementType>::operator()(int_max Index) const
 {
 #if defined MDK_DEBUG_DenseVectorWithVariableLength_Operator_CheckBound
 
-    auto Length = this->GetLength();
-    if (Index >= Length || Index < 0)
+	auto SelfLength = this->GetLength();
+	if (Index >= SelfLength || Index < 0)
     {
         MDK_Error("Invalid input @ DenseVector::operator()(Index) const")
-        return m_DataArray[0];
+        return m_StdVector[0];
     }
 
 #endif // MDK_DEBUG_3DImageDenseVectorWithVariableLength_Operator_CheckBound    
 
-    return m_DataArray[Index];
+    return m_StdVector[Index];
 }
 
 
@@ -523,13 +516,13 @@ template<typename ElementType>
 inline
 ElementType& DenseVector<ElementType>::at(int_max Index)
 {
-    auto Length = this->GetLength();
-    if (Index >= Length || Index < 0)
+	auto SelfLength = this->GetLength();
+	if (Index >= SelfLength || Index < 0)
     {
         MDK_Error("Invalid input @ DenseVector::at(Index)")
-        return m_DataArray[0];
+        return m_StdVector[0];
     }
-    return m_DataArray[Index];
+    return m_StdVector[Index];
 }
 
 
@@ -537,13 +530,13 @@ template<typename ElementType>
 inline
 const ElementType& DenseVector<ElementType>::at(int_max Index) const
 {
-    auto Length = this->GetLength();
-    if (Index >= Length || Index < 0)
+	auto SelfLength = this->GetLength();
+	if (Index >= SelfLength || Index < 0)
     {
         MDK_Error("Invalid input @ DenseVector::at(Index)")
-        return m_DataArray[0];
+        return m_StdVector[0];
     }
-    return m_DataArray[Index];
+    return m_StdVector[Index];
 }
 
 // ------------------------------------------------------------------------------------------------------------//
@@ -551,21 +544,21 @@ const ElementType& DenseVector<ElementType>::at(int_max Index) const
 template<typename ElementType>
 std::vector<ElementType>& DenseVector<ElementType>::StdVector()
 {
-    return m_DataArray;
+    return m_StdVector;
 }
 
 
 template<typename ElementType>
 const std::vector<ElementType>& DenseVector<ElementType>::StdVector() const
 {
-    return m_DataArray;
+    return m_StdVector;
 }
 
 
 template<typename ElementType>
 std::vector<ElementType> DenseVector<ElementType>::CreateStdVector() const
 {
-    return m_DataArray;
+    return m_StdVector;
 }
 
 // ------------------------------------------------------------------------------------------------------------//
@@ -584,13 +577,13 @@ DenseMatrix<ElementType> DenseVector<ElementType>::CreateDenseMatrixAsRowVector(
 template<typename ElementType>
 void DenseVector<ElementType>::CreateDenseMatrixAsRowVector(DenseMatrix<ElementType>& OutputVector) const
 {
-    auto Length = this->GetLength();
+    auto SelfLength = this->GetLength();
 
-    OutputVector.FastResize(1, Length);
+	OutputVector.FastResize(1, SelfLength);
 
-    for (int_max i = 0; i < Length; ++i)
+	for (int_max i = 0; i < SelfLength; ++i)
     {
-        OutputVector[i] = m_DataArray[i];
+        OutputVector[i] = m_StdVector[i];
     }
 }
 
@@ -609,13 +602,13 @@ DenseMatrix<ElementType> DenseVector<ElementType>::CreateDenseMatrixAsColVector(
 template<typename ElementType>
 void DenseVector<ElementType>::CreateDenseMatrixAsColVector(DenseMatrix<ElementType>& OutputVector) const
 {
-    auto Length = this->GetLength();
+	auto SelfLength = this->GetLength();
 
-    OutputVector.FastResize(Length, 1);
+	OutputVector.FastResize(SelfLength, 1);
 
-    for (int_max i = 0; i < Length; ++i)
+	for (int_max i = 0; i < SelfLength; ++i)
     {
-        OutputVector[i] = m_DataArray[i];
+        OutputVector[i] = m_StdVector[i];
     }
 }
 
@@ -645,7 +638,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(int_max Index_start
 
     for (int_max Index = Index_start; Index <= Index_end; ++Index)
     {
-        SubSet[Index - Index_start] = m_DataArray[Index];
+        SubSet[Index - Index_start] = m_StdVector[Index];
     }
     
     return SubSet;
@@ -687,7 +680,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const std::initiali
             return SubSet;
         }
 
-        SubSet[i] = m_DataArray[Index];
+        SubSet[i] = m_StdVector[Index];
     }
     
     return SubSet;
@@ -729,7 +722,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const std::vector<i
             return SubSet;
         }
 
-        SubSet[i] = m_DataArray[Index];
+        SubSet[i] = m_StdVector[Index];
     }
 
     return SubSet;
@@ -771,7 +764,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseMatrix<i
             return SubSet;
         }
 
-        SubSet[i] = m_DataArray[Index];
+        SubSet[i] = m_StdVector[Index];
     }
     
     return SubSet;
@@ -780,7 +773,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseMatrix<i
 
 template<typename ElementType>
 inline
-DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const SimpleDataArray<int_max>& IndexList) const
+DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const SimpleObjectArray<int_max>& IndexList) const
 {
     DenseVector<ElementType> SubSet;
     
@@ -813,7 +806,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const SimpleDataArr
             return SubSet;
         }
 
-        SubSet[i] = m_DataArray[Index];
+        SubSet[i] = m_StdVector[Index];
     }
     
     return SubSet;
@@ -821,14 +814,15 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const SimpleDataArr
 
 
 template<typename ElementType>
+template<int_max LengthParameter>
 inline
-DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseVector<int_max>& IndexList) const
+DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseVector<int_max, LengthParameter>& IndexList) const
 {
     DenseVector<ElementType> SubSet;
-
+    
     auto SelfLength = this->GetLength();
 
-    auto InputLength = IndexList.GetElementNumber();
+	auto InputLength = IndexList.GetLength();
 
     if (InputLength > SelfLength)
     {
@@ -855,269 +849,254 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseVector<i
             return SubSet;
         }
 
-        SubSet[i] = m_DataArray[Index];
-    }
-
-    return SubSet;
-}
-
-
-template<typename ElementType>
-template<int_max Length>
-inline
-DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseVector<int_max, Length>& IndexList) const
-{
-    DenseVector<ElementType> SubSet;
-    
-    auto SelfLength = this->GetLength();
-
-    auto InputLength = IndexList.GetElementNumber();
-
-    if (InputLength > SelfLength)
-    {
-        MDK_Error("InputLength > SelfLength @ DenseVector::GetSubSet(...)")
-        return SubSet;
-    }
-
-    if (SelfLength == 0)
-    {
-        MDK_Error("Self is empty input @ DenseVector::GetSubSet(...)")
-        return SubSet;
-    }
-
-    SubSet.FastResize(InputLength);
-
-    for (int_max i = 0; i < InputLength; ++i)
-    {
-        auto Index = IndexList[i];
-
-        if (Index < 0 || Index >= SelfLength)
-        {
-            MDK_Error("Index is invalid @ DenseVector::GetSubSet(...)")
-            SubSet.Clear();
-            return SubSet;
-        }
-
-        SubSet[i] = m_DataArray[Index];
+        SubSet[i] = m_StdVector[Index];
     }
     
     return SubSet;
 }
-
 
 // ------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
 inline 
-bool DenseVector<ElementType>::SetSubSet(int_max Index_start, int_max Index_end, const std::initializer_list<ElementType>& SubSet)
+bool DenseVector<ElementType>::SetSubSet(int_max Index_start, int_max Index_end, const std::initializer_list<ElementType>& SubVector)
 {
-    if (Index_end - Index_start + 1 != int_max(SubSet.size()))
+	if (std::abs(Index_end - Index_start) + 1 != int_max(SubVector.size()))
     {
         MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
         return false;
     }
 
-    auto SelfLength = this->GetLength();
-
-    if (Index_start < 0 || Index_start >= SelfLength || Index_end < 0 || Index_end >= SelfLength || Index_start > Index_end)
-    {
-        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
-        return false;
-    }
-
-    if (SelfLength == 0)
-    {
-        MDK_Error("Self is empty @ DenseVector::SetSubSet(...)")
-        return false;
-    }
-
-    for (int_max Index = Index_start, Index <= Index_end; ++Index)
-    {
-        m_DataArray[Index] = SubSet[Index - Index_start];
-    }
-
-    return true;
+	return this->SetSubSet(Index_start, Index_end, SubVector.begin());
 }
 
 
 template<typename ElementType>
 inline 
-bool DenseVector<ElementType>::SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSet)
+bool DenseVector<ElementType>::SetSubSet(int_max Index_start, int_max Index_end, const std::vector<ElementType>& SubVector)
 {
-    if (IndexList.size() != SubSet.size())
-    {
-        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
-        return false;
-    }
+	if (std::abs(Index_end - Index_start) + 1 != int_max(SubVector.size()))
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
 
-    auto SelfLength = this->GetLength();
-
-    for (int_max i = 0; i < int_max(IndexList.size()); ++i)
-    {
-        auto Index = IndexList.begin()[i];
-
-        if (Index < 0 || Index >= SelfLength)
-        {
-            MDK_Error("Index is invalid @ DenseVector::SetSubSet(...)")
-      
-            return false;
-        }
-
-        m_DataArray[Index] = SubSet.begin()[i];
-    }
-
-    return true;
-}
-
-
-template<typename ElementType>
-inline
-bool DenseVector<ElementType>::SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSet)
-{
-    if (IndexList.size() != SubSet.size())
-    {
-        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
-        return false;
-    }
-
-    auto SelfLength = this->GetLength();
-
-    for (int_max i = 0; i < int_max(IndexList.size()); ++i)
-    {
-        auto Index = IndexList[i];
-
-        if (Index < 0 || Index >= SelfLength)
-        {
-            MDK_Error("Index is invalid @ DenseVector::SetSubSet(...)")
-      
-            return false;
-        }
-
-        m_DataArray[Index] = SubSet[i];
-    }
-
-    return true;
-}
-
-
-template<typename ElementType>
-inline
-bool DenseVector<ElementType>::SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubSet)
-{
-    if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
-    {
-        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
-        return false;
-    }
-
-    auto SelfLength = this->GetLength();
-
-    for (int_max i = 0; i < IndexList.GetElementNumber(); ++i)
-    {
-        auto Index = IndexList[i];
-
-        if (Index < 0 || Index >= SelfLength)
-        {
-            MDK_Error("Index is invalid @ DenseVector::SetSubSet(...)")
-      
-            return false;
-        }
-
-        m_DataArray[Index] = SubSet[i];
-    }
-
-    return true;
+	return this->SetSubSet(Index_start, Index_end, SubVector.data());
 }
 
 
 template<typename ElementType>
 inline 
-bool DenseVector<ElementType>::SetSubSet(const SimpleDataArray<int_max>& IndexList, const SimpleDataArray<ElementType>& SubSet)
+bool DenseVector<ElementType>::SetSubSet(int_max Index_start, int_max Index_end, const SimpleObjectArray<ElementType>& SubVector)
 {
-    if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
-    {
-        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
-        return false;
-    }
+	if (std::abs(Index_end - Index_start) + 1 != int_max(SubVector.GetLength()))
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
 
-    auto SelfLength = this->GetLength();
+	return this->SetSubSet(Index_start, Index_end, SubVector.GetPointer());
+}
 
-    for (int_max i = 0; i < IndexList.GetElementNumber(); ++i)
-    {
-        auto Index = IndexList[i];
 
-        if (Index < 0 || Index >= SelfLength)
-        {
-            MDK_Error("Index is invalid @ DenseVector::SetSubSet(...)")
-      
-            return false;
-        }
+template<typename ElementType>
+inline 
+bool DenseVector<ElementType>::SetSubSet(int_max Index_start, int_max Index_end, const ObjectArray<ElementType>& SubVector)
+{
+	if (std::abs(Index_end - Index_start) + 1 != int_max(SubVector.GetLength()))
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
 
-        m_DataArray[Index] = SubSet[i];
-    }
-
-    return true;
+	return this->SetSubSet(Index_start, Index_end, SubVector.GetPointer());
 }
 
 
 template<typename ElementType>
 inline
-bool DenseVector<ElementType>::SetSubSet(const DenseVector<int_max>& IndexList, const DenseVector<int_max>& SubSet)
+bool DenseVector<ElementType>::SetSubSet(int_max Index_start, int_max Index_end, const DenseMatrix<ElementType>& SubVector)
 {
-    if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
-    {
-        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
-        return false;
-    }
+	if (std::abs(Index_end - Index_start) + 1 != int_max(SubVector.GetElementNumber()))
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
 
-    auto SelfLength = this->GetLength();
-
-    for (int_max i = 0; i < IndexList.GetElementNumber(); ++i)
-    {
-        auto Index = IndexList[i];
-
-        if (Index < 0 || Index >= SelfLength)
-        {
-            MDK_Error("Index is invalid @ DenseVector::SetSubSet(...)")
-      
-            return false;
-        }
-
-        m_DataArray[Index] = SubSet[i];
-    }
-
-    return true;
+	return this->SetSubSet(Index_start, Index_end, SubVector.GetPointer());
 }
 
 
 template<typename ElementType>
-template<int_max InputLength>
+template<int_max LengthParameter>
 inline
-bool DenseVector<ElementType>::SetSubSet(const DenseVector<int_max, InputLength>& IndexList, const DenseVector<int_max, InputLength>& SubSet)
+bool DenseVector<ElementType>::SetSubSet(int_max Index_start, int_max Index_end, const DenseVector<ElementType, LengthParameter>& SubVector)
 {
-    if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
+	if (std::abs(Index_end - Index_start) + 1 != int_max(SubVector.GetElementNumber()))
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
+
+	return this->SetSubSet(Index_start, Index_end, SubVector.GetPointer());
+}
+
+
+template<typename ElementType>
+inline
+bool DenseVector<ElementType>::SetSubSet(int_max Index_start, int_max Index_end, const ElementType* SubVector)
+{
+	auto SelfLength = this->GetLength();
+
+	if (Index_start < 0 || Index_start >= SelfLength || Index_end < 0 || Index_end >= SelfLength || SubVector == nullptr)
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
+
+	if (SelfLength == 0)
+	{
+		MDK_Error("Self is empty @ DenseVector::SetSubSet(...)")
+		return false;
+	}
+
+	if (Index_end >= Index_start)
+	{
+		for (int_max Index = Index_start, Index <= Index_end; ++Index)
+		{
+			m_StdVector[Index] = SubVector[Index - Index_start];
+		}
+	}
+	else
+	{
+		for (int_max Index = Index_end, Index >= Index_start; --Index)
+		{
+			m_StdVector[Index] = SubVector[Index_end - Index];
+		}
+	}
+	return true;
+}
+
+
+template<typename ElementType>
+inline 
+bool DenseVector<ElementType>::SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubVector)
+{
+	if (IndexList.size() != SubVector.size())
     {
         MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
         return false;
     }
+	return this->SetSubSet(IndexList.begin(), SubVector.begin(), int_max(SubVector.size()));
+}
 
-    auto SelfLength = this->GetLength();
 
-    for (int_max i = 0; i < IndexList.GetElementNumber(); ++i)
+template<typename ElementType>
+inline
+bool DenseVector<ElementType>::SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubVector)
+{
+	if (IndexList.size() != SubVector.size())
     {
-        auto Index = IndexList[i];
-
-        if (Index < 0 || Index >= SelfLength)
-        {
-            MDK_Error("Index is invalid @ DenseVector::SetSubSet(...)")
-      
-            return false;
-        }
-
-        m_DataArray[Index] = SubSet[i];
+        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+        return false;
     }
+	return this->SetSubSet(IndexList.GetPointer(), SubVector.data(), int_max(SubVector.size()));
+}
 
-    return true;
+
+template<typename ElementType>
+inline
+bool DenseVector<ElementType>::SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector)
+{
+	if (IndexList.GetElementNumber() != SubVector.GetElementNumber())
+    {
+        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+        return false;
+    }
+	return this->SetSubSet(IndexList.GetPointer(), SubVector.GetPointer(), SubVector.GetElementNumber());
+}
+
+
+template<typename ElementType>
+inline 
+bool DenseVector<ElementType>::SetSubSet(const SimpleObjectArray<int_max>& IndexList, const SimpleObjectArray<ElementType>& SubVector)
+{
+	if (IndexList.GetElementNumber() != SubVector.GetElementNumber())
+    {
+        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+        return false;
+    }
+	return this->SetSubSet(IndexList.GetPointer(), SubVector.GetPointer(), SubVector.GetLength());
+}
+
+
+template<typename ElementType>
+template<int_max LengthParameterA, int_max LengthParameterB>
+inline
+bool DenseVector<ElementType>::SetSubSet(const DenseVector<int_max, LengthParameterA>& IndexList, const DenseVector<ElementType, LengthParameterB>& SubVector)
+{// do not use LengthParameter
+	if (IndexList.GetElementNumber() != SubVector.GetElementNumber())
+    {
+        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+        return false;
+    }
+	return this->SetSubSet(IndexList.GetPointer(), SubVector.GetPointer(), SubVector.GetLength());
+}
+
+
+template<typename ElementType>
+inline 
+bool DenseVector<ElementType>::SetSubSet(const std::vector<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector)
+{
+	if (int_max(IndexList.size()) != SubVector.GetElementNumber())
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
+	return this->SetSubSet(IndexList.data(), SubVector.GetPointer(), SubVector.GetElementNumber());
+}
+
+
+template<typename ElementType>
+template<int_max LengthParameter>
+inline
+bool DenseVector<ElementType>::SetSubSet(const std::vector<int_max>& IndexList, const DenseVector<ElementType, LengthParameter>& SubVector)
+{
+	if (int_max(IndexList.size()) != SubVector.GetElementNumber())
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
+	return this->SetSubSet(IndexList.data(), SubVector.GetPointer(), SubVector.GetElementNumber());
+}
+
+
+template<typename ElementType>
+inline
+bool DenseVector<ElementType>::SetSubSet(const int_max* IndexList, const ElementType* SubVector, int_max SubVectorLength)
+{
+	if (IndexList == nullptr || SubVector == nullptr || SubVectorLength <= 0)
+	{
+		return true;
+	}
+
+	auto SelfLength = this->GetLength();
+
+	for (int_max i = 0; i < SubVectorLength; ++i)
+	{
+		auto Index = IndexList[i];
+
+		if (Index < 0 || Index >= SelfLength)
+		{
+			MDK_Error("Index is invalid @ DenseVector::SetSubSet(...)")
+
+			return false;
+		}
+
+		m_StdVector[Index] = SubVector[i];
+	}
+
+	return true;
 }
 
 // ------------------------------------------------------------------------------------------------------------//
@@ -1130,15 +1109,16 @@ bool DenseVector<ElementType>::Append(ElementType Element)
 
     this->Resize(SelfLength + 1);
 
-    m_DataArray[SelfLength] = std::move(Element);
+    m_StdVector[SelfLength] = std::move(Element);
 
     return true;
 }
 
 
 template<typename ElementType>
+template<int_max LengthParameter>
 inline 
-bool DenseVector<ElementType>::Append(const DenseVector<ElementType>& InputData)
+bool DenseVector<ElementType>::Append(const DenseVector<ElementType, LengthParameter>& InputData)
 {
     return this->Append(InputData.GetElementPointer(), InputData.GetElementNumber());
 }
@@ -1160,7 +1140,7 @@ bool DenseVector<ElementType>::Append(const ElementType* InputData, int_max Inpu
 
     for (int_max i = SelfLength; i < SelfLength + InputLength; ++i)
     {
-        m_DataArray[i] = InputData[i - SelfLength];
+        m_StdVector[i] = InputData[i - SelfLength];
     }
 
     return true;
@@ -1207,7 +1187,7 @@ bool DenseVector<ElementType>::Delete(const DenseMatrix<int_max>& IndexList)
 
 template<typename ElementType>
 inline
-bool DenseVector<ElementType>::Delete(const SimpleDataArray<int_max>& IndexList)
+bool DenseVector<ElementType>::Delete(const SimpleObjectArray<int_max>& IndexList)
 {
     return this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
 }
@@ -1222,9 +1202,9 @@ bool DenseVector<ElementType>::Delete(const DenseVector<int_max>& IndexList)
 
 
 template<typename ElementType>
-template<int_max InputLength>
+template<int_max LengthParameter>
 inline
-bool DenseVector<ElementType>::Delete(const DenseVector<int_max, InputLength>& IndexList)
+bool DenseVector<ElementType>::Delete(const DenseVector<int_max, LengthParameter>& IndexList)
 {
     return this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
 }
@@ -1259,7 +1239,7 @@ bool DenseVector<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
 
     if (ListLength == 1)
     {
-        m_DataArray.erase(m_DataArray.begin() + IndexList[0], m_DataArray.begin() + IndexList[0] + 1);
+        m_StdVector.erase(m_StdVector.begin() + IndexList[0], m_StdVector.begin() + IndexList[0] + 1);
     }
     else
     {
@@ -1284,7 +1264,7 @@ bool DenseVector<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
             }
             else
             {
-                m_DataArray.erase(m_DataArray.begin() + Index_i, m_DataArray.begin() + Index_i + 1);
+                m_StdVector.erase(m_StdVector.begin() + Index_i, m_StdVector.begin() + Index_i + 1);
 
                 Index_prev = Index_i;
             }
@@ -1315,7 +1295,7 @@ bool DenseVector<ElementType>::Delete(int_max Index_start, int_max Index_end)
         return false;
     }
 
-    m_DataArray.erase(m_DataArray.begin() + Index_start, m_DataArray.begin() + Index_end + 1);
+    m_StdVector.erase(m_StdVector.begin() + Index_start, m_StdVector.begin() + Index_end + 1);
 
     return true;
 }
@@ -1350,7 +1330,7 @@ bool DenseVector<ElementType>::Insert(int_max Index, const DenseMatrix<ElementTy
 {
     if (DenseMatrix.IsVector() == false)
     {
-        MDK_Error("Input is NOT a vector @ SimpleDataArray::Insert(Index, DenseMatrix)")
+        MDK_Error("Input is NOT a vector @ DenseVector::Insert(Index, DenseMatrix)")
         return false;
     }
 
@@ -1360,7 +1340,7 @@ bool DenseVector<ElementType>::Insert(int_max Index, const DenseMatrix<ElementTy
 
 template<typename ElementType>
 inline
-bool DenseVector<ElementType>::Insert(int_max Index, const SimpleDataArray<ElementType>& InputData)
+bool DenseVector<ElementType>::Insert(int_max Index, const SimpleObjectArray<ElementType>& InputData)
 {
     return this->Insert(Index, InputData.GetElementPointer(), InputData.GetElementNumber());
 }
@@ -1375,9 +1355,9 @@ bool DenseVector<ElementType>::Insert(int_max Index, const DenseVector<ElementTy
 
 
 template<typename ElementType>
-template<int_max InputLength>
+template<int_max LengthParameter>
 inline
-bool DenseVector<ElementType>::Insert(int_max Index, const DenseVector<ElementType, InputLength>& InputData)
+bool DenseVector<ElementType>::Insert(int_max Index, const DenseVector<ElementType, LengthParameter>& InputData)
 {
     return this->Insert(Index, InputData.GetElementPointer(), InputData.GetElementNumber());
 }
@@ -1406,7 +1386,7 @@ bool DenseVector<ElementType>::Insert(int_max Index, const ElementType* InputDat
         }
     }
 
-    m_DataArray.insert(m_DataArray.begin() + Index, InputData, InputData + InputLength);
+    m_StdVector.insert(m_StdVector.begin() + Index, InputData, InputData + InputLength);
 
     return true;
 }
@@ -1417,7 +1397,7 @@ template<typename ElementType>
 inline 
 bool DenseVector<ElementType>::PushBack(ElementType Element)
 {
-    m_DataArray.push_back(std::move(Element));
+    m_StdVector.push_back(std::move(Element));
 }
 
 
@@ -1425,7 +1405,7 @@ template<typename ElementType>
 inline
 ElementType DenseVector<ElementType>::PopBack()
 {
-    m_DataArray.pop_back(std::move(Element));
+    m_StdVector.pop_back(std::move(Element));
 }
 
 
@@ -1752,19 +1732,18 @@ DenseVector<int_max> DenseVector<ElementType>::FindUnique(SpecialCompareFunction
 // ------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline 
-void DenseVector<ElementType>::operator+=(const DenseVector<ElementType>& InputVector)
+template<int_max LengthParameter>
+inline
+void DenseVector<ElementType>::operator+=(const DenseVector<ElementType, LengthParameter>& InputVector)
 {
-    auto SelfLength = this->GetLength();
-
-    auto InputLength = InputVector.GetLength();
-
+	auto InputLength = InputVector.GetLength();
     if (InputLength == 1)
     {
         (*this) += InputVector[0];
         return;
     }
 
+	auto SelfLength = this->GetLength();
     if (SelfLength != InputLength)
     {
         MDK_Error("SelfLength != InputLength @ DenseVector::operator+=(InputVector)")
@@ -1772,50 +1751,24 @@ void DenseVector<ElementType>::operator+=(const DenseVector<ElementType>& InputV
 
     for (int_max i = 0; i < SelfLength; ++i)
     {
-        m_DataArray[i] += InputVector[i];
+        m_StdVector[i] += InputVector[i];
     }
 }
 
 
 template<typename ElementType>
-template<int_max InputLength>
+template<int_max LengthParameter>
 inline
-void DenseVector<ElementType>::operator+=(const DenseVector<ElementType, InputLength>& InputVector)
+void DenseVector<ElementType>::operator-=(const DenseVector<ElementType, LengthParameter>& InputVector)
 {
-    auto SelfLength = this->GetLength();
-
-    if (InputLength == 1)
-    {
-        (*this) += InputVector[0];
-        return;
-    }
-
-    if (SelfLength != InputLength)
-    {
-        MDK_Error("SelfLength != InputLength @ DenseVector::operator+=(InputVector)")
-    }
-
-    for (int_max i = 0; i < SelfLength; ++i)
-    {
-        m_DataArray[i] += InputVector[i];
-    }
-}
-
-
-template<typename ElementType>
-inline 
-void DenseVector<ElementType>::operator-=(const DenseVector<ElementType>& InputVector)
-{
-    auto SelfLength = this->GetLength();
-
-    auto InputLength = InputVector.GetLength();
-
+ 	auto InputLength = InputVector.GetLength();
     if (InputLength == 1)
     {
         (*this) -= InputVector[0];
         return;
     }
 
+	auto SelfLength = this->GetLength();
     if (SelfLength != InputLength)
     {
         MDK_Error("SelfLength != InputLength @ DenseVector::operator-=(InputVector)")
@@ -1823,76 +1776,24 @@ void DenseVector<ElementType>::operator-=(const DenseVector<ElementType>& InputV
 
     for (int_max i = 0; i < SelfLength; ++i)
     {
-        m_DataArray[i] -= InputVector[i];
+        m_StdVector[i] -= InputVector[i];
     }
 }
 
-
+/*
 template<typename ElementType>
-template<int_max InputLength>
+template<int_max LengthParameter>
 inline
-void DenseVector<ElementType>::operator-=(const DenseVector<ElementType, InputLength>& InputVector)
+void DenseVector<ElementType>::operator*=(const DenseVector<ElementType, LengthParameter>& InputVector)
 {
-    auto SelfLength = this->GetLength();
-
-    if (InputLength == 1)
-    {
-        (*this) -= InputVector[0];
-        return;
-    }
-
-    if (SelfLength != InputLength)
-    {
-        MDK_Error("SelfLength != InputLength @ DenseVector::operator-=(InputVector)")
-    }
-
-    for (int_max i = 0; i < SelfLength; ++i)
-    {
-        m_DataArray[i] -= InputVector[i];
-    }
-}
-
-
-
-template<typename ElementType>
-inline
-void DenseVector<ElementType>::operator*=(const DenseVector<ElementType>& InputVector)
-{
-    auto SelfLength = this->GetLength();
-
-    auto InputLength = InputVector.GetLength();
-
-    if (InputLength == 1)
-    {
-         (*this) *= InputVector[0];
-         return;
-    }
-
-    if (SelfLength != InputLength)
-    {
-        MDK_Error("SelfLength != InputLength @ DenseVector::operator*=(InputVector)")
-    }
-
-    for (int_max i = 0; i < SelfLength; ++i)
-    {
-        m_DataArray[i] *= InputVector[i];
-    }
-}
-
-
-template<typename ElementType>
-template<int_max InputLength>
-inline
-void DenseVector<ElementType>::operator*=(const DenseVector<ElementType, InputLength>& InputVector)
-{
-    auto SelfLength = this->GetLength();
-
+	auto InputLength = InputVector.GetLength();
     if (InputLength == 1)
     {
         (*this) *= InputVector[0];
         return;
     }
 
+	auto SelfLength = this->GetLength();
     if (SelfLength != InputLength)
     {
         MDK_Error("SelfLength != InputLength @ DenseVector::operator*=(InputVector)")
@@ -1900,25 +1801,24 @@ void DenseVector<ElementType>::operator*=(const DenseVector<ElementType, InputLe
 
     for (int_max i = 0; i < SelfLength; ++i)
     {
-        m_DataArray[i] *= InputVector[i];
+        m_StdVector[i] *= InputVector[i];
     }
 }
-
+*/
 
 template<typename ElementType>
+template<int_max LengthParameter>
 inline
-void DenseVector<ElementType>::operator/=(const DenseVector<ElementType>& InputVector)
+void DenseVector<ElementType>::operator/=(const DenseVector<ElementType, LengthParameter>& InputVector)
 {
-    auto SelfLength = this->GetLength();
-
-    auto InputLength = InputVector.GetLength();
-
+	auto InputLength = InputVector.GetLength();
     if (InputLength == 1)
     {
         (*this) /= InputVector[0];
         return;
     }
 
+	auto SelfLength = this->GetLength();
     if (SelfLength != InputLength)
     {
         MDK_Error("SelfLength != InputLength @ DenseVector::operator/=(InputVector)")
@@ -1926,32 +1826,7 @@ void DenseVector<ElementType>::operator/=(const DenseVector<ElementType>& InputV
 
     for (int_max i = 0; i < SelfLength; ++i)
     {
-        m_DataArray[i] /= InputVector[i];
-    }
-}
-
-
-template<typename ElementType>
-template<int_max InputLength>
-inline
-void DenseVector<ElementType>::operator/=(const DenseVector<ElementType, InputLength>& InputVector)
-{
-    auto SelfLength = this->GetLength();
-
-    if (InputLength == 1)
-    {
-        (*this) /= InputVector[0];
-        return;
-    }
-
-    if (SelfLength != InputLength)
-    {
-        MDK_Error("SelfLength != InputLength @ DenseVector::operator/=(InputVector)")
-    }
-
-    for (int_max i = 0; i < SelfLength; ++i)
-    {
-        m_DataArray[i] /= InputVector[i];
+        m_StdVector[i] /= InputVector[i];
     }
 }
 
@@ -1963,7 +1838,7 @@ void DenseVector<ElementType>::operator+=(const ElementType& Element)
 {
     for (int_max i = 0; i < this->GetLength(); ++i)
     {
-        m_DataArray[i] += Element;
+        m_StdVector[i] += Element;
     }
 }
 
@@ -1974,7 +1849,7 @@ void DenseVector<ElementType>::operator-=(const ElementType& Element)
 {
     for (int_max i = 0; i < this->GetLength(); ++i)
     {
-        m_DataArray[i] -= Element;
+        m_StdVector[i] -= Element;
     }
 }
 
@@ -1984,7 +1859,7 @@ inline void DenseVector<ElementType>::operator*=(const ElementType& Element)
 {
     for (int_max i = 0; i < this->GetLength(); ++i)
     {
-        m_DataArray[i] *= Element;
+        m_StdVector[i] *= Element;
     }
 }
 
@@ -1995,7 +1870,7 @@ void DenseVector<ElementType>::operator/=(const ElementType& Element)
 {
     for (int_max i = 0; i < this->GetLength(); ++i)
     {
-        m_DataArray[i] /= Element;
+        m_StdVector[i] /= Element;
     }
 }
 
@@ -2009,7 +1884,7 @@ ElementType DenseVector<ElementType>::Sum() const
 
     for (int_max i = 0; i < this->GetLength(); ++i)
     {
-        Value += m_DataArray[i];
+        Value += m_StdVector[i];
     }
 
     return Value;
@@ -2038,7 +1913,7 @@ ElementType DenseVector<ElementType>::Std() const
 
     for (int_max i = 0; i < this->GetLength(); ++i)
     {
-        auto temp = m_DataArray[i] - MeanValue;
+        auto temp = m_StdVector[i] - MeanValue;
 
         Value += temp*temp;
     }
@@ -2062,7 +1937,7 @@ ElementType DenseVector<ElementType>::Max() const
     }
 
     auto Index = this->IndexOfMax();
-    return m_DataArray[Index];
+    return m_StdVector[Index];
 }
 
 
@@ -2077,13 +1952,13 @@ int_max DenseVector<ElementType>::IndexOfMax() const
     }
 
     auto Index = int_max(0);
-    auto Value = m_DataArray[0];
+    auto Value = m_StdVector[0];
 
     for (int_max i = 1; i < this->GetLength(); ++i)
     {
-        if (m_DataArray[i] > Value)
+        if (m_StdVector[i] > Value)
         {
-            Value = m_DataArray[i];
+            Value = m_StdVector[i];
             Index = i;
         }
     }
@@ -2103,7 +1978,7 @@ ElementType DenseVector<ElementType>::Min() const
     }
 
     auto Index = this->IndexOfMin();
-    return m_DataArray[Index];
+    return m_StdVector[Index];
 }
 
 
@@ -2118,13 +1993,13 @@ int_max DenseVector<ElementType>::IndexOfMin() const
     }
 
     auto Index = int_max(0);
-    auto Value = m_DataArray[0];
+    auto Value = m_StdVector[0];
 
     for (int_max i = 1; i < this->GetLength(); ++i)
     {
-        if (m_DataArray[i] < Value)
+        if (m_StdVector[i] < Value)
         {
-            Value = m_DataArray[i];
+            Value = m_StdVector[i];
             Index = i;
         }
     }
@@ -2146,7 +2021,7 @@ ElementType DenseVector<ElementType>::L1Norm() const
 
     for (int_max i = 0; i < this->GetLength(); ++i)
     {
-        Value += std::abs(m_DataArray[i]);
+        Value += std::abs(m_StdVector[i]);
     }
 
     return Value;
@@ -2163,11 +2038,11 @@ ElementType DenseVector<ElementType>::L2Norm() const
         return 0;
     }
 
-    auto Value = m_DataArray[0] * m_DataArray[0];
+    auto Value = m_StdVector[0] * m_StdVector[0];
 
     for (int_max i = 1; i < this->GetLength(); ++i)
     {
-        Value += m_DataArray[i] * m_DataArray[i];
+        Value += m_StdVector[i] * m_StdVector[i];
     }
 
     Value = std::sqrt(Value);

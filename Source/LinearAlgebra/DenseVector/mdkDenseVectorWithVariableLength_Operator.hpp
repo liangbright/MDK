@@ -11,7 +11,6 @@ DenseVector<ElementType>
 operator+(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType>& VectorB)
 {
     auto Length_A = VectorA.GetLength();
-
     auto Length_B = VectorB.GetLength();
 
     if (Length_A == 1)
@@ -51,7 +50,6 @@ DenseVector<ElementType>
 operator-(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType>& VectorB)
 {
     auto Length_A = VectorA.GetLength();
-
     auto Length_B = VectorB.GetLength();
 
     if (Length_A == 1)
@@ -83,14 +81,13 @@ operator-(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType
 	return tempVector;
 }
 
-
+/*
 template<typename ElementType>
 inline
 DenseVector<ElementType>
 operator*(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType>& VectorB)
 {
     auto Length_A = VectorA.GetLength();
-
     auto Length_B = VectorB.GetLength();
 
     if (Length_A == 1)
@@ -121,7 +118,7 @@ operator*(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType
 
     return tempVector;
 }
-
+*/
 
 template<typename ElementType>
 inline

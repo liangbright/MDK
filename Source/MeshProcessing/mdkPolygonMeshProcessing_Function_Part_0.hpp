@@ -106,7 +106,7 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const Polygo
 
 
 template<typename MeshAttributeType>
-DataArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh)
+ObjectArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh)
 {
     typedef Handle_Of_Point_Of_MembraneMesh PointHandleType;
 
@@ -127,7 +127,7 @@ DataArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(c
     // 0: not checked
     // 1: checked
 
-    DataArray<DenseVector<PointHandleType>> BoundaryCurveTable;
+	ObjectArray<DenseVector<PointHandleType>> BoundaryCurveTable;
 
     while (true)
     {

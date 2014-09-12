@@ -76,7 +76,7 @@ bool SaveTriangleMeshAsJsonDataFile_Data(const TriangleMesh<MeshAttributeType>& 
 	// get data --------------------------------------------------------------------
 	typedef typename MeshAttributeType::ScalarType ScalarType;
 
-    DataArray<DenseVector<int_max>> CellData;
+	ObjectArray<DenseVector<int_max>> CellData;
     DenseMatrix<ScalarType> PointData;
     InputMesh.GetPointPositionMatrixAndCellTable(PointData, CellData);
 
@@ -252,7 +252,7 @@ TriangleMesh<MeshAttributeType> LoadTriangleMeshFromJsonDataFile_Data(const std:
         return OutputMesh;
     }
 
-    DataArray<DenseVector<int_max>> CellData;
+	ObjectArray<DenseVector<int_max>> CellData;
     CellData.FastResize(CellNumber);
 
     QTextStream stream_in(&CellDataFile);
