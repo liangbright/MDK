@@ -9,13 +9,11 @@ using namespace mdk;
 
 int main()
 {
-    //Test_Constructor();
+    Test_Constructor();
 
-    //Test_GetSubSet();
+    Test_GetSubSet();
 
     Test_Operator();
-
-    Test_DataArray_Vector();
 
     std::system("pause");
 

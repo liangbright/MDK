@@ -52,6 +52,14 @@ DenseVector<ElementType, Length>::DenseVector(const std::initializer_list<Elemen
 
 template<typename ElementType, int_max Length>
 inline
+DenseVector<ElementType, Length>::DenseVector(const DenseMatrix<ElementType>& InputMatrix)
+{
+	(*this) = InputMatrix;
+}
+
+
+template<typename ElementType, int_max Length>
+inline
 DenseVector<ElementType, Length>::DenseVector(const DenseVector<ElementType, Length>& InputVector)
 {
     m_StdArray = InputVector.m_StdArray;
@@ -100,20 +108,6 @@ void DenseVector<ElementType, Length>::operator=(const std::initializer_list<Ele
     }
 
     m_StdArray = InputVector;
-}
-
-
-template<typename ElementType, int_max Length>
-inline
-void DenseVector<ElementType, Length>::operator=(const std::vector<ElementType>& InputVector)
-{
-    if (int_max(InputVector.size()) != Length)
-    {
-        MDK_Error("InputVector.size() != Length @ DenseVector::operator=(...)")
-        return;
-    }
-
-    this->Copy(InputVector.data());
 }
 
 
@@ -409,6 +403,22 @@ const ElementType& DenseVector<ElementType, Length>::at(int_max Index) const
 // ------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType, int_max Length>
+inline
+std::array<ElementType, Length>& DenseVector<ElementType, Length>::StdArray()
+{
+	return m_StdArray;
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+const std::array<ElementType, Length>& DenseVector<ElementType, Length>::StdArray() const
+{
+	return m_StdArray;
+}
+
+
+template<typename ElementType, int_max Length>
 std::vector<ElementType> DenseVector<ElementType, Length>::CreateStdVector() const
 {
 	std::vector<ElementType> StdVector;
@@ -418,6 +428,19 @@ std::vector<ElementType> DenseVector<ElementType, Length>::CreateStdVector() con
 		StdVector[k] = m_StdArray[k]
 	}
 	return StdVector;
+}
+
+
+template<typename ElementType, int_max Length>
+DenseVector<ElementType> DenseVector<ElementType, Length>::CreateDenseVectorWithVariableLength() const
+{
+	DenseVector<ElementType> OutputVector;
+	StdVector.Resize(int_max(m_StdArray.size()));
+	for (int_max k = 0; k < int_max(m_StdArray.size()); ++k)
+	{
+		OutputVector[k] = m_StdArray[k]
+	}
+	return OutputVector;
 }
 
 // ------------------------------------------------------------------------------------------------------------//
@@ -625,48 +648,6 @@ DenseVector<ElementType> DenseVector<ElementType, Length>::GetSubSet(const Dense
     return SubSet;
 }
 
-
-template<typename ElementType, int_max Length>
-inline 
-DenseVector<ElementType> DenseVector<ElementType, Length>::GetSubSet(const SimpleObjectArray<int_max>& IndexList) const
-{
-    DenseVector<ElementType> SubSet;
-    
-    auto SelfLength = this->GetLength();
-
-    auto InputLength = IndexList.GetElementNumber();
-
-    if (InputLength > SelfLength)
-    {
-        MDK_Error("InputLength > SelfLength @ DenseVector::GetSubSet(...)")
-        return SubSet;
-    }
-
-    if (SelfLength == 0)
-    {
-        MDK_Error("Self is empty input @ DenseVector::GetSubSet(...)")
-        return SubSet;
-    }
-
-    SubSet.FastResize(InputLength);
-
-    for (int_max i = 0; i < InputLength; ++i)
-    {
-        auto Index = IndexList[i];
-
-        if (Index < 0 || Index >= SelfLength)
-        {
-            MDK_Error("Index is invalid @ DenseVector::GetSubSet(...)")
-            SubSet.Clear();
-            return SubSet;
-        }
-
-        SubSet[i] = m_StdArray[IndexList[i]];
-    }
-    
-    return SubSet;
-}
-
 // ------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType, int_max Length>
@@ -793,8 +774,10 @@ bool DenseVector<ElementType, Length>::SetSubSet(const DenseMatrix<int_max>& Ind
 
 
 template<typename ElementType, int_max Length>
+template<int_max LengthParameterA, int_max LengthParameterB>
 inline
-bool DenseVector<ElementType, Length>::SetSubSet(const SimpleObjectArray<int_max>& IndexList, const SimpleObjectArray<ElementType>& SubSet)
+bool DenseVector<ElementType, Length>::SetSubSet(const DenseVector<int_max, LengthParameterA>& IndexList, 
+												 const DenseVector<ElementType, LengthParameterB>& SubVector)
 {
     if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
     {
@@ -820,68 +803,6 @@ bool DenseVector<ElementType, Length>::SetSubSet(const SimpleObjectArray<int_max
 
     return true;
 }
-
-
-template<typename ElementType, int_max Length>
-inline
-bool DenseVector<ElementType, Length>::SetSubSet(const DenseVector<int_max>& IndexList, const DenseVector<int_max>& SubSet)
-{
-    if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
-    {
-        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
-        return false;
-    }
-
-    auto SelfLength = this->GetLength();
-
-    for (int_max i = 0; i < IndexList.GetElementNumber(); ++i)
-    {
-        auto Index = IndexList[i];
-
-        if (Index < 0 || Index >= SelfLength)
-        {
-            MDK_Error("Index is invalid @ DenseVector::SetSubSet(...)")
-
-            return false;
-        }
-
-        m_StdArray[Index] = SubSet[i];
-    }
-
-    return true;
-}
-
-
-template<typename ElementType, int_max Length>
-template<int_max InputLength>
-inline
-bool DenseVector<ElementType, Length>::SetSubSet(const DenseVector<int_max, InputLength>& IndexList, const DenseVector<int_max, InputLength>& SubSet)
-{
-    if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
-    {
-        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
-        return false;
-    }
-
-    auto SelfLength = this->GetLength();
-
-    for (int_max i = 0; i < IndexList.GetElementNumber(); ++i)
-    {
-        auto Index = IndexList[i];
-
-        if (Index < 0 || Index >= SelfLength)
-        {
-            MDK_Error("Index is invalid @ DenseVector::SetSubSet(...)")
-
-            return false;
-        }
-
-        m_StdArray[Index] = SubSet[i];
-    }
-
-    return true;
-}
-
 
 // ------------------------------------------------------------------------------------------------------------//
 

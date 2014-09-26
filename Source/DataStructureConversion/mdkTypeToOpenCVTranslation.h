@@ -8,8 +8,7 @@
 namespace mdk
 {
 
-
-typedef enum
+enum struct OpenCVSingleChannelMatrixElementTypeEnum
 {
     DOUBLE64 = CV_64FC1,
     FLOAT32  = CV_32FC1,
@@ -23,7 +22,7 @@ typedef enum
     //UINT64 = CV_64UC1, undefined
 
 	UNKNOWN,
-}OpenCVSingleChannelMatrixElementTypeEnum;
+};
 
 //-------------------------------------------------------------//
 

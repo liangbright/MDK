@@ -10,7 +10,7 @@ void Test_Constructor()
 {
     using namespace mdk;
 
-    DenseVector<double, 3> A;
+	DenseVector<double, 3> A = { 1, 2, 3 };
 
     DenseVector<double> B;
 
@@ -27,26 +27,24 @@ void Test_GetSubSet()
 
     using namespace mdk;
 
-    DenseVector<double, 10> A;
-    A.Fill(1);
+	DenseVector<double, 10> A = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-    auto subA = A.GetSubSet(0, 1);
+    auto subA1 = A.GetSubSet(0, 1);
+	auto subA2 = A.GetSubSet(2, 3);
+	auto subA3 = A.GetSubSet(4, 9);
 
+	DisplayVector("A", A);
+	DisplayVector("subA1", subA1);
+	DisplayVector("subA2", subA2);
+	DisplayVector("subA3", subA3);
 
-    DenseVector<double> B;
-
-    B = A;
+	DenseVector<double> B = A;
 
     auto subB = B.GetSubSet(0, 1);
 
-
-    DenseVector<double, 10> C;
-
-    C = B;
+	DenseVector<double, 10> C = A;
 
     auto subC = C.GetSubSet(0, 1);
-
-    DisplayVector("subA", subA);
 
     DisplayVector("subB", subB);
 
@@ -63,24 +61,14 @@ void Test_Operator()
 
     DenseVector<double> B;
 
-    B = A;
+    B = A + 1.0;
 
     auto C = A*B;
-
-    DisplayVector("C", C);
-
     auto A1 = A * 2.0;
-
     auto B1 = B * 2.0;
 
+	DisplayVector("A1", A1);
+	DisplayVector("B1", B1);
+	DisplayVector("C", C);
 
-}
-
-void Test_DataArray_Vector()
-{
-    using namespace mdk;
-
-    DataArray<DenseVector<int_max, 2>> List;
-
-    List.FastResize(10);
 }

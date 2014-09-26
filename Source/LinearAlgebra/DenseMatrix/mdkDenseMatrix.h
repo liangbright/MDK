@@ -9,8 +9,6 @@
 #include <algorithm>
 #include <limits> 
 
-#include "mdkObjectArray.h"
-#include "mdkSimpleObjectArray.h"
 #include "mdkLinearAlgebraConfig.h"
 #include "mdkMatrix_Common.h"
 #include "mdkDenseVector.h"
@@ -173,16 +171,10 @@ public:
 
     inline DenseMatrix(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
-    inline DenseMatrix(const std::vector<ElementType>& InputVector);
-
 	template<int_max TemplateVectorLength>
-	inline DenseMatrix(const DenseVector<ElementType, TemplateVectorLength>& InputVector);
+	inline DenseMatrix(const DenseVector<ElementType, TemplateVectorLength>& InputRowVector);
 	// the above function can be used for variable length DenseVector
-	//inline DenseMatrix(const DenseVector<ElementType>& InputVector);
-
-    inline DenseMatrix(const ObjectArray<ElementType>& InputVector);
-
-    inline DenseMatrix(const SimpleObjectArray<ElementType>& InputVector);
+	//inline DenseMatrix(const DenseVector<ElementType>& InputRowVector);
 
     // deep-copy or shared-copy constructor
     inline DenseMatrix(const DenseMatrix<ElementType>& InputMatrix, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
@@ -223,16 +215,10 @@ public:
 
     inline void operator=(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
-    inline void operator=(const std::vector<ElementType>& InputVector);
-
 	template<int_max TemplateVectorLength>
-	inline void operator=(const DenseVector<ElementType, TemplateVectorLength>& InputVector);
+	inline void operator=(const DenseVector<ElementType, TemplateVectorLength>& InputRowVector);
 	// the above function can be used for variable length DenseVector
-	//inline void operator=(const DenseVector<ElementType>& InputVector);
-
-    inline void operator=(const ObjectArray<ElementType>& InputVector);
-
-    inline void operator=(const SimpleObjectArray<ElementType>& InputVector);
+	//inline void operator=(const DenseVector<ElementType>& InputRowVector);
 
     inline void operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix);
 
@@ -286,11 +272,9 @@ public:
     // m_MatrixData = InputMatrix.m_MatrixData;
 
     inline bool Share(DenseMatrix<ElementType>& InputMatrix);
-
     inline bool Share(DenseMatrix<ElementType>* InputMatrix);
 
     inline void ForceShare(const DenseMatrix<ElementType>& InputMatrix);
-
     inline bool ForceShare(const DenseMatrix<ElementType>* InputMatrix);
 
     // about const share: e.g., A.ConstShare(B), then A can only read (const functions) from B, and cant not write to B
@@ -339,25 +323,16 @@ public:
     //-------------------- Take -----------------------------------------------------------//
 
     //Take the data of the InputMatrix and Clear InputMatrix
-    // m_MatrixData->ObjectArray = std::move(InputMatrix.m_MatrixData->ObjectArray);
+    // m_MatrixData->StdVector = std::move(InputMatrix.m_MatrixData->StdVector);
 
     inline void Take(DenseMatrix<ElementType>&& InputMatrix);
-
     inline bool Take(DenseMatrix<ElementType>& InputMatrix);
-
     inline bool Take(DenseMatrix<ElementType>* InputMatrix);
 
     //Take the data of the InputRowVector and Clear InputRowVector
 
-    inline bool Take(std::vector<ElementType>&& InputRowVector);
-
-    inline bool Take(std::vector<ElementType>& InputRowVector);
-
+	inline bool Take(DenseVector<ElementType>&& InputRowVector);
     inline bool Take(DenseVector<ElementType>& InputRowVector);
-
-    inline bool Take(ObjectArray<ElementType>& InputRowVector);
-
-    inline bool Take(SimpleObjectArray<ElementType>& InputRowVector);
 
     //Take the Matrix Created from ShadowMatrix or GlueMatrix
 
@@ -491,13 +466,13 @@ public:
     inline DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& LinearIndexList);
     inline const DenseShadowMatrix<ElementType> operator()(const std::initializer_list<int_max>& LinearIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(std::vector<int_max> LinearIndexList);
-    inline const DenseShadowMatrix<ElementType> operator()(std::vector<int_max> LinearIndexList) const;
+	inline DenseShadowMatrix<ElementType> operator()(DenseVector<int_max> LinearIndexList);
+	inline const DenseShadowMatrix<ElementType> operator()(DenseVector<int_max> LinearIndexList) const;
 
-	template<int_max TemplateVectorLength>
-	inline DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList);
-	template<int_max TemplateVectorLength>
-	inline const DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList) const;
+	template<int_max VectorFixedLength>
+	inline DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max, VectorFixedLength>& LinearIndexList);
+	template<int_max VectorFixedLength>
+	inline const DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max, VectorFixedLength>& LinearIndexList) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& LinearIndexList);
     inline const DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& LinearIndexList) const;
@@ -510,13 +485,13 @@ public:
     inline DenseShadowMatrix<ElementType> at(const std::initializer_list<int_max>& LinearIndexList);
     inline const DenseShadowMatrix<ElementType> at(const std::initializer_list<int_max>& LinearIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> at(std::vector<int_max> LinearIndexList);
-    inline const DenseShadowMatrix<ElementType> at(std::vector<int_max> LinearIndexList) const;
+	inline DenseShadowMatrix<ElementType> at(DenseVector<int_max> LinearIndexList);
+	inline const DenseShadowMatrix<ElementType> at(DenseVector<int_max> LinearIndexList) const;
 
-	template<int_max TemplateVectorLength>
-	inline DenseShadowMatrix<ElementType> at(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList);
-	template<int_max TemplateVectorLength>
-	inline const DenseShadowMatrix<ElementType> at(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList) const;
+	template<int_max VectorFixedLength>
+	inline DenseShadowMatrix<ElementType> at(const DenseVector<int_max, VectorFixedLength>& LinearIndexList);
+	template<int_max VectorFixedLength>
+	inline const DenseShadowMatrix<ElementType> at(const DenseVector<int_max, VectorFixedLength>& LinearIndexList) const;
 
     inline DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& LinearIndexList);
     inline const DenseShadowMatrix<ElementType> at(const DenseMatrix<int_max>& LinearIndexList) const;
@@ -548,45 +523,45 @@ public:
 
     //-----------------------------------
 
-    inline DenseShadowMatrix<ElementType> operator()(std::vector<int_max> RowIndexList,
-                                                     std::vector<int_max> ColIndexList);
+	inline DenseShadowMatrix<ElementType> operator()(DenseVector<int_max> RowIndexList,
+                                                     DenseVector<int_max> ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> operator()(std::vector<int_max> RowIndexList,
-                                                           std::vector<int_max> ColIndexList) const;
+	inline const DenseShadowMatrix<ElementType> operator()(DenseVector<int_max> RowIndexList,
+                                                           DenseVector<int_max> ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> operator()(std::vector<int_max> RowIndexList,
+	inline DenseShadowMatrix<ElementType> operator()(DenseVector<int_max> RowIndexList,
                                                      const MDK_Symbol_ALL& ALL_Symbol);
 
-    inline const DenseShadowMatrix<ElementType> operator()(std::vector<int_max> RowIndexList,
+	inline const DenseShadowMatrix<ElementType> operator()(DenseVector<int_max> RowIndexList,
                                                            const MDK_Symbol_ALL& ALL_Symbol) const;
 
     inline DenseShadowMatrix<ElementType> operator()(const MDK_Symbol_ALL& ALL_Symbol,
-                                                     std::vector<int_max> ColIndexList);
+                                                     DenseVector<int_max> ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> operator()(const MDK_Symbol_ALL& ALL_Symbol,
-                                                           std::vector<int_max> ColIndexList) const;
+                                                           DenseVector<int_max> ColIndexList) const;
 
     //-----------------------------------
-	template<int_max TemplateVectorLengthA, int_max TemplateVectorLengthB>
-	inline DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max, TemplateVectorLengthA>& RowIndexList,
-                                                     const DenseVector<int_max, TemplateVectorLengthB>& ColIndexList);
-	template<int_max TemplateVectorLengthA, int_max TemplateVectorLengthB>
-	inline const DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max, TemplateVectorLengthA>& RowIndexList,
-                                                           const DenseVector<int_max, TemplateVectorLengthB>& ColIndexList) const;
+	template<int_max VectorFixedLengthA, int_max VectorFixedLengthB>
+	inline DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max, VectorFixedLengthA>& RowIndexList,
+                                                     const DenseVector<int_max, VectorFixedLengthB>& ColIndexList);
+	template<int_max VectorFixedLengthA, int_max VectorFixedLengthB>
+	inline const DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max, VectorFixedLengthA>& RowIndexList,
+                                                           const DenseVector<int_max, VectorFixedLengthB>& ColIndexList) const;
 
-	template<int_max TemplateVectorLength>
-	inline DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max, TemplateVectorLength>& RowIndexList,
+	template<int_max VectorFixedLength>
+	inline DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max, VectorFixedLength>& RowIndexList,
                                                      const MDK_Symbol_ALL& ALL_Symbol);
-	template<int_max TemplateVectorLength>
-	inline const DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max, TemplateVectorLength>& RowIndexList,
+	template<int_max VectorFixedLength>
+	inline const DenseShadowMatrix<ElementType> operator()(const DenseVector<int_max, VectorFixedLength>& RowIndexList,
                                                            const MDK_Symbol_ALL& ALL_Symbol) const;
 
-	template<int_max TemplateVectorLength>
+	template<int_max VectorFixedLength>
     inline DenseShadowMatrix<ElementType> operator()(const MDK_Symbol_ALL& ALL_Symbol,
-                                                     const DenseVector<int_max, TemplateVectorLength>& ColIndexList);
-	template<int_max TemplateVectorLength>
+                                                     const DenseVector<int_max, VectorFixedLength>& ColIndexList);
+	template<int_max VectorFixedLength>
     inline const DenseShadowMatrix<ElementType> operator()(const MDK_Symbol_ALL& ALL_Symbol,
-                                                           const DenseVector<int_max, TemplateVectorLength>& ColIndexList) const;
+                                                           const DenseVector<int_max, VectorFixedLength>& ColIndexList) const;
     //-----------------------------------
 
     inline DenseShadowMatrix<ElementType> operator()(const DenseMatrix<int_max>& RowIndexList,
@@ -629,44 +604,44 @@ public:
 
     //----------------------------------
 
-    inline DenseShadowMatrix<ElementType> at(std::vector<int_max> RowIndexList,
-                                             std::vector<int_max> ColIndexList);
+    inline DenseShadowMatrix<ElementType> at(DenseVector<int_max> RowIndexList,
+                                             DenseVector<int_max> ColIndexList);
 
-    inline const DenseShadowMatrix<ElementType> at(std::vector<int_max> RowIndexList,
-                                                   std::vector<int_max> ColIndexList) const;
+    inline const DenseShadowMatrix<ElementType> at(DenseVector<int_max> RowIndexList,
+                                                   DenseVector<int_max> ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> at(std::vector<int_max> RowIndexList,
+    inline DenseShadowMatrix<ElementType> at(DenseVector<int_max> RowIndexList,
                                              const MDK_Symbol_ALL& ALL_Symbol);
 
-    inline const DenseShadowMatrix<ElementType> at(std::vector<int_max> RowIndexList,
+    inline const DenseShadowMatrix<ElementType> at(DenseVector<int_max> RowIndexList,
                                                    const MDK_Symbol_ALL& ALL_Symbol) const;
 
     inline DenseShadowMatrix<ElementType> at(const MDK_Symbol_ALL& ALL_Symbol,
-                                             std::vector<int_max> ColIndexList);
+                                             DenseVector<int_max> ColIndexList);
 
     inline const DenseShadowMatrix<ElementType> at(const MDK_Symbol_ALL& ALL_Symbol,
-                                                   std::vector<int_max> ColIndexList) const;
+                                                   DenseVector<int_max> ColIndexList) const;
     //----------------------------------
-	template<int_max TemplateVectorLengthA, int_max TemplateVectorLengthB>
-	inline DenseShadowMatrix<ElementType> at(const DenseVector<int_max, TemplateVectorLengthA>& RowIndexList,
-                                             const DenseVector<int_max, TemplateVectorLengthB>& ColIndexList);
-	template<int_max TemplateVectorLengthA, int_max TemplateVectorLengthB>
-	inline const DenseShadowMatrix<ElementType> at(const DenseVector<int_max, TemplateVectorLengthA>& RowIndexList,
-                                                   const DenseVector<int_max, TemplateVectorLengthB>& ColIndexList) const;
+	template<int_max VectorFixedLengthA, int_max VectorFixedLengthB>
+	inline DenseShadowMatrix<ElementType> at(const DenseVector<int_max, VectorFixedLengthA>& RowIndexList,
+                                             const DenseVector<int_max, VectorFixedLengthB>& ColIndexList);
+	template<int_max VectorFixedLengthA, int_max VectorFixedLengthB>
+	inline const DenseShadowMatrix<ElementType> at(const DenseVector<int_max, VectorFixedLengthA>& RowIndexList,
+                                                   const DenseVector<int_max, VectorFixedLengthB>& ColIndexList) const;
 
-	template<int_max TemplateVectorLength>
-	inline DenseShadowMatrix<ElementType> at(const DenseVector<int_max, TemplateVectorLength>& RowIndexList,
+	template<int_max VectorFixedLength>
+	inline DenseShadowMatrix<ElementType> at(const DenseVector<int_max, VectorFixedLength>& RowIndexList,
                                              const MDK_Symbol_ALL& ALL_Symbol);
-	template<int_max TemplateVectorLength>
-	inline const DenseShadowMatrix<ElementType> at(const DenseVector<int_max, TemplateVectorLength>& RowIndexList,
+	template<int_max VectorFixedLength>
+	inline const DenseShadowMatrix<ElementType> at(const DenseVector<int_max, VectorFixedLength>& RowIndexList,
                                                    const MDK_Symbol_ALL& ALL_Symbol) const;
 
-	template<int_max TemplateVectorLength>
+	template<int_max VectorFixedLength>
     inline DenseShadowMatrix<ElementType> at(const MDK_Symbol_ALL& ALL_Symbol,
-                                             const DenseVector<int_max, TemplateVectorLength>& ColIndexList);
-	template<int_max TemplateVectorLength>
+                                             const DenseVector<int_max, VectorFixedLength>& ColIndexList);
+	template<int_max VectorFixedLength>
     inline const DenseShadowMatrix<ElementType> at(const MDK_Symbol_ALL& ALL_Symbol,
-                                                   const DenseVector<int_max, TemplateVectorLength>& ColIndexList) const;
+                                                   const DenseVector<int_max, VectorFixedLength>& ColIndexList) const;
 
     //----------------------------------
 
@@ -696,13 +671,13 @@ public:
     inline DenseShadowMatrix<ElementType> Col(const std::initializer_list<int_max>& ColIndexList);
     inline const DenseShadowMatrix<ElementType> Col(const std::initializer_list<int_max>& ColIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> Col(std::vector<int_max> ColIndexList);
-    inline const DenseShadowMatrix<ElementType> Col(std::vector<int_max> ColIndexList) const;
+    inline DenseShadowMatrix<ElementType> Col(DenseVector<int_max> ColIndexList);
+    inline const DenseShadowMatrix<ElementType> Col(DenseVector<int_max> ColIndexList) const;
 
-	template<int_max TemplateVectorLength>
-	inline DenseShadowMatrix<ElementType> Col(const DenseVector<int_max, TemplateVectorLength>& ColIndexList);
-	template<int_max TemplateVectorLength>
-	inline const DenseShadowMatrix<ElementType> Col(const DenseVector<int_max, TemplateVectorLength>& ColIndexList) const;
+	template<int_max VectorFixedLength>
+	inline DenseShadowMatrix<ElementType> Col(const DenseVector<int_max, VectorFixedLength>& ColIndexList);
+	template<int_max VectorFixedLength>
+	inline const DenseShadowMatrix<ElementType> Col(const DenseVector<int_max, VectorFixedLength>& ColIndexList) const;
 
     inline DenseShadowMatrix<ElementType> Col(const DenseMatrix<int_max>& ColIndexList);
     inline const DenseShadowMatrix<ElementType> Col(const DenseMatrix<int_max>& ColIndexList) const;
@@ -715,13 +690,13 @@ public:
     inline DenseShadowMatrix<ElementType> Row(const std::initializer_list<int_max>& RowIndexList);
     inline const DenseShadowMatrix<ElementType> Row(const std::initializer_list<int_max>& RowIndexList) const;
 
-    inline DenseShadowMatrix<ElementType> Row(std::vector<int_max> RowIndexList);
-    inline const DenseShadowMatrix<ElementType> Row(std::vector<int_max> RowIndexList) const;
+    inline DenseShadowMatrix<ElementType> Row(DenseVector<int_max> RowIndexList);
+    inline const DenseShadowMatrix<ElementType> Row(DenseVector<int_max> RowIndexList) const;
 
-	template<int_max TemplateVectorLength>
-	inline DenseShadowMatrix<ElementType> Row(const DenseVector<int_max, TemplateVectorLength>& RowIndexList);
-	template<int_max TemplateVectorLength>
-	inline const DenseShadowMatrix<ElementType> Row(const DenseVector<int_max, TemplateVectorLength>& RowIndexList) const;
+	template<int_max VectorFixedLength>
+	inline DenseShadowMatrix<ElementType> Row(const DenseVector<int_max, VectorFixedLength>& RowIndexList);
+	template<int_max VectorFixedLength>
+	inline const DenseShadowMatrix<ElementType> Row(const DenseVector<int_max, VectorFixedLength>& RowIndexList) const;
 
     inline DenseShadowMatrix<ElementType> Row(const DenseMatrix<int_max>& RowIndexList);
     inline const DenseShadowMatrix<ElementType> Row(const DenseMatrix<int_max>& RowIndexList) const;
@@ -746,8 +721,6 @@ public:
     // else, return row vector
 
     inline DenseMatrix GetSubMatrix(const std::initializer_list<int_max>& LinearIndexList) const;
-
-    inline DenseMatrix GetSubMatrix(const std::vector<int_max>& LinearIndexList) const;
 
 	template<int_max TemplateVectorLength>
 	inline DenseMatrix GetSubMatrix(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList) const;
@@ -778,29 +751,6 @@ public:
     inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
                              const MDK_Symbol_ALL& ALL_Symbol,
                              const std::initializer_list<int_max>& ColIndexList) const;
-
-    //-----------------------------
-
-    inline DenseMatrix GetSubMatrix(const std::vector<int_max>& RowIndexList,
-                                    const std::vector<int_max>& ColIndexList) const;
-
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
-                             const std::vector<int_max>& RowIndexList,
-                             const std::vector<int_max>& ColIndexList) const;
-
-    inline DenseMatrix GetSubMatrix(const std::vector<int_max>& RowIndexList,
-                                    const MDK_Symbol_ALL& ALL_Symbol) const;
-
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
-                             const std::vector<int_max>& RowIndexList,
-                             const MDK_Symbol_ALL& ALL_Symbol) const;
-
-    inline DenseMatrix GetSubMatrix(const MDK_Symbol_ALL& ALL_Symbol, 
-                                    const std::vector<int_max>& ColIndexList) const;
-
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
-                             const MDK_Symbol_ALL& ALL_Symbol,
-                             const std::vector<int_max>& ColIndexList) const;
 
     //-----------------------------
 	template<int_max TemplateVectorLengthA, int_max TemplateVectorLengthB>
@@ -877,10 +827,8 @@ public:
 	
     inline DenseMatrix GetCol(int_max ColIndex) const;
 
-    inline bool GetCol(int_max ColIndex, std::vector<ElementType>& ColData) const;
-
-	template<int_max TemplateVectorLength>
-	inline bool GetCol(int_max ColIndex, DenseVector<ElementType, TemplateVectorLength>& ColData) const;
+	template<int_max VectorFixedLength>
+	inline bool GetCol(int_max ColIndex, DenseVector<ElementType, VectorFixedLength>& ColData) const;
 	// must use different GetCol for variable and fixed length DenseVector
 	inline bool GetCol(int_max ColIndex, DenseVector<ElementType>& ColData) const;
 
@@ -890,9 +838,6 @@ public:
 
     template<typename ElementType_Input>
     inline bool SetCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData);
-
-    template<typename ElementType_Input>
-    inline bool SetCol(int_max ColIndex, const std::vector<ElementType_Input>& ColData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
 	inline bool SetCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColData);
@@ -907,9 +852,6 @@ public:
 
     template<typename ElementType_Input>
     inline bool AppendCol(const std::initializer_list<ElementType_Input>& ColData);
-
-    template<typename ElementType_Input>
-    inline bool AppendCol(const std::vector<ElementType_Input>& ColData);
 
     template<typename ElementType_Input, int_max TemplateVectorLength>
 	inline bool AppendCol(const DenseVector<ElementType_Input, TemplateVectorLength>& ColData);
@@ -927,7 +869,7 @@ public:
 
     inline bool DeleteCol(const std::initializer_list<int_max>& ColIndexList);
 
-    inline bool DeleteCol(const std::vector<int_max>& ColIndexList);
+    inline bool DeleteCol(const DenseVector<int_max>& ColIndexList);
 
 	template<int_max TemplateVectorLength>
 	inline bool DeleteCol(const DenseVector<int_max, TemplateVectorLength>& ColIndexList);
@@ -938,9 +880,6 @@ public:
 
     template<typename ElementType_Input>
     inline bool InsertCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData);
-
-    template<typename ElementType_Input>
-    inline bool InsertCol(int_max ColIndex, const std::vector<ElementType_Input>& ColData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
 	inline bool InsertCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColData);
@@ -958,8 +897,6 @@ public:
 	
     inline DenseMatrix GetRow(int_max RowIndex) const;
 
-    inline bool GetRow(int_max RowIndex, std::vector<ElementType>& RowData) const;
-
 	template<int_max TemplateVectorLength>
 	inline bool GetRow(int_max RowIndex, DenseVector<ElementType, TemplateVectorLength>& RowData) const;
 	// muse use different GetRow
@@ -971,9 +908,6 @@ public:
 
     template<typename ElementType_Input>
     inline bool SetRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData);
-
-    template<typename ElementType_Input>
-    inline bool SetRow(int_max RowIndex, const std::vector<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
 	inline bool SetRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowData);
@@ -988,9 +922,6 @@ public:
 
     template<typename ElementType_Input>
     inline bool AppendRow(const std::initializer_list<ElementType_Input>& RowData);
-
-    template<typename ElementType_Input>
-    inline bool AppendRow(const std::vector<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
 	inline bool AppendRow(const DenseVector<ElementType_Input, TemplateVectorLength>& RowData);
@@ -1008,8 +939,6 @@ public:
 
     inline bool DeleteRow(const std::initializer_list<int_max>& RowIndexList);
 
-    inline bool DeleteRow(const std::vector<int_max>& RowIndexList);
-
 	template<int_max TemplateVectorLength>
 	inline bool DeleteRow(const DenseVector<int_max, TemplateVectorLength>& RowIndexList);
 
@@ -1019,9 +948,6 @@ public:
 
     template<typename ElementType_Input>
     inline bool InsertRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData);
-
-    template<typename ElementType_Input>
-    inline bool InsertRow(int_max RowIndex, const std::vector<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
 	inline bool InsertRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowData);
@@ -1044,9 +970,6 @@ public:
     template<typename ElementType_Input>
     inline bool Append(const std::initializer_list<ElementType_Input>& ElementData);
 
-    template<typename ElementType_Input>
-    inline bool Append(const std::vector<ElementType_Input>& ElementData);
-
 	template<typename ElementType_Input, int_max TemplateVectorLength>
 	inline bool Append(const DenseVector<ElementType_Input, TemplateVectorLength>& ElementData);
 
@@ -1060,8 +983,6 @@ public:
 
     inline bool Delete(const std::initializer_list<int_max>& LinearIndexList);
 
-    inline bool Delete(const std::vector<int_max>& LinearIndexList);
-
 	template<int_max TemplateVectorLength>
 	inline bool Delete(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList);
 
@@ -1073,9 +994,6 @@ public:
 
     template<typename ElementType_Input>
     inline bool Insert(int_max LinearIndex, const std::initializer_list<ElementType_Input>& ElementData);
-
-    template<typename ElementType_Input>
-    inline bool Insert(int_max LinearIndex, const std::vector<ElementType_Input>& ElementData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
 	inline bool Insert(int_max LinearIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ElementData);
@@ -1090,7 +1008,10 @@ public:
 
     inline DenseMatrix GetDiagonal() const;
 
-    inline bool GetDiagonal(std::vector<ElementType>& DiagonalData) const;
+	template<int_max VectorFixedLength>
+	inline bool GetDiagonal(DenseVector<ElementType, VectorFixedLength>& RowData) const;
+	// muse use different GetDiagonal
+	inline bool GetDiagonal(DenseVector<ElementType>& RowData) const;
 
     inline bool GetDiagonal(DenseMatrix<ElementType>& DiagonalData) const;
 
@@ -1098,9 +1019,6 @@ public:
 
     template<typename ElementType_Input>
     inline bool SetDiagonal(const std::initializer_list<ElementType_Input>& DiagonalData);
-
-    template<typename ElementType_Input>
-    inline bool SetDiagonal(const std::vector<ElementType_Input>& DiagonalData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
 	inline bool SetDiagonal(const DenseVector<ElementType_Input, TemplateVectorLength>& DiagonalData);

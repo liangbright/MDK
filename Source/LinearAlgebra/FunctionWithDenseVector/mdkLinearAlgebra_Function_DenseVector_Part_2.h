@@ -2,14 +2,10 @@
 #define __mdkLinearAlgebra_Function_DenseVector_Part_2_h
 
 #include "mdkType.h"
+#include "mdkDenseVector_ForwardDeclare.h"
 
 namespace mdk
 {
-
-//forward-declare ----------------//
-template<typename ElementType, int_max Length>
-class DenseVector;
-//-------------------------------------//
 
 // note:
 // if Length is -1, then it is DenseVector with Variable Length

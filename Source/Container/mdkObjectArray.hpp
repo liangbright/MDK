@@ -80,7 +80,7 @@ std::vector<ElementType>& ObjectArray<ElementType>::StdVector()
 {
     m_Data->CopyDataToInternalObjectArrayIfNecessary();
     m_ElementPointer = m_Data->ElementPointer;
-    return m_Data->ObjectArray;
+    return m_Data->StdVector;
 }
 
 
@@ -90,7 +90,7 @@ const std::vector<ElementType>& ObjectArray<ElementType>::StdVector() const
 {
     m_Data->CopyDataToInternalObjectArrayIfNecessary();
     m_ElementPointer = m_Data->ElementPointer;
-    return m_Data->ObjectArray;
+    return m_Data->StdVector;
 }
 
 
@@ -167,7 +167,7 @@ void ObjectArray<ElementType>::operator=(const std::vector<ElementType>& InputAr
 
 template<typename ElementType>
 inline
-bool Copy(const std::vector<ElementType>& InputArray)
+bool ObjectArray<ElementType>::Copy(const std::vector<ElementType>& InputArray)
 {
 	return this->Copy(InputArray.begin(), int_max(InputArray.size()));
 }
@@ -175,14 +175,15 @@ bool Copy(const std::vector<ElementType>& InputArray)
 
 template<typename ElementType>
 inline
-bool Copy(const SimpleObjectArray<ElementType>& InputArray)
+bool ObjectArray<ElementType>::Copy(const SimpleObjectArray<ElementType>& InputArray)
 {
 	return this->Copy(InputArray.GetElementPointer(), InputArray.GetLength());
 }
 
 
 template<typename ElementType>
-inline bool Copy(const SimpleObjectArray<ElementType>* InputArray)
+inline
+bool ObjectArray<ElementType>::Copy(const SimpleObjectArray<ElementType>* InputArray)
 {
 	if (InputArray == nullptr)
 	{
@@ -402,8 +403,8 @@ bool ObjectArray<ElementType>::Share(ElementType* InputElementPointer, int_max I
 
     m_Data->Length = InputLength;
 
-    m_Data->ObjectArray.clear();
-    m_Data->ObjectArray.shrink_to_fit();
+    m_Data->StdVector.clear();
+    m_Data->StdVector.shrink_to_fit();
 
     m_Data->ElementPointer = InputElementPointer;
 
@@ -480,7 +481,7 @@ bool ObjectArray<ElementType>::Take(ObjectArray<ElementType>& InputArray)
     
     //note: m_Data.swap(InputArray.m_Data) will invalidate Share()
 
-    m_Data->ObjectArray = std::move(InputArray.m_Data->ObjectArray);
+	m_Data->StdVector = std::move(InputArray.m_Data->StdVector);
     m_Data->ElementPointer = InputArray.m_Data->ElementPointer;
     m_Data->Length = InputArray.m_Data->Length;
 
@@ -537,8 +538,8 @@ void ObjectArray<ElementType>::Clear()
 
     m_Data->Length = 0;
 
-    m_Data->ObjectArray.clear();         // change size
-    m_Data->ObjectArray.shrink_to_fit(); // release memory
+    m_Data->StdVector.clear();         // change size
+    m_Data->StdVector.shrink_to_fit(); // release memory
 
     m_Data->ElementPointer = nullptr;
 
@@ -581,8 +582,8 @@ try
 
     m_Data->CopyDataToInternalObjectArrayIfNecessary();
 
-    m_Data->ObjectArray.resize(InputLength);
-    m_Data->ElementPointer = m_Data->ObjectArray.data();
+    m_Data->StdVector.resize(InputLength);
+    m_Data->ElementPointer = m_Data->StdVector.data();
     m_Data->Length = InputLength;
     m_ElementPointer = m_Data->ElementPointer;
 }
@@ -590,8 +591,8 @@ catch (...)
 {
     MDK_Error("Out of Memory @ ObjectArray::Resize(int_max InputLength)")
 
-    m_Data->ElementPointer = m_Data->ObjectArray.data();
-    m_Data->Length = int_max(m_Data->ObjectArray.size());
+    m_Data->ElementPointer = m_Data->StdVector.data();
+	m_Data->Length = int_max(m_Data->StdVector.size());
     m_ElementPointer = m_Data->ElementPointer;
 
     return false;
@@ -632,15 +633,15 @@ try
 {
     if (InputLength != SelfLength)
     {
-        if (InputLength > int_max(m_Data->ObjectArray.capacity()))
+		if (InputLength > int_max(m_Data->StdVector.capacity()))
         {
-            m_Data->ObjectArray.clear();
+            m_Data->StdVector.clear();
         }
 
-        m_Data->ObjectArray.resize(InputLength);
+        m_Data->StdVector.resize(InputLength);
     }
    
-    m_Data->ElementPointer = m_Data->ObjectArray.data();
+    m_Data->ElementPointer = m_Data->StdVector.data();
     m_Data->Length = InputLength;
     m_ElementPointer = m_Data->ElementPointer;
 }
@@ -648,8 +649,8 @@ catch (...)
 {
     MDK_Error("Out of Memory @ ObjectArray::FastResize(int_max InputLength)")
 
-    m_Data->ElementPointer = m_Data->ObjectArray.data();
-    m_Data->Length = int_max(m_Data->ObjectArray.size());
+    m_Data->ElementPointer = m_Data->StdVector.data();
+    m_Data->Length = int_max(m_Data->StdVector.size());
     m_ElementPointer = m_Data->ElementPointer;
 
     return false;
@@ -674,8 +675,8 @@ try
 
     if (InputElementNumber > SelfLength)
     {
-        m_Data->ObjectArray.reserve(InputElementNumber);
-        m_Data->ElementPointer = m_Data->ObjectArray.data();
+        m_Data->StdVector.reserve(InputElementNumber);
+        m_Data->ElementPointer = m_Data->StdVector.data();
         m_ElementPointer = m_Data->ElementPointer;
     }
 }
@@ -698,8 +699,8 @@ void ObjectArray<ElementType>::ReleaseUnusedCapacity()
         return;
     }
 
-    m_Data->ObjectArray.shrink_to_fit();
-    m_Data->ElementPointer = m_Data->ObjectArray.data();
+    m_Data->StdVector.shrink_to_fit();
+    m_Data->ElementPointer = m_Data->StdVector.data();
     m_ElementPointer = m_Data->ElementPointer;
 }
 
@@ -1086,7 +1087,7 @@ bool ObjectArray<ElementType>::Append(const ElementType* InputArray, int_max Inp
 
     for (int_max i = SelfLength; i < SelfLength + InputLength; ++i)
     {
-        m_Data->ObjectArray[i] = InputArray[i - SelfLength];
+        m_Data->StdVector[i] = InputArray[i - SelfLength];
     }
 
     return true;
@@ -1184,11 +1185,11 @@ bool ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
 
     if (ListLength == 1)
     {
-        m_Data->ObjectArray.erase(m_Data->ObjectArray.begin() + IndexList[0], m_Data->ObjectArray.begin() + IndexList[0] + 1);
+        m_Data->StdVector.erase(m_Data->StdVector.begin() + IndexList[0], m_Data->StdVector.begin() + IndexList[0] + 1);
 
         m_Data->Length -= 1;
 
-        m_Data->ElementPointer = m_Data->ObjectArray.data();
+        m_Data->ElementPointer = m_Data->StdVector.data();
 
         m_ElementPointer = m_Data->ElementPointer;
     }
@@ -1215,7 +1216,7 @@ bool ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
             }
             else
             {
-                m_Data->ObjectArray.erase(m_Data->ObjectArray.begin() + Index_i, m_Data->ObjectArray.begin() + Index_i + 1);
+                m_Data->StdVector.erase(m_Data->StdVector.begin() + Index_i, m_Data->StdVector.begin() + Index_i + 1);
 
                 Index_prev = Index_i;
 
@@ -1223,7 +1224,7 @@ bool ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
             }
         }
 
-        m_Data->ElementPointer = m_Data->ObjectArray.data();
+        m_Data->ElementPointer = m_Data->StdVector.data();
 
         m_ElementPointer = m_Data->ElementPointer;
     }
@@ -1260,11 +1261,11 @@ bool ObjectArray<ElementType>::Delete(int_max Index_start, int_max Index_end)
 
     m_Data->CopyDataToInternalObjectArrayIfNecessary();
 
-    m_Data->ObjectArray.erase(m_Data->ObjectArray.begin() + Index_start, m_Data->ObjectArray.begin() + Index_end + 1);
+    m_Data->StdVector.erase(m_Data->StdVector.begin() + Index_start, m_Data->StdVector.begin() + Index_end + 1);
     
     m_Data->Length -= Index_end - Index_start + 1;
 
-    m_Data->ElementPointer = m_Data->ObjectArray.data();
+    m_Data->ElementPointer = m_Data->StdVector.data();
 
     m_ElementPointer = m_Data->ElementPointer;
 
@@ -1348,11 +1349,11 @@ bool ObjectArray<ElementType>::Insert(int_max Index, const ElementType* InputArr
 
     m_Data->CopyDataToInternalObjectArrayIfNecessary();
 
-    m_Data->ObjectArray.insert(m_Data->ObjectArray.begin() + Index, InputArray, InputArray + InputLength);
+    m_Data->StdVector.insert(m_Data->StdVector.begin() + Index, InputArray, InputArray + InputLength);
 
     m_Data->Length = InputLength;
 
-    m_Data->ElementPointer = m_Data->ObjectArray.data();
+    m_Data->ElementPointer = m_Data->StdVector.data();
 
     m_ElementPointer = m_Data->ElementPointer;
 
@@ -1362,7 +1363,7 @@ bool ObjectArray<ElementType>::Insert(int_max Index, const ElementType* InputArr
 
 template<typename ElementType>
 inline 
-bool ObjectArray<ElementType>::Push(ElementType Element)
+bool ObjectArray<ElementType>::PushBack(ElementType Element)
 {
     return this->Append(std::move(Element));
 }
@@ -1370,7 +1371,7 @@ bool ObjectArray<ElementType>::Push(ElementType Element)
 
 template<typename ElementType>
 inline
-ElementType ObjectArray<ElementType>::Pop()
+ElementType ObjectArray<ElementType>::PopBack()
 {
     auto OutputElement = ElementType(0);
 
@@ -1386,7 +1387,7 @@ ElementType ObjectArray<ElementType>::Pop()
     }
     else
     {
-        MDK_Error("Self is empty @ ObjectArray::Pop()")
+        MDK_Error("Self is empty @ ObjectArray::PopBack()")
     }
    
     return OutputElement;

@@ -30,7 +30,7 @@ class SimpleObjectArray;
 template<typename ElementType>
 struct ObjectArrayData
 {
-    std::vector<ElementType> ObjectArray;
+    std::vector<ElementType> StdVector;
 
     int_max Length;
 
@@ -53,7 +53,7 @@ struct ObjectArrayData
 
     void CopyDataToInternalObjectArrayIfNecessary()
     {
-        if (ElementPointer != ObjectArray.data())
+		if (ElementPointer != StdVector.data())
         {
             if (ElementPointer == nullptr)
             {
@@ -61,14 +61,14 @@ struct ObjectArrayData
                 return;
             }
 
-            ObjectArray.resize(Length);
+			StdVector.resize(Length);
 
             for (int_max i = 0; i < Length; ++i)
             {
-                ObjectArray[i] = ElementPointer[i];
+				StdVector[i] = ElementPointer[i];
             }
 
-            ElementPointer = ObjectArray.data();
+			ElementPointer = StdVector.data();
         }
     }
 
@@ -304,9 +304,9 @@ public:
 
     //------------- use ObjectArray as a stack ----------------------------//
 
-    inline bool Push(ElementType Element);
+	inline bool PushBack(ElementType Element);
 
-    inline ElementType Pop();
+    inline ElementType PopBack();
 
     //----------------------- Get a subset ------------------------------//
 

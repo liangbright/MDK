@@ -110,7 +110,7 @@ int main()
 
     //Test_SubMatrix();
 
-    Test_ShadowMatrix();
+    //Test_ShadowMatrix();
    
    // Test_ShadowMatrix_Const();
 
@@ -141,6 +141,8 @@ int main()
     //Test_unique();
 
  //   Test_SortCol();
+
+	Test_DenseMatrix_DenseVector_ObjectArray();
 
     std::system("pause");
 

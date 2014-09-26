@@ -1,13 +1,14 @@
 #ifndef __mdkMatrix_Common_h
 #define __mdkMatrix_Common_h
 
-#include <vector>
+//#include <vector>
 #include <iomanip>
 
 #include "mdkDebugConfig.h"
 #include "mdkOSPlatformConfig.h"
 #include "mdkType.h"
 #include "mdkSymbol.h"
+#include "mdkDenseVectorWithVariableLength.h"
 
 namespace mdk
 {
@@ -49,8 +50,8 @@ struct MatrixSize
 
 //-----------------------------------span: e.g., span(1,10) is 1:10 in Matlab, or span(1, 2, 10) is 1:2:10 in Matlab -----------------//
 
-inline std::vector<int_max> span(int_max Index_A, int_max Index_B);
-inline std::vector<int_max> span(int_max Index_A, int_max Step, int_max Index_B);
+inline DenseVector<int_max> span(int_max Index_A, int_max Index_B);
+inline DenseVector<int_max> span(int_max Index_A, int_max Step, int_max Index_B);
 
 //------------------------------------------------------------//
 

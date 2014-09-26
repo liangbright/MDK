@@ -26,13 +26,13 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix()
 
 template<typename ElementType>
 inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const std::initializer_list<int_max>& LinearIndexList)
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& SourceMatrix, const std::initializer_list<int_max>& LinearIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}), A is a matrix    
     // the constructed ShadowMatrix is a col-vector
 
-    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
     m_LinearIndexList_source = LinearIndexList;
 
@@ -56,7 +56,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& SourceMatrix,
                                                   const std::initializer_list<int_max>& RowIndexList,
                                                   const std::initializer_list<int_max>& ColIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
@@ -64,11 +64,11 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, {0, 1}), A is a matrix    
 
-    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
-    auto RowNumber_source = sourceMatrix.GetRowNumber();
+    auto RowNumber_source = SourceMatrix.GetRowNumber();
 
-    auto ColNumber_source = sourceMatrix.GetColNumber();
+    auto ColNumber_source = SourceMatrix.GetColNumber();
 
     m_RowIndexList_source = RowIndexList;
 
@@ -94,7 +94,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& SourceMatrix,
                                                   const std::initializer_list<int_max>& RowIndexList,
                                                   const MDK_Symbol_ALL& ALL_Symbol)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
@@ -102,11 +102,11 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, ALL), A is a matrix    
 
-    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
-    auto RowNumber_source = sourceMatrix.GetRowNumber();
+    auto RowNumber_source = SourceMatrix.GetRowNumber();
 
-    auto ColNumber_source = sourceMatrix.GetColNumber();
+    auto ColNumber_source = SourceMatrix.GetColNumber();
 
     m_RowIndexList_source = RowIndexList;
 
@@ -137,7 +137,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& SourceMatrix,
                                                   const MDK_Symbol_ALL& ALL_Symbol,
                                                   const std::initializer_list<int_max>& ColIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
@@ -145,11 +145,11 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A(ALL, {0, 1, 2}), A is a matrix    
 
-    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
-    auto RowNumber_source = sourceMatrix.GetRowNumber();
+    auto RowNumber_source = SourceMatrix.GetRowNumber();
 
-    auto ColNumber_source = sourceMatrix.GetColNumber();
+    auto ColNumber_source = SourceMatrix.GetColNumber();
 
     m_RowIndexList_source.resize(RowNumber_source);
 
@@ -180,13 +180,13 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, std::vector<int_max> LinearIndexList)
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& SourceMatrix, std::vector<int_max> LinearIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}), A is a matrix    
     // the constructed ShadowMatrix is a col-vector
 
-    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
     m_LinearIndexList_source = std::move(LinearIndexList);
 
@@ -210,7 +210,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& SourceMatrix,
                                                   std::vector<int_max> RowIndexList,
                                                   std::vector<int_max> ColIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
@@ -218,11 +218,11 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, {0, 1}), A is a matrix    
 
-    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
-    auto RowNumber_source = sourceMatrix.GetRowNumber();
+    auto RowNumber_source = SourceMatrix.GetRowNumber();
 
-    auto ColNumber_source = sourceMatrix.GetColNumber();
+    auto ColNumber_source = SourceMatrix.GetColNumber();
 
     m_RowIndexList_source = std::move(RowIndexList);
 
@@ -248,7 +248,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& SourceMatrix,
                                                   std::vector<int_max> RowIndexList,
                                                   const MDK_Symbol_ALL& ALL_Symbol)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
@@ -256,11 +256,11 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, ALL), A is a matrix    
 
-    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
-    auto RowNumber_source = sourceMatrix.GetRowNumber();
+    auto RowNumber_source = SourceMatrix.GetRowNumber();
 
-    auto ColNumber_source = sourceMatrix.GetColNumber();
+    auto ColNumber_source = SourceMatrix.GetColNumber();
 
     m_RowIndexList_source = std::move(RowIndexList);
 
@@ -291,7 +291,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
 template<typename ElementType>
 inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& SourceMatrix,
                                                   const MDK_Symbol_ALL& ALL_Symbol,
                                                   std::vector<int_max> ColIndexList)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
@@ -299,11 +299,11 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
     // all the indexes in RowIndexList and ColIndexList are within bound
     // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A(ALL, {0, 1, 2}), A is a matrix    
 
-    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
+    m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
-    auto RowNumber_source = sourceMatrix.GetRowNumber();
+    auto RowNumber_source = SourceMatrix.GetRowNumber();
 
-    auto ColNumber_source = sourceMatrix.GetColNumber();
+    auto ColNumber_source = SourceMatrix.GetColNumber();
 
     m_ColIndexList_source = std::move(ColIndexList);
 
@@ -332,199 +332,18 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 }
 
 
-
 template<typename ElementType>
 inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const DenseMatrix<int_max>& LinearIndexList)
+DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& SourceMatrix, const MDK_Symbol_ALL& ALL_Symbol)
 : m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
 {
-    // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}), A is a matrix    
-    // the constructed ShadowMatrix is a col-vector
-
-    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
-
-    m_LinearIndexList_source.resize(LinearIndexList.GetElementNumber());
-
-    for (int_max i = 0; i < LinearIndexList.GetElementNumber(); ++i)
-    {
-        m_LinearIndexList_source[i] = LinearIndexList[i];
-    }
+    m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
     m_Flag_OutputVector = true;
 
-    //-----------------------------------------------
+    auto RowNumber_source = SourceMatrix.GetRowNumber();
 
-    m_ElementNumber = m_LinearIndexList_source.size();
-
-    m_RowNumber = m_ElementNumber;
-
-    m_ColNumber = 1;
-
-    m_Flag_All_Row = false;
-
-    m_Flag_All_Col = false;
-
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
-}
-
-
-template<typename ElementType>
-inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                  const DenseMatrix<int_max>& RowIndexList,
-                                                  const DenseMatrix<int_max>& ColIndexList)
-: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
-{
-    // all the indexes in RowIndexList and ColIndexList are within bound
-    // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, {0, 1}), A is a matrix    
-
-    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
-
-    auto RowNumber_source = sourceMatrix.GetRowNumber();
-
-    auto ColNumber_source = sourceMatrix.GetColNumber();
-
-    m_RowIndexList_source.resize(RowIndexList.GetElementNumber());
-
-    for (int_max i = 0; i < RowIndexList.GetElementNumber(); ++i)
-    {
-        m_RowIndexList_source[i] = RowIndexList[i];
-    }
-
-    m_ColIndexList_source.resize(ColIndexList.GetElementNumber());
-
-    for (int_max i = 0; i < ColIndexList.GetElementNumber(); ++i)
-    {
-        m_ColIndexList_source[i] = ColIndexList[i];
-    }
-
-    m_Flag_OutputVector = false;
-
-    //-----------------------------------------------
-
-    m_RowNumber = m_RowIndexList_source.size();
-
-    m_ColNumber = m_ColIndexList_source.size();
-
-    m_ElementNumber = m_RowNumber*m_ColNumber;
-
-    m_Flag_All_Row = false;
-
-    m_Flag_All_Col = false;
-
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
-}
-
-
-template<typename ElementType>
-inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                  const DenseMatrix<int_max>& RowIndexList,
-                                                  const MDK_Symbol_ALL& ALL_Symbol)
-: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
-{
-    // all the indexes in RowIndexList and ColIndexList are within bound
-    // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A({1, 2, 3}, ALL), A is a matrix    
-
-    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
-
-    auto RowNumber_source = sourceMatrix.GetRowNumber();
-
-    auto ColNumber_source = sourceMatrix.GetColNumber();
-
-    m_RowIndexList_source.resize(RowIndexList.GetElementNumber());
-
-    for (int_max i = 0; i < RowIndexList.GetElementNumber(); ++i)
-    {
-        m_RowIndexList_source[i] = RowIndexList[i];
-    }
-
-    m_ColIndexList_source.resize(ColNumber_source);
-
-    for (int_max i = 0; i < ColNumber_source; ++i)
-    {
-        m_ColIndexList_source[i] = i;    
-    }
-
-    m_Flag_OutputVector = false;
-
-    //------------------------------------------
-
-    m_RowNumber = m_RowIndexList_source.size();
-
-    m_ColNumber = m_ColIndexList_source.size();
-
-    m_ElementNumber = m_RowNumber*m_ColNumber;
-
-    m_Flag_All_Row = false;
-
-    m_Flag_All_Col = true;
-
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
-}
-
-
-template<typename ElementType>
-inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix,
-                                                  const MDK_Symbol_ALL& ALL_Symbol,
-                                                  const DenseMatrix<int_max>& ColIndexList)
-: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
-{
-    // all the indexes in RowIndexList and ColIndexList are within bound
-    // bound check is performed in mdkDenseMatrix when calling the operator(), e.g., A(ALL, {0, 1, 2}), A is a matrix    
-
-    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
-
-    auto RowNumber_source = sourceMatrix.GetRowNumber();
-
-    auto ColNumber_source = sourceMatrix.GetColNumber();
-
-    m_RowIndexList_source.resize(RowNumber_source);
-
-    for (int_max i = 0; i < RowNumber_source; ++i)
-    {
-        m_RowIndexList_source[i] = i;
-    }
-
-    m_ColIndexList_source.resize(ColIndexList.GetElementNumber());
-
-    for (int_max i = 0; i < ColIndexList.GetElementNumber(); ++i)
-    {
-        m_ColIndexList_source[i] = ColIndexList[i];
-    }
-
-    m_Flag_OutputVector = false;
-
-    //-------------------------------------------
-
-    m_RowNumber = m_RowIndexList_source.size();
-
-    m_ColNumber = m_ColIndexList_source.size();
-
-    m_ElementNumber = m_RowNumber*m_ColNumber;
-
-    m_Flag_All_Row = true;
-
-    m_Flag_All_Col = true;
-
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
-}
-
-
-
-template<typename ElementType>
-inline
-DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>& sourceMatrix, const MDK_Symbol_ALL& ALL_Symbol)
-: m_SourceMatrixSharedCopy(MDK_PURE_EMPTY_MATRIX)
-{
-    m_SourceMatrixSharedCopy.ForceShare(sourceMatrix);
-
-    m_Flag_OutputVector = true;
-
-    auto RowNumber_source = sourceMatrix.GetRowNumber();
-
-    auto ColNumber_source = sourceMatrix.GetColNumber();
+    auto ColNumber_source = SourceMatrix.GetColNumber();
 
     m_ColIndexList_source.resize(ColNumber_source);
 

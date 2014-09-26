@@ -4,14 +4,10 @@
 #include <array>
 
 #include "mdkType.h"
+#include "mdkDenseVector_ForwardDeclare.h"
 
 namespace mdk
 {
-
-//forward-declare ----------------//
-template<typename ElementType, int_max Length>
-class DenseVector;
-//-------------------------------------//
 
 // note:
 // if Length is -1, then it is DenseVector with Variable Length
@@ -20,11 +16,11 @@ class DenseVector;
 // do not use L as vector Length
 
 template<typename ElementType, int_max L>
-inline DenseVector<int_max, -1> FindUniqueElementInVector(const DenseVector<ElementType, L>& Vector);
+inline DenseVector<int_max> FindUniqueElementInVector(const DenseVector<ElementType, L>& InputVector);
 
 //SpecialCompareFunction(a, b) return {-1, 0, 1} as {a < b, a = b, a > b}
 template<typename ElementType, int_max L, typename SpecialCompareFunctionType>
-inline DenseVector<int_max, -1> FindUniqueElementInVector(const DenseVector<ElementType, L>& Vector, SpecialCompareFunctionType SpecialCompareFunction);
+inline DenseVector<int_max> FindUniqueElementInVector(const DenseVector<ElementType, L>& InputVector, SpecialCompareFunctionType SpecialCompareFunction);
 
 }// namespace mdk
 

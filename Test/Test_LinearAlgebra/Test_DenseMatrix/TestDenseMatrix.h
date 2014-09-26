@@ -9,6 +9,8 @@
 #include <initializer_list>
 #include <functional>
 
+#include "mdkObjectArray.h"
+#include "mdkSimpleObjectArray.h"
 #include "mdkDenseMatrix.h"
 
 namespace mdk
@@ -2026,6 +2028,31 @@ void Test_unique()
     auto B1 = B.GetSubSet(IndexListB1);
 
     DisplayMatrix<int_max>("B1", B1);
+}
+
+void Test_DenseMatrix_DenseVector_ObjectArray()
+{
+	ObjectArray<int_max>  OA = { 1, 2, 3 };
+
+	// do not use ObjectArray as vector
+	// wrong here
+	//DenseMatrix<int_max> A = OA;
+
+	DenseMatrix<int_max> A1 = {1, 2, 3};
+
+	DenseVector<int_max> VA = A1;
+
+	DenseMatrix<int_max> A2 = { { 0, 1, 2, 3 },
+							    { 1, 2, 3, 4 },
+								{ 2, 3, 4, 5 }, 
+								{ 3, 4, 5, 6 }, 
+								{ 4, 5, 6, 7 }};
+
+	A2(VA, VA) = 100;
+	DisplayMatrix("A2", A2);
+
+	A2(span(0, 1), span(0, 1)) = -10;
+	DisplayMatrix("A2", A2);
 }
 
 }//namespace mdk

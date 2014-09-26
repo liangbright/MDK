@@ -19,12 +19,6 @@
 // "ambiguous symbol"
 //template<typename ElementType>
 //class DenseMatrix;
-
-//template<typename ElementType>
-//class SimpleObjectArray;
-
-//template<typename ElementType>
-//class ObjectArray;
 //---------------------------------------------
 
 namespace mdk
@@ -47,6 +41,8 @@ public:
 
     inline DenseVector(const std::initializer_list<ElementType>& InputVector);
 
+	inline DenseVector(const DenseMatrix<ElementType>& InputMatrix);
+
 	template<int_max LengthParameter>
 	inline DenseVector(const DenseVector<ElementType, LengthParameter>& InputVector);
 
@@ -66,8 +62,6 @@ public:
     inline void operator=(const std::initializer_list<const DenseVector<ElementType>*>& InputList);
 
     inline void operator=(const std::initializer_list<ElementType>& InputVector);
-
-    inline void operator=(const std::vector<ElementType>& InputVector);
 
     inline void operator=(const DenseMatrix<ElementType>& InputVector);
 
@@ -128,9 +122,9 @@ public:
 
     //----------------------- get/set std vector -------------------------------
 
-    std::vector<ElementType>& StdVector();
+	std::vector<ElementType>& StdVector();
 
-    const std::vector<ElementType>& StdVector() const;
+	const std::vector<ElementType>& StdVector() const;
 
     //----------------------- Convert to std vector -------------------------------
 
@@ -152,12 +146,6 @@ public:
 
     inline DenseVector<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList) const;
 
-    inline DenseVector<ElementType> GetSubSet(const std::vector<int_max>& IndexList) const;
-
-	inline DenseVector<ElementType> GetSubSet(const SimpleObjectArray<int_max>& IndexList) const;
-
-	inline DenseVector<ElementType> GetSubSet(const ObjectArray<int_max>& IndexList) const;
-
     inline DenseVector<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList) const;
 
 	template<int_max LengthParameter>
@@ -168,12 +156,6 @@ public:
 	// SetSubSet(Index_start, Index_end, SubVector),  Index_start >= or <= Index_end
 
     inline bool SetSubSet(int_max Index_start, int_max Index_end, const std::initializer_list<ElementType>& SubVector);
-
-	inline bool SetSubSet(int_max Index_start, int_max Index_end, const std::vector<ElementType>& SubVector);
-
-	inline bool SetSubSet(int_max Index_start, int_max Index_end, const SimpleObjectArray<ElementType>& SubVector);
-
-	inline bool SetSubSet(int_max Index_start, int_max Index_end, const ObjectArray<ElementType>& SubVector);
 
 	inline bool SetSubSet(int_max Index_start, int_max Index_end, const DenseMatrix<ElementType>& SubVector);
 
@@ -186,12 +168,6 @@ public:
 
     inline bool SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubVector);
 
-    inline bool SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubVector);
-
-	inline bool SetSubSet(const SimpleObjectArray<int_max>& IndexList, const SimpleObjectArray<ElementType>& SubVector);
-
-	inline bool SetSubSet(const ObjectArray<int_max>& IndexList, const ObjectArray<ElementType>& SubVector);
-
 	inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector);
 
 	template<int_max LengthParameterA, int_max LengthParameterB>
@@ -199,10 +175,10 @@ public:
 
 	// SetSubSet(span(a, b), SubVector)
 	
-	inline bool SetSubSet(const std::vector<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector);
+	inline bool SetSubSet(const DenseVector<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector);
 
 	template<int_max LengthParameter>
-	inline bool SetSubSet(const std::vector<int_max>& IndexList, const DenseVector<ElementType, LengthParameter>& SubVector);
+	inline bool SetSubSet(const DenseVector<int_max>& IndexList, const DenseVector<ElementType, LengthParameter>& SubVector);
 
 	// base function
 	inline bool SetSubSet(const int_max* IndexList, const ElementType* SubVector, int_max SubVectorLength);
@@ -220,13 +196,7 @@ public:
 
     inline bool Delete(const std::initializer_list<int_max>& IndexList);
 
-    inline bool Delete(const std::vector<int_max>& IndexList);
-
     inline bool Delete(const DenseMatrix<int_max>& IndexList);
-
-	inline bool Delete(const SimpleObjectArray<int_max>& IndexList);
-
-    inline bool Delete(const DenseVector<int_max>& IndexList);
 
 	template<int_max LengthParameter>
 	inline bool Delete(const DenseVector<int_max, LengthParameter>& IndexList);
@@ -239,13 +209,7 @@ public:
 
     inline bool Insert(int_max Index, const std::initializer_list<ElementType>& InputData);
 
-    inline bool Insert(int_max Index, const std::vector<ElementType>& InputData);
-
     inline bool Insert(int_max Index, const DenseMatrix<ElementType>& InputData);
-
-	inline bool Insert(int_max Index, const SimpleObjectArray<ElementType>& InputData);
-
-    inline bool Insert(int_max Index, const DenseVector<ElementType>& InputData);
 
 	template<int_max LengthParameter>
 	inline bool Insert(int_max Index, const DenseVector<ElementType, LengthParameter>& InputData);

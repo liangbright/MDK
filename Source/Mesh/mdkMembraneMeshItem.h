@@ -2,9 +2,9 @@
 #define __mdkMembraneMeshItem_h
 
 #include "mdkObject.h"
+#include "mdkSimpleObjectArray.h"
 #include "mdkDenseMatrix.h"
 #include "mdkMembraneMeshItemHandle.h"
-
 
 namespace mdk
 {

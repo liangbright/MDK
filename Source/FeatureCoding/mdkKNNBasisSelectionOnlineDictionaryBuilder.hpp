@@ -607,7 +607,7 @@ KNNBasisSelectionOnlineDictionaryBuilder<ElementType>::SelectBasis(const int_max
     {
         for (int_max n = k + 1; n < TotalVectorNumber; ++n)
         {
-            auto tempScore_P = ProbabilityOfEachVector[n] + ProbabilityOfEachVector[k];
+            auto tempScore_P = ProbabilityOfEachVector[n] + ProbabilityOfEachVector[k]; // use max ?
 
             auto tempScore_S = 1 - VectorSimilarityMatrix(n, k);
 
