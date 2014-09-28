@@ -150,7 +150,7 @@ struct ImageData2D
 
     inline void Transform2DIndexTo2DPhysicalPosition(int_max xIndex, int_max yIndex, double& x, double& y) const;
 
-    inline void Transform2DPhysicalPositionToContinuous2DIndex(double x, double y, double& xIndex, double& yIndex) const;
+    inline void Transform2DPhysicalPositionTo2DIndex(double x, double y, double& xIndex, double& yIndex) const;
 
 private:
 //deleted:
@@ -281,7 +281,7 @@ public:
 
     inline void Transform2DIndexTo2DPhysicalPosition(int_max xIndex, int_max yIndex, double& x, double& y) const;
 
-    inline void Transform2DPhysicalPositionToContinuous2DIndex(double x, double y, double& xIndex, double& yIndex) const;
+    inline void Transform2DPhysicalPositionTo2DIndex(double x, double y, double& xIndex, double& yIndex) const;
 
 	//--------------------------- Get/Set Pixel      ------------------------------//
 

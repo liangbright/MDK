@@ -30,7 +30,7 @@ void ScalarImageToVectorImageConvolutionFilter3D<InputPixelType, OutputPixelType
 template<typename InputPixelType, typename OutputPixelType>
 inline
 void ScalarImageToVectorImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
-SetOutputPixelMatrix(const DenseMatrix<InputPixelType>* PixelMatrix)
+SetOutputPixelMatrix(DenseMatrix<InputPixelType>* PixelMatrix)
 {
     if (PixelMatrix == nullptr)
     {
@@ -38,13 +38,15 @@ SetOutputPixelMatrix(const DenseMatrix<InputPixelType>* PixelMatrix)
     }
 
     m_OutputPixelMatrix = PixelMatrix;
+
+	m_Flag_OutputToOtherPlace = true;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
 inline
 void ScalarImageToVectorImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
-FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex)
+FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_Index, double z_Index, int_max ThreadIndex)
 {
     auto VectorLength = m_MaskList_3DIndex->GetLength();
 
@@ -69,9 +71,9 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y
 			{
 				for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
 				{
-					auto temp_x = Ptr[0] + double(x_Index);
-					auto temp_y = Ptr[1] + double(y_Index);
-					auto temp_z = Ptr[2] + double(z_Index);
+					auto temp_x = Ptr[0] + x_Index;
+					auto temp_y = Ptr[1] + y_Index;
+					auto temp_z = Ptr[2] + z_Index;
 
 					auto tempValue = InterpolateScalarImageAtContinuousIndex_Nearest(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
 
@@ -82,9 +84,9 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y
 			{
 				for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
 				{
-					auto temp_x = int_max(Ptr[0]) + x_Index;
-					auto temp_y = int_max(Ptr[1]) + y_Index;
-					auto temp_z = int_max(Ptr[2]) + z_Index;
+					auto temp_x = int_max(Ptr[0] + x_Index);
+					auto temp_y = int_max(Ptr[1] + y_Index);
+					auto temp_z = int_max(Ptr[2] + z_Index);
 
 					tempElementInOutputPixel += ElementTypeOfOutputPixel((*m_InputImage)(temp_x, temp_y, temp_z) * Ptr[3]);
 				}
@@ -94,9 +96,9 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y
 		{
 			for (auto Ptr = BeginPointerOfMask; Ptr < BeginPointerOfMask + PointNumberInMask; Ptr += 4)
 			{
-				auto temp_x = Ptr[0] + double(x_Index);
-				auto temp_y = Ptr[1] + double(y_Index);
-				auto temp_z = Ptr[2] + double(z_Index);
+				auto temp_x = Ptr[0] + x_Index;
+				auto temp_y = Ptr[1] + y_Index;
+				auto temp_z = Ptr[2] + z_Index;
 
 				auto tempValue = InterpolateScalarImageAtContinuousIndex(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
 

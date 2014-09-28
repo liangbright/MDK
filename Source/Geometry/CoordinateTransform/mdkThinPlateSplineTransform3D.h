@@ -1,6 +1,7 @@
 #ifndef __mdkThinPlateSplineTransform3D_h
 #define __mdkThinPlateSplineTransform3D_h
 
+#include "mdkProcessObject.h"
 #include "mdkDenseMatrix.h"
 
 namespace mdk
@@ -13,7 +14,7 @@ namespace mdk
 
 // ScalarType is float or double
 template<typename Scalar_Type>
-class ThinPlateSplineTransform3D : public Object
+class ThinPlateSplineTransform3D : public ProcessObject
 {
 public:
 	typedef Scalar_Type ScalarType;
@@ -40,6 +41,7 @@ public:
 	void SetParameter(const DenseMatrix<ScalarType>& Parameter);
 	const DenseMatrix<ScalarType>& GetParameter() const;
 
+	bool Update() { this->UpdateParameter(); return true; }
 	void UpdateParameter();
 
 	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;

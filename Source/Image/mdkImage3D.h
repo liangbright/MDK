@@ -190,12 +190,14 @@ struct ImageData3D
     inline int_max Transform3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
 
     inline void TransformLinearIndexTo3DIndex(int_max LinearIndex, int_max& xIndex, int_max& yIndex, int_max& zIndex) const;
-
+	inline void TransformLinearIndexTo3DIndex(int_max LinearIndex, double& xIndex, double& yIndex, double& zIndex) const;
+	
     inline void TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex, double& x, double& y, double& z) const;
 
     inline void Transform3DIndexTo3DPhysicalPosition(int_max xIndex, int_max yIndex, int_max zIndex, double& x, double& y, double& z) const;
+	inline void Transform3DIndexTo3DPhysicalPosition(double xIndex, double yIndex, double zIndex, double& x, double& y, double& z) const;
 
-    inline void Transform3DPhysicalPositionTo3DContinuousIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const;
+	inline void Transform3DPhysicalPositionTo3DIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const;
 
 private:
 //deleted:
@@ -240,11 +242,11 @@ public:
 
     // Copy can be used to convert an image from double (Type_Input) to float (PixelType), etc
 
-    template<typename Type_Input>
-    void Copy(const Image3D<Type_Input>& InputImage);
+	template<typename PixelType_Input>
+	void Copy(const Image3D<PixelType_Input>& InputImage);
 
-    template<typename Type_Input>
-    bool Copy(const Image3D<Type_Input>* InputImage);
+	template<typename PixelType_Input>
+	bool Copy(const Image3D<PixelType_Input>* InputImage);
 
     inline bool Fill(const PixelType& Pixel);
 
@@ -306,8 +308,8 @@ public:
 
     inline int_max GetPixelNumber() const;
 
-    template<typename Type_Input>
-    bool CopyData(const Type_Input* InputPixelPointer, int_max InputPixelNumber);
+	template<typename PixelType_Input>
+	bool CopyPixelData(const PixelType_Input* InputPixelPointer, int_max InputPixelNumber);
 
     //--------------------------- Get Pixel Pointer ------------------------------//
 
@@ -320,12 +322,14 @@ public:
     inline int_max Transform3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
 
     inline void TransformLinearIndexTo3DIndex(int_max LinearIndex, int_max& xIndex, int_max& yIndex, int_max& zIndex) const;
+	inline void TransformLinearIndexTo3DIndex(int_max LinearIndex, double& xIndex, double& yIndex, double& zIndex) const;
 
     inline void TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex, double& x, double& y, double& z) const;
 
     inline void Transform3DIndexTo3DPhysicalPosition(int_max xIndex, int_max yIndex, int_max zIndex, double& x, double& y, double& z) const;
+	inline void Transform3DIndexTo3DPhysicalPosition(double xIndex, double yIndex, double zIndex, double& x, double& y, double& z) const;
 
-    inline void Transform3DPhysicalPositionTo3DContinuousIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const;
+	inline void Transform3DPhysicalPositionTo3DIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const;
 
 	//--------------------------- Get/Set Pixel      ------------------------------//
 

@@ -32,51 +32,51 @@ struct Option_Of_ScalarImageInterpolator3D
 
 template<typename PixelType>
 inline
-double InterpolateScalarImageAtContinuousIndex(const ScalarImage3D<PixelType>& InputImage,
+double InterpolateScalarImageAtContinuousIndex(const Image3D<PixelType>& InputImage,
                                                double x, double y, double z, 
 											   ScalarImage3DInterpolationMethodEnum InterpolationMethod,
 											   const Option_Of_ScalarImageInterpolator3D& Option);
 
 template<typename PixelType>
 inline
-double InterpolateScalarImageAtPhysicalPosition(const ScalarImage3D<PixelType>& InputImage,
+double InterpolateScalarImageAtPhysicalPosition(const Image3D<PixelType>& InputImage,
                                                 double x, double y, double z, 
                                                 ScalarImage3DInterpolationMethodEnum InterpolationMethod,
                                                 const Option_Of_ScalarImageInterpolator3D& Option);
 
 template<typename PixelType>
 inline
-PixelType InterpolateScalarImageAtContinuousIndex_Nearest(const ScalarImage3D<PixelType>& InputImage,
+PixelType InterpolateScalarImageAtContinuousIndex_Nearest(const Image3D<PixelType>& InputImage,
                                                           double x, double y, double z, 
                                                           const Option_Of_ScalarImageInterpolator3D& Option);
 
 template<typename PixelType>
 inline
-PixelType InterpolateScalarImageAtPhysicalPosition_Nearest(const ScalarImage3D<PixelType>& InputImage,
+PixelType InterpolateScalarImageAtPhysicalPosition_Nearest(const Image3D<PixelType>& InputImage,
                                                            double x, double y, double z, 
                                                            const Option_Of_ScalarImageInterpolator3D& Option);
 
 template<typename PixelType>
 inline
-double InterpolateScalarImageAtContinuousIndex_Linear(const ScalarImage3D<PixelType>& InputImage,
+double InterpolateScalarImageAtContinuousIndex_Linear(const Image3D<PixelType>& InputImage,
                                                       double x, double y, double z, 
                                                       const Option_Of_ScalarImageInterpolator3D& Option);
 
 template<typename PixelType>
 inline
-double InterpolateScalarImageAtPhysicalPosition_Linear(const ScalarImage3D<PixelType>& InputImage,
+double InterpolateScalarImageAtPhysicalPosition_Linear(const Image3D<PixelType>& InputImage,
                                                        double x, double y, double z, 
                                                        const Option_Of_ScalarImageInterpolator3D& Option);
 
 template<typename PixelType>
 inline
-double InterpolateScalarImageAtContinuousIndex_Cubic(const ScalarImage3D<PixelType>& InputImage,
+double InterpolateScalarImageAtContinuousIndex_Cubic(const Image3D<PixelType>& InputImage,
                                                      double x, double y, double z, 
                                                      const Option_Of_ScalarImageInterpolator3D& Option);
 
 template<typename PixelType>
 inline
-double InterpolateScalarImageAtPhysicalPosition_Cubic(const ScalarImage3D<PixelType>& InputImage,
+double InterpolateScalarImageAtPhysicalPosition_Cubic(const Image3D<PixelType>& InputImage,
 										              double x, double y, double z, 
 												      const Option_Of_ScalarImageInterpolator3D& Option);
 

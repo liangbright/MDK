@@ -124,6 +124,17 @@ void ImageData3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex, 
     xIndex = divresult.rem;
 }
 
+template<typename PixelType>
+inline
+void ImageData3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex, double& xIndex, double& yIndex, double& zIndex) const
+{
+	int_max temp_x, temp_y, temp_z;
+	this->TransformLinearIndexTo3DIndex(LinearIndex, temp_x, temp_y, temp_z);
+	xIndex = double(temp_x);
+	yIndex = double(temp_y);
+	zIndex = double(temp_z);
+}
+
 
 template<typename PixelType>
 inline 
@@ -153,17 +164,23 @@ template<typename PixelType>
 inline
 void ImageData3D<PixelType>::Transform3DIndexTo3DPhysicalPosition(int_max xIndex, int_max yIndex, int_max zIndex, double& x, double& y, double& z) const
 {
-    x = m_Origin[0] + double(xIndex) * m_Spacing[0];
+	this->Transform3DIndexTo3DPhysicalPosition(double(xIndex), double(yIndex), double(zIndex), x, y, z);
+}
 
-    y = m_Origin[1] + double(yIndex) * m_Spacing[1];
-   
-    z = m_Origin[2] + double(zIndex) * m_Spacing[2];
+
+template<typename PixelType>
+inline
+void ImageData3D<PixelType>::Transform3DIndexTo3DPhysicalPosition(double xIndex, double yIndex, double zIndex, double& x, double& y, double& z) const
+{
+	x = m_Origin[0] + xIndex * m_Spacing[0];
+	y = m_Origin[1] + yIndex * m_Spacing[1];	
+	z = m_Origin[2] + zIndex * m_Spacing[2];
 }
 
 
 template<typename PixelType>
 inline 
-void ImageData3D<PixelType>::Transform3DPhysicalPositionTo3DContinuousIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const
+void ImageData3D<PixelType>::Transform3DPhysicalPositionTo3DIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const
 {
     xIndex = (x - m_Origin[0]) / m_Spacing[0];
 
@@ -236,8 +253,8 @@ void Image3D<PixelType>::operator=(Image3D<PixelType>&& InputImage)
 
 
 template<typename PixelType>
-template<typename Type_Input>
-void Image3D<PixelType>::Copy(const Image3D<Type_Input>& InputImage)
+template<typename PixelType_Input>
+void Image3D<PixelType>::Copy(const Image3D<PixelType_Input>& InputImage)
 {
     if (this == &InputImage)
     {
@@ -258,7 +275,7 @@ void Image3D<PixelType>::Copy(const Image3D<Type_Input>& InputImage)
         }
 	}
 
-    this->CopyData(InputImage.GetPixelPointer(), InputImage.GetPixelNumber());
+	this->CopyPixelData(InputImage.GetPixelPointer(), InputImage.GetPixelNumber());
     this->SetSize(InputImage.GetSize());
     this->SetSpacing(InputImage.GetSpacing());
     this->SetOrigin(InputImage.GetOrigin);
@@ -267,8 +284,8 @@ void Image3D<PixelType>::Copy(const Image3D<Type_Input>& InputImage)
 
 
 template<typename PixelType>
-template<typename Type_Input>
-bool Image3D<PixelType>::Copy(const Image3D<Type_Input>* InputImage)
+template<typename PixelType_Input>
+bool Image3D<PixelType>::Copy(const Image3D<PixelType_Input>* InputImage)
 {
     if (InputImage == nullptr)
     {
@@ -283,12 +300,12 @@ bool Image3D<PixelType>::Copy(const Image3D<Type_Input>* InputImage)
 
 
 template<typename PixelType>
-template<typename Type_Input>
-bool Image3D<PixelType>::CopyData(const Type_Input* InputPixelPointer, int_max InputPixelNumber)
+template<typename PixelType_Input>
+bool Image3D<PixelType>::CopyPixelData(const PixelType_Input* InputPixelPointer, int_max InputPixelNumber)
 {
     if (InputPixelPointer == nullptr || InputPixelNumber <= 0)
 	{
-        MDK_Error("Invalid input @ 3DImage::CopyData(...)")
+        MDK_Error("Invalid input @ 3DImage::CopyPixelData(...)")
 		return false;
 	}
 
@@ -296,7 +313,7 @@ bool Image3D<PixelType>::CopyData(const Type_Input* InputPixelPointer, int_max I
 
     if (SelfPixelNumber != InputPixelNumber)
     {
-        MDK_Error("Size does not match @ 3DImage::CopyData(...)")
+        MDK_Error("Size does not match @ 3DImage::CopyPixelData(...)")
         return false;
     }
 
@@ -304,7 +321,7 @@ bool Image3D<PixelType>::CopyData(const Type_Input* InputPixelPointer, int_max I
 
     if (std::size_t(InputPixelPointer) == std::size_t(PixelPtr))
     {
-        MDK_Warning("An image tries to Copy itself @ 3DImage::CopyData(...)")
+        MDK_Warning("An image tries to Copy itself @ 3DImage::CopyPixelData(...)")
         return true;
     }
   
@@ -712,6 +729,14 @@ void Image3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex, int_
 
 template<typename PixelType>
 inline
+void Image3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex, double& xIndex, double& yIndex, double& zIndex) const
+{
+	m_ImageData->TransformLinearIndexTo3DIndex(LinearIndex, xIndex, yIndex, zIndex);
+}
+
+
+template<typename PixelType>
+inline
 void Image3D<PixelType>::TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex, double& x, double& y, double& z) const
 {
     m_ImageData->TransformLinearIndexTo3DPhysicalPosition(LinearIndex, x, y, z);
@@ -727,10 +752,18 @@ void Image3D<PixelType>::Transform3DIndexTo3DPhysicalPosition(int_max xIndex, in
 
 
 template<typename PixelType>
-inline 
-void Image3D<PixelType>::Transform3DPhysicalPositionTo3DContinuousIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const
+inline
+void Image3D<PixelType>::Transform3DIndexTo3DPhysicalPosition(double xIndex, double yIndex, double zIndex, double& x, double& y, double& z) const
 {
-    m_ImageData->Transform3DPhysicalPositionTo3DContinuousIndex(x, y, z, xIndex, yIndex, zIndex);
+	m_ImageData->Transform3DIndexTo3DPhysicalPosition(xIndex, yIndex, zIndex, x, y, z);
+}
+
+
+template<typename PixelType>
+inline 
+void Image3D<PixelType>::Transform3DPhysicalPositionTo3DIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const
+{
+    m_ImageData->Transform3DPhysicalPositionTo3DIndex(x, y, z, xIndex, yIndex, zIndex);
 }
 
 

@@ -8,7 +8,7 @@
 #include "mdkDebugConfig.h"
 #include "mdkParallelForLoop.h"
 #include "mdkProcessObject.h"
-#include "mdkDataArray.h"
+#include "mdkObjectArray.h"
 #include "mdkDenseMatrix.h"
 #include "mdkImage3D.h"
 
@@ -29,30 +29,32 @@ protected:
     const Image3D<InputPixelType>*   m_InputImage;
 
 	// input_1:
-    const Image3DBoxRegionOf3DIndex*  m_InputRegion;       // size of m_InputRegion = size of m_OutputImage or m_OutputArray
-	                                 
+	const Image3DBoxRegionOf3DIndex*  m_InputRegionOf3DIndex;  // size of m_InputRegion = size of m_OutputImage or m_OutputArray
+	                                
 	// input_2:
-    const DenseMatrix<int_max>*  m_InputPixel3DIndexList;        // compute values at these center positions
+	const DenseMatrix<double>*  m_Input3DIndexList;      // compute values at these center positions
 
 	// input_3:
-    const DenseMatrix<double>*   m_InputPixel3DPositionList;     // compute values at these center positions
+    const DenseMatrix<double>*   m_Input3DPositionList;   // compute values at these center positions
 
     // input_4:
     int_max m_MaxNumberOfThreads;
 
 	//--------------------- output ---------------------
 
-	// input_output_0:
+	// output_0:
     Image3D<OutputPixelType>* m_OutputImage;
 
-	// input_output_1:
-    DataArray<OutputPixelType>* m_OutputArray;
+	// output_1:
+    ObjectArray<OutputPixelType>* m_OutputArray;
 
     //------------ internal variable -------------------
 
-    Image3D<OutputPixelType> m_OutputImage_SharedCopy;          // keep tracking m_OutputImage
+	DenseMatrix<int_max> m_PixelLinearIndexList_Of_InputRegionOf3DIndex;
 
-    DataArray<OutputPixelType> m_OutputArray_SharedCopy;    // keep tracking m_OutputArray
+    Image3D<OutputPixelType> m_OutputImage_SharedCopy;        // keep tracking m_OutputImage
+
+	ObjectArray<OutputPixelType> m_OutputArray_SharedCopy;    // keep tracking m_OutputArray
 
     bool m_Flag_OutputImage;
 
@@ -73,19 +75,19 @@ public:
 
     void SetInputImage(const Image3D<InputPixelType>* InputImage);
 
-    void SetInputRegion(const DenseMatrix<int_max>* InputRegion);
+	void SetInputRegionOf3DIndex(const Image3DBoxRegionOf3DIndex* InputRegion);
 
-    void SetInputPixel3DIndexList(const DenseMatrix<int_max>* InputPixel3DIndexList);
+	void SetInput3DIndexList(const DenseMatrix<double>* Input3DIndexList);
 
-    void SetInputPixel3DPositionList(const DenseMatrix<float>* InputPixel3DPositionList);
+	void SetInput3DPositionList(const DenseMatrix<double>* Input3DPositionList);
 
     void SetOutputImage(Image3D<OutputPixelType>* OutputImage);
 
-    void SetOutputArray(DataArray<OutputPixelType>* OutputArray);
+	void SetOutputArray(ObjectArray<OutputPixelType>* OutputArray);
 
     void SetMaxNumberOfThreads(int_max MaxNumber);    
 
-    inline virtual void FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, int_max x_Index, int_max y_Index, int_max z_Index, int_max ThreadIndex) = 0;
+	inline virtual void FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_Index, double z_Index, int_max ThreadIndex) = 0;
 
     inline virtual void FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex) = 0;
 
@@ -95,28 +97,18 @@ public:
 	
     Image3D<OutputPixelType>* GetOutputImage();
 
-    DataArray<OutputPixelType>* GetOutputArray();
+    ObjectArray<OutputPixelType>* GetOutputArray();
 
     //----------------------------------------------------------------------------------------------------------
-    // just for reference: each specific filter should provide Apply function similar to these
-    /*
-    static bool Apply(Image3D<OutputPixelType>* OutputImage,
-                      const Image3D<InputPixelType>* InputImage,                                                           
-                      std::function<XXX> FilterFunctionAt3DIndex,
-                      int_max MaxThreadNumber = 1);
-
-    static bool Apply(Image3D<OutputPixelType>* OutputImage,
-                      const Image3D<InputPixelType>* InputImage,                                                           
-                      std::function<XXX> FilterFunctionAt3DPosition,
-                      int_max MaxThreadNumber = 1);
-    */
+    // just for reference: each specific filter should provide Apply function, such as
+    // static Image3D<OutputPixelType> Apply(const Image3D<InputPixelType>* InputImage);
     //----------------------------------------------------------------------------------------------------------
 
 protected:
 
-    virtual void ClearPipelineOutput();
+	virtual void ClearOutput();
 
-    virtual void UpdatePipelineOutput();
+	virtual void UpdateOutputPort();
 
     virtual bool Preprocess();
 

@@ -1,73 +1,71 @@
-#ifndef __mdkScalarImageFilterWithMask3D_hpp
-#define __mdkScalarImageFilterWithMask3D_hpp
+#ifndef __mdkImageFilterWithSingleMask3D_hpp
+#define __mdkImageFilterWithSingleMask3D_hpp
 
 #include <thread>
 #include <algorithm>
 
-#include "mdkScalarImageFilterWithMask3D.h"
+#include "mdkImageFilterWithSingleMask3D.h"
 #include "mdkDebugConfig.h"
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType>
-ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::ScalarImageFilterWithMask3D()
+ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::ImageFilterWithSingleMask3D()
 {
     this->Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::~ScalarImageFilterWithMask3D()
+ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::~ImageFilterWithSingleMask3D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::Clear()
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Clear()
 {
     this->ImageFilter3D::Clear();
 
     m_Mask_3DIndex = nullptr;
-
     m_Mask_3DPosition = nullptr;
 
     m_NOBoundCheckRegion_3DIndex.IsEmpty = true;
-
     m_NOBoundCheckRegion_3DPosition.IsEmpty = true;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::SetMaskOf3DIndex(const DenseMatrix<double>* Mask)
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::SetMaskOf3DIndex(const DenseMatrix<double>* Mask)
 {
     m_Mask_3DIndex = Mask;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::SetMaskOf3DPosition(const DenseMatrix<double>* Mask)
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::SetMaskOf3DPosition(const DenseMatrix<double>* Mask)
 {
     m_Mask_3DPosition = Mask;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-const DenseMatrix<double>* ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::GetMaskOf3DIndex() const
+const DenseMatrix<double>* ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::GetMaskOf3DIndex() const
 {
     return m_Mask_3DIndex;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-const DenseMatrix<double>* ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::GetMaskOf3DPosition() const
+const DenseMatrix<double>* ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::GetMaskOf3DPosition() const
 {
     return m_Mask_3DPosition;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::ComputeRegionOfNOBoundCheck_3DIndex()
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::ComputeRegionOfNOBoundCheck_3DIndex()
 {
     m_NOBoundCheckRegion_3DIndex.IsEmpty = true;
 
@@ -144,7 +142,7 @@ void ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::ComputeRegion
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::ComputeRegionOfNOBoundCheck_3DPosition()
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::ComputeRegionOfNOBoundCheck_3DPosition()
 {    
     m_NOBoundCheckRegion_3DPosition.IsEmpty = true;
 
@@ -229,65 +227,43 @@ void ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::ComputeRegion
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::CheckInput()
+bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::CheckMask()
 {
-    if (this->ImageFilter3D::CheckInput() == false)
+	if (m_Input3DPositionList == nullptr)
     {
-        return false;
-    }
+		bool MaskIsEmpty_3DIndex = true;
 
-    this->BuildMaskOf3DIndex();
+		if (m_Mask_3DIndex != nullptr)
+		{
+			if (m_Mask_3DIndex->IsEmpty() == false)
+			{
+				MaskIsEmpty_3DIndex = false;
+			}
+		}
 
-    this->BuildMaskOf3DPosition();
-
-    bool MaskIsEmpty_3DIndex = true;
-
-    if (m_Mask_3DIndex != nullptr)
-    {
-        if (m_Mask_3DIndex->IsEmpty() == false)
+        if (MaskIsEmpty_3DIndex == true)
         {
-            MaskIsEmpty_3DIndex = false;
+            MDK_Error("Empty m_Mask_3DIndex @ ImageFilterWithSingleMask3D::CheckMask()")
+            return false;        
         }
     }
-
-    bool MaskIsEmpty_3DPosition = true;
-
-    if (m_Mask_3DPosition != nullptr)
+	else // if (m_Input3DPositionList != nullptr)
     {
-        if (m_Mask_3DPosition->IsEmpty() == false)
-        {
-            MaskIsEmpty_3DPosition = false;
-        }
-    }
+		bool MaskIsEmpty_3DPosition = true;
 
-    if (MaskIsEmpty_3DIndex == true && MaskIsEmpty_3DPosition == true)
-    {
-        MDK_Error("Empty m_Mask_3DPosition and Empty m_Mask_3DIndex @ ScalarImageFilterWithMask3D::CheckInput()")
-        return false;
-    }
+		if (m_Mask_3DPosition != nullptr)
+		{
+			if (m_Mask_3DPosition->IsEmpty() == false)
+			{
+				MaskIsEmpty_3DPosition = false;
+			}
+		}
 
-    if (m_InputPixel3DIndexList != nullptr)
-    {
-        if (m_InputPixel3DIndexList->IsEmpty() == false)
-        {           
-            if (MaskIsEmpty_3DIndex == true)
-            {
-                MDK_Error("Empty m_Mask_3DIndex @ ScalarImageFilterWithMask3D::CheckInput()")
-                return false;
-            }
-        }
-    }
-
-    if (m_InputPixel3DPositionList != nullptr)
-    {
-        if (m_InputPixel3DPositionList->IsEmpty() == false)
-        {
-            if (MaskIsEmpty_3DPosition == true)
-            {
-                MDK_Error("Empty m_Mask_3DPosition @ ScalarImageFilterWithMask3D::CheckInput()")
-                return false;
-            }
-        }
+		if (MaskIsEmpty_3DPosition == true)
+		{
+			MDK_Error("Empty m_Mask_3DPosition @ ImageFilterWithSingleMask3D::CheckMask()")
+			return false;
+		}
     }
   
     return true;
@@ -295,16 +271,31 @@ bool ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::CheckInput()
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::Preprocess()
+bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Preprocess()
 {
     if (this->ImageFilter3D::Preprocess() == false)
     {
         return false;
     }
 
-    this->ComputeRegionOfNOBoundCheck_3DIndex();
-
-    this->ComputeRegionOfNOBoundCheck_3DPosition();
+	if (m_Input3DPositionList != nullptr)
+	{
+		this->BuildMaskOf3DPosition();
+		if (this->CheckMask() == false)
+		{
+			return false;
+		}
+		this->ComputeRegionOfNOBoundCheck_3DPosition();
+	}
+	else
+	{
+		this->BuildMaskOf3DIndex();
+		if (this->CheckMask() == false)
+		{
+			return false;
+		}
+		this->ComputeRegionOfNOBoundCheck_3DIndex();
+	}
 
     return true;
 }
@@ -312,7 +303,7 @@ bool ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::Preprocess()
 
 template<typename InputPixelType, typename OutputPixelType>
 inline 
-bool ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::WhetherToCheckBoundAtMaskCenter_3DIndex(int_max x, int_max y, int_max z)
+bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::WhetherToCheckBoundAtMaskOrigin_3DIndex(double x, double y, double z)
 {
     bool WhetherToCheck = false;
 
@@ -322,9 +313,9 @@ bool ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::WhetherToChec
     }
     else
     {
-        if (   x < m_NOBoundCheckRegion_3DIndex.x0 || x > m_NOBoundCheckRegion_3DIndex.x1
-            || y < m_NOBoundCheckRegion_3DIndex.y0 || y > m_NOBoundCheckRegion_3DIndex.y1
-            || z < m_NOBoundCheckRegion_3DIndex.z0 || z > m_NOBoundCheckRegion_3DIndex.z1)
+		if (x < double(m_NOBoundCheckRegion_3DIndex.x0) || x > double(m_NOBoundCheckRegion_3DIndex.x1)
+			|| y < double(m_NOBoundCheckRegion_3DIndex.y0) || y > double(m_NOBoundCheckRegion_3DIndex.y1)
+			|| z < double(m_NOBoundCheckRegion_3DIndex.z0) || z > double(m_NOBoundCheckRegion_3DIndex.z1))
         {
             WhetherToCheck = true;
         }
@@ -336,7 +327,7 @@ bool ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::WhetherToChec
 
 template<typename InputPixelType, typename OutputPixelType>
 inline
-bool ScalarImageFilterWithMask3D<InputPixelType, OutputPixelType>::WhetherToCheckBoundAtMaskCenter_3DPosition(double x, double y, double z)
+bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::WhetherToCheckBoundAtMaskOrigin_3DPosition(double x, double y, double z)
 {
     bool WhetherToCheck = false;
 

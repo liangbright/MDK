@@ -324,14 +324,14 @@ void Load3DScalarImageFromJsonDataFile_Data(Image3D<OutputPixelType>& OutputImag
 	QFile DataFile(QFilePathAndName);
 	if (!DataFile.open(QIODevice::ReadOnly))
 	{
-		MDK_Error("Couldn't open data file:" << FilePathAndName)
+		MDK_Error("Couldn't open data file:" << DataFilePathAndName)
 		OutputImage.Clear();
 		return;
 	}
 
 	int_max BypesofDataFile = int_max(DataFile.size());
 	int_max PixelNumber = OutputImage.GetPixelNumber();
-	int_max ByteNumberOfOutputPixelType = GetByteNumberOfScalar(PixelType(0));
+	int_max ByteNumberOfOutputPixelType = GetByteNumberOfScalar(OutputPixelType(0));
     if (BypesofDataFile != PixelNumber * ByteNumberOfOutputPixelType)
     {
         MDK_Error("Data file size is not equal to image size @ Load3DScalarImageFromJsonDataFile_Data(...)")

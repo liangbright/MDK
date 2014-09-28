@@ -8,13 +8,14 @@
 #include "mdkFileIO.h"
 #include "mdkScalarImageGaussianFilter3D.h"
 #include "mdkImageFilter_Common_Function.h"
+#include "mdkString.h"
 
 namespace mdk
 {
 
 void test_ScalarImageGaussianFilter3D()
 {
-    CharString FilePath = "C:/Research/MDK_Build/Test/Test_ImageFilter/Test_ScalarImageFilter/Debug/";
+    std::string FilePath = "C:/Research/MDK_Build/Test/Test_ImageFilter/Test_ScalarImageFilter/Debug/";
 
     Image3D<double> InputImage;
 

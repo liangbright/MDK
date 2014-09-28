@@ -34,8 +34,8 @@ void Test_simple()
 		TargetControlPointSet(2, i) = double(j);
 	}
 
-	TPSTransform.SetSourceControlPointSet(SourceControlPointSet);
-	TPSTransform.SetTargetControlPointSet(TargetControlPointSet);
+	TPSTransform.SetSourceControlPointSet(&SourceControlPointSet);
+	TPSTransform.SetTargetControlPointSet(&TargetControlPointSet);
 	TPSTransform.UpdateParameter();
 
 	DenseMatrix<double> TestPointSet(3, 10);

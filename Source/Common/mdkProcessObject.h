@@ -6,6 +6,9 @@
 
 namespace mdk
 {
+// two types of ProcessObject
+// type-1 : output data is NOT stored in ProcessObject, and shared copy of output is used
+// type-2 : output data is stored in ProcessObject, and shared copy of output is NOT used
 
 class ProcessObject : public Object
 {
@@ -16,7 +19,7 @@ protected:
 public:
     virtual void Clear() = 0;  // set to default/initial state
 
-    virtual bool Update() = 0; // run the process and update output
+    virtual bool Update() = 0; // run the process and update everything (output or parameter)
 
 protected:
     // this may have different names in different operation modes, e.g., CheckInput_Mode_1(), CheckInput_Mode_2()
@@ -25,9 +28,9 @@ protected:
                                      // not only "input" data, but also "input" variables that store output results
                                      // this is called in the first step of Update()
 
-	virtual void ClearProcessOutput() = 0;  // this should be called in Clear()
+	virtual void ClearOutput() {}      // this should be called in Clear()
 
-	virtual void UpdateProcessOutput() = 0; // this should be called in the last step of Update()
+	virtual void UpdateOutputPort() {} // this should be called in the last step of Update() for type-2 ProcessObject only
 
 private:
     ProcessObject(const ProcessObject&) = delete;  

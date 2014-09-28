@@ -26,23 +26,23 @@ private:
 
     double m_CutOffRatio;
 
-    DenseMatrix<double> m_Mask_3DIndex_Gaussian;
+	DenseMatrix<double> m_Mask_3DIndex_Gaussian;
 
     DenseMatrix<double> m_Mask_3DPosition_Gaussian;
+
+	DenseMatrix<double> m_ConvolutionCoefficient_Gaussian;
 
 public:		
     ScalarImageGaussianFilter3D();
     ~ScalarImageGaussianFilter3D();
   
-    void SetMaskParameter(double Sx, double Sy, double Sz, const DenseMatrix<double>& RotationMatrix, double CutOffRatio);
+	void SetMaskParameter(double Sigma_x, double Sigma_y, double Sigma_z, const DenseMatrix<double>& RotationMatrix, double CutOffRatio);
 
     virtual void Clear();
 
 private:
     void BuildMaskOf3DIndex();
     void BuildMaskOf3DPosition();
-
-    DenseMatrix<double> BuildGaussianMask();
 
 private:
     ScalarImageGaussianFilter3D(const ScalarImageGaussianFilter3D&) = delete;

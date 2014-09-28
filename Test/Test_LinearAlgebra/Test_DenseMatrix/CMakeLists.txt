@@ -11,8 +11,6 @@ find_package(MDK REQUIRED)
 
 FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
-message(STATUS ${Test_FILES})
-
 add_executable(Test_DenseMatrix ${Test_FILES})
 
 target_link_libraries(Test_DenseMatrix MDK_LIB)

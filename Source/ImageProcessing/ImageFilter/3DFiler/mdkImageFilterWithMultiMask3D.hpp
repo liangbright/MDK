@@ -1,25 +1,25 @@
-#ifndef __mdkScalarImageToVectorImageFilterWithMask3D_hpp
-#define __mdkScalarImageToVectorImageFilterWithMask3D_hpp
+#ifndef __mdkImageFilterWithMultiMask3D_hpp
+#define __mdkImageFilterWithMultiMask3D_hpp
 
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType>
-ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::ScalarImageToVectorImageFilterWithMask3D()
+ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::ImageFilterWithMultiMask3D()
 {
     this->Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::~ScalarImageToVectorImageFilterWithMask3D()
+ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::~ImageFilterWithMultiMask3D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::Clear()
+void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::Clear()
 {
 	this->ImageFilter3D::Clear();
 
@@ -34,21 +34,21 @@ void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::SetMaskOf3DIndex(const DataArray<DenseMatrix<double>>* MaskList)
+void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::SetMaskOf3DIndex(const ObjectArray<DenseMatrix<double>>* MaskList)
 {
     m_MaskList_3DIndex = MaskList;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::SetMaskOf3DPosition(const DataArray<DenseMatrix<double>>* MaskList)
+void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::SetMaskOf3DPosition(const ObjectArray<DenseMatrix<double>>* MaskList)
 {
     m_MaskList_3DPosition = MaskList;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::ComputeRegionOfNOBoundCheck_3DIndex()
+void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::ComputeRegionOfNOBoundCheck_3DIndex()
 {
     if (m_MaskList_3DIndex == nullptr)
     {
@@ -133,7 +133,7 @@ void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::ComputeRegionOfNOBoundCheck_3DPosition()
+void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::ComputeRegionOfNOBoundCheck_3DPosition()
 {    
     if (m_MaskList_3DPosition == nullptr)
     {
@@ -226,13 +226,8 @@ void ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::CheckInput()
+bool ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::CheckMask()
 {
-    if (this->ImageFilter3D::CheckInput() == false)
-    {
-        return false;
-    }
-
     bool MaskIsEmpty_3DIndex = false;
 
     if (m_MaskList_3DIndex != nullptr)
@@ -277,7 +272,7 @@ bool ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::
 
     if (MaskIsEmpty_3DIndex == true && MaskIsEmpty_3DPosition == true)
     {
-        MDK_Error("Empty Mask in m_MaskList_3DPosition and m_MaskList_3DIndex @ ScalarImageToVectorImageFilterWithMask3D::CheckInput()")
+        MDK_Error("Empty Mask in m_MaskList_3DPosition and m_MaskList_3DIndex @ ImageFilterWithMultiMask3D::CheckMask()")
         return false;
     }
 
@@ -288,7 +283,7 @@ bool ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::
         {           
             if (MaskIsEmpty_3DIndex == true)
             {
-                MDK_Error("Empty Mask in m_MaskList_3DIndex @ ScalarImageToVectorImageFilterWithMask3D::CheckInput()")
+                MDK_Error("Empty Mask in m_MaskList_3DIndex @ ImageFilterWithMultiMask3D::CheckMask()")
                 return false;
             }
         }
@@ -300,7 +295,7 @@ bool ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::
         {
             if (MaskIsEmpty_3DPosition == true)
             {
-                MDK_Error("Empty Mask in m_Mask_3DPosition @ ScalarImageToVectorImageFilterWithMask3D::CheckInput()")
+                MDK_Error("Empty Mask in m_Mask_3DPosition @ ImageFilterWithMultiMask3D::CheckMask()")
                 return false;
             }
         }
@@ -311,7 +306,7 @@ bool ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::Preprocess()
+bool ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::Preprocess()
 {
     if (this->ImageFilter3D::Preprocess() == false)
     {
@@ -332,8 +327,8 @@ bool ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::
 
 template<typename InputPixelType, typename OutputPixelType>
 inline 
-bool ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::
-WhetherToCheckBoundAtMaskCenter_3DIndex(int_max x, int_max y, int_max z, int_max MaskIndex)
+bool ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::
+WhetherToCheckBoundAtMaskOrigin_3DIndex(int_max x, int_max y, int_max z, int_max MaskIndex)
 {
     bool WhetherToCheck = false;
 
@@ -357,8 +352,8 @@ WhetherToCheckBoundAtMaskCenter_3DIndex(int_max x, int_max y, int_max z, int_max
 
 template<typename InputPixelType, typename OutputPixelType>
 inline
-bool ScalarImageToVectorImageFilterWithMask3D<InputPixelType, OutputPixelType>::
-WhetherToCheckBoundAtMaskCenter_3DPosition(double x, double y, double z, int_max MaskIndex)
+bool ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::
+WhetherToCheckBoundAtMaskOrigin_3DPosition(double x, double y, double z, int_max MaskIndex)
 {
     bool WhetherToCheck = false;
 

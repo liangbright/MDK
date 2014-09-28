@@ -141,7 +141,7 @@ void ImageData2D<PixelType>::Transform2DIndexTo2DPhysicalPosition(int_max xIndex
 
 template<typename PixelType>
 inline 
-void ImageData2D<PixelType>::Transform2DPhysicalPositionToContinuous2DIndex(double x, double y, double& xIndex, double& yIndex) const
+void ImageData2D<PixelType>::Transform2DPhysicalPositionTo2DIndex(double x, double y, double& xIndex, double& yIndex) const
 {
     xIndex = (x - m_Origin[0]) / m_Spacing[0];
 
@@ -684,9 +684,9 @@ void Image2D<PixelType>::Transform2DIndexTo2DPhysicalPosition(int_max xIndex, in
 
 template<typename PixelType>
 inline 
-void Image2D<PixelType>::Transform2DPhysicalPositionToContinuous2DIndex(double x, double y, double& xIndex, double& yIndex) const
+void Image2D<PixelType>::Transform2DPhysicalPositionTo2DIndex(double x, double y, double& xIndex, double& yIndex) const
 {
-    m_ImageData->Transform2DPhysicalPositionToContinuous2DIndex(x, y, xIndex, yIndex);
+    m_ImageData->Transform2DPhysicalPositionTo2DIndex(x, y, xIndex, yIndex);
 }
 
 
