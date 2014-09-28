@@ -17,9 +17,11 @@ protected:
     virtual ~ProcessObject() {}
 
 public:
-    virtual void Clear() = 0;  // set to default/initial state
+    virtual void Clear() = 0;     // set to default/initial state
 
-    virtual bool Update() = 0; // run the process and update everything (output or parameter)
+	virtual void ClearOutput() {} // this should be called in Clear()
+
+    virtual bool Update() = 0;    // run the process and update everything (output or parameter)
 
 protected:
     // this may have different names in different operation modes, e.g., CheckInput_Mode_1(), CheckInput_Mode_2()
@@ -27,8 +29,6 @@ protected:
     //virtual bool CheckInput() = 0; // check the inputs to the process
                                      // not only "input" data, but also "input" variables that store output results
                                      // this is called in the first step of Update()
-
-	virtual void ClearOutput() {}      // this should be called in Clear()
 
 	virtual void UpdateOutputPort() {} // this should be called in the last step of Update() for type-2 ProcessObject only
 

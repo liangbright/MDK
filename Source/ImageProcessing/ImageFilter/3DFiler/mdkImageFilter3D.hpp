@@ -107,34 +107,24 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::SetInput3DPositionList(cons
 template<typename InputPixelType, typename OutputPixelType>
 void ImageFilter3D<InputPixelType, OutputPixelType>::SetOutputImage(Image3D<OutputPixelType>* OutputImage)
 {
-    if (OutputImage == nullptr)
-    {
-        MDK_Error("Input is nullptr @ ImageFilter3D::SetOutputImage")
-        return;
-    }
-
 	m_OutputImage = OutputImage;
-
-    m_OutputImage_SharedCopy.Share(OutputImage);
-
-    m_Flag_OutputImage = true;
+	if (OutputImage != nullptr)
+	{		
+		m_OutputImage_SharedCopy.Share(OutputImage);
+		m_Flag_OutputImage = true;
+	}
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
 void ImageFilter3D<InputPixelType, OutputPixelType>::SetOutputArray(ObjectArray<OutputPixelType>* OutputArray)
 {
-    if (OutputArray == nullptr)
-    {
-        MDK_Error("Input is nullptr @ ImageFilter3D::OutputArray")
-        return;
-    }
-
 	m_OutputArray = OutputArray;
-
-    m_OutputArray_SharedCopy.Share(OutputArray);
-
-    m_Flag_OutputArray = true;
+	if (OutputArray != nullptr)
+	{		
+		m_OutputArray_SharedCopy.Share(OutputArray);
+		m_Flag_OutputArray = true;
+	}
 }
 
 
