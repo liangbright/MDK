@@ -15,18 +15,17 @@ public:
     typedef OutputPixelType::ElementType  ElementTypeOfOutputPixel;
 
 protected:
-    ObjectArray<DenseMatrix<double>>* m_MaskList_3DIndex;
-	// each column has 3 elements
-    // dx_Index
-    // dy_Index
-    // dz_Index
-    
-	ObjectArray<DenseMatrix<double>>* m_MaskList_3DPosition;
-    // each column has 3 elements
-    // dx
-    // dy
-    // dz
+	int_max m_Flag_3DPositionInMask;
+	// 1: true
+	// 0: false
+	// -1: unknown
 
+    ObjectArray<DenseMatrix<double>> m_MaskList;
+	// each column has 3 elements
+    // dx or dx_Index
+    // dy or dy_Index
+    // dz or dz_Index
+    
 	ObjectArray<Image3DBoxRegionOf3DIndex>            m_NOBoundCheckRegionList_3DIndex;
 
 	ObjectArray<Image3DBoxRegionOf3DPhysicalPosition> m_NOBoundCheckRegionList_3DPosition;
@@ -36,35 +35,22 @@ protected:
 	virtual ~ImageFilterWithMultiMask3D();
  
 public:
-
     virtual void Clear();
 
-	void SetMaskOf3DIndex(const ObjectArray<DenseMatrix<double>>* MaskList);
+	ObjectArray<DenseMatrix<double>>& MaskList();
+	const ObjectArray<DenseMatrix<double>>& MaskList() const;
 
-	void SetMaskOf3DPosition(const ObjectArray<DenseMatrix<double>>* MaskList);
-
-	const ObjectArray<DenseMatrix<double>>* GetMaskOf3DIndex(const ObjectArray<DenseMatrix<double>>* MaskList) const;
-
-	const ObjectArray<DenseMatrix<double>>* GetMaskOf3DPosition(const ObjectArray<DenseMatrix<double>>* MaskList) const;
-
-    virtual bool CheckInput();
+	void Use3DIndexInMask();
+	void Use3DPhysicalPositionInMask();
 
 protected:
-
+	virtual bool Preprocess();
     virtual void BuildMaskOf3DIndex() {}
-
     virtual void BuildMaskOf3DPosition() {}
-
     void ComputeRegionOfNOBoundCheck_3DIndex();
-
     void ComputeRegionOfNOBoundCheck_3DPosition();
 
-	bool CheckMask();
-
-    virtual bool Preprocess();
-
-    inline bool WhetherToCheckBoundAtMaskOrigin_3DIndex(int_max x, int_max y, int_max z, int_max MaskIndex);
-
+	inline bool WhetherToCheckBoundAtMaskOrigin_3DIndex(double x, double y, double z, int_max MaskIndex);
 	inline bool WhetherToCheckBoundAtMaskOrigin_3DPosition(double x, double y, double z, int_max MaskIndex);
 
 private:

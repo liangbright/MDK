@@ -22,16 +22,9 @@ template<typename InputPixelType, typename OutputPixelType>
 void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::Clear()
 {
     this->ScalarImageConvolutionFilter3D::Clear();
-
     m_SigmaList.Clear();
-
     m_RotationMatrix.Clear();
-
     m_CutOffRatio = 0;
-
-    m_Mask_3DIndex_Gaussian.Clear();
-    m_Mask_3DPosition_Gaussian.Clear();
-	m_ConvolutionCoefficient_Gaussian.Clear();
 }
 
 
@@ -93,11 +86,11 @@ void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::BuildMaskOf3D
     // at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
     // add the points within the m_CutOffRatio to Mask
     
-	m_Mask_3DIndex_Gaussian.FastResize(0);
-	m_Mask_3DIndex_Gaussian.ReserveCapacity(3*Radius*Radius*Radius);
+	m_Mask.FastResize(0);
+	m_Mask.ReserveCapacity(3 * Radius*Radius*Radius);
 
-	m_ConvolutionCoefficient_Gaussian.FastResize(0);
-	m_ConvolutionCoefficient_Gaussian.ReserveCapacity(Radius*Radius*Radius);
+	m_ConvolutionCoefficient.FastResize(0);
+	m_ConvolutionCoefficient.ReserveCapacity(Radius*Radius*Radius);
 
     DenseMatrix<double> Relative3DIndex(3, 1);
     DenseMatrix<double> Relative3DIndex_Transpose(1, 3);
@@ -124,24 +117,20 @@ void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::BuildMaskOf3D
                 {
                     auto tempValue = std::exp(-0.5*tempRatio);
 
-					m_Mask_3DIndex_Gaussian.AppendCol({ double(x), double(y), double(z)});
-					m_ConvolutionCoefficient_Gaussian.Append(tempValue);
+					m_Mask.AppendCol({ double(x), double(y), double(z) });
+					m_ConvolutionCoefficient.Append(tempValue);
                 }
             }
         }
     }
 
-	m_Mask_3DIndex_Gaussian.ReleaseUnusedCapacity();
-	m_ConvolutionCoefficient_Gaussian.ReleaseUnusedCapacity();
+	m_Mask.ReleaseUnusedCapacity();
+	m_ConvolutionCoefficient.ReleaseUnusedCapacity();
 
     // ----------- normalize coefficient in Mask ---------
-	auto tempRow = m_Mask_3DIndex_Gaussian.GetRow(3);
+	auto tempRow = m_Mask.GetRow(3);
     auto tempSum = tempRow.Sum();
-	m_Mask_3DIndex_Gaussian.RowOperationInPlace(3, '/', tempSum);
-
-    //--------------------------------------------------
-	this->SetMaskOf3DIndex(&m_Mask_3DIndex_Gaussian);
-	this->SetConvolutionCoefficient(&m_ConvolutionCoefficient_Gaussian);
+	m_Mask.RowOperationInPlace(3, '/', tempSum);
 }
 
 
@@ -151,7 +140,7 @@ void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::BuildMaskOf3D
 	auto InputImageSpacing = m_InputImage->GetSpacing();
 	auto InputImageOrigin = m_InputImage->GetOrigin();
 
-	if (m_Mask_3DIndex_Gaussian.IsEmpty() == true)
+	if (m_Mask.IsEmpty() == true)
 	{
 		auto InputSigmaList = m_SigmaList;
 		m_SigmaList[0] /= InputImageSpacing.Sx;
@@ -161,23 +150,20 @@ void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::BuildMaskOf3D
 		m_SigmaList = InputSigmaList;
 	}
 
-	m_Mask_3DPosition_Gaussian.FastResize(3, m_Mask_3DIndex_Gaussian.GetColNumber());
-	for (int_max k = 0; k < m_Mask_3DIndex_Gaussian.GetColNumber(); ++k)
+	for (int_max k = 0; k < m_Mask.GetColNumber(); ++k)
 	{
-		auto x_Index = m_Mask_3DIndex_Gaussian(0, k);
-		auto y_Index = m_Mask_3DIndex_Gaussian(1, k);
-		auto z_Index = m_Mask_3DIndex_Gaussian(2, k);
+		auto x_Index = m_Mask(0, k);
+		auto y_Index = m_Mask(1, k);
+		auto z_Index = m_Mask(2, k);
 
 		auto x = InputImageOrigin.x + InputImageSpacing.Sx * x_Index;
 		auto y = InputImageOrigin.y + InputImageSpacing.Sy * y_Index;
 		auto z = InputImageOrigin.z + InputImageSpacing.Sz * z_Index;
 
-		m_Mask_3DPosition_Gaussian(0, k) = x;
-		m_Mask_3DPosition_Gaussian(1, k) = y;
-		m_Mask_3DPosition_Gaussian(2, k) = z;
+		m_Mask(0, k) = x;
+		m_Mask(1, k) = y;
+		m_Mask(2, k) = z;
 	}
-	//--------------------------------------------------
-	this->SetMaskOf3DPosition(&m_Mask_3DPosition_Gaussian);
 }
 
 

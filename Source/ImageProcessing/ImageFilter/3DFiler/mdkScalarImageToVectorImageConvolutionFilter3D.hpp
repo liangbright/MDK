@@ -48,7 +48,7 @@ inline
 void ScalarImageToVectorImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
 FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_Index, double z_Index, int_max ThreadIndex)
 {
-    auto VectorLength = m_MaskList_3DIndex->GetLength();
+    auto VectorLength = m_MaskList.GetLength();
 
     auto InputImageSize = m_InputImage->GetSize();
     auto Lx = InputImageSize.Lx;
@@ -59,9 +59,9 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_I
 	{
 		bool CheckBoundAtThisCenter = this->WhetherToCheckBoundAtMaskCenter_3DIndex(x_Index, y_Index, z_Index, i);
 
-		auto PointNumberInMask = (*m_MaskList_3DIndex)[i].GetElementNumber();
+		auto PointNumberInMask = m_MaskList[i].GetElementNumber();
 
-		auto BeginPointerOfMask = (*m_MaskList_3DIndex)[i].GetElementPointer();
+		auto BeginPointerOfMask = m_MaskList[i].GetElementPointer();
 
 		auto tempElementInOutputPixel = ElementTypeOfOutputPixel(0);
 
@@ -116,15 +116,15 @@ inline
 void ScalarImageToVectorImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
 FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex)
 {
-    auto VectorLength = m_MaskList_3DPosition->GetLength();
+	auto VectorLength = m_MaskList.GetLength();
  
     for (int_max i = 0; i < VectorLength; ++i)
     {
         bool EnableBoundCheckAtThisCenter = this->WhetherToCheckBoundAtMaskCenter_3DPosition(x, y, z, i);
 
-        auto PointNumberInMask = (*m_MaskList_3DPosition)[i].GetElementNumber();
+		auto PointNumberInMask = m_MaskList[i].GetElementNumber();
 
-        auto BeginPointerOfMask = (*m_MaskList_3DPosition)[i].GetElementPointer();
+		auto BeginPointerOfMask = m_MaskList[i].GetElementPointer();
 
         auto tempElementInOutputPixel = ElementTypeOfOutputPixel(0);
 
@@ -148,11 +148,9 @@ FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, dou
 template<typename InputPixelType, typename OutputPixelType>
 inline
 void ScalarImageToVectorImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
-OutputFunction(int_max OutputPixelIndex, const OutputPixelType& OutputPixel, int_max ThreadIndex)
+OutputFunction(int_max OutputPixelIndex, OutputPixelType& OutputPixel, int_max ThreadIndex)
 {
-    auto VectorLength = int_max(m_MaskList_3DIndex.size());
-
-    for (int_max i = 0; i < VectorLength; ++i)
+	for (int_max i = 0; i < m_MaskList.GetLength(); ++i)
     {
         (*m_OutputPixelMatrix)(i, OutputPixelIndex) = OutputPixel[i];
     }

@@ -31,6 +31,14 @@ DenseVector<ElementType>::DenseVector(const std::initializer_list<ElementType>& 
 
 
 template<typename ElementType>
+inline
+DenseVector<ElementType>::DenseVector(std::vector<ElementType> InputVector)
+{
+	m_StdVector = std::move(InputVector);
+}
+
+
+template<typename ElementType>
 inline 
 DenseVector<ElementType>::DenseVector(const DenseMatrix<ElementType>& InputMatrix)
 {
@@ -169,6 +177,14 @@ inline
 void DenseVector<ElementType>::operator=(const std::initializer_list<ElementType>& InputVector)
 {
     m_StdVector = InputVector;
+}
+
+
+template<typename ElementType>
+inline
+void DenseVector<ElementType>::operator=(std::vector<ElementType> InputVector)
+{
+	m_StdVector = std::move(InputVector);
 }
 
 
@@ -519,7 +535,7 @@ ElementType& DenseVector<ElementType>::at(int_max Index)
 	if (Index >= SelfLength || Index < 0)
     {
         MDK_Error("Invalid input @ DenseVector::at(Index)")
-        return m_StdVector[0];
+		return  m_StdVector.at(0);
     }
     return m_StdVector[Index];
 }
@@ -533,7 +549,7 @@ const ElementType& DenseVector<ElementType>::at(int_max Index) const
 	if (Index >= SelfLength || Index < 0)
     {
         MDK_Error("Invalid input @ DenseVector::at(Index)")
-        return m_StdVector[0];
+        return m_StdVector.at(0);
     }
     return m_StdVector[Index];
 }

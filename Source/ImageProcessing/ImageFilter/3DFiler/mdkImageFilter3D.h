@@ -72,6 +72,7 @@ protected:
   
 public:
     virtual void Clear();
+	virtual void ClearOutput();
 
     void SetInputImage(const Image3D<InputPixelType>* InputImage);
 
@@ -105,16 +106,12 @@ public:
     //----------------------------------------------------------------------------------------------------------
 
 protected:
-
-	virtual void ClearOutput();
-
 	virtual void UpdateOutputPort();
 
     virtual bool Preprocess();
-
     virtual bool Postprocess();
 
-    inline virtual void OutputFunction(int_max OutputPixelIndex, const OutputPixelType& OutputPixel, int_max ThreadIndex);
+    inline virtual void OutputFunction(int_max OutputPixelIndex, OutputPixelType& OutputPixel, int_max ThreadIndex);
 
     virtual void Update_in_a_Thread(int_max OutputPixelIndex_start, int_max OutputPixelIndex_end, int_max ThreadIndex);
 

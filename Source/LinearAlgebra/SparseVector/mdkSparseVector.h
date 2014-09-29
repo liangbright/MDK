@@ -12,7 +12,7 @@
 #include "mdkObject.h"
 #include "mdkLinearAlgebraConfig.h"
 #include "mdkMatrix_Common.h"
-
+#include "mdkDenseVector.h"
 
 namespace mdk
 {
@@ -34,11 +34,13 @@ private:
 
     std::vector<ElementType> m_DataArray;  // store element with the order in m_IndexList
 
-    ElementType m_ZeroElement;              // represent all the zero elements
+	ElementType m_ZeroElement;
 
 public:
 
     inline SparseVector();
+
+	inline SparseVector(const ElementType& Element);
 
     inline SparseVector(const SparseVector& InputVector);
      
@@ -48,24 +50,19 @@ public:
 
     inline void Construct(int_max Length); // all zero
 
-    inline bool Construct(const std::initializer_list<int_max>& IndexList,
-                          const std::initializer_list<ElementType>& DataArray,
-                          int_max Length);
+    inline bool Construct(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& DataArray, int_max Length);
 
-    inline bool Construct(const std::vector<int_max>& IndexList,
-                          const std::vector<ElementType>& DataArray,
-                          int_max Length);
+    inline bool Construct(const std::vector<int_max>& IndexList, const std::vector<ElementType>& DataArray, int_max Length);
 
-    inline bool Construct(const DenseMatrix<int_max>& IndexList,
-                          const DenseMatrix<ElementType>& DataArray,
-                          int_max Length);
+    inline bool Construct(const DenseVector<int_max>& IndexList, const DenseVector<ElementType>& DataArray, int_max Length);
 
-    inline bool Construct(const int_max* IndexList,
-                          const ElementType* DataArray,
-                          int_max RecordedElementNumber,
-                          int_max Length);
+    inline bool Construct(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& DataArray, int_max Length);
+
+    inline bool Construct(const int_max* IndexList, const ElementType* DataArray, int_max RecordedElementNumber, int_max Length);
 
     inline void ConstructFromSortedData(std::vector<int_max> IndexList, std::vector<ElementType> DataArray, int_max Length);
+
+	inline void ConstructFromSortedData(DenseVector<int_max> IndexList, DenseVector<ElementType> DataArray, int_max Length);
 
     inline void operator=(const SparseVector& InputVector);
 
@@ -80,19 +77,12 @@ public:
     inline void FastResize(int_max InputLength);
 
     //------------------------------------------
-    // note 1: [] and () have no bound check in release mode
-    // note 2: there is no none const operator [] and ()
 
+	inline ElementType& operator[](int_max Index);
     inline const ElementType& operator[](int_max Index) const;
 
+	inline ElementType& operator()(int_max Index);
     inline const ElementType& operator()(int_max Index) const;
-
-    //------------------------------------------
-    // note: output ElementType(0) if no record exits in the input location
-
-    inline const ElementType& GetElement(int_max Index) const;
-
-    inline bool SetElement(int_max Index, const ElementType& Element);
 
     //-----------------------------------------
 

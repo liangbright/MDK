@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <array>
+#include <vector>
 #include <limits>
 
 #include "mdkDebugConfig.h"
@@ -40,6 +41,8 @@ public:
 
     inline DenseVector(const std::initializer_list<ElementType>& InputVector);
 
+	inline DenseVector(const std::vector<ElementType>& InputVector);
+
 	inline DenseVector(const DenseMatrix<ElementType>& InputMatrix);
 
     inline DenseVector(const DenseVector<ElementType, Length>& InputVector);
@@ -55,6 +58,8 @@ public:
     inline void operator=(DenseVector<ElementType, Length>&& InputVector);
 
     inline void operator=(const std::initializer_list<ElementType>& InputVector);
+
+	inline void operator=(const std::vector<ElementType>& InputVector);
 
 	inline void operator=(const DenseVector<ElementType>& InputVector);
 

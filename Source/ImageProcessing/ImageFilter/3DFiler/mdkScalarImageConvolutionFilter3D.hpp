@@ -27,32 +27,30 @@ SetImageInterpolationMethodAndOption(ScalarImage3DInterpolationMethodEnum Method
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::SetConvolutionCoefficient(const DenseMatrix<double>* Coefficient)
+void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::SetConvolutionCoefficient(DenseMatrix<double> Coefficient)
 {
-	m_ConvolutionCoefficient = Coefficient;
+	m_ConvolutionCoefficient = std::move(Coefficient);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::CheckCoefVectorLength()
+const DenseMatrix<double>& ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::GetConvolutionCoefficient() const
 {
-	if (m_Mask_3DIndex != nullptr)
-	{
-		if (m_ConvolutionCoefficient->GetElementNumber() != m_Mask_3DIndex->GetColNumber())
-		{
-			return false;
-		}
-	}
+	return m_ConvolutionCoefficient;
+}
 
-	if (m_Mask_3DPosition != nullptr)
-	{
-		if (m_ConvolutionCoefficient->GetElementNumber() != m_Mask_3DPosition->GetColNumber())
-		{
-			return false;
-		}
-	}
 
-	return true;
+template<typename InputPixelType, typename OutputPixelType>
+DenseMatrix<double>& ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::ConvolutionCoefficient()
+{
+	return m_ConvolutionCoefficient;
+}
+
+
+template<typename InputPixelType, typename OutputPixelType>
+const DenseMatrix<double>& ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::ConvolutionCoefficient() const
+{
+	return m_ConvolutionCoefficient;
 }
 
 
@@ -64,7 +62,7 @@ bool ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::Preprocess
 		return false;
 	}
 
-	if (this->CheckCoefVectorLength() == false)
+	if (m_ConvolutionCoefficient.GetElementNumber() != m_Mask.GetColNumber())
 	{
 		return false;
 	}
@@ -80,10 +78,10 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_I
 {    
 	auto tempOutputPixel = OutputPixelType(0);
 
-    auto PointNumberInMask = m_Mask_3DIndex->GetElementNumber();
-    auto BeginPointerOfMask = m_Mask_3DIndex->GetElementPointer();
+    auto PointNumberInMask = m_Mask.GetElementNumber();
+    auto BeginPointerOfMask = m_Mask.GetElementPointer();
 
-	auto BeginPointerOfCoef = m_ConvolutionCoefficient->GetElementPointer();
+	auto BeginPointerOfCoef = m_ConvolutionCoefficient.GetElementPointer();
 
 	bool CheckBoundAtThisCenter = this->WhetherToCheckBoundAtMaskOrigin_3DIndex(x_Index, y_Index, z_Index);
 
@@ -141,9 +139,9 @@ void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
 FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex)
 {
 	auto tempOutputPixel = OutputPixelType(0);
-    auto PointNumberInMask = m_Mask_3DPosition->GetElementNumber();
-    auto BeginPointerOfMask = m_Mask_3DPosition->GetElementPointer();
-	auto PtrCoef = m_ConvolutionCoefficient->GetElementPointer();
+	auto PointNumberInMask = m_Mask.GetElementNumber();
+	auto BeginPointerOfMask = m_Mask.GetElementPointer();
+	auto PtrCoef = m_ConvolutionCoefficient.GetElementPointer();
 	for (auto PtrMask = BeginPointerOfMask; PtrMask < BeginPointerOfMask + PointNumberInMask; PtrMask += 3, ++PtrCoef)
     {
 		auto temp_x = PtrMask[0] + x;

@@ -52,6 +52,23 @@ DenseVector<ElementType, Length>::DenseVector(const std::initializer_list<Elemen
 
 template<typename ElementType, int_max Length>
 inline
+DenseVector<ElementType, Length>::DenseVector(const std::vector<ElementType>& InputVector)
+{
+	if (int_max(InputVector.size()) != Length)
+	{
+		MDK_Error("InputVector.size() != Length @ DenseVector::DenseVector(std::vector)")
+			return;
+	}
+
+	for (int_max k = 0; k < Length; ++k)
+	{
+		m_StdArray[k] = InputVector[k];
+	}
+}
+
+
+template<typename ElementType, int_max Length>
+inline
 DenseVector<ElementType, Length>::DenseVector(const DenseMatrix<ElementType>& InputMatrix)
 {
 	(*this) = InputMatrix;
@@ -108,6 +125,23 @@ void DenseVector<ElementType, Length>::operator=(const std::initializer_list<Ele
     }
 
     m_StdArray = InputVector;
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+void DenseVector<ElementType, Length>::operator=(const std::vector<ElementType>& InputVector)
+{
+	if (int_max(InputVector.size()) != Length)
+	{
+		MDK_Error("InputVector.size() != Length @ DenseVector::operator=(...)")
+			return;
+	}
+
+	for (int_max k = 0; k < Length; ++k)
+	{
+		m_StdArray[k] = InputVector[k];
+	}
 }
 
 

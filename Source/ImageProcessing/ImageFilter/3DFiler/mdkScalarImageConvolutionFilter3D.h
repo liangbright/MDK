@@ -16,11 +16,11 @@ public:
 	typedef InputPixel_Type InputPixelType;
 	typedef OutputPixel_Type OutputPixelType;
 
-private:
+protected:
 	ScalarImage3DInterpolationMethodEnum m_InterpolationMethod;
 	Option_Of_ScalarImageInterpolator3D m_InterpolationOption;
 	
-	const DenseMatrix<double>* m_ConvolutionCoefficient; // vector
+	DenseMatrix<double> m_ConvolutionCoefficient; // vector
 
 public:
 	ScalarImageConvolutionFilter3D();
@@ -28,14 +28,17 @@ public:
 
 	void SetImageInterpolationMethodAndOption(ScalarImage3DInterpolationMethodEnum Method, const Option_Of_ScalarImageInterpolator3D& Option);
 
-	void SetConvolutionCoefficient(const DenseMatrix<double>* m_ConvolutionCoefficient);
+	void SetConvolutionCoefficient(DenseMatrix<double> Coef);
+	const DenseMatrix<double>& GetConvolutionCoefficient() const;
+
+	DenseMatrix<double>& ConvolutionCoefficient();
+	const DenseMatrix<double>& ConvolutionCoefficient() const;
 
 	inline void FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_Index, double z_Index, int_max ThreadIndex);
 
     inline void FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex);
 
 protected:
-	bool CheckCoefVectorLength();
 	virtual bool Preprocess();
 
 private:

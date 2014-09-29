@@ -27,40 +27,51 @@ template<typename InputPixelType, typename OutputPixelType>
 void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Clear()
 {
     this->ImageFilter3D::Clear();
-
-    m_Mask_3DIndex = nullptr;
-    m_Mask_3DPosition = nullptr;
-
+	m_Mask.Clear();
+	m_Flag_3DPositionInMask = -1;
     m_NOBoundCheckRegion_3DIndex.IsEmpty = true;
     m_NOBoundCheckRegion_3DPosition.IsEmpty = true;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::SetMaskOf3DIndex(const DenseMatrix<double>* Mask)
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::SetMask(DenseMatrix<double> Mask)
 {
-    m_Mask_3DIndex = Mask;
+	m_Mask = std::move(Mask);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::SetMaskOf3DPosition(const DenseMatrix<double>* Mask)
+const DenseMatrix<double>& ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::GetMask() const
 {
-    m_Mask_3DPosition = Mask;
+    return m_Mask;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-const DenseMatrix<double>* ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::GetMaskOf3DIndex() const
+DenseMatrix<double>& ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Mask()
 {
-    return m_Mask_3DIndex;
+	return m_Mask;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-const DenseMatrix<double>* ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::GetMaskOf3DPosition() const
+const DenseMatrix<double>& ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Mask() const
 {
-    return m_Mask_3DPosition;
+	return m_Mask;
+}
+
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Use3DIndexInMask()
+{
+	m_Flag_3DPositionInMask = 0;
+}
+
+
+template<typename InputPixelType, typename OutputPixelType>
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Use3DPhysicalPositionInMask()
+{
+	m_Flag_3DPositionInMask = 1;
 }
 
 
@@ -69,7 +80,7 @@ void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::ComputeRegion
 {
     m_NOBoundCheckRegion_3DIndex.IsEmpty = true;
 
-    if ((*m_Mask_3DIndex).IsEmpty() == true)
+	if (m_Mask.IsEmpty() == true)
     {
         return;
     }
@@ -77,46 +88,41 @@ void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::ComputeRegion
     auto InputImageSize = m_InputImage->GetSize();    
 
     int_max MaxDeviation_x[2] = { 0, 0 }; // maximum deviation from center in x direction
-
     int_max MaxDeviation_y[2] = { 0, 0 };
-
     int_max MaxDeviation_z[2] = { 0, 0 };
 
     int_max SafeDistance = 2;
 
-    for (int_max j = 0; j < (*m_Mask_3DIndex).GetColNumber(); ++j)
+	for (int_max j = 0; j < m_Mask.GetColNumber(); ++j)
     {
-        auto temp = (*m_Mask_3DIndex)(0, j);
-
-        if (temp < 0.0)
+		auto temp_x = m_Mask(0, j);
+		if (temp_x < 0.0)
         {
-            MaxDeviation_x[0] = std::max(MaxDeviation_x[0], int_max(-temp));
+			MaxDeviation_x[0] = std::max(MaxDeviation_x[0], int_max(-temp_x));
         }
         else
         {
-            MaxDeviation_x[1] = std::max(MaxDeviation_x[1], int_max(temp));
+			MaxDeviation_x[1] = std::max(MaxDeviation_x[1], int_max(temp_x));
         }
 
-        temp = (*m_Mask_3DIndex)(1, j);
-
-        if (temp < 0.0)
+		auto temp_y = m_Mask(1, j);
+		if (temp_y < 0.0)
         {
-            MaxDeviation_y[0] = std::max(MaxDeviation_y[0], int_max(-temp));
-        }
-        else
-        {
-            MaxDeviation_y[1] = std::max(MaxDeviation_y[1], int_max(temp));
-        }
-
-        temp = (*m_Mask_3DIndex)(2, j);
-
-        if (temp < 0.0)
-        {
-            MaxDeviation_z[0] = std::max(MaxDeviation_z[0], int_max(-temp));
+			MaxDeviation_y[0] = std::max(MaxDeviation_y[0], int_max(-temp_y));
         }
         else
         {
-            MaxDeviation_z[1] = std::max(MaxDeviation_z[1], int_max(temp));
+			MaxDeviation_y[1] = std::max(MaxDeviation_y[1], int_max(temp_y));
+        }
+
+		auto temp_z = m_Mask(2, j);
+		if (temp_z < 0.0)
+        {
+			MaxDeviation_z[0] = std::max(MaxDeviation_z[0], int_max(-temp_z));
+        }
+        else
+        {
+			MaxDeviation_z[1] = std::max(MaxDeviation_z[1], int_max(temp_z));
         }
     }
 
@@ -146,62 +152,53 @@ void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::ComputeRegion
 {    
     m_NOBoundCheckRegion_3DPosition.IsEmpty = true;
 
-    if ((*m_Mask_3DPosition).IsEmpty() == true)
+	if (m_Mask.IsEmpty() == true)
     {        
         return;
     }
 
     auto PhysicalOrigin = m_InputImage->GetOrigin();
-
     auto PhysicalSize = m_InputImage->GetPhysicalSize();
-
     auto PixelSpacing = m_InputImage->GetSpacing();
 
     auto SafeDistance_x = 2 * PixelSpacing.Sx;
-
     auto SafeDistance_y = 2 * PixelSpacing.Sy;
-
     auto SafeDistance_z = 2 * PixelSpacing.Sz;
 
     double MaxDeviation_x[2] = { 0, 0 };
-
     double MaxDeviation_y[2] = { 0, 0 };
-
     double MaxDeviation_z[2] = { 0, 0 };
 
-    for (int_max j = 0; j < (*m_Mask_3DPosition).GetColNumber(); ++j)
+	for (int_max j = 0; j < m_Mask.GetColNumber(); ++j)
     {
-        auto temp = (*m_Mask_3DPosition)(0, j);
-
-        if (temp < 0.0)
+		auto temp_x = m_Mask(0, j);
+		if (temp_x < 0.0)
         {
-            MaxDeviation_x[0] = std::max(MaxDeviation_x[0], -temp);
+			MaxDeviation_x[0] = std::max(MaxDeviation_x[0], -temp_x);
         }
         else
         {
-            MaxDeviation_x[1] = std::max(MaxDeviation_x[1], temp);
+			MaxDeviation_x[1] = std::max(MaxDeviation_x[1], temp_x);
         }
 
-        temp = (*m_Mask_3DPosition)(1, j);
-
-        if (temp < 0.0)
+		auto temp_y = m_Mask(1, j);
+		if (temp_y < 0.0)
         {
-            MaxDeviation_y[0] = std::max(MaxDeviation_y[0], -temp);
-        }
-        else
-        {
-            MaxDeviation_y[1] = std::max(MaxDeviation_y[1], temp);
-        }
-
-        temp = (*m_Mask_3DPosition)(2, j);
-
-        if (temp < 0.0)
-        {
-            MaxDeviation_z[0] = std::max(MaxDeviation_z[0], -temp);
+			MaxDeviation_y[0] = std::max(MaxDeviation_y[0], -temp_y);
         }
         else
         {
-            MaxDeviation_z[1] = std::max(MaxDeviation_z[1], temp);
+			MaxDeviation_y[1] = std::max(MaxDeviation_y[1], temp_y);
+        }
+
+		auto temp_z = m_Mask(2, j);
+		if (temp_z < 0.0)
+        {
+			MaxDeviation_z[0] = std::max(MaxDeviation_z[0], -temp_z);
+        }
+        else
+        {
+			MaxDeviation_z[1] = std::max(MaxDeviation_z[1], temp_z);
         }
     }
 
@@ -227,50 +224,6 @@ void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::ComputeRegion
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::CheckMask()
-{
-	if (m_Input3DPositionList == nullptr)
-    {
-		bool MaskIsEmpty_3DIndex = true;
-
-		if (m_Mask_3DIndex != nullptr)
-		{
-			if (m_Mask_3DIndex->IsEmpty() == false)
-			{
-				MaskIsEmpty_3DIndex = false;
-			}
-		}
-
-        if (MaskIsEmpty_3DIndex == true)
-        {
-            MDK_Error("Empty m_Mask_3DIndex @ ImageFilterWithSingleMask3D::CheckMask()")
-            return false;        
-        }
-    }
-	else // if (m_Input3DPositionList != nullptr)
-    {
-		bool MaskIsEmpty_3DPosition = true;
-
-		if (m_Mask_3DPosition != nullptr)
-		{
-			if (m_Mask_3DPosition->IsEmpty() == false)
-			{
-				MaskIsEmpty_3DPosition = false;
-			}
-		}
-
-		if (MaskIsEmpty_3DPosition == true)
-		{
-			MDK_Error("Empty m_Mask_3DPosition @ ImageFilterWithSingleMask3D::CheckMask()")
-			return false;
-		}
-    }
-  
-    return true;
-}
-
-
-template<typename InputPixelType, typename OutputPixelType>
 bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Preprocess()
 {
     if (this->ImageFilter3D::Preprocess() == false)
@@ -278,23 +231,20 @@ bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Preprocess()
         return false;
     }
 
-	if (m_Input3DPositionList != nullptr)
+	if (m_Flag_3DPositionInMask == 1)
 	{
 		this->BuildMaskOf3DPosition();
-		if (this->CheckMask() == false)
-		{
-			return false;
-		}
 		this->ComputeRegionOfNOBoundCheck_3DPosition();
+	}
+	else if (m_Flag_3DPositionInMask == 0)
+	{
+		this->BuildMaskOf3DIndex();
+		this->ComputeRegionOfNOBoundCheck_3DIndex();
 	}
 	else
 	{
-		this->BuildMaskOf3DIndex();
-		if (this->CheckMask() == false)
-		{
-			return false;
-		}
-		this->ComputeRegionOfNOBoundCheck_3DIndex();
+		MDK_Error("m_Flag_3DPositionInMask is -1 @ ImageFilterWithSingleMask3D::Preprocess()")
+		return false;
 	}
 
     return true;

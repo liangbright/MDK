@@ -3,14 +3,14 @@
 
 #include <algorithm>
 
-#include "mdkScalarImageToVectorImageFilterWithMask3D.h"
+#include "mdkImageFilterWithMultiMask3D.h"
 #include "mdkScalarImageInterpolator3D.h"
 
 namespace mdk
 {
 
 template<typename InputPixel_Type, typename OutputPixel_Type>
-class ScalarImageToVectorImageConvolutionFilter3D : public ScalarImageToVectorImageFilterWithMask3D<InputPixel_Type, OutputPixel_Type>
+class ScalarImageToVectorImageConvolutionFilter3D : public ImageFilterWithMultiMask3D<InputPixel_Type, OutputPixel_Type>
 {
 public:
 	typedef InputPixel_Type InputPixelType;

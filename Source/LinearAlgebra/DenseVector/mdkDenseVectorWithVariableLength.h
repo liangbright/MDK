@@ -41,6 +41,10 @@ public:
 
     inline DenseVector(const std::initializer_list<ElementType>& InputVector);
 
+	inline DenseVector(const std::vector<ElementType>& InputVector);
+
+	inline DenseVector(std::vector<ElementType>&& InputVector);
+
 	inline DenseVector(const DenseMatrix<ElementType>& InputMatrix);
 
 	template<int_max LengthParameter>
@@ -62,6 +66,8 @@ public:
     inline void operator=(const std::initializer_list<const DenseVector<ElementType>*>& InputList);
 
     inline void operator=(const std::initializer_list<ElementType>& InputVector);
+
+	inline void operator=(std::vector<ElementType> InputVector);
 
     inline void operator=(const DenseMatrix<ElementType>& InputVector);
 

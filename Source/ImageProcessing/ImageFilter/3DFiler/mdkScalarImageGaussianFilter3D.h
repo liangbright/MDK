@@ -19,18 +19,9 @@ public:
 	typedef OutputPixel_Type OutputPixelType;
 
 private:
-
     DenseMatrix<double> m_SigmaList; // [sigma_x, sigma_y, sigma_z]
-
     DenseMatrix<double> m_RotationMatrix; // 3 x 3
-
     double m_CutOffRatio;
-
-	DenseMatrix<double> m_Mask_3DIndex_Gaussian;
-
-    DenseMatrix<double> m_Mask_3DPosition_Gaussian;
-
-	DenseMatrix<double> m_ConvolutionCoefficient_Gaussian;
 
 public:		
     ScalarImageGaussianFilter3D();

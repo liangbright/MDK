@@ -425,7 +425,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Update_in_a_Thread(int_max 
     }
     else // output to another place
     {
-        auto tempOutputPixel = OutputPixelType(0);
+		OutputPixelType tempOutputPixel;
 
 		if (m_InputRegionOf3DIndex == nullptr && m_Input3DIndexList == nullptr && m_Input3DPositionList == nullptr)
         {			
@@ -492,7 +492,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType>::Update_in_a_Thread(int_max 
 
 template<typename InputPixelType, typename OutputPixelType>
 inline
-void ImageFilter3D<InputPixelType, OutputPixelType>::OutputFunction(int_max OutputPixelIndex, const OutputPixelType& OutputPixel, int_max ThreadIndex)
+void ImageFilter3D<InputPixelType, OutputPixelType>::OutputFunction(int_max OutputPixelIndex, OutputPixelType& OutputPixel, int_max ThreadIndex)
 {
     if (m_Flag_OutputImage == true)
     {
