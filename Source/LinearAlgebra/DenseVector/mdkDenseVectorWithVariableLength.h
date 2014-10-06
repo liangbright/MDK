@@ -41,9 +41,7 @@ public:
 
     inline DenseVector(const std::initializer_list<ElementType>& InputVector);
 
-	inline DenseVector(const std::vector<ElementType>& InputVector);
-
-	inline DenseVector(std::vector<ElementType>&& InputVector);
+	inline DenseVector(std::vector<ElementType> InputVector);
 
 	inline DenseVector(const DenseMatrix<ElementType>& InputMatrix);
 

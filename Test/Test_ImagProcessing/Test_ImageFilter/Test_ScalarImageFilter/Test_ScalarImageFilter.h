@@ -32,9 +32,9 @@ void test_ScalarImageGaussianFilter3D()
 
     imfilter.Update();
 
-    auto OutputImage = imfilter.GetOutputImage();
+    auto& OutputImage = imfilter.OutputImage();
 
-    Save3DScalarImageAsJsonDataFile(*OutputImage, FilePath + "FilteredTestImage.json");
+    Save3DScalarImageAsJsonDataFile(OutputImage, FilePath + "FilteredTestImage.json");
 
     std::system("pause");
 }

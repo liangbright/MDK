@@ -43,18 +43,14 @@ protected:
 	//--------------------- output ---------------------
 
 	// output_0:
-    Image3D<OutputPixelType>* m_OutputImage;
+    Image3D<OutputPixelType> m_OutputImage;
 
 	// output_1:
-    ObjectArray<OutputPixelType>* m_OutputArray;
+    ObjectArray<OutputPixelType> m_OutputArray;
 
     //------------ internal variable -------------------
 
 	DenseMatrix<int_max> m_PixelLinearIndexList_Of_InputRegionOf3DIndex;
-
-    Image3D<OutputPixelType> m_OutputImage_SharedCopy;        // keep tracking m_OutputImage
-
-	ObjectArray<OutputPixelType> m_OutputArray_SharedCopy;    // keep tracking m_OutputArray
 
     bool m_Flag_OutputImage;
 
@@ -72,7 +68,6 @@ protected:
   
 public:
     virtual void Clear();
-	virtual void ClearOutput();
 
     void SetInputImage(const Image3D<InputPixelType>* InputImage);
 
@@ -96,9 +91,9 @@ public:
 
     virtual bool Update();
 	
-    Image3D<OutputPixelType>* GetOutputImage();
+    Image3D<OutputPixelType>& OutputImage();
 
-    ObjectArray<OutputPixelType>* GetOutputArray();
+    ObjectArray<OutputPixelType>& OutputArray();
 
     //----------------------------------------------------------------------------------------------------------
     // just for reference: each specific filter should provide Apply function, such as
@@ -106,8 +101,6 @@ public:
     //----------------------------------------------------------------------------------------------------------
 
 protected:
-	virtual void UpdateOutputPort();
-
     virtual bool Preprocess();
     virtual bool Postprocess();
 

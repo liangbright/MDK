@@ -6,9 +6,15 @@
 
 namespace mdk
 {
-// two types of ProcessObject
-// type-1 : output data is NOT stored in ProcessObject, and shared copy of output is used
-// type-2 : output data is stored in ProcessObject, and shared copy of output is NOT used
+// ProcessObject is a function y=f_p_(x), x is input, y is output, p is parameter
+// e.g.: ImageFilter3D
+//
+// Parameter Estimator can be a member function of the object
+// e.g.: AffineTransform
+//
+// Input x must NOT be member variable, and must be pointer
+// Output y must be member variable
+// Parameter p may or may not be member variable 
 
 class ProcessObject : public Object
 {
@@ -17,20 +23,14 @@ protected:
     virtual ~ProcessObject() {}
 
 public:
-    virtual void Clear() = 0;     // set to default/initial state
-
-	virtual void ClearOutput() {} // this should be called in Clear()
-
-    virtual bool Update() = 0;    // run the process and update everything (output or parameter)
-
-protected:
-    // this may have different names in different operation modes, e.g., CheckInput_Mode_1(), CheckInput_Mode_2()
-    // put it here just for reminder
-    //virtual bool CheckInput() = 0; // check the inputs to the process
-                                     // not only "input" data, but also "input" variables that store output results
-                                     // this is called in the first step of Update()
-
-	virtual void UpdateOutputPort() {} // this should be called in the last step of Update() for type-2 ProcessObject only
+    virtual void Clear() = 0;         // set to default/initial state
+    virtual bool Update() = 0;        // run the process and update everything
+	
+//suggestion:
+	// CheckInput() : called in the first step of Update()
+	// this may have different names in different operation modes, e.g., CheckInput_Mode_1(), CheckInput_Mode_2()
+	//
+	// void ClearOutput() : called in Clear()
 
 private:
     ProcessObject(const ProcessObject&) = delete;  

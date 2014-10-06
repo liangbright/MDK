@@ -3,19 +3,20 @@
 
 #include <vector>
 
+#include "mdkObject.h"
 #include "mdkType.h"
 
 namespace mdk
 {
 
-class mdkPipelineObject : public mdkObject
+class PipelineObject : public Object
 {
 
 private:
 
-	std::vector<mdkObject*>  m_InputList;
+	std::vector<Object*>  m_InputList;
 
-	std::vector<mdkObject*>  m_OutputList;
+	std::vector<Object*>  m_OutputList;
 
 	uint64 m_MaximumInputNumber;
 
@@ -24,8 +25,8 @@ private:
 	uint64 m_SelfUpdateCounter;
 
 public:		
-	mdkObject();
-	~mdkObject();
+	PipelineObject();
+	~PipelineObject();
 
 	virtual void Run();
 
