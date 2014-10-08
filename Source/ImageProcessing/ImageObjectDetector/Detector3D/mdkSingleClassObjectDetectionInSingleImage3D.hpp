@@ -42,14 +42,14 @@ void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::SetInputI
 
 
 template<typename VoxelType, typename OutputVoxelType>
-void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::SetCandidateOriginListOf3DContinuousIndex(const DenseMatrix<double>* Input3DIndexList)
+void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::SetCandidateOriginListOf3DContinuousIndex(const DenseMatrix<ScalarType>* Input3DIndexList)
 {
 	m_CandidateOriginList_3DContinuousIndex = Input3DIndexList;
 }
 
 
 template<typename VoxelType, typename OutputVoxelType>
-void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::SetCandidateOriginListOf3DPyhsicalPosition(const DenseMatrix<double>* Input3DPositionList)
+void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::SetCandidateOriginListOf3DPyhsicalPosition(const DenseMatrix<ScalarType>* Input3DPositionList)
 {
 	m_CandidateOriginList_3DPyhsicalPosition = Input3DPositionList;
 }
@@ -66,7 +66,7 @@ SetMaskList(const ObjectArray<Mask_Of_SingleClassObjectDetectionInSingleImage3D<
 template<typename VoxelType, typename ScalarType>
 void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::SetThreadNumber(int_max MaxNumber)
 {
-	m_ThreadMaxNumber = MaxNumber;
+	m_MaxNumberOfThread = MaxNumber;
 }
 
 
@@ -147,8 +147,7 @@ bool SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::Preproces
 {
 	if (m_CandidateOriginList_3DContinuousIndex == nullptr && m_CandidateOriginList_3DPyhsicalPosition == nullptr)
 	{
-		auto InputSize = m_InputImage->GetSize();
-		m_TotalCandidateOriginNumber = InputSize.Lx*InputSize.Ly*InputSize.Lz;
+		m_TotalCandidateOriginNumber = m_InputImage->GetPixelNumber();
 		m_Flag_ScanWholeImageGrid = true;
 	}
 	else if (m_CandidateOriginList_3DContinuousIndex != nullptr && m_CandidateOriginList_3DPyhsicalPosition == nullptr)
@@ -180,13 +179,13 @@ void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::ComputeRe
 
 	if (InputMaskList.IsEmpty() == true)
 	{
-		m_NOBoundCheckRegionList_3DIndex.Clear();
+		m_NOBoundCheckRegionList_3DContinuousIndex.Clear();
 		return;
 	}
 
 	auto MaskNumber = InputMaskList.GetLength();
 
-	m_NOBoundCheckRegionList_3DIndex.Resize(MaskNumber);
+	m_NOBoundCheckRegionList_3DContinuousIndex.Resize(MaskNumber);
 
 	auto InputImageSize = m_InputImage->GetSize();
 
@@ -194,7 +193,7 @@ void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::ComputeRe
 
 	for (int_max i = 0; i < MaskNumber; ++i)
 	{
-		m_NOBoundCheckRegionList_3DIndex[i].IsEmpty = true;
+		m_NOBoundCheckRegionList_3DContinuousIndex[i].IsEmpty = true;
 
 		int_max MaxDeviation_x[2] = { 0, 0 }; // maximum deviation from center in x direction
 		int_max MaxDeviation_y[2] = { 0, 0 };
@@ -239,23 +238,23 @@ void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::ComputeRe
 			}
 		}
 
-		if (MaxDeviation_x[0] + MaxDeviation_x[1] + 1 + 2 * SafeDistance < InputImageSize.Lx
-			&& MaxDeviation_y[0] + MaxDeviation_y[1] + 1 + 2 * SafeDistance < InputImageSize.Ly
-			&& MaxDeviation_z[0] + MaxDeviation_z[1] + 1 + 2 * SafeDistance < InputImageSize.Lz)
+		if (   MaxDeviation_x[0] + MaxDeviation_x[1] + 1 + 2 * SafeDistance < InputImageSize[0]
+			&& MaxDeviation_y[0] + MaxDeviation_y[1] + 1 + 2 * SafeDistance < InputImageSize[1]
+			&& MaxDeviation_z[0] + MaxDeviation_z[1] + 1 + 2 * SafeDistance < InputImageSize[2])
 		{
-			m_NOBoundCheckRegionList_3DIndex[i].IsEmpty = false;
+			m_NOBoundCheckRegionList_3DContinuousIndex[i].IsEmpty = false;
 
-			m_NOBoundCheckRegionList_3DIndex[i].x0 = MaxDeviation_x[0] + SafeDistance;
+			m_NOBoundCheckRegionList_3DContinuousIndex[i].x0 = MaxDeviation_x[0] + SafeDistance;
 
-			m_NOBoundCheckRegionList_3DIndex[i].x1 = InputImageSize.Lx - 1 - MaxDeviation_x[1] - SafeDistance;
+			m_NOBoundCheckRegionList_3DContinuousIndex[i].x1 = InputImageSize[0] - 1 - MaxDeviation_x[1] - SafeDistance;
 
-			m_NOBoundCheckRegionList_3DIndex[i].y0 = MaxDeviation_y[0] + SafeDistance;
+			m_NOBoundCheckRegionList_3DContinuousIndex[i].y0 = MaxDeviation_y[0] + SafeDistance;
 
-			m_NOBoundCheckRegionList_3DIndex[i].y1 = InputImageSize.Ly - 1 - MaxDeviation_y[1] - SafeDistance;
+			m_NOBoundCheckRegionList_3DContinuousIndex[i].y1 = InputImageSize[1] - 1 - MaxDeviation_y[1] - SafeDistance;
 
-			m_NOBoundCheckRegionList_3DIndex[i].z0 = MaxDeviation_z[0] + SafeDistance;
+			m_NOBoundCheckRegionList_3DContinuousIndex[i].z0 = MaxDeviation_z[0] + SafeDistance;
 
-			m_NOBoundCheckRegionList_3DIndex[i].z1 = InputImageSize.Lz - 1 - MaxDeviation_z[1] - SafeDistance;
+			m_NOBoundCheckRegionList_3DContinuousIndex[i].z1 = InputImageSize[2] - 1 - MaxDeviation_z[1] - SafeDistance;
 		}
 	}
 }
@@ -269,29 +268,29 @@ void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::ComputeRe
 
 	if (InputMaskList.IsEmpty() == true)
 	{
-		m_NOBoundCheckRegionList_3DPosition.Clear();
+		m_NOBoundCheckRegionList_3DPyhsicalPosition.Clear();
 		return;
 	}
 
 	auto MaskNumber = InputMaskList.GetLength();
 
-	m_NOBoundCheckRegionList_3DPosition.resize(MaskNumber);
+	m_NOBoundCheckRegionList_3DPyhsicalPosition.resize(MaskNumber);
 
 	auto PhysicalOrigin = m_InputImage->GetOrigin();
 	auto PhysicalSize = m_InputImage->GetPhysicalSize();
 	auto VoxelSpacing = m_InputImage->GetSpacing();
 
-	auto SafeDistance_x = 2 * VoxelSpacing.Sx;
-	auto SafeDistance_y = 2 * VoxelSpacing.Sy;
-	auto SafeDistance_z = 2 * VoxelSpacing.Sz;
+	auto SafeDistance_x = 2 * VoxelSpacing[0];
+	auto SafeDistance_y = 2 * VoxelSpacing[1];
+	auto SafeDistance_z = 2 * VoxelSpacing[2];
 
 	for (int_max i = 0; i < MaskNumber; ++i)
 	{
-		m_NOBoundCheckRegionList_3DPosition[i].IsEmpty = true;
+		m_NOBoundCheckRegionList_3DPyhsicalPosition[i].IsEmpty = true;
 
-		double MaxDeviation_x[2] = { 0, 0 };
-		double MaxDeviation_y[2] = { 0, 0 };
-		double MaxDeviation_z[2] = { 0, 0 };
+		ScalarType MaxDeviation_x[2] = { 0, 0 };
+		ScalarType MaxDeviation_y[2] = { 0, 0 };
+		ScalarType MaxDeviation_z[2] = { 0, 0 };
 
 		for (int_max k = 0; k < InputMaskList[i].PointSet.GetElementNumber(); ++k)
 		{
@@ -332,23 +331,23 @@ void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::ComputeRe
 			}
 		}
 
-		if (MaxDeviation_x[0] + MaxDeviation_x[1] + 2 * SafeDistance_x < PhysicalSize.Lx
-			&& MaxDeviation_y[0] + MaxDeviation_y[1] + 2 * SafeDistance_y < PhysicalSize.Ly
-			&& MaxDeviation_z[0] + MaxDeviation_z[1] + 2 * SafeDistance_z < PhysicalSize.Lz)
+		if (   MaxDeviation_x[0] + MaxDeviation_x[1] + 2 * SafeDistance_x < PhysicalSize[0]
+			&& MaxDeviation_y[0] + MaxDeviation_y[1] + 2 * SafeDistance_y < PhysicalSize[1]
+			&& MaxDeviation_z[0] + MaxDeviation_z[1] + 2 * SafeDistance_z < PhysicalSize[2])
 		{
-			m_NOBoundCheckRegionList_3DPosition[i].IsEmpty = false;
+			m_NOBoundCheckRegionList_3DPyhsicalPosition[i].IsEmpty = false;
 
-			m_NOBoundCheckRegionList_3DPosition[i].x0 = PhysicalOrigin.x + MaxDeviation_x[0] + SafeDistance_x;
+			m_NOBoundCheckRegionList_3DPyhsicalPosition[i].x0 = PhysicalOrigin[0] + MaxDeviation_x[0] + SafeDistance_x;
 
-			m_NOBoundCheckRegionList_3DPosition[i].x1 = PhysicalOrigin.x + PhysicalSize.Lx - MaxDeviation_x[1] - SafeDistance_x;
+			m_NOBoundCheckRegionList_3DPyhsicalPosition[i].x1 = PhysicalOrigin[0] + PhysicalSize[0] - MaxDeviation_x[1] - SafeDistance_x;
 
-			m_NOBoundCheckRegionList_3DPosition[i].y0 = PhysicalOrigin.y + MaxDeviation_y[0] + SafeDistance_y;
+			m_NOBoundCheckRegionList_3DPyhsicalPosition[i].y0 = PhysicalOrigin[1] + MaxDeviation_y[0] + SafeDistance_y;
 
-			m_NOBoundCheckRegionList_3DPosition[i].y1 = PhysicalOrigin.y + PhysicalSize.Ly - MaxDeviation_y[1] - SafeDistance_y;
+			m_NOBoundCheckRegionList_3DPyhsicalPosition[i].y1 = PhysicalOrigin[1] + PhysicalSize[1] - MaxDeviation_y[1] - SafeDistance_y;
 
-			m_NOBoundCheckRegionList_3DPosition[i].z0 = PhysicalOrigin.z + MaxDeviation_z[0] + SafeDistance_z;
+			m_NOBoundCheckRegionList_3DPyhsicalPosition[i].z0 = PhysicalOrigin[2] + MaxDeviation_z[0] + SafeDistance_z;
 
-			m_NOBoundCheckRegionList_3DPosition[i].z1 = PhysicalOrigin.z + PhysicalSize.Lz - MaxDeviation_z[1] - SafeDistance_z;
+			m_NOBoundCheckRegionList_3DPyhsicalPosition[i].z1 = PhysicalOrigin[2] + PhysicalSize[2] - MaxDeviation_z[1] - SafeDistance_z;
 		}
 	}
 }
@@ -356,11 +355,11 @@ void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::ComputeRe
 
 template<typename VoxelType, typename ScalarType>
 bool SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::
-WhetherMaskIsInsideImage_AtOrigin_3DContinuousIndex(double x, double y, double z, int_max MaskIndex)
+WhetherMaskIsInsideImage_AtOrigin_3DContinuousIndex(ScalarType x, ScalarType y, ScalarType z, int_max MaskIndex)
 {
-	if (x < double(m_NOBoundCheckRegionList_3DContinuousIndex[MaskIndex].x0) || x > double(m_NOBoundCheckRegionList_3DContinuousIndex[MaskIndex].x1)
-		|| y < double(m_NOBoundCheckRegionList_3DContinuousIndex[MaskIndex].y0) || y > double(m_NOBoundCheckRegionList_3DContinuousIndex[MaskIndex].y1)
-		|| z < double(m_NOBoundCheckRegionList_3DContinuousIndex[MaskIndex].z0) || z > double(m_NOBoundCheckRegionList_3DContinuousIndex[MaskIndex].z1))
+	if (x < ScalarType(m_NOBoundCheckRegionList_3DContinuousIndex[MaskIndex].x0) || x > ScalarType(m_NOBoundCheckRegionList_3DContinuousIndex[MaskIndex].x1)
+		|| y < ScalarType(m_NOBoundCheckRegionList_3DContinuousIndex[MaskIndex].y0) || y > ScalarType(m_NOBoundCheckRegionList_3DContinuousIndex[MaskIndex].y1)
+		|| z < ScalarType(m_NOBoundCheckRegionList_3DContinuousIndex[MaskIndex].z0) || z > ScalarType(m_NOBoundCheckRegionList_3DContinuousIndex[MaskIndex].z1))
 	{
 		return true;
 	}
@@ -371,19 +370,19 @@ WhetherMaskIsInsideImage_AtOrigin_3DContinuousIndex(double x, double y, double z
 
 template<typename VoxelType, typename ScalarType>
 bool SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::
-WhetherToCheckBoundAtMaskOrigin_3DPyhsicalPosition(double x, double y, double z, int_max MaskIndex)
+WhetherToCheckBoundAtMaskOrigin_3DPyhsicalPosition(ScalarType x, ScalarType y, ScalarType z, int_max MaskIndex)
 {
 	bool WhetherToCheck = false;
 
-	if (m_NOBoundCheckRegionList_3DPosition[MaskIndex].IsEmpty == true)
+	if (m_NOBoundCheckRegionList_3DPyhsicalPosition[MaskIndex].IsEmpty == true)
 	{
 		WhetherToCheck = true;
 	}
 	else
 	{
-		if (x < m_NOBoundCheckRegionList_3DPosition[MaskIndex].x0 || x > m_NOBoundCheckRegionList_3DPosition[MaskIndex].x1
-			|| y < m_NOBoundCheckRegionList_3DPosition[MaskIndex].y0 || y > m_NOBoundCheckRegionList_3DPosition[MaskIndex].y1
-			|| z < m_NOBoundCheckRegionList_3DPosition[MaskIndex].z0 || z > m_NOBoundCheckRegionList_3DPosition[MaskIndex].z1)
+		if (x < m_NOBoundCheckRegionList_3DPyhsicalPosition[MaskIndex].x0 || x > m_NOBoundCheckRegionList_3DPyhsicalPosition[MaskIndex].x1
+			|| y < m_NOBoundCheckRegionList_3DPyhsicalPosition[MaskIndex].y0 || y > m_NOBoundCheckRegionList_3DPyhsicalPosition[MaskIndex].y1
+			|| z < m_NOBoundCheckRegionList_3DPyhsicalPosition[MaskIndex].z0 || z > m_NOBoundCheckRegionList_3DPyhsicalPosition[MaskIndex].z1)
 		{
 			WhetherToCheck = true;
 		}
@@ -407,52 +406,52 @@ EvaluateMultipleCandidate_in_a_thread(int_max OriginIndex_start, int_max OriginI
 			for (int_max n = 0; n < MaskNumber; ++n)
 			{
 				auto& EvaluationResult = m_Output[k*MaskNumber + n];
-				this->EvaluateCandidateAt3DIndex(EvaluationResult, n, Origin[0], Origin[1], Origin[2], ThreadIndex);
+				this->EvaluateCandidateAtOrigin_3DContinuousIndex(EvaluationResult, n, Origin[0], Origin[1], Origin[2], ThreadIndex);
 			}
 		}
 	}
 	else
 	{
-		if (m_CandidateOriginList_3DPosition != nullptr)
+		if (m_CandidateOriginList_3DPyhsicalPosition != nullptr)
 		{
 			for (int_max k = OriginIndex_start; k <= OriginIndex_end; ++k)
 			{
-				auto x = (*m_CandidateOriginList_3DPosition)(0, k);
-				auto y = (*m_CandidateOriginList_3DPosition)(1, k);
-				auto z = (*m_CandidateOriginList_3DPosition)(2, k);
+				auto x = (*m_CandidateOriginList_3DPyhsicalPosition)(0, k);
+				auto y = (*m_CandidateOriginList_3DPyhsicalPosition)(1, k);
+				auto z = (*m_CandidateOriginList_3DPyhsicalPosition)(2, k);
 				for (int_max n = 0; n < MaskNumber; ++n)
 				{
 					auto& EvaluationResult = m_Output[k*MaskNumber + n];
 					if ((*m_MaskList)[n].Flag_3DPhysicalPosition == true)
 					{
-						this->EvaluateCandidateAt3DPyhsicalPosition(EvaluationResult, n, x, y, z, ThreadIndex);
+						this->EvaluateCandidateAtOrigin_3DPyhsicalPosition(EvaluationResult, n, x, y, z, ThreadIndex);
 					}
 					else
 					{
-						auto ContinuousIndex = m_InputImage->Transform3DPhysicalPositionTo3DContinuousIndex(x, y, z);
-						this->EvaluateCandidateAt3DContinuousIndex(EvaluationResult, n, ContinuousIndex[0], ContinuousIndex[1], ContinuousIndex[2], ThreadIndex);
+						auto Index3D = m_InputImage->Transform3DPhysicalPositionTo3DContinuousIndex(x, y, z);
+						this->EvaluateCandidateAtOrigin_3DContinuousIndex(EvaluationResult, n, Index3D[0], Index3D[1], Index3D[2], ThreadIndex);
 					}
 				}
 			}
 		}
-		else if (m_CandidateOriginList_3DIndex != nullptr)
+		else if (m_CandidateOriginList_3DContinuousIndex != nullptr)
 		{
 			for (int_max k = OriginIndex_start; k <= OriginIndex_end; ++k)
 			{
-				auto x = (*m_CandidateOriginList_3DIndex)(0, k);
-				auto y = (*m_CandidateOriginList_3DIndex)(1, k);
-				auto z = (*m_CandidateOriginList_3DIndex)(2, k);
+				auto x = (*m_CandidateOriginList_3DContinuousIndex)(0, k);
+				auto y = (*m_CandidateOriginList_3DContinuousIndex)(1, k);
+				auto z = (*m_CandidateOriginList_3DContinuousIndex)(2, k);
 				for (int_max n = 0; n < MaskNumber; ++n)
 				{
 					auto& EvaluationResult = m_Output[k*MaskNumber + n];
 					if ((*m_MaskList)[n].Flag_3DPhysicalPosition == false)
 					{
-						this->EvaluateCandidateAt3DContinuousIndex(EvaluationResult, n, x, y, z, ThreadIndex);
+						this->EvaluateCandidateAtOrigin_3DContinuousIndex(EvaluationResult, n, x, y, z, ThreadIndex);
 					}
 					else
 					{
-						auto PhysicalPosition = m_InputImage->Transform3DContinuousIndexTo3DPhysicalPosition(x, y, z);
-						this->EvaluateCandidateAt3DPyhsicalPosition(EvaluationResult, n, PhysicalPosition[0], PhysicalPosition[1], PhysicalPosition[2], ThreadIndex);
+						auto Position = m_InputImage->Transform3DContinuousIndexTo3DPhysicalPosition(x, y, z);
+						this->EvaluateCandidateAtOrigin_3DPyhsicalPosition(EvaluationResult, n, Position[0], Position[1], Position[2], ThreadIndex);
 					}
 				}
 			}
@@ -462,9 +461,9 @@ EvaluateMultipleCandidate_in_a_thread(int_max OriginIndex_start, int_max OriginI
 
 
 template<typename VoxelType, typename ScalarType>
-int_max SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::GetNumberOfThreadsTobeCreated()
+int_max SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::GetNumberOfThreadTobeCreated()
 {
-
+	return Compute_NumberOfThreadTobeCreated_For_ParallelBlock(m_TotalCandidateOriginNumber, m_MaxNumberOfThread, 1);
 }
 
 }// namespace mdk

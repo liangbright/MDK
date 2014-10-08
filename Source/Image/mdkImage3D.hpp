@@ -762,7 +762,7 @@ template<typename ScalarType>
 inline
 DenseVector<ScalarType, 3> Image3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex) const
 {
-	return m_ImageData->TransformLinearIndexTo3DIndex(LinearIndex);
+	return m_ImageData->TransformLinearIndexTo3DIndex<ScalarType>(LinearIndex);
 }
 
 
@@ -771,7 +771,7 @@ template<typename ScalarType>
 inline
 DenseVector<ScalarType, 3> Image3D<PixelType>::TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const
 {
-	return m_ImageData->TransformLinearIndexTo3DPhysicalPosition(LinearIndex);
+	return m_ImageData->TransformLinearIndexTo3DPhysicalPosition<ScalarType>(LinearIndex);
 }
 
 
@@ -780,7 +780,7 @@ template<typename ScalarType>
 inline
 DenseVector<ScalarType, 3> Image3D<PixelType>::Transform3DIndexTo3DPhysicalPosition(int_max xIndex, int_max yIndex, int_max zIndex) const
 {
-	return m_ImageData->Transform3DIndexTo3DPhysicalPosition(xIndex, yIndex, zIndex);
+	return m_ImageData->Transform3DIndexTo3DPhysicalPosition<ScalarType>(xIndex, yIndex, zIndex);
 }
 
 

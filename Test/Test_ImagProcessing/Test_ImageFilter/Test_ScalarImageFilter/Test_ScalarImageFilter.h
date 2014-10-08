@@ -7,7 +7,7 @@
 
 #include "mdkFileIO.h"
 #include "mdkScalarImageGaussianFilter3D.h"
-#include "mdkImageFilter_Common_Function.h"
+#include "mdkHistogram.h"
 #include "mdkString.h"
 
 namespace mdk
@@ -21,7 +21,7 @@ void test_ScalarImageGaussianFilter3D()
 
     InputImage = Load3DScalarImageFromJsonDataFile<double>(FilePath + "TestImage.json");
 
-    ScalarImageGaussianFilter3D<double, double> imfilter;
+    ScalarImageGaussianFilter3D<double> imfilter;
 
     imfilter.SetInputImage(&InputImage);
 
@@ -29,6 +29,7 @@ void test_ScalarImageGaussianFilter3D()
     RoationMatrix.FillDiagonal(1);
 
     imfilter.SetMaskParameter(3, 3, 3, RoationMatrix, 3);
+	imfilter.Use3DIndexInMask();
 
     imfilter.Update();
 

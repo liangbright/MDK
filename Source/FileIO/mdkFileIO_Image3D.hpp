@@ -45,11 +45,11 @@ bool Save3DScalarImageAsJsonDataFile_Header(const Image3D<PixelType>& InputImage
     auto Spacing = InputImage.GetSpacing();
 
     PairList[3].Name = "Spacing";
-    PairList[3].Value = QString::number(Spacing.Sx) + ", " + QString::number(Spacing.Sy) + ", " + QString::number(Spacing.Sz);
+    PairList[3].Value = QString::number(Spacing[0]) + ", " + QString::number(Spacing[1]) + ", " + QString::number(Spacing[2]);
 
     auto Origin = InputImage.GetOrigin();
     PairList[4].Name = "Origin";
-    PairList[4].Value = QString::number(Origin.x) + ", " + QString::number(Origin.y) + ", " + QString::number(Origin.z);
+    PairList[4].Value = QString::number(Origin[0]) + ", " + QString::number(Origin[1]) + ", " + QString::number(Origin[2]);
 
     auto Orientation = InputImage.GetOrientation();
     PairList[5].Name = "Orientation";
@@ -161,7 +161,7 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& JsonFile
         HeaderFile.close();
         return OutputImage;
     }
-    DenseVector<double, 3> Size;
+    DenseVector<int_max, 3> Size;
     Size[0] = SizeValue[0].toLongLong();
     Size[1] = SizeValue[1].toLongLong();
     Size[2] = SizeValue[2].toLongLong();

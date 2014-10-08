@@ -4,39 +4,36 @@
 #include <algorithm>
 
 #include "mdkImageFilterWithSingleMask3D.h"
-#include "mdkScalarImageInterpolator3D.h"
+#include "mdkImageInterpolation3D.h"
 
 namespace mdk
 {
 
-template<typename InputPixel_Type, typename OutputPixel_Type>
-class ScalarImageConvolutionFilter3D : public ImageFilterWithSingleMask3D<InputPixel_Type, OutputPixel_Type>
+template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type>
+class ScalarImageConvolutionFilter3D : public ImageFilterWithSingleMask3D<InputPixel_Type, OutputPixel_Type, OutputPixel_Type>
 {
 public:
-	typedef InputPixel_Type InputPixelType;
+	typedef InputPixel_Type  InputPixelType;
 	typedef OutputPixel_Type OutputPixelType;
+	typedef OutputPixel_Type ScalarType;
 
 protected:
-	ScalarImage3DInterpolationMethodEnum m_InterpolationMethod;
-	Option_Of_ScalarImageInterpolator3D m_InterpolationOption;
+	Option_Of_Image3DInterpolation<OutputPixelType> m_InterpolationOption;
 	
-	DenseMatrix<double> m_ConvolutionCoefficient; // vector
+	DenseMatrix<ScalarType> m_ConvolutionCoefficient; // vector
 
 public:
 	ScalarImageConvolutionFilter3D();
 	~ScalarImageConvolutionFilter3D();
 
-	void SetImageInterpolationMethodAndOption(ScalarImage3DInterpolationMethodEnum Method, const Option_Of_ScalarImageInterpolator3D& Option);
+	void SetImageInterpolationOption(const Option_Of_Image3DInterpolation<OutputPixelType>& Option);
 
-	void SetConvolutionCoefficient(DenseMatrix<double> Coef);
-	const DenseMatrix<double>& GetConvolutionCoefficient() const;
+	void SetConvolutionCoefficient(DenseMatrix<ScalarType> Coef);
+	const DenseMatrix<ScalarType>& GetConvolutionCoefficient();
 
-	DenseMatrix<double>& ConvolutionCoefficient();
-	const DenseMatrix<double>& ConvolutionCoefficient() const;
+	inline void FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, ScalarType x_Index, ScalarType y_Index, ScalarType z_Index, int_max ThreadIndex);
 
-	inline void FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_Index, double z_Index, int_max ThreadIndex);
-
-    inline void FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex);
+	inline void FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex);
 
 protected:
 	virtual bool Preprocess();

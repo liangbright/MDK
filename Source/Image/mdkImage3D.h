@@ -77,18 +77,18 @@ struct Image3DBoxRegionOf3DIndex
     }
 };
 
-
+template<typename ScalarType = double>
 struct Image3DBoxRegionOf3DPhysicalPosition
 {
     bool IsEmpty;
 
-    double x0;
-    double y0;
-    double z0;
+	ScalarType x0;
+	ScalarType y0;
+	ScalarType z0;
 
-    double x1;
-    double y1;
-    double z1;
+	ScalarType x1;
+	ScalarType y1;
+	ScalarType z1;
 
 //-------------------------------------
 
@@ -103,17 +103,17 @@ struct Image3DBoxRegionOf3DPhysicalPosition
         z1 = 0;
     };
 
-    double Lx() const
+	ScalarType Lx() const
     {
         return x1 - x0;
     }
 
-    double Ly() const
+	ScalarType Ly() const
     {
         return y1 - y0;
     }
 
-    double Lz() const
+	ScalarType Lz() const
     {
         return z1 - z0;
     }

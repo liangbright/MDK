@@ -5,21 +5,21 @@
 namespace mdk
 {
 
-template<typename InputPixelType, typename OutputPixelType>
-ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::ImageFilterWithMultiMask3D()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::ImageFilterWithMultiMask3D()
 {
     this->Clear();
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::~ImageFilterWithMultiMask3D()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::~ImageFilterWithMultiMask3D()
 {
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::Clear()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
 	this->ImageFilter3D::Clear();
 	m_MaskList.Clear();
@@ -29,36 +29,36 @@ void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::Clear()
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-ObjectArray<DenseMatrix<double>>& ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::MaskList()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+ObjectArray<DenseMatrix<ScalarType>>& ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::MaskList()
 {
 	return m_MaskList;
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-const ObjectArray<DenseMatrix<double>>& ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::MaskList() const
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+const ObjectArray<DenseMatrix<ScalarType>>& ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::MaskList() const
 {
 	return m_MaskList;
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::Use3DIndexInMask()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::Use3DIndexInMask()
 {
 	m_Flag_3DPositionInMask = 0;
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::Use3DPhysicalPositionInMask()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::Use3DPhysicalPositionInMask()
 {
 	m_Flag_3DPositionInMask = 1;
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::ComputeRegionOfNOBoundCheck_3DIndex()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DIndex()
 {
     if (m_MaskList.IsEmpty() == true)
     {
@@ -137,8 +137,8 @@ void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::ComputeRegionO
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::ComputeRegionOfNOBoundCheck_3DPosition()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DPosition()
 {    
 	if (m_MaskList.IsEmpty() == true)
     {
@@ -162,9 +162,9 @@ void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::ComputeRegionO
     {
         m_NOBoundCheckRegionList_3DPosition[i].IsEmpty = true;
 
-        double MaxDeviation_x[2] = { 0, 0 };
-        double MaxDeviation_y[2] = { 0, 0 };
-        double MaxDeviation_z[2] = { 0, 0 };
+		ScalarType MaxDeviation_x[2] = { 0, 0 };
+		ScalarType MaxDeviation_y[2] = { 0, 0 };
+		ScalarType MaxDeviation_z[2] = { 0, 0 };
 
 		for (int_max j = 0; j < m_MaskList[i].GetColNumber(); ++j)
         {
@@ -221,8 +221,8 @@ void ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::ComputeRegionO
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-bool ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::Preprocess()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+bool ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
 {
     if (this->ImageFilter3D::Preprocess() == false)
     {
@@ -249,10 +249,10 @@ bool ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::Preprocess()
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline 
-bool ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::
-WhetherToCheckBoundAtMaskOrigin_3DIndex(double x, double y, double z, int_max MaskIndex)
+bool ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::
+WhetherToCheckBoundAtMaskOrigin_3DIndex(ScalarType x, ScalarType y, ScalarType z, int_max MaskIndex)
 {
     bool WhetherToCheck = false;
 
@@ -262,9 +262,9 @@ WhetherToCheckBoundAtMaskOrigin_3DIndex(double x, double y, double z, int_max Ma
     }
     else
     {
-		if (x < double(m_NOBoundCheckRegionList_3DIndex[MaskIndex].x0) || x > double(m_NOBoundCheckRegionList_3DIndex[MaskIndex].x1)
-			|| y < double(m_NOBoundCheckRegionList_3DIndex[MaskIndex].y0) || y > double(m_NOBoundCheckRegionList_3DIndex[MaskIndex].y1)
-			|| z < double(m_NOBoundCheckRegionList_3DIndex[MaskIndex].z0) || z > double(m_NOBoundCheckRegionList_3DIndex[MaskIndex].z1))
+		if (x < ScalarType(m_NOBoundCheckRegionList_3DIndex[MaskIndex].x0) || x > ScalarType(m_NOBoundCheckRegionList_3DIndex[MaskIndex].x1)
+			|| y < ScalarType(m_NOBoundCheckRegionList_3DIndex[MaskIndex].y0) || y > ScalarType(m_NOBoundCheckRegionList_3DIndex[MaskIndex].y1)
+			|| z < ScalarType(m_NOBoundCheckRegionList_3DIndex[MaskIndex].z0) || z > ScalarType(m_NOBoundCheckRegionList_3DIndex[MaskIndex].z1))
         {
             WhetherToCheck = true;
         }
@@ -274,10 +274,10 @@ WhetherToCheckBoundAtMaskOrigin_3DIndex(double x, double y, double z, int_max Ma
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline
-bool ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType>::
-WhetherToCheckBoundAtMaskOrigin_3DPosition(double x, double y, double z, int_max MaskIndex)
+bool ImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::
+WhetherToCheckBoundAtMaskOrigin_3DPosition(ScalarType x, ScalarType y, ScalarType z, int_max MaskIndex)
 {
     bool WhetherToCheck = false;
 

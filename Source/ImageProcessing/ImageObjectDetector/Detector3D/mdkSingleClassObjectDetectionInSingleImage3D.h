@@ -120,7 +120,7 @@ protected:
 	inline virtual void EvaluateCandidateAtOrigin_3DPyhsicalPosition(EvaluationResult_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>& EvaluationResult,
 										                             int_max MaskIndex, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex) {}
 
-	int_max GetNumberOfThreadsTobeCreated();
+	int_max GetNumberOfThreadTobeCreated();
 
 private:
 	void ComputeRegionOfNOBoundCheck_3DContinuousIndex();

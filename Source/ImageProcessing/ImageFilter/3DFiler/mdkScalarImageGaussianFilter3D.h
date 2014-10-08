@@ -11,29 +11,30 @@
 namespace mdk
 {
 
-template<typename InputPixel_Type, typename OutputPixel_Type>
+template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type>
 class ScalarImageGaussianFilter3D : public ScalarImageConvolutionFilter3D<InputPixel_Type, OutputPixel_Type>
 {
 public:
-	typedef InputPixel_Type InputPixelType;
+	typedef InputPixel_Type  InputPixelType;
 	typedef OutputPixel_Type OutputPixelType;
+	typedef OutputPixel_Type ScalarType;
 
 private:
-    DenseMatrix<double> m_SigmaList; // [sigma_x, sigma_y, sigma_z]
-    DenseMatrix<double> m_RotationMatrix; // 3 x 3
-    double m_CutOffRatio;
+	DenseMatrix<ScalarType> m_SigmaList; // [sigma_x, sigma_y, sigma_z]
+	DenseMatrix<ScalarType> m_RotationMatrix; // 3 x 3
+	ScalarType m_CutOffRatio;
 
 public:		
     ScalarImageGaussianFilter3D();
     ~ScalarImageGaussianFilter3D();
   
-	void SetMaskParameter(double Sigma_x, double Sigma_y, double Sigma_z, const DenseMatrix<double>& RotationMatrix, double CutOffRatio);
+	void SetMaskParameter(ScalarType Sigma_x, ScalarType Sigma_y, ScalarType Sigma_z, const DenseMatrix<ScalarType>& RotationMatrix, ScalarType CutOffRatio);
 
     virtual void Clear();
 
 private:
-    void BuildMaskOf3DIndex();
-    void BuildMaskOf3DPosition();
+    void BuildMask_3DIndex();
+	void BuildMask_3DPosition();
 
 private:
     ScalarImageGaussianFilter3D(const ScalarImageGaussianFilter3D&) = delete;

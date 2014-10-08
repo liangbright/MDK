@@ -6,26 +6,26 @@
 namespace mdk
 {
 
-template<typename InputPixel_Type, typename OutputPixel_Type>
-class ImageFilterWithSingleMask3D : public ImageFilter3D<InputPixel_Type, OutputPixel_Type>
+template<typename InputPixel_Type, typename OutputPixel_Type, typename Scalar_Type = double>
+class ImageFilterWithSingleMask3D : public ImageFilter3D<InputPixel_Type, OutputPixel_Type, Scalar_Type>
 {
 public:
-	typedef InputPixel_Type InputPixelType;
+	typedef InputPixel_Type  InputPixelType;
 	typedef OutputPixel_Type OutputPixelType;
+	typedef Scalar_Type      ScalarType;
 
 protected:
-	int_max m_Flag_3DPositionInMask;
-	// 1: use 3D physical position in Region
-	// 0: use 3D Index in Region
-	// -1: unknown
+	bool m_Flag_3DPositionInMask;
+	// true: use 3D physical position in Region
+	// false: use 3D Index in Region
 
-	DenseMatrix<double> m_Mask; // may be continuous index or physical position
+	DenseMatrix<ScalarType> m_Mask; // may be continuous index or physical position
     // row_0: dx or dx_Index
     // row_1: dy or dy_Index
     // row_2: dz or dz_Index
 
-    Image3DBoxRegionOf3DIndex            m_NOBoundCheckRegion_3DIndex;
-    Image3DBoxRegionOf3DPhysicalPosition m_NOBoundCheckRegion_3DPosition;
+    Image3DBoxRegionOf3DIndex                        m_NOBoundCheckRegion_3DIndex;
+	Image3DBoxRegionOf3DPhysicalPosition<ScalarType> m_NOBoundCheckRegion_3DPosition;
 
 protected:		
 	ImageFilterWithSingleMask3D();
@@ -33,24 +33,23 @@ protected:
  
 public:
 
-    virtual void Clear();
+    virtual void Clear(); // called in Clear@ProcessObject, must be virtual
 
-	void SetMask(DenseMatrix<double> Mask);
-	const DenseMatrix<double>& GetMask() const;
-
-	DenseMatrix<double>& Mask();
-	const DenseMatrix<double>& Mask() const;
+	void SetMask_3DIndex(DenseMatrix<ScalarType> Mask);
+	void SetMask_3DPosition(DenseMatrix<ScalarType> Mask);
 
 	void Use3DIndexInMask();
-	void Use3DPhysicalPositionInMask();
+	void Use3DPositionInMask();
+
+	const DenseMatrix<ScalarType>& GetMask();
 
 protected:
-	virtual bool Preprocess();
-    virtual void BuildMaskOf3DIndex() {}
-    virtual void BuildMaskOf3DPosition() {}
+	virtual bool Preprocess();             // called in Update@ImageFilter3D, must be virtual
+    virtual void BuildMask_3DIndex() {}    // called in Preprocess@ImageFilterWithSingleMask3D, must be virtual
+    virtual void BuildMask_3DPosition() {} // called in Preprocess@ImageFilterWithSingleMask3D, must be virtual
 
-	inline bool WhetherToCheckBoundAtMaskOrigin_3DIndex(double x, double y, double z);
-	inline bool WhetherToCheckBoundAtMaskOrigin_3DPosition(double x, double y, double z);
+	inline bool WhetherToCheckBoundAtMaskOrigin_3DIndex(ScalarType x, ScalarType y, ScalarType z);
+	inline bool WhetherToCheckBoundAtMaskOrigin_3DPosition(ScalarType x, ScalarType y, ScalarType z);
 
 private:
     void ComputeRegionOfNOBoundCheck_3DIndex();

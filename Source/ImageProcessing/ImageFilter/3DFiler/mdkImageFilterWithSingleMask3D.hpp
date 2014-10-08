@@ -1,30 +1,29 @@
 #ifndef __mdkImageFilterWithSingleMask3D_hpp
 #define __mdkImageFilterWithSingleMask3D_hpp
 
-#include <thread>
 #include <algorithm>
 
-#include "mdkImageFilterWithSingleMask3D.h"
 #include "mdkDebugConfig.h"
+#include "mdkImageFilterWithSingleMask3D.h"
 
 namespace mdk
 {
 
-template<typename InputPixelType, typename OutputPixelType>
-ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::ImageFilterWithSingleMask3D()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::ImageFilterWithSingleMask3D()
 {
     this->Clear();
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::~ImageFilterWithSingleMask3D()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::~ImageFilterWithSingleMask3D()
 {
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Clear()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
     this->ImageFilter3D::Clear();
 	m_Mask.Clear();
@@ -34,49 +33,44 @@ void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Clear()
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::SetMask(DenseMatrix<double> Mask)
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::SetMask_3DIndex(DenseMatrix<ScalarType> Mask)
 {
 	m_Mask = std::move(Mask);
+	m_Flag_3DPositionInMask = false;
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-const DenseMatrix<double>& ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::GetMask() const
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::SetMask_3DPosition(DenseMatrix<ScalarType> Mask)
 {
-    return m_Mask;
+	m_Mask = std::move(Mask);
+	m_Flag_3DPositionInMask = true;
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-DenseMatrix<double>& ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Mask()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Use3DIndexInMask()
+{
+	m_Flag_3DPositionInMask = false;
+}
+
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Use3DPositionInMask()
+{
+	m_Flag_3DPositionInMask = true;
+}
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+const DenseMatrix<ScalarType>& ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::GetMask()
 {
 	return m_Mask;
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-const DenseMatrix<double>& ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Mask() const
-{
-	return m_Mask;
-}
-
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Use3DIndexInMask()
-{
-	m_Flag_3DPositionInMask = 0;
-}
-
-
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Use3DPhysicalPositionInMask()
-{
-	m_Flag_3DPositionInMask = 1;
-}
-
-
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::ComputeRegionOfNOBoundCheck_3DIndex()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DIndex()
 {
     m_NOBoundCheckRegion_3DIndex.IsEmpty = true;
 
@@ -126,29 +120,29 @@ void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::ComputeRegion
         }
     }
 
-    if (   MaxDeviation_x[0] + MaxDeviation_x[1] + 1 + 2 * SafeDistance < InputImageSize.Lx
-        && MaxDeviation_y[0] + MaxDeviation_y[1] + 1 + 2 * SafeDistance < InputImageSize.Ly
-        && MaxDeviation_z[0] + MaxDeviation_z[1] + 1 + 2 * SafeDistance < InputImageSize.Lz)
+	if (   MaxDeviation_x[0] + MaxDeviation_x[1] + 1 + 2 * SafeDistance < InputImageSize[0]
+		&& MaxDeviation_y[0] + MaxDeviation_y[1] + 1 + 2 * SafeDistance < InputImageSize[1]
+        && MaxDeviation_z[0] + MaxDeviation_z[1] + 1 + 2 * SafeDistance < InputImageSize[2])
     {
         m_NOBoundCheckRegion_3DIndex.IsEmpty = false;
 
         m_NOBoundCheckRegion_3DIndex.x0 = MaxDeviation_x[0] + SafeDistance;
 
-        m_NOBoundCheckRegion_3DIndex.x1 = InputImageSize.Lx - 1 - MaxDeviation_x[1] - SafeDistance;
+        m_NOBoundCheckRegion_3DIndex.x1 = InputImageSize[0] - 1 - MaxDeviation_x[1] - SafeDistance;
 
         m_NOBoundCheckRegion_3DIndex.y0 = MaxDeviation_y[0] + SafeDistance;
 
-        m_NOBoundCheckRegion_3DIndex.y1 = InputImageSize.Ly - 1 - MaxDeviation_y[1] - SafeDistance;
+        m_NOBoundCheckRegion_3DIndex.y1 = InputImageSize[1] - 1 - MaxDeviation_y[1] - SafeDistance;
 
         m_NOBoundCheckRegion_3DIndex.z0 = MaxDeviation_z[0] + SafeDistance;
 
-        m_NOBoundCheckRegion_3DIndex.z1 = InputImageSize.Lz - 1 - MaxDeviation_z[1] - SafeDistance;
+        m_NOBoundCheckRegion_3DIndex.z1 = InputImageSize[2] - 1 - MaxDeviation_z[1] - SafeDistance;
     }
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::ComputeRegionOfNOBoundCheck_3DPosition()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DPosition()
 {    
     m_NOBoundCheckRegion_3DPosition.IsEmpty = true;
 
@@ -161,13 +155,13 @@ void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::ComputeRegion
     auto PhysicalSize = m_InputImage->GetPhysicalSize();
     auto PixelSpacing = m_InputImage->GetSpacing();
 
-    auto SafeDistance_x = 2 * PixelSpacing.Sx;
-    auto SafeDistance_y = 2 * PixelSpacing.Sy;
-    auto SafeDistance_z = 2 * PixelSpacing.Sz;
+    auto SafeDistance_x = 2 * PixelSpacing[0];
+    auto SafeDistance_y = 2 * PixelSpacing[1];
+    auto SafeDistance_z = 2 * PixelSpacing[2];
 
-    double MaxDeviation_x[2] = { 0, 0 };
-    double MaxDeviation_y[2] = { 0, 0 };
-    double MaxDeviation_z[2] = { 0, 0 };
+    ScalarType MaxDeviation_x[2] = { 0, 0 };
+    ScalarType MaxDeviation_y[2] = { 0, 0 };
+    ScalarType MaxDeviation_z[2] = { 0, 0 };
 
 	for (int_max j = 0; j < m_Mask.GetColNumber(); ++j)
     {
@@ -202,43 +196,43 @@ void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::ComputeRegion
         }
     }
 
-    if (   MaxDeviation_x[0] + MaxDeviation_x[1] + 2 * SafeDistance_x < PhysicalSize.Lx
-        && MaxDeviation_y[0] + MaxDeviation_y[1] + 2 * SafeDistance_y < PhysicalSize.Ly
-        && MaxDeviation_z[0] + MaxDeviation_z[1] + 2 * SafeDistance_z < PhysicalSize.Lz)
+	if (   MaxDeviation_x[0] + MaxDeviation_x[1] + 2 * SafeDistance_x < PhysicalSize[0]
+		&& MaxDeviation_y[0] + MaxDeviation_y[1] + 2 * SafeDistance_y < PhysicalSize[1]
+        && MaxDeviation_z[0] + MaxDeviation_z[1] + 2 * SafeDistance_z < PhysicalSize[2])
     {
         m_NOBoundCheckRegion_3DPosition.IsEmpty = false;
 
-        m_NOBoundCheckRegion_3DPosition.x0 = PhysicalOrigin.x + MaxDeviation_x[0] + SafeDistance_x;
+        m_NOBoundCheckRegion_3DPosition.x0 = PhysicalOrigin[0] + MaxDeviation_x[0] + SafeDistance_x;
 
-        m_NOBoundCheckRegion_3DPosition.x1 = PhysicalOrigin.x + PhysicalSize.Lx - MaxDeviation_x[1] - SafeDistance_x;
+        m_NOBoundCheckRegion_3DPosition.x1 = PhysicalOrigin[0] + PhysicalSize[0] - MaxDeviation_x[1] - SafeDistance_x;
 
-        m_NOBoundCheckRegion_3DPosition.y0 = PhysicalOrigin.y + MaxDeviation_y[0] + SafeDistance_y;
+        m_NOBoundCheckRegion_3DPosition.y0 = PhysicalOrigin[1] + MaxDeviation_y[0] + SafeDistance_y;
 
-        m_NOBoundCheckRegion_3DPosition.y1 = PhysicalOrigin.y + PhysicalSize.Ly - MaxDeviation_y[1] - SafeDistance_y;
+        m_NOBoundCheckRegion_3DPosition.y1 = PhysicalOrigin[1] + PhysicalSize[1] - MaxDeviation_y[1] - SafeDistance_y;
 
-        m_NOBoundCheckRegion_3DPosition.z0 = PhysicalOrigin.z + MaxDeviation_z[0] + SafeDistance_z;
+        m_NOBoundCheckRegion_3DPosition.z0 = PhysicalOrigin[2] + MaxDeviation_z[0] + SafeDistance_z;
 
-        m_NOBoundCheckRegion_3DPosition.z1 = PhysicalOrigin.z + PhysicalSize.Lz - MaxDeviation_z[1] - SafeDistance_z;
+        m_NOBoundCheckRegion_3DPosition.z1 = PhysicalOrigin[2] + PhysicalSize[2] - MaxDeviation_z[1] - SafeDistance_z;
     }
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Preprocess()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
 {
     if (this->ImageFilter3D::Preprocess() == false)
     {
         return false;
     }
 
-	if (m_Flag_3DPositionInMask == 1)
+	if (m_Flag_3DPositionInMask == true)
 	{
-		this->BuildMaskOf3DPosition();
+		this->BuildMask_3DPosition();
 		this->ComputeRegionOfNOBoundCheck_3DPosition();
 	}
-	else if (m_Flag_3DPositionInMask == 0)
+	else if (m_Flag_3DPositionInMask == false)
 	{
-		this->BuildMaskOf3DIndex();
+		this->BuildMask_3DIndex();
 		this->ComputeRegionOfNOBoundCheck_3DIndex();
 	}
 	else
@@ -251,9 +245,10 @@ bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::Preprocess()
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline 
-bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::WhetherToCheckBoundAtMaskOrigin_3DIndex(double x, double y, double z)
+bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::
+WhetherToCheckBoundAtMaskOrigin_3DIndex(ScalarType x, ScalarType y, ScalarType z)
 {
     bool WhetherToCheck = false;
 
@@ -263,9 +258,9 @@ bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::WhetherToChec
     }
     else
     {
-		if (x < double(m_NOBoundCheckRegion_3DIndex.x0) || x > double(m_NOBoundCheckRegion_3DIndex.x1)
-			|| y < double(m_NOBoundCheckRegion_3DIndex.y0) || y > double(m_NOBoundCheckRegion_3DIndex.y1)
-			|| z < double(m_NOBoundCheckRegion_3DIndex.z0) || z > double(m_NOBoundCheckRegion_3DIndex.z1))
+		if (x < ScalarType(m_NOBoundCheckRegion_3DIndex.x0) || x > ScalarType(m_NOBoundCheckRegion_3DIndex.x1)
+			|| y < ScalarType(m_NOBoundCheckRegion_3DIndex.y0) || y > ScalarType(m_NOBoundCheckRegion_3DIndex.y1)
+			|| z < ScalarType(m_NOBoundCheckRegion_3DIndex.z0) || z > ScalarType(m_NOBoundCheckRegion_3DIndex.z1))
         {
             WhetherToCheck = true;
         }
@@ -275,9 +270,9 @@ bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::WhetherToChec
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline
-bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType>::WhetherToCheckBoundAtMaskOrigin_3DPosition(double x, double y, double z)
+bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::WhetherToCheckBoundAtMaskOrigin_3DPosition(ScalarType x, ScalarType y, ScalarType z)
 {
     bool WhetherToCheck = false;
 

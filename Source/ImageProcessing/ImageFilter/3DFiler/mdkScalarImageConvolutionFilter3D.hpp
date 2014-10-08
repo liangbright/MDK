@@ -19,36 +19,21 @@ ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::~ScalarImageCon
 
 template<typename InputPixelType, typename OutputPixelType>
 void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
-SetImageInterpolationMethodAndOption(ScalarImage3DInterpolationMethodEnum Method, const Option_Of_ScalarImageInterpolator3D& Option)
+SetImageInterpolationOption(const Option_Of_Image3DInterpolation<OutputPixelType>& Option)
 {
-    m_InterpolationMethod = Method;
     m_InterpolationOption = Option;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::SetConvolutionCoefficient(DenseMatrix<double> Coefficient)
+void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::SetConvolutionCoefficient(DenseMatrix<ScalarType> Coefficient)
 {
 	m_ConvolutionCoefficient = std::move(Coefficient);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-const DenseMatrix<double>& ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::GetConvolutionCoefficient() const
-{
-	return m_ConvolutionCoefficient;
-}
-
-
-template<typename InputPixelType, typename OutputPixelType>
-DenseMatrix<double>& ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::ConvolutionCoefficient()
-{
-	return m_ConvolutionCoefficient;
-}
-
-
-template<typename InputPixelType, typename OutputPixelType>
-const DenseMatrix<double>& ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::ConvolutionCoefficient() const
+const DenseMatrix<OutputPixelType>& ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::GetConvolutionCoefficient()
 {
 	return m_ConvolutionCoefficient;
 }
@@ -74,9 +59,9 @@ bool ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::Preprocess
 template<typename InputPixelType, typename OutputPixelType>
 inline
 void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
-FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_Index, double z_Index, int_max ThreadIndex)
+FilterFunctionAt3DIndex(ScalarType& OutputPixel, ScalarType x_Index, ScalarType y_Index, ScalarType z_Index, int_max ThreadIndex)
 {    
-	auto tempOutputPixel = OutputPixelType(0);
+	auto tempOutputPixel = ScalarType(0);
 
     auto PointNumberInMask = m_Mask.GetElementNumber();
     auto BeginPointerOfMask = m_Mask.GetElementPointer();
@@ -85,7 +70,7 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_I
 
 	bool CheckBoundAtThisCenter = this->WhetherToCheckBoundAtMaskOrigin_3DIndex(x_Index, y_Index, z_Index);
 
-	if (m_InterpolationMethod == ScalarImage3DInterpolationMethodEnum::Nearest)
+	if (m_InterpolationOption.MethodType == MethodEnum_Of_Image3DInterpolation::Nearest)
 	{
 		if (CheckBoundAtThisCenter == true)
 		{			
@@ -96,7 +81,7 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_I
 				auto temp_y = PtrMask[1] + y_Index;
 				auto temp_z = PtrMask[2] + z_Index;
 
-				auto tempValue = InterpolateScalarImageAtContinuousIndex_Nearest(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationOption);
+				auto tempValue = InterpolateImageAt3DContinuousIndex_Nearest(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationOption);
 
 				tempOutputPixel += OutputPixelType(tempValue * PtrCoef[0]);
 			}
@@ -123,7 +108,7 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_I
 			auto temp_y = PtrMask[1] + y_Index;
 			auto temp_z = PtrMask[2] + z_Index;
 
-			auto tempValue = InterpolateScalarImageAtContinuousIndex(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
+			auto tempValue = InterpolateImageAt3DContinuousIndex(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationOption);
 
 			tempOutputPixel += OutputPixelType(tempValue * PtrCoef[0]);
 		}
@@ -136,7 +121,7 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_I
 template<typename InputPixelType, typename OutputPixelType>
 inline
 void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
-FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex)
+FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex)
 {
 	auto tempOutputPixel = OutputPixelType(0);
 	auto PointNumberInMask = m_Mask.GetElementNumber();
@@ -148,7 +133,7 @@ FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, dou
 		auto temp_y = PtrMask[1] + y;
 		auto temp_z = PtrMask[2] + z;
 
-		auto tempValue = InterpolateScalarImageAtPhysicalPosition(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
+		auto tempValue = InterpolateImageAt3DPhysicalPosition(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationOption);
 
 		tempOutputPixel += OutputPixelType(tempValue * PtrCoef[0]);
     }

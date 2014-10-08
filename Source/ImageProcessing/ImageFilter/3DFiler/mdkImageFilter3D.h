@@ -15,27 +15,28 @@
 namespace mdk
 {
 
-template<typename InputVoxel_Type, typename OutputVoxel_Type>
+template<typename InputPixel_Type, typename OutputPixel_Type, typename Scalar_Type = double>
 class ImageFilter3D : public ProcessObject
 {
 public:
-	typedef InputVoxel_Type InputVoxelType;
-	typedef OutputVoxel_Type OutputVoxelType;
+	typedef InputPixel_Type  InputPixelType;
+	typedef OutputPixel_Type OutputPixelType;
+	typedef Scalar_Type      ScalarType;
 
 protected:
 	//-------------- input ----------------------
 
 	// input_0: 
-    const Image3D<InputVoxelType>*   m_InputImage;
+    const Image3D<InputPixelType>*   m_InputImage;
 
 	// input_1:
 	const Image3DBoxRegionOf3DIndex*  m_InputRegionOf3DIndex;  // size of m_InputRegion = size of m_OutputImage or m_OutputArray
 	                                
 	// input_2:
-	const DenseMatrix<double>*  m_Input3DIndexList;      // compute values at these center positions
+	const DenseMatrix<ScalarType>*  m_Input3DIndexList;      // compute values at these center positions
 
 	// input_3:
-    const DenseMatrix<double>*   m_Input3DPositionList;   // compute values at these center positions
+	const DenseMatrix<ScalarType>*   m_Input3DPositionList;   // compute values at these center positions
 
     // input_4:
     int_max m_MaxNumberOfThreads;
@@ -43,14 +44,14 @@ protected:
 	//--------------------- output ---------------------
 
 	// output_0:
-    Image3D<OutputVoxelType> m_OutputImage;
+    Image3D<OutputPixelType> m_OutputImage;
 
 	// output_1:
-    ObjectArray<OutputVoxelType> m_OutputArray;
+    ObjectArray<OutputPixelType> m_OutputArray;
 
     //------------ internal variable -------------------
 
-	DenseMatrix<int_max> m_VoxelLinearIndexList_Of_InputRegionOf3DIndex;
+	DenseMatrix<int_max> m_PixelLinearIndexList_Of_InputRegionOf3DIndex;
 
     bool m_Flag_OutputImage;
 
@@ -58,59 +59,59 @@ protected:
 
     bool m_Flag_OutputToOtherPlace;
 
-    int_max m_TotalOutputVoxelNumber;
+    int_max m_TotalOutputPixelNumber;
 
-    int_max m_MinVoxelNumberPerThread;
+    int_max m_MinPixelNumberPerThread;
 
 protected:
 	ImageFilter3D();
 	virtual ~ImageFilter3D();
   
 public:
-    virtual void Clear();
+    virtual void Clear(); // called in Clear@ProcessObject, must be virtual
 
-    void SetInputImage(const Image3D<InputVoxelType>* InputImage);
+    void SetInputImage(const Image3D<InputPixelType>* InputImage);
 
 	void SetInputRegionOf3DIndex(const Image3DBoxRegionOf3DIndex* InputRegion);
 
-	void SetInput3DIndexList(const DenseMatrix<double>* Input3DIndexList);
+	void SetInput3DIndexList(const DenseMatrix<ScalarType>* Input3DIndexList);
 
-	void SetInput3DPositionList(const DenseMatrix<double>* Input3DPositionList);
+	void SetInput3DPositionList(const DenseMatrix<ScalarType>* Input3DPositionList);
 
-    void SetOutputImage(Image3D<OutputVoxelType>* OutputImage);
+    void SetOutputImage(Image3D<OutputPixelType>* OutputImage);
 
-	void SetOutputArray(ObjectArray<OutputVoxelType>* OutputArray);
+	void SetOutputArray(ObjectArray<OutputPixelType>* OutputArray);
 
     void SetMaxNumberOfThreads(int_max MaxNumber);    
 
-	inline virtual void FilterFunctionAt3DIndex(OutputVoxelType& OutputVoxel, double x_Index, double y_Index, double z_Index, int_max ThreadIndex) = 0;
+	inline virtual void FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, ScalarType x_Index, ScalarType y_Index, ScalarType z_Index, int_max ThreadIndex) = 0;
 
-    inline virtual void FilterFunctionAt3DPosition(OutputVoxelType& OutputVoxel, double x, double y, double z, int_max ThreadIndex) = 0;
+	inline virtual void FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex) = 0;
 
     virtual bool CheckInput();
 
     virtual bool Update();
 	
-    Image3D<OutputVoxelType>& OutputImage();
-	Image3D<OutputVoxelType>* GetOutputImage();
+    Image3D<OutputPixelType>& OutputImage();
+	Image3D<OutputPixelType>* GetOutputImage();
 
-    ObjectArray<OutputVoxelType>& OutputArray();
-	ObjectArray<OutputVoxelType>* GetOutputArray();
+    ObjectArray<OutputPixelType>& OutputArray();
+	ObjectArray<OutputPixelType>* GetOutputArray();
 
 	//----------------------------------------------------------------------------------------------------------
     // just for reference: each specific filter should provide Apply function, such as
-    // static Image3D<OutputVoxelType> Apply(const Image3D<InputVoxelType>* InputImage);
+    // static Image3D<OutputPixelType> Apply(const Image3D<InputPixelType>* InputImage);
     //----------------------------------------------------------------------------------------------------------
 
 protected:
     virtual bool Preprocess();
     virtual bool Postprocess();
 
-    inline virtual void OutputFunction(int_max OutputVoxelIndex, OutputVoxelType& OutputVoxel, int_max ThreadIndex);
+    inline virtual void OutputFunction(int_max OutputPixelIndex, OutputPixelType& OutputPixel, int_max ThreadIndex);
 
-    virtual void Update_in_a_Thread(int_max OutputVoxelIndex_start, int_max OutputVoxelIndex_end, int_max ThreadIndex);
+    virtual void Update_in_a_Thread(int_max OutputPixelIndex_start, int_max OutputPixelIndex_end, int_max ThreadIndex);
 
-    int_max GetNumberOfThreadsTobeCreated();
+    int_max GetNumberOfThreadTobeCreated();
 
 private:
 	ImageFilter3D(const ImageFilter3D&)    = delete;
