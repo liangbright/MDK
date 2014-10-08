@@ -2053,6 +2053,16 @@ void Test_DenseMatrix_DenseVector_ObjectArray()
 
 	A2(span(0, 1), span(0, 1)) = -10;
 	DisplayMatrix("A2", A2);
+
+	DenseMatrix<int_max> A3;
+	A3 = std::move(VA);
+	DisplayMatrix("A3", A3);
+
+	DenseVector<int_max, 3> B1 = { 1, 2, 3 };
+	DenseMatrix<int_max> A4 = B1;
+	DisplayMatrix("A4", A4);
+	A4 = B1 + int_max(1);
+	DisplayMatrix("A4", A4);
 }
 
 }//namespace mdk

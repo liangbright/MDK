@@ -11,6 +11,8 @@
 #include "mdkScalarImageToVectorImageFilterWithMask3D.h"
 #include "mdkScalarImageToVectorImageConvolutionFilter3D.h"
 #include "mdkScalarIntegralImageBuilder3D.h"
-#include "mdkScalarImageInterpolator3D.h"
+#include "mdkImageInterpolation3D.h"
+#include "mdkHistogram.h"
+#include "mdkSingleClassObjectDetectionInSingleImage3D.h"
 
 #endif

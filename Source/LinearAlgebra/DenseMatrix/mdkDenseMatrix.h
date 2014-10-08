@@ -171,10 +171,10 @@ public:
 
     inline DenseMatrix(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
-	template<int_max TemplateVectorLength>
-	inline DenseMatrix(const DenseVector<ElementType, TemplateVectorLength>& InputRowVector);
-	// the above function can be used for variable length DenseVector
-	//inline DenseMatrix(const DenseVector<ElementType>& InputRowVector);
+	template<int_max VectorFixedLength>
+	inline DenseMatrix(const DenseVector<ElementType, VectorFixedLength>& InputColVector);
+
+	inline DenseMatrix(DenseVector<ElementType> InputColVector);
 
     // deep-copy or shared-copy constructor
     inline DenseMatrix(const DenseMatrix<ElementType>& InputMatrix, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
@@ -215,10 +215,10 @@ public:
 
     inline void operator=(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
-	template<int_max TemplateVectorLength>
-	inline void operator=(const DenseVector<ElementType, TemplateVectorLength>& InputRowVector);
-	// the above function can be used for variable length DenseVector
-	//inline void operator=(const DenseVector<ElementType>& InputRowVector);
+	template<int_max VectorFixedLength>
+	inline void operator=(const DenseVector<ElementType, VectorFixedLength>& InputColVector);
+
+	inline void operator=(DenseVector<ElementType> InputColVector);
 
     inline void operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix);
 
@@ -329,10 +329,10 @@ public:
     inline bool Take(DenseMatrix<ElementType>& InputMatrix);
     inline bool Take(DenseMatrix<ElementType>* InputMatrix);
 
-    //Take the data of the InputRowVector and Clear InputRowVector
+    //Take the data of the InputColVector and Clear InputColVector
 
-	inline bool Take(DenseVector<ElementType>&& InputRowVector);
-    inline bool Take(DenseVector<ElementType>& InputRowVector);
+	inline bool Take(DenseVector<ElementType>&& InputColVector);
+	inline bool Take(DenseVector<ElementType>& InputColVector);
 
     //Take the Matrix Created from ShadowMatrix or GlueMatrix
 

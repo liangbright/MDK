@@ -122,10 +122,25 @@ struct Solution_Of_QuadraticProgramming
 
     ~Solution_Of_QuadraticProgramming() {}
 
+	Solution_Of_QuadraticProgramming(const Solution_Of_QuadraticProgramming& InputSolution)
+	{
+		this->Copy(InputSolution);
+	}
+
     Solution_Of_QuadraticProgramming(Solution_Of_QuadraticProgramming&& InputSolution)
     {
         this->Take(std::forward<Solution_Of_QuadraticProgramming&>(InputSolution));
     }
+
+	void operator=(const Solution_Of_QuadraticProgramming& InputSolution)
+	{
+		this->Copy(InputSolution);
+	}
+
+	void operator=(Solution_Of_QuadraticProgramming&& InputSolution)
+	{
+		this->Take(std::forward<Solution_Of_QuadraticProgramming&>(InputSolution));
+	}
 
     void Clear()
     {
@@ -135,11 +150,17 @@ struct Solution_Of_QuadraticProgramming
         ObjectiveFunctionValue = 0;
     }
 
-    void ShallowCopy(Solution_Of_QuadraticProgramming& InputSolution)
-    {
-        X.ForceShare(InputSolution.X);
-        MethodName = InputSolution.MethodName;
-    }
+private:
+
+	void Copy(Solution_Of_QuadraticProgramming& InputSolution)
+	{
+		X = InputSolution.X;
+		ObjectiveFunctionValue = InputSolution.ObjectiveFunctionValue;
+
+		MethodName = InputSolution.MethodName;
+		CPUTime = InputSolution.CPUTime;
+		WSR = InputSolution.WSR;
+	}
 
     void Take(Solution_Of_QuadraticProgramming& InputSolution)
     {
@@ -150,10 +171,6 @@ struct Solution_Of_QuadraticProgramming
         CPUTime = InputSolution.CPUTime;
         WSR = InputSolution.WSR;
     }
-
-private:
-    Solution_Of_QuadraticProgramming(const Solution_Of_QuadraticProgramming&) = delete;
-    void operator=(const Solution_Of_QuadraticProgramming&) = delete;
 };
 
 
@@ -189,9 +206,7 @@ private:
     bool m_SparseInput;
     bool m_Only_A_Sparse;
 
-    Solution_Of_QuadraticProgramming<ElementType>* m_Solution;
-
-    Solution_Of_QuadraticProgramming<ElementType> m_Solution_SharedCopy;
+    Solution_Of_QuadraticProgramming<ElementType> m_Solution;
 
     //-------------------------------------------------------------------//
     std::unique_ptr<qpOASES::QProblem<ElementType>>  m_QProblem_Online;
@@ -240,11 +255,11 @@ public:
                       const DenseMatrix<ElementType>*  ub_A = nullptr,
                       const DenseMatrix<ElementType>*  x0   = nullptr);
 
-    bool SetOutputSolution(Solution_Of_QuadraticProgramming<ElementType>* Solution);
-
     bool Update();
 
     Solution_Of_QuadraticProgramming<ElementType>* GetSolution();
+
+	Solution_Of_QuadraticProgramming<ElementType>& Solution();
 
     //--------------------------------------------------------------------------------------------------------//
     static Solution_Of_QuadraticProgramming<ElementType> Apply(const DenseMatrix<ElementType>* H,                                                               
@@ -278,10 +293,6 @@ public:
                                                                const Option_Of_QuadraticProgramming* Option = nullptr);
 
 private:
-
-	void ClearProcessOutput();
-	void UpdateProcessOutput();
-
     bool CheckInput_ALLDense();
     bool Update_Mode_OneTimeOnly_Input_ALLDense();
 

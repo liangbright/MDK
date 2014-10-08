@@ -27,7 +27,7 @@
 namespace mdk
 {
 
-enum struct MDK_MethodType_Of_LinearLeastSquaresProblemSolver
+enum struct MethodType_Of_LinearLeastSquaresProblemSolver
 {
     QuadraticProgramming,
     NormalEquation,
@@ -39,7 +39,7 @@ enum struct MDK_MethodType_Of_LinearLeastSquaresProblemSolver
 
 struct Option_Of_LinearLeastSquaresProblemSolver
 {
-    MDK_MethodType_Of_LinearLeastSquaresProblemSolver MethodType;
+	MethodType_Of_LinearLeastSquaresProblemSolver MethodType;
 
 //-------------------------------
 
@@ -57,7 +57,7 @@ struct Option_Of_LinearLeastSquaresProblemSolver
 
     void SetToDefault()
     {
-        MethodType = MDK_MethodType_Of_LinearLeastSquaresProblemSolver::QuadraticProgramming;
+		MethodType = MethodType_Of_LinearLeastSquaresProblemSolver::NormalEquation;
     }
 //
 private:
@@ -70,11 +70,16 @@ struct Solution_Of_LinearLeastSquaresProblem
 {
     DenseMatrix<ElementType> X;
 
-    MDK_MethodType_Of_LinearLeastSquaresProblemSolver MethodType;
+	MethodType_Of_LinearLeastSquaresProblemSolver MethodType;
 
 //--------------------------------------------------
     Solution_Of_LinearLeastSquaresProblem() {};
     
+	Solution_Of_LinearLeastSquaresProblem(const Solution_Of_LinearLeastSquaresProblem& InputSolution)
+	{
+		(*this) = InputSolution;
+	}
+
     Solution_Of_LinearLeastSquaresProblem(Solution_Of_LinearLeastSquaresProblem&& InputSolution)
     {
         X = std::move(InputSolution.X);
@@ -82,6 +87,12 @@ struct Solution_Of_LinearLeastSquaresProblem
     }
 
     ~Solution_Of_LinearLeastSquaresProblem() {};
+
+	void operator=(const Solution_Of_LinearLeastSquaresProblem& InputSolution)
+	{
+		X = InputSolution.X;
+		MethodType = InputSolution.MethodType;
+	}
 
     void operator=(Solution_Of_LinearLeastSquaresProblem&& InputSolution)
     {
@@ -92,18 +103,8 @@ struct Solution_Of_LinearLeastSquaresProblem
     void Clear()
     {
         X.Clear();
-        MethodType = MDK_MethodType_Of_LinearLeastSquaresProblemSolver::Unknown;
+		MethodType = MethodType_Of_LinearLeastSquaresProblemSolver::Unknown;
     }
-
-    void Share(Solution_Of_LinearLeastSquaresProblem& InputSolution)
-    {
-        X.Share(InputSolution.X);
-        MethodType = InputSolution.MethodType; // this is not shared, but it does not matter because Solution is output
-    }
-
-private:
-    Solution_Of_LinearLeastSquaresProblem(const Solution_Of_LinearLeastSquaresProblem&) = delete;
-    void operator=(const Solution_Of_LinearLeastSquaresProblem&) = delete;
 };
 
 
@@ -111,7 +112,7 @@ template<typename ElementType>
 class LinearLeastSquaresProblemSolver : public ProcessObject
 {
 public:
-	typedef MDK_MethodType_Of_LinearLeastSquaresProblemSolver MethodTypeEnum;
+	typedef MethodType_Of_LinearLeastSquaresProblemSolver MethodTypeEnum;
 
 public:
     Option_Of_LinearLeastSquaresProblemSolver m_Option;
@@ -140,9 +141,7 @@ private:
 
     bool m_IsInputDense;
 
-    Solution_Of_LinearLeastSquaresProblem<ElementType>* m_Solution;
-
-    Solution_Of_LinearLeastSquaresProblem<ElementType> m_Solution_SharedCopy;
+    Solution_Of_LinearLeastSquaresProblem<ElementType> m_Solution;
 
     //----empty matrix
     DenseMatrix<ElementType>  m_EmptyDenseMatrix;
@@ -174,11 +173,11 @@ public:
                       const SparseMatrix<ElementType>*  x0   = nullptr,
                       const SparseMatrix<ElementType>*  H    = nullptr);
 
-    bool SetOutputSolution(Solution_Of_LinearLeastSquaresProblem<ElementType>* Solution);
-
     bool Update();
 
     Solution_Of_LinearLeastSquaresProblem<ElementType>* GetSolution();
+
+	Solution_Of_LinearLeastSquaresProblem<ElementType>& Solution();
 
     //--------------------------------------------------------------------------------------------------------//
     static Solution_Of_LinearLeastSquaresProblem<ElementType> Apply(const DenseMatrix<ElementType>* D,
@@ -214,10 +213,6 @@ public:
                                                                     const DenseMatrix<ElementType>*  H );
 
 private:
-
-	void ClearProcessOutput();
-	void UpdateProcessOutput();
-
     bool CheckInput_dense();
     bool Update_dense_unconstrained();
     bool Update_dense_QuadraticProgramming();

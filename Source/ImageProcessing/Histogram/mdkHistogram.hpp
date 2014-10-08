@@ -14,47 +14,50 @@ DenseVector<int_max> ComputeHistogram(const DenseVector<ElementType>& Signal, El
 template<typename ElementType>
 DenseMatrix<int_max> ComputeHistogram(const DenseMatrix<ElementType>& Signal, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
 {
-    return ComputeHistogram(Signal.GetElementPointer(), Signal.GetElementNumber(), Signal_lb, Signal_ub, BinNumber);
+	DenseMatrix<int_max> Output = ComputeHistogram(Signal.GetElementPointer(), Signal.GetElementNumber(), Signal_lb, Signal_ub, BinNumber);
+	return Output;
 }
 
 
 template<typename ElementType>
-DenseMatrix<int_max> ComputeHistogram(const Image2D<ElementType>& Signal, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
+DenseVector<int_max> ComputeHistogram(const Image2D<ElementType>& Signal, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
 {
     return ComputeHistogram(Signal.GetPixelPointer(), Signal.GetPixelNumber(), Signal_lb, Signal_ub, BinNumber);
 }
 
 
 template<typename ElementType>
-DenseMatrix<int_max> ComputeHistogram(const Image3D<ElementType>& Signal, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
+DenseVector<int_max> ComputeHistogram(const Image3D<ElementType>& Signal, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
 {
     return ComputeHistogram(Signal.GetPixelPointer(), Signal.GetPixelNumber(), Signal_lb, Signal_ub, BinNumber);
 }
 
 
 template<typename ElementType>
-DenseMatrix<int_max> ComputeHistogram(const ElementType* Signal, int_max SignalLength, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
+DenseVector<int_max> ComputeHistogram(const ElementType* Signal, int_max SignalLength, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
 {
-    DenseMatrix<int_max> Histogram;
-    ComputeHistogram(Histogram, Signal, SignalLength, Signal_lb, Signal_ub, BinNumber);
+	DenseVector<int_max> Histogram;
+	Histogram.Resize(BinNumber);
+    ComputeHistogram(Histogram.GetElementPointer(), Signal, SignalLength, Signal_lb, Signal_ub, BinNumber);
     return Histogram;
 }
 
 
 template<typename ElementType>
-bool ComputeHistogram(DenseMatrix<int_max>& Histogram,
-                      const ElementType* Signal, int_max SignalLength, 
+bool ComputeHistogram(int_max* Histogram,
+	                  const ElementType* Signal, int_max SignalLength, 
                       ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
 {
-    if (Signal == nullptr || SignalLength <= 0 || Signal_lb >= Signal_ub || BinNumber <= 0)
+	if (Histogram == nullptr || Signal == nullptr || SignalLength <= 0 || Signal_lb >= Signal_ub || BinNumber <= 0)
     {
         MDK_Error("Invalid input @ mdkHistogram ComputeHistogram(...)")
         return false;
     }
 
-    Histogram.FastResize(1, BinNumber);
-
-    Histogram.Fill(0);
+	for (int_max i = 0; i < BinNumber; ++i)
+	{
+		Histogram[i] = 0;
+	}
 
     auto BinLength = (double(Signal_ub) - double(Signal_lb)) / double(BinNumber);
 
@@ -90,33 +93,8 @@ DenseVector<ElementType> GaussianSmoothHistogram(const DenseVector<int_max>& His
 template<typename ElementType>
 bool GaussianSmoothHistogram(DenseVector<ElementType>& SmoothedHistogram, const DenseVector<int_max>& Histogram, ElementType Sigma, int_max Radius)
 {
-	if (Histogram.IsEmpty() == true || Sigma <= ElementType(0) || Radius <= 0)
-    {
-        MDK_Error("Invalid input @ mdkHistogram GaussianSmoothHistogram(...)")
-        return false;
-    }
-
-    //----------- compute kernal ----------------------------//
-
-	DenseVector<ElementType> kernal;
-	kernal.Resize(2 * Radius + 1);
-
-    auto sum = ElementType(0);
-
-    for (int_max k = 0; k < 2 * Radius + 1; ++k)
-    {
-        auto temp = std::exp(-0.5*(k - Radius)*(k - Radius) / (Sigma*Sigma));
-        Kernal[k] = temp;
-        sum += temp;
-    }
-
-    Kernal /= sum;
-
-    //--------------- smooth--------------------------------//
-
-    return SmoothHistogram(SmoothedHistogram,
-                           Histogram.GetElementPointer(), Histogram.GetElementNumber(),
-                           Kernal.GetElementPointer(), Kernal.GetElementNumber());
+	SmoothedHistogram.FastResize(Histogram.GetElementNumber());
+	return GaussianSmoothHistogram(SmoothedHistogram.GetElementPointer(), Histogram.GetElementPointer(), Histogram.GetElementNumber(), Sigma, Radius);
 }
 
 
@@ -132,32 +110,38 @@ DenseMatrix<ElementType> GaussianSmoothHistogram(const DenseMatrix<int_max>& His
 template<typename ElementType>
 bool GaussianSmoothHistogram(DenseMatrix<ElementType>& SmoothedHistogram, const DenseMatrix<int_max>& Histogram, ElementType Sigma, int_max Radius)
 {
-    if (Histogram.IsEmpty() == true || Sigma <= ElementType(0) || Radius <= 0)
-    {
-        MDK_Error("Invalid input @ mdkHistogram GaussianSmoothHistogram(...)")
-        return false;
-    }
+	SmoothedHistogram.FastResize(1, Histogram.GetElementNumber());
+	return GaussianSmoothHistogram(SmoothedHistogram.GetElementPointer(), Histogram.GetElementPointer(), Histogram.GetElementNumber(), Sigma, Radius);
+}
 
-    //----------- compute kernal ----------------------------//
 
-    DenseMatrix<ElementType> kernal(1, 2 * Radius + 1);
+template<typename ElementType>
+bool GaussianSmoothHistogram(ElementType* SmoothedHistogram, const int_max* Histogram, int_max BinNumber, ElementType Sigma, int_max Radius)
+{
+	if (SmoothedHistogram == nullptr || Histogram == nullptr || BinNumber <= 0 || Sigma <= ElementType(0) || Radius <= 0)
+	{
+		MDK_Error("Invalid input @ mdkHistogram GaussianSmoothHistogram(...)")
+		return false;
+	}
 
-    auto sum = ElementType(0);
+	//----------- compute kernal ----------------------------//
 
-    for (int_max k = 0; k < 2 * Radius + 1; ++k)
-    {
-        auto temp = std::exp(-0.5*(k - Radius)*(k - Radius) / (Sigma*Sigma));
-        Kernal[k] = temp;
-        sum += temp;
-    }
+	DenseMatrix<ElementType> kernal(1, 2 * Radius + 1);
 
-    Kernal /= sum;
+	auto sum = ElementType(0);
 
-    //--------------- smooth--------------------------------//
+	for (int_max k = 0; k < 2 * Radius + 1; ++k)
+	{
+		auto temp = std::exp(-0.5*(k - Radius)*(k - Radius) / (Sigma*Sigma));
+		Kernal[k] = temp;
+		sum += temp;
+	}
 
-    return SmoothHistogram(SmoothedHistogram,
-                           Histogram.GetElementPointer(), Histogram.GetElementNumber(),
-                           Kernal.GetElementPointer(), Kernal.GetElementNumber());
+	Kernal /= sum;
+
+	//--------------- smooth--------------------------------//
+
+	return SmoothHistogram(SmoothedHistogram, Histogram, BinNumber, Kernal.GetElementPointer(), Kernal.GetElementNumber());
 }
 
 
@@ -204,9 +188,9 @@ bool SmoothHistogram(DenseMatrix<ElementType>& SmoothedHistogram, const DenseMat
 
 
 template<typename ElementType>
-bool SmoothHistogram(ElementType* SmoothedHistogram, const int_max* Histogram, int_max HistLength, const ElementType* Kernal, int_max KernalLength)
+bool SmoothHistogram(ElementType* SmoothedHistogram, const int_max* Histogram, int_max BinNumber, const ElementType* Kernal, int_max KernalLength)
 {
-	if (SmoothedHistogram == nullptr || Histogram == nullptr || HistLength <= 0 || Kernal == nullptr || KernalLength <= 0)
+	if (SmoothedHistogram == nullptr || Histogram == nullptr || BinNumber <= 0 || Kernal == nullptr || KernalLength <= 0)
     {
         MDK_Error("Invalid input @ mdkHistogram SmoothHistogram(...)")
         return false;
@@ -223,15 +207,15 @@ bool SmoothHistogram(ElementType* SmoothedHistogram, const int_max* Histogram, i
         return false;
     }
 
-    if (HistLength < KernalLength)
+	if (BinNumber < KernalLength)
     {
-        MDK_Error("Histogram Length < Kernal Length @ mdkHistogram SmoothHistogram(...)")
+        MDK_Error("Histogram BinNumber < Kernal Length @ mdkHistogram SmoothHistogram(...)")
         return false;
     }
 
     //---------------- smooth -------------------------//
 
-    for (int_max i = 0; i < HistLength; ++i)
+	for (int_max i = 0; i < BinNumber; ++i)
     {
         auto temp = ElementType(0);
 
@@ -243,9 +227,9 @@ bool SmoothHistogram(ElementType* SmoothedHistogram, const int_max* Histogram, i
             {
                 temp += Kernal[k] * Histogram[0];
             }
-            else if (Index >= HistLength)
+			else if (Index >= BinNumber)
             {
-                temp += Kernal[k] * Histogram[HistLength - 1];
+				temp += Kernal[k] * Histogram[BinNumber - 1];
             }
             else
             {
@@ -257,6 +241,65 @@ bool SmoothHistogram(ElementType* SmoothedHistogram, const int_max* Histogram, i
     }
 
     return true;
+}
+
+
+template<typename ElementType>
+DenseVector<ElementType> NormalizeHistogram(const DenseVector<int_max>& Histogram)
+{
+	DenseVector<ElementType> Hist;
+	Hist.Resize(Histogram.GetElementNumber());
+	NormalizeHistogram(Hist.GetElementPointer(), Histogram.GetElementPointer(), Histogram.GetElementNumber());
+	return Hist;
+}
+
+
+template<typename ElementType>
+DenseMatrix<ElementType> NormalizeHistogram(const DenseMatrix<int_max>& Histogram)
+{
+	DenseMatrix<ElementType> Hist;
+	Hist.Resize(1, Histogram.GetElementNumber());
+	NormalizeHistogram(Hist.GetElementPointer(), Histogram.GetElementPointer(), Histogram.GetElementNumber());
+	return Hist;
+}
+
+
+template<typename ElementType>
+bool NormalizeHistogram(ElementType* NormalizedHistogram, const int_max* Histogram, int_max BinNumber)
+{
+	if (NormalizedHistogram == nullptr || Histogram == nullptr || BinNumber <= 0)
+	{
+		MDK_Error("Invalid input @ mdkHistogram NormalizeHistogram(...)")
+		return false;
+	}
+
+	ElementType TotalCount = 0;
+	for (int_max i = 0; i < BinNumber; ++i)
+	{
+		NormalizedHistogram[i] = ElementType(Histogram[i]);
+		TotalCount += NormalizedHistogram[i];
+	}
+
+	auto EPSValue = std::numeric_limits<ElementType>::epsilon();
+
+	if (TotalCount > EPSValue)
+	{
+		for (int_max i = 0; i < BinNumber; ++i)
+		{
+			NormalizedHistogram[i] /= TotalCount;
+		}
+	}
+	else
+	{
+		MDK_Warning("TotalCount <= eps, set to uniform distribution @ mdkHistogram NormalizeHistogram(...)")
+
+	    for (int_max i = 0; i < BinNumber; ++i)
+		{
+			NormalizedHistogram[i] = ElementType(1) / ElementType(BinNumber);
+		}
+	}
+
+	return true;
 }
 
 

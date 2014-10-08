@@ -93,15 +93,27 @@ inline DenseMatrix<ElementType>::DenseMatrix(const std::initializer_list<std::in
 
 
 template<typename ElementType>
-template<int_max TemplateVectorLength>
+template<int_max VectorFixedLength>
 inline
-DenseMatrix<ElementType>::DenseMatrix(const DenseVector<ElementType, TemplateVectorLength>& InputRowVector)
-{//TemplateVectorLength is -1 for variable length DenseVector
+DenseMatrix<ElementType>::DenseMatrix(const DenseVector<ElementType, VectorFixedLength>& InputColVector)
+{
     this->Resize(0, 0);
-	if (InputRowVector.GetElementNumber() > 0)
+	if (InputColVector.GetElementNumber() > 0)
     {
-		(*this) = InputRowVector;
+		(*this) = InputColVector;
     }
+}
+
+
+template<typename ElementType>
+inline 
+DenseMatrix<ElementType>::DenseMatrix(DenseVector<ElementType> InputColVector)
+{
+	this->Resize(0, 0);
+	if (InputColVector.GetElementNumber() > 0)
+	{
+		this->Take(InputColVector);
+	}
 }
 
 
@@ -508,12 +520,11 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<std::initia
 
 
 template<typename ElementType>
-template<int_max TemplateVectorLength>
+template<int_max VectorFixedLength>
 inline
-void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType, TemplateVectorLength>& InputRowVector)
-{ 
-    // Attention: do not use TemplateVectorLength, it is -1 for DenseVector with variable length
-	auto InputVectorLength = InputRowVector.GetLength();
+void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType, VectorFixedLength>& InputColVector)
+{
+	auto InputVectorLength = InputColVector.GetLength();
 
     if (InputVectorLength <= 0)
     {
@@ -533,25 +544,33 @@ void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType, Template
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputVectorLength)
-    {// self is row vector
-		this->SetRow(0, InputRowVector.GetElementPointer());
+    {// self is row vector, keep as row vector
+		this->SetRow(0, InputColVector.GetElementPointer());
     }
     else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputVectorLength)
-    {// self is col vector
-		this->SetCol(0, InputRowVector.GetElementPointer());
+    {// self is col vector, keep as col vector
+		this->SetCol(0, InputColVector.GetElementPointer());
     }
 	else
-	{// change to row vector
+	{// change to col vector
 		if (this->IsSizeFixed() == true)
 		{
 			MDK_Error("Can not change matrix size @ DenseMatrix::operator=(DenseVector)")
 		}
 		else
 		{
-			this->FastResize(1, InputVectorLength);
-			this->SetRow(0, InputRowVector.GetElementPointer());
+			this->FastResize(InputVectorLength, 1);
+			this->SetCol(0, InputColVector.GetElementPointer());
 		}
 	}
+}
+
+
+template<typename ElementType>
+inline
+void DenseMatrix<ElementType>::operator=(DenseVector<ElementType> InputColVector)
+{
+	this->Take(InputColVector);
 }
 
 
@@ -965,43 +984,34 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>* InputMatrix)
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::Take(DenseVector<ElementType>&& InputRowVector)
+bool DenseMatrix<ElementType>::Take(DenseVector<ElementType>&& InputColVector)
 {
-	return this->Take(std::forward<DenseVector<ElementType>&>(InputRowVector));
+	return this->Take(std::forward<DenseVector<ElementType>&>(InputColVector));
 }
 
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::Take(DenseVector<ElementType>& InputRowVector)
+bool DenseMatrix<ElementType>::Take(DenseVector<ElementType>& InputColVector)
 {
     // MatrixA = MatrixA
-	if (this->GetElementPointer() == InputRowVector.GetElementPointer())
+	if (this->GetElementPointer() == InputColVector.GetElementPointer())
     {
         MDK_Warning("A Matrix tries to take itself @ DenseMatrix::Take(DenseVector)")
         return true;
     }
 
-	auto InputLength = InputRowVector.GetLength()
+	auto InputLength = InputColVector.GetLength();
 
     auto SelfSize = this->GetSize();
 
     if (this->IsSizeFixed() == true)
     {
-        if (SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputLength)
+		if ((SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputLength) || (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength))
         {
-            m_MatrixData->StdVector = std::move(InputRowVector.StdVector());
+			m_MatrixData->StdVector = std::move(InputColVector.StdVector());
             m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
             m_ElementPointer = m_MatrixData->ElementPointer;
-
-            return true;
-        }
-        else if (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength)
-        {
-			m_MatrixData->StdVector = std::move(InputRowVector.StdVector());
-            m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
-            m_ElementPointer = m_MatrixData->ElementPointer;
-
             return true;
         }
         else
@@ -1016,18 +1026,17 @@ bool DenseMatrix<ElementType>::Take(DenseVector<ElementType>& InputRowVector)
         {
             if (SelfSize.RowNumber > 0)
             {
-                MDK_Warning("InputRowVector is empty, and this matrix is set to be empty @ DenseMatrix::Take(DenseVector)")
+                MDK_Warning("InputColVector is empty, and this matrix is set to be empty @ DenseMatrix::Take(DenseVector)")
                 this->Clear();
             }
-
             return true;
         }
 
-        // now, InputRowVector is not empty
+        // now, InputColVector is not empty
 
         if (SelfSize.RowNumber == 1)
         {            
-			m_MatrixData->StdVector = std::move(InputRowVector.StdVector());
+			m_MatrixData->StdVector = std::move(InputColVector.StdVector());
             m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
             m_MatrixData->ColNumber = InputLength;
 
@@ -1035,7 +1044,7 @@ bool DenseMatrix<ElementType>::Take(DenseVector<ElementType>& InputRowVector)
         }
         else if (SelfSize.ColNumber == 1)
         {
-			m_MatrixData->StdVector = std::move(InputRowVector.StdVector());
+			m_MatrixData->StdVector = std::move(InputColVector.StdVector());
             m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
             m_MatrixData->RowNumber = InputLength;
 
@@ -1048,10 +1057,10 @@ bool DenseMatrix<ElementType>::Take(DenseVector<ElementType>& InputRowVector)
                 this->Resize(0, 0);
             }
 
-			m_MatrixData->StdVector = std::move(InputRowVector.StdVector());
+			m_MatrixData->StdVector = std::move(InputColVector.StdVector());
             m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
-            m_MatrixData->RowNumber = InputLength;
-            m_MatrixData->ColNumber = 1;
+			m_MatrixData->RowNumber = InputLength;
+			m_MatrixData->ColNumber = 1;
 
             m_ElementPointer = m_MatrixData->ElementPointer;
         }

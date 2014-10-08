@@ -44,31 +44,13 @@ void LinearLeastSquaresProblemSolver<ElementType>::Clear()
 
     m_IsInputDense = true;
 
-    this->ClearProcessOutput();
-
     m_EmptyDenseMatrix.Clear();
     m_EmptyDenseMatrix.FixSize();
 
     m_EmptySparseMatrix.Clear();
     m_EmptySparseMatrix.FixSize();
-}
 
-
-template<typename ElementType>
-void LinearLeastSquaresProblemSolver<ElementType>::ClearProcessOutput()
-{
-    m_Solution_SharedCopy.Clear();
-    m_Solution = &m_Solution_SharedCopy;
-}
-
-
-template<typename ElementType>
-void LinearLeastSquaresProblemSolver<ElementType>::UpdateProcessOutput()
-{
-    if (m_Solution != &m_Solution_SharedCopy)
-    {
-        m_Solution_SharedCopy.Share(*m_Solution);
-    }
+	m_Solution.Clear();
 }
 
 
@@ -151,9 +133,7 @@ bool LinearLeastSquaresProblemSolver<ElementType>::SetOutputSolution(Solution_Of
         return false;
     }
 
-    m_Solution = Solution;
-
-    m_Solution_SharedCopy.Share(*Solution);
+	m_Solution.Share(*Solution);
 
     return true;
 }
@@ -452,7 +432,7 @@ bool LinearLeastSquaresProblemSolver<ElementType>::Update_dense_unconstrained()
     {
         auto VariableNumber = m_D_dense->GetColNumber();
 
-        m_Solution->X.FastResize(VariableNumber, 1);
+        m_Solution.X.FastResize(VariableNumber, 1);
 
         typedef Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> EigenMapDynamicMatrix;
 
@@ -460,25 +440,25 @@ bool LinearLeastSquaresProblemSolver<ElementType>::Update_dense_unconstrained()
 
         EigenMapDynamicMatrix Input_c(const_cast<ElementType*>(m_c_dense->GetElementPointer()), m_c_dense->GetElementNumber(), 1);
 
-        EigenMapDynamicMatrix Output_X(m_Solution->X.GetElementPointer(), m_Solution->X.GetElementNumber(), 1);
+        EigenMapDynamicMatrix Output_X(m_Solution.X.GetElementPointer(), m_Solution.X.GetElementNumber(), 1);
 
         if (m_Option.MethodType == MethodTypeEnum::SVD)
         {
-            m_Solution->MethodType = MethodTypeEnum::SVD;
+            m_Solution.MethodType = MethodTypeEnum::SVD;
 
             Output_X = Input_D.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(Input_c);
 
         }
         else if (m_Option.MethodType == MethodTypeEnum::QR)
         {
-            m_Solution->MethodType = MethodTypeEnum::QR;
+            m_Solution.MethodType = MethodTypeEnum::QR;
 
             Output_X = Input_D.colPivHouseholderQr().solve(Input_c);
 
         }
         else if (m_Option.MethodType == MethodTypeEnum::NormalEquation)
         {
-            m_Solution->MethodType = MethodTypeEnum::NormalEquation;
+            m_Solution.MethodType = MethodTypeEnum::NormalEquation;
 
             if (m_H_dense->IsEmpty() == false)
             {
@@ -519,7 +499,7 @@ bool LinearLeastSquaresProblemSolver<ElementType>::Update_dense_QuadraticProgram
         auto qpSolution = QuadraticProgrammingSolver<ElementType>::Apply(m_H_dense, &g, m_lb_x_dense, m_ub_x_dense,
                                                                          m_A_dense, m_lb_A_dense, m_ub_A_dense, m_x0_dense);
 
-        m_Solution->X = std::move(qpSolution.X);
+        m_Solution.X = std::move(qpSolution.X);
     }
     else
     {
@@ -532,10 +512,10 @@ bool LinearLeastSquaresProblemSolver<ElementType>::Update_dense_QuadraticProgram
         auto qpSolution = QuadraticProgrammingSolver<ElementType>::Apply(&H, &g, m_lb_x_dense, m_ub_x_dense,
                                                                          m_A_dense, m_lb_A_dense, m_ub_A_dense, m_x0_dense);
 
-        m_Solution->X = std::move(qpSolution.X);
+        m_Solution.X = std::move(qpSolution.X);
     }
 
-    m_Solution->MethodType = MethodTypeEnum::QuadraticProgramming;
+    m_Solution.MethodType = MethodTypeEnum::QuadraticProgramming;
 
     return true;
 }
@@ -796,7 +776,7 @@ bool LinearLeastSquaresProblemSolver<ElementType>::Update_sparse_QuadraticProgra
         auto qpSolution = QuadraticProgrammingSolver::<ElementType>::Apply(m_H_sparse, &g, m_lb_x_sparse, m_ub_x_sparse, 
                                                                            m_A_sparse, m_lb_A_sparse, m_ub_A_sparse, m_x0_sparse);
 
-        m_Solution->X = std::move(qpSolution.X);
+        m_Solution.X = std::move(qpSolution.X);
     }
     else
     {
@@ -809,10 +789,10 @@ bool LinearLeastSquaresProblemSolver<ElementType>::Update_sparse_QuadraticProgra
         auto qpSolution = QuadraticProgrammingSolver::<ElementType>::Apply(&H, &g, m_lb_x_sparse, m_ub_x_sparse, 
                                                                            m_A_sparse, m_lb_A_sparse, m_ub_A_sparse, m_x0_sparse);
 
-        m_Solution->X = std::move(qpSolution.X);
+        m_Solution.X = std::move(qpSolution.X);
     }
 
-    m_Solution->MethodType = "QuadraticProgramming";
+    m_Solution.MethodType = "QuadraticProgramming";
 */
     return true;
 }
@@ -821,7 +801,14 @@ bool LinearLeastSquaresProblemSolver<ElementType>::Update_sparse_QuadraticProgra
 template<typename ElementType>
 Solution_Of_LinearLeastSquaresProblem<ElementType>* LinearLeastSquaresProblemSolver<ElementType>::GetSolution()
 {
-    return &m_Solution_SharedCopy;
+    return &m_Solution;
+}
+
+
+template<typename ElementType>
+Solution_Of_LinearLeastSquaresProblem<ElementType>& LinearLeastSquaresProblemSolver<ElementType>::Solution()
+{
+	return m_Solution;
 }
 
 
@@ -849,9 +836,7 @@ LinearLeastSquaresProblemSolver<ElementType>::Apply(const DenseMatrix<ElementTyp
 
     Solver->Update();
 
-    auto ptrSolution = Solver->GetSolution();
-
-    return std::move(*ptrSolution);
+	return Solver->Solution();
 }
 
 
@@ -879,10 +864,7 @@ LinearLeastSquaresProblemSolver<ElementType>::Apply(const SparseMatrix<ElementTy
 
     Solver->Update();
 
-    auto ptrSolution = Solver->GetSolution();
-
-    return std::move(*ptrSolution);
-
+	return Solver->Solution();
 }
 
 

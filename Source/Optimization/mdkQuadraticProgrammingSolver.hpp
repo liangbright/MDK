@@ -48,8 +48,6 @@ void QuadraticProgrammingSolver<ElementType>::Clear()
     m_VaribleNumber_In_Mode_Online_Varying_H_A = 0;
     m_ConstraintNumber_In_Mode_Online_Varying_H_A = 0;
 
-	this->ClearProcessOutput();
-
     m_QProblem_Online.reset();
     m_QProblemB_Online.reset();
     m_SQProblem_Online.reset();
@@ -59,24 +57,8 @@ void QuadraticProgrammingSolver<ElementType>::Clear()
 
     m_EmptySparseMatrix.Clear();
     m_EmptySparseMatrix.FixSize();
-}
 
-
-template<typename ElementType>
-void QuadraticProgrammingSolver<ElementType>::ClearProcessOutput()
-{
-    m_Solution_SharedCopy.Clear();
-    m_Solution = &m_Solution_SharedCopy;
-}
-
-
-template<typename ElementType>
-void QuadraticProgrammingSolver<ElementType>::UpdateProcessOutput()
-{
-    if (m_Solution != &m_Solution_SharedCopy)
-    {
-        m_Solution_SharedCopy.ShallowCopy(*m_Solution);
-    }
+	m_Solution.Clear();
 }
 
 
@@ -177,23 +159,6 @@ void QuadraticProgrammingSolver<ElementType>::SetInputData(const DenseMatrix<Ele
 
 
 template<typename ElementType>
-bool QuadraticProgrammingSolver<ElementType>::SetOutputSolution(Solution_Of_QuadraticProgramming<ElementType>* Solution)
-{
-    if (Solution == nullptr)
-    {
-        MDK_Error("Invalid input @ QuadraticProgrammingSolver::SetOutputSolution(...)")
-        return false;
-    }
-
-    m_Solution = Solution;
-
-    m_Solution_SharedCopy.ShallowCopy(Solution);
-
-    return true;
-}
-
-
-template<typename ElementType>
 bool QuadraticProgrammingSolver<ElementType>::Update()
 {
     bool IsOK = false;
@@ -284,13 +249,13 @@ bool QuadraticProgrammingSolver<ElementType>::CheckInput_ALLDense()
             if (m_g_dense->IsColVector() == false)
             {
                 MDK_Error("Input g is not a vector @ QuadraticProgrammingSolver::CheckInput_ALLDense()")
-                    return false;
+                return false;
             }
 
             if (m_g_dense->GetElementNumber() != VaribleNumber)
             {
                 MDK_Error("Input g Size is wrong @ QuadraticProgrammingSolver::CheckInput_ALLDense()")
-                    return false;
+                return false;
             }
         }
     }
@@ -383,13 +348,13 @@ bool QuadraticProgrammingSolver<ElementType>::CheckInput_ALLDense()
             if (m_lb_A_dense->IsColVector() == false)
             {
                 MDK_Error("Input lb_A is not a column vector @ QuadraticProgrammingSolver::CheckInput_ALLDense()")
-                    return false;
+                return false;
             }
 
             if (m_lb_A_dense->GetElementNumber() != ConstraintNumber)
             {
                 MDK_Error("Input lb_A Size is wrong @ QuadraticProgrammingSolver::CheckInput_ALLDense()")
-                    return false;
+                return false;
             }
         }
     }
@@ -405,13 +370,13 @@ bool QuadraticProgrammingSolver<ElementType>::CheckInput_ALLDense()
             if (m_ub_A_dense->IsColVector() == false)
             {
                 MDK_Error("Input ub_A is not a column vector @ QuadraticProgrammingSolver::CheckInput_ALLDense()")
-                    return false;
+                return false;
             }
 
             if (m_ub_A_dense->GetElementNumber() != ConstraintNumber)
             {
                 MDK_Error("Input ub_A Size is wrong @ QuadraticProgrammingSolver::CheckInput_ALLDense()")
-                    return false;
+                return false;
             }
         }
     }
@@ -445,13 +410,13 @@ bool QuadraticProgrammingSolver<ElementType>::CheckInput_ALLDense()
             if (m_x0_dense->IsColVector() == false)
             {
                 MDK_Error("Input x0 is not a column vector @ QuadraticProgrammingSolver::CheckInput_ALLDense()")
-                    return false;
+                return false;
             }
 
             if (m_x0_dense->GetElementNumber() != VaribleNumber)
             {
                 MDK_Error("Input x0 size is wrong @ QuadraticProgrammingSolver::CheckInput_ALLDense()")
-                    return false;
+                return false;
             }
         }
     }
@@ -562,13 +527,13 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLD
 
         //------------------------------------------------------------------------------------------
 
-        m_Solution->WSR = WSR;
-        m_Solution->CPUTime = CPUTime;
+        m_Solution.WSR = WSR;
+        m_Solution.CPUTime = CPUTime;
 
-        m_Solution->X.FastResize(VaribleNumber, 1);      
-        tempQProblemB.getPrimalSolution(m_Solution->X.GetElementPointer());  
+        m_Solution.X.FastResize(VaribleNumber, 1);      
+        tempQProblemB.getPrimalSolution(m_Solution.X.GetElementPointer());  
 
-        m_Solution->ObjectiveFunctionValue = tempQProblemB.getObjVal();
+        m_Solution.ObjectiveFunctionValue = tempQProblemB.getObjVal();
     }
     else
     {
@@ -640,13 +605,13 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLD
         }
 
         //------------------------------------------------------------------------------------------
-        m_Solution->WSR = WSR;
-        m_Solution->CPUTime = CPUTime;
+        m_Solution.WSR = WSR;
+        m_Solution.CPUTime = CPUTime;
 
-        m_Solution->X.FastResize(VaribleNumber, 1);
-        tempQProblem.getPrimalSolution(m_Solution->X.GetElementPointer());
+        m_Solution.X.FastResize(VaribleNumber, 1);
+        tempQProblem.getPrimalSolution(m_Solution.X.GetElementPointer());
 
-        m_Solution->ObjectiveFunctionValue = tempQProblem.getObjVal();
+        m_Solution.ObjectiveFunctionValue = tempQProblem.getObjVal();
     }
 
     return true;
@@ -938,13 +903,13 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLS
 
         //------------------------------------------------------------------------------------------
 
-        m_Solution->WSR = WSR;
-        m_Solution->CPUTime = CPUTime;
+        m_Solution.WSR = WSR;
+        m_Solution.CPUTime = CPUTime;
 
-        m_Solution->X.FastResize(VaribleNumber, 1);
-        tempQProblemB.getPrimalSolution(m_Solution->X.GetElementPointer());
+        m_Solution.X.FastResize(VaribleNumber, 1);
+        tempQProblemB.getPrimalSolution(m_Solution.X.GetElementPointer());
 
-        m_Solution->ObjectiveFunctionValue = tempQProblemB.getObjVal();
+        m_Solution.ObjectiveFunctionValue = tempQProblemB.getObjVal();
     }
     else
     {
@@ -978,7 +943,6 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLS
 
         DenseMatrix<ElementType> ub_x;
         ConvertSparseMatrixToDenseMatrix(*m_ub_x_sparse, ub_x);
-
 
         DenseMatrix<ElementType> lb_A;
         ConvertSparseMatrixToDenseMatrix(*m_lb_A_sparse, lb_A);
@@ -1018,13 +982,13 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLS
                               x0.GetElementPointer(), nullptr, nullptr, nullptr);
         }
         //------------------------------------------------------------------------------------------
-        m_Solution->WSR = WSR;
-        m_Solution->CPUTime = CPUTime;
+        m_Solution.WSR = WSR;
+        m_Solution.CPUTime = CPUTime;
 
-        m_Solution->X.FastResize(VaribleNumber, 1);
-        tempQProblem.getPrimalSolution(m_Solution->X.GetElementPointer());
+        m_Solution.X.FastResize(VaribleNumber, 1);
+        tempQProblem.getPrimalSolution(m_Solution.X.GetElementPointer());
 
-        m_Solution->ObjectiveFunctionValue = tempQProblem.getObjVal();
+        m_Solution.ObjectiveFunctionValue = tempQProblem.getObjVal();
     }
 
     return true;
@@ -1049,7 +1013,7 @@ bool QuadraticProgrammingSolver<ElementType>::CheckInput_Only_A_sparse()
             if (SizeA.ColNumber != VaribleNumber)
             {
                 MDK_Error("Input A size is wrong @ QuadraticProgrammingSolver::CheckInput_Only_A_sparse()")
-                    return false;
+                return false;
             }
         }
     }
@@ -1139,13 +1103,13 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_Only
 
         //------------------------------------------------------------------------------------------
 
-        m_Solution->WSR = WSR;
-        m_Solution->CPUTime = CPUTime;
+        m_Solution.WSR = WSR;
+        m_Solution.CPUTime = CPUTime;
 
-        m_Solution->X.FastResize(VaribleNumber, 1);
-        tempQProblemB.getPrimalSolution(m_Solution->X.GetElementPointer());
+        m_Solution.X.FastResize(VaribleNumber, 1);
+        tempQProblemB.getPrimalSolution(m_Solution.X.GetElementPointer());
 
-        m_Solution->ObjectiveFunctionValue = tempQProblemB.getObjVal();
+        m_Solution.ObjectiveFunctionValue = tempQProblemB.getObjVal();
     }
     else
     {
@@ -1217,13 +1181,13 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_Only
         }
 
         //------------------------------------------------------------------------------------------
-        m_Solution->WSR = WSR;
-        m_Solution->CPUTime = CPUTime;
+        m_Solution.WSR = WSR;
+        m_Solution.CPUTime = CPUTime;
 
-        m_Solution->X.FastResize(VaribleNumber, 1);
-        tempQProblem.getPrimalSolution(m_Solution->X.GetElementPointer());
+        m_Solution.X.FastResize(VaribleNumber, 1);
+        tempQProblem.getPrimalSolution(m_Solution.X.GetElementPointer());
 
-        m_Solution->ObjectiveFunctionValue = tempQProblem.getObjVal();
+        m_Solution.ObjectiveFunctionValue = tempQProblem.getObjVal();
     }
 
     return true;
@@ -1346,13 +1310,13 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_Online_Varying_H_A_Inp
     }
 
     //------------------------------------------------------------------------------------------
-    m_Solution->WSR = WSR;
-    m_Solution->CPUTime = CPUTime;
+    m_Solution.WSR = WSR;
+    m_Solution.CPUTime = CPUTime;
 
-    m_Solution->X.FastResize(m_VaribleNumber_In_Mode_Online_Varying_H_A, 1);
-    m_SQProblem_Online->getPrimalSolution(m_Solution->X.GetElementPointer());
+    m_Solution.X.FastResize(m_VaribleNumber_In_Mode_Online_Varying_H_A, 1);
+    m_SQProblem_Online->getPrimalSolution(m_Solution.X.GetElementPointer());
 
-    m_Solution->ObjectiveFunctionValue = m_SQProblem_Online->getObjVal();
+    m_Solution.ObjectiveFunctionValue = m_SQProblem_Online->getObjVal();
 
     return true;
 }
@@ -1440,7 +1404,6 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_Online_Varying_H_A_Inp
     DenseMatrix<ElementType> ub_x;
     ConvertSparseMatrixToDenseMatrix(*m_ub_x_sparse, ub_x);
 
-
     DenseMatrix<ElementType> lb_A;
     ConvertSparseMatrixToDenseMatrix(*m_lb_A_sparse, lb_A);
 
@@ -1473,13 +1436,13 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_Online_Varying_H_A_Inp
                                      WSR, ptrCPUTime);
     }
     //------------------------------------------------------------------------------------------
-    m_Solution->WSR = WSR;
-    m_Solution->CPUTime = CPUTime;
+    m_Solution.WSR = WSR;
+    m_Solution.CPUTime = CPUTime;
 
-    m_Solution->X.FastResize(m_VaribleNumber_In_Mode_Online_Varying_H_A, 1);
-    m_SQProblem_Online->getPrimalSolution(m_Solution->X.GetElementPointer());
+    m_Solution.X.FastResize(m_VaribleNumber_In_Mode_Online_Varying_H_A, 1);
+    m_SQProblem_Online->getPrimalSolution(m_Solution.X.GetElementPointer());
 
-    m_Solution->ObjectiveFunctionValue = m_SQProblem_Online->getObjVal();
+    m_Solution.ObjectiveFunctionValue = m_SQProblem_Online->getObjVal();
 
     return true;
 }
@@ -1488,7 +1451,14 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_Online_Varying_H_A_Inp
 template<typename ElementType>
 Solution_Of_QuadraticProgramming<ElementType>* QuadraticProgrammingSolver<ElementType>::GetSolution()
 {
-    return &m_Solution_SharedCopy;
+    return &m_Solution;
+}
+
+
+template<typename ElementType>
+Solution_Of_QuadraticProgramming<ElementType>& QuadraticProgrammingSolver<ElementType>::Solution()
+{
+	return m_Solution;
 }
 
 
@@ -1503,8 +1473,6 @@ Solution_Of_QuadraticProgramming<ElementType> QuadraticProgrammingSolver<Element
                                                                                              const DenseMatrix<ElementType>* x0,
                                                                                              const Option_Of_QuadraticProgramming* Option)
 {
-    Solution_Of_QuadraticProgramming<ElementType> Solution;
-
     auto Solver = std::make_unique<QuadraticProgrammingSolver<ElementType>>();
 
     if (Option != nullptr)
@@ -1514,7 +1482,8 @@ Solution_Of_QuadraticProgramming<ElementType> QuadraticProgrammingSolver<Element
         if (Solver->m_Option.Mode != "OneTimeOnly")
         {
             MDK_Error("Wrong Mode in input Option @ QuadraticProgrammingSolver::Apply(...)")
-            return Solution;
+			Solution_Of_QuadraticProgramming<ElementType> EmptySolution;
+			return EmptySolution;
         }
     }
 
@@ -1522,11 +1491,7 @@ Solution_Of_QuadraticProgramming<ElementType> QuadraticProgrammingSolver<Element
 
     Solver->Update();
 
-    auto ptrSolution = Solver->GetSolution();
-
-    Solution.Take(*ptrSolution);
-
-    return Solution;
+	return Solver->Solution();
 }
 
 
@@ -1541,8 +1506,6 @@ Solution_Of_QuadraticProgramming<ElementType> QuadraticProgrammingSolver<Element
                                                                                              const SparseMatrix<ElementType>* x0,
                                                                                              const Option_Of_QuadraticProgramming* Option)
 {
-    Solution_Of_QuadraticProgramming<ElementType> Solution;
-
     auto Solver = std::make_unique<QuadraticProgrammingSolver<ElementType>>();
 
     if (Option != nullptr)
@@ -1552,7 +1515,8 @@ Solution_Of_QuadraticProgramming<ElementType> QuadraticProgrammingSolver<Element
         if (Solver->m_Option.Mode != "OneTimeOnly")
         {
             MDK_Error("Wrong Mode in input Option @ QuadraticProgrammingSolver::Apply(...)")
-            return Solution;
+			Solution_Of_QuadraticProgramming<ElementType> EmptySolution;
+			return EmptySolution;
         }
     }
 
@@ -1560,11 +1524,7 @@ Solution_Of_QuadraticProgramming<ElementType> QuadraticProgrammingSolver<Element
 
     Solver->Update();
 
-    auto ptrSolution = Solver->GetSolution();
-
-    Solution.Take(*ptrSolution);
-
-    return Solution;
+	return Solver->Solution();
 }
 
 
@@ -1579,8 +1539,6 @@ Solution_Of_QuadraticProgramming<ElementType> QuadraticProgrammingSolver<Element
                                                                                              const DenseMatrix<ElementType>*  x0,
                                                                                              const Option_Of_QuadraticProgramming* Option)
 {
-    Solution_Of_QuadraticProgramming<ElementType> Solution;
-
     auto Solver = std::make_unique<QuadraticProgrammingSolver<ElementType>>();
 
     if (Option != nullptr)
@@ -1590,7 +1548,8 @@ Solution_Of_QuadraticProgramming<ElementType> QuadraticProgrammingSolver<Element
         if (Solver->m_Option.Mode != "OneTimeOnly")
         {
             MDK_Error("Wrong Mode in input Option @ QuadraticProgrammingSolver::Apply(...)")
-            return Solution;
+            Solution_Of_QuadraticProgramming<ElementType> EmptySolution;
+			return EmptySolution;
         }
     }
 
@@ -1598,11 +1557,7 @@ Solution_Of_QuadraticProgramming<ElementType> QuadraticProgrammingSolver<Element
 
     Solver->Update();
 
-    auto ptrSolution = Solver->GetSolution();
-
-    Solution.Take(*ptrSolution);
-
-    return Solution;
+	return Solver->Solution();
 }
 
 }//namespace mdk
