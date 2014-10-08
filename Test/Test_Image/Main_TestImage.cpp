@@ -6,5 +6,5 @@ using namespace mdk;
 
 int main()
 {
-
+	testA();
 }

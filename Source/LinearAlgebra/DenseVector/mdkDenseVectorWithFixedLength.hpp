@@ -26,7 +26,7 @@ DenseVector<ElementType, Length>::DenseVector(const ElementType& Element)
 	}
 	else if (Length > 1)
 	{
-		MDK_Warning("Length > 1 @ DenseVector::DenseVector(Element)")
+		MDK_Warning("Length > 1 @ DenseVector::DenseVector(Element) : fixed_length")
 	}
 
 	this->Fill(Element);
@@ -57,7 +57,7 @@ DenseVector<ElementType, Length>::DenseVector(const std::vector<ElementType>& In
 	if (int_max(InputVector.size()) != Length)
 	{
 		MDK_Error("InputVector.size() != Length @ DenseVector::DenseVector(std::vector)")
-			return;
+		return;
 	}
 
 	for (int_max k = 0; k < Length; ++k)
@@ -135,7 +135,7 @@ void DenseVector<ElementType, Length>::operator=(const std::vector<ElementType>&
 	if (int_max(InputVector.size()) != Length)
 	{
 		MDK_Error("InputVector.size() != Length @ DenseVector::operator=(...)")
-			return;
+		return;
 	}
 
 	for (int_max k = 0; k < Length; ++k)

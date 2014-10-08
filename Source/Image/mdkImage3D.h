@@ -7,15 +7,16 @@
 
 #include "mdkDenseMatrix.h"
 #include "mdkImageConfig.h"
+#include "mdkImageInterpolation3D.h"
 
 namespace mdk
 {
 //-------------------------------------------------------------------------------------------------------//
 // 3D Image Class
 // Pixel is Scalar or vector
-// Lx: number of Pixels in x-direction
-// Ly: number of Pixels in y-direction
-// Lz: number of Pixels in z-direction
+// Lx: number of Pixel in x-direction
+// Ly: number of Pixel in y-direction
+// Lz: number of Pixel in z-direction
 //
 // set Lz = 1, it can be used as 2D Image Class
 //
@@ -23,44 +24,16 @@ namespace mdk
 // same resolution => image filters do not need to be re-sampled with different Pixel shape
 // reslice the input image using ITK/VTK, then feed it into this class.
 //
-// ok to store image with non-isotropic Pixels
+// ok to store image with non-isotropic Pixel
 // but such image is not good for analysis
 // if the size is 0.5/0.5/6, then it is really bad and useless for 3D analysis
 //
-// ITK can register images with non-isotropic Pixels
+// ITK can register images with non-isotropic Pixel
 //
 // note: 
 // use std::array as PixelType if Pixel is a  with known length, and do not use std::
 //
 // --------------------------------------------------------------------------------------------------------//
-
-struct ImageSize3D
-{
-	int_max Lx;
-	int_max Ly;
-	int_max Lz;
-};
-
-struct ImageSpacing3D
-{
-    double Sx;
-    double Sy;
-    double Sz;
-};
-
-struct ImagePhysicalSize3D
-{
-    double Lx;
-    double Ly;
-    double Lz;
-};
-
-struct ImageOrigin3D
-{
-    double x;
-    double y;
-    double z;
-};
 
 // ImageOrientation is a 3x3 double DenseMatrix
 
@@ -152,20 +125,22 @@ struct Image3DBoxRegionOf3DPhysicalPosition
 template<typename PixelType>
 struct ImageData3D
 {
-    int_max m_Size[3];                  // {Lx, Ly, Lz} number of Pixels in each direction
+	DenseVector<int_max, 3> m_Size;     // {Lx, Ly, Lz} number of Pixels in each direction
 
-    int_max m_PixelNumberPerZSlice;     // total number of Pixels in each z-slice  = m_ImageSize[2]*m_ImageSize[1]
+    int_max m_PixelNumberPerZSlice;     // total number of Pixels in each z-slice  = m_Size[2]*m_Size[1]
 
-    double m_Spacing[3];                // i.e., Pixel Spacing in DICOM image (ITK, VTK)
+	DenseVector<double, 3> m_Spacing;   // Pixel Spacing of DICOM image in world coordinate system {Sx, Sy, Sz} (unit: mm)
 
-    double m_Origin[3];                // i.e., Origin in DICOM image (ITK, VTK) {x0, y0, z0} in world coordinate system (x,y,z) (unit: mm)
+	DenseVector<double, 3> m_Origin;    // Origin of DICOM image in world coordinate system (x,y,z) (unit: mm)
 
     DenseMatrix<double> m_Orientation;  // 3x3 Matrix
 
     std::vector<PixelType> m_DataArray;
 
     PixelType m_NaNPixel;
-//-----------------------------------------------------------
+
+	Option_Of_Image3DInterpolation<PixelType> InterpolationOption;
+//----------------------------------------------------------------
 
     ImageData3D();
 
@@ -189,15 +164,20 @@ struct ImageData3D
 
     inline int_max Transform3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
 
-    inline void TransformLinearIndexTo3DIndex(int_max LinearIndex, int_max& xIndex, int_max& yIndex, int_max& zIndex) const;
-	inline void TransformLinearIndexTo3DIndex(int_max LinearIndex, double& xIndex, double& yIndex, double& zIndex) const;
+	template<typename ScalarType = int_max>
+	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DIndex(int_max LinearIndex) const;
 	
-    inline void TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex, double& x, double& y, double& z) const;
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const;
 
-    inline void Transform3DIndexTo3DPhysicalPosition(int_max xIndex, int_max yIndex, int_max zIndex, double& x, double& y, double& z) const;
-	inline void Transform3DIndexTo3DPhysicalPosition(double xIndex, double yIndex, double zIndex, double& x, double& y, double& z) const;
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> Transform3DIndexTo3DPhysicalPosition(int_max xIndex, int_max yIndex, int_max zIndex) const;
+	
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> Transform3DContinuousIndexTo3DPhysicalPosition(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const;
 
-	inline void Transform3DPhysicalPositionTo3DIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const;
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DContinuousIndex(ScalarType x, ScalarType y, ScalarType z) const;
 
 private:
 //deleted:
@@ -251,21 +231,15 @@ public:
     inline bool Fill(const PixelType& Pixel);
 
     //---------------------------------------------------------//
-
     bool Share(Image3D& InputImage);
-
     bool Share(Image3D* InputImage);
 
     void ForceShare(const Image3D& InputImage);
-
     bool ForceShare(const Image3D* InputImage);
 
     //---------------------------------------------------------//
-
     void Take(Image3D&& InputImage);
-
     void Take(Image3D& InputImage);
-
     bool Take(Image3D* InputImage);
 
     //-----------------------------------------------------------------//
@@ -274,27 +248,27 @@ public:
 
     //--------------------------- Get/Set Info and Data ------------------------------//
 
-    inline ImageSize3D GetSize() const;
+	inline DenseVector<int_max, 3> GetSize() const;
 
     inline void GetSize(int_max& Lx, int_max& Ly, int_max& Lz) const;
 
-    inline bool SetSize(const ImageSize3D& Size);
+	inline bool SetSize(const DenseVector<int_max, 3>& Size);
 
     inline bool SetSize(int_max Lx, int_max Ly, int_max Lz);
 
-    inline ImageSpacing3D GetSpacing() const;
+	inline DenseVector<double, 3> GetSpacing() const;
 
     inline void GetSpacing(double& Spacing_x, double& Spacing_y, double& Spacing_z) const;
 
-    inline void SetSpacing(const ImageSpacing3D& Spacing);
+	inline void SetSpacing(const DenseVector<double, 3>& Spacing);
 
     inline void SetSpacing(double Spacing_x, double Spacing_y, double Spacing_z);
 
-    inline ImageOrigin3D GetOrigin() const;
+	inline DenseVector<double, 3> GetOrigin() const;
 
     inline void GetOrigin(double& Origin_x, double& Origin_y, double& Origin_z) const;
 
-    inline void SetOrigin(const ImageOrigin3D& Origin);
+	inline void SetOrigin(const DenseVector<double, 3>& Origin);
 
     inline void SetOrigin(double Origin_x, double Origin_y, double Origin_z);
 
@@ -302,7 +276,7 @@ public:
 
     inline void SetOrientation(const DenseMatrix<double>& Orientation);
 
-    inline ImagePhysicalSize3D GetPhysicalSize() const;
+	inline DenseVector<double, 3> GetPhysicalSize() const;
 
     inline void GetPhysicalSize(double& PhysicalSize_x, double& PhysicalSize_y, double& PhysicalSize_z) const;
 
@@ -314,24 +288,34 @@ public:
     //--------------------------- Get Pixel Pointer ------------------------------//
 
     inline PixelType* GetPixelPointer();
-
     inline const PixelType* GetPixelPointer() const;
 
-    // ------------------------ Index and Position ------------------------------------------------------------------------//
+	inline PixelType* begin();
+	inline const PixelType* begin() const;
+
+	inline PixelType* end();
+	inline const PixelType* end() const;
+
+    //------------------------ LinearIndex, 3DIndex and 3DPhyscialPosition ------------------------------------------------------------------------//
 
     inline int_max Transform3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
 
-    inline void TransformLinearIndexTo3DIndex(int_max LinearIndex, int_max& xIndex, int_max& yIndex, int_max& zIndex) const;
-	inline void TransformLinearIndexTo3DIndex(int_max LinearIndex, double& xIndex, double& yIndex, double& zIndex) const;
+	template<typename ScalarType = int_max>
+	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DIndex(int_max LinearIndex) const;
+	
+	template<typename ScalarType = double>
+	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const;
 
-    inline void TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex, double& x, double& y, double& z) const;
+	template<typename ScalarType = double>
+	inline DenseVector<ScalarType, 3> Transform3DIndexTo3DPhysicalPosition(int_max xIndex, int_max yIndex, int_max zIndex) const;
 
-    inline void Transform3DIndexTo3DPhysicalPosition(int_max xIndex, int_max yIndex, int_max zIndex, double& x, double& y, double& z) const;
-	inline void Transform3DIndexTo3DPhysicalPosition(double xIndex, double yIndex, double zIndex, double& x, double& y, double& z) const;
+	template<typename ScalarType = double>
+	inline DenseVector<ScalarType, 3> Transform3DContinuousIndexTo3DPhysicalPosition(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const;
 
-	inline void Transform3DPhysicalPositionTo3DIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const;
+	template<typename ScalarType = double>
+	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DContinuousIndex(ScalarType x, ScalarType y, ScalarType z) const;
 
-	//--------------------------- Get/Set Pixel      ------------------------------//
+	//--------------------------- Get/Set Pixel ------------------------------//
 
     inline PixelType& operator[](int_max LinearIndex);
 
@@ -352,6 +336,24 @@ public:
 	inline PixelType& at(int_max xIndex, int_max yIndex, int_max zIndex);
 
 	inline const PixelType& at(int_max xIndex, int_max yIndex, int_max zIndex) const;
+
+	//------------------ get Pixel by using interpolation method --------------------//
+
+	const Option_Of_Image3DInterpolation<PixelType>& GetInterpolationOption() const;
+
+	void SetInterpolationOption(const Option_Of_Image3DInterpolation<PixelType>& Option);
+
+	template<typename ScalarType = double>
+	PixelType GetPixelAt3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType = double>
+	PixelType GetPixelAt3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z, const Option_Of_Image3DInterpolation<PixelType>& Option) const;
+
+	template<typename ScalarType = double>
+	PixelType GetPixelAt3DContinuousIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const;
+
+	template<typename ScalarType = double>
+	PixelType GetPixelAt3DContinuousIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex, const Option_Of_Image3DInterpolation<PixelType>& Option) const;
 
 	//------------------------- Get LinearIndex In Region -------------------//
 

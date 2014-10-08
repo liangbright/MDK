@@ -40,7 +40,7 @@ bool Save3DScalarImageAsJsonDataFile_Header(const Image3D<PixelType>& InputImage
 
     auto Size = InputImage.GetSize();
     PairList[2].Name = "Size";
-    PairList[2].Value = QString::number(Size.Lx) + ", " + QString::number(Size.Ly) + ", " + QString::number(Size.Lz);
+    PairList[2].Value = QString::number(Size[0]) + ", " + QString::number(Size[1]) + ", " + QString::number(Size[2]);
 
     auto Spacing = InputImage.GetSpacing();
 
@@ -161,10 +161,10 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& JsonFile
         HeaderFile.close();
         return OutputImage;
     }
-    ImageSize3D Size;
-    Size.Lx = SizeValue[0].toLongLong();
-    Size.Ly = SizeValue[1].toLongLong();
-    Size.Lz = SizeValue[2].toLongLong();
+    DenseVector<double, 3> Size;
+    Size[0] = SizeValue[0].toLongLong();
+    Size[1] = SizeValue[1].toLongLong();
+    Size[2] = SizeValue[2].toLongLong();
     //---------------------------------------------
     QString SpacingStr;
     it = HeaderObject.find("Spacing");
@@ -185,10 +185,10 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& JsonFile
         HeaderFile.close();
         return OutputImage;
     }
-    ImageSpacing3D Spacing;
-    Spacing.Sx = SpacingValue[0].toDouble();
-    Spacing.Sy = SpacingValue[1].toDouble();
-    Spacing.Sz = SpacingValue[2].toDouble();
+	DenseVector<double, 3> Spacing;
+    Spacing[0] = SpacingValue[0].toDouble();
+    Spacing[1] = SpacingValue[1].toDouble();
+    Spacing[2] = SpacingValue[2].toDouble();
 	//--------------------------------------
     QString OriginStr;
     it = HeaderObject.find("Origin");
@@ -209,10 +209,10 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& JsonFile
         HeaderFile.close();
         return OutputImage;
     }
-    ImageOrigin3D Origin;
-    Origin.x = OriginValue[0].toDouble();
-    Origin.y = OriginValue[1].toDouble();
-    Origin.z = OriginValue[2].toDouble();
+	DenseVector<double, 3> Origin;
+    Origin[0] = OriginValue[0].toDouble();
+    Origin[1] = OriginValue[1].toDouble();
+    Origin[2] = OriginValue[2].toDouble();
 	//------------------------------------
     QString OrientationStr;
     it = HeaderObject.find("Orientation");

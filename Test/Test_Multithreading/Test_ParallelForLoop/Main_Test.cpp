@@ -16,7 +16,7 @@ int main()
     //
     // time with 1 thread is greater than time with 4 thread
     auto L = 500000;
-    int_max MaxNumberOfThreads = 1;
+    int_max MaxNumberOfThreads = 2;
     int_max OuterLoopNumber = 1000;
     //
 
@@ -26,7 +26,7 @@ int main()
     DenseMatrix<double> B(1, L);
     //B.Fill(1);
 
-    auto Function = [&](int_max i, int_max ThreadIndex){ A[i] += B[i]; };
+    auto Function = [&](int_max i){ A[i] += B[i]; };
    
     auto t0 = std::chrono::system_clock::now();
 

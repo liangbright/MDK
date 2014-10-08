@@ -24,7 +24,9 @@ void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, std::vector<
     }
 }
 
-// Attention : The range is  [LoopIndex_start, LoopIndex_end] : for(int_max k = LoopIndex_start; k <= LoopIndex_end; ++k)
+// Attention : 
+// if LoopIndex_end >= LoopIndex_start, the range is  [LoopIndex_start:1:LoopIndex_end] : for(int_max k = LoopIndex_start; k <= LoopIndex_end; ++k)
+// if LoopIndex_end < LoopIndex_start, the range is  [LoopIndex_start:-1:LoopIndex_end] : for(int_max k = LoopIndex_start; k >= LoopIndex_end; --k)
 
 template<typename FunctionType>
 inline
@@ -41,10 +43,20 @@ template<typename FunctionType>
 inline
 void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, int_max LoopIndex_start, int_max LoopIndex_end, int_max ThreadIndex)
 {
-    for (int_max i = LoopIndex_start; i <= LoopIndex_end; ++i)
-    {
-        SingleFunction(i);
-    }
+	if (LoopIndex_start <= LoopIndex_end)
+	{
+		for (int_max i = LoopIndex_start; i <= LoopIndex_end; ++i)
+		{
+			SingleFunction(i);
+		}
+	}
+	else
+	{
+		for (int_max i = LoopIndex_start; i >= LoopIndex_end; --i)
+		{
+			SingleFunction(i);
+		}
+	}
 }
 
 
@@ -66,7 +78,8 @@ void ParallelBlock(FunctionType BlockFunction, const std::vector<int_max>& DataI
         auto ThreadNumber = int_max(IndexList_start.size());
 
         // create and start the threads
-        std::vector<std::thread> ThreadList(ThreadNumber);
+		std::vector<std::thread> ThreadList;
+		ThreadList.reserve(ThreadNumber);
 
         for (int_max i = 0; i < ThreadNumber; ++i)
         {
@@ -79,16 +92,23 @@ void ParallelBlock(FunctionType BlockFunction, const std::vector<int_max>& DataI
                 SubDataIndexList[k] = DataIndexList[IndexList_start[i] + k];
             }
 
-            int_max ThreadIndex = i;
-
-            ThreadList[i] = std::thread([&]{BlockFunction(std::move(SubDataIndexList), ThreadIndex); });
-
-            // this will crash, i can be equal to ThreadNumber
-            //ThreadList[i] = std::thread([&]{BlockFunction(IndexList_start[i], IndexList_end[i], ThreadIndex); });
+			try
+			{
+				ThreadList.emplace_back(BlockFunction(std::move(SubDataIndexList), Index_start, Index_end, i));
+			}
+			catch (...)
+			{
+				MDK_Error("The thread: " << i << " could not be started")
+			}
         }
 
+		if (int_max(ThreadList.size()) < ThreadNumber)
+		{
+			MDK_Error("ThreadList.size() < ThreadNumber @ ParallelBlock(...)")
+		}
+
         //wait for all the threads
-        for (int_max i = 0; i < ThreadNumber; ++i)
+		for (int_max i = 0; i < int_max(ThreadList.size()); ++i)
         {
             ThreadList[i].join();
         }
@@ -123,9 +143,19 @@ void ParallelBlock(FunctionType BlockFunction, int_max DataIndex_start, int_max 
 
         for (int_max i = 0; i < ThreadNumber; ++i)
         {
+			int_max ThreadIndex = i;
             int_max Index_start = IndexList_start[i];
             int_max Index_end   = IndexList_end[i];
-            int_max ThreadIndex = i;
+			if (DataIndex_start <= DataIndex_end)
+			{
+				Index_start += DataIndex_start;
+				Index_end += DataIndex_start;
+			}
+			else
+			{
+				Index_start = DataIndex_start - Index_start;
+				Index_end = DataIndex_start - Index_end;
+			}
 
             try
             {
@@ -144,7 +174,7 @@ void ParallelBlock(FunctionType BlockFunction, int_max DataIndex_start, int_max 
             //ThreadList[i] = std::thread([&]{BlockFunction(IndexList_start[i], IndexList_end[i], ThreadIndex); });
         }
 
-        if (ThreadList.size() < ThreadNumber)
+        if (int_max(ThreadList.size()) < ThreadNumber)
         {
             MDK_Error("ThreadList.size() < ThreadNumber @ ParallelBlock(...)")
         }

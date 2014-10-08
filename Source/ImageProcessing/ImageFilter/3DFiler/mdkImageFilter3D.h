@@ -15,18 +15,18 @@
 namespace mdk
 {
 
-template<typename InputPixel_Type, typename OutputPixel_Type>
+template<typename InputVoxel_Type, typename OutputVoxel_Type>
 class ImageFilter3D : public ProcessObject
 {
 public:
-	typedef InputPixel_Type InputPixelType;
-	typedef OutputPixel_Type OutputPixelType;
+	typedef InputVoxel_Type InputVoxelType;
+	typedef OutputVoxel_Type OutputVoxelType;
 
 protected:
 	//-------------- input ----------------------
 
 	// input_0: 
-    const Image3D<InputPixelType>*   m_InputImage;
+    const Image3D<InputVoxelType>*   m_InputImage;
 
 	// input_1:
 	const Image3DBoxRegionOf3DIndex*  m_InputRegionOf3DIndex;  // size of m_InputRegion = size of m_OutputImage or m_OutputArray
@@ -43,14 +43,14 @@ protected:
 	//--------------------- output ---------------------
 
 	// output_0:
-    Image3D<OutputPixelType> m_OutputImage;
+    Image3D<OutputVoxelType> m_OutputImage;
 
 	// output_1:
-    ObjectArray<OutputPixelType> m_OutputArray;
+    ObjectArray<OutputVoxelType> m_OutputArray;
 
     //------------ internal variable -------------------
 
-	DenseMatrix<int_max> m_PixelLinearIndexList_Of_InputRegionOf3DIndex;
+	DenseMatrix<int_max> m_VoxelLinearIndexList_Of_InputRegionOf3DIndex;
 
     bool m_Flag_OutputImage;
 
@@ -58,9 +58,9 @@ protected:
 
     bool m_Flag_OutputToOtherPlace;
 
-    int_max m_TotalOutputPixelNumber;
+    int_max m_TotalOutputVoxelNumber;
 
-    int_max m_MinPixelNumberPerThread;
+    int_max m_MinVoxelNumberPerThread;
 
 protected:
 	ImageFilter3D();
@@ -69,7 +69,7 @@ protected:
 public:
     virtual void Clear();
 
-    void SetInputImage(const Image3D<InputPixelType>* InputImage);
+    void SetInputImage(const Image3D<InputVoxelType>* InputImage);
 
 	void SetInputRegionOf3DIndex(const Image3DBoxRegionOf3DIndex* InputRegion);
 
@@ -77,36 +77,38 @@ public:
 
 	void SetInput3DPositionList(const DenseMatrix<double>* Input3DPositionList);
 
-    void SetOutputImage(Image3D<OutputPixelType>* OutputImage);
+    void SetOutputImage(Image3D<OutputVoxelType>* OutputImage);
 
-	void SetOutputArray(ObjectArray<OutputPixelType>* OutputArray);
+	void SetOutputArray(ObjectArray<OutputVoxelType>* OutputArray);
 
     void SetMaxNumberOfThreads(int_max MaxNumber);    
 
-	inline virtual void FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_Index, double z_Index, int_max ThreadIndex) = 0;
+	inline virtual void FilterFunctionAt3DIndex(OutputVoxelType& OutputVoxel, double x_Index, double y_Index, double z_Index, int_max ThreadIndex) = 0;
 
-    inline virtual void FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex) = 0;
+    inline virtual void FilterFunctionAt3DPosition(OutputVoxelType& OutputVoxel, double x, double y, double z, int_max ThreadIndex) = 0;
 
     virtual bool CheckInput();
 
     virtual bool Update();
 	
-    Image3D<OutputPixelType>& OutputImage();
+    Image3D<OutputVoxelType>& OutputImage();
+	Image3D<OutputVoxelType>* GetOutputImage();
 
-    ObjectArray<OutputPixelType>& OutputArray();
+    ObjectArray<OutputVoxelType>& OutputArray();
+	ObjectArray<OutputVoxelType>* GetOutputArray();
 
-    //----------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------
     // just for reference: each specific filter should provide Apply function, such as
-    // static Image3D<OutputPixelType> Apply(const Image3D<InputPixelType>* InputImage);
+    // static Image3D<OutputVoxelType> Apply(const Image3D<InputVoxelType>* InputImage);
     //----------------------------------------------------------------------------------------------------------
 
 protected:
     virtual bool Preprocess();
     virtual bool Postprocess();
 
-    inline virtual void OutputFunction(int_max OutputPixelIndex, OutputPixelType& OutputPixel, int_max ThreadIndex);
+    inline virtual void OutputFunction(int_max OutputVoxelIndex, OutputVoxelType& OutputVoxel, int_max ThreadIndex);
 
-    virtual void Update_in_a_Thread(int_max OutputPixelIndex_start, int_max OutputPixelIndex_end, int_max ThreadIndex);
+    virtual void Update_in_a_Thread(int_max OutputVoxelIndex_start, int_max OutputVoxelIndex_end, int_max ThreadIndex);
 
     int_max GetNumberOfThreadsTobeCreated();
 

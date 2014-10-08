@@ -44,6 +44,10 @@ void ImageData3D<PixelType>::Clear()
     m_DataArray.shrink_to_fit();
 
     m_NaNPixel = GetNaNElement(m_NaNPixel);
+
+	InterpolationOption.MethodType = MethodEnum_Of_Image3DInterpolation::Linear;
+	InterpolationOption.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Nearest;
+	InterpolationOption.Pixel_OutsideImage = PixelType(0);
 }
 
 
@@ -108,85 +112,91 @@ int_max ImageData3D<PixelType>::Transform3DIndexToLinearIndex(int_max xIndex, in
 
 
 template<typename PixelType>
+template<typename ScalarType>
 inline 
-void ImageData3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex, int_max& xIndex, int_max& yIndex, int_max& zIndex) const
+DenseVector<ScalarType, 3> ImageData3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex) const
 {
+	DenseVector<ScalarType, 3> Index3D;
+
     std::lldiv_t divresult;
 
     divresult = div(LinearIndex, m_PixelNumberPerZSlice);
 
-    zIndex = divresult.quot;
+	Index3D[2] = divresult.quot; // z
             
     divresult = div(divresult.rem, m_Size[0]);
 
-    yIndex = divresult.quot;
+	Index3D[1] = divresult.quot; // y
 
-    xIndex = divresult.rem;
-}
+	Index3D[0] = divresult.rem; // x
 
-template<typename PixelType>
-inline
-void ImageData3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex, double& xIndex, double& yIndex, double& zIndex) const
-{
-	int_max temp_x, temp_y, temp_z;
-	this->TransformLinearIndexTo3DIndex(LinearIndex, temp_x, temp_y, temp_z);
-	xIndex = double(temp_x);
-	yIndex = double(temp_y);
-	zIndex = double(temp_z);
+	return Index3D;
 }
 
 
 template<typename PixelType>
+template<typename ScalarType>
 inline 
-void ImageData3D<PixelType>::TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex, double& x, double& y, double& z) const
-{       
+DenseVector<ScalarType, 3> ImageData3D<PixelType>::TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const
+{      
+	DenseVector<ScalarType, 3> Position;
+
     std::lldiv_t divresult;
 
     divresult = div(LinearIndex, m_PixelNumberPerZSlice);
 
-    z = double(divresult.quot);
+	Position[2] = ScalarType(divresult.quot);
 
     divresult = div(divresult.rem, m_Size[0]);
 
-    y = double(divresult.quot);
+	Position[1] = ScalarType(divresult.quot);
       
-    x = double(divresult.rem);
+	Position[0] = ScalarType(divresult.rem);
 
-    x = m_Origin[0] + x * m_Spacing[0];
+	Position[0] = m_Origin[0] + Position[0] * m_Spacing[0];
+	Position[1] = m_Origin[1] + Position[1] * m_Spacing[1];
+	Position[2] = m_Origin[2] + Position[2] * m_Spacing[2];
 
-    y = m_Origin[1] + y * m_Spacing[1];
-
-    z = m_Origin[2] + z * m_Spacing[2];
+	return Position;
 }
 
 
 template<typename PixelType>
+template<typename ScalarType>
 inline
-void ImageData3D<PixelType>::Transform3DIndexTo3DPhysicalPosition(int_max xIndex, int_max yIndex, int_max zIndex, double& x, double& y, double& z) const
+DenseVector<ScalarType, 3> ImageData3D<PixelType>::Transform3DIndexTo3DPhysicalPosition(int_max xIndex, int_max yIndex, int_max zIndex) const
 {
-	this->Transform3DIndexTo3DPhysicalPosition(double(xIndex), double(yIndex), double(zIndex), x, y, z);
+	DenseVector<ScalarType, 3> Position;
+	Position[0] = m_Origin[0] + double(xIndex) * m_Spacing[0];
+	Position[1] = m_Origin[1] + double(yIndex) * m_Spacing[1];
+	Position[2] = m_Origin[2] + double(zIndex) * m_Spacing[2];
+	return Position;
 }
 
 
 template<typename PixelType>
+template<typename ScalarType>
 inline
-void ImageData3D<PixelType>::Transform3DIndexTo3DPhysicalPosition(double xIndex, double yIndex, double zIndex, double& x, double& y, double& z) const
+DenseVector<ScalarType, 3> ImageData3D<PixelType>::Transform3DContinuousIndexTo3DPhysicalPosition(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const
 {
-	x = m_Origin[0] + xIndex * m_Spacing[0];
-	y = m_Origin[1] + yIndex * m_Spacing[1];	
-	z = m_Origin[2] + zIndex * m_Spacing[2];
+	DenseVector<ScalarType, 3> Position;
+	Position[0] = m_Origin[0] + xIndex * m_Spacing[0];
+	Position[1] = m_Origin[1] + yIndex * m_Spacing[1];
+	Position[2] = m_Origin[2] + zIndex * m_Spacing[2];
+	return Position;
 }
 
 
 template<typename PixelType>
+template<typename ScalarType>
 inline 
-void ImageData3D<PixelType>::Transform3DPhysicalPositionTo3DIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const
+DenseVector<ScalarType, 3> ImageData3D<PixelType>::Transform3DPhysicalPositionTo3DContinuousIndex(ScalarType x, ScalarType y, ScalarType z) const
 {
-    xIndex = (x - m_Origin[0]) / m_Spacing[0];
-
-    yIndex = (y - m_Origin[1]) / m_Spacing[1];
-
-    zIndex = (z - m_Origin[2]) / m_Spacing[2];
+	DenseVector<ScalarType, 3> Index3D;
+	Index3D[0] = (double(x) - m_Origin[0]) / m_Spacing[0];
+	Index3D[1] = (double(y) - m_Origin[1]) / m_Spacing[1];
+	Index3D[2] = (double(z) - m_Origin[2]) / m_Spacing[2];
+	return Index3D;
 }
 
 //========================================================== Image ========================================================================//
@@ -195,7 +205,6 @@ template<typename PixelType>
 Image3D<PixelType>::Image3D()
 {
     m_ImageData = std::make_shared<ImageData3D<PixelType>>();
-
     this->Clear();
 }
 
@@ -203,10 +212,8 @@ Image3D<PixelType>::Image3D()
 template<typename PixelType>
 Image3D<PixelType>::Image3D(const Image3D<PixelType>& InputImage)
 {
-    m_ImageData = std::make_shared<ImageData3D<PixelType>>();
-    
+    m_ImageData = std::make_shared<ImageData3D<PixelType>>();    
     this->Clear();
-
     this->Copy(InputImage);
 }
 
@@ -215,11 +222,10 @@ template<typename PixelType>
 Image3D<PixelType>::Image3D(Image3D<PixelType>&& InputImage)
 {
     m_ImageData = std::move(InputImage.m_ImageData);
-
     m_PixelPointer = m_ImageData->m_DataArray.data();
 
     // InputImage may not be destructed
-    InputImage.m_PixelPointer = nullptr;
+	InputImage.m_PixelPointer = nullptr;
 }
 
 
@@ -242,13 +248,12 @@ void Image3D<PixelType>::operator=(Image3D<PixelType>&& InputImage)
     if (!m_ImageData)
     {
         m_ImageData = std::make_shared<ImageData3D<PixelType>>();
-
         this->Clear();
     }
 
     this->Take(InputImage);
 
-    InputImage.Clear();
+	InputImage.Clear();
 }
 
 
@@ -280,6 +285,7 @@ void Image3D<PixelType>::Copy(const Image3D<PixelType_Input>& InputImage)
     this->SetSpacing(InputImage.GetSpacing());
     this->SetOrigin(InputImage.GetOrigin);
     this->SetOrientation(InputImage.GetOrientation());
+	this->SetInterpolationOption(InputImage.GetInterpolationOption());
 }
 
 
@@ -305,8 +311,9 @@ bool Image3D<PixelType>::CopyPixelData(const PixelType_Input* InputPixelPointer,
 {
     if (InputPixelPointer == nullptr || InputPixelNumber <= 0)
 	{
-        MDK_Error("Invalid input @ 3DImage::CopyPixelData(...)")
-		return false;
+        //MDK_Error("Invalid input @ 3DImage::CopyPixelData(...)")
+		this->Clear();
+		return true;
 	}
 
     auto SelfPixelNumber = this->GetPixelNumber();
@@ -337,16 +344,15 @@ bool Image3D<PixelType>::CopyPixelData(const PixelType_Input* InputPixelPointer,
 template<typename PixelType>
 bool Image3D<PixelType>::Fill(const PixelType& Pixel)
 {
-    auto PixelNumber = this->GetPixelNumber();
-
-    if (PixelNumber == 0)
+	auto SelfPixelNumber = this->GetPixelNumber();
+	if (SelfPixelNumber == 0)
     {
         return false;
     }
 
     auto BeginPtr = this->GetPixelPointer();
 
-    for (auto Ptr = BeginPtr; Ptr < BeginPtr + PixelNumber; ++Ptr)
+	for (auto Ptr = BeginPtr; Ptr < BeginPtr + SelfPixelNumber; ++Ptr)
     {
         Ptr[0] = Pixel;
     }
@@ -359,7 +365,6 @@ template<typename PixelType>
 bool Image3D<PixelType>::Share(Image3D<PixelType>& InputImage)
 {
     m_ImageData = InputImage.m_ImageData; // std::Shared_ptr, self assignment test is not necessary
-
     m_PixelPointer = m_ImageData->m_DataArray.data();
 
     return true;
@@ -383,7 +388,6 @@ template<typename PixelType>
 void Image3D<PixelType>::ForceShare(const Image3D<PixelType>& InputImage)
 {
     m_ImageData = InputImage.m_ImageData; // std::Shared_ptr, self assignment test is not necessary
-
     m_PixelPointer = m_ImageData->m_DataArray.data();
 }
 
@@ -414,6 +418,7 @@ void Image3D<PixelType>::Take(Image3D<PixelType>& InputImage)
     m_ImageData->m_Size[0] = InputImage.m_ImageData->m_Size[0];
     m_ImageData->m_Size[1] = InputImage.m_ImageData->m_Size[1];
     m_ImageData->m_Size[2] = InputImage.m_ImageData->m_Size[2];    
+
     m_ImageData->m_PixelNumberPerZSlice = InputImage.m_ImageData->m_PixelNumberPerZSlice;
     
     m_ImageData->m_Spacing[0] = InputImage.m_ImageData->m_Spacing[0];
@@ -426,10 +431,11 @@ void Image3D<PixelType>::Take(Image3D<PixelType>& InputImage)
     
     m_ImageData->m_Orientation = std::move(InputImage.m_ImageData->m_Orientation);
 
-    m_ImageData->m_DataArray = std::move(InputImage.m_ImageData->m_DataArray);
-    
+    m_ImageData->m_DataArray = std::move(InputImage.m_ImageData->m_DataArray);    
     m_PixelPointer = m_ImageData->m_DataArray.data();
     
+	m_ImageData->InterpolationOption = InputImage.m_ImageData->InterpolationOption;
+
     InputImage.Clear();
 }
 
@@ -452,9 +458,11 @@ bool Image3D<PixelType>::Take(Image3D<PixelType>* InputImage)
 template<typename PixelType>
 void Image3D<PixelType>::Clear()
 {
-    m_ImageData->Clear();
-
-    m_PixelPointer = nullptr;
+	if (m_ImageData)
+	{
+		m_ImageData->Clear();
+		m_PixelPointer = nullptr;
+	}
 }
 
 
@@ -462,7 +470,13 @@ template<typename PixelType>
 inline
 bool Image3D<PixelType>::IsEmpty() const
 {
-    return (m_ImageData->m_DataArray.size() == 0);
+	if (m_ImageData)
+	{
+		return (m_ImageData->m_DataArray.size() == 0);
+	}
+	{
+		return true;
+	}
 }
 
 
@@ -484,15 +498,57 @@ const PixelType* Image3D<PixelType>::GetPixelPointer() const
 
 template<typename PixelType>
 inline
-ImageSize3D Image3D<PixelType>::GetSize() const
+PixelType* Image3D<PixelType>::begin()
 {
-    ImageSize3D Size;
+	return m_ImageData->m_DataArray.data();
+}
 
-    Size.Lx = m_ImageData->m_Size[0];
-    Size.Ly = m_ImageData->m_Size[1];
-    Size.Lz = m_ImageData->m_Size[2];
 
-    return Size;
+template<typename PixelType>
+inline
+const PixelType* Image3D<PixelType>::begin() const
+{
+	return m_ImageData->m_DataArray.data();
+}
+
+
+template<typename PixelType>
+inline
+PixelType* Image3D<PixelType>::end()
+{
+	auto BeginPtr = m_ImageData->m_DataArray.data();
+	if (BeginPtr == nullptr)
+	{
+		return nullptr;
+	}
+	else
+	{
+		return BeginPtr + this->GetPixelNumber();
+	}
+}
+
+
+template<typename PixelType>
+inline
+const PixelType* Image3D<PixelType>::end() const
+{
+	auto BeginPtr = m_ImageData->m_DataArray.data();
+	if (BeginPtr == nullptr)
+	{
+		return nullptr;
+	}
+	else
+	{
+		return BeginPtr + this->GetPixelNumber();
+	}
+}
+
+
+template<typename PixelType>
+inline
+DenseVector<int_max, 3> Image3D<PixelType>::GetSize() const
+{
+	return m_ImageData->m_Size;
 }
 
 
@@ -508,9 +564,9 @@ void Image3D<PixelType>::GetSize(int_max& Lx, int_max& Ly, int_max& Lz) const
 
 template<typename PixelType>
 inline
-bool Image3D<PixelType>::SetSize(const ImageSize3D& Size)
+bool Image3D<PixelType>::SetSize(const DenseVector<int_max, 3>& Size)
 {
-    return this->SetSize(Size.Lx, Size.Ly, Size.Lz);
+    return this->SetSize(Size[0], Size[1], Size[2]);
 }
 
 
@@ -561,15 +617,9 @@ catch (...)
 
 template<typename PixelType>
 inline
-ImageSpacing3D Image3D<PixelType>::GetSpacing() const
+DenseVector<double, 3> Image3D<PixelType>::GetSpacing() const
 {
-    ImageSpacing3D Size;
-
-    Size.Sx = m_ImageData->m_Spacing[0];
-    Size.Sy = m_ImageData->m_Spacing[1];
-    Size.Sz = m_ImageData->m_Spacing[2];
-
-    return Size;
+	return m_ImageData->m_Spacing;
 }
 
 
@@ -585,9 +635,9 @@ void Image3D<PixelType>::GetSpacing(double& Spacing_x, double& Spacing_y, double
 
 template<typename PixelType>
 inline
-void Image3D<PixelType>::SetSpacing(const ImageSpacing3D& Spacing)
+void Image3D<PixelType>::SetSpacing(const DenseVector<double, 3>& Spacing)
 {
-    this->SetSpacing(Spacing.Sx, Spacing.Sy, Spacing.Sz);
+    this->SetSpacing(Spacing[0], Spacing[1], Spacing[2]);
 }
 
 
@@ -609,15 +659,9 @@ void Image3D<PixelType>::SetSpacing(double Spacing_x, double Spacing_y, double S
 
 template<typename PixelType>
 inline
-ImageOrigin3D Image3D<PixelType>::GetOrigin() const
+DenseVector<double, 3> Image3D<PixelType>::GetOrigin() const
 {
-    ImageOrigin3D Origin;
-
-    Origin.x = m_ImageData->m_Origin[0];
-    Origin.y = m_ImageData->m_Origin[1];
-    Origin.z = m_ImageData->m_Origin[2];
-
-    return Origin;
+	return m_ImageData->m_Origin;
 }
 
 
@@ -633,9 +677,9 @@ void Image3D<PixelType>::GetOrigin(double& Origin_x, double& Origin_y, double& O
 
 template<typename PixelType>
 inline
-void Image3D<PixelType>::SetOrigin(const ImageOrigin3D& Origin)
+void Image3D<PixelType>::SetOrigin(const DenseVector<double, 3>& Origin)
 {
-    this->SetOrigin(Origin.x, Origin.y, Origin.z);
+    this->SetOrigin(Origin[0], Origin[1], Origin[2]);
 }
 
 
@@ -677,16 +721,12 @@ void Image3D<PixelType>::SetOrientation(const DenseMatrix<double>& Orientation)
 
 template<typename PixelType>
 inline
-ImagePhysicalSize3D Image3D<PixelType>::GetPhysicalSize() const
+DenseVector<double, 3> Image3D<PixelType>::GetPhysicalSize() const
 {
-    ImagePhysicalSize3D Size;
-
-    Size.Lx = m_ImageData->m_Size[0] * m_ImageData->m_Spacing[0];
-
-    Size.Ly = m_ImageData->m_Size[1] * m_ImageData->m_Spacing[1];
-
-    Size.Lz = m_ImageData->m_Size[2] * m_ImageData->m_Spacing[2];
-
+	DenseVector<double, 3> Size;
+    Size[0] = m_ImageData->m_Size[0] * m_ImageData->m_Spacing[0];
+    Size[1] = m_ImageData->m_Size[1] * m_ImageData->m_Spacing[1];
+    Size[2] = m_ImageData->m_Size[2] * m_ImageData->m_Spacing[2];
     return Size;
 }
 
@@ -696,9 +736,7 @@ inline
 void Image3D<PixelType>::GetPhysicalSize(double& PhysicalSize_x, double& PhysicalSize_y, double& PhysicalSize_z) const
 {
     PhysicalSize_x = m_ImageData->m_Size[0] * m_ImageData->m_Spacing[0];
-
     PhysicalSize_y = m_ImageData->m_Size[1] * m_ImageData->m_Spacing[1];
-
     PhysicalSize_z = m_ImageData->m_Size[2] * m_ImageData->m_Spacing[2];
 }
 
@@ -720,50 +758,47 @@ int_max Image3D<PixelType>::Transform3DIndexToLinearIndex(int_max xIndex, int_ma
 
 
 template<typename PixelType>
+template<typename ScalarType>
 inline
-void Image3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex, int_max& xIndex, int_max& yIndex, int_max& zIndex) const
+DenseVector<ScalarType, 3> Image3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex) const
 {
-    m_ImageData->TransformLinearIndexTo3DIndex(LinearIndex, xIndex, yIndex, zIndex);
+	return m_ImageData->TransformLinearIndexTo3DIndex(LinearIndex);
 }
 
 
 template<typename PixelType>
+template<typename ScalarType>
 inline
-void Image3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex, double& xIndex, double& yIndex, double& zIndex) const
+DenseVector<ScalarType, 3> Image3D<PixelType>::TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const
 {
-	m_ImageData->TransformLinearIndexTo3DIndex(LinearIndex, xIndex, yIndex, zIndex);
+	return m_ImageData->TransformLinearIndexTo3DPhysicalPosition(LinearIndex);
 }
 
 
 template<typename PixelType>
+template<typename ScalarType>
 inline
-void Image3D<PixelType>::TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex, double& x, double& y, double& z) const
+DenseVector<ScalarType, 3> Image3D<PixelType>::Transform3DIndexTo3DPhysicalPosition(int_max xIndex, int_max yIndex, int_max zIndex) const
 {
-    m_ImageData->TransformLinearIndexTo3DPhysicalPosition(LinearIndex, x, y, z);
+	return m_ImageData->Transform3DIndexTo3DPhysicalPosition(xIndex, yIndex, zIndex);
 }
 
 
 template<typename PixelType>
+template<typename ScalarType>
 inline
-void Image3D<PixelType>::Transform3DIndexTo3DPhysicalPosition(int_max xIndex, int_max yIndex, int_max zIndex, double& x, double& y, double& z) const
+DenseVector<ScalarType, 3> Image3D<PixelType>::Transform3DContinuousIndexTo3DPhysicalPosition(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const
 {
-    m_ImageData->Transform3DIndexTo3DPhysicalPosition(xIndex, yIndex, zIndex, x, y, z);
+	return m_ImageData->Transform3DContinuousIndexTo3DPhysicalPosition(xIndex, yIndex, zIndex);
 }
 
 
 template<typename PixelType>
-inline
-void Image3D<PixelType>::Transform3DIndexTo3DPhysicalPosition(double xIndex, double yIndex, double zIndex, double& x, double& y, double& z) const
-{
-	m_ImageData->Transform3DIndexTo3DPhysicalPosition(xIndex, yIndex, zIndex, x, y, z);
-}
-
-
-template<typename PixelType>
+template<typename ScalarType>
 inline 
-void Image3D<PixelType>::Transform3DPhysicalPositionTo3DIndex(double x, double y, double z, double& xIndex, double& yIndex, double& zIndex) const
+DenseVector<ScalarType, 3> Image3D<PixelType>::Transform3DPhysicalPositionTo3DContinuousIndex(ScalarType x, ScalarType y, ScalarType z) const
 {
-    m_ImageData->Transform3DPhysicalPositionTo3DIndex(x, y, z, xIndex, yIndex, zIndex);
+	return m_ImageData->Transform3DPhysicalPositionTo3DContinuousIndex(x, y, z);
 }
 
 
@@ -887,7 +922,7 @@ PixelType& Image3D<PixelType>::operator()(int_max xIndex, int_max yIndex, int_ma
 
     auto Size = this->GetSize();
 
-	if (xIndex >= Size.Lx || xIndex < 0 || yIndex >= Size.Ly || yIndex < 0 || zIndex >= Size.Lz || zIndex < 0)
+	if (xIndex >= Size[0] || xIndex < 0 || yIndex >= Size[1] || yIndex < 0 || zIndex >= Size[2] || zIndex < 0)
 	{
 		MDK_Error("Invalid input @ 3DImage::operator(xIndex, yIndex, zIndex)")
 		return m_ImageData->m_NaNPixel;
@@ -907,7 +942,7 @@ const PixelType& Image3D<PixelType>::operator()(int_max xIndex, int_max yIndex, 
 
     auto Size = this->GetSize();
 
-	if (xIndex >= Size.Lx || xIndex < 0 || yIndex >= Size.Ly || yIndex < 0 || zIndex >= Size.Lz || zIndex < 0)
+	if (xIndex >= Size[0] || xIndex < 0 || yIndex >= Size[1] || yIndex < 0 || zIndex >= Size[2] || zIndex < 0)
 	{
         MDK_Error("Invalid input @ 3DImage::operator(xIndex, yIndex, zIndex) const")
         return m_ImageData->m_NaNPixel;
@@ -952,6 +987,52 @@ const PixelType& Image3D<PixelType>::at(int_max xIndex, int_max yIndex, int_max 
 
 
 template<typename PixelType>
+const Option_Of_Image3DInterpolation<PixelType>& Image3D<PixelType>::GetInterpolationOption() const
+{
+	return m_ImageData->InterpolationOption;
+}
+
+
+template<typename PixelType>
+void Image3D<PixelType>::SetInterpolationOption(const Option_Of_Image3DInterpolation<PixelType>& Option)
+{
+	m_ImageData->InterpolationOption = Option;
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+PixelType Image3D<PixelType>::GetPixelAt3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z) const
+{
+	return InterpolateImageAt3DPhysicalPosition(*this, x, y, z, m_ImageData->InterpolationOption);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+PixelType Image3D<PixelType>::GetPixelAt3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z, const Option_Of_Image3DInterpolation<PixelType>& Option) const
+{
+	return InterpolateImageAt3DPhysicalPosition(*this, x, y, z, Option);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+PixelType Image3D<PixelType>::GetPixelAt3DContinuousIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const
+{
+	return InterpolateImageAt3DContinuousIndex(*this, xIndex, yIndex, zIndex, m_ImageData->InterpolationOption);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+PixelType Image3D<PixelType>::GetPixelAt3DContinuousIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex, const Option_Of_Image3DInterpolation<PixelType>& Option) const
+{
+	return InterpolateImageAt3DContinuousIndex(*this, xIndex, yIndex, zIndex, Option);
+}
+
+
+template<typename PixelType>
 DenseMatrix<int_max>
 Image3D<PixelType>::GetLinearIndexListOfRegion(int_max xIndex_s,     int_max Region_Lx,
                                                 int_max yIndex_s,     int_max Region_Ly,
@@ -990,7 +1071,7 @@ Image3D<PixelType>::GetLinearIndexListOfRegion(int_max xIndex_s,     int_max Reg
 
 		for (int_max j = yIndex_s; j < yIndex_s + Region_Ly; ++j)
 		{
-            auto temp_j = j*Size.Lx;
+            auto temp_j = j*Size[0];
 
 			for (int_max i = xIndex_s; i < xIndex_s + Region_Lx; ++i)
 			{
@@ -1055,7 +1136,7 @@ Image3D<PixelType>::GetSubImage(int_max xIndex_s, int_max xIndex_e, int_max yInd
 
         for (int_max j = yIndex_s; j <= yIndex_e; ++j)
         {
-            auto temp_j = j*Size.Lx;
+            auto temp_j = j*Size[0];
 
             for (int_max i = xIndex_s; i <= xIndex_e; ++i)
             {
@@ -1099,9 +1180,9 @@ Image3D<PixelType>::Pad(const std::string& Option, int_max Pad_Lx, int_max Pad_L
 
     auto Size = this->GetSize();
 
-    auto Lx = Size.Lx + Pad_Lx;
-    auto Ly = Size.Ly + Pad_Ly;
-    auto Lz = Size.Lz + Pad_Lz;
+    auto Lx = Size[0] + Pad_Lx;
+    auto Ly = Size[1] + Pad_Ly;
+    auto Lz = Size[2] + Pad_Lz;
 
     tempImage.SetSize(Lx, Ly, Lz);
     tempImage.SetSpacing(this->GetSpacing());
@@ -1173,9 +1254,9 @@ Image3D<PixelType>::Pad(PixelType Pixel, int_max Pad_Lx, int_max Pad_Ly, int_max
 
     auto Size = this->GetSize();
 
-    auto Lx = Size.Lx + Pad_Lx;
-    auto Ly = Size.Ly + Pad_Ly;
-    auto Lz = Size.Lz + Pad_Lz;
+    auto Lx = Size[0] + Pad_Lx;
+    auto Ly = Size[1] + Pad_Ly;
+    auto Lz = Size[2] + Pad_Lz;
 
     tempImage.SetSize(Lx, Ly, Lz);
     tempImage.SetSpacing(this->GetSpacing());
@@ -1211,13 +1292,13 @@ Image3D<PixelType>::UnPad(int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) const
 
     auto Size = this->GetSize();
 
-    if (Pad_Lx > Size.Lx || Pad_Lx  < 0 || Pad_Ly > Size.Ly || Pad_Ly < 0 || Pad_Lz > Size.Lz || Pad_Lz < 0)
+    if (Pad_Lx > Size[0] || Pad_Lx  < 0 || Pad_Ly > Size[1] || Pad_Ly < 0 || Pad_Lz > Size[2] || Pad_Lz < 0)
     {
         MDK_Error("Invalid Pad Size @ 3DImage::UnPad")
         return tempImage;
     }
 
-    if (Pad_Lx == Size.Lx || Pad_Ly == Size.Ly || Pad_Lz == Size.Lz)
+    if (Pad_Lx == Size[0] || Pad_Ly == Size[1] || Pad_Lz == Size[2])
     {
         MDK_Warning("Output is empty @ 3DImage::UnPad")
         return tempImage;
@@ -1232,9 +1313,9 @@ Image3D<PixelType>::UnPad(int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) const
         return tempImage;
     }
 
-    return this->GetSubImage(Pad_Lx, Size.Lx - 1 - Pad_Lx,
-                             Pad_Ly, Size.Ly - 1 - Pad_Ly,
-                             Pad_Lz, Size.Lz - 1 - Pad_Lz);
+    return this->GetSubImage(Pad_Lx, Size[0] - 1 - Pad_Lx,
+                             Pad_Ly, Size[1] - 1 - Pad_Ly,
+                             Pad_Lz, Size[2] - 1 - Pad_Lz);
 
 
 }
