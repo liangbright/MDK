@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include "mdkDebugConfig.h"
+
 namespace mdk
 {
 

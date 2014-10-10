@@ -120,7 +120,7 @@ int_max GetByteNumberOfScalar(const ScalarType& Scalar)
     MDK_Error("Unknown ScalarType @ GetByteNumberOfScalar(ScalarType Scalar)")
     return 0;
 }
- 
+
 inline int_max GetByteNumberOfScalar(const double&)
 {
     return sizeof(double);

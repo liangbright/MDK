@@ -15,15 +15,16 @@ struct Mask_Of_SingleClassObjectDetectionInSingleImage3D
 	// true:  use 3D physical position in PointSet
 	// false: use 3D continuous index in PointSet
 
-	SimpleObjectArray<DenseMatrix<ScalarType>> PointSet;	
-	// PointSet[k]: { 3DIndex or 3D Position of each point }, k is index of region/PointSet
-	// PointSet[k](0, :) : x
-	// PointSet[k](1, :) : y
-	// PointSet[k](2, :) : z
+	DenseMatrix<ScalarType> PointSet;
+	// each column is (x, y, z)
 	// use 3D physical Position or 3D continuous index
 	// Point_in_PointSet = RotationMatrix*ScaleMatrix*Point_in_the_databank
 	// Point_in_PointSet is a point in input image coordinate system
 	// Point_in_the_databank is a point in the databank coordinate system
+
+	SimpleObjectArray<DenseVector<int_max>> RegionList;
+	// RegionList[k]: { Index of point in 3PointSet}, k is index of region/PointSet
+	// region can overlap each other
 
 	DenseVector<ScalarType, 3> Angle;
 	// Angle[0]: angle about axes x
@@ -34,34 +35,46 @@ struct Mask_Of_SingleClassObjectDetectionInSingleImage3D
 	// Scale[0]: Scale about axes x
 	// Scale[1]: Scale about axes y
 	// Scale[2]: Scale about axes z
+
+//---------------------------------------------------------------------------------------------
+	Mask_Of_SingleClassObjectDetectionInSingleImage3D() {}
+	~Mask_Of_SingleClassObjectDetectionInSingleImage3D() {}
+
+	DenseVector<ScalarType, 3> GetPointPositionByIndex(int_max Index) const
+	{
+		DenseVector<ScalarType, 3> Position;
+		PointSet.GetCol(Index, Position);
+	}
+
 };
 
 template<typename ScalarType = double>
-struct EvaluationResult_Of_SingleClassObjectDetectionInSingleImage3D  // Object Candidate Evaluation Result
+struct EvaluationInfo_Of_SingleClassObjectDetectionInSingleImage3D  // Object Candidate Evaluation Result
 {
-	DenseVector<ScalarType, 3> Origin; //  Origin of Mask, 3D physical Position or 3D continuous Index (determined by m_Flag_3DPositionInMask)
+	DenseVector<ScalarType, 3> Origin; // Origin of Mask, 3D physical Position or 3D continuous Index (determined by m_Flag_3DPositionInMask)
 	int_max OriginIndex;
-	int_max MaskIndex;                 //  index in m_MaskList
+	int_max MaskIndex;                 // index in m_MaskList
 	ScalarType  Score;                 // could be probability or energy (log(p))
 };
 
-template<typename Voxel_Type, typename Scalar_Type = double>
+template<typename Pixel_Type, typename Scalar_Type = double>
 class SingleClassObjectDetectionInSingleImage3D : public ProcessObject
 {
 public:
-	typedef Voxel_Type                                                    VoxelType;
-	typedef Scalar_Type								                      ScalarType;
-	typedef Mask_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType> MaskType;
+	typedef Pixel_Type																  PixelType;
+	typedef Scalar_Type																  ScalarType;
+	typedef Mask_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>			  MaskType;
+	typedef EvaluationInfo_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>   EvaluationInfoType;
 
 protected:
 	//-------------------------- input --------------------------------------------------//
-	const Image3D<VoxelType>* m_InputImage;
+	const Image3D<PixelType>* m_InputImage;
 
 	const DenseMatrix<ScalarType>* m_CandidateOriginList_3DPyhsicalPosition;   // evaluate object candidate at each Origin
 
 	const DenseMatrix<ScalarType>* m_CandidateOriginList_3DContinuousIndex;      // evaluate object candidate at each Origin
 
-	const ObjectArray<Mask_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>>* m_MaskList;
+	const ObjectArray<MaskType>* m_MaskList;
 
 	int_max m_MaxNumberOfThread; // max number of threads
 
@@ -75,7 +88,7 @@ protected:
 	//-----------------------------------------------------------------------------------//
 
 	// output_0:
-	ObjectArray<EvaluationResult_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>> m_Output;
+	ObjectArray<EvaluationResultType> m_Output;
 
 	// about output:
     // (1) use ObjectArray<SparseVector<ScalarType>>
@@ -85,24 +98,25 @@ protected:
 	//    m_Output[m] is the info of the object measured by using a Mask
 	//    not easy to locate output by position/index,  but easy to sort them by score
 
-public:
+protected:
 	SingleClassObjectDetectionInSingleImage3D();
-	~SingleClassObjectDetectionInSingleImage3D();
+	virtual ~SingleClassObjectDetectionInSingleImage3D();
 
+public:
 	virtual void Clear();
 
-	void SetInputImage(const Image3D<VoxelType>* InputImage);
+	void SetInputImage(const Image3D<PixelType>* InputImage);
 
 	void SetCandidateOriginListOf3DPyhsicalPosition(const DenseMatrix<ScalarType>* Input3DPositionList);
 	void SetCandidateOriginListOf3DContinuousIndex(const DenseMatrix<ScalarType>* Input3DPositionList);
 
-	void SetMaskList(const ObjectArray<Mask_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>>* InputMaskList);
+	void SetMaskList(const ObjectArray<MaskType>* InputMaskList);
 
 	void SetThreadNumber(int_max MaxNumber);
 
 	virtual bool Update();
 
-	ObjectArray<EvaluationResult_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>>& OutputResult();
+	ObjectArray<EvaluationInfoType>& OutputResult();
 
 protected:
 	virtual bool CheckInput();
@@ -114,11 +128,10 @@ protected:
 	bool WhetherMaskIsInsideImage_AtOrigin_3DPyhsicalPosition(ScalarType x, ScalarType y, ScalarType z, int_max MaskIndex);
 
 	// Evaluate candidate object at Origin (x, y, z), x/y/z is 3DContinuousIndex
-	inline virtual void EvaluateCandidateAtOrigin_3DContinuousIndex(EvaluationResult_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>& EvaluationResult,
-										                            int_max MaskIndex, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex) {}
+	inline virtual void EvaluateCandidateAtOrigin_3DContinuousIndex(EvaluationInfoType& EvaluationInfo, int_max ThreadIndex) = 0;
+
 	// Evaluate candidate object at Origin (x, y, z), x/y/z is 3DPyhsicalPosition
-	inline virtual void EvaluateCandidateAtOrigin_3DPyhsicalPosition(EvaluationResult_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>& EvaluationResult,
-										                             int_max MaskIndex, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex) {}
+	inline virtual void EvaluateCandidateAtOrigin_3DPyhsicalPosition(EvaluationInfoType& EvaluationInfo, int_max ThreadIndex) = 0;
 
 	int_max GetNumberOfThreadTobeCreated();
 

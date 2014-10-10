@@ -5,8 +5,6 @@
 #include <memory>
 #include <cstdlib>
 
-
-#include "mdkImageConfig.h"
 #include "mdkDenseMatrix.h"
 
 namespace mdk
@@ -14,6 +12,12 @@ namespace mdk
 //-------------------------------------------------------------------------------------------------------//
 // 2D Image Class
 // --------------------------------------------------------------------------------------------------------//
+
+//----------------------------------------------------
+#if defined MDK_DEBUG_MODE
+	#define MDK_DEBUG_2DImage_Operator_CheckBound
+#endif
+//----------------------------------------------------
 
 struct ImageSize2D
 {

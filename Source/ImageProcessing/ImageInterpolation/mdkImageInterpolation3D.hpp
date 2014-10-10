@@ -129,7 +129,7 @@ OutputPixelType InterpolateImageAt3DPhysicalPosition_Nearest(const Image3D<Input
                                                              ScalarType x, ScalarType y, ScalarType z, 
 													         const Option_Of_Image3DInterpolation<OutputPixelType>& Option)
 {
-	auto ContinuousIndex = InputImage.Transform3DPhysicalPositionTo3DContinuousIndex<ScalarType>(x, y, z);
+	auto ContinuousIndex = InputImage.Transform3DPhysicalPositionTo3DIndex(x, y, z);
 	return InterpolateImageAt3DContinuousIndex_Nearest(InputImage, ContinuousIndex[0], ContinuousIndex[1], ContinuousIndex[2], Option);
 }
 
@@ -275,7 +275,7 @@ OutputPixelType InterpolateImageAt3DPhysicalPosition_Linear(const Image3D<InputP
                                                             ScalarType x, ScalarType y, ScalarType z, 
 													        const Option_Of_Image3DInterpolation<OutputPixelType>& Option)
 {
-	auto ContinuousIndex = InputImage.Transform3DPhysicalPositionTo3DContinuousIndex(x, y, z);
+	auto ContinuousIndex = InputImage.Transform3DPhysicalPositionTo3DIndex(x, y, z);
 	return InterpolateImageAt3DContinuousIndex_Linear(InputImage, ContinuousIndex[0], ContinuousIndex[1], ContinuousIndex[2], Option);
 }
 

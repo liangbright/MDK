@@ -3,21 +3,21 @@
 
 namespace mdk
 {
-template<typename VoxelType, typename ScalarType>
-SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::SingleClassObjectDetectionInSingleImage3D()
+template<typename PixelType, typename ScalarType>
+SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::SingleClassObjectDetectionInSingleImage3D()
 {
 	this->Clear();
 }
 
 
-template<typename VoxelType, typename ScalarType>
-SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::~SingleClassObjectDetectionInSingleImage3D()
+template<typename PixelType, typename ScalarType>
+SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::~SingleClassObjectDetectionInSingleImage3D()
 {
 }
 
 
-template<typename VoxelType, typename ScalarType>
-SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::Clear()
+template<typename PixelType, typename ScalarType>
+SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::Clear()
 {
 	m_InputImage = nullptr;
 	m_CandidateOriginList_3DContinuousIndex = nullptr;
@@ -34,44 +34,44 @@ SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::Clear()
 }
 
 
-template<typename VoxelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::SetInputImage(const Image3D<VoxelType>* InputImage)
+template<typename PixelType, typename ScalarType>
+void SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::SetInputImage(const Image3D<PixelType>* InputImage)
 {
 	m_InputImage = InputImage;
 }
 
 
-template<typename VoxelType, typename OutputVoxelType>
-void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::SetCandidateOriginListOf3DContinuousIndex(const DenseMatrix<ScalarType>* Input3DIndexList)
+template<typename PixelType, typename OutputPixelType>
+void SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::SetCandidateOriginListOf3DContinuousIndex(const DenseMatrix<ScalarType>* Input3DIndexList)
 {
 	m_CandidateOriginList_3DContinuousIndex = Input3DIndexList;
 }
 
 
-template<typename VoxelType, typename OutputVoxelType>
-void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::SetCandidateOriginListOf3DPyhsicalPosition(const DenseMatrix<ScalarType>* Input3DPositionList)
+template<typename PixelType, typename OutputPixelType>
+void SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::SetCandidateOriginListOf3DPyhsicalPosition(const DenseMatrix<ScalarType>* Input3DPositionList)
 {
 	m_CandidateOriginList_3DPyhsicalPosition = Input3DPositionList;
 }
 
 
-template<typename VoxelType, typename OutputVoxelType>
-void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::
+template<typename PixelType, typename OutputPixelType>
+void SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::
 SetMaskList(const ObjectArray<Mask_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>>* InputMaskList)
 {
 	m_MaskList = InputMaskList;
 }
 
 
-template<typename VoxelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::SetThreadNumber(int_max MaxNumber)
+template<typename PixelType, typename ScalarType>
+void SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::SetThreadNumber(int_max MaxNumber)
 {
 	m_MaxNumberOfThread = MaxNumber;
 }
 
 
-template<typename VoxelType, typename ScalarType>
-bool SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::Update()
+template<typename PixelType, typename ScalarType>
+bool SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::Update()
 {
 	if (this->CheckInput() == false)
 	{
@@ -97,16 +97,16 @@ bool SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::Update()
 }
 
 
-template<typename VoxelType, typename ScalarType>
+template<typename PixelType, typename ScalarType>
 ObjectArray<EvaluationResult_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>>&
-SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::OutputResult()
+SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::OutputResult()
 {
 	return m_Output;
 }
 
 
-template<typename VoxelType, typename ScalarType>
-bool SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::CheckInput()
+template<typename PixelType, typename ScalarType>
+bool SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::CheckInput()
 {
 	if (m_InputImage == nullptr)
 	{
@@ -142,8 +142,8 @@ bool SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::CheckInpu
 }
 
 
-template<typename VoxelType, typename ScalarType>
-bool SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::Preprocess()
+template<typename PixelType, typename ScalarType>
+bool SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::Preprocess()
 {
 	if (m_CandidateOriginList_3DContinuousIndex == nullptr && m_CandidateOriginList_3DPyhsicalPosition == nullptr)
 	{
@@ -171,8 +171,8 @@ bool SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::Preproces
 }
 
 
-template<typename VoxelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DContinuousIndex()
+template<typename PixelType, typename ScalarType>
+void SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DContinuousIndex()
 {
 	// take reference, avoid m_MaskList->
 	auto& InputMaskList = *m_MaskList;
@@ -260,8 +260,8 @@ void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::ComputeRe
 }
 
 
-template<typename VoxelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DPyhsicalPosition()
+template<typename PixelType, typename ScalarType>
+void SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DPyhsicalPosition()
 {
 	// take reference, avoid m_MaskList->
 	auto& InputMaskList = *m_MaskList;
@@ -278,11 +278,11 @@ void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::ComputeRe
 
 	auto PhysicalOrigin = m_InputImage->GetOrigin();
 	auto PhysicalSize = m_InputImage->GetPhysicalSize();
-	auto VoxelSpacing = m_InputImage->GetSpacing();
+	auto PixelSpacing = m_InputImage->GetSpacing();
 
-	auto SafeDistance_x = 2 * VoxelSpacing[0];
-	auto SafeDistance_y = 2 * VoxelSpacing[1];
-	auto SafeDistance_z = 2 * VoxelSpacing[2];
+	auto SafeDistance_x = 2 * PixelSpacing[0];
+	auto SafeDistance_y = 2 * PixelSpacing[1];
+	auto SafeDistance_z = 2 * PixelSpacing[2];
 
 	for (int_max i = 0; i < MaskNumber; ++i)
 	{
@@ -353,8 +353,8 @@ void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::ComputeRe
 }
 
 
-template<typename VoxelType, typename ScalarType>
-bool SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::
+template<typename PixelType, typename ScalarType>
+bool SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::
 WhetherMaskIsInsideImage_AtOrigin_3DContinuousIndex(ScalarType x, ScalarType y, ScalarType z, int_max MaskIndex)
 {
 	if (x < ScalarType(m_NOBoundCheckRegionList_3DContinuousIndex[MaskIndex].x0) || x > ScalarType(m_NOBoundCheckRegionList_3DContinuousIndex[MaskIndex].x1)
@@ -368,8 +368,8 @@ WhetherMaskIsInsideImage_AtOrigin_3DContinuousIndex(ScalarType x, ScalarType y, 
 }
 
 
-template<typename VoxelType, typename ScalarType>
-bool SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::
+template<typename PixelType, typename ScalarType>
+bool SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::
 WhetherToCheckBoundAtMaskOrigin_3DPyhsicalPosition(ScalarType x, ScalarType y, ScalarType z, int_max MaskIndex)
 {
 	bool WhetherToCheck = false;
@@ -392,9 +392,9 @@ WhetherToCheckBoundAtMaskOrigin_3DPyhsicalPosition(ScalarType x, ScalarType y, S
 }
 
 
-template<typename VoxelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::
-EvaluateMultipleCandidate_in_a_thread(int_max OriginIndex_start, int_max OriginIndex_end, int_max ThreadIndex)
+template<typename PixelType, typename ScalarType>
+void SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::
+EvaluateMultipleCandidate(int_max OriginIndex_start, int_max OriginIndex_end, int_max ThreadIndex)
 {
 	auto MaskNumber = m_MaskList->GetElementNumber();
 
@@ -402,11 +402,14 @@ EvaluateMultipleCandidate_in_a_thread(int_max OriginIndex_start, int_max OriginI
 	{ 
 		for (int_max k = OriginIndex_start; k <= OriginIndex_end; ++k)
 		{
-			auto Origin = m_InputImage->TransformLinearIndexTo3DIndex<ScalarType>(k);
+			auto OriginIndex3D = m_InputImage->TransformLinearIndexTo3DIndex<ScalarType>(k);
 			for (int_max n = 0; n < MaskNumber; ++n)
 			{
-				auto& EvaluationResult = m_Output[k*MaskNumber + n];
-				this->EvaluateCandidateAtOrigin_3DContinuousIndex(EvaluationResult, n, Origin[0], Origin[1], Origin[2], ThreadIndex);
+				auto& EvaluationInfo = m_Output[k*MaskNumber + n];
+				EvaluationInfo.Origin = OriginIndex3D;
+				EvaluationInfo.OriginIndex = k;
+				EvaluationInfo.MaskIndex = n;
+				this->EvaluateCandidateAtOrigin_3DContinuousIndex(EvaluationInfo, ThreadIndex);
 			}
 		}
 	}
@@ -416,20 +419,25 @@ EvaluateMultipleCandidate_in_a_thread(int_max OriginIndex_start, int_max OriginI
 		{
 			for (int_max k = OriginIndex_start; k <= OriginIndex_end; ++k)
 			{
-				auto x = (*m_CandidateOriginList_3DPyhsicalPosition)(0, k);
-				auto y = (*m_CandidateOriginList_3DPyhsicalPosition)(1, k);
-				auto z = (*m_CandidateOriginList_3DPyhsicalPosition)(2, k);
+				DenseVector<ScalarType, 3> OriginPosition;
+				(*m_CandidateOriginList_3DPyhsicalPosition).GetCol(k, OriginPosition);
+
 				for (int_max n = 0; n < MaskNumber; ++n)
 				{
-					auto& EvaluationResult = m_Output[k*MaskNumber + n];
+					auto& EvaluationInfo = m_Output[k*MaskNumber + n];
+					EvaluationInfo.OriginIndex = k;
+					EvaluationInfo.MaskIndex = n;
+
 					if ((*m_MaskList)[n].Flag_3DPhysicalPosition == true)
 					{
-						this->EvaluateCandidateAtOrigin_3DPyhsicalPosition(EvaluationResult, n, x, y, z, ThreadIndex);
+						EvaluationInfo.Origin = OriginPosition;
+						this->EvaluateCandidateAtOrigin_3DPyhsicalPosition(EvaluationInfo, ThreadIndex);
 					}
 					else
 					{
-						auto Index3D = m_InputImage->Transform3DPhysicalPositionTo3DContinuousIndex(x, y, z);
-						this->EvaluateCandidateAtOrigin_3DContinuousIndex(EvaluationResult, n, Index3D[0], Index3D[1], Index3D[2], ThreadIndex);
+						auto OriginIndex3D = m_InputImage->Transform3DPhysicalPositionTo3DContinuousIndex(OriginPosition[0], OriginPosition[1], OriginPosition[2]);
+						EvaluationInfo.Origin = OriginIndex3D;
+						this->EvaluateCandidateAtOrigin_3DContinuousIndex(EvaluationInfo, ThreadIndex);
 					}
 				}
 			}
@@ -438,20 +446,25 @@ EvaluateMultipleCandidate_in_a_thread(int_max OriginIndex_start, int_max OriginI
 		{
 			for (int_max k = OriginIndex_start; k <= OriginIndex_end; ++k)
 			{
-				auto x = (*m_CandidateOriginList_3DContinuousIndex)(0, k);
-				auto y = (*m_CandidateOriginList_3DContinuousIndex)(1, k);
-				auto z = (*m_CandidateOriginList_3DContinuousIndex)(2, k);
+				DenseVector<ScalarType, 3> OriginIndex3D;
+				(*m_CandidateOriginList_3DContinuousIndex).GetCol(k, OriginIndex3D);
+
 				for (int_max n = 0; n < MaskNumber; ++n)
 				{
-					auto& EvaluationResult = m_Output[k*MaskNumber + n];
+					auto& EvaluationInfo = m_Output[k*MaskNumber + n];
+					EvaluationInfo.OriginIndex = k;
+					EvaluationInfo.MaskIndex = n;
+
 					if ((*m_MaskList)[n].Flag_3DPhysicalPosition == false)
 					{
-						this->EvaluateCandidateAtOrigin_3DContinuousIndex(EvaluationResult, n, x, y, z, ThreadIndex);
+						EvaluationInfo.Origin = OriginIndex3D;
+						this->EvaluateCandidateAtOrigin_3DContinuousIndex(EvaluationInfo, ThreadIndex);
 					}
 					else
 					{
-						auto Position = m_InputImage->Transform3DContinuousIndexTo3DPhysicalPosition(x, y, z);
-						this->EvaluateCandidateAtOrigin_3DPyhsicalPosition(EvaluationResult, n, Position[0], Position[1], Position[2], ThreadIndex);
+						auto OriginPosition = m_InputImage->Transform3DContinuousIndexTo3DPhysicalPosition(OriginIndex3D[0], OriginIndex3D[1], OriginIndex3D[2]);
+						EvaluationInfo.Origin = OriginPosition;
+						this->EvaluateCandidateAtOrigin_3DPyhsicalPosition(EvaluationInfo, ThreadIndex);
 					}
 				}
 			}
@@ -460,8 +473,8 @@ EvaluateMultipleCandidate_in_a_thread(int_max OriginIndex_start, int_max OriginI
 }
 
 
-template<typename VoxelType, typename ScalarType>
-int_max SingleClassObjectDetectionInSingleImage3D<VoxelType, ScalarType>::GetNumberOfThreadTobeCreated()
+template<typename PixelType, typename ScalarType>
+int_max SingleClassObjectDetectionInSingleImage3D<PixelType, ScalarType>::GetNumberOfThreadTobeCreated()
 {
 	return Compute_NumberOfThreadTobeCreated_For_ParallelBlock(m_TotalCandidateOriginNumber, m_MaxNumberOfThread, 1);
 }

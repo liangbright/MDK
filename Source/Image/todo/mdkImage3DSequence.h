@@ -1,8 +1,7 @@
 #ifndef __mdkImage3DSequence_h
 #define __mdkImage3DSequence_h
 
-#include <vector>
-
+#include "mdkDataArray.h"
 #include "mdkImage3D.h"
 
 namespace mdk
@@ -17,8 +16,8 @@ public:
 	typedef	Pixel_Type PixelType;
 
 private:
-	std::vector<Image<PixelType>> m_DataSequence;
-	std::vector<double> m_TimePointList;
+	DataArray<Image3D<PixelType>> m_DataSequence;
+	DataArray<double> m_TimePointList;
 
 public:			
 	Image3DSequence();

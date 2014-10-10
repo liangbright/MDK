@@ -61,37 +61,37 @@ inline long GetNaNElement(const long&)
 
 inline long long GetNaNElement(const long long&)
 {
-    return long long(0);
+    return (long long)(0);
 }
 
 
 inline unsigned char GetNaNElement(const unsigned char&)
 {
-    return unsigned char(0);
+    return (unsigned char)(0);
 }
 
 
 inline unsigned short GetNaNElement(const unsigned short&)
 {
-    return unsigned short(0);
+    return (unsigned short)(0);
 }
 
 
 inline unsigned int GetNaNElement(const unsigned int&)
 {
-    return unsigned int(0);
+    return (unsigned int)(0);
 }
 
 
 inline unsigned long GetNaNElement(const unsigned long&)
 {
-    return unsigned long(0);
+    return (unsigned long)(0);
 }
 
 
 inline unsigned long long GetNaNElement(const unsigned long long&)
 {
-    return unsigned long long(0);
+    return (unsigned long long)(0);
 }
 
 }//namespace mdk

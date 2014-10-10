@@ -3,9 +3,7 @@
 
 #include <limits>
 
-
 #include "mdkDebugConfig.h"
-
 
 namespace mdk
 {
