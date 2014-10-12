@@ -23,6 +23,13 @@ class DenseMatrix;
 
 template<typename ElementType>
 class SimpleObjectArray;
+
+template<typename ElementType>
+class ObjectArray;
+
+// another ClassName ---------------------------
+template<typename ElementType>
+using DataArray = ObjectArray<ElementType>;
 //--------------------------------------------
 
 // ----------------------------- ObjectArrayData struct -------------------------------------------------------------//

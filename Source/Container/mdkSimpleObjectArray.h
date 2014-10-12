@@ -16,7 +16,13 @@ template<typename ElementType>
 class DenseMatrix;
 
 template<typename ElementType>
+class SimpleObjectArray;
+
+template<typename ElementType>
 class ObjectArray;
+
+template<typename ElementType>
+using SimpleDataArray = SimpleObjectArray<ElementType>;
 //------------------------------------------------
 
 #if defined MDK_DEBUG_MODE

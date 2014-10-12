@@ -8,7 +8,6 @@ template<typename ElementType>
 inline
 SparseVector<ElementType>::SparseVector()
 {
-    this->Clear();
 }
 
 
@@ -16,10 +15,11 @@ template<typename ElementType>
 inline
 SparseVector<ElementType>::SparseVector(const ElementType& Element)
 {
-	m_Length = 1;
-	m_IndexList.push_back(0);
-	m_DataArray.push_back(Element);
-	m_ZeroElement = ElementType(0);
+	m_Data = std::make_unique<SparseVectorData<ElementType>>();
+	m_Data->Length = 1;
+	m_Data->IndexList.push_back(0);
+	m_Data->ElementList.push_back(Element);
+	m_Data->ZeroElement = ElementType(0);
 }
 
 
@@ -27,6 +27,7 @@ template<typename ElementType>
 inline
 SparseVector<ElementType>::SparseVector(const SparseVector& InputVector)
 {
+	m_Data = std::make_unique<SparseVectorData<ElementType>>();
     this->Copy(InputVector);
 }
 
@@ -35,12 +36,7 @@ template<typename ElementType>
 inline
 SparseVector<ElementType>::SparseVector(SparseVector&& InputVector)
 {
-    m_Length = InputVector.m_Length;
-    m_IndexList = std::move(InputVector.m_IndexList);
-    m_DataArray = std::move(InputVector.m_DataArray);
-	m_ZeroElement = ElementType(0);
-
-    InputVector.m_Length = 0;
+	m_Data = std::move(InputVector.m_Data);
 }
 
 
@@ -55,97 +51,104 @@ template<typename ElementType>
 inline
 void SparseVector<ElementType>::Construct(int_max Length)
 {
-    m_Length = Length;
-    m_IndexList.resize(0);
-    m_DataArray.resize(0);
-	m_ZeroElement = ElementType(0);
+	if (!m_Data)
+	{
+		m_Data = std::make_unique<SparseVectorData<ElementType>>();
+	}
+	m_Data->Length = Length;
+	m_Data->IndexList.resize(0);
+	m_Data->ElementList.resize(0);
+	m_Data->ZeroElement = ElementType(0);
 }
 
 
 template<typename ElementType>
 inline 
-bool SparseVector<ElementType>::Construct(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& DataArray, int_max Length)
+bool SparseVector<ElementType>::Construct(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& ElementList, int_max Length)
 {
-    if (IndexList.size() != DataArray.size())
+    if (IndexList.size() != ElementList.size())
     {
         MDK_Error("Invalid Input @ SparseVector::Construct(std::initializer_list ...)")
         return false;
     }
 
-    return this->Construct(IndexList.begin(), DataArray.data(), int_max(DataArray.size()), Length);
+    return this->Construct(IndexList.begin(), ElementList.data(), int_max(ElementList.size()), Length);
 }
 
 
 template<typename ElementType>
 inline 
-bool SparseVector<ElementType>::Construct(const std::vector<int_max>& IndexList, const std::vector<ElementType>& DataArray, int_max Length)
+bool SparseVector<ElementType>::Construct(const std::vector<int_max>& IndexList, const std::vector<ElementType>& ElementList, int_max Length)
 
 {
-    if (IndexList.size() != DataArray.size())
+    if (IndexList.size() != ElementList.size())
     {
         MDK_Error("Invalid Input @ SparseVector::Construct(std::vector ...)")
         return false;
     }
 
-    return this->Construct(IndexList.data(), DataArray.data(), int_max(DataArray.size()), Length);
+    return this->Construct(IndexList.data(), ElementList.data(), int_max(ElementList.size()), Length);
 }
 
 
 template<typename ElementType>
 inline
-bool SparseVector<ElementType>::Construct(const DenseVector<int_max>& IndexList, const DenseVector<ElementType>& DataArray, int_max Length)
-
+bool SparseVector<ElementType>::Construct(const DenseVector<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length)
 {
-	if (IndexList.GetLength() != DataArray.GetLength())
+	if (IndexList.GetLength() != ElementList.GetLength())
 	{
 		MDK_Error("Invalid Input @ SparseVector::Construct(DenseVector ...)")
 		return false;
 	}
 
-	return this->Construct(IndexList.GetPointer(), DataArray.GetPointer(), DataArray.GetLength(), Length);
+	return this->Construct(IndexList.GetPointer(), ElementList.GetPointer(), ElementList.GetLength(), Length);
 }
 
 
 template<typename ElementType>
 inline 
-bool SparseVector<ElementType>::Construct(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& DataArray, int_max Length)
+bool SparseVector<ElementType>::Construct(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length)
 {
-    if (IndexList.GetElementNumber() != DataArray.GetElementNumber())
+    if (IndexList.GetElementNumber() != ElementList.GetElementNumber())
     {
         MDK_Error("Invalid Input @ SparseVector::Construct(mdk::DenseMatrix ...)")
         return false;
     }
 
-    return this->Construct(IndexList.GetElementPointer(), DataArray.GetElementPointer(), DataArray.GetElementNumber(), Length);
+    return this->Construct(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
 }
 
 
 template<typename ElementType>
 inline
-bool SparseVector<ElementType>::Construct(const int_max* IndexList, const ElementType* DataArray, int_max RecordedElementNumber, int_max Length)
+bool SparseVector<ElementType>::Construct(const int_max* IndexList, const ElementType* ElementList, int_max RecordedElementNumber, int_max Length)
 {
-    if (IndexList == nullptr || DataArray == nullptr || RecordedElementNumber <= 0 || Length <= 0)
+    if (IndexList == nullptr || ElementList == nullptr || RecordedElementNumber <= 0 || Length <= 0)
     {
         MDK_Error("Invalid Input @ SparseVector::Construct(pointer ...)")
         return false;
     }
 
     //--------------------------------------------------------------
-    m_Length = Length;
-    m_IndexList.resize(RecordedElementNumber);
-    m_DataArray.resize(RecordedElementNumber);
-	m_ZeroElement = ElementType(0);
+	if (!m_Data)
+	{
+		m_Data = std::make_unique<SparseVectorData<ElementType>>();
+	}
+	m_Data->Length = Length;
+	m_Data->IndexList.resize(RecordedElementNumber);
+	m_Data->ElementList.resize(RecordedElementNumber);
+	m_Data->ZeroElement = ElementType(0);
     //--------------------------------------------------------------
 
     std::vector<int_max> LinearIndex_In_Input_IndexList(RecordedElementNumber);
 
-    Sort(IndexList, RecordedElementNumber, m_IndexList.data(), LinearIndex_In_Input_IndexList.data(), "ascend");
+	Sort(IndexList, RecordedElementNumber, m_Data->IndexList.data(), LinearIndex_In_Input_IndexList.data(), "ascend");
 
     //--------------------------------------------------------------
 
     for (int_max i = 0; i < RecordedElementNumber; ++i)
     {
-        m_DataArray[i] = DataArray[LinearIndex_In_Input_IndexList[i]];
+		m_Data->ElementList[i] = ElementList[LinearIndex_In_Input_IndexList[i]];
     }
 
     return true;
@@ -154,23 +157,31 @@ bool SparseVector<ElementType>::Construct(const int_max* IndexList, const Elemen
 
 template<typename ElementType>
 inline
-void SparseVector<ElementType>::ConstructFromSortedData(std::vector<int_max> IndexList, std::vector<ElementType> InputDataArray, int_max Length)
+void SparseVector<ElementType>::ConstructFromSortedData(std::vector<int_max> IndexList, std::vector<ElementType> ElementList, int_max Length)
 {
-    m_Length = Length;
-    m_IndexList = std::move(IndexList);
-    m_DataArray = std::move(InputDataArray);
-	m_ZeroElement = ElementType(0);
+	if (!m_Data)
+	{
+		m_Data = std::make_unique<SparseVectorData<ElementType>>();
+	}
+	m_Data->Length = Length;
+	m_Data->IndexList = std::move(IndexList);
+	m_Data->ElementList = std::move(ElementList);
+	m_Data->ZeroElement = ElementType(0);
 }
 
 
 template<typename ElementType>
 inline
-void SparseVector<ElementType>::ConstructFromSortedData(DenseVector<int_max> IndexList, DenseVector<ElementType> InputDataArray, int_max Length)
+void SparseVector<ElementType>::ConstructFromSortedData(DenseVector<int_max> IndexList, DenseVector<ElementType> ElementList, int_max Length)
 {
-	m_Length = Length;
-	m_IndexList = std::move(IndexList.StdVector());
-	m_DataArray = std::move(InputDataArray.StdVector());
-	m_ZeroElement = ElementType(0);
+	if (!m_Data)
+	{
+		m_Data = std::make_unique<SparseVectorData<ElementType>>();
+	}
+	m_Data->Length = Length;
+	m_Data->IndexList = std::move(IndexList.StdVector());
+	m_Data->ElementList = std::move(ElementList.StdVector());
+	m_Data->ZeroElement = ElementType(0);
 }
 
 
@@ -194,10 +205,21 @@ template<typename ElementType>
 inline 
 void SparseVector<ElementType>::Clear()
 {
-    m_Length = 0;
-    m_IndexList.clear();
-    m_DataArray.clear();
-	m_ZeroElement = ElementType(0);
+	if (m_Data)
+	{
+		m_Data->Length = 0;
+		m_Data->IndexList.clear();
+		m_Data->ElementList.clear();
+		m_Data->ZeroElement = ElementType(0);
+	}    
+}
+
+
+template<typename ElementType>
+inline
+void SparseVector<ElementType>::Reset()
+{
+	m_Data.reset();
 }
 
 
@@ -211,18 +233,18 @@ void SparseVector<ElementType>::Resize(int_max InputLength)
         return;
     }
 
-    if (InputLength == m_Length)
+	if (InputLength == m_Data->Length)
     {
         return;
     }
 
-    if (InputLength == 0 && m_Length > 0)
+	if (InputLength == 0 && m_Data->Length > 0)
     {
         this->Clear();
         return;
     }
 
-    if (InputLength > 0 && m_Length == 0)
+	if (InputLength > 0 && m_Data->Length == 0)
     {
         this->Construct(InputLength);
         return;
@@ -230,15 +252,20 @@ void SparseVector<ElementType>::Resize(int_max InputLength)
 
     //------ not empty , not equal to input size ---------------------//
 
-    if (InputLength < m_Length)
+	if (!m_Data)
+	{
+		m_Data = std::make_unique<SparseVectorData<ElementType>>();
+	}
+
+	if (InputLength < m_Data->Length)
     {
-        auto RecordedElementNumber = int_max(m_IndexList.size());
+		auto RecordedElementNumber = int_max(m_Data->IndexList.size());
 
         auto StartIndex_erase = RecordedElementNumber;
 
         for (int_max i = RecordedElementNumber - 1; i >= 0; --i)
         {
-            if (m_IndexList[i] >= InputLength)
+			if (m_Data->IndexList[i] >= InputLength)
             {
                 StartIndex_erase = i;
             }
@@ -248,11 +275,11 @@ void SparseVector<ElementType>::Resize(int_max InputLength)
             }
         }
 
-        m_IndexList.erase(m_IndexList.begin() + StartIndex_erase, m_IndexList.end());
-        m_DataArray.erase(m_DataArray.begin() + StartIndex_erase, m_DataArray.end());
+		m_Data->IndexList.erase(m_Data->IndexList.begin() + StartIndex_erase, m_Data->IndexList.end());
+		m_Data->ElementList.erase(m_Data->ElementList.begin() + StartIndex_erase, m_Data->ElementList.end());
     }
 
-    m_Length = InputLength;
+    m_Data->Length = InputLength;
 }
 
 
@@ -265,26 +292,56 @@ void SparseVector<ElementType>::FastResize(int_max InputLength)
 
 
 template<typename ElementType>
+inline 
+bool SparseVector<ElementType>::IsEmpty() const
+{
+	if (!m_Data)
+	{
+		return true;
+	}
+	else
+	{
+		return (m_Data->Length <= 0);
+	}
+}
+
+
+template<typename ElementType>
+inline
+bool SparseVector<ElementType>::IsPureEmpty() const
+{
+	return (!m_Data);
+}
+
+
+template<typename ElementType>
 inline
 ElementType& SparseVector<ElementType>::operator[](int_max Index)
 {
-	if (Index >= m_Length || Index < 0)
+	if (!m_Data)
+	{
+		m_Data = std::make_unique<SparseVectorData<ElementType>>();
+	}
+
+	if (Index >= m_Data->Length || Index < 0)
 	{
 		MDK_Error("Invalid Index @ SparseVector::operator[](int_max Index)")
-		return m_ZeroElement;
+		return m_Data->ZeroElement;
 	}
+
+	auto RecordedElementNumber = int_max(m_Data->ElementList.size());
 
 	int_max IndexInDataArray = -1;
 	int_max IndexInDataArray_insert = RecordedElementNumber;
 
 	for (int_max i = 0; i < RecordedElementNumber; ++i)
 	{
-		if (m_IndexList[i] == Index)
+		if (m_Data->IndexList[i] == Index)
 		{
 			IndexInDataArray = i;
 			break;
 		}
-		else if (m_IndexList[i] > Index)
+		else if (m_Data->IndexList[i] > Index)
 		{
 			IndexInDataArray_insert = i;
 		}
@@ -292,13 +349,15 @@ ElementType& SparseVector<ElementType>::operator[](int_max Index)
 
 	if (IndexInDataArray >= 0)
 	{
-		return m_DataArray[IndexInDataArray];
+		return m_Data->ElementList[IndexInDataArray];
 	}
 	else
 	{
-		m_IndexList.insert(m_IndexList.begin() + IndexInDataArray_insert, Index);
-		m_DataArray.insert(m_DataArray.begin() + IndexInDataArray_insert, Element);
-		return m_DataArray[IndexInDataArray_insert];
+		m_Data->IndexList.reserve(m_Data->IndexList.size() + 1);
+		m_Data->IndexList.insert(m_Data->IndexList.begin() + IndexInDataArray_insert, Index);
+		m_Data->ElementList.reserve(m_Data->ElementList.size() + 1);
+		m_Data->ElementList.insert(m_Data->ElementList.begin() + IndexInDataArray_insert, m_Data->ZeroElement);
+		return m_Data->ElementList[IndexInDataArray_insert];
 	}
 }
 
@@ -307,17 +366,16 @@ template<typename ElementType>
 inline
 const ElementType& SparseVector<ElementType>::operator[](int_max Index) const
 {
-	int_max IndexInDataArray = -1;
-
-	if (Index >= m_Length || Index < 0)
+	if (Index >= m_Data->Length || Index < 0)
 	{
 		MDK_Error("Invalid Index @ SparseVector::operator[](int_max Index)")
-		return m_ZeroElement;
+		return m_Data->ZeroElement;
 	}
 
-	for (int_max i = 0; i < int_max(m_IndexList.size()); ++i)
+	int_max IndexInDataArray = -1;
+	for (int_max i = 0; i < int_max(m_Data->IndexList.size()); ++i)
 	{
-		if (m_IndexList[i] == Index)
+		if (m_Data->IndexList[i] == Index)
 		{
 			IndexInDataArray = i;
 			break;
@@ -326,12 +384,12 @@ const ElementType& SparseVector<ElementType>::operator[](int_max Index) const
 
 	if (IndexInDataArray >= 0)
 	{
-		return m_DataArray[IndexInDataArray];
+		return m_Data->ElementList[IndexInDataArray];
 	}
 	else
 	{
 		MDK_Error("Invalid Index @ SparseVector::GetElement(Index)")
-		return m_ZeroElement;
+		return m_Data->ZeroElement;
 	}
 }
 
@@ -339,6 +397,14 @@ const ElementType& SparseVector<ElementType>::operator[](int_max Index) const
 template<typename ElementType>
 inline
 ElementType& SparseVector<ElementType>::operator()(int_max Index)
+{
+	return this->operator[](Index);
+}
+
+
+template<typename ElementType>
+inline
+const ElementType& SparseVector<ElementType>::GetElement(int_max Index) const
 {
 	return this->operator[](Index);
 }
@@ -356,10 +422,21 @@ template<typename ElementType>
 inline 
 void SparseVector<ElementType>::Copy(const SparseVector<ElementType>& InputVector)
 {
-    m_Length = InputVector.m_Length;
-    m_IndexList = InputVector.m_IndexList;
-    m_DataArray = InputVector.m_DataArray;
-    m_ZeroElement = InputVector.m_ZeroElement;
+	if (InputVector.m_Data)
+	{
+		if (!m_Data)
+		{
+			m_Data = std::make_unique<SparseVectorData<ElementType>>();
+		}
+		m_Data->Length = InputVector.m_Data->Length;
+		m_Data->IndexList = InputVector.m_Data->IndexList;
+		m_Data->ElementList = InputVector.m_Data->ElementList;
+		m_Data->ZeroElement = InputVector.m_Data->ZeroElement;
+	}
+	else
+	{
+		this->Clear();
+	}
 }
 
 
@@ -367,19 +444,37 @@ template<typename ElementType>
 inline
 void SparseVector<ElementType>::Take(SparseVector<ElementType>& InputVector)
 {
-    m_Length = InputVector.m_Length;
-    m_IndexList = std::move(InputVector.m_IndexList);
-    m_DataArray = std::move(InputVector.m_DataArray);
-    m_ZeroElement = InputVector.m_ZeroElement;
+	if (InputVector.m_Data)
+	{
+		if (!m_Data)
+		{
+			m_Data = std::make_unique<SparseVectorData<ElementType>>();
+		}
+		m_Data->Length = InputVector.m_Data->Length;
+		m_Data->IndexList = std::move(InputVector.m_Data->IndexList);
+		m_Data->ElementList = std::move(InputVector.m_Data->ElementList);
+		m_Data->ZeroElement = InputVector.m_Data->ZeroElement;
 
-    InputVector.m_Length = 0;
+		InputVector.m_Data->Length = 0;
+	}
+	else
+	{
+		this->Clear();
+	}
 }
 
 
 template<typename ElementType>
 inline int_max SparseVector<ElementType>::GetLength() const
 {
-    return m_Length;
+	if (m_Data)
+	{
+		return m_Data->Length;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 
@@ -387,7 +482,14 @@ template<typename ElementType>
 inline
 int_max SparseVector<ElementType>::GetRecordedElementNumber() const
 {
-    return int_max(m_DataArray.size());
+	if (m_Data)
+	{
+		return int_max(m_Data->ElementList.size());
+	}
+	else
+	{
+		return 0;
+	}    
 }
 
 
@@ -395,7 +497,14 @@ template<typename ElementType>
 inline
 ElementType* SparseVector<ElementType>::GetPointerOfBeginElement()
 {
-    return m_DataArray.data();
+	if (m_Data)
+	{
+		return m_Data->ElementList.data();
+	}
+	else
+	{
+		return nullptr;
+	}    
 }
 
 
@@ -403,7 +512,14 @@ template<typename ElementType>
 inline
 const ElementType* SparseVector<ElementType>::GetPointerOfBeginElement() const
 {
-    return m_DataArray.data();
+	if (m_Data)
+	{
+		return m_Data->ElementList.data();
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 
@@ -411,7 +527,7 @@ template<typename ElementType>
 inline
 std::vector<int_max>& SparseVector<ElementType>::IndexList()
 {
-    return m_IndexList;
+    return m_Data->IndexList;
 }
 
 
@@ -419,23 +535,23 @@ template<typename ElementType>
 inline
 const std::vector<int_max>& SparseVector<ElementType>::IndexList() const
 {
-    return m_IndexList;
+    return m_Data->IndexList;
 }
 
 
 template<typename ElementType>
 inline
-std::vector<ElementType>& SparseVector<ElementType>::DataArray()
+std::vector<ElementType>& SparseVector<ElementType>::ElementList()
 {
-    return m_DataArray;
+    return m_Data->ElementList;
 }
 
 
 template<typename ElementType>
 inline
-const std::vector<ElementType>& SparseVector<ElementType>::DataArray() const
+const std::vector<ElementType>& SparseVector<ElementType>::ElementList() const
 {
-    return m_DataArray;
+    return m_Data->ElementList;
 }
 
 
@@ -445,9 +561,9 @@ ElementType SparseVector<ElementType>::Sum() const
 {
     auto Value = ElementType(0);
 
-    for (int_max k = 0; k < int_max(m_DataArray.size()); ++k)
+    for (int_max k = 0; k < int_max(m_Data->ElementList.size()); ++k)
     {
-        Value += m_DataArray[k];
+        Value += m_Data->ElementList[k];
     }
 
     return Value;
@@ -460,9 +576,9 @@ ElementType SparseVector<ElementType>::L1Norm() const
 {
     auto Value = ElementType(0);
 
-    for (int_max k = 0; k < int_max(m_DataArray.size()); ++k)
+    for (int_max k = 0; k < int_max(m_Data->ElementList.size()); ++k)
     {
-        Value += std::abs(m_DataArray[k]);
+        Value += std::abs(m_Data->ElementList[k]);
     }
 
     return Value;
@@ -475,9 +591,9 @@ ElementType SparseVector<ElementType>::L2Norm() const
 {
     auto Value = ElementType(0);
 
-    for (int_max k = 0; k < int_max(m_DataArray.size()); ++k)
+    for (int_max k = 0; k < int_max(m_Data->ElementList.size()); ++k)
     {
-        Value += m_DataArray[k] * m_DataArray[k];
+        Value += m_Data->ElementList[k] * m_Data->ElementList[k];
     }
 
     Value = std::sqrt(Value);

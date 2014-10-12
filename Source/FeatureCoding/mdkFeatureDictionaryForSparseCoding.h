@@ -10,6 +10,30 @@
 
 namespace mdk
 {
+// sparse coding based Dictionary learning
+// ||X - DZ||^2 + function(Z), 
+// X: Feature Vector
+// D: Dictionary
+// Z: sparse code
+//
+// definition of MaskMatrix: see ObjectDetection
+// during training, each Feature Vector may have a mask
+// e.g., remove surrounding stuff about an object in an image, only the object is inside the mask
+// an element of the Feature Vector is set to zero if it is out of mask
+// an element is out of mask : mask(element position) = 0
+// an element is in mask : mask(element position) > 0 or < 0
+// Therefore, after modify each Feature Vector using mask, mask is not used in Dictionary learning, only the modified Feature Vector is used
+//
+// MaskMatrix is useful in encoding (e.g., KNN based encoding), and is useful in classification if reconstruction error vector norm is used
+// m_k=MaskMatrix(:,k), 0<= m_k <=1, X_k=m_k.*X; get differnece version of X; 
+// distance between X and d_k =||m_k.*(X - d_k)|| = sqrt(sum_n(X_k(n)-m_k(n)*d_k(n)))^2/sum_n(m_k(n)))
+// for KNN, find mask of each KNN Basis, then get combined mask m_com, and get X_com = m_com.*X
+// to get reconstructed X: ||X_k - [m_com.*d1, m_com.*d2, ...]*Z|| 
+//
+// MaskMatrix may not be useful in classification if reconstruction error vector is used
+// reconstruction error vector = |m_k.*(X - d_k)|, take absolute value of each element in the error vector 
+// then apply SVM using 1 vs ALL, an element out of mask will be assigned a small weight
+//
 
 template<typename ElementType>
 struct DictionaryData_Of_FeatureDictionaryForSparseCoding
@@ -19,6 +43,8 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
     DenseMatrix<ElementType> BasisMatrix; // D
     // ColNumber is BasisNumber (the number of bases)
     // RowNumber is Length of Feature Data Vector
+
+	DenseMatrix<ElementType> MaskMatrix; // M
 
     //------------ basis unique ID -----------------------------------
     // row vector

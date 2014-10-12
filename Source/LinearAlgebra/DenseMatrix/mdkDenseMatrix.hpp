@@ -1262,6 +1262,14 @@ bool DenseMatrix<ElementType>::Reshape(int_max InputRowNumber, int_max InputColN
 
 
 template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::Reshape(MatrixSize InputSize)
+{
+	return this->Reshape(InputSize.RowNumber, InputSize.ColNumber);
+}
+
+
+template<typename ElementType>
 inline 
 bool DenseMatrix<ElementType>::Resize(int_max InputRowNumber, int_max InputColNumber)
 {
@@ -1410,6 +1418,14 @@ catch (...)
 
 template<typename ElementType>
 inline
+bool DenseMatrix<ElementType>::Resize(MatrixSize InputSize)
+{
+	return this->Resize(InputSize.RowNumber, InputSize.ColNumber);
+}
+
+
+template<typename ElementType>
+inline
 bool DenseMatrix<ElementType>::FastResize(int_max InputRowNumber, int_max InputColNumber)
 {
     if (InputRowNumber < 0 || InputColNumber < 0)
@@ -1483,6 +1499,14 @@ catch (...)
 }
 
     return true;
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::FastResize(MatrixSize InputSize)
+{
+	return this->FastResize(InputSize.RowNumber, InputSize.ColNumber);
 }
 
 
@@ -1604,6 +1628,14 @@ inline
 bool DenseMatrix<ElementType>::ReserveCapacity(int_max InputRowNumber, int_max InputColNumber)
 {
     return this->ReserveCapacity(InputRowNumber*InputColNumber);
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::ReserveCapacity(MatrixSize InputSize)
+{
+	return this->ReserveCapacity(InputSize.RowNumber*InputSize.ColNumber);
 }
 
 
@@ -5052,10 +5084,11 @@ bool DenseMatrix<ElementType>::GetSubMatrix(DenseMatrix<ElementType>& OutputMatr
 
 
 template<typename ElementType>
+template<typename ElementType_Output>
 inline 
-DenseMatrix<ElementType> DenseMatrix<ElementType>::GetCol(int_max ColIndex) const
+DenseMatrix<ElementType_Output> DenseMatrix<ElementType>::GetCol(int_max ColIndex) const
 {
-	DenseMatrix<ElementType> tempMatrix;
+	DenseMatrix<ElementType_Output> tempMatrix;
 
     tempMatrix.Resize(this->GetRowNumber(), 1);
 
@@ -5066,9 +5099,9 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetCol(int_max ColIndex) cons
 
 
 template<typename ElementType>
-template<int_max VectorFixedLength>
+template<typename ElementType_Output, int_max VectorFixedLength>
 inline
-bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseVector<ElementType, VectorFixedLength>& ColData) const
+bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseVector<ElementType_Output, VectorFixedLength>& ColData) const
 { // this is for fixed length DenseVector
 	if (VectorFixedLength != this->GetRowNumber())
 	{
@@ -5080,8 +5113,9 @@ bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseVector<ElementType,
 
 
 template<typename ElementType>
+template<typename ElementType_Output>
 inline
-bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseVector<ElementType>& ColData) const
+bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseVector<ElementType_Output>& ColData) const
 { // this is for variable length DenseVector
 	ColData.FastResize(this->GetRowNumber());
 	return this->GetCol(ColIndex, ColData.GetElementPointer());
@@ -5089,8 +5123,9 @@ bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseVector<ElementType>
 
 
 template<typename ElementType>
+template<typename ElementType_Output>
 inline
-bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseMatrix<ElementType>& ColData) const
+bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseMatrix<ElementType_Output>& ColData) const
 {
     ColData.FastResize(this->GetRowNumber(), 1);
     return this->GetCol(ColIndex, ColData.GetElementPointer());
@@ -5098,8 +5133,9 @@ bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseMatrix<ElementType>
 
 
 template<typename ElementType>
+template<typename ElementType_Output>
 inline 
-bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, ElementType* ColData) const
+bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, ElementType_Output* ColData) const
 {
     auto SelfSize = this->GetSize();
     if (SelfSize.ColNumber == 0)
@@ -5120,7 +5156,7 @@ bool DenseMatrix<ElementType>::GetCol(int_max ColIndex, ElementType* ColData) co
 
 	for (int_max i = 0; i < SelfSize.RowNumber; ++i)
 	{
-		ColData[i] = RawPointer[i];
+		ColData[i] = ElementType_Output(RawPointer[i]);
 	}
 
 	return true;
@@ -5548,10 +5584,11 @@ bool DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Inp
 
 
 template<typename ElementType>
+template<typename ElementType_Output>
 inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::GetRow(int_max RowIndex) const
+DenseMatrix<ElementType_Output> DenseMatrix<ElementType>::GetRow(int_max RowIndex) const
 {
-    DenseMatrix<ElementType> tempMatrix;	
+	DenseMatrix<ElementType_Output> tempMatrix;
 
     tempMatrix.Resize(1, this->GetColNumber());
 
@@ -5562,11 +5599,11 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetRow(int_max RowIndex) cons
 
 
 template<typename ElementType>
-template<int_max TemplateVectorLength>
+template<typename ElementType_Output, int_max VectorFixedLength>
 inline
-bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseVector<ElementType, TemplateVectorLength>& RowData) const
+bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseVector<ElementType_Output, VectorFixedLength>& RowData) const
 {// this is for fixed length DenseVector
-	if (TemplateVectorLength != this->GetColNumber())
+	if (VectorFixedLength != this->GetColNumber())
 	{
 		MDK_Error("Size not match @ DenseMatrix::GetRow(RowIndex, ixed length DenseVector)")
 	}
@@ -5575,8 +5612,9 @@ bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseVector<ElementType,
 
 
 template<typename ElementType>
+template<typename ElementType_Output>
 inline
-bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseVector<ElementType>& RowData) const
+bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseVector<ElementType_Output>& RowData) const
 {// this is  for variable length DenseVector
 	RowData.FastResize(this->GetColNumber());
 	return this->GetRow(RowIndex, RowData.GetElementPointer());
@@ -5584,8 +5622,9 @@ bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseVector<ElementType>
 
 
 template<typename ElementType>
+template<typename ElementType_Output>
 inline
-bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseMatrix<ElementType>& RowData) const
+bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseMatrix<ElementType_Output>& RowData) const
 {
     RowData.FastResize(1, this->GetColNumber());
     return this->GetRow(RowIndex, RowData.GetElementPointer());
@@ -5593,8 +5632,9 @@ bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseMatrix<ElementType>
 
 
 template<typename ElementType>
+template<typename ElementType_Output>
 inline
-bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, ElementType* RowData) const
+bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, ElementType_Output* RowData) const
 {
     auto SelfSize = this->GetSize();
 
@@ -5616,8 +5656,7 @@ bool DenseMatrix<ElementType>::GetRow(int_max RowIndex, ElementType* RowData) co
 
 	for (int_max j = 0; j < SelfSize.ColNumber; ++j)
 	{
-		RowData[j] = RawPointer[Index + RowIndex];
-
+		RowData[j] = ElementType_Output(RawPointer[Index + RowIndex]);
 		Index += SelfSize.RowNumber;
 	}
 
@@ -6056,31 +6095,6 @@ bool DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const ElementType_Inp
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::GetDiagonal() const
-{
-    DenseMatrix<ElementType> tempMatrix; 
-
-    auto SelfSize = this->GetSize();
-
-    if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
-    {
-        MDK_Error(" Self is empty or not square @ DenseMatrix::GetDiagonal()")
-        
-        return  tempMatrix;
-    }
-
-    tempMatrix.Resize(SelfSize.RowNumber, 1);
-
-    auto tempRawPointer = tempMatrix.GetElementPointer();
-
-    this->GetDiagonal(tempRawPointer);
-
-    return tempMatrix;
-}
-
-
-template<typename ElementType>
-inline
 bool DenseMatrix<ElementType>::Append(ElementType Element)
 {
     if (this->IsEmpty() == true)
@@ -6431,9 +6445,34 @@ bool DenseMatrix<ElementType>::Insert(int_max LinearIndex, const ElementType_Inp
 
 
 template<typename ElementType>
-template<int_max VectorFixedLength>
+template<typename ElementType_Output>
 inline
-bool DenseMatrix<ElementType>::GetDiagonal(DenseVector<ElementType, VectorFixedLength>& DiagonalData) const
+DenseMatrix<ElementType_Output> DenseMatrix<ElementType>::GetDiagonal() const
+{
+	DenseMatrix<ElementType_Output> tempMatrix;
+
+	auto SelfSize = this->GetSize();
+
+	if (SelfSize.RowNumber <= 0 || SelfSize.RowNumber != SelfSize.ColNumber)
+	{
+		MDK_Error(" Self is empty or not square @ DenseMatrix::GetDiagonal()")
+		return  tempMatrix;
+	}
+
+	tempMatrix.Resize(SelfSize.RowNumber, 1);
+
+	auto tempRawPointer = tempMatrix.GetElementPointer();
+
+	this->GetDiagonal(tempRawPointer);
+
+	return tempMatrix;
+}
+
+
+template<typename ElementType>
+template<typename ElementType_Output, int_max VectorFixedLength>
+inline
+bool DenseMatrix<ElementType>::GetDiagonal(DenseVector<ElementType_Output, VectorFixedLength>& DiagonalData) const
 {
 	auto SelfSize = this->GetSize();
 
@@ -6454,8 +6493,9 @@ bool DenseMatrix<ElementType>::GetDiagonal(DenseVector<ElementType, VectorFixedL
 
 
 template<typename ElementType>
+template<typename ElementType_Output>
 inline
-bool DenseMatrix<ElementType>::GetDiagonal(DenseVector<ElementType>& DiagonalData) const
+bool DenseMatrix<ElementType>::GetDiagonal(DenseVector<ElementType_Output>& DiagonalData) const
 {
     auto SelfSize = this->GetSize();
 
@@ -6472,8 +6512,9 @@ bool DenseMatrix<ElementType>::GetDiagonal(DenseVector<ElementType>& DiagonalDat
 
 
 template<typename ElementType>
+template<typename ElementType_Output>
 inline
-bool DenseMatrix<ElementType>::GetDiagonal(DenseMatrix<ElementType>& DiagonalData) const
+bool DenseMatrix<ElementType>::GetDiagonal(DenseMatrix<ElementType_Output>& DiagonalData) const
 {
     auto SelfSize = this->GetSize();
 
@@ -6492,8 +6533,9 @@ bool DenseMatrix<ElementType>::GetDiagonal(DenseMatrix<ElementType>& DiagonalDat
 
 
 template<typename ElementType>
+template<typename ElementType_Output>
 inline
-bool DenseMatrix<ElementType>::GetDiagonal(ElementType* DiagonalData) const
+bool DenseMatrix<ElementType>::GetDiagonal(ElementType_Output* DiagonalData) const
 {
     if (DiagonalData == nullptr)
     {
@@ -6515,8 +6557,7 @@ bool DenseMatrix<ElementType>::GetDiagonal(ElementType* DiagonalData) const
 
     for (int_max i = 0; i < SelfSize.RowNumber; ++i)
     {
-        DiagonalData[j] = RawPointer[Index + i];
-
+		DiagonalData[j] = ElementType_Output(RawPointer[Index + i]);
         Index += SelfSize.RowNumber;
     }
 

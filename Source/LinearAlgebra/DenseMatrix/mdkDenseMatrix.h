@@ -357,15 +357,23 @@ public:
 
     inline bool Reshape(int_max InputRowNumber, int_max InputColNumber);
 
+	inline bool Reshape(MatrixSize InputSize);
+
     inline bool Resize(int_max InputRowNumber, int_max InputColNumber); // try to keep the old data
 
+	inline bool Resize(MatrixSize InputSize);
+
     inline bool FastResize(int_max InputRowNumber, int_max InputColNumber); // do not care about old data
+
+	inline bool FastResize(MatrixSize InputSize);
 
     inline bool Resize(int_max InputElementNumber); // if matrix is vector, try to keep the old data, can not use it to resize a m x n matrix (m>1 or n>1)
 
     inline bool FastResize(int_max InputElementNumber); // if matrix is vector, do not care about old data, can not use it to resize a m x n matrix (m>1 or n>1)
 
     inline bool ReserveCapacity(int_max InputRowNumber, int_max InputColNumber); // reserve memory, current matrix size does not change
+
+	inline bool ReserveCapacity(MatrixSize InputSize);
 
     inline bool ReserveCapacity(int_max InputElementNumber); // reserve memory, current matrix size does not change
 
@@ -825,16 +833,21 @@ public:
 
 	//---------------------- Get/Set/Fill/Append/Insert A Single Column, Delete multi-Columns ----------------------------------------//
 	
-    inline DenseMatrix GetCol(int_max ColIndex) const;
+	template<typename ElementType_Output = ElementType>
+	inline DenseMatrix<ElementType_Output> GetCol(int_max ColIndex) const;
 
-	template<int_max VectorFixedLength>
-	inline bool GetCol(int_max ColIndex, DenseVector<ElementType, VectorFixedLength>& ColData) const;
+	template<typename ElementType_Output, int_max VectorFixedLength>
+	inline bool GetCol(int_max ColIndex, DenseVector<ElementType_Output, VectorFixedLength>& ColData) const;
+
 	// must use different GetCol for variable and fixed length DenseVector
-	inline bool GetCol(int_max ColIndex, DenseVector<ElementType>& ColData) const;
+	template<typename ElementType_Output>
+	inline bool GetCol(int_max ColIndex, DenseVector<ElementType_Output>& ColData) const;
 
-    inline bool GetCol(int_max ColIndex, DenseMatrix<ElementType>& ColData) const;
+	template<typename ElementType_Output>
+	inline bool GetCol(int_max ColIndex, DenseMatrix<ElementType_Output>& ColData) const;
 
-    inline bool GetCol(int_max ColIndex, ElementType* ColData) const;
+	template<typename ElementType_Output>
+	inline bool GetCol(int_max ColIndex, ElementType_Output* ColData) const;
 
     template<typename ElementType_Input>
     inline bool SetCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData);
@@ -895,16 +908,21 @@ public:
 
 	//---------------------- Get/Set/Fill/Append A Single Row, Delete Multi-Rows  ----------------------------------------//
 	
-    inline DenseMatrix GetRow(int_max RowIndex) const;
+	template<typename ElementType_Output = ElementType>
+	inline DenseMatrix<ElementType_Output> GetRow(int_max RowIndex) const;
 
-	template<int_max TemplateVectorLength>
-	inline bool GetRow(int_max RowIndex, DenseVector<ElementType, TemplateVectorLength>& RowData) const;
+	template<typename ElementType_Output, int_max VectorFixedLength>
+	inline bool GetRow(int_max RowIndex, DenseVector<ElementType_Output, VectorFixedLength>& RowData) const;
+
 	// muse use different GetRow
-	inline bool GetRow(int_max RowIndex, DenseVector<ElementType>& RowData) const;
+	template<typename ElementType_Output>
+	inline bool GetRow(int_max RowIndex, DenseVector<ElementType_Output>& RowData) const;
 
-    inline bool GetRow(int_max RowIndex, DenseMatrix<ElementType>& RowData) const;
+	template<typename ElementType_Output>
+	inline bool GetRow(int_max RowIndex, DenseMatrix<ElementType_Output>& RowData) const;
 
-    inline bool GetRow(int_max RowIndex, ElementType* RowData) const;
+	template<typename ElementType_Output>
+	inline bool GetRow(int_max RowIndex, ElementType_Output* RowData) const;
 
     template<typename ElementType_Input>
     inline bool SetRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData);
@@ -1006,16 +1024,21 @@ public:
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 
-    inline DenseMatrix GetDiagonal() const;
+	template<typename ElementType_Output = ElementType>
+	inline DenseMatrix<ElementType_Output> GetDiagonal() const;
 
-	template<int_max VectorFixedLength>
-	inline bool GetDiagonal(DenseVector<ElementType, VectorFixedLength>& RowData) const;
+	template<typename ElementType_Output, int_max VectorFixedLength>
+	inline bool GetDiagonal(DenseVector<ElementType_Output, VectorFixedLength>& RowData) const;
+
 	// muse use different GetDiagonal
-	inline bool GetDiagonal(DenseVector<ElementType>& RowData) const;
+	template<typename ElementType_Output>
+	inline bool GetDiagonal(DenseVector<ElementType_Output>& RowData) const;
 
-    inline bool GetDiagonal(DenseMatrix<ElementType>& DiagonalData) const;
+	template<typename ElementType_Output>
+	inline bool GetDiagonal(DenseMatrix<ElementType_Output>& DiagonalData) const;
 
-    inline bool GetDiagonal(ElementType* DiagonalData) const;
+	template<typename ElementType_Output>
+	inline bool GetDiagonal(ElementType_Output* DiagonalData) const;
 
     template<typename ElementType_Input>
     inline bool SetDiagonal(const std::initializer_list<ElementType_Input>& DiagonalData);

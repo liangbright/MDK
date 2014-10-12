@@ -125,6 +125,15 @@ struct Image3DBoxRegionOf3DPhysicalPosition
     }
 };
 
+
+struct Image3DInfo
+{
+	DenseVector<int_max, 3> Size;       // {Lx, Ly, Lz} number of Pixels in each direction
+	DenseVector<double, 3>  Spacing;    // Pixel Spacing of DICOM image in world coordinate system {Sx, Sy, Sz} (unit: mm)
+	DenseVector<double, 3>  Origin;     // Origin of DICOM image in world coordinate system (x,y,z) (unit: mm)
+	DenseMatrix<double> m_Orientation;  // 3x3 Matrix
+};
+
 //===================================================================================================================//
 //--------------------------------------------------- ImageData3D struct --------------------------------------------//
 
@@ -176,7 +185,7 @@ struct ImageData3D
 	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const;
 	
-	template<typename ScalarType_Index, typename ScalarType_Position>
+	template<typename ScalarType_Position, typename ScalarType_Index>
 	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DPhysicalPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const;
 
 	template<typename ScalarType>
@@ -318,10 +327,10 @@ public:
 	template<typename ScalarType_Position = double, typename ScalarType_Index>
 	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DPhysicalPosition(const DenseVector<ScalarType_Index, 3>& Index3D) const;
 
-	template<typename ScalarType = double>
+	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z) const;
 
-	template<typename ScalarType = double>
+	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DIndex(const DenseVector<ScalarType, 3>& Position) const;
 
 	//--------------------------- Get/Set Pixel ------------------------------//

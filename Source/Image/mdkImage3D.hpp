@@ -162,12 +162,12 @@ DenseVector<ScalarType, 3> ImageData3D<PixelType>::TransformLinearIndexTo3DPhysi
 
 
 template<typename PixelType>
-template<typename ScalarType_Index, typename ScalarType_Position>
+template<typename ScalarType_Position, typename ScalarType_Index>
 inline
 DenseVector<ScalarType_Position, 3> ImageData3D<PixelType>::
 Transform3DIndexTo3DPhysicalPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const
 {
-	DenseVector<ScalarType, 3> Position;
+	DenseVector<ScalarType_Position, 3> Position;
 	Position[0] = m_Origin[0] + double(xIndex) * m_Spacing[0];
 	Position[1] = m_Origin[1] + double(yIndex) * m_Spacing[1];
 	Position[2] = m_Origin[2] + double(zIndex) * m_Spacing[2];
