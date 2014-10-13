@@ -1,13 +1,13 @@
-﻿#ifndef __mdkImageFilterWithSingleMask3D_h
-#define __mdkImageFilterWithSingleMask3D_h
+﻿#ifndef __mdkDenseImageFilterWithSingleMask3D_h
+#define __mdkDenseImageFilterWithSingleMask3D_h
 
-#include "mdkImageFilter3D.h"
+#include "mdkDenseImageFilter3D.h"
 
 namespace mdk
 {
 
 template<typename InputPixel_Type, typename OutputPixel_Type, typename Scalar_Type = double>
-class ImageFilterWithSingleMask3D : public ImageFilter3D<InputPixel_Type, OutputPixel_Type, Scalar_Type>
+class DenseImageFilterWithSingleMask3D : public DenseImageFilter3D<InputPixel_Type, OutputPixel_Type, Scalar_Type>
 {
 public:
 	typedef InputPixel_Type  InputPixelType;
@@ -15,7 +15,7 @@ public:
 	typedef Scalar_Type      ScalarType;
 
 protected:
-	bool m_Flag_3DPositionInMask;
+	bool m_Flag_PhysicalPositionInMask;
 	// true: use 3D physical position in Region
 	// false: use 3D Index in Region
 
@@ -28,8 +28,8 @@ protected:
 	Image3DBoxRegionOf3DPhysicalPosition<ScalarType> m_NOBoundCheckRegion_3DPosition;
 
 protected:		
-	ImageFilterWithSingleMask3D();
-	virtual ~ImageFilterWithSingleMask3D();
+	DenseImageFilterWithSingleMask3D();
+	virtual ~DenseImageFilterWithSingleMask3D();
  
 public:
 
@@ -44,9 +44,9 @@ public:
 	const DenseMatrix<ScalarType>& GetMask();
 
 protected:
-	virtual bool Preprocess();             // called in Update@ImageFilter3D, must be virtual
-    virtual void BuildMask_3DIndex() {}    // called in Preprocess@ImageFilterWithSingleMask3D, must be virtual
-    virtual void BuildMask_3DPosition() {} // called in Preprocess@ImageFilterWithSingleMask3D, must be virtual
+	virtual bool Preprocess();             // called in Update@DenseImageFilter3D, must be virtual
+    virtual void BuildMask_3DIndex() {}    // called in Preprocess@DenseImageFilterWithSingleMask3D, must be virtual
+    virtual void BuildMask_3DPosition() {} // called in Preprocess@DenseImageFilterWithSingleMask3D, must be virtual
 
 	inline bool WhetherToCheckBoundAtMaskOrigin_3DIndex(ScalarType x, ScalarType y, ScalarType z);
 	inline bool WhetherToCheckBoundAtMaskOrigin_3DPosition(ScalarType x, ScalarType y, ScalarType z);
@@ -56,13 +56,13 @@ private:
     void ComputeRegionOfNOBoundCheck_3DPosition();
 
 private:
-	ImageFilterWithSingleMask3D(const ImageFilterWithSingleMask3D&) = delete;
-	void operator=(const ImageFilterWithSingleMask3D&) = delete;
+	DenseImageFilterWithSingleMask3D(const DenseImageFilterWithSingleMask3D&) = delete;
+	void operator=(const DenseImageFilterWithSingleMask3D&) = delete;
 };
 
 }//end namespace mdk
 
 
-#include "mdkImageFilterWithSingleMask3D.hpp"
+#include "mdkDenseImageFilterWithSingleMask3D.hpp"
 
 #endif

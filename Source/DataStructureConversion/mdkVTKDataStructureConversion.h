@@ -21,10 +21,10 @@ template<typename ElementType>
 class SparseMatrix;
 
 template<typename PixelType>
-class Image2D;
+class DenseImage2D;
 
 template<typename PixelType>
-class Image3D;
+class DenseImage3D;
 
 template<typename MeshAttributeType>
 class TriangleMesh;
@@ -37,12 +37,12 @@ class PolygonMesh;
 //-------------------------------------- convert mdk image to vtk image--------------------------------------------------------------------//
 //copy data
 template<typename PixelType>
-vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const Image3D<PixelType>& InputImage);
+vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& InputImage);
 
 //-------------------------------------- convert vtk image to mdk image--------------------------------------------------------------------//
 //copy data
 template<typename PixelType>
-Image3D<PixelType> ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage);
+DenseImage3D<PixelType> ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage);
 
 //--------------------------------------- convert mdk TriangleMesh to vtk PolyData -----------------------------------------------//
 template<typename MeshAttributeType>

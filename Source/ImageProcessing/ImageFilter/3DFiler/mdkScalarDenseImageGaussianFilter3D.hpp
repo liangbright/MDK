@@ -1,27 +1,27 @@
-#ifndef __mdkScalarImageGaussianFilter3D_hpp
-#define __mdkScalarImageGaussianFilter3D_hpp
+#ifndef __mdkScalarDenseImageGaussianFilter3D_hpp
+#define __mdkScalarDenseImageGaussianFilter3D_hpp
 
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType>
-ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::ScalarImageGaussianFilter3D()
+ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType>::ScalarDenseImageGaussianFilter3D()
 {
     this->Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::~ScalarImageGaussianFilter3D()
+ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType>::~ScalarDenseImageGaussianFilter3D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::Clear()
+void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType>::Clear()
 {
-    this->ScalarImageConvolutionFilter3D::Clear();
+    this->ScalarDenseImageConvolutionFilter3D::Clear();
     m_SigmaList.Clear();
     m_RotationMatrix.Clear();
     m_CutOffRatio = 0;
@@ -29,30 +29,30 @@ void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::Clear()
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::
+void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType>::
 SetMaskParameter(ScalarType Sigma_x, ScalarType Sigma_y, ScalarType Sigma_z, const DenseMatrix<ScalarType>& RotationMatrix, ScalarType CutOffRatio)
 {
 	if (Sigma_x <= 0.0 || Sigma_y <= 0.0 || Sigma_z <= 0.0)
     {
-        MDK_Error("Sigma_x <= 0.0 || Sigma_y <= 0.0 || Sigma_z <= 0.0 @ ScalarImageGaussianFilter3D::SetMaskParameter(...)")
+        MDK_Error("Sigma_x <= 0.0 || Sigma_y <= 0.0 || Sigma_z <= 0.0 @ ScalarDenseImageGaussianFilter3D::SetMaskParameter(...)")
         return;
     }
 
     if (RotationMatrix.GetColNumber() != 3 || RotationMatrix.GetRowNumber() != 3)
     {
-        MDK_Error("RotationMatrix is invalid @ ScalarImageGaussianFilter3D::SetMaskParameter(...)")
+        MDK_Error("RotationMatrix is invalid @ ScalarDenseImageGaussianFilter3D::SetMaskParameter(...)")
         return;
     }
 
 	if (RotationMatrix.GetRowNumber() != 3 || RotationMatrix.GetColNumber() != 3)
 	{
-		MDK_Error("RotationMatrix is not 3 x 3 @ ScalarImageGaussianFilter3D::SetMaskParameter(...)")
+		MDK_Error("RotationMatrix is not 3 x 3 @ ScalarDenseImageGaussianFilter3D::SetMaskParameter(...)")
 		return;
 	}
 
 	if (CutOffRatio <= 0.0)
 	{
-		MDK_Error("CutOffRatio <= 0.0 @ ScalarImageGaussianFilter3D::SetMaskParameter(...)")
+		MDK_Error("CutOffRatio <= 0.0 @ ScalarDenseImageGaussianFilter3D::SetMaskParameter(...)")
 		return;
 	}
 
@@ -70,7 +70,7 @@ SetMaskParameter(ScalarType Sigma_x, ScalarType Sigma_y, ScalarType Sigma_z, con
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::BuildMask_3DIndex()
+void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType>::BuildMask_3DIndex()
 {
     DenseMatrix<ScalarType> InverseCovarianceMatrix(3, 3);
     InverseCovarianceMatrix.Fill(0);
@@ -135,7 +135,7 @@ void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::BuildMask_3DI
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageGaussianFilter3D<InputPixelType, OutputPixelType>::BuildMask_3DPosition()
+void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType>::BuildMask_3DPosition()
 {
 	auto InputImageSpacing = m_InputImage->GetSpacing();
 	auto InputImageOrigin = m_InputImage->GetOrigin();

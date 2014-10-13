@@ -6,7 +6,7 @@
 #include <array>
 
 #include "mdkFileIO.h"
-#include "mdkScalarImageGaussianFilter3D.h"
+#include "mdkScalarDenseImageGaussianFilter3D.h"
 #include "mdkHistogram.h"
 #include "mdkString.h"
 
@@ -17,11 +17,9 @@ void test_ScalarImageGaussianFilter3D()
 {
     std::string FilePath = "C:/Research/MDK_Build/Test/Test_ImageFilter/Test_ScalarImageFilter/Debug/";
 
-    Image3D<double> InputImage;
+    auto InputImage = Load3DScalarImageFromJsonDataFile<double>(FilePath + "TestImage.json");
 
-    InputImage = Load3DScalarImageFromJsonDataFile<double>(FilePath + "TestImage.json");
-
-    ScalarImageGaussianFilter3D<double> imfilter;
+	ScalarDenseImageGaussianFilter3D<double> imfilter;
 
     imfilter.SetInputImage(&InputImage);
 
@@ -30,6 +28,12 @@ void test_ScalarImageGaussianFilter3D()
 
     imfilter.SetMaskParameter(3, 3, 3, RoationMatrix, 3);
 	imfilter.Use3DIndexInMask();
+
+	auto Option = imfilter.GetImageInterpolationOption();
+	Option.MethodType = Image3DInterpolationMethodEnum::Linear;
+	Option.BoundaryOption = Image3DInterpolationBoundaryOptionEnum::Constant;
+	Option.Pixel_OutsideImage = 0;
+	imfilter.SetImageInterpolationOption(Option);
 
     imfilter.Update();
 

@@ -6,7 +6,7 @@ namespace mdk
 {
 
 template<typename PixelType>
-itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(Image3D<PixelType>& InputImage, bool SharePixelData)
+itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(DenseImage3D<PixelType>& InputImage, bool SharePixelData)
 {
     auto InputSize        = InputImage.GetSize();
     auto InputOrigin      = InputImage.GetOrigin();
@@ -73,7 +73,7 @@ itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageT
 
 
 template<typename PixelType>
-itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(Image3D<PixelType>& InputImage)
+itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(DenseImage3D<PixelType>& InputImage)
 {
     bool SharePixelData = true;
     auto importFilter = ConvertMDK3DScalarImageToITK3DScalarImage(InputImage, SharePixelData);
@@ -91,9 +91,9 @@ itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalar
 
 
 template<typename PixelType>
-Image3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage)
+DenseImage3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage)
 {
-    Image3D<PixelType> OutputImage;
+    DenseImage3D<PixelType> OutputImage;
 
     if (ITKImage == nullptr)
     {

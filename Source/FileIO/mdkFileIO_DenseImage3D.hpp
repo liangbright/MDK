@@ -1,11 +1,11 @@
-#ifndef __mdkFileIO_Image3D_hpp
-#define __mdkFileIO_Image3D_hpp
+#ifndef __mdkFileIO_DenseImage3D_hpp
+#define __mdkFileIO_DenseImage3D_hpp
 
 namespace mdk
 {
 
 template<typename PixelType>
-bool Save3DScalarImageAsJsonDataFile(const Image3D<PixelType>& InputImage, const std::string& JsonFilePathAndName)
+bool Save3DScalarImageAsJsonDataFile(const DenseImage3D<PixelType>& InputImage, const std::string& JsonFilePathAndName)
 {
 	if (Save3DScalarImageAsJsonDataFile_Header(InputImage, JsonFilePathAndName) == false)
 	{
@@ -17,7 +17,7 @@ bool Save3DScalarImageAsJsonDataFile(const Image3D<PixelType>& InputImage, const
 
 
 template<typename PixelType>
-bool Save3DScalarImageAsJsonDataFile_Header(const Image3D<PixelType>& InputImage, const std::string& JsonFilePathAndName)
+bool Save3DScalarImageAsJsonDataFile_Header(const DenseImage3D<PixelType>& InputImage, const std::string& JsonFilePathAndName)
 {
 	int_max ByteNumber = GetByteNumberOfScalar(PixelType(0));
     if (ByteNumber <= 0)
@@ -31,7 +31,7 @@ bool Save3DScalarImageAsJsonDataFile_Header(const Image3D<PixelType>& InputImage
     PairList.resize(6);
 
     PairList[0].Name = "ObjectType";
-    PairList[0].Value = "Image3D";
+    PairList[0].Value = "DenseImage3D";
 
 	auto ElementTypeName = GetScalarTypeName(PixelType(0));
 	QString QElementTypeName(ElementTypeName.c_str());
@@ -70,7 +70,7 @@ bool Save3DScalarImageAsJsonDataFile_Header(const Image3D<PixelType>& InputImage
 
 
 template<typename PixelType>
-bool Save3DScalarImageAsJsonDataFile_Data(const Image3D<PixelType>& InputImage, const std::string& DataFilePathAndName)
+bool Save3DScalarImageAsJsonDataFile_Data(const DenseImage3D<PixelType>& InputImage, const std::string& DataFilePathAndName)
 {
 	QString QFilePathAndName(DataFilePathAndName.c_str());
 	QFile DataFile(QFilePathAndName);
@@ -93,9 +93,9 @@ bool Save3DScalarImageAsJsonDataFile_Data(const Image3D<PixelType>& InputImage, 
 
 
 template<typename PixelType>
-Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& JsonFilePathAndName)
+DenseImage3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& JsonFilePathAndName)
 {
-    Image3D<PixelType> OutputImage;
+    DenseImage3D<PixelType> OutputImage;
     //---------------------------------------------- Read header --------------------------------------------------------//
 	QString QFilePathAndName(JsonFilePathAndName.c_str());
     QFile HeaderFile(QFilePathAndName);
@@ -115,9 +115,9 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& JsonFile
     {
 		auto ObjectType = it.value().toString();
 
-		if (ObjectType != "Image3D")
+		if (ObjectType != "DenseImage3D")
         {
-            MDK_Error("ObjectType is not Image3D @ Load3DScalarImageFromJsonDataFile(...)")
+            MDK_Error("ObjectType is not DenseImage3D @ Load3DScalarImageFromJsonDataFile(...)")
             HeaderFile.close();
             return OutputImage;
         }
@@ -267,7 +267,7 @@ Image3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& JsonFile
 
 
 template<typename OutputPixelType>
-void Load3DScalarImageFromJsonDataFile_Data(Image3D<OutputPixelType>& OutputImage, const std::string& InputPixelTypeName, const std::string& DataFilePathAndName)
+void Load3DScalarImageFromJsonDataFile_Data(DenseImage3D<OutputPixelType>& OutputImage, const std::string& InputPixelTypeName, const std::string& DataFilePathAndName)
 {
     if (InputPixelTypeName == "double")
     {
@@ -318,7 +318,7 @@ void Load3DScalarImageFromJsonDataFile_Data(Image3D<OutputPixelType>& OutputImag
 
 
 template<typename OutputPixelType, typename InputPixelType>
-void Load3DScalarImageFromJsonDataFile_Data(Image3D<OutputPixelType>& OutputImage, const std::string& DataFilePathAndName)
+void Load3DScalarImageFromJsonDataFile_Data(DenseImage3D<OutputPixelType>& OutputImage, const std::string& DataFilePathAndName)
 {
 	QString QFilePathAndName(DataFilePathAndName.c_str());
 	QFile DataFile(QFilePathAndName);
@@ -353,9 +353,9 @@ void Load3DScalarImageFromJsonDataFile_Data(Image3D<OutputPixelType>& OutputImag
 
 
 template<typename PixelType>
-Image3D<PixelType> Load3DScalarImageFromDICOMSeries(const std::string& FilePath)
+DenseImage3D<PixelType> Load3DScalarImageFromDICOMSeries(const std::string& FilePath)
 {
-    Image3D<PixelType> OutputImage;
+    DenseImage3D<PixelType> OutputImage;
 
     typedef itk::Image< PixelType, 3 >                ITKImageType;
     typedef itk::ImageSeriesReader< ITKImageType >    ITKImageReaderType;
@@ -391,9 +391,9 @@ Image3D<PixelType> Load3DScalarImageFromDICOMSeries(const std::string& FilePath)
 
 
 template<typename PixelType>
-Image3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const std::string& FilePathAndName)
+DenseImage3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const std::string& FilePathAndName)
 {
-    Image3D<PixelType> OutputImage;
+    DenseImage3D<PixelType> OutputImage;
 
     typedef itk::Image<PixelType, 3>  ITKImageType;
     typedef itk::ImageFileReader<ImageType> ITKImageReaderType;

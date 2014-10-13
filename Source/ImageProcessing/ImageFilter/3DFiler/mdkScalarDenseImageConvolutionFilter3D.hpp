@@ -1,48 +1,55 @@
-#ifndef __mdkScalarImageConvolutionFilter3D_hpp
-#define __mdkScalarImageConvolutionFilter3D_hpp
+#ifndef __mdkScalarDenseImageConvolutionFilter3D_hpp
+#define __mdkScalarDenseImageConvolutionFilter3D_hpp
 
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType>
-ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::ScalarImageConvolutionFilter3D()
+ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::ScalarDenseImageConvolutionFilter3D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::~ScalarImageConvolutionFilter3D()
+ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::~ScalarDenseImageConvolutionFilter3D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
-SetImageInterpolationOption(const Option_Of_Image3DInterpolation<OutputPixelType>& Option)
+void ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
+SetImageInterpolationOption(const Option_Of_Image3DInterpolation<InputPixelType>& Option)
 {
     m_InterpolationOption = Option;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::SetConvolutionCoefficient(DenseMatrix<ScalarType> Coefficient)
+Option_Of_Image3DInterpolation<InputPixelType> ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::GetImageInterpolationOption()
+{
+	return m_InterpolationOption;
+}
+
+
+template<typename InputPixelType, typename OutputPixelType>
+void ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::SetConvolutionCoefficient(DenseMatrix<ScalarType> Coefficient)
 {
 	m_ConvolutionCoefficient = std::move(Coefficient);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-const DenseMatrix<OutputPixelType>& ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::GetConvolutionCoefficient()
+const DenseMatrix<OutputPixelType>& ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::GetConvolutionCoefficient()
 {
 	return m_ConvolutionCoefficient;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::Preprocess()
+bool ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::Preprocess()
 {
-	if (this->ImageFilterWithSingleMask3D::Preprocess() == false)
+	if (this->DenseImageFilterWithSingleMask3D::Preprocess() == false)
 	{
 		return false;
 	}
@@ -58,7 +65,7 @@ bool ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::Preprocess
 
 template<typename InputPixelType, typename OutputPixelType>
 inline
-void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
+void ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
 FilterFunctionAt3DIndex(ScalarType& OutputPixel, ScalarType x_Index, ScalarType y_Index, ScalarType z_Index, int_max ThreadIndex)
 {    
 	auto tempOutputPixel = ScalarType(0);
@@ -81,7 +88,7 @@ FilterFunctionAt3DIndex(ScalarType& OutputPixel, ScalarType x_Index, ScalarType 
 				auto temp_y = PtrMask[1] + y_Index;
 				auto temp_z = PtrMask[2] + z_Index;
 
-				auto tempValue = InterpolateImageAt3DContinuousIndex_Nearest(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationOption);
+				auto tempValue = m_InputImage->GetPixelAt3DIndex(temp_x, temp_y, temp_z, m_InterpolationOption);
 
 				tempOutputPixel += OutputPixelType(tempValue * PtrCoef[0]);
 			}
@@ -108,7 +115,7 @@ FilterFunctionAt3DIndex(ScalarType& OutputPixel, ScalarType x_Index, ScalarType 
 			auto temp_y = PtrMask[1] + y_Index;
 			auto temp_z = PtrMask[2] + z_Index;
 
-			auto tempValue = InterpolateImageAt3DContinuousIndex(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationOption);
+			auto tempValue = m_InputImage->GetPixelAt3DIndex(x_Index, y_Index, z_Index, m_InterpolationOption);
 
 			tempOutputPixel += OutputPixelType(tempValue * PtrCoef[0]);
 		}
@@ -120,7 +127,7 @@ FilterFunctionAt3DIndex(ScalarType& OutputPixel, ScalarType x_Index, ScalarType 
 
 template<typename InputPixelType, typename OutputPixelType>
 inline
-void ScalarImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
+void ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
 FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex)
 {
 	auto tempOutputPixel = OutputPixelType(0);
@@ -133,7 +140,7 @@ FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, ScalarType x, ScalarTyp
 		auto temp_y = PtrMask[1] + y;
 		auto temp_z = PtrMask[2] + z;
 
-		auto tempValue = InterpolateImageAt3DPhysicalPosition(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationOption);
+		auto tempValue = m_InputImage->GetPixelAt3DPhysicalPosition<OutputPixelType>(temp_x, temp_y, temp_z, m_InterpolationOption);
 
 		tempOutputPixel += OutputPixelType(tempValue * PtrCoef[0]);
     }

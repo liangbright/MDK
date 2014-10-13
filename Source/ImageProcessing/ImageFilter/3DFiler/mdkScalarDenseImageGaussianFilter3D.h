@@ -1,18 +1,18 @@
-﻿#ifndef __mdkScalarImageGaussianFilter3D_h
-#define __mdkScalarImageGaussianFilter3D_h
+﻿#ifndef __mdkScalarDenseImageGaussianFilter3D_h
+#define __mdkScalarDenseImageGaussianFilter3D_h
 
 #include <algorithm>
 #include <cmath>
 
 #include "mdkDebugConfig.h"
 #include "mdkDenseMatrix.h"
-#include "mdkScalarImageConvolutionFilter3D.h"
+#include "mdkScalarDenseImageConvolutionFilter3D.h"
 
 namespace mdk
 {
 
 template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type>
-class ScalarImageGaussianFilter3D : public ScalarImageConvolutionFilter3D<InputPixel_Type, OutputPixel_Type>
+class ScalarDenseImageGaussianFilter3D : public ScalarDenseImageConvolutionFilter3D<InputPixel_Type, OutputPixel_Type>
 {
 public:
 	typedef InputPixel_Type  InputPixelType;
@@ -25,8 +25,8 @@ private:
 	ScalarType m_CutOffRatio;
 
 public:		
-    ScalarImageGaussianFilter3D();
-    ~ScalarImageGaussianFilter3D();
+    ScalarDenseImageGaussianFilter3D();
+    ~ScalarDenseImageGaussianFilter3D();
   
 	void SetMaskParameter(ScalarType Sigma_x, ScalarType Sigma_y, ScalarType Sigma_z, const DenseMatrix<ScalarType>& RotationMatrix, ScalarType CutOffRatio);
 
@@ -37,12 +37,12 @@ private:
 	void BuildMask_3DPosition();
 
 private:
-    ScalarImageGaussianFilter3D(const ScalarImageGaussianFilter3D&) = delete;
-    void operator=(const ScalarImageGaussianFilter3D&) = delete;
+    ScalarDenseImageGaussianFilter3D(const ScalarDenseImageGaussianFilter3D&) = delete;
+    void operator=(const ScalarDenseImageGaussianFilter3D&) = delete;
 };
 
 }//end namespace mdk
 
-#include "mdkScalarImageGaussianFilter3D.hpp"
+#include "mdkScalarDenseImageGaussianFilter3D.hpp"
 
 #endif

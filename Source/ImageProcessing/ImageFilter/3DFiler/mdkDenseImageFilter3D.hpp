@@ -1,27 +1,26 @@
-#ifndef __mdkImageFilter3D_hpp
-#define __mdkImageFilter3D_hpp
+#ifndef __mdkDenseImageFilter3D_hpp
+#define __mdkDenseImageFilter3D_hpp
 
-//#include "ImageFilter3D.h"
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::ImageFilter3D()
+DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::DenseImageFilter3D()
 {
     this->Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::~ImageFilter3D()
+DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::~DenseImageFilter3D()
 {
 	// do nothing
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
+void DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
     m_InputImage = nullptr;
 
@@ -51,39 +50,39 @@ void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetInputImage(const Image3D<InputPixelType>* InputImage)
+void DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetInputImage(const DenseImage3D<InputPixelType>* InputImage)
 {
 	m_InputImage = InputImage;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetInputRegionOf3DIndex(const Image3DBoxRegionOf3DIndex* InputRegion)
+void DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetInputRegionOf3DIndex(const Image3DBoxRegionOf3DIndex* InputRegion)
 {
     m_InputRegionOf3DIndex = InputRegion;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetInput3DIndexList(const DenseMatrix<ScalarType>* Input3DIndexList)
+void DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetInput3DIndexList(const DenseMatrix<ScalarType>* Input3DIndexList)
 {
     m_Input3DIndexList = Input3DIndexList;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetInput3DPositionList(const DenseMatrix<ScalarType>* Input3DPositionList)
+void DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetInput3DPositionList(const DenseMatrix<ScalarType>* Input3DPositionList)
 {
     m_Input3DPositionList = Input3DPositionList;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImage(Image3D<OutputPixelType>* OutputImage)
+void DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImage(DenseImage3D<OutputPixelType>* OutputImage)
 {
 	if (OutputImage == nullptr)
 	{		
-		MDK_Error("input is nullptr @ImageFilter3D::SetOutputImage(...)")
+		MDK_Error("input is nullptr @DenseImageFilter3D::SetOutputImage(...)")
 		return;
 	}
 	m_OutputImage.Share(OutputImage);
@@ -92,11 +91,11 @@ void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImage(
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputArray(ObjectArray<OutputPixelType>* OutputArray)
+void DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputArray(DataArray<OutputPixelType>* OutputArray)
 {
 	if (OutputArray == nullptr)
 	{
-		MDK_Error("input is nullptr @ImageFilter3D::SetOutputImage(...)")
+		MDK_Error("input is nullptr @DenseImageFilter3D::SetOutputImage(...)")
 		return;
 	}
 	m_OutputArray.Share(OutputArray);
@@ -105,45 +104,45 @@ void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputArray(
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetMaxNumberOfThreads(int_max MaxNumber)
+void DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetMaxNumberOfThreads(int_max MaxNumber)
 {
 	m_MaxNumberOfThreads = MaxNumber;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-int_max ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::GetNumberOfThreadTobeCreated()
+int_max DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::GetNumberOfThreadTobeCreated()
 {
     return Compute_NumberOfThreadTobeCreated_For_ParallelBlock(m_TotalOutputPixelNumber, m_MaxNumberOfThreads, m_MinPixelNumberPerThread);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-bool ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
+bool DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
 {
 	return true;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-bool ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Postprocess()
+bool DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Postprocess()
 {
     return true;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-bool ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
+bool DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
 {
 	if (m_InputImage == nullptr)
 	{
-		MDK_Error("Input image is Empty (nullptr) @ ImageFilter3D::CheckInput()")
+		MDK_Error("Input image is Empty (nullptr) @ DenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
 	if (m_InputImage->IsEmpty() == true)
 	{
-		MDK_Error("Input image is Empty @ ImageFilter3D::CheckInput()")
+		MDK_Error("Input image is Empty @ DenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
@@ -153,13 +152,13 @@ bool ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
     {
         if (m_Flag_OutputImage == true && m_Flag_OutputArray == true)
         {
-            MDK_Error("Can not output image and array at the same time @ ImageFilter3D::CheckInput()")
+            MDK_Error("Can not output image and array at the same time @ DenseImageFilter3D::CheckInput()")
             return false;
         }
 
         if (m_Flag_OutputImage == false && m_Flag_OutputArray == false)
         {
-            MDK_Error("NO output is selected @ ImageFilter3D::CheckInput()")
+            MDK_Error("NO output is selected @ DenseImageFilter3D::CheckInput()")
             return false;
         }
     }
@@ -167,7 +166,7 @@ bool ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
     {
         if (m_Flag_OutputImage == true || m_Flag_OutputArray == true)
         {
-            MDK_Error("Can not output image or array when m_Flag_OutputToOtherPlace is true  @ ImageFilter3D::CheckInput()")
+            MDK_Error("Can not output image or array when m_Flag_OutputToOtherPlace is true  @ DenseImageFilter3D::CheckInput()")
             return false;
         }
     }
@@ -195,7 +194,7 @@ bool ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
 	}    
 	else
 	{
-		MDK_Error("Invalid input @ ImageFilter3D::CheckInput()")
+		MDK_Error("Invalid input @ DenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
@@ -264,7 +263,7 @@ bool ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-bool ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Update()
+bool DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Update()
 {
     //-------------------------------------------------------------------------------
     if (this->CheckInput() == false)
@@ -293,9 +292,9 @@ bool ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Update()
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Update_in_a_Thread(int_max OutputPixelIndex_start, int_max OutputPixelIndex_end, int_max ThreadIndex)
+void DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Update_in_a_Thread(int_max OutputPixelIndex_start, int_max OutputPixelIndex_end, int_max ThreadIndex)
 {
-    std::cout << "ImageFilter3D ThreadIndex: " << ThreadIndex
+    std::cout << "DenseImageFilter3D ThreadIndex: " << ThreadIndex
 		      << ", OutputPixelIndex_start: " << OutputPixelIndex_start 
               << ", OutputPixelIndex_end: " << OutputPixelIndex_end << '\n';
 	
@@ -387,7 +386,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Update_in_a_Thr
 		}
         else
         {
-            MDK_Error("Invalid Input @ ImageFilter3D::Update_in_a_Thread")
+            MDK_Error("Invalid Input @ DenseImageFilter3D::Update_in_a_Thread")
         }
     }
     else // output to another place
@@ -449,7 +448,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Update_in_a_Thr
 		}
         else
         {
-            MDK_Error("Invalid Input @ ImageFilter3D::Update_in_a_Thread")
+            MDK_Error("Invalid Input @ DenseImageFilter3D::Update_in_a_Thread")
         }
     }
 }
@@ -457,7 +456,7 @@ void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Update_in_a_Thr
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline
-void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::OutputFunction(int_max OutputPixelIndex, OutputPixelType& OutputPixel, int_max ThreadIndex)
+void DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::OutputFunction(int_max OutputPixelIndex, OutputPixelType& OutputPixel, int_max ThreadIndex)
 {
     if (m_Flag_OutputImage == true)
     {
@@ -469,20 +468,20 @@ void ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::OutputFunction(
     }
     else
     {
-        MDK_Warning("OutputFunction is empty @ ImageFilter3D::OutputFunction")
+        MDK_Warning("OutputFunction is empty @ DenseImageFilter3D::OutputFunction")
     }
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-Image3D<OutputPixelType>& ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::OutputImage()
+DenseImage3D<OutputPixelType>& DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::OutputImage()
 {
     return m_OutputImage;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-ObjectArray<OutputPixelType>& ImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::OutputArray()
+DataArray<OutputPixelType>& DenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::OutputArray()
 {
     return m_OutputArray;
 }

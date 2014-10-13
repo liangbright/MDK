@@ -316,59 +316,27 @@ bool SparseVector<ElementType>::IsPureEmpty() const
 
 template<typename ElementType>
 inline
-ElementType& SparseVector<ElementType>::operator[](int_max Index)
+const ElementType& SparseVector<ElementType>::operator[](int_max Index) const
 {
-	if (!m_Data)
-	{
-		m_Data = std::make_unique<SparseVectorData<ElementType>>();
-	}
-
-	if (Index >= m_Data->Length || Index < 0)
-	{
-		MDK_Error("Invalid Index @ SparseVector::operator[](int_max Index)")
-		return m_Data->ZeroElement;
-	}
-
-	auto RecordedElementNumber = int_max(m_Data->ElementList.size());
-
-	int_max IndexInDataArray = -1;
-	int_max IndexInDataArray_insert = RecordedElementNumber;
-
-	for (int_max i = 0; i < RecordedElementNumber; ++i)
-	{
-		if (m_Data->IndexList[i] == Index)
-		{
-			IndexInDataArray = i;
-			break;
-		}
-		else if (m_Data->IndexList[i] > Index)
-		{
-			IndexInDataArray_insert = i;
-		}
-	}
-
-	if (IndexInDataArray >= 0)
-	{
-		return m_Data->ElementList[IndexInDataArray];
-	}
-	else
-	{
-		m_Data->IndexList.reserve(m_Data->IndexList.size() + 1);
-		m_Data->IndexList.insert(m_Data->IndexList.begin() + IndexInDataArray_insert, Index);
-		m_Data->ElementList.reserve(m_Data->ElementList.size() + 1);
-		m_Data->ElementList.insert(m_Data->ElementList.begin() + IndexInDataArray_insert, m_Data->ZeroElement);
-		return m_Data->ElementList[IndexInDataArray_insert];
-	}
+	return this->GetElement(Index);
 }
 
 
 template<typename ElementType>
 inline
-const ElementType& SparseVector<ElementType>::operator[](int_max Index) const
+const ElementType& SparseVector<ElementType>::operator()(int_max Index) const
+{
+	return this->GetElement(Index);
+}
+
+
+template<typename ElementType>
+inline
+const ElementType& SparseVector<ElementType>::GetElement(int_max Index) const
 {
 	if (Index >= m_Data->Length || Index < 0)
 	{
-		MDK_Error("Invalid Index @ SparseVector::operator[](int_max Index)")
+		MDK_Error("Invalid Index @ SparseVector::GetElement(int_max Index)")
 		return m_Data->ZeroElement;
 	}
 
@@ -396,25 +364,51 @@ const ElementType& SparseVector<ElementType>::operator[](int_max Index) const
 
 template<typename ElementType>
 inline
-ElementType& SparseVector<ElementType>::operator()(int_max Index)
+bool SparseVector<ElementType>::SetElement(int_max Index, const ElementType& Element)
 {
-	return this->operator[](Index);
-}
+	if (!m_Data)
+	{
+		m_Data = std::make_unique<SparseVectorData<ElementType>>();
+	}
 
+	if (Index >= m_Data->Length || Index < 0)
+	{
+		MDK_Error("Invalid Index @ SparseVector::SetElement(...)")
+		return false;
+	}
 
-template<typename ElementType>
-inline
-const ElementType& SparseVector<ElementType>::GetElement(int_max Index) const
-{
-	return this->operator[](Index);
-}
+	auto RecordedElementNumber = int_max(m_Data->ElementList.size());
 
+	int_max IndexInDataArray = -1;
+	int_max IndexInDataArray_insert = RecordedElementNumber;
 
-template<typename ElementType>
-inline
-const ElementType& SparseVector<ElementType>::operator()(int_max Index) const
-{
-	return this->operator[](Index);
+	for (int_max i = 0; i < RecordedElementNumber; ++i)
+	{
+		if (m_Data->IndexList[i] == Index)
+		{
+			IndexInDataArray = i;
+			break;
+		}
+		else if (m_Data->IndexList[i] > Index)
+		{
+			IndexInDataArray_insert = i;
+		}
+	}
+
+	if (IndexInDataArray >= 0)
+	{
+		m_Data->ElementList[IndexInDataArray] = Element;
+	}
+	else
+	{
+		m_Data->IndexList.reserve(m_Data->IndexList.size() + 1);
+		m_Data->IndexList.insert(m_Data->IndexList.begin() + IndexInDataArray_insert, Index);
+		m_Data->ElementList.reserve(m_Data->ElementList.size() + 1);
+		m_Data->ElementList.insert(m_Data->ElementList.begin() + IndexInDataArray_insert, m_Data->ZeroElement);
+		m_Data->ElementList[IndexInDataArray] = Element;
+	}
+	
+	return true;
 }
 
 

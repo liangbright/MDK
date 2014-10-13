@@ -4,8 +4,9 @@
 #include "mdkProcessObject.h"
 #include "mdkParallelForLoop.h"
 #include "mdkObjectArray.h"
-#include "mdkImage3D.h"
 #include "mdkDenseMatrix.h"
+#include "mdkDenseImage3D.h"
+#include "mdkSparseImage3D.h"
 
 namespace mdk
 {
@@ -60,46 +61,49 @@ struct ObjectMask_Of_SingleClassObjectDetectionInSingleImage3D
 };
 
 
-template<typename InputPixel_Type, typename OutputPixel_Type, typename Scalar_Type = double>
+template<typename ObjectImagePixel_Type, typename ObjectMembershipImagePixel_Type, typename Scalar_Type = double>
 class SingleClassObjectDetectionInSingleImage3D : public ProcessObject
 {
 public:
-	typedef InputPixel_Type														  InputPixelType;
-	typedef OutputPixel_Type													  OutputPixelType;
+	typedef ObjectImagePixel_Type												  ObjectImagePixelType;
+	typedef ObjectMembershipImagePixel_Type										  ObjectMembershipImagePixelType;
 	typedef Scalar_Type															  ScalarType;
 	typedef ObjectMask_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>	  ObjectMaskType;
 
+	typedef Option_Of_Image3DInterpolation<ObjectImagePixelType> ObjectImageInterpolationOptionType;
+	typedef MethodEnum_Of_Image3DInterpolation                   ObjectImageInterpolationMethodEnum;
+	typedef BoundaryOptionEnum_Of_Image3DInterpolation           ObjectImageInterpolationBoundaryOptionEnum;
+
 protected:
 	//-------------------------- input --------------------------------------------------//
-	const Image3D<InputPixelType>* m_ObjectImage;
+	const DenseImage3D<ObjectImagePixelType>* m_ObjectImage;
 
-	const DenseMatrix<ScalarType>* m_CandidateOriginList_3DPyhsicalPosition;   // evaluate object candidate at each point on m_ObjectMembershipImage
+	ObjectImageInterpolationOptionType m_ObjectImageInterpolationOption;
 
-	DenseMatrix<int_max> m_CandidateOriginList_3DIndex;  // evaluate object candidate at each point on m_ObjectMembershipImage
+	const DenseMatrix<ScalarType>* m_CandidateOriginList_3DPyhsicalPosition;   // evaluate object candidate at each point on ObjectMembershipImage
+
+	DenseMatrix<int_max> m_CandidateOriginList_3DIndex;  // evaluate object candidate at each point on ObjectMembershipImage
 
 	const DataArray<ObjectMaskType>* m_ObjectMaskList;
 
 	int_max m_MaxNumberOfThread; // max number of threads
 
 	//------------------------- internal data -------------------------------------------//
-
-	DataArray<Image3DBoxRegionOf3DPhysicalPosition<ScalarType>> m_NOBoundCheckRegionList_3DPyhsicalPosition;
 	DataArray<Image3DBoxRegionOf3DIndex> m_NOBoundCheckRegionList_3DIndex;
 
 	int_max m_TotalCandidateOriginNumber;
-	bool m_Flag_ScanWholeImageGrid; // m_ObjectMembershipImage
+	bool m_Flag_ScanWholeImageGrid; // m_ObjectMembershipDenseImage or m_ObjectMembershipSparseImage
+
+	bool m_Flag_StoreObjectMembershipInSparseImage;
+	// true: use m_ObjectMembershipSparseImage
+	// false: use m_ObjectMembershipImage
 	//-----------------------------------------------------------------------------------//
 
 	// output_0:
-	Image3D<OutputPixelType> m_ObjectMembershipImage;
+	DenseImage3D<ObjectMembershipImagePixelType> m_ObjectMembershipDenseImage;
 
-	// about output:
-    // (1) use DataArray<SparseVector<ScalarType>>
-	//     m_Output[n][k] is the score of object measured by using MaskList[k] at position (x_n, y_n, z_n)
-	//     easy to locate each output, but not easy to sort them by score (and then select the top 100 candidates)
-	// (2) use DataArray<EvaluationResult_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>>
-	//    m_Output[m] is the info of the object measured by using a Mask
-	//    not easy to locate output by position/index,  but easy to sort them by score
+	// output_1:
+	SparseImage3D<ObjectMembershipImagePixelType> m_ObjectMembershipSparseImage;
 
 protected:
 	SingleClassObjectDetectionInSingleImage3D();
@@ -108,11 +112,21 @@ protected:
 public:
 	virtual void Clear();
 
-	void SetObjectImage(const Image3D<InputPixelType>* InputImage);
+	virtual void ClearOutput();
 
-	void SetInfoOfObjectMembershipImage(const DenseVector<ScalarType, 3>& Origin,
-		                                const DenseVector<ScalarType, 3>& Spacing,
-		                                const DenseVector<ScalarType, 3>& Size);
+	void SetObjectImage(const DenseImage3D<ObjectImagePixelType>* InputImage);
+
+	void SetObjectImageInterpolationOption(const ObjectImageInterpolationOptionType& InputOption);
+
+	ObjectImageInterpolationOptionType GetObjectImageInterpolationOption();
+
+	void SetupObjectMembershipDenseImage(const DenseVector<ScalarType, 3>& Origin,
+                                         const DenseVector<ScalarType, 3>& Spacing,
+                                         const DenseVector<ScalarType, 3>& Size);
+
+	void SetupObjectMembershipSparseImage(const DenseVector<ScalarType, 3>& Origin,
+                                          const DenseVector<ScalarType, 3>& Spacing,
+                                          const DenseVector<ScalarType, 3>& Size);
 
 	void SetCandidateOriginListOf3DPyhsicalPosition(const DenseMatrix<ScalarType>* Input3DPositionList);
 
@@ -125,7 +139,9 @@ public:
 
 	virtual bool Update();
 
-	Image3D<OutputPixelType>* GetObjectMembershipImage();
+	DenseImage3D<ObjectMembershipImagePixelType>* GetObjectMembershipDenseImage();
+
+	SparseImage3D<ObjectMembershipImagePixelType>* GetObjectMembershipSparseImage();
 
 protected:
 	virtual bool CheckInput();
@@ -134,22 +150,17 @@ protected:
 	virtual void BuildMask() {}
 
 	bool WhetherMaskIsInsideImage_AtOrigin_3DIndex(int_max MaskIndex, int_max x, int_max y, int_max z);
-	bool WhetherMaskIsInsideImage_AtOrigin_3DPyhsicalPosition(int_max MaskIndex, ScalarType x, ScalarType y, ScalarType z);
 
 	// Evaluate candidate object at Origin (x, y, z), x/y/z is 3DIndex
 	inline virtual void EvaluateCandidateAtOrigin_3DIndex(int_max x0, int_max y0, int_max z0, int_max ThreadIndex) = 0;
 
-	template<typename PixelTypeForMask = InputPixelType>
+	template<typename PixelTypeForMask = ObjectImagePixelType>
 	DataArray<PixelTypeForMask> GetPixelSetByObjectMaskAtOrigin_3DIndex(int_max MaskIndex, int_max x0, int_max y0, int_max z0);
-
-	template<typename PixelTypeForMask = InputPixelType>
-	DataArray<PixelTypeForMask> GetPixelSetByObjectMaskAtOrigin_3DPyhsicalPosition(int_max MaskIndex, ScalarType x0, ScalarType y0, ScalarType z0);
 
 	int_max GetNumberOfThreadTobeCreated();
 
 private:
 	void ComputeRegionOfNOBoundCheck_3DIndex();
-	void ComputeRegionOfNOBoundCheck_3DPyhsicalPosition();
 
 	void EvaluateCandidateAtMultipleOrigin_in_a_thread(int_max OriginIndex_start, int_max OriginIndex_end, int_max ThreadIndex);
 

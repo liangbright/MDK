@@ -1,38 +1,44 @@
-#ifndef __mdkSingleClassObjectDetectionInSingleImage3D_hpp
-#define __mdkSingleClassObjectDetectionInSingleImage3D_hpp
+#ifndef __mdkPartBasedSingleClassObjectDetectionInSingleImage3D_hpp
+#define __mdkPartBasedSingleClassObjectDetectionInSingleImage3D_hpp
 
 namespace mdk
 {
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::SingleClassObjectDetectionInSingleImage3D()
+
+template<typename T1, typename T2, typename T3, typename T4>
+PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::PartBasedSingleClassObjectDetectionInSingleImage3D()
 {
 	this->Clear();
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::~SingleClassObjectDetectionInSingleImage3D()
+template<typename T1, typename T2, typename T3, typename T4>
+PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::~PartBasedSingleClassObjectDetectionInSingleImage3D()
 {
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::Clear()
+template<typename T1, typename T2, typename T3, typename T4>
+PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::Clear()
 {
 	m_ObjectImage = nullptr;
 	m_ObjectImageInterpolationOption.MethodType = ObjectImageInterpolationMethodEnum::Nearest;
 	m_ObjectImageInterpolationOption.BoundaryOption = ObjectImageInterpolationBoundaryOptionEnum::Constant;
 	m_ObjectImageInterpolationOption.Pixel_OutsideImage = ObjectImagePixelType(0);
 
-	m_CandidateOriginList_3DIndex.Clear();
-	m_CandidateOriginList_3DPyhsicalPosition = nullptr;
-	m_ObjectMaskList = nullptr;
+	m_ObjectPartNumber = 0;
+	m_ObjectPartMembershipImageList.Clear();
+	m_ObjectPartMembershipSparseImageList.Clear();
 
-	m_MaxNumberOfThread = 1;
+	m_ObjectMaskList = nullptr;
+	m_CandidateOriginList_3DIndex = nullptr;
+	m_CandidateOriginList_3DPyhsicalPosition = nullptr;
 
 	m_NOBoundCheckRegionList_3DIndex.Clear();
+
 	m_TotalCandidateOriginNumber = 0;
 	m_Flag_ScanWholeImageGrid = false;
+
+	m_MaxNumberOfThread = 1;
 
 	m_Flag_StoreObjectMembershipInSparseImage = false;
 	m_ObjectMembershipDenseImage.Clear();
@@ -40,40 +46,38 @@ void SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembe
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::ClearOutput()
+template<typename T1, typename T2, typename T3, typename T4>
+PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::ClearOutput()
 {
 	m_ObjectMembershipDenseImage.Clear();
 	m_ObjectMembershipSparseImage.Clear();
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::
-SetObjectImage(const DenseImage3D<ObjectImagePixelType>* InputImage)
+template<typename T1, typename T2, typename T3, typename T4>
+PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::SetObjectImage(const Image3D<PixelType>* ObjectImage)
 {
-	m_ObjectImage = InputImage;
+	m_ObjectImage = ObjectImage;
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::
-SetObjectImageInterpolationOption(const ObjectImageInterpolationOptionType& InputOption)
+template<typename T1, typename T2, typename T3, typename T4>
+void PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::SetObjectImageInterpolationOption(const ObjectImageInterpolationOptionType& InputOption)
 {
 	m_ObjectImageInterpolationOption = InputOption;
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-Option_Of_Image3DInterpolation<ObjectImagePixelType>
-SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::GetObjectImageInterpolationOption()
+template<typename T1, typename T2, typename T3, typename T4>
+Option_Of_Image3DInterpolation<T1>
+PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::GetObjectImageInterpolationOption()
 {
 	return m_ObjectImageInterpolationOption;
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::
+template<typename T1, typename T2, typename T3, typename T4>
+void PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::
 SetupObjectMembershipDenseImage(const DenseVector<ScalarType, 3>& Origin,
 	 			                const DenseVector<ScalarType, 3>& Spacing,
 						        const DenseVector<ScalarType, 3>& Size)
@@ -85,8 +89,8 @@ SetupObjectMembershipDenseImage(const DenseVector<ScalarType, 3>& Origin,
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::
+template<typename T1, typename T2, typename T3, typename T4>
+void PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::
 SetupObjectMembershipSparseImage(const DenseVector<ScalarType, 3>& Origin,
 								 const DenseVector<ScalarType, 3>& Spacing,
 								 const DenseVector<ScalarType, 3>& Size)
@@ -98,46 +102,108 @@ SetupObjectMembershipSparseImage(const DenseVector<ScalarType, 3>& Origin,
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::
-SetCandidateOriginListOf3DIndex(DenseMatrix<int_max> Input3DIndexList)
+template<typename T1, typename T2, typename T3, typename T4>
+void PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::SetObjectPartNumber(int_max PartNumber)
+{
+	m_ObjectPartNumber = PartNumber; // number of parts, NOT PartIndex	
+
+	if (m_ObjectPartMembershipDenseImageList.IsEmpty() == true)
+	{		
+		m_ObjectPartMembershipDenseImageList.Resize(m_ObjectPartNumber);
+		m_ObjectPartMembershipDenseImageList.Fill(nullptr);
+	}
+	else
+	{
+		auto OldNumber = m_ObjectPartMembershipDenseImageList.GetLength();
+		m_ObjectPartMembershipDenseImageList.Resize(m_ObjectPartNumber);
+		for (int_max k = OldNumber; k < m_ObjectPartNumber; ++k)
+		{
+			m_ObjectPartMembershipDenseImageList[k] = nullptr;
+		}
+	}
+
+	if (m_ObjectPartMembershipSparseImageList.IsEmpty() == true)
+	{
+		m_ObjectPartMembershipSparseImageList.Resize(m_ObjectPartNumber);
+		m_ObjectPartMembershipSparseImageList.Fill(nullptr);
+	}
+	else
+	{
+		auto OldNumber = m_ObjectPartMembershipSparseImageList.GetLength();
+		m_ObjectPartMembershipSparseImageList.Resize(m_ObjectPartNumber);
+		for (int_max k = OldNumber; k < m_ObjectPartNumber; ++k)
+		{
+			m_ObjectPartMembershipSparseImageList[k] = nullptr;
+		}
+	}
+}
+
+
+template<typename T1, typename T2, typename T3, typename T4>
+void PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::
+SetObjectPartMembershipDenseImage(int_max PartIndex, const Image3D<ObjectPartMembershipImagePixelType>* MembershipImage)
+{
+	if (PartIndex >= m_ObjectPartMembershipDenseImageList.GetLength())
+	{
+		MDK_Error("PartIndex >= m_ObjectPartNumber @ PartBasedSingleClassObjectDetectionInSingleImage3D::SetObjectPartMembershipDenseImage(...)")
+		return;
+	}
+	m_ObjectPartMembershipDenseImageList[PartIndex] = MembershipImage;
+}
+
+
+template<typename T1, typename T2, typename T3, typename T4>
+void PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::
+SetObjectPartMembershipSparseImage(int_max PartIndex, const DenseImage3D<ObjectPartMembershipImagePixelType>* MembershipImage)
+{
+	if (PartIndex >= m_ObjectPartMembershipSparseImageList.GetLength())
+	{
+		MDK_Error("PartIndex >= m_ObjectPartNumber @ PartBasedSingleClassObjectDetectionInSingleImage3D::SetObjectPartMembershipSparseImage(...)")
+		return;
+	}
+	m_ObjectPartMembershipSparseImageList[PartIndex] = MembershipImage;
+}
+
+
+template<typename T1, typename T2, typename T3, typename T4>
+void PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::SetCandidateOriginListOf3DIndex(DenseMatrix<int_max> Input3DIndexList)
 {
 	m_CandidateOriginList_3DIndex = std::move(Input3DIndexList);
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::
-SetCandidateOriginListOf3DPyhsicalPosition(const DenseMatrix<ScalarType>* Input3DPositionList)
+template<typename T1, typename T2, typename T3, typename T4>
+void PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::SetCandidateOriginListOf3DPyhsicalPosition(const DenseMatrix<ScalarType>* Input3DPositionList)
 {
 	m_CandidateOriginList_3DPyhsicalPosition = Input3DPositionList;
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::SetObjectMaskList(const DataArray<ObjectMaskType>* InputMaskList)
+template<typename T1, typename T2, typename T3, typename T4>
+void PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::
+SetObjectMaskList(const DataArray<ObjectMaskType>* InputMaskList)
 {
 	m_ObjectMaskList = InputMaskList;
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-const DataArray<ObjectMask_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>>*
-SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::GetObjectMaskList()
+template<typename T1, typename T2, typename T3, typename T4>
+const DataArray<ObjectMask_Of_PartBasedSingleClassObjectDetectionInSingleImage3D<T4>>*
+PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::GetObjectMaskList()
 {
 	return m_ObjectMaskList;
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::SetThreadNumber(int_max MaxNumber)
+template<typename T1, typename T2, typename T3, typename T4>
+void PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::SetThreadNumber(int_max MaxNumber)
 {
 	m_MaxNumberOfThread = MaxNumber;
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-bool SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::Update()
+template<typename T1, typename T2, typename T3, typename T4>
+bool PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::Update()
 {
 	if (this->CheckInput() == false)
 	{
@@ -150,9 +216,9 @@ bool SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembe
 	}
 
 	// multi-thread -----------------------------------------------------------------
-	
+
 	ParallelBlock([&](int_max OriginIndex_start, int_max OriginIndex_end, int_max ThreadIndex)
-	              {this->EvaluateCandidateAtMultipleOrigin_in_a_thread(OriginIndex_start, OriginIndex_end, ThreadIndex); },
+				  {this->EvaluateCandidateAtMultipleOrigin_in_a_thread(OriginIndex_start, OriginIndex_end, ThreadIndex);},
 				  0, m_TotalCandidateOriginNumber - 1, m_MaxNumberOfThread, 1);
 
 	//-------------------------------------------------------------------------------
@@ -160,45 +226,43 @@ bool SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembe
 	{
 		return false;
 	}
-	//-------------
+	//-----------
 	return true;
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-DenseImage3D<ObjectMembershipImagePixelType>* 
-SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::GetObjectMembershipDenseImage()
+template<typename T1, typename T2, typename T3, typename T4>
+DenseImage3D<T3>* PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::GetObjectMembershipDenseImage()
 {
 	return &m_ObjectMembershipDenseImage;
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-SparseImage3D<ObjectMembershipImagePixelType>*
-SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::GetObjectMembershipSparseImage()
+template<typename T1, typename T2, typename T3, typename T4>
+SparseImage3D<T3>* PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::GetObjectMembershipSparseImage()
 {
 	return &m_ObjectMembershipSparseImage;
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-bool SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::CheckInput()
+template<typename T1, typename T2, typename T3, typename T4>
+bool PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::CheckInput()
 {
 	if (m_ObjectImage == nullptr)
 	{
-		MDK_Error("Input image is Empty (nullptr) @ SingleClassObjectDetectionInSingleImage3D::CheckInput()")
+		MDK_Error("ObjectImage is Empty (nullptr) @ PartBasedSingleClassObjectDetectionInSingleImage3D::CheckInput()")
 		return false;
 	}
 
 	if (m_ObjectImage->IsEmpty() == true)
 	{
-		MDK_Error("Input image is Empty @ SingleClassObjectDetectionInSingleImage3D::CheckInput()")
+		MDK_Error("ObjectImage is Empty @ PartBasedSingleClassObjectDetectionInSingleImage3D::CheckInput()")
 		return false;
 	}
 
 	if (m_CandidateOriginList_3DPyhsicalPosition != nullptr && m_CandidateOriginList_3DIndex.IsEmpty() == false)
 	{
-		MDK_Error("CandidateOriginList can not be both 3DPyhsicalPosition and 3DIndex @ SingleClassObjectDetectionInSingleImage3D::CheckInput()")
+		MDK_Error("CandidateOriginList can not be both 3DPyhsicalPosition and 3DIndex @ PartBasedSingleClassObjectDetectionInSingleImage3D::CheckInput()")
 		return false;
 	}
 
@@ -206,8 +270,8 @@ bool SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembe
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-bool SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::Preprocess()
+template<typename T1, typename T2, typename T3, typename T4>
+bool PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::Preprocess()
 {
 	this->BuildMask();
 
@@ -224,23 +288,23 @@ bool SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembe
 	}
 
 	this->ComputeRegionOfNOBoundCheck_3DIndex();
+	this->ComputeRegionOfNOBoundCheck_3DPyhsicalPosition();
 
 	DenseVector<int_max, 3> OutputImageSize;
-	DenseVector<double, 3> OutputImageSpacing;
-	DenseVector<double, 3> OutputImageOrigin;
+	DenseVector<int_max, 3> OutputImageSpacing;
+	DenseVector<int_max, 3> OutputImageOrigin;
 	int_max TotalOutputPixelNumber = 0;
 
 	if (m_Flag_StoreObjectMembershipInSparseImage == true)
 	{
-		OutputImageSize = m_ObjectMembershipSparseImage.GetSize();
-		TotalOutputPixelNumber = OutputImageSize[0] * OutputImageSize[1] * OutputImageSize[2];
-		if (TotalOutputPixelNumber <= 0)// do not if (use m_ObjectMembershipSparseImage.IsEmpty() == true)
+		if (m_ObjectMembershipSparseImage.IsEmpty() == true)
 		{
 			m_ObjectMembershipSparseImage.SetOrigin(m_ObjectImage->GetOrigin());
 			m_ObjectMembershipSparseImage.SetSpacing(m_ObjectImage->GetSpacing());
 			m_ObjectMembershipSparseImage.SetSize(m_ObjectImage->GetSize());
 		}
 		m_ObjectMembershipSparseImage.SetOrientation(m_ObjectImage->GetOrientation());
+		
 		OutputImageSize = m_ObjectMembershipSparseImage.GetSize();
 		OutputImageSpacing = m_ObjectMembershipSparseImage.GetSpacing();
 		OutputImageOrigin = m_ObjectMembershipSparseImage.GetOrigin();
@@ -272,7 +336,7 @@ bool SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembe
 		m_Flag_ScanWholeImageGrid = false;
 	}
 	else if (m_CandidateOriginList_3DIndex.IsEmpty() == true && m_CandidateOriginList_3DPyhsicalPosition != nullptr)
-	{
+	{		
 		m_CandidateOriginList_3DIndex.ReserveCapacity(m_CandidateOriginList_3DPyhsicalPosition->GetSize());
 		for (int_max k = 0; k < m_CandidateOriginList_3DPyhsicalPosition->GetColNumber(); ++k)
 		{
@@ -297,8 +361,8 @@ bool SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembe
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::
+template<typename T1, typename T2, typename T3, typename T4>
+void PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::
 EvaluateCandidateAtMultipleOrigin_in_a_thread(int_max OriginIndex_start, int_max OriginIndex_end, int_max ThreadIndex)
 {
 	if (m_Flag_ScanWholeImageGrid == true)
@@ -307,7 +371,7 @@ EvaluateCandidateAtMultipleOrigin_in_a_thread(int_max OriginIndex_start, int_max
 		{
 			for (int_max k = OriginIndex_start; k <= OriginIndex_end; ++k)
 			{
-				auto OriginIndex3D = m_ObjectMembershipSparseImage.TransformLinearIndexTo3DIndex(k);
+				auto OriginIndex3D = m_ObjectMembershipSparseImage.TransformLinearIndexTo3DIndex<ScalarType>(k);
 				this->EvaluateCandidateAtOrigin_3DIndex(OriginIndex3D[0], OriginIndex3D[1], OriginIndex3D[2], ThreadIndex);
 			}
 		}
@@ -315,39 +379,37 @@ EvaluateCandidateAtMultipleOrigin_in_a_thread(int_max OriginIndex_start, int_max
 		{
 			for (int_max k = OriginIndex_start; k <= OriginIndex_end; ++k)
 			{
-				auto OriginIndex3D = m_ObjectMembershipDenseImage.TransformLinearIndexTo3DIndex(k);
+				auto OriginIndex3D = m_ObjectMembershipDenseImage.TransformLinearIndexTo3DIndex<ScalarType>(k);
 				this->EvaluateCandidateAtOrigin_3DIndex(OriginIndex3D[0], OriginIndex3D[1], OriginIndex3D[2], ThreadIndex);
 			}
 		}
 	}
 	else
 	{
-		for (int_max k = OriginIndex_start; k <= OriginIndex_end; ++k)
-		{
-			DenseVector<int_max, 3> OriginIndex3D;
-			m_CandidateOriginList_3DIndex.GetCol(k, OriginIndex3D);
-			this->EvaluateCandidateAtOrigin_3DIndex(OriginIndex3D[0], OriginIndex3D[1], OriginIndex3D[2], ThreadIndex);
-		}
+		DenseVector<ScalarType, 3> OriginIndex3D;
+		m_CandidateOriginList_3DIndex.GetCol(k, OriginIndex3D);
+		this->EvaluateCandidateAtOrigin_3DIndex(OriginIndex3D[0], OriginIndex3D[1], OriginIndex3D[2], ThreadIndex);
 	}
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-int_max SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::GetNumberOfThreadTobeCreated()
+template<typename T1, typename T2, typename T3, typename T4>
+int_max PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::GetNumberOfThreadTobeCreated()
 {
 	return Compute_NumberOfThreadTobeCreated_For_ParallelBlock(m_TotalCandidateOriginNumber, m_MaxNumberOfThread, 1);
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-template<typename PixelTypeForMask>
-DataArray<PixelTypeForMask> SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::
+template<typename T1, typename T2, typename T3, typename T4>
+template<typename PixelTypeForMask = T1>
+DataArray<PixelTypeForMask> PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::
 GetPixelSetByObjectMaskAtOrigin_3DIndex(int_max MaskIndex, int_max x0, int_max y0, int_max z0)
 {
-	const auto& Mask = (*m_ObjectMaskList)[MaskIndex];	
+	const auto Mask = (*m_ObjectMaskList[MaskIndex]);
 	auto PixelNumber = Mask.PointSet.GetColNumber();
+
 	DataArray<PixelTypeForMask> PixelSet;
-	PixelSet.Resize(PixelNumber);
+	DataArray.Resize(PixelNumber);
 	if (Mask.Flag_PhysicalPosition == true)
 	{
 		auto Origin = m_ObjectImage->Transform3DIndexTo3DPhysicalPosition<ScalarType>(x0, y0, z0);
@@ -356,7 +418,7 @@ GetPixelSetByObjectMaskAtOrigin_3DIndex(int_max MaskIndex, int_max x0, int_max y
 			DenseVector<ScalarType, 3> Position;
 			Mask.PointSet.GetCol(k, Position);
 			Position += Origin;
-			PixelSet[k] = m_ObjectImage->GetPixelAt3DPhysicalPosition<PixelTypeForMask>(Position, m_ObjectImageInterpolationOption);
+			PixelSet[k] = m_ObjectImage->GetPixelAt3DPhysicalPosition(Position, m_ObjectImageInterpolationOption);
 		}
 	}
 	else
@@ -368,17 +430,17 @@ GetPixelSetByObjectMaskAtOrigin_3DIndex(int_max MaskIndex, int_max x0, int_max y
 			Index3D[0] += x0;
 			Index3D[1] += y0;
 			Index3D[2] += z0;
-			PixelSet[k] = m_ObjectImage->GetPixelAt3DIndex<PixelTypeForMask>(Index3D, m_ObjectImageInterpolationOption);
+			PixelSet[k] = m_ObjectImage->GetPixelAt3DIndex(Index3D, m_ObjectImageInterpolationOption);
 		}
 	}
 	return PixelSet;
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-void SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DIndex()
+template<typename T1, typename T2, typename T3, typename T4>
+void PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::ComputeRegionOfNOBoundCheck_3DIndex()
 {
-	// take reference, avoid m_ObjectMaskList->
+	// take reference of *m_ObjectMaskList
 	const auto& InputMaskList = *m_ObjectMaskList;
 
 	if (InputMaskList.IsEmpty() == true)
@@ -461,21 +523,22 @@ void SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembe
 }
 
 
-template<typename ObjectImagePixelType, typename ObjectMembershipImagePixelType, typename ScalarType>
-bool SingleClassObjectDetectionInSingleImage3D<ObjectImagePixelType, ObjectMembershipImagePixelType, ScalarType>::
-WhetherMaskIsInsideImage_AtOrigin_3DIndex(int_max MaskIndex, int_max x, int_max y, int_max z)
+template<typename T1, typename T2, typename T3, typename T4>
+bool PartBasedSingleClassObjectDetectionInSingleImage3D<T1, T2, T3, T4>::
+WhetherMaskIsInsideImage_AtOrigin_3DIndex(int_max x, int_max y, int_max z, int_max MaskIndex)
 {
 	if (x < m_NOBoundCheckRegionList_3DIndex[MaskIndex].x0 || x > m_NOBoundCheckRegionList_3DIndex[MaskIndex].x1
 		|| y < m_NOBoundCheckRegionList_3DIndex[MaskIndex].y0 || y > m_NOBoundCheckRegionList_3DIndex[MaskIndex].y1
 		|| z < m_NOBoundCheckRegionList_3DIndex[MaskIndex].z0 || z > m_NOBoundCheckRegionList_3DIndex[MaskIndex].z1)
 	{
-		return false;
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
 
 }// namespace mdk
+
 
 #endif

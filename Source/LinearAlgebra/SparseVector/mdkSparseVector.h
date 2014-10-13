@@ -100,13 +100,13 @@ public:
 
     //------------------------------------------
 
-	inline ElementType& operator[](int_max Index);
     inline const ElementType& operator[](int_max Index) const;
 
-	inline ElementType& operator()(int_max Index);
     inline const ElementType& operator()(int_max Index) const;
 
 	inline const ElementType& GetElement(int_max Index) const;
+
+	inline bool SetElement(int_max Index, const ElementType& Element);
 
     //-----------------------------------------
 

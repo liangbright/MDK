@@ -18,7 +18,7 @@ template<typename PixelType>
 class Image2D;
 
 template<typename PixelType>
-class Image3D;
+class DenseImage3D;
 
 template<typename ScalarType>
 class TriangleMesh;
@@ -32,16 +32,16 @@ class PolygonMesh;
 
 //copy or share data
 template<typename PixelType>
-itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(const Image3D<PixelType>& InputImage, bool SharePixelData);
+itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(const DenseImage3D<PixelType>& InputImage, bool SharePixelData);
 
 //copy data
 template<typename PixelType>
-itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(const Image3D<PixelType>& InputImage);
+itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(const DenseImage3D<PixelType>& InputImage);
 
 //-------------------------------------- convert itk image to mdk image--------------------------------------------------------------------//
 //copy data
 template<typename PixelType>
-Image3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage);
+DenseImage3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage);
 
 //--------------------------------------- convert mdk TriangleMesh to itk Mesh -----------------------------------------------//
 //template<typename ScalarType>

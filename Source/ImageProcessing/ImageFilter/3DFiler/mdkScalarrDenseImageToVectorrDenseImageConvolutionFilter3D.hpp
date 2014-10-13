@@ -1,27 +1,27 @@
-#ifndef __mdkScalarImageToVectorImageConvolutionFilter3D_hpp
-#define __mdkScalarImageToVectorImageConvolutionFilter3D_hpp
+#ifndef __mdkScalarDenseImageToVectorDenseImageConvolutionFilter3D_hpp
+#define __mdkScalarDenseImageToVectorDenseImageConvolutionFilter3D_hpp
 
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType>
-ScalarImageToVectorImageConvolutionFilter3D<InputPixelType, OutputPixelType>::ScalarImageToVectorImageConvolutionFilter3D()
+ScalarDenseImageToVectorDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::ScalarDenseImageToVectorDenseImageConvolutionFilter3D()
 {
     this->Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-ScalarImageToVectorImageConvolutionFilter3D<InputPixelType, OutputPixelType>::~ScalarImageToVectorImageConvolutionFilter3D()
+ScalarDenseImageToVectorDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::~ScalarDenseImageToVectorDenseImageConvolutionFilter3D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType>
-void ScalarImageToVectorImageConvolutionFilter3D<InputPixelType, OutputPixelType>::Clear()
+void ScalarDenseImageToVectorDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::Clear()
 {
-    this->ScalarImageToVectorImageFilterWithMask3D::Clear();
+	this->DenseImageFilterWithMultiMask3D::Clear();
 
     m_OutputPixelMatrix = nullptr;
 }
@@ -29,12 +29,12 @@ void ScalarImageToVectorImageConvolutionFilter3D<InputPixelType, OutputPixelType
 
 template<typename InputPixelType, typename OutputPixelType>
 inline
-void ScalarImageToVectorImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
+void ScalarDenseImageToVectorDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
 SetOutputPixelMatrix(DenseMatrix<InputPixelType>* PixelMatrix)
 {
     if (PixelMatrix == nullptr)
     {
-        MDK_Error("PixelMatrix is nullptr @ ScalarImageToVectorImageConvolutionFilter3D::SetOutputPixelMatrix(...)")
+        MDK_Error("PixelMatrix is nullptr @ ScalarDenseImageToVectorDenseImageConvolutionFilter3D::SetOutputPixelMatrix(...)")
     }
 
     m_OutputPixelMatrix = PixelMatrix;
@@ -45,15 +45,15 @@ SetOutputPixelMatrix(DenseMatrix<InputPixelType>* PixelMatrix)
 
 template<typename InputPixelType, typename OutputPixelType>
 inline
-void ScalarImageToVectorImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
+void ScalarDenseImageToVectorDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
 FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_Index, double z_Index, int_max ThreadIndex)
 {
     auto VectorLength = m_MaskList.GetLength();
 
-    auto InputImageSize = m_InputImage->GetSize();
-    auto Lx = InputImageSize.Lx;
-    auto Ly = InputImageSize.Ly;
-    auto Lz = InputImageSize.Lz;
+    auto InputDenseImageSize = m_InputDenseImage->GetSize();
+    auto Lx = InputDenseImageSize.Lx;
+    auto Ly = InputDenseImageSize.Ly;
+    auto Lz = InputDenseImageSize.Lz;
 
 	for (int_max i = 0; i < VectorLength; ++i)
 	{
@@ -65,7 +65,7 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_I
 
 		auto tempElementInOutputPixel = ElementTypeOfOutputPixel(0);
 
-		if (m_InterpolationMethod == ScalarImage3DInterpolationMethodEnum::Nearest)
+		if (m_InterpolationMethod == ScalarDenseImage3DInterpolationMethodEnum::Nearest)
 		{
 			if (CheckBoundAtThisCenter == true)
 			{
@@ -75,7 +75,7 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_I
 					auto temp_y = Ptr[1] + y_Index;
 					auto temp_z = Ptr[2] + z_Index;
 
-					auto tempValue = InterpolateScalarImageAtContinuousIndex_Nearest(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
+					auto tempValue = InterpolateScalarDenseImageAtContinuousIndex_Nearest(*m_InputDenseImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
 
 					tempElementInOutputPixel += ElementTypeOfOutputPixel(tempValue * Ptr[3]);
 				}
@@ -88,7 +88,7 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_I
 					auto temp_y = int_max(Ptr[1] + y_Index);
 					auto temp_z = int_max(Ptr[2] + z_Index);
 
-					tempElementInOutputPixel += ElementTypeOfOutputPixel((*m_InputImage)(temp_x, temp_y, temp_z) * Ptr[3]);
+					tempElementInOutputPixel += ElementTypeOfOutputPixel((*m_InputDenseImage)(temp_x, temp_y, temp_z) * Ptr[3]);
 				}
 			}
 		}
@@ -100,7 +100,7 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_I
 				auto temp_y = Ptr[1] + y_Index;
 				auto temp_z = Ptr[2] + z_Index;
 
-				auto tempValue = InterpolateScalarImageAtContinuousIndex(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
+				auto tempValue = InterpolateScalarDenseImageAtContinuousIndex(*m_InputDenseImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
 
 				tempElementInOutputPixel += ElementTypeOfOutputPixel(tempValue * Ptr[3]);
 			}
@@ -113,7 +113,7 @@ FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, double x_Index, double y_I
 
 template<typename InputPixelType, typename OutputPixelType>
 inline
-void ScalarImageToVectorImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
+void ScalarDenseImageToVectorDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
 FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, double z, int_max ThreadIndex)
 {
 	auto VectorLength = m_MaskList.GetLength();
@@ -134,7 +134,7 @@ FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, dou
 			auto temp_y = Ptr[1] + y;
 			auto temp_z = Ptr[2] + z;
 
-			auto tempValue = InterpolateScalarImageAtPhysicalPosition(*m_InputImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
+			auto tempValue = InterpolateScalarDenseImageAtPhysicalPosition(*m_InputDenseImage, temp_x, temp_y, temp_z, m_InterpolationMethod, m_InterpolationOption);
 
             tempElementInOutputPixel += ElementTypeOfOutputPixel(tempValue * Ptr[3]);
         }
@@ -147,7 +147,7 @@ FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, double x, double y, dou
 
 template<typename InputPixelType, typename OutputPixelType>
 inline
-void ScalarImageToVectorImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
+void ScalarDenseImageToVectorDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
 OutputFunction(int_max OutputPixelIndex, OutputPixelType& OutputPixel, int_max ThreadIndex)
 {
 	for (int_max i = 0; i < m_MaskList.GetLength(); ++i)

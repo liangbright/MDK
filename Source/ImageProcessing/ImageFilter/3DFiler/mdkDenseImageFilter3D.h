@@ -1,5 +1,5 @@
-#ifndef __mdkImageFilter3D_h
-#define __mdkImageFilter3D_h
+#ifndef __mdkDenseImageFilter3D_h
+#define __mdkDenseImageFilter3D_h
 
 #include <vector>
 #include <functional>
@@ -10,13 +10,13 @@
 #include "mdkProcessObject.h"
 #include "mdkObjectArray.h"
 #include "mdkDenseMatrix.h"
-#include "mdkImage3D.h"
+#include "mdkDenseImage3D.h"
 
 namespace mdk
 {
 
 template<typename InputPixel_Type, typename OutputPixel_Type, typename Scalar_Type = double>
-class ImageFilter3D : public ProcessObject
+class DenseImageFilter3D : public ProcessObject
 {
 public:
 	typedef InputPixel_Type  InputPixelType;
@@ -27,7 +27,7 @@ protected:
 	//-------------- input ----------------------
 
 	// input_0: 
-    const Image3D<InputPixelType>*   m_InputImage;
+    const DenseImage3D<InputPixelType>*   m_InputImage;
 
 	// input_1:
 	const Image3DBoxRegionOf3DIndex*  m_InputRegionOf3DIndex;  // size of m_InputRegion = size of m_OutputImage or m_OutputArray
@@ -44,10 +44,10 @@ protected:
 	//--------------------- output ---------------------
 
 	// output_0:
-    Image3D<OutputPixelType> m_OutputImage;
+    DenseImage3D<OutputPixelType> m_OutputImage;
 
 	// output_1:
-    ObjectArray<OutputPixelType> m_OutputArray;
+    DataArray<OutputPixelType> m_OutputArray;
 
     //------------ internal variable -------------------
 
@@ -64,13 +64,13 @@ protected:
     int_max m_MinPixelNumberPerThread;
 
 protected:
-	ImageFilter3D();
-	virtual ~ImageFilter3D();
+	DenseImageFilter3D();
+	virtual ~DenseImageFilter3D();
   
 public:
     virtual void Clear(); // called in Clear@ProcessObject, must be virtual
 
-    void SetInputImage(const Image3D<InputPixelType>* InputImage);
+    void SetInputImage(const DenseImage3D<InputPixelType>* InputImage);
 
 	void SetInputRegionOf3DIndex(const Image3DBoxRegionOf3DIndex* InputRegion);
 
@@ -78,9 +78,9 @@ public:
 
 	void SetInput3DPositionList(const DenseMatrix<ScalarType>* Input3DPositionList);
 
-    void SetOutputImage(Image3D<OutputPixelType>* OutputImage);
+    void SetOutputImage(DenseImage3D<OutputPixelType>* OutputImage);
 
-	void SetOutputArray(ObjectArray<OutputPixelType>* OutputArray);
+	void SetOutputArray(DataArray<OutputPixelType>* OutputArray);
 
     void SetMaxNumberOfThreads(int_max MaxNumber);    
 
@@ -92,15 +92,15 @@ public:
 
     virtual bool Update();
 	
-    Image3D<OutputPixelType>& OutputImage();
-	Image3D<OutputPixelType>* GetOutputImage();
+    DenseImage3D<OutputPixelType>& OutputImage();
+	DenseImage3D<OutputPixelType>* GetOutputImage();
 
-    ObjectArray<OutputPixelType>& OutputArray();
-	ObjectArray<OutputPixelType>* GetOutputArray();
+    DataArray<OutputPixelType>& OutputArray();
+	DataArray<OutputPixelType>* GetOutputArray();
 
 	//----------------------------------------------------------------------------------------------------------
     // just for reference: each specific filter should provide Apply function, such as
-    // static Image3D<OutputPixelType> Apply(const Image3D<InputPixelType>* InputImage);
+    // static DenseImage3D<OutputPixelType> Apply(const DenseImage3D<InputPixelType>* InputImage);
     //----------------------------------------------------------------------------------------------------------
 
 protected:
@@ -114,12 +114,12 @@ protected:
     int_max GetNumberOfThreadTobeCreated();
 
 private:
-	ImageFilter3D(const ImageFilter3D&)    = delete;
-	void operator=(const ImageFilter3D&)   = delete;
+	DenseImageFilter3D(const DenseImageFilter3D&)    = delete;
+	void operator=(const DenseImageFilter3D&)   = delete;
 };
 
 }// namespace mdk
 
-#include "mdkImageFilter3D.hpp"
+#include "mdkDenseImageFilter3D.hpp"
 
 #endif

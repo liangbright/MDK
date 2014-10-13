@@ -1,16 +1,16 @@
-﻿#ifndef __mdkScalarImageToVectorImageConvolutionFilter3D_h
-#define __mdkScalarImageToVectorImageConvolutionFilter3D_h
+﻿#ifndef __mdkScalarDenseImageToVectorDenseImageConvolutionFilter3D_h
+#define __mdkScalarDenseImageToVectorDenseImageConvolutionFilter3D_h
 
 #include <algorithm>
 
-#include "mdkImageFilterWithMultiMask3D.h"
-#include "mdkScalarImageInterpolator3D.h"
+#include "mdkDenseImageFilterWithMultiMask3D.h"
+#include "mdkScalarDenseImageInterpolator3D.h"
 
 namespace mdk
 {
 
 template<typename InputPixel_Type, typename OutputPixel_Type>
-class ScalarImageToVectorImageConvolutionFilter3D : public ImageFilterWithMultiMask3D<InputPixel_Type, OutputPixel_Type>
+class ScalarDenseImageToVectorDenseImageConvolutionFilter3D : public DenseImageFilterWithMultiMask3D<InputPixel_Type, OutputPixel_Type>
 {
 public:
 	typedef InputPixel_Type InputPixelType;
@@ -24,16 +24,15 @@ private:
 	DenseMatrix<ElementTypeOfOutputPixel> m_OutputPixelMatrix_SharedCopy;
 
 private:
-	ScalarImage3DInterpolationMethodEnum m_InterpolationMethod;
-	Option_Of_ScalarImageInterpolator3D<OutputPixelType> m_InterpolationOption;
+	Option_Of_Image3DInterpolation<OutputPixelType> m_InterpolationOption;
 
 public:		
-	ScalarImageToVectorImageConvolutionFilter3D();
-	~ScalarImageToVectorImageConvolutionFilter3D();
+	ScalarDenseImageToVectorDenseImageConvolutionFilter3D();
+	~ScalarDenseImageToVectorDenseImageConvolutionFilter3D();
 
     virtual void Clear();
 
-	void SetImageInterpolationMethodAndOption(ScalarImage3DInterpolationMethodEnum Method, const Option_Of_ScalarImageInterpolator3D<OutputPixelType>& Option);
+	void SetImageInterpolationOption(const Option_Of_Image3DInterpolation<OutputPixelType>& Option);
 
     void SetOutputPixelMatrix(DenseMatrix<InputPixelType>* PixelMatrix);
 
@@ -49,13 +48,13 @@ protected:
 	virtual UpdateProcessOutputPort();
 
 private:
-    ScalarImageToVectorImageConvolutionFilter3D(const ScalarImageToVectorImageConvolutionFilter3D&) = delete;
-    void operator=(const ScalarImageToVectorImageConvolutionFilter3D&) = delete;
+    ScalarDenseImageToVectorDenseImageConvolutionFilter3D(const ScalarDenseImageToVectorDenseImageConvolutionFilter3D&) = delete;
+    void operator=(const ScalarDenseImageToVectorDenseImageConvolutionFilter3D&) = delete;
 };
 
 
 }//end namespace mdk
 
-#include "mdkScalarImageToVectorImageConvolutionFilter3D.hpp"
+#include "mdkScalarDenseImageToVectorDenseImageConvolutionFilter3D.hpp"
 
 #endif

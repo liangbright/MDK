@@ -1,76 +1,76 @@
-#ifndef __mdkImageFilterWithSingleMask3D_hpp
-#define __mdkImageFilterWithSingleMask3D_hpp
+#ifndef __mdkDenseImageFilterWithSingleMask3D_hpp
+#define __mdkDenseImageFilterWithSingleMask3D_hpp
 
 #include <algorithm>
 
 #include "mdkDebugConfig.h"
-#include "mdkImageFilterWithSingleMask3D.h"
+#include "mdkDenseImageFilterWithSingleMask3D.h"
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::ImageFilterWithSingleMask3D()
+DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::DenseImageFilterWithSingleMask3D()
 {
     this->Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::~ImageFilterWithSingleMask3D()
+DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::~DenseImageFilterWithSingleMask3D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
+void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
-    this->ImageFilter3D::Clear();
+    this->DenseImageFilter3D::Clear();
 	m_Mask.Clear();
-	m_Flag_3DPositionInMask = -1;
+	m_Flag_PhysicalPositionInMask = -1;
     m_NOBoundCheckRegion_3DIndex.IsEmpty = true;
     m_NOBoundCheckRegion_3DPosition.IsEmpty = true;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::SetMask_3DIndex(DenseMatrix<ScalarType> Mask)
+void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::SetMask_3DIndex(DenseMatrix<ScalarType> Mask)
 {
 	m_Mask = std::move(Mask);
-	m_Flag_3DPositionInMask = false;
+	m_Flag_PhysicalPositionInMask = false;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::SetMask_3DPosition(DenseMatrix<ScalarType> Mask)
+void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::SetMask_3DPosition(DenseMatrix<ScalarType> Mask)
 {
 	m_Mask = std::move(Mask);
-	m_Flag_3DPositionInMask = true;
+	m_Flag_PhysicalPositionInMask = true;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Use3DIndexInMask()
+void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Use3DIndexInMask()
 {
-	m_Flag_3DPositionInMask = false;
+	m_Flag_PhysicalPositionInMask = false;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Use3DPositionInMask()
+void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Use3DPositionInMask()
 {
-	m_Flag_3DPositionInMask = true;
+	m_Flag_PhysicalPositionInMask = true;
 }
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-const DenseMatrix<ScalarType>& ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::GetMask()
+const DenseMatrix<ScalarType>& DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::GetMask()
 {
 	return m_Mask;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DIndex()
+void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DIndex()
 {
     m_NOBoundCheckRegion_3DIndex.IsEmpty = true;
 
@@ -142,7 +142,7 @@ void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::C
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DPosition()
+void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DPosition()
 {    
     m_NOBoundCheckRegion_3DPosition.IsEmpty = true;
 
@@ -218,26 +218,26 @@ void ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::C
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
+bool DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
 {
-    if (this->ImageFilter3D::Preprocess() == false)
+    if (this->DenseImageFilter3D::Preprocess() == false)
     {
         return false;
     }
 
-	if (m_Flag_3DPositionInMask == true)
+	if (m_Flag_PhysicalPositionInMask == true)
 	{
 		this->BuildMask_3DPosition();
 		this->ComputeRegionOfNOBoundCheck_3DPosition();
 	}
-	else if (m_Flag_3DPositionInMask == false)
+	else if (m_Flag_PhysicalPositionInMask == false)
 	{
 		this->BuildMask_3DIndex();
 		this->ComputeRegionOfNOBoundCheck_3DIndex();
 	}
 	else
 	{
-		MDK_Error("m_Flag_3DPositionInMask is -1 @ ImageFilterWithSingleMask3D::Preprocess()")
+		MDK_Error("m_Flag_PhysicalPositionInMask is -1 @ DenseImageFilterWithSingleMask3D::Preprocess()")
 		return false;
 	}
 
@@ -247,7 +247,7 @@ bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::P
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline 
-bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::
+bool DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::
 WhetherToCheckBoundAtMaskOrigin_3DIndex(ScalarType x, ScalarType y, ScalarType z)
 {
     bool WhetherToCheck = false;
@@ -272,7 +272,8 @@ WhetherToCheckBoundAtMaskOrigin_3DIndex(ScalarType x, ScalarType y, ScalarType z
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline
-bool ImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::WhetherToCheckBoundAtMaskOrigin_3DPosition(ScalarType x, ScalarType y, ScalarType z)
+bool DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::
+WhetherToCheckBoundAtMaskOrigin_3DPosition(ScalarType x, ScalarType y, ScalarType z)
 {
     bool WhetherToCheck = false;
 

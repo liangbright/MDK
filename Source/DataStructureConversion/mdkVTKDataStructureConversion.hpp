@@ -6,7 +6,7 @@ namespace mdk
 {
 
 template<typename PixelType>
-vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const Image3D<PixelType>& InputImage)
+vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& InputImage)
 {
     auto VTKImage = vtkSmartPointer<vtkImageData>::New();
 
@@ -143,7 +143,7 @@ vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const Im
 
 
 template<typename PixelType>
-Image3D<PixelType> ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage)
+DenseImage3D<PixelType> ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage)
 {
     int Extent[6];
     VTKImage->GetExtent(Extent);
@@ -156,7 +156,7 @@ Image3D<PixelType> ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData*
 
     auto VTKScalarType = VTKImage->GetScalarType();
 
-    Image3D<PixelType> OutputImage;
+    DenseImage3D<PixelType> OutputImage;
     OutputImage.SetSize(Extent[1] + 1, Extent[3] + 1, Extent[5] + 1);
     OutputImage.SetOrigin(Origin[0], Origin[1], Origin[2]);
     OutputImage.SetSpacing(Spacing[0], Spacing[1], Spacing[2]);
