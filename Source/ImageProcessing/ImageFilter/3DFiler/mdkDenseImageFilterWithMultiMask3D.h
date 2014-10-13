@@ -1,13 +1,14 @@
 ﻿#ifndef __mdkDenseImageFilterWithMultiMask3D_h
 #define __mdkDenseImageFilterWithMultiMask3D_h
 
-#include "mdkDenseImageFilter3D.h"
+#include "mdkImageToImageFilter3D.h"
+#include "mdkDenseImage3D.h"
 
 namespace mdk
 {
 
 template<typename InputPixel_Type, typename OutputPixel_Type>
-class DenseImageFilterWithMultiMask3D : public DenseImageFilter3D<InputPixel_Type, OutputPixel_Type>
+class DenseImageFilterWithMultiMask3D : public ImageToImageFilter3D<DenseImage3D<InputPixel_Type>, DenseImage3D<OutputPixel_Type>>
 {
 public:
 	typedef InputPixel_Type InputPixelType;

@@ -20,25 +20,17 @@ public:
 	typedef MethodEnum_Of_Image3DInterpolation             ImageInterpolationMethodEnum;
 	typedef BoundaryOptionEnum_Of_Image3DInterpolation     ImageInterpolationBoundaryOptionEnum;
 
-protected:
-	Option_Of_Image3DInterpolation<InputPixelType> m_InterpolationOption;
-	
+protected:	
 	DenseMatrix<ScalarType> m_ConvolutionCoefficient; // vector
 
 public:
 	ScalarDenseImageConvolutionFilter3D();
 	~ScalarDenseImageConvolutionFilter3D();
 
-	void SetImageInterpolationOption(const Option_Of_Image3DInterpolation<InputPixelType>& Option);
-
-	Option_Of_Image3DInterpolation<InputPixelType> GetImageInterpolationOption();
-
 	void SetConvolutionCoefficient(DenseMatrix<ScalarType> Coef);
 	const DenseMatrix<ScalarType>& GetConvolutionCoefficient();
 
-	inline void FilterFunctionAt3DIndex(OutputPixelType& OutputPixel, ScalarType x_Index, ScalarType y_Index, ScalarType z_Index, int_max ThreadIndex);
-
-	inline void FilterFunctionAt3DPosition(OutputPixelType& OutputPixel, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex);
+	inline void EvaluateAt3DIndexInOutputImage(int_max x0, int_max y0, int_max z0, int_max ThreadIndex);
 
 protected:
 	virtual bool Preprocess();

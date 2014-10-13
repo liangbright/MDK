@@ -1,5 +1,5 @@
-#ifndef __mdkSingleClassObjectDetectionInSingleImage3D_h
-#define __mdkSingleClassObjectDetectionInSingleImage3D_h
+#ifndef __mdkObjectDetectionInSingleImage3D_h
+#define __mdkObjectDetectionInSingleImage3D_h
 
 #include "mdkProcessObject.h"
 #include "mdkParallelForLoop.h"
@@ -11,8 +11,10 @@
 namespace mdk
 {
 
+// ObjectMask is only for reference
+/*
 template<typename ScalarType = double>
-struct ObjectMask_Of_SingleClassObjectDetectionInSingleImage3D
+struct ObjectMask_Of_ObjectDetectionInSingleImage3D
 {
 	bool Flag_PhysicalPosition;
 	// true:  use 3D physical position in PointSet
@@ -39,9 +41,14 @@ struct ObjectMask_Of_SingleClassObjectDetectionInSingleImage3D
 	// Scale[1]: Scale about axes y
 	// Scale[2]: Scale about axes z
 
-//---------------------------------------------------------------------------------------------
-	ObjectMask_Of_SingleClassObjectDetectionInSingleImage3D() {}
-	~ObjectMask_Of_SingleClassObjectDetectionInSingleImage3D() {}
+	// Note:
+	// the coordinate of every point in mask is in world coordinate system with origin equal to the origin of the object coordinate system
+	// so, no need to compute the transform (RotationMatrix*ScaleMatrix) of each point during object evaluation at each possible location/origin
+	// Angle and Scale for documentation purpose only
+
+	//---------------------------------------------------------------------------------------------
+	ObjectMask_Of_ObjectDetectionInSingleImage3D() {}
+	~ObjectMask_Of_ObjectDetectionInSingleImage3D() {}
 
 	void Clear()
 	{
@@ -59,16 +66,16 @@ struct ObjectMask_Of_SingleClassObjectDetectionInSingleImage3D
 		PointSet.GetCol(Index, Position);
 	}
 };
+*/
 
 
 template<typename ObjectImagePixel_Type, typename ObjectMembershipImagePixel_Type, typename Scalar_Type = double>
-class SingleClassObjectDetectionInSingleImage3D : public ProcessObject
+class ObjectDetectionInSingleImage3D : public ProcessObject
 {
 public:
-	typedef ObjectImagePixel_Type												  ObjectImagePixelType;
-	typedef ObjectMembershipImagePixel_Type										  ObjectMembershipImagePixelType;
-	typedef Scalar_Type															  ScalarType;
-	typedef ObjectMask_Of_SingleClassObjectDetectionInSingleImage3D<ScalarType>	  ObjectMaskType;
+	typedef ObjectImagePixel_Type								 ObjectImagePixelType;
+	typedef ObjectMembershipImagePixel_Type						 ObjectMembershipImagePixelType;
+	typedef Scalar_Type											 ScalarType;
 
 	typedef Option_Of_Image3DInterpolation<ObjectImagePixelType> ObjectImageInterpolationOptionType;
 	typedef MethodEnum_Of_Image3DInterpolation                   ObjectImageInterpolationMethodEnum;
@@ -84,15 +91,14 @@ protected:
 
 	DenseMatrix<int_max> m_CandidateOriginList_3DIndex;  // evaluate object candidate at each point on ObjectMembershipImage
 
-	const DataArray<ObjectMaskType>* m_ObjectMaskList;
-
 	int_max m_MaxNumberOfThread; // max number of threads
 
 	//------------------------- internal data -------------------------------------------//
-	DataArray<Image3DBoxRegionOf3DIndex> m_NOBoundCheckRegionList_3DIndex;
-
 	int_max m_TotalCandidateOriginNumber;
-	bool m_Flag_ScanWholeImageGrid; // m_ObjectMembershipDenseImage or m_ObjectMembershipSparseImage
+	// whole image or subset determined by m_CandidateOriginList_3DIndex
+
+	bool m_Flag_ScanWholeImageGrid; 
+	// whole image grid of m_ObjectMembershipDenseImage or m_ObjectMembershipSparseImage
 
 	bool m_Flag_StoreObjectMembershipInSparseImage;
 	// true: use m_ObjectMembershipSparseImage
@@ -106,8 +112,8 @@ protected:
 	SparseImage3D<ObjectMembershipImagePixelType> m_ObjectMembershipSparseImage;
 
 protected:
-	SingleClassObjectDetectionInSingleImage3D();
-	virtual ~SingleClassObjectDetectionInSingleImage3D();
+	ObjectDetectionInSingleImage3D();
+	virtual ~ObjectDetectionInSingleImage3D();
 
 public:
 	virtual void Clear();
@@ -132,9 +138,6 @@ public:
 
 	void SetCandidateOriginListOf3DIndex(DenseMatrix<int_max> Input3DIndexList);
 
-	void SetObjectMaskList(const DataArray<ObjectMaskType>* InputMaskList);	
-	const DataArray<ObjectMaskType>* GetObjectMaskList();
-
 	void SetThreadNumber(int_max MaxNumber);
 
 	virtual bool Update();
@@ -147,30 +150,28 @@ protected:
 	virtual bool CheckInput();
 	virtual bool Preprocess();
 	virtual bool Postprocess() { return true; }
-	virtual void BuildMask() {}
-
-	bool WhetherMaskIsInsideImage_AtOrigin_3DIndex(int_max MaskIndex, int_max x, int_max y, int_max z);
 
 	// Evaluate candidate object at Origin (x, y, z), x/y/z is 3DIndex
-	inline virtual void EvaluateCandidateAtOrigin_3DIndex(int_max x0, int_max y0, int_max z0, int_max ThreadIndex) = 0;
+	inline virtual void EvaluateCandidateAtOriginOf3DIndex(int_max x0, int_max y0, int_max z0, int_max ThreadIndex) = 0;
 
 	template<typename PixelTypeForMask = ObjectImagePixelType>
-	DataArray<PixelTypeForMask> GetPixelSetByObjectMaskAtOrigin_3DIndex(int_max MaskIndex, int_max x0, int_max y0, int_max z0);
+	DataArray<PixelTypeForMask> GetObjectImagePixelSetByPointMaskOf3DIndex_AtOriginOf3DIndex(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0);
+
+	template<typename PixelTypeForMask = ObjectImagePixelType>
+	DataArray<PixelTypeForMask> GetObjectImagePixelSetByPointMaskOf3DPyhsicalPosition_AtOriginOf3DIndex(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0);
 
 	int_max GetNumberOfThreadTobeCreated();
 
 private:
-	void ComputeRegionOfNOBoundCheck_3DIndex();
-
 	void EvaluateCandidateAtMultipleOrigin_in_a_thread(int_max OriginIndex_start, int_max OriginIndex_end, int_max ThreadIndex);
 
 private:
-	SingleClassObjectDetectionInSingleImage3D(const SingleClassObjectDetectionInSingleImage3D&) = delete;
-	void operator=(const SingleClassObjectDetectionInSingleImage3D&) = delete;
+	ObjectDetectionInSingleImage3D(const ObjectDetectionInSingleImage3D&) = delete;
+	void operator=(const ObjectDetectionInSingleImage3D&) = delete;
 };
 
 }// namespace mdk
 
-#include "mdkSingleClassObjectDetectionInSingleImage3D.hpp"
+#include "mdkObjectDetectionInSingleImage3D.hpp"
 
 #endif
