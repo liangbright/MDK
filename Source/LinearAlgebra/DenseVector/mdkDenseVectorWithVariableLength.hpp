@@ -9,7 +9,6 @@ template<typename ElementType>
 inline
 DenseVector<ElementType>::DenseVector()
 {
-    this->Clear();
 }
 
 

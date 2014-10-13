@@ -394,6 +394,19 @@ bool SparseImage3D<PixelType>::IsEmpty() const
 
 template<typename PixelType>
 inline
+Image3DInfo SparseImage3D<PixelType>::GetInfo() const
+{
+	Image3DInfo Info;
+	Info.Origin = this->GetOrigin();
+	Info.Spacing = this->GetSpacing();
+	Info.Size = this->GetSize();
+	Info.Orientation = this->GetOrientation();
+	return Info;
+}
+
+
+template<typename PixelType>
+inline
 DenseVector<int_max, 3> SparseImage3D<PixelType>::GetSize() const
 {
 	return m_ImageData->m_Size;

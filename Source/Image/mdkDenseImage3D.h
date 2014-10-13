@@ -131,7 +131,35 @@ struct Image3DInfo
 	DenseVector<int_max, 3> Size;       // {Lx, Ly, Lz} number of Pixels in each direction
 	DenseVector<double, 3>  Spacing;    // Pixel Spacing of DICOM DenseImage in world coordinate system {Sx, Sy, Sz} (unit: mm)
 	DenseVector<double, 3>  Origin;     // Origin of DICOM DenseImage in world coordinate system (x,y,z) (unit: mm)
-	DenseMatrix<double> m_Orientation;  // 3x3 Matrix
+	DenseMatrix<double> Orientation;   // 3x3 Matrix
+
+//-------------------------------------------
+	Image3DInfo() { this->Clear(); }
+	~Image3DInfo() {}
+
+	Image3DInfo(const Image3DInfo& Info)
+	{
+		(*this) = Info;
+	}
+
+	void operator=(const Image3DInfo& Info)
+	{
+		Size = Info.Size;
+		Spacing = Info.Spacing;
+		Origin = Info.Origin;
+		Orientation = Info.Orientation;
+	}
+
+	void Clear()
+	{
+		Size.Fill(0);
+		Spacing.Fill(0);
+		Origin.Fill(0);
+		Orientation.Clear();
+		Orientation.Resize(3, 3);
+		Orientation.FixSize();
+		Orientation.FillDiagonal(1.0);
+	}
 };
 
 //===================================================================================================================//
@@ -258,6 +286,8 @@ public:
     inline bool IsEmpty() const;
 
     //--------------------------- Get/Set Info and Data ------------------------------//
+
+	inline Image3DInfo GetInfo() const;
 
 	inline DenseVector<int_max, 3> GetSize() const;
 

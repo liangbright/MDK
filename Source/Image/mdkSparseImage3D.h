@@ -147,6 +147,8 @@ public:
 
     //--------------------------- Get/Set Info and Data ------------------------------//
 
+	inline Image3DInfo GetInfo() const;
+
 	inline DenseVector<int_max, 3> GetSize() const;
 
     inline void GetSize(int_max& Lx, int_max& Ly, int_max& Lz) const;

@@ -55,6 +55,19 @@ public:
 
 	void SetInputImage(const InputImageType* InputImage);
 
+	void SetOutputImageInfo(const Image3DInfo& Info);
+
+	void SetOutputImageInfo(const DenseVector<double, 3>& Origin,
+						    const DenseVector<double, 3>& Spacing,
+						    const DenseVector<int_max, 3>& Size);
+
+	void SetOutputImageInfo(const DenseVector<double, 3>& Origin,
+						    const DenseVector<double, 3>& Spacing,
+						    const DenseVector<int_max, 3>& Size,
+							const DenseMatrix<double>& Orientation);
+
+	Image3DInfo GetOutputImageInfo();
+
 	OutputImageType* GetOutputImage();
 
 	void SetListOf3DIndexInInputImage(const DenseMatrix<int_max>* ListOf3DIndex);

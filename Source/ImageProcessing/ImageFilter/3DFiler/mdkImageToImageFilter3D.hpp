@@ -44,6 +44,47 @@ void ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetInput
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
+void ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetOutputImageInfo(const Image3DInfo& Info)
+{
+	m_OutputImage.SetOrigin(Info.Origin);
+	m_OutputImage.SetSpacing(Info.Spacing);
+	m_OutputImage.SetSize(Info.Size);
+	m_OutputImage.SetOrientation(Info.Orientation);
+}
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+void ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetOutputImageInfo(const DenseVector<double, 3>& Origin,
+																						   const DenseVector<double, 3>& Spacing,
+																						   const DenseVector<int_max, 3>& Size)
+{
+	m_OutputImage.SetOrigin(Origin);
+	m_OutputImage.SetSpacing(Spacing);
+	m_OutputImage.SetSize(Size);
+}
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+void ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetOutputImageInfo(const DenseVector<double, 3>& Origin,
+																						   const DenseVector<double, 3>& Spacing,
+																						   const DenseVector<int_max, 3>& Size,
+																						   const DenseMatrix<double>& Orientation)
+{
+	m_OutputImage.SetOrigin(Origin);
+	m_OutputImage.SetSpacing(Spacing);
+	m_OutputImage.SetSize(Size);
+	m_OutputImage.SetOrientation(Orientation);
+}
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+Image3DInfo ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::GetOutputImageInfo()
+{
+	return m_OutputImage.GetInfo();
+}
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
 OutputImageType* ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::GetOutputImage()
 {
 	return &m_OutputImage;
@@ -138,6 +179,14 @@ bool ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::CheckInp
 		return false;
 	}
 
+	auto OutputImageSize = m_OutputImage.GetSize();
+	auto PixelNumber = OutputImageSize[0] * OutputImageSize[1] * OutputImageSize[2];
+	if (PixelNumber <= 0) // image may be spasre, do not use GetPixelNumber()
+	{
+		MDK_Error("Output Image is Empty @ ImageToImageFilter3D::CheckInput()")
+		return false;
+	}
+
 	return true;
 }
 
@@ -150,13 +199,10 @@ bool ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::Preproce
 	DenseVector<double, 3> OutputImageOrigin;
 	int_max TotalOutputPixelNumber = 0;
 
-	if (m_OutputImage.IsEmpty() == true)
+	if (m_InputImage->GetOrientation().IsEmpty() == true)
 	{
-		m_OutputImage.SetOrigin(m_InputImage->GetOrigin());
-		m_OutputImage.SetSpacing(m_InputImage->GetSpacing());
-		m_OutputImage.SetSize(m_InputImage->GetSize());
+		m_OutputImage.SetOrientation(m_InputImage->GetOrientation());
 	}
-	m_OutputImage.SetOrientation(m_InputImage->GetOrientation());
 
 	TotalOutputPixelNumber = m_OutputImage.GetPixelNumber();
 	OutputImageSize = m_OutputImage.GetSize();

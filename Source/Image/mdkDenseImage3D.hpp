@@ -36,7 +36,8 @@ void DenseImageData3D<PixelType>::Clear()
     m_Spacing[1] = 0;
     m_Spacing[2] = 0;
 
-    m_Orientation.FastResize(3, 3);
+	m_Orientation.Clear();
+    m_Orientation.Resize(3, 3);
     m_Orientation.FixSize();
     m_Orientation.FillDiagonal(1.0);
 
@@ -518,6 +519,19 @@ const PixelType* DenseImage3D<PixelType>::end() const
 	{
 		return BeginPtr + this->GetPixelNumber();
 	}
+}
+
+
+template<typename PixelType>
+inline 
+Image3DInfo DenseImage3D<PixelType>::GetInfo() const
+{
+	Image3DInfo Info;
+	Info.Origin = this->GetOrigin();
+	Info.Spacing = this->GetSpacing();
+	Info.Size = this->GetSize();
+	Info.Orientation = this->GetOrientation();
+	return Info;
 }
 
 
