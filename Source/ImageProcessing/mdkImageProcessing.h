@@ -4,15 +4,11 @@
 //2D
 
 //3D
-#include "mdkImageFilter3D.h"
-#include "mdkScalarImageFilterWithMask3D.h"
-#include "mdkScalarImageConvolutionFilter3D.h"
-#include "mdkScalarImageGaussianFilter3D.h"
-#include "mdkScalarImageToVectorImageFilterWithMask3D.h"
-#include "mdkScalarImageToVectorImageConvolutionFilter3D.h"
-#include "mdkScalarIntegralImageBuilder3D.h"
+#include "mdkScalarDenseImageConvolutionFilter3D.h"
+#include "mdkScalarDenseImageGaussianFilter3D.h"
+#include "mdkScalarIntegralDenseImageBuilder3D.h"
+#include "mdkScalarrDenseImageToVectorrDenseImageConvolutionFilter3D.h"
 #include "mdkImageInterpolation3D.h"
 #include "mdkHistogram.h"
-#include "mdkSingleClassObjectDetectionInSingleImage3D.h"
 
 #endif

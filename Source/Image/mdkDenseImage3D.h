@@ -18,8 +18,6 @@ namespace mdk
 // Ly: number of Pixel in y-direction
 // Lz: number of Pixel in z-direction
 //
-// set Lz = 1, it can be used as 2D DenseImage Class
-//
 // PixelPhysicalSize (unit: mm), e.g., 0.5mm x 0.5mm x 0.5mm,  same resolution in x, y, z directions 
 // same resolution => DenseImage filters do not need to be re-sampled with different Pixel shape
 // reslice the input DenseImage using ITK/VTK, then feed it into this class.

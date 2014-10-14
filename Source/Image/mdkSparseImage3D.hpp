@@ -94,11 +94,7 @@ template<typename ScalarType>
 inline 
 DenseVector<ScalarType, 3> SparseImageData3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex) const
 {
-	DenseVector<ScalarType, 3> Index3D;
-
-	std::lldiv_t divresult;
-
-	divresult = div(LinearIndex, m_PixelNumberPerZSlice);
+	auto divresult = div(LinearIndex, m_PixelNumberPerZSlice);
 
 	auto zIndex = divresult.quot; // z
 
@@ -107,6 +103,7 @@ DenseVector<ScalarType, 3> SparseImageData3D<PixelType>::TransformLinearIndexTo3
 	auto yIndex = divresult.quot; // y
 	auto xIndex = divresult.rem; // x
 
+	DenseVector<ScalarType, 3> Index3D;
 	Index3D[0] = ScalarType(xIndex);
 	Index3D[1] = ScalarType(yIndex);
 	Index3D[2] = ScalarType(zIndex);
@@ -120,23 +117,10 @@ inline
 DenseVector<ScalarType, 3> SparseImageData3D<PixelType>::TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const
 {      
 	DenseVector<ScalarType, 3> Position;
-
-    std::lldiv_t divresult;
-
-    divresult = div(LinearIndex, m_PixelNumberPerZSlice);
-
-	Position[2] = ScalarType(divresult.quot);
-
-    divresult = div(divresult.rem, m_Size[0]);
-
-	Position[1] = ScalarType(divresult.quot);
-      
-	Position[0] = ScalarType(divresult.rem);
-
-	Position[0] = m_Origin[0] + Position[0] * m_Spacing[0];
-	Position[1] = m_Origin[1] + Position[1] * m_Spacing[1];
-	Position[2] = m_Origin[2] + Position[2] * m_Spacing[2];
-
+	auto Index3D = this->TransformLinearIndexTo3DIndex();
+	Position[0] = ScalarType(m_Origin[0] + double(Index3D[0]) * m_Spacing[0]);
+	Position[1] = ScalarType(m_Origin[1] + double(Index3D[1]) * m_Spacing[1]);
+	Position[2] = ScalarType(m_Origin[2] + double(Index3D[2]) * m_Spacing[2]);
 	return Position;
 }
 
@@ -619,7 +603,7 @@ template<typename PixelType>
 inline
 int_max SparseImage3D<PixelType>::Transform3DIndexToLinearIndex(const DenseVector<int_max, 3>& Index3D) const
 {
-	return m_ImageData->Transform3DIndexToLinearIndex(Index3D[0], Index3D[0], Index3D[2]);
+	return m_ImageData->Transform3DIndexToLinearIndex(Index3D[0], Index3D[1], Index3D[2]);
 }
 
 

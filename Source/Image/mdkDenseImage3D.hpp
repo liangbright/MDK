@@ -252,7 +252,6 @@ void DenseImage3D<PixelType>::Copy(const DenseImage3D<PixelType_Input>& InputIma
     this->SetSpacing(InputImage.GetSpacing());
     this->SetOrigin(InputImage.GetOrigin);
     this->SetOrientation(InputImage.GetOrientation());
-	this->SetInterpolationOption(InputImage.GetInterpolationOption());
 }
 
 
@@ -734,7 +733,7 @@ template<typename PixelType>
 inline
 int_max DenseImage3D<PixelType>::Transform3DIndexToLinearIndex(const DenseVector<int_max, 3>& Index3D) const
 {
-	return m_ImageData->Transform3DIndexToLinearIndex(Index3D[0], Index3D[0], Index3D[2]);
+	return m_ImageData->Transform3DIndexToLinearIndex(Index3D[0], Index3D[1], Index3D[2]);
 }
 
 
@@ -1098,17 +1097,17 @@ template<typename PixelType>
 DenseImage3D<PixelType>
 DenseImage3D<PixelType>::GetSubImage(int_max xIndex_s, int_max xIndex_e, int_max yIndex_s, int_max yIndex_e, int_max zIndex_s, int_max zIndex_e) const
 {
-    DenseImage3D<PixelType> tempDenseImage; // empty DenseImage
+    DenseImage3D<PixelType> SubImage; // empty SubImage
 
     if (this->IsEmpty() == true)
     {
         MDK_Warning("DenseImage is empty @ DenseImage3D::GetSubImage()")
-        return tempDenseImage;
+        return SubImage;
     }
 
     auto Size = this->GetSize();
 
-    if (xIndex_s >= Size[0] || xIndex_s < 0
+    if (   xIndex_s >= Size[0] || xIndex_s < 0
         || xIndex_e >= Size[0] || xIndex_e < 0
         || xIndex_s > xIndex_e
         || yIndex_s >= Size[1] || yIndex_s < 0
@@ -1119,24 +1118,22 @@ DenseImage3D<PixelType>::GetSubImage(int_max xIndex_s, int_max xIndex_e, int_max
         || zIndex_s > zIndex_e)
     {
         MDK_Error("Invalid input @ DenseImage3D::GetSubImage()")
-            return tempDenseImage;
+        return SubImage;
     }
 
     auto Lx = xIndex_e - xIndex_s + 1;
     auto Ly = yIndex_e - yIndex_s + 1;
     auto Lz = zIndex_e - zIndex_s + 1;
 
-    tempDenseImage.SetSize(Lx, Ly, Lz);
-    tempDenseImage.SetSpacing(this->GetSpacing());
-    tempDenseImage.SetOrigin(this->GetOrigin());
+	SubImage.SetSize(Lx, Ly, Lz);
+	SubImage.SetSpacing(this->GetSpacing());
+	SubImage.SetOrigin(this->GetOrigin());
+	SubImage.SetOrientation(this->GetOrientation());
 
-    auto tempRawPtr = tempDenseImage.GetPixelPointer();
-
+	auto SubPtr = SubImage.GetPixelPointer();
     auto RawPtr = this->GetPixelPointer();
 
     PixelNumberPerZSlice = m_ImageData->PixelNumberPerZSlice;
-
-    int_max temp_k   temp_k = zIndex_s;
 
     for (int_max k = zIndex_s; k <= zIndex_e; ++k)
     {
@@ -1148,14 +1145,13 @@ DenseImage3D<PixelType>::GetSubImage(int_max xIndex_s, int_max xIndex_e, int_max
 
             for (int_max i = xIndex_s; i <= xIndex_e; ++i)
             {
-                tempRawPtr[0] = RawPtr[temp_k + temp_j + i];
-
-                ++tempRawPtr;
+				SubPtr[0] = RawPtr[temp_k + temp_j + i];
+				++SubPtr;
             }
         }
     }
 
-    return tempDenseImage;
+	return SubImage;
 }
 
 
@@ -1163,25 +1159,25 @@ template<typename PixelType>
 DenseImage3D<PixelType>
 DenseImage3D<PixelType>::Pad(const std::string& Option, int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) const
 {
-    DenseImage3D<PixelType> tempImage; // empty DenseImage
+	DenseImage3D<PixelType> SubImage; // empty SubImage
 
     if (this->IsEmpty() == true)
     {
         MDK_Warning("Self is empty @ DenseImage3D::Pad")
-        return tempImage;
+        return SubImage;
     }
 
     if (Option != "replicate")
     {
         MDK_Error("Invalid Option @ DenseImage3D::Pad")
-        return tempImage;
+        return SubImage;
     }
 
     if (Pad_Lx <= 0 && Pad_Ly <= 0 && Pad_Lz <= 0)
     {
         MDK_Warning("Invalid Pad Size @ DenseImage3D::Pad")
-		tempImage = (*this);
-        return tempDenseImage;
+		SubImage = (*this);
+		return SubImage;
     }
 
     auto Size = this->GetSize();
@@ -1190,13 +1186,14 @@ DenseImage3D<PixelType>::Pad(const std::string& Option, int_max Pad_Lx, int_max 
     auto Ly = Size[1] + Pad_Ly;
     auto Lz = Size[2] + Pad_Lz;
 
-	tempImage.SetSize(Lx, Ly, Lz);
-	tempImage.SetSpacing(this->GetSpacing());
-	tempImage.SetOrigin(this->GetOrigin());
+	SubImage.SetSize(Lx, Ly, Lz);
+	SubImage.SetSpacing(this->GetSpacing());
+	SubImage.SetOrigin(this->GetOrigin());
+	SubImage.SetOrientation(this->GetOrientation());
 
     if (Option == "zero")
     {
-		tempImage.Fill(PixelType(0));
+		SubImage.Fill(PixelType(0));
 
         for (int_max k = 0; k <= Lz; ++k)
         {
@@ -1207,8 +1204,7 @@ DenseImage3D<PixelType>::Pad(const std::string& Option, int_max Pad_Lx, int_max 
                     auto temp_i = i + Pad_Lx;
                     auto temp_j = j + Pad_Ly;
                     auto temp_k = k + Pad_Lz;
-
-                    tempDenseImage(temp_i, temp_j, temp_k) = (*this)(i, j, k);
+					SubImage(temp_i, temp_j, temp_k) = (*this)(i, j, k);
                 }
             }
         }
@@ -1222,18 +1218,15 @@ DenseImage3D<PixelType>::Pad(const std::string& Option, int_max Pad_Lx, int_max 
                 for (int_max temp_i = 0; temp_i <= Lx; ++temp_i)
                 {
                     auto i = std::min(std::max(temp_i - Pad_Lx, 0), Size[0] - 1);
-
                     auto j = std::min(std::max(temp_j - Pad_Ly, 0), Size[1] - 1);
-
                     auto k = std::min(std::max(temp_k - Pad_Lz, 0), Size[2] - 1);
-
-					tempImage(temp_i, temp_j, temp_k) = (*this)(i, j, k);
+					SubImage(temp_i, temp_j, temp_k) = (*this)(i, j, k);
                 }
             }
         }
     }
 
-	return tempImage;
+	return SubImage;
 }
 
 
@@ -1241,19 +1234,19 @@ template<typename PixelType>
 DenseImage3D<PixelType>
 DenseImage3D<PixelType>::Pad(PixelType Pixel, int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) const
 {
-    DenseImage3D<PixelType> tempImage; // empty DenseImage
+	DenseImage3D<PixelType> SubImage; // empty SubImage
 
     if (this->IsEmpty() == true)
     {
         MDK_Warning("DenseImage is empty @ DenseImage3D::Pad(...)")
-		return tempImage;
+		return SubImage;
     }
 
     if (Pad_Lx <= 0 && Pad_Ly <= 0 && Pad_Lz <= 0)
     {
-        MDK_Warning("Invalid Pad Size @ DenseImage3D::Pad(...)")
-		tempImage = (*this);
-		return tempImage;
+        MDK_Warning("Zero Pad Size @ DenseImage3D::Pad(...)")
+		SubImage = (*this);
+		return SubImage;
     }
 
     auto Size = this->GetSize();
@@ -1262,12 +1255,11 @@ DenseImage3D<PixelType>::Pad(PixelType Pixel, int_max Pad_Lx, int_max Pad_Ly, in
     auto Ly = Size[1] + Pad_Ly;
     auto Lz = Size[2] + Pad_Lz;
 
-	tempImage.SetSize(Lx, Ly, Lz);
-	tempImage.SetSpacing(this->GetSpacing());
-	tempImage.SetOrigin(this->GetOrigin());
-
-	tempImage.Fill(Pixel);
-
+	SubImage.SetSize(Lx, Ly, Lz);
+	SubImage.SetSpacing(this->GetSpacing());
+	SubImage.SetOrigin(this->GetOrigin());
+	SubImage.SetOrientation(this->GetOrientation());
+	SubImage.Fill(Pixel);
     for (int_max k = 0; k <= Lz; ++k)
     {
         for (int_max j = 0; j <= Ly; ++j)
@@ -1277,13 +1269,12 @@ DenseImage3D<PixelType>::Pad(PixelType Pixel, int_max Pad_Lx, int_max Pad_Ly, in
                 auto temp_i = i + Pad_Lx;
                 auto temp_j = j + Pad_Ly;
                 auto temp_k = k + Pad_Lz;
-
-				tempImage(temp_i, temp_j, temp_k) = (*this)(i, j, k);
+				SubImage(temp_i, temp_j, temp_k) = (*this)(i, j, k);
             }
         }
     }
 
-	return tempImage;
+	return SubImage;
 }
 
 
@@ -1291,34 +1282,32 @@ template<typename PixelType>
 DenseImage3D<PixelType>
 DenseImage3D<PixelType>::UnPad(int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) const
 {
-	DenseImage3D<PixelType> tempImage; // empty DenseImage
+	DenseImage3D<PixelType> SubImage; // empty SubImage
 
     auto Size = this->GetSize();
 
     if (Pad_Lx > Size[0] || Pad_Lx  < 0 || Pad_Ly > Size[1] || Pad_Ly < 0 || Pad_Lz > Size[2] || Pad_Lz < 0)
     {
         MDK_Error("Invalid Pad Size @ DenseImage3D::UnPad(...)")
-        return tempImage;
+		return SubImage;
     }
 
     if (Pad_Lx == Size[0] || Pad_Ly == Size[1] || Pad_Lz == Size[2])
     {
         MDK_Warning("Output is empty @ DenseImage3D::UnPad(...)")
-        return tempImage;
+        return SubImage;
     }
 
     if (Pad_Lx == 0 && Pad_Ly == 0 && Pad_Lz == 0)
     {
         MDK_Warning("Input Pad Size is [0, 0, 0] @ DenseImage3D::UnPad(...)")
-		tempImage = (*this);
-		return tempImage;
+		SubImage = (*this);
+		return SubImage;
     }
 
     return this->GetSubImage(Pad_Lx, Size[0] - 1 - Pad_Lx,
                              Pad_Ly, Size[1] - 1 - Pad_Ly,
                              Pad_Lz, Size[2] - 1 - Pad_Lz);
-
-
 }
 
 }//end namespace mdk
