@@ -36,7 +36,8 @@ void SparseImageData3D<PixelType>::Clear()
     m_Spacing[1] = 0;
     m_Spacing[2] = 0;
 
-    m_Orientation.FastResize(3, 3);
+	m_Orientation.Clear();
+    m_Orientation.Resize(3, 3);
     m_Orientation.FixSize();
     m_Orientation.FillDiagonal(1.0);
 
@@ -682,9 +683,8 @@ inline
 const PixelType& SparseImage3D<PixelType>::operator[](int_max LinearIndex) const
 {
 #if defined MDK_DEBUG_3DSparseImage_Operator_CheckBound
-
-	auto Size = this->GetSize();
-	auto PixelNumber = Size[0] * Size[1] * Size[2];
+	
+	auto PixelNumber = m_ImageData->m_PixelNumberPerZSlice * m_ImageData->m_Size[2];
     if (LinearIndex >= PixelNumber || LinearIndex < 0)
     {
         MDK_Error("Invalid input @ SparseImage3D::operator(LinearIndex)")
@@ -725,19 +725,20 @@ const PixelType& SparseImage3D<PixelType>::operator()(int_max xIndex, int_max yI
 
 
 template<typename PixelType>
-const PixelType& SparseImage3D<PixelType>::GetPixelNearestTo3DIndex(int_max xIndex, int_max yIndex, int_max zIndex) const
+template<typename ScalarType>
+const PixelType& SparseImage3D<PixelType>::GetPixelNearestTo3DIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const
 {
 	if (this->IsEmpty() == true)
 	{
-		MDK_Error("Self is empty @ SparseImage3D:: GetPixelNearestTo3DIndex(...)")
+		MDK_Error("Self is empty @ SparseImage3D::GetPixelNearestTo3DIndex(...)")
 		return m_ImageData->m_Pixel_OutsideImage;
 	}
 
 	auto Size = this->GetSize();
 
-	auto x0 = int_max(x);
-	auto y0 = int_max(y);
-	auto z0 = int_max(z);
+	auto x0 = int_max(xIndex);
+	auto y0 = int_max(yIndex);
+	auto z0 = int_max(zIndex);
 
     if (x0 < 0)
 	{
@@ -771,7 +772,8 @@ const PixelType& SparseImage3D<PixelType>::GetPixelNearestTo3DIndex(int_max xInd
 
 
 template<typename PixelType>
-const PixelType& SparseImage3D<PixelType>::GetPixelNearestTo3DIndex(const DenseVector<int_max, 3>& Index3D) const
+template<typename ScalarType>
+const PixelType& SparseImage3D<PixelType>::GetPixelNearestTo3DIndex(const DenseVector<ScalarType, 3>& Index3D) const
 {
 	return this->GetPixelNearestTo3DIndex(Index3D[0], Index3D[1], Index3D[2]);
 }
@@ -783,7 +785,7 @@ inline
 const PixelType& SparseImage3D<PixelType>::GetPixelNearestTo3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z) const
 {
 	auto Index3D = this->Transform3DPhysicalPositionTo3DIndex(x, y, z);
-	return this->GetPixelNearestTo3DIndex(int_max(Index3D[0]), int_max(Index3D[1]), int_max(Index3D[2]));
+	return this->GetPixelNearestTo3DIndex(Index3D[0], Index3D[1], Index3D[2]);
 }
 
 
@@ -793,6 +795,87 @@ inline
 const PixelType& SparseImage3D<PixelType>::GetPixelNearestTo3DPhysicalPosition(const DenseVector<ScalarType, 3>& Position) const
 {
 	return this->GetPixelNearestTo3DPhysicalPosition(Position[0], Position[1], Position[2]);
+}
+
+
+template<typename PixelType>
+template<typename OutputPixelType, typename ScalarType>
+OutputPixelType SparseImage3D<PixelType>::
+GetPixelAt3DIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex, const InterpolationOptionType& Option) const
+{
+	return InterpolateImageAt3DContinuousIndex<OutputPixelType>(*this, xIndex, yIndex, zIndex, Option);
+}
+
+
+template<typename PixelType>
+const PixelType& SparseImage3D<PixelType>::GetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, const InterpolationOptionType& Option) const
+{
+	return InterpolateImageAt3DContinuousIndex_Nearest<PixelType>(*this, xIndex, yIndex, zIndex, Option);
+}
+
+
+template<typename PixelType>
+const PixelType& SparseImage3D<PixelType>::GetPixelAt3DIndex(int xIndex, int yIndex, int zIndex, const InterpolationOptionType& Option) const
+{
+	return this->GetPixelAt3DIndex(int_max(xIndex), int_max(yIndex), int_max(zIndex), Option);
+}
+
+
+template<typename PixelType>
+const PixelType& SparseImage3D<PixelType>::GetPixelAt3DIndex(long xIndex, long yIndex, long zIndex, const InterpolationOptionType& Option) const
+{
+	return this->GetPixelAt3DIndex(int_max(xIndex), int_max(yIndex), int_max(zIndex), Option);
+}
+
+
+template<typename PixelType>
+template<typename OutputPixelType, typename ScalarType>
+OutputPixelType SparseImage3D<PixelType>::
+GetPixelAt3DIndex(const DenseVector<ScalarType, 3>& Index3D, const InterpolationOptionType& Option) const
+{
+	return this->GetPixelAt3DIndex<OutputPixelType>(Index3D[0], Index3D[1], Index3D[2], Option);
+}
+
+
+template<typename PixelType>
+const PixelType& SparseImage3D<PixelType>::
+GetPixelAt3DIndex(const DenseVector<int_max, 3>& Index3D, const InterpolationOptionType& Option) const
+{
+	return this->GetPixelAt3DIndex(Index3D[0], Index3D[1], Index3D[2], Option);
+}
+
+
+template<typename PixelType>
+const PixelType& SparseImage3D<PixelType>::
+GetPixelAt3DIndex(const DenseVector<int, 3>& Index3D, const InterpolationOptionType& Option) const
+{
+	return this->GetPixelAt3DIndex(int_max(Index3D[0]), int_max(Index3D[1]), int_max(Index3D[2]), Option);
+}
+
+
+template<typename PixelType>
+const PixelType& SparseImage3D<PixelType>::
+GetPixelAt3DIndex(const DenseVector<long, 3>& Index3D, const InterpolationOptionType& Option) const
+{
+	return this->GetPixelAt3DIndex(int_max(Index3D[0]), int_max(Index3D[1]), int_max(Index3D[2]), Option);
+}
+
+
+template<typename PixelType>
+template<typename OutputPixelType, typename ScalarType>
+OutputPixelType SparseImage3D<PixelType>::
+GetPixelAt3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option) const
+{
+	return InterpolateImageAt3DPhysicalPosition<OutputPixelType>(*this, x, y, z, Option);
+}
+
+
+template<typename PixelType>
+template<typename OutputPixelType, typename ScalarType>
+OutputPixelType SparseImage3D<PixelType>::
+GetPixelAt3DPhysicalPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option) const
+{
+	return InterpolateImageAt3DPhysicalPosition<OutputPixelType>(*this, Position[0], Position[1], Position[2], Option);
 }
 
 

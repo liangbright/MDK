@@ -376,6 +376,20 @@ public:
 
 	inline const PixelType& operator()(int_max xIndex, int_max yIndex, int_max zIndex) const;
 
+	//------------------ get nearest pixel --------------------//
+
+	template<typename ScalarType>
+	inline const PixelType& GetPixelNearestTo3DIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const;
+
+	template<typename ScalarType>
+	inline const PixelType& GetPixelNearestTo3DIndex(const DenseVector<ScalarType, 3>& Index3D) const;
+
+	template<typename ScalarType>
+	inline const PixelType& GetPixelNearestTo3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline const PixelType& GetPixelNearestTo3DPhysicalPosition(const DenseVector<ScalarType, 3>& Position) const;
+
 	//------------------ get Pixel by using interpolation method --------------------//
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>

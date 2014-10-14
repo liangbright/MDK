@@ -113,19 +113,16 @@ template<typename ScalarType>
 inline 
 DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex) const
 {
-	DenseVector<ScalarType, 3> Index3D;
-
-    std::lldiv_t divresult;
-
-    divresult = div(LinearIndex, m_PixelNumberPerZSlice);
+    auto divresult = std::div(LinearIndex, m_PixelNumberPerZSlice);
 
 	auto zIndex = divresult.quot; // z
             
-    divresult = div(divresult.rem, m_Size[0]);
+	divresult = std::div(divresult.rem, m_Size[0]);
 
 	auto yIndex = divresult.quot; // y
 	auto xIndex = divresult.rem; // x
 
+	DenseVector<ScalarType, 3> Index3D;
 	Index3D[0] = ScalarType(xIndex);
 	Index3D[1] = ScalarType(yIndex);
 	Index3D[2] = ScalarType(zIndex);
@@ -137,25 +134,12 @@ template<typename PixelType>
 template<typename ScalarType>
 inline 
 DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const
-{      
+{
 	DenseVector<ScalarType, 3> Position;
-
-    std::lldiv_t divresult;
-
-    divresult = div(LinearIndex, m_PixelNumberPerZSlice);
-
-	Position[2] = ScalarType(divresult.quot);
-
-    divresult = div(divresult.rem, m_Size[0]);
-
-	Position[1] = ScalarType(divresult.quot);
-      
-	Position[0] = ScalarType(divresult.rem);
-
-	Position[0] = m_Origin[0] + Position[0] * m_Spacing[0];
-	Position[1] = m_Origin[1] + Position[1] * m_Spacing[1];
-	Position[2] = m_Origin[2] + Position[2] * m_Spacing[2];
-
+	auto Index3D = this->TransformLinearIndexTo3DIndex();
+	Position[0] = ScalarType(m_Origin[0] + double(Index3D[0]) * m_Spacing[0]);
+	Position[1] = ScalarType(m_Origin[1] + double(Index3D[1]) * m_Spacing[1]);
+	Position[2] = ScalarType(m_Origin[2] + double(Index3D[2]) * m_Spacing[2]);
 	return Position;
 }
 
@@ -734,7 +718,7 @@ template<typename PixelType>
 inline
 int_max DenseImage3D<PixelType>::GetPixelNumber() const
 {
-    return m_ImageData->m_Size[0] * m_ImageData->m_Size[1] * m_ImageData->m_Size[2];
+	return m_ImageData->m_PixelNumberPerZSlice * m_ImageData->m_Size[2];
 }
  
 
@@ -898,6 +882,80 @@ const PixelType& DenseImage3D<PixelType>::operator()(int_max xIndex, int_max yIn
 #endif //MDK_DEBUG_3DDenseImage_Operator_CheckBound
 
     return (*m_ImageData)(xIndex, yIndex, zIndex);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+const PixelType& DenseImage3D<PixelType>::GetPixelNearestTo3DIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const
+{
+	if (this->IsEmpty() == true)
+	{
+		MDK_Error("Self is empty @ DenseImage3D:: GetPixelNearestTo3DIndex(...)")
+		return m_ImageData->m_Pixel_OutsideImage;
+	}
+
+	auto Size = this->GetSize();
+
+	auto x0 = int_max(xIndex);
+	auto y0 = int_max(yIndex);
+	auto z0 = int_max(zIndex);
+
+	if (x0 < 0)
+	{
+		x0 = 0;
+	}
+	else if (x0 >= Size[0])
+	{
+		x0 = Size[0] - 1;
+	}
+
+	if (y0 < 0)
+	{
+		y0 = 0;
+	}
+	else if (y0 >= Size[1])
+	{
+		y0 = Size[1] - 1;
+	}
+
+	if (z0 < 0)
+	{
+		z0 = 0;
+	}
+	else if (z0 >= Size[2])
+	{
+		z0 = Size[2] - 1;
+	}
+
+	return (*m_ImageData)(x0, y0, z0);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+const PixelType& DenseImage3D<PixelType>::GetPixelNearestTo3DIndex(const DenseVector<ScalarType, 3>& Index3D) const
+{
+	return this->GetPixelNearestTo3DIndex(Index3D[0], Index3D[1], Index3D[2]);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+const PixelType& DenseImage3D<PixelType>::GetPixelNearestTo3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z) const
+{
+	auto Index3D = this->Transform3DPhysicalPositionTo3DIndex(x, y, z);
+	return this->GetPixelNearestTo3DIndex(Index3D[0], Index3D[1], Index3D[2]);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+const PixelType& DenseImage3D<PixelType>::GetPixelNearestTo3DPhysicalPosition(const DenseVector<ScalarType, 3>& Position) const
+{
+	return this->GetPixelNearestTo3DPhysicalPosition(Position[0], Position[1], Position[2]);
 }
 
 

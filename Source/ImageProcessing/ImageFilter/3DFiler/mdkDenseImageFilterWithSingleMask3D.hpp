@@ -25,7 +25,7 @@ DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::~
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
-    this->DenseImageFilter3D::Clear();
+	this->ImageToImageFilter3D::Clear();
 	m_Mask.Clear();
 	m_Flag_PhysicalPositionInMask = -1;
     m_NOBoundCheckRegion_3DIndex.IsEmpty = true;
@@ -72,72 +72,46 @@ const DenseMatrix<ScalarType>& DenseImageFilterWithSingleMask3D<InputPixelType, 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DIndex()
 {
-    m_NOBoundCheckRegion_3DIndex.IsEmpty = true;
+	if (m_NOBoundCheckRegion_3DPosition.IsEmpty == true)
+	{
+		this->ComputeRegionOfNOBoundCheck_3DPosition();
+	}
+
+	m_NOBoundCheckRegion_3DIndex.IsEmpty = true;
 
 	if (m_Mask.IsEmpty() == true)
     {
         return;
     }
 
-    auto InputImageSize = m_InputImage->GetSize();    
+	auto PhysicalOrigin = m_OutputImage.GetOrigin();
+	auto ImageSize = m_OutputImage.GetSize();
+	auto PixelSpacing = m_OutputImage.GetSpacing();
 
-    int_max MaxDeviation_x[2] = { 0, 0 }; // maximum deviation from center in x direction
-    int_max MaxDeviation_y[2] = { 0, 0 };
-    int_max MaxDeviation_z[2] = { 0, 0 };
+	auto x0 = int_max((m_NOBoundCheckRegion_3DPosition.x0 - PhysicalOrigin[0]) / PixelSpacing[0]);
+	x0 = std::max(x0, int_max(0)); x0 = std::min(x0, ImageSize[0]);
 
-    int_max SafeDistance = 2;
+	auto y0 = int_max((m_NOBoundCheckRegion_3DPosition.y0 - PhysicalOrigin[1]) / PixelSpacing[1]);
+	y0 = std::max(y0, int_max(0)); y0 = std::min(y0, ImageSize[1]);
 
-	for (int_max j = 0; j < m_Mask.GetColNumber(); ++j)
-    {
-		auto temp_x = m_Mask(0, j);
-		if (temp_x < 0.0)
-        {
-			MaxDeviation_x[0] = std::max(MaxDeviation_x[0], int_max(-temp_x));
-        }
-        else
-        {
-			MaxDeviation_x[1] = std::max(MaxDeviation_x[1], int_max(temp_x));
-        }
+	auto z0 = int_max((m_NOBoundCheckRegion_3DPosition.z0 - PhysicalOrigin[2]) / PixelSpacing[2]);
+	z0 = std::max(z0, int_max(0)); z0 = std::min(z0, ImageSize[2]);
 
-		auto temp_y = m_Mask(1, j);
-		if (temp_y < 0.0)
-        {
-			MaxDeviation_y[0] = std::max(MaxDeviation_y[0], int_max(-temp_y));
-        }
-        else
-        {
-			MaxDeviation_y[1] = std::max(MaxDeviation_y[1], int_max(temp_y));
-        }
+	auto x1 = int_max((m_NOBoundCheckRegion_3DPosition.x1 - PhysicalOrigin[0]) / PixelSpacing[0]);
+	x1 = std::max(x1, int_max(0)); x1 = std::min(x1, ImageSize[0]);
 
-		auto temp_z = m_Mask(2, j);
-		if (temp_z < 0.0)
-        {
-			MaxDeviation_z[0] = std::max(MaxDeviation_z[0], int_max(-temp_z));
-        }
-        else
-        {
-			MaxDeviation_z[1] = std::max(MaxDeviation_z[1], int_max(temp_z));
-        }
-    }
+	auto y1 = int_max((m_NOBoundCheckRegion_3DPosition.y1 - PhysicalOrigin[1]) / PixelSpacing[1]);
+	y1 = std::max(y1, int_max(0)); y1 = std::min(y1, ImageSize[1]);
 
-	if (   MaxDeviation_x[0] + MaxDeviation_x[1] + 1 + 2 * SafeDistance < InputImageSize[0]
-		&& MaxDeviation_y[0] + MaxDeviation_y[1] + 1 + 2 * SafeDistance < InputImageSize[1]
-        && MaxDeviation_z[0] + MaxDeviation_z[1] + 1 + 2 * SafeDistance < InputImageSize[2])
-    {
-        m_NOBoundCheckRegion_3DIndex.IsEmpty = false;
+	auto z1 = int_max((m_NOBoundCheckRegion_3DPosition.z1 - PhysicalOrigin[2]) / PixelSpacing[2]);
+	z1 = std::max(z1, int_max(0)); z1 = std::min(z1, ImageSize[2]);
 
-        m_NOBoundCheckRegion_3DIndex.x0 = MaxDeviation_x[0] + SafeDistance;
-
-        m_NOBoundCheckRegion_3DIndex.x1 = InputImageSize[0] - 1 - MaxDeviation_x[1] - SafeDistance;
-
-        m_NOBoundCheckRegion_3DIndex.y0 = MaxDeviation_y[0] + SafeDistance;
-
-        m_NOBoundCheckRegion_3DIndex.y1 = InputImageSize[1] - 1 - MaxDeviation_y[1] - SafeDistance;
-
-        m_NOBoundCheckRegion_3DIndex.z0 = MaxDeviation_z[0] + SafeDistance;
-
-        m_NOBoundCheckRegion_3DIndex.z1 = InputImageSize[2] - 1 - MaxDeviation_z[1] - SafeDistance;
-    }
+	m_NOBoundCheckRegion_3DIndex.x0 = x0;
+	m_NOBoundCheckRegion_3DIndex.y0 = y0;
+	m_NOBoundCheckRegion_3DIndex.z0 = z0;
+	m_NOBoundCheckRegion_3DIndex.x1 = x1;
+	m_NOBoundCheckRegion_3DIndex.y1 = y1;
+	m_NOBoundCheckRegion_3DIndex.z1 = z1;
 }
 
 
@@ -220,20 +194,22 @@ void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarTyp
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 bool DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
 {
-    if (this->DenseImageFilter3D::Preprocess() == false)
+	if (this->ImageToImageFilter3D::Preprocess() == false)
     {
         return false;
     }
+	
+	this->ComputeRegionOfNOBoundCheck_3DPosition();
+	this->ComputeRegionOfNOBoundCheck_3DIndex();
 
 	if (m_Flag_PhysicalPositionInMask == true)
 	{
 		this->BuildMask_3DPosition();
-		this->ComputeRegionOfNOBoundCheck_3DPosition();
+		
 	}
 	else if (m_Flag_PhysicalPositionInMask == false)
 	{
-		this->BuildMask_3DIndex();
-		this->ComputeRegionOfNOBoundCheck_3DIndex();
+		this->BuildMask_3DIndex();		
 	}
 	else
 	{

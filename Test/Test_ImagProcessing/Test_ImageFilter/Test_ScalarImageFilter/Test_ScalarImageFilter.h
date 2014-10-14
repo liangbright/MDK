@@ -37,7 +37,7 @@ void test_ScalarImageGaussianFilter3D()
 
     imfilter.Update();
 
-    auto& OutputImage = imfilter.OutputImage();
+    auto& OutputImage = *imfilter.GetOutputImage();
 
     Save3DScalarImageAsJsonDataFile(OutputImage, FilePath + "FilteredTestImage.json");
 

@@ -26,21 +26,17 @@ operator+(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType
     if (Length_A != Length_B)
     {
         MDK_Error << "VectorA.size() != VectorB.size() @ DenseVectorWithVariableLength_Operator operator+(VectorA, VectorB)" << '\n';
-
         DenseVector<ElementType> EmptyVector;
         return EmptyVector;
     }
 
-    DenseVector<ElementType> tempVector;
-
-    tempVector.Resize(Length_A);
-
+	DenseVector<ElementType> OutputVector;
+	OutputVector.Resize(Length_A);
     for (int_max i = 0; i < Length_A; ++i)
 	{
-		tempVector[i] = VectorA[i] + VectorB[i];
+		OutputVector[i] = VectorA[i] + VectorB[i];
 	}
-
-	return tempVector;
+	return OutputVector;
 }
 
 
@@ -69,15 +65,12 @@ operator-(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType
         return EmptyVector;
     }
 
-    DenseVector<ElementType> tempVector;
-
-    tempVector.Resize(Length_A);
-
+	DenseVector<ElementType> OutputVector;
+	OutputVector.Resize(Length_A);
     for (int_max i = 0; i < Length_A; ++i)
 	{
-		tempVector[i] = VectorA[i] - VectorB[i];
+		OutputVector[i] = VectorA[i] - VectorB[i];
 	}
-
 	return tempVector;
 }
 
@@ -107,16 +100,13 @@ operator*(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType
         return EmptyVector;
     }
 
-    DenseVector<ElementType> tempVector;
-
-    tempVector.Resize(Length_A);
-
+    DenseVector<ElementType> OutputVector;
+    OutputVector.Resize(Length_A);
     for (int_max i = 0; i < Length_A; ++i)
     {
-        tempVector[i] = VectorA[i] * VectorB[i];
+        OutputVector[i] = VectorA[i] * VectorB[i];
     }
-
-    return tempVector;
+    return OutputVector;
 }
 */
 
@@ -126,7 +116,6 @@ DenseVector<ElementType>
 operator/(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType>& VectorB)
 {
     auto Length_A = VectorA.GetLength();
-
     auto Length_B = VectorB.GetLength();
 
     if (Length_A == 1)
@@ -146,16 +135,13 @@ operator/(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType
         return EmptyVector;
     }
 
-    DenseVector<ElementType> tempVector;
-
-    tempVector.Resize(Length_A);
-
+	DenseVector<ElementType> OutputVector;
+	OutputVector.Resize(Length_A);
     for (int_max i = 0; i < Length_A; ++i)
     {
-        tempVector[i] = VectorA[i] / VectorB[i];
+		OutputVector[i] = VectorA[i] / VectorB[i];
     }
-
-    return tempVector;
+	return OutputVector;
 }
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -165,16 +151,13 @@ inline
 DenseVector<ElementType> 
 operator+(const DenseVector<ElementType>& Vector, const ElementType& Element)
 {
-    DenseVector<ElementType> tempVector;
-
-    tempVector.Resize(Vector.GetLength());
-
+	DenseVector<ElementType> OutputVector;
+	OutputVector.Resize(Vector.GetLength());
 	for (int_max i = 0; i < Vector.GetLength(); ++i)
 	{
-		tempVector[i] = Vector[i] + Element;
+		OutputVector[i] = Vector[i] + Element;
 	}
-
-    return tempVector;
+	return OutputVector;
 }
 
 
@@ -183,16 +166,13 @@ inline
 DenseVector<ElementType> 
 operator-(const DenseVector<ElementType>& Vector, const ElementType& Element)
 {
-    DenseVector<ElementType> tempVector;
-
-    tempVector.Resize(Vector.GetLength());
-
+	DenseVector<ElementType> OutputVector;
+	OutputVector.Resize(Vector.GetLength());
 	for (int_max i = 0; i < Vector.GetLength(); ++i)
 	{
-		tempVector[i] = Vector[i] - Element;
+		OutputVector[i] = Vector[i] - Element;
 	}
-
-    return tempVector;
+	return OutputVector;
 }
 
 
@@ -201,16 +181,13 @@ inline
 DenseVector<ElementType> 
 operator*(const DenseVector<ElementType>& Vector, const ElementType& Element)
 {
-    DenseVector<ElementType> tempVector;
-
-    tempVector.Resize(Vector.GetLength());
-
+	DenseVector<ElementType> OutputVector;
+	OutputVector.Resize(Vector.GetLength());
 	for (int_max i = 0; i < Vector.GetLength(); ++i)
 	{
-		tempVector[i] = Vector[i] * Element;
+		OutputVector[i] = Vector[i] * Element;
 	}
-
-    return tempVector;
+	return OutputVector;
 }
 
 
@@ -219,16 +196,13 @@ inline
 DenseVector<ElementType> 
 operator/(const DenseVector<ElementType>& Vector, const ElementType& Element)
 {
-    DenseVector<ElementType> tempVector;
-
-    tempVector.Resize(Vector.GetLength());
-
+	DenseVector<ElementType> OutputVector;
+	OutputVector.Resize(Vector.GetLength());
 	for (int_max i = 0; i < Vector.GetLength(); ++i)
 	{
-		tempVector[i] = Vector[i] / Element;
+		OutputVector[i] = Vector[i] / Element;
 	}
-
-    return tempVector;
+	return OutputVector;
 }
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -238,16 +212,13 @@ inline
 DenseVector<ElementType> 
 operator+(const ElementType& Element, const DenseVector<ElementType>& Vector)
 {
-    DenseVector<ElementType> tempVector;
-
-    tempVector.Resize(Vector.GetLength());
-
+	DenseVector<ElementType> OutputVector;
+	OutputVector.Resize(Vector.GetLength());
 	for (int_max i = 0; i < Vector.GetLength(); ++i)
 	{
-		tempVector[i] = Element + Vector[i];
+		OutputVector[i] = Element + Vector[i];
 	}
-
-    return tempVector;
+	return OutputVector;
 }
 
 
@@ -256,16 +227,13 @@ inline
 DenseVector<ElementType> 
 operator-(const ElementType& Element, const DenseVector<ElementType>& Vector)
 {
-    DenseVector<ElementType> tempVector;
-
-    tempVector.Resize(Vector.GetLength());
-
+	DenseVector<ElementType> OutputVector;
+	OutputVector.Resize(Vector.GetLength());
 	for (int_max i = 0; i < Vector.GetLength(); ++i)
 	{
-		tempVector[i] = Element - Vector[i];
+		OutputVector[i] = Element - Vector[i];
 	}
-
-    return tempVector;
+	return OutputVector;
 }
 
 
@@ -274,16 +242,13 @@ inline
 DenseVector<ElementType> 
 operator*(const ElementType& Element, const DenseVector<ElementType>& Vector)
 {
-    DenseVector<ElementType> tempVector;
-
-    tempVector.Resize(Vector.GetLength());
-
+	DenseVector<ElementType> OutputVector;
+	OutputVector.Resize(Vector.GetLength());
 	for (int_max i = 0; i < Vector.GetLength(); ++i)
 	{
-		tempVector[i] = Element * Vector[i];
+		OutputVector[i] = Element * Vector[i];
 	}
-
-    return tempVector;
+	return OutputVector;
 }
 
 
@@ -292,16 +257,13 @@ inline
 DenseVector<ElementType> 
 operator/(const ElementType& Element, const DenseVector<ElementType>& Vector)
 {
-    DenseVector<ElementType> tempVector;
-
-    tempVector.Resize(Vector.GetLength());
-
+	DenseVector<ElementType> OutputVector;
+	OutputVector.Resize(Vector.GetLength());
 	for (int_max i = 0; i < Vector.GetLength(); ++i)
 	{
-		tempVector[i] = Element / Vector[i];
+		OutputVector[i] = Element / Vector[i];
 	}
-
-    return tempVector;
+	return OutputVector;
 }
 
 

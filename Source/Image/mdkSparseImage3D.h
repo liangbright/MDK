@@ -118,7 +118,7 @@ public:
 
     //---------------------------------------------------------//
 
-    // Copy can be used to convert an image from double (Type_Input) to float (PixelType), etc
+    // Copy can be used to convert an image from double (PixelType_Input) to float (PixelType), etc
 
 	template<typename PixelType_Input>
 	void Copy(const SparseImage3D<PixelType_Input>& InputImage);
@@ -208,7 +208,7 @@ public:
 	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DIndex(const DenseVector<ScalarType, 3>& Position) const;
 
-	//--------------------------- Get/Set Pixel ------------------------------//
+	//--------------------------- Get Pixel ------------------------------//
 
 	inline const PixelType& operator[](int_max LinearIndex) const;
 
@@ -216,15 +216,41 @@ public:
 
 	inline const PixelType& operator()(int_max xIndex, int_max yIndex, int_max zIndex) const;
 
-	inline const PixelType& GetPixelNearestTo3DIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
+	template<typename ScalarType>
+	inline const PixelType& GetPixelNearestTo3DIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const;
 
-	inline const PixelType& GetPixelNearestTo3DIndex(const DenseVector<int_max, 3>& Index3D) const;
+	template<typename ScalarType>
+	inline const PixelType& GetPixelNearestTo3DIndex(const DenseVector<ScalarType, 3>& Index3D) const;
 
 	template<typename ScalarType>
 	inline const PixelType& GetPixelNearestTo3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z) const;
 
 	template<typename ScalarType>
 	inline const PixelType& GetPixelNearestTo3DPhysicalPosition(const DenseVector<ScalarType, 3>& Position) const;
+
+	//------------------ get Pixel by using interpolation method --------------------//
+
+	template<typename OutputPixelType = PixelType, typename ScalarType>
+	OutputPixelType GetPixelAt3DIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex, const InterpolationOptionType& Option) const;
+
+	const PixelType& GetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, const InterpolationOptionType& Option) const;
+	const PixelType& GetPixelAt3DIndex(int xIndex, int yIndex, int zIndex, const InterpolationOptionType& Option) const;
+	const PixelType& GetPixelAt3DIndex(long xIndex, long yIndex, long zIndex, const InterpolationOptionType& Option) const;
+
+	template<typename OutputPixelType = PixelType, typename ScalarType>
+	OutputPixelType GetPixelAt3DIndex(const DenseVector<ScalarType, 3>& Index3D, const InterpolationOptionType& Option) const;
+
+	const PixelType& GetPixelAt3DIndex(const DenseVector<int_max, 3>& Index3D, const InterpolationOptionType& Option) const;
+	const PixelType& GetPixelAt3DIndex(const DenseVector<int, 3>& Index3D, const InterpolationOptionType& Option) const;
+	const PixelType& GetPixelAt3DIndex(const DenseVector<long, 3>& Index3D, const InterpolationOptionType& Option) const;
+
+	template<typename OutputPixelType = PixelType, typename ScalarType>
+	OutputPixelType GetPixelAt3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option) const;
+
+	template<typename OutputPixelType = PixelType, typename ScalarType>
+	OutputPixelType GetPixelAt3DPhysicalPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option) const;
+
+	//--------------------------- Set Pixel ------------------------------//
 
 	inline bool SetPixelAtLinearIndex(int_max LinearIndex, const PixelType& Pixel);
 
