@@ -42,7 +42,10 @@ protected:
 	
 	// -------------------- internal ----------------------------------------------------//
 	int_max m_TotalNumberOfOutputPixelTobeProcessed;
+
 	bool m_Flag_ScanWholeImageGrid;
+	// true: whole m_OutputImage
+	// false: point set determined by m_PointList_3DPyhsicalPosition or m_PointList_3DIndex_InputImage or m_PointList_3DIndex_OutputImage
 
 	//------------------------- output ----------------------------------------------------//
 	OutputImageType m_OutputImage;
@@ -70,17 +73,17 @@ public:
 
 	OutputImageType* GetOutputImage();
 
-	void SetListOf3DIndexInInputImage(const DenseMatrix<int_max>* ListOf3DIndex);
+	void SetPointListOf3DIndexInInputImage(const DenseMatrix<int_max>* ListOf3DIndex);
 
-	void SetListOf3DPyhsicalPosition(const DenseMatrix<ScalarType>* ListOf3DPyhsicalPosition);
+	void SetPointListOf3DPyhsicalPosition(const DenseMatrix<ScalarType>* ListOf3DPyhsicalPosition);
 
-	void SetListOf3DIndexInOutputImage(DenseMatrix<int_max> ListOf3DIndex);
+	void SetPointListOf3DIndexInOutputImage(DenseMatrix<int_max> ListOf3DIndex);
 
 	void SetImageInterpolationOption(const ImageInterpolationOptionType& InputOption);
 
 	ImageInterpolationOptionType GetImageInterpolationOption();
 
-	void SetThreadNumber(int_max MaxNumber);
+	void SetMaxNumberOfThread(int_max MaxNumber);
 
 	virtual bool Update();
 
@@ -91,6 +94,8 @@ protected:
 
 	// Evaluate at Point (x, y, z): 3DIndex of m_OutputImage
 	inline virtual void EvaluateAt3DIndexInOutputImage(int_max x0, int_max y0, int_max z0, int_max ThreadIndex) = 0;
+
+	int_max GetMaxNumberOfThread_UserInput();
 
 	int_max GetNumberOfThreadTobeCreated();
 

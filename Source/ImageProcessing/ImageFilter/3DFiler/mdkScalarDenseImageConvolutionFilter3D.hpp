@@ -5,42 +5,44 @@
 namespace mdk
 {
 
-template<typename InputPixelType, typename OutputPixelType>
-ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::ScalarDenseImageConvolutionFilter3D()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType, ScalarType>::ScalarDenseImageConvolutionFilter3D()
 {
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::~ScalarDenseImageConvolutionFilter3D()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType, ScalarType>::~ScalarDenseImageConvolutionFilter3D()
 {
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-void ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::SetConvolutionCoefficient(DenseMatrix<ScalarType> Coefficient)
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetConvolutionCoefficient(DenseMatrix<ScalarType> Coefficient)
 {
 	m_ConvolutionCoefficient = std::move(Coefficient);
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-const DenseMatrix<OutputPixelType>& ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::GetConvolutionCoefficient()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+const DenseMatrix<ScalarType>& ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType, ScalarType>::GetConvolutionCoefficient()
 {
 	return m_ConvolutionCoefficient;
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-bool ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::Preprocess()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+bool ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
 {
 	if (this->DenseImageFilterWithSingleMask3D::Preprocess() == false)
 	{
 		return false;
 	}
 
-	if (m_ConvolutionCoefficient.GetElementNumber() != m_Mask.GetColNumber())
+	if (m_ConvolutionCoefficient.GetElementNumber() != m_Mask_3DIndex.GetColNumber()
+		&& m_ConvolutionCoefficient.GetElementNumber() != m_Mask_3DPhysicalPosition.GetColNumber())
 	{
+		MDK_Error("size of ConvolutionCoefficient vector not match size of Mask @ ScalarDenseImageConvolutionFilter3D::Preprocess()")
 		return false;
 	}
 
@@ -48,20 +50,19 @@ bool ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::Prepr
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline
-void ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::
+void ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType, ScalarType>::
 EvaluateAt3DIndexInOutputImage(int_max x0_Index, int_max y0_Index, int_max z0_Index, int_max ThreadIndex)
 {	
 	auto OutputPixel = OutputPixelType(0);
 
-    auto PointNumberInMask = m_Mask.GetElementNumber();
-    auto BeginPointerOfMask = m_Mask.GetElementPointer();
-
-	auto BeginPointerOfCoef = m_ConvolutionCoefficient.GetElementPointer();
-
-	if (m_Flag_PhysicalPositionInMask == false)
+	if (m_Flag_UseMaskOf3DPhysicalPosition == false)
 	{
+		auto PointNumberInMask = m_Mask_3DIndex.GetElementNumber();
+		auto BeginPointerOfMask = m_Mask_3DIndex.GetElementPointer();
+		auto BeginPointerOfCoef = m_ConvolutionCoefficient.GetElementPointer();
+
 		bool CheckBoundAtThisCenter = this->WhetherToCheckBoundAtMaskOrigin_3DIndex(x0_Index, y0_Index, z0_Index);
 
 		if (m_ImageInterpolationOption.MethodType == MethodEnum_Of_Image3DInterpolation::Nearest)
@@ -108,13 +109,16 @@ EvaluateAt3DIndexInOutputImage(int_max x0_Index, int_max y0_Index, int_max z0_In
 			}
 		}
 	}
-	else//if (m_Flag_PhysicalPositionInMask == true)
+	else//if (m_Flag_UseMaskOf3DPhysicalPosition == true)
 	{
 		auto PointPosition = m_OutputImage.Transform3DIndexTo3DPhysicalPosition<ScalarType>(x0_Index, y0_Index, z0_Index);
 		auto x0 = PointPosition[0];
 		auto y0 = PointPosition[1];
 		auto z0 = PointPosition[2];
 
+		auto PointNumberInMask = m_Mask_3DPhysicalPosition.GetElementNumber();
+		auto BeginPointerOfMask = m_Mask_3DPhysicalPosition.GetElementPointer();
+		auto BeginPointerOfCoef = m_ConvolutionCoefficient.GetElementPointer();
 		auto PtrCoef = BeginPointerOfCoef;
 		for (auto PtrMask = BeginPointerOfMask; PtrMask < BeginPointerOfMask + PointNumberInMask; PtrMask += 3, ++PtrCoef)
 		{

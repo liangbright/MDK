@@ -8,13 +8,13 @@
 namespace mdk
 {
 
-template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type>
-class ScalarDenseImageConvolutionFilter3D : public DenseImageFilterWithSingleMask3D<InputPixel_Type, OutputPixel_Type, OutputPixel_Type>
+template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = OutputPixel_Type>
+class ScalarDenseImageConvolutionFilter3D : public DenseImageFilterWithSingleMask3D<InputPixel_Type, OutputPixel_Type, Scalar_Type>
 {
 public:
 	typedef InputPixel_Type  InputPixelType;
 	typedef OutputPixel_Type OutputPixelType;
-	typedef OutputPixel_Type ScalarType;
+	typedef Scalar_Type      ScalarType;
 
 	typedef Option_Of_Image3DInterpolation<InputPixelType> ImageInterpolationOptionType;
 	typedef MethodEnum_Of_Image3DInterpolation             ImageInterpolationMethodEnum;

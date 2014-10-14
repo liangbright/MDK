@@ -179,7 +179,7 @@ OutputPixelType InterpolateImageAt2DContinuousIndex_Linear(const DenseImage2D<In
         x0 = 0;
         x1 = 0;
     }
-    else if (x0 >= Size[0])
+    else if (x0 >= Size[0]-1)
     {
         x0 = Size[0] - 1;
         x1 = x0;
@@ -190,7 +190,7 @@ OutputPixelType InterpolateImageAt2DContinuousIndex_Linear(const DenseImage2D<In
         y0 = 0;
         y1 = 0;
     }
-    else if (y0 >= Size[1])
+    else if (y0 >= Size[1]-1)
     {
         y0 = Size[1] - 1;
         y1 = y0;

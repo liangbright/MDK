@@ -20,7 +20,7 @@ template<typename InputImageType, typename OutputImageType, typename ScalarType>
 void ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::Clear()
 {
 	m_InputImage = nullptr;
-	m_ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Nearest;
+	m_ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Linear;
 	m_ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Constant;
 	m_ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);
 	
@@ -92,21 +92,21 @@ OutputImageType* ImageToImageFilter3D<InputImageType, OutputImageType, ScalarTyp
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetListOf3DPyhsicalPosition(const DenseMatrix<ScalarType>* ListOf3DPyhsicalPosition)
+void ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetPointListOf3DPyhsicalPosition(const DenseMatrix<ScalarType>* ListOf3DPyhsicalPosition)
 {
 	m_PointList_3DPyhsicalPosition = std::move(ListOf3DPyhsicalPosition);
 }
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetListOf3DIndexInInputImage(const DenseMatrix<int_max>* ListOf3DIndex)
+void ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetPointListOf3DIndexInInputImage(const DenseMatrix<int_max>* ListOf3DIndex)
 {
 	m_PointList_3DIndex_InputImage = ListOf3DIndex;
 }
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetListOf3DIndexInOutputImage(DenseMatrix<int_max> ListOf3DIndex)
+void ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetPointListOf3DIndexInOutputImage(DenseMatrix<int_max> ListOf3DIndex)
 {
 	m_PointList_3DIndex_OutputImage = std::move(ListOf3DIndex);
 }
@@ -129,9 +129,16 @@ ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::GetImageInter
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetThreadNumber(int_max MaxNumber)
+void ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetMaxNumberOfThread(int_max MaxNumber)
 {
 	m_MaxNumberOfThread = MaxNumber;
+}
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+int_max ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::GetMaxNumberOfThread_UserInput()
+{
+	return m_MaxNumberOfThread;
 }
 
 
@@ -199,7 +206,7 @@ bool ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::Preproce
 	DenseVector<double, 3> OutputImageOrigin;
 	int_max TotalOutputPixelNumber = 0;
 
-	if (m_InputImage->GetOrientation().IsEmpty() == true)
+	if (m_OutputImage.GetOrientation().IsEmpty() == true)
 	{
 		m_OutputImage.SetOrientation(m_InputImage->GetOrientation());
 	}

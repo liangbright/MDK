@@ -25,9 +25,9 @@ void test_ScalarImageGaussianFilter3D()
 
     DenseMatrix<double> RoationMatrix(3, 3);
     RoationMatrix.FillDiagonal(1);
-
-    imfilter.SetMaskParameter(3, 3, 3, RoationMatrix, 3);
-	imfilter.Use3DIndexInMask();
+	DenseVector <double, 3> Sigma;
+	Sigma = { 3, 3, 3 };
+	imfilter.SetGaussianParameter(Sigma, RoationMatrix, 3);
 
 	auto Option = imfilter.GetImageInterpolationOption();
 	Option.MethodType = Image3DInterpolationMethodEnum::Linear;

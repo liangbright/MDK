@@ -16,45 +16,46 @@ public:
 	typedef Scalar_Type      ScalarType;
 
 protected:
-	bool m_Flag_PhysicalPositionInMask;
-	// true: use 3D physical position in Region
-	// false: use 3D Index in Region
+	bool m_Flag_UseMaskOf3DPhysicalPosition;
+	// true: m_Mask_3DPhysicalPosition
+	// false: m_Mask_3DIndex
 
-	DenseMatrix<ScalarType> m_Mask; // may be continuous index or physical position
+	DenseMatrix<ScalarType> m_Mask_3DPhysicalPosition;
     // row_0: dx or dx_Index
     // row_1: dy or dy_Index
     // row_2: dz or dz_Index
 
+	DenseMatrix<ScalarType> m_Mask_3DIndex;
+	// row_0: dx or dx_Index
+	// row_1: dy or dy_Index
+	// row_2: dz or dz_Index
+
     Image3DBoxRegionOf3DIndex                        m_NOBoundCheckRegion_3DIndex;
-	Image3DBoxRegionOf3DPhysicalPosition<ScalarType> m_NOBoundCheckRegion_3DPosition;
+	Image3DBoxRegionOf3DPhysicalPosition<ScalarType> m_NOBoundCheckRegion_3DPhysicalPosition;
 
 protected:		
 	DenseImageFilterWithSingleMask3D();
 	virtual ~DenseImageFilterWithSingleMask3D();
  
 public:
-
     virtual void Clear(); // called in Clear@ProcessObject, must be virtual
 
-	void SetMask_3DIndex(DenseMatrix<ScalarType> Mask);
-	void SetMask_3DPosition(DenseMatrix<ScalarType> Mask);
-
-	void Use3DIndexInMask();
-	void Use3DPositionInMask();
-
-	const DenseMatrix<ScalarType>& GetMask();
-
 protected:
+	bool IsPhysicalPositionUsedInSelectedMask();
+
+	void SelectMaskOf3DIndex();
+	void SelectMaskOf3DPhysicalPosition();
+
 	virtual bool Preprocess();             // called in Update@DenseImageFilter3D, must be virtual
     virtual void BuildMask_3DIndex() {}    // called in Preprocess@DenseImageFilterWithSingleMask3D, must be virtual
-    virtual void BuildMask_3DPosition() {} // called in Preprocess@DenseImageFilterWithSingleMask3D, must be virtual
+	virtual void BuildMask_3DPhysicalPosition() {} // called in Preprocess@DenseImageFilterWithSingleMask3D, must be virtual
 
 	inline bool WhetherToCheckBoundAtMaskOrigin_3DIndex(ScalarType x, ScalarType y, ScalarType z);
-	inline bool WhetherToCheckBoundAtMaskOrigin_3DPosition(ScalarType x, ScalarType y, ScalarType z);
+	inline bool WhetherToCheckBoundAtMaskOrigin_3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z);
 
 private:
     void ComputeRegionOfNOBoundCheck_3DIndex();
-    void ComputeRegionOfNOBoundCheck_3DPosition();
+	void ComputeRegionOfNOBoundCheck_3DPhysicalPosition();
 
 private:
 	DenseImageFilterWithSingleMask3D(const DenseImageFilterWithSingleMask3D&) = delete;

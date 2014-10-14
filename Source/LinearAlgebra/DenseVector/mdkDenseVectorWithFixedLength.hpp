@@ -124,7 +124,10 @@ void DenseVector<ElementType, Length>::operator=(const std::initializer_list<Ele
         return;
     }
 
-    m_StdArray = InputVector;
+	for (int_max k = 0; k < Length; ++k)
+	{
+		m_StdArray[k] = InputVector.begin()[k];
+	}
 }
 
 
