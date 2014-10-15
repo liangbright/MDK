@@ -1,7 +1,7 @@
 #ifndef __mdkThinPlateSplineTransform3D_h
 #define __mdkThinPlateSplineTransform3D_h
 
-#include "mdkProcessObject.h"
+#include "mdkCoordinateTransform3D.h"
 #include "mdkDenseMatrix.h"
 
 namespace mdk
@@ -14,16 +14,16 @@ namespace mdk
 
 // ScalarType is float or double
 template<typename Scalar_Type>
-class ThinPlateSplineTransform3D : public ProcessObject
+class ThinPlateSplineTransform3D : public CoordinateTransform3D<Scalar_Type>
 {
 public:
 	typedef Scalar_Type ScalarType;
 
 private:
-	// m_SourceControlPointSet must be valid when TransformPoint() is called
+	// m_SourceControlPointSet must be valid during EstimateParameterFromControlPointSet() and TransformPoint()
 	const DenseMatrix<ScalarType>* m_SourceControlPointSet; // 3 x N
 
-	// m_TargetControlPointSet must be valid when UpdateParameter() is called
+	// m_TargetControlPointSet must be valid during EstimateParameterFromControlPointSet()
 	const DenseMatrix<ScalarType>* m_TargetControlPointSet; // 3 x N
 	
 	DenseMatrix<ScalarType> m_Parameter;  // (N+4) x 3
@@ -41,8 +41,8 @@ public:
 	void SetParameter(const DenseMatrix<ScalarType>& Parameter);
 	const DenseMatrix<ScalarType>& GetParameter() const;
 
-	bool Update() { this->UpdateParameter(); return true; }
-	void UpdateParameter();
+	bool Update() { this->EstimateParameterFromControlPointSet(); return true; }
+	void EstimateParameterFromControlPointSet();
 
 	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
 	DenseVector<ScalarType, 3> TransformPoint(const DenseVector<ScalarType, 3>& SourcePosition) const;

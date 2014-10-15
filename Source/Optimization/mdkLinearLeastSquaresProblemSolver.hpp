@@ -125,21 +125,6 @@ void LinearLeastSquaresProblemSolver<ElementType>::SetInputData(const SparseMatr
 
 
 template<typename ElementType>
-bool LinearLeastSquaresProblemSolver<ElementType>::SetOutputSolution(Solution_Of_LinearLeastSquaresProblem<ElementType>* Solution)
-{
-    if (Solution == nullptr)
-    {
-        MDK_Error("Invalid input @ LinearLeastSquaresProblemSolver::SetOutputSolution(...)")
-        return false;
-    }
-
-	m_Solution.Share(*Solution);
-
-    return true;
-}
-
-
-template<typename ElementType>
 bool LinearLeastSquaresProblemSolver<ElementType>::Update()
 {
     bool IsOK = false;

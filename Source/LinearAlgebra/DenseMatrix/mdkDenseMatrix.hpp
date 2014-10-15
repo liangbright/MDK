@@ -8205,6 +8205,13 @@ int_max DenseMatrix<ElementType>::Rank() const
 
 
 template<typename ElementType>
+inline
+ElementType DenseMatrix<ElementType>::Det() const
+{
+	return MatrixDeterminant(*this);
+}
+
+template<typename ElementType>
 inline 
 DenseMatrix<ElementType> DenseMatrix<ElementType>::Inv() const
 {

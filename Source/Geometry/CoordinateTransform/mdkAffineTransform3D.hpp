@@ -127,7 +127,7 @@ bool AffineTransform3D<ScalarType>::CheckInput()
 
 
 template<typename ScalarType>
-void AffineTransform3D<ScalarType>::UpdateParameter()
+void AffineTransform3D<ScalarType>::EstimateParameterFromControlPoint()
 {
 	if (this->CheckInput() == false)
 	{
@@ -174,9 +174,13 @@ template<typename ScalarType>
 DenseVector<ScalarType, 3> AffineTransform3D<ScalarType>::TransformPoint(ScalarType x, ScalarType y, ScalarType z) const
 {
 	DenseVector<ScalarType, 3> NewPosition;
-	NewPosition[0] = m_Parameter(0, 0) + m_Parameter(1, 0)*x + m_Parameter(2, 0)*y + m_Parameter(3, 0)*z;
-	NewPosition[1] = m_Parameter(0, 1) + m_Parameter(1, 1)*x + m_Parameter(2, 1)*y + m_Parameter(3, 1)*z;
-	NewPosition[2] = m_Parameter(0, 2) + m_Parameter(1, 2)*x + m_Parameter(2, 2)*y + m_Parameter(3, 2)*z;
+	//NewPosition[0] = m_Parameter(0, 0) + m_Parameter(1, 0)*x + m_Parameter(2, 0)*y + m_Parameter(3, 0)*z;
+	//NewPosition[1] = m_Parameter(0, 1) + m_Parameter(1, 1)*x + m_Parameter(2, 1)*y + m_Parameter(3, 1)*z;
+	//NewPosition[2] = m_Parameter(0, 2) + m_Parameter(1, 2)*x + m_Parameter(2, 2)*y + m_Parameter(3, 2)*z;
+	auto Ptr = m_Parameter.GetElementPointer();
+	NewPosition[0] = Ptr[0] + Ptr[1] * x + Ptr[2] * y + Ptr[3] * z;
+	NewPosition[1] = Ptr[4] + Ptr[5] * x + Ptr[6] * y + Ptr[7] * z;
+	NewPosition[2] = Ptr[8] + Ptr[9] * x + Ptr[10] * y + Ptr[11] * z;
 	return NewPosition;
 }
 

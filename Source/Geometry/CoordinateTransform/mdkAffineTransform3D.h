@@ -1,7 +1,7 @@
 #ifndef __mdkAffineTransform3D_h
 #define __mdkAffineTransform3D_h
 
-#include "mdkProcessObject.h"
+#include "mdkCoordinateTransform3D.h"
 #include "mdkDenseMatrix.h"
 #include "mdkLinearLeastSquaresProblemSolver.h"
 
@@ -42,7 +42,7 @@ namespace mdk
 
 // ScalarType is float or double
 template<typename Scalar_Type>
-class AffineTransform3D : public ProcessObject
+class AffineTransform3D : public CoordinateTransform3D<Scalar_Type>
 {
 public:
 	typedef Scalar_Type ScalarType;
@@ -67,8 +67,8 @@ public:
 	void SetTransformationMatrix(const DenseMatrix<ScalarType>& TransformationMatrix);
 	DenseMatrix<ScalarType> GetTransformationMatrix() const;
 
-	bool Update() { this->UpdateParameter(); return true; }
-	void UpdateParameter();
+	bool Update() { this->EstimateParameterFromControlPoint(); return true; }
+	void EstimateParameterFromControlPoint();
 
 	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
 	DenseVector<ScalarType, 3> TransformPoint(const DenseVector<ScalarType, 3>& SourcePosition) const;

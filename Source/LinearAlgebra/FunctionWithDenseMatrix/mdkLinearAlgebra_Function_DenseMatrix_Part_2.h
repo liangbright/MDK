@@ -155,6 +155,11 @@ template<typename ElementType>
 inline int_max MatrixRank(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
+
+template<typename ElementType>
+inline ElementType MatrixDeterminant(const DenseMatrix<ElementType>& InputMatrix);
+
+//-----------------------------------------------------------------------------------------------//
 template<typename ElementType>
 inline DenseMatrix<ElementType> MatrixInverse(const DenseMatrix<ElementType>& InputMatrix);
 

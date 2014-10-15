@@ -20,8 +20,8 @@ template<typename InputImageType, typename OutputImageType, typename ScalarType>
 void ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::Clear()
 {
 	m_InputImage = nullptr;
-	m_ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Linear;
-	m_ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Constant;
+	m_ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Nearest;
+	m_ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Nearest;
 	m_ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);
 	
 	m_PointList_3DPyhsicalPosition = nullptr;

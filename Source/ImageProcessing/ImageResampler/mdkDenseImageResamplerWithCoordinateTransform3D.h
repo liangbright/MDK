@@ -1,14 +1,15 @@
-#ifndef __mdkDenseImageResampler3D_h
-#define __mdkDenseImageResampler3D_h
+#ifndef __mdkDenseImageResamplerWithCoordinateTransform3D_h
+#define __mdkDenseImageResamplerWithCoordinateTransform3D_h
 
 #include "mdkImageToImageFilter3D.h"
 #include "mdkScalarDenseImageGaussianFilter3D.h"
+#include "mdkCoordinateTransform3D.h"
 
 namespace mdk
 {
 
 template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = double>
-class DenseImageResampler3D : public ImageToImageFilter3D<DenseImage3D<InputPixel_Type>, DenseImage3D<OutputPixel_Type>, Scalar_Type>
+class DenseImageResamplerWithCoordinateTransform3D : public ImageToImageFilter3D<DenseImage3D<InputPixel_Type>, DenseImage3D<OutputPixel_Type>, Scalar_Type>
 {
 public:
 	typedef InputPixel_Type  InputPixelType;
@@ -24,9 +25,11 @@ private:
 	bool m_Flag_SmoothInputImage;
 	DenseImage3D<OutputPixelType> m_GaussianSmoothedImage; // GaussianSmooth(InputImage) when down sampling 
 
+	const CoordinateTransform3D<Scalar_Type>* m_CoordinateTransform;
+
 public:
-	DenseImageResampler3D();
-	~DenseImageResampler3D();
+	DenseImageResamplerWithCoordinateTransform3D();
+	~DenseImageResamplerWithCoordinateTransform3D();
 
 	void Clear();
 
@@ -41,6 +44,10 @@ public:
 
 	void SetOutputImageInfoBySize(int_max Lx, int_max Ly, int_max Lz);
 
+	// from (x1, y1, z1) in m_OutputImage to (x2, y2, z2) in m_InputImage 
+	// (x2, y2, z2) = m_CoordinateTransform->TransformPoint(x1, y1, z1)
+	void SetCoordinateTransform(const CoordinateTransform3D<Scalar_Type>* CoordinateTransform);
+
 private:
 	bool Preprocess();
 	bool Postprocess();
@@ -49,8 +56,8 @@ private:
 	inline void EvaluateAt3DIndexInOutputImage(int_max x, int_max y, int_max z, int_max ThreadIndex);
 
 private:
-	void operator=(const DenseImageResampler3D&) = delete;
-	DenseImageResampler3D(const DenseImageResampler3D&) = delete;
+	void operator=(const DenseImageResamplerWithCoordinateTransform3D&) = delete;
+	DenseImageResamplerWithCoordinateTransform3D(const DenseImageResamplerWithCoordinateTransform3D&) = delete;
 };
 
 

@@ -19,9 +19,9 @@ itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageT
     ITKImportFilterType::Pointer importFilter = ITKImportFilterType::New();
 
     ITKImportFilterType::SizeType size;
-    size[0] = InputSize.Lx;
-    size[1] = InputSize.Ly;
-    size[2] = InputSize.Lz;
+    size[0] = InputSize[0];
+    size[1] = InputSize[1];
+    size[2] = InputSize[2];
 
     ITKImportFilterType::IndexType start;
     start.Fill(0);
@@ -30,10 +30,10 @@ itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageT
     region.SetSize(size);
     importFilter->SetRegion(region);
 
-    const itk::SpacePrecisionType origin[3] = { InputOrigin.x, InputOrigin.y, InputOrigin.z };
+    const itk::SpacePrecisionType origin[3] = { InputOrigin[0], InputOrigin[1], InputOrigin[2] };
     importFilter->SetOrigin(origin);
 
-    const itk::SpacePrecisionType spacing[3] = { InputSpacing.Sx, InputSpacing.Sy, InputSpacing.Sz };
+    const itk::SpacePrecisionType spacing[3] = { InputSpacing[0], InputSpacing[1], InputSpacing[2] };
     importFilter->SetSpacing(spacing);
 
     ITKImportFilterType::DirectionType Direction;

@@ -696,9 +696,9 @@ inline
 DenseVector<double, 3> DenseImage3D<PixelType>::GetPhysicalSize() const
 {
 	DenseVector<double, 3> Size;
-    Size[0] = m_ImageData->m_Size[0] * m_ImageData->m_Spacing[0];
-    Size[1] = m_ImageData->m_Size[1] * m_ImageData->m_Spacing[1];
-    Size[2] = m_ImageData->m_Size[2] * m_ImageData->m_Spacing[2];
+	Size[0] = double(m_ImageData->m_Size[0]) * m_ImageData->m_Spacing[0];
+    Size[1] = double(m_ImageData->m_Size[1]) * m_ImageData->m_Spacing[1];
+	Size[2] = double(m_ImageData->m_Size[2]) * m_ImageData->m_Spacing[2];
     return Size;
 }
 
@@ -707,9 +707,9 @@ template<typename PixelType>
 inline 
 void DenseImage3D<PixelType>::GetPhysicalSize(double& PhysicalSize_x, double& PhysicalSize_y, double& PhysicalSize_z) const
 {
-    PhysicalSize_x = m_ImageData->m_Size[0] * m_ImageData->m_Spacing[0];
-    PhysicalSize_y = m_ImageData->m_Size[1] * m_ImageData->m_Spacing[1];
-    PhysicalSize_z = m_ImageData->m_Size[2] * m_ImageData->m_Spacing[2];
+	PhysicalSize_x = double(m_ImageData->m_Size[0]) * m_ImageData->m_Spacing[0];
+	PhysicalSize_y = double(m_ImageData->m_Size[1]) * m_ImageData->m_Spacing[1];
+	PhysicalSize_z = double(m_ImageData->m_Size[2]) * m_ImageData->m_Spacing[2];
 }
 
 

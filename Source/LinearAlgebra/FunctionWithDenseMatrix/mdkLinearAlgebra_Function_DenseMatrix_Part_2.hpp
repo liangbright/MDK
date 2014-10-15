@@ -1158,6 +1158,36 @@ int_max MatrixRank(const DenseMatrix<ElementType>& InputMatrix)
 
 template<typename ElementType>
 inline
+ElementType MatrixDeterminant(const DenseMatrix<ElementType>& InputMatrix)
+{
+	if (InputMatrix.IsEmpty() == true)
+	{
+		return ElementType(0);
+	}
+
+	if (InputMatrix.IsVector() == true)
+	{
+		auto Det = ElementType(0);
+		for (auto Ptr = InputMatrix.begin(); Ptr != InputMatrix.end(); ++Ptr)
+		{
+			Det *= Ptr[k];
+		}
+		return Det;
+	}
+
+	// call Armadillo 
+	auto Size = InputMatrix.GetSize();
+	auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
+	arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowNumber), arma::uword(Size.ColNumber), false);
+	auto Det = arma::det(tempMat);
+
+	return Det;
+}
+
+
+
+template<typename ElementType>
+inline
 DenseMatrix<ElementType> MatrixInverse(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> OutputMatrix;

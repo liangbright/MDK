@@ -26,7 +26,7 @@ DenseVector<ElementType, Length>::DenseVector(const ElementType& Element)
 	}
 	else if (Length > 1)
 	{
-		MDK_Warning("Length > 1 @ DenseVector::DenseVector(Element) : fixed_length")
+		//MDK_Warning("Length > 1 @ DenseVector::DenseVector(Element) : fixed_length")
 	}
 
 	this->Fill(Element);

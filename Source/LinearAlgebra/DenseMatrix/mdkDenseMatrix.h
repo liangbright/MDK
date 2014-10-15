@@ -1424,6 +1424,10 @@ public:
 
     inline int_max Rank() const;
 
+	//----------------------------------- determinant --------------------------------//
+	
+	inline ElementType Det() const;
+
 	//----------------------------------- inverse -----------------------------------------//
 
     inline DenseMatrix Inv() const;

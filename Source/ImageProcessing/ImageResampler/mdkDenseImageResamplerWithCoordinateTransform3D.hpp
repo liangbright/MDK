@@ -1,24 +1,24 @@
-#ifndef __mdkDenseImageResampler3D_hpp
-#define __mdkDenseImageResampler3D_hpp
+#ifndef __mdkDenseImageResamplerWithCoordinateTransform3D_hpp
+#define __mdkDenseImageResamplerWithCoordinateTransform3D_hpp
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::DenseImageResampler3D()
+DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::DenseImageResamplerWithCoordinateTransform3D()
 {
 	this->Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::~DenseImageResampler3D()
+DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::~DenseImageResamplerWithCoordinateTransform3D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
+void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
 	this->ImageToImageFilter3D::Clear();
 	m_Flag_UseGaussianSmoothWhenDownSmapling = false;
@@ -27,18 +27,19 @@ void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 	m_CutoffRatioOfGaussian = 0;
 	m_Flag_SmoothInputImage = false;
 	m_GaussianSmoothedImage.Clear();
+	m_CoordinateTransform = nullptr;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::EnableGaussianSmoothWhenDownSampling(bool On_Off)
+void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::EnableGaussianSmoothWhenDownSampling(bool On_Off)
 {
 	m_Flag_UseGaussianSmoothWhenDownSmapling = On_Off;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::
+void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::
 SetParameterOfGaussianSmooth(const DenseVector<ScalarType, 3>& Sigma, ScalarType CutoffRatio)
 {
 	m_SigmaOfGaussian = Sigma;
@@ -48,24 +49,24 @@ SetParameterOfGaussianSmooth(const DenseVector<ScalarType, 3>& Sigma, ScalarType
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySize(const DenseVector<int_max, 3>& Size)
+void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySize(const DenseVector<int_max, 3>& Size)
 {
 	this->SetOutputImageInfoBySize(Size[0], Size[1], Size[2]);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySize(int_max Lx, int_max Ly, int_max Lz)
+void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySize(int_max Lx, int_max Ly, int_max Lz)
 {
 	if (m_InputImage == nullptr)
 	{
-		MDK_Error("InputImage is nullptr, please use SetInputImage(...) @ DenseImageResampler3D::SetOutputImageInfoBySize(...)")
+		MDK_Error("InputImage is nullptr, please use SetInputImage(...) @ DenseImageResamplerWithCoordinateTransform3D::SetOutputImageInfoBySize(...)")
 		return;
 	}
 
 	if (Lx <= 0 || Ly <= 0 || Lz <= 0)
 	{
-		MDK_Error("Invalid input @ DenseImageResampler3D::SetOutputImageInfoBySize(...)")
+		MDK_Error("Invalid input @ DenseImageResamplerWithCoordinateTransform3D::SetOutputImageInfoBySize(...)")
 		return;
 	}
 
@@ -80,8 +81,21 @@ void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 	m_OutputImage.SetSize(Lx, Ly, Lz);
 }
 
+
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
+void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::
+SetCoordinateTransform(const CoordinateTransform3D<ScalarType>* CoordinateTransform);
+{
+	if (CoordinateTransform == nullptr)
+	{
+		MDK_Error("Input is nullptr @ DenseImageResamplerWithCoordinateTransform3D::SetCoordinateTransform(...)")
+	}
+	m_CoordinateTransform = CoordinateTransform;
+}
+
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+bool DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
 {
 	if (this->ImageToImageFilter3D::Preprocess() == false)
 	{
@@ -122,7 +136,7 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Preproc
 
 			auto InterpolationOption_GF = GaussianFilter->GetImageInterpolationOption();
 			InterpolationOption_GF.MethodType = ImageInterpolationMethodEnum::Nearest;
-			InterpolationOption_GF.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Nearest;// must use this option
+			InterpolationOption_GF.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Constant;
 			InterpolationOption_GF.Pixel_OutsideImage = InputPixelType(0);
 			GaussianFilter->SetImageInterpolationOption(InterpolationOption_GF);
 
@@ -137,7 +151,7 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Preproc
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Postprocess()
+bool DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::Postprocess()
 {
 	if (this->ImageToImageFilter3D::Postprocess() == false)
 	{
@@ -149,17 +163,18 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Postpro
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-inline void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::
+inline void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::
 EvaluateAt3DIndexInOutputImage(int_max x, int_max y, int_max z, int_max ThreadIndex)
 {
-	auto PointPosition = m_OutputImage.Transform3DIndexTo3DPhysicalPosition<ScalarType>(x, y, z);
+	auto PointPosition_OutputImage = m_OutputImage.Transform3DIndexTo3DPhysicalPosition<ScalarType>(x, y, z);
+	auto PointPosition_InputImage = m_CoordinateTransform->TransformPoint(PointPosition_OutputImage);
 	if (m_Flag_SmoothInputImage == false)
 	{
-		m_OutputImage(x, y, z) = m_InputImage->GetPixelAt3DPhysicalPosition(PointPosition, m_ImageInterpolationOption);
+		m_OutputImage(x, y, z) = m_InputImage->GetPixelAt3DPhysicalPosition(PointPosition_InputImage, m_ImageInterpolationOption);
 	}
 	else
 	{
-		m_OutputImage(x, y, z) = m_GaussianSmoothedImage.GetPixelAt3DPhysicalPosition(PointPosition, m_ImageInterpolationOption);
+		m_OutputImage(x, y, z) = m_GaussianSmoothedImage.GetPixelAt3DPhysicalPosition(PointPosition_InputImage, m_ImageInterpolationOption);
 	}
 }
 
