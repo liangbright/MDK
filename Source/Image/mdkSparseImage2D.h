@@ -8,8 +8,8 @@
 
 #include "mdkDebugConfig.h"
 #include "mdkDenseMatrix.h"
-#include "mdkDenseImage2D.h"
 #include "mdkImageInterpolation2D.h"
+#include "mdkImageInfo.h" // must be the last to include
 
 namespace mdk
 {

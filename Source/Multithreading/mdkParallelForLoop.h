@@ -4,13 +4,17 @@
 #include <vector>
 #include <thread>
 
-
 #include "mdkType.h"
-
 
 namespace mdk
 {
-
+// for(int_max k=0; k<100; ++k)
+//	{
+//     DoSomething(k);
+//	}
+//
+// If DoSomething(i) and DoSomething(j) do not depend on each other for any i & j, then use ParallelForLoop
+//
 // for performance reason, no input check is done in the following functions
 
 template<typename FunctionType>
@@ -21,6 +25,7 @@ template<typename FunctionType>
 inline
 void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, std::vector<int_max> SubLoopIndexList);
 
+// Attention : LoopIndex_start <= LoopIndex_end
 template<typename FunctionType>
 inline
 void ParallelForLoop(FunctionType SingleFunction, int_max LoopIndex_start, int_max LoopIndex_end, 
@@ -30,10 +35,13 @@ template<typename FunctionType>
 inline
 void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, int_max SubLoopIndex_start, int_max SubLoopIndex_end);
 
+//------------------------------------------------------------------------------------------------------------------------------------//
+
 template<typename FunctionType>
 inline
 void ParallelBlock(FunctionType BlockFunction, const std::vector<int_max>& DataIndexList, int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread = 1);
 
+// Attention : DataIndex_start <= DataIndex_end
 template<typename FunctionType>
 inline
 void ParallelBlock(FunctionType BlockFunction, int_max DataIndex_start, int_max DataIndex_end, int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread = 1);

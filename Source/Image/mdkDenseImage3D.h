@@ -8,6 +8,7 @@
 #include "mdkDebugConfig.h"
 #include "mdkDenseMatrix.h"
 #include "mdkImageInterpolation3D.h"
+#include "mdkImageInfo.h" // must be the last to include
 
 namespace mdk
 {
@@ -40,125 +41,6 @@ namespace mdk
 	#define MDK_DEBUG_3DDenseImage_Operator_CheckBound
 #endif
 //------------------------------------------------------
-
-struct Image3DBoxRegionOf3DIndex
-{
-    bool IsEmpty;
-
-    int_max x0;
-    int_max y0;
-    int_max z0;
-
-    int_max x1;
-    int_max y1;
-    int_max z1;
-
-//-------------------------------------
-    Image3DBoxRegionOf3DIndex()
-    {
-        IsEmpty = true;
-        x0 = 0;
-        y0 = 0;
-        z0 = 0;
-        x1 = 0;
-        y1 = 0;
-        z1 = 0;
-    };
-
-    int_max Lx() const
-    {
-        return x1 - x0 + 1;
-    }
-
-    int_max Ly() const
-    {
-        return y1 - y0 + 1;
-    }
-
-    int_max Lz() const
-    {
-        return z1 - z0 + 1;
-    }
-};
-
-template<typename ScalarType = double>
-struct Image3DBoxRegionOf3DPhysicalPosition
-{
-    bool IsEmpty;
-
-	ScalarType x0;
-	ScalarType y0;
-	ScalarType z0;
-
-	ScalarType x1;
-	ScalarType y1;
-	ScalarType z1;
-
-//-------------------------------------
-
-    Image3DBoxRegionOf3DPhysicalPosition()
-    {
-        IsEmpty = true;
-        x0 = 0;
-        y0 = 0;
-        z0 = 0;
-        x1 = 0;
-        y1 = 0;
-        z1 = 0;
-    };
-
-	ScalarType Lx() const
-    {
-        return x1 - x0;
-    }
-
-	ScalarType Ly() const
-    {
-        return y1 - y0;
-    }
-
-	ScalarType Lz() const
-    {
-        return z1 - z0;
-    }
-};
-
-
-struct Image3DInfo
-{
-	DenseVector<int_max, 3> Size;       // {Lx, Ly, Lz} number of Pixels in each direction
-	DenseVector<double, 3>  Spacing;    // Pixel Spacing of DICOM DenseImage in world coordinate system {Sx, Sy, Sz} (unit: mm)
-	DenseVector<double, 3>  Origin;     // Origin of DICOM DenseImage in world coordinate system (x,y,z) (unit: mm)
-	DenseMatrix<double> Orientation;   // 3x3 Matrix
-
-//-------------------------------------------
-	Image3DInfo() { this->Clear(); }
-	~Image3DInfo() {}
-
-	Image3DInfo(const Image3DInfo& Info)
-	{
-		(*this) = Info;
-	}
-
-	void operator=(const Image3DInfo& Info)
-	{
-		Size = Info.Size;
-		Spacing = Info.Spacing;
-		Origin = Info.Origin;
-		Orientation = Info.Orientation;
-	}
-
-	void Clear()
-	{
-		Size.Fill(0);
-		Spacing.Fill(0);
-		Origin.Fill(0);
-		Orientation.Clear();
-		Orientation.Resize(3, 3);
-		Orientation.FixSize();
-		Orientation.FillDiagonal(1.0);
-	}
-};
 
 //===================================================================================================================//
 //--------------------------------------------------- DenseImageData3D struct --------------------------------------------//
@@ -393,16 +275,16 @@ public:
 	template<typename OutputPixelType = PixelType, typename ScalarType>
 	OutputPixelType GetPixelAt3DIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex, const InterpolationOptionType& Option) const;
 
-	const PixelType& GetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, const InterpolationOptionType& Option) const;
-	const PixelType& GetPixelAt3DIndex(int xIndex, int yIndex, int zIndex, const InterpolationOptionType& Option) const;
-	const PixelType& GetPixelAt3DIndex(long xIndex, long yIndex, long zIndex, const InterpolationOptionType& Option) const;
+	PixelType GetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, const InterpolationOptionType& Option) const;
+	PixelType GetPixelAt3DIndex(int xIndex, int yIndex, int zIndex, const InterpolationOptionType& Option) const;
+	PixelType GetPixelAt3DIndex(long xIndex, long yIndex, long zIndex, const InterpolationOptionType& Option) const;
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>
 	OutputPixelType GetPixelAt3DIndex(const DenseVector<ScalarType, 3>& Index3D, const InterpolationOptionType& Option) const;
 
-	const PixelType& GetPixelAt3DIndex(const DenseVector<int_max, 3>& Index3D, const InterpolationOptionType& Option) const;
-	const PixelType& GetPixelAt3DIndex(const DenseVector<int, 3>& Index3D, const InterpolationOptionType& Option) const;
-	const PixelType& GetPixelAt3DIndex(const DenseVector<long, 3>& Index3D, const InterpolationOptionType& Option) const;
+	PixelType GetPixelAt3DIndex(const DenseVector<int_max, 3>& Index3D, const InterpolationOptionType& Option) const;
+	PixelType GetPixelAt3DIndex(const DenseVector<int, 3>& Index3D, const InterpolationOptionType& Option) const;
+	PixelType GetPixelAt3DIndex(const DenseVector<long, 3>& Index3D, const InterpolationOptionType& Option) const;
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>
 	OutputPixelType GetPixelAt3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option) const;
@@ -410,17 +292,23 @@ public:
 	template<typename OutputPixelType = PixelType, typename ScalarType>
 	OutputPixelType GetPixelAt3DPhysicalPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option) const;
 
-	//------------------------- Get LinearIndex In Region -------------------//
-
-    DenseMatrix<int_max> GetLinearIndexListOfRegion(int_max xIndex_s,     int_max Region_Lx,
-	                                                int_max yIndex_s,     int_max Region_Ly,
-                                                    int_max zIndex_s,     int_max Region_Lz) const;
+	//------------------------- Get LinearIndex or 3DIndex In Region -------------------//
     
-    //-------------------------- Get SubDenseImage -------------------------------//
+	DenseVector<int_max> GetLinearIndexListInRegion(const BoxRegionOf3DIndexInImage3D& RegionInfo) const;
 
-    DenseImage3D GetSubImage(int_max xIndex_s, int_max xIndex_e, int_max yIndex_s, int_max yIndex_e, int_max zIndex_s, int_max zIndex_e) const;
+	DenseVector<int_max> GetLinearIndexListInRegion(const BoxRegionOf3DPhysicalPositionInImage3D& RegionInfo) const;
+    
+	DenseMatrix<int_max> Get3DIndexListInRegion(const BoxRegionOf3DIndexInImage3D& RegionInfo) const;
 
-    //-------------------------- Pad, UnPad -------------------------------//
+	DenseMatrix<int_max> Get3DIndexListInRegion(const BoxRegionOf3DPhysicalPositionInImage3D& RegionInfo) const;
+
+    //-------------------------- Get SubImage -------------------------------//
+
+	DenseImage3D GetSubImage(const BoxRegionOf3DIndexInImage3D& RegionInfo) const;
+
+	DenseImage3D GetSubImage(const BoxRegionOf3DPhysicalPositionInImage3D& RegionInfo) const;
+
+    //-------------------------- Pad, UnPad (3DIndex) -------------------------------//
 
     DenseImage3D  Pad(const std::string& Option, int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) const;
 

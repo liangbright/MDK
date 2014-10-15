@@ -263,7 +263,7 @@ OutputPixelType InterpolateImageAt3DContinuousIndex_Linear(const DenseImage3D<In
 
 	auto c = c0*(One - dz) + c1*dz;
 
-    return c;
+	return OutputPixelType(c);
 }
 
 

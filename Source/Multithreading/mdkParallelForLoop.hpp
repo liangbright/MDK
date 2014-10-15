@@ -10,7 +10,7 @@ void ParallelForLoop(FunctionType SingleFunction, const std::vector<int_max>& Lo
 {
     ParallelBlock([&](std::vector<int_max> SubLoopIndexList, int_max ThreadIndex)
                   {ParallelForLoop_Block_in_a_thread(SingleFunction, SubLoopIndexList, ThreadIndex); },
-                  DataIndexList, MaxNumberOfThreads, MinNumberOfDataPerThread);
+				  LoopIndexList, MaxNumberOfThreads, MinNumberOfDataPerThread);
 }
 
 
@@ -24,10 +24,7 @@ void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, std::vector<
     }
 }
 
-// Attention : 
-// if LoopIndex_end >= LoopIndex_start, the range is  [LoopIndex_start:1:LoopIndex_end] : for(int_max k = LoopIndex_start; k <= LoopIndex_end; ++k)
-// if LoopIndex_end < LoopIndex_start, the range is  [LoopIndex_start:-1:LoopIndex_end] : for(int_max k = LoopIndex_start; k >= LoopIndex_end; --k)
-
+// Attention : LoopIndex_start <= LoopIndex_end
 template<typename FunctionType>
 inline
 void ParallelForLoop(FunctionType SingleFunction, int_max LoopIndex_start, int_max LoopIndex_end, 
@@ -43,19 +40,9 @@ template<typename FunctionType>
 inline
 void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, int_max LoopIndex_start, int_max LoopIndex_end, int_max ThreadIndex)
 {
-	if (LoopIndex_start <= LoopIndex_end)
+	for (int_max i = LoopIndex_start; i <= LoopIndex_end; ++i)
 	{
-		for (int_max i = LoopIndex_start; i <= LoopIndex_end; ++i)
-		{
-			SingleFunction(i);
-		}
-	}
-	else
-	{
-		for (int_max i = LoopIndex_start; i >= LoopIndex_end; --i)
-		{
-			SingleFunction(i);
-		}
+		SingleFunction(i);
 	}
 }
 
@@ -119,17 +106,20 @@ void ParallelBlock(FunctionType BlockFunction, const std::vector<int_max>& DataI
     }
 }
 
-
+// Attention : DataIndex_start <= DataIndex_end
 template<typename FunctionType>
 inline
 void ParallelBlock(FunctionType BlockFunction, int_max DataIndex_start, int_max DataIndex_end, int_max MaxNumberOfThreads, int_max MinNumberOfDataPerThread)
 {
-    // divide the LoopIndexList into groups
-
+	// DataIndex_end must > DataIndex_start
     auto TotalDataNumber = DataIndex_end - DataIndex_start +1;
+	if (TotalDataNumber <= 0)
+	{
+		return;
+	}
 
     if (TotalDataNumber > 1 && MaxNumberOfThreads > 1)
-    {
+	{ // divide the DataIndex List into groups
         std::vector<int_max> IndexList_start;
         std::vector<int_max> IndexList_end;
 

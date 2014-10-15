@@ -30,8 +30,8 @@ protected:
 	// row_1: dy or dy_Index
 	// row_2: dz or dz_Index
 
-    Image3DBoxRegionOf3DIndex                        m_NOBoundCheckRegion_3DIndex;
-	Image3DBoxRegionOf3DPhysicalPosition<ScalarType> m_NOBoundCheckRegion_3DPhysicalPosition;
+	BoxRegionOf3DIndexInImage3D            m_NOBoundCheckRegion_3DIndex;
+	BoxRegionOf3DPhysicalPositionInImage3D m_NOBoundCheckRegion_3DPhysicalPosition;
 
 protected:		
 	DenseImageFilterWithSingleMask3D();

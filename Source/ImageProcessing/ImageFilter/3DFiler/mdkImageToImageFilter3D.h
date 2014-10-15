@@ -34,7 +34,7 @@ protected:
 
 	const DenseMatrix<ScalarType>* m_PointList_3DPyhsicalPosition;  // evaluate at each nearest point on m_OutputImage
 
-	const DenseMatrix<ScalarType>* m_PointList_3DIndex_InputImage;  // evaluate at each nearest point on m_OutputImage
+	const DenseMatrix<int_max>* m_PointList_3DIndex_InputImage;     // evaluate at each nearest point on m_OutputImage
 
 	DenseMatrix<int_max> m_PointList_3DIndex_OutputImage;           // evaluate at each point on m_OutputImage
 

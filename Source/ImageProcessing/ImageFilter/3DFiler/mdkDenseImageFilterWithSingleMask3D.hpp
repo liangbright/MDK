@@ -29,8 +29,6 @@ void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarTyp
 	m_Flag_UseMaskOf3DPhysicalPosition = true;
 	m_Mask_3DPhysicalPosition.Clear();
 	m_Mask_3DIndex.Clear();
-    m_NOBoundCheckRegion_3DIndex.IsEmpty = true;
-	m_NOBoundCheckRegion_3DPhysicalPosition.IsEmpty = true;
 }
 
 
@@ -63,7 +61,7 @@ bool DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarTyp
 		return false;
 	}
 
-	this->ComputeRegionOfNOBoundCheck_3DPhysicalPosition();
+	//this->ComputeRegionOfNOBoundCheck_3DPhysicalPosition();
 	this->ComputeRegionOfNOBoundCheck_3DIndex();
 
 	if (m_Flag_UseMaskOf3DPhysicalPosition == true)
@@ -83,17 +81,12 @@ bool DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarTyp
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DIndex()
 {
-	if (m_NOBoundCheckRegion_3DPhysicalPosition.IsEmpty == true)
+	if (m_Mask_3DIndex.IsEmpty() == true)
 	{
-		this->ComputeRegionOfNOBoundCheck_3DPhysicalPosition();
+		return;
 	}
 
-	m_NOBoundCheckRegion_3DIndex.IsEmpty = true;
-
-	if (m_Mask_3DIndex.IsEmpty() == true)
-    {
-        return;
-    }
+	this->ComputeRegionOfNOBoundCheck_3DPhysicalPosition();
 
 	auto PhysicalOrigin = m_OutputImage.GetOrigin();
 	auto ImageSize = m_OutputImage.GetSize();
@@ -129,8 +122,6 @@ void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarTyp
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DPhysicalPosition()
 {    
-    m_NOBoundCheckRegion_3DPhysicalPosition.IsEmpty = true;
-
 	if (m_Mask_3DPhysicalPosition.IsEmpty() == true)
     {        
         return;
@@ -185,8 +176,6 @@ void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarTyp
 		&& MaxDeviation_y[0] + MaxDeviation_y[1] + 2 * SafeDistance_y < PhysicalSize[1]
         && MaxDeviation_z[0] + MaxDeviation_z[1] + 2 * SafeDistance_z < PhysicalSize[2])
     {
-        m_NOBoundCheckRegion_3DPhysicalPosition.IsEmpty = false;
-
         m_NOBoundCheckRegion_3DPhysicalPosition.x0 = PhysicalOrigin[0] + MaxDeviation_x[0] + SafeDistance_x;
 
         m_NOBoundCheckRegion_3DPhysicalPosition.x1 = PhysicalOrigin[0] + PhysicalSize[0] - MaxDeviation_x[1] - SafeDistance_x;
@@ -209,19 +198,12 @@ WhetherToCheckBoundAtMaskOrigin_3DIndex(ScalarType x, ScalarType y, ScalarType z
 {
     bool WhetherToCheck = false;
 
-    if (m_NOBoundCheckRegion_3DIndex.IsEmpty == true)
-    {
-        WhetherToCheck = true;
-    }
-    else
-    {
-		if (x < ScalarType(m_NOBoundCheckRegion_3DIndex.x0) || x > ScalarType(m_NOBoundCheckRegion_3DIndex.x1)
-			|| y < ScalarType(m_NOBoundCheckRegion_3DIndex.y0) || y > ScalarType(m_NOBoundCheckRegion_3DIndex.y1)
-			|| z < ScalarType(m_NOBoundCheckRegion_3DIndex.z0) || z > ScalarType(m_NOBoundCheckRegion_3DIndex.z1))
-        {
-            WhetherToCheck = true;
-        }
-    }
+	if (x < ScalarType(m_NOBoundCheckRegion_3DIndex.x0) || x > ScalarType(m_NOBoundCheckRegion_3DIndex.x1)
+		|| y < ScalarType(m_NOBoundCheckRegion_3DIndex.y0) || y > ScalarType(m_NOBoundCheckRegion_3DIndex.y1)
+		|| z < ScalarType(m_NOBoundCheckRegion_3DIndex.z0) || z > ScalarType(m_NOBoundCheckRegion_3DIndex.z1))
+	{
+		WhetherToCheck = true;
+	}
 
     return WhetherToCheck;
 }
@@ -234,19 +216,12 @@ WhetherToCheckBoundAtMaskOrigin_3DPhysicalPosition(ScalarType x, ScalarType y, S
 {
     bool WhetherToCheck = false;
 
-    if (m_NOBoundCheckRegion_3DPhysicalPosition.IsEmpty == true)
-    {
-        WhetherToCheck = true;
-    }
-    else
-    {
-        if (   x < m_NOBoundCheckRegion_3DPhysicalPosition.x0 || x > m_NOBoundCheckRegion_3DPhysicalPosition.x1
-            || y < m_NOBoundCheckRegion_3DPhysicalPosition.y0 || y > m_NOBoundCheckRegion_3DPhysicalPosition.y1
-            || z < m_NOBoundCheckRegion_3DPhysicalPosition.z0 || z > m_NOBoundCheckRegion_3DPhysicalPosition.z1)
-        {
-            WhetherToCheck = true;
-        }
-    }
+	if (x < m_NOBoundCheckRegion_3DPhysicalPosition.x0 || x > m_NOBoundCheckRegion_3DPhysicalPosition.x1
+		|| y < m_NOBoundCheckRegion_3DPhysicalPosition.y0 || y > m_NOBoundCheckRegion_3DPhysicalPosition.y1
+		|| z < m_NOBoundCheckRegion_3DPhysicalPosition.z0 || z > m_NOBoundCheckRegion_3DPhysicalPosition.z1)
+	{
+		WhetherToCheck = true;
+	}
 
     return WhetherToCheck;
 }

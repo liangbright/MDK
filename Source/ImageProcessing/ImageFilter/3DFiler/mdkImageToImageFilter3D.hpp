@@ -156,11 +156,12 @@ bool ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::Update()
 	}
 
 	// multi-thread -----------------------------------------------------------------
-	
-	ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex)
-	              {this->Evaluate_in_a_thread(Index_start, Index_end, ThreadIndex); },
-				  0, m_TotalNumberOfOutputPixelTobeProcessed - 1, m_MaxNumberOfThread, 1);
-
+	if (m_TotalNumberOfOutputPixelTobeProcessed > 0)
+	{ 
+		ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex)
+					  {this->Evaluate_in_a_thread(Index_start, Index_end, ThreadIndex); },
+					  0, m_TotalNumberOfOutputPixelTobeProcessed - 1, m_MaxNumberOfThread, 1);
+	}
 	//-------------------------------------------------------------------------------
 	if (this->Postprocess() == false)
 	{
@@ -190,7 +191,7 @@ bool ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::CheckInp
 	auto PixelNumber = OutputImageSize[0] * OutputImageSize[1] * OutputImageSize[2];
 	if (PixelNumber <= 0) // image may be spasre, do not use GetPixelNumber()
 	{
-		MDK_Error("Output Image is Empty @ ImageToImageFilter3D::CheckInput()")
+		MDK_Error("Output Image size is 0 @ ImageToImageFilter3D::CheckInput()")
 		return false;
 	}
 
@@ -236,9 +237,9 @@ bool ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::Preproce
 			m_PointList_3DIndex_InputImage->GetCol(k, Index3D_input);
 			auto Position = m_InputImage->Transform3DIndexTo3DPhysicalPosition<ScalarType>(Index3D_input);
 			auto Index3D_output = m_OutputImage.Transform3DPhysicalPositionTo3DIndex(Position);
-			auto xIndex = int_max(Index3D_output[0]); xIndex = std::max(xIndex, int_max(0)); xIndex = std::min(xIndex, OutputImageSize[0]);
-			auto yIndex = int_max(Index3D_output[1]); yIndex = std::max(yIndex, int_max(0)); yIndex = std::min(yIndex, OutputImageSize[1]);
-			auto zIndex = int_max(Index3D_output[2]); zIndex = std::max(zIndex, int_max(0)); zIndex = std::min(zIndex, OutputImageSize[2]);
+			auto xIndex = int_max(Index3D_output[0]); xIndex = std::max(xIndex, int_max(0)); xIndex = std::min(xIndex, OutputImageSize[0]-1);
+			auto yIndex = int_max(Index3D_output[1]); yIndex = std::max(yIndex, int_max(0)); yIndex = std::min(yIndex, OutputImageSize[1]-1);
+			auto zIndex = int_max(Index3D_output[2]); zIndex = std::max(zIndex, int_max(0)); zIndex = std::min(zIndex, OutputImageSize[2]-1);
 			m_PointList_3DIndex_OutputImage.AppendCol({ xIndex, yIndex, zIndex });
 		}
 		auto tempColIndexList = m_PointList_3DIndex_OutputImage.FindUniqueCol();
@@ -255,9 +256,9 @@ bool ImageToImageFilter3D<InputImageType, OutputImageType, ScalarType>::Preproce
 			DenseVector<ScalarType, 3> Position, Index3D;
 			m_PointList_3DPyhsicalPosition->GetCol(k, Position);
 			Index3D = m_OutputImage.Transform3DPhysicalPositionTo3DIndex(Position);		
-			auto xIndex = int_max(Index3D[0]); xIndex = std::max(xIndex, int_max(0)); xIndex = std::min(xIndex, OutputImageSize[0]);
-			auto yIndex = int_max(Index3D[1]); yIndex = std::max(yIndex, int_max(0)); yIndex = std::min(yIndex, OutputImageSize[1]);
-			auto zIndex = int_max(Index3D[2]); zIndex = std::max(zIndex, int_max(0)); zIndex = std::min(zIndex, OutputImageSize[2]);
+			auto xIndex = int_max(Index3D[0]); xIndex = std::max(xIndex, int_max(0)); xIndex = std::min(xIndex, OutputImageSize[0]-1);
+			auto yIndex = int_max(Index3D[1]); yIndex = std::max(yIndex, int_max(0)); yIndex = std::min(yIndex, OutputImageSize[1]-1);
+			auto zIndex = int_max(Index3D[2]); zIndex = std::max(zIndex, int_max(0)); zIndex = std::min(zIndex, OutputImageSize[2]-1);
 			m_PointList_3DIndex_OutputImage.AppendCol({ xIndex, yIndex, zIndex });
 		}
 		auto tempColIndexList = m_PointList_3DIndex_OutputImage.FindUniqueCol();
