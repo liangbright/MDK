@@ -117,7 +117,7 @@ OutputPixelType InterpolateImageAt3DContinuousIndex_Nearest(const SparseImage3D<
 		}
 	}	
 
-	return OutputPixelType(InputImage(x0, y0, z0));
+	return OutputPixelType(InputImage.GetPixelAt3DIndex(x0, y0, z0));
 }
 
 
@@ -197,7 +197,7 @@ OutputPixelType InterpolateImageAt3DContinuousIndex_Linear(const SparseImage3D<I
 			z0 = Size[2] - 1;
 		}
 
-		return OutputPixelType(InputImage(x0, y0, z0));
+		return OutputPixelType(InputImage.GetPixelAt3DIndex(x0, y0, z0));
 	}
 	//---------------------------------------------
 
@@ -238,14 +238,14 @@ OutputPixelType InterpolateImageAt3DContinuousIndex_Linear(const SparseImage3D<I
         z1 = z0;
     }
 
-	auto Pixel_x0_y0_z0 = OutputPixelType(InputImage(x0, y0, z0));
-	auto Pixel_x0_y1_z0 = OutputPixelType(InputImage(x0, y1, z0));
-	auto Pixel_x0_y0_z1 = OutputPixelType(InputImage(x0, y0, z1));
-	auto Pixel_x0_y1_z1 = OutputPixelType(InputImage(x0, y1, z1));
-	auto Pixel_x1_y0_z0 = OutputPixelType(InputImage(x1, y0, z0));
-	auto Pixel_x1_y1_z0 = OutputPixelType(InputImage(x1, y1, z0));
-	auto Pixel_x1_y0_z1 = OutputPixelType(InputImage(x1, y0, z1));
-	auto Pixel_x1_y1_z1 = OutputPixelType(InputImage(x1, y1, z1));
+	auto Pixel_x0_y0_z0 = OutputPixelType(InputImage.GetPixelAt3DIndex(x0, y0, z0));
+	auto Pixel_x0_y1_z0 = OutputPixelType(InputImage.GetPixelAt3DIndex(x0, y1, z0));
+	auto Pixel_x0_y0_z1 = OutputPixelType(InputImage.GetPixelAt3DIndex(x0, y0, z1));
+	auto Pixel_x0_y1_z1 = OutputPixelType(InputImage.GetPixelAt3DIndex(x0, y1, z1));
+	auto Pixel_x1_y0_z0 = OutputPixelType(InputImage.GetPixelAt3DIndex(x1, y0, z0));
+	auto Pixel_x1_y1_z0 = OutputPixelType(InputImage.GetPixelAt3DIndex(x1, y1, z0));
+	auto Pixel_x1_y0_z1 = OutputPixelType(InputImage.GetPixelAt3DIndex(x1, y0, z1));
+	auto Pixel_x1_y1_z1 = OutputPixelType(InputImage.GetPixelAt3DIndex(x1, y1, z1));
 
 	auto dx = x - ScalarType(x0);
 	auto dy = y - ScalarType(y0);

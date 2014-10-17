@@ -105,7 +105,7 @@ inline
 DenseVector<ScalarType, 2> SparseImageData2D<PixelType>::TransformLinearIndexTo2DPhysicalPosition(int_max LinearIndex) const
 {      
 	DenseVector<ScalarType, 2> Position;
-	auto Index2D = this->TransformLinearIndexTo2DIndex();
+	auto Index2D = this->TransformLinearIndexTo2DIndex(LinearIndex);
 	Position[0] = ScalarType(m_Origin[0] + double(Index2D[0]) * m_Spacing[0]);
 	Position[1] = ScalarType(m_Origin[1] + double(Index2D[1]) * m_Spacing[1]);
 	return Position;

@@ -1,5 +1,5 @@
-#ifndef __mdkImageToImageFilter3D_h
-#define __mdkImageToImageFilter3D_h
+#ifndef __mdkImageFilter3D_h
+#define __mdkImageFilter3D_h
 
 #include "mdkProcessObject.h"
 #include "mdkParallelForLoop.h"
@@ -11,8 +11,16 @@
 namespace mdk
 {
 
+enum struct OutputPlaceOption_Of_ImageFilter3D
+{
+	OutputImage,
+	OutputPixelArray_DataArray,
+	OutputPixelArray_OtherFormat
+};
+
+
 template<typename InputImage_Type, typename OutputImage_Type, typename Scalar_Type>
-class ImageToImageFilter3D : public ProcessObject
+class ImageFilter3D : public ProcessObject
 {
 public:
 	typedef InputImage_Type  InputImageType;
@@ -32,14 +40,17 @@ protected:
 
 	ImageInterpolationOptionType m_ImageInterpolationOption;
 
-	const DenseMatrix<ScalarType>* m_PointList_3DPyhsicalPosition;  // evaluate at each nearest point on m_OutputImage
+	// only one of them is used
+	const DenseMatrix<ScalarType>* m_PointList_3DPyhsicalPosition;  // evaluate at each nearest point on m_OutputImage if Output is image
+	const DenseMatrix<int_max>*    m_PointList_3DIndex_InputImage;  // evaluate at each nearest point on m_OutputImage if Output is image
+	DenseMatrix<int_max>           m_PointList_3DIndex_OutputImage; // evaluate at each point on m_OutputImage
 
-	const DenseMatrix<int_max>* m_PointList_3DIndex_InputImage;     // evaluate at each nearest point on m_OutputImage
-
-	DenseMatrix<int_max> m_PointList_3DIndex_OutputImage;           // evaluate at each point on m_OutputImage
+	Image3DInfo m_OutputImageInfo;
 
 	int_max m_MaxNumberOfThread; // max number of threads
-	
+
+	OutputPlaceOption_Of_ImageFilter3D m_OutputPlaceOption; // Output to Image or PixelArray
+
 	// -------------------- internal ----------------------------------------------------//
 	int_max m_TotalNumberOfOutputPixelTobeProcessed;
 
@@ -48,12 +59,15 @@ protected:
 	// false: point set determined by m_PointList_3DPyhsicalPosition or m_PointList_3DIndex_InputImage or m_PointList_3DIndex_OutputImage
 
 	//------------------------- output ----------------------------------------------------//
+	// only one of them is selected as the output
 	OutputImageType m_OutputImage;
+	DataArray<OutputPixelType> m_OutputPixelArray;
+
+protected:
+	ImageFilter3D();
+	virtual ~ImageFilter3D();
 
 public:
-	ImageToImageFilter3D();
-	virtual ~ImageToImageFilter3D();
-
 	virtual void Clear();
 
 	void SetInputImage(const InputImageType* InputImage);
@@ -71,7 +85,17 @@ public:
 
 	Image3DInfo GetOutputImageInfo();
 
+	void SetOutputAsImage();
+	
+	void SetOutputAsPixelArray();
+
+	void InitializeOutputImage();
+
 	OutputImageType* GetOutputImage();
+
+	void InitializeOutputPixelArray();
+
+	DataArray<OutputPixelType>* GetOutputPixelArray();
 
 	void SetPointListOf3DIndexInInputImage(const DenseMatrix<int_max>* ListOf3DIndex);
 
@@ -92,29 +116,48 @@ protected:
 	virtual bool Preprocess();
 	virtual bool Postprocess() { return true; }
 
+	inline virtual void Evaluate_in_a_thread(int_max Index_start, int_max Index_end, int_max ThreadIndex);
+
 	// Evaluate at Point (x, y, z): 3DIndex of m_OutputImage
-	inline virtual void EvaluateAt3DIndexInOutputImage(int_max x0, int_max y0, int_max z0, int_max ThreadIndex) = 0;
+	inline virtual OutputPixelType EvaluateAt3DPhysicalPosition(ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) = 0;
+
+	inline virtual void StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixelType& OutputPixel, int_max PixelIndex, int_max ThreadIndex) {}
 
 	int_max GetMaxNumberOfThread_UserInput();
 
 	int_max GetNumberOfThreadTobeCreated();
 
 	template<typename PixelTypeForMask = InputPixelType>
+	DataArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0);
+
+	template<typename PixelTypeForMask = InputPixelType>
+	DataArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position);
+
+	template<typename PixelTypeForMask = InputPixelType>
+	DataArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0);
+
+	template<typename PixelTypeForMask = InputPixelType>
+	DataArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position);
+
+	template<typename PixelTypeForMask = InputPixelType>
 	DataArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0);
+
+	template<typename PixelTypeForMask = InputPixelType>
+	DataArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D);
 
 	template<typename PixelTypeForMask = InputPixelType>
 	DataArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0);
 
-private:
-	void Evaluate_in_a_thread(int_max Index_start, int_max Index_end, int_max ThreadIndex);
+	template<typename PixelTypeForMask = InputPixelType>
+	DataArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D);
 
 private:
-	ImageToImageFilter3D(const ImageToImageFilter3D&) = delete;
-	void operator=(const ImageToImageFilter3D&) = delete;
+	ImageFilter3D(const ImageFilter3D&) = delete;
+	void operator=(const ImageFilter3D&) = delete;
 };
 
 }// namespace mdk
 
-#include "mdkImageToImageFilter3D.hpp"
+#include "mdkImageFilter3D.hpp"
 
 #endif

@@ -50,16 +50,6 @@ struct SparseImageData3D
 
     inline void Clear();
 
-    //---------------------------------
-
-	inline const PixelType& GetPixel(int_max LinearIndex) const;
-   
-	inline const PixelType& GetPixel(int_max xIndex, int_max yIndex, int_max zIndex) const;
-
-	inline void SetPixel(int_max LinearIndex, const PixelType& Pixel);
-
-	inline void SetPixel(int_max xIndex, int_max yIndex, int_max zIndex, const PixelType& Pixel);
-
 	//---------------------------------
 
     inline int_max Transform3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
@@ -208,13 +198,48 @@ public:
 	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DIndex(const DenseVector<ScalarType, 3>& Position) const;
 
-	//--------------------------- Get Pixel ------------------------------//
+	//--------------------------- check Pixel ------------------------------//
+
+	inline bool CheckPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
+	// true, the pixel does exist at (xIndex, yIndex, zIndex)
+	
+	inline bool CheckPixelAtLinearIndex(int_max LinearIndex) const;
+	// true, the pixel does exist at (LinearIndex)
+
+	//--------------------------- Set/Get Pixel  ------------------------------//
+
+	inline void SetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, PixelType Pixel);
+
+	inline void SetPixelAt3DIndex(DenseVector<int_max, 3> Index3D, PixelType Pixel);
+
+	inline void SetPixelAtLinearIndex(int_max LinearIndex, PixelType Pixel);
+	
+	inline const PixelType& GetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
+
+	inline const PixelType& GetPixelAt3DIndex(DenseVector<int_max, 3> Index3D) const;
+
+	inline const PixelType& GetPixelAtLinearIndex(int_max LinearIndex) const;
+
+	//--------------------------- Set/Get Pixel by using operator --------------//
+	// attention:
+	// SparseImage3D<double> TempImage; 
+	// ...
+	// a=TempImage[0];  this will call operator[], NOT operator[] const, and it will perform new element insertion at linear index 0
+	// use GetPixelAt3DIndex or GetPixelAtLinearIndex
+
+	inline PixelType& operator[](int_max LinearIndex);
 
 	inline const PixelType& operator[](int_max LinearIndex) const;
 
+	inline PixelType& operator()(int_max LinearIndex);
+
 	inline const PixelType& operator()(int_max LinearIndex) const;
 
+	inline PixelType& operator()(int_max xIndex, int_max yIndex, int_max zIndex);
+
 	inline const PixelType& operator()(int_max xIndex, int_max yIndex, int_max zIndex) const;
+
+	//--------------------------- Get the nearest Pixel ---------------------------//
 
 	template<typename ScalarType>
 	inline const PixelType& GetPixelNearestTo3DIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const;
@@ -249,12 +274,6 @@ public:
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>
 	OutputPixelType GetPixelAt3DPhysicalPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option) const;
-
-	//--------------------------- Set Pixel ------------------------------//
-
-	inline bool SetPixelAtLinearIndex(int_max LinearIndex, const PixelType& Pixel);
-
-	inline bool SetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, const PixelType& Pixel);
 
 };
 

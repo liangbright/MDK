@@ -20,7 +20,9 @@ DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::~DenseImageR
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
-	this->ImageToImageFilter3D::Clear();
+	this->ImageFilter3D::Clear();
+	m_OutputPlaceOption = OutputPlaceOption_Of_ImageFilter3D::OutputImage;
+
 	m_Flag_UseGaussianSmoothWhenDownSmapling = false;
 	m_Flag_UserInputGaussianParameter = false;
 	m_SigmaOfGaussian.Clear();
@@ -69,21 +71,28 @@ void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 		return;
 	}
 
+	Image3DInfo Info;
+	Info.Size[0] = Lx;
+	Info.Size[1] = Ly;
+	Info.Size[2] = Lz;
+
 	auto Size_input = m_InputImage->GetSize();
 	auto Spacing_input = m_InputImage->GetSpacing();
-	auto Spacing_x = double(Size_input[0] - 1) * Spacing_input[0] / double(Lx - 1);
-	auto Spacing_y = double(Size_input[1] - 1) * Spacing_input[1] / double(Ly - 1);
-	auto Spacing_z = double(Size_input[2] - 1) * Spacing_input[2] / double(Lz - 1);
+	Info.Spacing[0] = double(Size_input[0] - 1) * Spacing_input[0] / double(Lx - 1);
+	Info.Spacing[1] = double(Size_input[1] - 1) * Spacing_input[1] / double(Ly - 1);
+	Info.Spacing[2] = double(Size_input[2] - 1) * Spacing_input[2] / double(Lz - 1);
 
-	m_OutputImage.SetOrigin(m_InputImage->GetOrigin());
-	m_OutputImage.SetSpacing(Spacing_x, Spacing_y, Spacing_z);
-	m_OutputImage.SetSize(Lx, Ly, Lz);
+	Info.Origin= m_InputImage->GetOrigin();
+	Info.Orientation = m_InputImage->GetOrientation();
+
+	this->SetOutputImageInfo(Info);
 }
+
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
 {
-	if (this->ImageToImageFilter3D::Preprocess() == false)
+	if (this->ImageFilter3D::Preprocess() == false)
 	{
 		return false;
 	}
@@ -139,7 +148,7 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Preproc
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Postprocess()
 {
-	if (this->ImageToImageFilter3D::Postprocess() == false)
+	if (this->ImageFilter3D::Postprocess() == false)
 	{
 		return false;
 	}
@@ -149,17 +158,16 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Postpro
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-inline void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::
-EvaluateAt3DIndexInOutputImage(int_max x, int_max y, int_max z, int_max ThreadIndex)
+inline OutputPixelType DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::
+EvaluateAt3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex)
 {
-	auto PointPosition = m_OutputImage.Transform3DIndexTo3DPhysicalPosition<ScalarType>(x, y, z);
 	if (m_Flag_SmoothInputImage == false)
 	{
-		m_OutputImage(x, y, z) = m_InputImage->GetPixelAt3DPhysicalPosition(PointPosition, m_ImageInterpolationOption);
+		return m_InputImage->GetPixelAt3DPhysicalPosition<OutputPixelType>(x, y, z, m_ImageInterpolationOption);
 	}
 	else
 	{
-		m_OutputImage(x, y, z) = m_GaussianSmoothedImage.GetPixelAt3DPhysicalPosition(PointPosition, m_ImageInterpolationOption);
+		return m_GaussianSmoothedImage.GetPixelAt3DPhysicalPosition<OutputPixelType>(x, y, z, m_ImageInterpolationOption);
 	}
 }
 

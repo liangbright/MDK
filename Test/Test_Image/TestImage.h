@@ -1,9 +1,11 @@
 ﻿#ifndef __TestImage_h
-#define __TestImager_h
+#define __TestImage_h
 
 #include <ctime>
 #include <cstdlib>
 #include <array>
+#include <chrono>
+#include <ctime>
 
 #include "mdkDenseImage3D.h"
 #include "mdkFileIO.h"
@@ -92,6 +94,55 @@ void testA()
 	Option_vi.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Nearest;
 	Option_vi.Pixel_OutsideImage = 0;
 	auto e1 = VectorImage_int.GetPixelAt3DIndex(int(1.0), int(1.5), int(1.0), Option_vi);
+}
+
+void testB()
+{
+	DenseImage3D<double> ScalarImage_double;
+	ScalarImage_double.SetSize(100, 100, 100);
+	ScalarImage_double.SetSpacing(1, 1, 1);
+
+	auto Index3D_a = ScalarImage_double.TransformLinearIndexTo3DIndex(10);
+	auto a1 = ScalarImage_double.GetPixelAt3DIndex(0.1, 0.1, 0.1);
+	DenseImage3D<double>::InterpolationOptionType Option_a;
+	auto a2 = ScalarImage_double.GetPixelAt3DIndex<double>(0.1, 0.1, 0.1, Option_a);
+
+	auto b1 = ScalarImage_double.TransformLinearIndexTo3DPhysicalPosition(10);
+
+	auto b2 = ScalarImage_double.TransformLinearIndexTo3DPhysicalPosition<float>(10);
+
+	auto c1 = ScalarImage_double.Transform3DIndexTo3DPhysicalPosition(10, 10, 10);
+	auto c2 = ScalarImage_double.Transform3DIndexTo3DPhysicalPosition(10.0, 10.0, 10.0);
+
+}
+
+void Test_Image3D()
+{// use Image3D and virtual function
+
+	DenseImage3D<int> ScalarImage;
+	ScalarImage.SetSize(1000, 1000, 1000);
+	ScalarImage.SetSpacing(1, 1, 1);
+
+	//Image3D<int>* Ptr = &ScalarImage;
+
+	auto t0 = std::chrono::system_clock::now();
+	for (int n = 1; n < 10; ++n)
+	{
+		for (int_max k = 0; k < ScalarImage.GetPixelNumber(); ++k)
+		{
+			ScalarImage.SetPixelAtLinearIndex(k, 1);
+			//Ptr->SetPixelAtLinearIndex(k, 1);
+		}
+	}
+	auto t1 = std::chrono::system_clock::now();
+
+	std::chrono::duration<double> raw_time = t1 - t0;
+	std::cout << " time " << raw_time.count() << '\n';
+
+	// result
+	// 11.6376s : derive from Image3D and use ScalarImage.SetPixelAtLinearIndex(k, 1);
+	// 31.7932s : derive from Image3D and use Ptr->SetPixelAtLinearIndex(k, 1);
+	// 10.6966s : not from Image3D
 }
 
 }

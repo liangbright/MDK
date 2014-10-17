@@ -136,7 +136,7 @@ inline
 DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const
 {
 	DenseVector<ScalarType, 3> Position;
-	auto Index3D = this->TransformLinearIndexTo3DIndex();
+	auto Index3D = this->TransformLinearIndexTo3DIndex(LinearIndex);
 	Position[0] = ScalarType(m_Origin[0] + double(Index3D[0]) * m_Spacing[0]);
 	Position[1] = ScalarType(m_Origin[1] + double(Index3D[1]) * m_Spacing[1]);
 	Position[2] = ScalarType(m_Origin[2] + double(Index3D[2]) * m_Spacing[2]);
@@ -789,6 +789,54 @@ inline
 DenseVector<ScalarType, 3> DenseImage3D<PixelType>::Transform3DPhysicalPositionTo3DIndex(const DenseVector<ScalarType, 3>& Position) const
 {
 	return m_ImageData->Transform3DPhysicalPositionTo3DIndex(Position[0], Position[1], Position[2]);
+}
+
+
+template<typename PixelType>
+inline 
+void DenseImage3D<PixelType>::SetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, PixelType Pixel)
+{
+	(*this)(xIndex, yIndex, zIndex) = std::move(Pixel);
+}
+
+
+template<typename PixelType>
+inline 
+void DenseImage3D<PixelType>::SetPixelAt3DIndex(DenseVector<int_max, 3> Index3D, PixelType Pixel)
+{
+	(*this)(Index3D[0], Index3D[1], Index3D[2]) = std::move(Pixel);
+}
+
+
+template<typename PixelType>
+inline
+void DenseImage3D<PixelType>::SetPixelAtLinearIndex(int_max LinearIndex, PixelType Pixel)
+{
+	(*this)(LinearIndex) = std::move(Pixel);
+}
+
+
+template<typename PixelType>
+inline
+const PixelType& DenseImage3D<PixelType>::GetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex) const
+{
+	return (*this)(xIndex, yIndex, zIndex);
+}
+
+
+template<typename PixelType>
+inline
+const PixelType& DenseImage3D<PixelType>::GetPixelAt3DIndex(DenseVector<int_max, 3> Index3D) const
+{
+	return (*this)(Index3D[0], Index3D[1], Index3D[2]);
+}
+
+
+template<typename PixelType>
+inline 
+const PixelType& DenseImage3D<PixelType>::GetPixelAtLinearIndex(int_max LinearIndex) const
+{
+	return (*this)(LinearIndex);
 }
 
 

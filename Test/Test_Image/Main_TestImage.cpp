@@ -6,5 +6,7 @@ using namespace mdk;
 
 int main()
 {
-	testA();
+	//testA();
+	//testB();
+	Test_Image3D();
 }

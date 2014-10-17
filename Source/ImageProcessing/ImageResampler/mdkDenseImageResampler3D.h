@@ -1,14 +1,14 @@
 #ifndef __mdkDenseImageResampler3D_h
 #define __mdkDenseImageResampler3D_h
 
-#include "mdkImageToImageFilter3D.h"
+#include "mdkImageFilter3D.h"
 #include "mdkScalarDenseImageGaussianFilter3D.h"
 
 namespace mdk
 {
 
 template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = double>
-class DenseImageResampler3D : public ImageToImageFilter3D<DenseImage3D<InputPixel_Type>, DenseImage3D<OutputPixel_Type>, Scalar_Type>
+class DenseImageResampler3D : public ImageFilter3D<DenseImage3D<InputPixel_Type>, DenseImage3D<OutputPixel_Type>, Scalar_Type>
 {
 public:
 	typedef InputPixel_Type  InputPixelType;
@@ -45,8 +45,12 @@ private:
 	bool Preprocess();
 	bool Postprocess();
 
-	// Evaluate at Point (x, y, z): 3DIndex in m_OutputImage
-	inline void EvaluateAt3DIndexInOutputImage(int_max x, int_max y, int_max z, int_max ThreadIndex);
+	inline OutputPixelType EvaluateAt3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex);
+
+private:
+	// hide the two function, because output is always image
+	void SetOutputAsImage() = delete;
+	void SetOutputAsPixelArray() = delete;
 
 private:
 	void operator=(const DenseImageResampler3D&) = delete;

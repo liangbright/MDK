@@ -226,7 +226,7 @@ public:
 
 	template<typename ScalarType = int_max>
 	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DIndex(int_max LinearIndex) const;
-	
+
 	template<typename ScalarType = double>
 	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const;
 
@@ -242,7 +242,21 @@ public:
 	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DIndex(const DenseVector<ScalarType, 3>& Position) const;
 
-	//--------------------------- Get/Set Pixel ------------------------------//
+	//--------------------------- Set/Get Pixel  ------------------------------//
+
+	inline void SetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, PixelType Pixel);
+
+	inline void SetPixelAt3DIndex(DenseVector<int_max, 3> Index3D, PixelType Pixel);
+
+	inline void SetPixelAtLinearIndex(int_max LinearIndex, PixelType Pixel);
+
+	inline const PixelType& GetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
+
+	inline const PixelType& GetPixelAt3DIndex(DenseVector<int_max, 3> Index3D) const;
+
+	inline const PixelType& GetPixelAtLinearIndex(int_max LinearIndex) const;
+
+	//--------------------------- Get/Set Pixel by using operator -------------//
 
     inline PixelType& operator[](int_max LinearIndex);
 
