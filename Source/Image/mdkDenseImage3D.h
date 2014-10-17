@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <cstdlib>
+#include <cmath>
 
 #include "mdkDebugConfig.h"
 #include "mdkDenseMatrix.h"
@@ -241,6 +242,32 @@ public:
 
 	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DIndex(const DenseVector<ScalarType, 3>& Position) const;
+
+	template<typename ScalarType>
+	inline DenseVector<int_max, 3> Transform3DPhysicalPositionToNearest3DDiscreteIndex(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline DenseVector<int_max, 3> Transform3DPhysicalPositionToNearest3DDiscreteIndex(const DenseVector<ScalarType, 3>& Position) const;
+
+	template<typename ScalarType>
+	inline DenseVector<int_max, 3> Transform3DPhysicalPositionToNearest3DDiscreteIndexInsideImage(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline DenseVector<int_max, 3> Transform3DPhysicalPositionToNearest3DDiscreteIndexInsideImage(const DenseVector<ScalarType, 3>& Position) const;
+
+	//------------------- check if 3D Index is inside Image ---------------------//
+	template<typename ScalarType>
+	inline bool CheckIf3DIndexIsInsideImage(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const;
+
+	template<typename ScalarType>
+	inline bool CheckIf3DIndexIsInsideImage(const DenseVector<ScalarType, 3>& Index3D) const;
+
+	//------------------- check if 3D PhysicalPosition is inside Image ---------------------//
+	template<typename ScalarType>
+	inline bool CheckIf3DPhysicalPositionIsInsideImage(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline bool CheckIf3DPhysicalPositionIsInsideImage(const DenseVector<ScalarType, 3>& Position) const;
 
 	//--------------------------- Set/Get Pixel  ------------------------------//
 

@@ -1,6 +1,8 @@
 #ifndef __mdkImageInterpolation3D_h
 #define __mdkImageInterpolation3D_h
 
+#include <cmath>
+
 namespace mdk
 {
 

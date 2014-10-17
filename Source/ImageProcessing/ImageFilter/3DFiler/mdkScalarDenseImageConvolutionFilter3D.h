@@ -30,7 +30,7 @@ public:
 	void SetConvolutionCoefficient(DenseMatrix<ScalarType> Coef);
 	const DenseMatrix<ScalarType>& GetConvolutionCoefficient();
 
-	inline OutputPixelType EvaluateAt3DPhysicalPosition(ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex);
+	inline OutputPixelType EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex);
 
 protected:
 	virtual bool Preprocess();

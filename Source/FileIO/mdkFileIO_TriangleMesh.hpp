@@ -316,7 +316,7 @@ TriangleMesh<MeshAttributeType> LoadTriangleMeshFromVTKFile(const std::string& F
     }
     catch (...)
     {
-        MDK_Error(" Can not write data @ SaveTriangleMeshAsVTKFile(...) ")
+        MDK_Error(" Can not read data @ LoadTriangleMeshFromVTKFile(...) ")
         return OutputMesh;
     }
 

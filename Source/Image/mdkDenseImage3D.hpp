@@ -791,6 +791,133 @@ DenseVector<ScalarType, 3> DenseImage3D<PixelType>::Transform3DPhysicalPositionT
 	return m_ImageData->Transform3DPhysicalPositionTo3DIndex(Position[0], Position[1], Position[2]);
 }
 
+template<typename PixelType>
+template<typename ScalarType>
+inline
+DenseVector<int_max, 3> DenseImage3D<PixelType>::Transform3DPhysicalPositionToNearest3DDiscreteIndex(ScalarType x, ScalarType y, ScalarType z) const
+{
+	auto Index3D = m_ImageData->Transform3DPhysicalPositionTo3DIndex(x, y, z);
+	auto x_Index = int_max(std::round(Index3D[0]));
+	auto y_Index = int_max(std::round(Index3D[1]));
+	auto z_Index = int_max(std::round(Index3D[2]));
+	DenseVector<int_max, 3> Index3D_Nearest;
+	Index3D_Nearest[0] = x_Index;
+	Index3D_Nearest[1] = y_Index;
+	Index3D_Nearest[2] = z_Index;
+	return Index3D_Nearest;
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+DenseVector<int_max, 3> DenseImage3D<PixelType>::Transform3DPhysicalPositionToNearest3DDiscreteIndex(const DenseVector<ScalarType, 3>& Position) const
+{
+	return this->Transform3DPhysicalPositionToNearest3DDiscreteIndex(Position[0], Position[1], Position[2]);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline 
+DenseVector<int_max, 3> DenseImage3D<PixelType>::Transform3DPhysicalPositionToNearest3DDiscreteIndexInsideImage(ScalarType x, ScalarType y, ScalarType z) const
+{
+	auto Index3D = m_ImageData->Transform3DPhysicalPositionTo3DIndex(x, y, z);
+	auto Size = this->GetSize();
+	auto x_Index = int_max(std::round(Index3D[0]));
+	auto y_Index = int_max(std::round(Index3D[1]));
+	auto z_Index = int_max(std::round(Index3D[2]));
+	if (x_Index < 0)
+	{
+		x_Index = 0;
+	}
+	else if (x_Index >= Size[0])
+	{
+		x_Index = Size[0] - 1;
+	}
+
+	if (y_Index < 0)
+	{
+		y_Index = 0;
+	}
+	else if (y_Index >= Size[1])
+	{
+		y_Index = Size[1] - 1;
+	}
+
+	if (z_Index < 0)
+	{
+		z_Index = 0;
+	}
+	else if (z_Index >= Size[2])
+	{
+		z_Index = Size[2] - 1;
+	}
+
+	DenseVector<int_max, 3> Index3D_Inside;
+	Index3D_Inside[0] = x_Index;
+	Index3D_Inside[1] = y_Index;
+	Index3D_Inside[2] = z_Index;
+	return Index3D_Inside;
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+DenseVector<int_max, 3> DenseImage3D<PixelType>::Transform3DPhysicalPositionToNearest3DDiscreteIndexInsideImage(const DenseVector<ScalarType, 3>& Position) const
+{
+	return this->Transform3DPhysicalPositionToNearest3DIndexInsideImage(Position[0], Position[1], Position[2]);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+bool DenseImage3D<PixelType>::CheckIf3DIndexIsInsideImage(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const
+{
+	auto Size = this->GetSize();
+	auto Lx = double(Size[0]);
+	auto Ly = double(Size[1]);
+	auto Lz = double(Size[2]);
+	auto x = double(xIndex);
+	auto y = double(yIndex);
+	auto z = double(zIndex);
+	if (x < 0.0 || x >= Lx || y <= 0.0 || y >= Ly || z <= 0.0 || z >= Lz)
+	{
+		return false;
+	}
+	return true;
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+bool DenseImage3D<PixelType>::CheckIf3DIndexIsInsideImage(const DenseVector<ScalarType, 3>& Index3D) const
+{
+	return this->CheckIf3DIndexIsInsideImage(Index3D[0], Index3D[1], Index3D[2]);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline 
+bool DenseImage3D<PixelType>::CheckIf3DPhysicalPositionIsInsideImage(ScalarType x, ScalarType y, ScalarType z) const
+{
+	auto Index3D = this->Transform3DPhysicalPositionTo3DIndex(x, y, z);
+	return this->CheckIf3DIndexIsInsideImage(Index3D);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline 
+bool DenseImage3D<PixelType>::CheckIf3DPhysicalPositionIsInsideImage(const DenseVector<ScalarType, 3>& Position) const
+{
+	return this->CheckIf3DPhysicalPositionIsInsideImage(Position[0], Position[1], Position[2]);
+}
+
 
 template<typename PixelType>
 inline 
@@ -944,38 +1071,38 @@ const PixelType& DenseImage3D<PixelType>::GetPixelNearestTo3DIndex(ScalarType xI
 
 	auto Size = this->GetSize();
 
-	auto x0 = int_max(xIndex);
-	auto y0 = int_max(yIndex);
-	auto z0 = int_max(zIndex);
+	auto x = int_max(std::round(xIndex));
+	auto y = int_max(std::round(yIndex));
+	auto z = int_max(std::round(zIndex));
 
-	if (x0 < 0)
+	if (x < 0)
 	{
-		x0 = 0;
+		x = 0;
 	}
-	else if (x0 >= Size[0])
+	else if (x >= Size[0])
 	{
-		x0 = Size[0] - 1;
-	}
-
-	if (y0 < 0)
-	{
-		y0 = 0;
-	}
-	else if (y0 >= Size[1])
-	{
-		y0 = Size[1] - 1;
+		x = Size[0] - 1;
 	}
 
-	if (z0 < 0)
+	if (y < 0)
 	{
-		z0 = 0;
+		y = 0;
 	}
-	else if (z0 >= Size[2])
+	else if (y >= Size[1])
 	{
-		z0 = Size[2] - 1;
+		y = Size[1] - 1;
 	}
 
-	return (*m_ImageData)(x0, y0, z0);
+	if (z < 0)
+	{
+		z = 0;
+	}
+	else if (z >= Size[2])
+	{
+		z = Size[2] - 1;
+	}
+
+	return (*m_ImageData)(x, y, z);
 }
 
 
@@ -1097,14 +1224,14 @@ DenseImage3D<PixelType>::GetLinearIndexListInRegion(const BoxRegionOf3DIndexInIm
 		return EmptyList;
 	}
 
-	auto xIndex_s = RegionInfo.x0;
-	auto yIndex_s = RegionInfo.y0;
-	auto zIndex_s = RegionInfo.z0;
-	auto xIndex_e = RegionInfo.x1;
-	auto yIndex_e = RegionInfo.y1;
-	auto zIndex_e = RegionInfo.z1;
+	auto xIndex_s = int_max(RegionInfo.x_min);
+	auto yIndex_s = int_max(RegionInfo.y_min);
+	auto zIndex_s = int_max(RegionInfo.z_min);
+	auto xIndex_e = int_max(RegionInfo.x_max);
+	auto yIndex_e = int_max(RegionInfo.y_max);
+	auto zIndex_e = int_max(RegionInfo.z_max);
 
-	if (xIndex_e > xIndex_s || yIndex_e > xIndex_s || zIndex_e > zIndex_s)
+	if (xIndex_e < xIndex_s || yIndex_e < xIndex_s || zIndex_e < zIndex_s)
 	{
 		MDK_Error("Invalid input @ DenseImage3D::GetLinearIndexListInRegion(...)")
 		DenseVector<int_max> EmptyList;
@@ -1160,14 +1287,16 @@ DenseImage3D<PixelType>::GetLinearIndexListInRegion(const BoxRegionOf3DPhysicalP
 		return EmptyList;
 	}
 
-	auto xIndex_s = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.x0));
-	auto yIndex_s = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.y0));
-	auto zIndex_s = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.z0));
-	auto xIndex_e = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.x1));
-	auto yIndex_e = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.y1));
-	auto zIndex_e = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.z1));
+	auto Index3D_min = this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.x_min, RegionInfo.y_min, RegionInfo.z_min);
+	auto xIndex_s = int_max(Index3D_min[0]);
+	auto yIndex_s = int_max(Index3D_min[1]);
+	auto zIndex_s = int_max(Index3D_min[2]);
+	auto Index3D_max = this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.x_max, RegionInfo.y_max, RegionInfo.z_max);
+	auto xIndex_e = int_max(Index3D_max[0]);
+	auto yIndex_e = int_max(Index3D_max[1]);
+	auto zIndex_e = int_max(Index3D_max[2]);
 
-	if (xIndex_e > xIndex_s || yIndex_e > xIndex_s || zIndex_e > zIndex_s)
+	if (xIndex_e < xIndex_s || yIndex_e < xIndex_s || zIndex_e < zIndex_s)
 	{
 		MDK_Error("Invalid input @ DenseImage3D::GetLinearIndexListInRegion(...)")
 		DenseVector<int_max> EmptyList;
@@ -1184,12 +1313,12 @@ DenseImage3D<PixelType>::GetLinearIndexListInRegion(const BoxRegionOf3DPhysicalP
 	zIndex_e = std::max(zIndex_e, int_max(0)); zIndex_e = std::min(zIndex_e, Size[2] - 1);
 
 	BoxRegionOf3DIndexInImage3D RegionOf3DIndex;
-	RegionOf3DIndex.x0 = xIndex_s;
-	RegionOf3DIndex.y0 = yIndex_s;
-	RegionOf3DIndex.z0 = zIndex_s;
-	RegionOf3DIndex.x1 = xIndex_e;
-	RegionOf3DIndex.y1 = yIndex_e;
-	RegionOf3DIndex.z1 = zIndex_e;
+	RegionOf3DIndex.x_min = xIndex_s;
+	RegionOf3DIndex.y_min = yIndex_s;
+	RegionOf3DIndex.z_min = zIndex_s;
+	RegionOf3DIndex.x_max = xIndex_e;
+	RegionOf3DIndex.y_max = yIndex_e;
+	RegionOf3DIndex.z_max = zIndex_e;
 	return this->GetLinearIndexListInRegion(RegionOf3DIndex);
 }
 
@@ -1203,14 +1332,14 @@ DenseMatrix<int_max> DenseImage3D<PixelType>::Get3DIndexListInRegion(const BoxRe
 		return EmptyList;
 	}
 
-	auto xIndex_s = RegionInfo.x0;
-	auto yIndex_s = RegionInfo.y0;
-	auto zIndex_s = RegionInfo.z0;
-	auto xIndex_e = RegionInfo.x1;
-	auto yIndex_e = RegionInfo.y1;
-	auto zIndex_e = RegionInfo.z1;
+	auto xIndex_s = int_max(RegionInfo.x_min);
+	auto yIndex_s = int_max(RegionInfo.y_min);
+	auto zIndex_s = int_max(RegionInfo.z_min);
+	auto xIndex_e = int_max(RegionInfo.x_max);
+	auto yIndex_e = int_max(RegionInfo.y_max);
+	auto zIndex_e = int_max(RegionInfo.z_max);
 
-	if (xIndex_e > xIndex_s || yIndex_e > xIndex_s || zIndex_e > zIndex_s)
+	if (xIndex_e < xIndex_s || yIndex_e < xIndex_s || zIndex_e < zIndex_s)
 	{
 		MDK_Error("Invalid input @ DenseImage3D::GetLinearIndexListInRegion(...)")
 		DenseMatrix<int_max> EmptyList;
@@ -1251,14 +1380,16 @@ DenseMatrix<int_max> DenseImage3D<PixelType>::Get3DIndexListInRegion(const BoxRe
 		return EmptyList;
 	}
 
-	auto xIndex_s = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.x0));
-	auto yIndex_s = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.y0));
-	auto zIndex_s = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.z0));
-	auto xIndex_e = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.x1));
-	auto yIndex_e = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.y1));
-	auto zIndex_e = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.z1));
+	auto Index3D_min = this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.x_min, RegionInfo.y_min, RegionInfo.z_min);
+	auto xIndex_s = int_max(Index3D_min[0]);
+	auto yIndex_s = int_max(Index3D_min[1]);
+	auto zIndex_s = int_max(Index3D_min[2]);
+	auto Index3D_max = this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.x_max, RegionInfo.y_max, RegionInfo.z_max);
+	auto xIndex_e = int_max(Index3D_max[0]);
+	auto yIndex_e = int_max(Index3D_max[1]);
+	auto zIndex_e = int_max(Index3D_max[2]);
 
-	if (xIndex_e > xIndex_s || yIndex_e > xIndex_s || zIndex_e > zIndex_s)
+	if (xIndex_e < xIndex_s || yIndex_e < xIndex_s || zIndex_e < zIndex_s)
 	{
 		MDK_Error("Invalid input @ DenseImage3D::Get3DIndexListInRegion(...)")
 		DenseMatrix<int_max> EmptyList;
@@ -1275,12 +1406,12 @@ DenseMatrix<int_max> DenseImage3D<PixelType>::Get3DIndexListInRegion(const BoxRe
 	zIndex_e = std::max(zIndex_e, int_max(0)); zIndex_e = std::min(zIndex_e, Size[2] - 1);
 
 	BoxRegionOf3DIndexInImage3D RegionOf3DIndex;
-	RegionOf3DIndex.x0 = xIndex_s;
-	RegionOf3DIndex.y0 = yIndex_s;
-	RegionOf3DIndex.z0 = zIndex_s;
-	RegionOf3DIndex.x1 = xIndex_e;
-	RegionOf3DIndex.y1 = yIndex_e;
-	RegionOf3DIndex.z1 = zIndex_e;
+	RegionOf3DIndex.x_min = xIndex_s;
+	RegionOf3DIndex.y_min = yIndex_s;
+	RegionOf3DIndex.z_min = zIndex_s;
+	RegionOf3DIndex.x_max = xIndex_e;
+	RegionOf3DIndex.y_max = yIndex_e;
+	RegionOf3DIndex.z_max = zIndex_e;
 	return this->Get3DIndexListInRegion(RegionOf3DIndex);
 }
 
@@ -1297,14 +1428,14 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DIndexInImage3D& RegionIn
         return SubImage;
     }
 
-	auto xIndex_s = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.x0));
-	auto yIndex_s = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.y0));
-	auto zIndex_s = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.z0));
-	auto xIndex_e = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.x1));
-	auto yIndex_e = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.y1));
-	auto zIndex_e = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.z1));
+	auto xIndex_s = int_max(RegionInfo.x_min);
+	auto yIndex_s = int_max(RegionInfo.y_min);
+	auto zIndex_s = int_max(RegionInfo.z_min);
+	auto xIndex_e = int_max(RegionInfo.x_max);
+	auto yIndex_e = int_max(RegionInfo.y_max);
+	auto zIndex_e = int_max(RegionInfo.z_max);
 
-	if (xIndex_e > xIndex_s || yIndex_e > xIndex_s || zIndex_e > zIndex_s)
+	if (xIndex_e < xIndex_s || yIndex_e < xIndex_s || zIndex_e < zIndex_s)
 	{
 		MDK_Error("Invalid input @ DenseImage3D::GetSubImage(...)")
 		return SubImage;
@@ -1331,7 +1462,7 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DIndexInImage3D& RegionIn
 	auto SubPtr = SubImage.GetPixelPointer();
     auto RawPtr = this->GetPixelPointer();
 
-    PixelNumberPerZSlice = m_ImageData->PixelNumberPerZSlice;
+    auto PixelNumberPerZSlice = m_ImageData->m_PixelNumberPerZSlice;
 
     for (int_max k = zIndex_s; k <= zIndex_e; ++k)
     {
@@ -1363,14 +1494,16 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DPhysicalPositionInImage3
 		return EmptyImage;
 	}
 
-	auto xIndex_s = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.x0));
-	auto yIndex_s = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.y0));
-	auto zIndex_s = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.z0));
-	auto xIndex_e = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.x1));
-	auto yIndex_e = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.y1));
-	auto zIndex_e = int_max(this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.z1));
+	auto Index3D_min = this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.x_min, RegionInfo.y_min, RegionInfo.z_min);
+	auto xIndex_s = int_max(Index3D_min[0]);
+	auto yIndex_s = int_max(Index3D_min[1]);
+	auto zIndex_s = int_max(Index3D_min[2]);
+	auto Index3D_max = this->Transform3DPhysicalPositionTo3DIndex(RegionInfo.x_max, RegionInfo.y_max, RegionInfo.z_max);
+	auto xIndex_e = int_max(Index3D_max[0]);
+	auto yIndex_e = int_max(Index3D_max[1]);
+	auto zIndex_e = int_max(Index3D_max[2]);
 
-	if (xIndex_e > xIndex_s || yIndex_e > xIndex_s || zIndex_e > zIndex_s)
+	if (xIndex_e < xIndex_s || yIndex_e < xIndex_s || zIndex_e < zIndex_s)
 	{
 		MDK_Error("Invalid input @ DenseImage3D::GetSubImage(...)")
 		DenseImage3D<PixelType> EmptyImage;
@@ -1387,12 +1520,12 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DPhysicalPositionInImage3
 	zIndex_e = std::max(zIndex_e, int_max(0)); zIndex_e = std::min(zIndex_e, Size[2] - 1);
 
 	BoxRegionOf3DIndexInImage3D RegionOf3DIndex;
-	RegionOf3DIndex.x0 = xIndex_s;
-	RegionOf3DIndex.y0 = yIndex_s;
-	RegionOf3DIndex.z0 = zIndex_s;
-	RegionOf3DIndex.x1 = xIndex_e;
-	RegionOf3DIndex.y1 = yIndex_e;
-	RegionOf3DIndex.z1 = zIndex_e;
+	RegionOf3DIndex.x_min = xIndex_s;
+	RegionOf3DIndex.y_min = yIndex_s;
+	RegionOf3DIndex.z_min = zIndex_s;
+	RegionOf3DIndex.x_max = xIndex_e;
+	RegionOf3DIndex.y_max = yIndex_e;
+	RegionOf3DIndex.z_max = zIndex_e;
 	return this->GetSubImage(RegionOf3DIndex);
 }
 

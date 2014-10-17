@@ -5,77 +5,77 @@ namespace mdk
 {
 struct BoxRegionOf3DIndexInImage3D
 { 
-    int_max x0;
-    int_max y0;
-    int_max z0;
+	double x_min;
+	double y_min;
+	double z_min;
 
-    int_max x1; // >= x0
-    int_max y1; // >= y0
-    int_max z1; // >= z0
+	double x_max;
+	double y_max;
+	double z_max;
 
 //-------------------------------------
     BoxRegionOf3DIndexInImage3D()
     {
-        x0 = 0;
-        y0 = 0;
-        z0 = 0;
-        x1 = 0;
-        y1 = 0;
-        z1 = 0;
+		x_min = 0;
+		y_min = 0;
+		z_min = 0;
+		x_max = 0;
+		y_max = 0;
+		z_max = 0;
     };
 
-    int_max Lx() const
+	double Lx() const
     {
-        return x1 - x0 + 1;
+		return x_max - x_min + 1;
     }
 
-    int_max Ly() const
+	double Ly() const
     {
-        return y1 - y0 + 1;
+		return y_max - y_min + 1;
     }
 
-    int_max Lz() const
+	double Lz() const
     {
-        return z1 - z0 + 1;
+		return z_max - z_min + 1;
     }
 };
 
 
 struct BoxRegionOf3DPhysicalPositionInImage3D
 {
-	double x0;
-	double y0;
-	double z0;
+	double x_min;
+	double y_min;
+	double z_min;
 
-	double x1; // >= x0
-	double y1; // >= y0
-	double z1; // >= z0
+	double x_max;
+	double y_max;
+	double z_max;
 
 //-------------------------------------
 
     BoxRegionOf3DPhysicalPositionInImage3D()
     {
-        x0 = 0;
-        y0 = 0;
-        z0 = 0;
-        x1 = 0;
-        y1 = 0;
-        z1 = 0;
+		x_min = 0;
+		y_min = 0;
+		z_min = 0;
+		x_max = 0;
+		y_max = 0;
+		z_max = 0;
     };
 
 	double Lx() const
     {
-        return x1 - x0;
+		return x_max - x_min;
     }
 
 	double Ly() const
     {
-        return y1 - y0;
+		return y_max - y_min;
     }
 
 	double Lz() const
     {
-        return z1 - z0;
+		return z_max - z_min;
     }
 };
 
@@ -120,59 +120,59 @@ struct Image3DInfo
 
 struct BoxRegionOf2DIndexInImage2D
 {
-	int_max x0;
-	int_max y0;
+	double x_min;
+	double y_min;
 
-	int_max x1; // >= x0
-	int_max y1; // >= y0
+	double x_max;
+	double y_max;
 
 	//-------------------------------------
 	BoxRegionOf2DIndexInImage2D()
 	{
-		x0 = 0;
-		y0 = 0;
-		x1 = 0;
-		y1 = 0;
+		x_min = 0;
+		y_min = 0;
+		x_max = 0;
+		y_max = 0;
 	};
 
-	int_max Lx() const
+	double Lx() const
 	{
-		return x1 - x0 + 1;
+		return x_max - x_min + 1;
 	}
 
-	int_max Ly() const
+	double Ly() const
 	{
-		return y1 - y0 + 1;
+		return y_max - y_min + 1;
 	}
 };
 
 
 struct BoxRegionOf2DPhysicalPositionInImage2D
 {
-	double x0;
-	double y0;
+	double x_min;
+	double y_min;
 
-	double x1; // >= x0
-	double y1; // >= y0
+	double x_max;
+	double y_max;
 
 	//-------------------------------------
 
 	BoxRegionOf2DPhysicalPositionInImage2D()
 	{
-		x0 = 0;
-		y0 = 0;
-		x1 = 0;
-		y1 = 0;
+		x_min = 0;
+		y_min = 0;
+		x_max = 0;
+		y_max = 0;
 	};
 
 	double Lx() const
 	{
-		return x1 - x0;
+		return x_max - x_min;
 	}
 
 	double Ly() const
 	{
-		return y1 - y0;
+		return y_max - y_min;
 	}
 };
 

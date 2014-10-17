@@ -53,7 +53,7 @@ bool ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType, Scalar
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline
 OutputPixelType ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType, ScalarType>::
-EvaluateAt3DPhysicalPosition(ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex)
+EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex)
 {	
 	auto OutputPixel = OutputPixelType(0);
 

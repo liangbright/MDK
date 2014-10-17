@@ -66,8 +66,8 @@ OutputPixelType InterpolateImageAt2DContinuousIndex_Nearest(const DenseImage2D<I
 
     auto Size = InputImage.GetSize();
 
-	auto x0 = int_max(x);
-	auto y0 = int_max(y);
+	auto x0 = int_max(std::round(x));
+	auto y0 = int_max(std::round(y));
 
 	if (Option.BoundaryOption == BoundaryOptionEnum_Of_Image2DInterpolation::Constant)
 	{		

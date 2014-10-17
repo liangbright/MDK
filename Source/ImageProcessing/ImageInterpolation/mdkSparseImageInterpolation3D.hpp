@@ -66,9 +66,9 @@ OutputPixelType InterpolateImageAt3DContinuousIndex_Nearest(const SparseImage3D<
 
     auto Size = InputImage.GetSize();
 
-	auto x0 = int_max(x);
-	auto y0 = int_max(y);
-	auto z0 = int_max(z);
+	auto x0 = int_max(std::round(x));
+	auto y0 = int_max(std::round(y));
+	auto z0 = int_max(std::round(z));
 
 	if (Option.BoundaryOption == BoundaryOptionEnum_Of_Image3DInterpolation::Constant)
 	{		

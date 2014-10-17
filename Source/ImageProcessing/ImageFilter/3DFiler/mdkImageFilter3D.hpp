@@ -26,7 +26,7 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Clear()
 	
 	m_PointList_3DPyhsicalPosition = nullptr;
 	m_PointList_3DIndex_InputImage = nullptr;
-	m_PointList_3DIndex_OutputImage.Clear();
+	m_PointList_3DIndex_OutputImage = nullptr;
 	
 	m_OutputPlaceOption = OutputPlaceOption_Of_ImageFilter3D::OutputImage;
 
@@ -274,54 +274,24 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Preprocess()
 
 		this->InitializeOutputImage();
 
-		if (m_PointList_3DIndex_OutputImage.IsEmpty() == true && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition == nullptr)
+		if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition == nullptr)
 		{
 			m_TotalNumberOfOutputPixelTobeProcessed = PixelNumberOfOutputImage;
 			m_Flag_ScanWholeImageGrid = true;
 		}
-		else if (m_PointList_3DIndex_OutputImage.IsEmpty() == false && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition == nullptr)
+		else if (m_PointList_3DIndex_OutputImage != nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition == nullptr)
 		{
-			m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DIndex_OutputImage.GetColNumber();
+			m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DIndex_OutputImage->GetColNumber();
 			m_Flag_ScanWholeImageGrid = false;
 		}
-		else if (m_PointList_3DIndex_OutputImage.IsEmpty() == true && m_PointList_3DIndex_InputImage != nullptr && m_PointList_3DPyhsicalPosition == nullptr)
+		else if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage != nullptr && m_PointList_3DPyhsicalPosition == nullptr)
 		{
-			m_PointList_3DIndex_OutputImage.Clear();
-			m_PointList_3DIndex_OutputImage.ReserveCapacity(m_PointList_3DIndex_InputImage->GetSize());
-			for (int_max k = 0; k < m_PointList_3DIndex_InputImage->GetColNumber(); ++k)
-			{
-				DenseVector<ScalarType, 3> Index3D_input;
-				m_PointList_3DIndex_InputImage->GetCol(k, Index3D_input);
-				auto Position = m_InputImage->Transform3DIndexTo3DPhysicalPosition<ScalarType>(Index3D_input);
-				auto Index3D_output = m_OutputImage.Transform3DPhysicalPositionTo3DIndex(Position);
-				auto xIndex = int_max(Index3D_output[0]); xIndex = std::max(xIndex, int_max(0)); xIndex = std::min(xIndex, OutputImageSize[0] - 1);
-				auto yIndex = int_max(Index3D_output[1]); yIndex = std::max(yIndex, int_max(0)); yIndex = std::min(yIndex, OutputImageSize[1] - 1);
-				auto zIndex = int_max(Index3D_output[2]); zIndex = std::max(zIndex, int_max(0)); zIndex = std::min(zIndex, OutputImageSize[2] - 1);
-				m_PointList_3DIndex_OutputImage.AppendCol({ xIndex, yIndex, zIndex });
-			}
-			auto tempColIndexList = m_PointList_3DIndex_OutputImage.FindUniqueCol();
-			m_PointList_3DIndex_OutputImage = m_PointList_3DIndex_OutputImage.GetSubMatrix(ALL, tempColIndexList);
-			//---------------------------------------------------------------------------
-			m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DIndex_OutputImage.GetColNumber();
+			m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DIndex_InputImage->GetColNumber();
 			m_Flag_ScanWholeImageGrid = false;
 		}
-		else if (m_PointList_3DIndex_OutputImage.IsEmpty() == true && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition != nullptr)
+		else if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition != nullptr)
 		{
-			m_PointList_3DIndex_OutputImage.ReserveCapacity(m_PointList_3DPyhsicalPosition->GetSize());
-			for (int_max k = 0; k < m_PointList_3DPyhsicalPosition->GetColNumber(); ++k)
-			{
-				DenseVector<ScalarType, 3> Position, Index3D;
-				m_PointList_3DPyhsicalPosition->GetCol(k, Position);
-				Index3D = m_OutputImage.Transform3DPhysicalPositionTo3DIndex(Position);
-				auto xIndex = int_max(Index3D[0]); xIndex = std::max(xIndex, int_max(0)); xIndex = std::min(xIndex, OutputImageSize[0] - 1);
-				auto yIndex = int_max(Index3D[1]); yIndex = std::max(yIndex, int_max(0)); yIndex = std::min(yIndex, OutputImageSize[1] - 1);
-				auto zIndex = int_max(Index3D[2]); zIndex = std::max(zIndex, int_max(0)); zIndex = std::min(zIndex, OutputImageSize[2] - 1);
-				m_PointList_3DIndex_OutputImage.AppendCol({ xIndex, yIndex, zIndex });
-			}
-			auto tempColIndexList = m_PointList_3DIndex_OutputImage.FindUniqueCol();
-			m_PointList_3DIndex_OutputImage = m_PointList_3DIndex_OutputImage.GetSubMatrix(ALL, tempColIndexList);
-			//---------------------------------------------------------------------------
-			m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DIndex_OutputImage.GetColNumber();
+			m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DPyhsicalPosition->GetColNumber();
 			m_Flag_ScanWholeImageGrid = false;
 		}
 		else
@@ -336,19 +306,19 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Preprocess()
 
 		m_Flag_ScanWholeImageGrid = false;
 
-		if (m_PointList_3DIndex_OutputImage.IsEmpty() == true && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition == nullptr)
+		if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition == nullptr)
 		{
 			m_TotalNumberOfOutputPixelTobeProcessed = 0;
 		}
-		else if (m_PointList_3DIndex_OutputImage.IsEmpty() == false && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition == nullptr)
+		else if (m_PointList_3DIndex_OutputImage != nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition == nullptr)
 		{
-			m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DIndex_OutputImage.GetColNumber();
+			m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DIndex_OutputImage->GetColNumber();
 		}
-		else if (m_PointList_3DIndex_OutputImage.IsEmpty() == true && m_PointList_3DIndex_InputImage != nullptr && m_PointList_3DPyhsicalPosition == nullptr)
+		else if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage != nullptr && m_PointList_3DPyhsicalPosition == nullptr)
 		{
 			m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DIndex_InputImage->GetColNumber();
 		}
-		else if (m_PointList_3DIndex_OutputImage.IsEmpty() == true && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition != nullptr)
+		else if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition != nullptr)
 		{
 			m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DPyhsicalPosition->GetColNumber();
 		}
@@ -374,27 +344,59 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Preprocess()
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
-Evaluate_in_a_thread(int_max Index_start, int_max Index_end, int_max ThreadIndex)
+Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex)
 {
 	if (m_OutputPlaceOption == OutputPlaceOption_Of_ImageFilter3D::OutputImage)
 	{
+		auto OutputImageSize = m_OutputImage.GetSize();
+
 		if (m_Flag_ScanWholeImageGrid == true)
 		{
-			for (int_max k = Index_start; k <= Index_end; ++k)
+			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
 			{
 				auto Index3D = m_OutputImage.TransformLinearIndexTo3DIndex(k);
 				auto Pos3D = m_OutputImage.Transform3DIndexTo3DPhysicalPosition(Index3D);
-				m_OutputImage(Index3D[0], Index3D[1], Index3D[2]) = this->EvaluateAt3DPhysicalPosition(Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
+				m_OutputImage(Index3D[0], Index3D[1], Index3D[2]) = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
 			}
 		}
 		else
 		{
-			for (int_max k = Index_start; k <= Index_end; ++k)
+			if (m_PointList_3DIndex_OutputImage != nullptr)
 			{
-				DenseVector<int_max, 3> Index3D;
-				m_PointList_3DIndex_OutputImage.GetCol(k, Index3D);
-				auto Pos3D = m_OutputImage.Transform3DIndexTo3DPhysicalPosition(Index3D);
-				m_OutputImage(Index3D[0], Index3D[1], Index3D[2]) = this->EvaluateAt3DPhysicalPosition(Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
+				for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+				{
+					DenseVector<int_max, 3> Index3D;
+					m_PointList_3DIndex_OutputImage->GetCol(k, Index3D);
+					auto Pos3D = m_OutputImage.Transform3DIndexTo3DPhysicalPosition(Index3D);
+					m_OutputImage(Index3D[0], Index3D[1], Index3D[2]) = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
+				}
+			}
+			else if (m_PointList_3DIndex_InputImage != nullptr)
+			{
+				for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+				{
+					DenseVector<int_max, 3> Index3D_input;
+					m_PointList_3DIndex_InputImage->GetCol(k, Index3D_input);
+					auto Pos3D = m_InputImage->Transform3DIndexTo3DPhysicalPosition(Index3D_input);
+					auto Index3D = m_OutputImage.Transform3DPhysicalPositionToNearest3DDiscreteIndex(Pos3D);
+					if (m_OutputImage.CheckIf3DIndexIsInsideImage(Index3D) == true)
+					{
+						m_OutputImage(Index3D[0], Index3D[1], Index3D[2]) = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
+					}
+				}
+			}
+			else if (m_PointList_3DPyhsicalPosition != nullptr)
+			{
+				for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+				{
+					DenseVector<ScalarType, 3> Pos3D;
+					m_PointList_3DPyhsicalPosition->GetCol(k, Pos3D);
+					auto Index3D = m_OutputImage.Transform3DPhysicalPositionToNearest3DDiscreteIndex(Pos3D);
+					if (m_OutputImage.CheckIf3DIndexIsInsideImage(Index3D) == true)
+					{
+						m_OutputImage(Index3D[0], Index3D[1], Index3D[2]) = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
+					}
+				}
 			}
 		}
 	}
@@ -402,67 +404,67 @@ Evaluate_in_a_thread(int_max Index_start, int_max Index_end, int_max ThreadIndex
 	{
 		if (m_OutputPlaceOption == OutputPlaceOption_Of_ImageFilter3D::OutputPixelArray_DataArray)
 		{
-			if (m_PointList_3DIndex_OutputImage.IsEmpty() == false)
+			if (m_PointList_3DIndex_OutputImage != nullptr)
 			{
-				for (int_max k = Index_start; k <= Index_end; ++k)
+				for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
 				{
 					DenseVector<int_max, 3> Index3D;
-					m_PointList_3DIndex_OutputImage.GetCol(k, Index3D);
+					m_PointList_3DIndex_OutputImage->GetCol(k, Index3D);
 					auto Pos3D = m_OutputImage.Transform3DIndexTo3DPhysicalPosition(Index3D);
-					m_OutputPixelArray[k] = this->EvaluateAt3DPhysicalPosition(Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
+					m_OutputPixelArray[k] = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
 				}
 			}
 			else if (m_PointList_3DIndex_InputImage != nullptr)
 			{
-				for (int_max k = Index_start; k <= Index_end; ++k)
+				for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
 				{
 					DenseVector<int_max, 3> Index3D;
 					m_PointList_3DIndex_InputImage->GetCol(k, Index3D);
 					auto Pos3D = m_InputImage->Transform3DIndexTo3DPhysicalPosition(Index3D);
-					m_OutputPixelArray[k] = this->EvaluateAt3DPhysicalPosition(Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);					 
+					m_OutputPixelArray[k] = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
 				}
 			}
 			else if (m_PointList_3DPyhsicalPosition != nullptr)
 			{
-				for (int_max k = Index_start; k <= Index_end; ++k)
+				for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
 				{
 					DenseVector<ScalarType, 3> Pos3D;
 					m_PointList_3DPyhsicalPosition->GetCol(k, Pos3D);
-					m_OutputPixelArray[k] = this->EvaluateAt3DPhysicalPosition(Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
+					m_OutputPixelArray[k] = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
 				}
 			}
 		}
 		else //if (m_OutputPlaceOption == OutputPlaceOption_Of_ImageFilter3D::OutputPixelArray_OtherFormat)
 		{
-			if (m_PointList_3DIndex_OutputImage.IsEmpty() == false)
+			if (m_PointList_3DIndex_OutputImage != nullptr)
 			{
-				for (int_max k = Index_start; k <= Index_end; ++k)
+				for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
 				{
 					DenseVector<int_max, 3> Index3D;
-					m_PointList_3DIndex_OutputImage.GetCol(k, Index3D);
+					m_PointList_3DIndex_OutputImage->GetCol(k, Index3D);
 					auto Pos3D = m_OutputImage.Transform3DIndexTo3DPhysicalPosition(Index3D);
-					auto OutputPixel = this->EvaluateAt3DPhysicalPosition(Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
+					auto OutputPixel = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
 					this->StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixel, k, ThreadIndex);
 				}
 			}
 			else if (m_PointList_3DIndex_InputImage != nullptr)
 			{
-				for (int_max k = Index_start; k <= Index_end; ++k)
+				for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
 				{
 					DenseVector<int_max, 3> Index3D;
 					m_PointList_3DIndex_InputImage->GetCol(k, Index3D);
 					auto Pos3D = m_InputImage->Transform3DIndexTo3DPhysicalPosition(Index3D);
-					auto OutputPixel = this->EvaluateAt3DPhysicalPosition(Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
+					auto OutputPixel = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
 					this->StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixel, k, ThreadIndex);
 				}
 			}
 			else if (m_PointList_3DPyhsicalPosition != nullptr)
 			{
-				for (int_max k = Index_start; k <= Index_end; ++k)
+				for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
 				{
 					DenseVector<ScalarType, 3> Pos3D;
 					m_PointList_3DPyhsicalPosition->GetCol(k, Pos3D);
-					auto OutputPixel = this->EvaluateAt3DPhysicalPosition(Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
+					auto OutputPixel = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
 					this->StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixel, k, ThreadIndex);
 				}
 			}

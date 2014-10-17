@@ -41,9 +41,9 @@ protected:
 	ImageInterpolationOptionType m_ImageInterpolationOption;
 
 	// only one of them is used
-	const DenseMatrix<ScalarType>* m_PointList_3DPyhsicalPosition;  // evaluate at each nearest point on m_OutputImage if Output is image
-	const DenseMatrix<int_max>*    m_PointList_3DIndex_InputImage;  // evaluate at each nearest point on m_OutputImage if Output is image
-	DenseMatrix<int_max>           m_PointList_3DIndex_OutputImage; // evaluate at each point on m_OutputImage
+	const DenseMatrix<ScalarType>* m_PointList_3DPyhsicalPosition;  // store at each nearest point on m_OutputImage if Output is image
+	const DenseMatrix<int_max>*    m_PointList_3DIndex_InputImage;  // store at each nearest point on m_OutputImage if Output is image
+	const DenseMatrix<int_max>*    m_PointList_3DIndex_OutputImage; // store at each point on m_OutputImage
 
 	Image3DInfo m_OutputImageInfo;
 
@@ -116,12 +116,12 @@ protected:
 	virtual bool Preprocess();
 	virtual bool Postprocess() { return true; }
 
-	inline virtual void Evaluate_in_a_thread(int_max Index_start, int_max Index_end, int_max ThreadIndex);
+	inline virtual void Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex);
 
 	// Evaluate at Point (x, y, z): 3DIndex of m_OutputImage
-	inline virtual OutputPixelType EvaluateAt3DPhysicalPosition(ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) = 0;
+	inline virtual OutputPixelType EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) = 0;
 
-	inline virtual void StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixelType& OutputPixel, int_max PixelIndex, int_max ThreadIndex) {}
+	inline virtual void StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixelType& OutputPixel, int_max PointIndex, int_max ThreadIndex) {}
 
 	int_max GetMaxNumberOfThread_UserInput();
 

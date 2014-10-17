@@ -66,9 +66,9 @@ OutputPixelType InterpolateImageAt2DContinuousIndex_Nearest(const SparseImage2D<
 
     auto Size = InputImage.GetSize();
 
-	auto x0 = int_max(x);
-	auto y0 = int_max(y);
-
+	auto x0 = int_max(std::round(x));
+	auto y0 = int_max(std::round(y));
+	
 	if (Option.BoundaryOption == BoundaryOptionEnum_Of_Image2DInterpolation::Constant)
 	{		
 		if (x0 < 0 || x0 >= Size[0])

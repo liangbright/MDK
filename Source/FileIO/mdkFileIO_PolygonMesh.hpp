@@ -291,7 +291,7 @@ bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, c
 	catch (...)
 	{
 		MDK_Error(" Can not write data @ SavePolygonMeshAsVTKFile(...) ")
-			return false;
+		return false;
 	}
 
 	return true;
@@ -314,8 +314,8 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromVTKFile(const std::string& Fil
 	}
 	catch (...)
 	{
-		MDK_Error(" Can not write data @ SaveTriangleMeshAsVTKFile(...) ")
-			return OutputMesh;
+		MDK_Error(" Can not read data @ LoadPolygonMeshFromVTKFile(...) ")
+		return OutputMesh;
 	}
 
 	auto VTKPolyMesh = Reader->GetOutput();

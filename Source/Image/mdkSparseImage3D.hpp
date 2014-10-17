@@ -629,6 +629,160 @@ DenseVector<ScalarType, 3> SparseImage3D<PixelType>::Transform3DPhysicalPosition
 
 
 template<typename PixelType>
+template<typename ScalarType>
+inline
+DenseVector<int_max, 3> SparseImage3D<PixelType>::Transform3DPhysicalPositionToNearest3DDiscreteIndex(ScalarType x, ScalarType y, ScalarType z) const
+{
+	auto Index3D = m_ImageData->Transform3DPhysicalPositionTo3DIndex(x, y, z);
+	auto x_Index = int_max(std::round(Index3D[0]));
+	auto y_Index = int_max(std::round(Index3D[1]));
+	auto z_Index = int_max(std::round(Index3D[2]));
+	DenseVector<int_max, 3> Index3D_Nearest;
+	Index3D_Nearest[0] = x_Index;
+	Index3D_Nearest[1] = y_Index;
+	Index3D_Nearest[2] = z_Index;
+	return Index3D_Nearest;
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+DenseVector<int_max, 3> SparseImage3D<PixelType>::Transform3DPhysicalPositionToNearest3DDiscreteIndex(const DenseVector<ScalarType, 3>& Position) const
+{
+	return this->Transform3DPhysicalPositionToNearest3DDiscreteIndex(Position[0], Position[1], Position[2]);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+DenseVector<int_max, 3> SparseImage3D<PixelType>::Transform3DPhysicalPositionToNearest3DDiscreteIndexInsideImage(ScalarType x, ScalarType y, ScalarType z) const
+{
+	auto Index3D = m_ImageData->Transform3DPhysicalPositionTo3DIndex(x, y, z);
+	auto Size = this->GetSize();
+	auto x_Index = int_max(std::round(Index3D[0]));
+	auto y_Index = int_max(std::round(Index3D[1]));
+	auto z_Index = int_max(std::round(Index3D[2]));
+	if (x_Index < 0)
+	{
+		x_Index = 0;
+	}
+	else if (x_Index >= Size[0])
+	{
+		x_Index = Size[0] - 1;
+	}
+
+	if (y_Index < 0)
+	{
+		y_Index = 0;
+	}
+	else if (y_Index >= Size[1])
+	{
+		y_Index = Size[1] - 1;
+	}
+
+	if (z_Index < 0)
+	{
+		z_Index = 0;
+	}
+	else if (z_Index >= Size[2])
+	{
+		z_Index = Size[2] - 1;
+	}
+
+	DenseVector<int_max, 3> Index3D_Inside;
+	Index3D_Inside[0] = x_Index;
+	Index3D_Inside[1] = y_Index;
+	Index3D_Inside[2] = z_Index;
+	return Index3D_Inside;
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+DenseVector<int_max, 3> SparseImage3D<PixelType>::Transform3DPhysicalPositionToNearest3DDiscreteIndexInsideImage(const DenseVector<ScalarType, 3>& Position) const
+{
+	return this->Transform3DPhysicalPositionToNearest3DIndexInsideImage(Position[0], Position[1], Position[2]);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+bool SparseImage3D<PixelType>::CheckIf3DIndexIsInsideImage(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const
+{
+	auto Size = this->GetSize();
+	auto Lx = double(Size[0]);
+	auto Ly = double(Size[1]);
+	auto Lz = double(Size[2]);
+	auto x = double(xIndex);
+	auto y = double(yIndex);
+	auto z = double(zIndex);
+	if (x < 0.0 || x >= Lx || y <= 0.0 || y >= Ly || z <= 0.0 || z >= Lz)
+	{
+		return false;
+	}
+	return true;
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+bool SparseImage3D<PixelType>::CheckIf3DIndexIsInsideImage(const DenseVector<ScalarType, 3>& Index3D) const
+{
+	return this->CheckIf3DIndexIsInsideImage(Index3D[0], Index3D[1], Index3D[2]);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+bool SparseImage3D<PixelType>::CheckIf3DPhysicalPositionIsInsideImage(ScalarType x, ScalarType y, ScalarType z) const
+{
+	auto Index3D = this->Transform3DPhysicalPositionTo3DIndex(x, y, z);
+	return this->CheckIf3DIndexIsInsideImage(Index3D);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+bool SparseImage3D<PixelType>::CheckIf3DPhysicalPositionIsInsideImage(const DenseVector<ScalarType, 3>& Position) const
+{
+	return this->CheckIf3DPhysicalPositionIsInsideImage(Position[0], Position[1], Position[2]);
+}
+
+
+template<typename PixelType>
+inline
+bool SparseImage3D<PixelType>::CheckIfPixelIsStoredAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex) const
+{// true, the pixel does exist at (xIndex, yIndex, zIndex)
+	auto LinearIndex = this->Transform3DIndexToLinearIndex(xIndex, yIndex, zIndex);
+	return this->CheckIfPixelIsStoredAtLinearIndex(LinearIndex);
+}
+
+
+template<typename PixelType>
+inline
+bool SparseImage3D<PixelType>::CheckIfPixelIsStoredAt3DIndex(const DenseVector<int_max, 3>& Index3D) const
+{// true, the pixel does exist at (xIndex, yIndex, zIndex)
+	return this->CheckIfPixelIsStoredAt3DIndex(Index3D[0], Index3D[1], Index3D[2]);
+}
+
+
+template<typename PixelType>
+inline 
+bool SparseImage3D<PixelType>::CheckIfPixelIsStoredAtLinearIndex(int_max LinearIndex) const
+{// true, the pixel does exist at (LinearIndex)
+	auto it = m_ImageData->m_DataMap.find(LinearIndex);
+	return (it != m_ImageData->m_DataMap.end());
+}
+
+
+template<typename PixelType>
 inline
 void SparseImage3D<PixelType>::SetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, PixelType Pixel)
 {
@@ -830,9 +984,9 @@ const PixelType& SparseImage3D<PixelType>::GetPixelNearestTo3DIndex(ScalarType x
 
 	auto Size = this->GetSize();
 
-	auto x0 = int_max(xIndex);
-	auto y0 = int_max(yIndex);
-	auto z0 = int_max(zIndex);
+	auto x0 = int_max(std::round(xIndex));
+	auto y0 = int_max(std::round(yIndex));
+	auto z0 = int_max(std::round(zIndex));
 
     if (x0 < 0)
 	{
