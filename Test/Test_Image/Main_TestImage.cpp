@@ -8,5 +8,6 @@ int main()
 {
 	//testA();
 	//testB();
-	Test_Image3D();
+	//Test_Image3D();
+	testCurve();
 }

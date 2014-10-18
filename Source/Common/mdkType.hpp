@@ -5,9 +5,9 @@
 namespace mdk
 {
 
-template<typename ObjectType>
+template<typename ScalarType>
 inline
-ScalarTypeEnum GetScalarType(ObjectType Scalar)
+ScalarTypeEnum GetScalarType(const ScalarType& Scalar)
 {
     std::string TypeName(typeid(Scalar).name());
 
@@ -58,7 +58,7 @@ ScalarTypeEnum GetScalarType(ObjectType Scalar)
 
 template<typename ScalarType>
 inline
-std::string GetScalarTypeName(ScalarType Scalar)
+std::string GetScalarTypeName(const ScalarType& Scalar)
 {
     std::string OutputName;
 

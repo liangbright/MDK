@@ -77,7 +77,7 @@ ElementType ComputeAngleBetweenTwoVectorIn3D(const ElementType* VectorA, const E
         return 0;
     }
 
-    auto eps_value = std::numeric_limits<ScalarType>::epsilon();
+	auto eps_value = std::numeric_limits<ElementType>::epsilon();
 
     auto L2Norm_A = std::sqrt(VectorA[0] * VectorA[0] + VectorA[1] * VectorA[1] + VectorA[2] * VectorA[2]);
     auto L2Norm_B = std::sqrt(VectorB[0] * VectorB[0] + VectorB[1] * VectorB[1] + VectorB[2] * VectorB[2]);

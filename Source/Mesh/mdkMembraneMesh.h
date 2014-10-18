@@ -50,7 +50,7 @@ struct MembraneMeshData
 
 	SimpleObjectArray<Point_Of_MembraneMesh<MeshAttributeType>> PointList;
 
-    DenseVector<int_max> PointValidityFlagList;
+    DenseVector<int_max> PointValidityFlagList; // do not use bool (std::vector<bool> is compressed)
     // 1: point is an element of the mesh 
     // 0: point is deleted
 
@@ -173,6 +173,10 @@ public:
 
     inline GlobalAttribute& Attribute();
     inline const GlobalAttribute& Attribute() const;
+
+	//------------- Get All the position (valid point) --------------------------------//
+	inline DenseMatrix<ScalarType> GetPointPositionMatrix() const;
+	inline void GetPointPositionMatrix(DenseMatrix<ScalarType>& PositionMatrix) const;
 
     // Get/Set 3D Position by PointHandle or PointID --------------------------------------------------------------------------//
 

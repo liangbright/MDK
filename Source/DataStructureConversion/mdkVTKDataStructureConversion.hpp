@@ -5,6 +5,170 @@
 namespace mdk
 {
 
+inline VtkDataTypeEnum TranslateMDKScalarTypeToVtkScalarType(const std::string& MDKScalarTypeName)
+{
+	if (MDKScalarTypeName == "double")
+	{
+		return VtkDataTypeEnum::VALUE_DOUBLE;
+	}
+	else if (MDKScalarTypeName == "float")
+	{
+		return VtkDataTypeEnum::VALUE_FLOAT;
+	}
+	else if (MDKScalarTypeName == "int8")
+	{
+		return VtkDataTypeEnum::VALUE_CHAR;
+	}
+	else if (MDKScalarTypeName == "int16")
+	{
+		return VtkDataTypeEnum::VALUE_SHORT;
+	}
+	else if (MDKScalarTypeName == "int32")
+	{
+		return VtkDataTypeEnum::VALUE_INTEGER;
+	}
+	else if (MDKScalarTypeName == "int64")
+	{
+		return VtkDataTypeEnum::VALUE_LONG_LONG;
+	}
+	else if (MDKScalarTypeName == "uint8")
+	{
+		return VtkDataTypeEnum::VALUE_UNSIGNED_CHAR;
+	}
+	else if (MDKScalarTypeName == "uint16")
+	{
+		return VtkDataTypeEnum::VALUE_UNSIGNED_SHORT;
+	}
+	else if (MDKScalarTypeName == "uint32")
+	{
+		return VtkDataTypeEnum::VALUE_UNSIGNED_INTEGER;
+	}
+	else if (MDKScalarTypeName == "uint64")
+	{
+		return VtkDataTypeEnum::VALUE_UNSIGNED_LONG_LONG;
+	}
+	else
+	{
+		MDK_Error("Input ScalarType is unknown" << MDKScalarTypeName << '\n')
+		return VtkDataTypeEnum::VALUE_UNKNOWN;
+	}
+}
+
+template<typename ScalarType>
+VtkDataTypeEnum GetVtkScalarType(const ScalarType& ReferenceScalar)
+{
+	auto Name = GetScalarTypeName(ReferenceScalar);
+	return TranslateMDKScalarTypeToVtkScalarType(Name);
+}
+
+
+
+template<typename ScalarType>
+vtkSmartPointer<vtkPolyData> ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& InputCurve)
+{
+	auto PointNumber = InputCurve.GetColNumber();
+	if (InputCurve.GetRowNumber() != 3)
+	{
+		MDK_Error("Invalid InputCurve @ mdkFileIO ConvertSingleMDK3DCurveToVTKPolyData")
+		return false;
+	}
+
+	auto VtkDataType = GetVtkScalarType(ScalarType(0));
+
+	auto PointSet = vtkSmartPointer<vtkPoints>::New();
+	PointSet->SetDataType(VtkDataType);
+
+	auto CellList = vtkSmartPointer<vtkCellArray>::New();
+	CellList->InsertNextCell(PointNumber);
+
+	for (int n = 0; n < PointNumber; ++n)
+	{
+		ScalarType Pos[3];
+		InputCurve.GetCol(n, Pos);
+		CellList->InsertCellPoint(n);
+		PointSet->InsertPoint(n, Pos);
+	}
+
+	auto VTKCurveData = vtkSmartPointer<vtkPolyData>::New();
+	VTKCurveData->SetPoints(PointSet);
+	VTKCurveData->SetLines(CellList);
+	return VTKCurveData;
+}
+
+
+template<typename ScalarType>
+vtkSmartPointer<vtkPolyData> ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<ScalarType>>& InputCurveList)
+{
+	auto VtkDataType = GetVtkScalarType(ScalarType(0));
+
+	auto PointSet = vtkSmartPointer<vtkPoints>::New();
+	PointSet->SetDataType(VtkDataType);
+	auto CellList = vtkSmartPointer<vtkCellArray>::New();
+	auto VTKCurveData = vtkSmartPointer<vtkPolyData>::New();
+
+	int_max PointCounter = 0;
+	auto CurveNumber = InputCurveList.GetLength();
+	for (int_max k = 0; k < CurveNumber; ++k)
+	{
+		auto PointNumber = InputCurveList[k].GetColNumber();
+
+		CellList->InsertNextCell(PointNumber);
+
+		if (InputCurveList[k].GetRowNumber() != 3)
+		{
+			MDK_Error("Invalid InputCurve @ mdkFileIO ConvertSingleMDK3DCurveToVTKPolyData")
+			return VTKCurveData;
+		}
+
+		for (int_max n = 0; n < PointNumber; ++n)
+		{
+			ScalarType Pos[3];
+			InputCurveList[k].GetCol(n, Pos);
+			CellList->InsertCellPoint(PointCounter);
+			PointSet->InsertPoint(PointCounter, Pos);
+			PointCounter += 1;
+		}
+	}
+
+	VTKCurveData->SetPoints(PointSet);
+	VTKCurveData->SetLines(CellList);
+	return VTKCurveData;
+}
+
+
+template<typename ScalarType>
+ObjectArray<DenseMatrix<ScalarType>> ConvertVTKPolyDataToMDK3DCurve(vtkPolyData* VTKCurveData)
+{
+	auto CurveNumber = int_max(VTKCurveData->GetNumberOfLines());
+	//auto CellNumber = int_max(VTKCurveData->GetNumberOfCells());
+	
+	auto PointSet = VTKCurveData->GetPoints();
+	//auto VTKCurveList = VTKCurveData->GetLines();
+
+	ObjectArray<DenseMatrix<ScalarType>> OutputCurveList;
+	OutputCurveList.Resize(CurveNumber);
+
+	for (int_max k = 0; k < CurveNumber; ++k)
+	{
+		auto Cell = VTKCurveData->GetCell(k);
+		auto PointNumber = int_max(Cell->GetNumberOfPoints());
+
+		auto& OutputCurve_k = OutputCurveList[k];
+		OutputCurve_k.Resize(3, PointNumber);
+
+		for (int_max n = 0; n < PointNumber; ++n)
+		{
+			ScalarType Pos[3];
+			auto PointID = Cell->GetPointId(n);
+			PointSet->GetPoint(PointID, Pos);
+			OutputCurve_k.SetCol(n, Pos);
+		}
+	}
+
+	return OutputCurveList;
+}
+
+
 template<typename PixelType>
 vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& InputImage)
 {

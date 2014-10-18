@@ -11,14 +11,6 @@
 namespace mdk
 {
 
-enum struct OutputPlaceOption_Of_ImageFilter3D
-{
-	OutputImage,
-	OutputPixelArray_DataArray,
-	OutputPixelArray_OtherFormat
-};
-
-
 template<typename InputImage_Type, typename OutputImage_Type, typename Scalar_Type>
 class ImageFilter3D : public ProcessObject
 {
@@ -49,14 +41,16 @@ protected:
 
 	int_max m_MaxNumberOfThread; // max number of threads
 
-	OutputPlaceOption_Of_ImageFilter3D m_OutputPlaceOption; // Output to Image or PixelArray
-
 	// -------------------- internal ----------------------------------------------------//
 	int_max m_TotalNumberOfOutputPixelTobeProcessed;
 
 	bool m_Flag_ScanWholeImageGrid;
 	// true: whole m_OutputImage
 	// false: point set determined by m_PointList_3DPyhsicalPosition or m_PointList_3DIndex_InputImage or m_PointList_3DIndex_OutputImage
+
+	bool m_Flag_EnableOutputImage;
+	bool m_Flag_EnableOutputPixelArray;
+	bool m_Flag_EnableOutputToOtherPlace;
 
 	//------------------------- output ----------------------------------------------------//
 	// only one of them is selected as the output
@@ -83,11 +77,10 @@ public:
 						    const DenseVector<int_max, 3>& Size,
 							const DenseMatrix<double>& Orientation);
 
-	Image3DInfo GetOutputImageInfo();
+	const Image3DInfo& GetOutputImageInfo();
 
-	void SetOutputAsImage();
-	
-	void SetOutputAsPixelArray();
+	void EnableOutputImage(bool On_Off = true);
+	void EnableOutputPixelArray(bool On_Off = true);
 
 	void InitializeOutputImage();
 
@@ -105,9 +98,11 @@ public:
 
 	void SetImageInterpolationOption(const ImageInterpolationOptionType& InputOption);
 
-	ImageInterpolationOptionType GetImageInterpolationOption();
+	const ImageInterpolationOptionType& GetImageInterpolationOption();
 
 	void SetMaxNumberOfThread(int_max MaxNumber);
+
+	int_max GetMaxNumberOfThread_UserInput();
 
 	virtual bool Update();
 
@@ -123,9 +118,11 @@ protected:
 
 	inline virtual void StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixelType& OutputPixel, int_max PointIndex, int_max ThreadIndex) {}
 
-	int_max GetMaxNumberOfThread_UserInput();
-
 	int_max GetNumberOfThreadTobeCreated();
+	
+	DenseVector<int_max, 3> TransformLinearIndexTo3DIndexInOutputImage(int_max LinearIndex);
+
+	DenseVector<ScalarType, 3> Transform3DIndexInOutputImageTo3DPhysicalPosition(const DenseVector<int_max, 3>& Index3D);
 
 	template<typename PixelTypeForMask = InputPixelType>
 	DataArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0);

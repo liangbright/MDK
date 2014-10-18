@@ -19,10 +19,6 @@ void RotationTransform3D<ScalarType>::Clear()
 {
 	m_SourceControlPointSet = nullptr;
 	m_TargetControlPointSet = nullptr;
-	m_AngleList.Clear();
-	m_Rotation_Rz.Clear();
-	m_Rotation_Ry.Clear();
-	m_Rotation_Rx.Clear();
 	m_Rotation.Clear();
 }
 
@@ -140,7 +136,7 @@ void RotationTransform3D<ScalarType>::EstimateRotationMatrixFromControlPointSet(
 	auto SVDResult = H.SVD();
 	
 	DenseMatrix<ScalarType> UV = SVDResult.U*SVDResult.V.Transpose();
-	auto UV_det = UV.det();
+	auto UV_det = UV.Det();
 
 	DenseMatrix<ScalarType> D(3, 3);
 	D.SetDiagonal({ ScalarType(1), ScalarType(1), UV_det });
@@ -235,18 +231,18 @@ DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::
 ComputeRotationMatrixByAngleAndAxis(ScalarType Angle, const DenseVector<ScalarType, 3>& Axis)
 {
 	auto One = ScalarType(1);
-	DenseMatrix<ScalarType> R(3,3);
+	DenseMatrix<ScalarType> R(3, 3);
 	auto CosA = std::cos(Angle);
 	auto SinA = std::sin(Angle);
-	R(0, 0) = CosA + Axis[0] * Axis[0] * (One - CosA);
-	R(0, 1) = Axis[0] * Axis[1] * (One - CosA) - Axis[2] * SinA;
-	R(0, 2) = Axis[0] * Axis[2] * (One - CosA) + Axis[1] * SinA;
-	R(1, 0) = Axis[0] * Axis[1] * (One - CosA) + Axis[2] * SinA;
-	R(1, 1) = CosA + Axis[1] * Axis[1] * (One - CosA);
-	R(1, 2) = Axis[1] * Axis[2] * (One - CosA) - Axis[0] * SinA;
-	R(2, 0) = Axis[0] * Axis[2] * (One - CosA) - Axis[1] * SinA;
-	R(2, 1) = Axis[1] * Axis[2] * (One - CosA) + Axis[0] * SinA;
-	R(2, 2) = CosA + Axis[2] * Axis[2] * (One - CosA);
+	R[0] = CosA + Axis[0] * Axis[0] * (One - CosA);           //R(0, 0) 
+	R[3] = Axis[0] * Axis[1] * (One - CosA) - Axis[2] * SinA; //R(0, 1)
+	R[6] = Axis[0] * Axis[2] * (One - CosA) + Axis[1] * SinA; //R(0, 2)
+	R[1] = Axis[0] * Axis[1] * (One - CosA) + Axis[2] * SinA; //R(1, 0)
+	R[4] = CosA + Axis[1] * Axis[1] * (One - CosA);           //R(1, 1)
+	R[7]= Axis[1] * Axis[2] * (One - CosA) - Axis[0] * SinA;  //R(1, 2)
+	R[2] = Axis[0] * Axis[2] * (One - CosA) - Axis[1] * SinA; //R(2, 0) 
+	R[5] = Axis[1] * Axis[2] * (One - CosA) + Axis[0] * SinA; //R(2, 1)
+	R[8] = CosA + Axis[2] * Axis[2] * (One - CosA);           //R(2, 2)
 	return R;
 }
 

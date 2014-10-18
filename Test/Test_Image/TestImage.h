@@ -13,6 +13,43 @@
 namespace mdk
 {
 
+void testCurve()
+{
+	std::string FileNameA = "C:/Research/MDK/MDK_Build/Test/Test_Image/Test_3DImage/TestData/CurveA.vtk";
+	std::string FileNameB = "C:/Research/MDK/MDK_Build/Test/Test_Image/Test_3DImage/TestData/CurveB.vtk";
+	std::string FileNameAB = "C:/Research/MDK/MDK_Build/Test/Test_Image/Test_3DImage/TestData/CurveAandB.vtk";
+
+	DenseMatrix<double> CurveA(3,3);
+	CurveA = { { 1, 2, 3 },
+			 { 4, 5, 6 },
+			 { 7, 8, 9 } };
+	SaveSingle3DCurveAsVTKFile(CurveA, FileNameA);
+
+	DenseMatrix<double> CurveB;
+	CurveB = {  { 10, 20, 30, 40 },
+				{ 4,  5,  6,  7 },
+	            { 7,  8,  9,  10 } };
+
+	SaveSingle3DCurveAsVTKFile(CurveB, FileNameB);
+
+	DataArray<DenseMatrix<double>> CurveList;
+	CurveList.Resize(2);
+	CurveList[0] = CurveA;
+	CurveList[1] = CurveB;
+	SaveMultiple3DCurveAsVTKFile(CurveList, FileNameAB);
+
+	auto InputCurveA = LoadSingle3DCurveFromVTKFile<double>(FileNameA);
+	DisplayMatrix("InputCurveA", InputCurveA);
+
+	auto InputCurveB = LoadSingle3DCurveFromVTKFile<double>(FileNameB);
+	DisplayMatrix("InputCurveB", InputCurveB);
+
+	auto InputCurveAB = LoadMultiple3DCurveFromVTKFile<double>(FileNameAB);
+	DisplayMatrix("InputCurveAB[0]", InputCurveAB[0]);
+	DisplayMatrix("InputCurveAB[1]", InputCurveAB[1]);
+
+}
+
 void testA()
 {
 	DenseImage3D<double> ScalarImage_double;

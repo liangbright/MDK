@@ -53,11 +53,11 @@ enum struct ObjectConstructionTypeEnum
 //-------------------------------------------------------------//
 template<typename ScalarType>
 inline
-ScalarTypeEnum GetScalarType(ScalarType Scalar);
+ScalarTypeEnum GetScalarType(const ScalarType& Scalar);
 
 template<typename ScalarType>
 inline
-std::string GetScalarTypeName(ScalarType Scalar);
+std::string GetScalarTypeName(const ScalarType& Scalar);
 
 template<typename ScalarType>
 inline

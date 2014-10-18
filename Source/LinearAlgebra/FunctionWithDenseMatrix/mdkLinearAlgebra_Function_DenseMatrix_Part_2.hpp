@@ -1170,7 +1170,7 @@ ElementType MatrixDeterminant(const DenseMatrix<ElementType>& InputMatrix)
 		auto Det = ElementType(0);
 		for (auto Ptr = InputMatrix.begin(); Ptr != InputMatrix.end(); ++Ptr)
 		{
-			Det *= Ptr[k];
+			Det *= Ptr[0];
 		}
 		return Det;
 	}

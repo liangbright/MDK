@@ -3,6 +3,7 @@
 
 #include "mdkFileIO_Json.h"
 #include "mdkFileIO_DenseMatrix.h"
+#include "mdkFileIO_Curve.h"
 #include "mdkFileIO_DenseImage3D.h"
 #include "mdkFileIO_PolygonMesh.h"
 #include "mdkFileIO_TriangleMesh.h"

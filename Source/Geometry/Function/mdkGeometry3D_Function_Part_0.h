@@ -3,6 +3,8 @@
 
 namespace mdk
 {
+// compute cross product: VectorA x VectorB, right hand coordinate system
+// ref: http://mathworld.wolfram.com/CrossProduct.html
 template<typename ElementType>
 inline
 DenseVector<ElementType, 3> ComputeVectorCrossProductIn3D(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);

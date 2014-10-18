@@ -9,6 +9,8 @@
 #include "mdkDebugConfig.h"
 #include "mdkType.h"
 #include "mdkObject.h"
+#include "mdkObjectArray.h"
+#include "mdkSimpleObjectArray.h"
 #include "mdkDenseVector_ForwardDeclare.h"
 #include "mdkLinearAlgebra_Function_DenseVector.h"
 

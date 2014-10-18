@@ -273,8 +273,6 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile_Data(const std::s
 }
 
 
-
-
 template<typename MeshAttributeType>
 bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, const std::string& FilePathAndName)
 {

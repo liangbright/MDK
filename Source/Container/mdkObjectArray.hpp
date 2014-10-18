@@ -59,11 +59,6 @@ inline
 ObjectArray<ElementType>::ObjectArray(ObjectArray<ElementType>&& InputArray) noexcept
 {
     m_Data = std::move(InputArray.m_Data);
-
-    m_ElementPointer = m_Data->ElementPointer;
-
-    // the InputArray may not be destructed
-    InputArray.m_ElementPointer = nullptr;
 }
 
 
@@ -79,7 +74,6 @@ inline
 std::vector<ElementType>& ObjectArray<ElementType>::StdVector()
 {
     m_Data->CopyDataToInternalObjectArrayIfNecessary();
-    m_ElementPointer = m_Data->ElementPointer;
     return m_Data->StdVector;
 }
 
@@ -89,7 +83,6 @@ inline
 const std::vector<ElementType>& ObjectArray<ElementType>::StdVector() const
 {
     m_Data->CopyDataToInternalObjectArrayIfNecessary();
-    m_ElementPointer = m_Data->ElementPointer;
     return m_Data->StdVector;
 }
 
@@ -326,9 +319,7 @@ bool ObjectArray<ElementType>::Share(ObjectArray<ElementType>& InputArray)
     }
 
     //--------------------------------------------------------------------------------------------------------
-
     m_Data = InputArray.m_Data; // std::Shared_ptr, self assignment test is not necessary
-    m_ElementPointer = m_Data->ElementPointer;
 
     return true;
 }
@@ -360,7 +351,6 @@ void ObjectArray<ElementType>::ForceShare(const ObjectArray<ElementType>& InputA
     }
 
     m_Data = InputArray.m_Data; // std::Shared_ptr, self assignment check is not necessary
-    m_ElementPointer = m_Data->ElementPointer;
 }
 
 
@@ -407,8 +397,6 @@ bool ObjectArray<ElementType>::Share(ElementType* InputElementPointer, int_max I
     m_Data->StdVector.shrink_to_fit();
 
     m_Data->ElementPointer = InputElementPointer;
-
-    m_ElementPointer = m_Data->ElementPointer;
 
     return true;
 }
@@ -485,8 +473,6 @@ bool ObjectArray<ElementType>::Take(ObjectArray<ElementType>& InputArray)
     m_Data->ElementPointer = InputArray.m_Data->ElementPointer;
     m_Data->Length = InputArray.m_Data->Length;
 
-    m_ElementPointer = m_Data->ElementPointer;
-
     // Clear InputArray to be empty
     InputArray.Clear();
 
@@ -520,8 +506,6 @@ void ObjectArray<ElementType>::SwapSmartPointer(ObjectArray<ElementType>& InputA
     }
 
     m_Data.swap(InputArray.m_Data); // shared_ptr self swap check is not necessary
-
-    m_ElementPointer = m_Data->ElementPointer;
 }
 
 
@@ -542,8 +526,6 @@ void ObjectArray<ElementType>::Clear()
     m_Data->StdVector.shrink_to_fit(); // release memory
 
     m_Data->ElementPointer = nullptr;
-
-    m_ElementPointer = nullptr;
 }
 
 
@@ -563,7 +545,6 @@ try
     if (!m_Data)
     {
         m_Data = std::make_shared<ObjectArrayData<ElementType>>();
-        m_ElementPointer = nullptr;
     }
     //-------------------------------------------------------------------------
 
@@ -585,7 +566,6 @@ try
     m_Data->StdVector.resize(InputLength);
     m_Data->ElementPointer = m_Data->StdVector.data();
     m_Data->Length = InputLength;
-    m_ElementPointer = m_Data->ElementPointer;
 }
 catch (...)
 {
@@ -593,8 +573,6 @@ catch (...)
 
     m_Data->ElementPointer = m_Data->StdVector.data();
 	m_Data->Length = int_max(m_Data->StdVector.size());
-    m_ElementPointer = m_Data->ElementPointer;
-
     return false;
 }
     return true;
@@ -643,7 +621,6 @@ try
    
     m_Data->ElementPointer = m_Data->StdVector.data();
     m_Data->Length = InputLength;
-    m_ElementPointer = m_Data->ElementPointer;
 }
 catch (...)
 {
@@ -651,8 +628,6 @@ catch (...)
 
     m_Data->ElementPointer = m_Data->StdVector.data();
     m_Data->Length = int_max(m_Data->StdVector.size());
-    m_ElementPointer = m_Data->ElementPointer;
-
     return false;
 }
     return true;
@@ -677,7 +652,6 @@ try
     {
         m_Data->StdVector.reserve(InputElementNumber);
         m_Data->ElementPointer = m_Data->StdVector.data();
-        m_ElementPointer = m_Data->ElementPointer;
     }
 }
 catch (...)
@@ -701,7 +675,6 @@ void ObjectArray<ElementType>::ReleaseUnusedCapacity()
 
     m_Data->StdVector.shrink_to_fit();
     m_Data->ElementPointer = m_Data->StdVector.data();
-    m_ElementPointer = m_Data->ElementPointer;
 }
 
 
@@ -903,7 +876,7 @@ ElementType& ObjectArray<ElementType>::operator[](int_max Index)
 
 #endif //MDK_DEBUG_ObjectArray_Operator_CheckBound
 
-    return m_ElementPointer[Index];
+	return (*m_Data)[Index];
 }
 
 
@@ -922,7 +895,7 @@ const ElementType& ObjectArray<ElementType>::operator[](int_max Index) const
 
 #endif //MDK_DEBUG_ObjectArray_Operator_CheckBound
 
-    return m_ElementPointer[Index];
+	return (*m_Data)[Index];
 }
 
 
@@ -941,7 +914,7 @@ ElementType& ObjectArray<ElementType>::operator()(int_max Index)
 
 #endif //MDK_DEBUG_ObjectArray_Operator_CheckBound
 
-    return m_ElementPointer[Index];
+	return (*m_Data)[Index];
 }
 
 
@@ -960,7 +933,7 @@ const ElementType& ObjectArray<ElementType>::operator()(int_max Index) const
 
 #endif //MDK_DEBUG_ObjectArray_Operator_CheckBound
 
-    return m_ElementPointer[Index];
+	return (*m_Data)[Index];
 }
 
 // at(): bound check
@@ -976,7 +949,7 @@ ElementType& ObjectArray<ElementType>::at(int_max Index)
         return m_Data->ErrorElement;
 	}
 
-    return m_ElementPointer[Index];
+	return (*m_Data)[Index];
 }
 
 
@@ -991,7 +964,7 @@ const ElementType& ObjectArray<ElementType>::at(int_max Index) const
         return m_Data->ErrorElement;
 	}
 
-    return m_ElementPointer[Index];
+	return (*m_Data)[Index];
 }
 
 
@@ -1190,8 +1163,6 @@ bool ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
         m_Data->Length -= 1;
 
         m_Data->ElementPointer = m_Data->StdVector.data();
-
-        m_ElementPointer = m_Data->ElementPointer;
     }
     else
     {
@@ -1225,8 +1196,6 @@ bool ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
         }
 
         m_Data->ElementPointer = m_Data->StdVector.data();
-
-        m_ElementPointer = m_Data->ElementPointer;
     }
 
     return true;
@@ -1266,8 +1235,6 @@ bool ObjectArray<ElementType>::Delete(int_max Index_start, int_max Index_end)
     m_Data->Length -= Index_end - Index_start + 1;
 
     m_Data->ElementPointer = m_Data->StdVector.data();
-
-    m_ElementPointer = m_Data->ElementPointer;
 
     return true;
 }
@@ -1354,8 +1321,6 @@ bool ObjectArray<ElementType>::Insert(int_max Index, const ElementType* InputArr
     m_Data->Length = InputLength;
 
     m_Data->ElementPointer = m_Data->StdVector.data();
-
-    m_ElementPointer = m_Data->ElementPointer;
 
     return true;
 }

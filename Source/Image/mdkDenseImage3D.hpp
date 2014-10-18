@@ -247,11 +247,11 @@ void DenseImage3D<PixelType>::Copy(const DenseImage3D<PixelType_Input>& InputIma
         }
 	}
 
-	this->CopyPixelData(InputImage.GetPixelPointer(), InputImage.GetPixelNumber());
     this->SetSize(InputImage.GetSize());
     this->SetSpacing(InputImage.GetSpacing());
-    this->SetOrigin(InputImage.GetOrigin);
+    this->SetOrigin(InputImage.GetOrigin());
     this->SetOrientation(InputImage.GetOrientation());
+	this->CopyPixelData(InputImage.GetPixelPointer(), InputImage.GetPixelNumber());
 }
 
 
@@ -1428,12 +1428,12 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DIndexInImage3D& RegionIn
         return SubImage;
     }
 
-	auto xIndex_s = int_max(RegionInfo.x_min);
-	auto yIndex_s = int_max(RegionInfo.y_min);
-	auto zIndex_s = int_max(RegionInfo.z_min);
-	auto xIndex_e = int_max(RegionInfo.x_max);
-	auto yIndex_e = int_max(RegionInfo.y_max);
-	auto zIndex_e = int_max(RegionInfo.z_max);
+	auto xIndex_s = int_max(std::round(RegionInfo.x_min));
+	auto yIndex_s = int_max(std::round(RegionInfo.y_min));
+	auto zIndex_s = int_max(std::round(RegionInfo.z_min));
+	auto xIndex_e = int_max(std::round(RegionInfo.x_max));
+	auto yIndex_e = int_max(std::round(RegionInfo.y_max));
+	auto zIndex_e = int_max(std::round(RegionInfo.z_max));
 
 	if (xIndex_e < xIndex_s || yIndex_e < xIndex_s || zIndex_e < zIndex_s)
 	{
@@ -1453,10 +1453,12 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DIndexInImage3D& RegionIn
     auto Lx = xIndex_e - xIndex_s + 1;
     auto Ly = yIndex_e - yIndex_s + 1;
     auto Lz = zIndex_e - zIndex_s + 1;
+	
+	auto Origin_new = this->Transform3DIndexTo3DPhysicalPosition(xIndex_s, yIndex_s, zIndex_s);
 
 	SubImage.SetSize(Lx, Ly, Lz);
 	SubImage.SetSpacing(this->GetSpacing());
-	SubImage.SetOrigin(this->GetOrigin());
+	SubImage.SetOrigin(Origin_new);
 	SubImage.SetOrientation(this->GetOrientation());
 
 	auto SubPtr = SubImage.GetPixelPointer();

@@ -5,9 +5,6 @@
 #include <vector>
 #include <limits>
 
-#include "mdkDebugConfig.h"
-#include "mdkType.h"
-#include "mdkObject.h"
 #include "mdkDenseVectorWithFixedLength.h"
 #include "mdkLinearAlgebra_Function_DenseVector.h"
 

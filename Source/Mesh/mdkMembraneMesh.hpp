@@ -351,6 +351,36 @@ const typename MeshAttributeType::GlobalAttribute& MembraneMesh<MeshAttributeTyp
     return m_MeshData->Attribute;
 }
 
+//------------- Get All the position (valid point) --------------------------------//
+
+template<typename MeshAttributeType>
+inline 
+DenseMatrix<typename MeshAttributeType::ScalarType> 
+MembraneMesh<MeshAttributeType>::GetPointPositionMatrix() const
+{
+	DenseMatrix<ScalarType> PointPositionMatrix;
+	this->GetPointPositionMatrix(PointPositionMatrix);
+	return PointPositionMatrix;
+}
+
+
+template<typename MeshAttributeType>
+inline
+void MembraneMesh<MeshAttributeType>::GetPointPositionMatrix(DenseMatrix<ScalarType>& PositionMatrix) const
+{
+	auto MaxNumber = m_MeshData->PointPositionTable.GetColNumber();
+	PositionMatrix.FastResize(3, this->GetPointNumber());
+	int_max Counter = 0;
+	for (int_max k = 0; k < MaxNumber; ++k)
+	{
+		if (m_MeshData->PointValidityFlagList[k] == 1)
+		{
+			PositionMatrix.SetCol(Counter, m_MeshData->PointPositionTable.GetPointerOfCol(k));
+			Counter += 1;
+		}
+	}
+}
+
 //---- Get/Set 3D Position by PointHandle or PointID --------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>

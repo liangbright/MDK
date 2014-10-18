@@ -171,6 +171,10 @@ public:
 
     inline DenseMatrix(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
+	inline DenseMatrix(DataArray<ElementType> InputColVector);
+
+	inline DenseMatrix(SimpleDataArray<ElementType> InputColVector);
+
 	template<int_max VectorFixedLength>
 	inline DenseMatrix(const DenseVector<ElementType, VectorFixedLength>& InputColVector);
 
@@ -205,6 +209,12 @@ public:
     // move assignment operator (Take)
     inline void operator=(DenseMatrix<ElementType>&& InputMatrix);
 
+	inline void operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix);
+
+	inline void operator=(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+
+	inline void operator=(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+
     inline void operator=(const ElementType& Element);
 
     inline void operator=(const std::initializer_list<ElementType>& InputList);
@@ -215,16 +225,14 @@ public:
 
     inline void operator=(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
+	inline void operator=(DataArray<ElementType> InputColVector);
+
+	inline void operator=(SimpleDataArray<ElementType> InputColVector);
+
 	template<int_max VectorFixedLength>
 	inline void operator=(const DenseVector<ElementType, VectorFixedLength>& InputColVector);
 
 	inline void operator=(DenseVector<ElementType> InputColVector);
-
-    inline void operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix);
-
-    inline void operator=(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
-
-    inline void operator=(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
     //----------------------  Copy Matrix or Element  ----------------------------------------//
 
@@ -329,11 +337,6 @@ public:
     inline bool Take(DenseMatrix<ElementType>& InputMatrix);
     inline bool Take(DenseMatrix<ElementType>* InputMatrix);
 
-    //Take the data of the InputColVector and Clear InputColVector
-
-	inline bool Take(DenseVector<ElementType>&& InputColVector);
-	inline bool Take(DenseVector<ElementType>& InputColVector);
-
     //Take the Matrix Created from ShadowMatrix or GlueMatrix
 
     inline bool Take(const DenseShadowMatrix<ElementType>& ShadowMatrix);
@@ -341,6 +344,22 @@ public:
     inline bool Take(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
     inline bool Take(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+
+	//Take the data of std::vector
+	inline bool Take(std::vector<ElementType>&& InputColVector);
+	inline bool Take(std::vector<ElementType>& InputColVector);
+
+	//Take the data of DataArray
+	inline bool Take(DataArray<ElementType>&& InputDataArray);
+	inline bool Take(DataArray<ElementType>& InputDataArray);
+
+	//Take the data of SimpleDataArray
+	inline bool Take(SimpleDataArray<ElementType>&& InputDataArray);
+	inline bool Take(SimpleDataArray<ElementType>& InputDataArray);
+
+	//Take the data of DenseVector
+	inline bool Take(DenseVector<ElementType>&& InputColVector);
+	inline bool Take(DenseVector<ElementType>& InputColVector);
 
     //------------------------- Swap shared_ptr m_MatrixData -------------------------------------------//
 

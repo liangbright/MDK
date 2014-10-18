@@ -121,8 +121,6 @@ public:
 private:     
     std::shared_ptr<ObjectArrayData<ElementType>> m_Data;
 
-    ElementType* m_ElementPointer;
-
 public:			
 	//------------------- constructor and destructor ------------------------------------//
 

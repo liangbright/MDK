@@ -22,7 +22,8 @@ namespace mdk
 //            0,        0,  1]
 //
 //  ref: Estimating 3-D rigid body transformations: a comparison of four major algorithms
-//
+// use right-hand coordinate system
+
 template<typename Scalar_Type>
 class RotationTransform3D : public CoordinateTransform3D<Scalar_Type>
 {
