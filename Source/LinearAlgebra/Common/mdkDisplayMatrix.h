@@ -4,15 +4,13 @@
 #include <string>
 
 #include "mdkType.h"
+#include "mdkDenseVector_ForwardDeclare.h"
 
 namespace mdk
 {
 //------------- forward declare-----------------------//
 template<typename ElementType>
 class DenseMatrix;
-
-template<typename ElementType, int_max Length>
-class DenseVector;
 
 template<typename ElementType>
 class SparseMatrix;

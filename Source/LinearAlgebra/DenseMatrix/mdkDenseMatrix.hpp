@@ -1545,7 +1545,7 @@ bool DenseMatrix<ElementType>::FastResize(int_max InputRowNumber, int_max InputC
         m_MatrixData->RowNumber = 0;
         m_MatrixData->ColNumber = 0;
 
-        m_MatrixData->StdVector.clear();         // change size, but not release memory
+        m_MatrixData->StdVector.clear();         // change size, but not release memory (shrink_to_fit)
 
         m_MatrixData->ElementPointer = nullptr;
 
@@ -1683,6 +1683,11 @@ bool DenseMatrix<ElementType>::FastResize(int_max InputElementNumber) // do not 
         MDK_Error("Invalid input @ DenseMatrix::FastResize(int_max InputElementNumber)")
         return false;
     }
+
+	if (InputElementNumber == 0)
+	{
+		return this->FastResize(1, 0);
+	}
 
     if (!m_MatrixData)
     {

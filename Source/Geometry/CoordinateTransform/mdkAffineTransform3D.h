@@ -67,8 +67,8 @@ public:
 	void SetTransformationMatrix(const DenseMatrix<ScalarType>& TransformationMatrix);
 	DenseMatrix<ScalarType> GetTransformationMatrix() const;
 
-	bool Update() { this->EstimateParameterFromControlPoint(); return true; }
-	void EstimateParameterFromControlPoint();
+	bool Update() { this->UpdateParameter(); return true; }
+	void UpdateParameter();
 
 	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
 	DenseVector<ScalarType, 3> TransformPoint(const DenseVector<ScalarType, 3>& SourcePosition) const;

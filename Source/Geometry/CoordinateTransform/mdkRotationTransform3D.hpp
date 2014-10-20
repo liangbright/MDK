@@ -108,13 +108,13 @@ bool RotationTransform3D<ScalarType>::Update()
 		return false;
 	}
 
-	this->EstimateRotationMatrixFromControlPointSet();
+	this->UpdateParameter();
 	return true;
 }
 
 
 template<typename ScalarType>
-void RotationTransform3D<ScalarType>::EstimateRotationMatrixFromControlPointSet()
+void RotationTransform3D<ScalarType>::UpdateParameter()
 {
 	if (m_SourceControlPointSet == nullptr || m_TargetControlPointSet == nullptr)
 	{

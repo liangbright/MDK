@@ -39,7 +39,7 @@ bool ScalarDenseImageMaxPoolingFilter3D<InputPixelType, OutputPixelType, ScalarT
 		return false;
 	}
 
-	if (m_Radius[0] <= 0.0)
+	if (m_Radius <= 0.0)
 	{
 		MDK_Error("Radius <= 0.0 @ ScalarDenseImageMaxPoolingFilter3D::CheckInput(...)")
 		return false;

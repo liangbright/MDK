@@ -127,7 +127,7 @@ bool AffineTransform3D<ScalarType>::CheckInput()
 
 
 template<typename ScalarType>
-void AffineTransform3D<ScalarType>::EstimateParameterFromControlPoint()
+void AffineTransform3D<ScalarType>::UpdateParameter()
 {
 	if (this->CheckInput() == false)
 	{

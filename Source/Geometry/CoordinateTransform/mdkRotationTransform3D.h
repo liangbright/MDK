@@ -55,7 +55,7 @@ public:
 
 	bool Update();
 
-	void EstimateRotationMatrixFromControlPointSet();
+	void UpdateParameter();
 
 	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
 	DenseVector<ScalarType, 3> TransformPoint(const DenseVector<ScalarType, 3>& SourcePosition) const;
