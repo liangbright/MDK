@@ -37,8 +37,11 @@ struct GlobalStandardAttribute_Of_TriangleMesh : public GlobalStandardAttribute_
 //============================================== PointAttribute_Of_TriangleMesh ===========================================//
 enum class TriangleMeshPointStandardAttributeTypeEnum
 {
-    MeanCurvature,
-    Normal
+	GaussianCurvature,
+	WeightedGaussianCurvature,
+	MeanCurvature,
+	MeanCurvatureNormal,
+	Normal
 };
 
 template<typename ScalarType>

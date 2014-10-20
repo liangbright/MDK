@@ -628,6 +628,22 @@ const Point_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>:
 
 template<typename MeshAttributeType>
 inline
+Point_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Point(int_max PointID)
+{
+	auto PointHandle = this->GetPointHandleByID(PointID);
+	return this->Point(PointHandle);
+}
+
+template<typename MeshAttributeType>
+inline
+const Point_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Point(int_max PointID) const
+{
+	auto PointHandle = this->GetPointHandleByID(PointID);
+	return this->Point(PointHandle);
+}
+
+template<typename MeshAttributeType>
+inline
 Edge_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Edge(Handle_Of_Edge_Of_MembraneMesh EdgeHandle)
 {
     return m_MeshData->EdgeList[EdgeHandle.GetIndex()];
@@ -639,6 +655,23 @@ const Edge_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::
 {
     return m_MeshData->EdgeList[EdgeHandle.GetIndex()];
 }
+
+template<typename MeshAttributeType>
+inline
+Edge_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Edge(int_max EdgeID)
+{
+	auto EdgeHandle = this->GetEdgeHandleByID(EdgeID);
+	return this->Edge(EdgeHandle);
+}
+
+template<typename MeshAttributeType>
+inline
+const Edge_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Edge(int_max EdgeID) const
+{
+	auto EdgeHandle = this->GetEdgeHandleByID(EdgeID);
+	return this->Edge(EdgeHandle);
+}
+
 
 template<typename MeshAttributeType>
 inline
@@ -661,6 +694,22 @@ MembraneMesh<MeshAttributeType>::DirectedEdge(Handle_Of_DirectedEdge_Of_Membrane
 
 template<typename MeshAttributeType>
 inline
+DirectedEdge_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::DirectedEdge(int_max DirectedEdgeID)
+{
+	auto DirectedEdgeHandle = this->GetDirectedEdgeHandleByID(DirectedEdgeID);
+	return this->DirectedEdge(DirectedEdgeHandle);
+}
+
+template<typename MeshAttributeType>
+inline
+const DirectedEdge_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::DirectedEdge(int_max DirectedEdgeID) const
+{
+	auto DirectedEdgeHandle = this->GetDirectedEdgeHandleByID(DirectedEdgeID);
+	return this->DirectedEdge(DirectedEdgeHandle);
+}
+
+template<typename MeshAttributeType>
+inline
 Cell_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Cell(Handle_Of_Cell_Of_MembraneMesh CellHandle)
 {
     return m_MeshData->CellList[CellHandle.GetIndex()];
@@ -671,6 +720,22 @@ inline
 const Cell_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Cell(Handle_Of_Cell_Of_MembraneMesh CellHandle) const
 {
     return m_MeshData->CellList[CellHandle.GetIndex()];
+}
+
+template<typename MeshAttributeType>
+inline
+Cell_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Cell(int_max CellID)
+{
+	auto CellHandle = this->GetCellHandleByID(CellID);
+	return this->Cell(CellHandle)
+}
+
+template<typename MeshAttributeType>
+inline
+const Cell_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Cell(int_max CellID) const
+{
+	auto CellHandle = this->GetCellHandleByID(CellID);
+	return this->Cell(CellHandle)
 }
 
 //-------------- check handle -------------------------------------------------------//

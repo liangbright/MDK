@@ -319,6 +319,14 @@ void Point_Of_MembraneMesh<MeshAttributeType>::GetPosition(typename MeshAttribut
 
 template<typename MeshAttributeType>
 inline
+int_max Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentPointNumber() const
+{
+	return m_Data->AdjacentPointIndexList.GetLength();
+}
+
+
+template<typename MeshAttributeType>
+inline
 DenseVector<Handle_Of_Point_Of_MembraneMesh> Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentPointHandleList() const
 {
     DenseVector<Handle_Of_Point_Of_MembraneMesh> OutputHandleList;
@@ -350,7 +358,7 @@ template<typename MeshAttributeType>
 inline
 void Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentPointIDList(DenseVector<int_max>& OutputIDList) const
 {
-    OutputHandleList.FastResize(m_Data->AdjacentPointIndexList.GetLength());
+	OutputIDList.FastResize(m_Data->AdjacentPointIndexList.GetLength());
     for (int_max k = 0; k < m_Data->AdjacentPointIndexList.GetLength(); ++k)
     {
         OutputIDList[k] = m_Data->Mesh.m_MeshData->PointList[m_Data->AdjacentPointIndexList[k]].GetID();
@@ -359,9 +367,9 @@ void Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentPointIDList(DenseVecto
 
 template<typename MeshAttributeType>
 inline
-int_max Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentPointNumber() const
+int_max Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentEdgeNumber() const
 {
-    return m_Data->AdjacentPointIndexList().GetLength();
+	return m_Data->AdjacentEdgeIndexList.GetLength();
 }
 
 template<typename MeshAttributeType>
@@ -406,9 +414,9 @@ void Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentEdgeIDList(DenseVector
 
 template<typename MeshAttributeType>
 inline
-int_max Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentEdgeNumber() const
+int_max Point_Of_MembraneMesh<MeshAttributeType>::GetOutgoingDirectedEdgeNumber() const
 {
-    return m_Data->AdjacentEdgeIndexList.GetLength();
+	return m_Data->OutgoingDirectedEdgeIndexList.GetLength();
 }
 
 template<typename MeshAttributeType>
@@ -455,9 +463,9 @@ void Point_Of_MembraneMesh<MeshAttributeType>::GetOutgoingDirectedEdgeIDList(Den
 
 template<typename MeshAttributeType>
 inline
-int_max Point_Of_MembraneMesh<MeshAttributeType>::GetOutgoingDirectedEdgeNumber() const
+int_max Point_Of_MembraneMesh<MeshAttributeType>::GetIncomingDirectedEdgeNumber() const
 {
-    return m_Data->OutgoingDirectedEdgeIndexList.GetLength();
+	return m_Data->IncomingDirectedEdgeIndexList.GetLength();
 }
 
 template<typename MeshAttributeType>
@@ -504,11 +512,10 @@ void Point_Of_MembraneMesh<MeshAttributeType>::GetIncomingDirectedEdgeIDList(Den
 
 template<typename MeshAttributeType>
 inline
-int_max Point_Of_MembraneMesh<MeshAttributeType>::GetIncomingDirectedEdgeNumber() const
+int_max Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentCellNumber() const
 {
-    return m_Data->IncomingDirectedEdgeIndexList.GetLength();
+	return m_Data->AdjacentCellIndexList.GetLength();
 }
-
 
 template<typename MeshAttributeType>
 inline
@@ -548,13 +555,6 @@ void Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentCellIDList(DenseVector
     {
         OutputIDList[k] = m_Data->Mesh.m_MeshData->CellList[m_Data->AdjacentCellIndexList[k]].GetID();
     }
-}
-
-template<typename MeshAttributeType>
-inline
-int_max Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentCellNumber() const
-{
-    return m_Data->AdjacentCellIndexList.GetLength();
 }
 
 template<typename MeshAttributeType>

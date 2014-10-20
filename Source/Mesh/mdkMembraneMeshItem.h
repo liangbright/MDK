@@ -121,13 +121,15 @@ public:
     inline void GetPosition(ScalarType& x, ScalarType& y, ScalarType& z) const;
     inline void GetPosition(ScalarType Pos[3]) const;
 
+	inline int_max GetAdjacentPointNumber() const;
+
     inline DenseVector<Handle_Of_Point_Of_MembraneMesh> GetAdjacentPointHandleList() const;
     inline void GetAdjacentPointHandleList(DenseVector<Handle_Of_Point_Of_MembraneMesh>& OutputHandleList) const;
 
     inline DenseVector<int_max> GetAdjacentPointIDList() const;
     inline void GetAdjacentPointIDList(DenseVector<int_max>& OutputIDList) const;
 
-    inline int_max GetAdjacentPointNumber() const;
+	inline int_max GetAdjacentEdgeNumber() const;
 
     inline DenseVector<Handle_Of_Edge_Of_MembraneMesh> GetAdjacentEdgeHandleList() const;
     inline void GetAdjacentEdgeHandleList(DenseVector<Handle_Of_Edge_Of_MembraneMesh>& OutputHandleList) const;
@@ -135,7 +137,7 @@ public:
     inline DenseVector<int_max> GetAdjacentEdgeIDList() const;
     inline void GetAdjacentEdgeIDList(DenseVector<int_max>& OutputIDList) const;
 
-    inline int_max GetAdjacentEdgeNumber() const;
+	inline int_max GetOutgoingDirectedEdgeNumber() const;
 
     inline DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh> GetOutgoingDirectedEdgeHandleList() const;
     inline void GetOutgoingDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh>& OutputHandleList) const;
@@ -143,7 +145,7 @@ public:
     inline DenseVector<int_max> GetOutgoingDirectedEdgeIDList() const;
     inline void GetOutgoingDirectedEdgeIDList(DenseVector<int_max>& OutputIDList) const;
 
-    inline int_max GetOutgoingDirectedEdgeNumber() const;
+	inline int_max GetIncomingDirectedEdgeNumber() const;
 
     inline DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh> GetIncomingDirectedEdgeHandleList() const;
     inline void GetIncomingDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh>& OutputHandleList) const;
@@ -151,15 +153,13 @@ public:
     inline DenseVector<int_max> GetIncomingDirectedEdgeIDList() const;
     inline void GetIncomingDirectedEdgeIDList(DenseVector<int_max>& OutputHandleList) const;
 
-    inline int_max GetIncomingDirectedEdgeNumber() const;
+	inline int_max GetAdjacentCellNumber() const;
 
     inline DenseVector<Handle_Of_Cell_Of_MembraneMesh> GetAdjacentCellHandleList() const;
     inline void GetAdjacentCellHandleList(DenseVector<Handle_Of_Cell_Of_MembraneMesh>& OutputHandleList) const;
 
     inline DenseVector<int_max> GetAdjacentCellIDList() const;
     inline void GetAdjacentCellIDList(DenseVector<int_max>& OutputHandleList) const;
-
-    inline int_max GetAdjacentCellNumber() const;
 
     inline PointAttributeType& Attribute();
     inline const PointAttributeType& Attribute() const;

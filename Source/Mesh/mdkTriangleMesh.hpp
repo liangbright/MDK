@@ -367,8 +367,8 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandle
     if (AdjacentCellNumber <= 1)
     {
         //MDK_Warning("This point only has one or zero adjacent cell @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
-        this.Point(PointHandle).Attribute().GaussianCurvature = 0;
-		this.Point(PointHandle).Attribute().WeightedGaussianCurvature = 0;
+        this->Point(PointHandle).Attribute().GaussianCurvature = 0;
+		this->Point(PointHandle).Attribute().WeightedGaussianCurvature = 0;
         return;
     }
 
@@ -387,8 +387,13 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandle
         AreaList[k] = this->Cell(AdjacentCellHandleList[k]).Attribute().Area;
     }
 
-    if (AdjacentCellNumber != AdjacentPointNumber)// this point is on boundary edge
-    {
+    if (AdjacentCellNumber != AdjacentPointNumber)
+    {// this point (e.g. b) is on boundary edge, an angle must be computed  (big angle a_b_c vs small angle a_b_c)
+     //  a
+	 //  |  /c
+	 //  |/
+     //  b
+
         if (AdjacentCellNumber != AdjacentPointNumber - 1)
         {
             MDK_Error("AdjacentCellNumber != AdjacentPointNumber -1 @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
@@ -435,8 +440,8 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandle
     auto constant_pi = std::acos(-1.0);
 	auto GaussianCurvature = 2 * constant_pi - CornerAngleList.Sum();
     //------------------------------
-	this.Point(PointHandle).Attribute().GaussianCurvature = GaussianCurvature;
-	this.Point(PointHandle).Attribute().WeightedGaussianCurvature = GaussianCurvature / AreaList.Sum();
+	this->Point(PointHandle).Attribute().GaussianCurvature = GaussianCurvature;
+	this->Point(PointHandle).Attribute().WeightedGaussianCurvature = GaussianCurvature / AreaList.Sum();
 }
 
 
