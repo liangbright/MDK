@@ -158,7 +158,7 @@ ObjectArray<DenseMatrix<ScalarType>> ConvertVTKPolyDataToMDK3DCurve(vtkPolyData*
 
 		for (int_max n = 0; n < PointNumber; ++n)
 		{
-			ScalarType Pos[3];
+			double Pos[3];
 			auto PointID = Cell->GetPointId(n);
 			PointSet->GetPoint(PointID, Pos);
 			OutputCurve_k.SetCol(n, Pos);
