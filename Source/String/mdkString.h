@@ -19,7 +19,7 @@ namespace mdk
 
 //----------- forward declare -------------------//
 template<typename ElementType>
-class DataContainer;
+class ObjectArray;
 
 template<typename ElementType>
 class DenseMatrix;
@@ -35,30 +35,30 @@ typedef String<char32_t> U32CharString;
 
 
 template<typename ElementType>
-void MDK_Check_ElementType_Of_String()
+inline void MDK_Check_ElementType_Of_String()
 {
     MDK_Check_ElementType_Of_String(ElementType(0));
 }
 
 template<typename ElementType>
-void MDK_Check_ElementType_Of_String(ElementType ReferenceElement)
+inline void MDK_Check_ElementType_Of_String(const ElementType& ReferenceElement)
 {
     MDK_Error("Wrong ElementType for String @ MDK_Check_ElementType_Of_String(...)")
 }
 
-void MDK_Check_ElementType_Of_String(char)
+inline void MDK_Check_ElementType_Of_String(const char&)
 {
 }
 
-void MDK_Check_ElementType_Of_String(wchar_t)
+inline void MDK_Check_ElementType_Of_String(const wchar_t&)
 {
 }
 
-void MDK_Check_ElementType_Of_String(char16_t)
+inline void MDK_Check_ElementType_Of_String(const char16_t&)
 {
 }
 
-void MDK_Check_ElementType_Of_String(char32_t)
+inline void MDK_Check_ElementType_Of_String(const char32_t&)
 {
 }
 
@@ -199,7 +199,7 @@ public:
 
     inline void Append(const DenseMatrix<ElementType>& InputString);
 
-    inline void Append(const DataContainer<ElementType>& InputString);
+    inline void Append(const ObjectArray<ElementType>& InputString);
 
     inline void Append(const ElementType* InputString);
 
@@ -215,7 +215,7 @@ public:
 
     inline void Delete(const DenseMatrix<int_max>& IndexList);
 
-    inline void Delete(const DataContainer<int_max>& IndexList);
+    inline void Delete(const ObjectArray<int_max>& IndexList);
 
     inline void Delete(const int_max* IndexList, int_max ListLength);
 
@@ -229,7 +229,7 @@ public:
 
     inline void Insert(int_max Index, const DenseMatrix<ElementType>& InputString);
 
-    inline void Insert(int_max Index, const DataContainer<ElementType>& InputString);
+    inline void Insert(int_max Index, const ObjectArray<ElementType>& InputString);
 
     inline void Insert(int_max Index, const String<ElementType>& InputString);
 

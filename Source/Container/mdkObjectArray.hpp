@@ -1240,7 +1240,6 @@ bool ObjectArray<ElementType>::Delete(int_max Index_start, int_max Index_end)
 }
 
 
-
 template<typename ElementType>
 inline bool ObjectArray<ElementType>::Insert(int_max Index, const ElementType& Element)
 {
@@ -1338,24 +1337,20 @@ template<typename ElementType>
 inline
 ElementType ObjectArray<ElementType>::PopBack()
 {
-    auto OutputElement = ElementType(0);
-
     auto CurrentElementNumber = this->GetElementNumber();
 
     if (CurrentElementNumber > 0)
     {
         auto tempIndex = CurrentElementNumber - 1;
-
-        OutputElement = (*this)[tempIndex];
-
+        auto OutputElement = (*this)[tempIndex];
         this->Delete(tempIndex);
+		return OutputElement;
     }
     else
     {
-        MDK_Error("Self is empty @ ObjectArray::PopBack()")
+		MDK_Error("Self is empty @ ObjectArray::PopBack()")
+		return m_Data->ErrorElement;
     }
-   
-    return OutputElement;
 }
 
 

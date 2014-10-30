@@ -23,7 +23,7 @@ struct NameValueQStringPair
     QString  Value;
 };
 
-bool SaveNameValuePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, const QString& FilePathAndName, bool Flag_Append = false);
+inline bool SaveNameValuePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, const QString& FilePathAndName, bool Flag_Append = false);
 
 struct NameValueStdStringPair
 {
@@ -31,7 +31,7 @@ struct NameValueStdStringPair
 	std::string  Value;
 };
 
-bool SaveNameValuePairListAsJsonFile(const std::vector<NameValueStdStringPair>& PairList, const std::string& FilePathAndName, bool Flag_Append = false);
+inline bool SaveNameValuePairListAsJsonFile(const std::vector<NameValueStdStringPair>& PairList, const std::string& FilePathAndName, bool Flag_Append = false);
 
 }//namespace mdk
 

@@ -15,7 +15,6 @@ String<ElementType>::String()
 }
 
 
-
 template<typename ElementType>
 inline
 String<ElementType>::String(const ElementType& Element)
@@ -637,7 +636,7 @@ void String<ElementType>::Append(const DenseMatrix<ElementType>& InputString)
 
 template<typename ElementType>
 inline
-void String<ElementType>::Append(const DataContainer<ElementType>& InputString)
+void String<ElementType>::Append(const ObjectArray<ElementType>& InputString)
 {
     m_StringData->Append(InputString.GetElementPointer(), InputString.GetElementPointer() + InputString.GetElementNumber());
 }
@@ -705,7 +704,7 @@ void String<ElementType>::Delete(const DenseMatrix<int_max>& IndexList)
 
 template<typename ElementType>
 inline
-void String<ElementType>::Delete(const DataContainer<int_max>& IndexList)
+void String<ElementType>::Delete(const ObjectArray<int_max>& IndexList)
 {
     this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
 }
@@ -833,7 +832,7 @@ void String<ElementType>::Insert(int_max Index, const DenseMatrix<ElementType>& 
 
 template<typename ElementType>
 inline
-void String<ElementType>::Insert(int_max Index, const DataContainer<ElementType>& InputString)
+void String<ElementType>::Insert(int_max Index, const ObjectArray<ElementType>& InputString)
 {
     auto Ptr = InputString.GetElementPointer();
     auto Number = InputString.GetElementNumber();
