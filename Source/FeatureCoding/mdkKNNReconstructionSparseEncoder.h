@@ -100,6 +100,7 @@ public:
 
     void GetReconstructedData(DenseMatrix<ScalarType>& ReconstructedDataSet);
 
+	inline SparseVector<ScalarType> EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector);
     //---------------------------------------------------------------------------------------------------
 
     static inline bool CheckIfSimilarityTypeSupported(VectorSimilarityTypeEnum SimilarityType);
@@ -191,7 +192,7 @@ protected:
 
     bool ComputeGramianMatrix_DtD();
 
-	inline SparseVector<ScalarType> EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& FeatureVector, int_max ThreadIndex);
+	inline SparseVector<ScalarType> EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex);
 
 private:
 //deleted:

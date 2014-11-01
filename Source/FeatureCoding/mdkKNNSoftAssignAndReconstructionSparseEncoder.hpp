@@ -89,11 +89,19 @@ bool KNNSoftAssignAndReconstructionSparseEncoder<ScalarType>::Postprocess()
     return true;
 }
 
-
 template<typename ScalarType>
 inline
 SparseVector<ScalarType> KNNSoftAssignAndReconstructionSparseEncoder<ScalarType>::
 EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex)
+{
+	return this->EncodeSingleDataVector(DataColVector);
+}
+
+
+template<typename ScalarType>
+inline
+SparseVector<ScalarType> KNNSoftAssignAndReconstructionSparseEncoder<ScalarType>::
+EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
 {
     const auto& BasisMatrix = m_Dictionary->BasisMatrix(); // "auto  = " will copy
 	auto BasisNumber = BasisMatrix.GetColNumber();

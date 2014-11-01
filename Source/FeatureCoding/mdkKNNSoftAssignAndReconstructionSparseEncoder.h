@@ -80,6 +80,7 @@ public:
 
     bool Postprocess();
 
+	inline virtual SparseVector<ScalarType> EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector);
     //---------------------------------------------------------------------------------
 
 	static DataArray<SparseVector<ScalarType>> Apply(const DenseMatrix<ScalarType>* FeatureData,

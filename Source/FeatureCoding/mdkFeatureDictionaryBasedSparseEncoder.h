@@ -43,9 +43,7 @@ protected:
     virtual ~FeatureDictionaryBasedSparseEncoder();
 
 public:
-
     bool IsDenseEncoder() const { return false; }
-
     bool IsSparseEncoder() const { return true; }
 
     virtual void Clear();
@@ -61,6 +59,8 @@ public:
     virtual bool CheckInput();
 
     virtual bool Update();
+
+	inline virtual SparseVector<ScalarType> EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector) = 0;
 
 	DataArray<SparseVector<ScalarType>>* GetOutputCode();
 
