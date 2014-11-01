@@ -1,26 +1,48 @@
 #ifndef __mdkFeatureDictionaryForDenseCoding_hpp
 #define __mdkFeatureDictionaryForDenseCoding_hpp
 
-
 namespace mdk
 {
 
-template<typename ElementType>
-FeatureDictionaryForDenseCoding<ElementType>::FeatureDictionaryForDenseCoding()
+template<typename ScalarType>
+FeatureDictionaryForDenseCoding<ScalarType>::FeatureDictionaryForDenseCoding()
 {
-
 }
 
 
-template<typename ElementType>
-FeatureDictionaryForDenseCoding<ElementType>::FeatureDictionaryForDenseCoding(const FeatureDictionaryForDenseCoding& InputDictionary)
+template<typename ScalarType>
+FeatureDictionaryForDenseCoding<ScalarType>::FeatureDictionaryForDenseCoding(const FeatureDictionaryForDenseCoding& InputDictionary)
 {
     this->Copy(InputDictionary)
 }
 
 
-template<typename ElementType>
-FeatureDictionaryForDenseCoding<ElementType>::FeatureDictionaryForDenseCoding(FeatureDictionaryForDenseCoding&& InputDictionary)
+template<typename ScalarType>
+FeatureDictionaryForDenseCoding<ScalarType>::FeatureDictionaryForDenseCoding(FeatureDictionaryForDenseCoding&& InputDictionary)
+{
+    m_Name = std::move(InputDictionary.m_Name);
+    m_BasisMatrix = std::move(InputDictionary.m_BasisMatrix);
+    m_Covariance = std::move(InputDictionary.m_Covariance);
+    m_StandardDeviation = std::move(InputDictionary.m_StandardDeviation);
+}
+
+
+template<typename ScalarType>
+FeatureDictionaryForDenseCoding<ScalarType>::~FeatureDictionaryForDenseCoding()
+{
+
+}
+
+
+template<typename ScalarType>
+void FeatureDictionaryForDenseCoding<ScalarType>::operator=(const FeatureDictionaryForDenseCoding& InputDictionary)
+{
+    this->Copy(InputDictionary)
+}
+
+
+template<typename ScalarType>
+void FeatureDictionaryForDenseCoding<ScalarType>::operator=(FeatureDictionaryForDenseCoding&& InputDictionary)
 {
     m_Name = std::move(InputDictionary.m_Name);
 
@@ -32,35 +54,8 @@ FeatureDictionaryForDenseCoding<ElementType>::FeatureDictionaryForDenseCoding(Fe
 }
 
 
-template<typename ElementType>
-FeatureDictionaryForDenseCoding<ElementType>::~FeatureDictionaryForDenseCoding()
-{
-
-}
-
-
-template<typename ElementType>
-void FeatureDictionaryForDenseCoding<ElementType>::operator=(const FeatureDictionaryForDenseCoding& InputDictionary)
-{
-    this->Copy(InputDictionary)
-}
-
-
-template<typename ElementType>
-void FeatureDictionaryForDenseCoding<ElementType>::operator=(FeatureDictionaryForDenseCoding&& InputDictionary)
-{
-    m_Name = std::move(InputDictionary.m_Name);
-
-    m_BasisMatrix = std::move(InputDictionary.m_BasisMatrix);
-
-    m_Covariance = std::move(InputDictionary.m_Covariance);
-
-    m_StandardDeviation = std::move(InputDictionary.m_StandardDeviation);
-}
-
-
-template<typename ElementType>
-bool FeatureDictionaryForDenseCoding<ElementType>::Copy(const FeatureDictionaryForDenseCoding<ElementType>& InputDictionary)
+template<typename ScalarType>
+bool FeatureDictionaryForDenseCoding<ScalarType>::Copy(const FeatureDictionaryForDenseCoding<ScalarType>& InputDictionary)
 {
     m_Name.Copy(InputDictionary.m_Name);
 
@@ -75,8 +70,8 @@ bool FeatureDictionaryForDenseCoding<ElementType>::Copy(const FeatureDictionaryF
 }
 
 
-template<typename ElementType>
-bool FeatureDictionaryForDenseCoding<ElementType>::Copy(const FeatureDictionaryForDenseCoding<ElementType>* InputDictionary)
+template<typename ScalarType>
+bool FeatureDictionaryForDenseCoding<ScalarType>::Copy(const FeatureDictionaryForDenseCoding<ScalarType>* InputDictionary)
 {
     if (InputDictionary == nullptr)
     {
@@ -88,8 +83,8 @@ bool FeatureDictionaryForDenseCoding<ElementType>::Copy(const FeatureDictionaryF
 }
 
 
-template<typename ElementType>
-bool FeatureDictionaryForDenseCoding<ElementType>::Share(FeatureDictionaryForDenseCoding<ElementType>& InputDictionary)
+template<typename ScalarType>
+bool FeatureDictionaryForDenseCoding<ScalarType>::Share(FeatureDictionaryForDenseCoding<ScalarType>& InputDictionary)
 {
     if (this == &InputDictionary)
     {
@@ -115,8 +110,8 @@ bool FeatureDictionaryForDenseCoding<ElementType>::Share(FeatureDictionaryForDen
 }
 
 
-template<typename ElementType>
-bool FeatureDictionaryForDenseCoding<ElementType>::Share(FeatureDictionaryForDenseCoding<ElementType>* InputDictionary)
+template<typename ScalarType>
+bool FeatureDictionaryForDenseCoding<ScalarType>::Share(FeatureDictionaryForDenseCoding<ScalarType>* InputDictionary)
 {
     if (InputDictionary == nullptr)
     {
@@ -128,8 +123,8 @@ bool FeatureDictionaryForDenseCoding<ElementType>::Share(FeatureDictionaryForDen
 }
 
 
-template<typename ElementType>
-void FeatureDictionaryForDenseCoding<ElementType>::ForceShare(const FeatureDictionaryForDenseCoding<ElementType>& InputDictionary)
+template<typename ScalarType>
+void FeatureDictionaryForDenseCoding<ScalarType>::ForceShare(const FeatureDictionaryForDenseCoding<ScalarType>& InputDictionary)
 {
     if (this == &InputDictionary)
     {
@@ -146,8 +141,8 @@ void FeatureDictionaryForDenseCoding<ElementType>::ForceShare(const FeatureDicti
 }
 
 
-template<typename ElementType>
-bool FeatureDictionaryForDenseCoding<ElementType>::ForceShare(const FeatureDictionaryForDenseCoding<ElementType>* InputDictionary)
+template<typename ScalarType>
+bool FeatureDictionaryForDenseCoding<ScalarType>::ForceShare(const FeatureDictionaryForDenseCoding<ScalarType>* InputDictionary)
 {
     if (InputDictionary == nullptr)
     {
@@ -161,8 +156,8 @@ bool FeatureDictionaryForDenseCoding<ElementType>::ForceShare(const FeatureDicti
 }
 
 
-template<typename ElementType>
-void FeatureDictionaryForDenseCoding<ElementType>::Clear()
+template<typename ScalarType>
+void FeatureDictionaryForDenseCoding<ScalarType>::Clear()
 {
     m_Name.Clear();
 
@@ -174,57 +169,57 @@ void FeatureDictionaryForDenseCoding<ElementType>::Clear()
 }
 
 
-template<typename ElementType>
-bool FeatureDictionaryForDenseCoding<ElementType>::IsEmpty() const
+template<typename ScalarType>
+bool FeatureDictionaryForDenseCoding<ScalarType>::IsEmpty() const
 {
     return m_BasisMatrix.IsEmpty();
 }
 
 
-template<typename ElementType>
-MatrixSize FeatureDictionaryForDenseCoding<ElementType>::GetSize() const
+template<typename ScalarType>
+MatrixSize FeatureDictionaryForDenseCoding<ScalarType>::GetSize() const
 {
     return m_BasisMatrix.GetSize();
 }
 
 
-template<typename ElementType>
-bool FeatureDictionaryForDenseCoding<ElementType>::Load(const CharString& FilePathAndName)
+template<typename ScalarType>
+bool FeatureDictionaryForDenseCoding<ScalarType>::Load(const CharString& FilePathAndName)
 {
     return true;
 }
 
 
-template<typename ElementType>
-bool FeatureDictionaryForDenseCoding<ElementType>::Save(const CharString& FilePathAndName) const
+template<typename ScalarType>
+bool FeatureDictionaryForDenseCoding<ScalarType>::Save(const CharString& FilePathAndName) const
 {
     return true;
 }
 
 
-template<typename ElementType>
-const CharString& FeatureDictionaryForDenseCoding<ElementType>::Name() const
+template<typename ScalarType>
+const CharString& FeatureDictionaryForDenseCoding<ScalarType>::Name() const
 {
     return m_Name;
 }
 
 
-template<typename ElementType>
-CharString& FeatureDictionaryForDenseCoding<ElementType>::Name()
+template<typename ScalarType>
+CharString& FeatureDictionaryForDenseCoding<ScalarType>::Name()
 {
     return m_Name;
 }
 
 
-template<typename ElementType>
-DenseMatrix<ElementType>& FeatureDictionaryForDenseCoding<ElementType>::BasisMatrix()
+template<typename ScalarType>
+DenseMatrix<ScalarType>& FeatureDictionaryForDenseCoding<ScalarType>::BasisMatrix()
 {
     return m_BasisMatrix;
 }
 
 
-template<typename ElementType>
-const DenseMatrix<ElementType>& FeatureDictionaryForDenseCoding<ElementType>::BasisMatrix() const
+template<typename ScalarType>
+const DenseMatrix<ScalarType>& FeatureDictionaryForDenseCoding<ScalarType>::BasisMatrix() const
 {
     return m_BasisMatrix;
 }

@@ -7,6 +7,7 @@ namespace mdk
 template<typename ElementType>
 bool SaveFeatureDictionaryForSparseCodingAsJsonDataFile(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary, const std::string& JsonFilePathAndName)
 {
+	/*
     ElementType ReferenceScalar = ElementType(0);
 
     int_max ByteNumber = GetByteNumberOfScalar(ReferenceScalar);
@@ -69,7 +70,7 @@ bool SaveFeatureDictionaryForSparseCodingAsJsonDataFile(const FeatureDictionaryF
 
     DataFile.flush();
     DataFile.close();
-
+	*/
     return true;
 }
 
@@ -78,7 +79,7 @@ template<typename ElementType>
 FeatureDictionaryForSparseCoding<ElementType> LoadFeatureDictionaryForSparseCodingFromJsonDataFile(const std::string& FilePathAndName)
 {
     FeatureDictionaryForSparseCoding<ElementType> Dictionary;
-
+	/*
     //----------------------------------------------------------
 
     auto ReferenceScalar = ElementType(0);
@@ -206,7 +207,7 @@ FeatureDictionaryForSparseCoding<ElementType> LoadFeatureDictionaryForSparseCodi
     }
 
     DataFile.close();
-
+	*/
     return Dictionary;
 }
 

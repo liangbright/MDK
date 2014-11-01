@@ -4,31 +4,29 @@
 namespace mdk
 {
 
-template<typename ElementType>
-KNNSoftAssignSparseEncoder<ElementType>::KNNSoftAssignSparseEncoder()
+template<typename ScalarType>
+KNNSoftAssignSparseEncoder<ScalarType>::KNNSoftAssignSparseEncoder()
 {
-
+	this->Clear();
 }
 
 
-template<typename ElementType>
-KNNSoftAssignSparseEncoder<ElementType>::~KNNSoftAssignSparseEncoder()
+template<typename ScalarType>
+KNNSoftAssignSparseEncoder<ScalarType>::~KNNSoftAssignSparseEncoder()
 {
-
 }
 
 
-template<typename ElementType>
-void KNNSoftAssignSparseEncoder<ElementType>::Clear()
+template<typename ScalarType>
+void KNNSoftAssignSparseEncoder<ScalarType>::Clear()
 {
     this->FeatureDictionaryBasedSparseEncoder::Clear();
-
     m_Parameter.Clear();
 }
 
 
-template<typename ElementType>
-bool KNNSoftAssignSparseEncoder<ElementType>::CheckInput()
+template<typename ScalarType>
+bool KNNSoftAssignSparseEncoder<ScalarType>::CheckInput()
 {
     if (this->FeatureDictionaryBasedSparseEncoder::CheckInput() == false)
     {
@@ -44,17 +42,15 @@ bool KNNSoftAssignSparseEncoder<ElementType>::CheckInput()
     if (m_Parameter.SimilarityThreshold < 0 || m_Parameter.SimilarityThreshold > 1)
     {
         MDK_Error("SimilarityThreshold is invalid @ KNNSoftAssignSparseEncoder::CheckInput()")
-            return false;
+        return false;
     }
 
     // set input to m_KNNSimilaritySparseEncoder
 
     m_KNNSimilaritySparseEncoder.m_Parameter.NeighbourNumber = m_Parameter.NeighbourNumber;
-
     m_KNNSimilaritySparseEncoder.m_Parameter.SimilarityType = m_Parameter.SimilarityType;
 
     m_KNNSimilaritySparseEncoder.SetInputDictionary(m_Dictionary);
-
     m_KNNSimilaritySparseEncoder.SetInputFeatureData(m_FeatureData);
 
     if (m_KNNSimilaritySparseEncoder.CheckInput() == false)
@@ -66,34 +62,28 @@ bool KNNSoftAssignSparseEncoder<ElementType>::CheckInput()
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline 
-void KNNSoftAssignSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex, int_max ThreadIndex)
+SparseVector<ScalarType> KNNSoftAssignSparseEncoder<ScalarType>::
+EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex)
 {
-    const DenseMatrix<ElementType> DataColVector(const_cast<ElementType*>(m_FeatureData->GetElementPointerOfCol(DataIndex)),
-                                                  m_FeatureData->GetRowNumber(), 1);
-
-    SparseVector<ElementType>& CodeInSparseColVector = (*m_CodeInSparseColVectorSet)[DataIndex];
-
-    //----------------------------------------------------------------------------------------
-
-    this->EncodeSingleDataVector(CodeInSparseColVector, DataColVector);
+    return this->EncodeSingleDataVector(DataColVector);
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-void KNNSoftAssignSparseEncoder<ElementType>::
-EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const DenseMatrix<ElementType>& DataColVector)
+SparseVector<ScalarType> KNNSoftAssignSparseEncoder<ScalarType>::
+EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
 {
-    m_KNNSimilaritySparseEncoder.EncodeSingleDataVector(CodeInSparseColVector, DataColVector);
+	auto OutputCode = m_KNNSimilaritySparseEncoder.EncodeSingleDataVector(DataColVector);
 
     // take reference
-    std::vector<ElementType>& Membership = CodeInSparseColVector.DataArray();
+	auto& Membership = OutputCode.ElementList();
 
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+    auto eps_value = std::numeric_limits<ScalarType>::epsilon();
 
-    auto tempSum = ElementType(0);
+    auto tempSum = ScalarType(0);
 
     for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
     {
@@ -111,34 +101,36 @@ EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const D
     {
         Membership[i] /= tempSum;
     }
+
+	return OutputCode;
 }
 
 //------------------------------------------------------- static function --------------------------------------------------------------------//
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-bool KNNSoftAssignSparseEncoder<ElementType>::CheckIfSimilarityTypeSupported(VectorSimilarityTypeEnum SimilarityType)
+bool KNNSoftAssignSparseEncoder<ScalarType>::CheckIfSimilarityTypeSupported(VectorSimilarityTypeEnum SimilarityType)
 {
-    return KNNSimilaritySparseEncoder<ElementType>::CheckIfSimilarityTypeSupported(SimilarityType);
+    return KNNSimilaritySparseEncoder<ScalarType>::CheckIfSimilarityTypeSupported(SimilarityType);
 }
 
 
-template<typename ElementType>
-DenseMatrix<ElementType> 
-KNNSoftAssignSparseEncoder<ElementType>::
-ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
-               const DenseMatrix<ElementType>& KNNBasisMatrix,
+template<typename ScalarType>
+DenseMatrix<ScalarType> 
+KNNSoftAssignSparseEncoder<ScalarType>::
+ComputeKNNCode(const DenseMatrix<ScalarType>& DataColVector,
+               const DenseMatrix<ScalarType>& KNNBasisMatrix,
                const VectorSimilarityTypeEnum  SimilarityType,
-               const ElementType SimilarityThreshold,
-               const DenseMatrix<ElementType>& VarianceList)
+               const ScalarType SimilarityThreshold,
+               const DenseMatrix<ScalarType>& VarianceList)
 {
     int_max BasisNumber = KNNBasisMatrix.GetColNumber();
 
-    auto Membership = KNNSimilaritySparseEncoder<ElementType>::ComputeKNNCode(DataColVector, KNNBasisMatrix, SimilarityType, VarianceList);
+    auto Membership = KNNSimilaritySparseEncoder<ScalarType>::ComputeKNNCode(DataColVector, KNNBasisMatrix, SimilarityType, VarianceList);
 
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+    auto eps_value = std::numeric_limits<ScalarType>::epsilon();
 
-    auto tempSum = ElementType(0);
+    auto tempSum = ScalarType(0);
 
     for (int_max i = 0; i < BasisNumber; ++i)
     {
@@ -161,27 +153,27 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType
-KNNSoftAssignSparseEncoder<ElementType>::
-ComputeSimilarityBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, 
-                                   const DenseMatrix<ElementType>& VectorB, 
-                                   VectorSimilarityTypeEnum SimilarityType, 
-                                   ElementType Variance)
+ScalarType
+KNNSoftAssignSparseEncoder<ScalarType>::
+ComputeSimilarityBetweenTwoVector(const DenseMatrix<ScalarType>& VectorA, 
+                                  const DenseMatrix<ScalarType>& VectorB, 
+                                  VectorSimilarityTypeEnum SimilarityType, 
+                                  ScalarType Variance)
 {
-    return KNNSimilaritySparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(VectorA, VectorB, SimilarityType, Variance);
+    return KNNSimilaritySparseEncoder<ScalarType>::ComputeSimilarityBetweenTwoVector(VectorA, VectorB, SimilarityType, Variance);
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType 
-KNNSoftAssignSparseEncoder<ElementType>::
-ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length,
-                                   VectorSimilarityTypeEnum SimilarityType,ElementType Variance, bool CheckInput)
+ScalarType
+KNNSoftAssignSparseEncoder<ScalarType>::
+ComputeSimilarityBetweenTwoVector(const ScalarType* VectorA, const ScalarType* VectorB, int_max Length,
+                                  VectorSimilarityTypeEnum SimilarityType,ScalarType Variance, bool Flag_CheckInput)
 {
-    return KNNSimilaritySparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(VectorA, VectorB, Length, SimilarityType, Variance, CheckInput);
+	return KNNSimilaritySparseEncoder<ScalarType>::ComputeSimilarityBetweenTwoVector(VectorA, VectorB, Length, SimilarityType, Variance, Flag_CheckInput);
 }
 
 

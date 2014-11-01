@@ -4,31 +4,28 @@
 namespace mdk
 {
 
-template<typename ElementType>
-KNNSimilaritySparseEncoder<ElementType>::KNNSimilaritySparseEncoder()
+template<typename ScalarType>
+KNNSimilaritySparseEncoder<ScalarType>::KNNSimilaritySparseEncoder()
 {
-
 }
 
 
-template<typename ElementType>
-KNNSimilaritySparseEncoder<ElementType>::~KNNSimilaritySparseEncoder()
+template<typename ScalarType>
+KNNSimilaritySparseEncoder<ScalarType>::~KNNSimilaritySparseEncoder()
 {
-
 }
 
 
-template<typename ElementType>
-void KNNSimilaritySparseEncoder<ElementType>::Clear()
+template<typename ScalarType>
+void KNNSimilaritySparseEncoder<ScalarType>::Clear()
 {
     this->FeatureDictionaryBasedSparseEncoder::Clear();
-
     m_Parameter.Clear();
 }
 
 
-template<typename ElementType>
-bool KNNSimilaritySparseEncoder<ElementType>::CheckInput()
+template<typename ScalarType>
+bool KNNSimilaritySparseEncoder<ScalarType>::CheckInput()
 {
     if (this->FeatureDictionaryBasedSparseEncoder::CheckInput() == false)
     {
@@ -41,8 +38,7 @@ bool KNNSimilaritySparseEncoder<ElementType>::CheckInput()
         return false;
     }
 
-    auto IsSimilarityTypeSupported = KNNSimilaritySparseEncoder<ElementType>::CheckIfSimilarityTypeSupported(m_Parameter.SimilarityType);
-
+    auto IsSimilarityTypeSupported = this->CheckIfSimilarityTypeSupported(m_Parameter.SimilarityType);
     if (IsSimilarityTypeSupported == false)
     {
         MDK_Error("SimilarityType is not supported @ KNNSimilaritySparseEncoder::CheckInput()")
@@ -78,37 +74,31 @@ bool KNNSimilaritySparseEncoder<ElementType>::CheckInput()
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline 
-void KNNSimilaritySparseEncoder<ElementType>::EncodingFunction(int_max DataIndex, int_max ThreadIndex)
+SparseVector<ScalarType> KNNSimilaritySparseEncoder<ScalarType>::
+EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex)
 {
-    const DenseMatrix<ElementType> DataColVector(const_cast<ElementType*>(m_FeatureData->GetElementPointerOfCol(DataIndex)),
-                                                 m_FeatureData->GetRowNumber(), 1);
-
-    SparseVector<ElementType>& CodeInSparseColVector = (*m_CodeInSparseColVectorSet)[DataIndex];
-
-    //----------------------------------------------------------------------------------------------------
-
-    this->EncodeSingleDataVector(CodeInSparseColVector, DataColVector);
+    return this->EncodeSingleDataVector(DataColVector);
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-void KNNSimilaritySparseEncoder<ElementType>::
-EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const DenseMatrix<ElementType>& DataColVector)
+SparseVector<ScalarType> KNNSimilaritySparseEncoder<ScalarType>::
+EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
 {
-    const DenseMatrix<ElementType>& BasisMatrix = m_Dictionary->BasisMatrix(); // "auto  = " will copy
+	SparseVector<ScalarType> OutputCode;
 
-    const DenseMatrix<ElementType>& VarianceOfL1Distance = m_Dictionary->VarianceOfL1Distance();
-    const DenseMatrix<ElementType>& VarianceOfL2Distance = m_Dictionary->VarianceOfL2Distance();
-    const DenseMatrix<ElementType>& VarianceOfKLDivergence = m_Dictionary->VarianceOfKLDivergence();
-
-    auto BasisNumber = BasisMatrix.GetColNumber();
+    const auto& BasisMatrix = m_Dictionary->BasisMatrix(); // "auto  = " will copy
+	auto BasisNumber = BasisMatrix.GetColNumber();
+	const auto& VarianceOfL1Distance = m_Dictionary->VarianceOfL1Distance();
+	const auto& VarianceOfL2Distance = m_Dictionary->VarianceOfL2Distance();
+	const auto& VarianceOfKLDivergence = m_Dictionary->VarianceOfKLDivergence();
 
     //----------------------------------------------------------------------------------------------------
 
-    DenseMatrix<ElementType> SimilarityList(1, m_Parameter.NeighbourNumber);
+    DenseMatrix<ScalarType> SimilarityList(1, m_Parameter.NeighbourNumber);
 
     DenseMatrix<int_max> NeighbourIndexList(1, m_Parameter.NeighbourNumber);
 
@@ -124,7 +114,7 @@ EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const D
 
         // calculate mean variance
 
-        auto Variance = ElementType(0);
+        auto Variance = ScalarType(0);
         for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
         {
             Variance += VarianceOfL1Distance[NeighbourIndexList[i]];
@@ -135,7 +125,7 @@ EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const D
         {
             auto temp = (NeighbourDistanceList[i] * NeighbourDistanceList[i]) / Variance;
 
-            SimilarityList[i] = std::exp(-temp * ElementType(0.1));
+            SimilarityList[i] = std::exp(-temp * ScalarType(0.1));
         }
     }
         break;
@@ -148,7 +138,7 @@ EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const D
 
         auto NeighbourDistanceList = DistanceList.GetSubMatrix(NeighbourIndexList);
 
-        auto Variance = ElementType(0);
+        auto Variance = ScalarType(0);
         for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
         {
             Variance += VarianceOfL2Distance[NeighbourIndexList[i]];
@@ -159,7 +149,7 @@ EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const D
         {
             auto temp = (NeighbourDistanceList[i] * NeighbourDistanceList[i]) / Variance;
 
-            SimilarityList[i] = std::exp(-temp * ElementType(0.1));
+            SimilarityList[i] = std::exp(-temp * ScalarType(0.1));
         }
     }
         break;
@@ -202,7 +192,7 @@ EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const D
 
         auto NeighbourKLDivergenceList = KLDivergenceList.GetSubMatrix(NeighbourIndexList);
 
-        auto Variance = ElementType(0);
+        auto Variance = ScalarType(0);
         for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
         {
             Variance += VarianceOfKLDivergence[NeighbourIndexList[i]];
@@ -213,7 +203,7 @@ EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const D
         {
             auto temp = (NeighbourKLDivergenceList[i] * NeighbourKLDivergenceList[i]) / Variance;
 
-            SimilarityList[i] = std::exp(-temp * ElementType(0.1));
+            SimilarityList[i] = std::exp(-temp * ScalarType(0.1));
         }
     }
         break;
@@ -224,25 +214,26 @@ EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector, const D
 
         NeighbourIndexList = FindKNNByDistanceList(JSDivergenceList, m_Parameter.NeighbourNumber);
 
-        SimilarityList = MatrixSubtract(ElementType(1), JSDivergenceList.GetSubMatrix(NeighbourIndexList));
+        SimilarityList = MatrixSubtract(ScalarType(1), JSDivergenceList.GetSubMatrix(NeighbourIndexList));
     }
         break;
 
     default:
 
         MDK_Error("SimilarityType is not supported @ KNNSimilaritySparseEncoder::EncodeSingleDataVector(...)")
-        return;
+        return OutputCode;
     }
 
-    CodeInSparseColVector.Construct(NeighbourIndexList, SimilarityList, BasisNumber);
+	OutputCode.Construct(NeighbourIndexList, SimilarityList, BasisNumber);
+	return OutputCode;
 }
 
 //------------------------------------------------------------ static function --------------------------------------------------------//
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline 
-bool KNNSimilaritySparseEncoder<ElementType>::CheckIfSimilarityTypeSupported(VectorSimilarityTypeEnum SimilarityType)
+bool KNNSimilaritySparseEncoder<ScalarType>::CheckIfSimilarityTypeSupported(VectorSimilarityTypeEnum SimilarityType)
 {
     if (SimilarityType != VectorSimilarityTypeEnum::L1Distance
         && SimilarityType != VectorSimilarityTypeEnum::L2Distance
@@ -258,18 +249,18 @@ bool KNNSimilaritySparseEncoder<ElementType>::CheckIfSimilarityTypeSupported(Vec
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseMatrix<ElementType>
-KNNSimilaritySparseEncoder<ElementType>::
-ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
-               const DenseMatrix<ElementType>& KNNBasisMatrix,
+DenseMatrix<ScalarType>
+KNNSimilaritySparseEncoder<ScalarType>::
+ComputeKNNCode(const DenseMatrix<ScalarType>& DataColVector,
+               const DenseMatrix<ScalarType>& KNNBasisMatrix,
                const VectorSimilarityTypeEnum  SimilarityType,
-               const DenseMatrix<ElementType>& VarianceList)
+               const DenseMatrix<ScalarType>& VarianceList)
 {
     int_max KNNBasisNumber = KNNBasisMatrix.GetColNumber();
 
-    DenseMatrix<ElementType> SimilarityList(1, KNNBasisNumber);
+    DenseMatrix<ScalarType> SimilarityList(1, KNNBasisNumber);
 
     switch (SimilarityType)
     {
@@ -285,7 +276,7 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
         {
             auto temp = (DistanceList[i] * DistanceList[i]) / Variance;
 
-            SimilarityList[i] = std::exp(-temp * ElementType(0.1));
+            SimilarityList[i] = std::exp(-temp * ScalarType(0.1));
         }
     }
         break;
@@ -300,7 +291,7 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
         {
             auto temp = (DistanceList[i] * DistanceList[i]) / Variance;
 
-            SimilarityList[i] = std::exp(-temp * ElementType(0.1));
+            SimilarityList[i] = std::exp(-temp * ScalarType(0.1));
         }
     }
         break;
@@ -337,7 +328,7 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
         {
             auto temp = (DistanceList[i] * DistanceList[i]) / Variance;
 
-            SimilarityList[i] = std::exp(-temp * ElementType(0.1));
+            SimilarityList[i] = std::exp(-temp * ScalarType(0.1));
         }
     }
         break;
@@ -351,20 +342,20 @@ ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType
-KNNSimilaritySparseEncoder<ElementType>::
-ComputeSimilarityBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, 
-                                   const DenseMatrix<ElementType>& VectorB, 
-                                   VectorSimilarityTypeEnum SimilarityType, 
-                                   ElementType Variance)
+ScalarType
+KNNSimilaritySparseEncoder<ScalarType>::
+ComputeSimilarityBetweenTwoVector(const DenseMatrix<ScalarType>& VectorA, 
+                                  const DenseMatrix<ScalarType>& VectorB, 
+                                  VectorSimilarityTypeEnum SimilarityType, 
+                                  ScalarType Variance)
 {
 
     if (VectorA.IsVector() == false || VectorB.IsVector() == false)
     {
-        MDK_Error("Input VectorA or VectorB is not a vector @ KNNSimilaritySparseEncoder::ComputeSimilarityBetweenTwoVectors(...)")
-        return ElementType(0);
+        MDK_Error("Input VectorA or VectorB is not a vector @ KNNSimilaritySparseEncoder::ComputeSimilarityBetweenTwoVector(...)")
+        return ScalarType(0);
     }
 
     auto LengthA = VectorA.GetElementNumber();
@@ -373,51 +364,51 @@ ComputeSimilarityBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA,
     if (LengthA != LengthB)
     {
         MDK_Error("Size does not match @ KNNSimilaritySparseEncoder::ComputeSimilarityBetweenTwoVectors(...)")
-        return ElementType(0);
+        return ScalarType(0);
     }
 
     return this->ComputeSimilarityBetweenTwoVectors(VectorA.GetElementPointer(), VectorB.GetElementPointer(), LengthA, SimilarityType, Variance, false);
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType 
-KNNSimilaritySparseEncoder<ElementType>::
-ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length,
-                                   VectorSimilarityTypeEnum SimilarityType, ElementType Variance, bool CheckInput)
+ScalarType 
+KNNSimilaritySparseEncoder<ScalarType>::
+ComputeSimilarityBetweenTwoVector(const ScalarType* VectorA, const ScalarType* VectorB, int_max Length,
+                                  VectorSimilarityTypeEnum SimilarityType, ScalarType Variance, bool Flag_CheckInput)
 {
-    ElementType Similarity = ElementType(0);
+    ScalarType Similarity = ScalarType(0);
 
     switch (SimilarityType)
     {
     case VectorSimilarityTypeEnum::L1Distance:
     {
-        auto L1Distance = ComputeL1DistanceBetweenTwoVectors(VectorA, VectorB, Length, CheckInput);
+		auto L1Distance = ComputeL1DistanceBetweenTwoVector(VectorA, VectorB, Length, Flag_CheckInput);
         auto temp = (L1Distance*L1Distance) / Variance;
-        Similarity = std::exp(-temp * ElementType(0.1));
+        Similarity = std::exp(-temp * ScalarType(0.1));
     }
         break;
 
     case VectorSimilarityTypeEnum::L2Distance:
     {
-        auto L2Distance = ComputeL2DistanceBetweenTwoVectors(VectorA, VectorB, Length, CheckInput);
+		auto L2Distance = ComputeL2DistanceBetweenTwoVector(VectorA, VectorB, Length, Flag_CheckInput);
         auto temp = (L2Distance*L2Distance) / Variance;
-        Similarity = std::exp(-temp * ElementType(0.1));
+        Similarity = std::exp(-temp * ScalarType(0.1));
     }
         break;
 
     case VectorSimilarityTypeEnum::Correlation:
     {
-        auto Correlation = ComputeCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+		auto Correlation = ComputeCorrelationBetweenTwoVector(VectorA, VectorB, Length, Flag_CheckInput);
 
-        Similarity = (Correlation + ElementType(1)) / ElementType(2);
+        Similarity = (Correlation + ScalarType(1)) / ScalarType(2);
     }
         break;
 
     case VectorSimilarityTypeEnum::AbsoluteValueOfCorrelation:
     {
-        auto Correlation = ComputeCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+		auto Correlation = ComputeCorrelationBetweenTwoVector(VectorA, VectorB, Length, Flag_CheckInput);
 
         Similarity = std::abs(Correlation);
 
@@ -426,15 +417,15 @@ ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType
 
     case VectorSimilarityTypeEnum::UncenteredCorrelation:
     {
-        auto Correlation = ComputeUncenteredCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+		auto Correlation = ComputeUncenteredCorrelationBetweenTwoVector(VectorA, VectorB, Length, Flag_CheckInput);
 
-        Similarity = (Correlation + ElementType(1)) / ElementType(2);
+        Similarity = (Correlation + ScalarType(1)) / ScalarType(2);
     }
         break;
 
     case VectorSimilarityTypeEnum::AbsoluteValueOfUncenteredCorrelation:
     {
-        auto Correlation = ComputeUncenteredCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+		auto Correlation = ComputeUncenteredCorrelationBetweenTwoVector(VectorA, VectorB, Length, Flag_CheckInput);
 
         Similarity = std::abs(Correlation);
 
@@ -443,15 +434,15 @@ ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType
     /*
     case VectorSimilarityTypeEnum::UnnormalizedCorrelation:
     {
-        auto Correlation = ComputeUnnormalizedCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+        auto Correlation = ComputeUnnormalizedCorrelationBetweenTwoVector(VectorA, VectorB, Length, Flag_CheckInput);
 
-        Similarity = (Correlation + ElementType(1)) / ElementType(2);
+        Similarity = (Correlation + ScalarType(1)) / ScalarType(2);
     }
         break;
 
     case VectorSimilarityTypeEnum::AbsoluteValueOfUnnormalizedCorrelation:
     {
-        auto Correlation = ComputeUnnormalizedCorrelationBetweenTwoVectors(VectorA, VectorB, Length, false);
+        auto Correlation = ComputeUnnormalizedCorrelationBetweenTwoVector(VectorA, VectorB, Length, Flag_CheckInput);
 
         Similarity = std::abs(Correlation);
 
@@ -460,25 +451,25 @@ ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType
     */
     case VectorSimilarityTypeEnum::KLDivergence:
     {
-        auto KLDivergence_AB = ComputeKLDivergenceOfVectorAFromVectorB(VectorA, VectorB, Length, CheckInput);
-        auto KLDivergence_BA = ComputeKLDivergenceOfVectorAFromVectorB(VectorB, VectorA, Length, CheckInput);
-        auto KLDivergence = (KLDivergence_AB + KLDivergence_BA) * ElementType(0.1);
+		auto KLDivergence_AB = ComputeKLDivergenceOfVectorAFromVectorB(VectorA, VectorB, Length, Flag_CheckInput);
+		auto KLDivergence_BA = ComputeKLDivergenceOfVectorAFromVectorB(VectorB, VectorA, Length, Flag_CheckInput);
+        auto KLDivergence = (KLDivergence_AB + KLDivergence_BA) * ScalarType(0.1);
 
         auto temp = (KLDivergence*KLDivergence) / Variance;
-        Similarity = std::exp(-temp * ElementType(0.1));
+        Similarity = std::exp(-temp * ScalarType(0.1));
     }
         break;
 
     case VectorSimilarityTypeEnum::JSDivergence:
     {
-        auto JSDivergence = ComputeJSDivergenceBetweenTwoVectors(VectorA, VectorB, Length, CheckInput);
+        auto JSDivergence = ComputeJSDivergenceBetweenTwoVector(VectorA, VectorB, Length, Flag_CheckInput);
 
-        Similarity = ElementType(1) - JSDivergence;
+        Similarity = ScalarType(1) - JSDivergence;
     }
         break;
 
     default:
-        MDK_Error("unsupported type of similarity @ KNNSimilaritySparseEncoder::ComputeSimilarityBetweenTwoVectors(...)")
+        MDK_Error("unsupported type of similarity @ KNNSimilaritySparseEncoder::ComputeSimilarityBetweenTwoVector(...)")
     }
 
     return Similarity;

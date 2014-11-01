@@ -10,8 +10,8 @@ namespace mdk
 
 enum struct OpenCVSingleChannelMatrixElementTypeEnum
 {
-    DOUBLE64 = CV_64FC1,
-    FLOAT32  = CV_32FC1,
+    DOUBLE = CV_64FC1,
+    FLOAT  = CV_32FC1,
     INT8     = CV_8SC1,
     INT16    = CV_16SC1,
     INT32    = CV_32SC1,

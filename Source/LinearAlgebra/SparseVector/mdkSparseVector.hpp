@@ -548,18 +548,80 @@ const std::vector<ElementType>& SparseVector<ElementType>::ElementList() const
     return m_Data->ElementList;
 }
 
+//------------------------------------------ Convert to DenseMatrix or DenseVector --------------------------------------//
+template<typename ElementType>
+DenseMatrix<ElementType> SparseVector<ElementType>::CreateDenseMatrixAsColVector()
+{
+	DenseMatrix<ElementType> OutputVector;
+	if (OutputVector.Resize(m_Data->Length, 1) == false)
+	{
+		return OutputVector;
+	}
+	OutputVector.Fill(0);
+
+	auto RecordedElementNumber = int_max(m_Data->IndexList.size());
+	for (int_max i = 0; i < RecordedElementNumber; ++i)
+	{
+		OutputVector[m_Data->IndexList[i]] = m_Data->ElementList[i];
+	}
+	return OutputVector;
+}
+
+
+template<typename ElementType>
+DenseMatrix<ElementType> SparseVector<ElementType>::CreateDenseMatrixAsRowVector()
+{
+	DenseMatrix<ElementType> OutputVector;
+	if (OutputVector.Resize(1, m_Data->Length) == false)
+	{
+		return OutputVector;
+	}
+	OutputVector.Fill(0);
+
+	auto RecordedElementNumber = int_max(m_Data->IndexList.size());
+	for (int_max i = 0; i < RecordedElementNumber; ++i)
+	{
+		OutputVector[m_Data->IndexList[i]] = m_Data->ElementList[i];
+	}
+	return OutputVector;
+}
+
+
+template<typename ElementType>
+DenseVector<ElementType> SparseVector<ElementType>::CreateDenseVector()
+{
+	DenseVector<ElementType> OutputVector;
+	if (OutputVector.Resize(m_Data->Length) == false)
+	{
+		return false;
+	}
+	OutputVector.Fill(0);
+
+	auto RecordedElementNumber = int_max(m_Data->IndexList.size());
+	for (int_max i = 0; i < RecordedElementNumber; ++i)
+	{
+		OutputVector[m_Data->IndexList[i]] = m_Data->ElementList[i];
+	}
+	return OutputVector;
+}
+
+//---------------------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
 inline
 ElementType SparseVector<ElementType>::Sum() const
 {
-    auto Value = ElementType(0);
+	if (this->IsEmpty() == true)
+	{
+		MDK_Error("Self is empty @ SparseVector::Sum()")
+		return ElementType(0);
+	}
 
+    auto Value = ElementType(0);
     for (int_max k = 0; k < int_max(m_Data->ElementList.size()); ++k)
     {
         Value += m_Data->ElementList[k];
     }
-
     return Value;
 }
 
@@ -568,13 +630,17 @@ template<typename ElementType>
 inline
 ElementType SparseVector<ElementType>::L1Norm() const
 {
-    auto Value = ElementType(0);
+	if (this->IsEmpty() == true)
+	{
+		MDK_Error("Self is empty @ SparseVector::L1Norm()")
+		return ElementType(0);
+	}
 
+    auto Value = ElementType(0);
     for (int_max k = 0; k < int_max(m_Data->ElementList.size()); ++k)
     {
         Value += std::abs(m_Data->ElementList[k]);
     }
-
     return Value;
 }
 
@@ -583,15 +649,18 @@ template<typename ElementType>
 inline
 ElementType SparseVector<ElementType>::L2Norm() const
 {
-    auto Value = ElementType(0);
+	if (this->IsEmpty() == true)
+	{
+		MDK_Error("Self is empty @ SparseVector::L2Norm()")
+		return ElementType(0);
+	}
 
+    auto Value = ElementType(0);
     for (int_max k = 0; k < int_max(m_Data->ElementList.size()); ++k)
     {
         Value += m_Data->ElementList[k] * m_Data->ElementList[k];
     }
-
     Value = std::sqrt(Value);
-
     return Value;
 }
 

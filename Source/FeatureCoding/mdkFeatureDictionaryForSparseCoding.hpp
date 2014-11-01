@@ -5,70 +5,77 @@
 namespace mdk
 {
 
-template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>::FeatureDictionaryForSparseCoding()
+template<typename ScalarType>
+FeatureDictionaryForSparseCoding<ScalarType>::FeatureDictionaryForSparseCoding()
 {
-    m_DictionaryData = std::make_shared<DictionaryData_Of_FeatureDictionaryForSparseCoding<ElementType>>();
+    m_DictionaryData = std::make_shared<DictionaryData_Of_FeatureDictionaryForSparseCoding<ScalarType>>();
 
     this->Clear();
 }
 
 
-template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>::FeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
+template<typename ScalarType>
+FeatureDictionaryForSparseCoding<ScalarType>::FeatureDictionaryForSparseCoding(const FeatureDictionaryForSparseCoding<ScalarType>& InputDictionary)
 {
-    m_DictionaryData = std::make_shared<DictionaryData_Of_FeatureDictionaryForSparseCoding<ElementType>>();
+    m_DictionaryData = std::make_shared<DictionaryData_Of_FeatureDictionaryForSparseCoding<ScalarType>>();
 
     this->Copy(InputDictionary);
 }
 
 
-template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>::FeatureDictionaryForSparseCoding(FeatureDictionaryForSparseCoding<ElementType>&& InputDictionary)
+template<typename ScalarType>
+FeatureDictionaryForSparseCoding<ScalarType>::FeatureDictionaryForSparseCoding(FeatureDictionaryForSparseCoding<ScalarType>&& InputDictionary)
 {
     m_DictionaryData = std::move(InputDictionary.m_DictionaryData);
 }
 
 
-template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>::~FeatureDictionaryForSparseCoding()
+template<typename ScalarType>
+FeatureDictionaryForSparseCoding<ScalarType>::~FeatureDictionaryForSparseCoding()
 {
-
 }
 
 
-template<typename ElementType>
-void FeatureDictionaryForSparseCoding<ElementType>::operator=(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
+template<typename ScalarType>
+void FeatureDictionaryForSparseCoding<ScalarType>::operator=(const FeatureDictionaryForSparseCoding<ScalarType>& InputDictionary)
 {
     this->Copy(InputDictionary);
 }
 
 
-template<typename ElementType>
-void FeatureDictionaryForSparseCoding<ElementType>::operator=(FeatureDictionaryForSparseCoding<ElementType>&& InputDictionary)
+template<typename ScalarType>
+void FeatureDictionaryForSparseCoding<ScalarType>::operator=(FeatureDictionaryForSparseCoding<ScalarType>&& InputDictionary)
 {
     if (!m_DictionaryData)
     {
-        m_DictionaryData = std::make_shared<DictionaryData_Of_FeatureDictionaryForSparseCoding<ElementType>>();
+        m_DictionaryData = std::make_shared<DictionaryData_Of_FeatureDictionaryForSparseCoding<ScalarType>>();
 
         this->Clear();
     }
 
-    this->Take(std::forward<FeatureDictionaryForSparseCoding<ElementType>&>(InputDictionary));
+    this->Take(std::forward<FeatureDictionaryForSparseCoding<ScalarType>&>(InputDictionary));
 }
 
 
-template<typename ElementType>
-void FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
+template<typename ScalarType>
+void FeatureDictionaryForSparseCoding<ScalarType>::Copy(const FeatureDictionaryForSparseCoding<ScalarType>& InputDictionary)
 {
     if (m_DictionaryData == InputDictionary.m_DictionaryData)
     {
         return;
     }
 
+	if (InputDictionary.IsEmpty() == true)
+	{
+		this->Clear();
+		return;
+	}
+
     m_DictionaryData->Name = InputDictionary.m_DictionaryData->Name;
 
     m_DictionaryData->BasisMatrix = InputDictionary.m_DictionaryData->BasisMatrix;
+
+	m_DictionaryData->WeightMatrix = InputDictionary.m_DictionaryData->WeightMatrix;
 
     m_DictionaryData->SeedForNewBasisIDGeneration = InputDictionary.m_DictionaryData->SeedForNewBasisIDGeneration.load();
 
@@ -95,13 +102,12 @@ void FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionary
     m_DictionaryData->VarianceOfKLDivergence = InputDictionary.m_DictionaryData->VarianceOfKLDivergence;
     m_DictionaryData->VarianceOfReconstruction = InputDictionary.m_DictionaryData->VarianceOfReconstruction;
     
-    m_DictionaryData->BasisCovariance = InputDictionary.m_DictionaryData->BasisCovariance;
-
+    //m_DictionaryData->BasisCovariance = InputDictionary.m_DictionaryData->BasisCovariance;
 }
 
 
-template<typename ElementType>
-bool FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionaryForSparseCoding<ElementType>* InputDictionary)
+template<typename ScalarType>
+bool FeatureDictionaryForSparseCoding<ScalarType>::Copy(const FeatureDictionaryForSparseCoding<ScalarType>* InputDictionary)
 {
     if (InputDictionary == nullptr)
     {
@@ -115,8 +121,8 @@ bool FeatureDictionaryForSparseCoding<ElementType>::Copy(const FeatureDictionary
 }
 
 
-template<typename ElementType>
-void FeatureDictionaryForSparseCoding<ElementType>::Share(FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
+template<typename ScalarType>
+void FeatureDictionaryForSparseCoding<ScalarType>::Share(FeatureDictionaryForSparseCoding<ScalarType>& InputDictionary)
 {
     if (this == &InputDictionary)
     {
@@ -127,8 +133,8 @@ void FeatureDictionaryForSparseCoding<ElementType>::Share(FeatureDictionaryForSp
 }
 
 
-template<typename ElementType>
-bool FeatureDictionaryForSparseCoding<ElementType>::Share(FeatureDictionaryForSparseCoding<ElementType>* InputDictionary)
+template<typename ScalarType>
+bool FeatureDictionaryForSparseCoding<ScalarType>::Share(FeatureDictionaryForSparseCoding<ScalarType>* InputDictionary)
 {
     if (InputDictionary == nullptr)
     {
@@ -142,8 +148,8 @@ bool FeatureDictionaryForSparseCoding<ElementType>::Share(FeatureDictionaryForSp
 }
 
 
-template<typename ElementType>
-void FeatureDictionaryForSparseCoding<ElementType>::ForceShare(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
+template<typename ScalarType>
+void FeatureDictionaryForSparseCoding<ScalarType>::ForceShare(const FeatureDictionaryForSparseCoding<ScalarType>& InputDictionary)
 {
     if (this == &InputDictionary)
     {
@@ -154,8 +160,8 @@ void FeatureDictionaryForSparseCoding<ElementType>::ForceShare(const FeatureDict
 }
 
 
-template<typename ElementType>
-bool FeatureDictionaryForSparseCoding<ElementType>::ForceShare(const FeatureDictionaryForSparseCoding<ElementType>* InputDictionary)
+template<typename ScalarType>
+bool FeatureDictionaryForSparseCoding<ScalarType>::ForceShare(const FeatureDictionaryForSparseCoding<ScalarType>* InputDictionary)
 {
     if (InputDictionary == nullptr)
     {
@@ -169,12 +175,14 @@ bool FeatureDictionaryForSparseCoding<ElementType>::ForceShare(const FeatureDict
 }
 
 
-template<typename ElementType>
-void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
+template<typename ScalarType>
+void FeatureDictionaryForSparseCoding<ScalarType>::Take(FeatureDictionaryForSparseCoding<ScalarType>& InputDictionary)
 {
     m_DictionaryData->Name = std::move(InputDictionary.m_DictionaryData->Name);
 
     m_DictionaryData->BasisMatrix = std::move(InputDictionary.m_DictionaryData->BasisMatrix);
+	
+	m_DictionaryData->WeightMatrix = std::move(InputDictionary.m_DictionaryData->WeightMatrix);
 
     m_DictionaryData->SeedForNewBasisIDGeneration = InputDictionary.m_DictionaryData->SeedForNewBasisIDGeneration.load();
 
@@ -201,14 +209,14 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
     m_DictionaryData->VarianceOfKLDivergence = std::move(InputDictionary.m_DictionaryData->VarianceOfKLDivergence);
     m_DictionaryData->VarianceOfReconstruction = std::move(InputDictionary.m_DictionaryData->VarianceOfReconstruction);
 
-    m_DictionaryData->BasisCovariance = std::move(InputDictionary.m_DictionaryData->BasisCovariance);
+    //m_DictionaryData->BasisCovariance = std::move(InputDictionary.m_DictionaryData->BasisCovariance);
 
     InputDictionary.Clear();
 }
 
 
-template<typename ElementType>
-void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSparseCoding<ElementType>* InputDictionary)
+template<typename ScalarType>
+void FeatureDictionaryForSparseCoding<ScalarType>::Take(FeatureDictionaryForSparseCoding<ScalarType>* InputDictionary)
 {
     if (InputDictionary == nullptr)
     {
@@ -219,12 +227,19 @@ void FeatureDictionaryForSparseCoding<ElementType>::Take(FeatureDictionaryForSpa
 }
 
 
-template<typename ElementType>
-void FeatureDictionaryForSparseCoding<ElementType>::Clear()
+template<typename ScalarType>
+void FeatureDictionaryForSparseCoding<ScalarType>::Clear()
 {
-    m_DictionaryData->Name.Clear();
+	if (!m_DictionaryData)
+	{
+		return;
+	}
+
+	m_DictionaryData->Name = "";
 
     m_DictionaryData->BasisMatrix.Clear();
+
+	m_DictionaryData->WeightMatrix.Clear();
 
     m_DictionaryData->SeedForNewBasisIDGeneration = 0;
 
@@ -251,29 +266,28 @@ void FeatureDictionaryForSparseCoding<ElementType>::Clear()
     m_DictionaryData->VarianceOfKLDivergence.Clear();
     m_DictionaryData->VarianceOfReconstruction.Clear();
 
-    m_DictionaryData->BasisCovariance.Clear();
-
+    //m_DictionaryData->BasisCovariance.Clear();
 }
 
 
-template<typename ElementType>
-bool FeatureDictionaryForSparseCoding<ElementType>::IsEmpty() const
+template<typename ScalarType>
+bool FeatureDictionaryForSparseCoding<ScalarType>::IsEmpty() const
 {
     return m_DictionaryData->BasisMatrix.IsEmpty();
 }
 
 
-template<typename ElementType>
-MatrixSize FeatureDictionaryForSparseCoding<ElementType>::GetSize() const
+template<typename ScalarType>
+MatrixSize FeatureDictionaryForSparseCoding<ScalarType>::GetSize() const
 {
     return m_DictionaryData->BasisMatrix.GetSize();
 }
 
 
-template<typename ElementType>
-bool FeatureDictionaryForSparseCoding<ElementType>::Load(const CharString& FilePathAndName)
+template<typename ScalarType>
+bool FeatureDictionaryForSparseCoding<ScalarType>::Load(const std::string& FilePathAndName)
 {
-    auto temp = LoadFeatureDictionaryForSparseCoding<ElementType>(FilePathAndName);
+    auto temp = LoadFeatureDictionaryForSparseCodingFromJsonDataFile<ScalarType>(FilePathAndName);
     if (temp.IsEmpty() == false)
     {
         this->Take(temp);
@@ -284,18 +298,18 @@ bool FeatureDictionaryForSparseCoding<ElementType>::Load(const CharString& FileP
 }
 
 
-template<typename ElementType>
-bool FeatureDictionaryForSparseCoding<ElementType>::Save(const CharString& FilePathAndName) const
+template<typename ScalarType>
+bool FeatureDictionaryForSparseCoding<ScalarType>::Save(const std::string& FilePathAndName) const
 {
-    return SaveFeatureDictionaryForSparseCoding(*this, FilePathAndName);
+    return SaveFeatureDictionaryForSparseCodingAsJsonDataFile(*this, FilePathAndName);
 }
 
 
-template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>
-FeatureDictionaryForSparseCoding<ElementType>::GetSubDictionary(const DenseMatrix<int_max>& BasisIndexList_to_keep) const
+template<typename ScalarType>
+FeatureDictionaryForSparseCoding<ScalarType>
+FeatureDictionaryForSparseCoding<ScalarType>::GetSubDictionary(const DenseMatrix<int_max>& BasisIndexList_to_keep) const
 {
-    FeatureDictionaryForSparseCoding<ElementType> SubDictionary;
+    FeatureDictionaryForSparseCoding<ScalarType> SubDictionary;
 
     if (BasisIndexList_to_keep.IsVector() == false)
     {
@@ -349,7 +363,7 @@ FeatureDictionaryForSparseCoding<ElementType>::GetSubDictionary(const DenseMatri
 
     SubDictionary.m_DictionaryData->VarianceOfReconstruction = m_DictionaryData->VarianceOfReconstruction.GetSubMatrix(BasisIndexList_to_keep);
 
-    SubDictionary.m_DictionaryData->BasisCovariance.Clear();
+    //SubDictionary.m_DictionaryData->BasisCovariance.Clear();
 
     //------------------------------------------------------
 
@@ -357,8 +371,8 @@ FeatureDictionaryForSparseCoding<ElementType>::GetSubDictionary(const DenseMatri
 }
 
 
-template<typename ElementType>
-void FeatureDictionaryForSparseCoding<ElementType>::CombineDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary)
+template<typename ScalarType>
+void FeatureDictionaryForSparseCoding<ScalarType>::CombineDictionary(const FeatureDictionaryForSparseCoding<ScalarType>& InputDictionary)
 {
     if (InputDictionary.IsEmpty() == true)
     {
@@ -448,7 +462,7 @@ void FeatureDictionaryForSparseCoding<ElementType>::CombineDictionary(const Feat
 
     // update SimilarityMatrix : fill 0 to unknown Similarity
 
-    DenseMatrix<ElementType> SimilarityMatrix_self = m_DictionaryData->SimilarityMatrix;
+    DenseMatrix<ScalarType> SimilarityMatrix_self = m_DictionaryData->SimilarityMatrix;
 
     m_DictionaryData->SimilarityMatrix.FastResize(BasisNumber_combined, BasisNumber_combined);
     m_DictionaryData->SimilarityMatrix.Fill(0);
@@ -473,46 +487,61 @@ void FeatureDictionaryForSparseCoding<ElementType>::CombineDictionary(const Feat
     m_DictionaryData->VarianceOfReconstruction = { &m_DictionaryData->VarianceOfReconstruction, &InputDictionary.m_DictionaryData->VarianceOfReconstruction };
 
     // update BasisCovariance : not used yet
-
-    m_DictionaryData->BasisCovariance.Clear();
+    //m_DictionaryData->BasisCovariance.Clear();
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-const CharString& FeatureDictionaryForSparseCoding<ElementType>::GetName() const
+const std::string& FeatureDictionaryForSparseCoding<ScalarType>::GetName() const
 {
     return m_DictionaryData->Name;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-void FeatureDictionaryForSparseCoding<ElementType>::SetName(const CharString& Name)
+void FeatureDictionaryForSparseCoding<ScalarType>::SetName(const std::string& Name)
 {
     m_DictionaryData->Name = Name;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisMatrix()
+DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::BasisMatrix()
 {
     return m_DictionaryData->BasisMatrix;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisMatrix() const
+const DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::BasisMatrix() const
 {
     return m_DictionaryData->BasisMatrix;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-int_max FeatureDictionaryForSparseCoding<ElementType>::GenerateNewBasisID()
+DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::WeightMatrix()
+{
+	return m_DictionaryData->WeightMatrix;
+}
+
+
+template<typename ScalarType>
+inline
+const DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::WeightMatrix() const
+{
+	return m_DictionaryData->WeightMatrix;
+}
+
+
+template<typename ScalarType>
+inline
+int_max FeatureDictionaryForSparseCoding<ScalarType>::GenerateNewBasisID()
 {
     // overflow detection ?
 
@@ -522,255 +551,255 @@ int_max FeatureDictionaryForSparseCoding<ElementType>::GenerateNewBasisID()
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline 
-int_max FeatureDictionaryForSparseCoding<ElementType>::GetCurrentSeedForNewBasisIDGeneration() const
+int_max FeatureDictionaryForSparseCoding<ScalarType>::GetCurrentSeedForNewBasisIDGeneration() const
 {
     return m_DictionaryData->SeedForNewBasisIDGeneration.load();
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline void 
-FeatureDictionaryForSparseCoding<ElementType>::SetCurrentSeedForNewBasisIDGeneration(int_max Seed)
+FeatureDictionaryForSparseCoding<ScalarType>::SetCurrentSeedForNewBasisIDGeneration(int_max Seed)
 {
     m_DictionaryData->SeedForNewBasisIDGeneration = Seed;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseMatrix<int_max>& FeatureDictionaryForSparseCoding<ElementType>::BasisID()
+DenseMatrix<int_max>& FeatureDictionaryForSparseCoding<ScalarType>::BasisID()
 {
     return m_DictionaryData->BasisID;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-const DenseMatrix<int_max>& FeatureDictionaryForSparseCoding<ElementType>::BasisID() const
+const DenseMatrix<int_max>& FeatureDictionaryForSparseCoding<ScalarType>::BasisID() const
 {
     return m_DictionaryData->BasisID;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline 
-void FeatureDictionaryForSparseCoding<ElementType>::SetProperty_BasisPositive(bool YesNO)
+void FeatureDictionaryForSparseCoding<ScalarType>::SetProperty_BasisPositive(bool YesNO)
 {
     m_DictionaryData->BasisPositive = YesNO;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline 
-void FeatureDictionaryForSparseCoding<ElementType>::SetProperty_BasisNormalizedWithL1Norm(bool YesNO)
+void FeatureDictionaryForSparseCoding<ScalarType>::SetProperty_BasisNormalizedWithL1Norm(bool YesNO)
 {
     m_DictionaryData->SetProperty_BasisNormalizedWithL1Norm = YesNO;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-void FeatureDictionaryForSparseCoding<ElementType>::SetProperty_BasisNormalizedWithL2Norm(bool YesNO)
+void FeatureDictionaryForSparseCoding<ScalarType>::SetProperty_BasisNormalizedWithL2Norm(bool YesNO)
 {
     m_DictionaryData->SetProperty_BasisNormalizedWithL2Norm = YesNO;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-bool FeatureDictionaryForSparseCoding<ElementType>::GetProperty_BasisPositive() const
+bool FeatureDictionaryForSparseCoding<ScalarType>::GetProperty_BasisPositive() const
 {
     return m_DictionaryData->BasisPositive;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-bool FeatureDictionaryForSparseCoding<ElementType>::GetProperty_BasisNormalizedWithL1Norm() const
+bool FeatureDictionaryForSparseCoding<ScalarType>::GetProperty_BasisNormalizedWithL1Norm() const
 {
     return m_DictionaryData->BasisNormalizedWithL1Norm;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-bool FeatureDictionaryForSparseCoding<ElementType>::GetProperty_BasisNormalizedWithL2Norm() const
+bool FeatureDictionaryForSparseCoding<ScalarType>::GetProperty_BasisNormalizedWithL2Norm() const
 {
     return m_DictionaryData->BasisNormalizedWithL2Norm;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-void FeatureDictionaryForSparseCoding<ElementType>::SetCurrentDictionaryTime(int_max DictionaryTime)
+void FeatureDictionaryForSparseCoding<ScalarType>::SetCurrentDictionaryTime(int_max DictionaryTime)
 {
     m_DictionaryData->CurrentDictionaryTime = DictionaryTime;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-int_max FeatureDictionaryForSparseCoding<ElementType>::GetCurrentDictionaryTime() const
+int_max FeatureDictionaryForSparseCoding<ScalarType>::GetCurrentDictionaryTime() const
 {
     return m_DictionaryData->CurrentDictionaryTime;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisAge()
+DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::BasisAge()
 {
     return m_DictionaryData->BasisAge;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisAge() const
+const DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::BasisAge() const
 {
     return m_DictionaryData->BasisAge;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisExperience()
+DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::BasisExperience()
 {
     return m_DictionaryData->BasisExperience;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisExperience() const
+const DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::BasisExperience() const
 {
     return m_DictionaryData->BasisExperience;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-void FeatureDictionaryForSparseCoding<ElementType>::SetProperty_SimilarityType(VectorSimilarityTypeEnum SimilarityType)
+void FeatureDictionaryForSparseCoding<ScalarType>::SetProperty_SimilarityType(VectorSimilarityTypeEnum SimilarityType)
 {
     m_DictionaryData->SimilarityType = SimilarityType;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-VectorSimilarityTypeEnum FeatureDictionaryForSparseCoding<ElementType>::GetProperty_SimilarityType() const
+VectorSimilarityTypeEnum FeatureDictionaryForSparseCoding<ScalarType>::GetProperty_SimilarityType() const
 {
     return m_DictionaryData->SimilarityType;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::SimilarityMatrix()
+DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::SimilarityMatrix()
 {
     return m_DictionaryData->SimilarityMatrix;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::SimilarityMatrix() const
+const DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::SimilarityMatrix() const
 {
     return m_DictionaryData->SimilarityMatrix;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-void FeatureDictionaryForSparseCoding<ElementType>::SetProperty_SimilarityThresholdForComputeBasisRedundancy(ElementType SimilarityThreshold)
+void FeatureDictionaryForSparseCoding<ScalarType>::SetProperty_SimilarityThresholdForComputeBasisRedundancy(ScalarType SimilarityThreshold)
 {
     m_DictionaryData->SimilarityThreshold_For_ComputeBasisRedundancy = SimilarityThreshold;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType FeatureDictionaryForSparseCoding<ElementType>::GetProperty_SimilarityThresholdForComputeBasisRedundancy() const
+ScalarType FeatureDictionaryForSparseCoding<ScalarType>::GetProperty_SimilarityThresholdForComputeBasisRedundancy() const
 {
     return m_DictionaryData->SimilarityThreshold_For_ComputeBasisRedundancy;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisRedundancy()
+DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::BasisRedundancy()
 {
     return m_DictionaryData->BasisRedundancy;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::BasisRedundancy() const
+const DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::BasisRedundancy() const
 {
     return m_DictionaryData->BasisRedundancy;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfL1Distance()
+DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::VarianceOfL1Distance()
 {
     return m_DictionaryData->VarianceOfL1Distance;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfL1Distance() const
+const DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::VarianceOfL1Distance() const
 {
     return m_DictionaryData->VarianceOfL1Distance;
 }
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfL2Distance()
+DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::VarianceOfL2Distance()
 {
     return m_DictionaryData->VarianceOfL2Distance;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfL2Distance() const
+const DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::VarianceOfL2Distance() const
 {
     return m_DictionaryData->VarianceOfL2Distance;
 }
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfKLDivergence()
+DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::VarianceOfKLDivergence()
 {
     return m_DictionaryData->VarianceOfKLDivergence;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfKLDivergence() const
+const DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::VarianceOfKLDivergence() const
 {
     return m_DictionaryData->VarianceOfKLDivergence;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfReconstruction()
+DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::VarianceOfReconstruction()
 {
     return m_DictionaryData->VarianceOfReconstruction;
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-const DenseMatrix<ElementType>& FeatureDictionaryForSparseCoding<ElementType>::VarianceOfReconstruction() const
+const DenseMatrix<ScalarType>& FeatureDictionaryForSparseCoding<ScalarType>::VarianceOfReconstruction() const
 {
     return m_DictionaryData->VarianceOfReconstruction;
 }

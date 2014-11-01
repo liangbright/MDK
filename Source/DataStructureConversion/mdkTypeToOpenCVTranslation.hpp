@@ -1,8 +1,6 @@
 #ifndef __mdkTypeTranslation_hpp
 #define __mdkTypeTranslation_hpp
 
-#include "mdkTypeToOpenCVTranslation.hpp"
-
 namespace mdk
 {
 
@@ -10,11 +8,11 @@ OpenCVSingleChannelMatrixElementTypeEnum GetOpenCVSingleChannelMatrixElementType
 {
     switch (mdkScalarType)
     {
-    case ScalarTypeEnum::DOUBLE64 :
-        return OpenCVSingleChannelMatrixElementTypeEnum::DOUBLE64;
+    case ScalarTypeEnum::DOUBLE :
+        return OpenCVSingleChannelMatrixElementTypeEnum::DOUBLE;
 
-    case ScalarTypeEnum::FLOAT32 :
-        return OpenCVSingleChannelMatrixElementTypeEnum::FLOAT32;
+    case ScalarTypeEnum::FLOAT :
+        return OpenCVSingleChannelMatrixElementTypeEnum::FLOAT;
 
     case ScalarTypeEnum::INT8:
         return OpenCVSingleChannelMatrixElementTypeEnum::INT8;

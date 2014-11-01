@@ -9,8 +9,7 @@ template<typename ElementType>
 inline
 DenseMatrix<ElementType> CreateDenseMatrixFromSparseMatrix(const SparseMatrix<ElementType>& InputSparseMatrix)
 {
-    mdkDenseMatrix<ElementType> OutputDenseMatrix;
-
+    DenseMatrix<ElementType> OutputDenseMatrix;
     ConvertSparseMatrixToDenseMatrix(InputSparseMatrix, OutputDenseMatrix);
 }
 
@@ -26,17 +25,17 @@ bool ConvertSparseMatrixToDenseMatrix(const SparseMatrix<ElementType>& InputSpar
         return false;
     }
 
-    const std::vector<int_max>& ColIndexList = InputSparseMatrix.GetColIndexList();
+    const auto& ColIndexList = InputSparseMatrix.GetColIndexList();
 
-    const std::vector<int_max>& RowIndexList = InputSparseMatrix.GetRowIndexList();
+	const auto& RowIndexList = InputSparseMatrix.GetRowIndexList();
 
-    const std::vector<ElementType>& DataArray = InputSparseMatrix.GetDataArray();
+	const auto& ElmentList = InputSparseMatrix.GetElmentList();
 
     OutputDenseMatrix.Fill(ElementType(0));
 
-    for (int_max k = 0; k < int_max(DataArray.size()); ++k)
+	for (int_max k = 0; k < int_max(ElmentList.size()); ++k)
     {
-        OutputDenseMatrix(RowIndexList[k], ColIndexList[k]) = DataArray[k];
+		OutputDenseMatrix(RowIndexList[k], ColIndexList[k]) = ElmentList[k];
     }
 
     return true;
@@ -47,22 +46,20 @@ template<typename ElementType>
 inline
 SparseMatrix<ElementType> CreateSparseMatrixFromDenseMatrix(const DenseMatrix<ElementType>& InputDenseMatrix, ElementType absThreashold)
 {
-    mdkSparseMatrix<ElementType> OutputSparseMatrix;
-
-    return ConvertDenseMatrixToSparseMatrix(InputDenseMatrix, ElementType absThreashold, OutputSparseMatrix);
+    SparseMatrix<ElementType> OutputSparseMatrix;
+    return ConvertDenseMatrixToSparseMatrix(InputDenseMatrix, absThreashold, OutputSparseMatrix);
 }
 
 
 template<typename ElementType>
 inline
-bool ConvertDenseMatrixToSparseMatrix(const DenseMatrix<ElementType>& InputDenseMatrix, ElementType absThreashold,
-                                      SparseMatrix<ElementType>& OutputSparseMatrix )
+bool ConvertDenseMatrixToSparseMatrix(const DenseMatrix<ElementType>& InputDenseMatrix, ElementType absThreashold, SparseMatrix<ElementType>& OutputSparseMatrix)
 {
     auto Size = InputDenseMatrix.GetSize();
 
     std::vector<int_max> ColIndexList;
     std::vector<int_max> RowIndexList;
-    std::vector<ElementType> DataArray;
+    std::vector<ElementType> ElementList;
 
     for (int_max j = 0; j < Size.ColNumber; ++j)
     {
@@ -74,106 +71,12 @@ bool ConvertDenseMatrixToSparseMatrix(const DenseMatrix<ElementType>& InputDense
             {
                 ColIndexList.push_back(j);
                 RowIndexList.push_back(i);
-                DataArray.push_back(InputDenseMatrix[LinearIndex]);
+                ElementList.push_back(InputDenseMatrix[LinearIndex]);
             }
         }
     }
 
-    OutputSparseMatrix.ConstructFromSortedData(std::move(RowIndexList), std::move(ColIndexList), std::move(DataArray), Size.RowNumber, Size.ColNumber);
-
-    return true;
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType> CreateDenseMatrixAsRowVectorFromSparseVector(const SparseMatrix<ElementType>& InputSparseVector)
-{
-    DenseMatrix<ElementType> OutputDenseVector;
-
-    ConvertSparseVectorToDenseMatrixAsRowVector(OutputDenseVector);
-
-    return OutputDenseVector;
-}
-
-
-template<typename ElementType>
-inline
-bool ConvertSparseVectorToDenseMatrixAsRowVector(const SparseVector<ElementType>& InputSparseVector, DenseMatrix<ElementType>& OutputDenseVector)
-{
-    auto Length = InputSparseVector.GetLength();
-
-    const std::vector<int_max>& IndexList = InputSparseVector.IndexList();
-
-    const std::vector<ElementType>& DataArray = InputSparseVector.DataArray();
-
-    if (OutputDenseVector.FastResize(1, Length) == false)
-    {
-        return false;
-    }
-
-    auto RecordedElementNumber = int_max(IndexList.size());
-
-    for (int_max i = 0; i < RecordedElementNumber; ++i)
-    {
-        OutputDenseVector[IndexList[i]] = DataArray[i];
-    }
-
-    for (int_max i = 0; i < IndexList[0]; ++i)
-    {
-        OutputDenseVector[i] = ElementType(0);
-    }
-
-    for (int_max i = IndexList[RecordedElementNumber - 1] + 1; i < Length; ++i)
-    {
-        OutputDenseVector[i] = ElementType(0);
-    }
-
-    return true;
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType> CreateDenseMatrixAsColVectorFromSparseVector(const SparseMatrix<ElementType>& InputSparseVector)
-{
-    DenseMatrix<ElementType> OutputDenseVector;
-
-    ConvertSparseVectorToDenseMatrixAsColVector(OutputDenseVector);
-}
-
-
-template<typename ElementType>
-inline
-bool ConvertSparseVectorToDenseMatrixAsColVector(const SparseVector<ElementType>& InputSparseVector, DenseMatrix<ElementType>& OutputDenseVector)
-{
-    auto Length = InputSparseVector.GetLength();
-
-    const std::vector<int_max>& IndexList = InputSparseVector.IndexList();
-
-    const std::vector<ElementType>& DataArray = InputSparseVector.DataArray();
-
-    if (OutputDenseVector.FastResize(Length, 1) == false)
-    {
-        return false;
-    }
-
-    auto RecordedElementNumber = int_max(IndexList.size());
-
-    for (int_max i = 0; i < RecordedElementNumber; ++i)
-    {
-        OutputDenseVector[IndexList[i]] = DataArray[i];
-    }
-
-    for (int_max i = 0; i < IndexList[0]; ++i)
-    {
-        OutputDenseVector[i] = ElementType(0);
-    }
-
-    for (int_max i = IndexList[RecordedElementNumber - 1] + 1; i < Length; ++i)
-    {
-        OutputDenseVector[i] = ElementType(0);
-    }
+    OutputSparseMatrix.ConstructFromSortedData(std::move(RowIndexList), std::move(ColIndexList), std::move(ElementList), Size.RowNumber, Size.ColNumber);
 
     return true;
 }

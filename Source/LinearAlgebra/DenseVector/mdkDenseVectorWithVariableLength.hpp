@@ -245,12 +245,12 @@ void DenseVector<ElementType>::Clear()
 
 template<typename ElementType>
 inline
-void DenseVector<ElementType>::Resize(int_max Length)
+bool DenseVector<ElementType>::Resize(int_max Length)
 {
     if (Length < 0)
     {
         MDK_Error("Invalid input @ DenseVector::Resize(...)")
-        return;
+        return false;
     }
 
 try
@@ -260,26 +260,27 @@ try
 catch (...)
 {
     MDK_Error("Out of Memory @ DenseVector::Resize(...)")
+	return false;
 }
-   
+   return true;
 }
 
 
 template<typename ElementType>
 inline
-void DenseVector<ElementType>::FastResize(int_max Length)
+bool DenseVector<ElementType>::FastResize(int_max Length)
 {
     if (Length < 0)
     {
         MDK_Error("Invalid input @ DenseVector::FastResize(...)")
-        return;
+        return false;
     }
 
 try
 {
     if (Length > int_max(m_StdVector.capacity()))
     {
-        m_StdVector.clear();
+        m_StdVector.clear(); // no need to copy the old data
     }
 
     m_StdVector.resize(Length);
@@ -287,19 +288,20 @@ try
 catch (...)
 {
     MDK_Error("Out of Memory @ DenseVector::FastResize(...)")
+	return false;
 }
-
+	return true;
 }
 
 
 template<typename ElementType>
 inline 
-void DenseVector<ElementType>::ReserveCapacity(int_max Length)
+bool DenseVector<ElementType>::ReserveCapacity(int_max Length)
 {
     if (Length < 0)
     {
         MDK_Error("Invalid input @ DenseVector::ReserveCapacity(...)")
-        return;
+        return false;
     }
 
 try
@@ -309,7 +311,9 @@ try
 catch (...)
 {
     MDK_Error("Out of Memory @ DenseVector::ReserveCapacity(...)")
+	return false;
 }
+	return true;
 }
 
 

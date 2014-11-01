@@ -16,10 +16,14 @@
 
 namespace mdk
 {
-
 // This is a memory efficient implementation of Sparse Vector
 // It is used in sparse coding
 // It can be used as Pixel in Image: some pixel can be pure empty to save memory
+
+//forward declare --------------------------
+template<typename ElementType>
+class DenseMatrix;
+//----------------------------------------
 
 template<typename ElementType>
 struct SparseVectorData
@@ -133,6 +137,10 @@ public:
     inline const std::vector<ElementType>& ElementList() const;
 
     //------------------------------------------
+	DenseMatrix<ElementType> CreateDenseMatrixAsColVector();
+	DenseMatrix<ElementType> CreateDenseMatrixAsRowVector();
+	DenseVector<ElementType> CreateDenseVector();
+	//------------------------------------------
 
     inline ElementType Sum() const;
 

@@ -8,7 +8,7 @@
 namespace mdk
 {
 
-template<typename ElementType>
+template<typename ScalarType>
 struct Parameter_Of_KNNSimilaritySparseEncoder
 {
     int_max NeighbourNumber;
@@ -30,25 +30,22 @@ struct Parameter_Of_KNNSimilaritySparseEncoder
     void Clear()
     {
         NeighbourNumber = 0;
-
         SimilarityType = VectorSimilarityTypeEnum::Unknown;
     }
 };
 
 
-template<typename Element_Type>
-class KNNSimilaritySparseEncoder : public FeatureDictionaryBasedSparseEncoder<Element_Type>
+template<typename Scalar_Type>
+class KNNSimilaritySparseEncoder : public FeatureDictionaryBasedSparseEncoder<Scalar_Type>
 {
 public:
-	typedef Element_Type ElementType;
+	typedef Scalar_Type ScalarType;
 
 public:
-    Parameter_Of_KNNSimilaritySparseEncoder<ElementType> m_Parameter;
+    Parameter_Of_KNNSimilaritySparseEncoder<ScalarType> m_Parameter;
 
 public:
-
     KNNSimilaritySparseEncoder();
-
     ~KNNSimilaritySparseEncoder();
 
     //-----------------------------------------
@@ -57,8 +54,7 @@ public:
 
     bool CheckInput();
 
-    inline void EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector,
-                                       const DenseMatrix<ElementType>& DataColVector);
+	inline SparseVector<ScalarType> EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector);
 
     //--------------------------------------------------------------------------------------------------
 
@@ -66,26 +62,25 @@ public:
 
     //--------------------------------------------------------------------------------------------------
        
-    static DenseMatrix<ElementType> ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
-                                                   const DenseMatrix<ElementType>& KNNBasisMatrix,
-                                                   const VectorSimilarityTypeEnum  SimilarityType,
-                                                   const DenseMatrix<ElementType>& VarianceList);
+    static DenseMatrix<ScalarType> ComputeKNNCode(const DenseMatrix<ScalarType>& DataColVector,
+                                                  const DenseMatrix<ScalarType>& KNNBasisMatrix,
+                                                  const VectorSimilarityTypeEnum  SimilarityType,
+                                                  const DenseMatrix<ScalarType>& VarianceList);
 
     //--------------------------------------------------------------------------------------------------
 
-    static ElementType ComputeSimilarityBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, 
-                                                          const DenseMatrix<ElementType>& VectorB,
-                                                          VectorSimilarityTypeEnum SimilarityType,
-                                                          ElementType Variance);
+    static ScalarType ComputeSimilarityBetweenTwoVector(const DenseMatrix<ScalarType>& VectorA, 
+                                                        const DenseMatrix<ScalarType>& VectorB,
+                                                        VectorSimilarityTypeEnum SimilarityType,
+                                                        ScalarType Variance);
 
-    static ElementType ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, 
-                                                          VectorSimilarityTypeEnum SimilarityType, ElementType Variance, bool CheckInput = true);
+    static ScalarType ComputeSimilarityBetweenTwoVector(const ScalarType* VectorA, const ScalarType* VectorB, int_max Length, 
+                                                        VectorSimilarityTypeEnum SimilarityType, ScalarType Variance, bool Flag_CheckInput = true);
 
     //----------------------------------------------------------------------------------------------------
 
 protected:
-    inline void EncodingFunction(int_max DataIndex, int_max ThreadIndex);
-
+	inline SparseVector<ScalarType> EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex);
 
 private:
 //deleted:

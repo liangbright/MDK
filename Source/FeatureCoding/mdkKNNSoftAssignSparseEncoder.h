@@ -9,7 +9,7 @@
 namespace mdk
 {
 
-template<typename ElementType>
+template<typename ScalarType>
 struct Parameter_Of_KNNSoftAssignSparseEncoder
 {
     int_max NeighbourNumber;
@@ -24,7 +24,7 @@ struct Parameter_Of_KNNSoftAssignSparseEncoder
     // If a Feature vector is normalized histogram or probability mass function (PMF), i.e., discrete probability distribution
     // KLDivergence
 
-    ElementType SimilarityThreshold; // set Similarity to 0 if it is < SimilarityThreshold
+    ScalarType SimilarityThreshold; // set Similarity to 0 if it is < SimilarityThreshold
 
 //-------------------------------------------------------------------------------
     Parameter_Of_KNNSoftAssignSparseEncoder() { this->Clear(); }
@@ -33,30 +33,26 @@ struct Parameter_Of_KNNSoftAssignSparseEncoder
     void Clear()
     {
         NeighbourNumber = 0;
-
         SimilarityType = VectorSimilarityTypeEnum::Unknown;
-
         SimilarityThreshold = 0;
     }
 };
 
 
-template<typename Element_Type>
-class KNNSoftAssignSparseEncoder : public FeatureDictionaryBasedSparseEncoder<Element_Type>
+template<typename Scalar_Type>
+class KNNSoftAssignSparseEncoder : public FeatureDictionaryBasedSparseEncoder<Scalar_Type>
 {
 public:
-	typedef Element_Type ElementType;
+	typedef Scalar_Type ScalarType;
 
 public:
-    Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> m_Parameter;
+    Parameter_Of_KNNSoftAssignSparseEncoder<ScalarType> m_Parameter;
 
 private:
-    KNNSimilaritySparseEncoder<ElementType> m_KNNSimilaritySparseEncoder;
+    KNNSimilaritySparseEncoder<ScalarType> m_KNNSimilaritySparseEncoder;
 
 public:
-
     KNNSoftAssignSparseEncoder();
-
     ~KNNSoftAssignSparseEncoder();
 
     //-----------------------------------------
@@ -65,8 +61,7 @@ public:
 
     bool CheckInput();
 
-    inline void EncodeSingleDataVector(SparseVector<ElementType>& CodeInSparseColVector,
-                                       const DenseMatrix<ElementType>& DataColVector);
+	inline SparseVector<ScalarType> EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector);
 
     //--------------------------------------------------------------------------------------------------
 
@@ -74,27 +69,26 @@ public:
 
     //--------------------------------------------------------------------------------------------------
 
-    static DenseMatrix<ElementType> ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
-                                                   const DenseMatrix<ElementType>& KNNBasisMatrix,
-                                                   const VectorSimilarityTypeEnum  SimilarityType,
-                                                   const ElementType SimilarityThreshold,
-                                                   const DenseMatrix<ElementType>& VarianceList);
+    static DenseMatrix<ScalarType> ComputeKNNCode(const DenseMatrix<ScalarType>& DataColVector,
+                                                  const DenseMatrix<ScalarType>& KNNBasisMatrix,
+                                                  const VectorSimilarityTypeEnum  SimilarityType,
+                                                  const ScalarType SimilarityThreshold,
+                                                  const DenseMatrix<ScalarType>& VarianceList);
 
     //--------------------------------------------------------------------------------------------------
         
-    static ElementType ComputeSimilarityBetweenTwoVectors(const DenseMatrix<ElementType>& VectorA, 
-                                                          const DenseMatrix<ElementType>& VectorB,
-                                                          VectorSimilarityTypeEnum SimilarityType, 
-                                                          ElementType Variance);
+    static ScalarType ComputeSimilarityBetweenTwoVector(const DenseMatrix<ScalarType>& VectorA, 
+                                                        const DenseMatrix<ScalarType>& VectorB,
+                                                        VectorSimilarityTypeEnum SimilarityType, 
+                                                        ScalarType Variance);
 
-    static ElementType ComputeSimilarityBetweenTwoVectors(const ElementType* VectorA, const ElementType* VectorB, int_max Length, 
-                                                          VectorSimilarityTypeEnum SimilarityType, ElementType Variance, bool CheckInput = true);
+    static ScalarType ComputeSimilarityBetweenTwoVector(const ScalarType* VectorA, const ScalarType* VectorB, int_max Length, 
+                                                        VectorSimilarityTypeEnum SimilarityType, ScalarType Variance, bool Flag_CheckInput = true);
 
     //----------------------------------------------------------------------------------------------------
 
 protected:
-
-    inline void EncodingFunction(int_max DataIndex, int_max ThreadIndex);
+	inline SparseVector<ScalarType> EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex);
 
 private:
 //deleted:

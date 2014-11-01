@@ -152,7 +152,7 @@ struct Solution_Of_QuadraticProgramming
 
 private:
 
-	void Copy(Solution_Of_QuadraticProgramming& InputSolution)
+	void Copy(const Solution_Of_QuadraticProgramming& InputSolution)
 	{
 		X = InputSolution.X;
 		ObjectiveFunctionValue = InputSolution.ObjectiveFunctionValue;

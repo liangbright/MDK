@@ -94,6 +94,18 @@ inline DenseMatrix<ElementType>::DenseMatrix(const std::initializer_list<std::in
 
 template<typename ElementType>
 inline
+DenseMatrix<ElementType>::DenseMatrix(std::vector<ElementType> InputColVector)
+{
+	this->Resize(0, 0);
+	if (InputColVector.size() > 0)
+	{
+		this->Take(InputColVector);
+	}
+}
+
+
+template<typename ElementType>
+inline
 DenseMatrix<ElementType>::DenseMatrix(DataArray<ElementType> InputColVector)
 {
 	this->Resize(0, 0);
@@ -611,6 +623,14 @@ void DenseMatrix<ElementType>::operator=(const DenseVector<ElementType, VectorFi
 			this->SetCol(0, InputColVector.GetElementPointer());
 		}
 	}
+}
+
+
+template<typename ElementType>
+inline
+void DenseMatrix<ElementType>::operator=(std::vector<ElementType> InputColVector)
+{
+	this->Take(InputColVector);
 }
 
 
@@ -1300,6 +1320,7 @@ void DenseMatrix<ElementType>::Clear()
         return;
     }
 
+	m_MatrixData->IsSizeFixed = false;
     m_MatrixData->RowNumber = 0;
     m_MatrixData->ColNumber = 0;
 
@@ -1307,9 +1328,6 @@ void DenseMatrix<ElementType>::Clear()
     m_MatrixData->StdVector.shrink_to_fit(); // release memory
 
     m_MatrixData->ElementPointer = nullptr;
-
-    m_MatrixData->IsSizeFixed = false;
-
     m_ElementPointer = nullptr;
 }
 

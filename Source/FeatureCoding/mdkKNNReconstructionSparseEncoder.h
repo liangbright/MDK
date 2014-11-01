@@ -23,12 +23,11 @@ namespace mdk
 struct Constraint_on_Code_Of_KNNReconstruction_For_FeatureCoding
 {
     bool CodeNonnegative;
-
     bool CodeSumToOne;
 };
 
 
-template<typename ElementType>
+template<typename ScalarType>
 struct Parameter_Of_KNNReconstructionSparseEncoder
 {
     int_max NeighbourNumber;
@@ -42,7 +41,6 @@ struct Parameter_Of_KNNReconstructionSparseEncoder
     // L1Distance/L2Distance/Correlation/KLDivergence is directly used to find KNN, i.e., not converted to similarity
 
     bool CodeNonnegative;
-
     bool CodeSumToOne;
 
 //------------------------------
@@ -75,24 +73,21 @@ private:
 };
 
 
-template<typename Element_Type>
-class KNNReconstructionSparseEncoder : public FeatureDictionaryBasedSparseEncoder<Element_Type>
+template<typename Scalar_Type>
+class KNNReconstructionSparseEncoder : public FeatureDictionaryBasedSparseEncoder<Scalar_Type>
 {
 public:
-	typedef Element_Type ElementType;
+	typedef Scalar_Type ScalarType;
 
 public:
-    Parameter_Of_KNNReconstructionSparseEncoder<ElementType> m_Parameter;
+    Parameter_Of_KNNReconstructionSparseEncoder<ScalarType> m_Parameter;
 
 protected:
-
     // D'*D
-    DenseMatrix<ElementType> m_GramianMatrix_DtD; 
+    DenseMatrix<ScalarType> m_GramianMatrix_DtD; 
 
 public:
-
     KNNReconstructionSparseEncoder();
-
     ~KNNReconstructionSparseEncoder();
 
     //--------------------------------------------------------------------------------
@@ -103,7 +98,7 @@ public:
 
     bool UpdateWithPreviousKNNSearchResult();
 
-    void GetReconstructedData(DenseMatrix<ElementType>& ReconstructedDataSet);
+    void GetReconstructedData(DenseMatrix<ScalarType>& ReconstructedDataSet);
 
     //---------------------------------------------------------------------------------------------------
 
@@ -111,96 +106,83 @@ public:
 
     //---------------------------------------------------------------------------------------------------
 
-    static DenseMatrix<ElementType> ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
-                                                   const DenseMatrix<ElementType>& KNNBasisMatrix,
+    static DenseMatrix<ScalarType> ComputeKNNCode(const DenseMatrix<ScalarType>& DataColVector,
+                                                   const DenseMatrix<ScalarType>& KNNBasisMatrix,
                                                    const DenseMatrix<int_max>&     KNNBasisIndexList,
-                                                   const DenseMatrix<ElementType>& GramianMatrix_DtD,
+                                                   const DenseMatrix<ScalarType>& GramianMatrix_DtD,
                                                    bool CodeNonnegative,
                                                    bool CodeSumToOne);
 
-    static DenseMatrix<ElementType> ComputeKNNCode(const DenseMatrix<ElementType>& DataColVector,
-                                                   const DenseMatrix<ElementType>& KNNBasisMatrix,
+    static DenseMatrix<ScalarType> ComputeKNNCode(const DenseMatrix<ScalarType>& DataColVector,
+                                                   const DenseMatrix<ScalarType>& KNNBasisMatrix,
                                                    bool CodeNonnegative,
                                                    bool CodeSumToOne);
 
     //----------------------------------------------------------------------------------------------------
 
-    static void UpdateReconstructionCode(DataArray<SparseVector<ElementType>>& ReconstructionCodeSet, 
-                                         const DenseMatrix<ElementType>&  FeatureData,                                                                                
-                                         const DenseMatrix<ElementType>&  BasisMatrix,
-                                         bool CodeNonnegative,
-                                         bool CodeSumToOne,
-                                         int_max MaxNumberOfThreads = 1);
+	static void UpdateReconstructionCodeWithKNNSearchResult(DataArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
+                                                            const DenseMatrix<ScalarType>&  FeatureData,                                                                                
+														    const DenseMatrix<ScalarType>&  BasisMatrix,
+														    bool CodeNonnegative,
+															bool CodeSumToOne,
+															int_max MaxNumberOfThread = 1);
 
-    static DataArray<SparseVector<ElementType>> 
-        ComputeReconstructionCodeFromSimilarityCode(const DenseMatrix<ElementType>&  FeatureData, 
-                                                    const DataArray<SparseVector<ElementType>>& SimilarityCodeSet,
-                                                    const DenseMatrix<ElementType>&  BasisMatrix,
+    static DataArray<SparseVector<ScalarType>> 
+        ComputeReconstructionCodeFromSimilarityCode(const DenseMatrix<ScalarType>&  FeatureData, 
+                                                    const DataArray<SparseVector<ScalarType>>& SimilarityCodeSet,
+                                                    const DenseMatrix<ScalarType>&  BasisMatrix,
                                                     bool CodeNonnegative,
                                                     bool CodeSumToOne,
-                                                    int_max MaxNumberOfThreads = 1);
+                                                    int_max MaxNumberOfThread = 1);
 
-    static DataArray<SparseVector<ElementType>> 
-        ComputeReconstructionCodeFromSoftAssignCode(const DenseMatrix<ElementType>&  FeatureData, 
-                                                    const DataArray<SparseVector<ElementType>>& SoftAssignCodeSet,
-                                                    const DenseMatrix<ElementType>&  BasisMatrix,
+    static DataArray<SparseVector<ScalarType>> 
+        ComputeReconstructionCodeFromSoftAssignCode(const DenseMatrix<ScalarType>&  FeatureData, 
+                                                    const DataArray<SparseVector<ScalarType>>& SoftAssignCodeSet,
+                                                    const DenseMatrix<ScalarType>&  BasisMatrix,
                                                     bool CodeNonnegative,
                                                     bool CodeSumToOne,
-                                                    int_max MaxNumberOfThreads = 1);
+                                                    int_max MaxNumberOfThread = 1);
 
     //----------------------------------------------------------------------------------------------------
 
-    static DenseMatrix<ElementType> ReconstructData(const SparseVector<ElementType>& ReconstructionCode,
-                                                    const DenseMatrix<ElementType>&  BasisMatrix);
+    static DenseMatrix<ScalarType> ReconstructData(const SparseVector<ScalarType>& ReconstructionCode,
+                                                    const DenseMatrix<ScalarType>&  BasisMatrix);
 
-    static void ReconstructData(DenseMatrix<ElementType>& ReconstructedDataVector,
-                                const SparseVector<ElementType>& ReconstructionCode,
-                                const DenseMatrix<ElementType>&  BasisMatrix);
+    static void ReconstructData(DenseMatrix<ScalarType>& ReconstructedDataVector,
+                                const SparseVector<ScalarType>& ReconstructionCode,
+                                const DenseMatrix<ScalarType>&  BasisMatrix);
 
 
-    static DenseMatrix<ElementType> ReconstructData(const DataArray<SparseVector<ElementType>>& ReconstructionCodeSet,
-                                                    const DenseMatrix<ElementType>&  BasisMatrix,
-                                                    int_max MaxNumberOfThreads = 1);
+    static DenseMatrix<ScalarType> ReconstructData(const DataArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
+                                                    const DenseMatrix<ScalarType>&  BasisMatrix,
+                                                    int_max MaxNumberOfThread = 1);
 
-    static void ReconstructData(DenseMatrix<ElementType>& ReconstructedDataSet,
-                                const DataArray<SparseVector<ElementType>>& ReconstructionCodeSet,
-                                const DenseMatrix<ElementType>&  BasisMatrix,
-                                int_max MaxNumberOfThreads = 1);
+    static void ReconstructData(DenseMatrix<ScalarType>& ReconstructedDataSet,
+                                const DataArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
+                                const DenseMatrix<ScalarType>&  BasisMatrix,
+								int_max MaxNumberOfThread = 1);
 
-    static ElementType ComputeReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  DataColVector, 
-                                                        const SparseVector<ElementType>& ReconstructionCodeSet,
-                                                        const DenseMatrix<ElementType>&  BasisMatrix);
+    static ScalarType ComputeReconstructionErrorL2Norm(const DenseMatrix<ScalarType>&  DataColVector, 
+                                                        const SparseVector<ScalarType>& ReconstructionCode,
+                                                        const DenseMatrix<ScalarType>&  BasisMatrix);
 
-    static DenseMatrix<ElementType> ComputeReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  FeatureData,
-                                                                     const DataArray<SparseVector<ElementType>>& ReconstructionCodeSet,
-                                                                     const DenseMatrix<ElementType>&  BasisMatrix,
-                                                                     int_max MaxNumberOfThreads = 1);
+    static DenseMatrix<ScalarType> ComputeReconstructionErrorL2Norm(const DenseMatrix<ScalarType>&  FeatureData,
+                                                                     const DataArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
+                                                                     const DenseMatrix<ScalarType>&  BasisMatrix,
+																	 int_max MaxNumberOfThread = 1);
 
-    static void ComputeReconstructionErrorL2Norm(DenseMatrix<ElementType>& ErrorL2NormList,
-                                                 const DenseMatrix<ElementType>&  FeatureData,
-                                                 const DataArray<SparseVector<ElementType>>& ReconstructionCodeSet,
-                                                 const DenseMatrix<ElementType>&  BasisMatrix,
-                                                 int_max MaxNumberOfThreads = 1);
+    static void ComputeReconstructionErrorL2Norm(DenseMatrix<ScalarType>& ErrorL2NormList,
+                                                 const DenseMatrix<ScalarType>&  FeatureData,
+                                                 const DataArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
+                                                 const DenseMatrix<ScalarType>&  BasisMatrix,
+												 int_max MaxNumberOfThread = 1);
 
     //----------------------------------------------------------------------------------------------------
 
-    static void Apply(DenseMatrix<ElementType>& OutputCodeInDenseMatrix,
-                      const DenseMatrix<ElementType>* FeatureData,
-                      const FeatureDictionary<ElementType>* Dictionary,
-                      const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,
-                      int_max MaxNumberOfThreads = 1);
-
-    static void Apply(SparseMatrix<ElementType>& OutputCodeInSparseMatrix,
-                      const DenseMatrix<ElementType>* FeatureData,
-                      const FeatureDictionary<ElementType>* Dictionary,
-                      const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,
-                      int_max MaxNumberOfThreads = 1);
-
-    static void Apply(DenseMatrix<SparseMatrix<ElementType>>& OutputCodeInSparseColVectorSet,
-                      const DenseMatrix<ElementType>* FeatureData,
-                      const FeatureDictionary<ElementType>* Dictionary,
-                      const Parameter_Of_KNNReconstructionSparseEncoder<ElementType>& Parameter,
-                      int_max MaxNumberOfThreads = 1);
+	static DataArray<SparseVector<ScalarType>> Apply(const DenseMatrix<ScalarType>* FeatureData,
+													  const FeatureDictionary<ScalarType>* Dictionary,
+													  const Parameter_Of_KNNReconstructionSparseEncoder<ScalarType>& Parameter,
+													  int_max MaxNumberOfThread = 1);
 
 protected:
     bool Preprocess();
@@ -209,8 +191,7 @@ protected:
 
     bool ComputeGramianMatrix_DtD();
 
-    inline void EncodingFunction(int_max DataIndex, int_max ThreadIndex);
-
+	inline SparseVector<ScalarType> EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& FeatureVector, int_max ThreadIndex);
 
 private:
 //deleted:

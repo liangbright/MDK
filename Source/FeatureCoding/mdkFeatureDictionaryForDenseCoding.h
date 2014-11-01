@@ -1,32 +1,37 @@
 #ifndef __mdkFeatureDictionaryForDenseCoding_h
 #define __mdkFeatureDictionaryForDenseCoding_h
 
-
 #include "mdkFeatureDictionary.h"
-
 
 namespace mdk
 {
 
-template<typename Element_Type>
-class FeatureDictionaryForDenseCoding : public FeatureDictionary<Element_Type>
+template<typename ElementType>
+struct DictionaryData_Of_FeatureDictionaryForDenseCoding
+{
+	std::string Name;
+
+	DenseMatrix<ScalarType> BasisMatrix; // D
+
+	DenseMatrix<ScalarType> MeanVector; //col vector, sample mean in PCA
+
+	DenseMatrix<ScalarType> BasisCovariance;
+	// relation between bases
+
+	DenseMatrix<ScalarType> Variance;
+	// Variance(j) = sum_i(Prob(i,j)*(FeatureData_i - D(:,j))^2)
+	
+};
+
+template<typename Scalar_Type>
+class FeatureDictionaryForDenseCoding : public FeatureDictionary<Scalar_Type>
 {
 public:
-	typedef Element_Type ElementType;
+	typedef Scalar_Type ScalarType;
 
-public:
-    CharString m_Name;
-
-    DenseMatrix<ElementType> m_BasisMatrix; // D
-
-    DenseMatrix<ElementType> m_MeanVector; // sample mean in PCA
-
-    DenseMatrix<ElementType> m_Covariance;
-    // relation between bases
-
-    DenseMatrix<ElementType> m_StandardDeviation;
-    // StandardDeviation(j) = sqrt(sum_i(Prob(i,j)*(FeatureData_i - D(:,j))^2))
-
+private:
+	std::shared_ptr<DictionaryData_Of_FeatureDictionaryForDenseCoding<ScalarType>> m_DictionaryData;
+   
 public:
 
     FeatureDictionaryForDenseCoding();
@@ -67,9 +72,9 @@ public:
 
     const std::string& Name() const;
 
-    DenseMatrix<ElementType>& BasisMatrix();
+    DenseMatrix<ScalarType>& BasisMatrix();
 
-    const DenseMatrix<ElementType>& BasisMatrix() const;
+    const DenseMatrix<ScalarType>& BasisMatrix() const;
 
 };
 

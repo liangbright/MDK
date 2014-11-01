@@ -8,7 +8,7 @@
 
 namespace mdk
 {
-template<typename ElementType>
+template<typename ScalarType>
 struct Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder
 {
     int_max NeighbourNumber;
@@ -21,7 +21,7 @@ struct Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder
 
     // parameter for SoftAssign ----------------------------
 
-    ElementType SimilarityThreshold; // find KNN with Similarity >= SimilarityThreshold
+    ScalarType SimilarityThreshold; // find KNN with Similarity >= SimilarityThreshold
                                      // K in KNN can be < NeighbourNumber
 
     // parameter for Reconstruction ----------------------------
@@ -50,24 +50,22 @@ private:
 };
 
 
-template<typename Element_Type>
-class KNNSoftAssignAndReconstructionSparseEncoder : public FeatureDictionaryBasedSparseEncoder<Element_Type>
+template<typename Scalar_Type>
+class KNNSoftAssignAndReconstructionSparseEncoder : public FeatureDictionaryBasedSparseEncoder<Scalar_Type>
 {
 public:
-	typedef Element_Type ElementType;
+	typedef Scalar_Type ScalarType;
 
 public:
-    Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder<ElementType> m_Parameter;
+    Parameter_Of_KNNSoftAssignAndReconstructionSparseEncoder<ScalarType> m_Parameter;
 
 private:
-    DenseMatrix<ElementType> m_GramianMatrix_DtD;
+    DenseMatrix<ScalarType> m_GramianMatrix_DtD;
 
-    KNNSoftAssignSparseEncoder<ElementType> m_KNNSoftAssignSparseEncoder;
+    KNNSoftAssignSparseEncoder<ScalarType> m_KNNSoftAssignSparseEncoder;
 
 public:
-
     KNNSoftAssignAndReconstructionSparseEncoder();
-
     ~KNNSoftAssignAndReconstructionSparseEncoder();
 
     //--------------------------------------------------------------------------------
@@ -84,33 +82,19 @@ public:
 
     //---------------------------------------------------------------------------------
 
-    static bool Apply(DenseMatrix<ElementType>& OutputCodeInDenseMatrix,
-                      const DenseMatrix<ElementType>* FeatureData,
-                      const FeatureDictionary<ElementType>* Dictionary,
-                      int_max NeighbourNumber,
-                      int_max MaxNumberOfThreads = 1);
-
-    static bool Apply(SparseMatrix<ElementType>& OutputCodeInSparseMatrix,
-                      const DenseMatrix<ElementType>* FeatureData,
-                      const FeatureDictionary<ElementType>* Dictionary,
-                      int_max NeighbourNumber,
-                      int_max MaxNumberOfThreads = 1);
-
-    static bool Apply(DataContainer<SparseVector<ElementType>>& OutputCodeInSparseColVectorSet,
-                      const DenseMatrix<ElementType>* FeatureData,
-                      const FeatureDictionary<ElementType>* Dictionary,
-                      int_max NeighbourNumber,
-                      int_max MaxNumberOfThreads = 1);
+	static DataArray<SparseVector<ScalarType>> Apply(const DenseMatrix<ScalarType>* FeatureData,
+													 const FeatureDictionary<ScalarType>* Dictionary,
+													 int_max NeighbourNumber,
+													 int_max MaxNumberOfThread = 1);
 
 private:
+	inline SparseVector<ScalarType> EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex);
 
-    inline void EncodingFunction(int_max DataIndex, int_max ThreadIndex);
+    inline DenseMatrix<ScalarType> ReconstructDataColVector(const DenseMatrix<ScalarType>& KNNBasisMatrix,
+                                                            const DenseMatrix<ScalarType>& CodeVector);
 
-    inline DenseMatrix<ElementType> ReconstructDataColVector(const DenseMatrix<ElementType>& KNNBasisMatrix,
-                                                             const DenseMatrix<ElementType>& CodeVector);
-
-    inline DenseMatrix<ElementType> ComputeMembershipUsingReconstructedDataColVector(const DenseMatrix<ElementType>& ReconstructedDataColVector,
-                                                                                     const DenseMatrix<ElementType>& KNNBasisMatrix);
+    inline DenseMatrix<ScalarType> ComputeMembershipUsingReconstructedDataColVector(const DenseMatrix<ScalarType>& ReconstructedDataColVector,
+                                                                                    const DenseMatrix<ScalarType>& KNNBasisMatrix);
 
 private:
 //deleted:
@@ -120,7 +104,7 @@ private:
 
 };
 
-}
+}// namespace mdk
 
 #include "mdkKNNSoftAssignAndReconstructionSparseEncoder.hpp"
 

@@ -94,7 +94,7 @@ void Test_KNNReconstructionSparseEncoder()
 
     Encoder.SetInputFeatureData(&FeatureData);
 
-    Encoder.SetMaxNumberOfThreads(1);
+    Encoder.SetMaxNumberOfThread(1);
 
     std::cout << "Encoder.Update()  start " << '\n';
 
@@ -109,13 +109,13 @@ void Test_KNNReconstructionSparseEncoder()
     raw_time = t1 - t0;
     std::cout << "Encoder.Update()  time " << raw_time.count() << '\n';
 
-    auto Code = Encoder.GetOutputCodeInDenseMatrix();
+    auto Code = Encoder.ConvertOutputCodeToDenseMatrix();
 
     DisplayMatrix("X", FeatureData, 6);
 
     DisplayMatrix("D", Dictionary.BasisMatrix(), 6);
 
-    DisplayMatrix("Alpha", *Code, 6);
+    DisplayMatrix("Alpha", Code, 6);
 
 }
 
@@ -150,11 +150,12 @@ void Test_KNNReconstructionAndSoftAssignSparseEncoder()
     Dictionary.BasisMatrix().FastResize(FeatureDimension, K);
 
     Dictionary.VarianceOfL2Distance().FastResize(1, K);
-
+	Dictionary.VarianceOfReconstruction().FastResize(1, K);
     for (int_max i = 0; i < K; ++i)
     {
         Dictionary.BasisMatrix().Col(i) = i;
         Dictionary.VarianceOfL2Distance()[i] = 1;
+		Dictionary.VarianceOfReconstruction()[i] = 1;
     }
 
     DenseMatrix<float> DtD = Dictionary.BasisMatrix().Transpose()*Dictionary.BasisMatrix();
@@ -169,12 +170,13 @@ void Test_KNNReconstructionAndSoftAssignSparseEncoder()
     Encoder.m_Parameter.CodeSumToOne = true;
 
     Encoder.m_Parameter.SimilarityType = VectorSimilarityTypeEnum::L2Distance;
+	Encoder.m_Parameter.SimilarityThreshold = 0.1;
 
     Encoder.SetInputDictionary(&Dictionary);
 
     Encoder.SetInputFeatureData(&FeatureData);
 
-    Encoder.SetMaxNumberOfThreads(1);
+    Encoder.SetMaxNumberOfThread(1);
 
     std::cout << "Encoder.Update()  start " << '\n';
 
@@ -189,13 +191,13 @@ void Test_KNNReconstructionAndSoftAssignSparseEncoder()
     raw_time = t1 - t0;
     std::cout << "Encoder.Update()  time " << raw_time.count() << '\n';
 
-    auto Code = Encoder.GetOutputCodeInDenseMatrix();
+    auto Code = Encoder.ConvertOutputCodeToDenseMatrix();
 
     DisplayMatrix("X", FeatureData, 6);
 
     DisplayMatrix("D", Dictionary.BasisMatrix(), 6);
 
-    DisplayMatrix("Alpha", *Code, 6);
+    DisplayMatrix("Alpha", Code, 6);
 }
 
 

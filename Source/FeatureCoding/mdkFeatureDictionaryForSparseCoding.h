@@ -16,35 +16,35 @@ namespace mdk
 // D: Dictionary
 // Z: sparse code
 //
-// definition of MaskMatrix: see ObjectDetection
-// during training, each Feature Vector may have a mask
+// about WeightMatrix:
+// during training, each Feature Vector may have a weight vector (mask)
 // e.g., remove surrounding stuff about an object in an image, only the object is inside the mask
 // an element of the Feature Vector is set to zero if it is out of mask
 // an element is out of mask : mask(element position) = 0
 // an element is in mask : mask(element position) > 0 or < 0
 // Therefore, after modify each Feature Vector using mask, mask is not used in Dictionary learning, only the modified Feature Vector is used
 //
-// MaskMatrix is useful in encoding (e.g., KNN based encoding), and is useful in classification if reconstruction error vector norm is used
-// m_k=MaskMatrix(:,k), 0<= m_k <=1, X_k=m_k.*X; get differnece version of X; 
-// distance between X and d_k =||m_k.*(X - d_k)|| = sqrt(sum_n(X_k(n)-m_k(n)*d_k(n)))^2/sum_n(m_k(n)))
+// WeightMatrix is useful in encoding (e.g., KNN based encoding), and is useful in classification if reconstruction error vector norm is used
+// w_k=WeightMatrix(:,k), 0<= w_k <=1, X_k=w_k.*X; get differnece version of X; 
+// distance between X and d_k =||w_k.*(X - d_k)|| = sqrt(sum_n(X_k(n)-w_k(n)*d_k(n)))^2/sum_n(w_k(n)))
 // for KNN, find mask of each KNN Basis, then get combined mask m_com, and get X_com = m_com.*X
 // to get reconstructed X: ||X_k - [m_com.*d1, m_com.*d2, ...]*Z|| 
 //
-// MaskMatrix may not be useful in classification if reconstruction error vector is used
-// reconstruction error vector = |m_k.*(X - d_k)|, take absolute value of each element in the error vector 
+// WeightMatrix may not be useful in classification if reconstruction error vector is used
+// reconstruction error vector = |w_k.*(X - d_k)|, take absolute value of each element in the error vector 
 // then apply SVM using 1 vs ALL, an element out of mask will be assigned a small weight
 //
 
-template<typename ElementType>
+template<typename ScalarType>
 struct DictionaryData_Of_FeatureDictionaryForSparseCoding
 {
-    CharString Name; // name of the dictionary
+    std::string Name; // name of the dictionary
 
-    DenseMatrix<ElementType> BasisMatrix; // D
+    DenseMatrix<ScalarType> BasisMatrix; // D
     // ColNumber is BasisNumber (the number of bases)
     // RowNumber is Length of Feature Data Vector
 
-	DenseMatrix<ElementType> MaskMatrix; // M
+	DenseMatrix<ScalarType> WeightMatrix; // W
 
     //------------ basis unique ID -----------------------------------
     // row vector
@@ -56,9 +56,7 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
     //------------ constraint on basis -----------------------------------
 
     bool BasisPositive;
-
     bool BasisNormalizedWithL1Norm;
-
     bool BasisNormalizedWithL2Norm;
 
     //----------- Current "Dictionary Time " --------------------
@@ -68,71 +66,71 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
     //------------ Age of each basis ----------------------------
     // row vector
 
-    DenseMatrix<ElementType> BasisAge;
+    DenseMatrix<ScalarType> BasisAge;
 
     // ---------- basis  Experience on Representing Data ----
     // row vector
 
-    DenseMatrix<ElementType> BasisExperience;
+    DenseMatrix<ScalarType> BasisExperience;
     // the weighted total number of training data samples
     // for each basis from day 0
 
-    //---------- Similarity between bases -----------------------
+    //---------- Similarity and Redundancy between basis vector -----
 
     VectorSimilarityTypeEnum SimilarityType;
 
-    DenseMatrix<ElementType> SimilarityMatrix;
+    DenseMatrix<ScalarType> SimilarityMatrix;
 
-    ElementType SimilarityThreshold_For_ComputeBasisRedundancy;
+    ScalarType SimilarityThreshold_For_ComputeBasisRedundancy;
 
-    DenseMatrix<ElementType> BasisRedundancy;
+    DenseMatrix<ScalarType> BasisRedundancy;
     // BasisRedundancy[j] =  the number of the other bases near the basis j ( Similarity(i, j) >= SimilarityThreshold) 
     // range [0, BasisNumber-1]
 
     //----------------- Variance -------------------------
-    // row vector
+	// row vector
 
-    DenseMatrix<ElementType> VarianceOfL1Distance; 
+	//DenseMatrix<ScalarType> VarianceForDecoder;
+	// reserved, not used yet 
+
+    DenseMatrix<ScalarType> VarianceOfL1Distance; 
     // Length = BasisNumber
     // Variance_i_j = || X_i - D(:, j)||^2
     // Variance(j) = sqrt(sum_i(Indicator_i_j * Variance_i_j))
     // if Basis_j is related to X_i, then  Indicator_i_j = 1, else it = 0
 
-    DenseMatrix<ElementType> VarianceOfL2Distance;
+    DenseMatrix<ScalarType> VarianceOfL2Distance;
     // Length = BasisNumber
     // Variance_i_j = || X_i - D(:, j)||^2
     // Variance(j) = sqrt(sum_i(Indicator_i_j * Variance_i_j))
     // if Basis_j is related to X_i, then  Indicator_i_j = 1, else it = 0
 
-    DenseMatrix<ElementType> VarianceOfKLDivergence; // not real Variance
+    DenseMatrix<ScalarType> VarianceOfKLDivergence; // not real Variance
     // Length = BasisNumber
     // Variance_i_j = KL( X_i, - D(:, j))
     // Variance(j) = sqrt(sum_i(Indicator_i_j * Variance_i_j))
     // if Basis_j is related to X_i, then  Indicator_i_j = 1, else it = 0
 
-    DenseMatrix<ElementType> VarianceOfReconstruction;
+    DenseMatrix<ScalarType> VarianceOfReconstruction;
     // Variance_i_j = || X_i - D * Alpha||^2
     // VarianceOfReconstruction(j) = mean (ErrorNorm_i related to Basis_j (i.e., Alpha(j) > 0 ))
 
+	//----------- Covariance between bases --------------------------
     // not used yet ----------------
-    DenseMatrix<ElementType> BasisCovariance;  // relation between bases
+    //DenseMatrix<ScalarType> BasisCovariance;  // relation between bases
 
     //---------------------------------------------------------------------//
-
-    // add another Dictionary
-    void CombineDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary);
-
 };
 
 
-template<typename Element_Type>
-class FeatureDictionaryForSparseCoding : public FeatureDictionary<Element_Type>
+template<typename Scalar_Type>
+class FeatureDictionaryForSparseCoding : public FeatureDictionary<Scalar_Type>
 {
 public:
-	typedef Element_Type ElementType;
+	typedef Scalar_Type ScalarType;
 
 private:
-    std::shared_ptr<DictionaryData_Of_FeatureDictionaryForSparseCoding<ElementType>> m_DictionaryData;
+    std::shared_ptr<DictionaryData_Of_FeatureDictionaryForSparseCoding<ScalarType>> m_DictionaryData;
 
 public:
     FeatureDictionaryForSparseCoding();
@@ -167,25 +165,29 @@ public:
 
     bool IsEmpty() const;
 
-    MatrixSize GetSize() const;
+	MatrixSize GetSize() const;
 
-    bool Load(const CharString& FilePathAndName);
+    bool Load(const std::string& FilePathAndName);
 
-    bool Save(const CharString& FilePathAndName) const;
+	bool Save(const std::string& FilePathAndName) const;
 
-    FeatureDictionaryForSparseCoding<ElementType> GetSubDictionary(const DenseMatrix<int_max>& BasisIndexList_to_keep) const;
+    FeatureDictionaryForSparseCoding<ScalarType> GetSubDictionary(const DenseMatrix<int_max>& BasisIndexList_to_keep) const;
 
-    void CombineDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary);
+    void CombineDictionary(const FeatureDictionaryForSparseCoding<ScalarType>& InputDictionary);
 
     // -------------- get/set ---------------------------------------------------//
 
-    inline const CharString& GetName() const;
+	inline const std::string& GetName() const;
 
-    inline void SetName(const CharString& Name);
+	inline void SetName(const std::string& Name);
 
-    inline DenseMatrix<ElementType>& BasisMatrix();
+    inline DenseMatrix<ScalarType>& BasisMatrix();
 
-    inline const DenseMatrix<ElementType>& BasisMatrix() const;
+    inline const DenseMatrix<ScalarType>& BasisMatrix() const;
+
+	inline DenseMatrix<ScalarType>& WeightMatrix();
+
+	inline const DenseMatrix<ScalarType>& WeightMatrix() const;
 
     inline int_max GenerateNewBasisID();
 
@@ -208,36 +210,36 @@ public:
     inline void SetCurrentDictionaryTime(int_max DictionaryTime);
     inline int_max GetCurrentDictionaryTime() const;
 
-    inline DenseMatrix<ElementType>& BasisAge();
+    inline DenseMatrix<ScalarType>& BasisAge();
 
-    inline const DenseMatrix<ElementType>& BasisAge() const;
+    inline const DenseMatrix<ScalarType>& BasisAge() const;
 
-    inline DenseMatrix<ElementType>& BasisExperience();
-    inline const DenseMatrix<ElementType>& BasisExperience() const;
+    inline DenseMatrix<ScalarType>& BasisExperience();
+    inline const DenseMatrix<ScalarType>& BasisExperience() const;
 
-    inline DenseMatrix<ElementType>& BasisRedundancy();
-    inline const DenseMatrix<ElementType>& BasisRedundancy() const;
+    inline DenseMatrix<ScalarType>& BasisRedundancy();
+    inline const DenseMatrix<ScalarType>& BasisRedundancy() const;
 
     inline void SetProperty_SimilarityType(VectorSimilarityTypeEnum SimilarityType);
     inline VectorSimilarityTypeEnum GetProperty_SimilarityType() const;
 
-    inline DenseMatrix<ElementType>& SimilarityMatrix();
-    inline const DenseMatrix<ElementType>& SimilarityMatrix() const;
+    inline DenseMatrix<ScalarType>& SimilarityMatrix();
+    inline const DenseMatrix<ScalarType>& SimilarityMatrix() const;
 
-    inline void SetProperty_SimilarityThresholdForComputeBasisRedundancy(ElementType SimilarityThreshold);
-    inline ElementType GetProperty_SimilarityThresholdForComputeBasisRedundancy() const;
+    inline void SetProperty_SimilarityThresholdForComputeBasisRedundancy(ScalarType SimilarityThreshold);
+    inline ScalarType GetProperty_SimilarityThresholdForComputeBasisRedundancy() const;
 
-    inline DenseMatrix<ElementType>& VarianceOfL1Distance();
-    inline const DenseMatrix<ElementType>& VarianceOfL1Distance() const;
+    inline DenseMatrix<ScalarType>& VarianceOfL1Distance();
+    inline const DenseMatrix<ScalarType>& VarianceOfL1Distance() const;
 
-    inline DenseMatrix<ElementType>& VarianceOfL2Distance();
-    inline const DenseMatrix<ElementType>& VarianceOfL2Distance() const;
+    inline DenseMatrix<ScalarType>& VarianceOfL2Distance();
+    inline const DenseMatrix<ScalarType>& VarianceOfL2Distance() const;
 
-    inline DenseMatrix<ElementType>& VarianceOfKLDivergence();
-    inline const DenseMatrix<ElementType>& VarianceOfKLDivergence() const;
+    inline DenseMatrix<ScalarType>& VarianceOfKLDivergence();
+    inline const DenseMatrix<ScalarType>& VarianceOfKLDivergence() const;
 
-    inline DenseMatrix<ElementType>& VarianceOfReconstruction();
-    inline const DenseMatrix<ElementType>& VarianceOfReconstruction() const;
+    inline DenseMatrix<ScalarType>& VarianceOfReconstruction();
+    inline const DenseMatrix<ScalarType>& VarianceOfReconstruction() const;
 };
 
 

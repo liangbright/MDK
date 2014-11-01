@@ -78,11 +78,11 @@ public:
 
     inline void Clear(); // set to empty (length = 0)
 
-    inline void Resize(int_max Length);
+	inline bool Resize(int_max Length);
 
-    inline void FastResize(int_max Length);
+	inline bool FastResize(int_max Length);
 
-    inline void ReserveCapacity(int_max Length);
+	inline bool ReserveCapacity(int_max Length);
 
     inline void ReleaseUnusedCapacity();
 

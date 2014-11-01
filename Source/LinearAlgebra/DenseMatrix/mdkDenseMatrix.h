@@ -41,6 +41,7 @@ struct DenseMatrixData
 {
 	typedef Element_Type  ElementType;
 
+	bool IsSizeFixed;
     int_max RowNumber;  // RowNumber = the Number of Rows 
     int_max ColNumber;  // ColNumber = the Number of Columns
 
@@ -49,17 +50,14 @@ struct DenseMatrixData
     std::vector<ElementType> StdVector; // InternalArray
 
     ElementType NaNElement;
-
-    bool IsSizeFixed;
-
 //-------------------------------------------------------------
     DenseMatrixData() 
     {
+		IsSizeFixed = false;
         RowNumber = 0;
         ColNumber = 0;
         ElementPointer = nullptr;
-        NaNElement = GetNaNElement(NaNElement); // zero if int
-        IsSizeFixed = false;
+        NaNElement = GetNaNElement(NaNElement); // zero if int        
     };
 
     ~DenseMatrixData() {};
@@ -171,6 +169,8 @@ public:
 
     inline DenseMatrix(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
+	inline DenseMatrix(std::vector<ElementType> InputColVector);
+
 	inline DenseMatrix(DataArray<ElementType> InputColVector);
 
 	inline DenseMatrix(SimpleDataArray<ElementType> InputColVector);
@@ -224,6 +224,8 @@ public:
     inline void operator=(const std::initializer_list<const DenseMatrix<ElementType>*>& InputList);
 
     inline void operator=(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
+
+	inline void operator=(std::vector<ElementType> InputColVector);
 
 	inline void operator=(DataArray<ElementType> InputColVector);
 

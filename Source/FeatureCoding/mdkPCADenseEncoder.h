@@ -9,18 +9,21 @@
 namespace mdk
 {
 
-template<typename Element_Type>
-class PCADenseEncoder : public FeatureDictionaryBasedDenseEncoder<Element_Type>
+template<typename Scalar_Type>
+class PCADenseEncoder : public FeatureDictionaryBasedDenseEncoder<Scalar_Type>
 {
 public:
-	typedef Element_Type ElementType;
+	typedef Scalar_Type ScalarType;
 
 public:
     PCADenseEncoder();
     ~PCADenseEncoder();
 
-public:    
-    void EncodingFunction(DenseMatrix<ElementType>& CodeInDenseColVector, const DenseMatrix<ElementType>& DataColVector, int_max ThreadIndex);
+public:
+	DenseMatrix<ScalarType> EncodeSingleFeatureVector(const DenseMatrix<ScalarType>& FeatureVector);
+
+protected:
+	DenseMatrix<ScalarType> EncodeSingleFeatureVector(int_max DataIndex, const DenseMatrix<ScalarType>& FeatureVector, int_max ThreadIndex);
 
 private:
     PCADenseEncoder(const PCADenseEncoder&) = delete;

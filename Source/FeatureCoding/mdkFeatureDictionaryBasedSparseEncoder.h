@@ -5,67 +5,37 @@
 #include <atomic>
 #include <thread>
 
-
-#include "mdkString.h"
-#include "mdkDataArray.h"
+#include "mdkParallelForLoop.h"
+#include "mdkObjectArray.h"
 #include "mdkSparseMatrix.h"
 #include "mdkSparseVector.h"
+#include "mdkFeatureDictionary.h"
 #include "mdkFeatureDictionaryBasedEncoder.h"
 #include "mdkFeatureDictionaryForSparseCoding.h"
 
 namespace mdk
 {
-
-template<typename Element_Type>
-class FeatureDictionaryBasedSparseEncoder : public FeatureDictionaryBasedEncoder<Element_Type>
+template<typename Scalar_Type>
+class FeatureDictionaryBasedSparseEncoder : public FeatureDictionaryBasedEncoder<FeatureDictionaryForSparseCoding<Scalar_Type>, DataArray<SparseVector<Scalar_Type>>>
 {
 public:
-	typedef Element_Type ElementType;
+	typedef Scalar_Type ScalarType;
+	typedef FeatureDictionaryForSparseCoding<ScalarType> DictionaryType;
 
 protected:
+    // input data
+	const DenseMatrix<ScalarType>* m_FeatureData;
 
-    // input data:
+    // input dictionary
+	const FeatureDictionaryForSparseCoding<ScalarType>* m_Dictionary;
 
-    const DenseMatrix<ElementType>* m_FeatureData;
+	// output sparse code
+	DataArray<SparseVector<ScalarType>> m_SparseCode;
 
-    // input dictionary:
-
-    const FeatureDictionaryForSparseCoding<ElementType>* m_Dictionary;
-
-    // output code in dense Matrix:
-
-    DenseMatrix<ElementType>* m_CodeInDenseMatrix; // converted from m_CodeInSparseColVectorList
-
-    // output code in one sparse matrix:
-
-    SparseMatrix<ElementType>* m_CodeInSparseMatrix; // converted from m_CodeInSparseColVectorList
-
-    // output code as separated sparse vectors:
-
-    DataArray<SparseVector<ElementType>>* m_CodeInSparseColVectorSet; // computed in GenerateCode_in_a_Thread(...)
-
-protected:
-
-    DenseMatrix<ElementType>  m_CodeInDenseMatrix_SharedCopy;
-
-    SparseMatrix<ElementType>  m_CodeInSparseMatrix_SharedCopy;
-
-    DataArray<SparseVector<ElementType>> m_CodeInSparseColVectorSet_SharedCopy;
-
-    bool m_Flag_Output_CodeInDenseMatrix;
-
-    bool m_Flag_Output_CodeInSparseMatrix;
-
-    std::atomic<bool> m_Flag_CodeInDenseMatrix_Is_Updated;
-
-    std::atomic<bool> m_Flag_CodeInSparseMatrix_Is_Updated;
-
-    //about multithreading:
-
+private:
+	//-------------- about thread ------------//
     int_max m_MinNumberOfDataPerThread;
-
-    int_max m_MaxNumberOfThreads;
-
+    int_max m_MaxNumberOfThread;
     DenseMatrix<int_max> m_ThreadStatus;
 
 protected:
@@ -78,69 +48,44 @@ public:
 
     bool IsSparseEncoder() const { return true; }
 
-    //-----------------------------------------
-
     virtual void Clear();
 
-    //-----------------------------------------
+	void SetInputFeatureData(const DenseMatrix<ScalarType>* FeatureData);
 
-    void SetInputFeatureData(const DenseMatrix<ElementType>* FeatureData);
+	void SetInputDictionary(const DictionaryType* Dictionary);
 
-    void SetInputDictionary(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary);
-
-    void SetOutputCode(DenseMatrix<ElementType>* Code);
-
-    void SetOutputCode(SparseMatrix<ElementType>* Code);
-
-    void SetOutputCode(DataArray<SparseVector<ElementType>>* Code); // CodeInSparseColVectorSet
-
-    void SetMaxNumberOfThreads(int_max Number);
+    void SetMaxNumberOfThread(int_max Number);
 
     void SetMinNumberOfDataPerThread(int_max Number);
-
-    //-----------------------------------------
 
     virtual bool CheckInput();
 
     virtual bool Update();
 
-    //----------------------------------------------------//
+	DataArray<SparseVector<ScalarType>>* GetOutputCode();
 
-    DenseMatrix<ElementType>* GetOutputCode(); // output CodeInDenseMatrix
+	DenseMatrix<ScalarType> ConvertOutputCodeToDenseMatrix();
 
-    DenseMatrix<ElementType>* GetOutputCodeInDenseMatrix();
-
-    SparseMatrix<ElementType>* GetOutputCodeInSparseMatrix();
-
-    DataArray<SparseVector<ElementType>>* GetOutputCodeInSparseColVectorSet();
+	SparseMatrix<ScalarType> ConvertOutputCodeToSparseMatrix();
 
 protected:
-
-    int_max GetNumberOfThreadsTobeCreated();
-
-    int_max GetMinNumberOfDataPerThread();
-
-    int_max GetTotalNumberOfInputFeatureDataVectors();
-
     virtual bool Preprocess();
-
     virtual bool Postprocess();
-
-    virtual void EncodingFunction(int_max DataIndex, int_max ThreadIndex) {}
 
     virtual void GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadIndex);
 
-    virtual void ClearPipelineOutput();
-
-    virtual void UpdatePipelineOutput();
+	inline virtual SparseVector<ScalarType> EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex) = 0;
 
     void CheckThreadStatus();
 
+	int_max GetNumberOfThreadTobeCreated();
+	int_max GetMinNumberOfDataPerThread();
+
+	int_max GetTotalNumberOfInputFeatureDataVector();
+
 private:
     FeatureDictionaryBasedSparseEncoder(const FeatureDictionaryBasedSparseEncoder&) = delete;
-
     void operator=(const FeatureDictionaryBasedSparseEncoder&) = delete;
-
 };
 
 }

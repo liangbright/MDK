@@ -205,8 +205,6 @@ bool QuadraticProgrammingSolver<ElementType>::Update()
 
     if (IsOK = true)
     {
-        this->UpdateProcessOutput();
-
         return true;
     }
     else
@@ -861,8 +859,8 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLS
         qpOASES::SymSparseMat<ElementType> temp_H(m_H_sparse->GetRowNumber(),
                                                   m_H_sparse->GetColNumber(),
                                                   const_cast<qpOASES::sparse_int_t*>(m_H_sparse->GetPointerOfRowIndexList()),
-                                                  const_cast<qpOASES::sparse_int_t*>(m_H_sparse->GetPointerOfColBeginElementLinearIndexInDataArray()),
-                                                  const_cast<ElementType*>(m_H_sparse->GetPointerOfDataArray())
+                                                  const_cast<qpOASES::sparse_int_t*>(m_H_sparse->GetPointerOfColBeginElementIndexInElementList()),
+                                                  const_cast<ElementType*>(m_H_sparse->GetPointerOfElementList())
                                                   );
 
         DenseMatrix<ElementType> g;
@@ -924,15 +922,15 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_ALLS
         qpOASES::SymSparseMat<ElementType> temp_H(m_H_sparse->GetRowNumber(),
                                                   m_H_sparse->GetColNumber(),
                                                   const_cast<qpOASES::sparse_int_t*>(m_H_sparse->GetPointerOfRowIndexList()),
-                                                  const_cast<qpOASES::sparse_int_t*>(m_H_sparse->GetPointerOfColBeginElementLinearIndexInDataArray()),
-                                                  const_cast<ElementType*>(m_H_sparse->GetPointerOfDataArray())
+                                                  const_cast<qpOASES::sparse_int_t*>(m_H_sparse->GetPointerOfColBeginElementIndexInElementList()),
+                                                  const_cast<ElementType*>(m_H_sparse->GetPointerOfElementList())
                                                   );
 
         qpOASES::SymSparseMat<ElementType> temp_A(m_A_sparse->GetRowNumber(),
                                                   m_A_sparse->GetColNumber(),
                                                   const_cast<qpOASES::sparse_int_t*>(m_A_sparse->GetPointerOfRowIndexList()),
-                                                  const_cast<qpOASES::sparse_int_t*>(m_A_sparse->GetPointerOfColBeginElementLinearIndexInDataArray()),
-                                                  const_cast<ElementType*>(m_A_sparse->GetPointerOfDataArray())
+												  const_cast<qpOASES::sparse_int_t*>(m_A_sparse->GetPointerOfColBeginElementIndexInElementList()),
+												  const_cast<ElementType*>(m_A_sparse->GetPointerOfElementList())
                                                   );
 
         DenseMatrix<ElementType> g;
@@ -1140,8 +1138,8 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_OneTimeOnly_Input_Only
         qpOASES::SymSparseMat<ElementType> temp_A(m_A_sparse->GetRowNumber(),
                                                   m_A_sparse->GetColNumber(),
                                                   const_cast<qpOASES::sparse_int_t*>(m_A_sparse->GetPointerOfRowIndexList()),
-                                                  const_cast<qpOASES::sparse_int_t*>(m_A_sparse->GetPointerOfColBeginElementLinearIndexInDataArray()),
-                                                  const_cast<ElementType*>(m_A_sparse->GetPointerOfDataArray())
+                                                  const_cast<qpOASES::sparse_int_t*>(m_A_sparse->GetPointerOfColBeginElementIndexInElementList()),
+                                                  const_cast<ElementType*>(m_A_sparse->GetPointerOfElementList())
                                                   );
 
         //------------------------------------------------------------------------------------------
@@ -1384,15 +1382,15 @@ bool QuadraticProgrammingSolver<ElementType>::Update_Mode_Online_Varying_H_A_Inp
     qpOASES::SymSparseMat<ElementType> temp_H(m_H_sparse->GetRowNumber(),
                                               m_H_sparse->GetColNumber(),
                                               const_cast<qpOASES::sparse_int_t*>(m_H_sparse->GetPointerOfRowIndexList()),
-                                              const_cast<qpOASES::sparse_int_t*>(m_H_sparse->GetPointerOfColBeginElementLinearIndexInDataArray()),
-                                              const_cast<ElementType*>(m_H_sparse->GetPointerOfDataArray())
+                                              const_cast<qpOASES::sparse_int_t*>(m_H_sparse->GetPointerOfColBeginElementIndexInElementList()),
+                                              const_cast<ElementType*>(m_H_sparse->GetPointerOfElementList())
                                               );
 
     qpOASES::SymSparseMat<ElementType> temp_A(m_A_sparse->GetRowNumber(),
                                               m_A_sparse->GetColNumber(),
                                               const_cast<qpOASES::sparse_int_t*>(m_A_sparse->GetPointerOfRowIndexList()),
-                                              const_cast<qpOASES::sparse_int_t*>(m_A_sparse->GetPointerOfColBeginElementLinearIndexInDataArray()),
-                                              const_cast<ElementType*>(m_A_sparse->GetPointerOfDataArray())
+											  const_cast<qpOASES::sparse_int_t*>(m_A_sparse->GetPointerOfColBeginElementIndexInElementList()),
+											  const_cast<ElementType*>(m_A_sparse->GetPointerOfElementList())
                                               );
 
     DenseMatrix<ElementType> g;

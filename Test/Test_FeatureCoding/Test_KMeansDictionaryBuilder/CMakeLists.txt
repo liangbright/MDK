@@ -6,7 +6,7 @@ endif()
 
 PROJECT(Test_KMeansDictionaryBuilder)
 
-set(MDK_DIR "C:/Research/MDK")
+set(MDK_DIR "C:/Research/MDK/MDK_Code")
 find_package(MDK REQUIRED)
 
 FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")

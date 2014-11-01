@@ -166,7 +166,6 @@ bool LinearLeastSquaresProblemSolver<ElementType>::Update()
 
     if (IsOK == true)
     {
-        this->UpdateProcessOutput();
         return true;
     }
     else

@@ -9,7 +9,7 @@ namespace mdk
 {
 
 //---------------------------------------------------- Vector {+ - * /} Vector ---------------------------------------------// 
-// * : element by element, i.e., dot product
+// * : element by element
 // / : element by element
 
 template<typename ElementType, int_max Length>
@@ -24,33 +24,49 @@ inline DenseVector<ElementType, Length> operator-(const DenseVector<ElementType,
 template<typename ElementType, int_max Length>
 inline DenseVector<ElementType, Length> operator/(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType, Length>& VectorB);
 
+//---------------------------------------------------- Vector {+ - * /} Vector ---------------------------------------------// 
+// * : element by element
+// / : element by element
+
+template<typename ElementType, int_max LengthA, int_max LengthB>
+inline DenseVector<ElementType> operator+(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType, LengthB>& VectorB);
+
+template<typename ElementType, int_max LengthA, int_max LengthB>
+inline DenseVector<ElementType> operator-(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType, LengthB>& VectorB);
+
+//template<typename ElementType, int_max LengthA, int_max LengthB>
+//inline DenseVector<ElementType> operator*(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType, LengthB>& VectorB);
+
+template<typename ElementType, int_max LengthA, int_max LengthB>
+inline DenseVector<ElementType> operator/(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType, LengthB>& VectorB);
+
 //-------------------- fixed {+ - * /} unfixed-----------------------------
 
-template<typename ElementType, int_max Length>
-inline DenseVector<ElementType, Length> operator+(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType>& VectorB);
+template<typename ElementType, int_max LengthA>
+inline DenseVector<ElementType> operator+(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType>& VectorB);
 
-template<typename ElementType, int_max Length>
-inline DenseVector<ElementType, Length> operator-(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType>& VectorB);
+template<typename ElementType, int_max LengthA>
+inline DenseVector<ElementType> operator-(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType>& VectorB);
 
-//template<typename ElementType, int_max Length>
-//inline DenseVector<ElementType, Length> operator*(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType>& VectorB);
+//template<typename ElementType, int_max LengthA>
+//inline DenseVector<ElementType> operator*(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType>& VectorB);
 
-template<typename ElementType, int_max Length>
-inline DenseVector<ElementType, Length> operator/(const DenseVector<ElementType, Length>& VectorA, const DenseVector<ElementType>& VectorB);
+template<typename ElementType, int_max LengthA>
+inline DenseVector<ElementType> operator/(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType>& VectorB);
 
 //-------------------- unfixed {+ - * /} fixed -----------------------------
 
-template<typename ElementType, int_max Length>
-inline DenseVector<ElementType, Length> operator+(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, Length>& VectorB);
+template<typename ElementType, int_max LengthB>
+inline DenseVector<ElementType> operator+(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, LengthB>& VectorB);
 
-template<typename ElementType, int_max Length>
-inline DenseVector<ElementType, Length> operator-(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, Length>& VectorB);
+template<typename ElementType, int_max LengthB>
+inline DenseVector<ElementType> operator-(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, LengthB>& VectorB);
 
-//template<typename ElementType, int_max Length>
-//inline DenseVector<ElementType, Length> operator*(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, Length>& VectorB);
+//template<typename ElementType, int_max LengthB>
+//inline DenseVector<ElementType> operator*(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, LengthB>& VectorB);
 
-template<typename ElementType, int_max Length>
-inline DenseVector<ElementType, Length> operator/(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, Length>& VectorB);
+template<typename ElementType, int_max LengthB>
+inline DenseVector<ElementType> operator/(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, LengthB>& VectorB);
 
 //---------------------------------------------------- Vector {+ - * /} Element ---------------------------------------------// 
 

@@ -1,28 +1,17 @@
 #ifndef __mdkFeatureDictionary_h
 #define __mdkFeatureDictionary_h
 
-
 #include "mdkObject.h"
-#include "mdkString.h"
+#include "mdkDenseMatrix.h"
 
 namespace mdk
 {
-//--------- forward declare -------------//
-template<typename ElementType>
-class DenseMatrix;
 
-struct MatrixSize;
-//---------------------------------------//
-
-template<typename Element_Type>
-class FeatureDictionary : Object
+template<typename ScalarType>
+class FeatureDictionary : public Object
 {
-public:
-	typedef Element_Type ElementType;
-
 protected:
     FeatureDictionary() {}
-
     virtual ~FeatureDictionary() {}
 
 public:
@@ -30,25 +19,22 @@ public:
 
     virtual bool IsEmpty() const = 0;
 
-    virtual MatrixSize GetSize() const = 0;
+	virtual MatrixSize GetSize() const = 0;
 
-    virtual bool Load(const CharString& FilePathAndName) = 0;
+    virtual bool Load(const std::string& FilePathAndName) = 0;
 
-    virtual bool Save(const CharString& FilePathAndName) const = 0;
+    virtual bool Save(const std::string& FilePathAndName) const = 0;
 
-    //------------------------------------------------------------//
+    virtual const std::string& GetName() const = 0;
 
-    virtual const CharString& GetName() const = 0;
+    virtual void SetName(const std::string& Name) = 0;
 
-    virtual void SetName(const CharString& Name) = 0;
+    virtual DenseMatrix<ScalarType>& BasisMatrix() = 0;
 
-    virtual DenseMatrix<ElementType>& BasisMatrix() = 0;
-
-    virtual const DenseMatrix<ElementType>& BasisMatrix() const = 0;
+    virtual const DenseMatrix<ScalarType>& BasisMatrix() const = 0;
 
 private:
     FeatureDictionary(const FeatureDictionary&) = delete;
-
     void operator=(const FeatureDictionary&) = delete;
 };
 

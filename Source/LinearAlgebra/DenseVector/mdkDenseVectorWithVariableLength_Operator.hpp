@@ -1,7 +1,6 @@
 #ifndef __mdkDenseVectorWithVariableLength_Operator_hpp
 #define __mdkDenseVectorWithVariableLength_Operator_hpp
 
-
 namespace mdk
 {
 
@@ -17,15 +16,13 @@ operator+(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType
     {
         return VectorA[0] + VectorB;
     }
-
-    if (Length_B == 1)
+    else if (Length_B == 1)
     {
         return VectorA + VectorB[0];
     }
-
-    if (Length_A != Length_B)
+	else if (Length_A != Length_B)
     {
-        MDK_Error << "VectorA.size() != VectorB.size() @ DenseVectorWithVariableLength_Operator operator+(VectorA, VectorB)" << '\n';
+        MDK_Error("VectorA.size() != VectorB.size() @ DenseVectorWithVariableLength_Operator operator+(VectorA, VectorB)");
         DenseVector<ElementType> EmptyVector;
         return EmptyVector;
     }
@@ -52,15 +49,13 @@ operator-(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType
     {
         return VectorA[0] - VectorB;
     }
-
-    if (Length_B == 1)
+	else if (Length_B == 1)
     {
         return VectorA - VectorB[0];
     }
-
-    if (Length_A != Length_B)
+	else if (Length_A != Length_B)
     {
-        MDK_Error << "VectorA.size() != VectorB.size() @ DenseVectorWithVariableLength_Operator operator-(VectorA, VectorB)" << '\n';
+        MDK_Error("VectorA.size() != VectorB.size() @ DenseVectorWithVariableLength_Operator operator-(VectorA, VectorB)");
         DenseVector<ElementType> EmptyVector;
         return EmptyVector;
     }
@@ -87,15 +82,13 @@ operator*(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType
     {
         return VectorA[0] * VectorB;
     }
-
-    if (Length_B == 1)
+	else if (Length_B == 1)
     {
         return VectorA * VectorB[0];
     }
-
-    if (Length_A != Length_B)
+	else if (Length_A != Length_B)
     {
-        MDK_Error << "VectorA.size() != VectorB.size() @ DenseVectorWithVariableLength_Operator operator*(VectorA, VectorB)" << '\n';
+        MDK_Error("VectorA.size() != VectorB.size() @ DenseVectorWithVariableLength_Operator operator*(VectorA, VectorB)");
         DenseVector<ElementType> EmptyVector;
         return EmptyVector;
     }
@@ -122,15 +115,13 @@ operator/(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType
     {
         return VectorA[0] / VectorB;
     }
-
-    if (Length_B == 1)
+	else if (Length_B == 1)
     {
         return VectorA / VectorB[0];
     }
-
-    if (Length_A != Length_B)
+	else if (Length_A != Length_B)
     {
-        MDK_Error << "VectorA.size() != VectorB.size() @ DenseVectorWithVariableLength_Operator operator/(VectorA, VectorB)" << '\n';
+		MDK_Error("VectorA.size() != VectorB.size() @ DenseVectorWithVariableLength_Operator operator/(VectorA, VectorB)");
         DenseVector<ElementType> EmptyVector;
         return EmptyVector;
     }
