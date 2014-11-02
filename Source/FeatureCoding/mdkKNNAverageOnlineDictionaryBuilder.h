@@ -7,7 +7,7 @@
 
 #include "mdkFileIO.h"
 #include "mdkString.h"
-#include "mdkDataArray.h"
+#include "mdkObjectArray.h"
 #include "mdkFeatureDictionaryBuilder.h"
 #include "mdkFeatureDictionaryForSparseCoding.h"
 #include "mdkFeatureCoding_Common_Function.h"
@@ -18,7 +18,7 @@
 namespace mdk
 {
 
-template<typename ElementType>
+template<typename ScalarType>
 struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 {
     std::string DictionaryName;
@@ -29,21 +29,21 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
     bool BasisNormalizedWithL1Norm;
     bool BasisNormalizedWithL2Norm;
 
-    Parameter_Of_KNNSoftAssignSparseEncoder<ElementType> ParameterOfKNNSoftAssign;
+    Parameter_Of_KNNSoftAssignSparseEncoder<ScalarType> ParameterOfKNNSoftAssign;
 
-    ElementType ExperienceDiscountFactor;
+    ScalarType ExperienceDiscountFactor;
 
     // ------ whether or not use scale factor --------
-
+	// ||x - s*y||, s is scale factor, e.g., 0.9
     bool WhetherToUseScaleFactor;
 
     // parameter for data sampling --------
 
     int_max MaxNumberOfDataInEachBatch; // the number of data in each batch/thread
 
-    int_max MaxNumberOfInterations;
+	int_max MaxNumberOfInteration;
 
-    int_max MaxNumberOfThreads;
+    int_max MaxNumberOfThread;
 
     // parameter for updating dictionary information
 
@@ -51,7 +51,7 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 
     bool Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix;
 
-    ElementType SimilarityThreshold_For_ComputeBasisRedundancy;
+    ScalarType SimilarityThreshold_For_ComputeBasisRedundancy;
 
     Constraint_on_Code_Of_KNNReconstruction_For_FeatureCoding ConstraintOnKNNReconstructionCode;
 
@@ -76,9 +76,9 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 
         MaxNumberOfDataInEachBatch = 0;
 
-        MaxNumberOfInterations = 1;
+        MaxNumberOfInteration = 1;
 
-        MaxNumberOfThreads = 1;
+        MaxNumberOfThread = 1;
 
         Flag_Update_BasisAge = true;
 
@@ -92,26 +92,27 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 };
 
 
-template<typename Element_Type>
-class KNNAverageOnlineDictionaryBuilder : public FeatureDictionaryBuilder<Element_Type>
+template<typename Scalar_Type>
+class KNNAverageOnlineDictionaryBuilder : public FeatureDictionaryBuilder<FeatureDictionaryForSparseCoding<Scalar_Type>>
 {
 public:
-	typedef Element_Type ElementType;
+	typedef Scalar_Type ScalarType;
 
 public:
-    Parameter_Of_KNNAverageOnlineDictionaryBuilder<ElementType> m_Parameter;
+    Parameter_Of_KNNAverageOnlineDictionaryBuilder<ScalarType> m_Parameter;
 
 private:
 
-    const DenseMatrix<ElementType>* m_FeatureData;
+	// input data
+    const DenseMatrix<ScalarType>* m_FeatureData;
 
-    const FeatureDictionaryForSparseCoding<ElementType>* m_InitialDictionary;
+	// input initial dictionary
+    const FeatureDictionaryForSparseCoding<ScalarType>* m_InitialDictionary;
 
-    FeatureDictionaryForSparseCoding<ElementType>* m_Dictionary;
+	// output
+    FeatureDictionaryForSparseCoding<ScalarType> m_Dictionary;
 
-    FeatureDictionaryForSparseCoding<ElementType>  m_Dictionary_SharedCopy;
-
-    KNNSoftAssignSparseEncoder<ElementType> m_KNNSoftAssignSparseEncoder;
+    KNNSoftAssignSparseEncoder<ScalarType> m_KNNSoftAssignSparseEncoder;
 
 public:
     KNNAverageOnlineDictionaryBuilder();
@@ -119,90 +120,85 @@ public:
 
     void Clear();
 
-    void SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
+    void SetInputFeatureData(const DenseMatrix<ScalarType>* InputFeatureData);
 
-    void SetInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>* InitialDictionary);
-
-    void SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* Dictionary);
+    void SetInitialDictionary(const FeatureDictionaryForSparseCoding<ScalarType>* InitialDictionary);
 
     bool CheckInput();
 
-    FeatureDictionaryForSparseCoding<ElementType>* GetOutputDictionary();
+	bool Update();
+
+    FeatureDictionaryForSparseCoding<ScalarType>* GetOutputDictionary();
 
 protected:
-
-    void ClearPipelineOutput();
-
-    void UpdatePipelineOutput();
-
     void GenerateDictionary();
 
     void SetupParameter();
 
-    FeatureDictionaryForSparseCoding<ElementType> PreprocessInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InitialDictionary);
+    FeatureDictionaryForSparseCoding<ScalarType> PreprocessInitialDictionary(const FeatureDictionaryForSparseCoding<ScalarType>& InitialDictionary);
 
-    void UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary, 
-                          const DenseMatrix<ElementType>& FeatureData,
-                          const DataArray<SparseVector<ElementType>>& CodeTable);
+    void UpdateDictionary(FeatureDictionaryForSparseCoding<ScalarType>& Dictionary, 
+                          const DenseMatrix<ScalarType>& FeatureData,
+                          const DataArray<SparseVector<ScalarType>>& CodeTable);
 
-    void UpdateBasisMatrixAndBasisExperience(DenseMatrix<ElementType>&       BasisMatrix,
-                                             DenseMatrix<ElementType>&       BasisExperience,
-                                             const DenseMatrix<ElementType>& FeatureData,
-                                             const DataArray<SparseVector<ElementType>>& CodeTable);
+    void UpdateBasisMatrixAndBasisExperience(DenseMatrix<ScalarType>&       BasisMatrix,
+                                             DenseMatrix<ScalarType>&       BasisExperience,
+                                             const DenseMatrix<ScalarType>& FeatureData,
+                                             const DataArray<SparseVector<ScalarType>>& CodeTable);
 
-    void UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ElementType>&       BasisMatrix,
-                                                            DenseMatrix<ElementType>&       BasisExperience,
-                                                            const DenseMatrix<ElementType>& FeatureData,
-                                                            const DataArray<SparseVector<ElementType>>& CodeTable);
+    void UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ScalarType>&       BasisMatrix,
+                                                            DenseMatrix<ScalarType>&       BasisExperience,
+                                                            const DenseMatrix<ScalarType>& FeatureData,
+                                                            const DataArray<SparseVector<ScalarType>>& CodeTable);
 
-    void UpdateBasisMatrixAndBasisExperience_NoScaleFactor(DenseMatrix<ElementType>&       BasisMatrix,
-                                                           DenseMatrix<ElementType>&       BasisExperience,
-                                                           const DenseMatrix<ElementType>& FeatureData,
-                                                           const DataArray<SparseVector<ElementType>>& CodeTable);
+    void UpdateBasisMatrixAndBasisExperience_NoScaleFactor(DenseMatrix<ScalarType>&       BasisMatrix,
+                                                           DenseMatrix<ScalarType>&       BasisExperience,
+                                                           const DenseMatrix<ScalarType>& FeatureData,
+                                                           const DataArray<SparseVector<ScalarType>>& CodeTable);
 
-    void ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix);
+    void ApplyConstraintOnBasis(DenseMatrix<ScalarType>& BasisMatrix);
 
-    void UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
-                                           const DenseMatrix<ElementType>& BasisExperience_init,
+    void UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ScalarType>& Dictionary,
+                                           const DenseMatrix<ScalarType>& BasisExperience_init,
                                            int_max TotalDataNumber);
 
-    void AdjustBasisExperience(DenseMatrix<ElementType>& BasisExperience, 
-                               const DenseMatrix<ElementType>& BasisExperience_init,
+    void AdjustBasisExperience(DenseMatrix<ScalarType>& BasisExperience, 
+                               const DenseMatrix<ScalarType>& BasisExperience_init,
                                int_max TotalDataNumber);
 
-    void UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix, 
-                                const DenseMatrix<ElementType>& BasisMatrix, 
-                                const DenseMatrix<ElementType>& VarianceList);
+    void UpdateSimilarityMatrix(DenseMatrix<ScalarType>& SimilarityMatrix, 
+                                const DenseMatrix<ScalarType>& BasisMatrix, 
+                                const DenseMatrix<ScalarType>& VarianceList);
 
-    void UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix);
+    void UpdateBasisRedundancy(DenseMatrix<ScalarType>& BasisRedundancy, const DenseMatrix<ScalarType>& SimilarityMatrix);
 
-    void UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
-                                    const DenseMatrix<ElementType>& FeatureData,
-                                    const DataArray<SparseVector<ElementType>>& CodeTable,
-                                    const DenseMatrix<ElementType>& BasisMatrix,
-                                    const DenseMatrix<ElementType>& BasisExperience_init);
+    void UpdateVarianceOfL1Distance(DenseMatrix<ScalarType>& Variance,
+                                    const DenseMatrix<ScalarType>& FeatureData,
+                                    const DataArray<SparseVector<ScalarType>>& CodeTable,
+                                    const DenseMatrix<ScalarType>& BasisMatrix,
+                                    const DenseMatrix<ScalarType>& BasisExperience_init);
 
-    void UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
-                                    const DenseMatrix<ElementType>& FeatureData,
-                                    const DataArray<SparseVector<ElementType>>& CodeTable,
-                                    const DenseMatrix<ElementType>& BasisMatrix,
-                                    const DenseMatrix<ElementType>& BasisExperience_init);
+    void UpdateVarianceOfL2Distance(DenseMatrix<ScalarType>& Variance,
+                                    const DenseMatrix<ScalarType>& FeatureData,
+                                    const DataArray<SparseVector<ScalarType>>& CodeTable,
+                                    const DenseMatrix<ScalarType>& BasisMatrix,
+                                    const DenseMatrix<ScalarType>& BasisExperience_init);
 
-    void UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
-                                      const DenseMatrix<ElementType>& FeatureData,
-                                      const DataArray<SparseVector<ElementType>>& CodeTable,
-                                      const DenseMatrix<ElementType>& BasisMatrix,
-                                      const DenseMatrix<ElementType>& BasisExperience_init);
+    void UpdateVarianceOfKLDivergence(DenseMatrix<ScalarType>& Variance,
+                                      const DenseMatrix<ScalarType>& FeatureData,
+                                      const DataArray<SparseVector<ScalarType>>& CodeTable,
+                                      const DenseMatrix<ScalarType>& BasisMatrix,
+                                      const DenseMatrix<ScalarType>& BasisExperience_init);
 
-    void UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
-                                        const DenseMatrix<ElementType>& FeatureData,
-                                        const DataArray<SparseVector<ElementType>>& CodeTable,
-                                        const DenseMatrix<ElementType>& BasisMatrix,
-                                        const DenseMatrix<ElementType>& BasisExperience_init);
+    void UpdateVarianceOfReconstruction(DenseMatrix<ScalarType>& Variance,
+                                        const DenseMatrix<ScalarType>& FeatureData,
+                                        const DataArray<SparseVector<ScalarType>>& CodeTable,
+                                        const DenseMatrix<ScalarType>& BasisMatrix,
+                                        const DenseMatrix<ScalarType>& BasisExperience_init);
 
-    DenseMatrix<ElementType> ComputeDataReconstructionErrorL2Norm(const DenseMatrix<ElementType>&  FeatureData,
-                                                                  const DataArray<SparseVector<ElementType>>& CodeTable,
-                                                                  const DenseMatrix<ElementType>&  BasisMatrix);
+    DenseMatrix<ScalarType> ComputeDataReconstructionErrorL2Norm(const DenseMatrix<ScalarType>&  FeatureData,
+                                                                 const DataArray<SparseVector<ScalarType>>& CodeTable,
+                                                                 const DenseMatrix<ScalarType>&  BasisMatrix);
 
 };
 

@@ -1,17 +1,17 @@
-%% Test_2D_Image_GaussianObject
+%% Test_ImageDenoising
 
 clear
 clc
 
-FilePath='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDictionaryBuilder/Debug/';
+FilePath='C:/Research/MDK/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDictionaryBuilder/TestData/ImageDenoising/';
 
 I=double(imread([FilePath 'Lena.tif']));
 
 NoiseStd=10;
 
-In =I+ NoiseStd*randn(size(I));
+In = I+ NoiseStd*randn(size(I));
 %%
-PatchData = im2col(I, [7 7], 'sliding');
+PatchData = im2col(In, [7 7], 'sliding');
 PatchData_ALL = displayPatches(PatchData);
 imtool(PatchData_ALL)
 %%
@@ -30,6 +30,7 @@ for k=1:Num
     
     temp=temp-MeanOfFeatureData(k);
     
+    % discard noisy path
     %temp = wthresh(temp, 's', NoiseStd);
     %temp=temp+eps;
     
@@ -41,7 +42,8 @@ for k=1:Num
     
     L2Norm = sqrt(sum(temp.^2));
 
-    temp=temp/L2Norm;
+    temp=temp/L1Norm;
+    %temp=temp/L2Norm;
     
     FeatureData(:,k)=temp;
 end
@@ -58,6 +60,15 @@ WriteDenseMatrixAsJsonDataFile(FeatureData, [FilePath 'NoisyImagePatch.json'])
 %% read VectorSimilarityMatrix
 VectorSimilarityMatrix= ReadDenseMatrixFromJsonDataFile([FilePath 'VectorSimilarityMatrix.json']);
 imtool(VectorSimilarityMatrix)
+
+prob=sum(VectorSimilarityMatrix, 2);
+prob=prob/sum(prob);
+[Num, ~]=size(VectorSimilarityMatrix);
+Entropy=sum(-prob.*log2(prob))/ log2(Num);
+Sav=mean(VectorSimilarityMatrix(:));
+%
+figure; plot(1:length(prob), prob)
+figure; hist(VectorSimilarityMatrix(:), 100)
 %% read BasisMatrix_init
 BasisMatrix_init= ReadDenseMatrixFromJsonDataFile([FilePath 'NoisyImage_BasisMatrix_init.json']);
 %

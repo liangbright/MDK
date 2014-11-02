@@ -1,5 +1,5 @@
 x=0:0.001:4;
-y=exp(-0.2.*x.*x);
+y=exp(-0.1.*x.*x);
 figure; plot(x,y); grid on
 %%
 L2Norm=zeros(1, 256035);

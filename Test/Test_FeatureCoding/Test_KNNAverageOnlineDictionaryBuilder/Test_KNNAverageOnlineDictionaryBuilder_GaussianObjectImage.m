@@ -1,6 +1,6 @@
 %% Test_2D_Image_GaussianObject
 
-FilePath='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDictionaryBuilder/Debug/';
+FilePath='C:/Research/MDK/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDictionaryBuilder/TestData/GaussianObjectImage/';
 
 
 SignalPeak=100;

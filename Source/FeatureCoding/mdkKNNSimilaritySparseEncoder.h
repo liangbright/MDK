@@ -32,6 +32,13 @@ struct Parameter_Of_KNNSimilaritySparseEncoder
         NeighbourNumber = 0;
         SimilarityType = VectorSimilarityTypeEnum::Unknown;
     }
+
+	static ScalarType GetExpFactor()
+	{   // see EncodeSingleDataVector
+		// exp(-ExpFactor * x^2)
+		// 0.1 is a good number
+		return ScalarType(0.1);
+	}
 };
 
 
@@ -50,7 +57,7 @@ public:
 
     //-----------------------------------------
 
-    void Clear();
+	void Clear();
 
     bool CheckInput();
 
@@ -78,9 +85,9 @@ public:
                                                         VectorSimilarityTypeEnum SimilarityType, ScalarType Variance, bool Flag_CheckInput = true);
 
     //----------------------------------------------------------------------------------------------------
-
-protected:
+private:
 	inline SparseVector<ScalarType> EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex);
+	void ClearSelf();
 
 private:
 //deleted:

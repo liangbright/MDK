@@ -27,12 +27,11 @@ protected:
 	const DenseMatrix<ScalarType>* m_FeatureData;
 
     // input dictionary
-	const FeatureDictionaryForSparseCoding<ScalarType>* m_Dictionary;
+	const DictionaryType* m_Dictionary;
 
 	// output sparse code
 	DataArray<SparseVector<ScalarType>> m_SparseCode;
 
-private:
 	//-------------- about thread ------------//
     int_max m_MinNumberOfDataPerThread;
     int_max m_MaxNumberOfThread;

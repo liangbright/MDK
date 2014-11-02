@@ -3,21 +3,21 @@ DataSample=zeros(1, 1010);
 DataSample(1:1000) = randn(1, 1000)+10;
 DataSample(1001:1010) = randn(1,10)+20;
 
-FilePathAndName='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/DataSample.json';
+FilePathAndName='C:/Research/MDK/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDictionaryBuilder/TestData/SimpleCase/DataSample.json';
 WriteDenseMatrixAsJsonDataFile(DataSample, FilePathAndName);
 %%
-FilePathAndName='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/VectorSimilarityMatrix.json';
+FilePathAndName='C:/Research/MDK/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDictionaryBuilder/TestData/SimpleCase/VectorSimilarityMatrix.json';
 VectorSimilarityMatrix= ReadDenseMatrixFromJsonDataFile(FilePathAndName);
 imtool(VectorSimilarityMatrix)
 %%
-FilePathAndName='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/BasisMatrix.json';
+FilePathAndName='C:/Research/MDK/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDictionaryBuilder/TestData/SimpleCase/BasisMatrix.json';
 BasisMatrix= ReadDenseMatrixFromJsonDataFile(FilePathAndName);
 %%
-FilePathAndName='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/SimilarityMatrix.json';
+FilePathAndName='C:/Research/MDK/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDictionaryBuilder/TestData/SimpleCase/SimilarityMatrix.json';
 SimilarityMatrix= ReadDenseMatrixFromJsonDataFile(FilePathAndName);
 imtool(SimilarityMatrix)
 %%
-FilePathAndName='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/L1DistanceStd.json';
+FilePathAndName='C:/Research/MDK/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDictionaryBuilder/TestData/SimpleCase/L1DistanceStd.json';
 L1DistanceStd= ReadDenseMatrixFromJsonDataFile(FilePathAndName);
 
 %%
@@ -62,7 +62,7 @@ for k=1:100
     FeatureData(:,k)=temp(:);
 end
 %
-FilePath='C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/';
+FilePath='C:/Research/MDK/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDictionaryBuilder/TestData/SimpleCase/';
 WriteDenseMatrixAsJsonDataFile(FeatureData, [FilePath 'GaussianObjectImage.json'])
 %%
 R = corrcoef(FeatureData);
