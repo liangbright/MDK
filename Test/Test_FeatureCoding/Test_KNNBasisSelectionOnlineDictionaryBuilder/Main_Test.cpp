@@ -10,7 +10,7 @@ int main()
 
     //Test_plus_space_plus();
 
-    //Test_SimpleCase();
+    Test_SimpleCase();
 
     Test_GaussianObjectImage();
 

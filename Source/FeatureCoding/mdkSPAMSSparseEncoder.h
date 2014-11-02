@@ -18,12 +18,12 @@
 namespace mdk
 {
 
-template<typename ElementType>
+template<typename ScalarType>
 struct OMP_Paramter_Of_SPAMSSparseEncoder
 {
     int_max L;
-    ElementType eps;
-    ElementType lambda;
+    ScalarType eps;
+    ScalarType lambda;
 
     OMP_Paramter_Of_SPAMSSparseEncoder() { this->Clear(); }
     ~OMP_Paramter_Of_SPAMSSparseEncoder() {}
@@ -37,12 +37,12 @@ struct OMP_Paramter_Of_SPAMSSparseEncoder
 };
 
 
-template<typename ElementType>
+template<typename ScalarType>
 struct Lasso_Paramter_Of_SPAMSSparseEncoder
 {
     int_max mode;
-    ElementType lambda;
-    ElementType lambda2;
+    ScalarType lambda;
+    ScalarType lambda2;
     int_max L;
     bool pos;
     bool cholesky;
@@ -64,18 +64,18 @@ struct Lasso_Paramter_Of_SPAMSSparseEncoder
 };
 
 
-template<typename Element_Type>
-class SPAMSSparseEncoder : public FeatureDictionaryBasedSparseEncoder<Element_Type>
+template<typename Scalar_Type>
+class SPAMSSparseEncoder : public FeatureDictionaryBasedSparseEncoder<Scalar_Type>
 {
 public:
-	typedef Element_Type ElementType;
+	typedef Scalar_Type ScalarType;
 
 public:
     std::string m_MethodName; // "OMP" or "Lasso"
 
-    OMP_Paramter_Of_SPAMSSparseEncoder<ElementType> m_Parameter_OMP;
+    OMP_Paramter_Of_SPAMSSparseEncoder<ScalarType> m_Parameter_OMP;
 
-    Lasso_Paramter_Of_SPAMSSparseEncoder<ElementType> m_Parameter_Lasso;
+    Lasso_Paramter_Of_SPAMSSparseEncoder<ScalarType> m_Parameter_Lasso;
 
 public:
 
@@ -86,13 +86,12 @@ public:
 
     void Clear();
     bool CheckInput();
-
+	inline SparseVector<ScalarType> EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector);
     //---------------------------------------------------------------------------------
 
 protected:
     void GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadIndex);
-
-    inline void EncodingFunction(int_max DataIndex, int_max ThreadIndex);
+	inline SparseVector<ScalarType> EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex);
 
 private:
 //deleted:

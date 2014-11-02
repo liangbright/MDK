@@ -5,35 +5,32 @@
 namespace mdk
 {
 
-template<typename ElementType>
-SPAMSSparseEncoder<ElementType>::SPAMSSparseEncoder()
+template<typename ScalarType>
+SPAMSSparseEncoder<ScalarType>::SPAMSSparseEncoder()
 {
     this->Clear();
 }
 
 
-template<typename ElementType>
-SPAMSSparseEncoder<ElementType>::~SPAMSSparseEncoder()
+template<typename ScalarType>
+SPAMSSparseEncoder<ScalarType>::~SPAMSSparseEncoder()
 {
 
 }
 
 
-template<typename ElementType>
-void SPAMSSparseEncoder<ElementType>::Clear()
+template<typename ScalarType>
+void SPAMSSparseEncoder<ScalarType>::Clear()
 {
     this->FeatureDictionaryBasedSparseEncoder::Clear();
-
     m_Parameter_OMP.Clear();
-
     m_Parameter_Lasso.Clear();
-
     m_MethodName = "OMP";
 }
 
 
-template<typename ElementType>
-bool SPAMSSparseEncoder<ElementType>::CheckInput()
+template<typename ScalarType>
+bool SPAMSSparseEncoder<ScalarType>::CheckInput()
 {
     if (this->FeatureDictionaryBasedSparseEncoder::CheckInput() == false)
     {
@@ -50,36 +47,34 @@ bool SPAMSSparseEncoder<ElementType>::CheckInput()
 }
 
 
-template<typename ElementType>
-void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadIndex)
+template<typename ScalarType>
+void SPAMSSparseEncoder<ScalarType>::GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadIndex)
 {
     //-------------------------------------//
     m_ThreadStatus[ThreadIndex] = 1;
     //-------------------------------------//
 
-    auto tempFeatureData = m_FeatureData->GetSubMatrix(ALL, span(IndexOfDataVector_start, IndexOfDataVector_end));
+    //auto tempFeatureData = m_FeatureData->GetSubMatrix(ALL, span(IndexOfDataVector_start, IndexOfDataVector_end));
+	auto tempRowNumber = m_FeatureData->GetRowNumber();
+	auto tempColNumber = IndexOfDataVector_end - IndexOfDataVector_start + 1;
 
     auto CodeLength = m_Dictionary->BasisMatrix().GetColNumber();
 
-    spams::Matrix<ElementType> X(const_cast<ElementType*>(tempFeatureData.GetElementPointer()),
-                                 tempFeatureData.GetRowNumber(), 
-                                 tempFeatureData.GetColNumber());
+	spams::Matrix<ScalarType> X(const_cast<ScalarType*>(tempFeatureData.GetPointerOfCol(IndexOfDataVector_start)), tempRowNumber, tempColNumber);
 
-    spams::Matrix<ElementType> D(const_cast<ElementType*>(m_Dictionary->BasisMatrix().GetElementPointer()),
-                                 m_Dictionary->BasisMatrix().GetRowNumber(),
-                                 m_Dictionary->BasisMatrix().GetColNumber());
+    spams::Matrix<ScalarType> D(const_cast<ScalarType*>(m_Dictionary->BasisMatrix().GetElementPointer()),
+                                m_Dictionary->BasisMatrix().GetRowNumber(),
+                                m_Dictionary->BasisMatrix().GetColNumber());
 
-    spams::SpMatrix<ElementType> alpha;
+    spams::SpMatrix<ScalarType> alpha;
 
     if (m_MethodName == "OMP")
     {
         int L = m_Parameter_OMP.L;
+        ScalarType Eps = m_Parameter_OMP.eps;
+        ScalarType Lambda = m_Parameter_OMP.lambda;
 
-        ElementType Eps = m_Parameter_OMP.eps;
-
-        ElementType Lambda = m_Parameter_OMP.lambda;
-
-        spams::omp<ElementType>(X, D, alpha, &L, &Eps, &Lambda, false, false, false, 1, nullptr);
+        spams::omp<ScalarType>(X, D, alpha, &L, &Eps, &Lambda, false, false, false, 1, nullptr);
     }
     else if (m_MethodName == "Lasso")
     {
@@ -116,17 +111,17 @@ void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfDa
 
         if (cholesky)
         {
-            spams::lasso<ElementType>(X, D, alpha, L, lambda, lambda2, mode, pos, ols, 1, nullptr, length_path);
+            spams::lasso<ScalarType>(X, D, alpha, L, lambda, lambda2, mode, pos, ols, 1, nullptr, length_path);
         }
         else 
         {
-            spams::lasso2<ElementType>(X, D, alpha, L, lambda, lambda2, mode, pos, 1, nullptr, length_path);
+            spams::lasso2<ScalarType>(X, D, alpha, L, lambda, lambda2, mode, pos, 1, nullptr, length_path);
         }
     }
     
     for (int_max i = IndexOfDataVector_start; i <= IndexOfDataVector_end; ++i)
     {
-        spams::SpVector<ElementType> tempS;
+        spams::SpVector<ScalarType> tempS;
 
         alpha.refCol(i - IndexOfDataVector_start, tempS);
 
@@ -136,9 +131,9 @@ void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfDa
             RowIndexList[k] = tempS.r(k);
         }
 
-        std::vector<ElementType> DataArray(tempS.rawX(), tempS.rawX() + int_max(tempS.nzmax()));
+        std::vector<ScalarType> DataArray(tempS.rawX(), tempS.rawX() + int_max(tempS.nzmax()));
 
-        (*m_CodeInSparseColVectorSet)[i].ConstructFromSortedData(std::move(RowIndexList), std::move(DataArray), CodeLength);
+        m_SparseCode[i].ConstructFromSortedData(std::move(RowIndexList), std::move(DataArray), CodeLength);
     }
 
     //-------------------------------------//
@@ -147,11 +142,20 @@ void SPAMSSparseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfDa
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-void SPAMSSparseEncoder<ElementType>::EncodingFunction(int_max DataIndex, int_max ThreadIndex)
+SparseVector<ScalarType> SPAMSSparseEncoder<ScalarType>::
+EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
 {
-    MDK_Error("This function is not implemented @ SPAMSSparseEncoder::EncodingFunction(...)")
+	MDK_Error("This function is not implemented @ SPAMSSparseEncoder::EncodeSingleDataVector(...)")
+}
+
+template<typename ScalarType>
+inline
+SparseVector<ScalarType> SPAMSSparseEncoder<ScalarType>::
+EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex)
+{
+    MDK_Error("This function is not implemented @ SPAMSSparseEncoder::EncodeSingleDataVector(...)")
 }
 
 

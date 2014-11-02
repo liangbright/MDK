@@ -49,9 +49,9 @@ for k=1:100
     temp = I(:,:,k);
     
     M=mean(temp(:));
-    temp=temp-M;    
-    temp=temp/norm(temp(:));
-
+    S=std(temp(:));
+    temp=(temp-M)/S;
+    
     I(:,:,k)=temp;
 end
 imtool(I(:,:,1))

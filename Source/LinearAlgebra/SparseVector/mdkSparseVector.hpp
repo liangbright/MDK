@@ -8,6 +8,15 @@ template<typename ElementType>
 inline
 SparseVector<ElementType>::SparseVector()
 {
+	m_Data = std::make_unique<SparseVectorData<ElementType>>();
+	m_Data->Length = 0;
+	m_Data->ZeroElement = ElementType(0);
+}
+
+template<typename ElementType>
+inline
+SparseVector<ElementType>::SparseVector(const MDK_Symbol_PureEmpty&)
+{
 }
 
 
@@ -17,8 +26,8 @@ SparseVector<ElementType>::SparseVector(const ElementType& Element)
 {
 	m_Data = std::make_unique<SparseVectorData<ElementType>>();
 	m_Data->Length = 1;
-	m_Data->IndexList.push_back(0);
-	m_Data->ElementList.push_back(Element);
+	m_Data->IndexList.Append(0);
+	m_Data->ElementList.Append(Element);
 	m_Data->ZeroElement = ElementType(0);
 }
 
@@ -56,8 +65,8 @@ void SparseVector<ElementType>::Construct(int_max Length)
 		m_Data = std::make_unique<SparseVectorData<ElementType>>();
 	}
 	m_Data->Length = Length;
-	m_Data->IndexList.resize(0);
-	m_Data->ElementList.resize(0);
+	m_Data->IndexList.Clear();
+	m_Data->ElementList.Clear();
 	m_Data->ZeroElement = ElementType(0);
 }
 
@@ -79,7 +88,6 @@ bool SparseVector<ElementType>::Construct(const std::initializer_list<int_max>& 
 template<typename ElementType>
 inline 
 bool SparseVector<ElementType>::Construct(const std::vector<int_max>& IndexList, const std::vector<ElementType>& ElementList, int_max Length)
-
 {
     if (IndexList.size() != ElementList.size())
     {
@@ -111,7 +119,7 @@ bool SparseVector<ElementType>::Construct(const DenseMatrix<int_max>& IndexList,
 {
     if (IndexList.GetElementNumber() != ElementList.GetElementNumber())
     {
-        MDK_Error("Invalid Input @ SparseVector::Construct(mdk::DenseMatrix ...)")
+        MDK_Error("Invalid Input @ SparseVector::Construct(DenseMatrix ...)")
         return false;
     }
 
@@ -120,14 +128,52 @@ bool SparseVector<ElementType>::Construct(const DenseMatrix<int_max>& IndexList,
 
 
 template<typename ElementType>
+inline 
+bool SparseVector<ElementType>::Construct(const DenseVector<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length)
+{
+	if (IndexList.GetElementNumber() != ElementList.GetElementNumber())
+	{
+		MDK_Error("Invalid Input @ SparseVector::Construct(DenseVector, DenseMatrix, ...)")
+		return false;
+	}
+
+	return this->Construct(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
+}
+
+
+template<typename ElementType>
+inline 
+bool SparseVector<ElementType>::Construct(const DenseMatrix<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length)
+{
+	if (IndexList.GetElementNumber() != ElementList.GetElementNumber())
+	{
+		MDK_Error("Invalid Input @ SparseVector::Construct(DenseMatrix, DenseVector, ...)")
+		return false;
+	}
+
+	return this->Construct(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
+}
+
+
+template<typename ElementType>
 inline
 bool SparseVector<ElementType>::Construct(const int_max* IndexList, const ElementType* ElementList, int_max RecordedElementNumber, int_max Length)
 {
-    if (IndexList == nullptr || ElementList == nullptr || RecordedElementNumber <= 0 || Length <= 0)
-    {
-        MDK_Error("Invalid Input @ SparseVector::Construct(pointer ...)")
-        return false;
-    }
+	if (IndexList == nullptr && ElementList == nullptr && RecordedElementNumber == 0 && Length == 0)
+	{
+		this->Construct(0);
+		return true;
+	}
+	else if ((IndexList == nullptr && ElementList != nullptr) 
+		     || (IndexList != nullptr && ElementList == nullptr)
+		     || (IndexList == nullptr && RecordedElementNumber > 0)
+			 || (ElementList == nullptr && RecordedElementNumber > 0)
+			 || RecordedElementNumber < 0
+			 || Length < 0)
+	{
+		MDK_Error("Invalid Input @ SparseVector::Construct(pointer ...)")
+		return false;
+	}
 
     //--------------------------------------------------------------
 	if (!m_Data)
@@ -135,20 +181,17 @@ bool SparseVector<ElementType>::Construct(const int_max* IndexList, const Elemen
 		m_Data = std::make_unique<SparseVectorData<ElementType>>();
 	}
 	m_Data->Length = Length;
-	m_Data->IndexList.resize(RecordedElementNumber);
-	m_Data->ElementList.resize(RecordedElementNumber);
+	m_Data->IndexList.FastResize(RecordedElementNumber);
+	m_Data->ElementList.FastResize(RecordedElementNumber);
 	m_Data->ZeroElement = ElementType(0);
     //--------------------------------------------------------------
 
-    std::vector<int_max> LinearIndex_In_Input_IndexList(RecordedElementNumber);
-
-	Sort(IndexList, RecordedElementNumber, m_Data->IndexList.data(), LinearIndex_In_Input_IndexList.data(), "ascend");
-
-    //--------------------------------------------------------------
+	auto tempRelativeIndexList = m_Data->IndexList.Sort("ascend");
 
     for (int_max i = 0; i < RecordedElementNumber; ++i)
     {
-		m_Data->ElementList[i] = ElementList[LinearIndex_In_Input_IndexList[i]];
+		m_Data->IndexList[i] = IndexList[tempRelativeIndexList[i]];
+		m_Data->ElementList[i] = ElementList[tempRelativeIndexList[i]];
     }
 
     return true;
@@ -208,8 +251,8 @@ void SparseVector<ElementType>::Clear()
 	if (m_Data)
 	{
 		m_Data->Length = 0;
-		m_Data->IndexList.clear();
-		m_Data->ElementList.clear();
+		m_Data->IndexList.Clear();
+		m_Data->ElementList.Clear();
 		m_Data->ZeroElement = ElementType(0);
 	}    
 }
@@ -217,7 +260,7 @@ void SparseVector<ElementType>::Clear()
 
 template<typename ElementType>
 inline
-void SparseVector<ElementType>::Reset()
+void SparseVector<ElementType>::Clear(const MDK_Symbol_PureEmpty&)
 {
 	m_Data.reset();
 }
@@ -275,8 +318,8 @@ void SparseVector<ElementType>::Resize(int_max InputLength)
             }
         }
 
-		m_Data->IndexList.erase(m_Data->IndexList.begin() + StartIndex_erase, m_Data->IndexList.end());
-		m_Data->ElementList.erase(m_Data->ElementList.begin() + StartIndex_erase, m_Data->ElementList.end());
+		m_Data->IndexList.Delete(StartIndex_erase, m_Data->IndexList.GetLength()-1);
+		m_Data->ElementList.Delete(StartIndex_erase, m_Data->ElementList.GetLength()-1);
     }
 
     m_Data->Length = InputLength;
@@ -341,7 +384,7 @@ const ElementType& SparseVector<ElementType>::GetElement(int_max Index) const
 	}
 
 	int_max IndexInDataArray = -1;
-	for (int_max i = 0; i < int_max(m_Data->IndexList.size()); ++i)
+	for (int_max i = 0; i < m_Data->IndexList.GetLength(); ++i)
 	{
 		if (m_Data->IndexList[i] == Index)
 		{
@@ -377,35 +420,32 @@ bool SparseVector<ElementType>::SetElement(int_max Index, const ElementType& Ele
 		return false;
 	}
 
-	auto RecordedElementNumber = int_max(m_Data->ElementList.size());
+	auto RecordedElementNumber = m_Data->ElementList.GetLength();
 
-	int_max IndexInDataArray = -1;
-	int_max IndexInDataArray_insert = RecordedElementNumber;
+	int_max IndexInElementList = -1;
+	int_max IndexInElementList_insert = RecordedElementNumber;
 
 	for (int_max i = 0; i < RecordedElementNumber; ++i)
 	{
 		if (m_Data->IndexList[i] == Index)
 		{
-			IndexInDataArray = i;
+			IndexInElementList = i;
 			break;
 		}
 		else if (m_Data->IndexList[i] > Index)
 		{
-			IndexInDataArray_insert = i;
+			IndexInElementList_insert = i;
 		}
 	}
 
-	if (IndexInDataArray >= 0)
+	if (IndexInElementList >= 0)
 	{
-		m_Data->ElementList[IndexInDataArray] = Element;
+		m_Data->ElementList[IndexInElementList] = Element;
 	}
 	else
 	{
-		m_Data->IndexList.reserve(m_Data->IndexList.size() + 1);
-		m_Data->IndexList.insert(m_Data->IndexList.begin() + IndexInDataArray_insert, Index);
-		m_Data->ElementList.reserve(m_Data->ElementList.size() + 1);
-		m_Data->ElementList.insert(m_Data->ElementList.begin() + IndexInDataArray_insert, m_Data->ZeroElement);
-		m_Data->ElementList[IndexInDataArray] = Element;
+		m_Data->IndexList.Insert(IndexInElementList_insert, Index);
+		m_Data->ElementList.Insert(IndexInElementList_insert, Element);
 	}
 	
 	return true;
@@ -478,7 +518,7 @@ int_max SparseVector<ElementType>::GetRecordedElementNumber() const
 {
 	if (m_Data)
 	{
-		return int_max(m_Data->ElementList.size());
+		return m_Data->ElementList.GetLength();
 	}
 	else
 	{
@@ -493,7 +533,7 @@ ElementType* SparseVector<ElementType>::GetPointerOfBeginElement()
 {
 	if (m_Data)
 	{
-		return m_Data->ElementList.data();
+		return m_Data->ElementList.GetElementPointer();
 	}
 	else
 	{
@@ -508,7 +548,7 @@ const ElementType* SparseVector<ElementType>::GetPointerOfBeginElement() const
 {
 	if (m_Data)
 	{
-		return m_Data->ElementList.data();
+		return m_Data->ElementList.GetElementPointer();
 	}
 	else
 	{
@@ -519,7 +559,7 @@ const ElementType* SparseVector<ElementType>::GetPointerOfBeginElement() const
 
 template<typename ElementType>
 inline
-std::vector<int_max>& SparseVector<ElementType>::IndexList()
+DenseVector<int_max>& SparseVector<ElementType>::IndexList()
 {
     return m_Data->IndexList;
 }
@@ -527,7 +567,7 @@ std::vector<int_max>& SparseVector<ElementType>::IndexList()
 
 template<typename ElementType>
 inline
-const std::vector<int_max>& SparseVector<ElementType>::IndexList() const
+const DenseVector<int_max>& SparseVector<ElementType>::IndexList() const
 {
     return m_Data->IndexList;
 }
@@ -535,7 +575,7 @@ const std::vector<int_max>& SparseVector<ElementType>::IndexList() const
 
 template<typename ElementType>
 inline
-std::vector<ElementType>& SparseVector<ElementType>::ElementList()
+DenseVector<ElementType>& SparseVector<ElementType>::ElementList()
 {
     return m_Data->ElementList;
 }
@@ -543,7 +583,7 @@ std::vector<ElementType>& SparseVector<ElementType>::ElementList()
 
 template<typename ElementType>
 inline
-const std::vector<ElementType>& SparseVector<ElementType>::ElementList() const
+const DenseVector<ElementType>& SparseVector<ElementType>::ElementList() const
 {
     return m_Data->ElementList;
 }
@@ -559,7 +599,7 @@ DenseMatrix<ElementType> SparseVector<ElementType>::CreateDenseMatrixAsColVector
 	}
 	OutputVector.Fill(0);
 
-	auto RecordedElementNumber = int_max(m_Data->IndexList.size());
+	auto RecordedElementNumber = m_Data->IndexList.GetLength();
 	for (int_max i = 0; i < RecordedElementNumber; ++i)
 	{
 		OutputVector[m_Data->IndexList[i]] = m_Data->ElementList[i];
@@ -578,7 +618,7 @@ DenseMatrix<ElementType> SparseVector<ElementType>::CreateDenseMatrixAsRowVector
 	}
 	OutputVector.Fill(0);
 
-	auto RecordedElementNumber = int_max(m_Data->IndexList.size());
+	auto RecordedElementNumber = m_Data->IndexList.GetLength();
 	for (int_max i = 0; i < RecordedElementNumber; ++i)
 	{
 		OutputVector[m_Data->IndexList[i]] = m_Data->ElementList[i];
@@ -597,7 +637,7 @@ DenseVector<ElementType> SparseVector<ElementType>::CreateDenseVector()
 	}
 	OutputVector.Fill(0);
 
-	auto RecordedElementNumber = int_max(m_Data->IndexList.size());
+	auto RecordedElementNumber = m_Data->IndexList.GetLength();
 	for (int_max i = 0; i < RecordedElementNumber; ++i)
 	{
 		OutputVector[m_Data->IndexList[i]] = m_Data->ElementList[i];
@@ -617,12 +657,7 @@ ElementType SparseVector<ElementType>::Sum() const
 		return ElementType(0);
 	}
 
-    auto Value = ElementType(0);
-    for (int_max k = 0; k < int_max(m_Data->ElementList.size()); ++k)
-    {
-        Value += m_Data->ElementList[k];
-    }
-    return Value;
+	return m_Data->ElementList.Sum();
 }
 
 
@@ -635,13 +670,8 @@ ElementType SparseVector<ElementType>::L1Norm() const
 		MDK_Error("Self is empty @ SparseVector::L1Norm()")
 		return ElementType(0);
 	}
-
-    auto Value = ElementType(0);
-    for (int_max k = 0; k < int_max(m_Data->ElementList.size()); ++k)
-    {
-        Value += std::abs(m_Data->ElementList[k]);
-    }
-    return Value;
+   
+	return m_Data->ElementList.L1Norm();
 }
 
 
@@ -655,13 +685,7 @@ ElementType SparseVector<ElementType>::L2Norm() const
 		return ElementType(0);
 	}
 
-    auto Value = ElementType(0);
-    for (int_max k = 0; k < int_max(m_Data->ElementList.size()); ++k)
-    {
-        Value += m_Data->ElementList[k] * m_Data->ElementList[k];
-    }
-    Value = std::sqrt(Value);
-    return Value;
+	return m_Data->ElementList.L2Norm();
 }
 
 

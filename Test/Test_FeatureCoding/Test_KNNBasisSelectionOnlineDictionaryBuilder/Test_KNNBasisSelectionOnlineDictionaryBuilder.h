@@ -29,9 +29,9 @@ void Test_SimpleCase()
 {
     using namespace mdk;
 
-    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/";
+    std::string FilePath = "C:/Research/MDK/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/TestData/SimpleCase/";
 
-    CharString FeatureDataFilePathAndName = FilePath + "DataSample.json";
+    std::string FeatureDataFilePathAndName = FilePath + "DataSample.json";
 
     auto FeatureData = LoadDenseMatrixFromJsonDataFile<double>(FeatureDataFilePathAndName);
 
@@ -57,7 +57,7 @@ void Test_SimpleCase()
 
     DictionaryBuilder.m_Parameter.MaxNumberOfDataInEachBatch = 100;
 
-    DictionaryBuilder.m_Parameter.MaxNumberOfThreads = 4;
+    DictionaryBuilder.m_Parameter.MaxNumberOfThread = 4;
 
     DictionaryBuilder.m_Parameter.DebugInfo.Flag_OutputDebugInfo = true;
     DictionaryBuilder.m_Parameter.DebugInfo.FilePathToSaveDebugInfo = FilePath;
@@ -80,9 +80,9 @@ void Test_GaussianObjectImage()
 {
     using namespace mdk;
 
-    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/Debug/";
+    std::string FilePath = "C:/Research/MDK/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/TestData/GaussianObjectImage/";
 
-    CharString FeatureDataFilePathAndName = FilePath + "GaussianObjectImage.json";
+    std::string FeatureDataFilePathAndName = FilePath + "GaussianObjectImage.json";
 
     auto FeatureData = LoadDenseMatrixFromJsonDataFile<double>(FeatureDataFilePathAndName);
 
@@ -98,7 +98,7 @@ void Test_GaussianObjectImage()
 
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityType = VectorSimilarityTypeEnum::L2Distance;
     
-    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.1;
+    DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold = 0.01;
 
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.Variance_L2 = 0.287;
 
@@ -108,7 +108,7 @@ void Test_GaussianObjectImage()
 
     DictionaryBuilder.m_Parameter.MaxNumberOfDataInEachBatch = 100;
 
-    DictionaryBuilder.m_Parameter.MaxNumberOfThreads = 1;
+    DictionaryBuilder.m_Parameter.MaxNumberOfThread = 1;
 
     DictionaryBuilder.m_Parameter.DebugInfo.Flag_OutputDebugInfo = true;
     DictionaryBuilder.m_Parameter.DebugInfo.FilePathToSaveDebugInfo = FilePath;

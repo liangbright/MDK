@@ -98,7 +98,7 @@ bool Sort(const ElementType* InputDataArray, int_max Length, ElementType* Output
     {
         std::sort(OutputIndexList, OutputIndexList + Length, [&](int_max a, int_max b) { return InputDataArray[a] < InputDataArray[b]; });
     }
-    else
+    else// if (Order == "descend")
     {
         std::sort(OutputIndexList, OutputIndexList + Length, [&](int_max a, int_max b) { return InputDataArray[a] > InputDataArray[b]; });
     }

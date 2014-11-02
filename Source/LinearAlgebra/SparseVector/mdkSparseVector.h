@@ -30,10 +30,10 @@ struct SparseVectorData
 {
 	int_max Length;                      // length of the vector
 
-	std::vector<int_max> IndexList;      // RowIndexList if it is a row vector
+	DenseVector<int_max> IndexList;      // RowIndexList if it is a row vector
 										 // ColIndexList if it is a col vector
 
-	std::vector<ElementType> ElementList;  // store element with the order in m_IndexList
+	DenseVector<ElementType> ElementList;  // store element with the order in IndexList
 
 	ElementType ZeroElement;
 
@@ -60,6 +60,8 @@ public:
 
     inline SparseVector();
 
+	inline SparseVector(const MDK_Symbol_PureEmpty&);
+
 	inline SparseVector(const ElementType& Element);
 
     inline SparseVector(const SparseVector& InputVector);
@@ -78,6 +80,10 @@ public:
 
     inline bool Construct(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length);
 
+	inline bool Construct(const DenseVector<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length);
+
+	inline bool Construct(const DenseMatrix<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length);
+
     inline bool Construct(const int_max* IndexList, const ElementType* ElementList, int_max RecordedElementNumber, int_max Length);
 
     inline void ConstructFromSortedData(std::vector<int_max> IndexList, std::vector<ElementType> ElementList, int_max Length);
@@ -92,7 +98,7 @@ public:
 
     inline void Clear();
 
-	inline void Reset();
+	inline void Clear(const MDK_Symbol_PureEmpty&); // m_Data.reset(), set m_Data to be empty
 
     inline void Resize(int_max InputLength);
 
@@ -128,13 +134,13 @@ public:
 
     inline const ElementType* GetPointerOfBeginElement() const;
 
-    inline std::vector<int_max>& IndexList();
+	inline DenseVector<int_max>& IndexList();
 
-    inline const std::vector<int_max>& IndexList() const;
+	inline const DenseVector<int_max>& IndexList() const;
 
-    inline std::vector<ElementType>& ElementList();
+	inline DenseVector<ElementType>& ElementList();
 
-    inline const std::vector<ElementType>& ElementList() const;
+	inline const DenseVector<ElementType>& ElementList() const;
 
     //------------------------------------------
 	DenseMatrix<ElementType> CreateDenseMatrixAsColVector();

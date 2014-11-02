@@ -451,9 +451,9 @@ UpdateReconstructionCodeWithKNNSearchResult(DataArray<SparseVector<ScalarType>>&
     //for (int_max k = 0; k <= DataNumber-1; ++k)
     auto TempFunction_ComputeReconstructionCode = [&](int_max k)
     {
-        const std::vector<int_max> KNNBasisIndexList = ReconstructionCodeSet[k].IndexList();
+        const auto& KNNBasisIndexList = ReconstructionCodeSet[k].IndexList();
 
-        int_max KNNBasisNumber = int_max(KNNBasisIndexList.size());
+        int_max KNNBasisNumber = KNNBasisIndexList.GetLength();
 
         if (KNNBasisNumber > 0)
         {
@@ -540,9 +540,9 @@ ReconstructData(DenseMatrix<ScalarType>&        ReconstructedDataVector,
                 const SparseVector<ScalarType>& ReconstructionCode, 
                 const DenseMatrix<ScalarType>&  BasisMatrix)
 {
-    int_max KNNBasisNumber = int_max(ReconstructionCode.IndexList().size());
+    int_max KNNBasisNumber = int_max(ReconstructionCode.IndexList().GetLength());
 
-    const DenseMatrix<ScalarType> SubCodeVector(const_cast<ScalarType*>(ReconstructionCode.DataArray().data()), KNNBasisNumber, 1);
+    const DenseMatrix<ScalarType> SubCodeVector(const_cast<ScalarType*>(ReconstructionCode.ElementList().GetElementPointer()), KNNBasisNumber, 1);
 
     DenseMatrix<ScalarType> KNNBasisMatrix = BasisMatrix.GetSubMatrix(ALL, ReconstructionCode.IndexList());
 

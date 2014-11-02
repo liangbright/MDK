@@ -6,57 +6,30 @@
 namespace mdk
 {
 
-template<typename Element_Type>
+template<typename DictionaryType>
 class FeatureDictionaryBuilder : public ProcessObject
 {
 public:
-	typedef Element_Type ElementType;
+	typedef typename DictionaryType::ScalarType ScalarType;
 
 protected:
-    FeatureDictionaryBuilder();
-    virtual ~FeatureDictionaryBuilder();
+	FeatureDictionaryBuilder() {}
+	virtual ~FeatureDictionaryBuilder() {}
 
 public:
-    //---------------------------------------------------//
-    // just for reminder, must be overloaded
-    void SetInputFeatureData() {MDK_Error("Empty Function @ FeatureDictionaryBuilder::SetInputFeatureData()")}
-
-    //----------------------------------------------------//
-    // just for reminder, must be overloaded
-    void SetOutputDictionary() {MDK_Error("Empty Function @ FeatureDictionaryBuilder::SetOutputDictionary()")}
- 
-    //----------------------------------------------------//
+	virtual void SetInputFeatureData(const DenseMatrix<ScalarType>* FeatureData) = 0;
 
     virtual bool CheckInput() = 0;
 
-    //----------------------------------------------------//
+	virtual bool Update() = 0;
 
-    virtual bool Update();
-  
-    //----------------------------------------------------//
-    // just for reminder, must be overloaded
-    void GetOutputDictionary() {MDK_Error("Empty Function @ FeatureDictionaryBuilder::SetOutputDictionary()") } 
-
-    //---------------------------------------------------//
-protected:
-    virtual void GenerateDictionary() = 0;
-
-    virtual void ClearPipelineOutput() = 0;
-
-    virtual void UpdatePipelineOutput() = 0;
+	virtual DictionaryType* GetOutputDictionary() = 0;
 
 private:
     FeatureDictionaryBuilder(const FeatureDictionaryBuilder&) = delete;
-
     void operator=(const FeatureDictionaryBuilder&) = delete;
-
-    FeatureDictionaryBuilder(FeatureDictionaryBuilder&&) = delete;
-
-    void operator=(FeatureDictionaryBuilder&&) = delete;
 };
 
 }// namespace mdk
-
-#include "mdkFeatureDictionaryBuilder.hpp"
 
 #endif
