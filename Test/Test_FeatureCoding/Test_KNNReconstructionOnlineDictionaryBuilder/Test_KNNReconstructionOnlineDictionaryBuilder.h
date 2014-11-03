@@ -6,9 +6,9 @@ void Test_SimpleCase()
 {
     using namespace mdk;
 
-    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNReconstructionOnlineDictionaryBuilder/Debug/";
+    std::string FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNReconstructionOnlineDictionaryBuilder/Debug/";
 
-    CharString FeatureDataFilePathAndName = FilePath + "DataSample.json";
+    std::string FeatureDataFilePathAndName = FilePath + "DataSample.json";
 
     auto FeatureData = LoadDenseMatrixFromJsonDataFile<double>(FeatureDataFilePathAndName);
 
@@ -79,9 +79,9 @@ void Test_GaussianObjectImage()
 {
     using namespace mdk;
 
-    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNReconstructionOnlineDictionaryBuilder/Debug/";
+    std::string FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNReconstructionOnlineDictionaryBuilder/Debug/";
 
-    CharString FeatureDataFilePathAndName = FilePath + "GaussianObjectImage.json";
+    std::string FeatureDataFilePathAndName = FilePath + "GaussianObjectImage.json";
 
     auto FeatureData = LoadDenseMatrixFromJsonDataFile<double>(FeatureDataFilePathAndName);
 
@@ -161,9 +161,9 @@ void Test_ImageDenoising()
 {
     using namespace mdk;
 
-    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNReconstructionOnlineDictionaryBuilder/Debug/";
+    std::string FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNReconstructionOnlineDictionaryBuilder/Debug/";
 
-    CharString FeatureDataFilePathAndName = FilePath + "NoisyImagePatch.json";
+    std::string FeatureDataFilePathAndName = FilePath + "NoisyImagePatch.json";
 
     auto FeatureData = LoadDenseMatrixFromJsonDataFile<double>(FeatureDataFilePathAndName);
 
@@ -183,7 +183,7 @@ void Test_ImageDenoising()
 
     int_max BasisNumber = 256;
 
-    int_max MaxNumberOfThreads = 8;
+    int_max MaxNumberOfThread = 8;
 
     //-------------------------------------------------------------------------------------------
 
@@ -208,7 +208,7 @@ void Test_ImageDenoising()
     InitialDictionaryBuilder.m_Parameter.DebugInfo.Flag_OutputDebugInfo = true;
     InitialDictionaryBuilder.m_Parameter.DebugInfo.FilePathToSaveDebugInfo = FilePath;
 
-    InitialDictionaryBuilder.m_Parameter.MaxNumberOfThreads = MaxNumberOfThreads;
+    InitialDictionaryBuilder.m_Parameter.MaxNumberOfThread = MaxNumberOfThread;
 
     InitialDictionaryBuilder.SetInputFeatureData(&FeatureData);
 
@@ -244,7 +244,7 @@ void Test_ImageDenoising()
 
     DictionaryBuilder.m_Parameter.MaxNumberOfInterations = 1;
 
-    DictionaryBuilder.m_Parameter.MaxNumberOfThreads = MaxNumberOfThreads;
+    DictionaryBuilder.m_Parameter.MaxNumberOfThread = MaxNumberOfThread;
 
     DictionaryBuilder.SetInputFeatureData(&FeatureData);
 
@@ -266,13 +266,13 @@ void Test_ImageDenoising()
 
     SparseEncoder.m_Parameter.NeighbourNumber = NeighbourNumber;
     SparseEncoder.m_Parameter.SimilarityType = SimilarityType;
-    SparseEncoder.SetMaxNumberOfThreads(MaxNumberOfThreads);
+    SparseEncoder.SetMaxNumberOfThread(MaxNumberOfThread);
 
     SparseEncoder.SetInputFeatureData(&FeatureData);
     SparseEncoder.SetInputDictionary(DictionaryPtr);
     SparseEncoder.Update();
 
-    auto CodeSet = SparseEncoder.GetOutputCodeInSparseColVectorSet();
+    auto& CodeSet = *SparseEncoder.GetOutputCode();
 
     DenseMatrix<double> ReconstructedFeatureData;
 

@@ -54,13 +54,13 @@ void SPAMSSparseEncoder<ScalarType>::GenerateCode_in_a_Thread(int_max IndexOfDat
     m_ThreadStatus[ThreadIndex] = 1;
     //-------------------------------------//
 
+	auto CodeLength = m_Dictionary->BasisMatrix().GetColNumber();
+
     //auto tempFeatureData = m_FeatureData->GetSubMatrix(ALL, span(IndexOfDataVector_start, IndexOfDataVector_end));
 	auto tempRowNumber = m_FeatureData->GetRowNumber();
 	auto tempColNumber = IndexOfDataVector_end - IndexOfDataVector_start + 1;
 
-    auto CodeLength = m_Dictionary->BasisMatrix().GetColNumber();
-
-	spams::Matrix<ScalarType> X(const_cast<ScalarType*>(tempFeatureData.GetPointerOfCol(IndexOfDataVector_start)), tempRowNumber, tempColNumber);
+	spams::Matrix<ScalarType> X(const_cast<ScalarType*>(m_FeatureData->GetPointerOfCol(IndexOfDataVector_start)), tempRowNumber, tempColNumber);
 
     spams::Matrix<ScalarType> D(const_cast<ScalarType*>(m_Dictionary->BasisMatrix().GetElementPointer()),
                                 m_Dictionary->BasisMatrix().GetRowNumber(),
@@ -148,6 +148,8 @@ SparseVector<ScalarType> SPAMSSparseEncoder<ScalarType>::
 EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
 {
 	MDK_Error("This function is not implemented @ SPAMSSparseEncoder::EncodeSingleDataVector(...)")
+	SparseVector<ScalarType> OutputCode;
+	return OutputCode;
 }
 
 template<typename ScalarType>
@@ -156,6 +158,8 @@ SparseVector<ScalarType> SPAMSSparseEncoder<ScalarType>::
 EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex)
 {
     MDK_Error("This function is not implemented @ SPAMSSparseEncoder::EncodeSingleDataVector(...)")
+	SparseVector<ScalarType> OutputCode;
+	return OutputCode;
 }
 
 

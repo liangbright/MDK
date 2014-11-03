@@ -1,104 +1,68 @@
-#ifndef __mdkKNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder_hpp
-#define __mdkKNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder_hpp
+#ifndef __mdkKNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder_hpp
+#define __mdkKNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder_hpp
 
 
 namespace mdk
 {
 
-template<typename ElementType>
-KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder()
+template<typename ScalarType>
+KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder()
 {
     this->Clear();
 }
 
 
-template<typename ElementType>
-KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::~KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder()
+template<typename ScalarType>
+KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::~KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder()
 {
 }
 
 //---------------------------------------------------------------------------------------------------------------//
 
-template<typename ElementType>
-void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::Clear()
+template<typename ScalarType>
+void KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::Clear()
 {
     m_Parameter.Clear();
-
     m_FeatureData = nullptr;
-
     m_InitialDictionary = nullptr;
-
-    this->ClearPipelineOutput();
+	m_Dictionary.Clear();
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::ClearPipelineOutput()
-{
-    m_Dictionary_SharedCopy.Clear();
-    m_Dictionary = &m_Dictionary_SharedCopy;
-}
-
-
-template<typename ElementType>
-void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::UpdatePipelineOutput()
-{
-    if (m_Dictionary != &m_Dictionary_SharedCopy)
-    {
-        m_Dictionary_SharedCopy.Share(m_Dictionary);
-    }
-}
-
-
-template<typename ElementType>
-void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData)
+template<typename ScalarType>
+void KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::SetInputFeatureData(const DenseMatrix<ScalarType>* InputFeatureData)
 {
     m_FeatureData = InputFeatureData;
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::
-SetInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>* InitialDictionary)
+template<typename ScalarType>
+void KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::
+SetInitialDictionary(const FeatureDictionaryForSparseCoding<ScalarType>* InitialDictionary)
 {
     m_InitialDictionary = InitialDictionary;
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* OutputDictionary)
+template<typename ScalarType>
+FeatureDictionaryForSparseCoding<ScalarType>* KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::GetOutputDictionary()
 {
-    if (OutputDictionary == nullptr)
-    {
-        MDK_Error("Invalid input @ KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder::SetOutputDictionary(...)")
-        return;
-    }
-
-    m_Dictionary = OutputDictionary;
-
-    m_Dictionary_SharedCopy.ForceShare(OutputDictionary);
+    return &m_Dictionary;
 }
 
 
-template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>* KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::GetOutputDictionary()
-{
-    return &m_Dictionary_SharedCopy;
-}
-
-
-template<typename ElementType>
-bool KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::CheckInput()
+template<typename ScalarType>
+bool KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::CheckInput()
 {
     if (m_FeatureData == nullptr)
     {
-        MDK_Error("m_FeatureData is nullptr @ KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("m_FeatureData is nullptr @ KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
     if (m_FeatureData->IsEmpty() == true)
     {
-        MDK_Error("InputFeatureData is empty @ KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("InputFeatureData is empty @ KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
@@ -108,7 +72,7 @@ bool KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::Ch
     {
         if (m_FeatureData->GetRowNumber() != m_InitialDictionary->BasisMatrix().GetRowNumber())
         {
-            MDK_Error("RowNumber Of FeatureData != RowNumber Of InputDictionary @ KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder::CheckInput()")
+            MDK_Error("RowNumber Of FeatureData != RowNumber Of InputDictionary @ KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder::CheckInput()")
             return false;
         }
 
@@ -134,7 +98,7 @@ bool KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::Ch
 
             if (IsOk == false)
             {
-                MDK_Error("ParameterOfKNNSoftAssign.Variance_L1 <= 0 @ KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder::CheckInput()")
+                MDK_Error("ParameterOfKNNSoftAssign.Variance_L1 <= 0 @ KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder::CheckInput()")
                 return false;
             }
         }
@@ -158,7 +122,7 @@ bool KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::Ch
 
             if (IsOk == false)
             {
-                MDK_Error("ParameterOfKNNSoftAssign.Variance_L2 <= 0 @ KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder::CheckInput()")
+                MDK_Error("ParameterOfKNNSoftAssign.Variance_L2 <= 0 @ KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder::CheckInput()")
                 return false;
             }
         }
@@ -182,7 +146,7 @@ bool KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::Ch
 
             if (IsOk == false)
             {
-                MDK_Error("ParameterOfKNNSoftAssign.Variance_KL <= 0 @ KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder::CheckInput()")
+                MDK_Error("ParameterOfKNNSoftAssign.Variance_KL <= 0 @ KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder::CheckInput()")
                 return false;
             }
         }
@@ -191,7 +155,7 @@ bool KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::Ch
     if (m_Parameter.ParameterOfKNNBasisSelection.WeightOnProbabiliyForBasisSelection < 0
         || m_Parameter.ParameterOfKNNBasisSelection.WeightOnProbabiliyForBasisSelection > 1)
     {
-        MDK_Error("WeightOnProbabiliyForBasisSelection < 0 or > 1 @ KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder::CheckInput()")
+        MDK_Error("WeightOnProbabiliyForBasisSelection < 0 or > 1 @ KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder::CheckInput()")
         return false;
     }
 
@@ -200,21 +164,33 @@ bool KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::Ch
         m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
     }
 
-    if (m_Parameter.MaxNumberOfThreads <= 0)
+    if (m_Parameter.MaxNumberOfThread <= 0)
     {
-        MDK_Warning("MaxNumberOfThreads <= 0, set to 1 @ KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder::CheckInput()")
+        MDK_Warning("MaxNumberOfThread <= 0, set to 1 @ KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder::CheckInput()")
 
-        m_Parameter.MaxNumberOfThreads = 1;
+        m_Parameter.MaxNumberOfThread = 1;
     }
 
     return true;
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
+template<typename ScalarType>
+bool KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::Update()
 {
-    FeatureDictionaryForSparseCoding<ElementType> OutputDictionary;
+	if (this->CheckInput() == false)
+	{
+		return false;
+	}
+	this->GenerateDictionary();
+	return true;
+}
+
+
+template<typename ScalarType>
+void KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::GenerateDictionary()
+{
+    FeatureDictionaryForSparseCoding<ScalarType> OutputDictionary;
 
     // check InputDictionary ------------------------------------------------------
 
@@ -254,7 +230,7 @@ void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::Ge
         // 1 : not used yet
         // 0 : used
 
-        DenseMatrix<ElementType> FeatureData_current;
+        DenseMatrix<ScalarType> FeatureData_current;
 
         int_max NumberOfDataInNextBatch = m_Parameter.MaxNumberOfDataInEachBatch;
 
@@ -302,14 +278,14 @@ void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::Ge
     this->UpdateDictionary_Final(OutputDictionary, *m_FeatureData);
 
     this->UpdateDictionary_Final_OtherInformation(OutputDictionary, TotalDataNumber);
-
-    m_Dictionary->Take(OutputDictionary);
+	//----------------------------------
+    m_Dictionary.Take(OutputDictionary);
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::
-UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary, const DenseMatrix<ElementType>& FeatureData)
+template<typename ScalarType>
+void KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::
+UpdateDictionary(FeatureDictionaryForSparseCoding<ScalarType>& Dictionary, const DenseMatrix<ScalarType>& FeatureData)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -324,9 +300,9 @@ UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary, cons
 
     // adjust BasisExperience : set BasisExperience of new basis to 1
 
-    DenseMatrix<int_max>& tempBasisID = tempDictionarPtr->BasisID();
+    auto& tempBasisID = tempDictionarPtr->BasisID();
 
-    DenseMatrix<ElementType>& tempBasisExperience = tempDictionarPtr->BasisExperience();
+    auto& tempBasisExperience = tempDictionarPtr->BasisExperience();
 
     int_max tempBasisNumber = tempDictionarPtr->BasisMatrix().GetColNumber();
 
@@ -339,20 +315,18 @@ UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary, cons
     }
 
     // perform KNN average
-
     m_KNNAverageOnlineDictionaryBuilder.SetInputFeatureData(&FeatureData);
     m_KNNAverageOnlineDictionaryBuilder.SetInitialDictionary(tempDictionarPtr);
     m_KNNAverageOnlineDictionaryBuilder.Update();
 
     // output
-
     Dictionary.Take(m_KNNAverageOnlineDictionaryBuilder.GetOutputDictionary());
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::
-UpdateDictionary_Final(FeatureDictionaryForSparseCoding<ElementType>& Dictionary, const DenseMatrix<ElementType>& FeatureData)
+template<typename ScalarType>
+void KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::
+UpdateDictionary_Final(FeatureDictionaryForSparseCoding<ScalarType>& Dictionary, const DenseMatrix<ScalarType>& FeatureData)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -360,9 +334,9 @@ UpdateDictionary_Final(FeatureDictionaryForSparseCoding<ElementType>& Dictionary
 
     // adjust BasisExperience : set BasisExperience of new basis to 1
 
-    DenseMatrix<int_max>& BasisID = Dictionary.BasisID();
+    auto& BasisID = Dictionary.BasisID();
 
-    DenseMatrix<ElementType>& BasisExperience = Dictionary.BasisExperience();
+    auto& BasisExperience = Dictionary.BasisExperience();
 
     int_max BasisNumber = Dictionary.BasisMatrix().GetColNumber();
 
@@ -386,13 +360,13 @@ UpdateDictionary_Final(FeatureDictionaryForSparseCoding<ElementType>& Dictionary
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::
-UpdateDictionary_Final_OtherInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary, int_max DataNumber)
+template<typename ScalarType>
+void KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::
+UpdateDictionary_Final_OtherInformation(FeatureDictionaryForSparseCoding<ScalarType>& Dictionary, int_max DataNumber)
 {
     // Set BasisID for new basis
 
-    DenseMatrix<int_max>& BasisID = Dictionary.BasisID();
+    auto& BasisID = Dictionary.BasisID();
 
     int_max tempBasisNumber = Dictionary.BasisMatrix().GetColNumber();
 
@@ -410,8 +384,8 @@ UpdateDictionary_Final_OtherInformation(FeatureDictionaryForSparseCoding<Element
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::SetupParameter()
+template<typename ScalarType>
+void KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::SetupParameter()
 {
     m_KNNBasisSelectionDictionaryBuilder.m_Parameter.BasisNumber = m_Parameter.BasisNumber;
 
@@ -430,7 +404,7 @@ void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::Se
     m_KNNBasisSelectionDictionaryBuilder.m_Parameter.WeightOnProbabiliyForBasisSelection 
         = m_Parameter.ParameterOfKNNBasisSelection.WeightOnProbabiliyForBasisSelection;
 
-    m_KNNBasisSelectionDictionaryBuilder.m_Parameter.MaxNumberOfThreads = m_Parameter.MaxNumberOfThreads;
+    m_KNNBasisSelectionDictionaryBuilder.m_Parameter.MaxNumberOfThread = m_Parameter.MaxNumberOfThread;
 
     m_KNNBasisSelectionDictionaryBuilder.m_Parameter.Flag_Update_BasisAge = false;
     m_KNNBasisSelectionDictionaryBuilder.m_Parameter.Flag_Update_BasisID  = false;
@@ -453,7 +427,7 @@ void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::Se
     m_KNNAverageOnlineDictionaryBuilder.m_Parameter.ExperienceDiscountFactor = m_Parameter.ParameterOfKNNAverage.ExperienceDiscountFactor;
     m_KNNAverageOnlineDictionaryBuilder.m_Parameter.WhetherToUseScaleFactor  = m_Parameter.ParameterOfKNNAverage.WhetherToUseScaleFactor;
 
-    m_KNNAverageOnlineDictionaryBuilder.m_Parameter.MaxNumberOfThreads = m_Parameter.MaxNumberOfThreads;
+    m_KNNAverageOnlineDictionaryBuilder.m_Parameter.MaxNumberOfThread = m_Parameter.MaxNumberOfThread;
 
     m_KNNAverageOnlineDictionaryBuilder.m_Parameter.Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix
         = m_Parameter.Flag_Update_VarianceOfReconstruction_Using_KNNBasisMatrix;
@@ -466,8 +440,8 @@ void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::Se
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::UpdateParameter(int_max BasisNumber, int_max DataNumber)
+template<typename ScalarType>
+void KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::UpdateParameter(int_max BasisNumber, int_max DataNumber)
 {
     m_Parameter.MaxNumberOfDataInEachBatch = std::min(int_max(500), m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber*BasisNumber);
 
@@ -478,9 +452,9 @@ void KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::Up
 
 // out of memory
 /*
-template<typename ElementType>
+template<typename ScalarType>
 DenseMatrix<int_max>
-KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::
+KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::
 ComputeBasisNumberSequence(int_max BasisNumber_final, double factor, int_max DataNumber)
 {
     DenseMatrix<int_max> BasisNumberSequence;
@@ -514,15 +488,15 @@ ComputeBasisNumberSequence(int_max BasisNumber_final, double factor, int_max Dat
 }
 */
 
-template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>
-KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<ElementType>::CopyInitialDictionaryAndDiscountBasisExperience()
+template<typename ScalarType>
+FeatureDictionaryForSparseCoding<ScalarType>
+KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<ScalarType>::CopyInitialDictionaryAndDiscountBasisExperience()
 {
-    FeatureDictionaryForSparseCoding<ElementType> OutputDictionary;
+    FeatureDictionaryForSparseCoding<ScalarType> OutputDictionary;
 
     OutputDictionary.Copy(m_InitialDictionary); // m_InitialDictionary is not empty
 
-    DenseMatrix<ElementType>& BasisExperience = OutputDictionary.BasisExperience();
+    auto& BasisExperience = OutputDictionary.BasisExperience();
 
     // discount the previous Experience
     BasisExperience *= m_Parameter.ExperienceDiscountFactor;

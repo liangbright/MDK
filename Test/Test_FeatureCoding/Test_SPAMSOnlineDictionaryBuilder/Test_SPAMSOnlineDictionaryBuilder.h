@@ -86,7 +86,7 @@ void Test_Train()
 
     KNNReconstructionSparseEncoder<double> Encoder;
 
-    Encoder.SetMaxNumberOfThreads(1);
+    Encoder.SetMaxNumberOfThread(1);
 
     Encoder.m_Parameter.NeighbourNumber = 3;
 

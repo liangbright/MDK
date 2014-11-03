@@ -31,27 +31,21 @@
 namespace mdk
 {
 
-void Test_OMP()
+void Test_OMP() // something is wrong with OMP
 {
     int_max FeatureDimension = 3;
-
     int_max FeatureVectorNumber = 3;
 
     DenseMatrix<double> FeatureData(FeatureDimension, FeatureVectorNumber);
-
     for (int_max i = 0; i < FeatureVectorNumber; ++i)
     {
         auto value = double(i) / double(FeatureVectorNumber);
-
         FeatureData.Col(i) = value;
-
         FeatureData.Row(i) = value;
     }
 
     FeatureDictionaryForSparseCoding<double> Dictionary;
-
     Dictionary.BasisMatrix().FastResize(FeatureDimension, 3);
-
     for (int_max i = 0; i < 3; ++i)
     {
         Dictionary.BasisMatrix().Col(i) = i;
@@ -63,24 +57,24 @@ void Test_OMP()
     Encoder.m_MethodName = "OMP";
 
     Encoder.m_Parameter_OMP.L = 3;
-    Encoder.m_Parameter_OMP.eps = 0;
-    Encoder.m_Parameter_OMP.lambda = 0;
-
+    Encoder.m_Parameter_OMP.eps = std::numeric_limits<double>::epsilon();
+    Encoder.m_Parameter_OMP.lambda = 1;
+	
     Encoder.SetInputDictionary(&Dictionary);
 
     Encoder.SetInputFeatureData(&FeatureData);
 
-    Encoder.SetMaxNumberOfThreads(1);
+    Encoder.SetMaxNumberOfThread(1);
 
     Encoder.Update();
 
-    auto Code = Encoder.GetOutputCodeInDenseMatrix();
+    auto Code = Encoder.ConvertOutputCodeToDenseMatrix();
 
     DisplayMatrix("X", FeatureData, 6);
 
     DisplayMatrix("D", Dictionary.BasisMatrix(), 6);
 
-    DisplayMatrix("Alpha", *Code, 6);
+    DisplayMatrix("Alpha", Code, 6);
 
 }
 
@@ -91,20 +85,15 @@ void Test_Lasso()
     int_max FeatureVectorNumber = 3;
 
     DenseMatrix<double> FeatureData(FeatureDimension, FeatureVectorNumber);
-
     for (int_max i = 0; i < FeatureVectorNumber; ++i)
     {
         auto value = double(i) / double(FeatureVectorNumber);
-
         FeatureData.Col(i) = value;
-
         FeatureData.Row(i) = value;
     }
 
     FeatureDictionaryForSparseCoding<double> Dictionary;
-
     Dictionary.BasisMatrix().FastResize(FeatureDimension, 3);
-
     for (int_max i = 0; i < 3; ++i)
     {
         Dictionary.BasisMatrix().Col(i) = i;
@@ -121,22 +110,21 @@ void Test_Lasso()
     Encoder.m_Parameter_Lasso.pos = true;
     Encoder.m_Parameter_Lasso.ols = false;
 
-
     Encoder.SetInputDictionary(&Dictionary);
 
     Encoder.SetInputFeatureData(&FeatureData);
 
-    Encoder.SetMaxNumberOfThreads(1);
+    Encoder.SetMaxNumberOfThread(1);
 
     Encoder.Update();
 
-    auto Code = Encoder.GetOutputCodeInDenseMatrix();
+    auto Code = Encoder.ConvertOutputCodeToDenseMatrix();
 
     DisplayMatrix("X", FeatureData, 6);
 
     DisplayMatrix("D", Dictionary.BasisMatrix(), 6);
 
-    DisplayMatrix("Alpha", *Code, 6);
+    DisplayMatrix("Alpha", Code, 6);
 
 }
 

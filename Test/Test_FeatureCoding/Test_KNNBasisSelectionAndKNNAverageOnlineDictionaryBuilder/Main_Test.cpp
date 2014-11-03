@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 
-#include "Test_KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder.h"
+#include "Test_KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder.h"
 
 using namespace mdk;
 

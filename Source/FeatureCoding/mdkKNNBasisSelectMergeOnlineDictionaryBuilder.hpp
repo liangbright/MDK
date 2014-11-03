@@ -1,93 +1,56 @@
 #ifndef __mdkKNNBasisSelectMergeOnlineDictionaryBuilder_hpp
 #define __mdkKNNBasisSelectMergeOnlineDictionaryBuilder_hpp
 
-
 namespace mdk
 {
 
-template<typename ElementType>
-KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::KNNBasisSelectMergeOnlineDictionaryBuilder()
+template<typename ScalarType>
+KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::KNNBasisSelectMergeOnlineDictionaryBuilder()
 {
     this->Clear();
 }
 
 
-template<typename ElementType>
-KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::~KNNBasisSelectMergeOnlineDictionaryBuilder()
+template<typename ScalarType>
+KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::~KNNBasisSelectMergeOnlineDictionaryBuilder()
 {
 }
 
 //---------------------------------------------------------------------------------------------------------------//
 
-template<typename ElementType>
-void KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::Clear()
+template<typename ScalarType>
+void KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::Clear()
 {
     m_Parameter.Clear();
-
     m_FeatureData = nullptr;
-
     m_InitialDictionary = nullptr;
-
-    this->ClearPipelineOutput();
+	m_Dictionary.Clear();
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::ClearPipelineOutput()
-{
-    m_Dictionary_SharedCopy.Clear();
-    m_Dictionary = &m_Dictionary_SharedCopy;
-}
-
-
-template<typename ElementType>
-void KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::UpdatePipelineOutput()
-{
-    if (m_Dictionary != &m_Dictionary_SharedCopy)
-    {
-        m_Dictionary_SharedCopy.Share(m_Dictionary);
-    }
-}
-
-
-template<typename ElementType>
-void KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData)
+template<typename ScalarType>
+void KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::SetInputFeatureData(const DenseMatrix<ScalarType>* InputFeatureData)
 {
     m_FeatureData = InputFeatureData;
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::SetInputDictionary(const FeatureDictionaryForSparseCoding<ElementType>* InputDictionary)
+template<typename ScalarType>
+void KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::SetInitialDictionary(const FeatureDictionaryForSparseCoding<ScalarType>* InitialDictionary)
 {
-    m_InitialDictionary = InputDictionary;
+	m_InitialDictionary = InitialDictionary;
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* OutputDictionary)
+template<typename ScalarType>
+FeatureDictionaryForSparseCoding<ScalarType>* KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::GetOutputDictionary()
 {
-    if (OutputDictionary == nullptr)
-    {
-        MDK_Error("Invalid input @ KNNBasisSelectMergeOnlineDictionaryBuilder::SetOutputDictionary(...)")
-        return;
-    }
-
-    m_Dictionary = OutputDictionary;
-
-    m_Dictionary_SharedCopy.ForceShare(OutputDictionary);
+    return &m_Dictionary;
 }
 
 
-template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>* KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::GetOutputDictionary()
-{
-    return &m_Dictionary_SharedCopy;
-}
-
-
-template<typename ElementType>
-bool KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::CheckInput()
+template<typename ScalarType>
+bool KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::CheckInput()
 {
     m_KNNBasisSelectionDictionaryBuilder.m_Parameter = m_Parameter;
     m_KNNBasisSelectionDictionaryBuilder.SetInputFeatureData(m_FeatureData);
@@ -108,10 +71,22 @@ bool KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::CheckInput()
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
+template<typename ScalarType>
+bool KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::Update()
 {
-    FeatureDictionaryForSparseCoding<ElementType> OutputDictionary;
+	if (this->CheckInput() == false)
+	{
+		return false;
+	}
+	this->GenerateDictionary();
+	return true;
+}
+
+
+template<typename ScalarType>
+void KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::GenerateDictionary()
+{
+    FeatureDictionaryForSparseCoding<ScalarType> OutputDictionary;
 
     //-----------------------------------------------------------------------------
     if (m_InitialDictionary != nullptr)
@@ -119,7 +94,7 @@ void KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::GenerateDictionary
         OutputDictionary = this->PreprocessInitialDictionary(*m_InitialDictionary);
     }
 
-    auto TotalExperience_init = ElementType(0);
+    auto TotalExperience_init = ScalarType(0);
     if (OutputDictionary.BasisExperience().IsEmpty() == false)
     {
         TotalExperience_init = OutputDictionary.BasisExperience().Sum();
@@ -130,7 +105,7 @@ void KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::GenerateDictionary
 
     if (m_Parameter.MaxNumberOfDataInEachBatch >= TotalDataNumber)
     {     
-        for (int_max k = 0; k < m_Parameter.MaxNumberOfInterations; ++k)
+        for (int_max k = 0; k < m_Parameter.MaxNumberOfInteration; ++k)
         {
             OutputDictionary = this->BuildDictionaryFromDataBatch(OutputDictionary, *m_FeatureData);
 
@@ -152,9 +127,9 @@ void KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::GenerateDictionary
 
         DenseMatrix<int_max> DataFlagList(1, TotalDataNumber);
 
-        DenseMatrix<ElementType> FeatureData_CurrentBatch;
+        DenseMatrix<ScalarType> FeatureData_CurrentBatch;
 
-        for (int_max k = 0; k < m_Parameter.MaxNumberOfInterations; ++k)
+        for (int_max k = 0; k < m_Parameter.MaxNumberOfInteration; ++k)
         {
             DataFlagList.Fill(1);
             // 1 : not used yet
@@ -194,15 +169,15 @@ void KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::GenerateDictionary
 
     this->UpdateDictionaryInformation_Other(OutputDictionary, m_FeatureData->GetColNumber());
 
-    m_Dictionary->Take(OutputDictionary);
+    m_Dictionary.Take(OutputDictionary);
 }
 
 
-template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>
-KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::PreprocessInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InitialDictionary)
+template<typename ScalarType>
+FeatureDictionaryForSparseCoding<ScalarType>
+KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::PreprocessInitialDictionary(const FeatureDictionaryForSparseCoding<ScalarType>& InitialDictionary)
 {
-    FeatureDictionaryForSparseCoding<ElementType> OutputDictionary;
+    FeatureDictionaryForSparseCoding<ScalarType> OutputDictionary;
 
     if (InitialDictionary.IsEmpty())
     {
@@ -211,7 +186,7 @@ KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::PreprocessInitialDictio
 
     OutputDictionary.Copy(InitialDictionary);
 
-    DenseMatrix<ElementType>& BasisExperience = OutputDictionary.BasisExperience();
+    auto& BasisExperience = OutputDictionary.BasisExperience();
 
     // discount the previous Experience
     BasisExperience *= m_Parameter.ExperienceDiscountFactor;
@@ -228,9 +203,9 @@ KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::PreprocessInitialDictio
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 DenseMatrix<int_max>
-KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::
+KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::
 ComputeDataNumberInEachBatch(int_max TotalDataNumber)
 {
     DenseMatrix<int_max> DataNumberInEachBatch(1, 1 + TotalDataNumber / m_Parameter.MaxNumberOfDataInEachBatch);
@@ -262,10 +237,10 @@ ComputeDataNumberInEachBatch(int_max TotalDataNumber)
 }
 
 
-template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>
-KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::
-BuildDictionaryFromDataBatch(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init, const DenseMatrix<ElementType>& FeatureData)
+template<typename ScalarType>
+FeatureDictionaryForSparseCoding<ScalarType>
+KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::
+BuildDictionaryFromDataBatch(const FeatureDictionaryForSparseCoding<ScalarType>& Dictionary_init, const DenseMatrix<ScalarType>& FeatureData)
 {
     m_KNNBasisSelectionDictionaryBuilder.m_Parameter = m_Parameter;
 
@@ -294,11 +269,11 @@ BuildDictionaryFromDataBatch(const FeatureDictionaryForSparseCoding<ElementType>
 }
 
 
-template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>
-KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::
-CombineInitalDictionaryAndNewDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InputDictionary,
-                                        const FeatureDictionaryForSparseCoding<ElementType>& NewDictionary)
+template<typename ScalarType>
+FeatureDictionaryForSparseCoding<ScalarType>
+KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::
+CombineInitalDictionaryAndNewDictionary(const FeatureDictionaryForSparseCoding<ScalarType>& InputDictionary,
+                                        const FeatureDictionaryForSparseCoding<ScalarType>& NewDictionary)
 {
     auto VectorSimilarityMatrix = this->ComputeVectorSimilarityMatrix(InputDictionary, NewDictionary.BasisMatrix());
 
@@ -332,7 +307,7 @@ CombineInitalDictionaryAndNewDictionary(const FeatureDictionaryForSparseCoding<E
         }
     }
 
-    FeatureDictionaryForSparseCoding<ElementType> OutputDictionary;
+    FeatureDictionaryForSparseCoding<ScalarType> OutputDictionary;
 
     if (SelectedBasisIndexList_input.IsEmpty() == false)
     {
@@ -350,7 +325,7 @@ CombineInitalDictionaryAndNewDictionary(const FeatureDictionaryForSparseCoding<E
 
     // Update SimilarityMatrix In OutputDictionary 
 
-    DenseMatrix<ElementType>& SimilarityMatrix = OutputDictionary.SimilarityMatrix();
+    auto& SimilarityMatrix = OutputDictionary.SimilarityMatrix();
     SimilarityMatrix.FastResize(BasisNumber_selected, BasisNumber_selected);
 
     for (int_max k = 0; k < BasisNumber_selected - 1; ++k)
@@ -373,19 +348,19 @@ CombineInitalDictionaryAndNewDictionary(const FeatureDictionaryForSparseCoding<E
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::
-AdjustBasisExperience(DenseMatrix<ElementType>& BasisExperience, int_max DataNumber, ElementType TotalExperience_init)
+template<typename ScalarType>
+void KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::
+AdjustBasisExperience(DenseMatrix<ScalarType>& BasisExperience, int_max DataNumber, ScalarType TotalExperience_init)
 {
     // adjust the experience of each new basis
 
     int_max BasisNumber = BasisExperience.GetElementNumber();
 
-    ElementType TotalExperience = BasisExperience.Sum();
+    ScalarType TotalExperience = BasisExperience.Sum();
 
     if (TotalExperience > TotalExperience_init + DataNumber)
     {
-        auto factor = ElementType(TotalExperience_init + DataNumber) / TotalExperience;
+        auto factor = ScalarType(TotalExperience_init + DataNumber) / TotalExperience;
 
         BasisExperience *= factor;
 
@@ -400,9 +375,9 @@ AdjustBasisExperience(DenseMatrix<ElementType>& BasisExperience, int_max DataNum
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::
-UpdateDictionaryInformation_Other(FeatureDictionaryForSparseCoding<ElementType>& CombinedDictionary, int_max DataNumber)
+template<typename ScalarType>
+void KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::
+UpdateDictionaryInformation_Other(FeatureDictionaryForSparseCoding<ScalarType>& CombinedDictionary, int_max DataNumber)
 {
     // update BasisRedundancy if required
 
@@ -415,7 +390,7 @@ UpdateDictionaryInformation_Other(FeatureDictionaryForSparseCoding<ElementType>&
 
     if (m_Parameter.Flag_Update_BasisID)
     {
-        DenseMatrix<int_max>& BasisID = CombinedDictionary.BasisID();
+        auto& BasisID = CombinedDictionary.BasisID();
 
         int_max BasisNumber = BasisID.GetElementNumber();
 
@@ -437,11 +412,11 @@ UpdateDictionaryInformation_Other(FeatureDictionaryForSparseCoding<ElementType>&
 }
 
 
-template<typename ElementType>
-DenseMatrix<ElementType> 
-KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::
-ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init, 
-                              const DenseMatrix<ElementType>& BasisMatrix_new)
+template<typename ScalarType>
+DenseMatrix<ScalarType> 
+KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::
+ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ScalarType>& Dictionary_init, 
+                              const DenseMatrix<ScalarType>& BasisMatrix_new)
 {
     //------------------------------------------------------------------------------------------
     // Input:
@@ -457,11 +432,11 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
     // a pair of vector_i and vector_j is called data pair
     //------------------------------------------------------------------------------------------
 
-    DenseMatrix<ElementType> VectorSimilarityMatrix;
+    DenseMatrix<ScalarType> VectorSimilarityMatrix;
 
     int_max VectorLength = BasisMatrix_new.GetRowNumber();
 
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+    auto eps_value = std::numeric_limits<ScalarType>::epsilon();
 
     auto SimilarityThreshold = m_Parameter.ParameterOfKNNSoftAssign.SimilarityThreshold;
 
@@ -470,7 +445,7 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
 
     auto SimilarityType = m_Parameter.ParameterOfKNNSoftAssign.SimilarityType;
 
-    auto Variance = ElementType(0);
+    auto Variance = ScalarType(0);
 
     switch (SimilarityType)
     {
@@ -498,10 +473,10 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
 
     std::random_device rd_uniform;
     std::mt19937 gen_uniform(rd_uniform());
-    std::uniform_real_distribution<ElementType> UniformRandomNumber(0, ElementType(1));
+    std::uniform_real_distribution<ScalarType> UniformRandomNumber(0, ScalarType(1));
 
     //-------------------------------------------------------------------------------------------------------------
-    auto TempFunction_AndRandomNumberToSimilarity = [&](ElementType Similarity)
+    auto TempFunction_AndRandomNumberToSimilarity = [&](ScalarType Similarity)
     {
         // (1) if Similarity >=  SimilarityThreshold + eps_value
         //     add eps_value noise to similarity of every pair in case there are two pairs with the same similarity
@@ -535,13 +510,13 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
 
         }
 
-        if (Similarity < ElementType(0))
+        if (Similarity < ScalarType(0))
         {
-            Similarity = ElementType(0);
+            Similarity = ScalarType(0);
         }
-        else if (Similarity > ElementType(1))
+        else if (Similarity > ScalarType(1))
         {
-            Similarity = ElementType(1);
+            Similarity = ScalarType(1);
         }
 
         return Similarity;
@@ -554,7 +529,7 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
         int_max TotalVectorNumber = BasisMatrix_new.GetColNumber();
 
         VectorSimilarityMatrix.FastResize(TotalVectorNumber, TotalVectorNumber);
-        VectorSimilarityMatrix.Fill(ElementType(0));  // VectorSimilarityMatrix(i, i) = 0 for all i
+        VectorSimilarityMatrix.Fill(ScalarType(0));  // VectorSimilarityMatrix(i, i) = 0 for all i
 
         //for(int_max k = 0; k <= TotalVectorNumber - 2; ++k)
         auto TempFunction_ComputeSimilarity = [&](int_max k)
@@ -565,8 +540,8 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
             {
                 auto VectorPtr_n = BasisMatrix_new.GetElementPointerOfCol(n);
 
-                auto Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(VectorPtr_k, VectorPtr_n, VectorLength,
-                                                                                                              SimilarityType, Variance, false);
+                auto Similarity = KNNSoftAssignSparseEncoder<ScalarType>::ComputeSimilarityBetweenTwoVector(VectorPtr_k, VectorPtr_n, VectorLength,
+                                                                                                            SimilarityType, Variance, false);
 
                 Similarity = TempFunction_AndRandomNumberToSimilarity(Similarity);
              
@@ -576,27 +551,27 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
             }
         };
 
-        ParallelForLoop(TempFunction_ComputeSimilarity, 0, TotalVectorNumber - 2, m_Parameter.MaxNumberOfThreads);
+        ParallelForLoop(TempFunction_ComputeSimilarity, 0, TotalVectorNumber - 2, m_Parameter.MaxNumberOfThread);
     }
     else
     {
-        const DenseMatrix<ElementType>& BasisMatrix_init = Dictionary_init.BasisMatrix();
+        const DenseMatrix<ScalarType>& BasisMatrix_init = Dictionary_init.BasisMatrix();
 
         int_max BasisNumber_init = BasisMatrix_init.GetColNumber();
         
-        const DenseMatrix<ElementType>& SimilarityMatrix_init = Dictionary_init.SimilarityMatrix();
+        const DenseMatrix<ScalarType>& SimilarityMatrix_init = Dictionary_init.SimilarityMatrix();
 
         int_max DataNumber = BasisMatrix_new.GetColNumber();
 
         auto TotalVectorNumber = BasisNumber_init + DataNumber;
 
         VectorSimilarityMatrix.FastResize(TotalVectorNumber, TotalVectorNumber);
-        VectorSimilarityMatrix.Fill(ElementType(0));  // VectorSimilarityMatrix(i, i) = 0 for all i
+        VectorSimilarityMatrix.Fill(ScalarType(0));  // VectorSimilarityMatrix(i, i) = 0 for all i
 
         //for(int_max k = 0; k <= TotalVectorNumber - 2; ++k)
         auto TempFunction_ComputeSimilarity = [&](int_max k)
         {
-            const ElementType* VectorPtr_k = nullptr;
+            const ScalarType* VectorPtr_k = nullptr;
             
             if (k < BasisNumber_init)
             {
@@ -611,7 +586,7 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
 
             for (int_max n = k + 1; n < TotalVectorNumber; ++n) // start from k+1
             {
-                const ElementType* VectorPtr_n = nullptr;
+                const ScalarType* VectorPtr_n = nullptr;
 
                 if (n < BasisNumber_init)
                 {
@@ -624,7 +599,7 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
                     VectorPtr_n = BasisMatrix_new.GetElementPointerOfCol(temp_n);
                 }
 
-                auto Similarity = ElementType(0);
+                auto Similarity = ScalarType(0);
 
                 if (Dictionary_init.GetProperty_SimilarityType() == SimilarityType)
                 {
@@ -634,14 +609,14 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
                     }
                     else
                     {
-                        Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(VectorPtr_k, VectorPtr_n, VectorLength,
-                                                                                                                 SimilarityType, Variance, false);
+                        Similarity = KNNSoftAssignSparseEncoder<ScalarType>::ComputeSimilarityBetweenTwoVector(VectorPtr_k, VectorPtr_n, VectorLength,
+                                                                                                               SimilarityType, Variance, false);
                     }
                 }
                 else
                 {
-                    Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(VectorPtr_k, VectorPtr_n, VectorLength,
-                                                                                                             SimilarityType, Variance, false);
+                    Similarity = KNNSoftAssignSparseEncoder<ScalarType>::ComputeSimilarityBetweenTwoVector(VectorPtr_k, VectorPtr_n, VectorLength,
+                                                                                                           SimilarityType, Variance, false);
                 }
 
                 Similarity = TempFunction_AndRandomNumberToSimilarity(Similarity);
@@ -652,18 +627,18 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType
             }
         };
 
-        ParallelForLoop(TempFunction_ComputeSimilarity, 0, TotalVectorNumber - 2, m_Parameter.MaxNumberOfThreads);
+        ParallelForLoop(TempFunction_ComputeSimilarity, 0, TotalVectorNumber - 2, m_Parameter.MaxNumberOfThread);
     }
 
     return VectorSimilarityMatrix;
 }
 
 
-template<typename ElementType>
-DenseMatrix<ElementType> 
-KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::
-ComputeVectorProbabilityList(const DenseMatrix<ElementType>& BasisExperience_init,
-                             const DenseMatrix<ElementType>& BasisExperience_new)
+template<typename ScalarType>
+DenseMatrix<ScalarType> 
+KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::
+ComputeVectorProbabilityList(const DenseMatrix<ScalarType>& BasisExperience_init,
+                             const DenseMatrix<ScalarType>& BasisExperience_new)
 {
     int_max BasisNumber_init = BasisExperience_init.GetColNumber();
 
@@ -671,7 +646,7 @@ ComputeVectorProbabilityList(const DenseMatrix<ElementType>& BasisExperience_ini
 
     int_max VectorNumber = BasisNumber_init + BasisNumber_new;
 
-    DenseMatrix<ElementType> ProbabilityList(1, VectorNumber);
+    DenseMatrix<ScalarType> ProbabilityList(1, VectorNumber);
 
     auto TotalExperience = BasisExperience_init.Sum() + BasisExperience_new.Sum();
 
@@ -685,26 +660,26 @@ ComputeVectorProbabilityList(const DenseMatrix<ElementType>& BasisExperience_ini
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 DenseMatrix<int_max>
-KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::
+KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::
 SelectBasis(int_max BasisNumber_desired,
-            const DenseMatrix<ElementType>& VectorSimilarityMatrix,
-            const DenseMatrix<ElementType>& VectorProbabilityList)
+            const DenseMatrix<ScalarType>& VectorSimilarityMatrix,
+            const DenseMatrix<ScalarType>& VectorProbabilityList)
 {
     int_max TotalVectorNumber = VectorProbabilityList.GetElementNumber();
 
     int_max NumberOfVectorPair = TotalVectorNumber*(TotalVectorNumber - 1) / 2;
 
-    DenseMatrix<ElementType> VectorPairScoreList(1, NumberOfVectorPair);
+    DenseMatrix<ScalarType> VectorPairScoreList(1, NumberOfVectorPair);
 
     DenseMatrix<int_max> VectorPairIndexList(2, NumberOfVectorPair);
 
-    auto ScoreWeight_S = ElementType(0);
-    auto ScoreWeight_PS = ElementType(0);
-    auto ScoreWeight_P = ElementType(0);
+    auto ScoreWeight_S = ScalarType(0);
+    auto ScoreWeight_PS = ScalarType(0);
+    auto ScoreWeight_P = ScalarType(0);
 
-    if (m_Parameter.WeightOnProbabiliyForBasisSelection <= ElementType(0.5))
+    if (m_Parameter.WeightOnProbabiliyForBasisSelection <= ScalarType(0.5))
     {
         ScoreWeight_S  = 1 - 2 * m_Parameter.WeightOnProbabiliyForBasisSelection;
         ScoreWeight_PS = 2 * m_Parameter.WeightOnProbabiliyForBasisSelection;
@@ -714,7 +689,7 @@ SelectBasis(int_max BasisNumber_desired,
     {
         ScoreWeight_S  = 0;
         ScoreWeight_PS = 2 - 2 * m_Parameter.WeightOnProbabiliyForBasisSelection;
-        ScoreWeight_P  = 2 * (m_Parameter.WeightOnProbabiliyForBasisSelection - ElementType(0.5));
+        ScoreWeight_P  = 2 * (m_Parameter.WeightOnProbabiliyForBasisSelection - ScalarType(0.5));
     }
 
     int_max Counter = 0;
@@ -759,7 +734,7 @@ SelectBasis(int_max BasisNumber_desired,
     std::mt19937 gen_bool(rd_bool());
     std::bernoulli_distribution BoolRandomNumber(0.5);
 
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+    auto eps_value = std::numeric_limits<ScalarType>::epsilon();
 
     DenseMatrix<int_max> VectorFlagList(1, TotalVectorNumber);
     VectorFlagList.Fill(1);
@@ -825,9 +800,9 @@ SelectBasis(int_max BasisNumber_desired,
 }
 
 
-template<typename ElementType>
-void KNNBasisSelectMergeOnlineDictionaryBuilder<ElementType>::
-UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix)
+template<typename ScalarType>
+void KNNBasisSelectMergeOnlineDictionaryBuilder<ScalarType>::
+UpdateBasisRedundancy(DenseMatrix<ScalarType>& BasisRedundancy, const DenseMatrix<ScalarType>& SimilarityMatrix)
 {
     int_max BasisNumber = SimilarityMatrix.GetColNumber();
 
@@ -857,7 +832,7 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
         }
     };
 
-    ParallelForLoop(TempFunction_UpdateRedundancy, 0, BasisNumber - 1, m_Parameter.MaxNumberOfThreads);
+    ParallelForLoop(TempFunction_UpdateRedundancy, 0, BasisNumber - 1, m_Parameter.MaxNumberOfThread);
 }
 
 

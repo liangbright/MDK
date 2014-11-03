@@ -8,28 +8,27 @@ namespace mdk
 
 // This is a modified version of KNNBasisSelectionOnlineDictionaryBuilder
 
-template<typename Element_Type>
-class KNNBasisSelectMergeOnlineDictionaryBuilder : public FeatureDictionaryBuilder<Element_Type>
+template<typename Scalar_Type>
+class KNNBasisSelectMergeOnlineDictionaryBuilder : public FeatureDictionaryBuilder<FeatureDictionaryForSparseCoding<Scalar_Type>>
 {
 public:
-	typedef Element_Type ElementType;
+	typedef Scalar_Type ScalarType;
+	typedef FeatureDictionaryForSparseCoding<ScalarType>  DictionaryType;
 
 public:
-    Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder<ElementType> m_Parameter;
+    Parameter_Of_KNNBasisSelectionOnlineDictionaryBuilder<ScalarType> m_Parameter;
 
 private:
 
-    const DenseMatrix<ElementType>* m_FeatureData;
+    const DenseMatrix<ScalarType>* m_FeatureData;//input data
 
-    const FeatureDictionaryForSparseCoding<ElementType>* m_InitialDictionary;
+	const DictionaryType* m_InitialDictionary;// input initial dictionary
 
-    FeatureDictionaryForSparseCoding<ElementType>* m_Dictionary;
+	DictionaryType m_Dictionary;// output dictionary
 
-    FeatureDictionaryForSparseCoding<ElementType>  m_Dictionary_SharedCopy;
+    KNNBasisSelectionOnlineDictionaryBuilder<ScalarType> m_KNNBasisSelectionDictionaryBuilder;
 
-    KNNBasisSelectionOnlineDictionaryBuilder<ElementType> m_KNNBasisSelectionDictionaryBuilder;
-
-    KNNSimilaritySparseEncoder<ElementType> m_KNNSimilaritySparseEncoder;
+    KNNSimilaritySparseEncoder<ScalarType> m_KNNSimilaritySparseEncoder;
 
 public:
     KNNBasisSelectMergeOnlineDictionaryBuilder();
@@ -37,50 +36,45 @@ public:
 
     void Clear();
 
-    void SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
+    void SetInputFeatureData(const DenseMatrix<ScalarType>* InputFeatureData);
 
-    void SetInputDictionary(const FeatureDictionaryForSparseCoding<ElementType>* InputDictionary);
-
-    void SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* Dictionary);
+	void SetInitialDictionary(const DictionaryType* InitialDictionary);
 
     bool CheckInput();
 
-    FeatureDictionaryForSparseCoding<ElementType>* GetOutputDictionary();
+	bool Update();
+
+	DictionaryType* GetOutputDictionary();
 
 protected:
-
-    void ClearPipelineOutput();
-
-    void UpdatePipelineOutput();
-
     void GenerateDictionary();
 
-    FeatureDictionaryForSparseCoding<ElementType> PreprocessInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InitialDictionary);
+    FeatureDictionaryForSparseCoding<ScalarType> PreprocessInitialDictionary(const FeatureDictionaryForSparseCoding<ScalarType>& InitialDictionary);
 
     DenseMatrix<int_max> ComputeDataNumberInEachBatch(int_max TotalDataNumber);
 
-    FeatureDictionaryForSparseCoding<ElementType> BuildDictionaryFromDataBatch(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init,
-                                                                               const DenseMatrix<ElementType>& FeatureData);
+    FeatureDictionaryForSparseCoding<ScalarType> BuildDictionaryFromDataBatch(const FeatureDictionaryForSparseCoding<ScalarType>& Dictionary_init,
+                                                                               const DenseMatrix<ScalarType>& FeatureData);
 
-    FeatureDictionaryForSparseCoding<ElementType> CombineInitalDictionaryAndNewDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InitalDictionary,
-                                                                                          const FeatureDictionaryForSparseCoding<ElementType>& NewDictionary);
+    FeatureDictionaryForSparseCoding<ScalarType> CombineInitalDictionaryAndNewDictionary(const FeatureDictionaryForSparseCoding<ScalarType>& InitalDictionary,
+                                                                                          const FeatureDictionaryForSparseCoding<ScalarType>& NewDictionary);
 
-    void AdjustBasisExperience(DenseMatrix<ElementType>& BasisExperience, int_max DataNumber, ElementType TotalExperience_init);
+    void AdjustBasisExperience(DenseMatrix<ScalarType>& BasisExperience, int_max DataNumber, ScalarType TotalExperience_init);
 
-    void UpdateDictionaryInformation_Other(FeatureDictionaryForSparseCoding<ElementType>& CombinedDictionary, int_max DataNumber);
+    void UpdateDictionaryInformation_Other(FeatureDictionaryForSparseCoding<ScalarType>& CombinedDictionary, int_max DataNumber);
 
-    DenseMatrix<ElementType> ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ElementType>& Dictionary_init, 
-                                                           const DenseMatrix<ElementType>& BasisMatrix_new);
+    DenseMatrix<ScalarType> ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ScalarType>& Dictionary_init, 
+                                                           const DenseMatrix<ScalarType>& BasisMatrix_new);
 
-    DenseMatrix<ElementType> ComputeVectorProbabilityList(const DenseMatrix<ElementType>& BasisExperience_init,
-                                                          const DenseMatrix<ElementType>& BasisExperience_new);
+    DenseMatrix<ScalarType> ComputeVectorProbabilityList(const DenseMatrix<ScalarType>& BasisExperience_init,
+                                                          const DenseMatrix<ScalarType>& BasisExperience_new);
 
     DenseMatrix<int_max> SelectBasis(int_max BasisNumber_desired,
-                                     const DenseMatrix<ElementType>& VectorSimilarityMatrix,
-                                     const DenseMatrix<ElementType>& VectorProbabilityList);
+                                     const DenseMatrix<ScalarType>& VectorSimilarityMatrix,
+                                     const DenseMatrix<ScalarType>& VectorProbabilityList);
 
     
-    void UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix);
+    void UpdateBasisRedundancy(DenseMatrix<ScalarType>& BasisRedundancy, const DenseMatrix<ScalarType>& SimilarityMatrix);
 
 private:
     KNNBasisSelectMergeOnlineDictionaryBuilder(const KNNBasisSelectMergeOnlineDictionaryBuilder&) = delete;

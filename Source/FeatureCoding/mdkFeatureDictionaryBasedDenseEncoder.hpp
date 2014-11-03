@@ -14,7 +14,6 @@ FeatureDictionaryBasedDenseEncoder<ElementType>::FeatureDictionaryBasedDenseEnco
 template<typename ElementType>
 FeatureDictionaryBasedDenseEncoder<ElementType>::~FeatureDictionaryBasedDenseEncoder()
 {
-
 }
 
 
@@ -22,32 +21,10 @@ template<typename ElementType>
 void FeatureDictionaryBasedDenseEncoder<ElementType>::Clear()
 {
     m_FeatureData = nullptr;
-
     m_Dictionary = nullptr;
-
-    this->ClearPipelineOutput();
-
+	m_DenseCode.Clear();
     m_MinNumberOfDataPerThread = 1;
-    m_MaxNumberOfThreads = 1;
-}
-
-
-template<typename ElementType>
-void FeatureDictionaryBasedDenseEncoder<ElementType>::ClearPipelineOutput()
-{
-    m_Code_SharedCopy.Clear();
-
-    m_Code = &m_Code_SharedCopy;
-}
-
-
-template<typename ElementType>
-void FeatureDictionaryBasedDenseEncoder<ElementType>::UpdatePipelineOutput()
-{
-    if (m_Code != &m_Code_SharedCopy)
-    {
-        m_Code_SharedCopy.ForceShare(m_Code);
-    }
+    m_MaxNumberOfThread = 1;
 }
 
 
@@ -66,23 +43,17 @@ void FeatureDictionaryBasedDenseEncoder<ElementType>::SetInputDictionary(const F
 
 
 template<typename ElementType>
-void FeatureDictionaryBasedDenseEncoder<ElementType>::SetOutputCode(DenseMatrix<ElementType>* Code)
+void FeatureDictionaryBasedDenseEncoder<ElementType>::SetMaxNumberOfThread(int_max Number)
 {
-    m_Code = Code;
-}
-
-
-template<typename ElementType>
-void FeatureDictionaryBasedDenseEncoder<ElementType>::SetMaxNumberOfThreads(int_max Number)
-{
-    m_MaxNumberOfThreads = Number;
+    m_MaxNumberOfThread = Number;
 }
 
 
 template<typename ElementType>
 int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetNumberOfThreadsTobeCreated()
 {
-    return Compute_NecessaryNumberOfThreads_For_ParallelBlock(TotalDataVectorNumber, m_MaxNumberOfThreads, m_MinNumberOfDataPerThread);
+	auto TotalDataVectorNumber = this->GetTotalNumberOfInputFeatureDataVector();
+	return Compute_NumberOfThreadTobeCreated_For_ParallelBlock(TotalDataVectorNumber, m_MaxNumberOfThread, m_MinNumberOfDataPerThread);
 }
 
 
@@ -101,7 +72,7 @@ int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetMinNumberOfDataPerTh
 
 
 template<typename ElementType>
-int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetTotalNumberOfInputFeatureDataVectors()
+int_max FeatureDictionaryBasedDenseEncoder<ElementType>::GetTotalNumberOfInputFeatureDataVector()
 {
     if (m_FeatureData != nullptr)
     {
@@ -141,39 +112,21 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::CheckInput()
         return false;
     }
 
-    if (m_Code == nullptr)
+	if (m_Dictionary->BasisMatrix().GetRowNumber != m_FeatureData->GetColNumber())
     {
-        MDK_Warning << "SetOutputCode(nullptr) @ FeatureDictionaryBasedDenseEncoder::CheckInput()" << '\n';
-        m_Code_SharedCopy.Clear();
-        m_Code = &m_Code_SharedCopy;
+		MDK_Error << "m_Dictionary size not math DataVector length @ FeatureDictionaryBasedDenseEncoder::CheckInput()" << '\n';
+		return false;
     }
 
-    auto CodeLength = m_Dictionary->BasisMatrix().GetColNumber();
-
-    auto tempSize = m_Code->GetSize();
-
-    if (tempSize.RowNumber != CodeLength || tempSize.ColNumber != m_FeatureData->GetColNumber())
-    {
-        auto IsOK = m_Code->FastResize(CodeLength, m_FeatureData->GetColNumber());
-
-        if (IsOK == false)
-        {
-            MDK_Error << "can not change the size of m_Code matrix @ FeatureDictionaryBasedDenseEncoder::CheckInput()" << '\n';
-            return false;        
-        }
-    }
-
-    if (m_MaxNumberOfThreads <= 0)
+    if (m_MaxNumberOfThread <= 0)
     {
         MDK_Warning << "input MaximunNumberOfThreads is invalid, set to 1 @ FeatureDictionaryBasedDenseEncoder::CheckInput()" << '\n';
-
-        m_MaxNumberOfThreads = 1;
+        m_MaxNumberOfThread = 1;
     }
 
     if (m_MinNumberOfDataPerThread <= 0)
     {
         MDK_Warning("input m_MinNumberOfDataPerThread is invalid, set to 1 @ FeatureDictionaryBasedDenseEncoder::CheckInput()")
-
         m_MinNumberOfDataPerThread = 1;
     }
 
@@ -184,6 +137,12 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::CheckInput()
 template<typename ElementType>
 bool FeatureDictionaryBasedDenseEncoder<ElementType>::Preprocess()
 {
+	auto CodeLength = m_Dictionary->BasisMatrix().GetColNumber();
+	auto DataNumber = m_FeatureData->GetColNumber();
+	if (m_DenseCode.FastResize(CodeLength, DataNumber) == false)
+	{
+		return false;
+	}
     return true;
 }
 
@@ -214,7 +173,7 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::Update()
     // multi-thread -----------------------------------------------------------------
 
     ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex){this->GenerateCode_in_a_Thread(Index_start, Index_end, ThreadIndex); },
-                  0, TotalDataVectorNumber - 1, m_MaxNumberOfThreads, m_MinNumberOfDataPerThread);
+                  0, TotalDataVectorNumber - 1, m_MaxNumberOfThread, m_MinNumberOfDataPerThread);
     //------------------------------------------------------------
 
     if (this->Postprocess() == false)
@@ -223,8 +182,6 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::Update()
         return false;
     }
 
-    this->UpdatePipelineOutput();
-
     return true;
 }
 
@@ -232,17 +189,11 @@ bool FeatureDictionaryBasedDenseEncoder<ElementType>::Update()
 template<typename ElementType>
 void FeatureDictionaryBasedDenseEncoder<ElementType>::GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadIndex)
 {
-    DenseMatrix<ElementType> CodeVector(m_Code->GetRowNumber(), 1);
-
-    DenseMatrix<ElementType> DataVector(m_FeatureData->GetRowNumber(), 1);
-
     for (int_max i = IndexOfDataVector_start; i <= IndexOfDataVector_end; ++i)
     {
-        m_FeatureData->GetCol(i, DataVector);
-
-        this->EncodingFunction(CodeVector, DataVector, ThreadIndex);
-
-        m_Code->SetCol(i, CodeVector);
+		auto DataVector = m_FeatureData->RefCol(i);
+		auto CodeVector = this->EncodeSingleDataVector(i, DataVector, ThreadIndex);
+		m_DenseCode.SetCol(i, CodeVector);
     }
 }
 
@@ -250,7 +201,7 @@ void FeatureDictionaryBasedDenseEncoder<ElementType>::GenerateCode_in_a_Thread(i
 template<typename ElementType>
 DenseMatrix<ElementType>* FeatureDictionaryBasedDenseEncoder<ElementType>::GetOutputCode()
 {
-    return &m_Code_SharedCopy;
+	return &m_DenseCode;
 }
 
 

@@ -4,13 +4,13 @@ if(POLICY CMP0020)
   cmake_policy(SET CMP0020 NEW)
 endif()
  
-PROJECT(Test_KNNBSABasedOnlineDictionaryBuilder)
+PROJECT(Test_KNNBSAOnlineDictionaryBuilder)
 
 set(MDK_DIR "C:/Research/MDK/MDK_Code")
 find_package(MDK REQUIRED)
 
 FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")
 
-add_executable(Test_KNNBSABasedOnlineDictionaryBuilder ${Test_FILES})
+add_executable(Test_KNNBSAOnlineDictionaryBuilder ${Test_FILES})
 
-target_link_libraries(Test_KNNBSABasedOnlineDictionaryBuilder MDK_LIB)
+target_link_libraries(Test_KNNBSAOnlineDictionaryBuilder MDK_LIB)

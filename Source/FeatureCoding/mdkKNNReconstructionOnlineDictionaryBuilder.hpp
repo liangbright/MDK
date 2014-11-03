@@ -5,89 +5,53 @@
 namespace mdk
 {
 
-template<typename ElementType>
-KNNReconstructionOnlineDictionaryBuilder<ElementType>::KNNReconstructionOnlineDictionaryBuilder()
+template<typename ScalarType>
+KNNReconstructionOnlineDictionaryBuilder<ScalarType>::KNNReconstructionOnlineDictionaryBuilder()
 {
     this->Clear();
 }
 
 
-template<typename ElementType>
-KNNReconstructionOnlineDictionaryBuilder<ElementType>::~KNNReconstructionOnlineDictionaryBuilder()
+template<typename ScalarType>
+KNNReconstructionOnlineDictionaryBuilder<ScalarType>::~KNNReconstructionOnlineDictionaryBuilder()
 {
 }
 
 //---------------------------------------------------------------------------------------------------------------//
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::Clear()
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::Clear()
 {
     m_Parameter.Clear();
-
     m_FeatureData = nullptr;
-
     m_InitialDictionary = nullptr;
-
-    this->ClearPipelineOutput();
+	m_Dictionary.Clear();
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::ClearPipelineOutput()
-{
-    m_Dictionary_SharedCopy.Clear();
-    m_Dictionary = &m_Dictionary_SharedCopy;
-}
-
-
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::UpdatePipelineOutput()
-{
-    if (m_Dictionary != &m_Dictionary_SharedCopy)
-    {
-        m_Dictionary_SharedCopy.Share(m_Dictionary);
-    }
-}
-
-
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData)
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::SetInputFeatureData(const DenseMatrix<ScalarType>* InputFeatureData)
 {
     m_FeatureData = InputFeatureData;
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::SetInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>* InitialDictionary)
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::SetInitialDictionary(const FeatureDictionaryForSparseCoding<ScalarType>* InitialDictionary)
 {
     m_InitialDictionary = InitialDictionary;
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* OutputDictionary)
+template<typename ScalarType>
+FeatureDictionaryForSparseCoding<ScalarType>* KNNReconstructionOnlineDictionaryBuilder<ScalarType>::GetOutputDictionary()
 {
-    if (OutputDictionary == nullptr)
-    {
-        MDK_Error("Invalid input @ KNNReconstructionOnlineDictionaryBuilder::SetOutputDictionary(...)")
-        return;
-    }
-
-    m_Dictionary = OutputDictionary;
-
-    m_Dictionary_SharedCopy.ForceShare(OutputDictionary);
+    return &m_Dictionary;
 }
 
 
-template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>* KNNReconstructionOnlineDictionaryBuilder<ElementType>::GetOutputDictionary()
-{
-    return &m_Dictionary_SharedCopy;
-}
-
-
-template<typename ElementType>
-bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
+template<typename ScalarType>
+bool KNNReconstructionOnlineDictionaryBuilder<ScalarType>::CheckInput()
 {
     if (m_FeatureData == nullptr)
     {
@@ -143,7 +107,7 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
         return false;
     }
 
-    auto IsSimilarityTypeSupported = KNNReconstructionSparseEncoder<ElementType>::
+    auto IsSimilarityTypeSupported = KNNReconstructionSparseEncoder<ScalarType>::
                                      CheckIfSimilarityTypeSupported(m_Parameter.ParameterOfKNNSoftAssign.SimilarityType);
 
     if (IsSimilarityTypeSupported == false)
@@ -224,14 +188,26 @@ bool KNNReconstructionOnlineDictionaryBuilder<ElementType>::CheckInput()
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
+template<typename ScalarType>
+bool KNNReconstructionOnlineDictionaryBuilder<ScalarType>::Update()
+{
+	if (this->CheckInput() == false)
+	{
+		return false;
+	}
+	this->GenerateDictionary();
+	return true;
+}
+
+
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::GenerateDictionary()
 {
     this->SetupParameter();
 
     auto OutputDictionary = this->PreprocessInitialDictionary(*m_InitialDictionary);
 
-    DenseMatrix<ElementType> BasisExperience_init;
+    DenseMatrix<ScalarType> BasisExperience_init;
     BasisExperience_init.Copy(OutputDictionary.BasisExperience());
 
     int_max TotalDataNumber = m_FeatureData->GetColNumber();
@@ -245,16 +221,15 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
             m_KNNReconstructionSparseEncoder.SetInputFeatureData(m_FeatureData);
             m_KNNReconstructionSparseEncoder.SetInputDictionary(&OutputDictionary);
             m_KNNReconstructionSparseEncoder.Update();
-            auto CodeTable = m_KNNReconstructionSparseEncoder.GetOutputCodeInSparseColVectorSet();
+            auto& CodeTable = *m_KNNReconstructionSparseEncoder.GetOutputCode();
 
-            this->UpdateDictionary(OutputDictionary, *m_FeatureData, *CodeTable);
+            this->UpdateDictionary(OutputDictionary, *m_FeatureData, CodeTable);
         }
     }
     else
     {
         //------------------------------------------ run Data batch -------------------------------------------------------//
         
-
         // random number for sampling
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -267,7 +242,7 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
             // 1 : not used yet
             // 0 : used
 
-            DenseMatrix<ElementType> FeatureData_current;
+            DenseMatrix<ScalarType> FeatureData_current;
 
             int_max NumberOfDataInNextBatch = m_Parameter.MaxNumberOfDataInEachBatch;
 
@@ -300,9 +275,9 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
                 m_KNNReconstructionSparseEncoder.SetInputFeatureData(&FeatureData_current);
                 m_KNNReconstructionSparseEncoder.SetInputDictionary(&OutputDictionary);
                 m_KNNReconstructionSparseEncoder.Update();
-                auto CodeTable = m_KNNReconstructionSparseEncoder.GetOutputCodeInSparseColVectorSet();
+                auto& CodeTable = *m_KNNReconstructionSparseEncoder.GetOutputCode();
 
-                this->UpdateDictionary(OutputDictionary, FeatureData_current, *CodeTable);
+                this->UpdateDictionary(OutputDictionary, FeatureData_current, CodeTable);
 
                 // update NumberOfDataInNextBatch
 
@@ -319,29 +294,29 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::GenerateDictionary()
     }
 
     this->UpdateDictionary_OtherInformation(OutputDictionary, BasisExperience_init, TotalDataNumber);
-
-    (*m_Dictionary) = std::move(OutputDictionary);  
+	//--------------------------------------------
+    m_Dictionary = std::move(OutputDictionary);  
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::SetupParameter()
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::SetupParameter()
 {
     m_KNNReconstructionSparseEncoder.m_Parameter = m_Parameter.ParameterOfKNNReconstruction;
 
-    m_KNNReconstructionSparseEncoder.SetMaxNumberOfThreads(m_Parameter.MaxNumberOfThreads);
+    m_KNNReconstructionSparseEncoder.SetMaxNumberOfThread(m_Parameter.MaxNumberOfThread);
 }
 
 
-template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType>
-KNNReconstructionOnlineDictionaryBuilder<ElementType>::PreprocessInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>& InitialDictionary)
+template<typename ScalarType>
+FeatureDictionaryForSparseCoding<ScalarType>
+KNNReconstructionOnlineDictionaryBuilder<ScalarType>::PreprocessInitialDictionary(const FeatureDictionaryForSparseCoding<ScalarType>& InitialDictionary)
 {
-    FeatureDictionaryForSparseCoding<ElementType> OutputDictionary;
+    FeatureDictionaryForSparseCoding<ScalarType> OutputDictionary;
 
     OutputDictionary.Copy(InitialDictionary);
 
-    DenseMatrix<ElementType>& BasisExperience = OutputDictionary.BasisExperience();
+    DenseMatrix<ScalarType>& BasisExperience = OutputDictionary.BasisExperience();
 
     // discount the previous Experience
     BasisExperience *= m_Parameter.ExperienceDiscountFactor;
@@ -358,19 +333,19 @@ KNNReconstructionOnlineDictionaryBuilder<ElementType>::PreprocessInitialDictiona
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
-UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
-                 const DenseMatrix<ElementType>& FeatureData,
-                 const DataArray<SparseVector<ElementType>>& CodeTable)
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::
+UpdateDictionary(FeatureDictionaryForSparseCoding<ScalarType>& Dictionary,
+                 const DenseMatrix<ScalarType>& FeatureData,
+                 const DataArray<SparseVector<ScalarType>>& CodeTable)
 {
     // copy initial BasisExperience from Dictionary
-    DenseMatrix<ElementType> BasisExperience_init;
+    DenseMatrix<ScalarType> BasisExperience_init;
     BasisExperience_init.Copy(Dictionary.BasisExperience());
 
     // get ReconstructedData
-    auto ReconstructedData = KNNReconstructionSparseEncoder<ElementType>::ReconstructData(CodeTable, Dictionary.BasisMatrix(),
-                                                                                          m_Parameter.MaxNumberOfThreads);
+    auto ReconstructedData = KNNReconstructionSparseEncoder<ScalarType>::ReconstructData(CodeTable, Dictionary.BasisMatrix(),
+                                                                                          m_Parameter.MaxNumberOfThread);
 
     // update BasisMatrix and BasisExperience
 
@@ -378,17 +353,17 @@ UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
 
     //----------------------- Refine loop ----------------------------------------------------------------------
     /*
-    DataArray<SparseVector<ElementType>> CodeTable_update = CodeTable;
+    DataArray<SparseVector<ScalarType>> CodeTable_update = CodeTable;
 
     for (int_max k = 0; k < 10; ++k)
     {        
-        KNNReconstructionSparseEncoder<ElementType>::UpdateReconstructionCode(CodeTable_update, FeatureData, Dictionary.BasisMatrix(),
+        KNNReconstructionSparseEncoder<ScalarType>::UpdateReconstructionCode(CodeTable_update, FeatureData, Dictionary.BasisMatrix(),
                                                                               m_Parameter.ParameterOfKNNReconstruction.CodeNonnegative,
                                                                               m_Parameter.ParameterOfKNNReconstruction.CodeSumToOne);
 
         
-        ReconstructedData = KNNReconstructionSparseEncoder<ElementType>::ReconstructData(CodeTable_update, Dictionary.BasisMatrix(),
-                                                                                         m_Parameter.MaxNumberOfThreads);
+        ReconstructedData = KNNReconstructionSparseEncoder<ScalarType>::ReconstructData(CodeTable_update, Dictionary.BasisMatrix(),
+                                                                                         m_Parameter.MaxNumberOfThread);
 
         this->UpdateBasisMatrixAndBasisExperience(Dictionary.BasisMatrix(), Dictionary.BasisExperience(), FeatureData, CodeTable_update, ReconstructedData);
     }
@@ -418,20 +393,20 @@ UpdateDictionary(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
-UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ElementType>& Dictionary,
-                                  const DenseMatrix<ElementType>& BasisExperience_init,
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::
+UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ScalarType>& Dictionary,
+                                  const DenseMatrix<ScalarType>& BasisExperience_init,
                                   int_max TotalDataNumber)
 {
     //---------------------- already updated ------------------------------------
 
-    DenseMatrix<ElementType>& BasisMatrix = Dictionary.BasisMatrix();
+    auto& BasisMatrix = Dictionary.BasisMatrix();
 
-    DenseMatrix<ElementType>& VarianceOfL1Distance = Dictionary.VarianceOfL1Distance();
-    DenseMatrix<ElementType>& VarianceOfL2Distance = Dictionary.VarianceOfL2Distance();
-    DenseMatrix<ElementType>& VarianceOfKLDivergence = Dictionary.VarianceOfKLDivergence();
-    DenseMatrix<ElementType>& VarianceOfReconstruction = Dictionary.VarianceOfReconstruction();
+	auto& VarianceOfL1Distance = Dictionary.VarianceOfL1Distance();
+	auto& VarianceOfL2Distance = Dictionary.VarianceOfL2Distance();
+	auto& VarianceOfKLDivergence = Dictionary.VarianceOfKLDivergence();
+	auto& VarianceOfReconstruction = Dictionary.VarianceOfReconstruction();
 
     int_max BasisNumber = BasisMatrix.GetColNumber();
 
@@ -445,12 +420,12 @@ UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ElementType>&
 
     //----------- update SimilarityMatrix and BasisRedundancy------------------
 
-    DenseMatrix<ElementType>& SimilarityMatrix = Dictionary.SimilarityMatrix();
-    DenseMatrix<ElementType>& BasisRedundancy = Dictionary.BasisRedundancy();
+	auto& SimilarityMatrix = Dictionary.SimilarityMatrix();
+	auto& BasisRedundancy = Dictionary.BasisRedundancy();
 
-    //-------------------------------------------------------------------------
+    //----------------------------------
 
-    DenseMatrix<ElementType> VarianceList;
+    DenseMatrix<ScalarType> VarianceList;
 
     switch (m_Parameter.ParameterOfKNNReconstruction.SimilarityType)
     {
@@ -491,21 +466,21 @@ UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ElementType>&
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
-UpdateBasisMatrixAndBasisExperience(DenseMatrix<ElementType>&       BasisMatrix,
-                                    DenseMatrix<ElementType>&       BasisExperience,
-                                    const DenseMatrix<ElementType>& FeatureData,
-                                    const DataArray<SparseVector<ElementType>>& CodeTable,
-                                    const DenseMatrix<ElementType>& ReconstructedData)
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::
+UpdateBasisMatrixAndBasisExperience(DenseMatrix<ScalarType>&       BasisMatrix,
+                                    DenseMatrix<ScalarType>&       BasisExperience,
+                                    const DenseMatrix<ScalarType>& FeatureData,
+                                    const DataArray<SparseVector<ScalarType>>& CodeTable,
+                                    const DenseMatrix<ScalarType>& ReconstructedData)
 {
     //-------------- temp function for basis_change update ---------------
 
-    auto TempFunction_UpdateBasisChange = [](ElementType* BasisChange, const ElementType* BasisVector,
-                                             const ElementType* DataReconstructionErrorVector, int_max VectorLength,
-                                             ElementType  CodeElement, ElementType SquaredL2NormOfCodeVector)
+    auto TempFunction_UpdateBasisChange = [](ScalarType* BasisChange, const ScalarType* BasisVector,
+                                             const ScalarType* DataReconstructionErrorVector, int_max VectorLength,
+                                             ScalarType  CodeElement, ScalarType SquaredL2NormOfCodeVector)
     {
-        auto eps_value = std::numeric_limits<ElementType>::epsilon();
+        auto eps_value = std::numeric_limits<ScalarType>::epsilon();
 
         auto temp = CodeElement / (SquaredL2NormOfCodeVector + eps_value);
 
@@ -525,22 +500,22 @@ UpdateBasisMatrixAndBasisExperience(DenseMatrix<ElementType>&       BasisMatrix,
 
     int_max BasisNumber = BasisMatrix.GetColNumber();
 
-    DenseMatrix<ElementType> DataReconstructionErrorVector(1, VectorLength);
+    DenseMatrix<ScalarType> DataReconstructionErrorVector(1, VectorLength);
 
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+    auto eps_value = std::numeric_limits<ScalarType>::epsilon();
 
-    DenseMatrix<ElementType> BasisMatrix_Change(VectorLength, BasisNumber);
+    DenseMatrix<ScalarType> BasisMatrix_Change(VectorLength, BasisNumber);
     BasisMatrix_Change.Fill(0);
 
     for (int_max k = 0; k < DataNumber; ++k)//k
     {
         auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
 
-        const std::vector<int_max>& KNNBasisIndexList = CodeTable[k].IndexList();
+        const auto& KNNBasisIndexList = CodeTable[k].IndexList();
 
-        const std::vector<ElementType>& KNNCodeVector = CodeTable[k].DataArray();
+        const auto& KNNCodeVector = CodeTable[k].ElementList();
 
-        int_max KNNBasisNumber = int_max(KNNBasisIndexList.size());
+        int_max KNNBasisNumber = KNNBasisIndexList.GetLength();
 
         if (KNNBasisNumber > 0)
         {
@@ -548,7 +523,7 @@ UpdateBasisMatrixAndBasisExperience(DenseMatrix<ElementType>&       BasisMatrix,
 
             MatrixSubtract(DataReconstructionErrorVector.GetElementPointer(), DataVectorPtr, ReconstructedDataVectorPtr, VectorLength, false);
 
-            auto SquaredL2NormOfCodeVector = ComputeInnerProductOfTwoVectors(KNNCodeVector.data(), KNNCodeVector.data(), KNNBasisNumber, false);
+			auto SquaredL2NormOfCodeVector = ComputeInnerProductOfTwoVector(KNNCodeVector.GetPointer(), KNNCodeVector.GetPointer(), KNNBasisNumber, false);
 
             if (SquaredL2NormOfCodeVector > eps_value)
             {
@@ -590,7 +565,7 @@ UpdateBasisMatrixAndBasisExperience(DenseMatrix<ElementType>&       BasisMatrix,
         }
     };
 
-    ParallelForLoop(TempFunction_UpdateBasisMatrix, 0, BasisNumber - 1, m_Parameter.MaxNumberOfThreads);
+    ParallelForLoop(TempFunction_UpdateBasisMatrix, 0, BasisNumber - 1, m_Parameter.MaxNumberOfThread);
 
     this->ApplyConstraintOnBasis(BasisMatrix);
 
@@ -601,16 +576,16 @@ UpdateBasisMatrixAndBasisExperience(DenseMatrix<ElementType>&       BasisMatrix,
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::ApplyConstraintOnBasis(DenseMatrix<ElementType>& BasisMatrix)
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::ApplyConstraintOnBasis(DenseMatrix<ScalarType>& BasisMatrix)
 {
     if (m_Parameter.BasisPositive == true)
     {
         for (int_max k = 0; k < BasisMatrix.GetElementNumber(); ++k)
         {
-            if (BasisMatrix[k] < ElementType(0))
+            if (BasisMatrix[k] < ScalarType(0))
             {
-                BasisMatrix[k] = ElementType(0);
+                BasisMatrix[k] = ScalarType(0);
             }
         }
     }
@@ -620,11 +595,11 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::ApplyConstraintOnBas
         int_max BasisNumber = BasisMatrix.GetColNumber();
         int_max Length = BasisMatrix.GetRowNumber();
 
-        auto tempValueToFill = ElementType(1) / ElementType(Length);
+        auto tempValueToFill = ScalarType(1) / ScalarType(Length);
 
-        auto eps_value = std::numeric_limits<ElementType>::epsilon();
+        auto eps_value = std::numeric_limits<ScalarType>::epsilon();
 
-        DenseMatrix<ElementType> BasisVector;
+        DenseMatrix<ScalarType> BasisVector;
 
         for (int_max k = 0; k < BasisNumber; ++k)
         {
@@ -646,11 +621,11 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::ApplyConstraintOnBas
         int_max BasisNumber = BasisMatrix.GetColNumber();
         int_max Length = BasisMatrix.GetRowNumber();
 
-        auto tempValueToFill = std::sqrt(ElementType(1) / ElementType(Length));
+        auto tempValueToFill = std::sqrt(ScalarType(1) / ScalarType(Length));
 
-        auto eps_value = std::numeric_limits<ElementType>::epsilon();
+        auto eps_value = std::numeric_limits<ScalarType>::epsilon();
 
-        DenseMatrix<ElementType> BasisVector;
+        DenseMatrix<ScalarType> BasisVector;
 
         for (int_max k = 0; k < BasisNumber; ++k)
         {
@@ -670,28 +645,28 @@ void KNNReconstructionOnlineDictionaryBuilder<ElementType>::ApplyConstraintOnBas
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
-AdjustBasisExperience(DenseMatrix<ElementType>& BasisExperience, const DenseMatrix<ElementType>& BasisExperience_init, int_max TotalDataNumber)
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::
+AdjustBasisExperience(DenseMatrix<ScalarType>& BasisExperience, const DenseMatrix<ScalarType>& BasisExperience_init, int_max TotalDataNumber)
 {
     int_max BasisNumber = BasisExperience.GetElementNumber();
 
-    DenseMatrix<ElementType> BasisExperience_Diff = MatrixSubtract(BasisExperience, BasisExperience_init);
+    DenseMatrix<ScalarType> BasisExperience_Diff = MatrixSubtract(BasisExperience, BasisExperience_init);
 
-    ElementType TotalGain = BasisExperience_Diff.Sum();
+    ScalarType TotalGain = BasisExperience_Diff.Sum();
 
     if (TotalGain > TotalDataNumber)
     {
-        BasisExperience_Diff *= ElementType(TotalDataNumber) / TotalGain;
+        BasisExperience_Diff *= ScalarType(TotalDataNumber) / TotalGain;
 
         MatrixAdd(BasisExperience, BasisExperience_init, BasisExperience_Diff);
     }
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
-UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix, const DenseMatrix<ElementType>& BasisMatrix, const DenseMatrix<ElementType>& VarianceList)
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::
+UpdateSimilarityMatrix(DenseMatrix<ScalarType>& SimilarityMatrix, const DenseMatrix<ScalarType>& BasisMatrix, const DenseMatrix<ScalarType>& VarianceList)
 {
     int_max BasisNumber = BasisMatrix.GetColNumber();
 
@@ -712,8 +687,8 @@ UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix, const DenseMa
 
             auto Variance = std::max(VarianceList[k], VarianceList[n]);
 
-            auto Similarity = KNNSoftAssignSparseEncoder<ElementType>::ComputeSimilarityBetweenTwoVectors(BasisVectorPtr_k, BasisVectorPtr_n, VectorLength, 
-                                                                                                          SimilarityType,Variance, false);
+            auto Similarity = KNNSoftAssignSparseEncoder<ScalarType>::ComputeSimilarityBetweenTwoVector(BasisVectorPtr_k, BasisVectorPtr_n, VectorLength, 
+                                                                                                        SimilarityType,Variance, false);
 
             SimilarityMatrix(k, n) = Similarity;
 
@@ -721,13 +696,13 @@ UpdateSimilarityMatrix(DenseMatrix<ElementType>& SimilarityMatrix, const DenseMa
         }
     };
 
-    ParallelForLoop(TempFunction_ComputeSimilarity, 0, BasisNumber - 2, m_Parameter.MaxNumberOfThreads);
+    ParallelForLoop(TempFunction_ComputeSimilarity, 0, BasisNumber - 2, m_Parameter.MaxNumberOfThread);
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
-UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatrix<ElementType>& SimilarityMatrix)
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::
+UpdateBasisRedundancy(DenseMatrix<ScalarType>& BasisRedundancy, const DenseMatrix<ScalarType>& SimilarityMatrix)
 {
     int_max BasisNumber = SimilarityMatrix.GetColNumber();
 
@@ -757,17 +732,17 @@ UpdateBasisRedundancy(DenseMatrix<ElementType>& BasisRedundancy, const DenseMatr
         }
     };
 
-    ParallelForLoop(TempFunction_UpdateRedundancy, 0, BasisNumber - 1, m_Parameter.MaxNumberOfThreads);
+    ParallelForLoop(TempFunction_UpdateRedundancy, 0, BasisNumber - 1, m_Parameter.MaxNumberOfThread);
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
-UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
-                           const DenseMatrix<ElementType>& FeatureData,
-                           const DataArray<SparseVector<ElementType>>& CodeTable,
-                           const DenseMatrix<ElementType>& BasisMatrix,
-                           const DenseMatrix<ElementType>& BasisExperience)
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::
+UpdateVarianceOfL1Distance(DenseMatrix<ScalarType>& Variance,
+                           const DenseMatrix<ScalarType>& FeatureData,
+                           const DataArray<SparseVector<ScalarType>>& CodeTable,
+                           const DenseMatrix<ScalarType>& BasisMatrix,
+                           const DenseMatrix<ScalarType>& BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -775,19 +750,19 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
 
     int_max BasisNumber = BasisMatrix.GetColNumber();
 
-    DenseMatrix<ElementType> Variance_current(1, BasisNumber);
+    DenseMatrix<ScalarType> Variance_current(1, BasisNumber);
     Variance_current.Fill(0);
 
-    DenseMatrix<ElementType> WeightList(1, BasisNumber);
+    DenseMatrix<ScalarType> WeightList(1, BasisNumber);
     WeightList.Fill(0);
 
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+    auto eps_value = std::numeric_limits<ScalarType>::epsilon();
 
     for (int_max k = 0; k < DataNumber; ++k)
     {
-        const std::vector<int_max>& KNNBasisIndexList = CodeTable[k].IndexList();
+        const auto& KNNBasisIndexList = CodeTable[k].IndexList();
 
-        int_max KNNBasisNumber = int_max(KNNBasisIndexList.size());
+        int_max KNNBasisNumber = KNNBasisIndexList.GetLength();
 
         if (KNNBasisNumber > 0)
         {
@@ -799,7 +774,7 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
 
                 auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(BasisIndex);
 
-                auto L1Distance = ComputeL1DistanceBetweenTwoVectors(DataVectorPtr, BasisVectorPtr, VectorLength, false);
+                auto L1Distance = ComputeL1DistanceBetweenTwoVector(DataVectorPtr, BasisVectorPtr, VectorLength, false);
 
                 Variance_current[BasisIndex] += L1Distance*L1Distance;
 
@@ -829,13 +804,13 @@ UpdateVarianceOfL1Distance(DenseMatrix<ElementType>& Variance,
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
-UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
-                           const DenseMatrix<ElementType>& FeatureData,
-                           const DataArray<SparseVector<ElementType>>& CodeTable,
-                           const DenseMatrix<ElementType>& BasisMatrix,
-                           const DenseMatrix<ElementType>& BasisExperience)
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::
+UpdateVarianceOfL2Distance(DenseMatrix<ScalarType>& Variance,
+                           const DenseMatrix<ScalarType>& FeatureData,
+                           const DataArray<SparseVector<ScalarType>>& CodeTable,
+                           const DenseMatrix<ScalarType>& BasisMatrix,
+                           const DenseMatrix<ScalarType>& BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -843,19 +818,19 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
 
     int_max BasisNumber = BasisMatrix.GetColNumber();
 
-    DenseMatrix<ElementType> Variance_current(1, BasisNumber);
+    DenseMatrix<ScalarType> Variance_current(1, BasisNumber);
     Variance_current.Fill(0);
 
-    DenseMatrix<ElementType> WeightList(1, BasisNumber);
+    DenseMatrix<ScalarType> WeightList(1, BasisNumber);
     WeightList.Fill(0);
 
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+    auto eps_value = std::numeric_limits<ScalarType>::epsilon();
 
     for (int_max k = 0; k < DataNumber; ++k)
     {        
-        const std::vector<int_max>& KNNBasisIndexList = CodeTable[k].IndexList();
+        const auto& KNNBasisIndexList = CodeTable[k].IndexList();
 
-        int_max KNNBasisNumber = int_max(KNNBasisIndexList.size());
+        int_max KNNBasisNumber = KNNBasisIndexList.GetLength();
 
         if (KNNBasisNumber > 0)
         {
@@ -867,7 +842,7 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
 
                 auto BasisVectorPtr = BasisMatrix.GetElementPointerOfCol(BasisIndex);
 
-                auto SquaredL2Distance = ComputeSquaredL2DistanceBetweenTwoVectors(DataVectorPtr, BasisVectorPtr, VectorLength, false);
+                auto SquaredL2Distance = ComputeSquaredL2DistanceBetweenTwoVector(DataVectorPtr, BasisVectorPtr, VectorLength, false);
 
                 Variance_current[BasisIndex] += SquaredL2Distance;
 
@@ -897,13 +872,13 @@ UpdateVarianceOfL2Distance(DenseMatrix<ElementType>& Variance,
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
-UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
-                             const DenseMatrix<ElementType>& FeatureData,
-                             const DataArray<SparseVector<ElementType>>& CodeTable,
-                             const DenseMatrix<ElementType>& BasisMatrix,
-                             const DenseMatrix<ElementType>& BasisExperience)
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::
+UpdateVarianceOfKLDivergence(DenseMatrix<ScalarType>& Variance,
+                             const DenseMatrix<ScalarType>& FeatureData,
+                             const DataArray<SparseVector<ScalarType>>& CodeTable,
+                             const DenseMatrix<ScalarType>& BasisMatrix,
+                             const DenseMatrix<ScalarType>& BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -911,19 +886,19 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
 
     int_max BasisNumber = BasisMatrix.GetColNumber();
 
-    DenseMatrix<ElementType> Variance_current(1, BasisNumber);
+    DenseMatrix<ScalarType> Variance_current(1, BasisNumber);
     Variance_current.Fill(0);
 
     DenseMatrix<int_max> WeightList(1, BasisNumber);
     WeightList.Fill(0);
 
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+    auto eps_value = std::numeric_limits<ScalarType>::epsilon();
 
     for (int_max k = 0; k < DataNumber; ++k)
     {
-        const std::vector<int_max>& KNNBasisIndexList = CodeTable[k].IndexList();
+        const auto& KNNBasisIndexList = CodeTable[k].IndexList();
 
-        int_max KNNBasisNumber = int_max(KNNBasisIndexList.size());
+        int_max KNNBasisNumber = KNNBasisIndexList.GetLength();
 
         if (KNNBasisNumber > 0)
         {
@@ -965,13 +940,13 @@ UpdateVarianceOfKLDivergence(DenseMatrix<ElementType>& Variance,
 }
 
 
-template<typename ElementType>
-void KNNReconstructionOnlineDictionaryBuilder<ElementType>::
-UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
-                               const DenseMatrix<ElementType>& FeatureData,
-                               const DataArray<SparseVector<ElementType>>& CodeTable,
-                               const DenseMatrix<ElementType>& ReconstructedData,
-                               const DenseMatrix<ElementType>& BasisExperience)
+template<typename ScalarType>
+void KNNReconstructionOnlineDictionaryBuilder<ScalarType>::
+UpdateVarianceOfReconstruction(DenseMatrix<ScalarType>& Variance,
+                               const DenseMatrix<ScalarType>& FeatureData,
+                               const DataArray<SparseVector<ScalarType>>& CodeTable,
+                               const DenseMatrix<ScalarType>& ReconstructedData,
+                               const DenseMatrix<ScalarType>& BasisExperience)
 {
     int_max DataNumber = FeatureData.GetColNumber();
 
@@ -979,19 +954,19 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
 
     int_max BasisNumber = BasisExperience.GetColNumber();
 
-    DenseMatrix<ElementType> Variance_current(1, BasisNumber);
+    DenseMatrix<ScalarType> Variance_current(1, BasisNumber);
     Variance_current.Fill(0);
 
-    DenseMatrix<ElementType> WeightList(1, BasisNumber);
+    DenseMatrix<ScalarType> WeightList(1, BasisNumber);
     WeightList.Fill(0);
 
-    auto eps_value = std::numeric_limits<ElementType>::epsilon();
+    auto eps_value = std::numeric_limits<ScalarType>::epsilon();
 
     for (int_max k = 0; k < DataNumber; ++k)
     {
-        const std::vector<int_max>& KNNBasisIndexList = CodeTable[k].IndexList();
+        const auto& KNNBasisIndexList = CodeTable[k].IndexList();
 
-        int_max KNNBasisNumber = int_max(KNNBasisIndexList.size());
+        int_max KNNBasisNumber = KNNBasisIndexList.GetLength();
 
         if (KNNBasisNumber > 0)
         {
@@ -999,7 +974,7 @@ UpdateVarianceOfReconstruction(DenseMatrix<ElementType>& Variance,
 
             auto ReconstructedDataVectorPtr = ReconstructedData.GetElementPointerOfCol(k);
 
-            auto SquaredL2Distance = ComputeSquaredL2DistanceBetweenTwoVectors(DataVectorPtr, ReconstructedDataVectorPtr, VectorLength, false);
+            auto SquaredL2Distance = ComputeSquaredL2DistanceBetweenTwoVector(DataVectorPtr, ReconstructedDataVectorPtr, VectorLength, false);
 
             for (int_max m = 0; m < KNNBasisNumber; ++m)
             {

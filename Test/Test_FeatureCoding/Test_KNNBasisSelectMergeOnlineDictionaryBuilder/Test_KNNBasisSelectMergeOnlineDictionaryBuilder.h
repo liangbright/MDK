@@ -6,9 +6,9 @@ void Test_GaussianObjectImage()
 {
     using namespace mdk;
 
-    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectMergeOnlineDictionaryBuilder/Debug/";
+    std::string FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectMergeOnlineDictionaryBuilder/Debug/";
 
-    CharString FeatureDataFilePathAndName = FilePath + "GaussianObjectImage.json";
+    std::string FeatureDataFilePathAndName = FilePath + "GaussianObjectImage.json";
 
     auto FeatureData = LoadDenseMatrixFromJsonDataFile<double>(FeatureDataFilePathAndName);
 
@@ -31,7 +31,7 @@ void Test_GaussianObjectImage()
 
     DictionaryBuilder.m_Parameter.MaxNumberOfDataInEachBatch = 100;
 
-    DictionaryBuilder.m_Parameter.MaxNumberOfThreads = 1;
+    DictionaryBuilder.m_Parameter.MaxNumberOfThread = 1;
 
     DictionaryBuilder.m_Parameter.DebugInfo.Flag_OutputDebugInfo = true;
     DictionaryBuilder.m_Parameter.DebugInfo.FilePathToSaveDebugInfo = FilePath;
@@ -47,7 +47,7 @@ void Test_GaussianObjectImage()
     
     DictionaryBuilder.m_Parameter.BasisNumber = 10;
 
-    DictionaryBuilder.SetInputDictionary(DictionaryPtrA);
+    DictionaryBuilder.SetInitialDictionary(DictionaryPtrA);
 
     DictionaryBuilder.SetInputFeatureData(&FeatureData);
 

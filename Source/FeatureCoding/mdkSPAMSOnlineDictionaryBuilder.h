@@ -19,20 +19,20 @@
 namespace mdk
 {
 
-template<typename ElementType>
+template<typename ScalarType>
 struct Parameter_Of_SPAMSOnlineDictionaryBuilder  // param in [D model] = mexTrainDL(X,param,model);
 {
     int_max mode; // -1 means use m_SparseEncoder instead of the methods in SPAMS software
 
     int_max modeD; // select method to normalize Dictionary
 
-    DenseMatrix<ElementType> D; // initial Dictionary
+    DenseMatrix<ScalarType> D; // initial Dictionary
 
-    int_max K; // length of dictionary, not not useful if D is not empty
+    int_max K; // length of dictionary, not useful if D is not empty
 
-    ElementType lambda;
+    ScalarType lambda;
 
-    ElementType lambda2;
+    ScalarType lambda2;
 
     int_max iter; //(number of iterations)
 
@@ -40,9 +40,9 @@ struct Parameter_Of_SPAMSOnlineDictionaryBuilder  // param in [D model] = mexTra
 
     bool posD;     // positivity constraints on the dictionary
 
-    ElementType gamma1;
+    ScalarType gamma1;
 
-    ElementType gamma2;
+    ScalarType gamma2;
 
     int_max batchsize;
 
@@ -50,9 +50,9 @@ struct Parameter_Of_SPAMSOnlineDictionaryBuilder  // param in [D model] = mexTra
 
     int_max modeParam;
 
-    ElementType rho;
+    ScalarType rho;
 
-    ElementType t0;
+    ScalarType t0;
 
     bool clean;
 
@@ -61,9 +61,9 @@ struct Parameter_Of_SPAMSOnlineDictionaryBuilder  // param in [D model] = mexTra
     int_max numThreads;
 
     /*
-    ElementType mu;    
-    ElementType lambda3 = 0;
-    ElementType lambda4 = 0;
+    ScalarType mu;    
+    ScalarType lambda3 = 0;
+    ScalarType lambda4 = 0;
     bool whiten;
     bool expand;
     bool isConstant;
@@ -138,12 +138,12 @@ private:
 };
 
 
-template<typename ElementType>
+template<typename ScalarType>
 struct State_Of_SPAMSOnlineDictionaryBuilder  // D and model in [D model] = mexTrainDL(X,param,model);
 {
-    DenseMatrix<ElementType> A;
-    DenseMatrix<ElementType> B;
-    DenseMatrix<ElementType> D;
+    DenseMatrix<ScalarType> A;
+    DenseMatrix<ScalarType> B;
+    DenseMatrix<ScalarType> D;
 
 //-----------------------------------------------------------------------------------------------
     State_Of_SPAMSOnlineDictionaryBuilder(){};
@@ -173,7 +173,7 @@ struct State_Of_SPAMSOnlineDictionaryBuilder  // D and model in [D model] = mexT
 
     bool IsEmpty()
     {
-        return A.IsEmpty();
+        return D.IsEmpty();
     }
 
 private:
@@ -183,28 +183,26 @@ private:
 };
 
 
-template<typename Element_Type>
-class SPAMSOnlineDictionaryBuilder : public FeatureDictionaryBuilder<Element_Type>
+template<typename Scalar_Type>
+class SPAMSOnlineDictionaryBuilder : public FeatureDictionaryBuilder<FeatureDictionaryForSparseCoding<Scalar_Type>>
 {
 public:
-	typedef Element_Type ElementType;
+	typedef Scalar_Type ScalarType;
+	typedef FeatureDictionaryForSparseCoding<ScalarType> DictionaryType;
 
 public:
-    Parameter_Of_SPAMSOnlineDictionaryBuilder<ElementType> m_Parameter;
+    Parameter_Of_SPAMSOnlineDictionaryBuilder<ScalarType> m_Parameter;
 
 protected:
+    const DenseMatrix<ScalarType>* m_FeatureData;
 
-    const DenseMatrix<ElementType>* m_FeatureData;
+    FeatureDictionaryBasedSparseEncoder<ScalarType>* m_SparseEncoder;
 
-    FeatureDictionaryBasedSparseEncoder<ElementType>* m_SparseEncoder;
+    State_Of_SPAMSOnlineDictionaryBuilder<ScalarType> m_State;
 
-    State_Of_SPAMSOnlineDictionaryBuilder<ElementType> m_State;
+	const DictionaryType* m_InitialDictionary;
 
-    const FeatureDictionaryForSparseCoding<ElementType>* m_InitialDictionary;
-
-    FeatureDictionaryForSparseCoding<ElementType>* m_Dictionary;
-
-    FeatureDictionaryForSparseCoding<ElementType> m_Dictionary_SharedCopy;
+	DictionaryType m_Dictionary;
 
 public:
 
@@ -214,17 +212,15 @@ public:
 
     void Clear();
 
-    void SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
+    void SetInputFeatureData(const DenseMatrix<ScalarType>* InputFeatureData);
 
-    void SetOutputDictionary(FeatureDictionaryForSparseCoding<ElementType>* Dictionary);
+	void SetInitialDictionary(const DictionaryType* Dictionary);
 
-    void SetInitialDictionary(const FeatureDictionaryForSparseCoding<ElementType>* Dictionary);
+    void SetInitialState(State_Of_SPAMSOnlineDictionaryBuilder<ScalarType> InitialState); //copy value
 
-    void SetInitialState(State_Of_SPAMSOnlineDictionaryBuilder<ElementType> InitialState); //copy value
+    State_Of_SPAMSOnlineDictionaryBuilder<ScalarType>* GetCurrentState();
 
-    State_Of_SPAMSOnlineDictionaryBuilder<ElementType>* GetCurrentState();
-
-    void SetSparseEncoder(FeatureDictionaryBasedSparseEncoder<ElementType>* Encoder);
+    void SetSparseEncoder(FeatureDictionaryBasedSparseEncoder<ScalarType>* Encoder);
 
     bool LoadStateAndParameter(const std::string& FilePathAndName);
 
@@ -232,24 +228,16 @@ public:
 
     bool CheckInput();
 
-    FeatureDictionaryForSparseCoding<ElementType>* GetOutputDictionary();
+	bool Update();
+
+	DictionaryType* GetOutputDictionary();
 
 protected:
-
     void GenerateDictionary();
-
-    void ClearPipelineOutput();
-
-    void UpdatePipelineOutput();
 
 private:
     SPAMSOnlineDictionaryBuilder(const SPAMSOnlineDictionaryBuilder&) = delete;
-
     void operator=(const SPAMSOnlineDictionaryBuilder&) = delete;
-
-    SPAMSOnlineDictionaryBuilder(SPAMSOnlineDictionaryBuilder&&) = delete;
-
-    void operator=(SPAMSOnlineDictionaryBuilder&&) = delete;
 };
 
 }// namespace mdk

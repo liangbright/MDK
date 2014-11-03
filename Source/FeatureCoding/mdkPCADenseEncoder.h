@@ -5,7 +5,6 @@
 
 #include "mdkFeatureDictionaryBasedDenseEncoder.h"
 
-
 namespace mdk
 {
 
@@ -20,10 +19,10 @@ public:
     ~PCADenseEncoder();
 
 public:
-	DenseMatrix<ScalarType> EncodeSingleFeatureVector(const DenseMatrix<ScalarType>& FeatureVector);
+	inline DenseMatrix<ScalarType> EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector);
 
 protected:
-	DenseMatrix<ScalarType> EncodeSingleFeatureVector(int_max DataIndex, const DenseMatrix<ScalarType>& FeatureVector, int_max ThreadIndex);
+	inline DenseMatrix<ScalarType> EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex);
 
 private:
     PCADenseEncoder(const PCADenseEncoder&) = delete;

@@ -1,14 +1,14 @@
 #include "mdkFileIO.h"
-#include "mdkKNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder.h"
+#include "mdkKNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder.h"
 
 
 void Test_GaussianObjectImage()
 {
     using namespace mdk;
 
-    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBSABasedOnlineDictionaryBuilder/Debug/";
+    std::string FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBSABasedOnlineDictionaryBuilder/Debug/";
 
-    CharString FeatureDataFilePathAndName = FilePath + "GaussianObjectImage.json";
+    std::string FeatureDataFilePathAndName = FilePath + "GaussianObjectImage.json";
 
     auto FeatureData = LoadDenseMatrixFromJsonDataFile<double>(FeatureDataFilePathAndName);
 
@@ -28,7 +28,7 @@ void Test_GaussianObjectImage()
 
     //-------------------------------------------------------------------------------------------
 
-    KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<double> DictionaryBuilder;
+    KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<double> DictionaryBuilder;
 
     DictionaryBuilder.m_Parameter.BasisNumber = BasisNumber;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = NeighbourNumber;
@@ -62,9 +62,9 @@ void Test_ImageDenoising()
 {
     using namespace mdk;
 
-    CharString FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBSABasedOnlineDictionaryBuilder/Debug/";
+    std::string FilePath = "C:/Research/MDK_Build/Test/Test_FeatureCoding/Test_KNNBSABasedOnlineDictionaryBuilder/Debug/";
 
-    CharString FeatureDataFilePathAndName = FilePath + "NoisyImagePatch.json";
+    std::string FeatureDataFilePathAndName = FilePath + "NoisyImagePatch.json";
 
     auto FeatureData = LoadDenseMatrixFromJsonDataFile<double>(FeatureDataFilePathAndName);
 
@@ -84,11 +84,11 @@ void Test_ImageDenoising()
 
     int_max BasisNumber = 128;
 
-    int_max MaxNumberOfThreads = 4;
+    int_max MaxNumberOfThread = 4;
 
     //-------------------------------------------------------------------------------------------
 
-    KNNBasisSelectionAndKNNAverageBasedOnlineDictionaryBuilder<double> DictionaryBuilder;
+	KNNBasisSelectionAndKNNAverageOnlineDictionaryBuilder<double> DictionaryBuilder;
 
     DictionaryBuilder.m_Parameter.BasisNumber = BasisNumber;
     DictionaryBuilder.m_Parameter.ParameterOfKNNSoftAssign.NeighbourNumber = NeighbourNumber;
@@ -127,13 +127,13 @@ void Test_ImageDenoising()
 
     SparseEncoder.m_Parameter.NeighbourNumber = NeighbourNumber;
     SparseEncoder.m_Parameter.SimilarityType = SimilarityType;
-    SparseEncoder.SetMaxNumberOfThreads(MaxNumberOfThreads);
+    SparseEncoder.SetMaxNumberOfThread(MaxNumberOfThread);
 
     SparseEncoder.SetInputFeatureData(&FeatureData);
     SparseEncoder.SetInputDictionary(DictionaryPtr);
     SparseEncoder.Update();
 
-    auto CodeSet = SparseEncoder.GetOutputCodeInSparseColVectorSet();
+    auto& CodeSet = *SparseEncoder.GetOutputCode();
 
     DenseMatrix<double> ReconstructedFeatureData;
 

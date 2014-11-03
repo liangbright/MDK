@@ -15,26 +15,30 @@ PCADenseEncoder<ScalarType>::~PCADenseEncoder()
 {
 }
 
-template<typename ScalarType>
-DenseMatrix<ScalarType> PCADenseEncoder<ScalarType>::
-EncodeSingleFeatureVector(const DenseMatrix<ScalarType>& FeatureVector)
-{
-	return this->EncodeSingleFeatureVector(0, FeatureVector, 0);
-}
 
 template<typename ScalarType>
+inline
 DenseMatrix<ScalarType> PCADenseEncoder<ScalarType>::
-EncodeSingleFeatureVector(int_max DataIndex, const DenseMatrix<ScalarType>& FeatureVector, int_max ThreadIndex)
+EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex)
+{
+	return this->EncodeSingleDataVector(DataColVector);
+}
+
+
+template<typename ScalarType>
+inline
+DenseMatrix<ScalarType> PCADenseEncoder<ScalarType>::
+EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
 {
     const auto& D = m_Dictionary->BasisMatrix(); // "auto D =" will copy
 
 	auto CodeLength = D.GetColNumber();
-	auto DataDimension = FeatureVector.GetElementNumber();
+	auto DataDimension = DataColVector.GetElementNumber();
 
 	DenseMatrix<ScalarType> tempData(DataDimension, 1);
 	for (int_max i = 0; i < DataDimension; ++i)
 	{
-		tempData[i] = FeatureVector[i] - m_Dictionary->m_MeanVector[i];
+		tempData[i] = DataColVector[i] - m_Dictionary->m_MeanVector[i];
 	}
 
 	DenseMatrix<ScalarType> OutputCode(CodeLength, 1);

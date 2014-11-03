@@ -14,12 +14,13 @@ class FeatureDictionaryBasedDenseEncoder : public FeatureDictionaryBasedEncoder<
 {
 public:
 	typedef Scalar_Type ScalarType;
+	typedef FeatureDictionaryForDenseCoding<Scalar_Type>  DictionaryType;
 
 protected:
     // input data
 	const DenseMatrix<ScalarType>* m_FeatureData;
 	// input dictionary
-	const FeatureDictionaryForDenseCoding<ScalarType>* m_Dictionary;
+	const DictionaryType* m_Dictionary;
     // output dense code
     DenseMatrix<ElementType> m_DenseCode;
 
@@ -41,7 +42,7 @@ public:
     
     void SetInputFeatureData(const DenseMatrix<ElementType>* InputFeatureData);
 
-    void SetInputDictionary(const FeatureDictionaryForDenseCoding<ElementType>* Dictionary);
+	void SetInputDictionary(const DictionaryType* Dictionary);
 
     void SetMaxNumberOfThread(int_max Number);
 
@@ -50,6 +51,8 @@ public:
     virtual bool CheckInput();
 
     virtual bool Update();
+
+	inline virtual DenseMatrix<ScalarType> EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector) = 0;
 
     DenseMatrix<ElementType>* GetOutputCode();
 
@@ -64,8 +67,9 @@ protected:
 
 	virtual bool Postprocess();
 
-    virtual void GenerateCode_in_a_Thread(int_max IndexOfFeatureVector_start, int_max IndexOfFeatureVector_end);
-	virtual DenseMatrix<ScalarType> EncodeSingleFeatureVector(int_max DataIndex, const DenseMatrix<ScalarType>& FeatureVector, int_max ThreadIndex) {}
+	virtual void GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end);
+
+	inline virtual DenseMatrix<ScalarType> EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex) = 0;
 
 private:
 //deleted:
