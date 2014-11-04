@@ -27,6 +27,31 @@ Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const TriangleMesh<MeshAt
     return FindNearestPointOnMesh(TargetMesh_ref, PointPosition);
 }
 
+
+template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> SimplifyTriangleMeshByVTKDecimatePro(const TriangleMesh<MeshAttributeType>& TargetMesh, double TargetReduction)
+{
+	auto VTKMesh = ConvertMDKTriangleMeshToVTKPolyData(TargetMesh);
+	auto decimate = vtkSmartPointer<vtkDecimatePro>::New();
+	decimate->SetInputData(VTKMesh);
+	decimate->SetTargetReduction(TargetReduction);
+	decimate->Update();
+	return ConvertVTKPolyDataToMDKTriangleMesh<MeshAttributeType>(decimate->GetOutput());
+}
+
+
+template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> SimplifyTriangleMeshByVTKQuadricDecimation(const TriangleMesh<MeshAttributeType>& TargetMesh, double TargetReduction)
+{
+	auto VTKMesh = ConvertMDKTriangleMeshToVTKPolyData(TargetMesh);
+	auto decimate = vtkSmartPointer<vtkQuadricDecimation>::New();
+	decimate->SetInputData(VTKMesh);
+	decimate->SetTargetReduction(TargetReduction);
+	decimate->Update();
+	return ConvertVTKPolyDataToMDKTriangleMesh<MeshAttributeType>(decimate->GetOutput());
+}
+
+
 }//namespace mdk
 
 

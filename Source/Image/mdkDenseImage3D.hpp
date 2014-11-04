@@ -1231,7 +1231,7 @@ DenseImage3D<PixelType>::GetLinearIndexListInRegion(const BoxRegionOf3DIndexInIm
 	auto yIndex_e = int_max(RegionInfo.y_max);
 	auto zIndex_e = int_max(RegionInfo.z_max);
 
-	if (xIndex_e < xIndex_s || yIndex_e < xIndex_s || zIndex_e < zIndex_s)
+	if (xIndex_e < xIndex_s || yIndex_e < yIndex_s || zIndex_e < zIndex_s)
 	{
 		MDK_Error("Invalid input @ DenseImage3D::GetLinearIndexListInRegion(...)")
 		DenseVector<int_max> EmptyList;
@@ -1296,7 +1296,7 @@ DenseImage3D<PixelType>::GetLinearIndexListInRegion(const BoxRegionOf3DPhysicalP
 	auto yIndex_e = int_max(Index3D_max[1]);
 	auto zIndex_e = int_max(Index3D_max[2]);
 
-	if (xIndex_e < xIndex_s || yIndex_e < xIndex_s || zIndex_e < zIndex_s)
+	if (xIndex_e < xIndex_s || yIndex_e < yIndex_s || zIndex_e < zIndex_s)
 	{
 		MDK_Error("Invalid input @ DenseImage3D::GetLinearIndexListInRegion(...)")
 		DenseVector<int_max> EmptyList;
@@ -1339,7 +1339,7 @@ DenseMatrix<int_max> DenseImage3D<PixelType>::Get3DIndexListInRegion(const BoxRe
 	auto yIndex_e = int_max(RegionInfo.y_max);
 	auto zIndex_e = int_max(RegionInfo.z_max);
 
-	if (xIndex_e < xIndex_s || yIndex_e < xIndex_s || zIndex_e < zIndex_s)
+	if (xIndex_e < xIndex_s || yIndex_e < yIndex_s || zIndex_e < zIndex_s)
 	{
 		MDK_Error("Invalid input @ DenseImage3D::GetLinearIndexListInRegion(...)")
 		DenseMatrix<int_max> EmptyList;
@@ -1389,7 +1389,7 @@ DenseMatrix<int_max> DenseImage3D<PixelType>::Get3DIndexListInRegion(const BoxRe
 	auto yIndex_e = int_max(Index3D_max[1]);
 	auto zIndex_e = int_max(Index3D_max[2]);
 
-	if (xIndex_e < xIndex_s || yIndex_e < xIndex_s || zIndex_e < zIndex_s)
+	if (xIndex_e < xIndex_s || yIndex_e < yIndex_s || zIndex_e < zIndex_s)
 	{
 		MDK_Error("Invalid input @ DenseImage3D::Get3DIndexListInRegion(...)")
 		DenseMatrix<int_max> EmptyList;
@@ -1435,7 +1435,7 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DIndexInImage3D& RegionIn
 	auto yIndex_e = int_max(std::round(RegionInfo.y_max));
 	auto zIndex_e = int_max(std::round(RegionInfo.z_max));
 
-	if (xIndex_e < xIndex_s || yIndex_e < xIndex_s || zIndex_e < zIndex_s)
+	if (xIndex_e < xIndex_s || yIndex_e < yIndex_s || zIndex_e < zIndex_s)
 	{
 		MDK_Error("Invalid input @ DenseImage3D::GetSubImage(...)")
 		return SubImage;
@@ -1505,7 +1505,7 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DPhysicalPositionInImage3
 	auto yIndex_e = int_max(Index3D_max[1]);
 	auto zIndex_e = int_max(Index3D_max[2]);
 
-	if (xIndex_e < xIndex_s || yIndex_e < xIndex_s || zIndex_e < zIndex_s)
+	if (xIndex_e < xIndex_s || yIndex_e < yIndex_s || zIndex_e < zIndex_s)
 	{
 		MDK_Error("Invalid input @ DenseImage3D::GetSubImage(...)")
 		DenseImage3D<PixelType> EmptyImage;
