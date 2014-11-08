@@ -27,18 +27,17 @@ template<typename MeshAttributeType>
 bool SavePolygonMeshAsJsonDataFile_Data(const PolygonMesh<MeshAttributeType>& InputMesh, const std::string& DataFilePathAndName);
 
 template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile(const std::string& JsonFilePathAndName);
+bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh, const std::string& JsonFilePathAndName);
 
 template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile_Data(const std::string& DataFilePathAndName,
-																	int_max PointNumber, int_max CellNumber,
-																    const std::string& ScalarTypeName);
+bool LoadPolygonMeshFromJsonDataFile_Data(PolygonMesh<MeshAttributeType>& OutputMesh, const std::string& DataFilePathAndName,
+										  int_max PointNumber, int_max CellNumber, const std::string& InputScalarTypeName);
 
 template<typename MeshAttributeType>
 bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, const std::string& FilePathAndName);
 
 template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> LoadPolygonMeshMeshFromVTKFile(const std::string& FilePathAndName);
+bool LoadPolygonMeshMeshFromVTKFile(PolygonMesh<MeshAttributeType>& OutputMesh, const std::string& FilePathAndName);
 
 }//namespace mdk
 

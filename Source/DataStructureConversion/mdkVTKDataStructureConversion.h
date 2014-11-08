@@ -15,13 +15,13 @@ namespace mdk
 {
 
 //------------- forward declare-------------------//
-template<typename ElementType>
+template<typename T>
 class ObjectArray;
 
-template<typename ElementType>
+template<typename T>
 class DenseMatrix;
 
-template<typename ElementType>
+template<typename T>
 class SparseMatrix;
 
 template<typename PixelType>
@@ -69,41 +69,40 @@ VtkDataTypeEnum GetVtkScalarType(const ScalarType& ReferenceScalar);
 
 //-------------------------------------- convert mdk Curve/Matrix to vtk PolyData ----------------------------------------------------------//
 template<typename ScalarType>
-vtkSmartPointer<vtkPolyData> ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& InputCurve);
+vtkSmartPointer<vtkPolyData> ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCurve);
 
 template<typename ScalarType>
-vtkSmartPointer<vtkPolyData> ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<ScalarType>>& InputCurveList);
+vtkSmartPointer<vtkPolyData> ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveList);
 
 //-------------------------------------- convert vtk PolyData  to mdk Curve/Matrix ----------------------------------------------------------//
 template<typename ScalarType>
-ObjectArray<DenseMatrix<ScalarType>> ConvertVTKPolyDataToMDK3DCurve(vtkPolyData* VTKCurveData);
+bool ConvertVTKPolyDataToMDK3DCurve(vtkPolyData* VTKCurveData, ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveData);
 
 //-------------------------------------- convert mdk image to vtk image--------------------------------------------------------------------//
 //copy data
 template<typename PixelType>
-vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& InputImage);
+vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MDKImage);
 
 //-------------------------------------- convert vtk image to mdk image--------------------------------------------------------------------//
 //copy data
 template<typename PixelType>
-DenseImage3D<PixelType> ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage);
-
-//--------------------------------------- convert mdk TriangleMesh to vtk PolyData -----------------------------------------------//
-template<typename MeshAttributeType>
-vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& InputMesh);
-
-//--------------------------------------- convert vtk PolyData to mdk TriangleMesh ------------------------------------------------//
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKPolyMesh);
+bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, DenseImage3D<PixelType>& MDKImage);
 
 //--------------------------------------- convert mdk PolygonMesh to vtk PolyData -----------------------------------------------//
 template<typename MeshAttributeType>
-vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& InputMesh);
+vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MDKMesh);
 
 //--------------------------------------- convert vtk PolyData to mdk PolygonMesh ------------------------------------------------//
 template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKPolyMesh);
+bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<MeshAttributeType>& MDKMesh);
 
+//--------------------------------------- convert mdk TriangleMesh to vtk PolyData -----------------------------------------------//
+template<typename MeshAttributeType>
+vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& MDKMesh);
+
+//--------------------------------------- convert vtk PolyData to mdk TriangleMesh ------------------------------------------------//
+template<typename MeshAttributeType>
+bool ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKMesh, TriangleMesh<MeshAttributeType>& MDKMesh);
 
 }// namespace mdk
 

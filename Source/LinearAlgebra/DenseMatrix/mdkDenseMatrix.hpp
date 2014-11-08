@@ -39,6 +39,14 @@ DenseMatrix<ElementType>::DenseMatrix(int_max RowNumber, int_max ColNumber)
 
 template<typename ElementType>
 inline
+DenseMatrix<ElementType>::DenseMatrix(MatrixSize Size)
+{
+	this->Resize(Size);
+}
+
+
+template<typename ElementType>
+inline
 DenseMatrix<ElementType>::DenseMatrix(const ElementType& Element)
 {
     this->Resize(1, 1);

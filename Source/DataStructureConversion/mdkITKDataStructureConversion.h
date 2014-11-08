@@ -41,7 +41,7 @@ itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalar
 //-------------------------------------- convert itk image to mdk image--------------------------------------------------------------------//
 //copy data
 template<typename PixelType>
-DenseImage3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage);
+bool ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage, DenseImage3D<PixelType>& MDKImage);
 
 //--------------------------------------- convert mdk TriangleMesh to itk Mesh -----------------------------------------------//
 //template<typename ScalarType>

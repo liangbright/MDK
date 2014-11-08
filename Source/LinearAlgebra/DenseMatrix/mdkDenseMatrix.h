@@ -159,6 +159,8 @@ public:
 
     inline DenseMatrix(int_max RowNumber, int_max ColNumber);
 
+	inline DenseMatrix(MatrixSize Size);
+
     inline DenseMatrix(const ElementType& Element);
 
     inline DenseMatrix(const std::initializer_list<ElementType>& InputList);

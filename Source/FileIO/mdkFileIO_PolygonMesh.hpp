@@ -19,7 +19,7 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
 template<typename MeshAttributeType>
 bool SavePolygonMeshAsJsonDataFile_Header(const PolygonMesh<MeshAttributeType>& InputMesh, const std::string& JsonFilePathAndName)
 {
-	typedef PolygonMesh<MeshAttributeType>::ScalarType  ScalarType;
+	typedef MeshAttributeType::ScalarType  ScalarType;
 
 	if (GetByteNumberOfScalar(ScalarType(0)) <= 0)
 	{
@@ -125,16 +125,14 @@ bool SavePolygonMeshAsJsonDataFile_Data(const PolygonMesh<MeshAttributeType>& In
 
 
 template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile(const std::string& JsonFilePathAndName)
+bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh, const std::string& JsonFilePathAndName)
 {
-	PolygonMesh<MeshAttributeType> OutputMesh;
-
 	//---------------------------------------------- Read header --------------------------------------------------------//
 	QFile HeaderFile(JsonFilePathAndName.c_str());
 	if (!HeaderFile.open(QIODevice::ReadOnly))
 	{
 		MDK_Error("Couldn't open Header File @ LoadPolygonMeshFromJsonDataFile(...)")
-		return OutputMesh;
+		return false;
 	}
 	//----------------------------------------------------------//
 	QByteArray HeaderContent = HeaderFile.readAll();
@@ -151,14 +149,14 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile(const std::string
 		{
 			MDK_Error("ObjectType is not PolygonMesh @ LoadPolygoneMeshFromJsonDataFile(...)")
 			HeaderFile.close();
-			return OutputMesh;
+			return false;
 		}
 	}
 	else
 	{
 		MDK_Error("Couldn't get ObjectType @ LoadPolygoneMeshFromJsonDataFile(...)")
 		HeaderFile.close();
-		return OutputMesh;
+		return false;
 	}
 	//------------------------------------------
 	std::string InputScalarTypeName;
@@ -171,7 +169,7 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile(const std::string
 	{
 		MDK_Error("Couldn't get ScalarType @ LoadPolygoneMeshFromJsonDataFile(...)")
 		HeaderFile.close();
-		return OutputMesh;
+		return false;
 	}
 	//-------------------------------------------
 	std::string IndexTypeName;
@@ -184,7 +182,7 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile(const std::string
 	{
 		MDK_Error("Couldn't get IndexType @ LoadPolygonMeshFromJsonDataFile(...)")
 		HeaderFile.close();
-		return OutputMesh;
+		return false;
 	}
 	//----------------------------------------------
 	int_max PointNumber = 0;
@@ -197,7 +195,7 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile(const std::string
 	{
 		MDK_Error("Couldn't get PointNumber @ LoadPolygonMeshFromJsonDataFile(...)")
 		HeaderFile.close();
-		return OutputMesh;
+		return false;
 	}
 	//----------------------------------------------
 	int_max CellNumber = 0;
@@ -210,24 +208,21 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile(const std::string
 	{
 		MDK_Error("Couldn't get CellNumber @ LoadPolygonMeshFromJsonDataFile(...)")
 		HeaderFile.close();
-		return OutputMesh;
+		return false;
 	}
 	//----------------------------------------------
 	std::string DataFilePathAndName = JsonFilePathAndName + ".data";
-	return LoadPolygonMeshFromJsonDataFile_Data<MeshAttributeType>(DataFilePathAndName, PointNumber, CellNumber, InputScalarTypeName);
+	return LoadPolygonMeshFromJsonDataFile_Data(OutputMesh, DataFilePathAndName, PointNumber, CellNumber, InputScalarTypeName);
 }
 
 
 template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile_Data(const std::string& DataFilePathAndName,
-																	int_max PointNumber, int_max CellNumber,
-																	const std::string& ScalarTypeName)
+bool LoadPolygonMeshFromJsonDataFile_Data(PolygonMesh<MeshAttributeType>& OutputMesh, const std::string& DataFilePathAndName,
+							              int_max PointNumber, int_max CellNumber, const std::string& InputScalarTypeName)
 {
-	PolygonMesh<MeshAttributeType> OutputMesh;
-
 	if (PointNumber <= 0 || CellNumber <= 0)
 	{
-		return OutputMesh;
+		return false;
 	}
 
 	typedef typename MeshAttributeType::ScalarType ScalarType;
@@ -236,14 +231,18 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile_Data(const std::s
 	MatrixSize PointDataMatrixSize;
 	PointDataMatrixSize.RowNumber = 3;
 	PointDataMatrixSize.ColNumber = PointNumber;
-	auto PointData = LoadDenseMatrixFromJsonDataFile_Data<ScalarType>(PointDataFilePathAndName, PointDataMatrixSize, ScalarTypeName);
+	DenseMatrix<ScalarType> PointData(PointDataMatrixSize);
+	if (LoadDenseMatrixFromJsonDataFile_Data(PointData, PointDataFilePathAndName, InputScalarTypeName) == false)
+	{
+		return false;
+	}
 
 	std::string CellDataFilePathAndName = DataFilePathAndName + ".cell";
 	QFile CellDataFile(CellDataFilePathAndName.c_str());
     if (!CellDataFile.open(QIODevice::ReadOnly))
     {
 		MDK_Error("Couldn't open cell data file:" << CellDataFilePathAndName)
-        return OutputMesh;
+        return false;
     }
 
     DataArray<DenseVector<int_max>> CellData;
@@ -269,7 +268,7 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromJsonDataFile_Data(const std::s
     CellDataFile.close();
 
     OutputMesh.Construct(PointData, CellData);
-    return OutputMesh;
+    return true;
 }
 
 
@@ -297,11 +296,9 @@ bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, c
 
 
 template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> LoadPolygonMeshFromVTKFile(const std::string& FilePathAndName)
+bool LoadPolygonMeshFromVTKFile(PolygonMesh<MeshAttributeType>& OutputMesh, const std::string& FilePathAndName)
 {
-	typedef PolygonMesh<MeshAttributeType>::ScalarType ScalarType;
-
-	PolygonMesh<MeshAttributeType> OutputMesh;
+	typedef MeshAttributeType::ScalarType ScalarType;
 
 	auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
 	Reader->SetFileName(FilePathAndName.c_str());
@@ -313,12 +310,11 @@ PolygonMesh<MeshAttributeType> LoadPolygonMeshFromVTKFile(const std::string& Fil
 	catch (...)
 	{
 		MDK_Error(" Can not read data @ LoadPolygonMeshFromVTKFile(...) ")
-		return OutputMesh;
+		return false;
 	}
 
-	auto VTKPolyMesh = Reader->GetOutput();
-	OutputMesh = ConvertVTKPolyDataToMDKPolygonMesh<MeshAttributeType>(VTKPolyMesh);
-	return OutputMesh;
+	auto VTKMesh = Reader->GetOutput();
+	return ConvertVTKPolyDataToMDKPolygonMesh(VTKMesh, OutputMesh);
 }
 
 }//namespace mdk

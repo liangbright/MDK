@@ -12,7 +12,7 @@ template<typename ScalaryType>
 bool SaveFeatureDictionaryForSparseCodingAsJsonDataFile(const FeatureDictionaryForSparseCoding<ScalaryType>& Dictionary, const std::string& JsonFilePathAndName);
 
 template<typename ScalaryType>
-FeatureDictionaryForSparseCoding<ScalaryType> LoadFeatureDictionaryForSparseCodingFromJsonDataFile(const std::string& JsonFilePathAndName);
+bool LoadFeatureDictionaryForSparseCodingFromJsonDataFile(FeatureDictionaryForSparseCoding<ScalaryType>& Dictionary, const std::string& JsonFilePathAndName);
 
 
 }//namespace mdk

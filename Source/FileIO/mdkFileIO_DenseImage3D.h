@@ -32,20 +32,25 @@ bool Save3DScalarImageAsJsonDataFile_Header(const DenseImage3D<PixelType>& Input
 template<typename PixelType>
 bool Save3DScalarImageAsJsonDataFile_Data(const DenseImage3D<PixelType>& InputImage, const std::string& DataFilePathAndName);
 
+// can not Load DenseImage or SparseImage use the same function
+// unless use std::enable_if to conditionally compile a member function
+//template<typename ImageType>
+//ImageType Load3DScalarImageFromJsonDataFile(const std::string& JsonFilePathAndName);
+
 template<typename PixelType>
-DenseImage3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& JsonFilePathAndName);
+bool Load3DScalarImageFromJsonDataFile(DenseImage3D<PixelType>& OutputImage, const std::string& JsonFilePathAndName);
 
 template<typename OutputPixelType>
-void Load3DScalarImageFromJsonDataFile_Data(DenseImage3D<OutputPixelType>& OutputImage, const std::string& InputPixelTypeName, const std::string& DataFilePathAndName);;
+bool Load3DScalarImageFromJsonDataFile_Data(DenseImage3D<OutputPixelType>& OutputImage, const std::string& InputPixelTypeName, const std::string& DataFilePathAndName);;
 
 template<typename OutputPixelType, typename InputPixelType>
-void Load3DScalarImageFromJsonDataFile_Data(DenseImage3D<OutputPixelType>& OutputImage, const std::string& DataFilePathAndName);
+bool Load3DScalarImageFromJsonDataFile_Data(DenseImage3D<OutputPixelType>& OutputImage, const std::string& DataFilePathAndName);
 
 template<typename PixelType>
-DenseImage3D<PixelType> Load3DScalarImageFromDICOMSeries(const std::string& FilePath);
+bool Load3DScalarImageFromDICOMSeries(DenseImage3D<PixelType>& OutputImage, const std::string& FilePath);
 
 template<typename PixelType>
-DenseImage3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const std::string& FilePathAndName);
+bool Load3DScalarImageFromSingleDICOMFile(DenseImage3D<PixelType>& OutputImage, const std::string& FilePathAndName);
 
 }// namespace mdk
 

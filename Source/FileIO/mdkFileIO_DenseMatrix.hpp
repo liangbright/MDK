@@ -4,8 +4,8 @@
 namespace mdk
 {
 
-template<typename ElementType>
-bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ElementType>& InputMatrix, const std::string& JsonFilePathAndName)
+template<typename ScalarType>
+bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, const std::string& JsonFilePathAndName)
 {
 	if (SaveDenseMatrixAsJsonDataFile_Header(InputMatrix, JsonFilePathAndName) == false)
 	{
@@ -17,8 +17,8 @@ bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ElementType>& InputMatrix, 
 }
 
 
-template<typename ElementType>
-bool SaveDenseMatrixAsJsonDataFile_Header(const DenseMatrix<ElementType>& InputMatrix, const std::string& JsonFilePathAndName)
+template<typename ScalarType>
+bool SaveDenseMatrixAsJsonDataFile_Header(const DenseMatrix<ScalarType>& InputMatrix, const std::string& JsonFilePathAndName)
 {
 	std::vector<NameValueQStringPair> PairList(4);
 
@@ -27,11 +27,11 @@ bool SaveDenseMatrixAsJsonDataFile_Header(const DenseMatrix<ElementType>& InputM
 	PairList[0].Name = "ObjectType";
 	PairList[0].Value = "DenseMatrix";
 
-	auto ElementTypeName = GetScalarTypeName(ElementType(0));
-	QString QElementTypeName(ElementTypeName.c_str());
+	auto ScalarTypeName = GetScalarTypeName(ScalarType(0));
+	QString QScalarTypeName(ScalarTypeName.c_str());
 
-	PairList[1].Name = "ElementType";
-	PairList[1].Value = QElementTypeName;
+	PairList[1].Name = "ScalarType";
+	PairList[1].Value = QScalarTypeName;
 
 	PairList[2].Name = "RowNumber";
 	PairList[2].Value = QString::number(Size.RowNumber);
@@ -45,8 +45,8 @@ bool SaveDenseMatrixAsJsonDataFile_Header(const DenseMatrix<ElementType>& InputM
 }
 
 
-template<typename ElementType>
-bool SaveDenseMatrixAsJsonDataFile_Data(const DenseMatrix<ElementType>& InputMatrix, const std::string& DataFilePathAndName)
+template<typename ScalarType>
+bool SaveDenseMatrixAsJsonDataFile_Data(const DenseMatrix<ScalarType>& InputMatrix, const std::string& DataFilePathAndName)
 {
 	auto Size = InputMatrix.GetSize();
 	if (Size.ColNumber == 0)
@@ -55,7 +55,7 @@ bool SaveDenseMatrixAsJsonDataFile_Data(const DenseMatrix<ElementType>& InputMat
 		return true;
 	}
 
-	int_max ByteNumber = GetByteNumberOfScalar(ElementType(0));
+	int_max ByteNumber = GetByteNumberOfScalar(ScalarType(0));
 	if (ByteNumber <= 0)
 	{
 		MDK_Error("Unknown type of matrix @ SaveDenseMatrixAsJsonDataFile_Data(...)")
@@ -75,39 +75,47 @@ bool SaveDenseMatrixAsJsonDataFile_Data(const DenseMatrix<ElementType>& InputMat
 }
 
 
-template<typename ElementType>
-DenseMatrix<ElementType> LoadDenseMatrixFromJsonDataFile(const std::string& JsonFilePathAndName)
+template<typename ScalarType>
+bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, const std::string& JsonFilePathAndName)
 {
-    DenseMatrix<ElementType> OutputMatrix;
-
     // Read header
 	auto HeaderInfo = LoadDenseMatrixFromJsonDataFile_Header(JsonFilePathAndName);
 	auto OutputMatrixSize = HeaderInfo.first;
-	auto InputElementTypeName = HeaderInfo.second;
+	auto InputScalarTypeName = HeaderInfo.second;
 
 	if (OutputMatrixSize.RowNumber == 0 || OutputMatrixSize.ColNumber == 0)
 	{
-		return OutputMatrix;
+		OutputMatrix.Clear();
+		return true;
 	}
 
     // Read data
 
+	OutputMatrix.FastResize(OutputMatrixSize);
+
 	std::string DataFilePathAndName = JsonFilePathAndName + ".data";
 
-	auto OutputElementTypeName = GetScalarTypeName(ElementType(0));
+	auto OutputScalarTypeName = GetScalarTypeName(ScalarType(0));
 
-    if (OutputElementTypeName == InputElementTypeName)
+    if (OutputScalarTypeName == InputScalarTypeName)
     {
-		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<ElementType, ElementType>(DataFilePathAndName, OutputMatrixSize);
+		if (LoadDenseMatrixFromJsonDataFile_Data<ScalarType, ScalarType>(OutputMatrix, DataFilePathAndName) == false)
+		{
+			OutputMatrix.Clear();
+			return false;
+		}
     }
     else
     {
-        MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ LoadDenseMatrixFromJsonDataFile(...)")
-
-		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<ElementType>(DataFilePathAndName, OutputMatrixSize, InputElementTypeName);
+        MDK_Warning("OutputScalarTypeName != InputScalarTypeName, Output may be inaccurate @ LoadDenseMatrixFromJsonDataFile(...)")
+		if (LoadDenseMatrixFromJsonDataFile_Data<ScalarType>(OutputMatrix, DataFilePathAndName, InputScalarTypeName) == false)
+		{
+			OutputMatrix.Clear();
+			return false;
+		}
     }
 
-    return OutputMatrix;
+    return true;
 }
 
 
@@ -150,15 +158,15 @@ inline std::pair<MatrixSize, std::string> LoadDenseMatrixFromJsonDataFile_Header
 		return HeaderInfo;
 	}
 	//-------------------------------------------------
-    std::string InputElementTypeName;
-    it = HeaderObject.find("ElementType");
+    std::string InputScalarTypeName;
+    it = HeaderObject.find("ScalarType");
     if (it != HeaderObject.end())
     {
-        InputElementTypeName = it.value().toString().toStdString();
+        InputScalarTypeName = it.value().toString().toStdString();
     }
     else
     {
-        MDK_Error("Couldn't get ElementType @ LoadDenseMatrixFromJsonDataFile_Header(...)")
+        MDK_Error("Couldn't get ScalarType @ LoadDenseMatrixFromJsonDataFile_Header(...)")
         HeaderFile.close();
 		return HeaderInfo;
     }
@@ -193,102 +201,96 @@ inline std::pair<MatrixSize, std::string> LoadDenseMatrixFromJsonDataFile_Header
 
 	HeaderInfo.first.RowNumber = RowNumber;
 	HeaderInfo.first.ColNumber = ColNumber;
-	HeaderInfo.second = InputElementTypeName;
+	HeaderInfo.second = InputScalarTypeName;
 
 	return HeaderInfo;
 }
 
 
-template<typename OutputElementType>
-DenseMatrix<OutputElementType> 
-LoadDenseMatrixFromJsonDataFile_Data(const std::string& DataFilePathAndName, MatrixSize OutputMatrixSize, const std::string& InputElementTypeName)
+template<typename OutputScalarType>
+bool LoadDenseMatrixFromJsonDataFile_Data(DenseMatrix<OutputScalarType>& OutputMatrix, const std::string& DataFilePathAndName, const std::string& InputScalarTypeName)
 {
-	DenseMatrix<OutputElementType> OutputMatrix;
-
-    if (InputElementTypeName == "double")
+    if (InputScalarTypeName == "double")
     {
-		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, double>(DataFilePathAndName, OutputMatrixSize);
+		return LoadDenseMatrixFromJsonDataFile_Data<OutputScalarType, double>(OutputMatrix, DataFilePathAndName);
     }
-    else if (InputElementTypeName == "float")
+    else if (InputScalarTypeName == "float")
     {
-		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, float>(DataFilePathAndName, OutputMatrixSize);
+		return LoadDenseMatrixFromJsonDataFile_Data<OutputScalarType, float>(OutputMatrix, DataFilePathAndName);
     }
-    else if (InputElementTypeName == "int8")
+    else if (InputScalarTypeName == "int8")
     {
-		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, int8>(DataFilePathAndName, OutputMatrixSize);
+		return LoadDenseMatrixFromJsonDataFile_Data<OutputScalarType, int8>(OutputMatrix, DataFilePathAndName);
     }
-    else if (InputElementTypeName == "int16")
+    else if (InputScalarTypeName == "int16")
     {
-		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, int16>(DataFilePathAndName, OutputMatrixSize);
+		return LoadDenseMatrixFromJsonDataFile_Data<OutputScalarType, int16>(OutputMatrix, DataFilePathAndName);
     }
-    else if (InputElementTypeName == "int32")
+    else if (InputScalarTypeName == "int32")
     {
-		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, int32>(DataFilePathAndName, OutputMatrixSize);
+		return LoadDenseMatrixFromJsonDataFile_Data<OutputScalarType, int32>(OutputMatrix, DataFilePathAndName);
     }
-    else if (InputElementTypeName == "int64")
+    else if (InputScalarTypeName == "int64")
     {
-		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, int64>(DataFilePathAndName, OutputMatrixSize);
+		return LoadDenseMatrixFromJsonDataFile_Data<OutputScalarType, int64>(OutputMatrix, DataFilePathAndName);
     }
-    else if (InputElementTypeName == "uint8")
+    else if (InputScalarTypeName == "uint8")
     {
-		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, uint8>(DataFilePathAndName, OutputMatrixSize);
+		return LoadDenseMatrixFromJsonDataFile_Data<OutputScalarType, uint8>(OutputMatrix, DataFilePathAndName);
     }
-    else if (InputElementTypeName == "uint16")
+    else if (InputScalarTypeName == "uint16")
     {
-		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, uint16>(DataFilePathAndName, OutputMatrixSize);
+		return LoadDenseMatrixFromJsonDataFile_Data<OutputScalarType, uint16>(OutputMatrix, DataFilePathAndName);
     }
-    else if (InputElementTypeName == "uint32")
+    else if (InputScalarTypeName == "uint32")
     {
-		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, uint32>(DataFilePathAndName, OutputMatrixSize);
+		return LoadDenseMatrixFromJsonDataFile_Data<OutputScalarType, uint32>(OutputMatrix, DataFilePathAndName);
     }
-    else if (InputElementTypeName == "uint64")
+    else if (InputScalarTypeName == "uint64")
     {
-		OutputMatrix = LoadDenseMatrixFromJsonDataFile_Data<OutputElementType, uint64>(DataFilePathAndName, OutputMatrixSize);
+		return LoadDenseMatrixFromJsonDataFile_Data<OutputScalarType, uint64>(OutputMatrix, DataFilePathAndName);
     }
     else
     {
-        MDK_Error("unknown ElementType of data file @ LoadDenseMatrixFromJsonDataFile_Data(...) ")
-    }
-
-	return OutputMatrix;
+        MDK_Error("unknown ScalarType of data file @ LoadDenseMatrixFromJsonDataFile_Data(...) ")
+		return false;
+    }	
 }
 
 
-template<typename OutputElementType, typename InputElementType>
-DenseMatrix<OutputElementType> LoadDenseMatrixFromJsonDataFile_Data(const std::string& DataFilePathAndName, MatrixSize OutputMatrixSize)
+template<typename OutputScalarType, typename InputScalarType>
+bool LoadDenseMatrixFromJsonDataFile_Data(DenseMatrix<OutputScalarType>& OutputMatrix, const std::string& DataFilePathAndName)
 {
-	DenseMatrix<OutputElementType> OutputMatrix;
-
 	QFile DataFile(DataFilePathAndName.c_str());
 	if (!DataFile.open(QIODevice::ReadOnly))
 	{
 		MDK_Error("Couldn't open data file:" << DataFilePathAndName)
-		return OutputMatrix;
+		return false;
 	}
 	int_max BypesofDataFile = DataFile.size();
 
-	OutputMatrix.Resize(OutputMatrixSize.RowNumber, OutputMatrixSize.ColNumber);
+	auto OutputMatrixSize = OutputMatrix.GetSize();
 	int_max ElementNumber = OutputMatrix.GetElementNumber();
-	int_max ByteNumberOfInputElementType = GetByteNumberOfScalar(InputElementType(0));   
+	int_max ByteNumberOfInputScalarType = GetByteNumberOfScalar(InputScalarType(0));   
 
-    if (BypesofDataFile != ElementNumber * ByteNumberOfInputElementType)
+    if (BypesofDataFile != ElementNumber * ByteNumberOfInputScalarType)
     {
         MDK_Error("Data file size is not equal to matrix size @ LoadDenseMatrixFromJsonDataFile_Data(...)")
 		DataFile.close();
-		return OutputMatrix;
+		return false;
     }
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
-		auto tempScalar = InputElementType(0);
+		auto tempScalar = InputScalarType(0);
 
-        DataFile.read((char*)(&tempScalar), ByteNumberOfInputElementType);
+        DataFile.read((char*)(&tempScalar), ByteNumberOfInputScalarType);
 
-		OutputMatrix[i] = OutputElementType(tempScalar);
+		OutputMatrix[i] = OutputScalarType(tempScalar);
     }
 	DataFile.close();
 
-	return OutputMatrix;
+	return true;
 }
 
 }//namespace mdk

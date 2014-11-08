@@ -91,18 +91,26 @@ bool Save3DScalarImageAsJsonDataFile_Data(const DenseImage3D<PixelType>& InputIm
 	return true;
 }
 
+/*
+template<typename ImageType>
+ImageType Load3DScalarDenseImageFromJsonDataFile(const std::string& JsonFilePathAndName)
+{
+	ImageType OutputImage;
+	Load3DScalarImageFromJsonDataFile(OutputImage, JsonFilePathAndName);
+	return OutputImage;
+}
+*/
 
 template<typename PixelType>
-DenseImage3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& JsonFilePathAndName)
+bool Load3DScalarImageFromJsonDataFile(DenseImage3D<PixelType>& OutputImage, const std::string& JsonFilePathAndName)
 {
-    DenseImage3D<PixelType> OutputImage;
     //---------------------------------------------- Read header --------------------------------------------------------//
 	QString QFilePathAndName(JsonFilePathAndName.c_str());
     QFile HeaderFile(QFilePathAndName);
     if (!HeaderFile.open(QIODevice::ReadOnly))
     {
         MDK_Error("Couldn't open Header File @ Load3DScalarImageFromJsonDataFile(...)")
-        return OutputImage;
+        return false;
     }
     //----------------------------------------------------------//
     QByteArray HeaderContent = HeaderFile.readAll();
@@ -119,14 +127,14 @@ DenseImage3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& Jso
         {
             MDK_Error("ObjectType is not DenseImage3D @ Load3DScalarImageFromJsonDataFile(...)")
             HeaderFile.close();
-            return OutputImage;
+			return false;
         }
     }
     else
     {
         MDK_Error("Couldn't get ObjectType @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
-        return OutputImage;
+		return false;
     }
     //---------------------------------------------------
     std::string InputPixelTypeName;
@@ -139,7 +147,7 @@ DenseImage3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& Jso
     {
         MDK_Error("Couldn't get PixelType @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
-        return OutputImage;
+		return false;
     }
     //---------------------------------------------------
     QString SizeStr;
@@ -152,14 +160,14 @@ DenseImage3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& Jso
     {
         MDK_Error("Couldn't get Size @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
-        return OutputImage;
+		return false;
     }
     auto SizeValue = SizeStr.split(",");
     if (SizeValue.size() != 3)
     {
         MDK_Error("Size vector is wrong @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
-        return OutputImage;
+		return false;
     }
     DenseVector<int_max, 3> Size;
     Size[0] = SizeValue[0].toLongLong();
@@ -176,14 +184,14 @@ DenseImage3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& Jso
     {
         MDK_Error("Couldn't get Spacing @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
-        return OutputImage;
+		return false;
     }
     auto SpacingValue = SpacingStr.split(",");
     if (SpacingValue.size() != 3)
     {
         MDK_Error("Spacing vector is wrong @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
-        return OutputImage;
+		return false;
     }
 	DenseVector<double, 3> Spacing;
     Spacing[0] = SpacingValue[0].toDouble();
@@ -200,14 +208,14 @@ DenseImage3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& Jso
     {
         MDK_Error("Couldn't get Origin @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
-        return OutputImage;
+		return false;
     }
     auto OriginValue = OriginStr.split(",");
     if (OriginValue.size() != 3)
     {
         MDK_Error("Origin vector is wrong @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
-        return OutputImage;
+		return false;
     }
 	DenseVector<double, 3> Origin;
     Origin[0] = OriginValue[0].toDouble();
@@ -224,14 +232,14 @@ DenseImage3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& Jso
     {
         MDK_Error("Couldn't get Orientation @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
-        return OutputImage;
+		return false;
     }
     auto OrientationValue = OrientationStr.split(",");
     if (OrientationValue.size() != 9)
     {
         MDK_Error("Orientation Matrix size is wrong @ Load3DScalarImageFromJsonDataFile(...)")
         HeaderFile.close();
-        return OutputImage;
+		return false;
     }
     DenseMatrix<double> Orientation(3, 3);
     for (int_max k = 0; k < 9; ++k)
@@ -253,80 +261,86 @@ DenseImage3D<PixelType> Load3DScalarImageFromJsonDataFile(const std::string& Jso
 	auto OutputPixelTypeName = GetScalarTypeName(PixelType(0));	
     if (OutputPixelTypeName == InputPixelTypeName)
     {
-		Load3DScalarImageFromJsonDataFile_Data<PixelType, PixelType>(OutputImage, DataFilePathAndName);
+		if (Load3DScalarImageFromJsonDataFile_Data<PixelType, PixelType>(OutputImage, DataFilePathAndName) == false)
+		{
+			OutputImage.Clear();
+			return false;
+		}
     }
 	else
 	{
 		MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ Load3DScalarImageFromJsonDataFile(...)")
-
-		Load3DScalarImageFromJsonDataFile_Data(OutputImage, InputPixelTypeName, DataFilePathAndName);
+		if (Load3DScalarImageFromJsonDataFile_Data(OutputImage, InputPixelTypeName, DataFilePathAndName) == false)
+		{
+			OutputImage.Clear();
+			return false;
+		}
 	}
 
-    return OutputImage;
+    return true;
 }
 
 
 template<typename OutputPixelType>
-void Load3DScalarImageFromJsonDataFile_Data(DenseImage3D<OutputPixelType>& OutputImage, const std::string& InputPixelTypeName, const std::string& DataFilePathAndName)
+bool Load3DScalarImageFromJsonDataFile_Data(DenseImage3D<OutputPixelType>& OutputImage, const std::string& InputPixelTypeName, const std::string& DataFilePathAndName)
 {
     if (InputPixelTypeName == "double")
     {
-		Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, double>(OutputImage, DataFilePathAndName);
+		return Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, double>(OutputImage, DataFilePathAndName);
     }
     else if (InputPixelTypeName == "float")
     {
-		Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, float>(OutputImage, DataFilePathAndName);
+		return Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, float>(OutputImage, DataFilePathAndName);
     }
     else if (InputPixelTypeName == "int8")
     {
-		Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, int8>(OutputImage, DataFilePathAndName);
+		return Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, int8>(OutputImage, DataFilePathAndName);
     }
     else if (InputPixelTypeName == "int16")
     {
-		Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, int16>(OutputImage, DataFilePathAndName);
+		return Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, int16>(OutputImage, DataFilePathAndName);
     }
     else if (InputPixelTypeName == "int32")
     {
-		Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, int32>(OutputImage, DataFilePathAndName);
+		return Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, int32>(OutputImage, DataFilePathAndName);
     }
     else if (InputPixelTypeName == "int64")
     {
-		Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, int64>(OutputImage, DataFilePathAndName);
+		return Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, int64>(OutputImage, DataFilePathAndName);
     }
     else if (InputPixelTypeName == "uint8")
     {
-		Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, uint8>(OutputImage, DataFilePathAndName);
+		return Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, uint8>(OutputImage, DataFilePathAndName);
     }
     else if (InputPixelTypeName == "uint16")
     {
-		Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, uint16>(OutputImage, DataFilePathAndName);
+		return Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, uint16>(OutputImage, DataFilePathAndName);
     }
     else if (InputPixelTypeName == "uint32")
     {
-		Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, uint32>(OutputImage, DataFilePathAndName);
+		return Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, uint32>(OutputImage, DataFilePathAndName);
     }
     else if (InputPixelTypeName == "uint64")
     {
-		Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, uint64>(OutputImage, DataFilePathAndName);
+		return Load3DScalarImageFromJsonDataFile_Data<OutputPixelType, uint64>(OutputImage, DataFilePathAndName);
     }
     else
     {
-        MDK_Error("unknown PixelType of data file @ Internal_Load3DScalarImageFromJsonDataFile(...) ")
-        OutputImage.Clear();
+		MDK_Error("unknown PixelType of data file @ Internal_Load3DScalarImageFromJsonDataFile(...) ")
+		return false;
     }
 }
 
 
 template<typename OutputPixelType, typename InputPixelType>
-void Load3DScalarImageFromJsonDataFile_Data(DenseImage3D<OutputPixelType>& OutputImage, const std::string& DataFilePathAndName)
+bool Load3DScalarImageFromJsonDataFile_Data(DenseImage3D<OutputPixelType>& OutputImage, const std::string& DataFilePathAndName)
 {
 	QString QFilePathAndName(DataFilePathAndName.c_str());
 	QFile DataFile(QFilePathAndName);
 	if (!DataFile.open(QIODevice::ReadOnly))
 	{
 		MDK_Error("Couldn't open data file:" << DataFilePathAndName)
-		OutputImage.Clear();
-		return;
+		return false;
 	}
 
 	int_max BypesofDataFile = int_max(DataFile.size());
@@ -336,8 +350,7 @@ void Load3DScalarImageFromJsonDataFile_Data(DenseImage3D<OutputPixelType>& Outpu
     {
         MDK_Error("Data file size is not equal to image size @ Load3DScalarImageFromJsonDataFile_Data(...)")
         DataFile.close();
-        OutputImage.Clear();
-        return;
+		return false;
     }
 
     auto PixelPointer = OutputImage.GetPixelPointer();
@@ -349,14 +362,14 @@ void Load3DScalarImageFromJsonDataFile_Data(DenseImage3D<OutputPixelType>& Outpu
         PixelPointer[i] = OutputPixelType(tempScalar);
     }
 	DataFile.close();
+
+	return true;
 }
 
 
 template<typename PixelType>
-DenseImage3D<PixelType> Load3DScalarImageFromDICOMSeries(const std::string& FilePath)
+bool Load3DScalarImageFromDICOMSeries(DenseImage3D<PixelType>& OutputImage, const std::string& FilePath)
 {
-    DenseImage3D<PixelType> OutputImage;
-
     typedef itk::Image< PixelType, 3 >                ITKImageType;
     typedef itk::ImageSeriesReader< ITKImageType >    ITKImageReaderType;
     typedef itk::GDCMImageIO                          ImageIOType;
@@ -381,20 +394,16 @@ DenseImage3D<PixelType> Load3DScalarImageFromDICOMSeries(const std::string& File
     {
         std::cerr << "Exception thrown while reading the dicom series @ Load3DScalarImageFromDICOMSeries(...)" << std::endl;
         std::cerr << excp << std::endl;
-        return OutputImage;
+        return false;
     }
 
-    OutputImage = ConvertITK3DScalarImageToMDK3DScalarImage(ITKImageReader->GetOutput());
-
-    return OutputImage;
+	return ConvertITK3DScalarImageToMDK3DScalarImage(ITKImageReader->GetOutput(), OutputImage);
 }
 
 
 template<typename PixelType>
-DenseImage3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const std::string& FilePathAndName)
+bool Load3DScalarImageFromSingleDICOMFile(DenseImage3D<PixelType>& OutputImage, const std::string& FilePathAndName)
 {
-    DenseImage3D<PixelType> OutputImage;
-
     typedef itk::Image<PixelType, 3>  ITKImageType;
     typedef itk::ImageFileReader<ImageType> ITKImageReaderType;
 
@@ -410,12 +419,10 @@ DenseImage3D<PixelType> Load3DScalarImageFromSingleDICOMFile(const std::string& 
     {
         std::cerr << "ExceptionObject caught while reading the dicom file @ Load3DScalarImageFromSingleDICOMFile(...)" << std::endl;
         std::cerr << err << std::endl;
-        return OutputImage;
+        return false;
     }
 
-    OutputImage = ConvertITK3DScalarImageToMDK3DScalarImage(ITKImageReader->GetOutput());
-
-    return OutputImage;
+	return ConvertITK3DScalarImageToMDK3DScalarImage(ITKImageReader->GetOutput(), OutputImage);
 }
 
 }//namespace mdk

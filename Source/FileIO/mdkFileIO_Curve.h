@@ -25,10 +25,10 @@ template<typename ScalarType>
 bool SaveMultiple3DCurveAsVTKFile(const ObjectArray<DenseMatrix<ScalarType>>& InputCurveList, const std::string& FilePathAndName);
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> LoadSingle3DCurveFromVTKFile(const std::string& FilePathAndName);
+bool LoadSingle3DCurveFromVTKFile(DenseMatrix<ScalarType>& OutputCurve, const std::string& FilePathAndName);
 
 template<typename ScalarType>
-ObjectArray<DenseMatrix<ScalarType>> LoadMultiple3DCurveFromVTKFile(const std::string& FilePathAndName);
+bool LoadMultiple3DCurveFromVTKFile(ObjectArray<DenseMatrix<ScalarType>>& OutputCurveList, const std::string& FilePathAndName);
 
 }//namespace mdk
 

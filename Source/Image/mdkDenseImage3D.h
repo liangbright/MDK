@@ -134,10 +134,6 @@ public:
 
     void operator=(DenseImage3D&& InputImage);
 
-    //-----------------------------------------------------------------//
-
-    void Clear();
-
     //---------------------------------------------------------//
 
     // Copy can be used to convert an DenseImage from double (Type_Input) to float (PixelType), etc
@@ -163,6 +159,20 @@ public:
     bool Take(DenseImage3D* InputImage);
 
     //-----------------------------------------------------------------//
+	// difficult to add Load / Save as member function
+	// bool Load(const std::string& FilePathAndName);
+	// bool Save(const std::string& FilePathAndName);
+    // because no such thing as
+	//		if (PixelType == double) Load_double
+	//		if (PixelType == DenseVector<double>) Load_DenseVector
+	// unless std::enable_if to conditionally compile a member function
+    //
+
+	//---------------------------------------------------------//
+
+	void Clear();
+
+	//---------------------------------------------------------//
 
     inline bool IsEmpty() const;
 

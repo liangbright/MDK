@@ -47,24 +47,29 @@ bool SaveMultiple3DCurveAsVTKFile(const ObjectArray<DenseMatrix<ScalarType>>& In
 
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> LoadSingle3DCurveFromVTKFile(const std::string& FilePathAndName)
+bool LoadSingle3DCurveFromVTKFile(DenseMatrix<ScalarType>& OutputCurve, const std::string& FilePathAndName)
 {
-	auto CurveList = LoadMultiple3DCurveFromVTKFile<ScalarType>(FilePathAndName);
-
-	DenseMatrix<ScalarType> OutputCurve;
-	if (CurveList.GetLength() > 0)
+	ObjectArray<DenseMatrix<ScalarType>> OutputCurveList;
+	if (LoadMultiple3DCurveFromVTKFile(OutputCurveList, FilePathAndName) == false)
 	{
-		OutputCurve = std::move(CurveList[0]);
+		return false;
 	}
-	return OutputCurve;
+
+	if (OutputCurveList.GetLength() > 0)
+	{
+		OutputCurve = std::move(OutputCurveList[0]);
+	}
+	else
+	{
+		OutputCurve.Clear();
+	}
+	return true;
 }
 
 
 template<typename ScalarType>
-ObjectArray<DenseMatrix<ScalarType>> LoadMultiple3DCurveFromVTKFile(const std::string& FilePathAndName)
+bool LoadMultiple3DCurveFromVTKFile(ObjectArray<DenseMatrix<ScalarType>>& OutputCurveList, const std::string& FilePathAndName)
 {
-	ObjectArray<DenseMatrix<ScalarType>> OutputCurveList;
-
 	auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
 	Reader->SetFileName(FilePathAndName.c_str());
 
@@ -75,12 +80,12 @@ ObjectArray<DenseMatrix<ScalarType>> LoadMultiple3DCurveFromVTKFile(const std::s
 	catch (...)
 	{
 		MDK_Error(" Can not read data @ Load3DCurveFromVTKFile(...) ")
-		return OutputCurveList;
+		return false;
 	}
 
 	auto VTKCurveData = Reader->GetOutput();
 	OutputCurveList = ConvertVTKPolyDataToMDK3DCurve<ScalarType>(VTKCurveData);
-	return OutputCurveList;
+	return true;
 }
 
 }//namespace mdk

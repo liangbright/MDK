@@ -19,7 +19,7 @@ bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& Input
 template<typename MeshAttributeType>
 bool SaveTriangleMeshAsJsonDataFile_Header(const TriangleMesh<MeshAttributeType>& InputMesh, const std::string& JsonFilePathAndName)
 {
-	typedef TriangleMesh<MeshAttributeType>::ScalarType ScalarType;
+	typedef MeshAttributeType::ScalarType ScalarType;
 
 	if (GetByteNumberOfScalar(ScalarType(0)) <= 0)
 	{
@@ -131,16 +131,14 @@ bool SaveTriangleMeshAsJsonDataFile_Data(const TriangleMesh<MeshAttributeType>& 
 
 
 template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> LoadTriangleMeshFromJsonDataFile(const std::string& JsonFilePathAndName)
+bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMesh, const std::string& JsonFilePathAndName)
 {
-    TriangleMesh<MeshAttributeType> OutputMesh;
-
 	//---------------------------------------------- Read header --------------------------------------------------------//
 	QFile HeaderFile(JsonFilePathAndName.c_str());
     if (!HeaderFile.open(QIODevice::ReadOnly))
     {
         MDK_Error("Couldn't open Header File @ LoadTriangleMeshFromJsonDataFile(...)")
-        return OutputMesh;
+        return false;
     }
     //----------------------------------------------------------//
     QByteArray HeaderContent = HeaderFile.readAll();
@@ -157,14 +155,14 @@ TriangleMesh<MeshAttributeType> LoadTriangleMeshFromJsonDataFile(const std::stri
 		{
 			MDK_Error("ObjectType is not TriangleMesh @ LoadTriangleMeshFromJsonDataFile(...)")
 			HeaderFile.close();
-			return OutputMesh;
+			return false;
 		}
 	}
 	else
 	{
 		MDK_Error("Couldn't get ObjectType @ LoadTriangleMeshFromJsonDataFile(...)")
 		HeaderFile.close();
-		return OutputMesh;
+		return false;
 	}
 	//----------------------------------------------------
     std::string InputScalarTypeName;
@@ -177,7 +175,7 @@ TriangleMesh<MeshAttributeType> LoadTriangleMeshFromJsonDataFile(const std::stri
     {
         MDK_Error("Couldn't get ScalarType @ LoadTriangleMeshFromJsonDataFile(...)")
         HeaderFile.close();
-        return OutputMesh;
+		return false;
     }
 	//----------------------------------------------------
     std::string InputIndexTypeName;
@@ -190,7 +188,7 @@ TriangleMesh<MeshAttributeType> LoadTriangleMeshFromJsonDataFile(const std::stri
     {
         MDK_Error("Couldn't get IndexType @ LoadTriangleMeshFromJsonDataFile(...)")
         HeaderFile.close();
-        return OutputMesh;
+		return false;
     }
 	//----------------------------------------------------
     int_max PointNumber = 0;
@@ -203,7 +201,7 @@ TriangleMesh<MeshAttributeType> LoadTriangleMeshFromJsonDataFile(const std::stri
     {
         MDK_Error("Couldn't get PointNumber @ LoadTriangleMeshFromJsonDataFile(...)")
         HeaderFile.close();
-        return OutputMesh;
+		return false;
     }
 	//----------------------------------------------------
     int_max CellNumber = 0;
@@ -216,24 +214,23 @@ TriangleMesh<MeshAttributeType> LoadTriangleMeshFromJsonDataFile(const std::stri
     {
         MDK_Error("Couldn't get CellNumber @ LoadTriangleMeshFromJsonDataFile(...)")
         HeaderFile.close();
-        return OutputMesh;
+		return false;
     }
 	//----------------------------------------------------
 	std::string DataFilePathAndName = JsonFilePathAndName + ".data";
-	return LoadTriangleMeshFromJsonDataFile_Data<MeshAttributeType>(DataFilePathAndName, PointNumber, CellNumber, InputScalarTypeName);
+	return LoadTriangleMeshFromJsonDataFile_Data<MeshAttributeType>(OutputMesh, DataFilePathAndName, PointNumber, CellNumber, InputScalarTypeName);
 }
 
 
 template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> LoadTriangleMeshFromJsonDataFile_Data(const std::string& DataFilePathAndName, 
-																	  int_max PointNumber, int_max CellNumber,
-																	  const std::string& ScalarTypeName)
+bool LoadTriangleMeshFromJsonDataFile_Data(TriangleMesh<MeshAttributeType>& OutputMesh,
+										   const std::string& DataFilePathAndName,
+										   int_max PointNumber, int_max CellNumber,
+										   const std::string& InputScalarTypeName)
 {
-	TriangleMesh<MeshAttributeType> OutputMesh;
-
 	if (PointNumber <= 0 || CellNumber <= 0)
 	{
-		return OutputMesh;
+		return false;
 	}
 
 	typedef typename MeshAttributeType::ScalarType ScalarType;
@@ -242,14 +239,18 @@ TriangleMesh<MeshAttributeType> LoadTriangleMeshFromJsonDataFile_Data(const std:
 	MatrixSize PointDataMatrixSize;
 	PointDataMatrixSize.RowNumber = 3;
 	PointDataMatrixSize.ColNumber = PointNumber;
-	auto PointData = LoadDenseMatrixFromJsonDataFile_Data<ScalarType>(PointDataFilePathAndName, PointDataMatrixSize, ScalarTypeName);
+	DenseMatrix<ScalarType> PointData(PointDataMatrixSize);
+	if (LoadDenseMatrixFromJsonDataFile_Data(PointData, PointDataFilePathAndName, InputScalarTypeName) == false)
+	{
+		return false;
+	}
 
 	std::string CellDataFilePathAndName = DataFilePathAndName + ".cell";
 	QFile CellDataFile(CellDataFilePathAndName.c_str());
     if (!CellDataFile.open(QIODevice::ReadOnly))
     {
 		MDK_Error("Couldn't open cell data file:" << CellDataFilePathAndName)
-        return OutputMesh;
+		return false;
     }
 
 	ObjectArray<DenseVector<int_max>> CellData;
@@ -275,7 +276,7 @@ TriangleMesh<MeshAttributeType> LoadTriangleMeshFromJsonDataFile_Data(const std:
     CellDataFile.close();
 
     OutputMesh.Construct(PointData, CellData);
-    return OutputMesh;
+    return true;
 }
 
 
@@ -303,10 +304,8 @@ bool SaveTriangleMeshAsVTKFile(const TriangleMesh<MeshAttributeType>& InputMesh,
 
 
 template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> LoadTriangleMeshFromVTKFile(const std::string& FilePathAndName)
+bool LoadTriangleMeshFromVTKFile(TriangleMesh<MeshAttributeType>& OutputMesh, const std::string& FilePathAndName)
 {
-    TriangleMesh<MeshAttributeType> OutputMesh;
-
     auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
     Reader->SetFileName(FilePathAndName.c_str());
     
@@ -317,12 +316,11 @@ TriangleMesh<MeshAttributeType> LoadTriangleMeshFromVTKFile(const std::string& F
     catch (...)
     {
         MDK_Error(" Can not read data @ LoadTriangleMeshFromVTKFile(...) ")
-        return OutputMesh;
+        return false;
     }
 
     auto VTKPolyMesh = Reader->GetOutput();
-    OutputMesh = ConvertVTKPolyDataToMDKTriangleMesh<MeshAttributeType>(VTKPolyMesh);
-    return OutputMesh;
+	return ConvertVTKPolyDataToMDKTriangleMesh(VTKPolyMesh, OutputMesh);
 }
 
 }//namespace mdk

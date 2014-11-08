@@ -12,7 +12,7 @@
 namespace mdk
 {
 //------------- forward declare-------------------//
-template<typename ElementType>
+template<typename ScalarType>
 class DenseMatrix;
 //-----------------------------------------------------
 
@@ -21,27 +21,27 @@ class DenseMatrix;
 // header is saved in SomeMatrix.json
 // data is saved in SomeMatrix.json.data
 
-template<typename ElementType>
-bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ElementType>& InputMatrix, const std::string& JsonFilePathAndName);
+template<typename ScalarType>
+bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, const std::string& JsonFilePathAndName);
 
-template<typename ElementType>
-bool SaveDenseMatrixAsJsonDataFile_Header(const DenseMatrix<ElementType>& InputMatrix, const std::string& JsonFilePathAndName);
+template<typename ScalarType>
+bool SaveDenseMatrixAsJsonDataFile_Header(const DenseMatrix<ScalarType>& InputMatrix, const std::string& JsonFilePathAndName);
 
-template<typename ElementType>
-bool SaveDenseMatrixAsJsonDataFile_Data(const DenseMatrix<ElementType>& InputMatrix, const std::string& DataFilePathAndName);
+template<typename ScalarType>
+bool SaveDenseMatrixAsJsonDataFile_Data(const DenseMatrix<ScalarType>& InputMatrix, const std::string& DataFilePathAndName);
 
-template<typename ElementType>
-DenseMatrix<ElementType> LoadDenseMatrixFromJsonDataFile(const std::string& JsonFilePathAndName);
+template<typename ScalarType>
+bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, const std::string& JsonFilePathAndName);
 
-// HeaderInfo: <MatrixSize, InputElementTypeName>
+// HeaderInfo: <MatrixSize, InputScalarTypeName>
 inline std::pair<MatrixSize, std::string> LoadDenseMatrixFromJsonDataFile_Header(const std::string& JsonFilePathAndName);
 
-template<typename OutputElementType>
-DenseMatrix<OutputElementType>
-LoadDenseMatrixFromJsonDataFile_Data(const std::string& DataFilePathAndName, MatrixSize OutputMatrixSize, const std::string& InputElementTypeName);
+// attention: OutputMatrix.FastResize(...) must be called before LoadDenseMatrixFromJsonDataFile_Data
+template<typename OutputScalarType>
+bool LoadDenseMatrixFromJsonDataFile_Data(DenseMatrix<OutputScalarType>& OutputMatrix, const std::string& DataFilePathAndName, const std::string& InputScalarTypeName);
 
-template<typename OutputElementType, typename InputElementType>
-DenseMatrix<OutputElementType> LoadDenseMatrixFromJsonDataFile_Data(const std::string& DataFilePathAndName, MatrixSize OutputMatrixSize);
+template<typename OutputScalarType, typename InputScalarType>
+bool LoadDenseMatrixFromJsonDataFile_Data(DenseMatrix<OutputScalarType>& OutputMatrix, const std::string& DataFilePathAndName);
 
 }//namespace mdk
 

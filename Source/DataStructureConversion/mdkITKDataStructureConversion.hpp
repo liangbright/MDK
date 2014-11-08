@@ -91,14 +91,12 @@ itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalar
 
 
 template<typename PixelType>
-DenseImage3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage)
+bool ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage, DenseImage3D<PixelType>& MDKImage)
 {
-    DenseImage3D<PixelType> OutputImage;
-
     if (ITKImage == nullptr)
     {
         MDK_Error("Invalid input @ ConvertITK3DScalarImageToMDK3DScalarImage(...)")
-        return OutputImage;
+        return false;
     }
 
     auto Size = ITKImage->GetBufferedRegion().GetSize();
@@ -106,9 +104,9 @@ DenseImage3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Ima
     auto Origin = ITKImage->GetOrigin();
     auto Direction = ITKImage->GetDirection();
 
-    OutputImage.SetSize(Size[0], Size[1], Size[2]);
-    OutputImage.SetSpacing(Spacing[0], Spacing[1], Spacing[2]);
-    OutputImage.SetOrigin(Origin[0], Origin[1], Origin[2]);
+	MDKImage.SetSize(Size[0], Size[1], Size[2]);
+	MDKImage.SetSpacing(Spacing[0], Spacing[1], Spacing[2]);
+	MDKImage.SetOrigin(Origin[0], Origin[1], Origin[2]);
 
     DenseMatrix<double> Orientation(3, 3);
     for (int j = 0; j < 3; ++j)
@@ -118,16 +116,18 @@ DenseImage3D<PixelType> ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Ima
             Orientation(i, j) = double(Direction(i, j));
         }
     }
-    OutputImage.SetOrientation(Orientation);
+	MDKImage.SetOrientation(Orientation);
 
-    auto RawPointerOfITKImage = ITKImage->GetBufferPointer();
+	auto PtrOfMDKImage = MDKImage.GetPixelPointer();
 
-    for (int_max i = 0; i < OutputImage.GetPixelNumber(); ++i)
+    auto PtrOfITKImage = ITKImage->GetBufferPointer();
+
+	for (int_max i = 0; i < MDKImage.GetPixelNumber(); ++i)
     {
-        OutputImage[i] = RawPointerOfITKImage[i];
+		PtrOfMDKImage[i] = PtrOfITKImage[i];
     }
 
-    return OutputImage;
+    return true;
 }
 
 }// namespace mdk

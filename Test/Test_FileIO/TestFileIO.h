@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "mdkFileIO.h"
-#include "mdkImage3D.h"
+#include "mdkDenseImage3D.h"
 #include "mdkDenseMatrix.h"
 #include "mdkPolygonMesh.h"
 #include "mdkTriangleMesh.h"
@@ -23,7 +23,8 @@ void Test_MatrixIO()
 
 	SaveDenseMatrixAsJsonDataFile(InputMatrix, FilePathAndName);
 
-	auto OutputMatrix = LoadDenseMatrixFromJsonDataFile<float>(FilePathAndName);
+	DenseMatrix<double> OutputMatrix;
+	LoadDenseMatrixFromJsonDataFile(OutputMatrix, FilePathAndName);
 
 	DisplayMatrix("InputMatrix", InputMatrix, 4);
 	DisplayMatrix("OutputMatrix", OutputMatrix, 4);
@@ -34,7 +35,8 @@ void Test_ImageIO()
 {
 	std::string FilePath = "H:/AorticValveData/2014_7_25/P2115937/phase0";
 
-	auto InputImage = Load3DScalarImageFromDICOMSeries<double>(FilePath);
+	DenseImage3D<double> InputImage;
+	Load3DScalarImageFromDICOMSeries(InputImage, FilePath);
 
 	std::string OutputFilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/Image.json";
 
@@ -46,11 +48,16 @@ void Test_PolygonMeshIO()
 	std::string VTKFileNameAndPath_input = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/PolygonMesh.vtk";
 	std::string JsonFileNameAndPath_input = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/PolygonMesh.json";
 
-	auto InputMesh = LoadPolygonMeshFromVTKFile<PolygonMeshStandardAttributeType<double>>(VTKFileNameAndPath_input);
+	typedef PolygonMesh<PolygonMeshStandardAttributeType<double>> PolygonMeshType;
+
+	PolygonMeshType InputMesh;
+
+	LoadPolygonMeshFromVTKFile(InputMesh, VTKFileNameAndPath_input);
 
 	SavePolygonMeshAsJsonDataFile(InputMesh, JsonFileNameAndPath_input);
 
-	auto OutputMesh = LoadPolygonMeshFromJsonDataFile<PolygonMeshStandardAttributeType<double>>(JsonFileNameAndPath_input);
+	PolygonMeshType OutputMesh;
+	LoadPolygonMeshFromJsonDataFile(OutputMesh, JsonFileNameAndPath_input);
 
 	std::string VTKFileNameAndPath_output = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/PolygonMesh_output.vtk";
 
@@ -62,11 +69,15 @@ void Test_TriangleMeshIO()
 	std::string VTKFileNameAndPath_input = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/PolygonMesh.vtk";
 	std::string JsonFileNameAndPath_input = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/TriangleMesh.json";
 
-	auto InputMesh = LoadTriangleMeshFromVTKFile<PolygonMeshStandardAttributeType<double>>(VTKFileNameAndPath_input);
+	typedef TriangleMesh<TriangleMeshStandardAttributeType<double>> TriangleMeshType;
+
+	TriangleMeshType InputMesh;
+    LoadTriangleMeshFromVTKFile(InputMesh, VTKFileNameAndPath_input);
 
 	SaveTriangleMeshAsJsonDataFile(InputMesh, JsonFileNameAndPath_input);
 
-	auto OutputMesh = LoadTriangleMeshFromJsonDataFile<PolygonMeshStandardAttributeType<double>>(JsonFileNameAndPath_input);
+	TriangleMeshType OutputMesh;
+	LoadTriangleMeshFromJsonDataFile(OutputMesh, JsonFileNameAndPath_input);
 
 	std::string VTKFileNameAndPath_output = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/TriangleMesh_output.vtk";
 

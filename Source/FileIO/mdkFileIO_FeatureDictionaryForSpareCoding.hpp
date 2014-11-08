@@ -76,9 +76,9 @@ bool SaveFeatureDictionaryForSparseCodingAsJsonDataFile(const FeatureDictionaryF
 
 
 template<typename ElementType>
-FeatureDictionaryForSparseCoding<ElementType> LoadFeatureDictionaryForSparseCodingFromJsonDataFile(const std::string& FilePathAndName)
+bool LoadFeatureDictionaryForSparseCodingFromJsonDataFile(FeatureDictionaryForSparseCoding<ElementType>& Dictionary, const std::string& FilePathAndName)
 {
-    FeatureDictionaryForSparseCoding<ElementType> Dictionary;
+	return true;
 	/*
     //----------------------------------------------------------
 
