@@ -262,22 +262,22 @@ void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfCell(int_max CellID)
 
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateNormalAtPoint() // all
+void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint() // all
 {// CellNormal must be available: call UpdateNormalAtCell() and UpdateCornerAngleOfCell()
     for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
     {
-        this->UpdateNormalAtPoint(it.GetPointHandle());
+        this->UpdateAngleWeightedNormalAtPoint(it.GetPointHandle());
     }
 }
 
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateNormalAtPoint(PointHandleType PointHandle)
+void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(PointHandleType PointHandle)
 { // CellNormal and CellCornerAngle must be available: call UpdateNormalAtCell() and UpdateCornerAngleOfCell()
 
     if (this->IsValidHandle(PointHandle) == false)
     {
-        MDK_Warning("PointHandle is invalid @ TriangleMesh::UpdateNormalAtPoint()")
+        MDK_Warning("PointHandle is invalid @ TriangleMesh::UpdateAngleWeightedNormalAtPoint()")
         return;
     }
 
@@ -286,8 +286,8 @@ void TriangleMesh<MeshAttributeType>::UpdateNormalAtPoint(PointHandleType PointH
     auto AdjacentCellHandleList = this->Point(PointHandle).GetAdjacentCellHandleList();
     if (AdjacentCellHandleList.IsEmpty() == true)
     {
-        MDK_Warning("This point has not adjacent cell @ TriangleMesh::UpdateNormalAtPoint()")
-        this->Point(PointHandle).Attribute().Normal.Fill(0);
+        MDK_Warning("This point has not adjacent cell @ TriangleMesh::UpdateAngleWeightedNormalAtPoint()")
+        this->Point(PointHandle).Attribute().AngleWeightedNormal.Fill(0);
         return;
     }
 
@@ -327,19 +327,19 @@ void TriangleMesh<MeshAttributeType>::UpdateNormalAtPoint(PointHandleType PointH
 			Normal.Fill(0);
 		}
 
-		this->Point(PointHandle).Attribute().Normal = Normal;
+		this->Point(PointHandle).Attribute().AngleWeightedNormal = Normal;
 	}
 	else// edge point
 	{
-		this->Point(PointHandle).Attribute().Normal = this->Cell(AdjacentCellHandleList[0]).Attribute().Normal;
+		this->Point(PointHandle).Attribute().AngleWeightedNormal = this->Cell(AdjacentCellHandleList[0]).Attribute().Normal;
 	}    
 }
 
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateNormalAtPoint(int_max PointID)
+void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(int_max PointID)
 {
-    this->UpdateNormalAtPoint(this->GetPointHandleByID(PointID));
+    this->UpdateAngleWeightedNormalAtPoint(this->GetPointHandleByID(PointID));
 }
 
 

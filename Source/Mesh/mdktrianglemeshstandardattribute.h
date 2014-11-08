@@ -41,7 +41,7 @@ enum class TriangleMeshPointStandardAttributeTypeEnum
 	WeightedGaussianCurvature,
 	MeanCurvature,
 	MeanCurvatureNormal,
-	Normal
+	AngleWeightedNormal
 };
 
 template<typename ScalarType>
