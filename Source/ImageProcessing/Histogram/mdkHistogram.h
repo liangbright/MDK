@@ -12,10 +12,10 @@ template<typename T>
 class DenseMatrix;
 
 template<typename T>
-class Image2D;
+class DenseImage2D;
 
 template<typename T>
-class Image3D;
+class DenseImage3D;
 //---------------------------
 
 // Signal can be 1D, 2D, 3D, ElementType is float or double
@@ -30,10 +30,10 @@ template<typename ElementType>
 DenseMatrix<int_max> ComputeHistogram(const DenseMatrix<ElementType>& Signal, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber);
 
 template<typename ElementType>
-DenseVector<int_max> ComputeHistogram(const Image2D<ElementType>& Signal, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber);
+DenseVector<int_max> ComputeHistogram(const DenseImage2D<ElementType>& Signal, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber);
 
 template<typename ElementType>
-DenseVector<int_max> ComputeHistogram(const Image3D<ElementType>& Signal, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber);
+DenseVector<int_max> ComputeHistogram(const DenseImage3D<ElementType>& Signal, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber);
 
 template<typename ElementType>
 DenseVector<int_max> ComputeHistogram(const ElementType* Signal, int_max SignalLength, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber);

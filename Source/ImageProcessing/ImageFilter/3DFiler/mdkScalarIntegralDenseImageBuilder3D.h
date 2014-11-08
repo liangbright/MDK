@@ -4,13 +4,13 @@
 #include <algorithm>
 #include <cmath>
 
-#include "mdkDenseImageFilter3D.h"
+#include "mdkImageFilter3D.h"
 
 namespace mdk
 {
 
-template<typename InputPixel_Type, typename OutputPixel_Type>
-class ScalarIntegralDenseImageBuilder3D : public DenseImageFilter3D<InputPixel_Type, OutputPixel_Type>
+template<typename InputPixel_Type, typename OutputPixel_Type, typename Scalar_Type = OutputPixel_Type>
+class ScalarIntegralDenseImageBuilder3D : public ImageFilter3D<DenseImage3D<InputPixel_Type>, DenseImage3D<OutputPixel_Type>, Scalar_Type>
 {
 public:
 	typedef InputPixel_Type InputPixelType;

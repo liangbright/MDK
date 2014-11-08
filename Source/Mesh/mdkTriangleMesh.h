@@ -111,9 +111,9 @@ public:
     void UpdateCornerAngleOfCell(CellHandleType CellHandle);
     void UpdateCornerAngleOfCell(int_max CellID);
 
-    void UpdateNormalAtPoint(); // all
-    void UpdateNormalAtPoint(PointHandleType PointHandle);
-    void UpdateNormalAtPoint(int_max PointID);
+	void UpdateNormalAtPoint(); // all
+	void UpdateNormalAtPoint(PointHandleType PointHandle);
+	void UpdateNormalAtPoint(int_max PointID);
 
     void UpdateGaussianCurvatureAtPoint(); // all
     void UpdateGaussianCurvatureAtPoint(PointHandleType PointHandle);

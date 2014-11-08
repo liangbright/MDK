@@ -7,5 +7,6 @@
 #include "mdkAffineTransform3D.h"
 
 #include "mdkGeometry3D_Function_Part_0.h"
+#include "mdkGeometry3D_Function_Part_1.h"
 
 #endif

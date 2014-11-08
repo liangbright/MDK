@@ -5,68 +5,68 @@ namespace mdk
 {
 // compute cross product: VectorA x VectorB, right hand coordinate system
 // ref: http://mathworld.wolfram.com/CrossProduct.html
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseVector<ElementType, 3> ComputeVectorCrossProductIn3D(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB);
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseVector<ElementType, 3> ComputeVectorCrossProductIn3D(const DenseVector<ElementType, 3>& VectorA, const DenseVector<ElementType, 3>& VectorB);
+DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB);
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseVector<ElementType, 3> ComputeVectorCrossProductIn3D(const ElementType* VectorA,  const ElementType* VectorB);
+DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const ScalarType* VectorA,  const ScalarType* VectorB);
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType ComputeAngleBetweenTwoVectorIn3D(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB);
+ScalarType ComputeAngleBetweenTwoVectorIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB);
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType ComputeAngleBetweenTwoVectorIn3D(const DenseVector<ElementType, 3>& VectorA, const DenseVector<ElementType, 3>& VectorB);
+ScalarType ComputeAngleBetweenTwoVectorIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB);
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType ComputeAngleBetweenTwoVectorIn3D(const ElementType* VectorA, const ElementType* VectorB);
+ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const ScalarType* VectorB);
 
 
 // compute normal vector of triangle in 3D
 // PointA -> PointB -> PointC : right hand coordinate system
 // PointPosition: (x, y, z)
 // ref: http://mathworld.wolfram.com/CrossProduct.html
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseVector<ElementType, 3> ComputeTriangleNormalIn3D(const DenseMatrix<ElementType>& PointPositionA,
-                                                      const DenseMatrix<ElementType>& PointPositionB, 
-                                                      const DenseMatrix<ElementType>& PointPositionC);
+DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const DenseMatrix<ScalarType>& PointPositionA,
+                                                      const DenseMatrix<ScalarType>& PointPositionB, 
+                                                      const DenseMatrix<ScalarType>& PointPositionC);
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseVector<ElementType, 3> ComputeTriangleNormalIn3D(const DenseVector<ElementType, 3>& PointPositionA,
-                                                      const DenseVector<ElementType, 3>& PointPositionB, 
-                                                      const DenseVector<ElementType, 3>& PointPositionC);
+DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const DenseVector<ScalarType, 3>& PointPositionA,
+                                                      const DenseVector<ScalarType, 3>& PointPositionB, 
+                                                      const DenseVector<ScalarType, 3>& PointPositionC);
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseVector<ElementType, 3> ComputeTriangleNormalIn3D(const ElementType* PointPositionA,
-                                                      const ElementType* PointPositionB, 
-                                                      const ElementType* PointPositionC);
+DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const ScalarType* PointPositionA,
+                                                      const ScalarType* PointPositionB, 
+                                                      const ScalarType* PointPositionC);
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType ComputeTriangleAreaIn3D(const DenseMatrix<ElementType>& PointPositionA,
-                                    const DenseMatrix<ElementType>& PointPositionB,
-                                    const DenseMatrix<ElementType>& PointPositionC);
+ScalarType ComputeTriangleAreaIn3D(const DenseMatrix<ScalarType>& PointPositionA,
+                                    const DenseMatrix<ScalarType>& PointPositionB,
+                                    const DenseMatrix<ScalarType>& PointPositionC);
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType ComputeTriangleAreaIn3D(const DenseVector<ElementType, 3>& PointPositionA,
-                                    const DenseVector<ElementType, 3>& PointPositionB,
-                                    const DenseVector<ElementType, 3>& PointPositionC);
+ScalarType ComputeTriangleAreaIn3D(const DenseVector<ScalarType, 3>& PointPositionA,
+                                    const DenseVector<ScalarType, 3>& PointPositionB,
+                                    const DenseVector<ScalarType, 3>& PointPositionC);
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType ComputeTriangleAreaIn3D(const ElementType* PointPositionA, const ElementType* PointPositionB, const ElementType* PointPositionC);
+ScalarType ComputeTriangleAreaIn3D(const ScalarType* PointPositionA, const ScalarType* PointPositionB, const ScalarType* PointPositionC);
 
 
 }// namespace mdk

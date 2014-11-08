@@ -2,7 +2,8 @@
 #define __mdkTriangleMeshProcessing_h
 
 #include "mdkPolygonMeshProcessing.h"
-
+//---------------------------------------------------//
+#include "mdkTriangleMesh.h"
 #include "mdkTriangleMeshProcessing_Function_Part_0.h"
 
 #endif

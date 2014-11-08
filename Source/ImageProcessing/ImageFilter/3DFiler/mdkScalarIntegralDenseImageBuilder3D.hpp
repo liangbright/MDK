@@ -5,54 +5,39 @@
 namespace mdk
 {
 
-template<typename InputPixelType, typename OutputPixelType>
-ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType>::ScalarIntegralDenseImageBuilder3D()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType, ScalarType>::ScalarIntegralDenseImageBuilder3D()
 {
-
+	this->Clear();
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType>::~ScalarIntegralDenseImageBuilder3D()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType, ScalarType>::~ScalarIntegralDenseImageBuilder3D()
 {
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-void ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType>::Clear()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
-    this->DenseImageFilter3D::Clear();
+	this->ImageFilter3D::Clear();
 
-    m_Flag_OutputDenseImage = true;
+	m_Flag_EnableOutputImage = true;
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-bool ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType>::CheckInput()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+bool ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
 {
-    if (this->ScalarDenseImageFilter3D::CheckInput() == false)
+	if (this->ImageFilter3D::CheckInput() == false)
     {
         return false;
     }
 
-    if (m_Flag_OutputDenseImage == false)
+    if (m_Flag_EnableOutputImage == false)
     {
-        MDK_Error("OutputDenseImage is invalid @ ScalarIntegralDenseImageBuilder3D::CheckInput()")
-        return false;
-    }
-
-    auto InputSize = m_InputDenseImage->GetSize();
-
-    auto OutputSize = m_OutputDenseImage->GetSize();
-
-    if (InputSize.Lx != OutputSize.Lx || InputSize.Ly != OutputSize.Ly || InputSize.Lz != OutputSize.Lz)
-    {
-        MDK_Error("Size does not match @ ScalarIntegralDenseImageBuilder3D::CheckInput()")
-        return false;
-    }
-
-    if (InputSize.Lz == 0)
-    {
+        MDK_Error("m_Flag_EnableOutputImage is false @ ScalarIntegralDenseImageBuilder3D::CheckInput()")
         return false;
     }
 
@@ -60,9 +45,9 @@ bool ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType>::CheckIn
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline
-void ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType>::
+void ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType, ScalarType>::
 Compute2DScalarIntegralDenseImage(int_max z_Index_start, int_max z_Index_end)
 {
     if (z_Index_end < z_Index_start || z_Index_start < 0)
@@ -71,39 +56,39 @@ Compute2DScalarIntegralDenseImage(int_max z_Index_start, int_max z_Index_end)
         return;
     }
 
-    auto InputSize = m_InputDenseImage->GetSize();
+    auto InputSize = m_InputImage->GetSize();
 
     for (int_max z = z_Index_start; z <= z_Index_end; ++z)
     {
-        for (int_max y = 0; y < InputSize.Ly; ++y)
+        for (int_max y = 0; y < InputSize[1]; ++y)
         {
-            auto tempOutoutPixel = m_ZeroPixelOfOutputDenseImage;
+			auto tempOutoutPixel = OutputPixelType(0);
 
-            for (int_max x = 0; x < InputSize.Lx; ++x)
+            for (int_max x = 0; x < InputSize[0]; ++x)
             {
-                tempOutoutPixel += OutputPixelType((*m_InputDenseImage)(x, y, z));
+                tempOutoutPixel += OutputPixelType((*m_InputImage)(x, y, z));
 
-                (*m_OutputDenseImage)(x, y, z) = tempOutoutPixel;
+                m_OutputImage(x, y, z) = tempOutoutPixel;
             }
         }
 
-        for (int_max x = 0; x < InputSize.Lx; ++x)
+        for (int_max x = 0; x < InputSize[0]; ++x)
         {
-            auto tempOutoutPixel = m_ZeroPixelOfOutputDenseImage;
+			auto tempOutoutPixel = OutputPixelType(0);
 
-            for (int_max y = 0; y < InputSize.Ly; ++y)
+            for (int_max y = 0; y < InputSize[1]; ++y)
             {
-                tempOutoutPixel += (*m_OutputDenseImage)(x, y, z);
+                tempOutoutPixel += m_OutputImage(x, y, z);
 
-                (*m_OutputDenseImage)(x, y, z) = tempOutoutPixel;
+				m_OutputImage(x, y, z) = tempOutoutPixel;
             }
         }
     }
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-void ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType>::
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType, ScalarType>::
 ComputeSumInZDirection(int_max xy_LinearIndex_start, int_max xy_LinearIndex_end)
 {
     if (xy_LinearIndex_end < xy_LinearIndex_start || xy_LinearIndex_start < 0)
@@ -112,28 +97,28 @@ ComputeSumInZDirection(int_max xy_LinearIndex_start, int_max xy_LinearIndex_end)
         return;
     }
 
-    auto InputSize = m_InputDenseImage->GetSize();
+    auto InputSize = m_InputImage->GetSize();
 
     for (int_max k = xy_LinearIndex_start; k <= xy_LinearIndex_end; ++k)
     {
-        int_max y = k / InputSize.Lx;
+        int_max y = k / InputSize[0];
 
-        int_max x = k % InputSize.Lx;
+        int_max x = k % InputSize[0];
 
-        auto tempOutoutPixel = m_ZeroPixelOfOutputDenseImage;
+		auto tempOutoutPixel = OutputPixelType(0);
 
-        for (int_max z = 0; z < InputSize.Lz; ++z)
+        for (int_max z = 0; z < InputSize[2]; ++z)
         {
-            tempOutoutPixel += (*m_OutputDenseImage)(x, y, z);
+            tempOutoutPixel += m_OutputImage(x, y, z);
 
-            (*m_OutputDenseImage)(x, y, z) = tempOutoutPixel;
+			m_OutputImage(x, y, z) = tempOutoutPixel;
         }                
     }
 }
 
 
-template<typename InputPixelType, typename OutputPixelType>
-bool ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType>::Update()
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+bool ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType, ScalarType>::Update()
 {
     if (this->CheckInput() == false)
     {
@@ -142,17 +127,17 @@ bool ScalarIntegralDenseImageBuilder3D<InputPixelType, OutputPixelType>::Update(
 
     // compute each 2D ScalarIntegralDenseImage -------------------------------------------------------------------------------------
    
-    auto InputSize = m_InputDenseImage->GetSize();
+    auto InputSize = m_InputImage->GetSize();
 
     ParallelBlock([&](int_max z_Index_start, int_max z_Index_end, int_max){this->Compute2DScalarIntegralDenseImage(z_Index_start, z_Index_end); },
-                  0, InputSize.Lz - 1, m_MaxNumberOfThreads, 1);
+                  0, InputSize[2] - 1, m_MaxNumberOfThread, 1);
 
     // sum in z-direction ------------------------------------------------------------------------------------------------------------
 
-    int_max MinNumberOfPositionsPerThread = 100;
+    int_max MinNumberOfPositionPerThread = 100;
 
     ParallelBlock([&](int_max xy_Linear_start, int_max xy_Linear_end, int_max){this->ComputeSumInZDirection(xy_Linear_start, xy_Linear_end); },
-                  0, InputSize.Lx*InputSize.Ly - 1, m_MaxNumberOfThreads, MinNumberOfPositionsPerThread);
+				   0, InputSize[0]*InputSize[1] - 1, m_MaxNumberOfThread, MinNumberOfPositionPerThread);
 
     return true;
 }

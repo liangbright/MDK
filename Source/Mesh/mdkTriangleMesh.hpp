@@ -345,7 +345,7 @@ void TriangleMesh<MeshAttributeType>::UpdateNormalAtPoint(int_max PointID)
 
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint() // all
-{
+{// run UpdateCornerAngleOfCell first
     for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
     {
         this->UpdateGaussianCurvatureAtPoint(it.GetPointHandle());
@@ -355,7 +355,7 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint() // all
 
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandleType PointHandle)
-{
+{// run UpdateCornerAngleOfCell first
     if (this->IsValidHandle(PointHandle) == false)
     {
         MDK_Warning("PointHandle is invalid @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")

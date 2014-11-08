@@ -20,14 +20,14 @@ DenseMatrix<int_max> ComputeHistogram(const DenseMatrix<ElementType>& Signal, El
 
 
 template<typename ElementType>
-DenseVector<int_max> ComputeHistogram(const Image2D<ElementType>& Signal, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
+DenseVector<int_max> ComputeHistogram(const DenseImage2D<ElementType>& Signal, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
 {
     return ComputeHistogram(Signal.GetPixelPointer(), Signal.GetPixelNumber(), Signal_lb, Signal_ub, BinNumber);
 }
 
 
 template<typename ElementType>
-DenseVector<int_max> ComputeHistogram(const Image3D<ElementType>& Signal, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
+DenseVector<int_max> ComputeHistogram(const DenseImage3D<ElementType>& Signal, ElementType Signal_lb, ElementType Signal_ub, int_max BinNumber)
 {
     return ComputeHistogram(Signal.GetPixelPointer(), Signal.GetPixelNumber(), Signal_lb, Signal_ub, BinNumber);
 }

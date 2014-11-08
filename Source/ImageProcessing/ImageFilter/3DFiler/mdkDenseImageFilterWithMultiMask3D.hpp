@@ -21,7 +21,7 @@ DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::~D
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
-	this->DenseImageFilter3D::Clear();
+	this->ImageFilter3D::Clear();
 	m_MaskList.Clear();
 	m_Flag_3DPositionInMask = -1;
     m_NOBoundCheckRegionList_3DIndex.Clear();
@@ -224,7 +224,7 @@ void DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 bool DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
 {
-    if (this->DenseImageFilter3D::Preprocess() == false)
+    if (this->ImageFilter3D::Preprocess() == false)
     {
         return false;
     }

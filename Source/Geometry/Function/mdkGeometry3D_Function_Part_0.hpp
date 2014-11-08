@@ -4,16 +4,16 @@
 namespace mdk
 {
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseVector<ElementType, 3> ComputeVectorCrossProductIn3D(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB)
+DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB)
 {
-    DenseVector<ElementType, 3> Vector_AxB;
+    DenseVector<ScalarType, 3> Vector_AxB;
 
     if (VectorA.GetElementNumber() != 3 || VectorB.GetElementNumber() != 3)
     {
         MDK_Error("Input is not 3D vector @ mdkGeometry3D ComputeVectorCrossProductIn3D(...)")
-        Vector_AxB.Fill(0);
+        Vector_AxB.Fill(GetNaNElement<ScalarType>());
         return Vector_AxB();
     }
 
@@ -21,22 +21,22 @@ DenseVector<ElementType, 3> ComputeVectorCrossProductIn3D(const DenseMatrix<Elem
     return Vector_AxB;
 }
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseVector<ElementType, 3> ComputeVectorCrossProductIn3D(const DenseVector<ElementType, 3>& VectorA, const DenseVector<ElementType, 3>& VectorB)
+DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB)
 {
     return ComputeVectorCrossProductIn3D(VectorA.GetElementPointer(), VectorB.GetElementPointer());
 }
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseVector<ElementType, 3> ComputeVectorCrossProductIn3D(const ElementType* VectorA, const ElementType* VectorB)
+DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const ScalarType* VectorA, const ScalarType* VectorB)
 {
-    DenseVector<ElementType, 3> Vector_AxB;
+    DenseVector<ScalarType, 3> Vector_AxB;
     if (VectorA == nullptr || VectorB == nullptr)
     {
         MDK_Error("Input is nullptr @ mdkGeometry3D ComputeVectorCrossProductIn3D(...)")
-        Vector_AxB.Fill(0);
+        Vector_AxB.Fill(GetNaNElement<ScalarType>());
         return Vector_AxB;
     }
 
@@ -47,37 +47,37 @@ DenseVector<ElementType, 3> ComputeVectorCrossProductIn3D(const ElementType* Vec
 }
 
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType ComputeAngleBetweenTwoVectorIn3D(const DenseMatrix<ElementType>& VectorA, const DenseMatrix<ElementType>& VectorB)
+ScalarType ComputeAngleBetweenTwoVectorIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB)
 {
     if (VectorA.GetElementNumber() != 3 || VectorB.GetElementNumber() != 3)
     {
         MDK_Error("Input is not 3D vector @ mdkGeometry3D ComputeAngleBetweenTwoVectorIn3D(...)")
-        return 0;
+        return GetNaNElement<ScalarType>();
     }
 
     return ComputeAngleBetweenTwoVectorIn3D(VectorA.GetElementPointer(), VectorB.GetElementPointer());
 }
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType ComputeAngleBetweenTwoVectorIn3D(const DenseVector<ElementType, 3>& VectorA, const DenseVector<ElementType, 3>& VectorB)
+ScalarType ComputeAngleBetweenTwoVectorIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB)
 {
     return ComputeAngleBetweenTwoVectorIn3D(VectorA.GetElementPointer(), VectorB.GetElementPointer());
 }
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType ComputeAngleBetweenTwoVectorIn3D(const ElementType* VectorA, const ElementType* VectorB)
+ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const ScalarType* VectorB)
 {
     if (VectorA == nullptr || VectorB == nullptr)
     {
         MDK_Error("Input is nullptr @ mdkGeometry3D ComputeAngleBetweenTwoVectorIn3D(...)")
-        return 0;
+        return GetNaNElement<ScalarType>();
     }
 
-	auto eps_value = std::numeric_limits<ElementType>::epsilon();
+	auto eps_value = std::numeric_limits<ScalarType>::epsilon();
 
     auto L2Norm_A = std::sqrt(VectorA[0] * VectorA[0] + VectorA[1] * VectorA[1] + VectorA[2] * VectorA[2]);
     auto L2Norm_B = std::sqrt(VectorB[0] * VectorB[0] + VectorB[1] * VectorB[1] + VectorB[2] * VectorB[2]);
@@ -92,18 +92,18 @@ ElementType ComputeAngleBetweenTwoVectorIn3D(const ElementType* VectorA, const E
     }
 }
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseVector<ElementType, 3> ComputeTriangleNormalIn3D(const DenseMatrix<ElementType>& PointPositionA, 
-                                                      const DenseMatrix<ElementType>& PointPositionB, 
-                                                      const DenseMatrix<ElementType>& PointPositionC)
+DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const DenseMatrix<ScalarType>& PointPositionA, 
+                                                      const DenseMatrix<ScalarType>& PointPositionB, 
+                                                      const DenseMatrix<ScalarType>& PointPositionC)
 {
-    DenseVector<ElementType, 3> Normal;
+    DenseVector<ScalarType, 3> Normal;
 
     if (PointPositionA.GetElementNumber() != 3 || PointPositionB.GetElementNumber() != 3 || PointPositionC.GetElementNumber() != 3)
     {
         MDK_Error("Input is not position vector in 3D @ mdkGeometry3D ComputeTriangleNormalIn3D(...)")
-        Normal.Fill(0);
+        Normal.Fill(GetNaNElement<ScalarType>());
         return Normal;
     }
 
@@ -111,40 +111,40 @@ DenseVector<ElementType, 3> ComputeTriangleNormalIn3D(const DenseMatrix<ElementT
     return Normal;
 }
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseVector<ElementType, 3> ComputeTriangleNormalIn3D(const DenseVector<ElementType, 3>& PointPositionA, 
-                                                      const DenseVector<ElementType, 3>& PointPositionB, 
-                                                      const DenseVector<ElementType, 3>& PointPositionC)
+DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const DenseVector<ScalarType, 3>& PointPositionA, 
+                                                      const DenseVector<ScalarType, 3>& PointPositionB, 
+                                                      const DenseVector<ScalarType, 3>& PointPositionC)
 {
     return ComputeTriangleNormalIn3D(PointPositionA.GetElementPointer(), PointPositionB.GetElementPointer(), PointPositionC.GetElementPointer());
 }
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-DenseVector<ElementType, 3> ComputeTriangleNormalIn3D(const ElementType* PointPositionA, const ElementType* PointPositionB, const ElementType* PointPositionC)
+DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const ScalarType* PointPositionA, const ScalarType* PointPositionB, const ScalarType* PointPositionC)
 {
-    DenseVector<ElementType, 3> Normal;
+    DenseVector<ScalarType, 3> Normal;
     if (PointPositionA == nullptr || PointPositionB == nullptr || PointPositionC == nullptr)
     {
         MDK_Error("Input is nullptr @ mdkGeometry3D ComputeTriangleNormalIn3D(...)")
-        Normal.Fill(0);
+        Normal.Fill(GetNaNElement<ScalarType>());
         return Normal;
     }
 
-    ElementType VectorAB[3]; // vector U
+    ScalarType VectorAB[3]; // vector U
     VectorAB[0] = PointPositionB[0] - PointPositionA[0];
     VectorAB[1] = PointPositionB[1] - PointPositionA[1];
     VectorAB[2] = PointPositionB[2] - PointPositionA[2];
 
-    ElementType VectorAC[3]; // vector V
+    ScalarType VectorAC[3]; // vector V
     VectorAC[0] = PointPositionC[0] - PointPositionA[0];
     VectorAC[1] = PointPositionC[1] - PointPositionA[1];
     VectorAC[2] = PointPositionC[2] - PointPositionA[2];
 
     Normal = ComputeVectorCrossProductIn3D(VectorAB, VectorAC);
 
-    ElementType L2Norm_ABxAC = std::sqrt(Normal[0] * Normal[0] + Normal[1] * Normal[1] + Normal[2] * Normal[2]);
+    ScalarType L2Norm_ABxAC = std::sqrt(Normal[0] * Normal[0] + Normal[1] * Normal[1] + Normal[2] * Normal[2]);
 
     Normal[0] = Normal[0] / L2Norm_ABxAC;
     Normal[1] = Normal[1] / L2Norm_ABxAC;
@@ -153,48 +153,48 @@ DenseVector<ElementType, 3> ComputeTriangleNormalIn3D(const ElementType* PointPo
     return Normal;
 }
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType ComputeTriangleAreaIn3D(const DenseMatrix<ElementType>& PointPositionA,
-                                    const DenseMatrix<ElementType>& PointPositionB,
-                                    const DenseMatrix<ElementType>& PointPositionC)
+ScalarType ComputeTriangleAreaIn3D(const DenseMatrix<ScalarType>& PointPositionA,
+                                    const DenseMatrix<ScalarType>& PointPositionB,
+                                    const DenseMatrix<ScalarType>& PointPositionC)
 {
     if (PointPositionA.GetElementNumber() != 3 || PointPositionB.GetElementNumber() != 3 || PointPositionC.GetElementNumber() != 3)
     {
         MDK_Error("Input is not position vector in 3D @ mdkGeometry3D ComputeTriangleAreaIn3D(...)")
-        return 0;
+        return GetNaNElement<ScalarType>();
     }
 
     return ComputeTriangleAreaIn3D(PointPositionA.GetElementPointer(), PointPositionB.GetElementPointer(), PointPositionC.GetElementPointer());
 }
 
-template<typename ElementType>
+template<typename ScalarType>
 inline
-ElementType ComputeTriangleAreaIn3D(const DenseVector<ElementType, 3>& PointPositionA,
-                                    const DenseVector<ElementType, 3>& PointPositionB,
-                                    const DenseVector<ElementType, 3>& PointPositionC)
+ScalarType ComputeTriangleAreaIn3D(const DenseVector<ScalarType, 3>& PointPositionA,
+                                    const DenseVector<ScalarType, 3>& PointPositionB,
+                                    const DenseVector<ScalarType, 3>& PointPositionC)
 {
     return ComputeTriangleAreaIn3D(PointPositionA.GetElementPointer(), PointPositionB.GetElementPointer(), PointPositionC.GetElementPointer());
 }
 
-template<typename ElementType>
-ElementType ComputeTriangleAreaIn3D(const ElementType* PointPositionA, const ElementType* PointPositionB, const ElementType* PointPositionC)
+template<typename ScalarType>
+ScalarType ComputeTriangleAreaIn3D(const ScalarType* PointPositionA, const ScalarType* PointPositionB, const ScalarType* PointPositionC)
 {
-    ElementType VectorAB[3]; // vector U
+    ScalarType VectorAB[3]; // vector U
     VectorAB[0] = PointPositionB[0] - PointPositionA[0];
     VectorAB[1] = PointPositionB[1] - PointPositionA[1];
     VectorAB[2] = PointPositionB[2] - PointPositionA[2];
 
-    ElementType VectorAC[3]; // vector V
+    ScalarType VectorAC[3]; // vector V
     VectorAC[0] = PointPositionC[0] - PointPositionA[0];
     VectorAC[1] = PointPositionC[1] - PointPositionA[1];
     VectorAC[2] = PointPositionC[2] - PointPositionA[2];
 
     auto Normal = ComputeVectorCrossProductIn3D(VectorAB, VectorAC);
 
-    ElementType L2Norm_ABxAC = std::sqrt(Normal[0] * Normal[0] + Normal[1] * Normal[1] + Normal[2] * Normal[2]);
+    ScalarType L2Norm_ABxAC = std::sqrt(Normal[0] * Normal[0] + Normal[1] * Normal[1] + Normal[2] * Normal[2]);
 
-    ElementType Area = L2Norm_ABxAC / ElementType(2);
+    ScalarType Area = L2Norm_ABxAC / ScalarType(2);
     return Area;
 }
 
