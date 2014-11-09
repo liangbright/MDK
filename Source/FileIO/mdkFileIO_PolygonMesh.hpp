@@ -83,8 +83,11 @@ bool SavePolygonMeshAsJsonDataFile_Data(const PolygonMesh<MeshAttributeType>& In
 		MDK_Error("Couldn't open file to write point data @ SavePolygonMeshAsJsonDataFile_Data(...)")
 		return false;
 	}
-	PointDataFile.write((char*)PointData.GetElementPointer(), PointData.GetElementNumber()*GetByteNumberOfScalar(ScalarType(0)));
-	PointDataFile.flush();
+	if (PointData.IsEmpty() == false)
+	{
+		PointDataFile.write((char*)PointData.GetElementPointer(), PointData.GetElementNumber()*GetByteNumberOfScalar(ScalarType(0)));
+		PointDataFile.flush();
+	}
 	PointDataFile.close();
 
 	//write cell to data file
@@ -95,29 +98,32 @@ bool SavePolygonMeshAsJsonDataFile_Data(const PolygonMesh<MeshAttributeType>& In
 		return false;
 	}
 
-	QTextStream Stream_out(&CellDataFile);
-
-	for (int_max i = 0; i < CellData.GetLength(); ++i)
+	if (CellData.IsEmpty() == false)
 	{
-		const DenseVector<int_max>& Cell_i = CellData[i];
+		QTextStream Stream_out(&CellDataFile);
 
-		for (int_max n = 0; n < Cell_i.GetElementNumber(); ++n)
+		for (int_max i = 0; i < CellData.GetLength(); ++i)
 		{
-			Stream_out << QString::number(Cell_i[n]);
+			const DenseVector<int_max>& Cell_i = CellData[i];
 
-			if (n < Cell_i.GetLength() - 1)
+			for (int_max n = 0; n < Cell_i.GetElementNumber(); ++n)
 			{
-				Stream_out << ", ";
+				Stream_out << QString::number(Cell_i[n]);
+
+				if (n < Cell_i.GetLength() - 1)
+				{
+					Stream_out << ", ";
+				}
+			}
+
+			if (i < CellData.GetLength() - 1)
+			{
+				Stream_out << "\n";
 			}
 		}
 
-		if (i < CellData.GetLength() - 1)
-		{
-			Stream_out << "\n";
-		}
+		Stream_out.flush();
 	}
-
-	Stream_out.flush();
 	CellDataFile.close();
 
 	return true;
@@ -211,8 +217,16 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 		return false;
 	}
 	//----------------------------------------------
-	std::string DataFilePathAndName = JsonFilePathAndName + ".data";
-	return LoadPolygonMeshFromJsonDataFile_Data(OutputMesh, DataFilePathAndName, PointNumber, CellNumber, InputScalarTypeName);
+	if (PointNumber > 0)
+	{
+		std::string DataFilePathAndName = JsonFilePathAndName + ".data";
+		return LoadPolygonMeshFromJsonDataFile_Data(OutputMesh, DataFilePathAndName, PointNumber, CellNumber, InputScalarTypeName);
+	}
+	else// empty mesh
+	{
+		OutputMesh.Clear();
+		return true;
+	}
 }
 
 

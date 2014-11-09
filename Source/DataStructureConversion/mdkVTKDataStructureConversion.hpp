@@ -69,7 +69,7 @@ vtkSmartPointer<vtkPolyData> ConvertSingleMDK3DCurveToVTKPolyData(const DenseMat
 	if (MDK3DCurve.GetRowNumber() != 3)
 	{
 		MDK_Error("Invalid MDK3DCurve @ mdkFileIO ConvertSingleMDK3DCurveToVTKPolyData")
-		return false;
+		return nullptr;
 	}
 
 	auto VtkDataType = GetVtkScalarType(ScalarType(0));
@@ -98,6 +98,12 @@ vtkSmartPointer<vtkPolyData> ConvertSingleMDK3DCurveToVTKPolyData(const DenseMat
 template<typename ScalarType>
 vtkSmartPointer<vtkPolyData> ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveList)
 {
+	if (MDK3DCurveList.IsEmpty() == true)
+	{
+		MDK_Warning("MDK3DCurveList is empty @ mdkFileIO ConvertSingleMDK3DCurveToVTKPolyData(...)")
+		return nullptr;
+	}
+
 	auto VtkDataType = GetVtkScalarType(ScalarType(0));
 
 	auto PointSet = vtkSmartPointer<vtkPoints>::New();

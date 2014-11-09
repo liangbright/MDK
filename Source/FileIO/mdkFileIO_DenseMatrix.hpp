@@ -48,13 +48,6 @@ bool SaveDenseMatrixAsJsonDataFile_Header(const DenseMatrix<ScalarType>& InputMa
 template<typename ScalarType>
 bool SaveDenseMatrixAsJsonDataFile_Data(const DenseMatrix<ScalarType>& InputMatrix, const std::string& DataFilePathAndName)
 {
-	auto Size = InputMatrix.GetSize();
-	if (Size.ColNumber == 0)
-	{
-		MDK_Warning("InputMatrix is empty @ SaveDenseMatrixAsJsonDataFile_Data(...)")
-		return true;
-	}
-
 	int_max ByteNumber = GetByteNumberOfScalar(ScalarType(0));
 	if (ByteNumber <= 0)
 	{
@@ -65,11 +58,16 @@ bool SaveDenseMatrixAsJsonDataFile_Data(const DenseMatrix<ScalarType>& InputMatr
 	QFile DataFile(DataFilePathAndName.c_str());
 	if (!DataFile.open(QIODevice::WriteOnly))
 	{
-		MDK_Error("Couldn't open file " << DataFilePathAndName << " @ SaveDenseMatrixAsJsonDataFile_Data(...)")
+		MDK_Error("Couldn't create file " << DataFilePathAndName << " @ SaveDenseMatrixAsJsonDataFile_Data(...)")
 		return false;
 	}
-	DataFile.write((char*)InputMatrix.GetElementPointer(), Size.ColNumber*Size.RowNumber*ByteNumber);
-	DataFile.flush();
+
+	auto Size = InputMatrix.GetSize();
+	if (Size.ColNumber > 0)
+	{
+		DataFile.write((char*)InputMatrix.GetElementPointer(), Size.ColNumber*Size.RowNumber*ByteNumber);
+		DataFile.flush();		
+	}
 	DataFile.close();
 	return true;
 }
@@ -89,32 +87,32 @@ bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, cons
 		return true;
 	}
 
-    // Read data
-
 	OutputMatrix.FastResize(OutputMatrixSize);
+	// Read data
+	if (OutputMatrix.IsEmpty() == false)
+	{
+		std::string DataFilePathAndName = JsonFilePathAndName + ".data";
 
-	std::string DataFilePathAndName = JsonFilePathAndName + ".data";
+		auto OutputScalarTypeName = GetScalarTypeName(ScalarType(0));
 
-	auto OutputScalarTypeName = GetScalarTypeName(ScalarType(0));
-
-    if (OutputScalarTypeName == InputScalarTypeName)
-    {
-		if (LoadDenseMatrixFromJsonDataFile_Data<ScalarType, ScalarType>(OutputMatrix, DataFilePathAndName) == false)
+		if (OutputScalarTypeName == InputScalarTypeName)
 		{
-			OutputMatrix.Clear();
-			return false;
+			if (LoadDenseMatrixFromJsonDataFile_Data<ScalarType, ScalarType>(OutputMatrix, DataFilePathAndName) == false)
+			{
+				OutputMatrix.Clear();
+				return false;
+			}
 		}
-    }
-    else
-    {
-        MDK_Warning("OutputScalarTypeName != InputScalarTypeName, Output may be inaccurate @ LoadDenseMatrixFromJsonDataFile(...)")
-		if (LoadDenseMatrixFromJsonDataFile_Data<ScalarType>(OutputMatrix, DataFilePathAndName, InputScalarTypeName) == false)
+		else
 		{
-			OutputMatrix.Clear();
-			return false;
+			MDK_Warning("OutputScalarTypeName != InputScalarTypeName, Output may be inaccurate @ LoadDenseMatrixFromJsonDataFile(...)")
+			if (LoadDenseMatrixFromJsonDataFile_Data<ScalarType>(OutputMatrix, DataFilePathAndName, InputScalarTypeName) == false)
+			{
+				OutputMatrix.Clear();
+				return false;
+			}
 		}
-    }
-
+	}
     return true;
 }
 

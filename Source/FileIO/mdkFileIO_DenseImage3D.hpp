@@ -83,11 +83,12 @@ bool Save3DScalarImageAsJsonDataFile_Data(const DenseImage3D<PixelType>& InputIm
 
 	auto PixelNumber = InputImage.GetPixelNumber();
 	auto ByteNumber = GetByteNumberOfScalar(PixelType(0));
-
-	DataFile.write((char*)InputImage.GetPixelPointer(), PixelNumber*ByteNumber);
-	DataFile.flush();
+	if (PixelNumber > 0)
+	{
+		DataFile.write((char*)InputImage.GetPixelPointer(), PixelNumber*ByteNumber);
+		DataFile.flush();
+	}
 	DataFile.close();
-
 	return true;
 }
 
@@ -256,27 +257,29 @@ bool Load3DScalarImageFromJsonDataFile(DenseImage3D<PixelType>& OutputImage, con
     OutputImage.SetSpacing(Spacing);
     OutputImage.SetOrigin(Origin);
     OutputImage.SetOrientation(Orientation);
-
-	std::string DataFilePathAndName = JsonFilePathAndName + ".data";
-	auto OutputPixelTypeName = GetScalarTypeName(PixelType(0));	
-    if (OutputPixelTypeName == InputPixelTypeName)
-    {
-		if (Load3DScalarImageFromJsonDataFile_Data<PixelType, PixelType>(OutputImage, DataFilePathAndName) == false)
-		{
-			OutputImage.Clear();
-			return false;
-		}
-    }
-	else
+	// read pixel data
+	if (OutputImage.IsEmpty() == false)
 	{
-		MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ Load3DScalarImageFromJsonDataFile(...)")
-		if (Load3DScalarImageFromJsonDataFile_Data(OutputImage, InputPixelTypeName, DataFilePathAndName) == false)
+		std::string DataFilePathAndName = JsonFilePathAndName + ".data";
+		auto OutputPixelTypeName = GetScalarTypeName(PixelType(0));
+		if (OutputPixelTypeName == InputPixelTypeName)
 		{
-			OutputImage.Clear();
-			return false;
+			if (Load3DScalarImageFromJsonDataFile_Data<PixelType, PixelType>(OutputImage, DataFilePathAndName) == false)
+			{
+				OutputImage.Clear();
+				return false;
+			}
+		}
+		else
+		{
+			MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ Load3DScalarImageFromJsonDataFile(...)")
+			if (Load3DScalarImageFromJsonDataFile_Data(OutputImage, InputPixelTypeName, DataFilePathAndName) == false)
+			{
+				OutputImage.Clear();
+				return false;
+			}
 		}
 	}
-
     return true;
 }
 

@@ -8,6 +8,12 @@ namespace mdk
 template<typename PixelType>
 itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(DenseImage3D<PixelType>& InputImage, bool SharePixelData)
 {
+	if (InputImage.IsEmpty() == true)
+	{
+		MDK_Warning("InputImage is empty @ mdkFileIO ConvertMDK3DScalarImageToITK3DScalarImage(...)")
+		return nullptr;
+	}
+
     auto InputSize        = InputImage.GetSize();
     auto InputOrigin      = InputImage.GetOrigin();
     auto InputSpacing     = InputImage.GetSpacing();
@@ -75,6 +81,12 @@ itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageT
 template<typename PixelType>
 itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(DenseImage3D<PixelType>& InputImage)
 {
+	if (InputImage.IsEmpty() == true)
+	{
+		MDK_Warning("InputImage is empty @ mdkFileIO ConvertMDK3DScalarImageToITK3DScalarImage(...)")
+		return nullptr;
+	}
+
     bool SharePixelData = true;
     auto importFilter = ConvertMDK3DScalarImageToITK3DScalarImage(InputImage, SharePixelData);
 

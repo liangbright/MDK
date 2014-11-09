@@ -89,8 +89,11 @@ bool SaveTriangleMeshAsJsonDataFile_Data(const TriangleMesh<MeshAttributeType>& 
         MDK_Error("Couldn't open file to write point data @ SaveTriangleMeshAsJsonDataFile_Data(...)")
         return false;
     }
-    PointDataFile.write((char*)PointData.GetElementPointer(), PointData.GetElementNumber()*GetByteNumberOfScalar(ScalarType(0)));
-    PointDataFile.flush();
+	if (PointData.IsEmpty() == false)
+	{
+		PointDataFile.write((char*)PointData.GetElementPointer(), PointData.GetElementNumber()*GetByteNumberOfScalar(ScalarType(0)));
+		PointDataFile.flush();
+	}
     PointDataFile.close();
 
     //write cell to data file
@@ -101,29 +104,32 @@ bool SaveTriangleMeshAsJsonDataFile_Data(const TriangleMesh<MeshAttributeType>& 
         return false;
     }
 
-    QTextStream Stream_out(&CellDataFile);
+	if (CellData.IsEmpty() == false)
+	{
+		QTextStream Stream_out(&CellDataFile);
 
-    for (int_max i = 0; i < CellData.GetLength(); ++i)
-    {
-        const DenseVector<int_max>& Cell_i = CellData[i];
+		for (int_max i = 0; i < CellData.GetLength(); ++i)
+		{
+			const DenseVector<int_max>& Cell_i = CellData[i];
 
-        for (int_max n = 0; n < Cell_i.GetElementNumber(); ++n)
-        {
-            Stream_out << QString::number(Cell_i[n]);
+			for (int_max n = 0; n < Cell_i.GetElementNumber(); ++n)
+			{
+				Stream_out << QString::number(Cell_i[n]);
 
-            if (n < Cell_i.GetLength() - 1)
-            {
-                Stream_out << ", ";
-            }
-        }
+				if (n < Cell_i.GetLength() - 1)
+				{
+					Stream_out << ", ";
+				}
+			}
 
-        if (i < CellData.GetLength() - 1)
-        {
-            Stream_out << "\n";
-        }
-    }
+			if (i < CellData.GetLength() - 1)
+			{
+				Stream_out << "\n";
+			}
+		}
 
-    Stream_out.flush();
+		Stream_out.flush();
+	}
     CellDataFile.close();
    
     return true;
@@ -217,8 +223,16 @@ bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMes
 		return false;
     }
 	//----------------------------------------------------
-	std::string DataFilePathAndName = JsonFilePathAndName + ".data";
-	return LoadTriangleMeshFromJsonDataFile_Data<MeshAttributeType>(OutputMesh, DataFilePathAndName, PointNumber, CellNumber, InputScalarTypeName);
+	if (PointNumber > 0)
+	{
+		std::string DataFilePathAndName = JsonFilePathAndName + ".data";
+		return LoadTriangleMeshFromJsonDataFile_Data<MeshAttributeType>(OutputMesh, DataFilePathAndName, PointNumber, CellNumber, InputScalarTypeName);
+	}
+	else//empty mesh
+	{
+		OutputMesh.Clear();
+		return true;
+	}
 }
 
 
