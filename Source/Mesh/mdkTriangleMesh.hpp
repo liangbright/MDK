@@ -286,7 +286,7 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(PointHand
     auto AdjacentCellHandleList = this->Point(PointHandle).GetAdjacentCellHandleList();
     if (AdjacentCellHandleList.IsEmpty() == true)
     {
-        MDK_Warning("This point has not adjacent cell @ TriangleMesh::UpdateAngleWeightedNormalAtPoint()")
+        MDK_Warning("This point has NO adjacent cell @ TriangleMesh::UpdateAngleWeightedNormalAtPoint()")
         this->Point(PointHandle).Attribute().AngleWeightedNormal.Fill(0);
         return;
     }
