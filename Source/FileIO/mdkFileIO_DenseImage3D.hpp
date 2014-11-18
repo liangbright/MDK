@@ -272,7 +272,7 @@ bool Load3DScalarImageFromJsonDataFile(DenseImage3D<PixelType>& OutputImage, con
 		}
 		else
 		{
-			MDK_Warning("OutputElementTypeName != InputElementTypeName, Output may be inaccurate @ Load3DScalarImageFromJsonDataFile(...)")
+			MDK_Warning("OutputPixelTypeName != InputPixelTypeName, Output may be inaccurate @ Load3DScalarImageFromJsonDataFile(...)")
 			if (Load3DScalarImageFromJsonDataFile_Data(OutputImage, InputPixelTypeName, DataFilePathAndName) == false)
 			{
 				OutputImage.Clear();
@@ -348,8 +348,8 @@ bool Load3DScalarImageFromJsonDataFile_Data(DenseImage3D<OutputPixelType>& Outpu
 
 	int_max BypesofDataFile = int_max(DataFile.size());
 	int_max PixelNumber = OutputImage.GetPixelNumber();
-	int_max ByteNumberOfOutputPixelType = GetByteNumberOfScalar(OutputPixelType(0));
-    if (BypesofDataFile != PixelNumber * ByteNumberOfOutputPixelType)
+	int_max ByteNumberOfInputPixelType = GetByteNumberOfScalar(InputPixelType(0));
+	if (BypesofDataFile != PixelNumber * ByteNumberOfInputPixelType)
     {
         MDK_Error("Data file size is not equal to image size @ Load3DScalarImageFromJsonDataFile_Data(...)")
         DataFile.close();
@@ -361,7 +361,7 @@ bool Load3DScalarImageFromJsonDataFile_Data(DenseImage3D<OutputPixelType>& Outpu
     for (int_max i = 0; i < PixelNumber; ++i)
     {
 		auto tempScalar = InputPixelType(0);
-        DataFile.read((char*)(&tempScalar), ByteNumberOfOutputPixelType);
+		DataFile.read((char*)(&tempScalar), ByteNumberOfInputPixelType);
         PixelPointer[i] = OutputPixelType(tempScalar);
     }
 	DataFile.close();

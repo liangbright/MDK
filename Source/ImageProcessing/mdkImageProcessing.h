@@ -9,6 +9,7 @@
 #include "mdkScalarIntegralDenseImageBuilder3D.h"
 #include "mdkScalarrDenseImageToVectorrDenseImageConvolutionFilter3D.h"
 #include "mdkImageInterpolation3D.h"
+#include "mdkDenseImageResampler3D.h"
 #include "mdkHistogram.h"
 
 #endif

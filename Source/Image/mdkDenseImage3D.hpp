@@ -617,9 +617,10 @@ template<typename PixelType>
 inline
 void DenseImage3D<PixelType>::SetSpacing(double Spacing_x, double Spacing_y, double Spacing_z)
 {
-    if (Spacing_x <= 0 || Spacing_y <= 0 || Spacing_z <= 0)
+	auto Zero = std::numeric_limits<double>::epsilon();
+	if (Spacing_x <= Zero || Spacing_y <= Zero || Spacing_z <= Zero)
     {
-        MDK_Error("Invalid input @ 3DDenseImage::SetSpacing(...)")
+        MDK_Error("Invalid input (<= eps) @ 3DDenseImage::SetSpacing(...)")
         return;
     }
 

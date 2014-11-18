@@ -589,9 +589,10 @@ template<typename PixelType>
 inline
 void DenseImage2D<PixelType>::SetSpacing(double Spacing_x, double Spacing_y)
 {
-    if (Spacing_x <= 0 || Spacing_y <= 0)
+	auto Zero = std::numeric_limits<double>::epsilon();
+	if (Spacing_x <= Zero || Spacing_y <= Zero)
     {
-        MDK_Error("Invalid input @ 2DDenseImage::SetSpacing(...)")
+        MDK_Error("Invalid input (<= eps) @ 2DDenseImage::SetSpacing(...)")
         return;
     }
     m_ImageData->m_Spacing[0] = Spacing_x;

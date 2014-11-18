@@ -3,6 +3,8 @@
 
 #include "mdkLinearAlgebra.h"
 
+#include "mdkLocalCoordinateSystem3D.h"
+
 #include "mdkThinPlateSplineTransform3D.h"
 #include "mdkAffineTransform3D.h"
 

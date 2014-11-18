@@ -21,12 +21,11 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
 	this->ImageFilter3D::Clear();
-	m_OutputPlaceOption = OutputPlaceOption_Of_ImageFilter3D::OutputImage;
 
 	m_Flag_UseGaussianSmoothWhenDownSmapling = false;
 	m_Flag_UserInputGaussianParameter = false;
 	m_SigmaOfGaussian.Clear();
-	m_CutoffRatioOfGaussian = 0;
+	m_CutoffRatioOfGaussian = 1;
 	m_Flag_SmoothInputImage = false;
 	m_GaussianSmoothedImage.Clear();
 }
@@ -83,6 +82,50 @@ void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 	Info.Spacing[2] = double(Size_input[2] - 1) * Spacing_input[2] / double(Lz - 1);
 
 	Info.Origin= m_InputImage->GetOrigin();
+	Info.Orientation = m_InputImage->GetOrientation();
+
+	this->SetOutputImageInfo(Info);
+}
+
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySpacing(const DenseVector<double, 3>& Spacing)
+{
+	this->SetOutputImageInfoBySpacing(Spacing[0], Spacing[1], Spacing[2]);
+}
+
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::
+SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y, double Spacing_z)
+{
+	if (m_InputImage == nullptr)
+	{
+		MDK_Error("InputImage is nullptr, please use SetInputImage(...) @ DenseImageResampler3D::SetOutputImageInfoBySpacing(...)")
+		return;
+	}
+
+	auto Zero = std::numeric_limits<double>::epsilon();
+
+	if (Spacing_x <= Zero || Spacing_x <= Zero || Spacing_x <= Zero)
+	{
+		MDK_Error("Invalid input (<= eps) @ DenseImageResampler3D::SetOutputImageInfoBySpacing(...)")
+		return;
+	}
+
+	Image3DInfo Info;
+
+	Info.Spacing[0] = Spacing_x;
+	Info.Spacing[1] = Spacing_y;
+	Info.Spacing[2] = Spacing_z;
+
+	auto Size_input = m_InputImage->GetSize();
+	auto Spacing_input = m_InputImage->GetSpacing();
+	Info.Size[0] = std::ceil(Size_input[0] * Spacing_input[0] / Spacing_x);
+	Info.Size[1] = std::ceil(Size_input[1] * Spacing_input[1] / Spacing_y);
+	Info.Size[2] = std::ceil(Size_input[2] * Spacing_input[2] / Spacing_z);
+
+	Info.Origin = m_InputImage->GetOrigin();
 	Info.Orientation = m_InputImage->GetOrientation();
 
 	this->SetOutputImageInfo(Info);
@@ -159,7 +202,7 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Postpro
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline OutputPixelType DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::
-EvaluateAt3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex)
+EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex)
 {
 	if (m_Flag_SmoothInputImage == false)
 	{
