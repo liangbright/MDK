@@ -905,8 +905,6 @@ public:
 
     inline bool DeleteCol(const std::initializer_list<int_max>& ColIndexList);
 
-    inline bool DeleteCol(const DenseVector<int_max>& ColIndexList);
-
 	template<int_max TemplateVectorLength>
 	inline bool DeleteCol(const DenseVector<int_max, TemplateVectorLength>& ColIndexList);
 

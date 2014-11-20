@@ -277,7 +277,7 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(PointHand
 
     if (this->IsValidHandle(PointHandle) == false)
     {
-        MDK_Warning("PointHandle is invalid @ TriangleMesh::UpdateAngleWeightedNormalAtPoint()")
+        MDK_Warning("PointHandle is invalid @ TriangleMesh::UpdateAngleWeightedNormalAtPoint(...)")
         return;
     }
 
@@ -286,7 +286,7 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(PointHand
     auto AdjacentCellHandleList = this->Point(PointHandle).GetAdjacentCellHandleList();
     if (AdjacentCellHandleList.IsEmpty() == true)
     {
-        MDK_Warning("This point has NO adjacent cell @ TriangleMesh::UpdateAngleWeightedNormalAtPoint()")
+		MDK_Warning("The point (PointIndex = " << PointHandle.GetIndex() << ") has NO adjacent cell @ TriangleMesh::UpdateAngleWeightedNormalAtPoint(...)")
         this->Point(PointHandle).Attribute().AngleWeightedNormal.Fill(0);
         return;
     }
@@ -310,22 +310,26 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(PointHand
 		}
 
 		// calculate angle weighted normal at point
-		DenseVector<ScalarType, 3> Normal;
-		Normal.Fill(0);
-		ScalarType AngleSum = 0;
-		for (int_max k = 0; k < AdjacentCellHandleList.GetLength(); ++k)
-		{
-			Normal[0] += CornerAngleList[k] * CellNormalTable[k][0];
-			Normal[1] += CornerAngleList[k] * CellNormalTable[k][1];
-			Normal[2] += CornerAngleList[k] * CellNormalTable[k][2];
-			AngleSum += CornerAngleList[k];
-		}
-		Normal /= AngleSum;
-
+		auto AngleWeight = CornerAngleList;
+		auto AngleSum = AngleWeight.Sum();
 		if (AngleSum <= std::numeric_limits<ScalarType>::epsilon())
 		{
-			Normal.Fill(0);
+			MDK_Warning("AngleSum <= eps @ TriangleMesh::UpdateAngleWeightedNormalAtPoint(...)")
+			AngleWeight.Fill(ScalarType(1)/ScalarType(AdjacentCellNumber));
 		}
+		else
+		{
+			AngleWeight /= AngleSum;
+		}
+
+		DenseVector<ScalarType, 3> Normal;
+		Normal.Fill(0);
+		for (int_max k = 0; k < AdjacentCellNumber; ++k)
+		{
+			Normal[0] += AngleWeight[k] * CellNormalTable[k][0];
+			Normal[1] += AngleWeight[k] * CellNormalTable[k][1];
+			Normal[2] += AngleWeight[k] * CellNormalTable[k][2];
+		}		
 
 		this->Point(PointHandle).Attribute().AngleWeightedNormal = Normal;
 	}
