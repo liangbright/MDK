@@ -20,15 +20,15 @@ public:
 	typedef Scalar_Type      ScalarType;
 
 private:
-	ScalarType m_Sigma; // [sigma_x, sigma_y, sigma_z]
-	ScalarType m_CutOffRatio; // 2 ~ 4
+	double m_Sigma; // [sigma_x, sigma_y, sigma_z]
+	double m_CutOffRatio; // 2 ~ 4
 
 public:		
     ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D();
     ~ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D();
   
 	// Sigma in Physical size (mm)
-	void SetGaussianParameter(const ScalarType Sigma, ScalarType CutOffRatio = 2);
+	void SetGaussianParameter(const double Sigma, double CutOffRatio = 2);
 
     virtual void Clear();
 

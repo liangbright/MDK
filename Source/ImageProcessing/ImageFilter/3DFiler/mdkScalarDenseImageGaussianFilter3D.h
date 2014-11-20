@@ -20,16 +20,16 @@ public:
 	typedef Scalar_Type      ScalarType;
 
 private:
-	DenseVector<ScalarType, 3> m_SigmaList; // [sigma_x, sigma_y, sigma_z]
-	DenseMatrix<ScalarType> m_RotationMatrix; // 3 x 3
-	ScalarType m_CutOffRatio; // 2 ~ 4
+	DenseVector<double, 3> m_SigmaList; // [sigma_x, sigma_y, sigma_z]
+	DenseMatrix<double> m_RotationMatrix; // 3 x 3
+	double m_CutOffRatio; // 2 ~ 4
 
 public:		
     ScalarDenseImageGaussianFilter3D();
     ~ScalarDenseImageGaussianFilter3D();
   
 	// Sigma in Physical size (mm)
-	void SetGaussianParameter(const DenseVector<ScalarType, 3>& SigmaList, const DenseMatrix<ScalarType>& RotationMatrix, ScalarType CutOffRatio);
+	void SetGaussianParameter(const DenseVector<double, 3>& SigmaList, const DenseMatrix<double>& RotationMatrix, double CutOffRatio);
 
     virtual void Clear();
 

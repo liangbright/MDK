@@ -26,7 +26,7 @@ void ScalarDenseImageMaxPoolingFilter3D<InputPixelType, OutputPixelType, ScalarT
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ScalarDenseImageMaxPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetMaxPoolingRadius(ScalarType Radius)
+void ScalarDenseImageMaxPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetPoolingRadius(ScalarType Radius)
 {    
 	m_Radius = Radius;
 }

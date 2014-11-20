@@ -19,6 +19,8 @@ protected:
 	// true: m_Mask_3DPhysicalPosition
 	// false: m_Mask_3DIndex
 
+	bool m_Flag_AutoSelectMask;
+
 	DenseMatrix<ScalarType> m_Mask_3DPhysicalPosition;
     // row_0: dx or dx_Index
     // row_1: dy or dy_Index
@@ -35,19 +37,20 @@ protected:
 protected:		
 	DenseImageFilterWithSingleMask3D();
 	virtual ~DenseImageFilterWithSingleMask3D();
- 
+
 public:
-    virtual void Clear(); // called in Clear@ProcessObject, must be virtual
+    virtual void Clear(); // must be virtual
 
 protected:
-	bool IsPhysicalPositionUsedInSelectedMask();
-
 	void SelectMaskOf3DIndex();
 	void SelectMaskOf3DPhysicalPosition();
+	void EnableAutoSelectMask(bool OnOFF = true);
+	bool IsPhysicalPositionUsedInSelectedMask();
+	void AutoSelectMask();
 
-	virtual bool Preprocess();             // called in Update@DenseImageFilter3D, must be virtual
-    virtual void BuildMask_3DIndex() {}    // called in Preprocess@DenseImageFilterWithSingleMask3D, must be virtual
-	virtual void BuildMask_3DPhysicalPosition() {} // called in Preprocess@DenseImageFilterWithSingleMask3D, must be virtual
+	virtual bool Preprocess();                     // must be virtual
+    virtual void BuildMask_3DIndex() {}            // must be virtual
+	virtual void BuildMask_3DPhysicalPosition() {} // must be virtual
 
 	inline bool WhetherToCheckBoundAtMaskOrigin_3DIndex(ScalarType x, ScalarType y, ScalarType z);
 	inline bool WhetherToCheckBoundAtMaskOrigin_3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z);

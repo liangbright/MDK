@@ -29,7 +29,7 @@ void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarType>::
-SetGaussianParameter(const DenseVector<ScalarType, 3>& SigmaList, const DenseMatrix<ScalarType>& RotationMatrix, ScalarType CutOffRatio)
+SetGaussianParameter(const DenseVector<double, 3>& SigmaList, const DenseMatrix<double>& RotationMatrix, double CutOffRatio)
 {    
 	m_SigmaList = SigmaList;
     m_RotationMatrix = RotationMatrix;    
@@ -69,7 +69,6 @@ bool ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 bool ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
 {
-	this->SelectMaskOf3DIndex();
 	if (this->ScalarDenseImageConvolutionFilter3D::Preprocess() == false)
 	{
 		return false;
@@ -81,15 +80,20 @@ bool ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarType>::BuildMask_3DPhysicalPosition()
 {
-    DenseMatrix<ScalarType> InverseCovarianceMatrix(3, 3);
+	DenseMatrix<double> InverseCovarianceMatrix(3, 3);
     InverseCovarianceMatrix.Fill(0);
-	InverseCovarianceMatrix.SetDiagonal({ ScalarType(1) / (m_SigmaList(0)*m_SigmaList(0)),
-										  ScalarType(1) / (m_SigmaList(1)*m_SigmaList(1)), 
-                                          ScalarType(1) / (m_SigmaList(2)*m_SigmaList(2))});
+	InverseCovarianceMatrix.SetDiagonal({ 1.0 / (m_SigmaList(0)*m_SigmaList(0)),
+										  1.0 / (m_SigmaList(1)*m_SigmaList(1)), 
+										  1.0 / (m_SigmaList(2)*m_SigmaList(2)) });
 
     InverseCovarianceMatrix = m_RotationMatrix.Transpose() * InverseCovarianceMatrix * m_RotationMatrix;
 
-	auto MaxRadius = int_max(m_SigmaList.Max() * m_CutOffRatio * ScalarType(1.5)) + 1;
+	auto Spacing = m_OutputImageInfo.Spacing;
+
+	auto MaxRadius = m_SigmaList.Max() * m_CutOffRatio * 1.5;
+	auto MaxRadius_x = double(int_max(MaxRadius/Spacing[0]) + 1)*Spacing[0];
+	auto MaxRadius_y = double(int_max(MaxRadius/Spacing[1]) + 1)*Spacing[1];
+	auto MaxRadius_z = double(int_max(MaxRadius/Spacing[2]) + 1)*Spacing[2];
 
     // construct a grid of relative indexes according to the maximum sigma
     // at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
@@ -103,31 +107,30 @@ void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
 
 	DenseMatrix<ScalarType> Position(3, 1);
 	DenseMatrix<ScalarType> Position_Transpose(1, 3);
-
-    DenseMatrix<ScalarType> SquaredRatio(1, 1);
+	DenseMatrix<double> SquaredRatio(1, 1);
 
     auto CutOffRatio_square = m_CutOffRatio*m_CutOffRatio;
 
-	for (int_max z = -MaxRadius; z <= MaxRadius; ++z)
+	for (auto z = -MaxRadius_z; z <= MaxRadius_z; z += Spacing[2])
     {
-		for (int_max y = -MaxRadius; y <= MaxRadius; ++y)
+		for (auto y = -MaxRadius_y; y <= MaxRadius_y; y += Spacing[1])
         {
-			for (int_max x = -MaxRadius; x <= MaxRadius; ++x)
+			for (auto x = -MaxRadius_x; x <= MaxRadius_x; x += Spacing[0])
             {
-                Position = { ScalarType(x), ScalarType(y), ScalarType(z) };
-
-				Position_Transpose = { ScalarType(x), ScalarType(y), ScalarType(z) };
-    
+				Position[0] = x;
+				Position[1] = y;
+				Position[2] = z;
+				Position_Transpose[0] = x;   
+				Position_Transpose[1] = y;
+				Position_Transpose[2] = z;
 				SquaredRatio = Position_Transpose * InverseCovarianceMatrix * Position;
-
                 auto tempRatio = SquaredRatio(0);
 
-                if (tempRatio < CutOffRatio_square)
+                if (tempRatio <= CutOffRatio_square)
                 {
-					auto tempValue = std::exp(-ScalarType(0.5)*tempRatio);
-
-					m_Mask_3DPhysicalPosition.AppendCol({ ScalarType(x), ScalarType(y), ScalarType(z) });
-					m_ConvolutionCoefficient.Append(tempValue);
+					auto tempValue = std::exp(-0.5*tempRatio);
+					m_Mask_3DPhysicalPosition.AppendCol(Position);
+					m_ConvolutionCoefficient.Append(ScalarType(tempValue));
                 }
             }
         }
@@ -146,20 +149,20 @@ void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
 {
 	auto InputImageSpacing = m_InputImage->GetSpacing();
 
-	DenseVector<ScalarType, 3> Sigma_xyz;
+	DenseVector<double, 3> Sigma_xyz;
 	Sigma_xyz[0] = m_SigmaList[0] / InputImageSpacing[0];
 	Sigma_xyz[1] = m_SigmaList[1] / InputImageSpacing[1];
 	Sigma_xyz[2] = m_SigmaList[2] / InputImageSpacing[2];
 
-	DenseMatrix<ScalarType> InverseCovarianceMatrix(3, 3);
+	DenseMatrix<double> InverseCovarianceMatrix(3, 3);
 	InverseCovarianceMatrix.Fill(0);
-	InverseCovarianceMatrix.SetDiagonal({ ScalarType(1) / (Sigma_xyz[0] * Sigma_xyz[0]),
-								          ScalarType(1) / (Sigma_xyz[1] * Sigma_xyz[1]), 
-										  ScalarType(1) / (Sigma_xyz[2] * Sigma_xyz[2])});
+	InverseCovarianceMatrix.SetDiagonal({ 1.0 / (Sigma_xyz[0] * Sigma_xyz[0]),
+								          1.0 / (Sigma_xyz[1] * Sigma_xyz[1]), 
+										  1.0 / (Sigma_xyz[2] * Sigma_xyz[2]) });
 
 	InverseCovarianceMatrix = m_RotationMatrix.Transpose() * InverseCovarianceMatrix * m_RotationMatrix;
 
-	auto MaxRadius = int_max(Sigma_xyz.Max() * m_CutOffRatio * ScalarType(1.5)) + 1;
+	auto MaxRadius = int_max(Sigma_xyz.Max() * m_CutOffRatio * 1.5) + 1;
 
 	// construct a grid of relative indexes according to the maximum sigma
 	// at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
@@ -171,10 +174,9 @@ void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
 	m_ConvolutionCoefficient.FastResize(0);
 	m_ConvolutionCoefficient.ReserveCapacity(MaxRadius*MaxRadius*MaxRadius);
 
-	DenseMatrix<ScalarType> Index3D(3, 1);
-	DenseMatrix<ScalarType> Index3D_Transpose(1, 3);
-
-	DenseMatrix<ScalarType> SquaredRatio(1, 1);
+	DenseMatrix<double> Index3D(3, 1);
+	DenseMatrix<double> Index3D_Transpose(1, 3);
+	DenseMatrix<double> SquaredRatio(1, 1);
 
 	auto CutOffRatio_square = m_CutOffRatio*m_CutOffRatio;
 
@@ -184,20 +186,16 @@ void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
 		{
 			for (int_max x = -MaxRadius; x <= MaxRadius; ++x)
 			{
-				Index3D = { ScalarType(x), ScalarType(y), ScalarType(z) };
-
-				Index3D_Transpose = { ScalarType(x), ScalarType(y), ScalarType(z) };
-
+				Index3D = { double(x), double(y), double(z) };
+				Index3D_Transpose = { double(x), double(y), double(z) };
 				SquaredRatio = Index3D_Transpose * InverseCovarianceMatrix * Index3D;
-
 				auto tempRatio = SquaredRatio(0);
 
-				if (tempRatio < CutOffRatio_square)
+				if (tempRatio <= CutOffRatio_square)
 				{
-					auto tempValue = std::exp(-ScalarType(0.5)*tempRatio);
-
-					m_Mask_3DIndex.AppendCol({ ScalarType(x), ScalarType(y), ScalarType(z) });
-					m_ConvolutionCoefficient.Append(tempValue);
+					auto tempValue = std::exp(-0.5*tempRatio);
+					m_Mask_3DIndex.AppendCol(Index3D);
+					m_ConvolutionCoefficient.Append(ScalarType(tempValue));
 				}
 			}
 		}

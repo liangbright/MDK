@@ -258,7 +258,7 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::CheckInput()
 
 	if (m_Flag_EnableOutputImage == false && m_Flag_EnableOutputPixelArray == false && m_Flag_EnableOutputToOtherPlace == false)
 	{
-		MDK_Error("No output is enabled @ ImageFilter3D::CheckInput()")
+		MDK_Error("NO output is enabled @ ImageFilter3D::CheckInput()")
 		return false;
 	}
 

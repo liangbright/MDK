@@ -1,24 +1,24 @@
-#ifndef __mdkScalarDenseImageMaxAbsPoolingFilter3D_hpp
-#define __mdkScalarDenseImageMaxAbsPoolingFilter3D_hpp
+#ifndef __mdkScalarDenseImageMinAbsPoolingFilter3D_hpp
+#define __mdkScalarDenseImageMinAbsPoolingFilter3D_hpp
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::ScalarDenseImageMaxAbsPoolingFilter3D()
+ScalarDenseImageMinAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::ScalarDenseImageMinAbsPoolingFilter3D()
 {
     this->Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::~ScalarDenseImageMaxAbsPoolingFilter3D()
+ScalarDenseImageMinAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::~ScalarDenseImageMinAbsPoolingFilter3D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
+void ScalarDenseImageMinAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
 	this->DenseImageFilterWithSingleMask3D::Clear();
 	m_Radius = 0;
@@ -26,13 +26,13 @@ void ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, Scal
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetPoolingRadius(ScalarType Radius)
+void ScalarDenseImageMinAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetPoolingRadius(ScalarType Radius)
 {    
 	m_Radius = Radius;
 }
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-bool ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
+bool ScalarDenseImageMinAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
 {
 	if (this->DenseImageFilterWithSingleMask3D::CheckInput() == false)
 	{
@@ -41,7 +41,7 @@ bool ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, Scal
 
 	if (m_Radius <= 0.0)
 	{
-		MDK_Error("Radius <= 0.0 @ ScalarDenseImageMaxAbsPoolingFilter3D::CheckInput(...)")
+		MDK_Error("Radius <= 0.0 @ ScalarDenseImageMinAbsPoolingFilter3D::CheckInput(...)")
 		return false;
 	}
 
@@ -50,7 +50,7 @@ bool ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, Scal
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-bool ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
+bool ScalarDenseImageMinAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
 {
 	this->SelectMaskOf3DPhysicalPosition();
 	if (this->DenseImageFilterWithSingleMask3D::Preprocess() == false)
@@ -62,7 +62,7 @@ bool ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, Scal
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::BuildMask_3DPhysicalPosition()
+void ScalarDenseImageMinAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::BuildMask_3DPhysicalPosition()
 {
 	auto InputImageSpacing = m_InputImage->GetSpacing();    
 	auto MaxRadius_x = int_max(m_Radius / InputImageSpacing[0]) + 1;
@@ -101,45 +101,45 @@ void ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, Scal
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::BuildMask_3DIndex()
+void ScalarDenseImageMinAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::BuildMask_3DIndex()
 {
-	MDK_Error("This is not used @ ScalarDenseImageMaxAbsPoolingFilter3D::BuildMask_3DIndex()")
+	MDK_Error("This is not used @ ScalarDenseImageMinAbsPoolingFilter3D::BuildMask_3DIndex()")
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline
-OutputPixelType ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::
+OutputPixelType ScalarDenseImageMinAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::
 EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex)
 {
 	auto PixelSet = this->GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition<OutputPixelType>(m_Mask_3DPhysicalPosition, x0, y0, z0);
-	OutputPixelType MaxPixel_P = 0;
-	OutputPixelType MaxPixel_N = 0;
+	OutputPixelType MinPixel_P = 0;
+	OutputPixelType MinPixel_N = 0;
 	for (int_max k = 0; k < PixelSet.GetElementNumber(); ++k)
 	{
 		if (PixelSet[k] >= 0)
 		{
-			if (MaxPixel_P < PixelSet[k])
+			if (MinPixel_P > PixelSet[k])
 			{
-				MaxPixel_P = PixelSet[k];
+				MinPixel_P = PixelSet[k];
 			}
 		}
 		else
 		{
-			if (MaxPixel_N > PixelSet[k])
+			if (MinPixel_N < PixelSet[k])
 			{
-				MaxPixel_N = PixelSet[k];
+				MinPixel_N = PixelSet[k];
 			}
 		}
 	}
 
-	if (MaxPixel_P >= -MaxPixel_N)
+	if (MinPixel_P <= -MinPixel_N)
 	{
-		return MaxPixel_P;
+		return MinPixel_P;
 	}
 	else
 	{
-		return MaxPixel_N;
+		return MinPixel_N;
 	}
 }
 

@@ -26,7 +26,7 @@ public:
     ~ScalarDenseImageMaxAbsPoolingFilter3D();
   
 	// Sigma in Physical size (mm)
-	void SetMaxPoolingRadius(ScalarType Radius);
+	void SetPoolingRadius(ScalarType Radius);
 
     virtual void Clear();
 

@@ -27,6 +27,7 @@ void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarTyp
 {
 	this->ImageFilter3D::Clear();	
 	m_Flag_UseMaskOf3DPhysicalPosition = true;
+	m_Flag_AutoSelectMask = true;
 	m_Mask_3DPhysicalPosition.Clear();
 	m_Mask_3DIndex.Clear();
 }
@@ -36,6 +37,7 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::SelectMaskOf3DIndex()
 {
 	m_Flag_UseMaskOf3DPhysicalPosition = false;
+	m_Flag_AutoSelectMask = false;
 }
 
 
@@ -43,6 +45,7 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::SelectMaskOf3DPhysicalPosition()
 {
 	m_Flag_UseMaskOf3DPhysicalPosition = true;
+	m_Flag_AutoSelectMask = false;
 }
 
 
@@ -54,6 +57,29 @@ bool DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarTyp
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::EnableAutoSelectMask(bool OnOFF)
+{
+	m_Flag_AutoSelectMask = OnOFF;
+}
+
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::AutoSelectMask()
+{
+	auto Spacing = m_InputImage->GetSpacing();
+	auto EPSValue = std::numeric_limits<double>::epsilon();
+	if (std::abs(Spacing[0] - Spacing[1]) <= EPSValue && std::abs(Spacing[0] - Spacing[2]) <= EPSValue && std::abs(Spacing[1] - Spacing[2]) <= EPSValue)
+	{
+		m_Flag_UseMaskOf3DPhysicalPosition = false;
+	}
+	else
+	{
+		m_Flag_UseMaskOf3DPhysicalPosition = true;
+	}
+}
+
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 bool DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
 {
 	if (this->ImageFilter3D::Preprocess() == false)
@@ -61,7 +87,12 @@ bool DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarTyp
 		return false;
 	}
 
-	//this->ComputeRegionOfNOBoundCheck_3DPhysicalPosition();
+	if (m_Flag_AutoSelectMask == true)
+	{
+		this->AutoSelectMask();
+	}
+
+	//this->ComputeRegionOfNOBoundCheck_3DPhysicalPosition();// called in ComputeRegionOfNOBoundCheck_3DIndex()
 	this->ComputeRegionOfNOBoundCheck_3DIndex();
 
 	if (m_Flag_UseMaskOf3DPhysicalPosition == true)
@@ -88,9 +119,9 @@ void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarTyp
 
 	this->ComputeRegionOfNOBoundCheck_3DPhysicalPosition();
 
-	auto PhysicalOrigin = m_OutputImage.GetOrigin();
-	auto ImageSize = m_OutputImage.GetSize();
-	auto PixelSpacing = m_OutputImage.GetSpacing();
+	auto PhysicalOrigin = m_InputImage->GetOrigin();
+	auto ImageSize = m_InputImage->GetSize();
+	auto PixelSpacing = m_InputImage->GetSpacing();
 
 	auto x0 = int_max((m_NOBoundCheckRegion_3DPhysicalPosition.x_min - PhysicalOrigin[0]) / PixelSpacing[0]);
 	x0 = std::max(x0, int_max(0)); x0 = std::min(x0, ImageSize[0]);
@@ -111,10 +142,10 @@ void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarTyp
 	z1 = std::max(z1, int_max(0)); z1 = std::min(z1, ImageSize[2]);
 
 	m_NOBoundCheckRegion_3DIndex.x_min = x0;
-	m_NOBoundCheckRegion_3DIndex.y_min = y0;
-	m_NOBoundCheckRegion_3DIndex.z_min = z0;
 	m_NOBoundCheckRegion_3DIndex.x_max = x1;
+	m_NOBoundCheckRegion_3DIndex.y_min = y0;
 	m_NOBoundCheckRegion_3DIndex.y_max = y1;
+	m_NOBoundCheckRegion_3DIndex.z_min = z0;
 	m_NOBoundCheckRegion_3DIndex.z_max = z1;
 }
 
@@ -225,7 +256,6 @@ WhetherToCheckBoundAtMaskOrigin_3DPhysicalPosition(ScalarType x, ScalarType y, S
 
     return WhetherToCheck;
 }
-
 
 }// namespace mdk
 
