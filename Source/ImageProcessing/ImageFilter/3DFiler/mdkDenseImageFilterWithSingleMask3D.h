@@ -26,7 +26,7 @@ protected:
     // row_1: dy or dy_Index
     // row_2: dz or dz_Index
 
-	DenseMatrix<ScalarType> m_Mask_3DIndex;
+	DenseMatrix<ScalarType> m_Mask_3DIndex; // to get Index in m_InputImage
 	// row_0: dx or dx_Index
 	// row_1: dy or dy_Index
 	// row_2: dz or dz_Index

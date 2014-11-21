@@ -164,13 +164,10 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Preproc
 
 		if (m_Flag_SmoothInputImage == true)
 		{
-			DenseMatrix<ScalarType> RotationMatrix(3, 3);
-			RotationMatrix.FillDiagonal(ScalarType(1));
-
 			auto GaussianFilter = std::make_unique<ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarType>>();
 			GaussianFilter->SetInputImage(m_InputImage);
 			GaussianFilter->SetOutputImageInfo(m_InputImage->GetInfo());
-			GaussianFilter->SetGaussianParameter(m_SigmaOfGaussian, RotationMatrix, m_CutoffRatioOfGaussian);
+			GaussianFilter->SetGaussianParameter(m_SigmaOfGaussian, m_CutoffRatioOfGaussian);
 
 			auto InterpolationOption_GF = GaussianFilter->GetImageInterpolationOption();
 			InterpolationOption_GF.MethodType = ImageInterpolationMethodEnum::Nearest;

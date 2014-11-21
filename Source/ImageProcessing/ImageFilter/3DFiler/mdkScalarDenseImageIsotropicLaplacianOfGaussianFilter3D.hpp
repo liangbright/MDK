@@ -72,18 +72,18 @@ bool ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D<InputPixelType, Output
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D<InputPixelType, OutputPixelType, ScalarType>::BuildMask_3DPhysicalPosition()
 {
-	auto Spacing = m_OutputImageInfo.Spacing;
+	auto Spacing = m_InputImage->GetSpacing();
 
 	auto MaxRadius = m_Sigma * m_CutOffRatio * 1.5;
 	auto MaxRadius_x = double(int_max(MaxRadius/Spacing[0]) + 1)*Spacing[0];
 	auto MaxRadius_y = double(int_max(MaxRadius/Spacing[1]) + 1)*Spacing[1];
 	auto MaxRadius_z = double(int_max(MaxRadius/Spacing[2]) + 1)*Spacing[2];
 
-	m_Mask_3DIndex.FastResize(0);
-	m_Mask_3DIndex.ReserveCapacity(3 * MaxRadius*MaxRadius*MaxRadius);
+	m_Mask_3DPhysicalPosition.FastResize(0);
+	m_Mask_3DPhysicalPosition.ReserveCapacity(3*8*MaxRadius_x*MaxRadius_y*MaxRadius_z);
 
 	m_ConvolutionCoefficient.FastResize(0);
-	m_ConvolutionCoefficient.ReserveCapacity(MaxRadius*MaxRadius*MaxRadius);
+	m_ConvolutionCoefficient.ReserveCapacity(8*MaxRadius_x*MaxRadius_y*MaxRadius_z);
 
 	auto CutOffRatio_square = m_CutOffRatio*m_CutOffRatio;
 
@@ -93,7 +93,7 @@ void ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D<InputPixelType, Output
 		{
 			for (auto x = -MaxRadius_x; x <= MaxRadius_x; x += Spacing[0])
 			{
-				auto temp = (x / m_Sigma)* (x / m_Sigma) + (y / m_Sigma)* (y / m_Sigma) + (z / m_Sigma)* (z / m_Sigma);
+				auto temp = (x*x + y*y + z*z)/(m_Sigma*m_Sigma);
 				if (temp <= CutOffRatio_square)
 				{
 					auto tempValue = (1.0 - temp)*std::exp(-0.5*temp);
@@ -139,35 +139,35 @@ void ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D<InputPixelType, Output
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D<InputPixelType, OutputPixelType, ScalarType>::BuildMask_3DIndex()
 {
-	auto InputImageSpacing = m_InputImage->GetSpacing();
-	auto Sigma_x = m_Sigma / InputImageSpacing[0];
-	auto Sigma_y = m_Sigma / InputImageSpacing[1];
-	auto Sigma_z = m_Sigma / InputImageSpacing[2];
+	auto Spacing = m_InputImage->GetSpacing();
 
-	auto MaxRadius = int_max(std::max(std::max(Sigma_x, Sigma_y), Sigma_z) * m_CutOffRatio * ScalarType(1.5)) + 1;
+	auto Sigma_x = m_Sigma / Spacing[0];
+	auto Sigma_y = m_Sigma / Spacing[1];
+	auto Sigma_z = m_Sigma / Spacing[2];
+	auto MaxRadius = int_max(std::max(std::max(Sigma_x, Sigma_y), Sigma_z) * m_CutOffRatio * 1.5) + 1;
 
 	m_Mask_3DIndex.FastResize(0);
-	m_Mask_3DIndex.ReserveCapacity(3 * MaxRadius*MaxRadius*MaxRadius);
+	m_Mask_3DIndex.ReserveCapacity(3*8*MaxRadius*MaxRadius*MaxRadius);
 
 	m_ConvolutionCoefficient.FastResize(0);
-	m_ConvolutionCoefficient.ReserveCapacity(MaxRadius*MaxRadius*MaxRadius);
+	m_ConvolutionCoefficient.ReserveCapacity(8*MaxRadius*MaxRadius*MaxRadius);
 
 	auto CutOffRatio_square = m_CutOffRatio*m_CutOffRatio;
 
-	for (int_max z = -MaxRadius; z <= MaxRadius; ++z)
+	for (int_max zIndex = -MaxRadius; zIndex <= MaxRadius; ++zIndex)
 	{
-		for (int_max y = -MaxRadius; y <= MaxRadius; ++y)
+		auto z = double(zIndex)*Spacing[2];
+		for (int_max yIndex = -MaxRadius; yIndex <= MaxRadius; ++yIndex)
 		{
-			for (int_max x = -MaxRadius; x <= MaxRadius; ++x)
-			{
-				auto temp = (double(x) / Sigma_x)* (double(x) / Sigma_x)
-					       + (double(y) / Sigma_y)* (double(y) / Sigma_y)
-						   + (double(z) / Sigma_z)* (double(z) / Sigma_z);
-
+			auto y = double(yIndex)*Spacing[1];
+			for (int_max xIndex = -MaxRadius; xIndex <= MaxRadius; ++xIndex)
+			{		
+				auto x = double(xIndex)*Spacing[0];
+				auto temp = (x*x + y*y + z*z) / (m_Sigma*m_Sigma);
 				if (temp <= CutOffRatio_square)
 				{
 					auto tempValue = (1.0 - temp)*std::exp(-0.5*temp);
-					m_Mask_3DIndex.AppendCol({x, y, z});
+					m_Mask_3DIndex.AppendCol({ xIndex, yIndex, zIndex });
 					m_ConvolutionCoefficient.Append(ScalarType(tempValue));
 				}
 			}

@@ -28,14 +28,17 @@ public:
     ScalarDenseImageGaussianFilter3D();
     ~ScalarDenseImageGaussianFilter3D();
   
-	// Sigma in Physical size (mm)
+	// Sigma in Physical unit (mm)
 	void SetGaussianParameter(const DenseVector<double, 3>& SigmaList, const DenseMatrix<double>& RotationMatrix, double CutOffRatio);
 
+	// Sigma in Physical unit (mm)
+	// RotationMatrix is diag[1, 1 ,1]
+	void SetGaussianParameter(const DenseVector<double, 3>& SigmaList, double CutOffRatio);
+	
     virtual void Clear();
 
 private:
 	bool CheckInput();
-	bool Preprocess();
     void BuildMask_3DIndex();
 	void BuildMask_3DPhysicalPosition();
 
