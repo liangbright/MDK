@@ -35,7 +35,7 @@ public:
 	// RotationMatrix is diag[1, 1 ,1]
 	void SetGaussianParameter(const DenseVector<double, 3>& SigmaList, double CutOffRatio);
 	
-    virtual void Clear();
+    void Clear();
 
 private:
 	bool CheckInput();

@@ -81,7 +81,7 @@ OutputPixelType InterpolateImageAt2DContinuousIndex_Nearest(const SparseImage2D<
 			return OutputPixelType(Option.Pixel_OutsideImage);
 		}
 	}
-	else if (Option.BoundaryOption == BoundaryOptionEnum_Of_Image2DInterpolation::Nearest)
+	else if (Option.BoundaryOption == BoundaryOptionEnum_Of_Image2DInterpolation::Replicate)
 	{
 		if (x0 < 0)
 		{
@@ -146,7 +146,7 @@ OutputPixelType InterpolateImageAt2DContinuousIndex_Linear(const SparseImage2D<I
 			return OutputPixelType(Option.Pixel_OutsideImage);
 		}
 	}
-	else if (Option.BoundaryOption == BoundaryOptionEnum_Of_Image2DInterpolation::Nearest)
+	else if (Option.BoundaryOption == BoundaryOptionEnum_Of_Image2DInterpolation::Replicate)
 	{
 		if (x0 < 0)
 		{

@@ -171,7 +171,7 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Preproc
 
 			auto InterpolationOption_GF = GaussianFilter->GetImageInterpolationOption();
 			InterpolationOption_GF.MethodType = ImageInterpolationMethodEnum::Nearest;
-			InterpolationOption_GF.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Nearest;// must use this option
+			InterpolationOption_GF.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Replicate;// must use this option
 			InterpolationOption_GF.Pixel_OutsideImage = InputPixelType(0);
 			GaussianFilter->SetImageInterpolationOption(InterpolationOption_GF);
 

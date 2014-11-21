@@ -22,10 +22,12 @@ enum struct MethodEnum_Of_Image2DInterpolation
 };
 typedef MethodEnum_Of_Image2DInterpolation  Image2DInterpolationMethodEnum;
 
+// similar to Boundary Option of imfilter in Matlab
 enum struct BoundaryOptionEnum_Of_Image2DInterpolation
 {
-	Constant,
-	Nearest,
+	Constant, // X
+	Replicate,
+	//Symmetric
 };
 typedef BoundaryOptionEnum_Of_Image2DInterpolation Image2DInterpolationBoundaryOptionEnum;
 
@@ -33,7 +35,7 @@ template<typename PixelType>
 struct Option_Of_Image2DInterpolation
 {
 	Image2DInterpolationMethodEnum MethodType = Image2DInterpolationMethodEnum::Linear;
-	Image2DInterpolationBoundaryOptionEnum BoundaryOption = Image2DInterpolationBoundaryOptionEnum::Nearest;
+	Image2DInterpolationBoundaryOptionEnum BoundaryOption = Image2DInterpolationBoundaryOptionEnum::Replicate;
 	PixelType Pixel_OutsideImage;
 };
 template<typename PixelType>

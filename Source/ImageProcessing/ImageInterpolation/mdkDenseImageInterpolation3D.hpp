@@ -87,7 +87,7 @@ OutputPixelType InterpolateImageAt3DContinuousIndex_Nearest(const DenseImage3D<I
 			return OutputPixelType(Option.Pixel_OutsideImage);
 		}
 	}
-	else if (Option.BoundaryOption == BoundaryOptionEnum_Of_Image3DInterpolation::Nearest)
+	else if (Option.BoundaryOption == BoundaryOptionEnum_Of_Image3DInterpolation::Replicate)
 	{
 		if (x0 < 0)
 		{
@@ -168,7 +168,7 @@ OutputPixelType InterpolateImageAt3DContinuousIndex_Linear(const DenseImage3D<In
 			return OutputPixelType(Option.Pixel_OutsideImage);
 		}
 	}
-	else if (Option.BoundaryOption == BoundaryOptionEnum_Of_Image3DInterpolation::Nearest)
+	else if (Option.BoundaryOption == BoundaryOptionEnum_Of_Image3DInterpolation::Replicate)
 	{
 		if (x0 < 0)
 		{

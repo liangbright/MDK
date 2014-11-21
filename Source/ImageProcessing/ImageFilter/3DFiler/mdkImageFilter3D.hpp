@@ -21,7 +21,7 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Clear()
 {
 	m_InputImage = nullptr;
 	m_ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Nearest;
-	m_ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Nearest;
+	m_ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Replicate;
 	m_ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);
 	
 	m_PointList_3DPyhsicalPosition = nullptr;

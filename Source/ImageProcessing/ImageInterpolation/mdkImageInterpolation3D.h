@@ -22,10 +22,12 @@ enum struct MethodEnum_Of_Image3DInterpolation
 };
 typedef MethodEnum_Of_Image3DInterpolation  Image3DInterpolationMethodEnum;
 
+// similar to Boundary Option of imfilter in Matlab
 enum struct BoundaryOptionEnum_Of_Image3DInterpolation
 {
-	Constant,
-	Nearest,
+	Constant, // X
+	Replicate,
+	//Symmetric
 };
 typedef BoundaryOptionEnum_Of_Image3DInterpolation Image3DInterpolationBoundaryOptionEnum;
 
@@ -33,8 +35,8 @@ template<typename PixelType>
 struct Option_Of_Image3DInterpolation
 {
 	Image3DInterpolationMethodEnum MethodType = Image3DInterpolationMethodEnum::Linear;
-	Image3DInterpolationBoundaryOptionEnum BoundaryOption = Image3DInterpolationBoundaryOptionEnum::Nearest;
-	PixelType Pixel_OutsideImage;
+	Image3DInterpolationBoundaryOptionEnum BoundaryOption = Image3DInterpolationBoundaryOptionEnum::Replicate;
+	PixelType Pixel_OutsideImage; // it is used only if BoundaryOption is Constant
 };
 template<typename PixelType>
 using Image3DInterpolationOption = Option_Of_Image3DInterpolation<PixelType>;
