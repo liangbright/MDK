@@ -20,6 +20,7 @@ void RotationTransform3D<ScalarType>::Clear()
 	m_SourceControlPointSet = nullptr;
 	m_TargetControlPointSet = nullptr;
 	m_Rotation.Clear();
+	m_RotationCenter.Fill(0);
 }
 
 template<typename ScalarType>
@@ -60,20 +61,34 @@ void RotationTransform3D<ScalarType>::SetRotationMatrix(const DenseMatrix<Scalar
 
 
 template<typename ScalarType>
-const DenseMatrix<ScalarType>& RotationTransform3D<ScalarType>::GetRotationMatrix() const
+DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::GetRotationMatrix() const
 {
 	return m_Rotation;
 }
 
 
 template<typename ScalarType>
-bool RotationTransform3D<ScalarType>::CheckInput()
+void RotationTransform3D<ScalarType>::SetRotationCenter(const DenseVector<ScalarType, 3>& Center)
+{
+	m_RotationCenter = Center;
+}
+
+
+template<typename ScalarType>
+DenseVector<ScalarType, 3> RotationTransform3D<ScalarType>::GetRotationCenter() const
+{
+	return m_RotationCenter;
+}
+
+
+template<typename ScalarType>
+bool RotationTransform3D<ScalarType>::CheckControlPointSet()
 {
 	if (m_SourceControlPointSet != nullptr)
 	{
 		if (m_SourceControlPointSet->GetRowNumber() != 3)
 		{
-			MDK_Error("m_SourceControlPointSet empty or wrong size  @  RotationTransform3D::CheckInput()")
+			MDK_Error("m_SourceControlPointSet empty or wrong size  @  RotationTransform3D::CheckControlPointSet()")
 			return false;
 		}
 	}
@@ -82,7 +97,7 @@ bool RotationTransform3D<ScalarType>::CheckInput()
 	{
 		if (m_SourceControlPointSet->GetRowNumber() != 3)
 		{
-			MDK_Error("m_TargetControlPointSet empty or wrong size  @  RotationTransform3D::CheckInput()")
+			MDK_Error("m_TargetControlPointSet empty or wrong size  @  RotationTransform3D::CheckControlPointSet()")
 			return false;
 		}
 	}
@@ -91,7 +106,7 @@ bool RotationTransform3D<ScalarType>::CheckInput()
 	{
 		if (m_SourceControlPointSet->GetColNumber() != m_TargetControlPointSet->GetColNumber())
 		{
-			MDK_Error("m_SourceControlPointSet size and m_TargetControlPointSet size do not match @  RotationTransform3D::CheckInput()")
+			MDK_Error("m_SourceControlPointSet size and m_TargetControlPointSet size do not match @  RotationTransform3D::CheckControlPointSet()")
 			return false;
 		}
 	}
@@ -101,24 +116,11 @@ bool RotationTransform3D<ScalarType>::CheckInput()
 
 
 template<typename ScalarType>
-bool RotationTransform3D<ScalarType>::Update()
+void RotationTransform3D<ScalarType>::EstimateParameter()
 {
-	if (this->CheckInput() == false)
+	if (this->CheckControlPointSet() == false)
 	{
-		return false;
-	}
-
-	this->UpdateParameter();
-	return true;
-}
-
-
-template<typename ScalarType>
-void RotationTransform3D<ScalarType>::UpdateParameter()
-{
-	if (m_SourceControlPointSet == nullptr || m_TargetControlPointSet == nullptr)
-	{
-		return;
+		return
 	}
 
 	DenseMatrix<ScalarType> H(3,3);
@@ -148,11 +150,16 @@ void RotationTransform3D<ScalarType>::UpdateParameter()
 template<typename ScalarType>
 DenseVector<ScalarType, 3> RotationTransform3D<ScalarType>::TransformPoint(ScalarType x, ScalarType y, ScalarType z) const
 {
-	DenseVector<ScalarType, 3> NewPosition;
+	auto temp_x = x - m_RotationCenter[0];
+	auto temp_y = y - m_RotationCenter[1];
+	auto temp_z = z - m_RotationCenter[2];
+	
 	auto Ptr = m_Rotation.GetElementPointer();
-	NewPosition[0] = Ptr[0] * x + Ptr[3] * y + Ptr[6] * z;
-	NewPosition[1] = Ptr[1] * x + Ptr[4] * y + Ptr[7] * z;
-	NewPosition[2] = Ptr[2] * x + Ptr[5] * y + Ptr[8] * z;
+
+	DenseVector<ScalarType, 3> NewPosition;
+	NewPosition[0] = m_RotationCenter[0] + Ptr[0] * temp_x + Ptr[3] * temp_y + Ptr[6] * temp_z;
+	NewPosition[1] = m_RotationCenter[1] + Ptr[1] * temp_x + Ptr[4] * temp_y + Ptr[7] * temp_z;
+	NewPosition[2] = m_RotationCenter[2] + Ptr[2] * temp_x + Ptr[5] * temp_y + Ptr[8] * temp_z;
 	return NewPosition;
 }
 
@@ -163,37 +170,38 @@ DenseVector<ScalarType, 3> RotationTransform3D<ScalarType>::TransformPoint(const
 	return this->TransformPoint(SourcePosition[0], SourcePosition[1], SourcePosition[2]);
 }
 
+//----------------------------------- static function -----------------------------------------------------------//
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::ComputeRotationMatrix_Rx_ByAngle(ScalarType AngleX)
+DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::ComputeRotationMatrix_Rx_ByAngleX(ScalarType AngleX)
 {
 	auto One = ScalarType(1);
 	auto Zero = ScalarType(0);
 	auto CosX = std::cos(AngleX);
 	auto SinX = std::sin(AngleX);
-	DenseMatrix<ScalarType> Rx = { { One, Zero, Zero },
-								   { Zero, CosX, -SinX},
-								   { Zero, SinX, CosX } };
+	DenseMatrix<ScalarType> Rx = { { One,  Zero,  Zero },
+								   { Zero, CosX, -SinX },
+								   { Zero, SinX,  CosX } };
 	return Rx;
 }
 
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::ComputeRotationMatrix_Ry_ByAngle(ScalarType AngleY)
+DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::ComputeRotationMatrix_Ry_ByAngleY(ScalarType AngleY)
 {
 	auto One = ScalarType(1);
 	auto Zero = ScalarType(0);
 	auto CosY = std::cos(AngleY);
 	auto SinY = std::sin(AngleY);
-	DenseMatrix<ScalarType> Ry = { { CosY, Zero, SinY },
-					               { Zero,  One, Zero },
-								   { -SinY, Zero, CosY } };
+	DenseMatrix<ScalarType> Ry = { { CosY,  Zero, SinY },
+					               { Zero,   One, Zero },
+								   {-SinY,  Zero, CosY } };
 	return Ry;
 }
 
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::ComputeRotationMatrix_Rz_ByAngle(ScalarType AngleZ)
+DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::ComputeRotationMatrix_Rz_ByAngleZ(ScalarType AngleZ)
 {
 	auto One = ScalarType(1);
 	auto Zero = ScalarType(0);
@@ -201,25 +209,24 @@ DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::ComputeRotationMatrix_R
 	auto SinZ = std::sin(AngleZ);
 	DenseMatrix<ScalarType> Rz = { { CosZ, -SinZ, Zero },
 					               { SinZ,  CosZ, Zero },
-					               { Zero, Zero, One } };
-
+					               { Zero,  Zero, One } };
 	return Rz;
 }
 
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::ComputeRotationMatrixByAngle(const DenseVector<ScalarType, 3>& AngleList)
+DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::ComputeRotationMatrixByAngleXYZ(const DenseVector<ScalarType, 3>& AngleList)
 {
-	return RotationTransform3D<ScalarType>::ComputeRotationMatrix_ByAngle(AngleList[0], AngleList[1], AngleList[2]);
+	return RotationTransform3D<ScalarType>::ComputeRotationMatrixByAngleXYZ(AngleList[0], AngleList[1], AngleList[2]);
 }
 
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::ComputeRotationMatrixByAngle(ScalarType AngleX, ScalarType AngleY, ScalarType AngleZ)
+DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::ComputeRotationMatrixByAngleXYZ(ScalarType AngleX, ScalarType AngleY, ScalarType AngleZ)
 {
-	auto Rx = RotationTransform3D<ScalarType>::ComputeRotationMatrix_Rx_ByAngle(AngleList[0]);
-	auto Ry = RotationTransform3D<ScalarType>::ComputeRotationMatrix_Rx_ByAngle(AngleList[1]);
-	auto Rz = RotationTransform3D<ScalarType>::ComputeRotationMatrix_Rx_ByAngle(AngleList[2]);
+	auto Rx = RotationTransform3D<ScalarType>::ComputeRotationMatrix_Rx_ByAngleX(AngleX);
+	auto Ry = RotationTransform3D<ScalarType>::ComputeRotationMatrix_Ry_ByAngleY(AngleY);
+	auto Rz = RotationTransform3D<ScalarType>::ComputeRotationMatrix_Rz_ByAngleZ(AngleZ);
 
 	DenseMatrix<ScalarType> R = Rz*Ry*Rx;
 	return R;
@@ -227,25 +234,64 @@ DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::ComputeRotationMatrixBy
 
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::
-ComputeRotationMatrixByAngleAndAxis(ScalarType Angle, const DenseVector<ScalarType, 3>& Axis)
+DenseMatrix<ScalarType> RotationTransform3D<ScalarType>::ComputeRotationMatrixByAngleAlongAxis(ScalarType Angle, const DenseVector<ScalarType, 3>& Axis)
 {
-	auto One = ScalarType(1);
 	DenseMatrix<ScalarType> R(3, 3);
-	auto CosA = std::cos(Angle);
-	auto SinA = std::sin(Angle);
-	R[0] = CosA + Axis[0] * Axis[0] * (One - CosA);           //R(0, 0) 
-	R[3] = Axis[0] * Axis[1] * (One - CosA) - Axis[2] * SinA; //R(0, 1)
-	R[6] = Axis[0] * Axis[2] * (One - CosA) + Axis[1] * SinA; //R(0, 2)
-	R[1] = Axis[0] * Axis[1] * (One - CosA) + Axis[2] * SinA; //R(1, 0)
-	R[4] = CosA + Axis[1] * Axis[1] * (One - CosA);           //R(1, 1)
-	R[7]= Axis[1] * Axis[2] * (One - CosA) - Axis[0] * SinA;  //R(1, 2)
-	R[2] = Axis[0] * Axis[2] * (One - CosA) - Axis[1] * SinA; //R(2, 0) 
-	R[5] = Axis[1] * Axis[2] * (One - CosA) + Axis[0] * SinA; //R(2, 1)
-	R[8] = CosA + Axis[2] * Axis[2] * (One - CosA);           //R(2, 2)
+	auto C = std::cos(Angle);
+	auto S = std::sin(Angle);
+	auto t = ScalarType(1) - C;
+	auto x = Axis[0];
+	auto y = Axis[1];
+	auto z = Axis[2];
+
+	R[0] = t*x*x + C;    //R(0, 0) 
+	R[1] = t*x*y + S*z;  //R(1, 0)
+	R[2] = t*x*z - S*y;  //R(2, 0) 
+	R[3] = t*x*y - S*z;  //R(0, 1)
+	R[4] = t*y*y + C;    //R(1, 1)
+	R[5] = t*y*z + S*x;  //R(2, 1)
+	R[6] = t*x*z + S*y;  //R(0, 2)
+	R[7] = t*y*z - S*x;  //R(1, 2)
+	R[8] = t*z*z + C;    //R(2, 2)
 	return R;
 }
 
+
+template<typename ScalarType>
+DenseVector<ScalarType, 3> RotationTransform3D<ScalarType>::RotatePoint(const DenseVector<ScalarType, 3>& PointPosition,																		
+																		const DenseMatrix<ScalarType>& RotationMatrix,
+																		const DenseVector<ScalarType, 3>& RotationCenter)
+{	
+	auto x = PointPosition[0] - RotationCenter[0];
+	auto y = PointPosition[1] - RotationCenter[1];
+	auto z = PointPosition[2] - RotationCenter[2];
+
+	auto Ptr = RotationMatrix.GetElementPointer();
+
+	DenseVector<ScalarType, 3> NewPosition;
+	NewPosition[0] = RotationCenter[0] + Ptr[0] * x + Ptr[3] * y + Ptr[6] * z;
+	NewPosition[1] = RotationCenter[1] + Ptr[1] * x + Ptr[4] * y + Ptr[7] * z;
+	NewPosition[2] = RotationCenter[2] + Ptr[2] * x + Ptr[5] * y + Ptr[8] * z;
+	return NewPosition;
+}
+
+
+template<typename ScalarType>
+DenseVector<ScalarType, 3> RotationTransform3D<ScalarType>::RotatePoint(const DenseVector<ScalarType, 3>& PointPosition,
+																		const DenseMatrix<ScalarType>& RotationMatrix)
+{//RotationCenter is [0, 0, 0]
+	const auto& x = PointPosition[0];
+	const auto& y = PointPosition[1];
+	const auto& z = PointPosition[2];
+
+	auto Ptr = RotationMatrix.GetElementPointer();
+
+	DenseVector<ScalarType, 3> NewPosition;
+	NewPosition[0] = Ptr[0] * x + Ptr[3] * y + Ptr[6] * z;
+	NewPosition[1] = Ptr[1] * x + Ptr[4] * y + Ptr[7] * z;
+	NewPosition[2] = Ptr[2] * x + Ptr[5] * y + Ptr[8] * z;
+	return NewPosition;
+}
 
 }//namespace mdk
 

@@ -6,7 +6,7 @@
 namespace mdk
 {
 template<typename Scalar_Type>
-class CoordinateTransform3D : public ProcessObject
+class CoordinateTransform3D : public Object
 {
 public:
 	typedef Scalar_Type ScalarType;

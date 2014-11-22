@@ -13,7 +13,7 @@ struct LocalCoordinateSystem3DWithUnitSpacing
 	// Spacing is [1, 1, 1]
 
 //-----------------------------------------------------------------
-	LocalCoordinateSystem3DWithUnitSpacing() {}
+	LocalCoordinateSystem3DWithUnitSpacing() { this->Clear(); }
 	~LocalCoordinateSystem3DWithUnitSpacing() {}
 
 	void operator=(const LocalCoordinateSystem3DWithUnitSpacing& InputSys)
@@ -23,7 +23,14 @@ struct LocalCoordinateSystem3DWithUnitSpacing
 		DirectionY = InputSys.DirectionY;
 		DirectionZ = InputSys.DirectionZ;
 	}
-	
+
+	void Clear()
+	{
+		Origin.Fill(0);
+		DirectionX.Fill(0);
+		DirectionY.Fill(0);
+		DirectionZ.Fill(0);
+	}
 };
 
 template<typename ScalarType>
@@ -35,7 +42,7 @@ struct LocalCoordinateSystem3D
 	DenseVector<ScalarType, 3> DirectionZ;
 	DenseVector<ScalarType, 3> Spacing;
 //------------------------------------------------------------
-	LocalCoordinateSystem3D() {}
+	LocalCoordinateSystem3D() { this->Clear(); }
 	~LocalCoordinateSystem3D() {}
 
 	void operator=(const LocalCoordinateSystem3D& InputSys)
@@ -44,6 +51,15 @@ struct LocalCoordinateSystem3D
 		DirectionX = InputSys.DirectionX;
 		DirectionY = InputSys.DirectionY;
 		DirectionZ = InputSys.DirectionZ;
+	}
+
+	void Clear()
+	{
+		Origin.Fill(0);
+		DirectionX.Fill(0);
+		DirectionY.Fill(0);
+		DirectionZ.Fill(0);
+		Spacing.Fill(0);
 	}
 };
 

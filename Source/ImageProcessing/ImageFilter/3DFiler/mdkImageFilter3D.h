@@ -11,6 +11,9 @@
 namespace mdk
 {
 
+// SISO: Single Input Image, Single Output Image
+// Each OutputPixel can be stored in Image or PixelArray or both
+
 template<typename InputImage_Type, typename OutputImage_Type, typename Scalar_Type>
 class ImageFilter3D : public ProcessObject
 {
@@ -113,7 +116,7 @@ protected:
 
 	inline virtual void Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex);
 
-	// Evaluate at Point (x, y, z): 3DIndex of m_OutputImage
+	// Evaluate at Point (x, y, z) of m_OutputImage
 	inline virtual OutputPixelType EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) = 0;
 
 	inline virtual void StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixelType& OutputPixel, int_max PointIndex, int_max ThreadIndex) {}

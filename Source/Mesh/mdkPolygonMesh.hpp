@@ -172,18 +172,6 @@ PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetSubMeshByCell(
     return OutputMesh;
 }
 
-template<typename MeshAttributeType>
-void PolygonMesh<MeshAttributeType>::UpdateNormalAtPoint(PointHandleType PointHandle)
-{
-}
-
-
-template<typename MeshAttributeType>
-void PolygonMesh<MeshAttributeType>::UpdateNormalAtCell(CellHandleType CellHandle)
-{
-}
-
-
 }// namespace mdk
 
 #endif

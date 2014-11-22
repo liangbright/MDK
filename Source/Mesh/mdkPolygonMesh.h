@@ -94,7 +94,7 @@ public:
 	void GetPointPositionMatrixAndCellTable(DenseMatrix<ScalarType>& PointPositionTable, ObjectArray<DenseVector<int_max>>& CellTable) const;
 
     //------------- Mesh Attribute --------------------------------------------------//
-
+	/*
     void UpdateNormalAtCell(); // all
     void UpdateNormalAtCell(CellHandleType CellHandle);
     void UpdateNormalAtCell(int_max CellID);
@@ -107,9 +107,9 @@ public:
     void UpdateCornerAngleOfCell(CellHandleType CellHandle);
     void UpdateCornerAngleOfCell(int_max CellID);
 
-    void UpdateNormalAtPoint(); // all
-    void UpdateNormalAtPoint(PointHandleType PointHandle);
-    void UpdateNormalAtPoint(int_max PointID);
+	void UpdateAngleWeightedNormalAtPoint(); // all
+	void UpdateAngleWeightedNormalAtPoint(PointHandleType PointHandle);
+	void UpdateAngleWeightedNormalAtPoint(int_max PointID);
 
     void UpdateGaussianCurvatureAtPoint(); // all
     void UpdateGaussianCurvatureAtPoint(PointHandleType PointHandle);
@@ -118,6 +118,7 @@ public:
     void UpdateMeanCurvatureAtPoint(); // all
     void UpdateMeanCurvatureAtPoint(PointHandleType PointHandle);
     void UpdateMeanCurvatureAtPoint(int_max PointID);
+	*/
 };
 
 }// namespace mdk
