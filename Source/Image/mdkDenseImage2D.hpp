@@ -534,6 +534,11 @@ bool DenseImage2D<PixelType>::SetSize(int_max Lx, int_max Ly)
         return false;
     }
 
+	if (Lx == m_ImageData->m_Size[0] && Ly == m_ImageData->m_Size[1])
+	{
+		return true;
+	}
+
     if (Lx == 0 || Ly == 0)
     {
         m_ImageData->m_DataArray.clear();

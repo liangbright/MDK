@@ -80,6 +80,24 @@ DenseVector<ElementType>::~DenseVector()
 
 template<typename ElementType>
 inline
+void DenseVector<ElementType>::operator=(const ElementType& Element)
+{
+	auto SelfLength = this->GetLength();
+	if (SelfLength != 1)
+	{
+		if (SelfLength > 1)
+		{
+			MDK_Warning("Vector = Element, and Vector Length > 1 @ DenseVector operator=(const ElementType& Element)")
+		}
+		this->Clear();
+		this->Resize(1);
+	}
+	(*this)[0] = Element;
+}
+
+
+template<typename ElementType>
+inline
 void DenseVector<ElementType>::operator=(const DenseVector<ElementType>& InputVector)
 {
     this->Copy(InputVector);

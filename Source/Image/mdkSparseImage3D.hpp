@@ -392,33 +392,25 @@ bool SparseImage3D<PixelType>::SetSize(int_max Lx, int_max Ly, int_max Lz)
         return false;
     }
 
+	if (Lx == m_ImageData->m_Size[0] && Ly == m_ImageData->m_Size[1] && Lz == m_ImageData->m_Size[2])
+	{
+		return true;
+	}
+
     if (Lx == 0 || Ly == 0 || Lz == 0)
     {
         m_ImageData->m_DataMap.clear();
-
         m_ImageData->m_Size[0] = 0;
         m_ImageData->m_Size[1] = 0;
         m_ImageData->m_Size[2] = 0;
         m_ImageData->m_PixelNumberPerZSlice = 0;
-
         return true;
     }
 
-try
-{
     m_ImageData->m_Size[0] = Lx;
     m_ImageData->m_Size[1] = Ly;
     m_ImageData->m_Size[2] = Lz;
     m_ImageData->m_PixelNumberPerZSlice = Ly*Lx;
-}
-catch (...)
-{
-    MDK_Error("Out Of Memory @ 3DSparseImage::SetSize(...)")
-
-    this->Clear();
-    return false;
-}
-
     return true;
 }
 

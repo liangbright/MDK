@@ -55,6 +55,9 @@ public:
 
     //------------------------------------------------------------
 
+	// must not define this function
+	//inline void operator=(const ElementType& Element);
+
     inline void operator=(const DenseVector<ElementType, Length>& InputVector);
 
     inline void operator=(DenseVector<ElementType, Length>&& InputVector);

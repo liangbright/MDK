@@ -554,6 +554,11 @@ bool DenseImage3D<PixelType>::SetSize(int_max Lx, int_max Ly, int_max Lz)
         return false;
     }
 
+	if (Lx == m_ImageData->m_Size[0] && Ly == m_ImageData->m_Size[1] && Lz == m_ImageData->m_Size[2])
+	{
+		return true;
+	}
+
     if (Lx == 0 || Ly == 0 || Lz == 0)
     {
         m_ImageData->m_DataArray.clear();

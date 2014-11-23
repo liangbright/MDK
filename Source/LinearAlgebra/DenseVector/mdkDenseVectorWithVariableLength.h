@@ -51,6 +51,8 @@ public:
 
     //------------------------------------------------------------
 
+	inline void operator=(const ElementType& Element);
+
     inline void operator=(const DenseVector<ElementType>& InputVector);
 
 	template<int_max LengthParameter>

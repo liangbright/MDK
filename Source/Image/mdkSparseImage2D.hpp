@@ -408,6 +408,19 @@ bool SparseImage2D<PixelType>::SetSize(int_max Lx, int_max Ly)
         return false;
     }
 
+	if (Lx == m_ImageData->m_Size[0] && Ly == m_ImageData->m_Size[1])
+	{
+		return;
+	}
+
+	if (Lx == 0 || Ly == 0)
+	{
+		m_ImageData->m_DataMap.clear();
+		m_ImageData->m_Size[0] = 0;
+		m_ImageData->m_Size[1] = 0;
+		return true;
+	}
+
 	m_ImageData->m_DataMap.clear();
 	m_ImageData->m_Size[0] = Lx;
 	m_ImageData->m_Size[1] = Ly;

@@ -1625,6 +1625,38 @@ ObjectArray<int_max> ObjectArray<ElementType>::Sort(int_max Index_start, int_max
 
 
 template<typename ElementType>
+inline
+ObjectArray<int_max> ObjectArray<ElementType>::Sort(const char* Order)
+{
+	std::string Order_str(Order);
+	return this->Sort(Order_str);
+}
+
+
+template<typename ElementType>
+inline
+ObjectArray<int_max> ObjectArray<ElementType>::Sort(const std::string& Order)
+{
+	// Order: ascend or descend
+
+	if (Order == "ascend")
+	{
+		return this->Sort(0, this->GetLength() - 1, [](const ElementType& ElementA, const ElementType& ElementB) { return ElementA < ElementB; });
+	}
+	else if (Order == "descend")
+	{
+		return this->Sort(0, this->GetLength() - 1, [](const ElementType& ElementA, const ElementType& ElementB) { return ElementA > ElementB; });
+	}
+	else
+	{
+		MDK_Error("invalid input string @ ObjectArray::Sort(Order)")
+		ObjectArray<int_max> EmptyIndexList;
+		return EmptyIndexList;
+	}
+}
+
+
+template<typename ElementType>
 template<typename CompareFunctionType>
 inline
 void ObjectArray<ElementType>::SortInPlace(CompareFunctionType CompareFunction)
@@ -1649,6 +1681,36 @@ void ObjectArray<ElementType>::SortInPlace(int_max Index_start, int_max Index_en
     }
 
     std::sort(this->begin() + Index_start, this->begin() + Index_end + 1, CompareFunction);
+}
+
+
+template<typename ElementType>
+inline
+void ObjectArray<ElementType>::SortInPlace(const char* Order)
+{
+	std::string Order_str(Order);
+	this->SortInPlace(Order_str);
+}
+
+
+template<typename ElementType>
+inline
+void ObjectArray<ElementType>::SortInPlace(const std::string& Order)
+{
+	// Order: ascend or descend
+
+	if (Order == "ascend")
+	{
+		this->SortInPlace(0, this->GetLength() - 1, [](const ElementType& ElementA, const ElementType& ElementB) { return ElementA < ElementB; });
+	}
+	else if (Order == "descend")
+	{
+		this->SortInPlace(0, this->GetLength() - 1, [](const ElementType& ElementA, const ElementType& ElementB) { return ElementA > ElementB; });
+	}
+	else
+	{
+		MDK_Error("invalid input string @ DenseVector::SortInPlace(Order)")
+	}
 }
 
 }//end namespace mdk
