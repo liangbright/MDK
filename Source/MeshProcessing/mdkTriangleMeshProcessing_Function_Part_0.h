@@ -27,6 +27,10 @@ TriangleMesh<MeshAttributeType> SimplifyTriangleMeshByVTKDecimatePro(const Trian
 template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType> SimplifyTriangleMeshByVTKQuadricDecimation(const TriangleMesh<MeshAttributeType>& TargetMesh, double TargetReduction);
 
+// assume GaussianCurvature has been computed at each point of TargetMesh if Flag_UpdateAttribute is false
+template<typename MeshAttributeType>
+void SmoothTriangleMeshByGaussianCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, double MaxDisplacement, bool Flag_UpdateAttribute = true);
+
 }//namespace mdk
 
 #include "mdkTriangleMeshProcessing_Function_Part_0.hpp"

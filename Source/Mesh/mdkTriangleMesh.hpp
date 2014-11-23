@@ -200,7 +200,8 @@ void TriangleMesh<MeshAttributeType>::UpdateAreaOfCell(CellHandleType CellHandle
 	auto PointPositionA = this->GetPointPosition(PointHandleList[0]);
 	auto PointPositionB = this->GetPointPosition(PointHandleList[1]);
 	auto PointPositionC = this->GetPointPosition(PointHandleList[2]);
-    this->Cell(CellHandle).Attribute().Area = ComputeTriangleAreaIn3D(PointPositionA, PointPositionB, PointPositionC);
+	auto Area = ComputeTriangleAreaIn3D(PointPositionA, PointPositionB, PointPositionC);
+	this->Cell(CellHandle).Attribute().Area = Area;
 }
 
 
@@ -349,7 +350,7 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(int_max P
 
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint() // all
-{// run UpdateCornerAngleOfCell first
+{// run UpdateCornerAngleOfCell and UpdateAreaOfCell first
     for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
     {
         this->UpdateGaussianCurvatureAtPoint(it.GetPointHandle());
@@ -359,7 +360,7 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint() // all
 
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandleType PointHandle)
-{// run UpdateCornerAngleOfCell first
+{// run UpdateCornerAngleOfCell and UpdateAreaOfCell first
     if (this->IsValidHandle(PointHandle) == false)
     {
         MDK_Warning("PointHandle is invalid @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
@@ -441,11 +442,12 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandle
     }
 
     // calculate Gaussian curvature
-    auto constant_pi = std::acos(-1.0);
+	auto constant_pi = ScalarType(std::acos(-1.0));
 	auto GaussianCurvature = 2 * constant_pi - CornerAngleList.Sum();
+	auto WeightedGaussianCurvature = GaussianCurvature / AreaList.Sum();
     //------------------------------
 	this->Point(PointHandle).Attribute().GaussianCurvature = GaussianCurvature;
-	this->Point(PointHandle).Attribute().WeightedGaussianCurvature = GaussianCurvature / AreaList.Sum();
+	this->Point(PointHandle).Attribute().WeightedGaussianCurvature = WeightedGaussianCurvature;
 }
 
 
@@ -458,7 +460,7 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(int_max Poi
 
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint() // all
-{
+{ // run UpdateAreaOfCell() first
     for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
     {
         this->UpdateMeanCurvatureAtPoint(it.GetPointHandle());
@@ -468,14 +470,15 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint() // all
 
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(PointHandleType PointHandle)
-{
+{ // run UpdateAreaOfCell() first
+
     if (this->IsValidHandle(PointHandle) == false)
     {
         MDK_Warning("PointHandle is invalid @ TriangleMesh::UpdateMeanCurvatureAtPoint()")
         return;
     }
 
-    // cotangent Laplace Beltrami Operator
+    // cotangent Laplace Beltrami Operator "Polygon Mesh Processing: page 46"
 
     auto AdjacentPointNumber = this->Point(PointHandle).GetAdjacentPointNumber();
     if (AdjacentPointNumber < 3)
@@ -492,6 +495,9 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(PointHandleType
 
     DenseVector<ScalarType> AreaList;
     AreaList.ReserveCapacity(AdjacentPointNumber);
+
+	DenseVector<ScalarType> CotSumList;
+	CotSumList.ReserveCapacity(AdjacentPointNumber);
 
     auto AdjacentEdgeHandleList = this->Point(PointHandle).GetAdjacentEdgeHandleList();
     for (int_max k = 0; k < AdjacentEdgeHandleList.GetLength(); ++k)
@@ -536,7 +542,9 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(PointHandleType
             }
 
             auto CornerAngle_a = this->Cell(CellHandle_a).Attribute().CornerAngle[PointRelativeIndex_a];
-            auto constant_pi_half = ScalarType(3.141592654) / ScalarType(2);
+
+			const auto pi = ScalarType(std::acos(-1.0));
+			auto constant_pi_half = pi / ScalarType(2);
             auto Cot_a = std::tan(constant_pi_half - CornerAngle_a);
 
             // get cotangent of the angle at PointHandle_b in CellHandle_b
@@ -566,6 +574,7 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(PointHandleType
             if (SumOfCot > 0)
             {
                 MeanCurvatureNormal += SumOfCot * (Position_k - PointPosition);
+				CotSumList.Append(SumOfCot);
                 AreaList.Append(this->Cell(CellHandle_a).Attribute().Area);
                 AreaList.Append(this->Cell(CellHandle_b).Attribute().Area);
             }
@@ -575,7 +584,8 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(PointHandleType
     if (AreaList.GetLength() > 0)
     {
         // note: theoretically, mixed region should be used instead of the total region
-        auto MeanCurvature = MeanCurvatureNormal.L2Norm() / AreaList.Sum();
+		auto MeanCurvature = MeanCurvatureNormal.L2Norm() / AreaList.Sum();
+		MeanCurvatureNormal /= CotSumList.Sum();
         //-------------------
         this->Point(PointHandle).Attribute().MeanCurvatureNormal = MeanCurvatureNormal;
         this->Point(PointHandle).Attribute().MeanCurvature = MeanCurvature;

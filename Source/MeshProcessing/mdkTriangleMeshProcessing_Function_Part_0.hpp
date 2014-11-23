@@ -52,6 +52,55 @@ TriangleMesh<MeshAttributeType> SimplifyTriangleMeshByVTKQuadricDecimation(const
 }
 
 
+template<typename MeshAttributeType>
+void SmoothTriangleMeshByMeanCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, double MaxDisplacementRatio, bool Flag_UpdateAttribute)
+{
+	typedef typename MeshAttributeType::ScalarType ScalarType;
+
+	if (Flag_UpdateAttribute == true)
+	{
+		TargetMesh.UpdateCornerAngleOfCell();
+		TargetMesh.UpdateAreaOfCell();
+		TargetMesh.UpdateMeanCurvatureAtPoint();
+	}
+
+	for (auto it = TargetMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	{
+		auto MC = it.Point().Attribute().MeanCurvatureNormal;
+		auto Displacement = MC*ScalarType(MaxDisplacementRatio);
+		auto Pos = it.Point().GetPosition();
+		Pos += Displacement;
+		it.Point().SetPosition(Pos);
+	}
+}
+
+template<typename MeshAttributeType>
+void SmoothTriangleMeshByGaussianCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, double MaxDisplacement, bool Flag_UpdateAttribute)
+{
+	typedef typename MeshAttributeType::ScalarType ScalarType;
+
+	if (Flag_UpdateAttribute == true)
+	{
+		TargetMesh.UpdateCornerAngleOfCell();
+		TargetMesh.UpdateAreaOfCell();
+		TargetMesh.UpdateGaussianCurvatureAtPoint();
+		TargetMesh.UpdateMeanCurvatureAtPoint();
+	}
+
+	const auto two_pi = 2.0*std::acos(-1.0);
+
+	for (auto it = TargetMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	{
+		auto GC = it.Point().Attribute().GaussianCurvature;
+		auto MC = it.Point().Attribute().MeanCurvatureNormal;
+		auto Displacement = MC*ScalarType(std::abs(GC) / two_pi);
+		Displacement = std::min(Displacement, MaxDisplacement);
+		auto Pos = it.Point().GetPosition();
+		Pos += Displacement;
+		it.Point().SetPosition(Pos);
+	}
+}
+
 }//namespace mdk
 
 
