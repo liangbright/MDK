@@ -10,7 +10,7 @@
 #include "mdkType.h"
 #include "mdkObject.h"
 #include "mdkObjectArray.h"
-#include "mdkSimpleObjectArray.h"
+#include "mdkStdObjectVector.h"
 #include "mdkDenseVector_ForwardDeclare.h"
 #include "mdkLinearAlgebra_Function_DenseVector.h"
 

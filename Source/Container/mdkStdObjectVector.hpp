@@ -1,5 +1,5 @@
-#ifndef __mdkSimpleObjectArray_hpp
-#define __mdkSimpleObjectArray_hpp
+#ifndef __mdkStdObjectVector_hpp
+#define __mdkStdObjectVector_hpp
 
 
 namespace mdk
@@ -7,22 +7,14 @@ namespace mdk
  
 template<typename ElementType>
 inline
-SimpleObjectArray<ElementType>::SimpleObjectArray()
+StdObjectVector<ElementType>::StdObjectVector()
 {
 }
 
 
 template<typename ElementType>
 inline
-SimpleObjectArray<ElementType>::SimpleObjectArray(const std::initializer_list<ElementType>& InputList)
-{
-    (*this) = InputList;
-}
-
-
-template<typename ElementType>
-inline
-SimpleObjectArray<ElementType>::SimpleObjectArray(const std::vector<ElementType>& InputList)
+StdObjectVector<ElementType>::StdObjectVector(const std::initializer_list<ElementType>& InputList)
 {
     (*this) = InputList;
 }
@@ -30,7 +22,15 @@ SimpleObjectArray<ElementType>::SimpleObjectArray(const std::vector<ElementType>
 
 template<typename ElementType>
 inline
-SimpleObjectArray<ElementType>::SimpleObjectArray(const SimpleObjectArray<ElementType>& InputArray)
+StdObjectVector<ElementType>::StdObjectVector(const std::vector<ElementType>& InputList)
+{
+    (*this) = InputList;
+}
+
+
+template<typename ElementType>
+inline
+StdObjectVector<ElementType>::StdObjectVector(const StdObjectVector<ElementType>& InputArray)
 {
     this->Copy(InputArray);
 }
@@ -39,7 +39,7 @@ SimpleObjectArray<ElementType>::SimpleObjectArray(const SimpleObjectArray<Elemen
 // move constructor
 template<typename ElementType>
 inline
-SimpleObjectArray<ElementType>::SimpleObjectArray(SimpleObjectArray<ElementType>&& InputArray) noexcept
+StdObjectVector<ElementType>::StdObjectVector(StdObjectVector<ElementType>&& InputArray) noexcept
 {
     m_StdVector = std::move(InputArray.m_StdVector);
 }
@@ -47,14 +47,14 @@ SimpleObjectArray<ElementType>::SimpleObjectArray(SimpleObjectArray<ElementType>
 
 template<typename ElementType>
 inline
-SimpleObjectArray<ElementType>::~SimpleObjectArray()
+StdObjectVector<ElementType>::~StdObjectVector()
 {
 }
 
 
 template<typename ElementType>
 inline 
-std::vector<ElementType>& SimpleObjectArray<ElementType>::StdVector()
+std::vector<ElementType>& StdObjectVector<ElementType>::StdVector()
 {
     return m_StdVector;
 }
@@ -62,7 +62,7 @@ std::vector<ElementType>& SimpleObjectArray<ElementType>::StdVector()
 
 template<typename ElementType>
 inline
-const std::vector<ElementType>& SimpleObjectArray<ElementType>::StdVector() const
+const std::vector<ElementType>& StdObjectVector<ElementType>::StdVector() const
 {
     return m_StdVector;
 }
@@ -70,7 +70,7 @@ const std::vector<ElementType>& SimpleObjectArray<ElementType>::StdVector() cons
 
 template<typename ElementType>
 inline
-void SimpleObjectArray<ElementType>::operator=(const SimpleObjectArray<ElementType>& InputArray)
+void StdObjectVector<ElementType>::operator=(const StdObjectVector<ElementType>& InputArray)
 {
     this->Copy(InputArray);
 }
@@ -79,7 +79,7 @@ void SimpleObjectArray<ElementType>::operator=(const SimpleObjectArray<ElementTy
 // move assignment operator
 template<typename ElementType>
 inline
-void SimpleObjectArray<ElementType>::operator=(SimpleObjectArray<ElementType>&& InputArray)
+void StdObjectVector<ElementType>::operator=(StdObjectVector<ElementType>&& InputArray)
 {
     m_StdVector = std::move(InputArray.m_StdVector);
 }
@@ -87,7 +87,7 @@ void SimpleObjectArray<ElementType>::operator=(SimpleObjectArray<ElementType>&& 
 
 template<typename ElementType>
 inline
-void SimpleObjectArray<ElementType>::operator=(const std::initializer_list<ElementType>& InputArray)
+void StdObjectVector<ElementType>::operator=(const std::initializer_list<ElementType>& InputArray)
 {
     m_StdVector = InputArray;
 }
@@ -95,7 +95,7 @@ void SimpleObjectArray<ElementType>::operator=(const std::initializer_list<Eleme
 
 template<typename ElementType>
 inline
-void SimpleObjectArray<ElementType>::operator=(const std::vector<ElementType>& InputArray)
+void StdObjectVector<ElementType>::operator=(const std::vector<ElementType>& InputArray)
 {
     m_StdVector = InputArray;
 }
@@ -103,7 +103,7 @@ void SimpleObjectArray<ElementType>::operator=(const std::vector<ElementType>& I
 
 template<typename ElementType>
 inline
-void SimpleObjectArray<ElementType>::operator=(const ObjectArray<ElementType>& InputArray)
+void StdObjectVector<ElementType>::operator=(const ObjectArray<ElementType>& InputArray)
 {
 	this->copy(InputArray);
 }
@@ -111,11 +111,11 @@ void SimpleObjectArray<ElementType>::operator=(const ObjectArray<ElementType>& I
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Copy(const SimpleObjectArray<ElementType>& InputArray)
+bool StdObjectVector<ElementType>::Copy(const StdObjectVector<ElementType>& InputArray)
 {
     if (this == &InputArray)
     {
-        MDK_Warning("A SimpleObjectArray tries to Copy itself @ SimpleObjectArray::Copy(InputArray)")
+        MDK_Warning("A StdObjectVector tries to Copy itself @ StdObjectVector::Copy(InputArray)")
         return true;
     }
 
@@ -132,11 +132,11 @@ bool SimpleObjectArray<ElementType>::Copy(const SimpleObjectArray<ElementType>& 
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Copy(const SimpleObjectArray<ElementType>* InputArray)
+bool StdObjectVector<ElementType>::Copy(const StdObjectVector<ElementType>* InputArray)
 {
     if (InputArray == nullptr)
     {
-        MDK_Error("Input is nullptr @ SimpleObjectArray::Copy(SimpleObjectArray* InputArray)")
+        MDK_Error("Input is nullptr @ StdObjectVector::Copy(StdObjectVector* InputArray)")
         return false;
     }
 
@@ -146,7 +146,7 @@ bool SimpleObjectArray<ElementType>::Copy(const SimpleObjectArray<ElementType>* 
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Copy(const ElementType* InputElementPointer, int_max InputLength)
+bool StdObjectVector<ElementType>::Copy(const ElementType* InputElementPointer, int_max InputLength)
 {
     if (InputElementPointer == nullptr || InputLength <= 0)
     {
@@ -154,12 +154,12 @@ bool SimpleObjectArray<ElementType>::Copy(const ElementType* InputElementPointer
         return true;
     }
 
-    // if this SimpleObjectArray is not empty, check if this and Input Share the same data
+    // if this StdObjectVector is not empty, check if this and Input Share the same data
     if (this->IsEmpty() == false)
     {
         if (InputElementPointer == this->GetElementPointer())
         {
-           // MDK_Warning("A SimpleObjectArray tries to Copy itself @ SimpleObjectArray::Copy(ElementType*, RowNumber, ColNumber)")
+           // MDK_Warning("A StdObjectVector tries to Copy itself @ StdObjectVector::Copy(ElementType*, RowNumber, ColNumber)")
             return true;
         }
     }
@@ -185,12 +185,12 @@ bool SimpleObjectArray<ElementType>::Copy(const ElementType* InputElementPointer
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Fill(const ElementType& Element)
+bool StdObjectVector<ElementType>::Fill(const ElementType& Element)
 {
     auto SelfLength = this->GetElementNumber();
     if (SelfLength <= 0)
     {
-        MDK_Error("Self is empty @ SimpleObjectArray::Fill")
+        MDK_Error("Self is empty @ StdObjectVector::Fill")
         return false;
     }
 
@@ -205,7 +205,7 @@ bool SimpleObjectArray<ElementType>::Fill(const ElementType& Element)
 
 template<typename ElementType>
 inline
-void SimpleObjectArray<ElementType>::Clear()
+void StdObjectVector<ElementType>::Clear()
 {
     m_StdVector.clear();         // change size
     m_StdVector.shrink_to_fit(); // release memory
@@ -214,11 +214,11 @@ void SimpleObjectArray<ElementType>::Clear()
 
 template<typename ElementType>
 inline 
-bool SimpleObjectArray<ElementType>::Resize(int_max InputLength)
+bool StdObjectVector<ElementType>::Resize(int_max InputLength)
 {
     if (InputLength < 0)
     {
-        MDK_Error("Invalid Input: negtive @ SimpleObjectArray::Resize(int_max InputLength)")
+        MDK_Error("Invalid Input: negtive @ StdObjectVector::Resize(int_max InputLength)")
         return false;
     }
 
@@ -237,7 +237,7 @@ try
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ SimpleObjectArray::Resize(int_max InputLength)")
+    MDK_Error("Out of Memory @ StdObjectVector::Resize(int_max InputLength)")
 
     return false;
 }
@@ -247,11 +247,11 @@ catch (...)
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::FastResize(int_max InputLength)
+bool StdObjectVector<ElementType>::FastResize(int_max InputLength)
 {
     if (InputLength < 0)
     {
-        MDK_Error("Invalid input @ SimpleObjectArray::FastResize(int_max InputLength)")
+        MDK_Error("Invalid input @ StdObjectVector::FastResize(int_max InputLength)")
         return false;    
     }
 
@@ -277,7 +277,7 @@ try
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ SimpleObjectArray::FastResize(int_max InputLength)")
+    MDK_Error("Out of Memory @ StdObjectVector::FastResize(int_max InputLength)")
 
     return false;
 }
@@ -288,7 +288,7 @@ catch (...)
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::ReserveCapacity(int_max InputElementNumber)
+bool StdObjectVector<ElementType>::ReserveCapacity(int_max InputElementNumber)
 {
 try
 {
@@ -301,7 +301,7 @@ try
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ SimpleObjectArray::ReserveCapacity(int_max InputElementNumber)")
+    MDK_Error("Out of Memory @ StdObjectVector::ReserveCapacity(int_max InputElementNumber)")
     return false;
 }
     
@@ -311,7 +311,7 @@ catch (...)
 
 template<typename ElementType>
 inline
-void SimpleObjectArray<ElementType>::ReleaseUnusedCapacity()
+void StdObjectVector<ElementType>::ReleaseUnusedCapacity()
 {
     m_StdVector.shrink_to_fit();
 }
@@ -319,7 +319,7 @@ void SimpleObjectArray<ElementType>::ReleaseUnusedCapacity()
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::IsEmpty() const
+bool StdObjectVector<ElementType>::IsEmpty() const
 {
     return (m_StdVector.size() <= 0);
 }
@@ -327,7 +327,7 @@ bool SimpleObjectArray<ElementType>::IsEmpty() const
 
 template<typename ElementType>
 inline
-int_max SimpleObjectArray<ElementType>::GetLength() const
+int_max StdObjectVector<ElementType>::GetLength() const
 {
     return int_max(m_StdVector.size());
 }
@@ -335,7 +335,7 @@ int_max SimpleObjectArray<ElementType>::GetLength() const
 
 template<typename ElementType>
 inline
-int_max SimpleObjectArray<ElementType>::GetElementNumber() const
+int_max StdObjectVector<ElementType>::GetElementNumber() const
 {
     return int_max(m_StdVector.size());
 }
@@ -343,7 +343,7 @@ int_max SimpleObjectArray<ElementType>::GetElementNumber() const
 
 template<typename ElementType>
 inline
-ElementType* SimpleObjectArray<ElementType>::GetElementPointer()
+ElementType* StdObjectVector<ElementType>::GetElementPointer()
 {
     return m_StdVector.data();
 }
@@ -351,7 +351,7 @@ ElementType* SimpleObjectArray<ElementType>::GetElementPointer()
 
 template<typename ElementType>
 inline
-const ElementType* SimpleObjectArray<ElementType>::GetElementPointer() const
+const ElementType* StdObjectVector<ElementType>::GetElementPointer() const
 {
     return m_StdVector.data();
 }
@@ -359,7 +359,7 @@ const ElementType* SimpleObjectArray<ElementType>::GetElementPointer() const
 
 template<typename ElementType>
 inline
-ElementType* SimpleObjectArray<ElementType>::GetPointer()
+ElementType* StdObjectVector<ElementType>::GetPointer()
 {
     return m_StdVector.data();
 }
@@ -367,7 +367,7 @@ ElementType* SimpleObjectArray<ElementType>::GetPointer()
 
 template<typename ElementType>
 inline
-const ElementType* SimpleObjectArray<ElementType>::GetPointer() const
+const ElementType* StdObjectVector<ElementType>::GetPointer() const
 {
     return m_StdVector.data();
 }
@@ -375,7 +375,7 @@ const ElementType* SimpleObjectArray<ElementType>::GetPointer() const
 
 template<typename ElementType>
 inline 
-ElementType* SimpleObjectArray<ElementType>::begin()
+ElementType* StdObjectVector<ElementType>::begin()
 {
     return m_StdVector.data();
 }
@@ -383,7 +383,7 @@ ElementType* SimpleObjectArray<ElementType>::begin()
 
 template<typename ElementType>
 inline 
-const ElementType* SimpleObjectArray<ElementType>::begin() const
+const ElementType* StdObjectVector<ElementType>::begin() const
 {
     return m_StdVector.data();
 }
@@ -391,7 +391,7 @@ const ElementType* SimpleObjectArray<ElementType>::begin() const
 
 template<typename ElementType>
 inline
-ElementType* SimpleObjectArray<ElementType>::end()
+ElementType* StdObjectVector<ElementType>::end()
 {
     auto EndPtr = m_StdVector.data();
 
@@ -406,7 +406,7 @@ ElementType* SimpleObjectArray<ElementType>::end()
 
 template<typename ElementType>
 inline
-const ElementType* SimpleObjectArray<ElementType>::end() const
+const ElementType* StdObjectVector<ElementType>::end() const
 {
     auto EndPtr = m_StdVector.data();
 
@@ -419,23 +419,23 @@ const ElementType* SimpleObjectArray<ElementType>::end() const
 }
 
 
-//----------- Get/Set SimpleObjectArray(Index) -----------------------------------//
+//----------- Get/Set StdObjectVector(Index) -----------------------------------//
 
 // operator[] (): no bound check in release mode
 
 template<typename ElementType>
 inline
-ElementType& SimpleObjectArray<ElementType>::operator[](int_max Index)
+ElementType& StdObjectVector<ElementType>::operator[](int_max Index)
 {
-#if defined(MDK_DEBUG_SimpleObjectArray_Operator_CheckBound)
+#if defined(MDK_DEBUG_StdObjectVector_Operator_CheckBound)
 
     if (Index >= this->GetElementNumber() || Index < 0)
     {
-        MDK_Error("Invalid Input @ SimpleObjectArray::operator[](i)")
+        MDK_Error("Invalid Input @ StdObjectVector::operator[](i)")
         return m_StdVector[0];
     }
 
-#endif //MDK_DEBUG_SimpleObjectArray_Operator_CheckBound
+#endif //MDK_DEBUG_StdObjectVector_Operator_CheckBound
 
     return m_StdVector[Index];
 }
@@ -443,17 +443,17 @@ ElementType& SimpleObjectArray<ElementType>::operator[](int_max Index)
 
 template<typename ElementType>
 inline
-const ElementType& SimpleObjectArray<ElementType>::operator[](int_max Index) const
+const ElementType& StdObjectVector<ElementType>::operator[](int_max Index) const
 {
-#if defined(MDK_DEBUG_SimpleObjectArray_Operator_CheckBound)
+#if defined(MDK_DEBUG_StdObjectVector_Operator_CheckBound)
 
     if (Index >= this->GetElementNumber() || Index < 0)
     {
-        MDK_Error("Invalid Input @ SimpleObjectArray::operator[](i)")
+        MDK_Error("Invalid Input @ StdObjectVector::operator[](i)")
         return m_StdVector[0];
     }
 
-#endif //MDK_DEBUG_SimpleObjectArray_Operator_CheckBound
+#endif //MDK_DEBUG_StdObjectVector_Operator_CheckBound
 
     return m_StdVector[Index];
 }
@@ -461,17 +461,17 @@ const ElementType& SimpleObjectArray<ElementType>::operator[](int_max Index) con
 
 template<typename ElementType>
 inline
-ElementType& SimpleObjectArray<ElementType>::operator()(int_max Index)
+ElementType& StdObjectVector<ElementType>::operator()(int_max Index)
 {
-#if defined(MDK_DEBUG_SimpleObjectArray_Operator_CheckBound)
+#if defined(MDK_DEBUG_StdObjectVector_Operator_CheckBound)
 
     if (Index >= this->GetElementNumber() || Index < 0)
     {
-        MDK_Error("Invalid Input @ SimpleObjectArray::operator[](i)")
+        MDK_Error("Invalid Input @ StdObjectVector::operator[](i)")
         return m_StdVector[0];
     }
 
-#endif //MDK_DEBUG_SimpleObjectArray_Operator_CheckBound
+#endif //MDK_DEBUG_StdObjectVector_Operator_CheckBound
 
     return m_StdVector[Index];
 }
@@ -479,17 +479,17 @@ ElementType& SimpleObjectArray<ElementType>::operator()(int_max Index)
 
 template<typename ElementType>
 inline
-const ElementType& SimpleObjectArray<ElementType>::operator()(int_max Index) const
+const ElementType& StdObjectVector<ElementType>::operator()(int_max Index) const
 {
-#if defined(MDK_DEBUG_SimpleObjectArray_Operator_CheckBound)
+#if defined(MDK_DEBUG_StdObjectVector_Operator_CheckBound)
 
     if (Index >= this->GetElementNumber() || Index < 0)
     {
-        MDK_Error("Invalid Input @ SimpleObjectArray::operator[](i)")
+        MDK_Error("Invalid Input @ StdObjectVector::operator[](i)")
         return m_StdVector[0];
     }
 
-#endif //MDK_DEBUG_SimpleObjectArray_Operator_CheckBound
+#endif //MDK_DEBUG_StdObjectVector_Operator_CheckBound
 
     return m_StdVector[Index];
 }
@@ -498,11 +498,11 @@ const ElementType& SimpleObjectArray<ElementType>::operator()(int_max Index) con
 
 template<typename ElementType>
 inline
-ElementType& SimpleObjectArray<ElementType>::at(int_max Index)
+ElementType& StdObjectVector<ElementType>::at(int_max Index)
 {
     if (Index >= this->GetElementNumber() || Index < 0)
     {
-        MDK_Error("Invalid Input @ SimpleObjectArray::operator[](i)")
+        MDK_Error("Invalid Input @ StdObjectVector::operator[](i)")
         return m_StdVector[0];
     }
 
@@ -512,11 +512,11 @@ ElementType& SimpleObjectArray<ElementType>::at(int_max Index)
 
 template<typename ElementType>
 inline
-const ElementType& SimpleObjectArray<ElementType>::at(int_max Index) const
+const ElementType& StdObjectVector<ElementType>::at(int_max Index) const
 {
     if (Index >= this->GetElementNumber() || Index < 0)
     {
-        MDK_Error("Invalid Input @ SimpleObjectArray::operator[](i)")
+        MDK_Error("Invalid Input @ StdObjectVector::operator[](i)")
         return m_StdVector[0];
     }
 
@@ -526,21 +526,21 @@ const ElementType& SimpleObjectArray<ElementType>::at(int_max Index) const
 
 template<typename ElementType>
 inline
-SimpleObjectArray<ElementType> SimpleObjectArray<ElementType>::GetSubSet(int_max Index_start, int_max Index_end)
+StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(int_max Index_start, int_max Index_end)
 {
-    SimpleObjectArray<ElementType> Subset;
+    StdObjectVector<ElementType> Subset;
 
     auto ElementNumber = this->GetElementNumber();
 
     if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
     {
-        MDK_Error("Index_start is invalid @ SimpleObjectArray::GetSubSet(...)")
+        MDK_Error("Index_start is invalid @ StdObjectVector::GetSubSet(...)")
         return Subset;
     }
 
     if (Index_end < 0 || Index_end >= ElementNumber)
     {
-        MDK_Error("Index_end is invalid @ SimpleObjectArray::GetSubSet(...)")
+        MDK_Error("Index_end is invalid @ StdObjectVector::GetSubSet(...)")
         return Subset;
     }
 
@@ -562,7 +562,7 @@ SimpleObjectArray<ElementType> SimpleObjectArray<ElementType>::GetSubSet(int_max
 
 template<typename ElementType>
 inline
-SimpleObjectArray<ElementType> SimpleObjectArray<ElementType>::GetSubSet(const std::initializer_list<int_max>& IndexList)
+StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const std::initializer_list<int_max>& IndexList)
 {
     return this->GetSubSet(IndexList.begin(), int_max(IndexList.size()));
 }
@@ -570,7 +570,7 @@ SimpleObjectArray<ElementType> SimpleObjectArray<ElementType>::GetSubSet(const s
 
 template<typename ElementType>
 inline
-SimpleObjectArray<ElementType> SimpleObjectArray<ElementType>::GetSubSet(const std::vector<int_max>& IndexList)
+StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const std::vector<int_max>& IndexList)
 {
     return this->GetSubSet(IndexList.data(), int_max(IndexList.size()));
 }
@@ -578,7 +578,7 @@ SimpleObjectArray<ElementType> SimpleObjectArray<ElementType>::GetSubSet(const s
 
 template<typename ElementType>
 inline
-SimpleObjectArray<ElementType> SimpleObjectArray<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList)
+StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList)
 {
     return this->GetSubSet(IndexList.GetElementPointer(), int_max(IndexList.GetElementNumber()));
 }
@@ -586,7 +586,7 @@ SimpleObjectArray<ElementType> SimpleObjectArray<ElementType>::GetSubSet(const D
 
 template<typename ElementType>
 inline
-SimpleObjectArray<ElementType> SimpleObjectArray<ElementType>::GetSubSet(const SimpleObjectArray<int_max>& IndexList)
+StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const StdObjectVector<int_max>& IndexList)
 {
     return this->GetSubSet(IndexList.GetElementPointer(), int_max(IndexList.GetElementNumber()));
 }
@@ -594,9 +594,9 @@ SimpleObjectArray<ElementType> SimpleObjectArray<ElementType>::GetSubSet(const S
 
 template<typename ElementType>
 inline
-SimpleObjectArray<ElementType> SimpleObjectArray<ElementType>::GetSubSet(const int_max* IndexList, int_max ListLength)
+StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const int_max* IndexList, int_max ListLength)
 {
-    SimpleObjectArray<ElementType> SubSet;
+    StdObjectVector<ElementType> SubSet;
 
     if (IndexList == nullptr || ListLength <= 0)
     {
@@ -607,7 +607,7 @@ SimpleObjectArray<ElementType> SimpleObjectArray<ElementType>::GetSubSet(const i
 
     if (ListLength > ElementNumber)
     {
-        MDK_Error("Invalid ListLength @ SimpleObjectArray::GetSubSet(...)")
+        MDK_Error("Invalid ListLength @ StdObjectVector::GetSubSet(...)")
         return SubSet;
     }
 
@@ -619,7 +619,7 @@ SimpleObjectArray<ElementType> SimpleObjectArray<ElementType>::GetSubSet(const i
 
         if (tempIndex < 0 || tempIndex >= ElementNumber)
         {
-            MDK_Error("Invalid index @ SimpleObjectArray::GetSubSet(...)")
+            MDK_Error("Invalid index @ StdObjectVector::GetSubSet(...)")
                 SubSet.Clear();
             return SubSet;
         }
@@ -633,11 +633,11 @@ SimpleObjectArray<ElementType> SimpleObjectArray<ElementType>::GetSubSet(const i
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSet)
+bool StdObjectVector<ElementType>::SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSet)
 {
     if (IndexList.size() != SubSet.size())
     {
-        MDK_Error("IndexList.size() != SubSet.size() @ SimpleObjectArray::SetSubSet(...)")
+        MDK_Error("IndexList.size() != SubSet.size() @ StdObjectVector::SetSubSet(...)")
         return false;
     }
 
@@ -647,11 +647,11 @@ bool SimpleObjectArray<ElementType>::SetSubSet(const std::initializer_list<int_m
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSet)
+bool StdObjectVector<ElementType>::SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSet)
 {
     if (IndexList.size() != SubSet.size())
     {
-        MDK_Error("IndexList.size() != SubSet.size() @ SimpleObjectArray::SetSubSet(...)")
+        MDK_Error("IndexList.size() != SubSet.size() @ StdObjectVector::SetSubSet(...)")
         return false;
     }
 
@@ -661,11 +661,11 @@ bool SimpleObjectArray<ElementType>::SetSubSet(const std::vector<int_max>& Index
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::SetSubSet(const SimpleObjectArray<int_max>& IndexList, const SimpleObjectArray<ElementType>& SubSet)
+bool StdObjectVector<ElementType>::SetSubSet(const StdObjectVector<int_max>& IndexList, const StdObjectVector<ElementType>& SubSet)
 {
     if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
     {
-        MDK_Error("IndexList.size() != SubSet.size() @ SimpleObjectArray::SetSubSet(...)")
+        MDK_Error("IndexList.size() != SubSet.size() @ StdObjectVector::SetSubSet(...)")
         return false;
     }
 
@@ -675,11 +675,11 @@ bool SimpleObjectArray<ElementType>::SetSubSet(const SimpleObjectArray<int_max>&
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::SetSubSet(const int_max* IndexList, const ElementType* SubSet, int_max DataNumber)
+bool StdObjectVector<ElementType>::SetSubSet(const int_max* IndexList, const ElementType* SubSet, int_max DataNumber)
 {
 	if (IndexList == nullptr || SubSet == nullptr || DataNumber <= 0)
     {
-        MDK_Warning("Empty input @ SimpleObjectArray::SetSubSet(...)")
+        MDK_Warning("Empty input @ StdObjectVector::SetSubSet(...)")
         return true;
     }
 
@@ -687,13 +687,13 @@ bool SimpleObjectArray<ElementType>::SetSubSet(const int_max* IndexList, const E
 
     if (ElementNumber == 0)
     {
-        MDK_Error("Self is empty @ SimpleObjectArray::SetSubSet(...)")
+        MDK_Error("Self is empty @ StdObjectVector::SetSubSet(...)")
         return false;
     }
 
     if (DataNumber > ElementNumber)
     {
-        MDK_Error("Invalid DataNumber @ SimpleObjectArray::SetSubSet(...)")
+        MDK_Error("Invalid DataNumber @ StdObjectVector::SetSubSet(...)")
         return false;
     }
 
@@ -703,7 +703,7 @@ bool SimpleObjectArray<ElementType>::SetSubSet(const int_max* IndexList, const E
 
         if (Index < 0 || Index >= ElementNumber)
         {
-            MDK_Error("Invalid Index @ SimpleObjectArray::SetSubSet(...)")
+            MDK_Error("Invalid Index @ StdObjectVector::SetSubSet(...)")
             return false;
         }
 
@@ -716,7 +716,7 @@ bool SimpleObjectArray<ElementType>::SetSubSet(const int_max* IndexList, const E
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Append(ElementType Element)
+bool StdObjectVector<ElementType>::Append(ElementType Element)
 {
     auto SelfLength = this->GetElementNumber();
 
@@ -730,11 +730,11 @@ bool SimpleObjectArray<ElementType>::Append(ElementType Element)
 
 template<typename ElementType>
 inline 
-bool SimpleObjectArray<ElementType>::Append(const ElementType* InputArray, int_max InputLength)
+bool StdObjectVector<ElementType>::Append(const ElementType* InputArray, int_max InputLength)
 {
     if (InputArray == nullptr || InputLength <= 0)
     {
-        MDK_Error("Invalid Input: empty @ SimpleObjectArray::Append(const ElementType* InputArray, int_max InputLength)")
+        MDK_Error("Invalid Input: empty @ StdObjectVector::Append(const ElementType* InputArray, int_max InputLength)")
         return false;
     }
 
@@ -753,7 +753,7 @@ bool SimpleObjectArray<ElementType>::Append(const ElementType* InputArray, int_m
 
 template<typename ElementType>
 inline 
-bool SimpleObjectArray<ElementType>::Delete(int_max Index)
+bool StdObjectVector<ElementType>::Delete(int_max Index)
 {
     return Delete(&Index, 1);
 }
@@ -761,7 +761,7 @@ bool SimpleObjectArray<ElementType>::Delete(int_max Index)
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Delete(const std::initializer_list<int_max>& IndexList)
+bool StdObjectVector<ElementType>::Delete(const std::initializer_list<int_max>& IndexList)
 {
     return this->Delete(IndexList.begin(), int_max(IndexList.size()));
 }
@@ -769,7 +769,7 @@ bool SimpleObjectArray<ElementType>::Delete(const std::initializer_list<int_max>
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Delete(const std::vector<int_max>& IndexList)
+bool StdObjectVector<ElementType>::Delete(const std::vector<int_max>& IndexList)
 {    
     return this->Delete(IndexList.data(), int_max(IndexList.size()));
 }
@@ -777,11 +777,11 @@ bool SimpleObjectArray<ElementType>::Delete(const std::vector<int_max>& IndexLis
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Delete(const DenseMatrix<int_max>& IndexList)
+bool StdObjectVector<ElementType>::Delete(const DenseMatrix<int_max>& IndexList)
 {
     if (IndexList.IsVector() == false)
     {
-        MDK_Error("Input must be a vector @ SimpleObjectArray::Delete(const DenseMatrix<int_max>& IndexList)")
+        MDK_Error("Input must be a vector @ StdObjectVector::Delete(const DenseMatrix<int_max>& IndexList)")
         return false;
     }
 
@@ -791,7 +791,7 @@ bool SimpleObjectArray<ElementType>::Delete(const DenseMatrix<int_max>& IndexLis
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Delete(const SimpleObjectArray<int_max>& IndexList)
+bool StdObjectVector<ElementType>::Delete(const StdObjectVector<int_max>& IndexList)
 {
     return this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
 }
@@ -799,19 +799,19 @@ bool SimpleObjectArray<ElementType>::Delete(const SimpleObjectArray<int_max>& In
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLength)
+bool StdObjectVector<ElementType>::Delete(const int_max* IndexList, int_max ListLength)
 {
     auto SelfLength = this->GetElementNumber();
 
     if (SelfLength == 0)
     {
-        MDK_Error("Self is empty @ SimpleObjectArray::Delete(const int_max* IndexList, int_max ListLength)")
+        MDK_Error("Self is empty @ StdObjectVector::Delete(const int_max* IndexList, int_max ListLength)")
         return false;
     }
 
     if (IndexList == nullptr || ListLength <= 0)
     {
-        MDK_Error("Empty Input @ SimpleObjectArray::Delete(const int_max* IndexList, int_max ListLength)")
+        MDK_Error("Empty Input @ StdObjectVector::Delete(const int_max* IndexList, int_max ListLength)")
         return false;
     }
 
@@ -819,7 +819,7 @@ bool SimpleObjectArray<ElementType>::Delete(const int_max* IndexList, int_max Li
     {
         if (*it >= SelfLength || *it < 0)
         {
-            MDK_Error("Out of bound Input @ SimpleObjectArray::Delete(const int_max* IndexList, int_max ListLength)")
+            MDK_Error("Out of bound Input @ StdObjectVector::Delete(const int_max* IndexList, int_max ListLength)")
             return false;
         }
     }
@@ -847,7 +847,7 @@ bool SimpleObjectArray<ElementType>::Delete(const int_max* IndexList, int_max Li
 
             if (Index_i == Index_prev)
             {
-                MDK_Warning("duplicate Input @ SimpleObjectArray::Delete(const int_max* IndexPtr, int_max ListLength)")
+                MDK_Warning("duplicate Input @ StdObjectVector::Delete(const int_max* IndexPtr, int_max ListLength)")
             }
             else
             {
@@ -864,13 +864,13 @@ bool SimpleObjectArray<ElementType>::Delete(const int_max* IndexList, int_max Li
 
 template<typename ElementType>
 inline 
-bool SimpleObjectArray<ElementType>::Delete(int_max Index_start, int_max Index_end)
+bool StdObjectVector<ElementType>::Delete(int_max Index_start, int_max Index_end)
 {
     auto SelfLength = this->GetElementNumber();
 
     if (SelfLength == 0)
     {
-        MDK_Error("Self is empty @ SimpleObjectArray::Delete(int_max Index_start, int_max Index_end)")
+        MDK_Error("Self is empty @ StdObjectVector::Delete(int_max Index_start, int_max Index_end)")
         return false;
     }
 
@@ -878,7 +878,7 @@ bool SimpleObjectArray<ElementType>::Delete(int_max Index_start, int_max Index_e
         || Index_start >= SelfLength || Index_start < 0
         || Index_end >= SelfLength || Index_end < 0 )
     {
-        MDK_Error("Invalid Input @ SimpleObjectArray::Delete(int_max Index_start, int_max Index_end)")
+        MDK_Error("Invalid Input @ StdObjectVector::Delete(int_max Index_start, int_max Index_end)")
         return false;
     }
 
@@ -889,7 +889,7 @@ bool SimpleObjectArray<ElementType>::Delete(int_max Index_start, int_max Index_e
 
 
 template<typename ElementType>
-inline bool SimpleObjectArray<ElementType>::Insert(int_max Index, const ElementType& Element)
+inline bool StdObjectVector<ElementType>::Insert(int_max Index, const ElementType& Element)
 {
     return this->Insert(Index, &Element, 1);
 }
@@ -897,7 +897,7 @@ inline bool SimpleObjectArray<ElementType>::Insert(int_max Index, const ElementT
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Insert(int_max Index, const std::initializer_list<ElementType>& InputArray)
+bool StdObjectVector<ElementType>::Insert(int_max Index, const std::initializer_list<ElementType>& InputArray)
 {
     return this->Insert(Index, InputArray.begin(), int_max(InputArray.size()));
 }
@@ -905,7 +905,7 @@ bool SimpleObjectArray<ElementType>::Insert(int_max Index, const std::initialize
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Insert(int_max Index, const std::vector<ElementType>& InputArray)
+bool StdObjectVector<ElementType>::Insert(int_max Index, const std::vector<ElementType>& InputArray)
 {
     return this->Insert(Index, InputArray.data(), int_max(InputArray.size()));
 }
@@ -913,11 +913,11 @@ bool SimpleObjectArray<ElementType>::Insert(int_max Index, const std::vector<Ele
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Insert(int_max Index, const DenseMatrix<ElementType>& InputArray)
+bool StdObjectVector<ElementType>::Insert(int_max Index, const DenseMatrix<ElementType>& InputArray)
 {
     if (DenseMatrix.IsVector() == false)
     {
-        MDK_Error("Input is NOT a vector @ SimpleObjectArray::Insert(Index, DenseMatrix)")
+        MDK_Error("Input is NOT a vector @ StdObjectVector::Insert(Index, DenseMatrix)")
         return false;
     }
 
@@ -927,7 +927,7 @@ bool SimpleObjectArray<ElementType>::Insert(int_max Index, const DenseMatrix<Ele
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Insert(int_max Index, const SimpleObjectArray<ElementType>& InputArray)
+bool StdObjectVector<ElementType>::Insert(int_max Index, const StdObjectVector<ElementType>& InputArray)
 {
     return this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementNumber());
 }
@@ -935,7 +935,7 @@ bool SimpleObjectArray<ElementType>::Insert(int_max Index, const SimpleObjectArr
 
 template<typename ElementType>
 inline
-bool SimpleObjectArray<ElementType>::Insert(int_max Index, const ElementType* InputArray, int_max InputLength)
+bool StdObjectVector<ElementType>::Insert(int_max Index, const ElementType* InputArray, int_max InputLength)
 {
     auto SelfLength = this->GetElementNumber();
 
@@ -943,7 +943,7 @@ bool SimpleObjectArray<ElementType>::Insert(int_max Index, const ElementType* In
     {
         if (Index != 0 || InputArray == nullptr || InputLength <= 0)
         {
-            MDK_Error("Invalid Input @ SimpleObjectArray::Insert(Index, const ElementType* InputArray, int_max InputLength)")
+            MDK_Error("Invalid Input @ StdObjectVector::Insert(Index, const ElementType* InputArray, int_max InputLength)")
             return false;
         }
     }
@@ -951,7 +951,7 @@ bool SimpleObjectArray<ElementType>::Insert(int_max Index, const ElementType* In
     {
         if (Index >= SelfLength || Index < 0 || InputArray == nullptr || InputLength <= 0)
         {
-            MDK_Error("Invalid Input @ SimpleObjectArray::Insert(Index, const ElementType* InputArray, int_max InputLength)")
+            MDK_Error("Invalid Input @ StdObjectVector::Insert(Index, const ElementType* InputArray, int_max InputLength)")
             return false;
         }
     }
@@ -964,7 +964,7 @@ bool SimpleObjectArray<ElementType>::Insert(int_max Index, const ElementType* In
 
 template<typename ElementType>
 inline 
-bool SimpleObjectArray<ElementType>::PushBack(ElementType Element)
+bool StdObjectVector<ElementType>::PushBack(ElementType Element)
 {
     m_StdVector.push_back(std::move(Element));
 }
@@ -972,7 +972,7 @@ bool SimpleObjectArray<ElementType>::PushBack(ElementType Element)
 
 template<typename ElementType>
 inline
-ElementType SimpleObjectArray<ElementType>::PopBack()
+ElementType StdObjectVector<ElementType>::PopBack()
 {
     return m_StdVector.pop_back();
 }
@@ -981,7 +981,7 @@ ElementType SimpleObjectArray<ElementType>::PopBack()
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
-SimpleObjectArray<int_max> SimpleObjectArray<ElementType>::Find(MatchFunctionType MatchFunction)
+StdObjectVector<int_max> StdObjectVector<ElementType>::Find(MatchFunctionType MatchFunction)
 {
     return this->Find(this->GetLength(), 0, this->GetLength()-1, MatchFunction);
 }
@@ -990,7 +990,7 @@ SimpleObjectArray<int_max> SimpleObjectArray<ElementType>::Find(MatchFunctionTyp
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
-SimpleObjectArray<int_max> SimpleObjectArray<ElementType>::Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction)
+StdObjectVector<int_max> StdObjectVector<ElementType>::Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction)
 {
     return this->Find(MaxOutputNumber, 0, this->GetLength()-1, MatchFunction);
 }
@@ -999,28 +999,28 @@ SimpleObjectArray<int_max> SimpleObjectArray<ElementType>::Find(int_max MaxOutpu
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
-SimpleObjectArray<int_max> SimpleObjectArray<ElementType>::
+StdObjectVector<int_max> StdObjectVector<ElementType>::
 Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction)
 {
-    SimpleObjectArray<int_max> IndexList;
+    StdObjectVector<int_max> IndexList;
 
     auto ElementNumber = this->GetElementNumber();
 
     if (MaxOutputNumber <= 0 || MaxOutputNumber > ElementNumber)
     {
-        MDK_Error("MaxOutputNumber is invalid @ SimpleObjectArray::Find(...)")
+        MDK_Error("MaxOutputNumber is invalid @ StdObjectVector::Find(...)")
         return IndexList;
     }
 
     if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
     {
-        MDK_Error("Index_start is invalid @ SimpleObjectArray::Find(...)")
+        MDK_Error("Index_start is invalid @ StdObjectVector::Find(...)")
         return IndexList;
     }
 
     if (Index_end < 0 || Index_end >= ElementNumber)
     {
-        MDK_Error("Index_end is invalid @ SimpleObjectArray::Find(...)")
+        MDK_Error("Index_end is invalid @ StdObjectVector::Find(...)")
         return IndexList;
     }
 
@@ -1056,7 +1056,7 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
 
 template<typename ElementType>
 inline
-SimpleObjectArray<int_max> SimpleObjectArray<ElementType>::ExactMatch(const ElementType& InputElement) const
+StdObjectVector<int_max> StdObjectVector<ElementType>::ExactMatch(const ElementType& InputElement) const
 {
 	return this->Find([&](const ElementType& Element){return Element == InputElement; });
 }
@@ -1064,7 +1064,7 @@ SimpleObjectArray<int_max> SimpleObjectArray<ElementType>::ExactMatch(const Elem
 
 template<typename ElementType>
 inline
-int_max SimpleObjectArray<ElementType>::ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const
+int_max StdObjectVector<ElementType>::ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const
 {
 	return this->Find(first_or_last, [&](const ElementType& Element){return Element == InputElement; });
 }
@@ -1073,7 +1073,7 @@ int_max SimpleObjectArray<ElementType>::ExactMatch(const std::string& first_or_l
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline
-SimpleObjectArray<int_max> SimpleObjectArray<ElementType>::Sort(CompareFunctionType CompareFunction) const
+StdObjectVector<int_max> StdObjectVector<ElementType>::Sort(CompareFunctionType CompareFunction) const
 {
     return this->Sort(0, this->GetLength()-1, CompareFunction);
 }
@@ -1082,21 +1082,21 @@ SimpleObjectArray<int_max> SimpleObjectArray<ElementType>::Sort(CompareFunctionT
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline
-SimpleObjectArray<int_max> SimpleObjectArray<ElementType>::Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const
+StdObjectVector<int_max> StdObjectVector<ElementType>::Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const
 {
-    SimpleObjectArray<int_max> IndexList;
+    StdObjectVector<int_max> IndexList;
 
     auto ElementNumber = this->GetElementNumber();
 
     if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
     {
-        MDK_Error("Index_start is invalid @ SimpleObjectArray::Sort(...)")
+        MDK_Error("Index_start is invalid @ StdObjectVector::Sort(...)")
         return IndexList;
     }
 
     if (Index_end < 0 || Index_end >= ElementNumber)
     {
-        MDK_Error("Index_end is invalid @ SimpleObjectArray::Sort(...)")
+        MDK_Error("Index_end is invalid @ StdObjectVector::Sort(...)")
         return IndexList;
     }
 
@@ -1130,7 +1130,7 @@ SimpleObjectArray<int_max> SimpleObjectArray<ElementType>::Sort(int_max Index_st
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline
-void SimpleObjectArray<ElementType>::SortInPlace(CompareFunctionType CompareFunction)
+void StdObjectVector<ElementType>::SortInPlace(CompareFunctionType CompareFunction)
 {
     if (this->IsEmpty() == true)
     {
@@ -1144,7 +1144,7 @@ void SimpleObjectArray<ElementType>::SortInPlace(CompareFunctionType CompareFunc
 template<typename ElementType>
 template<typename CompareFunctionType>
 inline
-void SimpleObjectArray<ElementType>::SortInPlace(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction)
+void StdObjectVector<ElementType>::SortInPlace(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction)
 {
     if (this->IsEmpty() == true)
     {

@@ -68,20 +68,23 @@ void ParallelBlock(FunctionType BlockFunction, const std::vector<int_max>& DataI
 		std::vector<std::thread> ThreadList;
 		ThreadList.reserve(ThreadNumber);
 
+		std::vector<std::vector<int_max>> ListOfSubDataIndexList;
+		ListOfSubDataIndexList.resize(ThreadNumber);
+
         for (int_max i = 0; i < ThreadNumber; ++i)
         {
-            auto subNumber = IndexList_end[i] - IndexList_start[i] + 1;
-
-            std::vector<int_max> SubDataIndexList(subNumber);
-
-            for (int_max k = 0; k < subNumber; ++k)
+			auto SubDataNumber = IndexList_end[i] - IndexList_start[i] + 1;
+            // auto& take reference
+			auto& SubDataIndexList = ListOfSubDataIndexList[i];
+			SubDataIndexList.resize(SubDataNumber);
+			for (int_max k = 0; k < SubDataNumber; ++k)
             {
-                SubDataIndexList[k] = DataIndexList[IndexList_start[i] + k];
+				SubDataIndexList[k] = DataIndexList[IndexList_start[i] + k];
             }
 
 			try
 			{
-				ThreadList.emplace_back(BlockFunction(std::move(SubDataIndexList), Index_start, Index_end, i));
+				ThreadList.emplace_back(BlockFunction(SubDataIndexList, i));
 			}
 			catch (...)
 			{
@@ -134,18 +137,8 @@ void ParallelBlock(FunctionType BlockFunction, int_max DataIndex_start, int_max 
         for (int_max i = 0; i < ThreadNumber; ++i)
         {
 			int_max ThreadIndex = i;
-            int_max Index_start = IndexList_start[i];
-            int_max Index_end   = IndexList_end[i];
-			if (DataIndex_start <= DataIndex_end)
-			{
-				Index_start += DataIndex_start;
-				Index_end += DataIndex_start;
-			}
-			else
-			{
-				Index_start = DataIndex_start - Index_start;
-				Index_end = DataIndex_start - Index_end;
-			}
+			int_max Index_start = DataIndex_start + IndexList_start[i];
+			int_max Index_end = DataIndex_start + IndexList_end[i];
 
             try
             {

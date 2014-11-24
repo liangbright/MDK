@@ -31,7 +31,7 @@ inline ObjectArray<ElementType>::ObjectArray(const std::vector<ElementType>& Inp
 
 
 template<typename ElementType>
-inline ObjectArray<ElementType>::ObjectArray(const SimpleObjectArray<ElementType>& InputArray)
+inline ObjectArray<ElementType>::ObjectArray(const StdObjectVector<ElementType>& InputArray)
 {
 	this->Resize(0);
 	this->Copy(InputArray);
@@ -73,7 +73,7 @@ template<typename ElementType>
 inline
 std::vector<ElementType>& ObjectArray<ElementType>::StdVector()
 {
-    m_Data->CopyDataToInternalObjectArrayIfNecessary();
+    m_Data->CopyDataToStdVectorIfNecessary();
     return m_Data->StdVector;
 }
 
@@ -82,7 +82,7 @@ template<typename ElementType>
 inline
 const std::vector<ElementType>& ObjectArray<ElementType>::StdVector() const
 {
-    m_Data->CopyDataToInternalObjectArrayIfNecessary();
+    m_Data->CopyDataToStdVectorIfNecessary();
     return m_Data->StdVector;
 }
 
@@ -106,7 +106,7 @@ void ObjectArray<ElementType>::operator=(ObjectArray<ElementType>&& InputArray)
 
 template<typename ElementType>
 inline
-void ObjectArray<ElementType>::operator=(const SimpleObjectArray<ElementType>& InputArray)
+void ObjectArray<ElementType>::operator=(const StdObjectVector<ElementType>& InputArray)
 {
 	this->Copy(InputArray);
 }
@@ -168,7 +168,7 @@ bool ObjectArray<ElementType>::Copy(const std::vector<ElementType>& InputArray)
 
 template<typename ElementType>
 inline
-bool ObjectArray<ElementType>::Copy(const SimpleObjectArray<ElementType>& InputArray)
+bool ObjectArray<ElementType>::Copy(const StdObjectVector<ElementType>& InputArray)
 {
 	return this->Copy(InputArray.GetElementPointer(), InputArray.GetLength());
 }
@@ -176,11 +176,11 @@ bool ObjectArray<ElementType>::Copy(const SimpleObjectArray<ElementType>& InputA
 
 template<typename ElementType>
 inline
-bool ObjectArray<ElementType>::Copy(const SimpleObjectArray<ElementType>* InputArray)
+bool ObjectArray<ElementType>::Copy(const StdObjectVector<ElementType>* InputArray)
 {
 	if (InputArray == nullptr)
 	{
-		MDK_Error("Input is nullptr @ ObjectArray::Copy(const SimpleObjectArray* InputArray)")
+		MDK_Error("Input is nullptr @ ObjectArray::Copy(const StdObjectVector* InputArray)")
 		return false;
 	}
 	return this->Copy(InputArray->GetElementPointer(), InputArray->GetLength());
@@ -561,7 +561,7 @@ try
         return false;
     }
 
-    m_Data->CopyDataToInternalObjectArrayIfNecessary();
+    m_Data->CopyDataToStdVectorIfNecessary();
 
     m_Data->StdVector.resize(InputLength);
     m_Data->ElementPointer = m_Data->StdVector.data();
@@ -978,7 +978,7 @@ bool ObjectArray<ElementType>::Append(ElementType Element)
         return false;
     }
 
-    m_Data->CopyDataToInternalObjectArrayIfNecessary();
+    m_Data->CopyDataToStdVectorIfNecessary();
 
     auto SelfLength = this->GetElementNumber();
 
@@ -1022,7 +1022,7 @@ bool ObjectArray<ElementType>::Append(const DenseMatrix<ElementType>& InputArray
 /*
 template<typename ElementType>
 inline
-bool ObjectArray<ElementType>::Append(const SimpleObjectArray<ElementType>& InputArray)
+bool ObjectArray<ElementType>::Append(const StdObjectVector<ElementType>& InputArray)
 {
 	return this->Append(InputArray.GetElementPointer(), InputArray.GetElementNumber());
 }
@@ -1052,7 +1052,7 @@ bool ObjectArray<ElementType>::Append(const ElementType* InputArray, int_max Inp
         return false;
     }
 
-    m_Data->CopyDataToInternalObjectArrayIfNecessary();
+    m_Data->CopyDataToStdVectorIfNecessary();
 
     auto SelfLength = this->GetElementNumber();
 
@@ -1115,7 +1115,7 @@ bool ObjectArray<ElementType>::Delete(const ObjectArray<int_max>& IndexList)
 
 template<typename ElementType>
 inline
-bool ObjectArray<ElementType>::Delete(const SimpleObjectArray<int_max>& IndexList)
+bool ObjectArray<ElementType>::Delete(const StdObjectVector<int_max>& IndexList)
 {
 	return this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
 }
@@ -1154,7 +1154,7 @@ bool ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
         }
     }
 
-    m_Data->CopyDataToInternalObjectArrayIfNecessary();
+    m_Data->CopyDataToStdVectorIfNecessary();
 
     if (ListLength == 1)
     {
@@ -1228,7 +1228,7 @@ bool ObjectArray<ElementType>::Delete(int_max Index_start, int_max Index_end)
         return false;
     }
 
-    m_Data->CopyDataToInternalObjectArrayIfNecessary();
+    m_Data->CopyDataToStdVectorIfNecessary();
 
     m_Data->StdVector.erase(m_Data->StdVector.begin() + Index_start, m_Data->StdVector.begin() + Index_end + 1);
     
@@ -1265,7 +1265,7 @@ bool ObjectArray<ElementType>::Insert(int_max Index, const std::vector<ElementTy
 
 template<typename ElementType>
 inline
-bool ObjectArray<ElementType>::Insert(int_max Index, const SimpleObjectArray<ElementType>& InputArray)
+bool ObjectArray<ElementType>::Insert(int_max Index, const StdObjectVector<ElementType>& InputArray)
 {
 	return this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementNumber());
 }
@@ -1313,11 +1313,11 @@ bool ObjectArray<ElementType>::Insert(int_max Index, const ElementType* InputArr
         this->Resize(0);
     }
 
-    m_Data->CopyDataToInternalObjectArrayIfNecessary();
+    m_Data->CopyDataToStdVectorIfNecessary();
 
     m_Data->StdVector.insert(m_Data->StdVector.begin() + Index, InputArray, InputArray + InputLength);
 
-    m_Data->Length = InputLength;
+	m_Data->Length = SelfLength + InputLength;
 
     m_Data->ElementPointer = m_Data->StdVector.data();
 
@@ -1408,7 +1408,7 @@ ObjectArray<ElementType> ObjectArray<ElementType>::GetSubSet(const std::vector<i
 
 template<typename ElementType>
 inline
-ObjectArray<ElementType> ObjectArray<ElementType>::GetSubSet(const SimpleObjectArray<int_max>& IndexList)
+ObjectArray<ElementType> ObjectArray<ElementType>::GetSubSet(const StdObjectVector<int_max>& IndexList)
 {
 	return this->GetSubSet(IndexList.begin(), int_max(IndexList.GetElementNumber()));
 }

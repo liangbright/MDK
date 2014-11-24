@@ -22,15 +22,18 @@ template<typename ElementType>
 class DenseMatrix;
 
 template<typename ElementType>
-class SimpleObjectArray;
+class StdObjectVector;
 
 template<typename ElementType>
 class ObjectArray;
 
-// another ClassName ---------------------------
+// other ClassName : DataArray or ObjectVector -----
 template<typename ElementType>
 using DataArray = ObjectArray<ElementType>;
-//--------------------------------------------
+
+template<typename ElementType>
+using ObjectVector = ObjectArray<ElementType>;
+//--------------------------------------------------
 
 // ----------------------------- ObjectArrayData struct -------------------------------------------------------------//
 
@@ -58,13 +61,13 @@ struct ObjectArrayData
 
     ~ObjectArrayData() {};
 
-    void CopyDataToInternalObjectArrayIfNecessary()
+    void CopyDataToStdVectorIfNecessary()
     {
 		if (ElementPointer != StdVector.data())
         {
             if (ElementPointer == nullptr)
             {
-                MDK_Error("ElementPointer is nullptr @ ObjectArrayData::CopyDataToInternalObjectArrayIfNecessary()")
+                MDK_Error("ElementPointer is nullptr @ ObjectArrayData::CopyDataToStdVectorIfNecessary()")
                 return;
             }
 
@@ -130,7 +133,7 @@ public:
 
     inline ObjectArray(const std::vector<ElementType>& InputArray);
 
-	inline ObjectArray(const SimpleObjectArray<ElementType>& InputArray);
+	inline ObjectArray(const StdObjectVector<ElementType>& InputArray);
 
     // deep-copy or shared-copy constructor
     inline ObjectArray(const ObjectArray<ElementType>& InputArray, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
@@ -155,7 +158,7 @@ public:
 
     inline void operator=(ObjectArray<ElementType>&& InputArray);
 
-	inline void operator=(const SimpleObjectArray<ElementType>& InputArray);
+	inline void operator=(const StdObjectVector<ElementType>& InputArray);
 
     inline void operator=(const std::initializer_list<ElementType>& InputList);
 
@@ -165,9 +168,9 @@ public:
 
 	inline bool Copy(const std::vector<ElementType>& InputArray);
 
-	inline bool Copy(const SimpleObjectArray<ElementType>& InputArray);
+	inline bool Copy(const StdObjectVector<ElementType>& InputArray);
 
-	inline bool Copy(const SimpleObjectArray<ElementType>* InputArray);
+	inline bool Copy(const StdObjectVector<ElementType>* InputArray);
 
     inline bool Copy(const ObjectArray<ElementType>& InputArray);
 
@@ -272,7 +275,7 @@ public:
     //inline bool Append(const std::initializer_list<ElementType>& InputArray);
     //inline bool Append(const std::vector<ElementType>& InputArray);    
     //inline bool Append(const DenseMatrix<ElementType>& InputArray);
-	//inline bool Append(const SimpleObjectArray<ElementType>& InputArray);
+	//inline bool Append(const StdObjectVector<ElementType>& InputArray);
     //inline bool Append(const ObjectArray<ElementType>& InputArray);
 
     inline bool Append(const ElementType* InputArray, int_max InputLength);
@@ -289,7 +292,7 @@ public:
 
     inline bool Delete(const ObjectArray<int_max>& IndexList);
 
-	inline bool Delete(const SimpleObjectArray<int_max>& IndexList);
+	inline bool Delete(const StdObjectVector<int_max>& IndexList);
 
     inline bool Delete(const int_max* ColIndexList, int_max ListLength);
 
@@ -301,7 +304,7 @@ public:
 
     inline bool Insert(int_max Index, const std::vector<ElementType>& InputArray);
 
-	inline bool Insert(int_max Index, const SimpleObjectArray<ElementType>& InputArray);
+	inline bool Insert(int_max Index, const StdObjectVector<ElementType>& InputArray);
 
 	inline bool Insert(int_max Index, const ObjectArray<ElementType>& InputArray);
 	
@@ -321,7 +324,7 @@ public:
 
     inline ObjectArray<ElementType> GetSubSet(const std::vector<int_max>& IndexList);
 
-	inline ObjectArray<ElementType> GetSubSet(const SimpleObjectArray<int_max>& IndexList);
+	inline ObjectArray<ElementType> GetSubSet(const StdObjectVector<int_max>& IndexList);
 
 	inline ObjectArray<ElementType> GetSubSet(const ObjectArray<int_max>& IndexList);
 
@@ -341,7 +344,7 @@ public:
 
 	inline bool SetSubSet(const std::vector<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
 
-	inline bool SetSubSet(const SimpleObjectArray<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
+	inline bool SetSubSet(const StdObjectVector<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
 
 	inline bool SetSubSet(const ObjectArray<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
 

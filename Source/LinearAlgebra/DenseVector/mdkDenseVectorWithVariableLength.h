@@ -39,6 +39,10 @@ public:
     inline DenseVector(const std::initializer_list<ElementType>& InputVector);
 
 	inline DenseVector(std::vector<ElementType> InputVector);
+	
+	inline DenseVector(StdObjectVector<ElementType> InputVector);
+
+	inline DenseVector(DataArray<ElementType> InputVector);
 
 	inline DenseVector(const DenseMatrix<ElementType>& InputMatrix);
 
@@ -65,6 +69,10 @@ public:
     inline void operator=(const std::initializer_list<ElementType>& InputVector);
 
 	inline void operator=(std::vector<ElementType> InputVector);
+
+	inline void operator=(StdObjectVector<ElementType> InputVector);
+
+	inline void operator=(DataArray<ElementType> InputVector);
 
     inline void operator=(const DenseMatrix<ElementType>& InputVector);
 

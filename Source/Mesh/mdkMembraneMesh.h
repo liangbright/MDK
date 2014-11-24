@@ -48,22 +48,22 @@ struct MembraneMeshData
     // row_2: z
     // a point is a  of an Edge or a point on Edge Edge
 
-	SimpleObjectArray<Point_Of_MembraneMesh<MeshAttributeType>> PointList;
+	StdObjectVector<Point_Of_MembraneMesh<MeshAttributeType>> PointList;
 
     DenseVector<int_max> PointValidityFlagList; // do not use bool (std::vector<bool> is compressed)
     // 1: point is an element of the mesh 
     // 0: point is deleted
 
-	SimpleObjectArray<Edge_Of_MembraneMesh<MeshAttributeType>> EdgeList;
+	StdObjectVector<Edge_Of_MembraneMesh<MeshAttributeType>> EdgeList;
 
     // do not use this, DirectedEdge_Of_MembraneMesh::operator(&&) will not work when append to the list
-    //ObjectArray<DenseVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>, 2>> DirectedEdgePairList;
+    //StdObjectVector<DenseVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>, 2>> DirectedEdgePairList;
 
     DenseVector<int_max> EdgeValidityFlagList;
     // 1: Edge is an element of the mesh 
     // 0: Edge is deleted
 
-	SimpleObjectArray<Cell_Of_MembraneMesh<MeshAttributeType>> CellList; // also known as face, facet, element
+	StdObjectVector<Cell_Of_MembraneMesh<MeshAttributeType>> CellList; // also known as face, facet, element
 
     DenseVector<int_max>  CellValidityFlagList;
     // 1: Cell is an element of the mesh 
@@ -108,6 +108,11 @@ public:
     typedef Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttributeType>    DirectedEdgeIteratorType;
     typedef Iterator_Of_Cell_Of_MembraneMesh<MeshAttributeType>            CellIteratorType;
     //--------------------------------------------------------------------------------------------------//
+	typedef StdObjectVector<Point_Of_MembraneMesh<MeshAttributeType>>          PointListType;
+	typedef StdObjectVector<Edge_Of_MembraneMesh<MeshAttributeType>>           EdgeListType;
+	typedef StdObjectVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>   DirectedEdgeListType;
+	typedef StdObjectVector<Cell_Of_MembraneMesh<MeshAttributeType>>           CellListType;
+	//--------------------------------------------------------------------------------------------------//
 
 protected:
     std::shared_ptr<MembraneMeshData<MeshAttributeType>> m_MeshData;

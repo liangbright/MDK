@@ -114,7 +114,7 @@ DenseMatrix<ElementType>::DenseMatrix(std::vector<ElementType> InputColVector)
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>::DenseMatrix(DataArray<ElementType> InputColVector)
+DenseMatrix<ElementType>::DenseMatrix(StdObjectVector<ElementType> InputColVector)
 {
 	this->Resize(0, 0);
 	if (InputColVector.GetElementNumber() > 0)
@@ -126,7 +126,7 @@ DenseMatrix<ElementType>::DenseMatrix(DataArray<ElementType> InputColVector)
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>::DenseMatrix(SimpleDataArray<ElementType> InputColVector)
+DenseMatrix<ElementType>::DenseMatrix(DataArray<ElementType> InputColVector)
 {
 	this->Resize(0, 0);
 	if (InputColVector.GetElementNumber() > 0)
@@ -644,7 +644,7 @@ void DenseMatrix<ElementType>::operator=(std::vector<ElementType> InputColVector
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::operator=(DataArray<ElementType> InputColVector)
+void DenseMatrix<ElementType>::operator=(StdObjectVector<ElementType> InputColVector)
 {
 	this->Take(InputColVector);
 }
@@ -652,7 +652,7 @@ void DenseMatrix<ElementType>::operator=(DataArray<ElementType> InputColVector)
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::operator=(SimpleDataArray<ElementType> InputColVector)
+void DenseMatrix<ElementType>::operator=(DataArray<ElementType> InputColVector)
 {
 	this->Take(InputColVector);
 }
@@ -1236,6 +1236,22 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputColVector)
 
 template<typename ElementType>
 inline
+bool DenseMatrix<ElementType>::Take(StdObjectVector<ElementType>&& InputColVector)
+{
+	return this->Take(InputColVector.StdVector());
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::Take(StdObjectVector<ElementType>& InputColVector)
+{
+	return this->Take(InputColVector.StdVector());
+}
+
+
+template<typename ElementType>
+inline
 bool DenseMatrix<ElementType>::Take(DataArray<ElementType>&& InputColVector)
 {
 	return this->Take(std::forward<DenseVector<ElementType>&>(InputColVector));
@@ -1245,22 +1261,6 @@ bool DenseMatrix<ElementType>::Take(DataArray<ElementType>&& InputColVector)
 template<typename ElementType>
 inline
 bool DenseMatrix<ElementType>::Take(DataArray<ElementType>& InputColVector)
-{
-	return this->Take(InputColVector.StdVector());
-}
-
-
-template<typename ElementType>
-inline
-bool DenseMatrix<ElementType>::Take(SimpleDataArray<ElementType>&& InputColVector)
-{
-	return this->Take(std::forward<DenseVector<ElementType>&>(InputColVector));
-}
-
-
-template<typename ElementType>
-inline
-bool DenseMatrix<ElementType>::Take(SimpleDataArray<ElementType>& InputColVector)
 {
 	return this->Take(InputColVector.StdVector());
 }

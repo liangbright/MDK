@@ -11,6 +11,7 @@
 
 #include "mdkLinearAlgebraConfig.h"
 #include "mdkMatrix_Common.h"
+#include "mdkStdObjectVector.h"
 #include "mdkDenseVector.h"
 #include "mdkDenseShadowMatrix.h"
 #include "mdkDenseGlueMatrixForLinearCombination.h"
@@ -173,9 +174,9 @@ public:
 
 	inline DenseMatrix(std::vector<ElementType> InputColVector);
 
-	inline DenseMatrix(DataArray<ElementType> InputColVector);
+	inline DenseMatrix(StdObjectVector<ElementType> InputColVector);
 
-	inline DenseMatrix(SimpleDataArray<ElementType> InputColVector);
+	inline DenseMatrix(DataArray<ElementType> InputColVector);
 
 	template<int_max VectorFixedLength>
 	inline DenseMatrix(const DenseVector<ElementType, VectorFixedLength>& InputColVector);
@@ -229,9 +230,9 @@ public:
 
 	inline void operator=(std::vector<ElementType> InputColVector);
 
-	inline void operator=(DataArray<ElementType> InputColVector);
+	inline void operator=(StdObjectVector<ElementType> InputColVector);
 
-	inline void operator=(SimpleDataArray<ElementType> InputColVector);
+	inline void operator=(DataArray<ElementType> InputColVector);
 
 	template<int_max VectorFixedLength>
 	inline void operator=(const DenseVector<ElementType, VectorFixedLength>& InputColVector);
@@ -353,13 +354,13 @@ public:
 	inline bool Take(std::vector<ElementType>&& InputColVector);
 	inline bool Take(std::vector<ElementType>& InputColVector);
 
+	//Take the data of StdObjectVector
+	inline bool Take(StdObjectVector<ElementType>&& InputDataArray);
+	inline bool Take(StdObjectVector<ElementType>& InputDataArray);
+
 	//Take the data of DataArray
 	inline bool Take(DataArray<ElementType>&& InputDataArray);
 	inline bool Take(DataArray<ElementType>& InputDataArray);
-
-	//Take the data of SimpleDataArray
-	inline bool Take(SimpleDataArray<ElementType>&& InputDataArray);
-	inline bool Take(SimpleDataArray<ElementType>& InputDataArray);
 
 	//Take the data of DenseVector
 	inline bool Take(DenseVector<ElementType>&& InputColVector);

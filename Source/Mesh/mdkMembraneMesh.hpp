@@ -2468,7 +2468,7 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
     if (ValidPointIndexList.GetLength() != m_MeshData->PointList.GetLength())
     {
         // remove deleted item from PointList
-		SimpleDataArray<Point_Of_MembraneMesh<MeshAttributeType>> PointList_new;
+		PointListType PointList_new;
         PointList_new.Resize(ValidPointIndexList.GetLength());
         for (int_max k = 0; k < ValidPointIndexList.GetLength(); ++k)
         {
@@ -2552,7 +2552,7 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
     if (ValidEdgeIndexList.GetLength() != m_MeshData->EdgeList.GetLength())
     {   // remove deleted item from EdgeList
 
-		SimpleDataArray<Edge_Of_MembraneMesh<MeshAttributeType>> EdgeList_new;
+		EdgeListType EdgeList_new;
         EdgeList_new.Resize(ValidEdgeIndexList.GetLength());
 
         for (int_max k = 0; k < ValidEdgeIndexList.GetLength(); ++k)
@@ -2640,7 +2640,7 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
     // remove deleted item from CellList
     if (ValidCellIndexList.GetLength() != m_MeshData->CellList.GetLength())
     {
-		SimpleDataArray<Cell_Of_MembraneMesh<MeshAttributeType>> CellList_new;
+		CellListType CellList_new;
         CellList_new.Resize(ValidCellIndexList.GetLength());
         for (int_max k = 0; k < ValidCellIndexList.GetLength(); ++k)
         {
@@ -2739,7 +2739,7 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
 		if (ValidDirectedEdgeRelativeIndexList.GetLength() != DirectedEdgeList_old.GetLength())
 		{
 			// remove deleted item
-			SimpleDataArray<DirectedEdge_Of_MembraneMesh<MeshAttributeType>> DirectedEdgeList_new;
+			DirectedEdgeListType DirectedEdgeList_new;
 			DirectedEdgeList_new.Resize(ValidDirectedEdgeRelativeIndexList.GetLength());
 			for (int_max n = 0; n < ValidCellIndexList.GetLength(); ++n)
 			{

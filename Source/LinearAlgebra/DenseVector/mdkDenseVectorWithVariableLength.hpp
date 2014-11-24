@@ -38,6 +38,22 @@ DenseVector<ElementType>::DenseVector(std::vector<ElementType> InputVector)
 
 
 template<typename ElementType>
+inline
+DenseVector<ElementType>::DenseVector(StdObjectVector<ElementType> InputVector)
+{
+	m_StdVector = std::move(InputVector.StdVector());
+}
+
+
+template<typename ElementType>
+inline
+DenseVector<ElementType>::DenseVector(DataArray<ElementType> InputVector)
+{
+	m_StdVector = std::move(InputVector.StdVector());
+}
+
+
+template<typename ElementType>
 inline 
 DenseVector<ElementType>::DenseVector(const DenseMatrix<ElementType>& InputMatrix)
 {
@@ -202,6 +218,22 @@ inline
 void DenseVector<ElementType>::operator=(std::vector<ElementType> InputVector)
 {
 	m_StdVector = std::move(InputVector);
+}
+
+
+template<typename ElementType>
+inline
+void DenseVector<ElementType>::operator=(StdObjectVector<ElementType> InputVector)
+{
+	m_StdVector = std::move(InputVector.StdVector());
+}
+
+
+template<typename ElementType>
+inline
+void DenseVector<ElementType>::operator=(DataArray<ElementType> InputVector)
+{
+	m_StdVector = std::move(InputVector.StdVector());
 }
 
 

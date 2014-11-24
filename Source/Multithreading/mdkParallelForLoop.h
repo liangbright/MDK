@@ -23,7 +23,7 @@ void ParallelForLoop(FunctionType SingleFunction, const std::vector<int_max>& Lo
 
 template<typename FunctionType>
 inline
-void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, std::vector<int_max> SubLoopIndexList, int_max ThreadIndex);
+void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, const std::vector<int_max>& SubLoopIndexList, int_max ThreadIndex);
 
 // Attention : LoopIndex_start <= LoopIndex_end
 template<typename FunctionType>
