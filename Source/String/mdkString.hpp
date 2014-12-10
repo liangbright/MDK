@@ -497,7 +497,7 @@ catch (...)
 
 template<typename ElementType>
 inline
-void String<ElementType>::Squeeze()
+void String<ElementType>::ReleaseUnusedCapacity()
 {
     m_StringData->shrink_to_fit();
 }

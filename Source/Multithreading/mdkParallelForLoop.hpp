@@ -51,7 +51,7 @@ template<typename FunctionType>
 inline
 void ParallelBlock(FunctionType BlockFunction, const std::vector<int_max>& DataIndexList, int_max MaxNumberOfThread, int_max MinNumberOfDataPerThread)
 {
-    // divide the LoopIndexList into groups
+    // divide DataIndexList into groups
 
     auto TotalDataNumber = int_max(DataIndexList.size());
 
@@ -68,15 +68,11 @@ void ParallelBlock(FunctionType BlockFunction, const std::vector<int_max>& DataI
 		std::vector<std::thread> ThreadList;
 		ThreadList.reserve(ThreadNumber);
 
-		std::vector<std::vector<int_max>> ListOfSubDataIndexList;
-		ListOfSubDataIndexList.resize(ThreadNumber);
-
         for (int_max i = 0; i < ThreadNumber; ++i)
         {
-			auto SubDataNumber = IndexList_end[i] - IndexList_start[i] + 1;
-            // auto& take reference
-			auto& SubDataIndexList = ListOfSubDataIndexList[i];
-			SubDataIndexList.resize(SubDataNumber);
+			std::vector<int_max> SubDataIndexList;
+			auto SubDataNumber = IndexList_end[i] - IndexList_start[i] + 1;			
+   			SubDataIndexList.resize(SubDataNumber);
 			for (int_max k = 0; k < SubDataNumber; ++k)
             {
 				SubDataIndexList[k] = DataIndexList[IndexList_start[i] + k];
@@ -84,7 +80,7 @@ void ParallelBlock(FunctionType BlockFunction, const std::vector<int_max>& DataI
 
 			try
 			{
-				ThreadList.emplace_back(BlockFunction(SubDataIndexList, i));
+				ThreadList.emplace_back(BlockFunction(std::move(SubDataIndexList), i));
 			}
 			catch (...)
 			{
@@ -118,6 +114,7 @@ void ParallelBlock(FunctionType BlockFunction, int_max DataIndex_start, int_max 
     auto TotalDataNumber = DataIndex_end - DataIndex_start +1;
 	if (TotalDataNumber <= 0)
 	{
+		MDK_Warning("TotalDataNumber <= 0 @ mdkParallelForLoop ParallelBlock(...)")
 		return;
 	}
 
@@ -218,7 +215,6 @@ inline void DivideData_For_ParallelBlock(std::vector<int_max>& DataIndexList_sta
 
     if (ThreadNumber == 1)
     {//one thread is enough
-
         DataIndexList_start.push_back(DataIndex_min);
         DataIndexList_end.push_back(DataIndex_max);
         return;

@@ -127,7 +127,7 @@ bool AffineTransform3D<ScalarType>::CheckInput()
 
 
 template<typename ScalarType>
-void AffineTransform3D<ScalarType>::UpdateParameter()
+void AffineTransform3D<ScalarType>::EstimateParameter()
 {
 	if (this->CheckInput() == false)
 	{
@@ -182,13 +182,6 @@ DenseVector<ScalarType, 3> AffineTransform3D<ScalarType>::TransformPoint(ScalarT
 	NewPosition[1] = Ptr[4] + Ptr[5] * x + Ptr[6] * y + Ptr[7] * z;
 	NewPosition[2] = Ptr[8] + Ptr[9] * x + Ptr[10] * y + Ptr[11] * z;
 	return NewPosition;
-}
-
-
-template<typename ScalarType>
-DenseVector<ScalarType, 3> AffineTransform3D<ScalarType>::TransformPoint(const DenseVector<ScalarType, 3>& SourcePosition) const
-{
-	return this->TransformPoint(SourcePosition[0], SourcePosition[1], SourcePosition[2]);
 }
 
 }//namespace mdk

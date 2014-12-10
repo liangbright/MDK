@@ -3,6 +3,8 @@
 
 namespace mdk
 {
+// ScalarType is float or double
+
 template<typename ScalarType>
 struct LocalCoordinateSystem3DWithUnitSpacing
 {

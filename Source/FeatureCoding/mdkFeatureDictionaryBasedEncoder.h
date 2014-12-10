@@ -1,13 +1,13 @@
 #ifndef __mdkFeatureDictionaryBasedEncoder_h
 #define __mdkFeatureDictionaryBasedEncoder_h
 
-#include "mdkProcessObject.h"
+#include "mdkObject.h"
 
 namespace mdk
 {
 
 template<typename DictionaryType, typename CodeType>
-class FeatureDictionaryBasedEncoder : public ProcessObject
+class FeatureDictionaryBasedEncoder : public Object
 {
 public:
 	typedef typename DictionaryType::ScalarType ScalarType;

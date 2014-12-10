@@ -20,7 +20,7 @@ class DenseShadowMatrix;
 template<typename ElementType>
 class DenseGlueMatrixForLinearCombination;
 
-struct mdkMatrixSize;
+struct MatrixSize;
 //--------------------------- end of forward-declare -------//
 
 //---------------------------------------------------------------------------------------------------//

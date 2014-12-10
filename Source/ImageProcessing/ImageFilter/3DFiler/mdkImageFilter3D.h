@@ -1,7 +1,6 @@
 #ifndef __mdkImageFilter3D_h
 #define __mdkImageFilter3D_h
 
-#include "mdkProcessObject.h"
 #include "mdkParallelForLoop.h"
 #include "mdkObjectArray.h"
 #include "mdkDenseMatrix.h"
@@ -15,7 +14,7 @@ namespace mdk
 // Each OutputPixel can be stored in Image or PixelArray or both
 
 template<typename InputImage_Type, typename OutputImage_Type, typename Scalar_Type>
-class ImageFilter3D : public ProcessObject
+class ImageFilter3D : public Object
 {
 public:
 	typedef InputImage_Type  InputImageType;
@@ -56,7 +55,6 @@ protected:
 	bool m_Flag_EnableOutputToOtherPlace;
 
 	//------------------------- output ----------------------------------------------------//
-	// only one of them is selected as the output
 	OutputImageType m_OutputImage;
 	DataArray<OutputPixelType> m_OutputPixelArray;
 

@@ -10,7 +10,7 @@ namespace mdk
 //------------------------------------------- Symbol ALL  --------------------------------------------------------------------------//
 struct InputStruct_For_MDK_Symbol_ALL
 {
-    std::string Name = "InputStruct_For_MDK_Symbol_ALL";
+    const std::string Name = "InputStruct_For_MDK_Symbol_ALL";
 };
 
 struct MDK_Symbol_ALL
@@ -42,7 +42,7 @@ static MDK_Symbol_ALL StaticGlobalObject_MDK_Symbol_ALL(This_Is_InputStruct_For_
 
 struct InputStruct_For_MDK_Symbol_PureEmpty
 {
-    std::string Name = "InputStruct_For_MDK_Symbol_PureEmpty";
+	const std::string Name = "InputStruct_For_MDK_Symbol_PureEmpty";
 };
 
 struct MDK_Symbol_PureEmpty
@@ -74,7 +74,7 @@ static MDK_Symbol_PureEmpty StaticGlobalObject_MDK_Symbol_PureEmpty(This_Is_Inpu
 
 struct InputStruct_For_MDK_Symbol_Empty
 {
-    std::string Name = "InputStruct_For_MDK_Symbol_Empty";
+	const std::string Name = "InputStruct_For_MDK_Symbol_Empty";
 };
 
 struct MDK_Symbol_Empty

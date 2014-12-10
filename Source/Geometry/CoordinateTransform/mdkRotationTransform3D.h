@@ -31,7 +31,7 @@ public:
 	typedef Scalar_Type ScalarType;
 
 private:
-	// m_SourceControlPointSet and m_TargetControlPointSet must be valid when UpdateParameter() is called
+	// m_SourceControlPointSet and m_TargetControlPointSet must be valid when EstimateParameter() is called
 	const DenseMatrix<ScalarType>* m_SourceControlPointSet; // 3 x N
 	const DenseMatrix<ScalarType>* m_TargetControlPointSet; // 3 x N
 
@@ -59,7 +59,6 @@ public:
 	DenseVector<ScalarType, 3> GetRotationCenter() const;
 
 	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
-	DenseVector<ScalarType, 3> TransformPoint(const DenseVector<ScalarType, 3>& SourcePosition) const;
 
 private:
 	bool CheckControlPointSet();

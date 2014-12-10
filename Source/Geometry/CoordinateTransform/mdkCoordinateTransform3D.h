@@ -1,7 +1,7 @@
 #ifndef __mdkCoordinateTransform3D_h
 #define __mdkCoordinateTransform3D_h
 
-#include "mdkProcessObject.h"
+#include "mdkObject.h"
 
 namespace mdk
 {
@@ -15,8 +15,18 @@ protected:
 	CoordinateTransform3D() {}
 	virtual ~CoordinateTransform3D() {}
 
+public:
 	virtual DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const = 0;
-	virtual DenseVector<ScalarType, 3> TransformPoint(const DenseVector<ScalarType, 3>& PhysicalPosition) const = 0;
+
+	DenseVector<ScalarType, 3> TransformPoint(const DenseVector<ScalarType, 3>& PhysicalPosition) const
+	{
+		return this->TransformPoint(PhysicalPosition[0], PhysicalPosition[1], PhysicalPosition[2]);
+	}
+
+	DenseVector<ScalarType, 3> TransformPoint(const ScalarType PhysicalPosition[3]) const
+	{
+		return this->TransformPoint(PhysicalPosition[0], PhysicalPosition[1], PhysicalPosition[2]);
+	}
 
 private:
 	CoordinateTransform3D(const CoordinateTransform3D&) = delete;

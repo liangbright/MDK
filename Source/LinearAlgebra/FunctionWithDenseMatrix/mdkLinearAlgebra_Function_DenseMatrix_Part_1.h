@@ -465,18 +465,38 @@ inline bool MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max 
 
 template<typename ElementType>
 inline DenseMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefList, 
+                                                    const std::vector<DenseMatrix<ElementType>>& MatrixList, 
+                                                    const ElementType& IndependentElement);
+
+template<typename ElementType>
+inline bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
+                                const std::vector<ElementType>& CoefList, 
+                                const std::vector<const DenseMatrix<ElementType>*>& MatrixList,
+                                const ElementType& IndependentElement);
+
+template<typename ElementType>
+inline DenseMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& CoefList, 
                                                     const std::vector<const DenseMatrix<ElementType>*>& MatrixList, 
                                                     const ElementType& IndependentElement);
 
 template<typename ElementType>
 inline bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
-                                const std::vector<ElementType>& CoefPtrList, 
+                                const std::vector<ElementType>& CoefList, 
                                 const std::vector<const DenseMatrix<ElementType>*>& MatrixList,
                                 const ElementType& IndependentElement);
 
 template<typename ElementType>
+inline 
+void MatrixLinearCombine(ElementType* OutputMatrixElementPointer,
+						 const int_max ElementNumber,
+                         const std::vector<ElementType>& CoefList, 
+						 const std::vector<const ElementType*>& MatrixElementPointerList,
+                         const ElementType& IndependentElement);
+
+template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_1(ElementType* Output, uint_max ElementNumber,
+void MatrixLinearCombine_MatrixNumber_1(ElementType* OutputMatrixElementPointer, 
+							            const int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList, 
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement);
@@ -484,7 +504,8 @@ void MatrixLinearCombine_MatrixNumber_1(ElementType* Output, uint_max ElementNum
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_2(ElementType* Output, uint_max ElementNumber,
+void MatrixLinearCombine_MatrixNumber_2(ElementType* OutputMatrixElementPointer, 
+							            const int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList, 
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement);
@@ -492,7 +513,8 @@ void MatrixLinearCombine_MatrixNumber_2(ElementType* Output, uint_max ElementNum
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_3(ElementType* Output, uint_max ElementNumber,
+void MatrixLinearCombine_MatrixNumber_3(ElementType* OutputMatrixElementPointer, 
+							            const int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList, 
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement);
@@ -500,7 +522,7 @@ void MatrixLinearCombine_MatrixNumber_3(ElementType* Output, uint_max ElementNum
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_4(ElementType* Output, uint_max ElementNumber,
+void MatrixLinearCombine_MatrixNumber_4(ElementType* Output, int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList, 
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement);
@@ -508,7 +530,8 @@ void MatrixLinearCombine_MatrixNumber_4(ElementType* Output, uint_max ElementNum
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_5(ElementType* Output, uint_max ElementNumber,
+void MatrixLinearCombine_MatrixNumber_5(ElementType* OutputMatrixElementPointer, 
+							            const int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList, 
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement);
@@ -516,7 +539,8 @@ void MatrixLinearCombine_MatrixNumber_5(ElementType* Output, uint_max ElementNum
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_6(ElementType* Output, uint_max ElementNumber,
+void MatrixLinearCombine_MatrixNumber_6(ElementType* OutputMatrixElementPointer, 
+							            const int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList, 
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement);
@@ -524,7 +548,7 @@ void MatrixLinearCombine_MatrixNumber_6(ElementType* Output, uint_max ElementNum
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_7(ElementType* Output, uint_max ElementNumber,
+void MatrixLinearCombine_MatrixNumber_7(ElementType* Output, int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList, 
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement);
@@ -532,7 +556,8 @@ void MatrixLinearCombine_MatrixNumber_7(ElementType* Output, uint_max ElementNum
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_8(ElementType* Output, uint_max ElementNumber,
+void MatrixLinearCombine_MatrixNumber_8(ElementType* OutputMatrixElementPointer, 
+							            const int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList, 
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement);
@@ -540,17 +565,19 @@ void MatrixLinearCombine_MatrixNumber_8(ElementType* Output, uint_max ElementNum
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_9(ElementType* Output, uint_max ElementNumber,
+void MatrixLinearCombine_MatrixNumber_9(ElementType* OutputMatrixElementPointer, 
+							            const int_max ElementNumber,
                                         const std::vector<ElementType>& CoefList, 
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement);
 
 template<typename ElementType>
 inline
-void MatrixLinearCombine_MatrixNumber_10(ElementType* Output, uint_max ElementNumber,
-                                        const std::vector<ElementType>& CoefList, 
-                                        const std::vector<const ElementType*>& MatrixElementPointerList,
-                                        const ElementType& IndependentElement);
+void MatrixLinearCombine_MatrixNumber_10(ElementType* OutputMatrixElementPointer, 
+							             const int_max ElementNumber,
+                                         const std::vector<ElementType>& CoefList, 
+                                         const std::vector<const ElementType*>& MatrixElementPointerList,
+                                         const ElementType& IndependentElement);
 //----------------------------------------------------------------------------------------------------------------//
 
 }//end namespace mdk

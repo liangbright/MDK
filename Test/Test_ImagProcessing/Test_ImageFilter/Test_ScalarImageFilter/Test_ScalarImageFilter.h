@@ -17,7 +17,8 @@ void test_ScalarImageGaussianFilter3D()
 {
     std::string FilePath = "C:/Research/MDK_Build/Test/Test_ImageFilter/Test_ScalarImageFilter/Debug/";
 
-    auto InputImage = Load3DScalarImageFromJsonDataFile<double>(FilePath + "TestImage.json");
+	DenseImage3D<double> InputImage;
+	Load3DScalarImageFromJsonDataFile(InputImage, FilePath + "TestImage.json");
 
 	ScalarDenseImageGaussianFilter3D<double> imfilter;
 

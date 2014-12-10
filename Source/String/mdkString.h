@@ -10,7 +10,6 @@
 
 namespace mdk
 {
-
 // this class is based on std::string
 // String can be shared in MDK
 //  
@@ -27,13 +26,11 @@ class DenseMatrix;
 template<typename ElementType>
 class String;
 //-----------------------------------------//
-
 typedef String<char>     CharString;
 typedef String<wchar_t>  WCharString;
 typedef String<char16_t> U16CharString;
 typedef String<char32_t> U32CharString;
-
-
+//-----------------------------------------//
 template<typename ElementType>
 inline void MDK_Check_ElementType_Of_String()
 {
@@ -157,7 +154,7 @@ public:
 
     inline bool ReserveCapacity(int_max InputElementNumber); // reserve memory, current Length does not change
 
-    inline void Squeeze();
+	inline void ReleaseUnusedCapacity();
 
     inline bool IsEmpty() const;
 

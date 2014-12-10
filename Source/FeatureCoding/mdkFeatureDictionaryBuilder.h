@@ -1,13 +1,13 @@
 #ifndef __mdkFeatureDictionaryBuilder_h
 #define __mdkFeatureDictionaryBuilder_h
 
-#include "mdkProcessObject.h"
+#include "mdkObject.h"
 
 namespace mdk
 {
 
 template<typename DictionaryType>
-class FeatureDictionaryBuilder : public ProcessObject
+class FeatureDictionaryBuilder : public Object
 {
 public:
 	typedef typename DictionaryType::ScalarType ScalarType;

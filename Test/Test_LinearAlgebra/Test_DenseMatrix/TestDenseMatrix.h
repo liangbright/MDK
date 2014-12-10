@@ -10,7 +10,7 @@
 #include <functional>
 
 #include "mdkObjectArray.h"
-#include "mdkSimpleObjectArray.h"
+#include "mdkStdObjectVector.h"
 #include "mdkDenseMatrix.h"
 
 namespace mdk
@@ -1644,20 +1644,12 @@ void Test_GlueMatrix_Speed2()
     DenseMatrix<double> C2(Lx, Ly);
 
     C2.Fill(3.0);
-   
+
+	//-------------------------------------------------------------------------------------------
+
+	auto t0 = std::chrono::system_clock::now();
+
     DenseMatrix<double> D(Lx, Ly);
-
-    D.Fill(0.0);
-
-    //--------------
-
-    D += A + B;
-
-    //----------
-
-    D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
-
-    //-------------------------------------------------------------------------------------------
 
     double ElementList_Coef[] = { 1, 2, 3, 4, 5, 6 };
 
@@ -1667,13 +1659,8 @@ void Test_GlueMatrix_Speed2()
                                               C2.GetElementPointer(),
                                               D.GetElementPointer(),
                                               D.GetElementPointer() };
-
     
     auto tempRawPointer = D.GetElementPointer();
-
-    auto t0 = std::chrono::system_clock::now();
-
-   // #pragma loop(hint_parallel(8))
 
     for (int_max i = 0; i < TotalLoopNumber; ++i)
     {
@@ -1760,8 +1747,6 @@ void Test_GlueMatrix_Speed2()
 
     for (int_max i = 0; i < TotalLoopNumber; ++i)
     {
-        //D = D + 1.0*A + 2.0*B + 3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
-
         D = D + 1.0*A + 2.0*B +3.0*C + 4.0*C2 + 5.0*D + 6.0*D;
     }
 
@@ -1788,10 +1773,10 @@ void Test_GlueMatrix_Speed2()
 
 
     arma::Mat<double> Am(A.GetElementPointer(), arma::uword(A.GetRowNumber()), arma::uword(A.GetColNumber()), false);
-    arma::Mat<double> Bm(A.GetElementPointer(), arma::uword(B.GetRowNumber()), arma::uword(B.GetColNumber()), false);
-    arma::Mat<double> Cm(A.GetElementPointer(), arma::uword(C.GetRowNumber()), arma::uword(C.GetColNumber()), false);
-    arma::Mat<double> C2m(A.GetElementPointer(), arma::uword(C2.GetRowNumber()), arma::uword(C2.GetColNumber()), false);
-    arma::Mat<double> Dm(A.GetElementPointer(), arma::uword(D.GetRowNumber()), arma::uword(D.GetColNumber()), false);
+    arma::Mat<double> Bm(B.GetElementPointer(), arma::uword(B.GetRowNumber()), arma::uword(B.GetColNumber()), false);
+    arma::Mat<double> Cm(C.GetElementPointer(), arma::uword(C.GetRowNumber()), arma::uword(C.GetColNumber()), false);
+    arma::Mat<double> C2m(C2.GetElementPointer(), arma::uword(C2.GetRowNumber()), arma::uword(C2.GetColNumber()), false);
+    arma::Mat<double> Dm(D.GetElementPointer(), arma::uword(D.GetRowNumber()), arma::uword(D.GetColNumber()), false);
 
     t0 = std::chrono::system_clock::now();
 

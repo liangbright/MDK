@@ -227,13 +227,6 @@ DenseVector<ScalarType, 3> ThinPlateSplineTransform3D<ScalarType>::TransformPoin
 	return OutputPosition;
 }
 
-
-template<typename ScalarType>
-DenseVector<ScalarType, 3> ThinPlateSplineTransform3D<ScalarType>::TransformPoint(const DenseVector<ScalarType, 3>& SourcePosition) const
-{
-	return this->TransformPoint(SourcePosition[0], SourcePosition[1], SourcePosition[2]);
-}
-
 }//namespace mdk
 
 

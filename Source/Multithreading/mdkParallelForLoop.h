@@ -8,12 +8,18 @@
 
 namespace mdk
 {
-// for(int_max k=0; k<100; ++k)
+//  for(int_max k=0; k<L; ++k)
 //	{
 //     DoSomething(k);
 //	}
 //
 // If DoSomething(i) and DoSomething(j) do not depend on each other for any i & j, then use ParallelForLoop
+//
+//  auto TempFunction = [](int_max k)
+//	{
+//      DoSomething(k);
+//	};
+//  ParallelForLoop(TempFunction, 0, L-1);
 //
 // for performance reason, no input check is done in the following functions
 

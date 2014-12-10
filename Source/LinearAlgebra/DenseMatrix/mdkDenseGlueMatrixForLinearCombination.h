@@ -22,13 +22,13 @@ class DenseShadowMatrix;
 template<typename ElementType>
 class DenseGlueMatrixForMultiplication;
 
-struct mdkMatrixSize;
+struct MatrixSize;
 // end of forward-declare //
 
 //---------------------------------------------------------------------------------------------------------------------------------//
 
 // reserve the capacity of m_SourceMatrixSharedCopyList
-#define MDK_DenseGlueMatrixForLinearCombination_ReservedCapacity  20
+#define MDK_DenseGlueMatrixForLinearCombination_ReservedCapacity  10
 //--------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>

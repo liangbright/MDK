@@ -4,14 +4,10 @@
 #include <string>
 #include <memory>
 
-
 #include <qpOASES.h>
 
-
-#include "mdkProcessObject.h"
 #include "mdkDenseMatrix.h"
 #include "mdkSparseMatrix.h"
-
 
 // find x that minimizes 0.5 * x'*H*x + x'*g
 //
@@ -20,19 +16,17 @@
 // lb_A <= A*x <= ub_A
 // lb_x <= x <= ub_x
 
-
 namespace mdk
 {
 
 enum struct HessianType_Of_QuadraticProgramming
 {
     PositiveSemidefinite,
-
-    Unknown,
-
 //special type:
     Zero,
     Indentity,
+
+	Unknown,
 };
 
 enum struct MessageOutputOption_Of_QuadraticProgramming
@@ -175,7 +169,7 @@ private:
 
 
 template<typename ElementType>
-class QuadraticProgrammingSolver : public ProcessObject
+class QuadraticProgrammingSolver : public Object
 {
 public:
     Option_Of_QuadraticProgramming m_Option;

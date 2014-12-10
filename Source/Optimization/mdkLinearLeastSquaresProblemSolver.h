@@ -6,8 +6,8 @@
 
 #include <Eigen/Dense>
 
-#include "mdkProcessObject.h"
-#include "mdkString.h"
+#include "mdkObject.h"
+//#include "mdkString.h"
 #include "mdkQuadraticProgrammingSolver.h"
 
 
@@ -109,7 +109,7 @@ struct Solution_Of_LinearLeastSquaresProblem
 
 
 template<typename ElementType>
-class LinearLeastSquaresProblemSolver : public ProcessObject
+class LinearLeastSquaresProblemSolver : public Object
 {
 public:
 	typedef MethodType_Of_LinearLeastSquaresProblemSolver MethodTypeEnum;

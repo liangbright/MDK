@@ -126,7 +126,7 @@ int main()
 
   //  Test_GlueMatrix_Speed1();
 
-    //Test_GlueMatrix_Speed2();
+    Test_GlueMatrix_Speed2();
 
     //Test_GlueMatrix_Create();
 
@@ -142,7 +142,7 @@ int main()
 
  //   Test_SortCol();
 
-	Test_DenseMatrix_DenseVector_ObjectArray();
+	//Test_DenseMatrix_DenseVector_ObjectArray();
 
     std::system("pause");
 

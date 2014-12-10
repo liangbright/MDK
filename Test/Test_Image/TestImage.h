@@ -38,13 +38,16 @@ void testCurve()
 	CurveList[1] = CurveB;
 	SaveMultiple3DCurveAsVTKFile(CurveList, FileNameAB);
 
-	auto InputCurveA = LoadSingle3DCurveFromVTKFile<double>(FileNameA);
+	DenseMatrix<double> InputCurveA;
+	LoadSingle3DCurveFromVTKFile(InputCurveA, FileNameA);
 	DisplayMatrix("InputCurveA", InputCurveA);
 
-	auto InputCurveB = LoadSingle3DCurveFromVTKFile<double>(FileNameB);
+	DenseMatrix<double> InputCurveB;
+	LoadSingle3DCurveFromVTKFile(InputCurveB, FileNameB);
 	DisplayMatrix("InputCurveB", InputCurveB);
 
-	auto InputCurveAB = LoadMultiple3DCurveFromVTKFile<double>(FileNameAB);
+	DataArray<DenseMatrix<double>> InputCurveAB;
+	LoadMultiple3DCurveFromVTKFile(InputCurveAB, FileNameAB);
 	DisplayMatrix("InputCurveAB[0]", InputCurveAB[0]);
 	DisplayMatrix("InputCurveAB[1]", InputCurveAB[1]);
 
@@ -59,7 +62,7 @@ void testA()
 
 	DenseImage3D<double>::InterpolationOptionType Option_double;
 	Option_double.MethodType = MethodEnum_Of_Image3DInterpolation::Linear;
-	Option_double.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Nearest;
+	Option_double.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Replicate;
 	Option_double.Pixel_OutsideImage = 0;
 	auto a1 = ScalarImage_double.GetPixelAt3DIndex(1.0, 1.5, 1.0, Option_double);
 	auto a2 = ScalarImage_double.GetPixelAt3DPhysicalPosition(1.0, 1.5, 1.0, Option_double);
@@ -72,7 +75,7 @@ void testA()
 
 	DenseImage3D<float>::InterpolationOptionType Option_float;
 	Option_float.MethodType = MethodEnum_Of_Image3DInterpolation::Linear;
-	Option_float.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Nearest;
+	Option_float.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Replicate;
 	Option_float.Pixel_OutsideImage = 0;
 	auto b1 = ScalarImage_float.GetPixelAt3DIndex(1.0, 1.5, 1.0, Option_float);
 	auto b2 = ScalarImage_float.GetPixelAt3DPhysicalPosition(1.0, 1.5, 1.0, Option_float);
@@ -86,7 +89,7 @@ void testA()
 
 	DenseImage3D<int>::InterpolationOptionType Option_int;
 	Option_int.MethodType = MethodEnum_Of_Image3DInterpolation::Linear;
-	Option_int.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Nearest;
+	Option_int.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Replicate;
 	Option_int.Pixel_OutsideImage = 0;
 	auto aa1 = ScalarImage_int.GetPixelAt3DIndex(1.0, 1.5, 1.0, Option_int);
 	auto aa2 = ScalarImage_int.GetPixelAt3DPhysicalPosition(1.0, 1.5, 1.0, Option_int);
@@ -99,7 +102,7 @@ void testA()
 
 	DenseImage3D<DenseVector<double, 3>>::InterpolationOptionType Option_vd;
 	Option_vd.MethodType = MethodEnum_Of_Image3DInterpolation::Linear;
-	Option_vd.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Nearest;
+	Option_vd.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Replicate;
 	Option_vd.Pixel_OutsideImage = 0;
 	auto c1 = VectorImage_double.GetPixelAt3DIndex(1.0, 1.5, 1.0, Option_vd);
 	auto c2 = VectorImage_double.GetPixelAt3DPhysicalPosition(1.0, 1.5, 1.0, Option_vd);
@@ -112,7 +115,7 @@ void testA()
 
 	DenseImage3D<DenseVector<float, 3>>::InterpolationOptionType Option_vf;
 	Option_vf.MethodType = MethodEnum_Of_Image3DInterpolation::Linear;
-	Option_vf.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Nearest;
+	Option_vf.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Replicate;
 	Option_vf.Pixel_OutsideImage = 0;
 	auto d1 = VectorImage_float.GetPixelAt3DIndex(float(1.0), float(1.5), float(1.0), Option_vf);
 	auto d2 = VectorImage_float.GetPixelAt3DPhysicalPosition(float(1.0), float(1.5), float(1.0), Option_vf);
@@ -128,7 +131,7 @@ void testA()
 
 	DenseImage3D<DenseVector<int, 3>>::InterpolationOptionType Option_vi;
 	Option_vi.MethodType = MethodEnum_Of_Image3DInterpolation::Linear;
-	Option_vi.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Nearest;
+	Option_vi.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Replicate;
 	Option_vi.Pixel_OutsideImage = 0;
 	auto e1 = VectorImage_int.GetPixelAt3DIndex(int(1.0), int(1.5), int(1.0), Option_vi);
 }

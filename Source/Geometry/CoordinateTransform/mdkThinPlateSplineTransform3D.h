@@ -23,7 +23,7 @@ private:
 	// m_SourceControlPointSet must be valid during EstimateParameterFromControlPointSet() and TransformPoint()
 	const DenseMatrix<ScalarType>* m_SourceControlPointSet; // 3 x N
 
-	// m_TargetControlPointSet must be valid during EstimateParameterFromControlPointSet()
+	// m_TargetControlPointSet must be valid during EstimateParameter()
 	const DenseMatrix<ScalarType>* m_TargetControlPointSet; // 3 x N
 	
 	DenseMatrix<ScalarType> m_Parameter;  // (N+4) x 3
@@ -35,17 +35,13 @@ public:
 	void Clear();
 
 	void SetSourceControlPointSet(const DenseMatrix<ScalarType>* SourcePointSet);
-
 	void SetTargetControlPointSet(const DenseMatrix<ScalarType>* TargetPointSet);
+	void EstimateParameter();
 
 	void SetParameter(const DenseMatrix<ScalarType>& Parameter);
 	const DenseMatrix<ScalarType>& GetParameter() const;
 
-	bool Update() { this->UpdateParameter(); return true; }
-	void UpdateParameter();
-
 	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
-	DenseVector<ScalarType, 3> TransformPoint(const DenseVector<ScalarType, 3>& SourcePosition) const;
 
 private:
 	ThinPlateSplineTransform3D(const ThinPlateSplineTransform3D&) = delete;

@@ -163,13 +163,6 @@ DenseVector<ScalarType, 3> RotationTransform3D<ScalarType>::TransformPoint(Scala
 	return NewPosition;
 }
 
-
-template<typename ScalarType>
-DenseVector<ScalarType, 3> RotationTransform3D<ScalarType>::TransformPoint(const DenseVector<ScalarType, 3>& SourcePosition) const
-{
-	return this->TransformPoint(SourcePosition[0], SourcePosition[1], SourcePosition[2]);
-}
-
 //----------------------------------- static function -----------------------------------------------------------//
 
 template<typename ScalarType>

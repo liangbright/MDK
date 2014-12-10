@@ -62,8 +62,7 @@ DenseGlueMatrixForLinearCombination<ElementType>::~DenseGlueMatrixForLinearCombi
 
 template<typename ElementType>
 inline 
-int_max 
-DenseGlueMatrixForLinearCombination<ElementType>::GetRowNumber() const
+int_max DenseGlueMatrixForLinearCombination<ElementType>::GetRowNumber() const
 {
     return m_RowNumber;
 }
@@ -71,8 +70,7 @@ DenseGlueMatrixForLinearCombination<ElementType>::GetRowNumber() const
 
 template<typename ElementType>
 inline 
-int_max 
-DenseGlueMatrixForLinearCombination<ElementType>::GetColNumber() const
+int_max DenseGlueMatrixForLinearCombination<ElementType>::GetColNumber() const
 {
     return m_ColNumber;
 }
@@ -80,23 +78,18 @@ DenseGlueMatrixForLinearCombination<ElementType>::GetColNumber() const
 
 template<typename ElementType>
 inline
-MatrixSize
-DenseGlueMatrixForLinearCombination<ElementType>::GetSize() const
+MatrixSize DenseGlueMatrixForLinearCombination<ElementType>::GetSize() const
 {
     MatrixSize Size;
-
     Size.ColNumber = m_ColNumber;
-
     Size.RowNumber = m_RowNumber;
-
     return Size;
 }
 
 
 template<typename ElementType>
 inline
-int_max 
-DenseGlueMatrixForLinearCombination<ElementType>::GetMatrixNumber() const
+int_max DenseGlueMatrixForLinearCombination<ElementType>::GetMatrixNumber() const
 {
     return m_SourceMatrixSharedCopyList.size();
 }
@@ -113,8 +106,7 @@ bool DenseGlueMatrixForLinearCombination<ElementType>::IsEmpty() const
 
 template<typename ElementType>
 inline 
-DenseMatrix<ElementType> 
-DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix() const
+DenseMatrix<ElementType> DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix() const
 {
     DenseMatrix<ElementType> tempMatrix;
 
@@ -129,13 +121,11 @@ DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix() const
 
 template<typename ElementType>
 inline 
-bool 
-DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>& OutputMatrix) const
+bool DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>& OutputMatrix) const
 {
     if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
     {
         auto IsOK = OutputMatrix.FastResize(m_RowNumber, m_ColNumber);
-
         if (IsOK == false)
         {
             MDK_Error("Size does not match and can not be changed @ mdkDenseGlueMatrixForLinearCombination::CreateDenseMatrix(OutputMatrix)")
@@ -144,21 +134,13 @@ DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix(DenseMatrix<
     }
 
     int_max MatrixNumber = m_SourceMatrixSharedCopyList.size();
-
     if (MatrixNumber == 0)
     {
         MDK_Error("Self is empty @ mdkDenseGlueMatrixForLinearCombination::CreateDenseMatrix(OutputMatrix)")
         return false;
     }
 
-    std::vector<const DenseMatrix<ElementType>*> MatrixPtrList(MatrixNumber);
-
-    for (int_max k = 0; k < MatrixNumber; ++k)
-    {
-        MatrixPtrList[k] = &m_SourceMatrixSharedCopyList[k];
-    }
-
-    return MatrixLinearCombine(OutputMatrix, m_ElementList_Coef, MatrixPtrList, m_IndependentElement);
+	return MatrixLinearCombine(OutputMatrix, m_ElementList_Coef, m_SourceMatrixSharedCopyList, m_IndependentElement);
 }
 
 

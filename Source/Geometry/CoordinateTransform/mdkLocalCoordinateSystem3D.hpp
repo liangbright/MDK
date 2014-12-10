@@ -59,15 +59,14 @@ DenseVector<ScalarType, 3> ConvertPointCoordinateFromLocalToGlobal(ScalarType x,
 {
 	DenseVector<ScalarType, 3> GlobalPosition;
 	
-	GlobalPosition[0] = LocalSys.Origin[0] 
-		                + x*LocalSys.Spacing[0]*LocalSys.DirectionX[0] + y*LocalSys.Spacing[1]*LocalSys.DirectionY[0] + z*LocalSys.Spacing[2]*LocalSys.DirectionZ[0];
+	auto temp_x = x*LocalSys.Spacing[0];
+	auto temp_y = y*LocalSys.Spacing[1];
+	auto temp_z = z*LocalSys.Spacing[2];
 
-	GlobalPosition[1] = LocalSys.Origin[1]
-		                + x*LocalSys.Spacing[0]*LocalSys.DirectionX[1] + y*LocalSys.Spacing[1]*LocalSys.DirectionY[1] + z*LocalSys.Spacing[2]*LocalSys.DirectionZ[1];
+	GlobalPosition[0] = LocalSys.Origin[0] + temp_x*LocalSys.DirectionX[0] + temp_y*LocalSys.DirectionY[0] + temp_z*LocalSys.DirectionZ[0];
+	GlobalPosition[1] = LocalSys.Origin[1] + temp_x*LocalSys.DirectionX[1] + temp_y*LocalSys.DirectionY[1] + temp_z*LocalSys.DirectionZ[1];
+	GlobalPosition[2] = LocalSys.Origin[2] + temp_x*LocalSys.DirectionX[2] + temp_y*LocalSys.DirectionY[2] + temp_z*LocalSys.DirectionZ[2];
 
-	GlobalPosition[2] = LocalSys.Origin[2]
-						+ x*LocalSys.Spacing[0]*LocalSys.DirectionX[2] + y*LocalSys.Spacing[1]*LocalSys.DirectionY[2] + z*LocalSys.Spacing[2]*LocalSys.DirectionZ[2];
-	
 	return GlobalPosition;
 }
 
@@ -82,7 +81,7 @@ DenseVector<ScalarType, 3> ConvertPointCoordinateFromLocalToGlobal(const DenseVe
 template<typename ScalarType>
 inline 
 DenseVector<ScalarType, 3> ConvertPointCoordinateFromGlobalToLocal(ScalarType x, ScalarType y, ScalarType z,
-																    const LocalCoordinateSystem3D<ScalarType>& LocalSys)
+																   const LocalCoordinateSystem3D<ScalarType>& LocalSys)
 {
 	DenseVector<ScalarType, 3> LocalPosition;
 
