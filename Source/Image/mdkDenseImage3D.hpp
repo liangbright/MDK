@@ -729,7 +729,7 @@ template<typename PixelType>
 inline 
 void DenseImage3D<PixelType>::SetOrientation(const DenseMatrix<double>& Orientation)
 {
-	if (Orientation.GetColNumber() != 3 || Orientation.GetRowNumber() == 3)
+	if (Orientation.GetColNumber() != 3 || Orientation.GetRowNumber() != 3)
 	{
 		MDK_Error("Invalid input size @ 3DDenseImage::SetOrientation(...)")
 		return;

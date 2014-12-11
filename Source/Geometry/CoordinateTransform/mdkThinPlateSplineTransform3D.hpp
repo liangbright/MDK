@@ -47,24 +47,24 @@ const DenseMatrix<ScalarType>& ThinPlateSplineTransform3D<ScalarType>::GetParame
 
 
 template<typename ScalarType>
-void ThinPlateSplineTransform3D<ScalarType>::UpdateParameter()
+void ThinPlateSplineTransform3D<ScalarType>::EstimateParameter()
 {
 	// check input 
 	if (m_SourceControlPointSet == nullptr || m_TargetControlPointSet == nullptr)
 	{
-		MDK_Error("SourcePointSet or TargetPointSet is empty (nullptr) @ ThinPlateSplineTransform3D::UpdateParameter()")
+		MDK_Error("SourcePointSet or TargetPointSet is empty (nullptr) @ ThinPlateSplineTransform3D::EstimateParameter()")
 	    return;
 	}
 
 	if (m_SourceControlPointSet->GetRowNumber() != 3 || m_TargetControlPointSet->GetRowNumber() != 3)
 	{
-		MDK_Error("RowNumber of SourcePointSet or TargetPointSet is not 3 @ ThinPlateSplineTransform3D::UpdateParameter()")
+		MDK_Error("RowNumber of SourcePointSet or TargetPointSet is not 3 @ ThinPlateSplineTransform3D::EstimateParameter()")
 	    return;
 	}
 
 	if (m_SourceControlPointSet->GetColNumber() != m_TargetControlPointSet->GetColNumber())
 	{
-		MDK_Error("ControlPointNumber is not the same @ ThinPlateSplineTransform3D::UpdateParameter()")
+		MDK_Error("ControlPointNumber is not the same @ ThinPlateSplineTransform3D::EstimateParameter()")
 	    return;
 	}
     //---------------------- input check done -------------------------------------------------------------------//
