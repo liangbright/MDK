@@ -287,12 +287,12 @@ MatrixSize FeatureDictionaryForSparseCoding<ScalarType>::GetSize() const
 template<typename ScalarType>
 bool FeatureDictionaryForSparseCoding<ScalarType>::Load(const std::string& FilePathAndName)
 {
-    auto temp = LoadFeatureDictionaryForSparseCodingFromJsonDataFile<ScalarType>(FilePathAndName);
-    if (temp.IsEmpty() == false)
-    {
-        this->Take(temp);
-        return true;
-    }
+    //auto temp = LoadFeatureDictionaryForSparseCodingFromJsonDataFile<ScalarType>(FilePathAndName);
+    //if (temp.IsEmpty() == false)
+    //{
+    //    this->Take(temp);
+    //    return true;
+    //}
 
     return false;
 }

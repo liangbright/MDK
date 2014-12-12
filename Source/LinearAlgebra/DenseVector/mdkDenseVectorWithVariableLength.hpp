@@ -1481,10 +1481,7 @@ DenseVector<int_max> DenseVector<ElementType>::Sort(int_max Index_start, int_max
         IndexList[i] = i;
     }
 
-    std::sort(IndexList.begin(), IndexList.end(), [&](int_max a, int_max b)
-    {
-        return CompareFunction((*this)[a], (*this)[b]);
-    });
+    std::sort(IndexList.begin(), IndexList.end(), [&](int_max a, int_max b) { return CompareFunction((*this)[a], (*this)[b]); });
 
     return IndexList;
 }

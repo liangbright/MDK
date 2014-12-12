@@ -7996,17 +7996,14 @@ DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(int_max LinearIndex_start, i
         LinearIndexList[i] = i;
     }
 
-    std::sort(LinearIndexList.begin(), LinearIndexList.end(), [&](int_max a, int_max b)
-    {
-        return CompareFunction((*this)[a], (*this)[b]);
-    });
+	auto Ptr = this->GetElementPointer();
+    std::sort(LinearIndexList.begin(), LinearIndexList.end(), [&](int_max a, int_max b) { return CompareFunction(Ptr[a], Ptr[b]); });
 
     return LinearIndexList;
 }
 
 
 template<typename ElementType>
-template<typename CompareFunctionType>
 inline
 DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(const char* ascend_or_descend) const
 {
@@ -8016,7 +8013,6 @@ DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(const char* ascend_or_descen
 
 
 template<typename ElementType>
-template<typename CompareFunctionType>
 inline
 DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(const std::string& ascend_or_descend) const
 {
@@ -8070,7 +8066,6 @@ void DenseMatrix<ElementType>::SortInPlace(int_max LinearIndex_start, int_max Li
 
 
 template<typename ElementType>
-template<typename CompareFunctionType>
 inline
 void DenseMatrix<ElementType>::SortInPlace(const char* ascend_or_descend)
 {
@@ -8080,7 +8075,6 @@ void DenseMatrix<ElementType>::SortInPlace(const char* ascend_or_descend)
 
 
 template<typename ElementType>
-template<typename CompareFunctionType>
 inline
 void DenseMatrix<ElementType>::SortInPlace(const std::string& ascend_or_descend)
 {
@@ -8181,6 +8175,34 @@ template<typename SpecialCompareFunctionType>
 inline DenseMatrix<int_max> DenseMatrix<ElementType>::FindUniqueCol(SpecialCompareFunctionType SpecialCompareFunction) const
 {
     return FindUniqueColInMatrix(*this, SpecialCompareFunction);
+}
+
+//-----------------------------------------------------------------------------------------------------------//
+
+template<typename ElementType>
+DenseVector<int_max, 2> DenseMatrix<ElementType>::TransformLinearIndexTo2DIndex(int_max LinearIndex) const
+{
+	DenseVector<int_max, 2> Index2D;
+	auto SelfSize = this->GetSize();
+	Index2D[0] = LinearIndex % SelfSize.RowNumber;
+	Index2D[1] = LinearIndex / SelfSize.RowNumber;
+	return Index2D;
+}
+
+
+template<typename ElementType>
+int_max DenseMatrix<ElementType>::Transform2DIndexToLinearIndex(const DenseVector<int_max, 2>& Index2D) const
+{// not input check
+	LinearIndex = Index2D[0] + Index2D[2]*this->GetRowNumber();
+	return LinearIndex;
+}
+
+
+template<typename ElementType>
+int_max DenseMatrix<ElementType>::Transform2DIndexToLinearIndex(int_max RowIndex, int_max ColIndex) const
+{// not input check
+	LinearIndex = RowIndex + ColIndex * this->GetRowNumber();
+	return LinearIndex;
 }
 
 //-----------------------------------------------------------------------------------------------------------//

@@ -1352,10 +1352,8 @@ public:
     template<typename CompareFunctionType>
     inline DenseMatrix<int_max> Sort(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction) const;
 
-	template<typename CompareFunctionType>
 	inline DenseMatrix<int_max> Sort(const char* ascend_or_descend) const;
 
-	template<typename CompareFunctionType>
 	inline DenseMatrix<int_max> Sort(const std::string& ascend_or_descend) const;
 
     template<typename CompareFunctionType>
@@ -1364,10 +1362,8 @@ public:
     template<typename CompareFunctionType>
     inline void SortInPlace(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction);
 
-	template<typename CompareFunctionType>
 	inline void SortInPlace(const char* ascend_or_descend);
 
-	template<typename CompareFunctionType>
 	inline void SortInPlace(const std::string& ascend_or_descend);
 
     //----------------------- sort col : return sorted col index list ----------------------------------//
@@ -1399,6 +1395,13 @@ public:
     //SpecialCompareFunction(a, b) return {-1, 0, 1} as {a < b, a = b, a > b}
     template<typename SpecialCompareFunctionType>
     inline DenseMatrix<int_max> FindUniqueCol(SpecialCompareFunctionType SpecialCompareFunction) const;
+
+	//---------------------------------- LinearIndex to/from 2DIndex ------------------------------//
+	DenseVector<int_max, 2> TransformLinearIndexTo2DIndex(int_max LinearIndex) const;
+
+	int_max Transform2DIndexToLinearIndex(const DenseVector<int_max, 2>& Index2D) const;
+
+	int_max Transform2DIndexToLinearIndex(int_max RowIndex, int_max ColIndex) const;
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 
