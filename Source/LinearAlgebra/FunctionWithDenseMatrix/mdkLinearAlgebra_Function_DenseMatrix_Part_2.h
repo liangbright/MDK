@@ -80,11 +80,11 @@ ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixMeanToRow(const DenseMatrix<ElementType>& InputMatrix);
+DenseMatrix<ElementType> MatrixMeanOfEachCol(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixMeanToCol(const DenseMatrix<ElementType>& InputMatrix);
+DenseMatrix<ElementType> MatrixMeanOfEachRow(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
 int_max FindLinearIndexOfMaxInMatrix(const DenseMatrix<ElementType>& InputMatrix);
@@ -95,11 +95,11 @@ ElementType MatrixMax(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixMaxToRow(const DenseMatrix<ElementType>& InputMatrix);
+DenseMatrix<ElementType> MatrixMaxOfEachCol(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixMaxToCol(const DenseMatrix<ElementType>& InputMatrix);
+DenseMatrix<ElementType> MatrixMaxOfEachRow(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
 int_max FindLinearIndexOfMinInMatrix(const DenseMatrix<ElementType>& InputMatrix);
@@ -110,11 +110,11 @@ ElementType MatrixMin(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixMinToRow(const DenseMatrix<ElementType>& InputMatrix);
+DenseMatrix<ElementType> MatrixMinOfEachCol(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixMinToCol(const DenseMatrix<ElementType>& InputMatrix);
+DenseMatrix<ElementType> MatrixMinOfEachRow(const DenseMatrix<ElementType>& InputMatrix);
 
 
 template<typename ElementType>
@@ -123,11 +123,11 @@ ElementType MatrixSum(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixSumToRow(const DenseMatrix<ElementType>& InputMatrix);
+DenseMatrix<ElementType> MatrixSumOfEachCol(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixSumToCol(const DenseMatrix<ElementType>& InputMatrix);
+DenseMatrix<ElementType> MatrixSumOfEachRow(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 

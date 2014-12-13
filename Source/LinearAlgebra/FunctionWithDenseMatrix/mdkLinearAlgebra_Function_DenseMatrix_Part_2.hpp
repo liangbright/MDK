@@ -556,7 +556,7 @@ ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix)
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixMeanToRow(const DenseMatrix<ElementType>& InputMatrix)
+DenseMatrix<ElementType> MatrixMeanOfEachCol(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
 
@@ -564,7 +564,7 @@ DenseMatrix<ElementType> MatrixMeanToRow(const DenseMatrix<ElementType>& InputMa
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMeanToRow(InputMatrix)")
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMeanOfEachCol(InputMatrix)")
 
         return tempMatrix;
     }
@@ -594,7 +594,7 @@ DenseMatrix<ElementType> MatrixMeanToRow(const DenseMatrix<ElementType>& InputMa
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixMeanToCol(const DenseMatrix<ElementType>& InputMatrix)
+DenseMatrix<ElementType> MatrixMeanOfEachRow(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
 
@@ -602,7 +602,7 @@ DenseMatrix<ElementType> MatrixMeanToCol(const DenseMatrix<ElementType>& InputMa
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMeanToCol(InputMatrix)")
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMeanOfEachRow(InputMatrix)")
 
         return tempMatrix;
     }
@@ -632,6 +632,34 @@ DenseMatrix<ElementType> MatrixMeanToCol(const DenseMatrix<ElementType>& InputMa
     return tempMatrix;
 }
 
+
+template<typename ElementType>
+inline
+ElementType MatrixStd(const DenseMatrix<ElementType>& InputMatrix) // standard deviation
+{
+	auto ElementNumber = InputMatrix.GetElementNumber();
+
+	if (ElementNumber <= 0)
+	{
+		MDK_Error("Input is an empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixStd(InputMatrix)")
+		return InputMatrix.GetNaNElement();
+	}
+
+	auto MeanValue = MatrixMean(InputMatrix);
+
+	auto RawPointer = InputMatrix.GetElementPointer();
+
+	auto Value = ElementType(0);
+	for (int_max i = 0; i < ElementNumber; ++i)
+	{
+		auto temp = RawPointer[i] - MeanValue;
+		Value += temp*temp;
+	}
+	Value /= ElementType(ElementNumber);
+	Value = std::sqrt(Value);
+
+	return Value;
+}
 
 template<typename ElementType>
 inline
@@ -683,7 +711,7 @@ ElementType MatrixMax(const DenseMatrix<ElementType>& InputMatrix)
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixMaxToRow(const DenseMatrix<ElementType>& InputMatrix)
+DenseMatrix<ElementType> MatrixMaxOfEachCol(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
 
@@ -691,7 +719,7 @@ DenseMatrix<ElementType> MatrixMaxToRow(const DenseMatrix<ElementType>& InputMat
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMaxToRow(InputMatrix)")
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMaxOfEachCol(InputMatrix)")
 
         return tempMatrix;
     }
@@ -724,7 +752,7 @@ DenseMatrix<ElementType> MatrixMaxToRow(const DenseMatrix<ElementType>& InputMat
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixMaxToCol(const DenseMatrix<ElementType>& InputMatrix)
+DenseMatrix<ElementType> MatrixMaxOfEachRow(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
 
@@ -732,7 +760,7 @@ DenseMatrix<ElementType> MatrixMaxToCol(const DenseMatrix<ElementType>& InputMat
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMaxToCol(InputMatrix)")
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMaxOfEachRow(InputMatrix)")
 
         return tempMatrix;
     }
@@ -811,7 +839,7 @@ ElementType MatrixMin(const DenseMatrix<ElementType>& InputMatrix)
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixMinToRow(const DenseMatrix<ElementType>& InputMatrix)
+DenseMatrix<ElementType> MatrixMinOfEachCol(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
 
@@ -819,7 +847,7 @@ DenseMatrix<ElementType> MatrixMinToRow(const DenseMatrix<ElementType>& InputMat
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMinToRow(InputMatrix)")
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMinOfEachCol(InputMatrix)")
 
         return tempMatrix;
     }
@@ -852,7 +880,7 @@ DenseMatrix<ElementType> MatrixMinToRow(const DenseMatrix<ElementType>& InputMat
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixMinToCol(const DenseMatrix<ElementType>& InputMatrix)
+DenseMatrix<ElementType> MatrixMinOfEachRow(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
 
@@ -860,7 +888,7 @@ DenseMatrix<ElementType> MatrixMinToCol(const DenseMatrix<ElementType>& InputMat
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMinToCol(InputMatrix)")
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMinOfEachRow(InputMatrix)")
 
         return tempMatrix;
     }
@@ -918,7 +946,7 @@ ElementType MatrixSum(const DenseMatrix<ElementType>& InputMatrix)
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixSumToRow(const DenseMatrix<ElementType>& InputMatrix)
+DenseMatrix<ElementType> MatrixSumOfEachCol(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
 
@@ -926,7 +954,7 @@ DenseMatrix<ElementType> MatrixSumToRow(const DenseMatrix<ElementType>& InputMat
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error("InputMatrix is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSumToRow(InputMatrix)")
+        MDK_Error("InputMatrix is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSumOfEachCol(InputMatrix)")
 
         return tempMatrix;
     }
@@ -959,7 +987,7 @@ DenseMatrix<ElementType> MatrixSumToRow(const DenseMatrix<ElementType>& InputMat
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType> MatrixSumToCol(const DenseMatrix<ElementType>& InputMatrix)
+DenseMatrix<ElementType> MatrixSumOfEachRow(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
 
@@ -967,7 +995,7 @@ DenseMatrix<ElementType> MatrixSumToCol(const DenseMatrix<ElementType>& InputMat
 
     if (InputSize.RowNumber <= 0)
     {
-        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSumToCol(InputMatrix)")
+        MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSumOfEachRow(InputMatrix)")
 
         return tempMatrix;
     }

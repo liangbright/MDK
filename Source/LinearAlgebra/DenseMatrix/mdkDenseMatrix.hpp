@@ -8180,9 +8180,10 @@ inline DenseMatrix<int_max> DenseMatrix<ElementType>::FindUniqueCol(SpecialCompa
 //-----------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
+inline
 DenseVector<int_max, 2> DenseMatrix<ElementType>::TransformLinearIndexTo2DIndex(int_max LinearIndex) const
-{
-	DenseVector<int_max, 2> Index2D;
+{// no input check
+	DenseVector<int_max, 2> Index2D; // [RowIndex, ColIndex]
 	auto SelfSize = this->GetSize();
 	Index2D[0] = LinearIndex % SelfSize.RowNumber;
 	Index2D[1] = LinearIndex / SelfSize.RowNumber;
@@ -8191,14 +8192,16 @@ DenseVector<int_max, 2> DenseMatrix<ElementType>::TransformLinearIndexTo2DIndex(
 
 
 template<typename ElementType>
+inline
 int_max DenseMatrix<ElementType>::Transform2DIndexToLinearIndex(const DenseVector<int_max, 2>& Index2D) const
-{// not input check
+{// no input check
 	LinearIndex = Index2D[0] + Index2D[2]*this->GetRowNumber();
 	return LinearIndex;
 }
 
 
 template<typename ElementType>
+inline
 int_max DenseMatrix<ElementType>::Transform2DIndexToLinearIndex(int_max RowIndex, int_max ColIndex) const
 {// not input check
 	LinearIndex = RowIndex + ColIndex * this->GetRowNumber();
@@ -8215,16 +8218,23 @@ inline ElementType DenseMatrix<ElementType>::Mean() const
 
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MeanToRow() const
+inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MeanOfEachCol() const
 {
-    return MatrixMeanToRow(*this);
+	return MatrixMeanOfEachCol(*this);
 }
 
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MeanToCol() const
+inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MeanOfEachRow() const
 {
-    return MatrixMeanToCol(*this);
+	return MatrixMeanOfEachRow(*this);
+}
+
+
+template<typename ElementType>
+inline ElementType DenseMatrix<ElementType>::Std() const
+{
+	return MatrixStd(*this);
 }
 
 
@@ -8236,16 +8246,16 @@ inline ElementType DenseMatrix<ElementType>::Sum() const
 
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> DenseMatrix<ElementType>::SumToRow() const
+inline DenseMatrix<ElementType> DenseMatrix<ElementType>::SumOfEachCol() const
 {
-    return MatrixSumToRow(*this);
+	return MatrixSumOfEachCol(*this);
 }
 
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> DenseMatrix<ElementType>::SumToCol() const
+inline DenseMatrix<ElementType> DenseMatrix<ElementType>::SumOfEachRow() const
 {
-    return MatrixSumToCol(*this);
+	return MatrixSumOfEachRow(*this);
 }
 
 
@@ -8257,6 +8267,14 @@ inline int_max DenseMatrix<ElementType>::IndexOfMax() const
 
 
 template<typename ElementType>
+inline DenseVector<int_max, 2> DenseMatrix<ElementType>::RowIndexAndColIndexOfMax() const
+{
+	auto LinearIndex = this->IndexOfMax();
+	return this->TransformLinearIndexTo2DIndex(LinearIndex);
+}
+
+
+template<typename ElementType>
 inline ElementType DenseMatrix<ElementType>::Max() const
 {
     return MatrixMax(*this);
@@ -8264,16 +8282,16 @@ inline ElementType DenseMatrix<ElementType>::Max() const
 
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MaxToRow() const
+inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MaxOfEachCol() const
 {
-    return MatrixMaxToRow(*this);
+	return MatrixMaxOfEachCol(*this);
 }
 
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MaxToCol() const
+inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MaxOfEachRow() const
 {
-    return MatrixMaxToCol(*this);
+	return MatrixOfEachRow(*this);
 }
 
 
@@ -8285,6 +8303,14 @@ inline int_max DenseMatrix<ElementType>::IndexOfMin() const
 
 
 template<typename ElementType>
+inline DenseVector<int_max, 2> DenseMatrix<ElementType>::RowIndexAndColIndexOfMin() const
+{
+	auto LinearIndex = this->IndexOfMin();
+	return this->TransformLinearIndexTo2DIndex(LinearIndex);
+}
+
+
+template<typename ElementType>
 inline ElementType DenseMatrix<ElementType>::Min() const
 {
     return MatrixMin(*this);
@@ -8292,16 +8318,16 @@ inline ElementType DenseMatrix<ElementType>::Min() const
 
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MinToRow() const
+inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MinOfEachCol() const
 {
-    return MatrixMinToRow(*this);
+	return MatrixMinOfEachCol(*this);
 }
 
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MinToCol() const
+inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MinOfEachRow() const
 {
-    return MatrixMinToCol(*this);
+	return MatrixMinOfEachRow(*this);
 }
 
 

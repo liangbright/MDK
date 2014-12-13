@@ -1,6 +1,7 @@
 #ifndef __mdkTriangleMeshProcessing_Function_Part_0_h
 #define __mdkTriangleMeshProcessing_Function_Part_0_h
 
+#include <vtkLinearSubdivisionFilter.h>
 #include <vtkQuadricDecimation.h>
 #include <vtkDecimatePro.h>
 
@@ -20,6 +21,9 @@ ObjectArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve
 template<typename MeshAttributeType>
 Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const TriangleMesh<MeshAttributeType>& TargetMesh, 
                                                        const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition);
+
+template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> SubdivideTriangleMeshByVTKLinearSubdivisionFilter(const TriangleMesh<MeshAttributeType>& TargetMesh, int_max SubdivisionNumber);
 
 template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType> SimplifyTriangleMeshByVTKDecimatePro(const TriangleMesh<MeshAttributeType>& TargetMesh, double TargetReduction);

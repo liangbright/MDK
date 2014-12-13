@@ -29,6 +29,23 @@ Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const TriangleMesh<MeshAt
 
 
 template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> SubdivideTriangleMeshByVTKLinearSubdivisionFilter(const TriangleMesh<MeshAttributeType>& TargetMesh, int_max SubdivisionNumber)
+{
+	auto VTKMesh = ConvertMDKTriangleMeshToVTKPolyData(TargetMesh);
+
+	auto subdivisionFilter = vtkSmartPointer<vtkLinearSubdivisionFilter>::New();
+	subdivisionFilter->SetInputData(VTKMesh);
+	subdivisionFilter->SetNumberOfSubdivisions(SubdivisionNumber);
+	subdivisionFilter->Update();
+	auto VTKMesh_new = subdivisionFilter->GetOutput();
+
+	TriangleMesh<MeshAttributeType> OutputMesh;
+	ConvertVTKPolyDataToMDKTriangleMesh(VTKMesh_new, OutputMesh);
+	return OutputMesh;
+}
+
+
+template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType> SimplifyTriangleMeshByVTKDecimatePro(const TriangleMesh<MeshAttributeType>& TargetMesh, double TargetReduction)
 {
 	auto VTKMesh = ConvertMDKTriangleMeshToVTKPolyData(TargetMesh);

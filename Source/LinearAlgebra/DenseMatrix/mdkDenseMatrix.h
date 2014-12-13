@@ -1396,42 +1396,48 @@ public:
     template<typename SpecialCompareFunctionType>
     inline DenseMatrix<int_max> FindUniqueCol(SpecialCompareFunctionType SpecialCompareFunction) const;
 
-	//---------------------------------- LinearIndex to/from 2DIndex ------------------------------//
-	DenseVector<int_max, 2> TransformLinearIndexTo2DIndex(int_max LinearIndex) const;
+	//--------------------- LinearIndex to/from 2DIndex [RowIndex, ColIndex] ------------------------------//
+	inline DenseVector<int_max, 2> TransformLinearIndexTo2DIndex(int_max LinearIndex) const;
 
-	int_max Transform2DIndexToLinearIndex(const DenseVector<int_max, 2>& Index2D) const;
+	inline int_max Transform2DIndexToLinearIndex(const DenseVector<int_max, 2>& Index2D) const;
 
-	int_max Transform2DIndexToLinearIndex(int_max RowIndex, int_max ColIndex) const;
+	inline int_max Transform2DIndexToLinearIndex(int_max RowIndex, int_max ColIndex) const;
 
 	//-------------------- calculate sum mean min max ------------------------------------------//
 
     inline ElementType Mean() const;
 
-    inline DenseMatrix MeanToRow() const;
+	inline DenseMatrix MeanOfEachCol() const;
 
-    inline DenseMatrix MeanToCol() const;
+	inline DenseMatrix MeanOfEachRow() const;
+
+	inline ElementType Std() const;
 
     inline ElementType Sum() const;
 
-    inline DenseMatrix SumToRow() const;
+    inline DenseMatrix SumOfEachCol() const;
 
-    inline DenseMatrix SumToCol() const;
+	inline DenseMatrix SumOfEachRow() const;
 
     inline int_max IndexOfMax() const;
 
+	inline DenseVector<int_max, 2> RowIndexAndColIndexOfMax() const;
+
     inline ElementType Max() const;
 
-    inline DenseMatrix MaxToRow() const;
+    inline DenseMatrix MaxOfEachCol() const;
 
-    inline DenseMatrix MaxToCol() const;
+	inline DenseMatrix MaxOfEachRow() const;
 
     inline int_max IndexOfMin() const;
 
+	inline DenseVector<int_max, 2> RowIndexAndColIndexOfMin() const;
+
     inline ElementType Min() const;
 
-    inline DenseMatrix MinToRow() const;
+    inline DenseMatrix MinOfEachCol() const;
 
-    inline DenseMatrix MinToCol() const;
+	inline DenseMatrix MinOfEachRow() const;
 
     //------------------------------------ norm ----------------------------------------------//
 
