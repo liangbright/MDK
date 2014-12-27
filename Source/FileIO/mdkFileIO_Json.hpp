@@ -4,6 +4,74 @@
 namespace mdk
 {
 
+String ConvertNameValuePairToStringInJsonFile(const String& Name, const String& Value)
+{
+	String StringInJsonFile;
+	StringInJsonFile = Name + " : " + Value;
+	return StringInJsonFile;
+}
+
+
+bool SaveJsonContentToJsonFile(const DataArray<String>& JsonContent, const String& FilePathAndName, bool Flag_Append)
+{
+	QFile JsonFile;
+	if (Flag_Append == false)
+	{
+		String TempFileName = FilePathAndName + "~temp~";
+		QString QTempFileName = TempFileName.c_str();
+		QFile::remove(QTempFileName);
+		JsonFile.setFileName(FilePathAndName + "~temp~");
+
+		if (!JsonFile.open(QIODevice::WriteOnly))
+		{
+			MDK_Error("Couldn't open file to save result @ SaveNameValuePairListAsJsonFile(...)")
+				return false;
+		}
+	}
+	else
+	{
+		JsonFile.setFileName(FilePathAndName);
+		if (!JsonFile.open(QIODevice::Append))
+		{
+			MDK_Error("Couldn't open file to save result @ SaveNameValuePairListAsJsonFile(...)")
+			return false;
+		}
+	}
+
+	QTextStream out(&JsonFile);
+
+	auto s = int_max(PairList.size());
+
+	out << "{\n";
+	for (int_max i = 0; i < s; ++i)
+	{
+		out << "\"" << PairList[i].Name << "\"" << " : " << "\"" << PairList[i].Value << "\"";
+
+		if (i < s - 1)
+		{
+			out << "," << "\n";
+		}
+		else
+		{
+			out << "\n";
+		}
+	}
+	out << "}\n";
+
+	out.flush();
+
+	if (Flag_Append == false)
+	{
+		QFile::remove(FilePathAndName);
+		JsonFile.rename(FilePathAndName);
+	}
+
+	JsonFile.close();
+
+	return true;
+}
+
+
 bool SaveNameValuePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, const QString& FilePathAndName, bool Flag_Append)
 {    
 	QFile JsonFile;
@@ -62,7 +130,7 @@ bool SaveNameValuePairListAsJsonFile(const std::vector<NameValueQStringPair>& Pa
 }
 
 
-bool SaveNameValuePairListAsJsonFile(const std::vector<NameValueStdStringPair>& PairList, const std::string& FilePathAndName, bool Flag_Append)
+bool SaveNameValuePairListAsJsonFile(const std::vector<NameValueStringPair>& PairList, const String& FilePathAndName, bool Flag_Append)
 {
 	QFile JsonFile;
 	QString QFilePathAndName(FilePathAndName.c_str());

@@ -16,32 +16,33 @@ template<typename ScalarType>
 class DenseMatrix;
 //-----------------------------------------------------
 
-// save/load DenseMatrix from Json data file
-// for example: JsonFilePathAndName = "C:/Data/SomeMatrix.json"
-// header is saved in SomeMatrix.json
-// data is saved in SomeMatrix.json.data
+// save/load DenseMatrix from JsonData file
+// for example: FilePathAndName = "C:/SomeMatrix" 
+// attention: SomeMatrix NOT SomeMatrix.json
+// Info is saved in C:/SomeMatrix.json
+// Element is saved in C:/SomeMatrix.data
 
 template<typename ScalarType>
-bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, const std::string& JsonFilePathAndName);
+bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, const String& FilePathAndName);
 
 template<typename ScalarType>
-bool SaveDenseMatrixAsJsonDataFile_Header(const DenseMatrix<ScalarType>& InputMatrix, const std::string& JsonFilePathAndName);
+DataArray<String> SaveDenseMatrixAsJsonDataFile_Json(const DenseMatrix<ScalarType>& InputMatrix, const String& FilePathAndName);
 
 template<typename ScalarType>
-bool SaveDenseMatrixAsJsonDataFile_Data(const DenseMatrix<ScalarType>& InputMatrix, const std::string& DataFilePathAndName);
+bool SaveDenseMatrixAsJsonDataFile_Data(const DenseMatrix<ScalarType>& InputMatrix, const String& FilePathAndName);
 
 template<typename ScalarType>
-bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, const std::string& JsonFilePathAndName);
+bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, const String& FilePathAndName);
 
 // HeaderInfo: <MatrixSize, InputScalarTypeName>
-inline std::pair<MatrixSize, std::string> LoadDenseMatrixFromJsonDataFile_Header(const std::string& JsonFilePathAndName);
+inline std::pair<MatrixSize, String> LoadDenseMatrixFromJsonDataFile_Json(const String& FilePathAndName);
 
 // attention: OutputMatrix.FastResize(...) must be called before LoadDenseMatrixFromJsonDataFile_Data
 template<typename OutputScalarType>
-bool LoadDenseMatrixFromJsonDataFile_Data(DenseMatrix<OutputScalarType>& OutputMatrix, const std::string& DataFilePathAndName, const std::string& InputScalarTypeName);
+bool LoadDenseMatrixFromJsonDataFile_Data(DenseMatrix<OutputScalarType>& OutputMatrix, const String& FilePathAndName, const String& InputScalarTypeName);
 
 template<typename OutputScalarType, typename InputScalarType>
-bool LoadDenseMatrixFromJsonDataFile_Data(DenseMatrix<OutputScalarType>& OutputMatrix, const std::string& DataFilePathAndName);
+bool LoadDenseMatrixFromJsonDataFile_Data(DenseMatrix<OutputScalarType>& OutputMatrix, const String& FilePathAndName);
 
 }//namespace mdk
 

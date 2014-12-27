@@ -1,4 +1,4 @@
-#ifndef __mdkDataStructureConversion_h
+﻿#ifndef __mdkDataStructureConversion_h
 #define __mdkDataStructureConversion_h
 
 #include "mdkVTKDataStructureConversion.h"

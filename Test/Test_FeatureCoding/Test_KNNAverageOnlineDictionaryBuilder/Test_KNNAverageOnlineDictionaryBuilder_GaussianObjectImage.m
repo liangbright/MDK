@@ -2,7 +2,7 @@
 
 FilePath='C:/Research/MDK/MDK_Build/Test/Test_FeatureCoding/Test_KNNAverageOnlineDictionaryBuilder/TestData/GaussianObjectImage/';
 
-
+%%
 SignalPeak=100;
 NoiseStd=10;
 BgIntensity=0;
@@ -84,7 +84,7 @@ for k=1:10
     temp=BasisMatrix(:,k);    
     temp=reshape(temp, [20, 20]);
 
-    if k == 1
+    if k == 1   
         Basis_ALL(1:20, 1:20)=temp;
     elseif k <= 5    
         Index_s = (k-1)*30;

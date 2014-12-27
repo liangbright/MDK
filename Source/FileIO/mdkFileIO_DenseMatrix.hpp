@@ -5,49 +5,40 @@ namespace mdk
 {
 
 template<typename ScalarType>
-bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, const std::string& JsonFilePathAndName)
+bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, const String& FilePathAndName)
 {
-	if (SaveDenseMatrixAsJsonDataFile_Header(InputMatrix, JsonFilePathAndName) == false)
+	auto JsonContent = SaveDenseMatrixAsJsonDataFile_Json(InputMatrix, FilePathAndName);
+	if (JsonContent.IsEmpty() == true)
 	{
+
 		return false;
-	}
+	}	
 
-	std::string DataFilePathAndName = JsonFilePathAndName + ".data";
-	return SaveDenseMatrixAsJsonDataFile_Data(InputMatrix, DataFilePathAndName);
-}
-
-
-template<typename ScalarType>
-bool SaveDenseMatrixAsJsonDataFile_Header(const DenseMatrix<ScalarType>& InputMatrix, const std::string& JsonFilePathAndName)
-{
-	std::vector<NameValueQStringPair> PairList(4);
-
-	auto Size = InputMatrix.GetSize();
-
-	PairList[0].Name = "ObjectType";
-	PairList[0].Value = "DenseMatrix";
-
-	auto ScalarTypeName = GetScalarTypeName(ScalarType(0));
-	QString QScalarTypeName(ScalarTypeName.c_str());
-
-	PairList[1].Name = "ScalarType";
-	PairList[1].Value = QScalarTypeName;
-
-	PairList[2].Name = "RowNumber";
-	PairList[2].Value = QString::number(Size.RowNumber);
-
-	PairList[3].Name = "ColNumber";
-	PairList[3].Value = QString::number(Size.ColNumber);
-
-	// write header file (json) --------------------------------------------------
-	QString QFilePathAndName(JsonFilePathAndName.c_str());
+	QString QFilePathAndName(FilePathAndName.c_str());
 	return SaveNameValuePairListAsJsonFile(PairList, QFilePathAndName);
+
+	return SaveDenseMatrixAsJsonDataFile_Data(InputMatrix, FilePathAndName);
 }
 
 
 template<typename ScalarType>
-bool SaveDenseMatrixAsJsonDataFile_Data(const DenseMatrix<ScalarType>& InputMatrix, const std::string& DataFilePathAndName)
+DataArray<String> SaveDenseMatrixAsJsonDataFile_Json(const DenseMatrix<ScalarType>& InputMatrix, const String& FilePathAndName)
 {
+	DataArray<String> JsonContent;
+	JsonContent.Resize(4);
+	JsonContent[0] = ConvertNameValuePairToStringInJsonFile("ObjectType", "DenseMatrix");
+	JsonContent[1] = ConvertNameValuePairToStringInJsonFile("ScalarType", GetScalarTypeName(ScalarType(0));
+	JsonContent[2] = ConvertNameValuePairToStringInJsonFile("RowNumber", InputMatrix.GetRowNumber());
+	JsonContent[3] = ConvertNameValuePairToStringInJsonFile("RowNumber", InputMatrix.GetColNumber());
+	return JsonContent;
+}
+
+
+template<typename ScalarType>
+bool SaveDenseMatrixAsJsonDataFile_Data(const DenseMatrix<ScalarType>& InputMatrix, const String& FilePathAndName)
+{
+	String DataFilePathAndName = FilePathAndName + ".data";
+
 	int_max ByteNumber = GetByteNumberOfScalar(ScalarType(0));
 	if (ByteNumber <= 0)
 	{
@@ -74,10 +65,10 @@ bool SaveDenseMatrixAsJsonDataFile_Data(const DenseMatrix<ScalarType>& InputMatr
 
 
 template<typename ScalarType>
-bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, const std::string& JsonFilePathAndName)
+bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, const String& FilePathAndName)
 {
     // Read header
-	auto HeaderInfo = LoadDenseMatrixFromJsonDataFile_Header(JsonFilePathAndName);
+	auto HeaderInfo = LoadDenseMatrixFromJsonDataFile_Json(FilePathAndName);
 	auto OutputMatrixSize = HeaderInfo.first;
 	auto InputScalarTypeName = HeaderInfo.second;
 
@@ -91,7 +82,7 @@ bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, cons
 	// Read data
 	if (OutputMatrix.IsEmpty() == false)
 	{
-		std::string DataFilePathAndName = JsonFilePathAndName + ".data";
+		String DataFilePathAndName = FilePathAndName + ".data";
 
 		auto OutputScalarTypeName = GetScalarTypeName(ScalarType(0));
 
@@ -117,9 +108,9 @@ bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, cons
 }
 
 
-inline std::pair<MatrixSize, std::string> LoadDenseMatrixFromJsonDataFile_Header(const std::string& FilePathAndName)
+inline std::pair<MatrixSize, String> LoadDenseMatrixFromJsonDataFile_Json(const String& FilePathAndName)
 {
-	std::pair<MatrixSize, std::string> HeaderInfo;
+	std::pair<MatrixSize, String> HeaderInfo;
 	HeaderInfo.first.RowNumber = 0;
 	HeaderInfo.first.ColNumber = 0;
 
@@ -127,7 +118,7 @@ inline std::pair<MatrixSize, std::string> LoadDenseMatrixFromJsonDataFile_Header
     QFile HeaderFile(QFilePathAndName);
     if (!HeaderFile.open(QIODevice::ReadOnly))
     {
-        MDK_Error("Couldn't open Header File @ LoadDenseMatrixFromJsonDataFile_Header(...)")
+        MDK_Error("Couldn't open Header File @ LoadDenseMatrixFromJsonDataFile_Json(...)")
         return HeaderInfo;
     }
 
@@ -144,19 +135,19 @@ inline std::pair<MatrixSize, std::string> LoadDenseMatrixFromJsonDataFile_Header
 
 		if (ObjectType != "DenseMatrix")
 		{
-			MDK_Error("ObjectType is not DenseMatrix @ LoadDenseMatrixFromJsonDataFile_Header(...)")
+			MDK_Error("ObjectType is not DenseMatrix @ LoadDenseMatrixFromJsonDataFile_Json(...)")
 			HeaderFile.close();
 			return HeaderInfo;
 		}
 	}
 	else
 	{
-		MDK_Error("Couldn't get ObjectType @ LoadDenseMatrixFromJsonDataFile_Header(...)")
+		MDK_Error("Couldn't get ObjectType @ LoadDenseMatrixFromJsonDataFile_Json(...)")
 		HeaderFile.close();
 		return HeaderInfo;
 	}
 	//-------------------------------------------------
-    std::string InputScalarTypeName;
+    String InputScalarTypeName;
     it = HeaderObject.find("ScalarType");
     if (it != HeaderObject.end())
     {
@@ -164,7 +155,7 @@ inline std::pair<MatrixSize, std::string> LoadDenseMatrixFromJsonDataFile_Header
     }
     else
     {
-        MDK_Error("Couldn't get ScalarType @ LoadDenseMatrixFromJsonDataFile_Header(...)")
+        MDK_Error("Couldn't get ScalarType @ LoadDenseMatrixFromJsonDataFile_Json(...)")
         HeaderFile.close();
 		return HeaderInfo;
     }
@@ -177,7 +168,7 @@ inline std::pair<MatrixSize, std::string> LoadDenseMatrixFromJsonDataFile_Header
     }
     else
     {
-        MDK_Error("Couldn't get RowNumber @ LoadDenseMatrixFromJsonDataFile_Header(...)")
+        MDK_Error("Couldn't get RowNumber @ LoadDenseMatrixFromJsonDataFile_Json(...)")
         HeaderFile.close();
 		return HeaderInfo;
     }
@@ -190,7 +181,7 @@ inline std::pair<MatrixSize, std::string> LoadDenseMatrixFromJsonDataFile_Header
     }
     else
     {
-        MDK_Error("Couldn't get ColNumber @ LoadDenseMatrixFromJsonDataFile_Header(...)")
+        MDK_Error("Couldn't get ColNumber @ LoadDenseMatrixFromJsonDataFile_Json(...)")
         HeaderFile.close();
 		return HeaderInfo;
     }
@@ -206,7 +197,7 @@ inline std::pair<MatrixSize, std::string> LoadDenseMatrixFromJsonDataFile_Header
 
 
 template<typename OutputScalarType>
-bool LoadDenseMatrixFromJsonDataFile_Data(DenseMatrix<OutputScalarType>& OutputMatrix, const std::string& DataFilePathAndName, const std::string& InputScalarTypeName)
+bool LoadDenseMatrixFromJsonDataFile_Data(DenseMatrix<OutputScalarType>& OutputMatrix, const String& DataFilePathAndName, const String& InputScalarTypeName)
 {
     if (InputScalarTypeName == "double")
     {
@@ -257,7 +248,7 @@ bool LoadDenseMatrixFromJsonDataFile_Data(DenseMatrix<OutputScalarType>& OutputM
 
 
 template<typename OutputScalarType, typename InputScalarType>
-bool LoadDenseMatrixFromJsonDataFile_Data(DenseMatrix<OutputScalarType>& OutputMatrix, const std::string& DataFilePathAndName)
+bool LoadDenseMatrixFromJsonDataFile_Data(DenseMatrix<OutputScalarType>& OutputMatrix, const String& DataFilePathAndName)
 {
 	QFile DataFile(DataFilePathAndName.c_str());
 	if (!DataFile.open(QIODevice::ReadOnly))

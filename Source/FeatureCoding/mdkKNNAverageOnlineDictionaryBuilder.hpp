@@ -502,6 +502,10 @@ UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ScalarType>&     
     DenseMatrix<ScalarType> BasisMatrix_Change(VectorLength, BasisNumber);
     BasisMatrix_Change.Fill(0);
 
+	DenseVector<ScalarType> BasisExperience_Change;
+	BasisExperience_Change.Resize(BasisNumber);
+	BasisExperience_Change.Fill(0);
+
     DenseMatrix<ScalarType> ReconstructionCodeVector;
 
     for (int_max k = 0; k < DataNumber; ++k)//k
@@ -570,7 +574,8 @@ UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ScalarType>&     
                             //                         CodeElement, SquaredL2NormOfReconstructionCodeVector,
                             //                         BasisExperience[BasisIndex]);
                             
-                            BasisExperience[BasisIndex] += CodeElement*CodeElement / SquaredL2NormOfReconstructionCodeVector;
+                            //BasisExperience[BasisIndex] += CodeElement*CodeElement / SquaredL2NormOfReconstructionCodeVector;
+							BasisExperience_Change[BasisIndex] += CodeElement*CodeElement / SquaredL2NormOfReconstructionCodeVector;
 
                         }// else CodeElement = 0, no update
                     }
@@ -579,7 +584,12 @@ UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ScalarType>&     
         }
     }
 
-    
+	// update BasisExperience
+	for (int_max k = 0; k <= BasisNumber - 1; ++k)
+	{
+		BasisExperience[k] += BasisExperience_Change[k];
+	}
+
     // update Basis
     //for (int_max k = 0; k <= BasisNumber-1; ++k)
     auto TempFunction_UpdateBasisMatrix = [&](int_max k)
@@ -595,10 +605,11 @@ UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ScalarType>&     
             BasisVectorPtr[n] += BasisVectorChangePtr[n] / Experience;
         }
     };
-
     ParallelForLoop(TempFunction_UpdateBasisMatrix, 0, BasisNumber - 1, m_Parameter.MaxNumberOfThread);
     
     this->ApplyConstraintOnBasis(BasisMatrix);
+
+	
 
     // the total Experience is
     // BasisExperience.Sum() <- BasisExperience.Sum() + DataNumber
@@ -638,6 +649,10 @@ UpdateBasisMatrixAndBasisExperience_NoScaleFactor(DenseMatrix<ScalarType>&      
     DenseMatrix<ScalarType> BasisMatrix_Change(VectorLength, BasisNumber);
     BasisMatrix_Change.Fill(0);
 
+	DenseVector<ScalarType> BasisExperience_Change;
+	BasisExperience_Change.Resize(BasisNumber);
+	BasisExperience_Change.Fill(0);
+
     for (int_max k = 0; k < DataNumber; ++k)//k
     {
         auto DataVectorPtr = FeatureData.GetElementPointerOfCol(k);
@@ -660,10 +675,17 @@ UpdateBasisMatrixAndBasisExperience_NoScaleFactor(DenseMatrix<ScalarType>&      
 
                 TempFunction_UpdateBasisChange(BasisVectorChangePtr, BasisVectorPtr, DataVectorPtr, VectorLength, MembershipList[n]);
 
-                BasisExperience[BasisIndex] += MembershipList[n];
+                //BasisExperience[BasisIndex] += MembershipList[n];
+				BasisExperience_Change[BasisIndex] += MembershipList[n];
             }
         }
     }
+
+	// update BasisExperience
+	for (int_max k = 0; k <= BasisNumber - 1; ++k)
+	{
+		BasisExperience[k] += BasisExperience_Change[k];
+	}
 
     // update Basis
     //for (int_max k = 0; k <= BasisNumber-1; ++k)
@@ -680,7 +702,6 @@ UpdateBasisMatrixAndBasisExperience_NoScaleFactor(DenseMatrix<ScalarType>&      
             BasisVectorPtr[n] += BasisVectorChangePtr[n] / Experience;
         }
     };
-
     ParallelForLoop(TempFunction_UpdateBasisMatrix, 0, BasisNumber - 1, m_Parameter.MaxNumberOfThread);
 
     this->ApplyConstraintOnBasis(BasisMatrix);

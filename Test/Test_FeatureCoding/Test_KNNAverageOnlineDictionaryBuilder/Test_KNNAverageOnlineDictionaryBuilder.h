@@ -10,7 +10,8 @@ void Test_SimpleCase()
 
 	std::string FeatureDataFilePathAndName = FilePath + "DataSample.json";
 
-    auto FeatureData = LoadDenseMatrixFromJsonDataFile<double>(FeatureDataFilePathAndName);
+	DenseMatrix<double> FeatureData;
+	LoadDenseMatrixFromJsonDataFile(FeatureData, FeatureDataFilePathAndName);
 
     int_max FeatureDataNumber = FeatureData.GetColNumber();
 
@@ -84,7 +85,8 @@ void Test_GaussianObjectImage()
 
 	std::string FeatureDataFilePathAndName = FilePath + "GaussianObjectImage.json";
 
-    auto FeatureData = LoadDenseMatrixFromJsonDataFile<double>(FeatureDataFilePathAndName);
+	DenseMatrix<double> FeatureData;
+	LoadDenseMatrixFromJsonDataFile(FeatureData, FeatureDataFilePathAndName);
 
     int_max FeatureDataNumber = FeatureData.GetColNumber();
 
@@ -142,7 +144,7 @@ void Test_GaussianObjectImage()
 
     DictionaryBuilder.m_Parameter.MaxNumberOfDataInEachBatch = 100;
 
-    DictionaryBuilder.m_Parameter.WhetherToUseScaleFactor = true;
+    DictionaryBuilder.m_Parameter.WhetherToUseScaleFactor = false;
 
     DictionaryBuilder.SetInputFeatureData(&FeatureData);
 
@@ -164,7 +166,8 @@ void Test_ImageDenoising()
 
 	std::string FeatureDataFilePathAndName = FilePath + "NoisyImagePatch.json";
 
-    auto FeatureData = LoadDenseMatrixFromJsonDataFile<double>(FeatureDataFilePathAndName);
+	DenseMatrix<double> FeatureData;
+	LoadDenseMatrixFromJsonDataFile(FeatureData, FeatureDataFilePathAndName);
 
     int_max FeatureDataNumber = FeatureData.GetColNumber();
 

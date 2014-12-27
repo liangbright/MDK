@@ -7,14 +7,13 @@
 
 #include "mdkType.h"
 #include "mdkObject.h"
+#include "mdkDenseVector_ForwardDeclare.h"
 
 namespace mdk
 {
 // this class is based on std::string
 // String can be shared in MDK
 //  
-// It is usually used to store Name
-// e.g., Name of Dictionary, Name of File
 
 //----------- forward declare -------------------//
 template<typename ElementType>
@@ -24,12 +23,14 @@ template<typename ElementType>
 class DenseMatrix;
 
 template<typename ElementType>
-class String;
+class BasicString;
 //-----------------------------------------//
-typedef String<char>     CharString;
-typedef String<wchar_t>  WCharString;
-typedef String<char16_t> U16CharString;
-typedef String<char32_t> U32CharString;
+typedef BasicString<char> String; // assume UTF-8
+//-----
+typedef BasicString<char>     CharString;
+typedef BasicString<wchar_t>  WCharString;
+typedef BasicString<char16_t> Char16String;
+typedef BasicString<char32_t> Char32String;
 //-----------------------------------------//
 template<typename ElementType>
 inline void MDK_Check_ElementType_Of_String()
@@ -40,7 +41,7 @@ inline void MDK_Check_ElementType_Of_String()
 template<typename ElementType>
 inline void MDK_Check_ElementType_Of_String(const ElementType& ReferenceElement)
 {
-    MDK_Error("Wrong ElementType for String @ MDK_Check_ElementType_Of_String(...)")
+    MDK_Error("Wrong ElementType for BasicString @ MDK_Check_ElementType_Of_String(...)")
 }
 
 inline void MDK_Check_ElementType_Of_String(const char&)
@@ -61,7 +62,7 @@ inline void MDK_Check_ElementType_Of_String(const char32_t&)
 
 //----------------------------------------------------------------------------------------------------------------------------//
 template<typename Element_Type>
-class String : public Object
+class BasicString : public Object
 {
 public:
 	typedef Element_Type  ElementType;
@@ -72,29 +73,29 @@ private:
 public:			
 	//------------------- constructor and destructor ------------------------------------//
 
-    inline String();
+    inline BasicString();
 
-    inline String(const ElementType& Element);
+    inline BasicString(const ElementType& Element);
 
-    inline String(const std::initializer_list<ElementType>& InputString);
+    inline BasicString(const std::initializer_list<ElementType>& InputString);
 
-    inline String(const ElementType* InputString);
+    inline BasicString(const ElementType* InputString);
 
-    inline String(const std::basic_string<ElementType>& InputString);
+    inline BasicString(const std::basic_string<ElementType>& InputString);
 
     // deep-copy or shared-copy constructor
-    inline String(const String<ElementType>& InputString, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
+    inline BasicString(const BasicString<ElementType>& InputString, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
 
     // move constructor
-    inline String(String<ElementType>&& InputString) noexcept;
+    inline BasicString(BasicString<ElementType>&& InputString) noexcept;
 
-	inline ~String();
+	inline ~BasicString();
 
     //----------------------  operator=  ----------------------------------------//
 
-    inline void operator=(const String<ElementType>& InputString);
+    inline void operator=(const BasicString<ElementType>& InputString);
 
-    inline void operator=(String<ElementType>&& InputString);
+    inline void operator=(BasicString<ElementType>&& InputString);
 
     inline void operator=(const ElementType& Element);
 
@@ -112,9 +113,9 @@ public:
 
     //----------------------  Copy  ----------------------------------------//
 
-    inline void Copy(const String<ElementType>& InputString);
+    inline void Copy(const BasicString<ElementType>& InputString);
 
-    inline void Copy(const String<ElementType>* InputString);
+    inline void Copy(const BasicString<ElementType>* InputString);
 
     inline void Copy(const ElementType* InputElementPointer);
 
@@ -122,25 +123,25 @@ public:
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
 
-    inline void Share(String<ElementType>& InputString);
+    inline void Share(BasicString<ElementType>& InputString);
 
-    inline void Share(String<ElementType>* InputString);
+    inline void Share(BasicString<ElementType>* InputString);
 
-    inline void ForceShare(const String<ElementType>& InputString);
+    inline void ForceShare(const BasicString<ElementType>& InputString);
 
-    inline void ForceShare(const String<ElementType>* InputString);
+    inline void ForceShare(const BasicString<ElementType>* InputString);
 
     //-------------------- Take -----------------------------------------------------------//
 
-    inline void Take(String<ElementType>&& InputString);
+    inline void Take(BasicString<ElementType>&& InputString);
 
-    inline void Take(String<ElementType>& InputString);
+    inline void Take(BasicString<ElementType>& InputString);
 
-    inline void Take(String<ElementType>* InputString);
+    inline void Take(BasicString<ElementType>* InputString);
 
     //------------------------- Swap shared_ptr m_StringData -------------------------------------------//
 
-    inline void SwapSmartPointer(String<ElementType>& InputString);
+    inline void SwapSmartPointer(BasicString<ElementType>& InputString);
 
     //------------------------- Clear -------------------------------------------//
 
@@ -168,6 +169,18 @@ public:
 
     inline const ElementType* GetElementPointer() const;
 
+	inline ElementType* GetPointer(); //  the position of the first element
+
+	inline const ElementType* GetPointer() const;
+
+	inline ElementType* begin(); //  the position of the first element
+
+	inline const ElementType* begin() const;
+
+	inline ElementType* end(); //  the position of the first element
+
+	inline const ElementType* end() const;
+
 	//----------- Get/Set by Index -----------------------------------//
 
     // operator[] or () : no bound check
@@ -192,23 +205,19 @@ public:
 
     inline void Append(const std::initializer_list<ElementType>& InputString);
 
-    inline void Append(const std::vector<ElementType>& InputString);
-
-    inline void Append(const DenseMatrix<ElementType>& InputString);
-
-    inline void Append(const ObjectArray<ElementType>& InputString);
-
-    inline void Append(const ElementType* InputString);
-
     inline void Append(const std::basic_string<ElementType>& InputString);
 
-    inline void Append(const String<ElementType>& InputString);
+    inline void Append(const BasicString<ElementType>& InputString);
+
+	inline void Append(const ElementType* InputString);
 
     inline void Delete(int_max Index);
 
     inline void Delete(const std::initializer_list<int_max>& IndexList);
 
     inline void Delete(const std::vector<int_max>& IndexList);
+
+	inline void Delete(const DenseVector<int_max>& IndexList);
 
     inline void Delete(const DenseMatrix<int_max>& IndexList);
 
@@ -222,25 +231,19 @@ public:
 
     inline void Insert(int_max Index, const std::initializer_list<ElementType>& InputString);
 
-    inline void Insert(int_max Index, const std::vector<ElementType>& InputString);
-
-    inline void Insert(int_max Index, const DenseMatrix<ElementType>& InputString);
-
-    inline void Insert(int_max Index, const ObjectArray<ElementType>& InputString);
-
-    inline void Insert(int_max Index, const String<ElementType>& InputString);
-
     inline void Insert(int_max Index, const std::basic_string<ElementType>& InputString);
 
     inline void Insert(int_max Index, const ElementType* InputString);
 
-    //------------------------------------------------------------------
+	inline void Insert(int_max Index, const BasicString<ElementType>& InputString);
 
-    inline void operator+=(const String<ElementType>& InputString);
+    //------------------------------------------------------------------
 
     inline void operator+=(const std::basic_string<ElementType>& InputString);
 
-    inline void operator+=(const ElementType* InputString);
+	inline void operator+=(const BasicString<ElementType>& InputString);
+
+	inline void operator+=(const ElementType* InputString);
 
 private:
 
@@ -250,67 +253,67 @@ private:
 
 template<typename ElementType>
 inline
-String<ElementType> operator+(const String<ElementType>& StringA, const String<ElementType>& StringB);
+BasicString<ElementType> operator+(const BasicString<ElementType>& StringA, const BasicString<ElementType>& StringB);
 
 template<typename ElementType>
 inline
-String<ElementType> operator+(const String<ElementType>& StringA, const std::basic_string<ElementType>& StringB);
+BasicString<ElementType> operator+(const BasicString<ElementType>& StringA, const std::basic_string<ElementType>& StringB);
 
 template<typename ElementType>
 inline
-String<ElementType> operator+(const std::basic_string<ElementType>& StringA, const String<ElementType>& StringB);
+BasicString<ElementType> operator+(const std::basic_string<ElementType>& StringA, const BasicString<ElementType>& StringB);
 
 template<typename ElementType>
 inline
-String<ElementType> operator+(const String<ElementType>& StringA, const ElementType* StringB);
+BasicString<ElementType> operator+(const BasicString<ElementType>& StringA, const ElementType* StringB);
 
 template<typename ElementType>
 inline
-String<ElementType> operator+(const ElementType* StringA, const String<ElementType>& StringB);
+BasicString<ElementType> operator+(const ElementType* StringA, const BasicString<ElementType>& StringB);
 
 template<typename ElementType>
 inline
-bool operator==(const String<ElementType>& StringA, const String<ElementType>& StringB);
+bool operator==(const BasicString<ElementType>& StringA, const BasicString<ElementType>& StringB);
 
 template<typename ElementType>
 inline
-bool operator==(const String<ElementType>& StringA, const std::basic_string<ElementType>& StringB);
+bool operator==(const BasicString<ElementType>& StringA, const std::basic_string<ElementType>& StringB);
 
 template<typename ElementType>
 inline
-bool operator==(const std::basic_string<ElementType>& StringA, const String<ElementType>& StringB);
+bool operator==(const std::basic_string<ElementType>& StringA, const BasicString<ElementType>& StringB);
 
 template<typename ElementType>
 inline
-bool operator==(const String<ElementType>& StringA, const ElementType* StringB);
+bool operator==(const BasicString<ElementType>& StringA, const ElementType* StringB);
 
 template<typename ElementType>
 inline
-bool operator==(const ElementType* StringA, const String<ElementType>& StringB);
+bool operator==(const ElementType* StringA, const BasicString<ElementType>& StringB);
 
 template<typename ElementType>
 inline
-bool operator!=(const String<ElementType>& StringA, const String<ElementType>& StringB);
+bool operator!=(const BasicString<ElementType>& StringA, const BasicString<ElementType>& StringB);
 
 template<typename ElementType>
 inline
-bool operator!=(const String<ElementType>& StringA, const std::basic_string<ElementType>& StringB);
+bool operator!=(const BasicString<ElementType>& StringA, const std::basic_string<ElementType>& StringB);
 
 template<typename ElementType>
 inline
-bool operator!=(const std::basic_string<ElementType>& StringA, const String<ElementType>& StringB);
+bool operator!=(const std::basic_string<ElementType>& StringA, const BasicString<ElementType>& StringB);
 
 template<typename ElementType>
 inline
-bool operator!=(const String<ElementType>& StringA, const ElementType* StringB);
+bool operator!=(const BasicString<ElementType>& StringA, const ElementType* StringB);
 
 template<typename ElementType>
 inline
-bool operator!=(const ElementType* StringA, const String<ElementType>& StringB);
+bool operator!=(const ElementType* StringA, const BasicString<ElementType>& StringB);
 
 template <typename ElementType, typename Traits = std::char_traits<ElementType>>
 inline
-std::basic_ostream<ElementType, Traits>&  operator<<(std::basic_ostream<ElementType, Traits>& os, const String<ElementType>& str);
+std::basic_ostream<ElementType, Traits>&  operator<<(std::basic_ostream<ElementType, Traits>& os, const BasicString<ElementType>& str);
 
 }//end namespace mdk
 

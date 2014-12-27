@@ -11,27 +11,48 @@
 
 #include "mdkType.h"
 #include "mdkDebugConfig.h"
+#include "mdkString.h"
+#include "mdkObjectArray.h"
 
 namespace mdk
 {
+
+//#define std::string String
+
+//=======================================================================================================================================================//
+inline String ConvertNameValuePairToStringInJsonFile(const String& Name, const String& Value);
+// scalar
+inline String ConvertNameValuePairToStringInJsonFile(const String& Name, const char& Value);
+inline String ConvertNameValuePairToStringInJsonFile(const String& Name, const int& Value);
+inline String ConvertNameValuePairToStringInJsonFile(const String& Name, const short& Value);
+inline String ConvertNameValuePairToStringInJsonFile(const String& Name, const long& Value);
+inline String ConvertNameValuePairToStringInJsonFile(const String& Name, const long long & Value);
+inline String ConvertNameValuePairToStringInJsonFile(const String& Name, const float& Value);
+inline String ConvertNameValuePairToStringInJsonFile(const String& Name, const double& Value);
+// array
+inline String ConvertNameValuePairToStringInJsonFile(const String& Name, const int* ValueArray, int_max ArrayLength);
+
+inline bool SaveJsonContentToJsonFile(const DataArray<String>& JsonContent, const String& FilePathAndName, bool Flag_Append = false);
+
+//=======================================================================================================================================================//
 // write data information as *.json file
 // For example: FilePathAndName is "C:/Data/something.json"
 
 struct NameValueQStringPair
 {
-    QString  Name;
-    QString  Value;
+	QString  Name;
+	QString  Value;
 };
 
 inline bool SaveNameValuePairListAsJsonFile(const std::vector<NameValueQStringPair>& PairList, const QString& FilePathAndName, bool Flag_Append = false);
 
-struct NameValueStdStringPair
+struct NameValueStringPair
 {
-	std::string  Name;
-	std::string  Value;
+	String  Name;
+	String  Value;
 };
 
-inline bool SaveNameValuePairListAsJsonFile(const std::vector<NameValueStdStringPair>& PairList, const std::string& FilePathAndName, bool Flag_Append = false);
+inline bool SaveNameValuePairListAsJsonFile(const std::vector<NameValueStringPair>& PairList, const String& FilePathAndName, bool Flag_Append = false);
 
 }//namespace mdk
 
