@@ -6,14 +6,16 @@ int main()
 
 	//Test_QJson();
 
-	//Test_JsonValue();
-	//Test_JsonObject();
-	//Test_JsonFile_1();
-	Test_JsonFile_2();
+	//test_main();
 
 	//Test_UniquePtr();
 
-	//test_main();
+	//Test_JsonValue();
+	//Test_JsonObject();
+	//Test_JsonFile_1();
+	//Test_JsonFile_2();
+
+	Test_MDK_to_QT_JsonConversion();
 
     std::system("pause");
 

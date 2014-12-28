@@ -5,60 +5,60 @@
 namespace mdk
 {
 
-inline VtkDataTypeEnum TranslateMDKScalarTypeToVtkScalarType(const std::string& MDKScalarTypeName)
+inline VTKDataTypeEnum TranslateMDKScalarTypeToVTKScalarType(const std::string& MDKScalarTypeName)
 {
 	if (MDKScalarTypeName == "double")
 	{
-		return VtkDataTypeEnum::VALUE_DOUBLE;
+		return VTKDataTypeEnum::VALUE_DOUBLE;
 	}
 	else if (MDKScalarTypeName == "float")
 	{
-		return VtkDataTypeEnum::VALUE_FLOAT;
+		return VTKDataTypeEnum::VALUE_FLOAT;
 	}
 	else if (MDKScalarTypeName == "int8")
 	{
-		return VtkDataTypeEnum::VALUE_CHAR;
+		return VTKDataTypeEnum::VALUE_CHAR;
 	}
 	else if (MDKScalarTypeName == "int16")
 	{
-		return VtkDataTypeEnum::VALUE_SHORT;
+		return VTKDataTypeEnum::VALUE_SHORT;
 	}
 	else if (MDKScalarTypeName == "int32")
 	{
-		return VtkDataTypeEnum::VALUE_INTEGER;
+		return VTKDataTypeEnum::VALUE_INTEGER;
 	}
 	else if (MDKScalarTypeName == "int64")
 	{
-		return VtkDataTypeEnum::VALUE_LONG_LONG;
+		return VTKDataTypeEnum::VALUE_LONG_LONG;
 	}
 	else if (MDKScalarTypeName == "uint8")
 	{
-		return VtkDataTypeEnum::VALUE_UNSIGNED_CHAR;
+		return VTKDataTypeEnum::VALUE_UNSIGNED_CHAR;
 	}
 	else if (MDKScalarTypeName == "uint16")
 	{
-		return VtkDataTypeEnum::VALUE_UNSIGNED_SHORT;
+		return VTKDataTypeEnum::VALUE_UNSIGNED_SHORT;
 	}
 	else if (MDKScalarTypeName == "uint32")
 	{
-		return VtkDataTypeEnum::VALUE_UNSIGNED_INTEGER;
+		return VTKDataTypeEnum::VALUE_UNSIGNED_INTEGER;
 	}
 	else if (MDKScalarTypeName == "uint64")
 	{
-		return VtkDataTypeEnum::VALUE_UNSIGNED_LONG_LONG;
+		return VTKDataTypeEnum::VALUE_UNSIGNED_LONG_LONG;
 	}
 	else
 	{
 		MDK_Error("Input ScalarType is unknown" << MDKScalarTypeName << '\n')
-		return VtkDataTypeEnum::VALUE_UNKNOWN;
+		return VTKDataTypeEnum::VALUE_UNKNOWN;
 	}
 }
 
 template<typename ScalarType>
-VtkDataTypeEnum GetVtkScalarType(const ScalarType& ReferenceScalar)
+VTKDataTypeEnum GetVtkScalarType(const ScalarType& ReferenceScalar)
 {
 	auto Name = GetScalarTypeName(ReferenceScalar);
-	return TranslateMDKScalarTypeToVtkScalarType(Name);
+	return TranslateMDKScalarTypeToVTKScalarType(Name);
 }
 
 

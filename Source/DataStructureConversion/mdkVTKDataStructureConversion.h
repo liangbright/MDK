@@ -59,13 +59,13 @@ typedef enum
 
 	VALUE_UNKNOWN
 
-} VtkDataTypeEnum;
+} VTKDataTypeEnum;
 //-------------------------------------------------//
 
-inline VtkDataTypeEnum TranslateMDKScalarTypeToVtkScalarType(const std::string& MDKScalarType);
+inline VTKDataTypeEnum TranslateMDKScalarTypeToVTKScalarType(const std::string& MDKScalarType);
 
 template<typename ScalarType>
-VtkDataTypeEnum GetVtkScalarType(const ScalarType& ReferenceScalar);
+VTKDataTypeEnum GetVtkScalarType(const ScalarType& ReferenceScalar);
 
 //-------------------------------------- convert mdk Curve/Matrix to vtk PolyData ----------------------------------------------------------//
 template<typename ScalarType>

@@ -9,6 +9,7 @@
 
 #include "mdkJsonValue.h"
 #include "mdkJsonObject.h"
+#include "mdkQTDataStructureConversion.h"
 
 namespace mdk
 {

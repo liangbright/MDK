@@ -119,6 +119,8 @@ public:
 
 	TypeEnum GetType() const { return m_Type; };
 	bool IsEmpty() const { return m_Type == TypeEnum::Type_Empty; }
+	bool IsScalar() const { return (m_Type == TypeEnum::Type_Bool) || (m_Type == TypeEnum::Type_Int)|| (m_Type == TypeEnum::Type_LongLong) 
+								|| (m_Type == TypeEnum::Type_Float) || (m_Type == TypeEnum::Type_Double); };
 	bool IsBool() const { return m_Type == TypeEnum::Type_Bool; };
 	bool IsInt() const { return m_Type == TypeEnum::Type_Int; };
 	bool IsLongLong() const { return m_Type == TypeEnum::Type_LongLong; };
@@ -128,9 +130,18 @@ public:
 	bool IsJsonArray() const { return m_Type == TypeEnum::Type_JsonArray; };
 	bool IsJsonObject() const { return m_Type == TypeEnum::Type_JsonObject; };
 
+	template<typename ScalarType = double>
+	ScalarType ToScalar(ScalarType DefaultValue = 0) const;
+
+	template<typename ScalarType = double>
+	DenseMatrix<ScalarType> ToScalarArray() const;
+
+	template<typename ScalarType>
+	DenseMatrix<ScalarType> ToScalarArray(const DenseMatrix<ScalarType>& DefaultArray) const;
+
 	bool ToBool(bool DefaultValue = false) const;
 	int ToInt(int DefaultValue = 0) const;
-	long long  ToLongLong(long long DefaultValue = 0) const;
+	long long ToLongLong(long long DefaultValue = 0) const;
 	float ToFloat(float DefaultValue = 0) const;
 	double ToDouble(double DefaultValue = 0) const;
 	DenseMatrix<int> ToIntArray() const;

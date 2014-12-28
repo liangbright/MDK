@@ -11,6 +11,7 @@
 #include "mdkJsonValue.h"
 #include "mdkJsonObject.h"
 #include "mdkJsonFile.h"
+#include "mdkQTDataStructureConversion.h"
 
 namespace mdk
 {
@@ -172,6 +173,61 @@ void Test_JsonFile_2()
 
 	String FileName = "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/testJsonFile2.json";
 	JsonFile::Save(JObject, FileName);
+}
+
+void Test_MDK_to_QT_JsonConversion()
+{
+	DenseMatrix<double> A = { 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.0,
+		1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.0,
+		1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.0 };
+
+	JsonObject JObjectA, JObjectB;
+
+	JObjectA["Empty"] = A;
+	JObjectA["Empty"].Clear();
+	JObjectA["ObjectType"] = "DenseMatrix";
+	JObjectA["RowNumber"] = 1;
+	JObjectA["ColNumber"] = 2;
+	JObjectA["ScalarType"] = "double";
+	JObjectA["ScalarArray"] = A;
+	JObjectA["ScalarArray_json"] = "A.json";
+	JObjectA["Empty"] = A;
+	JObjectA["Empty"].Clear();
+
+	JObjectB = JObjectA;
+
+	JsonArray JArray;
+	JArray.Resize(4);
+	JArray[0] = A;
+	JArray[1] = JObjectA;
+	JArray[2] = JObjectB;
+	JArray[3] = A;
+
+	JsonObject JObjectC, JObjectD;
+
+	JObjectC["ObjectB"] = JObjectB;
+	JObjectC["ObjectA"] = JObjectA;
+	JObjectC["A"] = A;
+	JObjectC["JArray"] = JArray;
+
+	JObjectD = JObjectC;
+
+	JsonObject JObject;
+	JObject["ObjectD"] = JObjectD;
+	JObject["ObjectC"] = JObjectC;
+	JObject["JArray"] = JArray;
+
+	auto QJObject = ConvertMDKJsonObjectToQTJsonObject(JObject);
+
+	QJsonDocument QJDoc(QJObject);
+	auto QBArray = QJDoc.toJson();
+	QFile JFile("C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/Test_MDK_to_QT_JsonConversion_1.json");
+	if (!JFile.open(QIODevice::WriteOnly))
+	{
+		std::cout << "something is wrong here" << '\n';
+	}
+	JFile.write(QBArray);
+	JFile.close();
 }
 
 /*
