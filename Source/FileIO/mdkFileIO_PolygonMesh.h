@@ -5,7 +5,7 @@
 #include <vtkPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
 
-#include "mdkFileIO_Json.h"
+#include "mdkFileIO_Common.h"
 
 namespace mdk
 {

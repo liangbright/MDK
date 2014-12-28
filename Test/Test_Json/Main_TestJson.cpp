@@ -15,7 +15,7 @@ int main()
 	//Test_JsonFile_1();
 	//Test_JsonFile_2();
 
-	Test_MDK_to_QT_JsonConversion();
+	Test_MDK_QT_JsonConversion();
 
     std::system("pause");
 

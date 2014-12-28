@@ -25,7 +25,15 @@ QJsonArray ConvertMDKJsonArrayToQTJsonArray(const JsonArray& JArray);
 //------------------ from QJsonObject/QJsonValue/QJsonArray to JsonObject/JsonValue/JsonArray ------------------------//
 
 JsonObject ConvertQTJsonObjectToMDKJsonObject(const QJsonObject& QJObject);
+
 JsonValue ConvertQTJsonValueToMDKJsonValue(const QJsonValue& QJValue);
+
+bool CheckIf_QTJsonArray_Is_ScalarArray(const QJsonArray& QJArray);
+
+DenseMatrix<double> ConvertQTJsonArrayToMDKScalarArray(const QJsonArray& QJArray);
+
+JsonArray ConvertQTJsonArrayToMDKJsonArray(const QJsonArray& QJArray);
+
 //--------------------------------------------------------------------------------------------------------//
 
 }

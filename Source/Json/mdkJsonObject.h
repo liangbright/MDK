@@ -58,8 +58,8 @@ public:
 	local_iterator end() { return m_DataMap.end(); };
 	const_local_iterator end() const { return m_DataMap.end(); };
 
-	iterator Find(const String& Name) { return m_DataMap.find(Name); }
-	const_iterator Find(const String& Name) const  { return m_DataMap.find(Name); }
+	iterator find(const String& Name) { return m_DataMap.find(Name); }
+	const_iterator find(const String& Name) const  { return m_DataMap.find(Name); }
 
 private:
 };

@@ -25,7 +25,7 @@ class JsonValue : public Object
 public:
 	enum struct TypeEnum
 	{
-		Type_Empty,
+		Type_Null,
 		Type_Bool,
 		Type_Int,
 		Type_LongLong,
@@ -56,24 +56,24 @@ private:
 	std::unique_ptr<Object> m_OtherData;
 		
 public:
-	JsonValue(TypeEnum = TypeEnum::Type_Empty);
+	JsonValue(TypeEnum = TypeEnum::Type_Null);
 	JsonValue(bool Value);
 	JsonValue(int Value);
 	JsonValue(long long Value);
 	JsonValue(float Value);
 	JsonValue(double Value);	
-	JsonValue(DenseMatrix<int> IntArray);
-	JsonValue(DenseVector<int> IntArray);
-	JsonValue(const int* IntArray, int_max ArrayLength);
-	JsonValue(DenseMatrix<long long> LongLongArray);
-	JsonValue(DenseVector<long long> LongLongArray);
-	JsonValue(const long long* LongLongArray, int_max ArrayLength);
-	JsonValue(DenseMatrix<float> FloatArray);
-	JsonValue(DenseVector<float> FloatArray);
-	JsonValue(const float* FloatArray, int_max ArrayLength);
-	JsonValue(DenseMatrix<double> DoubleArray);
-	JsonValue(DenseVector<double> DoubleArray);
-	JsonValue(const double* DoubleArray, int_max ArrayLength);		
+	JsonValue(DenseMatrix<int> InputArray);
+	JsonValue(DenseVector<int> InputArray);
+	JsonValue(const int* InputArray, int_max ArrayLength);
+	JsonValue(DenseMatrix<long long> InputArray);
+	JsonValue(DenseVector<long long> InputArray);
+	JsonValue(const long long* InputArray, int_max ArrayLength);
+	JsonValue(DenseMatrix<float> InputArray);
+	JsonValue(DenseVector<float> InputArray);
+	JsonValue(const float* InputArray, int_max ArrayLength);
+	JsonValue(DenseMatrix<double> InputArray);
+	JsonValue(DenseVector<double> InputArray);
+	JsonValue(const double* InputArray, int_max ArrayLength);
 	JsonValue(const char* Value);
 	JsonValue(String Value);
 	JsonValue(JsonArray Value);
@@ -88,22 +88,22 @@ public:
 	void operator=(long long Value);
 	void operator=(float Value);
 	void operator=(double Value);
-	void operator=(const DenseMatrix<int>& IntArray);
-	void operator=(DenseMatrix<int>&& IntArray);
-	void operator=(const DenseVector<int>& IntArray);
-	void operator=(DenseVector<int>&& IntArray);
-	void operator=(const DenseMatrix<long long>& LongLongArray);
-	void operator=(DenseMatrix<long long>&& LongLongArray);
-	void operator=(const DenseVector<long long>& LongLongArray);
-	void operator=(DenseVector<long long>&& LongLongArray);
-	void operator=(const DenseMatrix<float>& FloatArray);
-	void operator=(DenseMatrix<float>&& FloatArray);
-	void operator=(const DenseVector<float>& FloatArray);
-	void operator=(DenseVector<float>&& FloatArray);
-	void operator=(const DenseMatrix<double>& DoubleArray);
-	void operator=(DenseMatrix<double>&& DoubleArray);
-	void operator=(const DenseVector<double>& DoubleArray);
-	void operator=(DenseVector<double>&& DoubleArray);
+	void operator=(const DenseMatrix<int>& InputArray);
+	void operator=(DenseMatrix<int>&& InputArray);
+	void operator=(const DenseVector<int>& InputArray);
+	void operator=(DenseVector<int>&& InputArray);
+	void operator=(const DenseMatrix<long long>& InputArray);
+	void operator=(DenseMatrix<long long>&& InputArray);
+	void operator=(const DenseVector<long long>& InputArray);
+	void operator=(DenseVector<long long>&& InputArray);
+	void operator=(const DenseMatrix<float>& InputArray);
+	void operator=(DenseMatrix<float>&& InputArray);
+	void operator=(const DenseVector<float>& InputArray);
+	void operator=(DenseVector<float>&& InputArray);
+	void operator=(const DenseMatrix<double>& InputArray);
+	void operator=(DenseMatrix<double>&& InputArray);
+	void operator=(const DenseVector<double>& InputArray);
+	void operator=(DenseVector<double>&& InputArray);
 	void operator=(const char* Value);
 	void operator=(const String& Value);
 	void operator=(String&& Value);
@@ -118,26 +118,20 @@ public:
 	void Clear();// clear memory and change type to Undefined
 
 	TypeEnum GetType() const { return m_Type; };
-	bool IsEmpty() const { return m_Type == TypeEnum::Type_Empty; }
-	bool IsScalar() const { return (m_Type == TypeEnum::Type_Bool) || (m_Type == TypeEnum::Type_Int)|| (m_Type == TypeEnum::Type_LongLong) 
-								|| (m_Type == TypeEnum::Type_Float) || (m_Type == TypeEnum::Type_Double); };
+
+	bool IsNull() const { return m_Type == TypeEnum::Type_Null; }
 	bool IsBool() const { return m_Type == TypeEnum::Type_Bool; };
 	bool IsInt() const { return m_Type == TypeEnum::Type_Int; };
 	bool IsLongLong() const { return m_Type == TypeEnum::Type_LongLong; };
 	bool IsFloat() const { return m_Type == TypeEnum::Type_Float; };
 	bool IsDouble() const { return m_Type == TypeEnum::Type_Double; };
+	bool IsIntArray() const { return m_Type == TypeEnum::Type_IntArray; };
+	bool IsLongLongArray() const { return m_Type == TypeEnum::Type_LongLongArray; };
+	bool IsFloatArray() const { return m_Type == TypeEnum::Type_FloatArray; };
+	bool IsDoubleArray() const { return m_Type == TypeEnum::Type_DoubleArray; };
 	bool IsString() const { return m_Type == TypeEnum::Type_String; };
 	bool IsJsonArray() const { return m_Type == TypeEnum::Type_JsonArray; };
 	bool IsJsonObject() const { return m_Type == TypeEnum::Type_JsonObject; };
-
-	template<typename ScalarType = double>
-	ScalarType ToScalar(ScalarType DefaultValue = 0) const;
-
-	template<typename ScalarType = double>
-	DenseMatrix<ScalarType> ToScalarArray() const;
-
-	template<typename ScalarType>
-	DenseMatrix<ScalarType> ToScalarArray(const DenseMatrix<ScalarType>& DefaultArray) const;
 
 	bool ToBool(bool DefaultValue = false) const;
 	int ToInt(int DefaultValue = 0) const;
@@ -158,6 +152,27 @@ public:
 	JsonArray ToJsonArray(const JsonArray& DefaultValue) const;
 	JsonObject ToJsonObject() const;
 	JsonObject ToJsonObject(const JsonObject& DefaultValue) const;
+
+	bool IsScalar() const
+	{
+		return (m_Type == TypeEnum::Type_Bool) || (m_Type == TypeEnum::Type_Int) || (m_Type == TypeEnum::Type_LongLong)
+			|| (m_Type == TypeEnum::Type_Float) || (m_Type == TypeEnum::Type_Double);
+	};
+
+	template<typename ScalarType = double>
+	ScalarType ToScalar(ScalarType DefaultValue = 0) const;
+
+	bool IsScalarArray() const
+	{
+		return (m_Type == TypeEnum::Type_IntArray) || (m_Type == TypeEnum::Type_LongLongArray)
+			|| (m_Type == TypeEnum::Type_FloatArray) || (m_Type == TypeEnum::Type_DoubleArray);
+	};
+
+	template<typename ScalarType = double>
+	DenseMatrix<ScalarType> ToScalarArray() const;
+
+	template<typename ScalarType>
+	DenseMatrix<ScalarType> ToScalarArray(const DenseMatrix<ScalarType>& DefaultArray) const;
 
 	// There is NO BoolArray bacause std::vector<bool> is crap
 
@@ -188,6 +203,6 @@ private:
 
 }//namespace mdk
 
-//#include "mdkJsonValue.hpp"
+#include "mdkJsonValue.hpp"
 
 #endif

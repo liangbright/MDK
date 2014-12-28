@@ -5,6 +5,9 @@
 
 #include <QString>
 #include <QFile>
+#include <QIODevice>
+#include <QByteArray>
+#include <QJsonDocument>
 #include <QTextStream>
 
 #include "mdkJsonValue.h"
@@ -37,7 +40,7 @@ private:
 
 public:
 	static bool Save(const JsonObject& InputObject, const String& FilePathAndName, bool Flag_PreserveOrder = true);
-	static bool Load(JsonObject& InputObject, const String& FilePathAndName);
+	static bool Load(JsonObject& OutputObject, const String& FilePathAndName);
 
 private:
 
@@ -59,6 +62,7 @@ private:
     //for SaveJsonValueToJsonFile, Indention is only needed if a JsonValue need multi-line
 
 	static bool SaveJsonValueToJsonFile(const JsonValue& JValue, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
+	static bool SaveJsonValueToJsonFile(const MDK_Symbol_Empty&, JsonFile& OutputFile);
 	static bool SaveJsonValueToJsonFile(bool Flag, JsonFile& OutputFile);
 	static bool SaveJsonValueToJsonFile(int Scalar, JsonFile& OutputFile);
 	static bool SaveJsonValueToJsonFile(long long Scalar, JsonFile& OutputFile);

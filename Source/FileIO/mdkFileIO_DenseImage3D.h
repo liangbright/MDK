@@ -8,8 +8,8 @@
 #include <itkImportImageFilter.h>
 #include <itkImageDuplicator.h>
 
-#include "mdkDataStructureConversion.h"
-#include "mdkFileIO_Json.h"
+#include "mdkITKDataStructureConversion.h"
+#include "mdkFileIO_Common.h"
 
 namespace mdk
 {

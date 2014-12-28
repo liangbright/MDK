@@ -6,11 +6,11 @@ int main()
 
 	Test_MatrixIO();
 
-    Test_ImageIO();
+    //Test_ImageIO();
 
-	Test_PolygonMeshIO();
+	//Test_PolygonMeshIO();
 
-	Test_TriangleMeshIO();
+	//Test_TriangleMeshIO();
 
     std::system("pause");
 

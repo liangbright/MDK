@@ -47,9 +47,9 @@ void JsonFile::Close()
 		m_QFile->close();
 	}
 }
-//==========================================================================================================================//
-//-------------------------------------- public function -----------------------------------------------------------------//
-//==========================================================================================================================//
+//==============================================================================================================================//
+//-------------------------------------- public static function -----------------------------------------------------------------//
+//===============================================================================================================================//
 bool JsonFile::Save(const JsonObject& InputObject, const String& FilePathAndName, bool Flag_PreserveOrder)
 {
 	JsonFile OutputFile(FilePathAndName);
@@ -57,9 +57,19 @@ bool JsonFile::Save(const JsonObject& InputObject, const String& FilePathAndName
 	OutputFile.Close();
 	return IsOK;
 }
-
-bool JsonFile::Load(JsonObject& InputObject, const String& FilePathAndName)
+//==========================================================================================================================//
+bool JsonFile::Load(JsonObject& OutputObject, const String& FilePathAndName)
 {
+	QFile JFile_in(FilePathAndName.StdString().c_str());
+	if (!JFile_in.open(QIODevice::ReadOnly))
+	{
+		MDK_Error("Can not open file to read @ JsonFile::Load(...) " << FilePathAndName);
+		return false;
+	}
+	QByteArray QBArray_in = JFile_in.readAll();
+	QJsonDocument JDoc_in(QJsonDocument::fromJson(QBArray_in));
+	QJsonObject QJObject_in = JDoc_in.object();
+	OutputObject = ConvertQTJsonObjectToMDKJsonObject(QJObject_in);
 	return true;
 }
 //==========================================================================================================================//
@@ -69,7 +79,7 @@ bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, const JsonValue& 
 {
 	switch (JValue.GetType())
 	{
-	case JsonValue::TypeEnum::Type_Empty:
+	case JsonValue::TypeEnum::Type_Null:
 		return JsonFile::SaveNameValuePairToJsonFile(Name, MDK_EMPTY, OutputFile, Indention);
 	case JsonValue::TypeEnum::Type_Bool:
 		return JsonFile::SaveNameValuePairToJsonFile(Name, JValue.ToBool(), OutputFile, Indention);
@@ -106,8 +116,8 @@ bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, const MDK_Symbol_
 	{
 		OutputFile << " ";
 	}
-	OutputFile << "\"" << Name << "\"" << " : ";
-	return true;
+	OutputFile << "\"" << Name << "\"" << ": ";
+	return JsonFile::SaveJsonValueToJsonFile(MDK_EMPTY, OutputFile);
 }
 //==========================================================================================================================//
 bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, bool Flag, JsonFile& OutputFile, int_max Indention)
@@ -116,7 +126,7 @@ bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, bool Flag, JsonFi
 	{
 		OutputFile << " ";
 	}
-	OutputFile << "\"" << Name << "\"" << " : ";
+	OutputFile << "\"" << Name << "\"" << ": ";
 	return JsonFile::SaveJsonValueToJsonFile(Flag, OutputFile);
 }
 //==========================================================================================================================//
@@ -126,7 +136,7 @@ bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, int Scalar, JsonF
 	{
 		OutputFile << " ";
 	}
-	OutputFile << "\"" << Name << "\"" << " : ";
+	OutputFile << "\"" << Name << "\"" << ": ";
 	return JsonFile::SaveJsonValueToJsonFile(Scalar, OutputFile);
 }
 //==========================================================================================================================//
@@ -136,7 +146,7 @@ bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, long long Scalar,
 	{
 		OutputFile << " ";
 	}
-	OutputFile << "\"" << Name << "\"" << " : ";
+	OutputFile << "\"" << Name << "\"" << ": ";
 	return JsonFile::SaveJsonValueToJsonFile(Scalar, OutputFile);
 }
 //==========================================================================================================================//
@@ -146,13 +156,17 @@ bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, float Scalar, Jso
 	{
 		OutputFile << " ";
 	}
-	OutputFile << "\"" << Name << "\"" << " : ";
+	OutputFile << "\"" << Name << "\"" << ": ";
 	return JsonFile::SaveJsonValueToJsonFile(Scalar, OutputFile);
 }
 //==========================================================================================================================//
 bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, double Scalar, JsonFile& OutputFile, int_max Indention)
 {
-	OutputFile << "\"" << Name << "\"" << " : ";
+	for (int_max k = 0; k < Indention; ++k)
+	{
+		OutputFile << " ";
+	}
+	OutputFile << "\"" << Name << "\"" << ": ";
 	return JsonFile::SaveJsonValueToJsonFile(Scalar, OutputFile);
 }
 //==========================================================================================================================//
@@ -162,8 +176,8 @@ bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, const DenseMatrix
 	{
 		OutputFile << " ";
 	}
-	OutputFile << "\"" << Name << "\"" << " : ";
-	int_max Indention_next = Indention + Name.GetLength() + 5;
+	OutputFile << "\"" << Name << "\"" << ": ";
+	int_max Indention_next = Indention + Name.GetLength() + 4;
 	return JsonFile::SaveJsonValueToJsonFile(IntArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
@@ -173,8 +187,8 @@ bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, const DenseMatrix
 	{
 		OutputFile << " ";
 	}
-	OutputFile << "\"" << Name << "\"" << " : ";
-	int_max Indention_next = Indention + Name.GetLength() + 5;
+	OutputFile << "\"" << Name << "\"" << ": ";
+	int_max Indention_next = Indention + Name.GetLength() + 4;
 	return JsonFile::SaveJsonValueToJsonFile(LongLongArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
@@ -184,8 +198,8 @@ bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, const DenseMatrix
 	{
 		OutputFile << " ";
 	}
-	OutputFile << "\"" << Name << "\"" << " : ";
-	int_max Indention_next = Indention + Name.GetLength() + 5;
+	OutputFile << "\"" << Name << "\"" << ": ";
+	int_max Indention_next = Indention + Name.GetLength() + 4;
 	return JsonFile::SaveJsonValueToJsonFile(FloatArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
@@ -195,8 +209,8 @@ bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, const DenseMatrix
 	{
 		OutputFile << " ";
 	}
-	OutputFile << "\"" << Name << "\"" << " : ";
-	int_max Indention_next = Indention + Name.GetLength() + 5;
+	OutputFile << "\"" << Name << "\"" << ": ";
+	int_max Indention_next = Indention + Name.GetLength() + 4;
 	return JsonFile::SaveJsonValueToJsonFile(DoubleArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
@@ -206,7 +220,7 @@ bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, const String& JSt
 	{
 		OutputFile << " ";
 	}
-	OutputFile << "\"" << Name << "\"" << " : ";
+	OutputFile << "\"" << Name << "\"" << ": ";
 	return JsonFile::SaveJsonValueToJsonFile(JString, OutputFile);
 }
 //==========================================================================================================================//
@@ -216,8 +230,8 @@ bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, const JsonArray& 
 	{
 		OutputFile << " ";
 	}
-	OutputFile << "\"" << Name << "\"" << " : ";
-	int_max Indention_next = Indention + Name.GetLength() + 5;
+	OutputFile << "\"" << Name << "\"" << ": ";
+	int_max Indention_next = Indention + Name.GetLength() + 4;
 	return JsonFile::SaveJsonValueToJsonFile(JArray, OutputFile, Indention_next, Flag_PreserveOrder);
 }
 //==========================================================================================================================//
@@ -227,8 +241,8 @@ bool JsonFile::SaveNameValuePairToJsonFile(const String& Name, const JsonObject&
 	{
 		OutputFile << " ";
 	}
-	OutputFile << "\"" << Name << "\"" << " : ";
-	int_max Indention_next = Indention + Name.GetLength() + 5;	
+	OutputFile << "\"" << Name << "\"" << ": ";
+	int_max Indention_next = Indention + Name.GetLength() + 4;	
 	return JsonFile::SaveJsonValueToJsonFile(JObject, OutputFile, Indention_next, Flag_PreserveOrder);
 }
 //==========================================================================================================================//
@@ -236,8 +250,8 @@ bool JsonFile::SaveJsonValueToJsonFile(const JsonValue& JValue, JsonFile& Output
 {
 	switch (JValue.GetType())
 	{
-	case JsonValue::TypeEnum::Type_Empty:
-		return true;
+	case JsonValue::TypeEnum::Type_Null:
+		return SaveJsonValueToJsonFile(MDK_EMPTY, OutputFile);
 	case JsonValue::TypeEnum::Type_Bool:
 		return JsonFile::SaveJsonValueToJsonFile(JValue.ToBool(), OutputFile);
 	case JsonValue::TypeEnum::Type_Int:
@@ -265,6 +279,13 @@ bool JsonFile::SaveJsonValueToJsonFile(const JsonValue& JValue, JsonFile& Output
 	default:
 		return false;
 	}
+}
+//==========================================================================================================================//
+bool JsonFile::SaveJsonValueToJsonFile(const MDK_Symbol_Empty&, JsonFile& OutputFile)
+{
+	String NullStr = "null";
+	OutputFile << NullStr;
+	return true;
 }
 //==========================================================================================================================//
 bool JsonFile::SaveJsonValueToJsonFile(bool Flag, JsonFile& OutputFile)
@@ -422,31 +443,44 @@ bool JsonFile::SaveJsonValueToJsonFile(const String& JString, JsonFile& OutputFi
 //==========================================================================================================================//
 bool JsonFile::SaveJsonValueToJsonFile(const JsonArray& JArray, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder)
 {
-	OutputFile << "[";
-
-	bool Flag_ScalarArray = true; // every JArray[k] is a scalar
-
 	bool IsOK = true;
-
-	int_max Indention_next = Indention + 1;
+	//----------------------------------------------
+	bool Flag_SimpleArray = true; // every JArray[k] is a scalar or Null or bool
 	for (int_max k = 0; k < JArray.GetLength(); ++k)
 	{
 		const auto& JValue = JArray[k];
 		switch (JValue.GetType())
 		{
-		case JsonValue::TypeEnum::Type_Empty:
-		{
-			if (JArray.GetLength() > 1 && k < JArray.GetLength() - 1)
-			{
-				OutputFile << ',';
-			}
+		case JsonValue::TypeEnum::Type_IntArray:
+		case JsonValue::TypeEnum::Type_LongLongArray:
+		case JsonValue::TypeEnum::Type_FloatArray:
+		case JsonValue::TypeEnum::Type_DoubleArray:
+		case JsonValue::TypeEnum::Type_String:
+		case JsonValue::TypeEnum::Type_JsonArray:
+		case JsonValue::TypeEnum::Type_JsonObject:
+			Flag_SimpleArray = false;
 			break;
 		}
-		case JsonValue::TypeEnum::Type_Bool:
-		case JsonValue::TypeEnum::Type_Int:
-		case JsonValue::TypeEnum::Type_LongLong:
-		case JsonValue::TypeEnum::Type_Float:
-		case JsonValue::TypeEnum::Type_Double:
+		if (Flag_SimpleArray == false)
+		{
+			break;
+		}
+	}
+	//----------------------------------------------
+	if (Flag_SimpleArray == true)
+	{
+		OutputFile << "[";
+	}
+	else
+	{
+		OutputFile << "[" << '\n';
+	}
+	//----------------------------------------------
+	int_max Indention_next = Indention + 1;
+	for (int_max k = 0; k < JArray.GetLength(); ++k)
+	{
+		const auto& JValue = JArray[k];
+		if (Flag_SimpleArray == true)
 		{
 			if (JsonFile::SaveJsonValueToJsonFile(JValue, OutputFile, 0, Flag_PreserveOrder) == false) // NO Indention
 			{
@@ -457,23 +491,12 @@ bool JsonFile::SaveJsonValueToJsonFile(const JsonArray& JArray, JsonFile& Output
 			{
 				OutputFile << ", ";
 			}
-			break;
 		}
-		case JsonValue::TypeEnum::Type_IntArray:
-		case JsonValue::TypeEnum::Type_LongLongArray:
-		case JsonValue::TypeEnum::Type_FloatArray:
-		case JsonValue::TypeEnum::Type_DoubleArray:
-		case JsonValue::TypeEnum::Type_String:
-		case JsonValue::TypeEnum::Type_JsonArray:
-		case JsonValue::TypeEnum::Type_JsonObject:
+		else
 		{
-			if (k >= 1)
+			for (int_max n = 0; n < Indention_next; ++n)
 			{
-				OutputFile << '\n';
-				for (int_max k = 0; k < Indention_next; ++k)
-				{
-					OutputFile << " ";
-				}
+				OutputFile << " ";
 			}
 			if (JsonFile::SaveJsonValueToJsonFile(JValue, OutputFile, Indention_next, Flag_PreserveOrder) == false)
 			{
@@ -481,27 +504,25 @@ bool JsonFile::SaveJsonValueToJsonFile(const JsonArray& JArray, JsonFile& Output
 			}
 			if (JArray.GetLength() > 1 && k < JArray.GetLength() - 1)
 			{
-				OutputFile << ", ";
+				OutputFile << "," << '\n';
 			}
-			Flag_ScalarArray = false;
-			break;
-		}
-		default:
-			break;
 		}
 	}
-
-	if (Flag_ScalarArray == false)
+	//----------------------------------------------
+	if (Flag_SimpleArray == true)
+	{
+		OutputFile << "]";
+	}
+	else
 	{
 		OutputFile << '\n';
+		for (int_max k = 0; k < Indention; ++k)
+		{
+			OutputFile << " ";
+		}
+		OutputFile << "]";
 	}
-
-	for (int_max k = 0; k < Indention; ++k)
-	{
-		OutputFile << " ";
-	}
-	OutputFile << "]";
-
+	//----------------------------------------------
 	return IsOK;
 }
 //==========================================================================================================================//

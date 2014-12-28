@@ -26,7 +26,7 @@ QJsonValue ConvertMDKJsonValueToQTJsonValue(const JsonValue& JValue)
 {
 	switch (JValue.GetType())
 	{
-	case JsonValue::TypeEnum::Type_Empty:
+	case JsonValue::TypeEnum::Type_Null:
 	{
 		QJsonValue QJValue;
 		return QJValue;
@@ -167,6 +167,12 @@ QJsonArray ConvertMDKJsonArrayToQTJsonArray(const JsonArray& JArray)
 JsonObject ConvertQTJsonObjectToMDKJsonObject(const QJsonObject& QJObject)
 {
 	JsonObject JObject;
+	for (auto it = QJObject.begin(); it != QJObject.end(); ++it)
+	{
+		String Name = it.key().toStdString();
+		JsonValue JValue = ConvertQTJsonValueToMDKJsonValue(it.value());
+		JObject[Name] = JValue;
+	}
 	return JObject;
 }
 
@@ -174,7 +180,97 @@ JsonObject ConvertQTJsonObjectToMDKJsonObject(const QJsonObject& QJObject)
 JsonValue ConvertQTJsonValueToMDKJsonValue(const QJsonValue& QJValue)
 {
 	JsonValue JValue;
+	switch (QJValue.type())
+	{
+	case QJsonValue::Type::Null:
+	{
+		break;
+	}
+	case QJsonValue::Type::Bool:
+	{
+		JValue = QJValue.toBool();
+		break;
+	}
+	case QJsonValue::Type::Double:
+	{
+		JValue = QJValue.toDouble();
+		break;
+	}
+	case QJsonValue::Type::String:
+	{
+		JValue = QJValue.toString().toStdString();
+		break;
+	}
+	case QJsonValue::Type::Array:
+	{
+		auto QJArray = QJValue.toArray();
+		if (CheckIf_QTJsonArray_Is_ScalarArray(QJArray) == true)
+		{
+			JValue = ConvertQTJsonArrayToMDKScalarArray(QJArray);
+		}
+		else
+		{
+			JValue = ConvertQTJsonArrayToMDKJsonArray(QJArray);
+		}		
+		break;
+	}
+	case QJsonValue::Type::Object:
+	{
+		auto QJObject = QJValue.toObject();
+		JValue = ConvertQTJsonObjectToMDKJsonObject(QJObject);
+		break;
+	}
+	case QJsonValue::Type::Undefined:
+	{
+		break;
+	}
+	default:
+		break;
+	}
 	return JValue;
+}
+
+bool CheckIf_QTJsonArray_Is_ScalarArray(const QJsonArray& QJArray)
+{
+	bool Flag = true;
+	for (auto it = QJArray.begin(); it != QJArray.end(); ++it)
+	{
+		if ((*it).type() != QJsonValue::Type::Double)
+		{
+			Flag = false;
+			break;
+		}
+	}
+	return Flag;
+}
+
+DenseMatrix<double> ConvertQTJsonArrayToMDKScalarArray(const QJsonArray& QJArray)
+{
+	DenseMatrix<double> OutputArray;
+	OutputArray.ReserveCapacity(1, int_max(QJArray.size()));
+	for (auto it = QJArray.begin(); it != QJArray.end(); ++it)
+	{
+		if ((*it).type() != QJsonValue::Type::Double)
+		{			
+			MDK_Error("Type is not double @ ConvertQTJsonArrayToMDKScalarArray(...)")
+			OutputArray.Clear();
+			return OutputArray;
+		}
+		OutputArray.Append((*it).toDouble());
+	}
+	OutputArray.Resize(1, OutputArray.GetElementNumber());
+	return OutputArray;
+}
+
+JsonArray ConvertQTJsonArrayToMDKJsonArray(const QJsonArray& QJArray)
+{
+	JsonArray JArray;
+	JArray.ReserveCapacity(int_max(QJArray.size()));
+	for (auto it = QJArray.begin(); it != QJArray.end(); ++it)
+	{		
+		JArray.Append(ConvertQTJsonValueToMDKJsonValue(*it));
+	}
+	return JArray;
 }
 
 //--------------------------------------------------------------------------------------------------------//

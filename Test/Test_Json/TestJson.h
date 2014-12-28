@@ -175,7 +175,7 @@ void Test_JsonFile_2()
 	JsonFile::Save(JObject, FileName);
 }
 
-void Test_MDK_to_QT_JsonConversion()
+void Test_MDK_QT_JsonConversion()
 {
 	DenseMatrix<double> A = { 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.0,
 		1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.0,
@@ -191,8 +191,6 @@ void Test_MDK_to_QT_JsonConversion()
 	JObjectA["ScalarType"] = "double";
 	JObjectA["ScalarArray"] = A;
 	JObjectA["ScalarArray_json"] = "A.json";
-	JObjectA["Empty"] = A;
-	JObjectA["Empty"].Clear();
 
 	JObjectB = JObjectA;
 
@@ -216,18 +214,35 @@ void Test_MDK_to_QT_JsonConversion()
 	JObject["ObjectD"] = JObjectD;
 	JObject["ObjectC"] = JObjectC;
 	JObject["JArray"] = JArray;
-
-	auto QJObject = ConvertMDKJsonObjectToQTJsonObject(JObject);
-
-	QJsonDocument QJDoc(QJObject);
+	//-----------------------------------------------------------------	
+	JsonObject JObject_out = JObject;
+	//-----------------------------------------------------------------	
+	JsonFile::Save(JObject_out, "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/Test_MDK_QT_JsonConversion_1.json");
+	//-----------------------------------------------------------------
+	auto QJObject_out = ConvertMDKJsonObjectToQTJsonObject(JObject_out);
+	QJsonDocument QJDoc(QJObject_out);
 	auto QBArray = QJDoc.toJson();
-	QFile JFile("C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/Test_MDK_to_QT_JsonConversion_1.json");
-	if (!JFile.open(QIODevice::WriteOnly))
+	QFile JFile_out("C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/Test_MDK_QT_JsonConversion_2.json");
+	if (!JFile_out.open(QIODevice::WriteOnly))
 	{
 		std::cout << "something is wrong here" << '\n';
+		return;
 	}
-	JFile.write(QBArray);
-	JFile.close();
+	JFile_out.write(QBArray);
+	JFile_out.close();
+	//-----------------------------------------------------------------
+	QFile JFile_in("C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/Test_MDK_QT_JsonConversion_1.json");
+	if (!JFile_in.open(QIODevice::ReadOnly))
+	{
+		std::cout << "something is wrong here" << '\n';
+		return;
+	}
+	QByteArray QBArray_in = JFile_in.readAll();
+	QJsonDocument JDoc_in(QJsonDocument::fromJson(QBArray_in));
+	QJsonObject QJObject_in = JDoc_in.object();
+	//-----------------------------------------------------------//
+	auto JObject_in = ConvertQTJsonObjectToMDKJsonObject(QJObject_in);
+	JsonFile::Save(JObject_in, "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/Test_MDK_QT_JsonConversion_3.json");
 }
 
 /*
