@@ -1,6 +1,7 @@
 ﻿#ifndef __mdkString_h
 #define __mdkString_h
 
+#include <functional>
 #include <vector>
 #include <string>
 #include <memory>
@@ -32,6 +33,7 @@ typedef BasicString<wchar_t>  WCharString;
 typedef BasicString<char16_t> Char16String;
 typedef BasicString<char32_t> Char32String;
 //-----------------------------------------//
+
 template<typename ElementType>
 inline void MDK_Check_ElementType_Of_String()
 {
@@ -162,6 +164,8 @@ public:
     inline bool IsShared() const;
 
     inline int_max GetElementNumber() const;
+
+	inline int_max GetLength() const;
 
     //--------------------- Get Data Pointer -----------------------------//
 

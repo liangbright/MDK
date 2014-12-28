@@ -6,7 +6,10 @@ int main()
 
 	//Test_QJson();
 
-	Test_JsonValue();
+	//Test_JsonValue();
+	//Test_JsonObject();
+	//Test_JsonFile_1();
+	Test_JsonFile_2();
 
 	//test_main();
 

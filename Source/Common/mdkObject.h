@@ -10,7 +10,7 @@ namespace mdk
 
 class Object
 {
-protected:
+public:
 	Object();
 	virtual ~Object();
 

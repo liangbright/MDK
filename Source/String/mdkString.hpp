@@ -553,6 +553,14 @@ int_max BasicString<ElementType>::GetElementNumber() const
 
 template<typename ElementType>
 inline
+int_max BasicString<ElementType>::GetLength() const
+{
+	return int_max(m_StringData->size());
+}
+
+
+template<typename ElementType>
+inline
 ElementType* BasicString<ElementType>::GetElementPointer()
 {
     return const_cast<ElementType*>(m_StringData->data());

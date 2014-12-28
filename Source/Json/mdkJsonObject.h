@@ -1,12 +1,12 @@
 ﻿#ifndef __mdkJsonObject_h
 #define __mdkJsonObject_h
 
-#include <string>
 #include <unordered_map>
 #include <vector>
 
 #include "mdkObject.h"
 #include "mdkType.h"
+#include "mdkStringHash.h"
 #include "mdkJsonValue.h"
 
 namespace mdk
@@ -16,13 +16,23 @@ namespace mdk
 class JsonFile;
 //---------------------------------------//
 
+
 class JsonObject : public Object
 {
 public:
-	std::unordered_map<std::string, JsonValue> m_DataMap; // <Name, Value>
-	std::vector<std::string> m_NameList; // insertion order
+	typedef std::unordered_map<String, JsonValue, StringHash<String>> DataMapType;
 
-	bool m_Flag_SaveInOrder; // use insertion order
+	typedef DataMapType::local_iterator local_iterator;
+	typedef DataMapType::const_local_iterator const_local_iterator;
+
+	typedef DataMapType::iterator iterator;
+	typedef DataMapType::const_iterator const_iterator;
+
+	typedef std::vector<String> NameListType;
+
+public:
+	DataMapType m_DataMap;   // <Name, Value>
+	NameListType m_NameList; // preserve insertion order
 
 public:
 	JsonObject();
@@ -35,11 +45,21 @@ public:
 
 	void Clear();
 
-	std::vector<std::string>& NameList() { return m_NameList; };
-	const std::vector<std::string>& NameList() const { return m_NameList; };
+	const NameListType& NameList() const { return m_NameList; };
+	const DataMapType& DataMap() const { return m_DataMap; };
 
-	std::unordered_map<std::string, JsonValue>& DataMap() { return m_DataMap; };
-	const std::unordered_map<std::string, JsonValue>& DataMap() const { return m_DataMap; };
+	int_max GetElementNumber() const { return int_max(m_DataMap.size()); };
+
+	JsonValue& operator[](const String& Name);
+
+	local_iterator begin() { return m_DataMap.begin(); }
+	const_local_iterator begin() const { return m_DataMap.begin(); };
+
+	local_iterator end() { return m_DataMap.end(); };
+	const_local_iterator end() const { return m_DataMap.end(); };
+
+	iterator Find(const String& Name) { return m_DataMap.find(Name); }
+	const_iterator Find(const String& Name) const  { return m_DataMap.find(Name); }
 
 private:
 };

@@ -9,8 +9,8 @@
 #include <QJsonObject>
 
 #include "mdkJsonValue.h"
-#include "mdkJsonArray.h"
 #include "mdkJsonObject.h"
+#include "mdkJsonFile.h"
 
 namespace mdk
 {
@@ -77,14 +77,73 @@ void Test_JsonValue()
 	JsonValue Value("abcd");
 	JsonArray JArray;
 	JsonObject JObject;
-
+	DenseMatrix<double> A(1, 10);
 	Value = true;
 	Value = 1;
 	Value = 1.0;
 	Value = "123";
 	Value = JArray;
 	Value = JObject;
+	Value = A;
 }
+
+void Test_JsonObject()
+{
+	DenseMatrix<double> A(1, 10);
+
+	JsonObject JObject;
+	JObject["1"] = 1;
+	JObject["2.0"]=2.0;
+	JObject["Array"] = A;
+}
+
+void Test_JsonFile_1()
+{
+	DenseMatrix<double> A = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
+
+	JsonObject JObject;
+	JObject["ObjectType"] = "DenseMatrix";
+	JObject["RowNumber"] = 1;
+	JObject["ColNumber"] = 2.0;
+	JObject["ScalarType"] = "double";
+	JObject["ScalarArray"] = A;
+	JObject["ScalarArray_json"] = "A.json";
+	JObject["Empty"] = A;
+	JObject["Empty"].Clear();
+
+	String FileName = "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/testJsonFile1.json";
+	JsonFile::Save(JObject, FileName);
+}
+
+void Test_JsonFile_2()
+{
+	DenseMatrix<double> A = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
+
+	JsonObject JObjectA;
+	JObjectA["ObjectType"] = "DenseMatrix";
+	JObjectA["RowNumber"] = 1;
+	JObjectA["ColNumber"] = 2.0;
+	JObjectA["ScalarType"] = "double";
+	JObjectA["ScalarArray"] = A;
+	JObjectA["ScalarArray_json"] = "A.json";
+	JObjectA["Empty"] = A;
+	JObjectA["Empty"].Clear();
+
+	JsonObject JObjectB = JObjectA;
+
+	JsonArray JArray;
+	JArray.Resize(2);
+	JArray[0] = JObjectA;
+	JArray[1] = JObjectB;
+
+	JsonObject JObject;
+	JObject["ObjectB"] = JObjectB;
+	JObject["ObjectA"] = JObjectA;
+
+	String FileName = "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/testJsonFile2.json";
+	JsonFile::Save(JObject, FileName);
+}
+
 /*
 struct myStruct
 {
