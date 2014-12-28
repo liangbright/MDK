@@ -115,13 +115,7 @@ bool StdObjectVector<ElementType>::Copy(const StdObjectVector<ElementType>& Inpu
 {
     if (this == &InputArray)
     {
-        MDK_Warning("A StdObjectVector tries to Copy itself @ StdObjectVector::Copy(InputArray)")
-        return true;
-    }
-
-    if (InputArray.IsEmpty() == true)
-    {
-        this->Clear();
+        MDK_Warning("A StdObjectVector try to Copy itself @ StdObjectVector::Copy(InputArray)")
         return true;
     }
 
@@ -136,7 +130,7 @@ bool StdObjectVector<ElementType>::Copy(const StdObjectVector<ElementType>* Inpu
 {
     if (InputArray == nullptr)
     {
-        MDK_Error("Input is nullptr @ StdObjectVector::Copy(StdObjectVector* InputArray)")
+        MDK_Error("InputArray is nullptr @ StdObjectVector::Copy(StdObjectVector* InputArray)")
         return false;
     }
 
@@ -150,7 +144,10 @@ bool StdObjectVector<ElementType>::Copy(const ElementType* InputElementPointer, 
 {
     if (InputElementPointer == nullptr || InputLength <= 0)
     {
-		this->Clear();
+		if (this->IsEmpty() == false)
+		{
+			this->Clear();
+		}
         return true;
     }
 

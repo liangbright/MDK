@@ -7,15 +7,13 @@
 #include "mdkObject.h"
 #include "mdkType.h"
 #include "mdkStringHash.h"
-#include "mdkJsonValue.h"
 
 namespace mdk
 {
-
 //--------- forward declare ------------//
 class JsonFile;
+class JsonValue;
 //---------------------------------------//
-
 
 class JsonObject : public Object
 {
@@ -44,6 +42,8 @@ public:
 	void operator=(JsonObject&& InputObject);
 
 	void Clear();
+
+	bool IsEmpty() const { return m_DataMap.size() == 0; }
 
 	const NameListType& NameList() const { return m_NameList; };
 	const DataMapType& DataMap() const { return m_DataMap; };

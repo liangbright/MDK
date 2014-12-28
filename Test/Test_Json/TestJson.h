@@ -115,30 +115,60 @@ void Test_JsonFile_1()
 	JsonFile::Save(JObject, FileName);
 }
 
+void Test_UniquePtr()
+{
+	std::unique_ptr<String> m_OtherData;
+	
+	auto tempSPtr = std::make_unique<String>();
+	*tempSPtr = "abc";
+	m_OtherData.reset(tempSPtr.release());
+
+	auto SPtr = static_cast<String*>(m_OtherData.get());
+
+	String s = std::move(*SPtr);
+}
+
 void Test_JsonFile_2()
 {
-	DenseMatrix<double> A = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
+	DenseMatrix<double> A = { 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.0, 
+		                      1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.0,
+							  1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.0 };
 
-	JsonObject JObjectA;
+	JsonObject JObjectA, JObjectB;
+
+	JObjectA["Empty"] = A;
+	JObjectA["Empty"].Clear();
 	JObjectA["ObjectType"] = "DenseMatrix";
 	JObjectA["RowNumber"] = 1;
-	JObjectA["ColNumber"] = 2.0;
+	JObjectA["ColNumber"] = 2;
 	JObjectA["ScalarType"] = "double";
 	JObjectA["ScalarArray"] = A;
 	JObjectA["ScalarArray_json"] = "A.json";
 	JObjectA["Empty"] = A;
 	JObjectA["Empty"].Clear();
-
-	JsonObject JObjectB = JObjectA;
+		
+	JObjectB = JObjectA;
 
 	JsonArray JArray;
-	JArray.Resize(2);
-	JArray[0] = JObjectA;
-	JArray[1] = JObjectB;
+	JArray.Resize(4);
+	JArray[0] = A;
+	JArray[1] = JObjectA;
+	JArray[2] = JObjectB;
+	JArray[3] = A;
 
+	JsonObject JObjectC, JObjectD;
+
+	JObjectC["ObjectB"] = JObjectB;
+	JObjectC["ObjectA"] = JObjectA;
+	JObjectC["A"] = A;
+	JObjectC["JArray"] = JArray;
+
+	JObjectD = JObjectC;
+	
 	JsonObject JObject;
-	JObject["ObjectB"] = JObjectB;
-	JObject["ObjectA"] = JObjectA;
+	JObject["ObjectD"] = JObjectD;
+	JObject["ObjectC"] = JObjectC;
+	JObject["JArray"] = JArray;
 
 	String FileName = "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/testJsonFile2.json";
 	JsonFile::Save(JObject, FileName);

@@ -655,6 +655,7 @@ void JsonValue::operator=(const JsonValue& Value)
 			m_OtherData.reset(TempPtr.release());
 		}		
 		this->Ref_JsonArray() = Value.Ref_JsonArray();
+		break;
 	}
 	case TypeEnum::Type_JsonObject:
 	{
@@ -664,6 +665,7 @@ void JsonValue::operator=(const JsonValue& Value)
 			m_OtherData.reset(TempPtr.release());
 		}
 		this->Ref_JsonObject() = Value.Ref_JsonObject();
+		break;
 	}
 	default:
 		break;
@@ -753,6 +755,7 @@ void JsonValue::operator=(JsonValue&& Value)
 			m_OtherData.reset(TempPtr.release());
 		}		
 		this->Ref_JsonArray() = std::move(Value.Ref_JsonArray());
+		break;
 	}
 	case TypeEnum::Type_JsonObject:
 	{
@@ -762,6 +765,7 @@ void JsonValue::operator=(JsonValue&& Value)
 			m_OtherData.reset(TempPtr.release());
 		}		
 		this->Ref_JsonObject() = std::move(Value.Ref_JsonObject());
+		break;
 	}
 	default:
 		break;
@@ -972,28 +976,6 @@ JsonObject JsonValue::ToJsonObject(const JsonObject& DefaultValue) const
 	}
 	return DefaultValue;
 }
-
-//-------------- can not put these Ref_XXX in header file (JsonObject is only forward declared) -------------------------------------------//
-DenseMatrix<int>& JsonValue::Ref_IntArray() { return *(static_cast<DenseMatrix<int>*>(m_OtherData.get())); }
-const DenseMatrix<int>& JsonValue::Ref_IntArray() const { return *(static_cast<DenseMatrix<int>*>(m_OtherData.get())); }
-
-DenseMatrix<long long>& JsonValue::Ref_LongLongArray() { return *(static_cast<DenseMatrix<long long>*>(m_OtherData.get())); }
-const DenseMatrix<long long>& JsonValue::Ref_LongLongArray() const { return *(static_cast<DenseMatrix<long long>*>(m_OtherData.get())); }
-
-DenseMatrix<float>& JsonValue::Ref_FloatArray() { return *(static_cast<DenseMatrix<float>*>(m_OtherData.get())); }
-const DenseMatrix<float>& JsonValue::Ref_FloatArray() const { return *(static_cast<DenseMatrix<float>*>(m_OtherData.get())); }
-
-DenseMatrix<double>& JsonValue::Ref_DoubleArray() { return *(static_cast<DenseMatrix<double>*>(m_OtherData.get())); }
-const DenseMatrix<double>& JsonValue::Ref_DoubleArray() const { return *(static_cast<DenseMatrix<double>*>(m_OtherData.get())); }
-
-String& JsonValue::Ref_String() { return *(static_cast<String*>(m_OtherData.get())); }
-const String& JsonValue::Ref_String() const { return *(static_cast<String*>(m_OtherData.get())); }
-
-JsonArray& JsonValue::Ref_JsonArray() { return *(static_cast<JsonArray*>(m_OtherData.get())); }
-const JsonArray& JsonValue::Ref_JsonArray() const { return *(static_cast<JsonArray*>(m_OtherData.get())); }
-
-JsonObject& JsonValue::Ref_JsonObject() { return *(static_cast<JsonObject*>(m_OtherData.get())); }
-const JsonObject& JsonValue::Ref_JsonObject() const { return *(static_cast<JsonObject*>(m_OtherData.get())); }
 
 }//namespace mdk
 

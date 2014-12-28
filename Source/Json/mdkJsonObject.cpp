@@ -2,6 +2,7 @@
 #define __mdkJsonObject_cpp
 
 #include "mdkJsonObject.h"
+#include "mdkJsonValue.h"
 
 namespace mdk
 {

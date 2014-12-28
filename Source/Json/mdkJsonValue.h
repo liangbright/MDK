@@ -5,18 +5,19 @@
 
 #include "mdkObject.h"
 #include "mdkObjectArray.h"
+#include "mdkStdObjectVector.h"
 #include "mdkDenseMatrix.h"
 #include "mdkString.h"
 #include "mdkSymbol.h"
+#include "mdkJsonObject.h"
 
 namespace mdk
 {
 //------- forward declare ------------//
-class JsonObject;
 class JsonValue;
 //------------------------------------//
 //------ define JsonArray ------------//
-typedef ObjectArray<JsonValue> JsonArray;
+typedef StdObjectVector<JsonValue> JsonArray;
 //------------------------------------//
 
 class JsonValue : public Object
@@ -149,26 +150,26 @@ public:
 
 	// There is NO BoolArray bacause std::vector<bool> is crap
 
-	DenseMatrix<int>& Ref_IntArray();
-	const DenseMatrix<int>& Ref_IntArray() const;
+	DenseMatrix<int>& JsonValue::Ref_IntArray() { return *(static_cast<DenseMatrix<int>*>(m_OtherData.get())); }
+	const DenseMatrix<int>& JsonValue::Ref_IntArray() const { return *(static_cast<DenseMatrix<int>*>(m_OtherData.get())); }
 
-	DenseMatrix<long long>& Ref_LongLongArray();
-	const DenseMatrix<long long>& Ref_LongLongArray() const;
+	DenseMatrix<long long>& JsonValue::Ref_LongLongArray() { return *(static_cast<DenseMatrix<long long>*>(m_OtherData.get())); }
+	const DenseMatrix<long long>& JsonValue::Ref_LongLongArray() const { return *(static_cast<DenseMatrix<long long>*>(m_OtherData.get())); }
 
-	DenseMatrix<float>& Ref_FloatArray();
-	const DenseMatrix<float>& Ref_FloatArray() const;
+	DenseMatrix<float>& JsonValue::Ref_FloatArray() { return *(static_cast<DenseMatrix<float>*>(m_OtherData.get())); }
+	const DenseMatrix<float>& JsonValue::Ref_FloatArray() const { return *(static_cast<DenseMatrix<float>*>(m_OtherData.get())); }
 
-	DenseMatrix<double>& Ref_DoubleArray();
-	const DenseMatrix<double>& Ref_DoubleArray() const;
+	DenseMatrix<double>& JsonValue::Ref_DoubleArray() { return *(static_cast<DenseMatrix<double>*>(m_OtherData.get())); }
+	const DenseMatrix<double>& JsonValue::Ref_DoubleArray() const { return *(static_cast<DenseMatrix<double>*>(m_OtherData.get())); }
 
-	String& Ref_String();
-	const String& Ref_String() const;
+	String& JsonValue::Ref_String() { return *(static_cast<String*>(m_OtherData.get())); }
+	const String& JsonValue::Ref_String() const { return *(static_cast<String*>(m_OtherData.get())); }
 
-	JsonArray& Ref_JsonArray();
-	const JsonArray& Ref_JsonArray() const;
+	JsonArray& JsonValue::Ref_JsonArray() { return *(static_cast<JsonArray*>(m_OtherData.get())); }
+	const JsonArray& JsonValue::Ref_JsonArray() const { return *(static_cast<JsonArray*>(m_OtherData.get())); }
 
-	JsonObject& Ref_JsonObject();
-	const JsonObject& Ref_JsonObject() const;
+	JsonObject& JsonValue::Ref_JsonObject() { return *(static_cast<JsonObject*>(m_OtherData.get())); }
+	const JsonObject& JsonValue::Ref_JsonObject() const { return *(static_cast<JsonObject*>(m_OtherData.get())); }
 
 private:
 

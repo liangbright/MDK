@@ -200,7 +200,18 @@ void BasicString<ElementType>::Copy(const BasicString<ElementType>& InputString)
     }
 
     // copy data
-    this->Copy(InputString.GetElementPointer());
+    //this->Copy(InputString.GetElementPointer());
+
+	// if this BasicString is not empty, check if this and Input Share the same data
+	if (this->IsEmpty() == false)
+	{
+		if (std::size_t(InputString.GetElementPointer()) == std::size_t(this->GetElementPointer()))
+		{
+			return;
+		}
+	}
+
+	*m_StringData = *InputString.m_StringData;
 }
 
 

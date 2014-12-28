@@ -13,6 +13,8 @@
 namespace mdk
 {
 
+#define MDK_JsonFile_MaxNumberPerLine_ScalarArray 20
+
 class JsonFile : public Object
 {
 private:
@@ -37,6 +39,7 @@ public:
 	static bool Load(JsonObject& InputObject, const String& FilePathAndName);
 
 private:
+
 	static bool SaveNameValuePairToJsonFile(const String& Name, const JsonValue& JValue, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
 	static bool SaveNameValuePairToJsonFile(const String& Name, const MDK_Symbol_Empty&, JsonFile& OutputFile, int_max Indention);
 	static bool SaveNameValuePairToJsonFile(const String& Name, bool Flag, JsonFile& OutputFile, int_max Indention);
@@ -52,18 +55,19 @@ private:
 	static bool SaveNameValuePairToJsonFile(const String& Name, const JsonArray& JArray, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
 	static bool SaveNameValuePairToJsonFile(const String& Name, const JsonObject& JObject, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
 
+    //for SaveJsonValueToJsonFile, Indention is only needed if a JsonValue need multi-line
+
 	static bool SaveJsonValueToJsonFile(const JsonValue& JValue, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
-	static bool SaveJsonValueToJsonFile(const MDK_Symbol_Empty&, JsonFile& OutputFile, int_max Indention);
-	static bool SaveJsonValueToJsonFile(bool Flag, JsonFile& OutputFile, int_max Indention);
-	static bool SaveJsonValueToJsonFile(int Scalar, JsonFile& OutputFile, int_max Indention);
-	static bool SaveJsonValueToJsonFile(long long Scalar, JsonFile& OutputFile, int_max Indention);
-	static bool SaveJsonValueToJsonFile(float Scalar, JsonFile& OutputFile, int_max Indention);
-	static bool SaveJsonValueToJsonFile(double Scalar, JsonFile& OutputFile, int_max Indention);
+	static bool SaveJsonValueToJsonFile(bool Flag, JsonFile& OutputFile);
+	static bool SaveJsonValueToJsonFile(int Scalar, JsonFile& OutputFile);
+	static bool SaveJsonValueToJsonFile(long long Scalar, JsonFile& OutputFile);
+	static bool SaveJsonValueToJsonFile(float Scalar, JsonFile& OutputFile);
+	static bool SaveJsonValueToJsonFile(double Scalar, JsonFile& OutputFile);
 	static bool SaveJsonValueToJsonFile(const DenseMatrix<int>& IntArray, JsonFile& OutputFile, int_max Indention);
 	static bool SaveJsonValueToJsonFile(const DenseMatrix<long long>& LongLongArray, JsonFile& OutputFile, int_max Indention);
 	static bool SaveJsonValueToJsonFile(const DenseMatrix<float>& FloatArray, JsonFile& OutputFile, int_max Indention);
 	static bool SaveJsonValueToJsonFile(const DenseMatrix<double>& DoubleArray, JsonFile& OutputFile, int_max Indention);
-	static bool SaveJsonValueToJsonFile(const String& JString, JsonFile& OutputFile, int_max Indention);
+	static bool SaveJsonValueToJsonFile(const String& JString, JsonFile& OutputFile);
 	static bool SaveJsonValueToJsonFile(const JsonArray& JArray, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
 	static bool SaveJsonValueToJsonFile(const JsonObject& JObject, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
 

@@ -11,6 +11,8 @@ int main()
 	//Test_JsonFile_1();
 	Test_JsonFile_2();
 
+	//Test_UniquePtr();
+
 	//test_main();
 
     std::system("pause");
