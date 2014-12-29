@@ -42,7 +42,7 @@ public:
 	
 	inline DenseVector(StdObjectVector<ElementType> InputVector);
 
-	inline DenseVector(DataArray<ElementType> InputVector);
+	inline DenseVector(const ObjectArray<ElementType>& InputVector);
 
 	inline DenseVector(const DenseMatrix<ElementType>& InputMatrix);
 
@@ -72,7 +72,7 @@ public:
 
 	inline void operator=(StdObjectVector<ElementType> InputVector);
 
-	inline void operator=(DataArray<ElementType> InputVector);
+	inline void operator=(const ObjectArray<ElementType>& InputVector);
 
     inline void operator=(const DenseMatrix<ElementType>& InputVector);
 

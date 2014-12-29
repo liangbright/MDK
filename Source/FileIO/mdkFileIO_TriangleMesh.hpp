@@ -5,302 +5,218 @@ namespace mdk
 {
 
 template<typename MeshAttributeType>
-bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& InputMesh, const std::string& JsonFilePathAndName)
+bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName)
 {
-	if (SaveTriangleMeshAsJsonDataFile_Header(InputMesh, JsonFilePathAndName) == false)
-	{
-		return false;
-	}
-	std::string DataFilePathAndName = JsonFilePathAndName + ".data";
-	return SaveTriangleMeshAsJsonDataFile_Data(InputMesh, DataFilePathAndName);
-}
-
-
-template<typename MeshAttributeType>
-bool SaveTriangleMeshAsJsonDataFile_Header(const TriangleMesh<MeshAttributeType>& InputMesh, const std::string& JsonFilePathAndName)
-{
-	typedef MeshAttributeType::ScalarType ScalarType;
-
+	typedef MeshAttributeType::ScalarType  ScalarType;
+	//---------------------------------------------
 	if (GetByteNumberOfScalar(ScalarType(0)) <= 0)
 	{
 		MDK_Error("Unknown ScalarType @ SaveTriangleMeshAsJsonDataFile_Header(...)")
 		return false;
 	}
+	//-------------------------------------------------------------------------------------
+	JsonObject JObject;
 
-	auto ScalarTypeName = GetScalarTypeName(ScalarType(0));
-	QString QScalarTypeName(ScalarTypeName.c_str());
-
-	auto IndexTypeName = GetScalarTypeName(int_max(0));
-	QString QIndexTypeName(IndexTypeName.c_str());
-
-	//---------------------------------------------------
-
-	std::vector<NameValueQStringPair> PairList;
-	PairList.resize(5);
-
-	PairList[0].Name = "ObjectType";
-	PairList[0].Value = "TriangleMesh";
-
-	PairList[1].Name = "ScalarType";
-	PairList[1].Value = QScalarTypeName;
-
-	PairList[2].Name = "IndexType";
-	PairList[2].Value = QIndexTypeName;
-
-	auto PointNumber = InputMesh.GetPointNumber();
-
-	PairList[3].Name = "PointNumber";
-	PairList[3].Value = QString::number(PointNumber);
-
-	auto CellNumber = InputMesh.GetCellNumber();
-
-	PairList[4].Name = "CellNumber";
-	PairList[4].Value = QString::number(CellNumber);
-	//--------------------------------------------------
-
-	// write header file (json)
-	QString QFilePathAndName(JsonFilePathAndName.c_str());
-	return SaveNameValuePairListAsJsonFile(PairList, QFilePathAndName);
-}
-
-
-template<typename MeshAttributeType>
-bool SaveTriangleMeshAsJsonDataFile_Data(const TriangleMesh<MeshAttributeType>& InputMesh, const std::string& DataFilePathAndName)
-{
-	if (InputMesh.IsEmpty() == true)
-	{
-		MDK_Warning("InputMesh is empty @ SaveTriangleMeshAsJsonDataFile_Data(...)")
-		return true;
-	}
-
-	// get data --------------------------------------------------------------------
-	typedef typename MeshAttributeType::ScalarType ScalarType;
-
+	JObject["ObjectType"] = "TriangleMesh";
+	JObject["ScalarType"] = GetScalarTypeName(ScalarType(0));
+	JObject["IndexType"] = GetScalarTypeName(int_max(0));
+	JObject["PointNumber"] = InputMesh.GetPointNumber();
+	JObject["CellNumber"] = InputMesh.GetCellNumber();
+	
+	//--------------------------------------------------------------------
 	ObjectArray<DenseVector<int_max>> CellData;
-    DenseMatrix<ScalarType> PointData;
-    InputMesh.GetPointPositionMatrixAndCellTable(PointData, CellData);
+	DenseMatrix<ScalarType> PointData;
+	InputMesh.GetPointPositionMatrixAndCellTable(PointData, CellData);
 
-	QString QFilePathAndName(DataFilePathAndName.c_str());
-
-	// write point to data file
-    QFile PointDataFile(QFilePathAndName + ".point");
-    if (!PointDataFile.open(QIODevice::WriteOnly))
-    {
-        MDK_Error("Couldn't open file to write point data @ SaveTriangleMeshAsJsonDataFile_Data(...)")
-        return false;
-    }
-	if (PointData.IsEmpty() == false)
-	{
-		PointDataFile.write((char*)PointData.GetElementPointer(), PointData.GetElementNumber()*GetByteNumberOfScalar(ScalarType(0)));
-		PointDataFile.flush();
-	}
-    PointDataFile.close();
-
-    //write cell to data file
-    QFile CellDataFile(QFilePathAndName + ".cell");
-    if (!CellDataFile.open(QIODevice::WriteOnly))
-    {
-        MDK_Error("Couldn't open file to write cell data @ SaveTriangleMeshAsJsonDataFile_Data(...)")
-        return false;
-    }
-
+	String FilePath = ExtractFilePath(FilePathAndName);
+	String FileName = ExtractFileName(FilePathAndName);
+	String CellDataFileName = FileName + ".Cell.json";
+	String PointDataFileName = FileName + ".Point.data";
+	JObject["CellData"] = CellDataFileName;
+	JObject["PointData"] = PointDataFileName;
+	//--------------------------------------------------------------------
+	//write cell to JsonArray
+	JsonArray JArray_CellData;
+	JArray_CellData.Resize(CellData.GetLength());
 	if (CellData.IsEmpty() == false)
 	{
-		QTextStream Stream_out(&CellDataFile);
-
 		for (int_max i = 0; i < CellData.GetLength(); ++i)
 		{
 			const DenseVector<int_max>& Cell_i = CellData[i];
 
-			for (int_max n = 0; n < Cell_i.GetElementNumber(); ++n)
-			{
-				Stream_out << QString::number(Cell_i[n]);
-
-				if (n < Cell_i.GetLength() - 1)
-				{
-					Stream_out << ", ";
-				}
-			}
-
-			if (i < CellData.GetLength() - 1)
-			{
-				Stream_out << "\n";
-			}
+			JArray_CellData[i] = Cell_i;
 		}
-
-		Stream_out.flush();
 	}
-    CellDataFile.close();
-   
-    return true;
+	//-----------------------------------------------------------------------------------------
+	bool IsOK = false;
+	if (JsonFile::Save(JObject, FilePathAndName) == false)
+	{
+		IsOK = false;
+	}
+	if (SaveScalarArrayAsDataFile(PointData.GetElementPointer(), PointData.GetElementNumber(), FilePath + PointDataFileName))
+	{
+		IsOK = false;
+	}	
+	if (JsonFile::Save(JArray_CellData, FilePath + CellDataFileName) == false)
+	{
+		IsOK = false;
+	}
+	return IsOK;
 }
 
 
 template<typename MeshAttributeType>
-bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMesh, const std::string& JsonFilePathAndName)
+bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName)
 {
-	//---------------------------------------------- Read header --------------------------------------------------------//
-	QFile HeaderFile(JsonFilePathAndName.c_str());
-    if (!HeaderFile.open(QIODevice::ReadOnly))
-    {
-        MDK_Error("Couldn't open Header File @ LoadTriangleMeshFromJsonDataFile(...)")
-        return false;
-    }
-    //----------------------------------------------------------//
-    QByteArray HeaderContent = HeaderFile.readAll();
-    QJsonDocument HeaderDoc(QJsonDocument::fromJson(HeaderContent));
-    QJsonObject HeaderObject = HeaderDoc.object();
-    //-----------------------------------------------------------//
-
-	auto it = HeaderObject.find("ObjectType");
-	if (it != HeaderObject.end())
+	typedef MeshAttributeType::ScalarType  ScalarType;
+	//---------------------------------------------
+	JsonObject JObject;
+	if (JsonFile::Load(JObject, FilePathAndName) == false)
 	{
-		auto ObjectType = it.value().toString();
+		MDK_Error("Json file is invalid @ LoadTriangleMeshFromJsonDataFile(...)")
+		return false;
+	}
 
+	if (JObject.IsEmpty() == true)
+	{
+		return true;
+	}
+	//---------------------------------------------
+	auto it = JObject.find("ObjectType");
+	if (it != JObject.end())
+	{
+		auto ObjectType = it->second.ToString();
 		if (ObjectType != "TriangleMesh")
 		{
-			MDK_Error("ObjectType is not TriangleMesh @ LoadTriangleMeshFromJsonDataFile(...)")
-			HeaderFile.close();
+			MDK_Error("ObjectType is not TriangleMesh @ LoadPolygoneMeshFromJsonDataFile(...)")
 			return false;
 		}
 	}
 	else
 	{
-		MDK_Error("Couldn't get ObjectType @ LoadTriangleMeshFromJsonDataFile(...)")
-		HeaderFile.close();
+		MDK_Error("Couldn't get ObjectType @ LoadPolygoneMeshFromJsonDataFile(...)")
 		return false;
 	}
-	//----------------------------------------------------
-    std::string InputScalarTypeName;
-    it = HeaderObject.find("ScalarType");
-    if (it != HeaderObject.end())
-    {
-		InputScalarTypeName = it.value().toString().toStdString();
-    }
-    else
-    {
-        MDK_Error("Couldn't get ScalarType @ LoadTriangleMeshFromJsonDataFile(...)")
-        HeaderFile.close();
+	//------------------------------------------
+	String ScalarTypeInDataFile;
+	it = JObject.find("ScalarType");
+	if (it != JObject.end())
+	{
+		ScalarTypeInDataFile = it->second.ToString();
+	}
+	else
+	{
+		MDK_Error("Couldn't get ScalarType @ LoadPolygoneMeshFromJsonDataFile(...)")
 		return false;
-    }
-	//----------------------------------------------------
-    std::string InputIndexTypeName;
-    it = HeaderObject.find("IndexType");
-    if (it != HeaderObject.end())
-    {
-		InputIndexTypeName = it.value().toString().toStdString();
-    }
-    else
-    {
-        MDK_Error("Couldn't get IndexType @ LoadTriangleMeshFromJsonDataFile(...)")
-        HeaderFile.close();
+	}
+	//-------------------------------------------
+	String IndexTypeName;
+	it = JObject.find("IndexType");
+	if (it != JObject.end())
+	{
+		IndexTypeName = it->second.ToString();
+	}
+	else
+	{
+		MDK_Error("Couldn't get IndexType @ LoadTriangleMeshFromJsonDataFile(...)")
 		return false;
-    }
-	//----------------------------------------------------
-    int_max PointNumber = 0;
-    it = HeaderObject.find("PointNumber");
-    if (it != HeaderObject.end())
-    {
-        PointNumber = it.value().toString().toLongLong();
-    }
-    else
-    {
-        MDK_Error("Couldn't get PointNumber @ LoadTriangleMeshFromJsonDataFile(...)")
-        HeaderFile.close();
+	}
+	//----------------------------------------------
+	int_max PointNumber = 0;
+	it = JObject.find("PointNumber");
+	if (it != JObject.end())
+	{
+		PointNumber = it->second.ToScalar<int_max>();
+	}
+	else
+	{
+		MDK_Error("Couldn't get PointNumber @ LoadTriangleMeshFromJsonDataFile(...)")
 		return false;
-    }
-	//----------------------------------------------------
-    int_max CellNumber = 0;
-    it = HeaderObject.find("CellNumber");
-    if (it != HeaderObject.end())
-    {
-        CellNumber = it.value().toString().toLongLong();
-    }
-    else
-    {
-        MDK_Error("Couldn't get CellNumber @ LoadTriangleMeshFromJsonDataFile(...)")
-        HeaderFile.close();
+	}
+	//----------------------------------------------
+	int_max CellNumber = 0;
+	it = JObject.find("CellNumber");
+	if (it != JObject.end())
+	{
+		CellNumber = it->second.ToScalar<int_max>();
+	}
+	else
+	{
+		MDK_Error("Couldn't get CellNumber @ LoadTriangleMeshFromJsonDataFile(...)")
 		return false;
-    }
-	//----------------------------------------------------
+	}
+	//----------------------------------------------	
+	String PointDataFileName;
+	it = JObject.find("PointData");
+	if (it != JObject.end())
+	{
+		PointDataFileName = it->second.ToString();
+	}
+	else
+	{
+		MDK_Error("Couldn't get PointData @ LoadTriangleMeshFromJsonDataFile(...)")
+		return false;
+	}
+	//----------------------------------------------	
+	String CellDataFileName;
+	it = JObject.find("CellData");
+	if (it != JObject.end())
+	{
+		CellDataFileName = it->second.ToString();
+	}
+	else
+	{
+		MDK_Error("Couldn't get CellData @ LoadTriangleMeshFromJsonDataFile(...)")
+		return false;
+	}
+	//----------------------------------------------
+	String FilePath = ExtractFilePath(FilePathAndName);
+	bool IsOK = true;
 	if (PointNumber > 0)
 	{
-		std::string DataFilePathAndName = JsonFilePathAndName + ".data";
-		return LoadTriangleMeshFromJsonDataFile_Data<MeshAttributeType>(OutputMesh, DataFilePathAndName, PointNumber, CellNumber, InputScalarTypeName);
+		DenseMatrix<ScalarType> PointData(3, PointNumber);
+		if (LoadScalarArrayFromDataFile(PointData.GetElementPointer(), PointData.GetElementNumber(), FilePath + PointDataFileName, ScalarTypeInDataFile) == false)
+		{
+			IsOK = false;
+		}		
+
+		//Get CellData from JsonArray
+		ObjectArray<DenseVector<int_max>> CellData;
+		CellData.Resize(CellNumber);
+		if (CellNumber > 0)
+		{
+			JsonArray JArray_CellData;
+			if (JsonFile::Load(JArray_CellData, FilePath + CellDataFileName) == false)
+			{
+				IsOK = false;
+			}
+
+			if (JArray_CellData.IsEmpty() == false)
+			{
+				for (int_max i = 0; i < JArray_CellData.GetLength(); ++i)
+				{
+					CellData[i] = JArray_CellData[i].ToScalarArray<int_max>();
+				}
+			}
+		}
+
+		OutputMesh.Construct(PointData, CellData);
+		return IsOK;
 	}
-	else//empty mesh
+	else// empty mesh
 	{
 		OutputMesh.Clear();
 		return true;
 	}
 }
 
-
 template<typename MeshAttributeType>
-bool LoadTriangleMeshFromJsonDataFile_Data(TriangleMesh<MeshAttributeType>& OutputMesh,
-										   const std::string& DataFilePathAndName,
-										   int_max PointNumber, int_max CellNumber,
-										   const std::string& InputScalarTypeName)
-{
-	if (PointNumber <= 0 || CellNumber <= 0)
-	{
-		return false;
-	}
-
-	typedef typename MeshAttributeType::ScalarType ScalarType;
-
-	std::string PointDataFilePathAndName = DataFilePathAndName + ".point";
-	MatrixSize PointDataMatrixSize;
-	PointDataMatrixSize.RowNumber = 3;
-	PointDataMatrixSize.ColNumber = PointNumber;
-	DenseMatrix<ScalarType> PointData(PointDataMatrixSize);
-	if (LoadDenseMatrixFromJsonDataFile_Data(PointData, PointDataFilePathAndName, InputScalarTypeName) == false)
-	{
-		return false;
-	}
-
-	std::string CellDataFilePathAndName = DataFilePathAndName + ".cell";
-	QFile CellDataFile(CellDataFilePathAndName.c_str());
-    if (!CellDataFile.open(QIODevice::ReadOnly))
-    {
-		MDK_Error("Couldn't open cell data file:" << CellDataFilePathAndName)
-		return false;
-    }
-
-	ObjectArray<DenseVector<int_max>> CellData;
-    CellData.FastResize(CellNumber);
-
-    QTextStream stream_in(&CellDataFile);
-
-    for (int_max i = 0; i < CellNumber; ++i)
-    {
-        DenseVector<int_max>& Cell_i = CellData[i];
-
-        auto ValueList = stream_in.readLine().split(",");
-        
-        auto tempsize = ValueList.size();
-
-        for (int_max n = 0; n < tempsize; ++n)
-        {
-            auto tempIndex = ValueList[n].toLongLong();
-            Cell_i.Append(tempIndex);
-        }
-    }
-
-    CellDataFile.close();
-
-    OutputMesh.Construct(PointData, CellData);
-    return true;
-}
-
-
-template<typename MeshAttributeType>
-bool SaveTriangleMeshAsVTKFile(const TriangleMesh<MeshAttributeType>& InputMesh, const std::string& FilePathAndName)
+bool SaveTriangleMeshAsVTKFile(const TriangleMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName)
 {
     auto VTKMesh = ConvertMDKTriangleMeshToVTKPolyData(InputMesh);
 
     auto writer = vtkSmartPointer<vtkPolyDataWriter>::New();
-    writer->SetFileName(FilePathAndName.c_str());
+    writer->SetFileName(FilePathAndName.StdString().c_str());
     writer->SetInputData(VTKMesh);
 
     try
@@ -318,10 +234,10 @@ bool SaveTriangleMeshAsVTKFile(const TriangleMesh<MeshAttributeType>& InputMesh,
 
 
 template<typename MeshAttributeType>
-bool LoadTriangleMeshFromVTKFile(TriangleMesh<MeshAttributeType>& OutputMesh, const std::string& FilePathAndName)
+bool LoadTriangleMeshFromVTKFile(TriangleMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName)
 {
     auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
-    Reader->SetFileName(FilePathAndName.c_str());
+    Reader->SetFileName(FilePathAndName.StdString().c_str());
     
     try
     {

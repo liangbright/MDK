@@ -10,27 +10,24 @@ bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, c
 	String FilePath = ExtractFilePath(FilePathAndName);
 	String FileName = ExtractFileName(FilePathAndName);
 
-	String FileName_ScalarArray = FileName + ".ScalarArray.data";
+	String DataFileName = FileName + ".Scalar.data";
 
 	JsonObject JObject;
 	JObject["ObjectType"] = "DenseMatrix";
 	JObject["ScalarType"] = GetScalarTypeName(ScalarType(0));
 	JObject["RowNumber"] = InputMatrix.GetRowNumber();
 	JObject["ColNumber"] = InputMatrix.GetColNumber();
-	JObject["ScalarArray"] = FileName_ScalarArray;
+	JObject["ScalarArray"] = DataFileName;
 
 	bool IsOK = true;
-
 	if (JsonFile::Save(JObject, FilePathAndName) == false)
 	{
 		IsOK = false;
 	}
-
-	if (SaveScalarArrayAsDataFile(InputMatrix.GetElementPointer(), InputMatrix.GetElementNumber(), FilePath + FileName_ScalarArray) == false)
+	if (SaveScalarArrayAsDataFile(InputMatrix.GetElementPointer(), InputMatrix.GetElementNumber(), FilePath + DataFileName) == false)
 	{
 		IsOK = false;
 	}
-
 	return true;
 }
 
@@ -39,7 +36,16 @@ template<typename ScalarType>
 bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, const String& FilePathAndName)
 {
 	JsonObject JObject;
-	JsonFile::Load(JObject, FilePathAndName);
+	if (JsonFile::Load(JObject, FilePathAndName) == false)
+	{
+		MDK_Error("Json file is invalid @ LoadDenseMatrixFromJsonDataFile(...)")
+		return false;
+	}
+
+	if (JObject.IsEmpty() == true)
+	{
+		return true;
+	}
 	//-------------------------------------------------
 	auto it = JObject.find("ObjectType");
 	if (it != JObject.end())
@@ -93,21 +99,26 @@ bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, cons
 		return false;
 	}
 	//-------------------------------------------------
-	String FilePathAndName_ScalarArray = ExtractFilePath(FilePathAndName);
+	String DataFilePathAndName= ExtractFilePath(FilePathAndName);
 	it = JObject.find("ScalarArray");
 	if (it != JObject.end())
 	{
-		FilePathAndName_ScalarArray += it->second.ToString();
+		DataFilePathAndName += it->second.ToString();
 	}
 	else
 	{
-		MDK_Error("Couldn't get ColNumber @ LoadDenseMatrixFromJsonDataFile(...)")
+		MDK_Error("Couldn't get ScalarArray @ LoadDenseMatrixFromJsonDataFile(...)")
 		return false;
 	}
 	//-------------------------------------------------
 	OutputMatrix.FastResize(RowNumber, ColNumber);
 	// Read data
-	return LoadScalarArrayFromDataFile(OutputMatrix.GetElementPointer(), OutputMatrix.GetElementNumber(), FilePathAndName_ScalarArray, ScalarTypeInDataFile);
+	if (LoadScalarArrayFromDataFile(OutputMatrix.GetElementPointer(), OutputMatrix.GetElementNumber(), DataFilePathAndName, ScalarTypeInDataFile) == false)
+	{
+		OutputMatrix.Clear();
+		return false;
+	}
+	return true;
 }
 
 }//namespace mdk

@@ -6,6 +6,7 @@
 #include <vtkPolyDataWriter.h>
 
 #include "mdkFileIO_Common.h"
+#include "mdkVTKDataStructureConversion.h"
 
 namespace mdk
 {
@@ -18,26 +19,16 @@ class PolygonMesh;
 // save/load PolygonMesh from Json data file or vtk file
 
 template<typename MeshAttributeType>
-bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMesh, const std::string& JsonFilePathAndName);
+bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName);
 
 template<typename MeshAttributeType>
-bool SavePolygonMeshAsJsonDataFile_Header(const PolygonMesh<MeshAttributeType>& InputMesh, const std::string& JsonFilePathAndName);
+bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh, const String& JsonFilePathAndName);
 
 template<typename MeshAttributeType>
-bool SavePolygonMeshAsJsonDataFile_Data(const PolygonMesh<MeshAttributeType>& InputMesh, const std::string& DataFilePathAndName);
+bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName);
 
 template<typename MeshAttributeType>
-bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh, const std::string& JsonFilePathAndName);
-
-template<typename MeshAttributeType>
-bool LoadPolygonMeshFromJsonDataFile_Data(PolygonMesh<MeshAttributeType>& OutputMesh, const std::string& DataFilePathAndName,
-										  int_max PointNumber, int_max CellNumber, const std::string& InputScalarTypeName);
-
-template<typename MeshAttributeType>
-bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, const std::string& FilePathAndName);
-
-template<typename MeshAttributeType>
-bool LoadPolygonMeshMeshFromVTKFile(PolygonMesh<MeshAttributeType>& OutputMesh, const std::string& FilePathAndName);
+bool LoadPolygonMeshMeshFromVTKFile(PolygonMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName);
 
 }//namespace mdk
 

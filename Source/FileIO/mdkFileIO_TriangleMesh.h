@@ -6,6 +6,7 @@
 #include <vtkPolyDataWriter.h>
 
 #include "mdkFileIO_Common.h"
+#include "mdkVTKDataStructureConversion.h"
 
 namespace mdk
 {
@@ -15,26 +16,16 @@ class TriangleMesh;
 //-----------------------------------
 
 template<typename MeshAttributeType>
-bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& InputMesh, const std::string& JsonFilePathAndName);
+bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& InputMesh, const String& JsonFilePathAndName);
 
 template<typename MeshAttributeType>
-bool SaveTriangleMeshAsJsonDataFile_Header(const TriangleMesh<MeshAttributeType>& InputMesh, const std::string& JsonFilePathAndName);
+bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMesh, const String& JsonFilePathAndName);
 
 template<typename MeshAttributeType>
-bool SaveTriangleMeshAsJsonDataFile_Data(const TriangleMesh<MeshAttributeType>& InputMesh, const std::string& DataFilePathAndName);
+bool SaveTriangleMeshAsVTKFile(const TriangleMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName);
 
 template<typename MeshAttributeType>
-bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMesh, const std::string& JsonFilePathAndName);
-
-template<typename MeshAttributeType>
-bool LoadTriangleMeshFromJsonDataFile_Data(TriangleMesh<MeshAttributeType>& OutputMesh,  const std::string& DataFilePathAndName,
-										   int_max PointNumber, int_max CellNumber, const std::string& InputScalarTypeName);
-
-template<typename MeshAttributeType>
-bool SaveTriangleMeshAsVTKFile(const TriangleMesh<MeshAttributeType>& InputMesh, const std::string& FilePathAndName);
-
-template<typename MeshAttributeType>
-bool LoadTriangleMeshFromVTKFile(TriangleMesh<MeshAttributeType>& OutputMesh, const std::string& FilePathAndName);
+bool LoadTriangleMeshFromVTKFile(TriangleMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName);
 
 }//namespace mdk
 

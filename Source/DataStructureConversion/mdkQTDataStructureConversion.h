@@ -15,10 +15,10 @@ QJsonObject ConvertMDKJsonObjectToQTJsonObject(const JsonObject& JObject);
 
 QJsonValue ConvertMDKJsonValueToQTJsonValue(const JsonValue& JValue);
 
-QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<int>& IntArray);
-QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<long long>& LongLongArray);
-QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<float>& FloatArray);
-QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<double>& DoubleArray);
+QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<int>& InputArray);
+QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<long long>& InputArray);
+QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<float>& InputArray);
+QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<double>& InputArray);
 
 QJsonArray ConvertMDKJsonArrayToQTJsonArray(const JsonArray& JArray);
 

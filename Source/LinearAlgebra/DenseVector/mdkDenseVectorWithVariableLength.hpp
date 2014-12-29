@@ -47,17 +47,17 @@ DenseVector<ElementType>::DenseVector(StdObjectVector<ElementType> InputVector)
 
 template<typename ElementType>
 inline
-DenseVector<ElementType>::DenseVector(DataArray<ElementType> InputVector)
+DenseVector<ElementType>::DenseVector(const ObjectArray<ElementType>& InputVector)
 {
-	m_StdVector = std::move(InputVector.StdVector());
+	(*this) = InputVector;
 }
 
 
 template<typename ElementType>
 inline 
-DenseVector<ElementType>::DenseVector(const DenseMatrix<ElementType>& InputMatrix)
+DenseVector<ElementType>::DenseVector(const DenseMatrix<ElementType>& InputVector)
 {
-	(*this) = InputMatrix;
+	(*this) = InputVector;
 }
 
 
@@ -231,9 +231,9 @@ void DenseVector<ElementType>::operator=(StdObjectVector<ElementType> InputVecto
 
 template<typename ElementType>
 inline
-void DenseVector<ElementType>::operator=(DataArray<ElementType> InputVector)
+void DenseVector<ElementType>::operator=(const ObjectArray<ElementType>& InputVector)
 {
-	m_StdVector = std::move(InputVector.StdVector());
+	this->Copy(InputVector.GetElementPointer(), InputVector.GetElementNumber());
 }
 
 

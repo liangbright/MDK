@@ -42,10 +42,9 @@ DenseMatrix<ScalarType> JsonValue::ToScalarArray() const
 		break;
 	case TypeEnum::Type_DoubleArray:
 		OutputArray.Copy(this->Ref_DoubleArray());
-		break;
-	default:
-		return OutputArray;
+		break;	
 	}
+	return OutputArray;
 }
 
 template<typename ScalarType>
@@ -65,10 +64,9 @@ DenseMatrix<ScalarType> JsonValue::ToScalarArray(const DenseMatrix<ScalarType>& 
 		break;
 	case TypeEnum::Type_DoubleArray:
 		OutputArray.Copy(this->Ref_DoubleArray());
-		break;
-	default:
-		return DefaultArray;
+		break;	
 	}
+	return DefaultArray;
 }
 
 }//namespace mdk

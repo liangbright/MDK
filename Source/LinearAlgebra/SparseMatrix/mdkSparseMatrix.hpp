@@ -2,7 +2,6 @@
 #define __mdkSparseMatrix_hpp
 
 
-
 namespace mdk
 {
 

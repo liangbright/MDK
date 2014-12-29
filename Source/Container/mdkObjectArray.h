@@ -27,10 +27,7 @@ class StdObjectVector;
 template<typename ElementType>
 class ObjectArray;
 
-// other ClassName : DataArray or ObjectVector -----
-template<typename ElementType>
-using DataArray = ObjectArray<ElementType>;
-
+// another ClassName : ObjectVector
 template<typename ElementType>
 using ObjectVector = ObjectArray<ElementType>;
 //--------------------------------------------------
@@ -144,7 +141,9 @@ public:
 	inline ~ObjectArray();
 
     //-------------------- get/set std vector -----------------------------------//
-
+	// caution:
+	// if Element is not stored inside internal std::vector
+	// then data copy will be applied 
     inline std::vector<ElementType>& StdVector();
 
     inline const std::vector<ElementType>& StdVector() const;

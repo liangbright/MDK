@@ -176,7 +176,7 @@ public:
 
 	inline DenseMatrix(StdObjectVector<ElementType> InputColVector);
 
-	inline DenseMatrix(DataArray<ElementType> InputColVector);
+	inline DenseMatrix(ObjectArray<ElementType> InputColVector);
 
 	template<int_max VectorFixedLength>
 	inline DenseMatrix(const DenseVector<ElementType, VectorFixedLength>& InputColVector);
@@ -232,7 +232,7 @@ public:
 
 	inline void operator=(StdObjectVector<ElementType> InputColVector);
 
-	inline void operator=(DataArray<ElementType> InputColVector);
+	inline void operator=(ObjectArray<ElementType> InputColVector);
 
 	template<int_max VectorFixedLength>
 	inline void operator=(const DenseVector<ElementType, VectorFixedLength>& InputColVector);
@@ -358,9 +358,9 @@ public:
 	inline bool Take(StdObjectVector<ElementType>&& InputDataArray);
 	inline bool Take(StdObjectVector<ElementType>& InputDataArray);
 
-	//Take the data of DataArray
-	inline bool Take(DataArray<ElementType>&& InputDataArray);
-	inline bool Take(DataArray<ElementType>& InputDataArray);
+	//Take the data of ObjectArray
+	inline bool Take(ObjectArray<ElementType>&& InputDataArray);
+	inline bool Take(ObjectArray<ElementType>& InputDataArray);
 
 	//Take the data of DenseVector
 	inline bool Take(DenseVector<ElementType>&& InputColVector);

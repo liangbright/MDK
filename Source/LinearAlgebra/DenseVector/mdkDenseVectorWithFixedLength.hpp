@@ -69,9 +69,25 @@ DenseVector<ElementType, Length>::DenseVector(const std::vector<ElementType>& In
 
 template<typename ElementType, int_max Length>
 inline
-DenseVector<ElementType, Length>::DenseVector(const DenseMatrix<ElementType>& InputMatrix)
+DenseVector<ElementType, Length>::DenseVector(const StdObjectVector<ElementType>& InputVector)
 {
-	(*this) = InputMatrix;
+	(*this) = InputVector;
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+DenseVector<ElementType, Length>::DenseVector(const ObjectArray<ElementType>& InputVector)
+{
+	(*this) = InputVector;
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+DenseVector<ElementType, Length>::DenseVector(const DenseMatrix<ElementType>& InputVector)
+{
+	(*this) = InputVector;
 }
 
 
@@ -138,6 +154,40 @@ void DenseVector<ElementType, Length>::operator=(const std::vector<ElementType>&
 	if (int_max(InputVector.size()) != Length)
 	{
 		MDK_Error("InputVector.size() != Length @ DenseVector::operator=(...)")
+		return;
+	}
+
+	for (int_max k = 0; k < Length; ++k)
+	{
+		m_StdArray[k] = InputVector[k];
+	}
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+void DenseVector<ElementType, Length>::operator=(const StdObjectVector<ElementType>& InputVector)
+{
+	if (InputVector.GetLength() != Length)
+	{
+		MDK_Error("InputVector.GetLength() != Length @ DenseVector::operator=(...)")
+		return;
+	}
+
+	for (int_max k = 0; k < Length; ++k)
+	{
+		m_StdArray[k] = InputVector[k];
+	}
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+void DenseVector<ElementType, Length>::operator=(const ObjectArray<ElementType>& InputVector)
+{
+	if (InputVector.GetLength() != Length)
+	{
+		MDK_Error("InputVector.GetLength() != Length @ DenseVector::operator=(...)")
 		return;
 	}
 

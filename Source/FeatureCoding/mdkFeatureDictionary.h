@@ -1,7 +1,6 @@
 #ifndef __mdkFeatureDictionary_h
 #define __mdkFeatureDictionary_h
 
-#include "mdkObject.h"
 #include "mdkDenseMatrix.h"
 
 namespace mdk

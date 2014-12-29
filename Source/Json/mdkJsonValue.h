@@ -23,6 +23,8 @@ typedef StdObjectVector<JsonValue> JsonArray;
 class JsonValue : public Object
 {
 public:
+	// int/long long/float/double Array is represented by DenseMatrix as a row vector
+	// There is NO BoolArray bacause std::vector<bool> is crap
 	enum struct TypeEnum
 	{
 		Type_Null,
@@ -153,29 +155,33 @@ public:
 	JsonObject ToJsonObject() const;
 	JsonObject ToJsonObject(const JsonObject& DefaultValue) const;
 
+	// check if int/long long/float/double ?
 	bool IsScalar() const
 	{
 		return (m_Type == TypeEnum::Type_Bool) || (m_Type == TypeEnum::Type_Int) || (m_Type == TypeEnum::Type_LongLong)
 			|| (m_Type == TypeEnum::Type_Float) || (m_Type == TypeEnum::Type_Double);
 	};
 
+	// convert internal int/long long/float/double to scalar
 	template<typename ScalarType = double>
 	ScalarType ToScalar(ScalarType DefaultValue = 0) const;
 
+	// check if int/long long/float/double array ?
 	bool IsScalarArray() const
 	{
 		return (m_Type == TypeEnum::Type_IntArray) || (m_Type == TypeEnum::Type_LongLongArray)
 			|| (m_Type == TypeEnum::Type_FloatArray) || (m_Type == TypeEnum::Type_DoubleArray);
 	};
 
+	// convert internal int/long long/float/double array to scalar array
 	template<typename ScalarType = double>
 	DenseMatrix<ScalarType> ToScalarArray() const;
 
 	template<typename ScalarType>
 	DenseMatrix<ScalarType> ToScalarArray(const DenseMatrix<ScalarType>& DefaultArray) const;
 
-	// There is NO BoolArray bacause std::vector<bool> is crap
-
+	//----------------------------- use these Ref_XXX only if you are absolutely sure about the type -----------------------------------------//
+ 	
 	DenseMatrix<int>& JsonValue::Ref_IntArray() { return *(static_cast<DenseMatrix<int>*>(m_OtherData.get())); }
 	const DenseMatrix<int>& JsonValue::Ref_IntArray() const { return *(static_cast<DenseMatrix<int>*>(m_OtherData.get())); }
 
@@ -196,8 +202,6 @@ public:
 
 	JsonObject& JsonValue::Ref_JsonObject() { return *(static_cast<JsonObject*>(m_OtherData.get())); }
 	const JsonObject& JsonValue::Ref_JsonObject() const { return *(static_cast<JsonObject*>(m_OtherData.get())); }
-
-private:
 
 };
 

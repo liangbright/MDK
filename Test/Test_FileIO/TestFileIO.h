@@ -30,7 +30,7 @@ void Test_MatrixIO()
 	DisplayMatrix("OutputMatrix", OutputMatrix, 4);
 }
 
-/*
+
 void Test_ImageIO()
 {
 	std::string FilePath = "H:/AorticValveData/2014_7_25/P2115937/phase0";
@@ -41,6 +41,9 @@ void Test_ImageIO()
 	std::string OutputFilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/Image.json";
 
 	Save3DScalarImageAsJsonDataFile(InputImage, OutputFilePathAndName);
+
+	DenseImage3D<double> OutputImage;
+	Load3DScalarImageFromJsonDataFile(OutputImage, OutputFilePathAndName);
 }
 
 void Test_PolygonMeshIO()
@@ -83,7 +86,7 @@ void Test_TriangleMeshIO()
 
 	SaveTriangleMeshAsVTKFile(OutputMesh, VTKFileNameAndPath_output);
 }
-*/
+
 }//end of namespace
 
 

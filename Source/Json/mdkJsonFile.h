@@ -39,42 +39,45 @@ private:
 	JsonFile() = delete;
 
 public:
-	static bool Save(const JsonObject& InputObject, const String& FilePathAndName, bool Flag_PreserveOrder = true);
-	static bool Load(JsonObject& OutputObject, const String& FilePathAndName);
+	static bool Save(const JsonObject& InputJObject, const String& FilePathAndName, bool Flag_PreserveOrder = true);
+	static bool Load(JsonObject& OutputJObject, const String& FilePathAndName);
+
+	static bool Save(const JsonArray& InputJArray, const String& FilePathAndName, bool Flag_PreserveOrder = true);
+	static bool Load(JsonArray& OutputJArray, const String& FilePathAndName);
 
 private:
 
-	static bool SaveNameValuePairToJsonFile(const String& Name, const JsonValue& JValue, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
-	static bool SaveNameValuePairToJsonFile(const String& Name, const MDK_Symbol_Empty&, JsonFile& OutputFile, int_max Indention);
-	static bool SaveNameValuePairToJsonFile(const String& Name, bool Flag, JsonFile& OutputFile, int_max Indention);
-	static bool SaveNameValuePairToJsonFile(const String& Name, int Scalar, JsonFile& OutputFile, int_max Indention);
-	static bool SaveNameValuePairToJsonFile(const String& Name, long long Scalar, JsonFile& OutputFile, int_max Indention);
-	static bool SaveNameValuePairToJsonFile(const String& Name, float Scalar, JsonFile& OutputFile, int_max Indention);
-	static bool SaveNameValuePairToJsonFile(const String& Name, double Scalar, JsonFile& OutputFile, int_max Indention);
-	static bool SaveNameValuePairToJsonFile(const String& Name, const DenseMatrix<int>& IntArray, JsonFile& OutputFile, int_max Indention);
-	static bool SaveNameValuePairToJsonFile(const String& Name, const DenseMatrix<long long>& LongLongArray, JsonFile& OutputFile, int_max Indention);
-	static bool SaveNameValuePairToJsonFile(const String& Name, const DenseMatrix<float>& FloatArray, JsonFile& OutputFile, int_max Indention);
-	static bool SaveNameValuePairToJsonFile(const String& Name, const DenseMatrix<double>& DoubleArray, JsonFile& OutputFile, int_max Indention);
-	static bool SaveNameValuePairToJsonFile(const String& Name, const String& JString, JsonFile& OutputFile, int_max Indention);
-	static bool SaveNameValuePairToJsonFile(const String& Name, const JsonArray& JArray, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
-	static bool SaveNameValuePairToJsonFile(const String& Name, const JsonObject& JObject, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
+	static bool SaveNameValuePair(const String& Name, const JsonValue& JValue, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
+	static bool SaveNameValuePair(const String& Name, const MDK_Symbol_Empty&, JsonFile& OutputFile, int_max Indention);
+	static bool SaveNameValuePair(const String& Name, bool Flag, JsonFile& OutputFile, int_max Indention);
+	static bool SaveNameValuePair(const String& Name, int Scalar, JsonFile& OutputFile, int_max Indention);
+	static bool SaveNameValuePair(const String& Name, long long Scalar, JsonFile& OutputFile, int_max Indention);
+	static bool SaveNameValuePair(const String& Name, float Scalar, JsonFile& OutputFile, int_max Indention);
+	static bool SaveNameValuePair(const String& Name, double Scalar, JsonFile& OutputFile, int_max Indention);
+	static bool SaveNameValuePair(const String& Name, const DenseMatrix<int>& IntArray, JsonFile& OutputFile, int_max Indention);
+	static bool SaveNameValuePair(const String& Name, const DenseMatrix<long long>& LongLongArray, JsonFile& OutputFile, int_max Indention);
+	static bool SaveNameValuePair(const String& Name, const DenseMatrix<float>& FloatArray, JsonFile& OutputFile, int_max Indention);
+	static bool SaveNameValuePair(const String& Name, const DenseMatrix<double>& DoubleArray, JsonFile& OutputFile, int_max Indention);
+	static bool SaveNameValuePair(const String& Name, const String& JString, JsonFile& OutputFile, int_max Indention);
+	static bool SaveNameValuePair(const String& Name, const JsonArray& JArray, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
+	static bool SaveNameValuePair(const String& Name, const JsonObject& JObject, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
 
-    //for SaveJsonValueToJsonFile, Indention is only needed if a JsonValue need multi-line
+    //for SaveJsonValue, Indention is only needed if a JsonValue need multi-line
 
-	static bool SaveJsonValueToJsonFile(const JsonValue& JValue, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
-	static bool SaveJsonValueToJsonFile(const MDK_Symbol_Empty&, JsonFile& OutputFile);
-	static bool SaveJsonValueToJsonFile(bool Flag, JsonFile& OutputFile);
-	static bool SaveJsonValueToJsonFile(int Scalar, JsonFile& OutputFile);
-	static bool SaveJsonValueToJsonFile(long long Scalar, JsonFile& OutputFile);
-	static bool SaveJsonValueToJsonFile(float Scalar, JsonFile& OutputFile);
-	static bool SaveJsonValueToJsonFile(double Scalar, JsonFile& OutputFile);
-	static bool SaveJsonValueToJsonFile(const DenseMatrix<int>& IntArray, JsonFile& OutputFile, int_max Indention);
-	static bool SaveJsonValueToJsonFile(const DenseMatrix<long long>& LongLongArray, JsonFile& OutputFile, int_max Indention);
-	static bool SaveJsonValueToJsonFile(const DenseMatrix<float>& FloatArray, JsonFile& OutputFile, int_max Indention);
-	static bool SaveJsonValueToJsonFile(const DenseMatrix<double>& DoubleArray, JsonFile& OutputFile, int_max Indention);
-	static bool SaveJsonValueToJsonFile(const String& JString, JsonFile& OutputFile);
-	static bool SaveJsonValueToJsonFile(const JsonArray& JArray, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
-	static bool SaveJsonValueToJsonFile(const JsonObject& JObject, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
+	static bool SaveJsonValue(const JsonValue& JValue, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
+	static bool SaveJsonValue(const MDK_Symbol_Empty&, JsonFile& OutputFile);
+	static bool SaveJsonValue(bool Flag, JsonFile& OutputFile);
+	static bool SaveJsonValue(int Scalar, JsonFile& OutputFile);
+	static bool SaveJsonValue(long long Scalar, JsonFile& OutputFile);
+	static bool SaveJsonValue(float Scalar, JsonFile& OutputFile);
+	static bool SaveJsonValue(double Scalar, JsonFile& OutputFile);
+	static bool SaveJsonValue(const DenseMatrix<int>& IntArray, JsonFile& OutputFile, int_max Indention);
+	static bool SaveJsonValue(const DenseMatrix<long long>& LongLongArray, JsonFile& OutputFile, int_max Indention);
+	static bool SaveJsonValue(const DenseMatrix<float>& FloatArray, JsonFile& OutputFile, int_max Indention);
+	static bool SaveJsonValue(const DenseMatrix<double>& DoubleArray, JsonFile& OutputFile, int_max Indention);
+	static bool SaveJsonValue(const String& JString, JsonFile& OutputFile);
+	static bool SaveJsonValue(const JsonArray& JArray, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
+	static bool SaveJsonValue(const JsonObject& JObject, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder);
 
 };
 

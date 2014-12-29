@@ -106,45 +106,45 @@ QJsonValue ConvertMDKJsonValueToQTJsonValue(const JsonValue& JValue)
 }
 
 
-QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<int>& IntArray)
+QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<int>& InputArray)
 {
 	QJsonArray QJArray;
-	for (int_max k = 0; k < IntArray.GetElementNumber(); ++k)
+	for (int_max k = 0; k < InputArray.GetElementNumber(); ++k)
 	{
-		QJArray.append(QJsonValue(IntArray[k]));
+		QJArray.append(QJsonValue(InputArray[k]));
 	}
 	return QJArray;
 }
 
 
-QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<long long>& LongLongArray)
+QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<long long>& InputArray)
 {
 	QJsonArray QJArray;
-	for (int_max k = 0; k < LongLongArray.GetElementNumber(); ++k)
+	for (int_max k = 0; k < InputArray.GetElementNumber(); ++k)
 	{
-		QJArray.append(QJsonValue(LongLongArray[k]));
+		QJArray.append(QJsonValue(InputArray[k]));
 	}
 	return QJArray;
 }
 
 
-QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<float>& FloatArray)
+QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<float>& InputArray)
 {
 	QJsonArray QJArray;
-	for (int_max k = 0; k < FloatArray.GetElementNumber(); ++k)
+	for (int_max k = 0; k < InputArray.GetElementNumber(); ++k)
 	{
-		QJArray.append(QJsonValue(double(FloatArray[k]))); // QJsonValue(float) is not defined
+		QJArray.append(QJsonValue(double(InputArray[k]))); // QJsonValue(float) is not defined
 	}
 	return QJArray;
 }
 
 
-QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<double>& DoubleArray)
+QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<double>& InputArray)
 {
 	QJsonArray QJArray;
-	for (int_max k = 0; k < DoubleArray.GetElementNumber(); ++k)
+	for (int_max k = 0; k < InputArray.GetElementNumber(); ++k)
 	{
-		QJsonValue QJValue(DoubleArray[k]);
+		QJsonValue QJValue(InputArray[k]);
 		QJArray.append(QJValue);
 	}
 	return QJArray;
