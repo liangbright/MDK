@@ -48,12 +48,12 @@ bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& Input
 		}
 	}
 	//-----------------------------------------------------------------------------------------
-	bool IsOK = false;
+	bool IsOK = true;
 	if (JsonFile::Save(JObject, FilePathAndName) == false)
 	{
 		IsOK = false;
 	}
-	if (SaveScalarArrayAsDataFile(PointData.GetElementPointer(), PointData.GetElementNumber(), FilePath + PointDataFileName))
+	if (SaveScalarArrayAsDataFile(PointData.GetElementPointer(), PointData.GetElementNumber(), FilePath + PointDataFileName) == false)
 	{
 		IsOK = false;
 	}	
@@ -171,9 +171,10 @@ bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMes
 	}
 	//----------------------------------------------
 	String FilePath = ExtractFilePath(FilePathAndName);
-	bool IsOK = true;
+	
 	if (PointNumber > 0)
 	{
+		bool IsOK = true;
 		DenseMatrix<ScalarType> PointData(3, PointNumber);
 		if (LoadScalarArrayFromDataFile(PointData.GetElementPointer(), PointData.GetElementNumber(), FilePath + PointDataFileName, ScalarTypeInDataFile) == false)
 		{

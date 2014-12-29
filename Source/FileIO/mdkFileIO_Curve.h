@@ -19,16 +19,16 @@ class DenseMatrix;
 //--------------------------------------
 
 template<typename ScalarType>
-bool SaveSingle3DCurveAsVTKFile(const DenseMatrix<ScalarType>& InputCurve, const std::string& FilePathAndName);
+bool SaveSingle3DCurveAsVTKFile(const DenseMatrix<ScalarType>& InputCurve, const String& FilePathAndName);
 
 template<typename ScalarType>
-bool SaveMultiple3DCurveAsVTKFile(const ObjectArray<DenseMatrix<ScalarType>>& InputCurveList, const std::string& FilePathAndName);
+bool SaveMultiple3DCurveAsVTKFile(const ObjectArray<DenseMatrix<ScalarType>>& InputCurveList, const String& FilePathAndName);
 
 template<typename ScalarType>
-bool LoadSingle3DCurveFromVTKFile(DenseMatrix<ScalarType>& OutputCurve, const std::string& FilePathAndName);
+bool LoadSingle3DCurveFromVTKFile(DenseMatrix<ScalarType>& OutputCurve, const String& FilePathAndName);
 
 template<typename ScalarType>
-bool LoadMultiple3DCurveFromVTKFile(ObjectArray<DenseMatrix<ScalarType>>& OutputCurveList, const std::string& FilePathAndName);
+bool LoadMultiple3DCurveFromVTKFile(ObjectArray<DenseMatrix<ScalarType>>& OutputCurveList, const String& FilePathAndName);
 
 }//namespace mdk
 

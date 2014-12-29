@@ -5,11 +5,11 @@ namespace mdk
 {
 
 template<typename ScalarType>
-bool SaveSingle3DCurveAsVTKFile(const DenseMatrix<ScalarType>& InputCurve, const std::string& FilePathAndName)
+bool SaveSingle3DCurveAsVTKFile(const DenseMatrix<ScalarType>& InputCurve, const String& FilePathAndName)
 {
 	auto VTKCurve = ConvertSingleMDK3DCurveToVTKPolyData(InputCurve);
 	auto writer = vtkSmartPointer<vtkPolyDataWriter>::New();
-	writer->SetFileName(FilePathAndName.c_str());
+	writer->SetFileName(FilePathAndName.StdString().c_str());
 	writer->SetInputData(VTKCurve);
 	try
 	{
@@ -26,11 +26,11 @@ bool SaveSingle3DCurveAsVTKFile(const DenseMatrix<ScalarType>& InputCurve, const
 
 
 template<typename ScalarType>
-bool SaveMultiple3DCurveAsVTKFile(const ObjectArray<DenseMatrix<ScalarType>>& InputCurveList, const std::string& FilePathAndName)
+bool SaveMultiple3DCurveAsVTKFile(const ObjectArray<DenseMatrix<ScalarType>>& InputCurveList, const String& FilePathAndName)
 {
 	auto VTKCurveData = ConvertMultipleMDK3DCurveToVTKPolyData(InputCurveList);
 	auto writer = vtkSmartPointer<vtkPolyDataWriter>::New();
-	writer->SetFileName(FilePathAndName.c_str());
+	writer->SetFileName(FilePathAndName.StdString().c_str());
 	writer->SetInputData(VTKCurveData);
 	try
 	{
@@ -47,7 +47,7 @@ bool SaveMultiple3DCurveAsVTKFile(const ObjectArray<DenseMatrix<ScalarType>>& In
 
 
 template<typename ScalarType>
-bool LoadSingle3DCurveFromVTKFile(DenseMatrix<ScalarType>& OutputCurve, const std::string& FilePathAndName)
+bool LoadSingle3DCurveFromVTKFile(DenseMatrix<ScalarType>& OutputCurve, const String& FilePathAndName)
 {
 	ObjectArray<DenseMatrix<ScalarType>> OutputCurveList;
 	if (LoadMultiple3DCurveFromVTKFile(OutputCurveList, FilePathAndName) == false)
@@ -68,10 +68,10 @@ bool LoadSingle3DCurveFromVTKFile(DenseMatrix<ScalarType>& OutputCurve, const st
 
 
 template<typename ScalarType>
-bool LoadMultiple3DCurveFromVTKFile(ObjectArray<DenseMatrix<ScalarType>>& OutputCurveList, const std::string& FilePathAndName)
+bool LoadMultiple3DCurveFromVTKFile(ObjectArray<DenseMatrix<ScalarType>>& OutputCurveList, const String& FilePathAndName)
 {
 	auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
-	Reader->SetFileName(FilePathAndName.c_str());
+	Reader->SetFileName(FilePathAndName.StdString().c_str());
 
 	try
 	{
