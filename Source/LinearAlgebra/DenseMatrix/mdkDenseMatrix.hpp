@@ -1158,14 +1158,17 @@ template<typename ElementType>
 inline 
 bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputColVector)
 {
+	auto InputLength = int_max(InputColVector.size());
+
 	// MatrixA = MatrixA
 	if (this->GetElementPointer() == InputColVector.data())
 	{
-		MDK_Warning("A Matrix tries to take itself @ DenseMatrix::Take(std::vector)")
+		if (InputLength > 0 && this->IsEmpty() == false) // if(nullptr == nullptr)
+		{
+			MDK_Warning("A Matrix tries to take itself @ DenseMatrix::Take(std::vector)")
+		}
 		return true;
 	}
-
-	auto InputLength = int_max(InputColVector.size());
 
 	auto SelfSize = this->GetSize();
 

@@ -725,7 +725,29 @@ template<typename ElementType>
 inline
 bool ObjectArray<ElementType>::IsShared() const
 {
-    return (m_Data.use_count() > 1);
+	if (!m_Data)
+	{
+		return false;
+	}
+	else
+	{
+		return (m_Data.use_count() > 1);
+	}
+}
+
+
+template<typename ElementType>
+inline
+bool ObjectArray<ElementType>::IsDataInInternalArray() const
+{
+	if (!m_Data)
+	{
+		return false;
+	}
+	else
+	{
+		return (m_Data->ElementPointer == m_Data->StdVector.data());
+	}
 }
 
 
@@ -754,14 +776,16 @@ int_max ObjectArray<ElementType>::GetElementNumber() const
 
 template<typename ElementType>
 inline
-const ElementType& ObjectArray<ElementType>::GetErrorElement()  const
+ElementType ObjectArray<ElementType>::GetErrorElement()  const
 {
     if (!m_Data)
     {
-        MDK_Error("m_Data is empty @ ObjectArray::GetErrorElement()")
+		return GetNaNElement(ErrorElement);
     }
-
-    return m_Data->ErrorElement;
+	else
+	{
+		return m_Data->ErrorElement;
+	}
 }
 
 

@@ -141,9 +141,9 @@ public:
 	inline ~ObjectArray();
 
     //-------------------- get/set std vector -----------------------------------//
-	// caution:
+	// caution: check: IsDataInInternalArray()
 	// if Element is not stored inside internal std::vector
-	// then data copy will be applied 
+	// then data copy will be applied
     inline std::vector<ElementType>& StdVector();
 
     inline const std::vector<ElementType>& StdVector() const;
@@ -229,13 +229,15 @@ public:
 
     inline bool IsShared() const;
 
+	inline bool IsDataInInternalArray() const;
+
     inline int_max GetLength() const;
 
     inline int_max GetElementNumber() const; // the same as GetLength();
 
     //------------------------ Error Element -----------------------------//
 
-    const ElementType& GetErrorElement()  const;
+    ElementType GetErrorElement()  const;
 
     //--------------------- Get Data Pointer -----------------------------//
 
