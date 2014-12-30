@@ -15,7 +15,7 @@ int main()
 	//Test_JsonFile_1();
 	//Test_JsonFile_2();
 
-	//Test_JsonFile_NullValue();
+	Test_JsonFile_NullValue();
 	Test_JsonFile_EmptyArray();
 
 	//Test_MDK_QT_JsonConversion();

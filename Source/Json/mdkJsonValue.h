@@ -147,8 +147,8 @@ public:
 	bool GetBool(bool DefaultValue = false) const;
 	int GetInt(int DefaultValue = 0) const;
 	long long GetLongLong(long long DefaultValue = 0) const;
-	float GetFloat(float DefaultValue = 0) const;
-	double GetDouble(double DefaultValue = 0) const;
+	float GetFloat(float DefaultValue = std::nanf(nullptr)) const;
+	double GetDouble(double DefaultValue = std::nan(nullptr)) const;
 	DenseMatrix<int> GetIntArray() const;
 	DenseMatrix<int> GetIntArray(const DenseMatrix<int>& DefaultArray) const;
 	DenseMatrix<long long> GetLongLongArray() const;
@@ -173,7 +173,7 @@ public:
 
 	// convert internal int/long long/float/double to scalar
 	template<typename ScalarType = double>
-	ScalarType ToScalar(ScalarType DefaultValue = 0) const;
+	ScalarType ToScalar(ScalarType DefaultValue = GetNaNElement<ScalarType>()) const;
 
 	// check if int/long long/float/double array ?
 	bool IsScalarArray() const

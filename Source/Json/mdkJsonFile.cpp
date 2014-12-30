@@ -468,7 +468,7 @@ bool JsonFile::SaveJsonValue(const JsonArray& JArray, JsonFile& OutputFile, int_
 {
 	bool IsOK = true;
 	//----------------------------------------------
-	bool Flag_SimpleArray = true; // every JArray[k] is a scalar or Null or bool
+	bool Flag_SimpleArray = true; // JArray is empty, or each JArray[k] is a scalar or Null or bool
 	for (int_max k = 0; k < JArray.GetLength(); ++k)
 	{
 		const auto& JValue = JArray[k];

@@ -204,14 +204,17 @@ JsonValue ConvertQTJsonValueToMDKJsonValue(const QJsonValue& QJValue)
 	case QJsonValue::Type::Array:
 	{
 		auto QJArray = QJValue.toArray();
-		if (CheckIf_QTJsonArray_Is_ScalarArray(QJArray) == true)
+		if (QJArray.size() > 0)
 		{
-			JValue = ConvertQTJsonArrayToMDKScalarArray(QJArray);
+			if (CheckIf_QTJsonArray_Is_ScalarArray(QJArray) == true)
+			{
+				JValue = ConvertQTJsonArrayToMDKScalarArray(QJArray);
+			}
+			else
+			{
+				JValue = ConvertQTJsonArrayToMDKJsonArray(QJArray);
+			}
 		}
-		else
-		{
-			JValue = ConvertQTJsonArrayToMDKJsonArray(QJArray);
-		}		
 		break;
 	}
 	case QJsonValue::Type::Object:
@@ -234,8 +237,8 @@ bool CheckIf_QTJsonArray_Is_ScalarArray(const QJsonArray& QJArray)
 {
 	bool Flag = true;
 	if (QJArray.size() == 0)
-	{// if QJArray is empty, then it is treated as ScalarArray
-		Flag = true;
+	{// if QJArray is empty, then it may not be ScalarArray
+		Flag = false;
 	}
 	else
 	{
