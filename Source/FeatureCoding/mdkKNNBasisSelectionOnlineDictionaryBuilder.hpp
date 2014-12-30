@@ -954,7 +954,7 @@ ComputeVectorSimilarityMatrix(const FeatureDictionaryForSparseCoding<ScalarType>
 
 
 template<typename ScalarType>
-DataArray<DenseMatrix<int_max>>
+ObjectArray<DenseMatrix<int_max>>
 KNNBasisSelectionOnlineDictionaryBuilder<ScalarType>::FindKNNVectorIndexTableByVectorSimilarityMatrix(const DenseMatrix<ScalarType>& VectorSimilarityMatrix)
 {
     //-------------------------------------------------------------------------------------------------------------
@@ -972,7 +972,7 @@ KNNBasisSelectionOnlineDictionaryBuilder<ScalarType>::FindKNNVectorIndexTableByV
 
     int_max TotalDataNumber = VectorSimilarityMatrix.GetColNumber();
 
-    DataArray<DenseMatrix<int_max>> KNNVectorIndexTable;
+    ObjectArray<DenseMatrix<int_max>> KNNVectorIndexTable;
     KNNVectorIndexTable.FastResize(TotalDataNumber);
 
     //for (int_max k = 0; k <= TotalDataNumber-1; ++k)
@@ -995,7 +995,7 @@ template<typename ScalarType>
 DenseMatrix<ScalarType> 
 KNNBasisSelectionOnlineDictionaryBuilder<ScalarType>::
 EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix<ScalarType>& VectorSimilarityMatrix, 
-                                                               const DataArray<DenseMatrix<int_max>>& KNNVectorIndexTable)
+                                                               const ObjectArray<DenseMatrix<int_max>>& KNNVectorIndexTable)
 {
     //--------------------------------------------------------------------------------
     // Input:
@@ -1074,7 +1074,7 @@ template<typename ScalarType>
 DenseMatrix<ScalarType>    
 KNNBasisSelectionOnlineDictionaryBuilder<ScalarType>::
 EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachVector(const DenseMatrix<ScalarType>& VectorSimilarityMatrix,
-                                                               const DataArray<DenseMatrix<int_max>>& KNNVectorIndexTable,
+                                                               const ObjectArray<DenseMatrix<int_max>>& KNNVectorIndexTable,
                                                                const DenseMatrix<ScalarType>& InitialRepresentativeAbilityOfEachVector)
 {
     //-----------------------------------------------------------------------------------------------------------------
@@ -1263,7 +1263,7 @@ template<typename ScalarType>
 void KNNBasisSelectionOnlineDictionaryBuilder<ScalarType>::
 UpdateDictionaryInformation(FeatureDictionaryForSparseCoding<ScalarType>& Dictionary,
                             const DenseMatrix<ScalarType>& FeatureData,
-                            const DataArray<SparseVector<ScalarType>>& CodeTable,
+                            const ObjectArray<SparseVector<ScalarType>>& CodeTable,
                             const DenseMatrix<ScalarType>& VectorSimilarityMatrix,
                             const DenseMatrix<int_max>& VectorIndexList_Basis,
                             const FeatureDictionaryForSparseCoding<ScalarType>& Dictionary_init)
@@ -1452,7 +1452,7 @@ template<typename ScalarType>
 void KNNBasisSelectionOnlineDictionaryBuilder<ScalarType>::
 UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ScalarType>& Dictionary,
                                      const DenseMatrix<ScalarType>& FeatureData,
-                                     const DataArray<SparseVector<ScalarType>>& CodeTable,
+                                     const ObjectArray<SparseVector<ScalarType>>& CodeTable,
                                      const DenseMatrix<ScalarType>& VectorSimilarityMatrix,
                                      const DenseMatrix<int_max>& VectorIndexList_Basis,
                                      const FeatureDictionaryForSparseCoding<ScalarType>& Dictionary_init)
@@ -1628,7 +1628,7 @@ UpdateDictionaryInformation_Variance(FeatureDictionaryForSparseCoding<ScalarType
 
 
 template<typename ScalarType>
-DataArray<SparseVector<ScalarType>> 
+ObjectArray<SparseVector<ScalarType>> 
 KNNBasisSelectionOnlineDictionaryBuilder<ScalarType>::
 EncodeFeatureDataBySimilarity(const DenseMatrix<ScalarType>& VectorSimilarityMatrix,
                               const DenseMatrix<int_max>&    VectorIndexList_Basis,
@@ -1640,7 +1640,7 @@ EncodeFeatureDataBySimilarity(const DenseMatrix<ScalarType>& VectorSimilarityMat
 
     auto DataNumber = TotalVectorNumber - BasisNumber_init;
 
-    DataArray<SparseVector<ScalarType>> CodeTable;
+    ObjectArray<SparseVector<ScalarType>> CodeTable;
     CodeTable.FastResize(DataNumber);
 
     //for (int_max k = 0; k <= DataNumber-1; ++k)
@@ -1686,7 +1686,7 @@ EncodeFeatureDataBySimilarity(const DenseMatrix<ScalarType>& VectorSimilarityMat
 
 template<typename ScalarType>
 void KNNBasisSelectionOnlineDictionaryBuilder<ScalarType>::
-UpdateBasisExperience(DenseMatrix<ScalarType>& BasisExperience, const DataArray<SparseVector<ScalarType>>& CodeTable)
+UpdateBasisExperience(DenseMatrix<ScalarType>& BasisExperience, const ObjectArray<SparseVector<ScalarType>>& CodeTable)
 {
     //--------------------------------------------------------------------------------------
     // Input:
@@ -1775,7 +1775,7 @@ template<typename ScalarType>
 void KNNBasisSelectionOnlineDictionaryBuilder<ScalarType>::
 UpdateVarianceOfL1Distance(DenseMatrix<ScalarType>& Variance,
                            const DenseMatrix<ScalarType>& FeatureData,
-                           const DataArray<SparseVector<ScalarType>>& CodeTable,
+                           const ObjectArray<SparseVector<ScalarType>>& CodeTable,
                            const DenseMatrix<ScalarType>& BasisMatrix,
                            const DenseMatrix<ScalarType>& BasisExperience)
 {
@@ -1872,7 +1872,7 @@ template<typename ScalarType>
 void KNNBasisSelectionOnlineDictionaryBuilder<ScalarType>::
 UpdateVarianceOfL2Distance(DenseMatrix<ScalarType>& Variance,
                            const DenseMatrix<ScalarType>& FeatureData,
-                           const DataArray<SparseVector<ScalarType>>& CodeTable,
+                           const ObjectArray<SparseVector<ScalarType>>& CodeTable,
                            const DenseMatrix<ScalarType>& BasisMatrix,
                            const DenseMatrix<ScalarType>& BasisExperience)
 {
@@ -1969,7 +1969,7 @@ template<typename ScalarType>
 void KNNBasisSelectionOnlineDictionaryBuilder<ScalarType>::
 UpdateVarianceOfKLDivergence(DenseMatrix<ScalarType>& Variance,
                              const DenseMatrix<ScalarType>& FeatureData,
-                             const DataArray<SparseVector<ScalarType>>& CodeTable,
+                             const ObjectArray<SparseVector<ScalarType>>& CodeTable,
                              const DenseMatrix<ScalarType>& BasisMatrix,
                              const DenseMatrix<ScalarType>& BasisExperience)
 {
@@ -2066,7 +2066,7 @@ template<typename ScalarType>
 void KNNBasisSelectionOnlineDictionaryBuilder<ScalarType>::
 UpdateVarianceOfReconstruction(DenseMatrix<ScalarType>& Variance,
                                const DenseMatrix<ScalarType>& FeatureData,
-                               const DataArray<SparseVector<ScalarType>>& CodeTable,
+                               const ObjectArray<SparseVector<ScalarType>>& CodeTable,
                                const DenseMatrix<ScalarType>& BasisMatrix,
                                const DenseMatrix<ScalarType>& BasisExperience)
 {
@@ -2159,7 +2159,7 @@ template<typename ScalarType>
 DenseMatrix<ScalarType>
 KNNBasisSelectionOnlineDictionaryBuilder<ScalarType>::
 ComputeDataReconstructionErrorL2Norm(const DenseMatrix<ScalarType>&  FeatureData,
-                                     const DataArray<SparseVector<ScalarType>>& CodeTable,
+                                     const ObjectArray<SparseVector<ScalarType>>& CodeTable,
                                      const DenseMatrix<ScalarType>&  BasisMatrix)
 {
     auto ReconstructionCodeSet = KNNReconstructionSparseEncoder<ScalarType>::

@@ -121,24 +121,24 @@ public:
 
     //----------------------------------------------------------------------------------------------------
 
-	static void UpdateReconstructionCodeWithKNNSearchResult(DataArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
+	static void UpdateReconstructionCodeWithKNNSearchResult(ObjectArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
                                                             const DenseMatrix<ScalarType>&  FeatureData,                                                                                
 														    const DenseMatrix<ScalarType>&  BasisMatrix,
 														    bool CodeNonnegative,
 															bool CodeSumToOne,
 															int_max MaxNumberOfThread = 1);
 
-    static DataArray<SparseVector<ScalarType>> 
+    static ObjectArray<SparseVector<ScalarType>> 
         ComputeReconstructionCodeFromSimilarityCode(const DenseMatrix<ScalarType>&  FeatureData, 
-                                                    const DataArray<SparseVector<ScalarType>>& SimilarityCodeSet,
+                                                    const ObjectArray<SparseVector<ScalarType>>& SimilarityCodeSet,
                                                     const DenseMatrix<ScalarType>&  BasisMatrix,
                                                     bool CodeNonnegative,
                                                     bool CodeSumToOne,
                                                     int_max MaxNumberOfThread = 1);
 
-    static DataArray<SparseVector<ScalarType>> 
+    static ObjectArray<SparseVector<ScalarType>> 
         ComputeReconstructionCodeFromSoftAssignCode(const DenseMatrix<ScalarType>&  FeatureData, 
-                                                    const DataArray<SparseVector<ScalarType>>& SoftAssignCodeSet,
+                                                    const ObjectArray<SparseVector<ScalarType>>& SoftAssignCodeSet,
                                                     const DenseMatrix<ScalarType>&  BasisMatrix,
                                                     bool CodeNonnegative,
                                                     bool CodeSumToOne,
@@ -154,12 +154,12 @@ public:
                                 const DenseMatrix<ScalarType>&  BasisMatrix);
 
 
-    static DenseMatrix<ScalarType> ReconstructData(const DataArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
+    static DenseMatrix<ScalarType> ReconstructData(const ObjectArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
                                                     const DenseMatrix<ScalarType>&  BasisMatrix,
                                                     int_max MaxNumberOfThread = 1);
 
     static void ReconstructData(DenseMatrix<ScalarType>& ReconstructedDataSet,
-                                const DataArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
+                                const ObjectArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
                                 const DenseMatrix<ScalarType>&  BasisMatrix,
 								int_max MaxNumberOfThread = 1);
 
@@ -168,19 +168,19 @@ public:
                                                         const DenseMatrix<ScalarType>&  BasisMatrix);
 
     static DenseMatrix<ScalarType> ComputeReconstructionErrorL2Norm(const DenseMatrix<ScalarType>&  FeatureData,
-                                                                     const DataArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
+                                                                     const ObjectArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
                                                                      const DenseMatrix<ScalarType>&  BasisMatrix,
 																	 int_max MaxNumberOfThread = 1);
 
     static void ComputeReconstructionErrorL2Norm(DenseMatrix<ScalarType>& ErrorL2NormList,
                                                  const DenseMatrix<ScalarType>&  FeatureData,
-                                                 const DataArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
+                                                 const ObjectArray<SparseVector<ScalarType>>& ReconstructionCodeSet,
                                                  const DenseMatrix<ScalarType>&  BasisMatrix,
 												 int_max MaxNumberOfThread = 1);
 
     //----------------------------------------------------------------------------------------------------
 
-	static DataArray<SparseVector<ScalarType>> Apply(const DenseMatrix<ScalarType>* FeatureData,
+	static ObjectArray<SparseVector<ScalarType>> Apply(const DenseMatrix<ScalarType>* FeatureData,
 													  const FeatureDictionary<ScalarType>* Dictionary,
 													  const Parameter_Of_KNNReconstructionSparseEncoder<ScalarType>& Parameter,
 													  int_max MaxNumberOfThread = 1);

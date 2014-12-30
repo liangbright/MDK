@@ -144,7 +144,7 @@ void ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D<InputPixelType, Output
 	auto Sigma_x = m_Sigma / Spacing[0];
 	auto Sigma_y = m_Sigma / Spacing[1];
 	auto Sigma_z = m_Sigma / Spacing[2];
-	auto MaxRadius = int_max(std::max(std::max(Sigma_x, Sigma_y), Sigma_z) * m_CutOffRatio * 1.5) + 1;
+	auto MaxRadius = int_max((std::max)((std::max)(Sigma_x, Sigma_y), Sigma_z) * m_CutOffRatio * 1.5) + 1;
 
 	m_Mask_3DIndex.FastResize(0);
 	m_Mask_3DIndex.ReserveCapacity(3*8*MaxRadius*MaxRadius*MaxRadius);

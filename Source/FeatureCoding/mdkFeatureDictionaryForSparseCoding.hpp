@@ -301,7 +301,8 @@ bool FeatureDictionaryForSparseCoding<ScalarType>::Load(const std::string& FileP
 template<typename ScalarType>
 bool FeatureDictionaryForSparseCoding<ScalarType>::Save(const std::string& FilePathAndName) const
 {
-    return SaveFeatureDictionaryForSparseCodingAsJsonDataFile(*this, FilePathAndName);
+    //return SaveFeatureDictionaryForSparseCodingAsJsonDataFile(*this, FilePathAndName);
+	return false;
 }
 
 

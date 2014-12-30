@@ -300,7 +300,7 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(PointHand
 		DenseVector<ScalarType> CornerAngleList;
 		CornerAngleList.Resize(AdjacentCellNumber);
 
-		DataArray<DenseVector<ScalarType>> CellNormalTable;
+		ObjectArray<DenseVector<ScalarType>> CellNormalTable;
 		CellNormalTable.Resize(AdjacentCellNumber);
 
 		for (int_max k = 0; k < AdjacentCellNumber; ++k)

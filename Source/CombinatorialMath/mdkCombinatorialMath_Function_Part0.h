@@ -9,7 +9,7 @@ namespace mdk
 
 int_max ComputeBinomialCoefficient(int_max N, int_max K);
 
-DataArray<DenseVector<int_max>> NChooseK(int_max N, int_max K);
+ObjectArray<DenseVector<int_max>> NChooseK(int_max N, int_max K);
 
 }//name space mdk
 

@@ -1339,12 +1339,12 @@ DenseImage3D<PixelType>::GetLinearIndexListInRegion(const BoxRegionOf3DIndexInIm
 	}
 	
 	auto Size = this->GetSize();
-	xIndex_s = std::max(xIndex_s, int_max(0)); xIndex_s = std::min(xIndex_s, Size[0] - 1);
-	yIndex_s = std::max(yIndex_s, int_max(0)); yIndex_s = std::min(yIndex_s, Size[1] - 1);
-	zIndex_s = std::max(zIndex_s, int_max(0)); zIndex_s = std::min(zIndex_s, Size[2] - 1);
-	xIndex_e = std::max(xIndex_e, int_max(0)); xIndex_e = std::min(xIndex_e, Size[0] - 1);
-	yIndex_e = std::max(yIndex_e, int_max(0)); yIndex_e = std::min(yIndex_e, Size[1] - 1);
-	zIndex_e = std::max(zIndex_e, int_max(0)); zIndex_e = std::min(zIndex_e, Size[2] - 1);
+	xIndex_s = (std::max)(xIndex_s, int_max(0)); xIndex_s = (std::min)(xIndex_s, Size[0] - 1);
+	yIndex_s = (std::max)(yIndex_s, int_max(0)); yIndex_s = (std::min)(yIndex_s, Size[1] - 1);
+	zIndex_s = (std::max)(zIndex_s, int_max(0)); zIndex_s = (std::min)(zIndex_s, Size[2] - 1);
+	xIndex_e = (std::max)(xIndex_e, int_max(0)); xIndex_e = (std::min)(xIndex_e, Size[0] - 1);
+	yIndex_e = (std::max)(yIndex_e, int_max(0)); yIndex_e = (std::min)(yIndex_e, Size[1] - 1);
+	zIndex_e = (std::max)(zIndex_e, int_max(0)); zIndex_e = (std::min)(zIndex_e, Size[2] - 1);
 
 	auto Region_Lx = xIndex_e - xIndex_s + 1;
 	auto Region_Ly = yIndex_e - yIndex_s + 1;
@@ -1405,12 +1405,12 @@ DenseImage3D<PixelType>::GetLinearIndexListInRegion(const BoxRegionOf3DPhysicalP
 
 	auto Size = this->GetSize();
 
-	xIndex_s = std::max(xIndex_s, int_max(0)); xIndex_s = std::min(xIndex_s, Size[0] - 1);
-	yIndex_s = std::max(yIndex_s, int_max(0)); yIndex_s = std::min(yIndex_s, Size[1] - 1);
-	zIndex_s = std::max(zIndex_s, int_max(0)); zIndex_s = std::min(zIndex_s, Size[2] - 1);
-	xIndex_e = std::max(xIndex_e, int_max(0)); xIndex_e = std::min(xIndex_e, Size[0] - 1);
-	yIndex_e = std::max(yIndex_e, int_max(0)); yIndex_e = std::min(yIndex_e, Size[1] - 1);
-	zIndex_e = std::max(zIndex_e, int_max(0)); zIndex_e = std::min(zIndex_e, Size[2] - 1);
+	xIndex_s = (std::max)(xIndex_s, int_max(0)); xIndex_s = (std::min)(xIndex_s, Size[0] - 1);
+	yIndex_s = (std::max)(yIndex_s, int_max(0)); yIndex_s = (std::min)(yIndex_s, Size[1] - 1);
+	zIndex_s = (std::max)(zIndex_s, int_max(0)); zIndex_s = (std::min)(zIndex_s, Size[2] - 1);
+	xIndex_e = (std::max)(xIndex_e, int_max(0)); xIndex_e = (std::min)(xIndex_e, Size[0] - 1);
+	yIndex_e = (std::max)(yIndex_e, int_max(0)); yIndex_e = (std::min)(yIndex_e, Size[1] - 1);
+	zIndex_e = (std::max)(zIndex_e, int_max(0)); zIndex_e = (std::min)(zIndex_e, Size[2] - 1);
 
 	BoxRegionOf3DIndexInImage3D RegionOf3DIndex;
 	RegionOf3DIndex.x_min = xIndex_s;
@@ -1447,12 +1447,12 @@ DenseMatrix<int_max> DenseImage3D<PixelType>::Get3DIndexListInRegion(const BoxRe
 	}
 
 	auto Size = this->GetSize();
-	xIndex_s = std::max(xIndex_s, int_max(0)); xIndex_s = std::min(xIndex_s, Size[0] - 1);
-	yIndex_s = std::max(yIndex_s, int_max(0)); yIndex_s = std::min(yIndex_s, Size[1] - 1);
-	zIndex_s = std::max(zIndex_s, int_max(0)); zIndex_s = std::min(zIndex_s, Size[2] - 1);
-	xIndex_e = std::max(xIndex_e, int_max(0)); xIndex_e = std::min(xIndex_e, Size[0] - 1);
-	yIndex_e = std::max(yIndex_e, int_max(0)); yIndex_e = std::min(yIndex_e, Size[1] - 1);
-	zIndex_e = std::max(zIndex_e, int_max(0)); zIndex_e = std::min(zIndex_e, Size[2] - 1);
+	xIndex_s = (std::max)(xIndex_s, int_max(0)); xIndex_s = (std::min)(xIndex_s, Size[0] - 1);
+	yIndex_s = (std::max)(yIndex_s, int_max(0)); yIndex_s = (std::min)(yIndex_s, Size[1] - 1);
+	zIndex_s = (std::max)(zIndex_s, int_max(0)); zIndex_s = (std::min)(zIndex_s, Size[2] - 1);
+	xIndex_e = (std::max)(xIndex_e, int_max(0)); xIndex_e = (std::min)(xIndex_e, Size[0] - 1);
+	yIndex_e = (std::max)(yIndex_e, int_max(0)); yIndex_e = (std::min)(yIndex_e, Size[1] - 1);
+	zIndex_e = (std::max)(zIndex_e, int_max(0)); zIndex_e = (std::min)(zIndex_e, Size[2] - 1);
 
 	DenseMatrix<int_max> List;
 	List.ReserveCapacity(3, (zIndex_e - zIndex_s + 1)*(yIndex_e - yIndex_s + 1)*(xIndex_e - xIndex_s + 1));
@@ -1498,12 +1498,12 @@ DenseMatrix<int_max> DenseImage3D<PixelType>::Get3DIndexListInRegion(const BoxRe
 
 	auto Size = this->GetSize();
 
-	xIndex_s = std::max(xIndex_s, int_max(0)); xIndex_s = std::min(xIndex_s, Size[0] - 1);
-	yIndex_s = std::max(yIndex_s, int_max(0)); yIndex_s = std::min(yIndex_s, Size[1] - 1);
-	zIndex_s = std::max(zIndex_s, int_max(0)); zIndex_s = std::min(zIndex_s, Size[2] - 1);
-	xIndex_e = std::max(xIndex_e, int_max(0)); xIndex_e = std::min(xIndex_e, Size[0] - 1);
-	yIndex_e = std::max(yIndex_e, int_max(0)); yIndex_e = std::min(yIndex_e, Size[1] - 1);
-	zIndex_e = std::max(zIndex_e, int_max(0)); zIndex_e = std::min(zIndex_e, Size[2] - 1);
+	xIndex_s = (std::max)(xIndex_s, int_max(0)); xIndex_s = (std::min)(xIndex_s, Size[0] - 1);
+	yIndex_s = (std::max)(yIndex_s, int_max(0)); yIndex_s = (std::min)(yIndex_s, Size[1] - 1);
+	zIndex_s = (std::max)(zIndex_s, int_max(0)); zIndex_s = (std::min)(zIndex_s, Size[2] - 1);
+	xIndex_e = (std::max)(xIndex_e, int_max(0)); xIndex_e = (std::min)(xIndex_e, Size[0] - 1);
+	yIndex_e = (std::max)(yIndex_e, int_max(0)); yIndex_e = (std::min)(yIndex_e, Size[1] - 1);
+	zIndex_e = (std::max)(zIndex_e, int_max(0)); zIndex_e = (std::min)(zIndex_e, Size[2] - 1);
 
 	BoxRegionOf3DIndexInImage3D RegionOf3DIndex;
 	RegionOf3DIndex.x_min = xIndex_s;
@@ -1543,12 +1543,12 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DIndexInImage3D& RegionIn
 
 	auto Size = this->GetSize();
 
-	xIndex_s = std::max(xIndex_s, int_max(0)); xIndex_s = std::min(xIndex_s, Size[0] - 1);
-	yIndex_s = std::max(yIndex_s, int_max(0)); yIndex_s = std::min(yIndex_s, Size[1] - 1);
-	zIndex_s = std::max(zIndex_s, int_max(0)); zIndex_s = std::min(zIndex_s, Size[2] - 1);
-	xIndex_e = std::max(xIndex_e, int_max(0)); xIndex_e = std::min(xIndex_e, Size[0] - 1);
-	yIndex_e = std::max(yIndex_e, int_max(0)); yIndex_e = std::min(yIndex_e, Size[1] - 1);
-	zIndex_e = std::max(zIndex_e, int_max(0)); zIndex_e = std::min(zIndex_e, Size[2] - 1);
+	xIndex_s = (std::max)(xIndex_s, int_max(0)); xIndex_s = (std::min)(xIndex_s, Size[0] - 1);
+	yIndex_s = (std::max)(yIndex_s, int_max(0)); yIndex_s = (std::min)(yIndex_s, Size[1] - 1);
+	zIndex_s = (std::max)(zIndex_s, int_max(0)); zIndex_s = (std::min)(zIndex_s, Size[2] - 1);
+	xIndex_e = (std::max)(xIndex_e, int_max(0)); xIndex_e = (std::min)(xIndex_e, Size[0] - 1);
+	yIndex_e = (std::max)(yIndex_e, int_max(0)); yIndex_e = (std::min)(yIndex_e, Size[1] - 1);
+	zIndex_e = (std::max)(zIndex_e, int_max(0)); zIndex_e = (std::min)(zIndex_e, Size[2] - 1);
 
     auto Lx = xIndex_e - xIndex_s + 1;
     auto Ly = yIndex_e - yIndex_s + 1;
@@ -1613,14 +1613,14 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DPhysicalPositionInImage3
 	}
 
 	auto Size = this->GetSize();
-
-	xIndex_s = std::max(xIndex_s, int_max(0)); xIndex_s = std::min(xIndex_s, Size[0] - 1);
-	yIndex_s = std::max(yIndex_s, int_max(0)); yIndex_s = std::min(yIndex_s, Size[1] - 1);
-	zIndex_s = std::max(zIndex_s, int_max(0)); zIndex_s = std::min(zIndex_s, Size[2] - 1);
-	xIndex_e = std::max(xIndex_e, int_max(0)); xIndex_e = std::min(xIndex_e, Size[0] - 1);
-	yIndex_e = std::max(yIndex_e, int_max(0)); yIndex_e = std::min(yIndex_e, Size[1] - 1);
-	zIndex_e = std::max(zIndex_e, int_max(0)); zIndex_e = std::min(zIndex_e, Size[2] - 1);
-
+	
+	xIndex_s = (std::max)(xIndex_s, int_max(0)); xIndex_s = (std::min)(xIndex_s, Size[0] - 1);
+	yIndex_s = (std::max)(yIndex_s, int_max(0)); yIndex_s = (std::min)(yIndex_s, Size[1] - 1);
+	zIndex_s = (std::max)(zIndex_s, int_max(0)); zIndex_s = (std::min)(zIndex_s, Size[2] - 1);
+	xIndex_e = (std::max)(xIndex_e, int_max(0)); xIndex_e = (std::min)(xIndex_e, Size[0] - 1);
+	yIndex_e = (std::max)(yIndex_e, int_max(0)); yIndex_e = (std::min)(yIndex_e, Size[1] - 1);
+	zIndex_e = (std::max)(zIndex_e, int_max(0)); zIndex_e = (std::min)(zIndex_e, Size[2] - 1);
+	
 	BoxRegionOf3DIndexInImage3D RegionOf3DIndex;
 	RegionOf3DIndex.x_min = xIndex_s;
 	RegionOf3DIndex.y_min = yIndex_s;
@@ -1694,9 +1694,9 @@ DenseImage3D<PixelType>::Pad(const std::string& Option, int_max Pad_Lx, int_max 
             {
                 for (int_max temp_i = 0; temp_i <= Lx; ++temp_i)
                 {
-                    auto i = std::min(std::max(temp_i - Pad_Lx, 0), Size[0] - 1);
-                    auto j = std::min(std::max(temp_j - Pad_Ly, 0), Size[1] - 1);
-                    auto k = std::min(std::max(temp_k - Pad_Lz, 0), Size[2] - 1);
+                    auto i = (std::min)((std::max)(temp_i - Pad_Lx, 0), Size[0] - 1);
+                    auto j = (std::min)((std::max)(temp_j - Pad_Ly, 0), Size[1] - 1);
+                    auto k = (std::min)((std::max)(temp_k - Pad_Lz, 0), Size[2] - 1);
 					SubImage(temp_i, temp_j, temp_k) = (*this)(i, j, k);
                 }
             }

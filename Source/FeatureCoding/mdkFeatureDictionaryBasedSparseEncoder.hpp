@@ -228,7 +228,7 @@ void FeatureDictionaryBasedSparseEncoder<ScalarType>::GenerateCode_in_a_Thread(i
 
 
 template<typename ScalarType>
-DataArray<SparseVector<ScalarType>>* FeatureDictionaryBasedSparseEncoder<ScalarType>::GetOutputCode()
+ObjectArray<SparseVector<ScalarType>>* FeatureDictionaryBasedSparseEncoder<ScalarType>::GetOutputCode()
 {
 	return &m_SparseCode;
 }

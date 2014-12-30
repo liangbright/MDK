@@ -143,7 +143,7 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::InitializeOutpu
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-DataArray<typename OutputImageType::PixelType>* ImageFilter3D<InputImageType, OutputImageType, ScalarType>::GetOutputPixelArray()
+ObjectArray<typename OutputImageType::PixelType>* ImageFilter3D<InputImageType, OutputImageType, ScalarType>::GetOutputPixelArray()
 {
 	return &m_OutputPixelArray;
 }
@@ -475,12 +475,12 @@ Transform3DIndexInOutputImageTo3DPhysicalPosition(const DenseVector<int_max, 3>&
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 template<typename PixelTypeForMask>
-DataArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
+ObjectArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
 GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0)
 {
 	auto MaskOriginOf3DIndex_Input = m_InputImage->Transform3DPhysicalPositionTo3DIndex(x0, y0, z0);
 	auto PixelNumber = PointMask.GetColNumber();
-	DataArray<PixelTypeForMask> PixelSet;
+	ObjectArray<PixelTypeForMask> PixelSet;
 	PixelSet.Resize(PixelNumber);
 	for (int_max k = 0; k < PixelNumber; ++k)
 	{
@@ -495,7 +495,7 @@ GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<Sc
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 template<typename PixelTypeForMask>
-DataArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
+ObjectArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
 GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position)
 {
 	return this->GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(PointMask, Position[0], Position[1], Position[2]);
@@ -504,11 +504,11 @@ GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<Sc
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 template<typename PixelTypeForMask>
-DataArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
+ObjectArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
 GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0)
 {
 	auto PixelNumber = PointMask.GetColNumber();
-	DataArray<PixelTypeForMask> PixelSet;
+	ObjectArray<PixelTypeForMask> PixelSet;
 	PixelSet.Resize(PixelNumber);
 	for (int_max k = 0; k < PixelNumber; ++k)
 	{
@@ -525,7 +525,7 @@ GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition(const Den
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 template<typename PixelTypeForMask>
-DataArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
+ObjectArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
 GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position)
 {
 	return this->GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition(PointMask, Position[0], Position[1], Position[2]);
@@ -534,7 +534,7 @@ GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition(const Den
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 template<typename PixelTypeForMask>
-DataArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
+ObjectArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
 GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0)
 {
 	auto MaskOriginOf3DPosition = m_OutputImage.Transform3DIndexTo3DPhysicalPosition<ScalarType>(x0, y0, z0);
@@ -544,7 +544,7 @@ GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 template<typename PixelTypeForMask>
-DataArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
+ObjectArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
 GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D)
 {
 	return this->GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(PointMask, Index3D[0], Index3D[1], Index3D[2]);
@@ -553,7 +553,7 @@ GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 template<typename PixelTypeForMask>
-DataArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
+ObjectArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
 GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0)
 {
 	auto MaskOriginOf3DPosition = m_OutputImage.Transform3DIndexTo3DPhysicalPosition<ScalarType>(x0, y0, z0);
@@ -563,7 +563,7 @@ GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DIndexInOutputImage(const D
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 template<typename PixelTypeForMask>
-DataArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
+ObjectArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
 GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D)
 {
 	return this->GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DIndexInOutputImage(PointMask, Index3D[0], Index3D[1], Index3D[2]);

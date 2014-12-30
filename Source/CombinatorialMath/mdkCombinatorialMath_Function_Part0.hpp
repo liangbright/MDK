@@ -15,11 +15,11 @@ int_max	ComputeBinomialCoefficient(int_max N, int_max K)
 	return int_max(Coef);
 }
 
-DataArray<DenseVector<int_max>> NChooseK(int_max N, int_max K)
+ObjectArray<DenseVector<int_max>> NChooseK(int_max N, int_max K)
 {
 // from http://stackoverflow.com/questions/19327847/n-choose-k-for-large-n-and-k
 
-	DataArray<DenseVector<int_max>> SubSetList;
+	ObjectArray<DenseVector<int_max>> SubSetList;
 	SubSetList.ReserveCapacity(N*K);
 
 	DenseVector<int_max> CurrentSubSet;

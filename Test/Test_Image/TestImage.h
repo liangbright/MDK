@@ -8,7 +8,8 @@
 #include <ctime>
 
 #include "mdkDenseImage3D.h"
-#include "mdkFileIO.h"
+#include "mdkDenseImage3D_FileIO.h"
+#include "mdkCurve_FileIO.h"
 
 namespace mdk
 {
@@ -32,7 +33,7 @@ void testCurve()
 
 	SaveSingle3DCurveAsVTKFile(CurveB, FileNameB);
 
-	DataArray<DenseMatrix<double>> CurveList;
+	ObjectArray<DenseMatrix<double>> CurveList;
 	CurveList.Resize(2);
 	CurveList[0] = CurveA;
 	CurveList[1] = CurveB;
@@ -46,7 +47,7 @@ void testCurve()
 	LoadSingle3DCurveFromVTKFile(InputCurveB, FileNameB);
 	DisplayMatrix("InputCurveB", InputCurveB);
 
-	DataArray<DenseMatrix<double>> InputCurveAB;
+	ObjectArray<DenseMatrix<double>> InputCurveAB;
 	LoadMultiple3DCurveFromVTKFile(InputCurveAB, FileNameAB);
 	DisplayMatrix("InputCurveAB[0]", InputCurveAB[0]);
 	DisplayMatrix("InputCurveAB[1]", InputCurveAB[1]);
@@ -183,6 +184,9 @@ void Test_Image3D()
 	// 11.6376s : derive from Image3D and use ScalarImage.SetPixelAtLinearIndex(k, 1);
 	// 31.7932s : derive from Image3D and use Ptr->SetPixelAtLinearIndex(k, 1);
 	// 10.6966s : not from Image3D
+
+	BoxRegionOf3DPhysicalPositionInImage3D Region;
+	ScalarImage.GetSubImage(Region);
 }
 
 }

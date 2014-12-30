@@ -90,7 +90,7 @@ void ScalarDenseImagePoolingFilter3D<InputPixelType, OutputPixelType, ScalarType
 	auto MaxRadius_x = int_max(m_Radius / Spacing[0]) + 1;
 	auto MaxRadius_y = int_max(m_Radius / Spacing[1]) + 1;
 	auto MaxRadius_z = int_max(m_Radius / Spacing[2]) + 1;
-	auto MaxRadius = std::max(std::max(MaxRadius_x, MaxRadius_y), MaxRadius_z);
+	auto MaxRadius = (std::max)((std::max)(MaxRadius_x, MaxRadius_y), MaxRadius_z);
 	
 	m_Mask_3DIndex.FastResize(0);
 	m_Mask_3DIndex.ReserveCapacity(3*8*MaxRadius*MaxRadius*MaxRadius);

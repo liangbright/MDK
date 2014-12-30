@@ -16,7 +16,7 @@
 namespace mdk
 {
 template<typename Scalar_Type>
-class FeatureDictionaryBasedSparseEncoder : public FeatureDictionaryBasedEncoder<FeatureDictionaryForSparseCoding<Scalar_Type>, DataArray<SparseVector<Scalar_Type>>>
+class FeatureDictionaryBasedSparseEncoder : public FeatureDictionaryBasedEncoder<FeatureDictionaryForSparseCoding<Scalar_Type>, ObjectArray<SparseVector<Scalar_Type>>>
 {
 public:
 	typedef Scalar_Type ScalarType;
@@ -30,7 +30,7 @@ protected:
 	const DictionaryType* m_Dictionary;
 
 	// output sparse code
-	DataArray<SparseVector<ScalarType>> m_SparseCode;
+	ObjectArray<SparseVector<ScalarType>> m_SparseCode;
 
 	//-------------- about thread ------------//
     int_max m_MinNumberOfDataPerThread;
@@ -61,7 +61,7 @@ public:
 
 	inline virtual SparseVector<ScalarType> EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector) = 0;
 
-	DataArray<SparseVector<ScalarType>>* GetOutputCode();
+	ObjectArray<SparseVector<ScalarType>>* GetOutputCode();
 
 	DenseMatrix<ScalarType> ConvertOutputCodeToDenseMatrix();
 

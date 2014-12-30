@@ -1,15 +1,17 @@
 #ifndef __mdkDenseImage3D_h
 #define __mdkDenseImage3D_h
 
-#include <vector>
 #include <memory>
 #include <cstdlib>
 #include <cmath>
+#include <algorithm>
 
 #include "mdkDebugConfig.h"
 #include "mdkDenseMatrix.h"
 #include "mdkImageInterpolation3D.h"
-#include "mdkImageInfo.h" // must be the last to include
+
+// must be the last to include
+#include "mdkImageInfo.h" 
 #include "mdkLocalCoordinateSystem3D.h"
 
 namespace mdk

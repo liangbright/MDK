@@ -124,22 +124,22 @@ void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarTyp
 	auto PixelSpacing = m_InputImage->GetSpacing();
 
 	auto x0 = int_max((m_NOBoundCheckRegion_3DPhysicalPosition.x_min - PhysicalOrigin[0]) / PixelSpacing[0]);
-	x0 = std::max(x0, int_max(0)); x0 = std::min(x0, ImageSize[0]);
+	x0 = (std::max)(x0, int_max(0)); x0 = (std::min)(x0, ImageSize[0]);
 
 	auto y0 = int_max((m_NOBoundCheckRegion_3DPhysicalPosition.y_min - PhysicalOrigin[1]) / PixelSpacing[1]);
-	y0 = std::max(y0, int_max(0)); y0 = std::min(y0, ImageSize[1]);
+	y0 = (std::max)(y0, int_max(0)); y0 = (std::min)(y0, ImageSize[1]);
 
 	auto z0 = int_max((m_NOBoundCheckRegion_3DPhysicalPosition.z_min - PhysicalOrigin[2]) / PixelSpacing[2]);
-	z0 = std::max(z0, int_max(0)); z0 = std::min(z0, ImageSize[2]);
+	z0 = (std::max)(z0, int_max(0)); z0 = (std::min)(z0, ImageSize[2]);
 
 	auto x1 = int_max((m_NOBoundCheckRegion_3DPhysicalPosition.x_max - PhysicalOrigin[0]) / PixelSpacing[0]);
-	x1 = std::max(x1, int_max(0)); x1 = std::min(x1, ImageSize[0]);
+	x1 = (std::max)(x1, int_max(0)); x1 = (std::min)(x1, ImageSize[0]);
 
 	auto y1 = int_max((m_NOBoundCheckRegion_3DPhysicalPosition.y_max - PhysicalOrigin[1]) / PixelSpacing[1]);
-	y1 = std::max(y1, int_max(0)); y1 = std::min(y1, ImageSize[1]);
+	y1 = (std::max)(y1, int_max(0)); y1 = (std::min)(y1, ImageSize[1]);
 
 	auto z1 = int_max((m_NOBoundCheckRegion_3DPhysicalPosition.z_max - PhysicalOrigin[2]) / PixelSpacing[2]);
-	z1 = std::max(z1, int_max(0)); z1 = std::min(z1, ImageSize[2]);
+	z1 = (std::max)(z1, int_max(0)); z1 = (std::min)(z1, ImageSize[2]);
 
 	m_NOBoundCheckRegion_3DIndex.x_min = x0;
 	m_NOBoundCheckRegion_3DIndex.x_max = x1;
@@ -175,31 +175,31 @@ void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarTyp
 		auto temp_x = m_Mask_3DPhysicalPosition(0, j);
 		if (temp_x < 0.0)
         {
-			MaxDeviation_x[0] = std::max(MaxDeviation_x[0], -temp_x);
+			MaxDeviation_x[0] = (std::max)(MaxDeviation_x[0], -temp_x);
         }
         else
         {
-			MaxDeviation_x[1] = std::max(MaxDeviation_x[1], temp_x);
+			MaxDeviation_x[1] = (std::max)(MaxDeviation_x[1], temp_x);
         }
 
 		auto temp_y = m_Mask_3DPhysicalPosition(1, j);
 		if (temp_y < 0.0)
         {
-			MaxDeviation_y[0] = std::max(MaxDeviation_y[0], -temp_y);
+			MaxDeviation_y[0] = (std::max)(MaxDeviation_y[0], -temp_y);
         }
         else
         {
-			MaxDeviation_y[1] = std::max(MaxDeviation_y[1], temp_y);
+			MaxDeviation_y[1] = (std::max)(MaxDeviation_y[1], temp_y);
         }
 
 		auto temp_z = m_Mask_3DPhysicalPosition(2, j);
 		if (temp_z < 0.0)
         {
-			MaxDeviation_z[0] = std::max(MaxDeviation_z[0], -temp_z);
+			MaxDeviation_z[0] = (std::max)(MaxDeviation_z[0], -temp_z);
         }
         else
         {
-			MaxDeviation_z[1] = std::max(MaxDeviation_z[1], temp_z);
+			MaxDeviation_z[1] = (std::max)(MaxDeviation_z[1], temp_z);
         }
     }
 
