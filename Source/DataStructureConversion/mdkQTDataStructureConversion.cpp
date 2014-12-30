@@ -233,12 +233,19 @@ JsonValue ConvertQTJsonValueToMDKJsonValue(const QJsonValue& QJValue)
 bool CheckIf_QTJsonArray_Is_ScalarArray(const QJsonArray& QJArray)
 {
 	bool Flag = true;
-	for (auto it = QJArray.begin(); it != QJArray.end(); ++it)
+	if (QJArray.size() == 0)
+	{// if QJArray is empty, then it is treated as ScalarArray
+		Flag = true;
+	}
+	else
 	{
-		if ((*it).type() != QJsonValue::Type::Double)
+		for (auto it = QJArray.begin(); it != QJArray.end(); ++it)
 		{
-			Flag = false;
-			break;
+			if ((*it).type() != QJsonValue::Type::Double)// QT: only Double scalar
+			{
+				Flag = false;
+				break;
+			}
 		}
 	}
 	return Flag;

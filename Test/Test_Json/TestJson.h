@@ -245,6 +245,26 @@ void Test_MDK_QT_JsonConversion()
 	JsonFile::Save(JObject_in, "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/Test_MDK_QT_JsonConversion_3.json");
 }
 
+void Test_JsonFile_NullValue()
+{
+	JsonValue A;
+	JsonObject JObject1, JObject2;
+	JObject1["A"] = A;
+	JsonFile::Save(JObject1, "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/Test_JsonFile_NullValue.json");
+
+	JsonFile::Load(JObject2, "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/Test_JsonFile_NullValue.json");
+}
+
+void Test_JsonFile_EmptyArray()
+{
+	DenseMatrix<double> A;
+	JsonObject JObject1, JObject2;
+	JObject1["A"] = A;
+	JsonFile::Save(JObject1, "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/Test_JsonFile_EmptyArray.json");
+
+	JsonFile::Load(JObject2, "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/Test_JsonFile_EmptyArray.json");
+}
+
 /*
 struct myStruct
 {
