@@ -135,25 +135,34 @@ public:
 	bool IsJsonArray() const { return m_Type == TypeEnum::Type_JsonArray; };
 	bool IsJsonObject() const { return m_Type == TypeEnum::Type_JsonObject; };
 
-	bool ToBool(bool DefaultValue = false) const;
-	int ToInt(int DefaultValue = 0) const;
-	long long ToLongLong(long long DefaultValue = 0) const;
-	float ToFloat(float DefaultValue = 0) const;
-	double ToDouble(double DefaultValue = 0) const;
-	DenseMatrix<int> ToIntArray() const;
-	DenseMatrix<int> ToIntArray(const DenseMatrix<int>& DefaultArray) const;
-	DenseMatrix<long long> ToLongLongArray() const;
-	DenseMatrix<long long> ToLongLongArray(const DenseMatrix<long long>& DefaultArray) const;
-	DenseMatrix<float> ToFloatArray() const;
-	DenseMatrix<float> ToFloatArray(const DenseMatrix<float>& DefaultArray) const;
-	DenseMatrix<double> ToDoubleArray() const;
-	DenseMatrix<double> ToDoubleArray(const DenseMatrix<double>& DefaultArray) const;
-	String ToString() const;
-	String ToString(const String& DefaultValue) const;
-	JsonArray ToJsonArray() const;
-	JsonArray ToJsonArray(const JsonArray& DefaultValue) const;
-	JsonObject ToJsonObject() const;
-	JsonObject ToJsonObject(const JsonObject& DefaultValue) const;
+	//Attention: ------------------------------------------------------------------------------------------------------------//
+	//  if m_Scalar is int, then GetDouble() is DefaultValue, NOT type-converted from m_Scalar
+	//  if internal array is int array, then GetDoubleArray() is EmptyArray, NOT type-converted from int array
+	//  similar for other type
+	//  --------------------------------------------------------------------------------------
+    //  ToScalar<ScalarType>()       : m_Scalar will be converted to ScalarType
+	//  ToScalarArray<ScalarType>()  : internal array will be converted to ScalarType Array
+	//-----------------------------------------------------------------------------------------------------------------------//
+
+	bool GetBool(bool DefaultValue = false) const;
+	int GetInt(int DefaultValue = 0) const;
+	long long GetLongLong(long long DefaultValue = 0) const;
+	float GetFloat(float DefaultValue = 0) const;
+	double GetDouble(double DefaultValue = 0) const;
+	DenseMatrix<int> GetIntArray() const;
+	DenseMatrix<int> GetIntArray(const DenseMatrix<int>& DefaultArray) const;
+	DenseMatrix<long long> GetLongLongArray() const;
+	DenseMatrix<long long> GetLongLongArray(const DenseMatrix<long long>& DefaultArray) const;
+	DenseMatrix<float> GetFloatArray() const;
+	DenseMatrix<float> GetFloatArray(const DenseMatrix<float>& DefaultArray) const;
+	DenseMatrix<double> GetDoubleArray() const;
+	DenseMatrix<double> GetDoubleArray(const DenseMatrix<double>& DefaultArray) const;
+	String GetString() const;
+	String GetString(const String& DefaultValue) const;
+	JsonArray GetJsonArray() const;
+	JsonArray GetJsonArray(const JsonArray& DefaultValue) const;
+	JsonObject GetJsonObject() const;
+	JsonObject GetJsonObject(const JsonObject& DefaultValue) const;
 
 	// check if int/long long/float/double ?
 	bool IsScalar() const

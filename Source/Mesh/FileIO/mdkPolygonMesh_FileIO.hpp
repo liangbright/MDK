@@ -1,5 +1,5 @@
-#ifndef __mdkFileIO_PolygonMesh_hpp
-#define __mdkFileIO_PolygonMesh_hpp
+#ifndef __mdkPolygonMesh_FileIO_hpp
+#define __mdkPolygonMesh_FileIO_hpp
 
 namespace mdk
 {
@@ -79,13 +79,14 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 
 	if (JObject.IsEmpty() == true)
 	{
+		MDK_Warning("Json file is empty @ LoadPolygonMeshFromJsonDataFile(...)")
 		return true;
 	}
 	//---------------------------------------------
 	auto it = JObject.find("ObjectType");
 	if (it != JObject.end())
 	{
-		auto ObjectType = it->second.ToString();
+		auto ObjectType = it->second.GetString();
 		if (ObjectType != "PolygonMesh")
 		{
 			MDK_Error("ObjectType is not PolygonMesh @ LoadPolygoneMeshFromJsonDataFile(...)")
@@ -102,7 +103,7 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 	it = JObject.find("ScalarType");
 	if (it != JObject.end())
 	{
-		ScalarTypeInDataFile = it->second.ToString();
+		ScalarTypeInDataFile = it->second.GetString();
 	}
 	else
 	{
@@ -114,7 +115,7 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 	it = JObject.find("IndexType");
 	if (it != JObject.end())
 	{
-		IndexTypeName = it->second.ToString();
+		IndexTypeName = it->second.GetString();
 	}
 	else
 	{
@@ -150,7 +151,7 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 	it = JObject.find("PointData");
 	if (it != JObject.end())
 	{
-		PointDataFileName = it->second.ToString();
+		PointDataFileName = it->second.GetString();
 	}
 	else
 	{
@@ -162,7 +163,7 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 	it = JObject.find("CellData");
 	if (it != JObject.end())
 	{
-		CellDataFileName = it->second.ToString();
+		CellDataFileName = it->second.GetString();
 	}
 	else
 	{

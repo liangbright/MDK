@@ -10,6 +10,7 @@
 #include <vtkImageData.h>
 
 #include "mdkType.h"
+#include "mdkString.h"
 
 namespace mdk
 {
@@ -62,7 +63,7 @@ typedef enum
 } VTKDataTypeEnum;
 //-------------------------------------------------//
 
-inline VTKDataTypeEnum TranslateMDKScalarTypeToVTKScalarType(const std::string& MDKScalarType);
+inline VTKDataTypeEnum TranslateMDKScalarTypeToVTKScalarType(const String& MDKScalarType);
 
 template<typename ScalarType>
 VTKDataTypeEnum GetVtkScalarType(const ScalarType& ReferenceScalar);

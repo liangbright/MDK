@@ -9,7 +9,7 @@ template<typename ScalarType>
 inline
 ScalarTypeEnum GetScalarType(const ScalarType& Scalar)
 {
-    std::string TypeName(typeid(Scalar).name());
+	String TypeName(typeid(Scalar).name());
 
     if (TypeName == "double")
     {
@@ -58,11 +58,11 @@ ScalarTypeEnum GetScalarType(const ScalarType& Scalar)
 
 template<typename ScalarType>
 inline
-std::string GetScalarTypeName(const ScalarType& Scalar)
+String GetScalarTypeName(const ScalarType& Scalar)
 {
-    std::string OutputName;
+    String OutputName;
 
-    std::string TypeName(typeid(Scalar).name());
+    String TypeName(typeid(Scalar).name());
 
     if (TypeName == "double")
     {
@@ -214,14 +214,14 @@ inline int_max GetByteNumberOfScalar(const wchar_t&)
 //-------------------------------------------------------------//
 
 template<typename TemplateClassType>
-std::string GetTemplateClassName(const TemplateClassType& TemplateClassObject)
+String GetTemplateClassName(const TemplateClassType& TemplateClassObject)
 {
-    std::string ObjectName = typeid(TemplateClassObject).name();
+    String ObjectName = typeid(TemplateClassObject).name();
 
     int_max Index_start = 0;
     int_max Index_end = 0;
 
-    for (int_max k = 0; k < int_max(ObjectName.size()); ++k)
+    for (int_max k = 0; k < ObjectName.GetLength(); ++k)
     {
         if (ObjectName[k] == ' ')
         {
@@ -235,8 +235,8 @@ std::string GetTemplateClassName(const TemplateClassType& TemplateClassObject)
 
     auto Length = Index_end - Index_start + 1;
 
-    std::string TemplateClassName;
-    TemplateClassName.resize(Length);
+    String TemplateClassName;
+    TemplateClassName.Resize(Length);
 
     for (int_max k = 0; k < Length; ++k)
     {

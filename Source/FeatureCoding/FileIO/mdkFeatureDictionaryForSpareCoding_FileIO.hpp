@@ -1,5 +1,5 @@
-#ifndef __mdkFileIO_FeatureDictionaryForSpareCoding_hpp
-#define __mdkFileIO_FeatureDictionaryForSpareCoding_hpp
+#ifndef __mdkFeatureDictionaryForSpareCoding_FileIO_hpp
+#define __mdkFeatureDictionaryForSpareCoding_FileIO_hpp
 
 namespace mdk
 {

@@ -1,11 +1,11 @@
-#ifndef __mdkFileIO_TriangleMesh_h
-#define __mdkFileIO_TriangleMesh_h
+#ifndef __mdkTriangleMesh_FileIO_h
+#define __mdkTriangleMesh_FileIO_h
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
 
-#include "mdkFileIO_Common.h"
+#include "mdkFileIO.h"
 #include "mdkVTKDataStructureConversion.h"
 
 namespace mdk
@@ -29,6 +29,6 @@ bool LoadTriangleMeshFromVTKFile(TriangleMesh<MeshAttributeType>& OutputMesh, co
 
 }//namespace mdk
 
-#include "mdkFileIO_TriangleMesh.hpp"
+#include "mdkTriangleMesh_FileIO.hpp"
 
 #endif

@@ -1,11 +1,11 @@
-#ifndef __mdkFileIO_PolygonMesh_h
-#define __mdkFileIO_PolygonMesh_h
+#ifndef __mdkPolygonMesh_FileIO_h
+#define __mdkPolygonMesh_FileIO_h
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
 
-#include "mdkFileIO_Common.h"
+#include "mdkFileIO.h"
 #include "mdkVTKDataStructureConversion.h"
 
 namespace mdk
@@ -32,6 +32,6 @@ bool LoadPolygonMeshMeshFromVTKFile(PolygonMesh<MeshAttributeType>& OutputMesh, 
 
 }//namespace mdk
 
-#include "mdkFileIO_PolygonMesh.hpp"
+#include "mdkPolygonMesh_FileIO.hpp"
 
 #endif

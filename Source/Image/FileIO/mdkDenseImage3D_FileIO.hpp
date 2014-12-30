@@ -1,5 +1,5 @@
-#ifndef __mdkFileIO_DenseImage3D_hpp
-#define __mdkFileIO_DenseImage3D_hpp
+#ifndef __mdkDenseImage3D_FileIO_hpp
+#define __mdkDenseImage3D_FileIO_hpp
 
 namespace mdk
 {
@@ -60,13 +60,14 @@ bool Load3DScalarImageFromJsonDataFile(DenseImage3D<PixelType>& OutputImage, con
 
 	if (JObject.IsEmpty() == true)
 	{
+		MDK_Warning("Json file is empty @ Load3DScalarImageFromJsonDataFile(...)")
 		return true;
 	}
 	//---------------------------------------------
 	auto it = JObject.find("ObjectType");
 	if (it != JObject.end())
     {
-		auto ObjectType = it->second.ToString();
+		auto ObjectType = it->second.GetString();
 		if (ObjectType != "DenseImage3D")
         {
             MDK_Error("ObjectType is not DenseImage3D @ Load3DScalarImageFromJsonDataFile(...)")
@@ -83,7 +84,7 @@ bool Load3DScalarImageFromJsonDataFile(DenseImage3D<PixelType>& OutputImage, con
 	it = JObject.find("PixelType");
 	if (it != JObject.end())
     {
-		PixelTypeInDataFile = it->second.ToString();
+		PixelTypeInDataFile = it->second.GetString();
     }
     else
     {
@@ -176,7 +177,7 @@ bool Load3DScalarImageFromJsonDataFile(DenseImage3D<PixelType>& OutputImage, con
 	it = JObject.find("PixelArray");
 	if (it != JObject.end())
 	{
-		DataFilePathAndName += it->second.ToString();		
+		DataFilePathAndName += it->second.GetString();		
 	}
 	else
 	{

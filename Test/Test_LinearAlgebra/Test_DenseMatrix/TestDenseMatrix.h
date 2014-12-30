@@ -764,37 +764,37 @@ void Test_Sum_Mean_Max_Min()
 	value = A.Min();
 	std::cout << "value = min(A) = " << value << '\n';
 
-	auto RowMatrix = A.SumToRow();
+	auto RowMatrix = A.SumOfEachCol();
 
-    DisplayMatrix("A.SumToRow()", RowMatrix);
+    DisplayMatrix("A.SumOfEachCol()", RowMatrix);
 
-	auto ColMatrix = A.SumToCol();
+	auto ColMatrix = A.SumOfEachRow();
 
-    DisplayMatrix("A.SumToCol()", ColMatrix);
+    DisplayMatrix("A.SumOfEachRow()", ColMatrix);
 
-	RowMatrix = A.MeanToRow();
+	RowMatrix = A.MeanOfEachCol();
 
-    DisplayMatrix("A.MeanToRow()", RowMatrix);
+    DisplayMatrix("A.MeanOfEachCol()", RowMatrix);
 
-	ColMatrix = A.MeanToCol();
+	ColMatrix = A.MeanOfEachRow();
 
-    DisplayMatrix("A.MeanToCol()", ColMatrix);
+    DisplayMatrix("A.MeanOfEachRow()", ColMatrix);
 
-	RowMatrix = A.MaxToRow();
+	RowMatrix = A.MaxOfEachCol();
 
-    DisplayMatrix("A.MaxToRow()", RowMatrix);
+    DisplayMatrix("A.MaxOfEachCol()", RowMatrix);
 
-	ColMatrix = A.MaxToCol();
+	ColMatrix = A.MaxOfEachRow();
 
-    DisplayMatrix("A.MaxToCol()", ColMatrix);
+    DisplayMatrix("A.MaxOfEachRow()", ColMatrix);
 
-	RowMatrix = A.MinToRow();
+	RowMatrix = A.MinOfEachCol();
 
-    DisplayMatrix("A.MinToRow()", RowMatrix);
+    DisplayMatrix("A.MinOfEachCol()", RowMatrix);
 
-	ColMatrix = A.MinToCol();
+	ColMatrix = A.MinOfEachRow();
 
-    DisplayMatrix("A.MinToCol()", ColMatrix);
+    DisplayMatrix("A.MinOfEachRow()", ColMatrix);
 
 }
 

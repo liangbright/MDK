@@ -1346,31 +1346,27 @@ bool DenseMatrix<ElementType>::Reshape(int_max InputRowNumber, int_max InputColN
 {
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error("Matrix size can not be changed @ DenseMatrix::Reshape()")
+        MDK_Error("Matrix size can not be changed @ DenseMatrix::Reshape(...)")
         return false;
     }
+	
+	int_max InputElementNumber = InputRowNumber*InputColNumber;
 
-    if (this->IsEmpty() == true)
-    {
-        if (InputRowNumber > 0 || InputColNumber > 0)
-        {
-            MDK_Error("Self is empty and Size does not match @ DenseMatrix::Reshape()")
-            return false;
-        }
+	if (InputElementNumber != this->GetElementNumber())
+	{
+		MDK_Error("Size does not match @ DenseMatrix::Reshape(...)")
+		return false;
+	}
 
-        return true;
-    }
-
-    if (InputRowNumber*InputColNumber != this->GetElementNumber())
-    {
-        MDK_Error("Size does not match @ DenseMatrix::Reshape")
-        return false;
-    }
-
-    m_MatrixData->RowNumber = InputRowNumber;
-
-    m_MatrixData->ColNumber = InputColNumber;
-
+	if (InputElementNumber == 0) // Reshape(1, 0) or Reshape(0, 1) is allowed
+	{
+		return true;
+	}
+	else
+	{
+		m_MatrixData->RowNumber = InputRowNumber;
+		m_MatrixData->ColNumber = InputColNumber;
+	}
     return true;
 }
 
@@ -1417,16 +1413,13 @@ try
         return false;
     }
 
-    if (InputRowNumber == 0 || InputColNumber == 0)
+    if (InputRowNumber == 0 || InputColNumber == 0) // Resize(1, 0) or Resize(0, 1) is allowed
     {               
         m_MatrixData->RowNumber = 0;
-
         m_MatrixData->ColNumber = 0;
 
         m_MatrixData->StdVector.resize(0);
-
         m_MatrixData->ElementPointer = nullptr;
-
         m_ElementPointer = nullptr;
 
         return true;
@@ -1566,7 +1559,7 @@ bool DenseMatrix<ElementType>::FastResize(int_max InputRowNumber, int_max InputC
         return false;
     }
 
-    if (InputRowNumber == 0 || InputColNumber == 0)
+    if (InputRowNumber == 0 || InputColNumber == 0)// FastResize(1, 0) or FastResize(0, 1) is allowed
     {
         m_MatrixData->RowNumber = 0;
         m_MatrixData->ColNumber = 0;
@@ -8291,7 +8284,7 @@ inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MaxOfEachCol() const
 template<typename ElementType>
 inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MaxOfEachRow() const
 {
-	return MatrixOfEachRow(*this);
+	return MatrixMaxOfEachRow(*this);
 }
 
 

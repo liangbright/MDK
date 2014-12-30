@@ -1,5 +1,7 @@
-#ifndef __mdkFileIO_FeatureDictionaryForSpareCoding_h
-#define __mdkFileIO_FeatureDictionaryForSpareCoding_h
+#ifndef __mdkFeatureDictionaryForSpareCoding_FileIO_h
+#define __mdkFeatureDictionaryForSpareCoding_FileIO_h
+
+#include "mdkFileIO.h"
 
 namespace mdk
 {
@@ -17,6 +19,6 @@ bool LoadFeatureDictionaryForSparseCodingFromJsonDataFile(FeatureDictionaryForSp
 
 }//namespace mdk
 
-#include "mdkFileIO_FeatureDictionaryForSpareCoding.hpp"
+#include "mdkFeatureDictionaryForSpareCoding_FileIO.hpp"
 
 #endif

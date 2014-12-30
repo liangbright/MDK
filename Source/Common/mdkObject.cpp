@@ -14,11 +14,6 @@ Object::~Object()
 {
 }
 
-void Object::_t()
-{
-
-}
-
 }//end namespace mdk
 
 #endif

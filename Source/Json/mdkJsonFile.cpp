@@ -105,15 +105,15 @@ bool JsonFile::SaveNameValuePair(const String& Name, const JsonValue& JValue, Js
 	case JsonValue::TypeEnum::Type_Null:
 		return JsonFile::SaveNameValuePair(Name, MDK_EMPTY, OutputFile, Indention);
 	case JsonValue::TypeEnum::Type_Bool:
-		return JsonFile::SaveNameValuePair(Name, JValue.ToBool(), OutputFile, Indention);
+		return JsonFile::SaveNameValuePair(Name, JValue.GetBool(), OutputFile, Indention);
 	case JsonValue::TypeEnum::Type_Int:
-		return JsonFile::SaveNameValuePair(Name, JValue.ToInt(), OutputFile, Indention);
+		return JsonFile::SaveNameValuePair(Name, JValue.GetInt(), OutputFile, Indention);
 	case JsonValue::TypeEnum::Type_LongLong:
-		return JsonFile::SaveNameValuePair(Name, JValue.ToLongLong(), OutputFile, Indention);
+		return JsonFile::SaveNameValuePair(Name, JValue.GetLongLong(), OutputFile, Indention);
 	case JsonValue::TypeEnum::Type_Float:
-		return JsonFile::SaveNameValuePair(Name, JValue.ToFloat(), OutputFile, Indention);
+		return JsonFile::SaveNameValuePair(Name, JValue.GetFloat(), OutputFile, Indention);
 	case JsonValue::TypeEnum::Type_Double:
-		return JsonFile::SaveNameValuePair(Name, JValue.ToDouble(), OutputFile, Indention);
+		return JsonFile::SaveNameValuePair(Name, JValue.GetDouble(), OutputFile, Indention);
 	case JsonValue::TypeEnum::Type_IntArray:
 		return JsonFile::SaveNameValuePair(Name, JValue.Ref_IntArray(), OutputFile, Indention);
 	case JsonValue::TypeEnum::Type_LongLongArray:
@@ -276,15 +276,15 @@ bool JsonFile::SaveJsonValue(const JsonValue& JValue, JsonFile& OutputFile, int_
 	case JsonValue::TypeEnum::Type_Null:
 		return SaveJsonValue(MDK_EMPTY, OutputFile);
 	case JsonValue::TypeEnum::Type_Bool:
-		return JsonFile::SaveJsonValue(JValue.ToBool(), OutputFile);
+		return JsonFile::SaveJsonValue(JValue.GetBool(), OutputFile);
 	case JsonValue::TypeEnum::Type_Int:
-		return JsonFile::SaveJsonValue(JValue.ToInt(), OutputFile);
+		return JsonFile::SaveJsonValue(JValue.GetInt(), OutputFile);
 	case JsonValue::TypeEnum::Type_LongLong:
-		return JsonFile::SaveJsonValue(JValue.ToLongLong(), OutputFile);
+		return JsonFile::SaveJsonValue(JValue.GetLongLong(), OutputFile);
 	case JsonValue::TypeEnum::Type_Float:
-		return JsonFile::SaveJsonValue(JValue.ToFloat(), OutputFile);
+		return JsonFile::SaveJsonValue(JValue.GetFloat(), OutputFile);
 	case JsonValue::TypeEnum::Type_Double:
-		return JsonFile::SaveJsonValue(JValue.ToDouble(), OutputFile);
+		return JsonFile::SaveJsonValue(JValue.GetDouble(), OutputFile);
 	case JsonValue::TypeEnum::Type_IntArray:
 		return JsonFile::SaveJsonValue(JValue.Ref_IntArray(), OutputFile, Indention);
 	case JsonValue::TypeEnum::Type_LongLongArray:

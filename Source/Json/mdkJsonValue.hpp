@@ -42,8 +42,8 @@ DenseMatrix<ScalarType> JsonValue::ToScalarArray() const
 		break;
 	case TypeEnum::Type_DoubleArray:
 		OutputArray.Copy(this->Ref_DoubleArray());
-		break;	
 	}
+	OutputArray.Reshape(1, OutputArray.GetElementNumber());
 	return OutputArray;
 }
 
@@ -66,6 +66,7 @@ DenseMatrix<ScalarType> JsonValue::ToScalarArray(const DenseMatrix<ScalarType>& 
 		OutputArray.Copy(this->Ref_DoubleArray());
 		break;	
 	}
+	OutputArray.Reshape(1, OutputArray.GetElementNumber());
 	return DefaultArray;
 }
 

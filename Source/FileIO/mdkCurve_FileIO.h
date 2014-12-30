@@ -1,11 +1,11 @@
-#ifndef __mdkFileIO_Curve_h
-#define __mdkFileIO_Curve_h
+#ifndef __mdkCurve_FileIO_h
+#define __mdkCurve_FileIO_h
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
 
-#include "mdkFileIO_DenseMatrix.h"
+#include "mdkVTKDataStructureConversion.h"
 
 namespace mdk
 {
@@ -32,6 +32,6 @@ bool LoadMultiple3DCurveFromVTKFile(ObjectArray<DenseMatrix<ScalarType>>& Output
 
 }//namespace mdk
 
-#include "mdkFileIO_Curve.hpp"
+#include "mdkCurve_FileIO.hpp"
 
 #endif

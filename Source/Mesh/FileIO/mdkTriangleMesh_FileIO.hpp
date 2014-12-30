@@ -1,5 +1,5 @@
-#ifndef __mdkFileIO_TriangleMesh_hpp
-#define __mdkFileIO_TriangleMesh_hpp
+#ifndef __mdkTriangleMesh_FileIO_hpp
+#define __mdkTriangleMesh_FileIO_hpp
 
 namespace mdk
 {
@@ -79,13 +79,14 @@ bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMes
 
 	if (JObject.IsEmpty() == true)
 	{
+		MDK_Warning("Json file is empty @ LoadTriangleMeshFromJsonDataFile(...)")
 		return true;
 	}
 	//---------------------------------------------
 	auto it = JObject.find("ObjectType");
 	if (it != JObject.end())
 	{
-		auto ObjectType = it->second.ToString();
+		auto ObjectType = it->second.GetString();
 		if (ObjectType != "TriangleMesh")
 		{
 			MDK_Error("ObjectType is not TriangleMesh @ LoadPolygoneMeshFromJsonDataFile(...)")
@@ -102,7 +103,7 @@ bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMes
 	it = JObject.find("ScalarType");
 	if (it != JObject.end())
 	{
-		ScalarTypeInDataFile = it->second.ToString();
+		ScalarTypeInDataFile = it->second.GetString();
 	}
 	else
 	{
@@ -114,7 +115,7 @@ bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMes
 	it = JObject.find("IndexType");
 	if (it != JObject.end())
 	{
-		IndexTypeName = it->second.ToString();
+		IndexTypeName = it->second.GetString();
 	}
 	else
 	{
@@ -150,7 +151,7 @@ bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMes
 	it = JObject.find("PointData");
 	if (it != JObject.end())
 	{
-		PointDataFileName = it->second.ToString();
+		PointDataFileName = it->second.GetString();
 	}
 	else
 	{
@@ -162,7 +163,7 @@ bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMes
 	it = JObject.find("CellData");
 	if (it != JObject.end())
 	{
-		CellDataFileName = it->second.ToString();
+		CellDataFileName = it->second.GetString();
 	}
 	else
 	{

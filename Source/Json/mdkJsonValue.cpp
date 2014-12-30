@@ -800,7 +800,7 @@ void JsonValue::Clear()
 }
 
 
-bool JsonValue::ToBool(bool DefaultValue) const
+bool JsonValue::GetBool(bool DefaultValue) const
 {
 	if (m_Type == TypeEnum::Type_Bool)
 	{
@@ -809,7 +809,7 @@ bool JsonValue::ToBool(bool DefaultValue) const
 	return DefaultValue;
 }
 
-int JsonValue::ToInt(int DefaultValue) const
+int JsonValue::GetInt(int DefaultValue) const
 {
 	if (m_Type == TypeEnum::Type_Int)
 	{
@@ -818,7 +818,7 @@ int JsonValue::ToInt(int DefaultValue) const
 	return DefaultValue;
 }
 
-long long  JsonValue::ToLongLong(long long DefaultValue) const
+long long  JsonValue::GetLongLong(long long DefaultValue) const
 {
 	if (m_Type == TypeEnum::Type_LongLong)
 	{
@@ -827,7 +827,7 @@ long long  JsonValue::ToLongLong(long long DefaultValue) const
 	return DefaultValue;
 }
 
-float JsonValue::ToFloat(float DefaultValue) const
+float JsonValue::GetFloat(float DefaultValue) const
 {
 	if (m_Type == TypeEnum::Type_Float)
 	{
@@ -836,7 +836,7 @@ float JsonValue::ToFloat(float DefaultValue) const
 	return DefaultValue;
 }
 
-double JsonValue::ToDouble(double DefaultValue) const
+double JsonValue::GetDouble(double DefaultValue) const
 {
 	if (m_Type == TypeEnum::Type_Double)
 	{
@@ -845,7 +845,7 @@ double JsonValue::ToDouble(double DefaultValue) const
 	return DefaultValue;
 }
 
-DenseMatrix<int> JsonValue::ToIntArray() const
+DenseMatrix<int> JsonValue::GetIntArray() const
 {
 	if (m_Type == TypeEnum::Type_IntArray)
 	{
@@ -855,7 +855,7 @@ DenseMatrix<int> JsonValue::ToIntArray() const
 	return EmptyArray;
 }
 
-DenseMatrix<int> JsonValue::ToIntArray(const DenseMatrix<int>& DefaultArray) const
+DenseMatrix<int> JsonValue::GetIntArray(const DenseMatrix<int>& DefaultArray) const
 {
 	if (m_Type == TypeEnum::Type_IntArray)
 	{
@@ -864,7 +864,7 @@ DenseMatrix<int> JsonValue::ToIntArray(const DenseMatrix<int>& DefaultArray) con
 	return DefaultArray;
 }
 
-DenseMatrix<long long> JsonValue::ToLongLongArray() const
+DenseMatrix<long long> JsonValue::GetLongLongArray() const
 {
 	if (m_Type == TypeEnum::Type_LongLongArray)
 	{
@@ -874,7 +874,7 @@ DenseMatrix<long long> JsonValue::ToLongLongArray() const
 	return EmptyArray;
 }
 
-DenseMatrix<long long> JsonValue::ToLongLongArray(const DenseMatrix<long long>& DefaultArray) const
+DenseMatrix<long long> JsonValue::GetLongLongArray(const DenseMatrix<long long>& DefaultArray) const
 {
 	if (m_Type == TypeEnum::Type_LongLongArray)
 	{
@@ -883,7 +883,7 @@ DenseMatrix<long long> JsonValue::ToLongLongArray(const DenseMatrix<long long>& 
 	return DefaultArray;
 }
 
-DenseMatrix<float> JsonValue::ToFloatArray() const
+DenseMatrix<float> JsonValue::GetFloatArray() const
 {
 	if (m_Type == TypeEnum::Type_FloatArray)
 	{
@@ -893,7 +893,7 @@ DenseMatrix<float> JsonValue::ToFloatArray() const
 	return EmptyArray;
 }
 
-DenseMatrix<float> JsonValue::ToFloatArray(const DenseMatrix<float>& DefaultArray) const
+DenseMatrix<float> JsonValue::GetFloatArray(const DenseMatrix<float>& DefaultArray) const
 {
 	if (m_Type == TypeEnum::Type_FloatArray)
 	{
@@ -902,7 +902,7 @@ DenseMatrix<float> JsonValue::ToFloatArray(const DenseMatrix<float>& DefaultArra
 	return DefaultArray;
 }
 
-DenseMatrix<double> JsonValue::ToDoubleArray() const
+DenseMatrix<double> JsonValue::GetDoubleArray() const
 {
 	if (m_Type == TypeEnum::Type_DoubleArray)
 	{
@@ -912,7 +912,7 @@ DenseMatrix<double> JsonValue::ToDoubleArray() const
 	return EmptyArray;
 }
 
-DenseMatrix<double> JsonValue::ToDoubleArray(const DenseMatrix<double>& DefaultArray) const
+DenseMatrix<double> JsonValue::GetDoubleArray(const DenseMatrix<double>& DefaultArray) const
 {
 	if (m_Type == TypeEnum::Type_DoubleArray)
 	{
@@ -921,7 +921,7 @@ DenseMatrix<double> JsonValue::ToDoubleArray(const DenseMatrix<double>& DefaultA
 	return DefaultArray;
 }
 
-String JsonValue::ToString() const
+String JsonValue::GetString() const
 {
 	if (m_Type == TypeEnum::Type_String)
 	{
@@ -931,7 +931,7 @@ String JsonValue::ToString() const
 	return EmptyData;
 }
 
-String JsonValue::ToString(const String& DefaultValue) const
+String JsonValue::GetString(const String& DefaultValue) const
 {
 	if (m_Type == TypeEnum::Type_String)
 	{
@@ -940,7 +940,7 @@ String JsonValue::ToString(const String& DefaultValue) const
 	return DefaultValue;
 }
 
-JsonArray JsonValue::ToJsonArray() const
+JsonArray JsonValue::GetJsonArray() const
 {
 	if (m_Type == TypeEnum::Type_JsonArray)
 	{
@@ -950,7 +950,7 @@ JsonArray JsonValue::ToJsonArray() const
 	return EmptyData;
 }
 
-JsonArray JsonValue::ToJsonArray(const JsonArray& DefaultValue) const
+JsonArray JsonValue::GetJsonArray(const JsonArray& DefaultValue) const
 {
 	if (m_Type == TypeEnum::Type_JsonArray)
 	{
@@ -959,7 +959,7 @@ JsonArray JsonValue::ToJsonArray(const JsonArray& DefaultValue) const
 	return DefaultValue;
 }
 
-JsonObject JsonValue::ToJsonObject() const
+JsonObject JsonValue::GetJsonObject() const
 {
 	if (m_Type == TypeEnum::Type_JsonObject)
 	{
@@ -969,7 +969,7 @@ JsonObject JsonValue::ToJsonObject() const
 	return EmptyData;
 }
 
-JsonObject JsonValue::ToJsonObject(const JsonObject& DefaultValue) const
+JsonObject JsonValue::GetJsonObject(const JsonObject& DefaultValue) const
 {
 	if (m_Type == TypeEnum::Type_JsonObject)
 	{

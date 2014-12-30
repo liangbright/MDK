@@ -1,5 +1,5 @@
-#ifndef __mdkFileIO_Curve_hpp
-#define __mdkFileIO_Curve_hpp
+#ifndef __mdkCurve_FileIO_hpp
+#define __mdkCurve_FileIO_hpp
 
 namespace mdk
 {

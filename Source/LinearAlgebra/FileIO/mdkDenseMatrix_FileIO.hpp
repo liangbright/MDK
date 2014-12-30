@@ -1,5 +1,5 @@
-#ifndef __mdkFileIO_DenseMatrix_hpp
-#define __mdkFileIO_DenseMatrix_hpp
+#ifndef __mdkDenseMatrix_FileIO_hpp
+#define __mdkDenseMatrix_FileIO_hpp
 
 namespace mdk
 {
@@ -28,7 +28,7 @@ bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, c
 	{
 		IsOK = false;
 	}
-	return true;
+	return IsOK;
 }
 
 
@@ -50,7 +50,7 @@ bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, cons
 	auto it = JObject.find("ObjectType");
 	if (it != JObject.end())
 	{
-		auto ObjectType = it->second.ToString();
+		auto ObjectType = it->second.GetString();
 		if (ObjectType != "DenseMatrix")
 		{
 			MDK_Error("ObjectType is not DenseMatrix @ LoadDenseMatrixFromJsonDataFile(...)")
@@ -67,7 +67,7 @@ bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, cons
 	it = JObject.find("ScalarType");
 	if (it != JObject.end())
 	{
-		ScalarTypeInDataFile = it->second.ToString();
+		ScalarTypeInDataFile = it->second.GetString();
 	}
 	else
 	{
@@ -103,7 +103,7 @@ bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, cons
 	it = JObject.find("ScalarArray");
 	if (it != JObject.end())
 	{
-		DataFilePathAndName += it->second.ToString();
+		DataFilePathAndName += it->second.GetString();
 	}
 	else
 	{

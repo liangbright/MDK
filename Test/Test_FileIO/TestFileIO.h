@@ -3,11 +3,14 @@
 
 #include <iostream>
 
-#include "mdkFileIO.h"
 #include "mdkDenseImage3D.h"
+#include "mdkDenseImage3D_FileIO.h"
 #include "mdkDenseMatrix.h"
+#include "mdkDenseMatrix_FileIO.h"
 #include "mdkPolygonMesh.h"
+#include "mdkPolygonMesh_FileIO.h"
 #include "mdkTriangleMesh.h"
+#include "mdkTriangleMesh_FileIO.h"
 
 namespace mdk
 {

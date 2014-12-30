@@ -1,10 +1,6 @@
 #ifndef __mdkObject_h
 #define __mdkObject_h
 
-#include <iostream>
-
-#include "mdkDebugConfig.h"
-
 namespace mdk
 {
 
@@ -13,9 +9,6 @@ class Object
 public:
 	Object();
 	virtual ~Object();
-
-public:
-	void _t();
 };
 
 }//end namespace mdk

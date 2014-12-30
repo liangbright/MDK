@@ -1,5 +1,5 @@
-#ifndef __mdkFileIO_DenseImage3D_h
-#define __mdkFileIO_DenseImage3D_h
+#ifndef __mdkDenseImage3D_FileIO_h
+#define __mdkDenseImage3D_FileIO_h
 
 #include <itkGDCMImageIO.h>
 #include <itkGDCMSeriesFileNames.h>
@@ -8,8 +8,8 @@
 #include <itkImportImageFilter.h>
 #include <itkImageDuplicator.h>
 
+#include "mdkFileIO.h"
 #include "mdkITKDataStructureConversion.h"
-#include "mdkFileIO_Common.h"
 
 namespace mdk
 {
@@ -42,6 +42,6 @@ bool Load3DScalarImageFromSingleDICOMFile(DenseImage3D<PixelType>& OutputImage, 
 
 }// namespace mdk
 
-#include "mdkFileIO_DenseImage3D.hpp"
+#include "mdkDenseImage3D_FileIO.hpp"
 
 #endif

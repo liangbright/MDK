@@ -1,11 +1,10 @@
 #ifndef __mdkVTKDataStructureConversion_hpp
 #define __mdkVTKDataStructureConversion_hpp
 
-
 namespace mdk
 {
 
-inline VTKDataTypeEnum TranslateMDKScalarTypeToVTKScalarType(const std::string& MDKScalarTypeName)
+inline VTKDataTypeEnum TranslateMDKScalarTypeToVTKScalarType(const String& MDKScalarTypeName)
 {
 	if (MDKScalarTypeName == "double")
 	{
