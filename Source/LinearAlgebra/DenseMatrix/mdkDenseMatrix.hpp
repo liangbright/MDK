@@ -1321,6 +1321,15 @@ void DenseMatrix<ElementType>::SwapSmartPointer(DenseMatrix<ElementType>& InputM
     }
 }
 
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::ReCreate()
+{
+	m_MatrixData = std::make_shared<DenseMatrixData<ElementType>>();
+	m_ElementPointer = nullptr;
+	return bool(m_MatrixData);
+}
+
 
 template<typename ElementType>
 inline
@@ -1395,11 +1404,9 @@ bool DenseMatrix<ElementType>::Resize(int_max InputRowNumber, int_max InputColNu
 try
 {
     //--------initialize the matrix data ----------------------------------------
-    if (!m_MatrixData)
+    if (this->IsPureEmpty() == true)
     {
-        m_MatrixData = std::make_shared<DenseMatrixData<ElementType>>();
-
-        m_ElementPointer = nullptr;
+		this->ReCreate();
     }
     //-------------------------------------------------------------------------
 

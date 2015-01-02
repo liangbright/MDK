@@ -372,9 +372,22 @@ public:
 
     inline void SwapSmartPointer(DenseMatrix<ElementType>& InputMatrix);
 
-    //------------------------- Clear -------------------------------------------//
+	//------------------------- ReCreate -------------------------------------------//
+	// ReCreate for any Object that has member function: Share() and ForceShare()
 
+	// create MatrixData pointed by shared_ptr, create a new MatrixData even if the old one is here
+	// old MatrixData will be deleted if it is not pointed by any other shared_ptr
+	// it is !~~~ NOT ~~~! equivalent to resize(0,0) and resize(0)
+	// correct usage:
+	// (1) if DenseMatrix A is shared by others, we want to detach A from the others, then A.ReCreate()
+	// (2) If A.IsPureEmpty() is true, then A.ReCreate() (automaticly called in all the memeber functions)
+	// Attention:
+	//  if A is not empty, A.ReCreate() will invalidate any pointer to A
+	inline bool ReCreate();
+
+    //------------------------- Clear -------------------------------------------//
     // clear memory, not equal to Resize(0, 0) which may not release memory
+	// if MatrixData exist, it will not be deleted (i.e., m_MatrixData.reset() is not used)
     inline void Clear();
 
 	//---------------------- Set/get Matrix Size, Shape ----------------------------------------//

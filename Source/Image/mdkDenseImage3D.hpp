@@ -224,16 +224,14 @@ DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::Transform3DPhysicalPosit
 template<typename PixelType>
 DenseImage3D<PixelType>::DenseImage3D()
 {
-    m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
-    this->Clear();
+	this->ReCreate();
 }
 
 
 template<typename PixelType>
 DenseImage3D<PixelType>::DenseImage3D(const DenseImage3D<PixelType>& InputImage)
 {
-    m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();    
-    this->Clear();
+	this->ReCreate();
     this->Copy(InputImage);
 }
 
@@ -261,10 +259,9 @@ void DenseImage3D<PixelType>::operator=(const DenseImage3D<PixelType>& InputImag
 template<typename PixelType>
 void DenseImage3D<PixelType>::operator=(DenseImage3D<PixelType>&& InputImage)
 {
-    if (!m_ImageData)
+    if (this->IsPureEmpty() == true)
     {
-        m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
-        this->Clear();
+		this->ReCreate();
     }
 
     this->Take(InputImage);
@@ -333,7 +330,7 @@ bool DenseImage3D<PixelType>::CopyPixelData(const PixelType_Input* InputPixelPoi
 
     auto SelfPixelNumber = this->GetPixelNumber();
 
-    if (SelfPixelNumber != InputPixelNumber)
+    if (SelfPixelNumber != InputPixelNumber)// must call SetSize() before this function
     {
         MDK_Error("Size does not match @ 3DDenseImage::CopyPixelData(...)")
         return false;
@@ -427,6 +424,11 @@ void DenseImage3D<PixelType>::Take(DenseImage3D<PixelType>&& InputImage)
 template<typename PixelType>
 void DenseImage3D<PixelType>::Take(DenseImage3D<PixelType>& InputImage)
 {
+	if (this->IsPureEmpty() == true)
+	{
+		this->ReCreate();
+	}
+
     m_ImageData->m_Size[0] = InputImage.m_ImageData->m_Size[0];
     m_ImageData->m_Size[1] = InputImage.m_ImageData->m_Size[1];
     m_ImageData->m_Size[2] = InputImage.m_ImageData->m_Size[2];    
@@ -460,6 +462,14 @@ bool DenseImage3D<PixelType>::Take(DenseImage3D<PixelType>* InputImage)
 
 
 template<typename PixelType>
+bool DenseImage3D<PixelType>::ReCreate()
+{
+	m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
+	return bool(m_ImageData);
+}
+
+
+template<typename PixelType>
 void DenseImage3D<PixelType>::Clear()
 {
 	if (m_ImageData)
@@ -477,6 +487,7 @@ bool DenseImage3D<PixelType>::IsEmpty() const
 	{
 		return (m_ImageData->m_DataArray.size() == 0);
 	}
+	else
 	{
 		return true;
 	}
@@ -485,9 +496,24 @@ bool DenseImage3D<PixelType>::IsEmpty() const
 
 template<typename PixelType>
 inline
+bool DenseImage3D<PixelType>::IsPureEmpty() const
+{
+	return (!m_ImageData);
+}
+
+
+template<typename PixelType>
+inline
 PixelType* DenseImage3D<PixelType>::GetPixelPointer()
 {
-    return m_ImageData->m_DataArray.data();
+	if (this->IsPureEmpty() == false)
+	{
+		return m_ImageData->m_DataArray.data();
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 
@@ -495,7 +521,14 @@ template<typename PixelType>
 inline
 const PixelType* DenseImage3D<PixelType>::GetPixelPointer() const
 {
-    return m_ImageData->m_DataArray.data();
+	if (this->IsPureEmpty() == false)
+	{
+		return m_ImageData->m_DataArray.data();
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 
@@ -503,7 +536,7 @@ template<typename PixelType>
 inline
 PixelType* DenseImage3D<PixelType>::begin()
 {
-	return m_ImageData->m_DataArray.data();
+	return this->GetPixelPointer();
 }
 
 
@@ -511,7 +544,7 @@ template<typename PixelType>
 inline
 const PixelType* DenseImage3D<PixelType>::begin() const
 {
-	return m_ImageData->m_DataArray.data();
+	return this->GetPixelPointer();
 }
 
 
@@ -519,7 +552,7 @@ template<typename PixelType>
 inline
 PixelType* DenseImage3D<PixelType>::end()
 {
-	auto BeginPtr = m_ImageData->m_DataArray.data();
+	auto BeginPtr = return this->GetPixelPointer();
 	if (BeginPtr == nullptr)
 	{
 		return nullptr;
@@ -535,7 +568,7 @@ template<typename PixelType>
 inline
 const PixelType* DenseImage3D<PixelType>::end() const
 {
-	auto BeginPtr = m_ImageData->m_DataArray.data();
+	auto BeginPtr = return this->GetPixelPointer();
 	if (BeginPtr == nullptr)
 	{
 		return nullptr;
@@ -564,7 +597,16 @@ template<typename PixelType>
 inline
 DenseVector<int_max, 3> DenseImage3D<PixelType>::GetSize() const
 {
-	return m_ImageData->m_Size;
+	if (this->IsPureEmpty() == false)
+	{
+		return m_ImageData->m_Size;
+	}
+	else
+	{
+		DenseVector<int_max, 3> EmptySize;
+		EmptySize.Fill(0);
+		return EmptySize;
+	}
 }
 
 
@@ -572,9 +614,17 @@ template<typename PixelType>
 inline
 void DenseImage3D<PixelType>::GetSize(int_max& Lx, int_max& Ly, int_max& Lz) const
 {
-    Lx = m_ImageData->m_Size[0];
-    Ly = m_ImageData->m_Size[1];
-    Lz = m_ImageData->m_Size[2];
+	if (this->IsPureEmpty() == false)
+	{
+		Lx = m_ImageData->m_Size[0];
+		Ly = m_ImageData->m_Size[1];
+		Lz = m_ImageData->m_Size[2];
+	else
+	{
+		Lx = 0;
+		Ly = 0;
+		Lz = 0;
+	}
 }
 
 
@@ -595,6 +645,11 @@ bool DenseImage3D<PixelType>::SetSize(int_max Lx, int_max Ly, int_max Lz)
         MDK_Error("Ivalid input @ 3DDenseImage::SetSize(...)")
         return false;
     }
+
+	if (this->IsPureEmpty() == true)
+	{
+		this->ReCreate();
+	}
 
 	if (Lx == m_ImageData->m_Size[0] && Ly == m_ImageData->m_Size[1] && Lz == m_ImageData->m_Size[2])
 	{
@@ -638,7 +693,16 @@ template<typename PixelType>
 inline
 DenseVector<double, 3> DenseImage3D<PixelType>::GetSpacing() const
 {
-	return m_ImageData->m_LocalSys.Spacing;
+	if (this->IsPureEmpty() == false)
+	{
+		return m_ImageData->m_LocalSys.Spacing;
+	}
+	else
+	{
+		DenseVector<double, 3> EmptySpacing;
+		EmptySpacing.Fill(0);
+		return EmptySpacing;
+	}
 }
 
 
@@ -646,9 +710,18 @@ template<typename PixelType>
 inline
 void DenseImage3D<PixelType>::GetSpacing(double& Spacing_x, double& Spacing_y, double& Spacing_z) const
 {
-    Spacing_x = m_ImageData->m_LocalSys.Spacing[0];
-    Spacing_y = m_ImageData->m_LocalSys.Spacing[1];
-    Spacing_z = m_ImageData->m_LocalSys.Spacing[2];
+	if (this->IsPureEmpty() == false)
+	{
+		Spacing_x = m_ImageData->m_LocalSys.Spacing[0];
+		Spacing_y = m_ImageData->m_LocalSys.Spacing[1];
+		Spacing_z = m_ImageData->m_LocalSys.Spacing[2];
+	}
+	else
+	{
+		Spacing_x = 0;
+		Spacing_y = 0;
+		Spacing_z = 0;
+	}
 }
 
 
@@ -671,6 +744,10 @@ void DenseImage3D<PixelType>::SetSpacing(double Spacing_x, double Spacing_y, dou
         return;
     }
 
+	if (this->IsPureEmpty() == true)
+	{
+		this->ReCreate();
+	}
     m_ImageData->m_LocalSys.Spacing[0] = Spacing_x;
     m_ImageData->m_LocalSys.Spacing[1] = Spacing_y;
     m_ImageData->m_LocalSys.Spacing[2] = Spacing_z;
@@ -681,7 +758,16 @@ template<typename PixelType>
 inline
 DenseVector<double, 3> DenseImage3D<PixelType>::GetOrigin() const
 {
-	return m_ImageData->m_LocalSys.Origin;
+	if (this->IsPureEmpty() == false)
+	{
+		return m_ImageData->m_LocalSys.Origin;
+	}
+	else
+	{
+		DenseVector<double, 3> EmptyOrigin;
+		EmptyOrigin.Fill(0);
+		return EmptyOrigin;
+	}
 }
 
 
@@ -689,9 +775,18 @@ template<typename PixelType>
 inline
 void DenseImage3D<PixelType>::GetOrigin(double& Origin_x, double& Origin_y, double& Origin_z) const
 {
-    Origin_x = m_ImageData->m_LocalSys.Origin[0];
-    Origin_y = m_ImageData->m_LocalSys.Origin[1];
-    Origin_z = m_ImageData->m_LocalSys.Origin[2];
+	if (this->IsPureEmpty() == false)
+	{
+		Origin_x = m_ImageData->m_LocalSys.Origin[0];
+		Origin_y = m_ImageData->m_LocalSys.Origin[1];
+		Origin_z = m_ImageData->m_LocalSys.Origin[2];
+	}
+	else
+	{
+		Origin_x = 0;
+		Origin_y = 0;
+		Origin_z = 0;
+	}
 }
 
 
@@ -707,6 +802,10 @@ template<typename PixelType>
 inline
 void DenseImage3D<PixelType>::SetOrigin(double Origin_x, double Origin_y, double Origin_z)
 {
+	if (this->IsPureEmpty() == true)
+	{
+		this->ReCreate();
+	}
     m_ImageData->m_LocalSys.Origin[0] = Origin_x;
     m_ImageData->m_LocalSys.Origin[1] = Origin_y;
     m_ImageData->m_LocalSys.Origin[2] = Origin_z;
@@ -718,9 +817,15 @@ inline
 DenseMatrix<double> DenseImage3D<PixelType>::GetOrientation() const
 {
 	DenseMatrix<double> Orientation(3, 3);
-	Orientation.SetCol(0, m_ImageData->m_LocalSys.DirectionX);
-	Orientation.SetCol(1, m_ImageData->m_LocalSys.DirectionY);
-	Orientation.SetCol(2, m_ImageData->m_LocalSys.DirectionZ);
+	if (this->IsPureEmpty() == false)
+	{
+		Orientation.SetCol(0, m_ImageData->m_LocalSys.DirectionX);
+		Orientation.SetCol(1, m_ImageData->m_LocalSys.DirectionY);
+		Orientation.SetCol(2, m_ImageData->m_LocalSys.DirectionZ);
+	else
+	{
+		Orientation.FillDiagonal(1);
+	}
 	return Orientation;
 }
 
@@ -733,6 +838,11 @@ void DenseImage3D<PixelType>::SetOrientation(const DenseMatrix<double>& Orientat
 	{
 		MDK_Error("Invalid input size @ 3DDenseImage::SetOrientation(...)")
 		return;
+	}
+
+	if (this->IsPureEmpty() == true)
+	{
+		this->ReCreate();
 	}
 
 	Orientation.GetCol(0, m_ImageData->m_LocalSys.DirectionX);
@@ -760,9 +870,18 @@ inline
 DenseVector<double, 3> DenseImage3D<PixelType>::GetPhysicalSize() const
 {
 	DenseVector<double, 3> Size;
-	Size[0] = double(m_ImageData->m_Size[0]) * m_ImageData->m_LocalSys.Spacing[0];
-    Size[1] = double(m_ImageData->m_Size[1]) * m_ImageData->m_LocalSys.Spacing[1];
-	Size[2] = double(m_ImageData->m_Size[2]) * m_ImageData->m_LocalSys.Spacing[2];
+	if (this->IsPureEmpty() == false)
+	{
+		Size[0] = double(m_ImageData->m_Size[0]) * m_ImageData->m_LocalSys.Spacing[0];
+		Size[1] = double(m_ImageData->m_Size[1]) * m_ImageData->m_LocalSys.Spacing[1];
+		Size[2] = double(m_ImageData->m_Size[2]) * m_ImageData->m_LocalSys.Spacing[2];
+	}
+	else
+	{
+		Size[0] = 0;
+		Size[1] = 0;
+		Size[2] = 0;
+	}
     return Size;
 }
 
@@ -771,9 +890,18 @@ template<typename PixelType>
 inline 
 void DenseImage3D<PixelType>::GetPhysicalSize(double& PhysicalSize_x, double& PhysicalSize_y, double& PhysicalSize_z) const
 {
-	PhysicalSize_x = double(m_ImageData->m_Size[0]) * m_ImageData->m_LocalSys.Spacing[0];
-	PhysicalSize_y = double(m_ImageData->m_Size[1]) * m_ImageData->m_LocalSys.Spacing[1];
-	PhysicalSize_z = double(m_ImageData->m_Size[2]) * m_ImageData->m_LocalSys.Spacing[2];
+	if (this->IsPureEmpty() == false)
+	{
+		PhysicalSize_x = double(m_ImageData->m_Size[0]) * m_ImageData->m_LocalSys.Spacing[0];
+		PhysicalSize_y = double(m_ImageData->m_Size[1]) * m_ImageData->m_LocalSys.Spacing[1];
+		PhysicalSize_z = double(m_ImageData->m_Size[2]) * m_ImageData->m_LocalSys.Spacing[2];
+	}
+	else
+	{
+		PhysicalSize_x = 0;
+		PhysicalSize_y = 0;
+		PhysicalSize_z = 0;
+	}
 }
 
 
@@ -781,7 +909,14 @@ template<typename PixelType>
 inline
 int_max DenseImage3D<PixelType>::GetPixelNumber() const
 {
-	return m_ImageData->m_PixelNumberPerZSlice * m_ImageData->m_Size[2];
+	if (this->IsPureEmpty() == false)
+	{
+		return m_ImageData->m_PixelNumberPerZSlice * m_ImageData->m_Size[2];
+	}
+	else
+	{
+		return 0;
+	}
 }
  
 

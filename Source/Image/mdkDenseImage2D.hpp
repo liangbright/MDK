@@ -416,6 +416,7 @@ bool DenseImage2D<PixelType>::IsEmpty() const
 	{
 		return (m_ImageData->m_DataArray.size() == 0);
 	}
+	else
 	{
 		return true;
 	}

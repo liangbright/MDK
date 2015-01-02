@@ -171,21 +171,25 @@ public:
 
     //-----------------------------------------------------------------//
 	// difficult to add Load / Save as member function
-	// bool Load(const std::string& FilePathAndName);
-	// bool Save(const std::string& FilePathAndName);
+	// bool Load(const String& FilePathAndName);
+	// bool Save(const String& FilePathAndName);
     // because no such thing as
 	//		if (PixelType == double) Load_double
 	//		if (PixelType == DenseVector<double>) Load_DenseVector
 	// unless std::enable_if to conditionally compile a member function
-    //
+    // specialization ?
 
 	//---------------------------------------------------------//
+	bool ReCreate();
 
+	//---------------------------------------------------------//
 	void Clear();
 
 	//---------------------------------------------------------//
 
     inline bool IsEmpty() const;
+
+	inline bool IsPureEmpty() const;
 
     //--------------------------- Get/Set Info and Data ------------------------------//
 

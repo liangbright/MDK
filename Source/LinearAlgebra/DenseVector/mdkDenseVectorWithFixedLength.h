@@ -15,7 +15,7 @@
 #include "mdkLinearAlgebra_Function_DenseVector.h"
 
 // this is a memory efficient implementation of Dense Vector
-// Only use it if memory is not enough
+// Only use it if memory is not enough or for 3D position
 // for example, use it as a voxel in a 3D vector image
 
 namespace mdk
