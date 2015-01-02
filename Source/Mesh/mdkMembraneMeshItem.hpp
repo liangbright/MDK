@@ -38,6 +38,7 @@ void Point_Of_MembraneMesh<MeshAttributeType>::operator=(const Point_Of_Membrane
 {
     if (!InputPoint.m_Data)
     {
+		m_Data.reset();
         return;
     }
 
@@ -605,6 +606,7 @@ void Edge_Of_MembraneMesh<MeshAttributeType>::operator=(const Edge_Of_MembraneMe
 {
     if (!InputEdge.m_Data)
     {
+		m_Data.reset();
         return;
     }
 
@@ -1329,6 +1331,7 @@ void DirectedEdge_Of_MembraneMesh<MeshAttributeType>::operator=(const DirectedEd
 {
     if (!InputDirectedEdge.m_Data)
     {
+		m_Data.reset();
         return;
     }
 
@@ -1942,6 +1945,7 @@ void Cell_Of_MembraneMesh<MeshAttributeType>::operator=(const Cell_Of_MembraneMe
 {
     if (!InputCell.m_Data)
     {
+		m_Data.reset();
         return;
     }
 

@@ -3,12 +3,12 @@
 
 #include <memory>
 
+#include "mdkSymbol.h"
 #include "mdkObject.h"
 #include "mdkObjectArray.h"
 #include "mdkStdObjectVector.h"
 #include "mdkDenseMatrix.h"
 #include "mdkString.h"
-#include "mdkSymbol.h"
 #include "mdkJsonObject.h"
 
 namespace mdk

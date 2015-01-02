@@ -1,14 +1,4 @@
-﻿#ifndef __TestImage_h
-#define __TestImage_h
-
-#include <ctime>
-#include <cstdlib>
-#include <array>
-#include <chrono>
-#include <ctime>
-#include <locale.h>
-#include <stdio.h> 
-#include <sstream>
+﻿#include <iostream> 
 
 #include "mdkString.h"
 
@@ -36,16 +26,8 @@ void testA()
 	std::wcout.imbue(std::locale("chs"));
 	std::wcout << L"中华人民共和国" << '\n';
 
-	std::basic_ostringstream<char16_t> out;
-
-	out << FileNameA1.StdString() << '\n';
-	out << FileNameB1.StdString() << '\n';
-	out << FileNameC1.StdString() << '\n';
-
 	//char16_t A = 'a';
+	
 }
 
 }
-
-
-#endif

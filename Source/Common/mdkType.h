@@ -1,9 +1,7 @@
 #ifndef __mdkType_h
 #define __mdkType_h
 
-#include <string>
 #include <typeinfo>
-#include <stdint.h>
 
 #include "mdkOSPlatformConfig.h"
 #include "mdkDebugConfig.h"
@@ -15,18 +13,15 @@
 
 namespace mdk
 {
-//-------------------------------------------------------------//
-template<typename ScalarType>
-inline
-ScalarTypeEnum GetScalarType(const ScalarType& Scalar);
 
 template<typename ScalarType>
-inline
-String GetScalarTypeName(const ScalarType& Scalar);
+inline ScalarTypeEnum GetScalarType(const ScalarType& Scalar);
 
 template<typename ScalarType>
-inline
-int_max GetByteNumberOfScalar(const ScalarType& Scalar);
+inline String GetScalarTypeName(const ScalarType& Scalar);
+
+template<typename ScalarType>
+inline int_max GetByteNumberOfScalar(const ScalarType& Scalar);
 //----------------------------------------------------------------//
 // DenseMatrix<double> => DenseMatirx
 template<typename TemplateClassType>

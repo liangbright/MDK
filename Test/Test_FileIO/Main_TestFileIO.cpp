@@ -10,7 +10,7 @@ int main()
 
 	//Test_PolygonMeshIO();
 
-	Test_TriangleMeshIO();
+	//Test_TriangleMeshIO();
 
     std::system("pause");
 

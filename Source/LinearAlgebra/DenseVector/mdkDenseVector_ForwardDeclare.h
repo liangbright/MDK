@@ -1,7 +1,7 @@
 ﻿#ifndef __mdkDenseVector_ForwardDeclare_h
 #define __mdkDenseVector_ForwardDeclare_h
 
-#include "mdkType.h"
+#include "mdkCommonType.h"
 
 namespace mdk
 {

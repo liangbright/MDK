@@ -14,7 +14,7 @@
 
 namespace mdk
 {
-
+	/*
 void Test_MatrixIO()
 {
 	DenseMatrix<double> InputMatrix(3, 4);
@@ -48,6 +48,7 @@ void Test_ImageIO()
 	DenseImage3D<double> OutputImage;
 	Load3DScalarImageFromJsonDataFile(OutputImage, OutputFilePathAndName);
 }
+
 
 void Test_PolygonMeshIO()
 {
@@ -89,7 +90,7 @@ void Test_TriangleMeshIO()
 
 	SaveTriangleMeshAsVTKFile(OutputMesh, VTKFileNameAndPath_output);
 }
-
+*/
 }//end of namespace
 
 

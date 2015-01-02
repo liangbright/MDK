@@ -5,8 +5,10 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <ostream>
 
-#include "mdkType.h"
+#include "mdkDebugConfig.h"
+#include "mdkCommonType.h"
 #include "mdkObject.h"
 #include "mdkDenseVector_ForwardDeclare.h"
 

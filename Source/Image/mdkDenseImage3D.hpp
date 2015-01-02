@@ -1,7 +1,6 @@
 #ifndef __mdkDenseImage3D_hpp
 #define __mdkDenseImage3D_hpp
 
-
 namespace mdk
 {
 
@@ -619,6 +618,7 @@ void DenseImage3D<PixelType>::GetSize(int_max& Lx, int_max& Ly, int_max& Lz) con
 		Lx = m_ImageData->m_Size[0];
 		Ly = m_ImageData->m_Size[1];
 		Lz = m_ImageData->m_Size[2];
+	}
 	else
 	{
 		Lx = 0;
@@ -822,6 +822,7 @@ DenseMatrix<double> DenseImage3D<PixelType>::GetOrientation() const
 		Orientation.SetCol(0, m_ImageData->m_LocalSys.DirectionX);
 		Orientation.SetCol(1, m_ImageData->m_LocalSys.DirectionY);
 		Orientation.SetCol(2, m_ImageData->m_LocalSys.DirectionZ);
+	}
 	else
 	{
 		Orientation.FillDiagonal(1);
