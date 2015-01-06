@@ -1,7 +1,6 @@
 #ifndef __mdkDenseMatrix_hpp
 #define __mdkDenseMatrix_hpp
 
-
 namespace mdk
 {
  
@@ -873,6 +872,15 @@ bool DenseMatrix<ElementType>::Share(DenseMatrix<ElementType>* InputMatrix)
 
 template<typename ElementType>
 inline
+void DenseMatrix<ElementType>::ForceShare(const MDK_Symbol_Empty&)
+{
+	DenseMatrix<ElementType> EmptyMatrix;
+	this->ForceShare(EmptyMatrix);
+}
+
+
+template<typename ElementType>
+inline
 void DenseMatrix<ElementType>::ForceShare(const DenseMatrix<ElementType>& InputMatrix)
 {
     // Matrix = Matrix
@@ -1323,16 +1331,6 @@ void DenseMatrix<ElementType>::Swap(DenseMatrix<ElementType>& InputMatrix)
 
 template<typename ElementType>
 inline
-bool DenseMatrix<ElementType>::ReCreate()
-{
-	m_MatrixData = std::make_shared<DenseMatrixData<ElementType>>();
-	m_ElementPointer = nullptr;
-	return bool(m_MatrixData);
-}
-
-
-template<typename ElementType>
-inline
 void DenseMatrix<ElementType>::Clear()
 {
     if (!m_MatrixData)
@@ -1404,9 +1402,10 @@ bool DenseMatrix<ElementType>::Resize(int_max InputRowNumber, int_max InputColNu
 try
 {
     //--------initialize the matrix data ----------------------------------------
-    if (this->IsPureEmpty() == true)
+	if (!m_MatrixData)//if (this->IsPureEmpty() == true)
     {
-		this->ReCreate();
+		m_MatrixData = std::make_shared<DenseMatrixData<ElementType>>();
+		m_ElementPointer = nullptr;
     }
     //-------------------------------------------------------------------------
 

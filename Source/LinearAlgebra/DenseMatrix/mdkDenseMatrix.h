@@ -256,36 +256,36 @@ public:
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
 
-    // Matrix A, MatrixB, A.Share(B)
+	// DenseMatrix A, B; A.Share(B)/A.ForceShare(B) is  m_MatrixData (of A) = m_MatrixData (of B);
+    // If B change the value of an element, A will be changed (i.e., the data in A is the same as the data in B)
+    // If B change its size or clear itself, A will be changed.
+    // If A change it self, B will be changed
     //
-    // If B is a null matrix (B.IsNull() == true), then A.Share(B) set A to an empty matrix, and A != B
-    // If B change the value of an element, A will know (i.e., the data in A is the same as the data in B)
-    // If B change its size, A will know.
-    //
-    // The above rule also applies to A if A changes it self.
-    //
+	// DenseMatrix A, B, C; 
+	// A.Share(B); B.Share(C); Now, A and C are NOT shared by each other.
     // A.Share(B) really means A and B share the same data
-    // until A.Share(C), then A == C, and the share-relation between A and B ends, B keeps its data.
-    // 
-    // There are 3 situations I may use Share
-    //
-    // (1) A.Share(B), then use A as an observer of B, and do not modify B by using A, e.g., A(0,0)=1;
-    // 
-    // (2) A.Share(B), then forget B and use A,  e.g., A(0,0)=1;
-    //
-    // (2) A.Share(B), then use both A and B to operate on the same data 
-    //                      in this case, using a pointer to B is better if B is a named objects
+    // After B.Share(C), then B is C, and the share-relation between A and B is terminated, A keep its data.
+	// 
+	// 3 way to terminate the relation A.Share(B) or A.ForceShare(B)
+	// (1) DenseMatrix C(std::move(A));  or DenseMatrix C = std::move(A); 
+	//     A become a pure empty matrix; if A is to be used again, then A.Resize(0,0);
+	//    
+	// (2) DenseMatrix C; A.ForceShare(C); A is C, an empty matrix (m_IsSizeFixed is false), and B keep the data
+	// (3) A.ForceShare(MDK_EMPTY);        A become an empty matrix (m_IsSizeFixed is false)
+	//
+    // There are 3 situation we may use A.Share(B) or A.ForceShare(B)
+    // (1) use A as an observer of B, and do not modify B by using A, e.g., A(0,0)=1;
+    // (2) forget B and use A,  e.g., A(0,0)=1;
+    // (2) use both A and B to operate on the same data; in this case, using a pointer to B is better if B is a named object
     //
     // Share vs ForceShare
-    //
-    // A.Share(B): if m_IsSizeFixed of A is true, and size of A does not match size of B, then return false
-    //
-    // A.ForceShare(B): Share B no matter what, it is used by GlueMatrix
-
-    // m_MatrixData = InputMatrix.m_MatrixData;
+    // A.Share(B): if m_IsSizeFixed of A is true, and size of A does not match size of B, then return false (B is not shared by A)
+    // A.ForceShare(B): Share B no matter what, it is used in GlueMatrix operation
 
     inline bool Share(DenseMatrix<ElementType>& InputMatrix);
     inline bool Share(DenseMatrix<ElementType>* InputMatrix);
+
+	inline void ForceShare(const MDK_Symbol_Empty&);
 
     inline void ForceShare(const DenseMatrix<ElementType>& InputMatrix);
     inline bool ForceShare(const DenseMatrix<ElementType>* InputMatrix);
@@ -373,19 +373,6 @@ public:
 	// if A.Share(B); A.Swap(C); then A will no longer share B, but C will share B; A become C, C become A; 
 	// if A.Share(B); A.Take(C); then A still share B, and only its content is changed; C will not share B
     inline void Swap(DenseMatrix<ElementType>& InputMatrix);
-
-	//------------------------- ReCreate -------------------------------------------//
-	// ReCreate for any Object that has member function: Share() and ForceShare()
-
-	// create MatrixData pointed by shared_ptr, create a new MatrixData even if the old one is here
-	// old MatrixData will be deleted if it is not pointed by any other shared_ptr
-	// it is !~~~ NOT ~~~! equivalent to resize(0,0) and resize(0)
-	// correct usage:
-	// (1) if DenseMatrix A is shared by others, we want to detach A from the others, then A.ReCreate()
-	// (2) If A.IsPureEmpty() is true, then A.ReCreate() (automaticly called in all the memeber functions)
-	// Attention:
-	//  if A is not empty, A.ReCreate() will invalidate any pointer to A
-	inline bool ReCreate();
 
     //------------------------- Clear -------------------------------------------//
     // clear memory, not equal to Resize(0, 0) which may not release memory

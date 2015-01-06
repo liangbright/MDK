@@ -1834,15 +1834,6 @@ bool SparseMatrix<ElementType>::Take(const SparseGlueMatrixForMultiplication<Ele
 
 
 template<typename ElementType>
-inline
-bool SparseMatrix<ElementType>::ReCreate()
-{
-	m_MatrixData = std::make_shared<SparseMatrixDataInCSCFormat<ElementType>>();
-	return bool(m_MatrixData);
-}
-
-
-template<typename ElementType>
 inline 
 void SparseMatrix<ElementType>::Clear()
 {
@@ -1894,9 +1885,9 @@ bool SparseMatrix<ElementType>::Resize(int_max InputRowNumber, int_max InputColN
 try
 {
     //--------initialize the matrix ----------------------------------------------------
-    if (this->IsPureEmpty() == true)
+	if (!m_MatrixData) //if(this->IsPureEmpty() == true)
     {
-		this->ReCreate();
+		m_MatrixData = std::make_shared<SparseMatrixDataInCSCFormat<ElementType>>();
 	}
     //-----------------------------------------------------------------------------------
 
@@ -1968,9 +1959,9 @@ bool SparseMatrix<ElementType>::FastResize(int_max InputRowNumber, int_max Input
 try
 {
     //--------initialize the matrix ----------------------------------------------------
-    if (this->IsPureEmpty() == true)
+	if (!m_MatrixData) // if(this->IsPureEmpty() == true)
     {
-		this->ReCreate();
+		m_MatrixData = std::make_shared<SparseMatrixDataInCSCFormat<ElementType>>();
     }
     //-----------------------------------------------------------------------------------
 

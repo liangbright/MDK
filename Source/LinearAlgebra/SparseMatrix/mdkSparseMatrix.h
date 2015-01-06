@@ -359,13 +359,8 @@ public:
 
     //inline bool Take(const SparseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    // clear memory no matter what, and set m_IsSizeFixed to be false
-
-	//----------------------------- ReCreate -------------------------------------------//
-	// see ReCreate() of DenseMatrix
-	inline bool ReCreate();
-
 	//----------------------------------------------------------------------------------------//
+	// clear memory no matter what, and set m_IsSizeFixed to be false
     inline void Clear();
 
 	//---------------------- Set/get SparseMatrix Size, Shape ----------------------------------------//
