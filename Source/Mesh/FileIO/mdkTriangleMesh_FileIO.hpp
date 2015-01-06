@@ -202,7 +202,7 @@ bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMes
 			}
 		}
 
-		OutputMesh.Construct(PointData, CellData);
+		OutputMesh.Construct(std::move(PointData), CellData);
 		return IsOK;
 	}
 	else// empty mesh

@@ -347,6 +347,12 @@ public:
     inline CellIteratorType   GetIteratorOfCell();
     inline const CellIteratorType   GetIteratorOfCell() const;
 
+	//------------ ReserveCapacity, ReleaseUnusedCapacity -------------------------------------//
+
+	bool ReserveCapacity(int_max PointNumber, int_max EdgeNumber, int_max CellNumber);
+
+	void ReleaseUnusedCapacity();
+
     // Add Mesh Item -------------------------------------------------------------------------//
     // add an item and return index (-1 if input is invalid)
 
@@ -359,6 +365,7 @@ public:
     
     // add a set of points and return PointHandleList
     DenseVector<PointHandleType> AddPointSet(const DenseMatrix<ScalarType>& PointSet);
+	DenseVector<PointHandleType> AddPointSet(DenseMatrix<ScalarType>&& PointSet);
 
     // add an Edge and return EdgeHandle -> EdgeIndex in m_MeshData->EdgeList
     // also create invalid DirectedEdge to hold place at m_MeshData->DirectedEdgeList[EdgeIndex]

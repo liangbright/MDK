@@ -205,7 +205,7 @@ public:
 
     //------------------------- Swap shared_ptr m_Data -------------------------------------------//
 
-    inline void SwapSmartPointer(ObjectArray<ElementType>& InputArray);
+    inline void Swap(ObjectArray<ElementType>& InputArray);
 
     //------------------------- Clear -------------------------------------------//
 

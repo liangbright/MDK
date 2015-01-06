@@ -132,7 +132,7 @@ void Test_Constructor_a()
 
     DenseMatrix<double> B;
 
-    A.SwapSmartPointer(A);
+    A.Swap(B);
 }
 
 void Test_Constructor_External_Data()

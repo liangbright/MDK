@@ -496,15 +496,16 @@ bool ObjectArray<ElementType>::Take(ObjectArray<ElementType>* InputArray)
 
 template<typename ElementType>
 inline
-void ObjectArray<ElementType>::SwapSmartPointer(ObjectArray<ElementType>& InputArray)
+void ObjectArray<ElementType>::Swap(ObjectArray<ElementType>& InputArray)
 {
-    // ObjectArray = ObjectArray
-    if (this == &InputArray)
+    if (this->GetElementPointer() == InputArray.GetElementPointer())
     {
-        MDK_Warning("A ObjectArray tries to Swap with itself @ ObjectArray::SwapSmartPointer(InputArray)")
+		if (this->IsEmpty() == false)
+		{
+			MDK_Warning("A ObjectArray try to Swap with itself @ ObjectArray::Swap(InputArray)")
+		}
         return;
     }
-
     m_Data.swap(InputArray.m_Data); // shared_ptr self swap check is not necessary
 }
 

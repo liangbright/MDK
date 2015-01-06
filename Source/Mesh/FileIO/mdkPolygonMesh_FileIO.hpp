@@ -87,15 +87,15 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 	if (it != JObject.end())
 	{
 		auto ObjectType = it->second.GetString();
-		if (ObjectType != "PolygonMesh")
+		if (ObjectType != "PolygonMesh" && ObjectType != "TriangleMesh")
 		{
-			MDK_Error("ObjectType is not PolygonMesh @ LoadPolygoneMeshFromJsonDataFile(...)")
+			MDK_Error("ObjectType is not PolygonMesh or TriangleMesh @ LoadPolygonMeshFromJsonDataFile(...)")
 			return false;
 		}
 	}
 	else
 	{
-		MDK_Error("Couldn't get ObjectType @ LoadPolygoneMeshFromJsonDataFile(...)")
+		MDK_Error("Couldn't get ObjectType @ LoadPolygonMeshFromJsonDataFile(...)")
 		return false;
 	}
 	//------------------------------------------
@@ -107,7 +107,7 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 	}
 	else
 	{
-		MDK_Error("Couldn't get ScalarType @ LoadPolygoneMeshFromJsonDataFile(...)")
+		MDK_Error("Couldn't get ScalarType @ LoadPolygonMeshFromJsonDataFile(...)")
 		return false;
 	}
 	//-------------------------------------------
@@ -202,7 +202,7 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 			}
 		}
 
-		OutputMesh.Construct(PointData, CellData);
+		OutputMesh.Construct(std::move(PointData), CellData);
 		return IsOK;
 	}
 	else// empty mesh

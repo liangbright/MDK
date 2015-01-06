@@ -24,7 +24,7 @@ inline VTKDataTypeEnum TranslateMDKScalarTypeToVTKScalarType(const String& MDKSc
 	}
 	else if (MDKScalarTypeName == "int32")
 	{
-		return VTKDataTypeEnum::VALUE_INTEGER;
+		return VTKDataTypeEnum::VALUE_INT;
 	}
 	else if (MDKScalarTypeName == "int64")
 	{
@@ -40,7 +40,7 @@ inline VTKDataTypeEnum TranslateMDKScalarTypeToVTKScalarType(const String& MDKSc
 	}
 	else if (MDKScalarTypeName == "uint32")
 	{
-		return VTKDataTypeEnum::VALUE_UNSIGNED_INTEGER;
+		return VTKDataTypeEnum::VALUE_UNSIGNED_INT;
 	}
 	else if (MDKScalarTypeName == "uint64")
 	{
@@ -54,24 +54,47 @@ inline VTKDataTypeEnum TranslateMDKScalarTypeToVTKScalarType(const String& MDKSc
 }
 
 template<typename ScalarType>
-VTKDataTypeEnum GetVtkScalarType(const ScalarType& ReferenceScalar)
+VTKDataTypeEnum GetVTkScalarType(const ScalarType& ReferenceScalar)
 {
 	auto Name = GetScalarTypeName(ReferenceScalar);
 	return TranslateMDKScalarTypeToVTKScalarType(Name);
 }
 
+//--------------------------------------- 3D Curve ------------------------------------------------------------//
 
 template<typename ScalarType>
 vtkSmartPointer<vtkPolyData> ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCurve)
 {
+	auto VTKCurve = vtkSmartPointer<vtkPolyData>::New();
+	ConvertSingleMDK3DCurveToVTKPolyData(MDK3DCurve, VTKCurve.GetPointer());
+	return VTKCurve;
+}
+
+
+template<typename ScalarType>
+bool ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCurve, vtkPolyData& VTKCurve)
+{
+	return ConvertSingleMDK3DCurveToVTKPolyData(MDK3DCurve, &VTKCurve);
+}
+
+
+template<typename ScalarType>
+bool ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCurve, vtkPolyData* VTKCurve)
+{
+	if (VTKCurve == nullptr)
+	{
+		MDK_Error("input is nullptr @ ConvertSingleMDK3DCurveToVTKPolyData(...)")
+		return false;
+	}
+
 	auto PointNumber = MDK3DCurve.GetColNumber();
 	if (MDK3DCurve.GetRowNumber() != 3)
 	{
 		MDK_Error("Invalid MDK3DCurve @ mdkFileIO ConvertSingleMDK3DCurveToVTKPolyData")
-		return nullptr;
+		return false;
 	}
 
-	auto VtkDataType = GetVtkScalarType(ScalarType(0));
+	auto VtkDataType = GetVTkScalarType(ScalarType(0));
 
 	auto PointSet = vtkSmartPointer<vtkPoints>::New();
 	PointSet->SetDataType(VtkDataType);
@@ -87,23 +110,44 @@ vtkSmartPointer<vtkPolyData> ConvertSingleMDK3DCurveToVTKPolyData(const DenseMat
 		PointSet->InsertPoint(n, Pos);
 	}
 
-	auto VTKCurveData = vtkSmartPointer<vtkPolyData>::New();
-	VTKCurveData->SetPoints(PointSet);
-	VTKCurveData->SetLines(CellList);
-	return VTKCurveData;
+	VTKCurve->SetPoints(PointSet);
+	VTKCurve->SetLines(CellList);
+	return true;
 }
 
 
 template<typename ScalarType>
 vtkSmartPointer<vtkPolyData> ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveList)
 {
+	auto VTKCurve = vtkSmartPointer<vtkPolyData>::New();
+	ConvertMultipleMDK3DCurveToVTKPolyData(MDK3DCurveList, VTKCurve.GetPointer());
+	return VTKCurve;
+}
+
+
+template<typename ScalarType>
+bool ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveList, vtkPolyData& VTKCurve)
+{
+	return ConvertMultipleMDK3DCurveToVTKPolyData(MDK3DCurveList, &VTKCurve);
+}
+
+
+template<typename ScalarType>
+bool ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveList, vtkPolyData* VTKCurve)
+{
+	if (VTKCurve == nullptr)
+	{
+		MDK_Error("input is nullptr @ ConvertMultipleMDK3DCurveToVTKPolyData(...)")
+		return false;
+	}
+	
 	if (MDK3DCurveList.IsEmpty() == true)
 	{
 		MDK_Warning("MDK3DCurveList is empty @ mdkFileIO ConvertSingleMDK3DCurveToVTKPolyData(...)")
-		return nullptr;
+		return false;
 	}
 
-	auto VtkDataType = GetVtkScalarType(ScalarType(0));
+	auto VtkDataType = GetVTKScalarType(ScalarType(0));
 
 	auto PointSet = vtkSmartPointer<vtkPoints>::New();
 	PointSet->SetDataType(VtkDataType);
@@ -121,7 +165,7 @@ vtkSmartPointer<vtkPolyData> ConvertMultipleMDK3DCurveToVTKPolyData(const Object
 		if (MDK3DCurveList[k].GetRowNumber() != 3)
 		{
 			MDK_Error("Invalid InputCurve @ mdkFileIO ConvertSingleMDK3DCurveToVTKPolyData")
-			return VTKCurveData;
+			return VTKCurve;
 		}
 
 		for (int_max n = 0; n < PointNumber; ++n)
@@ -134,9 +178,16 @@ vtkSmartPointer<vtkPolyData> ConvertMultipleMDK3DCurveToVTKPolyData(const Object
 		}
 	}
 
-	VTKCurveData->SetPoints(PointSet);
-	VTKCurveData->SetLines(CellList);
-	return VTKCurveData;
+	VTKCurve->SetPoints(PointSet);
+	VTKCurve->SetLines(CellList);
+	return true;
+}
+
+
+template<typename ScalarType>
+bool ConvertVTKPolyDataToMDK3DCurve(vtkPolyData& VTKCurveData, ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveData)
+{
+	return ConvertVTKPolyDataToMDK3DCurve(&VTKCurveData, MDK3DCurveData);
 }
 
 
@@ -148,7 +199,7 @@ bool ConvertVTKPolyDataToMDK3DCurve(vtkPolyData* VTKCurveData, ObjectArray<Dense
 		MDK_Error("VTKCurveData is nullptr @ ConvertVTKPolyDataToMDK3DCurve(...)")
 		return false;
 	}
-
+	
 	auto CurveNumber = int_max(VTKCurveData->GetNumberOfLines());
 	//auto CellNumber = int_max(VTKCurveData->GetNumberOfCells());
 	
@@ -173,15 +224,35 @@ bool ConvertVTKPolyDataToMDK3DCurve(vtkPolyData* VTKCurveData, ObjectArray<Dense
 			OutputCurve_k.SetCol(n, Pos);
 		}
 	}
-
 	return true;
 }
 
+//------------------------------------------------- 3D Scalar Image --------------------------------------------------//
 
 template<typename PixelType>
 vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MDKImage)
 {
-    auto VTKImage = vtkSmartPointer<vtkImageData>::New();
+	auto VTKImage = vtkSmartPointer<vtkImageData>::New();
+	ConvertMDK3DScalarImageToVTK3DScalarImage(MDKImage, VTKImage.GetPointer());
+	return VTKImage;
+}
+
+
+template<typename PixelType>
+bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MDKImage, vtkImageData& VTKImage)
+{
+	return ConvertMDK3DScalarImageToVTK3DScalarImage(MDKImage, &VTKImage)
+}
+
+
+template<typename PixelType>
+bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MDKImage, vtkImageData* VTKImage)
+{
+	if (VTKImage == nullptr)
+	{
+		MDK_Error("input is nullptr @ ConvertMDK3DScalarImageToVTK3DScalarImage(...)")
+		return false;
+	}
 
 	auto Size = MDKImage.GetSize();
 	auto Origin = MDKImage.GetOrigin();
@@ -316,14 +387,15 @@ vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const De
 
 
 template<typename PixelType>
+bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData& VTKImage, DenseImage3D<PixelType>& MDKImage)
+{
+	return ConvertVTK3DScalarImageToMDK3DScalarImage(&VTKImage, MDKImage);
+}
+
+
+template<typename PixelType>
 bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, DenseImage3D<PixelType>& MDKImage)
 {
-	if (VTKImage == nullptr)
-	{
-		MDK_Error("VTKImage is nullptr @ ConvertVTK3DScalarImageToMDK3DScalarImage(...)")
-		return false;
-	}
-
     int Extent[6];
     VTKImage->GetExtent(Extent);
 
@@ -439,10 +511,33 @@ bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, Den
     return true;
 }
 
+//------------------------------------------- PolygonMesh ------------------------------------------------------//
 
 template<typename MeshAttributeType>
-vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& InputMesh)
+vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MDKMesh)
 {
+	auto VTKMesh = vtkSmartPointer<vtkPolyData>::New();
+	ConvertMDKPolygonMeshToVTKPolyData(MDKMesh, VTKMesh.GetPointer());
+	return VTKMesh;
+}
+
+
+template<typename MeshAttributeType>
+bool ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MDKMesh, vtkPolyData& VTKMesh)
+{
+	return ConvertMDKPolygonMeshToVTKPolyData(MDKMesh, &VTKMesh);
+}
+
+
+template<typename MeshAttributeType>
+bool ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MDKMesh, vtkPolyData* VTKMesh)
+{
+	if (VTKMesh == nullptr)
+	{
+		MDK_Error("input is nullptr @ ConvertMDKPolygonMeshToVTKPolyData(...)")
+		return false;
+	}
+	
     typedef PolygonMesh<MeshAttributeType>::ScalarType ScalarType;
 
     auto ReferenceScalar = ScalarType(0);
@@ -450,7 +545,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
 
     DenseMatrix<ScalarType> PointPositionTable;
 	ObjectArray<DenseVector<int_max>> CellTable;
-    InputMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
+    MDKMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
 
     int_max PointNumber = PointPositionTable.GetColNumber();
     int_max CellNumber = CellTable.GetLength();
@@ -464,12 +559,10 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
        
         for (int i = 0; i < PointNumber; ++i)
         {
-            double pos[3] = { 0, 0, 0 };
-
-            pos[0] = PointPositionTable(0, i);
-            pos[1] = PointPositionTable(1, i);
-            pos[2] = PointPositionTable(2, i);
-
+			double pos[3];
+			pos[0] = double(PointPositionTable(0, i));
+			pos[1] = double(PointPositionTable(1, i));
+			pos[2] = double(PointPositionTable(2, i));
             PointData->SetPoint(i, pos);
         }
     }
@@ -480,11 +573,10 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
 
         for (int i = 0; i < PointNumber; ++i)
         {
-            float pos[3] = { 0, 0, 0 };
+			float pos[3];
             pos[0] = float(PointPositionTable(0, i));
             pos[1] = float(PointPositionTable(1, i));
             pos[2] = float(PointPositionTable(2, i));
-
             PointData->SetPoint(i, pos);
         }
     }
@@ -492,16 +584,15 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
     {
         MDK_Warning("ScalarTypeName is not double or float @ ConvertMDKPolygonMeshToVTKPolyData(...)")
 
-        PointData->SetDataType(VTK_FLOAT);
+        PointData->SetDataType(VTK_DOUBLE);
         PointData->SetNumberOfPoints(PointNumber);
 
         for (int i = 0; i < PointNumber; ++i)
         {
-            float pos[3] = { 0, 0, 0 };
-            pos[0] = float(PointPositionTable(0, i));
-            pos[1] = float(PointPositionTable(1, i));
-            pos[2] = float(PointPositionTable(2, i));
-
+			double pos[3];
+			pos[0] = double(PointPositionTable(0, i));
+			pos[1] = double(PointPositionTable(1, i));
+			pos[2] = double(PointPositionTable(2, i));
             PointData->SetPoint(i, pos);
         }
     }
@@ -523,13 +614,17 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
             CellData->InsertCellPoint(PointIndex);
         }
     }
-
     //---------------------------------------------------
-    auto VTKMeshData = vtkSmartPointer<vtkPolyData>::New();
-    VTKMeshData->SetPoints(PointData);
-    VTKMeshData->SetPolys(CellData);
+    VTKMesh->SetPoints(PointData);
+    VTKMesh->SetPolys(CellData);
+    return true;
+}
 
-    return VTKMeshData;
+
+template<typename MeshAttributeType>
+bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData& VTKMesh, PolygonMesh<MeshAttributeType>& MDKMesh)
+{
+	return ConvertVTKPolyDataToMDKPolygonMesh(&VTKMesh, MDKMesh);
 }
 
 
@@ -541,7 +636,7 @@ bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<MeshAt
 		MDK_Error("VTKMesh is nullptr @ ConvertVTKPolyDataToMDKPolygonMesh(...)")
 		return false;
 	}
-
+	
     typedef PolygonMesh<MeshAttributeType>::ScalarType ScalarType;
     
 	auto PointNumber = int_max(VTKMesh->GetNumberOfPoints());
@@ -577,15 +672,38 @@ bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<MeshAt
         }
     }
 
-	MDKMesh.Construct(PointData, CellData);
+	MDKMesh.Construct(std::move(PointData), CellData);
 
     return true;
 }
 
+//--------------------------------------------- TriangleMesh ------------------------------------------------------//
 
 template<typename MeshAttributeType>
-vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& InputMesh)
+vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& MDKMesh)
 {
+	auto VTKMesh = vtkSmartPointer<vtkPolyData>::New();
+	ConvertMDKTriangleMeshToVTKPolyData(MDKMesh, VTKMesh.GetPointer());
+	return VTKMesh;
+}
+
+
+template<typename MeshAttributeType>
+bool ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& MDKMesh, vtkPolyData& VTKMesh)
+{
+	return ConvertMDKTriangleMeshToVTKPolyData(MDKMesh, &VTKMesh);
+}
+
+
+template<typename MeshAttributeType>
+bool ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& MDKMesh, vtkPolyData* VTKMesh)
+{
+	if (VTKMesh == nullptr)
+	{
+		MDK_Error("input is nullptr @ ConvertMDKTriangleMeshToVTKPolyData(...)")
+		return false;
+	}
+
 	typedef TriangleMesh<MeshAttributeType>::ScalarType ScalarType;
 
 	auto ReferenceScalar = ScalarType(0);
@@ -593,7 +711,7 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 
 	DenseMatrix<ScalarType> PointPositionTable;
 	ObjectArray<DenseVector<int_max>> CellTable;
-	InputMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
+	MDKMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
 
 	int_max PointNumber = PointPositionTable.GetColNumber();
 	int_max CellNumber = CellTable.GetLength();
@@ -605,14 +723,12 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 		PointData->SetDataType(VTK_DOUBLE); // this will clear internal memory of PointData
 		PointData->SetNumberOfPoints(PointNumber);
 
-		double pos[3] = { 0, 0, 0 };
-
 		for (int i = 0; i < PointNumber; ++i)
 		{
-			pos[0] = PointPositionTable(0, i);
-			pos[1] = PointPositionTable(1, i);
-			pos[2] = PointPositionTable(2, i);
-
+			double pos[3];
+			pos[0] = double(PointPositionTable(0, i));
+			pos[1] = double(PointPositionTable(1, i));
+			pos[2] = double(PointPositionTable(2, i));
 			PointData->SetPoint(i, pos);
 		}
 	}
@@ -621,14 +737,12 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 		PointData->SetDataType(VTK_FLOAT);
 		PointData->SetNumberOfPoints(PointNumber);
 
-		float pos[3] = { 0, 0, 0 };
-
 		for (int i = 0; i < PointNumber; ++i)
 		{
+			float pos[3];
 			pos[0] = float(PointPositionTable(0, i));
 			pos[1] = float(PointPositionTable(1, i));
 			pos[2] = float(PointPositionTable(2, i));
-
 			PointData->SetPoint(i, pos);
 		}
 	}
@@ -636,17 +750,15 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 	{
 		MDK_Warning("ScalarTypeName is not double or float @ ConvertMDKPolygonMeshToVTKPolyData(...)")
 
-			PointData->SetDataType(VTK_FLOAT);
+		PointData->SetDataType(VTK_DOUBLE);
 		PointData->SetNumberOfPoints(PointNumber);
-
-		float pos[3] = { 0, 0, 0 };
-
+		
 		for (int i = 0; i < PointNumber; ++i)
 		{
-			pos[0] = float(PointPositionTable(0, i));
-			pos[1] = float(PointPositionTable(1, i));
-			pos[2] = float(PointPositionTable(2, i));
-
+			double pos[3];
+			pos[0] = double(PointPositionTable(0, i));
+			pos[1] = double(PointPositionTable(1, i));
+			pos[2] = double(PointPositionTable(2, i));
 			PointData->SetPoint(i, pos);
 		}
 	}
@@ -670,11 +782,16 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 	}
 
 	//---------------------------------------------------
-	auto VTKMeshData = vtkSmartPointer<vtkPolyData>::New();
-	VTKMeshData->SetPoints(PointData);
-	VTKMeshData->SetPolys(CellData);
+	VTKMesh->SetPoints(PointData);
+	VTKMesh->SetPolys(CellData);
+	return true;
+}
 
-	return VTKMeshData;
+
+template<typename MeshAttributeType>
+bool ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData& VTKMesh, TriangleMesh<MeshAttributeType>& MDKMesh)
+{
+	return ConvertVTKPolyDataToMDKTriangleMesh(&VTKMesh, MDKMesh);
 }
 
 
@@ -703,7 +820,6 @@ bool ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKMesh, TriangleMesh<Mesh
 	}
 
 	DenseMatrix<ScalarType> PointData(3, PointNumber);
-
 	for (int_max k = 0; k < PointNumber; ++k)
 	{
 		double pos[3];

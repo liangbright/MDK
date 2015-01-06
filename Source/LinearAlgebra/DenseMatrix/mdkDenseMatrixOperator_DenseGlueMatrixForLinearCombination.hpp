@@ -522,7 +522,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
     {
         GlueMatrixA.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber_A + i].SwapSmartPointer(GlueMatrixB.m_SourceMatrixSharedCopyList[i]);
+        GlueMatrixA.m_SourceMatrixSharedCopyList[MatrixNumber_A + i].Swap(GlueMatrixB.m_SourceMatrixSharedCopyList[i]);
     }
 
     GlueMatrixA.m_ElementList_Coef.reserve(MatrixNumber_A + MatrixNumber_B);

@@ -290,7 +290,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList.reserve(2);
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].SwapSmartPointer(tempGlueMatrix_L.m_SourceMatrixSharedCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].Swap(tempGlueMatrix_L.m_SourceMatrixSharedCopyList[0]);
 
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
 
@@ -915,7 +915,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
         GlueMatrixA_L.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_A + 1);
         GlueMatrixA_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        GlueMatrixA_L.m_SourceMatrixSharedCopyList[MatrixNumber_A].SwapSmartPointer(GlueMatrixB_M.m_SourceMatrixSharedCopyList[0]);
+        GlueMatrixA_L.m_SourceMatrixSharedCopyList[MatrixNumber_A].Swap(GlueMatrixB_M.m_SourceMatrixSharedCopyList[0]);
 
         GlueMatrixA_L.m_ElementList_Coef.push_back(GlueMatrixB_M.m_Element_Coef);
 
@@ -982,7 +982,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
         GlueMatrixA_L.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_A + 1);
         GlueMatrixA_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        GlueMatrixA_L.m_SourceMatrixSharedCopyList[MatrixNumber_A].SwapSmartPointer(GlueMatrixB_M.m_SourceMatrixSharedCopyList[0]);
+        GlueMatrixA_L.m_SourceMatrixSharedCopyList[MatrixNumber_A].Swap(GlueMatrixB_M.m_SourceMatrixSharedCopyList[0]);
 
         GlueMatrixA_L.m_ElementList_Coef.push_back(ElementType(0) - GlueMatrixB_M.m_Element_Coef);
 
@@ -1083,7 +1083,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForMul
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList.reserve(2);
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].SwapSmartPointer(GlueMatrixB.m_SourceMatrixSharedCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].Swap(GlueMatrixB.m_SourceMatrixSharedCopyList[0]);
 
         tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixA.m_Element_Coef);
 

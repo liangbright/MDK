@@ -1287,16 +1287,16 @@ bool DenseMatrix<ElementType>::Take(DenseVector<ElementType>& InputColVector)
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::SwapSmartPointer(DenseMatrix<ElementType>& InputMatrix)
+void DenseMatrix<ElementType>::Swap(DenseMatrix<ElementType>& InputMatrix)
 {
-// for GlueMatrix
-
-    // Matrix = Matrix
-    if (this == &InputMatrix)
-    {
-        MDK_Warning("A Matrix tries to Swap with itself @ DenseMatrix::SwapSmartPointer(InputMatrix)")
-        return;
-    }
+	if (this->GetElementPointer() == InputMatrix.GetElementPointer())
+	{
+		if (this->IsEmpty() == false)
+		{
+			MDK_Warning("A Matrix try to Swap with itself @ DenseMatrix::Swap(InputMatrix)")
+		}
+		return;
+	}
 
     m_MatrixData.swap(InputMatrix.m_MatrixData); // shared_ptr self swap check is not necessary
 
@@ -1307,8 +1307,7 @@ void DenseMatrix<ElementType>::SwapSmartPointer(DenseMatrix<ElementType>& InputM
     else
     {
         m_ElementPointer = nullptr;
-
-        MDK_Warning("m_MatrixData is empty after SwapSmartPointer @ DenseMatrix::SwapSmartPointer(InputMatrix)")
+        //MDK_Warning("m_MatrixData is empty after SwapSmartPointer @ DenseMatrix::Swap(InputMatrix)")
     }
 
     if (InputMatrix.m_MatrixData)
@@ -1320,6 +1319,7 @@ void DenseMatrix<ElementType>::SwapSmartPointer(DenseMatrix<ElementType>& InputM
         InputMatrix.m_ElementPointer = nullptr;
     }
 }
+
 
 template<typename ElementType>
 inline

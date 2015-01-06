@@ -334,9 +334,9 @@ public:
     inline bool ForceShare(const ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed = true);
 
     //-------------------- Take -----------------------------------------------------------//
-
-    //Take the data of the InputMatrix and Clear InputMatrix
+    // Take the data of the InputMatrix and Clear InputMatrix
     // m_MatrixData->StdVector = std::move(InputMatrix.m_MatrixData->StdVector);
+	// A.Take(B) is equivalent to A=std::move(B)
 
     inline void Take(DenseMatrix<ElementType>&& InputMatrix);
     inline bool Take(DenseMatrix<ElementType>& InputMatrix);
@@ -367,10 +367,12 @@ public:
 	inline bool Take(DenseVector<ElementType>& InputColVector);
 
     //------------------------- Swap shared_ptr m_MatrixData -------------------------------------------//
-
     // m_MatrixData.swap(InputMatrix.m_MatrixData)
-
-    inline void SwapSmartPointer(DenseMatrix<ElementType>& InputMatrix);
+	// faster than A.Take(B)
+	// side effect : invalidate Share()
+	// if A.Share(B); A.Swap(C); then A will no longer share B, but C will share B; A become C, C become A; 
+	// if A.Share(B); A.Take(C); then A still share B, and only its content is changed; C will not share B
+    inline void Swap(DenseMatrix<ElementType>& InputMatrix);
 
 	//------------------------- ReCreate -------------------------------------------//
 	// ReCreate for any Object that has member function: Share() and ForceShare()
@@ -752,7 +754,7 @@ public:
 
     // -------------------------- special col reference ---------------------------------------------
     // faster than Col(int_max ColIndex)
-    // side effect: A.RefCol(k) = constant => error ( Matrix = constant ), but A.Col(k) = constant is good
+    // side effect: A.RefCol(k) = constant => error (fixed size Matrix = constant ), but A.Col(k) = constant is good
     // use A.RefCol(k).Fill(constant);
 
     inline DenseMatrix RefCol(int_max ColIndex);

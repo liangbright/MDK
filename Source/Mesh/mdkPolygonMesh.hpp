@@ -51,23 +51,23 @@ void PolygonMesh<MeshAttributeType>::operator=(PolygonMesh<MeshAttributeType>&& 
 //------------ Construct from input data ------------------------------------//
 
 template<typename MeshAttributeType>
-bool PolygonMesh<MeshAttributeType>::Construct(const DenseMatrix<typename MeshAttributeType::ScalarType>& InputPointPositionMatrix, 
+bool PolygonMesh<MeshAttributeType>::Construct(DenseMatrix<ScalarType> InputPointPositionMatrix,
                                                const ObjectArray<DenseVector<int_max>>& InputCellTable)
 {
 	if (InputPointPositionMatrix.IsEmpty() == true || InputCellTable.IsEmpty() == true)
     {
-        MDK_Error("InputPointPositionTable or InputPointIndexTable is empty @ PolygonMesh::Construct(...)")
+        MDK_Error("InputPointPositionMatrix or InputCellTable is empty @ PolygonMesh::Construct(...)")
         return false;
     }
 
 	if (InputPointPositionMatrix.GetRowNumber() != 3 || 3 * InputCellTable.GetElementNumber() < InputPointPositionMatrix.GetColNumber())
     {
-        MDK_Error("InputPointPositionTable or InputPointIndexTable is invalid @ PolygonMesh::Construct(...)")
+        MDK_Error("InputPointPositionMatrix or InputCellTable is invalid @ PolygonMesh::Construct(...)")
         return false;
     }
     //--------------------------------------------------------------------------------------------------
 
-	auto PointHandleList = this->AddPointSet(InputPointPositionMatrix);
+	auto PointHandleList = this->AddPointSet(std::move(InputPointPositionMatrix));
 
     for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
     {

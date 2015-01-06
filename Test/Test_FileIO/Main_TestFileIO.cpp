@@ -12,6 +12,10 @@ int main()
 
 	//Test_TriangleMeshIO();
 
+	Test_VTK_Json();
+
+	Test_ITK_Json();
+
     std::system("pause");
 
     return 1;

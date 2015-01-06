@@ -1763,24 +1763,70 @@ const Iterator_Of_Cell_Of_MembraneMesh<MeshAttributeType> MembraneMesh<MeshAttri
     return it;
 }
 
+//------------ ReserveCapacity, ReleaseUnusedCapacity -------------------------------------//
+template<typename MeshAttributeType>
+bool MembraneMesh<MeshAttributeType>::ReserveCapacity(int_max PointNumber, int_max EdgeNumber, int_max CellNumber)
+{
+	if (m_MeshData->PointPositionTable->ReserveCapacity(3 * PointNumber) == false)
+	{
+		return false;
+	}
+	if (m_MeshData->PointList->ReserveCapacity(PointNumber) == false)
+	{
+		return false;
+	}
+	if (m_MeshData->PointValidityFlagList->ReserveCapacity(PointNumber) == false)
+	{
+		return false;
+	}
+	if (m_MeshData->EdgeList->ReserveCapacity(EdgeNumber) == false)
+	{
+		return false;
+	}
+	if (m_MeshData->EdgeValidityFlagList->ReserveCapacity(EdgeNumber) == false)
+	{
+		return false;
+	}
+	if (m_MeshData->CellList->ReserveCapacity(CellNumber) == false)
+	{
+		return false;
+	}
+	if (m_MeshData->CellValidityFlagList->ReserveCapacity(CellNumber) == false)
+	{
+		return false;
+	}
+	return true;
+}
+
+
+template<typename MeshAttributeType>
+void MembraneMesh<MeshAttributeType>::ReleaseUnusedCapacity()
+{
+	m_MeshData->PointPositionTable->ReleaseUnusedCapacity();
+	m_MeshData->PointList->ReleaseUnusedCapacity();
+	m_MeshData->PointValidityFlagList->ReleaseUnusedCapacity();
+	m_MeshData->EdgeList->ReleaseUnusedCapacity();
+	m_MeshData->EdgeValidityFlagList->ReleaseUnusedCapacity();
+	m_MeshData->CellList->ReleaseUnusedCapacity();
+	m_MeshData->CellValidityFlagList->ReleaseUnusedCapacity();
+}
+
 //------------------------------ Add Mesh Item -------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::
-AddPoint(const DenseVector<typename MeshAttributeType::ScalarType, 3>& Position)
+Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddPoint(const DenseVector<ScalarType, 3>& Position)
 {
     return this->AddPoint(Position[0], Position[1], Position[2]);
 }
 
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::
-AddPoint(const DenseVector<typename MeshAttributeType::ScalarType>& Position)
+Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddPoint(const DenseVector<ScalarType>& Position)
 {
     if (PointSet.GetLength() != 3)
     {
         MDK_Error("Position is a vector but length != 3 @ MembraneMesh::AddPoint(...)")
-            Handle_Of_Point_Of_MembraneMesh PointHandle;
+        Handle_Of_Point_Of_MembraneMesh PointHandle;
         PointHandle.SetToInvalid();
         return PointHandle;
     }
@@ -1790,8 +1836,7 @@ AddPoint(const DenseVector<typename MeshAttributeType::ScalarType>& Position)
 
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::
-AddPoint(const DenseMatrix<typename MeshAttributeType::ScalarType>& Position)
+Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddPoint(const DenseMatrix<ScalarType>& Position)
 {
     if (Position.IsVector() == true)
     {
@@ -1816,7 +1861,7 @@ AddPoint(const DenseMatrix<typename MeshAttributeType::ScalarType>& Position)
 
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddPoint(const typename MeshAttributeType::ScalarType Position[3])
+Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddPoint(const ScalarType Position[3])
 {
     return this->AddPoint(Position[0], Position[1], Position[2]);
 }
@@ -1824,8 +1869,7 @@ Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddPoint(const 
 
 template<typename MeshAttributeType>
 Handle_Of_Point_Of_MembraneMesh
-MembraneMesh<MeshAttributeType>::
-AddPoint(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z)
+MembraneMesh<MeshAttributeType>::AddPoint(ScalarType x, ScalarType y, ScalarType z)
 {
     m_MeshData->PointPositionTable.AppendCol({x, y, z});
     auto PointIndex = m_MeshData->PointPositionTable.GetColNumber() - 1;
@@ -1846,8 +1890,7 @@ AddPoint(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::S
 
 
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::
-AddPointSet(const DenseMatrix<typename MeshAttributeType::ScalarType>& PointSet)
+DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::AddPointSet(const DenseMatrix<ScalarType>& PointSet)
 {
     DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList;
 
@@ -1855,7 +1898,7 @@ AddPointSet(const DenseMatrix<typename MeshAttributeType::ScalarType>& PointSet)
     {
         if (PointSet.GetElementNumber() != 3)
         {
-            MDK_Error("PointSet is a vector but length != 3 @ MembraneMesh::AddPoint(...)")
+            MDK_Error("PointSet is a vector but length != 3 @ MembraneMesh::AddPointSet(...)")
             return PointHandleList;
         }
 
@@ -1866,7 +1909,7 @@ AddPointSet(const DenseMatrix<typename MeshAttributeType::ScalarType>& PointSet)
 
     if (PointSet.GetRowNumber() != 3)
     {
-        MDK_Error("PointSet is a matrix but RowNumber != 3 @ MembraneMesh::AddPoint(...)")
+        MDK_Error("PointSet is a matrix but RowNumber != 3 @ MembraneMesh::AddPointSet(...)")
         return PointHandleList;
     }
 
@@ -1876,6 +1919,59 @@ AddPointSet(const DenseMatrix<typename MeshAttributeType::ScalarType>& PointSet)
         PointHandleList[k] = this->AddPoint(PointSet.GetPointerOfCol(k));
     }
     return PointHandleList;
+}
+
+
+template<typename MeshAttributeType>
+DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::AddPointSet(DenseMatrix<ScalarType>&& PointSet)
+{
+	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList;
+
+	if (PointSet.IsVector() == true)
+	{
+		if (PointSet.GetElementNumber() != 3)
+		{
+			MDK_Error("PointSet is a vector but length != 3 @ MembraneMesh::AddPointSet(...)")
+			return PointHandleList;
+		}
+
+		PointHandleList.Resize(1);
+		PointHandleList[0] = this->AddPoint(PointSet.GetPointer());
+		return PointHandleList;
+	}
+
+	if (PointSet.GetRowNumber() != 3)
+	{
+		MDK_Error("PointSet is a matrix but RowNumber != 3 @ MembraneMesh::AddPointSet(...)")
+		return PointHandleList;
+	}
+
+	if (this->IsEmpty() == true)
+	{
+		m_MeshData->PointPositionTable = std::move(PointSet);
+		PointHandleList.Resize(m_MeshData->PointPositionTable.GetColNumber());
+		for (int_max k = 0; k < m_MeshData->PointPositionTable.GetColNumber(); ++k)
+		{
+			Point_Of_MembraneMesh<MeshAttributeType> Point;
+			Point.Create();
+			Point.SetParentMesh(*this);
+			Point.SetIndex(k);
+
+			m_MeshData->PointList.Append(std::move(Point));
+			m_MeshData->PointValidityFlagList.Append(1);
+
+			PointHandleList[k].SetIndex(k);
+		}
+	}
+	else
+	{
+		PointHandleList.Resize(PointSet.GetColNumber());
+		for (int_max k = 0; k < PointSet.GetColNumber(); ++k)
+		{
+			PointHandleList[k] = this->AddPoint(PointSet.GetPointerOfCol(k));
+		}
+	}
+	return PointHandleList;
 }
 
 
