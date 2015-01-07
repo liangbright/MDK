@@ -1,7 +1,7 @@
 #ifndef __mdkMembraneMeshItemHandle_h
 #define __mdkMembraneMeshItemHandle_h
 
-#include "mdkType.h"
+#include "mdkCommonType.h"
 
 namespace mdk
 {

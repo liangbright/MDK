@@ -182,12 +182,7 @@ template<typename ElementType>
 inline
 DenseMatrix<ElementType>::DenseMatrix(DenseMatrix<ElementType>&& InputMatrix) noexcept
 {
-    m_MatrixData = std::move(InputMatrix.m_MatrixData);
-
-    m_ElementPointer = m_MatrixData->ElementPointer;
-
-    // InputMatrix may not be destructed, e.g., sort a list of DenseMatrix in ObjectArray
-    InputMatrix.m_ElementPointer = nullptr;
+	(*this) = std::move(InputMatrix);
 }
 
 
@@ -250,7 +245,10 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::operator=(DenseMatrix<ElementType>&& InputMatrix)
 {
-    this->Take(std::forward<DenseMatrix<ElementType>&>(InputMatrix));
+	m_MatrixData = std::move(InputMatrix.m_MatrixData);
+	m_ElementPointer = m_MatrixData->ElementPointer;
+	// InputMatrix may not be destructed
+	InputMatrix.m_ElementPointer = nullptr;
 }
 
 
@@ -1872,6 +1870,21 @@ inline
 bool DenseMatrix<ElementType>::IsSharedWith(const DenseMatrix& InputMatrix) const
 {
     return (this->GetElementPointer() == InputMatrix.GetElementPointer());
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::IsDataInInternalArray() const
+{
+	if (!m_MatrixData)
+	{
+		return false;
+	}
+	else
+	{
+		return (m_MatrixData->ElementPointer == m_MatrixData->StdVector.data());
+	}
 }
 
 

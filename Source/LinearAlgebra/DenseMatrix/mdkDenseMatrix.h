@@ -47,9 +47,9 @@ struct DenseMatrixData
     int_max RowNumber;  // RowNumber = the Number of Rows 
     int_max ColNumber;  // ColNumber = the Number of Columns
 
-    ElementType* ElementPointer; // point to InternalArray/StdVector or external array 
+	ElementType* ElementPointer; // point to InternalArray/StdVector or external array 
 
-    std::vector<ElementType> StdVector; // InternalArray
+	std::vector<ElementType> StdVector; // InternalArray
 
     ElementType NaNElement;
 //-------------------------------------------------------------
@@ -210,7 +210,7 @@ public:
     // otherwise, compiler will create a new one
     inline void operator=(const DenseMatrix<ElementType>& InputMatrix);
 
-    // move assignment operator (Take)
+    // move assignment operator (this->m_MatrixData = std::move(m_MatrixData of InputMatrix))
     inline void operator=(DenseMatrix<ElementType>&& InputMatrix);
 
 	inline void operator=(const DenseShadowMatrix<ElementType>& ShadowMatrix);
@@ -267,12 +267,13 @@ public:
     // A.Share(B) really means A and B share the same data
     // After B.Share(C), then B is C, and the share-relation between A and B is terminated, A keep its data.
 	// 
-	// 3 way to terminate the relation A.Share(B) or A.ForceShare(B)
-	// (1) DenseMatrix C(std::move(A));  or DenseMatrix C = std::move(A); 
-	//     A become a pure empty matrix; if A is to be used again, then A.Resize(0,0);
+	// 4 way to terminate the relation A.Share(B) or A.ForceShare(B)
+	// (1) DenseMatrix C;  C = std::move(A);
+	// (2) DenseMatrix C(std::move(A));  or DenseMatrix C = std::move(A); 
+	// After(1) or (2), A become a pure empty matrix; if A is to be used again, then A.Resize(0,0);
 	//    
-	// (2) DenseMatrix C; A.ForceShare(C); A is C, an empty matrix (m_IsSizeFixed is false), and B keep the data
-	// (3) A.ForceShare(MDK_EMPTY);        A become an empty matrix (m_IsSizeFixed is false)
+	// (3) DenseMatrix C; A.ForceShare(C); A is C, an empty matrix (m_IsSizeFixed is false), and B keep the data
+	// (4) A.ForceShare(MDK_EMPTY);        A become an empty matrix (m_IsSizeFixed is false)
 	//
     // There are 3 situation we may use A.Share(B) or A.ForceShare(B)
     // (1) use A as an observer of B, and do not modify B by using A, e.g., A(0,0)=1;
@@ -299,29 +300,29 @@ public:
     //        const mdkDenseMatrix<ElementType>& A = InputFunction()(return a Matrix) 
     //
     // note2: if const share of many objects is needed
-    //        there is no such thing as std::vector<const mdkDenseMatrix<ElementType>&>
+    //        there is no such thing as std::vector<const DenseMatrix<ElementType>&>
     //
-    //        you can create std::vector<const mdkDenseMatrix<ElementType>*> MatrixPtrListA = {&B1, &B2, ...};
+    //        you can create std::vector<const DenseMatrix<ElementType>*> MatrixPtrListA = {&B1, &B2, ...};
     //        and const prevent changing B, e.g., (*MatrixPtrListA[0])(0,0) = 10; can not be compiled
     //
-    //        However,std::vector<const mdkDenseMatrix<ElementType>> is equal to std::vector<mdkDenseMatrix<ElementType>>
+    //        However,std::vector<const DenseMatrix<ElementType>> is equal to std::vector<DenseMatrix<ElementType>>
     //
     //        std::vector<const mdkDenseMatrix<ElementType>> MatrixListA;        
-    //        MatrixListA.emplace_back(B1, mdkObjectCopyConstructionTypeEnum::Share);
+    //        MatrixListA.emplace_back(B1, ObjectCopyConstructionTypeEnum::Share);
     //        But:
     //            MatrixListA[0](1,1) = 100; CAN be compiled !!!  (B1 is changed by this code)
     //
     //-----------------------------------------------------------------------------------------------------
     // conclusion: 
     // (1) An array of Share objects can be created from InputMatrix
-    //     std::vector<mdkDenseMatrix<ElementType>> SharedMatrixArray(10);
+    //     std::vector<DenseMatrix<ElementType>> SharedMatrixArray(10);
     //     SharedMatrixArray[i].Share(InputMatrix);
     //     SharedMatrixArray[i].ForceShare(InputMatrix);
     //
     // (2) An array of const Share objects can be created by using std::vector, but const is lost
     //
     // (3) An array of const pointers to objects can be created from InputMatrix
-    //     std::vector<const mdkDenseMatrix<ElementType>*> SharedMatrixPointerArray(10);
+    //     std::vector<const DenseMatrix<ElementType>*> SharedMatrixPointerArray(10);
     //     SharedMatrixPointerArray[i] = &InputMatrix;
     //------------------------------------------------------------------------------------------------------
 
@@ -337,7 +338,7 @@ public:
     //-------------------- Take -----------------------------------------------------------//
     // Take the data of the InputMatrix and Clear InputMatrix
     // m_MatrixData->StdVector = std::move(InputMatrix.m_MatrixData->StdVector);
-	// A.Take(B) is equivalent to A=std::move(B)
+	// A.Take(B) is NOT equivalent to A=std::move(B)
 
     inline void Take(DenseMatrix<ElementType>&& InputMatrix);
     inline bool Take(DenseMatrix<ElementType>& InputMatrix);
@@ -417,6 +418,8 @@ public:
     inline bool IsShared() const;
 
     inline bool IsSharedWith(const DenseMatrix& InputMatrix) const;
+
+	inline bool IsDataInInternalArray() const;
 
 	inline MatrixSize GetSize() const;
 

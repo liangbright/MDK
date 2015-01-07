@@ -58,7 +58,7 @@ template<typename ElementType>
 inline
 ObjectArray<ElementType>::ObjectArray(ObjectArray<ElementType>&& InputArray) noexcept
 {
-    m_Data = std::move(InputArray.m_Data);
+	(*this) = std::move(InputArray);
 }
 
 
@@ -66,24 +66,6 @@ template<typename ElementType>
 inline
 ObjectArray<ElementType>::~ObjectArray()
 {
-}
-
-
-template<typename ElementType>
-inline
-std::vector<ElementType>& ObjectArray<ElementType>::StdVector()
-{
-    m_Data->CopyDataToStdVectorIfNecessary();
-    return m_Data->StdVector;
-}
-
-
-template<typename ElementType>
-inline
-const std::vector<ElementType>& ObjectArray<ElementType>::StdVector() const
-{
-    m_Data->CopyDataToStdVectorIfNecessary();
-    return m_Data->StdVector;
 }
 
 
@@ -100,7 +82,7 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::operator=(ObjectArray<ElementType>&& InputArray)
 {
-    this->Take(std::forward<ObjectArray<ElementType>&>(InputArray));
+	m_Data = std::move(InputArray.m_Data);
 }
 
 
@@ -673,9 +655,11 @@ void ObjectArray<ElementType>::ReleaseUnusedCapacity()
     {
         return;
     }
-
-    m_Data->StdVector.shrink_to_fit();
-    m_Data->ElementPointer = m_Data->StdVector.data();
+	else
+	{
+		m_Data->StdVector.shrink_to_fit();
+		m_Data->ElementPointer = m_Data->StdVector.data();
+	}
 }
 
 
@@ -724,6 +708,14 @@ bool ObjectArray<ElementType>::IsEmpty() const
 
 template<typename ElementType>
 inline
+bool ObjectArray<ElementType>::IsPureEmpty() const
+{
+	return (!m_Data);
+}
+
+
+template<typename ElementType>
+inline
 bool ObjectArray<ElementType>::IsShared() const
 {
 	if (!m_Data)
@@ -734,6 +726,14 @@ bool ObjectArray<ElementType>::IsShared() const
 	{
 		return (m_Data.use_count() > 1);
 	}
+}
+
+
+template<typename ElementType>
+inline
+bool ObjectArray<ElementType>::IsSharedWith(const ObjectArray& InputArray) const
+{
+	return (this->GetElementPointer() == InputArray.GetElementPointer());
 }
 
 
@@ -856,14 +856,15 @@ template<typename ElementType>
 inline
 ElementType* ObjectArray<ElementType>::end()
 {
-    auto EndPtr = this->GetElementPointer();
-
-    if (EndPtr != nullptr)
+	auto BeginPtr = this->GetElementPointer();
+	if (BeginPtr != nullptr)
     {
-        EndPtr += this->GetElementNumber();
+		return BeginPtr + this->GetElementNumber();
     }
-
-    return EndPtr;
+	else
+	{
+		return nullptr;
+	}
 }
 
 
@@ -871,14 +872,15 @@ template<typename ElementType>
 inline
 const ElementType* ObjectArray<ElementType>::end() const
 {
-    auto EndPtr = this->GetElementPointer();
-
-    if (EndPtr != nullptr)
-    {
-        EndPtr += this->GetElementNumber();
-    }
-
-    return EndPtr;
+	auto BeginPtr = this->GetElementPointer();
+	if (BeginPtr != nullptr)
+	{
+		return BeginPtr + this->GetElementNumber();
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 

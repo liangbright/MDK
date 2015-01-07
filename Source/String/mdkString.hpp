@@ -49,7 +49,7 @@ inline String::String(const String& InputString, ObjectConstructionTypeEnum Meth
 // move constructor
 inline String::String(String&& InputString) noexcept
 {
-    m_StringData = std::move(InputString.m_StringData);
+	(*this) = std::move(InputString);
 }
 
 
@@ -67,7 +67,7 @@ inline void String::operator=(const String& InputString)
 // move assignment operator
 inline void String::operator=(String&& InputString)
 {
-    this->Take(std::forward<String&>(InputString));
+	m_StringData = std::move(InputString.m_StringData);
 }
 
 
@@ -126,7 +126,7 @@ inline const std::basic_string<char>& String::StdString() const
 {
 	if (this->IsPureEmpty() == true)
 	{
-		MDK_Error("self is pure empty @ String::StdString()")
+		const_cast<String*>(this)->Resize(0);
 	}
 	return (*m_StringData);
 }

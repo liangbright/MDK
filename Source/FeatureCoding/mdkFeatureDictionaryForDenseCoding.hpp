@@ -20,10 +20,7 @@ FeatureDictionaryForDenseCoding<ScalarType>::FeatureDictionaryForDenseCoding(con
 template<typename ScalarType>
 FeatureDictionaryForDenseCoding<ScalarType>::FeatureDictionaryForDenseCoding(FeatureDictionaryForDenseCoding&& InputDictionary)
 {
-    m_Name = std::move(InputDictionary.m_Name);
-    m_BasisMatrix = std::move(InputDictionary.m_BasisMatrix);
-    m_Covariance = std::move(InputDictionary.m_Covariance);
-    m_StandardDeviation = std::move(InputDictionary.m_StandardDeviation);
+	(*this) = std::move(InputDictionary);
 }
 
 
@@ -44,13 +41,7 @@ void FeatureDictionaryForDenseCoding<ScalarType>::operator=(const FeatureDiction
 template<typename ScalarType>
 void FeatureDictionaryForDenseCoding<ScalarType>::operator=(FeatureDictionaryForDenseCoding&& InputDictionary)
 {
-    m_Name = std::move(InputDictionary.m_Name);
-
-    m_BasisMatrix = std::move(InputDictionary.m_BasisMatrix);
-
-    m_Covariance = std::move(InputDictionary.m_Covariance);
-
-    m_StandardDeviation = std::move(InputDictionary.m_StandardDeviation);
+	m_DictionaryData = std::move(InputDictionary.m_DictionaryData);
 }
 
 

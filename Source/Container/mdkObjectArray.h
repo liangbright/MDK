@@ -41,9 +41,11 @@ struct ObjectArrayData
 
     int_max Length;
 
-    ElementType* ElementPointer;
+	// mutable to use CopyDataToStdVectorIfNecessary() in StdVector()
 
-    ElementType ErrorElement;
+	ElementType* ElementPointer;
+
+	ElementType ErrorElement;
 
     bool IsSizeFixed;
 
@@ -119,8 +121,8 @@ public:
 	typedef Element_Type ElementType;
 
 private:     
-    std::shared_ptr<ObjectArrayData<ElementType>> m_Data;
-
+	std::shared_ptr<ObjectArrayData<ElementType>> m_Data; 
+	
 public:			
 	//------------------- constructor and destructor ------------------------------------//
 
@@ -139,14 +141,6 @@ public:
     inline ObjectArray(ObjectArray<ElementType>&& InputArray) noexcept;
 
 	inline ~ObjectArray();
-
-    //-------------------- get/set std vector -----------------------------------//
-	// caution: check: IsDataInInternalArray()
-	// if Element is not stored inside internal std::vector
-	// then data copy will be applied
-    inline std::vector<ElementType>& StdVector();
-
-    inline const std::vector<ElementType>& StdVector() const;
 
     //----------------------  operator=  ----------------------------------------//
 
@@ -227,7 +221,11 @@ public:
 
     inline bool IsEmpty() const;
 
+	inline bool IsPureEmpty() const;
+
     inline bool IsShared() const;
+
+	inline bool IsSharedWith(const ObjectArray& InputArray) const;
 
 	inline bool IsDataInInternalArray() const;
 

@@ -9,7 +9,6 @@
 #include <cmath>
 #include <algorithm>
 
-#include "mdkType.h"
 #include "mdkObjectArray.h"
 
 #include "mdkLinearAlgebraConfig.h"

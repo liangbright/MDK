@@ -1076,7 +1076,7 @@ template<typename ElementType>
 inline
 SparseMatrix<ElementType>::SparseMatrix(SparseMatrix<ElementType>&& InputMatrix)
 {
-    m_MatrixData = std::move(InputMatrix.m_MatrixData);
+	(*this) = std::move(InputMatrix);
 }
 
 /*
@@ -1417,12 +1417,7 @@ template<typename ElementType>
 inline
 void SparseMatrix<ElementType>::operator=(SparseMatrix<ElementType>&& InputMatrix)
 {
-    if (!m_MatrixData)
-    {
-        this->Resize(0, 0);
-    }
-
-    this->Take(InputMatrix);
+	m_MatrixData = std::move(InputMatrix.m_MatrixData);
 }
 
 

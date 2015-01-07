@@ -178,7 +178,7 @@ DenseImage2D<PixelType>::DenseImage2D(const DenseImage2D<PixelType>& InputImage)
 template<typename PixelType>
 DenseImage2D<PixelType>::DenseImage2D(DenseImage2D<PixelType>&& InputImage)
 {
-    m_ImageData = std::move(InputImage.m_ImageData);
+	(*this) = std::move(InputImage);
 }
 
 
@@ -198,15 +198,7 @@ void DenseImage2D<PixelType>::operator=(const DenseImage2D<PixelType>& InputImag
 template<typename PixelType>
 void DenseImage2D<PixelType>::operator=(DenseImage2D<PixelType>&& InputImage)
 {
-    if (!m_ImageData)
-    {
-        m_ImageData = std::make_shared<DenseImageData2D<PixelType>>();
-        this->Clear();
-    }
-
-    this->Take(InputImage);
-
-	InputImage.Clear();
+	m_ImageData = std::move(InputImage.m_ImageData);
 }
 
 

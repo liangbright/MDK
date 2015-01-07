@@ -1,5 +1,6 @@
 #include "mdkFileIO.h"
 #include "mdkPolygonMesh.h"
+#include "mdkPolygonMesh_FileIO.h"
 
 void Test_MeshConstruction()
 {
@@ -7,7 +8,8 @@ void Test_MeshConstruction()
 
     std::string FilePathAndName = "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Triangle.vtk";
     
-    auto LeafletMesh = LoadPolygonMeshFromVTKFile<PolygonMeshStandardAttributeType<double>>(FilePathAndName);
+	PolygonMesh<PolygonMeshStandardAttributeType<double>> LeafletMesh;
+	LoadPolygonMeshFromVTKFile(LeafletMesh, FilePathAndName);
 
     auto PointHandle = LeafletMesh.AddPoint(0, 0, 0);
 

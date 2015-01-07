@@ -27,7 +27,7 @@ MembraneMesh<MeshAttributeType>::MembraneMesh(const MembraneMesh<MeshAttributeTy
 template<typename MeshAttributeType>
 MembraneMesh<MeshAttributeType>::MembraneMesh(MembraneMesh<MeshAttributeType>&& InputMesh)
 {
-    m_MeshData = std::move(InputMesh.m_MeshData);
+	(*this) = std::move(InputMesh);
 }
 
 
@@ -49,12 +49,7 @@ template<typename MeshAttributeType>
 inline
 void MembraneMesh<MeshAttributeType>::operator=(MembraneMesh<MeshAttributeType>&& InputMesh)
 {
-    if (!m_MeshData)
-    {
-        m_MeshData = std::make_shared<MembraneMeshData<MeshAttributeType>>();
-    }
-
-    this->Take(std::forward<MembraneMesh<MeshAttributeType>&>(InputMesh));
+	m_MeshData = std::move(InputMesh.m_MeshData);
 }
 
 

@@ -139,7 +139,7 @@ SparseImage3D<PixelType>::SparseImage3D(const SparseImage3D<PixelType>& InputSpa
 template<typename PixelType>
 SparseImage3D<PixelType>::SparseImage3D(SparseImage3D<PixelType>&& InputSparseImage)
 {
-    m_ImageData = std::move(InputSparseImage.m_ImageData);
+	(*this) = std::move(InputSparseImage);
 }
 
 
@@ -159,15 +159,7 @@ void SparseImage3D<PixelType>::operator=(const SparseImage3D<PixelType>& InputIm
 template<typename PixelType>
 void SparseImage3D<PixelType>::operator=(SparseImage3D<PixelType>&& InputImage)
 {
-    if (!m_ImageData)
-    {
-        m_ImageData = std::make_shared<SparseImageData3D<PixelType>>();
-        this->Clear();
-    }
-
-    this->Take(InputImage);
-
-	InputImage.Clear();
+	m_ImageData = std::move(InputSparseImage.m_ImageData);
 }
 
 

@@ -223,14 +223,14 @@ DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::Transform3DPhysicalPosit
 template<typename PixelType>
 DenseImage3D<PixelType>::DenseImage3D()
 {
-	this->ReCreate();
+	m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 }
 
 
 template<typename PixelType>
 DenseImage3D<PixelType>::DenseImage3D(const DenseImage3D<PixelType>& InputImage)
 {
-	this->ReCreate();
+	m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
     this->Copy(InputImage);
 }
 
@@ -238,7 +238,7 @@ DenseImage3D<PixelType>::DenseImage3D(const DenseImage3D<PixelType>& InputImage)
 template<typename PixelType>
 DenseImage3D<PixelType>::DenseImage3D(DenseImage3D<PixelType>&& InputImage)
 {
-    m_ImageData = std::move(InputImage.m_ImageData);
+	(*this) = std::move(InputImage);
 }
 
 
@@ -258,14 +258,7 @@ void DenseImage3D<PixelType>::operator=(const DenseImage3D<PixelType>& InputImag
 template<typename PixelType>
 void DenseImage3D<PixelType>::operator=(DenseImage3D<PixelType>&& InputImage)
 {
-    if (this->IsPureEmpty() == true)
-    {
-		this->ReCreate();
-    }
-
-    this->Take(InputImage);
-
-	InputImage.Clear();
+	m_ImageData = std::move(InputImage.m_ImageData);
 }
 
 
@@ -425,7 +418,7 @@ void DenseImage3D<PixelType>::Take(DenseImage3D<PixelType>& InputImage)
 {
 	if (this->IsPureEmpty() == true)
 	{
-		this->ReCreate();
+		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 	}
 
     m_ImageData->m_Size[0] = InputImage.m_ImageData->m_Size[0];
@@ -457,14 +450,6 @@ bool DenseImage3D<PixelType>::Take(DenseImage3D<PixelType>* InputImage)
     this->Take(*InputImage);
 
     return true;
-}
-
-
-template<typename PixelType>
-bool DenseImage3D<PixelType>::ReCreate()
-{
-	m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
-	return bool(m_ImageData);
 }
 
 
@@ -648,7 +633,7 @@ bool DenseImage3D<PixelType>::SetSize(int_max Lx, int_max Ly, int_max Lz)
 
 	if (this->IsPureEmpty() == true)
 	{
-		this->ReCreate();
+		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 	}
 
 	if (Lx == m_ImageData->m_Size[0] && Ly == m_ImageData->m_Size[1] && Lz == m_ImageData->m_Size[2])
@@ -746,7 +731,7 @@ void DenseImage3D<PixelType>::SetSpacing(double Spacing_x, double Spacing_y, dou
 
 	if (this->IsPureEmpty() == true)
 	{
-		this->ReCreate();
+		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 	}
     m_ImageData->m_LocalSys.Spacing[0] = Spacing_x;
     m_ImageData->m_LocalSys.Spacing[1] = Spacing_y;
@@ -804,7 +789,7 @@ void DenseImage3D<PixelType>::SetOrigin(double Origin_x, double Origin_y, double
 {
 	if (this->IsPureEmpty() == true)
 	{
-		this->ReCreate();
+		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 	}
     m_ImageData->m_LocalSys.Origin[0] = Origin_x;
     m_ImageData->m_LocalSys.Origin[1] = Origin_y;
@@ -843,7 +828,7 @@ void DenseImage3D<PixelType>::SetOrientation(const DenseMatrix<double>& Orientat
 
 	if (this->IsPureEmpty() == true)
 	{
-		this->ReCreate();
+		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 	}
 
 	Orientation.GetCol(0, m_ImageData->m_LocalSys.DirectionX);

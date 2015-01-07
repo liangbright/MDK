@@ -26,7 +26,7 @@ FeatureDictionaryForSparseCoding<ScalarType>::FeatureDictionaryForSparseCoding(c
 template<typename ScalarType>
 FeatureDictionaryForSparseCoding<ScalarType>::FeatureDictionaryForSparseCoding(FeatureDictionaryForSparseCoding<ScalarType>&& InputDictionary)
 {
-    m_DictionaryData = std::move(InputDictionary.m_DictionaryData);
+	(*this) = std::move(InputDictionary);
 }
 
 
@@ -46,14 +46,7 @@ void FeatureDictionaryForSparseCoding<ScalarType>::operator=(const FeatureDictio
 template<typename ScalarType>
 void FeatureDictionaryForSparseCoding<ScalarType>::operator=(FeatureDictionaryForSparseCoding<ScalarType>&& InputDictionary)
 {
-    if (!m_DictionaryData)
-    {
-        m_DictionaryData = std::make_shared<DictionaryData_Of_FeatureDictionaryForSparseCoding<ScalarType>>();
-
-        this->Clear();
-    }
-
-    this->Take(std::forward<FeatureDictionaryForSparseCoding<ScalarType>&>(InputDictionary));
+	m_DictionaryData = std::move(InputDictionary.m_DictionaryData);
 }
 
 

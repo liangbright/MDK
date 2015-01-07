@@ -18,7 +18,7 @@ namespace mdk
 class String : public Object
 {
 private:     
-    std::shared_ptr<std::basic_string<char>> m_StringData;
+	mutable std::shared_ptr<std::basic_string<char>> m_StringData;
 
 public:			
 	//------------------- constructor and destructor ------------------------------------//
