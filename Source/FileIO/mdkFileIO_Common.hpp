@@ -8,7 +8,7 @@ inline String ExtractFilePath(const String& FilePathAndName)
 	String FilePath;
 
 	int_max Index_current = -1;
-	for (int_max k = FilePathAndName.GetLength() - 1; k >= 0; --k)
+	for (int_max k = FilePathAndName.GetCharNumber() - 1; k >= 0; --k)
 	{
 		if (FilePathAndName[k] == '/')
 		{
@@ -36,7 +36,7 @@ inline String ExtractFileName(const String& FilePathAndName)
 	String FileName;
 
 	int_max Index_current = -1;
-	for (int_max k = FilePathAndName.GetLength() - 1; k >= 0; --k)
+	for (int_max k = FilePathAndName.GetCharNumber() - 1; k >= 0; --k)
 	{
 		if (FilePathAndName[k] == '/')
 		{
@@ -46,8 +46,8 @@ inline String ExtractFileName(const String& FilePathAndName)
 	}
 	if (Index_current >= 0)
 	{
-		FileName.Resize(FilePathAndName.GetLength() - Index_current - 1);
-		for (int_max k = Index_current + 1; k < FilePathAndName.GetLength(); ++k)
+		FileName.Resize(FilePathAndName.GetCharNumber() - Index_current - 1);
+		for (int_max k = Index_current + 1; k < FilePathAndName.GetCharNumber(); ++k)
 		{
 			FileName[k - Index_current - 1] = FilePathAndName[k];
 		}
@@ -64,7 +64,7 @@ inline String ExtractFileType(const String& FileNameWithType)
 	String FileType;
 
 	int_max Index_current = -1;
-	for (int_max k = FileNameWithType.GetLength() - 1; k >= 0; --k)
+	for (int_max k = FileNameWithType.GetCharNumber() - 1; k >= 0; --k)
 	{
 		if (FileNameWithType[k] == '.')
 		{
@@ -74,8 +74,8 @@ inline String ExtractFileType(const String& FileNameWithType)
 	}
 	if (Index_current >= 0)
 	{
-		FileType.Resize(FileNameWithType.GetLength() - Index_current - 1);
-		for (int_max k = Index_current + 1; k < FileNameWithType.GetLength(); ++k) // "." will not be included
+		FileType.Resize(FileNameWithType.GetCharNumber() - Index_current - 1);
+		for (int_max k = Index_current + 1; k < FileNameWithType.GetCharNumber(); ++k) // "." will not be included
 		{
 			FileType[k - Index_current - 1] = FileNameWithType[k];
 		}
@@ -90,7 +90,7 @@ inline String ExtractFileType(const String& FileNameWithType)
 inline String RemoveFileType(const String& FilePathAndName)
 {
 	int_max Index_current = -1;
-	for (int_max k = FilePathAndName.GetLength() - 1; k >= 0; --k)
+	for (int_max k = FilePathAndName.GetCharNumber() - 1; k >= 0; --k)
 	{
 		if (FilePathAndName[k] == '.')
 		{

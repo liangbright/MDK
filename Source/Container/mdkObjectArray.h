@@ -5,7 +5,7 @@
 #include <string>
 #include <memory>
 
-#include "mdkType.h"
+#include "mdkCommonType.h"
 #include "mdkConstant.h"
 #include "mdkObject.h"
 #include "mdkDenseVector_ForwardDeclare.h"

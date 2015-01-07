@@ -1,95 +1,43 @@
 #ifndef __mdkString_hpp
 #define __mdkString_hpp
 
+#include "mdkDenseMatrix.h"
 
 namespace mdk
 {
  
-template<typename ElementType>
-inline
-BasicString<ElementType>::BasicString()
+inline String::String()
 {
-    MDK_Check_ElementType_Of_String<ElementType>();
-
     this->Resize(0);
 }
 
 
-template<typename ElementType>
-inline
-BasicString<ElementType>::BasicString(const ElementType& Element)
+inline String::String(char Element)
 {
-    MDK_Check_ElementType_Of_String<ElementType>();
-
     this->Resize(1);
-
     (*this)(0) = Element;
 }
 
 
-template<typename ElementType>
-inline
-BasicString<ElementType>::BasicString(const std::initializer_list<ElementType>& InputString)
+inline String::String(const char* InputString)
 {
     this->Resize(0);
-
-    (*m_StringData) = InputString;
-}
-
-/*
-template<typename ElementType>
-inline BasicString<ElementType>::BasicString(const char* InputString)
-{
-	if (InputString == nullptr)
-	{
-		return;
-	}
-
-	char Element_input = 'a';
-	int_max Length = 0;
-	while (Element_input != '\0')
-	{
-		Element_input = InputString[Length];
-		Length += 1;
-	}
-
-	this->Resize(Length);
-	for (int_max k = 0; k < Length; ++k)
-	{
-		(*this)[k] = InputString[k];
-	}
-}
-*/
-
-template<typename ElementType>
-inline
-BasicString<ElementType>::BasicString(const ElementType* InputString)
-{
-    this->Resize(0);
-
     (*m_StringData) = InputString;
 }
 
 
-template<typename ElementType>
-inline BasicString<ElementType>::BasicString(const std::basic_string<ElementType>& InputString)
+inline String::String(const std::basic_string<char>& InputString)
 {
     this->Resize(0);
-
     (*m_StringData) = InputString;
 }
 
 
-template<typename ElementType>
-inline
-BasicString<ElementType>::BasicString(const BasicString<ElementType>& InputString, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy)
+inline String::String(const String& InputString, ObjectConstructionTypeEnum Method)
 {
-    MDK_Check_ElementType_Of_String<ElementType>();
-
     if (Method == ObjectConstructionTypeEnum::Copy)
     {
         this->Resize(0);
-
         this->Copy(InputString);
     }
     else
@@ -98,50 +46,37 @@ BasicString<ElementType>::BasicString(const BasicString<ElementType>& InputStrin
     }
 }
 
-
 // move constructor
-template<typename ElementType>
-inline
-BasicString<ElementType>::BasicString(BasicString<ElementType>&& InputString) noexcept
+inline String::String(String&& InputString) noexcept
 {
     m_StringData = std::move(InputString.m_StringData);
 }
 
 
-template<typename ElementType>
-inline
-BasicString<ElementType>::~BasicString()
+inline String::~String()
 {
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::operator=(const BasicString<ElementType>& InputString)
+inline void String::operator=(const String& InputString)
 {
     this->Copy(InputString);
 }
 
 
 // move assignment operator
-template<typename ElementType>
-inline
-void BasicString<ElementType>::operator=(BasicString<ElementType>&& InputString)
+inline void String::operator=(String&& InputString)
 {
-    this->Take(std::forward<BasicString<ElementType>&>(InputString));
+    this->Take(std::forward<String&>(InputString));
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::operator=(const ElementType& Element)
+inline void String::operator=(char Element)
 {
-    auto ElementNumber = this->GetElementNumber();
-
+    auto ElementNumber = this->GetCharNumber();
     if (ElementNumber == 0)
     {
         this->Resize(1);
-
         (*this)[0] = Element;
     }
     else if (ElementNumber == 1)
@@ -151,45 +86,57 @@ void BasicString<ElementType>::operator=(const ElementType& Element)
     else
     {
         this->Clear();
-
         this->Resize(1);
-
         (*this)[0] = Element;
     }
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::operator=(const std::initializer_list<ElementType>& InputString)
+inline void String::operator=(const char* InputString)
 {
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
     (*m_StringData) = InputString;
 }
 
 
-template<typename ElementType>
-inline 
-void BasicString<ElementType>::operator=(const ElementType* InputString)
+inline void String::operator=(const std::basic_string<char>& InputString)
 {
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
     (*m_StringData) = InputString;
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::operator=(const std::basic_string<ElementType>& InputString)
+inline std::basic_string<char>& String::StdString()
 {
-    (*m_StringData) = InputString;
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
+	return (*m_StringData);
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Copy(const BasicString<ElementType>& InputString)
+inline const std::basic_string<char>& String::StdString() const
+{
+	if (this->IsPureEmpty() == true)
+	{
+		MDK_Error("self is pure empty @ String::StdString()")
+	}
+	return (*m_StringData);
+}
+
+
+inline void String::Copy(const String& InputString)
 {
     if (this == &InputString)
     {
-        MDK_Warning("A BasicString tries to Copy itself @ BasicString::Copy(InputString)")
+        MDK_Warning("A String tries to Copy itself @ String::Copy(InputString)")
         return;
     }
 
@@ -199,88 +146,76 @@ void BasicString<ElementType>::Copy(const BasicString<ElementType>& InputString)
         return;
     }
 
-    // copy data
-    //this->Copy(InputString.GetElementPointer());
-
-	// if this BasicString is not empty, check if this and Input Share the same data
+	// if this String is not empty, check if this and Input Share the same data
 	if (this->IsEmpty() == false)
 	{
-		if (std::size_t(InputString.GetElementPointer()) == std::size_t(this->GetElementPointer()))
+		if (std::size_t(InputString.GetCharPointer()) == std::size_t(this->GetCharPointer()))
 		{
 			return;
 		}
 	}
-
+	else
+	{
+		if (this->IsPureEmpty() == true)
+		{
+			this->Resize(0);
+		}
+	}
 	*m_StringData = *InputString.m_StringData;
 }
 
 
-
-template<typename ElementType>
-inline std::basic_string<ElementType>& BasicString<ElementType>::StdString()
-{
-    return (*m_StringData);
-}
-
-
-template<typename ElementType>
-inline const std::basic_string<ElementType>& BasicString<ElementType>::StdString() const
-{
-    return (*m_StringData);
-}
-
-
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Copy(const BasicString<ElementType>* InputString)
+inline void String::Copy(const String* InputString)
 {
     if (InputString == nullptr)
     {
-        MDK_Error("Input is nullptr @ BasicString::Copy(BasicString* InputString)")
+        MDK_Error("Input is nullptr @ String::Copy(String* InputString)")
         return;
     }
-
     this->Copy(*InputString);
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Copy(const ElementType* InputElementPointer)
+inline void String::Copy(const char* InputElementPointer)
 {
     if (InputElementPointer == nullptr)
     {
-        MDK_Error("Input pointer is nullptr @ BasicString::Copy(ElementType*)")
+        MDK_Error("Input pointer is nullptr @ String::Copy(char*)")
         return;
     }
 
-    // if this BasicString is not empty, check if this and Input Share the same data
+    // if this String is not empty, check if this and Input Share the same data
     if (this->IsEmpty() == false)
     {
-        if (std::size_t(InputElementPointer) == std::size_t(this->GetElementPointer()))
+        if (std::size_t(InputElementPointer) == std::size_t(this->GetCharPointer()))
         {
             return;
         }
     }
-
+	else
+	{
+		if (this->IsPureEmpty() == true)
+		{
+			this->Resize(0);
+		}
+	}
     (*m_StringData) = InputElementPointer;
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Fill(const ElementType& Element)
+inline void String::Fill(char Element)
 {
-    auto SelfLength = this->GetElementNumber();
-
+    auto SelfLength = this->GetCharNumber();
     if (SelfLength <= 0)
     {
-        MDK_Error("Self is empty @ BasicString::Fill")
+        MDK_Error("Self is empty @ String::Fill")
         return;
     }
-
-    auto BeginPointer = this->GetElementPointer();
-
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
+	auto BeginPointer = this->GetCharPointer();
     for (auto Ptr = BeginPointer; Ptr < BeginPointer + SelfLength; ++Ptr)
     {
         Ptr[0] = Element;
@@ -288,45 +223,36 @@ void BasicString<ElementType>::Fill(const ElementType& Element)
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Share(BasicString<ElementType>& InputString)
+inline void String::Share(String& InputString)
 {
-    // BasicString = BasicString
+    // String = String
     if (this == &InputString)
     {
-        MDK_Warning("A BasicString tries to Share itself @ BasicString::Share(InputString)")
+        MDK_Warning("A String tries to Share itself @ String::Share(InputString)")
         return;
     }
-
-    //--------------------------------------------------------------------------------------------------------
 
     m_StringData = InputString.m_StringData; // std::Shared_ptr, self assignment test is not necessary
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Share(BasicString<ElementType>* InputString)
+inline void String::Share(String* InputString)
 {
     if (InputString == nullptr)
     {
-        MDK_Error("Input is nullptr @ BasicString::Share(mdkString* InputString)")
+        MDK_Error("Input is nullptr @ String::Share(String* InputString)")
         return;
     }
-
     this->Share(*InputString);
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::ForceShare(const BasicString<ElementType>& InputString)
+inline void String::ForceShare(const String& InputString)
 {
-    // BasicString = BasicString
+    // String = String
     if (this == &InputString)
     {
-        MDK_Warning("A BasicString tries to ForceShare itself @ BasicString::ForceShare(InputString)")
+        MDK_Warning("A String tries to ForceShare itself @ String::ForceShare(InputString)")
         return;
     }
 
@@ -334,51 +260,48 @@ void BasicString<ElementType>::ForceShare(const BasicString<ElementType>& InputS
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::ForceShare(const BasicString<ElementType>* InputString)
+inline void String::ForceShare(const String* InputString)
 {
     if (InputString == nullptr)
     {
-        MDK_Error("Input is nullptr @ BasicString::ForceShare(mdkString* InputString)")
+        MDK_Error("Input is nullptr @ String::ForceShare(mdkString* InputString)")
         return;
     }
-
     this->ForceShare(*InputString);
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Take(BasicString<ElementType>&& InputString)
+inline void String::Take(String&& InputString)
 {
-    this->Take(std::forward<BasicString<ElementType>&>(InputString));
+    this->Take(std::forward<String&>(InputString));
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Take(BasicString<ElementType>& InputString)
+inline void String::Take(String& InputString)
 {
-    // BasicString = BasicString
+    // String = String
     if (this == &InputString)
     {
-        MDK_Warning("A BasicString tries to take itself @ BasicString::take(InputString)")
+        MDK_Warning("A String tries to take itself @ String::take(InputString)")
         return;
     }
 
     if (InputString.IsEmpty() == true)
     {
         this->Clear();
-
         return;
     }
 
     // StringA = StringA
-    if (this->GetElementPointer() == InputString.GetElementPointer())
+	if (this->GetCharPointer() == InputString.GetCharPointer())
     {
         return;
     }
+
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
 
     // now, InputString is not empty, and is not self
     
@@ -391,63 +314,56 @@ void BasicString<ElementType>::Take(BasicString<ElementType>& InputString)
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Take(BasicString<ElementType>* InputString)
+inline void String::Take(String* InputString)
 {
     if (InputString == nullptr)
     {
-        MDK_Error("Input is nullptr @ BasicString::Take(mdkString* InputString)")
+        MDK_Error("Input is nullptr @ String::Take(mdkString* InputString)")
         return;
     }
-
     this->Take(*InputString);
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::SwapSmartPointer(BasicString<ElementType>& InputString)
+inline void String::Swap(String& InputString)
 {
-    // BasicString = BasicString
+    // String = String
     if (this == &InputString)
     {
-        MDK_Warning("A BasicString tries to Swap with itself @ BasicString::SwapSmartPointer(InputString)")
+        MDK_Warning("A String tries to Swap with itself @ String::Swap(InputString)")
         return;
     }
-
     m_StringData.swap(InputString.m_StringData); // shared_ptr self swap check is not necessary
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Clear()
+inline void String::Clear()
 {
-    m_StringData->clear();
+	if (m_StringData)
+	{
+		m_StringData->clear();
+	}
 }
 
 
-template<typename ElementType>
-inline 
-bool BasicString<ElementType>::Resize(int_max InputLength)
+inline bool String::Resize(int_max InputLength)
 {
     if (InputLength < 0)
     {
-        MDK_Error("Invalid Input: negtive @ BasicString::Resize(int_max InputLength)")
+        MDK_Error("Invalid Input: negtive @ String::Resize(int_max InputLength)")
         return false;
     }
 
 try
 {
-    //--------initialize the BasicString data ----------------------------------------
+    //--------initialize the String data ----------------------------------------
     if (!m_StringData)
     {
-        m_StringData = std::make_shared<std::basic_string<ElementType>>();
+        m_StringData = std::make_shared<std::basic_string<char>>();
     }
     //-------------------------------------------------------------------------
 
-    auto SelfLength = this->GetElementNumber();
+    auto SelfLength = this->GetCharNumber();
 
     if (InputLength == SelfLength)
     {
@@ -458,7 +374,7 @@ try
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ BasicString::Resize(int_max InputLength)")
+    MDK_Error("Out of Memory @ String::Resize(int_max InputLength)")
 
     return false;
 }
@@ -466,18 +382,15 @@ catch (...)
 }
 
 
-template<typename ElementType>
-inline
-bool BasicString<ElementType>::FastResize(int_max InputLength)
+inline bool String::FastResize(int_max InputLength)
 {
     if (InputLength < 0)
     {
-        MDK_Error("Invalid input @ BasicString::FastResize(int_max InputLength)")
+        MDK_Error("Invalid input @ String::FastResize(int_max InputLength)")
         return false;    
     }
 
-    auto SelfLength = this->GetElementNumber();
-
+    auto SelfLength = this->GetCharNumber();
     if (InputLength == SelfLength)
     {
         return true;
@@ -485,6 +398,11 @@ bool BasicString<ElementType>::FastResize(int_max InputLength)
 
 try
 {
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
+
     if (InputLength != SelfLength)
     {
         if (InputLength > int_max(m_StringData->capacity()))
@@ -497,7 +415,7 @@ try
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ BasicString::FastResize(int_max InputLength)")
+    MDK_Error("Out of Memory @ String::FastResize(int_max InputLength)")
 
     return false;
 }
@@ -505,15 +423,17 @@ catch (...)
 }
 
 
-
-template<typename ElementType>
-inline
-bool BasicString<ElementType>::ReserveCapacity(int_max InputElementNumber)
+inline bool String::ReserveCapacity(int_max InputElementNumber)
 {
 
 try
 {
-    auto SelfLength = this->GetElementNumber();
+	if (this->IsPureEmpty()==true)
+	{
+		this->Resize(0);
+	}
+
+    auto SelfLength = this->GetCharNumber();
 
     if (InputElementNumber > SelfLength)
     {
@@ -522,7 +442,7 @@ try
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ BasicString::ReserveCapacity(int_max InputElementNumber)")
+    MDK_Error("Out of Memory @ String::ReserveCapacity(int_max InputElementNumber)")
     return false;
 }
     
@@ -530,229 +450,296 @@ catch (...)
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::ReleaseUnusedCapacity()
+inline void String::ReleaseUnusedCapacity()
 {
-    m_StringData->shrink_to_fit();
+	if (m_StringData)
+	{
+		m_StringData->shrink_to_fit();
+	}
 }
 
 
-template<typename ElementType>
-inline
-bool BasicString<ElementType>::IsEmpty() const
+inline bool String::IsEmpty() const
 {
-    return (m_StringData->size() <= 0);
+	if (m_StringData)
+	{
+		return (m_StringData->size() <= 0);
+	}
+	else
+	{
+		return true;
+	}
 }
 
 
-template<typename ElementType>
-inline
-bool BasicString<ElementType>::IsShared() const
+inline bool String::IsPureEmpty() const
 {
-    return (m_StringData.use_count() > 1);
+	return (!m_StringData);
 }
 
 
-template<typename ElementType>
-inline
-int_max BasicString<ElementType>::GetElementNumber() const
+inline bool String::IsShared() const
 {
-    return int_max(m_StringData->size());
+	if (m_StringData)
+	{
+		return (m_StringData.use_count() > 1);
+	}
+	else
+	{
+		return false;
+	}
 }
 
 
-template<typename ElementType>
-inline
-int_max BasicString<ElementType>::GetLength() const
+inline int_max String::GetCharNumber() const
 {
-	return int_max(m_StringData->size());
+	if (m_StringData)
+	{
+		return int_max(m_StringData->size());
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 
-template<typename ElementType>
-inline
-ElementType* BasicString<ElementType>::GetElementPointer()
+inline char* String::GetCharPointer()
 {
-    return const_cast<ElementType*>(m_StringData->data());
+	if (m_StringData)
+	{
+		return const_cast<char*>(m_StringData->data());
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 
-template<typename ElementType>
-inline
-const ElementType* BasicString<ElementType>::GetElementPointer() const
+inline const char* String::GetCharPointer() const
 {
-    return m_StringData->data();
+	if (m_StringData)
+	{
+		return m_StringData->data();
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+inline char* String::begin()
+{
+	return this->GetCharPointer();
+}
+
+inline const char* String::begin() const
+{
+	return this->GetCharPointer();
+}
+
+inline char* String::end()
+{
+	auto BeginPtr = this->begin();
+	if (BeginPtr == nullptr)
+	{
+		return nullptr;
+	}
+	else
+	{
+		return BeginPtr + this->GetCharNumber();
+	}
+}
+
+inline const char* String::end() const
+{
+	auto BeginPtr = this->begin();
+	if (BeginPtr == nullptr)
+	{
+		return nullptr;
+	}
+	else
+	{
+		return BeginPtr + this->GetCharNumber();
+	}
 }
 
 
-//----------- Get/Set BasicString(Index) -----------------------------------//
+//----------- Get/Set String(Index) -----------------------------------//
 
 // operator[] (): no bound check in release mode
 
-template<typename ElementType>
-inline
-ElementType& BasicString<ElementType>::operator[](int_max Index)
+inline char& String::operator[](int_max Index)
 {
     return (*m_StringData)[Index];
 }
 
 
-template<typename ElementType>
-inline
-const ElementType& BasicString<ElementType>::operator[](int_max Index) const
+inline const char& String::operator[](int_max Index) const
 {
     return (*m_StringData)[Index];
 }
 
 
-template<typename ElementType>
-inline
-ElementType& BasicString<ElementType>::operator()(int_max Index)
+inline char& String::operator()(int_max Index)
 {
     return (*m_StringData)[Index];
 }
 
 
-template<typename ElementType>
-inline
-const ElementType& BasicString<ElementType>::operator()(int_max Index) const
+inline const char& String::operator()(int_max Index) const
 {
     return (*m_StringData)[Index];
 }
 
 // at(): bound check
 
-template<typename ElementType>
-inline
-ElementType& BasicString<ElementType>::at(int_max Index)
+inline char& String::at(int_max Index)
 {
     return m_StringData->at(Index);
 }
 
 
-template<typename ElementType>
-inline
-const ElementType& BasicString<ElementType>::at(int_max Index) const
+inline const char& String::at(int_max Index) const
 {
     return m_StringData->at(Index);
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Append(const ElementType& Element)
+inline bool String::Append(char Element)
 {
-    m_StringData->append(1, Element);
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
+try
+{
+	m_StringData->append(1, Element);
+	return true;
+}
+catch (...)
+{
+	MDK_Error("Exceed max length @ String::Append(...)")
+	return false;
+}	
 }
 
 
-template<typename ElementType>
-inline 
-void BasicString<ElementType>::Append(const std::initializer_list<ElementType>& InputString)
-{
-    m_StringData->append(InputString);
-}
-
-
-template<typename ElementType>
-inline 
-void BasicString<ElementType>::Append(const ElementType* InputString)
+inline bool String::Append(const char* InputString)
 {
     if (InputString == nullptr)
     {
-        MDK_Error("Invalid Input: empty @ BasicString::Append(const ElementType* InputString)")
-        return;
+        MDK_Warning("nullptr Input @ String::Append(...)")
+        return true;
     }
 
-    m_StringData->Append(InputString);
-}
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
 
-
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Append(const BasicString<ElementType>& InputString)
+try
 {
-	m_StringData->Append(*InputString.m_StringData);
+	m_StringData->append(InputString);
+	return true;
 }
-
-
-template<typename ElementType>
-inline 
-void BasicString<ElementType>::Delete(int_max Index)
+catch (...)
 {
-    this->Delete(&Index, 1);
+	MDK_Error("Exceed max length @ String::Append(...)")
+	return false;
+}
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Delete(const std::initializer_list<int_max>& IndexList)
+inline bool String::Append(const std::basic_string<char>& InputString)
 {
-    this->Delete(IndexList.begin(), int_max(IndexList.size()));
-}
+	if (InputString.size() == 0)
+	{
+		return true;
+	}
 
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Delete(const std::vector<int_max>& IndexList)
-{    
-    this->Delete(IndexList.data(), int_max(IndexList.size()));
-}
-
-
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Delete(const DenseMatrix<int_max>& IndexList)
+try
 {
-    if (IndexList.IsVector() == false)
+	m_StringData->append(InputString);
+	return true;
+}
+catch (...)
+{
+	MDK_Error("Exceed max length @ String::Append(...)")
+	return false;
+}
+}
+
+
+inline bool String::Append(const String& InputString)
+{
+	if (InputString.GetCharNumber() == 0)
+	{
+		return true;
+	}
+
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
+try
+{
+	m_StringData->append(*InputString.m_StringData);
+	return true;
+}
+catch (...)
+{
+	MDK_Error("Exceed max length @ String::Append(...)")
+	return false;
+}	
+}
+
+
+inline bool String::Delete(int_max Index)
+{
+    return this->Delete(&Index, 1);
+}
+
+
+inline bool String::Delete(const std::initializer_list<int_max>& IndexList)
+{
+	return this->Delete(IndexList.begin(), int_max(IndexList.size()));
+}
+
+
+inline bool String::Delete(const int_max* IndexList, int_max ListLength)
+{
+	if (IndexList == nullptr || ListLength <= 0)
     {
-        MDK_Error("Input must be a vector @ BasicString::Delete(const DenseMatrix<int_max>& IndexList)")
-        return;
+        MDK_Warning("Empty Input @ String::Delete(const int_max* IndexList, int_max ListLength)")
+        return true;
     }
 
-    this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
-}
+	auto SelfLength = this->GetCharNumber();
+	if (SelfLength == 0)
+	{
+		MDK_Error("Self is empty @ String::Delete(const int_max* IndexList, int_max ListLength)")
+		return false;
+	}
 
-
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Delete(const ObjectArray<int_max>& IndexList)
-{
-    this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
-}
-
-
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Delete(const int_max* IndexList, int_max ListLength)
-{
-    auto SelfLength = this->GetElementNumber();
-
-    if (SelfLength == 0)
-    {
-        MDK_Error("Self is empty @ BasicString::Delete(const int_max* IndexList, int_max ListLength)")
-        return;
-    }
-
-    if (IndexList == nullptr || Length <= 0)
-    {
-        MDK_Error("Empty Input @ BasicString::Delete(const int_max* IndexList, int_max ListLength)")
-        return;
-    }
-
-    for (auto it = IndexList; it != IndexList + Length; ++it)
+	for (auto it = IndexList; it != IndexList + ListLength; ++it)
     {
         if (*it >= SelfLength || *it < 0)
         {
-            MDK_Error("Out of bound Input @ BasicString::Delete(const int_max* IndexList, int_max ListLength)")
-            return;
+            MDK_Error("Out of bound Input @ String::Delete(const int_max* IndexList, int_max ListLength)")
+            return false;
         }
     }
 
-    std::vector<int_max> IndexList_max_to_min(Length);
+	std::vector<int_max> IndexList_max_to_min(ListLength);
 
-    for (int_max i = 0; i < Length; ++i)
+	for (int_max i = 0; i < ListLength; ++i)
     {
         IndexList_max_to_min[i] = IndexList[i];
     }
@@ -767,7 +754,7 @@ void BasicString<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
 
         if (Index_i == Index_prev)
         {
-            MDK_Warning("duplicate index @ BasicString::Delete(const int_max* IndexPtr, int_max Length)")
+            MDK_Warning("duplicate index @ String::Delete(const int_max* IndexPtr, int_max Length)")
         }
         else
         {
@@ -776,260 +763,189 @@ void BasicString<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
             Index_prev = Index_i;
         }
     }
+	return true;
 }
 
 
-template<typename ElementType>
-inline 
-void BasicString<ElementType>::Delete(int_max Index_start, int_max Index_end)
+inline bool String::Delete(int_max Index_start, int_max Index_end)
 {
     if (this->IsEmpty() == true)
     {
-        MDK_Error("Self is empty @ BasicString::Delete(int_max Index_start, int_max Index_end)")
-        return;
+        MDK_Error("Self is empty @ String::Delete(int_max Index_start, int_max Index_end)")
+        return false;
     }
-
+	auto SelfLength = this->GetCharNumber();
     if (Index_end < Index_start 
         || Index_start >= SelfLength || Index_start < 0
         || Index_end >= SelfLength || Index_end < 0 )
     {
-        MDK_Error("Invalid Input @ BasicString::Delete(int_max Index_start, int_max Index_end)")
-        return;
+        MDK_Error("Invalid Input @ String::Delete(int_max Index_start, int_max Index_end)")
+        return false;
     }
-
     m_StringData->erase(m_StringData->begin() + Index_start, m_StringData->begin() + Index_end + 1);
+	return true;
 }
 
 
-template<typename ElementType>
-inline 
-void BasicString<ElementType>::Insert(int_max Index, const ElementType& Element)
+inline bool String::Insert(int_max Index, char Element)
 {
-    m_StringData->Insert(Index, 1, Element);
+	auto SelfLength = this->GetCharNumber();
+	if (SelfLength == 0)
+	{
+		if (Index != 0)
+		{
+			MDK_Error("Invalid Input @ String::Insert(int_max Index, char Element)")
+			return false;
+		}
+		if (this->IsPureEmpty() == true)
+		{
+			this->Resize(0);
+		}
+	}
+	else
+	{
+		if (Index >= SelfLength || Index < 0)
+		{
+			MDK_Error("Invalid Input @ String::Insert(int_max Index, char Element)")
+			return false;
+		}
+	}
+    m_StringData->insert(Index, 1, Element);
+	return true;
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Insert(int_max Index, const std::initializer_list<ElementType>& InputString)
+inline bool String::Insert(int_max Index, const char* InputString)
 {
-    m_StringData->Insert(m_StringData->begin() + Index, InputString);
-}
-
-
-template<typename ElementType>
-inline
-void Insert(int_max Index, const std::basic_string<ElementType>& InputString)
-{
-	m_StringData->Insert(Index, InputString);
-}
-
-
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Insert(int_max Index, const BasicString<ElementType>& InputString)
-{
-    m_StringData->Insert(Index, (*InputString.m_StringData));
-}
-
-
-template<typename ElementType>
-inline
-void BasicString<ElementType>::Insert(int_max Index, const ElementType* InputString)
-{
-    auto SelfLength = this->GetElementNumber();
-
+    auto SelfLength = this->GetCharNumber();
     if (SelfLength == 0)
     {
-        if (Index != 0 || InputString == nullptr)
+        if (Index != 0)
         {
-            MDK_Error("Invalid Input @ BasicString::Insert(Index, const ElementType* InputString)")
-            return;
+            MDK_Error("Invalid Input @ String::Insert(Index, const char* InputString)")
+            return false;
         }
+		if (this->IsPureEmpty() == true)
+		{
+			this->Resize(0);
+		}
     }
     else
     {
-        if (Index >= SelfLength || Index < 0 || InputString == nullptr)
+        if (Index >= SelfLength || Index < 0)
         {
-            MDK_Error("Invalid Input @ BasicString::Insert(Index, const ElementType* InputString)")
-            return;
+            MDK_Error("Invalid Input @ String::Insert(Index, const char* InputString)")
+            return false;
         }
     }
-
-    m_StringData->insert(Index, InputString);
+	if (InputString != nullptr)
+	{
+		m_StringData->insert(Index, InputString);
+	}
+	return true;
 }
 
 
-template<typename ElementType>
-inline
-void BasicString<ElementType>::operator+=(const BasicString<ElementType>& InputString)
+inline bool String::Insert(int_max Index, const std::basic_string<char>& InputString)
 {
+	auto SelfLength = this->GetCharNumber();
+	if (SelfLength == 0)
+	{
+		if (Index != 0)
+		{
+			MDK_Error("Invalid Input @ String::Insert(...)")
+			return false;
+		}
+		if (this->IsPureEmpty() == true)
+		{
+			this->Resize(0);
+		}
+	}
+	else
+	{
+		if (Index >= SelfLength || Index < 0)
+		{
+			MDK_Error("Invalid Input @ String::Insert(...)")
+			return false;
+		}
+	}
+	if (InputString.size() > 0)
+	{
+		m_StringData->insert(Index, InputString);
+	}
+	return true;
+}
+
+
+inline bool String::Insert(int_max Index, const String& InputString)
+{
+	auto SelfLength = this->GetCharNumber();
+	if (SelfLength == 0)
+	{
+		if (Index != 0)
+		{
+			MDK_Error("Invalid Input @ String::Insert(...)")
+			return false;
+		}
+		if (this->IsPureEmpty() == true)
+		{
+			this->Resize(0);
+		}
+	}
+	else
+	{
+		if (Index >= SelfLength || Index < 0)
+		{
+			MDK_Error("Invalid Input @ String::Insert(...)")
+			return false;
+		}
+	}
+
+	if (InputString.IsEmpty() == false)
+	{
+		m_StringData->insert(Index, (*InputString.m_StringData));
+	}
+	return true;
+}
+
+
+inline void String::operator+=(char Element)
+{
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
+	(*m_StringData) += Element;
+}
+
+
+inline void String::operator+=(const char* InputString)
+{
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
+	(*m_StringData) += InputString;
+}
+
+
+inline void String::operator+=(const std::basic_string<char>& InputString)
+{
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
+	(*m_StringData) += InputString;
+}
+
+
+inline void String::operator+=(const String& InputString)
+{
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
     (*m_StringData) += (*InputString.m_StringData);
-}
-
-
-template<typename ElementType>
-inline 
-void BasicString<ElementType>::operator+=(const std::basic_string<ElementType>& InputString)
-{
-    (*m_StringData) += InputString;
-}
-
-
-template<typename ElementType>
-inline 
-void BasicString<ElementType>::operator+=(const ElementType* InputString)
-{
-    (*m_StringData) += InputString;
-}
-
-//------------------------------- non-member function -----------------------------------------------------------//
-
-template<typename ElementType>
-inline
-BasicString<ElementType> operator+(const BasicString<ElementType>& StringA, const BasicString<ElementType>& StringB)
-{
-    BasicString<ElementType> StringC;
-
-    StringC.StdString() = StringA.StdString() + StringB.StdString();
-
-    return StringC;
-}
-
-
-template<typename ElementType>
-inline
-BasicString<ElementType> operator+(const BasicString<ElementType>& StringA, const std::basic_string<ElementType>& StringB)
-{
-    BasicString<ElementType> StringC;
-
-    StringC.StdString() = StringA.StdString() + StringB;
-
-    return StringC;
-}
-
-
-template<typename ElementType>
-inline
-BasicString<ElementType> operator+(const std::basic_string<ElementType>& StringA, const BasicString<ElementType>& StringB)
-{
-    BasicString<ElementType> StringC;
-
-    StringC.StdString() = StringA + StringB.StdString();
-
-    return StringC;
-}
-
-
-template<typename ElementType>
-inline
-BasicString<ElementType> operator+(const BasicString<ElementType>& StringA, const ElementType* StringB)
-{
-    BasicString<ElementType> StringC;
-
-    StringC.StdString() = StringA.StdString() + StringB;
-
-    return StringC;
-}
-
-
-template<typename ElementType>
-inline
-BasicString<ElementType> operator+(const ElementType* StringA, const BasicString<ElementType>& StringB)
-{
-    BasicString<ElementType> StringC;
-
-    StringC.StdString() = StringA + StringB.StdString();
-
-    return StringC;
-}
-
-
-template<typename ElementType>
-inline
-bool operator==(const BasicString<ElementType>& StringA, const BasicString<ElementType>& StringB)
-{
-    return StringA.StdString() == StringB.StdString();
-}
-
-
-template<typename ElementType>
-inline
-bool operator==(const BasicString<ElementType>& StringA, const std::basic_string<ElementType>& StringB)
-{
-    return StringA.StdString() == StringB;
-}
-
-
-template<typename ElementType>
-inline
-bool operator==(const std::basic_string<ElementType>& StringA, const BasicString<ElementType>& StringB)
-{
-    return StringA == StringB.StdString();
-}
-
-
-template<typename ElementType>
-inline
-bool operator==(const BasicString<ElementType>& StringA, const ElementType* StringB)
-{
-    return StringA.StdString() == StringB;
-}
-
-
-template<typename ElementType>
-inline
-bool operator==(const ElementType* StringA, const BasicString<ElementType>& StringB)
-{
-    return StringA == StringB.StdString();
-}
-
-
-template<typename ElementType>
-inline
-bool operator!=(const BasicString<ElementType>& StringA, const BasicString<ElementType>& StringB)
-{
-    return StringA.StdString() != StringB.StdString();
-}
-
-
-template<typename ElementType>
-inline
-bool operator!=(const BasicString<ElementType>& StringA, const std::basic_string<ElementType>& StringB)
-{
-    return StringA.StdString() != StringB;
-}
-
-
-template<typename ElementType>
-inline
-bool operator!=(const std::basic_string<ElementType>& StringA, const BasicString<ElementType>& StringB)
-{
-    return StringA != StringB.StdString();
-}
-
-
-template<typename ElementType>
-inline
-bool operator!=(const BasicString<ElementType>& StringA, const ElementType* StringB)
-{
-    return StringA.StdString() != StringB;
-}
-
-
-template<typename ElementType>
-inline
-bool operator!=(const ElementType* StringA, const BasicString<ElementType>& StringB)
-{
-    return StringA != StringB.StdString();
-}
-
-
-template <typename ElementType, typename Traits>
-inline
-std::basic_ostream<ElementType, Traits>& operator<<(std::basic_ostream<ElementType, Traits>& os, const BasicString<ElementType>& str)
-{
-    return operator<<(os, str.StdString());
 }
 
 

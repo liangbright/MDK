@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "mdkType.h"
+#include "mdkCommonType.h"
 
 namespace mdk
 {

@@ -1,7 +1,5 @@
 ﻿#include <iostream>
 
-#include "mdkType.h"
-
 #include "TestDenseMatrix.h"
 
 using namespace mdk;

@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "mdkObject.h"
-#include "mdkType.h"
+#include "mdkCommonType.h"
 #include "mdkStringHash.h"
 
 namespace mdk

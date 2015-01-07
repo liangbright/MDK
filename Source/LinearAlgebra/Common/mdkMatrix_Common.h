@@ -6,7 +6,7 @@
 
 #include "mdkDebugConfig.h"
 #include "mdkOSPlatformConfig.h"
-#include "mdkType.h"
+#include "mdkCommonType.h"
 #include "mdkSymbol.h"
 #include "mdkDenseVectorWithVariableLength.h"
 

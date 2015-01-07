@@ -200,7 +200,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<int>& Int
 		OutputFile << " ";
 	}
 	OutputFile << "\"" << Name << "\"" << ": ";
-	int_max Indention_next = Indention + Name.GetLength() + 4;
+	int_max Indention_next = Indention + Name.GetCharNumber() + 4;
 	return JsonFile::SaveJsonValue(IntArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
@@ -211,7 +211,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<long long
 		OutputFile << " ";
 	}
 	OutputFile << "\"" << Name << "\"" << ": ";
-	int_max Indention_next = Indention + Name.GetLength() + 4;
+	int_max Indention_next = Indention + Name.GetCharNumber() + 4;
 	return JsonFile::SaveJsonValue(LongLongArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
@@ -222,7 +222,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<float>& F
 		OutputFile << " ";
 	}
 	OutputFile << "\"" << Name << "\"" << ": ";
-	int_max Indention_next = Indention + Name.GetLength() + 4;
+	int_max Indention_next = Indention + Name.GetCharNumber() + 4;
 	return JsonFile::SaveJsonValue(FloatArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
@@ -233,7 +233,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<double>& 
 		OutputFile << " ";
 	}
 	OutputFile << "\"" << Name << "\"" << ": ";
-	int_max Indention_next = Indention + Name.GetLength() + 4;
+	int_max Indention_next = Indention + Name.GetCharNumber() + 4;
 	return JsonFile::SaveJsonValue(DoubleArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
@@ -254,7 +254,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const JsonArray& JArray, Js
 		OutputFile << " ";
 	}
 	OutputFile << "\"" << Name << "\"" << ": ";
-	int_max Indention_next = Indention + Name.GetLength() + 4;
+	int_max Indention_next = Indention + Name.GetCharNumber() + 4;
 	return JsonFile::SaveJsonValue(JArray, OutputFile, Indention_next, Flag_PreserveOrder);
 }
 //==========================================================================================================================//
@@ -265,7 +265,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const JsonObject& JObject, 
 		OutputFile << " ";
 	}
 	OutputFile << "\"" << Name << "\"" << ": ";
-	int_max Indention_next = Indention + Name.GetLength() + 4;	
+	int_max Indention_next = Indention + Name.GetCharNumber() + 4;	
 	return JsonFile::SaveJsonValue(JObject, OutputFile, Indention_next, Flag_PreserveOrder);
 }
 //==========================================================================================================================//

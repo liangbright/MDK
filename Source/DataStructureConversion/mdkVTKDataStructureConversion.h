@@ -9,8 +9,8 @@
 #include <vtkCellArray.h>
 #include <vtkImageData.h>
 
-#include "mdkType.h"
 #include "mdkString.h"
+#include "mdkTypeInference.h"
 
 namespace mdk
 {

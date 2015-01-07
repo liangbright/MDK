@@ -7,7 +7,7 @@
 #include <limits>
 
 #include "mdkDebugConfig.h"
-#include "mdkType.h"
+#include "mdkCommonType.h"
 #include "mdkObject.h"
 #include "mdkObjectArray.h"
 #include "mdkStdObjectVector.h"

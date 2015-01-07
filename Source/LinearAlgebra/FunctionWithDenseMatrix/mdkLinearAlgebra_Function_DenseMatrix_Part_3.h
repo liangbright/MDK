@@ -6,7 +6,7 @@
 
 #include <Eigen/Dense>
 
-#include "mdkType.h"
+#include "mdkCommonType.h"
 
 namespace mdk
 {

@@ -673,7 +673,7 @@ void Test_ElementOperation()
 
     auto A2 = A.ElementOperation("*", 1);
 
-    auto A3 = A.ElementOperation(std::string("*"), 1);
+    auto A3 = A.ElementOperation(String("*"), 1);
 
 
 
@@ -1940,15 +1940,7 @@ void Test_FindCol()
           { 2, 5, 8 },
           { 3, 6, 9 } };
 
-     auto ColIndexList = A.FindCol(1, [](const DenseMatrix<int_max>& ColVector)
-                            {
-                            if (ColVector.Sum() == 15)
-                             {
-                                 return true;
-                              }
-
-                            return false;
-                            });
+	 auto ColIndexList = A.FindCol(1, [](const DenseMatrix<int_max>& ColVector){ return (ColVector.Sum() == 15);});
 }
 
 
@@ -1962,12 +1954,7 @@ void Test_SortCol()
 
     auto ColIndexList_1 = A.SortCol([](const DenseMatrix<int_max>& ColVector_a, const DenseMatrix<int_max>& ColVector_b)
     {
-        if (ColVector_a[0] > ColVector_b[0])
-        {
-            return true;
-        }
-
-        return false;
+		return (ColVector_a[0] > ColVector_b[0]);
     });
 
 

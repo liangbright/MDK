@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <limits> 
 
+#include "mdkString.h"
 #include "mdkLinearAlgebraConfig.h"
 #include "mdkMatrix_Common.h"
 #include "mdkStdObjectVector.h"
@@ -1153,7 +1154,7 @@ public:
 
     inline DenseMatrix ElementOperation(const char* OperationName) const;
 
-    inline DenseMatrix ElementOperation(const std::string& OperationName) const;
+    inline DenseMatrix ElementOperation(const String& OperationName) const;
 
     template<typename OperationType>
     inline DenseMatrix ElementOperation(OperationType Operation) const;
@@ -1162,7 +1163,7 @@ public:
 
     inline DenseMatrix ElementOperation(const char* OperationName, const DenseMatrix<ElementType>& InputMatrix) const;
 
-    inline DenseMatrix ElementOperation(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix) const;
+    inline DenseMatrix ElementOperation(const String& OperationName, const DenseMatrix<ElementType>& InputMatrix) const;
 
     template<typename OperationType>
     inline DenseMatrix ElementOperation(OperationType Operation, const DenseMatrix<ElementType>& InputMatrix) const;
@@ -1171,7 +1172,7 @@ public:
 
     inline DenseMatrix ElementOperation(const char* OperationName, const ElementType& Element) const;
 
-    inline DenseMatrix ElementOperation(const std::string& OperationName, const ElementType& Element) const;
+    inline DenseMatrix ElementOperation(const String& OperationName, const ElementType& Element) const;
 
     template<typename OperationType>
     inline DenseMatrix ElementOperation(OperationType Operation, const ElementType& Element) const;
@@ -1180,7 +1181,7 @@ public:
 
     inline bool ElementOperationInPlace(const char* OperationName);
 
-    inline bool ElementOperationInPlace(const std::string& OperationName);
+    inline bool ElementOperationInPlace(const String& OperationName);
 
     template<typename OperationType>
     inline bool ElementOperationInPlace(OperationType Operation);
@@ -1189,7 +1190,7 @@ public:
 
     inline bool ElementOperationInPlace(const char* OperationName, const DenseMatrix<ElementType>& InputMatrix);
 
-    inline bool ElementOperationInPlace(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix);
+    inline bool ElementOperationInPlace(const String& OperationName, const DenseMatrix<ElementType>& InputMatrix);
 
     template<typename OperationType>
     inline bool ElementOperationInPlace(OperationType Operation, const DenseMatrix<ElementType>& InputMatrix);
@@ -1198,7 +1199,7 @@ public:
 
     inline bool ElementOperationInPlace(const char* OperationName, const ElementType& Element);
 
-    inline bool ElementOperationInPlace(const std::string& OperationName, const ElementType& Element);
+    inline bool ElementOperationInPlace(const String& OperationName, const ElementType& Element);
 
     template<typename OperationType>
     inline bool ElementOperationInPlace(OperationType Operation, const ElementType& Element);
@@ -1207,7 +1208,7 @@ public:
 
     inline DenseMatrix ColOperation(int_max ColIndex, const char* OperationName, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix ColOperation(int_max ColIndex, const std::string& OperationName, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColOperation(int_max ColIndex, const String& OperationName, bool EnableBoundCheck = true) const;
 
     template<typename OperationType>
     inline DenseMatrix ColOperation(int_max ColIndex, OperationType Operation, bool EnableBoundCheck = true) const;
@@ -1216,7 +1217,7 @@ public:
 
     inline DenseMatrix ColOperation(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix ColOperation(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColOperation(int_max ColIndex, const String& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
     
     template<typename OperationType>
     inline DenseMatrix ColOperation(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
@@ -1225,7 +1226,7 @@ public:
 
     inline DenseMatrix ColOperation(int_max ColIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix ColOperation(int_max ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+    inline DenseMatrix ColOperation(int_max ColIndex, const String& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
 
     template<typename OperationType>
     inline DenseMatrix ColOperation(int_max ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true) const;
@@ -1234,7 +1235,7 @@ public:
 
     inline bool ColOperationInPlace(int_max ColIndex, const char* OperationName, bool EnableBoundCheck = true);
 
-    inline bool ColOperationInPlace(int_max ColIndex, const std::string& OperationName, bool EnableBoundCheck = true);
+    inline bool ColOperationInPlace(int_max ColIndex, const String& OperationName, bool EnableBoundCheck = true);
 
     template<typename OperationType>
     inline bool ColOperationInPlace(int_max ColIndex, OperationType Operation, bool EnableBoundCheck = true);
@@ -1243,7 +1244,7 @@ public:
 
     inline bool ColOperationInPlace(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
-    inline bool ColOperationInPlace(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+    inline bool ColOperationInPlace(int_max ColIndex, const String& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
     template<typename OperationType>
     inline bool ColOperationInPlace(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
@@ -1252,7 +1253,7 @@ public:
 
     inline bool ColOperationInPlace(int_max ColIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true);
 
-    inline bool ColOperationInPlace(int_max ColIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+    inline bool ColOperationInPlace(int_max ColIndex, const String& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
 
     template<typename OperationType>
     inline bool ColOperationInPlace(int_max ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
@@ -1261,7 +1262,7 @@ public:
 
     inline DenseMatrix RowOperation(int_max RowIndex, const char* OperationName, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix RowOperation(int_max RowIndex, const std::string& OperationName, bool EnableBoundCheck = true) const;
+    inline DenseMatrix RowOperation(int_max RowIndex, const String& OperationName, bool EnableBoundCheck = true) const;
 
     template<typename OperationType>
     inline DenseMatrix RowOperation(int_max RowIndex, OperationType Operation, bool EnableBoundCheck = true) const;
@@ -1270,7 +1271,7 @@ public:
 
     inline DenseMatrix RowOperation(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix RowOperation(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
+    inline DenseMatrix RowOperation(int_max RowIndex, const String& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
 
     template<typename OperationType>
     inline DenseMatrix RowOperation(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true) const;
@@ -1279,7 +1280,7 @@ public:
 
     inline DenseMatrix RowOperation(int_max RowIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
 
-    inline DenseMatrix RowOperation(int_max RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
+    inline DenseMatrix RowOperation(int_max RowIndex, const String& OperationName, const ElementType& Element, bool EnableBoundCheck = true) const;
 
     template<typename OperationType>
     inline DenseMatrix RowOperation(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true) const;
@@ -1288,7 +1289,7 @@ public:
 
     inline bool RowOperationInPlace(int_max RowIndex, const char* OperationName, bool EnableBoundCheck = true);
 
-    inline bool RowOperationInPlace(int_max RowIndex, const std::string& OperationName, bool EnableBoundCheck = true);
+    inline bool RowOperationInPlace(int_max RowIndex, const String& OperationName, bool EnableBoundCheck = true);
 
     template<typename OperationType>
     inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, bool EnableBoundCheck = true);
@@ -1297,7 +1298,7 @@ public:
 
     inline bool RowOperationInPlace(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
-    inline bool RowOperationInPlace(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+    inline bool RowOperationInPlace(int_max RowIndex, const String& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
     template<typename OperationType>
     inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
@@ -1306,7 +1307,7 @@ public:
 
     inline bool RowOperationInPlace(int_max RowIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true);
 
-    inline bool RowOperationInPlace(int_max RowIndex, const std::string& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+    inline bool RowOperationInPlace(int_max RowIndex, const String& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
 
     template<typename OperationType>
     inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
@@ -1324,13 +1325,13 @@ public:
 
 	// find the first/last that match the condition
 	template<typename MatchFunctionType>
-	inline int_max Find(const std::string& first_or_last, MatchFunctionType MatchFunction) const;
+	inline int_max Find(const String& first_or_last, MatchFunctionType MatchFunction) const;
 
 	//-------------------- Match element (use == operater) : return linear index -----------------------------------//
 
 	inline DenseMatrix<int_max> ExactMatch(const ElementType& InputElement) const;
 
-	inline int_max ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const;
+	inline int_max ExactMatch(const String& first_or_last, const ElementType& InputElement) const;
 
     //------------------------ find col : return col index list ------------------------------------//
 
@@ -1344,7 +1345,7 @@ public:
     inline DenseMatrix<int_max> FindCol(int_max MaxOutputColNumber, int_max ColIndex_start, int_max ColIndex_end, MatchFunctionType MatchFunction) const;
 
 	template<typename MatchFunctionType>
-	inline int_max FindCol(const std::string& first_or_last, MatchFunctionType MatchFunction) const;
+	inline int_max FindCol(const String& first_or_last, MatchFunctionType MatchFunction) const;
 
     //----------------------- sort element : return sorted linear index list ----------//
 
@@ -1356,7 +1357,7 @@ public:
 
 	inline DenseMatrix<int_max> Sort(const char* ascend_or_descend) const;
 
-	inline DenseMatrix<int_max> Sort(const std::string& ascend_or_descend) const;
+	inline DenseMatrix<int_max> Sort(const String& ascend_or_descend) const;
 
     template<typename CompareFunctionType>
     inline void SortInPlace(CompareFunctionType CompareFunction);
@@ -1366,7 +1367,7 @@ public:
 
 	inline void SortInPlace(const char* ascend_or_descend);
 
-	inline void SortInPlace(const std::string& ascend_or_descend);
+	inline void SortInPlace(const String& ascend_or_descend);
 
     //----------------------- sort col : return sorted col index list ----------------------------------//
 

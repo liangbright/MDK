@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "mdkType.h"
+#include "mdkCommonType.h"
 #include "mdkDenseVector_ForwardDeclare.h"
 
 namespace mdk

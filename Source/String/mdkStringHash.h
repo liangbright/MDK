@@ -5,8 +5,7 @@
 
 namespace mdk
 { 
-
-template <class T>
+template<typename T>
 class StringHash;
 
 template<>

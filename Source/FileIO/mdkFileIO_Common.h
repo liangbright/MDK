@@ -6,7 +6,7 @@
 #include <QIODevice>
 #include <QByteArray>
 
-#include "mdkType.h"
+#include "mdkTypeInference.h"
 #include "mdkDebugConfig.h"
 #include "mdkMatrix_Common.h"
 #include "mdkJsonFile.h"

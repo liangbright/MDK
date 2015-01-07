@@ -3,7 +3,7 @@
 
 #include <array>
 
-#include "mdkType.h"
+#include "mdkCommonType.h"
 
 namespace mdk
 {

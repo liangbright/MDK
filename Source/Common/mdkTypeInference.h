@@ -1,13 +1,11 @@
-#ifndef __mdkType_h
-#define __mdkType_h
+#ifndef __mdkTypeInference_h
+#define __mdkTypeInference_h
 
 #include <typeinfo>
 
 #include "mdkOSPlatformConfig.h"
 #include "mdkDebugConfig.h"
 
-// Attention:
-// must include mdkCommonType.h before mdkString.h
 #include "mdkCommonType.h"
 #include "mdkString.h"
 
@@ -29,6 +27,6 @@ String GetTemplateClassName(const TemplateClassType& TemplateClassObject);
 
 }//end namespace mdk
 
-#include "mdkType.hpp"
+#include "mdkTypeInference.hpp"
 
 #endif
