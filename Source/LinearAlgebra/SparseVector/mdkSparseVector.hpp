@@ -8,7 +8,7 @@ template<typename ElementType>
 inline
 SparseVector<ElementType>::SparseVector()
 {
-	this->Create(0);
+	this->Construct(0);
 }
 
 template<typename ElementType>
@@ -22,7 +22,7 @@ template<typename ElementType>
 inline
 SparseVector<ElementType>::SparseVector(const ElementType& Element)
 {
-	this->Create(1);
+	this->Construct(1);
 	m_Data->IndexList.Append(0);
 	m_Data->ElementList.Append(Element);
 }
@@ -32,7 +32,7 @@ template<typename ElementType>
 inline
 SparseVector<ElementType>::SparseVector(const SparseVector& InputVector)
 {
-	this->Create(0);
+	this->Construct(0);
     this->Copy(InputVector);
 }
 
@@ -41,7 +41,7 @@ template<typename ElementType>
 inline
 SparseVector<ElementType>::SparseVector(SparseVector&& InputVector)
 {
-	m_Data = std::move(InputVector.m_Data);
+	(*this) = std::move(InputVector);
 }
 
 
@@ -54,7 +54,7 @@ SparseVector<ElementType>::~SparseVector()
 
 template<typename ElementType>
 inline
-void SparseVector<ElementType>::Create(int_max Length)
+void SparseVector<ElementType>::Construct(int_max Length)
 {
 	if (!m_Data)
 	{
@@ -69,95 +69,95 @@ void SparseVector<ElementType>::Create(int_max Length)
 
 template<typename ElementType>
 inline 
-bool SparseVector<ElementType>::Create(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& ElementList, int_max Length)
+bool SparseVector<ElementType>::Construct(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& ElementList, int_max Length)
 {
     if (IndexList.size() != ElementList.size())
     {
-        MDK_Error("Invalid Input @ SparseVector::Create(std::initializer_list ...)")
+        MDK_Error("Invalid Input @ SparseVector::Construct(std::initializer_list ...)")
         return false;
     }
 
-    return this->Create(IndexList.begin(), ElementList.data(), int_max(ElementList.size()), Length);
+    return this->Construct(IndexList.begin(), ElementList.data(), int_max(ElementList.size()), Length);
 }
 
 
 template<typename ElementType>
 inline 
-bool SparseVector<ElementType>::Create(const std::vector<int_max>& IndexList, const std::vector<ElementType>& ElementList, int_max Length)
+bool SparseVector<ElementType>::Construct(const std::vector<int_max>& IndexList, const std::vector<ElementType>& ElementList, int_max Length)
 {
     if (IndexList.size() != ElementList.size())
     {
-        MDK_Error("Invalid Input @ SparseVector::Create(std::vector ...)")
+        MDK_Error("Invalid Input @ SparseVector::Construct(std::vector ...)")
         return false;
     }
 
-    return this->Create(IndexList.data(), ElementList.data(), int_max(ElementList.size()), Length);
+    return this->Construct(IndexList.data(), ElementList.data(), int_max(ElementList.size()), Length);
 }
 
 
 template<typename ElementType>
 inline
-bool SparseVector<ElementType>::Create(const DenseVector<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length)
+bool SparseVector<ElementType>::Construct(const DenseVector<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length)
 {
 	if (IndexList.GetLength() != ElementList.GetLength())
 	{
-		MDK_Error("Invalid Input @ SparseVector::Create(DenseVector ...)")
+		MDK_Error("Invalid Input @ SparseVector::Construct(DenseVector ...)")
 		return false;
 	}
 
-	return this->Create(IndexList.GetPointer(), ElementList.GetPointer(), ElementList.GetLength(), Length);
+	return this->Construct(IndexList.GetPointer(), ElementList.GetPointer(), ElementList.GetLength(), Length);
 }
 
 
 template<typename ElementType>
 inline 
-bool SparseVector<ElementType>::Create(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length)
+bool SparseVector<ElementType>::Construct(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length)
 {
     if (IndexList.GetElementNumber() != ElementList.GetElementNumber())
     {
-        MDK_Error("Invalid Input @ SparseVector::Create(DenseMatrix ...)")
+        MDK_Error("Invalid Input @ SparseVector::Construct(DenseMatrix ...)")
         return false;
     }
 
-    return this->Create(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
+    return this->Construct(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
 }
 
 
 template<typename ElementType>
 inline 
-bool SparseVector<ElementType>::Create(const DenseVector<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length)
+bool SparseVector<ElementType>::Construct(const DenseVector<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length)
 {
 	if (IndexList.GetElementNumber() != ElementList.GetElementNumber())
 	{
-		MDK_Error("Invalid Input @ SparseVector::Create(DenseVector, DenseMatrix, ...)")
+		MDK_Error("Invalid Input @ SparseVector::Construct(DenseVector, DenseMatrix, ...)")
 		return false;
 	}
 
-	return this->Create(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
+	return this->Construct(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
 }
 
 
 template<typename ElementType>
 inline 
-bool SparseVector<ElementType>::Create(const DenseMatrix<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length)
+bool SparseVector<ElementType>::Construct(const DenseMatrix<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length)
 {
 	if (IndexList.GetElementNumber() != ElementList.GetElementNumber())
 	{
-		MDK_Error("Invalid Input @ SparseVector::Create(DenseMatrix, DenseVector, ...)")
+		MDK_Error("Invalid Input @ SparseVector::Construct(DenseMatrix, DenseVector, ...)")
 		return false;
 	}
 
-	return this->Create(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
+	return this->Construct(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
 }
 
 
 template<typename ElementType>
 inline
-bool SparseVector<ElementType>::Create(const int_max* IndexList, const ElementType* ElementList, int_max RecordedElementNumber, int_max Length)
+bool SparseVector<ElementType>::Construct(const int_max* IndexList, const ElementType* ElementList, int_max RecordedElementNumber, int_max Length)
 {
 	if (IndexList == nullptr && ElementList == nullptr && RecordedElementNumber == 0 && Length == 0)
 	{
-		this->Create(0);
+		this->Construct(0);
 		return true;
 	}
 	else if ((IndexList == nullptr && ElementList != nullptr) 
@@ -167,7 +167,7 @@ bool SparseVector<ElementType>::Create(const int_max* IndexList, const ElementTy
 			 || RecordedElementNumber < 0
 			 || Length < 0)
 	{
-		MDK_Error("Invalid Input @ SparseVector::Create(pointer ...)")
+		MDK_Error("Invalid Input @ SparseVector::Construct(pointer ...)")
 		return false;
 	}
 
@@ -196,7 +196,7 @@ bool SparseVector<ElementType>::Create(const int_max* IndexList, const ElementTy
 
 template<typename ElementType>
 inline
-void SparseVector<ElementType>::CreateFromSortedData(std::vector<int_max> IndexList, std::vector<ElementType> ElementList, int_max Length)
+void SparseVector<ElementType>::ConstructFromSortedData(std::vector<int_max> IndexList, std::vector<ElementType> ElementList, int_max Length)
 {
 	if (!m_Data)
 	{
@@ -211,7 +211,7 @@ void SparseVector<ElementType>::CreateFromSortedData(std::vector<int_max> IndexL
 
 template<typename ElementType>
 inline
-void SparseVector<ElementType>::CreateFromSortedData(DenseVector<int_max> IndexList, DenseVector<ElementType> ElementList, int_max Length)
+void SparseVector<ElementType>::ConstructFromSortedData(DenseVector<int_max> IndexList, DenseVector<ElementType> ElementList, int_max Length)
 {
 	if (!m_Data)
 	{
@@ -236,7 +236,7 @@ template<typename ElementType>
 inline 
 void SparseVector<ElementType>::operator=(SparseVector&& InputVector)
 {
-    this->Take(InputVector);
+	m_Data = std::move(InputVector.m_Data);
 }
 
 
@@ -285,7 +285,7 @@ void SparseVector<ElementType>::Resize(int_max InputLength)
 
 	if (InputLength > 0 && m_Data->Length == 0)
     {
-        this->Create(InputLength);
+        this->Construct(InputLength);
         return;
     }
 
@@ -326,7 +326,7 @@ template<typename ElementType>
 inline
 void SparseVector<ElementType>::FastResize(int_max InputLength)
 {
-    this->Create(InputLength);
+    this->Construct(InputLength);
 }
 
 

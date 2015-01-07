@@ -67,9 +67,9 @@ struct SparseMatrixDataInCSCFormat
 
     inline ~SparseMatrixDataInCSCFormat();
 
-    inline void Create(int_max InputRowNumber, int_max InputColNumber); // all zero
+    inline void Construct(int_max InputRowNumber, int_max InputColNumber); // all zero
 
-    inline void Create(const int_max* InputRowIndexList,
+    inline void Construct(const int_max* InputRowIndexList,
                           const int_max* InputColIndexList,
                           const ElementType* InputElementList,
                           int_max RecordedElementNumber,
@@ -77,27 +77,27 @@ struct SparseMatrixDataInCSCFormat
                           int_max InputColNumber,
                           int_max AdditionalReservedCapacity = 0);
 
-    inline void CreateColVector(const int_max* InputRowIndexList,
+    inline void ConstructColVector(const int_max* InputRowIndexList,
                                    const ElementType* InputElementList,
                                    int_max RecordedElementNumber,
                                    int_max InputRowNumber);
 
-    inline void CreateRowVector(const int_max* InputColIndexList,
+    inline void ConstructRowVector(const int_max* InputColIndexList,
                                    const ElementType* InputElementList,
                                    int_max RecordedElementNumber,
                                    int_max InputColNumber);
 
-    inline void CreateFromSortedData(std::vector<int_max> InputRowIndexList,
+    inline void ConstructFromSortedData(std::vector<int_max> InputRowIndexList,
                                         std::vector<int_max> InputColIndexList,
                                         std::vector<ElementType> InputElementList,
                                         int_max InputRowNumber,
                                         int_max InputColNumber);
 
-    inline void CreateColVectorFromSortedData(std::vector<int_max> InputRowIndexList,
+    inline void ConstructColVectorFromSortedData(std::vector<int_max> InputRowIndexList,
                                                  std::vector<ElementType> InputElementList,
                                                  int_max InputRowNumber);
 
-    inline void CreateRowVectorFromSortedData(std::vector<int_max> InputColIndexList,
+    inline void ConstructRowVectorFromSortedData(std::vector<int_max> InputColIndexList,
                                                  std::vector<ElementType> InputElementList,
                                                  int_max InputColNumber);
 
@@ -222,75 +222,75 @@ public:
 
     //------------------------------construction method -----------------------------//
     
-    inline bool Create(const std::initializer_list<int_max>& RowIndexList,
-                       const std::initializer_list<int_max>& ColIndexList,
-                       const std::initializer_list<ElementType>& ElementList,
-                       int_max RowNumber,
-                       int_max ColNumber,
-                       int_max AdditionalReservedCapacity = 0);
+    inline bool Construct(const std::initializer_list<int_max>& RowIndexList,
+					      const std::initializer_list<int_max>& ColIndexList,
+                          const std::initializer_list<ElementType>& ElementList,
+                          int_max RowNumber,
+                          int_max ColNumber,
+                          int_max AdditionalReservedCapacity = 0);
 
-    inline bool Create(const std::vector<int_max>& RowIndexList,
-                       const std::vector<int_max>& ColIndexList,
-                       const std::vector<ElementType>& ElementList,
-                       int_max RowNumber,
-                       int_max ColNumber,
-                       int_max AdditionalReservedCapacity = 0);
+    inline bool Construct(const std::vector<int_max>& RowIndexList,
+                          const std::vector<int_max>& ColIndexList,
+                          const std::vector<ElementType>& ElementList,
+						  int_max RowNumber,
+						  int_max ColNumber,
+                          int_max AdditionalReservedCapacity = 0);
 
-    inline bool Create(const DenseMatrix<int_max>& RowIndexList,
+    inline bool Construct(const DenseMatrix<int_max>& RowIndexList,
                        const DenseMatrix<int_max>& ColIndexList,
                        const DenseMatrix<ElementType>& ElementList,
                        int_max RowNumber,
                        int_max ColNumber,
                        int_max AdditionalReservedCapacity = 0);
 
-    inline bool Create(const int_max* RowIndexList,
-                       const int_max* ColIndexList,
-                       const ElementType* ElementList,
-                       int_max RecordedElementNumber,
-                       int_max RowNumber,
-                       int_max ColNumber,
-                       int_max AdditionalReservedCapacity = 0);
+    inline bool Construct(const int_max* RowIndexList,
+                          const int_max* ColIndexList,
+                          const ElementType* ElementList,
+                          int_max RecordedElementNumber,
+                          int_max RowNumber,
+                          int_max ColNumber,
+                          int_max AdditionalReservedCapacity = 0);
 
-    inline void CreateFromSortedData(const std::vector<int_max>& RowIndexList,
-                                     const std::vector<int_max>& ColIndexList,
-                                     const std::vector<ElementType>& ElementList,
-                                     int_max RowNumber,
-                                     int_max ColNumber);
+    inline void ConstructFromSortedData(const std::vector<int_max>& RowIndexList,
+                                        const std::vector<int_max>& ColIndexList,
+                                        const std::vector<ElementType>& ElementList,
+                                        int_max RowNumber,
+                                        int_max ColNumber);
 
-    inline bool CreateColVector(const std::initializer_list<int_max>& RowIndexList,
-                                const std::vector<ElementType>& ElementList,
-                                int_max RowNumber);
+    inline bool ConstructColVector(const std::initializer_list<int_max>& RowIndexList,
+                                   const std::vector<ElementType>& ElementList,
+                                   int_max RowNumber);
 
-    inline bool CreateColVector(const std::vector<int_max>& RowIndexList,
-                                const std::vector<ElementType>& ElementList,
-                                int_max RowNumber);
-
-
-    inline bool CreateColVector(const DenseMatrix<int_max>& RowIndexList,
-                                const DenseMatrix<ElementType>& ElementList,
-                                int_max RowNumber);
+    inline bool ConstructColVector(const std::vector<int_max>& RowIndexList,
+                                   const std::vector<ElementType>& ElementList,
+                                   int_max RowNumber);
 
 
-    inline void CreateColVectorFromSortedData(std::vector<int_max> RowIndexList,
-                                              std::vector<ElementType> ElementList,
-                                              int_max RowNumber);
-
-    inline bool CreateRowVector(const std::initializer_list<int_max>& ColIndexList,
-                                const std::vector<ElementType>& ElementList,
-                                int_max ColNumber);
-
-    inline bool CreateRowVector(const std::vector<int_max>& ColIndexList,
-                                const std::vector<ElementType>& ElementList,
-                                int_max ColNumber);
+    inline bool ConstructColVector(const DenseMatrix<int_max>& RowIndexList,
+                                   const DenseMatrix<ElementType>& ElementList,
+                                   int_max RowNumber);
 
 
-    inline bool CreateRowVector(const DenseMatrix<int_max>& ColIndexList,
-                                const DenseMatrix<ElementType>& ElementList,
-                                int_max ColNumber);
+    inline void ConstructColVectorFromSortedData(std::vector<int_max> RowIndexList,
+                                                 std::vector<ElementType> ElementList,
+                                                 int_max RowNumber);
 
-    inline bool CreateFromSparseColVectorSetInOrder(const std::vector<SparseVector<ElementType>>& SparseVectorSet);
+    inline bool ConstructRowVector(const std::initializer_list<int_max>& ColIndexList,
+                                   const std::vector<ElementType>& ElementList,
+                                   int_max ColNumber);
 
-	inline bool CreateFromSparseColVectorSetInOrder(const ObjectArray<SparseVector<ElementType>>& SparseVectorSet);
+    inline bool ConstructRowVector(const std::vector<int_max>& ColIndexList,
+                                   const std::vector<ElementType>& ElementList,
+                                   int_max ColNumber);
+
+
+    inline bool ConstructRowVector(const DenseMatrix<int_max>& ColIndexList,
+                                   const DenseMatrix<ElementType>& ElementList,
+                                   int_max ColNumber);
+
+    inline bool ConstructFromSparseColVectorSetInOrder(const std::vector<SparseVector<ElementType>>& SparseVectorSet);
+
+	inline bool ConstructFromSparseColVectorSetInOrder(const ObjectArray<SparseVector<ElementType>>& SparseVectorSet);
 
     //----------------------  operator=  ----------------------------------------//
 
@@ -350,7 +350,7 @@ public:
 
     inline bool Take(SparseMatrix<ElementType>&& InputMatrix);
 
-    //Take the the ownership of the SparseMatrix Created from ShadowSparseMatrix or SparseGlueMatrix
+    //Take the the ownership of the SparseMatrix Constructd from ShadowSparseMatrix or SparseGlueMatrix
 
     //inline bool Take(const SparseShadowMatrix<ElementType>& ShadowMatrix);
 

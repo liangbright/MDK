@@ -70,25 +70,25 @@ public:
 
     inline ~SparseVector();
 
-    inline void Create(int_max Length = 0); // all zero
+    inline void Construct(int_max Length = 0); // all zero
 
-    inline bool Create(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& ElementList, int_max Length);
+    inline bool Construct(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& ElementList, int_max Length);
 
-    inline bool Create(const std::vector<int_max>& IndexList, const std::vector<ElementType>& ElementList, int_max Length);
+    inline bool Construct(const std::vector<int_max>& IndexList, const std::vector<ElementType>& ElementList, int_max Length);
 
-    inline bool Create(const DenseVector<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length);
+    inline bool Construct(const DenseVector<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length);
 
-    inline bool Create(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length);
+    inline bool Construct(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length);
 
-	inline bool Create(const DenseVector<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length);
+	inline bool Construct(const DenseVector<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length);
 
-	inline bool Create(const DenseMatrix<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length);
+	inline bool Construct(const DenseMatrix<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length);
 
-    inline bool Create(const int_max* IndexList, const ElementType* ElementList, int_max RecordedElementNumber, int_max Length);
+    inline bool Construct(const int_max* IndexList, const ElementType* ElementList, int_max RecordedElementNumber, int_max Length);
 
-    inline void CreateFromSortedData(std::vector<int_max> IndexList, std::vector<ElementType> ElementList, int_max Length);
+    inline void ConstructFromSortedData(std::vector<int_max> IndexList, std::vector<ElementType> ElementList, int_max Length);
 
-	inline void CreateFromSortedData(DenseVector<int_max> IndexList, DenseVector<ElementType> ElementList, int_max Length);
+	inline void ConstructFromSortedData(DenseVector<int_max> IndexList, DenseVector<ElementType> ElementList, int_max Length);
 
     inline void operator=(const SparseVector& InputVector);
 
