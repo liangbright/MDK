@@ -6,11 +6,11 @@ namespace mdk
 {
 
 template<typename PixelType>
-itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(DenseImage3D<PixelType>& MDKImage, bool SharePixelData)
+itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageByITKImportImageFilter(DenseImage3D<PixelType>& MDKImage, bool SharePixelData)
 {
 	if (MDKImage.IsEmpty() == true)
 	{
-		MDK_Warning("MDKImage is empty @ mdkFileIO ConvertMDK3DScalarImageToITK3DScalarImage(...)")
+		MDK_Warning("MDKImage is empty @ ConvertMDK3DScalarImageByITKImportImageFilter(...)")
 		return nullptr;
 	}
 
@@ -81,8 +81,10 @@ itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageT
 template<typename PixelType>
 itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(DenseImage3D<PixelType>& MDKImage)
 {
-	auto ITKImage = itk::SmartPointer<itk::Image<PixelType, 3>>::New();
-	ConvertMDK3DScalarImageToITK3DScalarImage(MDKImage, ITKImage.GetPointer());
+	typedef itk::Image<PixelType, 3> ITKImageType;
+	itk::SmartPointer<ITKImageType> ITKImage = ITKImageType::New();
+	ITKImageType * Ptr = ITKImage.GetPointer();
+	ConvertMDK3DScalarImageToITK3DScalarImage(MDKImage, Ptr);
 	return ITKImage;
 }
 
@@ -97,23 +99,66 @@ bool ConvertMDK3DScalarImageToITK3DScalarImage(const DenseImage3D<PixelType>& MD
 template<typename PixelType>
 bool ConvertMDK3DScalarImageToITK3DScalarImage(const DenseImage3D<PixelType>& MDKImage, itk::Image<PixelType, 3>* ITKImage)
 {
-	if (MDKImage.IsEmpty() == true)
+	if (ITKImage == nullptr)
 	{
-		MDK_Warning("MDKImage is empty @ mdkFileIO ConvertMDK3DScalarImageToITK3DScalarImage(...)")
-		return nullptr;
+		MDK_Error("ITKImage is nullptr @ ConvertITK3DScalarImageToMDK3DScalarImage(...)")
+		return false;
 	}
 
-    bool SharePixelData = true;
-    auto importFilter = ConvertMDK3DScalarImageToITK3DScalarImage(MDKImage, SharePixelData);
+	if (MDKImage.IsEmpty() == true)
+	{
+		MDK_Warning("MDKImage is empty @ ConvertMDK3DScalarImageToITK3DScalarImage(...)")		
+	}
 
-    typedef itk::Image<PixelType, 3>  ITKImageType;
-    typedef itk::ImageDuplicator<ITKImageType> DuplicatorType;
-    DuplicatorType::Pointer duplicator = DuplicatorType::New();
-    duplicator->SetMDKImage(importFilter->GetOutput());
-    duplicator->Update();
+	auto InputSize = MDKImage.GetSize();
+	auto InputOrigin = MDKImage.GetOrigin();
+	auto InputSpacing = MDKImage.GetSpacing();
 
-    ITKImageType::Pointer ITKImage = duplicator->GetOutput();
-    return ITKImage;
+	typedef itk::Image<PixelType, 3> ITKImageType;
+
+	ITKImageType::SizeType size;
+	size[0] = InputSize[0];
+	size[1] = InputSize[1];
+	size[2] = InputSize[2];
+
+	ITKImageType::IndexType start;
+	start.Fill(0);
+	ITKImageType::RegionType region;
+	region.SetIndex(start);
+	region.SetSize(size);
+	ITKImage->SetRegions(region);
+
+	const itk::SpacePrecisionType origin[3] = { InputOrigin[0], InputOrigin[1], InputOrigin[2] };
+	ITKImage->SetOrigin(origin);
+
+	const itk::SpacePrecisionType spacing[3] = { InputSpacing[0], InputSpacing[1], InputSpacing[2] };
+	ITKImage->SetSpacing(spacing);
+
+	ITKImageType::DirectionType Direction;
+	typedef itk::SpacePrecisionType SpacePrecisionType;
+
+	const DenseMatrix<double>& Orientation = MDKImage.GetOrientation();
+	for (int j = 0; j < 3; ++j)
+	{
+		for (int i = 0; i < 3; ++i)
+		{
+			Direction(i, j) = SpacePrecisionType(Orientation(i, j));
+		}
+	}
+	ITKImage->SetDirection(Direction);
+
+	ITKImage->Allocate();
+
+	auto Ptr_MDKImage = MDKImage.GetPixelPointer();
+
+	auto Ptr_ITKImage = ITKImage->GetBufferPointer();
+
+	for (int_max i = 0; i < MDKImage.GetPixelNumber(); ++i)
+	{
+		Ptr_ITKImage[i] = Ptr_MDKImage[i];
+	}
+
+	return true;
 }
 
 
@@ -129,7 +174,7 @@ bool ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* I
 {
     if (ITKImage == nullptr)
     {
-        MDK_Error("Invalid input @ ConvertITK3DScalarImageToMDK3DScalarImage(...)")
+        MDK_Error("ITKImage is nullptr @ ConvertITK3DScalarImageToMDK3DScalarImage(...)")
         return false;
     }
 
@@ -152,13 +197,13 @@ bool ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* I
     }
 	MDKImage.SetOrientation(Orientation);
 
-	auto PtrOfMDKImage = MDKImage.GetPixelPointer();
+	auto Ptr_MDKImage = MDKImage.GetPixelPointer();
 
-    auto PtrOfITKImage = ITKImage->GetBufferPointer();
+	auto Ptr_ITKImage = ITKImage->GetBufferPointer();
 
 	for (int_max i = 0; i < MDKImage.GetPixelNumber(); ++i)
     {
-		PtrOfMDKImage[i] = PtrOfITKImage[i];
+		Ptr_MDKImage[i] = Ptr_ITKImage[i];
     }
 
     return true;

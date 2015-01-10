@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <array>
 
-#include "mdkFileIO.h"
+#include "mdkDenseImage3D_FileIO.h"
 #include "mdkDenseImageResampler3D.h"
 
 #include "itkIdentityTransform.h"
@@ -18,12 +18,13 @@ namespace mdk
 
 void test_a()
 {
-	std::string FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/phase0";
-	//std::string FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/TestImage.json";
+	String FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/phase0";
+	//String FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/TestImage.json";
 
-	std::string FileNameAndPath_OutputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/ResampledImage.json";
+	String FileNameAndPath_OutputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/ResampledImage.json";
 
-	auto InputImage = Load3DScalarImageFromDICOMSeries<double>(FilePath_InputImage);
+	DenseImage3D<double> InputImage;
+	Load3DScalarImageFromDICOMSeries(InputImage, FilePath_InputImage);
 	//auto InputImage = Load3DScalarImageFromJsonDataFile<double>(FilePath_InputImage);
 
 	std::cout << "start" << '\n';
@@ -40,7 +41,7 @@ void test_a()
 
 	auto InterpolationOption = Resampler.GetImageInterpolationOption();
 	InterpolationOption.MethodType = DenseImageResampler3D<double>::ImageInterpolationMethodEnum::Linear;
-	InterpolationOption.BoundaryOption = DenseImageResampler3D<double>::ImageInterpolationBoundaryOptionEnum::Nearest;
+	InterpolationOption.BoundaryOption = DenseImageResampler3D<double>::ImageInterpolationBoundaryOptionEnum::Replicate;
 	InterpolationOption.Pixel_OutsideImage = 0;
 	Resampler.SetImageInterpolationOption(InterpolationOption);
 
@@ -62,12 +63,13 @@ void test_a()
 
 void test_b()
 {
-	std::string FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/phase0";
-	//std::string FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/TestImage.json";
+	String FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/phase0";
+	//String FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/TestImage.json";
 
-	std::string FileNameAndPath_OutputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/ResampledImage.json";
+	String FileNameAndPath_OutputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/ResampledImage.json";
 
-	auto InputImage = Load3DScalarImageFromDICOMSeries<double>(FilePath_InputImage);
+	DenseImage3D<double> InputImage;
+	Load3DScalarImageFromDICOMSeries(InputImage, FilePath_InputImage);
 	//auto InputImage = Load3DScalarImageFromJsonDataFile<double>(FilePath_InputImage);
 
 	auto input = ConvertMDK3DScalarImageToITK3DScalarImage(InputImage);
@@ -104,13 +106,14 @@ void test_b()
 
 void test_c()
 {
-	std::string FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/phase0";
-	//std::string FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/TestImage.json";
+	String FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/phase0";
+	//String FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/TestImage.json";
 
-	std::string FileNameAndPath_OutputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/ResampledImage.json";
+	String FileNameAndPath_OutputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/ResampledImage.json";
 
-	auto InputImage = Load3DScalarImageFromDICOMSeries<double>(FilePath_InputImage);
-	//auto InputImage = Load3DScalarImageFromJsonDataFile<double>(FilePath_InputImage);
+	DenseImage3D<double> InputImage;
+	Load3DScalarImageFromDICOMSeries(InputImage, FilePath_InputImage);
+	Load3DScalarImageFromJsonDataFile(InputImage, FilePath_InputImage);
 
 	auto inputImage = ConvertMDK3DScalarImageToITK3DScalarImage(InputImage);
 

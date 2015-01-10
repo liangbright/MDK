@@ -32,7 +32,7 @@ class PolygonMesh;
 
 //copy or share data
 template<typename PixelType>
-itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(const DenseImage3D<PixelType>& MDKImage, bool SharePixelData);
+itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageByITKImportImageFilter(const DenseImage3D<PixelType>& MDKImage, bool SharePixelData);
 
 //copy data
 template<typename PixelType>
