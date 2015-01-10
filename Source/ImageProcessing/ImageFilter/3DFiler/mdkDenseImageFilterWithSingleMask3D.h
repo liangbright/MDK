@@ -58,6 +58,30 @@ protected:
 	inline bool WhetherToCheckBoundAtMaskOrigin_3DIndex(ScalarType x, ScalarType y, ScalarType z);
 	inline bool WhetherToCheckBoundAtMaskOrigin_3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z);
 
+	template<typename PixelTypeForMask = InputPixelType>
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0);
+
+	template<typename PixelTypeForMask = InputPixelType>
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position);
+
+	template<typename PixelTypeForMask = InputPixelType>
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0);
+
+	template<typename PixelTypeForMask = InputPixelType>
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position);
+
+	template<typename PixelTypeForMask = InputPixelType>
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0);
+
+	template<typename PixelTypeForMask = InputPixelType>
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D);
+
+	template<typename PixelTypeForMask = InputPixelType>
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0);
+
+	template<typename PixelTypeForMask = InputPixelType>
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D);
+
 private:
     void ComputeRegionOfNOBoundCheck_3DIndex();
 	void ComputeRegionOfNOBoundCheck_3DPhysicalPosition();

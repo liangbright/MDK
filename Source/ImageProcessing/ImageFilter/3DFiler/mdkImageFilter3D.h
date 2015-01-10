@@ -128,30 +128,6 @@ protected:
 
 	DenseVector<ScalarType, 3> Transform3DIndexInOutputImageTo3DPhysicalPosition(const DenseVector<int_max, 3>& Index3D);
 
-	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0);
-
-	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position);
-
-	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0);
-
-	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position);
-
-	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0);
-
-	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D);
-
-	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0);
-
-	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D);
-
 private:
 	ImageFilter3D(const ImageFilter3D&) = delete;
 	void operator=(const ImageFilter3D&) = delete;
