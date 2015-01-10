@@ -39,8 +39,8 @@ bool ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType, Scalar
 		return false;
 	}
 
-	if (m_ConvolutionCoefficient.GetElementNumber() != m_Mask_3DIndex.GetColNumber()
-		&& m_ConvolutionCoefficient.GetElementNumber() != m_Mask_3DPhysicalPosition.GetColNumber())
+	if (m_ConvolutionCoefficient.GetElementNumber() != m_PointMask_3DIndex_InputImage.GetColNumber()
+		&& m_ConvolutionCoefficient.GetElementNumber() != m_PointMask_3DPhysicalPosition.GetColNumber())
 	{
 		MDK_Error("size of ConvolutionCoefficient vector not match size of Mask @ ScalarDenseImageConvolutionFilter3D::Preprocess()")
 		return false;
@@ -57,15 +57,15 @@ EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, S
 {	
 	auto OutputPixel = OutputPixelType(0);
 
-	if (m_Flag_UseMaskOf3DPhysicalPosition == false)// use m_Mask_3DIndex
+	if (m_Flag_UseMaskOf3DPhysicalPosition == false)// use m_PointMask_3DIndex_InputImage
 	{
 		auto Index3D_input = m_InputImage->Transform3DPhysicalPositionTo3DIndex(x0, y0, z0);
 		auto x0_Index = Index3D_input[0];
 		auto y0_Index = Index3D_input[1];
 		auto z0_Index = Index3D_input[2];
 
-		auto PointNumberInMask = m_Mask_3DIndex.GetElementNumber();
-		auto BeginPointerOfMask = m_Mask_3DIndex.GetElementPointer();
+		auto PointNumberInMask = m_PointMask_3DIndex_InputImage.GetElementNumber();
+		auto BeginPointerOfMask = m_PointMask_3DIndex_InputImage.GetElementPointer();
 		auto BeginPointerOfCoef = m_ConvolutionCoefficient.GetElementPointer();
 
 		bool CheckBoundAtThisCenter = this->WhetherToCheckBoundAtMaskOrigin_3DPhysicalPosition(x0, y0, z0);
@@ -114,10 +114,10 @@ EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, S
 			}
 		}
 	}
-	else//if (m_Flag_UseMaskOf3DPhysicalPosition == true) // use m_Mask_3DPhysicalPosition
+	else//if (m_Flag_UseMaskOf3DPhysicalPosition == true) // use m_PointMask_3DPhysicalPosition
 	{
-		auto PointNumberInMask = m_Mask_3DPhysicalPosition.GetElementNumber();
-		auto BeginPointerOfMask = m_Mask_3DPhysicalPosition.GetElementPointer();
+		auto PointNumberInMask = m_PointMask_3DPhysicalPosition.GetElementNumber();
+		auto BeginPointerOfMask = m_PointMask_3DPhysicalPosition.GetElementPointer();
 		auto BeginPointerOfCoef = m_ConvolutionCoefficient.GetElementPointer();
 		auto PtrCoef = BeginPointerOfCoef;
 		for (auto PtrMask = BeginPointerOfMask; PtrMask < BeginPointerOfMask + PointNumberInMask; PtrMask += 3, ++PtrCoef)

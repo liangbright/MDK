@@ -142,7 +142,7 @@ void ScalarDenseImageGradientMagnitudeFilter3D<InputPixelType, OutputPixelType, 
 			}
 		}
 	}
-	else // if (m_Flag_MaskOriginLocation == 1 || m_Flag_MaskOriginLocation == -1)
+	else // if (m_Flag_MaskOriginLocation == 1 or -1)
 	{
 		const double pi = std::acos(-1.0);
 		const int_max AngleNumber = int_max(2*pi / m_AngleResolution);

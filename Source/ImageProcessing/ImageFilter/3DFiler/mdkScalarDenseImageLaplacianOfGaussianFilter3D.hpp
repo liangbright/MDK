@@ -95,8 +95,8 @@ void ScalarDenseImageLaplacianOfGaussianFilter3D<InputPixelType, OutputPixelType
     // at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
     // add the points within the m_CutOffRatio to Mask
     
-	m_Mask_3DPhysicalPosition.FastResize(0);
-	m_Mask_3DPhysicalPosition.ReserveCapacity(3 * MaxRadius*MaxRadius*MaxRadius);
+	m_PointMask_3DPhysicalPosition.FastResize(0);
+	m_PointMask_3DPhysicalPosition.ReserveCapacity(3 * MaxRadius*MaxRadius*MaxRadius);
 
 	m_ConvolutionCoefficient.FastResize(0);
 	m_ConvolutionCoefficient.ReserveCapacity(MaxRadius*MaxRadius*MaxRadius);
@@ -126,14 +126,14 @@ void ScalarDenseImageLaplacianOfGaussianFilter3D<InputPixelType, OutputPixelType
                 {
 					auto tempValue = std::exp(-ScalarType(0.5)*tempRatio);
 
-					m_Mask_3DPhysicalPosition.AppendCol({ ScalarType(x), ScalarType(y), ScalarType(z) });
+					m_PointMask_3DPhysicalPosition.AppendCol({ ScalarType(x), ScalarType(y), ScalarType(z) });
 					m_ConvolutionCoefficient.Append(tempValue);
                 }
             }
         }
     }
 
-	m_Mask_3DPhysicalPosition.ReleaseUnusedCapacity();
+	m_PointMask_3DIndex_InputImage.ReleaseUnusedCapacity();
 	m_ConvolutionCoefficient.ReleaseUnusedCapacity();
 
 	//normalize coefficient
@@ -166,8 +166,8 @@ void ScalarDenseImageLaplacianOfGaussianFilter3D<InputPixelType, OutputPixelType
 	// at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
 	// add the points within the m_CutOffRatio to Mask
 
-	m_Mask_3DIndex.FastResize(0);
-	m_Mask_3DIndex.ReserveCapacity(3 * MaxRadius*MaxRadius*MaxRadius);
+	m_PointMask_3DIndex_InputImage.FastResize(0);
+	m_PointMask_3DIndex_InputImage.ReserveCapacity(3 * MaxRadius*MaxRadius*MaxRadius);
 
 	m_ConvolutionCoefficient.FastResize(0);
 	m_ConvolutionCoefficient.ReserveCapacity(MaxRadius*MaxRadius*MaxRadius);
@@ -197,14 +197,14 @@ void ScalarDenseImageLaplacianOfGaussianFilter3D<InputPixelType, OutputPixelType
 				{
 					auto tempValue = std::exp(-ScalarType(0.5)*tempRatio);
 
-					m_Mask_3DIndex.AppendCol({ ScalarType(x), ScalarType(y), ScalarType(z) });
+					m_PointMask_3DIndex_InputImage.AppendCol({ ScalarType(x), ScalarType(y), ScalarType(z) });
 					m_ConvolutionCoefficient.Append(tempValue);
 				}
 			}
 		}
 	}
 
-	m_Mask_3DIndex.ReleaseUnusedCapacity();
+	m_PointMask_3DIndex_InputImage.ReleaseUnusedCapacity();
 	m_ConvolutionCoefficient.ReleaseUnusedCapacity();
 
 	//normalize coefficient

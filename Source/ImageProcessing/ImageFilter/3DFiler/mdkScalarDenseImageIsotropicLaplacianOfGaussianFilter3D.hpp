@@ -79,8 +79,8 @@ void ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D<InputPixelType, Output
 	auto MaxRadius_y = double(int_max(MaxRadius/Spacing[1]) + 1)*Spacing[1];
 	auto MaxRadius_z = double(int_max(MaxRadius/Spacing[2]) + 1)*Spacing[2];
 
-	m_Mask_3DPhysicalPosition.FastResize(0);
-	m_Mask_3DPhysicalPosition.ReserveCapacity(3*8*MaxRadius_x*MaxRadius_y*MaxRadius_z);
+	m_PointMask_3DPhysicalPosition.FastResize(0);
+	m_PointMask_3DPhysicalPosition.ReserveCapacity(3*8*MaxRadius_x*MaxRadius_y*MaxRadius_z);
 
 	m_ConvolutionCoefficient.FastResize(0);
 	m_ConvolutionCoefficient.ReserveCapacity(8*MaxRadius_x*MaxRadius_y*MaxRadius_z);
@@ -97,14 +97,14 @@ void ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D<InputPixelType, Output
 				if (temp <= CutOffRatio_square)
 				{
 					auto tempValue = (1.0 - temp)*std::exp(-0.5*temp);
-					m_Mask_3DPhysicalPosition.AppendCol({x, y, z});
+					m_PointMask_3DPhysicalPosition.AppendCol({x, y, z});
 					m_ConvolutionCoefficient.Append(ScalarType(tempValue));
 				}
 			}
 		}
 	}
 
-	m_Mask_3DPhysicalPosition.ReleaseUnusedCapacity();
+	m_PointMask_3DPhysicalPosition.ReleaseUnusedCapacity();
 	m_ConvolutionCoefficient.ReleaseUnusedCapacity();
 
 	//normalize coefficient
@@ -146,8 +146,8 @@ void ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D<InputPixelType, Output
 	auto Sigma_z = m_Sigma / Spacing[2];
 	auto MaxRadius = int_max((std::max)((std::max)(Sigma_x, Sigma_y), Sigma_z) * m_CutOffRatio * 1.5) + 1;
 
-	m_Mask_3DIndex.FastResize(0);
-	m_Mask_3DIndex.ReserveCapacity(3*8*MaxRadius*MaxRadius*MaxRadius);
+	m_PointMask_3DIndex_InputImage.FastResize(0);
+	m_PointMask_3DIndex_InputImage.ReserveCapacity(3*8*MaxRadius*MaxRadius*MaxRadius);
 
 	m_ConvolutionCoefficient.FastResize(0);
 	m_ConvolutionCoefficient.ReserveCapacity(8*MaxRadius*MaxRadius*MaxRadius);
@@ -167,14 +167,14 @@ void ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D<InputPixelType, Output
 				if (temp <= CutOffRatio_square)
 				{
 					auto tempValue = (1.0 - temp)*std::exp(-0.5*temp);
-					m_Mask_3DIndex.AppendCol({ xIndex, yIndex, zIndex });
+					m_PointMask_3DIndex_InputImage.AppendCol({ xIndex, yIndex, zIndex });
 					m_ConvolutionCoefficient.Append(ScalarType(tempValue));
 				}
 			}
 		}
 	}
 
-	m_Mask_3DIndex.ReleaseUnusedCapacity();
+	m_PointMask_3DIndex_InputImage.ReleaseUnusedCapacity();
 	m_ConvolutionCoefficient.ReleaseUnusedCapacity();
 
 	//normalize coefficient

@@ -24,12 +24,12 @@ protected:
 
 	bool m_Flag_AutoSelectMask;
 
-	DenseMatrix<ScalarType> m_Mask_3DPhysicalPosition;
+	DenseMatrix<ScalarType> m_PointMask_3DPhysicalPosition;
     // row_0: dx or dx_Index
     // row_1: dy or dy_Index
     // row_2: dz or dz_Index
 
-	DenseMatrix<ScalarType> m_Mask_3DIndex; // to get Index in m_InputImage
+	DenseMatrix<ScalarType> m_PointMask_3DIndex_InputImage; // 3DIndex in m_InputImage
 	// row_0: dx or dx_Index
 	// row_1: dy or dy_Index
 	// row_2: dz or dz_Index
@@ -58,29 +58,38 @@ protected:
 	inline bool WhetherToCheckBoundAtMaskOrigin_3DIndex(ScalarType x, ScalarType y, ScalarType z);
 	inline bool WhetherToCheckBoundAtMaskOrigin_3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z);
 
+	//-------------
+	// PointMask may be m_PointMask_3DPhysicalPosition or m_PointMask_3DIndex_InputImage
 	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0);
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMask_At3DPhysicalPosition(ScalarType x0, ScalarType y0, ScalarType z0);
 
 	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position);
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMask_At3DIndexInOutputImage(int_max x0, int_max y0, int_max z0);
+
+	//-------------
+	template<typename PixelTypeForMask = InputPixelType>
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(ScalarType x0, ScalarType y0, ScalarType z0);
 
 	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0);
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseVector<ScalarType, 3>& Position);
 
 	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position);
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(ScalarType x0, ScalarType y0, ScalarType z0);
 
 	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0);
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(const DenseVector<ScalarType, 3>& Position);
 
 	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D);
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(int_max x0, int_max y0, int_max z0);
 
 	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0);
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseVector<int_max, 3>& Index3D);
 
 	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D);
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DIndexInOutputImage(int_max x0, int_max y0, int_max z0);
+
+	template<typename PixelTypeForMask = InputPixelType>
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DIndexInOutputImage(const DenseVector<int_max, 3>& Index3D);
 
 private:
     void ComputeRegionOfNOBoundCheck_3DIndex();
