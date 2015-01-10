@@ -1,6 +1,9 @@
 ﻿#ifndef __mdkDenseImageFilterWithSingleMask3D_h
 #define __mdkDenseImageFilterWithSingleMask3D_h
 
+#include <algorithm>
+
+#include "mdkDebugConfig.h"
 #include "mdkImageFilter3D.h"
 
 namespace mdk

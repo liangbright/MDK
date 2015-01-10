@@ -35,7 +35,7 @@ protected:
 	ImageInterpolationOptionType m_ImageInterpolationOption;
 
 	// only one of them is used
-	const DenseMatrix<ScalarType>* m_PointList_3DPyhsicalPosition;  // store at each nearest point on m_OutputImage if Output is image
+	const DenseMatrix<ScalarType>* m_PointList_3DPhysicalPosition;  // store at each nearest point on m_OutputImage if Output is image
 	const DenseMatrix<int_max>*    m_PointList_3DIndex_InputImage;  // store at each nearest point on m_OutputImage if Output is image
 	const DenseMatrix<int_max>*    m_PointList_3DIndex_OutputImage; // store at each point on m_OutputImage
 
@@ -48,7 +48,7 @@ protected:
 
 	bool m_Flag_ScanWholeImageGrid;
 	// true: whole m_OutputImage
-	// false: point set determined by m_PointList_3DPyhsicalPosition or m_PointList_3DIndex_InputImage or m_PointList_3DIndex_OutputImage
+	// false: point set determined by m_PointList_3DPhysicalPosition or m_PointList_3DIndex_InputImage or m_PointList_3DIndex_OutputImage
 
 	bool m_Flag_EnableOutputImage;
 	bool m_Flag_EnableOutputPixelArray;
@@ -93,7 +93,7 @@ public:
 
 	void SetPointListOf3DIndexInInputImage(const DenseMatrix<int_max>* ListOf3DIndex);
 
-	void SetPointListOf3DPyhsicalPosition(const DenseMatrix<ScalarType>* ListOf3DPyhsicalPosition);
+	void SetPointListOf3DPhysicalPosition(const DenseMatrix<ScalarType>* ListOf3DPhysicalPosition);
 
 	void SetPointListOf3DIndexInOutputImage(DenseMatrix<int_max> ListOf3DIndex);
 
@@ -114,9 +114,12 @@ protected:
 
 	inline virtual void Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex);
 
-	// Evaluate at Point (x, y, z) of m_OutputImage
+	// Evaluate at Point (x, y, z) with PointIndex
+	// PointIndex may be LinearIndex in m_OutputImage, or index in m_PointList_XXX
+	// PointIndex <=> (x,y,z) : from one we get the other, good for debug
 	inline virtual OutputPixelType EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) = 0;
 
+	// If we want to store pixel NOT in m_OutputPixelArray, but some other place (some data object in a derived class)
 	inline virtual void StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixelType& OutputPixel, int_max PointIndex, int_max ThreadIndex) {}
 
 	int_max GetNumberOfThreadTobeCreated();
@@ -132,10 +135,10 @@ protected:
 	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position);
 
 	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0);
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0);
 
 	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position);
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position);
 
 	template<typename PixelTypeForMask = InputPixelType>
 	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0);
@@ -144,10 +147,10 @@ protected:
 	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D);
 
 	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0);
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0);
 
 	template<typename PixelTypeForMask = InputPixelType>
-	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D);
+	ObjectArray<PixelTypeForMask> GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D);
 
 private:
 	ImageFilter3D(const ImageFilter3D&) = delete;

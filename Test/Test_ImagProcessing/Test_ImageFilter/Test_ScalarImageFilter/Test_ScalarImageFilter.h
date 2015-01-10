@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <array>
 
-#include "mdkFileIO.h"
+#include "mdkDenseImage3D_FileIO.h"
 #include "mdkScalarDenseImageGaussianFilter3D.h"
 #include "mdkHistogram.h"
 #include "mdkString.h"
@@ -15,7 +15,7 @@ namespace mdk
 
 void test_ScalarImageGaussianFilter3D()
 {
-    std::string FilePath = "C:/Research/MDK_Build/Test/Test_ImageFilter/Test_ScalarImageFilter/Debug/";
+    String FilePath = "C:/Research/MDK_Build/Test/Test_ImageFilter/Test_ScalarImageFilter/Debug/";
 
 	DenseImage3D<double> InputImage;
 	Load3DScalarImageFromJsonDataFile(InputImage, FilePath + "TestImage.json");

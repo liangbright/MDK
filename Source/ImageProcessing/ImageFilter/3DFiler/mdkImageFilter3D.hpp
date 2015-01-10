@@ -24,7 +24,7 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Clear()
 	m_ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Replicate;
 	m_ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);
 	
-	m_PointList_3DPyhsicalPosition = nullptr;
+	m_PointList_3DPhysicalPosition = nullptr;
 	m_PointList_3DIndex_InputImage = nullptr;
 	m_PointList_3DIndex_OutputImage = nullptr;
 	
@@ -133,9 +133,9 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::InitializeOutpu
 	{
 		PixelNumberInArray = m_PointList_3DIndex_InputImage->GetColNumber();
 	}
-	else if (m_PointList_3DPyhsicalPosition != nullptr)
+	else if (m_PointList_3DPhysicalPosition != nullptr)
 	{
-		PixelNumberInArray = m_PointList_3DPyhsicalPosition->GetColNumber();
+		PixelNumberInArray = m_PointList_3DPhysicalPosition->GetColNumber();
 	}
 
 	m_OutputPixelArray.FastResize(PixelNumberInArray);
@@ -150,9 +150,9 @@ ObjectArray<typename OutputImageType::PixelType>* ImageFilter3D<InputImageType, 
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetPointListOf3DPyhsicalPosition(const DenseMatrix<ScalarType>* ListOf3DPyhsicalPosition)
+void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetPointListOf3DPhysicalPosition(const DenseMatrix<ScalarType>* ListOf3DPhysicalPosition)
 {
-	m_PointList_3DPyhsicalPosition = std::move(ListOf3DPyhsicalPosition);
+	m_PointList_3DPhysicalPosition = std::move(ListOf3DPhysicalPosition);
 }
 
 
@@ -279,24 +279,24 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Preprocess()
 	auto OutputImageOrigin = m_OutputImageInfo.Origin;
 	auto PixelNumberOfOutputImage = OutputImageSize[0] * OutputImageSize[1] * OutputImageSize[2];
 
-	if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition == nullptr)
+	if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPhysicalPosition == nullptr)
 	{
 		m_TotalNumberOfOutputPixelTobeProcessed = PixelNumberOfOutputImage;
 		m_Flag_ScanWholeImageGrid = true;
 	}
-	else if (m_PointList_3DIndex_OutputImage != nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition == nullptr)
+	else if (m_PointList_3DIndex_OutputImage != nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPhysicalPosition == nullptr)
 	{
 		m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DIndex_OutputImage->GetColNumber();
 		m_Flag_ScanWholeImageGrid = false;
 	}
-	else if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage != nullptr && m_PointList_3DPyhsicalPosition == nullptr)
+	else if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage != nullptr && m_PointList_3DPhysicalPosition == nullptr)
 	{
 		m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DIndex_InputImage->GetColNumber();
 		m_Flag_ScanWholeImageGrid = false;
 	}
-	else if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPyhsicalPosition != nullptr)
+	else if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPhysicalPosition != nullptr)
 	{
-		m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DPyhsicalPosition->GetColNumber();
+		m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DPhysicalPosition->GetColNumber();
 		m_Flag_ScanWholeImageGrid = false;
 	}
 	else
@@ -403,12 +403,12 @@ Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max T
 				}
 			}
 		}
-		else if (m_PointList_3DPyhsicalPosition != nullptr)
+		else if (m_PointList_3DPhysicalPosition != nullptr)
 		{
 			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
 			{
 				DenseVector<ScalarType, 3> Pos3D;
-				m_PointList_3DPyhsicalPosition->GetCol(k, Pos3D);
+				m_PointList_3DPhysicalPosition->GetCol(k, Pos3D);
 				auto OutputPixel = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
 				if (m_Flag_EnableOutputImage == true)
 				{
@@ -505,7 +505,7 @@ GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(const DenseMatrix<Sc
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 template<typename PixelTypeForMask>
 ObjectArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
-GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0)
+GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, ScalarType x0, ScalarType y0, ScalarType z0)
 {
 	auto PixelNumber = PointMask.GetColNumber();
 	ObjectArray<PixelTypeForMask> PixelSet;
@@ -526,9 +526,9 @@ GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition(const Den
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 template<typename PixelTypeForMask>
 ObjectArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
-GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position)
+GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(const DenseMatrix<ScalarType>& PointMask, const DenseVector<ScalarType, 3>& Position)
 {
-	return this->GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition(PointMask, Position[0], Position[1], Position[2]);
+	return this->GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(PointMask, Position[0], Position[1], Position[2]);
 }
 
 
@@ -554,19 +554,19 @@ GetInputImagePixelByPointMaskOf3DIndex_At3DIndexInOutputImage(const DenseMatrix<
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 template<typename PixelTypeForMask>
 ObjectArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
-GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0)
+GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, int_max x0, int_max y0, int_max z0)
 {
 	auto MaskOriginOf3DPosition = m_OutputImage.Transform3DIndexTo3DPhysicalPosition<ScalarType>(x0, y0, z0);
-	return this->GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition(MaskOriginOf3DPosition);
+	return this->GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(MaskOriginOf3DPosition);
 }
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 template<typename PixelTypeForMask>
 ObjectArray<PixelTypeForMask> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
-GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D)
+GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DIndexInOutputImage(const DenseMatrix<ScalarType>& PointMask, const DenseVector<int_max, 3>& Index3D)
 {
-	return this->GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DIndexInOutputImage(PointMask, Index3D[0], Index3D[1], Index3D[2]);
+	return this->GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DIndexInOutputImage(PointMask, Index3D[0], Index3D[1], Index3D[2]);
 }
 
 }// namespace mdk

@@ -57,7 +57,7 @@ EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, S
 {	
 	auto OutputPixel = OutputPixelType(0);
 
-	if (m_Flag_UseMaskOf3DPhysicalPosition == false)
+	if (m_Flag_UseMaskOf3DPhysicalPosition == false)// use m_Mask_3DIndex
 	{
 		auto Index3D_input = m_InputImage->Transform3DPhysicalPositionTo3DIndex(x0, y0, z0);
 		auto x0_Index = Index3D_input[0];
@@ -70,7 +70,7 @@ EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, S
 
 		bool CheckBoundAtThisCenter = this->WhetherToCheckBoundAtMaskOrigin_3DPhysicalPosition(x0, y0, z0);
 
-		if (m_ImageInterpolationOption.MethodType == MethodEnum_Of_Image3DInterpolation::Nearest)
+		if (m_ImageInterpolationOption.MethodType == ImageInterpolationMethodEnum::Nearest)
 		{
 			if (CheckBoundAtThisCenter == true)
 			{
@@ -114,7 +114,7 @@ EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, S
 			}
 		}
 	}
-	else//if (m_Flag_UseMaskOf3DPhysicalPosition == true)
+	else//if (m_Flag_UseMaskOf3DPhysicalPosition == true) // use m_Mask_3DPhysicalPosition
 	{
 		auto PointNumberInMask = m_Mask_3DPhysicalPosition.GetElementNumber();
 		auto BeginPointerOfMask = m_Mask_3DPhysicalPosition.GetElementPointer();

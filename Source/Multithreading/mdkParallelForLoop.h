@@ -4,7 +4,7 @@
 #include <vector>
 #include <thread>
 
-#include "mdkType.h"
+#include "mdkCommonType.h"
 
 namespace mdk
 {

@@ -576,7 +576,7 @@ inline char& String::operator[](int_max Index)
 }
 
 
-inline const char& String::operator[](int_max Index) const
+inline char String::operator[](int_max Index) const
 {
     return (*m_StringData)[Index];
 }
@@ -588,7 +588,7 @@ inline char& String::operator()(int_max Index)
 }
 
 
-inline const char& String::operator()(int_max Index) const
+inline char String::operator()(int_max Index) const
 {
     return (*m_StringData)[Index];
 }
@@ -601,7 +601,7 @@ inline char& String::at(int_max Index)
 }
 
 
-inline const char& String::at(int_max Index) const
+inline char String::at(int_max Index) const
 {
     return m_StringData->at(Index);
 }

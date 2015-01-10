@@ -21,10 +21,10 @@ inline
 OutputPixelType ScalarDenseImageMaxPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::
 EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex)
 {
-	DataArray<OutputPixelType> PixelSet;
+	ObjectArray<OutputPixelType> PixelSet;
 	if (this->IsPhysicalPositionUsedInSelectedMask() == true)
 	{
-		PixelSet = this->GetInputImagePixelByPointMaskOf3DPyhsicalPosition_At3DPhysicalPosition<OutputPixelType>(m_Mask_3DPhysicalPosition, x0, y0, z0);
+		PixelSet = this->GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition<OutputPixelType>(m_Mask_3DPhysicalPosition, x0, y0, z0);
 	}
 	else
 	{

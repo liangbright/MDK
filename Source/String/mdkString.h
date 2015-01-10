@@ -18,7 +18,7 @@ namespace mdk
 class String : public Object
 {
 private:     
-	mutable std::shared_ptr<std::basic_string<char>> m_StringData;
+	std::shared_ptr<std::basic_string<char>> m_StringData;
 
 public:			
 	//------------------- constructor and destructor ------------------------------------//
@@ -131,17 +131,17 @@ public:
 
     inline char& operator[](int_max Index);
 
-    inline const char& operator[](int_max Index) const;
+    inline char operator[](int_max Index) const;
 
     inline char& operator()(int_max Index);
 
-    inline const char& operator()(int_max Index) const;
+    inline char operator()(int_max Index) const;
     
     // at(): bound check
 
     inline char& at(int_max Index);
 
-    inline const char& at(int_max Index) const;
+    inline char at(int_max Index) const;
 
     //-------------------------------------------------------------------------------
 
