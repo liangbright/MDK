@@ -132,7 +132,12 @@ protected:
 	template<typename IndexType>
 	DenseVector<ScalarType, 3> Transform3DIndexInOutputImageTo3DPhysicalPosition(const DenseVector<IndexType, 3>& Index3D);
 
+	template<typename IndexType>
+	DenseVector<ScalarType, 3> Transform3DIndexInOutputImageTo3DPhysicalPosition(IndexType x_Index, IndexType y_Index, IndexType z_Index);
+
 	DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DIndexInOutputImage(const DenseVector<ScalarType, 3>& Position);
+
+	DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DIndexInOutputImage(ScalarType x, ScalarType y, ScalarType z);
 
 private:
 	ImageFilter3D(const ImageFilter3D&) = delete;

@@ -312,6 +312,10 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Preprocess()
 	else
 	{
 		m_OutputImage.Clear();
+		// only set info in m_OutputImage: except size
+		m_OutputImage.SetOrigin(m_OutputImageInfo.Origin);
+		m_OutputImage.SetSpacing(m_OutputImageInfo.Spacing);
+		m_OutputImage.SetOrientation(m_OutputImageInfo.Orientation);		
 	}
 
 	if (m_Flag_EnableOutputPixelArray == true)
@@ -466,10 +470,18 @@ template<typename IndexType>
 DenseVector<ScalarType, 3> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
 Transform3DIndexInOutputImageTo3DPhysicalPosition(const DenseVector<IndexType, 3>& Index3D)
 {
+	return this->Transform3DIndexInOutputImageTo3DPhysicalPosition(Index3D[0], Index3D[1], Index3D[2]);
+}
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+template<typename IndexType>
+DenseVector<ScalarType, 3> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
+Transform3DIndexInOutputImageTo3DPhysicalPosition(IndexType x_Index, IndexType y_Index, IndexType z_Index)
+{
 	DenseVector<ScalarType, 3> Position;
-	Position[0] = ScalarType(m_OutputImageInfo.Origin[0] + double(Index3D[0]) * m_OutputImageInfo.Spacing[0]);
-	Position[1] = ScalarType(m_OutputImageInfo.Origin[1] + double(Index3D[1]) * m_OutputImageInfo.Spacing[1]);
-	Position[2] = ScalarType(m_OutputImageInfo.Origin[2] + double(Index3D[2]) * m_OutputImageInfo.Spacing[2]);
+	Position[0] = ScalarType(m_OutputImageInfo.Origin[0] + double(x_Index) * m_OutputImageInfo.Spacing[0]);
+	Position[1] = ScalarType(m_OutputImageInfo.Origin[1] + double(y_Index) * m_OutputImageInfo.Spacing[1]);
+	Position[2] = ScalarType(m_OutputImageInfo.Origin[2] + double(z_Index) * m_OutputImageInfo.Spacing[2]);
 	return Position;
 }
 
@@ -478,10 +490,18 @@ template<typename InputImageType, typename OutputImageType, typename ScalarType>
 DenseVector<ScalarType, 3> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
 Transform3DPhysicalPositionTo3DIndexInOutputImage(const DenseVector<ScalarType, 3>& Position)
 {
+	return this->Transform3DPhysicalPositionTo3DIndexInOutputImage(Position[0], Position[1], Position[2]);
+}
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+DenseVector<ScalarType, 3> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
+Transform3DPhysicalPositionTo3DIndexInOutputImage(ScalarType x, ScalarType y, ScalarType z)
+{
 	DenseVector<ScalarType, 3> Index3D;
-	Index3D[0] = ScalarType((double(Position[0]) - m_OutputImageInfo.Origin[0]) / m_OutputImageInfo.Spacing[0]);
-	Index3D[1] = ScalarType((double(Position[1]) - m_OutputImageInfo.Origin[1]) / m_OutputImageInfo.Spacing[1]);
-	Index3D[2] = ScalarType((double(Position[2]) - m_OutputImageInfo.Origin[2]) / m_OutputImageInfo.Spacing[2]);
+	Index3D[0] = ScalarType((double(x) - m_OutputImageInfo.Origin[0]) / m_OutputImageInfo.Spacing[0]);
+	Index3D[1] = ScalarType((double(y) - m_OutputImageInfo.Origin[1]) / m_OutputImageInfo.Spacing[1]);
+	Index3D[2] = ScalarType((double(z) - m_OutputImageInfo.Origin[2]) / m_OutputImageInfo.Spacing[2]);
 	return Index3D;
 }
 

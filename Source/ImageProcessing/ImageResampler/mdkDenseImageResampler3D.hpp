@@ -133,11 +133,11 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Preproc
 	if (m_Flag_SmoothWhenDownsmapling == true)
 	{
 		auto InputSpacing = m_InputImage->GetSpacing();
-		auto OutputSpacing = m_OutputImage.GetSpacing();
+		auto OutputSpacing = m_OutputImageInfo.Spacing;
 		for (int_max k = 0; k < 3; ++k)
 		{
 			auto Ratio = OutputSpacing[k] / InputSpacing[k];
-			if (Ratio > 0.1)
+			if (Ratio > 1.5)
 			{
 				m_Flag_SmoothInputImage = true;
 			}
@@ -147,6 +147,8 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Preproc
 		{
 			auto SmoothingFilter = std::make_unique<IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType>>();
 			SmoothingFilter->SetInputImage(m_InputImage);
+			SmoothingFilter->SetOutputImageInfo(m_InputImage->GetInfo());
+			SmoothingFilter->EnableOutputImage();
 			SmoothingFilter->SetRadius(OutputSpacing[0], OutputSpacing[1], OutputSpacing[2]);
 			SmoothingFilter->SetMaxNumberOfThread(m_MaxNumberOfThread);
 			SmoothingFilter->Update();

@@ -29,7 +29,7 @@ void test_a()
 	Load3DScalarImageFromDICOMSeries(InputImage, FilePath_InputImage);
 	//auto InputImage = Load3DScalarImageFromJsonDataFile<double>(FilePath_InputImage);
 
-	std::cout << "start" << '/n';
+	std::cout << "start" << '\n';
 
 	DenseImageResampler3D<double> Resampler;
 	Resampler.SetInputImage(&InputImage);
@@ -47,7 +47,7 @@ void test_a()
 	InterpolationOption.Pixel_OutsideImage = 0;
 	Resampler.SetImageInterpolationOption(InterpolationOption);
 	Resampler.EnableSmoothingWhenDownsampling();
-	Resampler.SetMaxNumberOfThread(1);
+	Resampler.SetMaxNumberOfThread(6);
 	Resampler.Update();
 	const auto& ResampledImage = *Resampler.GetOutputImage();
 

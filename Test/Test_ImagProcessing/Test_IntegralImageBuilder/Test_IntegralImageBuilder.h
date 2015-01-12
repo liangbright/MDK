@@ -32,6 +32,8 @@ void test_3D()
 	IntegralImageBasedImageAverageFilter3D<double> AverageFilter1;
 	AverageFilter1.SetInputImage(&InputImage);
 	//AverageFilter1.SetIntegralImage(&IntegralImage);
+	AverageFilter1.SetOutputImageInfo(InputImage.GetInfo());
+	AverageFilter1.EnableOutputImage();
 	AverageFilter1.SetRadius(3, 3, 3);
 	AverageFilter1.SetMaxNumberOfThread(6);
 	AverageFilter1.Update();
