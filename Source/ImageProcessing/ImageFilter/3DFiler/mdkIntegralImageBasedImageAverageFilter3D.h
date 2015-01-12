@@ -23,7 +23,7 @@ private:
 	const DenseImage3D<OutputPixelType>* m_IntegralImage;
 	DenseImage3D<OutputPixelType> m_IntegralImage_Internal;
 	DenseVector<double, 3> m_Radius; // Physical radius
-	DenseVector<double, 3> m_Radius_Index3D;
+	DenseVector<double, 3> m_Radius_Index3D; // Index radius in m_InputImage and m_IntegralImage
 
 public:		
     IntegralImageBasedImageAverageFilter3D();

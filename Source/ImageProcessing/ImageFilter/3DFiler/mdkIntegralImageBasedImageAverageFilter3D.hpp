@@ -87,8 +87,8 @@ EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, S
 {
 	// Index3D=[x, y, z]
 	// x1 < x < x2, y1 < y < y2, z1 < z < z2
-	auto Index3D = this->Transform3DPhysicalPositionTo3DIndexInOutputImage(x0, y0, z0);
-	auto Size = m_OutputImageInfo.Size;
+	auto Index3D = m_IntegralImage->Transform3DPhysicalPositionTo3DIndex(x0, y0, z0);
+	auto Size = m_IntegralImage->GetSize();
 	//----------------------------------------
 	int_max x1 = int_max(std::round(Index3D[0] - m_Radius_Index3D[0]));
 	if (x1 == Index3D[0])
