@@ -52,10 +52,19 @@ bool IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType>::Pr
 		return false;
 	}
 
+	m_IntegralImage_Internal.Clear();
 	if (m_IntegralImage == nullptr)
 	{
 		m_IntegralImage = &m_IntegralImage_Internal;
-		m_IntegralImage_Internal.Clear();
+		
+	}
+	else
+	{
+		if (m_IntegralImage->IsEmpty() == true)
+		{
+			MDK_Error("m_IntegralImage is empty @ IntegralImageBasedImageAverageFilter3D::Preprocess()")
+			return false;
+		}
 	}
 
 	auto Spacing = m_OutputImageInfo.Spacing;
