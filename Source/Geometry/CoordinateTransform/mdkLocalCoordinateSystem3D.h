@@ -28,7 +28,7 @@ struct LocalCoordinateSystem3DWithUnitSpacing
 
 	void Clear()
 	{
-		Origin.Fill(0);
+		Origin = { 0, 0, 0 };
 		DirectionX = { 1, 0, 0 };
 		DirectionY = { 0, 1, 0 };
 		DirectionZ = { 0, 0, 1 };
@@ -57,7 +57,7 @@ struct LocalCoordinateSystem3D
 
 	void Clear()
 	{
-		Origin.Fill(0);
+		Origin = { 0, 0, 0 };
 		DirectionX = { 1, 0, 0 };
 		DirectionY = { 0, 1, 0 };
 		DirectionZ = { 0, 0, 1 };

@@ -1,5 +1,5 @@
-﻿#ifndef __mdkObject_cpp
-#define __mdkObject_cpp
+﻿#ifndef mdk_Object_cpp
+#define mdk_Object_cpp
 
 #include "mdkObject.h"
 

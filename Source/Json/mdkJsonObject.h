@@ -1,5 +1,5 @@
-﻿#ifndef __mdkJsonObject_h
-#define __mdkJsonObject_h
+﻿#ifndef mdk_JsonObject_h
+#define mdk_JsonObject_h
 
 #include <unordered_map>
 #include <vector>
@@ -20,10 +20,10 @@ class JsonObject : public Object
 public:
 	typedef std::unordered_map<String, JsonValue, StringHash<String>> DataMapType;
 
-	typedef DataMapType::local_iterator local_iterator;
+	typedef DataMapType::local_iterator       local_iterator;
 	typedef DataMapType::const_local_iterator const_local_iterator;
 
-	typedef DataMapType::iterator iterator;
+	typedef DataMapType::iterator       iterator;
 	typedef DataMapType::const_iterator const_iterator;
 
 	typedef std::vector<String> NameListType;

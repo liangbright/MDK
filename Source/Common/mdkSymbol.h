@@ -1,5 +1,5 @@
-#ifndef __mdkSymbol_h
-#define __mdkSymbol_h
+#ifndef mdk_Symbol_h
+#define mdk_Symbol_h
 
 #include  <string>
 

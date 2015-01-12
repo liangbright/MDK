@@ -1,5 +1,5 @@
-﻿#ifndef __mdkScalarDenseImageAverageFilter3D_h
-#define __mdkScalarDenseImageAverageFilter3D_h
+﻿#ifndef MDK_ScalarDenseImageAverageFilter3D_h
+#define MDK_ScalarDenseImageAverageFilter3D_h
 
 #include <algorithm>
 #include <cmath>

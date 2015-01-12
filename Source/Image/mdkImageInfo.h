@@ -1,5 +1,5 @@
-#ifndef __mdkImageInfo_h
-#define __mdkImageInfo_h
+#ifndef mdk_ImageInfo_h
+#define mdk_ImageInfo_h
 
 namespace mdk
 {

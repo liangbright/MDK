@@ -1,5 +1,5 @@
-#ifndef __mdkITKDataStructureConversion_h
-#define __mdkITKDataStructureConversion_h
+#ifndef mdk_ITKDataStructureConversion_h
+#define mdk_ITKDataStructureConversion_h
 
 #include <itkImportImageFilter.h>
 #include <itkImageDuplicator.h>

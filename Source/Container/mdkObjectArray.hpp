@@ -1,5 +1,5 @@
-#ifndef __mdkObjectArray_hpp
-#define __mdkObjectArray_hpp
+#ifndef mdk_ObjectArray_hpp
+#define mdk_ObjectArray_hpp
 
 
 namespace mdk
@@ -373,11 +373,10 @@ bool ObjectArray<ElementType>::Share(ElementType* InputElementPointer, int_max I
 
     m_Data->IsSizeFixed = IsSizeFixed;
 
-    m_Data->Length = InputLength;
-
     m_Data->StdVector.clear();
     m_Data->StdVector.shrink_to_fit();
 
+	m_Data->Length = InputLength;
     m_Data->ElementPointer = InputElementPointer;
 
     return true;

@@ -1,5 +1,5 @@
-#ifndef __mdkVTKDataObject_FileIO_h
-#define __mdkVTKDataObject_FileIO_h
+#ifndef mdk_VTKDataObject_FileIO_h
+#define mdk_VTKDataObject_FileIO_h
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>

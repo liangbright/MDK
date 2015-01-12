@@ -1,5 +1,5 @@
-﻿#ifndef __mdkObjectArray_h
-#define __mdkObjectArray_h
+﻿#ifndef mdk_ObjectArray_h
+#define mdk_ObjectArray_h
 
 #include <vector>
 #include <string>
@@ -37,13 +37,11 @@ using ObjectVector = ObjectArray<ElementType>;
 template<typename ElementType>
 struct ObjectArrayData
 {
+	// data is stored in StdVector  or external array
     std::vector<ElementType> StdVector;
-
-    int_max Length;
-
-	// mutable to use CopyDataToStdVectorIfNecessary() in StdVector()
-
-	ElementType* ElementPointer;
+    
+    int_max Length; // array length
+	ElementType* ElementPointer; // ElementPointer point to external data or StdVector.data()
 
 	ElementType ErrorElement;
 
@@ -64,19 +62,17 @@ struct ObjectArrayData
     {
 		if (ElementPointer != StdVector.data())
         {
-            if (ElementPointer == nullptr)
+			if (ElementPointer == nullptr || StdVector.data() != nullptr)
             {
-                MDK_Error("ElementPointer is nullptr @ ObjectArrayData::CopyDataToStdVectorIfNecessary()")
+                MDK_Error("ElementPointer is nullptr || StdVector.data() != nullptr @ ObjectArrayData::CopyDataToStdVectorIfNecessary()")
                 return;
             }
 
 			StdVector.resize(Length);
-
             for (int_max i = 0; i < Length; ++i)
             {
 				StdVector[i] = ElementPointer[i];
             }
-
 			ElementPointer = StdVector.data();
         }
     }

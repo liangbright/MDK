@@ -1,5 +1,5 @@
-#ifndef __mdkTypeInference_hpp
-#define __mdkTypeInference_hpp
+#ifndef mdk_TypeInference_hpp
+#define mdk_TypeInference_hpp
 
 
 namespace mdk

@@ -1,5 +1,5 @@
-#ifndef __mdkImageFilter3D_h
-#define __mdkImageFilter3D_h
+#ifndef MDK_ImageFilter3D_h
+#define MDK_ImageFilter3D_h
 
 #include "mdkParallelForLoop.h"
 #include "mdkObjectArray.h"
@@ -22,7 +22,7 @@ public:
 	typedef typename InputImageType::PixelType  	 InputPixelType;
 	typedef typename OutputImageType::PixelType  	 OutputPixelType;
 
-	typedef Scalar_Type  ScalarType;
+	typedef Scalar_Type  ScalarType; // float or double
 
 	typedef Option_Of_Image3DInterpolation<InputPixelType>  ImageInterpolationOptionType;
 	typedef MethodEnum_Of_Image3DInterpolation              ImageInterpolationMethodEnum;
@@ -57,6 +57,7 @@ protected:
 	//------------------------- output ----------------------------------------------------//
 	OutputImageType m_OutputImage;
 	ObjectArray<OutputPixelType> m_OutputPixelArray;
+	// or other place
 
 protected:
 	ImageFilter3D();
@@ -124,9 +125,14 @@ protected:
 
 	int_max GetNumberOfThreadTobeCreated();
 	
+	//---------- if m_OutputImage is empty, use these three function to convert Index/Position --------------------------------//
+
 	DenseVector<int_max, 3> TransformLinearIndexTo3DIndexInOutputImage(int_max LinearIndex);
 
-	DenseVector<ScalarType, 3> Transform3DIndexInOutputImageTo3DPhysicalPosition(const DenseVector<int_max, 3>& Index3D);
+	template<typename IndexType>
+	DenseVector<ScalarType, 3> Transform3DIndexInOutputImageTo3DPhysicalPosition(const DenseVector<IndexType, 3>& Index3D);
+
+	DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DIndexInOutputImage(const DenseVector<ScalarType, 3>& Position);
 
 private:
 	ImageFilter3D(const ImageFilter3D&) = delete;

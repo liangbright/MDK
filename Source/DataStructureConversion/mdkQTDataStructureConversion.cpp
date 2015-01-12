@@ -1,5 +1,5 @@
-﻿#ifndef __mdkQTDataStructureConversion_cpp
-#define __mdkQTDataStructureConversion_cpp
+﻿#ifndef mdk_QTDataStructureConversion_cpp
+#define mdk_QTDataStructureConversion_cpp
 
 #include "mdkQTDataStructureConversion.h"
 

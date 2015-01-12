@@ -1,5 +1,5 @@
-#ifndef __mdkDenseImage3D_h
-#define __mdkDenseImage3D_h
+#ifndef mdk_DenseImage3D_h
+#define mdk_DenseImage3D_h
 
 #include <memory>
 #include <cstdlib>
@@ -64,7 +64,7 @@ struct DenseImageData3D
 	bool m_Flag_Orientation_is_IdentityMatrix;
 	// Orientation=[m_LocalSys.DirectionX, m_LocalSys.DirectionY, m_LocalSys.DirectionZ]; 
 
-    std::vector<PixelType> m_DataArray;
+    ObjectArray<PixelType> m_DataArray;
 
 	PixelType m_Pixel_OutsideImage;
 //----------------------------------------------------------------
@@ -164,6 +164,9 @@ public:
 	void ForceShare(const DenseImage3D& InputImage);
 	bool ForceShare(const DenseImage3D* InputImage);
 
+	bool Share(PixelType* InputImage, const Image3DInfo& InputImageInfo);//special share
+	bool ForceShare(const PixelType* InputImage, const Image3DInfo& InputImageInfo);//special share
+
     //---------------------------------------------------------//
     void Take(DenseImage3D&& InputImage);
     void Take(DenseImage3D& InputImage);
@@ -233,6 +236,9 @@ public:
 
     inline PixelType* GetPixelPointer();
     inline const PixelType* GetPixelPointer() const;
+
+	inline PixelType* GetPixelPointerOfZSlice(int_max ZSliceIndex);
+	inline const PixelType* GetPixelPointerOfZSlice(int_max ZSliceIndex) const;
 
 	inline PixelType* begin();
 	inline const PixelType* begin() const;

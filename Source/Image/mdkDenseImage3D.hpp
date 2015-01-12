@@ -1,5 +1,5 @@
-#ifndef __mdkDenseImage3D_hpp
-#define __mdkDenseImage3D_hpp
+#ifndef mdk_DenseImage3D_hpp
+#define mdk_DenseImage3D_hpp
 
 namespace mdk
 {
@@ -49,8 +49,7 @@ void DenseImageData3D<PixelType>::Clear()
 
 	m_Flag_Orientation_is_IdentityMatrix = true;
 
-    m_DataArray.clear();
-    m_DataArray.shrink_to_fit();
+    m_DataArray.Clear();
 
 	m_Pixel_OutsideImage = PixelType(0);
 }
@@ -407,6 +406,35 @@ bool DenseImage3D<PixelType>::ForceShare(const DenseImage3D<PixelType>* InputIma
 
 
 template<typename PixelType>
+bool DenseImage3D<PixelType>::Share(PixelType* InputImage, const Image3DInfo& InputImageInfo)
+{
+	if (InputImage == nullptr)
+	{
+		MDK_Error("Input is nullptr @ DenseImage3D::Share(DenseImage* InputImage)")
+		return false;
+	}
+
+	this->SetOrigin(InputImageInfo.Origin);
+	this->SetSpacing(InputImageInfo.Spacing);
+	this->SetOrientation(InputImageInfo.Orientation);
+	//this->SetSize(XXX);
+	m_ImageData->m_Size[0] = InputImageInfo.Size[0];
+	m_ImageData->m_Size[1] = InputImageInfo.Size[1];
+	m_ImageData->m_Size[2] = InputImageInfo.Size[2];
+	m_ImageData->m_PixelNumberPerZSlice = InputImageInfo.Size[0] * InputImageInfo.Size[1];
+	auto InputPixelNumber = InputImageInfo.Size[0] * InputImageInfo.Size[1] * InputImageInfo.Size[2];
+	return m_ImageData->m_DataArray.Share(InputImage, InputPixelNumber, true);
+}
+
+
+template<typename PixelType>
+bool DenseImage3D<PixelType>::ForceShare(const PixelType* InputImage, const Image3DInfo& InputImageInfo)
+{
+	return this->Share(const_cast<PixelType*>(InputImage), InputImageInfo);
+}
+
+
+template<typename PixelType>
 void DenseImage3D<PixelType>::Take(DenseImage3D<PixelType>&& InputImage)
 {
     this->Take(std::forward<DenseImage3D<PixelType>&>(InputImage));
@@ -469,7 +497,7 @@ bool DenseImage3D<PixelType>::IsEmpty() const
 {
 	if (m_ImageData)
 	{
-		return (m_ImageData->m_DataArray.size() == 0);
+		return (m_ImageData->m_DataArray.GetLength() == 0);
 	}
 	else
 	{
@@ -492,7 +520,7 @@ PixelType* DenseImage3D<PixelType>::GetPixelPointer()
 {
 	if (this->IsPureEmpty() == false)
 	{
-		return m_ImageData->m_DataArray.data();
+		return m_ImageData->m_DataArray.GetPointer();
 	}
 	else
 	{
@@ -507,12 +535,50 @@ const PixelType* DenseImage3D<PixelType>::GetPixelPointer() const
 {
 	if (this->IsPureEmpty() == false)
 	{
-		return m_ImageData->m_DataArray.data();
+		return m_ImageData->m_DataArray.GetPointer();
 	}
 	else
 	{
 		return nullptr;
 	}
+}
+
+
+template<typename PixelType>
+inline
+PixelType* DenseImage3D<PixelType>::GetPixelPointerOfZSlice(int_max ZSliceIndex)
+{
+	if (this->IsPureEmpty() == true)
+	{
+		return nullptr;
+	}
+
+	if (ZSliceIndex < 0 || ZSliceIndex >= m_ImageData->m_Size[2])
+	{
+		return nullptr;
+	}
+
+	auto PointerOfZSlice = this->GetPixelPointer() + ZSliceIndex*m_ImageData->m_PixelNumberPerZSlice;
+	return PointerOfZSlice;
+}
+
+
+template<typename PixelType>
+inline
+const PixelType* DenseImage3D<PixelType>::GetPixelPointerOfZSlice(int_max ZSliceIndex) const
+{
+	if (this->IsPureEmpty() == true)
+	{
+		return nullptr;
+	}
+
+	if (ZSliceIndex < 0 || ZSliceIndex >= m_ImageData->m_Size[2])
+	{
+		return nullptr;
+	}
+
+	auto PointerOfZSlice = this->GetPixelPointer() + ZSliceIndex*m_ImageData->m_PixelNumberPerZSlice;
+	return PointerOfZSlice;
 }
 
 
@@ -543,7 +609,8 @@ PixelType* DenseImage3D<PixelType>::end()
 	}
 	else
 	{
-		return BeginPtr + this->GetPixelNumber();
+		auto EndPtr = BeginPtr + this->GetPixelNumber();
+		return EndPtr;
 	}
 }
 
@@ -559,7 +626,8 @@ const PixelType* DenseImage3D<PixelType>::end() const
 	}
 	else
 	{
-		return BeginPtr + this->GetPixelNumber();
+		auto EndPtr = BeginPtr + this->GetPixelNumber();
+		return EndPtr;
 	}
 }
 
@@ -643,7 +711,7 @@ bool DenseImage3D<PixelType>::SetSize(int_max Lx, int_max Ly, int_max Lz)
 
     if (Lx == 0 || Ly == 0 || Lz == 0)
     {
-        m_ImageData->m_DataArray.clear();
+        m_ImageData->m_DataArray.Clear();
 
         m_ImageData->m_Size[0] = 0;
         m_ImageData->m_Size[1] = 0;
@@ -655,7 +723,7 @@ bool DenseImage3D<PixelType>::SetSize(int_max Lx, int_max Ly, int_max Lz)
 
 try
 {
-    m_ImageData->m_DataArray.resize(Lx*Ly*Lz);
+    m_ImageData->m_DataArray.Resize(Lx*Ly*Lz);
  
     m_ImageData->m_Size[0] = Lx;
     m_ImageData->m_Size[1] = Ly;

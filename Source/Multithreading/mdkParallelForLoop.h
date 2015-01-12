@@ -5,6 +5,7 @@
 #include <thread>
 
 #include "mdkCommonType.h"
+#include "mdkDebugConfig.h"
 
 namespace mdk
 {

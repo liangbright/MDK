@@ -1,5 +1,5 @@
-#ifndef __mdkCommonType_h
-#define __mdkCommonType_h
+#ifndef mdk_CommonType_h
+#define mdk_CommonType_h
 
 #include <stdint.h>
 

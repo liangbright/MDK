@@ -1,5 +1,5 @@
-﻿#ifndef __mdkJsonObject_cpp
-#define __mdkJsonObject_cpp
+﻿#ifndef mdk_JsonObject_cpp
+#define mdk_JsonObject_cpp
 
 #include "mdkJsonObject.h"
 #include "mdkJsonValue.h"

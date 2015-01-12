@@ -1,5 +1,5 @@
-﻿#ifndef __mdkStdObjectVector_h
-#define __mdkStdObjectVector_h
+﻿#ifndef mdk_StdObjectVector_h
+#define mdk_StdObjectVector_h
 
 #include <vector>
 #include <string>

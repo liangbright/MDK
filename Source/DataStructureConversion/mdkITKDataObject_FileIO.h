@@ -1,5 +1,5 @@
-#ifndef __mdkITKDataObject_FileIO_h
-#define __mdkITKDataObject_FileIO_h
+#ifndef mdk_ITKDataObject_FileIO_h
+#define mdk_ITKDataObject_FileIO_h
 
 #include <itkImage.h>
 

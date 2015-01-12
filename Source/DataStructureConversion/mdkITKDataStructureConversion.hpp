@@ -1,5 +1,5 @@
-#ifndef __mdkITKDataStructureConversion_hpp
-#define __mdkITKDataStructureConversion_hpp
+#ifndef mdk_ITKDataStructureConversion_hpp
+#define mdk_ITKDataStructureConversion_hpp
 
 
 namespace mdk

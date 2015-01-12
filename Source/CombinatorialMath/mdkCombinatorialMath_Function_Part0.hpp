@@ -1,5 +1,5 @@
-#ifndef __mdkCombinatorialMath_Function_Part0_hpp
-#define __mdkCombinatorialMath_Function_Part0_hpp
+#ifndef mdk_CombinatorialMath_Function_Part0_hpp
+#define mdk_CombinatorialMath_Function_Part0_hpp
 
 namespace mdk
 {

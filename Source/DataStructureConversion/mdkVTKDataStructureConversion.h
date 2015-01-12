@@ -1,5 +1,5 @@
-#ifndef __mdkVTKDataStructureConversion_h
-#define __mdkVTKDataStructureConversion_h
+#ifndef mdk_VTKDataStructureConversion_h
+#define mdk_VTKDataStructureConversion_h
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>

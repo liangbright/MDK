@@ -1,5 +1,5 @@
-#ifndef __mdkConstant_hpp
-#define __mdkConstant_hpp
+#ifndef mdk_Constant_hpp
+#define mdk_Constant_hpp
 
 
 namespace mdk

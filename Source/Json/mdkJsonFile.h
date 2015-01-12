@@ -1,5 +1,5 @@
-﻿#ifndef __mdkJsonFile_h
-#define __mdkJsonFile_h
+﻿#ifndef mdk_JsonFile_h
+#define mdk_JsonFile_h
 
 #include <memory>
 

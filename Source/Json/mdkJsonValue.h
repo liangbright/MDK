@@ -1,5 +1,5 @@
-﻿#ifndef __mdkJsonValue_h
-#define __mdkJsonValue_h
+﻿#ifndef mdk_JsonValue_h
+#define mdk_JsonValue_h
 
 #include <memory>
 
@@ -13,10 +13,8 @@
 
 namespace mdk
 {
-//------- forward declare ------------//
-class JsonValue;
-//------------------------------------//
 //------ define JsonArray ------------//
+class JsonValue;
 typedef StdObjectVector<JsonValue> JsonArray;
 //------------------------------------//
 
@@ -139,9 +137,11 @@ public:
 	//  if m_Scalar is int, then GetDouble() is DefaultValue, NOT type-converted from m_Scalar
 	//  if internal array is int array, then GetDoubleArray() is EmptyArray, NOT type-converted from int array
 	//  similar for other type
+	//  GetXXX() should be used (1) together with IsXXX() or (2) when the type is known
 	//  --------------------------------------------------------------------------------------
-    //  ToScalar<ScalarType>()       : m_Scalar will be converted to ScalarType
-	//  ToScalarArray<ScalarType>()  : internal array will be converted to ScalarType Array
+    //  ToScalar<ScalarType>()       : m_Scalar is converted to ScalarType
+	//  ToScalarArray<ScalarType>()  : internal array is converted to ScalarType Array
+	//  ScalarType is int/long long/float/double
 	//-----------------------------------------------------------------------------------------------------------------------//
 
 	bool GetBool(bool DefaultValue = false) const;
@@ -171,8 +171,9 @@ public:
 			|| (m_Type == TypeEnum::Type_Float) || (m_Type == TypeEnum::Type_Double);
 	};
 
-	// convert internal int/long long/float/double to scalar
-	template<typename ScalarType = double>
+	// convert internal int/long long/float/double to scalar	
+	// ScalarType is int/long long/float/double
+	template<typename ScalarType>
 	ScalarType ToScalar(ScalarType DefaultValue = GetNaNElement<ScalarType>()) const;
 
 	// check if int/long long/float/double array ?
@@ -183,13 +184,14 @@ public:
 	};
 
 	// convert internal int/long long/float/double array to scalar array
-	template<typename ScalarType = double>
+	// ScalarType is int/long long/float/double 
+	template<typename ScalarType>
 	DenseMatrix<ScalarType> ToScalarArray() const;
 
 	template<typename ScalarType>
 	DenseMatrix<ScalarType> ToScalarArray(const DenseMatrix<ScalarType>& DefaultArray) const;
 
-	//----------------------------- use these Ref_XXX only if you are absolutely sure about the type -----------------------------------------//
+	//----------------------------- use these Ref_XXX only if we are absolutely sure about the type -----------------------------------------//
  	
 	DenseMatrix<int>& JsonValue::Ref_IntArray() { return *(static_cast<DenseMatrix<int>*>(m_OtherData.get())); }
 	const DenseMatrix<int>& JsonValue::Ref_IntArray() const { return *(static_cast<DenseMatrix<int>*>(m_OtherData.get())); }

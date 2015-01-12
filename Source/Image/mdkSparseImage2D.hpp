@@ -1,5 +1,5 @@
-#ifndef __mdkSparseImage2D_hpp
-#define __mdkSparseImage2D_hpp
+#ifndef mdk_SparseImage2D_hpp
+#define mdk_SparseImage2D_hpp
 
 namespace mdk
 {

@@ -1,5 +1,5 @@
-#ifndef __mdkImageFilter3D_hpp
-#define __mdkImageFilter3D_hpp
+#ifndef MDK_ImageFilter3D_hpp
+#define MDK_ImageFilter3D_hpp
 
 namespace mdk
 {
@@ -249,7 +249,7 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::CheckInput()
 	{
 		auto OutputImageSize = m_OutputImageInfo.Size;
 		auto PixelNumber = OutputImageSize[0] * OutputImageSize[1] * OutputImageSize[2];
-		if (PixelNumber <= 0) // image may be spasre, do not use GetPixelNumber()
+		if (PixelNumber <= 0) // m_OutputImage may be spasre, do not use GetPixelNumber()
 		{
 			MDK_Error("Output Image size is 0 @ ImageFilter3D::CheckInput()")
 			return false;
@@ -462,8 +462,9 @@ TransformLinearIndexTo3DIndexInOutputImage(int_max LinearIndex)
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
+template<typename IndexType>
 DenseVector<ScalarType, 3> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
-Transform3DIndexInOutputImageTo3DPhysicalPosition(const DenseVector<int_max, 3>& Index3D)
+Transform3DIndexInOutputImageTo3DPhysicalPosition(const DenseVector<IndexType, 3>& Index3D)
 {
 	DenseVector<ScalarType, 3> Position;
 	Position[0] = ScalarType(m_OutputImageInfo.Origin[0] + double(Index3D[0]) * m_OutputImageInfo.Spacing[0]);
@@ -471,6 +472,19 @@ Transform3DIndexInOutputImageTo3DPhysicalPosition(const DenseVector<int_max, 3>&
 	Position[2] = ScalarType(m_OutputImageInfo.Origin[2] + double(Index3D[2]) * m_OutputImageInfo.Spacing[2]);
 	return Position;
 }
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+DenseVector<ScalarType, 3> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
+Transform3DPhysicalPositionTo3DIndexInOutputImage(const DenseVector<ScalarType, 3>& Position)
+{
+	DenseVector<ScalarType, 3> Index3D;
+	Index3D[0] = ScalarType((double(Position[0]) - m_OutputImageInfo.Origin[0]) / m_OutputImageInfo.Spacing[0]);
+	Index3D[1] = ScalarType((double(Position[1]) - m_OutputImageInfo.Origin[1]) / m_OutputImageInfo.Spacing[1]);
+	Index3D[2] = ScalarType((double(Position[2]) - m_OutputImageInfo.Origin[2]) / m_OutputImageInfo.Spacing[2]);
+	return Index3D;
+}
+
 
 }// namespace mdk
 

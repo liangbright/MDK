@@ -1,5 +1,5 @@
-#ifndef __mdkDenseImageResampler3D_hpp
-#define __mdkDenseImageResampler3D_hpp
+#ifndef mdk_DenseImageResampler3D_hpp
+#define mdk_DenseImageResampler3D_hpp
 
 namespace mdk
 {
@@ -22,29 +22,16 @@ void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
 	this->ImageFilter3D::Clear();
 
-	m_Flag_UseGaussianSmoothWhenDownSmapling = false;
-	m_Flag_UserInputGaussianParameter = false;
-	m_SigmaOfGaussian.Clear();
-	m_CutoffRatioOfGaussian = 1;
+	m_Flag_SmoothWhenDownsmapling = false;
 	m_Flag_SmoothInputImage = false;
-	m_GaussianSmoothedImage.Clear();
+	m_SmoothedImage.Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::EnableGaussianSmoothWhenDownSampling(bool On_Off)
+void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::EnableSmoothingWhenDownsampling(bool On_Off)
 {
-	m_Flag_UseGaussianSmoothWhenDownSmapling = On_Off;
-}
-
-
-template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::
-SetParameterOfGaussianSmooth(const DenseVector<ScalarType, 3>& Sigma, ScalarType CutoffRatio)
-{
-	m_SigmaOfGaussian = Sigma;
-	m_CutoffRatioOfGaussian = CutoffRatio;
-	m_Flag_UserInputGaussianParameter = true;
+	m_Flag_SmoothWhenDownsmapling = On_Off;
 }
 
 
@@ -141,13 +128,12 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Preproc
 	}
 
 	m_Flag_SmoothInputImage = false;
-	m_GaussianSmoothedImage.Clear();
+	m_SmoothedImage.Clear();
 
-	if (m_Flag_UseGaussianSmoothWhenDownSmapling == true)
+	if (m_Flag_SmoothWhenDownsmapling == true)
 	{
 		auto InputSpacing = m_InputImage->GetSpacing();
 		auto OutputSpacing = m_OutputImage.GetSpacing();
-		m_SigmaOfGaussian = OutputSpacing;
 		for (int_max k = 0; k < 3; ++k)
 		{
 			auto Ratio = OutputSpacing[k] / InputSpacing[k];
@@ -157,27 +143,14 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Preproc
 			}
 		}
 
-		if (m_Flag_UserInputGaussianParameter == false)
-		{
-			m_CutoffRatioOfGaussian = ScalarType(1);
-		}
-
 		if (m_Flag_SmoothInputImage == true)
 		{
-			auto GaussianFilter = std::make_unique<ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarType>>();
-			GaussianFilter->SetInputImage(m_InputImage);
-			GaussianFilter->SetOutputImageInfo(m_InputImage->GetInfo());
-			GaussianFilter->SetGaussianParameter(m_SigmaOfGaussian, m_CutoffRatioOfGaussian);
-
-			auto InterpolationOption_GF = GaussianFilter->GetImageInterpolationOption();
-			InterpolationOption_GF.MethodType = ImageInterpolationMethodEnum::Nearest;
-			InterpolationOption_GF.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Replicate;// must use this option
-			InterpolationOption_GF.Pixel_OutsideImage = InputPixelType(0);
-			GaussianFilter->SetImageInterpolationOption(InterpolationOption_GF);
-
-			GaussianFilter->SetMaxNumberOfThread(this->GetMaxNumberOfThread_UserInput());
-			GaussianFilter->Update();
-			m_GaussianSmoothedImage.Take(GaussianFilter->GetOutputImage());
+			auto SmoothingFilter = std::make_unique<IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType>>();
+			SmoothingFilter->SetInputImage(m_InputImage);
+			SmoothingFilter->SetRadius(OutputSpacing[0], OutputSpacing[1], OutputSpacing[2]);
+			SmoothingFilter->SetMaxNumberOfThread(m_MaxNumberOfThread);
+			SmoothingFilter->Update();
+			m_SmoothedImage = std::move(*SmoothingFilter->GetOutputImage());
 		}
 	}
 
@@ -192,7 +165,7 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Postpro
 	{
 		return false;
 	}
-	m_GaussianSmoothedImage.Clear();
+	m_SmoothedImage.Clear();
 	return true;
 }
 
@@ -207,7 +180,7 @@ EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x, ScalarType y, Sca
 	}
 	else
 	{
-		return m_GaussianSmoothedImage.GetPixelAt3DPhysicalPosition<OutputPixelType>(x, y, z, m_ImageInterpolationOption);
+		return m_SmoothedImage.GetPixelAt3DPhysicalPosition<OutputPixelType>(x, y, z, m_ImageInterpolationOption);
 	}
 }
 

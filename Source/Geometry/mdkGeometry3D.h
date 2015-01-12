@@ -1,5 +1,5 @@
-#ifndef __mdkGeometry3D_h
-#define __mdkGeometry3D_h
+#ifndef mdk_Geometry3D_h
+#define mdk_Geometry3D_h
 
 #include "mdkLinearAlgebra.h"
 

@@ -137,12 +137,12 @@ void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarTyp
 	auto z1 = int_max((m_NOBoundCheckRegion_3DPhysicalPosition.z_max - PhysicalOrigin[2]) / PixelSpacing[2]);
 	z1 = (std::max)(z1, int_max(0)); z1 = (std::min)(z1, ImageSize[2]);
 
-	m_NOBoundCheckRegion_3DIndex.x_min = x0;
-	m_NOBoundCheckRegion_3DIndex.x_max = x1;
-	m_NOBoundCheckRegion_3DIndex.y_min = y0;
-	m_NOBoundCheckRegion_3DIndex.y_max = y1;
-	m_NOBoundCheckRegion_3DIndex.z_min = z0;
-	m_NOBoundCheckRegion_3DIndex.z_max = z1;
+	m_NOBoundCheckRegion_3DIndex.x_min = double(x0);
+	m_NOBoundCheckRegion_3DIndex.x_max = double(x1);
+	m_NOBoundCheckRegion_3DIndex.y_min = double(y0);
+	m_NOBoundCheckRegion_3DIndex.y_max = double(y1);
+	m_NOBoundCheckRegion_3DIndex.z_min = double(z0);
+	m_NOBoundCheckRegion_3DIndex.z_max = double(z1);
 }
 
 
@@ -298,7 +298,7 @@ GetInputImagePixelByPointMaskOf3DIndex_At3DPhysicalPosition(ScalarType x0, Scala
 	for (int_max k = 0; k < PixelNumber; ++k)
 	{
 		DenseVector<ScalarType, 3> Index3D;
-		PointMask.GetCol(k, Index3D);
+		m_PointMask_3DIndex_InputImage.GetCol(k, Index3D);
 		Index3D += MaskOriginOf3DIndex_Input;
 		PixelSet[k] = m_InputImage->GetPixelAt3DIndex<PixelTypeForMask>(Index3D, m_ImageInterpolationOption);
 	}
@@ -326,7 +326,7 @@ GetInputImagePixelByPointMaskOf3DPhysicalPosition_At3DPhysicalPosition(ScalarTyp
 	for (int_max k = 0; k < PixelNumber; ++k)
 	{
 		DenseVector<ScalarType, 3> Position;
-		PointMask.GetCol(k, Position);
+		m_PointMask_3DPhysicalPosition.GetCol(k, Position);
 		Position[0] += x0;
 		Position[1] += y0;
 		Position[2] += z0;

@@ -1,5 +1,5 @@
-#ifndef __mdkCurve_FileIO_h
-#define __mdkCurve_FileIO_h
+#ifndef mdk_Curve_FileIO_h
+#define mdk_Curve_FileIO_h
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyDataReader.h>

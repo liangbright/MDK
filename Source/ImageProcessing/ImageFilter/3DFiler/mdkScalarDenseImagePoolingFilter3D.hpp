@@ -58,8 +58,10 @@ void ScalarDenseImagePoolingFilter3D<InputPixelType, OutputPixelType, ScalarType
 	auto MaxRadius_y = double(int_max(m_Radius / Spacing[1]) + 1)*Spacing[1];
 	auto MaxRadius_z = double(int_max(m_Radius / Spacing[2]) + 1)*Spacing[2];
 
-	m_Mask_3DPhysicalPosition.FastResize(0);
-	m_Mask_3DPhysicalPosition.ReserveCapacity(3*8*MaxRadius_z*MaxRadius_y*MaxRadius_x);
+	int_max PointNumber_max = int_max((MaxRadius_x / Spacing[0])*(MaxRadius_y / Spacing[1])*(MaxRadius_z / Spacing[2]));
+
+	m_PointMask_3DPhysicalPosition.FastResize(0);
+	m_PointMask_3DPhysicalPosition.ReserveCapacity(3 * 8 * PointNumber_max);
 
 	auto Radius_square = m_Radius*m_Radius;
 
@@ -72,13 +74,13 @@ void ScalarDenseImagePoolingFilter3D<InputPixelType, OutputPixelType, ScalarType
 				auto Distance_sq = x*x + y*y + z*z;
 				if (Distance_sq <= Radius_square)
                 {
-					m_Mask_3DPhysicalPosition.AppendCol({x, y, z});
+					m_PointMask_3DPhysicalPosition.AppendCol({x, y, z});
                 }
             }
         }
     }
 
-	m_Mask_3DPhysicalPosition.ReleaseUnusedCapacity();
+	m_PointMask_3DPhysicalPosition.ReleaseUnusedCapacity();
 }
 
 
@@ -92,8 +94,8 @@ void ScalarDenseImagePoolingFilter3D<InputPixelType, OutputPixelType, ScalarType
 	auto MaxRadius_z = int_max(m_Radius / Spacing[2]) + 1;
 	auto MaxRadius = (std::max)((std::max)(MaxRadius_x, MaxRadius_y), MaxRadius_z);
 	
-	m_Mask_3DIndex.FastResize(0);
-	m_Mask_3DIndex.ReserveCapacity(3*8*MaxRadius*MaxRadius*MaxRadius);
+	m_PointMask_3DIndex_InputImage.FastResize(0);
+	m_PointMask_3DIndex_InputImage.ReserveCapacity(3 * 8 * MaxRadius*MaxRadius*MaxRadius);
 
 	auto Radius_square = m_Radius*m_Radius;
 
@@ -109,13 +111,13 @@ void ScalarDenseImagePoolingFilter3D<InputPixelType, OutputPixelType, ScalarType
 				auto Distance_sq = x*x + y*y + z*z;
 				if (Distance_sq <= Radius_square)
 				{
-					m_Mask_3DIndex.AppendCol({ xIndex, yIndex, zIndex });
+					m_PointMask_3DIndex_InputImage.AppendCol({ xIndex, yIndex, zIndex });
 				}
 			}
 		}
 	}
 
-	m_Mask_3DIndex.ReleaseUnusedCapacity();
+	m_PointMask_3DIndex_InputImage.ReleaseUnusedCapacity();
 }
 
 }//end namespace mdk

@@ -1,5 +1,5 @@
-#ifndef __mdkFileIO_Common_h
-#define __mdkFileIO_Common_h
+#ifndef mdk_FileIO_Common_h
+#define mdk_FileIO_Common_h
 
 #include <QString>
 #include <QFile>

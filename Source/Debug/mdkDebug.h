@@ -1,5 +1,5 @@
-#ifndef __mdkDebug_h
-#define __mdkDebug_h
+#ifndef mdk_Debug_h
+#define mdk_Debug_h
 
 namespace mdk
 {

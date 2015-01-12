@@ -1,5 +1,5 @@
-﻿#ifndef __mdkJsonValue_hpp
-#define __mdkJsonValue_hpp
+﻿#ifndef mdk_JsonValue_hpp
+#define mdk_JsonValue_hpp
 
 
 namespace mdk

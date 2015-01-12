@@ -1,8 +1,8 @@
-#ifndef __mdkDenseImageResamplerWithCoordinateTransform3D_h
-#define __mdkDenseImageResamplerWithCoordinateTransform3D_h
+#ifndef MDK_DenseImageResamplerWithCoordinateTransform3D_h
+#define MDK_DenseImageResamplerWithCoordinateTransform3D_h
 
 #include "mdkImageFilter3D.h"
-#include "mdkScalarDenseImageGaussianFilter3D.h"
+#include "mdkIntegralImageBasedImageAverageFilter3D.h"
 #include "mdkCoordinateTransform3D.h"
 
 namespace mdk
@@ -17,13 +17,9 @@ public:
 	typedef Scalar_Type      ScalarType;
 
 private:
-	bool m_Flag_UseGaussianSmoothWhenDownSmapling;
-	bool m_Flag_UserInputGaussianParameter;
-	DenseVector<ScalarType, 3> m_SigmaOfGaussian;
-	ScalarType m_CutoffRatioOfGaussian;
-	
+	bool m_Flag_SmoothWhenDownsmapling;
 	bool m_Flag_SmoothInputImage;
-	DenseImage3D<OutputPixelType> m_GaussianSmoothedImage; // GaussianSmooth(InputImage) when down sampling 
+	DenseImage3D<OutputPixelType> m_SmoothedImage; // Smooth InputImage when down sampling 
 
 	const CoordinateTransform3D<Scalar_Type>* m_CoordinateTransform;
 
@@ -33,10 +29,7 @@ public:
 
 	void Clear();
 
-	void EnableGaussianSmoothWhenDownSampling(bool On_Off = true);
-
-	// Sigma in Physical size, CutoffRatio = 1.5 ~ 3.5, default is 1.5
-	void SetParameterOfGaussianSmooth(const DenseVector<ScalarType, 3>& Sigma, ScalarType CutoffRatio);
+	void EnableSmoothingWhenDownsampling(bool On_Off = true);
 
 	// Number of Pixel in x/y/z direction
 	// Origin output image = Origin of input image
@@ -52,8 +45,7 @@ private:
 	bool Preprocess();
 	bool Postprocess();
 
-	// Evaluate at Point (x, y, z): 3DIndex in m_OutputImage
-	inline void EvaluateAt3DIndexInOutputImage(int_max x, int_max y, int_max z, int_max ThreadIndex);
+	inline OutputPixelType EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex);
 
 private:
 	void operator=(const DenseImageResamplerWithCoordinateTransform3D&) = delete;
@@ -63,6 +55,6 @@ private:
 
 }
 
-#include "mdkDenseImageResampler3D.hpp"
+#include "mdkDenseImageResamplerWithCoordinateTransform3D.hpp"
 
 #endif

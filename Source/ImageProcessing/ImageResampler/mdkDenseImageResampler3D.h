@@ -1,8 +1,8 @@
-#ifndef __mdkDenseImageResampler3D_h
-#define __mdkDenseImageResampler3D_h
+#ifndef MDK_DenseImageResampler3D_h
+#define MDK_DenseImageResampler3D_h
 
 #include "mdkImageFilter3D.h"
-#include "mdkScalarDenseImageGaussianFilter3D.h"
+#include "mdkIntegralImageBasedImageAverageFilter3D.h"
 
 namespace mdk
 {
@@ -16,13 +16,9 @@ public:
 	typedef Scalar_Type      ScalarType;
 
 private:
-	bool m_Flag_UseGaussianSmoothWhenDownSmapling;
-	bool m_Flag_UserInputGaussianParameter;
-	DenseVector<ScalarType, 3> m_SigmaOfGaussian;
-	ScalarType m_CutoffRatioOfGaussian;
-	
+	bool m_Flag_SmoothWhenDownsmapling;
 	bool m_Flag_SmoothInputImage;
-	DenseImage3D<OutputPixelType> m_GaussianSmoothedImage; // GaussianSmooth(InputImage) when down sampling 
+	DenseImage3D<OutputPixelType> m_SmoothedImage; // Smooth InputImage when down sampling 
 
 public:
 	DenseImageResampler3D();
@@ -30,10 +26,7 @@ public:
 
 	void Clear();
 
-	void EnableGaussianSmoothWhenDownSampling(bool On_Off = true);
-
-	// Sigma in Physical size, CutoffRatio = 1.5 ~ 3.5, default is 1.5
-	void SetParameterOfGaussianSmooth(const DenseVector<ScalarType, 3>& Sigma, ScalarType CutoffRatio);
+	void EnableSmoothingWhenDownsampling(bool On_Off = true);
 
 	// Number of Pixel in x/y/z direction
 	// Origin of output image = Origin of input image

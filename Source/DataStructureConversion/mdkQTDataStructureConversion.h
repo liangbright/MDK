@@ -1,5 +1,5 @@
-﻿#ifndef __mdkQTDataStructureConversion_h
-#define __mdkQTDataStructureConversion_h
+﻿#ifndef mdk_QTDataStructureConversion_h
+#define mdk_QTDataStructureConversion_h
 
 #include <QJsonObject>
 #include <QJsonValue>

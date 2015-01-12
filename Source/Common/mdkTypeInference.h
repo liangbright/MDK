@@ -1,5 +1,5 @@
-#ifndef __mdkTypeInference_h
-#define __mdkTypeInference_h
+#ifndef mdk_TypeInference_h
+#define mdk_TypeInference_h
 
 #include <typeinfo>
 

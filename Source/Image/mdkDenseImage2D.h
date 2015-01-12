@@ -1,5 +1,5 @@
-#ifndef __mdkDenseImage2D_h
-#define __mdkDenseImage2D_h
+#ifndef mdk_DenseImage2D_h
+#define mdk_DenseImage2D_h
 
 #include <vector>
 #include <memory>
@@ -139,7 +139,7 @@ struct DenseImageData2D
 
     DenseMatrix<double> m_Orientation;  // 2x2 Matrix
 
-    std::vector<PixelType> m_DataArray;
+	ObjectArray<PixelType> m_DataArray;
 
 	PixelType m_Pixel_OutsideImage;
 //----------------------------------------------------------------
@@ -237,6 +237,9 @@ public:
 	void ForceShare(const DenseImage2D& InputImage);
 	bool ForceShare(const DenseImage2D* InputImage);
 
+	bool Share(PixelType* InputImage, const Image2DInfo& InputImageInfo);//special share
+	bool ForceShare(const PixelType* InputImage, const Image2DInfo& InputImageInfo);//special share
+
     //---------------------------------------------------------//
     void Take(DenseImage2D&& InputImage);
     void Take(DenseImage2D& InputImage);
@@ -246,41 +249,43 @@ public:
 
     inline bool IsEmpty() const;
 
+	inline bool IsPixelDataInInternalArray() const;
+
     //--------------------------- Get/Set Info and Data ------------------------------//
 
 	inline Image2DInfo GetInfo() const;
 
-	inline DenseVector<int_max, 3> GetSize() const;
+	inline DenseVector<int_max, 2> GetSize() const;
 
-    inline void GetSize(int_max& Lx, int_max& Ly, int_max& Lz) const;
+    inline void GetSize(int_max& Lx, int_max& Ly) const;
 
-	inline bool SetSize(const DenseVector<int_max, 3>& Size);
+	inline bool SetSize(const DenseVector<int_max, 2>& Size);
 
-    inline bool SetSize(int_max Lx, int_max Ly, int_max Lz);
+    inline bool SetSize(int_max Lx, int_max Ly);
 
-	inline DenseVector<double, 3> GetSpacing() const;
+	inline DenseVector<double, 2> GetSpacing() const;
 
-    inline void GetSpacing(double& Spacing_x, double& Spacing_y, double& Spacing_z) const;
+    inline void GetSpacing(double& Spacing_x, double& Spacing_y) const;
 
-	inline void SetSpacing(const DenseVector<double, 3>& Spacing);
+	inline void SetSpacing(const DenseVector<double, 2>& Spacing);
 
-    inline void SetSpacing(double Spacing_x, double Spacing_y, double Spacing_z);
+    inline void SetSpacing(double Spacing_x, double Spacing_y);
 
-	inline DenseVector<double, 3> GetOrigin() const;
+	inline DenseVector<double, 2> GetOrigin() const;
 
-    inline void GetOrigin(double& Origin_x, double& Origin_y, double& Origin_z) const;
+    inline void GetOrigin(double& Origin_x, double& Origin_y) const;
 
-	inline void SetOrigin(const DenseVector<double, 3>& Origin);
+	inline void SetOrigin(const DenseVector<double, 2>& Origin);
 
-    inline void SetOrigin(double Origin_x, double Origin_y, double Origin_z);
+    inline void SetOrigin(double Origin_x, double Origin_y);
 
     inline const DenseMatrix<double>& GetOrientation() const;
 
     inline void SetOrientation(const DenseMatrix<double>& Orientation);
 
-	inline DenseVector<double, 3> GetPhysicalSize() const;
+	inline DenseVector<double, 2> GetPhysicalSize() const;
 
-    inline void GetPhysicalSize(double& PhysicalSize_x, double& PhysicalSize_y, double& PhysicalSize_z) const;
+    inline void GetPhysicalSize(double& PhysicalSize_x, double& PhysicalSize_y) const;
 
     inline int_max GetPixelNumber() const;
 
@@ -301,27 +306,82 @@ public:
     //------------------------ LinearIndex, 2DIndex and 2DPhyscialPosition ------------------------------------------------------------------------//
 	// 2DIndex can be continuous or discrete
 
-    inline int_max Transform2DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
+	inline int_max Transform2DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
 
-	inline int_max Transform2DIndexToLinearIndex(const DenseVector<int_max, 3>& Index2D) const;
+	inline int_max Transform2DIndexToLinearIndex(const DenseVector<int_max, 2>& Index2D) const;
 
 	template<typename ScalarType = int_max>
-	inline DenseVector<ScalarType, 3> TransformLinearIndexTo2DIndex(int_max LinearIndex) const;
-	
+	inline DenseVector<ScalarType, 2> TransformLinearIndexTo2DIndex(int_max LinearIndex) const;
+
 	template<typename ScalarType = double>
-	inline DenseVector<ScalarType, 3> TransformLinearIndexTo2DPhysicalPosition(int_max LinearIndex) const;
+	inline DenseVector<ScalarType, 2> TransformLinearIndexTo2DPhysicalPosition(int_max LinearIndex) const;
 
 	template<typename ScalarType_Position = double, typename ScalarType_Index>
-	inline DenseVector<ScalarType_Position, 3> Transform2DIndexTo2DPhysicalPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const;
+	inline DenseVector<ScalarType_Position, 2> Transform2DIndexTo2DPhysicalPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const;
 
 	template<typename ScalarType_Position = double, typename ScalarType_Index>
-	inline DenseVector<ScalarType_Position, 3> Transform2DIndexTo2DPhysicalPosition(const DenseVector<ScalarType_Index, 3>& Index2D) const;
+	inline DenseVector<ScalarType_Position, 2> Transform2DIndexTo2DPhysicalPosition(const DenseVector<ScalarType_Index, 2>& Index2D) const;
 
 	template<typename ScalarType>
-	inline DenseVector<ScalarType, 3> Transform2DPhysicalPositionTo2DIndex(ScalarType x, ScalarType y, ScalarType z) const;
+	inline DenseVector<ScalarType, 2> Transform2DPhysicalPositionTo2DIndex(ScalarType x, ScalarType y, ScalarType z) const;
 
 	template<typename ScalarType>
-	inline DenseVector<ScalarType, 3> Transform2DPhysicalPositionTo2DIndex(const DenseVector<ScalarType, 3>& Position) const;
+	inline DenseVector<ScalarType, 2> Transform2DPhysicalPositionTo2DIndex(const DenseVector<ScalarType, 2>& Position) const;
+
+	template<typename ScalarType>
+	inline DenseVector<int_max, 2> Transform2DPhysicalPositionToNearest2DDiscreteIndex(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline DenseVector<int_max, 2> Transform2DPhysicalPositionToNearest2DDiscreteIndex(const DenseVector<ScalarType, 2>& Position) const;
+
+	template<typename ScalarType>
+	inline DenseVector<int_max, 2> Transform2DPhysicalPositionToNearest2DDiscreteIndexInsideImage(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline DenseVector<int_max, 2> Transform2DPhysicalPositionToNearest2DDiscreteIndexInsideImage(const DenseVector<ScalarType, 2>& Position) const;
+
+	//----------------------------------------------------------------------------//
+	// 2DPhysicalPosition in all the above function is in Local/Image Coordinate System
+
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 2> Transform2DPhysicalPositionFromLocalToGlobal(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 2> Transform2DPhysicalPositionFromLocalToGlobal(const DenseVector<ScalarType, 2>& Position) const;
+
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 2> Transform2DPhysicalPositionFromGlobalToLocal(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 2> Transform2DPhysicalPositionFromGlobalToLocal(const DenseVector<ScalarType, 2>& Position) const;
+
+	//------------------- check if 2D Index is inside Image ---------------------//
+	template<typename ScalarType>
+	inline bool CheckIf2DIndexIsInsideImage(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const;
+
+	template<typename ScalarType>
+	inline bool CheckIf2DIndexIsInsideImage(const DenseVector<ScalarType, 2>& Index2D) const;
+
+	//------------------- check if 2D PhysicalPosition is inside Image ---------------------//
+	template<typename ScalarType>
+	inline bool CheckIf2DPhysicalPositionIsInsideImage(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline bool CheckIf2DPhysicalPositionIsInsideImage(const DenseVector<ScalarType, 2>& Position) const;
+
+	//--------------------------- Set/Get Pixel  ------------------------------//
+
+	inline void SetPixelAt2DIndex(int_max xIndex, int_max yIndex, int_max zIndex, PixelType Pixel);
+
+	inline void SetPixelAt2DIndex(DenseVector<int_max, 2> Index2D, PixelType Pixel);
+
+	inline void SetPixelAtLinearIndex(int_max LinearIndex, PixelType Pixel);
+
+	inline const PixelType& GetPixelAt2DIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
+
+	inline const PixelType& GetPixelAt2DIndex(DenseVector<int_max, 2> Index2D) const;
+
+	inline const PixelType& GetPixelAtLinearIndex(int_max LinearIndex) const;
 
 	//--------------------------- Get/Set Pixel ------------------------------//
 
@@ -340,47 +400,54 @@ public:
 	//------------------ get nearest pixel --------------------//
 
 	template<typename ScalarType>
-	inline const PixelType& GetPixelNearestTo2DIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const;
+	inline const PixelType& GetPixelNearestTo2DIndex(ScalarType xIndex, ScalarType yIndex) const;
 
 	template<typename ScalarType>
-	inline const PixelType& GetPixelNearestTo2DIndex(const DenseVector<ScalarType, 3>& Index2D) const;
+	inline const PixelType& GetPixelNearestTo2DIndex(const DenseVector<ScalarType, 2>& Index2D) const;
 
 	template<typename ScalarType>
-	inline const PixelType& GetPixelNearestTo2DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z) const;
+	inline const PixelType& GetPixelNearestTo2DPhysicalPosition(ScalarType x, ScalarType y) const;
 
 	template<typename ScalarType>
-	inline const PixelType& GetPixelNearestTo2DPhysicalPosition(const DenseVector<ScalarType, 3>& Position) const;
+	inline const PixelType& GetPixelNearestTo2DPhysicalPosition(const DenseVector<ScalarType, 2>& Position) const;
 
 	//------------------ get Pixel by using interpolation method --------------------//
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>
-	OutputPixelType GetPixelAt2DIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex, const InterpolationOptionType& Option) const;
+	OutputPixelType GetPixelAt2DIndex(ScalarType xIndex, ScalarType yIndex, const InterpolationOptionType& Option) const;
 
 	const PixelType& GetPixelAt2DIndex(int_max xIndex, int_max yIndex, int_max zIndex, const InterpolationOptionType& Option) const;
 	const PixelType& GetPixelAt2DIndex(int xIndex, int yIndex, int zIndex, const InterpolationOptionType& Option) const;
 	const PixelType& GetPixelAt2DIndex(long xIndex, long yIndex, long zIndex, const InterpolationOptionType& Option) const;
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>
-	OutputPixelType GetPixelAt2DIndex(const DenseVector<ScalarType, 3>& Index2D, const InterpolationOptionType& Option) const;
+	OutputPixelType GetPixelAt2DIndex(const DenseVector<ScalarType, 2>& Index2D, const InterpolationOptionType& Option) const;
 
-	const PixelType& GetPixelAt2DIndex(const DenseVector<int_max, 3>& Index2D, const InterpolationOptionType& Option) const;
-	const PixelType& GetPixelAt2DIndex(const DenseVector<int, 3>& Index2D, const InterpolationOptionType& Option) const;
-	const PixelType& GetPixelAt2DIndex(const DenseVector<long, 3>& Index2D, const InterpolationOptionType& Option) const;
+	const PixelType& GetPixelAt2DIndex(const DenseVector<int_max, 2>& Index2D, const InterpolationOptionType& Option) const;
+	const PixelType& GetPixelAt2DIndex(const DenseVector<int, 2>& Index2D, const InterpolationOptionType& Option) const;
+	const PixelType& GetPixelAt2DIndex(const DenseVector<long, 2>& Index2D, const InterpolationOptionType& Option) const;
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>
 	OutputPixelType GetPixelAt2DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option) const;
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>
-	OutputPixelType GetPixelAt2DPhysicalPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option) const;
+	OutputPixelType GetPixelAt2DPhysicalPosition(const DenseVector<ScalarType, 2>& Position, const InterpolationOptionType& Option) const;
 
 	//------------------------- Get LinearIndex In Region -------------------//
 
-    DenseMatrix<int_max> GetLinearIndexListOfRegion(int_max xIndex_s,     int_max Region_Lx,
-	                                                int_max yIndex_s,     int_max Region_Ly) const;
+	DenseVector<int_max> GetLinearIndexListInRegion(const BoxRegionOf2DIndexInImage2D& RegionInfo) const;
+
+	DenseVector<int_max> GetLinearIndexListInRegion(const BoxRegionOf2DPhysicalPositionInImage2D& RegionInfo) const;
+
+	DenseMatrix<int_max> Get2DIndexListInRegion(const BoxRegionOf2DIndexInImage2D& RegionInfo) const;
+
+	DenseMatrix<int_max> Get2DIndexListInRegion(const BoxRegionOf2DPhysicalPositionInImage2D& RegionInfo) const;
     
     //-------------------------- Get SubImage -------------------------------//
 
-    DenseImage2D GetSubImage(int_max xIndex_s, int_max xIndex_e, int_max yIndex_s, int_max yIndex_e) const;
+	DenseImage3D GetSubImage(const BoxRegionOf2DIndexInImage2D& RegionInfo) const;
+
+	DenseImage3D GetSubImage(const BoxRegionOf2DPhysicalPositionInImage2D& RegionInfo) const;
 
     //-------------------------- Pad, UnPad -------------------------------//
 

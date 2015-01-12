@@ -1,5 +1,5 @@
-#ifndef __mdkOSPlatformConfig_h 
-#define __mdkOSPlatformConfig_h
+#ifndef mdk_OSPlatformConfig_h 
+#define mdk_OSPlatformConfig_h
 
 namespace mdk
 {

@@ -1,5 +1,5 @@
-﻿#ifndef __TestScalarImageFilter3D_h
-#define __TestScalarImageFilter3D_h
+﻿#ifndef Test_ScalarImageFilter3D_h
+#define Test_ScalarImageFilter3D_h
 
 #include <ctime>
 #include <cstdlib>
@@ -18,16 +18,18 @@ namespace mdk
 
 void test_a()
 {
-	String FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/phase0";
-	//String FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/TestImage.json";
+	String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/phase0";
+	//String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/Detection/TestImage.json";
 
-	String FileNameAndPath_OutputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/ResampledImage.json";
+	String Test_Path = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageResampler/Test_DenseImageResampler3D/TestData/";
+
+	String FileNameAndPath_OutputImage = Test_Path + "ResampledImage.json";
 
 	DenseImage3D<double> InputImage;
 	Load3DScalarImageFromDICOMSeries(InputImage, FilePath_InputImage);
 	//auto InputImage = Load3DScalarImageFromJsonDataFile<double>(FilePath_InputImage);
 
-	std::cout << "start" << '\n';
+	std::cout << "start" << '/n';
 
 	DenseImageResampler3D<double> Resampler;
 	Resampler.SetInputImage(&InputImage);
@@ -44,15 +46,8 @@ void test_a()
 	InterpolationOption.BoundaryOption = DenseImageResampler3D<double>::ImageInterpolationBoundaryOptionEnum::Replicate;
 	InterpolationOption.Pixel_OutsideImage = 0;
 	Resampler.SetImageInterpolationOption(InterpolationOption);
-
-	Resampler.EnableGaussianSmoothWhenDownSampling();
-
-	auto Sigma = OutputImageInfo.Spacing;
-	Sigma[0] *= 3;
-	Sigma[1] *= 3;
-	Resampler.SetParameterOfGaussianSmooth(Sigma, 2);
-
-	Resampler.SetMaxNumberOfThread(4);
+	Resampler.EnableSmoothingWhenDownsampling();
+	Resampler.SetMaxNumberOfThread(1);
 	Resampler.Update();
 	const auto& ResampledImage = *Resampler.GetOutputImage();
 
@@ -63,10 +58,12 @@ void test_a()
 
 void test_b()
 {
-	String FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/phase0";
+	String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/phase0";
 	//String FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/TestImage.json";
 
-	String FileNameAndPath_OutputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/ResampledImage.json";
+	String Test_Path = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageResampler/Test_DenseImageResampler3D/TestData/";
+
+	String FileNameAndPath_OutputImage = Test_Path + "ResampledImage.json";
 
 	DenseImage3D<double> InputImage;
 	Load3DScalarImageFromDICOMSeries(InputImage, FilePath_InputImage);
@@ -75,7 +72,7 @@ void test_b()
 	auto input = ConvertMDK3DScalarImageToITK3DScalarImage(InputImage);
 	auto inputSize = input->GetLargestPossibleRegion().GetSize();
 
-	std::cout << "start" << '\n';
+	std::cout << "start" << '/n';
 
 	typedef itk::Image<double, 3> ITKImageType;
 
@@ -101,7 +98,7 @@ void test_b()
 	resample->Update();
 	auto output = resample->GetOutput();
 
-	std::cout << "done" << '\n';
+	std::cout << "done" << '/n';
 }
 
 void test_c()
@@ -117,7 +114,7 @@ void test_c()
 
 	auto inputImage = ConvertMDK3DScalarImageToITK3DScalarImage(InputImage);
 
-	std::cout << "start" << '\n';
+	std::cout << "start" << '/n';
 
 	typedef itk::Image<double, 3> ImageType;
 	typedef itk::ImageRegionIterator< ImageType > IteratorType;
@@ -156,7 +153,7 @@ void test_c()
 		++out;
 	}
 
-	std::cout << "done" << '\n';
+	std::cout << "done" << '/n';
 }
 }//namespace mdk
 
