@@ -58,19 +58,6 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetOutputImageI
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetOutputImageInfo(const DenseVector<double, 3>& Origin,
-																				    const DenseVector<double, 3>& Spacing,
-																					const DenseVector<int_max, 3>& Size)
-{
-	m_OutputImageInfo.Origin = Origin;
-	m_OutputImageInfo.Spacing = Spacing;
-	m_OutputImageInfo.Size = Size;
-	m_OutputImageInfo.Orientation.Resize(3, 3);
-	m_OutputImageInfo.Orientation.FillDiagonal(1);
-}
-
-
-template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetOutputImageInfo(const DenseVector<double, 3>& Origin,
 																					const DenseVector<double, 3>& Spacing,
 																					const DenseVector<int_max, 3>& Size,
 																					const DenseMatrix<double>& Orientation)
@@ -79,6 +66,89 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetOutputImageI
 	m_OutputImageInfo.Spacing = Spacing;
 	m_OutputImageInfo.Size = Size;
 	m_OutputImageInfo.Orientation = Orientation;
+}
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetOutputImageInfoBySize(const DenseVector<int_max, 3>& Size)
+{
+	this->SetOutputImageInfoBySize(Size[0], Size[1], Size[2]);
+}
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetOutputImageInfoBySize(int_max Lx, int_max Ly, int_max Lz)
+{
+	if (m_InputImage == nullptr)
+	{
+		MDK_Error("InputImage is nullptr @ ImageFilter3D::SetOutputImageInfoBySize(...)")
+		return;
+	}
+
+	if (Lx <= 0 || Ly <= 0 || Lz <= 0)
+	{
+		MDK_Error("Invalid input @ ImageFilter3D::SetOutputImageInfoBySize(...)")
+		return;
+	}
+
+	Image3DInfo Info;
+	Info.Size[0] = Lx;
+	Info.Size[1] = Ly;
+	Info.Size[2] = Lz;
+
+	auto Size_input = m_InputImage->GetSize();
+	auto Spacing_input = m_InputImage->GetSpacing();
+	Info.Spacing[0] = double(Size_input[0] - 1) * Spacing_input[0] / double(Lx - 1);
+	Info.Spacing[1] = double(Size_input[1] - 1) * Spacing_input[1] / double(Ly - 1);
+	Info.Spacing[2] = double(Size_input[2] - 1) * Spacing_input[2] / double(Lz - 1);
+
+	Info.Origin = m_InputImage->GetOrigin();
+	Info.Orientation = m_InputImage->GetOrientation();
+
+	this->SetOutputImageInfo(Info);
+}
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetOutputImageInfoBySpacing(const DenseVector<double, 3>& Spacing)
+{
+	this->SetOutputImageInfoBySpacing(Spacing[0], Spacing[1], Spacing[2]);
+}
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y, double Spacing_z)
+{
+	if (m_InputImage == nullptr)
+	{
+		MDK_Error("InputImage is nullptr @ ImageFilter3D::SetOutputImageInfoBySpacing(...)")
+		return;
+	}
+
+	auto Zero = std::numeric_limits<double>::epsilon();
+
+	if (Spacing_x <= Zero || Spacing_x <= Zero || Spacing_x <= Zero)
+	{
+		MDK_Error("Invalid input (<= eps) @ ImageFilter3D::SetOutputImageInfoBySpacing(...)")
+		return;
+	}
+
+	Image3DInfo Info;
+
+	Info.Spacing[0] = Spacing_x;
+	Info.Spacing[1] = Spacing_y;
+	Info.Spacing[2] = Spacing_z;
+
+	auto Size_input = m_InputImage->GetSize();
+	auto Spacing_input = m_InputImage->GetSpacing();
+	Info.Size[0] = int_max(std::ceil(Size_input[0] * Spacing_input[0] / Spacing_x));
+	Info.Size[1] = int_max(std::ceil(Size_input[1] * Spacing_input[1] / Spacing_y));
+	Info.Size[2] = int_max(std::ceil(Size_input[2] * Spacing_input[2] / Spacing_z));
+
+	Info.Origin = m_InputImage->GetOrigin();
+	Info.Orientation = m_InputImage->GetOrientation();
+
+	this->SetOutputImageInfo(Info);
 }
 
 

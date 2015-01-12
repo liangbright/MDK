@@ -12,12 +12,13 @@
 namespace mdk
 {
 
-template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type>
-class IntegralImageBasedImageAverageFilter3D : public ImageFilter3D<DenseImage3D<InputPixel_Type>, DenseImage3D<OutputPixel_Type>, double>
+template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = double>
+class IntegralImageBasedImageAverageFilter3D : public ImageFilter3D<DenseImage3D<InputPixel_Type>, DenseImage3D<OutputPixel_Type>, Scalar_Type>
 {
 public:
 	typedef InputPixel_Type  InputPixelType;
 	typedef OutputPixel_Type OutputPixelType;
+	typedef Scalar_Type      ScalarType;
 
 private:
 	const DenseImage3D<OutputPixelType>* m_IntegralImage;

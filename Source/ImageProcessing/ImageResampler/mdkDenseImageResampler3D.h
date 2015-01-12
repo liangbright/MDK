@@ -28,17 +28,6 @@ public:
 
 	void EnableSmoothingWhenDownsampling(bool On_Off = true);
 
-	// Number of Pixel in x/y/z direction
-	// Origin of output image = Origin of input image
-	// Spacing of output image may not be equal to Spacing of input image
-	void SetOutputImageInfoBySize(const DenseVector<int_max, 3>& Size);
-	void SetOutputImageInfoBySize(int_max Lx, int_max Ly, int_max Lz);
-
-	// Origin of output image = Origin of input image
-	// Size of output image may not be equal to Size of input image
-	void SetOutputImageInfoBySpacing(const DenseVector<double, 3>& Spacing);
-	void SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y, double Spacing_z);
-
 private:
 	bool Preprocess();
 	bool Postprocess();

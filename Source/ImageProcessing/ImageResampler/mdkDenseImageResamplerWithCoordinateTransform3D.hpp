@@ -37,40 +37,6 @@ void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelTyp
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySize(const DenseVector<int_max, 3>& Size)
-{
-	this->SetOutputImageInfoBySize(Size[0], Size[1], Size[2]);
-}
-
-
-template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySize(int_max Lx, int_max Ly, int_max Lz)
-{
-	if (m_InputImage == nullptr)
-	{
-		MDK_Error("InputImage is nullptr, please use SetInputImage(...) @ DenseImageResamplerWithCoordinateTransform3D::SetOutputImageInfoBySize(...)")
-		return;
-	}
-
-	if (Lx <= 0 || Ly <= 0 || Lz <= 0)
-	{
-		MDK_Error("Invalid input @ DenseImageResamplerWithCoordinateTransform3D::SetOutputImageInfoBySize(...)")
-		return;
-	}
-
-	auto Size_input = m_InputImage->GetSize();
-	auto Spacing_input = m_InputImage->GetSpacing();
-	auto Spacing_x = double(Size_input[0] - 1) * Spacing_input[0] / double(Lx - 1);
-	auto Spacing_y = double(Size_input[1] - 1) * Spacing_input[1] / double(Ly - 1);
-	auto Spacing_z = double(Size_input[2] - 1) * Spacing_input[2] / double(Lz - 1);
-
-	m_OutputImage.SetOrigin(m_InputImage->GetOrigin());
-	m_OutputImage.SetSpacing(Spacing_x, Spacing_y, Spacing_z);
-	m_OutputImage.SetSize(Lx, Ly, Lz);
-}
-
-
-template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::
 SetCoordinateTransform(const CoordinateTransform3D<ScalarType>* CoordinateTransform);
 {

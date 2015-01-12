@@ -31,12 +31,6 @@ public:
 
 	void EnableSmoothingWhenDownsampling(bool On_Off = true);
 
-	// Number of Pixel in x/y/z direction
-	// Origin output image = Origin of input image
-	void SetOutputImageInfoBySize(const DenseVector<int_max, 3>& Size);
-
-	void SetOutputImageInfoBySize(int_max Lx, int_max Ly, int_max Lz);
-
 	// from (x1, y1, z1) in m_OutputImage to (x2, y2, z2) in m_InputImage 
 	// (x2, y2, z2) = m_CoordinateTransform->TransformPoint(x1, y1, z1)
 	void SetCoordinateTransform(const CoordinateTransform3D<Scalar_Type>* CoordinateTransform);
@@ -52,8 +46,7 @@ private:
 	DenseImageResamplerWithCoordinateTransform3D(const DenseImageResamplerWithCoordinateTransform3D&) = delete;
 };
 
-
-}
+}//namespace mdk
 
 #include "mdkDenseImageResamplerWithCoordinateTransform3D.hpp"
 
