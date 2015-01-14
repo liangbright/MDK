@@ -1,11 +1,8 @@
 ﻿#include <iostream>
 
-#include "mdkType.h"
+#include "mdkCommonType.h"
 
 #include "TestEigen.h"
-
-using namespace mdk;
-
 
 int main()
 {

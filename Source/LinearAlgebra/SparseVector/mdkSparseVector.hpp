@@ -1,5 +1,5 @@
-#ifndef __mdkSparseVector_hpp
-#define __mdkSparseVector_hpp
+#ifndef mdk_SparseVector_hpp
+#define mdk_SparseVector_hpp
 
 namespace mdk
 {

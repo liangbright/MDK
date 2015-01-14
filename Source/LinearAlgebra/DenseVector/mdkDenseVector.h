@@ -1,5 +1,5 @@
-﻿#ifndef __mdkDenseVector_h
-#define __mdkDenseVector_h
+﻿#ifndef mdk_DenseVector_h
+#define mdk_DenseVector_h
 
 #include "mdkDenseVectorWithFixedLength.h"
 #include "mdkDenseVectorWithVariableLength.h"

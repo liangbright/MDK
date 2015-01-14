@@ -1,5 +1,5 @@
-#ifndef __mdkDenseMatrix_FileIO_h
-#define __mdkDenseMatrix_FileIO_h
+#ifndef mdk_DenseMatrix_FileIO_h
+#define mdk_DenseMatrix_FileIO_h
 
 #include <tuple>
 #include <utility>

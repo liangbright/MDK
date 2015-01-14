@@ -1,7 +1,5 @@
 ﻿#include <iostream>
 
-#include "mdkType.h"
-
 #include "Test_DenseVector.h"
 
 using namespace mdk;

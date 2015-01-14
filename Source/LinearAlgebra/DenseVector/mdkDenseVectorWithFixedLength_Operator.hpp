@@ -1,5 +1,5 @@
-#ifndef __mdkDenseVectorWithFixedLength_Operator_hpp
-#define __mdkDenseVectorWithFixedLength_Operator_hpp
+#ifndef mdk_DenseVectorWithFixedLength_Operator_hpp
+#define mdk_DenseVectorWithFixedLength_Operator_hpp
 
 
 namespace mdk
@@ -60,30 +60,35 @@ operator/(const DenseVector<ElementType, Length>& VectorA, const DenseVector<Ele
 	return OutputVector;
 }
 
-//---------------------------------------------------------------------------------------------------------------//
+//-------------------- Vector/1-Element-Vector {+ - * /} Vector/1-Element-Vector -----------------------------//
+// note: VectorA or VectorB are DenseVectorWithFixedLength with different length
+
 template<typename ElementType, int_max LengthA, int_max LengthB>
 inline
 DenseVector<ElementType> 
 operator+(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType, LengthB>& VectorB)
 {
-	if (LengthA == 1)
+	auto VectorLengthA = VectorA.GetLength();
+	auto VectorLengthB = VectorB.GetLength();
+
+	if (VectorLengthA == 1)
 	{
 		return VectorA[0] + VectorB;
 	}
-	else if (LengthB == 1)
+	else if (VectorLengthB == 1)
 	{
 		return VectorA + VectorB[0];
 	}
-	else if (LengthA != LengthB)
+	else if (VectorLengthA != VectorLengthB)
 	{
-		MDK_Error("LengthA != LengthB @ DenseVectorWithFixedLength_Operator operator+(VectorA, VectorB)");
+		MDK_Error("VectorLengthA != VectorLengthB @ DenseVectorWithFixedLength_Operator operator+(VectorA, VectorB)");
 		DenseVector<ElementType> EmptyVector;
 		return EmptyVector;
 	}
-
+	// now: VectorLengthA == VectorLengthB
 	DenseVector<ElementType> OutputVector;
-	OutputVector.Resize(LengthA);
-	for (int_max i = 0; i < LengthA; ++i)
+	OutputVector.Resize(VectorLengthA);
+	for (int_max i = 0; i < VectorLengthA; ++i)
 	{
 		OutputVector[i] = VectorA[i] + VectorB[i];
 	}
@@ -96,24 +101,27 @@ inline
 DenseVector<ElementType> 
 operator-(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType, LengthB>& VectorB)
 {
-	if (LengthA == 1)
+	auto VectorLengthA = VectorA.GetLength();
+	auto VectorLengthB = VectorB.GetLength();
+
+	if (VectorLengthA == 1)
 	{
 		return VectorA[0] - VectorB;
 	}
-	else if (LengthB == 1)
+	else if (VectorLengthB == 1)
 	{
 		return VectorA - VectorB[0];
 	}
-	else if (LengthA != LengthB)
+	else if (VectorLengthA != VectorLengthB)
 	{
-		MDK_Error("LengthA != LengthB @ DenseVectorWithFixedLength_Operator operator-(VectorA, VectorB)");
+		MDK_Error("VectorLengthA != VectorLengthB @ DenseVectorWithFixedLength_Operator operator-(VectorA, VectorB)");
 		DenseVector<ElementType> EmptyVector;
 		return EmptyVector;
 	}
-
+	// now: VectorLengthA == VectorLengthB
 	DenseVector<ElementType> OutputVector;
-	OutputVector.Resize(LengthA);
-	for (int_max i = 0; i < LengthA; ++i)
+	OutputVector.Resize(VectorLengthA);
+	for (int_max i = 0; i < VectorLengthA; ++i)
 	{
 		OutputVector[i] = VectorA[i] - VectorB[i];
 	}
@@ -126,24 +134,27 @@ inline
 DenseVector<ElementType> 
 operator*(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType, LengthB>& VectorB)
 {
-	if (LengthA == 1)
+	auto VectorLengthA = VectorA.GetLength();
+	auto VectorLengthB = VectorB.GetLength();
+
+	if (VectorLengthA == 1)
 	{
 	return VectorA[0] * VectorB;
 	}
-	else if (LengthB == 1)
+	else if (VectorLengthB == 1)
 	{
 	return VectorA * VectorB[0];
 	}
-	else if (LengthA != LengthB)
+	else if (VectorLengthA != VectorLengthB)
 	{
-	MDK_Error("LengthA != LengthB @ DenseVectorWithFixedLength_Operator operator*(VectorA, VectorB)");
+	MDK_Error("VectorLengthA != VectorLengthB @ DenseVectorWithFixedLength_Operator operator*(VectorA, VectorB)");
 	DenseVector<ElementType> EmptyVector;
 	return EmptyVector;
 	}
-
+	// now: VectorLengthA == VectorLengthB
 	DenseVector<ElementType> OutputVector;
-	OutputVector.Resize(LengthA);
-	for (int_max i = 0; i < LengthA; ++i)
+	OutputVector.Resize(VectorLengthA);
+	for (int_max i = 0; i < VectorLengthA; ++i)
 	{
 	OutputVector[i] = VectorA[i] * VectorB[i];
 	}
@@ -156,31 +167,34 @@ inline
 DenseVector<ElementType>
 operator/(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType, LengthB>& VectorB)
 {
-	if (LengthA == 1)
+	auto VectorLengthA = VectorA.GetLength();
+	auto VectorLengthB = VectorB.GetLength();
+
+	if (VectorLengthA == 1)
 	{
 		return VectorA[0] / VectorB;
 	}
-	else if (LengthB == 1)
+	else if (VectorLengthB == 1)
 	{
 		return VectorA / VectorB[0];
 	}
-	else if (LengthA != LengthB)
+	else if (VectorLengthA != VectorLengthB)
 	{
-		MDK_Error("LengthA != LengthB @ DenseVectorWithFixedLength_Operator operator/(VectorA, VectorB)");
+		MDK_Error("VectorLengthA != VectorLengthB @ DenseVectorWithFixedLength_Operator operator/(VectorA, VectorB)");
 		DenseVector<ElementType> EmptyVector;
 		return EmptyVector;
 	}
-
+	// now: VectorLengthA == VectorLengthB
 	DenseVector<ElementType> OutputVector;
-	OutputVector.Resize(LengthA);
-	for (int_max i = 0; i < LengthA; ++i)
+	OutputVector.Resize(VectorLengthA);
+	for (int_max i = 0; i < VectorLengthA; ++i)
 	{
 		OutputVector[i] = VectorA[i] / VectorB[i];
 	}
 	return OutputVector;
 }
 
-//---------------------------------------------------------------------------------------------------------------//
+//-----------------------------------------------  fixed {+ - * /} unfixed ----------------------------------------------------------------//
 template<typename ElementType, int_max LengthA>
 inline 
 DenseVector<ElementType> operator+(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType>& VectorB)
@@ -201,10 +215,10 @@ DenseVector<ElementType> operator+(const DenseVector<ElementType, LengthA>& Vect
 		DenseVector<ElementType> EmptyVector;
 		return EmptyVector;
 	}
-
+	// now: LengthA == LengthB
 	DenseVector<ElementType> OutputVector;
-	OutputVector.Resize(LengthA);
-	for (int_max i = 0; i < LengthA; ++i)
+	OutputVector.Resize(LengthB);
+	for (int_max i = 0; i < LengthB; ++i)
     {
         OutputVector[i] = VectorA[i] + VectorB[i];
     }
@@ -232,10 +246,10 @@ DenseVector<ElementType> operator-(const DenseVector<ElementType, LengthA>& Vect
 		DenseVector<ElementType> EmptyVector;
 		return EmptyVector;
     }
-
+	// now: LengthA == LengthB
 	DenseVector<ElementType> OutputVector;
-	OutputVector.Resize(LengthA);
-	for (int_max i = 0; i < LengthA; ++i)
+	OutputVector.Resize(LengthB);
+	for (int_max i = 0; i < LengthB; ++i)
     {
         OutputVector[i] = VectorA[i] - VectorB[i];
     }
@@ -294,17 +308,17 @@ DenseVector<ElementType> operator/(const DenseVector<ElementType, LengthA>& Vect
 		DenseVector<ElementType> EmptyVector;
 		return EmptyVector;
     }
-
-	DenseVector<ElementType, Length> OutputVector;
-	OutputVector.Resize(LengthA);
-    for (int_max i = 0; i < Length; ++i)
+	// now: LengthA == LengthB
+	DenseVector<ElementType> OutputVector;
+	OutputVector.Resize(LengthB);
+	for (int_max i = 0; i < LengthB; ++i)
     {
         OutputVector[i] = VectorA[i] / VectorB[i];
     }
     return OutputVector;
 }
 
-//----------------------------------------------------------------------------------------------------------------//
+//-------------------------------------------------- unfixed {+ - * /} fixed --------------------------------------------------------------//
 
 template<typename ElementType, int_max LengthB>
 inline
@@ -416,7 +430,8 @@ DenseVector<ElementType> operator/(const DenseVector<ElementType>& VectorA, cons
 	else if (LengthA != LengthB)
     {
         MDK_Error("LengthA != LengthB @ DenseVectorWithFixedLength_Operator /(VectorA, VectorB) ")
-        return OutputVector;
+		DenseVector<ElementType> EmptyVector;
+		return EmptyVector;
     }
 
 	DenseVector<ElementType> OutputVector;

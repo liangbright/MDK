@@ -1,5 +1,5 @@
-#ifndef __mdkLinearAlgebra_Function_DenseMatrix_Part_1_h
-#define __mdkLinearAlgebra_Function_DenseMatrix_Part_1_h
+#ifndef mdk_LinearAlgebra_Function_DenseMatrix_Part_1_h
+#define mdk_LinearAlgebra_Function_DenseMatrix_Part_1_h
 
 #include <vector>
 #include <array>
@@ -8,6 +8,8 @@
 #include <initializer_list>
 #include <functional>
 
+#include <Eigen/Dense>
+#include "armadillo.h"
 
 namespace mdk
 {
@@ -15,6 +17,7 @@ namespace mdk
 //forward-declare ----------------//
 template<typename ElementType>
 class DenseMatrix;
+//---------------------------------//
 
 //------------ MatrixAdd, MatrixSubtract, MatrixMultiply, MatrixElementMultiply, MatrixElementDivide ---------------------------------------//
 

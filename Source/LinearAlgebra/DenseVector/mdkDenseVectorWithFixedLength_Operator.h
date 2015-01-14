@@ -1,7 +1,7 @@
-﻿#ifndef __mdkDenseVectorWithFixedLength_Operator_h
-#define __mdkDenseVectorWithFixedLength_Operator_h
+﻿#ifndef mdk_DenseVectorWithFixedLength_Operator_h
+#define mdk_DenseVectorWithFixedLength_Operator_h
 
-#include <array>
+//#include <array>
 
 #include "mdkCommonType.h"
 
@@ -9,6 +9,7 @@ namespace mdk
 {
 
 //---------------------------------------------------- Vector {+ - * /} Vector ---------------------------------------------// 
+// note: VectorA and VectorB are DenseVectorWithFixedLength
 // * : element by element
 // / : element by element
 
@@ -28,6 +29,9 @@ inline DenseVector<ElementType, Length> operator/(const DenseVector<ElementType,
 // * : element by element
 // / : element by element
 
+//-------------------- Vector/1-Element-Vector {+ - * /} Vector/1-Element-Vector -----------------------------
+// note: VectorA or VectorB are DenseVectorWithFixedLength with different length
+
 template<typename ElementType, int_max LengthA, int_max LengthB>
 inline DenseVector<ElementType> operator+(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType, LengthB>& VectorB);
 
@@ -40,7 +44,7 @@ inline DenseVector<ElementType> operator-(const DenseVector<ElementType, LengthA
 template<typename ElementType, int_max LengthA, int_max LengthB>
 inline DenseVector<ElementType> operator/(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType, LengthB>& VectorB);
 
-//-------------------- fixed {+ - * /} unfixed-----------------------------
+//-------------------- fixed {+ - * /} unfixed --------------------------------------------------------------
 
 template<typename ElementType, int_max LengthA>
 inline DenseVector<ElementType> operator+(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType>& VectorB);
@@ -54,7 +58,7 @@ inline DenseVector<ElementType> operator-(const DenseVector<ElementType, LengthA
 template<typename ElementType, int_max LengthA>
 inline DenseVector<ElementType> operator/(const DenseVector<ElementType, LengthA>& VectorA, const DenseVector<ElementType>& VectorB);
 
-//-------------------- unfixed {+ - * /} fixed -----------------------------
+//-------------------- unfixed {+ - * /} fixed --------------------------------------------------------------
 
 template<typename ElementType, int_max LengthB>
 inline DenseVector<ElementType> operator+(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType, LengthB>& VectorB);

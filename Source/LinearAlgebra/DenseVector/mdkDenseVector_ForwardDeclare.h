@@ -1,5 +1,5 @@
-﻿#ifndef __mdkDenseVector_ForwardDeclare_h
-#define __mdkDenseVector_ForwardDeclare_h
+﻿#ifndef mdk_DenseVector_ForwardDeclare_h
+#define mdk_DenseVector_ForwardDeclare_h
 
 #include "mdkCommonType.h"
 

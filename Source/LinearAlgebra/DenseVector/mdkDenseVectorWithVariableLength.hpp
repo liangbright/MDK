@@ -1,5 +1,5 @@
-﻿#ifndef __mdkDenseVectorWithVariableLength_hpp
-#define __mdkDenseVectorWithVariableLength_hpp
+﻿#ifndef mdk_DenseVectorWithVariableLength_hpp
+#define mdk_DenseVectorWithVariableLength_hpp
 
 
 namespace mdk
@@ -632,18 +632,18 @@ std::vector<ElementType> DenseVector<ElementType>::CreateStdVector() const
 // ------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-DenseMatrix<ElementType> DenseVector<ElementType>::CreateDenseMatrixAsRowVector() const
+DenseMatrix<ElementType> DenseVector<ElementType>::ConvertToDenseMatrixAsRowVector() const
 {
     DenseMatrix<ElementType> OutputVector;
 
-    this->CreateDenseMatrixAsRowVector(OutputVector);
+    this->ConvertToDenseMatrixAsRowVector(OutputVector);
 
     return OutputVector;
 }
 
 
 template<typename ElementType>
-void DenseVector<ElementType>::CreateDenseMatrixAsRowVector(DenseMatrix<ElementType>& OutputVector) const
+void DenseVector<ElementType>::ConvertToDenseMatrixAsRowVector(DenseMatrix<ElementType>& OutputVector) const
 {
     auto SelfLength = this->GetLength();
 
@@ -657,18 +657,18 @@ void DenseVector<ElementType>::CreateDenseMatrixAsRowVector(DenseMatrix<ElementT
 
 
 template<typename ElementType>
-DenseMatrix<ElementType> DenseVector<ElementType>::CreateDenseMatrixAsColVector() const
+DenseMatrix<ElementType> DenseVector<ElementType>::ConvertToDenseMatrixAsColVector() const
 {
     DenseMatrix<ElementType> OutputVector;
 
-    this->CreateDenseMatrixAsColVector(OutputVector);
+    this->ConvertToDenseMatrixAsColVector(OutputVector);
 
     return OutputVector;
 }
 
 
 template<typename ElementType>
-void DenseVector<ElementType>::CreateDenseMatrixAsColVector(DenseMatrix<ElementType>& OutputVector) const
+void DenseVector<ElementType>::ConvertToDenseMatrixAsColVector(DenseMatrix<ElementType>& OutputVector) const
 {
 	auto SelfLength = this->GetLength();
 

@@ -1,5 +1,5 @@
-﻿#ifndef __mdkSparseVector_h
-#define __mdkSparseVector_h
+﻿#ifndef mdk_SparseVector_h
+#define mdk_SparseVector_h
 
 #include <vector>
 #include <memory>

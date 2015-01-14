@@ -1,5 +1,5 @@
-#ifndef __mdkLinearAlgebra_h
-#define __mdkLinearAlgebra_h
+#ifndef mdk_LinearAlgebra_h
+#define mdk_LinearAlgebra_h
 
 #include "mdkLinearAlgebraConfig.h"
 #include "mdkDenseMatrix.h"

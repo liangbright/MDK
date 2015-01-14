@@ -1,5 +1,5 @@
-#ifndef __TestEigen_h
-#define __TestEigen_h
+#ifndef Test_Eigen_h
+#define Test_Eigen_h
 
 //================================================
 #include <algorithm>
@@ -11,32 +11,11 @@
 
 #include "mdkDenseMatrix.h"
 
-namespace mdk
-{
-
-template<typename T>
-void DisplayMatrix(const std::string& Name, const DenseMatrix<T>& Matrix, uint32 value_std_setw = 6, uint32 precision = 4)
-{
-    std::cout << Name << " = " << '\n';
-
-    for (int64 i = 0; i < Matrix.GetRowNumber(); ++i)
-    {
-        for (int64 j = 0; j < Matrix.GetColNumber(); ++j)
-        {
-            //std::cout << std::fixed << std::setprecision(precision) << Matrix(i, j) << ' ';
-
-            std::cout << std::setw(value_std_setw + precision) << std::setprecision(precision) << Matrix(i, j) << ' ';
-        }
-        std::cout << '\n';
-    }
-}
-
-
-
-
 void Test_Constructor()
 {
-    DenseMatrix<double> A;
+	using namespace mdk;
+
+	DenseMatrix<double> A;
 
     A.Resize(5, 6);
 
@@ -58,7 +37,6 @@ void Test_Constructor()
 
     std::cout << B << '\n';
   
-
     Eigen::Map<Eigen::MatrixXd> C(A.GetElementPointer(), 5, 6);
 
     std::cout << C << '\n';
@@ -68,6 +46,8 @@ void Test_Constructor()
 
 void Test_LinearEquationSolver_LeastSquares()
 {
+	using namespace mdk;
+
     DenseMatrix<double> InputA(10, 2);
 
     InputA.FillCol(0, 1.0);
@@ -102,15 +82,10 @@ void Test_LinearEquationSolver_LeastSquares()
 
     DisplayMatrix("OutputX", OutputX);
 
-    auto Result = SolveLinearLeastSquaresProblem(InputA, InputB);
+	auto OutputY = SolveMatrixLinearEquation(InputA, InputB);
 
-    OutputX = Result.X;
-
-    DisplayMatrix("OutputX", OutputX);
+	DisplayMatrix("OutputY", OutputY);
 
 }
-
-
-}//namespace mdk
 
 #endif

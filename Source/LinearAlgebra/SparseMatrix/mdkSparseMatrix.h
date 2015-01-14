@@ -1,5 +1,5 @@
-﻿#ifndef __mdkSparseMatrix_h
-#define __mdkSparseMatrix_h
+﻿#ifndef mdk_SparseMatrix_h
+#define mdk_SparseMatrix_h
 
 #include <vector>
 #include <memory>

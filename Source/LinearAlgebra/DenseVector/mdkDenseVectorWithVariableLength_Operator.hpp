@@ -1,5 +1,5 @@
-#ifndef __mdkDenseVectorWithVariableLength_Operator_hpp
-#define __mdkDenseVectorWithVariableLength_Operator_hpp
+#ifndef mdk_DenseVectorWithVariableLength_Operator_hpp
+#define mdk_DenseVectorWithVariableLength_Operator_hpp
 
 namespace mdk
 {
@@ -66,7 +66,7 @@ operator-(const DenseVector<ElementType>& VectorA, const DenseVector<ElementType
 	{
 		OutputVector[i] = VectorA[i] - VectorB[i];
 	}
-	return tempVector;
+	return OutputVector;
 }
 
 /*

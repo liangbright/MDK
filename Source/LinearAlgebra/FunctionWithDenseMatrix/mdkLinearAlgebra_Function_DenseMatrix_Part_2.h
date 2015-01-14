@@ -1,9 +1,8 @@
-#ifndef __mdkLinearAlgebra_Function_DenseMatrix_Part_2_h
-#define __mdkLinearAlgebra_Function_DenseMatrix_Part_2_h
+#ifndef mdk_LinearAlgebra_Function_DenseMatrix_Part_2_h
+#define mdk_LinearAlgebra_Function_DenseMatrix_Part_2_h
 
 #include <algorithm>
 #include <complex>
-
 
 #include "mdkConstant.h"
 #include "mdkMatrix_Common.h"

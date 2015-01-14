@@ -1,5 +1,5 @@
-#ifndef __mdkLinearAlgebra_Function_DenseMatrix_Part_2_hpp
-#define __mdkLinearAlgebra_Function_DenseMatrix_Part_2_hpp
+#ifndef mdk_LinearAlgebra_Function_DenseMatrix_Part_2_hpp
+#define mdk_LinearAlgebra_Function_DenseMatrix_Part_2_hpp
 
 
 namespace mdk
@@ -1281,8 +1281,7 @@ DenseMatrix<ElementType> MatrixPseudoInverse(const DenseMatrix<ElementType>& Inp
 template<typename ElementType>
 inline 
 DenseMatrix<ElementType> SolveMatrixLinearEquation(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
-{
-	// A*X=B
+{	// A*X=B
 	DenseMatrix<ElementType> MatrixX;
 
 	auto SizeA = MatrixA.GetSize();
@@ -1307,17 +1306,31 @@ DenseMatrix<ElementType> SolveMatrixLinearEquation(const DenseMatrix<ElementType
 	auto ptrB = const_cast<ElementType*>(MatrixB.GetElementPointer());
 
 	// call Armadillo 
-	arma::Mat<ElementType> tempX(ptrX, arma::uword(SizeA.ColNumber), arma::uword(SizeB.ColNumber), false);
-	arma::Mat<ElementType> tempA(ptrA, arma::uword(SizeA.RowNumber), arma::uword(SizeA.ColNumber), false);
-	arma::Mat<ElementType> tempB(ptrB, arma::uword(SizeB.RowNumber), arma::uword(SizeB.ColNumber), false);
-	auto Flag = arma::solve(tempX, tempA, tempB);
-	if (Flag == false)
-	{
-		MDK_Error("No solution @ mdkLinearAlgebra_DenseMatrix SolveMatrixLinearEquation(MatrixA, MatrixB)")
-	}
+	//arma::Mat<ElementType> tempX(ptrX, arma::uword(SizeA.ColNumber), arma::uword(SizeB.ColNumber), false);
+	//arma::Mat<ElementType> tempA(ptrA, arma::uword(SizeA.RowNumber), arma::uword(SizeA.ColNumber), false);
+	//arma::Mat<ElementType> tempB(ptrB, arma::uword(SizeB.RowNumber), arma::uword(SizeB.ColNumber), false);
+	//auto Flag = arma::solve(tempX, tempA, tempB);
+	//if (Flag == false)
+	//{
+	//	MDK_Error("No solution @ mdkLinearAlgebra_DenseMatrix SolveMatrixLinearEquation(MatrixA, MatrixB)")
+	//}
 
+	// call eigen: SVD
+	Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> A(ptrA, SizeA.RowNumber, SizeA.ColNumber);
+	Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> B(ptrB, SizeB.RowNumber, SizeB.ColNumber);
+	Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> X(ptrX, SizeA.ColNumber, SizeB.ColNumber);
+	try
+	{
+		X = A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(B);
+	}
+	catch (...)
+	{
+		MDK_Error("Eigen-Lib error @ mdkLinearAlgebra_DenseMatrix SolveMatrixLinearEquation(MatrixA, MatrixB)")
+	}
+	
 	return MatrixX;
 }
+
 
 template<typename ElementType>
 inline 
@@ -1342,19 +1355,13 @@ DenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(co
     }
 
     Result.EigenVector.FastResize(Size.RowNumber, Size.RowNumber);
-
     Result.EigenValue.FastResize(Size.RowNumber, 1);
-
     auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
     // call Armadillo 
-
     arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowNumber), arma::uword(Size.RowNumber), false);
-
     arma::Mat<std::complex<ElementType>> tempEigenVector(Result.EigenVector.GetElementPointer(), arma::uword(Size.RowNumber), arma::uword(Size.RowNumber), false);
-
     arma::Col<std::complex<ElementType>> tempEigenValue(Result.EigenValue.GetElementPointer(), arma::uword(Size.RowNumber), false);
-
     arma::eig_gen(tempEigenValue, tempEigenVector, tempMat);
 
     return Result;

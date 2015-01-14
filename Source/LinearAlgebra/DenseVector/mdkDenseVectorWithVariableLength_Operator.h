@@ -1,7 +1,7 @@
-﻿#ifndef __mdkDenseVectorWithVariableLength_Operator_h
-#define __mdkDenseVectorWithVariableLength_Operator_h
+﻿#ifndef mdk_DenseVectorWithVariableLength_Operator_h
+#define mdk_DenseVectorWithVariableLength_Operator_h
 
-#include <vector>
+//#include <vector>
 
 #include "mdkCommonType.h"
 

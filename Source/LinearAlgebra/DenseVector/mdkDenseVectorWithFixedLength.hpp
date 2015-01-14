@@ -1,5 +1,5 @@
-﻿#ifndef __mdkDenseVectorWithFixedLength_hpp
-#define __mdkDenseVectorWithFixedLength_hpp
+﻿#ifndef mdk_DenseVectorWithFixedLength_hpp
+#define mdk_DenseVectorWithFixedLength_hpp
 
 
 namespace mdk
@@ -506,7 +506,7 @@ const std::array<ElementType, Length>& DenseVector<ElementType, Length>::StdArra
 
 
 template<typename ElementType, int_max Length>
-std::vector<ElementType> DenseVector<ElementType, Length>::CreateStdVector() const
+std::vector<ElementType> DenseVector<ElementType, Length>::ConvertToStdVector() const
 {
 	std::vector<ElementType> StdVector;
 	StdVector.resize(m_StdArray.size());
@@ -519,7 +519,7 @@ std::vector<ElementType> DenseVector<ElementType, Length>::CreateStdVector() con
 
 
 template<typename ElementType, int_max Length>
-DenseVector<ElementType> DenseVector<ElementType, Length>::CreateDenseVectorWithVariableLength() const
+DenseVector<ElementType> DenseVector<ElementType, Length>::ConvertToDenseVectorWithVariableLength() const
 {
 	DenseVector<ElementType> OutputVector;
 	StdVector.Resize(int_max(m_StdArray.size()));
@@ -533,21 +533,18 @@ DenseVector<ElementType> DenseVector<ElementType, Length>::CreateDenseVectorWith
 // ------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType, int_max Length>
-DenseMatrix<ElementType> DenseVector<ElementType, Length>::CreateDenseMatrixAsRowVector() const
+DenseMatrix<ElementType> DenseVector<ElementType, Length>::ConvertToDenseMatrixAsRowVector() const
 {
     DenseMatrix<ElementType> OutputVector;
-
-    this->CreateDenseMatrixAsRowVector(OutputVector);
-
+    this->ConvertToDenseMatrixAsRowVector(OutputVector);
     return OutputVector;
 }
 
 
 template<typename ElementType, int_max Length>
-void DenseVector<ElementType, Length>::CreateDenseMatrixAsRowVector(DenseMatrix<ElementType>& OutputVector) const
+void DenseVector<ElementType, Length>::ConvertToDenseMatrixAsRowVector(DenseMatrix<ElementType>& OutputVector) const
 {
     OutputVector.FastResize(1, Length);
-
     for (int_max i = 0; i < Length; ++i)
     {
         OutputVector[i] = m_StdArray[i];
@@ -556,21 +553,18 @@ void DenseVector<ElementType, Length>::CreateDenseMatrixAsRowVector(DenseMatrix<
 
 
 template<typename ElementType, int_max Length>
-DenseMatrix<ElementType> DenseVector<ElementType, Length>::CreateDenseMatrixAsColVector() const
+DenseMatrix<ElementType> DenseVector<ElementType, Length>::ConvertToDenseMatrixAsColVector() const
 {
     DenseMatrix<ElementType> OutputVector;
-
-    this->CreateDenseMatrixAsColVector(OutputVector);
-
+    this->ConvertToDenseMatrixAsColVector(OutputVector);
     return OutputVector;
 }
 
 
 template<typename ElementType, int_max Length>
-void DenseVector<ElementType, Length>::CreateDenseMatrixAsColVector(DenseMatrix<ElementType>& OutputVector) const
+void DenseVector<ElementType, Length>::ConvertToDenseMatrixAsColVector(DenseMatrix<ElementType>& OutputVector) const
 {
     OutputVector.FastResize(Length, 1);
-
     for (int_max i = 0; i < Length; ++i)
     {
         OutputVector[i] = m_StdArray[i];

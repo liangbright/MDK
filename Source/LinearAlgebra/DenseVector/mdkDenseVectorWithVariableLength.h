@@ -1,5 +1,5 @@
-﻿#ifndef __mdkDenseVectorWithVariableLength_h
-#define __mdkDenseVectorWithVariableLength_h
+﻿#ifndef mdk_DenseVectorWithVariableLength_h
+#define mdk_DenseVectorWithVariableLength_h
 
 #include <utility>
 #include <vector>
@@ -137,19 +137,19 @@ public:
 
 	const std::vector<ElementType>& StdVector() const;
 
-    //----------------------- Convert to std vector -------------------------------
+    //----------------------- Create a new std vector -------------------------------
 
     std::vector<ElementType> CreateStdVector() const;
 
     //---------- convert to regular vector represented by DenseMatrix ----------------//
 
-    DenseMatrix<ElementType> CreateDenseMatrixAsRowVector() const;
+    DenseMatrix<ElementType> ConvertToDenseMatrixAsRowVector() const;
 
-    void CreateDenseMatrixAsRowVector(DenseMatrix<ElementType>& OutputVector) const;
+    void ConvertToDenseMatrixAsRowVector(DenseMatrix<ElementType>& OutputVector) const;
 
-    DenseMatrix<ElementType> CreateDenseMatrixAsColVector() const;
+    DenseMatrix<ElementType> ConvertToDenseMatrixAsColVector() const;
 
-    void CreateDenseMatrixAsColVector(DenseMatrix<ElementType>& OutputVector) const;
+    void ConvertToDenseMatrixAsColVector(DenseMatrix<ElementType>& OutputVector) const;
 
     //---------------------- GetSubSet --------------------------------------
 
