@@ -1,5 +1,5 @@
-#ifndef __mdkParallelForLoop_hpp
-#define __mdkParallelForLoop_hpp
+#ifndef mdk_ParallelForLoop_hpp
+#define mdk_ParallelForLoop_hpp
 
 namespace mdk
 {

@@ -1,5 +1,5 @@
-#ifndef __mdkParallelForLoop_h
-#define __mdkParallelForLoop_h
+#ifndef mdk_ParallelForLoop_h
+#define mdk_ParallelForLoop_h
 
 #include <vector>
 #include <thread>
@@ -22,7 +22,7 @@ namespace mdk
 //	};
 //  ParallelForLoop(TempFunction, 0, L-1);
 //
-// for performance reason, no input check is done in the following functions
+// for performance reason, no input check in ParallelForLoop or ParallelBlock
 
 template<typename FunctionType>
 inline
