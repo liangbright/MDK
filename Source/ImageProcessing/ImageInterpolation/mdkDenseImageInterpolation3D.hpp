@@ -1,5 +1,5 @@
-#ifndef __mdkDenseImageInterpolation3D_hpp
-#define __mdkDenseImageInterpolation3D_hpp
+#ifndef mdk_DenseImageInterpolation3D_hpp
+#define mdk_DenseImageInterpolation3D_hpp
 
 namespace mdk
 {

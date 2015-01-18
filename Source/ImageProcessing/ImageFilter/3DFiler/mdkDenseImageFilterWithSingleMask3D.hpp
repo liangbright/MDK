@@ -1,5 +1,5 @@
-#ifndef __mdkDenseImageFilterWithSingleMask3D_hpp
-#define __mdkDenseImageFilterWithSingleMask3D_hpp
+#ifndef mdk_DenseImageFilterWithSingleMask3D_hpp
+#define mdk_DenseImageFilterWithSingleMask3D_hpp
 
 
 namespace mdk
@@ -8,7 +8,7 @@ namespace mdk
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::DenseImageFilterWithSingleMask3D()
 {
-    this->Clear();
+	this->ClearSelf();
 }
 
 
@@ -22,6 +22,13 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
 	this->ImageFilter3D::Clear();	
+	this->ClearSelf();
+}
+
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void DenseImageFilterWithSingleMask3D<InputPixelType, OutputPixelType, ScalarType>::ClearSelf()
+{
 	m_Flag_UseMaskOf3DPhysicalPosition = true;
 	m_Flag_AutoSelectMask = true;
 	m_PointMask_3DPhysicalPosition.Clear();

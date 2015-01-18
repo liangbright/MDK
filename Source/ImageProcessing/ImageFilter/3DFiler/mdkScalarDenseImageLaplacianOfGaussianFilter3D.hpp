@@ -1,5 +1,5 @@
-#ifndef __mdkScalarDenseImageLaplacianOfGaussianFilter3D_hpp
-#define __mdkScalarDenseImageLaplacianOfGaussianFilter3D_hpp
+#ifndef mdk_ScalarDenseImageLaplacianOfGaussianFilter3D_hpp
+#define mdk_ScalarDenseImageLaplacianOfGaussianFilter3D_hpp
 
 namespace mdk
 {
@@ -7,7 +7,7 @@ namespace mdk
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 ScalarDenseImageLaplacianOfGaussianFilter3D<InputPixelType, OutputPixelType, ScalarType>::ScalarDenseImageLaplacianOfGaussianFilter3D()
 {
-    this->Clear();
+    this->ClearSelf();
 }
 
 
@@ -20,7 +20,14 @@ ScalarDenseImageLaplacianOfGaussianFilter3D<InputPixelType, OutputPixelType, Sca
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void ScalarDenseImageLaplacianOfGaussianFilter3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
-    this->ScalarDenseImageConvolutionFilter3D::Clear();
+	this->ScalarDenseImageConvolutionFilter3D::Clear();
+	this->ClearSelf();
+}
+
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void ScalarDenseImageLaplacianOfGaussianFilter3D<InputPixelType, OutputPixelType, ScalarType>::ClearSelf()
+{
     m_SigmaList.Clear();
     m_RotationMatrix.Clear();
     m_CutOffRatio = 0;

@@ -1,5 +1,5 @@
-﻿#ifndef __mdkScalarDenseImageMaxPoolingFilter3D_h
-#define __mdkScalarDenseImageMaxPoolingFilter3D_h
+﻿#ifndef mdk_ScalarDenseImageMaxPoolingFilter3D_h
+#define mdk_ScalarDenseImageMaxPoolingFilter3D_h
 
 #include <algorithm>
 #include <cmath>

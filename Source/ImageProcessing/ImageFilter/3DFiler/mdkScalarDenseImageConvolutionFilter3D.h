@@ -1,5 +1,5 @@
-﻿#ifndef __mdkScalarDenseImageConvolutionFilter3D_h
-#define __mdkScalarDenseImageConvolutionFilter3D_h
+﻿#ifndef mdk_ScalarDenseImageConvolutionFilter3D_h
+#define mdk_ScalarDenseImageConvolutionFilter3D_h
 
 #include <algorithm>
 

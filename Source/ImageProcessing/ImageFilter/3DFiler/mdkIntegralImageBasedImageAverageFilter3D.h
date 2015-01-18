@@ -1,5 +1,5 @@
-﻿#ifndef MDK_IntegralImageBasedImageAverageFilter3D_h
-#define MDK_IntegralImageBasedImageAverageFilter3D_h
+﻿#ifndef mdk_IntegralImageBasedImageAverageFilter3D_h
+#define mdk_IntegralImageBasedImageAverageFilter3D_h
 
 #include <algorithm>
 #include <cmath>

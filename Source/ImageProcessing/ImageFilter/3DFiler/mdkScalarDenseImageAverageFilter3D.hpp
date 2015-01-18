@@ -1,5 +1,5 @@
-#ifndef MDK_ScalarDenseImageAverageFilter3D_hpp
-#define MDK_ScalarDenseImageAverageFilter3D_hpp
+#ifndef mdk_ScalarDenseImageAverageFilter3D_hpp
+#define mdk_ScalarDenseImageAverageFilter3D_hpp
 
 namespace mdk
 {

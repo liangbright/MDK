@@ -1120,7 +1120,7 @@ template<typename ScalarType>
 inline
 DenseVector<int_max, 3> DenseImage3D<PixelType>::Transform3DPhysicalPositionToNearest3DDiscreteIndexInsideImage(const DenseVector<ScalarType, 3>& Position) const
 {
-	return this->Transform3DPhysicalPositionToNearest3DIndexInsideImage(Position[0], Position[1], Position[2]);
+	return this->Transform3DPhysicalPositionToNearest3DDiscreteIndexInsideImage(Position[0], Position[1], Position[2]);
 }
 
 

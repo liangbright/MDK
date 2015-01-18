@@ -1,5 +1,5 @@
-#ifndef __mdkScalarDenseImageToVectorDenseImageConvolutionFilter3D_hpp
-#define __mdkScalarDenseImageToVectorDenseImageConvolutionFilter3D_hpp
+#ifndef mdk_ScalarDenseImageToVectorDenseImageConvolutionFilter3D_hpp
+#define mdk_ScalarDenseImageToVectorDenseImageConvolutionFilter3D_hpp
 
 
 namespace mdk

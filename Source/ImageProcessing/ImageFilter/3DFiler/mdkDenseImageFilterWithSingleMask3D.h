@@ -1,5 +1,5 @@
-﻿#ifndef __mdkDenseImageFilterWithSingleMask3D_h
-#define __mdkDenseImageFilterWithSingleMask3D_h
+﻿#ifndef mdk_DenseImageFilterWithSingleMask3D_h
+#define mdk_DenseImageFilterWithSingleMask3D_h
 
 #include <algorithm>
 
@@ -43,6 +43,9 @@ protected:
 
 public:
     virtual void Clear(); // must be virtual
+
+private:
+	void ClearSelf();
 
 protected:
 	void SelectMaskOf3DIndex();

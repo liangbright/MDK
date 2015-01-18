@@ -1,5 +1,5 @@
-﻿#ifndef __mdkScalarDenseImageIsotropicLaplacianOfGaussianFilter3D_h
-#define __mdkScalarDenseImageIsotropicLaplacianOfGaussianFilter3D_h
+﻿#ifndef mdk_ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D_h
+#define mdk_ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D_h
 
 #include <algorithm>
 #include <cmath>

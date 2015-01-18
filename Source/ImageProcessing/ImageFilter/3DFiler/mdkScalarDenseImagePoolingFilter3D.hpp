@@ -1,5 +1,5 @@
-#ifndef __mdkScalarDenseImagePoolingFilter3D_hpp
-#define __mdkScalarDenseImagePoolingFilter3D_hpp
+#ifndef mdk_ScalarDenseImagePoolingFilter3D_hpp
+#define mdk_ScalarDenseImagePoolingFilter3D_hpp
 
 namespace mdk
 {

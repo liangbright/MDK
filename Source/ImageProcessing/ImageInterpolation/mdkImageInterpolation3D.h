@@ -1,5 +1,5 @@
-#ifndef __mdkImageInterpolation3D_h
-#define __mdkImageInterpolation3D_h
+#ifndef mdk_ImageInterpolation3D_h
+#define mdk_ImageInterpolation3D_h
 
 #include <cmath>
 

@@ -41,6 +41,7 @@ private:
 	bool CheckInput();
     void BuildMask_3DIndex();
 	void BuildMask_3DPhysicalPosition();
+	void ClearSelf();
 
 private:
     ScalarDenseImageGaussianFilter3D(const ScalarDenseImageGaussianFilter3D&) = delete;

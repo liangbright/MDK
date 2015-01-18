@@ -1,5 +1,5 @@
-﻿#ifndef __mdkDenseImageFilterWithMultiMask3D_h
-#define __mdkDenseImageFilterWithMultiMask3D_h
+﻿#ifndef mdk_DenseImageFilterWithMultiMask3D_h
+#define mdk_DenseImageFilterWithMultiMask3D_h
 
 #include "mdkImageFilter3D.h"
 #include "mdkDenseImage3D.h"

@@ -1,5 +1,5 @@
-#ifndef MDK_ImageFilter3D_h
-#define MDK_ImageFilter3D_h
+#ifndef mdk_ImageFilter3D_h
+#define mdk_ImageFilter3D_h
 
 #include "mdkParallelForLoop.h"
 #include "mdkObjectArray.h"

@@ -1,5 +1,5 @@
-#ifndef __mdkScalarDenseImageGradientFilter3D_hpp
-#define __mdkScalarDenseImageGradientFilter3D_hpp
+#ifndef mdk_ScalarDenseImageGradientFilter3D_hpp
+#define mdk_ScalarDenseImageGradientFilter3D_hpp
 
 namespace mdk
 {
@@ -7,7 +7,7 @@ namespace mdk
 template<typename InputPixelType, typename ScalarType>
 ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::ScalarDenseImageGradientFilter3D()
 {
-    this->Clear();
+    this->ClearSelf();
 }
 
 
@@ -21,6 +21,13 @@ template<typename InputPixelType, typename ScalarType>
 void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::Clear()
 {
 	this->ImageFilter3D::Clear();
+	this->ClearSelf();
+}
+
+
+template<typename InputPixelType, typename ScalarType>
+void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::Clear()
+{
 	m_Radius = 0;
 	m_AngleResolution = 0;
 	m_Flag_MaskOriginLocation = 0;

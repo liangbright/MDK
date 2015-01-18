@@ -1,5 +1,5 @@
-#ifndef __mdkScalarDenseImageIsotropicLaplacianOfGaussianFilter3D_hpp
-#define __mdkScalarDenseImageIsotropicLaplacianOfGaussianFilter3D_hpp
+#ifndef mdk_ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D_hpp
+#define mdk_ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D_hpp
 
 namespace mdk
 {

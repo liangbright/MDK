@@ -1,5 +1,5 @@
-﻿#ifndef __mdkScalarDenseImageToVectorDenseImageConvolutionFilter3D_h
-#define __mdkScalarDenseImageToVectorDenseImageConvolutionFilter3D_h
+﻿#ifndef mdk_ScalarDenseImageToVectorDenseImageConvolutionFilter3D_h
+#define mdk_ScalarDenseImageToVectorDenseImageConvolutionFilter3D_h
 
 #include <algorithm>
 
@@ -42,10 +42,6 @@ public:
 
 private:
     inline void OutputFunction(int_max OutputPixelIndex, const OutputPixelType& OutputPixel, int_max ThreadIndex);
-
-protected:
-	virtual ClearProcessOutput();
-	virtual UpdateProcessOutputPort();
 
 private:
     ScalarDenseImageToVectorDenseImageConvolutionFilter3D(const ScalarDenseImageToVectorDenseImageConvolutionFilter3D&) = delete;

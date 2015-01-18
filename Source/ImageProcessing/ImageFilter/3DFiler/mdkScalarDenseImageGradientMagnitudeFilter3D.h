@@ -1,5 +1,5 @@
-﻿#ifndef __mdkScalarDenseImageGradientMagnitudeFilter3D_h
-#define __mdkScalarDenseImageGradientMagnitudeFilter3D_h
+﻿#ifndef mdk_ScalarDenseImageGradientMagnitudeFilter3D_h
+#define mdk_ScalarDenseImageGradientMagnitudeFilter3D_h
 
 #include <algorithm>
 #include <cmath>
@@ -57,6 +57,7 @@ public:
 	inline OutputPixelType EvaluateAt3DPhysicalPosition(ScalarType x0, ScalarType y0, ScalarType z0);
 
 private:
+	void ClearSelf();
 	bool CheckInput();
 	bool Preprocess();
     void BuildMask();

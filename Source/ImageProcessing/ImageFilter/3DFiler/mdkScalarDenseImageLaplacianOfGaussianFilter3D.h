@@ -1,5 +1,5 @@
-﻿#ifndef __mdkScalarDenseImageLaplacianOfGaussianFilter3D_h
-#define __mdkScalarDenseImageLaplacianOfGaussianFilter3D_h
+﻿#ifndef mdk_ScalarDenseImageLaplacianOfGaussianFilter3D_h
+#define mdk_ScalarDenseImageLaplacianOfGaussianFilter3D_h
 
 #include <algorithm>
 #include <cmath>
@@ -34,6 +34,7 @@ public:
     virtual void Clear();
 
 private:
+	void ClearSelf();
 	bool CheckInput();
 	bool Preprocess();
     void BuildMask_3DIndex();
