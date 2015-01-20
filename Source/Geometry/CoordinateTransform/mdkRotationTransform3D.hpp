@@ -1,5 +1,5 @@
-#ifndef __mdkRotationTransform3D_hpp
-#define __mdkRotationTransform3D_hpp
+#ifndef mdk_RotationTransform3D_hpp
+#define mdk_RotationTransform3D_hpp
 
 namespace mdk
 {
@@ -44,7 +44,7 @@ void RotationTransform3D<ScalarType>::SetRotationMatrixByAngle(const DenseVector
 template<typename ScalarType>
 void RotationTransform3D<ScalarType>::SetRotationMatrixByAngle(ScalarType AngleX, ScalarType AngleY, ScalarType AngleZ)
 {
-	m_Rotation = this->ComputeRotationMatrixByAngle(AngleX, AngleY, AngleZ)
+	m_Rotation = this->ComputeRotationMatrixByAngleXYZ(AngleX, AngleY, AngleZ)
 }
 
 
@@ -154,12 +154,12 @@ DenseVector<ScalarType, 3> RotationTransform3D<ScalarType>::TransformPoint(Scala
 	auto temp_y = y - m_RotationCenter[1];
 	auto temp_z = z - m_RotationCenter[2];
 	
-	auto Ptr = m_Rotation.GetElementPointer();
+	auto P = m_Rotation.GetElementPointer();
 
 	DenseVector<ScalarType, 3> NewPosition;
-	NewPosition[0] = m_RotationCenter[0] + Ptr[0] * temp_x + Ptr[3] * temp_y + Ptr[6] * temp_z;
-	NewPosition[1] = m_RotationCenter[1] + Ptr[1] * temp_x + Ptr[4] * temp_y + Ptr[7] * temp_z;
-	NewPosition[2] = m_RotationCenter[2] + Ptr[2] * temp_x + Ptr[5] * temp_y + Ptr[8] * temp_z;
+	NewPosition[0] = m_RotationCenter[0] + P[0] * temp_x + P[3] * temp_y + P[6] * temp_z;
+	NewPosition[1] = m_RotationCenter[1] + P[1] * temp_x + P[4] * temp_y + P[7] * temp_z;
+	NewPosition[2] = m_RotationCenter[2] + P[2] * temp_x + P[5] * temp_y + P[8] * temp_z;
 	return NewPosition;
 }
 
@@ -259,12 +259,12 @@ DenseVector<ScalarType, 3> RotationTransform3D<ScalarType>::RotatePoint(const De
 	auto y = PointPosition[1] - RotationCenter[1];
 	auto z = PointPosition[2] - RotationCenter[2];
 
-	auto Ptr = RotationMatrix.GetElementPointer();
+	auto P = RotationMatrix.GetElementPointer();
 
 	DenseVector<ScalarType, 3> NewPosition;
-	NewPosition[0] = RotationCenter[0] + Ptr[0] * x + Ptr[3] * y + Ptr[6] * z;
-	NewPosition[1] = RotationCenter[1] + Ptr[1] * x + Ptr[4] * y + Ptr[7] * z;
-	NewPosition[2] = RotationCenter[2] + Ptr[2] * x + Ptr[5] * y + Ptr[8] * z;
+	NewPosition[0] = RotationCenter[0] + P[0] * x + P[3] * y + P[6] * z;
+	NewPosition[1] = RotationCenter[1] + P[1] * x + P[4] * y + P[7] * z;
+	NewPosition[2] = RotationCenter[2] + P[2] * x + P[5] * y + P[8] * z;
 	return NewPosition;
 }
 
@@ -277,12 +277,12 @@ DenseVector<ScalarType, 3> RotationTransform3D<ScalarType>::RotatePoint(const De
 	const auto& y = PointPosition[1];
 	const auto& z = PointPosition[2];
 
-	auto Ptr = RotationMatrix.GetElementPointer();
+	auto P = RotationMatrix.GetElementPointer();
 
 	DenseVector<ScalarType, 3> NewPosition;
-	NewPosition[0] = Ptr[0] * x + Ptr[3] * y + Ptr[6] * z;
-	NewPosition[1] = Ptr[1] * x + Ptr[4] * y + Ptr[7] * z;
-	NewPosition[2] = Ptr[2] * x + Ptr[5] * y + Ptr[8] * z;
+	NewPosition[0] = P[0] * x + P[3] * y + P[6] * z;
+	NewPosition[1] = P[1] * x + P[4] * y + P[7] * z;
+	NewPosition[2] = P[2] * x + P[5] * y + P[8] * z;
 	return NewPosition;
 }
 

@@ -1,5 +1,5 @@
-#ifndef __mdkLocalCoordinateSystem3D_h
-#define __mdkLocalCoordinateSystem3D_h
+#ifndef mdk_LocalCoordinateSystem3D_h
+#define mdk_LocalCoordinateSystem3D_h
 
 namespace mdk
 {
@@ -53,6 +53,7 @@ struct LocalCoordinateSystem3D
 		DirectionX = InputSys.DirectionX;
 		DirectionY = InputSys.DirectionY;
 		DirectionZ = InputSys.DirectionZ;
+		Spacing = InputSys.Spacing;
 	}
 
 	void Clear()

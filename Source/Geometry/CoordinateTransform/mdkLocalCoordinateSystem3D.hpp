@@ -1,5 +1,5 @@
-#ifndef __mdkLocalCoordinateSystem3D_hpp
-#define __mdkLocalCoordinateSystem3D_hpp
+#ifndef mdk_LocalCoordinateSystem3D_hpp
+#define mdk_LocalCoordinateSystem3D_hpp
 
 namespace mdk
 {

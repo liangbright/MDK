@@ -1,5 +1,5 @@
-#ifndef __mdkThinPlateSplineTransform3D_h
-#define __mdkThinPlateSplineTransform3D_h
+#ifndef mdk_ThinPlateSplineTransform3D_h
+#define mdk_ThinPlateSplineTransform3D_h
 
 #include "mdkCoordinateTransform3D.h"
 #include "mdkDenseMatrix.h"
@@ -7,7 +7,7 @@
 namespace mdk
 {
 // reference MDK_Document
-//	Thin-Plate Spline Transformation.doc and TPS3D.m
+// Thin-Plate Spline Transformation.doc and TPS3D.m
 // "A physics based coordinate transform for 3D image match" at TMI 1997
 
 // TargetPoint = TPSTransform(SourcePoint)
@@ -20,7 +20,7 @@ public:
 	typedef Scalar_Type ScalarType;
 
 private:
-	// m_SourceControlPointSet must be valid during EstimateParameterFromControlPointSet() and TransformPoint()
+	// m_SourceControlPointSet must be valid during EstimateParameter() and TransformPoint()
 	const DenseMatrix<ScalarType>* m_SourceControlPointSet; // 3 x N
 
 	// m_TargetControlPointSet must be valid during EstimateParameter()
@@ -42,6 +42,7 @@ public:
 	const DenseMatrix<ScalarType>& GetParameter() const;
 
 	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
+	using CoordinateTransform3D::TransformPoint;
 
 private:
 	ThinPlateSplineTransform3D(const ThinPlateSplineTransform3D&) = delete;

@@ -1,7 +1,8 @@
-#ifndef __mdkCoordinateTransform3D_h
-#define __mdkCoordinateTransform3D_h
+#ifndef mdk_CoordinateTransform3D_h
+#define mdk_CoordinateTransform3D_h
 
 #include "mdkObject.h"
+#include "mdkDenseMatrix.h"
 
 namespace mdk
 {

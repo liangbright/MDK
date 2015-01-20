@@ -4,10 +4,10 @@
 #include <tuple>
 #include <utility>
 
-#include "mdkType.h"
+#include "mdkCommonType.h"
 #include "mdkDebugConfig.h"
 #include "mdkMatrix_Common.h"
-#include "mdkJsonFile.h"
+#include "mdkFileIO.h"
 
 namespace mdk
 {

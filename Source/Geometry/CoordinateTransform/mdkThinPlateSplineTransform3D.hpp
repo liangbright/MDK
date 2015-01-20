@@ -1,5 +1,5 @@
-#ifndef __mdkThinPlateSplineTransform3D_hpp
-#define __mdkThinPlateSplineTransform3D_hpp
+#ifndef mdk_ThinPlateSplineTransform3D_hpp
+#define mdk_ThinPlateSplineTransform3D_hpp
 
 namespace mdk
 {

@@ -1,9 +1,8 @@
-#ifndef __mdkRotationTransform3D_h
-#define __mdkRotationTransform3D_h
+#ifndef mdk_RotationTransform3D_h
+#define mdk_RotationTransform3D_h
 
 #include "mdkCoordinateTransform3D.h"
 #include "mdkDenseMatrix.h"
-#include "mdkLinearLeastSquaresProblemSolver.h"
 
 namespace mdk
 {
@@ -47,7 +46,7 @@ public:
 
 	void SetSourceControlPointSet(const DenseMatrix<ScalarType>* SourcePointSet);
 	void SetTargetControlPointSet(const DenseMatrix<ScalarType>* TargetPointSet);
-	void EstimateParameter(); // using ControlPointSet
+	void EstimateParameter();
 
 	void SetRotationMatrixByAngle(const DenseVector<ScalarType, 3>& AngleList);
 	void SetRotationMatrixByAngle(ScalarType AngleX, ScalarType AngleY, ScalarType AngleZ);
@@ -59,6 +58,7 @@ public:
 	DenseVector<ScalarType, 3> GetRotationCenter() const;
 
 	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
+	using CoordinateTransform3D::TransformPoint;
 
 private:
 	bool CheckControlPointSet();

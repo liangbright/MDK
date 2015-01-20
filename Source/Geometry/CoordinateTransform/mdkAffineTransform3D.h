@@ -1,9 +1,8 @@
-#ifndef __mdkAffineTransform3D_h
-#define __mdkAffineTransform3D_h
+#ifndef mdk_AffineTransform3D_h
+#define mdk_AffineTransform3D_h
 
 #include "mdkCoordinateTransform3D.h"
 #include "mdkDenseMatrix.h"
-#include "mdkLinearLeastSquaresProblemSolver.h"
 
 namespace mdk
 {
@@ -18,27 +17,20 @@ namespace mdk
 //                          c1 c2 c3 c0
 //                          0   0  0  1];
 //
-// Parameter = [a0, b0, c0 
-//              a1, b1, c1
-//              a2, b2, c2
-//              a3, b3, c3]
+// Parameter = [a1 a2 a3 a0
+//              b1 b2 b3 b0
+//              c1 c2 c3 c0];  3x4
 //
-//  Data = [1 x_1 y_1 z_1
-//          1 x_2 y_2 z_2
-//          .............
-//          1 x_N y_N z_N];
+// SourceData = [x_1 x_2 ... x_N
+//               y_1 y_2 ... y_N
+//               z_1 z_2 ... z_N
+//               1   1   ... 1]; 4xN
 //
-//  Data_new=[XData YData ZData];
-//  XData=[x_1_new, x_2_new, ..., x_N_new ]'   (col vector)
-//  YData=[y_1_new, y_2_new, ..., t_N_new ]'   (col vector)
-//  ZData=[z_1_new, z_2_new, ..., z_N_new ]'   (col vector)
+// TargetData = Parameter * SourceData;
+// TargetData = [XData; YData; ZData];  3xN
 //
-//  [XData, YData, ZData] = Data * Parameter;
-//  XData=Data*Parameter(:, 1)
-//  YData=Data*Parameter(:, 2)
-//  ZData=Data*Parameter(:, 3)
-//
-//  Parameter = pinv(Data)*Data_new;
+// Parameter = TargetData*pinv(SourceData); SourceData has full row rank => pinv(SourceData) is right inverse
+//------------------------------------------------------------------------------------------------------------
 
 // ScalarType is float or double
 template<typename Scalar_Type>
@@ -52,7 +44,7 @@ private:
 	const DenseMatrix<ScalarType>* m_SourceControlPointSet; // 3 x N
 	const DenseMatrix<ScalarType>* m_TargetControlPointSet; // 3 x N
 
-	DenseMatrix<ScalarType> m_Parameter;  // 4 x 3
+	DenseMatrix<ScalarType> m_Parameter;  // 3 x 4
 
 public:
 	AffineTransform3D();
@@ -68,6 +60,8 @@ public:
 	DenseMatrix<ScalarType> GetTransformationMatrix() const;
 
 	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
+
+	using CoordinateTransform3D::TransformPoint;
 
 private:
 	bool CheckInput();
