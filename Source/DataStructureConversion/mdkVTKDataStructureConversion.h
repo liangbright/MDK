@@ -66,7 +66,7 @@ typedef enum
 inline VTKDataTypeEnum TranslateMDKScalarTypeToVTKScalarType(const String& MDKScalarType);
 
 template<typename ScalarType>
-VTKDataTypeEnum GetVTkScalarType(const ScalarType& ReferenceScalar);
+VTKDataTypeEnum GetVTKScalarType(const ScalarType& ReferenceScalar);
 
 //-------------------------------------- convert mdk Curve/Matrix to vtkPolyData ----------------------------------------------------------//
 template<typename ScalarType>

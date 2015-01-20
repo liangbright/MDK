@@ -10,6 +10,7 @@
 #include "mdkDenseImage3D.h"
 #include "mdkDenseImage3D_FileIO.h"
 #include "mdkCurve_FileIO.h"
+#include "mdkVTKDataStructureConversion.h"
 
 namespace mdk
 {
@@ -160,8 +161,8 @@ void testB()
 void Test_Image3D()
 {// use Image3D and virtual function
 
-	DenseImage3D<int> ScalarImage;
-	ScalarImage.SetSize(1000, 1000, 1000);
+	DenseImage3D<double> ScalarImage;
+	ScalarImage.SetSize(512, 512, 512);
 	ScalarImage.SetSpacing(1, 1, 1);
 
 	//Image3D<int>* Ptr = &ScalarImage;
@@ -187,6 +188,94 @@ void Test_Image3D()
 
 	BoxRegionOf3DPhysicalPositionInImage3D Region;
 	ScalarImage.GetSubImage(Region);
+}
+
+void Test_DenseMatrixOperator()
+{
+	DenseMatrix<double> TempMatrix;
+	TempMatrix.Resize(512 * 512 * 512, 1);
+
+	auto Ptr_TempMatrix = TempMatrix.GetPointer();
+
+	auto t0 = std::chrono::system_clock::now();
+	for (int n = 1; n < 100; ++n)
+	{
+		for (int_max k = 0; k < TempMatrix.GetElementNumber(); ++k)
+		{
+			//TempMatrix[k] = 10 * TempMatrix[k] + 1;
+			Ptr_TempMatrix[k] = 10 * Ptr_TempMatrix[k] + 1;
+		}
+	}
+	auto t1 = std::chrono::system_clock::now();
+
+	std::chrono::duration<double> raw_time = t1 - t0;
+	std::cout << "Test_DenseMatrixOperator time " << raw_time.count() << '\n';
+
+	//TempArray[k] 
+	// this is no big differentce between : (*m_MatrixData)[k] or m_ElementPointer[k]
+	// m_ElementPointer=m_MatrixData->ElementPointer;
+
+	// use TempMatrix[k]: 16.827, 17.856 
+	// use Ptr_TempMatrix[k]: 16.37 s
+}
+
+
+void Test_ObjectArrayOperator()
+{
+	ObjectArray<double> TempArray;
+	TempArray.Resize(512 * 512 * 512);
+
+	auto Ptr_TempArray = TempArray.GetPointer();
+
+	auto t0 = std::chrono::system_clock::now();
+	for (int n = 1; n < 10; ++n)
+	{
+		for (int_max k = 0; k < TempArray.GetElementNumber(); ++k)
+		{
+			//TempArray[k] = 10 * TempArray[k] + 1;
+			Ptr_TempArray[k] = 10 * Ptr_TempArray[k] + 1;
+		}
+	}
+	auto t1 = std::chrono::system_clock::now();
+
+	std::chrono::duration<double> raw_time = t1 - t0;
+	std::cout << "Test_ObjectArrayOperator time " << raw_time.count() << '\n';
+
+	//TempArray[k] 
+	// this is no differentce between : (*m_Data)[k] or m_ElementPointer[k]
+	// m_ElementPointer=m_Data->ElementPointer;
+
+	// use TempArray[k]: 1.51s
+	// use Ptr_TempArray[k]: 1.1544 s
+}
+
+
+void Test_ImageOperator()
+{
+	DenseImage3D<double> ScalarImage;
+	ScalarImage.SetSize(512, 512, 512);
+	ScalarImage.SetSpacing(1, 1, 1);
+
+	auto Ptr_ScalarImage = ScalarImage.GetPixelPointer();
+
+	auto t0 = std::chrono::system_clock::now();
+	for (int n = 1; n < 10; ++n)
+	{
+		for (int_max k = 0; k < ScalarImage.GetPixelNumber(); ++k)
+		{
+			//ScalarImage[k] = 10 * ScalarImage[k] + 1;
+			Ptr_ScalarImage[k] = 10 * Ptr_ScalarImage[k] + 1;
+		}
+	}
+	auto t1 = std::chrono::system_clock::now();
+
+	std::chrono::duration<double> raw_time = t1 - t0;
+	std::cout << " time " << raw_time.count() << '\n';
+
+	//ScalarImage[k] is (*m_ImageData)[k]
+
+	// use ScalarImage[k]: 1.90s
+	// use Ptr_ScalarImage[k]: 1.4508 s
 }
 
 }

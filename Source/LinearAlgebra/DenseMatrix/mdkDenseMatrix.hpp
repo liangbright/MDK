@@ -1,5 +1,5 @@
-#ifndef __mdkDenseMatrix_hpp
-#define __mdkDenseMatrix_hpp
+#ifndef mdk_DenseMatrix_hpp
+#define mdk_DenseMatrix_hpp
 
 namespace mdk
 {
@@ -821,7 +821,7 @@ bool DenseMatrix<ElementType>::Share(DenseMatrix<ElementType>& InputMatrix)
     // Matrix = Matrix
     if (this == &InputMatrix)
     {
-        MDK_Warning("A Matrix tries to Share itself @ DenseMatrix::Share(InputMatrix)")
+        MDK_Warning("A Matrix try to Share itself @ DenseMatrix::Share(InputMatrix)")
         return true;
     }
 
@@ -884,20 +884,19 @@ void DenseMatrix<ElementType>::ForceShare(const DenseMatrix<ElementType>& InputM
     // Matrix = Matrix
     if (this == &InputMatrix)
     {
-        MDK_Warning("A Matrix tries to ForceShare itself @ DenseMatrix::ForceShare(InputMatrix)")
+        MDK_Warning("A Matrix try to ForceShare itself @ DenseMatrix::ForceShare(InputMatrix)")
         return;
     }
 
+	if (InputMatrix.IsPureEmpty() == true)
+	{
+		MDK_Error("InputMatrix is pure empty (m_MatrixData is empty) @ DenseMatrix::ForceShare(InputMatrix)")
+		return;
+	}
+
     m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment check is not necessary
 
-    if (!m_MatrixData)
-    {
-        m_ElementPointer = nullptr;
-    }
-    else
-    {
-        m_ElementPointer = m_MatrixData->ElementPointer;
-    }
+	m_ElementPointer = m_MatrixData->ElementPointer;
 }
 
 
@@ -1313,7 +1312,7 @@ void DenseMatrix<ElementType>::Swap(DenseMatrix<ElementType>& InputMatrix)
     else
     {
         m_ElementPointer = nullptr;
-        //MDK_Warning("m_MatrixData is empty after SwapSmartPointer @ DenseMatrix::Swap(InputMatrix)")
+        //MDK_Warning("m_MatrixData is empty after Swap SmartPointer @ DenseMatrix::Swap(InputMatrix)")
     }
 
     if (InputMatrix.m_MatrixData)
@@ -1767,10 +1766,20 @@ bool DenseMatrix<ElementType>::ReserveCapacity(int_max InputElementNumber)
         this->Resize(0, 0);
     }
 
+	auto Self_ElementNumber = this->GetElementNumber();
+
+	if (this->IsSizeFixed() == true)
+	{
+		if (Self_ElementNumber != InputElementNumber)
+		{
+			MDK_Error("Can not change size @ DenseMatrix::ReserveCapacity(...)")
+			return false;
+		}
+		return true;
+	}
+
 try
 {
-    auto Self_ElementNumber = this->GetElementNumber();
-
     if (InputElementNumber > Self_ElementNumber)
     {
         m_MatrixData->CopyDataToInternalArrayIfNecessary();
@@ -1897,13 +1906,11 @@ MatrixSize DenseMatrix<ElementType>::GetSize() const
     if (!m_MatrixData)
     {
         Size.RowNumber = 0;
-
         Size.ColNumber = 0;
     }
     else
     {
         Size.RowNumber = m_MatrixData->RowNumber;
-
         Size.ColNumber = m_MatrixData->ColNumber;
     }
 
@@ -1953,6 +1960,21 @@ int_max DenseMatrix<ElementType>::GetRowNumber() const
     {
         return m_MatrixData->RowNumber;
     }
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::IsScalar() const
+{
+	if (!m_MatrixData)
+	{
+		return false;
+	}
+	else
+	{
+		return (m_MatrixData->RowNumber == 1 && m_MatrixData->ColNumber == 1);
+	}
 }
 
 
@@ -2027,7 +2049,7 @@ bool DenseMatrix<ElementType>::IsIdentityMatrix(ElementType Threshold) const
 
     auto Value_sum = this->Sum();
 
-    if (std::abs(Value_sum - SelfSize.RowNumber) > Threshold)
+	if (std::abs(Value_sum - ElementType(SelfSize.RowNumber)) > Threshold)
     {
         return false;
     }
@@ -2244,7 +2266,7 @@ ElementType& DenseMatrix<ElementType>::operator[](int_max LinearIndex)
 
     return m_ElementPointer[LinearIndex]; 
 
-    // return (*m_MatrixData)[LinearIndex]; this is ~26% slower
+    // return (*m_MatrixData)[LinearIndex]; // ~6% slower
 }
 
 

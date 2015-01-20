@@ -42,7 +42,7 @@ namespace mdk
 
 //-----------------------------------------------------
 #if defined MDK_DEBUG_MODE
-	#define MDK_DEBUG_3DDenseImage_Operator_CheckBound
+	#define MDK_DEBUG_DenseImage3D_Operator_CheckBound
 #endif
 //------------------------------------------------------
 

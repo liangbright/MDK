@@ -9,5 +9,8 @@ int main()
 	//testA();
 	//testB();
 	//Test_Image3D();
-	testCurve();
+	//testCurve();
+	//Test_DenseMatrixOperator();
+	//Test_ObjectArrayOperator();
+	Test_ImageOperator();
 }

@@ -2,11 +2,11 @@
 #define mdk_StdObjectVector_h
 
 #include <vector>
-#include <string>
 #include <memory>
 
 #include "mdkObject.h"
 #include "mdkDenseVector_ForwardDeclare.h"
+#include "mdkString.h"
 
 namespace mdk
 {
@@ -227,7 +227,7 @@ public:
 
 	inline StdObjectVector<int_max> ExactMatch(const ElementType& InputElement) const;
 
-	inline int_max ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const;
+	inline int_max ExactMatch(const String& first_or_last, const ElementType& InputElement) const;
 
     //--------------------- sort ---------------------------------------//
 

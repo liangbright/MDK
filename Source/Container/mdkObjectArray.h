@@ -2,13 +2,13 @@
 #define mdk_ObjectArray_h
 
 #include <vector>
-#include <string>
 #include <memory>
 
 #include "mdkCommonType.h"
 #include "mdkConstant.h"
 #include "mdkObject.h"
 #include "mdkDenseVector_ForwardDeclare.h"
+#include "mdkString.h"
 
 namespace mdk
 {
@@ -364,7 +364,7 @@ public:
 
 	inline ObjectArray<int_max> ExactMatch(const ElementType& InputElement) const;
 
-	inline int_max ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const;
+	inline int_max ExactMatch(const String& first_or_last, const ElementType& InputElement) const;
 
     //--------------------- sort ---------------------------------------//
 
@@ -376,7 +376,7 @@ public:
 
 	inline ObjectArray<int_max> Sort(const char* Order);
 	// Order: ascend or descend
-	inline ObjectArray<int_max> Sort(const std::string& Order);
+	inline ObjectArray<int_max> Sort(const String& Order);
 
     template<typename CompareFunctionType>
     inline void SortInPlace(CompareFunctionType CompareFunction);
@@ -386,7 +386,7 @@ public:
 
 	inline void SortInPlace(const char* Order);
 	// Order: ascend or descend
-	inline void SortInPlace(const std::string& Order);
+	inline void SortInPlace(const String& Order);
 
 
 private:

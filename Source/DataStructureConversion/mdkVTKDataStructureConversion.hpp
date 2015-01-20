@@ -54,7 +54,7 @@ inline VTKDataTypeEnum TranslateMDKScalarTypeToVTKScalarType(const String& MDKSc
 }
 
 template<typename ScalarType>
-VTKDataTypeEnum GetVTkScalarType(const ScalarType& ReferenceScalar)
+VTKDataTypeEnum GetVTKScalarType(const ScalarType& ReferenceScalar)
 {
 	auto Name = GetScalarTypeName(ReferenceScalar);
 	return TranslateMDKScalarTypeToVTKScalarType(Name);
@@ -94,7 +94,7 @@ bool ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCu
 		return false;
 	}
 
-	auto VtkDataType = GetVTkScalarType(ScalarType(0));
+	auto VtkDataType = GetVTKScalarType(ScalarType(0));
 
 	auto PointSet = vtkSmartPointer<vtkPoints>::New();
 	PointSet->SetDataType(VtkDataType);

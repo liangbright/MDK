@@ -1588,7 +1588,7 @@ ObjectArray<int_max> ObjectArray<ElementType>::ExactMatch(const ElementType& Inp
 
 template<typename ElementType>
 inline
-int_max ObjectArray<ElementType>::ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const
+int_max ObjectArray<ElementType>::ExactMatch(const String& first_or_last, const ElementType& InputElement) const
 {
 	return this->Find(first_or_last, [&](const ElementType& Element){return Element == InputElement; });
 }
@@ -1654,14 +1654,14 @@ template<typename ElementType>
 inline
 ObjectArray<int_max> ObjectArray<ElementType>::Sort(const char* Order)
 {
-	std::string Order_str(Order);
+	String Order_str(Order);
 	return this->Sort(Order_str);
 }
 
 
 template<typename ElementType>
 inline
-ObjectArray<int_max> ObjectArray<ElementType>::Sort(const std::string& Order)
+ObjectArray<int_max> ObjectArray<ElementType>::Sort(const String& Order)
 {
 	// Order: ascend or descend
 
@@ -1714,14 +1714,14 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::SortInPlace(const char* Order)
 {
-	std::string Order_str(Order);
+	String Order_str(Order);
 	this->SortInPlace(Order_str);
 }
 
 
 template<typename ElementType>
 inline
-void ObjectArray<ElementType>::SortInPlace(const std::string& Order)
+void ObjectArray<ElementType>::SortInPlace(const String& Order)
 {
 	// Order: ascend or descend
 

@@ -1061,7 +1061,7 @@ StdObjectVector<int_max> StdObjectVector<ElementType>::ExactMatch(const ElementT
 
 template<typename ElementType>
 inline
-int_max StdObjectVector<ElementType>::ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const
+int_max StdObjectVector<ElementType>::ExactMatch(const String& first_or_last, const ElementType& InputElement) const
 {
 	return this->Find(first_or_last, [&](const ElementType& Element){return Element == InputElement; });
 }

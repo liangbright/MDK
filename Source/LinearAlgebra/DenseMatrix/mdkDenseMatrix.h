@@ -1,5 +1,5 @@
-﻿#ifndef __mdkDenseMatrix_h
-#define __mdkDenseMatrix_h
+﻿#ifndef mdk_DenseMatrix_h
+#define mdk_DenseMatrix_h
 
 #include <vector>
 #include <memory>
@@ -428,6 +428,8 @@ public:
 	inline int_max GetColNumber() const;
 
 	inline int_max GetRowNumber() const;
+
+	inline bool IsScalar() const; // 1 by 1 matrix
 
     inline bool IsVector() const;
 

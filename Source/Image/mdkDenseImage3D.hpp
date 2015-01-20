@@ -1260,7 +1260,7 @@ template<typename PixelType>
 inline
 PixelType& DenseImage3D<PixelType>::operator[](int_max LinearIndex)
 {
-#if defined MDK_DEBUG_3DDenseImage_Operator_CheckBound
+#if defined MDK_DEBUG_DenseImage3D_Operator_CheckBound
 
     auto PixelNumber = this->GetPixelNumber();
     if (LinearIndex >= PixelNumber || LinearIndex < 0)
@@ -1269,7 +1269,7 @@ PixelType& DenseImage3D<PixelType>::operator[](int_max LinearIndex)
         return m_ImageData->m_Pixel_OutsideImage;
     }
 
-#endif //MDK_DEBUG_3DDenseImage_Operator_CheckBound
+#endif //MDK_DEBUG_DenseImage3D_Operator_CheckBound
 
 	return (*m_ImageData)[LinearIndex];
 }
@@ -1279,7 +1279,7 @@ template<typename PixelType>
 inline
 const PixelType& DenseImage3D<PixelType>::operator[](int_max LinearIndex) const
 {
-#if defined MDK_DEBUG_3DDenseImage_Operator_CheckBound
+#if defined MDK_DEBUG_DenseImage3D_Operator_CheckBound
 
     auto PixelNumber = this->GetPixelNumber();
     if (LinearIndex >= PixelNumber || LinearIndex < 0)
@@ -1288,7 +1288,7 @@ const PixelType& DenseImage3D<PixelType>::operator[](int_max LinearIndex) const
         return m_ImageData->m_Pixel_OutsideImage;
     }
 
-#endif //MDK_DEBUG_3DDenseImage_Operator_CheckBound
+#endif //MDK_DEBUG_DenseImage3D_Operator_CheckBound
 
 	return (*m_ImageData)[LinearIndex];
 }
@@ -1314,7 +1314,7 @@ template<typename PixelType>
 inline
 PixelType& DenseImage3D<PixelType>::operator()(int_max xIndex, int_max yIndex, int_max zIndex)
 {
-#if defined MDK_DEBUG_3DDenseImage_Operator_CheckBound
+#if defined MDK_DEBUG_DenseImage3D_Operator_CheckBound
 
     auto Size = this->GetSize();
 	if (xIndex >= Size[0] || xIndex < 0 || yIndex >= Size[1] || yIndex < 0 || zIndex >= Size[2] || zIndex < 0)
@@ -1323,7 +1323,7 @@ PixelType& DenseImage3D<PixelType>::operator()(int_max xIndex, int_max yIndex, i
 		return m_ImageData->m_Pixel_OutsideImage;
 	}
 
-#endif //MDK_DEBUG_3DDenseImage_Operator_CheckBound
+#endif //MDK_DEBUG_DenseImage3D_Operator_CheckBound
 	
     return (*m_ImageData)(xIndex, yIndex, zIndex);
 }
@@ -1333,7 +1333,7 @@ template<typename PixelType>
 inline
 const PixelType& DenseImage3D<PixelType>::operator()(int_max xIndex, int_max yIndex, int_max zIndex) const
 {
-#if defined MDK_DEBUG_3DDenseImage_Operator_CheckBound
+#if defined MDK_DEBUG_DenseImage3D_Operator_CheckBound
 
     auto Size = this->GetSize();
 	if (xIndex >= Size[0] || xIndex < 0 || yIndex >= Size[1] || yIndex < 0 || zIndex >= Size[2] || zIndex < 0)
@@ -1342,7 +1342,7 @@ const PixelType& DenseImage3D<PixelType>::operator()(int_max xIndex, int_max yIn
         return m_ImageData->m_Pixel_OutsideImage;
 	}
 
-#endif //MDK_DEBUG_3DDenseImage_Operator_CheckBound
+#endif //MDK_DEBUG_DenseImage3D_Operator_CheckBound
 
     return (*m_ImageData)(xIndex, yIndex, zIndex);
 }
