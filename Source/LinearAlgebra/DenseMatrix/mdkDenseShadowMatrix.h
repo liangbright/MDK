@@ -1,13 +1,11 @@
-#ifndef __mdkDenseShadowMatrix_h
-#define __mdkDenseShadowMatrix_h
+#ifndef mdk_DenseShadowMatrix_h
+#define mdk_DenseShadowMatrix_h
 
 #include <vector>
 #include <memory>
 #include <initializer_list>
-#include <string>
 #include <cmath>
 #include <algorithm>
-
 
 #include "mdkDenseMatrix.h"
 

@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 
 #include "TestDenseMatrix.h"
+#include "TestDenseMatrix_simple.h"
 
 using namespace mdk;
 
@@ -66,6 +67,8 @@ int aaa_main()
 
 int main()
 {
+	Test_SubMatrix_simple();
+
     //Test_Operator_With_ElementPointer();
 
     //Test_MatrixMutiply();

@@ -1,7 +1,6 @@
-#ifndef __mdkDenseGlueMatrixForMultiplication_hpp
-#define __mdkDenseGlueMatrixForMultiplication_hpp
+#ifndef mdk_DenseGlueMatrixForMultiplication_hpp
+#define mdk_DenseGlueMatrixForMultiplication_hpp
 
-//#include "mdkLinearAlgebra.h"
 
 namespace mdk
 {

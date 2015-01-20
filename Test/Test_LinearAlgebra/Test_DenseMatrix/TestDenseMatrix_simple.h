@@ -1,5 +1,5 @@
-#ifndef __TestMatrix_simple_h
-#define __TestMatrix_simple_h
+#ifndef TestMatrix_simple_h
+#define TestMatrix_simple_h
 
 //================================================
 #include <algorithm>
@@ -13,23 +13,6 @@
 
 namespace mdk
 {
-
-template<typename T>
-void DisplayMatrix(const std::string& Name, const DenseMatrix<T>& Matrix, uint32 value_std_setw = 6, uint32 precision = 4)
-{
-    std::cout << Name << " = " << '\n';
-
-    for (int64 i = 0; i < Matrix.GetRowNumber(); ++i)
-    {
-        for (int64 j = 0; j < Matrix.GetColNumber(); ++j)
-        {
-            //std::cout << std::fixed << std::setprecision(precision) << Matrix(i, j) << ' ';
-
-            std::cout << std::setw(value_std_setw + precision) << std::setprecision(precision) << Matrix(i, j) << ' ';
-        }
-        std::cout << '\n';
-    }
-}
 
 void print_vec(const std::vector<int>& vec)
 {
@@ -56,7 +39,7 @@ void test_vec_insert()
 }
 
 
-void Test_SubMatrix()
+void Test_SubMatrix_simple()
 {
     DenseMatrix<double> A;
 

@@ -1,5 +1,5 @@
-#ifndef __mdkDenseMatrixOperator_h
-#define __mdkDenseMatrixOperator_h
+#ifndef mdk_DenseMatrixOperator_h
+#define mdk_DenseMatrixOperator_h
 
 namespace mdk
 {

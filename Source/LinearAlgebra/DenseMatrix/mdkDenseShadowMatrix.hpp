@@ -1,7 +1,6 @@
-#ifndef __mdkDenseShadowMatrix_hpp
-#define __mdkDenseShadowMatrix_hpp
+#ifndef mdk_DenseShadowMatrix_hpp
+#define mdk_DenseShadowMatrix_hpp
 
-//#include "mdkDenseShadowMatrix.h"
 
 namespace mdk
 {

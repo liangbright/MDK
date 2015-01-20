@@ -1,7 +1,6 @@
-#ifndef __mdkDenseGlueMatrixForLinearCombination_hpp
-#define __mdkDenseGlueMatrixForLinearCombination_hpp
+#ifndef mdk_DenseGlueMatrixForLinearCombination_hpp
+#define mdk_DenseGlueMatrixForLinearCombination_hpp
 
-#include <string>
 #include <cmath>
 #include <algorithm>
 

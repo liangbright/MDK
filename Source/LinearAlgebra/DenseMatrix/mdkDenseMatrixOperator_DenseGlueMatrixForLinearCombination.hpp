@@ -1,5 +1,5 @@
-#ifndef __mdkDenseMatrixOperator_DenseGlueMatrixForLinearCombination_h
-#define __mdkDenseMatrixOperator_DenseGlueMatrixForLinearCombination_h
+#ifndef mdk_DenseMatrixOperator_DenseGlueMatrixForLinearCombination_h
+#define mdk_DenseMatrixOperator_DenseGlueMatrixForLinearCombination_h
 
 namespace mdk
 {

@@ -143,12 +143,8 @@ class DenseMatrix : public Object
 public:
 	typedef Element_Type  ElementType;
 
-private:
-     
+private:     
     std::shared_ptr<DenseMatrixData<ElementType>> m_MatrixData;
-
-    ElementType* m_ElementPointer; // pointer to the first element, keep tracking m_MatrixData->ElementPointer
-                                   // to accelerate operator () and [], e.g., A(k)=value, or A[k]=value
 
 public:			
 	//------------------- constructor and destructor ------------------------------------//

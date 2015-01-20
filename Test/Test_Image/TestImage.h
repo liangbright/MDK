@@ -192,45 +192,61 @@ void Test_Image3D()
 
 void Test_DenseMatrixOperator()
 {
+	int_max L = 512 * 512 * 512;
+
 	DenseMatrix<double> TempMatrix;
-	TempMatrix.Resize(512 * 512 * 512, 1);
+	TempMatrix.Resize(L, 1);
 
 	auto Ptr_TempMatrix = TempMatrix.GetPointer();
 
 	auto t0 = std::chrono::system_clock::now();
-	for (int n = 1; n < 100; ++n)
+	for (int n = 0; n < 20; ++n)
 	{
-		for (int_max k = 0; k < TempMatrix.GetElementNumber(); ++k)
+		for (int_max k = 0; k < L; ++k)
 		{
-			//TempMatrix[k] = 10 * TempMatrix[k] + 1;
-			Ptr_TempMatrix[k] = 10 * Ptr_TempMatrix[k] + 1;
+			TempMatrix[k] = 10 * TempMatrix[k] + 1;
 		}
 	}
 	auto t1 = std::chrono::system_clock::now();
 
-	std::chrono::duration<double> raw_time = t1 - t0;
-	std::cout << "Test_DenseMatrixOperator time " << raw_time.count() << '\n';
+	std::chrono::duration<double> t0t1 = t1 - t0;
+	std::cout << "Test_DenseMatrixOperator time a " << t0t1.count() << '\n';
 
-	//TempArray[k] 
-	// this is no big differentce between : (*m_MatrixData)[k] or m_ElementPointer[k]
-	// m_ElementPointer=m_MatrixData->ElementPointer;
+	auto t2 = std::chrono::system_clock::now();
+	for (int n = 0; n < 20; ++n)
+	{
+		for (int_max k = 0; k < L; ++k)
+		{
+			Ptr_TempMatrix[k] = 10 * Ptr_TempMatrix[k] + 1;
+		}
+	}
+	auto t3 = std::chrono::system_clock::now();
 
-	// use TempMatrix[k]: 16.827, 17.856 
-	// use Ptr_TempMatrix[k]: 16.37 s
+	std::chrono::duration<double> t2t3 = t3 - t2;
+	std::cout << "Test_DenseMatrixOperator time b " << t2t3.count() << '\n';
+
+
+	//TempMatrix[k] 
+	// (*m_MatrixData)[k] is faster than m_ElementPointer[k]
+
+	// use TempMatrix[k]: 5.08 (m_ElementPointer[k]), 2.62
+	// use Ptr_TempMatrix[k]: 2.27 s
 }
 
 
 void Test_ObjectArrayOperator()
 {
+	int_max L = 512 * 512 * 512;
+
 	ObjectArray<double> TempArray;
-	TempArray.Resize(512 * 512 * 512);
+	TempArray.Resize(L);
 
 	auto Ptr_TempArray = TempArray.GetPointer();
 
 	auto t0 = std::chrono::system_clock::now();
-	for (int n = 1; n < 10; ++n)
+	for (int n = 0; n < 10; ++n)
 	{
-		for (int_max k = 0; k < TempArray.GetElementNumber(); ++k)
+		for (int_max k = 0; k < L; ++k)
 		{
 			//TempArray[k] = 10 * TempArray[k] + 1;
 			Ptr_TempArray[k] = 10 * Ptr_TempArray[k] + 1;
@@ -252,6 +268,8 @@ void Test_ObjectArrayOperator()
 
 void Test_ImageOperator()
 {
+	int_max L = 512 * 512 * 512;
+
 	DenseImage3D<double> ScalarImage;
 	ScalarImage.SetSize(512, 512, 512);
 	ScalarImage.SetSpacing(1, 1, 1);
@@ -259,9 +277,9 @@ void Test_ImageOperator()
 	auto Ptr_ScalarImage = ScalarImage.GetPixelPointer();
 
 	auto t0 = std::chrono::system_clock::now();
-	for (int n = 1; n < 10; ++n)
+	for (int n = 0; n < 10; ++n)
 	{
-		for (int_max k = 0; k < ScalarImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < L; ++k)
 		{
 			//ScalarImage[k] = 10 * ScalarImage[k] + 1;
 			Ptr_ScalarImage[k] = 10 * Ptr_ScalarImage[k] + 1;
@@ -270,7 +288,7 @@ void Test_ImageOperator()
 	auto t1 = std::chrono::system_clock::now();
 
 	std::chrono::duration<double> raw_time = t1 - t0;
-	std::cout << " time " << raw_time.count() << '\n';
+	std::cout << "Test_ImageOperator time " << raw_time.count() << '\n';
 
 	//ScalarImage[k] is (*m_ImageData)[k]
 

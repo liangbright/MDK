@@ -246,9 +246,6 @@ inline
 void DenseMatrix<ElementType>::operator=(DenseMatrix<ElementType>&& InputMatrix)
 {
 	m_MatrixData = std::move(InputMatrix.m_MatrixData);
-	m_ElementPointer = m_MatrixData->ElementPointer;
-	// InputMatrix may not be destructed
-	InputMatrix.m_ElementPointer = nullptr;
 }
 
 
@@ -834,9 +831,7 @@ bool DenseMatrix<ElementType>::Share(DenseMatrix<ElementType>& InputMatrix)
     if (this->IsSizeFixed() == true)
     {
         auto InputSize = InputMatrix.GetSize();
-
         auto SelfSize = this->GetSize();
-
         if (InputSize.RowNumber != SelfSize.RowNumber || InputSize.ColNumber != SelfSize.ColNumber)
         {
             MDK_Error("Matrix size can not be changed @ DenseMatrix::Share(InputMatrix)")
@@ -845,10 +840,7 @@ bool DenseMatrix<ElementType>::Share(DenseMatrix<ElementType>& InputMatrix)
     }
 
     //--------------------------------------------------------------------------------------------------------
-
     m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment test is not necessary
-
-    m_ElementPointer = m_MatrixData->ElementPointer;
 
     return true;
 }
@@ -895,8 +887,6 @@ void DenseMatrix<ElementType>::ForceShare(const DenseMatrix<ElementType>& InputM
 	}
 
     m_MatrixData = InputMatrix.m_MatrixData; // std::Shared_ptr, self assignment check is not necessary
-
-	m_ElementPointer = m_MatrixData->ElementPointer;
 }
 
 
@@ -948,9 +938,7 @@ bool DenseMatrix<ElementType>::Share(ElementType* InputElementPointer, int_max I
     m_MatrixData->StdVector.clear();
 
     m_MatrixData->ElementPointer = InputElementPointer;
-
-    m_ElementPointer = m_MatrixData->ElementPointer;
-
+   
     return true;
 }
 
@@ -1031,9 +1019,7 @@ bool DenseMatrix<ElementType>::Take(DenseMatrix<ElementType>& InputMatrix)
     m_MatrixData->ElementPointer = InputMatrix.m_MatrixData->ElementPointer;
 
     m_MatrixData->NaNElement = InputMatrix.m_MatrixData->NaNElement;
-
-    m_ElementPointer = m_MatrixData->ElementPointer;
-
+    
     // Clear InputMatrix to be empty
     InputMatrix.Clear();
 
@@ -1182,8 +1168,7 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputColVector)
 		if ((SelfSize.RowNumber == 1 && SelfSize.ColNumber == InputLength) || (SelfSize.ColNumber == 1 && SelfSize.RowNumber == InputLength))
 		{
 			m_MatrixData->StdVector = std::move(InputColVector);
-			m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
-			m_ElementPointer = m_MatrixData->ElementPointer;
+			m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();			
 			return true;
 		}
 		else
@@ -1210,9 +1195,7 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputColVector)
 		{
 			m_MatrixData->StdVector = std::move(InputColVector);
 			m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
-			m_MatrixData->ColNumber = InputLength;
-
-			m_ElementPointer = m_MatrixData->ElementPointer;
+			m_MatrixData->ColNumber = InputLength;			
 		}
 		else if (SelfSize.ColNumber == 1)
 		{
@@ -1220,7 +1203,7 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputColVector)
 			m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 			m_MatrixData->RowNumber = InputLength;
 
-			m_ElementPointer = m_MatrixData->ElementPointer;
+			
 		}
 		else
 		{
@@ -1232,9 +1215,7 @@ bool DenseMatrix<ElementType>::Take(std::vector<ElementType>& InputColVector)
 			m_MatrixData->StdVector = std::move(InputColVector);
 			m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 			m_MatrixData->RowNumber = InputLength;
-			m_MatrixData->ColNumber = 1;
-
-			m_ElementPointer = m_MatrixData->ElementPointer;
+			m_MatrixData->ColNumber = 1;			
 		}
 
 		return true;
@@ -1304,25 +1285,6 @@ void DenseMatrix<ElementType>::Swap(DenseMatrix<ElementType>& InputMatrix)
 	}
 
     m_MatrixData.swap(InputMatrix.m_MatrixData); // shared_ptr self swap check is not necessary
-
-    if (m_MatrixData)
-    {
-        m_ElementPointer = m_MatrixData->ElementPointer;
-    }
-    else
-    {
-        m_ElementPointer = nullptr;
-        //MDK_Warning("m_MatrixData is empty after Swap SmartPointer @ DenseMatrix::Swap(InputMatrix)")
-    }
-
-    if (InputMatrix.m_MatrixData)
-    {
-        InputMatrix.m_ElementPointer = InputMatrix.m_MatrixData->ElementPointer;
-    }
-    else
-    {
-        InputMatrix.m_ElementPointer = nullptr;
-    }
 }
 
 
@@ -1342,8 +1304,7 @@ void DenseMatrix<ElementType>::Clear()
     m_MatrixData->StdVector.clear();         // change size
     m_MatrixData->StdVector.shrink_to_fit(); // release memory
 
-    m_MatrixData->ElementPointer = nullptr;
-    m_ElementPointer = nullptr;
+    m_MatrixData->ElementPointer = nullptr;    
 }
 
 
@@ -1401,8 +1362,7 @@ try
     //--------initialize the matrix data ----------------------------------------
 	if (!m_MatrixData)//if (this->IsPureEmpty() == true)
     {
-		m_MatrixData = std::make_shared<DenseMatrixData<ElementType>>();
-		m_ElementPointer = nullptr;
+		m_MatrixData = std::make_shared<DenseMatrixData<ElementType>>();		
     }
     //-------------------------------------------------------------------------
 
@@ -1423,11 +1383,8 @@ try
     {               
         m_MatrixData->RowNumber = 0;
         m_MatrixData->ColNumber = 0;
-
         m_MatrixData->StdVector.resize(0);
-        m_MatrixData->ElementPointer = nullptr;
-        m_ElementPointer = nullptr;
-
+        m_MatrixData->ElementPointer = nullptr;        
         return true;
     }
 
@@ -1435,15 +1392,9 @@ try
     if (this->IsEmpty() == true)
     {
         m_MatrixData->RowNumber = InputRowNumber;
-
         m_MatrixData->ColNumber = InputColNumber;
-
         m_MatrixData->StdVector.resize(InputRowNumber*InputColNumber);
-
-        m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
-
-        m_ElementPointer = m_MatrixData->ElementPointer;
-
+        m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();        
         return true;
     }
 
@@ -1469,15 +1420,9 @@ try
         }
 
         m_MatrixData->RowNumber = InputRowNumber;
-
         m_MatrixData->ColNumber = InputColNumber;
-
         m_MatrixData->StdVector.resize(InputRowNumber*InputColNumber);
-
-        m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
-
-        m_ElementPointer = m_MatrixData->ElementPointer;
-
+        m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();        
         return true;
     }
 
@@ -1505,16 +1450,11 @@ try
     }
 
     //-------------------------------------------------------------
-
     m_MatrixData->RowNumber = InputRowNumber;
-
     m_MatrixData->ColNumber = InputColNumber;
-
 	m_MatrixData->StdVector = std::move(tempDataArray);
-
     m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 
-    m_ElementPointer = m_MatrixData->ElementPointer;
 }
 catch (...)
 {
@@ -1569,15 +1509,9 @@ bool DenseMatrix<ElementType>::FastResize(int_max InputRowNumber, int_max InputC
     {
         m_MatrixData->RowNumber = 0;
         m_MatrixData->ColNumber = 0;
-
-        m_MatrixData->StdVector.clear();         // change size, but not release memory (shrink_to_fit)
-
+        m_MatrixData->StdVector.clear(); // change size, but not release memory (shrink_to_fit)
         m_MatrixData->ElementPointer = nullptr;
-
-        m_MatrixData->IsSizeFixed = false;
-
-        m_ElementPointer = nullptr;
-
+        m_MatrixData->IsSizeFixed = false;        
         return true;
     }
 
@@ -1593,10 +1527,7 @@ try
         }
 
         m_MatrixData->StdVector.resize(InputElementNumber);
-
-        m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
-
-        m_ElementPointer = m_MatrixData->ElementPointer;
+        m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();        
     }
    
     m_MatrixData->RowNumber = InputRowNumber;
@@ -1666,10 +1597,7 @@ bool DenseMatrix<ElementType>::Resize(int_max InputElementNumber) // try to keep
 try
 {
     m_MatrixData->StdVector.resize(InputElementNumber);
-
     m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
-
-    m_ElementPointer = m_MatrixData->ElementPointer;
 
     if (Size.RowNumber == 0) // empty -> row vector
     {
@@ -1783,12 +1711,8 @@ try
     if (InputElementNumber > Self_ElementNumber)
     {
         m_MatrixData->CopyDataToInternalArrayIfNecessary();
-
         m_MatrixData->StdVector.reserve(InputElementNumber);
-
-        m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
-
-        m_ElementPointer = m_MatrixData->ElementPointer;
+        m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();        
     }
 }
 catch (...)
@@ -1814,7 +1738,7 @@ void DenseMatrix<ElementType>::ReleaseUnusedCapacity()
     {
         m_MatrixData->StdVector.shrink_to_fit();
         m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
-        m_ElementPointer = m_MatrixData->ElementPointer;
+        
     }
 }
 
@@ -2264,9 +2188,7 @@ ElementType& DenseMatrix<ElementType>::operator[](int_max LinearIndex)
 
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    return m_ElementPointer[LinearIndex]; 
-
-    // return (*m_MatrixData)[LinearIndex]; // ~6% slower
+    return (*m_MatrixData)[LinearIndex];
 }
 
 
@@ -2285,7 +2207,7 @@ const ElementType& DenseMatrix<ElementType>::operator[](int_max LinearIndex) con
 
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-    return m_ElementPointer[LinearIndex];
+	return (*m_MatrixData)[LinearIndex];
 }
 
 
@@ -2304,7 +2226,7 @@ ElementType& DenseMatrix<ElementType>::operator()(int_max LinearIndex)
 
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-	return m_ElementPointer[LinearIndex];
+	return (*m_MatrixData)[LinearIndex];
 }
 
 
@@ -2323,7 +2245,7 @@ const ElementType& DenseMatrix<ElementType>::operator()(int_max LinearIndex) con
 
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
-	return m_ElementPointer[LinearIndex];
+	return (*m_MatrixData)[LinearIndex];
 }
 
 // at(): bound check
@@ -2339,7 +2261,7 @@ ElementType& DenseMatrix<ElementType>::at(int_max LinearIndex)
         return m_MatrixData->NaNElement;
 	}
 
-	return m_ElementPointer[LinearIndex];
+	return (*m_MatrixData)[LinearIndex];
 }
 
 
@@ -2354,7 +2276,7 @@ const ElementType& DenseMatrix<ElementType>::at(int_max LinearIndex) const
         return m_MatrixData->NaNElement;
 	}
 
-	return m_ElementPointer[LinearIndex];
+	return (*m_MatrixData)[LinearIndex];
 }
 
 //----------- Get/Set Matrix(i,j)  ---------------------------------------------//
@@ -2379,7 +2301,6 @@ ElementType& DenseMatrix<ElementType>::operator()(int_max RowIndex, int_max ColI
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
     
     return (*m_MatrixData)(RowIndex, ColIndex);
-
 }
 
 
@@ -5633,7 +5554,7 @@ bool DenseMatrix<ElementType>::DeleteCol(const int_max* ColIndexList, int_max Li
 
     m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 
-    m_ElementPointer = m_MatrixData->ElementPointer;
+    
 
     return true;
 }
@@ -5717,7 +5638,7 @@ bool DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Inp
 
     m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 
-    m_ElementPointer = m_MatrixData->ElementPointer;
+    
 
     return true;
 }
@@ -7261,13 +7182,11 @@ template<typename ElementType>
 inline
 DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementMultiply(DenseMatrix<ElementType>&& InputMatrix) const
 {
-    if (m_ElementPointer == InputMatrix.GetElementPointer())
+    if (this->GetElementPointer() == InputMatrix.GetElementPointer())
     {
         return MatrixElementMultiply(*this, InputMatrix);
-    }
-    
+    }    
     MatrixElementMultiply(InputMatrix, InputMatrix, *this);
-
     return InputMatrix;
 }
 
@@ -7278,9 +7197,7 @@ inline
 DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementMultiply(const DenseShadowMatrix<ElementType>& ShadowMatrix) const
 {
     auto tempMatrix = ShadowMatrix.CreateDenseMatrix();
-
     MatrixElementMultiply(tempMatrix, tempMatrix, *this);
-
     return tempMatrix;
 }
 
@@ -7290,9 +7207,7 @@ inline
 DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementMultiply(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix) const
 {
     auto tempMatrix = GlueMatrix.CreateDenseMatrix();
-
     MatrixElementMultiply(tempMatrix, tempMatrix, *this);
-
     return tempMatrix;
 }
 
@@ -7302,9 +7217,7 @@ inline
 DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementMultiply(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix) const
 {
     auto tempMatrix = GlueMatrix.CreateDenseMatrix();
-
     MatrixElementMultiply(tempMatrix, tempMatrix, *this);
-
     return tempMatrix;
 }
 

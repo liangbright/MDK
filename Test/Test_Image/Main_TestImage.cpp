@@ -10,7 +10,7 @@ int main()
 	//testB();
 	//Test_Image3D();
 	//testCurve();
-	//Test_DenseMatrixOperator();
+	Test_DenseMatrixOperator();
 	//Test_ObjectArrayOperator();
-	Test_ImageOperator();
+	//Test_ImageOperator();
 }
