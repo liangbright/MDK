@@ -162,18 +162,10 @@ DenseMatrix<ElementType>::DenseMatrix(DenseVector<ElementType> InputColVector)
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>::DenseMatrix(const DenseMatrix<ElementType>& InputMatrix, ObjectConstructionTypeEnum Method)
+DenseMatrix<ElementType>::DenseMatrix(const DenseMatrix<ElementType>& InputMatrix)
 {
-    if (Method == ObjectConstructionTypeEnum::Copy)
-    {
-        this->Resize(0, 0);
-
-        this->Copy(InputMatrix);
-    }
-    else
-    {
-        this->ForceShare(InputMatrix);
-    }
+	this->Resize(0, 0);
+	this->Copy(InputMatrix);
 }
 
 
@@ -215,12 +207,10 @@ DenseMatrix<ElementType>::DenseMatrix(const DenseGlueMatrixForMultiplication<Ele
 
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>::DenseMatrix(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed = true)
+DenseMatrix<ElementType>::DenseMatrix(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed)
 {
     this->Resize(0, 0);
-
     this->Share(InputElementPointer, InputRowNumber, InputColNumber);
-
     m_MatrixData->IsSizeFixed = IsSizeFixed;
 }
 
@@ -1297,14 +1287,7 @@ void DenseMatrix<ElementType>::Clear()
         return;
     }
 
-	m_MatrixData->IsSizeFixed = false;
-    m_MatrixData->RowNumber = 0;
-    m_MatrixData->ColNumber = 0;
-
-    m_MatrixData->StdVector.clear();         // change size
-    m_MatrixData->StdVector.shrink_to_fit(); // release memory
-
-    m_MatrixData->ElementPointer = nullptr;    
+	m_MatrixData->Clear();
 }
 
 

@@ -206,8 +206,8 @@ public:
 
     inline SparseMatrix(const std::initializer_list<std::initializer_list<ElementType>>& InputListInList);
 
-    // copy constructor (Copy or Share)
-	inline SparseMatrix(const SparseMatrix<ElementType>& InputSparseMatrix, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
+    // copy constructor
+	inline SparseMatrix(const SparseMatrix<ElementType>& InputSparseMatrix);
 
     // move constructor
     inline SparseMatrix(SparseMatrix<ElementType>&& InputSparseMatrix);

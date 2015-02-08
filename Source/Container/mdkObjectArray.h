@@ -5,8 +5,9 @@
 #include <memory>
 
 #include "mdkCommonType.h"
+#include "mdkDebugConfig.h"
 #include "mdkConstant.h"
-#include "mdkObject.h"
+#include "mdkSharedDataObject.h"
 #include "mdkDenseVector_ForwardDeclare.h"
 #include "mdkString.h"
 
@@ -37,11 +38,11 @@ using ObjectVector = ObjectArray<ElementType>;
 template<typename ElementType>
 struct ObjectArrayData
 {
-	// data is stored in StdVector  or external array
+	// data is stored in StdVector or external data array pointed by ElementPointer
     std::vector<ElementType> StdVector;
-    
-    int_max Length; // array length
-	ElementType* ElementPointer; // ElementPointer point to external data or StdVector.data()
+
+	int_max Length; // array length
+	ElementType* ElementPointer; // ElementPointer point to external data array or StdVector.data()
 
 	ElementType ErrorElement;
 
@@ -56,8 +57,288 @@ struct ObjectArrayData
         ErrorElement = GetNaNElement(ErrorElement);
     };
 
-    ~ObjectArrayData() {};
+	ObjectArrayData(const ObjectArrayData& InputData)
+	{
+		this->Copy(InputData);
+	}
 
+	ObjectArrayData(ObjectArrayData&& InputData)
+	{
+		this->Take(std::forward<ObjectArrayData&&>(InputData));
+	}
+
+    ~ObjectArrayData() {};
+	//-------------------------------------------------------------
+	void operator=(const ObjectArrayData& InputData)
+	{
+		this->Copy(InputData);
+	}
+	//-------------------------------------------------------------
+	void operator=(ObjectArrayData&& InputData)
+	{
+		this->Take(std::forward<ObjectArrayData&&>(InputData));
+	}
+	//-------------------------------------------------------------
+	bool Copy(const MDK_Symbol_Empty&)
+	{
+		if (IsSizeFixed == true)
+		{
+			if (Length > 0)
+			{
+				MDK_Error("Can not change size @ ObjectArrayData::Copy(...)")
+				return false;
+			}
+		}
+		this->Clear();
+		return true;
+	}
+	//-------------------------------------------------------------
+	bool Copy(const ObjectArrayData& InputData)
+	{
+		return this->Copy(InputData.ElementPointer, InputData.Length);
+	}
+	//-------------------------------------------------------------
+	bool Copy(const ElementType* InputElementPointer, int_max InputLength)
+	{
+		if (InputElementPointer == nullptr || InputLength <= 0)
+		{
+			if (this->IsEmpty() == true)
+			{
+				return true;
+			}
+			else
+			{
+				if (IsSizeFixed == true)
+				{
+					MDK_Error("Can not change size @ ObjectArrayData::Copy(...)")
+					return false;
+				}
+
+				this->Clear();
+				return true;
+			}
+		}
+
+		if (this->IsEmpty() == false)
+		{
+			if (InputElementPointer == ElementPointer)
+			{// self copy
+				return true;
+			}
+		}
+		//------------------------------------------------------------------
+		if (IsSizeFixed == true)
+		{
+			if (InputLength != Length)
+			{
+				MDK_Error("Can not change size @ ObjectArrayData::Copy(...)")
+				return false;
+			}
+		}
+		else
+		{
+			this->FastResize(InputLength);
+		}
+
+		//copy data ----------------------------------------------------------
+
+		auto tempPtr = InputElementPointer;
+
+		for (auto Ptr = ElementPointer; Ptr < ElementPointer + Length; ++Ptr, ++tempPtr)
+		{
+			Ptr[0] = tempPtr[0];
+		}
+
+		return true;
+	}
+	//-------------------------------------------------------------
+	bool Take(const MDK_Symbol_Empty&)
+	{
+		if (IsSizeFixed == true)
+		{
+			if (Length > 0)
+			{
+				MDK_Error("Can not change size @ ObjectArrayData::Take(...)")
+				return false;
+			}
+		}
+		this->Clear();
+		return true;
+	}
+	//-------------------------------------------------------------
+	bool Take(ObjectArrayData&& InputData)
+	{
+		if (this == &InputData)
+		{
+			//MDK_Warning("Self take itself @ ObjectArrayData::Take(...)")
+			return true;
+		}
+
+		if (IsSizeFixed == true)
+		{
+			if (InputData.Length != Length)
+			{
+				MDK_Error("Size does not match @ ObjectArray::Take(InputArray)")
+				return false;
+			}
+		}
+
+		if (InputData.IsEmpty() == true)
+		{
+			if (Length > 0)
+			{
+				this->Clear();
+			}
+			return true;
+		}
+
+		if (ElementPointer == InputData.ElementPointer)
+		{// self == self
+			return true;
+		}
+
+		// now, InputData is not empty, and is not self
+
+		StdVector = std::move(InputData.StdVector);
+		ElementPointer = InputData.ElementPointer;
+		Length = InputData.Length;
+
+		// Clear InputData to be empty
+		InputData.Clear();
+
+		return true;
+	}
+	//-------------------------------------------------------------
+	bool IsReadyToShare(const ObjectArrayData& InputData) const
+    {
+		if (IsSizeFixed == true)
+		{
+			return (Length == InputData.Length);
+		}
+		else
+		{
+			return true;
+		}
+	}
+	//-------------------------------------------------------------
+	bool IsReadyToShare(const MDK_Symbol_Empty&) const
+	{
+		if (IsSizeFixed == true)
+		{
+			return (Length == 0);
+		}
+		else
+		{
+			return true;
+		}
+	}
+	//-------------------------------------------------------------
+	bool IsSharedWith(const ObjectArrayData& InputData) const
+	{
+		if (ElementPointer != nullptr && InputData.ElementPointer != nullptr)
+		{
+			return ElementPointer == InputData.ElementPointer;
+		}
+		return false;
+	}
+	//-------------------------------------------------------------
+	void Clear()
+	{
+		IsSizeFixed = false;
+		Length = 0;
+		ElementPointer = nullptr;
+		StdVector.clear();         // change size
+		StdVector.shrink_to_fit(); // release memory
+	}
+	//-------------------------------------------------------------
+	bool IsEmpty() const
+	{
+		return (Length <= 0);
+	}
+	//-------------------------------------------------------------
+	bool Resize(int_max InputLength)
+	{
+		if (InputLength < 0)
+		{
+			MDK_Error("Invalid Input @ ObjectArrayData::Resize(...)")
+			return false;
+		}
+
+		try
+		{
+			if (InputLength == Length)
+			{
+				return true;
+			}
+
+			if (IsSizeFixed == true)
+			{
+				MDK_Error("Size can not be changed @ ObjectArrayData::Resize(...)")
+				return false;
+			}
+
+			this->CopyDataToStdVectorIfNecessary();
+
+			StdVector.resize(InputLength);
+			ElementPointer = StdVector.data();
+			Length = InputLength;
+		}
+		catch (...)
+		{
+			MDK_Error("Out of Memory @ ObjectArrayData::Resize(...)")
+
+			ElementPointer = StdVector.data();
+			Length = int_max(StdVector.size());
+			return false;
+		}
+		return true;
+	}
+	//-------------------------------------------------------------
+	bool FastResize(int_max InputLength)
+	{
+		if (InputLength < 0)
+		{
+			MDK_Error("Invalid input @ ObjectArrayData::FastResize(...)")
+			return false;
+		}
+
+		if (InputLength == Length)
+		{
+			return true;
+		}
+
+		if (IsSizeFixed == true)
+		{
+			MDK_Error("Can not change size @ ObjectArrayData::FastResize(...)")
+			return false;
+		}
+
+		try
+		{
+			if (InputLength != Length)
+			{
+				if (InputLength > int_max(StdVector.capacity()))
+				{
+					StdVector.clear();
+				}
+
+				StdVector.resize(InputLength);
+			}
+
+			ElementPointer = StdVector.data();
+			Length = InputLength;
+		}
+		catch (...)
+		{
+			MDK_Error("Out of Memory @ ObjectArrayData::FastResize(...)")
+
+			ElementPointer = StdVector.data();
+			Length = int_max(StdVector.size());
+			return false;
+		}
+		return true;
+	}
+    //-------------------------------------------------------------
     void CopyDataToStdVectorIfNecessary()
     {
 		if (ElementPointer != StdVector.data())
@@ -76,7 +357,7 @@ struct ObjectArrayData
 			ElementPointer = StdVector.data();
         }
     }
-
+	//-------------------------------------------------------------
     ElementType& operator[](int_max Index)
     {
         return ElementPointer[Index];
@@ -96,28 +377,15 @@ struct ObjectArrayData
     {
         return ElementPointer[Index];
     }
-
-private:
-//deleted: -------------------------------------------------
-    ObjectArrayData(const ObjectArrayData&) = delete;
-
-    ObjectArrayData(ObjectArrayData&&) = delete;
-
-    void operator=(const ObjectArrayData&) = delete;
-
-    void operator=(ObjectArrayData&&) = delete;
 };
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
 template<typename Element_Type>
-class ObjectArray : public Object
+class ObjectArray : private SharedDataObject<ObjectArrayData<Element_Type>>
 {
 public:
 	typedef Element_Type ElementType;
-
-private:     
-	std::shared_ptr<ObjectArrayData<ElementType>> m_Data; 
 	
 public:			
 	//------------------- constructor and destructor ------------------------------------//
@@ -130,8 +398,8 @@ public:
 
 	inline ObjectArray(const StdObjectVector<ElementType>& InputArray);
 
-    // deep-copy or shared-copy constructor
-    inline ObjectArray(const ObjectArray<ElementType>& InputArray, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
+    // copy constructor
+    inline ObjectArray(const ObjectArray<ElementType>& InputArray);
 
     // move constructor
     inline ObjectArray(ObjectArray<ElementType>&& InputArray) noexcept;
@@ -230,6 +498,8 @@ public:
     inline int_max GetElementNumber() const; // the same as GetLength();
 
     //------------------------ Error Element -----------------------------//
+
+	void SetErrorElement(ElementType Error);
 
     ElementType GetErrorElement()  const;
 

@@ -14,8 +14,6 @@ template<typename MeshAttributeType>
 class MembraneMesh;
 //---------------------------------------------------//
 
-#define MDK_PURE_EMPTY_MembraneMesh StaticGlobalObject_MDK_Symbol_PureEmpty
-
 //------------------------------------------------- forward declare --------------------------------------------------------//
 template<typename T>
 class Point_Of_MembraneMesh;
@@ -59,7 +57,7 @@ struct Data_Of_Point_Of_MembraneMesh
     PointAttributeType Attribute;
 
 //------------------------------------------------------------------------
-    Data_Of_Point_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY_MembraneMesh) {}
+    Data_Of_Point_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY) {}
     ~Data_Of_Point_Of_MembraneMesh() {};
 };
 
@@ -77,7 +75,7 @@ private:
     friend class MembraneMesh;
 
 public:
-    inline Point_Of_MembraneMesh(); // this is Point_Of_MembraneMesh(const MDK_Symbol_PureEmpty& InputSymbol = MDK_PURE_EMPTY);
+	inline Point_Of_MembraneMesh();
     inline Point_Of_MembraneMesh(const Point_Of_MembraneMesh<MeshAttributeType>& InputPoint);
     inline Point_Of_MembraneMesh(Point_Of_MembraneMesh<MeshAttributeType>&& InputPoint);
     inline ~Point_Of_MembraneMesh();
@@ -87,7 +85,7 @@ public:
 
 private:
     inline void Create();
-	inline void Clear(); // this is Clear(const MDK_Symbol_PureEmpty& InputSymbol = MDK_PURE_EMPTY);
+	inline void Clear(const MDK_Symbol_PureEmpty&);
 
     inline void SetParentMesh(MembraneMesh<MeshAttributeType>& ParentMesh);
     
@@ -190,7 +188,7 @@ struct Data_Of_Edge_Of_MembraneMesh
     EdgeAttributeType Attribute;
 
 //------------------------------------------------------------------------
-    Data_Of_Edge_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY_MembraneMesh) {}
+    Data_Of_Edge_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY) {}
     ~Data_Of_Edge_Of_MembraneMesh() {};
 };
 
@@ -217,7 +215,7 @@ private:
     std::unique_ptr<Data_Of_Edge_Of_MembraneMesh<MeshAttributeType>> m_Data;
 
 public:
-    inline Edge_Of_MembraneMesh(); // this is Edge_Of_MembraneMesh(const MDK_Symbol_PureEmpty& InputSymbol = MDK_PURE_EMPTY);
+	inline Edge_Of_MembraneMesh();
     inline Edge_Of_MembraneMesh(const Edge_Of_MembraneMesh<MeshAttributeType>& InputEdge);
     inline Edge_Of_MembraneMesh(Edge_Of_MembraneMesh<MeshAttributeType>&& InputEdge);
     inline ~Edge_Of_MembraneMesh();
@@ -227,7 +225,7 @@ public:
     
 private:
     inline void Create();
-    inline void Clear(); // this is Clear(const MDK_Symbol_PureEmpty& InputSymbol = MDK_PURE_EMPTY);
+	inline void Clear(const MDK_Symbol_PureEmpty&);
 
     inline void SetParentMesh(MembraneMesh<MeshAttributeType>& ParentMesh);
     inline void SetIndex(int_max EdgeIndex);
@@ -329,15 +327,15 @@ struct Data_Of_DirectedEdge_Of_MembraneMesh
     int_max PointIndex_start;   // index in Mesh.m_MeshData->PointList, the start point of the DirectedEdge 
     int_max PointIndex_end;     // index in Mesh.m_MeshData->PointList, the end point of the DirectedEdge
 
-    DirectedEdgeIndex_Of_MembraneMesh NextDirectedEdgeIndex;      // index of the Next DirectedEdge in Mesh.m_MeshData->DirectedEdgePairList
-    DirectedEdgeIndex_Of_MembraneMesh PreviousDirectedEdgeIndex;  // index of the Previous DirectedEdge in Mesh.m_MeshData->DirectedEdgePairList
+    DirectedEdgeIndex_Of_MembraneMesh NextDirectedEdgeIndex;      // index of the Next DirectedEdge in Mesh.m_MeshData->DirectedEdgeList
+    DirectedEdgeIndex_Of_MembraneMesh PreviousDirectedEdgeIndex;  // index of the Previous DirectedEdge in Mesh.m_MeshData->DirectedEdgeList
 
     //--------------------------------------
     
     DirectedEdgeAttributeType Attribute;
 
 //------------------------------------------------------------------------
-    Data_Of_DirectedEdge_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY_MembraneMesh) {}
+    Data_Of_DirectedEdge_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY) {}
     ~Data_Of_DirectedEdge_Of_MembraneMesh() {};
 };
 
@@ -361,7 +359,7 @@ private:
     std::unique_ptr<Data_Of_DirectedEdge_Of_MembraneMesh<MeshAttributeType>> m_Data;
 
 public:
-    DirectedEdge_Of_MembraneMesh(); // this is DirectedEdge_Of_MembraneMesh(const MDK_Symbol_PureEmpty& InputSymbol = MDK_PURE_EMPTY);
+	DirectedEdge_Of_MembraneMesh();
     DirectedEdge_Of_MembraneMesh(const DirectedEdge_Of_MembraneMesh<MeshAttributeType>& InputDirectedEdge);
     DirectedEdge_Of_MembraneMesh(DirectedEdge_Of_MembraneMesh<MeshAttributeType>&& InputDirectedEdge);
     ~DirectedEdge_Of_MembraneMesh();
@@ -371,7 +369,7 @@ public:
 
 private:
     inline void Create();
-    inline void Clear(); // this is Clear(const MDK_Symbol_PureEmpty& InputSymbol = MDK_PURE_EMPTY);
+	inline void Clear(const MDK_Symbol_PureEmpty&);
 
     inline void SetParentMesh(MembraneMesh<MeshAttributeType>& ParentMesh);
     inline void SetIndex(DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex);
@@ -478,7 +476,7 @@ struct Data_Of_Cell_Of_MembraneMesh
     CellAttributeType Attribute;
 
 //------------------------------------------------------------------------
-    Data_Of_Cell_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY_MembraneMesh) {}
+    Data_Of_Cell_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY) {}
     ~Data_Of_Cell_Of_MembraneMesh() {};
 };
 
@@ -496,7 +494,7 @@ private:
     friend class MembraneMesh;
 
 public:
-    Cell_Of_MembraneMesh();// this is Cell_Of_MembraneMesh(const MDK_Symbol_PureEmpty& InputSymbol = MDK_PURE_EMPTY);
+	Cell_Of_MembraneMesh();
     Cell_Of_MembraneMesh(const Cell_Of_MembraneMesh<MeshAttributeType>& InputCell);
     Cell_Of_MembraneMesh(Cell_Of_MembraneMesh<MeshAttributeType>&& InputCell);
     ~Cell_Of_MembraneMesh();
@@ -506,7 +504,7 @@ public:
 
 private:
     inline void Create();
-    inline void Clear();// this is Clear(const MDK_Symbol_PureEmpty& InputSymbol = MDK_PURE_EMPTY);
+	inline void Clear(const MDK_Symbol_PureEmpty&);
 
     inline void SetParentMesh(MembraneMesh<MeshAttributeType>& ParentMesh);
     inline void SetIndex(int_max CellIndex);   

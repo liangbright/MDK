@@ -53,7 +53,9 @@ TriangleMesh<MeshAttributeType> SimplifyTriangleMeshByVTKDecimatePro(const Trian
 	decimate->SetInputData(VTKMesh);
 	decimate->SetTargetReduction(TargetReduction);
 	decimate->Update();
-	return ConvertVTKPolyDataToMDKTriangleMesh<MeshAttributeType>(decimate->GetOutput());
+	TriangleMesh<MeshAttributeType> OutputMesh;
+	ConvertVTKPolyDataToMDKTriangleMesh(decimate->GetOutput(), OutputMesh);
+	return OutputMesh;
 }
 
 
@@ -65,7 +67,9 @@ TriangleMesh<MeshAttributeType> SimplifyTriangleMeshByVTKQuadricDecimation(const
 	decimate->SetInputData(VTKMesh);
 	decimate->SetTargetReduction(TargetReduction);
 	decimate->Update();
-	return ConvertVTKPolyDataToMDKTriangleMesh<MeshAttributeType>(decimate->GetOutput());
+	TriangleMesh<MeshAttributeType> OutputMesh;
+	ConvertVTKPolyDataToMDKTriangleMesh(decimate->GetOutput(), OutputMesh);
+	return OutputMesh;
 }
 
 

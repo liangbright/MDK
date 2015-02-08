@@ -1870,7 +1870,6 @@ MembraneMesh<MeshAttributeType>::AddPoint(ScalarType x, ScalarType y, ScalarType
     auto PointIndex = m_MeshData->PointPositionTable.GetColNumber() - 1;
 
     Point_Of_MembraneMesh<MeshAttributeType> Point;
-    Point.Create();
     Point.SetParentMesh(*this);
     Point.SetIndex(PointIndex);
    
@@ -2000,7 +1999,6 @@ AddEdge(Handle_Of_Point_Of_MembraneMesh PointHandle0, Handle_Of_Point_Of_Membran
     auto EdgeIndex = m_MeshData->EdgeList.GetLength();
 
     Edge_Of_MembraneMesh<MeshAttributeType> Edge;
-    Edge.Create();
     Edge.SetParentMesh(*this);
     Edge.SetIndex(EdgeIndex);
     Edge.SetPointIndexList(PointIndex0, PointIndex1);
@@ -2146,7 +2144,6 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByEdge(co
         auto tempRelativeIndex = DirectedEdgeIndexList[k].RelativeIndex;
         // attention: auto& will get reference, auto will copy
 		auto& tempDirectedEdge = m_MeshData->EdgeList[tempEdgeIndex].DirectedEdgeList()[tempRelativeIndex];
-		tempDirectedEdge.Create();
 		tempDirectedEdge.SetIndex(tempEdgeIndex, tempRelativeIndex);
         tempDirectedEdge.SetCellIndex(CellIndex);
         tempDirectedEdge.SetStartPointIndex(PointIndexList[k]);
@@ -2182,7 +2179,6 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByEdge(co
     // create cell --------------------------------------------------------------------------------------------------
 
     Cell_Of_MembraneMesh<MeshAttributeType> Cell;
-    Cell.Create();
     Cell.SetParentMesh(*this);
     Cell.SetIndex(CellIndex);
     Cell.DirectedEdgeIndexList() = DirectedEdgeIndexList;
@@ -3676,7 +3672,7 @@ void MembraneMesh<MeshAttributeType>::InternalFuction_DeletePoint(int_max PointI
 
     m_MeshData->PointPositionTable.FillCol(PointIndex, 0);
 
-    m_MeshData->PointList[PointIndex].Clear();
+	m_MeshData->PointList[PointIndex].Clear(MDK_PURE_EMPTY);
     m_MeshData->PointValidityFlagList[PointIndex] = 0;
 }
 
@@ -3703,7 +3699,7 @@ void MembraneMesh<MeshAttributeType>::InternalFuction_DeleteEdge(int_max EdgeInd
     }
 
     // Delete Edge: only release memory, not remove from EdgeList
-    m_MeshData->EdgeList[EdgeIndex].Clear();
+	m_MeshData->EdgeList[EdgeIndex].Clear(MDK_PURE_EMPTY);
     m_MeshData->EdgeValidityFlagList[EdgeIndex] = 0;
 }
 
@@ -3720,7 +3716,7 @@ void MembraneMesh<MeshAttributeType>::InternalFuction_DeleteDirectedEdge(Directe
 		{
 			m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.erase(it);
 		}
-		DirectedEdge_k.Clear();
+		DirectedEdge_k.Clear(MDK_PURE_EMPTY);
 	}
 }
 
@@ -3736,7 +3732,7 @@ void MembraneMesh<MeshAttributeType>::InternalFuction_DeleteCell(int_max CellInd
     }
 
     // Delete Cell : only clear memory, not remove from CellList
-    m_MeshData->CellList[CellIndex].Clear();
+	m_MeshData->CellList[CellIndex].Clear(MDK_PURE_EMPTY);
     m_MeshData->CellValidityFlagList[CellIndex] = 0;
 }
 

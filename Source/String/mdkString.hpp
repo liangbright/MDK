@@ -33,17 +33,10 @@ inline String::String(const std::basic_string<char>& InputString)
 }
 
 
-inline String::String(const String& InputString, ObjectConstructionTypeEnum Method)
+inline String::String(const String& InputString)
 {
-    if (Method == ObjectConstructionTypeEnum::Copy)
-    {
-        this->Resize(0);
-        this->Copy(InputString);
-    }
-    else
-    {
-        this->ForceShare(InputString);
-    }
+	this->Resize(0);
+	this->Copy(InputString);
 }
 
 // move constructor

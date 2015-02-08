@@ -350,61 +350,6 @@ void Test_MoveConstructor()
     //-------------
 }
 
-void Test_ShareConstuctor()
-{
-
-    DenseMatrix<double> A(2, 4);
-
-    A = { { 1, 2, 3, 4 },
-          { 5, 6, 7, 8 }};
-
-
-    DisplayMatrix("A", A);
-
-    auto B = DenseMatrix<double>(A, ObjectConstructionTypeEnum::Share);
-
-    B(0) = 10;
-
-    DisplayMatrix("B", B);
-
-    DisplayMatrix("A", A);
-
-    auto C = DenseMatrix<double>(A);
-
-    C(1) = 10;
-
-    DisplayMatrix("C", C);
-
-    DisplayMatrix("A", A);
-
-    const DenseMatrix<double> D = DenseMatrix<double>(A, ObjectConstructionTypeEnum::Share);
-
-    A(2) = 10;
-
-    DisplayMatrix("D", D);
-
-    DisplayMatrix("A", A);
-
-    std::vector<const DenseMatrix<double>> MatrixList;
-
-    MatrixList.emplace_back(A, ObjectConstructionTypeEnum::Share);
-
-    DisplayMatrix("MatrixList[0]", MatrixList[0]);
-
-    // can be compiled
-    MatrixList[0](1,1) = 100;
-
-    DisplayMatrix("MatrixList[0]", MatrixList[0]);
-
-    DisplayMatrix("A", A);
-
-
-    std::vector<const DenseMatrix<double>*> MatrixPtrList = {&A};
-
-    // can not be compiled
-   // (*MatrixPtrList[0])(1, 1) = 1000;
-
-}
 
 void Test_Matrix_Operator()
 {

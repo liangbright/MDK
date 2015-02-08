@@ -42,13 +42,6 @@ enum struct ScalarTypeEnum
 
 	UNKNOWN,
 };
-//-------------------------------------------------------------//
-enum struct ObjectConstructionTypeEnum
-{
-    Copy,
-    Share,
-};
-//-------------------------------------------------------------//
 
 }//end namespace mdk
 

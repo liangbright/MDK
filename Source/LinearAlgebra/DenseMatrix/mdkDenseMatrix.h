@@ -64,6 +64,16 @@ struct DenseMatrixData
 
     ~DenseMatrixData() {};
 
+	void Clear()
+	{
+		IsSizeFixed = false;
+		RowNumber = 0;
+		ColNumber = 0;
+		ElementPointer = nullptr;
+		StdVector.clear();         // change size
+		StdVector.shrink_to_fit(); // release memory
+	}
+
     void CopyDataToInternalArrayIfNecessary()
     {
 		if (ElementPointer != StdVector.data())
@@ -180,8 +190,8 @@ public:
 
 	inline DenseMatrix(DenseVector<ElementType> InputColVector);
 
-    // deep-copy or shared-copy constructor
-    inline DenseMatrix(const DenseMatrix<ElementType>& InputMatrix, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
+    // copy constructor
+    inline DenseMatrix(const DenseMatrix<ElementType>& InputMatrix);
 
     // move constructor
     inline DenseMatrix(DenseMatrix<ElementType>&& InputMatrix) noexcept;

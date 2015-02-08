@@ -4,6 +4,6 @@
 #include "mdkLinearAlgebraConfig.h"
 #include "mdkDenseMatrix.h"
 #include "mdkSparseMatrix.h"
-#include "SparseVector.h"
+#include "mdkSparseVector.h"
 
 #endif

@@ -1057,17 +1057,9 @@ SparseMatrix<ElementType>::SparseMatrix(const ElementType& Element)
 
 template<typename ElementType>
 inline
-SparseMatrix<ElementType>::SparseMatrix(const SparseMatrix<ElementType>& InputMatrix, ObjectConstructionTypeEnum Method)
+SparseMatrix<ElementType>::SparseMatrix(const SparseMatrix<ElementType>& InputMatrix)
 {
-	if (Method == ObjectConstructionTypeEnum::Copy)
-    {
-        this->Resize(0, 0);
-        this->Copy(InputMatrix);
-    }
-    else
-    {
-        this->ForceShare(InputMatrix);
-    }
+	this->Copy(InputMatrix);
 }
 
 

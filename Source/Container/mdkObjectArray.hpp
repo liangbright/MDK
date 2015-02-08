@@ -17,7 +17,6 @@ template<typename ElementType>
 inline
 ObjectArray<ElementType>::ObjectArray(const std::initializer_list<ElementType>& InputList)
 {
-	this->Resize(0);
 	(*this) = InputList;
 }
 
@@ -25,7 +24,6 @@ ObjectArray<ElementType>::ObjectArray(const std::initializer_list<ElementType>& 
 template<typename ElementType>
 inline ObjectArray<ElementType>::ObjectArray(const std::vector<ElementType>& InputArray)
 {
-	this->Resize(0);
 	this->Copy(InputArray);
 }
 
@@ -33,23 +31,14 @@ inline ObjectArray<ElementType>::ObjectArray(const std::vector<ElementType>& Inp
 template<typename ElementType>
 inline ObjectArray<ElementType>::ObjectArray(const StdObjectVector<ElementType>& InputArray)
 {
-	this->Resize(0);
 	this->Copy(InputArray);
 }
 
 template<typename ElementType>
 inline
-ObjectArray<ElementType>::ObjectArray(const ObjectArray<ElementType>& InputArray, ObjectConstructionTypeEnum Method)
+ObjectArray<ElementType>::ObjectArray(const ObjectArray<ElementType>& InputArray)
 {
-    if (Method == ObjectConstructionTypeEnum::Copy)
-    {
-        this->Resize(0);
-        this->Copy(InputArray);
-    }
-    else
-    {
-        this->ForceShare(InputArray);
-    }
+	this->Copy(InputArray);
 }
 
 
@@ -98,37 +87,7 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::operator=(const std::initializer_list<ElementType>& InputArray)
 {
-    auto InputLength = int_max(InputArray.size());
-	auto SelfLength = this->GetElementNumber();
-
-	if (InputLength <= 0)
-	{
-		if (this->IsSizeFixed() == true)
-		{
-			if (this->IsEmpty() == false)
-			{
-				MDK_Error("Can not change matrix size @ ObjectArray::operator=(initializer_list)")
-			}
-		}
-		else
-		{
-			MDK_Warning("Input is empty, try to clear self @ ObjectArray::operator=(initializer_list)")
-			this->Clear();
-		}
-		return;
-	}
-
-    if (this->IsSizeFixed() == true)
-    {
-        if (SelfLength != InputLength)
-        {
-            MDK_Error("Can not change size @ ObjectArray::operator=(initializer_list)")
-			return;
-        }		
-    }
-
-	this->FastResize(0);
-	this->Append(InputArray.begin(), InputLength);
+	this->Copy(InputArray.begin(), int_max(InputArray.size()));
 }
 
 
@@ -195,64 +154,12 @@ template<typename ElementType>
 inline
 bool ObjectArray<ElementType>::Copy(const ElementType* InputElementPointer, int_max InputLength)
 {
-    if (InputElementPointer == nullptr || InputLength <= 0)
-    {
-		if (this->IsEmpty() == true)
-		{
-			return true;
-		}        
-		else
-		{
-			if (this->IsSizeFixed() == true)
-			{
-				MDK_Error("Can not change size @ ObjectArray::Copy(ElementType*, InputLength)")
-				return false;
-			}
+	if (!m_Data)
+	{
+		this->Resize(0);
+	}
 
-			this->Clear();
-			return true;
-		}
-    }
-
-    // if this ObjectArray is not empty, check if this and Input Share the same data
-    if (this->IsEmpty() == false)
-    {
-        if (InputElementPointer == this->GetElementPointer())
-        {
-           // MDK_Warning("A ObjectArray tries to Copy itself @ ObjectArray::Copy(ElementType*, RowNumber, ColNumber)")
-            return true;
-        }
-    }
-    //------------------------------------------------------------------
-
-    auto SelfLength = this->GetElementNumber();
-
-    if (this->IsSizeFixed() == true)
-    {
-        if (InputLength != SelfLength)
-        {
-            MDK_Error("Can not change size @ ObjectArray::Copy(ElementType*, InputLength)")
-            return false;
-        }
-    }
-    else
-    {
-        this->FastResize(InputLength);
-        SelfLength = InputLength;
-    }
-
-    //copy data ----------------------------------------------------------
-
-    auto BeginPointer = this->GetElementPointer();
-
-    auto tempPtr = InputElementPointer;
-
-    for (auto Ptr = BeginPointer; Ptr < BeginPointer + SelfLength; ++Ptr, ++tempPtr)
-    {
-        Ptr[0] = tempPtr[0];
-    }
-
-    return true;
+	return m_Data->Copy(InputElementPointer, InputLength);
 }
 
 
@@ -280,30 +187,12 @@ template<typename ElementType>
 inline
 bool ObjectArray<ElementType>::Share(ObjectArray<ElementType>& InputArray)
 {
-    // ObjectArray = ObjectArray
-    if (this == &InputArray)
+	auto IsOK = this->SharedDataObject::Share(InputArray);
+	if (IsOK == false)
     {
-        MDK_Warning("A ObjectArray tries to Share itself @ ObjectArray::Share(InputArray)")
-        return true;
+        MDK_Error("ObjectArray size can not be changed @ ObjectArray::Share(InputArray)")
     }
-
-    auto InputLength = InputArray.GetElementNumber();
-
-    auto SelfLength = this->GetElementNumber();
-
-    if (this->IsSizeFixed() == true)
-    {
-        if (InputLength != SelfLength)
-        {
-            MDK_Error("ObjectArray size can not be changed @ ObjectArray::Share(InputArray)")
-            return false;
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------
-    m_Data = InputArray.m_Data; // std::Shared_ptr, self assignment test is not necessary
-
-    return true;
+	return IsOK;
 }
 
 
@@ -325,14 +214,7 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::ForceShare(const ObjectArray<ElementType>& InputArray)
 {
-    // ObjectArray = ObjectArray
-    if (this == &InputArray)
-    {
-        MDK_Warning("A ObjectArray tries to ForceShare itself @ ObjectArray::ForceShare(InputArray)")
-        return;
-    }
-
-    m_Data = InputArray.m_Data; // std::Shared_ptr, self assignment check is not necessary
+	this->SharedDataObject::ForceShare(InputArray);
 }
 
 
@@ -479,15 +361,7 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::Swap(ObjectArray<ElementType>& InputArray)
 {
-    if (this->GetElementPointer() == InputArray.GetElementPointer())
-    {
-		if (this->IsEmpty() == false)
-		{
-			MDK_Warning("A ObjectArray try to Swap with itself @ ObjectArray::Swap(InputArray)")
-		}
-        return;
-    }
-    m_Data.swap(InputArray.m_Data); // shared_ptr self swap check is not necessary
+	this->SharedDataObject::Swap();
 }
 
 
@@ -495,19 +369,7 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::Clear()
 {
-    if (!m_Data)
-    {
-        return;
-    }
-
-    m_Data->IsSizeFixed = false;
-
-    m_Data->Length = 0;
-
-    m_Data->StdVector.clear();         // change size
-    m_Data->StdVector.shrink_to_fit(); // release memory
-
-    m_Data->ElementPointer = nullptr;
+	this->SharedDataObject::Clear();
 }
 
 
@@ -515,49 +377,11 @@ template<typename ElementType>
 inline 
 bool ObjectArray<ElementType>::Resize(int_max InputLength)
 {
-    if (InputLength < 0)
-    {
-        MDK_Error("Invalid Input: negtive @ ObjectArray::Resize(int_max InputLength)")
-        return false;
-    }
-
-try
-{
-    //--------initialize the ObjectArray data ----------------------------------------
-    if (!m_Data)
-    {
-        m_Data = std::make_shared<ObjectArrayData<ElementType>>();
-    }
-    //-------------------------------------------------------------------------
-
-    auto SelfLength = this->GetElementNumber();
-
-    if (InputLength == SelfLength)
-    {
-        return true;
-    }
-
-    if (this->IsSizeFixed() == true)
-    {
-        MDK_Error("ObjectArray Size can not be changed @ ObjectArray::Resize(int_max InputLength)")
-        return false;
-    }
-
-    m_Data->CopyDataToStdVectorIfNecessary();
-
-    m_Data->StdVector.resize(InputLength);
-    m_Data->ElementPointer = m_Data->StdVector.data();
-    m_Data->Length = InputLength;
-}
-catch (...)
-{
-    MDK_Error("Out of Memory @ ObjectArray::Resize(int_max InputLength)")
-
-    m_Data->ElementPointer = m_Data->StdVector.data();
-	m_Data->Length = int_max(m_Data->StdVector.size());
-    return false;
-}
-    return true;
+	if (!m_Data)
+	{
+		this->Resize(0);
+	}
+	return m_Data->Resize(InputLength);
 }
 
 
@@ -565,56 +389,12 @@ template<typename ElementType>
 inline
 bool ObjectArray<ElementType>::FastResize(int_max InputLength)
 {
-    if (InputLength < 0)
-    {
-        MDK_Error("Invalid input @ ObjectArray::FastResize(int_max InputLength)")
-        return false;    
-    }
-
-    auto SelfLength = this->GetElementNumber();
-
-    if (InputLength == SelfLength)
-    {
-        return true;
-    }
-
-    if (this->IsSizeFixed() == true)
-    {
-        MDK_Error("Can not change size @ ObjectArray::FastResize(int_max InputLength)")
-        return false;
-    }
-
-    if (!m_Data)
-    {
-        this->Resize(0);
-    }
-
-try
-{
-    if (InputLength != SelfLength)
-    {
-		if (InputLength > int_max(m_Data->StdVector.capacity()))
-        {
-            m_Data->StdVector.clear();
-        }
-
-        m_Data->StdVector.resize(InputLength);
-    }
-   
-    m_Data->ElementPointer = m_Data->StdVector.data();
-    m_Data->Length = InputLength;
+	if (!m_Data)
+	{
+		this->Resize(0);
+	}
+	return m_Data->FastResize(InputLength);
 }
-catch (...)
-{
-    MDK_Error("Out of Memory @ ObjectArray::FastResize(int_max InputLength)")
-
-    m_Data->ElementPointer = m_Data->StdVector.data();
-    m_Data->Length = int_max(m_Data->StdVector.size());
-    return false;
-}
-    return true;
-}
-
 
 
 template<typename ElementType>
@@ -694,14 +474,7 @@ template<typename ElementType>
 inline
 bool ObjectArray<ElementType>::IsEmpty() const
 {
-    if (!m_Data)
-    {
-        return true;
-    }
-    else
-    {
-        return (m_Data->Length <= 0);
-    }
+	return this->SharedDataObject::IsEmpty();
 }
 
 
@@ -709,7 +482,7 @@ template<typename ElementType>
 inline
 bool ObjectArray<ElementType>::IsPureEmpty() const
 {
-	return (!m_Data);
+	return this->SharedDataObject::IsPureEmpty();
 }
 
 
@@ -717,14 +490,7 @@ template<typename ElementType>
 inline
 bool ObjectArray<ElementType>::IsShared() const
 {
-	if (!m_Data)
-	{
-		return false;
-	}
-	else
-	{
-		return (m_Data.use_count() > 1);
-	}
+	return this->SharedDataObject::IsShared();
 }
 
 
@@ -732,6 +498,10 @@ template<typename ElementType>
 inline
 bool ObjectArray<ElementType>::IsSharedWith(const ObjectArray& InputArray) const
 {
+	if (this->GetElementPointer() == nullptr)
+	{
+		return false;
+	}
 	return (this->GetElementPointer() == InputArray.GetElementPointer());
 }
 
@@ -771,6 +541,18 @@ inline
 int_max ObjectArray<ElementType>::GetElementNumber() const
 {
     return this->GetLength();
+}
+
+
+template<typename ElementType>
+inline
+void ObjectArray<ElementType>::SetErrorElement(ElementType Error)
+{
+	if (!m_Data)
+	{
+		this->Resize(0);
+	}
+	m_Data->ErrorElement = std::move(Error);
 }
 
 

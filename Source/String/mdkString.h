@@ -31,8 +31,8 @@ public:
 
 	inline String(const std::basic_string<char>& InputString);
 
-    // deep-copy or shared-copy constructor
-	inline String(const String& InputString, ObjectConstructionTypeEnum Method = ObjectConstructionTypeEnum::Copy);
+    // copy constructor
+	inline String(const String& InputString);
 
     // move constructor
 	inline String(String&& InputString) noexcept;

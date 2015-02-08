@@ -10,6 +10,7 @@ template<typename MeshAttributeType>
 inline
 Point_Of_MembraneMesh<MeshAttributeType>::Point_Of_MembraneMesh()
 {
+	this->Create();
 }
 
 template<typename MeshAttributeType>
@@ -82,7 +83,7 @@ void Point_Of_MembraneMesh<MeshAttributeType>::Create()
 
 template<typename MeshAttributeType>
 inline
-void Point_Of_MembraneMesh<MeshAttributeType>::Clear()
+void Point_Of_MembraneMesh<MeshAttributeType>::Clear(const MDK_Symbol_PureEmpty&)
 {
     m_Data.reset();
 }
@@ -578,6 +579,7 @@ template<typename MeshAttributeType>
 inline
 Edge_Of_MembraneMesh<MeshAttributeType>::Edge_Of_MembraneMesh()
 {
+	this->Create();
 }
 
 template<typename MeshAttributeType>
@@ -648,7 +650,7 @@ void Edge_Of_MembraneMesh<MeshAttributeType>::Create()
 
 template<typename MeshAttributeType>
 inline
-void Edge_Of_MembraneMesh<MeshAttributeType>::Clear()
+void Edge_Of_MembraneMesh<MeshAttributeType>::Clear(const MDK_Symbol_PureEmpty&)
 {
     m_Data.reset();
 }
@@ -1303,6 +1305,7 @@ template<typename MeshAttributeType>
 inline
 DirectedEdge_Of_MembraneMesh<MeshAttributeType>::DirectedEdge_Of_MembraneMesh()
 {
+	this->Create();
 }
 
 template<typename MeshAttributeType>
@@ -1379,7 +1382,7 @@ void DirectedEdge_Of_MembraneMesh<MeshAttributeType>::Create()
 
 template<typename MeshAttributeType>
 inline
-void DirectedEdge_Of_MembraneMesh<MeshAttributeType>::Clear()
+void DirectedEdge_Of_MembraneMesh<MeshAttributeType>::Clear(const MDK_Symbol_PureEmpty&)
 {
     m_Data.reset();
 }
@@ -1504,7 +1507,7 @@ inline
 DenseVector<DirectedEdgeIndex_Of_MembraneMesh> DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendDirectedEdgeIndexList() const
 {
 	DenseVector<DirectedEdgeIndex_Of_MembraneMesh> OutputIndexList;
-	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList.GetLength();
+	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
 	OutputIndexList.ReserveCapacity(DirectedEdgeNumberMax);
 	for (int_max k = 0; k < DirectedEdgeNumberMax; ++k)
 	{
@@ -1525,7 +1528,7 @@ inline
 DenseVector<int_max> DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendCellIndexList() const
 {
 	DenseVector<int_max> OutputIndexList;
-	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList.GetLength();
+	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
 	OutputIndexList.ReserveCapacity(DirectedEdgeNumberMax);
 	for (int_max k = 0; k < DirectedEdgeNumberMax; ++k)
 	{
@@ -1737,7 +1740,7 @@ int_max DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetNextDirectedEdgeID()
 {
 	auto EdgeIndex = m_Data->NextDirectedEdgeIndex.EdgeIndex;
 	auto RelativeIndex = m_Data->NextDirectedEdgeIndex.RelativeIndex;
-	return m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex].DirectedEdgePair()[RelativeIndex].GetID();
+	return m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex].DirectedEdgeList()[RelativeIndex].GetID();
 }
 
 template<typename MeshAttributeType>
@@ -1755,14 +1758,14 @@ int_max DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetPreviousDirectedEdge
 {
 	auto EdgeIndex = m_Data->PreviousDirectedEdgeIndex.EdgeIndex;
 	auto RelativeIndex = m_Data->PreviousDirectedEdgeIndex.RelativeIndex;
-	return m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex].DirectedEdgePair()[RelativeIndex].GetID();
+	return m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex].DirectedEdgeList()[RelativeIndex].GetID();
 }
 
 template<typename MeshAttributeType>
 inline
 int_max DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendDirectedEdgeNumber() const
 {
-	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList.GetLength();
+	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
 	int_max Counter = 0;
 	for (int_max k = 0; k < DirectedEdgeNumberMax; ++k)
 	{
@@ -1780,7 +1783,7 @@ inline
 DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh> DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendDirectedEdgeHandleList() const
 {
 	DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh> OutputHandleList;
-	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList.GetLength();
+	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
 	OutputIndexList.ReserveCapacity(DirectedEdgeNumberMax);
 	for (int_max k = 0; k < DirectedEdgeNumberMax; ++k)
 	{
@@ -1800,7 +1803,7 @@ inline
 DenseVector<int_max> DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendDirectedEdgeIDList() const
 {
 	DenseVector<int_max> OutputIDList;
-	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList.GetLength();
+	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
 	OutputIDList.ReserveCapacity(DirectedEdgeNumberMax);
 	for (int_max k = 0; k < DirectedEdgeNumberMax; ++k)
 	{
@@ -1825,7 +1828,7 @@ inline
 DenseVector<Handle_Of_Cell_Of_MembraneMesh> DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendCellHandleList() const
 {
 	DenseVector<Handle_Of_Cell_Of_MembraneMesh> OutputHandleList;
-	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList.GetLength();
+	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
 	OutputHandleList.ReserveCapacity(DirectedEdgeNumberMax);
 	for (int_max k = 0; k < DirectedEdgeNumberMax; ++k)
 	{
@@ -1845,7 +1848,7 @@ inline
 DenseVector<int_max> DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendCellIDList() const
 {
 	DenseVector<int_max> OutputIDList;
-	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList.GetLength();
+	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
 	OutputIDList.ReserveCapacity(DirectedEdgeNumberMax);
 	for (int_max k = 0; k < DirectedEdgeNumberMax; ++k)
 	{
@@ -1917,6 +1920,7 @@ template<typename MeshAttributeType>
 inline
 Cell_Of_MembraneMesh<MeshAttributeType>::Cell_Of_MembraneMesh()
 {
+	this->Create();
 }
 
 template<typename MeshAttributeType>
@@ -1981,7 +1985,7 @@ void Cell_Of_MembraneMesh<MeshAttributeType>::Create()
 
 template<typename MeshAttributeType>
 inline
-void Cell_Of_MembraneMesh<MeshAttributeType>::Clear()
+void Cell_Of_MembraneMesh<MeshAttributeType>::Clear(const MDK_Symbol_PureEmpty&)
 {
     m_Data.reset();
 }
