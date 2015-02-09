@@ -47,7 +47,7 @@ private:
 
     bool m_Flag_All_Col;
 
-    ElementType m_NaNElement;
+    ElementType m_ErrorElement;
 
 	// info of the source Matrix -----------------------------------------------//
 

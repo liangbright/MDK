@@ -123,15 +123,12 @@ template<typename PixelType>
 SparseImage3D<PixelType>::SparseImage3D()
 {
     m_ImageData = std::make_shared<SparseImageData3D<PixelType>>();
-    this->Clear();
 }
 
 
 template<typename PixelType>
 SparseImage3D<PixelType>::SparseImage3D(const SparseImage3D<PixelType>& InputSparseImage)
 {
-    m_ImageData = std::make_shared<SparseImageData3D<PixelType>>();    
-    this->Clear();
     this->Copy(InputSparseImage);
 }
 
@@ -139,7 +136,7 @@ SparseImage3D<PixelType>::SparseImage3D(const SparseImage3D<PixelType>& InputSpa
 template<typename PixelType>
 SparseImage3D<PixelType>::SparseImage3D(SparseImage3D<PixelType>&& InputSparseImage)
 {
-	(*this) = std::move(InputSparseImage);
+	m_ImageData = std::move(InputSparseImage.m_ImageData);
 }
 
 
@@ -159,7 +156,7 @@ void SparseImage3D<PixelType>::operator=(const SparseImage3D<PixelType>& InputIm
 template<typename PixelType>
 void SparseImage3D<PixelType>::operator=(SparseImage3D<PixelType>&& InputImage)
 {
-	m_ImageData = std::move(InputSparseImage.m_ImageData);
+	this->Copy(std::move(InputImage));
 }
 
 
@@ -186,11 +183,16 @@ void SparseImage3D<PixelType>::Copy(const SparseImage3D<PixelType_Input>& InputI
         }
 	}
 
-	this->CopyPixelData(InputSparseImage);
+	if (!m_ImageData)
+	{
+		m_ImageData = std::make_shared<SparseImageData3D<PixelType>>();
+	}
+
     this->SetSize(InputSparseImage.GetSize());
     this->SetSpacing(InputSparseImage.GetSpacing());
     this->SetOrigin(InputSparseImage.GetOrigin);
     this->SetOrientation(InputSparseImage.GetOrientation());
+	this->CopyPixelData(InputSparseImage);
 }
 
 
@@ -218,6 +220,38 @@ void SparseImage3D<PixelType>::CopyPixelData(const SparseImage3D<PixelType_Input
 	{
 		m_DataMap[it->first] = PixelType(it->second);
 	}
+}
+
+
+template<typename PixelType>
+void SparseImage3D<PixelType>::Copy(SparseImage3D<PixelType>&& InputSparseImage)
+{
+	if (!m_ImageData)
+	{
+		m_ImageData = std::make_shared<SparseImageData3D<PixelType>>();
+	}
+
+	m_ImageData->m_Size[0] = InputSparseImage.m_ImageData->m_Size[0];
+	m_ImageData->m_Size[1] = InputSparseImage.m_ImageData->m_Size[1];
+	m_ImageData->m_Size[2] = InputSparseImage.m_ImageData->m_Size[2];
+
+	m_ImageData->m_PixelNumberPerZSlice = InputSparseImage.m_ImageData->m_PixelNumberPerZSlice;
+
+	m_ImageData->m_Spacing[0] = InputSparseImage.m_ImageData->m_Spacing[0];
+	m_ImageData->m_Spacing[1] = InputSparseImage.m_ImageData->m_Spacing[1];
+	m_ImageData->m_Spacing[2] = InputSparseImage.m_ImageData->m_Spacing[2];
+
+	m_ImageData->m_Origin[0] = InputSparseImage.m_ImageData->m_Origin[0];
+	m_ImageData->m_Origin[1] = InputSparseImage.m_ImageData->m_Origin[1];
+	m_ImageData->m_Origin[2] = InputSparseImage.m_ImageData->m_Origin[2];
+
+	m_ImageData->m_Orientation = std::move(InputSparseImage.m_ImageData->m_Orientation);
+
+	m_ImageData->m_DataMap = std::move(InputSparseImage.m_ImageData->m_DataMap);
+
+	m_ImageData->m_Pixel_OutsideImage = InputSparseImage.m_ImageData->m_Pixel_OutsideImage;
+
+	InputSparseImage.Clear();
 }
 
 
@@ -259,55 +293,6 @@ bool SparseImage3D<PixelType>::ForceShare(const SparseImage3D<PixelType>* InputS
     }
 
     return this->ForceShare(*InputSparseImage);
-}
-
-
-template<typename PixelType>
-void SparseImage3D<PixelType>::Take(SparseImage3D<PixelType>&& InputSparseImage)
-{
-    this->Take(std::forward<SparseImage3D<PixelType>&>(InputSparseImage));
-}
-
-
-template<typename PixelType>
-void SparseImage3D<PixelType>::Take(SparseImage3D<PixelType>& InputSparseImage)
-{
-    m_ImageData->m_Size[0] = InputSparseImage.m_ImageData->m_Size[0];
-    m_ImageData->m_Size[1] = InputSparseImage.m_ImageData->m_Size[1];
-    m_ImageData->m_Size[2] = InputSparseImage.m_ImageData->m_Size[2];    
-
-    m_ImageData->m_PixelNumberPerZSlice = InputSparseImage.m_ImageData->m_PixelNumberPerZSlice;
-    
-    m_ImageData->m_Spacing[0] = InputSparseImage.m_ImageData->m_Spacing[0];
-    m_ImageData->m_Spacing[1] = InputSparseImage.m_ImageData->m_Spacing[1];
-    m_ImageData->m_Spacing[2] = InputSparseImage.m_ImageData->m_Spacing[2];
-
-    m_ImageData->m_Origin[0] = InputSparseImage.m_ImageData->m_Origin[0];
-    m_ImageData->m_Origin[1] = InputSparseImage.m_ImageData->m_Origin[1];
-    m_ImageData->m_Origin[2] = InputSparseImage.m_ImageData->m_Origin[2];
-    
-    m_ImageData->m_Orientation = std::move(InputSparseImage.m_ImageData->m_Orientation);
-
-    m_ImageData->m_DataMap = std::move(InputSparseImage.m_ImageData->m_DataMap);    
-
-	m_ImageData->m_Pixel_OutsideImage = InputSparseImage.m_ImageData->m_Pixel_OutsideImage;
-
-    InputSparseImage.Clear();
-}
-
-
-template<typename PixelType>
-bool SparseImage3D<PixelType>::Take(SparseImage3D<PixelType>* InputSparseImage)
-{
-    if (InputSparseImage == nullptr)
-    {
-        MDK_Error("Invalid input @ 3DSparseImage::Take(SparseImage3D<PixelType>*)")
-        return false;
-    }
-
-    this->Take(*InputSparseImage);
-
-    return true;
 }
 
 

@@ -21,7 +21,7 @@ PolygonMesh<MeshAttributeType>::PolygonMesh(const PolygonMesh<MeshAttributeType>
 
 template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType>::PolygonMesh(PolygonMesh<MeshAttributeType>&& InputMesh)
-: MembraneMesh(std::forward<MembraneMesh<MeshAttributeType>&&>(InputMesh))
+: MembraneMesh(std::move(InputMesh))
 {
 }
 
@@ -44,7 +44,7 @@ template<typename MeshAttributeType>
 inline
 void PolygonMesh<MeshAttributeType>::operator=(PolygonMesh<MeshAttributeType>&& InputMesh)
 {
-    this->MembraneMesh::operator=(std::forward<MembraneMesh<MeshAttributeType>&&>(InputMesh));
+    this->MembraneMesh::operator=(std::move(InputMesh));
 }
 
 

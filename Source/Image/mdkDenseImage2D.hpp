@@ -161,15 +161,12 @@ template<typename PixelType>
 DenseImage2D<PixelType>::DenseImage2D()
 {
     m_ImageData = std::make_shared<DenseImageData2D<PixelType>>();
-    this->Clear();
 }
 
 
 template<typename PixelType>
 DenseImage2D<PixelType>::DenseImage2D(const DenseImage2D<PixelType>& InputImage)
 {
-    m_ImageData = std::make_shared<DenseImageData2D<PixelType>>();    
-    this->Clear();
     this->Copy(InputImage);
 }
 
@@ -177,7 +174,7 @@ DenseImage2D<PixelType>::DenseImage2D(const DenseImage2D<PixelType>& InputImage)
 template<typename PixelType>
 DenseImage2D<PixelType>::DenseImage2D(DenseImage2D<PixelType>&& InputImage)
 {
-	(*this) = std::move(InputImage);
+	m_ImageData = std::move(InputImage.m_ImageData);
 }
 
 
@@ -197,7 +194,7 @@ void DenseImage2D<PixelType>::operator=(const DenseImage2D<PixelType>& InputImag
 template<typename PixelType>
 void DenseImage2D<PixelType>::operator=(DenseImage2D<PixelType>&& InputImage)
 {
-	m_ImageData = std::move(InputImage.m_ImageData);
+	this->Copy(std::move(InputImage));
 }
 
 
@@ -224,11 +221,16 @@ void DenseImage2D<PixelType>::Copy(const DenseImage2D<PixelType_Input>& InputIma
         }
 	}
 
-	this->CopyPixelData(InputImage.GetPixelPointer(), InputImage.GetPixelNumber());
+	if (!m_ImageData)
+	{
+		m_ImageData = std::make_shared<DenseImageData2D<PixelType>>();
+	}
+
     this->SetSize(InputImage.GetSize());
     this->SetSpacing(InputImage.GetSpacing());
     this->SetOrigin(InputImage.GetOrigin);
     this->SetOrientation(InputImage.GetOrientation());
+	this->CopyPixelData(InputImage.GetPixelPointer(), InputImage.GetPixelNumber());
 }
 
 
@@ -281,6 +283,33 @@ bool DenseImage2D<PixelType>::CopyPixelData(const PixelType_Input* InputPixelPoi
 	}
 
     return true;
+}
+
+
+template<typename PixelType>
+void DenseImage2D<PixelType>::Copy(DenseImage2D<PixelType>&& InputImage)
+{
+	if (!m_ImageData)
+	{
+		m_ImageData = std::make_shared<DenseImageData2D<PixelType>>();
+	}
+
+	m_ImageData->m_Size[0] = InputImage.m_ImageData->m_Size[0];
+	m_ImageData->m_Size[1] = InputImage.m_ImageData->m_Size[1];
+
+	m_ImageData->m_Spacing[0] = InputImage.m_ImageData->m_Spacing[0];
+	m_ImageData->m_Spacing[1] = InputImage.m_ImageData->m_Spacing[1];
+
+	m_ImageData->m_Origin[0] = InputImage.m_ImageData->m_Origin[0];
+	m_ImageData->m_Origin[1] = InputImage.m_ImageData->m_Origin[1];
+
+	m_ImageData->m_Orientation = std::move(InputImage.m_ImageData->m_Orientation);
+
+	m_ImageData->m_DataArray = std::move(InputImage.m_ImageData->m_DataArray);
+
+	m_ImageData->m_Pixel_OutsideImage = InputImage.m_ImageData->m_Pixel_OutsideImage;
+
+	InputImage.Clear();
 }
 
 
@@ -368,50 +397,6 @@ template<typename PixelType>
 bool DenseImage2D<PixelType>::ForceShare(const PixelType* InputImage, const Image2DInfo& InputImageInfo)
 {
 	return this->Share(const_cast<PixelType*>(InputImage), InputImageInfo);
-}
-
-
-template<typename PixelType>
-void DenseImage2D<PixelType>::Take(DenseImage2D<PixelType>&& InputImage)
-{
-    this->Take(std::forward<DenseImage2D<PixelType>&>(InputImage));
-}
-
-
-template<typename PixelType>
-void DenseImage2D<PixelType>::Take(DenseImage2D<PixelType>& InputImage)
-{
-    m_ImageData->m_Size[0] = InputImage.m_ImageData->m_Size[0];
-    m_ImageData->m_Size[1] = InputImage.m_ImageData->m_Size[1];
-    
-    m_ImageData->m_Spacing[0] = InputImage.m_ImageData->m_Spacing[0];
-    m_ImageData->m_Spacing[1] = InputImage.m_ImageData->m_Spacing[1];
-
-    m_ImageData->m_Origin[0] = InputImage.m_ImageData->m_Origin[0];
-    m_ImageData->m_Origin[1] = InputImage.m_ImageData->m_Origin[1];
-    
-    m_ImageData->m_Orientation = std::move(InputImage.m_ImageData->m_Orientation);
-
-    m_ImageData->m_DataArray = std::move(InputImage.m_ImageData->m_DataArray);    
-    
-	m_ImageData->m_Pixel_OutsideImage = InputImage.m_ImageData->m_Pixel_OutsideImage;
-
-    InputImage.Clear();
-}
-
-
-template<typename PixelType>
-bool DenseImage2D<PixelType>::Take(DenseImage2D<PixelType>* InputImage)
-{
-    if (InputImage == nullptr)
-    {
-        MDK_Error("Invalid input @ 2DDenseImage::Take(DenseImage2D<PixelType>*)")
-        return false;
-    }
-
-    this->Take(*InputImage);
-
-    return true;
 }
 
 

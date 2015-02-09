@@ -49,7 +49,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_Flag_All_Col = false;
 
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+    m_ErrorElement = m_SourceMatrixSharedCopy.GetErrorElement();
 }
 
 
@@ -87,7 +87,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_Flag_All_Col = false;
 
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+    m_ErrorElement = m_SourceMatrixSharedCopy.GetErrorElement();
 }
 
 
@@ -130,7 +130,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_Flag_All_Col = true;
 
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+    m_ErrorElement = m_SourceMatrixSharedCopy.GetErrorElement();
 }
 
 
@@ -173,7 +173,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_Flag_All_Col = true;
 
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+    m_ErrorElement = m_SourceMatrixSharedCopy.GetErrorElement();
 }
 
 
@@ -203,7 +203,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_Flag_All_Col = false;
 
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+    m_ErrorElement = m_SourceMatrixSharedCopy.GetErrorElement();
 }
 
 
@@ -241,7 +241,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_Flag_All_Col = false;
 
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+    m_ErrorElement = m_SourceMatrixSharedCopy.GetErrorElement();
 }
 
 
@@ -284,7 +284,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_Flag_All_Col = true;
 
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+    m_ErrorElement = m_SourceMatrixSharedCopy.GetErrorElement();
 }
 
 
@@ -327,7 +327,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_Flag_All_Col = true;
 
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+    m_ErrorElement = m_SourceMatrixSharedCopy.GetErrorElement();
 }
 
 
@@ -369,7 +369,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_Flag_All_Col = true;
 
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+    m_ErrorElement = m_SourceMatrixSharedCopy.GetErrorElement();
 }
 
 /*
@@ -388,7 +388,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseShadowMatrix<Elemen
     m_Flag_All_Row = true;
     m_Flag_All_Col = true;
 
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+    m_ErrorElement = m_SourceMatrixSharedCopy.GetErrorElement();
 }
 */
 
@@ -419,7 +419,7 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(DenseShadowMatrix<ElementType>
 
     m_Flag_All_Col = InputShadowMatrix.m_Flag_All_Col;
 
-    m_NaNElement = m_SourceMatrixSharedCopy.GetNaNElement();
+    m_ErrorElement = m_SourceMatrixSharedCopy.GetErrorElement();
 
     // clear InputShadowMatrix :  not necessary
     // Do NOT Use InputShadowMatrix.m_SourceMatrixSharedCopy.clear() -> this will clear m_SourceMatrixSharedCopy of this ShadowMatrix
@@ -871,7 +871,7 @@ ElementType& DenseShadowMatrix<ElementType>::operator[](int_max LinearIndex)
     if (LinearIndex >= m_ElementNumber)
     {
         MDK_Error("Invalid input @ DenseShadowMatrix::operator[i]")
-        return m_NaNElement;
+        return m_ErrorElement;
     }
 
 #endif
@@ -902,7 +902,7 @@ const ElementType& DenseShadowMatrix<ElementType>::operator[](int_max LinearInde
     if (LinearIndex >= m_ElementNumber)
     {
         MDK_Error("Invalid input @ DenseShadowMatrix::operator[i] const")
-        return m_NaNElement;
+        return m_ErrorElement;
     }
 
 #endif
@@ -933,7 +933,7 @@ ElementType& DenseShadowMatrix<ElementType>::operator()(int_max LinearIndex)
     if (LinearIndex >= m_ElementNumber || LinearIndex < 0)
 	{
 		MDK_Error("Invalid input @ DenseShadowMatrix::operator(i)")
-        return m_NaNElement;
+        return m_ErrorElement;
 	}
 
 #endif
@@ -964,7 +964,7 @@ const ElementType& DenseShadowMatrix<ElementType>::operator()(int_max LinearInde
     if (LinearIndex >= m_ElementNumber || LinearIndex < 0)
     {
         MDK_Error("Invalid input @ DenseShadowMatrix::operator(i) const")
-        return m_NaNElement;
+        return m_ErrorElement;
     }
 
 #endif
@@ -995,7 +995,7 @@ ElementType& DenseShadowMatrix<ElementType>::operator()(int_max RowIndex, int_ma
     if (RowIndex >= m_RowNumber || RowIndex < 0 || ColIndex >= m_ColNumber || ColIndex < 0)
 	{
 		MDK_Error("Invalid input @ DenseShadowMatrix::operator(i, j)")
-        return m_NaNElement;
+        return m_ErrorElement;
 	}
 
 #endif
@@ -1024,7 +1024,7 @@ const ElementType& DenseShadowMatrix<ElementType>::operator()(int_max RowIndex, 
     if (RowIndex >= m_RowNumber || RowIndex < 0 || ColIndex >= m_ColNumber || ColIndex < 0)
 	{
 		MDK_Error("Invalid input @ DenseShadowMatrix::operator(i, j) const")
-        return m_NaNElement;
+        return m_ErrorElement;
 	}
 
 #endif

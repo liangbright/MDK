@@ -84,7 +84,7 @@ public:
     inline void operator=(Point_Of_MembraneMesh<MeshAttributeType>&& InputPoint);
 
 private:
-    inline void Create();
+    inline void ReCreate();
 	inline void Clear(const MDK_Symbol_PureEmpty&);
 
     inline void SetParentMesh(MembraneMesh<MeshAttributeType>& ParentMesh);
@@ -224,7 +224,7 @@ public:
     inline void operator=(Edge_Of_MembraneMesh<MeshAttributeType>&& InputEdge);
     
 private:
-    inline void Create();
+    inline void ReCreate();
 	inline void Clear(const MDK_Symbol_PureEmpty&);
 
     inline void SetParentMesh(MembraneMesh<MeshAttributeType>& ParentMesh);
@@ -368,7 +368,7 @@ public:
     void operator=(DirectedEdge_Of_MembraneMesh<MeshAttributeType>&& InputDirectedEdge);
 
 private:
-    inline void Create();
+    inline void ReCreate();
 	inline void Clear(const MDK_Symbol_PureEmpty&);
 
     inline void SetParentMesh(MembraneMesh<MeshAttributeType>& ParentMesh);
@@ -503,7 +503,7 @@ public:
     void operator=(Cell_Of_MembraneMesh<MeshAttributeType>&& InputCell);
 
 private:
-    inline void Create();
+    inline void ReCreate();
 	inline void Clear(const MDK_Symbol_PureEmpty&);
 
     inline void SetParentMesh(MembraneMesh<MeshAttributeType>& ParentMesh);

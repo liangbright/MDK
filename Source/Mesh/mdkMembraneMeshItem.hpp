@@ -10,7 +10,7 @@ template<typename MeshAttributeType>
 inline
 Point_Of_MembraneMesh<MeshAttributeType>::Point_Of_MembraneMesh()
 {
-	this->Create();
+	this->ReCreate();
 }
 
 template<typename MeshAttributeType>
@@ -42,8 +42,12 @@ void Point_Of_MembraneMesh<MeshAttributeType>::operator=(const Point_Of_Membrane
 		m_Data.reset();
         return;
     }
+	
+	if (!m_Data)
+	{
+		m_Data = std::make_unique<Data_Of_Point_Of_MembraneMesh<MeshAttributeType>>();
+	}
 
-    this->Create();
     m_Data->Mesh.ForceShare(InputPoint.m_Data->Mesh);
     m_Data->Index = InputPoint.m_Data->Index; 
     m_Data->ID = InputPoint.m_Data->ID;
@@ -64,7 +68,7 @@ void Point_Of_MembraneMesh<MeshAttributeType>::operator=(Point_Of_MembraneMesh<M
 
 template<typename MeshAttributeType>
 inline
-void Point_Of_MembraneMesh<MeshAttributeType>::Create()
+void Point_Of_MembraneMesh<MeshAttributeType>::ReCreate()
 {
     if (!m_Data)
     {
@@ -579,7 +583,7 @@ template<typename MeshAttributeType>
 inline
 Edge_Of_MembraneMesh<MeshAttributeType>::Edge_Of_MembraneMesh()
 {
-	this->Create();
+	this->ReCreate();
 }
 
 template<typename MeshAttributeType>
@@ -612,7 +616,11 @@ void Edge_Of_MembraneMesh<MeshAttributeType>::operator=(const Edge_Of_MembraneMe
         return;
     }
 
-    this->Create();
+	if (!m_Data)
+	{
+		m_Data = std::make_unique<Data_Of_Point_Of_MembraneMesh<MeshAttributeType>>();
+	}
+
     m_Data->Mesh.ForceShare(InputEdge.m_Data->Mesh);
     m_Data->Index = InputEdge.m_Data->Index;
     m_Data->ID = InputEdge.m_Data->ID;
@@ -631,7 +639,7 @@ void Edge_Of_MembraneMesh<MeshAttributeType>::operator=(Edge_Of_MembraneMesh<Mes
 
 template<typename MeshAttributeType>
 inline
-void Edge_Of_MembraneMesh<MeshAttributeType>::Create()
+void Edge_Of_MembraneMesh<MeshAttributeType>::ReCreate()
 {
     if (!m_Data)
     {
@@ -1305,7 +1313,7 @@ template<typename MeshAttributeType>
 inline
 DirectedEdge_Of_MembraneMesh<MeshAttributeType>::DirectedEdge_Of_MembraneMesh()
 {
-	this->Create();
+	this->ReCreate();
 }
 
 template<typename MeshAttributeType>
@@ -1338,7 +1346,11 @@ void DirectedEdge_Of_MembraneMesh<MeshAttributeType>::operator=(const DirectedEd
         return;
     }
 
-    this->Create();
+	if (!m_Data)
+	{
+		m_Data = std::make_unique<Data_Of_Point_Of_MembraneMesh<MeshAttributeType>>();
+	}
+
     m_Data->Mesh.ForceShare(InputDirectedEdge.m_Data->Mesh);
     m_Data->Index = InputDirectedEdge.m_Data->Index;
     m_Data->ID = InputDirectedEdge.m_Data->ID;
@@ -1359,7 +1371,7 @@ void DirectedEdge_Of_MembraneMesh<MeshAttributeType>::operator=(DirectedEdge_Of_
 
 template<typename MeshAttributeType>
 inline
-void DirectedEdge_Of_MembraneMesh<MeshAttributeType>::Create()
+void DirectedEdge_Of_MembraneMesh<MeshAttributeType>::ReCreate()
 {
     if (!m_Data)
     {
@@ -1920,7 +1932,7 @@ template<typename MeshAttributeType>
 inline
 Cell_Of_MembraneMesh<MeshAttributeType>::Cell_Of_MembraneMesh()
 {
-	this->Create();
+	this->ReCreate();
 }
 
 template<typename MeshAttributeType>
@@ -1953,7 +1965,11 @@ void Cell_Of_MembraneMesh<MeshAttributeType>::operator=(const Cell_Of_MembraneMe
         return;
     }
 
-    this->Create();
+	if (!m_Data)
+	{
+		m_Data = std::make_unique<Data_Of_Point_Of_MembraneMesh<MeshAttributeType>>();
+	}
+
     m_Data->Mesh.ForceShare(InputCell.m_Data->Mesh);
     m_Data->Index = InputCell.m_Data->Index;
     m_Data->ID = InputCell.m_Data->ID;
@@ -1970,7 +1986,7 @@ void Cell_Of_MembraneMesh<MeshAttributeType>::operator=(Cell_Of_MembraneMesh<Mes
 
 template<typename MeshAttributeType>
 inline
-void Cell_Of_MembraneMesh<MeshAttributeType>::Create()
+void Cell_Of_MembraneMesh<MeshAttributeType>::ReCreate()
 {
     if (!m_Data)
     {

@@ -127,17 +127,14 @@ public:
 	template<typename PixelType_Input>
 	void CopyPixelData(const SparseImage2D<PixelType_Input>& InputImage);
 
+	void Copy(SparseImage2D&& InputImage);
+
     //---------------------------------------------------------//
     bool Share(SparseImage2D& InputImage);
     bool Share(SparseImage2D* InputImage);
 
     void ForceShare(const SparseImage2D& InputImage);
     bool ForceShare(const SparseImage2D* InputImage);
-
-    //---------------------------------------------------------//
-    void Take(SparseImage2D&& InputImage);
-    void Take(SparseImage2D& InputImage);
-    bool Take(SparseImage2D* InputImage);
 
     //-----------------------------------------------------------------//
 

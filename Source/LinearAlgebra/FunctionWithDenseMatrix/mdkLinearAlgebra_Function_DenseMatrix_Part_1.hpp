@@ -230,7 +230,7 @@ bool MatrixMultiply_slow(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
 
             DenseMatrix<ElementType> tempMatrix;
             MatrixMultiply(tempMatrix, MatrixA, MatrixB);
-            OutputMatrixC.Take(tempMatrix);// do NOT use std::move()
+            OutputMatrixC.Copy(std::move(tempMatrix));// do NOT use OutputMatrixC = std::move(tempMatrix)
             return true;
         }
     }
@@ -368,7 +368,7 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
             // create a temp matrix and call this function again  
             DenseMatrix<ElementType> tempMatrix;
             MatrixMultiply(tempMatrix, MatrixA, MatrixB);
-            OutputMatrixC.Take(tempMatrix);// do NOT use std::move()
+            OutputMatrixC.Copy(std::move(tempMatrix));// do NOT use OutputMatrixC = std::move(tempMatrix)
             return true;
         }
     }

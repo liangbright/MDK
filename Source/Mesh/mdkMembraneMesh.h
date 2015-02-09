@@ -1,5 +1,5 @@
-#ifndef __mdkMembraneMesh_h
-#define __mdkMembraneMesh_h
+#ifndef mdk_MembraneMesh_h
+#define mdk_MembraneMesh_h
 
 #include <unordered_map>
 
@@ -154,18 +154,15 @@ public:
 
     inline void Clear();
 
+	inline bool Copy(const MembraneMesh* InputMesh);
     inline void Copy(const MembraneMesh& InputMesh);
-    inline bool Copy(const MembraneMesh* InputMesh);
+	inline void Copy(MembraneMesh&& InputMesh);
 
-    inline void Share(MembraneMesh& InputMesh);
-    inline bool Share(MembraneMesh* InputMesh);
+	inline bool Share(MembraneMesh* InputMesh);
+	inline void Share(MembraneMesh& InputMesh);
 
+	inline bool ForceShare(const MembraneMesh* InputMesh);
     inline void ForceShare(const MembraneMesh& InputMesh);
-    inline bool ForceShare(const MembraneMesh* InputMesh);
-
-    inline void Take(MembraneMesh&& InputMesh);
-    inline void Take(MembraneMesh& InputMesh);
-    inline bool Take(MembraneMesh* InputMesh);
 
     //-------------------------------------------------------------------
     inline bool IsEmpty() const;

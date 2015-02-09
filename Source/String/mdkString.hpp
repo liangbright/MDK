@@ -1,5 +1,5 @@
-#ifndef __mdkString_hpp
-#define __mdkString_hpp
+#ifndef mdk_String_hpp
+#define mdk_String_hpp
 
 #include "mdkDenseMatrix.h"
 
@@ -42,7 +42,7 @@ inline String::String(const String& InputString)
 // move constructor
 inline String::String(String&& InputString) noexcept
 {
-	(*this) = std::move(InputString);
+	m_StringData = std::move(InputString.m_StringData);
 }
 
 
@@ -57,10 +57,9 @@ inline void String::operator=(const String& InputString)
 }
 
 
-// move assignment operator
 inline void String::operator=(String&& InputString)
 {
-	m_StringData = std::move(InputString.m_StringData);
+	this->Copy(std::move(InputString));
 }
 
 
@@ -196,6 +195,43 @@ inline void String::Copy(const char* InputElementPointer)
 }
 
 
+inline void String::Copy(String&& InputString)
+{
+	// String = String
+	if (this == &InputString)
+	{
+		MDK_Warning("A String tries to take itself @ String::take(InputString)")
+		return;
+	}
+
+	if (InputString.IsEmpty() == true)
+	{
+		this->Clear();
+		return;
+	}
+
+	// StringA = StringA
+	if (this->GetCharPointer() == InputString.GetCharPointer())
+	{
+		return;
+	}
+
+	if (this->IsPureEmpty() == true)
+	{
+		this->Resize(0);
+	}
+
+	// now, InputString is not empty, and is not self
+
+	//note: m_StringData.swap(InputString.m_StringData) will invalidate Share()
+
+	(*m_StringData) = std::move(*InputString.m_StringData);
+
+	// Clear InputString to be empty
+	InputString.Clear();
+}
+
+
 inline void String::Fill(char Element)
 {
     auto SelfLength = this->GetCharNumber();
@@ -261,60 +297,6 @@ inline void String::ForceShare(const String* InputString)
         return;
     }
     this->ForceShare(*InputString);
-}
-
-
-inline void String::Take(String&& InputString)
-{
-    this->Take(std::forward<String&>(InputString));
-}
-
-
-inline void String::Take(String& InputString)
-{
-    // String = String
-    if (this == &InputString)
-    {
-        MDK_Warning("A String tries to take itself @ String::take(InputString)")
-        return;
-    }
-
-    if (InputString.IsEmpty() == true)
-    {
-        this->Clear();
-        return;
-    }
-
-    // StringA = StringA
-	if (this->GetCharPointer() == InputString.GetCharPointer())
-    {
-        return;
-    }
-
-	if (this->IsPureEmpty() == true)
-	{
-		this->Resize(0);
-	}
-
-    // now, InputString is not empty, and is not self
-    
-    //note: m_StringData.swap(InputString.m_StringData) will invalidate Share()
-
-    (*m_StringData) = std::move(*InputString.m_StringData);
-
-    // Clear InputString to be empty
-    InputString.Clear();
-}
-
-
-inline void String::Take(String* InputString)
-{
-    if (InputString == nullptr)
-    {
-        MDK_Error("Input is nullptr @ String::Take(mdkString* InputString)")
-        return;
-    }
-    this->Take(*InputString);
 }
 
 

@@ -264,7 +264,7 @@ bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatri
     }// while
     
     // take the final result
-    OutputMatrix.Take(ResultMatrixList[0]);
+    OutputMatrix.Copy(std::move(ResultMatrixList[0]));
 
     if (m_Is_m_Element_Coef_Equal_to_One == false)
     {

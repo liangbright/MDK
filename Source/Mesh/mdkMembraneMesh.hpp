@@ -1,5 +1,5 @@
-#ifndef __mdkMembraneMesh_hpp
-#define __mdkMembraneMesh_hpp
+#ifndef mdk_MembraneMesh_hpp
+#define mdk_MembraneMesh_hpp
 
 namespace mdk
 {
@@ -27,7 +27,7 @@ MembraneMesh<MeshAttributeType>::MembraneMesh(const MembraneMesh<MeshAttributeTy
 template<typename MeshAttributeType>
 MembraneMesh<MeshAttributeType>::MembraneMesh(MembraneMesh<MeshAttributeType>&& InputMesh)
 {
-	(*this) = std::move(InputMesh);
+	m_MeshData = std::move(InputMesh.m_MeshData);
 }
 
 
@@ -49,7 +49,7 @@ template<typename MeshAttributeType>
 inline
 void MembraneMesh<MeshAttributeType>::operator=(MembraneMesh<MeshAttributeType>&& InputMesh)
 {
-	m_MeshData = std::move(InputMesh.m_MeshData);
+	this->Copy(std::move(InputMesh));
 }
 
 
@@ -78,6 +78,22 @@ void MembraneMesh<MeshAttributeType>::Clear()
     m_MeshData->Map_CellID_to_CellIndex.clear();
 
     m_MeshData->Attribute.Clear();
+}
+
+
+template<typename MeshAttributeType>
+inline
+bool MembraneMesh<MeshAttributeType>::Copy(const MembraneMesh<MeshAttributeType>* InputMesh)
+{
+	if (InputMesh == nullptr)
+	{
+		MDK_Error("Input is nullptr @ MembraneMesh::Copy(...)")
+			return false;
+	}
+
+	this->Copy(*InputMesh);
+
+	return true;
 }
 
 
@@ -137,25 +153,55 @@ void MembraneMesh<MeshAttributeType>::Copy(const MembraneMesh<MeshAttributeType>
 
 template<typename MeshAttributeType>
 inline
-bool MembraneMesh<MeshAttributeType>::Copy(const MembraneMesh<MeshAttributeType>* InputMesh)
+void MembraneMesh<MeshAttributeType>::Copy(MembraneMesh<MeshAttributeType>&& InputMesh)
 {
-    if (InputMesh == nullptr)
-    {
-        MDK_Error("Input is nullptr @ MembraneMesh::Copy(...)")
-        return false;
-    }
+	if (!m_MeshData)
+	{
+		m_MeshData = std::make_shared<MembraneMeshData<MeshAttributeType>>();
+	}
 
-    this->Copy(*InputMesh);
+	if (!InputMesh.m_MeshData)
+	{
+		return;
+	}
 
-    return true;
-}
+	m_MeshData->PointPositionTable = std::move(InputMesh.m_MeshData->PointPositionTable);
+	m_MeshData->PointValidityFlagList = std::move(InputMesh.m_MeshData->PointValidityFlagList);
+	m_MeshData->PointList = std::move(InputMesh.m_MeshData->PointList);
+	for (int_max k = 0; k < m_MeshData->PointList.GetLength(); ++k)
+	{
+		if (m_MeshData->PointValidityFlagList[k] == 1)
+		{
+			m_MeshData->PointList[k].SetParentMesh(*this);
+		}
+	}
 
+	m_MeshData->EdgeValidityFlagList = std::move(InputMesh.m_MeshData->EdgeValidityFlagList);
+	m_MeshData->EdgeList = std::move(InputMesh.m_MeshData->EdgeList);
+	for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k)
+	{
+		if (m_MeshData->EdgeValidityFlagList[k] == 1)
+		{
+			m_MeshData->EdgeList[k].SetParentMesh(*this);
+		}
+	}
 
-template<typename MeshAttributeType>
-inline
-void MembraneMesh<MeshAttributeType>::Share(MembraneMesh& InputMesh)
-{
-    m_MeshData = InputMesh.m_MeshData;
+	m_MeshData->CellValidityFlagList = std::move(InputMesh.m_MeshData->CellValidityFlagList);
+	m_MeshData->CellList = std::move(InputMesh.m_MeshData->CellList);
+	for (int_max k = 0; k < m_MeshData->CellList.GetLength(); ++k)
+	{
+		if (m_MeshData->CellValidityFlagList[k] == 1)
+		{
+			m_MeshData->CellList[k].SetParentMesh(*this);
+		}
+	}
+
+	m_MeshData->Map_PointID_to_PointIndex = std::move(InputMesh.m_MeshData->Map_PointID_to_PointIndex);
+	m_MeshData->Map_EdgeID_to_EdgeIndex = std::move(InputMesh.m_MeshData->Map_EdgeID_to_EdgeIndex);
+	m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex = std::move(InputMesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex);
+	m_MeshData->Map_CellID_to_CellIndex = std::move(InputMesh.m_MeshData->Map_CellID_to_CellIndex);
+
+	m_MeshData->Attribute = std::move(InputMesh.m_MeshData->Attribute);
 }
 
 
@@ -177,9 +223,9 @@ bool MembraneMesh<MeshAttributeType>::Share(MembraneMesh* InputMesh)
 
 template<typename MeshAttributeType>
 inline
-void MembraneMesh<MeshAttributeType>::ForceShare(const MembraneMesh<MeshAttributeType>& InputMesh)
+void MembraneMesh<MeshAttributeType>::Share(MembraneMesh& InputMesh)
 {
-    m_MeshData = InputMesh.m_MeshData;
+	m_MeshData = InputMesh.m_MeshData;
 }
 
 
@@ -201,79 +247,9 @@ bool MembraneMesh<MeshAttributeType>::ForceShare(const MembraneMesh<MeshAttribut
 
 template<typename MeshAttributeType>
 inline
-void MembraneMesh<MeshAttributeType>::Take(MembraneMesh<MeshAttributeType>&& InputMesh)
+void MembraneMesh<MeshAttributeType>::ForceShare(const MembraneMesh<MeshAttributeType>& InputMesh)
 {
-    Take(std::forward<MembraneMesh<MeshAttributeType>&>(InputMesh));
-}
-
-
-template<typename MeshAttributeType>
-inline
-void MembraneMesh<MeshAttributeType>::Take(MembraneMesh<MeshAttributeType>& InputMesh)
-{
-    if (!m_MeshData)
-    {
-        m_MeshData = std::make_shared<MembraneMeshData<MeshAttributeType>>();
-    }
-
-    if (!InputMesh.m_MeshData)
-    {
-        return;
-    }
-
-    m_MeshData->PointPositionTable = std::move(InputMesh.m_MeshData->PointPositionTable);
-    m_MeshData->PointValidityFlagList = std::move(InputMesh.m_MeshData->PointValidityFlagList);
-    m_MeshData->PointList = std::move(InputMesh.m_MeshData->PointList);
-    for (int_max k = 0; k < m_MeshData->PointList.GetLength(); ++k)
-    {
-        if (m_MeshData->PointValidityFlagList[k] == 1)
-        {
-            m_MeshData->PointList[k].SetParentMesh(*this);
-        }
-    }
-
-    m_MeshData->EdgeValidityFlagList = std::move(InputMesh.m_MeshData->EdgeValidityFlagList);
-    m_MeshData->EdgeList = std::move(InputMesh.m_MeshData->EdgeList);
-    for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k)
-    {
-        if (m_MeshData->EdgeValidityFlagList[k] == 1)
-        {
-            m_MeshData->EdgeList[k].SetParentMesh(*this);
-        }
-    }    
-
-    m_MeshData->CellValidityFlagList = std::move(InputMesh.m_MeshData->CellValidityFlagList);
-    m_MeshData->CellList = std::move(InputMesh.m_MeshData->CellList);
-    for (int_max k = 0; k < m_MeshData->CellList.GetLength(); ++k)
-    {
-        if (m_MeshData->CellValidityFlagList[k] == 1)
-        {
-            m_MeshData->CellList[k].SetParentMesh(*this);
-        }
-    }    
-
-    m_MeshData->Map_PointID_to_PointIndex = std::move(InputMesh.m_MeshData->Map_PointID_to_PointIndex);
-    m_MeshData->Map_EdgeID_to_EdgeIndex = std::move(InputMesh.m_MeshData->Map_EdgeID_to_EdgeIndex);
-    m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex = std::move(InputMesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex);
-    m_MeshData->Map_CellID_to_CellIndex = std::move(InputMesh.m_MeshData->Map_CellID_to_CellIndex);
-
-    m_MeshData->Attribute = std::move(InputMesh.m_MeshData->Attribute);
-}
-
-
-template<typename MeshAttributeType>
-inline
-bool MembraneMesh<MeshAttributeType>::Take(MembraneMesh<MeshAttributeType>* InputMesh)
-{
-    if (InputMesh == nullptr)
-    {
-        MDK_Error("Input is nullptr @ MembraneMesh::Take(...)")
-        return false;
-    }
-
-    this->Take(*InputMesh);
-
-    return true;
+	m_MeshData = InputMesh.m_MeshData;
 }
 
 //-------------------------------------------------------------------
@@ -1947,7 +1923,6 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::Ad
 		for (int_max k = 0; k < m_MeshData->PointPositionTable.GetColNumber(); ++k)
 		{
 			Point_Of_MembraneMesh<MeshAttributeType> Point;
-			Point.Create();
 			Point.SetParentMesh(*this);
 			Point.SetIndex(k);
 

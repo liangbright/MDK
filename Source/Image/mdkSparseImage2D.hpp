@@ -142,15 +142,12 @@ template<typename PixelType>
 SparseImage2D<PixelType>::SparseImage2D()
 {
     m_ImageData = std::make_shared<SparseImageData2D<PixelType>>();
-    this->Clear();
 }
 
 
 template<typename PixelType>
 SparseImage2D<PixelType>::SparseImage2D(const SparseImage2D<PixelType>& InputSparseImage)
 {
-    m_ImageData = std::make_shared<SparseImageData2D<PixelType>>();    
-    this->Clear();
     this->Copy(InputSparseImage);
 }
 
@@ -158,7 +155,7 @@ SparseImage2D<PixelType>::SparseImage2D(const SparseImage2D<PixelType>& InputSpa
 template<typename PixelType>
 SparseImage2D<PixelType>::SparseImage2D(SparseImage2D<PixelType>&& InputSparseImage)
 {
-	(*this) = std::move(InputSparseImage);
+	m_ImageData = std::move(InputSparseImage.m_ImageData);
 }
 
 
@@ -178,7 +175,7 @@ void SparseImage2D<PixelType>::operator=(const SparseImage2D<PixelType>& InputIm
 template<typename PixelType>
 void SparseImage2D<PixelType>::operator=(SparseImage2D<PixelType>&& InputImage)
 {
-	m_ImageData = std::move(InputSparseImage.m_ImageData);
+	this->Copy(std::move(InputImage));
 }
 
 
@@ -205,11 +202,17 @@ void SparseImage2D<PixelType>::Copy(const SparseImage2D<PixelType_Input>& InputI
         }
 	}
 
-	this->CopyPixelData(InputSparseImage);
+	if (!m_ImageData)
+	{
+		m_ImageData = std::make_shared<SparseImageData2D<PixelType>>();
+	}
+
     this->SetSize(InputSparseImage.GetSize());
     this->SetSpacing(InputSparseImage.GetSpacing());
     this->SetOrigin(InputSparseImage.GetOrigin);
     this->SetOrientation(InputSparseImage.GetOrientation());
+	this->CopyPixelData(InputSparseImage);
+
 }
 
 
@@ -235,6 +238,38 @@ void SparseImage2D<PixelType>::CopyPixelData(const SparseImage2D<PixelType_Input
 	{
 		m_DataMap[it->first] = PixelType(it->second);
 	}
+}
+
+
+template<typename PixelType>
+void SparseImage2D<PixelType>::Copy(SparseImage2D<PixelType>&& InputSparseImage)
+{
+	if (!m_ImageData)
+	{
+		m_ImageData = std::make_shared<SparseImageData2D<PixelType>>();
+	}
+
+	m_ImageData->m_Size[0] = InputSparseImage.m_ImageData->m_Size[0];
+	m_ImageData->m_Size[1] = InputSparseImage.m_ImageData->m_Size[1];
+	m_ImageData->m_Size[2] = InputSparseImage.m_ImageData->m_Size[2];
+
+	m_ImageData->m_PixelNumberPerZSlice = InputSparseImage.m_ImageData->m_PixelNumberPerZSlice;
+
+	m_ImageData->m_Spacing[0] = InputSparseImage.m_ImageData->m_Spacing[0];
+	m_ImageData->m_Spacing[1] = InputSparseImage.m_ImageData->m_Spacing[1];
+	m_ImageData->m_Spacing[2] = InputSparseImage.m_ImageData->m_Spacing[2];
+
+	m_ImageData->m_Origin[0] = InputSparseImage.m_ImageData->m_Origin[0];
+	m_ImageData->m_Origin[1] = InputSparseImage.m_ImageData->m_Origin[1];
+	m_ImageData->m_Origin[2] = InputSparseImage.m_ImageData->m_Origin[2];
+
+	m_ImageData->m_Orientation = std::move(InputSparseImage.m_ImageData->m_Orientation);
+
+	m_ImageData->m_DataMap = std::move(InputSparseImage.m_ImageData->m_DataMap);
+
+	m_ImageData->m_Pixel_OutsideImage = InputSparseImage.m_ImageData->m_Pixel_OutsideImage;
+
+	InputSparseImage.Clear();
 }
 
 
@@ -276,55 +311,6 @@ bool SparseImage2D<PixelType>::ForceShare(const SparseImage2D<PixelType>* InputS
     }
 
     return this->ForceShare(*InputSparseImage);
-}
-
-
-template<typename PixelType>
-void SparseImage2D<PixelType>::Take(SparseImage2D<PixelType>&& InputSparseImage)
-{
-    this->Take(std::forward<SparseImage2D<PixelType>&>(InputSparseImage));
-}
-
-
-template<typename PixelType>
-void SparseImage2D<PixelType>::Take(SparseImage2D<PixelType>& InputSparseImage)
-{
-    m_ImageData->m_Size[0] = InputSparseImage.m_ImageData->m_Size[0];
-    m_ImageData->m_Size[1] = InputSparseImage.m_ImageData->m_Size[1];
-    m_ImageData->m_Size[2] = InputSparseImage.m_ImageData->m_Size[2];    
-
-    m_ImageData->m_PixelNumberPerZSlice = InputSparseImage.m_ImageData->m_PixelNumberPerZSlice;
-    
-    m_ImageData->m_Spacing[0] = InputSparseImage.m_ImageData->m_Spacing[0];
-    m_ImageData->m_Spacing[1] = InputSparseImage.m_ImageData->m_Spacing[1];
-    m_ImageData->m_Spacing[2] = InputSparseImage.m_ImageData->m_Spacing[2];
-
-    m_ImageData->m_Origin[0] = InputSparseImage.m_ImageData->m_Origin[0];
-    m_ImageData->m_Origin[1] = InputSparseImage.m_ImageData->m_Origin[1];
-    m_ImageData->m_Origin[2] = InputSparseImage.m_ImageData->m_Origin[2];
-    
-    m_ImageData->m_Orientation = std::move(InputSparseImage.m_ImageData->m_Orientation);
-
-    m_ImageData->m_DataMap = std::move(InputSparseImage.m_ImageData->m_DataMap);    
-
-	m_ImageData->m_Pixel_OutsideImage = InputSparseImage.m_ImageData->m_Pixel_OutsideImage;
-
-    InputSparseImage.Clear();
-}
-
-
-template<typename PixelType>
-bool SparseImage2D<PixelType>::Take(SparseImage2D<PixelType>* InputSparseImage)
-{
-    if (InputSparseImage == nullptr)
-    {
-        MDK_Error("Invalid input @ 2DSparseImage::Take(SparseImage2D<PixelType>*)")
-        return false;
-    }
-
-    this->Take(*InputSparseImage);
-
-    return true;
 }
 
 

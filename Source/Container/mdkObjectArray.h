@@ -64,7 +64,7 @@ struct ObjectArrayData
 
 	ObjectArrayData(ObjectArrayData&& InputData)
 	{
-		this->Take(std::forward<ObjectArrayData&&>(InputData));
+		this->Copy(std::move(InputData));
 	}
 
     ~ObjectArrayData() {};
@@ -76,7 +76,7 @@ struct ObjectArrayData
 	//-------------------------------------------------------------
 	void operator=(ObjectArrayData&& InputData)
 	{
-		this->Take(std::forward<ObjectArrayData&&>(InputData));
+		this->Copy(std::move(InputData));
 	}
 	//-------------------------------------------------------------
 	bool Copy(const MDK_Symbol_Empty&)
@@ -152,21 +152,7 @@ struct ObjectArrayData
 		return true;
 	}
 	//-------------------------------------------------------------
-	bool Take(const MDK_Symbol_Empty&)
-	{
-		if (IsSizeFixed == true)
-		{
-			if (Length > 0)
-			{
-				MDK_Error("Can not change size @ ObjectArrayData::Take(...)")
-				return false;
-			}
-		}
-		this->Clear();
-		return true;
-	}
-	//-------------------------------------------------------------
-	bool Take(ObjectArrayData&& InputData)
+	bool Copy(ObjectArrayData&& InputData)
 	{
 		if (this == &InputData)
 		{
@@ -406,7 +392,13 @@ public:
 
 	inline ~ObjectArray();
 
-    //----------------------  operator=  ----------------------------------------//
+	//-------------------- StdVector -------------------------------------------//
+	// std::vector<ElementType>& StdVector() {return m_Data->StdVector;}
+	// const std::vector<ElementType>& StdVector() const {return m_Data->StdVector;}
+	// Do NOT implement the two function:
+	// if data is in external array, then StdVector() const will give wrong answer
+
+	//----------------------  operator=  ----------------------------------------//
 
     // copy assignment operator
     // do not use function template for this function
@@ -422,16 +414,16 @@ public:
     inline void operator=(const std::vector<ElementType>& InputList);
 
     //----------------------  Copy  ----------------------------------------//
+	inline bool Copy(const ObjectArray<ElementType>* InputArray);
+	inline bool Copy(const ObjectArray<ElementType>& InputArray);
+
+	inline bool Copy(ObjectArray<ElementType>&& InputArray);
 
 	inline bool Copy(const std::vector<ElementType>& InputArray);
 
 	inline bool Copy(const StdObjectVector<ElementType>& InputArray);
 
 	inline bool Copy(const StdObjectVector<ElementType>* InputArray);
-
-    inline bool Copy(const ObjectArray<ElementType>& InputArray);
-
-    inline bool Copy(const ObjectArray<ElementType>* InputArray);
 
     inline bool Copy(const ElementType* InputElementPointer, int_max InputLength);
 
@@ -440,11 +432,9 @@ public:
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
 
     inline bool Share(ObjectArray<ElementType>& InputArray);
-
     inline bool Share(ObjectArray<ElementType>* InputArray);
 
     inline void ForceShare(const ObjectArray<ElementType>& InputArray);
-
     inline bool ForceShare(const ObjectArray<ElementType>* InputArray);
 
     //-------------------------- special Share  ---------------------------------------------- //
@@ -453,17 +443,14 @@ public:
 
     inline bool ForceShare(const ElementType* InputElementPointer, int_max InputLength, bool IsSizeFixed = true);
 
-    //-------------------- Take -----------------------------------------------------------//
-
-    inline void Take(ObjectArray<ElementType>&& InputArray);
-
-    inline bool Take(ObjectArray<ElementType>& InputArray);
-
-    inline bool Take(ObjectArray<ElementType>* InputArray);
-
     //------------------------- Swap shared_ptr m_Data -------------------------------------------//
 
     inline void Swap(ObjectArray<ElementType>& InputArray);
+
+	//------------------------- Move shared_ptr m_Data -------------------------------------------//
+
+	inline void Move(ObjectArray<ElementType>& InputArray);
+	inline void Move(ObjectArray<ElementType>&& InputArray);
 
     //------------------------- Clear -------------------------------------------//
 
@@ -484,17 +471,14 @@ public:
     inline bool IsSizeFixed() const;
 
     inline bool IsEmpty() const;
-
 	inline bool IsPureEmpty() const;
 
     inline bool IsShared() const;
-
 	inline bool IsSharedWith(const ObjectArray& InputArray) const;
 
 	inline bool IsDataInInternalArray() const;
 
     inline int_max GetLength() const;
-
     inline int_max GetElementNumber() const; // the same as GetLength();
 
     //------------------------ Error Element -----------------------------//

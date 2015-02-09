@@ -536,7 +536,7 @@ ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix)
     if (ElementNumber <= 0)
     {
         MDK_Error("Input is an empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMean(InputMatrix)")
-        return InputMatrix.GetNaNElement();
+        return InputMatrix.GetErrorElement();
     }
 
     auto RawPointer = InputMatrix.GetElementPointer();
@@ -642,7 +642,7 @@ ElementType MatrixStd(const DenseMatrix<ElementType>& InputMatrix) // standard d
 	if (ElementNumber <= 0)
 	{
 		MDK_Error("Input is an empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixStd(InputMatrix)")
-		return InputMatrix.GetNaNElement();
+		return InputMatrix.GetErrorElement();
 	}
 
 	auto MeanValue = MatrixMean(InputMatrix);
@@ -700,7 +700,7 @@ ElementType MatrixMax(const DenseMatrix<ElementType>& InputMatrix)
     if (InputMatrix.IsEmpty() == true)
     { 
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMax(InputMatrix)")
-        return InputMatrix.GetNaNElement();
+        return InputMatrix.GetErrorElement();
     }
 
     int_max LinearIndex = FindLinearIndexOfMaxInMatrix(InputMatrix);
@@ -828,7 +828,7 @@ ElementType MatrixMin(const DenseMatrix<ElementType>& InputMatrix)
     if (InputMatrix.IsEmpty() == true)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMin(InputMatrix)")
-        return InputMatrix.GetNaNElement();
+        return InputMatrix.GetErrorElement();
     }
 
     auto LinearIndex = FindLinearIndexOfMinInMatrix(InputMatrix);
@@ -928,7 +928,7 @@ ElementType MatrixSum(const DenseMatrix<ElementType>& InputMatrix)
     if (Input_ElementNumber <= 0)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSum(InputMatrix)")
-        return InputMatrix.GetNaNElement();
+        return InputMatrix.GetErrorElement();
     }
 
     auto RawPointer = InputMatrix.GetElementPointer();
@@ -1037,7 +1037,7 @@ ElementType MatrixNorm_L1(const DenseMatrix<ElementType>& InputMatrix)
     if (ElementNumber == 0)
     {
         MDK_Error("empty input matrix @ mdkLinearAlgebra_DenseMatrix MatrixNorm_L1(InputMatrix)")
-        return InputMatrix.GetNaNElement();
+        return InputMatrix.GetErrorElement();
     }
 
     ElementType Value = ElementType(0);
@@ -1062,7 +1062,7 @@ ElementType MatrixNorm_L2(const DenseMatrix<ElementType>& InputMatrix)
     if (ElementNumber == 0)
     {
         MDK_Error("empty input matrix @ mdkLinearAlgebra_DenseMatrix MatrixNorm_L2(InputMatrix)")
-        return InputMatrix.GetNaNElement();
+        return InputMatrix.GetErrorElement();
     }
 
     auto BeginPointer = InputMatrix.GetElementPointer();

@@ -70,31 +70,11 @@ bool UniqueDataObject<DataType>::Copy(const UniqueDataObject& InputObject)
 	}
 }
 
-
 template<typename DataType>
 inline 
-bool UniqueDataObject<DataType>::Take(UniqueDataObject& InputObject)
+bool UniqueDataObject<DataType>::Copy(UniqueDataObject&& InputObject)
 {
-	if (!m_Data)
-	{
-		m_Data = std::make_unique<DataType>();
-	}
-
-	if (InputObject.m_Data)
-	{
-		return m_Data->Take(std::move(*InputObject.m_Data));
-	}
-	else
-	{
-		return m_Data->Take(MDK_EMPTY);
-	}
-}
-
-template<typename DataType>
-inline
-bool UniqueDataObject<DataType>::Take(UniqueDataObject&& InputObject)
-{
-	return this->Take(std::forward<UniqueDataObject&>(InputObject))
+	m_Data = std::move(InputObject.m_Data);
 }
 
 template<typename DataType>
@@ -102,6 +82,20 @@ inline
 void UniqueDataObject<DataType>::Swap(UniqueDataObject& InputObject)
 {
 	m_Data.swap(InputObject.m_Data);
+}
+
+template<typename DataType>
+inline
+void UniqueDataObject<DataType>::Move(UniqueDataObject& InputObject)
+{
+	m_Data=std::move(InputObject.m_Data);
+}
+
+template<typename DataType>
+inline
+void UniqueDataObject<DataType>::Move(UniqueDataObject&& InputObject)
+{
+	m_Data = std::move(InputObject.m_Data);
 }
 
 template<typename DataType>
@@ -124,7 +118,7 @@ void UniqueDataObject<DataType>::Clear(const MDK_Symbol_PureEmpty&)
 
 template<typename DataType>
 inline 
-void UniqueDataObject<DataType>::Create()
+void UniqueDataObject<DataType>::Recreate()
 {
 	m_Data = std::make_unique<DataType>();
 }

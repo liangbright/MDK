@@ -1,7 +1,6 @@
 #ifndef mdk_ObjectArray_hpp
 #define mdk_ObjectArray_hpp
 
-
 namespace mdk
 {
  
@@ -42,12 +41,11 @@ ObjectArray<ElementType>::ObjectArray(const ObjectArray<ElementType>& InputArray
 }
 
 
-// move constructor
 template<typename ElementType>
 inline
 ObjectArray<ElementType>::ObjectArray(ObjectArray<ElementType>&& InputArray) noexcept
 {
-	(*this) = std::move(InputArray);
+	m_Data = std::move(InputArray.m_Data);
 }
 
 
@@ -66,12 +64,11 @@ void ObjectArray<ElementType>::operator=(const ObjectArray<ElementType>& InputAr
 }
 
 
-// move assignment operator
 template<typename ElementType>
 inline
 void ObjectArray<ElementType>::operator=(ObjectArray<ElementType>&& InputArray)
 {
-	m_Data = std::move(InputArray.m_Data);
+	this->Copy(std::forward<ObjectArray<ElementType>&&>(InputArray));
 }
 
 
@@ -101,6 +98,88 @@ void ObjectArray<ElementType>::operator=(const std::vector<ElementType>& InputAr
 
 template<typename ElementType>
 inline
+bool ObjectArray<ElementType>::Copy(const ObjectArray<ElementType>* InputArray)
+{
+	if (InputArray == nullptr)
+	{
+		MDK_Error("Input is nullptr @ ObjectArray::Copy(ObjectArray* InputArray)")
+		return false;
+	}
+
+	return this->Copy(*InputArray);
+}
+
+
+template<typename ElementType>
+inline
+bool ObjectArray<ElementType>::Copy(const ObjectArray<ElementType>& InputArray)
+{
+	return this->Copy(InputArray.GetElementPointer(), InputArray.GetLength());
+}
+
+
+template<typename ElementType>
+inline
+bool ObjectArray<ElementType>::Copy(ObjectArray<ElementType>&& InputArray)
+{
+	// ObjectArray = ObjectArray
+	if (this == &InputArray)
+	{
+		MDK_Warning("A ObjectArray try to Copy itself @ ObjectArray::Copy(...)")
+		return true;
+	}
+
+	auto InputLength = InputArray.GetElementNumber();
+
+	auto SelfLength = this->GetElementNumber();
+
+	if (this->IsSizeFixed() == true)
+	{
+		if (InputLength != SelfLength)
+		{
+			MDK_Error("Size does not match @ ObjectArray::Copy(InputArray)")
+			return false;
+		}
+	}
+
+	if (InputArray.IsEmpty() == true)
+	{
+		if (SelfLength > 0)
+		{
+			//MDK_Warning("InputArray is empty, and this ObjectArray is set to be empty @ ObjectArray::Take(InputArray)")
+			this->Clear();
+		}
+
+		return true;
+	}
+
+	if (this->GetElementPointer() == InputArray.GetElementPointer())
+	{// self copy
+		return true;
+	}
+
+	if (!m_Data)
+	{
+		this->Resize(0);
+	}
+
+	// now, InputArray is not empty and not self
+
+	//note: m_Data.swap(InputArray.m_Data) will invalidate Share()
+
+	m_Data->StdVector = std::move(InputArray.m_Data->StdVector);
+	m_Data->ElementPointer = InputArray.m_Data->ElementPointer;
+	m_Data->Length = InputArray.m_Data->Length;
+
+	// Clear InputArray to be empty
+	InputArray.Clear();
+
+	return true;
+}
+
+
+template<typename ElementType>
+inline
 bool ObjectArray<ElementType>::Copy(const std::vector<ElementType>& InputArray)
 {
 	return this->Copy(InputArray.begin(), int_max(InputArray.size()));
@@ -125,28 +204,6 @@ bool ObjectArray<ElementType>::Copy(const StdObjectVector<ElementType>* InputArr
 		return false;
 	}
 	return this->Copy(InputArray->GetElementPointer(), InputArray->GetLength());
-}
-
-
-template<typename ElementType>
-inline
-bool ObjectArray<ElementType>::Copy(const ObjectArray<ElementType>& InputArray)
-{
-    return this->Copy(InputArray.GetElementPointer(), InputArray.GetLength());
-}
-
-
-template<typename ElementType>
-inline
-bool ObjectArray<ElementType>::Copy(const ObjectArray<ElementType>* InputArray)
-{
-    if (InputArray == nullptr)
-    {
-        MDK_Error("Input is nullptr @ ObjectArray::Copy(ObjectArray* InputArray)")
-        return false;
-    }
-
-    return this->Copy(*InputArray);
 }
 
 
@@ -275,93 +332,25 @@ bool ObjectArray<ElementType>::ForceShare(const ElementType* InputElementPointer
 
 template<typename ElementType>
 inline
-void ObjectArray<ElementType>::Take(ObjectArray<ElementType>&& InputArray)
-{
-    this->Take(std::forward<ObjectArray<ElementType>&>(InputArray));
-}
-
-
-template<typename ElementType>
-inline
-bool ObjectArray<ElementType>::Take(ObjectArray<ElementType>& InputArray)
-{
-    // ObjectArray = ObjectArray
-    if (this == &InputArray)
-    {
-        MDK_Warning("A ObjectArray tries to take itself @ ObjectArray::take(InputArray)")
-        return true;
-    }
-
-    auto InputLength = InputArray.GetElementNumber();
-
-    auto SelfLength = this->GetElementNumber();
-
-    if (this->IsSizeFixed() == true)
-    {
-        if (InputLength != SelfLength)
-        {
-            MDK_Error("Size does not match @ ObjectArray::Take(InputArray)")
-            return false;
-        }
-    }
-
-    if (InputArray.IsEmpty() == true)
-    {
-        if (SelfLength > 0)
-        {
-            //MDK_Warning("InputArray is empty, and this ObjectArray is set to be empty @ ObjectArray::Take(InputArray)")
-            this->Clear();
-        }
-
-        return true;
-    }
-
-    // ObjectArrayA = ObjectArrayA
-    if (this->GetElementPointer() == InputArray.GetElementPointer())
-    {
-        //MDK_Warning("A ObjectArray tries to take itself @ ObjectArray::Take(InputArray)")
-        return true;
-    }
-
-    if (!m_Data)
-    {
-        this->Resize(0);
-    }
-
-    // now, InputArray is not empty, and is not self
-    
-    //note: m_Data.swap(InputArray.m_Data) will invalidate Share()
-
-	m_Data->StdVector = std::move(InputArray.m_Data->StdVector);
-    m_Data->ElementPointer = InputArray.m_Data->ElementPointer;
-    m_Data->Length = InputArray.m_Data->Length;
-
-    // Clear InputArray to be empty
-    InputArray.Clear();
-
-    return true;
-}
-
-
-template<typename ElementType>
-inline
-bool ObjectArray<ElementType>::Take(ObjectArray<ElementType>* InputArray)
-{
-    if (InputArray == nullptr)
-    {
-        MDK_Error("Input is nullptr @ ObjectArray::Take(mdkObjectArray* InputArray)")
-        return false;
-    }
-
-    return this->Take(*InputArray);
-}
-
-
-template<typename ElementType>
-inline
 void ObjectArray<ElementType>::Swap(ObjectArray<ElementType>& InputArray)
 {
 	this->SharedDataObject::Swap();
+}
+
+
+template<typename ElementType>
+inline
+void ObjectArray<ElementType>::Move(ObjectArray<ElementType>& InputArray)
+{
+	this->SharedDataObject::Move();
+}
+
+
+template<typename ElementType>
+inline
+void ObjectArray<ElementType>::Move(ObjectArray<ElementType>&& InputArray)
+{
+	this->SharedDataObject::Move();
 }
 
 

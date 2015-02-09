@@ -51,7 +51,7 @@ struct DenseMatrixData
 
 	std::vector<ElementType> StdVector; // InternalArray
 
-    ElementType NaNElement;
+    ElementType ErrorElement;
 //-------------------------------------------------------------
     DenseMatrixData() 
     {
@@ -59,7 +59,7 @@ struct DenseMatrixData
         RowNumber = 0;
         ColNumber = 0;
         ElementPointer = nullptr;
-        NaNElement = GetNaNElement(NaNElement); // zero if int        
+		ErrorElement = GetNaNElement(ErrorElement); // zero if int        
     };
 
     ~DenseMatrixData() {};
@@ -72,6 +72,7 @@ struct DenseMatrixData
 		ElementPointer = nullptr;
 		StdVector.clear();         // change size
 		StdVector.shrink_to_fit(); // release memory
+		ErrorElement = GetNaNElement(ErrorElement); // zero if int     
 	}
 
     void CopyDataToInternalArrayIfNecessary()
@@ -183,7 +184,7 @@ public:
 
 	inline DenseMatrix(StdObjectVector<ElementType> InputColVector);
 
-	inline DenseMatrix(ObjectArray<ElementType> InputColVector);
+	inline DenseMatrix(const ObjectArray<ElementType>& InputColVector);
 
 	template<int_max VectorFixedLength>
 	inline DenseMatrix(const DenseVector<ElementType, VectorFixedLength>& InputColVector);
@@ -235,18 +236,20 @@ public:
 
     inline void operator=(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
-	inline void operator=(std::vector<ElementType> InputColVector);
+	inline void operator=(const std::vector<ElementType>& InputColVector);
+	inline void operator=(std::vector<ElementType>&& InputColVector);
 
-	inline void operator=(StdObjectVector<ElementType> InputColVector);
+	inline void operator=(const StdObjectVector<ElementType>& InputColVector);
+	inline void operator=(StdObjectVector<ElementType>&& InputColVector);
 
-	inline void operator=(ObjectArray<ElementType> InputColVector);
+	inline void operator=(const ObjectArray<ElementType>& InputColVector);
 
-	template<int_max VectorFixedLength>
-	inline void operator=(const DenseVector<ElementType, VectorFixedLength>& InputColVector);
+	template<int_max TemplateLength>
+	inline void operator=(const DenseVector<ElementType, TemplateLength>& InputColVector);
 
-	inline void operator=(DenseVector<ElementType> InputColVector);
+	inline void operator=(DenseVector<ElementType>&& InputColVector);
 
-    //----------------------  Copy Matrix or Element  ----------------------------------------//
+    //-----------------------------------------  Copy ---------------------------------------------//
 
     // Copy can be used to convert a matrix from double (ElementType_Input) to float (ElementType), etc
 
@@ -258,6 +261,29 @@ public:
 
     template<typename ElementType_Input>
     inline bool Copy(const ElementType_Input* InputElementPointer, int_max InputRowNumber, int_max InputColNumber);
+
+	inline bool Copy(DenseMatrix<ElementType>&& InputMatrix);
+
+	//Take the Matrix Created from ShadowMatrix or GlueMatrix
+
+	inline bool Copy(const DenseShadowMatrix<ElementType>& ShadowMatrix);
+
+	inline bool Copy(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+
+	inline bool Copy(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+
+	inline bool Copy(const std::vector<ElementType>& InputColVector);
+	inline bool Copy(std::vector<ElementType>&& InputColVector);
+
+	inline bool Copy(const StdObjectVector<ElementType>& InputDataArray);
+	inline bool Copy(StdObjectVector<ElementType>&& InputDataArray);
+
+	inline bool Copy(const ObjectArray<ElementType>& InputDataArray);
+
+	template<int_max TemplateLength>
+	inline bool Copy(const DenseVector<ElementType, TemplateLength>& InputColVector);
+
+	inline bool Copy(DenseVector<ElementType>&& InputColVector);
 
     inline bool Fill(const ElementType& Element);
 
@@ -341,39 +367,6 @@ public:
 
     inline bool ForceShare(const ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed = true);
 
-    //-------------------- Take -----------------------------------------------------------//
-    // Take the data of the InputMatrix and Clear InputMatrix
-    // m_MatrixData->StdVector = std::move(InputMatrix.m_MatrixData->StdVector);
-	// A.Take(B) is NOT equivalent to A=std::move(B)
-
-    inline void Take(DenseMatrix<ElementType>&& InputMatrix);
-    inline bool Take(DenseMatrix<ElementType>& InputMatrix);
-    inline bool Take(DenseMatrix<ElementType>* InputMatrix);
-
-    //Take the Matrix Created from ShadowMatrix or GlueMatrix
-
-    inline bool Take(const DenseShadowMatrix<ElementType>& ShadowMatrix);
-
-    inline bool Take(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
-
-    inline bool Take(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
-
-	//Take the data of std::vector
-	inline bool Take(std::vector<ElementType>&& InputColVector);
-	inline bool Take(std::vector<ElementType>& InputColVector);
-
-	//Take the data of StdObjectVector
-	inline bool Take(StdObjectVector<ElementType>&& InputDataArray);
-	inline bool Take(StdObjectVector<ElementType>& InputDataArray);
-
-	//Take the data of ObjectArray
-	inline bool Take(ObjectArray<ElementType>&& InputDataArray);
-	inline bool Take(ObjectArray<ElementType>& InputDataArray);
-
-	//Take the data of DenseVector
-	inline bool Take(DenseVector<ElementType>&& InputColVector);
-	inline bool Take(DenseVector<ElementType>& InputColVector);
-
     //------------------------- Swap shared_ptr m_MatrixData -------------------------------------------//
     // m_MatrixData.swap(InputMatrix.m_MatrixData)
 	// faster than A.Take(B)
@@ -447,13 +440,11 @@ public:
 
     inline bool IsIdentityMatrix(ElementType Threshold = ElementType(0)) const;
 
-    //------------------------ NaN Element -----------------------------//
+    //------------------------ ErrorElement -----------------------------//
 
-    inline const ElementType& GetNaNElement() const;
+	inline void SetErrorElement(const ElementType& Element);
 
-    //------------------------ Element Type -----------------------------//
-
-    inline MatrixElementTypeEnum GetElementType() const;
+	inline ElementType GetErrorElement() const;
 
     //--------------------- Get Data Pointer -----------------------------//
 

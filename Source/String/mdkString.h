@@ -1,5 +1,5 @@
-﻿#ifndef __mdkString_h
-#define __mdkString_h
+﻿#ifndef mdk_String_h
+#define mdk_String_h
 
 #include <functional>
 #include <vector>
@@ -65,6 +65,8 @@ public:
 
     inline void Copy(const char* InputElementPointer);
 
+	inline void Copy(String&& InputString);
+
     inline void Fill(char Element);
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
@@ -76,14 +78,6 @@ public:
     inline void ForceShare(const String& InputString);
 
     inline void ForceShare(const String* InputString);
-
-    //-------------------- Take -----------------------------------------------------------//
-
-    inline void Take(String&& InputString);
-
-    inline void Take(String& InputString);
-
-    inline void Take(String* InputString);
 
     //------------------------- Swap shared_ptr m_StringData -------------------------------------------//
 

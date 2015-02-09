@@ -21,7 +21,7 @@ TriangleMesh<MeshAttributeType>::TriangleMesh(const TriangleMesh<MeshAttributeTy
 
 template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType>::TriangleMesh(TriangleMesh<MeshAttributeType>&& InputMesh)
-: PolygonMesh(std::forward<PolygonMesh<MeshAttributeType>&&>(InputMesh))
+: PolygonMesh(std::move(InputMesh))
 {
 }
 
@@ -44,7 +44,7 @@ template<typename MeshAttributeType>
 inline
 void TriangleMesh<MeshAttributeType>::operator=(TriangleMesh<MeshAttributeType>&& InputMesh)
 {
-    this->PolygonMesh::operator=(std::forward<PolygonMesh<MeshAttributeType>&&>(InputMesh));
+    this->PolygonMesh::operator=(std::move(InputMesh));
 }
 
 template<typename MeshAttributeType>
@@ -134,7 +134,7 @@ TriangleMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetSubMeshByCel
     return OutputMesh;
 }
 
-//------------- Function optimized TriangleMesh --------------------------------------------------//
+//------------- Function optimized for TriangleMesh --------------------------------------------------//
 
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateNormalAtCell() // all

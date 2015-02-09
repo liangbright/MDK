@@ -228,8 +228,7 @@ DenseImage3D<PixelType>::DenseImage3D()
 
 template<typename PixelType>
 DenseImage3D<PixelType>::DenseImage3D(const DenseImage3D<PixelType>& InputImage)
-{
-	m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
+{	
     this->Copy(InputImage);
 }
 
@@ -237,7 +236,7 @@ DenseImage3D<PixelType>::DenseImage3D(const DenseImage3D<PixelType>& InputImage)
 template<typename PixelType>
 DenseImage3D<PixelType>::DenseImage3D(DenseImage3D<PixelType>&& InputImage)
 {
-	(*this) = std::move(InputImage);
+	m_ImageData = std::move(InputImage.m_ImageData);
 }
 
 
@@ -257,7 +256,7 @@ void DenseImage3D<PixelType>::operator=(const DenseImage3D<PixelType>& InputImag
 template<typename PixelType>
 void DenseImage3D<PixelType>::operator=(DenseImage3D<PixelType>&& InputImage)
 {
-	m_ImageData = std::move(InputImage.m_ImageData);
+	this->Copy(std::move(InputImage));
 }
 
 
@@ -282,6 +281,11 @@ void DenseImage3D<PixelType>::Copy(const DenseImage3D<PixelType_Input>& InputIma
             this->Clear();
             return;
         }
+	}
+
+	if (!m_ImageData)
+	{
+		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 	}
 
     this->SetSize(InputImage.GetSize());
@@ -341,6 +345,31 @@ bool DenseImage3D<PixelType>::CopyPixelData(const PixelType_Input* InputPixelPoi
 	}
 
     return true;
+}
+
+
+template<typename PixelType>
+void DenseImage3D<PixelType>::Copy(DenseImage3D<PixelType>&& InputImage)
+{
+	if (!m_ImageData)
+	{
+		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
+	}
+
+	m_ImageData->m_Size[0] = InputImage.m_ImageData->m_Size[0];
+	m_ImageData->m_Size[1] = InputImage.m_ImageData->m_Size[1];
+	m_ImageData->m_Size[2] = InputImage.m_ImageData->m_Size[2];
+
+	m_ImageData->m_PixelNumberPerZSlice = InputImage.m_ImageData->m_PixelNumberPerZSlice;
+
+	m_ImageData->m_LocalSys = InputImage.m_ImageData->m_LocalSys;
+	m_ImageData->m_Flag_Orientation_is_IdentityMatrix = InputImage.m_ImageData->m_Flag_Orientation_is_IdentityMatrix;
+
+	m_ImageData->m_DataArray = std::move(InputImage.m_ImageData->m_DataArray);
+
+	m_ImageData->m_Pixel_OutsideImage = InputImage.m_ImageData->m_Pixel_OutsideImage;
+
+	InputImage.Clear();
 }
 
 
@@ -435,53 +464,6 @@ bool DenseImage3D<PixelType>::ForceShare(const PixelType* InputImage, const Imag
 
 
 template<typename PixelType>
-void DenseImage3D<PixelType>::Take(DenseImage3D<PixelType>&& InputImage)
-{
-    this->Take(std::forward<DenseImage3D<PixelType>&>(InputImage));
-}
-
-
-template<typename PixelType>
-void DenseImage3D<PixelType>::Take(DenseImage3D<PixelType>& InputImage)
-{
-	if (this->IsPureEmpty() == true)
-	{
-		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
-	}
-
-    m_ImageData->m_Size[0] = InputImage.m_ImageData->m_Size[0];
-    m_ImageData->m_Size[1] = InputImage.m_ImageData->m_Size[1];
-    m_ImageData->m_Size[2] = InputImage.m_ImageData->m_Size[2];    
-
-    m_ImageData->m_PixelNumberPerZSlice = InputImage.m_ImageData->m_PixelNumberPerZSlice;
-    
-    m_ImageData->m_LocalSys = InputImage.m_ImageData->m_LocalSys;
-	m_ImageData->m_Flag_Orientation_is_IdentityMatrix = InputImage.m_ImageData->m_Flag_Orientation_is_IdentityMatrix;
-
-    m_ImageData->m_DataArray = std::move(InputImage.m_ImageData->m_DataArray);    
-    
-	m_ImageData->m_Pixel_OutsideImage = InputImage.m_ImageData->m_Pixel_OutsideImage;
-
-    InputImage.Clear();
-}
-
-
-template<typename PixelType>
-bool DenseImage3D<PixelType>::Take(DenseImage3D<PixelType>* InputImage)
-{
-    if (InputImage == nullptr)
-    {
-        MDK_Error("Invalid input @ 3DDenseImage::Take(DenseImage3D<PixelType>*)")
-        return false;
-    }
-
-    this->Take(*InputImage);
-
-    return true;
-}
-
-
-template<typename PixelType>
 void DenseImage3D<PixelType>::Clear()
 {
 	if (m_ImageData)
@@ -518,7 +500,7 @@ template<typename PixelType>
 inline
 PixelType* DenseImage3D<PixelType>::GetPixelPointer()
 {
-	if (this->IsPureEmpty() == false)
+	if (m_ImageData)
 	{
 		return m_ImageData->m_DataArray.GetPointer();
 	}
@@ -533,7 +515,7 @@ template<typename PixelType>
 inline
 const PixelType* DenseImage3D<PixelType>::GetPixelPointer() const
 {
-	if (this->IsPureEmpty() == false)
+	if (m_ImageData)
 	{
 		return m_ImageData->m_DataArray.GetPointer();
 	}

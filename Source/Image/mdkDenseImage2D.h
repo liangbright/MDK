@@ -228,6 +228,11 @@ public:
 	template<typename PixelType_Input>
 	bool Copy(const DenseImage2D<PixelType_Input>* InputImage);
 
+	template<typename PixelType_Input>
+	bool CopyPixelData(const PixelType_Input* InputPixelPointer, int_max InputPixelNumber);
+
+	void Copy(DenseImage2D&& InputImage);
+
     inline bool Fill(const PixelType& Pixel);
 
     //---------------------------------------------------------//
@@ -239,11 +244,6 @@ public:
 
 	bool Share(PixelType* InputImage, const Image2DInfo& InputImageInfo);//special share
 	bool ForceShare(const PixelType* InputImage, const Image2DInfo& InputImageInfo);//special share
-
-    //---------------------------------------------------------//
-    void Take(DenseImage2D&& InputImage);
-    void Take(DenseImage2D& InputImage);
-    bool Take(DenseImage2D* InputImage);
 
     //-----------------------------------------------------------------//
 
@@ -288,9 +288,6 @@ public:
     inline void GetPhysicalSize(double& PhysicalSize_x, double& PhysicalSize_y) const;
 
     inline int_max GetPixelNumber() const;
-
-	template<typename PixelType_Input>
-	bool CopyPixelData(const PixelType_Input* InputPixelPointer, int_max InputPixelNumber);
 
     //--------------------------- Get Pixel Pointer ------------------------------//
 
