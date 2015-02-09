@@ -618,7 +618,7 @@ void Edge_Of_MembraneMesh<MeshAttributeType>::operator=(const Edge_Of_MembraneMe
 
 	if (!m_Data)
 	{
-		m_Data = std::make_unique<Data_Of_Point_Of_MembraneMesh<MeshAttributeType>>();
+		m_Data = std::make_unique<Data_Of_Edge_Of_MembraneMesh<MeshAttributeType>>();
 	}
 
     m_Data->Mesh.ForceShare(InputEdge.m_Data->Mesh);
@@ -1348,7 +1348,7 @@ void DirectedEdge_Of_MembraneMesh<MeshAttributeType>::operator=(const DirectedEd
 
 	if (!m_Data)
 	{
-		m_Data = std::make_unique<Data_Of_Point_Of_MembraneMesh<MeshAttributeType>>();
+		m_Data = std::make_unique<Data_Of_DirectedEdge_Of_MembraneMesh<MeshAttributeType>>();
 	}
 
     m_Data->Mesh.ForceShare(InputDirectedEdge.m_Data->Mesh);
@@ -1967,7 +1967,7 @@ void Cell_Of_MembraneMesh<MeshAttributeType>::operator=(const Cell_Of_MembraneMe
 
 	if (!m_Data)
 	{
-		m_Data = std::make_unique<Data_Of_Point_Of_MembraneMesh<MeshAttributeType>>();
+		m_Data = std::make_unique<Data_Of_Cell_Of_MembraneMesh<MeshAttributeType>>();
 	}
 
     m_Data->Mesh.ForceShare(InputCell.m_Data->Mesh);
