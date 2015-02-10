@@ -1,59 +1,59 @@
-﻿#ifndef mdk_UniqueDataObject_hpp
-#define mdk_UniqueDataObject_hpp
+﻿#ifndef mdk_UniqueDataObjectExample_hpp
+#define mdk_UniqueDataObjectExample_hpp
 
 namespace mdk
 {
 
 template<typename DataType>
 inline
-UniqueDataObject<DataType>::UniqueDataObject()
+UniqueDataObjectExample<DataType>::UniqueDataObjectExample()
 {
 	m_Data = std::make_unique<DataType>();
 }
 
 template<typename DataType>
 inline
-UniqueDataObject<DataType>::UniqueDataObject(const MDK_Symbol_PureEmpty&)
+UniqueDataObjectExample<DataType>::UniqueDataObjectExample(const MDK_Symbol_PureEmpty&)
 {// m_Data == nullptr
 }
 
 template<typename DataType>
 inline
-UniqueDataObject<DataType>::UniqueDataObject(const UniqueDataObject& InputObject)
+UniqueDataObjectExample<DataType>::UniqueDataObjectExample(const UniqueDataObjectExample& InputObject)
 {	
 	this->Copy(InputObject);
 }
 
 template<typename DataType>
 inline 
-UniqueDataObject<DataType>::UniqueDataObject(UniqueDataObject&& InputObject)
+UniqueDataObjectExample<DataType>::UniqueDataObjectExample(UniqueDataObjectExample&& InputObject)
 {
 	m_Data = std::move(InputObject.m_Data);
 }
 
 template<typename DataType>
 inline
-UniqueDataObject<DataType>::~UniqueDataObject()
+UniqueDataObjectExample<DataType>::~UniqueDataObjectExample()
 {
 }
 
 template<typename DataType>
 inline 
-void UniqueDataObject<DataType>::operator=(const UniqueDataObject& InputObject)
+void UniqueDataObjectExample<DataType>::operator=(const UniqueDataObjectExample& InputObject)
 {
 	this->Copy(InputObject);
 }
 
 template<typename DataType>
 inline
-void UniqueDataObject<DataType>::operator=(UniqueDataObject&& InputObject)
+void UniqueDataObjectExample<DataType>::operator=(UniqueDataObjectExample&& InputObject)
 {
 	m_Data = std::move(InputObject.m_Data);
 }
 
 template<typename DataType>
 inline
-bool UniqueDataObject<DataType>::Copy(const UniqueDataObject& InputObject)
+bool UniqueDataObjectExample<DataType>::Copy(const UniqueDataObjectExample& InputObject)
 {
 	if (!m_Data)
 	{
@@ -72,35 +72,35 @@ bool UniqueDataObject<DataType>::Copy(const UniqueDataObject& InputObject)
 
 template<typename DataType>
 inline 
-bool UniqueDataObject<DataType>::Copy(UniqueDataObject&& InputObject)
+bool UniqueDataObjectExample<DataType>::Copy(UniqueDataObjectExample&& InputObject)
 {
 	m_Data = std::move(InputObject.m_Data);
 }
 
 template<typename DataType>
 inline
-void UniqueDataObject<DataType>::Swap(UniqueDataObject& InputObject)
+void UniqueDataObjectExample<DataType>::Swap(UniqueDataObjectExample& InputObject)
 {
 	m_Data.swap(InputObject.m_Data);
 }
 
 template<typename DataType>
 inline
-void UniqueDataObject<DataType>::Move(UniqueDataObject& InputObject)
+void UniqueDataObjectExample<DataType>::Move(UniqueDataObjectExample& InputObject)
 {
 	m_Data=std::move(InputObject.m_Data);
 }
 
 template<typename DataType>
 inline
-void UniqueDataObject<DataType>::Move(UniqueDataObject&& InputObject)
+void UniqueDataObjectExample<DataType>::Move(UniqueDataObjectExample&& InputObject)
 {
 	m_Data = std::move(InputObject.m_Data);
 }
 
 template<typename DataType>
 inline
-void UniqueDataObject<DataType>::Clear()
+void UniqueDataObjectExample<DataType>::Clear()
 {
 	if (m_Data)
 	{
@@ -110,7 +110,7 @@ void UniqueDataObject<DataType>::Clear()
 
 template<typename DataType>
 inline
-void UniqueDataObject<DataType>::Clear(const MDK_Symbol_PureEmpty&)
+void UniqueDataObjectExample<DataType>::Clear(const MDK_Symbol_PureEmpty&)
 {
 	m_Data.reset();
 }
@@ -118,14 +118,14 @@ void UniqueDataObject<DataType>::Clear(const MDK_Symbol_PureEmpty&)
 
 template<typename DataType>
 inline 
-void UniqueDataObject<DataType>::Recreate()
+void UniqueDataObjectExample<DataType>::Recreate()
 {
 	m_Data = std::make_unique<DataType>();
 }
 
 template<typename DataType>
 inline 
-bool UniqueDataObject<DataType>::IsEmpty() const
+bool UniqueDataObjectExample<DataType>::IsEmpty() const
 {
 	if (!m_Data)
 	{
@@ -139,7 +139,7 @@ bool UniqueDataObject<DataType>::IsEmpty() const
 
 template<typename DataType>
 inline 
-bool UniqueDataObject<DataType>::IsPureEmpty() const
+bool UniqueDataObjectExample<DataType>::IsPureEmpty() const
 {
 	return (!m_Data);
 }

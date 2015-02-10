@@ -35,11 +35,10 @@ inline String::String(const std::basic_string<char>& InputString)
 
 inline String::String(const String& InputString)
 {
-	this->Resize(0);
 	this->Copy(InputString);
 }
 
-// move constructor
+
 inline String::String(String&& InputString) noexcept
 {
 	m_StringData = std::move(InputString.m_StringData);
@@ -141,7 +140,7 @@ inline void String::Copy(const String& InputString)
 	// if this String is not empty, check if this and Input Share the same data
 	if (this->IsEmpty() == false)
 	{
-		if (std::size_t(InputString.GetCharPointer()) == std::size_t(this->GetCharPointer()))
+		if (InputString.GetCharPointer() == this->GetCharPointer())
 		{
 			return;
 		}
@@ -153,6 +152,7 @@ inline void String::Copy(const String& InputString)
 			this->Resize(0);
 		}
 	}
+
 	*m_StringData = *InputString.m_StringData;
 }
 
@@ -189,6 +189,7 @@ inline void String::Copy(const char* InputElementPointer)
 			this->Resize(0);
 		}
 	}
+
     (*m_StringData) = InputElementPointer;
 }
 
@@ -306,10 +307,9 @@ inline void String::ForceShare(const String* InputString)
 
 inline void String::Swap(String& InputString)
 {
-    // String = String
     if (this == &InputString)
     {
-        MDK_Warning("A String tries to Swap with itself @ String::Swap(InputString)")
+        MDK_Warning("A String try to Swap with itself @ String::Swap(InputString)")
         return;
     }
     m_StringData.swap(InputString.m_StringData); // shared_ptr self swap check is not necessary
@@ -325,54 +325,40 @@ inline void String::Clear()
 }
 
 
-inline bool String::Resize(int_max InputLength)
+inline void String::Resize(int_max InputLength)
 {
     if (InputLength < 0)
     {
-        MDK_Error("Invalid Input: negtive @ String::Resize(int_max InputLength)")
-        return false;
+        MDK_Error("Invalid Input: < 0 @ String::Resize(int_max InputLength)")
+        return;
     }
 
 try
 {
-    //--------initialize the String data ----------------------------------------
-    if (!m_StringData)
-    {
-        m_StringData = std::make_shared<std::basic_string<char>>();
-    }
-    //-------------------------------------------------------------------------
+	if (!m_StringData)
+	{
+		m_StringData = std::make_shared<std::basic_string<char>>();
+	}
 
     auto SelfLength = this->GetCharNumber();
-
-    if (InputLength == SelfLength)
-    {
-        return true;
-    }
-
-    m_StringData->resize(InputLength);
+	if (InputLength != SelfLength)
+	{
+		m_StringData->resize(InputLength);
+	}
 }
 catch (...)
 {
     MDK_Error("Out of Memory @ String::Resize(int_max InputLength)")
-
-    return false;
 }
-    return true;
 }
 
 
-inline bool String::FastResize(int_max InputLength)
+inline void String::FastResize(int_max InputLength)
 {
     if (InputLength < 0)
     {
         MDK_Error("Invalid input @ String::FastResize(int_max InputLength)")
-        return false;    
-    }
-
-    auto SelfLength = this->GetCharNumber();
-    if (InputLength == SelfLength)
-    {
-        return true;
+        return;    
     }
 
 try
@@ -382,6 +368,8 @@ try
 		this->Resize(0);
 	}
 
+	auto SelfLength = this->GetCharNumber();
+	
     if (InputLength != SelfLength)
     {
         if (InputLength > int_max(m_StringData->capacity()))
@@ -395,14 +383,11 @@ try
 catch (...)
 {
     MDK_Error("Out of Memory @ String::FastResize(int_max InputLength)")
-
-    return false;
 }
-    return true;
 }
 
 
-inline bool String::ReserveCapacity(int_max InputElementNumber)
+inline void String::ReserveCapacity(int_max InputElementNumber)
 {
 
 try
@@ -422,10 +407,7 @@ try
 catch (...)
 {
     MDK_Error("Out of Memory @ String::ReserveCapacity(int_max InputElementNumber)")
-    return false;
 }
-    
-    return true;
 }
 
 
@@ -596,7 +578,7 @@ inline char String::at(int_max Index) const
 }
 
 
-inline bool String::Append(char Element)
+inline void String::Append(char Element)
 {
 	if (this->IsPureEmpty() == true)
 	{
@@ -605,22 +587,20 @@ inline bool String::Append(char Element)
 try
 {
 	m_StringData->append(1, Element);
-	return true;
 }
 catch (...)
 {
 	MDK_Error("Exceed max length @ String::Append(...)")
-	return false;
 }	
 }
 
 
-inline bool String::Append(const char* InputString)
+inline void String::Append(const char* InputString)
 {
     if (InputString == nullptr)
     {
-        MDK_Warning("nullptr Input @ String::Append(...)")
-        return true;
+        MDK_Warning("Input is nullptr @ String::Append(...)")
+        return;
     }
 
 	if (this->IsPureEmpty() == true)
@@ -631,21 +611,19 @@ inline bool String::Append(const char* InputString)
 try
 {
 	m_StringData->append(InputString);
-	return true;
 }
 catch (...)
 {
 	MDK_Error("Exceed max length @ String::Append(...)")
-	return false;
 }
 }
 
 
-inline bool String::Append(const std::basic_string<char>& InputString)
+inline void String::Append(const std::basic_string<char>& InputString)
 {
 	if (InputString.size() == 0)
 	{
-		return true;
+		return;
 	}
 
 	if (this->IsPureEmpty() == true)
@@ -656,21 +634,19 @@ inline bool String::Append(const std::basic_string<char>& InputString)
 try
 {
 	m_StringData->append(InputString);
-	return true;
 }
 catch (...)
 {
 	MDK_Error("Exceed max length @ String::Append(...)")
-	return false;
 }
 }
 
 
-inline bool String::Append(const String& InputString)
+inline void String::Append(const String& InputString)
 {
-	if (InputString.GetCharNumber() == 0)
+	if (InputString.IsEmpty() == true)
 	{
-		return true;
+		return;
 	}
 
 	if (this->IsPureEmpty() == true)
@@ -680,41 +656,39 @@ inline bool String::Append(const String& InputString)
 try
 {
 	m_StringData->append(*InputString.m_StringData);
-	return true;
 }
 catch (...)
 {
 	MDK_Error("Exceed max length @ String::Append(...)")
-	return false;
 }	
 }
 
 
-inline bool String::Delete(int_max Index)
+inline void String::Delete(int_max Index)
 {
-    return this->Delete(&Index, 1);
+    this->Delete(&Index, 1);
 }
 
 
-inline bool String::Delete(const std::initializer_list<int_max>& IndexList)
+inline void String::Delete(const std::initializer_list<int_max>& IndexList)
 {
-	return this->Delete(IndexList.begin(), int_max(IndexList.size()));
+	this->Delete(IndexList.begin(), int_max(IndexList.size()));
 }
 
 
-inline bool String::Delete(const int_max* IndexList, int_max ListLength)
+inline void String::Delete(const int_max* IndexList, int_max ListLength)
 {
 	if (IndexList == nullptr || ListLength <= 0)
     {
         MDK_Warning("Empty Input @ String::Delete(const int_max* IndexList, int_max ListLength)")
-        return true;
+        return;
     }
 
 	auto SelfLength = this->GetCharNumber();
 	if (SelfLength == 0)
 	{
 		MDK_Error("Self is empty @ String::Delete(const int_max* IndexList, int_max ListLength)")
-		return false;
+		return;
 	}
 
 	for (auto it = IndexList; it != IndexList + ListLength; ++it)
@@ -722,7 +696,7 @@ inline bool String::Delete(const int_max* IndexList, int_max ListLength)
         if (*it >= SelfLength || *it < 0)
         {
             MDK_Error("Out of bound Input @ String::Delete(const int_max* IndexList, int_max ListLength)")
-            return false;
+            return;
         }
     }
 
@@ -752,31 +726,31 @@ inline bool String::Delete(const int_max* IndexList, int_max ListLength)
             Index_prev = Index_i;
         }
     }
-	return true;
 }
 
 
-inline bool String::Delete(int_max Index_start, int_max Index_end)
+inline void String::Delete(int_max Index_start, int_max Index_end)
 {
     if (this->IsEmpty() == true)
     {
         MDK_Error("Self is empty @ String::Delete(int_max Index_start, int_max Index_end)")
-        return false;
+        return;
     }
+
 	auto SelfLength = this->GetCharNumber();
     if (Index_end < Index_start 
         || Index_start >= SelfLength || Index_start < 0
         || Index_end >= SelfLength || Index_end < 0 )
     {
         MDK_Error("Invalid Input @ String::Delete(int_max Index_start, int_max Index_end)")
-        return false;
+        return;
     }
+
     m_StringData->erase(m_StringData->begin() + Index_start, m_StringData->begin() + Index_end + 1);
-	return true;
 }
 
 
-inline bool String::Insert(int_max Index, char Element)
+inline void String::Insert(int_max Index, char Element)
 {
 	auto SelfLength = this->GetCharNumber();
 	if (SelfLength == 0)
@@ -784,7 +758,7 @@ inline bool String::Insert(int_max Index, char Element)
 		if (Index != 0)
 		{
 			MDK_Error("Invalid Input @ String::Insert(int_max Index, char Element)")
-			return false;
+			return;
 		}
 		if (this->IsPureEmpty() == true)
 		{
@@ -796,15 +770,14 @@ inline bool String::Insert(int_max Index, char Element)
 		if (Index >= SelfLength || Index < 0)
 		{
 			MDK_Error("Invalid Input @ String::Insert(int_max Index, char Element)")
-			return false;
+			return;
 		}
 	}
     m_StringData->insert(Index, 1, Element);
-	return true;
 }
 
 
-inline bool String::Insert(int_max Index, const char* InputString)
+inline void String::Insert(int_max Index, const char* InputString)
 {
     auto SelfLength = this->GetCharNumber();
     if (SelfLength == 0)
@@ -812,7 +785,7 @@ inline bool String::Insert(int_max Index, const char* InputString)
         if (Index != 0)
         {
             MDK_Error("Invalid Input @ String::Insert(Index, const char* InputString)")
-            return false;
+            return;
         }
 		if (this->IsPureEmpty() == true)
 		{
@@ -824,18 +797,18 @@ inline bool String::Insert(int_max Index, const char* InputString)
         if (Index >= SelfLength || Index < 0)
         {
             MDK_Error("Invalid Input @ String::Insert(Index, const char* InputString)")
-            return false;
+            return;
         }
     }
+
 	if (InputString != nullptr)
 	{
 		m_StringData->insert(Index, InputString);
 	}
-	return true;
 }
 
 
-inline bool String::Insert(int_max Index, const std::basic_string<char>& InputString)
+inline void String::Insert(int_max Index, const std::basic_string<char>& InputString)
 {
 	auto SelfLength = this->GetCharNumber();
 	if (SelfLength == 0)
@@ -843,7 +816,7 @@ inline bool String::Insert(int_max Index, const std::basic_string<char>& InputSt
 		if (Index != 0)
 		{
 			MDK_Error("Invalid Input @ String::Insert(...)")
-			return false;
+			return;
 		}
 		if (this->IsPureEmpty() == true)
 		{
@@ -855,18 +828,18 @@ inline bool String::Insert(int_max Index, const std::basic_string<char>& InputSt
 		if (Index >= SelfLength || Index < 0)
 		{
 			MDK_Error("Invalid Input @ String::Insert(...)")
-			return false;
+			return;
 		}
 	}
+
 	if (InputString.size() > 0)
 	{
 		m_StringData->insert(Index, InputString);
 	}
-	return true;
 }
 
 
-inline bool String::Insert(int_max Index, const String& InputString)
+inline void String::Insert(int_max Index, const String& InputString)
 {
 	auto SelfLength = this->GetCharNumber();
 	if (SelfLength == 0)
@@ -874,7 +847,7 @@ inline bool String::Insert(int_max Index, const String& InputString)
 		if (Index != 0)
 		{
 			MDK_Error("Invalid Input @ String::Insert(...)")
-			return false;
+			return;
 		}
 		if (this->IsPureEmpty() == true)
 		{
@@ -886,7 +859,7 @@ inline bool String::Insert(int_max Index, const String& InputString)
 		if (Index >= SelfLength || Index < 0)
 		{
 			MDK_Error("Invalid Input @ String::Insert(...)")
-			return false;
+			return;
 		}
 	}
 
@@ -894,7 +867,6 @@ inline bool String::Insert(int_max Index, const String& InputString)
 	{
 		m_StringData->insert(Index, (*InputString.m_StringData));
 	}
-	return true;
 }
 
 

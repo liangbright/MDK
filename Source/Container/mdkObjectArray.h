@@ -7,7 +7,7 @@
 #include "mdkCommonType.h"
 #include "mdkDebugConfig.h"
 #include "mdkConstant.h"
-#include "mdkSharedDataObject.h"
+#include "mdkObject.h"
 #include "mdkDenseVector_ForwardDeclare.h"
 #include "mdkString.h"
 
@@ -79,43 +79,47 @@ struct ObjectArrayData
 		this->Copy(std::move(InputData));
 	}
 	//-------------------------------------------------------------
-	bool Copy(const MDK_Symbol_Empty&)
+	void operator=(const MDK_Symbol_Empty&)
+	{
+		this->Copy(MDK_EMPTY_OBJECT);
+	}
+	//-------------------------------------------------------------
+	void Copy(const MDK_Symbol_Empty&)
 	{
 		if (IsSizeFixed == true)
 		{
 			if (Length > 0)
 			{
-				MDK_Error("Can not change size @ ObjectArrayData::Copy(...)")
-				return false;
+				MDK_Error("Can not change size @ ObjectArrayData::Copy(MDK_EMPTY_OBJECT)")
+				return;
 			}
 		}
 		this->Clear();
-		return true;
 	}
 	//-------------------------------------------------------------
-	bool Copy(const ObjectArrayData& InputData)
+	void Copy(const ObjectArrayData& InputData)
 	{
-		return this->Copy(InputData.ElementPointer, InputData.Length);
+		this->Copy(InputData.ElementPointer, InputData.Length);
 	}
 	//-------------------------------------------------------------
-	bool Copy(const ElementType* InputElementPointer, int_max InputLength)
+	void Copy(const ElementType* InputElementPointer, int_max InputLength)
 	{
 		if (InputElementPointer == nullptr || InputLength <= 0)
 		{
 			if (this->IsEmpty() == true)
 			{
-				return true;
+				return;
 			}
 			else
 			{
 				if (IsSizeFixed == true)
 				{
 					MDK_Error("Can not change size @ ObjectArrayData::Copy(...)")
-					return false;
+					return;
 				}
 
 				this->Clear();
-				return true;
+				return;
 			}
 		}
 
@@ -123,7 +127,7 @@ struct ObjectArrayData
 		{
 			if (InputElementPointer == ElementPointer)
 			{// self copy
-				return true;
+				return;
 			}
 		}
 		//------------------------------------------------------------------
@@ -132,7 +136,7 @@ struct ObjectArrayData
 			if (InputLength != Length)
 			{
 				MDK_Error("Can not change size @ ObjectArrayData::Copy(...)")
-				return false;
+				return;
 			}
 		}
 		else
@@ -148,24 +152,22 @@ struct ObjectArrayData
 		{
 			Ptr[0] = tempPtr[0];
 		}
-
-		return true;
 	}
 	//-------------------------------------------------------------
-	bool Copy(ObjectArrayData&& InputData)
+	void Copy(ObjectArrayData&& InputData)
 	{
 		if (this == &InputData)
 		{
-			//MDK_Warning("Self take itself @ ObjectArrayData::Take(...)")
-			return true;
+			MDK_Warning("Self copy itself @ ObjectArrayData::Copy(...)")
+			return;
 		}
 
 		if (IsSizeFixed == true)
 		{
 			if (InputData.Length != Length)
 			{
-				MDK_Error("Size does not match @ ObjectArray::Take(InputArray)")
-				return false;
+				MDK_Error("Size does not match @ ObjectArray::Copy(...)")
+				return;
 			}
 		}
 
@@ -175,12 +177,12 @@ struct ObjectArrayData
 			{
 				this->Clear();
 			}
-			return true;
+			return;
 		}
 
 		if (ElementPointer == InputData.ElementPointer)
 		{// self == self
-			return true;
+			return;
 		}
 
 		// now, InputData is not empty, and is not self
@@ -191,41 +193,6 @@ struct ObjectArrayData
 
 		// Clear InputData to be empty
 		InputData.Clear();
-
-		return true;
-	}
-	//-------------------------------------------------------------
-	bool IsReadyToShare(const ObjectArrayData& InputData) const
-    {
-		if (IsSizeFixed == true)
-		{
-			return (Length == InputData.Length);
-		}
-		else
-		{
-			return true;
-		}
-	}
-	//-------------------------------------------------------------
-	bool IsReadyToShare(const MDK_Symbol_Empty&) const
-	{
-		if (IsSizeFixed == true)
-		{
-			return (Length == 0);
-		}
-		else
-		{
-			return true;
-		}
-	}
-	//-------------------------------------------------------------
-	bool IsSharedWith(const ObjectArrayData& InputData) const
-	{
-		if (ElementPointer != nullptr)
-		{
-			return ElementPointer == InputData.ElementPointer;
-		}
-		return false;
 	}
 	//-------------------------------------------------------------
 	void Clear()
@@ -371,11 +338,14 @@ struct ObjectArrayData
 //----------------------------------------------------------------------------------------------------------------------------//
 
 template<typename Element_Type>
-class ObjectArray : private SharedDataObject<ObjectArrayData<Element_Type>>
+class ObjectArray : public Object
 {
 public:
 	typedef Element_Type ElementType;
 	
+protected:
+	std::shared_ptr<ObjectArrayData<ElementType>> m_Data;
+
 public:			
 	//------------------- constructor and destructor ------------------------------------//
 
@@ -419,46 +389,41 @@ public:
     //----------------------  Copy  ----------------------------------------//
 	// Copy(nullptr) <=> Copy(MDK_EMPTY)
 
-	inline bool Copy(const ObjectArray<ElementType>* InputArray);
-	inline bool Copy(const ObjectArray<ElementType>& InputArray);
+	inline void Copy(const ObjectArray<ElementType>* InputArray);
+	inline void Copy(const ObjectArray<ElementType>& InputArray);
 
-	inline bool Copy(ObjectArray<ElementType>&& InputArray);
+	inline void Copy(ObjectArray<ElementType>&& InputArray);
 
-	inline bool Copy(const std::vector<ElementType>& InputArray);
+	inline void Copy(const std::vector<ElementType>& InputArray);
 
-	inline bool Copy(const StdObjectVector<ElementType>& InputArray);
+	inline void Copy(const StdObjectVector<ElementType>& InputArray);
 
-	inline bool Copy(const StdObjectVector<ElementType>* InputArray);
+	inline void Copy(const StdObjectVector<ElementType>* InputArray);
 
-    inline bool Copy(const ElementType* InputElementPointer, int_max InputLength);
+	inline void Copy(const ElementType* InputElementPointer, int_max InputLength);
 
-	inline bool Copy(const MDK_Symbol_Empty&);
+	inline void Copy(const MDK_Symbol_Empty&);
 
-    inline bool Fill(const ElementType& Element);
+	inline void Fill(const ElementType& Element);
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
 	//Share(nullptr) and ForceShare(nullptr) : invalid
 
-    inline bool Share(ObjectArray<ElementType>& InputArray);
-    inline bool Share(ObjectArray<ElementType>* InputArray);
+    inline void Share(ObjectArray<ElementType>& InputArray);
+	inline void Share(ObjectArray<ElementType>* InputArray);
 
     inline void ForceShare(const ObjectArray<ElementType>& InputArray);
-	inline bool ForceShare(const ObjectArray<ElementType>* InputArray);
+	inline void ForceShare(const ObjectArray<ElementType>* InputArray);
 
     //special Share : external data
 
-    inline bool Share(ElementType* InputElementPointer, int_max InputLength, bool IsSizeFixed = true);
+	inline void Share(ElementType* InputElementPointer, int_max InputLength, bool IsSizeFixed = true);
 
-    inline bool ForceShare(const ElementType* InputElementPointer, int_max InputLength, bool IsSizeFixed = true);
+	inline void ForceShare(const ElementType* InputElementPointer, int_max InputLength, bool IsSizeFixed = true);
 
     //------------------------- Swap shared_ptr m_Data -------------------------------------------//
 
     inline void Swap(ObjectArray<ElementType>& InputArray);
-
-	//------------------------- Move shared_ptr m_Data -------------------------------------------//
-
-	inline void Move(ObjectArray<ElementType>& InputArray);
-	inline void Move(ObjectArray<ElementType>&& InputArray);
 
     //------------------------- Clear -------------------------------------------//
 
@@ -466,11 +431,11 @@ public:
 
 	//---------------------- Set/get Size ----------------------------------------//
 
-    inline bool Resize(int_max InputLength); // try to keep the old data
+	inline void Resize(int_max InputLength); // try to keep the old data
 
-    inline bool FastResize(int_max InputLength); // do not care about old data
+	inline void FastResize(int_max InputLength); // do not care about old data
 
-    inline bool ReserveCapacity(int_max InputElementNumber); // reserve memory, current Length does not change
+	inline void ReserveCapacity(int_max InputElementNumber); // reserve memory, current Length does not change
 
     inline void ReleaseUnusedCapacity();
 
@@ -526,7 +491,7 @@ public:
 
     //-------------------------------------------------------------------------------
 
-    inline bool Append(ElementType Element);
+	inline void Append(ElementType Element);
 
 	// and Append({1, 2, 3}} error if ElementType is DenseVector<int_max>
     //inline bool Append(const std::initializer_list<ElementType>& InputArray);
@@ -535,41 +500,41 @@ public:
 	//inline bool Append(const StdObjectVector<ElementType>& InputArray);
     //inline bool Append(const ObjectArray<ElementType>& InputArray);
 
-    inline bool Append(const ElementType* InputArray, int_max InputLength);
+	inline void Append(const ElementType* InputArray, int_max InputLength);
 
-    inline bool Delete(int_max Index);
+	inline void Delete(int_max Index);
 
-    inline bool Delete(const std::initializer_list<int_max>& IndexList);
+	inline void Delete(const std::initializer_list<int_max>& IndexList);
 
-    inline bool Delete(const std::vector<int_max>& IndexList);
+	inline void Delete(const std::vector<int_max>& IndexList);
 
-	inline bool Delete(const DenseVector<int_max>& IndexList);
+	inline void Delete(const DenseVector<int_max>& IndexList);
 
-    inline bool Delete(const DenseMatrix<int_max>& IndexList);
+	inline void Delete(const DenseMatrix<int_max>& IndexList);
 
-    inline bool Delete(const ObjectArray<int_max>& IndexList);
+	inline void Delete(const ObjectArray<int_max>& IndexList);
 
-	inline bool Delete(const StdObjectVector<int_max>& IndexList);
+	inline void Delete(const StdObjectVector<int_max>& IndexList);
 
-    inline bool Delete(const int_max* ColIndexList, int_max ListLength);
+	inline void Delete(const int_max* ColIndexList, int_max ListLength);
 
-    inline bool Delete(int_max Index_start, int_max Index_end);
+	inline void Delete(int_max Index_start, int_max Index_end);
 
-    inline bool Insert(int_max Index, const ElementType& Element);
+	inline void Insert(int_max Index, const ElementType& Element);
 
-    inline bool Insert(int_max Index, const std::initializer_list<ElementType>& InputArray);
+	inline void Insert(int_max Index, const std::initializer_list<ElementType>& InputArray);
 
-    inline bool Insert(int_max Index, const std::vector<ElementType>& InputArray);
+	inline void Insert(int_max Index, const std::vector<ElementType>& InputArray);
 
-	inline bool Insert(int_max Index, const StdObjectVector<ElementType>& InputArray);
+	inline void Insert(int_max Index, const StdObjectVector<ElementType>& InputArray);
 
-	inline bool Insert(int_max Index, const ObjectArray<ElementType>& InputArray);
+	inline void Insert(int_max Index, const ObjectArray<ElementType>& InputArray);
 	
-    inline bool Insert(int_max Index, const ElementType* InputArray, int_max InputLength);
+	inline void Insert(int_max Index, const ElementType* InputArray, int_max InputLength);
 
     //------------- use ObjectArray as a stack ----------------------------//
 
-	inline bool PushBack(ElementType Element);
+	inline void PushBack(ElementType Element);
 
     inline ElementType PopBack();
 
@@ -593,23 +558,23 @@ public:
 
 	//----------------------- Set subset ------------------------------//
 
-	inline bool SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSetData);
+	inline void SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSetData);
 
-	inline bool SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSetData);
+	inline void SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSetData);
 
-	inline bool SetSubSet(const std::initializer_list<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
+	inline void SetSubSet(const std::initializer_list<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
 
-	inline bool SetSubSet(const std::vector<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
+	inline void SetSubSet(const std::vector<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
 
-	inline bool SetSubSet(const StdObjectVector<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
+	inline void SetSubSet(const StdObjectVector<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
 
-	inline bool SetSubSet(const ObjectArray<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
+	inline void SetSubSet(const ObjectArray<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
 
-	inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
+	inline void SetSubSet(const DenseMatrix<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
 
-	inline bool SetSubSet(const DenseVector<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
+	inline void SetSubSet(const DenseVector<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
 
-	inline bool SetSubSet(const int_max* IndexList, const ElementType* SubSetData, int_max DataNumber);
+	inline void SetSubSet(const int_max* IndexList, const ElementType* SubSetData, int_max DataNumber);
 
     //-------------------- find ---------------------------------------//
 

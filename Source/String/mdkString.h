@@ -9,6 +9,7 @@
 
 #include "mdkDebugConfig.h"
 #include "mdkCommonType.h"
+#include "mdkSymbol.h"
 #include "mdkObject.h"
 
 namespace mdk
@@ -87,11 +88,11 @@ public:
 
 	//---------------------- Set/get Size ----------------------------------------//
 
-    inline bool Resize(int_max InputLength); // try to keep the old data
+    inline void Resize(int_max InputLength); // try to keep the old data
 
-    inline bool FastResize(int_max InputLength); // do not care about old data
+	inline void FastResize(int_max InputLength); // do not care about old data
 
-    inline bool ReserveCapacity(int_max InputElementNumber); // reserve memory, current Length does not change
+	inline void ReserveCapacity(int_max InputElementNumber); // reserve memory, current Length does not change
 
 	inline void ReleaseUnusedCapacity();
 
@@ -139,29 +140,29 @@ public:
 
     //-------------------------------------------------------------------------------
 
-	inline bool Append(char Element);
+	inline void Append(char Element);
 
-	inline bool Append(const char* InputString);
+	inline void Append(const char* InputString);
 
-	inline bool Append(const std::basic_string<char>& InputString);
+	inline void Append(const std::basic_string<char>& InputString);
 
-	inline bool Append(const String& InputString);
+	inline void Append(const String& InputString);
 
-	inline bool Delete(int_max Index);
+	inline void Delete(int_max Index);
 
-	inline bool Delete(const std::initializer_list<int_max>& IndexList);
+	inline void Delete(const std::initializer_list<int_max>& IndexList);
 
-    inline bool Delete(const int_max* IndexList, int_max ListLength);
+	inline void Delete(const int_max* IndexList, int_max ListLength);
 
-	inline bool Delete(int_max Index_start, int_max Index_end);
+	inline void Delete(int_max Index_start, int_max Index_end);
 
-	inline bool Insert(int_max Index, char Element);
+	inline void Insert(int_max Index, char Element);
 
-	inline bool Insert(int_max Index, const char* InputString);
+	inline void Insert(int_max Index, const char* InputString);
 
-	inline bool Insert(int_max Index, const std::basic_string<char>& InputString);
+	inline void Insert(int_max Index, const std::basic_string<char>& InputString);
 
-	inline bool Insert(int_max Index, const String& InputString);
+	inline void Insert(int_max Index, const String& InputString);
 
     //------------------------------------------------------------------
 
