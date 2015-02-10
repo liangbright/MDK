@@ -35,7 +35,7 @@ void SparseImageData2D<PixelType>::Clear()
     m_Orientation.FixSize();
     m_Orientation.FillDiagonal(1.0);
 
-    m_DataMap.clear();
+    m_PixelMap.clear();
   
 	m_Pixel_OutsideImage = PixelType(0);
 }
@@ -45,7 +45,7 @@ template<typename PixelType>
 inline
 const PixelType& SparseImageData2D<PixelType>::GetPixel(int_max LinearIndex) const
 {
-    return m_DataMap[LinearIndex];
+    return m_PixelMap[LinearIndex];
 }
 
 
@@ -54,7 +54,7 @@ inline
 const PixelType& SparseImageData2D<PixelType>::GetPixel(int_max xIndex, int_max yIndex) const
 {
     auto LinearIndex = yIndex*m_Size[0] + xIndex;
-	return m_DataMap[LinearIndex];
+	return m_PixelMap[LinearIndex];
 }
 
 
@@ -62,7 +62,7 @@ template<typename PixelType>
 inline
 void SparseImageData2D<PixelType>::SetPixel(int_max LinearIndex, const PixelType& Pixel)
 {
-	m_DataMap[LinearIndex] = Pixel;
+	m_PixelMap[LinearIndex] = Pixel;
 }
 
 
@@ -71,7 +71,7 @@ inline
 void SparseImageData2D<PixelType>::SetPixel(int_max xIndex, int_max yIndex, const PixelType& Pixel)
 {
 	auto LinearIndex = yIndex*m_Size[0] + xIndex;
-	m_DataMap[LinearIndex] = Pixel;
+	m_PixelMap[LinearIndex] = Pixel;
 }
 
 
@@ -234,9 +234,9 @@ template<typename PixelType>
 template<typename PixelType_Input>
 void SparseImage2D<PixelType>::CopyPixelData(const SparseImage2D<PixelType_Input>& InputImage)
 {
-	for (auto it = InputImage.m_DataMap.begin(); it != InputImage.m_DataMap.end(); ++it)
+	for (auto it = InputImage.m_PixelMap.begin(); it != InputImage.m_PixelMap.end(); ++it)
 	{
-		m_DataMap[it->first] = PixelType(it->second);
+		m_PixelMap[it->first] = PixelType(it->second);
 	}
 }
 
@@ -265,7 +265,7 @@ void SparseImage2D<PixelType>::Copy(SparseImage2D<PixelType>&& InputSparseImage)
 
 	m_ImageData->m_Orientation = std::move(InputSparseImage.m_ImageData->m_Orientation);
 
-	m_ImageData->m_DataMap = std::move(InputSparseImage.m_ImageData->m_DataMap);
+	m_ImageData->m_PixelMap = std::move(InputSparseImage.m_ImageData->m_PixelMap);
 
 	m_ImageData->m_Pixel_OutsideImage = InputSparseImage.m_ImageData->m_Pixel_OutsideImage;
 
@@ -330,7 +330,7 @@ bool SparseImage2D<PixelType>::IsEmpty() const
 {
 	if (m_ImageData)
 	{
-		return (m_ImageData->m_DataMap.size() == 0);
+		return (m_ImageData->m_PixelMap.size() == 0);
 	}
 	{
 		return true;
@@ -393,13 +393,13 @@ bool SparseImage2D<PixelType>::SetSize(int_max Lx, int_max Ly)
 
 	if (Lx == 0 || Ly == 0)
 	{
-		m_ImageData->m_DataMap.clear();
+		m_ImageData->m_PixelMap.clear();
 		m_ImageData->m_Size[0] = 0;
 		m_ImageData->m_Size[1] = 0;
 		return true;
 	}
 
-	m_ImageData->m_DataMap.clear();
+	m_ImageData->m_PixelMap.clear();
 	m_ImageData->m_Size[0] = Lx;
 	m_ImageData->m_Size[1] = Ly;
     return true;
@@ -531,7 +531,7 @@ template<typename PixelType>
 inline
 int_max SparseImage2D<PixelType>::GetRecordedPixelNumber() const
 {
-	return int_max(m_ImageData->m_DataMap.size());
+	return int_max(m_ImageData->m_PixelMap.size());
 }
  
 

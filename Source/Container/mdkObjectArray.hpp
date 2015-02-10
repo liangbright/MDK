@@ -102,8 +102,7 @@ bool ObjectArray<ElementType>::Copy(const ObjectArray<ElementType>* InputArray)
 {
 	if (InputArray == nullptr)
 	{
-		MDK_Error("Input is nullptr @ ObjectArray::Copy(ObjectArray* InputArray)")
-		return false;
+		return this->Copy(MDK_EMPTY);
 	}
 
 	return this->Copy(*InputArray);
@@ -200,8 +199,7 @@ bool ObjectArray<ElementType>::Copy(const StdObjectVector<ElementType>* InputArr
 {
 	if (InputArray == nullptr)
 	{
-		MDK_Error("Input is nullptr @ ObjectArray::Copy(const StdObjectVector* InputArray)")
-		return false;
+		return this->Copy(MDK_EMPTY);
 	}
 	return this->Copy(InputArray->GetElementPointer(), InputArray->GetLength());
 }
@@ -211,12 +209,37 @@ template<typename ElementType>
 inline
 bool ObjectArray<ElementType>::Copy(const ElementType* InputElementPointer, int_max InputLength)
 {
+	if (InputElementPointer == nullptr)
+	{
+		return this->Copy(MDK_EMPTY);
+	}
+
 	if (!m_Data)
 	{
 		this->Resize(0);
 	}
-
+	
 	return m_Data->Copy(InputElementPointer, InputLength);
+}
+
+
+template<typename ElementType>
+inline
+bool ObjectArray<ElementType>::Copy(const MDK_Symbol_Empty&)
+{
+	auto SelfLength = this->GetElementNumber();
+
+	if (this->IsSizeFixed() == true)
+	{
+		if (SelfLength != 0)
+		{
+			MDK_Error("Size can not change @ ObjectArray::Copy(MDK_EMPTY)")
+			return false;
+		}
+	}
+
+	this->Clear();
+	return true;
 }
 
 

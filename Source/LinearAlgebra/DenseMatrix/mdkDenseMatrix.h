@@ -25,18 +25,19 @@
 namespace mdk
 {
 
-// 2D Dense Matrix Class Template, each entry/element is a scalar
+// Dense Matrix Template Class, each entry/element is a scalar
 // column major
 //
+// DenseMatrix is similar to SharedDataObject
+//
 // Compare to Matlab:
-// mdkDenseMatrix API very similar to Matlab matrix
+// DenseMatrix API very similar to Matlab
 //
 // Compare to Armadillo  (a linear algebra library, and it uses column major matrix)
-// mdkDenseMatrix API better than Armadillo
-//
+// DenseMatrix API better than Armadillo
 //
 
-// ----------------------------- mdkDenseMatrixData struct -------------------------------------------------------------//
+// ----------------------------- DenseMatrixData struct -------------------------------------------------------------//
 
 template<typename Element_Type>
 struct DenseMatrixData
@@ -81,15 +82,11 @@ struct DenseMatrixData
         {
             if (ElementPointer == nullptr)
             {
-                if (RowNumber != 0 || ColNumber != 0)
+				if (RowNumber != 0 || ColNumber != 0 || StdVector.data() != nullptr || StdVector.size() != 0)
                 {
                     MDK_Error("ElementPointer is nullptr but Self is not empty matrix @ DenseMatrixData::CopyDataToInternalArrayIfNecessary()")
-                    return;
                 }
-                else // self is empty matrix
-                {
-                    return;
-                }
+                return;
             }
 
             auto ElementNumber = RowNumber*ColNumber;
@@ -285,11 +282,13 @@ public:
 
 	inline bool Copy(DenseVector<ElementType>&& InputColVector);
 
+	inline bool Copy(const MDK_Symbol_Empty&);
+
     inline bool Fill(const ElementType& Element);
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
 
-	// DenseMatrix A, B; A.Share(B)/A.ForceShare(B) is  m_MatrixData (of A) = m_MatrixData (of B);
+	// DenseMatrix A, B; A.Share(B), A.ForceShare(B) <=>  m_MatrixData (of A) = m_MatrixData (of B);
     // If B change the value of an element, A will be changed (i.e., the data in A is the same as the data in B)
     // If B change its size or clear itself, A will be changed.
     // If A change it self, B will be changed
@@ -300,12 +299,10 @@ public:
     // After B.Share(C), then B is C, and the share-relation between A and B is terminated, A keep its data.
 	// 
 	// 4 way to terminate the relation A.Share(B) or A.ForceShare(B)
-	// (1) DenseMatrix C;  C = std::move(A);
-	// (2) DenseMatrix C(std::move(A));  or DenseMatrix C = std::move(A); 
-	// After(1) or (2), A become a pure empty matrix; if A is to be used again, then A.Resize(0,0);
-	//    
-	// (3) DenseMatrix C; A.ForceShare(C); A is C, an empty matrix (m_IsSizeFixed is false), and B keep the data
-	// (4) A.ForceShare(MDK_EMPTY);        A become an empty matrix (m_IsSizeFixed is false)
+	// (1) DenseMatrix C(std::move(A));  or DenseMatrix C = std::move(A); 
+	// (2) DenseMatrix C; A.Swap(C);
+	// (3) DenseMatrix C; A.ForceShare(C) or A.Share(C);
+	// (4) A.Recreate();
 	//
     // There are 3 situation we may use A.Share(B) or A.ForceShare(B)
     // (1) use A as an observer of B, and do not modify B by using A, e.g., A(0,0)=1;
@@ -318,8 +315,6 @@ public:
 
     inline bool Share(DenseMatrix<ElementType>& InputMatrix);
     inline bool Share(DenseMatrix<ElementType>* InputMatrix);
-
-	inline void ForceShare(const MDK_Symbol_Empty&);
 
     inline void ForceShare(const DenseMatrix<ElementType>& InputMatrix);
     inline bool ForceShare(const DenseMatrix<ElementType>* InputMatrix);
@@ -359,9 +354,9 @@ public:
     //------------------------------------------------------------------------------------------------------
 
     //---------------------- Special Share: share the Matrix of another library (e.g., eigen) ----------------------------------------//
-    // It can be used it to share a Matrix in eigen library
-    // It can be used it to share a col of a MDK Matrix
-    // do not use this Share() to share a whole MDK Matrix
+    // It can be used to share a Matrix in eigen library
+    // It can be used to share a col of a MDK Matrix (RefCol(...) is better)
+    // do not use this Share() to share a MDK Matrix
 
     inline bool Share(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed = true);
 
@@ -374,6 +369,9 @@ public:
 	// if A.Share(B); A.Swap(C); then A will no longer share B, but C will share B; A become C, C become A; 
 	// if A.Share(B); A.Take(C); then A still share B, and only its content is changed; C will not share B
     inline void Swap(DenseMatrix<ElementType>& InputMatrix);
+
+	//--------------------------- Recreate ---------------------------------------//
+	inline void Recreate();
 
     //------------------------- Clear -------------------------------------------//
     // clear memory, not equal to Resize(0, 0) which may not release memory

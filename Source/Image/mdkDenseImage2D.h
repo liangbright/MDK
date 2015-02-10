@@ -139,7 +139,7 @@ struct DenseImageData2D
 
     DenseMatrix<double> m_Orientation;  // 2x2 Matrix
 
-	ObjectArray<PixelType> m_DataArray;
+	ObjectArray<PixelType> m_PixelArray;
 
 	PixelType m_Pixel_OutsideImage;
 //----------------------------------------------------------------

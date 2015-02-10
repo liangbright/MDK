@@ -41,7 +41,7 @@ void SparseImageData3D<PixelType>::Clear()
     m_Orientation.FixSize();
     m_Orientation.FillDiagonal(1.0);
 
-    m_DataMap.clear();
+    m_PixelMap.clear();
   
 	m_Pixel_OutsideImage = PixelType(0);
 }
@@ -216,9 +216,9 @@ template<typename PixelType>
 template<typename PixelType_Input>
 void SparseImage3D<PixelType>::CopyPixelData(const SparseImage3D<PixelType_Input>& InputImage)
 {
-	for (auto it = InputImage.m_DataMap.begin(); it != InputImage.m_DataMap.end(); ++it)
+	for (auto it = InputImage.m_PixelMap.begin(); it != InputImage.m_PixelMap.end(); ++it)
 	{
-		m_DataMap[it->first] = PixelType(it->second);
+		m_PixelMap[it->first] = PixelType(it->second);
 	}
 }
 
@@ -247,7 +247,7 @@ void SparseImage3D<PixelType>::Copy(SparseImage3D<PixelType>&& InputSparseImage)
 
 	m_ImageData->m_Orientation = std::move(InputSparseImage.m_ImageData->m_Orientation);
 
-	m_ImageData->m_DataMap = std::move(InputSparseImage.m_ImageData->m_DataMap);
+	m_ImageData->m_PixelMap = std::move(InputSparseImage.m_ImageData->m_PixelMap);
 
 	m_ImageData->m_Pixel_OutsideImage = InputSparseImage.m_ImageData->m_Pixel_OutsideImage;
 
@@ -312,7 +312,7 @@ bool SparseImage3D<PixelType>::IsEmpty() const
 {
 	if (m_ImageData)
 	{
-		return (m_ImageData->m_DataMap.size() == 0);
+		return (m_ImageData->m_PixelMap.size() == 0);
 	}
 	{
 		return true;
@@ -376,7 +376,7 @@ bool SparseImage3D<PixelType>::SetSize(int_max Lx, int_max Ly, int_max Lz)
 
     if (Lx == 0 || Ly == 0 || Lz == 0)
     {
-        m_ImageData->m_DataMap.clear();
+        m_ImageData->m_PixelMap.clear();
         m_ImageData->m_Size[0] = 0;
         m_ImageData->m_Size[1] = 0;
         m_ImageData->m_Size[2] = 0;
@@ -523,7 +523,7 @@ template<typename PixelType>
 inline
 int_max SparseImage3D<PixelType>::GetRecordedPixelNumber() const
 {
-	return int_max(m_ImageData->m_DataMap.size());
+	return int_max(m_ImageData->m_PixelMap.size());
 }
  
 
@@ -747,8 +747,8 @@ template<typename PixelType>
 inline 
 bool SparseImage3D<PixelType>::CheckIfPixelIsStoredAtLinearIndex(int_max LinearIndex) const
 {// true, the pixel does exist at (LinearIndex)
-	auto it = m_ImageData->m_DataMap.find(LinearIndex);
-	return (it != m_ImageData->m_DataMap.end());
+	auto it = m_ImageData->m_PixelMap.find(LinearIndex);
+	return (it != m_ImageData->m_PixelMap.end());
 }
 
 
@@ -768,7 +768,7 @@ void SparseImage3D<PixelType>::SetPixelAt3DIndex(int_max xIndex, int_max yIndex,
 #endif //MDK_DEBUG_3DSparseImage_Operator_CheckBound
 	
 	auto LinearIndex = zIndex*m_PixelNumberPerZSlice + yIndex*m_Size[0] + xIndex;
-	m_ImageData->m_DataMap[LinearIndex] = std::move(Pixel);
+	m_ImageData->m_PixelMap[LinearIndex] = std::move(Pixel);
 }
 
 
@@ -788,7 +788,7 @@ void SparseImage3D<PixelType>::SetPixelAt3DIndex(DenseVector<int_max, 3> Index3D
 #endif //MDK_DEBUG_3DSparseImage_Operator_CheckBound
 
 	auto LinearIndex = Index3D[2] * m_PixelNumberPerZSlice + Index3D[1] * m_Size[0] + Index3D[0];
-	m_ImageData->m_DataMap[LinearIndex] = std::move(Pixel);
+	m_ImageData->m_PixelMap[LinearIndex] = std::move(Pixel);
 }
 
 
@@ -808,7 +808,7 @@ void SparseImage3D<PixelType>::SetPixelAtLinearIndex(int_max LinearIndex, PixelT
 
 #endif //MDK_DEBUG_3DSparseImage_Operator_CheckBound
 
-	m_ImageData->m_DataMap[LinearIndex] = std::move(Pixel);
+	m_ImageData->m_PixelMap[LinearIndex] = std::move(Pixel);
 }
 
 
@@ -828,7 +828,7 @@ const PixelType& SparseImage3D<PixelType>::GetPixelAt3DIndex(int_max xIndex, int
 #endif //MDK_DEBUG_3DSparseImage_Operator_CheckBound
 
 	auto LinearIndex = zIndex*m_ImageData->m_PixelNumberPerZSlice + yIndex*m_ImageData->m_Size[0] + xIndex;
-	return m_ImageData->m_DataMap[LinearIndex];
+	return m_ImageData->m_PixelMap[LinearIndex];
 }
 
 
@@ -856,7 +856,7 @@ const PixelType& SparseImage3D<PixelType>::GetPixelAtLinearIndex(int_max LinearI
 
 #endif //MDK_DEBUG_3DSparseImage_Operator_CheckBound
 
-	return m_ImageData->m_DataMap[LinearIndex];
+	return m_ImageData->m_PixelMap[LinearIndex];
 }
 
 
@@ -876,12 +876,12 @@ PixelType& SparseImage3D<PixelType>::operator[](int_max LinearIndex)
 
 #endif //MDK_DEBUG_3DSparseImage_Operator_CheckBound
 
-	auto it = m_ImageData->m_DataMap.find(LinearIndex);
-	if (it == m_ImageData->m_DataMap.end())
+	auto it = m_ImageData->m_PixelMap.find(LinearIndex);
+	if (it == m_ImageData->m_PixelMap.end())
 	{
-		m_ImageData->m_DataMap[LinearIndex] = m_ImageData->m_Pixel_OutsideImage;
+		m_ImageData->m_PixelMap[LinearIndex] = m_ImageData->m_Pixel_OutsideImage;
 	}
-	return m_ImageData->m_DataMap[LinearIndex];
+	return m_ImageData->m_PixelMap[LinearIndex];
 }
 
 
@@ -925,12 +925,12 @@ PixelType& SparseImage3D<PixelType>::operator()(int_max xIndex, int_max yIndex, 
 #endif //MDK_DEBUG_3DSparseImage_Operator_CheckBound
 
 	auto LinearIndex = zIndex*m_ImageData->m_PixelNumberPerZSlice + yIndex*m_ImageData->m_Size[0] + xIndex;
-	auto it = m_ImageData->m_DataMap.find(LinearIndex);
-	if (it == m_ImageData->m_DataMap.end())
+	auto it = m_ImageData->m_PixelMap.find(LinearIndex);
+	if (it == m_ImageData->m_PixelMap.end())
 	{
-		m_ImageData->m_DataMap[LinearIndex] = m_ImageData->m_Pixel_OutsideImage;
+		m_ImageData->m_PixelMap[LinearIndex] = m_ImageData->m_Pixel_OutsideImage;
 	}
-	return m_ImageData->m_DataMap[LinearIndex];
+	return m_ImageData->m_PixelMap[LinearIndex];
 }
 
 

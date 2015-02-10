@@ -63,8 +63,10 @@ struct DenseImageData3D
 
 	bool m_Flag_Orientation_is_IdentityMatrix;
 	// Orientation=[m_LocalSys.DirectionX, m_LocalSys.DirectionY, m_LocalSys.DirectionZ]; 
+	// Orientation is not used when transform Position from local to global
+	// always assume it is Identity Matrix
 
-    ObjectArray<PixelType> m_DataArray;
+	ObjectArray<PixelType> m_PixelArray;
 
 	PixelType m_Pixel_OutsideImage;
 //----------------------------------------------------------------
@@ -153,7 +155,7 @@ public:
 	void Copy(const DenseImage3D<PixelType_Input>& InputImage);
 
 	template<typename PixelType_Input>
-	bool Copy(const DenseImage3D<PixelType_Input>* InputImage);
+	void Copy(const DenseImage3D<PixelType_Input>* InputImage);
 
 	template<typename PixelType_Input>
 	bool CopyPixelData(const PixelType_Input* InputPixelPointer, int_max InputPixelNumber);
@@ -169,8 +171,9 @@ public:
 	void ForceShare(const DenseImage3D& InputImage);
 	bool ForceShare(const DenseImage3D* InputImage);
 
-	bool Share(PixelType* InputImage, const Image3DInfo& InputImageInfo);//special share
-	bool ForceShare(const PixelType* InputImage, const Image3DInfo& InputImageInfo);//special share
+	//special share
+	bool Share(PixelType* InputImage, const Image3DInfo& InputImageInfo);
+	bool ForceShare(const PixelType* InputImage, const Image3DInfo& InputImageInfo);
 
     //-----------------------------------------------------------------//
 	// difficult to add Load / Save as member function
@@ -194,6 +197,8 @@ public:
     //--------------------------- Get/Set Info and Data ------------------------------//
 
 	inline Image3DInfo GetInfo() const;
+
+	inline bool SetInfo(const Image3DInfo& Info) const;
 
 	inline DenseVector<int_max, 3> GetSize() const;
 

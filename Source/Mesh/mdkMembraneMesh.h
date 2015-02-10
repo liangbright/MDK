@@ -154,14 +154,14 @@ public:
 
     inline void Clear();
 
-	inline bool Copy(const MembraneMesh* InputMesh);
+	inline void Copy(const MembraneMesh* InputMesh);// Copy(nullptr) is Clear()
     inline void Copy(const MembraneMesh& InputMesh);
 	inline void Copy(MembraneMesh&& InputMesh);
-
-	inline bool Share(MembraneMesh* InputMesh);
+	
+	inline bool Share(MembraneMesh* InputMesh);// Share(nullptr) is invalid
 	inline void Share(MembraneMesh& InputMesh);
 
-	inline bool ForceShare(const MembraneMesh* InputMesh);
+	inline bool ForceShare(const MembraneMesh* InputMesh);// ForceShare(nullptr) is invalid
     inline void ForceShare(const MembraneMesh& InputMesh);
 
     //-------------------------------------------------------------------

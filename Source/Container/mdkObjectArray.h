@@ -221,7 +221,7 @@ struct ObjectArrayData
 	//-------------------------------------------------------------
 	bool IsSharedWith(const ObjectArrayData& InputData) const
 	{
-		if (ElementPointer != nullptr && InputData.ElementPointer != nullptr)
+		if (ElementPointer != nullptr)
 		{
 			return ElementPointer == InputData.ElementPointer;
 		}
@@ -312,7 +312,7 @@ struct ObjectArrayData
 			}
 
 			ElementPointer = StdVector.data();
-			Length = InputLength;
+			Length = int_max(StdVector.size());//==InputLength
 		}
 		catch (...)
 		{
@@ -329,10 +329,13 @@ struct ObjectArrayData
     {
 		if (ElementPointer != StdVector.data())
         {
-			if (ElementPointer == nullptr || StdVector.data() != nullptr)
+			if (ElementPointer == nullptr)
             {
-                MDK_Error("ElementPointer is nullptr || StdVector.data() != nullptr @ ObjectArrayData::CopyDataToStdVectorIfNecessary()")
-                return;
+				if (Length != 0 || StdVector.data() != nullptr || StdVector.size() != 0)
+				{
+					MDK_Error("ElementPointer is nullptr but Self is not empty @ ObjectArrayData::CopyDataToStdVectorIfNecessary()")
+				}
+				return;
             }
 
 			StdVector.resize(Length);
@@ -396,7 +399,7 @@ public:
 	// std::vector<ElementType>& StdVector() {return m_Data->StdVector;}
 	// const std::vector<ElementType>& StdVector() const {return m_Data->StdVector;}
 	// Do NOT implement the two function:
-	// if data is in external array, then StdVector() const will give wrong answer
+	// if data is in external array, then StdVector() should move data to internal array: user may not want this
 
 	//----------------------  operator=  ----------------------------------------//
 
@@ -414,6 +417,8 @@ public:
     inline void operator=(const std::vector<ElementType>& InputList);
 
     //----------------------  Copy  ----------------------------------------//
+	// Copy(nullptr) <=> Copy(MDK_EMPTY)
+
 	inline bool Copy(const ObjectArray<ElementType>* InputArray);
 	inline bool Copy(const ObjectArray<ElementType>& InputArray);
 
@@ -427,17 +432,20 @@ public:
 
     inline bool Copy(const ElementType* InputElementPointer, int_max InputLength);
 
+	inline bool Copy(const MDK_Symbol_Empty&);
+
     inline bool Fill(const ElementType& Element);
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
+	//Share(nullptr) and ForceShare(nullptr) : invalid
 
     inline bool Share(ObjectArray<ElementType>& InputArray);
     inline bool Share(ObjectArray<ElementType>* InputArray);
 
     inline void ForceShare(const ObjectArray<ElementType>& InputArray);
-    inline bool ForceShare(const ObjectArray<ElementType>* InputArray);
+	inline bool ForceShare(const ObjectArray<ElementType>* InputArray);
 
-    //-------------------------- special Share  ---------------------------------------------- //
+    //special Share : external data
 
     inline bool Share(ElementType* InputElementPointer, int_max InputLength, bool IsSizeFixed = true);
 

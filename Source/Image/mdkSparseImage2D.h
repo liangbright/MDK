@@ -36,7 +36,7 @@ struct SparseImageData2D
 
     DenseMatrix<double> m_Orientation;  // 2x2 Matrix
 
-	std::unordered_map<int_max, PixelType> m_DataMap; // map LinearIndex to Pixel
+	std::unordered_map<int_max, PixelType> m_PixelMap; // map LinearIndex to Pixel
 
 	PixelType m_Pixel_OutsideImage;
 

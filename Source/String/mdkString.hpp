@@ -128,7 +128,7 @@ inline void String::Copy(const String& InputString)
 {
     if (this == &InputString)
     {
-        MDK_Warning("A String tries to Copy itself @ String::Copy(InputString)")
+        MDK_Warning("A String try to Copy itself @ String::Copy(const String& InputString)")
         return;
     }
 
@@ -161,8 +161,7 @@ inline void String::Copy(const String* InputString)
 {
     if (InputString == nullptr)
     {
-        MDK_Error("Input is nullptr @ String::Copy(String* InputString)")
-        return;
+		return this->Copy(MDK_EMPTY);
     }
     this->Copy(*InputString);
 }
@@ -171,15 +170,14 @@ inline void String::Copy(const String* InputString)
 inline void String::Copy(const char* InputElementPointer)
 {
     if (InputElementPointer == nullptr)
-    {
-        MDK_Error("Input pointer is nullptr @ String::Copy(char*)")
-        return;
+    {		
+        return this->Copy(MDK_EMPTY);
     }
 
     // if this String is not empty, check if this and Input Share the same data
     if (this->IsEmpty() == false)
     {
-        if (std::size_t(InputElementPointer) == std::size_t(this->GetCharPointer()))
+        if (InputElementPointer == this->GetCharPointer())
         {
             return;
         }
@@ -197,10 +195,10 @@ inline void String::Copy(const char* InputElementPointer)
 
 inline void String::Copy(String&& InputString)
 {
-	// String = String
+	// if same String
 	if (this == &InputString)
 	{
-		MDK_Warning("A String tries to take itself @ String::take(InputString)")
+		MDK_Warning("A String try to copy itself @ String::Copy(&& InputString)")
 		return;
 	}
 
@@ -210,7 +208,7 @@ inline void String::Copy(String&& InputString)
 		return;
 	}
 
-	// StringA = StringA
+	// if same String
 	if (this->GetCharPointer() == InputString.GetCharPointer())
 	{
 		return;
@@ -229,6 +227,12 @@ inline void String::Copy(String&& InputString)
 
 	// Clear InputString to be empty
 	InputString.Clear();
+}
+
+
+inline void String::Copy(const MDK_Symbol_Empty&)
+{
+	this->Clear();
 }
 
 
@@ -257,7 +261,7 @@ inline void String::Share(String& InputString)
     // String = String
     if (this == &InputString)
     {
-        MDK_Warning("A String tries to Share itself @ String::Share(InputString)")
+        MDK_Warning("A String try to Share itself @ String::Share(...)")
         return;
     }
 
@@ -463,6 +467,16 @@ inline bool String::IsShared() const
 	{
 		return false;
 	}
+}
+
+
+inline bool String::IsSharedWith(const String& InputString) const
+{
+	if (this->GetCharPointer() != nullptr)
+	{
+		return (this->GetCharPointer() == InputString.GetCharPointer());
+	}
+	return false;
 }
 
 

@@ -58,25 +58,23 @@ public:
     inline const std::basic_string<char>& StdString() const;
 
     //----------------------  Copy  ----------------------------------------//
+	// A.Copy(nullptr) <=> A.Copy(MDK_EMPTY)
 
     inline void Copy(const String& InputString);
-
     inline void Copy(const String* InputString);
-
     inline void Copy(const char* InputElementPointer);
-
 	inline void Copy(String&& InputString);
+	inline void Copy(const MDK_Symbol_Empty&);
 
     inline void Fill(char Element);
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
+	// Share(nullptr), ForceShare(nullptr) : invalid operation, cause MDK_Error
 
     inline void Share(String& InputString);
-
     inline void Share(String* InputString);
 
     inline void ForceShare(const String& InputString);
-
     inline void ForceShare(const String* InputString);
 
     //------------------------- Swap shared_ptr m_StringData -------------------------------------------//
@@ -102,6 +100,8 @@ public:
 	inline bool IsPureEmpty() const;
 
     inline bool IsShared() const;
+
+	inline bool IsSharedWith(const String& InputString) const;
 
     inline int_max GetCharNumber() const;
 

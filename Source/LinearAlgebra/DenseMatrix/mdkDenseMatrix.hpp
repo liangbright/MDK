@@ -664,10 +664,8 @@ bool DenseMatrix<ElementType>::Copy(const DenseMatrix<ElementType_Input>* InputM
 {
     if (InputMatrix == nullptr)
     {
-        MDK_Error("Input is nullptr @ DenseMatrix::Copy(mdkDenseMatrix* InputMatrix)")
-        return false;
+		return this->Copy(MDK_EMPTY);
     }
-
     return this->Copy(*InputMatrix);
 }
 
@@ -677,23 +675,15 @@ template<typename ElementType_Input>
 inline
 bool DenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer, int_max InputRowNumber, int_max InputColNumber)
 {
-    if (InputElementPointer == nullptr || InputRowNumber <= 0 || InputColNumber <= 0)
+	if (InputRowNumber < 0 || InputColNumber < 0)
+	{
+		MDK_Error("Invalid input @ DenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)")
+		return false;
+	}
+
+    if (InputElementPointer == nullptr || InputRowNumber == 0 || InputColNumber == 0)
     {
-        MDK_Warning("Input is empty, try to clear self @ DenseMatrix::Copy(ElementType_Input*, RowNumber, ColNumber)")
-        
-        if (this->IsSizeFixed() == true)
-        {
-            if (this->IsEmpty() == false)
-            {
-                MDK_Error("Can not change matrix size @ DenseMatrix::Copy(ElementType_Input*, InputRowNumber, InputColNumber)")
-                return false;
-            }
-        }
-        else
-        {
-            this->Clear();
-        }
-        return true;
+		this->Copy(MDK_EMPTY);
     }
 
     auto tempElementType = FindMatrixElementType(InputElementPointer[0]);
@@ -717,8 +707,6 @@ bool DenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer
     //------------------------------------------------------------------
 
     auto SelfSize = this->GetSize();
-
-    //------------------------------------------------------------------
 
     if (this->IsSizeFixed() == true)
     {
@@ -965,7 +953,7 @@ bool DenseMatrix<ElementType>::Copy(std::vector<ElementType>&& InputColVector)
 		{
 			if (SelfSize.RowNumber > 0)
 			{
-				MDK_Warning("InputColVector is empty, and this matrix is set to be empty @ DenseMatrix::Copy(DenseVector)")
+				//MDK_Warning("InputColVector is empty, and this matrix is set to be empty @ DenseMatrix::Copy(DenseVector)")
 				this->Clear();
 			}
 			return true;
@@ -1036,18 +1024,7 @@ bool DenseMatrix<ElementType>::Copy(const DenseVector<ElementType, TemplateLengt
 
 	if (InputVectorLength <= 0)
 	{
-		//MDK_Warning("Input is empty, try to clear self @ DenseMatrix::operator=(DenseVector)")
-
-		if (this->IsSizeFixed() == true && this->IsEmpty() == false)
-		{
-			MDK_Error("Can not change matrix size @ DenseMatrix::operator=(DenseVector)")
-			return false;
-		}
-		else
-		{
-			this->Clear();
-			return true;
-		}
+		this->Copy(MDK_EMPTY);
 	}
 
 	auto SelfSize = this->GetSize();
@@ -1081,6 +1058,23 @@ inline
 bool DenseMatrix<ElementType>::Copy(DenseVector<ElementType>&& InputColVector)
 {
 	return this->Copy(InputColVector.StdVector());
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::Copy(const MDK_Symbol_Empty&)
+{
+	if (this->IsSizeFixed() == true)	
+	{
+		if (this->IsEmpty() == false)
+		{			
+			return false;	
+		}
+	}	
+
+	this->Clear();
+	return true;
 }
 
 
@@ -1153,15 +1147,6 @@ bool DenseMatrix<ElementType>::Share(DenseMatrix<ElementType>* InputMatrix)
     }
 
     return this->Share(*InputMatrix);
-}
-
-
-template<typename ElementType>
-inline
-void DenseMatrix<ElementType>::ForceShare(const MDK_Symbol_Empty&)
-{
-	DenseMatrix<ElementType> EmptyMatrix;
-	this->ForceShare(EmptyMatrix);
 }
 
 
@@ -1261,6 +1246,15 @@ void DenseMatrix<ElementType>::Swap(DenseMatrix<ElementType>& InputMatrix)
 	}
 
     m_MatrixData.swap(InputMatrix.m_MatrixData); // shared_ptr self swap check is not necessary
+}
+
+
+template<typename ElementType>
+inline
+void DenseMatrix<ElementType>::Recreate()
+{
+	DenseMatrix<ElementType> EmptyMatrix;
+	this->Share(EmptyMatrix);
 }
 
 

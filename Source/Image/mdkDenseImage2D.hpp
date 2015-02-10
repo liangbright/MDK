@@ -36,7 +36,7 @@ void DenseImageData2D<PixelType>::Clear()
     m_Orientation.FixSize();
     m_Orientation.FillDiagonal(1.0);
 
-    m_DataArray.Clear();
+    m_PixelArray.Clear();
 
 	m_Pixel_OutsideImage = PixelType(0);
 }
@@ -46,7 +46,7 @@ template<typename PixelType>
 inline 
 PixelType& DenseImageData2D<PixelType>::operator[](int_max LinearIndex)
 { 
-    return m_DataArray[LinearIndex];
+    return m_PixelArray[LinearIndex];
 }
 
 
@@ -54,7 +54,7 @@ template<typename PixelType>
 inline
 const PixelType& DenseImageData2D<PixelType>::operator[](int_max LinearIndex) const
 {
-    return m_DataArray[LinearIndex];
+    return m_PixelArray[LinearIndex];
 }
 
 
@@ -62,7 +62,7 @@ template<typename PixelType>
 inline
 PixelType& DenseImageData2D<PixelType>::operator()(int_max LinearIndex)
 {
-    return m_DataArray[LinearIndex];
+    return m_PixelArray[LinearIndex];
 }
 
 
@@ -70,7 +70,7 @@ template<typename PixelType>
 inline
 const PixelType& DenseImageData2D<PixelType>::operator()(int_max LinearIndex) const
 {
-    return m_DataArray[LinearIndex];
+    return m_PixelArray[LinearIndex];
 }
    
 
@@ -80,7 +80,7 @@ PixelType& DenseImageData2D<PixelType>::operator()(int_max xIndex, int_max yInde
 {
     auto LinearIndex = yIndex*m_Size[0] + xIndex;
  
-    return m_DataArray[LinearIndex];
+    return m_PixelArray[LinearIndex];
 }
 
 
@@ -90,7 +90,7 @@ const PixelType& DenseImageData2D<PixelType>::operator()(int_max xIndex, int_max
 {
     auto LinearIndex = yIndex*m_Size[0] + xIndex;
 
-    return m_DataArray[LinearIndex];
+    return m_PixelArray[LinearIndex];
 }
 
 
@@ -305,7 +305,7 @@ void DenseImage2D<PixelType>::Copy(DenseImage2D<PixelType>&& InputImage)
 
 	m_ImageData->m_Orientation = std::move(InputImage.m_ImageData->m_Orientation);
 
-	m_ImageData->m_DataArray = std::move(InputImage.m_ImageData->m_DataArray);
+	m_ImageData->m_PixelArray = std::move(InputImage.m_ImageData->m_PixelArray);
 
 	m_ImageData->m_Pixel_OutsideImage = InputImage.m_ImageData->m_Pixel_OutsideImage;
 
@@ -389,7 +389,7 @@ bool DenseImage2D<PixelType>::Share(PixelType* InputImage, const Image2DInfo& In
 	//this->SetSize(XXX);
 	m_ImageData->m_Size[0] = InputImageInfo.Size[0];
 	m_ImageData->m_Size[1] = InputImageInfo.Size[1];
-	return m_ImageData->m_DataArray.Share(InputImage, InputImageInfo.Size[0] * InputImageInfo.Size[1], true);
+	return m_ImageData->m_PixelArray.Share(InputImage, InputImageInfo.Size[0] * InputImageInfo.Size[1], true);
 }
 
 
@@ -416,7 +416,7 @@ bool DenseImage2D<PixelType>::IsEmpty() const
 {
 	if (m_ImageData)
 	{
-		return (m_ImageData->m_DataArray.GetLength() == 0);
+		return (m_ImageData->m_PixelArray.GetLength() == 0);
 	}
 	else
 	{
@@ -429,7 +429,7 @@ template<typename PixelType>
 inline
 PixelType* DenseImage2D<PixelType>::GetPixelPointer()
 {
-    return m_ImageData->m_DataArray.GetPointer();
+    return m_ImageData->m_PixelArray.GetPointer();
 }
 
 
@@ -437,7 +437,7 @@ template<typename PixelType>
 inline
 const PixelType* DenseImage2D<PixelType>::GetPixelPointer() const
 {
-	return m_ImageData->m_DataArray.GetPointer();
+	return m_ImageData->m_PixelArray.GetPointer();
 }
 
 
@@ -445,7 +445,7 @@ template<typename PixelType>
 inline
 PixelType* DenseImage2D<PixelType>::begin()
 {
-	return m_ImageData->m_DataArray.GetPointer();
+	return m_ImageData->m_PixelArray.GetPointer();
 }
 
 
@@ -453,7 +453,7 @@ template<typename PixelType>
 inline
 const PixelType* DenseImage2D<PixelType>::begin() const
 {
-	return m_ImageData->m_DataArray.GetPointer();
+	return m_ImageData->m_PixelArray.GetPointer();
 }
 
 
@@ -461,7 +461,7 @@ template<typename PixelType>
 inline
 PixelType* DenseImage2D<PixelType>::end()
 {
-	auto BeginPtr = m_ImageData->m_DataArray.GetPointer();
+	auto BeginPtr = m_ImageData->m_PixelArray.GetPointer();
 	if (BeginPtr == nullptr)
 	{
 		return nullptr;
@@ -477,7 +477,7 @@ template<typename PixelType>
 inline
 const PixelType* DenseImage2D<PixelType>::end() const
 {
-	auto BeginPtr = m_ImageData->m_DataArray.GetPointer();
+	auto BeginPtr = m_ImageData->m_PixelArray.GetPointer();
 	if (BeginPtr == nullptr)
 	{
 		return nullptr;
@@ -544,7 +544,7 @@ bool DenseImage2D<PixelType>::SetSize(int_max Lx, int_max Ly)
 
     if (Lx == 0 || Ly == 0)
     {
-        m_ImageData->m_DataArray.Clear();
+        m_ImageData->m_PixelArray.Clear();
         m_ImageData->m_Size[0] = 0;
         m_ImageData->m_Size[1] = 0;
         return true;
@@ -552,7 +552,7 @@ bool DenseImage2D<PixelType>::SetSize(int_max Lx, int_max Ly)
 
 try
 {
-    m_ImageData->m_DataArray.Resize(Lx*Ly); 
+    m_ImageData->m_PixelArray.Resize(Lx*Ly); 
     m_ImageData->m_Size[0] = Lx;
     m_ImageData->m_Size[1] = Ly;
 }

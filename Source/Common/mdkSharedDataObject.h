@@ -44,8 +44,7 @@ namespace mdk
 // After B.Share(C), then B is C, and the share-relation between A and B is terminated, A keep its data.
 // 
 // 5 way to terminate the relation A.Share(B) or A.ForceShare(B)
-// (1a) SharedDataObject C = std::move(A); data is taken by C, A and B become pure empty
-// (1b) SharedDataObject C; C.Move(A); data is taken by C, A and B become pure empty
+// (1) SharedDataObject C; C.Move(A); data is taken by C, A and B become pure empty
 // (2) SharedDataObject C; A.Swap(C); data is take by C;
 // (3) SharedDataObject C; A.ForceShare(C); A is C, and B keep the data
 // (4) SharedDataObject C; A.Move(C); A is C, and B keep the data

@@ -83,17 +83,15 @@ void MembraneMesh<MeshAttributeType>::Clear()
 
 template<typename MeshAttributeType>
 inline
-bool MembraneMesh<MeshAttributeType>::Copy(const MembraneMesh<MeshAttributeType>* InputMesh)
+void MembraneMesh<MeshAttributeType>::Copy(const MembraneMesh<MeshAttributeType>* InputMesh)
 {
 	if (InputMesh == nullptr)
 	{
-		MDK_Error("Input is nullptr @ MembraneMesh::Copy(...)")
-			return false;
+		MDK_Warning("Input is nullptr, clear self @ MembraneMesh::Copy(...)")
+		this->Clear();
 	}
 
 	this->Copy(*InputMesh);
-
-	return true;
 }
 
 
