@@ -1,5 +1,5 @@
-#ifndef __mdkTriangleMesh_hpp
-#define __mdkTriangleMesh_hpp
+﻿#ifndef mdk_TriangleMesh_hpp
+#define mdk_TriangleMesh_hpp
 
 
 namespace mdk

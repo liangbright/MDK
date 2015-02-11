@@ -1,4 +1,4 @@
-#ifndef mdk_LinearAlgebra_DenseMatrix_Function_DenseMatrix_Part_1_hpp
+﻿#ifndef mdk_LinearAlgebra_DenseMatrix_Function_DenseMatrix_Part_1_hpp
 #define mdk_LinearAlgebra_DenseMatrix_Function_DenseMatrix_Part_1_hpp
 
 namespace mdk

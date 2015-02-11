@@ -1,5 +1,5 @@
-#ifndef __mdkPolygonMeshStandardAttribute_h
-#define __mdkPolygonMeshStandardAttribute_h
+﻿#ifndef mdk_PolygonMeshStandardAttribute_h
+#define mdk_PolygonMeshStandardAttribute_h
 
 #include "mdkDenseMatrix.h"
 #include "mdkMembraneMeshStandardAttribute.h"

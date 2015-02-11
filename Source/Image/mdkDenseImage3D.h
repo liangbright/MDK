@@ -1,4 +1,4 @@
-#ifndef mdk_DenseImage3D_h
+﻿#ifndef mdk_DenseImage3D_h
 #define mdk_DenseImage3D_h
 
 #include <memory>

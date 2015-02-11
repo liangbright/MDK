@@ -1,4 +1,4 @@
-#ifndef mdk_LinearAlgebra_h
+﻿#ifndef mdk_LinearAlgebra_h
 #define mdk_LinearAlgebra_h
 
 #include "mdkLinearAlgebraConfig.h"

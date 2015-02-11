@@ -1,4 +1,4 @@
-#ifndef mdk_DenseShadowMatrix_h
+﻿#ifndef mdk_DenseShadowMatrix_h
 #define mdk_DenseShadowMatrix_h
 
 #include <vector>

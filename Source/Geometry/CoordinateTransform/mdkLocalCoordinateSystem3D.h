@@ -1,4 +1,4 @@
-#ifndef mdk_LocalCoordinateSystem3D_h
+﻿#ifndef mdk_LocalCoordinateSystem3D_h
 #define mdk_LocalCoordinateSystem3D_h
 
 namespace mdk

@@ -1,5 +1,5 @@
-#ifndef __mdkPolygonMesh_FileIO_h
-#define __mdkPolygonMesh_FileIO_h
+﻿#ifndef mdk_PolygonMesh_FileIO_h
+#define mdk_PolygonMesh_FileIO_h
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyDataReader.h>

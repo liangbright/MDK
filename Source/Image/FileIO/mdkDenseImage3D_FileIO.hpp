@@ -1,4 +1,4 @@
-#ifndef mdk_DenseImage3D_FileIO_hpp
+﻿#ifndef mdk_DenseImage3D_FileIO_hpp
 #define mdk_DenseImage3D_FileIO_hpp
 
 namespace mdk

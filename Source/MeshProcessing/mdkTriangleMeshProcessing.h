@@ -1,5 +1,5 @@
-#ifndef __mdkTriangleMeshProcessing_h
-#define __mdkTriangleMeshProcessing_h
+﻿#ifndef mdk_TriangleMeshProcessing_h
+#define mdk_TriangleMeshProcessing_h
 
 #include "mdkPolygonMeshProcessing.h"
 //---------------------------------------------------//

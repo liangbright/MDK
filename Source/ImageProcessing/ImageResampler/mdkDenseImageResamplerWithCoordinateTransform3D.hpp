@@ -1,4 +1,4 @@
-#ifndef MDK_DenseImageResamplerWithCoordinateTransform3D_hpp
+﻿#ifndef MDK_DenseImageResamplerWithCoordinateTransform3D_hpp
 #define MDK_DenseImageResamplerWithCoordinateTransform3D_hpp
 
 namespace mdk

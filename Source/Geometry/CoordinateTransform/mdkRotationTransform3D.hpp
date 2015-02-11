@@ -1,4 +1,4 @@
-#ifndef mdk_RotationTransform3D_hpp
+﻿#ifndef mdk_RotationTransform3D_hpp
 #define mdk_RotationTransform3D_hpp
 
 namespace mdk

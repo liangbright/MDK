@@ -1,4 +1,4 @@
-#ifndef mdk_Constant_hpp
+﻿#ifndef mdk_Constant_hpp
 #define mdk_Constant_hpp
 
 

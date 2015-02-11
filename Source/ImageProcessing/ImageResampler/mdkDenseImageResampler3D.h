@@ -1,4 +1,4 @@
-#ifndef MDK_DenseImageResampler3D_h
+﻿#ifndef MDK_DenseImageResampler3D_h
 #define MDK_DenseImageResampler3D_h
 
 #include "mdkImageFilter3D.h"

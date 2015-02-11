@@ -1,5 +1,5 @@
-#ifndef __mdkMembraneMeshStandardAttribute_h
-#define __mdkMembraneMeshStandardAttribute_h
+﻿#ifndef mdk_MembraneMeshStandardAttribute_h
+#define mdk_MembraneMeshStandardAttribute_h
 
 namespace mdk
 {

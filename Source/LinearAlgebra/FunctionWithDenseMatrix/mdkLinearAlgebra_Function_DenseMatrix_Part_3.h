@@ -1,4 +1,4 @@
-#ifndef mdk_LinearAlgebra_Function_DenseMatrix_Part_3_h
+﻿#ifndef mdk_LinearAlgebra_Function_DenseMatrix_Part_3_h
 #define mdk_LinearAlgebra_Function_DenseMatrix_Part_3_h
 
 #include <string>

@@ -1,5 +1,5 @@
-#ifndef __mdkQuadraticProgrammingSolver_h
-#define __mdkQuadraticProgrammingSolver_h
+﻿#ifndef mdk_QuadraticProgrammingSolver_h
+#define mdk_QuadraticProgrammingSolver_h
 
 #include <string>
 #include <memory>

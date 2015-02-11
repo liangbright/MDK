@@ -1,4 +1,4 @@
-#ifndef mdk_DenseImageResampler3D_hpp
+﻿#ifndef mdk_DenseImageResampler3D_hpp
 #define mdk_DenseImageResampler3D_hpp
 
 namespace mdk

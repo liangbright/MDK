@@ -1,5 +1,5 @@
-﻿#ifndef __mdkStringHash_h
-#define __mdkStringHash_h
+﻿#ifndef mdk_StringHash_h
+#define mdk_StringHash_h
 
 #include "mdkString.h"
 

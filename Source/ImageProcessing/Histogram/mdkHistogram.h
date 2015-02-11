@@ -1,4 +1,4 @@
-#ifndef mdk_Histogram_h
+﻿#ifndef mdk_Histogram_h
 #define mdk_Histogram_h
 
 #include <limits>

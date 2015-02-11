@@ -1,4 +1,4 @@
-#ifndef mdk_ImageInterpolation2D_h
+﻿#ifndef mdk_ImageInterpolation2D_h
 #define mdk_ImageInterpolation2D_h
 
 #include <cmath>

@@ -1,4 +1,4 @@
-#ifndef mdk_Constant_h
+﻿#ifndef mdk_Constant_h
 #define mdk_Constant_h
 
 #include <limits>

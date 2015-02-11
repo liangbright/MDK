@@ -1,5 +1,5 @@
-#ifndef __mdkSparseGlueMatrixForMultiplication_h
-#define __mdkSparseGlueMatrixForMultiplication_h
+﻿#ifndef mdk_SparseGlueMatrixForMultiplication_h
+#define mdk_SparseGlueMatrixForMultiplication_h
 
 #include "mdkObject.h"
 #include "mdkLinearAlgebraConfig.h"

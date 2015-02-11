@@ -1,5 +1,5 @@
-#ifndef __mdkSparseMatrixOperator_SparseGlueMatrixForLinearCombination_h
-#define __mdkSparseMatrixOperator_SparseGlueMatrixForLinearCombination_h
+﻿#ifndef mdk_SparseMatrixOperator_SparseGlueMatrixForLinearCombination_h
+#define mdk_SparseMatrixOperator_SparseGlueMatrixForLinearCombination_h
 
 namespace mdk
 {

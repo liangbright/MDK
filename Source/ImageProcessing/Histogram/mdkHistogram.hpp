@@ -1,4 +1,4 @@
-#ifndef mdk_Histogram_hpp
+﻿#ifndef mdk_Histogram_hpp
 #define mdk_Histogram_hpp
 
 namespace mdk

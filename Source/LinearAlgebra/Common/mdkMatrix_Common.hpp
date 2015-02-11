@@ -1,4 +1,4 @@
-#ifndef __mdkMatrixCommon_hpp
+﻿#ifndef __mdkMatrixCommon_hpp
 #define __mdkMatrixCommon_hpp
 
 

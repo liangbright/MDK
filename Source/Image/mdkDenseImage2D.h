@@ -1,4 +1,4 @@
-#ifndef mdk_DenseImage2D_h
+﻿#ifndef mdk_DenseImage2D_h
 #define mdk_DenseImage2D_h
 
 #include <vector>

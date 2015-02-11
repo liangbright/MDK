@@ -1,4 +1,4 @@
-#ifndef MDK_DenseImageResamplerWithCoordinateTransform3D_h
+﻿#ifndef MDK_DenseImageResamplerWithCoordinateTransform3D_h
 #define MDK_DenseImageResamplerWithCoordinateTransform3D_h
 
 #include "mdkImageFilter3D.h"

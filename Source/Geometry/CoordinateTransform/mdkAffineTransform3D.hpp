@@ -1,4 +1,4 @@
-#ifndef mdk_AffineTransform3D_hpp
+﻿#ifndef mdk_AffineTransform3D_hpp
 #define mdk_AffineTransform3D_hpp
 
 namespace mdk

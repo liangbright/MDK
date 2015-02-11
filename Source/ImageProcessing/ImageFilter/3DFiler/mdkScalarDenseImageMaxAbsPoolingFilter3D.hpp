@@ -1,4 +1,4 @@
-#ifndef mdk_ScalarDenseImageMaxAbsPoolingFilter3D_hpp
+﻿#ifndef mdk_ScalarDenseImageMaxAbsPoolingFilter3D_hpp
 #define mdk_ScalarDenseImageMaxAbsPoolingFilter3D_hpp
 
 namespace mdk

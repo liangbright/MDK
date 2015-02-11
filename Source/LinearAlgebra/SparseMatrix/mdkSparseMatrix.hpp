@@ -1,4 +1,4 @@
-#ifndef mdk_SparseMatrix_hpp
+﻿#ifndef mdk_SparseMatrix_hpp
 #define mdk_SparseMatrix_hpp
 
 

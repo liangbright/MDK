@@ -1,5 +1,5 @@
-#ifndef __mdkMembraneMeshItemIterator_hpp
-#define __mdkMembraneMeshItemIterator_hpp
+﻿#ifndef mdk_MembraneMeshItemIterator_hpp
+#define mdk_MembraneMeshItemIterator_hpp
 
 namespace mdk
 {

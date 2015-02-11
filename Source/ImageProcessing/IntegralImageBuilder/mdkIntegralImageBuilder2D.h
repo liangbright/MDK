@@ -1,5 +1,5 @@
-﻿#ifndef MDK_IntegralImageBuilder2D_h
-#define MDK_IntegralImageBuilder2D_h
+﻿#ifndef mdk_IntegralImageBuilder2D_h
+#define mdk_IntegralImageBuilder2D_h
 
 #include <algorithm>
 #include <cmath>

@@ -1,4 +1,4 @@
-#ifndef mdk_VTKDataStructureConversion_h
+﻿#ifndef mdk_VTKDataStructureConversion_h
 #define mdk_VTKDataStructureConversion_h
 
 #include <vtkSmartPointer.h>

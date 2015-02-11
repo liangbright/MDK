@@ -1,4 +1,4 @@
-#ifndef mdk_ScalarDenseImageGaussianFilter3D_hpp
+﻿#ifndef mdk_ScalarDenseImageGaussianFilter3D_hpp
 #define mdk_ScalarDenseImageGaussianFilter3D_hpp
 
 namespace mdk

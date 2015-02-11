@@ -1,4 +1,4 @@
-#ifndef mdk_DenseImage3D_hpp
+﻿#ifndef mdk_DenseImage3D_hpp
 #define mdk_DenseImage3D_hpp
 
 namespace mdk

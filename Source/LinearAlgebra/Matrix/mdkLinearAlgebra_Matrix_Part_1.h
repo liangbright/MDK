@@ -1,5 +1,5 @@
-#ifndef __mdkLinearAlgebra_Part_1_h
-#define __mdkLinearAlgebra_Part_1_h
+﻿#ifndef mdk_LinearAlgebra_Part_1_h
+#define mdk_LinearAlgebra_Part_1_h
 
 #include <vector>
 #include <array>

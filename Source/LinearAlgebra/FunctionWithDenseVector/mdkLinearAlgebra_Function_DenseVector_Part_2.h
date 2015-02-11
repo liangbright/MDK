@@ -1,5 +1,5 @@
-﻿#ifndef __mdkLinearAlgebra_Function_DenseVector_Part_2_h
-#define __mdkLinearAlgebra_Function_DenseVector_Part_2_h
+﻿#ifndef mdk_LinearAlgebra_Function_DenseVector_Part_2_h
+#define mdk_LinearAlgebra_Function_DenseVector_Part_2_h
 
 #include "mdkCommonType.h"
 #include "mdkDenseVector_ForwardDeclare.h"

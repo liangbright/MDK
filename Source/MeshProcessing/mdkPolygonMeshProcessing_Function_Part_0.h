@@ -1,5 +1,5 @@
-#ifndef __mdkPolygonMeshProcessing_Function_Part_0_h
-#define __mdkPolygonMeshProcessing_Function_Part_0_h
+﻿#ifndef mdk_PolygonMeshProcessing_Function_Part_0_h
+#define mdk_PolygonMeshProcessing_Function_Part_0_h
 
 #include "mdkDenseMatrix.h"
 #include "mdkPolygonMesh.h"

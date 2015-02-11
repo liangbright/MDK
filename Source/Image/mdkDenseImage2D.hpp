@@ -1,4 +1,4 @@
-#ifndef mdk_DenseImage2D_hpp
+﻿#ifndef mdk_DenseImage2D_hpp
 #define mdk_DenseImage2D_hpp
 
 

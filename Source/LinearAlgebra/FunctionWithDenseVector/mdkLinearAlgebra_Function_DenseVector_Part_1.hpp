@@ -1,5 +1,5 @@
-﻿#ifndef __mdkLinearAlgebra_Function_DenseVector_Part_1_hpp
-#define __mdkLinearAlgebra_Function_DenseVector_Part_1_hpp
+﻿#ifndef mdk_LinearAlgebra_Function_DenseVector_Part_1_hpp
+#define mdk_LinearAlgebra_Function_DenseVector_Part_1_hpp
 
 
 namespace mdk

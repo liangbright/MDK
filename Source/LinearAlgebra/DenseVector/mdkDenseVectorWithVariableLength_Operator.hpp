@@ -1,4 +1,4 @@
-#ifndef mdk_DenseVectorWithVariableLength_Operator_hpp
+﻿#ifndef mdk_DenseVectorWithVariableLength_Operator_hpp
 #define mdk_DenseVectorWithVariableLength_Operator_hpp
 
 namespace mdk

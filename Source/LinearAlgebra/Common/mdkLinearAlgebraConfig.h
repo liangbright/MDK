@@ -1,4 +1,4 @@
-#include "mdkDebugConfig.h"
+﻿#include "mdkDebugConfig.h"
 
 namespace mdk
 {

@@ -1,4 +1,4 @@
-#ifndef mdk_CombinatorialMath_Function_Part0_h
+﻿#ifndef mdk_CombinatorialMath_Function_Part0_h
 #define mdk_CombinatorialMath_Function_Part0_h
 
 #include "mdkObjectArray.h"

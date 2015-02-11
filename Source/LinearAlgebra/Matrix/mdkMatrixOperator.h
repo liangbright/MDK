@@ -1,5 +1,5 @@
-#ifndef __mdkMatrixOperator_h
-#define __mdkMatrixOperator_h
+﻿#ifndef mdk_MatrixOperator_h
+#define mdk_MatrixOperator_h
 
 namespace mdk
 {

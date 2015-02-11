@@ -1,5 +1,5 @@
-#ifndef __mdkPolygonMesh_FileIO_hpp
-#define __mdkPolygonMesh_FileIO_hpp
+﻿#ifndef mdk_PolygonMesh_FileIO_hpp
+#define mdk_PolygonMesh_FileIO_hpp
 
 namespace mdk
 {

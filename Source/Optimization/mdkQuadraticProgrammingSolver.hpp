@@ -1,5 +1,5 @@
-#ifndef __mdkQuadraticProgrammingSolver_hpp
-#define __mdkQuadraticProgrammingSolver_hpp
+﻿#ifndef mdk_QuadraticProgrammingSolver_hpp
+#define mdk_QuadraticProgrammingSolver_hpp
 
 namespace mdk
 {

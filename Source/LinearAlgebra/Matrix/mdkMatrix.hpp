@@ -1,5 +1,5 @@
-#ifndef __mdkMatrix_hpp
-#define __mdkMatrix_hpp
+﻿#ifndef mdk_Matrix_hpp
+#define mdk_Matrix_hpp
 
 #include <string>
 #include <cmath>

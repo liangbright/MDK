@@ -1,5 +1,5 @@
-#ifndef __mdkShadowMatrix_h
-#define __mdkShadowMatrix_h
+﻿#ifndef mdk_ShadowMatrix_h
+#define mdk_ShadowMatrix_h
 
 #include <vector>
 #include <memory>

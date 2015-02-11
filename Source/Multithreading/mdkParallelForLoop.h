@@ -1,4 +1,4 @@
-#ifndef mdk_ParallelForLoop_h
+﻿#ifndef mdk_ParallelForLoop_h
 #define mdk_ParallelForLoop_h
 
 #include <vector>

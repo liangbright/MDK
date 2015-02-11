@@ -1,5 +1,5 @@
-#ifndef MDK_IntegralImageBuilder3D_hpp
-#define MDK_IntegralImageBuilder3D_hpp
+﻿#ifndef mdk_IntegralImageBuilder3D_hpp
+#define mdk_IntegralImageBuilder3D_hpp
 
 namespace mdk
 {

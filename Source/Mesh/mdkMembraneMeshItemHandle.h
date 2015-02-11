@@ -1,5 +1,5 @@
-#ifndef __mdkMembraneMeshItemHandle_h
-#define __mdkMembraneMeshItemHandle_h
+﻿#ifndef mdk_MembraneMeshItemHandle_h
+#define mdk_MembraneMeshItemHandle_h
 
 #include "mdkCommonType.h"
 

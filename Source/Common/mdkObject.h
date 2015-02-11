@@ -1,5 +1,5 @@
-#ifndef MDK_Object_h
-#define MDK_Object_h
+﻿#ifndef mdk_Object_h
+#define mdk_Object_h
 
 namespace mdk
 {

@@ -1,4 +1,4 @@
-#ifndef __mdkLinearAlgebra_Function_Common_Part_0_h
+﻿#ifndef __mdkLinearAlgebra_Function_Common_Part_0_h
 #define __mdkLinearAlgebra_Function_Common_Part_0_h
 
 namespace mdk

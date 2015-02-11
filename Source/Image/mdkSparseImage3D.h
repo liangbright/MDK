@@ -1,4 +1,4 @@
-#ifndef mdk_SparseImage3D_h
+﻿#ifndef mdk_SparseImage3D_h
 #define mdk_SparseImage3D_h
 
 #include <vector>

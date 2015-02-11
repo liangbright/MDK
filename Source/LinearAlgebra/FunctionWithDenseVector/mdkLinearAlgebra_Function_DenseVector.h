@@ -1,5 +1,5 @@
-﻿#ifndef __mdkLinearAlgebra_Function_DenseVector_h
-#define __mdkLinearAlgebra_Function_DenseVector_h
+﻿#ifndef mdk_LinearAlgebra_Function_DenseVector_h
+#define mdk_LinearAlgebra_Function_DenseVector_h
 
 #include <vector>
 

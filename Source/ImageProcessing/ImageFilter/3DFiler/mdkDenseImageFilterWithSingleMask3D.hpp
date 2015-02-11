@@ -1,4 +1,4 @@
-#ifndef mdk_DenseImageFilterWithSingleMask3D_hpp
+﻿#ifndef mdk_DenseImageFilterWithSingleMask3D_hpp
 #define mdk_DenseImageFilterWithSingleMask3D_hpp
 
 

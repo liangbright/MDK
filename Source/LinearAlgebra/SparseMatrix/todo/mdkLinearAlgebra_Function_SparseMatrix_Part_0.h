@@ -1,5 +1,5 @@
-#ifndef __mdkLinearAlgebra_Function_SparseMatrix_Part_0_h
-#define __mdkLinearAlgebra_Function_SparseMatrix_Part_0_h
+﻿#ifndef mdk_LinearAlgebra_Function_SparseMatrix_Part_0_h
+#define mdk_LinearAlgebra_Function_SparseMatrix_Part_0_h
 
 #include <vector>
 #include <array>

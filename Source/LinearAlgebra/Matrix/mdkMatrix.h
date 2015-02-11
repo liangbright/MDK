@@ -1,5 +1,5 @@
-﻿#ifndef __mdkMatrix_h
-#define __mdkMatrix_h
+﻿#ifndef mdk_Matrix_h
+#define mdk_Matrix_h
 
 #include <vector>
 #include <memory>

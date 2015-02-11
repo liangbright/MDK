@@ -1,4 +1,4 @@
-#ifndef __mdkLinearAlgebra_Function_Common_Part_0_hpp
+﻿#ifndef __mdkLinearAlgebra_Function_Common_Part_0_hpp
 #define __mdkLinearAlgebra_Function_Common_Part_0_hpp
 
 

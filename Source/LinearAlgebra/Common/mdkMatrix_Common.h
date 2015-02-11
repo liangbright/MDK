@@ -1,4 +1,4 @@
-#ifndef __mdkMatrix_Common_h
+﻿#ifndef __mdkMatrix_Common_h
 #define __mdkMatrix_Common_h
 
 //#include <vector>

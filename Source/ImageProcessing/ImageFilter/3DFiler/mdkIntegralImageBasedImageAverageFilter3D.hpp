@@ -1,4 +1,4 @@
-#ifndef mdk_IntegralImageBasedImageAverageFilter3D_hpp
+﻿#ifndef mdk_IntegralImageBasedImageAverageFilter3D_hpp
 #define mdk_IntegralImageBasedImageAverageFilter3D_hpp
 
 namespace mdk

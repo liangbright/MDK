@@ -1,7 +1,6 @@
-#ifndef __mdkLinearAlgebra_SparseMatrix_Part_1_hpp
-#define __mdkLinearAlgebra_SparseMatrix_Part_1_hpp
+﻿#ifndef mdk_LinearAlgebra_SparseMatrix_Part_1_hpp
+#define mdk_LinearAlgebra_SparseMatrix_Part_1_hpp
 
-//#include "mdkLinearAlgebra_SparseMatrix_Part_1.h"
 
 namespace mdk
 {

@@ -1,4 +1,4 @@
-#ifndef mdk_DenseMatrixOperator_DenseGlueMatrixForMultiplication_h
+﻿#ifndef mdk_DenseMatrixOperator_DenseGlueMatrixForMultiplication_h
 #define mdk_DenseMatrixOperator_DenseGlueMatrixForMultiplication_h
 
 

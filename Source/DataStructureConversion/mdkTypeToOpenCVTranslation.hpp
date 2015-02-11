@@ -1,4 +1,4 @@
-#ifndef mdk_TypeTranslation_hpp
+﻿#ifndef mdk_TypeTranslation_hpp
 #define mdk_TypeTranslation_hpp
 
 namespace mdk

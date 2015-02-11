@@ -1,5 +1,5 @@
-#ifndef __mdkTriangleMeshProcessing_Function_Part_0_hpp
-#define __mdkTriangleMeshProcessing_Function_Part_0_hpp
+﻿#ifndef mdk_TriangleMeshProcessing_Function_Part_0_hpp
+#define mdk_TriangleMeshProcessing_Function_Part_0_hpp
 
 namespace mdk
 {

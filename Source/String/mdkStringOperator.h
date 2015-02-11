@@ -1,5 +1,5 @@
-﻿#ifndef __mdkStringOperator_h
-#define __mdkStringOperator_h
+﻿#ifndef mdk_StringOperator_h
+#define mdk_StringOperator_h
 
 #include <functional>
 #include <vector>

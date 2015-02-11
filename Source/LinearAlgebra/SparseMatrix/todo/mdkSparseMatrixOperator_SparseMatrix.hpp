@@ -1,5 +1,5 @@
-#ifndef __mdkSparseMatrixOperator_SparseMatrix_hpp
-#define __mdkSparseMatrixOperator_SparseMatrix_hpp
+﻿#ifndef mdk_SparseMatrixOperator_SparseMatrix_hpp
+#define mdk_SparseMatrixOperator_SparseMatrix_hpp
 
 namespace mdk
 {

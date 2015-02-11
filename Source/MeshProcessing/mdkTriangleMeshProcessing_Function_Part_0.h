@@ -1,5 +1,5 @@
-#ifndef __mdkTriangleMeshProcessing_Function_Part_0_h
-#define __mdkTriangleMeshProcessing_Function_Part_0_h
+﻿#ifndef mdk_TriangleMeshProcessing_Function_Part_0_h
+#define mdk_TriangleMeshProcessing_Function_Part_0_h
 
 #include <vtkLinearSubdivisionFilter.h>
 #include <vtkQuadricDecimation.h>

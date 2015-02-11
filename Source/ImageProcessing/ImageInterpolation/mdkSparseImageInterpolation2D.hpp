@@ -1,4 +1,4 @@
-#ifndef mdk_SparseImageInterpolation2D_hpp
+﻿#ifndef mdk_SparseImageInterpolation2D_hpp
 #define mdk_SparseImageInterpolation2D_hpp
 
 namespace mdk

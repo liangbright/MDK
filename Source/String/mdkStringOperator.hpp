@@ -1,5 +1,5 @@
-#ifndef __mdkStringOperator_hpp
-#define __mdkStringOperator_hpp
+﻿#ifndef mdk_StringOperator_hpp
+#define mdk_StringOperator_hpp
 
 namespace mdk
 {

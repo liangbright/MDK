@@ -1,4 +1,4 @@
-#ifndef mdk_DenseMatrixOperator_h
+﻿#ifndef mdk_DenseMatrixOperator_h
 #define mdk_DenseMatrixOperator_h
 
 namespace mdk

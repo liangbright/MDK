@@ -1,4 +1,4 @@
-#ifndef mdk_SparseVector_hpp
+﻿#ifndef mdk_SparseVector_hpp
 #define mdk_SparseVector_hpp
 
 namespace mdk

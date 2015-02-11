@@ -1,5 +1,5 @@
-#ifndef __mdkSparseShadowMatrix_hpp
-#define __mdkSparseShadowMatrix_hpp
+﻿#ifndef mdk_SparseShadowMatrix_hpp
+#define mdk_SparseShadowMatrix_hpp
 
 namespace mdk
 {

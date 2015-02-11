@@ -1,4 +1,4 @@
-#ifndef mdk_ParallelForLoop_hpp
+﻿#ifndef mdk_ParallelForLoop_hpp
 #define mdk_ParallelForLoop_hpp
 
 namespace mdk

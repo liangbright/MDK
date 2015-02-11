@@ -1,4 +1,4 @@
-#ifndef mdk_ObjectArray_hpp
+﻿#ifndef mdk_ObjectArray_hpp
 #define mdk_ObjectArray_hpp
 
 namespace mdk

@@ -1,5 +1,5 @@
-#ifndef __mdkMembraneMeshItemIterator_h
-#define __mdkMembraneMeshItemIterator_h
+﻿#ifndef mdk_MembraneMeshItemIterator_h
+#define mdk_MembraneMeshItemIterator_h
 
 #include "mdkMembraneMeshItem.h"
 

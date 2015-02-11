@@ -1,4 +1,4 @@
-#ifndef mdk_String_hpp
+﻿#ifndef mdk_String_hpp
 #define mdk_String_hpp
 
 #include "mdkDenseMatrix.h"

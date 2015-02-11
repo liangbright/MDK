@@ -1,4 +1,4 @@
-#ifndef mdk_AffineTransform3D_h
+﻿#ifndef mdk_AffineTransform3D_h
 #define mdk_AffineTransform3D_h
 
 #include "mdkCoordinateTransform3D.h"

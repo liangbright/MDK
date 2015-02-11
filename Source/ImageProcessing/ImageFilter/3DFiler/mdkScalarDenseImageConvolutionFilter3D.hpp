@@ -1,4 +1,4 @@
-#ifndef __mdkScalarDenseImageConvolutionFilter3D_hpp
+﻿#ifndef __mdkScalarDenseImageConvolutionFilter3D_hpp
 #define __mdkScalarDenseImageConvolutionFilter3D_hpp
 
 

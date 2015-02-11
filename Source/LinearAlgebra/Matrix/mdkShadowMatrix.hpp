@@ -1,5 +1,5 @@
-#ifndef __mdkShadowMatrix_hpp
-#define __mdkShadowMatrix_hpp
+﻿#ifndef mdk_ShadowMatrix_hpp
+#define mdk_ShadowMatrix_hpp
 
 #include <string>
 #include <cmath>

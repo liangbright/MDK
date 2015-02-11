@@ -1,4 +1,4 @@
-#ifndef mdk_TypeInference_hpp
+﻿#ifndef mdk_TypeInference_hpp
 #define mdk_TypeInference_hpp
 
 

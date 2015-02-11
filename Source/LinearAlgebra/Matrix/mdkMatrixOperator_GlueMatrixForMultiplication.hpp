@@ -1,5 +1,5 @@
-#ifndef __mdkMatrixOperator_GlueMatrixForMultiplication_h
-#define __mdkMatrixOperator_GlueMatrixForMultiplication_h
+﻿#ifndef mdk_MatrixOperator_GlueMatrixForMultiplication_h
+#define mdk_MatrixOperator_GlueMatrixForMultiplication_h
 
 
 namespace mdk

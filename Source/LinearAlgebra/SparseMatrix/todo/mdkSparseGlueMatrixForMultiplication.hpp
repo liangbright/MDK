@@ -1,7 +1,6 @@
-#ifndef __mdkSparseGlueMatrixForMultiplication_hpp
-#define __mdkSparseGlueMatrixForMultiplication_hpp
+﻿#ifndef mdk_SparseGlueMatrixForMultiplication_hpp
+#define mdk_SparseGlueMatrixForMultiplication_hpp
 
-//#include "mdkLinearAlgebra.h"
 
 namespace mdk
 {

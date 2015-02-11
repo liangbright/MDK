@@ -1,5 +1,5 @@
-#ifndef __mdkLinearLeastSquaresProblemSolver_h
-#define __mdkLinearLeastSquaresProblemSolver_h
+﻿#ifndef mdk_LinearLeastSquaresProblemSolver_h
+#define mdk_LinearLeastSquaresProblemSolver_h
 
 #include <string>
 #include <memory>

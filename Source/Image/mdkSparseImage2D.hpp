@@ -1,4 +1,4 @@
-#ifndef mdk_SparseImage2D_hpp
+﻿#ifndef mdk_SparseImage2D_hpp
 #define mdk_SparseImage2D_hpp
 
 namespace mdk

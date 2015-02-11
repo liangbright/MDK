@@ -1,5 +1,5 @@
-#ifndef __mdkPolygonMesh_h
-#define __mdkPolygonMesh_h
+﻿#ifndef mdk_PolygonMesh_h
+#define mdk_PolygonMesh_h
 
 #include <utility>
 #include <cmath>

@@ -1,5 +1,5 @@
-#ifndef __mdkTriangleMeshStandardAttribute_h
-#define __mdkTriangleMeshStandardAttribute_h
+﻿#ifndef mdk_TriangleMeshStandardAttribute_h
+#define mdk_TriangleMeshStandardAttribute_h
 
 #include "mdkPolygonMeshStandardAttribute.h"
 

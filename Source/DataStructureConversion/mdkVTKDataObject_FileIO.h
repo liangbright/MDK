@@ -1,4 +1,4 @@
-#ifndef mdk_VTKDataObject_FileIO_h
+﻿#ifndef mdk_VTKDataObject_FileIO_h
 #define mdk_VTKDataObject_FileIO_h
 
 #include <vtkSmartPointer.h>

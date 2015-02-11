@@ -1,4 +1,4 @@
-#ifndef mdk_VTKDataStructureConversion_hpp
+﻿#ifndef mdk_VTKDataStructureConversion_hpp
 #define mdk_VTKDataStructureConversion_hpp
 
 namespace mdk

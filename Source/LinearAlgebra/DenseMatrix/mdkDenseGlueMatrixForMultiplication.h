@@ -1,4 +1,4 @@
-#ifndef mdk_DenseGlueMatrixForMultiplication_h
+﻿#ifndef mdk_DenseGlueMatrixForMultiplication_h
 #define mdk_DenseGlueMatrixForMultiplication_h
 
 #include "mdkObject.h"

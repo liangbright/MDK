@@ -1,4 +1,4 @@
-#ifndef mdk_TypeToOpenCVTranslation_h
+﻿#ifndef mdk_TypeToOpenCVTranslation_h
 #define mdk_TypeToOpenCVTranslation_h
 
 #include <opencv2/core/types_c.h>

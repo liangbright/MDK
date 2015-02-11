@@ -1,4 +1,4 @@
-#ifndef mdk_DenseGlueMatrixForLinearCombination_hpp
+﻿#ifndef mdk_DenseGlueMatrixForLinearCombination_hpp
 #define mdk_DenseGlueMatrixForLinearCombination_hpp
 
 #include <cmath>

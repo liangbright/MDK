@@ -1,4 +1,4 @@
-#ifndef mdk_Geometry3D_Function_Part_0_h
+﻿#ifndef mdk_Geometry3D_Function_Part_0_h
 #define mdk_Geometry3D_Function_Part_0_h
 
 namespace mdk

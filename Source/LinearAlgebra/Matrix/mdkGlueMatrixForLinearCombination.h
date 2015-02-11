@@ -1,5 +1,5 @@
-#ifndef __mdkGlueMatrixForLinearCombination_h
-#define __mdkGlueMatrixForLinearCombination_h
+﻿#ifndef mdk_GlueMatrixForLinearCombination_h
+#define mdk_GlueMatrixForLinearCombination_h
 
 #include <vector>
 #include <memory>

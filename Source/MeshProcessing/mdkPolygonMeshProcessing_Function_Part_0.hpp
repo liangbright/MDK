@@ -1,5 +1,5 @@
-#ifndef __mdkPolygonMeshProcessing_Function_Part_0_hpp
-#define __mdkPolygonMeshProcessing_Function_Part_0_hpp
+﻿#ifndef mdk_PolygonMeshProcessing_Function_Part_0_hpp
+#define mdk_PolygonMeshProcessing_Function_Part_0_hpp
 
 namespace mdk
 {

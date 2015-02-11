@@ -1,5 +1,5 @@
-#ifndef __mdkSparseShadowMatrix_h
-#define __mdkSparseShadowMatrix_h
+﻿#ifndef mdk_SparseShadowMatrix_h
+#define mdk_SparseShadowMatrix_h
 
 #include <string>
 #include <cmath>

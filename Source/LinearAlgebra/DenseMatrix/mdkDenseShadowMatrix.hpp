@@ -1,4 +1,4 @@
-#ifndef mdk_DenseShadowMatrix_hpp
+﻿#ifndef mdk_DenseShadowMatrix_hpp
 #define mdk_DenseShadowMatrix_hpp
 
 

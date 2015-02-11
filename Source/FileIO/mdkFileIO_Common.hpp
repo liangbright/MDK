@@ -1,4 +1,4 @@
-#ifndef mdk_FileIO_Common_hpp
+﻿#ifndef mdk_FileIO_Common_hpp
 #define mdk_FileIO_Common_hpp
 
 namespace mdk

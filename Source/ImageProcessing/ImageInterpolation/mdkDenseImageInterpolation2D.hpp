@@ -1,4 +1,4 @@
-#ifndef __mdkDenseImageInterpolation2D_hpp
+﻿#ifndef __mdkDenseImageInterpolation2D_hpp
 #define __mdkDenseImageInterpolation2D_hpp
 
 namespace mdk

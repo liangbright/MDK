@@ -1,4 +1,4 @@
-#ifndef mdk_ImageFilter3D_hpp
+﻿#ifndef mdk_ImageFilter3D_hpp
 #define mdk_ImageFilter3D_hpp
 
 namespace mdk

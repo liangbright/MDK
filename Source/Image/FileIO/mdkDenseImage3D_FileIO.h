@@ -1,4 +1,4 @@
-#ifndef mdk_DenseImage3D_FileIO_h
+﻿#ifndef mdk_DenseImage3D_FileIO_h
 #define mdk_DenseImage3D_FileIO_h
 
 #include <itkGDCMImageIO.h>

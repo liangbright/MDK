@@ -1,4 +1,4 @@
-#ifndef mdk_DenseVectorWithFixedLength_Operator_hpp
+﻿#ifndef mdk_DenseVectorWithFixedLength_Operator_hpp
 #define mdk_DenseVectorWithFixedLength_Operator_hpp
 
 

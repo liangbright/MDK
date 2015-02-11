@@ -1,5 +1,5 @@
-#ifndef __mdkLinearLeastSquaresProblemSolver_hpp
-#define __mdkLinearLeastSquaresProblemSolver_hpp
+﻿#ifndef mdk_LinearLeastSquaresProblemSolver_hpp
+#define mdk_LinearLeastSquaresProblemSolver_hpp
 
 namespace mdk
 {

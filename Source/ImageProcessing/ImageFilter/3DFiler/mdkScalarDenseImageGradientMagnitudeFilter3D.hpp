@@ -1,4 +1,4 @@
-#ifndef mdk_ScalarDenseImageGradientMagnitudeFilter3D_hpp
+﻿#ifndef mdk_ScalarDenseImageGradientMagnitudeFilter3D_hpp
 #define mdk_ScalarDenseImageGradientMagnitudeFilter3D_hpp
 
 namespace mdk

@@ -1,5 +1,5 @@
-#ifndef __mdkTriangleMesh_FileIO_h
-#define __mdkTriangleMesh_FileIO_h
+﻿#ifndef mdk_TriangleMesh_FileIO_h
+#define mdk_TriangleMesh_FileIO_h
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyDataReader.h>
