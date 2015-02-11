@@ -1455,6 +1455,14 @@ MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputCo
     {
         return MatrixColOperation<ElementType>(OutputMatrix, OutputColIndex, [](const ElementType& a){return std::abs(a); }, InputMatrix, InputColIndex, Enable_BoundCheck);
     }
+	else if (OperationName == "exp")
+	{
+		return  MatrixColOperation<ElementType>(OutputMatrix, OutputColIndex, [](const ElementType& a){return std::exp(a); }, InputMatrix, InputColIndex, Enable_BoundCheck);
+	}
+	else if (OperationName == "log")
+	{
+		return  MatrixColOperation<ElementType>(OutputMatrix, OutputColIndex, [](const ElementType& a){return std::log(a); }, InputMatrix, InputColIndex, Enable_BoundCheck);
+	}
     else if (OperationName == "sqrt")
     {
         return  MatrixColOperation<ElementType>(OutputMatrix, OutputColIndex, [](const ElementType& a){return std::sqrt(a); }, InputMatrix, InputColIndex, Enable_BoundCheck);
@@ -1963,8 +1971,16 @@ MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputRo
 {
     if (OperationName == "abs")
     {
-        return MatrixRowOperation<ElementType>(OutputMatrix, OutputRowIndex, [](const ElementType& a){return std::abs(a); }, InputMatrix, InputRowIndex, Enable_BoundCheck);
+		return MatrixRowOperation<ElementType>(OutputMatrix, OutputRowIndex, [](const ElementType& a){return std::abs(a); }, InputMatrix, InputRowIndex, Enable_BoundCheck);
     }
+	else if (OperationName == "exp")
+	{
+		return  MatrixRowOperation<ElementType>(OutputMatrix, OutputRowIndex, [](const ElementType& a){return std::exp(a); }, InputMatrix, InputRowIndex, Enable_BoundCheck);
+	}
+	else if (OperationName == "log")
+	{
+		return  MatrixRowOperation<ElementType>(OutputMatrix, OutputRowIndex, [](const ElementType& a){return std::log(a); }, InputMatrix, InputRowIndex, Enable_BoundCheck);
+	}
     else if (OperationName == "sqrt")
     {
         return  MatrixRowOperation<ElementType>(OutputMatrix, OutputRowIndex, [](const ElementType& a){return std::sqrt(a); }, InputMatrix, InputRowIndex, Enable_BoundCheck);

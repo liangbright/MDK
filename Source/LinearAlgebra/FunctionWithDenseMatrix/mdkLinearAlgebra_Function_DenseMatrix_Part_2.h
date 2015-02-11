@@ -28,14 +28,13 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
                                          int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction);
 
 template<typename ElementType, typename MatchFunctionType>
-int_max FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, MatchFunctionType MatchFunction);
+int_max FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const char* first_or_last, MatchFunctionType MatchFunction);
 //------------------------------------------------
 template<typename ElementType>
 inline DenseMatrix<int_max> ExactMatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const ElementType& InputElement);
 
 template<typename ElementType>
-inline DenseMatrix<int_max> ExactMatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, 
-												      const ElementType& InputElement);
+inline int_max ExactMatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const char* first_or_last, const ElementType& InputElement);
 //---------------------------------------------------
 template<typename ElementType, typename MatchFunctionType>
 DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction);

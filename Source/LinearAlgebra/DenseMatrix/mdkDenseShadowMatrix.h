@@ -88,8 +88,8 @@ private:
 
     // move every member of InputShadowMatrix to this ShadowMatrix
     // reset the smart pointer of InputShadowMatrix.m_SourceMatrixSharedCopy
-    // do not make this function public:
-    // for example,  auto B = A(ALL, {0}); B should be a copy of a colume, but this function is called 
+    // do not make this function to be public:
+    // for example,  auto B = A(ALL, {0}); B should be a data-copy of a colume in A (Matlab), but this function is called, then change B => change A 
     inline DenseShadowMatrix(DenseShadowMatrix<ElementType>&& InputShadowMatrix);
 
 public:

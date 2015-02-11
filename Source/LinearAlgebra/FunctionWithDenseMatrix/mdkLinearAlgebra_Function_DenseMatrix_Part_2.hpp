@@ -85,11 +85,11 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
 
 
 template<typename ElementType, typename MatchFunctionType>
-int_max FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, MatchFunctionType MatchFunction)
+int_max FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const char* first_or_last, MatchFunctionType MatchFunction)
 {
     int_max Index_output = -1;
 
-	if (first_or_last == "first")
+	if (first_or_last[0] == "f")//first
 	{
 		for (int_max i = 0; i < InputMatrix.GetElementNumber(); ++i)
 		{
@@ -100,7 +100,7 @@ int_max FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const s
 			}
 		}
 	}
-	else if (first_or_last == "last")
+	else if (first_or_last[0] == "l")//last
 	{
 		for (int_max i = InputMatrix.GetElementNumber()-1; i >= 0; --i)
 		{
@@ -130,7 +130,7 @@ DenseMatrix<int_max> ExactMatchElementInMatrix(const DenseMatrix<ElementType>& I
 
 template<typename ElementType>
 inline
-DenseMatrix<int_max> ExactMatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, const ElementType& InputElement)
+int_max ExactMatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const char* first_or_last, const ElementType& InputElement)
 {
 	return FindElementInMatrix(*this, first_or_last, InputElement, [&](const ElementType& Element){return Element == InputElement; });
 }

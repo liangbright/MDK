@@ -1,5 +1,5 @@
-#ifndef __TestMatrix_h
-#define __TestMatrix_h
+#ifndef Test_DenseMatrix_h
+#define Test_DenseMatrix_h
 
 //================================================
 #include <algorithm>
@@ -619,8 +619,6 @@ void Test_ElementOperation()
     auto A2 = A.ElementOperation("*", 1);
 
     auto A3 = A.ElementOperation(String("*"), 1);
-
-
 
     auto B = A.ElementOperation("sqrt");
 
