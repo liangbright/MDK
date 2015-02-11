@@ -73,16 +73,16 @@ struct DenseMatrixData
         ElementPointer = nullptr;
         StdVector.clear();         // change size
         StdVector.shrink_to_fit(); // release memory
-		ErrorElement = GetNaNElement(ErrorElement); // zero if int     
-	}
+        ErrorElement = GetNaNElement(ErrorElement); // zero if int     
+    }
 
     void CopyDataToInternalArrayIfNecessary()
     {
-		if (ElementPointer != StdVector.data())
+        if (ElementPointer != StdVector.data())
         {
             if (ElementPointer == nullptr)
             {
-				if (RowNumber != 0 || ColNumber != 0 || StdVector.data() != nullptr || StdVector.size() != 0)
+                if (RowNumber != 0 || ColNumber != 0 || StdVector.data() != nullptr || StdVector.size() != 0)
                 {
                     MDK_Error("ElementPointer is nullptr but Self is not empty matrix @ DenseMatrixData::CopyDataToInternalArrayIfNecessary()")
                 }
@@ -91,14 +91,14 @@ struct DenseMatrixData
 
             auto ElementNumber = RowNumber*ColNumber;
 
-			StdVector.resize(ElementNumber);
+            StdVector.resize(ElementNumber);
 
             for (int_max i = 0; i < ElementNumber; ++i)
             {
-				StdVector[i] = ElementPointer[i];
+                StdVector[i] = ElementPointer[i];
             }
 
-			ElementPointer = StdVector.data();
+            ElementPointer = StdVector.data();
         }
     }
 
@@ -149,13 +149,13 @@ template<typename Element_Type>
 class DenseMatrix : public Object
 {
 public:
-	typedef Element_Type  ElementType;
+    typedef Element_Type  ElementType;
 
 private:     
     std::shared_ptr<DenseMatrixData<ElementType>> m_MatrixData;
 
-public:			
-	//------------------- constructor and destructor ------------------------------------//
+public:            
+    //------------------- constructor and destructor ------------------------------------//
 
     inline DenseMatrix();
 
@@ -163,7 +163,7 @@ public:
 
     inline DenseMatrix(int_max RowNumber, int_max ColNumber);
 
-	inline DenseMatrix(MatrixSize Size);
+    inline DenseMatrix(MatrixSize Size);
 
     inline DenseMatrix(const ElementType& Element);
 
@@ -175,16 +175,16 @@ public:
 
     inline DenseMatrix(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
-	inline DenseMatrix(std::vector<ElementType> InputColVector);
+    inline DenseMatrix(std::vector<ElementType> InputColVector);
 
-	inline DenseMatrix(StdObjectVector<ElementType> InputColVector);
+    inline DenseMatrix(StdObjectVector<ElementType> InputColVector);
 
-	inline DenseMatrix(const ObjectArray<ElementType>& InputColVector);
+    inline DenseMatrix(const ObjectArray<ElementType>& InputColVector);
 
-	template<int_max VectorFixedLength>
-	inline DenseMatrix(const DenseVector<ElementType, VectorFixedLength>& InputColVector);
+    template<int_max VectorFixedLength>
+    inline DenseMatrix(const DenseVector<ElementType, VectorFixedLength>& InputColVector);
 
-	inline DenseMatrix(DenseVector<ElementType> InputColVector);
+    inline DenseMatrix(DenseVector<ElementType> InputColVector);
 
     // copy constructor
     inline DenseMatrix(const DenseMatrix<ElementType>& InputMatrix);
