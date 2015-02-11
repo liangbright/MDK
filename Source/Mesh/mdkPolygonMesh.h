@@ -78,7 +78,7 @@ public:
 
     //------------ Construct from input data ------------------------------------//
 
-    bool Construct(DenseMatrix<ScalarType> InputPointPositionMatrix, const ObjectArray<DenseVector<int_max>>& InputCellTable);
+	void Construct(DenseMatrix<ScalarType> InputPointPositionMatrix, const ObjectArray<DenseVector<int_max>>& InputCellTable);
     // index order in each PointIndexList should be consistent
 
     void Construct(MembraneMesh<MeshAttributeType> InputMembraneMesh);

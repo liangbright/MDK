@@ -298,28 +298,13 @@ void DenseImage3D<PixelType>::Copy(const DenseImage3D<PixelType_Input>& InputIma
 
 template<typename PixelType>
 template<typename PixelType_Input>
-void DenseImage3D<PixelType>::Copy(const DenseImage3D<PixelType_Input>* InputImage)
-{
-    if (InputImage == nullptr)
-    {
-		MDK_Warning("Input is nullptr, Clear self @ DenseImage3D::Copy(DenseImage* InputImage)")
-		this->Clear();
-		return;
-    }
-
-    this->Copy(*InputImage);
-}
-
-
-template<typename PixelType>
-template<typename PixelType_Input>
-bool DenseImage3D<PixelType>::CopyPixelData(const PixelType_Input* InputPixelPointer, int_max InputPixelNumber)
+void DenseImage3D<PixelType>::CopyPixelData(const PixelType_Input* InputPixelPointer, int_max InputPixelNumber)
 {
     if (InputPixelPointer == nullptr || InputPixelNumber <= 0)
 	{
         MDK_Warning("Input is nullptr, Clear self @ DenseImage3D::CopyPixelData(...)")
 		this->Clear();
-		return true;
+		return;
 	}
 
     auto SelfPixelNumber = this->GetPixelNumber();
@@ -327,23 +312,21 @@ bool DenseImage3D<PixelType>::CopyPixelData(const PixelType_Input* InputPixelPoi
     if (SelfPixelNumber != InputPixelNumber)// must call SetSize() before this function
     {
         MDK_Error("Size does not match @ DenseImage3D::CopyPixelData(...)")
-        return false;
+        return;
     }
 
     auto PixelPtr = this->GetPixelPointer();
 
     if (std::size_t(InputPixelPointer) == std::size_t(PixelPtr))
     {
-        MDK_Warning("An DenseImage tries to Copy itself @ DenseImage3D::CopyPixelData(...)")
-        return true;
+        MDK_Warning("A DenseImage try to Copy itself @ DenseImage3D::CopyPixelData(...)")
+        return;
     }
   
     for (int_max i = 0; i < SelfPixelNumber; ++i)
 	{
         PixelPtr[i] = PixelType(InputPixelPointer[i]);
 	}
-
-    return true;
 }
 
 
@@ -373,12 +356,13 @@ void DenseImage3D<PixelType>::Copy(DenseImage3D<PixelType>&& InputImage)
 
 
 template<typename PixelType>
-bool DenseImage3D<PixelType>::Fill(const PixelType& Pixel)
+void DenseImage3D<PixelType>::Fill(const PixelType& Pixel)
 {
 	auto SelfPixelNumber = this->GetPixelNumber();
 	if (SelfPixelNumber == 0)
     {
-        return false;
+		MDK_Error("Self is empty @ DenseImage3D::File(...)")
+        return;
     }
 
     auto BeginPtr = this->GetPixelPointer();
@@ -387,29 +371,13 @@ bool DenseImage3D<PixelType>::Fill(const PixelType& Pixel)
     {
         Ptr[0] = Pixel;
     }
-
-    return true;
 }
 
 
 template<typename PixelType>
-bool DenseImage3D<PixelType>::Share(DenseImage3D<PixelType>& InputImage)
+void DenseImage3D<PixelType>::Share(DenseImage3D<PixelType>& InputImage)
 {
     m_ImageData = InputImage.m_ImageData; // std::Shared_ptr, self assignment test is not necessary
-    return true;
-}
-
-
-template<typename PixelType>
-bool DenseImage3D<PixelType>::Share(DenseImage3D<PixelType>* InputImage)
-{
-    if (InputImage == nullptr)
-    {
-        MDK_Error("Input is nullptr @ DenseImage3D::Share(DenseImage* InputImage)")
-        return false;
-    }
-
-    return this->Share(*InputImage);
 }
 
 
@@ -421,44 +389,31 @@ void DenseImage3D<PixelType>::ForceShare(const DenseImage3D<PixelType>& InputIma
 
 
 template<typename PixelType>
-bool DenseImage3D<PixelType>::ForceShare(const DenseImage3D<PixelType>* InputImage)
-{
-    if (InputImage == nullptr)
-    {
-        MDK_Error("Input is nullptr @ DenseImage3D::ForceShare(DenseImage* InputImage)")
-        return false;
-    }
-
-    return this->ForceShare(*InputImage);
-}
-
-
-template<typename PixelType>
-bool DenseImage3D<PixelType>::Share(PixelType* InputImage, const Image3DInfo& InputImageInfo)
+void DenseImage3D<PixelType>::Share(PixelType* InputImage, const Image3DInfo& InputImageInfo)
 {
 	if (InputImage == nullptr)
 	{
-		MDK_Error("Input is nullptr @ DenseImage3D::Share(DenseImage* InputImage)")
-		return false;
+		MDK_Error("Input is nullptr @ DenseImage3D::Share(DenseImage*, Image3DInfo)")
+		return;
 	}
 
 	this->SetOrigin(InputImageInfo.Origin);
 	this->SetSpacing(InputImageInfo.Spacing);
 	this->SetOrientation(InputImageInfo.Orientation);
-	//this->SetSize(XXX);
+	//this->SetSize(XXX); do not allocate memory for internal array
 	m_ImageData->m_Size[0] = InputImageInfo.Size[0];
 	m_ImageData->m_Size[1] = InputImageInfo.Size[1];
 	m_ImageData->m_Size[2] = InputImageInfo.Size[2];
 	m_ImageData->m_PixelNumberPerZSlice = InputImageInfo.Size[0] * InputImageInfo.Size[1];
 	auto InputPixelNumber = InputImageInfo.Size[0] * InputImageInfo.Size[1] * InputImageInfo.Size[2];
-	return m_ImageData->m_PixelArray.Share(InputImage, InputPixelNumber, true);
+	m_ImageData->m_PixelArray.Share(InputImage, InputPixelNumber, true);
 }
 
 
 template<typename PixelType>
-bool DenseImage3D<PixelType>::ForceShare(const PixelType* InputImage, const Image3DInfo& InputImageInfo)
+void DenseImage3D<PixelType>::ForceShare(const PixelType* InputImage, const Image3DInfo& InputImageInfo)
 {
-	return this->Share(const_cast<PixelType*>(InputImage), InputImageInfo);
+	this->Share(const_cast<PixelType*>(InputImage), InputImageInfo);
 }
 
 
@@ -628,12 +583,12 @@ Image3DInfo DenseImage3D<PixelType>::GetInfo() const
 
 template<typename PixelType>
 inline
-bool DenseImage3D<PixelType>::SetInfo(const Image3DInfo& Info) const;
+void DenseImage3D<PixelType>::SetInfo(const Image3DInfo& Info) const
 {
 	this->SetOrigin(Info.Origin);
 	this->SetSpacing(Info.Spacing);	
 	this->SetOrientation(Info.Orientation);
-	return this->SetSize(Info.Size); // allocate memory
+	this->SetSize(Info.Size); // allocate memory
 }
 
 
@@ -675,48 +630,45 @@ void DenseImage3D<PixelType>::GetSize(int_max& Lx, int_max& Ly, int_max& Lz) con
 
 template<typename PixelType>
 inline
-bool DenseImage3D<PixelType>::SetSize(const DenseVector<int_max, 3>& Size)
+void DenseImage3D<PixelType>::SetSize(const DenseVector<int_max, 3>& Size)
 {
-    return this->SetSize(Size[0], Size[1], Size[2]);
+    this->SetSize(Size[0], Size[1], Size[2]);
 }
 
 
 template<typename PixelType>
 inline
-bool DenseImage3D<PixelType>::SetSize(int_max Lx, int_max Ly, int_max Lz)
+void DenseImage3D<PixelType>::SetSize(int_max Lx, int_max Ly, int_max Lz)
 {
     if (Lx < 0 || Ly < 0 || Lz < 0)
     {
         MDK_Error("Ivalid input @ DenseImage3D::SetSize(...)")
-        return false;
+        return;
     }
 
-	if (this->IsPureEmpty() == true)
+	if (!m_ImageData)
 	{
 		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 	}
 
 	if (Lx == m_ImageData->m_Size[0] && Ly == m_ImageData->m_Size[1] && Lz == m_ImageData->m_Size[2])
 	{
-		return true;
+		return;
 	}
 
     if (Lx == 0 || Ly == 0 || Lz == 0)
     {
         m_ImageData->m_PixelArray.Clear();
-
         m_ImageData->m_Size[0] = 0;
         m_ImageData->m_Size[1] = 0;
         m_ImageData->m_Size[2] = 0;
         m_ImageData->m_PixelNumberPerZSlice = 0;
-
-        return true;
+        return;
     }
 
 try
 {
-    m_ImageData->m_PixelArray.Resize(Lx*Ly*Lz);
- 
+    m_ImageData->m_PixelArray.Resize(Lx*Ly*Lz); 
     m_ImageData->m_Size[0] = Lx;
     m_ImageData->m_Size[1] = Ly;
     m_ImageData->m_Size[2] = Lz;
@@ -725,12 +677,8 @@ try
 catch (...)
 {
     MDK_Error("Out Of Memory @ DenseImage3D::SetSize(...)")
-
-    this->Clear();
-    return false;
+    //this->Clear();
 }
-
-    return true;
 }
 
 

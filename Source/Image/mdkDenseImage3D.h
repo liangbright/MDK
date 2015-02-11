@@ -155,25 +155,19 @@ public:
 	void Copy(const DenseImage3D<PixelType_Input>& InputImage);
 
 	template<typename PixelType_Input>
-	void Copy(const DenseImage3D<PixelType_Input>* InputImage);
-
-	template<typename PixelType_Input>
-	bool CopyPixelData(const PixelType_Input* InputPixelPointer, int_max InputPixelNumber);
+	void CopyPixelData(const PixelType_Input* InputPixelPointer, int_max InputPixelNumber);
 
 	void Copy(DenseImage3D&& InputImage);
 
-    inline bool Fill(const PixelType& Pixel);
+    inline void Fill(const PixelType& Pixel);
 
     //---------------------------------------------------------//
-    bool Share(DenseImage3D& InputImage);
-    bool Share(DenseImage3D* InputImage);
-
+    void Share(DenseImage3D& InputImage);
 	void ForceShare(const DenseImage3D& InputImage);
-	bool ForceShare(const DenseImage3D* InputImage);
-
-	//special share
-	bool Share(PixelType* InputImage, const Image3DInfo& InputImageInfo);
-	bool ForceShare(const PixelType* InputImage, const Image3DInfo& InputImageInfo);
+	
+	//special share, after this, size can not be changed
+	void Share(PixelType* InputImage, const Image3DInfo& InputImageInfo);
+	void ForceShare(const PixelType* InputImage, const Image3DInfo& InputImageInfo);
 
     //-----------------------------------------------------------------//
 	// difficult to add Load / Save as member function
@@ -198,15 +192,15 @@ public:
 
 	inline Image3DInfo GetInfo() const;
 
-	inline bool SetInfo(const Image3DInfo& Info) const;
+	inline void SetInfo(const Image3DInfo& Info) const;
 
 	inline DenseVector<int_max, 3> GetSize() const;
 
     inline void GetSize(int_max& Lx, int_max& Ly, int_max& Lz) const;
 
-	inline bool SetSize(const DenseVector<int_max, 3>& Size);
+	inline void SetSize(const DenseVector<int_max, 3>& Size);
 
-    inline bool SetSize(int_max Lx, int_max Ly, int_max Lz);
+	inline void SetSize(int_max Lx, int_max Ly, int_max Lz);
 
 	inline DenseVector<double, 3> GetSpacing() const;
 

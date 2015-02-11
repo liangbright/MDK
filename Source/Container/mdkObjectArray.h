@@ -81,7 +81,7 @@ struct ObjectArrayData
 	//-------------------------------------------------------------
 	void operator=(const MDK_Symbol_Empty&)
 	{
-		this->Copy(MDK_EMPTY_OBJECT);
+		this->Copy(MDK_EMPTY_DATA_OBJECT);
 	}
 	//-------------------------------------------------------------
 	void Copy(const MDK_Symbol_Empty&)
@@ -90,7 +90,7 @@ struct ObjectArrayData
 		{
 			if (Length > 0)
 			{
-				MDK_Error("Can not change size @ ObjectArrayData::Copy(MDK_EMPTY_OBJECT)")
+				MDK_Error("Can not change size @ ObjectArrayData::Copy(MDK_EMPTY_DATA_OBJECT)")
 				return;
 			}
 		}
@@ -209,25 +209,25 @@ struct ObjectArrayData
 		return (Length <= 0);
 	}
 	//-------------------------------------------------------------
-	bool Resize(int_max InputLength)
+	void Resize(int_max InputLength)
 	{
 		if (InputLength < 0)
 		{
 			MDK_Error("Invalid Input @ ObjectArrayData::Resize(...)")
-			return false;
+			return;
 		}
 
 		try
 		{
 			if (InputLength == Length)
 			{
-				return true;
+				return;
 			}
 
 			if (IsSizeFixed == true)
 			{
 				MDK_Error("Size can not be changed @ ObjectArrayData::Resize(...)")
-				return false;
+				return;
 			}
 
 			this->CopyDataToStdVectorIfNecessary();
@@ -239,31 +239,28 @@ struct ObjectArrayData
 		catch (...)
 		{
 			MDK_Error("Out of Memory @ ObjectArrayData::Resize(...)")
-
 			ElementPointer = StdVector.data();
 			Length = int_max(StdVector.size());
-			return false;
 		}
-		return true;
 	}
 	//-------------------------------------------------------------
-	bool FastResize(int_max InputLength)
+	void FastResize(int_max InputLength)
 	{
 		if (InputLength < 0)
 		{
 			MDK_Error("Invalid input @ ObjectArrayData::FastResize(...)")
-			return false;
+			return;
 		}
 
 		if (InputLength == Length)
 		{
-			return true;
+			return;
 		}
 
 		if (IsSizeFixed == true)
 		{
 			MDK_Error("Can not change size @ ObjectArrayData::FastResize(...)")
-			return false;
+			return;
 		}
 
 		try
@@ -287,9 +284,7 @@ struct ObjectArrayData
 
 			ElementPointer = StdVector.data();
 			Length = int_max(StdVector.size());
-			return false;
 		}
-		return true;
 	}
     //-------------------------------------------------------------
     void CopyDataToStdVectorIfNecessary()
@@ -350,18 +345,11 @@ public:
 	//------------------- constructor and destructor ------------------------------------//
 
     inline ObjectArray();
-
-    inline ObjectArray(const std::initializer_list<ElementType>& InputArray);
-
-    inline ObjectArray(const std::vector<ElementType>& InputArray);
-
-	inline ObjectArray(const StdObjectVector<ElementType>& InputArray);
-
-    // copy constructor
     inline ObjectArray(const ObjectArray<ElementType>& InputArray);
-
-    // move constructor
     inline ObjectArray(ObjectArray<ElementType>&& InputArray) noexcept;
+
+	inline ObjectArray(const std::initializer_list<ElementType>& InputArray);
+	inline ObjectArray(const StdObjectVector<ElementType>& InputArray);
 
 	inline ~ObjectArray();
 
@@ -377,48 +365,28 @@ public:
     // do not use function template for this function
     // otherwise, compiler will create a new one
     inline void operator=(const ObjectArray<ElementType>& InputArray);
-
     inline void operator=(ObjectArray<ElementType>&& InputArray);
 
+	inline void operator=(const std::initializer_list<ElementType>& InputList);
 	inline void operator=(const StdObjectVector<ElementType>& InputArray);
 
-    inline void operator=(const std::initializer_list<ElementType>& InputList);
-
-    inline void operator=(const std::vector<ElementType>& InputList);
-
     //----------------------  Copy  ----------------------------------------//
-	// Copy(nullptr) <=> Copy(MDK_EMPTY)
 
-	inline void Copy(const ObjectArray<ElementType>* InputArray);
 	inline void Copy(const ObjectArray<ElementType>& InputArray);
-
 	inline void Copy(ObjectArray<ElementType>&& InputArray);
 
-	inline void Copy(const std::vector<ElementType>& InputArray);
-
 	inline void Copy(const StdObjectVector<ElementType>& InputArray);
-
-	inline void Copy(const StdObjectVector<ElementType>* InputArray);
-
 	inline void Copy(const ElementType* InputElementPointer, int_max InputLength);
-
-	inline void Copy(const MDK_Symbol_Empty&);
 
 	inline void Fill(const ElementType& Element);
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
-	//Share(nullptr) and ForceShare(nullptr) : invalid
 
     inline void Share(ObjectArray<ElementType>& InputArray);
-	inline void Share(ObjectArray<ElementType>* InputArray);
-
     inline void ForceShare(const ObjectArray<ElementType>& InputArray);
-	inline void ForceShare(const ObjectArray<ElementType>* InputArray);
 
     //special Share : external data
-
 	inline void Share(ElementType* InputElementPointer, int_max InputLength, bool IsSizeFixed = true);
-
 	inline void ForceShare(const ElementType* InputElementPointer, int_max InputLength, bool IsSizeFixed = true);
 
     //------------------------- Swap shared_ptr m_Data -------------------------------------------//
@@ -432,11 +400,9 @@ public:
 	//---------------------- Set/get Size ----------------------------------------//
 
 	inline void Resize(int_max InputLength); // try to keep the old data
-
 	inline void FastResize(int_max InputLength); // do not care about old data
 
 	inline void ReserveCapacity(int_max InputElementNumber); // reserve memory, current Length does not change
-
     inline void ReleaseUnusedCapacity();
 
     inline void FixSize();
@@ -457,7 +423,6 @@ public:
     //------------------------ Error Element -----------------------------//
 
 	void SetErrorElement(ElementType Error);
-
     ElementType GetErrorElement()  const;
 
     //--------------------- Get Data Pointer -----------------------------//
@@ -492,89 +457,63 @@ public:
     //-------------------------------------------------------------------------------
 
 	inline void Append(ElementType Element);
-
-	// and Append({1, 2, 3}} error if ElementType is DenseVector<int_max>
-    //inline bool Append(const std::initializer_list<ElementType>& InputArray);
-    //inline bool Append(const std::vector<ElementType>& InputArray);    
-    //inline bool Append(const DenseMatrix<ElementType>& InputArray);
-	//inline bool Append(const StdObjectVector<ElementType>& InputArray);
-    //inline bool Append(const ObjectArray<ElementType>& InputArray);
-
 	inline void Append(const ElementType* InputArray, int_max InputLength);
 
+	// Append({1, 2, 3}} compiler error if ElementType is DenseVector<int_max>
+	//inline bool Append(const std::initializer_list<ElementType>& InputArray);
+	//inline bool Append(const std::vector<ElementType>& InputArray);    
+	//inline bool Append(const DenseMatrix<ElementType>& InputArray);
+	//inline bool Append(const StdObjectVector<ElementType>& InputArray);
+	//inline bool Append(const ObjectArray<ElementType>& InputArray);
+
 	inline void Delete(int_max Index);
-
 	inline void Delete(const std::initializer_list<int_max>& IndexList);
-
-	inline void Delete(const std::vector<int_max>& IndexList);
-
-	inline void Delete(const DenseVector<int_max>& IndexList);
-
+	inline void Delete(const StdObjectVector<int_max>& IndexList);
+	inline void Delete(const ObjectArray<int_max>& IndexList);
 	inline void Delete(const DenseMatrix<int_max>& IndexList);
 
-	inline void Delete(const ObjectArray<int_max>& IndexList);
-
-	inline void Delete(const StdObjectVector<int_max>& IndexList);
+	template<int_max TemplateLength>
+	inline void Delete(const DenseVector<int_max, TemplateLength>& IndexList);
 
 	inline void Delete(const int_max* ColIndexList, int_max ListLength);
 
 	inline void Delete(int_max Index_start, int_max Index_end);
 
 	inline void Insert(int_max Index, const ElementType& Element);
-
 	inline void Insert(int_max Index, const std::initializer_list<ElementType>& InputArray);
-
-	inline void Insert(int_max Index, const std::vector<ElementType>& InputArray);
-
 	inline void Insert(int_max Index, const StdObjectVector<ElementType>& InputArray);
-
-	inline void Insert(int_max Index, const ObjectArray<ElementType>& InputArray);
-	
+	inline void Insert(int_max Index, const ObjectArray<ElementType>& InputArray);	
 	inline void Insert(int_max Index, const ElementType* InputArray, int_max InputLength);
 
     //------------- use ObjectArray as a stack ----------------------------//
 
 	inline void PushBack(ElementType Element);
-
     inline ElementType PopBack();
 
     //----------------------- Get a subset ------------------------------//
 
     inline ObjectArray<ElementType> GetSubSet(int_max Index_start, int_max Index_end);
-
     inline ObjectArray<ElementType> GetSubSet(const std::initializer_list<int_max>& IndexList);
-
-    inline ObjectArray<ElementType> GetSubSet(const std::vector<int_max>& IndexList);
-
-	inline ObjectArray<ElementType> GetSubSet(const StdObjectVector<int_max>& IndexList);
-
 	inline ObjectArray<ElementType> GetSubSet(const ObjectArray<int_max>& IndexList);
-
-	inline ObjectArray<ElementType> GetSubSet(const DenseVector<int_max>& IndexList);
-
+	inline ObjectArray<ElementType> GetSubSet(const StdObjectVector<int_max>& IndexList);
     inline ObjectArray<ElementType> GetSubSet(const DenseMatrix<int_max>& IndexList);	
+
+	template<int_max TemplateLength>
+	inline StdObjectVector<ElementType> GetSubSet(const DenseVector<int_max, TemplateLength>& IndexList);
 
     inline ObjectArray<ElementType> GetSubSet(const int_max* IndexList, int_max ListLength);
 
 	//----------------------- Set subset ------------------------------//
 
-	inline void SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSetData);
+	inline void SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSet);
+	inline void SetSubSet(const ObjectArray<int_max>& IndexList, const ObjectArray<ElementType>& SubSet);
+	inline void SetSubSet(const StdObjectVector<int_max>& IndexList, const ObjectArray<ElementType>& SubSet);
+	inline void SetSubSet(const DenseMatrix<int_max>& IndexList, const ObjectArray<ElementType>& SubSet);
 
-	inline void SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSetData);
+	template<int_max TemplateLength>
+	inline void SetSubSet(const DenseVector<int_max, TemplateLength>& IndexList, const ObjectArray<ElementType>& SubSet);
 
-	inline void SetSubSet(const std::initializer_list<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
-
-	inline void SetSubSet(const std::vector<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
-
-	inline void SetSubSet(const StdObjectVector<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
-
-	inline void SetSubSet(const ObjectArray<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
-
-	inline void SetSubSet(const DenseMatrix<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
-
-	inline void SetSubSet(const DenseVector<int_max>& IndexList, const ObjectArray<ElementType>& SubSetData);
-
-	inline void SetSubSet(const int_max* IndexList, const ElementType* SubSetData, int_max DataNumber);
+	inline void SetSubSet(const int_max* IndexList, const ElementType* SubSet, int_max SubSetElementNumber);
 
     //-------------------- find ---------------------------------------//
 

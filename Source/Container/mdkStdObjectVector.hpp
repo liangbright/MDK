@@ -14,34 +14,33 @@ StdObjectVector<ElementType>::StdObjectVector()
 
 template<typename ElementType>
 inline
-StdObjectVector<ElementType>::StdObjectVector(const std::initializer_list<ElementType>& InputList)
-{
-    (*this) = InputList;
-}
-
-
-template<typename ElementType>
-inline
-StdObjectVector<ElementType>::StdObjectVector(const std::vector<ElementType>& InputList)
-{
-    (*this) = InputList;
-}
-
-
-template<typename ElementType>
-inline
 StdObjectVector<ElementType>::StdObjectVector(const StdObjectVector<ElementType>& InputArray)
 {
     this->Copy(InputArray);
 }
 
 
-// move constructor
 template<typename ElementType>
 inline
 StdObjectVector<ElementType>::StdObjectVector(StdObjectVector<ElementType>&& InputArray) noexcept
 {
     m_StdVector = std::move(InputArray.m_StdVector);
+}
+
+
+template<typename ElementType>
+inline
+StdObjectVector<ElementType>::StdObjectVector(const std::initializer_list<ElementType>& InputList)
+{
+	(*this) = InputList;
+}
+
+
+template<typename ElementType>
+inline
+StdObjectVector<ElementType>::StdObjectVector(const ObjectArray<ElementType>& InputArray)
+{
+	this->Copy(InputArray);
 }
 
 
@@ -76,26 +75,17 @@ void StdObjectVector<ElementType>::operator=(const StdObjectVector<ElementType>&
 }
 
 
-// move assignment operator
 template<typename ElementType>
 inline
 void StdObjectVector<ElementType>::operator=(StdObjectVector<ElementType>&& InputArray)
 {
-    m_StdVector = std::move(InputArray.m_StdVector);
+	m_StdVector = std::move(InputArray.m_StdVector);
 }
 
 
 template<typename ElementType>
 inline
 void StdObjectVector<ElementType>::operator=(const std::initializer_list<ElementType>& InputArray)
-{
-    m_StdVector = InputArray;
-}
-
-
-template<typename ElementType>
-inline
-void StdObjectVector<ElementType>::operator=(const std::vector<ElementType>& InputArray)
 {
     m_StdVector = InputArray;
 }
@@ -111,61 +101,66 @@ void StdObjectVector<ElementType>::operator=(const ObjectArray<ElementType>& Inp
 
 template<typename ElementType>
 inline
-bool StdObjectVector<ElementType>::Copy(const StdObjectVector<ElementType>& InputArray)
+void StdObjectVector<ElementType>::Copy(const StdObjectVector<ElementType>& InputArray)
 {
     if (this == &InputArray)
     {
         MDK_Warning("A StdObjectVector try to Copy itself @ StdObjectVector::Copy(InputArray)")
-        return true;
+        return;
     }
 
     // copy data
-    return this->Copy(InputArray.GetElementPointer(), InputArray.GetLength());
+    this->Copy(InputArray.GetElementPointer(), InputArray.GetLength());
 }
 
 
 template<typename ElementType>
 inline
-bool StdObjectVector<ElementType>::Copy(const StdObjectVector<ElementType>* InputArray)
+void StdObjectVector<ElementType>::Copy(StdObjectVector<ElementType>&& InputArray)
 {
-    if (InputArray == nullptr)
-    {
-        MDK_Error("InputArray is nullptr @ StdObjectVector::Copy(StdObjectVector* InputArray)")
-        return false;
-    }
-
-    return this->Copy(*InputArray);
+	m_StdVector = std::move(InputArray.m_StdVector);
 }
 
 
 template<typename ElementType>
 inline
-bool StdObjectVector<ElementType>::Copy(const ElementType* InputElementPointer, int_max InputLength)
+void StdObjectVector<ElementType>::Copy(const ObjectArray<ElementType>& InputArray)
 {
-    if (InputElementPointer == nullptr || InputLength <= 0)
+	this->Copy(InputArray.GetElementPointer(), InputArray.GetElementNumber());
+}
+
+
+template<typename ElementType>
+inline
+void StdObjectVector<ElementType>::Copy(const ElementType* InputElementPointer, int_max InputLength)
+{
+	if (InputLength < 0)
+	{
+		MDK_Error("invalid input length @ StdObjectVector::Copy(ElementType*, RowNumber, ColNumber)")
+		return;
+	}
+
+    if (InputElementPointer == nullptr || InputLength == 0)
     {
 		if (this->IsEmpty() == false)
 		{
 			this->Clear();
 		}
-        return true;
+        return;
     }
 
     // if this StdObjectVector is not empty, check if this and Input Share the same data
     if (this->IsEmpty() == false)
     {
         if (InputElementPointer == this->GetElementPointer())
-        {
-           // MDK_Warning("A StdObjectVector tries to Copy itself @ StdObjectVector::Copy(ElementType*, RowNumber, ColNumber)")
-            return true;
+        {// self copy
+            return;
         }
     }
 
-    //------------------------------------------------------------------
-
+	//copy data ----------------------------------------------------------
+	m_StdVector.clear();
     m_StdVector.resize(InputLength);
-
-    //copy data ----------------------------------------------------------
 
     auto BeginPointer = this->GetElementPointer();
 
@@ -175,20 +170,18 @@ bool StdObjectVector<ElementType>::Copy(const ElementType* InputElementPointer, 
     {
         Ptr[0] = tempPtr[0];
     }
-
-    return true;
 }
 
 
 template<typename ElementType>
 inline
-bool StdObjectVector<ElementType>::Fill(const ElementType& Element)
+void StdObjectVector<ElementType>::Fill(const ElementType& Element)
 {
     auto SelfLength = this->GetElementNumber();
     if (SelfLength <= 0)
     {
-        MDK_Error("Self is empty @ StdObjectVector::Fill")
-        return false;
+        MDK_Error("Self is empty @ StdObjectVector::Fill(...)")
+        return;
     }
 
     auto BeginPointer = this->GetElementPointer();
@@ -196,7 +189,6 @@ bool StdObjectVector<ElementType>::Fill(const ElementType& Element)
     {
         Ptr[0] = Element;
     }
-    return true;
 }
 
 
@@ -211,63 +203,48 @@ void StdObjectVector<ElementType>::Clear()
 
 template<typename ElementType>
 inline 
-bool StdObjectVector<ElementType>::Resize(int_max InputLength)
+void StdObjectVector<ElementType>::Resize(int_max InputLength)
 {
     if (InputLength < 0)
     {
-        MDK_Error("Invalid Input: negtive @ StdObjectVector::Resize(int_max InputLength)")
-        return false;
+        MDK_Error("Invalid InputLength @ StdObjectVector::Resize(int_max InputLength)")
+        return;
     }
 
 try
 {
-    //-------------------------------------------------------------------------
-
     auto SelfLength = this->GetElementNumber();
-
-    if (InputLength == SelfLength)
-    {
-        return true;
-    }
-
-    m_StdVector.resize(InputLength);
+	if (InputLength != SelfLength)
+	{
+		m_StdVector.resize(InputLength);
+	}
 }
 catch (...)
 {
     MDK_Error("Out of Memory @ StdObjectVector::Resize(int_max InputLength)")
-
-    return false;
 }
-    return true;
 }
 
 
 template<typename ElementType>
 inline
-bool StdObjectVector<ElementType>::FastResize(int_max InputLength)
+void StdObjectVector<ElementType>::FastResize(int_max InputLength)
 {
     if (InputLength < 0)
     {
         MDK_Error("Invalid input @ StdObjectVector::FastResize(int_max InputLength)")
-        return false;    
-    }
-
-    auto SelfLength = this->GetElementNumber();
-
-    if (InputLength == SelfLength)
-    {
-        return true;
+        return;    
     }
 
 try
 {
+	auto SelfLength = this->GetElementNumber();
     if (InputLength != SelfLength)
     {
         if (InputLength > int_max(m_StdVector.capacity()))
         {
             m_StdVector.clear();
         }
-
         m_StdVector.resize(InputLength);
     }
 
@@ -275,22 +252,17 @@ try
 catch (...)
 {
     MDK_Error("Out of Memory @ StdObjectVector::FastResize(int_max InputLength)")
-
-    return false;
 }
-    return true;
 }
-
 
 
 template<typename ElementType>
 inline
-bool StdObjectVector<ElementType>::ReserveCapacity(int_max InputElementNumber)
+void StdObjectVector<ElementType>::ReserveCapacity(int_max InputElementNumber)
 {
 try
 {
     auto SelfLength = this->GetElementNumber();
-
     if (InputElementNumber > SelfLength)
     {
         m_StdVector.reserve(InputElementNumber);
@@ -299,10 +271,7 @@ try
 catch (...)
 {
     MDK_Error("Out of Memory @ StdObjectVector::ReserveCapacity(int_max InputElementNumber)")
-    return false;
 }
-    
-    return true;
 }
 
 
@@ -429,7 +398,7 @@ ElementType& StdObjectVector<ElementType>::operator[](int_max Index)
     if (Index >= this->GetElementNumber() || Index < 0)
     {
         MDK_Error("Invalid Input @ StdObjectVector::operator[](i)")
-        return m_StdVector[0];
+        //return m_ErrorElement;
     }
 
 #endif //MDK_DEBUG_StdObjectVector_Operator_CheckBound
@@ -446,8 +415,8 @@ const ElementType& StdObjectVector<ElementType>::operator[](int_max Index) const
 
     if (Index >= this->GetElementNumber() || Index < 0)
     {
-        MDK_Error("Invalid Input @ StdObjectVector::operator[](i)")
-        return m_StdVector[0];
+        MDK_Error("Invalid Input @ StdObjectVector::operator[](i) const")
+        //return m_ErrorElement;
     }
 
 #endif //MDK_DEBUG_StdObjectVector_Operator_CheckBound
@@ -464,8 +433,8 @@ ElementType& StdObjectVector<ElementType>::operator()(int_max Index)
 
     if (Index >= this->GetElementNumber() || Index < 0)
     {
-        MDK_Error("Invalid Input @ StdObjectVector::operator[](i)")
-        return m_StdVector[0];
+        MDK_Error("Invalid Input @ StdObjectVector::operator()(i)")
+        //return m_ErrorElement;
     }
 
 #endif //MDK_DEBUG_StdObjectVector_Operator_CheckBound
@@ -482,8 +451,8 @@ const ElementType& StdObjectVector<ElementType>::operator()(int_max Index) const
 
     if (Index >= this->GetElementNumber() || Index < 0)
     {
-        MDK_Error("Invalid Input @ StdObjectVector::operator[](i)")
-        return m_StdVector[0];
+        MDK_Error("Invalid Input @ StdObjectVector::operator()(i) const")
+        //return m_ErrorElement;
     }
 
 #endif //MDK_DEBUG_StdObjectVector_Operator_CheckBound
@@ -499,8 +468,8 @@ ElementType& StdObjectVector<ElementType>::at(int_max Index)
 {
     if (Index >= this->GetElementNumber() || Index < 0)
     {
-        MDK_Error("Invalid Input @ StdObjectVector::operator[](i)")
-        return m_StdVector[0];
+        MDK_Error("Invalid Input @ StdObjectVector::at(i)")
+        //return m_ErrorElement;
     }
 
     return m_StdVector.at(Index);
@@ -513,8 +482,8 @@ const ElementType& StdObjectVector<ElementType>::at(int_max Index) const
 {
     if (Index >= this->GetElementNumber() || Index < 0)
     {
-        MDK_Error("Invalid Input @ StdObjectVector::operator[](i)")
-        return m_StdVector[0];
+        MDK_Error("Invalid Input @ StdObjectVector::at(i) const")
+        //return m_ErrorElement;
     }
 
     return m_StdVector.at(Index);
@@ -523,216 +492,20 @@ const ElementType& StdObjectVector<ElementType>::at(int_max Index) const
 
 template<typename ElementType>
 inline
-StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(int_max Index_start, int_max Index_end)
+void StdObjectVector<ElementType>::Append(ElementType Element)
 {
-    StdObjectVector<ElementType> Subset;
-
-    auto ElementNumber = this->GetElementNumber();
-
-    if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
-    {
-        MDK_Error("Index_start is invalid @ StdObjectVector::GetSubSet(...)")
-        return Subset;
-    }
-
-    if (Index_end < 0 || Index_end >= ElementNumber)
-    {
-        MDK_Error("Index_end is invalid @ StdObjectVector::GetSubSet(...)")
-        return Subset;
-    }
-
-    if (ElementNumber == 0)
-    {
-        return Subset;
-    }
-
-    Subset.FastResize(Index_end - Index_start + 1);
-
-    for (int_max i = Index_end; i <= Index_start; ++i)
-    {
-        Subset[i - Index_end] = (*this)[i];
-    }
-
-    return Subset;
-}
-
-
-template<typename ElementType>
-inline
-StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const std::initializer_list<int_max>& IndexList)
-{
-    return this->GetSubSet(IndexList.begin(), int_max(IndexList.size()));
-}
-
-
-template<typename ElementType>
-inline
-StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const std::vector<int_max>& IndexList)
-{
-    return this->GetSubSet(IndexList.data(), int_max(IndexList.size()));
-}
-
-
-template<typename ElementType>
-inline
-StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList)
-{
-    return this->GetSubSet(IndexList.GetElementPointer(), int_max(IndexList.GetElementNumber()));
-}
-
-
-template<typename ElementType>
-inline
-StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const StdObjectVector<int_max>& IndexList)
-{
-    return this->GetSubSet(IndexList.GetElementPointer(), int_max(IndexList.GetElementNumber()));
-}
-
-
-template<typename ElementType>
-inline
-StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const int_max* IndexList, int_max ListLength)
-{
-    StdObjectVector<ElementType> SubSet;
-
-    if (IndexList == nullptr || ListLength <= 0)
-    {
-        return SubSet;
-    }
-
-    auto ElementNumber = this->GetElementNumber();
-
-    if (ListLength > ElementNumber)
-    {
-        MDK_Error("Invalid ListLength @ StdObjectVector::GetSubSet(...)")
-        return SubSet;
-    }
-
-    SubSet.FastResize(ListLength);
-
-    for (int_max k = 0; k < ListLength; ++k)
-    {
-        auto tempIndex = IndexList[k];
-
-        if (tempIndex < 0 || tempIndex >= ElementNumber)
-        {
-            MDK_Error("Invalid index @ StdObjectVector::GetSubSet(...)")
-                SubSet.Clear();
-            return SubSet;
-        }
-
-        SubSet[k] = (*this)[tempIndex];
-    }
-
-    return SubSet;
-}
-
-
-template<typename ElementType>
-inline
-bool StdObjectVector<ElementType>::SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSet)
-{
-    if (IndexList.size() != SubSet.size())
-    {
-        MDK_Error("IndexList.size() != SubSet.size() @ StdObjectVector::SetSubSet(...)")
-        return false;
-    }
-
-    return this->SetSubSet(IndexList.begin(), SubSet.begin(), int_max(SubSet.size()));
-}
-
-
-template<typename ElementType>
-inline
-bool StdObjectVector<ElementType>::SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSet)
-{
-    if (IndexList.size() != SubSet.size())
-    {
-        MDK_Error("IndexList.size() != SubSet.size() @ StdObjectVector::SetSubSet(...)")
-        return false;
-    }
-
-    return this->SetSubSet(IndexList.data(), SubSet.data(), int_max(SubSet.size()));
-}
-
-
-template<typename ElementType>
-inline
-bool StdObjectVector<ElementType>::SetSubSet(const StdObjectVector<int_max>& IndexList, const StdObjectVector<ElementType>& SubSet)
-{
-    if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
-    {
-        MDK_Error("IndexList.size() != SubSet.size() @ StdObjectVector::SetSubSet(...)")
-        return false;
-    }
-
-    return this->SetSubSet(IndexList.GetElementPointer(), SubSet.GetElementPointer(), int_max(SubSet.GetElementNumber()));
-}
-
-
-template<typename ElementType>
-inline
-bool StdObjectVector<ElementType>::SetSubSet(const int_max* IndexList, const ElementType* SubSet, int_max DataNumber)
-{
-	if (IndexList == nullptr || SubSet == nullptr || DataNumber <= 0)
-    {
-        MDK_Warning("Empty input @ StdObjectVector::SetSubSet(...)")
-        return true;
-    }
-
-    auto ElementNumber = this->GetElementNumber();
-
-    if (ElementNumber == 0)
-    {
-        MDK_Error("Self is empty @ StdObjectVector::SetSubSet(...)")
-        return false;
-    }
-
-    if (DataNumber > ElementNumber)
-    {
-        MDK_Error("Invalid DataNumber @ StdObjectVector::SetSubSet(...)")
-        return false;
-    }
-
-    for (int_max k = 0; k < DataNumber; ++k)
-    {
-        auto Index = IndexList[k];
-
-        if (Index < 0 || Index >= ElementNumber)
-        {
-            MDK_Error("Invalid Index @ StdObjectVector::SetSubSet(...)")
-            return false;
-        }
-
-		(*this)[Index] = SubSet[k];
-    }
-
-    return true;
-}
-
-
-template<typename ElementType>
-inline
-bool StdObjectVector<ElementType>::Append(ElementType Element)
-{
-    auto SelfLength = this->GetElementNumber();
-
-    this->Resize(SelfLength + 1);
-
-    (*this)[SelfLength] = std::move(Element);
-
-    return true;
+	m_StdVector.push_back(std::move(Element));
 }
 
 
 template<typename ElementType>
 inline 
-bool StdObjectVector<ElementType>::Append(const ElementType* InputArray, int_max InputLength)
+void StdObjectVector<ElementType>::Append(const ElementType* InputArray, int_max InputLength)
 {
     if (InputArray == nullptr || InputLength <= 0)
     {
         MDK_Error("Invalid Input: empty @ StdObjectVector::Append(const ElementType* InputArray, int_max InputLength)")
-        return false;
+        return;
     }
 
     auto SelfLength = this->GetElementNumber();
@@ -743,73 +516,74 @@ bool StdObjectVector<ElementType>::Append(const ElementType* InputArray, int_max
     {
         m_StdVector[i] = InputArray[i - SelfLength];
     }
-
-    return true;
 }
 
 
 template<typename ElementType>
 inline 
-bool StdObjectVector<ElementType>::Delete(int_max Index)
+void StdObjectVector<ElementType>::Delete(int_max Index)
 {
-    return Delete(&Index, 1);
+    this->Delete(&Index, 1);
 }
 
 
 template<typename ElementType>
 inline
-bool StdObjectVector<ElementType>::Delete(const std::initializer_list<int_max>& IndexList)
+void StdObjectVector<ElementType>::Delete(const std::initializer_list<int_max>& IndexList)
 {
-    return this->Delete(IndexList.begin(), int_max(IndexList.size()));
+	this->Delete(IndexList.begin(), int_max(IndexList.size()));
 }
 
 
 template<typename ElementType>
 inline
-bool StdObjectVector<ElementType>::Delete(const std::vector<int_max>& IndexList)
-{    
-    return this->Delete(IndexList.data(), int_max(IndexList.size()));
-}
-
-
-template<typename ElementType>
-inline
-bool StdObjectVector<ElementType>::Delete(const DenseMatrix<int_max>& IndexList)
+void StdObjectVector<ElementType>::Delete(const StdObjectVector<int_max>& IndexList)
 {
-    if (IndexList.IsVector() == false)
-    {
-        MDK_Error("Input must be a vector @ StdObjectVector::Delete(const DenseMatrix<int_max>& IndexList)")
-        return false;
-    }
-
-    return this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
+	this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
 }
 
 
 template<typename ElementType>
 inline
-bool StdObjectVector<ElementType>::Delete(const StdObjectVector<int_max>& IndexList)
+void StdObjectVector<ElementType>::Delete(const ObjectArray<int_max>& IndexList)
 {
-    return this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
+	this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
 }
 
 
 template<typename ElementType>
 inline
-bool StdObjectVector<ElementType>::Delete(const int_max* IndexList, int_max ListLength)
+void StdObjectVector<ElementType>::Delete(const DenseMatrix<int_max>& IndexList)
+{
+    this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
+}
+
+
+template<typename ElementType>
+template<int_max TemplateLength>
+inline
+void StdObjectVector<ElementType>::Delete(const DenseVector<int_max, TemplateLength>& IndexList)
+{
+	this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
+}
+
+
+template<typename ElementType>
+inline
+void StdObjectVector<ElementType>::Delete(const int_max* IndexList, int_max ListLength)
 {
     auto SelfLength = this->GetElementNumber();
 
     if (SelfLength == 0)
     {
         MDK_Error("Self is empty @ StdObjectVector::Delete(const int_max* IndexList, int_max ListLength)")
-        return false;
+        return;
     }
 
     if (IndexList == nullptr || ListLength <= 0)
     {
         MDK_Error("Empty Input @ StdObjectVector::Delete(const int_max* IndexList, int_max ListLength)")
-        return false;
+        return;
     }
 
     for (auto it = IndexList; it != IndexList + ListLength; ++it)
@@ -817,7 +591,7 @@ bool StdObjectVector<ElementType>::Delete(const int_max* IndexList, int_max List
         if (*it >= SelfLength || *it < 0)
         {
             MDK_Error("Out of bound Input @ StdObjectVector::Delete(const int_max* IndexList, int_max ListLength)")
-            return false;
+            return;
         }
     }
 
@@ -854,21 +628,19 @@ bool StdObjectVector<ElementType>::Delete(const int_max* IndexList, int_max List
             }
         }
     }
-
-    return true;
 }
 
 
 template<typename ElementType>
 inline 
-bool StdObjectVector<ElementType>::Delete(int_max Index_start, int_max Index_end)
+void StdObjectVector<ElementType>::Delete(int_max Index_start, int_max Index_end)
 {
     auto SelfLength = this->GetElementNumber();
 
     if (SelfLength == 0)
     {
         MDK_Error("Self is empty @ StdObjectVector::Delete(int_max Index_start, int_max Index_end)")
-        return false;
+        return;
     }
 
     if (Index_end < Index_start 
@@ -876,63 +648,48 @@ bool StdObjectVector<ElementType>::Delete(int_max Index_start, int_max Index_end
         || Index_end >= SelfLength || Index_end < 0 )
     {
         MDK_Error("Invalid Input @ StdObjectVector::Delete(int_max Index_start, int_max Index_end)")
-        return false;
+        return;
     }
 
     m_StdVector.erase(m_StdVector.begin() + Index_start, m_StdVector.begin() + Index_end + 1);
-    
-    return true;
 }
 
 
 template<typename ElementType>
-inline bool StdObjectVector<ElementType>::Insert(int_max Index, const ElementType& Element)
+inline 
+void StdObjectVector<ElementType>::Insert(int_max Index, const ElementType& Element)
 {
-    return this->Insert(Index, &Element, 1);
+    this->Insert(Index, &Element, 1);
 }
 
 
 template<typename ElementType>
 inline
-bool StdObjectVector<ElementType>::Insert(int_max Index, const std::initializer_list<ElementType>& InputArray)
+void StdObjectVector<ElementType>::Insert(int_max Index, const std::initializer_list<ElementType>& InputArray)
 {
-    return this->Insert(Index, InputArray.begin(), int_max(InputArray.size()));
+	this->Insert(Index, InputArray.begin(), int_max(InputArray.size()));
 }
 
 
 template<typename ElementType>
 inline
-bool StdObjectVector<ElementType>::Insert(int_max Index, const std::vector<ElementType>& InputArray)
+void StdObjectVector<ElementType>::Insert(int_max Index, const StdObjectVector<ElementType>& InputArray)
 {
-    return this->Insert(Index, InputArray.data(), int_max(InputArray.size()));
+	this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementNumber());
 }
 
 
 template<typename ElementType>
 inline
-bool StdObjectVector<ElementType>::Insert(int_max Index, const DenseMatrix<ElementType>& InputArray)
+void StdObjectVector<ElementType>::Insert(int_max Index, const ObjectArray<ElementType>& InputArray)
 {
-    if (DenseMatrix.IsVector() == false)
-    {
-        MDK_Error("Input is NOT a vector @ StdObjectVector::Insert(Index, DenseMatrix)")
-        return false;
-    }
-
-    return this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementNumber());
+	this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementNumber());
 }
 
 
 template<typename ElementType>
 inline
-bool StdObjectVector<ElementType>::Insert(int_max Index, const StdObjectVector<ElementType>& InputArray)
-{
-    return this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementNumber());
-}
-
-
-template<typename ElementType>
-inline
-bool StdObjectVector<ElementType>::Insert(int_max Index, const ElementType* InputArray, int_max InputLength)
+void StdObjectVector<ElementType>::Insert(int_max Index, const ElementType* InputArray, int_max InputLength)
 {
     auto SelfLength = this->GetElementNumber();
 
@@ -941,7 +698,7 @@ bool StdObjectVector<ElementType>::Insert(int_max Index, const ElementType* Inpu
         if (Index != 0 || InputArray == nullptr || InputLength <= 0)
         {
             MDK_Error("Invalid Input @ StdObjectVector::Insert(Index, const ElementType* InputArray, int_max InputLength)")
-            return false;
+            return;
         }
     }
     else
@@ -949,19 +706,17 @@ bool StdObjectVector<ElementType>::Insert(int_max Index, const ElementType* Inpu
         if (Index >= SelfLength || Index < 0 || InputArray == nullptr || InputLength <= 0)
         {
             MDK_Error("Invalid Input @ StdObjectVector::Insert(Index, const ElementType* InputArray, int_max InputLength)")
-            return false;
+            return;
         }
     }
 
     m_StdVector.insert(m_StdVector.begin() + Index, InputArray, InputArray + InputLength);
-
-    return true;
 }
 
 
 template<typename ElementType>
 inline 
-bool StdObjectVector<ElementType>::PushBack(ElementType Element)
+void StdObjectVector<ElementType>::PushBack(ElementType Element)
 {
     m_StdVector.push_back(std::move(Element));
 }
@@ -972,6 +727,232 @@ inline
 ElementType StdObjectVector<ElementType>::PopBack()
 {
     return m_StdVector.pop_back();
+}
+
+
+template<typename ElementType>
+inline
+StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(int_max Index_start, int_max Index_end)
+{
+	StdObjectVector<ElementType> Subset;
+
+	auto ElementNumber = this->GetElementNumber();
+
+	if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
+	{
+		MDK_Error("Index_start is invalid @ StdObjectVector::GetSubSet(...)")
+		return Subset;
+	}
+
+	if (Index_end < 0 || Index_end >= ElementNumber)
+	{
+		MDK_Error("Index_end is invalid @ StdObjectVector::GetSubSet(...)")
+		return Subset;
+	}
+
+	if (ElementNumber == 0)
+	{
+		return Subset;
+	}
+
+	Subset.FastResize(Index_end - Index_start + 1);
+
+	for (int_max i = Index_start; i <= Index_end; ++i)
+	{
+		Subset[i - Index_end] = m_StdVector[i];
+	}
+
+	return Subset;
+}
+
+
+template<typename ElementType>
+inline
+StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const std::initializer_list<int_max>& IndexList)
+{
+	return this->GetSubSet(IndexList.begin(), int_max(IndexList.size()));
+}
+
+
+template<typename ElementType>
+inline
+StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const StdObjectVector<int_max>& IndexList)
+{
+	return this->GetSubSet(IndexList.GetElementPointer(), int_max(IndexList.GetElementNumber()));
+}
+
+
+template<typename ElementType>
+inline
+StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const ObjectArray<int_max>& IndexList)
+{
+	return this->GetSubSet(IndexList.GetElementPointer(), int_max(IndexList.GetElementNumber()));
+}
+
+
+template<typename ElementType>
+inline
+StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList)
+{
+	return this->GetSubSet(IndexList.GetElementPointer(), int_max(IndexList.GetElementNumber()));
+}
+
+
+template<typename ElementType>
+template<int_max TemplateLength>
+inline
+StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const DenseVector<int_max, TemplateLength>& IndexList)
+{
+	return this->GetSubSet(IndexList.GetElementPointer(), int_max(IndexList.GetElementNumber()));
+}
+
+
+template<typename ElementType>
+inline
+StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const int_max* IndexList, int_max ListLength)
+{
+	StdObjectVector<ElementType> SubSet;
+
+	if (IndexList == nullptr || ListLength <= 0)
+	{
+		return SubSet;
+	}
+
+	auto ElementNumber = this->GetElementNumber();
+
+	if (ListLength > ElementNumber)
+	{
+		MDK_Error("Invalid ListLength @ StdObjectVector::GetSubSet(...)")
+		return SubSet;
+	}
+
+	SubSet.FastResize(ListLength);
+
+	for (int_max k = 0; k < ListLength; ++k)
+	{
+		auto tempIndex = IndexList[k];
+
+		if (tempIndex < 0 || tempIndex >= ElementNumber)
+		{
+			MDK_Error("Invalid index @ StdObjectVector::GetSubSet(...)")
+			SubSet.Clear();
+			return SubSet;
+		}
+
+		SubSet[k] = m_StdVector[tempIndex];
+	}
+
+	return SubSet;
+}
+
+
+template<typename ElementType>
+inline
+void StdObjectVector<ElementType>::SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSet)
+{
+	if (IndexList.size() != SubSet.size())
+	{
+		MDK_Error("IndexList size != SubSet size @ StdObjectVector::SetSubSet(...)")
+		return;
+	}
+
+	this->SetSubSet(IndexList.begin(), SubSet.begin(), int_max(SubSet.size()));
+}
+
+
+template<typename ElementType>
+inline
+void StdObjectVector<ElementType>::SetSubSet(const StdObjectVector<int_max>& IndexList, const StdObjectVector<ElementType>& SubSet)
+{
+	if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
+	{
+		MDK_Error("IndexList size != SubSet size @ StdObjectVector::SetSubSet(...)")
+		return;
+	}
+
+	this->SetSubSet(IndexList.GetElementPointer(), SubSet.GetElementPointer(), SubSet.GetElementNumber());
+}
+
+
+template<typename ElementType>
+inline
+void StdObjectVector<ElementType>::SetSubSet(const ObjectArray<int_max>& IndexList, const StdObjectVector<ElementType>& SubSet)
+{
+	if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
+	{
+		MDK_Error("IndexList size != SubSet size @ StdObjectVector::SetSubSet(...)")
+		return;
+	}
+
+	this->SetSubSet(IndexList.GetElementPointer(), SubSet.GetElementPointer(), SubSet.GetElementNumber());
+}
+
+
+template<typename ElementType>
+inline
+void StdObjectVector<ElementType>::SetSubSet(const DenseMatrix<int_max>& IndexList, const StdObjectVector<ElementType>& SubSet)
+{
+	if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
+	{
+		MDK_Error("IndexList size != SubSet size @ StdObjectVector::SetSubSet(...)")
+		return;
+	}
+
+	this->SetSubSet(IndexList.GetElementPointer(), SubSet.GetElementPointer(), SubSet.GetElementNumber());
+}
+
+
+template<typename ElementType>
+template<int_max TemplateLength>
+inline
+void StdObjectVector<ElementType>::SetSubSet(const DenseVector<int_max, TemplateLength>& IndexList, const StdObjectVector<ElementType>& SubSet)
+{
+	if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
+	{
+		MDK_Error("IndexList size != SubSet size @ StdObjectVector::SetSubSet(...)")
+		return;
+	}
+
+	this->SetSubSet(IndexList.GetElementPointer(), SubSet.GetElementPointer(), SubSet.GetElementNumber());
+}
+
+
+template<typename ElementType>
+inline
+void StdObjectVector<ElementType>::SetSubSet(const int_max* IndexList, const ElementType* SubSet, int_max SubSetElementNumber)
+{
+	if (IndexList == nullptr || SubSet == nullptr || SubSetElementNumber <= 0)
+	{
+		MDK_Warning("Empty input @ StdObjectVector::SetSubSet(...)")
+		return;
+	}
+
+	auto ElementNumber = this->GetElementNumber();
+
+	if (ElementNumber == 0)
+	{
+		MDK_Error("Self is empty @ StdObjectVector::SetSubSet(...)")
+		return;
+	}
+
+	if (SubSetElementNumber > ElementNumber)
+	{
+		MDK_Error("Invalid SubSetElementNumber @ StdObjectVector::SetSubSet(...)")
+		return;
+	}
+
+	for (int_max k = 0; k < SubSetElementNumber; ++k)
+	{
+		auto Index = IndexList[k];
+
+		if (Index < 0 || Index >= ElementNumber)
+		{
+			MDK_Error("Invalid Index @ StdObjectVector::SetSubSet(...)")
+			return;
+		}
+
+		m_StdVector[Index] = SubSet[k];
+	}
 }
 
 

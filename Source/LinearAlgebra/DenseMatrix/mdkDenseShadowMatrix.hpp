@@ -547,21 +547,13 @@ bool DenseShadowMatrix<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>&
 
     if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
     {
-        bool IsOK = false;
-
         if (m_Flag_OutputVector == true)
         {
-            IsOK = OutputMatrix.FastResize(m_ElementNumber, 1);
+            OutputMatrix.FastResize(m_ElementNumber, 1);
         }
         else
         {
-            IsOK = OutputMatrix.FastResize(m_RowNumber, m_ColNumber);
-        }
-
-        if (IsOK == false)
-        {
-            MDK_Error("Size does not match and can not change @ DenseShadowMatrix::CreateDenseMatrix(OutputMatrix)")
-            return false;
+            OutputMatrix.FastResize(m_RowNumber, m_ColNumber);
         }
     }
 

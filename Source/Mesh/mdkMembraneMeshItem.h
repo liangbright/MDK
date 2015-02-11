@@ -1,5 +1,5 @@
-#ifndef __mdkMembraneMeshItem_h
-#define __mdkMembraneMeshItem_h
+#ifndef mdk_MembraneMeshItem_h
+#define mdk_MembraneMeshItem_h
 
 #include "mdkObject.h"
 #include "mdkObjectArray.h"

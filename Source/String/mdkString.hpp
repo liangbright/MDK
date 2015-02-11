@@ -157,21 +157,11 @@ inline void String::Copy(const String& InputString)
 }
 
 
-inline void String::Copy(const String* InputString)
-{
-    if (InputString == nullptr)
-    {
-		return this->Copy(MDK_EMPTY);
-    }
-    this->Copy(*InputString);
-}
-
-
 inline void String::Copy(const char* InputElementPointer)
 {
     if (InputElementPointer == nullptr)
     {		
-        return this->Copy(MDK_EMPTY);
+		this->Clear();
     }
 
     // if this String is not empty, check if this and Input Share the same data
@@ -231,24 +221,20 @@ inline void String::Copy(String&& InputString)
 }
 
 
-inline void String::Copy(const MDK_Symbol_Empty&)
-{
-	this->Clear();
-}
-
-
 inline void String::Fill(char Element)
 {
     auto SelfLength = this->GetCharNumber();
     if (SelfLength <= 0)
     {
-        MDK_Error("Self is empty @ String::Fill")
+        MDK_Error("Self is empty @ String::Fill(...)")
         return;
     }
+
 	if (this->IsPureEmpty() == true)
 	{
 		this->Resize(0);
 	}
+	
 	auto BeginPointer = this->GetCharPointer();
     for (auto Ptr = BeginPointer; Ptr < BeginPointer + SelfLength; ++Ptr)
     {
@@ -270,17 +256,6 @@ inline void String::Share(String& InputString)
 }
 
 
-inline void String::Share(String* InputString)
-{
-    if (InputString == nullptr)
-    {
-        MDK_Error("Input is nullptr @ String::Share(String* InputString)")
-        return;
-    }
-    this->Share(*InputString);
-}
-
-
 inline void String::ForceShare(const String& InputString)
 {
     // String = String
@@ -291,17 +266,6 @@ inline void String::ForceShare(const String& InputString)
     }
 
     m_StringData = InputString.m_StringData; // std::Shared_ptr, self assignment check is not necessary
-}
-
-
-inline void String::ForceShare(const String* InputString)
-{
-    if (InputString == nullptr)
-    {
-        MDK_Error("Input is nullptr @ String::ForceShare(mdkString* InputString)")
-        return;
-    }
-    this->ForceShare(*InputString);
 }
 
 
@@ -392,7 +356,7 @@ inline void String::ReserveCapacity(int_max InputElementNumber)
 
 try
 {
-	if (this->IsPureEmpty()==true)
+	if (this->IsPureEmpty() == true)
 	{
 		this->Resize(0);
 	}

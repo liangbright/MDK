@@ -7,7 +7,7 @@
 
 namespace mdk
 {
-//------------------------------------------- Symbol ALL  --------------------------------------------------------------------------//
+//------------------------------------------------- Symbol ALL  --------------------------------------------------------------------------//
 struct InputStruct_For_MDK_Symbol_ALL
 {
     const std::string Name = "InputStruct_For_MDK_Symbol_ALL";
@@ -19,7 +19,7 @@ struct MDK_Symbol_ALL
     {
         if (InputStruct.Name != "InputStruct_For_MDK_Symbol_ALL")
         {
-            MDK_Error("ALL Symbol error @ MDK_Symbol_ALL")
+            MDK_Error("Symbol error @ MDK_Symbol_ALL")
         }
     }
 
@@ -36,9 +36,9 @@ private:
 static InputStruct_For_MDK_Symbol_ALL This_Is_InputStruct_For_MDK_Symbol_ALL;
 static MDK_Symbol_ALL StaticGlobalObject_MDK_Symbol_ALL(This_Is_InputStruct_For_MDK_Symbol_ALL);
 #define ALL StaticGlobalObject_MDK_Symbol_ALL
-//-----------------------------------------------------------------------------------------------------------------------------------------//
+//--------------------------------------------------------------------------------------------------------------------------------------------//
 
-//------------------------------- Symbol PureEmpty to Construct Empty Data Object (with Empty internal shared_ptr)  ------------------------//
+//------------------------------- Symbol PureEmpty to Construct Pure Empty Data Object (with Empty internal shared_ptr or unique_ptr) --------//
 
 struct InputStruct_For_MDK_Symbol_PureEmpty
 {
@@ -68,10 +68,10 @@ private:
 static InputStruct_For_MDK_Symbol_PureEmpty This_Is_InputStruct_For_MDK_Symbol_PureEmpty;
 static MDK_Symbol_PureEmpty StaticGlobalObject_MDK_Symbol_PureEmpty(This_Is_InputStruct_For_MDK_Symbol_PureEmpty);
 #define MDK_PURE_EMPTY StaticGlobalObject_MDK_Symbol_PureEmpty
-#define MDK_PURE_EMPTY_OBJECT StaticGlobalObject_MDK_Symbol_PureEmpty
-//--------------------------------------------------------------------------------------------------------------------------------//
+#define MDK_PURE_EMPTY_DATA_OBJECT StaticGlobalObject_MDK_Symbol_PureEmpty
+//------------------------------------------------------------------------------------------------------------------------------------------//
 
-//------------------------------- Symbol Empty to Construct Empty Data Object (with Nonempty internal shared_ptr) -------------------//
+//------------------------------- Symbol Empty to Construct Empty Data Object (with Nonempty internal shared_ptr or unique_ptr) -------------//
 
 struct InputStruct_For_MDK_Symbol_Empty
 {
@@ -101,7 +101,7 @@ private:
 static InputStruct_For_MDK_Symbol_Empty This_Is_InputStruct_For_MDK_Symbol_Empty;
 static MDK_Symbol_Empty StaticGlobalObject_MDK_Symbol_Empty(This_Is_InputStruct_For_MDK_Symbol_Empty);
 #define MDK_EMPTY StaticGlobalObject_MDK_Symbol_Empty
-#define MDK_EMPTY_OBJECT StaticGlobalObject_MDK_Symbol_Empty
+#define MDK_EMPTY_DATA_OBJECT StaticGlobalObject_MDK_Symbol_Empty
 //--------------------------------------------------------------------------------------------------------------------------------//
 
 

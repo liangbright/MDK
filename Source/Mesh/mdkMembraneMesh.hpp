@@ -7,7 +7,7 @@ namespace mdk
 template<typename MeshAttributeType>
 MembraneMesh<MeshAttributeType>::MembraneMesh()
 {
-    m_MeshData = std::make_shared<MembraneMeshData<MeshAttributeType>>();
+	this->Recreate();
 }
 
 
@@ -83,28 +83,14 @@ void MembraneMesh<MeshAttributeType>::Clear()
 
 template<typename MeshAttributeType>
 inline
-void MembraneMesh<MeshAttributeType>::Copy(const MembraneMesh<MeshAttributeType>* InputMesh)
-{
-	if (InputMesh == nullptr)
-	{
-		MDK_Warning("Input is nullptr, clear self @ MembraneMesh::Copy(...)")
-		this->Clear();
-	}
-
-	this->Copy(*InputMesh);
-}
-
-
-template<typename MeshAttributeType>
-inline
 void MembraneMesh<MeshAttributeType>::Copy(const MembraneMesh<MeshAttributeType>& InputMesh)
 {
-    if (!m_MeshData)
+    if (this->IsPureEmpty() == true)
     {
-        m_MeshData = std::make_shared<MembraneMeshData<MeshAttributeType>>();
+		this->Recreate();
     }
 
-    if (!InputMesh.m_MeshData)
+	if (InputMesh.IsPureEmpty() == true)
     {
         return;
     }
@@ -153,12 +139,12 @@ template<typename MeshAttributeType>
 inline
 void MembraneMesh<MeshAttributeType>::Copy(MembraneMesh<MeshAttributeType>&& InputMesh)
 {
-	if (!m_MeshData)
+	if (this->IsPureEmpty() == true)
 	{
-		m_MeshData = std::make_shared<MembraneMeshData<MeshAttributeType>>();
+		this->Recreate();
 	}
 
-	if (!InputMesh.m_MeshData)
+	if (InputMesh.IsPureEmpty() == true)
 	{
 		return;
 	}
@@ -205,41 +191,9 @@ void MembraneMesh<MeshAttributeType>::Copy(MembraneMesh<MeshAttributeType>&& Inp
 
 template<typename MeshAttributeType>
 inline
-bool MembraneMesh<MeshAttributeType>::Share(MembraneMesh* InputMesh)
-{
-    if (InputMesh == nullptr)
-    {
-        MDK_Error("Input is nullptr @ MembraneMesh::Share(...)")
-        return false;
-    }
-
-    this->Share(*InputMesh);
-
-    return true;
-}
-
-
-template<typename MeshAttributeType>
-inline
 void MembraneMesh<MeshAttributeType>::Share(MembraneMesh& InputMesh)
 {
 	m_MeshData = InputMesh.m_MeshData;
-}
-
-
-template<typename MeshAttributeType>
-inline
-bool MembraneMesh<MeshAttributeType>::ForceShare(const MembraneMesh<MeshAttributeType>* InputMesh)
-{
-    if (InputMesh == nullptr)
-    {
-        MDK_Error("Input is nullptr @ MembraneMesh::ForceShare(...)")
-        return false;
-    }
-
-    this->ForceShare(*InputMesh);
-
-    return true;
 }
 
 
@@ -250,50 +204,92 @@ void MembraneMesh<MeshAttributeType>::ForceShare(const MembraneMesh<MeshAttribut
 	m_MeshData = InputMesh.m_MeshData;
 }
 
+
+template<typename MeshAttributeType>
+inline
+void MembraneMesh<MeshAttributeType>::Recreate()
+{
+	m_MeshData = std::make_shared<MembraneMeshData<MeshAttributeType>>();
+}
+
 //-------------------------------------------------------------------
 
 template<typename MeshAttributeType>
 inline 
 bool MembraneMesh<MeshAttributeType>::IsEmpty() const
 {
-    return m_MeshData->PointPositionTable.IsEmpty();
+	if (!m_MeshData)
+	{
+		return true;
+	}
+	else
+	{
+		return m_MeshData->PointPositionTable.IsEmpty();
+	}
+}
+
+template<typename MeshAttributeType>
+inline
+bool MembraneMesh<MeshAttributeType>::IsPureEmpty() const
+{
+	return (!m_MeshData);
 }
 
 template<typename MeshAttributeType>
 inline
 int_max MembraneMesh<MeshAttributeType>::GetPointNumber() const
 {
-    return m_MeshData->PointValidityFlagList.Sum();
+	if (!m_MeshData)
+	{
+		return 0;
+	}
+	else
+	{
+		return m_MeshData->PointValidityFlagList.Sum();
+	}
 }
 
 template<typename MeshAttributeType>
 inline
 int_max MembraneMesh<MeshAttributeType>::GetEdgeNumber() const
 {
-    return m_MeshData->EdgeValidityFlagList.Sum();
+	if (!m_MeshData)
+	{
+		return 0;
+	}
+	else
+	{
+		return m_MeshData->EdgeValidityFlagList.Sum();
+	}
 }
 
 template<typename MeshAttributeType>
 inline
 int_max MembraneMesh<MeshAttributeType>::GetDirectedEdgeNumber() const
 {
-	int_max Counter = 0;
-	for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k)
+	if (!m_MeshData)
 	{
-		if (m_MeshData->EdgeValidityFlagList[k] == 1)
+		return 0;
+	}
+	else
+	{
+		int_max Counter = 0;
+		for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k)
 		{
-			for (int_max n = 0; n < m_MeshData->EdgeList[k].DirectedEdgeList().GetLength(); ++n)
+			if (m_MeshData->EdgeValidityFlagList[k] == 1)
 			{
-				const auto& DirectedEdge_n = m_MeshData->EdgeList[k].DirectedEdgeList()[n];
-				if (DirectedEdge_n.IsValid() == true)
+				for (int_max n = 0; n < m_MeshData->EdgeList[k].DirectedEdgeList().GetLength(); ++n)
 				{
-					Counter += 1;
+					const auto& DirectedEdge_n = m_MeshData->EdgeList[k].DirectedEdgeList()[n];
+					if (DirectedEdge_n.IsValid() == true)
+					{
+						Counter += 1;
+					}
 				}
 			}
 		}
-	}
-
-	return Counter;
+		return Counter;
+	}	
 }
 
 
@@ -301,7 +297,14 @@ template<typename MeshAttributeType>
 inline
 int_max MembraneMesh<MeshAttributeType>::GetCellNumber() const
 {
-    return m_MeshData->CellValidityFlagList.Sum();
+	if (!m_MeshData)
+	{
+		return 0;
+	}
+	else
+	{
+		return m_MeshData->CellValidityFlagList.Sum();
+	}
 }
 
 //------ Get/Set GlobalAttribute -----------------------------------//
@@ -337,6 +340,12 @@ template<typename MeshAttributeType>
 inline
 void MembraneMesh<MeshAttributeType>::GetPointPositionMatrix(DenseMatrix<ScalarType>& PositionMatrix) const
 {
+	if (this->IsEmpty() == true)
+	{
+		PositionMatrix.Clear();
+		return;
+	}
+
 	auto MaxNumber = m_MeshData->PointPositionTable.GetColNumber();
 	PositionMatrix.FastResize(3, this->GetPointNumber());
 	int_max Counter = 0;
@@ -355,15 +364,14 @@ void MembraneMesh<MeshAttributeType>::GetPointPositionMatrix(DenseMatrix<ScalarT
 template<typename MeshAttributeType>
 inline
 void MembraneMesh<MeshAttributeType>::
-SetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle, 
-                typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z)
+SetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle, ScalarType x, ScalarType y, ScalarType z)
 {
     m_MeshData->PointPositionTable.SetCol(PointHandle.GetIndex(), { x, y, z });
 }
 
 template<typename MeshAttributeType>
 inline 
-void MembraneMesh<MeshAttributeType>::SetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle, const typename MeshAttributeType::ScalarType Position[3])
+void MembraneMesh<MeshAttributeType>::SetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle, const ScalarType Position[3])
 {
     m_MeshData->PointPositionTable.SetCol(PointHandle.GetIndex(), Position);
 }
@@ -371,7 +379,7 @@ void MembraneMesh<MeshAttributeType>::SetPointPosition(Handle_Of_Point_Of_Membra
 template<typename MeshAttributeType>
 inline 
 void MembraneMesh<MeshAttributeType>::
-SetPointPosition(int_max PointID, typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z)
+SetPointPosition(int_max PointID, ScalarType x, ScalarType y, ScalarType z)
 {
 	auto PointHandle = this->GetPointHandleByID(PointID);
     this->SetPointPosition(PointHandle, x, y, z);
@@ -379,7 +387,7 @@ SetPointPosition(int_max PointID, typename MeshAttributeType::ScalarType x, type
 
 template<typename MeshAttributeType>
 inline
-void MembraneMesh<MeshAttributeType>::SetPointPosition(int_max PointID, const typename MeshAttributeType::ScalarType Position[3])
+void MembraneMesh<MeshAttributeType>::SetPointPosition(int_max PointID, const ScalarType Position[3])
 {
 	auto PointHandle = this->GetPointHandleByID(PointID);
     this->SetPointPosition(PointHandle, Position);
@@ -398,8 +406,7 @@ MembraneMesh<MeshAttributeType>::GetPointPosition(Handle_Of_Point_Of_MembraneMes
 template<typename MeshAttributeType>
 inline 
 void MembraneMesh<MeshAttributeType>::
-GetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle, 
-                 typename MeshAttributeType::ScalarType& x, typename MeshAttributeType::ScalarType& y, typename MeshAttributeType::ScalarType& z) const
+GetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle, ScalarType& x, ScalarType& y, ScalarType& z) const
 {
     ScalarType Position[3];
     m_MeshData->PointPositionTable.GetCol(PointHandle.GetIndex(), Position);
@@ -410,7 +417,7 @@ GetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle,
 
 template<typename MeshAttributeType>
 inline 
-void MembraneMesh<MeshAttributeType>::GetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle, typename MeshAttributeType::ScalarType Position[3]) const
+void MembraneMesh<MeshAttributeType>::GetPointPosition(Handle_Of_Point_Of_MembraneMesh PointHandle, ScalarType Position[3]) const
 {
     m_MeshData->PointPositionTable.GetCol(PointHandle.GetIndex(), Position);
 }
@@ -443,8 +450,7 @@ void MembraneMesh<MeshAttributeType>::GetPointPosition(int_max PointID, ScalarTy
 template<typename MeshAttributeType>
 inline
 void MembraneMesh<MeshAttributeType>::
-SetPointPosition(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandleList, 
-                 const DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix)
+SetPointPosition(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandleList, const DenseMatrix<ScalarType>& PointPositionMatrix)
 {
     if (PointHandleList.IsEmpty() == true && PointPositionMatrix.IsEmpty() == true)
     {
@@ -478,7 +484,7 @@ SetPointPosition(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandle
 template<typename MeshAttributeType>
 inline
 void MembraneMesh<MeshAttributeType>::
-SetPointPosition(const DenseVector<int_max>& PointIDList, const DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix)
+SetPointPosition(const DenseVector<int_max>& PointIDList, const DenseMatrix<ScalarType>& PointPositionMatrix)
 {
     if (PointIDList.IsEmpty() == true)
     {
@@ -517,8 +523,7 @@ MembraneMesh<MeshAttributeType>::GetPointPosition(const DenseVector<Handle_Of_Po
 template<typename MeshAttributeType>
 inline
 void MembraneMesh<MeshAttributeType>::
-GetPointPosition(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandleList,
-                 DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix) const
+GetPointPosition(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandleList, DenseMatrix<ScalarType>& PointPositionMatrix) const
 {
     if (PointHandleList.IsEmpty() == true)
     {
@@ -555,7 +560,7 @@ MembraneMesh<MeshAttributeType>::GetPointPosition(const DenseVector<int_max>& Po
 template<typename MeshAttributeType>
 inline
 void MembraneMesh<MeshAttributeType>::
-GetPointPosition(const DenseVector<int_max>& PointIDList, DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix) const
+GetPointPosition(const DenseVector<int_max>& PointIDList, DenseMatrix<ScalarType>& PointPositionMatrix) const
 {
     if (PointIDList.IsEmpty() == true)
     {
@@ -924,8 +929,7 @@ void MembraneMesh<MeshAttributeType>::GetCellHandleList(DenseVector<Handle_Of_Ce
 template<typename MeshAttributeType>
 inline
 Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::
-GetPointHandleByPosition(const DenseVector<typename MeshAttributeType::ScalarType, 3>& Position, 
-                         typename MeshAttributeType::ScalarType DistanceThreshold) const
+GetPointHandleByPosition(const DenseVector<ScalarType, 3>& Position, ScalarType DistanceThreshold) const
 {
     return this->GetPointHandleByPosition(Position[0], Position[1], Position[2], DistanceThreshold);
 }
@@ -934,8 +938,7 @@ GetPointHandleByPosition(const DenseVector<typename MeshAttributeType::ScalarTyp
 template<typename MeshAttributeType>
 inline
 Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::
-GetPointHandleByPosition(const typename MeshAttributeType::ScalarType Position[3],
-                         typename MeshAttributeType::ScalarType DistanceThreshold) const
+GetPointHandleByPosition(const ScalarType Position[3], ScalarType DistanceThreshold) const
 {
     return this->GetPointHandleByPosition(Position[0], Position[1], Position[2], DistanceThreshold);
 }
@@ -944,10 +947,7 @@ GetPointHandleByPosition(const typename MeshAttributeType::ScalarType Position[3
 template<typename MeshAttributeType>
 inline
 Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::
-GetPointHandleByPosition(typename MeshAttributeType::ScalarType x, 
-                         typename MeshAttributeType::ScalarType y, 
-                         typename MeshAttributeType::ScalarType z,
-                         typename MeshAttributeType::ScalarType DistanceThreshold) const
+GetPointHandleByPosition(ScalarType x, ScalarType y, ScalarType z, ScalarType DistanceThreshold) const
 {
     Handle_Of_Point_Of_MembraneMesh PointHandle;
     PointHandle.SetToInvalid();
@@ -1543,7 +1543,7 @@ int_max MembraneMesh<MeshAttributeType>::GetPointIDByHandle(Handle_Of_Point_Of_M
 
 template<typename MeshAttributeType>
 inline
-int_max MembraneMesh<MeshAttributeType>::GetPointIDByPosition(typename MeshAttributeType::ScalarType Position[3]) const
+int_max MembraneMesh<MeshAttributeType>::GetPointIDByPosition(ScalarType Position[3]) const
 {
     auto PointHandle = this->GetPointHandleByPosition(Position);
     return this->GetPointID(PointHandle);
@@ -1551,7 +1551,7 @@ int_max MembraneMesh<MeshAttributeType>::GetPointIDByPosition(typename MeshAttri
 
 template<typename MeshAttributeType>
 inline int_max MembraneMesh<MeshAttributeType>::
-GetPointIDByPosition(typename MeshAttributeType::ScalarType x, typename MeshAttributeType::ScalarType y, typename MeshAttributeType::ScalarType z) const
+GetPointIDByPosition(ScalarType x, ScalarType y, ScalarType z) const
 {
     auto PointHandle = this->GetPointHandleByPosition(x, y, z);
     return this->GetPointID(PointHandle);
@@ -1734,43 +1734,31 @@ const Iterator_Of_Cell_Of_MembraneMesh<MeshAttributeType> MembraneMesh<MeshAttri
 
 //------------ ReserveCapacity, ReleaseUnusedCapacity -------------------------------------//
 template<typename MeshAttributeType>
-bool MembraneMesh<MeshAttributeType>::ReserveCapacity(int_max PointNumber, int_max EdgeNumber, int_max CellNumber)
+void MembraneMesh<MeshAttributeType>::ReserveCapacity(int_max PointNumber, int_max EdgeNumber, int_max CellNumber)
 {
-	if (m_MeshData->PointPositionTable->ReserveCapacity(3 * PointNumber) == false)
+	if (this->IsPureEmpty() == true)
 	{
-		return false;
+		this->Recreate();
 	}
-	if (m_MeshData->PointList->ReserveCapacity(PointNumber) == false)
-	{
-		return false;
-	}
-	if (m_MeshData->PointValidityFlagList->ReserveCapacity(PointNumber) == false)
-	{
-		return false;
-	}
-	if (m_MeshData->EdgeList->ReserveCapacity(EdgeNumber) == false)
-	{
-		return false;
-	}
-	if (m_MeshData->EdgeValidityFlagList->ReserveCapacity(EdgeNumber) == false)
-	{
-		return false;
-	}
-	if (m_MeshData->CellList->ReserveCapacity(CellNumber) == false)
-	{
-		return false;
-	}
-	if (m_MeshData->CellValidityFlagList->ReserveCapacity(CellNumber) == false)
-	{
-		return false;
-	}
-	return true;
+
+	m_MeshData->PointPositionTable->ReserveCapacity(3 * PointNumber);
+	m_MeshData->PointList->ReserveCapacity(PointNumber);
+	m_MeshData->PointValidityFlagList->ReserveCapacity(PointNumber);
+	m_MeshData->EdgeList->ReserveCapacity(EdgeNumber);
+	m_MeshData->EdgeValidityFlagList->ReserveCapacity(EdgeNumber);
+	m_MeshData->CellList->ReserveCapacity(CellNumber);
+	m_MeshData->CellValidityFlagList->ReserveCapacity(CellNumber);
 }
 
 
 template<typename MeshAttributeType>
 void MembraneMesh<MeshAttributeType>::ReleaseUnusedCapacity()
 {
+	if (this->IsPureEmpty() == true)
+	{
+		return;
+	}
+
 	m_MeshData->PointPositionTable->ReleaseUnusedCapacity();
 	m_MeshData->PointList->ReleaseUnusedCapacity();
 	m_MeshData->PointValidityFlagList->ReleaseUnusedCapacity();
@@ -2239,7 +2227,7 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByPoint(c
 //------------------- Delete Mesh Item ----------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
-bool MembraneMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_MembraneMesh CellHandle)
+void MembraneMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_MembraneMesh CellHandle)
 {
     // this function will modify each DirectedEdge of the Cell, and modify any information related to the cell
     // CellHandle and CellID of the cell become invalid after the cell is deleted
@@ -2247,8 +2235,8 @@ bool MembraneMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_MembraneMesh 
     // check input 
     if (this->IsValidHandle(CellHandle) == false)
     {
-        //MDK_Warning("Invalid CellHandle @ MembraneMesh::DeleteCell(...)")
-        return true;
+        MDK_Warning("Invalid CellHandle @ MembraneMesh::DeleteCell(...)")
+        return;
     }
 
     //--------------------------------------------------------------------------------------
@@ -2288,13 +2276,11 @@ bool MembraneMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_MembraneMesh 
 
     // delete Cell
     this->InternalFuction_DeleteCell(CellIndex);
-
-    return true;
 }
 
 
 template<typename MeshAttributeType>
-bool MembraneMesh<MeshAttributeType>::DeleteCell(int_max CellID)
+void MembraneMesh<MeshAttributeType>::DeleteCell(int_max CellID)
 {
     auto CellHandle = this->GetCellHandle(CellID);
     return this->DeleteCell(CellHandle);
@@ -2302,11 +2288,11 @@ bool MembraneMesh<MeshAttributeType>::DeleteCell(int_max CellID)
 
 
 template<typename MeshAttributeType>
-bool MembraneMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_MembraneMesh EdgeHandle)
+void MembraneMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_MembraneMesh EdgeHandle)
 {    
     if (this->IsValidHandle(EdgeHandle) == false)
     {
-        //MDK_Warning("Invalid EdgeHandle @ MembraneMesh::DeleteEdge(...)")
+        MDK_Warning("Invalid EdgeHandle @ MembraneMesh::DeleteEdge(...)")
         return true;
     }
 
@@ -2345,26 +2331,24 @@ bool MembraneMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_MembraneMesh 
 
     // Delete Edge
     this->InternalFuction_DeleteEdge(EdgeIndex);
- 
-    return true;
 }
 
 
 template<typename MeshAttributeType>
-bool MembraneMesh<MeshAttributeType>::DeleteEdge(int_max EdgeID)
+void MembraneMesh<MeshAttributeType>::DeleteEdge(int_max EdgeID)
 {
     auto EdgeHandle = this->GetEdgeHandle(EdgeID);
-    return this->DeleteEdge(EdgeHandle);
+    this->DeleteEdge(EdgeHandle);
 }
 
 
 template<typename MeshAttributeType>
-bool MembraneMesh<MeshAttributeType>::DeletePoint(Handle_Of_Point_Of_MembraneMesh PointHandle)
+void MembraneMesh<MeshAttributeType>::DeletePoint(Handle_Of_Point_Of_MembraneMesh PointHandle)
 {
     if (this->IsValidHandle(PointHandle) == false)
     {
-        //MDK_Warning("Invalid PointHandle @ MembraneMesh::DeletePoint(...)")
-        return true;
+        MDK_Warning("Invalid PointHandle @ MembraneMesh::DeletePoint(...)")
+        return;
     }
 
     auto PointIndex = PointHandle.GetIndex();
@@ -2372,54 +2356,44 @@ bool MembraneMesh<MeshAttributeType>::DeletePoint(Handle_Of_Point_Of_MembraneMes
     if (m_MeshData->PointList[PointIndex].IsOnEdge() == true)
     {
         MDK_Error("The point is on an edge, so it can not be deleted @ MembraneMesh::DeletePoint(...)")
-        return false;
+        return;
     }
 
     this->InternalFuction_DeletePoint(PointIndex);
-
-    return true;
 }
 
 
 template<typename MeshAttributeType>
-bool MembraneMesh<MeshAttributeType>::DeletePoint(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandleList)
+void MembraneMesh<MeshAttributeType>::DeletePoint(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandleList)
 {
     if (PointHandleList.IsEmpty() == true)
     {
         //MDK_Warning("PointHandleList is empty @ MembraneMesh::DeletePoint(...)")
-        return true;
+        return;
     }
 
     for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
     {
-        if (this->DeletePoint(PointHandleList[k]) == false)
-        {
-            return false;
-        }
+		this->DeletePoint(PointHandleList[k]);
     }
-    return true;
 }
 
 
 template<typename MeshAttributeType>
-bool MembraneMesh<MeshAttributeType>::DeletePoint(int_max PointID)
+void MembraneMesh<MeshAttributeType>::DeletePoint(int_max PointID)
 {
 	auto PointHandle = this->GetPointHandleByID(PointID);
-    return this->DeletePoint(PointHandle);
+    this->DeletePoint(PointHandle);
 }
 
 
 template<typename MeshAttributeType>
-bool MembraneMesh<MeshAttributeType>::DeletePoint(const DenseVector<int_max>& PointIDList)
+void MembraneMesh<MeshAttributeType>::DeletePoint(const DenseVector<int_max>& PointIDList)
 {
     for (int_max k = 0; k < PointIDList.GetLength(); ++k)
     {
-        if (this->DeletePoint(PointIDList[k]) == false)
-        {
-            return false;
-        }
+		this->DeletePoint(PointIDList[k]);
     }
-    return true;
 }
 
 //----------------- remove deleted item from Point/Edge/DirectedEdgeList/Cell list ----------------------------------------------------------//

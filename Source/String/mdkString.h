@@ -53,37 +53,24 @@ public:
     inline void operator=(const std::basic_string<char>& InputString);
 
     //----------------------  Get/Set Std string  ----------------------------------------//
-
     inline std::basic_string<char>& StdString();
-
     inline const std::basic_string<char>& StdString() const;
 
     //----------------------  Copy  ----------------------------------------//
-	// A.Copy(nullptr) <=> A.Copy(MDK_EMPTY)
-
     inline void Copy(const String& InputString);
-    inline void Copy(const String* InputString);
-    inline void Copy(const char* InputElementPointer);
 	inline void Copy(String&& InputString);
-	inline void Copy(const MDK_Symbol_Empty&);
+    inline void Copy(const char* InputElementPointer);
 
     inline void Fill(char Element);
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
-	// Share(nullptr), ForceShare(nullptr) : invalid operation, cause MDK_Error
-
     inline void Share(String& InputString);
-    inline void Share(String* InputString);
-
     inline void ForceShare(const String& InputString);
-    inline void ForceShare(const String* InputString);
 
     //------------------------- Swap shared_ptr m_StringData -------------------------------------------//
-
     inline void Swap(String& InputString);
 
     //------------------------- Clear -------------------------------------------//
-
     inline void Clear();
 
 	//---------------------- Set/get Size ----------------------------------------//

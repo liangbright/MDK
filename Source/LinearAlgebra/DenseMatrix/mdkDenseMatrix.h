@@ -161,8 +161,6 @@ public:
 
     inline DenseMatrix(const MDK_Symbol_PureEmpty&);
 
-    inline DenseMatrix(const MDK_Symbol_Empty&);
-
     inline DenseMatrix(int_max RowNumber, int_max ColNumber);
 
 	inline DenseMatrix(MatrixSize Size);
@@ -231,7 +229,7 @@ public:
 
     inline void operator=(const std::initializer_list<const DenseMatrix<ElementType>*>& InputList);
 
-    inline void operator=(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
+    //inline void operator=(const std::initializer_list<std::initializer_list<const DenseMatrix<ElementType>*>>& InputListInList);
 
 	inline void operator=(const std::vector<ElementType>& InputColVector);
 	inline void operator=(std::vector<ElementType>&& InputColVector);
@@ -251,40 +249,37 @@ public:
     // Copy can be used to convert a matrix from double (ElementType_Input) to float (ElementType), etc
 
     template<typename ElementType_Input>  
-    inline bool Copy(const DenseMatrix<ElementType_Input>& InputMatrix);
+    inline void Copy(const DenseMatrix<ElementType_Input>& InputMatrix);
 
     template<typename ElementType_Input>
-    inline bool Copy(const DenseMatrix<ElementType_Input>* InputMatrix);
+	inline void Copy(const ElementType_Input* InputElementPointer, int_max InputRowNumber, int_max InputColNumber);
 
-    template<typename ElementType_Input>
-    inline bool Copy(const ElementType_Input* InputElementPointer, int_max InputRowNumber, int_max InputColNumber);
-
-	inline bool Copy(DenseMatrix<ElementType>&& InputMatrix);
+	inline void Copy(DenseMatrix<ElementType>&& InputMatrix);
 
 	//Take the Matrix Created from ShadowMatrix or GlueMatrix
 
-	inline bool Copy(const DenseShadowMatrix<ElementType>& ShadowMatrix);
+	inline void Copy(const DenseShadowMatrix<ElementType>& ShadowMatrix);
 
-	inline bool Copy(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
+	inline void Copy(const DenseGlueMatrixForLinearCombination<ElementType>& GlueMatrix);
 
-	inline bool Copy(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
+	inline void Copy(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-	inline bool Copy(const std::vector<ElementType>& InputColVector);
-	inline bool Copy(std::vector<ElementType>&& InputColVector);
+	inline void Copy(const std::vector<ElementType>& InputColVector);
+	inline void Copy(std::vector<ElementType>&& InputColVector);
 
-	inline bool Copy(const StdObjectVector<ElementType>& InputDataArray);
-	inline bool Copy(StdObjectVector<ElementType>&& InputDataArray);
+	inline void Copy(const StdObjectVector<ElementType>& InputDataArray);
+	inline void Copy(StdObjectVector<ElementType>&& InputDataArray);
 
-	inline bool Copy(const ObjectArray<ElementType>& InputDataArray);
+	inline void Copy(const ObjectArray<ElementType>& InputDataArray);
 
 	template<int_max TemplateLength>
-	inline bool Copy(const DenseVector<ElementType, TemplateLength>& InputColVector);
+	inline void Copy(const DenseVector<ElementType, TemplateLength>& InputColVector);
 
-	inline bool Copy(DenseVector<ElementType>&& InputColVector);
+	inline void Copy(DenseVector<ElementType>&& InputColVector);
 
-	inline bool Copy(const MDK_Symbol_Empty&);
+	inline void Copy(const MDK_Symbol_Empty&);
 
-    inline bool Fill(const ElementType& Element);
+	inline void Fill(const ElementType& Element);
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
 
@@ -313,11 +308,8 @@ public:
     // A.Share(B): if m_IsSizeFixed of A is true, and size of A does not match size of B, then return false (B is not shared by A)
     // A.ForceShare(B): Share B no matter what, it is used in GlueMatrix operation
 
-    inline bool Share(DenseMatrix<ElementType>& InputMatrix);
-    inline bool Share(DenseMatrix<ElementType>* InputMatrix);
-
+    inline void Share(DenseMatrix<ElementType>& InputMatrix);
     inline void ForceShare(const DenseMatrix<ElementType>& InputMatrix);
-    inline bool ForceShare(const DenseMatrix<ElementType>* InputMatrix);
 
     // about const share: e.g., A.ConstShare(B), then A can only read (const functions) from B, and cant not write to B
     //
@@ -358,9 +350,8 @@ public:
     // It can be used to share a col of a MDK Matrix (RefCol(...) is better)
     // do not use this Share() to share a MDK Matrix
 
-    inline bool Share(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed = true);
-
-    inline bool ForceShare(const ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed = true);
+	inline void Share(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed = true);
+	inline void ForceShare(const ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed = true);
 
     //------------------------- Swap shared_ptr m_MatrixData -------------------------------------------//
     // m_MatrixData.swap(InputMatrix.m_MatrixData)
@@ -380,27 +371,27 @@ public:
 
 	//---------------------- Set/get Matrix Size, Shape ----------------------------------------//
 
-    inline bool Reshape(int_max InputRowNumber, int_max InputColNumber);
+	inline void Reshape(int_max InputRowNumber, int_max InputColNumber);
 
-	inline bool Reshape(MatrixSize InputSize);
+	inline void Reshape(MatrixSize InputSize);
 
-    inline bool Resize(int_max InputRowNumber, int_max InputColNumber); // try to keep the old data
+	inline void Resize(int_max InputRowNumber, int_max InputColNumber); // try to keep the old data
 
-	inline bool Resize(MatrixSize InputSize);
+	inline void Resize(MatrixSize InputSize);
 
-    inline bool FastResize(int_max InputRowNumber, int_max InputColNumber); // do not care about old data
+	inline void FastResize(int_max InputRowNumber, int_max InputColNumber); // do not care about old data
 
-	inline bool FastResize(MatrixSize InputSize);
+	inline void FastResize(MatrixSize InputSize);
 
-    inline bool Resize(int_max InputElementNumber); // if matrix is vector, try to keep the old data, can not use it to resize a m x n matrix (m>1 or n>1)
+	inline void Resize(int_max InputElementNumber); // if matrix is vector, try to keep the old data, can not use it to resize a m x n matrix (m>1 or n>1)
 
-    inline bool FastResize(int_max InputElementNumber); // if matrix is vector, do not care about old data, can not use it to resize a m x n matrix (m>1 or n>1)
+	inline void FastResize(int_max InputElementNumber); // if matrix is vector, do not care about old data, can not use it to resize a m x n matrix (m>1 or n>1)
 
-    inline bool ReserveCapacity(int_max InputRowNumber, int_max InputColNumber); // reserve memory, current matrix size does not change
+	inline void ReserveCapacity(int_max InputRowNumber, int_max InputColNumber); // reserve memory, current matrix size does not change
 
-	inline bool ReserveCapacity(MatrixSize InputSize);
+	inline void ReserveCapacity(MatrixSize InputSize);
 
-    inline bool ReserveCapacity(int_max InputElementNumber); // reserve memory, current matrix size does not change
+	inline void ReserveCapacity(int_max InputElementNumber); // reserve memory, current matrix size does not change
 
     inline void ReleaseUnusedCapacity();
 
@@ -769,21 +760,21 @@ public:
     inline DenseMatrix GetSubMatrix(const std::initializer_list<int_max>& RowIndexList,
                                     const std::initializer_list<int_max>& ColIndexList) const;
 
-    inline bool GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix, 
+	inline void GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix,
                              const std::initializer_list<int_max>& RowIndexList, 
                              const std::initializer_list<int_max>& ColIndexList) const;
 
     inline DenseMatrix GetSubMatrix(const std::initializer_list<int_max>& RowIndexList,
                                     const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+	inline void GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
                              const std::initializer_list<int_max>& RowIndexList,
                              const MDK_Symbol_ALL& ALL_Symbol) const;
 
     inline DenseMatrix GetSubMatrix(const MDK_Symbol_ALL& ALL_Symbol, 
                                     const std::initializer_list<int_max>& ColIndexList) const;
 
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+	inline void GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
                              const MDK_Symbol_ALL& ALL_Symbol,
                              const std::initializer_list<int_max>& ColIndexList) const;
 
@@ -792,7 +783,7 @@ public:
 	inline DenseMatrix GetSubMatrix(const DenseVector<int_max, TemplateVectorLengthA>& RowIndexList,
 		                            const DenseVector<int_max, TemplateVectorLengthB>& ColIndexList) const;
 	template<int_max TemplateVectorLengthA, int_max TemplateVectorLengthB>
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+	inline void GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
                              const DenseVector<int_max, TemplateVectorLengthA>& RowIndexList, 
 							 const DenseVector<int_max, TemplateVectorLengthB>& ColIndexList) const;
 
@@ -800,7 +791,7 @@ public:
 	inline DenseMatrix GetSubMatrix(const DenseVector<int_max, TemplateVectorLength>& RowIndexList,
                                     const MDK_Symbol_ALL& ALL_Symbol) const;
 	template<int_max TemplateVectorLength>
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+	inline void GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
                              const DenseVector<int_max, TemplateVectorLength>& RowIndexList,
                              const MDK_Symbol_ALL& ALL_Symbol) const;
 
@@ -808,7 +799,7 @@ public:
     inline DenseMatrix GetSubMatrix(const MDK_Symbol_ALL& ALL_Symbol, 
                                     const DenseVector<int_max, TemplateVectorLength>& ColIndexList) const;
 	template<int_max TemplateVectorLength>
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+	inline void GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
                              const MDK_Symbol_ALL& ALL_Symbol,
 							 const DenseVector<int_max, TemplateVectorLength>& ColIndexList) const;
 
@@ -817,21 +808,21 @@ public:
     inline DenseMatrix GetSubMatrix(const DenseMatrix<int_max>& RowIndexList,
                                     const DenseMatrix<int_max>& ColIndexList) const;
 
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+	inline void GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
                              const DenseMatrix<int_max>& RowIndexList, 
                              const DenseMatrix<int_max>& ColIndexList) const;
 
     inline DenseMatrix GetSubMatrix(const DenseMatrix<int_max>& RowIndexList,
                                     const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+	inline void GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
                              const DenseMatrix<int_max>& RowIndexList,
                              const MDK_Symbol_ALL& ALL_Symbol) const;
 
     inline DenseMatrix GetSubMatrix(const MDK_Symbol_ALL& ALL_Symbol, 
                                     const DenseMatrix<int_max>& ColIndexList) const;
 
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix, 
+	inline void GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
                              const MDK_Symbol_ALL& ALL_Symbol,
                              const DenseMatrix<int_max>& ColIndexList) const;
 
@@ -840,21 +831,21 @@ public:
     inline DenseMatrix GetSubMatrix(const int_max* RowIndexList, int_max OutputRowNumber,
                                     const int_max* ColIndexList, int_max OutputColNumber) const;
 
-    inline bool GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix, 
+	inline void GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix,
                              const int_max* RowIndexList, int_max OutputRowNumber,
                              const int_max* ColIndexList, int_max OutputColNumber) const;
 
     inline DenseMatrix GetSubMatrix(const MDK_Symbol_ALL& ALL_Symbol, 
                                     const int_max* ColIndexList, int_max OutputColNumber) const;
 
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
+	inline void GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
                              const MDK_Symbol_ALL& ALL_Symbol, 
                              const int_max* ColIndexList, int_max OutputColNumber) const;
 
     inline DenseMatrix GetSubMatrix(const int_max* RowIndexList, int_max OutputRowNumber,
                                     const MDK_Symbol_ALL& ALL_Symbol) const;
 
-    inline bool GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
+	inline void GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
                              const int_max* RowIndexList, int_max OutputRowNumber,
                              const MDK_Symbol_ALL& ALL_Symbol) const;
 
@@ -864,72 +855,72 @@ public:
 	inline DenseMatrix<ElementType_Output> GetCol(int_max ColIndex) const;
 
 	template<typename ElementType_Output, int_max VectorFixedLength>
-	inline bool GetCol(int_max ColIndex, DenseVector<ElementType_Output, VectorFixedLength>& ColData) const;
+	inline void GetCol(int_max ColIndex, DenseVector<ElementType_Output, VectorFixedLength>& ColData) const;
 
 	// must use different GetCol for variable and fixed length DenseVector
 	template<typename ElementType_Output>
-	inline bool GetCol(int_max ColIndex, DenseVector<ElementType_Output>& ColData) const;
+	inline void GetCol(int_max ColIndex, DenseVector<ElementType_Output>& ColData) const;
 
 	template<typename ElementType_Output>
-	inline bool GetCol(int_max ColIndex, DenseMatrix<ElementType_Output>& ColData) const;
+	inline void GetCol(int_max ColIndex, DenseMatrix<ElementType_Output>& ColData) const;
 
 	template<typename ElementType_Output>
-	inline bool GetCol(int_max ColIndex, ElementType_Output* ColData) const;
+	inline void GetCol(int_max ColIndex, ElementType_Output* ColData) const;
 
     template<typename ElementType_Input>
-    inline bool SetCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData);
+	inline void SetCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
-	inline bool SetCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColData);
+	inline void SetCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColData);
 
     template<typename ElementType_Input>
-    inline bool SetCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColData);
+	inline void SetCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColData);
 
 	template<typename ElementType_Input>
-    inline bool SetCol(int_max ColIndex, const ElementType_Input* ColData);
+	inline void SetCol(int_max ColIndex, const ElementType_Input* ColData);
 	
-    inline bool FillCol(int_max ColIndex, const ElementType& Element);
+	inline void FillCol(int_max ColIndex, const ElementType& Element);
 
     template<typename ElementType_Input>
-    inline bool AppendCol(const std::initializer_list<ElementType_Input>& ColData);
+	inline void AppendCol(const std::initializer_list<ElementType_Input>& ColData);
 
     template<typename ElementType_Input, int_max TemplateVectorLength>
-	inline bool AppendCol(const DenseVector<ElementType_Input, TemplateVectorLength>& ColData);
+	inline void AppendCol(const DenseVector<ElementType_Input, TemplateVectorLength>& ColData);
 
     template<typename ElementType_Input>
-    inline bool AppendCol(const DenseMatrix<ElementType_Input>& ColData);
+	inline void AppendCol(const DenseMatrix<ElementType_Input>& ColData);
 
 	template<typename ElementType_Input>
-    inline bool AppendCol(const ElementType_Input* ColData, int_max Length);
+	inline void AppendCol(const ElementType_Input* ColData, int_max Length);
 
     template<typename ElementType_Input>
-    inline bool AppendCol(const ElementType_Input* ColData);
+	inline void AppendCol(const ElementType_Input* ColData);
 
-    inline bool DeleteCol(int_max ColIndex);
+	inline void DeleteCol(int_max ColIndex);
 
-    inline bool DeleteCol(const std::initializer_list<int_max>& ColIndexList);
+	inline void DeleteCol(const std::initializer_list<int_max>& ColIndexList);
 
 	template<int_max TemplateVectorLength>
-	inline bool DeleteCol(const DenseVector<int_max, TemplateVectorLength>& ColIndexList);
+	inline void DeleteCol(const DenseVector<int_max, TemplateVectorLength>& ColIndexList);
 
-    inline bool DeleteCol(const DenseMatrix<int_max>& ColIndexList);
+	inline void DeleteCol(const DenseMatrix<int_max>& ColIndexList);
 
-    inline bool DeleteCol(const int_max* ColIndexList, int_max ListLength);
+	inline void DeleteCol(const int_max* ColIndexList, int_max ListLength);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData);
+	inline void InsertCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
-	inline bool InsertCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColData);
+	inline void InsertCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColData);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColData);
+	inline void InsertCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColData);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(int_max ColIndex, const ElementType_Input* ColData, int_max Length);
+	inline void InsertCol(int_max ColIndex, const ElementType_Input* ColData, int_max Length);
 
     template<typename ElementType_Input>
-    inline bool InsertCol(int_max ColIndex, const ElementType_Input* ColData);
+	inline void InsertCol(int_max ColIndex, const ElementType_Input* ColData);
 
 	//---------------------- Get/Set/Fill/Append A Single Row, Delete Multi-Rows  ----------------------------------------//
 	
@@ -937,115 +928,115 @@ public:
 	inline DenseMatrix<ElementType_Output> GetRow(int_max RowIndex) const;
 
 	template<typename ElementType_Output, int_max VectorFixedLength>
-	inline bool GetRow(int_max RowIndex, DenseVector<ElementType_Output, VectorFixedLength>& RowData) const;
+	inline void GetRow(int_max RowIndex, DenseVector<ElementType_Output, VectorFixedLength>& RowData) const;
 
 	// muse use different GetRow
 	template<typename ElementType_Output>
-	inline bool GetRow(int_max RowIndex, DenseVector<ElementType_Output>& RowData) const;
+	inline void GetRow(int_max RowIndex, DenseVector<ElementType_Output>& RowData) const;
 
 	template<typename ElementType_Output>
-	inline bool GetRow(int_max RowIndex, DenseMatrix<ElementType_Output>& RowData) const;
+	inline void GetRow(int_max RowIndex, DenseMatrix<ElementType_Output>& RowData) const;
 
 	template<typename ElementType_Output>
-	inline bool GetRow(int_max RowIndex, ElementType_Output* RowData) const;
+	inline void GetRow(int_max RowIndex, ElementType_Output* RowData) const;
 
     template<typename ElementType_Input>
-    inline bool SetRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData);
+	inline void SetRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
-	inline bool SetRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowData);
+	inline void SetRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowData);
 
     template<typename ElementType_Input>
-    inline bool SetRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowData);
+	inline void SetRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input>
-    inline bool SetRow(int_max RowIndex, const ElementType_Input* RowData);
+	inline void SetRow(int_max RowIndex, const ElementType_Input* RowData);
 
-    inline bool FillRow(int_max RowIndex, const ElementType& Element);
+	inline void FillRow(int_max RowIndex, const ElementType& Element);
 
     template<typename ElementType_Input>
-    inline bool AppendRow(const std::initializer_list<ElementType_Input>& RowData);
+	inline void AppendRow(const std::initializer_list<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
-	inline bool AppendRow(const DenseVector<ElementType_Input, TemplateVectorLength>& RowData);
+	inline void AppendRow(const DenseVector<ElementType_Input, TemplateVectorLength>& RowData);
 
     template<typename ElementType_Input>
-    inline bool AppendRow(const DenseMatrix<ElementType_Input>& RowData);
+	inline void AppendRow(const DenseMatrix<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input>
-    inline bool AppendRow(const ElementType_Input* RowData, int_max Length);
+	inline void AppendRow(const ElementType_Input* RowData, int_max Length);
 
     template<typename ElementType_Input>
-    inline bool AppendRow(const ElementType_Input* RowData);
+	inline void AppendRow(const ElementType_Input* RowData);
 
-    inline bool DeleteRow(int_max RowIndex);
+	inline void DeleteRow(int_max RowIndex);
 
-    inline bool DeleteRow(const std::initializer_list<int_max>& RowIndexList);
+	inline void DeleteRow(const std::initializer_list<int_max>& RowIndexList);
 
 	template<int_max TemplateVectorLength>
-	inline bool DeleteRow(const DenseVector<int_max, TemplateVectorLength>& RowIndexList);
+	inline void DeleteRow(const DenseVector<int_max, TemplateVectorLength>& RowIndexList);
 
-    inline bool DeleteRow(const DenseMatrix<int_max>& RowIndexList);
+	inline void DeleteRow(const DenseMatrix<int_max>& RowIndexList);
 
-    inline bool DeleteRow(const int_max* RowIndexList, int_max ListLength);
+	inline void DeleteRow(const int_max* RowIndexList, int_max ListLength);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData);
+	inline void InsertRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
-	inline bool InsertRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowData);
+	inline void InsertRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowData);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowData);
+	inline void InsertRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowData);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(int_max RowIndex, const ElementType_Input* RowData, int_max Length);
+	inline void InsertRow(int_max RowIndex, const ElementType_Input* RowData, int_max Length);
 
     template<typename ElementType_Input>
-    inline bool InsertRow(int_max RowIndex, const ElementType_Input* RowData);
+	inline void InsertRow(int_max RowIndex, const ElementType_Input* RowData);
 
     //---------------------- Append, delete, insert element when matrix is vector -----------------//
     // if matrix is empty or has one element, then it will become row vector
     // if matrix is not vector, then MDK_Error
 
-    inline bool Append(ElementType Element);
+	inline void Append(ElementType Element);
 
     template<typename ElementType_Input>
-    inline bool Append(const std::initializer_list<ElementType_Input>& ElementData);
+	inline void Append(const std::initializer_list<ElementType_Input>& ElementData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
-	inline bool Append(const DenseVector<ElementType_Input, TemplateVectorLength>& ElementData);
+	inline void Append(const DenseVector<ElementType_Input, TemplateVectorLength>& ElementData);
 
     template<typename ElementType_Input>
-    inline bool Append(const DenseMatrix<ElementType_Input>& ElementData);
+	inline void Append(const DenseMatrix<ElementType_Input>& ElementData);
 
     template<typename ElementType_Input>
-    inline bool Append(const ElementType_Input* ElementData, int_max Length);
+	inline void Append(const ElementType_Input* ElementData, int_max Length);
 
-    inline bool Delete(int_max LinearIndex);
+	inline void Delete(int_max LinearIndex);
 
-    inline bool Delete(const std::initializer_list<int_max>& LinearIndexList);
+	inline void Delete(const std::initializer_list<int_max>& LinearIndexList);
 
 	template<int_max TemplateVectorLength>
-	inline bool Delete(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList);
+	inline void Delete(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList);
 
-    inline bool Delete(const DenseMatrix<int_max>& LinearIndexList);
+	inline void Delete(const DenseMatrix<int_max>& LinearIndexList);
 
-    inline bool Delete(const int_max* LinearIndexList, int_max ListLength);
+	inline void Delete(const int_max* LinearIndexList, int_max ListLength);
 
-    inline bool Insert(int_max LinearIndex, const ElementType& Element);
+	inline void Insert(int_max LinearIndex, const ElementType& Element);
 
     template<typename ElementType_Input>
-    inline bool Insert(int_max LinearIndex, const std::initializer_list<ElementType_Input>& ElementData);
+	inline void Insert(int_max LinearIndex, const std::initializer_list<ElementType_Input>& ElementData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
-	inline bool Insert(int_max LinearIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ElementData);
+	inline void Insert(int_max LinearIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ElementData);
 
     template<typename ElementType_Input>
-    inline bool Insert(int_max LinearIndex, const DenseMatrix<ElementType_Input>& ElementData);
+	inline void Insert(int_max LinearIndex, const DenseMatrix<ElementType_Input>& ElementData);
 
     template<typename ElementType_Input>
-    inline bool Insert(int_max LinearIndex, const ElementType_Input* ElementData, int_max Length);
+	inline void Insert(int_max LinearIndex, const ElementType_Input* ElementData, int_max Length);
 
 	//---------------------- Get/Set the diagonal ----------------------------------------//
 
@@ -1053,31 +1044,31 @@ public:
 	inline DenseMatrix<ElementType_Output> GetDiagonal() const;
 
 	template<typename ElementType_Output, int_max VectorFixedLength>
-	inline bool GetDiagonal(DenseVector<ElementType_Output, VectorFixedLength>& RowData) const;
+	inline void GetDiagonal(DenseVector<ElementType_Output, VectorFixedLength>& RowData) const;
 
 	// muse use different GetDiagonal
 	template<typename ElementType_Output>
-	inline bool GetDiagonal(DenseVector<ElementType_Output>& RowData) const;
+	inline void GetDiagonal(DenseVector<ElementType_Output>& RowData) const;
 
 	template<typename ElementType_Output>
-	inline bool GetDiagonal(DenseMatrix<ElementType_Output>& DiagonalData) const;
+	inline void GetDiagonal(DenseMatrix<ElementType_Output>& DiagonalData) const;
 
 	template<typename ElementType_Output>
-	inline bool GetDiagonal(ElementType_Output* DiagonalData) const;
+	inline void GetDiagonal(ElementType_Output* DiagonalData) const;
 
     template<typename ElementType_Input>
-    inline bool SetDiagonal(const std::initializer_list<ElementType_Input>& DiagonalData);
+	inline void SetDiagonal(const std::initializer_list<ElementType_Input>& DiagonalData);
 
 	template<typename ElementType_Input, int_max TemplateVectorLength>
-	inline bool SetDiagonal(const DenseVector<ElementType_Input, TemplateVectorLength>& DiagonalData);
+	inline void SetDiagonal(const DenseVector<ElementType_Input, TemplateVectorLength>& DiagonalData);
 
     template<typename ElementType_Input>
-    inline bool SetDiagonal(const DenseMatrix<ElementType_Input>& DiagonalData);
+	inline void SetDiagonal(const DenseMatrix<ElementType_Input>& DiagonalData);
 
 	template<typename ElementType_Input>
-	inline bool SetDiagonal(const ElementType_Input* DiagonalData);
+	inline void SetDiagonal(const ElementType_Input* DiagonalData);
 
-    inline bool FillDiagonal(const ElementType& Element);
+	inline void FillDiagonal(const ElementType& Element);
 
 	//---------------------- Matrix {+= -= *= /=} Matrix ----------------------------------------//
 
@@ -1179,30 +1170,30 @@ public:
 
     //-------------------- general element operation in place : Object.ElementOperationInPlace modify the object itself ---------------//
 
-    inline bool ElementOperationInPlace(const char* OperationName);
+	inline void ElementOperationInPlace(const char* OperationName);
 
-    inline bool ElementOperationInPlace(const String& OperationName);
-
-    template<typename OperationType>
-    inline bool ElementOperationInPlace(OperationType Operation);
-
-    inline bool ElementOperationInPlace(const char OperationName, const DenseMatrix<ElementType>& InputMatrix);
-
-    inline bool ElementOperationInPlace(const char* OperationName, const DenseMatrix<ElementType>& InputMatrix);
-
-    inline bool ElementOperationInPlace(const String& OperationName, const DenseMatrix<ElementType>& InputMatrix);
+	inline void ElementOperationInPlace(const String& OperationName);
 
     template<typename OperationType>
-    inline bool ElementOperationInPlace(OperationType Operation, const DenseMatrix<ElementType>& InputMatrix);
+	inline void ElementOperationInPlace(OperationType Operation);
 
-    inline bool ElementOperationInPlace(const char OperationName, const ElementType& Element);
+	inline void ElementOperationInPlace(const char OperationName, const DenseMatrix<ElementType>& InputMatrix);
 
-    inline bool ElementOperationInPlace(const char* OperationName, const ElementType& Element);
+	inline void ElementOperationInPlace(const char* OperationName, const DenseMatrix<ElementType>& InputMatrix);
 
-    inline bool ElementOperationInPlace(const String& OperationName, const ElementType& Element);
+	inline void ElementOperationInPlace(const String& OperationName, const DenseMatrix<ElementType>& InputMatrix);
 
     template<typename OperationType>
-    inline bool ElementOperationInPlace(OperationType Operation, const ElementType& Element);
+	inline void ElementOperationInPlace(OperationType Operation, const DenseMatrix<ElementType>& InputMatrix);
+
+	inline void ElementOperationInPlace(const char OperationName, const ElementType& Element);
+
+	inline void ElementOperationInPlace(const char* OperationName, const ElementType& Element);
+
+	inline void ElementOperationInPlace(const String& OperationName, const ElementType& Element);
+
+    template<typename OperationType>
+	inline void ElementOperationInPlace(OperationType Operation, const ElementType& Element);
 
     //-------------------- general Col operation : output a new col-matrix ------------------------------------------//
 
@@ -1233,30 +1224,30 @@ public:
 
     //-------------------- general col operation in place : Object.ColOperationInPlace modify the object itself ---------------//
 
-    inline bool ColOperationInPlace(int_max ColIndex, const char* OperationName, bool EnableBoundCheck = true);
+	inline void ColOperationInPlace(int_max ColIndex, const char* OperationName, bool EnableBoundCheck = true);
 
-    inline bool ColOperationInPlace(int_max ColIndex, const String& OperationName, bool EnableBoundCheck = true);
-
-    template<typename OperationType>
-    inline bool ColOperationInPlace(int_max ColIndex, OperationType Operation, bool EnableBoundCheck = true);
-
-    inline bool ColOperationInPlace(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
-
-    inline bool ColOperationInPlace(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
-
-    inline bool ColOperationInPlace(int_max ColIndex, const String& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+	inline void ColOperationInPlace(int_max ColIndex, const String& OperationName, bool EnableBoundCheck = true);
 
     template<typename OperationType>
-    inline bool ColOperationInPlace(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+	inline void ColOperationInPlace(int_max ColIndex, OperationType Operation, bool EnableBoundCheck = true);
 
-    inline bool ColOperationInPlace(int_max ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+	inline void ColOperationInPlace(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
-    inline bool ColOperationInPlace(int_max ColIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+	inline void ColOperationInPlace(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
-    inline bool ColOperationInPlace(int_max ColIndex, const String& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+	inline void ColOperationInPlace(int_max ColIndex, const String& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
     template<typename OperationType>
-    inline bool ColOperationInPlace(int_max ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
+	inline void ColOperationInPlace(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+
+	inline void ColOperationInPlace(int_max ColIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+	inline void ColOperationInPlace(int_max ColIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+	inline void ColOperationInPlace(int_max ColIndex, const String& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+    template<typename OperationType>
+	inline void ColOperationInPlace(int_max ColIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
 
     //-------------------- general Row operation : output a new row-matrix ------------------------------------------//
 
@@ -1287,30 +1278,30 @@ public:
 
     //-------------------- general row operation in place : Object.RowOperationInPlace modify the object itself ---------------//
 
-    inline bool RowOperationInPlace(int_max RowIndex, const char* OperationName, bool EnableBoundCheck = true);
+	inline void RowOperationInPlace(int_max RowIndex, const char* OperationName, bool EnableBoundCheck = true);
 
-    inline bool RowOperationInPlace(int_max RowIndex, const String& OperationName, bool EnableBoundCheck = true);
-
-    template<typename OperationType>
-    inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, bool EnableBoundCheck = true);
-
-    inline bool RowOperationInPlace(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
-
-    inline bool RowOperationInPlace(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
-
-    inline bool RowOperationInPlace(int_max RowIndex, const String& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+	inline void RowOperationInPlace(int_max RowIndex, const String& OperationName, bool EnableBoundCheck = true);
 
     template<typename OperationType>
-    inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+	inline void RowOperationInPlace(int_max RowIndex, OperationType Operation, bool EnableBoundCheck = true);
 
-    inline bool RowOperationInPlace(int_max RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+	inline void RowOperationInPlace(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
-    inline bool RowOperationInPlace(int_max RowIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+	inline void RowOperationInPlace(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
-    inline bool RowOperationInPlace(int_max RowIndex, const String& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+	inline void RowOperationInPlace(int_max RowIndex, const String& OperationName, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
 
     template<typename OperationType>
-    inline bool RowOperationInPlace(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
+	inline void RowOperationInPlace(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix, bool EnableBoundCheck = true);
+
+	inline void RowOperationInPlace(int_max RowIndex, const char OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+	inline void RowOperationInPlace(int_max RowIndex, const char* OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+	inline void RowOperationInPlace(int_max RowIndex, const String& OperationName, const ElementType& Element, bool EnableBoundCheck = true);
+
+    template<typename OperationType>
+	inline void RowOperationInPlace(int_max RowIndex, OperationType Operation, const ElementType& Element, bool EnableBoundCheck = true);
 
     //------------------------ find element : return linear index ----------------------------//
 

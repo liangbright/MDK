@@ -121,16 +121,7 @@ template<typename ElementType>
 inline 
 bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>& OutputMatrix) const
 {
-    if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
-    {
-        auto IsOK = OutputMatrix.FastResize(m_RowNumber, m_ColNumber);
-
-        if (IsOK == false)
-        {
-            MDK_Error("Size does not match and can not be changed @ mdkDenseGlueMatrixForMultiplication::CreateDenseMatrix(OutputMatrix)")
-            return false;
-        }
-    }
+	OutputMatrix.FastResize(m_RowNumber, m_ColNumber);
 
     auto MatrixNumber = int_max(m_SourceMatrixSharedCopyList.size());
 

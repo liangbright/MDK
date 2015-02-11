@@ -50,18 +50,7 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<Elemen
         return false;
     }
 
-    auto SizeC = OutputMatrixC.GetSize();
-
-    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeA.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
-        
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, MatrixB)")
-            return false;
-        }        
-    }
+	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
@@ -133,17 +122,7 @@ bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
         return false;
     }
 
-    auto SizeC = OutputMatrixC.GetSize();    
-
-    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeA.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, MatrixB)")
-            return false;
-        }
-    }
+	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
@@ -235,15 +214,7 @@ bool MatrixMultiply_slow(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
         }
     }
 
-    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeB.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)")
-            return false;
-        }
-    }
+	OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
 
     auto C_begin = OutputMatrixC.GetElementPointer();
     auto A_begin = MatrixA.GetElementPointer();
@@ -373,15 +344,7 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
         }
     }
 
-    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeB.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)")
-            return false;
-        }
-    }
+	OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
 
     // get non-const pointer
     auto ptrA = const_cast<ElementType*>(MatrixA.GetElementPointer());
@@ -442,19 +405,8 @@ bool MatrixElementMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseM
         MDK_Error("MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)")
         return false;
     }
-
-    auto SizeC = OutputMatrixC.GetSize();
     
-    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeB.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
-        
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)")
-            return false;
-        }        
-    }
+	OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
@@ -526,17 +478,7 @@ bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
         return false;
     }
 
-    auto SizeC = OutputMatrixC.GetSize();
-
-    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeA.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, MatrixB)")
-            return false;
-        }
-    }
+	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
@@ -592,17 +534,7 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& Eleme
         return false;
     }
 
-    auto SizeC = OutputMatrixC.GetSize();
-
-    if (SizeC.RowNumber != SizeB.RowNumber || SizeC.ColNumber != SizeB.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, ElementA, MatrixB)")
-            return false;
-        }
-    }
+	OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
@@ -649,17 +581,7 @@ bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& 
         return false;
     }
 
-    auto SizeC = OutputMatrixC.GetSize();
-
-    if (SizeC.RowNumber != SizeB.RowNumber || SizeC.ColNumber != SizeB.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, ElementA, MatrixB)")
-            return false;
-        }
-    }
+	OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
@@ -706,17 +628,7 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& 
         return false;
     }
 
-    auto SizeC = OutputMatrixC.GetSize();
-
-    if (SizeC.RowNumber != SizeB.RowNumber || SizeC.ColNumber != SizeB.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, ElementA, MatrixB)")
-            return false;
-        }
-    }
+	OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
@@ -781,17 +693,7 @@ bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const ElementT
         return false;
     }
 
-    auto SizeC = OutputMatrixC.GetSize();
-
-    if (SizeC.RowNumber != SizeB.RowNumber || SizeC.ColNumber != SizeB.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, ElementA, MatrixB)")
-            return false;
-        }
-    }
+	OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
@@ -839,17 +741,7 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<Elemen
         return false;
     }
 
-    auto SizeC = OutputMatrixC.GetSize();
-
-    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeA.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, ElementB)")
-            return false;
-        }
-    }
+	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
@@ -896,17 +788,7 @@ bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
         return false;
     }
 
-    auto SizeC = OutputMatrixC.GetSize();
-
-    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeA.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, ElementB)")
-            return false;
-        }
-    }
+	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
@@ -953,17 +835,7 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
         return false;
     }
 
-    auto SizeC = OutputMatrixC.GetSize();
-
-    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeA.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, ElementB)")
-            return false;
-        }
-    }
+	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     //---------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1030,17 +902,7 @@ bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
         return false;
     }
 
-    auto SizeC = OutputMatrixC.GetSize();
-
-    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeA.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, ElementB)")
-            return false;
-        }
-    }
+	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
@@ -1142,21 +1004,10 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrix, OperationTyp
     if (InputSize.RowNumber == 0)
     {
         MDK_Error("InputMatrix is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrix, Operation, InputMatrix)")
-
         return false;
     }
 
-    auto OutputSize = OutputMatrix.GetSize();
-
-    if (InputSize.RowNumber != OutputSize.RowNumber || InputSize.ColNumber != OutputSize.ColNumber)
-    {
-        auto IsOK = OutputMatrix.FastResize(InputSize.RowNumber, InputSize.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrix Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrix, Operation, InputMatrix)")
-            return false;
-        }
-    }
+	OutputMatrix.FastResize(InputSize.RowNumber, InputSize.ColNumber);
 
     auto ptrOutput = OutputMatrix.GetElementPointer();
     auto ptrInput = InputMatrix.GetElementPointer();
@@ -1341,17 +1192,7 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
         return false;
     }
 
-    auto SizeC = OutputMatrixC.GetSize();
-
-    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeA.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrixC, Operation, InputMatrixA, InputMatrixB)")
-            return false;
-        }
-    }
+	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = InputMatrixA.GetElementPointer();
@@ -1527,17 +1368,7 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
         return false;
     }
 
-    auto SizeC = OutputMatrixC.GetSize();
-
-    if (SizeC.RowNumber != SizeA.RowNumber || SizeC.ColNumber != SizeA.ColNumber)
-    {
-        auto IsOK = OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("OutputMatrixC Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrixC, Operation, InputMatrixA, InputElementB)")
-            return false;
-        }
-    }
+	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = InputMatrixA.GetElementPointer();
@@ -2678,7 +2509,7 @@ DenseMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& Coe
 
 template<typename ElementType>
 inline 
-bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix, 
+void MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
                          const std::vector<ElementType>& CoefList, 
                          const std::vector<DenseMatrix<ElementType>>& MatrixList,
                          const ElementType& IndependentElement)
@@ -2690,13 +2521,13 @@ bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
     if (MatrixNumber != CoefNumber)
     {
         MDK_Error("MatrixNumber != CoefNumber @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(...)")
-        return false;
+        return;
     }
 
     if (MatrixNumber == 0)
     {
         MDK_Error("MatrixList is empty @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(...)")
-        return false;
+        return;
     }
 
     auto Size = MatrixList[0].GetSize();
@@ -2706,18 +2537,18 @@ bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
         if (Size.RowNumber != MatrixList[k].GetRowNumber() || Size.ColNumber != MatrixList[k].GetColNumber())
         {
             MDK_Error("Size is not the same in MatrixList @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(...)")
-            return false;
+            return;
         }
     }
 
     if (Size.RowNumber != OutputMatrix.GetRowNumber() || Size.ColNumber != OutputMatrix.GetColNumber())
     {
-        auto IsOK = OutputMatrix.FastResize(Size.RowNumber, Size.ColNumber);
-        if (IsOK == false)
+        if (OutputMatrix.IsSizeFixed() == true)
         {
-            MDK_Error("OutputMatrix Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(...)")
-            return false;
+            MDK_Error("OutputMatrix Size can not change @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(...)")
+            return;
         }
+		OutputMatrix.FastResize(Size.RowNumber, Size.ColNumber);
     }
 
 	auto OutputMatrixElementPointer = OutputMatrix.GetElementPointer();
@@ -2731,7 +2562,6 @@ bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 	}
 
 	MatrixLinearCombine(OutputMatrixElementPointer, ElementNumber, CoefList, MatrixElementPointerList, IndependentElement);
-	return true;
 }
 
 
@@ -2749,7 +2579,7 @@ DenseMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementType>& Coe
 
 template<typename ElementType>
 inline 
-bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
+void MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 						 const std::vector<ElementType>& CoefList,
 						 const std::vector<const DenseMatrix<ElementType>*>& MatrixList,
 						 const ElementType& IndependentElement)
@@ -2761,13 +2591,13 @@ bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 	if (MatrixNumber != CoefNumber)
 	{
 		MDK_Error("MatrixNumber != CoefNumber @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, CoefList, MatrixList, IndependentElement)")
-		return false;
+		return;
 	}
 
 	if (MatrixNumber == 0)
 	{
 		MDK_Error("MatrixList is empty @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, CoefList, MatrixList, IndependentElement)")
-		return false;
+		return;
 	}
 
 	auto Size = MatrixList[0]->GetSize();
@@ -2777,18 +2607,18 @@ bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 		if (Size.RowNumber != MatrixList[k]->GetRowNumber() || Size.ColNumber != MatrixList[k]->GetColNumber())
 		{
 			MDK_Error("Size is not the same in MatrixList @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, CoefList, MatrixList, IndependentElement)")
-			return false;
+			return;
 		}
 	}
 
 	if (Size.RowNumber != OutputMatrix.GetRowNumber() || Size.ColNumber != OutputMatrix.GetColNumber())
 	{
-		auto IsOK = OutputMatrix.FastResize(Size.RowNumber, Size.ColNumber);
-		if (IsOK == false)
+		if (OutputMatrix.IsSizeFixed() == true)
 		{
-			MDK_Error("OutputMatrix Size does not match and can not change @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList, IndependentElement)")
-			return false;
+			MDK_Error("OutputMatrix Size can not change @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList, IndependentElement)")
+			return;
 		}
+		OutputMatrix.FastResize(Size.RowNumber, Size.ColNumber);
 	}
 
 	auto OutputMatrixElementPointer = OutputMatrix.GetElementPointer();
@@ -2802,7 +2632,6 @@ bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 	}
 
 	MatrixLinearCombine(OutputMatrixElementPointer, ElementNumber, CoefList, MatrixElementPointerList, IndependentElement);
-	return true;
 }
 
 

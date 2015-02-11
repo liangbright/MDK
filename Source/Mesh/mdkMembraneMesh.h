@@ -154,18 +154,18 @@ public:
 
     inline void Clear();
 
-	inline void Copy(const MembraneMesh* InputMesh);// Copy(nullptr) is Clear()
     inline void Copy(const MembraneMesh& InputMesh);
 	inline void Copy(MembraneMesh&& InputMesh);
 	
-	inline bool Share(MembraneMesh* InputMesh);// Share(nullptr) is invalid
 	inline void Share(MembraneMesh& InputMesh);
-
-	inline bool ForceShare(const MembraneMesh* InputMesh);// ForceShare(nullptr) is invalid
     inline void ForceShare(const MembraneMesh& InputMesh);
+
+	void Recreate();
 
     //-------------------------------------------------------------------
     inline bool IsEmpty() const;
+	inline bool IsPureEmpty() const;
+
     inline int_max GetPointNumber() const;
     inline int_max GetEdgeNumber() const;
     inline int_max GetDirectedEdgeNumber() const;
@@ -346,7 +346,7 @@ public:
 
 	//------------ ReserveCapacity, ReleaseUnusedCapacity -------------------------------------//
 
-	bool ReserveCapacity(int_max PointNumber, int_max EdgeNumber, int_max CellNumber);
+	void ReserveCapacity(int_max PointNumber, int_max EdgeNumber, int_max CellNumber);
 
 	void ReleaseUnusedCapacity();
 
@@ -384,27 +384,30 @@ public:
     // Delete Mesh Item ----------------------------------------------------------------------------//
 
     // m_MeshData->CellList[CellIndex].Clear() only release memory
-    // this function will modify each DirectedEdge of the Cell, and modify any information related to the cell
+    // this function will delete each DirectedEdge of the Cell, and modify any information related to the cell
     // CellHandle and CellID of the cell become invalid after the cell is deleted
-    bool DeleteCell(CellHandleType CellHandle);
-    bool DeleteCell(int_max CellID);
+	void DeleteCell(CellHandleType CellHandle);
+	void DeleteCell(int_max CellID);
 
     // m_MeshData->EdgeList[EdgeIndex].Clear() only release memory
     // this function will modify any information related to the Edge
     // EdgeHandle and EdgeID of the edge become invalid after the edge is deleted
     // Check is performed in the function to make sure an edge can not be deleted if any adjacent cell exit
-    bool DeleteEdge(EdgeHandleType EdgeHandle);
-    bool DeleteEdge(int_max EdgeID);
+	//
+	// note:  Call Edge(EdgeHandle).GetAdjacentCellNumber() to check if the edge can be deleted or not
+	void DeleteEdge(EdgeHandleType EdgeHandle);
+	void DeleteEdge(int_max EdgeID);
 
     // m_MeshData->PointList[PointIndex].Cear() only release memory
     // this function will modify any information related to the point
-    // Check is performed in the function to make sure a point can not be deleted if any adjacent edge exit
+    // Check is performed in the function to make sure a point can not be deleted if any adjacent edge exit	
     // PointHandle and PointID of the point become invalid after the point is deleted
-    bool DeletePoint(PointHandleType PointHandle);
-    bool DeletePoint(const DenseVector<PointHandleType>& PointHandleList);
-
-    bool DeletePoint(int_max PointID);
-    bool DeletePoint(const DenseVector<int_max>& PointIDList);
+	//
+	// note: Call Point(PointHandle).IsOnEdge() to check if the point can be deleted or not
+	void DeletePoint(PointHandleType PointHandle);
+	void DeletePoint(const DenseVector<PointHandleType>& PointHandleList);
+    void DeletePoint(int_max PointID);
+    void DeletePoint(const DenseVector<int_max>& PointIDList);
 
     // remove deleted item from object list ----------------------------------------------------------//
     // attention: after this function is called, handle may become invalid, but, ID will not change

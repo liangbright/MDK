@@ -51,19 +51,19 @@ void PolygonMesh<MeshAttributeType>::operator=(PolygonMesh<MeshAttributeType>&& 
 //------------ Construct from input data ------------------------------------//
 
 template<typename MeshAttributeType>
-bool PolygonMesh<MeshAttributeType>::Construct(DenseMatrix<ScalarType> InputPointPositionMatrix,
+void PolygonMesh<MeshAttributeType>::Construct(DenseMatrix<ScalarType> InputPointPositionMatrix,
                                                const ObjectArray<DenseVector<int_max>>& InputCellTable)
 {
 	if (InputPointPositionMatrix.IsEmpty() == true || InputCellTable.IsEmpty() == true)
     {
         MDK_Error("InputPointPositionMatrix or InputCellTable is empty @ PolygonMesh::Construct(...)")
-        return false;
+        return;
     }
 
 	if (InputPointPositionMatrix.GetRowNumber() != 3 || 3 * InputCellTable.GetElementNumber() < InputPointPositionMatrix.GetColNumber())
     {
         MDK_Error("InputPointPositionMatrix or InputCellTable is invalid @ PolygonMesh::Construct(...)")
-        return false;
+        return;
     }
     //--------------------------------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ bool PolygonMesh<MeshAttributeType>::Construct(DenseMatrix<ScalarType> InputPoin
         if (this->IsValidHandle(PointHandleList[k]) == false)
         {
 			MDK_Error("Somthing is wrong with PointHandleList @ PolygonMesh::Construct(...)")
-            return false;
+            return;
         }
     }
 
@@ -83,8 +83,6 @@ bool PolygonMesh<MeshAttributeType>::Construct(DenseMatrix<ScalarType> InputPoin
         auto PointHandleList_k = PointHandleList.GetSubSet(InputCellTable[k]);
         this->AddCellByPoint(PointHandleList_k);
     }
-
-    return true;
 }
 
 

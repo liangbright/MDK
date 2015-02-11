@@ -472,7 +472,7 @@ inline DenseMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementTyp
                                                     const ElementType& IndependentElement);
 
 template<typename ElementType>
-inline bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
+inline void MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
                                 const std::vector<ElementType>& CoefList, 
                                 const std::vector<const DenseMatrix<ElementType>*>& MatrixList,
                                 const ElementType& IndependentElement);
@@ -483,7 +483,7 @@ inline DenseMatrix<ElementType> MatrixLinearCombine(const std::vector<ElementTyp
                                                     const ElementType& IndependentElement);
 
 template<typename ElementType>
-inline bool MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
+inline void MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
                                 const std::vector<ElementType>& CoefList, 
                                 const std::vector<const DenseMatrix<ElementType>*>& MatrixList,
                                 const ElementType& IndependentElement);

@@ -122,15 +122,7 @@ template<typename ElementType>
 inline 
 bool DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>& OutputMatrix) const
 {
-    if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
-    {
-        auto IsOK = OutputMatrix.FastResize(m_RowNumber, m_ColNumber);
-        if (IsOK == false)
-        {
-            MDK_Error("Size does not match and can not be changed @ mdkDenseGlueMatrixForLinearCombination::CreateDenseMatrix(OutputMatrix)")
-            return false;
-        }
-    }
+	OutputMatrix.FastResize(m_RowNumber, m_ColNumber);
 
     int_max MatrixNumber = m_SourceMatrixSharedCopyList.size();
     if (MatrixNumber == 0)
@@ -139,7 +131,8 @@ bool DenseGlueMatrixForLinearCombination<ElementType>::CreateDenseMatrix(DenseMa
         return false;
     }
 
-	return MatrixLinearCombine(OutputMatrix, m_ElementList_Coef, m_SourceMatrixSharedCopyList, m_IndependentElement);
+	MatrixLinearCombine(OutputMatrix, m_ElementList_Coef, m_SourceMatrixSharedCopyList, m_IndependentElement);
+	return true;
 }
 
 
