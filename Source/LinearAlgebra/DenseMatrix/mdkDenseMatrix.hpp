@@ -1706,6 +1706,22 @@ bool DenseMatrix<ElementType>::IsDataInInternalArray() const
 
 
 template<typename ElementType>
+inline 
+std::vector<ElementType>& DenseMatrix<ElementType>::InternalArray()
+{
+	return m_MatrixData->StdVector;
+}
+
+
+template<typename ElementType>
+inline 
+const std::vector<ElementType>& DenseMatrix<ElementType>::InternalArray() const
+{
+	return m_MatrixData->StdVector;
+}
+
+
+template<typename ElementType>
 inline
 MatrixSize DenseMatrix<ElementType>::GetSize() const
 {
@@ -2433,7 +2449,6 @@ DenseMatrix<ElementType>::operator()(const DenseMatrix<int_max>& LinearIndexList
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
-
     return tempShadowMatrix;
 }
 
@@ -2467,7 +2482,6 @@ DenseMatrix<ElementType>::operator()(const DenseMatrix<int_max>& LinearIndexList
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
-
     return tempShadowMatrix;
 }
 
@@ -2479,7 +2493,6 @@ DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::operator()(const MDK_Symbol_ALL& ALL_Symbol)
 {
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -2490,7 +2503,6 @@ const DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::operator()(const MDK_Symbol_ALL& ALL_Symbol) const
 {
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -2520,7 +2532,6 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int_max>& LinearIndexLi
     }
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
-
     return tempShadowMatrix;
 }
 
@@ -2550,7 +2561,6 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int_max>& LinearIndexLi
     }
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
-
     return tempShadowMatrix;
 }
 
@@ -2580,7 +2590,6 @@ DenseMatrix<ElementType>::at(DenseVector<int_max> LinearIndexList)
     }
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, std::move(LinearIndexList.StdVector()));
-
     return tempShadowMatrix;
 }
 
@@ -2610,7 +2619,6 @@ DenseMatrix<ElementType>::at(DenseVector<int_max> LinearIndexList) const
     }
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, std::move(LinearIndexList.StdVector()));
-
     return tempShadowMatrix;
 }
 
@@ -2669,7 +2677,6 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& LinearIndexList)
     }
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
-
     return tempShadowMatrix;
 }
 
@@ -2682,9 +2689,7 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& LinearIndexList) const
     if (LinearIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: LinearIndexList) const")
-
         DenseShadowMatrix<ElementType> EmptyShadowMatrix;
-
         return EmptyShadowMatrix;
     }
 
@@ -2708,7 +2713,6 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& LinearIndexList) const
     }
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
-
     return tempShadowMatrix;
 }
 
@@ -2719,7 +2723,6 @@ DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol)
 {
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -2730,7 +2733,6 @@ const DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol) const
 {
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -2777,7 +2779,6 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int_max>& RowIn
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
-
     return tempShadowMatrix;
 }
 
@@ -2821,7 +2822,6 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int_max>& RowIn
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ColIndexList);
-
     return tempShadowMatrix;
 }
 
@@ -2855,7 +2855,6 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int_max>& RowIn
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -2889,7 +2888,6 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int_max>& RowIn
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList, ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -2923,7 +2921,6 @@ DenseMatrix<ElementType>::operator()(const MDK_Symbol_ALL& ALL_Symbol, const std
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
-
     return tempShadowMatrix;
 }
 
@@ -2957,7 +2954,6 @@ DenseMatrix<ElementType>::operator()(const MDK_Symbol_ALL& ALL_Symbol, const std
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList);
-
     return tempShadowMatrix;
 }
 
@@ -3001,7 +2997,6 @@ DenseMatrix<ElementType>::operator()(DenseVector<int_max> RowIndexList, DenseVec
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, std::move(RowIndexList.StdVector()), std::move(ColIndexList.StdVector()));
-
     return tempShadowMatrix;
 }
 
@@ -3045,7 +3040,6 @@ DenseMatrix<ElementType>::operator()(DenseVector<int_max> RowIndexList, DenseVec
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, std::move(RowIndexList.StdVector), std::move(ColIndexList.StdVector()));
-
     return tempShadowMatrix;
 }
 
@@ -3079,7 +3073,6 @@ DenseMatrix<ElementType>::operator()(DenseVector<int_max> RowIndexList, const MD
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, std::move(RowIndexList.StdVector()), ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -3113,7 +3106,6 @@ DenseMatrix<ElementType>::operator()(DenseVector<int_max> RowIndexList, const MD
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, std::move(RowIndexList.StdVector()), ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -3147,7 +3139,6 @@ DenseMatrix<ElementType>::operator()(const MDK_Symbol_ALL& ALL_Symbol, DenseVect
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, std::move(ColIndexList.StdVector()));
-
     return tempShadowMatrix;
 }
 
@@ -3181,7 +3172,6 @@ DenseMatrix<ElementType>::operator()(const MDK_Symbol_ALL& ALL_Symbol, DenseVect
 #endif //MDK_DEBUG_DenseMatrix_Operator_CheckBound
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, std::move(ColIndexList.StdVector()));
-
     return tempShadowMatrix;
 }
 
@@ -3291,7 +3281,6 @@ DenseMatrix<ElementType>::operator()(const DenseMatrix<int_max>& RowIndexList, c
 	ColIndexList_temp = ColIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList_temp.StdVector(), ColIndexList_temp.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -3339,7 +3328,6 @@ DenseMatrix<ElementType>::operator()(const DenseMatrix<int_max>& RowIndexList, c
 	ColIndexList_temp = ColIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList_temp.StdVector(), ColIndexList_temp.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -3377,7 +3365,6 @@ DenseMatrix<ElementType>::operator()(const DenseMatrix<int_max>& RowIndexList, c
 	DenseVector<int_max> RowIndexList_temp = RowIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList_temp.StdVector(), ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -3415,7 +3402,6 @@ DenseMatrix<ElementType>::operator()(const DenseMatrix<int_max>& RowIndexList, c
 	DenseVector<int_max> RowIndexList_temp = RowIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList_temp.StdVector(), ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -3453,7 +3439,6 @@ DenseMatrix<ElementType>::operator()(const MDK_Symbol_ALL& ALL_Symbol, const Den
 	DenseVector<int_max> ColIndexList_temp = ColIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList_temp.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -3491,7 +3476,6 @@ DenseMatrix<ElementType>::operator()(const MDK_Symbol_ALL& ALL_Symbol, const Den
 	DenseVector<int_max> ColIndexList_temp = ColIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList_temp.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -3536,7 +3520,6 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int_max>& RowIndexList,
 	ColIndexList_temp = ColIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList_temp.StdVector(), ColIndexList_temp.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -3580,7 +3563,6 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int_max>& RowIndexList,
 	ColIndexList_temp = ColIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList_temp.StdVector(), ColIndexList_temp.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -3612,7 +3594,6 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int_max>& RowIndexList,
 	DenseVector<int_max> RowIndexList_temp = RowIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList_temp.StdVector(), ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -3644,7 +3625,6 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int_max>& RowIndexList,
 	DenseVector<int_max> RowIndexList_temp = RowIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList_temp.StdVector(), ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -3676,7 +3656,6 @@ DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol, const std::initia
 	DenseVector<int_max> ColIndexList_temp = ColIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList_temp.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -3708,7 +3687,6 @@ DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol, const std::initia
 	DenseVector<int_max> ColIndexList_temp = ColIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList_temp.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -3748,7 +3726,6 @@ DenseMatrix<ElementType>::at(DenseVector<int_max> RowIndexList, DenseVector<int_
     }
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList.StdVector(), ColIndexList.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -3788,7 +3765,6 @@ DenseMatrix<ElementType>::at(DenseVector<int_max> RowIndexList, DenseVector<int_
     }
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList.StdVector(), ColIndexList.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -3818,7 +3794,6 @@ DenseMatrix<ElementType>::at(DenseVector<int_max> RowIndexList, const MDK_Symbol
     }
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList.StdVector(), ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -3848,7 +3823,6 @@ DenseMatrix<ElementType>::at(DenseVector<int_max> RowIndexList, const MDK_Symbol
     }
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList.StdVector(), ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -3878,7 +3852,6 @@ DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol, DenseVector<int_m
     }
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -3908,7 +3881,6 @@ DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol, DenseVector<int_m
     }
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -3983,9 +3955,7 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& RowIndexList, const Den
     if (RowIndexList.IsVector() == false || ColIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: RowIndexList, ColIndexList)")
-
         DenseShadowMatrix<ElementType> EmptyShadowMatrix;
-
         return EmptyShadowMatrix;
     }
 
@@ -4016,7 +3986,6 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& RowIndexList, const Den
 	ColIndexList_temp = ColIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList_temp.StdVector(), ColIndexList_temp.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -4029,9 +3998,7 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& RowIndexList, const Den
      if (RowIndexList.IsVector() == false || ColIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: RowIndexList, ColIndexList)")
-
         DenseShadowMatrix<ElementType> EmptyShadowMatrix;
-
         return EmptyShadowMatrix;
     }
 
@@ -4062,7 +4029,6 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& RowIndexList, const Den
 	ColIndexList_temp = ColIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList_temp.StdVector(), ColIndexList_temp.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -4075,9 +4041,7 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& RowIndexList, const MDK
     if (RowIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: RowIndexList, ALL)")
-
         DenseShadowMatrix<ElementType> EmptyShadowMatrix;
-
         return EmptyShadowMatrix;
     }
     
@@ -4096,7 +4060,6 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& RowIndexList, const MDK
 	DenseVector<int_max> RowIndexList_temp = RowIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList_temp.StdVector(), ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -4109,9 +4072,7 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& RowIndexList, const MDK
     if (RowIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: RowIndexList, ALL) const")
-
         DenseShadowMatrix<ElementType> EmptyShadowMatrix;
-
         return EmptyShadowMatrix;
     }
     
@@ -4130,7 +4091,6 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& RowIndexList, const MDK
 	DenseVector<int_max> RowIndexList_temp = RowIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, RowIndexList_temp.StdVector(), ALL_Symbol);
-
     return tempShadowMatrix;
 }
 
@@ -4143,9 +4103,7 @@ DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol, const DenseMatrix
     if (ColIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: ALL, ColIndexList)")
-
         DenseShadowMatrix<ElementType> EmptyShadowMatrix;
-
         return EmptyShadowMatrix;
     }
 
@@ -4156,7 +4114,7 @@ DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol, const DenseMatrix
         if (*it >= SelfSize.ColNumber || *it < 0)
         {
             MDK_Error("Invalid ColIndexList @ DenseMatrix::at(DenseMatrix: ALL, {ColIndexList})")
-                DenseShadowMatrix<ElementType> tempShadowMatrix;
+            DenseShadowMatrix<ElementType> tempShadowMatrix;
             return tempShadowMatrix;
         }
     }
@@ -4164,7 +4122,6 @@ DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol, const DenseMatrix
 	DenseVector<int_max> ColIndexList_temp = ColIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList_temp.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -4177,9 +4134,7 @@ DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol, const DenseMatrix
     if (ColIndexList.IsVector() == false)
     {
         MDK_Error("Invalid input @ DenseMatrix::at(DenseMatrix: ALL, ColIndexList) const")
-
         DenseShadowMatrix<ElementType> EmptyShadowMatrix;
-
         return EmptyShadowMatrix;
     }
     
@@ -4198,7 +4153,6 @@ DenseMatrix<ElementType>::at(const MDK_Symbol_ALL& ALL_Symbol, const DenseMatrix
 	DenseVector<int_max> ColIndexList_temp = ColIndexList;
 
 	DenseShadowMatrix<ElementType> tempShadowMatrix(*this, ALL_Symbol, ColIndexList_temp.StdVector());
-
     return tempShadowMatrix;
 }
 
@@ -4414,7 +4368,6 @@ DenseMatrix<ElementType>::Diagonal()
     }
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
-
     return tempShadowMatrix;
 }
 
@@ -4446,7 +4399,6 @@ DenseMatrix<ElementType>::Diagonal() const
     }
 
     DenseShadowMatrix<ElementType> tempShadowMatrix(*this, LinearIndexList);
-
     return tempShadowMatrix;
 }
 

@@ -275,6 +275,7 @@ public:
     inline void Fill(const ElementType& Element);
 
     //-------------------------- Shared, ForceShare  ------------------------------------------ //
+	// A.Share(B) and A.ForceShare(B) are equivalent to A=B in Java
 
     // DenseMatrix A, B; A.Share(B), A.ForceShare(B) <=>  m_MatrixData (of A) = m_MatrixData (of B);
     // If B change the value of an element, A will be changed (i.e., the data in A is the same as the data in B)
@@ -399,8 +400,11 @@ public:
     inline bool IsShared() const;
 
     inline bool IsSharedWith(const DenseMatrix& InputMatrix) const;
-
+	
     inline bool IsDataInInternalArray() const;
+	//attention: error if self is pure_empty
+	inline std::vector<ElementType>& InternalArray();
+	inline const std::vector<ElementType>& InternalArray() const;
 
     inline MatrixSize GetSize() const;
     inline int_max GetElementNumber() const;
