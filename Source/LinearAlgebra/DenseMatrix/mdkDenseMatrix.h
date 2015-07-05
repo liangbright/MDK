@@ -45,8 +45,8 @@ struct DenseMatrixData
     typedef Element_Type  ElementType;
 
     bool IsSizeFixed;
-    int_max RowNumber;  // RowNumber = the Number of Rows 
-    int_max ColNumber;  // ColNumber = the Number of Columns
+    int_max RowCount;  // RowCount = the Number of Rows 
+    int_max ColCount;  // ColCount = the Number of Columns
 
     ElementType* ElementPointer; // point to InternalArray/StdVector or external array 
 
@@ -57,8 +57,8 @@ struct DenseMatrixData
     DenseMatrixData() 
     {
         IsSizeFixed = false;
-        RowNumber = 0;
-        ColNumber = 0;
+        RowCount = 0;
+        ColCount = 0;
         ElementPointer = nullptr;
         ErrorElement = GetNaNElement(ErrorElement); // zero if int        
     };
@@ -68,8 +68,8 @@ struct DenseMatrixData
     void Clear()
     {
         IsSizeFixed = false;
-        RowNumber = 0;
-        ColNumber = 0;
+        RowCount = 0;
+        ColCount = 0;
         ElementPointer = nullptr;
         StdVector.clear();         // change size
         StdVector.shrink_to_fit(); // release memory
@@ -82,14 +82,14 @@ struct DenseMatrixData
         {
             if (ElementPointer == nullptr)
             {
-                if (RowNumber != 0 || ColNumber != 0 || StdVector.data() != nullptr || StdVector.size() != 0)
+                if (RowCount != 0 || ColCount != 0 || StdVector.data() != nullptr || StdVector.size() != 0)
                 {
                     MDK_Error("ElementPointer is nullptr but Self is not empty matrix @ DenseMatrixData::CopyDataToInternalArrayIfNecessary()")
                 }
                 return;
             }
 
-            auto ElementNumber = RowNumber*ColNumber;
+            auto ElementNumber = RowCount*ColCount;
 
             StdVector.resize(ElementNumber);
 
@@ -124,12 +124,12 @@ struct DenseMatrixData
 
     ElementType& operator()(int_max RowIndex, int_max ColIndex)
     {
-        return ElementPointer[ColIndex*RowNumber + RowIndex];
+        return ElementPointer[ColIndex*RowCount + RowIndex];
     }
 
     const ElementType& operator()(int_max RowIndex, int_max ColIndex) const
     {
-        return ElementPointer[ColIndex*RowNumber + RowIndex];
+        return ElementPointer[ColIndex*RowCount + RowIndex];
     }
 
 private:
@@ -158,7 +158,7 @@ public:
 
     inline DenseMatrix(const MDK_Symbol_PureEmpty&);
 
-    inline DenseMatrix(int_max RowNumber, int_max ColNumber);
+    inline DenseMatrix(int_max RowCount, int_max ColCount);
 
     inline DenseMatrix(MatrixSize Size);
 
@@ -195,7 +195,7 @@ public:
 
     inline DenseMatrix(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    inline DenseMatrix(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed = true); 
+    inline DenseMatrix(ElementType* InputElementPointer, int_max InputRowCount, int_max InputColCount, bool IsSizeFixed = true); 
     // use external data pointed by InputElementPointer
     // The data must be in heap
     // if the data is in stack of a function, then return a matrix will cause crash !
@@ -247,7 +247,7 @@ public:
     inline void Copy(const DenseMatrix<ElementType_Input>& InputMatrix);
 
     template<typename ElementType_Input>
-    inline void Copy(const ElementType_Input* InputElementPointer, int_max InputRowNumber, int_max InputColNumber);
+    inline void Copy(const ElementType_Input* InputElementPointer, int_max InputRowCount, int_max InputColCount);
 
     inline void Copy(DenseMatrix<ElementType>&& InputMatrix);
 
@@ -344,8 +344,8 @@ public:
     // It can be used to share a col of a MDK Matrix (RefCol(...) is better)
     // do not use this Share() to share a MDK Matrix
 
-    inline void Share(ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed = true);
-    inline void ForceShare(const ElementType* InputElementPointer, int_max InputRowNumber, int_max InputColNumber, bool IsSizeFixed = true);
+    inline void Share(ElementType* InputElementPointer, int_max InputRowCount, int_max InputColCount, bool IsSizeFixed = true);
+    inline void ForceShare(const ElementType* InputElementPointer, int_max InputRowCount, int_max InputColCount, bool IsSizeFixed = true);
 
     //------------------------- Swap shared_ptr m_MatrixData -------------------------------------------//
     // m_MatrixData.swap(InputMatrix.m_MatrixData)
@@ -365,15 +365,15 @@ public:
 
     //---------------------- Set/get Matrix Size, Shape ----------------------------------------//
 
-    inline void Reshape(int_max InputRowNumber, int_max InputColNumber);
+    inline void Reshape(int_max InputRowCount, int_max InputColCount);
 
     inline void Reshape(MatrixSize InputSize);
 
-    inline void Resize(int_max InputRowNumber, int_max InputColNumber); // try to keep the old data
+    inline void Resize(int_max InputRowCount, int_max InputColCount); // try to keep the old data
 
     inline void Resize(MatrixSize InputSize);
 
-    inline void FastResize(int_max InputRowNumber, int_max InputColNumber); // do not care about old data
+    inline void FastResize(int_max InputRowCount, int_max InputColCount); // do not care about old data
 
     inline void FastResize(MatrixSize InputSize);
 
@@ -381,7 +381,7 @@ public:
 
     inline void FastResize(int_max InputElementNumber); // if matrix is vector, do not care about old data, can not use it to resize a m x n matrix (m>1 and n>1)
 
-    inline void ReserveCapacity(int_max InputRowNumber, int_max InputColNumber); // reserve memory, current matrix size do not change
+    inline void ReserveCapacity(int_max InputRowCount, int_max InputColCount); // reserve memory, current matrix size do not change
 
     inline void ReserveCapacity(MatrixSize InputSize);
 
@@ -407,9 +407,9 @@ public:
 	inline const std::vector<ElementType>& InternalArray() const;
 
     inline MatrixSize GetSize() const;
-    inline int_max GetElementNumber() const;
-    inline int_max GetColNumber() const;
-    inline int_max GetRowNumber() const;
+    inline int_max GetElementCount() const;
+    inline int_max GetColCount() const;
+    inline int_max GetRowCount() const;
 
     inline bool IsScalar() const; // 1 by 1 matrix
     inline bool IsVector() const;
@@ -822,25 +822,25 @@ public:
 
     //----------------------
 
-    inline DenseMatrix GetSubMatrix(const int_max* RowIndexList, int_max OutputRowNumber,
-                                    const int_max* ColIndexList, int_max OutputColNumber) const;
+    inline DenseMatrix GetSubMatrix(const int_max* RowIndexList, int_max OutputRowCount,
+                                    const int_max* ColIndexList, int_max OutputColCount) const;
 
     inline void GetSubMatrix(DenseMatrix<ElementType> &OutputMatrix,
-                             const int_max* RowIndexList, int_max OutputRowNumber,
-                             const int_max* ColIndexList, int_max OutputColNumber) const;
+                             const int_max* RowIndexList, int_max OutputRowCount,
+                             const int_max* ColIndexList, int_max OutputColCount) const;
 
     inline DenseMatrix GetSubMatrix(const MDK_Symbol_ALL& ALL_Symbol, 
-                                    const int_max* ColIndexList, int_max OutputColNumber) const;
+                                    const int_max* ColIndexList, int_max OutputColCount) const;
 
     inline void GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
                              const MDK_Symbol_ALL& ALL_Symbol, 
-                             const int_max* ColIndexList, int_max OutputColNumber) const;
+                             const int_max* ColIndexList, int_max OutputColCount) const;
 
-    inline DenseMatrix GetSubMatrix(const int_max* RowIndexList, int_max OutputRowNumber,
+    inline DenseMatrix GetSubMatrix(const int_max* RowIndexList, int_max OutputRowCount,
                                     const MDK_Symbol_ALL& ALL_Symbol) const;
 
     inline void GetSubMatrix(DenseMatrix<ElementType>& OutputMatrix,
-                             const int_max* RowIndexList, int_max OutputRowNumber,
+                             const int_max* RowIndexList, int_max OutputRowCount,
                              const MDK_Symbol_ALL& ALL_Symbol) const;
 
     //---------------------- Get/Set/Fill/Append/Insert A Single Column, Delete multi-Columns ----------------------------------------//
@@ -1296,10 +1296,10 @@ public:
     inline DenseMatrix<int_max> FindCol(MatchFunctionType MatchFunction) const;
 
     template<typename MatchFunctionType>
-    inline DenseMatrix<int_max> FindCol(int_max MaxOutputColNumber, MatchFunctionType MatchFunction) const;
+    inline DenseMatrix<int_max> FindCol(int_max MaxOutputColCount, MatchFunctionType MatchFunction) const;
 
     template<typename MatchFunctionType>
-    inline DenseMatrix<int_max> FindCol(int_max MaxOutputColNumber, int_max ColIndex_start, int_max ColIndex_end, MatchFunctionType MatchFunction) const;
+    inline DenseMatrix<int_max> FindCol(int_max MaxOutputColCount, int_max ColIndex_start, int_max ColIndex_end, MatchFunctionType MatchFunction) const;
 
 	template<typename MatchFunctionType>
 	inline int_max FindCol(const char* first_or_last, MatchFunctionType MatchFunction) const;//first_or_last = "first" or "last"

@@ -20,25 +20,25 @@ DenseMatrix<ElementType> operator+(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return ShadowMatrixA[0] + MatrixB;
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return ShadowMatrixA + MatrixB(0);
     }
 
     DenseMatrix<ElementType> tempMatrix;
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: +(ShadowMatrixA, MatrixB)")
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Warning("ShadowMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: +(ShadowMatrixA, MatrixB)")
         return  tempMatrix;
@@ -46,13 +46,13 @@ DenseMatrix<ElementType> operator+(const DenseShadowMatrix<ElementType>& ShadowM
 
     //----------------------------------------------------//
 
-    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrB = MatrixB.GetElementPointer();
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount * SizeA.ColCount;
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
@@ -71,25 +71,25 @@ DenseMatrix<ElementType> operator-(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return ShadowMatrixA[0] - MatrixB;
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return ShadowMatrixA - MatrixB(0);
     }
 
     DenseMatrix<ElementType> tempMatrix;
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: -(ShadowMatrixA, MatrixB)")
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Warning("ShadowMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: -(ShadowMatrixA, MatrixB)")
         return  tempMatrix;
@@ -97,13 +97,13 @@ DenseMatrix<ElementType> operator-(const DenseShadowMatrix<ElementType>& ShadowM
 
     //----------------------------------------------------//
 
-    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrB = MatrixB.GetElementPointer();
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount * SizeA.ColCount;
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
@@ -129,25 +129,25 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return ShadowMatrixA[0] / MatrixB;
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return ShadowMatrixA / MatrixB[0];
     }
 
     DenseMatrix<ElementType> tempMatrix;
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: /(ShadowMatrixA, MatrixB)")
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Warning("ShadowMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: /(ShadowMatrixA, MatrixB)")
         return  tempMatrix;
@@ -155,13 +155,13 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
 
     //----------------------------------------------------//
 
-    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrB = MatrixB.GetElementPointer();
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount * SizeA.ColCount;
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
@@ -189,25 +189,25 @@ DenseMatrix<ElementType> operator-(const DenseMatrix<ElementType>& MatrixA, cons
 
     auto SizeB = ShadowMatrixB.GetSize();
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return MatrixA[0] - ShadowMatrixB;
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return MatrixA - ShadowMatrixB[0];
     }
 
     DenseMatrix<ElementType> tempMatrix;
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: /(MatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Warning("MatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: /(MatrixA, ShadowMatrixB)")
         return  tempMatrix;
@@ -215,13 +215,13 @@ DenseMatrix<ElementType> operator-(const DenseMatrix<ElementType>& MatrixA, cons
 
     //----------------------------------------------------//
 
-    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrA = MatrixA.GetElementPointer();
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount * SizeA.ColCount;
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
@@ -248,25 +248,25 @@ DenseMatrix<ElementType> operator/(const DenseMatrix<ElementType>& MatrixA, cons
 
     auto SizeB = ShadowMatrixB.GetSize();
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return MatrixA[0] / ShadowMatrixB;
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return MatrixA / ShadowMatrixB[0];
     }
 
     DenseMatrix<ElementType> tempMatrix;
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: /(MatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Warning("MatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: /(MatrixA, ShadowMatrixB)")
         return  tempMatrix;
@@ -274,13 +274,13 @@ DenseMatrix<ElementType> operator/(const DenseMatrix<ElementType>& MatrixA, cons
 
     //----------------------------------------------------//
 
-    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrA = MatrixA.GetElementPointer();
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount * SizeA.ColCount;
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
@@ -300,7 +300,7 @@ DenseMatrix<ElementType> operator+(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto SizeA = ShadowMatrixA.GetSize();
 
-    if (SizeA.RowNumber <= 0)
+    if (SizeA.RowCount <= 0)
     {
         MDK_Error("ShadowMatrixA is empty @ mdkDenseMatrixOperator: +(ShadowMatrixA, ElementB)")
         return  tempMatrix;
@@ -308,11 +308,11 @@ DenseMatrix<ElementType> operator+(const DenseShadowMatrix<ElementType>& ShadowM
 
     //----------------------------------------------------//
 
-    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount * SizeA.ColCount;
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
@@ -331,7 +331,7 @@ DenseMatrix<ElementType> operator-(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto SizeA = ShadowMatrixA.GetSize();
 
-    if (SizeA.RowNumber <= 0)
+    if (SizeA.RowCount <= 0)
     {
         MDK_Error("ShadowMatrixA is empty @ mdkDenseMatrixOperator: -(ShadowMatrixA, ElementB)")
         return  tempMatrix;
@@ -339,11 +339,11 @@ DenseMatrix<ElementType> operator-(const DenseShadowMatrix<ElementType>& ShadowM
 
     //----------------------------------------------------//
 
-    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount * SizeA.ColCount;
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
@@ -362,7 +362,7 @@ DenseMatrix<ElementType> operator*(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto SizeA = ShadowMatrixA.GetSize();
 
-    if (SizeA.RowNumber <= 0)
+    if (SizeA.RowCount <= 0)
     {
         MDK_Error("ShadowMatrixA is empty @ mdkDenseMatrixOperator: *(ShadowMatrixA, ElementB)")
         return  tempMatrix;
@@ -370,11 +370,11 @@ DenseMatrix<ElementType> operator*(const DenseShadowMatrix<ElementType>& ShadowM
 
     //----------------------------------------------------//
 
-    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount * SizeA.ColCount;
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
@@ -393,7 +393,7 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto SizeA = ShadowMatrixA.GetSize();
 
-    if (SizeA.RowNumber <= 0)
+    if (SizeA.RowCount <= 0)
     {
         MDK_Error("ShadowMatrixA is empty @ mdkDenseMatrixOperator: /(ShadowMatrixA, ElementB)")
         return  tempMatrix;
@@ -401,11 +401,11 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
 
     //----------------------------------------------------//
 
-    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount * SizeA.ColCount;
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
@@ -433,7 +433,7 @@ DenseMatrix<ElementType> operator-(const ElementType& ElementA, const DenseShado
 
     auto SizeB = ShadowMatrixB.GetSize();
 
-    if (SizeB.RowNumber <= 0)
+    if (SizeB.RowCount <= 0)
     {
         MDK_Error("ShadowMatrixB is empty @ mdkDenseMatrixOperator: -(ElementA, ShadowMatrixB)")
         return  tempMatrix;
@@ -441,11 +441,11 @@ DenseMatrix<ElementType> operator-(const ElementType& ElementA, const DenseShado
 
     //----------------------------------------------------//
 
-    tempMatrix.FastResize(SizeB.RowNumber, SizeB.ColNumber);
+    tempMatrix.FastResize(SizeB.RowCount, SizeB.ColCount);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ElementNumber = SizeB.RowNumber * SizeB.ColNumber;
+    auto ElementNumber = SizeB.RowCount * SizeB.ColCount;
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
@@ -472,7 +472,7 @@ DenseMatrix<ElementType> operator/(const ElementType& ElementA, const DenseShado
 
     auto SizeB = ShadowMatrixB.GetSize();
 
-    if (SizeB.RowNumber <= 0)
+    if (SizeB.RowCount <= 0)
     {
         MDK_Error("ShadowMatrixB is empty @ mdkDenseMatrixOperator: /(ElementA, ShadowMatrixB)")
         return  tempMatrix;
@@ -480,11 +480,11 @@ DenseMatrix<ElementType> operator/(const ElementType& ElementA, const DenseShado
 
     //----------------------------------------------------//
 
-    tempMatrix.FastResize(SizeB.RowNumber, SizeB.ColNumber);
+    tempMatrix.FastResize(SizeB.RowCount, SizeB.ColCount);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ElementNumber = SizeB.RowNumber * SizeB.ColNumber;
+    auto ElementNumber = SizeB.RowCount * SizeB.ColCount;
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
@@ -504,35 +504,35 @@ DenseMatrix<ElementType> operator+(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto SizeB = ShadowMatrixB.GetSize();
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return ShadowMatrixA[0] + ShadowMatrixB;
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return ShadowMatrixA + ShadowMatrixB[0];
     }
 
     DenseMatrix<ElementType> tempMatrix;
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: +(ShadowMatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Warning("ShadowMatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: +(ShadowMatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
-    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+    auto ElementNumber = SizeA.ColCount * SizeA.RowCount;
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
@@ -551,35 +551,35 @@ DenseMatrix<ElementType> operator-(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto SizeB = ShadowMatrixB.GetSize();
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return ShadowMatrixA[0] - ShadowMatrixB;
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return ShadowMatrixA - ShadowMatrixB[0];
     }
 
     DenseMatrix<ElementType> tempMatrix;
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: -(ShadowMatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Warning("ShadowMatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: -(ShadowMatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
-    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ElementNumber = SizeA.ColNumber * SizeA.RowNumber;
+    auto ElementNumber = SizeA.ColCount * SizeA.RowCount;
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {
@@ -606,35 +606,35 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
 
     auto SizeB = ShadowMatrixB.GetSize();
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return ShadowMatrixA[0] / ShadowMatrixB;
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return ShadowMatrixA / ShadowMatrixB[0];
     }
 
     DenseMatrix<ElementType> tempMatrix;
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: /(ShadowMatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Warning("ShadowMatrixA or ShadowMatrixB is empty @ mdkDenseMatrixOperator: /(ShadowMatrixA, ShadowMatrixB)")
         return  tempMatrix;
     }
 
-    tempMatrix.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+    tempMatrix.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 
-    auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
 
     for (int_max i = 0; i < ElementNumber; ++i)
     {

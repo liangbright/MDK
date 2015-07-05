@@ -54,7 +54,7 @@ struct DenseImageData3D
 {
 	DenseVector<int_max, 3> m_Size;     // {Lx, Ly, Lz} number of Pixels in each direction
 
-    int_max m_PixelNumberPerZSlice;     // total number of Pixels in each z-slice  = m_Size[2]*m_Size[1]
+    int_max m_PixelCountPerZSlice;     // total number of Pixels in each z-slice  = m_Size[2]*m_Size[1]
 
 	LocalCoordinateSystem3D<double> m_LocalSys;
 	// m_LocalSys.Origin:   Origin of DICOM Image in world/global coordinate system (x,y,z) (unit: mm)
@@ -155,7 +155,7 @@ public:
 	void Copy(const DenseImage3D<PixelType_Input>& InputImage);
 
 	template<typename PixelType_Input>
-	void CopyPixelData(const PixelType_Input* InputPixelPointer, int_max InputPixelNumber);
+	void CopyPixelData(const PixelType_Input* InputPixelPointer, int_max InputPixelCount);
 
 	void Copy(DenseImage3D&& InputImage);
 
@@ -226,7 +226,7 @@ public:
 
     inline void GetPhysicalSize(double& PhysicalSize_x, double& PhysicalSize_y, double& PhysicalSize_z) const;
 
-    inline int_max GetPixelNumber() const;
+    inline int_max GetPixelCount() const;
 
     //--------------------------- Get Pixel Pointer ------------------------------//
 

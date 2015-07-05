@@ -8,9 +8,9 @@ namespace mdk
 template<typename ElementType>
 DenseGlueMatrixForMultiplication<ElementType>::DenseGlueMatrixForMultiplication()
 {
-    m_RowNumber = 0;
+    m_RowCount = 0;
 
-    m_ColNumber = 0;
+    m_ColCount = 0;
 
     m_SourceMatrixSharedCopyList.resize(0);
 
@@ -32,9 +32,9 @@ DenseGlueMatrixForMultiplication<ElementType>::~DenseGlueMatrixForMultiplication
 template<typename ElementType>
 DenseGlueMatrixForMultiplication<ElementType>::DenseGlueMatrixForMultiplication(DenseGlueMatrixForMultiplication<ElementType>&& GlueMatrix)
 {
-    m_RowNumber = GlueMatrix.m_RowNumber;
+    m_RowCount = GlueMatrix.m_RowCount;
 
-    m_ColNumber = GlueMatrix.m_ColNumber;
+    m_ColCount = GlueMatrix.m_ColCount;
 
     m_SourceMatrixSharedCopyList = std::move(GlueMatrix.m_SourceMatrixSharedCopyList);
 
@@ -43,24 +43,24 @@ DenseGlueMatrixForMultiplication<ElementType>::DenseGlueMatrixForMultiplication(
     m_Is_m_Element_Coef_Equal_to_One = GlueMatrix.m_Is_m_Element_Coef_Equal_to_One;
     
     // clear counter 
-    GlueMatrix.m_RowNumber = 0;
-    GlueMatrix.m_ColNumber = 0;
+    GlueMatrix.m_RowCount = 0;
+    GlueMatrix.m_ColCount = 0;
 }
 
 
 template<typename ElementType>
 inline
-int_max DenseGlueMatrixForMultiplication<ElementType>::GetRowNumber() const
+int_max DenseGlueMatrixForMultiplication<ElementType>::GetRowCount() const
 {
-    return m_RowNumber;
+    return m_RowCount;
 }
 
 
 template<typename ElementType>
 inline
-int_max DenseGlueMatrixForMultiplication<ElementType>::GetColNumber() const
+int_max DenseGlueMatrixForMultiplication<ElementType>::GetColCount() const
 {
-    return m_ColNumber;
+    return m_ColCount;
 }
 
 
@@ -68,7 +68,7 @@ template<typename ElementType>
 inline
 int_max DenseGlueMatrixForMultiplication<ElementType>::GetElementNumber() const
 {
-    return m_RowNumber*m_ColNumber;
+    return m_RowCount*m_ColCount;
 }
 
 
@@ -78,9 +78,9 @@ MatrixSize DenseGlueMatrixForMultiplication<ElementType>::GetSize() const
 {
     MatrixSize Size;
 
-    Size.RowNumber = m_RowNumber;
+    Size.RowCount = m_RowCount;
 
-    Size.ColNumber = m_ColNumber;
+    Size.ColCount = m_ColCount;
 
     return Size;
 }
@@ -98,7 +98,7 @@ template<typename ElementType>
 inline
 bool DenseGlueMatrixForMultiplication<ElementType>::IsEmpty() const
 {
-    return (m_RowNumber <= 0);
+    return (m_RowCount <= 0);
 }
 
 
@@ -121,7 +121,7 @@ template<typename ElementType>
 inline 
 bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>& OutputMatrix) const
 {
-	OutputMatrix.FastResize(m_RowNumber, m_ColNumber);
+	OutputMatrix.FastResize(m_RowCount, m_ColCount);
 
     auto MatrixNumber = int_max(m_SourceMatrixSharedCopyList.size());
 
@@ -160,7 +160,7 @@ bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatri
     // MatrixNumber >= 3
 
     // output is a vector or scalar (in matrix form) ------------------------------------------
-    if (m_RowNumber == 1)
+    if (m_RowCount == 1)
     {
         MatrixMultiply(OutputMatrix, m_SourceMatrixSharedCopyList[0], m_SourceMatrixSharedCopyList[1]);
         
@@ -178,7 +178,7 @@ bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatri
     }
 
     // output is a vector or scalar (in matrix form) ------------------------------------------
-    if (m_ColNumber == 1)
+    if (m_ColCount == 1)
     {
         MatrixMultiply(OutputMatrix, m_SourceMatrixSharedCopyList[MatrixNumber - 2], m_SourceMatrixSharedCopyList[MatrixNumber - 1]);
 
@@ -224,13 +224,13 @@ bool DenseGlueMatrixForMultiplication<ElementType>::CreateDenseMatrix(DenseMatri
 
         for (int_max i = 0; i < CurMatrixNumber - 1; ++i)
         {
-            auto tempRowNumber_a = MatrixPointerList[i]->GetRowNumber();
-            auto tempColNumber_a = MatrixPointerList[i]->GetRowNumber();
+            auto tempRowCount_a = MatrixPointerList[i]->GetRowCount();
+            auto tempColCount_a = MatrixPointerList[i]->GetRowCount();
 
-            auto tempRowNumber_b = MatrixPointerList[i + 1]->GetRowNumber();
-            auto tempColNumber_b = MatrixPointerList[i + 1]->GetRowNumber();
+            auto tempRowCount_b = MatrixPointerList[i + 1]->GetRowCount();
+            auto tempColCount_b = MatrixPointerList[i + 1]->GetRowCount();
 
-            auto ElementNumber_Diff = (tempRowNumber_a*tempColNumber_a + tempRowNumber_b*tempColNumber_b) - 2 * tempRowNumber_a * tempColNumber_b;
+            auto ElementNumber_Diff = (tempRowCount_a*tempColCount_a + tempRowCount_b*tempColCount_b) - 2 * tempRowCount_a * tempColCount_b;
 
             if (ElementNumber_Diff > Max_ElementNumber_Diff)
             {

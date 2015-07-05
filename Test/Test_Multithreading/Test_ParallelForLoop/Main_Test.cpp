@@ -16,7 +16,7 @@ int main()
     //
     // time with 1 thread is greater than time with 4 thread
     auto L = 500000;
-    int_max MaxNumberOfThreads = 2;
+    int_max MaxThreadCount = 2;
     int_max OuterLoopNumber = 1000;
     //
 
@@ -32,7 +32,7 @@ int main()
 
     for (int_max k = 0; k < OuterLoopNumber; ++k)
     {
-        ParallelForLoop(Function, 0, L - 1, MaxNumberOfThreads);
+		ParallelForLoop(Function, 0, L - 1, MaxThreadCount);
     }
 
     auto t1 = std::chrono::system_clock::now();

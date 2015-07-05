@@ -170,7 +170,7 @@ void Test_Image3D()
 	auto t0 = std::chrono::system_clock::now();
 	for (int n = 1; n < 10; ++n)
 	{
-		for (int_max k = 0; k < ScalarImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < ScalarImage.GetPixelCount(); ++k)
 		{
 			ScalarImage.SetPixelAtLinearIndex(k, 1);
 			//Ptr->SetPixelAtLinearIndex(k, 1);

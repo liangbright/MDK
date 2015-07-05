@@ -106,8 +106,8 @@ bool TriangleMesh<MeshAttributeType>::CheckIfTriangleMesh() const
     for (auto it = this->GetIteratorOfCell(); it.IsNotEnd(); ++it)
     {
         auto CellHandle = it.GetCellHandle();
-        auto PointNumber = this->Cell(CellHandle).GetPointNumber();
-        if (PointNumber != 3)
+        auto PointCount = this->Cell(CellHandle).GetPointCount();
+        if (PointCount != 3)
         {
             return false;
         }
@@ -292,18 +292,18 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(PointHand
         return;
     }
 
-	auto AdjacentCellNumber = AdjacentCellHandleList.GetLength();
-	if (AdjacentCellNumber > 1)
+	auto AdjacentCellCount = AdjacentCellHandleList.GetLength();
+	if (AdjacentCellCount > 1)
 	{
 		auto PointPosition = this->Point(PointHandle).GetPosition();
 
 		DenseVector<ScalarType> CornerAngleList;
-		CornerAngleList.Resize(AdjacentCellNumber);
+		CornerAngleList.Resize(AdjacentCellCount);
 
 		ObjectArray<DenseVector<ScalarType>> CellNormalTable;
-		CellNormalTable.Resize(AdjacentCellNumber);
+		CellNormalTable.Resize(AdjacentCellCount);
 
-		for (int_max k = 0; k < AdjacentCellNumber; ++k)
+		for (int_max k = 0; k < AdjacentCellCount; ++k)
 		{
 			auto PointRelativeIndex_k = this->Cell(AdjacentCellHandleList[k]).GetRelativeIndexOfPoint(PointHandle);
 			CornerAngleList[k] = this->Cell(AdjacentCellHandleList[k]).Attribute().CornerAngle[PointRelativeIndex_k];
@@ -316,7 +316,7 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(PointHand
 		if (AngleSum <= std::numeric_limits<ScalarType>::epsilon())
 		{
 			MDK_Warning("AngleSum <= eps @ TriangleMesh::UpdateAngleWeightedNormalAtPoint(...)")
-			AngleWeight.Fill(ScalarType(1)/ScalarType(AdjacentCellNumber));
+			AngleWeight.Fill(ScalarType(1)/ScalarType(AdjacentCellCount));
 		}
 		else
 		{
@@ -325,7 +325,7 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(PointHand
 
 		DenseVector<ScalarType, 3> Normal;
 		Normal.Fill(0);
-		for (int_max k = 0; k < AdjacentCellNumber; ++k)
+		for (int_max k = 0; k < AdjacentCellCount; ++k)
 		{
 			Normal[0] += AngleWeight[k] * CellNormalTable[k][0];
 			Normal[1] += AngleWeight[k] * CellNormalTable[k][1];
@@ -368,8 +368,8 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandle
     }
 
     auto AdjacentCellHandleList = this->Point(PointHandle).GetAdjacentCellHandleList();
-    auto AdjacentCellNumber = AdjacentCellHandleList.GetLength();
-    if (AdjacentCellNumber <= 1)
+    auto AdjacentCellCount = AdjacentCellHandleList.GetLength();
+    if (AdjacentCellCount <= 1)
     {
         //MDK_Warning("This point only has one or zero adjacent cell @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
         this->Point(PointHandle).Attribute().GaussianCurvature = 0;
@@ -377,31 +377,31 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandle
         return;
     }
 
-	auto AdjacentPointNumber = this->Point(PointHandle).GetAdjacentPointNumber();
+	auto AdjacentPointCount = this->Point(PointHandle).GetAdjacentPointCount();
 
     DenseVector<ScalarType> AreaList;
-	AreaList.FastResize(AdjacentPointNumber);
+	AreaList.FastResize(AdjacentPointCount);
 
     DenseVector<ScalarType> CornerAngleList;
-	CornerAngleList.FastResize(AdjacentPointNumber);
+	CornerAngleList.FastResize(AdjacentPointCount);
 
-    for (int_max k = 0; k < AdjacentCellNumber; ++k)
+    for (int_max k = 0; k < AdjacentCellCount; ++k)
     {
 		auto PointRelativeIndex_k = this->Cell(AdjacentCellHandleList[k]).GetRelativeIndexOfPoint(PointHandle);
         CornerAngleList[k] = this->Cell(AdjacentCellHandleList[k]).Attribute().CornerAngle[PointRelativeIndex_k];
         AreaList[k] = this->Cell(AdjacentCellHandleList[k]).Attribute().Area;
     }
 
-    if (AdjacentCellNumber != AdjacentPointNumber)
+    if (AdjacentCellCount != AdjacentPointCount)
     {// this point (e.g. b) is on boundary edge, an angle must be computed  (big angle a_b_c vs small angle a_b_c)
      //  a
 	 //  |  /c
 	 //  |/
      //  b
 
-        if (AdjacentCellNumber != AdjacentPointNumber - 1)
+        if (AdjacentCellCount != AdjacentPointCount - 1)
         {
-            MDK_Error("AdjacentCellNumber != AdjacentPointNumber -1 @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
+            MDK_Error("AdjacentCellCount != AdjacentPointCount -1 @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
             return;
         }
 
@@ -437,8 +437,8 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandle
 		auto Position_b = this->GetPointPosition(AdjacentBoundaryPointHandleList[1]);
         auto Vector_a = Position_a - PointPosition;
         auto Vector_b = Position_b - PointPosition;
-        CornerAngleList[AdjacentPointNumber - 1] = ComputeAngleBetweenTwoVectorIn3D(Vector_a, Vector_b);
-        AreaList[AdjacentPointNumber - 1] = ComputeTriangleAreaIn3D(PointPosition, Position_a, Position_b);
+        CornerAngleList[AdjacentPointCount - 1] = ComputeAngleBetweenTwoVectorIn3D(Vector_a, Vector_b);
+        AreaList[AdjacentPointCount - 1] = ComputeTriangleAreaIn3D(PointPosition, Position_a, Position_b);
     }
 
     // calculate Gaussian curvature
@@ -480,8 +480,8 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(PointHandleType
 
     // cotangent Laplace Beltrami Operator "Polygon Mesh Processing: page 46"
 
-    auto AdjacentPointNumber = this->Point(PointHandle).GetAdjacentPointNumber();
-    if (AdjacentPointNumber < 3)
+    auto AdjacentPointCount = this->Point(PointHandle).GetAdjacentPointCount();
+    if (AdjacentPointCount < 3)
     {
         this->Point(PointHandle).Attribute().MeanCurvatureNormal.Fill(0);
         this->Point(PointHandle).Attribute().MeanCurvature = 0;
@@ -494,10 +494,10 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(PointHandleType
     MeanCurvatureNormal.Fill(0);
 
     DenseVector<ScalarType> AreaList;
-    AreaList.ReserveCapacity(AdjacentPointNumber);
+    AreaList.ReserveCapacity(AdjacentPointCount);
 
 	DenseVector<ScalarType> CotSumList;
-	CotSumList.ReserveCapacity(AdjacentPointNumber);
+	CotSumList.ReserveCapacity(AdjacentPointCount);
 
     auto AdjacentEdgeHandleList = this->Point(PointHandle).GetAdjacentEdgeHandleList();
     for (int_max k = 0; k < AdjacentEdgeHandleList.GetLength(); ++k)

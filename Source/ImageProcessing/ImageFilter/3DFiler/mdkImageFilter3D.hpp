@@ -29,8 +29,8 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Clear()
 	m_PointList_3DIndex_OutputImage = nullptr;
 	
 	m_Flag_ScanWholeImageGrid = false;
-	m_TotalNumberOfOutputPixelTobeProcessed = 0;
-	m_MaxNumberOfThread = 1;
+	m_OutputPixelCount = 0;
+	m_MaxThreadCount = 1;
 
 	m_Flag_EnableOutputImage = true;
 	m_Flag_EnableOutputPixelArray = false;
@@ -193,22 +193,22 @@ OutputImageType* ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Get
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::InitializeOutputPixelArray()
 {
-	int_max PixelNumberInArray = 0;
+	int_max PixelCountInArray = 0;
 
 	if (m_PointList_3DIndex_OutputImage.IsEmpty() == false)
 	{
-		PixelNumberInArray = m_PointList_3DIndex_OutputImage.GetColNumber();
+		PixelCountInArray = m_PointList_3DIndex_OutputImage.GetColCount();
 	}
 	else if (m_PointList_3DIndex_InputImage != nullptr)
 	{
-		PixelNumberInArray = m_PointList_3DIndex_InputImage->GetColNumber();
+		PixelCountInArray = m_PointList_3DIndex_InputImage->GetColCount();
 	}
 	else if (m_PointList_3DPhysicalPosition != nullptr)
 	{
-		PixelNumberInArray = m_PointList_3DPhysicalPosition->GetColNumber();
+		PixelCountInArray = m_PointList_3DPhysicalPosition->GetColCount();
 	}
 
-	m_OutputPixelArray.FastResize(PixelNumberInArray);
+	m_OutputPixelArray.FastResize(PixelCountInArray);
 }
 
 
@@ -257,16 +257,16 @@ ImageFilter3D<InputImageType, OutputImageType, ScalarType>::GetImageInterpolatio
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetMaxNumberOfThread(int_max MaxNumber)
+void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetMaxThreadCount(int_max MaxNumber)
 {
-	m_MaxNumberOfThread = MaxNumber;
+	m_MaxThreadCount = MaxNumber;
 }
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-int_max ImageFilter3D<InputImageType, OutputImageType, ScalarType>::GetMaxNumberOfThread_UserInput()
+int_max ImageFilter3D<InputImageType, OutputImageType, ScalarType>::GetMaxThreadCount()
 {
-	return m_MaxNumberOfThread;
+	return m_MaxThreadCount;
 }
 
 
@@ -284,11 +284,11 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Update()
 	}
 
 	// multi-thread -----------------------------------------------------------------
-	if (m_TotalNumberOfOutputPixelTobeProcessed > 0)
+	if (m_OutputPixelCount > 0)
 	{ 
 		ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex)
 					  {this->Evaluate_in_a_thread(Index_start, Index_end, ThreadIndex); },
-					  0, m_TotalNumberOfOutputPixelTobeProcessed - 1, m_MaxNumberOfThread, 1);
+					  0, m_OutputPixelCount - 1, m_MaxThreadCount, 1);
 	}
 	//-------------------------------------------------------------------------------
 	if (this->Postprocess() == false)
@@ -318,8 +318,8 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::CheckInput()
 	if (m_Flag_EnableOutputImage == true)
 	{
 		auto OutputImageSize = m_OutputImageInfo.Size;
-		auto PixelNumber = OutputImageSize[0] * OutputImageSize[1] * OutputImageSize[2];
-		if (PixelNumber <= 0) // m_OutputImage may be spasre, do not use GetPixelNumber()
+		auto PixelCount = OutputImageSize[0] * OutputImageSize[1] * OutputImageSize[2];
+		if (PixelCount <= 0) // m_OutputImage may be spasre, do not use GetPixelCount()
 		{
 			MDK_Error("Output Image size is 0 @ ImageFilter3D::CheckInput()")
 			return false;
@@ -347,26 +347,26 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Preprocess()
 	auto OutputImageSize = m_OutputImageInfo.Size;
 	auto OutputImageSpacing = m_OutputImageInfo.Spacing;
 	auto OutputImageOrigin = m_OutputImageInfo.Origin;
-	auto PixelNumberOfOutputImage = OutputImageSize[0] * OutputImageSize[1] * OutputImageSize[2];
+	auto PixelCountOfOutputImage = OutputImageSize[0] * OutputImageSize[1] * OutputImageSize[2];
 
 	if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPhysicalPosition == nullptr)
 	{
-		m_TotalNumberOfOutputPixelTobeProcessed = PixelNumberOfOutputImage;
+		m_OutputPixelCount = PixelCountOfOutputImage;
 		m_Flag_ScanWholeImageGrid = true;
 	}
 	else if (m_PointList_3DIndex_OutputImage != nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPhysicalPosition == nullptr)
 	{
-		m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DIndex_OutputImage->GetColNumber();
+		m_OutputPixelCount = m_PointList_3DIndex_OutputImage->GetColCount();
 		m_Flag_ScanWholeImageGrid = false;
 	}
 	else if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage != nullptr && m_PointList_3DPhysicalPosition == nullptr)
 	{
-		m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DIndex_InputImage->GetColNumber();
+		m_OutputPixelCount = m_PointList_3DIndex_InputImage->GetColCount();
 		m_Flag_ScanWholeImageGrid = false;
 	}
 	else if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPhysicalPosition != nullptr)
 	{
-		m_TotalNumberOfOutputPixelTobeProcessed = m_PointList_3DPhysicalPosition->GetColNumber();
+		m_OutputPixelCount = m_PointList_3DPhysicalPosition->GetColCount();
 		m_Flag_ScanWholeImageGrid = false;
 	}
 	else
@@ -390,7 +390,7 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Preprocess()
 
 	if (m_Flag_EnableOutputPixelArray == true)
 	{
-		m_OutputPixelArray.FastResize(m_TotalNumberOfOutputPixelTobeProcessed);
+		m_OutputPixelArray.FastResize(m_OutputPixelCount);
 	}
 	else
 	{
@@ -507,9 +507,9 @@ Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max T
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-int_max ImageFilter3D<InputImageType, OutputImageType, ScalarType>::GetNumberOfThreadTobeCreated()
+int_max ImageFilter3D<InputImageType, OutputImageType, ScalarType>::GetOptimalThreadCount()
 {
-	return Compute_NumberOfThreadTobeCreated_For_ParallelBlock(m_TotalNumberOfOutputPixelTobeProcessed, m_MaxNumberOfThread, 1);
+	return Compute_Optimal_ThreadCount_For_ParallelBlock(m_OutputPixelCount, m_MaxThreadCount, 1);
 }
 
 

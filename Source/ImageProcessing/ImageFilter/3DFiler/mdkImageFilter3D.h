@@ -41,10 +41,10 @@ protected:
 
 	Image3DInfo m_OutputImageInfo;
 
-	int_max m_MaxNumberOfThread; // max number of threads
+	int_max m_MaxThreadCount; // max number of threads
 
 	// -------------------- internal ----------------------------------------------------//
-	int_max m_TotalNumberOfOutputPixelTobeProcessed;
+	int_max m_OutputPixelCount;
 
 	bool m_Flag_ScanWholeImageGrid;
 	// true: whole m_OutputImage
@@ -109,9 +109,9 @@ public:
 
 	const ImageInterpolationOptionType& GetImageInterpolationOption();
 
-	void SetMaxNumberOfThread(int_max MaxNumber);
+	void SetMaxThreadCount(int_max MaxNumber);
 
-	int_max GetMaxNumberOfThread_UserInput();
+	int_max GetMaxThreadCount();
 
 	virtual bool Update();
 
@@ -130,7 +130,7 @@ protected:
 	// If we want to store pixel NOT in m_OutputPixelArray, but some other place (some data object in a derived class)
 	inline virtual void StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixelType& OutputPixel, int_max PointIndex, int_max ThreadIndex) {}
 
-	int_max GetNumberOfThreadTobeCreated();
+	int_max GetOptimalThreadCount();
 	
 	//---------- if m_OutputImage is empty, use these three function to convert Index/Position --------------------------------//
 

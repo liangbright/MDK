@@ -18,9 +18,9 @@ void DisplayMatrix(const std::string& Name, const DenseMatrix<ElementType>& Inpu
         std::cout << std::setprecision(precision) << std::fixed;
     }
 
-    for (int_max i = 0; i < InputMatrix.GetRowNumber(); ++i)
+    for (int_max i = 0; i < InputMatrix.GetRowCount(); ++i)
     {
-        for (int_max j = 0; j < InputMatrix.GetColNumber(); ++j)
+        for (int_max j = 0; j < InputMatrix.GetColCount(); ++j)
         {
             std::cout << std::setw(6 + precision) << InputMatrix(i, j) << ' ';
         }
@@ -43,9 +43,9 @@ void DisplayMatrix(const std::string& Name, const SparseMatrix<ElementType>& Inp
         std::cout << std::setprecision(precision) << std::fixed;
     }
 
-    for (int_max i = 0; i < InputMatrix.GetRowNumber(); ++i)
+    for (int_max i = 0; i < InputMatrix.GetRowCount(); ++i)
     {
-        for (int_max j = 0; j < InputMatrix.GetColNumber(); ++j)
+        for (int_max j = 0; j < InputMatrix.GetColCount(); ++j)
         {
             std::cout << std::setw(6 + precision) << InputMatrix.GetElement(i, j) << ' ';
         }
@@ -68,7 +68,7 @@ void DisplayVector(const std::string& Name, const DenseVector<ElementType, Lengt
         std::cout << std::setprecision(precision) << std::fixed;
     }
 
-    for (int_max i = 0; i < InputVector.GetElementNumber(); ++i)
+    for (int_max i = 0; i < InputVector.GetElementCount(); ++i)
     {
         std::cout << std::setw(6 + precision) << InputVector[i] << ' ';
     }
@@ -91,7 +91,7 @@ void DisplayVector(const std::string& Name, const SparseVector<ElementType>& Inp
         std::cout << std::setprecision(precision) << std::fixed;
     }
 
-    for (int_max i = 0; i < InputVector.GetElementNumber(); ++i)
+    for (int_max i = 0; i < InputVector.GetElementCount(); ++i)
     {
         std::cout << std::setw(6 + precision) << InputVector[i] << ' ';
     }

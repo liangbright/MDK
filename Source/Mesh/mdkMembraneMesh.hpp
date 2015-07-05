@@ -237,7 +237,7 @@ bool MembraneMesh<MeshAttributeType>::IsPureEmpty() const
 
 template<typename MeshAttributeType>
 inline
-int_max MembraneMesh<MeshAttributeType>::GetPointNumber() const
+int_max MembraneMesh<MeshAttributeType>::GetPointCount() const
 {
 	if (!m_MeshData)
 	{
@@ -251,7 +251,7 @@ int_max MembraneMesh<MeshAttributeType>::GetPointNumber() const
 
 template<typename MeshAttributeType>
 inline
-int_max MembraneMesh<MeshAttributeType>::GetEdgeNumber() const
+int_max MembraneMesh<MeshAttributeType>::GetEdgeCount() const
 {
 	if (!m_MeshData)
 	{
@@ -265,7 +265,7 @@ int_max MembraneMesh<MeshAttributeType>::GetEdgeNumber() const
 
 template<typename MeshAttributeType>
 inline
-int_max MembraneMesh<MeshAttributeType>::GetDirectedEdgeNumber() const
+int_max MembraneMesh<MeshAttributeType>::GetDirectedEdgeCount() const
 {
 	if (!m_MeshData)
 	{
@@ -295,7 +295,7 @@ int_max MembraneMesh<MeshAttributeType>::GetDirectedEdgeNumber() const
 
 template<typename MeshAttributeType>
 inline
-int_max MembraneMesh<MeshAttributeType>::GetCellNumber() const
+int_max MembraneMesh<MeshAttributeType>::GetCellCount() const
 {
 	if (!m_MeshData)
 	{
@@ -346,10 +346,10 @@ void MembraneMesh<MeshAttributeType>::GetPointPositionMatrix(DenseMatrix<ScalarT
 		return;
 	}
 
-	auto MaxNumber = m_MeshData->PointPositionTable.GetColNumber();
-	PositionMatrix.FastResize(3, this->GetPointNumber());
+	auto MaxCount = m_MeshData->PointPositionTable.GetColCount();
+	PositionMatrix.FastResize(3, this->GetPointCount());
 	int_max Counter = 0;
-	for (int_max k = 0; k < MaxNumber; ++k)
+	for (int_max k = 0; k < MaxCount; ++k)
 	{
 		if (m_MeshData->PointValidityFlagList[k] == 1)
 		{
@@ -470,7 +470,7 @@ SetPointPosition(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandle
     for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
     {
         auto PointIndex = PointHandleList[k].GetIndex();
-        if (PointIndex < 0 || PointIndex >= m_MeshData->PointPositionTable.GetColNumber())
+        if (PointIndex < 0 || PointIndex >= m_MeshData->PointPositionTable.GetColCount())
         {
             MDK_Error("Invalid PointIndex @ MembraneMesh::SetPointPosition(...)")
             return;
@@ -535,7 +535,7 @@ GetPointPosition(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandle
     for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
     {
         auto PointIndex = PointHandleList[k].GetIndex();
-        if (PointIndex < 0 || PointIndex >= m_MeshData->PointPositionTable.GetColNumber())
+        if (PointIndex < 0 || PointIndex >= m_MeshData->PointPositionTable.GetColCount())
         {
             MDK_Error("Invalid PointIndex @ MembraneMesh::GetPointPosition(...)")
             PointPositionMatrix.FastResize(0, 0);
@@ -971,7 +971,7 @@ GetPointHandleByPosition(ScalarType x, ScalarType y, ScalarType z, ScalarType Di
     ScalarType Distance_sq_min = 0;
     int_max PointIndex_min = -1;
 
-    for (int_max k = 0; k < m_MeshData->PointPositionTable.GetColNumber(); ++k)
+    for (int_max k = 0; k < m_MeshData->PointPositionTable.GetColCount(); ++k)
     {
         if (m_MeshData->PointValidityFlagList[k] == 1)
         {
@@ -1734,20 +1734,20 @@ const Iterator_Of_Cell_Of_MembraneMesh<MeshAttributeType> MembraneMesh<MeshAttri
 
 //------------ ReserveCapacity, ReleaseUnusedCapacity -------------------------------------//
 template<typename MeshAttributeType>
-void MembraneMesh<MeshAttributeType>::ReserveCapacity(int_max PointNumber, int_max EdgeNumber, int_max CellNumber)
+void MembraneMesh<MeshAttributeType>::ReserveCapacity(int_max PointCount, int_max EdgeCount, int_max CellCount)
 {
 	if (this->IsPureEmpty() == true)
 	{
 		this->Recreate();
 	}
 
-	m_MeshData->PointPositionTable->ReserveCapacity(3 * PointNumber);
-	m_MeshData->PointList->ReserveCapacity(PointNumber);
-	m_MeshData->PointValidityFlagList->ReserveCapacity(PointNumber);
-	m_MeshData->EdgeList->ReserveCapacity(EdgeNumber);
-	m_MeshData->EdgeValidityFlagList->ReserveCapacity(EdgeNumber);
-	m_MeshData->CellList->ReserveCapacity(CellNumber);
-	m_MeshData->CellValidityFlagList->ReserveCapacity(CellNumber);
+	m_MeshData->PointPositionTable->ReserveCapacity(3 * PointCount);
+	m_MeshData->PointList->ReserveCapacity(PointCount);
+	m_MeshData->PointValidityFlagList->ReserveCapacity(PointCount);
+	m_MeshData->EdgeList->ReserveCapacity(EdgeCount);
+	m_MeshData->EdgeValidityFlagList->ReserveCapacity(EdgeCount);
+	m_MeshData->CellList->ReserveCapacity(CellCount);
+	m_MeshData->CellValidityFlagList->ReserveCapacity(CellCount);
 }
 
 
@@ -1797,7 +1797,7 @@ Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddPoint(const 
 {
     if (Position.IsVector() == true)
     {
-        if (Position.GetElementNumber() != 3)
+        if (Position.GetElementCount() != 3)
         {
             MDK_Error("Position is a vector but length != 3 @ MembraneMesh::AddPoint(...)")
             Handle_Of_Point_Of_MembraneMesh PointHandle;
@@ -1829,7 +1829,7 @@ Handle_Of_Point_Of_MembraneMesh
 MembraneMesh<MeshAttributeType>::AddPoint(ScalarType x, ScalarType y, ScalarType z)
 {
     m_MeshData->PointPositionTable.AppendCol({x, y, z});
-    auto PointIndex = m_MeshData->PointPositionTable.GetColNumber() - 1;
+    auto PointIndex = m_MeshData->PointPositionTable.GetColCount() - 1;
 
     Point_Of_MembraneMesh<MeshAttributeType> Point;
     Point.SetParentMesh(*this);
@@ -1852,7 +1852,7 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::Ad
 
     if (PointSet.IsVector() == true)
     {
-        if (PointSet.GetElementNumber() != 3)
+        if (PointSet.GetElementCount() != 3)
         {
             MDK_Error("PointSet is a vector but length != 3 @ MembraneMesh::AddPointSet(...)")
             return PointHandleList;
@@ -1863,14 +1863,14 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::Ad
         return PointHandleList;
     }
 
-    if (PointSet.GetRowNumber() != 3)
+    if (PointSet.GetRowCount() != 3)
     {
-        MDK_Error("PointSet is a matrix but RowNumber != 3 @ MembraneMesh::AddPointSet(...)")
+        MDK_Error("PointSet is a matrix but RowCount != 3 @ MembraneMesh::AddPointSet(...)")
         return PointHandleList;
     }
 
-    PointHandleList.Resize(PointSet.GetColNumber());
-    for (int_max k = 0; k < PointSet.GetColNumber(); ++k)
+    PointHandleList.Resize(PointSet.GetColCount());
+    for (int_max k = 0; k < PointSet.GetColCount(); ++k)
     {
         PointHandleList[k] = this->AddPoint(PointSet.GetPointerOfCol(k));
     }
@@ -1885,7 +1885,7 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::Ad
 
 	if (PointSet.IsVector() == true)
 	{
-		if (PointSet.GetElementNumber() != 3)
+		if (PointSet.GetElementCount() != 3)
 		{
 			MDK_Error("PointSet is a vector but length != 3 @ MembraneMesh::AddPointSet(...)")
 			return PointHandleList;
@@ -1896,17 +1896,17 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::Ad
 		return PointHandleList;
 	}
 
-	if (PointSet.GetRowNumber() != 3)
+	if (PointSet.GetRowCount() != 3)
 	{
-		MDK_Error("PointSet is a matrix but RowNumber != 3 @ MembraneMesh::AddPointSet(...)")
+		MDK_Error("PointSet is a matrix but RowCount != 3 @ MembraneMesh::AddPointSet(...)")
 		return PointHandleList;
 	}
 
 	if (this->IsEmpty() == true)
 	{
 		m_MeshData->PointPositionTable = std::move(PointSet);
-		PointHandleList.Resize(m_MeshData->PointPositionTable.GetColNumber());
-		for (int_max k = 0; k < m_MeshData->PointPositionTable.GetColNumber(); ++k)
+		PointHandleList.Resize(m_MeshData->PointPositionTable.GetColCount());
+		for (int_max k = 0; k < m_MeshData->PointPositionTable.GetColCount(); ++k)
 		{
 			Point_Of_MembraneMesh<MeshAttributeType> Point;
 			Point.SetParentMesh(*this);
@@ -1920,8 +1920,8 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::Ad
 	}
 	else
 	{
-		PointHandleList.Resize(PointSet.GetColNumber());
-		for (int_max k = 0; k < PointSet.GetColNumber(); ++k)
+		PointHandleList.Resize(PointSet.GetColCount());
+		for (int_max k = 0; k < PointSet.GetColCount(); ++k)
 		{
 			PointHandleList[k] = this->AddPoint(PointSet.GetPointerOfCol(k));
 		}
@@ -2300,8 +2300,8 @@ void MembraneMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_MembraneMesh 
 
     auto EdgeIndex = EdgeHandle.GetIndex();
 
-    auto AdjacentCellNumber = m_MeshData->EdgeList[EdgeIndex].GetAdjacentCellNumber();
-    if (AdjacentCellNumber > 0)
+    auto AdjacentCellCount = m_MeshData->EdgeList[EdgeIndex].GetAdjacentCellCount();
+    if (AdjacentCellCount > 0)
     {
         MDK_Error("AdjacentCellIndexList is not empty, so this edge can not be deleted @ MembraneMesh::DeleteEdge(...)")
         return false;
@@ -2401,14 +2401,14 @@ void MembraneMesh<MeshAttributeType>::DeletePoint(const DenseVector<int_max>& Po
 // after CleanDataStructure() is called, the size of each list will change, index and handle may become invalid,
 // but every valid ID will still be valid
 // and there will be no "dead/deleted" item in any object list (e.g., m_MeshData->EdgeList)
-// Only use CleanDataStructure() if memory is an issue, when InvalidPointHandleNumber/ValidPointNumber( GetPointNumber() ) > 0.5
+// Only use CleanDataStructure() if memory is an issue, when InvalidPointHandleCount/ValidPointCount( GetPointCount() ) > 0.5
 
 template<typename MeshAttributeType>
-int_max MembraneMesh<MeshAttributeType>::GetInvalidPointHandleNumber() const
+int_max MembraneMesh<MeshAttributeType>::GetInvalidPointHandleCount() const
 {
-    auto ValidPointNumber = this->GetPointNumber();
-    auto PointNumberOfList = m_MeshData->PointList.GetLength();
-    return  ValidPointNumber - PointNumberOfList;
+    auto ValidPointCount = this->GetPointCount();
+    auto PointCountOfList = m_MeshData->PointList.GetLength();
+    return  ValidPointCount - PointCountOfList;
 }
 
 template<typename MeshAttributeType>
@@ -2993,9 +2993,9 @@ Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::ShrinkEdgeToPoi
 
     for (int_max k = 0; k < AdjacentCellIndexList.GetLength(); ++k)
     {
-        if (m_MeshData->CellList[AdjacentCellIndexList[k]].GetEdgeNumber() <= 3)
+        if (m_MeshData->CellList[AdjacentCellIndexList[k]].GetEdgeCount() <= 3)
         {
-            MDK_Error("EdgeNumber <= 3 in AdjacentCell @ MembraneMesh::ShrinkEdgeToPoint(...)")
+            MDK_Error("EdgeCount <= 3 in AdjacentCell @ MembraneMesh::ShrinkEdgeToPoint(...)")
             PointHandle.SetToInvalid();
             return PointHandle;
         }
@@ -3184,7 +3184,7 @@ Handle_Of_Edge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacent
 
     if (AdjacentCellIndexListA.GetLength() != AdjacentCellIndexListB.GetLength())
     {
-		MDK_Error("AdjacentCellNumber is not the same @ MembraneMesh::MergeTwoAdjacentEdge(...)")
+		MDK_Error("AdjacentCellCount is not the same @ MembraneMesh::MergeTwoAdjacentEdge(...)")
         EdgeHandle_new.SetToInvalid();
         return EdgeHandle_new;
     }
@@ -3226,17 +3226,17 @@ Handle_Of_Edge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacent
     }
 
 	// check if AdjacentCell is triangle
-	if (m_MeshData->CellList[CellIndex0].GetEdgeNumber() <= 3)
+	if (m_MeshData->CellList[CellIndex0].GetEdgeCount() <= 3)
 	{
-		MDK_Error("EdgeNumber <= 3 in AdjacentCell: CellIndex0 @ MembraneMesh::MergeTwoAdjacentEdge(...)")
+		MDK_Error("EdgeCount <= 3 in AdjacentCell: CellIndex0 @ MembraneMesh::MergeTwoAdjacentEdge(...)")
 		EdgeHandle.SetToInvalid();
 		return EdgeHandle;
 	}
 	if (CellIndex1 >= 0)
 	{
-		if (m_MeshData->CellList[CellIndex1].GetEdgeNumber() <= 3)
+		if (m_MeshData->CellList[CellIndex1].GetEdgeCount() <= 3)
 		{
-			MDK_Error("EdgeNumber <= 3 in AdjacentCell: CellIndex1 @ MembraneMesh::MergeTwoAdjacentEdge(...)")
+			MDK_Error("EdgeCount <= 3 in AdjacentCell: CellIndex1 @ MembraneMesh::MergeTwoAdjacentEdge(...)")
 			EdgeHandle.SetToInvalid();
 			return EdgeHandle;
 		}

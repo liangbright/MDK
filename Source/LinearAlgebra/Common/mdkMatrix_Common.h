@@ -44,8 +44,8 @@ enum struct MatrixElementTypeEnum
 
 struct MatrixSize
 {
-    int_max RowNumber;  // RowNumber = the Number of Rows 
-    int_max ColNumber;  // ColNumber = the Number of Columns
+    int_max RowCount;  // RowCount = the Number of Rows 
+    int_max ColCount;  // ColCount = the Number of Columns
 };
 
 //-----------------------------------span: e.g., span(1,10) is 1:10 in Matlab, or span(1, 2, 10) is 1:2:10 in Matlab -----------------//

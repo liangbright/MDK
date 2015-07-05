@@ -13,9 +13,9 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix()
 
     m_ElementNumber = 0;
 
-    m_RowNumber = 0;
+    m_RowCount = 0;
 
-    m_ColNumber = 0;
+    m_ColCount = 0;
 
     m_Flag_All_Row = false;
 
@@ -41,9 +41,9 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_ElementNumber = m_LinearIndexList_source.size();
 
-    m_RowNumber = m_ElementNumber;
+    m_RowCount = m_ElementNumber;
 
-    m_ColNumber = 1;
+    m_ColCount = 1;
 
     m_Flag_All_Row = false;
 
@@ -65,9 +65,9 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
-    auto RowNumber_source = SourceMatrix.GetRowNumber();
+    auto RowCount_source = SourceMatrix.GetRowCount();
 
-    auto ColNumber_source = SourceMatrix.GetColNumber();
+    auto ColCount_source = SourceMatrix.GetColCount();
 
     m_RowIndexList_source = RowIndexList;
 
@@ -77,11 +77,11 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     //-----------------------------------------------
 
-    m_RowNumber = m_RowIndexList_source.size();
+    m_RowCount = m_RowIndexList_source.size();
 
-    m_ColNumber = m_ColIndexList_source.size();
+    m_ColCount = m_ColIndexList_source.size();
 
-    m_ElementNumber = m_RowNumber*m_ColNumber;
+    m_ElementNumber = m_RowCount*m_ColCount;
 
     m_Flag_All_Row = false;
 
@@ -103,15 +103,15 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
-    auto RowNumber_source = SourceMatrix.GetRowNumber();
+    auto RowCount_source = SourceMatrix.GetRowCount();
 
-    auto ColNumber_source = SourceMatrix.GetColNumber();
+    auto ColCount_source = SourceMatrix.GetColCount();
 
     m_RowIndexList_source = RowIndexList;
 
-    m_ColIndexList_source.resize(ColNumber_source);
+    m_ColIndexList_source.resize(ColCount_source);
 
-    for (int_max i = 0; i < ColNumber_source; ++i)
+    for (int_max i = 0; i < ColCount_source; ++i)
     {
         m_ColIndexList_source[i] = i;
     }
@@ -120,11 +120,11 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     //------------------------------------------
 
-    m_RowNumber = m_RowIndexList_source.size();
+    m_RowCount = m_RowIndexList_source.size();
 
-    m_ColNumber = m_ColIndexList_source.size();
+    m_ColCount = m_ColIndexList_source.size();
 
-    m_ElementNumber = m_RowNumber*m_ColNumber;
+    m_ElementNumber = m_RowCount*m_ColCount;
 
     m_Flag_All_Row = false;
 
@@ -146,13 +146,13 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
-    auto RowNumber_source = SourceMatrix.GetRowNumber();
+    auto RowCount_source = SourceMatrix.GetRowCount();
 
-    auto ColNumber_source = SourceMatrix.GetColNumber();
+    auto ColCount_source = SourceMatrix.GetColCount();
 
-    m_RowIndexList_source.resize(RowNumber_source);
+    m_RowIndexList_source.resize(RowCount_source);
 
-    for (int_max i = 0; i < RowNumber_source; ++i)
+    for (int_max i = 0; i < RowCount_source; ++i)
     {
         m_RowIndexList_source[i] = i;
     }
@@ -163,11 +163,11 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     //-------------------------------------------
 
-    m_RowNumber = m_RowIndexList_source.size();
+    m_RowCount = m_RowIndexList_source.size();
 
-    m_ColNumber = m_ColIndexList_source.size();
+    m_ColCount = m_ColIndexList_source.size();
 
-    m_ElementNumber = m_RowNumber*m_ColNumber;
+    m_ElementNumber = m_RowCount*m_ColCount;
 
     m_Flag_All_Row = true;
 
@@ -195,9 +195,9 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_ElementNumber = m_LinearIndexList_source.size();
 
-    m_RowNumber = m_ElementNumber;
+    m_RowCount = m_ElementNumber;
 
-    m_ColNumber = 1;
+    m_ColCount = 1;
 
     m_Flag_All_Row = false;
 
@@ -219,9 +219,9 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
-    auto RowNumber_source = SourceMatrix.GetRowNumber();
+    auto RowCount_source = SourceMatrix.GetRowCount();
 
-    auto ColNumber_source = SourceMatrix.GetColNumber();
+    auto ColCount_source = SourceMatrix.GetColCount();
 
     m_RowIndexList_source = std::move(RowIndexList);
 
@@ -231,11 +231,11 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     //-----------------------------------------------
 
-    m_RowNumber = m_RowIndexList_source.size();
+    m_RowCount = m_RowIndexList_source.size();
 
-    m_ColNumber = m_ColIndexList_source.size();
+    m_ColCount = m_ColIndexList_source.size();
 
-    m_ElementNumber = m_RowNumber*m_ColNumber;
+    m_ElementNumber = m_RowCount*m_ColCount;
 
     m_Flag_All_Row = false;
 
@@ -257,15 +257,15 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
-    auto RowNumber_source = SourceMatrix.GetRowNumber();
+    auto RowCount_source = SourceMatrix.GetRowCount();
 
-    auto ColNumber_source = SourceMatrix.GetColNumber();
+    auto ColCount_source = SourceMatrix.GetColCount();
 
     m_RowIndexList_source = std::move(RowIndexList);
 
-    m_ColIndexList_source.resize(ColNumber_source);
+    m_ColIndexList_source.resize(ColCount_source);
 
-    for (int_max i = 0; i < ColNumber_source; ++i)
+    for (int_max i = 0; i < ColCount_source; ++i)
     {
         m_ColIndexList_source[i] = i;    
     }
@@ -274,11 +274,11 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     //------------------------------------------
 
-    m_RowNumber = m_RowIndexList_source.size();
+    m_RowCount = m_RowIndexList_source.size();
 
-    m_ColNumber = m_ColIndexList_source.size();
+    m_ColCount = m_ColIndexList_source.size();
 
-    m_ElementNumber = m_RowNumber*m_ColNumber;
+    m_ElementNumber = m_RowCount*m_ColCount;
 
     m_Flag_All_Row = false;
 
@@ -300,15 +300,15 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_SourceMatrixSharedCopy.ForceShare(SourceMatrix);
 
-    auto RowNumber_source = SourceMatrix.GetRowNumber();
+    auto RowCount_source = SourceMatrix.GetRowCount();
 
-    auto ColNumber_source = SourceMatrix.GetColNumber();
+    auto ColCount_source = SourceMatrix.GetColCount();
 
     m_ColIndexList_source = std::move(ColIndexList);
 
-    m_RowIndexList_source.resize(RowNumber_source);
+    m_RowIndexList_source.resize(RowCount_source);
 
-    for (int_max i = 0; i < RowNumber_source; ++i)
+    for (int_max i = 0; i < RowCount_source; ++i)
     {
         m_RowIndexList_source[i] = i;
     }
@@ -317,11 +317,11 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     //-------------------------------------------
 
-    m_RowNumber = m_RowIndexList_source.size();
+    m_RowCount = m_RowIndexList_source.size();
 
-    m_ColNumber = m_ColIndexList_source.size();
+    m_ColCount = m_ColIndexList_source.size();
 
-    m_ElementNumber = m_RowNumber*m_ColNumber;
+    m_ElementNumber = m_RowCount*m_ColCount;
 
     m_Flag_All_Row = true;
 
@@ -340,30 +340,30 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseMatrix<ElementType>
 
     m_Flag_OutputVector = true;
 
-    auto RowNumber_source = SourceMatrix.GetRowNumber();
+    auto RowCount_source = SourceMatrix.GetRowCount();
 
-    auto ColNumber_source = SourceMatrix.GetColNumber();
+    auto ColCount_source = SourceMatrix.GetColCount();
 
-    m_ColIndexList_source.resize(ColNumber_source);
+    m_ColIndexList_source.resize(ColCount_source);
 
-    for (int_max i = 0; i < ColNumber_source; ++i)
+    for (int_max i = 0; i < ColCount_source; ++i)
     {
         m_ColIndexList_source[i] = i;
     }
 
-    m_RowIndexList_source.resize(RowNumber_source);
+    m_RowIndexList_source.resize(RowCount_source);
 
-    for (int_max i = 0; i < RowNumber_source; ++i)
+    for (int_max i = 0; i < RowCount_source; ++i)
     {
         m_RowIndexList_source[i] = i;
     }
     //-----------------------------------------------
 
-    m_ElementNumber = RowNumber_source*ColNumber_source;
+    m_ElementNumber = RowCount_source*ColCount_source;
 
-    m_RowNumber = RowNumber_source;
+    m_RowCount = RowCount_source;
 
-    m_ColNumber = ColNumber_source;
+    m_ColCount = ColCount_source;
 
     m_Flag_All_Row = true;
 
@@ -381,9 +381,9 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(const DenseShadowMatrix<Elemen
     // copy matrix data, not share
     m_SourceMatrixSharedCopy = InputShadowMatrix.CreateDenseMatrix();
 
-    m_RowNumber = m_SourceMatrixSharedCopy.GetRowNumber();
-    m_ColNumber = m_SourceMatrixSharedCopy.GetColNumber();
-    m_ElementNumber = m_RowNumber*m_ColNumber;
+    m_RowCount = m_SourceMatrixSharedCopy.GetRowCount();
+    m_ColCount = m_SourceMatrixSharedCopy.GetColCount();
+    m_ElementNumber = m_RowCount*m_ColCount;
 
     m_Flag_All_Row = true;
     m_Flag_All_Col = true;
@@ -409,9 +409,9 @@ DenseShadowMatrix<ElementType>::DenseShadowMatrix(DenseShadowMatrix<ElementType>
 
     //-----------------------------------------------------
 
-    m_RowNumber = InputShadowMatrix.m_RowNumber;
+    m_RowCount = InputShadowMatrix.m_RowCount;
 
-    m_ColNumber = InputShadowMatrix.m_ColNumber;
+    m_ColCount = InputShadowMatrix.m_ColCount;
 
     m_ElementNumber = InputShadowMatrix.m_ElementNumber;
 
@@ -444,7 +444,7 @@ inline bool DenseShadowMatrix<ElementType>::IsLinearIndexListOnly() const
 
 template<typename ElementType>
 inline
-int_max DenseShadowMatrix<ElementType>::GetElementNumber() const
+int_max DenseShadowMatrix<ElementType>::GetElementCount() const
 {
     return m_ElementNumber;
 }
@@ -452,17 +452,17 @@ int_max DenseShadowMatrix<ElementType>::GetElementNumber() const
 
 template<typename ElementType>
 inline
-int_max DenseShadowMatrix<ElementType>::GetColNumber() const
+int_max DenseShadowMatrix<ElementType>::GetColCount() const
 {
-    return m_ColNumber;
+    return m_ColCount;
 }
 
 
 template<typename ElementType>
 inline
-int_max DenseShadowMatrix<ElementType>::GetRowNumber() const
+int_max DenseShadowMatrix<ElementType>::GetRowCount() const
 {
-    return m_RowNumber;
+    return m_RowCount;
 }
 
 
@@ -472,8 +472,8 @@ MatrixSize DenseShadowMatrix<ElementType>::GetSize() const
 {
     MatrixSize Size;
 
-    Size.RowNumber = m_RowNumber;
-    Size.ColNumber = m_ColNumber;
+    Size.RowCount = m_RowCount;
+    Size.ColCount = m_ColCount;
 
     return Size;
 }
@@ -545,7 +545,7 @@ bool DenseShadowMatrix<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>&
         return true;
     }
 
-    if (m_RowNumber != OutputMatrix.GetRowNumber() || m_ColNumber != OutputMatrix.GetColNumber())
+    if (m_RowCount != OutputMatrix.GetRowCount() || m_ColCount != OutputMatrix.GetColCount())
     {
         if (m_Flag_OutputVector == true)
         {
@@ -553,7 +553,7 @@ bool DenseShadowMatrix<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>&
         }
         else
         {
-            OutputMatrix.FastResize(m_RowNumber, m_ColNumber);
+            OutputMatrix.FastResize(m_RowCount, m_ColCount);
         }
     }
 
@@ -576,13 +576,13 @@ bool DenseShadowMatrix<ElementType>::CreateDenseMatrix(DenseMatrix<ElementType>&
     }
     else
     {
-        auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
+        auto RowCount_source = m_SourceMatrixSharedCopy.GetRowCount();
 
-        for (int_max j = 0; j < m_ColNumber; ++j)
+        for (int_max j = 0; j < m_ColCount; ++j)
         {
-            auto Index = m_ColIndexList_source[j] * RowNumber_source;
+            auto Index = m_ColIndexList_source[j] * RowCount_source;
 
-            for (int_max i = 0; i < m_RowNumber; ++i)
+            for (int_max i = 0; i < m_RowCount; ++i)
             {
                 auto LinearIndex_source = Index + m_RowIndexList_source[i];
 
@@ -608,9 +608,9 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseMatrix<ElementType>& I
 
     if (m_Flag_OutputVector == true)
     {
-        if (m_ElementNumber != InputMatrix.GetElementNumber())
+        if (m_ElementNumber != InputMatrix.GetElementCount())
         {
-            MDK_Error("m_ElementNumber != InputMatrix.GetElementNumber() @ DenseShadowMatrix::operator=(DenseMatrix)")
+            MDK_Error("m_ElementNumber != InputMatrix.GetElementCount() @ DenseShadowMatrix::operator=(DenseMatrix)")
             return;
         }
     }
@@ -618,7 +618,7 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseMatrix<ElementType>& I
     {
         if (InputMatrix.IsVector() == true)
         {
-            if (m_RowNumber != InputMatrix.GetElementNumber() && m_ColNumber != InputMatrix.GetElementNumber())
+            if (m_RowCount != InputMatrix.GetElementCount() && m_ColCount != InputMatrix.GetElementCount())
             {
                 MDK_Error("Size does not match @ DenseShadowMatrix::operator=(DenseMatrix)")
                 return;
@@ -626,7 +626,7 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseMatrix<ElementType>& I
         }
         else
         {
-            if (m_RowNumber != InputMatrix.GetRowNumber() || m_ColNumber != InputMatrix.GetColNumber())
+            if (m_RowCount != InputMatrix.GetRowCount() || m_ColCount != InputMatrix.GetColCount())
             {
                 MDK_Error("Size does not match @ DenseShadowMatrix::operator=(DenseMatrix)")
                 return;
@@ -666,7 +666,7 @@ template<int_max Length>
 inline
 void DenseShadowMatrix<ElementType>::operator=(const DenseVector<ElementType, Length>& InputVector)
 {
-    // note: template parameter Length may not = InputVector.GetElementNumber()
+    // note: template parameter Length may not = InputVector.GetElementCount()
 
     // MatrixA = MatrixA
     if (m_SourceMatrixSharedCopy.GetElementPointer() == InputVector.GetElementPointer())
@@ -676,15 +676,15 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseVector<ElementType, Le
 
     if (m_Flag_OutputVector == true)
     {
-        if (m_ElementNumber != InputVector.GetElementNumber())
+        if (m_ElementNumber != InputVector.GetElementCount())
         {
-            MDK_Error("m_ElementNumber != InputVector.GetElementNumber() @ DenseShadowMatrix::operator=(DenseVector)")
+            MDK_Error("m_ElementNumber != InputVector.GetElementCount() @ DenseShadowMatrix::operator=(DenseVector)")
             return;
         }
     }
     else
     {
-        if (m_RowNumber != InputVector.GetElementNumber() && m_ColNumber != InputVector.GetElementNumber())
+        if (m_RowCount != InputVector.GetElementCount() && m_ColCount != InputVector.GetElementCount())
         {
             MDK_Error("Size does not match @ DenseShadowMatrix::operator=(DenseVector)")
             return;
@@ -734,7 +734,7 @@ void DenseShadowMatrix<ElementType>::operator=(const std::initializer_list<Eleme
 	}
 	else
 	{
-		if (m_RowNumber != InputElementNumber && m_ColNumber != InputElementNumber)
+		if (m_RowCount != InputElementNumber && m_ColCount != InputElementNumber)
 		{
 			MDK_Error("Size does not match @ DenseShadowMatrix::operator=(std::initializer_list)")
 			return;
@@ -807,15 +807,15 @@ void DenseShadowMatrix<ElementType>::operator=(const DenseShadowMatrix<ElementTy
 
     if (m_Flag_OutputVector == true)
     {
-        if (m_ElementNumber != InputShadowMatrix.GetElementNumber())
+        if (m_ElementNumber != InputShadowMatrix.GetElementCount())
         {
-            MDK_Error("m_ElementNumber != InputShadowMatrix.GetElementNumber() @ DenseShadowMatrix::operator=(mdkDenseShadowMatrix)")
+            MDK_Error("m_ElementNumber != InputShadowMatrix.GetElementCount() @ DenseShadowMatrix::operator=(mdkDenseShadowMatrix)")
             return;
         }
     }
     else
     {
-        if (m_RowNumber != InputShadowMatrix.GetRowNumber() || m_ColNumber != InputShadowMatrix.GetColNumber())
+        if (m_RowCount != InputShadowMatrix.GetRowCount() || m_ColCount != InputShadowMatrix.GetColCount())
         {
             MDK_Error("Size does not match @ DenseShadowMatrix::operator=(mdkDenseShadowMatrix)")
             return;
@@ -873,13 +873,13 @@ ElementType& DenseShadowMatrix<ElementType>::operator[](int_max LinearIndex)
         return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
     }
 
-    int_max ColIndex = LinearIndex / m_RowNumber;
+    int_max ColIndex = LinearIndex / m_RowCount;
 
-    int_max RowIndex = LinearIndex % m_RowNumber;
+    int_max RowIndex = LinearIndex % m_RowCount;
 
-    auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
+    auto RowCount_source = m_SourceMatrixSharedCopy.GetRowCount();
 
-    auto LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+    auto LinearIndex_source = m_ColIndexList_source[ColIndex] * RowCount_source + m_RowIndexList_source[RowIndex];
 
     return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
@@ -904,13 +904,13 @@ const ElementType& DenseShadowMatrix<ElementType>::operator[](int_max LinearInde
         return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
     }
 
-    int_max ColIndex = LinearIndex / m_RowNumber;
+    int_max ColIndex = LinearIndex / m_RowCount;
 
-    int_max RowIndex = LinearIndex % m_RowNumber;
+    int_max RowIndex = LinearIndex % m_RowCount;
 
-    auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
+    auto RowCount_source = m_SourceMatrixSharedCopy.GetRowCount();
 
-    auto LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+    auto LinearIndex_source = m_ColIndexList_source[ColIndex] * RowCount_source + m_RowIndexList_source[RowIndex];
 
     return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
@@ -935,13 +935,13 @@ ElementType& DenseShadowMatrix<ElementType>::operator()(int_max LinearIndex)
         return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
    	}
 	
-    int_max ColIndex = LinearIndex / m_RowNumber;
+    int_max ColIndex = LinearIndex / m_RowCount;
 
-	int_max RowIndex = LinearIndex % m_RowNumber;
+	int_max RowIndex = LinearIndex % m_RowCount;
 
-    auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
+    auto RowCount_source = m_SourceMatrixSharedCopy.GetRowCount();
 
-	int_max LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+	int_max LinearIndex_source = m_ColIndexList_source[ColIndex] * RowCount_source + m_RowIndexList_source[RowIndex];
 
     return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
@@ -966,13 +966,13 @@ const ElementType& DenseShadowMatrix<ElementType>::operator()(int_max LinearInde
         return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
     }
 
-    int_max ColIndex = LinearIndex / m_RowNumber;
+    int_max ColIndex = LinearIndex / m_RowCount;
 
-    int_max RowIndex = LinearIndex % m_RowNumber;
+    int_max RowIndex = LinearIndex % m_RowCount;
 
-    auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
+    auto RowCount_source = m_SourceMatrixSharedCopy.GetRowCount();
 
-    int_max LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+    int_max LinearIndex_source = m_ColIndexList_source[ColIndex] * RowCount_source + m_RowIndexList_source[RowIndex];
 
     return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
@@ -984,7 +984,7 @@ ElementType& DenseShadowMatrix<ElementType>::operator()(int_max RowIndex, int_ma
 {
 #if defined(MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound)
 
-    if (RowIndex >= m_RowNumber || RowIndex < 0 || ColIndex >= m_ColNumber || ColIndex < 0)
+    if (RowIndex >= m_RowCount || RowIndex < 0 || ColIndex >= m_ColCount || ColIndex < 0)
 	{
 		MDK_Error("Invalid input @ DenseShadowMatrix::operator(i, j)")
         return m_ErrorElement;
@@ -994,14 +994,14 @@ ElementType& DenseShadowMatrix<ElementType>::operator()(int_max RowIndex, int_ma
 
     if (m_LinearIndexList_source.empty() == false)
 	{
-        auto LinearIndex = ColIndex *m_RowNumber + RowIndex;
+        auto LinearIndex = ColIndex *m_RowCount + RowIndex;
 
         return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
 	}
 	
-    auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
+    auto RowCount_source = m_SourceMatrixSharedCopy.GetRowCount();
 
-	int_max LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+	int_max LinearIndex_source = m_ColIndexList_source[ColIndex] * RowCount_source + m_RowIndexList_source[RowIndex];
 
     return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
@@ -1013,7 +1013,7 @@ const ElementType& DenseShadowMatrix<ElementType>::operator()(int_max RowIndex, 
 {
 #if defined(MDK_DEBUG_DenseShadowMatrix_Operator_CheckBound)
 
-    if (RowIndex >= m_RowNumber || RowIndex < 0 || ColIndex >= m_ColNumber || ColIndex < 0)
+    if (RowIndex >= m_RowCount || RowIndex < 0 || ColIndex >= m_ColCount || ColIndex < 0)
 	{
 		MDK_Error("Invalid input @ DenseShadowMatrix::operator(i, j) const")
         return m_ErrorElement;
@@ -1023,14 +1023,14 @@ const ElementType& DenseShadowMatrix<ElementType>::operator()(int_max RowIndex, 
 
     if (m_LinearIndexList_source.empty() == false)
 	{
-        auto LinearIndex = ColIndex *m_RowNumber + RowIndex;
+        auto LinearIndex = ColIndex *m_RowCount + RowIndex;
 
         return m_SourceMatrixSharedCopy[m_LinearIndexList_source[LinearIndex]];
 	}
 	
-    auto RowNumber_source = m_SourceMatrixSharedCopy.GetRowNumber();
+    auto RowCount_source = m_SourceMatrixSharedCopy.GetRowCount();
 
-	int_max LinearIndex_source = m_ColIndexList_source[ColIndex] * RowNumber_source + m_RowIndexList_source[RowIndex];
+	int_max LinearIndex_source = m_ColIndexList_source[ColIndex] * RowCount_source + m_RowIndexList_source[RowIndex];
 
     return m_SourceMatrixSharedCopy[LinearIndex_source];
 }
@@ -1043,20 +1043,20 @@ void DenseShadowMatrix<ElementType>::operator+=(const DenseMatrix<ElementType>& 
 {
     auto Size = InputMatrix.GetSize();
 
-    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
+    if (m_RowCount <= 0 || Size.RowCount <= 0)
     {
         MDK_Error("Self or Matrix is empty @ DenseShadowMatrix::operator+=(InputMatrix)")
         return;
     }
 
-    if (Size.RowNumber == 1 && Size.ColNumber == 1)
+    if (Size.RowCount == 1 && Size.ColCount == 1)
     {
         (*this) += InputMatrix[0];
 
         return;
     }
 
-    if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
+    if (Size.RowCount != m_RowCount || Size.ColCount != m_ColCount)
     {
         MDK_Error("Size does not match @ DenseShadowMatrix::operator+=(Matrix)")
         return;
@@ -1095,20 +1095,20 @@ void DenseShadowMatrix<ElementType>::operator-=(const DenseMatrix<ElementType>& 
 {
     auto Size = InputMatrix.GetSize();
 
-    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
+    if (m_RowCount <= 0 || Size.RowCount <= 0)
     {
         MDK_Error("Self or InputMatrix is empty @ DenseShadowMatrix::operator-=(InputMatrix)")
         return;
     }
 
-    if (Size.RowNumber == 1 && Size.ColNumber == 1)
+    if (Size.RowCount == 1 && Size.ColCount == 1)
     {
         (*this) -= InputMatrix[0];
 
         return;
     }
 
-    if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
+    if (Size.RowCount != m_RowCount || Size.ColCount != m_ColCount)
     {
         MDK_Error("Size does not match @ DenseShadowMatrix::operator-=(InputMatrix)")
         return;
@@ -1147,20 +1147,20 @@ void DenseShadowMatrix<ElementType>::operator*=(const DenseMatrix<ElementType>& 
 {
     auto Size = InputMatrix.GetSize();
 
-    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
+    if (m_RowCount <= 0 || Size.RowCount <= 0)
     {
         MDK_Error("Self or Matrix is empty @ DenseShadowMatrix::operator*=(InputMatrix)")
         return;
     }
 
-    if (Size.RowNumber == 1 && Size.ColNumber == 1)
+    if (Size.RowCount == 1 && Size.ColCount == 1)
     {
         (*this) *= InputMatrix[0];
 
         return;
     }
 
-    if (m_ColNumber != Size.RowNumber || Size.RowNumber != Size.ColNumber)
+    if (m_ColCount != Size.RowCount || Size.RowCount != Size.ColCount)
     {
         MDK_Error("Size does not match @ DenseShadowMatrix::operator*=(Matrix)")
         return;
@@ -1178,20 +1178,20 @@ void DenseShadowMatrix<ElementType>::operator/=(const DenseMatrix<ElementType>& 
 {
     auto Size = InputMatrix.GetSize();
 
-    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
+    if (m_RowCount <= 0 || Size.RowCount <= 0)
     {
         MDK_Error("Self or Matrix is empty @ DenseShadowMatrix::operator/=(InputMatrix)")
         return;
     }
 
-    if (Size.RowNumber == 1 && Size.ColNumber == 1)
+    if (Size.RowCount == 1 && Size.ColCount == 1)
     {
         (*this) /= InputMatrix[0];
 
         return;
     }
 
-    if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
+    if (Size.RowCount != m_RowCount || Size.ColCount != m_ColCount)
     {
         MDK_Error("Size does not match @ DenseShadowMatrix::operator/=(InputMatrix)")
         return;
@@ -1229,7 +1229,7 @@ template<typename ElementType>
 inline
 void DenseShadowMatrix<ElementType>::operator+=(const ElementType& Element)
 {
-    if (m_RowNumber <= 0)
+    if (m_RowCount <= 0)
     {
         MDK_Error("Self is empty @ DenseShadowMatrix::operator+=(Element)")
         return;
@@ -1264,7 +1264,7 @@ template<typename ElementType>
 inline
 void DenseShadowMatrix<ElementType>::operator-=(const ElementType& Element)
 {
-    if (m_RowNumber <= 0)
+    if (m_RowCount <= 0)
     {
         MDK_Error("Self is empty @ DenseShadowMatrix::operator-=(Element)")
         return;
@@ -1299,7 +1299,7 @@ template<typename ElementType>
 inline
 void DenseShadowMatrix<ElementType>::operator*=(const ElementType& Element)
 {
-    if (m_RowNumber <= 0)
+    if (m_RowCount <= 0)
     {
         MDK_Error("Self is empty @ DenseShadowMatrix::operator*=(Element)")
         return;
@@ -1334,7 +1334,7 @@ template<typename ElementType>
 inline
 void DenseShadowMatrix<ElementType>::operator/=(const ElementType& Element)
 {
-    if (m_RowNumber <= 0)
+    if (m_RowCount <= 0)
     {
         MDK_Error("Self is empty @ DenseShadowMatrix::operator/=(Element)")
         return;
@@ -1372,20 +1372,20 @@ void DenseShadowMatrix<ElementType>::operator+=(const DenseShadowMatrix<ElementT
 {
     auto Size = ShadowMatrix.GetSize();
 
-    if (Size.RowNumber == 1 && Size.ColNumber == 1)
+    if (Size.RowCount == 1 && Size.ColCount == 1)
     {
         (*this) += ShadowMatrix[0];
 
         return;
     }
 
-    if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
+    if (Size.RowCount != m_RowCount || Size.ColCount != m_ColCount)
     {
         MDK_Error("Size does not match @ DenseShadowMatrix::operator+=(ShadowMatrix)")
         return;
     }
 
-    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
+    if (m_RowCount <= 0 || Size.RowCount <= 0)
     {
         MDK_Error("Self or ShadowMatrix is empty @ DenseShadowMatrix::operator+=(ShadowMatrix)")
         return;
@@ -1413,20 +1413,20 @@ void DenseShadowMatrix<ElementType>::operator-=(const DenseShadowMatrix<ElementT
 {
     auto Size = ShadowMatrix.GetSize();
 
-    if (Size.RowNumber == 1 && Size.ColNumber == 1)
+    if (Size.RowCount == 1 && Size.ColCount == 1)
     {
         (*this) -= ShadowMatrix[0];
 
         return;
     }
 
-    if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
+    if (Size.RowCount != m_RowCount || Size.ColCount != m_ColCount)
     {
         MDK_Error("Size does not match @ DenseShadowMatrix::operato-=(ShadowMatrix)")
         return;
     }
 
-    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
+    if (m_RowCount <= 0 || Size.RowCount <= 0)
     {
         MDK_Error("Self or ShadowMatrix is empty @ DenseShadowMatrix::operator-=(ShadowMatrix)")
         return;
@@ -1454,20 +1454,20 @@ void DenseShadowMatrix<ElementType>::operator*=(const DenseShadowMatrix<ElementT
 {
     auto Size = ShadowMatrix.GetSize();
 
-    if (Size.RowNumber == 1 && Size.ColNumber == 1)
+    if (Size.RowCount == 1 && Size.ColCount == 1)
     {
         (*this) *= ShadowMatrix[0];
 
         return;
     }
 
-    if (m_ColNumber != Size.RowNumber || Size.RowNumber != Size.ColNumber)
+    if (m_ColCount != Size.RowCount || Size.RowCount != Size.ColCount)
     {
         MDK_Error("Size does not match @ DenseShadowMatrix::operator*=(ShadowMatrix)")
         return;
     }
 
-    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
+    if (m_RowCount <= 0 || Size.RowCount <= 0)
     {
         MDK_Error("Self or ShadowMatrix is empty @ DenseShadowMatrix::operator*=(ShadowMatrix)")
         return;
@@ -1485,20 +1485,20 @@ void DenseShadowMatrix<ElementType>::operator/=(const DenseShadowMatrix<ElementT
 {
     auto Size = ShadowMatrix.GetSize();
 
-    if (Size.RowNumber == 1 && Size.ColNumber == 1)
+    if (Size.RowCount == 1 && Size.ColCount == 1)
     {
         (*this) /= ShadowMatrix[0];
 
         return;
     }
 
-    if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
+    if (Size.RowCount != m_RowCount || Size.ColCount != m_ColCount)
     {
         MDK_Error("Size does not match @ DenseShadowMatrix::operato/=(ShadowMatrix)")
         return;
     }
 
-    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
+    if (m_RowCount <= 0 || Size.RowCount <= 0)
     {
         MDK_Error("Self or ShadowMatrix is empty @ DenseShadowMatrix::operator/=(ShadowMatrix)")
         return;
@@ -1615,26 +1615,26 @@ DenseMatrix<ElementType> DenseShadowMatrix<ElementType>::ElementMultiply(const D
 {
     auto Size = ShadowMatrix.GetSize();
 
-    if (Size.RowNumber == 1 && Size.ColNumber == 1)
+    if (Size.RowCount == 1 && Size.ColCount == 1)
     {
         return this->ElementMultiply(ShadowMatrix(0));
     }
 
     DenseMatrix<ElementType> tempMatrix;
 
-    if (Size.RowNumber != m_RowNumber || Size.ColNumber != m_ColNumber)
+    if (Size.RowCount != m_RowCount || Size.ColCount != m_ColCount)
     {
         MDK_Error("Size does not match @ DenseShadowMatrix::ElementMultiply(ShadowMatrix)")
         return tempMatrix;
     }
 
-    if (m_RowNumber <= 0 || Size.RowNumber <= 0)
+    if (m_RowCount <= 0 || Size.RowCount <= 0)
     {
         MDK_Error("Self or ShadowMatrix is empty @ DenseShadowMatrix::ElementMultiply(ShadowMatrix)")
         return tempMatrix;
     }
 
-    tempMatrix.FastResize(m_RowNumber, m_ColNumber);
+    tempMatrix.FastResize(m_RowCount, m_ColCount);
 
     auto ptrTemp = tempMatrix.GetElementPointer();
 

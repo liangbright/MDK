@@ -47,7 +47,7 @@ void test_a()
 	InterpolationOption.Pixel_OutsideImage = 0;
 	Resampler.SetImageInterpolationOption(InterpolationOption);
 	Resampler.EnableSmoothingWhenDownsampling();
-	Resampler.SetMaxNumberOfThread(6);
+	Resampler.SetMaxThreadCount(6);
 	Resampler.Update();
 	const auto& ResampledImage = *Resampler.GetOutputImage();
 

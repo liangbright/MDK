@@ -36,9 +36,9 @@ class DenseGlueMatrixForLinearCombination : public Object
 {
 private:
 
-	int_max m_RowNumber;
+	int_max m_RowCount;
 
-	int_max m_ColNumber;
+	int_max m_ColCount;
 
     std::vector<DenseMatrix<ElementType>> m_SourceMatrixSharedCopyList;
 
@@ -67,9 +67,9 @@ private:
 	//---------------------- Other ----------------------------------------//
 private:
 
-    inline int_max GetRowNumber() const;
+    inline int_max GetRowCount() const;
 
-    inline int_max GetColNumber() const;
+    inline int_max GetColCount() const;
 
     inline MatrixSize GetSize() const;
 

@@ -156,7 +156,7 @@ void DenseVector<ElementType>::operator=(const std::initializer_list<const Dense
     {
         auto InputVectorPtr = InputList.begin()[k];
 
-        TotalElementNumber += InputVectorPtr->GetElementNumber();
+        TotalElementNumber += InputVectorPtr->GetElementCount();
 
         if (this->GetElementPointer() == InputVectorPtr->GetElementPointer())
         {
@@ -183,7 +183,7 @@ void DenseVector<ElementType>::operator=(const std::initializer_list<const Dense
             auto DataPtr = InputVectorPtr->GetElementPointer();
             if (DataPtr != nullptr)
             {
-                this->Append(DataPtr, InputVectorPtr->GetElementNumber());
+                this->Append(DataPtr, InputVectorPtr->GetElementCount());
             }
         }
     }
@@ -233,7 +233,7 @@ template<typename ElementType>
 inline
 void DenseVector<ElementType>::operator=(const ObjectArray<ElementType>& InputVector)
 {
-	this->Copy(InputVector.GetElementPointer(), InputVector.GetElementNumber());
+	this->Copy(InputVector.GetElementPointer(), InputVector.GetElementCount());
 }
 
 
@@ -241,7 +241,7 @@ template<typename ElementType>
 inline
 void DenseVector<ElementType>::operator=(const DenseMatrix<ElementType>& InputVector)
 {
-	this->Copy(InputVector.GetElementPointer(), InputVector.GetElementNumber());
+	this->Copy(InputVector.GetElementPointer(), InputVector.GetElementCount());
 }
 
 
@@ -402,7 +402,7 @@ int_max DenseVector<ElementType>::GetLength() const
 
 template<typename ElementType>
 inline
-int_max DenseVector<ElementType>::GetElementNumber() const
+int_max DenseVector<ElementType>::GetElementCount() const
 {
     return int_max(m_StdVector.size());
 }
@@ -763,7 +763,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseMatrix<i
     
     auto SelfLength = this->GetLength();
 
-    auto InputLength = IndexList.GetElementNumber();
+    auto InputLength = IndexList.GetElementCount();
 
     if (InputLength > SelfLength)
     {
@@ -859,7 +859,7 @@ template<typename ElementType>
 inline
 bool DenseVector<ElementType>::SetSubSet(int_max Index_start, int_max Index_end, const DenseMatrix<ElementType>& SubVector)
 {
-	if (std::abs(Index_end - Index_start) + 1 != int_max(SubVector.GetElementNumber()))
+	if (std::abs(Index_end - Index_start) + 1 != int_max(SubVector.GetElementCount()))
 	{
 		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
 		return false;
@@ -874,7 +874,7 @@ template<int_max LengthParameter>
 inline
 bool DenseVector<ElementType>::SetSubSet(int_max Index_start, int_max Index_end, const DenseVector<ElementType, LengthParameter>& SubVector)
 {
-	if (std::abs(Index_end - Index_start) + 1 != int_max(SubVector.GetElementNumber()))
+	if (std::abs(Index_end - Index_start) + 1 != int_max(SubVector.GetElementCount()))
 	{
 		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
 		return false;
@@ -937,12 +937,12 @@ template<typename ElementType>
 inline
 bool DenseVector<ElementType>::SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector)
 {
-	if (IndexList.GetElementNumber() != SubVector.GetElementNumber())
+	if (IndexList.GetElementCount() != SubVector.GetElementCount())
     {
         MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
         return false;
     }
-	return this->SetSubSet(IndexList.GetPointer(), SubVector.GetPointer(), SubVector.GetElementNumber());
+	return this->SetSubSet(IndexList.GetPointer(), SubVector.GetPointer(), SubVector.GetElementCount());
 }
 
 
@@ -951,7 +951,7 @@ template<int_max LengthParameterA, int_max LengthParameterB>
 inline
 bool DenseVector<ElementType>::SetSubSet(const DenseVector<int_max, LengthParameterA>& IndexList, const DenseVector<ElementType, LengthParameterB>& SubVector)
 {// do not use LengthParameter
-	if (IndexList.GetElementNumber() != SubVector.GetElementNumber())
+	if (IndexList.GetElementCount() != SubVector.GetElementCount())
     {
         MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
         return false;
@@ -964,12 +964,12 @@ template<typename ElementType>
 inline 
 bool DenseVector<ElementType>::SetSubSet(const DenseVector<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector)
 {
-	if (IndexList.GetElementNumber() != SubVector.GetElementNumber())
+	if (IndexList.GetElementCount() != SubVector.GetElementCount())
 	{
 		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
 		return false;
 	}
-	return this->SetSubSet(IndexList.GetPointer(), SubVector.GetPointer(), SubVector.GetElementNumber());
+	return this->SetSubSet(IndexList.GetPointer(), SubVector.GetPointer(), SubVector.GetElementCount());
 }
 
 
@@ -978,12 +978,12 @@ template<int_max LengthParameter>
 inline
 bool DenseVector<ElementType>::SetSubSet(const DenseVector<int_max>& IndexList, const DenseVector<ElementType, LengthParameter>& SubVector)
 {
-	if (IndexList.GetElementNumber() != SubVector.GetElementNumber())
+	if (IndexList.GetElementCount() != SubVector.GetElementCount())
 	{
 		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
 		return false;
 	}
-	return this->SetSubSet(IndexList.GetPointer(), SubVector.GetPointer(), SubVector.GetElementNumber());
+	return this->SetSubSet(IndexList.GetPointer(), SubVector.GetPointer(), SubVector.GetElementCount());
 }
 
 
@@ -1021,7 +1021,7 @@ template<typename ElementType>
 inline
 bool DenseVector<ElementType>::Append(ElementType Element)
 {
-    auto SelfLength = this->GetElementNumber();
+    auto SelfLength = this->GetElementCount();
 
     this->Resize(SelfLength + 1);
 
@@ -1036,7 +1036,7 @@ template<int_max LengthParameter>
 inline 
 bool DenseVector<ElementType>::Append(const DenseVector<ElementType, LengthParameter>& InputData)
 {
-    return this->Append(InputData.GetElementPointer(), InputData.GetElementNumber());
+    return this->Append(InputData.GetElementPointer(), InputData.GetElementCount());
 }
 
 
@@ -1050,7 +1050,7 @@ bool DenseVector<ElementType>::Append(const ElementType* InputData, int_max Inpu
         return true;
     }
 
-    auto SelfLength = this->GetElementNumber();
+    auto SelfLength = this->GetElementCount();
 
     this->Resize(SelfLength + InputLength);
 
@@ -1089,7 +1089,7 @@ bool DenseVector<ElementType>::Delete(const DenseMatrix<int_max>& IndexList)
         return false;
     }
 
-    return this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
+    return this->Delete(IndexList.GetElementPointer(), IndexList.GetElementCount());
 }
 
 
@@ -1098,7 +1098,7 @@ template<int_max LengthParameter>
 inline
 bool DenseVector<ElementType>::Delete(const DenseVector<int_max, LengthParameter>& IndexList)
 {
-    return this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
+    return this->Delete(IndexList.GetElementPointer(), IndexList.GetElementCount());
 }
 
 
@@ -1112,7 +1112,7 @@ bool DenseVector<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
         return true;
     }
 
-    auto SelfLength = this->GetElementNumber();
+    auto SelfLength = this->GetElementCount();
 
     if (SelfLength == 0)
     {
@@ -1171,7 +1171,7 @@ template<typename ElementType>
 inline
 bool DenseVector<ElementType>::Delete(int_max Index_start, int_max Index_end)
 {
-    auto SelfLength = this->GetElementNumber();
+    auto SelfLength = this->GetElementCount();
 
     if (SelfLength == 0)
     {
@@ -1218,7 +1218,7 @@ bool DenseVector<ElementType>::Insert(int_max Index, const DenseMatrix<ElementTy
         return false;
     }
 
-    return this->Insert(Index, InputData.GetElementPointer(), InputData.GetElementNumber());
+    return this->Insert(Index, InputData.GetElementPointer(), InputData.GetElementCount());
 }
 
 
@@ -1227,7 +1227,7 @@ template<int_max LengthParameter>
 inline
 bool DenseVector<ElementType>::Insert(int_max Index, const DenseVector<ElementType, LengthParameter>& InputData)
 {
-    return this->Insert(Index, InputData.GetElementPointer(), InputData.GetElementNumber());
+    return this->Insert(Index, InputData.GetElementPointer(), InputData.GetElementCount());
 }
 
 
@@ -1235,7 +1235,7 @@ template<typename ElementType>
 inline
 bool DenseVector<ElementType>::Insert(int_max Index, const ElementType* InputData, int_max InputLength)
 {
-    auto SelfLength = this->GetElementNumber();
+    auto SelfLength = this->GetElementCount();
 
     if (SelfLength == 0)
     {
@@ -1310,7 +1310,7 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
         return IndexList;
     }
 
-    auto ElementNumber = this->GetElementNumber();
+    auto ElementNumber = this->GetElementCount();
 
     if (MaxOutputNumber < 0 || MaxOutputNumber > ElementNumber)
     {
@@ -1351,7 +1351,7 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
 			{
 				IndexList.Append(i);
 
-				if (IndexList.GetElementNumber() == MaxOutputNumber)
+				if (IndexList.GetElementCount() == MaxOutputNumber)
 				{
 					break;
 				}
@@ -1366,7 +1366,7 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
 			{
 				IndexList.Append(i);
 
-				if (IndexList.GetElementNumber() == MaxOutputNumber)
+				if (IndexList.GetElementCount() == MaxOutputNumber)
 				{
 					break;
 				}
@@ -1388,7 +1388,7 @@ int_max DenseVector<ElementType>::Find(const std::string& first_or_last, MatchFu
 
 	if (first_or_last == "first")
 	{
-		for (int_max i = 0; i < this->GetElementNumber(); ++i)
+		for (int_max i = 0; i < this->GetElementCount(); ++i)
 		{
 			if (MatchFunction((*this)[i]) == true)
 			{
@@ -1399,7 +1399,7 @@ int_max DenseVector<ElementType>::Find(const std::string& first_or_last, MatchFu
 	}
 	else if (first_or_last == "last")
 	{
-		for (int_max i = this->GetElementNumber()-1; i >= 0; --i)
+		for (int_max i = this->GetElementCount()-1; i >= 0; --i)
 		{
 			if (MatchFunction((*this)[i]) == true)
 			{
@@ -1449,7 +1449,7 @@ DenseVector<int_max> DenseVector<ElementType>::Sort(int_max Index_start, int_max
 {
     DenseVector<int_max> IndexList;
 
-    auto ElementNumber = this->GetElementNumber();
+    auto ElementNumber = this->GetElementCount();
 
     if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
     {

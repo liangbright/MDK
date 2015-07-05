@@ -66,7 +66,7 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Preproc
 			SmoothingFilter->SetOutputImageInfo(m_InputImage->GetInfo());
 			SmoothingFilter->EnableOutputImage();
 			SmoothingFilter->SetRadius(OutputSpacing[0], OutputSpacing[1], OutputSpacing[2]);
-			SmoothingFilter->SetMaxNumberOfThread(m_MaxNumberOfThread);
+			SmoothingFilter->SetMaxThreadCount(m_MaxThreadCount);
 			SmoothingFilter->Update();
 			m_SmoothedImage = std::move(*SmoothingFilter->GetOutputImage());
 		}

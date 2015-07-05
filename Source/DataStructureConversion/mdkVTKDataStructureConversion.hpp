@@ -87,8 +87,8 @@ bool ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCu
 		return false;
 	}
 
-	auto PointNumber = MDK3DCurve.GetColNumber();
-	if (MDK3DCurve.GetRowNumber() != 3)
+	auto PointNumber = MDK3DCurve.GetColCount();
+	if (MDK3DCurve.GetRowCount() != 3)
 	{
 		MDK_Error("Invalid MDK3DCurve @ mdkFileIO ConvertSingleMDK3DCurveToVTKPolyData")
 		return false;
@@ -158,11 +158,11 @@ bool ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<Scalar
 	auto CurveNumber = MDK3DCurveList.GetLength();
 	for (int_max k = 0; k < CurveNumber; ++k)
 	{
-		auto PointNumber = MDK3DCurveList[k].GetColNumber();
+		auto PointNumber = MDK3DCurveList[k].GetColCount();
 
 		CellList->InsertNextCell(PointNumber);
 
-		if (MDK3DCurveList[k].GetRowNumber() != 3)
+		if (MDK3DCurveList[k].GetRowCount() != 3)
 		{
 			MDK_Error("Invalid InputCurve @ mdkFileIO ConvertSingleMDK3DCurveToVTKPolyData")
 			return VTKCurve;
@@ -547,7 +547,7 @@ bool ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MD
 	ObjectArray<DenseVector<int_max>> CellTable;
     MDKMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
 
-    int_max PointNumber = PointPositionTable.GetColNumber();
+    int_max PointNumber = PointPositionTable.GetColCount();
     int_max CellNumber = CellTable.GetLength();
 
     auto PointData = vtkSmartPointer<vtkPoints>::New();
@@ -603,7 +603,7 @@ bool ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MD
 
     for (int i = 0; i < CellNumber; ++i)
     {
-        auto PointNumberInCell = CellTable[i].GetElementNumber();
+        auto PointNumberInCell = CellTable[i].GetElementCount();
 
         CellData->InsertNextCell(PointNumberInCell);
 
@@ -713,7 +713,7 @@ bool ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& 
 	ObjectArray<DenseVector<int_max>> CellTable;
 	MDKMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
 
-	int_max PointNumber = PointPositionTable.GetColNumber();
+	int_max PointNumber = PointPositionTable.GetColCount();
 	int_max CellNumber = CellTable.GetLength();
 
 	auto PointData = vtkSmartPointer<vtkPoints>::New();
@@ -769,7 +769,7 @@ bool ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& 
 
 	for (int i = 0; i < CellNumber; ++i)
 	{
-		auto PointNumberInCell = CellTable[i].GetElementNumber();
+		auto PointNumberInCell = CellTable[i].GetElementCount();
 
 		CellData->InsertNextCell(PointNumberInCell);
 

@@ -104,7 +104,7 @@ bool IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType, Sca
 	{
 		IntegralImageBuilder3D<double> ImBuilder;
 		ImBuilder.SetInputImage(m_InputImage);
-		ImBuilder.SetMaxNumberOfThread(m_MaxNumberOfThread);
+		ImBuilder.SetMaxThreadCount(m_MaxThreadCount);
 		ImBuilder.Update();
 		m_IntegralImage_Internal = std::move(*ImBuilder.GetOutputImage());
 	}

@@ -127,7 +127,7 @@ bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String
 
 		bool IsOK = true;
 		DenseMatrix<double> PointData(3, PointNumber);
-		if (LoadScalarArrayFromDataFile(PointData.GetElementPointer(), PointData.GetElementNumber(), FilePath + PointDataFileName, ScalarTypeInDataFile) == false)
+		if (LoadScalarArrayFromDataFile(PointData.GetElementPointer(), PointData.GetElementCount(), FilePath + PointDataFileName, ScalarTypeInDataFile) == false)
 		{
 			IsOK = false;
 		}
@@ -205,7 +205,7 @@ bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String
 		auto VTKCellData = vtkSmartPointer<vtkCellArray>::New();
 		for (int i = 0; i < CellNumber; ++i)
 		{
-			auto PointNumberInCell = CellData[i].GetElementNumber();
+			auto PointNumberInCell = CellData[i].GetElementCount();
 			VTKCellData->InsertNextCell(PointNumberInCell);
 			for (int n = 0; n < PointNumberInCell; ++n)
 			{
@@ -285,7 +285,7 @@ bool LoadVTK3DScalarImageFromJsonDataFile(vtkImageData* OutputVTKImage, VTKDataT
 	if (it != JObject.end())
 	{
 		auto tempArray = it->second.ToScalarArray<int_max>();
-		if (tempArray.GetElementNumber() != 3)
+		if (tempArray.GetElementCount() != 3)
 		{
 			MDK_Error("Size vector is wrong @ LoadVTK3DScalarImageFromJsonDataFile(...)")
 			return false;
@@ -305,7 +305,7 @@ bool LoadVTK3DScalarImageFromJsonDataFile(vtkImageData* OutputVTKImage, VTKDataT
 	if (it != JObject.end())
 	{
 		auto tempArray = it->second.ToScalarArray<double>();
-		if (tempArray.GetElementNumber() != 3)
+		if (tempArray.GetElementCount() != 3)
 		{
 			MDK_Error("Spacing vector is wrong @ LoadVTK3DScalarImageFromJsonDataFile(...)")
 			return false;
@@ -325,7 +325,7 @@ bool LoadVTK3DScalarImageFromJsonDataFile(vtkImageData* OutputVTKImage, VTKDataT
 	if (it != JObject.end())
 	{
 		auto tempArray = it->second.ToScalarArray<double>();
-		if (tempArray.GetElementNumber() != 3)
+		if (tempArray.GetElementCount() != 3)
 		{
 			MDK_Error("Origin vector is wrong @ LoadVTK3DScalarImageFromJsonDataFile(...)")
 			return false;
@@ -345,7 +345,7 @@ bool LoadVTK3DScalarImageFromJsonDataFile(vtkImageData* OutputVTKImage, VTKDataT
 	if (it != JObject.end())
 	{
 		auto tempOrientation = it->second.ToScalarArray<double>();
-		if (tempOrientation.GetElementNumber() != 9)
+		if (tempOrientation.GetElementCount() != 9)
 		{
 			MDK_Error("Orientation size is wrong @ LoadVTK3DScalarImageFromJsonDataFile(...)")
 			return false;

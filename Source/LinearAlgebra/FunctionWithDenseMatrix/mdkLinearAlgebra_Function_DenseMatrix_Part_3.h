@@ -126,7 +126,7 @@ inline
 ElementType ComputeKLDivergenceOfVectorAFromVectorB(const ElementType* VectorA, const ElementType* VectorB, int_max Length, bool CheckInput = true);
 
 
-// Jensen–Shannon divergence is in the range [0, 1]
+// Jensenï¿½Shannon divergence is in the range [0, 1]
 template<typename ElementType>
 DenseMatrix<ElementType> ComputeJSDivergenceListFromSingleVectorToColVectorSet(const DenseMatrix<ElementType>& SingleVector,
                                                                                const DenseMatrix<ElementType>& ColVectorSet);

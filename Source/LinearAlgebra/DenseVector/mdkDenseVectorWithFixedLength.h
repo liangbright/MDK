@@ -94,7 +94,7 @@ public:
 
     inline int_max GetLength() const;
 
-    inline int_max GetElementNumber() const;
+    inline int_max GetElementCount() const;
 
     inline bool IsEmpty() const;
 

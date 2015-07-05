@@ -296,7 +296,7 @@ void JsonValue::operator=(const DenseMatrix<int>& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<int>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_IntArray;
 }
@@ -309,7 +309,7 @@ void JsonValue::operator=(DenseMatrix<int>&& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<int>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_IntArray;
 }
@@ -322,7 +322,7 @@ void JsonValue::operator=(const DenseVector<int>& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<int>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_IntArray;
 }
@@ -335,7 +335,7 @@ void JsonValue::operator=(DenseVector<int>&& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<int>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_IntArray;
 }
@@ -348,7 +348,7 @@ void JsonValue::operator=(const DenseMatrix<long long>& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<long long>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_LongLongArray;
 }
@@ -361,7 +361,7 @@ void JsonValue::operator=(DenseMatrix<long long>&& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<long long>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_LongLongArray;
 }
@@ -374,7 +374,7 @@ void JsonValue::operator=(const DenseVector<long long>& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<long long>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_LongLongArray;
 }
@@ -387,7 +387,7 @@ void JsonValue::operator=(DenseVector<long long>&& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<long long>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_LongLongArray;
 }
@@ -400,7 +400,7 @@ void JsonValue::operator=(const DenseMatrix<float>& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<float>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_FloatArray;
 }
@@ -413,7 +413,7 @@ void JsonValue::operator=(DenseMatrix<float>&& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<float>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_FloatArray;
 }
@@ -426,7 +426,7 @@ void JsonValue::operator=(const DenseVector<float>& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<float>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_FloatArray;
 }
@@ -439,7 +439,7 @@ void JsonValue::operator=(DenseVector<float>&& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<float>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_FloatArray;
 }
@@ -452,7 +452,7 @@ void JsonValue::operator=(const DenseMatrix<double>& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<double>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_DoubleArray;
 }
@@ -465,7 +465,7 @@ void JsonValue::operator=(DenseMatrix<double>&& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<double>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_DoubleArray;
 }
@@ -478,7 +478,7 @@ void JsonValue::operator=(const DenseVector<double>& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<double>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_DoubleArray;
 }
@@ -491,7 +491,7 @@ void JsonValue::operator=(DenseVector<double>&& InputArray)
 	}
 	auto TempPtr = std::make_unique<DenseMatrix<double>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementNumber());
+	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_DoubleArray;
 }

@@ -86,7 +86,7 @@ public:
     inline bool IsEmpty() const;
 
     inline int_max GetLength() const;
-    inline int_max GetElementNumber() const; // the same as GetLength();
+    inline int_max GetElementCount() const; // the same as GetLength();
 
     //--------------------- Get Data Pointer -----------------------------//
 

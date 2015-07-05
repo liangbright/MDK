@@ -579,9 +579,9 @@ void Test_Mutiplication_Speed()
     std::cout << "C = A*C time = " << Temp_time.count() << '\n';
 
 
-    arma::Mat<double> Am(A.GetElementPointer(), arma::uword(A.GetRowNumber()), arma::uword(A.GetColNumber()), false);
-    arma::Mat<double> Bm(B.GetElementPointer(), arma::uword(B.GetRowNumber()), arma::uword(B.GetColNumber()), false);
-    arma::Mat<double> Cm(C.GetElementPointer(), arma::uword(C.GetRowNumber()), arma::uword(C.GetColNumber()), false);
+    arma::Mat<double> Am(A.GetElementPointer(), arma::uword(A.GetRowCount()), arma::uword(A.GetColCount()), false);
+    arma::Mat<double> Bm(B.GetElementPointer(), arma::uword(B.GetRowCount()), arma::uword(B.GetColCount()), false);
+    arma::Mat<double> Cm(C.GetElementPointer(), arma::uword(C.GetRowCount()), arma::uword(C.GetColCount()), false);
 
     t0 = std::chrono::system_clock::now();
 
@@ -1715,11 +1715,11 @@ void Test_GlueMatrix_Speed2()
     // time : 30s No GlueMatrix
 
 
-    arma::Mat<double> Am(A.GetElementPointer(), arma::uword(A.GetRowNumber()), arma::uword(A.GetColNumber()), false);
-    arma::Mat<double> Bm(B.GetElementPointer(), arma::uword(B.GetRowNumber()), arma::uword(B.GetColNumber()), false);
-    arma::Mat<double> Cm(C.GetElementPointer(), arma::uword(C.GetRowNumber()), arma::uword(C.GetColNumber()), false);
-    arma::Mat<double> C2m(C2.GetElementPointer(), arma::uword(C2.GetRowNumber()), arma::uword(C2.GetColNumber()), false);
-    arma::Mat<double> Dm(D.GetElementPointer(), arma::uword(D.GetRowNumber()), arma::uword(D.GetColNumber()), false);
+    arma::Mat<double> Am(A.GetElementPointer(), arma::uword(A.GetRowCount()), arma::uword(A.GetColCount()), false);
+    arma::Mat<double> Bm(B.GetElementPointer(), arma::uword(B.GetRowCount()), arma::uword(B.GetColCount()), false);
+    arma::Mat<double> Cm(C.GetElementPointer(), arma::uword(C.GetRowCount()), arma::uword(C.GetColCount()), false);
+    arma::Mat<double> C2m(C2.GetElementPointer(), arma::uword(C2.GetRowCount()), arma::uword(C2.GetColCount()), false);
+    arma::Mat<double> Dm(D.GetElementPointer(), arma::uword(D.GetRowCount()), arma::uword(D.GetColCount()), false);
 
     t0 = std::chrono::system_clock::now();
 

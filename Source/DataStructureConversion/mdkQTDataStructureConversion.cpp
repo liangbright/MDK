@@ -109,7 +109,7 @@ QJsonValue ConvertMDKJsonValueToQTJsonValue(const JsonValue& JValue)
 QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<int>& InputArray)
 {
 	QJsonArray QJArray;
-	for (int_max k = 0; k < InputArray.GetElementNumber(); ++k)
+	for (int_max k = 0; k < InputArray.GetElementCount(); ++k)
 	{
 		QJArray.append(QJsonValue(InputArray[k]));
 	}
@@ -120,7 +120,7 @@ QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<int>& InputArray
 QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<long long>& InputArray)
 {
 	QJsonArray QJArray;
-	for (int_max k = 0; k < InputArray.GetElementNumber(); ++k)
+	for (int_max k = 0; k < InputArray.GetElementCount(); ++k)
 	{
 		QJArray.append(QJsonValue(InputArray[k]));
 	}
@@ -131,7 +131,7 @@ QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<long long>& Inpu
 QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<float>& InputArray)
 {
 	QJsonArray QJArray;
-	for (int_max k = 0; k < InputArray.GetElementNumber(); ++k)
+	for (int_max k = 0; k < InputArray.GetElementCount(); ++k)
 	{
 		QJArray.append(QJsonValue(double(InputArray[k]))); // QJsonValue(float) is not defined
 	}
@@ -142,7 +142,7 @@ QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<float>& InputArr
 QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<double>& InputArray)
 {
 	QJsonArray QJArray;
-	for (int_max k = 0; k < InputArray.GetElementNumber(); ++k)
+	for (int_max k = 0; k < InputArray.GetElementCount(); ++k)
 	{
 		QJsonValue QJValue(InputArray[k]);
 		QJArray.append(QJValue);
@@ -154,7 +154,7 @@ QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<double>& InputAr
 QJsonArray ConvertMDKJsonArrayToQTJsonArray(const JsonArray& JArray)
 {
 	QJsonArray QJArray;
-	for (int_max k = 0; k < JArray.GetElementNumber(); ++k)
+	for (int_max k = 0; k < JArray.GetElementCount(); ++k)
 	{
 		QJsonValue QJValue = ConvertMDKJsonValueToQTJsonValue(JArray[k]);
 		QJArray.append(QJValue);
@@ -268,7 +268,7 @@ DenseMatrix<double> ConvertQTJsonArrayToMDKScalarArray(const QJsonArray& QJArray
 		}
 		OutputArray.Append((*it).toDouble());
 	}
-	OutputArray.Resize(1, OutputArray.GetElementNumber());
+	OutputArray.Resize(1, OutputArray.GetElementCount());
 	return OutputArray;
 }
 

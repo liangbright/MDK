@@ -15,8 +15,8 @@ bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, c
 	JsonObject JObject;
 	JObject["ObjectType"] = "DenseMatrix";
 	JObject["ScalarType"] = GetScalarTypeName(ScalarType(0));
-	JObject["RowNumber"] = InputMatrix.GetRowNumber();
-	JObject["ColNumber"] = InputMatrix.GetColNumber();
+	JObject["RowCount"] = InputMatrix.GetRowCount();
+	JObject["ColCount"] = InputMatrix.GetColCount();
 	JObject["ScalarArray"] = DataFileName;
 
 	bool IsOK = true;
@@ -24,7 +24,7 @@ bool SaveDenseMatrixAsJsonDataFile(const DenseMatrix<ScalarType>& InputMatrix, c
 	{
 		IsOK = false;
 	}
-	if (SaveScalarArrayAsDataFile(InputMatrix.GetElementPointer(), InputMatrix.GetElementNumber(), FilePath + DataFileName) == false)
+	if (SaveScalarArrayAsDataFile(InputMatrix.GetElementPointer(), InputMatrix.GetElementCount(), FilePath + DataFileName) == false)
 	{
 		IsOK = false;
 	}
@@ -75,27 +75,27 @@ bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, cons
 		return false;
 	}
 	//-------------------------------------------------
-	int_max RowNumber = 0;
-	it = JObject.find("RowNumber");
+	int_max RowCount = 0;
+	it = JObject.find("RowCount");
 	if (it != JObject.end())
 	{
-		RowNumber = it->second.ToScalar<int_max>();
+		RowCount = it->second.ToScalar<int_max>();
 	}
 	else
 	{
-		MDK_Error("Couldn't get RowNumber @ LoadDenseMatrixFromJsonDataFile(...)")
+		MDK_Error("Couldn't get RowCount @ LoadDenseMatrixFromJsonDataFile(...)")
 		return false;
 	}
 	//-------------------------------------------------
-	int_max ColNumber = 0;
-	it = JObject.find("ColNumber");
+	int_max ColCount = 0;
+	it = JObject.find("ColCount");
 	if (it != JObject.end())
 	{
-		ColNumber = it->second.ToScalar<int_max>();
+		ColCount = it->second.ToScalar<int_max>();
 	}
 	else
 	{
-		MDK_Error("Couldn't get ColNumber @ LoadDenseMatrixFromJsonDataFile(...)")
+		MDK_Error("Couldn't get ColCount @ LoadDenseMatrixFromJsonDataFile(...)")
 		return false;
 	}
 	//-------------------------------------------------
@@ -111,9 +111,9 @@ bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, cons
 		return false;
 	}
 	//-------------------------------------------------
-	OutputMatrix.FastResize(RowNumber, ColNumber);
+	OutputMatrix.FastResize(RowCount, ColCount);
 	// Read data
-	if (LoadScalarArrayFromDataFile(OutputMatrix.GetElementPointer(), OutputMatrix.GetElementNumber(), DataFilePathAndName, ScalarTypeInDataFile) == false)
+	if (LoadScalarArrayFromDataFile(OutputMatrix.GetElementPointer(), OutputMatrix.GetElementCount(), DataFilePathAndName, ScalarTypeInDataFile) == false)
 	{
 		OutputMatrix.Clear();
 		return false;

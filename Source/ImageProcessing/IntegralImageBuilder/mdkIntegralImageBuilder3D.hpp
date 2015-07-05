@@ -22,7 +22,7 @@ void IntegralImageBuilder3D<InputPixelType, OutputPixelType>::Clear()
 {
 	m_InputImage = nullptr;
 	m_OutputImage.Clear();
-	m_MaxNumberOfThread = 1;
+	m_MaxThreadCount = 1;
 }
 
 template<typename InputPixelType, typename OutputPixelType>
@@ -32,9 +32,9 @@ void IntegralImageBuilder3D<InputPixelType, OutputPixelType>::SetInputImage(cons
 }
 
 template<typename InputPixelType, typename OutputPixelType>
-void IntegralImageBuilder3D<InputPixelType, OutputPixelType>::SetMaxNumberOfThread(int_max Number)
+void IntegralImageBuilder3D<InputPixelType, OutputPixelType>::SetMaxThreadCount(int_max Number)
 {
-	m_MaxNumberOfThread = Number;
+	m_MaxThreadCount = Number;
 }
 
 template<typename InputPixelType, typename OutputPixelType>
@@ -52,9 +52,9 @@ bool IntegralImageBuilder3D<InputPixelType, OutputPixelType>::CheckInput()
 		return false;
 	}
 
-	if (m_MaxNumberOfThread <= 0)
+	if (m_MaxThreadCount <= 0)
 	{
-		MDK_Error("m_MaxNumberOfThread <= 0 @ IntegralImageBuilder3D::CheckInput()")
+		MDK_Error("m_MaxThreadCount <= 0 @ IntegralImageBuilder3D::CheckInput()")
 		return false;
 	}
 
@@ -171,14 +171,14 @@ bool IntegralImageBuilder3D<InputPixelType, OutputPixelType>::Update()
     auto InputSize = m_InputImage->GetSize();
 
 	ParallelBlock([&](int_max z_Index_start, int_max z_Index_end, int_max ThreadIndex){this->ComputeIntegralImage2D(z_Index_start, z_Index_end); },
-                  0, InputSize[2] - 1, m_MaxNumberOfThread, 1);
+                  0, InputSize[2] - 1, m_MaxThreadCount, 1);
 
     // sum in z-direction ------------------------------------------------------------------------------------------------------------
 
     int_max MinNumberOfPositionPerThread = 128;
 
 	ParallelBlock([&](int_max xy_Linear_start, int_max xy_Linear_end, int_max ThreadIndex){this->ComputeSumInDirectionZ(xy_Linear_start, xy_Linear_end); },
-				   0, InputSize[0]*InputSize[1] - 1, m_MaxNumberOfThread, MinNumberOfPositionPerThread);
+				   0, InputSize[0]*InputSize[1] - 1, m_MaxThreadCount, MinNumberOfPositionPerThread);
 
     return true;
 }

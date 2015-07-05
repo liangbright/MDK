@@ -166,10 +166,10 @@ public:
     inline bool IsEmpty() const;
 	inline bool IsPureEmpty() const;
 
-    inline int_max GetPointNumber() const;
-    inline int_max GetEdgeNumber() const;
-    inline int_max GetDirectedEdgeNumber() const;
-    inline int_max GetCellNumber() const;
+    inline int_max GetPointCount() const;
+    inline int_max GetEdgeCount() const;
+    inline int_max GetDirectedEdgeCount() const;
+    inline int_max GetCellCount() const;
  
     //------ Get/Set GlobalAttribute -----------------------------------//
 
@@ -346,7 +346,7 @@ public:
 
 	//------------ ReserveCapacity, ReleaseUnusedCapacity -------------------------------------//
 
-	void ReserveCapacity(int_max PointNumber, int_max EdgeNumber, int_max CellNumber);
+	void ReserveCapacity(int_max PointCount, int_max EdgeCount, int_max CellCount);
 
 	void ReleaseUnusedCapacity();
 
@@ -394,7 +394,7 @@ public:
     // EdgeHandle and EdgeID of the edge become invalid after the edge is deleted
     // Check is performed in the function to make sure an edge can not be deleted if any adjacent cell exit
 	//
-	// note:  Call Edge(EdgeHandle).GetAdjacentCellNumber() to check if the edge can be deleted or not
+	// note:  Call Edge(EdgeHandle).GetAdjacentCellCount() to check if the edge can be deleted or not
 	void DeleteEdge(EdgeHandleType EdgeHandle);
 	void DeleteEdge(int_max EdgeID);
 
@@ -411,10 +411,10 @@ public:
 
     // remove deleted item from object list ----------------------------------------------------------//
     // attention: after this function is called, handle may become invalid, but, ID will not change
-    // use this function when InvalidPointHandleNumber/ValidPointNumber( GetPointNumber() ) > 0.5
+    // use this function when InvalidPointHandleCount/ValidPointCount( GetPointCount() ) > 0.5
     void CleanDataStructure();
     
-    int_max GetInvalidPointHandleNumber() const; // the number of invalid point handles
+    int_max GetInvalidPointHandleCount() const; // the number of invalid point handles
 
     //---------------------------------------------------------------------------------------------------
 

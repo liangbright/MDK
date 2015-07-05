@@ -17,7 +17,7 @@ itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageB
     auto InputSize        = MDKImage.GetSize();
     auto InputOrigin      = MDKImage.GetOrigin();
     auto InputSpacing     = MDKImage.GetSpacing();
-    auto InputPixelNumber = MDKImage.GetPixelNumber();
+    auto InputPixelNumber = MDKImage.GetPixelCount();
 
     typedef itk::Image<PixelType, 3> ITKImageType;
     typedef itk::ImportImageFilter<PixelType, 3> ITKImportFilterType;
@@ -153,7 +153,7 @@ bool ConvertMDK3DScalarImageToITK3DScalarImage(const DenseImage3D<PixelType>& MD
 
 	auto Ptr_ITKImage = ITKImage->GetBufferPointer();
 
-	for (int_max i = 0; i < MDKImage.GetPixelNumber(); ++i)
+	for (int_max i = 0; i < MDKImage.GetPixelCount(); ++i)
 	{
 		Ptr_ITKImage[i] = Ptr_MDKImage[i];
 	}
@@ -201,7 +201,7 @@ bool ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* I
 
 	auto Ptr_ITKImage = ITKImage->GetBufferPointer();
 
-	for (int_max i = 0; i < MDKImage.GetPixelNumber(); ++i)
+	for (int_max i = 0; i < MDKImage.GetPixelCount(); ++i)
     {
 		Ptr_MDKImage[i] = Ptr_ITKImage[i];
     }

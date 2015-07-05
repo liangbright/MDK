@@ -357,12 +357,12 @@ bool JsonFile::SaveJsonValue(double Scalar, JsonFile& OutputFile)
 bool JsonFile::SaveJsonValue(const DenseMatrix<int>& IntArray, JsonFile& OutputFile, int_max Indention)
 {
 	OutputFile << "[";
-	for (int_max k = 0; k < IntArray.GetElementNumber(); ++k)
+	for (int_max k = 0; k < IntArray.GetElementCount(); ++k)
 	{
 		QString QStr = QString::number(IntArray[k]); // .toUtf8();
 		String str = QStr.toStdString();
 		OutputFile << str;
-		if (IntArray.GetElementNumber() > 1 && k < IntArray.GetElementNumber() - 1)
+		if (IntArray.GetElementCount() > 1 && k < IntArray.GetElementCount() - 1)
 		{
 			OutputFile << ", ";
 		}
@@ -383,12 +383,12 @@ bool JsonFile::SaveJsonValue(const DenseMatrix<int>& IntArray, JsonFile& OutputF
 bool JsonFile::SaveJsonValue(const DenseMatrix<long long>& LongLongArray, JsonFile& OutputFile, int_max Indention)
 {
 	OutputFile << "[";
-	for (int_max k = 0; k < LongLongArray.GetElementNumber(); ++k)
+	for (int_max k = 0; k < LongLongArray.GetElementCount(); ++k)
 	{
 		QString QStr = QString::number(LongLongArray[k]); // .toUtf8();
 		String str = QStr.toStdString();
 		OutputFile << str;
-		if (LongLongArray.GetElementNumber() > 1 && k < LongLongArray.GetElementNumber() - 1)
+		if (LongLongArray.GetElementCount() > 1 && k < LongLongArray.GetElementCount() - 1)
 		{
 			OutputFile << ", ";
 		}
@@ -409,12 +409,12 @@ bool JsonFile::SaveJsonValue(const DenseMatrix<long long>& LongLongArray, JsonFi
 bool JsonFile::SaveJsonValue(const DenseMatrix<float>& FloatArray, JsonFile& OutputFile, int_max Indention)
 {
 	OutputFile << "[";
-	for (int_max k = 0; k < FloatArray.GetElementNumber(); ++k)
+	for (int_max k = 0; k < FloatArray.GetElementCount(); ++k)
 	{
 		QString QStr = QString::number(FloatArray[k]); // .toUtf8();
 		String str = QStr.toStdString();
 		OutputFile << str;
-		if (FloatArray.GetElementNumber() > 1 && k < FloatArray.GetElementNumber() - 1)
+		if (FloatArray.GetElementCount() > 1 && k < FloatArray.GetElementCount() - 1)
 		{
 			OutputFile << ", ";
 		}
@@ -435,12 +435,12 @@ bool JsonFile::SaveJsonValue(const DenseMatrix<float>& FloatArray, JsonFile& Out
 bool JsonFile::SaveJsonValue(const DenseMatrix<double>& DoubleArray, JsonFile& OutputFile, int_max Indention)
 {
 	OutputFile << "[";
-	for (int_max k = 0; k < DoubleArray.GetElementNumber(); ++k)
+	for (int_max k = 0; k < DoubleArray.GetElementCount(); ++k)
 	{
 		QString QStr = QString::number(DoubleArray[k]); // .toUtf8();
 		String str = QStr.toStdString();
 		OutputFile << str;
-		if (DoubleArray.GetElementNumber() > 1 && k < DoubleArray.GetElementNumber() - 1)
+		if (DoubleArray.GetElementCount() > 1 && k < DoubleArray.GetElementCount() - 1)
 		{
 			OutputFile << ", ";
 		}

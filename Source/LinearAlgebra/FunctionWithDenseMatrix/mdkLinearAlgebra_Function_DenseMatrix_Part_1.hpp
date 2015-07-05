@@ -28,34 +28,34 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<Elemen
     auto SizeA = MatrixA.GetSize();
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowCount == 0 || SizeB.RowCount == 0)
     {
         MDK_Error("MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, MatrixB)")
         return false;
     }
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return MatrixAdd(OutputMatrixC, MatrixA(0), MatrixB);
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return MatrixAdd(OutputMatrixC, MatrixA, MatrixB(0));
     }
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, MatrixB)")
         return false;
     }
 
-	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+	OutputMatrixC.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
 
     return MatrixAdd(ptrC, ptrA, ptrB, ElementNumber, false);
 }
@@ -100,34 +100,34 @@ bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
     auto SizeA = MatrixA.GetSize();
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeA.RowNumber == 0 || SizeA.ColNumber == 0)
+    if (SizeA.RowCount == 0 || SizeA.ColCount == 0)
     {
         MDK_Error("MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, MatrixB)")
         return false;
     }
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return MatrixSubtract(OutputMatrixC, MatrixA(0), MatrixB);
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return MatrixSubtract(OutputMatrixC, MatrixA, MatrixB(0));
     }
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, MatrixB)")
         return false;
     }
 
-	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+	OutputMatrixC.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
 
     return MatrixSubtract(ptrC, ptrA, ptrB, ElementNumber, false);
 }
@@ -172,23 +172,23 @@ bool MatrixMultiply_slow(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
     auto SizeA = MatrixA.GetSize();
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowCount == 0 || SizeB.RowCount == 0)
     {
         MDK_Error("MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)")
         return false;
     }
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return MatrixMultiply(OutputMatrixC, MatrixA(0), MatrixB);
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return MatrixMultiply(OutputMatrixC, MatrixA, MatrixB(0));
     }
 
-    if (SizeA.ColNumber != SizeB.RowNumber)
+    if (SizeA.ColCount != SizeB.RowCount)
     {
         MDK_Error("MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)")
         return false;
@@ -196,7 +196,7 @@ bool MatrixMultiply_slow(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
 
     auto SizeC = OutputMatrixC.GetSize();
 
-    if (SizeC.RowNumber > 0)
+    if (SizeC.RowCount > 0)
     {
         auto ptrA = MatrixA.GetElementPointer();
         auto ptrB = MatrixB.GetElementPointer();
@@ -214,7 +214,7 @@ bool MatrixMultiply_slow(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
         }
     }
 
-	OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
+	OutputMatrixC.FastResize(SizeA.RowCount, SizeB.ColCount);
 
     auto C_begin = OutputMatrixC.GetElementPointer();
     auto A_begin = MatrixA.GetElementPointer();
@@ -222,9 +222,9 @@ bool MatrixMultiply_slow(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
 
     // C : M x K ,   A: M x N,   B: N x K
 
-    int_max M = SizeA.RowNumber;
-    int_max N = SizeA.ColNumber;
-    int_max K = SizeB.ColNumber;
+    int_max M = SizeA.RowCount;
+    int_max N = SizeA.ColCount;
+    int_max K = SizeB.ColCount;
 
     bool TheFirstMethod = true; // the second method is very slow
 
@@ -303,23 +303,23 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
     auto SizeA = MatrixA.GetSize();
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+    if (SizeA.RowCount == 0 || SizeB.RowCount == 0)
     {
         MDK_Error("MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)")
         return false;
     }
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return MatrixMultiply(OutputMatrixC, MatrixA(0), MatrixB);
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return MatrixMultiply(OutputMatrixC, MatrixA, MatrixB(0));
     }
 
-    if (SizeA.ColNumber != SizeB.RowNumber)
+    if (SizeA.ColCount != SizeB.RowCount)
     {
         MDK_Error("MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, MatrixB)")
         return false;
@@ -327,7 +327,7 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
 
     auto SizeC = OutputMatrixC.GetSize();
 
-    if (SizeC.RowNumber > 0)
+    if (SizeC.RowCount > 0)
     {
         auto ptrA = MatrixA.GetElementPointer();
         auto ptrB = MatrixB.GetElementPointer();
@@ -344,7 +344,7 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
         }
     }
 
-	OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
+	OutputMatrixC.FastResize(SizeA.RowCount, SizeB.ColCount);
 
     // get non-const pointer
     auto ptrA = const_cast<ElementType*>(MatrixA.GetElementPointer());
@@ -352,15 +352,15 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
     auto ptrC = OutputMatrixC.GetElementPointer();
 
     //--------------------- call lapack via armadillo --------------------------------------------------------------------------------
-    //arma::Mat<ElementType> A(ptrA, arma::uword(MatrixA.GetRowNumber()), arma::uword(MatrixA.GetColNumber()), false);
-    //arma::Mat<ElementType> B(ptrB, arma::uword(MatrixB.GetRowNumber()), arma::uword(MatrixB.GetColNumber()), false);
-    //arma::Mat<ElementType> C(ptrC, arma::uword(OutputMatrixC.GetRowNumber()), arma::uword(OutputMatrixC.GetColNumber()), false);
+    //arma::Mat<ElementType> A(ptrA, arma::uword(MatrixA.GetRowCount()), arma::uword(MatrixA.GetColCount()), false);
+    //arma::Mat<ElementType> B(ptrB, arma::uword(MatrixB.GetRowCount()), arma::uword(MatrixB.GetColCount()), false);
+    //arma::Mat<ElementType> C(ptrC, arma::uword(OutputMatrixC.GetRowCount()), arma::uword(OutputMatrixC.GetColCount()), false);
     //C = A*B;
 
 	//-------------------- call eigen --------------------------------------------------------------------------------------------------
-	Eigen::Map<const Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> A(ptrA, MatrixA.GetRowNumber(), MatrixA.GetColNumber());
-	Eigen::Map<const Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> B(ptrB, MatrixB.GetRowNumber(), MatrixB.GetColNumber());
-	Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> C(ptrC, OutputMatrixC.GetRowNumber(), OutputMatrixC.GetColNumber());
+	Eigen::Map<const Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> A(ptrA, MatrixA.GetRowCount(), MatrixA.GetColCount());
+	Eigen::Map<const Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> B(ptrB, MatrixB.GetRowCount(), MatrixB.GetColCount());
+	Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> C(ptrC, OutputMatrixC.GetRowCount(), OutputMatrixC.GetColCount());
 	C = A*B;
 
     return true;   
@@ -384,34 +384,34 @@ bool MatrixElementMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseM
     auto SizeA = MatrixA.GetSize();
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeA.RowNumber == 0 || SizeA.ColNumber == 0)
+    if (SizeA.RowCount == 0 || SizeA.ColCount == 0)
     {
         MDK_Error("MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)")
         return false;
     }
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return MatrixElementMultiply(OutputMatrixC, MatrixA(0), MatrixB);
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB(0));
     }
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)")
         return false;
     }
     
-	OutputMatrixC.FastResize(SizeA.RowNumber, SizeB.ColNumber);
+	OutputMatrixC.FastResize(SizeA.RowCount, SizeB.ColCount);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
 
     return MatrixElementMultiply(ptrC, ptrA, ptrB, ElementNumber, false);
 }
@@ -456,34 +456,34 @@ bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
     auto SizeA = MatrixA.GetSize();
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeA.RowNumber == 0 || SizeA.ColNumber == 0)
+    if (SizeA.RowCount == 0 || SizeA.ColCount == 0)
     {
         MDK_Error("MatrixA or MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, MatrixB)")
         return false;
     }
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return MatrixElementDivide(OutputMatrixC, MatrixA(0), MatrixB);
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return MatrixElementDivide(OutputMatrixC, MatrixA, MatrixB(0));
     }
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("MatrixA Size does not match MatrixB Size @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, MatrixB)")
         return false;
     }
 
-	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+	OutputMatrixC.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
 
     return MatrixElementDivide(ptrC, ptrA, ptrB, ElementNumber, false);
 }
@@ -528,17 +528,17 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& Eleme
 {
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeB.RowNumber == 0)
+    if (SizeB.RowCount == 0)
     {
         MDK_Error("MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, ElementA, MatrixB)")
         return false;
     }
 
-	OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
+	OutputMatrixC.FastResize(SizeB.RowCount, SizeB.ColCount);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeB.RowNumber*SizeB.ColNumber;
+    auto ElementNumber = SizeB.RowCount*SizeB.ColCount;
 
     if (ptrC == ptrB) // in place
     {
@@ -575,17 +575,17 @@ bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& 
 {
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeB.RowNumber == 0)
+    if (SizeB.RowCount == 0)
     {
         MDK_Error("MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, ElementA, MatrixB)")
         return false;
     }
 
-	OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
+	OutputMatrixC.FastResize(SizeB.RowCount, SizeB.ColCount);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeB.RowNumber*SizeB.ColNumber;
+    auto ElementNumber = SizeB.RowCount*SizeB.ColCount;
 
     if (ptrC == ptrB) // in place
     {
@@ -622,17 +622,17 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& 
 {
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeB.RowNumber == 0)
+    if (SizeB.RowCount == 0)
     {
         MDK_Error("MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, ElementA, MatrixB)")
         return false;
     }
 
-	OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
+	OutputMatrixC.FastResize(SizeB.RowCount, SizeB.ColCount);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeB.RowNumber*SizeB.ColNumber;
+    auto ElementNumber = SizeB.RowCount*SizeB.ColCount;
 
     if (ptrC == ptrB) // in place
     {
@@ -687,17 +687,17 @@ bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const ElementT
 {
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeB.RowNumber == 0)
+    if (SizeB.RowCount == 0)
     {
         MDK_Error("MatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, ElementA, MatrixB)")
         return false;
     }
 
-	OutputMatrixC.FastResize(SizeB.RowNumber, SizeB.ColNumber);
+	OutputMatrixC.FastResize(SizeB.RowCount, SizeB.ColCount);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeB.RowNumber*SizeB.ColNumber;
+    auto ElementNumber = SizeB.RowCount*SizeB.ColCount;
 
     if (ptrC == ptrB) // in place
     {
@@ -735,17 +735,17 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<Elemen
 {
     auto SizeA = MatrixA.GetSize();
 
-    if (SizeA.RowNumber == 0)
+    if (SizeA.RowCount == 0)
     {
         MDK_Error("MatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, ElementB)")
         return false;
     }
 
-	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+	OutputMatrixC.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
-    auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
 
     if (ptrC == ptrA) // in place
     {
@@ -782,17 +782,17 @@ bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
 {
     auto SizeA = MatrixA.GetSize();
 
-    if (SizeA.RowNumber == 0)
+    if (SizeA.RowCount == 0)
     {
         MDK_Error("MatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, ElementB)")
         return false;
     }
 
-	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+	OutputMatrixC.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
-    auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
 
     if (ptrC == ptrA) // in place
     {
@@ -829,19 +829,19 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
 {
     auto SizeA = MatrixA.GetSize();
 
-    if (SizeA.RowNumber == 0)
+    if (SizeA.RowCount == 0)
     {
         MDK_Error("MatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixMultiply(OutputMatrixC, MatrixA, ElementB)")
         return false;
     }
 
-	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+	OutputMatrixC.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     //---------------------------------------------------------------------------------------------------------------------------------------
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
-    auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
 
     if (ptrC == ptrA) // in place
     {
@@ -896,17 +896,17 @@ bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
 {
     auto SizeA = MatrixA.GetSize();
 
-    if (SizeA.RowNumber == 0)
+    if (SizeA.RowCount == 0)
     {
         MDK_Error("MatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, ElementB)")
         return false;
     }
 
-	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+	OutputMatrixC.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
-    auto ElementNumber = SizeA.RowNumber*SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
 
     if (ptrC == ptrA) // in place
     {
@@ -989,7 +989,7 @@ template<typename ElementType, typename OperationType>
 inline 
 DenseMatrix<ElementType> MatrixElementOperation(OperationType Operation, const DenseMatrix<ElementType>& InputMatrix)
 {
-	DenseMatrix<ElementType> OutputMatrix(InputMatrix.GetRowNumber(), InputMatrix.GetColNumber());
+	DenseMatrix<ElementType> OutputMatrix(InputMatrix.GetRowCount(), InputMatrix.GetColCount());
     MatrixElementOperation(OutputMatrix, Operation, InputMatrix);
     return OutputMatrix;
 }
@@ -1001,17 +1001,17 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrix, OperationTyp
 {
     auto InputSize = InputMatrix.GetSize();
 
-    if (InputSize.RowNumber == 0)
+    if (InputSize.RowCount == 0)
     {
         MDK_Error("InputMatrix is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrix, Operation, InputMatrix)")
         return false;
     }
 
-	OutputMatrix.FastResize(InputSize.RowNumber, InputSize.ColNumber);
+	OutputMatrix.FastResize(InputSize.RowCount, InputSize.ColCount);
 
     auto ptrOutput = OutputMatrix.GetElementPointer();
     auto ptrInput = InputMatrix.GetElementPointer();
-    auto ElementNumber = InputSize.ColNumber * InputSize.RowNumber;
+    auto ElementNumber = InputSize.ColCount * InputSize.RowCount;
 
     if (ptrOutput == ptrInput) // in place operation
     {
@@ -1158,14 +1158,14 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
     auto SizeA = InputMatrixA.GetSize();
     auto SizeB = InputMatrixB.GetSize();
 
-    if (SizeA.RowNumber == 0 || SizeB.RowNumber ==0)
+    if (SizeA.RowCount == 0 || SizeB.RowCount ==0)
     {
         MDK_Error("InputMatrixA or InputMatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixElementOperation(OutputMatrix, Operation, InputMatrixA, InputMatrixB)")
 
         return false;
     }
 
-    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    if (SizeB.RowCount == 1 && SizeB.ColCount == 1)
     {
         return MatrixElementOperation(OutputMatrixC, Operation, InputMatrixA, InputMatrixB(0));
     }
@@ -1174,15 +1174,15 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
     auto Flag_col = 0;
     auto Flag_full = 0;
 
-    if (SizeB.ColNumber == SizeA.ColNumber && SizeB.RowNumber == SizeA.RowNumber)
+    if (SizeB.ColCount == SizeA.ColCount && SizeB.RowCount == SizeA.RowCount)
     {
         Flag_full = 1;
     }
-    else if (SizeB.ColNumber == 1 && SizeB.RowNumber == SizeA.RowNumber)
+    else if (SizeB.ColCount == 1 && SizeB.RowCount == SizeA.RowCount)
     {
         Flag_col = 1;
     }
-    else if (SizeB.ColNumber == SizeA.ColNumber && SizeB.RowNumber == 1)
+    else if (SizeB.ColCount == SizeA.ColCount && SizeB.RowCount == 1)
     {
         Flag_row = 1;
     }
@@ -1192,7 +1192,7 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
         return false;
     }
 
-	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+	OutputMatrixC.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = InputMatrixA.GetElementPointer();
@@ -1200,7 +1200,7 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
 
     if (Flag_full == 1)
     {
-        auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
+        auto ElementNumber = SizeA.RowCount * SizeA.ColCount;
 
         for (int_max i = 0; i < ElementNumber; ++i)
         {
@@ -1209,9 +1209,9 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
     }
     else if (Flag_col == 1)
     {
-        for (int_max j = 0; j < SizeA.ColNumber; ++j)
+        for (int_max j = 0; j < SizeA.ColCount; ++j)
         {
-            for (int_max i = 0; i < SizeA.RowNumber; ++i)
+            for (int_max i = 0; i < SizeA.RowCount; ++i)
             {
                 ptrC[i] = Operation(ptrA[i], ptrB[i]);
             }
@@ -1219,15 +1219,15 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
     }
     else if (Flag_row == 1)
     {
-        for (int_max i = 0; i < SizeA.RowNumber; ++i)
+        for (int_max i = 0; i < SizeA.RowCount; ++i)
         {
             int_max tempIndex = 0;
 
-            for (int_max j = 0; j < SizeA.ColNumber; ++j)
+            for (int_max j = 0; j < SizeA.ColCount; ++j)
             {
                 ptrC[tempIndex + i] = Operation(ptrA[tempIndex + i], ptrB[i]);
 
-                tempIndex += SizeA.RowNumber;
+                tempIndex += SizeA.RowCount;
             }
         }
     }
@@ -1361,18 +1361,18 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
 {
     auto SizeA = InputMatrixA.GetSize();
 
-    if (SizeA.RowNumber == 0)
+    if (SizeA.RowCount == 0)
     {
         MDK_Error("InputMatrixA is empty @ MatrixElementOperation(OutputMatrixC, Operation, InputMatrixA, InputElementB)")
 
         return false;
     }
 
-	OutputMatrixC.FastResize(SizeA.RowNumber, SizeA.ColNumber);
+	OutputMatrixC.FastResize(SizeA.RowCount, SizeA.ColCount);
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = InputMatrixA.GetElementPointer();
-    auto ElementNumber = SizeA.RowNumber * SizeA.ColNumber;
+    auto ElementNumber = SizeA.RowCount * SizeA.ColCount;
 
     if (ptrC == ptrA) // in place MatrixElementOperation
     {
@@ -1437,7 +1437,7 @@ inline
 DenseMatrix<ElementType> 
 MatrixColNamedOperation(const String& OperationName, const DenseMatrix<ElementType>& InputMatrix, int_max InputColIndex, const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrix(InputMatrix.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrix.GetRowCount(), 1);
     MatrixColNamedOperation(OutputMatrix, 0, OperationName, InputMatrix, InputColIndex, Enable_BoundCheck);
     return OutputMatrix;
 }
@@ -1494,7 +1494,7 @@ MatrixColOperation(OperationType Operation,
                    const DenseMatrix<ElementType>& InputMatrix, int_max InputColIndex,
                    const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrix(InputMatrix.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrix.GetRowCount(), 1);
     MatrixColOperation(OutputMatrix, 0, Operation, InputMatrix, InputColIndex, Enable_BoundCheck);
     return OutputMatrix;
 }
@@ -1512,7 +1512,7 @@ MatrixColOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputColInde
     {
         auto InputSize = InputMatrix.GetSize();
 
-        if (InputSize.RowNumber == 0)
+        if (InputSize.RowCount == 0)
         {
             MDK_Error("InputMatrix is empty @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrix, OutputColIndex, Operation, InputMatrix, InputColIndex, Enable_BoundCheck)")
 
@@ -1521,7 +1521,7 @@ MatrixColOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputColInde
 
         auto OutputSize = OutputMatrix.GetSize();
 
-        if (InputSize.RowNumber != OutputSize.RowNumber || InputColIndex >= InputSize.ColNumber || OutputColIndex >= OutputSize.ColNumber)
+        if (InputSize.RowCount != OutputSize.RowCount || InputColIndex >= InputSize.ColCount || OutputColIndex >= OutputSize.ColCount)
         {
             MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrix, OutputColIndex, Operation, InputMatrix, InputColIndex, Enable_BoundCheck)")
             return false;
@@ -1534,24 +1534,24 @@ MatrixColOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputColInde
 
     auto ptrInput = InputMatrix.GetElementPointer();
 
-    auto RowNumber = OutputMatrix.GetRowNumber();
+    auto RowCount = OutputMatrix.GetRowCount();
 
     if (ptrOutput == ptrInput && OutputColIndex == InputColIndex) // in place operation
     {
-        auto Offset = OutputColIndex*RowNumber;
+        auto Offset = OutputColIndex*RowCount;
 
-        for (auto Ptr = ptrOutput + Offset; Ptr < ptrOutput + Offset + RowNumber; ++Ptr)
+        for (auto Ptr = ptrOutput + Offset; Ptr < ptrOutput + Offset + RowCount; ++Ptr)
         {
             Ptr[0] = Operation(Ptr[0]);
         }
     }
     else
     {
-        auto Offset_output = OutputColIndex*RowNumber;
+        auto Offset_output = OutputColIndex*RowCount;
 
-        auto Offset_input = InputColIndex*RowNumber;
+        auto Offset_input = InputColIndex*RowCount;
 
-        for (int_max i = 0; i < RowNumber; ++i)
+        for (int_max i = 0; i < RowCount; ++i)
         {
             ptrOutput[i + Offset_output] = Operation(ptrInput[i + Offset_input]);
         }
@@ -1570,7 +1570,7 @@ MatrixColNamedOperation(const char OperationName,
                         const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowCount(), 1);
     MatrixColNamedOperation(OutputMatrix, 0, OperationName, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck);
     return OutputMatrix;
 }
@@ -1624,7 +1624,7 @@ MatrixColNamedOperation(const String& OperationName,
                         const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowCount(), 1);
     MatrixColNamedOperation(OutputMatrix, 0, OperationName, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck);
     return OutputMatrix;
 }
@@ -1678,7 +1678,7 @@ MatrixColOperation(OperationType Operation,
                    const DenseMatrix<ElementType>& InputMatrixB,
                    const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowCount(), 1);
     MatrixColOperation(OutputMatrix, 0, Operation, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck);
     return OutputMatrix;
 }
@@ -1693,7 +1693,7 @@ MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputColInd
                    const DenseMatrix<ElementType>& InputMatrixB,
                    const bool Enable_BoundCheck)
 {
-    if (InputMatrixB.GetRowNumber() == 1 && InputMatrixB.GetColNumber() == 1)
+    if (InputMatrixB.GetRowCount() == 1 && InputMatrixB.GetColCount() == 1)
     {
         return MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputMatrixB(0), Enable_BoundCheck);
     }
@@ -1706,23 +1706,23 @@ MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputColInd
         auto SizeB = InputMatrixB.GetSize();
         auto SizeC = OutputMatrixC.GetSize();
 
-        if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+        if (SizeA.RowCount == 0 || SizeB.RowCount == 0)
         {
             MDK_Error("InputMatrixA or InputMatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck)")
 
             return false;
         }
 
-        if (OutputColIndexC >= SizeC.ColNumber || SizeC.RowNumber != SizeA.RowNumber || InputColIndexA >= SizeA.ColNumber)
+        if (OutputColIndexC >= SizeC.ColCount || SizeC.RowCount != SizeA.RowCount || InputColIndexA >= SizeA.ColCount)
         {
             MDK_Error("Size does not match-a @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputMatrixB, Enable_BoundCheck)")
             return false;
         }
 
-        if (SizeB.ColNumber == 1 && SizeB.RowNumber == SizeA.RowNumber)
+        if (SizeB.ColCount == 1 && SizeB.RowCount == SizeA.RowCount)
         {
         }
-        else if (SizeB.RowNumber == 1 && SizeB.ColNumber == SizeA.RowNumber)
+        else if (SizeB.RowCount == 1 && SizeB.ColCount == SizeA.RowCount)
         {
         }
         else
@@ -1737,15 +1737,15 @@ MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputColInd
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = InputMatrixA.GetElementPointer();
     auto ptrB = InputMatrixB.GetElementPointer();
-    auto RowNumber = OutputMatrix.GetRowNumber();
+    auto RowCount = OutputMatrix.GetRowCount();
 
     if (ptrC == ptrA && OutputColIndex == InputColIndex) // in place operation
     {
-        auto Offset = OutputColIndexC * RowNumber
+        auto Offset = OutputColIndexC * RowCount
 
         ptrC += Offset;
 
-        for (int_max i = 0; i < RowNumber; ++i)
+        for (int_max i = 0; i < RowCount; ++i)
         {
             ptrC[0] = Operation(ptrC[0], ptrB[i]);
             ++ptrC;
@@ -1753,10 +1753,10 @@ MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputColInd
     }
     else
     {
-        auto OffsetC = OutputColIndexC * RowNumber;
-        auto OffsetA = InputColIndexA * RowNumber;
+        auto OffsetC = OutputColIndexC * RowCount;
+        auto OffsetA = InputColIndexA * RowCount;
 
-        for (int_max i = 0; i < RowNumber; ++i)
+        for (int_max i = 0; i < RowCount; ++i)
         {
             ptrC[i + OffsetC] = Operation(ptrA[i + OffsetA], ptrB[i]);
         }
@@ -1775,7 +1775,7 @@ MatrixColNamedOperation(const char OperationName,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowCount(), 1);
     MatrixColNamedOperation(OutputMatrix, 0, OperationName, InputMatrixA, InputColIndexA, InputElementB, Enable_BoundCheck);
     return OutputMatrix;
 }
@@ -1826,7 +1826,7 @@ MatrixColNamedOperation(const String& OperationName,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowCount(), 1);
     MatrixColNamedOperation(OutputMatrix, 0, OperationName, InputMatrixA, InputColIndexA, InputElementB, Enable_BoundCheck);
     return OutputMatrix;
 }
@@ -1877,7 +1877,7 @@ MatrixColOperation(OperationType Operation,
                    const ElementType& InputElementB,
                    const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowNumber(), 1);
+    DenseMatrix<ElementType> OutputMatrix(InputMatrixA.GetRowCount(), 1);
     MatrixColOperation(OutputMatrix, 0, Operation, InputMatrixA, InputColIndexA, InputElementB, Enable_BoundCheck);
     return OutputMatrix;
 }
@@ -1897,14 +1897,14 @@ MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputColInd
         auto SizeA = InputMatrixA.GetSize();
         auto SizeC = OutputMatrixC.GetSize();
 
-        if (SizeA.RowNumber == 0)
+        if (SizeA.RowCount == 0)
         {
             MDK_Error("InputMatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputElementB, Enable_BoundCheck)")
 
             return false;
         }
 
-        if (OutputColIndexC >= SizeC.ColNumber || SizeC.RowNumber != SizeA.RowNumber || InputColIndexA >= SizeA.ColNumber)
+        if (OutputColIndexC >= SizeC.ColCount || SizeC.RowCount != SizeA.RowCount || InputColIndexA >= SizeA.ColCount)
         {
             MDK_Error("Size does not match-a @ mdkLinearAlgebra_DenseMatrix MatrixColOperation(OutputMatrixC, OutputColIndexC, Operation, InputMatrixA, InputColIndexA, InputElementB, Enable_BoundCheck)")
             return false;
@@ -1915,25 +1915,25 @@ MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputColInd
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = InputMatrixA.GetElementPointer();
-    auto RowNumber = OutputMatrixC.GetRowNumber();
+    auto RowCount = OutputMatrixC.GetRowCount();
 
     if (ptrC == ptrA && OutputColIndexC == InputColIndexA) // in place operation
     {
-        auto Offset = OutputColIndexC * RowNumber;
+        auto Offset = OutputColIndexC * RowCount;
 
         ptrC += Offset;
 
-        for (auto tempPtr = ptrC; tempPtr < ptrC + RowNumber; ++tempPtr)
+        for (auto tempPtr = ptrC; tempPtr < ptrC + RowCount; ++tempPtr)
         {
             tempPtr[0] = Operation(tempPtr[0], InputElementB);
         }
     }
     else
     {
-        auto Offset_C = OutputColIndexC * RowNumber;
-        auto Offset_A = InputColIndexA * RowNumber;
+        auto Offset_C = OutputColIndexC * RowCount;
+        auto Offset_A = InputColIndexA * RowCount;
 
-        for (int_max i = 0; i < RowNumber; ++i)
+        for (int_max i = 0; i < RowCount; ++i)
         {
             ptrC[i + Offset_C] = Operation(ptrA[i + Offset_A], InputElementB);
         }
@@ -1955,7 +1955,7 @@ MatrixRowNamedOperation(const String& OperationName,
                         const DenseMatrix<ElementType>& InputMatrix, int_max InputRowIndex,
                         const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrix(1, InputMatrix.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrix(1, InputMatrix.GetColCount());
     MatrixRowNamedOperation(OutputMatrix, 0, OperationName, InputMatrix, InputRowIndex, Enable_BoundCheck);
     return OutputMatrix;
 }
@@ -2012,7 +2012,7 @@ MatrixRowOperation(OperationType Operation,
                    const DenseMatrix<ElementType>& InputMatrix, int_max InputRowIndex,
                    const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrix(1, InputMatrix.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrix(1, InputMatrix.GetColCount());
     MatrixRowOperation(OutputMatrix, 0, Operation, InputMatrix, InputRowIndex, Enable_BoundCheck);
     return OutputMatrix;
 }
@@ -2030,7 +2030,7 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputRowInde
     {
         auto InputSize = InputMatrix.GetSize();
 
-        if (InputSize.RowNumber == 0)
+        if (InputSize.RowCount == 0)
         {
             MDK_Error("InputMatrix is empty @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrix, OutputRowIndex, Operation, InputMatrix, InputRowIndex, Enable_BoundCheck)")
 
@@ -2039,7 +2039,7 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputRowInde
 
         auto OutputSize = OutputMatrix.GetSize();
 
-        if (InputSize.ColNumber != OutputSize.ColNumber || InputRowIndex >= InputSize.RowNumber || OutputRowIndex >= OutputSize.RowNumber)
+        if (InputSize.ColCount != OutputSize.ColCount || InputRowIndex >= InputSize.RowCount || OutputRowIndex >= OutputSize.RowCount)
         {
             MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrix, OutputRowIndex, Operation, InputMatrix, InputRowIndex, Enable_BoundCheck)")
             return false;
@@ -2052,26 +2052,26 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputRowInde
 
     auto ptrInput = InputMatrix.GetElementPointer();
 
-    auto ColNumber = OutputMatrix.GetColNumber();
+    auto ColCount = OutputMatrix.GetColCount();
 
     if (ptrOutput == ptrInput) // the same matrix
     {       
-        auto RowNumber = OutputMatrix.GetRowNumber();
+        auto RowCount = OutputMatrix.GetRowCount();
 
         if (OutputRowIndex == InputRowIndex) // in place operation
         {
-            for (int_max j = 0; j < ColNumber; ++j)
+            for (int_max j = 0; j < ColCount; ++j)
             {
-                auto temp = j*RowNumber + OutputRowIndex;
+                auto temp = j*RowCount + OutputRowIndex;
 
                 ptrOutput[temp] = Operation(ptrOutput[temp]);
             }
         }
         else
         {
-            for (int_max j = 0; j < ColNumber; ++j)
+            for (int_max j = 0; j < ColCount; ++j)
             {
-                auto temp = j*RowNumber;
+                auto temp = j*RowCount;
 
                 ptrOutput[temp + OutputRowIndex] = Operation(ptrInput[temp + InputRowIndex]);
             }
@@ -2079,13 +2079,13 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputRowInde
     }
     else
     {
-        auto RowNumber_output = OutputMatrix.GetRowNumber();
+        auto RowCount_output = OutputMatrix.GetRowCount();
 
-        auto RowNumber_input = InputMatrix.GetRowNumber();
+        auto RowCount_input = InputMatrix.GetRowCount();
 
-        for (int_max j = 0; j < ColNumber; ++j)
+        for (int_max j = 0; j < ColCount; ++j)
         {
-            ptrOutput[j*RowNumber_output + OutputRowIndex] = Operation(ptrInput[j*RowNumber_input + InputRowIndex]);
+            ptrOutput[j*RowCount_output + OutputRowIndex] = Operation(ptrInput[j*RowCount_input + InputRowIndex]);
         }
     }
 
@@ -2102,7 +2102,7 @@ MatrixRowNamedOperation(const char OperationName,
                         const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColCount());
     MatrixRowNamedOperation(OutputMatrixC, 0, OperationName, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck);
     return OutputMatrixC;
 }
@@ -2156,7 +2156,7 @@ MatrixRowNamedOperation(const String& OperationName,
                         const DenseMatrix<ElementType>& InputMatrixB,
                         const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColCount());
     MatrixRowNamedOperation(OutputMatrixC, 0, OperationName, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck);
     return OutputMatrixC;
 }
@@ -2210,7 +2210,7 @@ MatrixRowOperation(OperationType Operation,
                    const DenseMatrix<ElementType>& InputMatrixB,
                    const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColCount());
     MatrixRowOperation(OutputMatrixC, 0, InputMatrixA, Operation, InputRowIndexA, InputMatrixB, Enable_BoundCheck);
     return OutputMatrixC;
 }
@@ -2225,7 +2225,7 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowInd
                    const DenseMatrix<ElementType>& InputMatrixB,
                    const bool Enable_BoundCheck)
 {
-    if (InputMatrixB.GetRowNumber() == 1 && InputMatrixB.GetColNumber() == 1)
+    if (InputMatrixB.GetRowCount() == 1 && InputMatrixB.GetColCount() == 1)
     {
         return MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputMatrixB(0), Enable_BoundCheck);
     }
@@ -2238,23 +2238,23 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowInd
         auto SizeB = InputMatrixB.GetSize();
         auto SizeC = OutputMatrixC.GetSize();
 
-        if (SizeA.RowNumber == 0 || SizeB.RowNumber == 0)
+        if (SizeA.RowCount == 0 || SizeB.RowCount == 0)
         {
             MDK_Error("InputMatrixA or InputMatrixB is empty @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck)")
 
             return false;
         }
 
-        if (OutputRowIndexC >= SizeC.RowNumber || SizeC.ColNumber != SizeA.ColNumber || InputRowIndexA >= SizeA.RowNumber)
+        if (OutputRowIndexC >= SizeC.RowCount || SizeC.ColCount != SizeA.ColCount || InputRowIndexA >= SizeA.RowCount)
         {
             MDK_Error("Size does not match-a @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputMatrixB, Enable_BoundCheck)")
             return false;
         }
 
-        if (SizeB.ColNumber == 1 && SizeB.RowNumber == SizeA.ColNumber)
+        if (SizeB.ColCount == 1 && SizeB.RowCount == SizeA.ColCount)
         {
         }
-        else if (SizeB.RowNumber == 1 && SizeB.ColNumber == SizeA.ColNumber)
+        else if (SizeB.RowCount == 1 && SizeB.ColCount == SizeA.ColCount)
         {
         }
         else
@@ -2271,26 +2271,26 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowInd
     auto ptrA = InputMatrixA.GetElementPointer();
     auto ptrB = InputMatrixB.GetElementPointer();
 
-    auto ColNumber = OutputMatrixC.GetColNumber();
+    auto ColCount = OutputMatrixC.GetColCount();
 
     if (ptrC == ptrA ) // the same matrix
     {
-        auto RowNumber = OutputMatrixC.GetRowNumber();
+        auto RowCount = OutputMatrixC.GetRowCount();
 
         if (OutputRowIndexC == InputRowIndexA) // in place operation
         {
-            for (int_max j = 0; j < ColNumber; ++j)
+            for (int_max j = 0; j < ColCount; ++j)
             {
-                auto temp = j*RowNumber + OutputRowIndexC;
+                auto temp = j*RowCount + OutputRowIndexC;
 
                 ptrC[temp] = Operation(ptrC[temp], ptrB[j]);
             }
         }
         else
         {
-            for (int_max j = 0; j < ColNumber; ++j)
+            for (int_max j = 0; j < ColCount; ++j)
             {
-                auto temp = j*RowNumber;
+                auto temp = j*RowCount;
 
                 ptrC[temp + OutputRowIndexC] = Operation(ptrA[temp + InputRowIndexA], ptrB[j]);
             }
@@ -2298,12 +2298,12 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowInd
     }
     else
     {
-        auto RowNumberC = OutputMatrixC.GetRowNumber();
-        auto RowNumberA = InputMatrixA.GetRowNumber();
+        auto RowCountC = OutputMatrixC.GetRowCount();
+        auto RowCountA = InputMatrixA.GetRowCount();
 
-        for (int_max j = 0; j < ColNumber; ++j)
+        for (int_max j = 0; j < ColCount; ++j)
         {
-            ptrC[j*RowNumberC + OutputRowIndexC] = Operation(ptrA[j*RowNumberA + InputRowIndexA], ptrB[j]);
+            ptrC[j*RowCountC + OutputRowIndexC] = Operation(ptrA[j*RowCountA + InputRowIndexA], ptrB[j]);
         }
     }
 
@@ -2320,7 +2320,7 @@ MatrixRowNamedOperation(const char OperationName,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColCount());
     MatrixRowNamedOperation(OutputMatrixC, 0, OperationName, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck);
     return OutputMatrixC;
 }
@@ -2374,7 +2374,7 @@ MatrixRowNamedOperation(const String& OperationName,
                         const ElementType& InputElementB,
                         const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColCount());
     MatrixRowNamedOperation(OutputMatrixC, 0, OperationName, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck);
     return OutputMatrixC;
 }
@@ -2428,7 +2428,7 @@ MatrixRowOperation(OperationType Operation,
                    const ElementType& InputElementB,
                    const bool Enable_BoundCheck)
 {
-    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColNumber());
+    DenseMatrix<ElementType> OutputMatrixC(1, InputMatrixA.GetColCount());
     MatrixRowOperation(OutputMatrixC, 0, OperationName, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck);
     return OutputMatrixC;
 }
@@ -2448,14 +2448,14 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowInd
         auto SizeA = InputMatrixA.GetSize();
         auto SizeC = OutputMatrixC.GetSize();
 
-        if (SizeA.RowNumber == 0)
+        if (SizeA.RowCount == 0)
         {
             MDK_Error("InputMatrixA is empty @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck)")
 
             return false;
         }
 
-        if (OutputRowIndexC >= SizeC.RowNumber || SizeC.ColNumber != SizeA.ColNumber || InputRowIndexA >= SizeA.RowNumber)
+        if (OutputRowIndexC >= SizeC.RowCount || SizeC.ColCount != SizeA.ColCount || InputRowIndexA >= SizeA.RowCount)
         {
             MDK_Error("Size does not match-a @ mdkLinearAlgebra_DenseMatrix MatrixRowOperation(OutputMatrixC, OutputRowIndexC, Operation, InputMatrixA, InputRowIndexA, InputElementB, Enable_BoundCheck)")
             return false;
@@ -2467,26 +2467,26 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowInd
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = InputMatrixA.GetElementPointer();
 
-    auto ColNumber = OutputMatrixC.GetColNumber();
+    auto ColCount = OutputMatrixC.GetColCount();
 
     if (ptrC == ptrA) // the same matrix
     {
-        auto RowNumber = OutputMatrixC.GetRowNumber();
+        auto RowCount = OutputMatrixC.GetRowCount();
 
         if (OutputRowIndexC == InputRowIndexA) // in place operation
         {
-            for (int_max j = 0; j < ColNumber; ++j)
+            for (int_max j = 0; j < ColCount; ++j)
             {
-                auto temp = j*RowNumber + OutputRowIndexC;
+                auto temp = j*RowCount + OutputRowIndexC;
 
                 ptrC[temp] = Operation(ptrC[temp], InputElementB);
             }
         }
         else
         {
-            for (int_max j = 0; j < ColNumber; ++j)
+            for (int_max j = 0; j < ColCount; ++j)
             {
-                auto temp = j*RowNumber;
+                auto temp = j*RowCount;
 
                 ptrC[temp + OutputRowIndexC] = Operation(ptrA[temp + InputRowIndexA], InputElementB);
             }
@@ -2494,12 +2494,12 @@ MatrixRowOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowInd
     }
     else
     {
-        auto RowNumberC = OutputMatrixC.GetRowNumber();
-        auto RowNumberA = InputMatrixA.GetRowNumber();
+        auto RowCountC = OutputMatrixC.GetRowCount();
+        auto RowCountA = InputMatrixA.GetRowCount();
 
-        for (int_max j = 0; j < ColNumber; ++j)
+        for (int_max j = 0; j < ColCount; ++j)
         {
-            ptrC[j*RowNumberC + OutputRowIndexC] = Operation(ptrA[j*RowNumberA + InputRowIndexA], InputElementB);
+            ptrC[j*RowCountC + OutputRowIndexC] = Operation(ptrA[j*RowCountA + InputRowIndexA], InputElementB);
         }
     }
 
@@ -2550,26 +2550,26 @@ void MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 
     for (int_max k = 1; k < int_max(MatrixList.size()); ++k)
     {
-        if (Size.RowNumber != MatrixList[k].GetRowNumber() || Size.ColNumber != MatrixList[k].GetColNumber())
+        if (Size.RowCount != MatrixList[k].GetRowCount() || Size.ColCount != MatrixList[k].GetColCount())
         {
             MDK_Error("Size is not the same in MatrixList @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(...)")
             return;
         }
     }
 
-    if (Size.RowNumber != OutputMatrix.GetRowNumber() || Size.ColNumber != OutputMatrix.GetColNumber())
+    if (Size.RowCount != OutputMatrix.GetRowCount() || Size.ColCount != OutputMatrix.GetColCount())
     {
         if (OutputMatrix.IsSizeFixed() == true)
         {
             MDK_Error("OutputMatrix Size can not change @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(...)")
             return;
         }
-		OutputMatrix.FastResize(Size.RowNumber, Size.ColNumber);
+		OutputMatrix.FastResize(Size.RowCount, Size.ColCount);
     }
 
 	auto OutputMatrixElementPointer = OutputMatrix.GetElementPointer();
 
-	auto ElementNumber = Size.ColNumber*Size.RowNumber;
+	auto ElementNumber = Size.ColCount*Size.RowCount;
 
 	std::vector<const ElementType*> MatrixElementPointerList(MatrixNumber);
 	for (int_max k = 0; k < MatrixNumber; ++k)
@@ -2620,26 +2620,26 @@ void MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 
 	for (int_max k = 1; k < int_max(MatrixList.size()); ++k)
 	{
-		if (Size.RowNumber != MatrixList[k]->GetRowNumber() || Size.ColNumber != MatrixList[k]->GetColNumber())
+		if (Size.RowCount != MatrixList[k]->GetRowCount() || Size.ColCount != MatrixList[k]->GetColCount())
 		{
 			MDK_Error("Size is not the same in MatrixList @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, CoefList, MatrixList, IndependentElement)")
 			return;
 		}
 	}
 
-	if (Size.RowNumber != OutputMatrix.GetRowNumber() || Size.ColNumber != OutputMatrix.GetColNumber())
+	if (Size.RowCount != OutputMatrix.GetRowCount() || Size.ColCount != OutputMatrix.GetColCount())
 	{
 		if (OutputMatrix.IsSizeFixed() == true)
 		{
 			MDK_Error("OutputMatrix Size can not change @ mdkLinearAlgebra_DenseMatrix MatrixLinearCombine(OutputMatrix, AlphaList, MatrixList, IndependentElement)")
 			return;
 		}
-		OutputMatrix.FastResize(Size.RowNumber, Size.ColNumber);
+		OutputMatrix.FastResize(Size.RowCount, Size.ColCount);
 	}
 
 	auto OutputMatrixElementPointer = OutputMatrix.GetElementPointer();
 
-	auto ElementNumber = Size.ColNumber*Size.RowNumber;
+	auto ElementNumber = Size.ColCount*Size.RowCount;
 
 	std::vector<const ElementType*> MatrixElementPointerList(MatrixNumber);
 	for (int_max k = 0; k < MatrixNumber; ++k)

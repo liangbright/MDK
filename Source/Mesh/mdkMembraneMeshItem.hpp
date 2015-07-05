@@ -325,7 +325,7 @@ void Point_Of_MembraneMesh<MeshAttributeType>::GetPosition(typename MeshAttribut
 
 template<typename MeshAttributeType>
 inline
-int_max Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentPointNumber() const
+int_max Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentPointCount() const
 {
 	return m_Data->AdjacentPointIndexList.GetLength();
 }
@@ -373,7 +373,7 @@ void Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentPointIDList(DenseVecto
 
 template<typename MeshAttributeType>
 inline
-int_max Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentEdgeNumber() const
+int_max Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentEdgeCount() const
 {
 	return m_Data->AdjacentEdgeIndexList.GetLength();
 }
@@ -420,7 +420,7 @@ void Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentEdgeIDList(DenseVector
 
 template<typename MeshAttributeType>
 inline
-int_max Point_Of_MembraneMesh<MeshAttributeType>::GetOutgoingDirectedEdgeNumber() const
+int_max Point_Of_MembraneMesh<MeshAttributeType>::GetOutgoingDirectedEdgeCount() const
 {
 	return m_Data->OutgoingDirectedEdgeIndexList.GetLength();
 }
@@ -469,7 +469,7 @@ void Point_Of_MembraneMesh<MeshAttributeType>::GetOutgoingDirectedEdgeIDList(Den
 
 template<typename MeshAttributeType>
 inline
-int_max Point_Of_MembraneMesh<MeshAttributeType>::GetIncomingDirectedEdgeNumber() const
+int_max Point_Of_MembraneMesh<MeshAttributeType>::GetIncomingDirectedEdgeCount() const
 {
 	return m_Data->IncomingDirectedEdgeIndexList.GetLength();
 }
@@ -518,7 +518,7 @@ void Point_Of_MembraneMesh<MeshAttributeType>::GetIncomingDirectedEdgeIDList(Den
 
 template<typename MeshAttributeType>
 inline
-int_max Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentCellNumber() const
+int_max Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentCellCount() const
 {
 	return m_Data->AdjacentCellIndexList.GetLength();
 }
@@ -1006,7 +1006,7 @@ void Edge_Of_MembraneMesh<MeshAttributeType>::GetPointIDList(int_max& PointID0, 
 
 template<typename MeshAttributeType>
 inline
-int_max Edge_Of_MembraneMesh<MeshAttributeType>::GetDirectedEdgeNumber() const
+int_max Edge_Of_MembraneMesh<MeshAttributeType>::GetDirectedEdgeCount() const
 {
 	int_max Counter = 0;
 	for (int_max k = 0; k < m_Data->DirectedEdgeList.GetLength(); ++k)
@@ -1047,7 +1047,7 @@ void Edge_Of_MembraneMesh<MeshAttributeType>::GetDirectedEdgeHandleList(DenseVec
 
 template<typename MeshAttributeType>
 inline
-int_max Edge_Of_MembraneMesh<MeshAttributeType>::GetAdjacentEdgeNumber() const
+int_max Edge_Of_MembraneMesh<MeshAttributeType>::GetAdjacentEdgeCount() const
 {
 	const auto& AdjacentEdgeIndexList0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].AdjacentEdgeIndexList();
 	const auto& AdjacentEdgeIndexList1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].AdjacentEdgeIndexList();
@@ -1138,7 +1138,7 @@ void Edge_Of_MembraneMesh<MeshAttributeType>::GetAdjacentEdgeIDList(DenseVector<
 
 template<typename MeshAttributeType>
 inline
-int_max Edge_Of_MembraneMesh<MeshAttributeType>::GetAdjacentCellNumber() const
+int_max Edge_Of_MembraneMesh<MeshAttributeType>::GetAdjacentCellCount() const
 {
 	int_max Counter = 0;
 	for (int_max k = 0; k < m_Data->DirectedEdgeList.GetLength(); ++k)
@@ -1204,10 +1204,10 @@ void Edge_Of_MembraneMesh<MeshAttributeType>::GetAdjacentCellIDList(DenseVector<
 
 template<typename MeshAttributeType>
 inline
-int_max Edge_Of_MembraneMesh<MeshAttributeType>::GetNeighbourCellNumber() const
+int_max Edge_Of_MembraneMesh<MeshAttributeType>::GetNeighbourCellCount() const
 {
-	auto Counter0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetAdjacentCellNumber();
-	auto Counter1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetAdjacentCellNumber();
+	auto Counter0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetAdjacentCellCount();
+	auto Counter1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetAdjacentCellCount();
 	return Counter0 + Counter1 - 2;
 }
 
@@ -1519,9 +1519,9 @@ inline
 DenseVector<DirectedEdgeIndex_Of_MembraneMesh> DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendDirectedEdgeIndexList() const
 {
 	DenseVector<DirectedEdgeIndex_Of_MembraneMesh> OutputIndexList;
-	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
-	OutputIndexList.ReserveCapacity(DirectedEdgeNumberMax);
-	for (int_max k = 0; k < DirectedEdgeNumberMax; ++k)
+	auto DirectedEdgeCountMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
+	OutputIndexList.ReserveCapacity(DirectedEdgeCountMax);
+	for (int_max k = 0; k < DirectedEdgeCountMax; ++k)
 	{
 		const auto& FirendDirectedEdge = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList()[k];
 		if (m_Data->Index.RelativeIndex != k && FirendDirectedEdge.IsValid() == true)
@@ -1540,9 +1540,9 @@ inline
 DenseVector<int_max> DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendCellIndexList() const
 {
 	DenseVector<int_max> OutputIndexList;
-	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
-	OutputIndexList.ReserveCapacity(DirectedEdgeNumberMax);
-	for (int_max k = 0; k < DirectedEdgeNumberMax; ++k)
+	auto DirectedEdgeCountMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
+	OutputIndexList.ReserveCapacity(DirectedEdgeCountMax);
+	for (int_max k = 0; k < DirectedEdgeCountMax; ++k)
 	{
 		const auto& FirendDirectedEdge = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList()[k];
 		if (m_Data->Index.RelativeIndex != k && FirendDirectedEdge.IsValid() == true)
@@ -1775,11 +1775,11 @@ int_max DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetPreviousDirectedEdge
 
 template<typename MeshAttributeType>
 inline
-int_max DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendDirectedEdgeNumber() const
+int_max DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendDirectedEdgeCount() const
 {
-	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
+	auto DirectedEdgeCountMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
 	int_max Counter = 0;
-	for (int_max k = 0; k < DirectedEdgeNumberMax; ++k)
+	for (int_max k = 0; k < DirectedEdgeCountMax; ++k)
 	{
 		const auto& FirendDirectedEdge = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList()[k];
 		if (m_Data->Index.RelativeIndex != k && FirendDirectedEdge.IsValid() == true)
@@ -1795,9 +1795,9 @@ inline
 DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh> DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendDirectedEdgeHandleList() const
 {
 	DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh> OutputHandleList;
-	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
-	OutputIndexList.ReserveCapacity(DirectedEdgeNumberMax);
-	for (int_max k = 0; k < DirectedEdgeNumberMax; ++k)
+	auto DirectedEdgeCountMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
+	OutputIndexList.ReserveCapacity(DirectedEdgeCountMax);
+	for (int_max k = 0; k < DirectedEdgeCountMax; ++k)
 	{
 		const auto& FirendDirectedEdge = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList()[k];
 		if (m_Data->Index.RelativeIndex != k && FirendDirectedEdge.IsValid() == true)
@@ -1815,9 +1815,9 @@ inline
 DenseVector<int_max> DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendDirectedEdgeIDList() const
 {
 	DenseVector<int_max> OutputIDList;
-	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
-	OutputIDList.ReserveCapacity(DirectedEdgeNumberMax);
-	for (int_max k = 0; k < DirectedEdgeNumberMax; ++k)
+	auto DirectedEdgeCountMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
+	OutputIDList.ReserveCapacity(DirectedEdgeCountMax);
+	for (int_max k = 0; k < DirectedEdgeCountMax; ++k)
 	{
 		const auto& FirendDirectedEdge = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList()[k];
 		if (m_Data->Index.RelativeIndex != k && FirendDirectedEdge.IsValid() == true)
@@ -1830,9 +1830,9 @@ DenseVector<int_max> DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendD
 
 template<typename MeshAttributeType>
 inline
-int_max DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendCellNumber() const
+int_max DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendCellCount() const
 {
-	return this->GetFirendDirectedEdgeNumber();
+	return this->GetFirendDirectedEdgeCount();
 }
 
 template<typename MeshAttributeType>
@@ -1840,9 +1840,9 @@ inline
 DenseVector<Handle_Of_Cell_Of_MembraneMesh> DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendCellHandleList() const
 {
 	DenseVector<Handle_Of_Cell_Of_MembraneMesh> OutputHandleList;
-	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
-	OutputHandleList.ReserveCapacity(DirectedEdgeNumberMax);
-	for (int_max k = 0; k < DirectedEdgeNumberMax; ++k)
+	auto DirectedEdgeCountMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
+	OutputHandleList.ReserveCapacity(DirectedEdgeCountMax);
+	for (int_max k = 0; k < DirectedEdgeCountMax; ++k)
 	{
 		const auto& FirendDirectedEdge = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList()[k];
 		if (m_Data->Index.RelativeIndex != k && FirendDirectedEdge.IsValid() == true)
@@ -1860,9 +1860,9 @@ inline
 DenseVector<int_max> DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendCellIDList() const
 {
 	DenseVector<int_max> OutputIDList;
-	auto DirectedEdgeNumberMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
-	OutputIDList.ReserveCapacity(DirectedEdgeNumberMax);
-	for (int_max k = 0; k < DirectedEdgeNumberMax; ++k)
+	auto DirectedEdgeCountMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList().GetLength();
+	OutputIDList.ReserveCapacity(DirectedEdgeCountMax);
+	for (int_max k = 0; k < DirectedEdgeCountMax; ++k)
 	{
 		const auto& FirendDirectedEdge = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeList()[k];
 		if (m_Data->Index.RelativeIndex != k && FirendDirectedEdge.IsValid() == true)
@@ -1875,9 +1875,9 @@ DenseVector<int_max> DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetFirendC
 
 template<typename MeshAttributeType>
 inline
-int_max DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetNeighbourCellNumber() const
+int_max DirectedEdge_Of_MembraneMesh<MeshAttributeType>::GetNeighbourCellCount() const
 {
-	return m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].GetNeighbourCellNumber();
+	return m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].GetNeighbourCellCount();
 }
 
 template<typename MeshAttributeType>
@@ -2067,9 +2067,9 @@ template<typename MeshAttributeType>
 inline
 void Cell_Of_MembraneMesh<MeshAttributeType>::GetEdgeIndexList(DenseVector<int_max>& OutputIndexList) const
 {
-    int_max EdgeNumber = m_Data->DirectedEdgeIndexList.GetLength();
-    OutputIndexList.FastResize(EdgeNumber);
-    for (int_max k = 0; k < EdgeNumber; ++k)
+    int_max EdgeCount = m_Data->DirectedEdgeIndexList.GetLength();
+    OutputIndexList.FastResize(EdgeCount);
+    for (int_max k = 0; k < EdgeCount; ++k)
     {
         OutputIndexList[k] = m_Data->DirectedEdgeIndexList[k].EdgeIndex;
     }
@@ -2094,8 +2094,8 @@ void Cell_Of_MembraneMesh<MeshAttributeType>::GetAdjacentCellIndexList(DenseVect
     {   
 		auto EdgeIndex_k = m_Data->DirectedEdgeIndexList[k].EdgeIndex;
 		auto RelativeIndex_k = m_Data->DirectedEdgeIndexList[k].RelativeIndex;
-		int_max MaxNumber = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeList().GetLength();
-		for (int_max n = 0; n < MaxNumber; ++n)
+		int_max MaxCount = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeList().GetLength();
+		for (int_max n = 0; n < MaxCount; ++n)
 		{
 			const auto& FriendDirectedEdge = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeList()[n];
 			if (RelativeIndex_k != n && FriendDirectedEdge.IsValid())
@@ -2205,7 +2205,7 @@ int_max Cell_Of_MembraneMesh<MeshAttributeType>::GetID() const
 }
 
 template<typename MeshAttributeType>
-inline int_max Cell_Of_MembraneMesh<MeshAttributeType>::GetDirectedEdgeNumber() const
+inline int_max Cell_Of_MembraneMesh<MeshAttributeType>::GetDirectedEdgeCount() const
 {
 	return m_Data->DirectedEdgeIndexList.GetLength();
 }
@@ -2254,7 +2254,7 @@ void Cell_Of_MembraneMesh<MeshAttributeType>::GetDirectedEdgeIDList(DenseVector<
 
 template<typename MeshAttributeType>
 inline
-int_max Cell_Of_MembraneMesh<MeshAttributeType>::GetPointNumber() const
+int_max Cell_Of_MembraneMesh<MeshAttributeType>::GetPointCount() const
 {
 	return m_Data->DirectedEdgeIndexList.GetLength();
 }
@@ -2337,7 +2337,7 @@ int_max Cell_Of_MembraneMesh<MeshAttributeType>::GetRelativeIndexOfPoint(int_max
 }
 
 template<typename MeshAttributeType>
-inline int_max Cell_Of_MembraneMesh<MeshAttributeType>::GetEdgeNumber() const
+inline int_max Cell_Of_MembraneMesh<MeshAttributeType>::GetEdgeCount() const
 {
 	return m_Data->DirectedEdgeIndexList.GetLength();
 }
@@ -2355,9 +2355,9 @@ template<typename MeshAttributeType>
 inline
 void Cell_Of_MembraneMesh<MeshAttributeType>::GetEdgeHandleList(DenseVector<Handle_Of_Edge_Of_MembraneMesh>& OutputHandleList) const
 {
-    int_max EdgeNumber = m_Data->DirectedEdgeIndexList.GetLength();
-    OutputHandleList.FastResize(EdgeNumber);
-    for (int_max k = 0; k < EdgeNumber; ++k)
+    int_max EdgeCount = m_Data->DirectedEdgeIndexList.GetLength();
+    OutputHandleList.FastResize(EdgeCount);
+    for (int_max k = 0; k < EdgeCount; ++k)
     {
         OutputHandleList[k].SetIndex(m_Data->DirectedEdgeIndexList[k].EdgeIndex);
     }
@@ -2376,9 +2376,9 @@ template<typename MeshAttributeType>
 inline
 void Cell_Of_MembraneMesh<MeshAttributeType>::GetEdgeIDList(DenseVector<int_max>& OutputIDList) const
 {
-    int_max EdgeNumber = m_Data->DirectedEdgeIndexList.GetLength();
-    OutputIDList.FastResize(EdgeNumber);
-    for (int_max k = 0; k < EdgeNumber; ++k)
+    int_max EdgeCount = m_Data->DirectedEdgeIndexList.GetLength();
+    OutputIDList.FastResize(EdgeCount);
+    for (int_max k = 0; k < EdgeCount; ++k)
     {
         OutputIDList[k] = m_Data->Mesh.m_MeshData->EdgeList[m_Data->DirectedEdgeIndexList[k].EdgeIndex].GetID();
     }
@@ -2395,15 +2395,15 @@ DenseVector<Handle_Of_Cell_Of_MembraneMesh> Cell_Of_MembraneMesh<MeshAttributeTy
 
 template<typename MeshAttributeType>
 inline
-int_max Cell_Of_MembraneMesh<MeshAttributeType>::GetAdjacentCellNumber() const
+int_max Cell_Of_MembraneMesh<MeshAttributeType>::GetAdjacentCellCount() const
 {
 	int_max Counter = 0;
 	for (int_max k = 0; k < m_Data->DirectedEdgeIndexList.GetLength(); ++k)
 	{
 		auto EdgeIndex_k = m_Data->DirectedEdgeIndexList[k].EdgeIndex;
 		auto RelativeIndex_k = m_Data->DirectedEdgeIndexList[k].RelativeIndex;
-		int_max MaxNumber = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeList().GetLength();
-		for (int_max n = 0; n < MaxNumber; ++n)
+		int_max MaxCount = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeList().GetLength();
+		for (int_max n = 0; n < MaxCount; ++n)
 		{
 			const auto& FriendDirectedEdge = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeList()[n];
 			if (RelativeIndex_k != n && FriendDirectedEdge.IsValid() == true)
@@ -2425,8 +2425,8 @@ void Cell_Of_MembraneMesh<MeshAttributeType>::GetAdjacentCellHandleList(DenseVec
 	{
 		auto EdgeIndex_k = m_Data->DirectedEdgeIndexList[k].EdgeIndex;
 		auto RelativeIndex_k = m_Data->DirectedEdgeIndexList[k].RelativeIndex;
-		int_max MaxNumber = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeList().GetLength();
-		for (int_max n = 0; n < MaxNumber; ++n)
+		int_max MaxCount = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeList().GetLength();
+		for (int_max n = 0; n < MaxCount; ++n)
 		{
 			const auto& FriendDirectedEdge = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeList()[n];
 			if (RelativeIndex_k != n && FriendDirectedEdge.IsValid() == true)
@@ -2461,8 +2461,8 @@ void Cell_Of_MembraneMesh<MeshAttributeType>::GetAdjacentCellIDList(DenseVector<
 	{
 		auto EdgeIndex_k = m_Data->DirectedEdgeIndexList[k].EdgeIndex;
 		auto RelativeIndex_k = m_Data->DirectedEdgeIndexList[k].RelativeIndex;
-		int_max MaxNumber = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeList().GetLength();
-		for (int_max n = 0; n < MaxNumber; ++n)
+		int_max MaxCount = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeList().GetLength();
+		for (int_max n = 0; n < MaxCount; ++n)
 		{
 			const auto& FriendDirectedEdge = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeList()[n];
 			if (RelativeIndex_k != n && FriendDirectedEdge.IsValid() == true)

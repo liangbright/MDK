@@ -56,31 +56,31 @@ void ThinPlateSplineTransform3D<ScalarType>::EstimateParameter()
 	    return;
 	}
 
-	if (m_SourceControlPointSet->GetRowNumber() != 3 || m_TargetControlPointSet->GetRowNumber() != 3)
+	if (m_SourceControlPointSet->GetRowCount() != 3 || m_TargetControlPointSet->GetRowCount() != 3)
 	{
-		MDK_Error("RowNumber of SourcePointSet or TargetPointSet is not 3 @ ThinPlateSplineTransform3D::EstimateParameter()")
+		MDK_Error("RowCount of SourcePointSet or TargetPointSet is not 3 @ ThinPlateSplineTransform3D::EstimateParameter()")
 	    return;
 	}
 
-	if (m_SourceControlPointSet->GetColNumber() != m_TargetControlPointSet->GetColNumber())
+	if (m_SourceControlPointSet->GetColCount() != m_TargetControlPointSet->GetColCount())
 	{
-		MDK_Error("ControlPointNumber is not the same @ ThinPlateSplineTransform3D::EstimateParameter()")
+		MDK_Error("ControlPointCount is not the same @ ThinPlateSplineTransform3D::EstimateParameter()")
 	    return;
 	}
     //---------------------- input check done -------------------------------------------------------------------//
 	
 	//------------------- Construct L matrix as in the literature --------------------------------------------------//
 	/*
-	auto ControlPointNumber = m_SourceControlPointSet->GetColNumber();
+	auto ControlPointCount = m_SourceControlPointSet->GetColCount();
 
     // compute K matrix K(i,j)= distance between point_i and point_j in SourcePointSet
 	DenseMatrix<ScalarType> K;
-	K.Resize(ControlPointNumber, ControlPointNumber);
-	for (int_max i = 0; i < ControlPointNumber - 1; ++i)
+	K.Resize(ControlPointCount, ControlPointCount);
+	for (int_max i = 0; i < ControlPointCount - 1; ++i)
 	{
 		auto Point_i = m_SourceControlPointSet->GetPointerOfCol(i);
 
-		for (int_max j = i + 1; j < ControlPointNumber; ++j)
+		for (int_max j = i + 1; j < ControlPointCount; ++j)
 		{
 			auto Point_j = m_SourceControlPointSet->GetPointerOfCol(j);
 
@@ -96,8 +96,8 @@ void ThinPlateSplineTransform3D<ScalarType>::EstimateParameter()
 
 	// assemble P matrix
 	DenseMatrix<ScalarType> P;
-	P.Resize(ControlPointNumber, 4);
-	for (int_max i = 0; i < ControlPointNumber; ++i)
+	P.Resize(ControlPointCount, 4);
+	for (int_max i = 0; i < ControlPointCount; ++i)
 	{
 		P(i, 0) = 1;
 		P(i, 1) = (*m_SourceControlPointSet)(0, i); // x
@@ -120,17 +120,17 @@ void ThinPlateSplineTransform3D<ScalarType>::EstimateParameter()
 
 	// construct L matrix directly
 
-	auto ControlPointNumber = m_SourceControlPointSet->GetColNumber();
+	auto ControlPointCount = m_SourceControlPointSet->GetColCount();
 
 	DenseMatrix<ScalarType> L;
-	L.Resize(ControlPointNumber + 4, ControlPointNumber + 4);
+	L.Resize(ControlPointCount + 4, ControlPointCount + 4);
 
 	// add K in L
-	for (int_max i = 0; i < ControlPointNumber - 1; ++i)
+	for (int_max i = 0; i < ControlPointCount - 1; ++i)
 	{
 		auto Point_i = m_SourceControlPointSet->GetPointerOfCol(i);
 
-		for (int_max j = i + 1; j < ControlPointNumber; ++j)
+		for (int_max j = i + 1; j < ControlPointCount; ++j)
 		{
 			auto Point_j = m_SourceControlPointSet->GetPointerOfCol(j);
 
@@ -145,27 +145,27 @@ void ThinPlateSplineTransform3D<ScalarType>::EstimateParameter()
 	}
 
 	// add P in L
-	for (int_max i = 0; i < ControlPointNumber; ++i)
+	for (int_max i = 0; i < ControlPointCount; ++i)
 	{
-		L(i, ControlPointNumber) = 1;
-		L(i, ControlPointNumber + 1) = (*m_SourceControlPointSet)(0, i); // x
-		L(i, ControlPointNumber + 2) = (*m_SourceControlPointSet)(1, i); // y
-		L(i, ControlPointNumber + 3) = (*m_SourceControlPointSet)(2, i); // z
+		L(i, ControlPointCount) = 1;
+		L(i, ControlPointCount + 1) = (*m_SourceControlPointSet)(0, i); // x
+		L(i, ControlPointCount + 2) = (*m_SourceControlPointSet)(1, i); // y
+		L(i, ControlPointCount + 3) = (*m_SourceControlPointSet)(2, i); // z
 	}
 
 	// add P' in L
-	for (int_max j = 0; j < ControlPointNumber; ++j)
+	for (int_max j = 0; j < ControlPointCount; ++j)
 	{
-		L(ControlPointNumber, j) = 1;
-		L(ControlPointNumber + 1, j) = (*m_SourceControlPointSet)(0, j); // x
-		L(ControlPointNumber + 2, j) = (*m_SourceControlPointSet)(1, j); // y
-		L(ControlPointNumber + 3, j) = (*m_SourceControlPointSet)(2, j); // z
+		L(ControlPointCount, j) = 1;
+		L(ControlPointCount + 1, j) = (*m_SourceControlPointSet)(0, j); // x
+		L(ControlPointCount + 2, j) = (*m_SourceControlPointSet)(1, j); // y
+		L(ControlPointCount + 3, j) = (*m_SourceControlPointSet)(2, j); // z
 	}
 
 	// add ZeroMatrix in L
-	for (int_max j = ControlPointNumber; j < ControlPointNumber + 4; ++j)
+	for (int_max j = ControlPointCount; j < ControlPointCount + 4; ++j)
 	{
-		for (int_max i = ControlPointNumber; i < ControlPointNumber + 4; ++i)
+		for (int_max i = ControlPointCount; i < ControlPointCount + 4; ++i)
 		{		
 			L(i, j) = 0;
 		}
@@ -173,14 +173,14 @@ void ThinPlateSplineTransform3D<ScalarType>::EstimateParameter()
 
 	// assemble B matrix
 	DenseMatrix<ScalarType> B;
-	B.Resize(ControlPointNumber + 4, 3);
-	for (int_max i = 0; i < ControlPointNumber; ++i)
+	B.Resize(ControlPointCount + 4, 3);
+	for (int_max i = 0; i < ControlPointCount; ++i)
 	{
 		B(i, 0) = (*m_TargetControlPointSet)(0, i); // x
 		B(i, 1) = (*m_TargetControlPointSet)(1, i); // y
 		B(i, 2) = (*m_TargetControlPointSet)(2, i); // z
 	}
-	for (int_max i = ControlPointNumber; i < ControlPointNumber + 4; ++i)
+	for (int_max i = ControlPointCount; i < ControlPointCount + 4; ++i)
 	{
 		B(i, 0) = 0;
 		B(i, 1) = 0;
@@ -204,9 +204,9 @@ DenseVector<ScalarType, 3> ThinPlateSplineTransform3D<ScalarType>::TransformPoin
 	OutputPosition[1] = 0;
 	OutputPosition[2] = 0;
 
-	auto ControlPointNumber = m_SourceControlPointSet->GetColNumber();
+	auto ControlPointCount = m_SourceControlPointSet->GetColCount();
 	
-	for (int_max k = 0; k < ControlPointNumber; ++k)
+	for (int_max k = 0; k < ControlPointCount; ++k)
 	{
 		auto Point_k = m_SourceControlPointSet->GetPointerOfCol(k);
 		auto Distance = (x - Point_k[0])*(x - Point_k[0]) + (y - Point_k[1])*(y - Point_k[1]) + (z - Point_k[2])*(z - Point_k[2]);	
@@ -218,10 +218,10 @@ DenseVector<ScalarType, 3> ThinPlateSplineTransform3D<ScalarType>::TransformPoin
 
 	for (int_max k = 0; k < 3; ++k)
 	{
-		OutputPosition[k] +=  m_Parameter(ControlPointNumber, k) 
-			                + m_Parameter(ControlPointNumber + 1, k)*x
-		                    + m_Parameter(ControlPointNumber + 2, k)*y
-		                    + m_Parameter(ControlPointNumber + 3, k)*z;
+		OutputPosition[k] +=  m_Parameter(ControlPointCount, k) 
+			                + m_Parameter(ControlPointCount + 1, k)*x
+		                    + m_Parameter(ControlPointCount + 2, k)*y
+		                    + m_Parameter(ControlPointCount + 3, k)*z;
 	}
 
 	return OutputPosition;

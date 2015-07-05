@@ -40,7 +40,7 @@ bool Save3DScalarImageAsJsonDataFile(const DenseImage3D<PixelType>& InputImage, 
 	{
 		IsOK = false;
 	}
-	if (SaveScalarArrayAsDataFile(InputImage.GetPixelPointer(), InputImage.GetPixelNumber(), FilePath + DataFileName) == false)
+	if (SaveScalarArrayAsDataFile(InputImage.GetPixelPointer(), InputImage.GetPixelCount(), FilePath + DataFileName) == false)
 	{
 		IsOK = false;
 	}
@@ -97,7 +97,7 @@ bool Load3DScalarImageFromJsonDataFile(DenseImage3D<PixelType>& OutputImage, con
 	if (it != JObject.end())
     {
         auto tempArray = it->second.ToScalarArray<int_max>();
-		if (tempArray.GetElementNumber() != 3)
+		if (tempArray.GetElementCount() != 3)
 		{
 			MDK_Error("Size vector is wrong @ Load3DScalarImageFromJsonDataFile(...)")
 			return false;
@@ -117,7 +117,7 @@ bool Load3DScalarImageFromJsonDataFile(DenseImage3D<PixelType>& OutputImage, con
 	if (it != JObject.end())
     {
 		auto tempArray = it->second.ToScalarArray<double>();
-		if (tempArray.GetElementNumber() != 3)
+		if (tempArray.GetElementCount() != 3)
 		{
 			MDK_Error("Spacing vector is wrong @ Load3DScalarImageFromJsonDataFile(...)")
 			return false;
@@ -137,7 +137,7 @@ bool Load3DScalarImageFromJsonDataFile(DenseImage3D<PixelType>& OutputImage, con
 	if (it != JObject.end())
     {
 		auto tempArray = it->second.ToScalarArray<double>();
-		if (tempArray.GetElementNumber() != 3)
+		if (tempArray.GetElementCount() != 3)
 		{
 			MDK_Error("Origin vector is wrong @ Load3DScalarImageFromJsonDataFile(...)")
 			return false;
@@ -157,7 +157,7 @@ bool Load3DScalarImageFromJsonDataFile(DenseImage3D<PixelType>& OutputImage, con
 	if (it != JObject.end())
     {
 		auto tempOrientation = it->second.ToScalarArray<double>();
-		if (tempOrientation.GetElementNumber() != 9)
+		if (tempOrientation.GetElementCount() != 9)
 		{
 			MDK_Error("Orientation size is wrong @ Load3DScalarImageFromJsonDataFile(...)")
 			return false;
@@ -191,7 +191,7 @@ bool Load3DScalarImageFromJsonDataFile(DenseImage3D<PixelType>& OutputImage, con
 	OutputImage.SetOrigin(Origin);
 	OutputImage.SetOrientation(Orientation);
 
-	if (LoadScalarArrayFromDataFile(OutputImage.GetPixelPointer(), OutputImage.GetPixelNumber(), DataFilePathAndName, PixelTypeInDataFile) == false)
+	if (LoadScalarArrayFromDataFile(OutputImage.GetPixelPointer(), OutputImage.GetPixelCount(), DataFilePathAndName, PixelTypeInDataFile) == false)
 	{
 		OutputImage.Clear();
 		return false;

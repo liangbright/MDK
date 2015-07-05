@@ -2,8 +2,8 @@
 #define __TestFileIO_h
 
 #include <iostream>
-
-#include "mdkFileIO.h"
+#include "mdkDenseMatrix.h"
+#include "mdkDenseMatrix_FileIO.h"
 #include "mdkCombinatorialMath.h"
 
 namespace mdk
@@ -28,7 +28,7 @@ void Test_a()
 		A(1, k) = SubSetList[k][1];
 		A(2, k) = SubSetList[k][2];
 	}
-
+	
 	SaveDenseMatrixAsJsonDataFile(A, "A.json");
 }
 

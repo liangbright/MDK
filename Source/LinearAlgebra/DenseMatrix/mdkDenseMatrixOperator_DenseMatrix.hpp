@@ -24,26 +24,26 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
 
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return MatrixA(0) + MatrixB;
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return MatrixA + MatrixB(0);
     }
 
     DenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: +(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Error("MatrixA or MatrixB is empty @ mdkDenseMatrixOperator: +(MatrixA, MatrixB)")
 
@@ -51,9 +51,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
     }
 
 
-    tempGlueMatrix.m_RowNumber = SizeA.RowNumber;
+    tempGlueMatrix.m_RowCount = SizeA.RowCount;
 
-    tempGlueMatrix.m_ColNumber = SizeA.ColNumber;
+    tempGlueMatrix.m_ColCount = SizeA.ColCount;
 
     //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(2);    
     tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(2);
@@ -79,35 +79,35 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
 
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return MatrixA(0) - MatrixB;
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return MatrixA - MatrixB(0);
     }
 
     DenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: -(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Error("MatrixA or MatrixB is empty @ mdkDenseMatrixOperator: -(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
   
-    tempGlueMatrix.m_RowNumber = SizeA.RowNumber;
+    tempGlueMatrix.m_RowCount = SizeA.RowCount;
 
-    tempGlueMatrix.m_ColNumber = SizeA.ColNumber;
+    tempGlueMatrix.m_ColCount = SizeA.ColCount;
 
     //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(2);
     tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(2);
@@ -135,35 +135,35 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(const DenseMatrix<Elemen
 
     auto SizeB = MatrixB.GetSize();
 
-    if (SizeA.ColNumber == 1 && SizeA.RowNumber == 1)
+    if (SizeA.ColCount == 1 && SizeA.RowCount == 1)
     {
         return MatrixA(0) * MatrixB;
     }
 
-    if (SizeB.ColNumber == 1 && SizeB.RowNumber == 1)
+    if (SizeB.ColCount == 1 && SizeB.RowCount == 1)
     {
         return MatrixA * MatrixB(0);
     }
 
     DenseGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Error("MatrixA or MatrixB is empty @ mdkDenseMatrixOperator: *(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
 
-    if (SizeA.ColNumber != SizeB.RowNumber)
+    if (SizeA.ColCount != SizeB.RowCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: *(MatrixA, MatrixB)")
 
         return  tempGlueMatrix;
     }
 
-    tempGlueMatrix.m_RowNumber = SizeA.RowNumber;
+    tempGlueMatrix.m_RowCount = SizeA.RowCount;
 
-    tempGlueMatrix.m_ColNumber = SizeB.ColNumber;
+    tempGlueMatrix.m_ColCount = SizeB.ColCount;
 
     //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(2);
     tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(2);
@@ -196,9 +196,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
 {
     DenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
 
-    tempGlueMatrix.m_RowNumber = MatrixA.GetRowNumber();
+    tempGlueMatrix.m_RowCount = MatrixA.GetRowCount();
 
-    tempGlueMatrix.m_ColNumber = MatrixA.GetColNumber();
+    tempGlueMatrix.m_ColCount = MatrixA.GetColCount();
 
     //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
     tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(1);
@@ -220,9 +220,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
 {
     DenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
 
-    tempGlueMatrix.m_RowNumber = MatrixA.GetRowNumber();
+    tempGlueMatrix.m_RowCount = MatrixA.GetRowCount();
 
-    tempGlueMatrix.m_ColNumber = MatrixA.GetColNumber();
+    tempGlueMatrix.m_ColCount = MatrixA.GetColCount();
 
     //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
     tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(1);
@@ -244,9 +244,9 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(const DenseMatrix<Elemen
 {
     DenseGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
 
-    tempGlueMatrix.m_RowNumber = MatrixA.GetRowNumber();
+    tempGlueMatrix.m_RowCount = MatrixA.GetRowCount();
 
-    tempGlueMatrix.m_ColNumber = MatrixA.GetColNumber();
+    tempGlueMatrix.m_ColCount = MatrixA.GetColCount();
 
     //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
     tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(1);
@@ -268,9 +268,9 @@ DenseGlueMatrixForMultiplication<ElementType> operator/(const DenseMatrix<Elemen
 {
     DenseGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
 
-    tempGlueMatrix.m_RowNumber = MatrixA.GetRowNumber();
+    tempGlueMatrix.m_RowCount = MatrixA.GetRowCount();
 
-    tempGlueMatrix.m_ColNumber = MatrixA.GetColNumber();
+    tempGlueMatrix.m_ColCount = MatrixA.GetColCount();
 
     //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
     tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(1);
@@ -297,9 +297,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const ElementType& El
 {
     DenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
 
-    tempGlueMatrix.m_RowNumber = MatrixB.GetRowNumber();
+    tempGlueMatrix.m_RowCount = MatrixB.GetRowCount();
 
-    tempGlueMatrix.m_ColNumber = MatrixB.GetColNumber();
+    tempGlueMatrix.m_ColCount = MatrixB.GetColCount();
 
     //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
     tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(1);
@@ -321,9 +321,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const ElementType& El
 {
     DenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix;
 
-    tempGlueMatrix.m_RowNumber = MatrixB.GetRowNumber();
+    tempGlueMatrix.m_RowCount = MatrixB.GetRowCount();
 
-    tempGlueMatrix.m_ColNumber = MatrixB.GetColNumber();
+    tempGlueMatrix.m_ColCount = MatrixB.GetColCount();
 
     //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
     tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(1);
@@ -345,9 +345,9 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(const ElementType& Eleme
 {
     DenseGlueMatrixForMultiplication<ElementType> tempGlueMatrix;
 
-    tempGlueMatrix.m_RowNumber = MatrixB.GetRowNumber();
+    tempGlueMatrix.m_RowCount = MatrixB.GetRowCount();
 
-    tempGlueMatrix.m_ColNumber = MatrixB.GetColNumber();
+    tempGlueMatrix.m_ColCount = MatrixB.GetColCount();
 
     //tempGlueMatrix.m_SourceMatrixSharedCopyList.resize(1);
     tempGlueMatrix.m_SourceMatrixSharedCopyList.reserve(1);

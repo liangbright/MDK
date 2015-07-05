@@ -33,9 +33,9 @@ class DenseGlueMatrixForMultiplication : public Object
 {
 private:
 
-    int_max m_RowNumber;
+    int_max m_RowCount;
 
-    int_max m_ColNumber;
+    int_max m_ColCount;
 
     std::vector<DenseMatrix<ElementType>> m_SourceMatrixSharedCopyList;
 
@@ -59,9 +59,9 @@ public:
     //---------------------- Other ----------------------------------------//
 private:
 
-    inline int_max GetRowNumber() const;
+    inline int_max GetRowCount() const;
 
-    inline int_max GetColNumber() const;
+    inline int_max GetColCount() const;
 
     inline int_max GetElementNumber() const;
 

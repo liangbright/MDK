@@ -33,7 +33,7 @@ void Test_a()
 
 	DenseMatrix<double> TargetPointSet;
 	TargetPointSet.Resize(SourceControlPointSet.GetSize());
-	for (int_max k = 0; k < SourceControlPointSet.GetColNumber(); ++k)
+	for (int_max k = 0; k < SourceControlPointSet.GetColCount(); ++k)
 	{
 		DenseVector<double, 3> Pos;
 		SourceControlPointSet.GetCol(k, Pos);

@@ -20,7 +20,7 @@ public:
 private:
 	const DenseImage3D<InputPixelType>* m_InputImage;
 	DenseImage3D<OutputPixelType> m_OutputImage;
-	int_max  m_MaxNumberOfThread;
+	int_max  m_MaxThreadCount;
 
 public:		
     IntegralImageBuilder3D();
@@ -28,7 +28,7 @@ public:
   
     void Clear();
 	void SetInputImage(const DenseImage3D<InputPixelType>* InputImage);
-	void SetMaxNumberOfThread(int_max Number);
+	void SetMaxThreadCount(int_max Number);
 	bool Update();
 	DenseImage3D<InputPixelType>* GetOutputImage();
 

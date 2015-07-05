@@ -60,7 +60,7 @@ void PolygonMesh<MeshAttributeType>::Construct(DenseMatrix<ScalarType> InputPoin
         return;
     }
 
-	if (InputPointPositionMatrix.GetRowNumber() != 3 || 3 * InputCellTable.GetElementNumber() < InputPointPositionMatrix.GetColNumber())
+	if (InputPointPositionMatrix.GetRowCount() != 3 || 3 * InputCellTable.GetElementCount() < InputPointPositionMatrix.GetColCount())
     {
         MDK_Error("InputPointPositionMatrix or InputCellTable is invalid @ PolygonMesh::Construct(...)")
         return;
@@ -111,11 +111,11 @@ void PolygonMesh<MeshAttributeType>::
 GetPointPositionMatrixAndCellTable(DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionTable,
                                    ObjectArray<DenseVector<int_max>>& CellTable) const
 {
-    auto PointNumber = this->GetPointNumber();
-    auto CellNumber = this->GetCellNumber();
+    auto PointCount = this->GetPointCount();
+    auto CellCount = this->GetCellCount();
 
-    PointPositionTable.FastResize(3, PointNumber);    
-    CellTable.FastResize(CellNumber);
+    PointPositionTable.FastResize(3, PointCount);    
+    CellTable.FastResize(CellCount);
 
     // Map PointIndex (PointHandle.GetIndex()) to OutputIndex (col index) in PointPositionTable
     std::unordered_map<int_max, int_max> Map_PointIndex_to_OutputIndex; 

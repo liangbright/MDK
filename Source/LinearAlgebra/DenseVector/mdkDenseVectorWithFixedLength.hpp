@@ -216,9 +216,9 @@ template<typename ElementType, int_max Length>
 inline
 void DenseVector<ElementType, Length>::operator=(const DenseMatrix<ElementType>& InputVector)
 {
-    if (InputVector.GetElementNumber() != Length)
+    if (InputVector.GetElementCount() != Length)
     {
-        MDK_Error("InputVector.GetElementNumber() != Length @ DenseVector::operator=(...)")
+        MDK_Error("InputVector.GetElementCount() != Length @ DenseVector::operator=(...)")
         return;
     }
 
@@ -278,7 +278,7 @@ int_max DenseVector<ElementType, Length>::GetLength() const
 
 template<typename ElementType, int_max Length>
 inline
-int_max DenseVector<ElementType, Length>::GetElementNumber() const
+int_max DenseVector<ElementType, Length>::GetElementCount() const
 {
     return Length;
 }
@@ -696,7 +696,7 @@ DenseVector<ElementType> DenseVector<ElementType, Length>::GetSubSet(const Dense
     
     auto SelfLength = this->GetLength();
 
-    auto InputLength = IndexList.GetElementNumber();
+    auto InputLength = IndexList.GetElementCount();
 
     if (InputLength > SelfLength)
     {
@@ -828,7 +828,7 @@ template<typename ElementType, int_max Length>
 inline
 bool DenseVector<ElementType, Length>::SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubSet)
 {
-    if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
+    if (IndexList.GetElementCount() != SubSet.GetElementCount())
     {
         MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
         return false;
@@ -836,7 +836,7 @@ bool DenseVector<ElementType, Length>::SetSubSet(const DenseMatrix<int_max>& Ind
 
     auto SelfLength = this->GetLength();
 
-    for (int_max i = 0; i < IndexList.GetElementNumber(); ++i)
+    for (int_max i = 0; i < IndexList.GetElementCount(); ++i)
     {
         auto Index = IndexList[i];
 
@@ -860,7 +860,7 @@ inline
 bool DenseVector<ElementType, Length>::SetSubSet(const DenseVector<int_max, LengthParameterA>& IndexList, 
 												 const DenseVector<ElementType, LengthParameterB>& SubVector)
 {
-    if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
+    if (IndexList.GetElementCount() != SubSet.GetElementCount())
     {
         MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
         return false;
@@ -868,7 +868,7 @@ bool DenseVector<ElementType, Length>::SetSubSet(const DenseVector<int_max, Leng
 
     auto SelfLength = this->GetLength();
 
-    for (int_max i = 0; i < IndexList.GetElementNumber(); ++i)
+    for (int_max i = 0; i < IndexList.GetElementCount(); ++i)
     {
         auto Index = IndexList[i];
 
@@ -918,7 +918,7 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
         return IndexList;
     }
 
-    auto ElementNumber = this->GetElementNumber();
+    auto ElementNumber = this->GetElementCount();
 
     if (MaxOutputNumber < 0 || MaxOutputNumber > ElementNumber)
     {
@@ -959,7 +959,7 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
 			{
 				IndexList.Append(i);
 
-				if (IndexList.GetElementNumber() == MaxOutputNumber)
+				if (IndexList.GetElementCount() == MaxOutputNumber)
 				{
 					break;
 				}
@@ -974,7 +974,7 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
 			{
 				IndexList.Append(i);
 
-				if (IndexList.GetElementNumber() == MaxOutputNumber)
+				if (IndexList.GetElementCount() == MaxOutputNumber)
 				{
 					break;
 				}
@@ -995,7 +995,7 @@ int_max DenseVector<ElementType, Length>::Find(const std::string& first_or_last,
 
 	if (first_or_last == "first")
 	{
-		for (int_max i = 0; i < this->GetElementNumber(); ++i)
+		for (int_max i = 0; i < this->GetElementCount(); ++i)
 		{
 			if (MatchFunction((*this)[i]) == true)
 			{
@@ -1006,7 +1006,7 @@ int_max DenseVector<ElementType, Length>::Find(const std::string& first_or_last,
 	}
 	else if (first_or_last == "last")
 	{
-		for (int_max i = this->GetElementNumber() - 1; i >= 0; --i)
+		for (int_max i = this->GetElementCount() - 1; i >= 0; --i)
 		{
 			if (MatchFunction((*this)[i]) == true)
 			{
@@ -1056,7 +1056,7 @@ DenseVector<int_max> DenseVector<ElementType, Length>::Sort(int_max Index_start,
 {
     DenseVector<int_max> IndexList;
 
-    auto ElementNumber = this->GetElementNumber();
+    auto ElementNumber = this->GetElementCount();
 
     if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
     {

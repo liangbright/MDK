@@ -25,7 +25,7 @@ void DenseImageData3D<PixelType>::Clear()
     m_Size[1] = 0;
     m_Size[2] = 0;
 
-    m_PixelNumberPerZSlice = 0;
+    m_PixelCountPerZSlice = 0;
 
     m_LocalSys.Origin[0] = 0;
     m_LocalSys.Origin[1] = 0;
@@ -91,7 +91,7 @@ template<typename PixelType>
 inline
 PixelType& DenseImageData3D<PixelType>::operator()(int_max xIndex, int_max yIndex, int_max zIndex)
 {
-    auto LinearIndex = zIndex*m_PixelNumberPerZSlice + yIndex*m_Size[0] + xIndex;
+    auto LinearIndex = zIndex*m_PixelCountPerZSlice + yIndex*m_Size[0] + xIndex;
  
     return m_PixelArray[LinearIndex];
 }
@@ -101,7 +101,7 @@ template<typename PixelType>
 inline
 const PixelType& DenseImageData3D<PixelType>::operator()(int_max xIndex, int_max yIndex, int_max zIndex) const
 {
-    auto LinearIndex = zIndex*m_PixelNumberPerZSlice + yIndex*m_Size[0] + xIndex;
+    auto LinearIndex = zIndex*m_PixelCountPerZSlice + yIndex*m_Size[0] + xIndex;
 
     return m_PixelArray[LinearIndex];
 }
@@ -111,7 +111,7 @@ template<typename PixelType>
 inline
 int_max DenseImageData3D<PixelType>::Transform3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex) const
 {
-    return zIndex*m_PixelNumberPerZSlice + yIndex*m_Size[0] + xIndex;    
+    return zIndex*m_PixelCountPerZSlice + yIndex*m_Size[0] + xIndex;    
 }
 
 
@@ -120,7 +120,7 @@ template<typename ScalarType>
 inline 
 DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex) const
 {
-    auto divresult = std::div(LinearIndex, m_PixelNumberPerZSlice);
+    auto divresult = std::div(LinearIndex, m_PixelCountPerZSlice);
 
 	auto zIndex = divresult.quot; // z
             
@@ -292,24 +292,24 @@ void DenseImage3D<PixelType>::Copy(const DenseImage3D<PixelType_Input>& InputIma
     this->SetSpacing(InputImage.GetSpacing());
     this->SetOrigin(InputImage.GetOrigin());
     this->SetOrientation(InputImage.GetOrientation());
-	this->CopyPixelData(InputImage.GetPixelPointer(), InputImage.GetPixelNumber());
+	this->CopyPixelData(InputImage.GetPixelPointer(), InputImage.GetPixelCount());
 }
 
 
 template<typename PixelType>
 template<typename PixelType_Input>
-void DenseImage3D<PixelType>::CopyPixelData(const PixelType_Input* InputPixelPointer, int_max InputPixelNumber)
+void DenseImage3D<PixelType>::CopyPixelData(const PixelType_Input* InputPixelPointer, int_max InputPixelCount)
 {
-    if (InputPixelPointer == nullptr || InputPixelNumber <= 0)
+    if (InputPixelPointer == nullptr || InputPixelCount <= 0)
 	{
         MDK_Warning("Input is nullptr, Clear self @ DenseImage3D::CopyPixelData(...)")
 		this->Clear();
 		return;
 	}
 
-    auto SelfPixelNumber = this->GetPixelNumber();
+    auto SelfPixelCount = this->GetPixelCount();
 
-    if (SelfPixelNumber != InputPixelNumber)// must call SetSize() before this function
+    if (SelfPixelCount != InputPixelCount)// must call SetSize() before this function
     {
         MDK_Error("Size does not match @ DenseImage3D::CopyPixelData(...)")
         return;
@@ -323,7 +323,7 @@ void DenseImage3D<PixelType>::CopyPixelData(const PixelType_Input* InputPixelPoi
         return;
     }
   
-    for (int_max i = 0; i < SelfPixelNumber; ++i)
+    for (int_max i = 0; i < SelfPixelCount; ++i)
 	{
         PixelPtr[i] = PixelType(InputPixelPointer[i]);
 	}
@@ -342,7 +342,7 @@ void DenseImage3D<PixelType>::Copy(DenseImage3D<PixelType>&& InputImage)
 	m_ImageData->m_Size[1] = InputImage.m_ImageData->m_Size[1];
 	m_ImageData->m_Size[2] = InputImage.m_ImageData->m_Size[2];
 
-	m_ImageData->m_PixelNumberPerZSlice = InputImage.m_ImageData->m_PixelNumberPerZSlice;
+	m_ImageData->m_PixelCountPerZSlice = InputImage.m_ImageData->m_PixelCountPerZSlice;
 
 	m_ImageData->m_LocalSys = InputImage.m_ImageData->m_LocalSys;
 	m_ImageData->m_Flag_Orientation_is_IdentityMatrix = InputImage.m_ImageData->m_Flag_Orientation_is_IdentityMatrix;
@@ -358,8 +358,8 @@ void DenseImage3D<PixelType>::Copy(DenseImage3D<PixelType>&& InputImage)
 template<typename PixelType>
 void DenseImage3D<PixelType>::Fill(const PixelType& Pixel)
 {
-	auto SelfPixelNumber = this->GetPixelNumber();
-	if (SelfPixelNumber == 0)
+	auto SelfPixelCount = this->GetPixelCount();
+	if (SelfPixelCount == 0)
     {
 		MDK_Error("Self is empty @ DenseImage3D::File(...)")
         return;
@@ -367,7 +367,7 @@ void DenseImage3D<PixelType>::Fill(const PixelType& Pixel)
 
     auto BeginPtr = this->GetPixelPointer();
 
-	for (auto Ptr = BeginPtr; Ptr < BeginPtr + SelfPixelNumber; ++Ptr)
+	for (auto Ptr = BeginPtr; Ptr < BeginPtr + SelfPixelCount; ++Ptr)
     {
         Ptr[0] = Pixel;
     }
@@ -404,9 +404,9 @@ void DenseImage3D<PixelType>::Share(PixelType* InputImage, const Image3DInfo& In
 	m_ImageData->m_Size[0] = InputImageInfo.Size[0];
 	m_ImageData->m_Size[1] = InputImageInfo.Size[1];
 	m_ImageData->m_Size[2] = InputImageInfo.Size[2];
-	m_ImageData->m_PixelNumberPerZSlice = InputImageInfo.Size[0] * InputImageInfo.Size[1];
-	auto InputPixelNumber = InputImageInfo.Size[0] * InputImageInfo.Size[1] * InputImageInfo.Size[2];
-	m_ImageData->m_PixelArray.Share(InputImage, InputPixelNumber, true);
+	m_ImageData->m_PixelCountPerZSlice = InputImageInfo.Size[0] * InputImageInfo.Size[1];
+	auto InputPixelCount = InputImageInfo.Size[0] * InputImageInfo.Size[1] * InputImageInfo.Size[2];
+	m_ImageData->m_PixelArray.Share(InputImage, InputPixelCount, true);
 }
 
 
@@ -494,7 +494,7 @@ PixelType* DenseImage3D<PixelType>::GetPixelPointerOfZSlice(int_max ZSliceIndex)
 		return nullptr;
 	}
 
-	auto PointerOfZSlice = this->GetPixelPointer() + ZSliceIndex*m_ImageData->m_PixelNumberPerZSlice;
+	auto PointerOfZSlice = this->GetPixelPointer() + ZSliceIndex*m_ImageData->m_PixelCountPerZSlice;
 	return PointerOfZSlice;
 }
 
@@ -513,7 +513,7 @@ const PixelType* DenseImage3D<PixelType>::GetPixelPointerOfZSlice(int_max ZSlice
 		return nullptr;
 	}
 
-	auto PointerOfZSlice = this->GetPixelPointer() + ZSliceIndex*m_ImageData->m_PixelNumberPerZSlice;
+	auto PointerOfZSlice = this->GetPixelPointer() + ZSliceIndex*m_ImageData->m_PixelCountPerZSlice;
 	return PointerOfZSlice;
 }
 
@@ -545,7 +545,7 @@ PixelType* DenseImage3D<PixelType>::end()
 	}
 	else
 	{
-		auto EndPtr = BeginPtr + this->GetPixelNumber();
+		auto EndPtr = BeginPtr + this->GetPixelCount();
 		return EndPtr;
 	}
 }
@@ -562,7 +562,7 @@ const PixelType* DenseImage3D<PixelType>::end() const
 	}
 	else
 	{
-		auto EndPtr = BeginPtr + this->GetPixelNumber();
+		auto EndPtr = BeginPtr + this->GetPixelCount();
 		return EndPtr;
 	}
 }
@@ -662,7 +662,7 @@ void DenseImage3D<PixelType>::SetSize(int_max Lx, int_max Ly, int_max Lz)
         m_ImageData->m_Size[0] = 0;
         m_ImageData->m_Size[1] = 0;
         m_ImageData->m_Size[2] = 0;
-        m_ImageData->m_PixelNumberPerZSlice = 0;
+        m_ImageData->m_PixelCountPerZSlice = 0;
         return;
     }
 
@@ -672,7 +672,7 @@ try
     m_ImageData->m_Size[0] = Lx;
     m_ImageData->m_Size[1] = Ly;
     m_ImageData->m_Size[2] = Lz;
-    m_ImageData->m_PixelNumberPerZSlice = Ly*Lx;
+    m_ImageData->m_PixelCountPerZSlice = Ly*Lx;
 }
 catch (...)
 {
@@ -828,7 +828,7 @@ template<typename PixelType>
 inline 
 void DenseImage3D<PixelType>::SetOrientation(const DenseMatrix<double>& Orientation)
 {
-	if (Orientation.GetColNumber() != 3 || Orientation.GetRowNumber() != 3)
+	if (Orientation.GetColCount() != 3 || Orientation.GetRowCount() != 3)
 	{
 		MDK_Error("Invalid input size @ DenseImage3D::SetOrientation(...)")
 		return;
@@ -902,11 +902,11 @@ void DenseImage3D<PixelType>::GetPhysicalSize(double& PhysicalSize_x, double& Ph
 
 template<typename PixelType>
 inline
-int_max DenseImage3D<PixelType>::GetPixelNumber() const
+int_max DenseImage3D<PixelType>::GetPixelCount() const
 {
 	if (this->IsPureEmpty() == false)
 	{
-		return m_ImageData->m_PixelNumberPerZSlice * m_ImageData->m_Size[2];
+		return m_ImageData->m_PixelCountPerZSlice * m_ImageData->m_Size[2];
 	}
 	else
 	{
@@ -1203,8 +1203,8 @@ PixelType& DenseImage3D<PixelType>::operator[](int_max LinearIndex)
 {
 #if defined MDK_DEBUG_DenseImage3D_Operator_CheckBound
 
-    auto PixelNumber = this->GetPixelNumber();
-    if (LinearIndex >= PixelNumber || LinearIndex < 0)
+    auto PixelCount = this->GetPixelCount();
+    if (LinearIndex >= PixelCount || LinearIndex < 0)
     {
         MDK_Error("Invalid input @ DenseImage3D::operator(LinearIndex)")
         return m_ImageData->m_Pixel_OutsideImage;
@@ -1222,8 +1222,8 @@ const PixelType& DenseImage3D<PixelType>::operator[](int_max LinearIndex) const
 {
 #if defined MDK_DEBUG_DenseImage3D_Operator_CheckBound
 
-    auto PixelNumber = this->GetPixelNumber();
-    if (LinearIndex >= PixelNumber || LinearIndex < 0)
+    auto PixelCount = this->GetPixelCount();
+    if (LinearIndex >= PixelCount || LinearIndex < 0)
     {
         MDK_Error("Invalid input @ DenseImage3D::operator(LinearIndex)")
         return m_ImageData->m_Pixel_OutsideImage;
@@ -1483,13 +1483,13 @@ DenseImage3D<PixelType>::GetLinearIndexListInRegion(const BoxRegionOf3DIndexInIm
 	DenseVector<int_max>  List;
     List.Resize(Region_Lx*Region_Ly*Region_Lz);
 
-    auto PixelNumberPerZSlice = m_ImageData->PixelNumberPerZSlice;
+    auto PixelCountPerZSlice = m_ImageData->PixelCountPerZSlice;
 
 	int_max Counter = 0;
 
 	for (int_max k = zIndex_s; k <= zIndex_e; ++k)
 	{
-        auto temp_k = k*PixelNumberPerZSlice;
+        auto temp_k = k*PixelCountPerZSlice;
 
 		for (int_max j = yIndex_s; j <= yIndex_e; ++j)
 		{
@@ -1694,11 +1694,11 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DIndexInImage3D& RegionIn
 	auto SubPtr = SubImage.GetPixelPointer();
     auto RawPtr = this->GetPixelPointer();
 
-    auto PixelNumberPerZSlice = m_ImageData->m_PixelNumberPerZSlice;
+    auto PixelCountPerZSlice = m_ImageData->m_PixelCountPerZSlice;
 
     for (int_max k = zIndex_s; k <= zIndex_e; ++k)
     {
-        auto temp_k = k*PixelNumberPerZSlice;
+        auto temp_k = k*PixelCountPerZSlice;
 
         for (int_max j = yIndex_s; j <= yIndex_e; ++j)
         {

@@ -12,7 +12,7 @@ DenseMatrix<ElementType> ComputeInnerProductListFromSingleVectorToColVectorSet(c
 
     auto Size = ColVectorSet.GetSize();
 
-    if (Size.ColNumber == 0)
+    if (Size.ColCount == 0)
     {
         MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeInnerProductListFromSingleVectorToColVectorSet(...)")
         return InnerProductList;
@@ -24,23 +24,23 @@ DenseMatrix<ElementType> ComputeInnerProductListFromSingleVectorToColVectorSet(c
         return InnerProductList;
     }
 
-    if (SingleVector.GetElementNumber() != Size.RowNumber)
+    if (SingleVector.GetElementNumber() != Size.RowCount)
     {
         MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeInnerProductListFromSingleVectorToColVectorSet(...)")
         return InnerProductList;
     }
 
-    InnerProductList.FastResize(1, Size.ColNumber);
+    InnerProductList.FastResize(1, Size.ColCount);
 
     auto PointToSingleVector = SingleVector.GetElementPointer();
 
     auto PointerToSet = ColVectorSet.GetElementPointer();
 
-    for (int_max j = 0; j < Size.ColNumber; ++j)
+    for (int_max j = 0; j < Size.ColCount; ++j)
     {
-        auto Vector_j = PointerToSet + j*Size.RowNumber;
+        auto Vector_j = PointerToSet + j*Size.RowCount;
 
-        InnerProductList[j] = ComputeInnerProductOfTwoVector(PointToSingleVector, Vector_j, Size.RowNumber, false);
+        InnerProductList[j] = ComputeInnerProductOfTwoVector(PointToSingleVector, Vector_j, Size.RowCount, false);
     }
 
     return InnerProductList;
@@ -105,7 +105,7 @@ DenseMatrix<ElementType> ComputeL2DistanceListFromSingleVectorToColVectorSet(con
 
     auto Size = ColVectorSet.GetSize();
 
-    if (Size.ColNumber == 0)
+    if (Size.ColCount == 0)
     {
         MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeL2DistanceListFromSingleVectorToColVectorSet(...)")
         return L2DistanceList;
@@ -117,23 +117,23 @@ DenseMatrix<ElementType> ComputeL2DistanceListFromSingleVectorToColVectorSet(con
         return L2DistanceList;
     }
 
-    if (SingleVector.GetElementNumber() != Size.RowNumber)
+    if (SingleVector.GetElementNumber() != Size.RowCount)
     {
         MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeL2DistanceListFromSingleVectorToColVectorSet(...)")
         return L2DistanceList;
     }
 
-    L2DistanceList.FastResize(1, Size.ColNumber);
+    L2DistanceList.FastResize(1, Size.ColCount);
 
     auto PointToSingleVector = SingleVector.GetElementPointer();
 
     auto PointerToSet = ColVectorSet.GetElementPointer();
 
-    for (int_max j = 0; j < Size.ColNumber; ++j)
+    for (int_max j = 0; j < Size.ColCount; ++j)
     {
-        auto Vector_j = PointerToSet + j*Size.RowNumber;
+        auto Vector_j = PointerToSet + j*Size.RowCount;
 
-        L2DistanceList[j] = ComputeL2DistanceBetweenTwoVector(PointToSingleVector, Vector_j, Size.RowNumber, false);
+        L2DistanceList[j] = ComputeL2DistanceBetweenTwoVector(PointToSingleVector, Vector_j, Size.RowCount, false);
     }
 
     return L2DistanceList;
@@ -201,7 +201,7 @@ DenseMatrix<ElementType> ComputeSquaredL2DistanceListFromSingleVectorToColVector
 
     auto Size = ColVectorSet.GetSize();
 
-    if (Size.ColNumber == 0)
+    if (Size.ColCount == 0)
     {
         MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeSquaredL2DistanceListFromSingleVectorToColVectorSet(...)")
         return SquaredL2DistanceList;
@@ -213,23 +213,23 @@ DenseMatrix<ElementType> ComputeSquaredL2DistanceListFromSingleVectorToColVector
         return SquaredL2DistanceList;
     }
 
-    if (SingleVector.GetElementNumber() != Size.RowNumber)
+    if (SingleVector.GetElementNumber() != Size.RowCount)
     {
         MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeL2DistanceListFromSingleVectorToColVectorSet(...)")
         return SquaredL2DistanceList;
     }
 
-    SquaredL2DistanceList.FastResize(1, Size.ColNumber);
+    SquaredL2DistanceList.FastResize(1, Size.ColCount);
 
     auto PointToSingleVector = SingleVector.GetElementPointer();
 
     auto PointerToSet = ColVectorSet.GetElementPointer();
 
-    for (int_max j = 0; j < Size.ColNumber; ++j)
+    for (int_max j = 0; j < Size.ColCount; ++j)
     {
-        auto Vector_j = PointerToSet + j*Size.RowNumber;
+        auto Vector_j = PointerToSet + j*Size.RowCount;
 
-        SquaredL2DistanceList[j] = ComputeSquaredL2DistanceBetweenTwoVector(PointToSingleVector, Vector_j, Size.RowNumber, false);
+        SquaredL2DistanceList[j] = ComputeSquaredL2DistanceBetweenTwoVector(PointToSingleVector, Vector_j, Size.RowCount, false);
     }
 
     return SquaredL2DistanceList;
@@ -292,7 +292,7 @@ DenseMatrix<ElementType> ComputeL1DistanceListFromSingleVectorToColVectorSet(con
 
     auto Size = ColVectorSet.GetSize();
 
-    if (Size.ColNumber == 0)
+    if (Size.ColCount == 0)
     {
         MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeL1DistanceListFromSingleVectorToColVectorSet(...)")
         return L1DistanceList;
@@ -304,23 +304,23 @@ DenseMatrix<ElementType> ComputeL1DistanceListFromSingleVectorToColVectorSet(con
         return L1DistanceList;
     }
 
-    if (SingleVector.GetElementNumber() != Size.RowNumber)
+    if (SingleVector.GetElementNumber() != Size.RowCount)
     {
         MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeL1DistanceListFromSingleVectorToColVectorSet(...)")
         return L1DistanceList;
     }
 
-    L1DistanceList.FastResize(1, Size.ColNumber);
+    L1DistanceList.FastResize(1, Size.ColCount);
 
     auto PointToSingleVector = SingleVector.GetElementPointer();
 
     auto PointerToSet = ColVectorSet.GetElementPointer();
 
-    for (int_max j = 0; j < Size.ColNumber; ++j)
+    for (int_max j = 0; j < Size.ColCount; ++j)
     {
-        auto Vector_j = PointerToSet + j*Size.RowNumber;
+        auto Vector_j = PointerToSet + j*Size.RowCount;
 
-        L1DistanceList[j] = ComputeL1DistanceBetweenTwoVector(PointToSingleVector, Vector_j, Size.RowNumber, false);
+        L1DistanceList[j] = ComputeL1DistanceBetweenTwoVector(PointToSingleVector, Vector_j, Size.RowCount, false);
     }
 
     return L1DistanceList;
@@ -383,7 +383,7 @@ DenseMatrix<ElementType> ComputeCorrelationListFromSingleVectorToColVectorSet(co
 
     auto Size = ColVectorSet.GetSize();
 
-    if (Size.ColNumber == 0)
+    if (Size.ColCount == 0)
     {
         MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeCorrelationListFromSingleVectorToColVectorSet(...)")
         return CorrelationList;
@@ -395,23 +395,23 @@ DenseMatrix<ElementType> ComputeCorrelationListFromSingleVectorToColVectorSet(co
         return CorrelationList;
     }
 
-    if (SingleVector.GetElementNumber() != Size.RowNumber)
+    if (SingleVector.GetElementNumber() != Size.RowCount)
     {
         MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeCorrelationListFromSingleVectorToColVectorSet(...)")
         return CorrelationList;
     }
 
-    CorrelationList.FastResize(1, Size.ColNumber);
+    CorrelationList.FastResize(1, Size.ColCount);
 
     auto PointerToSingleVector = SingleVector.GetElementPointer();
 
     auto PointerToSet = ColVectorSet.GetElementPointer();
 
-    for (int_max j = 0; j < Size.ColNumber; ++j)
+    for (int_max j = 0; j < Size.ColCount; ++j)
     {
-        auto Vector_j = PointerToSet + j*Size.RowNumber;
+        auto Vector_j = PointerToSet + j*Size.RowCount;
 
-        CorrelationList[j] = ComputeCorrelationBetweenTwoVector(PointerToSingleVector, Vector_j, Size.RowNumber, false);   
+        CorrelationList[j] = ComputeCorrelationBetweenTwoVector(PointerToSingleVector, Vector_j, Size.RowCount, false);   
     }
 
     return CorrelationList;
@@ -509,7 +509,7 @@ DenseMatrix<ElementType> ComputeUncenteredCorrelationListFromSingleVectorToColVe
 
     auto Size = ColVectorSet.GetSize();
 
-    if (Size.ColNumber == 0)
+    if (Size.ColCount == 0)
     {
         MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeUncenteredCorrelationListFromSingleVectorToColVectorSet(...)")
         return CorrelationList;
@@ -521,23 +521,23 @@ DenseMatrix<ElementType> ComputeUncenteredCorrelationListFromSingleVectorToColVe
         return CorrelationList;
     }
 
-    if (SingleVector.GetElementNumber() != Size.RowNumber)
+    if (SingleVector.GetElementNumber() != Size.RowCount)
     {
         MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeUncenteredCorrelationListFromSingleVectorToColVectorSet(...)")
         return CorrelationList;
     }
 
-    CorrelationList.FastResize(1, Size.ColNumber);
+    CorrelationList.FastResize(1, Size.ColCount);
 
     auto PointerToSingleVector = SingleVector.GetElementPointer();
 
     auto PointerToSet = ColVectorSet.GetElementPointer();
 
-    for (int_max j = 0; j < Size.ColNumber; ++j)
+    for (int_max j = 0; j < Size.ColCount; ++j)
     {
-        auto Vector_j = PointerToSet + j*Size.RowNumber;
+        auto Vector_j = PointerToSet + j*Size.RowCount;
 
-        CorrelationList[j] = ComputeUncenteredCorrelationBetweenTwoVector(PointerToSingleVector, Vector_j, Size.RowNumber, false);
+        CorrelationList[j] = ComputeUncenteredCorrelationBetweenTwoVector(PointerToSingleVector, Vector_j, Size.RowCount, false);
     }
 
     return CorrelationList;
@@ -622,7 +622,7 @@ DenseMatrix<ElementType> ComputeUnnormalizedCorrelationListFromSingleVectorToCol
 
     auto Size = ColVectorSet.GetSize();
 
-    if (Size.ColNumber == 0)
+    if (Size.ColCount == 0)
     {
         MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeUnnormalizedCorrelationListFromSingleVectorToColVectorSet(...)")
         return CorrelationList;
@@ -634,23 +634,23 @@ DenseMatrix<ElementType> ComputeUnnormalizedCorrelationListFromSingleVectorToCol
         return CorrelationList;
     }
 
-    if (SingleVector.GetElementNumber() != Size.RowNumber)
+    if (SingleVector.GetElementNumber() != Size.RowCount)
     {
         MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeUnnormalizedCorrelationListFromSingleVectorToColVectorSet(...)")
         return CorrelationList;
     }
 
-    CorrelationList.FastResize(1, Size.ColNumber);
+    CorrelationList.FastResize(1, Size.ColCount);
 
     auto PointerToSingleVector = SingleVector.GetElementPointer();
 
     auto PointerToSet = ColVectorSet.GetElementPointer();
 
-    for (int_max j = 0; j < Size.ColNumber; ++j)
+    for (int_max j = 0; j < Size.ColCount; ++j)
     {
-        auto Vector_j = PointerToSet + j*Size.RowNumber;
+        auto Vector_j = PointerToSet + j*Size.RowCount;
 
-        CorrelationList[j] = ComputeUnnormalizedCorrelationBetweenTwoVector(PointerToSingleVector, Vector_j, Size.RowNumber, false);
+        CorrelationList[j] = ComputeUnnormalizedCorrelationBetweenTwoVector(PointerToSingleVector, Vector_j, Size.RowCount, false);
     }
 
     return CorrelationList;
@@ -724,7 +724,7 @@ DenseMatrix<ElementType> ComputeKLDivergenceListOfSingleVectorFromColVectorSet(c
 
     auto Size = ColVectorSet.GetSize();
 
-    if (Size.ColNumber == 0)
+    if (Size.ColCount == 0)
     {
         MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeKLDivergenceListOfSingleVectorFromColVectorSet(...)")
         return KLDivergenceList;
@@ -736,23 +736,23 @@ DenseMatrix<ElementType> ComputeKLDivergenceListOfSingleVectorFromColVectorSet(c
         return KLDivergenceList;
     }
 
-    if (SingleVector.GetElementNumber() != Size.RowNumber)
+    if (SingleVector.GetElementNumber() != Size.RowCount)
     {
         MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeKLDivergenceOfSingleVectorFromColVectorSet(...)")
         return KLDivergenceList;
     }
 
-    KLDivergenceList.FastResize(1, Size.ColNumber);
+    KLDivergenceList.FastResize(1, Size.ColCount);
 
     auto PointToSingleVector = SingleVector.GetElementPointer();
 
     auto PointerToSet = ColVectorSet.GetElementPointer();
 
-    for (int_max j = 0; j < Size.ColNumber; ++j)
+    for (int_max j = 0; j < Size.ColCount; ++j)
     {
-        auto Vector_j = PointerToSet + j*Size.RowNumber;
+        auto Vector_j = PointerToSet + j*Size.RowCount;
 
-        KLDivergenceList[j] = ComputeKLDivergenceOfVectorAFromVectorB(PointToSingleVector, Vector_j, Size.RowNumber, false);
+        KLDivergenceList[j] = ComputeKLDivergenceOfVectorAFromVectorB(PointToSingleVector, Vector_j, Size.RowCount, false);
     }
 
     return KLDivergenceList;
@@ -768,7 +768,7 @@ ElementType ComputeKLDivergenceOfVectorAFromVectorB(const DenseMatrix<ElementTyp
     if (VectorA.IsVector() == false || VectorB.IsVector() == false)
     {
         MDK_Error("Input VectorA or VectorB is not a vector @ mdkLinearAlgebra_DenseMatrix ComputeKLDivergenceOfVectorAFromVectorB(...)")
-        return ElementType(-100); // Kullback–Leibler divergence is always non-negative
+        return ElementType(-100); // Kullbackï¿½Leibler divergence is always non-negative
     }
 
     auto LengthA = VectorA.GetElementNumber();
@@ -828,7 +828,7 @@ DenseMatrix<ElementType> ComputeJSDivergenceListFromSingleVectorToColVectorSet(c
 
     auto Size = ColVectorSet.GetSize();
 
-    if (Size.ColNumber == 0)
+    if (Size.ColCount == 0)
     {
         MDK_Error("Empty Dictionary @ mdkLinearAlgebra_DenseMatrix ComputeJSDivergenceListFromSingleVectorToColVectorSet(...)")
         return JSDivergenceList;
@@ -840,23 +840,23 @@ DenseMatrix<ElementType> ComputeJSDivergenceListFromSingleVectorToColVectorSet(c
         return JSDivergenceList;
     }
 
-    if (SingleVector.GetElementNumber() != Size.RowNumber)
+    if (SingleVector.GetElementNumber() != Size.RowCount)
     {
         MDK_Error("Size does not match @ mdkLinearAlgebra_DenseMatrix ComputeKLDivergenceOfSingleVectorFromColVectorSet(...)")
         return JSDivergenceList;
     }
 
-    JSDivergenceList.FastResize(1, Size.ColNumber);
+    JSDivergenceList.FastResize(1, Size.ColCount);
 
     auto PointToSingleVector = SingleVector.GetElementPointer();
 
     auto PointerToSet = ColVectorSet.GetElementPointer();
 
-    for (int_max j = 0; j < Size.ColNumber; ++j)
+    for (int_max j = 0; j < Size.ColCount; ++j)
     {
-        auto Vector_j = PointerToSet + j*Size.RowNumber;
+        auto Vector_j = PointerToSet + j*Size.RowCount;
 
-        JSDivergenceList[j] = ComputeJSDivergenceBetweenTwoVector(PointToSingleVector, Vector_j, Size.RowNumber, false);
+        JSDivergenceList[j] = ComputeJSDivergenceBetweenTwoVector(PointToSingleVector, Vector_j, Size.RowCount, false);
     }
 
     return JSDivergenceList;
@@ -872,7 +872,7 @@ ElementType ComputeJSDivergenceBetweenTwoVector(const DenseMatrix<ElementType>& 
     if (VectorA.IsVector() == false || VectorB.IsVector() == false)
     {
         MDK_Error("Input VectorA or VectorB is not a vector @ mdkLinearAlgebra_DenseMatrix ComputeJSDivergenceBetweenTwoVector(...)")
-        return ElementType(-100); // Jensen–Shannon divergence is always non-negative
+        return ElementType(-100); // Jensenï¿½Shannon divergence is always non-negative
     }
 
     auto LengthA = VectorA.GetElementNumber();

@@ -50,7 +50,7 @@ bool AffineTransform3D<ScalarType>::CheckInput()
 	}
 	else
 	{
-		if (m_SourceControlPointSet->GetRowNumber() != 3)
+		if (m_SourceControlPointSet->GetRowCount() != 3)
 		{
 			MDK_Error("m_SourceControlPointSet empty or wrong size  @  AffineTransform3D::CheckInput()")
 			return false;
@@ -64,14 +64,14 @@ bool AffineTransform3D<ScalarType>::CheckInput()
 	}
 	else
 	{
-		if (m_SourceControlPointSet->GetRowNumber() != 3)
+		if (m_SourceControlPointSet->GetRowCount() != 3)
 		{
 			MDK_Error("m_TargetControlPointSet empty or wrong size  @  AffineTransform3D::CheckInput()")
 			return false;
 		}
 	}
 
-	if (m_SourceControlPointSet->GetColNumber() != m_TargetControlPointSet->GetColNumber())
+	if (m_SourceControlPointSet->GetColCount() != m_TargetControlPointSet->GetColCount())
 	{
 		MDK_Error("m_SourceControlPointSet size and m_TargetControlPointSet size do not match @  AffineTransform3D::CheckInput()")
 		return false;
@@ -91,8 +91,8 @@ void AffineTransform3D<ScalarType>::EstimateParameter()
 
 	// Assemble SourceData Matrix
 	DenseMatrix<ScalarType> SourceData;
-	SourceData.Resize(4, m_SourceControlPointSet->GetColNumber());
-	for (int_max k = 0; k < m_SourceControlPointSet->GetColNumber(); ++k)
+	SourceData.Resize(4, m_SourceControlPointSet->GetColCount());
+	for (int_max k = 0; k < m_SourceControlPointSet->GetColCount(); ++k)
 	{
 		ScalarType Pos[3];
 		m_SourceControlPointSet->GetCol(k, Pos);
@@ -109,7 +109,7 @@ void AffineTransform3D<ScalarType>::EstimateParameter()
 template<typename ScalarType>
 void AffineTransform3D<ScalarType>::SetTransformationMatrix(const DenseMatrix<ScalarType>& TransformationMatrix)
 {
-	if (TransformationMatrix.GetRowNumber() != 4 || TransformationMatrix.GetColNumber() != 4)
+	if (TransformationMatrix.GetRowCount() != 4 || TransformationMatrix.GetColCount() != 4)
 	{
 		MDK_Error("invalid input @ AffineTransform3D::SetTransformationMatrix(...)")
 		return;

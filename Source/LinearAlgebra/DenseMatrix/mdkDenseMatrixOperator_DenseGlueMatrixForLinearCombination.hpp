@@ -28,7 +28,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Error("GlueMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: +(GlueMatrixA_ForLinearCombination, MatrixB)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
@@ -37,21 +37,21 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
 
     //scalar --------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
+    if (SizeA.RowCount == 1 && SizeA.ColCount == 1)
     {
         DenseMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateDenseMatrix();
 
         return tempScalarMatrixA(0) + MatrixB;
     }
 
-    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    if (SizeB.RowCount == 1 && SizeB.ColCount == 1)
     {
         return std::move(GlueMatrixA) + MatrixB(0);
     }
 
     //matrix -------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: +(GlueMatrixA_ForLinearCombination, MatrixB)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
@@ -84,7 +84,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Error("GlueMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: -(GlueMatrixA_ForLinearCombination, MatrixB)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
@@ -93,21 +93,21 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
 
     //scalar --------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
+    if (SizeA.RowCount == 1 && SizeA.ColCount == 1)
     {
         DenseMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateDenseMatrix();
 
         return tempScalarMatrixA(0) - MatrixB;
     }
 
-    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    if (SizeB.RowCount == 1 && SizeB.ColCount == 1)
     {
         return std::move(GlueMatrixA) - MatrixB(0);
     }
 
     //matrix -------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: -(GlueMatrixA_ForLinearCombination, MatrixB)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
@@ -161,7 +161,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Error("MatrixA or GlueMatrixB is empty @ mdkDenseMatrixOperator: +(MatrixA, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
@@ -170,12 +170,12 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
 
     //scalar --------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
+    if (SizeA.RowCount == 1 && SizeA.ColCount == 1)
     {
         return MatrixA(0) + std::move(GlueMatrixB);
     }
 
-    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    if (SizeB.RowCount == 1 && SizeB.ColCount == 1)
     {
         DenseMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateDenseMatrix();
 
@@ -184,7 +184,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
 
     //matrix -------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: +(MatrixA, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
@@ -217,7 +217,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Error("MatrixA or GlueMatrixB is empty @ mdkDenseMatrixOperator: -(MatrixA, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
@@ -226,12 +226,12 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
 
     //scalar --------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
+    if (SizeA.RowCount == 1 && SizeA.ColCount == 1)
     {
         return MatrixA(0) - std::move(GlueMatrixB);
     }
 
-    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    if (SizeB.RowCount == 1 && SizeB.ColCount == 1)
     {
         DenseMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateDenseMatrix();
 
@@ -240,7 +240,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
 
     //matrix -------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: -(MatrixA, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
@@ -479,7 +479,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Error("GlueMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: +(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
@@ -488,14 +488,14 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
 
     //scalar --------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
+    if (SizeA.RowCount == 1 && SizeA.ColCount == 1)
     {
         DenseMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateDenseMatrix();
 
         return tempScalarMatrixA(0) + std::move(GlueMatrixB);
     }
 
-    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    if (SizeB.RowCount == 1 && SizeB.ColCount == 1)
     {
         DenseMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateDenseMatrix();
 
@@ -504,7 +504,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
 
     //matrix -------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: +(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
@@ -550,7 +550,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
 
     // empty -----------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber <= 0 || SizeB.RowNumber <= 0)
+    if (SizeA.RowCount <= 0 || SizeB.RowCount <= 0)
     {
         MDK_Error("GlueMatrixA or MatrixB is empty @ mdkDenseMatrixOperator: -(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;
@@ -559,14 +559,14 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
 
     //scalar --------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber == 1 && SizeA.ColNumber == 1)
+    if (SizeA.RowCount == 1 && SizeA.ColCount == 1)
     {
         DenseMatrix<ElementType> tempScalarMatrixA = GlueMatrixA.CreateDenseMatrix();
 
         return tempScalarMatrixA(0) - std::move(GlueMatrixB);
     }
 
-    if (SizeB.RowNumber == 1 && SizeB.ColNumber == 1)
+    if (SizeB.RowCount == 1 && SizeB.ColCount == 1)
     {
         DenseMatrix<ElementType> tempScalarMatrixB = GlueMatrixB.CreateDenseMatrix();
 
@@ -575,7 +575,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
 
     //matrix -------------------------------------------------------------------------------------------
 
-    if (SizeA.RowNumber != SizeB.RowNumber || SizeA.ColNumber != SizeB.ColNumber)
+    if (SizeA.RowCount != SizeB.RowCount || SizeA.ColCount != SizeB.ColCount)
     {
         MDK_Error("Size does not match @ mdkDenseMatrixOperator: -(GlueMatrixA_ForLinearCombination, GlueMatrixB_ForLinearCombination)")
         DenseGlueMatrixForLinearCombination<ElementType> EmptyGlueMatrix;

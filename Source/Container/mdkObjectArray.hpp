@@ -100,9 +100,9 @@ void ObjectArray<ElementType>::Copy(ObjectArray<ElementType>&& InputArray)
 		return;
 	}
 
-	auto InputLength = InputArray.GetElementNumber();
+	auto InputLength = InputArray.GetElementCount();
 
-	auto SelfLength = this->GetElementNumber();
+	auto SelfLength = this->GetElementCount();
 
 	if (this->IsSizeFixed() == true)
 	{
@@ -161,7 +161,7 @@ void ObjectArray<ElementType>::Copy(const ElementType* InputElementPointer, int_
 	{
 		if (this->IsSizeFixed() == true)
 		{
-			if (this->GetElementNumber() != 0)
+			if (this->GetElementCount() != 0)
 			{
 				MDK_Error("Size can not change @ ObjectArray::Copy(...)")
 				return;
@@ -186,7 +186,7 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::Fill(const ElementType& Element)
 {
-    auto SelfLength = this->GetElementNumber();
+    auto SelfLength = this->GetElementCount();
     if (SelfLength <= 0)
     {
         MDK_Error("Self is empty @ ObjectArray::Fill")
@@ -207,7 +207,7 @@ void ObjectArray<ElementType>::Share(ObjectArray<ElementType>& InputArray)
 {
 	if (IsSizeFixed == true)
 	{
-		if (this->GetElementNumber() != InputArray.GetElementNumber())
+		if (this->GetElementCount() != InputArray.GetElementCount())
 		{
 			MDK_Error("Size can not be changed @ ObjectArray::Share(...)")
 			return;
@@ -317,7 +317,7 @@ void ObjectArray<ElementType>::ReserveCapacity(int_max InputElementNumber)
 
 try
 {
-    auto SelfLength = this->GetElementNumber();
+    auto SelfLength = this->GetElementCount();
 
     if (InputElementNumber > SelfLength)
     {
@@ -458,7 +458,7 @@ int_max ObjectArray<ElementType>::GetLength() const
 
 template<typename ElementType>
 inline
-int_max ObjectArray<ElementType>::GetElementNumber() const
+int_max ObjectArray<ElementType>::GetElementCount() const
 {
     return this->GetLength();
 }
@@ -560,7 +560,7 @@ ElementType* ObjectArray<ElementType>::end()
 	auto BeginPtr = this->GetElementPointer();
 	if (BeginPtr != nullptr)
     {
-		return BeginPtr + this->GetElementNumber();
+		return BeginPtr + this->GetElementCount();
     }
 	else
 	{
@@ -576,7 +576,7 @@ const ElementType* ObjectArray<ElementType>::end() const
 	auto BeginPtr = this->GetElementPointer();
 	if (BeginPtr != nullptr)
 	{
-		return BeginPtr + this->GetElementNumber();
+		return BeginPtr + this->GetElementCount();
 	}
 	else
 	{
@@ -595,7 +595,7 @@ ElementType& ObjectArray<ElementType>::operator[](int_max Index)
 {
 #if defined(MDK_DEBUG_ObjectArray_Operator_CheckBound)
 
-    if (Index >= this->GetElementNumber()|| Index < 0)
+    if (Index >= this->GetElementCount()|| Index < 0)
     {
         MDK_Error("Invalid Input @ ObjectArray::operator[](i)")
 
@@ -614,7 +614,7 @@ const ElementType& ObjectArray<ElementType>::operator[](int_max Index) const
 {
 #if defined(MDK_DEBUG_ObjectArray_Operator_CheckBound)
 
-    if (Index >= this->GetElementNumber() || Index < 0)
+    if (Index >= this->GetElementCount() || Index < 0)
     {
         MDK_Error("Invalid Input @ ObjectArray::operator[](i) const")
 
@@ -633,7 +633,7 @@ ElementType& ObjectArray<ElementType>::operator()(int_max Index)
 {
 #if defined(MDK_DEBUG_ObjectArray_Operator_CheckBound)
 
-    if (Index >= this->GetElementNumber() || Index < 0)
+    if (Index >= this->GetElementCount() || Index < 0)
     {
         MDK_Error("Invalid Input @ ObjectArray::operator()(i)")
 
@@ -652,7 +652,7 @@ const ElementType& ObjectArray<ElementType>::operator()(int_max Index) const
 {
 #if defined(MDK_DEBUG_ObjectArray_Operator_CheckBound)
 
-    if (Index >= this->GetElementNumber() || Index < 0)
+    if (Index >= this->GetElementCount() || Index < 0)
     {
         MDK_Error("Invalid Input @ ObjectArray::operator()(i) const")
 
@@ -670,7 +670,7 @@ template<typename ElementType>
 inline
 ElementType& ObjectArray<ElementType>::at(int_max Index)
 {
-    if (Index >= this->GetElementNumber() || Index < 0)
+    if (Index >= this->GetElementCount() || Index < 0)
 	{
 		MDK_Error("Invalid Input @ ObjectArray::at(i)")
         
@@ -685,7 +685,7 @@ template<typename ElementType>
 inline
 const ElementType& ObjectArray<ElementType>::at(int_max Index) const
 {
-    if (Index >= this->GetElementNumber() || Index < 0)
+    if (Index >= this->GetElementCount() || Index < 0)
 	{
 		MDK_Error("Invalid Input @ ObjectArray::at(i) const")
         
@@ -713,7 +713,7 @@ void ObjectArray<ElementType>::Append(ElementType Element)
 
     m_Data->CopyDataToStdVectorIfNecessary();
 
-    auto SelfLength = this->GetElementNumber();
+    auto SelfLength = this->GetElementCount();
 
     this->Resize(SelfLength + 1);
 
@@ -747,7 +747,7 @@ bool ObjectArray<ElementType>::Append(const DenseMatrix<ElementType>& InputArray
         return false;
     }
 
-    return this->Append(InputArray.GetElementPointer(), InputArray.GetElementNumber());
+    return this->Append(InputArray.GetElementPointer(), InputArray.GetElementCount());
 }
 */
 /*
@@ -755,7 +755,7 @@ template<typename ElementType>
 inline
 bool ObjectArray<ElementType>::Append(const StdObjectVector<ElementType>& InputArray)
 {
-	return this->Append(InputArray.GetElementPointer(), InputArray.GetElementNumber());
+	return this->Append(InputArray.GetElementPointer(), InputArray.GetElementCount());
 }
 */
 /*
@@ -763,7 +763,7 @@ template<typename ElementType>
 inline
 bool ObjectArray<ElementType>::Append(const ObjectArray<ElementType>& InputArray)
 {
-    return this->Append(InputArray.GetElementPointer(), InputArray.GetElementNumber());
+    return this->Append(InputArray.GetElementPointer(), InputArray.GetElementCount());
 }
 */
 
@@ -790,7 +790,7 @@ void ObjectArray<ElementType>::Append(const ElementType* InputArray, int_max Inp
 
     m_Data->CopyDataToStdVectorIfNecessary();
 
-    auto SelfLength = this->GetElementNumber();
+    auto SelfLength = this->GetElementCount();
 
     this->Resize(SelfLength + InputLength);
 
@@ -821,7 +821,7 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::Delete(const StdObjectVector<int_max>& IndexList)
 {
-	this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
+	this->Delete(IndexList.GetElementPointer(), IndexList.GetElementCount());
 }
 
 
@@ -829,7 +829,7 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::Delete(const ObjectArray<int_max>& IndexList)
 {
-	this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
+	this->Delete(IndexList.GetElementPointer(), IndexList.GetElementCount());
 }
 
 
@@ -837,7 +837,7 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::Delete(const DenseMatrix<int_max>& IndexList)
 {
-    this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
+    this->Delete(IndexList.GetElementPointer(), IndexList.GetElementCount());
 }
 
 
@@ -846,7 +846,7 @@ template<int_max TemplateLength>
 inline
 void ObjectArray<ElementType>::Delete(const DenseVector<int_max, TemplateLength>& IndexList)
 {
-	this->Delete(IndexList.GetElementPointer(), IndexList.GetElementNumber());
+	this->Delete(IndexList.GetElementPointer(), IndexList.GetElementCount());
 }
 
 
@@ -860,7 +860,7 @@ void ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
         return;
     }
 
-    auto SelfLength = this->GetElementNumber();
+    auto SelfLength = this->GetElementCount();
 
     if (SelfLength == 0)
     {
@@ -939,7 +939,7 @@ void ObjectArray<ElementType>::Delete(int_max Index_start, int_max Index_end)
         return;
     }
 
-    auto SelfLength = this->GetElementNumber();
+    auto SelfLength = this->GetElementCount();
 
     if (SelfLength == 0)
     {
@@ -984,7 +984,7 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::Insert(int_max Index, const StdObjectVector<ElementType>& InputArray)
 {
-	this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementNumber());
+	this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementCount());
 }
 
 
@@ -992,7 +992,7 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::Insert(int_max Index, const ObjectArray<ElementType>& InputArray)
 {
-    this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementNumber());
+    this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementCount());
 }
 
 
@@ -1006,7 +1006,7 @@ void ObjectArray<ElementType>::Insert(int_max Index, const ElementType* InputArr
         return;
     }
 
-    auto SelfLength = this->GetElementNumber();
+    auto SelfLength = this->GetElementCount();
 
     if (SelfLength == 0)
     {
@@ -1052,7 +1052,7 @@ template<typename ElementType>
 inline
 ElementType ObjectArray<ElementType>::PopBack()
 {
-    auto CurrentElementNumber = this->GetElementNumber();
+    auto CurrentElementNumber = this->GetElementCount();
 
     if (CurrentElementNumber > 0)
     {
@@ -1075,7 +1075,7 @@ ObjectArray<ElementType> ObjectArray<ElementType>::GetSubSet(int_max Index_start
 {
     ObjectArray<ElementType> Subset;
 
-    auto ElementNumber = this->GetElementNumber();
+    auto ElementNumber = this->GetElementCount();
 
     if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
     {
@@ -1117,7 +1117,7 @@ template<typename ElementType>
 inline
 ObjectArray<ElementType> ObjectArray<ElementType>::GetSubSet(const ObjectArray<int_max>& IndexList)
 {
-    return this->GetSubSet(IndexList.GetElementPointer(), IndexList.GetElementNumber());
+    return this->GetSubSet(IndexList.GetElementPointer(), IndexList.GetElementCount());
 }
 
 
@@ -1125,7 +1125,7 @@ template<typename ElementType>
 inline
 ObjectArray<ElementType> ObjectArray<ElementType>::GetSubSet(const StdObjectVector<int_max>& IndexList)
 {
-	return this->GetSubSet(IndexList.GetElementPointer(), IndexList.GetElementNumber());
+	return this->GetSubSet(IndexList.GetElementPointer(), IndexList.GetElementCount());
 }
 
 
@@ -1133,7 +1133,7 @@ template<typename ElementType>
 inline
 ObjectArray<ElementType> ObjectArray<ElementType>::GetSubSet(const DenseMatrix<int_max>& IndexList)
 {
-	return this->GetSubSet(IndexList.GetElementPointer(), IndexList.GetElementNumber());
+	return this->GetSubSet(IndexList.GetElementPointer(), IndexList.GetElementCount());
 }
 
 
@@ -1142,7 +1142,7 @@ template<int_max TemplateLength>
 inline
 StdObjectVector<ElementType> ObjectArray<ElementType>::GetSubSet(const DenseVector<int_max, TemplateLength>& IndexList)
 {
-	return this->GetSubSet(IndexList.GetElementPointer(), int_max(IndexList.GetElementNumber()));
+	return this->GetSubSet(IndexList.GetElementPointer(), int_max(IndexList.GetElementCount()));
 }
 
 
@@ -1157,7 +1157,7 @@ ObjectArray<ElementType> ObjectArray<ElementType>::GetSubSet(const int_max* Inde
         return SubSet;
     }
 
-    auto ElementNumber = this->GetElementNumber();
+    auto ElementNumber = this->GetElementCount();
 
     if (ListLength > ElementNumber)
     {
@@ -1203,13 +1203,13 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::SetSubSet(const ObjectArray<int_max>& IndexList, const ObjectArray<ElementType>& SubSet)
 {
-	if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
+	if (IndexList.GetElementCount() != SubSet.GetElementCount())
 	{
 		MDK_Error("IndexList size != SubSet size @ ObjectArray::SetSubSet(...)")
 		return;
 	}
 
-	this->SetSubSet(IndexList.GetElementPointer(), SubSet.GetElementPointer(), SubSet.GetElementNumber());
+	this->SetSubSet(IndexList.GetElementPointer(), SubSet.GetElementPointer(), SubSet.GetElementCount());
 }
 
 
@@ -1217,26 +1217,26 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::SetSubSet(const StdObjectVector<int_max>& IndexList, const ObjectArray<ElementType>& SubSet)
 {
-	if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
+	if (IndexList.GetElementCount() != SubSet.GetElementCount())
 	{
 		MDK_Error("IndexList size != SubSet size @ ObjectArray::SetSubSet(...)")
 		return;
 	}
 
-	this->SetSubSet(IndexList.GetElementPointer(), SubSet.GetElementPointer(), SubSet.GetElementNumber());
+	this->SetSubSet(IndexList.GetElementPointer(), SubSet.GetElementPointer(), SubSet.GetElementCount());
 }
 
 template<typename ElementType>
 inline
 void ObjectArray<ElementType>::SetSubSet(const DenseMatrix<int_max>& IndexList, const ObjectArray<ElementType>& SubSet)
 {
-	if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
+	if (IndexList.GetElementCount() != SubSet.GetElementCount())
 	{
 		MDK_Error("IndexList size != SubSet size @ ObjectArray::SetSubSet(...)")
 		return;
 	}
 
-	this->SetSubSet(IndexList.GetElementPointer(), SubSet.GetElementPointer(), SubSet.GetElementNumber());
+	this->SetSubSet(IndexList.GetElementPointer(), SubSet.GetElementPointer(), SubSet.GetElementCount());
 }
 
 
@@ -1245,13 +1245,13 @@ template<int_max TemplateLength>
 inline
 void ObjectArray<ElementType>::SetSubSet(const DenseVector<int_max, TemplateLength>& IndexList, const ObjectArray<ElementType>& SubSet)
 {
-	if (IndexList.GetElementNumber() != SubSet.GetElementNumber())
+	if (IndexList.GetElementCount() != SubSet.GetElementCount())
 	{
 		MDK_Error("IndexList size != SubSet size @ ObjectArray::SetSubSet(...)")
 		return;
 	}
 
-	this->SetSubSet(IndexList.GetElementPointer(), SubSet.GetElementPointer(), SubSet.GetElementNumber());
+	this->SetSubSet(IndexList.GetElementPointer(), SubSet.GetElementPointer(), SubSet.GetElementCount());
 }
 
 
@@ -1265,7 +1265,7 @@ void ObjectArray<ElementType>::SetSubSet(const int_max* IndexList, const Element
 		return;
 	}
 
-	auto ElementNumber = this->GetElementNumber();
+	auto ElementNumber = this->GetElementCount();
 
 	if (ElementNumber == 0)
 	{
@@ -1319,7 +1319,7 @@ ObjectArray<int_max> ObjectArray<ElementType>::Find(int_max MaxOutputNumber, int
 {
     ObjectArray<int_max> IndexList;
 
-    auto ElementNumber = this->GetElementNumber();
+    auto ElementNumber = this->GetElementCount();
 
     if (MaxOutputNumber <= 0 || MaxOutputNumber > ElementNumber)
     {
@@ -1358,7 +1358,7 @@ ObjectArray<int_max> ObjectArray<ElementType>::Find(int_max MaxOutputNumber, int
         {
             IndexList.Append(i);
 
-            if (IndexList.GetElementNumber() == MaxOutputNumber)
+            if (IndexList.GetElementCount() == MaxOutputNumber)
             {
                 break;
             }
@@ -1400,7 +1400,7 @@ ObjectArray<int_max> ObjectArray<ElementType>::Sort(int_max Index_start, int_max
 {
     ObjectArray<int_max> IndexList;
 
-    auto ElementNumber = this->GetElementNumber();
+    auto ElementNumber = this->GetElementCount();
 
     if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
     {

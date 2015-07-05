@@ -104,6 +104,7 @@ static MDK_Symbol_Empty StaticGlobalObject_MDK_Symbol_Empty(This_Is_InputStruct_
 #define MDK_EMPTY_DATA_OBJECT StaticGlobalObject_MDK_Symbol_Empty
 //--------------------------------------------------------------------------------------------------------------------------------//
 
+// note: Empty or PureEmpty Object can be used as NULL Object
 
 }// namespace mdk
 

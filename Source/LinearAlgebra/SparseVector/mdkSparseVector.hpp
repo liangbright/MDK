@@ -8,7 +8,7 @@ template<typename ElementType>
 inline
 SparseVector<ElementType>::SparseVector()
 {
-	this->Construct(0);
+	this->Initialize(0);
 }
 
 template<typename ElementType>
@@ -22,7 +22,7 @@ template<typename ElementType>
 inline
 SparseVector<ElementType>::SparseVector(const ElementType& Element)
 {
-	this->Construct(1);
+	this->Initialize(1);
 	m_Data->IndexList.Append(0);
 	m_Data->ElementList.Append(Element);
 }
@@ -32,7 +32,7 @@ template<typename ElementType>
 inline
 SparseVector<ElementType>::SparseVector(const SparseVector& InputVector)
 {
-	this->Construct(0);
+	this->Initialize(0);
     this->Copy(InputVector);
 }
 
@@ -54,7 +54,7 @@ SparseVector<ElementType>::~SparseVector()
 
 template<typename ElementType>
 inline
-void SparseVector<ElementType>::Construct(int_max Length)
+void SparseVector<ElementType>::Initialize(int_max Length)
 {
 	if (!m_Data)
 	{
@@ -69,7 +69,7 @@ void SparseVector<ElementType>::Construct(int_max Length)
 
 template<typename ElementType>
 inline 
-bool SparseVector<ElementType>::Construct(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& ElementList, int_max Length)
+bool SparseVector<ElementType>::Initialize(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& ElementList, int_max Length)
 {
     if (IndexList.size() != ElementList.size())
     {
@@ -77,13 +77,13 @@ bool SparseVector<ElementType>::Construct(const std::initializer_list<int_max>& 
         return false;
     }
 
-    return this->Construct(IndexList.begin(), ElementList.data(), int_max(ElementList.size()), Length);
+    return this->Initialize(IndexList.begin(), ElementList.data(), int_max(ElementList.size()), Length);
 }
 
 
 template<typename ElementType>
 inline 
-bool SparseVector<ElementType>::Construct(const std::vector<int_max>& IndexList, const std::vector<ElementType>& ElementList, int_max Length)
+bool SparseVector<ElementType>::Initialize(const std::vector<int_max>& IndexList, const std::vector<ElementType>& ElementList, int_max Length)
 {
     if (IndexList.size() != ElementList.size())
     {
@@ -91,13 +91,13 @@ bool SparseVector<ElementType>::Construct(const std::vector<int_max>& IndexList,
         return false;
     }
 
-    return this->Construct(IndexList.data(), ElementList.data(), int_max(ElementList.size()), Length);
+    return this->Initialize(IndexList.data(), ElementList.data(), int_max(ElementList.size()), Length);
 }
 
 
 template<typename ElementType>
 inline
-bool SparseVector<ElementType>::Construct(const DenseVector<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length)
+bool SparseVector<ElementType>::Initialize(const DenseVector<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length)
 {
 	if (IndexList.GetLength() != ElementList.GetLength())
 	{
@@ -105,13 +105,13 @@ bool SparseVector<ElementType>::Construct(const DenseVector<int_max>& IndexList,
 		return false;
 	}
 
-	return this->Construct(IndexList.GetPointer(), ElementList.GetPointer(), ElementList.GetLength(), Length);
+	return this->Initialize(IndexList.GetPointer(), ElementList.GetPointer(), ElementList.GetLength(), Length);
 }
 
 
 template<typename ElementType>
 inline 
-bool SparseVector<ElementType>::Construct(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length)
+bool SparseVector<ElementType>::Initialize(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length)
 {
     if (IndexList.GetElementNumber() != ElementList.GetElementNumber())
     {
@@ -119,13 +119,13 @@ bool SparseVector<ElementType>::Construct(const DenseMatrix<int_max>& IndexList,
         return false;
     }
 
-    return this->Construct(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
+    return this->Initialize(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
 }
 
 
 template<typename ElementType>
 inline 
-bool SparseVector<ElementType>::Construct(const DenseVector<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length)
+bool SparseVector<ElementType>::Initialize(const DenseVector<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length)
 {
 	if (IndexList.GetElementNumber() != ElementList.GetElementNumber())
 	{
@@ -133,13 +133,13 @@ bool SparseVector<ElementType>::Construct(const DenseVector<int_max>& IndexList,
 		return false;
 	}
 
-	return this->Construct(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
+	return this->Initialize(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
 }
 
 
 template<typename ElementType>
 inline 
-bool SparseVector<ElementType>::Construct(const DenseMatrix<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length)
+bool SparseVector<ElementType>::Initialize(const DenseMatrix<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length)
 {
 	if (IndexList.GetElementNumber() != ElementList.GetElementNumber())
 	{
@@ -147,17 +147,17 @@ bool SparseVector<ElementType>::Construct(const DenseMatrix<int_max>& IndexList,
 		return false;
 	}
 
-	return this->Construct(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
+	return this->Initialize(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
 }
 
 
 template<typename ElementType>
 inline
-bool SparseVector<ElementType>::Construct(const int_max* IndexList, const ElementType* ElementList, int_max RecordedElementNumber, int_max Length)
+bool SparseVector<ElementType>::Initialize(const int_max* IndexList, const ElementType* ElementList, int_max RecordedElementNumber, int_max Length)
 {
 	if (IndexList == nullptr && ElementList == nullptr && RecordedElementNumber == 0 && Length == 0)
 	{
-		this->Construct(0);
+		this->Initialize(0);
 		return true;
 	}
 	else if ((IndexList == nullptr && ElementList != nullptr) 
@@ -196,7 +196,7 @@ bool SparseVector<ElementType>::Construct(const int_max* IndexList, const Elemen
 
 template<typename ElementType>
 inline
-void SparseVector<ElementType>::ConstructFromSortedData(std::vector<int_max> IndexList, std::vector<ElementType> ElementList, int_max Length)
+void SparseVector<ElementType>::InitializeFromSortedData(std::vector<int_max> IndexList, std::vector<ElementType> ElementList, int_max Length)
 {
 	if (!m_Data)
 	{
@@ -211,7 +211,7 @@ void SparseVector<ElementType>::ConstructFromSortedData(std::vector<int_max> Ind
 
 template<typename ElementType>
 inline
-void SparseVector<ElementType>::ConstructFromSortedData(DenseVector<int_max> IndexList, DenseVector<ElementType> ElementList, int_max Length)
+void SparseVector<ElementType>::InitializeFromSortedData(DenseVector<int_max> IndexList, DenseVector<ElementType> ElementList, int_max Length)
 {
 	if (!m_Data)
 	{
@@ -285,7 +285,7 @@ void SparseVector<ElementType>::Resize(int_max InputLength)
 
 	if (InputLength > 0 && m_Data->Length == 0)
     {
-        this->Construct(InputLength);
+        this->Initialize(InputLength);
         return;
     }
 
@@ -326,7 +326,7 @@ template<typename ElementType>
 inline
 void SparseVector<ElementType>::FastResize(int_max InputLength)
 {
-    this->Construct(InputLength);
+    this->Initialize(InputLength);
 }
 
 
@@ -510,7 +510,7 @@ inline int_max SparseVector<ElementType>::GetLength() const
 
 template<typename ElementType>
 inline
-int_max SparseVector<ElementType>::GetRecordedElementNumber() const
+int_max SparseVector<ElementType>::GetRecordedElementCount() const
 {
 	if (m_Data)
 	{
