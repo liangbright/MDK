@@ -8,7 +8,7 @@ inline String ExtractFilePath(const String& FilePathAndName)
 	String FilePath;
 
 	int_max Index_current = -1;
-	for (int_max k = FilePathAndName.GetCharNumber() - 1; k >= 0; --k)
+	for (int_max k = FilePathAndName.GetCharCount() - 1; k >= 0; --k)
 	{
 		if (FilePathAndName[k] == '/')
 		{
@@ -36,7 +36,7 @@ inline String ExtractFileName(const String& FilePathAndName)
 	String FileName;
 
 	int_max Index_current = -1;
-	for (int_max k = FilePathAndName.GetCharNumber() - 1; k >= 0; --k)
+	for (int_max k = FilePathAndName.GetCharCount() - 1; k >= 0; --k)
 	{
 		if (FilePathAndName[k] == '/')
 		{
@@ -46,8 +46,8 @@ inline String ExtractFileName(const String& FilePathAndName)
 	}
 	if (Index_current >= 0)
 	{
-		FileName.Resize(FilePathAndName.GetCharNumber() - Index_current - 1);
-		for (int_max k = Index_current + 1; k < FilePathAndName.GetCharNumber(); ++k)
+		FileName.Resize(FilePathAndName.GetCharCount() - Index_current - 1);
+		for (int_max k = Index_current + 1; k < FilePathAndName.GetCharCount(); ++k)
 		{
 			FileName[k - Index_current - 1] = FilePathAndName[k];
 		}
@@ -64,7 +64,7 @@ inline String ExtractFileType(const String& FileNameWithType)
 	String FileType;
 
 	int_max Index_current = -1;
-	for (int_max k = FileNameWithType.GetCharNumber() - 1; k >= 0; --k)
+	for (int_max k = FileNameWithType.GetCharCount() - 1; k >= 0; --k)
 	{
 		if (FileNameWithType[k] == '.')
 		{
@@ -74,8 +74,8 @@ inline String ExtractFileType(const String& FileNameWithType)
 	}
 	if (Index_current >= 0)
 	{
-		FileType.Resize(FileNameWithType.GetCharNumber() - Index_current - 1);
-		for (int_max k = Index_current + 1; k < FileNameWithType.GetCharNumber(); ++k) // "." will not be included
+		FileType.Resize(FileNameWithType.GetCharCount() - Index_current - 1);
+		for (int_max k = Index_current + 1; k < FileNameWithType.GetCharCount(); ++k) // "." will not be included
 		{
 			FileType[k - Index_current - 1] = FileNameWithType[k];
 		}
@@ -90,7 +90,7 @@ inline String ExtractFileType(const String& FileNameWithType)
 inline String RemoveFileType(const String& FilePathAndName)
 {
 	int_max Index_current = -1;
-	for (int_max k = FilePathAndName.GetCharNumber() - 1; k >= 0; --k)
+	for (int_max k = FilePathAndName.GetCharCount() - 1; k >= 0; --k)
 	{
 		if (FilePathAndName[k] == '.')
 		{
@@ -119,8 +119,8 @@ inline String RemoveFileType(const String& FilePathAndName)
 template<typename ScalarType>
 bool SaveScalarArrayAsDataFile(const ScalarType* ScalarArray, int_max ArrayLength, const String& FilePathAndName)
 {
-	int_max ByteNumber = GetByteNumberOfScalar(ScalarType(0));
-	if (ByteNumber <= 0)
+	int_max ByteCount = GetByteCountOfScalar(ScalarType(0));
+	if (ByteCount <= 0)
 	{
 		MDK_Error("Unknown ScalarType @ SaveScalarArrayAsDataFile(...)")
 		return false;
@@ -135,7 +135,7 @@ bool SaveScalarArrayAsDataFile(const ScalarType* ScalarArray, int_max ArrayLengt
 
 	if (ScalarArray != nullptr && ArrayLength > 0)
 	{
-		DataFile.write((char*)ScalarArray, ArrayLength*ByteNumber);
+		DataFile.write((char*)ScalarArray, ArrayLength*ByteCount);
 		DataFile.flush();
 	}
 	DataFile.close();
@@ -219,9 +219,9 @@ bool LoadScalarArrayFromDataFile(ScalarType* ScalarArray, int_max ArrayLength, c
 
 	int_max BypesofDataFile = DataFile.size();
 
-	int_max ByteNumberOfScalarTypeInDataFile = GetByteNumberOfScalar(ScalarTypeInDataFile(0));
+	int_max ByteCountOfScalarTypeInDataFile = GetByteCountOfScalar(ScalarTypeInDataFile(0));
 
-	if (BypesofDataFile != ArrayLength * ByteNumberOfScalarTypeInDataFile)
+	if (BypesofDataFile != ArrayLength * ByteCountOfScalarTypeInDataFile)
 	{
 		MDK_Error("Data file size is not equal to matrix size @ LoadScalarArrayFromDataFile(...)")
 		DataFile.close();
@@ -232,7 +232,7 @@ bool LoadScalarArrayFromDataFile(ScalarType* ScalarArray, int_max ArrayLength, c
 	{
 		auto tempScalar = ScalarTypeInDataFile(0);
 
-		DataFile.read((char*)(&tempScalar), ByteNumberOfScalarTypeInDataFile);
+		DataFile.read((char*)(&tempScalar), ByteCountOfScalarTypeInDataFile);
 
 		ScalarArray[i] = ScalarType(tempScalar);
 	}

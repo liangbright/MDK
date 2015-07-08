@@ -200,7 +200,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<int>& Int
 		OutputFile << " ";
 	}
 	OutputFile << "\"" << Name << "\"" << ": ";
-	int_max Indention_next = Indention + Name.GetCharNumber() + 4;
+	int_max Indention_next = Indention + Name.GetCharCount() + 4;
 	return JsonFile::SaveJsonValue(IntArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
@@ -211,7 +211,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<long long
 		OutputFile << " ";
 	}
 	OutputFile << "\"" << Name << "\"" << ": ";
-	int_max Indention_next = Indention + Name.GetCharNumber() + 4;
+	int_max Indention_next = Indention + Name.GetCharCount() + 4;
 	return JsonFile::SaveJsonValue(LongLongArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
@@ -222,7 +222,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<float>& F
 		OutputFile << " ";
 	}
 	OutputFile << "\"" << Name << "\"" << ": ";
-	int_max Indention_next = Indention + Name.GetCharNumber() + 4;
+	int_max Indention_next = Indention + Name.GetCharCount() + 4;
 	return JsonFile::SaveJsonValue(FloatArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
@@ -233,7 +233,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<double>& 
 		OutputFile << " ";
 	}
 	OutputFile << "\"" << Name << "\"" << ": ";
-	int_max Indention_next = Indention + Name.GetCharNumber() + 4;
+	int_max Indention_next = Indention + Name.GetCharCount() + 4;
 	return JsonFile::SaveJsonValue(DoubleArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
@@ -254,7 +254,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const JsonArray& JArray, Js
 		OutputFile << " ";
 	}
 	OutputFile << "\"" << Name << "\"" << ": ";
-	int_max Indention_next = Indention + Name.GetCharNumber() + 4;
+	int_max Indention_next = Indention + Name.GetCharCount() + 4;
 	return JsonFile::SaveJsonValue(JArray, OutputFile, Indention_next, Flag_PreserveOrder);
 }
 //==========================================================================================================================//
@@ -265,7 +265,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const JsonObject& JObject, 
 		OutputFile << " ";
 	}
 	OutputFile << "\"" << Name << "\"" << ": ";
-	int_max Indention_next = Indention + Name.GetCharNumber() + 4;	
+	int_max Indention_next = Indention + Name.GetCharCount() + 4;	
 	return JsonFile::SaveJsonValue(JObject, OutputFile, Indention_next, Flag_PreserveOrder);
 }
 //==========================================================================================================================//
@@ -367,7 +367,7 @@ bool JsonFile::SaveJsonValue(const DenseMatrix<int>& IntArray, JsonFile& OutputF
 			OutputFile << ", ";
 		}
 
-		if (k + 1 >= MDK_JsonFile_MaxNumberPerLine_ScalarArray && ((k + 1) % MDK_JsonFile_MaxNumberPerLine_ScalarArray) == 0)
+		if (k + 1 >= MDK_JsonFile_MaxCountPerLine_ScalarArray && ((k + 1) % MDK_JsonFile_MaxCountPerLine_ScalarArray) == 0)
 		{
 			OutputFile << '\n';
 			for (int_max k = 0; k < Indention + 1; ++k)
@@ -393,7 +393,7 @@ bool JsonFile::SaveJsonValue(const DenseMatrix<long long>& LongLongArray, JsonFi
 			OutputFile << ", ";
 		}
 
-		if (k + 1 >= MDK_JsonFile_MaxNumberPerLine_ScalarArray && ((k + 1) % MDK_JsonFile_MaxNumberPerLine_ScalarArray) == 0)
+		if (k + 1 >= MDK_JsonFile_MaxCountPerLine_ScalarArray && ((k + 1) % MDK_JsonFile_MaxCountPerLine_ScalarArray) == 0)
 		{
 			OutputFile << '\n';
 			for (int_max k = 0; k < Indention + 1; ++k)
@@ -419,7 +419,7 @@ bool JsonFile::SaveJsonValue(const DenseMatrix<float>& FloatArray, JsonFile& Out
 			OutputFile << ", ";
 		}
 
-		if (k + 1 >= MDK_JsonFile_MaxNumberPerLine_ScalarArray && ((k + 1) % MDK_JsonFile_MaxNumberPerLine_ScalarArray) == 0)
+		if (k + 1 >= MDK_JsonFile_MaxCountPerLine_ScalarArray && ((k + 1) % MDK_JsonFile_MaxCountPerLine_ScalarArray) == 0)
 		{
 			OutputFile << '\n';
 			for (int_max k = 0; k < Indention + 1; ++k)
@@ -445,7 +445,7 @@ bool JsonFile::SaveJsonValue(const DenseMatrix<double>& DoubleArray, JsonFile& O
 			OutputFile << ", ";
 		}
 
-		if (k + 1 >= MDK_JsonFile_MaxNumberPerLine_ScalarArray && ((k + 1) % MDK_JsonFile_MaxNumberPerLine_ScalarArray) == 0)
+		if (k + 1 >= MDK_JsonFile_MaxCountPerLine_ScalarArray && ((k + 1) % MDK_JsonFile_MaxCountPerLine_ScalarArray) == 0)
 		{
 			OutputFile << '\n';
 			for (int_max k = 0; k < Indention + 1; ++k)
@@ -559,9 +559,9 @@ bool JsonFile::SaveJsonValue(const JsonObject& JObject, JsonFile& OutputFile, in
 
 	if (Flag_PreserveOrder == true)
 	{
-		auto ItemNumber = int_max(JObject.NameList().size());
+		auto ItemCount = int_max(JObject.NameList().size());
 
-		for (int_max k = 0; k < ItemNumber; ++k)
+		for (int_max k = 0; k < ItemCount; ++k)
 		{
 			const auto& Name_k = JObject.NameList()[k];
 			auto it = JObject.DataMap().find(Name_k);
@@ -577,7 +577,7 @@ bool JsonFile::SaveJsonValue(const JsonObject& JObject, JsonFile& OutputFile, in
 			{
 				MDK_Warning("Someting is missing @ JsonFile::SaveJsonValue(...)")
 			}
-			if (ItemNumber > 1 && k < ItemNumber - 1)
+			if (ItemCount > 1 && k < ItemCount - 1)
 			{
 				OutputFile << ',' << '\n';
 			}

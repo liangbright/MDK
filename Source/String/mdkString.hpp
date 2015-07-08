@@ -64,13 +64,13 @@ inline void String::operator=(String&& InputString)
 
 inline void String::operator=(char Element)
 {
-    auto ElementNumber = this->GetCharNumber();
-    if (ElementNumber == 0)
+    auto ElementCount = this->GetCharCount();
+    if (ElementCount == 0)
     {
         this->Resize(1);
         (*this)[0] = Element;
     }
-    else if (ElementNumber == 1)
+    else if (ElementCount == 1)
     {
         (*this)[0] = Element;
     }
@@ -223,7 +223,7 @@ inline void String::Copy(String&& InputString)
 
 inline void String::Fill(char Element)
 {
-    auto SelfLength = this->GetCharNumber();
+    auto SelfLength = this->GetCharCount();
     if (SelfLength <= 0)
     {
         MDK_Error("Self is empty @ String::Fill(...)")
@@ -304,7 +304,7 @@ try
 		m_StringData = std::make_shared<std::basic_string<char>>();
 	}
 
-    auto SelfLength = this->GetCharNumber();
+    auto SelfLength = this->GetCharCount();
 	if (InputLength != SelfLength)
 	{
 		m_StringData->resize(InputLength);
@@ -332,7 +332,7 @@ try
 		this->Resize(0);
 	}
 
-	auto SelfLength = this->GetCharNumber();
+	auto SelfLength = this->GetCharCount();
 	
     if (InputLength != SelfLength)
     {
@@ -351,7 +351,7 @@ catch (...)
 }
 
 
-inline void String::ReserveCapacity(int_max InputElementNumber)
+inline void String::ReserveCapacity(int_max InputElementCount)
 {
 
 try
@@ -361,16 +361,16 @@ try
 		this->Resize(0);
 	}
 
-    auto SelfLength = this->GetCharNumber();
+    auto SelfLength = this->GetCharCount();
 
-    if (InputElementNumber > SelfLength)
+    if (InputElementCount > SelfLength)
     {
-        m_StringData->reserve(InputElementNumber);
+        m_StringData->reserve(InputElementCount);
     }
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ String::ReserveCapacity(int_max InputElementNumber)")
+    MDK_Error("Out of Memory @ String::ReserveCapacity(int_max InputElementCount)")
 }
 }
 
@@ -426,7 +426,7 @@ inline bool String::IsSharedWith(const String& InputString) const
 }
 
 
-inline int_max String::GetCharNumber() const
+inline int_max String::GetCharCount() const
 {
 	if (m_StringData)
 	{
@@ -483,7 +483,7 @@ inline char* String::end()
 	}
 	else
 	{
-		return BeginPtr + this->GetCharNumber();
+		return BeginPtr + this->GetCharCount();
 	}
 }
 
@@ -496,7 +496,7 @@ inline const char* String::end() const
 	}
 	else
 	{
-		return BeginPtr + this->GetCharNumber();
+		return BeginPtr + this->GetCharCount();
 	}
 }
 
@@ -648,7 +648,7 @@ inline void String::Delete(const int_max* IndexList, int_max ListLength)
         return;
     }
 
-	auto SelfLength = this->GetCharNumber();
+	auto SelfLength = this->GetCharCount();
 	if (SelfLength == 0)
 	{
 		MDK_Error("Self is empty @ String::Delete(const int_max* IndexList, int_max ListLength)")
@@ -701,7 +701,7 @@ inline void String::Delete(int_max Index_start, int_max Index_end)
         return;
     }
 
-	auto SelfLength = this->GetCharNumber();
+	auto SelfLength = this->GetCharCount();
     if (Index_end < Index_start 
         || Index_start >= SelfLength || Index_start < 0
         || Index_end >= SelfLength || Index_end < 0 )
@@ -716,7 +716,7 @@ inline void String::Delete(int_max Index_start, int_max Index_end)
 
 inline void String::Insert(int_max Index, char Element)
 {
-	auto SelfLength = this->GetCharNumber();
+	auto SelfLength = this->GetCharCount();
 	if (SelfLength == 0)
 	{
 		if (Index != 0)
@@ -743,7 +743,7 @@ inline void String::Insert(int_max Index, char Element)
 
 inline void String::Insert(int_max Index, const char* InputString)
 {
-    auto SelfLength = this->GetCharNumber();
+    auto SelfLength = this->GetCharCount();
     if (SelfLength == 0)
     {
         if (Index != 0)
@@ -774,7 +774,7 @@ inline void String::Insert(int_max Index, const char* InputString)
 
 inline void String::Insert(int_max Index, const std::basic_string<char>& InputString)
 {
-	auto SelfLength = this->GetCharNumber();
+	auto SelfLength = this->GetCharCount();
 	if (SelfLength == 0)
 	{
 		if (Index != 0)
@@ -805,7 +805,7 @@ inline void String::Insert(int_max Index, const std::basic_string<char>& InputSt
 
 inline void String::Insert(int_max Index, const String& InputString)
 {
-	auto SelfLength = this->GetCharNumber();
+	auto SelfLength = this->GetCharCount();
 	if (SelfLength == 0)
 	{
 		if (Index != 0)

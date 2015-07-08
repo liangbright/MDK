@@ -865,13 +865,13 @@ void ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
     if (SelfLength == 0)
     {
         MDK_Error("Self is empty @ ObjectArray::Delete(const int_max* IndexList, int_max ListLength)")
-        return false;
+        return;
     }
 
     if (IndexList == nullptr || ListLength <= 0)
     {
         MDK_Error("Empty Input @ ObjectArray::Delete(const int_max* IndexList, int_max ListLength)")
-        return false;
+        return;
     }
 
     for (auto it = IndexList; it != IndexList + ListLength; ++it)
@@ -879,7 +879,7 @@ void ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
         if (*it >= SelfLength || *it < 0)
         {
             MDK_Error("Out of bound Input @ ObjectArray::Delete(const int_max* IndexList, int_max ListLength)")
-            return false;
+            return;
         }
     }
 

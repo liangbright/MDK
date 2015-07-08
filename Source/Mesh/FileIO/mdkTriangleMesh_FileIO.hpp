@@ -9,7 +9,7 @@ bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& Input
 {
 	typedef MeshAttributeType::ScalarType  ScalarType;
 	//---------------------------------------------
-	if (GetByteNumberOfScalar(ScalarType(0)) <= 0)
+	if (GetByteCountOfScalar(ScalarType(0)) <= 0)
 	{
 		MDK_Error("Unknown ScalarType @ SaveTriangleMeshAsJsonDataFile_Header(...)")
 		return false;
@@ -20,8 +20,8 @@ bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& Input
 	JObject["ObjectType"] = "TriangleMesh";
 	JObject["ScalarType"] = GetScalarTypeName(ScalarType(0));
 	JObject["IndexType"] = GetScalarTypeName(int_max(0));
-	JObject["PointNumber"] = InputMesh.GetPointNumber();
-	JObject["CellNumber"] = InputMesh.GetCellNumber();
+	JObject["PointCount"] = InputMesh.GetPointCount();
+	JObject["CellCount"] = InputMesh.GetCellCount();
 	
 	//--------------------------------------------------------------------
 	ObjectArray<DenseVector<int_max>> CellData;
@@ -53,7 +53,7 @@ bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& Input
 	{
 		IsOK = false;
 	}
-	if (SaveScalarArrayAsDataFile(PointData.GetElementPointer(), PointData.GetElementNumber(), FilePath + PointDataFileName) == false)
+	if (SaveScalarArrayAsDataFile(PointData.GetElementPointer(), PointData.GetElementCount(), FilePath + PointDataFileName) == false)
 	{
 		IsOK = false;
 	}	
@@ -123,27 +123,27 @@ bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMes
 		return false;
 	}
 	//----------------------------------------------
-	int_max PointNumber = 0;
-	it = JObject.find("PointNumber");
+	int_max PointCount = 0;
+	it = JObject.find("PointCount");
 	if (it != JObject.end())
 	{
-		PointNumber = it->second.ToScalar<int_max>();
+		PointCount = it->second.ToScalar<int_max>();
 	}
 	else
 	{
-		MDK_Error("Couldn't get PointNumber @ LoadTriangleMeshFromJsonDataFile(...)")
+		MDK_Error("Couldn't get PointCount @ LoadTriangleMeshFromJsonDataFile(...)")
 		return false;
 	}
 	//----------------------------------------------
-	int_max CellNumber = 0;
-	it = JObject.find("CellNumber");
+	int_max CellCount = 0;
+	it = JObject.find("CellCount");
 	if (it != JObject.end())
 	{
-		CellNumber = it->second.ToScalar<int_max>();
+		CellCount = it->second.ToScalar<int_max>();
 	}
 	else
 	{
-		MDK_Error("Couldn't get CellNumber @ LoadTriangleMeshFromJsonDataFile(...)")
+		MDK_Error("Couldn't get CellCount @ LoadTriangleMeshFromJsonDataFile(...)")
 		return false;
 	}
 	//----------------------------------------------	
@@ -173,19 +173,19 @@ bool LoadTriangleMeshFromJsonDataFile(TriangleMesh<MeshAttributeType>& OutputMes
 	//----------------------------------------------
 	String FilePath = ExtractFilePath(FilePathAndName);
 	
-	if (PointNumber > 0)
+	if (PointCount > 0)
 	{
 		bool IsOK = true;
-		DenseMatrix<ScalarType> PointData(3, PointNumber);
-		if (LoadScalarArrayFromDataFile(PointData.GetElementPointer(), PointData.GetElementNumber(), FilePath + PointDataFileName, ScalarTypeInDataFile) == false)
+		DenseMatrix<ScalarType> PointData(3, PointCount);
+		if (LoadScalarArrayFromDataFile(PointData.GetElementPointer(), PointData.GetElementCount(), FilePath + PointDataFileName, ScalarTypeInDataFile) == false)
 		{
 			IsOK = false;
 		}		
 
 		//Get CellData from JsonArray
 		ObjectArray<DenseVector<int_max>> CellData;
-		CellData.Resize(CellNumber);
-		if (CellNumber > 0)
+		CellData.Resize(CellCount);
+		if (CellCount > 0)
 		{
 			JsonArray JArray_CellData;
 			if (JsonFile::Load(JArray_CellData, FilePath + CellDataFileName) == false)

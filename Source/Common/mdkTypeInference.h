@@ -19,7 +19,7 @@ template<typename ScalarType>
 inline String GetScalarTypeName(const ScalarType& Scalar);
 
 template<typename ScalarType>
-inline int_max GetByteNumberOfScalar(const ScalarType& Scalar);
+inline int_max GetByteCountOfScalar(const ScalarType& Scalar);
 //----------------------------------------------------------------//
 // DenseMatrix<double> => DenseMatirx
 template<typename TemplateClassType>

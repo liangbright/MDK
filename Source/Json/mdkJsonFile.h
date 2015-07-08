@@ -17,7 +17,7 @@
 namespace mdk
 {
 
-#define MDK_JsonFile_MaxNumberPerLine_ScalarArray 20
+#define MDK_JsonFile_MaxCountPerLine_ScalarArray 20
 
 class JsonFile : public Object
 {

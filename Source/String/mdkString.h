@@ -79,7 +79,7 @@ public:
 
 	inline void FastResize(int_max InputLength); // do not care about old data
 
-	inline void ReserveCapacity(int_max InputElementNumber); // reserve memory, current Length does not change
+	inline void ReserveCapacity(int_max InputElementCount); // reserve memory, current Length does not change
 
 	inline void ReleaseUnusedCapacity();
 
@@ -91,7 +91,7 @@ public:
 
 	inline bool IsSharedWith(const String& InputString) const;
 
-    inline int_max GetCharNumber() const;
+    inline int_max GetCharCount() const;
 
     //--------------------- Get Data Pointer -----------------------------//
 
