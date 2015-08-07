@@ -51,7 +51,7 @@ namespace mdk
 #endif
 //------------------------------------------------------
 
-//===================================================================================================================//
+//===================================================================================================================//	
 //--------------------------------------------------- DenseImageData3D struct --------------------------------------------//
 
 template<typename PixelType>
@@ -61,12 +61,15 @@ struct DenseImageData3D
 
     int_max m_PixelCountPerZSlice;     // total number of Pixels in each z-slice  = m_Size[2]*m_Size[1], to speedup pixel access
 
-	LocalCoordinateSystem3D<double> m_ImageSpace;
-	// m_ImageSpace.Origin:   Origin of DICOM Image in world coordinate system (x,y,z) (unit: mm)
-	// m_ImageSpace.Spacing:  Spacing of DICOM Image in world coordinate system {Sx, Sy, Sz} (unit: mm)
-	// m_ImageSpace.DirectionX
-	// m_ImageSpace.DirectionY
-	// m_ImageSpace.DirectionZ
+	LocalCoordinateSystem3D<double> m_3DIndexSpace;
+	// m_3DIndexSpace.Origin:   Origin of DICOM Image in world coordinate system (x,y,z) (unit: mm)
+	// m_3DIndexSpace.Spacing:  Spacing of DICOM Image in world coordinate system {Sx, Sy, Sz} (unit: mm)
+	// m_3DIndexSpace.DirectionX
+	// m_3DIndexSpace.DirectionY
+	// m_3DIndexSpace.DirectionZ
+
+	DenseMatrix<double> m_TransformMatrix_3DIndexToWorld;
+	DenseMatrix<double> m_TransformMatrix_WorldTo3DIndex;
 
 	ObjectArray<PixelType> m_PixelArray;
 
@@ -123,6 +126,8 @@ struct DenseImageData3D
 
 	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z) const;
+
+	void UpdateTransformMatrix_3DIndex_World();
 
 private:
 //deleted:
