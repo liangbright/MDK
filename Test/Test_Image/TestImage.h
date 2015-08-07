@@ -1,5 +1,5 @@
-﻿#ifndef __TestImage_h
-#define __TestImage_h
+﻿#ifndef TestImage_h
+#define TestImage_h
 
 #include <ctime>
 #include <cstdlib>

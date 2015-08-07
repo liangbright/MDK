@@ -23,9 +23,10 @@ namespace mdk
 // Ly: number of Pixel in y-direction
 // Lz: number of Pixel in z-direction
 //
-// PixelPhysicalSize (unit: mm), e.g., 0.5mm x 0.5mm x 0.5mm,  same resolution in x, y, z directions 
+// Spacing (unit: mm), e.g., 0.5mm x 0.5mm x 0.5mm,  same resolution in x, y, z directions 
 // same resolution => DenseImage filters do not need to be re-sampled with different Pixel shape
 // reslice the input DenseImage using ITK/VTK, then feed it into this class.
+//
 //
 // ok to store DenseImage with non-isotropic Pixel
 // but such DenseImage is not good for analysis
@@ -36,6 +37,10 @@ namespace mdk
 // note: 
 // use std::array as PixelType if Pixel is a  with known length, and do not use std::
 //
+//------------------- coordinate -------------------------------------
+// 3DIndex: Pixel index in image space
+// 3DPhysicalPosition: Pixel physical position in image space
+// 3DWorldPosition: Pixel physical position in world coordinate system
 // --------------------------------------------------------------------------------------------------------//
 //
 // DenseImageOrientation is a 3x3 double DenseMatrix
@@ -52,19 +57,16 @@ namespace mdk
 template<typename PixelType>
 struct DenseImageData3D
 {
-	DenseVector<int_max, 3> m_Size;     // {Lx, Ly, Lz} number of Pixels in each direction
+	DenseVector<int_max, 3> m_Size;    // {Lx, Ly, Lz} number of Pixels in each direction
 
-    int_max m_PixelCountPerZSlice;     // total number of Pixels in each z-slice  = m_Size[2]*m_Size[1]
+    int_max m_PixelCountPerZSlice;     // total number of Pixels in each z-slice  = m_Size[2]*m_Size[1], to speedup pixel access
 
-	LocalCoordinateSystem3D<double> m_LocalSys;
-	// m_LocalSys.Origin:   Origin of DICOM Image in world/global coordinate system (x,y,z) (unit: mm)
-	// m_LocalSys.Spacing:  Spacing of DICOM Image in world/global coordinate system {Sx, Sy, Sz} (unit: mm)
-	// m_LocalSys.DirectionX/DirectionY/DirectionZ
-
-	bool m_Flag_Orientation_is_IdentityMatrix;
-	// Orientation=[m_LocalSys.DirectionX, m_LocalSys.DirectionY, m_LocalSys.DirectionZ]; 
-	// Orientation is not used when transform Position from local to global
-	// always assume it is Identity Matrix
+	LocalCoordinateSystem3D<double> m_ImageSpace;
+	// m_ImageSpace.Origin:   Origin of DICOM Image in world coordinate system (x,y,z) (unit: mm)
+	// m_ImageSpace.Spacing:  Spacing of DICOM Image in world coordinate system {Sx, Sy, Sz} (unit: mm)
+	// m_ImageSpace.DirectionX
+	// m_ImageSpace.DirectionY
+	// m_ImageSpace.DirectionZ
 
 	ObjectArray<PixelType> m_PixelArray;
 
@@ -91,25 +93,36 @@ struct DenseImageData3D
 
     inline const PixelType& operator()(int_max xIndex, int_max yIndex, int_max zIndex) const;
 
-    inline int_max Transform3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
-
 	template<typename ScalarType = int_max>
 	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DIndex(int_max LinearIndex) const;
 	
 	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const;
-	
+
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DWorldPosition(int_max LinearIndex) const;
+
+	//3DIndex is discrete
+	inline int_max Transform3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
+
+	// 3DIndex may be continuous
 	template<typename ScalarType_Position, typename ScalarType_Index>
 	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DPhysicalPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const;
+
+	template<typename ScalarType_Position, typename ScalarType_Index>
+	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DWorldPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const;
 
 	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z) const;
 
 	template<typename ScalarType>
-	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionFromLocalToGlobal(ScalarType x, ScalarType y, ScalarType z) const;
+	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z) const;
 
 	template<typename ScalarType>
-	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionFromGlobalToLocal(ScalarType x, ScalarType y, ScalarType z) const;
+	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z) const;
 
 private:
 //deleted:
@@ -245,21 +258,30 @@ public:
     //------------------------ LinearIndex, 3DIndex and 3DPhyscialPosition ------------------------------------------------------------------------//
 	// 3DIndex can be continuous or discrete
 
-    inline int_max Transform3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
-
-	inline int_max Transform3DIndexToLinearIndex(const DenseVector<int_max, 3>& Index3D) const;
-
 	template<typename ScalarType = int_max>
 	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DIndex(int_max LinearIndex) const;
 
 	template<typename ScalarType = double>
 	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const;
 
+	template<typename ScalarType = double>
+	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DWorldPosition(int_max LinearIndex) const;
+
+	inline int_max Transform3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex) const;
+
+	inline int_max Transform3DIndexToLinearIndex(const DenseVector<int_max, 3>& Index3D) const;
+
 	template<typename ScalarType_Position = double, typename ScalarType_Index>
 	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DPhysicalPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const;
 
 	template<typename ScalarType_Position = double, typename ScalarType_Index>
 	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DPhysicalPosition(const DenseVector<ScalarType_Index, 3>& Index3D) const;
+
+	template<typename ScalarType_Position = double, typename ScalarType_Index>
+	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DWorldPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const;
+
+	template<typename ScalarType_Position = double, typename ScalarType_Index>
+	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DWorldPosition(const DenseVector<ScalarType_Index, 3>& Index3D) const;
 
 	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z) const;
@@ -279,20 +301,23 @@ public:
 	template<typename ScalarType>
 	inline DenseVector<int_max, 3> Transform3DPhysicalPositionToNearest3DDiscreteIndexInsideImage(const DenseVector<ScalarType, 3>& Position) const;
 
-	//----------------------------------------------------------------------------//
-	// 3DPhysicalPosition in all the above function is in Local/Image Coordinate System
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DWoldPosition(ScalarType x, ScalarType y, ScalarType z) const;
 
 	template<typename ScalarType>
-	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionFromLocalToGlobal(ScalarType x, ScalarType y, ScalarType z) const;
+	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DWoldPosition(const DenseVector<ScalarType, 3>& Position) const;
 
 	template<typename ScalarType>
-	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionFromLocalToGlobal(const DenseVector<ScalarType, 3>& Position) const;
+	inline DenseVector<ScalarType, 3> Transform3DWoldPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z) const;
 
 	template<typename ScalarType>
-	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionFromGlobalToLocal(ScalarType x, ScalarType y, ScalarType z) const;
+	inline DenseVector<ScalarType, 3> Transform3DWoldPositionTo3DIndex(const DenseVector<ScalarType, 3>& Position) const;
 
 	template<typename ScalarType>
-	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionFromGlobalToLocal(const DenseVector<ScalarType, 3>& Position) const;
+	inline DenseVector<ScalarType, 3> Transform3DWoldPositionTo3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> Transform3DWoldPositionTo3DPhysicalPosition(const DenseVector<ScalarType, 3>& Position) const;
 
 	//------------------- check if 3D Index is inside Image ---------------------//
 	template<typename ScalarType>
