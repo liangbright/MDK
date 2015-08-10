@@ -51,9 +51,9 @@ OutputPixelType InterpolateImageAt2DContinuousIndex(const DenseImage2D<InputPixe
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt2DPhysicalPosition(const DenseImage2D<InputPixelType>& InputImage,
-                                                     ScalarType x, ScalarType y,
-													 const Option_Of_Image2DInterpolation<InputPixelType>& Option);
+OutputPixelType InterpolateImageAt2DWorldPosition(const DenseImage2D<InputPixelType>& InputImage,
+                                                  ScalarType x, ScalarType y,
+												  const Option_Of_Image2DInterpolation<InputPixelType>& Option);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
@@ -63,9 +63,9 @@ OutputPixelType InterpolateImageAt2DContinuousIndex_Nearest(const DenseImage2D<I
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt2DPhysicalPosition_Nearest(const DenseImage2D<InputPixelType>& InputImage,
-                                                             ScalarType x, ScalarType y,
-															 const Option_Of_Image2DInterpolation<InputPixelType>& Option);
+OutputPixelType InterpolateImageAt2DWorldPosition_Nearest(const DenseImage2D<InputPixelType>& InputImage,
+                                                          ScalarType x, ScalarType y,
+														  const Option_Of_Image2DInterpolation<InputPixelType>& Option);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
@@ -75,9 +75,9 @@ OutputPixelType InterpolateImageAt2DContinuousIndex_Linear(const DenseImage2D<In
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt2DPhysicalPosition_Linear(const DenseImage2D<InputPixelType>& InputImage,
-                                                            ScalarType x, ScalarType y, ScalarType z, 
-															const Option_Of_Image2DInterpolation<InputPixelType>& Option);
+OutputPixelType InterpolateImageAt2DWorldPosition_Linear(const DenseImage2D<InputPixelType>& InputImage,
+                                                         ScalarType x, ScalarType y, ScalarType z, 
+														 const Option_Of_Image2DInterpolation<InputPixelType>& Option);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
@@ -87,9 +87,9 @@ OutputPixelType InterpolateImageAt2DContinuousIndex_Cubic(const DenseImage2D<Inp
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt2DPhysicalPosition_Cubic(const DenseImage2D<InputPixelType>& InputImage,
-								                           ScalarType x, ScalarType y,
-														   const Option_Of_Image2DInterpolation<InputPixelType>& Option);
+OutputPixelType InterpolateImageAt2DWorldPosition_Cubic(const DenseImage2D<InputPixelType>& InputImage,
+								                        ScalarType x, ScalarType y,
+														const Option_Of_Image2DInterpolation<InputPixelType>& Option);
 
 //====================================== SparseImage2D ===============================================================//
 
@@ -101,9 +101,9 @@ OutputPixelType InterpolateImageAt2DContinuousIndex(const SparseImage2D<InputPix
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt2DPhysicalPosition(const SparseImage2D<InputPixelType>& InputImage,
-                                                     ScalarType x, ScalarType y,
-													 const Option_Of_Image2DInterpolation<InputPixelType>& Option);
+OutputPixelType InterpolateImageAt2DWorldPosition(const SparseImage2D<InputPixelType>& InputImage,
+                                                  ScalarType x, ScalarType y,
+												  const Option_Of_Image2DInterpolation<InputPixelType>& Option);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
@@ -113,9 +113,9 @@ OutputPixelType InterpolateImageAt2DContinuousIndex_Nearest(const SparseImage2D<
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt2DPhysicalPosition_Nearest(const SparseImage2D<InputPixelType>& InputImage,
-                                                             ScalarType x, ScalarType y,
-															 const Option_Of_Image2DInterpolation<InputPixelType>& Option);
+OutputPixelType InterpolateImageAt2DWorldPosition_Nearest(const SparseImage2D<InputPixelType>& InputImage,
+                                                          ScalarType x, ScalarType y,
+														  const Option_Of_Image2DInterpolation<InputPixelType>& Option);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
@@ -125,9 +125,9 @@ OutputPixelType InterpolateImageAt2DContinuousIndex_Linear(const SparseImage2D<I
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt2DPhysicalPosition_Linear(const SparseImage2D<InputPixelType>& InputImage,
-                                                            ScalarType x, ScalarType y,
-															const Option_Of_Image2DInterpolation<InputPixelType>& Option);
+OutputPixelType InterpolateImageAt2DWorldPosition_Linear(const SparseImage2D<InputPixelType>& InputImage,
+                                                         ScalarType x, ScalarType y,
+														 const Option_Of_Image2DInterpolation<InputPixelType>& Option);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
@@ -137,9 +137,9 @@ OutputPixelType InterpolateImageAt2DContinuousIndex_Cubic(const SparseImage2D<In
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt2DPhysicalPosition_Cubic(const SparseImage2D<InputPixelType>& InputImage,
-								                           ScalarType x, ScalarType y, 
-														   const Option_Of_Image2DInterpolation<InputPixelType>& Option);
+OutputPixelType InterpolateImageAt2DWorldPosition_Cubic(const SparseImage2D<InputPixelType>& InputImage,
+								                        ScalarType x, ScalarType y, 
+														const Option_Of_Image2DInterpolation<InputPixelType>& Option);
 
 }// namespace mdk
 

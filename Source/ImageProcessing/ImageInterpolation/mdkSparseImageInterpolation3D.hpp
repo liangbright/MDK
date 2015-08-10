@@ -30,23 +30,23 @@ OutputPixelType InterpolateImageAt3DContinuousIndex(const SparseImage3D<InputPix
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt3DPhysicalPosition(const SparseImage3D<InputPixelType>& InputImage,
+OutputPixelType InterpolateImageAt3DWorldPosition(const SparseImage3D<InputPixelType>& InputImage,
                                                      ScalarType x, ScalarType y, ScalarType z, 
 											         const Option_Of_Image3DInterpolation<InputPixelType>& Option)
 {
 	switch (Option.MethodType)
     {
 	case MethodEnum_Of_Image3DInterpolation::Nearest:
-		return InterpolateImageAt3DPhysicalPosition_Nearest<OutputPixelType>(InputImage, x, y, z, Option);
+		return InterpolateImageAt3DWorldPosition_Nearest<OutputPixelType>(InputImage, x, y, z, Option);
 
 	case MethodEnum_Of_Image3DInterpolation::Linear:
-		return InterpolateImageAt3DPhysicalPosition_Linear<OutputPixelType>(InputImage, x, y, z, Option);
+		return InterpolateImageAt3DWorldPosition_Linear<OutputPixelType>(InputImage, x, y, z, Option);
 
 	//case MethodEnum_Of_Image3DInterpolation::Cubic:
-    //    return InterpolateImageAt3DPhysicalPosition_Cubic<OutputPixelType>(InputImage, x, y, z, Option);
+    //    return InterpolateImageAt3DWorldPosition_Cubic<OutputPixelType>(InputImage, x, y, z, Option);
 
     default:
-        MDK_Error("InterpolationMethod is not supported @ mdkImageInterpolation3D InterpolateImageAt3DPhysicalPosition(...)")
+        MDK_Error("InterpolationMethod is not supported @ mdkImageInterpolation3D InterpolateImageAt3DWorldPosition(...)")
 		return OutputPixelType(Option.Pixel_OutsideImage);
     }	
 }
@@ -123,11 +123,11 @@ OutputPixelType InterpolateImageAt3DContinuousIndex_Nearest(const SparseImage3D<
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt3DPhysicalPosition_Nearest(const SparseImage3D<InputPixelType>& InputImage,
+OutputPixelType InterpolateImageAt3DWorldPosition_Nearest(const SparseImage3D<InputPixelType>& InputImage,
                                                              ScalarType x, ScalarType y, ScalarType z, 
 													         const Option_Of_Image3DInterpolation<InputPixelType>& Option)
 {
-	auto Index3D = InputImage.Transform3DPhysicalPositionTo3DIndex(x, y, z);
+	auto Index3D = InputImage.Transform3DWorldPositionTo3DIndex(x, y, z);
 	return InterpolateImageAt3DContinuousIndex_Nearest<OutputPixelType>(InputImage, Index3D[0], Index3D[1], Index3D[2], Option);
 }
 
@@ -269,11 +269,11 @@ OutputPixelType InterpolateImageAt3DContinuousIndex_Linear(const SparseImage3D<I
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt3DPhysicalPosition_Linear(const SparseImage3D<InputPixelType>& InputImage,
+OutputPixelType InterpolateImageAt3DWorldPosition_Linear(const SparseImage3D<InputPixelType>& InputImage,
                                                             ScalarType x, ScalarType y, ScalarType z, 
 													        const Option_Of_Image3DInterpolation<InputPixelType>& Option)
 {
-	auto Index3D = InputImage.Transform3DPhysicalPositionTo3DIndex(x, y, z);
+	auto Index3D = InputImage.Transform3DWorldPositionTo3DIndex(x, y, z);
 	return InterpolateImageAt3DContinuousIndex_Linear<OutputPixelType>(InputImage, Index3D[0], Index3D[1], Index3D[2], Option);
 }
 
@@ -290,7 +290,7 @@ OutputPixelType InterpolateImageAt3DContinuousIndex_Cubic(const SparseImage3D<In
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt3DPhysicalPosition_Cubic(const SparseImage3D<InputPixelType>& InputImage,
+OutputPixelType InterpolateImageAt3DWorldPosition_Cubic(const SparseImage3D<InputPixelType>& InputImage,
                                                            ScalarType x, ScalarType y, ScalarType z, 
 													       const Option_Of_Image3DInterpolation<InputPixelType>& Option)
 {

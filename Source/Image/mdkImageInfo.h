@@ -41,7 +41,7 @@ struct BoxRegionOf3DIndexInImage3D
 };
 
 
-struct BoxRegionOf3DPhysicalPositionInImage3D
+struct BoxRegionOf3DWorldPositionInImage3D
 {
 	double x_min;
 	double y_min;
@@ -53,7 +53,7 @@ struct BoxRegionOf3DPhysicalPositionInImage3D
 
 //-------------------------------------
 
-    BoxRegionOf3DPhysicalPositionInImage3D()
+	BoxRegionOf3DWorldPositionInImage3D()
     {
 		x_min = 0;
 		y_min = 0;
@@ -87,6 +87,12 @@ struct Image3DInfo
 	DenseVector<double, 3>  Origin;     // Origin of DICOM DenseImage in world coordinate system (x,y,z) (unit: mm)
 	DenseMatrix<double> Orientation;    // 3x3 Matrix
 
+	DenseMatrix<double> TransformMatrix_3DIndexTo3DWorld;
+	DenseMatrix<double> TransformMatrix_3DWorldTo3DIndex;
+	// X-direction: M[0], M[1], M[2]
+	// Y-direction: M[3], M[4], M[5]
+	// Z-direction: M[6], M[7], M[8]
+
 //-------------------------------------------
 	Image3DInfo() { this->Clear(); }
 	~Image3DInfo() {}
@@ -102,6 +108,8 @@ struct Image3DInfo
 		Spacing = Info.Spacing;
 		Origin = Info.Origin;
 		Orientation = Info.Orientation;
+		TransformMatrix_3DIndexTo3DWorld = Info.TransformMatrix_3DIndexTo3DWorld;
+		TransformMatrix_3DWorldTo3DIndex = Info.TransformMatrix_3DWorldTo3DIndex;
 	}
 
 	void Clear()
@@ -147,7 +155,7 @@ struct BoxRegionOf2DIndexInImage2D
 };
 
 
-struct BoxRegionOf2DPhysicalPositionInImage2D
+struct BoxRegionOf2DWorldPositionInImage2D
 {
 	double x_min;
 	double y_min;
@@ -157,7 +165,7 @@ struct BoxRegionOf2DPhysicalPositionInImage2D
 
 	//-------------------------------------
 
-	BoxRegionOf2DPhysicalPositionInImage2D()
+	BoxRegionOf2DWorldPositionInImage2D()
 	{
 		x_min = 0;
 		y_min = 0;

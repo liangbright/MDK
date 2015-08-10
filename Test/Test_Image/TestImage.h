@@ -67,7 +67,7 @@ void testA()
 	Option_double.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Replicate;
 	Option_double.Pixel_OutsideImage = 0;
 	auto a1 = ScalarImage_double.GetPixelAt3DIndex(1.0, 1.5, 1.0, Option_double);
-	auto a2 = ScalarImage_double.GetPixelAt3DPhysicalPosition(1.0, 1.5, 1.0, Option_double);
+	auto a2 = ScalarImage_double.GetPixelAt3DWorldPosition(1.0, 1.5, 1.0, Option_double);
 	auto a3 = ScalarImage_double(1, 1, 1);
 
 	DenseImage3D<float> ScalarImage_float;
@@ -80,7 +80,7 @@ void testA()
 	Option_float.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Replicate;
 	Option_float.Pixel_OutsideImage = 0;
 	auto b1 = ScalarImage_float.GetPixelAt3DIndex(1.0, 1.5, 1.0, Option_float);
-	auto b2 = ScalarImage_float.GetPixelAt3DPhysicalPosition(1.0, 1.5, 1.0, Option_float);
+	auto b2 = ScalarImage_float.GetPixelAt3DWorldPosition(1.0, 1.5, 1.0, Option_float);
 	auto b3 = ScalarImage_float(1, 1, 1);
 	
 	// do not use int, precision loss
@@ -94,7 +94,7 @@ void testA()
 	Option_int.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Replicate;
 	Option_int.Pixel_OutsideImage = 0;
 	auto aa1 = ScalarImage_int.GetPixelAt3DIndex(1.0, 1.5, 1.0, Option_int);
-	auto aa2 = ScalarImage_int.GetPixelAt3DPhysicalPosition(1.0, 1.5, 1.0, Option_int);
+	auto aa2 = ScalarImage_int.GetPixelAt3DWorldPosition(1.0, 1.5, 1.0, Option_int);
 	auto aa3 = ScalarImage_int(1, 1, 1);
 
 	DenseImage3D<DenseVector<double, 3>> VectorImage_double;
@@ -107,7 +107,7 @@ void testA()
 	Option_vd.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Replicate;
 	Option_vd.Pixel_OutsideImage = 0;
 	auto c1 = VectorImage_double.GetPixelAt3DIndex(1.0, 1.5, 1.0, Option_vd);
-	auto c2 = VectorImage_double.GetPixelAt3DPhysicalPosition(1.0, 1.5, 1.0, Option_vd);
+	auto c2 = VectorImage_double.GetPixelAt3DWorldPosition(1.0, 1.5, 1.0, Option_vd);
 	auto c3 = VectorImage_double(1, 1, 1);
 
 	DenseImage3D<DenseVector<float, 3>> VectorImage_float;
@@ -120,7 +120,7 @@ void testA()
 	Option_vf.BoundaryOption = BoundaryOptionEnum_Of_Image3DInterpolation::Replicate;
 	Option_vf.Pixel_OutsideImage = 0;
 	auto d1 = VectorImage_float.GetPixelAt3DIndex(float(1.0), float(1.5), float(1.0), Option_vf);
-	auto d2 = VectorImage_float.GetPixelAt3DPhysicalPosition(float(1.0), float(1.5), float(1.0), Option_vf);
+	auto d2 = VectorImage_float.GetPixelAt3DWorldPosition(float(1.0), float(1.5), float(1.0), Option_vf);
 	auto d3 = VectorImage_float(1, 1, 1);
 	// this is incorrect, must use float()
 	//auto d = VectorImage_float.GetPixelAt3DIndex(1.0, 1.5, 1.0);
@@ -149,12 +149,12 @@ void testB()
 	DenseImage3D<double>::InterpolationOptionType Option_a;
 	auto a2 = ScalarImage_double.GetPixelAt3DIndex<double>(0.1, 0.1, 0.1, Option_a);
 
-	auto b1 = ScalarImage_double.TransformLinearIndexTo3DPhysicalPosition(10);
+	auto b1 = ScalarImage_double.TransformLinearIndexTo3DWorldPosition(10);
 
-	auto b2 = ScalarImage_double.TransformLinearIndexTo3DPhysicalPosition<float>(10);
+	auto b2 = ScalarImage_double.TransformLinearIndexTo3DWorldPosition<float>(10);
 
-	auto c1 = ScalarImage_double.Transform3DIndexTo3DPhysicalPosition(10, 10, 10);
-	auto c2 = ScalarImage_double.Transform3DIndexTo3DPhysicalPosition(10.0, 10.0, 10.0);
+	auto c1 = ScalarImage_double.Transform3DIndexTo3DWorldPosition(10, 10, 10);
+	auto c2 = ScalarImage_double.Transform3DIndexTo3DWorldPosition(10.0, 10.0, 10.0);
 
 }
 
@@ -186,7 +186,7 @@ void Test_Image3D()
 	// 31.7932s : derive from Image3D and use Ptr->SetPixelAtLinearIndex(k, 1);
 	// 10.6966s : not from Image3D
 
-	BoxRegionOf3DPhysicalPositionInImage3D Region;
+	BoxRegionOf3DWorldPositionInImage3D Region;
 	ScalarImage.GetSubImage(Region);
 }
 
