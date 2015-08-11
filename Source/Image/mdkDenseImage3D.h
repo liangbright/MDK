@@ -57,6 +57,8 @@ struct DenseImageData3D
 {
 	ImageInfo3D m_Info;
 
+	int_max m_PixelCountPerZSlice;
+
 	ObjectArray<PixelType> m_PixelArray;
 
 	PixelType m_Pixel_OutsideImage;
@@ -279,16 +281,34 @@ public:
 	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DWorldPosition(const DenseVector<ScalarType_Index, 3>& Index3D) const;
 
 	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> Transform3DPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> Transform3DPositionTo3DIndex(const DenseVector<ScalarType, 3>& Position) const;
+
+	template<typename ScalarType>
+	inline DenseVector<int_max, 3> Transform3DPositionToNearest3DDiscreteIndex(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline DenseVector<int_max, 3> Transform3DPositionToNearest3DDiscreteIndex(const DenseVector<ScalarType, 3>& Position) const;
+
+	template<typename ScalarType>
+	inline DenseVector<int_max, 3> Transform3DPositionToNearest3DDiscreteIndexInsideImage(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline DenseVector<int_max, 3> Transform3DPositionToNearest3DDiscreteIndexInsideImage(const DenseVector<ScalarType, 3>& Position) const;
+
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> Transform3DPositionTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> Transform3DPositionTo3DWorldPosition(const DenseVector<ScalarType, 3>& Position) const;
+
+	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z) const;
 
 	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DIndex(const DenseVector<ScalarType, 3>& Position) const;
-
-	template<typename ScalarType>
-	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z) const;
-
-	template<typename ScalarType>
-	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DPosition(const DenseVector<ScalarType, 3>& Position) const;
 	
 	template<typename ScalarType>
 	inline DenseVector<int_max, 3> Transform3DWorldPositionToNearest3DDiscreteIndex(ScalarType x, ScalarType y, ScalarType z) const;
@@ -302,6 +322,12 @@ public:
 	template<typename ScalarType>
 	inline DenseVector<int_max, 3> Transform3DWorldPositionToNearest3DDiscreteIndexInsideImage(const DenseVector<ScalarType, 3>& Position) const;
 	
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DPosition(const DenseVector<ScalarType, 3>& Position) const;
+
 	//------------------- check if 3D Index is inside Image ---------------------//
 	template<typename ScalarType>
 	inline bool CheckIf3DIndexIsInsideImage(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const;

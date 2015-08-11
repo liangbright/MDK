@@ -122,7 +122,7 @@ struct BoxRegionOf3DWorldPositionInImage3D
 struct ImageInfo3D
 {
 	DenseVector<int_max, 3> Size;       // {Lx, Ly, Lz} number of Pixels in each direction
-	DenseVector<double, 3>  Spacing;    // Pixel Spacing of DICOM DenseImage in world coordinate system {Sx, Sy, Sz} (unit: mm)
+	DenseVector<double, 3>  Spacing;    // Pixel Spacing of DICOM DenseImage in image coordinate system {Sx, Sy, Sz} (unit: mm)
 	DenseVector<double, 3>  Origin;     // Origin of DICOM DenseImage in world coordinate system (x,y,z) (unit: mm)
 
 	DenseMatrix<double> Orientation;    // 3x3 Matrix
@@ -157,15 +157,28 @@ struct ImageInfo3D
 
 	void Clear()
 	{
-		Size.Fill(0);
-		Spacing.Fill(0);
-		Origin.Fill(0);
-		Orientation.Clear();
-		Orientation.Resize(3, 3);
+		Size = { 0, 0, 0 };
+		
+		Origin = { 0.0, 0.0, 0.0 };
+		Spacing = { 1.0, 1.0, 1.0 };
+
+		Orientation = { { 1.0, 0.0, 0.0 },
+		                { 0.0, 1.0, 0.0 },
+		                { 0.0, 0.0, 1.0 } };
 		Orientation.FixSize();
-		Orientation.FillDiagonal(1.0);
+
+		TransformMatrix_3DIndexTo3DWorld = { { 1.0, 0.0, 0.0 },
+		                                     { 0.0, 1.0, 0.0 },
+		                                     { 0.0, 0.0, 1.0 } };
+		TransformMatrix_3DIndexTo3DWorld.FixSize();
+
+		TransformMatrix_3DWorldTo3DIndex = { { 1.0, 0.0, 0.0 },
+		                                     { 0.0, 1.0, 0.0 },
+		                                     { 0.0, 0.0, 1.0 } };
+		TransformMatrix_3DWorldTo3DIndex.FixSize();
 	}
 };
+
 
 //================================================ ImageCoordinateTransform ============================================================//
 
@@ -175,13 +188,13 @@ template<typename ScalarType = int_max>
 inline DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DIndex(int_max LinearIndex, int_max ImageSizeX, int_max ImageSizeY);
 
 template<typename ScalarType = int_max>
-inline DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DIndex(int_max LinearIndex, const Image3DInfo& Info);
+inline DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DIndex(int_max LinearIndex, const ImageInfo3D& Info);
 
 template<typename ScalarType>
 inline DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DPosition(int_max LinearIndex, double SpacingX, double SpacingY, double SpacingZ);
 
 template<typename ScalarType>
-inline DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DPosition(int_max LinearIndex, const Image3DInfo& Info);
+inline DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DPosition(int_max LinearIndex, const ImageInfo3D& Info);
 
 template<typename ScalarType>
 inline DenseVector<ScalarType, 3> ImageCoordinateTransforme_LinearIndexTo3DWorldPosition(int_max LinearIndex, int_max ImageSizeX, int_max ImageSizeY,
@@ -189,12 +202,12 @@ inline DenseVector<ScalarType, 3> ImageCoordinateTransforme_LinearIndexTo3DWorld
 								                                                         double OriginX, double OriginY, double OriginZ);
 
 template<typename ScalarType>
-inline DenseVector<ScalarType, 3> ImageCoordinateTransforme_LinearIndexTo3DWorldPosition(int_max LinearIndex, const Image3DInfo& Info);
+inline DenseVector<ScalarType, 3> ImageCoordinateTransforme_LinearIndexTo3DWorldPosition(int_max LinearIndex, const ImageInfo3D& Info);
 
 //3DIndex is discrete
 inline int_max ImageCoordinateTransform_3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex, int_max ImageSizeX, int_max ImageSizeY);
 
-inline int_max ImageCoordinateTransform_3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex, const Image3DInfo& Info);
+inline int_max ImageCoordinateTransform_3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex, const ImageInfo3D& Info);
 
 // 3DIndex may be continuous
 template<typename ScalarType_Position, typename ScalarType_Index>
@@ -204,7 +217,7 @@ ImageCoordinateTransform_3DIndexTo3DPosition(ScalarType_Index xIndex, ScalarType
 
 template<typename ScalarType_Position, typename ScalarType_Index>
 inline DenseVector<ScalarType_Position, 3> 
-ImageCoordinateTransform_3DIndexTo3DPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex, const Image3DInfo& Info);
+ImageCoordinateTransform_3DIndexTo3DPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex, const ImageInfo3D& Info);
 
 template<typename ScalarType_Position, typename ScalarType_Index>
 inline DenseVector<ScalarType_Position, 3> 
@@ -214,14 +227,14 @@ ImageCoordinateTransform_3DIndexTo3DWorldPosition(ScalarType_Index xIndex, Scala
 
 template<typename ScalarType_Position, typename ScalarType_Index>
 inline DenseVector<ScalarType_Position, 3> 
-ImageCoordinateTransform_3DIndexTo3DWorldPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex, const Image3DInfo& Info);
+ImageCoordinateTransform_3DIndexTo3DWorldPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex, const ImageInfo3D& Info);
 
 template<typename ScalarType>
 inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z, 
 																			   double SpacingX, double SpacingY, double SpacingZ);
 
 template<typename ScalarType>
-inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z, const Image3DInfo& Info);
+inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z, const ImageInfo3D& Info);
 
 template<typename ScalarType>
 inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DPositionTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z,
@@ -229,7 +242,7 @@ inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DPositionTo3DWorldPo
 																	                   double OriginX, double OriginY, double OriginZ);
 
 template<typename ScalarType>
-inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DPositionTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z, const Image3DInfo& Info);
+inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DPositionTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z, const ImageInfo3D& Info);
 
 template<typename ScalarType>
 inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z,
@@ -237,7 +250,7 @@ inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DIn
 	                                                                                double OriginX, double OriginY, double OriginZ);
 
 template<typename ScalarType>
-inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z, const Image3DInfo& Info);
+inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z, const ImageInfo3D& Info);
 
 template<typename ScalarType>
 inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z,
@@ -245,12 +258,7 @@ inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DPo
 	                                                                                   double OriginX, double OriginY, double OriginZ);
 
 template<typename ScalarType>
-inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z, const Image3DInfo& Info);
-
-//--------------------------- transform between two image space, assume the same world space -----------------------------
-template<typename ScalarType>
-inline DenseVector<ScalarType, 3>
-ImageCoordinateTransform_3DPositionInImageATo3DPositionInImageB(ScalarType x, ScalarType y, ScalarType z, const Image3DInfo& InfoA, const Image3DInfo& InfoB);
+inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z, const ImageInfo3D& Info);
 
 
 }//namespace mdk

@@ -27,7 +27,7 @@ DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DIndex(int_max
 
 template<typename ScalarType>
 inline
-DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DIndex(int_max LinearIndex, const Image3DInfo& Info)
+DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DIndex(int_max LinearIndex, const ImageInfo3D& Info)
 {
 	return ImageCoordinateTransform_LinearIndexTo3DIndex(LinearIndex, Info.Size[0], Info.Size[1]);
 }
@@ -45,14 +45,30 @@ DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DPosition(int_
 
 template<typename ScalarType>
 inline 
+DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DPosition(int_max LinearIndex, const ImageInfo3D& Info)
+{
+	return ImageCoordinateTransform_LinearIndexTo3DPosition(LinearIndex, Info.Origin[0], Info.Origin[1], Info.Origin[2]);
+}
+
+
+template<typename ScalarType>
+inline 
 DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DWorldPosition(int_max LinearIndex, int_max ImageSizeX, int_max ImageSizeY,
                                                                                  const DenseMatrix<double>& TransformMatrix_3DIndexTo3DWorld,
 								                                                 double OriginX, double OriginY, double OriginZ)
 {
 	auto Index3D = ImageCoordinateTransform_LinearIndexTo3DIndex(LinearIndex, ImageSizeX, ImageSizeY);
-	auto Position = ImageCoordinateTransform_3DIndexTo3DWorldPosition<ScalarType>(Index3D[0], Index3D[1], Index3D[2], TransformMatrix_3DIndexTo3DWorld.
+	auto Position = ImageCoordinateTransform_3DIndexTo3DWorldPosition<ScalarType>(Index3D[0], Index3D[1], Index3D[2], TransformMatrix_3DIndexTo3DWorld,
 		                                                                          OriginX, OriginY, OriginZ);
 	return Position;
+}
+
+
+template<typename ScalarType>
+inline 
+DenseVector<ScalarType, 3> ImageCoordinateTransforme_LinearIndexTo3DWorldPosition(int_max LinearIndex, const ImageInfo3D& Info)
+{
+	return ImageCoordinateTransform_LinearIndexTo3DWorldPosition(LinearIndex, Info.TransformMatrix_3DIndexTo3DWorld, Info.Origin[0], Info.Origin[1], Info.Origin[2]);
 }
 
 
@@ -63,8 +79,15 @@ inline int_max ImageCoordinateTransform_3DIndexToLinearIndex(int_max xIndex, int
 }
 
 
+inline int_max ImageCoordinateTransform_3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex, const ImageInfo3D& Info)
+{
+	return ImageCoordinateTransform_3DIndexToLinearIndex(xIndex, yIndex, zIndex, Info.Size[0], Info.Size[1]);
+}
+
+
 template<typename ScalarType_Position, typename ScalarType_Index>
-inline DenseVector<ScalarType_Position, 3>
+inline 
+DenseVector<ScalarType_Position, 3>
 ImageCoordinateTransform_3DIndexTo3DPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex, 
                                              double SpacingX, double SpacingY, double SpacingZ)
 {
@@ -77,7 +100,17 @@ ImageCoordinateTransform_3DIndexTo3DPosition(ScalarType_Index xIndex, ScalarType
 
 
 template<typename ScalarType_Position, typename ScalarType_Index>
-inline DenseVector<ScalarType_Position, 3> 
+inline
+DenseVector<ScalarType_Position, 3>
+ImageCoordinateTransform_3DIndexTo3DPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex, const ImageInfo3D& Info)
+{
+	return ImageCoordinateTransform_3DIndexTo3DPosition<ScalarType_Position>(xInde, yIndex, zIndex, Info.Spacing[0], Info.Spacing[1], Info.Spacing[2]);
+}
+
+
+template<typename ScalarType_Position, typename ScalarType_Index>
+inline 
+DenseVector<ScalarType_Position, 3> 
 ImageCoordinateTransform_3DIndexTo3DWorldPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex,
 							                      const DenseMatrix<double>& TransformMatrix_3DIndexTo3DWorld,
 								                  double OriginX, double OriginY, double OriginZ)
@@ -91,9 +124,19 @@ ImageCoordinateTransform_3DIndexTo3DWorldPosition(ScalarType_Index xIndex, Scala
 }
 
 
+template<typename ScalarType_Position, typename ScalarType_Index>
+inline
+DenseVector<ScalarType_Position, 3>
+ImageCoordinateTransform_3DIndexTo3DWorldPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex, const ImageInfo3D& Info)
+{
+	return ImageCoordinateTransform_3DIndexTo3DWorldPosition<ScalarType_Position>(xIndex, yIndex, zIndex, Info.TransformMatrix_3DIndexTo3DWorld, Info.Origin[0], Info.Origin[1], Info.Origin[2]);
+}
+
+
 template<typename ScalarType>
-inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z,
-															                   double SpacingX, double SpacingY, double SpacingZ)
+inline 
+DenseVector<ScalarType, 3> ImageCoordinateTransform_3DPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z,
+															            double SpacingX, double SpacingY, double SpacingZ)
 {
 	DenseVector<ScalarType, 3> Index3D;
 	Index3D[0] = ScalarType(double(x) / SpacingX);
@@ -104,23 +147,41 @@ inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DPositionTo3DIndex(S
 
 
 template<typename ScalarType>
-inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DPositionTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z,
-																	                   const DenseMatrix<double>& Orientation,
-																	                   double OriginX, double OriginY, double OriginZ)
+inline
+DenseVector<ScalarType, 3> ImageCoordinateTransform_3DPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z, const ImageInfo3D& Info)
 {
-	auto M = Orientation.GetElementPointer();
+	return ImageCoordinateTransform_3DPositionTo3DIndex(x, y, z, Info.Spacing[0], Info.Spacing[1], Info.Spacing[2]);
+}
+
+
+template<typename ScalarType>
+inline
+DenseVector<ScalarType, 3> ImageCoordinateTransform_3DPositionTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z,
+																	            const DenseMatrix<double>& Orientation,
+																	            double OriginX, double OriginY, double OriginZ)
+{
+	auto R = Orientation.GetElementPointer();
 	DenseVector<ScalarType, 3> Position;
-	Position[0] = ScalarType(OriginX + double(x)*M[0] + double(y)*M[3] + double(z)*M[6]);
-	Position[1] = ScalarType(OriginY + double(x)*M[1] + double(y)*M[4] + double(z)*M[7]);
-	Position[2] = ScalarType(OriginZ + double(x)*M[2] + double(y)*M[5] + double(z)*M[8]);
+	Position[0] = ScalarType(OriginX + double(x)*R[0] + double(y)*R[3] + double(z)*R[6]);
+	Position[1] = ScalarType(OriginY + double(x)*R[1] + double(y)*R[4] + double(z)*R[7]);
+	Position[2] = ScalarType(OriginZ + double(x)*R[2] + double(y)*R[5] + double(z)*R[8]);
 	return Position;
 }
 
 
 template<typename ScalarType>
-inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z,
-																                    const DenseMatrix<double>& TransformMatrix_3DWorldTo3DIndex,
-	                                                                                double OriginX, double OriginY, double OriginZ)
+inline
+DenseVector<ScalarType, 3> ImageCoordinateTransform_3DPositionTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z, const ImageInfo3D& Info)
+{
+	return ImageCoordinateTransform_3DPositionTo3DWorldPosition(x, y, z, Info.Orientation, Info.Origin[0], Info.Origin[1], Info.Origin[2]);
+}
+
+
+template<typename ScalarType>
+inline 
+DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z,
+																             const DenseMatrix<double>& TransformMatrix_3DWorldTo3DIndex,
+	                                                                         double OriginX, double OriginY, double OriginZ)
 {
 	auto temp_x = double(x) - OriginX;
 	auto temp_y = double(y) - OriginY;
@@ -137,19 +198,36 @@ inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DIn
 
 
 template<typename ScalarType>
-inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z,
-																					   const DenseMatrix<double>& Orientation,
-	                                                                                   double OriginX, double OriginY, double OriginZ)
+inline
+DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z, const ImageInfo3D& Info)
+{
+	return ImageCoordinateTransform_3DWorldPositionTo3DIndex(x, y, z, Info.TransformMatrix_3DWorldTo3DIndex, Info.Origin[0], Info.Origin[1], Info.Origin[2]);
+}
+
+
+template<typename ScalarType>
+inline 
+DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z,
+																			    const DenseMatrix<double>& Orientation,
+	                                                                            double OriginX, double OriginY, double OriginZ)
 {
 	auto temp_x = double(x) - OriginX;
 	auto temp_y = double(y) - OriginY;
 	auto temp_z = double(z) - OriginZ;
-	auto M = Orientation.GetElementPointer();
+	auto R = Orientation.GetElementPointer();
 	DenseVector<ScalarType, 3> Position;
-	Position[0] = ScalarType(double(temp_x)*M[0] + double(temp_y)*M[1] + double(temp_z)*M[2]);
-	Position[1] = ScalarType(double(temp_x)*M[3] + double(temp_y)*M[4] + double(temp_z)*M[5]);
-	Position[2] = ScalarType(double(temp_x)*M[6] + double(temp_y)*M[7] + double(temp_z)*M[8]);
+	Position[0] = ScalarType(double(temp_x)*R[0] + double(temp_y)*R[1] + double(temp_z)*R[2]);
+	Position[1] = ScalarType(double(temp_x)*R[3] + double(temp_y)*R[4] + double(temp_z)*R[5]);
+	Position[2] = ScalarType(double(temp_x)*R[6] + double(temp_y)*R[7] + double(temp_z)*R[8]);
 	return Position;
+}
+
+
+template<typename ScalarType>
+inline 
+DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z, const ImageInfo3D& Info)
+{
+	return ImageCoordinateTransform_3DWorldPositionTo3DPosition(x, y, z, Info.Orientation, Info.Origin[0], Info.Origin[1], Info.Origin[2]);
 }
 
 }//namespace mdk

@@ -33,8 +33,8 @@ OutputPixelType InterpolateImageAt3DPosition(const DenseImage3D<InputPixelType>&
 ScalarType x, ScalarType y, ScalarType z,
 const Option_Of_Image3DInterpolation<InputPixelType>& Option)
 {
-	Index3D = InputImage.Transform3DPositionTo3DIndex(x, y, z);
-	return InterpolateImageAt3DIndex(InputImage, Index3D[0], Index3D[1], Index3D[2], Option);
+	auto Index3D = InputImage.Transform3DPositionTo3DIndex(x, y, z);
+	return InterpolateImageAt3DIndex<OutputPixelType>(InputImage, Index3D[0], Index3D[1], Index3D[2], Option);
 }
 
 
@@ -44,8 +44,8 @@ OutputPixelType InterpolateImageAt3DWorldPosition(const DenseImage3D<InputPixelT
                                                   ScalarType x, ScalarType y, ScalarType z, 
 											      const Option_Of_Image3DInterpolation<InputPixelType>& Option)
 {
-	Index3D = InputImage.Transform3DWorldPositionTo3DIndex(x, y, z);
-	return InterpolateImageAt3DIndex(InputImage, Index3D[0], Index3D[1], Index3D[2], Option);
+	auto Index3D = InputImage.Transform3DWorldPositionTo3DIndex(x, y, z);
+	return InterpolateImageAt3DIndex<OutputPixelType>(InputImage, Index3D[0], Index3D[1], Index3D[2], Option);
 }
 
 
